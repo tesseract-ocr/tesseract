@@ -80,13 +80,15 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_OPENCL_TRUE@am__append_1 = -I$(OPENCL_HDR_PATH)
-@VISIBILITY_TRUE@am__append_2 = -fvisibility=hidden -fvisibility-inlines-hidden
-@USING_MULTIPLELIBS_TRUE@am__append_3 = libtesseract_api.la
-@VISIBILITY_TRUE@am__append_4 = -DTESS_EXPORTS
+@VISIBILITY_TRUE@am__append_1 = -fvisibility=hidden -fvisibility-inlines-hidden
+@USING_MULTIPLELIBS_TRUE@am__append_2 = libtesseract_api.la
+@VISIBILITY_TRUE@am__append_3 = -DTESS_EXPORTS
+@NO_CUBE_BUILD_FALSE@am__append_4 = ../cube/libtesseract_cube.la \
+@NO_CUBE_BUILD_FALSE@        ../neural_networks/runtime/libtesseract_neural.la
+
 bin_PROGRAMS = tesseract$(EXEEXT)
 @VISIBILITY_TRUE@am__append_5 = -DTESS_IMPORTS
-@USE_OPENCL_TRUE@am__append_6 = $(OPENCL_LIB)
+@OPENMP_TRUE@am__append_6 = $(OPENMP_CFLAGS)
 @T_WIN_TRUE@am__append_7 = -lws2_32
 @T_WIN_TRUE@am__append_8 = -no-undefined -Wl,--as-needed -lws2_32
 @ADD_RT_TRUE@am__append_9 = -lrt
@@ -135,8 +137,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libtesseract_la_DEPENDENCIES = libtesseract_api.la \
-	../ccmain/libtesseract_main.la ../cube/libtesseract_cube.la \
-	../neural_networks/runtime/libtesseract_neural.la \
+	../ccmain/libtesseract_main.la \
 	../textord/libtesseract_textord.la \
 	../wordrec/libtesseract_wordrec.la \
 	../classify/libtesseract_classify.la \
@@ -145,7 +146,7 @@ libtesseract_la_DEPENDENCIES = libtesseract_api.la \
 	../cutil/libtesseract_cutil.la \
 	../viewer/libtesseract_viewer.la \
 	../ccutil/libtesseract_ccutil.la \
-	../opencl/libtesseract_opencl.la
+	../opencl/libtesseract_opencl.la $(am__append_4)
 am_libtesseract_la_OBJECTS =
 libtesseract_la_OBJECTS = $(am_libtesseract_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -158,8 +159,6 @@ libtesseract_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(LDFLAGS) -o $@
 @USING_MULTIPLELIBS_TRUE@libtesseract_api_la_DEPENDENCIES =  \
 @USING_MULTIPLELIBS_TRUE@	../ccmain/libtesseract_main.la \
-@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la \
-@USING_MULTIPLELIBS_TRUE@	../neural_networks/runtime/libtesseract_neural.la \
 @USING_MULTIPLELIBS_TRUE@	../textord/libtesseract_textord.la \
 @USING_MULTIPLELIBS_TRUE@	../wordrec/libtesseract_wordrec.la \
 @USING_MULTIPLELIBS_TRUE@	../classify/libtesseract_classify.la \
@@ -168,10 +167,13 @@ libtesseract_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 @USING_MULTIPLELIBS_TRUE@	../cutil/libtesseract_cutil.la \
 @USING_MULTIPLELIBS_TRUE@	../viewer/libtesseract_viewer.la \
 @USING_MULTIPLELIBS_TRUE@	../ccutil/libtesseract_ccutil.la \
-@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la
+@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la \
+@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la \
+@USING_MULTIPLELIBS_TRUE@	../neural_networks/runtime/libtesseract_neural.la \
+@USING_MULTIPLELIBS_TRUE@	endif
 am_libtesseract_api_la_OBJECTS = libtesseract_api_la-baseapi.lo \
-	libtesseract_api_la-capi.lo libtesseract_api_la-pdfrenderer.lo \
-	libtesseract_api_la-renderer.lo
+	libtesseract_api_la-capi.lo libtesseract_api_la-renderer.lo \
+	libtesseract_api_la-pdfrenderer.lo
 libtesseract_api_la_OBJECTS = $(am_libtesseract_api_la_OBJECTS)
 libtesseract_api_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -184,9 +186,11 @@ PROGRAMS = $(bin_PROGRAMS)
 am_tesseract_OBJECTS = tesseract-tesseractmain.$(OBJEXT)
 tesseract_OBJECTS = $(am_tesseract_OBJECTS)
 am__DEPENDENCIES_1 =
-@USE_OPENCL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-tesseract_DEPENDENCIES = libtesseract.la $(am__DEPENDENCIES_2) \
+tesseract_DEPENDENCIES = libtesseract.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tesseract_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(tesseract_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -260,8 +264,8 @@ AM_CPPFLAGS = @AM_CPPFLAGS@ -DLOCALEDIR=\"$(localedir)\" \
 	-I$(top_srcdir)/viewer -I$(top_srcdir)/textord \
 	-I$(top_srcdir)/dict -I$(top_srcdir)/classify \
 	-I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec \
-	-I$(top_srcdir)/cutil -I$(top_srcdir)/opencl $(am__append_1) \
-	$(am__append_2)
+	-I$(top_srcdir)/cutil -I$(top_srcdir)/opencl \
+	$(OPENCL_CPPFLAGS) $(am__append_1)
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
@@ -272,7 +276,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -290,6 +293,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -319,8 +323,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -393,50 +398,47 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 include_HEADERS = apitypes.h baseapi.h capi.h renderer.h
-lib_LTLIBRARIES = $(am__append_3) libtesseract.la
+lib_LTLIBRARIES = $(am__append_2) libtesseract.la
 @USING_MULTIPLELIBS_FALSE@noinst_LTLIBRARIES = libtesseract_api.la
 @USING_MULTIPLELIBS_TRUE@libtesseract_api_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-@USING_MULTIPLELIBS_TRUE@libtesseract_api_la_LIBADD = \
-@USING_MULTIPLELIBS_TRUE@    ../ccmain/libtesseract_main.la \
-@USING_MULTIPLELIBS_TRUE@    ../cube/libtesseract_cube.la \
-@USING_MULTIPLELIBS_TRUE@    ../neural_networks/runtime/libtesseract_neural.la \
-@USING_MULTIPLELIBS_TRUE@    ../textord/libtesseract_textord.la \
-@USING_MULTIPLELIBS_TRUE@    ../wordrec/libtesseract_wordrec.la \
-@USING_MULTIPLELIBS_TRUE@    ../classify/libtesseract_classify.la \
-@USING_MULTIPLELIBS_TRUE@    ../dict/libtesseract_dict.la \
-@USING_MULTIPLELIBS_TRUE@    ../ccstruct/libtesseract_ccstruct.la \
-@USING_MULTIPLELIBS_TRUE@    ../cutil/libtesseract_cutil.la \
-@USING_MULTIPLELIBS_TRUE@    ../viewer/libtesseract_viewer.la \
-@USING_MULTIPLELIBS_TRUE@    ../ccutil/libtesseract_ccutil.la \
-@USING_MULTIPLELIBS_TRUE@    ../opencl/libtesseract_opencl.la 
-
-libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS) $(am__append_4)
-libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp pdfrenderer.cpp renderer.cpp
+@USING_MULTIPLELIBS_TRUE@libtesseract_api_la_LIBADD =  \
+@USING_MULTIPLELIBS_TRUE@	../ccmain/libtesseract_main.la \
+@USING_MULTIPLELIBS_TRUE@	../textord/libtesseract_textord.la \
+@USING_MULTIPLELIBS_TRUE@	../wordrec/libtesseract_wordrec.la \
+@USING_MULTIPLELIBS_TRUE@	../classify/libtesseract_classify.la \
+@USING_MULTIPLELIBS_TRUE@	../dict/libtesseract_dict.la \
+@USING_MULTIPLELIBS_TRUE@	../ccstruct/libtesseract_ccstruct.la \
+@USING_MULTIPLELIBS_TRUE@	../cutil/libtesseract_cutil.la \
+@USING_MULTIPLELIBS_TRUE@	../viewer/libtesseract_viewer.la \
+@USING_MULTIPLELIBS_TRUE@	../ccutil/libtesseract_ccutil.la \
+@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la \
+@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la \
+@USING_MULTIPLELIBS_TRUE@	../neural_networks/runtime/libtesseract_neural.la \
+@USING_MULTIPLELIBS_TRUE@	endif
+libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS) $(am__append_3)
+libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
 libtesseract_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION) \
 	$(am__append_8)
 libtesseract_la_SOURCES = 
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
 nodist_EXTRA_libtesseract_la_SOURCES = dummy.cxx
-libtesseract_la_LIBADD = \
-    libtesseract_api.la \
-    ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
-    ../textord/libtesseract_textord.la \
-    ../wordrec/libtesseract_wordrec.la \
-    ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../cutil/libtesseract_cutil.la \
-    ../viewer/libtesseract_viewer.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../opencl/libtesseract_opencl.la 
-
+libtesseract_la_LIBADD = libtesseract_api.la \
+	../ccmain/libtesseract_main.la \
+	../textord/libtesseract_textord.la \
+	../wordrec/libtesseract_wordrec.la \
+	../classify/libtesseract_classify.la \
+	../dict/libtesseract_dict.la \
+	../ccstruct/libtesseract_ccstruct.la \
+	../cutil/libtesseract_cutil.la \
+	../viewer/libtesseract_viewer.la \
+	../ccutil/libtesseract_ccutil.la \
+	../opencl/libtesseract_opencl.la $(am__append_4)
 tesseract_SOURCES = tesseractmain.cpp
 tesseract_CPPFLAGS = $(AM_CPPFLAGS) $(am__append_5)
 tesseract_LDADD = libtesseract.la $(am__append_6) $(am__append_7) \
 	$(am__append_9)
+tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -450,9 +452,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu api/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign api/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu api/Makefile
+	  $(AUTOMAKE) --foreign api/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -575,7 +577,7 @@ clean-binPROGRAMS:
 
 tesseract$(EXEEXT): $(tesseract_OBJECTS) $(tesseract_DEPENDENCIES) $(EXTRA_tesseract_DEPENDENCIES) 
 	@rm -f tesseract$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(tesseract_OBJECTS) $(tesseract_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(tesseract_LINK) $(tesseract_OBJECTS) $(tesseract_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -625,19 +627,19 @@ libtesseract_api_la-capi.lo: capi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtesseract_api_la-capi.lo `test -f 'capi.cpp' || echo '$(srcdir)/'`capi.cpp
 
-libtesseract_api_la-pdfrenderer.lo: pdfrenderer.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtesseract_api_la-pdfrenderer.lo -MD -MP -MF $(DEPDIR)/libtesseract_api_la-pdfrenderer.Tpo -c -o libtesseract_api_la-pdfrenderer.lo `test -f 'pdfrenderer.cpp' || echo '$(srcdir)/'`pdfrenderer.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtesseract_api_la-pdfrenderer.Tpo $(DEPDIR)/libtesseract_api_la-pdfrenderer.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdfrenderer.cpp' object='libtesseract_api_la-pdfrenderer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtesseract_api_la-pdfrenderer.lo `test -f 'pdfrenderer.cpp' || echo '$(srcdir)/'`pdfrenderer.cpp
-
 libtesseract_api_la-renderer.lo: renderer.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtesseract_api_la-renderer.lo -MD -MP -MF $(DEPDIR)/libtesseract_api_la-renderer.Tpo -c -o libtesseract_api_la-renderer.lo `test -f 'renderer.cpp' || echo '$(srcdir)/'`renderer.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtesseract_api_la-renderer.Tpo $(DEPDIR)/libtesseract_api_la-renderer.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='renderer.cpp' object='libtesseract_api_la-renderer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtesseract_api_la-renderer.lo `test -f 'renderer.cpp' || echo '$(srcdir)/'`renderer.cpp
+
+libtesseract_api_la-pdfrenderer.lo: pdfrenderer.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libtesseract_api_la-pdfrenderer.lo -MD -MP -MF $(DEPDIR)/libtesseract_api_la-pdfrenderer.Tpo -c -o libtesseract_api_la-pdfrenderer.lo `test -f 'pdfrenderer.cpp' || echo '$(srcdir)/'`pdfrenderer.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libtesseract_api_la-pdfrenderer.Tpo $(DEPDIR)/libtesseract_api_la-pdfrenderer.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='pdfrenderer.cpp' object='libtesseract_api_la-pdfrenderer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libtesseract_api_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libtesseract_api_la-pdfrenderer.lo `test -f 'pdfrenderer.cpp' || echo '$(srcdir)/'`pdfrenderer.cpp
 
 tesseract-tesseractmain.o: tesseractmain.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(tesseract_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT tesseract-tesseractmain.o -MD -MP -MF $(DEPDIR)/tesseract-tesseractmain.Tpo -c -o tesseract-tesseractmain.o `test -f 'tesseractmain.cpp' || echo '$(srcdir)/'`tesseractmain.cpp
@@ -913,6 +915,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
 	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
+@USING_MULTIPLELIBS_TRUE@    if !NO_CUBE_BUILD
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -79,8 +79,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_OPENCL_TRUE@am__append_1 = -I$(OPENCL_HDR_PATH)
-@VISIBILITY_TRUE@am__append_2 = -DTESS_EXPORTS \
+@VISIBILITY_TRUE@am__append_1 = -DTESS_EXPORTS \
 @VISIBILITY_TRUE@    -fvisibility=hidden -fvisibility-inlines-hidden
 
 subdir = ccstruct
@@ -220,7 +219,7 @@ ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_CPPFLAGS = @AM_CPPFLAGS@ -I$(top_srcdir)/ccutil \
 	-I$(top_srcdir)/cutil -I$(top_srcdir)/viewer \
-	-I$(top_srcdir)/opencl $(am__append_1) $(am__append_2)
+	-I$(top_srcdir)/opencl $(OPENCL_CPPFLAGS) $(am__append_1)
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
@@ -231,7 +230,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -249,6 +247,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -278,8 +277,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -398,9 +398,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ccstruct/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ccstruct/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ccstruct/Makefile
+	  $(AUTOMAKE) --foreign ccstruct/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

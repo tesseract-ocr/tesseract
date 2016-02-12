@@ -209,9 +209,9 @@ am__can_run_installinfo = \
 am__noinst_HEADERS_DIST = ambigs.h bits16.h bitvector.h ccutil.h \
 	clst.h doubleptr.h elst2.h elst.h genericheap.h globaloc.h \
 	hashfn.h indexmapbidi.h kdpair.h lsterr.h nwmain.h \
-	object_cache.h qrsequence.h secname.h sorthelper.h stderr.h \
-	scanutils.h tessdatamanager.h tprintf.h unicity_table.h \
-	unicodes.h universalambigs.h ../vs2010/port/strtok_r.h
+	object_cache.h qrsequence.h sorthelper.h stderr.h scanutils.h \
+	tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
+	universalambigs.h ../vs2010/port/strtok_r.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
@@ -280,7 +280,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -298,6 +297,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -327,8 +327,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -411,7 +412,7 @@ include_HEADERS = \
 noinst_HEADERS = ambigs.h bits16.h bitvector.h ccutil.h clst.h \
 	doubleptr.h elst2.h elst.h genericheap.h globaloc.h hashfn.h \
 	indexmapbidi.h kdpair.h lsterr.h nwmain.h object_cache.h \
-	qrsequence.h secname.h sorthelper.h stderr.h scanutils.h \
+	qrsequence.h sorthelper.h stderr.h scanutils.h \
 	tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
 	universalambigs.h $(am__append_5)
 @USING_MULTIPLELIBS_FALSE@noinst_LTLIBRARIES = libtesseract_ccutil.la
@@ -437,9 +438,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ccutil/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ccutil/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ccutil/Makefile
+	  $(AUTOMAKE) --foreign ccutil/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

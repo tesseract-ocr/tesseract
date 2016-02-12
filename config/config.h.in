@@ -18,8 +18,14 @@
 /* Define to 1 if you have the <cairo/cairo-version.h> header file. */
 #undef HAVE_CAIRO_CAIRO_VERSION_H
 
+/* Define to 1 if you have the <CL/cl.h> header file. */
+#undef HAVE_CL_CL_H
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
+
+/* Define if you have the OpenCL framework */
+#undef HAVE_FRAMEWORK_OPENCL
 
 /* Define to 1 if you have the `getline' function. */
 #undef HAVE_GETLINE
@@ -44,6 +50,12 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if the system has the type `off_t'. */
+#undef HAVE_OFF_T
+
+/* Define to 1 if you have the <OpenCL/cl.h> header file. */
+#undef HAVE_OPENCL_CL_H
 
 /* Define to 1 if you have the <pango-1.0/pango/pango-features.h> header file.
    */
@@ -82,6 +94,9 @@
 /* Define to 1 if you have <sys/wait.h> that is POSIX.1 compatible. */
 #undef HAVE_SYS_WAIT_H
 
+/* Define to 1 if you have the <tiffio.h> header file. */
+#undef HAVE_TIFFIO_H
+
 /* Define to 1 if you have the <unicode/uchar.h> header file. */
 #undef HAVE_UNICODE_UCHAR_H
 
@@ -100,6 +115,9 @@
 
 /* This is a MinGW system */
 #undef MINGW
+
+/* Defined when compiled with OpenMP support */
+#undef OPENMP
 
 /* Name of package */
 #undef PACKAGE

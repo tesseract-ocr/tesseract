@@ -78,13 +78,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@NO_CUBE_BUILD_FALSE@am__append_1 = neural_networks/runtime cube
 subdir = .
-DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
-	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
+DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(top_srcdir)/config/config.h.in $(srcdir)/tesseract.pc.in \
-	COPYING config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/missing config/ltmain.sh \
+	AUTHORS COPYING ChangeLog INSTALL NEWS config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/missing config/ltmain.sh \
 	$(top_srcdir)/config/config.guess \
 	$(top_srcdir)/config/config.sub \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/ltmain.sh \
@@ -241,7 +242,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -259,6 +259,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -288,8 +289,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -363,8 +365,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 @ENABLE_TRAINING_TRUE@TRAINING_SUBDIR = training
-SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec neural_networks/runtime textord cube ccmain api . tessdata doc
-EXTRA_DIST = ReleaseNotes \
+SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec \
+	textord $(am__append_1) ccmain api . tessdata doc
+EXTRA_DIST = ReleaseNotes README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
@@ -381,15 +384,15 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
-	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu'; \
-	      $(am__cd) $(srcdir) && $(AUTOMAKE) --gnu \
+	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign'; \
+	      $(am__cd) $(srcdir) && $(AUTOMAKE) --foreign \
 		&& exit 0; \
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu Makefile
+	  $(AUTOMAKE) --foreign Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -879,9 +882,12 @@ uninstall-am: uninstall-pkgconfigDATA
 	uninstall-pkgconfigDATA
 
 @ENABLE_TRAINING_TRUE@training:
+@ENABLE_TRAINING_TRUE@	$(MAKE)
 @ENABLE_TRAINING_TRUE@	@cd "$(top_builddir)/training" && $(MAKE)
 @ENABLE_TRAINING_TRUE@training-install:
 @ENABLE_TRAINING_TRUE@	@cd "$(top_builddir)/training" && $(MAKE) install
+@ENABLE_TRAINING_TRUE@training-uninstall:
+@ENABLE_TRAINING_TRUE@	@cd "$(top_builddir)/training" && $(MAKE) uninstall
 @ENABLE_TRAINING_TRUE@clean-local:
 @ENABLE_TRAINING_TRUE@	@cd "$(top_builddir)/training" && $(MAKE) clean
 @ENABLE_TRAINING_FALSE@training:

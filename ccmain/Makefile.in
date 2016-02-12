@@ -79,14 +79,23 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_OPENCL_TRUE@am__append_1 = -I$(OPENCL_HDR_PATH)
-@VISIBILITY_TRUE@am__append_2 = -DTESS_EXPORTS \
+@VISIBILITY_TRUE@am__append_1 = -DTESS_EXPORTS \
 @VISIBILITY_TRUE@    -fvisibility=hidden -fvisibility-inlines-hidden
+
+@NO_CUBE_BUILD_FALSE@am__append_2 = \
+@NO_CUBE_BUILD_FALSE@    -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube
+
+@NO_CUBE_BUILD_FALSE@am__append_3 = \
+@NO_CUBE_BUILD_FALSE@    cube_reco_context.h cubeclassifier.h tesseract_cube_combiner.h
+
+@NO_CUBE_BUILD_FALSE@am__append_4 = \
+@NO_CUBE_BUILD_FALSE@    cube_control.cpp cube_reco_context.cpp cubeclassifier.cpp \
+@NO_CUBE_BUILD_FALSE@    tesseract_cube_combiner.cpp
 
 subdir = ccmain
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/config/depcomp $(include_HEADERS) \
-	$(noinst_HEADERS)
+	$(am__noinst_HEADERS_DIST)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -136,17 +145,29 @@ LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 @USING_MULTIPLELIBS_TRUE@	../dict/libtesseract_dict.la \
 @USING_MULTIPLELIBS_TRUE@	../classify/libtesseract_classify.la \
 @USING_MULTIPLELIBS_TRUE@	../cutil/libtesseract_cutil.la \
-@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la \
-@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la
+@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la \
+@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la
+am__libtesseract_main_la_SOURCES_DIST = adaptions.cpp applybox.cpp \
+	control.cpp docqual.cpp equationdetect.cpp fixspace.cpp \
+	fixxht.cpp ltrresultiterator.cpp osdetect.cpp output.cpp \
+	pageiterator.cpp pagesegmain.cpp pagewalk.cpp par_control.cpp \
+	paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
+	reject.cpp resultiterator.cpp superscript.cpp tessbox.cpp \
+	tessedit.cpp tesseractclass.cpp tessvars.cpp tfacepp.cpp \
+	thresholder.cpp werdit.cpp cube_control.cpp \
+	cube_reco_context.cpp cubeclassifier.cpp \
+	tesseract_cube_combiner.cpp
+@NO_CUBE_BUILD_FALSE@am__objects_1 = cube_control.lo \
+@NO_CUBE_BUILD_FALSE@	cube_reco_context.lo cubeclassifier.lo \
+@NO_CUBE_BUILD_FALSE@	tesseract_cube_combiner.lo
 am_libtesseract_main_la_OBJECTS = adaptions.lo applybox.lo control.lo \
-	cube_control.lo cube_reco_context.lo cubeclassifier.lo \
 	docqual.lo equationdetect.lo fixspace.lo fixxht.lo \
 	ltrresultiterator.lo osdetect.lo output.lo pageiterator.lo \
 	pagesegmain.lo pagewalk.lo par_control.lo paragraphs.lo \
 	paramsd.lo pgedit.lo recogtraining.lo reject.lo \
-	resultiterator.lo superscript.lo tesseract_cube_combiner.lo \
-	tessbox.lo tessedit.lo tesseractclass.lo tessvars.lo \
-	tfacepp.lo thresholder.lo werdit.lo
+	resultiterator.lo superscript.lo tessbox.lo tessedit.lo \
+	tesseractclass.lo tessvars.lo tfacepp.lo thresholder.lo \
+	werdit.lo $(am__objects_1)
 libtesseract_main_la_OBJECTS = $(am_libtesseract_main_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -194,12 +215,17 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libtesseract_main_la_SOURCES)
-DIST_SOURCES = $(libtesseract_main_la_SOURCES)
+DIST_SOURCES = $(am__libtesseract_main_la_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__noinst_HEADERS_DIST = control.h docqual.h equationdetect.h \
+	fixspace.h mutableiterator.h output.h paragraphs.h \
+	paragraphs_internal.h paramsd.h pgedit.h reject.h tessbox.h \
+	tessedit.h tesseractclass.h tessvars.h werdit.h \
+	cube_reco_context.h cubeclassifier.h tesseract_cube_combiner.h
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -227,9 +253,8 @@ AM_CPPFLAGS = @AM_CPPFLAGS@ -DUSE_STD_NAMESPACE -I$(top_srcdir)/ccutil \
 	-I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer \
 	-I$(top_srcdir)/classify -I$(top_srcdir)/dict \
 	-I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
-	-I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube \
-	-I$(top_srcdir)/textord -I$(top_srcdir)/opencl $(am__append_1) \
-	$(am__append_2)
+	-I$(top_srcdir)/textord -I$(top_srcdir)/opencl \
+	$(OPENCL_CPPFLAGS) $(am__append_1) $(am__append_2)
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
@@ -240,7 +265,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -258,6 +282,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -287,8 +312,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -361,44 +387,35 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 include_HEADERS = \
-	thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h \
-	osdetect.h 
+    thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h \
+    osdetect.h
 
-noinst_HEADERS = \
-    control.h cube_reco_context.h cubeclassifier.h docqual.h \
-    equationdetect.h fixspace.h mutableiterator.h \
-    output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
-    reject.h tessbox.h tessedit.h tesseractclass.h \
-    tesseract_cube_combiner.h tessvars.h werdit.h
-
+noinst_HEADERS = control.h docqual.h equationdetect.h fixspace.h \
+	mutableiterator.h output.h paragraphs.h paragraphs_internal.h \
+	paramsd.h pgedit.h reject.h tessbox.h tessedit.h \
+	tesseractclass.h tessvars.h werdit.h $(am__append_3)
 @USING_MULTIPLELIBS_FALSE@noinst_LTLIBRARIES = libtesseract_main.la
 @USING_MULTIPLELIBS_TRUE@lib_LTLIBRARIES = libtesseract_main.la
 @USING_MULTIPLELIBS_TRUE@libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-@USING_MULTIPLELIBS_TRUE@libtesseract_main_la_LIBADD = \
+@USING_MULTIPLELIBS_TRUE@libtesseract_main_la_LIBADD =  \
 @USING_MULTIPLELIBS_TRUE@	../wordrec/libtesseract_wordrec.la \
 @USING_MULTIPLELIBS_TRUE@	../textord/libtesseract_textord.la \
-@USING_MULTIPLELIBS_TRUE@    ../ccutil/libtesseract_ccutil.la \
+@USING_MULTIPLELIBS_TRUE@	../ccutil/libtesseract_ccutil.la \
 @USING_MULTIPLELIBS_TRUE@	../ccstruct/libtesseract_ccstruct.la \
 @USING_MULTIPLELIBS_TRUE@	../viewer/libtesseract_viewer.la \
 @USING_MULTIPLELIBS_TRUE@	../dict/libtesseract_dict.la \
 @USING_MULTIPLELIBS_TRUE@	../classify/libtesseract_classify.la \
 @USING_MULTIPLELIBS_TRUE@	../cutil/libtesseract_cutil.la \
-@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la \
-@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la 
-
-libtesseract_main_la_SOURCES = \
-    adaptions.cpp applybox.cpp \
-    control.cpp cube_control.cpp cube_reco_context.cpp cubeclassifier.cpp \
-    docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
-    ltrresultiterator.cpp \
-    osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
-    pagewalk.cpp par_control.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
-    reject.cpp resultiterator.cpp superscript.cpp \
-    tesseract_cube_combiner.cpp \
-    tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
-    tfacepp.cpp thresholder.cpp \
-    werdit.cpp
-
+@USING_MULTIPLELIBS_TRUE@	../opencl/libtesseract_opencl.la \
+@USING_MULTIPLELIBS_TRUE@	../cube/libtesseract_cube.la
+libtesseract_main_la_SOURCES = adaptions.cpp applybox.cpp control.cpp \
+	docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
+	ltrresultiterator.cpp osdetect.cpp output.cpp pageiterator.cpp \
+	pagesegmain.cpp pagewalk.cpp par_control.cpp paragraphs.cpp \
+	paramsd.cpp pgedit.cpp recogtraining.cpp reject.cpp \
+	resultiterator.cpp superscript.cpp tessbox.cpp tessedit.cpp \
+	tesseractclass.cpp tessvars.cpp tfacepp.cpp thresholder.cpp \
+	werdit.cpp $(am__append_4)
 all: all-am
 
 .SUFFIXES:
@@ -412,9 +429,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu ccmain/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign ccmain/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu ccmain/Makefile
+	  $(AUTOMAKE) --foreign ccmain/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -778,6 +795,8 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES
 
+@USING_MULTIPLELIBS_TRUE@    if !NO_CUBE_BUILD
+@USING_MULTIPLELIBS_TRUE@    endif
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

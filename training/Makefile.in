@@ -256,17 +256,6 @@ bin_PROGRAMS = ambiguous_words$(EXEEXT) classifier_tester$(EXEEXT) \
 @T_WIN_TRUE@am__append_33 = -I$(top_srcdir)/vs2010/port
 @T_WIN_TRUE@am__append_34 = ../vs2010/port/strcasestr.h
 @T_WIN_TRUE@am__append_35 = ../vs2010/port/strcasestr.cpp
-@USE_OPENCL_TRUE@am__append_36 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_37 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_38 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_39 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_40 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_41 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_42 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_43 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_44 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_45 = $(OPENCL_LIB)
-@USE_OPENCL_TRUE@am__append_46 = $(OPENCL_LIB)
 subdir = training
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/config/depcomp $(am__noinst_HEADERS_DIST)
@@ -310,66 +299,102 @@ PROGRAMS = $(bin_PROGRAMS)
 am_ambiguous_words_OBJECTS = ambiguous_words.$(OBJEXT)
 ambiguous_words_OBJECTS = $(am_ambiguous_words_OBJECTS)
 am__DEPENDENCIES_1 =
-@USE_OPENCL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
 ambiguous_words_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_2) $(am__append_3) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1)
+ambiguous_words_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(ambiguous_words_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_classifier_tester_OBJECTS = classifier_tester.$(OBJEXT)
 classifier_tester_OBJECTS = $(am_classifier_tester_OBJECTS)
 classifier_tester_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_4) $(am__append_5) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1)
+classifier_tester_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(classifier_tester_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_cntraining_OBJECTS = cntraining.$(OBJEXT)
 cntraining_OBJECTS = $(am_cntraining_OBJECTS)
 cntraining_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_6) $(am__append_7) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1)
+cntraining_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(cntraining_LDFLAGS) $(LDFLAGS) -o $@
 am_combine_tessdata_OBJECTS = combine_tessdata.$(OBJEXT)
 combine_tessdata_OBJECTS = $(am_combine_tessdata_OBJECTS)
 @USING_MULTIPLELIBS_FALSE@combine_tessdata_DEPENDENCIES =  \
 @USING_MULTIPLELIBS_FALSE@	../api/libtesseract.la \
-@USING_MULTIPLELIBS_FALSE@	$(am__DEPENDENCIES_1) \
-@USING_MULTIPLELIBS_FALSE@	$(am__DEPENDENCIES_2)
+@USING_MULTIPLELIBS_FALSE@	$(am__DEPENDENCIES_1)
 @USING_MULTIPLELIBS_TRUE@combine_tessdata_DEPENDENCIES =  \
 @USING_MULTIPLELIBS_TRUE@	../ccutil/libtesseract_ccutil.la \
-@USING_MULTIPLELIBS_TRUE@	$(am__DEPENDENCIES_1) \
-@USING_MULTIPLELIBS_TRUE@	$(am__DEPENDENCIES_2)
+@USING_MULTIPLELIBS_TRUE@	$(am__DEPENDENCIES_1)
+combine_tessdata_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(combine_tessdata_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_dawg2wordlist_OBJECTS = dawg2wordlist.$(OBJEXT)
 dawg2wordlist_OBJECTS = $(am_dawg2wordlist_OBJECTS)
 dawg2wordlist_DEPENDENCIES = libtesseract_tessopt.la $(am__append_8) \
-	$(am__append_9) $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__append_9) $(am__DEPENDENCIES_1)
+dawg2wordlist_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(dawg2wordlist_LDFLAGS) $(LDFLAGS) \
+	-o $@
 am_mftraining_OBJECTS = mftraining.$(OBJEXT) mergenf.$(OBJEXT)
 mftraining_OBJECTS = $(am_mftraining_OBJECTS)
 mftraining_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_10) $(am__append_11) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1)
+mftraining_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(mftraining_LDFLAGS) $(LDFLAGS) -o $@
 am_set_unicharset_properties_OBJECTS =  \
 	set_unicharset_properties.$(OBJEXT)
 set_unicharset_properties_OBJECTS =  \
 	$(am_set_unicharset_properties_OBJECTS)
 set_unicharset_properties_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__DEPENDENCIES_1) $(am__append_12) \
-	$(am__append_13) $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__append_13) $(am__DEPENDENCIES_1)
+set_unicharset_properties_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(set_unicharset_properties_LDFLAGS) $(LDFLAGS) -o $@
 am_shapeclustering_OBJECTS = shapeclustering.$(OBJEXT)
 shapeclustering_OBJECTS = $(am_shapeclustering_OBJECTS)
 shapeclustering_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_14) $(am__append_15) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1)
+shapeclustering_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(shapeclustering_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_text2image_OBJECTS = text2image.$(OBJEXT)
 text2image_OBJECTS = $(am_text2image_OBJECTS)
 text2image_DEPENDENCIES = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_16) $(am__append_17) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+text2image_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(text2image_LDFLAGS) $(LDFLAGS) -o $@
 am_unicharset_extractor_OBJECTS = unicharset_extractor.$(OBJEXT)
 unicharset_extractor_OBJECTS = $(am_unicharset_extractor_OBJECTS)
 unicharset_extractor_DEPENDENCIES = libtesseract_tessopt.la \
-	$(am__append_18) $(am__append_19) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__append_18) $(am__append_19) $(am__DEPENDENCIES_1)
+unicharset_extractor_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(unicharset_extractor_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am_wordlist2dawg_OBJECTS = wordlist2dawg.$(OBJEXT)
 wordlist2dawg_OBJECTS = $(am_wordlist2dawg_OBJECTS)
 wordlist2dawg_DEPENDENCIES = libtesseract_tessopt.la $(am__append_20) \
-	$(am__append_21) $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+	$(am__append_21) $(am__DEPENDENCIES_1)
+wordlist2dawg_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(wordlist2dawg_LDFLAGS) $(LDFLAGS) \
+	-o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -469,7 +494,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -487,6 +511,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -516,8 +541,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -591,12 +617,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
-@T_WIN_FALSE@libicu = -licui18n -licuuc
+@MINGW_FALSE@libicu = -licui18n -licuuc
 
 # try static build
 #AM_LDFLAGS += -all-static
 #libic=-lsicuin -licudt -lsicuuc
-@T_WIN_TRUE@libicu = -licuin -licuuc
+@MINGW_TRUE@libicu = -licuin -licuuc
 noinst_HEADERS = boxchar.h commandlineflags.h commontraining.h \
 	degradeimage.h fileio.h icuerrorcode.h ligature_table.h \
 	normstrngs.h mergenf.h pango_font_info.h stringrenderer.h \
@@ -618,58 +644,67 @@ libtesseract_tessopt_la_SOURCES = \
 ambiguous_words_SOURCES = ambiguous_words.cpp
 ambiguous_words_LDADD = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_2) $(am__append_3) \
-	$(am__append_22) $(am__append_36)
+	$(am__append_22)
 classifier_tester_SOURCES = classifier_tester.cpp
 #classifier_tester_LDFLAGS = -static
 classifier_tester_LDADD = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_4) $(am__append_5) \
-	$(am__append_23) $(am__append_37)
+	$(am__append_23)
 combine_tessdata_SOURCES = combine_tessdata.cpp
 @USING_MULTIPLELIBS_FALSE@combine_tessdata_LDADD =  \
 @USING_MULTIPLELIBS_FALSE@	../api/libtesseract.la \
-@USING_MULTIPLELIBS_FALSE@	$(am__append_25) $(am__append_39)
+@USING_MULTIPLELIBS_FALSE@	$(am__append_25)
 #combine_tessdata_LDFLAGS = -static
 @USING_MULTIPLELIBS_TRUE@combine_tessdata_LDADD =  \
 @USING_MULTIPLELIBS_TRUE@	../ccutil/libtesseract_ccutil.la \
-@USING_MULTIPLELIBS_TRUE@	$(am__append_25) $(am__append_39)
+@USING_MULTIPLELIBS_TRUE@	$(am__append_25)
 cntraining_SOURCES = cntraining.cpp
 #cntraining_LDFLAGS = -static
 cntraining_LDADD = libtesseract_training.la libtesseract_tessopt.la \
-	$(am__append_6) $(am__append_7) $(am__append_24) \
-	$(am__append_38)
+	$(am__append_6) $(am__append_7) $(am__append_24)
 dawg2wordlist_SOURCES = dawg2wordlist.cpp
 #dawg2wordlist_LDFLAGS = -static
 dawg2wordlist_LDADD = libtesseract_tessopt.la $(am__append_8) \
-	$(am__append_9) $(am__append_26) $(am__append_40)
+	$(am__append_9) $(am__append_26)
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
 mftraining_LDADD = libtesseract_training.la libtesseract_tessopt.la \
-	$(am__append_10) $(am__append_11) $(am__append_27) \
-	$(am__append_41)
+	$(am__append_10) $(am__append_11) $(am__append_27)
 set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
 #set_unicharset_properties_LDFLAGS = $(pkg-config --libs icu-uc)
 set_unicharset_properties_LDADD = libtesseract_training.la \
 	libtesseract_tessopt.la $(libicu) $(am__append_12) \
-	$(am__append_13) $(am__append_28) $(am__append_42)
+	$(am__append_13) $(am__append_28)
 shapeclustering_SOURCES = shapeclustering.cpp
 #shapeclustering_LDFLAGS = -static
 shapeclustering_LDADD = libtesseract_training.la \
 	libtesseract_tessopt.la $(am__append_14) $(am__append_15) \
-	$(am__append_29) $(am__append_43)
+	$(am__append_29)
 text2image_SOURCES = text2image.cpp
 #text2image_LDFLAGS = -static
 text2image_LDADD = libtesseract_training.la libtesseract_tessopt.la \
 	$(am__append_16) $(am__append_17) $(libicu) -lpango-1.0 \
 	-lpangocairo-1.0 -lgobject-2.0 -lglib-2.0 -lcairo \
-	-lpangoft2-1.0 -lfontconfig $(am__append_31) $(am__append_44)
+	-lpangoft2-1.0 -lfontconfig $(am__append_31)
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static
 unicharset_extractor_LDADD = libtesseract_tessopt.la $(am__append_18) \
-	$(am__append_19) $(am__append_30) $(am__append_45)
+	$(am__append_19) $(am__append_30)
 wordlist2dawg_SOURCES = wordlist2dawg.cpp
 #wordlist2dawg_LDFLAGS = -static
 wordlist2dawg_LDADD = libtesseract_tessopt.la $(am__append_20) \
-	$(am__append_21) $(am__append_32) $(am__append_46)
+	$(am__append_21) $(am__append_32)
+ambiguous_words_LDFLAGS = $(OPENCL_LDFLAGS)
+classifier_tester_LDFLAGS = $(OPENCL_LDFLAGS)
+cntraining_LDFLAGS = $(OPENCL_LDFLAGS)
+combine_tessdata_LDFLAGS = $(OPENCL_LDFLAGS)
+dawg2wordlist_LDFLAGS = $(OPENCL_LDFLAGS)
+mftraining_LDFLAGS = $(OPENCL_LDFLAGS)
+set_unicharset_properties_LDFLAGS = $(OPENCL_LDFLAGS)
+shapeclustering_LDFLAGS = $(OPENCL_LDFLAGS)
+text2image_LDFLAGS = $(OPENCL_LDFLAGS)
+unicharset_extractor_LDFLAGS = $(OPENCL_LDFLAGS)
+wordlist2dawg_LDFLAGS = $(OPENCL_LDFLAGS)
 all: all-am
 
 .SUFFIXES:
@@ -683,9 +718,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu training/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign training/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu training/Makefile
+	  $(AUTOMAKE) --foreign training/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -781,47 +816,47 @@ clean-binPROGRAMS:
 
 ambiguous_words$(EXEEXT): $(ambiguous_words_OBJECTS) $(ambiguous_words_DEPENDENCIES) $(EXTRA_ambiguous_words_DEPENDENCIES) 
 	@rm -f ambiguous_words$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(ambiguous_words_OBJECTS) $(ambiguous_words_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(ambiguous_words_LINK) $(ambiguous_words_OBJECTS) $(ambiguous_words_LDADD) $(LIBS)
 
 classifier_tester$(EXEEXT): $(classifier_tester_OBJECTS) $(classifier_tester_DEPENDENCIES) $(EXTRA_classifier_tester_DEPENDENCIES) 
 	@rm -f classifier_tester$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(classifier_tester_OBJECTS) $(classifier_tester_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(classifier_tester_LINK) $(classifier_tester_OBJECTS) $(classifier_tester_LDADD) $(LIBS)
 
 cntraining$(EXEEXT): $(cntraining_OBJECTS) $(cntraining_DEPENDENCIES) $(EXTRA_cntraining_DEPENDENCIES) 
 	@rm -f cntraining$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(cntraining_OBJECTS) $(cntraining_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(cntraining_LINK) $(cntraining_OBJECTS) $(cntraining_LDADD) $(LIBS)
 
 combine_tessdata$(EXEEXT): $(combine_tessdata_OBJECTS) $(combine_tessdata_DEPENDENCIES) $(EXTRA_combine_tessdata_DEPENDENCIES) 
 	@rm -f combine_tessdata$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(combine_tessdata_OBJECTS) $(combine_tessdata_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(combine_tessdata_LINK) $(combine_tessdata_OBJECTS) $(combine_tessdata_LDADD) $(LIBS)
 
 dawg2wordlist$(EXEEXT): $(dawg2wordlist_OBJECTS) $(dawg2wordlist_DEPENDENCIES) $(EXTRA_dawg2wordlist_DEPENDENCIES) 
 	@rm -f dawg2wordlist$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(dawg2wordlist_OBJECTS) $(dawg2wordlist_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(dawg2wordlist_LINK) $(dawg2wordlist_OBJECTS) $(dawg2wordlist_LDADD) $(LIBS)
 
 mftraining$(EXEEXT): $(mftraining_OBJECTS) $(mftraining_DEPENDENCIES) $(EXTRA_mftraining_DEPENDENCIES) 
 	@rm -f mftraining$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(mftraining_OBJECTS) $(mftraining_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(mftraining_LINK) $(mftraining_OBJECTS) $(mftraining_LDADD) $(LIBS)
 
 set_unicharset_properties$(EXEEXT): $(set_unicharset_properties_OBJECTS) $(set_unicharset_properties_DEPENDENCIES) $(EXTRA_set_unicharset_properties_DEPENDENCIES) 
 	@rm -f set_unicharset_properties$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(set_unicharset_properties_OBJECTS) $(set_unicharset_properties_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(set_unicharset_properties_LINK) $(set_unicharset_properties_OBJECTS) $(set_unicharset_properties_LDADD) $(LIBS)
 
 shapeclustering$(EXEEXT): $(shapeclustering_OBJECTS) $(shapeclustering_DEPENDENCIES) $(EXTRA_shapeclustering_DEPENDENCIES) 
 	@rm -f shapeclustering$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(shapeclustering_OBJECTS) $(shapeclustering_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(shapeclustering_LINK) $(shapeclustering_OBJECTS) $(shapeclustering_LDADD) $(LIBS)
 
 text2image$(EXEEXT): $(text2image_OBJECTS) $(text2image_DEPENDENCIES) $(EXTRA_text2image_DEPENDENCIES) 
 	@rm -f text2image$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(text2image_OBJECTS) $(text2image_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(text2image_LINK) $(text2image_OBJECTS) $(text2image_LDADD) $(LIBS)
 
 unicharset_extractor$(EXEEXT): $(unicharset_extractor_OBJECTS) $(unicharset_extractor_DEPENDENCIES) $(EXTRA_unicharset_extractor_DEPENDENCIES) 
 	@rm -f unicharset_extractor$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(unicharset_extractor_OBJECTS) $(unicharset_extractor_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(unicharset_extractor_LINK) $(unicharset_extractor_OBJECTS) $(unicharset_extractor_LDADD) $(LIBS)
 
 wordlist2dawg$(EXEEXT): $(wordlist2dawg_OBJECTS) $(wordlist2dawg_DEPENDENCIES) $(EXTRA_wordlist2dawg_DEPENDENCIES) 
 	@rm -f wordlist2dawg$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(wordlist2dawg_OBJECTS) $(wordlist2dawg_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(wordlist2dawg_LINK) $(wordlist2dawg_OBJECTS) $(wordlist2dawg_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

@@ -79,8 +79,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@USE_OPENCL_TRUE@am__append_1 = -I$(OPENCL_HDR_PATH)
-@USE_OPENCL_TRUE@@USING_MULTIPLELIBS_TRUE@am__append_2 = $(OPENCL_LIB)
 subdir = opencl
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/config/depcomp $(noinst_HEADERS)
@@ -206,7 +204,7 @@ ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_CPPFLAGS = @AM_CPPFLAGS@ -I$(top_srcdir)/ccutil \
 	-I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccmain \
-	$(am__append_1)
+	$(OPENCL_CFLAGS)
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AM_LDFLAGS = @AM_LDFLAGS@
 AR = @AR@
@@ -217,7 +215,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
@@ -235,6 +232,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FRAMEWORK_OPENCL = @FRAMEWORK_OPENCL@
 GENERIC_API_VERSION = @GENERIC_API_VERSION@
 GENERIC_LIBRARY_NAME = @GENERIC_LIBRARY_NAME@
 GENERIC_LIBRARY_VERSION = @GENERIC_LIBRARY_VERSION@
@@ -264,8 +262,9 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
-OPENCL_HDR_PATH = @OPENCL_HDR_PATH@
-OPENCL_LIB = @OPENCL_LIB@
+OPENCL_CPPFLAGS = @OPENCL_CPPFLAGS@
+OPENCL_LDFLAGS = @OPENCL_LDFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -342,10 +341,7 @@ noinst_HEADERS = \
 
 @USING_MULTIPLELIBS_FALSE@noinst_LTLIBRARIES = libtesseract_opencl.la
 @USING_MULTIPLELIBS_TRUE@lib_LTLIBRARIES = libtesseract_opencl.la
-@USING_MULTIPLELIBS_TRUE@libtesseract_opencl_la_LDFLAGS =  \
-@USING_MULTIPLELIBS_TRUE@	-version-info \
-@USING_MULTIPLELIBS_TRUE@	$(GENERIC_LIBRARY_VERSION) \
-@USING_MULTIPLELIBS_TRUE@	$(am__append_2)
+@USING_MULTIPLELIBS_TRUE@libtesseract_opencl_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION) $(OPENCL_LDFLAGS)
 @USING_MULTIPLELIBS_TRUE@libtesseract_opencl_la_LIBADD = \
 @USING_MULTIPLELIBS_TRUE@    ../ccutil/libtesseract_ccutil.la \
 @USING_MULTIPLELIBS_TRUE@    ../viewer/libtesseract_viewer.la
@@ -366,9 +362,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu opencl/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign opencl/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu opencl/Makefile
+	  $(AUTOMAKE) --foreign opencl/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
