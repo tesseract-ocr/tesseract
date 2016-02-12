@@ -4,9 +4,12 @@ ACLOCAL_AMFLAGS = -I m4
 if ENABLE_TRAINING
 TRAINING_SUBDIR = training
 training:
+	$(MAKE)
 	@cd "$(top_builddir)/training" && $(MAKE)
 training-install:
 	@cd "$(top_builddir)/training" && $(MAKE) install
+training-uninstall:
+	@cd "$(top_builddir)/training" && $(MAKE) uninstall
 clean-local:
 	@cd "$(top_builddir)/training" && $(MAKE) clean
 else
