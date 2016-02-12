@@ -52,6 +52,7 @@ training/wordlist2dawg
 *.patch
 
 # ignore compilation files
+build/*
 */.deps/*
 */.libs/*
 *.lo
