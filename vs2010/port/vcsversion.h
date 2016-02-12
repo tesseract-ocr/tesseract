@@ -1,2 +1,2 @@
-#define GIT_REV "3.04.00"
+#define GIT_REV "3.04.01"
 
