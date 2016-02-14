@@ -1444,6 +1444,7 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
+  bool para_is_ltr = true; // Default direction is LTR
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
@@ -1493,15 +1494,15 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
 
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
+      para_is_ltr = true; // reset to default direction
       hocr_str += "   <div class='ocr_carea'";
       AddIdTohOCR(&hocr_str, "block", page_id, bcnt);
       AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       hocr_str += "\n    <p class='ocr_par'";
-      if (res_it->ParagraphIsLtr()) {
-        hocr_str += " dir='ltr'";
-      } else {
+      para_is_ltr = res_it->ParagraphIsLtr();
+      if (!para_is_ltr) {
         hocr_str += " dir='rtl'";
       }
       AddIdTohOCR(&hocr_str, "par", page_id, pcnt);
@@ -1543,8 +1544,11 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
       hocr_str += "'";
     }
     switch (res_it->WordDirection()) {
-      case DIR_LEFT_TO_RIGHT: hocr_str += " dir='ltr'"; break;
-      case DIR_RIGHT_TO_LEFT: hocr_str += " dir='rtl'"; break;
+      // Only emit direction if different from current paragraph direction
+      case DIR_LEFT_TO_RIGHT: if (!para_is_ltr) hocr_str += " dir='ltr'"; break;
+      case DIR_RIGHT_TO_LEFT: if (para_is_ltr) hocr_str += " dir='rtl'"; break;
+      case DIR_MIX:
+      case DIR_NEUTRAL:
       default:  // Do nothing.
         break;
     }
@@ -1574,6 +1578,7 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
     if (last_word_in_para) {
       hocr_str += "\n    </p>\n";
       pcnt++;
+      para_is_ltr = true; // back to default direction
     }
     if (last_word_in_block) {
       hocr_str += "   </div>\n";
