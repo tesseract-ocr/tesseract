@@ -1378,18 +1378,42 @@ static void AddBaselineCoordsTohOCR(const PageIterator *it,
   hocr_str->add_str_double(" ", round(p0 * 1000.0) / 1000.0);
 }
 
-static void AddBoxTohOCR(const PageIterator *it,
+static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1, int num2) {
+  unsigned long bufsize = base.length() + 2 * kMaxIntSize;
+  char id_buffer[bufsize];
+  if (num2 >= 0) {
+    snprintf(id_buffer, bufsize - 1, "%s_%d_%d", base.c_str(), num1, num2);
+  } else {
+    snprintf(id_buffer, bufsize - 1, "%s_%d", base.c_str(), num1);
+  }
+  id_buffer[bufsize - 1] = '\0';
+  *hocr_str += " id='";
+  *hocr_str += id_buffer;
+  *hocr_str += "'";
+}
+
+static void AddBoxTohOCR(const ResultIterator *it,
                          PageIteratorLevel level,
                          STRING* hocr_str) {
   int left, top, right, bottom;
   it->BoundingBox(level, &left, &top, &right, &bottom);
-  hocr_str->add_str_int("' title=\"bbox ", left);
+  // This is the only place we use double quotes instead of single quotes,
+  // but it may too late to change for consistency
+  hocr_str->add_str_int(" title=\"bbox ", left);
   hocr_str->add_str_int(" ", top);
   hocr_str->add_str_int(" ", right);
   hocr_str->add_str_int(" ", bottom);
-  // Add baseline coordinates for textlines only.
-  if (level == RIL_TEXTLINE)
+  // Add baseline coordinates & heights for textlines only.
+  if (level == RIL_TEXTLINE) {
     AddBaselineCoordsTohOCR(it, level, hocr_str);
+    // add custom height measures
+    float row_height, descenders, ascenders;  // row attributes
+    it->RowAttributes(&row_height, &descenders, &ascenders);
+    // TODO: Do we want to limit these to a single decimal place?
+    hocr_str->add_str_double("; x_size ", row_height);
+    hocr_str->add_str_double("; x_descenders ", descenders * -1);
+    hocr_str->add_str_double("; x_ascenders ", ascenders);
+  }
   *hocr_str += "\">";
 }
 
@@ -1408,7 +1432,6 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
-  float row_height, descenders, ascenders;  // row attributes
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
@@ -1434,8 +1457,9 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   delete[] utf8_str;
 #endif
 
-  hocr_str.add_str_int("  <div class='ocr_page' id='page_", page_id);
-  hocr_str += "' title='image \"";
+  hocr_str += "  <div class='ocr_page'";
+  AddIdTohOCR(&hocr_str, "page", page_id, -1);
+  hocr_str += " title='image \"";
   if (input_file_) {
     hocr_str += HOcrEscape(input_file_->string());
   } else {
@@ -1457,36 +1481,29 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
 
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      hocr_str.add_str_int("   <div class='ocr_carea' id='block_", page_id);
-      hocr_str.add_str_int("_", bcnt);
+      hocr_str += "   <div class='ocr_carea'";
+      AddIdTohOCR(&hocr_str, "block", page_id, bcnt);
       AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
+      hocr_str += "\n    <p class='ocr_par'";
       if (res_it->ParagraphIsLtr()) {
-        hocr_str.add_str_int("\n    <p class='ocr_par' dir='ltr' id='par_",
-                             page_id);
-        hocr_str.add_str_int("_", pcnt);
+        hocr_str += " dir='ltr'";
       } else {
-        hocr_str.add_str_int("\n    <p class='ocr_par' dir='rtl' id='par_",
-                             page_id);
-        hocr_str.add_str_int("_", pcnt);
+        hocr_str += " dir='rtl'";
       }
+      AddIdTohOCR(&hocr_str, "par", page_id, pcnt);
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      int fontsize;
-      hocr_str.add_str_int("\n     <span class='ocr_line' id='line_", page_id);
-      res_it->RowAttributes(&row_height, &descenders, &ascenders);
-      hocr_str.add_str_int("' size='", row_height);
-      hocr_str.add_str_int("' descenders='", descenders * -1);
-      hocr_str.add_str_int("' ascenders='", ascenders);
-      hocr_str.add_str_int("_", lcnt);
+      hocr_str += "\n     <span class='ocr_line'";
+      AddIdTohOCR(&hocr_str, "line", page_id, lcnt);
       AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
     }
 
     // Now, process the word...
-    hocr_str.add_str_int("<span class='ocrx_word' id='word_", page_id);
-    hocr_str.add_str_int("_", wcnt);
+    hocr_str += "<span class='ocrx_word'";
+    AddIdTohOCR(&hocr_str, "word", page_id, wcnt);
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
@@ -1495,7 +1512,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
     font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
                                            &monospace, &serif, &smallcaps,
                                            &pointsize, &font_id);
-    hocr_str.add_str_int("' title='bbox ", left);
+    hocr_str.add_str_int(" title='bbox ", left);
     hocr_str.add_str_int(" ", top);
     hocr_str.add_str_int(" ", right);
     hocr_str.add_str_int(" ", bottom);
