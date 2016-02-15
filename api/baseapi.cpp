@@ -1433,6 +1433,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
   bool para_is_ltr = true; // Default direction is LTR
+  const char* paragraph_lang = NULL;
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
@@ -1494,6 +1495,12 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
         hocr_str += " dir='rtl'";
       }
       AddIdTohOCR(&hocr_str, "par", page_id, pcnt);
+      paragraph_lang = res_it->WordRecognitionLanguage();
+      if (paragraph_lang) {
+          hocr_str += " lang='";
+          hocr_str += paragraph_lang;
+          hocr_str += "'";
+      }
       AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
@@ -1526,9 +1533,10 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
       hocr_str.add_str_int("; x_fsize ", pointsize);
     }
     hocr_str += "'";
-    if (res_it->WordRecognitionLanguage()) {
+    const char* lang = res_it->WordRecognitionLanguage();
+    if (lang && (!paragraph_lang || strcmp(lang, paragraph_lang))) {
       hocr_str += " lang='";
-      hocr_str += res_it->WordRecognitionLanguage();
+      hocr_str += lang;
       hocr_str += "'";
     }
     switch (res_it->WordDirection()) {
