@@ -19,7 +19,7 @@ AC_PREFIX_DEFAULT(/usr/local)
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2016
-PACKAGE_DATE="02/12"
+PACKAGE_DATE="02/16"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
