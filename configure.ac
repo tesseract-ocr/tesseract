@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ(2.50)
-AC_INIT([tesseract], [3.04.01], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_INIT([tesseract], [3.04.02dev], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX(g++ clang++)
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
