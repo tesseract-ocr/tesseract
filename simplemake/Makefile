@@ -87,7 +87,7 @@ $(BIN): ../api/tesseractmain.cpp $(LIB)
 
 $(TRAINING_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_BINSRC)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $@.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
 
 $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 	echo JAR $@

@@ -13,7 +13,7 @@ TESSDATAPREFIX = $(PREFIX)/share/tesseract-ocr
 # Dependencies needed for training tools
 ICU_LDFLAGS = -licui18n -licuuc -licudata
 PANGO_CPPFLAGS = -DPANGO_ENABLE_ENGINE -pthread -I/usr/include/pango-1.0 -I/usr/include/cairo \
-                 -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include \
+                 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include \
                  -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/lib/i386-linux-gnu/glib-2.0/include \
                  -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng12
 PANGO_LDFLAGS = -lpangocairo-1.0 -lcairo -lpangoxft-1.0 -lpangoft2-1.0 -lpango-1.0 \
