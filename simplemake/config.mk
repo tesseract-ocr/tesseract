@@ -20,7 +20,6 @@ PANGO_LDFLAGS = -lpangocairo-1.0 -lcairo -lpangoxft-1.0 -lpangoft2-1.0 -lpango-1
                 -lfreetype -lfontconfig -lgobject-2.0 -lglib-2.0
 
 # Mandatory dependencies
-# The pkgconfig file for leptonica is broken in 1.70
 LEPT_CPPFLAGS = -I/usr/include/leptonica -I/usr/local/include/leptonica
 LEPT_LDFLAGS = -llept
 
