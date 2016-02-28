@@ -263,6 +263,11 @@ class TESS_API TessBaseAPI {
   void GetAvailableLanguagesAsVector(GenericVector<STRING>* langs) const;
 
   /**
+    * Returns the location of the directory with language files and config files.
+    */
+  const STRING& GetTessDataDir() const;
+
+  /**
    * Init only the lang model component of Tesseract. The only functions
    * that work after this init are SetVariable and IsValidWord.
    * WARNING: temporary! This function will be removed from here and placed
