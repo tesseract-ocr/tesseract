@@ -163,6 +163,16 @@ uninstall:
 	echo Removing $(DESTDIR)$(TESSDATAPREFIX)/tessdata
 	rm -rf $(DESTDIR)$(TESSDATAPREFIX)/tessdata
 
+uninstall-training:
+	echo Removing executables from $(DESTDIR)$(PREFIX)/bin
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(TRAINING_BIN)
+	echo Removing libraries from $(DESTDIR)$(PREFIX)/lib
+	rm -f $(DESTDIR)$(PREFIX)/lib/$(TRAINING_STATIC_LIB)
+	cd $(DESTDIR)$(PREFIX)/lib && rm -f $(TRAINING_LIBNAME) $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME).$(LIBVERSION)
+	echo Removing manual pages from $(DESTDIR)$(MANPREFIX)/man1
+	cd $(DESTDIR)$(MANPREFIX)/man1 && for i in $(TRAINING_MAN); do rm -f `basename $$i`; done
+	cd $(DESTDIR)$(MANPREFIX)/man5 && for i in $(TRAINING_MAN5); do rm -f `basename $$i`; done
+
 clean:
 	echo Removing all object, executable and library files from source directory
 	rm -f $(OBJ) $(TRAINING_OBJ) autoconfig
