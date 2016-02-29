@@ -18,8 +18,10 @@ LDFLAGS = -lpthread $(EXTRA_LDFLAGS)
 BIN = ../tesseract
 MAN = ../doc/tesseract.1
 LIB = ../libtesseract.so
+LIBNAME = libtesseract.so
 STATIC_LIB = ../libtesseract.a
 TRAINING_LIB = ../libtesseract_training.so
+TRAINING_LIBNAME = libtesseract_training.so
 TRAINING_STATIC_LIB = ../libtesseract_training.a
 SCROLLVIEW = ../java/ScrollView.jar
 
@@ -54,17 +56,11 @@ INSTHDR = $(API_INSTHDR) $(CCMAIN_INSTHDR) $(CCSTRUCT_INSTHDR) $(CCUTIL_INSTHDR)
 
 # Inference rules
 
-.SUFFIXES: .cpp .o .a .so .java .class
+.SUFFIXES: .cpp .o .java .class
 
 .cpp.o:
 	echo CXX $<
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
-
-.a.so:
-	echo LD $@
-	$(LD) -shared -o $@ -Wl,-soname,$@.$(LIBVERSION) -Wl,--whole-archive $< -Wl,--no-whole-archive $(LDFLAGS) $(LEPT_LDFLAGS)
-	chmod -x $@
-	ln -sf $@ $@.$(LIBVERSION)
 
 .java.class:
 	echo JAVAC $<
@@ -81,13 +77,25 @@ $(TRAINING_STATIC_LIB): $(TRAINING_OBJ)
 	echo AR $@
 	$(AR) rcs $@ $(TRAINING_OBJ)
 
+$(LIB): $(STATIC_LIB)
+	echo LD $@
+	$(LD) -shared -o $@ -Wl,-soname,$(LIBNAME).$(LIBVERSION) -Wl,--whole-archive $(STATIC_LIB) -Wl,--no-whole-archive $(LDFLAGS) $(LEPT_LDFLAGS)
+	chmod -x $@
+	ln -sf $(LIBNAME) $@.$(LIBVERSION)
+
+$(TRAINING_LIB): $(TRAINING_STATIC_LIB)
+	echo LD $@
+	$(LD) -shared -o $@ -Wl,-soname,$(TRAINING_LIBNAME).$(LIBVERSION) -Wl,--whole-archive $(TRAINING_STATIC_LIB) -Wl,--no-whole-archive $(LDFLAGS) $(LEPT_LDFLAGS)
+	chmod -x $@
+	ln -sf $(TRAINING_LIBNAME) $@.$(LIBVERSION)
+
 $(BIN): ../api/tesseractmain.cpp $(LIB)
 	echo CXX $@
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) ../api/tesseractmain.cpp -o $@ -L.. -ltesseract $(LDFLAGS) $(LEPT_LDFLAGS)
 
 $(TRAINING_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_BINSRC)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $@.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
 
 $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 	echo JAR $@
@@ -117,13 +125,13 @@ install: all
 	cp -f $(TESSCONFIGS) $(DESTDIR)$(TESSDATAPREFIX)/tessdata/tessconfigs
 	echo Installing pkg-config file to $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	mkdir -p $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	sed "s|@prefix@|$(DESTDIR)$(PREFIX)|g; s|@exec_prefix@|$$\{prefix\}|g; s|@bindir@|$$\{exec_prefix\}\/bin|g; s|@datarootdir@|$$\{prefix\}\/share|g; s|@datadir@|$$\{datarootdir\}|g; s|@libdir@|$$\{exec_prefix\}\/lib|g; s|@includedir@|$$\{prefix\}\/include/tesseract|g; s|@PACKAGE_NAME@|tesseract|g; s|@VERSION@|$(VERSION)|g; s|@OPENCL_LIB@|$(OPENCL_LDFLAGS)|g" < ../tesseract.pc.in > $(DESTDIR)$(PREFIX)/lib/pkgconfig/tesseract.pc
+	sed "s|@prefix@|$(DESTDIR)$(PREFIX)|g; s|@exec_prefix@|$$\{prefix\}|g; s|@bindir@|$$\{exec_prefix\}\/bin|g; s|@datarootdir@|$$\{prefix\}\/share|g; s|@datadir@|$$\{datarootdir\}|g; s|@libdir@|$$\{exec_prefix\}\/lib|g; s|@includedir@|$$\{prefix\}\/include/tesseract|g; s|@PACKAGE_NAME@|tesseract|g; s|@VERSION@|$(VERSION)|g; s|@OPENCL_LIB@|$(OPENCL_LDFLAGS)|g" < tesseract.pc.in > $(DESTDIR)$(PREFIX)/lib/pkgconfig/tesseract.pc
 	echo Installing libraries to $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	cp -f $(STATIC_LIB) $(DESTDIR)$(PREFIX)/lib
-	cp -f $(LIB) $(DESTDIR)$(PREFIX)/lib/$(LIB).$(VERSION)
-	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(LIB).$(VERSION) $(LIB).$(LIBVERSION)
-	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(LIB).$(VERSION) $(LIB)
+	cp -f $(LIB) $(DESTDIR)$(PREFIX)/lib/$(LIBNAME).$(VERSION)
+	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(LIBNAME).$(VERSION) $(LIBNAME).$(LIBVERSION)
+	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(LIBNAME).$(VERSION) $(LIBNAME)
 
 install-training: training
 	echo Installing executables to $(DESTDIR)$(PREFIX)/bin
@@ -138,16 +146,16 @@ install-training: training
 	echo Installing libraries to $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	cp -f $(TRAINING_STATIC_LIB) $(DESTDIR)$(PREFIX)/lib
-	cp -f $(TRAINING_LIB) $(DESTDIR)$(PREFIX)/lib/$(TRAINING_LIB).$(VERSION)
-	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIB).$(VERSION) $(TRAINING_LIB).$(LIBVERSION)
-	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIB).$(VERSION) $(TRAINING_LIB)
+	cp -f $(TRAINING_LIB) $(DESTDIR)$(PREFIX)/lib/$(TRAINING_LIBNAME).$(VERSION)
+	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME).$(LIBVERSION)
+	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME)
 
 uninstall:
 	echo Removing executables from $(DESTDIR)$(PREFIX)/bin
 	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN)
 	echo Removing libraries from $(DESTDIR)$(PREFIX)/lib
 	rm -f $(DESTDIR)$(PREFIX)/lib/$(STATIC_LIB)
-	cd $(DESTDIR)$(PREFIX)/lib && rm -f $(LIB) $(LIB_MAJVER)
+	cd $(DESTDIR)$(PREFIX)/lib && rm -f $(LIBNAME) $(LIBNAME).$(VERSION) $(LIBNAME).$(LIBVERSION)
 	echo Removing headers from $(DESTDIR)$(PREFIX)/include/tesseract
 	rm -rf $(DESTDIR)$(PREFIX)/include/tesseract
 	echo Removing manual pages from $(DESTDIR)$(MANPREFIX)/man1
