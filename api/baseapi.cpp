@@ -1417,7 +1417,7 @@ static void AddBoxTohOCR(const ResultIterator *it,
   *hocr_str += "\">";
 }
 
-static void AddBoxTohOCRTSV(const PageIterator *it,
+static void AddBoxToTSV(const PageIterator *it,
                          PageIteratorLevel level,
                          STRING* hocr_str) {
   int left, top, right, bottom;
@@ -1615,57 +1615,31 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
 }
 
 /**
- * Make a TSV-formatted string with hOCR markup from the internal
- * data structures.
+ * Make a TSV-formatted string from the internal data structures.
  * page_number is 0-based but will appear in the output as 1-based.
- * Image name/input_file_ can be set by SetInputName before calling
- * GetHOCRText
- * STL removed from original patch submission and refactored by rays.
  */
-char* TessBaseAPI::GetHOCRTSVText(int page_number) {
+char* TessBaseAPI::GetTSVText(int page_number) {
   if (tesseract_ == NULL ||
       (page_res_ == NULL && Recognize(NULL) < 0))
     return NULL;
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
-  int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
-  bool font_info = false;
-  GetBoolVariable("hocr_font_info", &font_info);
+  int page_id = page_number + 1;  // we use 1-based page numbers.
 
-  STRING hocr_str("");
-
-  if (input_file_ == NULL)
-      SetInputName(NULL);
-
-#ifdef _WIN32
-  // convert input name from ANSI encoding to utf-8
-  int str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
-                                      NULL, NULL);
-  wchar_t *uni16_str = new WCHAR[str16_len];
-  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
-                                  uni16_str, str16_len);
-  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, NULL,
-                                     NULL, NULL, NULL);
-  char *utf8_str = new char[utf8_len];
-  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
-                      utf8_len, NULL, NULL);
-  *input_file_ = utf8_str;
-  delete[] uni16_str;
-  delete[] utf8_str;
-#endif
+  STRING tsv_str("");
 
   int page_num = page_id, block_num = 0, par_num = 0, line_num = 0, word_num = 0;
 
-  hocr_str.add_str_int("1\t", page_num);
-  hocr_str.add_str_int("\t", block_num);
-  hocr_str.add_str_int("\t", par_num);
-  hocr_str.add_str_int("\t", line_num);
-  hocr_str.add_str_int("\t", word_num);
-  hocr_str.add_str_int("\t", rect_left_);
-  hocr_str.add_str_int("\t", rect_top_);
-  hocr_str.add_str_int("\t", rect_width_);
-  hocr_str.add_str_int("\t", rect_height_);
-  hocr_str += "\t-1\t\n";
+  tsv_str.add_str_int("1\t", page_num); // level 1 - page
+  tsv_str.add_str_int("\t", block_num);
+  tsv_str.add_str_int("\t", par_num);
+  tsv_str.add_str_int("\t", line_num);
+  tsv_str.add_str_int("\t", word_num);
+  tsv_str.add_str_int("\t", rect_left_);
+  tsv_str.add_str_int("\t", rect_top_);
+  tsv_str.add_str_int("\t", rect_width_);
+  tsv_str.add_str_int("\t", rect_height_);
+  tsv_str += "\t-1\t\n";
 
   ResultIterator *res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
@@ -1674,36 +1648,36 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
       continue;
     }
 
-    // Open any new block/paragraph/textline.
+    // Add rows for any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       block_num++, par_num = 0, line_num = 0, word_num = 0;
-      hocr_str.add_str_int("2\t", page_num);
-      hocr_str.add_str_int("\t", block_num);
-      hocr_str.add_str_int("\t", par_num);
-      hocr_str.add_str_int("\t", line_num);
-      hocr_str.add_str_int("\t", word_num);
-      AddBoxTohOCRTSV(res_it, RIL_BLOCK, &hocr_str);
-      hocr_str += "\t-1\t\n";
+      tsv_str.add_str_int("2\t", page_num); // level 2 - block
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_BLOCK, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       par_num++, line_num = 0, word_num = 0;
-      hocr_str.add_str_int("3\t", page_num);
-      hocr_str.add_str_int("\t", block_num);
-      hocr_str.add_str_int("\t", par_num);
-      hocr_str.add_str_int("\t", line_num);
-      hocr_str.add_str_int("\t", word_num);
-      AddBoxTohOCRTSV(res_it, RIL_PARA, &hocr_str);
-      hocr_str += "\t-1\t\n";
+      tsv_str.add_str_int("3\t", page_num); // level 3 - paragraph
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_PARA, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       line_num++, word_num = 0;
-      hocr_str.add_str_int("4\t", page_num);
-      hocr_str.add_str_int("\t", block_num);
-      hocr_str.add_str_int("\t", par_num);
-      hocr_str.add_str_int("\t", line_num);
-      hocr_str.add_str_int("\t", word_num);
-      AddBoxTohOCRTSV(res_it, RIL_TEXTLINE, &hocr_str);
-      hocr_str += "\t-1\t\n";
+      tsv_str.add_str_int("4\t", page_num); // level 4 - line
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_TEXTLINE, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for line
     }
 
     // Now, process the word...
@@ -1715,49 +1689,34 @@ char* TessBaseAPI::GetHOCRTSVText(int page_number) {
     font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
                                            &monospace, &serif, &smallcaps,
                                            &pointsize, &font_id);
-      word_num++;
-      hocr_str.add_str_int("5\t", page_num);
-      hocr_str.add_str_int("\t", block_num);
-      hocr_str.add_str_int("\t", par_num);
-      hocr_str.add_str_int("\t", line_num);
-      hocr_str.add_str_int("\t", word_num);
-      hocr_str.add_str_int("\t", left);
-      hocr_str.add_str_int("\t", top);
-      hocr_str.add_str_int("\t", right - left + 1);
-      hocr_str.add_str_int("\t", bottom - top + 1);
-      hocr_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
-    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
-    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    hocr_str += "\t";
+    word_num++;
+    tsv_str.add_str_int("5\t", page_num); // level 5 - word
+    tsv_str.add_str_int("\t", block_num);
+    tsv_str.add_str_int("\t", par_num);
+    tsv_str.add_str_int("\t", line_num);
+    tsv_str.add_str_int("\t", word_num);
+    tsv_str.add_str_int("\t", left);
+    tsv_str.add_str_int("\t", top);
+    tsv_str.add_str_int("\t", right - left + 1);
+    tsv_str.add_str_int("\t", bottom - top + 1);
+    tsv_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
+    tsv_str += "\t";
+
+    // Increment counts if at end of block/paragraph/textline.
+    if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD)) lcnt++;
+    if (res_it->IsAtFinalElement(RIL_PARA, RIL_WORD)) pcnt++;
+    if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) bcnt++;
+
     do {
-      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
-//      if (grapheme && grapheme[0] != 0) {
-//        if (grapheme[1] == 0) {
-//          hocr_str += HOcrEscape(grapheme);
-//        } else {
-          hocr_str += grapheme;
-//        }
-//      }
-      delete []grapheme;
+      tsv_str += res_it->GetUTF8Text(RIL_SYMBOL);
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-    hocr_str += "\n";
+    tsv_str += "\n"; // end of row
     wcnt++;
-    // Close any ending block/paragraph/textline.
-    if (last_word_in_line) {
-      lcnt++;
-    }
-    if (last_word_in_para) {
-      pcnt++;
-    }
-    if (last_word_in_block) {
-      bcnt++;
-    }
   }
 
-  char *ret = new char[hocr_str.length() + 1];
-  strcpy(ret, hocr_str.string());
+  char *ret = new char[tsv_str.length() + 1];
+  strcpy(ret, tsv_str.string());
   delete res_it;
   return ret;
 }

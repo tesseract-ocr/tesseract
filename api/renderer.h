@@ -163,12 +163,12 @@ private:
 };
 
 /**
- * Renders tesseract output into an hocr tsv string
+ * Renders Tesseract output into a TSV string
  */
-class TESS_API TessHOcrTsvRenderer : public TessResultRenderer {
+class TESS_API TessTsvRenderer : public TessResultRenderer {
  public:
-  explicit TessHOcrTsvRenderer(const char *outputbase, bool font_info);
-  explicit TessHOcrTsvRenderer(const char *outputbase);
+  explicit TessTsvRenderer(const char *outputbase, bool font_info);
+  explicit TessTsvRenderer(const char *outputbase);
 
 protected:
   virtual bool BeginDocumentHandler();

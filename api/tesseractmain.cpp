@@ -299,12 +299,12 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
                      new tesseract::TessHOcrRenderer(outputbase, font_info));
     }
 
-    api->GetBoolVariable("tessedit_create_hocrtsv", &b);
+    api->GetBoolVariable("tessedit_create_tsv", &b);
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
       renderers->push_back(
-          new tesseract::TessHOcrTsvRenderer(outputbase, font_info));
+          new tesseract::TessTsvRenderer(outputbase, font_info));
     }
 
     api->GetBoolVariable("tessedit_create_pdf", &b);

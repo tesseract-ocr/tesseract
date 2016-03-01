@@ -182,31 +182,32 @@ bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
 /**********************************************************************
  * HOcr Text Renderer interface implementation
  **********************************************************************/
-TessHOcrTsvRenderer::TessHOcrTsvRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "hocr.tsv") {
+TessTsvRenderer::TessTsvRenderer(const char *outputbase)
+    : TessResultRenderer(outputbase, "tsv") {
     font_info_ = false;
 }
 
-TessHOcrTsvRenderer::TessHOcrTsvRenderer(const char *outputbase, bool font_info)
-    : TessResultRenderer(outputbase, "hocr.tsv") {
+TessTsvRenderer::TessTsvRenderer(const char *outputbase, bool font_info)
+    : TessResultRenderer(outputbase, "tsv") {
     font_info_ = font_info;
 }
 
-bool TessHOcrTsvRenderer::BeginDocumentHandler() {
+bool TessTsvRenderer::BeginDocumentHandler() {
+  // Output TSV column headings
   AppendString("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n");
   return true;
 }
 
-bool TessHOcrTsvRenderer::EndDocumentHandler() {
+bool TessTsvRenderer::EndDocumentHandler() {
   return true;
 }
 
-bool TessHOcrTsvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* hocrtsv = api->GetHOCRTSVText(imagenum());
-  if (hocrtsv == NULL) return false;
+bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
+  char* tsv = api->GetTSVText(imagenum());
+  if (tsv == NULL) return false;
 
-  AppendString(hocrtsv);
-  delete[] hocrtsv;
+  AppendString(tsv);
+  delete[] tsv;
 
   return true;
 }
