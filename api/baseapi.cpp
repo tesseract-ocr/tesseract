@@ -1417,6 +1417,19 @@ static void AddBoxTohOCR(const ResultIterator *it,
   *hocr_str += "\">";
 }
 
+static void AddBoxToTSV(const PageIterator *it,
+                         PageIteratorLevel level,
+                         STRING* hocr_str) {
+  int left, top, right, bottom;
+  it->BoundingBox(level, &left, &top, &right, &bottom);
+  hocr_str->add_str_int("\t", left);
+  hocr_str->add_str_int("\t", top);
+  hocr_str->add_str_int("\t", right - left + 1);
+  hocr_str->add_str_int("\t", bottom - top + 1);
+}
+
+
+
 /**
  * Make a HTML-formatted string with hOCR markup from the internal
  * data structures.
@@ -1597,6 +1610,113 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
 
   char *ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());
+  delete res_it;
+  return ret;
+}
+
+/**
+ * Make a TSV-formatted string from the internal data structures.
+ * page_number is 0-based but will appear in the output as 1-based.
+ */
+char* TessBaseAPI::GetTSVText(int page_number) {
+  if (tesseract_ == NULL ||
+      (page_res_ == NULL && Recognize(NULL) < 0))
+    return NULL;
+
+  int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
+  int page_id = page_number + 1;  // we use 1-based page numbers.
+
+  STRING tsv_str("");
+
+  int page_num = page_id, block_num = 0, par_num = 0, line_num = 0, word_num = 0;
+
+  tsv_str.add_str_int("1\t", page_num); // level 1 - page
+  tsv_str.add_str_int("\t", block_num);
+  tsv_str.add_str_int("\t", par_num);
+  tsv_str.add_str_int("\t", line_num);
+  tsv_str.add_str_int("\t", word_num);
+  tsv_str.add_str_int("\t", rect_left_);
+  tsv_str.add_str_int("\t", rect_top_);
+  tsv_str.add_str_int("\t", rect_width_);
+  tsv_str.add_str_int("\t", rect_height_);
+  tsv_str += "\t-1\t\n";
+
+  ResultIterator *res_it = GetIterator();
+  while (!res_it->Empty(RIL_BLOCK)) {
+    if (res_it->Empty(RIL_WORD)) {
+      res_it->Next(RIL_WORD);
+      continue;
+    }
+
+    // Add rows for any new block/paragraph/textline.
+    if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
+      block_num++, par_num = 0, line_num = 0, word_num = 0;
+      tsv_str.add_str_int("2\t", page_num); // level 2 - block
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_BLOCK, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for block
+    }
+    if (res_it->IsAtBeginningOf(RIL_PARA)) {
+      par_num++, line_num = 0, word_num = 0;
+      tsv_str.add_str_int("3\t", page_num); // level 3 - paragraph
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_PARA, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for para
+    }
+    if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+      line_num++, word_num = 0;
+      tsv_str.add_str_int("4\t", page_num); // level 4 - line
+      tsv_str.add_str_int("\t", block_num);
+      tsv_str.add_str_int("\t", par_num);
+      tsv_str.add_str_int("\t", line_num);
+      tsv_str.add_str_int("\t", word_num);
+      AddBoxToTSV(res_it, RIL_TEXTLINE, &tsv_str);
+      tsv_str += "\t-1\t\n"; // end of row for line
+    }
+
+    // Now, process the word...
+    int left, top, right, bottom;
+    bool bold, italic, underlined, monospace, serif, smallcaps;
+    int pointsize, font_id;
+    const char *font_name;
+    res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
+    font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
+                                           &monospace, &serif, &smallcaps,
+                                           &pointsize, &font_id);
+    word_num++;
+    tsv_str.add_str_int("5\t", page_num); // level 5 - word
+    tsv_str.add_str_int("\t", block_num);
+    tsv_str.add_str_int("\t", par_num);
+    tsv_str.add_str_int("\t", line_num);
+    tsv_str.add_str_int("\t", word_num);
+    tsv_str.add_str_int("\t", left);
+    tsv_str.add_str_int("\t", top);
+    tsv_str.add_str_int("\t", right - left + 1);
+    tsv_str.add_str_int("\t", bottom - top + 1);
+    tsv_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
+    tsv_str += "\t";
+
+    // Increment counts if at end of block/paragraph/textline.
+    if (res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD)) lcnt++;
+    if (res_it->IsAtFinalElement(RIL_PARA, RIL_WORD)) pcnt++;
+    if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) bcnt++;
+
+    do {
+      tsv_str += res_it->GetUTF8Text(RIL_SYMBOL);
+      res_it->Next(RIL_SYMBOL);
+    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
+    tsv_str += "\n"; // end of row
+    wcnt++;
+  }
+
+  char *ret = new char[tsv_str.length() + 1];
+  strcpy(ret, tsv_str.string());
   delete res_it;
   return ret;
 }

@@ -603,6 +603,12 @@ class TESS_API TessBaseAPI {
   char* GetHOCRText(int page_number);
 
   /**
+   * Make a TSV-formatted string from the internal data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
+   */
+  char* GetTSVText(int page_number);
+
+  /**
    * The recognized text is returned as a char* which is coded in the same
    * format as a box file used in training. Returned string must be freed with
    * the delete [] operator.

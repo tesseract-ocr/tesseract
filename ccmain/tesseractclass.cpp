@@ -385,6 +385,8 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file",
                   this->params()),
+      BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file",
+                  this->params()),
       BOOL_MEMBER(tessedit_create_pdf, false, "Write .pdf output file",
                   this->params()),
       STRING_MEMBER(unrecognised_char, "|",
@@ -509,6 +511,7 @@ Tesseract::Tesseract()
       STRING_MEMBER(page_separator, "\f",
                     "Page separator (default is form feed control character)",
                     this->params()),
+
 
       // The following parameters were deprecated and removed from their
       // original
