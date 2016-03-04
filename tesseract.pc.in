@@ -12,5 +12,5 @@ URL: https://github.com/tesseract-ocr/tesseract
 Version: @VERSION@
 Requires.private: lept
 Libs: -L${libdir} -ltesseract
-Libs.private: -lpthread -llept @OPENCL_LIB@
+Libs.private: -lpthread @OPENCL_LDFLAGS@
 Cflags: -I${includedir}
