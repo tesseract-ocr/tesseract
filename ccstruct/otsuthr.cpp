@@ -48,11 +48,12 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
   double best_hi_dist = 0.0;
   *thresholds = new int[num_channels];
   *hi_values = new int[num_channels];
-  // all of channel 0 then all of channel 1...
-  int *histogramAllChannels = new int[kHistogramSize * num_channels];
 
   // only use opencl if compiled w/ OpenCL and selected device is opencl
 #ifdef USE_OPENCL
+    // all of channel 0 then all of channel 1...
+    int *histogramAllChannels = new int[kHistogramSize * num_channels];
+
     // Calculate Histogram on GPU
     OpenclDevice od;
     if (od.selectedDeviceIsOpenCL() &&
@@ -139,8 +140,9 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
     }
 #ifdef USE_OPENCL
   }
-#endif  // USE_OPENCL
   delete[] histogramAllChannels;
+#endif  // USE_OPENCL
+
 
   if (!any_good_hivalue) {
     // Use the best of the ones that were not good enough.
