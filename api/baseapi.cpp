@@ -851,6 +851,9 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     page_res_ = new PAGE_RES(false,
                              block_list_, &tesseract_->prev_word_best_choice_);
   }
+  if (page_res_ == NULL) {
+    return -1;
+  }
   if (tesseract_->tessedit_make_boxes_from_boxes) {
     tesseract_->CorrectClassifyWords(page_res_);
     return 0;
