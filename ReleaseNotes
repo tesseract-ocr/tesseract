@@ -1,3 +1,57 @@
+= Tesseract release notes July 11 2015 - V3.04.01 =
+  * Added OSD renderer for psm 0. Works for single page and multi-page images.
+  * Improve tesstrain.sh script.
+  * Simplify build and run of ScrollView.
+  * Improved PDF output for OS X Preview utility.
+  * INCOMPATIBLE fix to hOCR line height information - commit 134ebc3.
+  * Added option to build Tesseract without Cube OCR engine (-DNO_CUBE_BUILD).
+  * Enable OpenMP support.
+  * Many bug fixes.
+
+= Tesseract release notes July 11 2015 - V3.04.00 =
+  * Tesseract development is now done with Git and hosted at github.com (Previously we used Subversion as a VCS and code.google.com for hosting).
+  * Tesseract now requires leptonica 1.71 or a higher version.
+  * Removed official support for VS 2008.
+  * Added support for 39 additional scripts/languages, including: amh, asm, aze_cyrl, bod, bos, ceb, cym, dzo, fas, gle, guj, hat, iku, jav, kat, kat_old, kaz, khm, kir, kur, lao, lat, mar, mya, nep, ori, pan, pus, san, sin, srp_latn, syr, tgk, tir, uig, urd, uzb, uzb_cyrl, yid
+  * Major updates to training system as a result of extensive testing on 100 languages.
+  * New training data for over 100 languages
+  * Improved performance with PIC compilation option.
+  * Significant change to invisible font system in pdf output to improve correctness and compatibility with external programs, particularly ghostscript.
+  * Improved font identification.
+  * Major change to improve layout analysis for heavily diacritic languages: Thai, Vietnamese, Kannada, Telugu etc.
+  * Fixed problems with shifted baselines so recognition can recover from layout analysis errors.
+  * Major refactor to improve speed on difficult images, especially when running a heap checker.
+  * Moved params from global in page layout to tesseractclass.
+  * Improved single column layout analysis.
+  * Allow ocr output to multiple formats using tesseract command line executable.
+  * Fixed issues with mixed eng+ara scripts.
+  * Improved script consistency in numbers.
+  * Major refactor of control.cpp to enable line recognition.
+  * Added tesstrain.sh - a master training script.
+  * Added ability to text2image training tool to just list available fonts.
+  * Added ability to text2image to underline words.
+  * Improved efficiency of image processing for PDF output.
+  * Added parameter description for each parameter listed with 'print-parameters' command line option.
+  * Added font info to hOCR output.
+  * Enabled streaming input and output of multi-page documents.
+  * Many bug fixes.
+
+= Tesseract release notes Feb 4 2014 - V3.03(rc1) =
+  * Added OpenCL support (experimental).
+  * Added new training tool text2image to generate box/tif file pairs from text and truetype fonts.
+  * Added support for PDF output with searchable text.
+  * Removed entire IMAGE class and all code in image directory.
+  * Tesseract executable: support for output to stdout; limited support for one page images from stdin (especially on Windows)
+  * Added Renderer to API to allow document-level processing and output of document      formats, like hOCR, PDF.
+  * Major refactor of word-level recognition, beam search, eliminating dead code.
+  * Refactored classifier to make it easier to add new ones.
+  * Generalized feature extractor to allow feature extraction from greyscale.
+  * Improved sub/superscript treatment.
+  * Improved baseline fit.
+  * Added set_unicharset_properties to training tools.
+  * Many bug fixes.
+  * More training source data included.
+
 = Tesseract release notes Feb 01 2012 - V3.02 =
   * Added Right-to-left/Bidi capability in the output iterators for Hebrew/Arabic.
   * Added paragraph detection in layout analysis/post OCR.
