@@ -173,6 +173,11 @@ void PrintLangsList(tesseract::TessBaseAPI* api) {
   api->End();
 }
 
+void PrintBanner() {
+    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+           tesseract::TessBaseAPI::Version());
+}
+
 /**
  * We have 2 possible sources of pagesegmode: a config file and
  * the command line. For backwards compatibility reasons, the
@@ -275,12 +280,6 @@ void ParseArgs(const int argc, char** argv,
     PrintHelpMessage(argv[0]);
     exit(1);
   }
-
-  if (*outputbase != NULL && strcmp(*outputbase, "-") &&
-      strcmp(*outputbase, "stdout")) {
-    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-           tesseract::TessBaseAPI::Version());
-  }
 }
 
 void PreloadRenderers(tesseract::TessBaseAPI* api,
@@ -350,6 +349,12 @@ int main(int argc, char **argv) {
           &lang, &image, &outputbase, &datapath,
           &list_langs, &print_parameters,
           &vars_vec, &vars_values, &arg_i, &pagesegmode);
+
+  bool banner = false;
+  if (outputbase != NULL && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
+    banner = true;
+  }
 
   PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
@@ -429,6 +434,7 @@ int main(int argc, char **argv) {
   }
 
   if (!renderers.empty()) {
+    if (banner) PrintBanner();
     bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
