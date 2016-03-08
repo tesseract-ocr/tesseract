@@ -809,6 +809,10 @@ int CubeAPITest(Boxa* boxa_blocks, Pixa* pixa_blocks,
  * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
  * DetectOS, or anything else that changes the internal PAGE_RES.
  */
+PageIterator* TessBaseAPI::AnalyseLayout() {
+  return AnalyseLayout(false);
+}
+
 PageIterator* TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
   if (FindLines() == 0) {
     if (block_list_->empty())
