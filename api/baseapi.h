@@ -497,9 +497,7 @@ class TESS_API TessBaseAPI {
    * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
    * DetectOS, or anything else that changes the internal PAGE_RES.
    */
-  PageIterator* AnalyseLayout() {
-    return AnalyseLayout(false);
-  }
+  PageIterator* AnalyseLayout();
   PageIterator* AnalyseLayout(bool merge_similar_words);
 
   /**
