@@ -25,7 +25,7 @@ if !NO_CUBE_BUILD
 endif
 SUBDIRS += ccmain api . tessdata doc
 
-EXTRA_DIST = ReleaseNotes README.md\
+EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
