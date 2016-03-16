@@ -36,14 +36,14 @@
 void PrintVersionInfo() {
     char *versionStrP;
 
-    fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
+    printf("tesseract %s\n", tesseract::TessBaseAPI::Version());
 
     versionStrP = getLeptonicaVersion();
-    fprintf(stderr, " %s\n", versionStrP);
+    printf(" %s\n", versionStrP);
     lept_free(versionStrP);
 
     versionStrP = getImagelibVersions();
-    fprintf(stderr, "  %s\n", versionStrP);
+    printf("  %s\n", versionStrP);
     lept_free(versionStrP);
 
 #ifdef USE_OPENCL
@@ -54,18 +54,18 @@ void PrintVersionInfo() {
     char info[256];
     int i;
 
-    fprintf(stderr, " OpenCL info:\n");
+    printf(" OpenCL info:\n");
     clGetPlatformIDs(1, &platform, &num_platforms);
-    fprintf(stderr, "  Found %d platforms.\n", num_platforms);
+    printf("  Found %d platforms.\n", num_platforms);
     clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, info, 0);
-    fprintf(stderr, "  Platform name: %s.\n", info);
+    printf("  Platform name: %s.\n", info);
     clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, info, 0);
-    fprintf(stderr, "  Version: %s.\n", info);
+    printf("  Version: %s.\n", info);
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 2, devices, &num_devices);
-    fprintf(stderr, "  Found %d devices.\n", num_devices);
+    printf("  Found %d devices.\n", num_devices);
     for (i = 0; i < num_devices; ++i) {
       clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0);
-      fprintf(stderr, "    Device %d name: %s.\n", i+1, info);
+      printf("    Device %d name: %s.\n", i+1, info);
     }
 #endif
 }
