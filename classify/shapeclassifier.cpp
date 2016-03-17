@@ -179,7 +179,7 @@ void ShapeClassifier::UnicharPrintResults(
     if (results[i].fonts.size() != 0) {
       tprintf(" Font Vector:");
       for (int f = 0; f < results[i].fonts.size(); ++f) {
-        tprintf(" %d", results[i].fonts[f]);
+        tprintf(" %d", results[i].fonts[f].fontinfo_id);
       }
     }
     tprintf("\n");
