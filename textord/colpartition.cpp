@@ -1182,7 +1182,7 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
         tprintf("No path\n");
       } else {
         tprintf("Total cost = %d vs allowed %d\n",
-                best_end->total_cost() < blob_count);
+                best_end->total_cost(), blob_count);
       }
     }
     delete [] projection;
