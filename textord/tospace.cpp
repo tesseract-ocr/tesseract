@@ -1686,7 +1686,7 @@ void Textord::mark_gap(
       blob.bottom () + blob.height () / 2.0f);
  }
   if (tosp_debug_level > 5)
-    tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d\n",
+    tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d %d\n",
       blob.left () - current_gap / 2, blob.bottom (), rule,
       prev_gap, prev_blob_width, current_gap,
       next_blob_width, next_gap);
