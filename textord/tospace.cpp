@@ -1131,7 +1131,7 @@ ROW *Textord::make_prop_words(
         blanks = 0;
       if (tosp_debug_level > 5)
         tprintf
-          ("Repch wd at EOL (%d,%d). rep spacing %d; Lgap:%d (%d blanks)\n",
+          ("Repch wd at EOL (%d,%d). rep spacing %5.2f; Lgap:%d (%d blanks)\n",
           word->bounding_box ().left (), word->bounding_box ().bottom (),
           repetition_spacing, current_gap, blanks);
       word->set_blanks (blanks);
@@ -1686,7 +1686,7 @@ void Textord::mark_gap(
       blob.bottom () + blob.height () / 2.0f);
  }
   if (tosp_debug_level > 5)
-    tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d\n",
+    tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d %d\n",
       blob.left () - current_gap / 2, blob.bottom (), rule,
       prev_gap, prev_blob_width, current_gap,
       next_blob_width, next_gap);
