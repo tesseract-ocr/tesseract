@@ -71,7 +71,7 @@ void PrintVersionInfo() {
 }
 
 void PrintUsage(const char* program) {
-  fprintf(stderr,
+  printf(
       "Usage:\n"
       "  %s --help | --help-psm | --version\n"
       "  %s --list-langs [--tessdata-dir PATH]\n"
@@ -105,7 +105,7 @@ void PrintHelpForPSM() {
         #endif
         ;
 
-  fprintf(stderr, "%s", msg);
+  printf("%s", msg);
 }
 
 void PrintHelpMessage(const char* program) {
@@ -123,7 +123,7 @@ void PrintHelpMessage(const char* program) {
       "NOTE: These options must occur before any configfile.\n"
      ;
 
-  fprintf(stderr, "\n%s\n", ocr_options);
+  printf("\n%s\n", ocr_options);
   PrintHelpForPSM();
 
   const char *single_options =
@@ -135,7 +135,7 @@ void PrintHelpMessage(const char* program) {
       "  --print-parameters    Print tesseract parameters to stdout.\n"
       ;
 
-  fprintf(stderr, "\n%s", single_options);
+  printf("\n%s", single_options);
 }
 
 void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc, char** argv) {
