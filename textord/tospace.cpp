@@ -1131,7 +1131,7 @@ ROW *Textord::make_prop_words(
         blanks = 0;
       if (tosp_debug_level > 5)
         tprintf
-          ("Repch wd at EOL (%d,%d). rep spacing %d; Lgap:%d (%d blanks)\n",
+          ("Repch wd at EOL (%d,%d). rep spacing %5.2f; Lgap:%d (%d blanks)\n",
           word->bounding_box ().left (), word->bounding_box ().bottom (),
           repetition_spacing, current_gap, blanks);
       word->set_blanks (blanks);
