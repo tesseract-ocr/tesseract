@@ -418,7 +418,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
         } else {
           tprintf("OSD: Weak margin (%.2f) for %d blob text block, "
                   "but using orientation anyway: %d\n",
-                  osd_blobs.length(), osd_margin, osd_orientation);
+                  osd_margin, osd_blobs.length(), osd_orientation);
         }
       }
     }
