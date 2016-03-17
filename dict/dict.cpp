@@ -478,7 +478,8 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
     dawg_args->permuter = curr_perm;
   }
   if (dawg_debug_level >= 2) {
-    tprintf("Returning %d for permuter code for this character.\n");
+    tprintf("Returning %d for permuter code for this character.\n",
+            dawg_args->permuter);
   }
   return dawg_args->permuter;
 }
