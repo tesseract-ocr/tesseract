@@ -72,7 +72,7 @@ class TESS_API ERRCODE {           // error handler class
     const char *caller,        // function location
     TessErrorLogCode action,   // action to take
     const char *format, ...    // fprintf format
-  ) const;
+  ) const __attribute__((format(gnu_printf, 4, 5)));
   constexpr ERRCODE(const char *string) : message(string) {
   }                            // initialize with string
 };

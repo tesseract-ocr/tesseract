@@ -24,6 +24,6 @@
 
 // Main logging function.
 extern TESS_API void tprintf(  // Trace printf
-    const char *format, ...);  // Message
+    const char *format, ...) __attribute__((format(gnu_printf, 1, 2))); // Message
 
 #endif  // define TESSERACT_CCUTIL_TPRINTF_H
