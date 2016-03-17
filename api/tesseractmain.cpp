@@ -164,11 +164,10 @@ void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc, char** argv) 
 void PrintLangsList(tesseract::TessBaseAPI* api) {
   GenericVector<STRING> languages;
   api->GetAvailableLanguagesAsVector(&languages);
-  fprintf(stderr, "List of available languages (%d):\n",
-          languages.size());
+  printf("List of available languages (%d):\n", languages.size());
   for (int index = 0; index < languages.size(); ++index) {
     STRING& string = languages[index];
-    fprintf(stderr, "%s\n", string.string());
+    printf("%s\n", string.string());
   }
   api->End();
 }
