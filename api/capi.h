@@ -1,5 +1,22 @@
-#ifndef TESSERACT_API_CAPI_H__
-#define TESSERACT_API_CAPI_H__
+///////////////////////////////////////////////////////////////////////
+// File:        capi.h
+// Description: C-API TessBaseAPI
+//
+// (C) Copyright 2012, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////
+
+#ifndef API_CAPI_H_
+#define API_CAPI_H_
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 #   include "baseapi.h"
@@ -381,4 +398,4 @@ TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* 
 }
 #endif
 
-#endif /* TESSERACT_API_CAPI_H__ */
+#endif  // API_CAPI_H_
