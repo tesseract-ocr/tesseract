@@ -120,6 +120,7 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
       box_padding_(0),
       total_chars_(0),
       font_index_(0),
+      features_(NULL),
       last_offset_(0) {
   pen_color_[0] = 0.0;
   pen_color_[1] = 0.0;
@@ -149,6 +150,7 @@ void StringRenderer::set_underline_continuation_prob(const double frac) {
 }
 
 StringRenderer::~StringRenderer() {
+  free(features_);
   ClearBoxes();
   FreePangoCairo();
 }
@@ -203,6 +205,12 @@ void StringRenderer::SetLayoutProperties() {
     spacing_attr->start_index = 0;
     spacing_attr->end_index = static_cast<guint>(-1);
     pango_attr_list_change(attr_list, spacing_attr);
+  }
+  if (add_ligatures_) {
+    set_features("liga, clig, dlig, hlig");
+    PangoAttribute* feature_attr =
+      pango_attr_font_features_new(features_);
+    pango_attr_list_change(attr_list, feature_attr);
   }
   pango_layout_set_attributes(layout_, attr_list);
   pango_attr_list_unref(attr_list);
