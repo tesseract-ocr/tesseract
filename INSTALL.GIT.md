@@ -54,7 +54,7 @@ There is alternative build system based on multiplatform [cmake](https://cmake.o
 
 You need to use leptonica with cmake patch:
 
-    git clone https://github.com/egorpugin/leptonica.git
+    git clone https://github.com/DanBloomberg/leptonica.git
     cd leptonica
     mkdir build
     cd build

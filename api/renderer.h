@@ -163,6 +163,23 @@ private:
 };
 
 /**
+ * Renders Tesseract output into a TSV string
+ */
+class TESS_API TessTsvRenderer : public TessResultRenderer {
+ public:
+  explicit TessTsvRenderer(const char *outputbase, bool font_info);
+  explicit TessTsvRenderer(const char *outputbase);
+
+protected:
+  virtual bool BeginDocumentHandler();
+  virtual bool AddImageHandler(TessBaseAPI* api);
+  virtual bool EndDocumentHandler();
+
+private:
+  bool font_info_;              // whether to print font information
+};
+
+/**
  * Renders tesseract output into searchable PDF
  */
 class TESS_API TessPDFRenderer : public TessResultRenderer {

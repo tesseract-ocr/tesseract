@@ -497,9 +497,7 @@ class TESS_API TessBaseAPI {
    * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
    * DetectOS, or anything else that changes the internal PAGE_RES.
    */
-  PageIterator* AnalyseLayout() {
-    return AnalyseLayout(false);
-  }
+  PageIterator* AnalyseLayout();
   PageIterator* AnalyseLayout(bool merge_similar_words);
 
   /**
@@ -601,6 +599,12 @@ class TESS_API TessBaseAPI {
    * page_number is 0-based but will appear in the output as 1-based.
    */
   char* GetHOCRText(int page_number);
+
+  /**
+   * Make a TSV-formatted string from the internal data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
+   */
+  char* GetTSVText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same

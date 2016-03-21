@@ -534,7 +534,7 @@ bool FontUtils::IsAvailableFont(const char* input_query_desc,
        pango_font_description_get_weight(selected_desc));
 
   char* selected_desc_str = pango_font_description_to_string(selected_desc);
-  tlog(2, "query_desc: '%s' Selected: 's'\n", query_desc.c_str(),
+  tlog(2, "query_desc: '%s' Selected: '%s'\n", query_desc.c_str(),
        selected_desc_str);
   if (!equal && best_match != NULL) {
     *best_match = selected_desc_str;

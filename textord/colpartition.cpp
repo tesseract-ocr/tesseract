@@ -1182,7 +1182,7 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
         tprintf("No path\n");
       } else {
         tprintf("Total cost = %d vs allowed %d\n",
-                best_end->total_cost() < blob_count);
+                best_end->total_cost(), blob_count);
       }
     }
     delete [] projection;
@@ -1527,7 +1527,7 @@ void ColPartition::LineSpacingBlocks(const ICOORD& bleft, const ICOORD& tright,
     } else {
       if (textord_debug_tabfind && !it.empty()) {
         ColPartition* next_part = it.data();
-        tprintf("Spacings equal: upper:%d/%d, lower:%d/%d\n",
+        tprintf("Spacings equal: upper:%d/%d, lower:%d/%d, median:%d/%d\n",
                 part->top_spacing(), part->bottom_spacing(),
                 next_part->top_spacing(), next_part->bottom_spacing(),
                 part->median_size(), next_part->median_size());

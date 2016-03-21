@@ -459,7 +459,7 @@ bool WERD_RES::StatesAllValid() {
     WERD_CHOICE* choice = it.data();
     if (choice->TotalOfStates() != ratings_dim) {
       tprintf("Cooked #%d has total of states = %d vs ratings dim of %d\n",
-              choice->TotalOfStates(), ratings_dim);
+              index, choice->TotalOfStates(), ratings_dim);
       return false;
     }
   }

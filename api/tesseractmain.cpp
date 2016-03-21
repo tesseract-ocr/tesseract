@@ -36,14 +36,14 @@
 void PrintVersionInfo() {
     char *versionStrP;
 
-    fprintf(stderr, "tesseract %s\n", tesseract::TessBaseAPI::Version());
+    printf("tesseract %s\n", tesseract::TessBaseAPI::Version());
 
     versionStrP = getLeptonicaVersion();
-    fprintf(stderr, " %s\n", versionStrP);
+    printf(" %s\n", versionStrP);
     lept_free(versionStrP);
 
     versionStrP = getImagelibVersions();
-    fprintf(stderr, "  %s\n", versionStrP);
+    printf("  %s\n", versionStrP);
     lept_free(versionStrP);
 
 #ifdef USE_OPENCL
@@ -54,18 +54,18 @@ void PrintVersionInfo() {
     char info[256];
     int i;
 
-    fprintf(stderr, " OpenCL info:\n");
+    printf(" OpenCL info:\n");
     clGetPlatformIDs(1, &platform, &num_platforms);
-    fprintf(stderr, "  Found %d platforms.\n", num_platforms);
+    printf("  Found %d platforms.\n", num_platforms);
     clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, info, 0);
-    fprintf(stderr, "  Platform name: %s.\n", info);
+    printf("  Platform name: %s.\n", info);
     clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, info, 0);
-    fprintf(stderr, "  Version: %s.\n", info);
+    printf("  Version: %s.\n", info);
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 2, devices, &num_devices);
-    fprintf(stderr, "  Found %d devices.\n", num_devices);
+    printf("  Found %d devices.\n", num_devices);
     for (i = 0; i < num_devices; ++i) {
       clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0);
-      fprintf(stderr, "    Device %d name: %s.\n", i+1, info);
+      printf("    Device %d name: %s.\n", i+1, info);
     }
 #endif
 }
@@ -173,6 +173,11 @@ void PrintLangsList(tesseract::TessBaseAPI* api) {
   api->End();
 }
 
+void PrintBanner() {
+    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+           tesseract::TessBaseAPI::Version());
+}
+
 /**
  * We have 2 possible sources of pagesegmode: a config file and
  * the command line. For backwards compatibility reasons, the
@@ -275,12 +280,6 @@ void ParseArgs(const int argc, char** argv,
     PrintHelpMessage(argv[0]);
     exit(1);
   }
-
-  if (*outputbase != NULL && strcmp(*outputbase, "-") &&
-      strcmp(*outputbase, "stdout")) {
-    tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
-           tesseract::TessBaseAPI::Version());
-  }
 }
 
 void PreloadRenderers(tesseract::TessBaseAPI* api,
@@ -299,6 +298,14 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
                      new tesseract::TessHOcrRenderer(outputbase, font_info));
     }
 
+    api->GetBoolVariable("tessedit_create_tsv", &b);
+    if (b) {
+      bool font_info;
+      api->GetBoolVariable("hocr_font_info", &font_info);
+      renderers->push_back(
+          new tesseract::TessTsvRenderer(outputbase, font_info));
+    }
+
     api->GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
       renderers->push_back(new tesseract::TessPDFRenderer(outputbase,
@@ -315,15 +322,8 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
       renderers->push_back(new tesseract::TessBoxTextRenderer(outputbase));
     }
 
-    // disable text renderer when using one of these configs:
-    // ambigs.train, box.train, box.train.stderr, linebox, rebox
-    bool disable_text_renderer =
-          (api->GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
-          (api->GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
-          (api->GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
-
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || (renderers->empty() && !disable_text_renderer)) {
+    if (b || renderers->empty()) {
       renderers->push_back(new tesseract::TessTextRenderer(outputbase));
     }
   }
@@ -357,6 +357,12 @@ int main(int argc, char **argv) {
           &lang, &image, &outputbase, &datapath,
           &list_langs, &print_parameters,
           &vars_vec, &vars_values, &arg_i, &pagesegmode);
+
+  bool banner = false;
+  if (outputbase != NULL && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
+    banner = true;
+  }
 
   PERF_COUNT_START("Tesseract:main")
   tesseract::TessBaseAPI api;
@@ -419,15 +425,33 @@ int main(int argc, char **argv) {
     exit(ret_val);
   }
 
+  // set in_training_mode to true when using one of these configs:
+  // ambigs.train, box.train, box.train.stderr, linebox, rebox
+  bool b = false;
+  bool in_training_mode =
+        (api.GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
+        (api.GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
+        (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
+
   tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
-  PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
+
+
+
+  if (in_training_mode) {
+    renderers.push_back(NULL);
+  } else {
+    PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
+  }
+
   if (!renderers.empty()) {
+    if (banner) PrintBanner();
     bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
       exit(1);
     }
   }
+
   PERF_COUNT_END
   return 0;                      // Normal exit
 }
