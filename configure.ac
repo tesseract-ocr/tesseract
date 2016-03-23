@@ -85,7 +85,7 @@ OPENCL_LIBS="-lOpenCL"
 #############################
 AC_CANONICAL_HOST
 case "${host_os}" in
-    mingw32*)
+    mingw*)
         AC_DEFINE_UNQUOTED(MINGW,1,[This is a MinGW system])
         AM_CONDITIONAL(T_WIN, true)
         AM_CONDITIONAL(MINGW, true)
