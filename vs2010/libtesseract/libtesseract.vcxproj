@@ -195,7 +195,7 @@ copy "$(TargetPath)" ..\..\..\lib
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>..\..\api;..\..\ccmain;..\..\ccutil;..\..\ccstruct;..\..\classify;..\..\cube;..\..\cutil;..\..\dict;..\..\neural_networks\runtime;..\..\textord;..\..\viewer;..\..\wordrec;.;..\..\..\include;..\..\..\include\leptonica;..\port;..\..\opencl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OPENMP;WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;USE_STD_NAMESPACE;WINDLLNAME="$(TargetFileName)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -204,7 +204,6 @@ copy "$(TargetPath)" ..\..\..\lib
       </DebugInformationFormat>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4244;4305;4018;4267;4996;4800;4005;4355;4099;4566;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
