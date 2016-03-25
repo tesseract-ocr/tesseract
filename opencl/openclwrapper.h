@@ -10,7 +10,7 @@
 // including CL/cl.h doesn't occur until USE_OPENCL defined below
 
 // platform preprocessor commands
-#if defined( WIN32 ) || defined( __WIN32__ ) || defined( _WIN32 ) || defined( __CYGWIN32__ ) || defined( __MINGW32__ )
+#if defined( WIN32 ) || defined( __WIN32__ ) || defined( _WIN32 ) || defined( __CYGWIN__ ) || defined( __MINGW32__ )
 #define ON_WINDOWS 1
 #define ON_LINUX   0
 #define ON_APPLE   0
