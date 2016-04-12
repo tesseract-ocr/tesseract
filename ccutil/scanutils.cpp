@@ -39,7 +39,7 @@
 
 // workaround for "'off_t' was not declared in this scope" with -std=c++11
 #if !defined(HAVE_OFF_T)
-typedef long off_t;
+typedef long long off_t;
 #endif  // off_t
 
 enum Flags {
