@@ -1467,9 +1467,12 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
   bool para_is_ltr = true; // Default direction is LTR
   const char* paragraph_lang = NULL;
   bool font_info = false;
+  bool hocr_boxes = false;
   GetBoolVariable("hocr_font_info", &font_info);
+  GetBoolVariable("hocr_char_boxes", &hocr_boxes);
 
   STRING hocr_str("");
+  STRING word("");
 
   if (input_file_ == NULL)
       SetInputName(NULL);
@@ -1564,7 +1567,6 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
       }
       hocr_str.add_str_int("; x_fsize ", pointsize);
     }
-    hocr_str += "'";
     const char* lang = res_it->WordRecognitionLanguage();
     if (lang && (!paragraph_lang || strcmp(lang, paragraph_lang))) {
       hocr_str += " lang='";
@@ -1580,20 +1582,34 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
       default:  // Do nothing.
         break;
     }
-    hocr_str += ">";
+
+    word = "";
+    if (hocr_boxes) {
+      hocr_str += "; x_bboxes";
+    }
+    do {
+      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
+      if (grapheme && grapheme[0] != 0) {
+        word += HOcrEscape(grapheme);
+      }
+      delete []grapheme;
+      if (hocr_boxes) {
+        res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
+        hocr_str.add_str_int(" ", left);
+        hocr_str.add_str_int(" ", top);
+        hocr_str.add_str_int(" ", right);
+        hocr_str.add_str_int(" ", bottom);
+      }
+      res_it->Next(RIL_SYMBOL);
+    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
+
+    hocr_str += "'>";
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
     if (bold) hocr_str += "<strong>";
     if (italic) hocr_str += "<em>";
-    do {
-      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
-      if (grapheme && grapheme[0] != 0) {
-        hocr_str += HOcrEscape(grapheme);
-      }
-      delete []grapheme;
-      res_it->Next(RIL_SYMBOL);
-    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
+    hocr_str += word;
     if (italic) hocr_str += "</em>";
     if (bold) hocr_str += "</strong>";
     hocr_str += "</span> ";
