@@ -1582,37 +1582,41 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
       default:  // Do nothing.
         break;
     }
+    hocr_str += "'>";
 
-    word = "";
-    if (hocr_boxes) {
-      hocr_str += "; x_bboxes";
-    }
+    if (bold) hocr_str += "<strong>";
+    if (italic) hocr_str += "<em>";
+
     do {
       const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
       if (grapheme && grapheme[0] != 0) {
-        word += HOcrEscape(grapheme);
+        if (hocr_boxes) {
+          res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
+          hocr_str += "<span class='ocrx_cinfo' title='x_bboxes";
+          hocr_str.add_str_int(" ", left);
+          hocr_str.add_str_int(" ", top);
+          hocr_str.add_str_int(" ", right);
+          hocr_str.add_str_int(" ", bottom);
+          hocr_str += "; x_conf";
+          hocr_str.add_str_int(" ", res_it->Confidence(RIL_SYMBOL));
+          hocr_str += "'>";
+        }
+        hocr_str += HOcrEscape(grapheme);
+        if (hocr_boxes) {
+          hocr_str += "</span>";
+        }
       }
       delete []grapheme;
-      if (hocr_boxes) {
-        res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
-        hocr_str.add_str_int(" ", left);
-        hocr_str.add_str_int(" ", top);
-        hocr_str.add_str_int(" ", right);
-        hocr_str.add_str_int(" ", bottom);
-      }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
 
-    hocr_str += "'>";
-    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
-    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    if (bold) hocr_str += "<strong>";
-    if (italic) hocr_str += "<em>";
-    hocr_str += word;
     if (italic) hocr_str += "</em>";
     if (bold) hocr_str += "</strong>";
     hocr_str += "</span> ";
+
+    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
+    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
+    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {
