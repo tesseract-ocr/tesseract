@@ -467,24 +467,22 @@ fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 
 # Check location of pango headers
-have_pango=false
-AC_CHECK_HEADERS(pango-1.0/pango/pango-features.h, have_pango=true, have_pango=false)
+PKG_CHECK_MODULES(pango, pango, have_pango=true, have_pango=false)
 if !($have_pango); then
         AC_MSG_WARN(Training tools WILL NOT be built because of missing pango library.)
         AC_MSG_WARN(Try to install libpango1.0-dev package.)
 else
-      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags pango)"
+      CPPFLAGS="$CPPFLAGS $pango_CFLAGS"
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_pango)
 
 # Check location of cairo headers
-have_cairo=false
-AC_CHECK_HEADERS(cairo/cairo-version.h, have_cairo=true, have_cairo=false)
+PKG_CHECK_MODULES(cairo, cairo, have_cairo=true, have_cairo=false)
 if !($have_cairo); then
         AC_MSG_WARN(Training tools WILL NOT be built because of missing cairo library.)
         AC_MSG_WARN(Try to install libcairo-dev?? package.)
 else
-      CPPFLAGS="$CPPFLAGS $(pkg-config --cflags cairo)"
+      CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
