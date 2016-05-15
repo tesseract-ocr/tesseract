@@ -10,14 +10,7 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
-if MINGW
-# try static build
-#AM_LDFLAGS += -all-static
-#libic=-lsicuin -licudt -lsicuuc
-libicu=-licuin -licuuc
-else
 libicu=-licui18n -licuuc
-endif
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
