@@ -442,7 +442,8 @@ done
 if test "$have_lept" = yes ; then
   AC_MSG_RESULT(yes)
   AC_CHECK_LIB([lept], [l_generateCIDataForPdf], [],
-               [AC_MSG_ERROR([leptonica library with pdf support (>= 1.71) is missing])])
+               [AC_MSG_ERROR([leptonica library with pdf support (>= 1.71) is missing])],
+               [-lpng])
 else
   AC_MSG_ERROR([leptonica not found])
 fi
