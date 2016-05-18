@@ -24,8 +24,8 @@ LEPT_CPPFLAGS = -I/usr/include/leptonica -I/usr/local/include/leptonica
 LEPT_LDFLAGS = -llept
 
 # Needed for static linking (uncomment lines to enable static linking)
-#EXTRA_CPPFLAGS = -static
-#LEPT_LDFLAGS = -llept -lz -lpng -ljpeg -lgif -ltiff -lwebp -ljbig -lopenjp2
+EXTRA_CPPFLAGS = -static
+LEPT_LDFLAGS = -llept -lz -lpng -ljpeg -lgif -ltiff -lwebp -ljbig -lopenjp2 -llzma -ldl
 
 # Dependencies needed for scrollview
 SCROLLVIEW_CLASSPATH = java/piccolo2d-core-3.0.jar:java/piccolo2d-extras-3.0.jar
