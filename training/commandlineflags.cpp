@@ -144,6 +144,12 @@ void PrintCommandLineFlags() {
 void ParseCommandLineFlags(const char* usage,
                            int* argc, char*** argv,
                            const bool remove_flags) {
+  if (*argc == 1) {
+    tprintf("USAGE: %s\n", usage);
+    PrintCommandLineFlags();
+    exit(0);
+  }
+
   unsigned int i = 1;
   for (i = 1; i < *argc; ++i) {
     const char* current_arg = (*argv)[i];
