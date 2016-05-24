@@ -457,34 +457,36 @@ int i = 0;
     [AC_MSG_RESULT(yes)],
     [AC_MSG_FAILURE([leptonica 1.71 or higher is required])])
 
+AM_CONDITIONAL(ENABLE_TRAINING, true)
+
 # Check location of icu headers
 have_icu=false
 AC_CHECK_HEADERS(unicode/uchar.h, have_icu=true, have_icu=false)
 if !($have_icu); then
         AC_MSG_WARN(Training tools WILL NOT be built because of missing icu library.)
         AC_MSG_WARN(Try to install libicu-devel package.)
+        AM_CONDITIONAL(ENABLE_TRAINING, false)
 fi
-AM_CONDITIONAL(ENABLE_TRAINING, $have_icu)
 
 # Check location of pango headers
 PKG_CHECK_MODULES(pango, pango, have_pango=true, have_pango=false)
 if !($have_pango); then
         AC_MSG_WARN(Training tools WILL NOT be built because of missing pango library.)
         AC_MSG_WARN(Try to install libpango1.0-dev package.)
+        AM_CONDITIONAL(ENABLE_TRAINING, false)
 else
       CPPFLAGS="$CPPFLAGS $pango_CFLAGS"
 fi
-AM_CONDITIONAL(ENABLE_TRAINING, $have_pango)
 
 # Check location of cairo headers
 PKG_CHECK_MODULES(cairo, cairo, have_cairo=true, have_cairo=false)
 if !($have_cairo); then
         AC_MSG_WARN(Training tools WILL NOT be built because of missing cairo library.)
         AC_MSG_WARN(Try to install libcairo-dev?? package.)
+        AM_CONDITIONAL(ENABLE_TRAINING, false)
 else
       CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
-AM_CONDITIONAL(ENABLE_TRAINING, $have_cairo)
 
 # set c++11 support based on platform/compiler
 if test "x$has_cpp11" = "xyes"; then
@@ -507,7 +509,7 @@ if test "x$has_cpp11" = "xyes"; then
   esac
 else
   AC_MSG_WARN(Training tools WILL NOT be built because of missing c++11 support.)
-  AM_CONDITIONAL(ENABLE_TRAINING, [test "x$has_cpp11" = "xyes"])
+  AM_CONDITIONAL(ENABLE_TRAINING, false)
 fi
 
 # ----------------------------------------
