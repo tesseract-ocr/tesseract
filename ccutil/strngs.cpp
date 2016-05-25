@@ -32,8 +32,8 @@ using tesseract::TFile;
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
 // Size of buffer needed to host the decimal representation of the maximum
-// possible length of a %.8g being -0.12345678e+999<nul> = 15.
-const int kMaxDoubleSize = 15;
+// possible length of a %.8g being -1.2345678e+999<nul> = 16.
+const int kMaxDoubleSize = 16;
 
 /**********************************************************************
  * STRING_HEADER provides metadata about the allocated buffer,
