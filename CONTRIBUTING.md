@@ -10,7 +10,7 @@ Use the [users mailing-list](https://groups.google.com/d/forum/tesseract-ocr) in
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) wiki page. 
-* You are trying to train Tesseract and you have a problem and/or want to ask a question about the traing process.  Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki/tesstrain.sh) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
+* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process.  Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki/tesstrain.sh) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
 * You have a general question. 
 
 An issue should only be reported if the platform you are using is one of these:
