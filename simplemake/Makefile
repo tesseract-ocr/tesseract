@@ -125,7 +125,7 @@ install: all
 	cp -f $(TESSCONFIGS) $(DESTDIR)$(TESSDATAPREFIX)/tessdata/tessconfigs
 	echo Installing pkg-config file to $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	mkdir -p $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	sed "s|@prefix@|$(DESTDIR)$(PREFIX)|g; s|@exec_prefix@|$$\{prefix\}|g; s|@bindir@|$$\{exec_prefix\}\/bin|g; s|@datarootdir@|$$\{prefix\}\/share|g; s|@datadir@|$$\{datarootdir\}|g; s|@libdir@|$$\{exec_prefix\}\/lib|g; s|@includedir@|$$\{prefix\}\/include/tesseract|g; s|@PACKAGE_NAME@|tesseract|g; s|@VERSION@|$(VERSION)|g; s|@OPENCL_LIB@|$(OPENCL_LDFLAGS)|g" < tesseract.pc.in > $(DESTDIR)$(PREFIX)/lib/pkgconfig/tesseract.pc
+	sed "s|@prefix@|$(DESTDIR)$(PREFIX)|g; s|@exec_prefix@|$$\{prefix\}|g; s|@bindir@|$$\{exec_prefix\}\/bin|g; s|@datarootdir@|$$\{prefix\}\/share|g; s|@datadir@|$$\{datarootdir\}|g; s|@libdir@|$$\{exec_prefix\}\/lib|g; s|@includedir@|$$\{prefix\}\/include/tesseract|g; s|@PACKAGE_NAME@|tesseract|g; s|@VERSION@|$(VERSION)|g; s|@OPENCL_LIB@|$(OPENCL_LDFLAGS)|g" < ../tesseract.pc.in > $(DESTDIR)$(PREFIX)/lib/pkgconfig/tesseract.pc
 	echo Installing libraries to $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	cp -f $(STATIC_LIB) $(DESTDIR)$(PREFIX)/lib
