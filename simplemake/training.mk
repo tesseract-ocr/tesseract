@@ -48,6 +48,11 @@ TRAINING_BINSRC = \
 
 TRAINING_BIN = $(TRAINING_BINSRC:.cpp=)
 
+TRAINING_EXTRA = \
+               ../training/language-specific.sh \
+               ../training/tesstrain.sh \
+               ../training/tesstrain_utils.sh
+
 TRAINING_MAN = \
                ../doc/ambiguous_words.1 \
                ../doc/cntraining.1 \

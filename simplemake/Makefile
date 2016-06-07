@@ -137,6 +137,7 @@ install-training: training
 	echo Installing executables to $(DESTDIR)$(PREFIX)/bin
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(TRAINING_BIN) $(DESTDIR)$(PREFIX)/bin
+	cp -f $(TRAINING_EXTRA) $(DESTDIR)$(PREFIX)/bin
 	echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	cp -f $(TRAINING_MAN) $(DESTDIR)$(MANPREFIX)/man1
