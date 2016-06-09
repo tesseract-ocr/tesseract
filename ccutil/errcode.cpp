@@ -21,9 +21,7 @@
 #include          <stdlib.h>
 #include          <stdarg.h>
 #include          <string.h>
-#ifdef __UNIX__
 #include          <signal.h>
-#endif
 #include          "tprintf.h"
 #include          "errcode.h"
 
@@ -74,7 +72,6 @@ const char *format, ...          // special message
   // %s is needed here so msg is printed correctly!
   fprintf(stderr, "%s", msg);
 
-  int* p = NULL;
   switch (action) {
     case DBG:
     case TESSLOG:
@@ -82,9 +79,7 @@ const char *format, ...          // special message
     case TESSEXIT:
       //err_exit();
     case ABORT:
-      // Create a deliberate segv as the stack trace is more useful that way.
-      if (!*p)
-        abort();
+      raise(SIGABRT);
     default:
       BADERRACTION.error ("error", ABORT, NULL);
   }
