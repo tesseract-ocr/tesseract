@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:	clustertool.c
+ **	Filename:	clusttool.cpp (Formerly clustertool.c)
  **	Purpose:	Misc. tools for use with the clustering routines
  **	Author:		Dan Johnson
  **	History:	6/6/89, DSJ, Created.

@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    features.h
+ **	Filename:    ocrfeatures.h (Formerly features.h)
  **	Purpose:     Generic definition of a feature.
  **	Author:      Dan Johnson
  **	History:     Sun May 20 10:28:30 1990, DSJ, Created.

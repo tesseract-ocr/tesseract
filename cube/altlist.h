@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        alt_list.h
+ * File:        altlist.h
  * Description: Class to abstarct a list of alternate results
  * Author:    Ahmad Abdulkader
  * Created:   2007

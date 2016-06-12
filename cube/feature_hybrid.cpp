@@ -1,6 +1,6 @@
 /**********************************************************************
- * File:        feature_chebyshev.cpp
- * Description: Implementation of the Chebyshev coefficients Feature Class
+ * File:        feature_hybrid.cpp
+ * Description: Implementation of the Hybrid Feature Class
  * Author:    Ahmad Abdulkader
  * Created:   2008
  *

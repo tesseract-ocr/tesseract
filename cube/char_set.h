@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        char_samp_enum.h
+ * File:        char_set.h (Formerly char_samp_enum.h)
  * Description: Declaration of a Character Set Class
  * Author:    Ahmad Abdulkader
  * Created:   2007

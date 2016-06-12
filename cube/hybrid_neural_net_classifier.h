@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        conv_net_classifier.h
+ * File:        hybrid_neural_net_classifier.h (Formerly conv_net_classifier.h)
  * Description: Declaration of Convolutional-NeuralNet Character Classifier
  * Author:    Ahmad Abdulkader
  * Created:   2007

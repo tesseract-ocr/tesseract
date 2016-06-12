@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        cube_page_segmenter.h
+ * File:        cube_line_segmenter.h
  * Description: Declaration of the Cube Page Segmenter Class
  * Author:    Ahmad Abdulkader
  * Created:   2007

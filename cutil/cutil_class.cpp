@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        cutil.cpp
+// File:        cutil_class.cpp
 // Description: cutil class.
 // Author:      Samuel Charron
 //

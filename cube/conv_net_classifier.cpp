@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        charclassifier.cpp
+ * File:        conv_net_classifier.cpp (Formerly charclassifier.cpp)
  * Description: Implementation of Convolutional-NeuralNet Character Classifier
  * Author:    Ahmad Abdulkader
  * Created:   2007

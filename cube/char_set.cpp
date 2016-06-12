@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        char_samp_enum.cpp
+ * File:        char_set.cpp (Formerly char_samp_enum.cpp)
  * Description: Implementation of a Character Set Class
  * Author:    Ahmad Abdulkader
  * Created:   2007

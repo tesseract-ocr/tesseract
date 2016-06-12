@@ -1,6 +1,6 @@
 /**********************************************************************
- * File:        feature_chebyshev.h
- * Description: Declaration of the Chebyshev coefficients Feature Class
+ * File:        feature_hybrid.h
+ * Description: Declaration of the Hybrid Feature Class
  * Author:    Ahmad Abdulkader
  * Created:   2008
  *
@@ -19,7 +19,7 @@
 
 // The FeatureHybrid class implements a Bitmap feature extractor class. It
 // inherits from the FeatureBase class
-// This class describes the a hybrid feature vector composed by combining
+// This class describes the hybrid feature vector composed by combining
 // the bitmap and the chebyshev feature vectors
 
 #ifndef FEATURE_HYBRID_H
