@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        serialis.h  (Formerly serialmac.h)
+ * File:        serialis.cpp  (Formerly serialmac.h)
  * Description: Inline routines and macros for serialisation functions
  * Author:      Phil Cheatle
  * Created:     Tue Oct 08 08:33:12 BST 1991

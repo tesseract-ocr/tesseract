@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    float2int.c
+ **	Filename:    float2int.cpp
  **	Purpose:     Routines for converting float features to int features
  **	Author:      Dan Johnson
  **	History:     Wed Mar 13 07:47:48 1991, DSJ, Created.

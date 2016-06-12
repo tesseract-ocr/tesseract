@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        pdblock.c  (Formerly pdblk.c)
+ * File:        pdblock.cpp  (Formerly pdblk.c)
  * Description: PDBLK member functions and iterator functions.
  * Author:					Ray Smith
  * Created:					Fri Mar 15 09:41:28 GMT 1991

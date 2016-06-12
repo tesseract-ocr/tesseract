@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        tface.c  (Formerly tface.c)
+ * File:        tface.cpp  (Formerly tface.c)
  * Description: C side of the Tess/tessedit C/C++ interface.
  * Author:		Ray Smith
  * Created:		Mon Apr 27 11:57:06 BST 1992

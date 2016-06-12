@@ -1,5 +1,5 @@
 /******************************************************************************
-**  Filename:  mftraining.c
+**  Filename:  mftraining.cpp
 **  Purpose:  Separates training pages into files for each character.
 **        Strips from files only the features and there parameters of
         the feature type mf.

@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:	danerror.c
+ **	Filename:	danerror.cpp
  **	Purpose:	Routines for managing error trapping
  **	Author:		Dan Johnson
  **	History:	3/17/89, DSJ, Created.

@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    mf.c
+ **	Filename:    mf.cpp
  **	Purpose:     Micro-feature interface to flexible feature extractor.
  **	Author:      Dan Johnson
  **	History:     Thu May 24 09:08:38 1990, DSJ, Created.

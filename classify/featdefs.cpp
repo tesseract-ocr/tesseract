@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    featdefs.c
+ **	Filename:    featdefs.cpp
  **	Purpose:     Definitions of currently defined feature types.
  **	Author:      Dan Johnson
  **	History:     Mon May 21 10:26:21 1990, DSJ, Created.

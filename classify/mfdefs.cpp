@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    mfdefs.c
+ **	Filename:    mfdefs.cpp
  **	Purpose:     Basic routines for manipulating micro-features
  **	Author:      Dan Johnson
  **	History:     Mon Jan 22 08:48:58 1990, DSJ, Created.

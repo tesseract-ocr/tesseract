@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        matrix.c  (Formerly matrix.c)
+ * File:         matrix.cpp  (Formerly matrix.c)
  * Description:  Ratings matrix code. (Used by associator)
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 16 13:18:47 1990

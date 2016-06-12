@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////
-// File:        ocrpara.h
+// File:        ocrpara.cpp
 // Description: OCR Paragraph Output Type
 // Author:      David Eger
 // Created:     2010-11-15

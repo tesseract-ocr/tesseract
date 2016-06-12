@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    outfeat.c
+ **	Filename:    outfeat.cpp
  **	Purpose:     Definition of outline-features.
  **	Author:      Dan Johnson
  **	History:     11/13/90, DSJ, Created.

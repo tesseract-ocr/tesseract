@@ -1,5 +1,5 @@
 /******************************************************************************
- **      Filename:       blobclass.c
+ **      Filename:       blobclass.cpp
  **      Purpose:        High level blob classification and training routines.
  **      Author:         Dan Johnson
  **      History:        7/21/89, DSJ, Created.

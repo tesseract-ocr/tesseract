@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        points.c  (Formerly coords.c)
+ * File:        points.cpp  (Formerly coords.c)
  * Description: Member functions for coordinate classes.
  * Author:					Ray Smith
  * Created:					Fri Mar 15 08:58:17 GMT 1991

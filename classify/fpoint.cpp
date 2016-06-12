@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    fpoint.c
+ **	Filename:    fpoint.cpp
  **	Purpose:     Abstract data type for a 2D point (floating point coords)
  **	Author:      Dan Johnson
  **	History:     Thu Apr 12 10:44:15 1990, DSJ, Created.

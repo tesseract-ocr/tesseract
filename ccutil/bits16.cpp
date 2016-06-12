@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        bits16.h  (Formerly bits8.h)
+ * File:        bits16.cpp  (Formerly bits8.h)
  * Description: Code for 8 bit field class.
  * Author:					Phil Cheatle
  * Created:					Thu Oct 17 10:10:05 BST 1991

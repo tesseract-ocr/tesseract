@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    adaptmatch.c
+ ** Filename:    adaptmatch.cpp
  ** Purpose:     High level adaptive matcher.
  ** Author:      Dan Johnson
  ** History:     Mon Mar 11 10:00:10 1991, DSJ, Created.

@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        drawedg.c  (Formerly drawedge.c)
+ * File:        drawedg.cpp  (Formerly drawedge.c)
  * Description: Collection of functions to draw things to do with edge detection.
  * Author:                  Ray Smith
  * Created:                 Thu Jun 06 13:29:20 BST 1991

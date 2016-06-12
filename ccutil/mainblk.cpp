@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        mainblk.c  (Formerly main.c)
+ * File:        mainblk.cpp  (Formerly main.c)
  * Description: Function to call from main() to setup.
  * Author:      Ray Smith
  * Created:     Tue Oct 22 11:09:40 BST 1991

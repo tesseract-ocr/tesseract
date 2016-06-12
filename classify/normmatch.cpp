@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    normmatch.c
+ **	Filename:    normmatch.cpp
  **	Purpose:     Simple matcher based on character normalization features.
  **	Author:      Dan Johnson
  **	History:     Wed Dec 19 16:18:06 1990, DSJ, Created.

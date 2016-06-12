@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    normfeat.c
+ **	Filename:    normfeat.cpp
  **	Purpose:     Definition of char normalization features.
  **	Author:      Dan Johnson
  **	History:     12/14/90, DSJ, Created.

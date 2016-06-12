@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    mfoutline.c
+ ** Filename:    mfoutline.cpp
  ** Purpose:     Interface to outline struct used for extracting features
  ** Author:      Dan Johnson
  ** History:     Thu May 17 08:14:18 1990, DSJ, Created.

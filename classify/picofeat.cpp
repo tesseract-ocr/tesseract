@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    picofeat.c
+ **	Filename:    picofeat.cpp
  **	Purpose:     Definition of pico-features.
  **	Author:      Dan Johnson
  **	History:     9/4/90, DSJ, Created.

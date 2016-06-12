@@ -1,7 +1,7 @@
 /* -*-C-*-
 ################################################################################
 #
-# File:						listio.c
+# File:						listio.cpp
 # Description:				List I/O processing procedures.
 # Author:					Mark Seaman, Software Productivity
 # Created:					Thu Jul 23 13:24:09 1987

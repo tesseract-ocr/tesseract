@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        scrollview.cc
+// File:        scrollview.cpp
 // Description: ScrollView
 // Author:      Joern Wanke
 // Created:     Thu Nov 29 2007

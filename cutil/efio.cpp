@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:	efio.c
+ **	Filename:	efio.cpp
  **	Purpose:	Utility I/O routines
  **	Author:		Dan Johnson
  **	History:	5/21/89, DSJ, Created.

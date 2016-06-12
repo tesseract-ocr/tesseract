@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    adaptive.c
+ ** Filename:    adaptive.cpp
  ** Purpose:     Adaptive matcher.
  ** Author:      Dan Johnson
  ** History:     Fri Mar  8 10:00:21 1991, DSJ, Created.

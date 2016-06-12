@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    cutoffs.c
+ **	Filename:    cutoffs.cpp
  **	Purpose:     Routines to manipulate an array of class cutoffs.
  **	Author:      Dan Johnson
  **	History:     Wed Feb 20 09:28:51 1991, DSJ, Created.

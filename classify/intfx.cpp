@@ -1,5 +1,5 @@
 /******************************************************************************
- **      Filename:    intfx.c
+ **      Filename:    intfx.cpp
  **      Purpose:     Integer character normalization & feature extraction
  **      Author:      Robert Moss, rays@google.com (Ray Smith)
  **      History:     Tue May 21 15:51:57 MDT 1991, RWM, Created.
