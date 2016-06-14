@@ -423,11 +423,20 @@ int main(int argc, char** argv) {
     }
     return EXIT_SUCCESS;
   }
+
   // Check validity of input flags.
-  ASSERT_HOST_MSG(!FLAGS_text.empty(), "Text file missing!\n");
-  ASSERT_HOST_MSG(!FLAGS_outputbase.empty(), "Output file missing!\n");
-  ASSERT_HOST_MSG(FLAGS_render_ngrams || FLAGS_unicharset_file.empty(),
-                  "Use --unicharset_file only if --render_ngrams is set.\n");
+  if (FLAGS_text.empty()) {
+    tprintf("'--text' option is missing!\n");
+    exit(1);
+  }
+  if (FLAGS_outputbase.empty()) {
+    tprintf("'--outputbase' option is missing!\n");
+    exit(1);
+  }
+  if (!FLAGS_unicharset_file.empty() && FLAGS_render_ngrams) {
+    tprintf("Use '--unicharset_file' only if '--render_ngrams' is set.\n");
+    exit(1);
+  }
 
   if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
     string pango_name;
