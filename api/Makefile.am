@@ -67,7 +67,7 @@ libtesseract_la_LIBADD += ../cube/libtesseract_cube.la \
         ../neural_networks/runtime/libtesseract_neural.la
 endif
 
-libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION)
+libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) -no-undefined
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp

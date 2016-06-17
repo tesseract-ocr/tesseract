@@ -94,7 +94,6 @@ case "${host_os}" in
         ;;
     cygwin*)
         AM_CONDITIONAL([ADD_RT], false)
-        AM_CONDITIONAL([T_WIN], true)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
     solaris*)
