@@ -368,14 +368,6 @@ struct DawgPosition {
 
 class DawgPositionVector : public GenericVector<DawgPosition> {
  public:
-  /// Overload destructor, since clear() does not delete data_[] any more.
-  ~DawgPositionVector() {
-    if (size_reserved_ > 0) {
-      delete[] data_;
-      size_used_ = 0;
-      size_reserved_ = 0;
-    }
-  }
   /// Overload clear() in order to avoid allocating/deallocating memory
   /// when clearing the vector and re-inserting entries into it later.
   void clear() { size_used_ = 0; }
