@@ -22,11 +22,18 @@
 #include "config_auto.h"
 #endif
 
-#if (defined MINGW) || (defined __CYGWIN__)
+#if (defined __MINGW32__) || (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
+#endif
+
+#if (defined __MINGW32__)
 #include "strcasestr.h"
-#endif  // MINGW/Cygwin
+#else
+// needed for strcasestr in string.h
+#define _GNU_SOURCE
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
