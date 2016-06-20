@@ -25,13 +25,13 @@
 #if (defined __MINGW32__) || (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
-#endif
 
 #if (defined __MINGW32__)
 #include "strcasestr.h"
-#else
+#elif !defined(_GNU_SOURCE)
 // needed for strcasestr in string.h
 #define _GNU_SOURCE
+#endif
 #endif
 
 #include <stdlib.h>
