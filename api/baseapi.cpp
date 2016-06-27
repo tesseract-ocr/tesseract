@@ -1431,8 +1431,8 @@ static void AddBoxToTSV(const PageIterator *it,
   it->BoundingBox(level, &left, &top, &right, &bottom);
   hocr_str->add_str_int("\t", left);
   hocr_str->add_str_int("\t", top);
-  hocr_str->add_str_int("\t", right - left + 1);
-  hocr_str->add_str_int("\t", bottom - top + 1);
+  hocr_str->add_str_int("\t", right - left);
+  hocr_str->add_str_int("\t", bottom - top);
 }
 
 
