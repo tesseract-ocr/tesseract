@@ -423,18 +423,30 @@ int main(int argc, char** argv) {
     }
     return EXIT_SUCCESS;
   }
+
   // Check validity of input flags.
-  ASSERT_HOST_MSG(!FLAGS_text.empty(), "Text file missing!\n");
-  ASSERT_HOST_MSG(!FLAGS_outputbase.empty(), "Output file missing!\n");
-  ASSERT_HOST_MSG(FLAGS_render_ngrams || FLAGS_unicharset_file.empty(),
-                  "Use --unicharset_file only if --render_ngrams is set.\n");
+  if (FLAGS_text.empty()) {
+    tprintf("'--text' option is missing!\n");
+    exit(1);
+  }
+  if (FLAGS_outputbase.empty()) {
+    tprintf("'--outputbase' option is missing!\n");
+    exit(1);
+  }
+  if (!FLAGS_unicharset_file.empty() && FLAGS_render_ngrams) {
+    tprintf("Use '--unicharset_file' only if '--render_ngrams' is set.\n");
+    exit(1);
+  }
 
   if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
     string pango_name;
     if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
-      tprintf("Could not find font named %s. Pango suggested font %s\n",
-              FLAGS_font.c_str(), pango_name.c_str());
-      TLOG_FATAL("Please correct --font arg.");
+      tprintf("Could not find font named %s.", FLAGS_font.c_str());
+      if (!pango_name.empty()) { 
+        tprintf("Pango suggested font %s.\n", pango_name.c_str());
+      }
+      tprintf("Please correct --font arg.\n");
+      exit(1);
     }
   }
 
@@ -478,7 +490,8 @@ int main(int argc, char** argv) {
     render.set_gravity_hint_strong(true);
     render.set_render_fullwidth_latin(true);
   } else {
-    TLOG_FATAL("Invalid writing mode : %s\n", FLAGS_writing_mode.c_str());
+    tprintf("Invalid writing mode: %s\n", FLAGS_writing_mode.c_str());
+    exit(1);
   }
 
   string src_utf8;
@@ -503,8 +516,9 @@ int main(int argc, char** argv) {
     UNICHARSET unicharset;
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
-      TLOG_FATAL("Failed to load unicharset from file %s\n",
+      tprintf("Failed to load unicharset from file %s\n",
                  FLAGS_unicharset_file.c_str());
+      exit(1);
     }
 
     // If we are rendering ngrams that will be OCRed later, shuffle them so that

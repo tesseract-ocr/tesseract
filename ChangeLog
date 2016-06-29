@@ -1,4 +1,4 @@
-2015-02-17 - V3.04.01
+2016-02-17 - V3.04.01
   * Added OSD renderer for psm 0. Works for single page and multi-page images.
   * Improve tesstrain.sh script.
   * Simplify build and run of ScrollView.

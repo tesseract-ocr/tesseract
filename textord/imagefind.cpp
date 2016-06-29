@@ -67,11 +67,21 @@ Pix* ImageFind::FindImages(Pix* pix) {
   if (pixGetWidth(pix) < kMinImageFindSize ||
       pixGetHeight(pix) < kMinImageFindSize)
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+
   // Reduce by factor 2.
   Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
   pixDisplayWrite(pixr, textord_tabfind_show_images);
 
   // Get the halftone mask directly from Leptonica.
+  //
+  // Leptonica will print an error message and return NULL if we call
+  // pixGenHalftoneMask(pixr, NULL, ...) with too small image, so we
+  // want to bypass that.
+  if (pixGetWidth(pixr) < kMinImageFindSize || 
+      pixGetHeight(pixr) < kMinImageFindSize) {
+    pixDestroy(&pixr);
+    return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
+  }
   l_int32 ht_found = 0;
   Pix *pixht2 = pixGenHalftoneMask(pixr, NULL, &ht_found,
                                    textord_tabfind_show_images);
