@@ -1584,6 +1584,10 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
     }
     hocr_str += "'>";
 
+    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
+    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
+    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
+
     if (bold) hocr_str += "<strong>";
     if (italic) hocr_str += "<em>";
 
@@ -1614,9 +1618,6 @@ char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
     if (bold) hocr_str += "</strong>";
     hocr_str += "</span> ";
 
-    bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-    bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
-    bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {
