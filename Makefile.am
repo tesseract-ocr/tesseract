@@ -14,7 +14,7 @@ training:
 	@echo "Need to reconfigure project, so there are no errors"
 endif
 
-.PHONY: install-langs ScrollView.jar install-jars $(TRAINING_SUBDIR)
+.PHONY: install-langs ScrollView.jar install-jars training
 
 SUBDIRS = ccutil viewer cutil opencl ccstruct dict classify wordrec textord
 if !NO_CUBE_BUILD
