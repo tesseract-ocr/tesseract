@@ -107,6 +107,9 @@ options:
             public: _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
             public: USE_STD_NAMESPACE=1
             public: WINDLLNAME="tesseract"
+    shared:
+        definitions:
+            public: TESS_EXPORTS
 
 dependencies:
   pvt.cppan.demo.leptonica: master
