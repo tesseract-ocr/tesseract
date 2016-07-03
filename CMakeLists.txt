@@ -159,33 +159,33 @@ string(SUBSTRING ${VERSION_MINOR} 0 1 VERSION_MINOR_0)
 string(SUBSTRING ${VERSION_MINOR} 1 1 VERSION_MINOR_1)
 
 file(GLOB tesseract_src
-    "ccmain/*.cpp"
-    "ccstruct/*.cpp"
-    "ccutil/*.cpp"
-    "classify/*.cpp"
-    "cube/*.cpp"
-    "cutil/*.cpp"
-    "dict/*.cpp"
-    "neural_networks/runtime/*.cpp"
-    "opencl/*.cpp"
-    "textord/*.cpp"
-    "viewer/*.cpp"
-    "wordrec/*.cpp"
+    ccmain/*.cpp
+    ccstruct/*.cpp
+    ccutil/*.cpp
+    classify/*.cpp
+    cube/*.cpp
+    cutil/*.cpp
+    dict/*.cpp
+    neural_networks/runtime/*.cpp
+    opencl/*.cpp
+    textord/*.cpp
+    viewer/*.cpp
+    wordrec/*.cpp
 )
 file(GLOB tesseract_hdr
-    "api/*.h"
-    "ccmain/*.h"
-    "ccstruct/*.h"
-    "ccutil/*.h"
-    "classify/*.h"
-    "cube/*.h"
-    "cutil/*.h"
-    "dict/*.h"
-    "neural_networks/runtime/*.h"
-    "opencl/*.h"
-    "textord/*.h"
-    "viewer/*.h"
-    "wordrec/*.h"
+    api/*.h
+    ccmain/*.h
+    ccstruct/*.h
+    ccutil/*.h
+    classify/*.h
+    cube/*.h
+    cutil/*.h
+    dict/*.h
+    neural_networks/runtime/*.h
+    opencl/*.h
+    textord/*.h
+    viewer/*.h
+    wordrec/*.h
 )
 if (WIN32)
     file(GLOB tesseract_win32_src "vs2010/port/*.cpp")
