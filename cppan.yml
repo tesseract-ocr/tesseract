@@ -103,10 +103,11 @@ post_sources: |
 options:
     any:
         definitions:
-            public: HAVE_CONFIG_H
-            public: _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
-            public: USE_STD_NAMESPACE=1
-            public: WINDLLNAME="tesseract"
+            public:
+              - HAVE_CONFIG_H
+              - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
+              - USE_STD_NAMESPACE=1
+              - WINDLLNAME="tesseract"
     shared:
         definitions:
             public: TESS_EXPORTS
