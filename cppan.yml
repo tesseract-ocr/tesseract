@@ -49,7 +49,9 @@ include_directories:
 
 check_function_exists:
   - getline
-  - snprintf
+
+check_symbol_exists:
+  snprintf: stdio.h
 
 check_include_exists:
   - dlfcn.h
