@@ -86,13 +86,13 @@ set(include_files_list
     sys/stat.h
     sys/types.h
     sys/wait.h
-    tiffio.h
     unistd.h
 
     cairo/cairo-version.h
     CL/cl.h
     OpenCL/cl.h
     pango-1.0/pango/pango-features.h
+    tiffio.h
     unicode/uchar.h
 )
 check_includes(include_files_list)
