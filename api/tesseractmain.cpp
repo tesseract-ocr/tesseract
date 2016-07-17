@@ -33,7 +33,7 @@
 #include "openclwrapper.h"
 #include "osdetect.h"
 
-#if defined(_WIN32)
+#if defined(HAVE_TIFFIO_H) && defined(_WIN32)
 
 #include <tiffio.h>
 #include <windows.h>
@@ -48,7 +48,7 @@ static void Win32WarningHandler(const char* module, const char* fmt,
     fprintf(stderr, ".\n");
 }
 
-#endif /* _WIN32 */
+#endif /* HAVE_TIFFIO_H &&  _WIN32 */
 
 void PrintVersionInfo() {
     char *versionStrP;
@@ -369,10 +369,10 @@ int main(int argc, char **argv) {
   int arg_i = 1;
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
 
-#if defined(_WIN32)
+#if defined(HAVE_TIFFIO_H) && defined(_WIN32)
   /* Show libtiff warnings on console (not in GUI). */
   TIFFSetWarningHandler(Win32WarningHandler);
-#endif /* _WIN32 */
+#endif /* HAVE_TIFFIO_H &&  _WIN32 */
 
   ParseArgs(argc, argv,
           &lang, &image, &outputbase, &datapath,
