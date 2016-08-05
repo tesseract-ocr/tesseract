@@ -38,7 +38,7 @@ DECLARE_INT_PARAM_FLAG(tlog_level);
 
 #define TLOG_IS_ON(level) (FLAGS_tlog_level >= level)
 
-#define TLOG_FATAL(msg...)                                              \
+#define TLOG_FATAL(msg, ...)                                              \
   {                                                                     \
     tprintf(msg);                                                       \
     ASSERT_FAILED.error("", ABORT, "in file %s, line %d",               \
