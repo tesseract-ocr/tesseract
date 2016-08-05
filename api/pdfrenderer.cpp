@@ -711,8 +711,9 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   int format, sad;
   findFileFormat(filename, &format);
   if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
-    pixSetSpp(pix, 3);
-    sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
+    Pix *p1 = pixAlphaBlendUniform(pix, 0xffffff00);
+    sad = pixGenerateCIData(p1, L_FLATE_ENCODE, 0, 0, &cid);
+    pixDestroy(&p1);
   } else {
     sad = l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
   }
