@@ -1431,8 +1431,8 @@ static void AddBoxToTSV(const PageIterator *it,
   it->BoundingBox(level, &left, &top, &right, &bottom);
   hocr_str->add_str_int("\t", left);
   hocr_str->add_str_int("\t", top);
-  hocr_str->add_str_int("\t", right - left + 1);
-  hocr_str->add_str_int("\t", bottom - top + 1);
+  hocr_str->add_str_int("\t", right - left);
+  hocr_str->add_str_int("\t", bottom - top);
 }
 
 
@@ -1704,8 +1704,8 @@ char* TessBaseAPI::GetTSVText(int page_number) {
     tsv_str.add_str_int("\t", word_num);
     tsv_str.add_str_int("\t", left);
     tsv_str.add_str_int("\t", top);
-    tsv_str.add_str_int("\t", right - left + 1);
-    tsv_str.add_str_int("\t", bottom - top + 1);
+    tsv_str.add_str_int("\t", right - left);
+    tsv_str.add_str_int("\t", bottom - top);
     tsv_str.add_str_int("\t", res_it->Confidence(RIL_WORD));
     tsv_str += "\t";
 

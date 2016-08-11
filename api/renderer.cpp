@@ -196,7 +196,7 @@ bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
 }
 
 /**********************************************************************
- * HOcr Text Renderer interface implementation
+ * TSV Text Renderer interface implementation
  **********************************************************************/
 TessTsvRenderer::TessTsvRenderer(const char *outputbase)
     : TessResultRenderer(outputbase, "tsv") {

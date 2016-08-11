@@ -1,0 +1,121 @@
+files:
+  - api/.*\.cpp
+  - ccmain/.*\.cpp
+  - ccstruct/.*\.cpp
+  - ccutil/.*\.cpp
+  - classify/.*\.cpp
+  - cube/.*\.cpp
+  - cutil/.*\.cpp
+  - dict/.*\.cpp
+  - neural_networks/runtime/.*\.cpp
+  - opencl/.*\.cpp
+  - textord/.*\.cpp
+  - viewer/.*\.cpp
+  - wordrec/.*\.cpp
+
+  - api/.*\.h
+  - ccmain/.*\.h
+  - ccstruct/.*\.h
+  - ccutil/.*\.h
+  - classify/.*\.h
+  - cube/.*\.h
+  - cutil/.*\.h
+  - dict/.*\.h
+  - neural_networks/runtime/.*\.h
+  - opencl/.*\.h
+  - textord/.*\.h
+  - viewer/.*\.h
+  - wordrec/.*\.h
+
+  - vs2010/port/.*
+
+include_directories:
+  private:
+    - classify
+    - cube
+    - cutil
+    - dict
+    - neural_networks/runtime
+    - opencl
+    - textord
+    - vs2010/port
+    - viewer
+    - wordrec
+  public:
+    - api
+    - ccmain
+    - ccstruct
+    - ccutil
+
+check_function_exists:
+  - getline
+
+check_symbol_exists:
+  snprintf: stdio.h
+
+check_include_exists:
+  - dlfcn.h
+  - inttypes.h
+  - limits.h
+  - malloc.h
+  - memory.h
+  - stdbool.h
+  - stdint.h
+  - stdlib.h
+  - strings.h
+  - string.h
+  - sys/ipc.h
+  - sys/shm.h
+  - sys/stat.h
+  - sys/types.h
+  - sys/wait.h
+  - tiffio.h
+  - unistd.h
+  - cairo/cairo-version.h
+  - CL/cl.h
+  - OpenCL/cl.h
+  - pango-1.0/pango/pango-features.h
+  - unicode/uchar.h
+
+check_type_size:
+  - long long int
+  - off_t
+  - mbstate_t
+  - wchar_t
+  - _Bool
+
+pre_sources: |
+    # dummy config file
+    if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
+        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
+    endif()
+
+post_sources: |
+    if (NOT WIN32)
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/gettimeofday.cpp")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/gettimeofday.h")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/mathfix.h")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strcasestr.cpp")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strcasestr.h")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strtok_r.cpp")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strtok_r.h")
+        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/vcsversion.h")
+    endif()
+
+options:
+    any:
+        definitions:
+            public:
+              - HAVE_CONFIG_H
+              - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
+              - USE_STD_NAMESPACE=1
+              - WINDLLNAME="tesseract"
+    shared:
+        definitions:
+            public: TESS_EXPORTS
+
+dependencies:
+  private:
+    # tesseract uses leptonica only internally
+    # and does not expose its interface to users
+    pvt.cppan.demo.leptonica: master

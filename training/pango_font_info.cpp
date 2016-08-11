@@ -22,15 +22,29 @@
 #include "config_auto.h"
 #endif
 
-#if (defined MINGW) || (defined __CYGWIN__)
+#if (defined __MINGW32__) || (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
+
+#if (defined __MINGW32__)
 #include "strcasestr.h"
-#endif  // MINGW/Cygwin
+#elif !defined(_GNU_SOURCE)
+// needed for strcasestr in string.h
+#define _GNU_SOURCE
+#endif
+
+#elif defined(_MSC_VER)
+#include "strcasestr.h"
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <sys/param.h>
+#endif
 #include <algorithm>
 
 #include "pango_font_info.h"
@@ -418,8 +432,12 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
     }
     PangoGlyph dotted_circle_glyph;
     PangoFont* font = run->item->analysis.font;
-    dotted_circle_glyph = pango_fc_font_get_glyph(
-        reinterpret_cast<PangoFcFont*>(font), kDottedCircleGlyph);
+
+    PangoGlyphString * glyphs = pango_glyph_string_new();
+    char s[] = "\xc2\xa7";
+    pango_shape(s, sizeof(s), &(run->item->analysis), glyphs);
+    dotted_circle_glyph = glyphs->glyphs[0].glyph;
+
     if (TLOG_IS_ON(2)) {
       PangoFontDescription* desc = pango_font_describe(font);
       char* desc_str = pango_font_description_to_string(desc);

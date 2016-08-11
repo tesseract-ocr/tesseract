@@ -37,11 +37,6 @@
 #include "scanutils.h"
 #include "tprintf.h"
 
-// workaround for "'off_t' was not declared in this scope" with -std=c++11
-#if !defined(HAVE_OFF_T)
-typedef long off_t;
-#endif  // off_t
-
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign
   FL_INV    = 0x02,   // Character-set with inverse

@@ -86,13 +86,13 @@ set(include_files_list
     sys/stat.h
     sys/types.h
     sys/wait.h
-    tiffio.h
     unistd.h
-    
+
     cairo/cairo-version.h
     CL/cl.h
     OpenCL/cl.h
     pango-1.0/pango/pango-features.h
+    tiffio.h
     unicode/uchar.h
 )
 check_includes(include_files_list)
@@ -112,22 +112,12 @@ set(types_list
 )
 check_types(types_list)
 
-check_c_source_compiles("#include <sys/time.h>\n#include <time.h>\nmain(){}" TIME_WITH_SYS_TIME)
-
 test_big_endian(WORDS_BIGENDIAN)
 
-set(STDC_HEADERS 1)
-
 file(APPEND ${AUTOCONFIG_SRC} "
-/* Define to 1 if you have the ANSI C header files. */
-#cmakedefine STDC_HEADERS 1
-
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine WORDS_BIGENDIAN 1
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#cmakedefine TIME_WITH_SYS_TIME 1
 ")
 
 ########################################
