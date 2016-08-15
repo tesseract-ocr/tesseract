@@ -70,6 +70,9 @@ BOOL_PARAM_FLAG(degrade_image, true,
                 "Degrade rendered image with speckle noise, dilation/erosion "
                 "and rotation");
 
+// Rotate the rendered image to have more realistic glyph borders
+BOOL_PARAM_FLAG(rotate_image, true, "Rotate the image in a random way.");
+
 // Degradation to apply to the image.
 INT_PARAM_FLAG(exposure, 0, "Exposure level in photocopier");
 
@@ -598,7 +601,7 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, &rotation);
+          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, FLAGS_rotate_image ? &rotation : NULL);
         }
         render.RotatePageBoxes(rotation);
 
