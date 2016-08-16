@@ -42,7 +42,6 @@ class File {
   // Return true if the file 'filename' is readable.
   static bool Readable(const string& filename);
 
-  static void ReadFileToStringOrDie(const string& filename, string* out);
   static bool ReadFileToString(const string& filename, string* out);
 
   // Helper methods

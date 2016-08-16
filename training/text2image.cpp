@@ -499,7 +499,10 @@ int main(int argc, char** argv) {
 
   string src_utf8;
   // This c_str is NOT redundant!
-  File::ReadFileToStringOrDie(FLAGS_text.c_str(), &src_utf8);
+  if (!File::ReadFileToString(FLAGS_text.c_str(), &src_utf8)) {
+    tprintf("Failed to read file: %s\n", FLAGS_text.c_str());
+    exit(1);
+  }
 
   // Remove the unicode mark if present.
   if (strncmp(src_utf8.c_str(), "\xef\xbb\xbf", 3) == 0) {
