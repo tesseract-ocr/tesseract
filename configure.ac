@@ -248,7 +248,7 @@ case "${host_os}" in
         fi
         AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
         OPENCL_CPPFLAGS="-I${OPENCL_INC}"
-        OPENCL_LDFLAGS="-l${OPENCL_LIBS}"
+        OPENCL_LDFLAGS="${OPENCL_LIBS}"
     fi
     ;;
 esac
