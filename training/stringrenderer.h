@@ -90,7 +90,7 @@ class StringRenderer {
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
   }
-  void set_features(char *features) {
+  void set_features(const char *features) {
     free(features_);
     features_ = strdup(features);
   }
