@@ -1045,19 +1045,19 @@ KERNEL(
 // imageData is input image (24-bits/pixel)
 // pix is output image (1-bit/pixel)
 KERNEL(
-\n#define CHAR_VEC_WIDTH 8 \n
+\n#define CHAR_VEC_WIDTH 4 \n
 \n#define PIXELS_PER_WORD 32 \n
 \n#define PIXELS_PER_BURST 8 \n
 \n#define BURSTS_PER_WORD (PIXELS_PER_WORD/PIXELS_PER_BURST) \n
  typedef union {
   uchar s[PIXELS_PER_BURST*NUM_CHANNELS];
-  uchar8 v[(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH];
+  uchar4 v[(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH];
  } charVec;
 
 __attribute__((reqd_work_group_size(256, 1, 1)))
 __kernel
 void kernel_ThresholdRectToPix(
-    __global const uchar8 *imageData,
+    __global const uchar4 *imageData,
     int height,
     int width,
     int wpl, // words per line
@@ -1066,6 +1066,7 @@ void kernel_ThresholdRectToPix(
     __global int *pix) {
 
     // declare variables
+    uint pad = PIXELS_PER_WORD * wpl - width;//number of padding bits at the end of each output line
     int pThresholds[NUM_CHANNELS];
     int pHi_Values[NUM_CHANNELS];
     for ( int i = 0; i < NUM_CHANNELS; i++) {
@@ -1076,14 +1077,14 @@ void kernel_ThresholdRectToPix(
     // for each word (32 pixels) in output image
     for ( uint w = get_global_id(0); w < wpl*height; w += get_global_size(0) ) {
         unsigned int word = 0; // all bits start at zero
-
+        //decrease the pixel index for the padding at the end of each output line (=number of lines * padding)
+        uint pxIdxOffset = ( w / wpl) * pad;// = ( ( PIXELS_PER_WORD * w) / ( width + pad)) * pad;
         // for each burst in word
         for ( int b = 0; b < BURSTS_PER_WORD; b++) {
-
             // load burst
             charVec pixels;
             for ( int i = 0; i < (PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH; i++ ) {
-                pixels.v[i] = imageData[w*(BURSTS_PER_WORD*(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH) + b*((PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH)  + i];
+                pixels.v[i] = imageData[w*(BURSTS_PER_WORD*(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH) + b*((PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH)  + i - pxIdxOffset];
             }
 
             // for each pixel in burst
@@ -1091,7 +1092,7 @@ void kernel_ThresholdRectToPix(
                 for ( int c = 0; c < NUM_CHANNELS; c++) {
                     unsigned char pixChan = pixels.s[p*NUM_CHANNELS + c];
                     if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
-                        word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
+                        word |=  (((uint)0x80000000) >> ((b*PIXELS_PER_BURST+p)&31));
                     }
                 }
             }
