@@ -294,8 +294,8 @@ AC_ARG_ENABLE([debug],
     [debug="no"])
 AC_MSG_RESULT([$debug])
 if test x"$debug" = x"yes"; then
-    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -Wno-uninitialized -O0 -DDEBUG"
+    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -O0 -DDEBUG"
 else
     AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
     AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
