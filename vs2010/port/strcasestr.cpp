@@ -49,9 +49,14 @@ char *strcasestr(const char *haystack, const char *needle) {
      return NULL;
 
    length_needle = strlen(needle);
-   length_haystack = strlen(haystack) - length_needle + 1;
+   length_haystack = strlen(haystack);
 
-   for (i = 0; i < length_haystack; i++)
+   if (length_haystack < length_needle)
+     return NULL;
+
+   length_haystack -= length_needle;
+
+   for (i = 0; i <= length_haystack; i++)
      {
         size_t j;
 
