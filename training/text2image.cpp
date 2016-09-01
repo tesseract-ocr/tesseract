@@ -420,7 +420,7 @@ int main(int argc, char** argv) {
   if (FLAGS_list_available_fonts) {
     const vector<string>& all_fonts = FontUtils::ListAvailableFonts();
     for (int i = 0; i < all_fonts.size(); ++i) {
-      tprintf("%3d: %s\n", i, all_fonts[i].c_str());
+      printf("%3d: %s\n", i, all_fonts[i].c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
                       "Font %s is unrecognized.\n", all_fonts[i].c_str());
     }
