@@ -58,8 +58,6 @@
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
-STRING_PARAM_FLAG(fonts_dir, "/auto/ocr-data/tesstraining/fonts",
-                  "Overrides system default font location");
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 BOOL_PARAM_FLAG(fontconfig_refresh_cache, false,
@@ -77,8 +75,14 @@ BOOL_PARAM_FLAG(fontconfig_refresh_config_file, true,
 BOOL_PARAM_FLAG(use_only_legacy_fonts, false,
                 "Overrides --fonts_dir and sets the known universe of fonts to"
                 "the list in legacy_fonts.h");
+
+STRING_PARAM_FLAG(fonts_dir, "/auto/ocr-data/tesstraining/fonts",
+                  "Overrides system default font location");
 #else
 using std::pair;
+STRING_PARAM_FLAG(fonts_dir, "",
+                  "If empty it use system default. Otherwise it overrides"
+                  " system default font location");
 #endif
 
 namespace tesseract {
