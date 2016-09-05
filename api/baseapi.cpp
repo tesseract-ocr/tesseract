@@ -1457,7 +1457,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
  */
-char* TessBaseAPI::GetHOCRText(struct ETEXT_DESC* monitor, int page_number) {
+char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == NULL ||
       (page_res_ == NULL && Recognize(monitor) < 0))
     return NULL;
