@@ -591,7 +591,7 @@ class TESS_API TessBaseAPI {
    * 	cancel the recognition
    * 	receive progress callbacks
    */
-  char* GetHOCRText(struct ETEXT_DESC* monitor, int page_number);
+  char* GetHOCRText(ETEXT_DESC* monitor, int page_number);
 
   /**
    * Make a HTML-formatted string with hOCR markup from the internal
