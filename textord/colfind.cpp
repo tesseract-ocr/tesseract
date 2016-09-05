@@ -44,19 +44,12 @@
 
 namespace tesseract {
 
-// Minimum width (in pixels) to be considered when making columns.
-// TODO(rays) convert to inches, dependent on resolution.
-const int kMinColumnWidth = 100;
 // When assigning columns, the max number of misfit grid rows/ColPartitionSets
 // that can be ignored.
 const int kMaxIncompatibleColumnCount = 2;
-// Min fraction of ColPartition height to be overlapping for margin purposes.
-const double kMarginOverlapFraction = 0.25;
 // Max fraction of mean_column_gap_ for the gap between two partitions within a
 // column to allow them to merge.
 const double kHorizontalGapMergeFraction = 0.5;
-// Min fraction of grid size to not be considered likely noise.
-const double kMinNonNoiseFraction = 0.5;
 // Minimum gutter width as a fraction of gridsize
 const double kMinGutterWidthGrid = 0.5;
 // Max multiple of a partition's median size as a distance threshold for
