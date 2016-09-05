@@ -213,7 +213,7 @@ set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VER
 set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
 endif()
 
-if (NOT USES_CPPAN)
+if (NOT EXISTS ${PROJECT_SOURCE_DIR}/cppan)
     target_link_libraries       (tesseract ${Leptonica_LIBRARIES})
     export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 else()
