@@ -51,8 +51,6 @@
 #define MAX_XHEIGHT_DIFF  3
 
 const char* const kBackUpConfigFile = "tempconfigdata.config";
-// Multiple of x-height to make a repeated word have spaces in it.
-const double kRepcharGapThreshold = 0.5;
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height
 const double kMinRefitXHeightFraction = 0.5;
