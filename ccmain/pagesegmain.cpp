@@ -54,10 +54,6 @@
 
 namespace tesseract {
 
-/// Minimum believable resolution.
-const int kMinCredibleResolution = 70;
-/// Default resolution used if input in not believable.
-const int kDefaultResolution = 300;
 // Max erosions to perform in removing an enclosing circle.
 const int kMaxCircleErosions = 8;
 

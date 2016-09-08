@@ -1740,7 +1740,6 @@ const int kBytesPerNumber = 5;
  * * kNumbersPerBlob plus the newline. Add to this the
  * original UTF8 characters, and one kMaxBytesPerLine for safety.
  */
-const int kBytesPerBlob = kNumbersPerBlob * (kBytesPerNumber + 1) + 1;
 const int kBytesPerBoxFileLine = (kBytesPerNumber + 1) * kNumbersPerBlob + 1;
 /** Max bytes in the decimal representation of inT64. */
 const int kBytesPer64BitNumber = 20;

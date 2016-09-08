@@ -45,8 +45,6 @@ const int kMinColumnWidth = 200;
 const double kMinFractionalLinesInColumn = 0.125;
 // Fraction of height used as alignment tolerance for aligned tabs.
 const double kAlignedFraction = 0.03125;
-// Minimum gutter width in absolute inch (multiplied by resolution)
-const double kMinGutterWidthAbsolute = 0.02;
 // Maximum gutter width (in absolute inch) that we care about
 const double kMaxGutterWidthAbsolute = 2.00;
 // Multiplier of gridsize for min gutter width of TT_MAYBE_RAGGED blobs.
@@ -54,27 +52,8 @@ const int kRaggedGutterMultiple = 5;
 // Min aspect ratio of tall objects to be considered a separator line.
 // (These will be ignored in searching the gutter for obstructions.)
 const double kLineFragmentAspectRatio = 10.0;
-// Multiplier of new y positions in running average for skew estimation.
-const double kSmoothFactor = 0.25;
-// Min coverage for a good baseline between vectors
-const double kMinBaselineCoverage = 0.5;
-// Minimum overlap fraction when scanning text lines for column widths.
-const double kCharVerticalOverlapFraction = 0.375;
-// Maximum horizontal gap allowed when scanning for column widths
-const double kMaxHorizontalGap = 3.0;
-// Maximum upper quartile error allowed on a baseline fit as a fraction
-// of height.
-const double kMaxBaselineError = 0.4375;
 // Min number of points to accept after evaluation.
 const int kMinEvaluatedTabs = 3;
-// Minimum aspect ratio of a textline to make a good textline blob with a
-// single blob.
-const int kMaxTextLineBlobRatio = 5;
-// Minimum aspect ratio of a textline to make a good textline blob with
-// multiple blobs. Target ratio varies according to number of blobs.
-const int kMinTextLineBlobRatio = 3;
-// Fraction of box area covered by image to make a blob image.
-const double kMinImageArea = 0.5;
 // Up to 30 degrees is allowed for rotations of diacritic blobs.
 // Keep this value slightly larger than kCosSmallAngle in blobbox.cpp
 // so that the assert there never fails.

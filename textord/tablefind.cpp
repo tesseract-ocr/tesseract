@@ -114,11 +114,6 @@ const int kLargeTableRowCount = 6;
 // Minimum number of rows in a table
 const int kMinRowsInTable = 3;
 
-// The number of "whitespace blobs" that should appear between the
-// ColPartition's bounding box and the column tab stops to the left/right
-// when looking for center justified tab stops.
-const double kRequiredFullJustifiedSpacing = 4.0;
-
 // The amount of padding (multiplied by global_median_xheight_ during use)
 // that is vertically added to the search adjacent leader search during
 // ColPartition marking.

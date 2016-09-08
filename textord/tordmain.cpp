@@ -38,9 +38,6 @@
 
 #include "allheaders.h"
 
-// Gridsize for word grid when reassigning diacritics to words. Not critical.
-const int kWordGridSize = 50;
-
 #undef EXTERN
 #define EXTERN
 
