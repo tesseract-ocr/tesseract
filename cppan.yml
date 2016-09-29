@@ -1,5 +1,5 @@
 local_settings:
-    cppan_dir: cppan # for future compatibility
+    cppan_dir: cppan
 
 files:
   - api/.*\.cpp
