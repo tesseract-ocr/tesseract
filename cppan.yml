@@ -1,3 +1,6 @@
+local_settings:
+    cppan_dir: cppan # for future compatibility
+
 files:
   - api/.*\.cpp
   - ccmain/.*\.cpp
