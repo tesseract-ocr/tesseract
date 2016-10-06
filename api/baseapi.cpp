@@ -1047,11 +1047,14 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
       page = tessedit_page_number;
 #ifdef USE_OPENCL
     if ( od.selectedDeviceIsOpenCL() ) {
-      // FIXME(jbreiden) Not implemented.
-      pix = od.pixReadMemTiffCl(data, size, page);
+      pix = (data) ?
+          od.pixReadMemTiffCl(data, size, page) :
+          od.pixReadTiffCl(filename, page);
     } else {
 #endif  // USE_OPENCL
-      pix = pixReadMemTiff(data, size, page);
+      pix = (data) ?
+          pixReadMemTiff(data, size, page) :
+          pixReadTiff(filename, page);
 #ifdef USE_OPENCL
     }
 #endif  // USE_OPENCL
@@ -1099,8 +1102,7 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
 // makes automatic detection of datatype (TIFF? filelist? PNG?)
 // impractical.  So we support a command line flag to explicitly
 // identify the scenario that really matters: filelists on
-// stdin. We'll still do our best if the user likes pipes.  That means
-// piling up any data coming into stdin into a memory buffer.
+// stdin. We'll still do our best if the user likes pipes.
 bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
@@ -1122,31 +1124,24 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   // At this point we are officially in autodection territory.
-  // That means we are going to buffer stdin so that it is
-  // seekable. To keep code simple we will also buffer data
-  // coming from a file.
+  // That means any data in stdin must be buffered, to make it
+  // seekable.
   std::string buf;
+  const l_uint8 *data = NULL;
   if (stdInput) {
     buf.assign((std::istreambuf_iterator<char>(std::cin)),
                (std::istreambuf_iterator<char>()));
-  } else {
-    std::ifstream ifs(filename, std::ios::binary);
-    if (ifs) {
-      buf.assign((std::istreambuf_iterator<char>(ifs)),
-                 (std::istreambuf_iterator<char>()));
-    } else {
-      tprintf("ERROR: Can not open input file %s\n", filename);
-      return false;
-    }
+    data = reinterpret_cast<const l_uint8 *>(buf.data());
   }
 
   // Here is our autodetection
   int format;
-  const l_uint8 * data = reinterpret_cast<const l_uint8 *>(buf.c_str());
-  findFileFormatBuffer(data, &format);
+  int r = (stdInput) ?
+      findFileFormatBuffer(data, &format) :
+      findFileFormat(filename, &format);
 
   // Maybe we have a filelist
-  if (format == IFF_UNKNOWN) {
+  if (r != 0 || format == IFF_UNKNOWN) {
     STRING s(buf.c_str());
     return ProcessPagesFileList(NULL, &s, retry_config,
                                 timeout_millisec, renderer,
@@ -1162,7 +1157,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   // Fail early if we can, before producing any output
   Pix *pix = NULL;
   if (!tiff) {
-    pix = pixReadMem(data, buf.size());
+    pix = (stdInput) ? pixReadMem(data, buf.size()) : pixRead(filename);
     if (pix == NULL) {
       return false;
     }
@@ -1176,16 +1171,15 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   // Produce output
-  bool r = false;
-  if (tiff) {
-    r = ProcessPagesMultipageTiff(data, buf.size(), filename, retry_config,
-                                  timeout_millisec, renderer,
-                                  tesseract_->tessedit_page_number);
-  } else {
-    r = ProcessPage(pix, 0, filename, retry_config,
-                    timeout_millisec, renderer);
-    pixDestroy(&pix);
-  }
+  r = (tiff) ?
+      ProcessPagesMultipageTiff(data, buf.size(), filename, retry_config,
+                                timeout_millisec, renderer,
+                                tesseract_->tessedit_page_number) :
+      ProcessPage(pix, 0, filename, retry_config,
+                  timeout_millisec, renderer);
+
+  // Clean up memory as needed
+  pixDestroy(&pix);
 
   // End the output
   if (!r || (renderer && !renderer->EndDocument())) {
