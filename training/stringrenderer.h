@@ -130,10 +130,10 @@ class StringRenderer {
   const PangoFontInfo& font() const {
     return font_;
   }
-  const int h_margin() const {
+  int h_margin() const {
     return h_margin_;
   }
-  const int v_margin() const {
+  int v_margin() const {
     return v_margin_;
   }
 

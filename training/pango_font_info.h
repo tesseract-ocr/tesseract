@@ -93,15 +93,15 @@ class PangoFontInfo {
   // Font Family name eg. "Arial"
   const string& family_name() const    { return family_name_; }
   // Size in points (1/72"), rounded to the nearest integer.
-  const int font_size() const          { return font_size_; }
-  const bool is_bold() const           { return is_bold_; }
-  const bool is_italic() const         { return is_italic_; }
-  const bool is_smallcaps() const      { return is_smallcaps_; }
-  const bool is_monospace() const      { return is_monospace_; }
-  const bool is_fraktur() const        { return is_fraktur_; }
-  const FontTypeEnum font_type() const { return font_type_; }
+  int font_size() const          { return font_size_; }
+  bool is_bold() const           { return is_bold_; }
+  bool is_italic() const         { return is_italic_; }
+  bool is_smallcaps() const      { return is_smallcaps_; }
+  bool is_monospace() const      { return is_monospace_; }
+  bool is_fraktur() const        { return is_fraktur_; }
+  FontTypeEnum font_type() const { return font_type_; }
 
-  const int resolution() const         { return resolution_; }
+  int resolution() const         { return resolution_; }
   void set_resolution(const int resolution) {
     resolution_ = resolution;
   }
