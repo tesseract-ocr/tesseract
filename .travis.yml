@@ -7,7 +7,7 @@ sudo: required
 
 os:
   - linux
-  - osx
+  #- osx
 
 branches:
   only:
