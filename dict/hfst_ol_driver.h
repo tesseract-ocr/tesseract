@@ -41,8 +41,10 @@ template <class IN> bool get_hfst_header(IN * in) {
   char* hfst_identifier = read_string(in);
 
   if (strcmp(hfst_identifier, "HFST") != 0) {
+    free(hfst_identifier);
     return false;
   }
+  free(hfst_identifier);
 
   int header_size = read_short(in);
 
