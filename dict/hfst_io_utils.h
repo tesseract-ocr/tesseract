@@ -41,21 +41,7 @@ template <class T> char * char_ptrize(T * t) {
   return reinterpret_cast<char *>(t);
 }
 
-void readsome(char * target, size_t len, std::istream * in);
-
 void readsome(char * target, size_t len, FILE * file);
-
-template <class T> T read_stuff(std::istream * in) {
-  if (in->eof() or in->fail() or in->bad()) {
-    throw InvalidStream();
-  }
-
-  T t;
-
-  readsome(char_ptrize(&t), sizeof(t), in);
-
-  return t;
-}
 
 template <class T> T read_stuff(FILE * file) {
   if (feof(file) or ferror(file)) {
@@ -69,9 +55,7 @@ template <class T> T read_stuff(FILE * file) {
   return t;
 }
 
-std::string read_string(std::istream * in);
-
-std::string read_string(FILE * file);
+char* read_string(FILE * file);
 
 template <class IN> char read_char(IN * in) {
   return read_stuff<int8_t>(in);

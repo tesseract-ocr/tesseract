@@ -21,14 +21,6 @@
 
 namespace hfst {
 
-void readsome(char * target, size_t len, std::istream * in) {
-  in->read(target, len);
-
-  if (in->fail()) {
-    tprintf ("readsome: Error reading file\n");
-  }
-}
-
 void readsome(char * target, size_t len, FILE * file) {
   size_t block_count = fread(target, len, 1, file);
 
@@ -37,19 +29,7 @@ void readsome(char * target, size_t len, FILE * file) {
   }
 }
 
-std::string read_string(std::istream * in) {
-  if (in->eof() or in->fail() or in->bad()) {
-    tprintf ("read_string: Error reading file\n");
-  }
-
-  std::string str;
-
-  std::getline(*in, str, '\0');
-
-  return str;
-}
-
-std::string read_string(FILE * file) {
+char* read_string(FILE * file) {
   if (feof(file) or ferror(file)) {
     tprintf ("read_string: Error reading file\n");
   }
@@ -66,9 +46,7 @@ std::string read_string(FILE * file) {
 
   target[MAX_STRING_BUFFER] = '\0';
 
-  std::string str(target);
-
-  return str;
+  return target;
 }
 
 }
