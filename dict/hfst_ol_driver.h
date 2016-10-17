@@ -37,9 +37,9 @@ typedef std::vector<std::string> StringVector;
 size_t len(const std::string &str);
 
 template <class IN> bool get_hfst_header(IN * in) {
-  std::string hfst_identifier = read_string(in);
+  char* hfst_identifier = read_string(in);
 
-  if (hfst_identifier != "HFST") {
+  if (strcmp(hfst_identifier, "HFST") != 0) {
     return false;
   }
 
