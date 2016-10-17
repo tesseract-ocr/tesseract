@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "hfst_word_model.h"
-#include "tprinft.h"
+#include "tprintf.h"
 
 #include <iostream>
 #include <queue>
