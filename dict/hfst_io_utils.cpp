@@ -37,7 +37,6 @@ char* read_string(FILE * file) {
   }
 
   char target[MAX_STRING_BUFFER + 1];
-  char* ret;
 
   for (size_t i = 0; i < MAX_STRING_BUFFER; ++i) {
     target[i] = static_cast<char>(getc(file));
