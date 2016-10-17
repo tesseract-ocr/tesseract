@@ -21,7 +21,7 @@
  * the HP OCR interface.
  * The code is designed to be used with either a C or C++ compiler.
  * The structures are designed to allow them to be used with any
- * structure alignment upto 8.
+ * structure alignment up to 8.
  **********************************************************************/
 
 #ifndef            CCUTIL_OCRCLASS_H_
@@ -101,6 +101,8 @@ typedef struct {                  /*single character */
  * the OCR engine is storing its output to shared memory.
  * During progress, all the buffer info is -1.
  * Progress starts at 0 and increases to 100 during OCR. No other constraint.
+ * Additionally the progress callback contains the bounding box of the word that
+ * is currently being processed.
  * Every progress callback, the OCR engine must set ocr_alive to 1.
  * The HP side will set ocr_alive to 0. Repeated failure to reset
  * to 1 indicates that the OCR engine is dead.
@@ -108,19 +110,25 @@ typedef struct {                  /*single character */
  * user words found. If it returns true then operation is cancelled.
  **********************************************************************/
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
+typedef bool (*PROGRESS_FUNC)(int progress,
+                              int left, int right, int top, int bottom);
 
 class ETEXT_DESC {             // output header
  public:
-  inT16 count;                 // chars in this buffer(0)
-  inT16 progress;              // percent complete increasing (0-100)
-  inT8 more_to_come;           // true if not last
-  volatile inT8 ocr_alive;     // ocr sets to 1, HP 0
-  inT8 err_code;               // for errcode use
-  CANCEL_FUNC cancel;          // returns true to cancel
-  void* cancel_this;           // this or other data for cancel
-  struct timeval end_time;     // time to stop. expected to be set only by call
-                               // to set_deadline_msecs()
-  EANYCODE_CHAR text[1];       // character data
+  inT16 count;                 /// chars in this buffer(0)
+  inT16 progress;              /// percent complete increasing (0-100)
+  /** Progress monitor covers word recognition and it does not cover layout
+  * analysis.
+  * See Ray comment in https://github.com/tesseract-ocr/tesseract/pull/27 */
+  inT8 more_to_come;           /// true if not last
+  volatile inT8 ocr_alive;     /// ocr sets to 1, HP 0
+  inT8 err_code;               /// for errcode use
+  CANCEL_FUNC cancel;          /// returns true to cancel
+  PROGRESS_FUNC progress_callback; /// called whenever progress increases
+  void* cancel_this;           /// this or other data for cancel
+  struct timeval end_time;     /** time to stop. expected to be set only by call
+                               * to set_deadline_msecs() */
+  EANYCODE_CHAR text[1];       /// character data
 
   ETEXT_DESC() : count(0), progress(0), more_to_come(0), ocr_alive(0),
                    err_code(0), cancel(NULL), cancel_this(NULL) {

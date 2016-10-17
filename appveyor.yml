@@ -1,0 +1,25 @@
+os: Visual Studio 2015
+
+platform:
+  - Win32
+  - Win64
+
+configuration:
+  - Release
+
+before_build:
+  - if %platform%==Win32 set generator=Visual Studio 14
+  - if %platform%==Win64 set generator=Visual Studio 14 Win64
+  - if %platform%==Win32 set vcplatform=Win32
+  - if %platform%==Win64 set vcplatform=x64
+  
+  - curl -fsS -o cppan.zip https://cppan.org/client/cppan-master-Windows-client.zip
+  - 7z x cppan.zip
+  - set PATH=%PATH%;%cd%
+  
+build_script:
+  - cppan
+  - mkdir build
+  - cd build
+  - cmake .. -G "%generator%" -DSTATIC=1
+  - msbuild tesseract.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"

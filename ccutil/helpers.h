@@ -61,8 +61,8 @@ class TRand {
  private:
   // Steps the generator to the next value.
   void Iterate() {
-    seed_ *= 6364136223846793005;
-    seed_ += 1442695040888963407;
+    seed_ *= 6364136223846793005ULL;
+    seed_ += 1442695040888963407ULL;
   }
 
   // The current value of the seed.
@@ -73,7 +73,7 @@ class TRand {
 
 // Remove newline (if any) at the end of the string.
 inline void chomp_string(char *str) {
-  int last_index = strlen(str) - 1;
+  int last_index = (int)strlen(str) - 1;
   while (last_index >= 0 &&
          (str[last_index] == '\n' || str[last_index] == '\r')) {
     str[last_index--] = '\0';

@@ -327,7 +327,7 @@ class ScrollView {
 // be unique among menubar eventIDs.
   void MenuItem(const char* parent, const char* name, int cmdEvent);
 
-// This adds a new checkbox entry, which might initally be flagged.
+// This adds a new checkbox entry, which might initially be flagged.
   void MenuItem(const char* parent, const char* name,
                 int cmdEvent, bool flagged);
 

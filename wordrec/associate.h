@@ -48,7 +48,7 @@ struct AssociateStats {
   }
 
   void Print() {
-    tprintf("AssociateStats: w(%g %d) s(%g %d)\n", shape_cost, bad_shape);
+    tprintf("AssociateStats: w(%g %d)\n", shape_cost, bad_shape);
   }
 
   float shape_cost;           // cost of blob shape

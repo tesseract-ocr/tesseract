@@ -61,22 +61,28 @@ ConvNetCharClassifier::~ConvNetCharClassifier() {
   }
 }
 
-// The main training function. Given a sample and a class ID the classifier
-// updates its parameters according to its learning algorithm. This function
-// is currently not implemented. TODO(ahmadab): implement end-2-end training
+/**
+ * The main training function. Given a sample and a class ID the classifier
+ * updates its parameters according to its learning algorithm. This function
+ * is currently not implemented. TODO(ahmadab): implement end-2-end training
+ */
 bool ConvNetCharClassifier::Train(CharSamp *char_samp, int ClassID) {
   return false;
 }
 
-// A secondary function needed for training. Allows the trainer to set the
-// value of any train-time paramter. This function is currently not
-// implemented. TODO(ahmadab): implement end-2-end training
+/**
+ * A secondary function needed for training. Allows the trainer to set the
+ * value of any train-time parameter. This function is currently not
+ * implemented. TODO(ahmadab): implement end-2-end training
+ */
 bool ConvNetCharClassifier::SetLearnParam(char *var_name, float val) {
   // TODO(ahmadab): implementation of parameter initializing.
   return false;
 }
 
-// Folds the output of the NeuralNet using the loaded folding sets
+/**
+ * Folds the output of the NeuralNet using the loaded folding sets
+ */
 void ConvNetCharClassifier::Fold() {
   // in case insensitive mode
   if (case_sensitive_ == false) {
@@ -125,8 +131,10 @@ void ConvNetCharClassifier::Fold() {
   }
 }
 
-// Compute the features of specified charsamp and feedforward the
-// specified nets
+/**
+ * Compute the features of specified charsamp and feedforward the
+ * specified nets
+ */
 bool ConvNetCharClassifier::RunNets(CharSamp *char_samp) {
   if (char_net_ == NULL) {
     fprintf(stderr, "Cube ERROR (ConvNetCharClassifier::RunNets): "
@@ -173,7 +181,9 @@ bool ConvNetCharClassifier::RunNets(CharSamp *char_samp) {
   return true;
 }
 
-// return the cost of being a char
+/**
+ * return the cost of being a char
+ */
 int ConvNetCharClassifier::CharCost(CharSamp *char_samp) {
   if (RunNets(char_samp) == false) {
     return 0;
@@ -181,8 +191,10 @@ int ConvNetCharClassifier::CharCost(CharSamp *char_samp) {
   return CubeUtils::Prob2Cost(1.0f - net_output_[0]);
 }
 
-// classifies a charsamp and returns an alternate list
-// of chars sorted by char costs
+/**
+ * classifies a charsamp and returns an alternate list
+ * of chars sorted by char costs
+ */
 CharAltList *ConvNetCharClassifier::Classify(CharSamp *char_samp) {
   // run the needed nets
   if (RunNets(char_samp) == false) {
@@ -207,7 +219,9 @@ CharAltList *ConvNetCharClassifier::Classify(CharSamp *char_samp) {
   return alt_list;
 }
 
-// Set an external net (for training purposes)
+/**
+ * Set an external net (for training purposes)
+ */
 void ConvNetCharClassifier::SetNet(tesseract::NeuralNet *char_net) {
   if (char_net_ != NULL) {
     delete char_net_;
@@ -216,8 +230,10 @@ void ConvNetCharClassifier::SetNet(tesseract::NeuralNet *char_net) {
   char_net_ = char_net;
 }
 
-// This function will return true if the file does not exist.
-// But will fail if the it did not pass the sanity checks
+/**
+ * This function will return true if the file does not exist.
+ * But will fail if the it did not pass the sanity checks
+ */
 bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
                                             const string &lang,
                                             LangModel *lang_mod) {
@@ -284,7 +300,9 @@ bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
   return true;
 }
 
-// Init the classifier provided a data-path and a language string
+/**
+ * Init the classifier provided a data-path and a language string
+ */
 bool ConvNetCharClassifier::Init(const string &data_file_path,
                                  const string &lang,
                                  LangModel *lang_mod) {
@@ -308,9 +326,11 @@ bool ConvNetCharClassifier::Init(const string &data_file_path,
   return true;
 }
 
-// Load the classifier's Neural Nets
-// This function will return true if the net file does not exist.
-// But will fail if the net did not pass the sanity checks
+/**
+ * Load the classifier's Neural Nets
+ * This function will return true if the net file does not exist.
+ * But will fail if the net did not pass the sanity checks
+ */
 bool ConvNetCharClassifier::LoadNets(const string &data_file_path,
                                      const string &lang) {
   string char_net_file;

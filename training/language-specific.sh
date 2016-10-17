@@ -69,6 +69,39 @@ LATIN_FONTS=(
     "DejaVu Sans Ultra-Light" \
 )
 
+# List of fonts for printed/neo-Latin ('lat' language code, different from Latin script)
+NEOLATIN_FONTS=(
+    "GFS Bodoni" \
+    "GFS Bodoni Bold" \
+    "GFS Bodoni Italic" \
+    "GFS Bodoni Bold Italic" \
+    "GFS Didot" \
+    "GFS Didot Bold" \
+    "GFS Didot Italic" \
+    "GFS Didot Bold Italic" \
+    "Cardo" \
+    "Cardo Bold" \
+    "Cardo Italic" \
+    "Wyld" \
+    "Wyld Italic" \
+    "EB Garamond" \
+    "EB Garamond Italic" \
+    "Junicode" \
+    "Junicode Bold" \
+    "Junicode Italic" \
+    "Junicode Bold Italic" \
+    "IM FELL DW Pica PRO" \
+    "IM FELL English PRO" \
+    "IM FELL Double Pica PRO" \
+    "IM FELL French Canon PRO" \
+    "IM FELL Great Primer PRO" \
+    "IM FELL DW Pica PRO Italic" \
+    "IM FELL English PRO Italic" \
+    "IM FELL Double Pica PRO Italic" \
+    "IM FELL French Canon PRO Italic" \
+    "IM FELL Great Primer PRO Italic" \
+)
+
 EARLY_LATIN_FONTS=(
     "${FRAKTUR_FONTS[@]}" \
     "${LATIN_FONTS[@]}" \
@@ -247,34 +280,11 @@ THAI_FONTS=( \
 KOREAN_FONTS=( \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "Ascender Uni" \
     "Baekmuk Batang Patched" \
     "Baekmuk Batang" \
     "Baekmuk Dotum" \
     "Baekmuk Gulim" \
     "Baekmuk Headline" \
-    "Bandal Medium" \
-    "Bangwool Medium" \
-    "Dotum" \
-    "Eunjin Medium" \
-    "EunjinNakseo Medium" \
-    "FBHanGothicDB" \
-    "Guseul Medium" \
-    "JejuGothic" \
-    "JejuHallasan" \
-    "JejuMyeongjo" \
-    "KoPub Batang Bold" \
-    "KoPub Batang Light" \
-    "KoPub Batang" \
-    "Nanum Brush Script" \
-    "NanumGothic Bold" \
-    "NanumGothic Ultra-Bold" \
-    "NanumGothic" \
-    "NanumMyeongjo Bold" \
-    "NanumMyeongjo Semi-Bold" \
-    "NanumMyeongjo" \
-    "Nanum Pen" \
-    "WenQuanYi Zen Hei Medium" \
     )
 
 CHI_SIM_FONTS=( \
@@ -282,70 +292,16 @@ CHI_SIM_FONTS=( \
     "AR PL UMing Patched Light" \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "CFangSongPRC" \
-    "CGuLi PRC" \
-    "CGuYin PRC" \
-    "CHei2 PRC" \
-    "CHei3 PRC" \
-    "CNganKai PRC" \
-    "CPo3 PRC" \
-    "CPo PRC" \
-    "CSong3 PRC" \
-    "CWeiBei PRC" \
-    "CXLi PRC" \
-    "CXYao PRC" \
-    "CXing PRC" \
-    "CYuen2 PRC" \
-    "MComic PRC" \
-    "MCute PRC" \
-    "MElle PRC" \
-    "MGentle PRC" \
-    "MJNgai PRC" \
-    "MKai PRC" \
-    "MMarker PRC" \
-    "MRocky PRC" \
-    "MSung PRC" \
-    "MWindy PRC" \
-    "MYoung PRC" \
-    "MYuen PRC" \
-    "MYuppy PRC" \
     "WenQuanYi Zen Hei Medium" \
     )
 
-# The PRC fonts don't cover all the character set for chi_tra, but they
-# provide a broader view of the fonts for the characters they do cover.
 CHI_TRA_FONTS=( \
+    "AR PL UKai TW" \
+    "AR PL UMing TW MBE Light" \
     "AR PL UKai Patched" \
     "AR PL UMing Patched Light" \
     "Arial Unicode MS" \
     "Arial Unicode MS Bold" \
-    "CFangSongPRC" \
-    "CGuLi PRC" \
-    "CGuYin PRC" \
-    "CHei2 PRC" \
-    "CHei3 PRC" \
-    "CNganKai PRC" \
-    "CPo3 PRC" \
-    "CPo PRC" \
-    "CSong3 PRC" \
-    "CWeiBei PRC" \
-    "CXLi PRC" \
-    "CXYao PRC" \
-    "CXing PRC" \
-    "CYuen2 PRC" \
-    "MComic PRC" \
-    "MCute PRC" \
-    "MElle PRC" \
-    "MGentle PRC" \
-    "MJNgai PRC" \
-    "MKai PRC" \
-    "MMarker PRC" \
-    "MRocky PRC" \
-    "MSung PRC" \
-    "MWindy PRC" \
-    "MYoung PRC" \
-    "MYuen PRC" \
-    "MYuppy PRC" \
     "WenQuanYi Zen Hei Medium" \
     )
 
@@ -358,23 +314,8 @@ JPN_FONTS=( \
     "TakaoPMincho" \
     "VL Gothic" \
     "VL PGothic" \
-    "Noto Sans Japanese Black" \
     "Noto Sans Japanese Bold" \
     "Noto Sans Japanese Light" \
-    "Noto Sans Japanese Medium" \
-    "Noto Sans Japanese" \
-    "Noto Sans Japanese Thin" \
-    "IPAGothic" \
-    "IPAPGothic" \
-    "IPAUIGothic" \
-    "IPAMincho" \
-    "IPAPMincho" \
-    "Kochi Gothic" \
-    "Kochi Mincho" \
-    "Monapo" \
-    "UmePlus Gothic" \
-    "UmePlus P Gothic" \
-    "WenQuanYi Zen Hei Medium" \
     )
 
 RUSSIAN_FONTS=( \
@@ -443,6 +384,30 @@ GREEK_FONTS=( \
     "Palatino Linotype" \
     "UmePlus P Gothic" \
     "VL PGothic" \
+    )
+
+ANCIENT_GREEK_FONTS=( \
+    "GFS Artemisia" \
+    "GFS Artemisia Bold" \
+    "GFS Artemisia Bold Italic" \
+    "GFS Artemisia Italic" \
+    "GFS Bodoni" \
+    "GFS Bodoni Bold" \
+    "GFS Bodoni Bold Italic" \
+    "GFS Bodoni Italic" \
+    "GFS Didot" \
+    "GFS Didot Bold" \
+    "GFS Didot Bold Italic" \
+    "GFS Didot Italic" \
+    "GFS DidotClassic" \
+    "GFS Neohellenic" \
+    "GFS Neohellenic Bold" \
+    "GFS Neohellenic Bold Italic" \
+    "GFS Neohellenic Italic" \
+    "GFS Philostratos" \
+    "GFS Porson" \
+    "GFS Pyrsos" \
+    "GFS Solomos" \
     )
 
 ARABIC_FONTS=( \
@@ -621,29 +586,29 @@ NORTH_AMERICAN_ABORIGINAL_FONTS=( \
 GEORGIAN_FONTS=( \
     "Arial Unicode MS Bold" \
     "Arial Unicode MS" \
-    "BPG Algeti GPL&GNU" \
-    "BPG Chveulebrivi GPL&GNU" \
-    "BPG Courier GPL&GNU" \
-    "BPG Courier S GPL&GNU" \
+    "BPG Algeti GPL\&GNU" \
+    "BPG Chveulebrivi GPL\&GNU" \
+    "BPG Courier GPL\&GNU" \
+    "BPG Courier S GPL\&GNU" \
     "BPG DejaVu Sans 2011 GNU-GPL" \
-    "BPG Elite GPL&GNU" \
-    "BPG Excelsior GPL&GNU" \
-    "BPG Glaho GPL&GNU" \
-    "BPG Gorda GPL&GNU" \
-    "BPG Ingiri GPL&GNU" \
-    "BPG Mrgvlovani Caps GNU&GPL" \
-    "BPG Mrgvlovani GPL&GNU" \
-    "BPG Nateli Caps GPL&GNU Light" \
-    "BPG Nateli Condenced GPL&GNU Light" \
-    "BPG Nateli GPL&GNU Light" \
-    "BPG Nino Medium Cond GPL&GNU" \
-    "BPG Nino Medium GPL&GNU Medium" \
-    "BPG Sans GPL&GNU" \
-    "BPG Sans Medium GPL&GNU" \
-    "BPG Sans Modern GPL&GNU" \
-    "BPG Sans Regular GPL&GNU" \
-    "BPG Serif GPL&GNU" \
-    "BPG Serif Modern GPL&GNU" \
+    "BPG Elite GPL\&GNU" \
+    "BPG Excelsior GPL\&GNU" \
+    "BPG Glaho GPL\&GNU" \
+    "BPG Gorda GPL\&GNU" \
+    "BPG Ingiri GPL\&GNU" \
+    "BPG Mrgvlovani Caps GNU\&GPL" \
+    "BPG Mrgvlovani GPL\&GNU" \
+    "BPG Nateli Caps GPL\&GNU Light" \
+    "BPG Nateli Condenced GPL\&GNU Light" \
+    "BPG Nateli GPL\&GNU Light" \
+    "BPG Nino Medium Cond GPL\&GNU" \
+    "BPG Nino Medium GPL\&GNU Medium" \
+    "BPG Sans GPL\&GNU" \
+    "BPG Sans Medium GPL\&GNU" \
+    "BPG Sans Modern GPL\&GNU" \
+    "BPG Sans Regular GPL\&GNU" \
+    "BPG Serif GPL\&GNU" \
+    "BPG Serif Modern GPL\&GNU" \
     "FreeMono" \
     "FreeMono Bold Italic" \
     "FreeSans" \
@@ -656,26 +621,26 @@ GEORGIAN_FONTS=( \
 OLD_GEORGIAN_FONTS=( \
     "Arial Unicode MS Bold" \
     "Arial Unicode MS" \
-    "BPG Algeti GPL&GNU" \
-    "BPG Courier S GPL&GNU" \
+    "BPG Algeti GPL\&GNU" \
+    "BPG Courier S GPL\&GNU" \
     "BPG DejaVu Sans 2011 GNU-GPL" \
-    "BPG Elite GPL&GNU" \
-    "BPG Excelsior GPL&GNU" \
-    "BPG Glaho GPL&GNU" \
-    "BPG Ingiri GPL&GNU" \
-    "BPG Mrgvlovani Caps GNU&GPL" \
-    "BPG Mrgvlovani GPL&GNU" \
-    "BPG Nateli Caps GPL&GNU Light" \
-    "BPG Nateli Condenced GPL&GNU Light" \
-    "BPG Nateli GPL&GNU Light" \
-    "BPG Nino Medium Cond GPL&GNU" \
-    "BPG Nino Medium GPL&GNU Medium" \
-    "BPG Sans GPL&GNU" \
-    "BPG Sans Medium GPL&GNU" \
-    "BPG Sans Modern GPL&GNU" \
-    "BPG Sans Regular GPL&GNU" \
-    "BPG Serif GPL&GNU" \
-    "BPG Serif Modern GPL&GNU" \
+    "BPG Elite GPL\&GNU" \
+    "BPG Excelsior GPL\&GNU" \
+    "BPG Glaho GPL\&GNU" \
+    "BPG Ingiri GPL\&GNU" \
+    "BPG Mrgvlovani Caps GNU\&GPL" \
+    "BPG Mrgvlovani GPL\&GNU" \
+    "BPG Nateli Caps GPL\&GNU Light" \
+    "BPG Nateli Condenced GPL\&GNU Light" \
+    "BPG Nateli GPL\&GNU Light" \
+    "BPG Nino Medium Cond GPL\&GNU" \
+    "BPG Nino Medium GPL\&GNU Medium" \
+    "BPG Sans GPL\&GNU" \
+    "BPG Sans Medium GPL\&GNU" \
+    "BPG Sans Modern GPL\&GNU" \
+    "BPG Sans Regular GPL\&GNU" \
+    "BPG Serif GPL\&GNU" \
+    "BPG Serif Modern GPL\&GNU" \
     "FreeSans" \
     "FreeSerif" \
     "FreeSerif Bold" \
@@ -872,7 +837,7 @@ VERTICAL_FONTS=( \
 #      holds the text corpus file for the language, used in phase F
 #   ${FONTS[@]}
 #      holds a sequence of applicable fonts for the language, used in
-#      phase F & I
+#      phase F & I. only set if not already set, i.e. from command line
 #   ${TRAINING_DATA_ARGUMENTS}
 #      non-default arguments to the training_data program used in phase T
 #   ${FILTER_ARGUMENTS} -
@@ -886,10 +851,17 @@ set_lang_specific_parameters() {
   local lang=$1
   # The default text location is now given directly from the language code.
   TEXT_CORPUS="${FLAGS_webtext_prefix}/${lang}.corpus.txt"
-  FONTS=( "${LATIN_FONTS[@]}" )
   FILTER_ARGUMENTS=""
   WORDLIST2DAWG_ARGUMENTS=""
-  WORD_DAWG_SIZE=100000
+  # These dawg factors represent the fraction of the corpus not covered by the
+  # dawg, and seem like reasonable defaults, but the optimal value is likely
+  # to be highly corpus-dependent, as well as somewhat language-dependent.
+  # Number dawg factor is the fraction of all numeric strings that are not
+  # covered, which is why it is higher relative to the others.
+  PUNC_DAWG_FACTOR=
+  NUMBER_DAWG_FACTOR=0.125
+  WORD_DAWG_FACTOR=0.05
+  BIGRAM_DAWG_FACTOR=0.015
   TRAINING_DATA_ARGUMENTS=""
   FRAGMENTS_DISABLED="y"
   RUN_SHAPE_CLUSTERING=0
@@ -900,30 +872,33 @@ set_lang_specific_parameters() {
   case ${lang} in
     # Latin languages.
     enm ) TEXT2IMAGE_EXTRA_ARGS=" --ligatures"   # Add ligatures when supported
-          FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
     frm ) TEXT_CORPUS="${FLAGS_webtext_prefix}/fra.corpus.txt"
           # Make long-s substitutions for Middle French text
           FILTER_ARGUMENTS="--make_early_language_variant=fra"
           TEXT2IMAGE_EXTRA_ARGS=" --ligatures"   # Add ligatures when supported.
-          FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
     frk ) TEXT_CORPUS="${FLAGS_webtext_prefix}/deu.corpus.txt"
-          FONTS=( "${FRAKTUR_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${FRAKTUR_FONTS[@]}" );;
     ita_old )
           TEXT_CORPUS="${FLAGS_webtext_prefix}/ita.corpus.txt"
           # Make long-s substitutions for Early Italian text
           FILTER_ARGUMENTS="--make_early_language_variant=ita"
           TEXT2IMAGE_EXTRA_ARGS=" --ligatures"   # Add ligatures when supported.
-          FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+    lat )
+          test -z "$EXPOSURES" && EXPOSURES="-3 -2 -1 0 1 2 3"
+          test -z "$FONTS" && FONTS=( "${NEOLATIN_FONTS[@]}" ) ;;
     spa_old )
           TEXT_CORPUS="${FLAGS_webtext_prefix}/spa.corpus.txt"
           # Make long-s substitutions for Early Spanish text
           FILTER_ARGUMENTS="--make_early_language_variant=spa"
           TEXT2IMAGE_EXTRA_ARGS=" --ligatures"  # Add ligatures when supported.
-          FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
     srp_latn )
           TEXT_CORPUS=${FLAGS_webtext_prefix}/srp.corpus.txt ;;
     vie ) TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
-          FONTS=( "${VIETNAMESE_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${VIETNAMESE_FONTS[@]}" ) ;;
     # Highly inflective languages get a bigger dawg size.
     # TODO(rays) Add more here!
     hun ) WORD_DAWG_SIZE=1000000 ;;
@@ -935,17 +910,17 @@ set_lang_specific_parameters() {
     bos ) ;;
     cat ) ;;
     ceb ) ;;
-    ces ) ;;
+    ces ) PUNC_DAWG_FACTOR=0.004 ;;
     cym ) ;;
     dan ) ;;
-    deu ) ;;
-    eng ) ;;
+    deu ) WORD_DAWG_FACTOR=0.125 ;;
+    eng ) WORD_DAWG_FACTOR=0.03 ;;
     epo ) ;;
     est ) ;;
     eus ) ;;
     fil ) ;;
     fin ) ;;
-    fra ) ;;
+    fra ) WORD_DAWG_FACTOR=0.08 ;;
     gle ) ;;
     glg ) ;;
     hat ) ;;
@@ -954,12 +929,11 @@ set_lang_specific_parameters() {
     isl ) ;;
     ita ) ;;
     jav ) ;;
-    lat ) ;;
     lav ) ;;
     lit ) ;;
     mlt ) ;;
     msa ) ;;
-    nld ) ;;
+    nld ) WORD_DAWG_FACTOR=0.02 ;;
     nor ) ;;
     por ) ;;
     ron ) ;;
@@ -983,13 +957,14 @@ set_lang_specific_parameters() {
           # Strip unrenderable words as not all fonts will render the extended
           # latin symbols found in Vietnamese text.
           WORD_DAWG_SIZE=1000000
-          FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
 
     # Cyrillic script-based languages.
-    rus ) FONTS=( "${RUSSIAN_FONTS[@]}" )
+    rus ) test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" )
+          NUMBER_DAWG_FACTOR=0.05
           WORD_DAWG_SIZE=1000000 ;;
     aze_cyrl | bel | bul | kaz | mkd | srp | tgk | ukr | uzb_cyrl )
-          FONTS=( "${RUSSIAN_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" ) ;;
 
     # Special code for performing Cyrillic language-id that is trained on
     # Russian, Serbian, Ukranian, Belarusian, Macedonian, Tajik and Mongolian
@@ -998,124 +973,147 @@ set_lang_specific_parameters() {
           TEXT_CORPUS=${FLAGS_webtext_prefix}/cyr_lid.corpus.txt
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           GENERATE_WORD_BIGRAMS=0
-          FRAGMENTS_DISABLED="y"
           WORD_DAWG_SIZE=1000000
-          FONTS=( "${RUSSIAN_FONTS[@]}" );;
+          test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" );;
 
     # South Asian scripts mostly have a lot of different graphemes, so trim
     # down the MEAN_COUNT so as not to get a huge amount of text.
     asm | ben )
           MEAN_COUNT="15"
-          FONTS=( "${BENGALI_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.15
+          test -z "$FONTS" && FONTS=( "${BENGALI_FONTS[@]}" ) ;;
     bih | hin | mar | nep | san )
           MEAN_COUNT="15"
-          FONTS=( "${DEVANAGARI_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.15
+          test -z "$FONTS" && FONTS=( "${DEVANAGARI_FONTS[@]}" ) ;;
     bod ) MEAN_COUNT="15"
-          FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
-    dzo ) FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.15
+          test -z "$FONTS" && FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
+    dzo )
+          WORD_DAWG_FACTOR=0.01
+          test -z "$FONTS" && FONTS=( "${TIBETAN_FONTS[@]}" ) ;;
     guj ) MEAN_COUNT="15"
-          FONTS=( "${GUJARATI_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.15
+          test -z "$FONTS" && FONTS=( "${GUJARATI_FONTS[@]}" ) ;;
     kan ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
-          FONTS=( "${KANNADA_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${KANNADA_FONTS[@]}" ) ;;
     mal ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
-          FONTS=( "${MALAYALAM_FONTS[@]}" ) ;;
-    ori ) FONTS=( "${ORIYA_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${MALAYALAM_FONTS[@]}" ) ;;
+    ori )
+          WORD_DAWG_FACTOR=0.01
+          test -z "$FONTS" && FONTS=( "${ORIYA_FONTS[@]}" ) ;;
     pan ) MEAN_COUNT="15"
-          FONTS=( "${PUNJABI_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.01
+          test -z "$FONTS" && FONTS=( "${PUNJABI_FONTS[@]}" ) ;;
     sin ) MEAN_COUNT="15"
-          FONTS=( "${SINHALA_FONTS[@]}" ) ;;
+          WORD_DAWG_FACTOR=0.01
+          test -z "$FONTS" && FONTS=( "${SINHALA_FONTS[@]}" ) ;;
     tam ) MEAN_COUNT="30"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
-          FONTS=( "${TAMIL_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${TAMIL_FONTS[@]}" ) ;;
     tel ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --no_newline_in_output"
           TEXT2IMAGE_EXTRA_ARGS=" --char_spacing=0.5"
-          FONTS=( "${TELUGU_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${TELUGU_FONTS[@]}" ) ;;
 
     # SouthEast Asian scripts.
     khm ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
-          FONTS=( "${KHMER_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${KHMER_FONTS[@]}" ) ;;
     lao ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
-          FONTS=( "${LAOTHIAN_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${LAOTHIAN_FONTS[@]}" ) ;;
     mya ) MEAN_COUNT="12"
+          WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
-          FONTS=( "${BURMESE_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${BURMESE_FONTS[@]}" ) ;;
     tha ) MEAN_COUNT="30"
+          WORD_DAWG_FACTOR=0.01
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           FILTER_ARGUMENTS="--segmenter_lang=tha"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           AMBIGS_FILTER_DENOMINATOR="1000"
           LEADING=48
-          FONTS=( "${THAI_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${THAI_FONTS[@]}" ) ;;
 
     # CJK
     chi_sim )
           MEAN_COUNT="15"
+          PUNC_DAWG_FACTOR=0.015
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=chi_sim --segmenter_lang=chi_sim"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
-          FONTS=( "${CHI_SIM_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${CHI_SIM_FONTS[@]}" ) ;;
     chi_tra )
           MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=chi_tra --segmenter_lang=chi_tra"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
-          FONTS=( "${CHI_TRA_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${CHI_TRA_FONTS[@]}" ) ;;
     jpn ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.015
           GENERATE_WORD_BIGRAMS=0
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --no_space_in_output --desired_bigrams="
           FILTER_ARGUMENTS="--charset_filter=jpn --segmenter_lang=jpn"
-          FRAGMENTS_DISABLED="y"
-          GENERATE_DAWGS=0
-          FONTS=( "${JPN_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${JPN_FONTS[@]}" ) ;;
     kor ) MEAN_COUNT="20"
+          WORD_DAWG_FACTOR=0.015
+          NUMBER_DAWG_FACTOR=0.05
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
           TRAINING_DATA_ARGUMENTS+=" --desired_bigrams="
           GENERATE_WORD_BIGRAMS=0
           FILTER_ARGUMENTS="--charset_filter=kor --segmenter_lang=kor"
-          FRAGMENTS_DISABLED="y"
-          FONTS=( "${KOREAN_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${KOREAN_FONTS[@]}" ) ;;
 
     # Middle-Eastern scripts.
-    ara ) FONTS=( "${ARABIC_FONTS[@]}" ) ;;
-    div ) FONTS=( "${THAANA_FONTS[@]}" ) ;;
+    ara ) test -z "$FONTS" && FONTS=( "${ARABIC_FONTS[@]}" ) ;;
+    div ) test -z "$FONTS" && FONTS=( "${THAANA_FONTS[@]}" ) ;;
     fas | pus | snd | uig | urd )
-          FONTS=( "${PERSIAN_FONTS[@]}" ) ;;
+          test -z "$FONTS" && FONTS=( "${PERSIAN_FONTS[@]}" ) ;;
     heb | yid )
-          FONTS=( "${HEBREW_FONTS[@]}" ) ;;
-    syr ) FONTS=( "${SYRIAC_FONTS[@]}" ) ;;
+          NUMBER_DAWG_FACTOR=0.05
+          WORD_DAWG_FACTOR=0.08
+          test -z "$FONTS" && FONTS=( "${HEBREW_FONTS[@]}" ) ;;
+    syr ) test -z "$FONTS" && FONTS=( "${SYRIAC_FONTS[@]}" ) ;;
 
     # Other scripts.
     amh | tir)
-          FONTS=( "${AMHARIC_FONTS[@]}" ) ;;
-    chr ) FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" \
+          test -z "$FONTS" && FONTS=( "${AMHARIC_FONTS[@]}" ) ;;
+    chr ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" \
                   "Noto Sans Cherokee" \
                 ) ;;
-    ell | grc )
-          FONTS=( "${GREEK_FONTS[@]}" ) ;;
-    hye ) FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
-    iku ) FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;
-    kat)  FONTS=( "${GEORGIAN_FONTS[@]}" ) ;;
+    ell )
+          NUMBER_DAWG_FACTOR=0.05
+          WORD_DAWG_FACTOR=0.08
+          test -z "$FONTS" && FONTS=( "${GREEK_FONTS[@]}" ) ;;
+    grc )
+          test -z "$EXPOSURES" && EXPOSURES="-3 -2 -1 0 1 2 3"
+          test -z "$FONTS" && FONTS=( "${ANCIENT_GREEK_FONTS[@]}" ) ;;
+    hye ) test -z "$FONTS" && FONTS=( "${ARMENIAN_FONTS[@]}" ) ;;
+    iku ) test -z "$FONTS" && FONTS=( "${NORTH_AMERICAN_ABORIGINAL_FONTS[@]}" ) ;;
+    kat)  test -z "$FONTS" && FONTS=( "${GEORGIAN_FONTS[@]}" ) ;;
     kat_old)
           TEXT_CORPUS="${FLAGS_webtext_prefix}/kat.corpus.txt"
-          FONTS=( "${OLD_GEORGIAN_FONTS[@]}" ) ;;
-    kir ) FONTS=( "${KYRGYZ_FONTS[@]}" )
+          test -z "$FONTS" && FONTS=( "${OLD_GEORGIAN_FONTS[@]}" ) ;;
+    kir ) test -z "$FONTS" && FONTS=( "${KYRGYZ_FONTS[@]}" )
           TRAINING_DATA_ARGUMENTS=" --infrequent_ratio=100" ;;
-    kur ) FONTS=( "${KURDISH_FONTS[@]}" ) ;;
+    kur ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
 
     *) err "Error: ${lang} is not a valid language code"
   esac
@@ -1124,6 +1122,11 @@ set_lang_specific_parameters() {
   elif [[ ! -z ${MEAN_COUNT} ]]; then
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${MEAN_COUNT}"
   fi
+  # Default to Latin fonts if none have been set
+  test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
+
+  # Default to 0 exposure if it hasn't been set
+  test -z "$EXPOSURES" && EXPOSURES=0
 }
 
 #=============================================================================

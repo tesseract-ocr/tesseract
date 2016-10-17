@@ -10,7 +10,7 @@
 // including CL/cl.h doesn't occur until USE_OPENCL defined below
 
 // platform preprocessor commands
-#if defined( WIN32 ) || defined( __WIN32__ ) || defined( _WIN32 ) || defined( __CYGWIN32__ ) || defined( __MINGW32__ )
+#if defined( WIN32 ) || defined( __WIN32__ ) || defined( _WIN32 ) || defined( __CYGWIN__ ) || defined( __MINGW32__ )
 #define ON_WINDOWS 1
 #define ON_LINUX   0
 #define ON_APPLE   0
@@ -56,13 +56,6 @@
 #include <time.h>
 #endif
 
-#if ON_APPLE
-#include <mach/clock.h>
-#include <mach/mach.h>
-#define CLOCK_MONOTONIC SYSTEM_CLOCK
-#define clock_gettime clock_get_time
-#endif
-
 /************************************************************************************
  * enable/disable reporting of performance
  * PERF_REPORT_LEVEL
@@ -90,7 +83,7 @@
 #define PERF_COUNT_END \
     QueryPerformanceCounter(&time_funct_end); \
     elapsed_time_sec = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart); \
-    tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+    printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
@@ -100,7 +93,7 @@
 #define PERF_COUNT_SUB(SUB) \
     QueryPerformanceCounter(&time_sub_end); \
     elapsed_time_sec = (time_sub_end.QuadPart-time_sub_start.QuadPart)/(double)(freq.QuadPart); \
-    tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
+    printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
     time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
@@ -122,7 +115,7 @@
 #define PERF_COUNT_END \
     clock_gettime( CLOCK_MONOTONIC, &time_funct_end ); \
     elapsed_time_sec = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0; \
-    tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+    printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
@@ -132,7 +125,7 @@
 #define PERF_COUNT_SUB(SUB) \
     clock_gettime( CLOCK_MONOTONIC, &time_sub_end ); \
     elapsed_time_sec = (time_sub_end.tv_sec - time_sub_start.tv_sec)*1.0 + (time_sub_end.tv_nsec - time_sub_start.tv_nsec)/1000000000.0; \
-    tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
+    printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
     time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
@@ -144,9 +137,6 @@
  **************************************************************************/
 
 #ifdef USE_OPENCL
-
-#define USE_DEVICE_SELECTION 1
-
 #include "opencl_device_selection.h"
 
 #ifndef strcasecmp
@@ -244,7 +234,6 @@ public:
     static int InitEnv(); // load dll, call InitOpenclRunEnv(0)
     static int InitOpenclRunEnv( int argc ); // RegistOpenclKernel, double flags, compile kernels
     static int InitOpenclRunEnv_DeviceSelection( int argc ); // RegistOpenclKernel, double flags, compile kernels
-    static int InitOpenclRunEnv( GPUEnv *gpu ); // select device by env_CPU or selector
     static int RegistOpenclKernel();
     static int ReleaseOpenclRunEnv();
     static int ReleaseOpenclEnv( GPUEnv *gpuInfo );
@@ -264,33 +253,33 @@ public:
     static TIFF* fopenTiffCl(FILE *fp,const char  *modestring);
 
 /* OpenCL implementations of Morphological operations*/
-    
+
     //Initialiation of OCL buffers used in Morph operations
     static int initMorphCLAllocations(l_int32  wpl, l_int32  h, PIX* pixs);
     static void releaseMorphCLBuffers();
 
     // OpenCL implementation of Morphology Dilate
     static PIX* pixDilateBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-    
+
     // OpenCL implementation of Morphology Erode
     static PIX* pixErodeBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-    
+
     // OpenCL implementation of Morphology Close
     static PIX* pixCloseBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
 
     // OpenCL implementation of Morphology Open
     static PIX* pixOpenBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-    
+
     // OpenCL implementation of Morphology Open
     static PIX* pixSubtractCL(PIX  *pixd, PIX  *pixs1, PIX  *pixs2, bool reqDataCopy);
 
     // OpenCL implementation of Morphology (Hollow = Closed - Open)
     static PIX* pixHollowCL(PIX  *pixd, PIX  *pixs, l_int32  close_hsize, l_int32  close_vsize, l_int32  open_hsize, l_int32  open_vsize, bool reqDataCopy);
 
-    static void pixGetLinesCL(PIX  *pixd, PIX  *pixs, 
-                                            PIX** pix_vline, PIX** pix_hline, 
+    static void pixGetLinesCL(PIX  *pixd, PIX  *pixs,
+                                            PIX** pix_vline, PIX** pix_hline,
                                             PIX** pixClosed, bool  getpixClosed,
-                                            l_int32  close_hsize, l_int32  close_vsize, 
+                                            l_int32  close_hsize, l_int32  close_vsize,
                                             l_int32  open_hsize, l_int32  open_vsize,
                                             l_int32  line_hsize, l_int32  line_vsize);
 
@@ -313,12 +302,11 @@ public:
     static void FreeOpenclDll();
 #endif
 
-    //int GetOpenclState();
-    //void SetOpenclState( int state );
+
     inline static int AddKernelConfig( int kCount, const char *kName );
 
     /* for binarization */
-    static void HistogramRectOCL(
+    static int HistogramRectOCL(
         const unsigned char *imagedata,
         int bytes_per_pixel,
         int bytes_per_line,
@@ -328,7 +316,8 @@ public:
         int height,
         int kHistogramSize,
         int *histogramAllChannels);
-    static void ThresholdRectToPixOCL(
+
+    static int ThresholdRectToPixOCL(
         const unsigned char* imagedata,
         int bytes_per_pixel,
         int bytes_per_line,
@@ -339,11 +328,12 @@ public:
         int rect_width,
         int rect_top,
         int rect_left);
-#if USE_DEVICE_SELECTION
+
+    static Pix * pixConvertRGBToGrayOCL( Pix *pix, float weightRed = 0.3, float weightGreen = 0.5, float weightBlue = 0.2 );
+
     static ds_device getDeviceSelection();
     static ds_device selectedDevice;
     static bool deviceIsSelected;
-#endif
     static bool selectedDeviceIsOpenCL();
     static bool selectedDeviceIsNativeCPU();
 

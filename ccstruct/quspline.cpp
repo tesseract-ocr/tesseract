@@ -71,8 +71,8 @@ int xpts[],                      //points to fit
 int ypts[], int pointcount,      //no of pts
 int degree                       //fit required
 ) {
-  register int pointindex;       /*no along text line */
-  register int segment;          /*segment no */
+  int pointindex;                /*no along text line */
+  int segment;                   /*segment no */
   inT32 *ptcounts;               //no in each segment
   QLSQ qlsq;                     /*accumulator */
 
@@ -308,7 +308,7 @@ void QSPLINE::extrapolate(                  //linear extrapolation
                           int xmin,         //new left edge
                           int xmax          //new right edge
                          ) {
-  register int segment;          /*current segment of spline */
+  int segment;                   /*current segment of spline */
   int dest_segment;              //dest index
   int *xstarts;                  //new boundaries
   QUAD_COEFFS *quads;            //new ones

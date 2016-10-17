@@ -237,7 +237,7 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
   return NULL;
 }
 
-// split a line continously until valid or fail
+// split a line continuously until valid or fail
 Pixa *CubeLineSegmenter::SplitLine(Pix *line_mask_pix, Box *line_box) {
   // clone the line mask
   Pix *line_pix = pixClone(line_mask_pix);
@@ -739,7 +739,7 @@ bool CubeLineSegmenter::LineSegment() {
   return true;
 }
 
-// Estimate the paramters of the font(s) used in the page
+// Estimate the parameters of the font(s) used in the page
 bool CubeLineSegmenter::EstimateFontParams() {
   int hgt_hist[kHgtBins];
   int max_hgt;

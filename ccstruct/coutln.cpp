@@ -38,18 +38,19 @@ ICOORD C_OUTLINE::step_coords[4] = {
   ICOORD (-1, 0), ICOORD (0, -1), ICOORD (1, 0), ICOORD (0, 1)
 };
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a CRACKEDGE LOOP.
- **********************************************************************/
+ * @param startpt outline to convert
+ * @param bot_left bounding box
+ * @param top_right bounding box
+ * @param length length of loop
+ */
 
-C_OUTLINE::C_OUTLINE (
-//constructor
-CRACKEDGE * startpt,             //outline to convert
-ICOORD bot_left,                 //bounding box
-ICOORD top_right, inT16 length   //length of loop
-):box (bot_left, top_right), start (startpt->pos), offsets(NULL) {
+C_OUTLINE::C_OUTLINE (CRACKEDGE * startpt, ICOORD bot_left, 
+                      ICOORD top_right, inT16 length)
+    : box (bot_left, top_right), start (startpt->pos), offsets(NULL) {
   inT16 stepindex;               //index to step
   CRACKEDGE *edgept;             //current point
 
@@ -71,11 +72,11 @@ ICOORD top_right, inT16 length   //length of loop
 }
 
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a C_OUTLINE_FRAG.
- **********************************************************************/
+ */
 C_OUTLINE::C_OUTLINE (
 //constructor
                                  //steps to copy
@@ -130,16 +131,15 @@ inT16 length                     //length of loop
   ASSERT_HOST (stepcount >= 4);
 }
 
-/**********************************************************************
- * C_OUTLINE::C_OUTLINE
+/**
+ * @name C_OUTLINE::C_OUTLINE
  *
  * Constructor to build a C_OUTLINE from a rotation of a C_OUTLINE.
- **********************************************************************/
+ * @param srcline outline to rotate
+ * @param rotation rotate to coord
+ */
 
-C_OUTLINE::C_OUTLINE(                     //constructor
-                     C_OUTLINE *srcline,  //outline to
-                     FCOORD rotation      //rotate
-                    ) : offsets(NULL) {
+C_OUTLINE::C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation) : offsets(NULL) {
   TBOX new_box;                   //easy bounding
   inT16 stepindex;               //index to step
   inT16 dirdiff;                 //direction change
@@ -247,11 +247,11 @@ void C_OUTLINE::FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines) {
   ol_it.add_to_end(outline);
 }
 
-/**********************************************************************
- * C_OUTLINE::area
+/**
+ * @name C_OUTLINE::area
  *
  * Compute the area of the outline.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::area() const {
   int stepindex;                 //current step
@@ -281,11 +281,11 @@ inT32 C_OUTLINE::area() const {
   return total;
 }
 
-/**********************************************************************
- * C_OUTLINE::perimeter
+/**
+ * @name C_OUTLINE::perimeter
  *
  * Compute the perimeter of the outline and its first level children.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::perimeter() const {
   inT32 total_steps;             // Return value.
@@ -301,11 +301,11 @@ inT32 C_OUTLINE::perimeter() const {
 }
 
 
-/**********************************************************************
- * C_OUTLINE::outer_area
+/**
+ * @name C_OUTLINE::outer_area
  *
  * Compute the area of the outline.
- **********************************************************************/
+ */
 
 inT32 C_OUTLINE::outer_area() const {
   int stepindex;                 //current step
@@ -333,15 +333,14 @@ inT32 C_OUTLINE::outer_area() const {
 }
 
 
-/**********************************************************************
- * C_OUTLINE::count_transitions
+/**
+ * @name C_OUTLINE::count_transitions
  *
  * Compute the number of x and y maxes and mins in the outline.
- **********************************************************************/
+ * @param threshold winding number on size
+ */
 
-inT32 C_OUTLINE::count_transitions(                 //winding number
-                                   inT32 threshold  //on size
-                                  ) {
+inT32 C_OUTLINE::count_transitions(inT32 threshold) {
   BOOL8 first_was_max_x;         //what was first
   BOOL8 first_was_max_y;
   BOOL8 looking_for_max_x;       //what is next
@@ -461,16 +460,15 @@ inT32 C_OUTLINE::count_transitions(                 //winding number
 }
 
 
-/**********************************************************************
- * C_OUTLINE::operator<
+/**
+ * @name C_OUTLINE::operator<
  *
- * Return TRUE if the left operand is inside the right one.
- **********************************************************************/
+ * @return TRUE if the left operand is inside the right one.
+ * @param other other outline
+ */
 
 BOOL8
-C_OUTLINE::operator< (           //winding number
-const C_OUTLINE & other          //other outline
-) const
+C_OUTLINE::operator< (const C_OUTLINE & other) const
 {
   inT16 count = 0;               //winding count
   ICOORD pos;                    //position of point
@@ -498,15 +496,14 @@ const C_OUTLINE & other          //other outline
 }
 
 
-/**********************************************************************
- * C_OUTLINE::winding_number
+/**
+ * @name C_OUTLINE::winding_number
  *
- * Return the winding number of the outline around the given point.
- **********************************************************************/
+ * @return the winding number of the outline around the given point.
+ * @param point point to wind around
+ */
 
-inT16 C_OUTLINE::winding_number(              //winding number
-                                ICOORD point  //point to wind around
-                               ) const {
+inT16 C_OUTLINE::winding_number(ICOORD point) const {
   inT16 stepindex;               //index to cstep
   inT16 count;                   //winding count
   ICOORD vec;                    //to current point
@@ -538,11 +535,11 @@ inT16 C_OUTLINE::winding_number(              //winding number
 }
 
 
-/**********************************************************************
+/**
  * C_OUTLINE::turn_direction
  *
- * Return the sum direction delta of the outline.
- **********************************************************************/
+ * @return the sum direction delta of the outline.
+ */
 
 inT16 C_OUTLINE::turn_direction() const {  //winding number
   DIR128 prevdir;                //previous direction
@@ -567,11 +564,11 @@ inT16 C_OUTLINE::turn_direction() const {  //winding number
 }
 
 
-/**********************************************************************
- * C_OUTLINE::reverse
+/**
+ * @name C_OUTLINE::reverse
  *
  * Reverse the direction of an outline.
- **********************************************************************/
+ */
 
 void C_OUTLINE::reverse() {  //reverse drection
   DIR128 halfturn = MODULUS / 2; //amount to shift
@@ -590,15 +587,14 @@ void C_OUTLINE::reverse() {  //reverse drection
 }
 
 
-/**********************************************************************
- * C_OUTLINE::move
+/**
+ * @name C_OUTLINE::move
  *
  * Move C_OUTLINE by vector
- **********************************************************************/
+ * @param vec vector to reposition OUTLINE by
+ */
 
-void C_OUTLINE::move(                  // reposition OUTLINE
-                     const ICOORD vec  // by vector
-                    ) {
+void C_OUTLINE::move(const ICOORD vec) {
   C_OUTLINE_IT it(&children);  // iterator
 
   box.move (vec);
@@ -608,10 +604,12 @@ void C_OUTLINE::move(                  // reposition OUTLINE
     it.data ()->move (vec);      // move child outlines
 }
 
-// Returns true if *this and its children are legally nested.
-// The outer area of a child should have the opposite sign to the
-// parent. If not, it means we have discarded an outline in between
-// (probably due to excessive length).
+/**
+ * Returns true if *this and its children are legally nested.
+ * The outer area of a child should have the opposite sign to the
+ * parent. If not, it means we have discarded an outline in between
+ * (probably due to excessive length).
+ */
 bool C_OUTLINE::IsLegallyNested() const {
   if (stepcount == 0) return true;
   int parent_area = outer_area();
@@ -626,11 +624,15 @@ bool C_OUTLINE::IsLegallyNested() const {
   return true;
 }
 
-// If this outline is smaller than the given min_size, delete this and
-// remove from its list, via *it, after checking that *it points to this.
-// Otherwise, if any children of this are too small, delete them.
-// On entry, *it must be an iterator pointing to this. If this gets deleted
-// then this is extracted from *it, so an iteration can continue.
+/**
+ * If this outline is smaller than the given min_size, delete this and
+ * remove from its list, via *it, after checking that *it points to this.
+ * Otherwise, if any children of this are too small, delete them.
+ * On entry, *it must be an iterator pointing to this. If this gets deleted
+ * then this is extracted from *it, so an iteration can continue.
+ * @param min_size minimum size for outline
+ * @param it outline iterator
+ */
 void C_OUTLINE::RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it) {
   if (box.width() < min_size || box.height() < min_size) {
     ASSERT_HOST(this == it->data());
@@ -650,9 +652,11 @@ void C_OUTLINE::RemoveSmallRecursive(int min_size, C_OUTLINE_IT* it) {
 // on data from an 8-bit Pix, and assume that any input x and/or y are already
 // constrained to be legal Pix coordinates.
 
-// Helper computes the local 2-D gradient (dx, dy) from the 2x2 cell centered
-// on the given (x,y). If the cell would go outside the image, it is padded
-// with white.
+/**
+ * Helper computes the local 2-D gradient (dx, dy) from the 2x2 cell centered
+ * on the given (x,y). If the cell would go outside the image, it is padded
+ * with white.
+ */
 static void ComputeGradient(const l_uint32* data, int wpl,
                             int x, int y, int width, int height,
                             ICOORD* gradient) {
@@ -669,9 +673,11 @@ static void ComputeGradient(const l_uint32* data, int wpl,
   gradient->set_y(pix_x_prevy + pix_prevx_prevy - (pix_x_y + pix_prevx_y));
 }
 
-// Helper evaluates a vertical difference, (x,y) - (x,y-1), returning true if
-// the difference, matches diff_sign and updating the best_diff, best_sum,
-// best_y if a new max.
+/**
+ * Helper evaluates a vertical difference, (x,y) - (x,y-1), returning true if
+ * the difference, matches diff_sign and updating the best_diff, best_sum,
+ * best_y if a new max.
+ */
 static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
                                  int x, int y, int height,
                                  int* best_diff, int* best_sum, int* best_y) {
@@ -689,9 +695,11 @@ static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
   return diff > 0;
 }
 
-// Helper evaluates a horizontal difference, (x,y) - (x-1,y), where y is implied
-// by the input image line, returning true if the difference matches diff_sign
-// and updating the best_diff, best_sum, best_x if a new max.
+/**
+ * Helper evaluates a horizontal difference, (x,y) - (x-1,y), where y is implied
+ * by the input image line, returning true if the difference matches diff_sign
+ * and updating the best_diff, best_sum, best_x if a new max.
+ */
 static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
                                    int x, int width,
                                    int* best_diff, int* best_sum, int* best_x) {
@@ -708,17 +716,21 @@ static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
   return diff > 0;
 }
 
-// Adds sub-pixel resolution EdgeOffsets for the outline if the supplied
-// pix is 8-bit. Does nothing otherwise.
-// Operation: Consider the following near-horizontal line:
-// _________
-//          |________
-//                   |________
-// At *every* position along this line, the gradient direction will be close
-// to vertical. Extrapoaltion/interpolation of the position of the threshold
-// that was used to binarize the image gives a more precise vertical position
-// for each horizontal step, and the conflict in step direction and gradient
-// direction can be used to ignore the vertical steps.
+/**
+ * Adds sub-pixel resolution EdgeOffsets for the outline if the supplied
+ * pix is 8-bit. Does nothing otherwise.
+ * Operation: Consider the following near-horizontal line:
+ * @verbatim
+ *   _________
+ *            |________
+ *                     |________
+ * @endverbatim
+ * At *every* position along this line, the gradient direction will be close
+ * to vertical. Extrapoaltion/interpolation of the position of the threshold
+ * that was used to binarize the image gives a more precise vertical position
+ * for each horizontal step, and the conflict in step direction and gradient
+ * direction can be used to ignore the vertical steps.
+ */
 void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
   if (pixGetDepth(pix) != 8) return;
   const l_uint32* data = pixGetData(pix);
@@ -807,30 +819,35 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
   }
 }
 
-// Adds sub-pixel resolution EdgeOffsets for the outline using only
-// a binary image source.
-// Runs a sliding window of 5 edge steps over the outline, maintaining a count
-// of the number of steps in each of the 4 directions in the window, and a
-// sum of the x or y position of each step (as appropriate to its direction.)
-// Ignores single-count steps EXCEPT the sharp U-turn and smoothes out the
-// perpendicular direction. Eg
-// ___              ___       Chain code from the left:
-//    |___    ___   ___|      222122212223221232223000
-//        |___|  |_|          Corresponding counts of each direction:
-//                          0   00000000000000000123
-//                          1   11121111001111100000
-//                          2   44434443443333343321
-//                          3   00000001111111112111
-// Count of direction at center 41434143413313143313
-// Step gets used?              YNYYYNYYYNYYNYNYYYyY (y= U-turn exception)
-// Path redrawn showing only the used points:
-// ___              ___
-//     ___    ___   ___|
-//         ___    _
-// Sub-pixel edge position cannot be shown well with ASCII-art, but each
-// horizontal step's y position is the mean of the y positions of the steps
-// in the same direction in the sliding window, which makes a much smoother
-// outline, without losing important detail.
+/**
+ * Adds sub-pixel resolution EdgeOffsets for the outline using only
+ * a binary image source.
+ *
+ * Runs a sliding window of 5 edge steps over the outline, maintaining a count
+ * of the number of steps in each of the 4 directions in the window, and a
+ * sum of the x or y position of each step (as appropriate to its direction.)
+ * Ignores single-count steps EXCEPT the sharp U-turn and smoothes out the
+ * perpendicular direction. Eg
+ * @verbatim
+ * ___              ___       Chain code from the left:
+ *    |___    ___   ___|      222122212223221232223000
+ *        |___|  |_|          Corresponding counts of each direction:
+ *                          0   00000000000000000123
+ *                          1   11121111001111100000
+ *                          2   44434443443333343321
+ *                          3   00000001111111112111
+ * Count of direction at center 41434143413313143313
+ * Step gets used?              YNYYYNYYYNYYNYNYYYyY (y= U-turn exception)
+ * Path redrawn showing only the used points:
+ * ___              ___
+ *     ___    ___   ___|
+ *         ___    _
+ * @endverbatim
+ * Sub-pixel edge position cannot be shown well with ASCII-art, but each
+ * horizontal step's y position is the mean of the y positions of the steps
+ * in the same direction in the sliding window, which makes a much smoother
+ * outline, without losing important detail.
+ */
 void C_OUTLINE::ComputeBinaryOffsets() {
   delete [] offsets;
   offsets = new EdgeOffset[stepcount];
@@ -885,8 +902,10 @@ void C_OUTLINE::ComputeBinaryOffsets() {
   }
 }
 
-// Renders the outline to the given pix, with left and top being
-// the coords of the upper-left corner of the pix.
+/**
+ * Renders the outline to the given pix, with left and top being
+ * the coords of the upper-left corner of the pix.
+ */
 void C_OUTLINE::render(int left, int top, Pix* pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
@@ -902,8 +921,13 @@ void C_OUTLINE::render(int left, int top, Pix* pix) const {
   }
 }
 
-// Renders just the outline to the given pix (no fill), with left and top
-// being the coords of the upper-left corner of the pix.
+/**
+ * Renders just the outline to the given pix (no fill), with left and top
+ * being the coords of the upper-left corner of the pix.
+ * @param left coord
+ * @param top coord
+ * @param pix the pix to outline
+ */
 void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
   ICOORD pos = start;
   for (int stepindex = 0; stepindex < stepcount; ++stepindex) {
@@ -921,17 +945,17 @@ void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
   }
 }
 
-/**********************************************************************
- * C_OUTLINE::plot
+/**
+ * @name C_OUTLINE::plot
  *
  * Draw the outline in the given colour.
- **********************************************************************/
+ * @param window window to draw in
+ * @param colour colour to draw in
+ */
 
 #ifndef GRAPHICS_DISABLED
-void C_OUTLINE::plot(                //draw it
-                     ScrollView* window,       // window to draw in
-                     ScrollView::Color colour  // colour to draw in
-                    ) const {
+void C_OUTLINE::plot(ScrollView* window,
+                     ScrollView::Color colour) const {
   inT16 stepindex;               // index to cstep
   ICOORD pos;                    // current position
   DIR128 stepdir;                // direction of step
@@ -958,8 +982,11 @@ void C_OUTLINE::plot(                //draw it
     window->DrawTo(pos.x(), pos.y());
   }
 }
-// Draws the outline in the given colour, normalized using the given denorm,
-// making use of sub-pixel accurate information if available.
+
+/**
+ * Draws the outline in the given colour, normalized using the given denorm,
+ * making use of sub-pixel accurate information if available.
+ */
 void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
                             ScrollView* window) const {
   window->Pen(colour);
@@ -990,16 +1017,14 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
 #endif
 
 
-/**********************************************************************
- * C_OUTLINE::operator=
+/**
+ * @name C_OUTLINE::operator=
  *
  * Assignment - deep copy data
- **********************************************************************/
+ * @param source assign from this
+ */
 
-                                 //assignment
-C_OUTLINE & C_OUTLINE::operator= (
-const C_OUTLINE & source         //from this
-) {
+C_OUTLINE & C_OUTLINE::operator= (const C_OUTLINE & source) {
   box = source.box;
   start = source.start;
   if (steps != NULL)
@@ -1020,10 +1045,12 @@ const C_OUTLINE & source         //from this
   return *this;
 }
 
-// Helper for ComputeBinaryOffsets. Increments pos, dir_counts, pos_totals
-// by the step, increment, and vertical step ? x : y position * increment
-// at step s Mod stepcount respectively. Used to add or subtract the
-// direction and position to/from accumulators of a small neighbourhood.
+/**
+ * Helper for ComputeBinaryOffsets. Increments pos, dir_counts, pos_totals
+ * by the step, increment, and vertical step ? x : y position * increment
+ * at step s Mod stepcount respectively. Used to add or subtract the
+ * direction and position to/from accumulators of a small neighbourhood.
+ */
 void C_OUTLINE::increment_step(int s, int increment, ICOORD* pos,
                                int* dir_counts, int* pos_totals) const {
   int step_index = Modulo(s, stepcount);

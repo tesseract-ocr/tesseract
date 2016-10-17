@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import input
 """
 tesshelper.py -- Utility operations to compare, report stats, and copy 
-                 public headers for tesseract 3.0x VS2008 Project
+                 public headers for tesseract 3.0x VS2010 Project
 
 $RCSfile: tesshelper.py,v $ $Revision: 7ca575b377aa $ $Date: 2012/03/07 17:26:31 $
 """
@@ -31,14 +31,14 @@ Format for a .vcproj file entry:
 epilogStr = r"""
 Examples:
 
-Assume that tesshelper.py is in c:\buildfolder\tesseract-3.02\vs2008,
+Assume that tesshelper.py is in c:\buildfolder\tesseract-3.02\vs2010,
 which is also the current directory. Then,
 
     python tesshelper .. compare
     
 will compare c:\buildfolder\tesseract-3.02 "library" directories to the
 libtesseract Project 
-(c:\buildfolder\tesseract-3.02\vs2008\libtesseract\libtesseract.vcproj).
+(c:\buildfolder\tesseract-3.02\vs2010\libtesseract\libtesseract.vcproj).
 
     python tesshelper ..  report
     
@@ -52,7 +52,7 @@ c:\buildfolder\include.
 
     python tesshelper .. clean
 
-will clean the vs2008 folder of all build directories, and .user, .suo,
+will clean the vs2010 folder of all build directories, and .user, .suo,
 .ncb, and other temp files.
 
 """
@@ -70,7 +70,7 @@ import sys
 # ====================================================================
 
 VERSION = "1.0 %s" % "$Date: 2012/03/07 17:26:31 $".split()[1]
-PROJ_SUBDIR = r"vs2008\libtesseract"
+PROJ_SUBDIR = r"vs2010\libtesseract"
 PROJFILE = "libtesseract.vcproj"
 
 NEWHEADERS_FILENAME = "newheaders.txt"
@@ -209,7 +209,7 @@ def tessCompare(tessDir):
 def tessReport(tessDir):
     """Report summary stats on "sub-library" files and libtesseract Project file."""
 
-    vs2010Dir = os.path.join(tessDir, "vs2008")
+    vs2010Dir = os.path.join(tessDir, "vs2010")
     libTessDir = os.path.join(vs2010Dir, "libtesseract")
     libProjectFile = os.path.join(libTessDir,"libtesseract.vcproj")
     tessAbsDir = os.path.abspath(tessDir)
@@ -253,7 +253,7 @@ def tessReport(tessDir):
     print(" %5d %3d %3d" % (totalFiles, totalH, totalCPP))
     
     print()
-    print('Summary stats for VS2008 Project "%s"' % libProjectFile)
+    print('Summary stats for VS2010 Project "%s"' % libProjectFile)
     print(" %5d %s" %(len(projectHFiles), "Header files"))
     print(" %5d %s" % (len(projectCFiles), "Source files"))
     print(" %5d %s" % (len(projectRFiles), "Resource files"))
@@ -359,9 +359,9 @@ def tessCopy(tessDir, includeDir):
         }
 
     extraFilesSet = {
-        #r"vs2008\include\stdint.h",
-        r"vs2008\include\leptonica_versionnumbers.vsprops",
-        r"vs2008\include\tesseract_versionnumbers.vsprops",
+        #r"vs2010\include\stdint.h",
+        r"vs2010\include\leptonica_versionnumbers.vsprops",
+        r"vs2010\include\tesseract_versionnumbers.vsprops",
         }
         
     tessIncludeDir = os.path.join(includeDir, "tesseract")
@@ -380,21 +380,21 @@ def tessCopy(tessDir, includeDir):
 # ====================================================================
 
 def tessClean(tessDir):
-    '''Clean vs2008 folder of all build directories and certain temp files.'''
+    '''Clean vs2010 folder of all build directories and certain temp files.'''
 
-    vs2010Dir = os.path.join(tessDir, "vs2008")
-    vs2008AbsDir = os.path.abspath(vs2010Dir)
+    vs2010Dir = os.path.join(tessDir, "vs2010")
+    vs2010AbsDir = os.path.abspath(vs2010Dir)
 
     answer = eval(input(
         'Are you sure you want to clean the\n "%s" folder (Yes/No) [No]? ' % 
-        vs2008AbsDir))
+        vs2010AbsDir))
     if answer.lower() not in ("yes",):
         return
     answer = eval(input('Only list the items to be deleted (Yes/No) [Yes]? '))
     answer = answer.strip()
     listOnly = answer.lower() not in ("no",)
 
-    for rootDir, dirs, files in os.walk(vs2008AbsDir):
+    for rootDir, dirs, files in os.walk(vs2010AbsDir):
         for buildDir in ("LIB_Release", "LIB_Debug", "DLL_Release", "DLL_Debug"):
             if buildDir in dirs:
                 dirs.remove(buildDir)
@@ -405,7 +405,7 @@ def tessClean(tessDir):
                     print("Removing: %s" % absBuildDir)
                     shutil.rmtree(absBuildDir)
 
-        if rootDir == vs2008AbsDir:
+        if rootDir == vs2010AbsDir:
             for file in files:
                 if file.lower() not in ("tesseract.sln",
                                         "tesshelper.py",
@@ -484,7 +484,7 @@ def main ():
     parser_copy.set_defaults(func=tessCopy)
 
     parser_clean = subparsers.add_parser('clean',
-        help="clean vs2008 folder of build folders and .user files")
+        help="clean vs2010 folder of build folders and .user files")
     parser_clean.set_defaults(func=tessClean)
 
     #kludge because argparse has no ability to set default subparser

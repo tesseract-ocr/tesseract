@@ -50,8 +50,10 @@ WordUnigrams::~WordUnigrams() {
   }
 }
 
-// Load the word-list and unigrams from file and create an object
-// The word list is assumed to be sorted in lexicographic order.
+/**
+ * Load the word-list and unigrams from file and create an object
+ * The word list is assumed to be sorted in lexicographic order.
+ */
 WordUnigrams *WordUnigrams::Create(const string &data_file_path,
                                    const string &lang) {
   string file_name;
@@ -143,10 +145,12 @@ WordUnigrams *WordUnigrams::Create(const string &data_file_path,
   return word_unigrams_obj;
 }
 
-// Split input into space-separated tokens, strip trailing punctuation
-// from each, determine case properties, call UTF-8 flavor of cost
-// function on each word, and aggregate all into single mean word
-// cost.
+/**
+ * Split input into space-separated tokens, strip trailing punctuation
+ * from each, determine case properties, call UTF-8 flavor of cost
+ * function on each word, and aggregate all into single mean word
+ * cost.
+ */
 int WordUnigrams::Cost(const char_32 *key_str32,
                        LangModel *lang_mod,
                        CharSet *char_set) const {
@@ -239,7 +243,9 @@ int WordUnigrams::Cost(const char_32 *key_str32,
   return static_cast<int>(cost / static_cast<double>(words.size()));
 }
 
-// Search for UTF-8 string using binary search of sorted words_ array.
+/**
+ * Search for UTF-8 string using binary search of sorted words_ array.
+ */
 int WordUnigrams::CostInternal(const char *key_str) const {
   if (strlen(key_str) == 0)
     return not_in_list_cost_;

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.6.8" />
+<meta name="generator" content="AsciiDoc 8.6.9" />
 <title>TESSERACT(1)</title>
 <style type="text/css">
 /* Shared CSS for AsciiDoc xhtml11 and html5 backends */
@@ -94,7 +94,9 @@ ul > li > * { color: black; }
   padding: 0;
   margin: 0;
 }
-
+pre {
+  white-space: pre-wrap;
+}
 
 #author {
   color: #527bbd;
@@ -223,7 +225,7 @@ div.exampleblock > div.content {
 }
 
 div.imageblock div.content { padding-left: 0; }
-span.image img { border-style: none; }
+span.image img { border-style: none; vertical-align: text-bottom; }
 a.image:visited { color: white; }
 
 dl {
@@ -929,56 +931,115 @@ before any <em>configfile</em>.</p></div>
 <div class="sect1">
 <h2 id="_languages">LANGUAGES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>There are currently language packs available for the following languages:</p></div>
-<div class="paragraph"><p><strong>ara</strong> (Arabic),
-<strong>aze</strong> (Azerbauijani),
-<strong>bul</strong> (Bulgarian),
-<strong>cat</strong> (Catalan),
-<strong>ces</strong> (Czech),
-<strong>chi_sim</strong> (Simplified Chinese),
-<strong>chi_tra</strong> (Traditional Chinese),
-<strong>chr</strong> (Cherokee),
-<strong>dan</strong> (Danish),
-<strong>dan-frak</strong> (Danish (Fraktur)),
-<strong>deu</strong> (German),
-<strong>ell</strong> (Greek),
-<strong>eng</strong> (English),
-<strong>enm</strong> (Old English),
-<strong>epo</strong> (Esperanto),
-<strong>est</strong> (Estonian),
-<strong>fin</strong> (Finnish),
-<strong>fra</strong> (French),
-<strong>frm</strong> (Old French),
-<strong>glg</strong> (Galician),
-<strong>heb</strong> (Hebrew),
-<strong>hin</strong> (Hindi),
-<strong>hrv</strong> (Croation),
-<strong>hun</strong> (Hungarian),
-<strong>ind</strong> (Indonesian),
-<strong>ita</strong> (Italian),
-<strong>jpn</strong> (Japanese),
-<strong>kor</strong> (Korean),
-<strong>lav</strong> (Latvian),
-<strong>lit</strong> (Lithuanian),
-<strong>nld</strong> (Dutch),
-<strong>nor</strong> (Norwegian),
-<strong>pol</strong> (Polish),
-<strong>por</strong> (Portuguese),
-<strong>ron</strong> (Romanian),
-<strong>rus</strong> (Russian),
-<strong>slk</strong> (Slovakian),
-<strong>slv</strong> (Slovenian),
-<strong>sqi</strong> (Albanian),
-<strong>spa</strong> (Spanish),
-<strong>srp</strong> (Serbian),
-<strong>swe</strong> (Swedish),
-<strong>tam</strong> (Tamil),
-<strong>tel</strong> (Telugu),
-<strong>tgl</strong> (Tagalog),
-<strong>tha</strong> (Thai),
-<strong>tur</strong> (Turkish),
-<strong>ukr</strong> (Ukrainian),
-<strong>vie</strong> (Vietnamese)</p></div>
+<div class="paragraph"><p>There are currently language packs available for the following languages
+(in <a href="https://github.com/tesseract-ocr/tessdata">https://github.com/tesseract-ocr/tessdata</a>):</p></div>
+<div class="paragraph"><p><strong>afr</strong> (Afrikaans)
+<strong>amh</strong> (Amharic)
+<strong>ara</strong> (Arabic)
+<strong>asm</strong> (Assamese)
+<strong>aze</strong> (Azerbaijani)
+<strong>aze_cyrl</strong> (Azerbaijani - Cyrilic)
+<strong>bel</strong> (Belarusian)
+<strong>ben</strong> (Bengali)
+<strong>bod</strong> (Tibetan)
+<strong>bos</strong> (Bosnian)
+<strong>bul</strong> (Bulgarian)
+<strong>cat</strong> (Catalan; Valencian)
+<strong>ceb</strong> (Cebuano)
+<strong>ces</strong> (Czech)
+<strong>chi_sim</strong> (Chinese - Simplified)
+<strong>chi_tra</strong> (Chinese - Traditional)
+<strong>chr</strong> (Cherokee)
+<strong>cym</strong> (Welsh)
+<strong>dan</strong> (Danish)
+<strong>dan_frak</strong> (Danish - Fraktur)
+<strong>deu</strong> (German)
+<strong>deu_frak</strong> (German - Fraktur)
+<strong>dzo</strong> (Dzongkha)
+<strong>ell</strong> (Greek, Modern (1453-))
+<strong>eng</strong> (English)
+<strong>enm</strong> (English, Middle (1100-1500))
+<strong>epo</strong> (Esperanto)
+<strong>equ</strong> (Math / equation detection module)
+<strong>est</strong> (Estonian)
+<strong>eus</strong> (Basque)
+<strong>fas</strong> (Persian)
+<strong>fin</strong> (Finnish)
+<strong>fra</strong> (French)
+<strong>frk</strong> (Frankish)
+<strong>frm</strong> (French, Middle (ca.1400-1600))
+<strong>gle</strong> (Irish)
+<strong>glg</strong> (Galician)
+<strong>grc</strong> (Greek, Ancient (to 1453))
+<strong>guj</strong> (Gujarati)
+<strong>hat</strong> (Haitian; Haitian Creole)
+<strong>heb</strong> (Hebrew)
+<strong>hin</strong> (Hindi)
+<strong>hrv</strong> (Croatian)
+<strong>hun</strong> (Hungarian)
+<strong>iku</strong> (Inuktitut)
+<strong>ind</strong> (Indonesian)
+<strong>isl</strong> (Icelandic)
+<strong>ita</strong> (Italian)
+<strong>ita_old</strong> (Italian - Old)
+<strong>jav</strong> (Javanese)
+<strong>jpn</strong> (Japanese)
+<strong>kan</strong> (Kannada)
+<strong>kat</strong> (Georgian)
+<strong>kat_old</strong> (Georgian - Old)
+<strong>kaz</strong> (Kazakh)
+<strong>khm</strong> (Central Khmer)
+<strong>kir</strong> (Kirghiz; Kyrgyz)
+<strong>kor</strong> (Korean)
+<strong>kur</strong> (Kurdish)
+<strong>lao</strong> (Lao)
+<strong>lat</strong> (Latin)
+<strong>lav</strong> (Latvian)
+<strong>lit</strong> (Lithuanian)
+<strong>mal</strong> (Malayalam)
+<strong>mar</strong> (Marathi)
+<strong>mkd</strong> (Macedonian)
+<strong>mlt</strong> (Maltese)
+<strong>msa</strong> (Malay)
+<strong>mya</strong> (Burmese)
+<strong>nep</strong> (Nepali)
+<strong>nld</strong> (Dutch; Flemish)
+<strong>nor</strong> (Norwegian)
+<strong>ori</strong> (Oriya)
+<strong>osd</strong> (Orientation and script detection module)
+<strong>pan</strong> (Panjabi; Punjabi)
+<strong>pol</strong> (Polish)
+<strong>por</strong> (Portuguese)
+<strong>pus</strong> (Pushto; Pashto)
+<strong>ron</strong> (Romanian; Moldavian; Moldovan)
+<strong>rus</strong> (Russian)
+<strong>san</strong> (Sanskrit)
+<strong>sin</strong> (Sinhala; Sinhalese)
+<strong>slk</strong> (Slovak)
+<strong>slk_frak</strong> (Slovak - Fraktur)
+<strong>slv</strong> (Slovenian)
+<strong>spa</strong> (Spanish; Castilian)
+<strong>spa_old</strong> (Spanish; Castilian - Old)
+<strong>sqi</strong> (Albanian)
+<strong>srp</strong> (Serbian)
+<strong>srp_latn</strong> (Serbian - Latin)
+<strong>swa</strong> (Swahili)
+<strong>swe</strong> (Swedish)
+<strong>syr</strong> (Syriac)
+<strong>tam</strong> (Tamil)
+<strong>tel</strong> (Telugu)
+<strong>tgk</strong> (Tajik)
+<strong>tgl</strong> (Tagalog)
+<strong>tha</strong> (Thai)
+<strong>tir</strong> (Tigrinya)
+<strong>tur</strong> (Turkish)
+<strong>uig</strong> (Uighur; Uyghur)
+<strong>ukr</strong> (Ukrainian)
+<strong>urd</strong> (Urdu)
+<strong>uzb</strong> (Uzbek)
+<strong>uzb_cyrl</strong> (Uzbek - Cyrilic)
+<strong>vie</strong> (Vietnamese)
+<strong>yid</strong> (Yiddish)</p></div>
 <div class="paragraph"><p>To use a non-standard language pack named <strong>foo.traineddata</strong>, set the
 <strong>TESSDATA_PREFIX</strong> environment variable so the file can be found at
 <strong>TESSDATA_PREFIX</strong>/tessdata/<strong>foo</strong>.traineddata and give Tesseract the
@@ -1045,9 +1106,9 @@ debug.</p></div>
 <div class="paragraph"><p>Version 2.00 brought Unicode (UTF-8) support, six languages, and the ability
 to train Tesseract.</p></div>
 <div class="paragraph"><p>Tesseract was included in UNLV&#8217;s Fourth Annual Test of OCR Accuracy.
-See <a href="http://www.isri.unlv.edu/downloads/AT-1995.pdf">http://www.isri.unlv.edu/downloads/AT-1995.pdf</a>. With Tesseract 2.00,
+See <a href="https://github.com/tesseract-ocr/docs/blob/master/AT-1995.pdf">https://github.com/tesseract-ocr/docs/blob/master/AT-1995.pdf</a>. With Tesseract 2.00,
 scripts are now included to allow anyone to reproduce some of these tests.
-See <a href="http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract">http://code.google.com/p/tesseract-ocr/wiki/TestingTesseract</a> for more
+See <a href="https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TestingTesseract</a> for more
 details.</p></div>
 <div class="paragraph"><p>Tesseract 3.00 adds a number of new languages, including Chinese, Japanese,
 and Korean. It also introduces a new, single-file based system of managing
@@ -1060,8 +1121,8 @@ multiple languages in a single image, and improved layout analysis.</p></div>
 <div class="sect1">
 <h2 id="_resources">RESOURCES</h2>
 <div class="sectionbody">
-<div class="paragraph"><p>Main web site: <a href="http://code.google.com/p/tesseract-ocr/">http://code.google.com/p/tesseract-ocr/</a><br />
-Information on training: <a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a></p></div>
+<div class="paragraph"><p>Main web site: <a href="https://github.com/tesseract-ocr">https://github.com/tesseract-ocr</a><br />
+Information on training: <a href="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</a></p></div>
 </div>
 </div>
 <div class="sect1">
@@ -1095,7 +1156,7 @@ Lloyd, Shobhit Saxena, and Thomas Kielbus.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-08-02 22:51:16 CEST
+Last updated 2015-06-28 22:23:47 CEST
 </div>
 </div>
 </body>

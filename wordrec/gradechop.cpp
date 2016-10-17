@@ -49,8 +49,8 @@ namespace tesseract {
  *   100  =  "no way jay"
  **********************************************************************/
 PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
-  register PRIORITY grade;
-  register float split_length;
+  PRIORITY grade;
+  float split_length;
 
   split_length =
       split->point1->WeightedDistance(*split->point2, chop_x_y_weight);
@@ -72,7 +72,7 @@ PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
  *   100  =  "no way jay"
  **********************************************************************/
 PRIORITY Wordrec::grade_sharpness(register SPLIT *split) {
-  register PRIORITY grade;
+  PRIORITY grade;
 
   grade = point_priority (split->point1) + point_priority (split->point2);
 

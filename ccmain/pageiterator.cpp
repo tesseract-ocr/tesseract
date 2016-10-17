@@ -566,6 +566,7 @@ void PageIterator::ParagraphInfo(tesseract::ParagraphJustification *just,
   *is_crown = para->is_very_first_or_continuation;
   *first_line_indent = para->model->first_indent() -
       para->model->body_indent();
+  *just = para->model->justification();
 }
 
 /**

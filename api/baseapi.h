@@ -20,8 +20,8 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
-#define TESSERACT_VERSION_STR "3.04.00"
-#define TESSERACT_VERSION 0x030400
+#define TESSERACT_VERSION_STR "3.05.00dev"
+#define TESSERACT_VERSION 0x030500
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
 
@@ -65,7 +65,9 @@ struct TBLOB;
 
 namespace tesseract {
 
+#ifndef NO_CUBE_BUILD
 class CubeRecoContext;
+#endif  // NO_CUBE_BUILD
 class Dawg;
 class Dict;
 class EquationDetect;
@@ -495,9 +497,7 @@ class TESS_API TessBaseAPI {
    * has not been subjected to a call of Init, SetImage, Recognize, Clear, End
    * DetectOS, or anything else that changes the internal PAGE_RES.
    */
-  PageIterator* AnalyseLayout() {
-    return AnalyseLayout(false);
-  }
+  PageIterator* AnalyseLayout();
   PageIterator* AnalyseLayout(bool merge_similar_words);
 
   /**
@@ -587,8 +587,24 @@ class TESS_API TessBaseAPI {
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * monitor can be used to
+   * 	cancel the recognition
+   * 	receive progress callbacks
+   */
+  char* GetHOCRText(ETEXT_DESC* monitor, int page_number);
+
+  /**
+   * Make a HTML-formatted string with hOCR markup from the internal
+   * data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
    */
   char* GetHOCRText(int page_number);
+
+  /**
+   * Make a TSV-formatted string from the internal data structures.
+   * page_number is 0-based but will appear in the output as 1-based.
+   */
+  char* GetTSVText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same
@@ -598,12 +614,21 @@ class TESS_API TessBaseAPI {
    * page_number is a 0-based page index that will appear in the box file.
    */
   char* GetBoxText(int page_number);
+
   /**
    * The recognized text is returned as a char* which is coded
    * as UNLV format Latin-1 with specific reject and suspect codes
    * and must be freed with the delete [] operator.
    */
   char* GetUNLVText();
+
+  /**
+   * The recognized text is returned as a char* which is coded
+   * as UTF8 and must be freed with the delete [] operator.
+   * page_number is a 0-based page index that will appear in the osd file.
+   */
+  char* GetOsdText(int page_number);
+
   /** Returns the (average) confidence value between 0 and 100. */
   int MeanTextConf();
   /**
@@ -725,18 +750,20 @@ class TESS_API TessBaseAPI {
    */
   static void NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode);
 
-  Tesseract* const tesseract() const {
+  Tesseract* tesseract() const {
     return tesseract_;
   }
 
-  OcrEngineMode const oem() const {
+  OcrEngineMode oem() const {
     return last_oem_requested_;
   }
 
   void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
 
+#ifndef NO_CUBE_BUILD
   /** Return a pointer to underlying CubeRecoContext object if present. */
   CubeRecoContext *GetCubeRecoContext() const;
+#endif  // NO_CUBE_BUILD
 
   void set_min_orientation_margin(double margin);
 

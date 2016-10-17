@@ -32,11 +32,13 @@
 
 namespace tesseract {
 
-// Instantiate a CubeRecoContext object using a Tesseract object.
-// CubeRecoContext will not take ownership of tess_obj, but will
-// record the pointer to it and will make use of various Tesseract
-// components (language model, flags, etc). Thus the caller should
-// keep tess_obj alive so long as the instantiated CubeRecoContext is used.
+/**
+ * Instantiate a CubeRecoContext object using a Tesseract object.
+ * CubeRecoContext will not take ownership of tess_obj, but will
+ * record the pointer to it and will make use of various Tesseract
+ * components (language model, flags, etc). Thus the caller should
+ * keep tess_obj alive so long as the instantiated CubeRecoContext is used.
+ */
 CubeRecoContext::CubeRecoContext(Tesseract *tess_obj) {
   tess_obj_ = tess_obj;
   lang_ = "";
@@ -89,23 +91,27 @@ CubeRecoContext::~CubeRecoContext() {
   }
 }
 
-// Returns the path of the data files by looking up the TESSDATA_PREFIX
-// environment variable and appending a "tessdata" directory to it
+/**
+ * Returns the path of the data files by looking up the TESSDATA_PREFIX
+ * environment variable and appending a "tessdata" directory to it
+ */
 bool CubeRecoContext::GetDataFilePath(string *path) const {
   *path = tess_obj_->datadir.string();
   return true;
 }
 
-// The object initialization function that loads all the necessary
-// components of a RecoContext.  TessdataManager is used to load the
-// data from [lang].traineddata file.  If TESSDATA_CUBE_UNICHARSET
-// component is present, Cube will be instantiated with the unicharset
-// specified in this component and the corresponding dictionary
-// (TESSDATA_CUBE_SYSTEM_DAWG), and will map Cube's unicharset to
-// Tesseract's. Otherwise, TessdataManager will assume that Cube will
-// be using Tesseract's unicharset and dawgs, and will load the
-// unicharset from the TESSDATA_UNICHARSET component and will load the
-// dawgs from TESSDATA_*_DAWG components.
+/**
+ * The object initialization function that loads all the necessary
+ * components of a RecoContext.  TessdataManager is used to load the
+ * data from [lang].traineddata file.  If TESSDATA_CUBE_UNICHARSET
+ * component is present, Cube will be instantiated with the unicharset
+ * specified in this component and the corresponding dictionary
+ * (TESSDATA_CUBE_SYSTEM_DAWG), and will map Cube's unicharset to
+ * Tesseract's. Otherwise, TessdataManager will assume that Cube will
+ * be using Tesseract's unicharset and dawgs, and will load the
+ * unicharset from the TESSDATA_UNICHARSET component and will load the
+ * dawgs from TESSDATA_*_DAWG components.
+ */
 bool CubeRecoContext::Load(TessdataManager *tessdata_manager,
                            UNICHARSET *tess_unicharset) {
   ASSERT_HOST(tess_obj_ != NULL);
@@ -178,7 +184,7 @@ bool CubeRecoContext::Load(TessdataManager *tessdata_manager,
   return true;
 }
 
-// Creates a CubeRecoContext object using a tesseract object
+/** Creates a CubeRecoContext object using a tesseract object */
 CubeRecoContext * CubeRecoContext::Create(Tesseract *tess_obj,
                                           TessdataManager *tessdata_manager,
                                           UNICHARSET *tess_unicharset) {

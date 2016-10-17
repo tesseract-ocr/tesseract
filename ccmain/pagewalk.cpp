@@ -20,13 +20,13 @@
 #include "pageres.h"
 #include "tesseractclass.h"
 
+namespace tesseract {
 /**
- * process_selected_words()
+ * @name process_selected_words()
  *
  * Walk the current block list applying the specified word processor function
  * to each word that overlaps the selection_box.
  */
-namespace tesseract {
 void Tesseract::process_selected_words(
     PAGE_RES* page_res, // blocks to check
     TBOX & selection_box,

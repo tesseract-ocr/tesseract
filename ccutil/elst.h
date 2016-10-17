@@ -67,7 +67,7 @@ The implementation of lists is very careful about space and speed overheads.
 This is why many embedded lists are provided. The same concerns mean that
 in-line type coercion is done, rather than use virtual functions.  This is
 cumbersome in that each data type to be listed requires its own iterator and
-list class - though macros can gererate these.  It also prevents heterogenous
+list class - though macros can gererate these.  It also prevents heterogeneous
 lists.
 **********************************************************************/
 
@@ -98,7 +98,7 @@ class DLLSYM ELIST_LINK
       next = NULL;
     }
 
-    void operator= (             //dont copy links
+    void operator= (             //don't copy links
     const ELIST_LINK &) {
       next = NULL;
     }
@@ -158,7 +158,7 @@ class DLLSYM ELIST
 
     // Assuming list has been sorted already, insert new_link to
     // keep the list sorted according to the same comparison function.
-    // Comparision function is the same as used by sort, i.e. uses double
+    // Comparison function is the same as used by sort, i.e. uses double
     // indirection. Time is O(1) to add to beginning or end.
     // Time is linear to add pre-sorted items to an empty list.
     // If unique is set to true and comparator() returns 0 (an entry with the
@@ -274,7 +274,7 @@ class DLLSYM ELIST_ITERATOR
     bool cycled_list();  //Completed a cycle?
 
     void add_to_end(                        //add at end &
-                    ELIST_LINK *new_link);  //dont move
+                    ELIST_LINK *new_link);  //don't move
 
     void exchange(                            //positions of 2 links
                   ELIST_ITERATOR *other_it);  //other iterator
@@ -297,8 +297,6 @@ class DLLSYM ELIST_ITERATOR
 inline void ELIST_ITERATOR::set_to_list(  //change list
                                         ELIST *list_to_iterate) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::set_to_list", ABORT, NULL);
   if (!list_to_iterate)
     BAD_PARAMETER.error ("ELIST_ITERATOR::set_to_list", ABORT,
       "list_to_iterate is NULL");
@@ -336,8 +334,6 @@ inline ELIST_ITERATOR::ELIST_ITERATOR(ELIST *list_to_iterate) {
 inline void ELIST_ITERATOR::add_after_then_move(  // element to add
                                                 ELIST_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_after_then_move", ABORT, NULL);
   if (!new_element)
@@ -383,8 +379,6 @@ inline void ELIST_ITERATOR::add_after_then_move(  // element to add
 inline void ELIST_ITERATOR::add_after_stay_put(  // element to add
                                                ELIST_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_after_stay_put", ABORT, NULL);
   if (!new_element)
@@ -433,8 +427,6 @@ inline void ELIST_ITERATOR::add_after_stay_put(  // element to add
 inline void ELIST_ITERATOR::add_before_then_move(  // element to add
                                                  ELIST_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_before_then_move", ABORT, NULL);
   if (!new_element)
@@ -470,15 +462,13 @@ inline void ELIST_ITERATOR::add_before_then_move(  // element to add
 /***********************************************************************
  *                          ELIST_ITERATOR::add_before_stay_put
  *
- *  Add a new element to the list before the current element but dont move the
+ *  Add a new element to the list before the current element but don't move the
  *  iterator to the new element.
  **********************************************************************/
 
 inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
                                                 ELIST_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_before_stay_put", ABORT, NULL);
   if (!new_element)
@@ -515,14 +505,12 @@ inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
 /***********************************************************************
  *                          ELIST_ITERATOR::add_list_after
  *
- *  Insert another list to this list after the current element but dont move the
+ *  Insert another list to this list after the current element but don't move the
  *  iterator.
  **********************************************************************/
 
 inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_list_after", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_list_after", ABORT, NULL);
   if (!list_to_add)
@@ -571,8 +559,6 @@ inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
 
 inline void ELIST_ITERATOR::add_list_before(ELIST *list_to_add) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_list_before", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_list_before", ABORT, NULL);
   if (!list_to_add)
@@ -621,8 +607,6 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
   ELIST_LINK *extracted_link;
 
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::extract", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::extract", ABORT, NULL);
   if (!current)                  //list empty or
@@ -662,8 +646,6 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
 
 inline ELIST_LINK *ELIST_ITERATOR::move_to_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::move_to_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::move_to_first", ABORT, NULL);
   #endif
@@ -688,8 +670,6 @@ inline ELIST_LINK *ELIST_ITERATOR::move_to_first() {
 
 inline void ELIST_ITERATOR::mark_cycle_pt() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::mark_cycle_pt", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::mark_cycle_pt", ABORT, NULL);
   #endif
@@ -711,8 +691,6 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
 
 inline bool ELIST_ITERATOR::at_first() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::at_first", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::at_first", ABORT, NULL);
   #endif
@@ -733,8 +711,6 @@ inline bool ELIST_ITERATOR::at_first() {
 
 inline bool ELIST_ITERATOR::at_last() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::at_last", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::at_last", ABORT, NULL);
   #endif
@@ -755,8 +731,6 @@ inline bool ELIST_ITERATOR::at_last() {
 
 inline bool ELIST_ITERATOR::cycled_list() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::cycled_list", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::cycled_list", ABORT, NULL);
   #endif
@@ -775,8 +749,6 @@ inline bool ELIST_ITERATOR::cycled_list() {
 
 inline inT32 ELIST_ITERATOR::length() {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::length", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::length", ABORT, NULL);
   #endif
@@ -797,8 +769,6 @@ ELIST_ITERATOR::sort (           //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::sort", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::sort", ABORT, NULL);
   #endif
@@ -821,8 +791,6 @@ const void *, const void *)) {
 inline void ELIST_ITERATOR::add_to_end(  // element to add
                                        ELIST_LINK *new_element) {
   #ifndef NDEBUG
-  if (!this)
-    NULL_OBJECT.error ("ELIST_ITERATOR::add_to_end", ABORT, NULL);
   if (!list)
     NO_LIST.error ("ELIST_ITERATOR::add_to_end", ABORT, NULL);
   if (!new_element)
@@ -868,7 +836,7 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 CLASSNAME is assumed to be the name of a class which has a baseclass of
 ELIST_LINK.
 
-NOTE:  Because we dont use virtual functions in the list code, the list code
+NOTE:  Because we don't use virtual functions in the list code, the list code
 will NOT work correctly for classes derived from this.
 
 The macros generate:
@@ -999,7 +967,7 @@ ELISTIZEH_C( CLASSNAME )
 *  A function which can delete a CLASSNAME element.  This is passed to the  \
 *  generic clear list member function so that when a list is cleared the    \
 *  elements on the list are properly destroyed from the base class, even    \
-*  though we dont use a virtual destructor function.                        \
+*  though we don't use a virtual destructor function.                       \
 **********************************************************************/     \
                                                                             \
 DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link) {                          \

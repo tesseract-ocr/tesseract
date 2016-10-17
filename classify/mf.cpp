@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "mf.h"
 
 #include "featdefs.h"
@@ -26,26 +26,23 @@
 
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
         Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
-/**----------------------------------------------------------------------------
+----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
-/*
- **	Parameters:
- **		Blob		blob to extract micro-features from
- **		denorm  control parameter to feature extractor.
- **	Globals: none
- **	Operation: Call the old micro-feature extractor and then copy
- **		the features into the new format.  Then deallocate the
- **		old micro-features.
- **	Return: Micro-features for Blob.
- **	Exceptions: none
- **	History: Wed May 23 18:06:38 1990, DSJ, Created.
+----------------------------------------------------------------------------*/
+/**
+ * Call the old micro-feature extractor and then copy
+ * the features into the new format.  Then deallocate the
+ * old micro-features.
+ * @param Blob	blob to extract micro-features from
+ * @param cn_denorm  control parameter to feature extractor.
+ * @return Micro-features for Blob.
+ * @note Exceptions: none
+ * @note History: Wed May 23 18:06:38 1990, DSJ, Created.
  */
+FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   int NumFeatures;
   MICROFEATURES Features, OldFeatures;
   FEATURE_SET FeatureSet;

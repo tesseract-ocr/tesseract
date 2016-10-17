@@ -133,7 +133,7 @@ Dict::Dict(CCUtil* ccutil)
                   " when there is a need to explore all segmentations",
                   getCCUtil()->params()),
       BOOL_MEMBER(save_raw_choices, false,
-                  "Deprecated- backward compatablity only",
+                  "Deprecated- backward compatibility only",
                   getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
                  "Max words to keep in list",
@@ -498,7 +498,8 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
     dawg_args->permuter = curr_perm;
   }
   if (dawg_debug_level >= 2) {
-    tprintf("Returning %d for permuter code for this character.\n");
+    tprintf("Returning %d for permuter code for this character.\n",
+            dawg_args->permuter);
   }
   return dawg_args->permuter;
 }

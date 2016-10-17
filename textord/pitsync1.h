@@ -46,7 +46,7 @@ class FPSEGPT:public ELIST_LINK
             FPSEGPT_LIST *prev_list);  //previous segment
     FPSEGPT(FPCUTPT *cutpt);  //build from new type
 
-    inT32 position() {  //acces func
+    inT32 position() {  //access func
       return xpos;
     }
     double cost_function() {

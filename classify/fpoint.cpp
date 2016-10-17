@@ -15,18 +15,17 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "const.h"
 #include "fpoint.h"
 #include <stdio.h>
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
+----------------------------------------------------------------------------*/
 
 FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
   double xd = XDelta(A, B);
@@ -34,23 +33,21 @@ FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
   return sqrt(static_cast<double>(xd * xd + yd * yd));
 }
 
-
-
+/**
+ * Return the angle from Point1 to Point2 normalized to
+ * lie in the range 0 to FullScale (where FullScale corresponds
+ * to 2*pi or 360 degrees).
+ * @param Point1 points to compute angle between
+ * @param Point2 points to compute angle between
+ * @param FullScale value to associate with 2*pi
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Wed Mar 28 14:27:25 1990, DSJ, Created.
+ */
 FLOAT32 NormalizedAngleFrom(FPOINT *Point1,
                             FPOINT *Point2,
                             FLOAT32 FullScale) {
-/*
- **	Parameters:
- **		Point1, Point2	points to compute angle between
- **		FullScale	value to associate with 2*pi
- **	Globals: none
- **	Operation: Return the angle from Point1 to Point2 normalized to
- **		lie in the range 0 to FullScale (where FullScale corresponds
- **		to 2*pi or 360 degrees).
- **	Return: none
- **	Exceptions: none
- **	History: Wed Mar 28 14:27:25 1990, DSJ, Created.
- */
   FLOAT32 Angle;
   FLOAT32 NumRadsInCircle = 2.0 * PI;
 
@@ -62,4 +59,4 @@ FLOAT32 NormalizedAngleFrom(FPOINT *Point1,
     Angle = 0.0;
   return (Angle);
 
-}                                /* NormalizedAngleFrom */
+}

@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
 #include <stdio.h>
@@ -43,9 +43,9 @@ struct NORM_PROTOS
   int NumProtos;
 };
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Private Function Prototypes
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 double NormEvidenceOf(register double NormAdj);
 
 void PrintNormMatch(FILE *File,
@@ -55,38 +55,39 @@ void PrintNormMatch(FILE *File,
 
 NORM_PROTOS *ReadNormProtos(FILE *File);
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
         Variables
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 
-/* control knobs used to control the normalization adjustment process */
+/** control knobs used to control the normalization adjustment process */
 double_VAR(classify_norm_adj_midpoint, 32.0, "Norm adjust midpoint ...");
 double_VAR(classify_norm_adj_curl, 2.0, "Norm adjust curl ...");
-// Weight of width variance against height and vertical position.
+/** Weight of width variance against height and vertical position. */
 const double kWidthErrorWeighting = 0.125;
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine compares Features against each character
+ * normalization proto for ClassId and returns the match
+ * rating of the best match.
+ * @param ClassId id of class to match against
+ * @param feature character normalization feature
+ * @param DebugMatch controls dump of debug info
+ *
+ * Globals:
+ * #NormProtos character normalization prototypes
+ *
+ * @return Best match rating for Feature against protos of ClassId.
+ * @note Exceptions: none
+ * @note History: Wed Dec 19 16:56:12 1990, DSJ, Created.
+ */
 FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
                                    const FEATURE_STRUCT& feature,
                                    BOOL8 DebugMatch) {
-/*
- **	Parameters:
- **		ClassId		id of class to match against
- **		Feature		character normalization feature
- **		DebugMatch	controls dump of debug info
- **	Globals:
- **		NormProtos	character normalization prototypes
- **	Operation: This routine compares Features against each character
- **		normalization proto for ClassId and returns the match
- **		rating of the best match.
- **	Return: Best match rating for Feature against protos of ClassId.
- **	Exceptions: none
- **	History: Wed Dec 19 16:56:12 1990, DSJ, Created.
- */
   LIST Protos;
   FLOAT32 BestMatch;
   FLOAT32 Match;
@@ -170,16 +171,16 @@ void Classify::FreeNormProtos() {
 }
 }  // namespace tesseract
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
-/**********************************************************************
- * NormEvidenceOf
+----------------------------------------------------------------------------*/
+/**
+ * @name NormEvidenceOf
  *
  * Return the new type of evidence number corresponding to this
  * normalization adjustment.  The equation that represents the transform is:
  *       1 / (1 + (NormAdj / midpoint) ^ curl)
- **********************************************************************/
+ */
 double NormEvidenceOf(register double NormAdj) {
   NormAdj /= classify_norm_adj_midpoint;
 
@@ -194,22 +195,21 @@ double NormEvidenceOf(register double NormAdj) {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine dumps out detailed normalization match info.
+ * @param File		open text file to dump match debug info to
+ * @param NumParams	# of parameters in proto and feature
+ * @param Proto[]		array of prototype parameters
+ * @param Feature[]	array of feature parameters
+ * Globals: none
+ * @return  none
+ * @note Exceptions: none
+ * @note History: Wed Jan  2 09:49:35 1991, DSJ, Created.
+ */
 void PrintNormMatch(FILE *File,
                     int NumParams,
                     PROTOTYPE *Proto,
                     FEATURE Feature) {
-/*
- **	Parameters:
- **		File		open text file to dump match debug info to
- **		NumParams	# of parameters in proto and feature
- **		Proto[]		array of prototype parameters
- **		Feature[]	array of feature parameters
- **	Globals: none
- **	Operation: This routine dumps out detailed normalization match info.
- **	Return: none
- **	Exceptions: none
- **	History: Wed Jan  2 09:49:35 1991, DSJ, Created.
- */
   int i;
   FLOAT32 ParamMatch;
   FLOAT32 TotalMatch;
@@ -231,18 +231,18 @@ void PrintNormMatch(FILE *File,
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
-NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
-/*
- **	Parameters:
- **		File	open text file to read normalization protos from
- **	Globals: none
- **	Operation: This routine allocates a new data structure to hold
- **		a set of character normalization protos.  It then fills in
- **		the data structure by reading from the specified File.
- **	Return: Character normalization protos.
- **	Exceptions: none
- **	History: Wed Dec 19 16:38:49 1990, DSJ, Created.
+/**
+ * This routine allocates a new data structure to hold
+ * a set of character normalization protos.  It then fills in
+ * the data structure by reading from the specified File.
+ * @param File open text file to read normalization protos from
+ * @param end_offset
+ * Globals: none
+ * @return Character normalization protos.
+ * @note Exceptions: none
+ * @note History: Wed Dec 19 16:38:49 1990, DSJ, Created.
  */
+NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
   NORM_PROTOS *NormProtos;
   int i;
   char unichar[2 * UNICHAR_LEN + 1];

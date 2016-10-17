@@ -96,11 +96,11 @@ MATRIX* MATRIX::DeepCopy() const {
   int band_width = bandwidth();
   MATRIX* result = new MATRIX(dim, band_width);
   for (int col = 0; col < dim; ++col) {
-    for (int row = col; row < col + band_width; ++row) {
+    for (int row = col; row < dim && row < col + band_width; ++row) {
       BLOB_CHOICE_LIST* choices = get(col, row);
       if (choices != NULL) {
         BLOB_CHOICE_LIST* copy_choices = new BLOB_CHOICE_LIST;
-        choices->deep_copy(copy_choices, &BLOB_CHOICE::deep_copy);
+        copy_choices->deep_copy(choices, &BLOB_CHOICE::deep_copy);
         result->put(col, row, copy_choices);
       }
     }

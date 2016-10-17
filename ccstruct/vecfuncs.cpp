@@ -23,7 +23,7 @@
  *
  ********************************************************************************
  * Revision 5.1  89/07/27  11:47:50  11:47:50  ray ()
- * Added ratings acces methods.
+ * Added ratings access methods.
  * This version ready for independent development.
  */
 /*----------------------------------------------------------------------

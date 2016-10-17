@@ -33,28 +33,31 @@
 
 namespace tesseract {
 
-// Used for expressing various language model flags.
+/// Used for expressing various language model flags.
 typedef unsigned char LanguageModelFlagsType;
 
-// The following structs are used for storing the state of the language model
-// in the segmentation search graph. In this graph the nodes are BLOB_CHOICEs
-// and the links are the relationships between the underlying blobs (see
-// segsearch.h for a more detailed description).
-// Each of the BLOB_CHOICEs contains LanguageModelState struct, which has
-// a list of N best paths (list of ViterbiStateEntry) explored by the Viterbi
-// search leading up to and including this BLOB_CHOICE.
-// Each ViterbiStateEntry contains information from various components of the
-// language model: dawgs in which the path is found, character ngram model
-// probability of the path, script/chartype/font consistency info, state for
-// language-specific heuristics (e.g. hyphenated and compound words, lower/upper
-// case preferences, etc).
-// Each ViterbiStateEntry also contains the parent pointer, so that the path
-// that it represents (WERD_CHOICE) can be constructed by following these
-// parent pointers.
+/// The following structs are used for storing the state of the language model
+/// in the segmentation search graph. In this graph the nodes are BLOB_CHOICEs
+/// and the links are the relationships between the underlying blobs (see
+/// segsearch.h for a more detailed description).
+///
+/// Each of the BLOB_CHOICEs contains LanguageModelState struct, which has
+/// a list of N best paths (list of ViterbiStateEntry) explored by the Viterbi
+/// search leading up to and including this BLOB_CHOICE.
+///
+/// Each ViterbiStateEntry contains information from various components of the
+/// language model: dawgs in which the path is found, character ngram model
+/// probability of the path, script/chartype/font consistency info, state for
+/// language-specific heuristics (e.g. hyphenated and compound words, lower/upper
+/// case preferences, etc).
+///
+/// Each ViterbiStateEntry also contains the parent pointer, so that the path
+/// that it represents (WERD_CHOICE) can be constructed by following these
+/// parent pointers.
 
-// Struct for storing additional information used by Dawg language model
-// component. It stores the set of active dawgs in which the sequence of
-// letters on a path can be found.
+/// Struct for storing additional information used by Dawg language model
+/// component. It stores the set of active dawgs in which the sequence of
+/// letters on a path can be found.
 struct LanguageModelDawgInfo {
   LanguageModelDawgInfo(DawgPositionVector *a, PermuterType pt) : permuter(pt) {
     active_dawgs = new DawgPositionVector(*a);
@@ -66,29 +69,29 @@ struct LanguageModelDawgInfo {
   PermuterType permuter;
 };
 
-// Struct for storing additional information used by Ngram language model
-// component.
+/// Struct for storing additional information used by Ngram language model
+/// component.
 struct LanguageModelNgramInfo {
   LanguageModelNgramInfo(const char *c, int l, bool p, float nc, float ncc)
     : context(c), context_unichar_step_len(l), pruned(p), ngram_cost(nc),
       ngram_and_classifier_cost(ncc) {}
-  STRING context;  // context string
-  // Length of the context measured by advancing using UNICHAR::utf8_step()
-  // (should be at most the order of the character ngram model used).
+  STRING context;  //< context string
+  /// Length of the context measured by advancing using UNICHAR::utf8_step()
+  /// (should be at most the order of the character ngram model used).
   int context_unichar_step_len;
-  // The paths with pruned set are pruned out from the perspective of the
-  // character ngram model. They are explored further because they represent
-  // a dictionary match or a top choice. Thus ngram_info is still computed
-  // for them in order to calculate the combined cost.
+  /// The paths with pruned set are pruned out from the perspective of the
+  /// character ngram model. They are explored further because they represent
+  /// a dictionary match or a top choice. Thus ngram_info is still computed
+  /// for them in order to calculate the combined cost.
   bool pruned;
-  // -ln(P_ngram_model(path))
+  /// -ln(P_ngram_model(path))
   float ngram_cost;
-  // -[ ln(P_classifier(path)) + scale_factor * ln(P_ngram_model(path)) ]
+  /// -[ ln(P_classifier(path)) + scale_factor * ln(P_ngram_model(path)) ]
   float ngram_and_classifier_cost;
 };
 
-// Struct for storing the information about a path in the segmentation graph
-// explored by Viterbi search.
+/// Struct for storing the information about a path in the segmentation graph
+/// explored by Viterbi search.
 struct ViterbiStateEntry : public ELIST_LINK {
   ViterbiStateEntry(ViterbiStateEntry *pe,
                     BLOB_CHOICE *b, float c, float ol,
@@ -122,8 +125,8 @@ struct ViterbiStateEntry : public ELIST_LINK {
     delete ngram_info;
     delete debug_str;
   }
-  // Comparator function for sorting ViterbiStateEntry_LISTs in
-  // non-increasing order of costs.
+  /// Comparator function for sorting ViterbiStateEntry_LISTs in
+  /// non-increasing order of costs.
   static int Compare(const void *e1, const void *e2) {
     const ViterbiStateEntry *ve1 =
       *reinterpret_cast<const ViterbiStateEntry * const *>(e1);
@@ -137,8 +140,8 @@ struct ViterbiStateEntry : public ELIST_LINK {
     }
     return consistency_info.Consistent();
   }
-  // Returns true if this VSE has an alphanumeric character as its classifier
-  // result.
+  /// Returns true if this VSE has an alphanumeric character as its classifier
+  /// result.
   bool HasAlnumChoice(const UNICHARSET& unicharset) {
     if (curr_b == NULL) return false;
     UNICHAR_ID unichar_id =  curr_b->unichar_id();
@@ -149,48 +152,48 @@ struct ViterbiStateEntry : public ELIST_LINK {
   }
   void Print(const char *msg) const;
 
-  // The cost is an adjusted ratings sum, that is adjusted by all the language
-  // model components that use Viterbi search.
+  /// The cost is an adjusted ratings sum, that is adjusted by all the language
+  /// model components that use Viterbi search.
   float cost;
 
-  // Pointers to BLOB_CHOICE and parent ViterbiStateEntry (not owned by this).
+  /// Pointers to BLOB_CHOICE and parent ViterbiStateEntry (not owned by this).
   BLOB_CHOICE *curr_b;
   ViterbiStateEntry *parent_vse;
-  // Pointer to a case-competing ViterbiStateEntry in the same list that
-  // represents a path ending in the same letter of the opposite case.
+  /// Pointer to a case-competing ViterbiStateEntry in the same list that
+  /// represents a path ending in the same letter of the opposite case.
   ViterbiStateEntry *competing_vse;
 
-  // Various information about the characters on the path represented
-  // by this ViterbiStateEntry.
-  float ratings_sum;  // sum of ratings of character on the path
-  float min_certainty;  // minimum certainty on the path
-  int adapted;  // number of BLOB_CHOICES from adapted templates
-  int length;  // number of characters on the path
-  float outline_length;  // length of the outline so far
-  LMConsistencyInfo consistency_info;  // path consistency info
-  AssociateStats associate_stats;  // character widths/gaps/seams
+  /// Various information about the characters on the path represented
+  /// by this ViterbiStateEntry.
+  float ratings_sum;  //< sum of ratings of character on the path
+  float min_certainty;  //< minimum certainty on the path
+  int adapted;  //< number of BLOB_CHOICES from adapted templates
+  int length;  //< number of characters on the path
+  float outline_length;  //< length of the outline so far
+  LMConsistencyInfo consistency_info;  //< path consistency info
+  AssociateStats associate_stats;  //< character widths/gaps/seams
 
-  // Flags for marking the entry as a top choice path with
-  // the smallest rating or lower/upper case letters).
+  /// Flags for marking the entry as a top choice path with
+  /// the smallest rating or lower/upper case letters).
   LanguageModelFlagsType top_choice_flags;
 
-  // Extra information maintained by Dawg laguage model component
-  // (owned by ViterbiStateEntry).
+  /// Extra information maintained by Dawg language model component
+  /// (owned by ViterbiStateEntry).
   LanguageModelDawgInfo *dawg_info;
 
-  // Extra information maintained by Ngram laguage model component
-  // (owned by ViterbiStateEntry).
+  /// Extra information maintained by Ngram language model component
+  /// (owned by ViterbiStateEntry).
   LanguageModelNgramInfo *ngram_info;
 
-  bool updated;  // set to true if the entry has just been created/updated
-  // UTF8 string representing the path corresponding to this vse.
-  // Populated only in when language_model_debug_level > 0.
+  bool updated;  //< set to true if the entry has just been created/updated
+  /// UTF8 string representing the path corresponding to this vse.
+  /// Populated only in when language_model_debug_level > 0.
   STRING *debug_str;
 };
 
 ELISTIZEH(ViterbiStateEntry);
 
-// Struct to store information maintained by various language model components.
+/// Struct to store information maintained by various language model components.
 struct LanguageModelState {
   LanguageModelState() :
      viterbi_state_entries_prunable_length(0),
@@ -198,21 +201,21 @@ struct LanguageModelState {
     viterbi_state_entries_length(0) {}
   ~LanguageModelState() {}
 
-  // Clears the viterbi search state back to its initial conditions.
+  /// Clears the viterbi search state back to its initial conditions.
   void Clear();
 
   void Print(const char *msg);
 
-  // Storage for the Viterbi state.
+  /// Storage for the Viterbi state.
   ViterbiStateEntry_LIST viterbi_state_entries;
-  // Number and max cost of prunable paths in viterbi_state_entries.
+  /// Number and max cost of prunable paths in viterbi_state_entries.
   int viterbi_state_entries_prunable_length;
   float viterbi_state_entries_prunable_max_cost;
-  // Total number of entries in viterbi_state_entries.
+  /// Total number of entries in viterbi_state_entries.
   int viterbi_state_entries_length;
 };
 
-// Bundle together all the things pertaining to the best choice/state.
+/// Bundle together all the things pertaining to the best choice/state.
 struct BestChoiceBundle {
   explicit BestChoiceBundle(int matrix_dimension)
     : updated(false), best_vse(NULL) {
@@ -222,15 +225,15 @@ struct BestChoiceBundle {
   }
   ~BestChoiceBundle() {}
 
-  // Flag to indicate whether anything was changed.
+  /// Flag to indicate whether anything was changed.
   bool updated;
-  // Places to try to fix the word suggested by ambiguity checking.
+  /// Places to try to fix the word suggested by ambiguity checking.
   DANGERR fixpt;
-  // The beam. One LanguageModelState containing a list of ViterbiStateEntry per
-  // row in the ratings matrix containing all VSEs whose BLOB_CHOICE is
-  // somewhere in the corresponding row.
+  /// The beam. One LanguageModelState containing a list of ViterbiStateEntry
+  /// per row in the ratings matrix containing all VSEs whose BLOB_CHOICE is
+  /// somewhere in the corresponding row.
   PointerVector<LanguageModelState> beam;
-  // Best ViterbiStateEntry and BLOB_CHOICE.
+  /// Best ViterbiStateEntry and BLOB_CHOICE.
   ViterbiStateEntry *best_vse;
 };
 

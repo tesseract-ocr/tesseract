@@ -32,8 +32,8 @@ using tesseract::TFile;
 // possible length of an int (in 64 bits), being -<20 digits>.
 const int kMaxIntSize = 22;
 // Size of buffer needed to host the decimal representation of the maximum
-// possible length of a %.8g being -0.12345678e+999<nul> = 15.
-const int kMaxDoubleSize = 15;
+// possible length of a %.8g being -1.2345678e+999<nul> = 16.
+const int kMaxDoubleSize = 16;
 
 /**********************************************************************
  * STRING_HEADER provides metadata about the allocated buffer,
@@ -45,7 +45,7 @@ const int kMaxDoubleSize = 15;
  *
  * The collection of MACROS provide different implementations depending
  * on whether the string keeps track of its strlen or not so that this
- * feature can be added in later when consumers dont modifify the string
+ * feature can be added in later when consumers don't modify the string
  **********************************************************************/
 
 // Smallest string to allocate by default
@@ -339,7 +339,7 @@ STRING& STRING::operator=(const STRING& str) {
   const STRING_HEADER* str_header = str.GetHeader();
   int   str_used = str_header->used_;
 
-  GetHeader()->used_ = 0;  // clear since ensure doesnt need to copy data
+  GetHeader()->used_ = 0;  // clear since ensure doesn't need to copy data
   char* this_cstr = ensure_cstr(str_used);
   STRING_HEADER* this_header = GetHeader();
 
@@ -398,7 +398,7 @@ STRING & STRING::operator=(const char* cstr) {
   if (cstr) {
     int len = strlen(cstr) + 1;
 
-    this_header->used_ = 0;  // dont bother copying data if need to realloc
+    this_header->used_ = 0;  // don't bother copying data if need to realloc
     char* this_cstr = ensure_cstr(len);
     this_header = GetHeader();  // for realloc
     memcpy(this_cstr, cstr, len);
@@ -416,7 +416,7 @@ STRING & STRING::operator=(const char* cstr) {
 
 void STRING::assign(const char *cstr, int len) {
   STRING_HEADER* this_header = GetHeader();
-  this_header->used_ = 0;  // dont bother copying data if need to realloc
+  this_header->used_ = 0;  // don't bother copying data if need to realloc
   char* this_cstr = ensure_cstr(len + 1);  // +1 for '\0'
 
   this_header = GetHeader();  // for realloc

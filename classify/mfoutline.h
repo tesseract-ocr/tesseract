@@ -50,14 +50,6 @@ typedef enum {
   outer, hole
 } OUTLINETYPE;
 
-typedef struct {
-  FLOAT64 Mx, My;                /* first moment of all outlines */
-  FLOAT64 L;                     /* total length of all outlines */
-  FLOAT64 x, y;                  /* center of mass of all outlines */
-  FLOAT64 Ix, Iy;                /* second moments about center of mass axes */
-  FLOAT64 Rx, Ry;                /* radius of gyration about center of mass axes */
-} OUTLINE_STATS;
-
 typedef enum {
   baseline, character
 } NORM_METHOD;
@@ -127,16 +119,6 @@ void ComputeDirection(MFEDGEPT *Start,
                       FLOAT32 MinSlope,
                       FLOAT32 MaxSlope);
 
-void FinishOutlineStats(register OUTLINE_STATS *OutlineStats);
-
-void InitOutlineStats(OUTLINE_STATS *OutlineStats);
-
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint);
-
-void UpdateOutlineStats(register OUTLINE_STATS *OutlineStats,
-                        register FLOAT32 x1,
-                        register FLOAT32 x2,
-                        register FLOAT32 y1,
-                        register FLOAT32 y2);
 
 #endif

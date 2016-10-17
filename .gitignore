@@ -1,3 +1,4 @@
+*~
 # Windows
 *.user
 *.log
@@ -58,8 +59,19 @@ training/wordlist2dawg
 *.o
 *.Plo
 *.a
+*.class
+*.jar
 
 # tessdata
 *.cube.*
 *.tesseract_cube.*
 *.traineddata
+
+# OpenCL
+tesseract_opencl_profile_devices.dat
+kernel*.bin
+
+# build dirs
+/build*
+/cppan
+/win*

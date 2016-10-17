@@ -3,11 +3,14 @@
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
 <refentry lang="en">
+<refentryinfo>
+    <title>UNICHARSET(5)</title>
+</refentryinfo>
 <refmeta>
 <refentrytitle>unicharset</refentrytitle>
 <manvolnum>5</manvolnum>
-<refmiscinfo class="source">&nbsp;</refmiscinfo>
-<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+<refmiscinfo class="source">&#160;</refmiscinfo>
+<refmiscinfo class="manual">&#160;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>unicharset</refname>
@@ -206,7 +209,7 @@ absent (punctuation was regarded as "0", as "=" is in the above example.</simpar
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1), combine_tessdata(1), unicharset_extractor(1)</simpara>
-<simpara><ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+<simpara><ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</ulink></simpara>
 </refsect1>
 <refsect1 id="_author">
 <title>AUTHOR</title>

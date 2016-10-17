@@ -3,11 +3,14 @@
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
 <refentry lang="en">
+<refentryinfo>
+    <title>UNICHARSET_EXTRACTOR(1)</title>
+</refentryinfo>
 <refmeta>
 <refentrytitle>unicharset_extractor</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class="source">&nbsp;</refmiscinfo>
-<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+<refmiscinfo class="source">&#160;</refmiscinfo>
+<refmiscinfo class="manual">&#160;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>unicharset_extractor</refname>
@@ -41,7 +44,7 @@ cntraining, and giving the unicharset to mftraining.</simpara>
 <refsect1 id="_see_also">
 <title>SEE ALSO</title>
 <simpara>tesseract(1), unicharset(5)</simpara>
-<simpara><ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+<simpara><ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</ulink></simpara>
 </refsect1>
 <refsect1 id="_history">
 <title>HISTORY</title>

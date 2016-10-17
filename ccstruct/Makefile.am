@@ -2,9 +2,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/opencl
-if USE_OPENCL
-AM_CPPFLAGS += -I$(OPENCL_HDR_PATH)
-endif
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -15,7 +13,7 @@ include_HEADERS = publictypes.h
 noinst_HEADERS = \
     blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
     detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
- ##   imagedata.h \
+    imagedata.h \
     ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \
     ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
@@ -39,7 +37,7 @@ endif
 libtesseract_ccstruct_la_SOURCES = \
     blamer.cpp blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
     detlinefit.cpp dppoint.cpp fontinfo.cpp genblob.cpp \
- ##    imagedata.cpp \
+    imagedata.cpp \
     linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
     ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
     pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \

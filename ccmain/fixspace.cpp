@@ -55,7 +55,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
   WERD_RES *word_res;
   WERD_RES_LIST fuzzy_space_words;
   inT16 new_length;
-  BOOL8 prevent_null_wd_fixsp;   // DONT process blobless wds
+  BOOL8 prevent_null_wd_fixsp;   // DON'T process blobless wds
   inT32 word_index;              // current word
 
   block_res_it.set_to_list(&page_res->block_res_list);
@@ -222,7 +222,7 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
  * fuzzy spaces. The problem with the basic measure is that "561 63" would score
  * the same as "56163", though given our knowledge that the space is fuzzy, and
  * that there is a "1" next to the fuzzy space, we need to ensure that "56163"
- * is prefered.
+ * is preferred.
  *
  * The solution is to NOT COUNT the score of any word which has a digit at one
  * end and a "1Il" as the character the other side of the space.
@@ -272,8 +272,8 @@ inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
     } else {
       /*
         Can we add the prev word score and potentially count this word?
-        Yes IF it didnt end in a 1 when the first char of this word is a digit
-          AND it didnt end in a digit when the first char of this word is a 1
+        Yes IF it didn't end in a 1 when the first char of this word is a digit
+          AND it didn't end in a digit when the first char of this word is a 1
       */
       word_len = word->reject_map.length();
       current_word_ok_so_far = FALSE;
@@ -507,7 +507,7 @@ BOOL8 Tesseract::fixspace_thinks_word_done(WERD_RES *word) {
 
   /*
     Use all the standard pass 2 conditions for mode 5 in set_done() in
-    reject.c BUT DONT REJECT IF THE WERD IS AMBIGUOUS - FOR SPACING WE DONT
+    reject.c BUT DON'T REJECT IF THE WERD IS AMBIGUOUS - FOR SPACING WE DON'T
     CARE WHETHER WE HAVE of/at on/an etc.
   */
   if (fixsp_done_mode > 0 &&
@@ -831,7 +831,6 @@ namespace tesseract {
 inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
-  inT16 word_length;
   inT16 score = 0;
   inT16 i;
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
@@ -840,7 +839,6 @@ inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
     word = word_it.data();
     if (word->rebuild_word == NULL)
       continue;  // Can't handle cube words.
-    word_length = word->reject_map.length();
     if (word->done ||
         word->tess_accepted ||
         word->best_choice->permuter() == SYSTEM_DAWG_PERM ||

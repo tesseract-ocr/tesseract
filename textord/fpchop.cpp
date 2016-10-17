@@ -735,7 +735,7 @@ C_OUTLINE *join_chopped_fragments(                         //join pieces
  * join_segments
  *
  * Join the two edgestep fragments such that the second comes after
- * the first and the gap beween them is closed.
+ * the first and the gap between them is closed.
  **********************************************************************/
 
 void join_segments(                         //join pieces

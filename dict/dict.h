@@ -397,11 +397,11 @@ class Dict {
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
-  inline const UNICHAR_ID WildcardID() const {
+  inline UNICHAR_ID WildcardID() const {
     return wildcard_unichar_id_;
   }
   /// Return the number of dawgs in the dawgs_ vector.
-  inline const int NumDawgs() const { return dawgs_.size(); }
+  inline int NumDawgs() const { return dawgs_.size(); }
   /// Return i-th dawg pointer recorded in the dawgs_ vector.
   inline const Dawg *GetDawg(int index) const { return dawgs_[index]; }
   /// Return the points to the punctuation dawg.
@@ -616,7 +616,7 @@ class Dict {
              "Make AcceptableChoice() always return false. Useful"
              " when there is a need to explore all segmentations");
   BOOL_VAR_H(save_raw_choices, false,
-             "Deprecated- backward compatability only");
+             "Deprecated- backward compatibility only");
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");

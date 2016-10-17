@@ -110,7 +110,8 @@ class ColumnFinder : public TabFind {
   // direction, so the textline projection_ map can be setup.
   // On return, IsVerticallyAlignedText may be called (now optionally) to
   // determine the gross textline alignment of the page.
-  void SetupAndFilterNoise(Pix* photo_mask_pix, TO_BLOCK* input_block);
+  void SetupAndFilterNoise(PageSegMode pageseg_mode, Pix* photo_mask_pix,
+                           TO_BLOCK* input_block);
 
   // Tests for vertical alignment of text (returning true if so), and generates
   // a list of blobs (in osd_blobs) for orientation and script detection.
@@ -211,7 +212,7 @@ class ColumnFinder : public TabFind {
                                const bool* any_columns_possible,
                                int column_set_id,
                                int* best_start, int* best_end);
-  // Moves start in the direction of step, upto, but not including end while
+  // Moves start in the direction of step, up to, but not including end while
   // the only incompatible regions are no more than kMaxIncompatibleColumnCount
   // in size, and the compatible regions beyond are bigger.
   void ExtendRangePastSmallGaps(int** column_set_costs,

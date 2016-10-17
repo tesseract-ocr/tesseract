@@ -44,27 +44,6 @@ langdata = bul.traineddata mlt.traineddata chr.traineddata \
 	ita.cube.nn fra.cube.size eng.cube.bigrams ara.cube.lm \
 	rus.cube.nn spa.cube.nn hin.cube.bigrams
 
-.PHONY: install-langs
-install-langs:
-	@if [ ! -d  $(DESTDIR)$(datadir) ]; then mkdir -p $(DESTDIR)$(datadir); fi;
-	@if test "${LANGS}" != ""; then \
-		for lang_code in ${LANGS}; do \
-			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
-		done; \
-	else \
-		for l in ./*.traineddata; do \
-			filename=`basename $$l`; \
-			lang_code=$${filename%.*}; \
-			if test "$$lang_code" == "*"; then \
-				echo "No lang present."; \
-				break; \
-			fi; \
-			echo "installing data for $$lang_code"; \
-			$(INSTALL) -m 644 $(srcdir)/$$lang_code.* $(DESTDIR)$(datadir); \
-		done; \
-	fi;
-
 uninstall-local:
 	cd $(DESTDIR)$(datadir); \
 	rm -f $(langdata)

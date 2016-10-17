@@ -3,11 +3,14 @@
 <?asciidoc-toc?>
 <?asciidoc-numbered?>
 <refentry lang="en">
+<refentryinfo>
+    <title>COMBINE_TESSDATA(1)</title>
+</refentryinfo>
 <refmeta>
 <refentrytitle>combine_tessdata</refentrytitle>
 <manvolnum>1</manvolnum>
-<refmiscinfo class="source">&nbsp;</refmiscinfo>
-<refmiscinfo class="manual">&nbsp;</refmiscinfo>
+<refmiscinfo class="source">&#160;</refmiscinfo>
+<refmiscinfo class="manual">&#160;</refmiscinfo>
 </refmeta>
 <refnamediv>
     <refname>combine_tessdata</refname>
@@ -67,7 +70,7 @@ components from tessdata/eng.traineddata.</simpara>
 <simpara>The components in a Tesseract lang.traineddata file as of
 Tesseract 3.02 are briefly described below; For more information on
 many of these files, see
-<ulink url="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</ulink></simpara>
+<ulink url="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</ulink></simpara>
 <variablelist>
 <varlistentry>
 <term>

@@ -53,7 +53,7 @@ enum TessErrorLogCode {
 #define LOC_DOC_BLK_REJ   22
 #define LOC_WRITE_RESULTS 23
 #define LOC_ADAPTIVE    24
-/* DONT DEFINE ANY LOCATION > 31 !!! */
+/* DON'T DEFINE ANY LOCATION > 31 !!! */
 
 /* Sub locatation determines whether pass2 was in normal mode or fix xht mode*/
 #define SUBLOC_NORM     0
@@ -87,21 +87,12 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
                         __FILE__, __LINE__);                            \
   }
 
-#ifdef _MSC_VER
-#define ASSERT_HOST_MSG(x, msg, ...) if (!(x))                            \
+#define ASSERT_HOST_MSG(x, ...) if (!(x))                               \
   {                                                                     \
-    tprintf(msg);                                                       \
+    tprintf(__VA_ARGS__);                                               \
     ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
                         __FILE__, __LINE__);                            \
   }
-#else
-#define ASSERT_HOST_MSG(x, msg...) if (!(x))                            \
-  {                                                                     \
-    tprintf(msg);                                                       \
-    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
-                        __FILE__, __LINE__);                            \
-  }
-#endif
 
 void signal_exit(int signal_code);
 

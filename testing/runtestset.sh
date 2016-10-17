@@ -56,7 +56,7 @@ rm -f testing/reports/$setname.times
 while read page dir
 do
   # A pages file may be a list of files with subdirs or maybe just
-  # a plain list of files so accomodate both.
+  # a plain list of files so accommodate both.
   if [ "$dir" ]
   then
      srcdir="$imdir/$dir"

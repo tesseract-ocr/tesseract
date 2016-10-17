@@ -15,44 +15,36 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
 #include "emalloc.h"
 #include <math.h>
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
 /*---------------------------------------------------------------------------*/
-MICROFEATURE NewMicroFeature() { 
-/*
- **	Parameters: none
- **	Globals: none
- **	Operation:
- **		This routine allocates and returns a new micro-feature
- **		data structure.
- **	Return: New micro-feature.
- **	Exceptions: none
- **	History: 7/27/89, DSJ, Created.
+/**
+ * This routine allocates and returns a new micro-feature
+ * data structure.
+ * @return New MICROFEATURE
+ * @note History: 7/27/89, DSJ, Created.
  */
+MICROFEATURE NewMicroFeature() { 
   return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
 }                                /* NewMicroFeature */
 
 
 /*---------------------------------------------------------------------------*/
-void FreeMicroFeatures(MICROFEATURES MicroFeatures) { 
-/*
- **	Parameters:
- **		MicroFeatures	list of micro-features to be freed
- **	Globals: none
- **	Operation:
- **		This routine deallocates all of the memory consumed by
- **		a list of micro-features.
- **	Return: none
- **	Exceptions: none
- **	History: 7/27/89, DSJ, Created.
+/**
+ * This routine deallocates all of the memory consumed by
+ * a list of micro-features.
+ * @param MicroFeatures	list of micro-features to be freed
+ * @return  none
+ * @note History: 7/27/89, DSJ, Created.
  */
+void FreeMicroFeatures(MICROFEATURES MicroFeatures) { 
   destroy_nodes(MicroFeatures, Efree); 
 }                                /* FreeMicroFeatures */

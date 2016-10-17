@@ -12,19 +12,19 @@
 #
 # This script provides an easy way to execute various phases of training
 # Tesseract.  For a detailed description of the phases, see
-# https://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3
+# https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
 # USAGE:
 #
 # tesstrain.sh
-#    --bin_dir PATH             # Location of training program.
-#    --fontlist FONTS_STR       # A plus-separated list of fontnames to train on.
+#    --fontlist FONTS           # A list of fontnames to train on.
 #    --fonts_dir FONTS_PATH     # Path to font files.
 #    --lang LANG_CODE           # ISO 639 code.
 #    --langdata_dir DATADIR     # Path to tesseract/training/langdata directory.
 #    --output_dir OUTPUTDIR     # Location of output traineddata file.
 #    --overwrite                # Safe to overwrite files in output_dir.
 #    --run_shape_clustering     # Run shape clustering (use for Indic langs).
+#    --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
 #
 # OPTIONAL flags for input data. If unspecified we will look for them in
 # the langdata_dir directory.
@@ -49,11 +49,8 @@ source `dirname $0`/tesstrain_utils.sh
 ARGV=("$@")
 parse_flags
 
-tlog "\n=== Starting training for language '${LANG_CODE}'"
-
-tlog "Cleaning workspace directory ${TRAINING_DIR}..."
 mkdir -p ${TRAINING_DIR}
-rm -fr ${TRAINING_DIR}/*
+tlog "\n=== Starting training for language '${LANG_CODE}'"
 
 source `dirname $0`/language-specific.sh
 set_lang_specific_parameters ${LANG_CODE}

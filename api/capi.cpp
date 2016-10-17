@@ -1,3 +1,20 @@
+///////////////////////////////////////////////////////////////////////
+// File:        capi.cpp
+// Description: C-API TessBaseAPI
+//
+// (C) Copyright 2012, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+///////////////////////////////////////////////////////////////////////
+
 #ifndef TESS_CAPI_INCLUDE_BASEAPI
 #   define TESS_CAPI_INCLUDE_BASEAPI
 #endif
@@ -64,7 +81,7 @@ TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* out
 
 TESS_API void TESS_CALL TessDeleteResultRenderer(TessResultRenderer* renderer)
 {
-    delete [] renderer;
+    delete renderer;
 }
 
 TESS_API void TESS_CALL TessResultRendererInsert(TessResultRenderer* renderer, TessResultRenderer* next)
@@ -424,7 +441,7 @@ TESS_API int TESS_CALL TessBaseAPIRecognizeForChopTest(TessBaseAPI* handle, ETEX
 TESS_API BOOL TESS_CALL TessBaseAPIProcessPages(TessBaseAPI* handle, const char* filename, const char* retry_config,
                                                 int timeout_millisec, TessResultRenderer* renderer)
 {
-    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))    
+    if (handle->ProcessPages(filename, retry_config, timeout_millisec, renderer))
         return TRUE;
     else
         return FALSE;
@@ -456,7 +473,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
 
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
 {
-    return handle->GetHOCRText(page_number);
+    return handle->GetHOCRText(NULL, page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
@@ -581,10 +598,12 @@ TESS_API void TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTr
     handle->InitTruthCallback(cb);
 }
 
+#ifndef NO_CUBE_BUILD
 TESS_API TessCubeRecoContext* TESS_CALL TessBaseAPIGetCubeRecoContext(const TessBaseAPI* handle)
 {
     return handle->GetCubeRecoContext();
 }
+#endif  // NO_CUBE_BUILD
 
 TESS_API void TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin)
 {

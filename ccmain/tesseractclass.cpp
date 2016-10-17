@@ -34,22 +34,22 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "tesseractclass.h"
 
 #include "allheaders.h"
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 #include "cube_reco_context.h"
 #endif
 #include "edgblob.h"
 #include "equationdetect.h"
 #include "globals.h"
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
 #include "tesseract_cube_combiner.h"
-#endif
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
 #endif
 
 namespace tesseract {
@@ -136,7 +136,7 @@ Tesseract::Tesseract()
       BOOL_MEMBER(tessedit_fix_fuzzy_spaces, true,
                   "Try to improve fuzzy spaces", this->params()),
       BOOL_MEMBER(tessedit_unrej_any_wd, false,
-                  "Dont bother with word plausibility", this->params()),
+                  "Don't bother with word plausibility", this->params()),
       BOOL_MEMBER(tessedit_fix_hyphens, true, "Crunch double hyphens?",
                   this->params()),
       BOOL_MEMBER(tessedit_redo_xheight, true, "Check/Correct x-height",
@@ -310,19 +310,19 @@ Tesseract::Tesseract()
                  this->params()),
       INT_MEMBER(crunch_pot_indicators, 1,
                  "How many potential indicators needed", this->params()),
-      BOOL_MEMBER(crunch_leave_ok_strings, true, "Dont touch sensible strings",
+      BOOL_MEMBER(crunch_leave_ok_strings, true, "Don't touch sensible strings",
                   this->params()),
       BOOL_MEMBER(crunch_accept_ok, true, "Use acceptability in okstring",
                   this->params()),
       BOOL_MEMBER(crunch_leave_accept_strings, false,
-                  "Dont pot crunch sensible strings", this->params()),
+                  "Don't pot crunch sensible strings", this->params()),
       BOOL_MEMBER(crunch_include_numerals, false, "Fiddle alpha figures",
                   this->params()),
       INT_MEMBER(crunch_leave_lc_strings, 4,
-                 "Dont crunch words with long lower case strings",
+                 "Don't crunch words with long lower case strings",
                  this->params()),
       INT_MEMBER(crunch_leave_uc_strings, 4,
-                 "Dont crunch words with long lower case strings",
+                 "Don't crunch words with long lower case strings",
                  this->params()),
       INT_MEMBER(crunch_long_repetitions, 3,
                  "Crunch words with long repetitions", this->params()),
@@ -381,9 +381,11 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_write_unlv, false, "Write .unlv output file",
                   this->params()),
-      BOOL_MEMBER(tessedit_create_txt, true, "Write .txt output file",
+      BOOL_MEMBER(tessedit_create_txt, false, "Write .txt output file",
                   this->params()),
       BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file",
+                  this->params()),
+      BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file",
                   this->params()),
       BOOL_MEMBER(tessedit_create_pdf, false, "Write .pdf output file",
                   this->params()),
@@ -393,21 +395,21 @@ Tesseract::Tesseract()
       INT_MEMBER(suspect_space_level, 100,
                  "Min suspect level for rejecting spaces", this->params()),
       INT_MEMBER(suspect_short_words, 2,
-                 "Dont Suspect dict wds longer than this", this->params()),
+                 "Don't suspect dict wds longer than this", this->params()),
       BOOL_MEMBER(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected",
                   this->params()),
-      double_MEMBER(suspect_rating_per_ch, 999.9, "Dont touch bad rating limit",
+      double_MEMBER(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit",
                     this->params()),
       double_MEMBER(suspect_accept_rating, -999.9, "Accept good rating limit",
                     this->params()),
       BOOL_MEMBER(tessedit_minimal_rejection, false,
                   "Only reject tess failures", this->params()),
-      BOOL_MEMBER(tessedit_zero_rejection, false, "Dont reject ANYTHING",
+      BOOL_MEMBER(tessedit_zero_rejection, false, "Don't reject ANYTHING",
                   this->params()),
       BOOL_MEMBER(tessedit_word_for_word, false,
                   "Make output have exactly one word per WERD", this->params()),
       BOOL_MEMBER(tessedit_zero_kelvin_rejection, false,
-                  "Dont reject ANYTHING AT ALL", this->params()),
+                  "Don't reject ANYTHING AT ALL", this->params()),
       BOOL_MEMBER(tessedit_consistent_reps, true,
                   "Force all rep chars the same", this->params()),
       INT_MEMBER(tessedit_reject_mode, 0, "Rejection algorithm",
@@ -424,7 +426,7 @@ Tesseract::Tesseract()
                   "Use DOC dawg in 11l conf. detector", this->params()),
       BOOL_MEMBER(rej_1Il_use_dict_word, false, "Use dictword test",
                   this->params()),
-      BOOL_MEMBER(rej_1Il_trust_permuter_type, true, "Dont double check",
+      BOOL_MEMBER(rej_1Il_trust_permuter_type, true, "Don't double check",
                   this->params()),
       BOOL_MEMBER(rej_use_tess_accepted, true, "Individual rejection control",
                   this->params()),
@@ -509,6 +511,7 @@ Tesseract::Tesseract()
       STRING_MEMBER(page_separator, "\f",
                     "Page separator (default is form feed control character)",
                     this->params()),
+
 
       // The following parameters were deprecated and removed from their
       // original
@@ -613,7 +616,7 @@ Tesseract::Tesseract()
       reskew_(1.0f, 0.0f),
       most_recently_used_(this),
       font_table_size_(0),
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
       cube_cntxt_(NULL),
       tess_cube_combiner_(NULL),
 #endif
@@ -624,7 +627,7 @@ Tesseract::~Tesseract() {
   Clear();
   end_tesseract();
   sub_langs_.delete_data_pointers();
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   // Delete cube objects.
   if (cube_cntxt_ != NULL) {
     delete cube_cntxt_;

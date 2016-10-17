@@ -50,17 +50,14 @@ WERD::WERD(C_BLOB_LIST *blob_list, uinT8 blank_count, const char *text)
     flags(0),
     script_id_(0),
     correct(text) {
-  C_BLOB_IT start_it = blob_list;
-  C_BLOB_IT end_it = blob_list;
+  C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
   C_OUTLINE_IT c_outline_it;
   inT16 inverted_vote = 0;
   inT16 non_inverted_vote = 0;
 
   // Move blob_list's elements into cblobs.
-  while (!end_it.at_last())
-    end_it.forward();
-  cblobs.assign_to_sublist(&start_it, &end_it);
+  start_it.add_list_after(blob_list);
 
   /*
     Set white on black flag for the WERD, moving any duff blobs onto the

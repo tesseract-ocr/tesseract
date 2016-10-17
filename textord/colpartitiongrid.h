@@ -45,7 +45,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // Merges ColPartitions in the grid that look like they belong in the same
   // textline.
   // For all partitions in the grid, calls the box_cb permanent callback
-  // to compute the search box, seaches the box, and if a candidate is found,
+  // to compute the search box, searches the box, and if a candidate is found,
   // calls the confirm_cb to check any more rules. If the confirm_cb returns
   // true, then the partitions are merged.
   // Both callbacks are deleted before returning.
@@ -200,7 +200,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
                            bool debug, ColPartition_CLIST* candidates);
 
   // Smoothes the region type/flow type of the given part by looking at local
-  // neigbours and the given image mask. Searches a padded rectangle with the
+  // neighbours and the given image mask. Searches a padded rectangle with the
   // padding truncated on one size of the part's box in turn for each side,
   // using the result (if any) that has the least distance to all neighbours
   // that contribute to the decision. This biases in favor of rectangular
@@ -246,7 +246,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // neighbours that vertically overlap significantly.
   void FindPartitionMargins(ColPartitionSet* columns, ColPartition* part);
 
-  // Starting at x, and going in the specified direction, upto x_limit, finds
+  // Starting at x, and going in the specified direction, up to x_limit, finds
   // the margin for the given y range by searching sideways,
   // and ignoring not_this.
   int FindMargin(int x, bool right_to_left, int x_limit,

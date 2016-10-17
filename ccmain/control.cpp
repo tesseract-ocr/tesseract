@@ -18,6 +18,11 @@
  *
  **********************************************************************/
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include <string.h>
 #include <math.h>
 #ifdef __UNIX__
@@ -42,25 +47,16 @@
 #include "sorthelper.h"
 #include "tesseractclass.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #define MIN_FONT_ROW_COUNT  8
 #define MAX_XHEIGHT_DIFF  3
 
 const char* const kBackUpConfigFile = "tempconfigdata.config";
-// Multiple of x-height to make a repeated word have spaces in it.
-const double kRepcharGapThreshold = 0.5;
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height
 const double kMinRefitXHeightFraction = 0.5;
 
 
 /**
- * recog_pseudo_word
- *
  * Make a word from the selected blobs and run Tess on them.
  *
  * @param page_res recognise blobs
@@ -79,13 +75,9 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
 
 
 /**
- * recog_interactive
- *
  * Recognize a single word in interactive mode.
  *
- * @param block block
- * @param row row of word
- * @param word_res word to recognise
+ * @param pr_it the page results iterator
  */
 BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
   inT16 char_qual;
@@ -150,7 +142,7 @@ bool Tesseract::ProcessTargetWord(const TBOX& word_box,
   return true;
 }
 
-// If tesseract is to be run, sets the words up ready for it.
+/** If tesseract is to be run, sets the words up ready for it. */
 void Tesseract::SetupAllWordsPassN(int pass_n,
                                    const TBOX* target_word_box,
                                    const char* word_config,
@@ -224,10 +216,21 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
     if (w > 0) word->prev_word = &(*words)[w - 1];
     if (monitor != NULL) {
       monitor->ocr_alive = TRUE;
-      if (pass_n == 1)
-        monitor->progress = 30 + 50 * w / words->size();
-      else
-        monitor->progress = 80 + 10 * w / words->size();
+      if (pass_n == 1) {
+        monitor->progress = 70 * w / words->size();
+        if (monitor->progress_callback != NULL) {
+            TBOX box = pr_it->word()->word->bounding_box();
+            (*monitor->progress_callback)(monitor->progress,
+                                          box.left(), box.right(),
+                                          box.top(), box.bottom());
+        }
+      } else {
+        monitor->progress = 70 + 30 * w / words->size();
+        if (monitor->progress_callback!=NULL) {
+                      (*monitor->progress_callback)(monitor->progress,
+                                                    0, 0, 0, 0);
+        }
+      }
       if (monitor->deadline_exceeded() ||
           (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
                                                          words->size()))) {
@@ -306,17 +309,22 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     page_res_it.restart_page();
     // ****************** Pass 1 *******************
 
-    // Clear adaptive classifier at the beginning of the page if it is full.
-    // This is done only at the beginning of the page to ensure that the
-    // classifier is not reset at an arbitrary point while processing the page,
-    // which would cripple Passes 2+ if the reset happens towards the end of
-    // Pass 1 on a page with very difficult text.
-    // TODO(daria): preemptively clear the classifier if it is almost full.
-    if (AdaptiveClassifierIsFull()) ResetAdaptiveClassifierInternal();
+    // If the adaptive classifier is full switch to one we prepared earlier,
+    // ie on the previous page. If the current adaptive classifier is non-empty,
+    // prepare a backup starting at this page, in case it fills up. Do all this
+    // independently for each language.
+    if (AdaptiveClassifierIsFull()) {
+      SwitchAdaptiveClassifier();
+    } else if (!AdaptiveClassifierIsEmpty()) {
+      StartBackupAdaptiveClassifier();
+    }
     // Now check the sub-langs as well.
     for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->AdaptiveClassifierIsFull())
-        sub_langs_[i]->ResetAdaptiveClassifierInternal();
+      if (sub_langs_[i]->AdaptiveClassifierIsFull()) {
+        sub_langs_[i]->SwitchAdaptiveClassifier();
+      } else if (!sub_langs_[i]->AdaptiveClassifierIsEmpty()) {
+        sub_langs_[i]->StartBackupAdaptiveClassifier();
+      }
     }
     // Set up all words ready for recognition, so that if parallelism is on
     // all the input and output classes are ready to run the classifier.
@@ -394,7 +402,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     // ****************** Pass 5,6 *******************
     rejection_passes(page_res, monitor, target_word_box, word_config);
 
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
     // ****************** Pass 7 *******************
     // Cube combiner.
     // If cube is loaded and its combiner is present, run it.
@@ -1349,7 +1357,7 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
   BLOCK* block = word_data.block;
   prev_word_best_choice_ = word_data.prev_word != NULL
       ? word_data.prev_word->word->best_choice : NULL;
-#ifndef ANDROID_BUILD
+#ifndef NO_CUBE_BUILD
   // If we only intend to run cube - run it and return.
   if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
     cube_word_pass1(block, row, *in_word);
@@ -1401,7 +1409,6 @@ void Tesseract::ReportXhtFixResult(bool accept_new_word, float new_x_ht,
 // Returns true if the word was changed.
 // See the comment in fixxht.cpp for a description of the overall process.
 bool Tesseract::TrainedXheightFix(WERD_RES *word, BLOCK* block, ROW *row) {
-  bool accept_new_x_ht = false;
   int original_misfits = CountMisfitTops(word);
   if (original_misfits == 0)
     return false;
@@ -1557,7 +1564,7 @@ void Tesseract::match_word_pass_n(int pass_n, WERD_RES *word,
        word->fix_quotes();
       if (tessedit_fix_hyphens)
         word->fix_hyphens();
-      /* Dont trust fix_quotes! - though I think I've fixed the bug */
+      /* Don't trust fix_quotes! - though I think I've fixed the bug */
       if (word->best_choice->length() != word->box_word->length()) {
         tprintf("POST FIX_QUOTES FAIL String:\"%s\"; Strlen=%d;"
                 " #Blobs=%d\n",
@@ -1695,7 +1702,7 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(
       goto not_a_word;
     /*
     Allow a single hyphen in a lower case word
-    - dont trust upper case - I've seen several cases of "H" -> "I-I"
+    - don't trust upper case - I've seen several cases of "H" -> "I-I"
     */
     if (lengths[i] == 1 && s[offset] == '-') {
       hyphen_pos = i;

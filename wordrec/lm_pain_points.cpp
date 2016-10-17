@@ -202,8 +202,10 @@ bool LMPainPoints::GeneratePainPoint(
   }
 }
 
-// Adjusts the pain point coordinates to cope with expansion of the ratings
-// matrix due to a split of the blob with the given index.
+/**
+ * Adjusts the pain point coordinates to cope with expansion of the ratings
+ * matrix due to a split of the blob with the given index.
+ */
 void LMPainPoints::RemapForSplit(int index) {
   for (int i = 0; i < LM_PPTYPE_NUM; ++i) {
     GenericVector<MatrixCoordPair>* heap = pain_points_heaps_[i].heap();

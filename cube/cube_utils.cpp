@@ -31,7 +31,9 @@ CubeUtils::CubeUtils() {
 CubeUtils::~CubeUtils() {
 }
 
-// convert a prob to a cost (-ve log prob)
+/**
+ * convert a prob to a cost (-ve log prob)
+ */
 int CubeUtils::Prob2Cost(double prob_val) {
   if (prob_val < MIN_PROB)   {
     return MIN_PROB_COST;
@@ -39,12 +41,16 @@ int CubeUtils::Prob2Cost(double prob_val) {
   return static_cast<int>(-log(prob_val) * PROB2COST_SCALE);
 }
 
-// converts a cost to probability
+/**
+ * converts a cost to probability
+ */
 double CubeUtils::Cost2Prob(int cost) {
   return exp(-cost / PROB2COST_SCALE);
 }
 
-// computes the length of a NULL terminated char_32 string
+/**
+ * computes the length of a NULL terminated char_32 string
+ */
 int CubeUtils::StrLen(const char_32 *char_32_ptr) {
   if (char_32_ptr == NULL) {
     return 0;
@@ -54,7 +60,9 @@ int CubeUtils::StrLen(const char_32 *char_32_ptr) {
   return len;
 }
 
-// compares two char_32 strings
+/**
+ * compares two char_32 strings
+ */
 int CubeUtils::StrCmp(const char_32 *str1, const char_32 *str2) {
   const char_32 *pch1 = str1;
   const char_32 *pch2 = str2;
@@ -76,7 +84,9 @@ int CubeUtils::StrCmp(const char_32 *str1, const char_32 *str2) {
   }
 }
 
-// Duplicates a 32-bit char buffer
+/**
+ * Duplicates a 32-bit char buffer
+ */
 char_32 *CubeUtils::StrDup(const char_32 *str32) {
   int len = StrLen(str32);
   char_32 *new_str = new char_32[len + 1];
@@ -88,7 +98,9 @@ char_32 *CubeUtils::StrDup(const char_32 *str32) {
   return new_str;
 }
 
-// creates a char samp from a specified portion of the image
+/**
+ * creates a char samp from a specified portion of the image
+ */
 CharSamp *CubeUtils::CharSampleFromPix(Pix *pix, int left, int top,
                                        int wid, int hgt) {
   // get the raw img data from the image
@@ -105,7 +117,9 @@ CharSamp *CubeUtils::CharSampleFromPix(Pix *pix, int left, int top,
   return char_samp;
 }
 
-// create a B/W image from a char_sample
+/**
+ * create a B/W image from a char_sample
+ */
 Pix *CubeUtils::PixFromCharSample(CharSamp *char_samp) {
   // parameter check
   if (char_samp == NULL) {
@@ -137,7 +151,9 @@ Pix *CubeUtils::PixFromCharSample(CharSamp *char_samp) {
   return pix;
 }
 
-// creates a raw buffer from the specified location of the pix
+/**
+ * creates a raw buffer from the specified location of the pix
+ */
 unsigned char *CubeUtils::GetImageData(Pix *pix, int left, int top,
                                        int wid, int hgt) {
   // skip invalid dimensions
@@ -173,7 +189,9 @@ unsigned char *CubeUtils::GetImageData(Pix *pix, int left, int top,
   return temp_buff;
 }
 
-// read file contents to a string
+/**
+ * read file contents to a string
+ */
 bool CubeUtils::ReadFileToString(const string &file_name, string *str) {
   str->clear();
   FILE *fp = fopen(file_name.c_str(), "rb");
@@ -206,7 +224,9 @@ bool CubeUtils::ReadFileToString(const string &file_name, string *str) {
   return (read_bytes == file_size);
 }
 
-// splits a string into vectors based on specified delimiters
+/**
+ * splits a string into vectors based on specified delimiters
+ */
 void CubeUtils::SplitStringUsing(const string &str,
                                  const string &delims,
                                  vector<string> *str_vec) {
@@ -240,7 +260,9 @@ void CubeUtils::SplitStringUsing(const string &str,
   }
 }
 
-// UTF-8 to UTF-32 convesion functions
+/**
+ * UTF-8 to UTF-32 conversion functions
+ */
 void CubeUtils::UTF8ToUTF32(const char *utf8_str, string_32 *str32) {
   str32->clear();
   int len = strlen(utf8_str);
@@ -254,7 +276,9 @@ void CubeUtils::UTF8ToUTF32(const char *utf8_str, string_32 *str32) {
   }
 }
 
-// UTF-8 to UTF-32 convesion functions
+/**
+ * UTF-32 to UTF-8 conversion functions
+ */
 void CubeUtils::UTF32ToUTF8(const char_32 *utf32_str, string *str) {
   str->clear();
   for (const char_32 *ch_32 = utf32_str; (*ch_32) != 0; ch_32++)  {
@@ -286,7 +310,7 @@ bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set) {
     if (first_upper)
       capitalized = true;
     prev_upper = first_upper;
-    prev_lower = islower(str32[0]);
+    prev_lower = first_lower;
     for (int c = 1; str32[c] != 0; ++c) {
       cur_upper = isupper(str32[c]);
       cur_lower = islower(str32[c]);
@@ -305,7 +329,7 @@ bool CubeUtils::IsCaseInvariant(const char_32 *str32, CharSet *char_set) {
     if (first_upper)
       capitalized = true;
     prev_upper = first_upper;
-    prev_lower = unicharset->get_islower(char_set->ClassID(str32[0]));
+    prev_lower = first_lower;
 
     for (int c = 1; c < StrLen(str32); ++c) {
       cur_upper = unicharset->get_isupper(char_set->ClassID(str32[c]));

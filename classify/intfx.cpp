@@ -44,7 +44,7 @@ using tesseract::TrainingSample;
 // The entries are in binary degrees where a full circle is 256 binary degrees.
 static float cos_table[INT_CHAR_NORM_RANGE];
 static float sin_table[INT_CHAR_NORM_RANGE];
-// Guards write access to AtanTable so we dont create it more than once.
+// Guards write access to AtanTable so we don't create it more than once.
 tesseract::CCUtilMutex atan_table_mutex;
 
 

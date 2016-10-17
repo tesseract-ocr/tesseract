@@ -24,13 +24,13 @@ namespace tesseract {
 
 extern const char *kUTF8LineSeparator;
 extern const char *kUTF8ParagraphSeparator;
-extern const char *kLRM;  // Left-to-Right Mark
-extern const char *kRLM;  // Right-to-Left Mark
-extern const char *kRLE;  // Right-to-Left Embedding
-extern const char *kPDF;  // Pop Directional Formatting
+extern const char *kLRM;  //< Left-to-Right Mark
+extern const char *kRLM;  //< Right-to-Left Mark
+extern const char *kRLE;  //< Right-to-Left Embedding
+extern const char *kPDF;  //< Pop Directional Formatting
 
-// The following are confusable internal word punctuation symbols
-// which we normalize to the first variant when matching in dawgs.
+/// The following are confusable internal word punctuation symbols
+/// which we normalize to the first variant when matching in dawgs.
 extern const char *kHyphenLikeUTF8[];
 extern const char *kApostropheLikeUTF8[];
 

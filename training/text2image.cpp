@@ -70,6 +70,9 @@ BOOL_PARAM_FLAG(degrade_image, true,
                 "Degrade rendered image with speckle noise, dilation/erosion "
                 "and rotation");
 
+// Rotate the rendered image to have more realistic glyph borders
+BOOL_PARAM_FLAG(rotate_image, true, "Rotate the image in a random way.");
+
 // Degradation to apply to the image.
 INT_PARAM_FLAG(exposure, 0, "Exposure level in photocopier");
 
@@ -250,7 +253,6 @@ void ExtractFontProperties(const string &utf8_text,
       // API.
       // Safeguard against these cases here by just skipping the bigram.
       if (IsWhitespaceBox(boxes[b+1])) {
-        tprintf("WARNING: Found unexpected ligature: %s\n", ch0.c_str());
         continue;
       }
       int xgap = (boxes[b+1]->box()->x -
@@ -418,21 +420,38 @@ int main(int argc, char** argv) {
   if (FLAGS_list_available_fonts) {
     const vector<string>& all_fonts = FontUtils::ListAvailableFonts();
     for (int i = 0; i < all_fonts.size(); ++i) {
-      tprintf("%3d: %s\n", i, all_fonts[i].c_str());
+      printf("%3d: %s\n", i, all_fonts[i].c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
                       "Font %s is unrecognized.\n", all_fonts[i].c_str());
     }
     return EXIT_SUCCESS;
   }
-  // Check validity of input flags.
-  ASSERT_HOST_MSG(!FLAGS_text.empty(), "Text file missing!\n");
-  ASSERT_HOST_MSG(!FLAGS_outputbase.empty(), "Output file missing!\n");
-  ASSERT_HOST_MSG(FLAGS_render_ngrams || FLAGS_unicharset_file.empty(),
-                  "Use --unicharset_file only if --render_ngrams is set.\n");
 
-  ASSERT_HOST_MSG(FLAGS_find_fonts ||
-                  FontUtils::IsAvailableFont(FLAGS_font.c_str()),
-                  "Could not find font named %s\n", FLAGS_font.c_str());
+  // Check validity of input flags.
+  if (FLAGS_text.empty()) {
+    tprintf("'--text' option is missing!\n");
+    exit(1);
+  }
+  if (FLAGS_outputbase.empty()) {
+    tprintf("'--outputbase' option is missing!\n");
+    exit(1);
+  }
+  if (!FLAGS_unicharset_file.empty() && FLAGS_render_ngrams) {
+    tprintf("Use '--unicharset_file' only if '--render_ngrams' is set.\n");
+    exit(1);
+  }
+
+  if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
+    string pango_name;
+    if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
+      tprintf("Could not find font named %s.\n", FLAGS_font.c_str());
+      if (!pango_name.empty()) { 
+        tprintf("Pango suggested font %s.\n", pango_name.c_str());
+      }
+      tprintf("Please correct --font arg.\n");
+      exit(1);
+    }
+  }
 
   if (FLAGS_render_ngrams)
     FLAGS_output_word_boxes = true;
@@ -474,12 +493,16 @@ int main(int argc, char** argv) {
     render.set_gravity_hint_strong(true);
     render.set_render_fullwidth_latin(true);
   } else {
-    TLOG_FATAL("Invalid writing mode : %s\n", FLAGS_writing_mode.c_str());
+    tprintf("Invalid writing mode: %s\n", FLAGS_writing_mode.c_str());
+    exit(1);
   }
 
   string src_utf8;
   // This c_str is NOT redundant!
-  File::ReadFileToStringOrDie(FLAGS_text.c_str(), &src_utf8);
+  if (!File::ReadFileToString(FLAGS_text.c_str(), &src_utf8)) {
+    tprintf("Failed to read file: %s\n", FLAGS_text.c_str());
+    exit(1);
+  }
 
   // Remove the unicode mark if present.
   if (strncmp(src_utf8.c_str(), "\xef\xbb\xbf", 3) == 0) {
@@ -499,8 +522,9 @@ int main(int argc, char** argv) {
     UNICHARSET unicharset;
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
-      TLOG_FATAL("Failed to load unicharset from file %s\n",
+      tprintf("Failed to load unicharset from file %s\n",
                  FLAGS_unicharset_file.c_str());
+      exit(1);
     }
 
     // If we are rendering ngrams that will be OCRed later, shuffle them so that
@@ -580,7 +604,7 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, &rotation);
+          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, FLAGS_rotate_image ? &rotation : NULL);
         }
         render.RotatePageBoxes(rotation);
 

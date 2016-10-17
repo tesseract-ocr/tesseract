@@ -44,19 +44,12 @@
 
 namespace tesseract {
 
-// Minimum width (in pixels) to be considered when making columns.
-// TODO(rays) convert to inches, dependent on resolution.
-const int kMinColumnWidth = 100;
 // When assigning columns, the max number of misfit grid rows/ColPartitionSets
 // that can be ignored.
 const int kMaxIncompatibleColumnCount = 2;
-// Min fraction of ColPartition height to be overlapping for margin purposes.
-const double kMarginOverlapFraction = 0.25;
 // Max fraction of mean_column_gap_ for the gap between two partitions within a
 // column to allow them to merge.
 const double kHorizontalGapMergeFraction = 0.5;
-// Min fraction of grid size to not be considered likely noise.
-const double kMinNonNoiseFraction = 0.5;
 // Minimum gutter width as a fraction of gridsize
 const double kMinGutterWidthGrid = 0.5;
 // Max multiple of a partition's median size as a distance threshold for
@@ -150,7 +143,8 @@ ColumnFinder::~ColumnFinder() {
 // direction, so the textline projection_ map can be setup.
 // On return, IsVerticallyAlignedText may be called (now optionally) to
 // determine the gross textline alignment of the page.
-void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
+void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
+                                       Pix* photo_mask_pix,
                                        TO_BLOCK* input_block) {
   part_grid_.Init(gridsize(), bleft(), tright());
   if (stroke_width_ != NULL)
@@ -172,7 +166,8 @@ void ColumnFinder::SetupAndFilterNoise(Pix* photo_mask_pix,
   // Remove obvious noise and make the initial non-text map.
   nontext_map_ = nontext_detect.ComputeNonTextMask(textord_debug_tabfind,
                                                    photo_mask_pix, input_block);
-  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(cjk_script_, input_block);
+  stroke_width_->FindTextlineDirectionAndFixBrokenCJK(pageseg_mode, cjk_script_,
+                                                      input_block);
   // Clear the strokewidth grid ready for rotation or leader finding.
   stroke_width_->Clear();
 }
@@ -305,8 +300,8 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
                         input_block);
   SetBlockRuleEdges(input_block);
   stroke_width_->GradeBlobsIntoPartitions(
-      rerotate_, input_block, nontext_map_, denorm_, cjk_script_, &projection_,
-      diacritic_blobs, &part_grid_, &big_parts_);
+      pageseg_mode, rerotate_, input_block, nontext_map_, denorm_, cjk_script_,
+      &projection_, diacritic_blobs, &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
                                    input_block, this, &part_grid_, &big_parts_);
@@ -338,7 +333,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
   // into thinking they are dealing with left-to-right text.
   // To do this, we reflect the needed data in the y-axis and then reflect
   // the blocks back after they have been created. This is a temporary
-  // arrangment that is confined to this function only, so the reflection
+  // arrangement that is confined to this function only, so the reflection
   // is completely invisible in the output blocks.
   // The only objects reflected are:
   // The vertical separator lines that have already been found;
@@ -867,7 +862,7 @@ void ColumnFinder::ShrinkRangeToLongestRun(int** column_set_costs,
   }
 }
 
-// Moves start in the direction of step, upto, but not including end while
+// Moves start in the direction of step, up to, but not including end while
 // the only incompatible regions are no more than kMaxIncompatibleColumnCount
 // in size, and the compatible regions beyond are bigger.
 void ColumnFinder::ExtendRangePastSmallGaps(int** column_set_costs,

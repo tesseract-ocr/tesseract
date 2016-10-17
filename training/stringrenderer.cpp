@@ -52,7 +52,7 @@ static const int kDefaultOutputResolution = 300;
 // Word joiner (U+2060) inserted after letters in ngram mode, as per
 // recommendation in http://unicode.org/reports/tr14/ to avoid line-breaks at
 // hyphens and other non-alpha characters.
-static const char* kWordJoinerUTF8 = "\u2060";
+static const char* kWordJoinerUTF8 = "\xE2\x81\xA0"; //u8"\u2060";
 static const char32 kWordJoiner = 0x2060;
 
 static bool IsCombiner(int ch) {
@@ -120,6 +120,7 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
       box_padding_(0),
       total_chars_(0),
       font_index_(0),
+      features_(NULL),
       last_offset_(0) {
   pen_color_[0] = 0.0;
   pen_color_[1] = 0.0;
@@ -140,7 +141,16 @@ void StringRenderer::set_resolution(const int resolution) {
   font_.set_resolution(resolution);
 }
 
+void StringRenderer::set_underline_start_prob(const double frac) {
+  underline_start_prob_ = min(max(frac, 0.0), 1.0);
+}
+
+void StringRenderer::set_underline_continuation_prob(const double frac) {
+  underline_continuation_prob_ = min(max(frac, 0.0), 1.0);
+}
+
 StringRenderer::~StringRenderer() {
+  free(features_);
   ClearBoxes();
   FreePangoCairo();
 }
@@ -196,6 +206,14 @@ void StringRenderer::SetLayoutProperties() {
     spacing_attr->end_index = static_cast<guint>(-1);
     pango_attr_list_change(attr_list, spacing_attr);
   }
+#if (PANGO_VERSION_MAJOR == 1 && PANGO_VERSION_MINOR >= 38)
+  if (add_ligatures_) {
+    set_features("liga, clig, dlig, hlig");
+    PangoAttribute* feature_attr =
+      pango_attr_font_features_new(features_);
+    pango_attr_list_change(attr_list, feature_attr);
+  }
+#endif
   pango_layout_set_attributes(layout_, attr_list);
   pango_attr_list_unref(attr_list);
   // Adjust line spacing

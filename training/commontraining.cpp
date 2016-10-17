@@ -73,18 +73,17 @@ DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
 DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
                   "Desired confidence in prototypes created");
 
-/*
- **	Parameters:
- **		argc    number of command line arguments to parse
- **		argv    command line arguments
- **	Globals:
- **		Config  current clustering parameters
- **	Operation:
- **		This routine parses the command line arguments that were
- **		passed to the program and ses them to set relevant
- **             training-related global parameters
- **	Return: none
- **	Exceptions: Illegal options terminate the program.
+/**
+ * This routine parses the command line arguments that were
+ * passed to the program and ses them to set relevant
+ * training-related global parameters
+ *
+ * Globals:
+ * - Config  current clustering parameters
+ * @param argc number of command line arguments to parse
+ * @param argv command line arguments
+ * @return none
+ * @note Exceptions: Illegal options terminate the program.
  */
 void ParseArguments(int* argc, char ***argv) {
   STRING usage;
@@ -158,19 +157,21 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
   }
 }
 
-// Creates a MasterTraininer and loads the training data into it:
-// Initializes feature_defs and IntegerFX.
-// Loads the shape_table if shape_table != NULL.
-// Loads initial unicharset from -U command-line option.
-// If FLAGS_T is set, loads the majority of data from there, else:
-//   Loads font info from -F option.
-//   Loads xheights from -X option.
-//   Loads samples from .tr files in remaining command-line args.
-//   Deletes outliers and computes canonical samples.
-//   If FLAGS_output_trainer is set, saves the trainer for future use.
-// Computes canonical and cloud features.
-// If shape_table is not NULL, but failed to load, make a fake flat one,
-// as shape clustering was not run.
+/**
+ * Creates a MasterTraininer and loads the training data into it:
+ * Initializes feature_defs and IntegerFX.
+ * Loads the shape_table if shape_table != NULL.
+ * Loads initial unicharset from -U command-line option.
+ * If FLAGS_T is set, loads the majority of data from there, else:
+ *  - Loads font info from -F option.
+ *  - Loads xheights from -X option.
+ *  - Loads samples from .tr files in remaining command-line args.
+ *  - Deletes outliers and computes canonical samples.
+ *  - If FLAGS_output_trainer is set, saves the trainer for future use.
+ * Computes canonical and cloud features.
+ * If shape_table is not NULL, but failed to load, make a fake flat one,
+ * as shape clustering was not run.
+ */
 MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
                                 ShapeTable** shape_table,
@@ -294,20 +295,19 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
 }  // namespace tesseract.
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine returns the next command line argument.  If
+ * there are no remaining command line arguments, it returns
+ * NULL.  This routine should only be called after all option
+ * arguments have been parsed and removed with ParseArguments.
+ *
+ * Globals:
+ * - tessoptind defined by tessopt sys call
+ * @return Next command line argument or NULL.
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 09:34:12 1989, DSJ, Created.
+ */
 const char *GetNextFilename(int argc, const char* const * argv) {
-  /*
-   **	Parameters: none
-   **	Globals:
-   **		tessoptind			defined by tessopt sys call
-   **	Operation:
-   **		This routine returns the next command line argument.  If
-   **		there are no remaining command line arguments, it returns
-   **		NULL.  This routine should only be called after all option
-   **		arguments have been parsed and removed with ParseArguments.
-   **	Return: Next command line argument or NULL.
-   **	Exceptions: none
-   **	History: Fri Aug 18 09:34:12 1989, DSJ, Created.
-   */
   if (tessoptind < argc)
     return argv[tessoptind++];
   else
@@ -317,24 +317,20 @@ const char *GetNextFilename(int argc, const char* const * argv) {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine searches through a list of labeled lists to find
+ * a list with the specified label.  If a matching labeled list
+ * cannot be found, NULL is returned.
+ * @param List list to search
+ * @param Label label to search for
+ * @return Labeled list with the specified Label or NULL.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 15:57:41 1989, DSJ, Created.
+ */
 LABELEDLIST FindList (
     LIST	List,
     char	*Label)
-
-/*
- **	Parameters:
- **		List		list to search
- **		Label		label to search for
- **	Globals: none
- **	Operation:
- **		This routine searches thru a list of labeled lists to find
- **		a list with the specified label.  If a matching labeled list
- **		cannot be found, NULL is returned.
- **	Return: Labeled list with the specified Label or NULL.
- **	Exceptions: none
- **	History: Fri Aug 18 15:57:41 1989, DSJ, Created.
- */
-
 {
   LABELEDLIST	LabeledList;
 
@@ -349,21 +345,17 @@ LABELEDLIST FindList (
 }	/* FindList */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine allocates a new, empty labeled list and gives
+ * it the specified label.
+ * @param Label label for new list
+ * @return New, empty labeled list.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 16:08:46 1989, DSJ, Created.
+ */
 LABELEDLIST NewLabeledList (
     const char	*Label)
-
-/*
- **	Parameters:
- **		Label	label for new list
- **	Globals: none
- **	Operation:
- **		This routine allocates a new, empty labeled list and gives
- **		it the specified label.
- **	Return: New, empty labeled list.
- **	Exceptions: none
- **	History: Fri Aug 18 16:08:46 1989, DSJ, Created.
- */
-
 {
   LABELEDLIST	LabeledList;
 
@@ -380,25 +372,29 @@ LABELEDLIST NewLabeledList (
 /*---------------------------------------------------------------------------*/
 // TODO(rays) This is now used only by cntraining. Convert cntraining to use
 // the new method or get rid of it entirely.
+/**
+ * This routine reads training samples from a file and
+ * places them into a data structure which organizes the
+ * samples by FontName and CharName.  It then returns this
+ * data structure.
+ * @param file open text file to read samples from
+ * @param feature_defs
+ * @param feature_name
+ * @param max_samples
+ * @param unicharset
+ * @param training_samples
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 
+ * - Fri Aug 18 13:11:39 1989, DSJ, Created.
+ * - Tue May 17 1998 simplifications to structure, illiminated
+ *   font, and feature specification levels of structure.
+ */
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
                          const char *feature_name, int max_samples,
                          UNICHARSET* unicharset,
                          FILE* file, LIST* training_samples) {
-/*
-**  Parameters:
-**    file    open text file to read samples from
-**  Globals: none
-**  Operation:
-**    This routine reads training samples from a file and
-**    places them into a data structure which organizes the
-**    samples by FontName and CharName.  It then returns this
-**    data structure.
-**  Return: none
-**  Exceptions: none
-**  History: Fri Aug 18 13:11:39 1989, DSJ, Created.
-**       Tue May 17 1998 simplifications to structure, illiminated
-**        font, and feature specification levels of structure.
-*/
   char    buffer[2048];
   char    unichar[UNICHAR_LEN + 1];
   LABELEDLIST char_sample;
@@ -450,27 +446,25 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
 
 
 /*---------------------------------------------------------------------------*/
-void FreeTrainingSamples(LIST CharList) {
-/*
- **	Parameters:
- **		FontList	list of all fonts in document
- **	Globals: none
- **	Operation:
- **		This routine deallocates all of the space allocated to
- **		the specified list of training samples.
- **	Return: none
- **	Exceptions: none
- **	History: Fri Aug 18 17:44:27 1989, DSJ, Created.
+/**
+ * This routine deallocates all of the space allocated to
+ * the specified list of training samples.
+ * @param CharList list of all fonts in document
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 17:44:27 1989, DSJ, Created.
  */
+void FreeTrainingSamples(LIST CharList) {
   LABELEDLIST char_sample;
   FEATURE_SET FeatureSet;
   LIST FeatureList;
 
 
-  iterate(CharList) {  /* iterate thru all of the fonts */
+  iterate(CharList) {  /* iterate through all of the fonts */
     char_sample = (LABELEDLIST) first_node(CharList);
     FeatureList = char_sample->List;
-    iterate(FeatureList) {  /* iterate thru all of the classes */
+    iterate(FeatureList) {  /* iterate through all of the classes */
       FeatureSet = (FEATURE_SET) first_node(FeatureList);
       FreeFeatureSet(FeatureSet);
     }
@@ -480,45 +474,39 @@ void FreeTrainingSamples(LIST CharList) {
 }  /* FreeTrainingSamples */
 
 /*---------------------------------------------------------------------------*/
-void FreeLabeledList(LABELEDLIST LabeledList) {
-/*
- **	Parameters:
- **		LabeledList	labeled list to be freed
- **	Globals: none
- **	Operation:
- **		This routine deallocates all of the memory consumed by
- **		a labeled list.  It does not free any memory which may be
- **		consumed by the items in the list.
- **	Return: none
- **	Exceptions: none
- **	History: Fri Aug 18 17:52:45 1989, DSJ, Created.
+/**
+ * This routine deallocates all of the memory consumed by
+ * a labeled list.  It does not free any memory which may be
+ * consumed by the items in the list.
+ * @param LabeledList labeled list to be freed
+ * @note Globals: none
+ * @return none
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 17:52:45 1989, DSJ, Created.
  */
+void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
   free(LabeledList->Label);
   free(LabeledList);
 }  /* FreeLabeledList */
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine reads samples from a LABELEDLIST and enters
+ * those samples into a clusterer data structure.  This
+ * data structure is then returned to the caller.
+ * @param char_sample: LABELEDLIST that holds all the feature information for a
+ * @param FeatureDefs
+ * @param program_feature_type
+ * given character.
+ * @return Pointer to new clusterer data structure.
+ * @note Globals: None
+ * @note Exceptions: None
+ * @note History: 8/16/89, DSJ, Created.
+ */
 CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               LABELEDLIST char_sample,
                               const char* program_feature_type) {
-/*
- **	Parameters:
- **		char_sample: LABELEDLIST that holds all the feature information for a
- **		given character.
- **	Globals:
- **		None
- **	Operation:
- **		This routine reads samples from a LABELEDLIST and enters
- **		those samples into a clusterer data structure.  This
- **		data structure is then returned to the caller.
- **	Return:
- **		Pointer to new clusterer data structure.
- **	Exceptions:
- **		None
- **	History:
- **		8/16/89, DSJ, Created.
- */
   uinT16 N;
   int i, j;
   FLOAT32 *Sample = NULL;
@@ -741,25 +729,21 @@ MERGE_CLASS NewLabeledClass (
 }	/* NewLabeledClass */
 
 /*-----------------------------------------------------------------------------*/
+/**
+ * This routine deallocates all of the space allocated to
+ * the specified list of training samples.
+ * @param ClassList list of all fonts in document
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Aug 18 17:44:27 1989, DSJ, Created.
+ */
 void FreeLabeledClassList (
     LIST	ClassList)
-
-/*
- **	Parameters:
- **		FontList	list of all fonts in document
- **	Globals: none
- **	Operation:
- **		This routine deallocates all of the space allocated to
- **		the specified list of training samples.
- **	Return: none
- **	Exceptions: none
- **	History: Fri Aug 18 17:44:27 1989, DSJ, Created.
- */
-
 {
   MERGE_CLASS	MergeClass;
 
-  iterate (ClassList) 		/* iterate thru all of the fonts */
+  iterate (ClassList) 		/* iterate through all of the fonts */
   {
     MergeClass = (MERGE_CLASS) first_node (ClassList);
     free (MergeClass->Label);
@@ -770,7 +754,7 @@ void FreeLabeledClassList (
 
 }	/* FreeLabeledClassList */
 
-/** SetUpForFloat2Int **************************************************/
+/* SetUpForFloat2Int */
 CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
                                 LIST LabeledClassList) {
   MERGE_CLASS	MergeClass;
@@ -857,7 +841,7 @@ void FreeNormProtoList (
 {
   LABELEDLIST	char_sample;
 
-  iterate (CharList) 		/* iterate thru all of the fonts */
+  iterate (CharList) 		/* iterate through all of the fonts */
   {
     char_sample = (LABELEDLIST) first_node (CharList);
     FreeLabeledList (char_sample);

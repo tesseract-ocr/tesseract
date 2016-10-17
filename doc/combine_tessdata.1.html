@@ -2,15 +2,25 @@
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.5.2" />
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="generator" content="AsciiDoc 8.6.9" />
 <title>COMBINE_TESSDATA(1)</title>
 <style type="text/css">
-/* Debug borders */
-p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
-/*
-  border: 1px solid red;
-*/
+/* Shared CSS for AsciiDoc xhtml11 and html5 backends */
+
+/* Default font. */
+body {
+  font-family: Georgia,serif;
+}
+
+/* Title font. */
+h1, h2, h3, h4, h5, h6,
+div.title, caption.title,
+thead, p.table.header,
+#toctitle,
+#author, #revnumber, #revdate, #revremark,
+#footer {
+  font-family: Arial,Helvetica,sans-serif;
 }
 
 body {
@@ -35,13 +45,8 @@ strong {
   color: #083194;
 }
 
-tt {
-  color: navy;
-}
-
 h1, h2, h3, h4, h5, h6 {
   color: #527bbd;
-  font-family: sans-serif;
   margin-top: 1.2em;
   margin-bottom: 0.5em;
   line-height: 1.3;
@@ -59,9 +64,11 @@ h3 {
 h3 + * {
   clear: left;
 }
+h5 {
+  font-size: 1.0em;
+}
 
 div.sectionbody {
-  font-family: serif;
   margin-left: 0;
 }
 
@@ -77,45 +84,50 @@ p {
 ul, ol, li > p {
   margin-top: 0;
 }
+ul > li     { color: #aaa; }
+ul > li > * { color: black; }
 
-pre {
+.monospaced, code, pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: inherit;
+  color: navy;
   padding: 0;
   margin: 0;
 }
+pre {
+  white-space: pre-wrap;
+}
 
-span#author {
+#author {
   color: #527bbd;
-  font-family: sans-serif;
   font-weight: bold;
   font-size: 1.1em;
 }
-span#email {
+#email {
 }
-span#revnumber, span#revdate, span#revremark {
-  font-family: sans-serif;
+#revnumber, #revdate, #revremark {
 }
 
-div#footer {
-  font-family: sans-serif;
+#footer {
   font-size: small;
   border-top: 2px solid silver;
   padding-top: 0.5em;
   margin-top: 4.0em;
 }
-div#footer-text {
+#footer-text {
   float: left;
   padding-bottom: 0.5em;
 }
-div#footer-badges {
+#footer-badges {
   float: right;
   padding-bottom: 0.5em;
 }
 
-div#preamble {
+#preamble {
   margin-top: 1.5em;
   margin-bottom: 1.5em;
 }
-div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
+div.imageblock, div.exampleblock, div.verseblock,
 div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
 div.admonitionblock {
   margin-top: 1.0em;
@@ -135,7 +147,6 @@ div.content { /* Block element content. */
 /* Block element titles. */
 div.title, caption.title {
   color: #527bbd;
-  font-family: sans-serif;
   font-weight: bold;
   text-align: left;
   margin-top: 1.0em;
@@ -157,13 +168,15 @@ div.content + div.title {
 
 div.sidebarblock > div.content {
   background: #ffffee;
-  border: 1px solid silver;
+  border: 1px solid #dddddd;
+  border-left: 4px solid #f0f0f0;
   padding: 0.5em;
 }
 
 div.listingblock > div.content {
-  border: 1px solid silver;
-  background: #f4f4f4;
+  border: 1px solid #dddddd;
+  border-left: 5px solid #f0f0f0;
+  background: #f8f8f8;
   padding: 0.5em;
 }
 
@@ -171,8 +184,8 @@ div.quoteblock, div.verseblock {
   padding-left: 1.0em;
   margin-left: 1.0em;
   margin-right: 10%;
-  border-left: 5px solid #dddddd;
-  color: #777777;
+  border-left: 5px solid #f0f0f0;
+  color: #888;
 }
 
 div.quoteblock > div.attribution {
@@ -180,8 +193,9 @@ div.quoteblock > div.attribution {
   text-align: right;
 }
 
-div.verseblock > div.content {
-  white-space: pre;
+div.verseblock > pre.content {
+  font-family: inherit;
+  font-size: inherit;
 }
 div.verseblock > div.attribution {
   padding-top: 0.75em;
@@ -211,7 +225,7 @@ div.exampleblock > div.content {
 }
 
 div.imageblock div.content { padding-left: 0; }
-span.image img { border-style: none; }
+span.image img { border-style: none; vertical-align: text-bottom; }
 a.image:visited { color: white; }
 
 dl {
@@ -254,35 +268,12 @@ div.compact div, div.compact div {
   margin-bottom: 0.1em;
 }
 
-div.tableblock > table {
-  border: 3px solid #527bbd;
-}
-thead, p.table.header {
-  font-family: sans-serif;
-  font-weight: bold;
-}
 tfoot {
   font-weight: bold;
 }
 td > div.verse {
   white-space: pre;
 }
-p.table {
-  margin-top: 0;
-}
-/* Because the table frame attribute is overriden by CSS in most browsers. */
-div.tableblock > table[frame="void"] {
-  border-style: none;
-}
-div.tableblock > table[frame="hsides"] {
-  border-left-style: none;
-  border-right-style: none;
-}
-div.tableblock > table[frame="vsides"] {
-  border-top-style: none;
-  border-bottom-style: none;
-}
-
 
 div.hdlist {
   margin-top: 0.8em;
@@ -339,25 +330,32 @@ span.footnote, span.footnoteref {
   min-width: 100px;
 }
 
-
-@media print {
-  div#footer-badges { display: none; }
+div.colist td {
+  padding-right: 0.5em;
+  padding-bottom: 0.3em;
+  vertical-align: top;
+}
+div.colist td img {
+  margin-top: 0.3em;
 }
 
-div#toc {
+@media print {
+  #footer-badges { display: none; }
+}
+
+#toc {
   margin-bottom: 2.5em;
 }
 
-div#toctitle {
+#toctitle {
   color: #527bbd;
-  font-family: sans-serif;
   font-size: 1.1em;
   font-weight: bold;
   margin-top: 1.0em;
   margin-bottom: 0.1em;
 }
 
-div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
+div.toclevel0, div.toclevel1, div.toclevel2, div.toclevel3, div.toclevel4 {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -373,69 +371,173 @@ div.toclevel4 {
   margin-left: 6em;
   font-size: 0.9em;
 }
-/* Overrides for manpage documents */
-h1 {
+
+span.aqua { color: aqua; }
+span.black { color: black; }
+span.blue { color: blue; }
+span.fuchsia { color: fuchsia; }
+span.gray { color: gray; }
+span.green { color: green; }
+span.lime { color: lime; }
+span.maroon { color: maroon; }
+span.navy { color: navy; }
+span.olive { color: olive; }
+span.purple { color: purple; }
+span.red { color: red; }
+span.silver { color: silver; }
+span.teal { color: teal; }
+span.white { color: white; }
+span.yellow { color: yellow; }
+
+span.aqua-background { background: aqua; }
+span.black-background { background: black; }
+span.blue-background { background: blue; }
+span.fuchsia-background { background: fuchsia; }
+span.gray-background { background: gray; }
+span.green-background { background: green; }
+span.lime-background { background: lime; }
+span.maroon-background { background: maroon; }
+span.navy-background { background: navy; }
+span.olive-background { background: olive; }
+span.purple-background { background: purple; }
+span.red-background { background: red; }
+span.silver-background { background: silver; }
+span.teal-background { background: teal; }
+span.white-background { background: white; }
+span.yellow-background { background: yellow; }
+
+span.big { font-size: 2em; }
+span.small { font-size: 0.6em; }
+
+span.underline { text-decoration: underline; }
+span.overline { text-decoration: overline; }
+span.line-through { text-decoration: line-through; }
+
+div.unbreakable { page-break-inside: avoid; }
+
+
+/*
+ * xhtml11 specific
+ *
+ * */
+
+div.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+div.tableblock > table {
+  border: 3px solid #527bbd;
+}
+thead, p.table.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
+
+
+/*
+ * html5 specific
+ *
+ * */
+
+table.tableblock {
+  margin-top: 1.0em;
+  margin-bottom: 1.5em;
+}
+thead, p.tableblock.header {
+  font-weight: bold;
+  color: #527bbd;
+}
+p.tableblock {
+  margin-top: 0;
+}
+table.tableblock {
+  border-width: 3px;
+  border-spacing: 0px;
+  border-style: solid;
+  border-color: #527bbd;
+  border-collapse: collapse;
+}
+th.tableblock, td.tableblock {
+  border-width: 1px;
+  padding: 4px;
+  border-style: solid;
+  border-color: #527bbd;
+}
+
+table.tableblock.frame-topbot {
+  border-left-style: hidden;
+  border-right-style: hidden;
+}
+table.tableblock.frame-sides {
+  border-top-style: hidden;
+  border-bottom-style: hidden;
+}
+table.tableblock.frame-none {
+  border-style: hidden;
+}
+
+th.tableblock.halign-left, td.tableblock.halign-left {
+  text-align: left;
+}
+th.tableblock.halign-center, td.tableblock.halign-center {
+  text-align: center;
+}
+th.tableblock.halign-right, td.tableblock.halign-right {
+  text-align: right;
+}
+
+th.tableblock.valign-top, td.tableblock.valign-top {
+  vertical-align: top;
+}
+th.tableblock.valign-middle, td.tableblock.valign-middle {
+  vertical-align: middle;
+}
+th.tableblock.valign-bottom, td.tableblock.valign-bottom {
+  vertical-align: bottom;
+}
+
+
+/*
+ * manpage specific
+ *
+ * */
+
+body.manpage h1 {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   border-top: 2px solid silver;
   border-bottom: 2px solid silver;
 }
-h2 {
+body.manpage h2 {
   border-style: none;
 }
-div.sectionbody {
-  margin-left: 5%;
+body.manpage div.sectionbody {
+  margin-left: 3em;
 }
 
 @media print {
-  div#toc { display: none; }
+  body.manpage div#toc { display: none; }
 }
 
-/* Workarounds for IE6's broken and incomplete CSS2. */
 
-div.sidebar-content {
-  background: #ffffee;
-  border: 1px solid silver;
-  padding: 0.5em;
-}
-div.sidebar-title, div.image-title {
-  color: #527bbd;
-  font-family: sans-serif;
-  font-weight: bold;
-  margin-top: 0.0em;
-  margin-bottom: 0.5em;
-}
-
-div.listingblock div.content {
-  border: 1px solid silver;
-  background: #f4f4f4;
-  padding: 0.5em;
-}
-
-div.quoteblock-attribution {
-  padding-top: 0.5em;
-  text-align: right;
-}
-
-div.verseblock-content {
-  white-space: pre;
-}
-div.verseblock-attribution {
-  padding-top: 0.75em;
-  text-align: left;
-}
-
-div.exampleblock-content {
-  border-left: 3px solid #dddddd;
-  padding-left: 0.5em;
-}
-
-/* IE6 sets dynamically generated links as visited. */
-div#toc a:visited { color: blue; }
 </style>
 <script type="text/javascript">
 /*<![CDATA[*/
-window.onload = function(){asciidoc.footnotes();}
 var asciidoc = {  // Namespace.
 
 /////////////////////////////////////////////////////////////////////
@@ -477,7 +579,7 @@ toc: function (toclevels) {
 
   function tocEntries(el, toclevels) {
     var result = new Array;
-    var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
+    var re = new RegExp('[hH]([1-'+(toclevels+1)+'])');
     // Function that scans the DOM tree for header elements (the DOM2
     // nodeIterator API would be a better technique but not supported by all
     // browsers).
@@ -497,6 +599,25 @@ toc: function (toclevels) {
   }
 
   var toc = document.getElementById("toc");
+  if (!toc) {
+    return;
+  }
+
+  // Delete existing TOC entries in case we're reloading the TOC.
+  var tocEntriesToRemove = [];
+  var i;
+  for (i = 0; i < toc.childNodes.length; i++) {
+    var entry = toc.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div'
+     && entry.getAttribute("class")
+     && entry.getAttribute("class").match(/^toclevel/))
+      tocEntriesToRemove.push(entry);
+  }
+  for (i = 0; i < tocEntriesToRemove.length; i++) {
+    toc.removeChild(tocEntriesToRemove[i]);
+  }
+
+  // Rebuild TOC entries.
   var entries = tocEntries(document.getElementById("content"), toclevels);
   for (var i = 0; i < entries.length; ++i) {
     var entry = entries[i];
@@ -524,24 +645,44 @@ toc: function (toclevels) {
  */
 
 footnotes: function () {
-  var cont = document.getElementById("content");
+  // Delete existing footnote entries in case we're reloading the footnodes.
+  var i;
   var noteholder = document.getElementById("footnotes");
+  if (!noteholder) {
+    return;
+  }
+  var entriesToRemove = [];
+  for (i = 0; i < noteholder.childNodes.length; i++) {
+    var entry = noteholder.childNodes[i];
+    if (entry.nodeName.toLowerCase() == 'div' && entry.getAttribute("class") == "footnote")
+      entriesToRemove.push(entry);
+  }
+  for (i = 0; i < entriesToRemove.length; i++) {
+    noteholder.removeChild(entriesToRemove[i]);
+  }
+
+  // Rebuild footnote entries.
+  var cont = document.getElementById("content");
   var spans = cont.getElementsByTagName("span");
   var refs = {};
   var n = 0;
   for (i=0; i<spans.length; i++) {
     if (spans[i].className == "footnote") {
       n++;
-      // Use [\s\S] in place of . so multi-line matches work.
-      // Because JavaScript has no s (dotall) regex flag.
-      note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+      var note = spans[i].getAttribute("data-note");
+      if (!note) {
+        // Use [\s\S] in place of . so multi-line matches work.
+        // Because JavaScript has no s (dotall) regex flag.
+        note = spans[i].innerHTML.match(/\s*\[([\s\S]*)]\s*/)[1];
+        spans[i].innerHTML =
+          "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
+          "' title='View footnote' class='footnote'>" + n + "</a>]";
+        spans[i].setAttribute("data-note", note);
+      }
       noteholder.innerHTML +=
         "<div class='footnote' id='_footnote_" + n + "'>" +
         "<a href='#_footnoteref_" + n + "' title='Return to text'>" +
         n + "</a>. " + note + "</div>";
-      spans[i].innerHTML =
-        "[<a id='_footnoteref_" + n + "' href='#_footnote_" + n +
-        "' title='View footnote' class='footnote'>" + n + "</a>]";
       var id =spans[i].getAttribute("id");
       if (id != null) refs["#"+id] = n;
     }
@@ -561,13 +702,36 @@ footnotes: function () {
       }
     }
   }
+},
+
+install: function(toclevels) {
+  var timerId;
+
+  function reinstall() {
+    asciidoc.footnotes();
+    if (toclevels) {
+      asciidoc.toc(toclevels);
+    }
+  }
+
+  function reinstallAndRemoveTimer() {
+    clearInterval(timerId);
+    reinstall();
+  }
+
+  timerId = setInterval(reinstall, 500);
+  if (document.addEventListener)
+    document.addEventListener("DOMContentLoaded", reinstallAndRemoveTimer, false);
+  else
+    window.onload = reinstallAndRemoveTimer;
 }
 
 }
+asciidoc.install();
 /*]]>*/
 </script>
 </head>
-<body>
+<body class="manpage">
 <div id="header">
 <h1>
 COMBINE_TESSDATA(1) Manual Page
@@ -580,10 +744,13 @@ COMBINE_TESSDATA(1) Manual Page
 </div>
 </div>
 <div id="content">
+<div class="sect1">
 <h2 id="_synopsis">SYNOPSIS</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><strong>combine_tessdata</strong> [<em>OPTION</em>] <em>FILE</em>&#8230;</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_description">DESCRIPTION</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>combine_tessdata(1) is the main program to combine/extract/overwrite
@@ -593,7 +760,7 @@ classifier templates, ambiguities, language configs) located at, say,
 /home/$USER/temp/eng.* run:</p></div>
 <div class="literalblock">
 <div class="content">
-<pre><tt>combine_tessdata /home/$USER/temp/eng.</tt></pre>
+<pre><code>combine_tessdata /home/$USER/temp/eng.</code></pre>
 </div></div>
 <div class="paragraph"><p>The result will be a combined tessdata file /home/$USER/temp/eng.traineddata</p></div>
 <div class="paragraph"><p>Specify option -e if you would like to extract individual components
@@ -601,8 +768,8 @@ from a combined traineddata file. For example, to extract language config
 file and the unicharset from tessdata/eng.traineddata run:</p></div>
 <div class="literalblock">
 <div class="content">
-<pre><tt>combine_tessdata -e tessdata/eng.traineddata \
-  /home/$USER/temp/eng.config /home/$USER/temp/eng.unicharset</tt></pre>
+<pre><code>combine_tessdata -e tessdata/eng.traineddata \
+  /home/$USER/temp/eng.config /home/$USER/temp/eng.unicharset</code></pre>
 </div></div>
 <div class="paragraph"><p>The desired config file and unicharset will be written to
 /home/$USER/temp/eng.config /home/$USER/temp/eng.unicharset</p></div>
@@ -611,8 +778,8 @@ file and the unicharset from tessdata/eng.traineddata run:</p></div>
 and unichar ambiguities files in tessdata/eng.traineddata use:</p></div>
 <div class="literalblock">
 <div class="content">
-<pre><tt>combine_tessdata -o tessdata/eng.traineddata \
-  /home/$USER/temp/eng.config /home/$USER/temp/eng.unicharambigs</tt></pre>
+<pre><code>combine_tessdata -o tessdata/eng.traineddata \
+  /home/$USER/temp/eng.config /home/$USER/temp/eng.unicharambigs</code></pre>
 </div></div>
 <div class="paragraph"><p>As a result, tessdata/eng.traineddata will contain the new language config
 and unichar ambigs, plus all the original DAWGs, classifier templates, etc.</p></div>
@@ -623,11 +790,13 @@ ambigs, etc). See k*FileSuffix variable in ccutil/tessdatamanager.h.</p></div>
 <div class="paragraph"><p>Specify option -u to unpack all the components to the specified path:</p></div>
 <div class="literalblock">
 <div class="content">
-<pre><tt>combine_tessdata -u tessdata/eng.traineddata /home/$USER/temp/eng.</tt></pre>
+<pre><code>combine_tessdata -u tessdata/eng.traineddata /home/$USER/temp/eng.</code></pre>
 </div></div>
 <div class="paragraph"><p>This will create  /home/$USER/temp/eng.* files with individual tessdata
 components from tessdata/eng.traineddata.</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_options">OPTIONS</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><strong>-e</strong> <em>.traineddata</em> <em>FILE</em>&#8230;:
@@ -638,16 +807,20 @@ components from tessdata/eng.traineddata.</p></div>
 <div class="paragraph"><p><strong>-u</strong> <em>.traineddata</em> <em>PATHPREFIX</em>
     Unpacks the .traineddata using the provided prefix.</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_caveats">CAVEATS</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><em>Prefix</em> refers to the full file prefix, including period (.)</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_components">COMPONENTS</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>The components in a Tesseract lang.traineddata file as of
 Tesseract 3.02 are briefly described below; For more information on
 many of these files, see
-<a href="http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3">http://code.google.com/p/tesseract-ocr/wiki/TrainingTesseract3</a></p></div>
+<a href="https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract">https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract</a></p></div>
 <div class="dlist"><dl>
 <dt class="hdlist1">
 lang.config
@@ -802,30 +975,39 @@ lang.params-training-model
 </dd>
 </dl></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_history">HISTORY</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>combine_tessdata(1) first appeared in version 3.00 of Tesseract</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_see_also">SEE ALSO</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>tesseract(1), wordlist2dawg(1), cntraining(1), mftraining(1), unicharset(5),
 unicharambigs(5)</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_copying">COPYING</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Copyright (C) 2009, Google Inc.
 Licensed under the Apache License, Version 2.0</p></div>
 </div>
+</div>
+<div class="sect1">
 <h2 id="_author">AUTHOR</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>The Tesseract OCR engine was written by Ray Smith and his research groups
 at Hewlett Packard (1985-1995) and Google (2006-present).</p></div>
 </div>
 </div>
+</div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2012-02-08 10:52:17 PDT
+Last updated 2015-06-12 23:52:02 CEST
 </div>
 </div>
 </body>

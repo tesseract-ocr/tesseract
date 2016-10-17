@@ -297,7 +297,7 @@ UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
 /*************************************************************************
  * SUSPECT LEVELS
  *
- * 0 - dont reject ANYTHING
+ * 0 - don't reject ANYTHING
  * 1,2 - partial rejection
  * 3 - BEST
  *
@@ -337,7 +337,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   rating_per_ch = word.rating() / word_res->reject_map.length();
 
   if (rating_per_ch >= suspect_rating_per_ch)
-    return;                      //Dont touch bad ratings
+    return;                      //Don't touch bad ratings
 
   if ((word_res->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/

@@ -171,8 +171,10 @@ void LanguageModel::InitForWord(const WERD_CHOICE *prev_word,
   }
 }
 
-// Helper scans the collection of predecessors for competing siblings that
-// have the same letter with the opposite case, setting competing_vse.
+/**
+ * Helper scans the collection of predecessors for competing siblings that
+ * have the same letter with the opposite case, setting competing_vse.
+ */
 static void ScanParentsForCaseMix(const UNICHARSET& unicharset,
                                   LanguageModelState* parent_node) {
   if (parent_node == NULL) return;
@@ -200,8 +202,10 @@ static void ScanParentsForCaseMix(const UNICHARSET& unicharset,
   }
 }
 
-// Helper returns true if the given choice has a better case variant before
-// it in the choice_list that is not distinguishable by size.
+/**
+ * Helper returns true if the given choice has a better case variant before
+ * it in the choice_list that is not distinguishable by size.
+ */
 static bool HasBetterCaseVariant(const UNICHARSET& unicharset,
                                  const BLOB_CHOICE* choice,
                                  BLOB_CHOICE_LIST* choices) {
@@ -222,27 +226,32 @@ static bool HasBetterCaseVariant(const UNICHARSET& unicharset,
   return false;  // Should never happen, but just in case.
 }
 
-// UpdateState has the job of combining the ViterbiStateEntry lists on each
-// of the choices on parent_list with each of the blob choices in curr_list,
-// making a new ViterbiStateEntry for each sensible path.
-// This could be a huge set of combinations, creating a lot of work only to
-// be truncated by some beam limit, but only certain kinds of paths will
-// continue at the next step:
-//  paths that are liked by the language model: either a DAWG or the n-gram
-//    model, where active.
-//  paths that represent some kind of top choice. The old permuter permuted
-//   the top raw classifier score, the top upper case word and the top lower-
-//   case word. UpdateState now concentrates its top-choice paths on top
-//   lower-case, top upper-case (or caseless alpha), and top digit sequence,
-//   with allowance for continuation of these paths through blobs where such
-//   a character does not appear in the choices list.
-// GetNextParentVSE enforces some of these models to minimize the number of
-// calls to AddViterbiStateEntry, even prior to looking at the language model.
-// Thus an n-blob sequence of [l1I] will produce 3n calls to
-// AddViterbiStateEntry instead of 3^n.
-// Of course it isn't quite that simple as Title Case is handled by allowing
-// lower case to continue an upper case initial, but it has to be detected
-// in the combiner so it knows which upper case letters are initial alphas.
+/**
+ * UpdateState has the job of combining the ViterbiStateEntry lists on each
+ * of the choices on parent_list with each of the blob choices in curr_list,
+ * making a new ViterbiStateEntry for each sensible path.
+ *
+ * This could be a huge set of combinations, creating a lot of work only to
+ * be truncated by some beam limit, but only certain kinds of paths will
+ * continue at the next step:
+ * - paths that are liked by the language model: either a DAWG or the n-gram
+ *   model, where active.
+ * - paths that represent some kind of top choice. The old permuter permuted
+ *   the top raw classifier score, the top upper case word and the top lower-
+ *   case word. UpdateState now concentrates its top-choice paths on top
+ *   lower-case, top upper-case (or caseless alpha), and top digit sequence,
+ *   with allowance for continuation of these paths through blobs where such
+ *   a character does not appear in the choices list.
+ *
+ * GetNextParentVSE enforces some of these models to minimize the number of
+ * calls to AddViterbiStateEntry, even prior to looking at the language model.
+ * Thus an n-blob sequence of [l1I] will produce 3n calls to
+ * AddViterbiStateEntry instead of 3^n.
+ *
+ * Of course it isn't quite that simple as Title Case is handled by allowing
+ * lower case to continue an upper case initial, but it has to be detected
+ * in the combiner so it knows which upper case letters are initial alphas.
+ */
 bool LanguageModel::UpdateState(
     bool just_classified,
     int curr_col, int curr_row,
@@ -367,10 +376,12 @@ bool LanguageModel::UpdateState(
   return new_changed;
 }
 
-// Finds the first lower and upper case letter and first digit in curr_list.
-// For non-upper/lower languages, alpha counts as upper.
-// Uses the first character in the list in place of empty results.
-// Returns true if both alpha and digits are found.
+/**
+ * Finds the first lower and upper case letter and first digit in curr_list.
+ * For non-upper/lower languages, alpha counts as upper.
+ * Uses the first character in the list in place of empty results.
+ * Returns true if both alpha and digits are found.
+ */
 bool LanguageModel::GetTopLowerUpperDigit(BLOB_CHOICE_LIST *curr_list,
                                           BLOB_CHOICE **first_lower,
                                           BLOB_CHOICE **first_upper,
@@ -402,13 +413,15 @@ bool LanguageModel::GetTopLowerUpperDigit(BLOB_CHOICE_LIST *curr_list,
   return mixed;
 }
 
-// Forces there to be at least one entry in the overall set of the
-// viterbi_state_entries of each element of parent_node that has the
-// top_choice_flag set for lower, upper and digit using the same rules as
-// GetTopLowerUpperDigit, setting the flag on the first found suitable
-// candidate, whether or not the flag is set on some other parent.
-// Returns 1 if both alpha and digits are found among the parents, -1 if no
-// parents are found at all (a legitimate case), and 0 otherwise.
+/**
+ * Forces there to be at least one entry in the overall set of the
+ * viterbi_state_entries of each element of parent_node that has the
+ * top_choice_flag set for lower, upper and digit using the same rules as
+ * GetTopLowerUpperDigit, setting the flag on the first found suitable
+ * candidate, whether or not the flag is set on some other parent.
+ * Returns 1 if both alpha and digits are found among the parents, -1 if no
+ * parents are found at all (a legitimate case), and 0 otherwise.
+ */
 int LanguageModel::SetTopParentLowerUpperDigit(
     LanguageModelState *parent_node) const {
   if (parent_node == NULL) return -1;
@@ -481,9 +494,11 @@ int LanguageModel::SetTopParentLowerUpperDigit(
   return mixed ? 1 : 0;
 }
 
-// Finds the next ViterbiStateEntry with which the given unichar_id can
-// combine sensibly, taking into account any mixed alnum/mixed case
-// situation, and whether this combination has been inspected before.
+/**
+ * Finds the next ViterbiStateEntry with which the given unichar_id can
+ * combine sensibly, taking into account any mixed alnum/mixed case
+ * situation, and whether this combination has been inspected before.
+ */
 ViterbiStateEntry* LanguageModel::GetNextParentVSE(
     bool just_classified, bool mixed_alnum, const BLOB_CHOICE* bc,
     LanguageModelFlagsType blob_choice_flags, const UNICHARSET& unicharset,

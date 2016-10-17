@@ -15,9 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
           Include Files and Type Defines
-----------------------------------------------------------------------------**/
+----------------------------------------------------------------------------*/
 #include "host.h"
 #include "danerror.h"
 #include "tprintf.h"
@@ -28,27 +28,18 @@
 
 #include <stdio.h>
 
-/*---------------------------------------------------------------------------*/
-void DoError(int Error, const char *Message) {
-/*
- **	Parameters:
- **		Error	error number which is to be trapped
- **		Message	pointer to a string to be printed as an error message
- **	Globals:
- **		ErrorTrapStack		stack of error traps
- **		CurrentTrapDepth	number of traps on the stack
- **	Operation:
- **		This routine prints the specified error message to stderr.
- **		It then jumps to the current error trap.  If the error trap
- **		stack is empty, the calling program is terminated with a
- **		fatal error message.
- **	Return:
- **		None - this routine does not return.
- **	Exceptions:
- **		Empty error trap stack terminates the calling program.
- **	History:
- **		4/3/89, DSJ, Created.
+/**
+ * This routine prints the specified error message to stderr.
+ * It then jumps to the current error trap.  If the error trap
+ * stack is empty, the calling program is terminated with a
+ * fatal error message.
+ *
+ * @param Error error number which is to be trapped
+ * @param Message pointer to a string to be printed as an error message
+ * @return None - this routine does not return.
+ * @note History: 4/3/89, DSJ, Created.
  */
+void DoError(int Error, const char *Message) {
   if (Message != NULL) {
     tprintf("\nError: %s!\n", Message);
   }

@@ -50,7 +50,7 @@ class StringRenderer {
   StringRenderer(const string& font_desc, int page_width, int page_height);
   ~StringRenderer();
 
-  // Renders the text with the chosen font and returns the byte offset upto
+  // Renders the text with the chosen font and returns the byte offset up to
   // which the text could be rendered so as to fit the specified page
   // dimensions.
   int RenderToImage(const char* text, int text_length, Pix** pix);
@@ -83,16 +83,16 @@ class StringRenderer {
   // Sets the probability (value in [0, 1]) of starting to render a word with an
   // underline. This implementation consider words to be space-delimited
   // sequences of characters.
-  void set_underline_start_prob(const double frac) {
-    underline_start_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_start_prob(const double frac);
   // Set the probability (value in [0, 1]) of continuing a started underline to
   // the next word.
-  void set_underline_continuation_prob(const double frac) {
-    underline_continuation_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_continuation_prob(const double frac);
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
+  }
+  void set_features(const char *features) {
+    free(features_);
+    features_ = strdup(features);
   }
   void set_page(int page) {
     page_ = page;
@@ -130,10 +130,10 @@ class StringRenderer {
   const PangoFontInfo& font() const {
     return font_;
   }
-  const int h_margin() const {
+  int h_margin() const {
     return h_margin_;
   }
-  const int v_margin() const {
+  int v_margin() const {
     return v_margin_;
   }
 
@@ -189,6 +189,7 @@ class StringRenderer {
   double underline_start_prob_;
   double underline_continuation_prob_;
   PangoUnderline underline_style_;
+  char *features_;
   // Text filtering options
   bool drop_uncovered_chars_;
   bool strip_unrenderable_words_;

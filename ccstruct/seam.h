@@ -25,6 +25,11 @@
 #ifndef SEAM_H
 #define SEAM_H
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/

@@ -30,14 +30,12 @@
 #include <math.h>
 #include <stdio.h>
 
-#define MIN_INERTIA (0.00001)
-
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
-// Convert a blob into a list of MFOUTLINEs (float-based microfeature format).
+/** Convert a blob into a list of MFOUTLINEs (float-based microfeature format). */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
   return (blob == NULL)
@@ -47,7 +45,7 @@ LIST ConvertBlob(TBLOB *blob) {
 
 
 /*---------------------------------------------------------------------------*/
-// Convert a TESSLINE into the float-based MFOUTLINE micro-feature format.
+/** Convert a TESSLINE into the float-based MFOUTLINE micro-feature format. */
 MFOUTLINE ConvertOutline(TESSLINE *outline) {
   MFEDGEPT *NewPoint;
   MFOUTLINE MFOutline = NIL_LIST;
@@ -83,12 +81,13 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
 
 
 /*---------------------------------------------------------------------------*/
-// Convert a tree of outlines to a list of MFOUTLINEs (lists of MFEDGEPTs).
-//
-// Parameters:
-//   outline      first outline to be converted
-//   mf_outlines  list to add converted outlines to
-//   outline_type  are the outlines outer or holes?
+/**
+ * Convert a tree of outlines to a list of MFOUTLINEs (lists of MFEDGEPTs).
+ *
+ * @param outline      first outline to be converted
+ * @param mf_outlines  list to add converted outlines to
+ * @param outline_type  are the outlines outer or holes?
+ */
 LIST ConvertOutlines(TESSLINE *outline,
                      LIST mf_outlines,
                      OUTLINETYPE outline_type) {
@@ -104,26 +103,23 @@ LIST ConvertOutlines(TESSLINE *outline,
 }
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine searches through the specified outline, computes
+ * a slope for each vector in the outline, and marks each
+ * vector as having one of the following directions:
+ *   N, S, E, W, NE, NW, SE, SW
+ * This information is then stored in the outline and the
+ * outline is returned.
+ * @param Outline   micro-feature outline to analyze
+ * @param MinSlope  controls "snapping" of segments to horizontal
+ * @param MaxSlope  controls "snapping" of segments to vertical
+ * @return none
+ * @note Exceptions: none
+ * @note History: 7/21/89, DSJ, Created.
+ */
 void FindDirectionChanges(MFOUTLINE Outline,
                           FLOAT32 MinSlope,
                           FLOAT32 MaxSlope) {
-/*
- ** Parameters:
- **   Outline   micro-feature outline to analyze
- **   MinSlope  controls "snapping" of segments to horizontal
- **   MaxSlope  controls "snapping" of segments to vertical
- ** Globals: none
- ** Operation:
- **   This routine searches thru the specified outline, computes
- **   a slope for each vector in the outline, and marks each
- **   vector as having one of the following directions:
- **     N, S, E, W, NE, NW, SE, SW
- **   This information is then stored in the outline and the
- **   outline is returned.
- ** Return: none
- ** Exceptions: none
- ** History: 7/21/89, DSJ, Created.
- */
   MFEDGEPT *Current;
   MFEDGEPT *Last;
   MFOUTLINE EdgePoint;
@@ -147,18 +143,15 @@ void FindDirectionChanges(MFOUTLINE Outline,
 
 
 /*---------------------------------------------------------------------------*/
-void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
-/*
- ** Parameters:
- **   Outline   micro-feature outline to be freed
- ** Globals: none
- ** Operation:
- **   This routine deallocates all of the memory consumed by
- **   a micro-feature outline.
- ** Return: none
- ** Exceptions: none
- ** History: 7/27/89, DSJ, Created.
+/**
+ * This routine deallocates all of the memory consumed by
+ * a micro-feature outline.
+ * @param arg   micro-feature outline to be freed
+ * @return none
+ * @note Exceptions: none
+ * @note History: 7/27/89, DSJ, Created.
  */
+void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
   MFOUTLINE Start;
   MFOUTLINE Outline = (MFOUTLINE) arg;
 
@@ -174,39 +167,35 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
 
 
 /*---------------------------------------------------------------------------*/
-void FreeOutlines(LIST Outlines) {
-/*
- ** Parameters:
- **   Outlines  list of mf-outlines to be freed
- ** Globals: none
- ** Operation: Release all memory consumed by the specified list
- **   of outlines.
- ** Return: none
- ** Exceptions: none
- ** History: Thu Dec 13 16:14:50 1990, DSJ, Created.
+/**
+ * Release all memory consumed by the specified list
+ * of outlines.
+ * @param Outlines  list of mf-outlines to be freed
+ * @return none
+ * @note Exceptions: none
+ * @note History: Thu Dec 13 16:14:50 1990, DSJ, Created.
  */
+void FreeOutlines(LIST Outlines) {
   destroy_nodes(Outlines, FreeMFOutline);
 }                                /* FreeOutlines */
 
 
 /*---------------------------------------------------------------------------*/
-void MarkDirectionChanges(MFOUTLINE Outline) {
-/*
- ** Parameters:
- **   Outline   micro-feature outline to analyze
- ** Globals: none
- ** Operation:
- **   This routine searches thru the specified outline and finds
- **   the points at which the outline changes direction.  These
- **   points are then marked as "extremities".  This routine is
- **   used as an alternative to FindExtremities().  It forces the
- **   endpoints of the microfeatures to be at the direction
- **   changes rather than at the midpoint between direction
- **   changes.
- ** Return: none
- ** Exceptions: none
- ** History: 6/29/90, DSJ, Created.
+/**
+ * This routine searches through the specified outline and finds
+ * the points at which the outline changes direction.  These
+ * points are then marked as "extremities".  This routine is
+ * used as an alternative to FindExtremities().  It forces the
+ * endpoints of the microfeatures to be at the direction
+ * changes rather than at the midpoint between direction
+ * changes.
+ * @param Outline   micro-feature outline to analyze
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 6/29/90, DSJ, Created.
  */
+void MarkDirectionChanges(MFOUTLINE Outline) {
   MFOUTLINE Current;
   MFOUTLINE Last;
   MFOUTLINE First;
@@ -227,28 +216,26 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
 
 
 /*---------------------------------------------------------------------------*/
-// Return a new edge point for a micro-feature outline.
+/** Return a new edge point for a micro-feature outline. */
 MFEDGEPT *NewEdgePoint() {
   return ((MFEDGEPT *) alloc_struct(sizeof(MFEDGEPT), "MFEDGEPT"));
 }
 
 
 /*---------------------------------------------------------------------------*/
-MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
-/*
- ** Parameters:
- **   EdgePoint start search from this point
- ** Globals: none
- ** Operation:
- **   This routine returns the next point in the micro-feature
- **   outline that is an extremity.  The search starts after
- **   EdgePoint.  The routine assumes that the outline being
- **   searched is not a degenerate outline (i.e. it must have
- **   2 or more edge points).
- ** Return: Next extremity in the outline after EdgePoint.
- ** Exceptions: none
- ** History: 7/26/89, DSJ, Created.
+/**
+ * This routine returns the next point in the micro-feature
+ * outline that is an extremity.  The search starts after
+ * EdgePoint.  The routine assumes that the outline being
+ * searched is not a degenerate outline (i.e. it must have
+ * 2 or more edge points).
+ * @param EdgePoint start search from this point
+ * @return Next extremity in the outline after EdgePoint.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 7/26/89, DSJ, Created.
  */
+MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
   EdgePoint = NextPointAfter(EdgePoint);
   while (!PointAt(EdgePoint)->ExtremityMark)
     EdgePoint = NextPointAfter(EdgePoint);
@@ -259,25 +246,23 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
 
 
 /*---------------------------------------------------------------------------*/
+/**
+ * This routine normalizes the coordinates of the specified
+ * outline so that the outline is deskewed down to the
+ * baseline, translated so that x=0 is at XOrigin, and scaled
+ * so that the height of a character cell from descender to
+ * ascender is 1.  Of this height, 0.25 is for the descender,
+ * 0.25 for the ascender, and 0.5 for the x-height.  The
+ * y coordinate of the baseline is 0.
+ * @param Outline   outline to be normalized
+ * @param XOrigin   x-origin of text
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 8/2/89, DSJ, Created.
+ */
 void NormalizeOutline(MFOUTLINE Outline,
                       FLOAT32 XOrigin) {
-/*
- ** Parameters:
- **   Outline   outline to be normalized
- **   XOrigin   x-origin of text
- ** Globals: none
- ** Operation:
- **   This routine normalizes the coordinates of the specified
- **   outline so that the outline is deskewed down to the
- **   baseline, translated so that x=0 is at XOrigin, and scaled
- **   so that the height of a character cell from descender to
- **   ascender is 1.  Of this height, 0.25 is for the descender,
- **   0.25 for the ascender, and 0.5 for the x-height.  The
- **   y coordinate of the baseline is 0.
- ** Return: none
- ** Exceptions: none
- ** History: 8/2/89, DSJ, Created.
- */
   if (Outline == NIL_LIST)
     return;
 
@@ -294,27 +279,27 @@ void NormalizeOutline(MFOUTLINE Outline,
 
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
+/**
+ * This routine normalizes every outline in Outlines
+ * according to the currently selected normalization method.
+ * It also returns the scale factors that it used to do this
+ * scaling.  The scale factors returned represent the x and
+ * y sizes in the normalized coordinate system that correspond
+ * to 1 pixel in the original coordinate system.
+ *
+ * Globals:
+ * - classify_norm_method  method being used for normalization
+ * - classify_char_norm_range map radius of gyration to this value
+ * @param Outlines  list of outlines to be normalized
+ * @param XScale    x-direction scale factor used by routine
+ * @param YScale    y-direction scale factor used by routine
+ * @return none (Outlines are changed and XScale and YScale are updated)
+ * @note Exceptions: none
+ * @note History: Fri Dec 14 08:14:55 1990, DSJ, Created.
+ */
 void Classify::NormalizeOutlines(LIST Outlines,
                                  FLOAT32 *XScale,
                                  FLOAT32 *YScale) {
-/*
- ** Parameters:
- **   Outlines  list of outlines to be normalized
- **   XScale    x-direction scale factor used by routine
- **   YScale    y-direction scale factor used by routine
- ** Globals:
- **   classify_norm_method  method being used for normalization
- **   classify_char_norm_range map radius of gyration to this value
- ** Operation: This routine normalizes every outline in Outlines
- **   according to the currently selected normalization method.
- **   It also returns the scale factors that it used to do this
- **   scaling.  The scale factors returned represent the x and
- **   y sizes in the normalized coordinate system that correspond
- **   to 1 pixel in the original coordinate system.
- ** Return: none (Outlines are changed and XScale and YScale are updated)
- ** Exceptions: none
- ** History: Fri Dec 14 08:14:55 1990, DSJ, Created.
- */
   MFOUTLINE Outline;
 
   switch (classify_norm_method) {
@@ -333,25 +318,23 @@ void Classify::NormalizeOutlines(LIST Outlines,
 }                                /* NormalizeOutlines */
 }  // namespace tesseract
 
-/**----------------------------------------------------------------------------
+/*----------------------------------------------------------------------------
               Private Code
-----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
-void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
-/*
- ** Parameters:
- **   Start, End  defines segment of outline to be modified
- **   Direction new direction to assign to segment
- ** Globals: none
- ** Operation: Change the direction of every vector in the specified
- **   outline segment to Direction.  The segment to be changed
- **   starts at Start and ends at End.  Note that the previous
- **   direction of End must also be changed to reflect the
- **   change in direction of the point before it.
- ** Return: none
- ** Exceptions: none
- ** History: Fri May  4 10:42:04 1990, DSJ, Created.
+----------------------------------------------------------------------------*/
+/**
+ * Change the direction of every vector in the specified
+ * outline segment to Direction.  The segment to be changed
+ * starts at Start and ends at End.  Note that the previous
+ * direction of End must also be changed to reflect the
+ * change in direction of the point before it.
+ * @param Start, End  defines segment of outline to be modified
+ * @param Direction new direction to assign to segment
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri May  4 10:42:04 1990, DSJ, Created.
  */
+void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
 
   for (Current = Start; Current != End; Current = NextPointAfter (Current))
@@ -362,21 +345,18 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
 }                                /* ChangeDirection */
 
 
-/*---------------------------------------------------------------------------*/
-void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
-/*
- ** Parameters:
- **   Outline     outline to be character normalized
- **   XCenter, YCenter  center point for normalization
- **   XScale, YScale    scale factors for normalization
- ** Globals: none
- ** Operation: This routine normalizes each point in Outline by
- **   translating it to the specified center and scaling it
- **   anisotropically according to the given scale factors.
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 10:27:11 1990, DSJ, Created.
+/**
+ * This routine normalizes each point in Outline by
+ * translating it to the specified center and scaling it
+ * anisotropically according to the given scale factors.
+ * @param Outline     outline to be character normalized
+ * @param cn_denorm
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: Fri Dec 14 10:27:11 1990, DSJ, Created.
  */
+void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
   MFOUTLINE First, Current;
   MFEDGEPT *CurrentPoint;
 
@@ -399,32 +379,29 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
 }                                /* CharNormalizeOutline */
 
 
-/*---------------------------------------------------------------------------*/
+/**
+ * This routine computes the slope from Start to Finish and
+ * and then computes the approximate direction of the line
+ * segment from Start to Finish.  The direction is quantized
+ * into 8 buckets:
+ *  N, S, E, W, NE, NW, SE, SW
+ * Both the slope and the direction are then stored into
+ * the appropriate fields of the Start edge point.  The
+ * direction is also stored into the PreviousDirection field
+ * of the Finish edge point.
+ * @param Start   starting point to compute direction from
+ * @param Finish    finishing point to compute direction to
+ * @param MinSlope  slope below which lines are horizontal
+ * @param MaxSlope  slope above which lines are vertical
+ * @return none
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 7/25/89, DSJ, Created.
+ */
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,
                       FLOAT32 MinSlope,
                       FLOAT32 MaxSlope) {
-/*
- ** Parameters:
- **   Start   starting point to compute direction from
- **   Finish    finishing point to compute direction to
- **   MinSlope  slope below which lines are horizontal
- **   MaxSlope  slope above which lines are vertical
- ** Globals: none
- ** Operation:
- **   This routine computes the slope from Start to Finish and
- **   and then computes the approximate direction of the line
- **   segment from Start to Finish.  The direction is quantized
- **   into 8 buckets:
- **     N, S, E, W, NE, NW, SE, SW
- **   Both the slope and the direction are then stored into
- **   the appropriate fields of the Start edge point.  The
- **   direction is also stored into the PreviousDirection field
- **   of the Finish edge point.
- ** Return: none
- ** Exceptions: none
- ** History: 7/25/89, DSJ, Created.
- */
   FVECTOR Delta;
 
   Delta.x = Finish->Point.x - Start->Point.x;
@@ -473,88 +450,20 @@ void ComputeDirection(MFEDGEPT *Start,
       Start->Direction = west;
   }
   Finish->PreviousDirection = Start->Direction;
-}                                /* ComputeDirection */
+}
 
-
-/*---------------------------------------------------------------------------*/
-void FinishOutlineStats(register OUTLINE_STATS *OutlineStats) {
-/*
- ** Parameters:
- **   OutlineStats  statistics about a set of outlines
- ** Globals: none
- ** Operation: Use the preliminary statistics accumulated in OutlineStats
- **   to compute the final statistics.
- **   (see Dan Johnson's Tesseract lab
- **   notebook #2, pgs. 74-78).
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 10:13:36 1990, DSJ, Created.
+/**
+ * This routine returns the next point in the micro-feature
+ * outline that has a direction different than EdgePoint.  The
+ * routine assumes that the outline being searched is not a
+ * degenerate outline (i.e. it must have 2 or more edge points).
+ * @param EdgePoint start search from this point
+ * @return Point of next direction change in micro-feature outline.
+ * @note Globals: none
+ * @note Exceptions: none
+ * @note History: 7/25/89, DSJ, Created.
  */
-  OutlineStats->x = 0.5 * OutlineStats->My / OutlineStats->L;
-  OutlineStats->y = 0.5 * OutlineStats->Mx / OutlineStats->L;
-
-  OutlineStats->Ix = (OutlineStats->Ix / 3.0 -
-    OutlineStats->y * OutlineStats->Mx +
-    OutlineStats->y * OutlineStats->y * OutlineStats->L);
-
-  OutlineStats->Iy = (OutlineStats->Iy / 3.0 -
-    OutlineStats->x * OutlineStats->My +
-    OutlineStats->x * OutlineStats->x * OutlineStats->L);
-
-  /* Ix and/or Iy could possibly be negative due to roundoff error */
-  if (OutlineStats->Ix < 0.0)
-    OutlineStats->Ix = MIN_INERTIA;
-  if (OutlineStats->Iy < 0.0)
-    OutlineStats->Iy = MIN_INERTIA;
-
-  OutlineStats->Rx = sqrt (OutlineStats->Ix / OutlineStats->L);
-  OutlineStats->Ry = sqrt (OutlineStats->Iy / OutlineStats->L);
-
-  OutlineStats->Mx *= 0.5;
-  OutlineStats->My *= 0.5;
-
-}                                /* FinishOutlineStats */
-
-
-/*---------------------------------------------------------------------------*/
-void InitOutlineStats(OUTLINE_STATS *OutlineStats) {
-/*
- ** Parameters:
- **   OutlineStats  stats data structure to be initialized
- ** Globals: none
- ** Operation: Initialize the outline statistics data structure so
- **   that it is ready to start accumulating statistics.
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 08:55:22 1990, DSJ, Created.
- */
-  OutlineStats->Mx = 0.0;
-  OutlineStats->My = 0.0;
-  OutlineStats->L = 0.0;
-  OutlineStats->x = 0.0;
-  OutlineStats->y = 0.0;
-  OutlineStats->Ix = 0.0;
-  OutlineStats->Iy = 0.0;
-  OutlineStats->Rx = 0.0;
-  OutlineStats->Ry = 0.0;
-}                                /* InitOutlineStats */
-
-
-/*---------------------------------------------------------------------------*/
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
-/*
- ** Parameters:
- **   EdgePoint start search from this point
- ** Globals: none
- ** Operation:
- **   This routine returns the next point in the micro-feature
- **   outline that has a direction different than EdgePoint.  The
- **   routine assumes that the outline being searched is not a
- **   degenerate outline (i.e. it must have 2 or more edge points).
- ** Return: Point of next direction change in micro-feature outline.
- ** Exceptions: none
- ** History: 7/25/89, DSJ, Created.
- */
   DIRECTION InitialDirection;
 
   InitialDirection = PointAt (EdgePoint)->Direction;
@@ -568,52 +477,4 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
            next_pt != NULL && !PointAt(next_pt)->Hidden);
 
   return (EdgePoint);
-}                                /* NextDirectionChange */
-
-
-/*---------------------------------------------------------------------------*/
-void UpdateOutlineStats(register OUTLINE_STATS *OutlineStats,
-                        register FLOAT32 x1,
-                        register FLOAT32 x2,
-                        register FLOAT32 y1,
-                        register FLOAT32 y2) {
-/*
- ** Parameters:
- **   OutlineStats  statistics to add this segment to
- **   x1, y1, x2, y2  segment to be added to statistics
- ** Globals: none
- ** Operation: This routine adds the statistics for the specified
- **   line segment to OutlineStats.  The statistics that are
- **   kept are:
- **     sum of length of all segments
- **     sum of 2*Mx for all segments
- **     sum of 2*My for all segments
- **     sum of 2*Mx*(y1+y2) - L*y1*y2 for all segments
- **     sum of 2*My*(x1+x2) - L*x1*x2 for all segments
- **   These numbers, once collected can later be used to easily
- **   compute the center of mass, first and second moments,
- **   and radii of gyration.  (see Dan Johnson's Tesseract lab
- **   notebook #2, pgs. 74-78).
- ** Return: none
- ** Exceptions: none
- ** History: Fri Dec 14 08:59:17 1990, DSJ, Created.
- */
-  register FLOAT64 L;
-  register FLOAT64 Mx2;
-  register FLOAT64 My2;
-
-  /* compute length of segment */
-  L = sqrt ((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-  OutlineStats->L += L;
-
-  /* compute 2Mx and 2My components */
-  Mx2 = L * (y1 + y2);
-  My2 = L * (x1 + x2);
-  OutlineStats->Mx += Mx2;
-  OutlineStats->My += My2;
-
-  /* compute second moment component */
-  OutlineStats->Ix += Mx2 * (y1 + y2) - L * y1 * y2;
-  OutlineStats->Iy += My2 * (x1 + x2) - L * x1 * x2;
-
-}                                /* UpdateOutlineStats */
+}

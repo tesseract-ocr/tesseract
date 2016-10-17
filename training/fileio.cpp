@@ -80,12 +80,6 @@ bool File::ReadFileToString(const string& filename, string* out) {
   return in.CloseFile();
 }
 
-void File::ReadFileToStringOrDie(const string& filename, string* out) {
-  ASSERT_HOST_MSG(ReadFileToString(filename, out),
-                  "Failed to read file: %s\n", filename.c_str());
-}
-
-
 string File::JoinPath(const string& prefix, const string& suffix) {
   return (!prefix.size() || prefix[prefix.size() - 1] == '/') ?
       prefix + suffix : prefix + "/" + suffix;
@@ -152,11 +146,11 @@ InputBuffer::~InputBuffer() {
   }
 }
 
-bool InputBuffer::Read(string *out) {
-  char buf[BUFSIZ+1];
+bool InputBuffer::Read(string* out) {
+  char buf[BUFSIZ + 1];
   int l;
-  while((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
-    if(ferror(stream_)) {
+  while ((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
+    if (ferror(stream_)) {
       clearerr(stream_);
       return false;
     }

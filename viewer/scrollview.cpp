@@ -44,7 +44,7 @@
 
 const int kSvPort = 8461;
 const int kMaxMsgSize = 4096;
-const int kMaxIntPairSize = 45;  // Holds %d,%d, for upto 64 bit.
+const int kMaxIntPairSize = 45;  // Holds %d,%d, for up to 64 bit.
 
 #include "svutil.h"
 
@@ -342,7 +342,7 @@ void* ScrollView::StartEventHandler(void* a) {
         k = i;
       }
     }
-    // If we didnt find anything we had an old alarm and just sleep again.
+    // If we didn't find anything we had an old alarm and just sleep again.
     if (new_event != NULL) {
       sv->event_table_[k] = NULL;
       sv->mutex_->Unlock();
@@ -794,7 +794,7 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
   int remainder = 0;
   int bits_left = 0;
   int code_len = 0;
-  for (int i = 0; i < size; ++i) {
+  for (size_t i = 0; i < size; ++i) {
     int code = (data[i] >> (bits_left + 2)) | remainder;
     base64[code_len++] = kBase64Table[code & 63];
     bits_left += 2;

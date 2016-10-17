@@ -28,7 +28,7 @@ import ctypes
 lang = "eng"
 filename = "../phototest.tif"
 libpath = "/usr/local/lib64/"
-libpath_w = "../vs2008/DLL_Release/"
+libpath_w = "../vs2010/DLL_Release/"
 TESSDATA_PREFIX = os.environ.get('TESSDATA_PREFIX')
 if not TESSDATA_PREFIX:
     TESSDATA_PREFIX = "../"
