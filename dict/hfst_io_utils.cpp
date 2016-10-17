@@ -48,7 +48,7 @@ char* read_string(FILE * file) {
 
   target[MAX_STRING_BUFFER] = '\0';
 
-  return strdup(target);
+  return strdup((const char *)target);
 }
 
 }
