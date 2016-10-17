@@ -24,6 +24,7 @@
 #include <string>
 #include <unordered_map>
 #include <cassert>
+#include <cstring>
 
 #include "hfst_size_defs.h"
 #include "hfst_io_utils.h"
