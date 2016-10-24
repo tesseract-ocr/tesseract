@@ -95,8 +95,7 @@ typedef void (*void_dest) (void *);
 /**********************************************************************
  * strfree
  *
- * Reserve a spot in memory for the string to be stored. Copy the string
- * to it and return the result.
+ * Free the memory which was reserved by strsave.
  **********************************************************************/
 
 #define strfree(s)  (free_string(s))
