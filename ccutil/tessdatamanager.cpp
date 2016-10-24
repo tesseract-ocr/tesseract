@@ -139,6 +139,7 @@ bool TessdataManager::CombineDataFiles(
   if (fseek(output_file,
             sizeof(inT32) + sizeof(inT64) * TESSDATA_NUM_ENTRIES, SEEK_SET)) {
     tprintf("Error seeking %s\n", output_filename);
+    fclose(output_file);
     return false;
   }
 

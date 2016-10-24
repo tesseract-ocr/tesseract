@@ -118,6 +118,9 @@ void SVSync::StartProcess(const char* executable, const char* args) {
     }
     argv[argc] = NULL;
     execvp(executable, argv);
+    free(argv[0]);
+    free(argv[1]);
+    delete[] argv;
   }
 #endif
 }
@@ -419,6 +422,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     // Wait for server to show up.
     // Note: There is no exception handling in case the server never turns up.
 
+    Close();
     stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                    addr_info->ai_protocol);
 
@@ -431,6 +435,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       sleep(1);
 #endif
 
+      Close();
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                    addr_info->ai_protocol);
     }

@@ -294,6 +294,8 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
       }
     }
   }
+
+  delete lines;
 }
 #endif
 
