@@ -358,6 +358,8 @@ void PreloadRenderers(tesseract::TessBaseAPI* api,
  *  main()
  *
  **********************************************************************/
+
+
 int main(int argc, char **argv) {
   const char* lang = "eng";
   const char* image = NULL;
@@ -365,9 +367,13 @@ int main(int argc, char **argv) {
   const char* datapath = NULL;
   bool list_langs = false;
   bool print_parameters = false;
-  GenericVector<STRING> vars_vec, vars_values;
   int arg_i = 1;
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
+  /* main() calls functions like ParseArgs which call exit().
+   * This results in memory leaks if vars_vec and vars_values are
+   * declared as auto variables (destructor is not called then). */
+  static GenericVector<STRING> vars_vec;
+  static GenericVector<STRING> vars_values;
 
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
   /* Show libtiff warnings on console (not in GUI). */
