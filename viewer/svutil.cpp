@@ -118,6 +118,9 @@ void SVSync::StartProcess(const char* executable, const char* args) {
     }
     argv[argc] = NULL;
     execvp(executable, argv);
+    free(argv[0]);
+    free(argv[1]);
+    delete[] argv;
   }
 #endif
 }
