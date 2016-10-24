@@ -877,6 +877,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
       if (good_ch != INVALID_UNICHAR_ID)
         good_junk[good_ch] = true;  // We want this one.
     }
+    delete frag;
   }
 #endif
   // For now just use all the junk that was from natural fragments.
@@ -891,6 +892,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
       junk_samples_.extract_sample(s);
       samples_.AddSample(frag_set.id_to_unichar(junk_id), sample);
     }
+    delete frag;
   }
   junk_samples_.DeleteDeadSamples();
   junk_samples_.OrganizeByFontAndClass();
