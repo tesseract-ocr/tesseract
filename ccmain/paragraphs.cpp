@@ -2113,6 +2113,7 @@ void ConvertHypothesizedModelRunsToParagraphs(
       if ((*row_owners)[row] != NULL) {
         tprintf("Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
                 "more than once!\n");
+        delete (*row_owners)[row];
       }
       (*row_owners)[row] = p;
     }
