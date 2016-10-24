@@ -1001,6 +1001,8 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
               6 | 0x19, matcher_debug_separate_windows);
     UpdateMatchDisplay();
   }
+
+  delete sample;
 #endif
 }
 
