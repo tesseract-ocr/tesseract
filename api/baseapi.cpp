@@ -1924,11 +1924,11 @@ char* TessBaseAPI::GetOsdText(int page_number) {
   int script_id = osr.get_best_script(orient_id);
   float orient_conf = osr.best_result.oconfidence;
   float script_conf = osr.best_result.sconfidence;
-  const char* script_name = 
+  const char* script_name =
       osr.unicharset->get_script_from_script_id(script_id);
 
   // clockwise orientation of the input image, in degrees
-  int orient_deg = orient_id * 90; 
+  int orient_deg = orient_id * 90;
 
   // clockwise rotation needed to make the page upright
   int rotate =  OrientationIdToValue(orient_id);
@@ -2073,6 +2073,7 @@ void TessBaseAPI::Clear() {
  * other than Init and anything declared above it in the class definition.
  */
 void TessBaseAPI::End() {
+  Clear();
   if (thresholder_ != NULL) {
     delete thresholder_;
     thresholder_ = NULL;
