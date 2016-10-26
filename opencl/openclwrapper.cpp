@@ -81,7 +81,7 @@ void legalizeFileName( char *fileName) {
     for (int i = 0; i < strlen(invalidChars); i++) {
         char invalidStr[4];
         invalidStr[0] = invalidChars[i];
-        invalidStr[1] = NULL;
+        invalidStr[1] = '\0';
         //printf("eliminating %s\n", invalidStr);
         //char *pos = strstr(fileName, invalidStr);
         // initial ./ is valid for present directory
