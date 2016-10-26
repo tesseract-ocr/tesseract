@@ -184,11 +184,10 @@ Dict::~Dict() {
 }
 
 DawgCache *Dict::GlobalDawgCache() {
-  // We dynamically allocate this global cache (a singleton) so it will outlive
-  // every Tesseract instance (even those that someone else might declare as
-  // global statics).
-  static DawgCache *cache = new DawgCache();  // evil global singleton
-  return cache;
+  // This global cache (a singleton) will outlive every Tesseract instance
+  // (even those that someone else might declare as global statics).
+  static DawgCache cache;
+  return &cache;
 }
 
 void Dict::Load(DawgCache *dawg_cache) {
