@@ -228,6 +228,7 @@ void OpenclDevice::releaseMorphCLBuffers()
         clReleaseMemObject(pixdCLBuffer);
     if (pixThBuffer != NULL)
         clReleaseMemObject(pixThBuffer);
+	pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = NULL;
 }
 
 int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, PIX* pixs)
