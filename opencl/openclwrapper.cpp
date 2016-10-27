@@ -3167,7 +3167,7 @@ ds_status deserializeScore( ds_device* device, const unsigned char* serializedSc
 }
 
 ds_status releaseScore( void* score ) {
-  delete[] score;
+  delete (TessDeviceScore *)score;
   return DS_SUCCESS;
 }
 
