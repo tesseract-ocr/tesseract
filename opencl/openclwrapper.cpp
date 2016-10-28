@@ -81,7 +81,7 @@ void legalizeFileName( char *fileName) {
     for (int i = 0; i < strlen(invalidChars); i++) {
         char invalidStr[4];
         invalidStr[0] = invalidChars[i];
-        invalidStr[1] = NULL;
+        invalidStr[1] = '\0';
         //printf("eliminating %s\n", invalidStr);
         //char *pos = strstr(fileName, invalidStr);
         // initial ./ is valid for present directory
@@ -3167,7 +3167,7 @@ ds_status deserializeScore( ds_device* device, const unsigned char* serializedSc
 }
 
 ds_status releaseScore( void* score ) {
-  delete[] score;
+  delete (TessDeviceScore *)score;
   return DS_SUCCESS;
 }
 
@@ -3243,7 +3243,7 @@ PERF_COUNT_START("getDeviceSelection")
     status = initDSProfile( &profile, "v0.1" );
 PERF_COUNT_SUB("initDSProfile")
     // try reading scores from file
-    char *fileName = "tesseract_opencl_profile_devices.dat";
+    const char *fileName = "tesseract_opencl_profile_devices.dat";
     status = readProfileFromFile( profile, deserializeScore, fileName);
     if (status != DS_SUCCESS) {
       // need to run evaluation
