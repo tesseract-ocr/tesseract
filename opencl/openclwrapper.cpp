@@ -3243,7 +3243,7 @@ PERF_COUNT_START("getDeviceSelection")
     status = initDSProfile( &profile, "v0.1" );
 PERF_COUNT_SUB("initDSProfile")
     // try reading scores from file
-    char *fileName = "tesseract_opencl_profile_devices.dat";
+    const char *fileName = "tesseract_opencl_profile_devices.dat";
     status = readProfileFromFile( profile, deserializeScore, fileName);
     if (status != DS_SUCCESS) {
       // need to run evaluation
