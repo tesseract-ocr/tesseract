@@ -375,7 +375,7 @@ int OpenclDevice::ReleaseOpenclEnv( GPUEnv *gpuInfo )
     }
     isInited = 0;
     gpuInfo->mnIsUserCreated = 0;
-    free( gpuInfo->mpArryDevsID );
+    delete[] gpuInfo->mpArryDevsID;
     return 1;
 }
 int OpenclDevice::BinaryGenerated( const char * clFileName, FILE ** fhandle )
