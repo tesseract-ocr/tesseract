@@ -77,7 +77,7 @@ AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 
 OPENCL_INC="/opt/AMDAPP/include"
-OPENCL_LIBS="-lOpenCL"
+OPENCL_LIBS="-lOpenCL -ltiff"
 #############################
 #
 # Platform specific setup
