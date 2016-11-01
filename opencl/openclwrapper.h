@@ -171,9 +171,6 @@ typedef struct _OpenCLEnv
 } OpenCLEnv;
 typedef int ( *cl_kernel_function )( void **userdata, KernelEnv *kenv );
 
-
-static l_int32 MORPH_BC = ASYMMETRIC_MORPH_BC;
-
 #define CHECK_OPENCL(status,name)    \
 if( status != CL_SUCCESS )    \
 {    \
