@@ -47,6 +47,8 @@ ds_device OpenclDevice::selectedDevice;
 
 int OpenclDevice::isInited = 0;
 
+static l_int32 MORPH_BC = ASYMMETRIC_MORPH_BC;
+
 static const l_uint32 lmask32[] = {
     0x80000000, 0xc0000000, 0xe0000000, 0xf0000000,
     0xf8000000, 0xfc000000, 0xfe000000, 0xff000000,
