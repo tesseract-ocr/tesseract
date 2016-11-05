@@ -586,7 +586,7 @@ static ds_status getNumDeviceWithEmptyScore(ds_profile* profile,
   *num=0;
   for (i = 0; i < profile->numDevices; i++) {
     if (profile->devices[i].score == NULL) {
-      *num++;
+      (*num)++;
     }
   }
   return DS_SUCCESS;
