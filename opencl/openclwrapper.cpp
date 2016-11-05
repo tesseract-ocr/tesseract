@@ -1159,7 +1159,7 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
 	}
 
 	if (pagefound == FALSE) {
-		L_WARNING("tiff page %d not found", procName);
+		L_WARNING("tiff page %d not found", procName, i);
 		TIFFCleanup(tif);
 		return NULL;
 	}
