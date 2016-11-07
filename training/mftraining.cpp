@@ -64,9 +64,6 @@
 #include "tprintf.h"
 #include "unicity_table.h"
 
-using tesseract::Classify;
-using tesseract::FontInfo;
-using tesseract::FontSpacingInfo;
 using tesseract::IndexMapBiDi;
 using tesseract::MasterTrainer;
 using tesseract::Shape;

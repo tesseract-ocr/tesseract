@@ -908,8 +908,7 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
 
     NumFeatures = GetAdaptiveFeatures(Blob, IntFeatures, &FloatFeatures);
     if (NumFeatures <= 0) {
-      FreeFeatureSet(FloatFeatures);
-      return;
+      return;  // Features already freed by GetAdaptiveFeatures.
     }
 
     // Only match configs with the matching font.
@@ -1007,8 +1006,6 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   delete sample;
 #endif
 }
-
-
 
 /**
  * This routine adds the result of a classification into

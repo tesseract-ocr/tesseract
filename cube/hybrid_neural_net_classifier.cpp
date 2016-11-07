@@ -330,7 +330,7 @@ bool HybridNeuralNetCharClassifier::LoadNets(const string &data_file_path,
   // split into lines
   vector<string> str_vec;
   CubeUtils::SplitStringUsing(str, "\r\n", &str_vec);
-  if (str_vec.size() <= 0) {
+  if (str_vec.empty()) {
     return false;
   }
 

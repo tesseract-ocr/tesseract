@@ -20,12 +20,12 @@
 #include "config_auto.h"
 #endif
 
+#include "allheaders.h"
 #include "baseapi.h"
-#include "renderer.h"
 #include "math.h"
+#include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
-#include "allheaders.h"
 
 #ifdef _MSC_VER
 #include "mathfix.h"
@@ -441,8 +441,8 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           int code = unicodes[i];
           // Convert to UTF-16BE https://en.wikipedia.org/wiki/UTF-16
           if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
-                tprintf("Dropping invalid codepoint %d\n", code);
-                continue;
+            tprintf("Dropping invalid codepoint %d\n", code);
+            continue;
           }
           if (code < 0x10000) {
             snprintf(utf16, sizeof(utf16), "<%04X>", code);
@@ -567,7 +567,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "<<\n"
                "  /Length %lu /Filter /FlateDecode\n"
                ">>\n"
-               "stream\n", (unsigned long)len);
+               "stream\n",
+               (unsigned long)len);
   if (n >= sizeof(buf)) {
     lept_free(comp);
     return false;

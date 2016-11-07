@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        rejctmap.h  (Formerly rejmap.h)
  * Description: REJ and REJMAP class functions.
- * Author:		Phil Cheatle
- * Created:		Thu Jun  9 13:46:38 BST 1994
+ * Author:    Phil Cheatle
+ * Created:   Thu Jun  9 13:46:38 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,46 +48,45 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #include          "bits16.h"
 #include                   "params.h"
 
-enum REJ_FLAGS
-{
+enum REJ_FLAGS {
   /* Reject modes which are NEVER overridden */
-  R_TESS_FAILURE,                // PERM Tess didn't classify
-  R_SMALL_XHT,                   // PERM Xht too small
-  R_EDGE_CHAR,                   // PERM Too close to edge of image
-  R_1IL_CONFLICT,                // PERM 1Il confusion
-  R_POSTNN_1IL,                  // PERM 1Il unrejected by NN
-  R_REJ_CBLOB,                   // PERM Odd blob
-  R_MM_REJECT,                   // PERM Matrix match rejection (m's)
-  R_BAD_REPETITION,              // TEMP Repeated char which doesn't match trend
+  R_TESS_FAILURE,    // PERM Tess didn't classify
+  R_SMALL_XHT,       // PERM Xht too small
+  R_EDGE_CHAR,       // PERM Too close to edge of image
+  R_1IL_CONFLICT,    // PERM 1Il confusion
+  R_POSTNN_1IL,      // PERM 1Il unrejected by NN
+  R_REJ_CBLOB,       // PERM Odd blob
+  R_MM_REJECT,       // PERM Matrix match rejection (m's)
+  R_BAD_REPETITION,  // TEMP Repeated char which doesn't match trend
 
   /* Initial reject modes (pre NN_ACCEPT) */
-  R_POOR_MATCH,                  // TEMP Ray's original heuristic (Not used)
-  R_NOT_TESS_ACCEPTED,           // TEMP Tess didn't accept WERD
-  R_CONTAINS_BLANKS,             // TEMP Tess failed on other chs in WERD
-  R_BAD_PERMUTER,                // POTENTIAL Bad permuter for WERD
+  R_POOR_MATCH,         // TEMP Ray's original heuristic (Not used)
+  R_NOT_TESS_ACCEPTED,  // TEMP Tess didn't accept WERD
+  R_CONTAINS_BLANKS,    // TEMP Tess failed on other chs in WERD
+  R_BAD_PERMUTER,       // POTENTIAL Bad permuter for WERD
 
   /* Reject modes generated after NN_ACCEPT but before MM_ACCEPT */
-  R_HYPHEN,                      // TEMP Post NN dodgy hyphen or full stop
-  R_DUBIOUS,                     // TEMP Post NN dodgy chars
-  R_NO_ALPHANUMS,                // TEMP No alphanumerics in word after NN
-  R_MOSTLY_REJ,                  // TEMP Most of word rejected so rej the rest
-  R_XHT_FIXUP,                   // TEMP Xht tests unsure
+  R_HYPHEN,        // TEMP Post NN dodgy hyphen or full stop
+  R_DUBIOUS,       // TEMP Post NN dodgy chars
+  R_NO_ALPHANUMS,  // TEMP No alphanumerics in word after NN
+  R_MOSTLY_REJ,    // TEMP Most of word rejected so rej the rest
+  R_XHT_FIXUP,     // TEMP Xht tests unsure
 
   /* Reject modes generated after MM_ACCEPT but before QUALITY_ACCEPT */
-  R_BAD_QUALITY,                 // TEMP Quality metrics bad for WERD
+  R_BAD_QUALITY,  // TEMP Quality metrics bad for WERD
 
   /* Reject modes generated after QUALITY_ACCEPT but before MINIMAL_REJ accep*/
-  R_DOC_REJ,                     // TEMP Document rejection
-  R_BLOCK_REJ,                   // TEMP Block rejection
-  R_ROW_REJ,                     // TEMP Row rejection
-  R_UNLV_REJ,                    // TEMP ~ turned to - or ^ turned to space
+  R_DOC_REJ,    // TEMP Document rejection
+  R_BLOCK_REJ,  // TEMP Block rejection
+  R_ROW_REJ,    // TEMP Row rejection
+  R_UNLV_REJ,   // TEMP ~ turned to - or ^ turned to space
 
   /* Accept modes which occur between the above rejection groups */
-  R_NN_ACCEPT,                   //NN acceptance
-  R_HYPHEN_ACCEPT,               //Hyphen acceptance
-  R_MM_ACCEPT,                   //Matrix match acceptance
-  R_QUALITY_ACCEPT,              //Accept word in good quality doc
-  R_MINIMAL_REJ_ACCEPT           //Accept EVERYTHING except tess failures
+  R_NN_ACCEPT,          // NN acceptance
+  R_HYPHEN_ACCEPT,      // Hyphen acceptance
+  R_MM_ACCEPT,          // Matrix match acceptance
+  R_QUALITY_ACCEPT,     // Accept word in good quality doc
+  R_MINIMAL_REJ_ACCEPT  // Accept EVERYTHING except tess failures
 };
 
 /* REJECT MAP VALUES */

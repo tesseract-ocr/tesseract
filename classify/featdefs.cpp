@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    featdefs.c
- **	Purpose:     Definitions of currently defined feature types.
- **	Author:      Dan Johnson
- **	History:     Mon May 21 10:26:21 1990, DSJ, Created.
+ ** Filename:    featdefs.c
+ ** Purpose:     Definitions of currently defined feature types.
+ ** Author:      Dan Johnson
+ ** History:     Mon May 21 10:26:21 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -289,13 +289,13 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * the feature type for the feature with the specified short
  * name.  Trap an error if the specified name is not found.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param FeatureDefs    definitions of feature types/extractors
  * @param ShortName short name of a feature type
  * @return Feature type which corresponds to ShortName.
- * @note Exceptions: 
+ * @note Exceptions:
  * - ILLEGAL_SHORT_NAME
  * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */

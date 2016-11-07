@@ -81,8 +81,9 @@ bool File::ReadFileToString(const string& filename, string* out) {
 }
 
 string File::JoinPath(const string& prefix, const string& suffix) {
-  return (!prefix.size() || prefix[prefix.size() - 1] == '/') ?
-      prefix + suffix : prefix + "/" + suffix;
+  return (prefix.empty() || prefix[prefix.size() - 1] == '/')
+             ? prefix + suffix
+             : prefix + "/" + suffix;
 }
 
 bool File::Delete(const char* pathname) {

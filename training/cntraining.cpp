@@ -20,7 +20,6 @@
  ** limitations under the License.
 ******************************************************************************/
 
-
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
@@ -53,10 +52,8 @@ int main (
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
 
-void WriteNormProtos (
-     const char  *Directory,
-     LIST  LabeledProtoList,
-   CLUSTERER *Clusterer);
+void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
+                     const FEATURE_DESC_STRUCT *feature_desc);
 
 /*
 PARAMDESC *ConvertToPARAMDESC(
@@ -80,7 +77,6 @@ CLUSTERCONFIG  CNConfig =
 {
   elliptical, 0.025, 0.05, 0.8, 1e-3, 0
 };
-
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -134,8 +130,7 @@ CLUSTERCONFIG  CNConfig =
 * @note Exceptions: none
 * @note History: Fri Aug 18 08:56:17 1989, DSJ, Created.
 */
-int main(int  argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   // Set the global Config parameters before parsing the command line.
   Config = CNConfig;
 

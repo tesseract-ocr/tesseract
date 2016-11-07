@@ -41,9 +41,7 @@ class PixelHistogram {
     length_ = 0;
   }
 
-  int* hist() const {
-    return hist_;
-  }
+  int* hist() const { return hist_; }
 
   int length() const {
     return length_;

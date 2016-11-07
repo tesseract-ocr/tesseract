@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
- * Author:					Ray Smith
- * Created:					Thu Apr 23 11:09:58 BST 1992
+ * Author:          Ray Smith
+ * Created:         Thu Apr 23 11:09:58 BST 1992
  * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -72,7 +72,6 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
     delete it;
   }
 }
-
 
 /**
  * Recognize a single word in interactive mode.
@@ -539,7 +538,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         }
       }
     }
-    if (overrides_word1.size() >= 1) {
+    if (!overrides_word1.empty()) {
       // Excellent, we have some bigram matches.
       if (EqualIgnoringCaseAndTerminalPunct(*w_prev->best_choice,
                                             *overrides_word1[best_idx]) &&

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        pithsync.h  (Formerly pitsync2.h)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
- * Author:		Ray Smith
- * Created:		Thu Nov 19 11:48:05 GMT 1992
+ * Author:    Ray Smith
+ * Created:   Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,7 +66,7 @@ class FPCUTPT
       inT16 pitch,               //proposed pitch
       inT16 pitch_error);        //allowed tolerance
 
-    inT32 position() {  //access func
+    inT32 position() {  // access func
       return xpos;
     }
     double cost_function() {

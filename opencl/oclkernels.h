@@ -1092,7 +1092,8 @@ void kernel_ThresholdRectToPix(
                 for ( int c = 0; c < NUM_CHANNELS; c++) {
                     unsigned char pixChan = pixels.s[p*NUM_CHANNELS + c];
                     if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
-                        word |=  (((uint)0x80000000) >> ((b*PIXELS_PER_BURST+p)&31));
+                        const uint kTopBit = 0x80000000;
+                        word |=  (kTopBit >> ((b*PIXELS_PER_BURST+p)&31));
                     }
                 }
             }
@@ -1157,7 +1158,8 @@ void kernel_ThresholdRectToPix_OneChan(
 \n#endif\n
                 unsigned char pixChan = pixels.s[idx];
                 if (pHi_Values[0] >= 0 && (pixChan > pThresholds[0]) == (pHi_Values[0] == 0)) {
-                    word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
+                    const uint kTopBit = 0x80000000;
+                    word |=  (kTopBit >> ((b*PIXELS_PER_BURST+p)&31));
                 }
             }
         }

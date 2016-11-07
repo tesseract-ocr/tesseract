@@ -163,7 +163,7 @@ int WordUnigrams::Cost(const char_32 *key_str32,
   CubeUtils::SplitStringUsing(key_str, " \t", &words);
 
   // no words => no cost
-  if (words.size() <= 0) {
+  if (words.empty()) {
     return 0;
   }
 

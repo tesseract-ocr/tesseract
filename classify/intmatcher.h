@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    intmatcher.h
- **	Purpose:     Interface to high level generic classifier routines.
- **	Author:      Robert Moss
- **	History:     Wed Feb 13 15:24:15 MST 1991, RWM, Created.
+ ** Filename:    intmatcher.h
+ ** Purpose:     Interface to high level generic classifier routines.
+ ** Author:      Robert Moss
+ ** History:     Wed Feb 13 15:24:15 MST 1991, RWM, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at

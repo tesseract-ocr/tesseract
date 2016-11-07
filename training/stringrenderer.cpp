@@ -52,7 +52,7 @@ static const int kDefaultOutputResolution = 300;
 // Word joiner (U+2060) inserted after letters in ngram mode, as per
 // recommendation in http://unicode.org/reports/tr14/ to avoid line-breaks at
 // hyphens and other non-alpha characters.
-static const char* kWordJoinerUTF8 = "\xE2\x81\xA0"; //u8"\u2060";
+static const char* kWordJoinerUTF8 = "\xE2\x81\xA0";  // u8"\u2060";
 static const char32 kWordJoiner = 0x2060;
 
 static bool IsCombiner(int ch) {
@@ -209,8 +209,7 @@ void StringRenderer::SetLayoutProperties() {
 #if (PANGO_VERSION_MAJOR == 1 && PANGO_VERSION_MINOR >= 38)
   if (add_ligatures_) {
     set_features("liga, clig, dlig, hlig");
-    PangoAttribute* feature_attr =
-      pango_attr_font_features_new(features_);
+    PangoAttribute* feature_attr = pango_attr_font_features_new(features_);
     pango_attr_list_change(attr_list, feature_attr);
   }
 #endif
@@ -396,7 +395,7 @@ bool StringRenderer::GetClusterStrings(vector<string>* cluster_text) {
        it != start_byte_to_text.end(); ++it) {
     cluster_text->push_back(it->second);
   }
-  return cluster_text->size();
+  return !cluster_text->empty();
 }
 
 // Merges an array of BoxChars into words based on the identification of
@@ -496,7 +495,7 @@ void StringRenderer::ComputeClusterBoxes() {
     const int end_byte_index = cluster_start_to_end_index[start_byte_index];
     string cluster_text = string(text + start_byte_index,
                                  end_byte_index - start_byte_index);
-    if (cluster_text.size() && cluster_text[0] == '\n') {
+    if (!cluster_text.empty() && cluster_text[0] == '\n') {
       tlog(2, "Skipping newlines at start of text.\n");
       continue;
     }
@@ -596,11 +595,12 @@ void StringRenderer::ComputeClusterBoxes() {
       all_boxes = boxaCreate(0);
     boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
   }
-  boxaGetExtent(all_boxes, NULL, NULL, &page_box);
-  boxaDestroy(&all_boxes);
-  if (page_boxes_ == NULL)
-    page_boxes_ = boxaCreate(0);
-  boxaAddBox(page_boxes_, page_box, L_INSERT);
+  if (all_boxes != NULL) {
+    boxaGetExtent(all_boxes, NULL, NULL, &page_box);
+    boxaDestroy(&all_boxes);
+    if (page_boxes_ == NULL) page_boxes_ = boxaCreate(0);
+    boxaAddBox(page_boxes_, page_box, L_INSERT);
+  }
 }
 
 

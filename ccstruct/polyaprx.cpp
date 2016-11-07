@@ -214,7 +214,7 @@ EDGEPT edgepts[]                 //output is array
 void fix2(                //polygonal approx
           EDGEPT *start,  /*loop to approimate */
           int area) {
-  EDGEPT *edgept;                /*current point */
+  EDGEPT *edgept; /*current point */
   EDGEPT *edgept1;
   EDGEPT *loopstart;             /*modified start of loop */
   EDGEPT *linestart;             /*start of line segment */

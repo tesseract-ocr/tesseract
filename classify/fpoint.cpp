@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    fpoint.c
- **	Purpose:     Abstract data type for a 2D point (floating point coords)
- **	Author:      Dan Johnson
- **	History:     Thu Apr 12 10:44:15 1990, DSJ, Created.
+ ** Filename:    fpoint.c
+ ** Purpose:     Abstract data type for a 2D point (floating point coords)
+ ** Author:      Dan Johnson
+ ** History:     Thu Apr 12 10:44:15 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -58,5 +58,4 @@ FLOAT32 NormalizedAngleFrom(FPOINT *Point1,
   if (Angle < 0.0 || Angle >= FullScale)
     Angle = 0.0;
   return (Angle);
-
 }

@@ -31,13 +31,13 @@ struct addrinfo {
 };
 #else
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netdb.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #ifdef __linux__
@@ -56,9 +56,33 @@ struct addrinfo {
 #include "config_auto.h"
 #endif
 
-#ifndef GRAPHICS_DISABLED
-
 #include "svutil.h"
+
+SVMutex::SVMutex() {
+#ifdef _WIN32
+  mutex_ = CreateMutex(0, FALSE, 0);
+#else
+  pthread_mutex_init(&mutex_, NULL);
+#endif
+}
+
+void SVMutex::Lock() {
+#ifdef _WIN32
+  WaitForSingleObject(mutex_, INFINITE);
+#else
+  pthread_mutex_lock(&mutex_);
+#endif
+}
+
+void SVMutex::Unlock() {
+#ifdef _WIN32
+  ReleaseMutex(mutex_);
+#else
+  pthread_mutex_unlock(&mutex_);
+#endif
+}
+
+#ifndef GRAPHICS_DISABLED
 
 const int kMaxMsgSize = 4096;
 
@@ -161,29 +185,6 @@ void SVSemaphore::Wait() {
 #endif
 }
 
-SVMutex::SVMutex() {
-#ifdef _WIN32
-  mutex_ = CreateMutex(0, FALSE, 0);
-#else
-  pthread_mutex_init(&mutex_, NULL);
-#endif
-}
-
-void SVMutex::Lock() {
-#ifdef _WIN32
-  WaitForSingleObject(mutex_, INFINITE);
-#else
-  pthread_mutex_lock(&mutex_);
-#endif
-}
-
-void SVMutex::Unlock() {
-#ifdef _WIN32
-  ReleaseMutex(mutex_);
-#else
-  pthread_mutex_unlock(&mutex_);
-#endif
-}
 
 // Create new thread.
 
@@ -200,7 +201,10 @@ void SVSync::StartThread(void *(*func)(void*), void* arg) {
   &threadid);    // returns the thread identifier
 #else
   pthread_t helper;
-  pthread_create(&helper, NULL, func, arg);
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+  pthread_create(&helper, &attr, func, arg);
 #endif
 }
 
@@ -214,7 +218,7 @@ void SVNetwork::Send(const char* msg) {
 // Send the whole buffer.
 void SVNetwork::Flush() {
   mutex_send_->Lock();
-  while (msg_buffer_out_.size() > 0) {
+  while (!msg_buffer_out_.empty()) {
     int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
     msg_buffer_out_.erase(0, i);
   }
@@ -302,7 +306,8 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   const char* cmd_template = "-Djava.library.path=%s -jar %s/ScrollView.jar";
 
 #else
-  const char* cmd_template = "-c \"trap 'kill %%1' 0 1 2 ; java "
+  const char* cmd_template =
+      "-c \"trap 'kill %%1' 0 1 2 ; java "
       "-Xms1024m -Xmx2048m -jar %s/ScrollView.jar"
       " & wait\"";
 #endif

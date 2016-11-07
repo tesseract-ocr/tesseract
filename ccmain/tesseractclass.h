@@ -38,7 +38,6 @@
 
 class BLOB_CHOICE_LIST_CLIST;
 class BLOCK_LIST;
-class CharSamp;
 struct OSResults;
 class PAGE_RES;
 class PAGE_RES_IT;
@@ -98,6 +97,7 @@ namespace tesseract {
 
 class ColumnFinder;
 #ifndef NO_CUBE_BUILD
+class CharSamp;
 class CubeLineObject;
 class CubeObject;
 class CubeRecoContext;
@@ -1010,8 +1010,7 @@ class Tesseract : public Wordrec {
   INT_VAR_H(suspect_level, 99, "Suspect marker level");
   INT_VAR_H(suspect_space_level, 100,
             "Min suspect level for rejecting spaces");
-  INT_VAR_H(suspect_short_words, 2,
-            "Don't Suspect dict wds longer than this");
+  INT_VAR_H(suspect_short_words, 2, "Don't Suspect dict wds longer than this");
   BOOL_VAR_H(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected");
   double_VAR_H(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit");
   double_VAR_H(suspect_accept_rating, -999.9, "Accept good rating limit");

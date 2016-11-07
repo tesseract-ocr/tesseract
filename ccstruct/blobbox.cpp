@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        blobbox.cpp  (Formerly blobnbox.c)
  * Description: Code for the textord blob class.
- * Author:					Ray Smith
- * Created:					Thu Jul 30 09:08:51 BST 1992
+ * Author:          Ray Smith
+ * Created:         Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,9 @@
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN
 
-ELISTIZE (BLOBNBOX) ELIST2IZE (TO_ROW) ELISTIZE (TO_BLOCK)
+ELISTIZE(BLOBNBOX)
+ELIST2IZE(TO_ROW)
+ELISTIZE(TO_BLOCK)
 
 // Up to 30 degrees is allowed for rotations of diacritic blobs.
 const double kCosSmallAngle = 0.866;
@@ -176,7 +178,7 @@ void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
     gaps[dir] = MAX_INT16;
     BLOBNBOX* neighbour = neighbours_[dir];
     if (neighbour != NULL) {
-      TBOX n_box = neighbour->bounding_box();
+      const TBOX& n_box = neighbour->bounding_box();
       if (dir == BND_LEFT || dir == BND_RIGHT) {
         gaps[dir] = box.x_gap(n_box);
       } else {

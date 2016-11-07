@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:	mfx.h
- **	Purpose:	Definition of micro-feature extraction routines
- **	Author:		Dan Johnson
- **	History:	5/29/89, DSJ, Created.
+ ** Filename: mfx.h
+ ** Purpose:  Definition of micro-feature extraction routines
+ ** Author:   Dan Johnson
+ ** History:  5/29/89, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at

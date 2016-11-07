@@ -46,9 +46,7 @@
 #include "config_auto.h"
 #endif
 
-using tesseract::FontInfo;
 using tesseract::FontSet;
-using tesseract::FontSpacingInfo;
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -326,9 +324,7 @@ int AddIntProto(INT_CLASS Class) {
        Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0);
 
   return (Index);
-
 }
-
 
 /**
  * This routine adds Proto to the class pruning tables
@@ -371,7 +367,6 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
     }
   }
 }                                /* AddProtoToClassPruner */
-
 
 /**
  * This routine updates the proto pruner lookup tables
@@ -431,7 +426,6 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_Y], Index, Y, Pad, debug);
 }                                /* AddProtoToProtoPruner */
-
 
 /**
  * Returns a quantized bucket for the given param shifted by offset,
@@ -550,7 +544,6 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
             P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
 }                                /* ConvertProto */
 
-
 /**
  * This routine converts from the old floating point format
  * to the new integer format.
@@ -627,14 +620,13 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
  * @note Exceptions: none
  * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
+void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, FLOAT32 Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntFeature(IntMatchWindow, Feature, color);
   if (FeatureDisplayWindow) {
     RenderIntFeature(FeatureDisplayWindow, Feature, color);
   }
 }                                /* DisplayIntFeature */
-
 
 /**
  * This routine renders the specified proto into a
@@ -719,7 +711,6 @@ void free_int_class(INT_CLASS int_class) {
   }
   Efree(int_class);
 }
-
 
 /**
  * This routine allocates a new set of integer templates
@@ -1218,7 +1209,6 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
 
 }                                /* BucketStart */
 
-
 /**
  * This routine returns the parameter value which
  * corresponds to the end of the specified bucket.
@@ -1235,7 +1225,6 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
 FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
   return (((FLOAT32) (Bucket + 1) / NumBuckets) - Offset);
 }                                /* BucketEnd */
-
 
 /**
  * This routine fills in the section of a class pruner
@@ -1284,7 +1273,6 @@ void DoFill(FILL_SPEC *FillSpec,
     }
 }                                /* DoFill */
 
-
 /**
  * Return TRUE if the specified table filler is done, i.e.
  * if it has no more lines to fill.
@@ -1305,7 +1293,6 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
     return (FALSE);
 
 }                                /* FillerDone */
-
 
 /**
  * This routine sets Bit in each bit vector whose
@@ -1348,7 +1335,6 @@ void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
   }
 
 }                                /* FillPPCircularBits */
-
 
 /**
  * This routine sets Bit in each bit vector whose
@@ -1516,7 +1502,6 @@ void GetCPPadsForLevel(int Level,
 
 }                                /* GetCPPadsForLevel */
 
-
 /**
  * @param Evidence  evidence value to return color for
  * @return Color which corresponds to specified Evidence value.
@@ -1537,7 +1522,6 @@ ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
   else
     return ScrollView::BLUE;
 }                                /* GetMatchColorFor */
-
 
 /**
  * This routine returns (in Fill) the specification of
@@ -1588,7 +1572,6 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   Filler->YEnd += Filler->EndDelta;
 
 }                                /* GetNextFill */
-
 
 /**
  * This routine computes a data structure (Filler)
@@ -1723,8 +1706,10 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = -(inT16) ((Sin / Cos) * 256);
-      Filler->EndDelta = (inT16) ((Cos / Sin) * 256);
+      Filler->StartDelta = static_cast<inT16>(ClipToRange<int>(
+          -IntCastRounded((Sin / Cos) * 256), MIN_INT16, MAX_INT16));
+      Filler->EndDelta = static_cast<inT16>(ClipToRange<int>(
+          IntCastRounded((Cos / Sin) * 256), MIN_INT16, MAX_INT16));
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;
@@ -1786,7 +1771,6 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   window->SetCursor(X, Y);
   window->DrawTo(X + Dx, Y + Dy);
 }                                /* RenderIntFeature */
-
 
 /**
  * This routine extracts the parameters of the specified

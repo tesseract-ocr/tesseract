@@ -86,7 +86,7 @@ void ColPartitionGrid::HandleClick(int x, int y) {
   ColPartition* neighbour;
   FCOORD click(x, y);
   while ((neighbour = radsearch.NextRadSearch()) != NULL) {
-    TBOX nbox = neighbour->bounding_box();
+    const TBOX& nbox = neighbour->bounding_box();
     if (nbox.contains(click)) {
       tprintf("Block box:");
       neighbour->bounding_box().print();
@@ -1037,7 +1037,7 @@ void ColPartitionGrid::ListFindMargins(ColPartitionSet** best_columns,
     ColPartition* part = part_it.data();
     ColPartitionSet* columns = NULL;
     if (best_columns != NULL) {
-      TBOX part_box = part->bounding_box();
+      const TBOX& part_box = part->bounding_box();
       // Get the columns from the y grid coord.
       int grid_x, grid_y;
       GridCoords(part_box.left(), part_box.bottom(), &grid_x, &grid_y);
@@ -1569,7 +1569,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
     const TBOX& im_box, const FCOORD& rerotation,
     bool debug, const ColPartition& part, int* best_distance) {
   // Set up a rectangle search bounded by the part.
-  TBOX part_box = part.bounding_box();
+  const TBOX& part_box = part.bounding_box();
   TBOX search_box;
   ICOORD dist_scaling;
   ComputeSearchBoxAndScaling(direction, part_box, gridsize(),
@@ -1619,10 +1619,10 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
         image_bias - htext_score >= kSmoothDecisionMargin &&
         image_bias - vtext_score >= kSmoothDecisionMargin) {
       *best_distance = dists[NPT_IMAGE][0];
-      if (dists[NPT_WEAK_VTEXT].size() > 0 &&
+      if (!dists[NPT_WEAK_VTEXT].empty() &&
           *best_distance > dists[NPT_WEAK_VTEXT][0])
         *best_distance = dists[NPT_WEAK_VTEXT][0];
-      if (dists[NPT_WEAK_HTEXT].size() > 0 &&
+      if (!dists[NPT_WEAK_HTEXT].empty() &&
           *best_distance > dists[NPT_WEAK_HTEXT][0])
         *best_distance = dists[NPT_WEAK_HTEXT][0];
       return BRT_POLYIMAGE;

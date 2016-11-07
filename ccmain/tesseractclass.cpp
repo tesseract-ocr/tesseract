@@ -398,8 +398,8 @@ Tesseract::Tesseract()
                  "Don't suspect dict wds longer than this", this->params()),
       BOOL_MEMBER(suspect_constrain_1Il, false, "UNLV keep 1Il chars rejected",
                   this->params()),
-      double_MEMBER(suspect_rating_per_ch, 999.9, "Don't touch bad rating limit",
-                    this->params()),
+      double_MEMBER(suspect_rating_per_ch, 999.9,
+                    "Don't touch bad rating limit", this->params()),
       double_MEMBER(suspect_accept_rating, -999.9, "Accept good rating limit",
                     this->params()),
       BOOL_MEMBER(tessedit_minimal_rejection, false,
@@ -511,7 +511,6 @@ Tesseract::Tesseract()
       STRING_MEMBER(page_separator, "\f",
                     "Page separator (default is form feed control character)",
                     this->params()),
-
 
       // The following parameters were deprecated and removed from their
       // original

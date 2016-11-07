@@ -295,7 +295,8 @@ class ClassPruner {
       HeapSort(num_classes_, sort_key_, sort_index_);
   }
 
-  /** Prints debug info on the class pruner matches for the pruned classes only. */
+  /** Prints debug info on the class pruner matches for the pruned classes only.
+   */
   void DebugMatch(const Classify& classify,
                   const INT_TEMPLATES_STRUCT* int_templates,
                   const INT_FEATURE_STRUCT* features) const {
@@ -370,8 +371,9 @@ class ClassPruner {
  private:
   /** Array[rounded_classes_] of initial counts for each class. */
   int *class_count_;
-  /// Array[rounded_classes_] of modified counts for each class after normalizing
-  /// for expected number of features, disabled classes, fragments, and xheights.
+  /// Array[rounded_classes_] of modified counts for each class after
+  /// normalizing for expected number of features, disabled classes, fragments,
+  /// and xheights.
   int *norm_count_;
   /** Array[rounded_classes_ +1] of pruned counts that gets sorted */
   int *sort_key_;
@@ -402,8 +404,9 @@ class ClassPruner {
  *                               normalization process (by CLASS_INDEX)
  * @param expected_num_features  Array of expected number of features
  *                               for each class (by CLASS_INDEX)
- * @param results                Sorted Array of pruned classes. Must be an array
- *                               of size at least int_templates->NumClasses.
+ * @param results                Sorted Array of pruned classes. Must be an
+ *                               array of size at least
+ *                               int_templates->NumClasses.
  * @param keep_this
  */
 int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
@@ -606,7 +609,6 @@ int IntegerMatcher::FindGoodProtos(
   return NumGoodProtos;
 }
 
-
 /**
  * FindBadFeatures finds all features with maximum feature-evidence <
  * AdaptFeatureThresh. The list is ordered by increasing feature number.
@@ -701,7 +703,6 @@ void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level) {
   evidence_mult_mask_ = ((1 << kIntEvidenceTruncBits) - 1);
 }
 
-
 /*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------*/
@@ -716,8 +717,6 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
   memset(feature_evidence_, 0,
          class_template->NumConfigs * sizeof(feature_evidence_[0]));
 }
-
-
 
 /**
  * Print debugging information for Configuations
@@ -741,7 +740,6 @@ void IMDebugConfiguration(int FeatureNum,
   }
   cprintf ("\n");
 }
-
 
 /**
  * Print debugging information for Configuations
@@ -795,10 +793,10 @@ int IntegerMatcher::UpdateTablesForFeature(
   uinT32 XFeatureAddress;
   uinT32 YFeatureAddress;
   uinT32 ThetaFeatureAddress;
-  uinT8 *UINT8Pointer;
+  uinT8* UINT8Pointer;
   int ProtoIndex;
   uinT8 Temp;
-  int *IntPointer;
+  int* IntPointer;
   int ConfigNum;
   inT32 M3;
   inT32 A3;
@@ -915,7 +913,6 @@ int IntegerMatcher::UpdateTablesForFeature(
   }
   return SumOverConfigs;
 }
-
 
 /**
  * Print debugging information for Configuations
@@ -1165,8 +1162,6 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
   }
 }
 
-
-
 /**
  * Normalize Sum of Proto and Feature Evidence by dividing by the sum of
  * the Feature Lengths and the Proto Lengths for each configuration.
@@ -1179,7 +1174,6 @@ void ScratchEvidence::NormalizeSums(
         (NumFeatures + ClassTemplate->ConfigLengths[i]);
   }
 }
-
 
 /**
  * Find the best match for the current class and update the Result

@@ -437,10 +437,15 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
     PangoGlyph dotted_circle_glyph;
     PangoFont* font = run->item->analysis.font;
 
-    PangoGlyphString * glyphs = pango_glyph_string_new();
+#ifdef _WIN32  // Fixme! Leaks memory and breaks unittests.
+    PangoGlyphString* glyphs = pango_glyph_string_new();
     char s[] = "\xc2\xa7";
     pango_shape(s, sizeof(s), &(run->item->analysis), glyphs);
     dotted_circle_glyph = glyphs->glyphs[0].glyph;
+#else
+    dotted_circle_glyph = pango_fc_font_get_glyph(
+        reinterpret_cast<PangoFcFont*>(font), kDottedCircleGlyph);
+#endif
 
     if (TLOG_IS_ON(2)) {
       PangoFontDescription* desc = pango_font_describe(font);
@@ -519,17 +524,16 @@ vector<string> FontUtils::available_fonts_;  // cache list
 bool FontUtils::IsAvailableFont(const char* input_query_desc,
                                 string* best_match) {
   string query_desc(input_query_desc);
-  if (PANGO_VERSION <= 12005) {
-    // Strip commas and any ' Medium' substring in the name.
-    query_desc.erase(std::remove(query_desc.begin(), query_desc.end(), ','),
-                     query_desc.end());
-    const string kMediumStr = " Medium";
-    std::size_t found = query_desc.find(kMediumStr);
-    if (found != std::string::npos) {
-      query_desc.erase(found, kMediumStr.length());
-    }
+#if (PANGO_VERSION <= 12005)
+  // Strip commas and any ' Medium' substring in the name.
+  query_desc.erase(std::remove(query_desc.begin(), query_desc.end(), ','),
+                   query_desc.end());
+  const string kMediumStr = " Medium";
+  std::size_t found = query_desc.find(kMediumStr);
+  if (found != std::string::npos) {
+    query_desc.erase(found, kMediumStr.length());
   }
-
+#endif
   PangoFontDescription *desc = pango_font_description_from_string(
       query_desc.c_str());
   PangoFont* selected_font = NULL;
@@ -589,7 +593,7 @@ static bool ShouldIgnoreFontFamilyName(const char* query) {
 // Outputs description names of available fonts.
 /* static */
 const vector<string>& FontUtils::ListAvailableFonts() {
-  if (available_fonts_.size()) {
+  if (!available_fonts_.empty()) {
     return available_fonts_;
   }
 #ifndef USE_STD_NAMESPACE

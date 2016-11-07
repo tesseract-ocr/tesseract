@@ -145,13 +145,12 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
   return 0.0f;
 }
 
-void LTRResultIterator::RowAttributes(float* row_height,
-                                      float* descenders,
+void LTRResultIterator::RowAttributes(float* row_height, float* descenders,
                                       float* ascenders) const {
-    *row_height = it_->row()->row->x_height() + it_->row()-> row->ascenders()
-                  - it_->row()->row->descenders();
-    *descenders = it_->row()->row->descenders();
-    *ascenders = it_->row()->row->ascenders();
+  *row_height = it_->row()->row->x_height() + it_->row()->row->ascenders() -
+                it_->row()->row->descenders();
+  *descenders = it_->row()->row->descenders();
+  *ascenders = it_->row()->row->ascenders();
 }
 
 // Returns the font attributes of the current word. If iterating at a higher

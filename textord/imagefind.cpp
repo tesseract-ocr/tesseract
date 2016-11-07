@@ -77,7 +77,7 @@ Pix* ImageFind::FindImages(Pix* pix) {
   // Leptonica will print an error message and return NULL if we call
   // pixGenHalftoneMask(pixr, NULL, ...) with too small image, so we
   // want to bypass that.
-  if (pixGetWidth(pixr) < kMinImageFindSize || 
+  if (pixGetWidth(pixr) < kMinImageFindSize ||
       pixGetHeight(pixr) < kMinImageFindSize) {
     pixDestroy(&pixr);
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
@@ -1115,7 +1115,7 @@ static bool TestWeakIntersectedPart(const TBOX& im_box,
                                     ColPartition* part) {
   if (part->flow() < BTFT_STRONG_CHAIN) {
     // A weak partition intersects the box.
-    TBOX part_box = part->bounding_box();
+    const TBOX& part_box = part->bounding_box();
     if (im_box.contains(part_box)) {
       int area = part_box.area();
       int intersect_area = IntersectArea(part_box, part_list);
@@ -1180,7 +1180,7 @@ static bool ScanForOverlappingText(ColPartitionGrid* part_grid, TBOX* box) {
         part->flow() == BTFT_STRONG_CHAIN) {
       // Text intersects the box.
       any_text_in_padded_rect = true;
-      TBOX part_box = part->bounding_box();
+      const TBOX& part_box = part->bounding_box();
       if (box->overlap(part_box)) {
         return true;
       }

@@ -550,7 +550,7 @@ void TableFinder::GroupColumnBlocks(ColSegment_LIST* new_blocks,
   // iterate through the source list
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     ColSegment* src_seg = src_it.data();
-    TBOX src_box = src_seg->bounding_box();
+    const TBOX& src_box = src_seg->bounding_box();
     bool match_found = false;
     // iterate through the destination list to find a matching column block
     for (dest_it.mark_cycle_pt(); !dest_it.cycled_list(); dest_it.forward()) {
@@ -1342,7 +1342,7 @@ void TableFinder::GetTableRegions(ColSegment_LIST* table_columns,
   // create a bool array to hold projection on y-axis
   bool* table_region = new bool[page_height];
   while ((part = gsearch.NextFullSearch()) != NULL) {
-    TBOX part_box = part->bounding_box();
+    const TBOX& part_box = part->bounding_box();
     // reset the projection array
     for (int i = 0; i < page_height; i++) {
       table_region[i] = false;
@@ -1974,7 +1974,7 @@ void TableFinder::DisplayColPartitionConnections(
 
     ColPartition* upper_part = part->nearest_neighbor_above();
     if (upper_part) {
-      TBOX upper_box = upper_part->bounding_box();
+      const TBOX& upper_box = upper_part->bounding_box();
       int mid_x = (left_x + right_x) / 2;
       int mid_y = (top_y + bottom_y) / 2;
       int other_x = (upper_box.left() + upper_box.right()) / 2;
@@ -1985,7 +1985,7 @@ void TableFinder::DisplayColPartitionConnections(
     }
     ColPartition* lower_part = part->nearest_neighbor_below();
     if (lower_part) {
-      TBOX lower_box = lower_part->bounding_box();
+      const TBOX& lower_box = lower_part->bounding_box();
       int mid_x = (left_x + right_x) / 2;
       int mid_y = (top_y + bottom_y) / 2;
       int other_x = (lower_box.left() + lower_box.right()) / 2;
@@ -2098,7 +2098,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
   table_search.StartFullSearch();
   ColSegment* table;
   while ((table = table_search.NextFullSearch()) != NULL) {
-    TBOX table_box = table->bounding_box();
+    const TBOX& table_box = table->bounding_box();
     // Start a rect search on table_box
     GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
         rectsearch(grid);

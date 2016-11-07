@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    mfdefs.c
- **	Purpose:     Basic routines for manipulating micro-features
- **	Author:      Dan Johnson
- **	History:     Mon Jan 22 08:48:58 1990, DSJ, Created.
+ ** Filename:    mfdefs.c
+ ** Purpose:     Basic routines for manipulating micro-features
+ ** Author:      Dan Johnson
+ ** History:     Mon Jan 22 08:48:58 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -32,7 +32,7 @@
  * @return New MICROFEATURE
  * @note History: 7/27/89, DSJ, Created.
  */
-MICROFEATURE NewMicroFeature() { 
+MICROFEATURE NewMicroFeature() {
   return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
 }                                /* NewMicroFeature */
 
@@ -41,10 +41,10 @@ MICROFEATURE NewMicroFeature() {
 /**
  * This routine deallocates all of the memory consumed by
  * a list of micro-features.
- * @param MicroFeatures	list of micro-features to be freed
+ * @param MicroFeatures list of micro-features to be freed
  * @return  none
  * @note History: 7/27/89, DSJ, Created.
  */
-void FreeMicroFeatures(MICROFEATURES MicroFeatures) { 
+void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, Efree); 
 }                                /* FreeMicroFeatures */

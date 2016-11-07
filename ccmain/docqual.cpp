@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        docqual.cpp  (Formerly docqual.c)
  * Description: Document Quality Metrics
- * Author:		Phil Cheatle
- * Created:		Mon May  9 11:27:28 BST 1994
+ * Author:    Phil Cheatle
+ * Created:   Mon May  9 11:27:28 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,8 +98,8 @@ void Tesseract::word_char_quality(WERD_RES *word,
                                   ROW *row,
                                   inT16 *match_count,
                                   inT16 *accepted_match_count) {
-  if (word->bln_boxes == NULL ||
-    word->rebuild_word == NULL || word->rebuild_word->blobs.empty()) {
+  if (word->bln_boxes == NULL || word->rebuild_word == NULL ||
+      word->rebuild_word->blobs.empty()) {
     *match_count = 0;
     *accepted_match_count = 0;
     return;
@@ -132,7 +132,7 @@ inT16 Tesseract::count_outline_errs(char c, inT16 outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
-    return 0;                    //Don't use this char
+    return 0;  // Don't use this char
   else if (STRING (outlines_2).contains (c))
     expected_outline_count = 2;
   else
@@ -151,17 +151,16 @@ void Tesseract::quality_based_rejection(PAGE_RES_IT &page_res_it,
   }
 }
 
-
 /*************************************************************************
  * unrej_good_quality_words()
  * Accept potential rejects in words which pass the following checks:
  *    - Contains a potential reject
  *    - Word looks like a sensible alpha word.
  *    - Word segmentation is the same as the original image
- *		- All characters have the expected number of outlines
+ *    - All characters have the expected number of outlines
  * NOTE - the rejection counts are recalculated after unrejection
  *      - CAN'T do it in a single pass without a bit of fiddling
- *		- keep it simple but inefficient
+ *    - keep it simple but inefficient
  *************************************************************************/
 void Tesseract::unrej_good_quality_words(  //unreject potential
                                          PAGE_RES_IT &page_res_it) {
@@ -402,7 +401,6 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
 }
 
 }  // namespace tesseract
-
 
 /*************************************************************************
  * reject_whole_page()

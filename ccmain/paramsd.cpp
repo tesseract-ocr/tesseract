@@ -329,13 +329,19 @@ void ParamsEditor::WriteParams(char *filename,
     fclose(fp);
     sprintf (msg_str, "Overwrite file " "%s" "? (Y/N)", filename);
     int a = sv_window_->ShowYesNoDialog(msg_str);
-    if (a == 'n') { return; }  // don't write
+    if (a == 'n') {
+      return;
+    }  // don't write
   }
 
 
   fp = fopen (filename, "wb");  // can we write to it?
   if (fp == NULL) {
-    sv_window_->AddMessage("Can't write to file " "%s" "", filename);
+    sv_window_->AddMessage(
+        "Can't write to file "
+        "%s"
+        "",
+        filename);
     return;
   }
 

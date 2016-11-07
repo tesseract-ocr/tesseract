@@ -90,8 +90,8 @@ parse_flags() {
             --)
                 break;;
             --fontlist)
-		fn=0
-		FONTS=""
+    fn=0
+    FONTS=""
                 while test $j -lt ${#ARGV[@]}; do
                     test -z "${ARGV[$j]}" && break
                     test `echo ${ARGV[$j]} | cut -c -2` = "--" && break

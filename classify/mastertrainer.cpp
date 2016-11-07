@@ -362,9 +362,11 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
-                &italic, &bold, &fixed, &serif, &fraktur) != 6)
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name, &italic, &bold,
+                &fixed, &serif, &fraktur) != 6) {
+      delete[] font_name;
       continue;
+    }
     fontinfo.properties =
         (italic << 0) +
         (bold << 1) +
@@ -373,6 +375,8 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
         (fraktur << 4);
     if (!fontinfo_table_.contains(fontinfo)) {
       fontinfo_table_.push_back(fontinfo);
+    } else {
+      delete[] font_name;
     }
   }
   fclose(fp);

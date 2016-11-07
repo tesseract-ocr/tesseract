@@ -520,7 +520,7 @@ bool ExtractIntFeat(const TBLOB& blob,
   tesseract::Classify::ExtractFeatures(blob, nonlinear_norm,
                                        &bl_features, &cn_features, results,
                                        NULL);
-  if (bl_features.size() == 0 || cn_features.size() == 0 ||
+  if (bl_features.empty() || cn_features.empty() ||
       bl_features.size() > MAX_NUM_INT_FEATURES ||
       cn_features.size() > MAX_NUM_INT_FEATURES) {
     return false;  // Feature extraction failed.

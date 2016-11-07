@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        polyblk.c  (Formerly poly_block.c)
  * Description: Polygonal blocks
- * Author:					Sheelagh Lloyd?
+ * Author:          Sheelagh Lloyd?
  * Created:
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.

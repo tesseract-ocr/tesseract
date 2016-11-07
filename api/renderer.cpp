@@ -155,11 +155,11 @@ TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
   AppendString(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-        "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-        "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
-        "lang=\"en\">\n <head>\n  <title>");
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+      "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+      "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+      "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
+      "lang=\"en\">\n <head>\n  <title>");
   AppendString(title());
   AppendString(
       "</title>\n"
@@ -198,25 +198,25 @@ bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
 /**********************************************************************
  * TSV Text Renderer interface implementation
  **********************************************************************/
-TessTsvRenderer::TessTsvRenderer(const char *outputbase)
+TessTsvRenderer::TessTsvRenderer(const char* outputbase)
     : TessResultRenderer(outputbase, "tsv") {
-    font_info_ = false;
+  font_info_ = false;
 }
 
-TessTsvRenderer::TessTsvRenderer(const char *outputbase, bool font_info)
+TessTsvRenderer::TessTsvRenderer(const char* outputbase, bool font_info)
     : TessResultRenderer(outputbase, "tsv") {
-    font_info_ = font_info;
+  font_info_ = font_info;
 }
 
 bool TessTsvRenderer::BeginDocumentHandler() {
   // Output TSV column headings
-  AppendString("level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n");
+  AppendString(
+      "level\tpage_num\tblock_num\tpar_num\tline_num\tword_"
+      "num\tleft\ttop\twidth\theight\tconf\ttext\n");
   return true;
 }
 
-bool TessTsvRenderer::EndDocumentHandler() {
-  return true;
-}
+bool TessTsvRenderer::EndDocumentHandler() { return true; }
 
 bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
   char* tsv = api->GetTSVText(imagenum());
@@ -266,8 +266,7 @@ bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
  * Osd Text Renderer interface implementation
  **********************************************************************/
 TessOsdRenderer::TessOsdRenderer(const char* outputbase)
-    : TessResultRenderer(outputbase, "osd") {
-}
+    : TessResultRenderer(outputbase, "osd") {}
 
 bool TessOsdRenderer::AddImageHandler(TessBaseAPI* api) {
   char* osd = api->GetOsdText(imagenum());

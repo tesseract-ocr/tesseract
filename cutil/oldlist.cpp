@@ -206,8 +206,8 @@ void destroy_nodes(LIST list, void_dest destructor) {
     destructor = memfree;
 
   while (list != NIL_LIST) {
-    (*destructor) (first_node (list));
-    list = pop (list);
+    if (first_node(list) != NULL) (*destructor)(first_node(list));
+    list = pop(list);
   }
 }
 

@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:	clustertool.c
- **	Purpose:	Misc. tools for use with the clustering routines
- **	Author:		Dan Johnson
- **	History:	6/6/89, DSJ, Created.
+ ** Filename: clustertool.c
+ ** Purpose:  Misc. tools for use with the clustering routines
+ ** Author:   Dan Johnson
+ ** History:  6/6/89, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -26,9 +26,10 @@
 #include <math.h>
 
 //---------------Global Data Definitions and Declarations--------------------
-#define TOKENSIZE 80             //< max size of tokens read from an input file
-#define MAXSAMPLESIZE 65535      //< max num of dimensions in feature space
-//#define MAXBLOCKSIZE  65535   //< max num of samples in a character (block size)
+#define TOKENSIZE 80         //< max size of tokens read from an input file
+#define MAXSAMPLESIZE 65535  //< max num of dimensions in feature space
+//#define MAXBLOCKSIZE  65535   //< max num of samples in a character (block
+// size)
 
 /**
  * This routine reads a single integer from the specified
@@ -37,7 +38,7 @@
  * @param File open text file to read sample size from
  * @return Sample size
  * @note Globals: None
- * @note Exceptions: ILLEGALSAMPLESIZE	illegal format or range
+ * @note Exceptions: ILLEGALSAMPLESIZE  illegal format or range
  * @note History: 6/6/89, DSJ, Created.
  */
 uinT16 ReadSampleSize(FILE *File) {
@@ -293,7 +294,7 @@ FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
     if (NumFloatsRead != 1) {
       if ((NumFloatsRead == EOF) && (i == 0)) {
         if (needs_free) {
-            Efree(Buffer);
+          Efree(Buffer);
         }
         return NULL;
       } else {
@@ -315,8 +316,7 @@ FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
  * @note Exceptions: None
  * @note History: 6/6/89, DSJ, Created.
  */
-void
-WriteParamDesc (FILE * File, uinT16 N, PARAM_DESC ParamDesc[]) {
+void WriteParamDesc(FILE *File, uinT16 N, const PARAM_DESC ParamDesc[]) {
   int i;
 
   for (i = 0; i < N; i++) {
@@ -446,15 +446,10 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @note History: 6/12/89, DSJ, Created.
 */
 
-void WriteProtoList(
-     FILE	*File,
-     uinT16	N,
-     PARAM_DESC	ParamDesc[],
-     LIST	ProtoList,
-     BOOL8	WriteSigProtos,
-     BOOL8	WriteInsigProtos)
-{
-  PROTOTYPE	*Proto;
+void WriteProtoList(FILE *File, uinT16 N, PARAM_DESC ParamDesc[],
+                    LIST ProtoList, BOOL8 WriteSigProtos,
+                    BOOL8 WriteInsigProtos) {
+  PROTOTYPE *Proto;
 
   /* write file header */
   fprintf(File,"%0d\n",N);
@@ -464,8 +459,8 @@ void WriteProtoList(
   iterate(ProtoList)
     {
       Proto = (PROTOTYPE *) first_node ( ProtoList );
-      if (( Proto->Significant && WriteSigProtos )	||
-	  ( ! Proto->Significant && WriteInsigProtos ) )
-	WritePrototype( File, N, Proto );
+      if ((Proto->Significant && WriteSigProtos) ||
+          (!Proto->Significant && WriteInsigProtos))
+        WritePrototype(File, N, Proto);
     }
 }
