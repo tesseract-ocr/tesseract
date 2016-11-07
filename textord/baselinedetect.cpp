@@ -850,7 +850,8 @@ void BaselineDetect::ComputeBaselineSplinesAndXheights(const ICOORD& page_tr,
   Pix* pix_spline = pix_debug_ ? pixConvertTo32(pix_debug_) : NULL;
   for (int i = 0; i < blocks_.size(); ++i) {
     BaselineBlock* bl_block = blocks_[i];
-    bl_block->PrepareForSplineFitting(page_tr, remove_noise);
+    if (enable_splines)
+      bl_block->PrepareForSplineFitting(page_tr, remove_noise);
     bl_block->FitBaselineSplines(enable_splines, show_final_rows, textord);
     if (pix_spline) {
       bl_block->DrawPixSpline(pix_spline);

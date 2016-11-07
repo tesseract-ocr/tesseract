@@ -290,6 +290,8 @@ class UNICHARSET {
     han_sid_ = 0;
     hiragana_sid_ = 0;
     katakana_sid_ = 0;
+    thai_sid_ = 0;
+    hangul_sid_ = 0;
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
@@ -604,6 +606,16 @@ class UNICHARSET {
     return unichars[unichar_id].properties.AnyRangeEmpty();
   }
 
+  // Returns true if the script of the given id is space delimited.
+  // Returns false for Han and Thai scripts.
+  bool IsSpaceDelimited(UNICHAR_ID unichar_id) const {
+    if (INVALID_UNICHAR_ID == unichar_id) return true;
+    int script_id = get_script(unichar_id);
+    return script_id != han_sid_ && script_id != thai_sid_ &&
+           script_id != hangul_sid_ && script_id != hiragana_sid_ &&
+           script_id != katakana_sid_;
+  }
+
   // Return the script name of the given unichar.
   // The returned pointer will always be the same for the same script, it's
   // managed by unicharset and thus MUST NOT be deleted
@@ -773,7 +785,7 @@ class UNICHARSET {
 
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
-    if (unichar_id == UNICHAR_SPACE && has_special_codes()) return " ";
+    if (unichar_id == UNICHAR_SPACE) return " ";
     return unichars[unichar_id].properties.normed.string();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
@@ -835,6 +847,8 @@ class UNICHARSET {
   int han_sid() const { return han_sid_; }
   int hiragana_sid() const { return hiragana_sid_; }
   int katakana_sid() const { return katakana_sid_; }
+  int thai_sid() const { return thai_sid_; }
+  int hangul_sid() const { return hangul_sid_; }
   int default_sid() const { return default_sid_; }
 
   // Returns true if the unicharset has the concept of upper/lower case.
@@ -977,6 +991,8 @@ class UNICHARSET {
   int han_sid_;
   int hiragana_sid_;
   int katakana_sid_;
+  int thai_sid_;
+  int hangul_sid_;
   // The most frequently occurring script in the charset.
   int default_sid_;
 };

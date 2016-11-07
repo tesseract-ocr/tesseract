@@ -23,7 +23,6 @@
 #include "dawg.h"
 #include "dawg_cache.h"
 #include "host.h"
-#include "oldlist.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "trie.h"
@@ -76,11 +75,13 @@ enum XHeightConsistencyEnum {XH_GOOD, XH_SUBNORMAL, XH_INCONSISTENT};
 
 struct DawgArgs {
   DawgArgs(DawgPositionVector *d, DawgPositionVector *up, PermuterType p)
-      : active_dawgs(d), updated_dawgs(up), permuter(p) {}
+      : active_dawgs(d), updated_dawgs(up), permuter(p), valid_end(false) {}
 
   DawgPositionVector *active_dawgs;
   DawgPositionVector *updated_dawgs;
   PermuterType permuter;
+  // True if the current position is a valid word end.
+  bool valid_end;
 };
 
 class Dict {
@@ -294,7 +295,15 @@ class Dict {
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
   static DawgCache *GlobalDawgCache();
-  void Load(DawgCache *dawg_cache);
+  // Sets up ready for a Load or LoadLSTM.
+  void SetupForLoad(DawgCache *dawg_cache);
+  // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
+  void Load(const char *data_file_name, const STRING &lang);
+  // Loads the dawgs needed by the LSTM model. Call FinishLoad() after.
+  void LoadLSTM(const char *data_file_name, const STRING &lang);
+  // Completes the loading process after Load() and/or LoadLSTM().
+  // Returns false if no dictionaries were loaded.
+  bool FinishLoad();
   void End();
 
   // Resets the document dictionary analogous to ResetAdaptiveClassifier.
@@ -397,9 +406,7 @@ class Dict {
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }
-  inline UNICHAR_ID WildcardID() const {
-    return wildcard_unichar_id_;
-  }
+  inline UNICHAR_ID WildcardID() const { return wildcard_unichar_id_; }
   /// Return the number of dawgs in the dawgs_ vector.
   inline int NumDawgs() const { return dawgs_.size(); }
   /// Return i-th dawg pointer recorded in the dawgs_ vector.
@@ -436,7 +443,7 @@ class Dict {
   /// edges were found.
   void ProcessPatternEdges(const Dawg *dawg, const DawgPosition &info,
                            UNICHAR_ID unichar_id, bool word_end,
-                           DawgPositionVector *updated_dawgs,
+                           DawgArgs *dawg_args,
                            PermuterType *current_permuter) const;
 
   /// Read/Write/Access special purpose dawgs which contain words
@@ -483,6 +490,8 @@ class Dict {
   inline void SetWordsegRatingAdjustFactor(float f) {
     wordseg_rating_adjust_factor_ = f;
   }
+  /// Returns true if the language is space-delimited (not CJ, or T).
+  bool IsSpaceDelimitedLang() const;
 
  private:
   /** Private member variables. */

@@ -302,6 +302,9 @@ int main (int argc, char **argv) {
                                     *shape_table, float_classes,
                                     inttemp_file.string(),
                                     pffmtable_file.string());
+  for (int c = 0; c < unicharset->size(); ++c) {
+    FreeClassFields(&float_classes[c]);
+  }
   delete [] float_classes;
   FreeLabeledClassList(mf_classes);
   delete trainer;

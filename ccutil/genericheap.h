@@ -108,6 +108,8 @@ class GenericHeap {
   const Pair& PeekTop() const {
     return heap_[0];
   }
+  // Get the value of the worst (largest, defined by operator< ) element.
+  const Pair& PeekWorst() const { return heap_[IndexOfWorst()]; }
 
   // Removes the top element of the heap. If entry is not NULL, the element
   // is copied into *entry, otherwise it is discarded.
@@ -136,22 +138,12 @@ class GenericHeap {
   // not NULL, the element is copied into *entry, otherwise it is discarded.
   // Time = O(n). Returns false if the heap was already empty.
   bool PopWorst(Pair* entry) {
-    int heap_size = heap_.size();
-    if (heap_size == 0) return false;  // It cannot be empty!
-
-    // Find the maximum element. Its index is guaranteed to be greater than
-    // the index of the parent of the last element, since by the heap invariant
-    // the parent must be less than or equal to the children.
-    int worst_index = heap_size - 1;
-    int end_parent = ParentNode(worst_index);
-    for (int i = worst_index - 1; i > end_parent; --i) {
-      if (heap_[worst_index] < heap_[i])
-        worst_index = i;
-    }
+    int worst_index = IndexOfWorst();
+    if (worst_index < 0) return false;  // It cannot be empty!
     // Extract the worst element from the heap, leaving a hole at worst_index.
     if (entry != NULL)
       *entry = heap_[worst_index];
-    --heap_size;
+    int heap_size = heap_.size() - 1;
     if (heap_size > 0) {
       // Sift the hole upwards to match the last element of the heap_
       Pair hole_pair = heap_[heap_size];
@@ -160,6 +152,22 @@ class GenericHeap {
     }
     heap_.truncate(heap_size);
     return true;
+  }
+
+  // Returns the index of the worst element. Time = O(n/2).
+  int IndexOfWorst() const {
+    int heap_size = heap_.size();
+    if (heap_size == 0) return -1;  // It cannot be empty!
+
+    // Find the maximum element. Its index is guaranteed to be greater than
+    // the index of the parent of the last element, since by the heap invariant
+    // the parent must be less than or equal to the children.
+    int worst_index = heap_size - 1;
+    int end_parent = ParentNode(worst_index);
+    for (int i = worst_index - 1; i > end_parent; --i) {
+      if (heap_[worst_index] < heap_[i]) worst_index = i;
+    }
+    return worst_index;
   }
 
   // The pointed-to Pair has changed its key value, so the location of pair

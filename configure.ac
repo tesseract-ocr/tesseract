@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ([2.50])
-AC_INIT([tesseract], [3.05.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_INIT([tesseract], [4.00.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
@@ -18,8 +18,8 @@ AC_PREFIX_DEFAULT([/usr/local])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2015
-PACKAGE_DATE="07/11"
+PACKAGE_YEAR=2016
+PACKAGE_DATE="11/11"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
@@ -42,8 +42,8 @@ AC_SUBST([PACKAGE_DATE])
 GENERIC_LIBRARY_NAME=tesseract
 
 # Release versioning
-GENERIC_MAJOR_VERSION=3
-GENERIC_MINOR_VERSION=4
+GENERIC_MAJOR_VERSION=4
+GENERIC_MINOR_VERSION=0
 GENERIC_MICRO_VERSION=0
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
@@ -520,6 +520,7 @@ fi
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([api/Makefile])
+AC_CONFIG_FILES([arch/Makefile])
 AC_CONFIG_FILES([ccmain/Makefile])
 AC_CONFIG_FILES([opencl/Makefile])
 AC_CONFIG_FILES([ccstruct/Makefile])
@@ -528,6 +529,7 @@ AC_CONFIG_FILES([classify/Makefile])
 AC_CONFIG_FILES([cube/Makefile])
 AC_CONFIG_FILES([cutil/Makefile])
 AC_CONFIG_FILES([dict/Makefile])
+AC_CONFIG_FILES([lstm/Makefile])
 AC_CONFIG_FILES([neural_networks/runtime/Makefile])
 AC_CONFIG_FILES([textord/Makefile])
 AC_CONFIG_FILES([viewer/Makefile])

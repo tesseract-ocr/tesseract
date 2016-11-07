@@ -251,6 +251,7 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
       &block->noise_blobs,
       &block->small_blobs,
       &block->large_blobs);
+    if (block->line_size == 0) block->line_size = 1;
     block->line_spacing = block->line_size *
         (tesseract::CCStruct::kDescenderFraction +
          tesseract::CCStruct::kXHeightFraction +
@@ -769,6 +770,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
   PointerVector<WordWithBox> word_ptrs;
   for (int g = 0; g < groups.size(); ++g) {
     const BlockGroup* group = groups[g];
+    if (group->bounding_box.null_box()) continue;
     WordGrid word_grid(group->min_xheight, group->bounding_box.botleft(),
                        group->bounding_box.topright());
     for (int b = 0; b < group->blocks.size(); ++b) {

@@ -1,5 +1,6 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
     -DUSE_STD_NAMESPACE \
+    -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct -I$(top_srcdir)/cube \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
@@ -27,6 +28,9 @@ libtesseract_api_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -57,6 +61,9 @@ libtesseract_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \

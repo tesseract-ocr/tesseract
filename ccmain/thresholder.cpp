@@ -152,19 +152,27 @@ void ImageThresholder::SetImage(const Pix* pix) {
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
   // Convert the image as necessary so it is one of binary, plain RGB, or
-  // 8 bit with no colormap.
-  if (depth > 1 && depth < 8) {
+  // 8 bit with no colormap. Guarantee that we always end up with our own copy,
+  // not just a clone of the input.
+  if (pixGetColormap(src)) {
+    Pix* tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
+    depth = pixGetDepth(tmp);
+    if (depth > 1 && depth < 8) {
+      pix_ = pixConvertTo8(tmp, false);
+      pixDestroy(&tmp);
+    } else {
+      pix_ = tmp;
+    }
+  } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
-  } else if (pixGetColormap(src)) {
-    pix_ = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
   } else {
-    pix_ = pixClone(src);
+    pix_ = pixCopy(NULL, src);
   }
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
   pix_wpl_ = pixGetWpl(pix_);
   scale_ = 1;
-  estimated_res_ = yres_ = pixGetYRes(src);
+  estimated_res_ = yres_ = pixGetYRes(pix_);
   Init();
 }
 

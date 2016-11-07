@@ -49,6 +49,7 @@
 #include "equationdetect.h"
 #include "globals.h"
 #ifndef NO_CUBE_BUILD
+#include "lstmrecognizer.h"
 #include "tesseract_cube_combiner.h"
 #endif
 
@@ -65,6 +66,9 @@ Tesseract::Tesseract()
                   "Generate training data from boxed chars", this->params()),
       BOOL_MEMBER(tessedit_make_boxes_from_boxes, false,
                   "Generate more boxes from boxed chars", this->params()),
+      BOOL_MEMBER(tessedit_train_line_recognizer, false,
+                  "Break input into lines and remap boxes if present",
+                  this->params()),
       BOOL_MEMBER(tessedit_dump_pageseg_images, false,
                   "Dump intermediate images made during page segmentation",
                   this->params()),
@@ -222,6 +226,8 @@ Tesseract::Tesseract()
                   "(more accurate)",
                   this->params()),
       INT_MEMBER(cube_debug_level, 0, "Print cube debug info.", this->params()),
+      BOOL_MEMBER(lstm_use_matrix, 1,
+                  "Use ratings matrix/beam search with lstm", this->params()),
       STRING_MEMBER(outlines_odd, "%| ", "Non standard number of outlines",
                     this->params()),
       STRING_MEMBER(outlines_2, "ij!?%\":;", "Non standard number of outlines",
@@ -605,6 +611,7 @@ Tesseract::Tesseract()
       pix_binary_(NULL),
       cube_binary_(NULL),
       pix_grey_(NULL),
+      pix_original_(NULL),
       pix_thresholds_(NULL),
       source_resolution_(0),
       textord_(this),
@@ -619,11 +626,16 @@ Tesseract::Tesseract()
       cube_cntxt_(NULL),
       tess_cube_combiner_(NULL),
 #endif
-      equ_detect_(NULL) {
+      equ_detect_(NULL),
+#ifndef ANDROID_BUILD
+      lstm_recognizer_(NULL),
+#endif
+      train_line_page_num_(0) {
 }
 
 Tesseract::~Tesseract() {
   Clear();
+  pixDestroy(&pix_original_);
   end_tesseract();
   sub_langs_.delete_data_pointers();
 #ifndef NO_CUBE_BUILD
@@ -636,6 +648,8 @@ Tesseract::~Tesseract() {
     delete tess_cube_combiner_;
     tess_cube_combiner_ = NULL;
   }
+  delete lstm_recognizer_;
+  lstm_recognizer_ = NULL;
 #endif
 }
 

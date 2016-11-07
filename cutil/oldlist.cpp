@@ -401,7 +401,6 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
   return (push_last (var_list, variable));
 }
 
-
 /**********************************************************************
  *   s e a r c h
  *

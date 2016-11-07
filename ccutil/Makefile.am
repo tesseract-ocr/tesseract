@@ -14,7 +14,7 @@ endif
 include_HEADERS = \
 	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
 	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
-	tesscallback.h unichar.h unicharmap.h unicharset.h
+	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h
 
 noinst_HEADERS = \
     ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
@@ -38,7 +38,7 @@ libtesseract_ccutil_la_SOURCES = \
     mainblk.cpp memry.cpp \
     serialis.cpp strngs.cpp scanutils.cpp \
     tessdatamanager.cpp tprintf.cpp \
-    unichar.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
+    unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 
 if T_WIN

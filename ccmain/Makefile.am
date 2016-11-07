@@ -1,6 +1,7 @@
 AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
+    -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/classify  -I$(top_srcdir)/dict \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
@@ -33,6 +34,9 @@ libtesseract_main_la_LIBADD = \
     ../ccstruct/libtesseract_ccstruct.la \
     ../viewer/libtesseract_viewer.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../classify/libtesseract_classify.la \
     ../cutil/libtesseract_cutil.la \
     ../opencl/libtesseract_opencl.la
@@ -44,7 +48,7 @@ endif
 libtesseract_main_la_SOURCES = \
     adaptions.cpp applybox.cpp control.cpp  \
     docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
-    ltrresultiterator.cpp \
+    linerec.cpp ltrresultiterator.cpp \
     osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
     pagewalk.cpp par_control.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
     reject.cpp resultiterator.cpp superscript.cpp \

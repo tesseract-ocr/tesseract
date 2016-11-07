@@ -69,14 +69,17 @@ Dawg *DawgLoader::Load() {
   PermuterType perm_type;
   switch (tessdata_dawg_type_) {
     case TESSDATA_PUNC_DAWG:
+    case TESSDATA_LSTM_PUNC_DAWG:
       dawg_type = DAWG_TYPE_PUNCTUATION;
       perm_type = PUNC_PERM;
       break;
     case TESSDATA_SYSTEM_DAWG:
+    case TESSDATA_LSTM_SYSTEM_DAWG:
       dawg_type = DAWG_TYPE_WORD;
       perm_type = SYSTEM_DAWG_PERM;
       break;
     case TESSDATA_NUMBER_DAWG:
+    case TESSDATA_LSTM_NUMBER_DAWG:
       dawg_type = DAWG_TYPE_NUMBER;
       perm_type = NUMBER_PERM;
       break;

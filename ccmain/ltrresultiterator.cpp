@@ -220,6 +220,12 @@ bool LTRResultIterator::WordIsFromDictionary() const {
          permuter == USER_DAWG_PERM;
 }
 
+// Returns the number of blanks before the current word.
+int LTRResultIterator::BlanksBeforeWord() const {
+  if (it_->word() == NULL) return 1;
+  return it_->word()->word->space();
+}
+
 // Returns true if the current word is numeric.
 bool LTRResultIterator::WordIsNumeric() const {
   if (it_->word() == NULL) return false;  // Already at the end!

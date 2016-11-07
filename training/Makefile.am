@@ -3,6 +3,7 @@ AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE\
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
+    -I$(top_srcdir)/lstm -I$(top_srcdir)/arch \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
@@ -45,7 +46,7 @@ libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
 bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata \
-  dawg2wordlist mftraining set_unicharset_properties shapeclustering \
+  dawg2wordlist lstmtraining mftraining set_unicharset_properties shapeclustering \
   text2image unicharset_extractor wordlist2dawg
 
 ambiguous_words_SOURCES = ambiguous_words.cpp
@@ -58,6 +59,9 @@ ambiguous_words_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -82,6 +86,9 @@ classifier_tester_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -115,6 +122,9 @@ cntraining_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -136,6 +146,9 @@ if USING_MULTIPLELIBS
 dawg2wordlist_LDADD += \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -150,6 +163,33 @@ dawg2wordlist_LDADD += \
     ../api/libtesseract.la
 endif
 
+lstmtraining_SOURCES = lstmtraining.cpp
+#lstmtraining_LDFLAGS = -static
+lstmtraining_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(libicu)
+if USING_MULTIPLELIBS
+lstmtraining_LDADD += \
+    ../textord/libtesseract_textord.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../ccutil/libtesseract_ccutil.la
+else
+lstmtraining_LDADD += \
+    ../api/libtesseract.la
+endif
+
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
 mftraining_LDADD = \
@@ -160,6 +200,9 @@ mftraining_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -185,6 +228,9 @@ set_unicharset_properties_LDADD += \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../ccstruct/libtesseract_ccstruct.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
@@ -207,6 +253,9 @@ shapeclustering_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -230,6 +279,9 @@ text2image_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
@@ -266,6 +318,9 @@ if USING_MULTIPLELIBS
 wordlist2dawg_LDADD += \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \

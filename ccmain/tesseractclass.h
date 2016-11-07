@@ -102,7 +102,10 @@ class CubeLineObject;
 class CubeObject;
 class CubeRecoContext;
 #endif
+class DocumentData;
 class EquationDetect;
+class ImageData;
+class LSTMRecognizer;
 class Tesseract;
 #ifndef NO_CUBE_BUILD
 class TesseractCubeCombiner;
@@ -189,7 +192,7 @@ class Tesseract : public Wordrec {
   }
   // Destroy any existing pix and return a pointer to the pointer.
   Pix** mutable_pix_binary() {
-    Clear();
+    pixDestroy(&pix_binary_);
     return &pix_binary_;
   }
   Pix* pix_binary() const {
@@ -202,16 +205,20 @@ class Tesseract : public Wordrec {
     pixDestroy(&pix_grey_);
     pix_grey_ = grey_pix;
   }
-  // Returns a pointer to a Pix representing the best available image of the
-  // page. The image will be 8-bit grey if the input was grey or color. Note
-  // that in grey 0 is black and 255 is white. If the input was binary, then
-  // the returned Pix will be binary. Note that here black is 1 and white is 0.
-  // To tell the difference pixGetDepth() will return 8 or 1.
-  // In either case, the return value is a borrowed Pix, and should not be
-  // deleted or pixDestroyed.
-  Pix* BestPix() const {
-    return pix_grey_ != NULL ? pix_grey_ : pix_binary_;
+  Pix* pix_original() const { return pix_original_; }
+  // Takes ownership of the given original_pix.
+  void set_pix_original(Pix* original_pix) {
+    pixDestroy(&pix_original_);
+    pix_original_ = original_pix;
   }
+  // Returns a pointer to a Pix representing the best available (original) image
+  // of the page. Can be of any bit depth, but never color-mapped, as that has
+  // always been dealt with. Note that in grey and color, 0 is black and 255 is
+  // white. If the input was binary, then black is 1 and white is 0.
+  // To tell the difference pixGetDepth() will return 32, 8 or 1.
+  // In any case, the return value is a borrowed Pix, and should not be
+  // deleted or pixDestroyed.
+  Pix* BestPix() const { return pix_original_; }
   void set_pix_thresholds(Pix* thresholds) {
     pixDestroy(&pix_thresholds_);
     pix_thresholds_ = thresholds;
@@ -263,6 +270,15 @@ class Tesseract : public Wordrec {
     }
     return false;
   }
+  // Returns true if any language uses the LSTM.
+  bool AnyLSTMLang() const {
+    if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) return true;
+    for (int i = 0; i < sub_langs_.size(); ++i) {
+      if (sub_langs_[i]->tessedit_ocr_engine_mode == OEM_LSTM_ONLY)
+        return true;
+    }
+    return false;
+  }
 
   void SetBlackAndWhitelist();
 
@@ -292,6 +308,48 @@ class Tesseract : public Wordrec {
       Pix** music_mask_pix);
   // par_control.cpp
   void PrerecAllWordsPar(const GenericVector<WordData>& words);
+
+  //// linerec.cpp
+  // Generates training data for training a line recognizer, eg LSTM.
+  // Breaks the page into lines, according to the boxes, and writes them to a
+  // serialized DocumentData based on output_basename.
+  void TrainLineRecognizer(const STRING& input_imagename,
+                           const STRING& output_basename,
+                           BLOCK_LIST *block_list);
+  // Generates training data for training a line recognizer, eg LSTM.
+  // Breaks the boxes into lines, normalizes them, converts to ImageData and
+  // appends them to the given training_data.
+  void TrainFromBoxes(const GenericVector<TBOX>& boxes,
+                      const GenericVector<STRING>& texts,
+                      BLOCK_LIST *block_list,
+                      DocumentData* training_data);
+
+  // Returns an Imagedata containing the image of the given textline,
+  // and ground truth boxes/truth text if available in the input.
+  // The image is not normalized in any way.
+  ImageData* GetLineData(const TBOX& line_box,
+                         const GenericVector<TBOX>& boxes,
+                         const GenericVector<STRING>& texts,
+                         int start_box, int end_box,
+                         const BLOCK& block);
+  // Helper gets the image of a rectangle, using the block.re_rotation() if
+  // needed to get to the image, and rotating the result back to horizontal
+  // layout. (CJK characters will be on their left sides) The vertical text flag
+  // is set in the returned ImageData if the text was originally vertical, which
+  // can be used to invoke a different CJK recognition engine. The revised_box
+  // is also returned to enable calculation of output bounding boxes.
+  ImageData* GetRectImage(const TBOX& box, const BLOCK& block, int padding,
+                          TBOX* revised_box) const;
+  // Top-level function recognizes a single raw line.
+  void RecogRawLine(PAGE_RES* page_res);
+  // Recognizes a word or group of words, converting to WERD_RES in *words.
+  // Analogous to classify_word_pass1, but can handle a group of words as well.
+  void LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
+                         PointerVector<WERD_RES>* words);
+  // Apply segmentation search to the given set of words, within the constraints
+  // of the existing ratings matrix. If there is already a best_choice on a word
+  // leaves it untouched and just sets the done/accepted etc flags.
+  void SearchWords(PointerVector<WERD_RES>* words);
 
   //// control.h /////////////////////////////////////////////////////////
   bool ProcessTargetWord(const TBOX& word_box, const TBOX& target_word_box,
@@ -783,6 +841,8 @@ class Tesseract : public Wordrec {
              "Generate training data from boxed chars");
   BOOL_VAR_H(tessedit_make_boxes_from_boxes, false,
              "Generate more boxes from boxed chars");
+  BOOL_VAR_H(tessedit_train_line_recognizer, false,
+             "Break input into lines and remap boxes if present");
   BOOL_VAR_H(tessedit_dump_pageseg_images, false,
              "Dump intermediate images made during page segmentation");
   INT_VAR_H(tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
@@ -891,6 +951,7 @@ class Tesseract : public Wordrec {
              "Run paragraph detection on the post-text-recognition "
              "(more accurate)");
   INT_VAR_H(cube_debug_level, 1, "Print cube debug info.");
+  BOOL_VAR_H(lstm_use_matrix, 1, "Use ratings matrix/beam searct with lstm");
   STRING_VAR_H(outlines_odd, "%| ", "Non standard number of outlines");
   STRING_VAR_H(outlines_2, "ij!?%\":;", "Non standard number of outlines");
   BOOL_VAR_H(docqual_excuse_outline_errs, false,
@@ -1174,6 +1235,8 @@ class Tesseract : public Wordrec {
   Pix* cube_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
+  // Original input image. Color if the input was color.
+  Pix* pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
   Pix* pix_thresholds_;
   // Input image resolution after any scaling. The resolution is not well
@@ -1205,6 +1268,10 @@ class Tesseract : public Wordrec {
 #endif
   // Equation detector. Note: this pointer is NOT owned by the class.
   EquationDetect* equ_detect_;
+  // LSTM recognizer, if available.
+  LSTMRecognizer* lstm_recognizer_;
+  // Output "page" number (actually line number) using TrainLineRecognizer.
+  int train_line_page_num_;
 };
 
 }  // namespace tesseract

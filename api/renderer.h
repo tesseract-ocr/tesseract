@@ -77,7 +77,7 @@ class TESS_API TessResultRenderer {
     bool EndDocument();
 
     const char* file_extension() const { return file_extension_; }
-    const char* title() const { return title_; }
+    const char* title() const { return title_.c_str(); }
 
     /**
      * Returns the index of the last image given to AddImage
@@ -126,7 +126,7 @@ class TESS_API TessResultRenderer {
 
   private:
     const char* file_extension_;  // standard extension for generated output
-    const char* title_;           // title of document being renderered
+    STRING title_;                // title of document being renderered
     int imagenum_;                // index of last image added
 
     FILE* fout_;                  // output file pointer

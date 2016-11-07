@@ -47,6 +47,10 @@ static const char kShapeTableFileSuffix[] = "shapetable";
 static const char kBigramDawgFileSuffix[] = "bigram-dawg";
 static const char kUnambigDawgFileSuffix[] = "unambig-dawg";
 static const char kParamsModelFileSuffix[] = "params-model";
+static const char kLSTMModelFileSuffix[] = "lstm";
+static const char kLSTMPuncDawgFileSuffix[] = "lstm-punc-dawg";
+static const char kLSTMSystemDawgFileSuffix[] = "lstm-word-dawg";
+static const char kLSTMNumberDawgFileSuffix[] = "lstm-number-dawg";
 
 namespace tesseract {
 
@@ -68,6 +72,10 @@ enum TessdataType {
   TESSDATA_BIGRAM_DAWG,         // 14
   TESSDATA_UNAMBIG_DAWG,        // 15
   TESSDATA_PARAMS_MODEL,        // 16
+  TESSDATA_LSTM,                // 17
+  TESSDATA_LSTM_PUNC_DAWG,      // 18
+  TESSDATA_LSTM_SYSTEM_DAWG,    // 19
+  TESSDATA_LSTM_NUMBER_DAWG,    // 20
 
   TESSDATA_NUM_ENTRIES
 };
@@ -76,24 +84,28 @@ enum TessdataType {
  * kTessdataFileSuffixes[i] indicates the file suffix for
  * tessdata of type i (from TessdataType enum).
  */
-static const char * const kTessdataFileSuffixes[] = {
-  kLangConfigFileSuffix,        // 0
-  kUnicharsetFileSuffix,        // 1
-  kAmbigsFileSuffix,            // 2
-  kBuiltInTemplatesFileSuffix,  // 3
-  kBuiltInCutoffsFileSuffix,    // 4
-  kNormProtoFileSuffix,         // 5
-  kPuncDawgFileSuffix,          // 6
-  kSystemDawgFileSuffix,        // 7
-  kNumberDawgFileSuffix,        // 8
-  kFreqDawgFileSuffix,          // 9
-  kFixedLengthDawgsFileSuffix,  // 10  // deprecated
-  kCubeUnicharsetFileSuffix,    // 11
-  kCubeSystemDawgFileSuffix,    // 12
-  kShapeTableFileSuffix,        // 13
-  kBigramDawgFileSuffix,        // 14
-  kUnambigDawgFileSuffix,       // 15
-  kParamsModelFileSuffix,       // 16
+static const char *const kTessdataFileSuffixes[] = {
+    kLangConfigFileSuffix,        // 0
+    kUnicharsetFileSuffix,        // 1
+    kAmbigsFileSuffix,            // 2
+    kBuiltInTemplatesFileSuffix,  // 3
+    kBuiltInCutoffsFileSuffix,    // 4
+    kNormProtoFileSuffix,         // 5
+    kPuncDawgFileSuffix,          // 6
+    kSystemDawgFileSuffix,        // 7
+    kNumberDawgFileSuffix,        // 8
+    kFreqDawgFileSuffix,          // 9
+    kFixedLengthDawgsFileSuffix,  // 10  // deprecated
+    kCubeUnicharsetFileSuffix,    // 11
+    kCubeSystemDawgFileSuffix,    // 12
+    kShapeTableFileSuffix,        // 13
+    kBigramDawgFileSuffix,        // 14
+    kUnambigDawgFileSuffix,       // 15
+    kParamsModelFileSuffix,       // 16
+    kLSTMModelFileSuffix,         // 17
+    kLSTMPuncDawgFileSuffix,      // 18
+    kLSTMSystemDawgFileSuffix,    // 19
+    kLSTMNumberDawgFileSuffix,    // 20
 };
 
 /**
@@ -101,23 +113,27 @@ static const char * const kTessdataFileSuffixes[] = {
  * of type i (from TessdataType enum) is text, and is binary otherwise.
  */
 static const bool kTessdataFileIsText[] = {
-  true,                         // 0
-  true,                         // 1
-  true,                         // 2
-  false,                        // 3
-  true,                         // 4
-  true,                         // 5
-  false,                        // 6
-  false,                        // 7
-  false,                        // 8
-  false,                        // 9
-  false,                        // 10  // deprecated
-  true,                         // 11
-  false,                        // 12
-  false,                        // 13
-  false,                        // 14
-  false,                        // 15
-  true,                         // 16
+    true,   // 0
+    true,   // 1
+    true,   // 2
+    false,  // 3
+    true,   // 4
+    true,   // 5
+    false,  // 6
+    false,  // 7
+    false,  // 8
+    false,  // 9
+    false,  // 10  // deprecated
+    true,   // 11
+    false,  // 12
+    false,  // 13
+    false,  // 14
+    false,  // 15
+    true,   // 16
+    false,  // 17
+    false,  // 18
+    false,  // 19
+    false,  // 20
 };
 
 /**

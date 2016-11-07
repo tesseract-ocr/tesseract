@@ -40,6 +40,9 @@
 #include "efio.h"
 #include "danerror.h"
 #include "globals.h"
+#ifndef ANDROID_BUILD
+#include "lstmrecognizer.h"
+#endif
 #include "tesseractclass.h"
 #include "params.h"
 
@@ -214,6 +217,18 @@ bool Tesseract::init_tesseract_lang_data(
     ASSERT_HOST(init_cube_objects(true, &tessdata_manager));
     if (tessdata_manager_debug_level)
       tprintf("Loaded Cube with combiner\n");
+  } else if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
+    if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
+      lstm_recognizer_ = new LSTMRecognizer;
+      TFile fp;
+      fp.Open(tessdata_manager.GetDataFilePtr(), -1);
+      ASSERT_HOST(lstm_recognizer_->DeSerialize(tessdata_manager.swap(), &fp));
+      if (lstm_use_matrix)
+        lstm_recognizer_->LoadDictionary(tessdata_path.string(), language);
+    } else {
+      tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+    }
   }
 #endif
   // Init ParamsModel.
@@ -409,8 +424,7 @@ int Tesseract::init_tesseract_internal(
   // If only Cube will be used, skip loading Tesseract classifier's
   // pre-trained templates.
   bool init_tesseract_classifier =
-    (tessedit_ocr_engine_mode == OEM_TESSERACT_ONLY ||
-     tessedit_ocr_engine_mode == OEM_TESSERACT_CUBE_COMBINED);
+    tessedit_ocr_engine_mode != OEM_CUBE_ONLY;
   // If only Cube will be used and if it has its own Unicharset,
   // skip initializing permuter and loading Tesseract Dawgs.
   bool init_dict =
@@ -468,7 +482,9 @@ int Tesseract::init_tesseract_lm(const char *arg0,
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
                                 NULL, 0, NULL, NULL, false))
     return -1;
-  getDict().Load(Dict::GlobalDawgCache());
+  getDict().SetupForLoad(Dict::GlobalDawgCache());
+  getDict().Load(tessdata_manager.GetDataFileName().string(), lang);
+  getDict().FinishLoad();
   tessdata_manager.End();
   return 0;
 }

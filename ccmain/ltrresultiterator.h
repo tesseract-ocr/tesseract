@@ -124,6 +124,9 @@ class TESS_API LTRResultIterator : public PageIterator {
   // Returns true if the current word was found in a dictionary.
   bool WordIsFromDictionary() const;
 
+  // Returns the number of blanks before the current word.
+  int BlanksBeforeWord() const;
+
   // Returns true if the current word is numeric.
   bool WordIsNumeric() const;
 

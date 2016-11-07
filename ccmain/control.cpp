@@ -84,7 +84,12 @@ BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
 
   WordData word_data(*pr_it);
   SetupWordPassN(2, &word_data);
-  classify_word_and_language(2, pr_it, &word_data);
+  // LSTM doesn't run on pass2, but we want to run pass2 for tesseract.
+  if (lstm_recognizer_ == NULL) {
+    classify_word_and_language(2, pr_it, &word_data);
+  } else {
+    classify_word_and_language(1, pr_it, &word_data);
+  }
   if (tessedit_debug_quality_metrics) {
     WERD_RES* word_res = pr_it->word();
     word_char_quality(word_res, pr_it->row()->row, &char_qual, &good_char_qual);
@@ -218,16 +223,14 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       if (pass_n == 1) {
         monitor->progress = 70 * w / words->size();
         if (monitor->progress_callback != NULL) {
-            TBOX box = pr_it->word()->word->bounding_box();
-            (*monitor->progress_callback)(monitor->progress,
-                                          box.left(), box.right(),
-                                          box.top(), box.bottom());
+          TBOX box = pr_it->word()->word->bounding_box();
+          (*monitor->progress_callback)(monitor->progress, box.left(),
+                                        box.right(), box.top(), box.bottom());
         }
       } else {
         monitor->progress = 70 + 30 * w / words->size();
-        if (monitor->progress_callback!=NULL) {
-                      (*monitor->progress_callback)(monitor->progress,
-                                                    0, 0, 0, 0);
+        if (monitor->progress_callback != NULL) {
+          (*monitor->progress_callback)(monitor->progress, 0, 0, 0, 0);
         }
       }
       if (monitor->deadline_exceeded() ||
@@ -252,7 +255,8 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       pr_it->forward();
     ASSERT_HOST(pr_it->word() != NULL);
     bool make_next_word_fuzzy = false;
-    if (ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
+    if (!AnyLSTMLang() &&
+        ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
       // Needs to be setup again to see the new outlines in the chopped_word.
       SetupWordPassN(pass_n, word);
     }
@@ -297,6 +301,16 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
                                 const TBOX* target_word_box,
                                 const char* word_config,
                                 int dopasses) {
+  // PSM_RAW_LINE is a special-case mode in which the layout analysis is
+  // completely ignored and LSTM is run on the raw image. There is no hope
+  // of running normal tesseract in this situation or of integrating output.
+#ifndef ANDROID_BUILD
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY &&
+      tessedit_pageseg_mode == PSM_RAW_LINE) {
+    RecogRawLine(page_res);
+    return true;
+  }
+#endif
   PAGE_RES_IT page_res_it(page_res);
 
   if (tessedit_minimal_rej_pass1) {
@@ -385,7 +399,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
 
   // The next passes can only be run if tesseract has been used, as cube
   // doesn't set all the necessary outputs in WERD_RES.
-  if (AnyTessLang()) {
+  if (AnyTessLang() && !AnyLSTMLang()) {
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
     set_global_loc_code(LOC_FUZZY_SPACE);
@@ -1362,6 +1376,19 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
     cube_word_pass1(block, row, *in_word);
     return;
   }
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
+    if (!(*in_word)->odd_size) {
+      LSTMRecognizeWord(*block, row, *in_word, out_words);
+      if (!out_words->empty())
+        return;  // Successful lstm recognition.
+    }
+    // Fall back to tesseract for failed words or odd words.
+    (*in_word)->SetupForRecognition(unicharset, this, BestPix(),
+                                    OEM_TESSERACT_ONLY, NULL,
+                                    classify_bln_numeric_mode,
+                                    textord_use_cjk_fp_model,
+                                    poly_allow_detailed_fx, row, block);
+  }
 #endif
   WERD_RES* word = *in_word;
   match_word_pass_n(1, word, row, block);
@@ -1496,10 +1523,6 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
                                     WERD_RES** in_word,
                                     PointerVector<WERD_RES>* out_words) {
   // Return if we do not want to run Tesseract.
-  if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY &&
-      tessedit_ocr_engine_mode != OEM_TESSERACT_CUBE_COMBINED &&
-      word_data.word->best_choice != NULL)
-    return;
   if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
     return;
   }
