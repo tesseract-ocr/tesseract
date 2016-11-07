@@ -127,7 +127,7 @@ string PangoFontInfo::DescriptionName() const {
 /* static */
 void PangoFontInfo::SoftInitFontConfig() {
   if (fonts_dir_.empty()) {
-    HardInitFontConfig(FLAGS_fonts_dir, FLAGS_fontconfig_tmpdir);
+    HardInitFontConfig(FLAGS_fonts_dir.c_str(), FLAGS_fontconfig_tmpdir.c_str());
   }
 }
 

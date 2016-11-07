@@ -73,7 +73,6 @@ void BoxChar::PrepareToWrite(vector<BoxChar*>* boxes) {
   if (rtl_rules) {
     ReorderRTLText(boxes);
   }
-  tprintf("Rtl = %d ,vertical=%d\n", rtl_rules, vertical_rules);
 }
 
 // Inserts newline (tab) characters into the vector at newline positions.
@@ -291,13 +290,19 @@ const int kMaxLineLength = 1024;
 /* static */
 void BoxChar::WriteTesseractBoxFile(const string& filename, int height,
                                     const vector<BoxChar*>& boxes) {
+  string output = GetTesseractBoxStr(height, boxes);
+  File::WriteStringToFileOrDie(output, filename);
+}
+
+/* static */
+string BoxChar::GetTesseractBoxStr(int height, const vector<BoxChar*>& boxes) {
   string output;
   char buffer[kMaxLineLength];
   for (int i = 0; i < boxes.size(); ++i) {
     const Box* box = boxes[i]->box_;
     if (box == NULL) {
       tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
-      return;
+      return "";
     }
     int nbytes =
         snprintf(buffer, kMaxLineLength, "%s %d %d %d %d %d\n",
@@ -305,6 +310,7 @@ void BoxChar::WriteTesseractBoxFile(const string& filename, int height,
                  box->x + box->w, height - box->y, boxes[i]->page_);
     output.append(buffer, nbytes);
   }
-  File::WriteStringToFileOrDie(output, filename);
+  return output;
 }
+
 }  // namespace tesseract
