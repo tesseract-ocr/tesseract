@@ -20,16 +20,15 @@
 #ifndef           HASHFN_H
 #define           HASHFN_H
 
-#ifdef USE_STD_NAMESPACE
 #if (__cplusplus >= 201103L) || defined(_MSC_VER)  // Visual Studio
 #include <unordered_map>
 #include <unordered_set>
-#define hash_map std::unordered_map
-#if (_MSC_VER >= 1500 && _MSC_VER < 1600)  // Visual Studio 2008
-using namespace std::tr1;
+#if defined(_MSC_VER) && (_MSC_VER >= 1500 && _MSC_VER < 1600)  // VS 2008
+#define TessHashMap std::tr1::unordered_map
+#define TessHashSet std::tr1::unordered_set
 #else  // _MSC_VER
-using std::unordered_map;
-using std::unordered_set;
+#define TessHashMap std::unordered_map
+#define TessHashSet std::unordered_set
 #include <memory>
 #define SmartPtr std::unique_ptr
 #define HAVE_UNIQUE_PTR
@@ -41,23 +40,14 @@ using std::unordered_set;
 #include <ext/hash_set>
 using __gnu_cxx::hash_map;
 using __gnu_cxx::hash_set;
-#define unordered_map hash_map
-#define unordered_set hash_set
+#define TessHashMap __gnu_cxx::hash_map
+#define TessHashSet __gnu_cxx::hash_set
 #else
 #include <hash_map>
 #include <hash_set>
+#define TessHashMap hash_map
+#define TessHashSet :hash_set
 #endif  // gcc
-#elif (__clang__)
-#include <unordered_map>
-#include <unordered_set>
-#define hash_map std::unordered_map
-#define unordered_set std::unordered_set
-#else  // USE_STD_NAMESPACE
-#include <hash_map>
-#include <hash_set>
-#define unordered_map hash_map
-#define unordered_set hash_set
-#endif  // USE_STD_NAMESPACE
 
 #ifndef HAVE_UNIQUE_PTR
 // Trivial smart ptr. Expand to add features of std::unique_ptr as required.

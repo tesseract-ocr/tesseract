@@ -108,6 +108,7 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
       underline_start_prob_(0),
       underline_continuation_prob_(0),
       underline_style_(PANGO_UNDERLINE_SINGLE),
+      features_(NULL),
       drop_uncovered_chars_(true),
       strip_unrenderable_words_(false),
       add_ligatures_(false),
@@ -120,7 +121,6 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
       box_padding_(0),
       total_chars_(0),
       font_index_(0),
-      features_(NULL),
       last_offset_(0) {
   pen_color_[0] = 0.0;
   pen_color_[1] = 0.0;
@@ -345,6 +345,11 @@ void StringRenderer::ClearBoxes() {
     delete boxchars_[i];
   boxchars_.clear();
   boxaDestroy(&page_boxes_);
+}
+
+string StringRenderer::GetBoxesStr() {
+  BoxChar::PrepareToWrite(&boxchars_);
+  return BoxChar::GetTesseractBoxStr(page_height_, boxchars_);
 }
 
 void StringRenderer::WriteAllBoxes(const string& filename) {

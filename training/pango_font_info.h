@@ -24,10 +24,16 @@
 #include <utility>
 #include <vector>
 
+#include "commandlineflags.h"
 #include "hashfn.h"
 #include "host.h"
-#include "util.h"
 #include "pango/pango-font.h"
+#include "pango/pango.h"
+#include "pango/pangocairo.h"
+#include "util.h"
+
+DECLARE_STRING_PARAM_FLAG(fonts_dir);
+DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
 
 typedef signed int char32;
 
@@ -44,6 +50,7 @@ class PangoFontInfo {
     DECORATIVE,
   };
   PangoFontInfo();
+  ~PangoFontInfo();
   // Initialize from parsing a font description name, defined as a string of the
   // format:
   //   "FamilyName [FaceName] [PointSize]"
@@ -83,10 +90,14 @@ class PangoFontInfo {
   bool GetSpacingProperties(const string& utf8_char,
                             int* x_bearing, int* x_advance) const;
 
-  // Initializes FontConfig by setting its environment variable and creating
-  // a fonts.conf file that points to the given fonts_dir. Once initialized,
-  // it is not re-initialized unless force_clear is true.
-  static void InitFontConfig(bool force_clear, const string& fonts_dir);
+  // If not already initialized, initializes FontConfig by setting its
+  // environment variable and creating a fonts.conf file that points to the
+  // FLAGS_fonts_dir and the cache to FLAGS_fontconfig_tmpdir.
+  static void SoftInitFontConfig();
+  // Re-initializes font config, whether or not already initialized.
+  // If already initialized, any existing cache is deleted, just to be sure.
+  static void HardInitFontConfig(const string& fonts_dir,
+                                 const string& cache_dir);
 
   // Accessors
   string DescriptionName() const;
@@ -130,8 +141,14 @@ class PangoFontInfo {
   int resolution_;
   // Fontconfig operates through an environment variable, so it intrinsically
   // cannot be thread-friendly, but you can serialize multiple independent
-  // font configurations by calling InitFontConfig(true, path).
-  static bool fontconfig_initialized_;
+  // font configurations by calling HardInitFontConfig(fonts_dir, cache_dir).
+  // These hold the last initialized values set by HardInitFontConfig or
+  // the first call to SoftInitFontConfig.
+  // Directory to be scanned for font files.
+  static string fonts_dir_;
+  // Directory to store the cache of font information. (Can be the same as
+  // fonts_dir_)
+  static string cache_dir_;
 
  private:
   PangoFontInfo(const PangoFontInfo&);
@@ -185,7 +202,8 @@ class FontUtils {
   // In the flags vector, each flag is set according to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
   // The return string is a list of the acceptable fonts that were used.
-  static string BestFonts(const unordered_map<char32, inT64>& ch_map,
+  static string BestFonts(
+      const TessHashMap<char32, inT64>& ch_map,
       vector<std::pair<const char*, vector<bool> > >* font_flag);
 
   // FontScore returns the weighted renderability score of the given
@@ -193,7 +211,7 @@ class FontUtils {
   // is also returned in raw_score.
   // The values in the bool vector ch_flags correspond to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
-  static int FontScore(const unordered_map<char32, inT64>& ch_map,
+  static int FontScore(const TessHashMap<char32, inT64>& ch_map,
                        const string& fontname, int* raw_score,
                        vector<bool>* ch_flags);
 

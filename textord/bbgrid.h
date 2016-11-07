@@ -364,7 +364,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  unordered_set<BBC*, PtrHash<BBC> > returns_;
+  TessHashSet<BBC*, PtrHash<BBC> > returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().

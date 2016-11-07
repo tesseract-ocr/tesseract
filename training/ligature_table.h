@@ -32,7 +32,7 @@ namespace tesseract {
 class PangoFontInfo;  // defined in pango_font_info.h
 
 // Map to substitute strings for ligatures.
-typedef hash_map<string, string, StringHash> LigHash;
+typedef TessHashMap<string, string, StringHash> LigHash;
 
 class LigatureTable {
  public:
