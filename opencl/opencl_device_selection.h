@@ -578,19 +578,5 @@ cleanup:
   return status;
 }
 
-static ds_status getNumDeviceWithEmptyScore(ds_profile* profile,
-                                            unsigned int* num) {
-  unsigned int i;
-  if (profile == NULL || num==NULL)
-    return DS_MEMORY_ERROR;
-  *num=0;
-  for (i = 0; i < profile->numDevices; i++) {
-    if (profile->devices[i].score == NULL) {
-      (*num)++;
-    }
-  }
-  return DS_SUCCESS;
-}
-
 #endif
 #endif
