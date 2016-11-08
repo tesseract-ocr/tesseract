@@ -165,8 +165,9 @@ class ImageData {
   // The return value is the scaled Pix, which must be pixDestroyed after use,
   // and scale_factor (if not NULL) is set to the scale factor that was applied
   // to the image to achieve the target_height.
-  Pix* PreScale(int target_height, float* scale_factor, int* scaled_width,
-                int* scaled_height, GenericVector<TBOX>* boxes) const;
+  Pix* PreScale(int target_height, int max_height, float* scale_factor,
+                int* scaled_width, int* scaled_height,
+                GenericVector<TBOX>* boxes) const;
 
   int MemoryUsed() const;
 

@@ -218,7 +218,11 @@ bool Tesseract::init_tesseract_lang_data(
     if (tessdata_manager_debug_level)
       tprintf("Loaded Cube with combiner\n");
   } else if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
-    if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
+    if (tessdata_manager.swap()) {
+      tprintf("Error: LSTM requested on big-endian hardware!!\n");
+      tprintf("Big-endian not yet supported! Loading tesseract.\n");
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+    } else if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer;
       TFile fp;
       fp.Open(tessdata_manager.GetDataFilePtr(), -1);

@@ -217,7 +217,7 @@ Pix* ImageData::GetPix() const {
 // The return value is the scaled Pix, which must be pixDestroyed after use,
 // and scale_factor (if not NULL) is set to the scale factor that was applied
 // to the image to achieve the target_height.
-Pix* ImageData::PreScale(int target_height, float* scale_factor,
+Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
                          int* scaled_width, int* scaled_height,
                          GenericVector<TBOX>* boxes) const {
   int input_width = 0;
@@ -226,8 +226,12 @@ Pix* ImageData::PreScale(int target_height, float* scale_factor,
   ASSERT_HOST(src_pix != NULL);
   input_width = pixGetWidth(src_pix);
   input_height = pixGetHeight(src_pix);
-  if (target_height == 0)
-    target_height = input_height;
+  if (target_height == 0) {
+    if (input_height > max_height)
+      target_height = max_height;
+    else
+      target_height = input_height;
+  }
   float im_factor = static_cast<float>(target_height) / input_height;
   if (scaled_width != NULL)
     *scaled_width = IntCastRounded(im_factor * input_width);

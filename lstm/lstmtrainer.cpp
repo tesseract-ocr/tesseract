@@ -34,8 +34,6 @@
 
 #include "callcpp.h"
 
-using std::string;
-
 namespace tesseract {
 
 // Min actual error rate increase to constitute divergence.
@@ -203,7 +201,7 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
 
 // Initializes a trainer from a serialized TFNetworkModel proto.
 // Returns the global step of TensorFlow graph or 0 if failed.
-int LSTMTrainer::InitTensorFlowNetwork(const string& tf_proto) {
+int LSTMTrainer::InitTensorFlowNetwork(const std::string& tf_proto) {
 #ifdef INCLUDE_TENSORFLOW
   delete network_;
   TFNetwork* tf_net = new TFNetwork("TensorFlow");
@@ -1199,14 +1197,14 @@ double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
 // Computes a very simple bag of words word recall error rate.
 // NOTE that this is destructive on both input strings.
 double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
-  typedef TessHashMap<string, int, std::hash<string> > StrMap;
+  typedef TessHashMap<std::string, int, std::hash<std::string> > StrMap;
   GenericVector<STRING> truth_words, ocr_words;
   truth_str->split(' ', &truth_words);
   if (truth_words.empty()) return 0.0;
   ocr_str->split(' ', &ocr_words);
   StrMap word_counts;
   for (int i = 0; i < truth_words.size(); ++i) {
-    string truth_word(truth_words[i].string());
+    std::string truth_word(truth_words[i].string());
     StrMap::iterator it = word_counts.find(truth_word);
     if (it == word_counts.end())
       word_counts.insert(make_pair(truth_word, 1));
@@ -1214,7 +1212,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
       ++it->second;
   }
   for (int i = 0; i < ocr_words.size(); ++i) {
-    string ocr_word(ocr_words[i].string());
+    std::string ocr_word(ocr_words[i].string());
     StrMap::iterator it = word_counts.find(ocr_word);
     if (it == word_counts.end())
       word_counts.insert(make_pair(ocr_word, -1));

@@ -25,6 +25,9 @@
 
 namespace tesseract {
 
+// Max height for variable height inputs before scaling anyway.
+const int kMaxInputHeight = 48;
+
 Input::Input(const STRING& name, int ni, int no)
     : Network(NT_INPUT, name, ni, no), cached_x_scale_(1) {}
 Input::Input(const STRING& name, const StaticShape& shape)
@@ -92,8 +95,8 @@ Pix* Input::PrepareLSTMInputs(const ImageData& image_data,
   // Note that NumInputs() is defined as input image height.
   int target_height = network->NumInputs();
   int width, height;
-  Pix* pix =
-      image_data.PreScale(target_height, image_scale, &width, &height, nullptr);
+  Pix* pix = image_data.PreScale(target_height, kMaxInputHeight, image_scale,
+                                 &width, &height, nullptr);
   if (pix == nullptr) {
     tprintf("Bad pix from ImageData!\n");
     return nullptr;
