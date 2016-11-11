@@ -75,6 +75,7 @@ AM_CONDITIONAL([T_WIN], false)
 AM_CONDITIONAL([MINGW], false)
 AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
+AC_SUBST([AM_CPPFLAGS])
 
 OPENCL_INC="/opt/AMDAPP/include"
 OPENCL_LIBS="-lOpenCL -ltiff"
@@ -154,7 +155,7 @@ AC_ARG_ENABLE([cube],
 AC_MSG_RESULT([$disable_cube])
 AM_CONDITIONAL([NO_CUBE_BUILD], [test "$disable_cube" = "yes"])
 if test "$disable_cube" = "yes"; then
-  AC_SUBST([AM_CPPFLAGS], [-DNO_CUBE_BUILD])
+  AM_CPPFLAGS="-DNO_CUBE_BUILD $AM_CPPFLAGS"
 fi
 
 # check whether to build embedded version
@@ -166,7 +167,7 @@ AC_ARG_ENABLE([embedded],
 AC_MSG_RESULT([$enable_embedded])
 AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
 if test "$enable_embedded" = "yes"; then
-  AC_SUBST([AM_CPPFLAGS], [-DEMBEDDED])
+  AM_CPPFLAGS="-DEMBEDDED $AM_CPPFLAGS"
 fi
 
 # check whether to build OpenMP support
@@ -174,7 +175,7 @@ AM_CONDITIONAL([OPENMP], false)
 AC_OPENMP
 AS_IF([test "x$OPENMP_CFLAGS" != "x"],
   [AM_CONDITIONAL([OPENMP], true)
-   AC_SUBST([AM_CPPFLAGS], ["$OPENMP_CXXFLAGS"])
+   AM_CPPFLAGS="$OPENMP_CXXFLAGS $AM_CPPFLAGS"
    AC_DEFINE([OPENMP], [], [Defined when compiled with OpenMP support])]
 )
 
@@ -227,7 +228,7 @@ case "${host_os}" in
       if !($have_opencl_lib); then
         AC_MSG_ERROR([Required OpenCL library not found!])
       fi
-      AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+      AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
       OPENCL_CPPFLAGS=""
       OPENCL_LDFLAGS="-framework OpenCL"
     fi
@@ -246,7 +247,7 @@ case "${host_os}" in
         if !($have_tiff); then
             AC_MSG_ERROR([Required TIFF headers not found! Try to install libtiff-dev?? package.])
         fi
-        AC_SUBST([AM_CPPFLAGS], [-DUSE_OPENCL])
+        AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
         OPENCL_CPPFLAGS="-I${OPENCL_INC}"
         OPENCL_LDFLAGS="${OPENCL_LIBS}"
     fi
