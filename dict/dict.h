@@ -374,6 +374,7 @@ class Dict {
   double def_probability_in_context(
       const char* lang, const char* context, int context_bytes,
       const char* character, int character_bytes) {
+    (void) lang;
     (void) context;
     (void) context_bytes;
     (void) character;

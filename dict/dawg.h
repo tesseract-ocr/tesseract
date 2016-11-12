@@ -183,13 +183,20 @@ class Dawg {
   /// of the given unichar_id.
   virtual void unichar_id_to_patterns(UNICHAR_ID unichar_id,
                                       const UNICHARSET &unicharset,
-                                      GenericVector<UNICHAR_ID> *vec) const {};
+                                      GenericVector<UNICHAR_ID> *vec) const {
+    (void)unichar_id;
+    (void)unicharset;
+    (void)vec;
+  }
 
   /// Returns the given EDGE_REF if the EDGE_RECORD that it points to has
   /// a self loop and the given unichar_id matches the unichar_id stored in the
   /// EDGE_RECORD, returns NO_EDGE otherwise.
   virtual EDGE_REF pattern_loop_edge(
       EDGE_REF edge_ref, UNICHAR_ID unichar_id, bool word_end) const {
+    (void)edge_ref;
+    (void)unichar_id;
+    (void)word_end;
     return false;
   }
 

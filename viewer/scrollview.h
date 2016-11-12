@@ -89,7 +89,7 @@ class SVEventHandler {
 
 // Gets called by the SV Window. Does nothing on default, overwrite this
 // to implement the desired behaviour
-    virtual void Notify(const SVEvent* sve) { }
+    virtual void Notify(const SVEvent* sve) { (void)sve; }
 };
 
 // The ScrollView class provides the expernal API to the scrollviewer process.
