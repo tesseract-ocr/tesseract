@@ -462,7 +462,8 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
 {
     unsigned int i = 0;
     cl_int clStatus;
-    size_t *binarySizes, numDevices=0;
+    size_t *binarySizes;
+    cl_uint numDevices;
     cl_device_id *mpArryDevsID;
     char **binaries, *str = NULL;
 
