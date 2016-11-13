@@ -72,10 +72,8 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
     if (profile->devices!=NULL && sr!=NULL) {
       unsigned int i;
       for (i = 0; i < profile->numDevices; i++) {
-        if (profile->devices[i].oclDeviceName)
-          free(profile->devices[i].oclDeviceName);
-        if (profile->devices[i].oclDriverVersion)
-          free(profile->devices[i].oclDriverVersion);
+        free(profile->devices[i].oclDeviceName);
+        free(profile->devices[i].oclDriverVersion);
         status = sr(profile->devices[i].score);
         if (status != DS_SUCCESS)
           break;
@@ -171,15 +169,14 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   profile->version = version;
 
 cleanup:
-  if (platforms)  free(platforms);
-  if (devices)    free(devices);
+  free(platforms);
+  free(devices);
   if (status == DS_SUCCESS) {
     *p = profile;
   }
   else {
     if (profile) {
-      if (profile->devices)
-        free(profile->devices);
+      free(profile->devices);
       free(profile);
     }
   }
@@ -585,7 +582,7 @@ static ds_status readProfileFromFile(ds_profile* profile,
     }
   }
 cleanup:
-  if (contentStart!=NULL) free(contentStart);
+  free(contentStart);
   return status;
 }
 
