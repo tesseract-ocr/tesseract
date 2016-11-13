@@ -524,7 +524,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
     }
     CharID++;
   }
-  if ( Sample != NULL ) free( Sample );
+  free( Sample );
   return( Clusterer );
 
 } /* SetUpForClustering */

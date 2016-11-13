@@ -538,30 +538,19 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     // Release all resouces and memory
     for ( i = 0; i < numDevices; i++ )
     {
-        if ( binaries[i] != NULL )
-        {
-            free( binaries[i] );
-            binaries[i] = NULL;
-        }
+        free(binaries[i]);
+        binaries[i] = NULL;
     }
 
-    if ( binaries != NULL )
-    {
-        free( binaries );
-        binaries = NULL;
-    }
+    free( binaries );
+    binaries = NULL;
 
-    if ( binarySizes != NULL )
-    {
-        free( binarySizes );
-        binarySizes = NULL;
-    }
+    free(binarySizes);
+    binarySizes = NULL;
 
-    if ( mpArryDevsID != NULL )
-    {
-        free( mpArryDevsID );
-        mpArryDevsID = NULL;
-    }
+    free(mpArryDevsID);
+    mpArryDevsID = NULL;
+ 
     return 1;
 }
 
