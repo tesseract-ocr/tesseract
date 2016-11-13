@@ -821,9 +821,9 @@ CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
 void Normalize (
     float  *Values)
 {
-  register float Slope;
-  register float Intercept;
-  register float Normalizer;
+  float Slope;
+  float Intercept;
+  float Normalizer;
 
   Slope      = tan (Values [2] * 2 * PI);
   Intercept  = Values [1] - Slope * Values [0];
