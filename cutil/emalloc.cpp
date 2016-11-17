@@ -1,6 +1,6 @@
 /**************************************************************************
  * Filename:
-              emalloc.c
+              emalloc.cpp
 **       Purpose:
               Routines for trapping memory allocation errors.
 **       Author:

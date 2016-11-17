@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        basedir.c  (Formerly getpath.c)
+ * File:        basedir.cpp  (Formerly getpath.c)
  * Description: Find the directory location of the current executable using PATH.
  * Author:      Ray Smith
  * Created:     Mon Jul 09 09:06:39 BST 1990

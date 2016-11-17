@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    intproto.c
+ ** Filename:    intproto.cpp
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
  ** History:     Thu Feb  7 14:38:16 1991, DSJ, Created.

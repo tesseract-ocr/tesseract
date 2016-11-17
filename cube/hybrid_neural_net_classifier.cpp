@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        charclassifier.cpp
+ * File:        hybrid_neural_net_classifier.cpp (Formerly charclassifier.cpp)
  * Description: Implementation of Convolutional-NeuralNet Character Classifier
  * Author:    Ahmad Abdulkader
  * Created:   2007

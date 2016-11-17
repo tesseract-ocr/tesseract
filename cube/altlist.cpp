@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        alt_list.cpp
+ * File:        altlist.cpp
  * Description: Class to abstarct a list of alternate results
  * Author:    Ahmad Abdulkader
  * Created:   2007

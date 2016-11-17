@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        permdawg.c  (Formerly permdawg.c)
+ * File:        permdawg.cpp  (Formerly permdawg.c)
  * Description:  Scale word choices by a dictionary
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987

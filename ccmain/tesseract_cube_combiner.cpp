@@ -1,6 +1,6 @@
 /**********************************************************************
- * File:        tesseract_cube_combiner.h
- * Description: Declaration of the Tesseract & Cube results combiner Class
+ * File:        tesseract_cube_combiner.cpp
+ * Description: Implementation of the Tesseract & Cube results combiner Class
  * Author:    Ahmad Abdulkader
  * Created:   2008
  *

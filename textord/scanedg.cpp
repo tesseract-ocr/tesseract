@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        scanedg.c  (Formerly scanedge.c)
+ * File:        scanedg.cpp  (Formerly scanedge.c)
  * Description: Raster scanning crack based edge extractor.
  * Author:					Ray Smith
  * Created:					Fri Mar 22 16:11:50 GMT 1991

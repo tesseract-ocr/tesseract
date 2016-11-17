@@ -1,5 +1,5 @@
 /******************************************************************************
- **      Filename:    intmatcher.c
+ **      Filename:    intmatcher.cpp
  **      Purpose:     Generic high level classification routines.
  **      Author:      Robert Moss
  **      History:     Wed Feb 13 17:35:28 MST 1991, RWM, Created.

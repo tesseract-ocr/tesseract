@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        errcode.c  (Formerly error.c)
+ * File:        errcode.cpp  (Formerly error.c)
  * Description: Generic error handler function
  * Author:      Ray Smith
  * Created:     Tue May  1 16:28:39 BST 1990

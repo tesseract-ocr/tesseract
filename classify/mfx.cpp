@@ -1,5 +1,5 @@
 /******************************************************************************
- **      Filename:       mfx.c
+ **      Filename:       mfx.cpp
  **      Purpose:        Micro feature extraction routines
  **      Author:         Dan Johnson
  **      History:        7/21/89, DSJ, Created.

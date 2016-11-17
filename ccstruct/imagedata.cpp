@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        imagedata.h
+// File:        imagedata.cpp
 // Description: Class to hold information about a single multi-page tiff
 //              training file and its corresponding boxes or text file.
 // Author:      Ray Smith

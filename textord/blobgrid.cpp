@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        blobgrid.h
+// File:        blobgrid.cpp
 // Description: BBGrid of BLOBNBOX with useful BLOBNBOX-specific methods.
 // Copyright 2011 Google Inc. All Rights Reserved.
 // Author: rays@google.com (Ray Smith)

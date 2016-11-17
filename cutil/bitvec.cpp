@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    bitvec.c
+ **	Filename:    bitvec.cpp
  **	Purpose:     Routines for manipulating bit vectors
  **	Author:      Dan Johnson
  **	History:     Thu Mar 15 10:37:27 1990, DSJ, Created.

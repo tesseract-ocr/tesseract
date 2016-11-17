@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        dawg_cache.h
+// File:        dawg_cache.cpp
 // Description: A class that knows about loading and caching dawgs.
 // Author:      David Eger
 // Created:     Fri Jan 27 12:08:00 PST 2012

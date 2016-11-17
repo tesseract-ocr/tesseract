@@ -1,5 +1,5 @@
 /******************************************************************************
-**	Filename:    MergeNF.c
+**	Filename:    MergeNF.h
 **	Purpose:     Program for merging similar nano-feature protos
 **	Author:      Dan Johnson
 **	History:     Wed Nov 21 09:55:23 1990, DSJ, Created.

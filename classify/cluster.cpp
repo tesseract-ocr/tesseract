@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:	cluster.c
+ **	Filename:	cluster.cpp
  **	Purpose:	Routines for clustering points in N-D space
  **	Author:		Dan Johnson
  **	History:	5/29/89, DSJ, Created.

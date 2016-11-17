@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    features.c
+ **	Filename:    ocrfeatures.cpp (Formerly features.c)
  **	Purpose:     Generic definition of a feature.
  **	Author:      Dan Johnson
  **	History:     Mon May 21 10:49:04 1990, DSJ, Created.

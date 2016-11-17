@@ -1,5 +1,5 @@
 /******************************************************************************
- **	Filename:    stopper.c
+ **	Filename:    stopper.cpp
  **	Purpose:     Stopping criteria for word classifier.
  **	Author:      Dan Johnson
  **	History:     Mon Apr 29 14:56:49 1991, DSJ, Created.

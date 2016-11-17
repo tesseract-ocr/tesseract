@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        tprintf.c
+ * File:        tprintf.cpp
  * Description: Trace version of printf - portable between UX and NT
  * Author:      Phil Cheatle
  * Created:     Wed Jun 28 15:01:15 BST 1995

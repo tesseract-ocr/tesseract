@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        elst2.c  (Formerly elist2.c)
+ * File:        elst2.cpp  (Formerly elist2.c)
  * Description: Doubly linked embedded list code not in the include file.
  * Author:      Phil Cheatle
  * Created:     Wed Jan 23 11:04:47 GMT 1991

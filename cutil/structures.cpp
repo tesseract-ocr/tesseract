@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        structures.c  (Formerly structures.c)
+ * File:        structures.cpp  (Formerly structures.c)
  * Description:  Allocate all the different types of structures.
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 30 10:27:26 1990

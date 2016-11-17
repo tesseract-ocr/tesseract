@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        combine_tessdata
+// File:        combine_tessdata.cpp
 // Description: Creates a unified traineddata file from several
 //              data files produced by the training process.
 // Author:      Daria Antonova
