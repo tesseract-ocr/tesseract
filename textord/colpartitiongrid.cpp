@@ -1376,7 +1376,7 @@ void ColPartitionGrid::FindMergeCandidates(const ColPartition* part,
     // combined box to see if anything else is inappropriately overlapped.
     if (!part_box.contains(c_box) && !c_box.contains(part_box)) {
       // Search the combined rectangle to see if anything new is overlapped.
-      // This is a preliminary test designed to quickly weed-out stupid
+      // This is a preliminary test designed to quickly weed-out poor
       // merge candidates that would create a big list of overlapped objects
       // for the squared-order overlap analysis. Eg. vertical and horizontal
       // line-like objects that overlap real text when merged:

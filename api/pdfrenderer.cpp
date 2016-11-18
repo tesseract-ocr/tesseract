@@ -282,7 +282,7 @@ void AffineMatrix(int writing_direction,
   }
 }
 
-// There are some really stupid PDF viewers in the wild, such as
+// There are some really awkward PDF viewers in the wild, such as
 // 'Preview' which ships with the Mac. They do a better job with text
 // selection and highlighting when given perfectly flat baseline
 // instead of very slightly tilted. We clip small tilts to appease
