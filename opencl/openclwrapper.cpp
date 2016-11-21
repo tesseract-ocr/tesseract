@@ -458,7 +458,8 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
 {
     unsigned int i = 0;
     cl_int clStatus;
-    size_t *binarySizes, numDevices = 0;
+    size_t *binarySizes;
+    cl_uint numDevices;
     cl_device_id *mpArryDevsID;
     char **binaries, *str = NULL;
 
@@ -591,7 +592,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
     const char *source;
     size_t source_size[1];
     int b_error, binary_status, binaryExisted, idx;
-    size_t numDevices;
+    cl_uint numDevices;
     cl_device_id *mpArryDevsID;
     FILE *fd, *fd1;
     const char* filename = "kernel.cl";
@@ -1132,6 +1133,7 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
         // L_MEMSTREAM *memStream;
         PROCNAME("pixReadMemTiffCl");
 
+<<<<<<< HEAD
         if (!data)
           return (PIX *)ERROR_PTR("data pointer is NULL", procName, NULL);
 
@@ -1158,6 +1160,13 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
           TIFFCleanup(tif);
           return NULL;
         }
+=======
+	if (pagefound == FALSE) {
+		L_WARNING("tiff page %d not found", procName, i);
+		TIFFCleanup(tif);
+		return NULL;
+	}
+>>>>>>> 8bff1e618ff4f14dfacd523ff0b57b944999f24f
 
         TIFFCleanup(tif);
         return pix;
