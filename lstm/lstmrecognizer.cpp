@@ -600,7 +600,7 @@ void LSTMRecognizer::LabelsViaThreshold(const NetworkIO& output,
     ++t;
   }
   while (t < width) {
-    ASSERT_HOST(!isnan(output.f(t)[null_char_]));
+    ASSERT_HOST(!std::isnan(output.f(t)[null_char_]));
     int label = output.BestLabel(t, null_char_, null_char_, NULL);
     int char_start = t++;
     while (t < width && !NullIsBest(output, null_thr, null_char_, t) &&
