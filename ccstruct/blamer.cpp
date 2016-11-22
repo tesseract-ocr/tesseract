@@ -317,7 +317,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
   int num_blobs = word->chopped_word->blobs.size();
   int box_index = 0;
   int blob_index = 0;
-  inT16 truth_x;
+  inT16 truth_x = -1;
   while (box_index < truth_word_.length() && blob_index < num_blobs) {
     truth_x = norm_truth_word_.BlobBox(box_index).right();
     TBLOB * curr_blob = word->chopped_word->blobs[blob_index];
