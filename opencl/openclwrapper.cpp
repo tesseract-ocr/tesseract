@@ -1133,7 +1133,6 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
         // L_MEMSTREAM *memStream;
         PROCNAME("pixReadMemTiffCl");
 
-<<<<<<< HEAD
         if (!data)
           return (PIX *)ERROR_PTR("data pointer is NULL", procName, NULL);
 
@@ -1156,17 +1155,10 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
         }
 
         if (pagefound == FALSE) {
-          L_WARNING("tiff page %d not found", procName);
+          L_WARNING("tiff page %d not found", procName, i);
           TIFFCleanup(tif);
           return NULL;
         }
-=======
-	if (pagefound == FALSE) {
-		L_WARNING("tiff page %d not found", procName, i);
-		TIFFCleanup(tif);
-		return NULL;
-	}
->>>>>>> 8bff1e618ff4f14dfacd523ff0b57b944999f24f
 
         TIFFCleanup(tif);
         return pix;
