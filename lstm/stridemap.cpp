@@ -38,7 +38,7 @@ bool StrideMap::Index::IsLast(FlexDimensions dimension) const {
   return MaxIndexOfDim(dimension) == indices_[dimension];
 }
 
-// Given that the dimensions upto and including dim-1 are valid, returns the
+// Given that the dimensions up to and including dim-1 are valid, returns the
 // maximum index for dimension dim.
 int StrideMap::Index::MaxIndexOfDim(FlexDimensions dim) const {
   int max_index = stride_map_->shape_[dim] - 1;

@@ -3163,7 +3163,7 @@ ds_device OpenclDevice::getDeviceSelection( ) {
       // cleanup
       // TODO: call destructor for profile object?
 
-      bool overrided = false;
+      bool overridden = false;
       char *overrideDeviceStr = getenv("TESSERACT_OPENCL_DEVICE");
       if (overrideDeviceStr != NULL) {
         int overrideDeviceIdx = atoi(overrideDeviceStr);
@@ -3173,7 +3173,7 @@ ds_device OpenclDevice::getDeviceSelection( ) {
               "%i)\n",
               overrideDeviceStr, overrideDeviceIdx);
           bestDeviceIdx = overrideDeviceIdx - 1;
-          overrided = true;
+          overridden = true;
         } else {
           printf(
               "[DS] Ignoring invalid TESSERACT_OPENCL_DEVICE=%s ([1,%i] are "
@@ -3182,7 +3182,7 @@ ds_device OpenclDevice::getDeviceSelection( ) {
         }
       }
 
-      if (overrided) {
+      if (overridden) {
         printf("[DS] Overridden Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
                profile->devices[bestDeviceIdx].oclDeviceName,
                profile->devices[bestDeviceIdx].type == DS_DEVICE_OPENCL_DEVICE

@@ -32,7 +32,7 @@ enum LossType {
 };
 
 // Simple class to hold the tensor shape that is known at network build time
-// and the LossType of the loss funtion.
+// and the LossType of the loss function.
 class StaticShape {
  public:
   StaticShape()

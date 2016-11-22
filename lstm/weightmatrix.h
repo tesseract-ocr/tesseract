@@ -100,7 +100,7 @@ class WeightMatrix {
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool training, bool swap, TFile* fp);
   // As DeSerialize, but reads an old (float) format WeightMatrix for
-  // backward compatability.
+  // backward compatibility.
   bool DeSerializeOld(bool training, bool swap, TFile* fp);
 
   // Computes matrix.vector v = Wu.
