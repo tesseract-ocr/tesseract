@@ -209,7 +209,7 @@ class LSTMRecognizer {
   // If label_threshold is positive, uses it for making the labels, otherwise
   // uses standard ctc. Returned in scale_factor is the reduction factor
   // between the image and the output coords, for computing bounding boxes.
-  // If re_invert is true, the input is inverted back to its orginal
+  // If re_invert is true, the input is inverted back to its original
   // photometric interpretation if inversion is attempted but fails to
   // improve the results. This ensures that outputs contains the correct
   // forward outputs for the best photometric interpretation.
@@ -351,7 +351,7 @@ class LSTMRecognizer {
   // The unicharset. Only the unicharset element is serialized.
   // Has to be a CCUtil, so Dict can point to it.
   CCUtil ccutil_;
-  // For backward compatability, recoder_ is serialized iff
+  // For backward compatibility, recoder_ is serialized iff
   // training_flags_ & TF_COMPRESS_UNICHARSET.
   // Further encode/decode ccutil_.unicharset's ids to simplify the unicharset.
   UnicharCompress recoder_;

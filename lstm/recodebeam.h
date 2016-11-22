@@ -91,7 +91,7 @@ struct RecodeNode {
   bool start_of_word;
   // True if this represents a valid candidate end of word position. Does not
   // necessarily mark the end of a word, since a word can be extended beyond a
-  // candidiate end by a continuation, eg 'the' continues to 'these'.
+  // candidate end by a continuation, eg 'the' continues to 'these'.
   bool end_of_word;
   // True if this is a duplicate of prev in all respects. Some training modes
   // allow the network to output duplicate characters and crush them with CTC,

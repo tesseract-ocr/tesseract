@@ -163,7 +163,7 @@ const int kDoubleFlag = 128;
 
 // Writes to the given file. Returns false in case of error.
 bool WeightMatrix::Serialize(bool training, TFile* fp) const {
-  // For backward compatability, add kDoubleFlag to mode to indicate the doubles
+  // For backward compatibility, add kDoubleFlag to mode to indicate the doubles
   // format, without errs, so we can detect and read old format weight matrices.
   uinT8 mode = (int_mode_ ? kInt8Flag : 0) |
                (use_ada_grad_ ? kAdaGradFlag : 0) | kDoubleFlag;
@@ -202,7 +202,7 @@ bool WeightMatrix::DeSerialize(bool training, bool swap, TFile* fp) {
 }
 
 // As DeSerialize, but reads an old (float) format WeightMatrix for
-// backward compatability.
+// backward compatibility.
 bool WeightMatrix::DeSerializeOld(bool training, bool swap, TFile* fp) {
   GENERIC_2D_ARRAY<float> float_array;
   if (int_mode_) {

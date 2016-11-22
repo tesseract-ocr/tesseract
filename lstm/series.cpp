@@ -142,7 +142,7 @@ bool Series::Backward(bool debug, const NetworkIO& fwd_deltas,
 }
 
 // Splits the series after the given index, returning the two parts and
-// deletes itself. The first part, upto network with index last_start, goes
+// deletes itself. The first part, up to network with index last_start, goes
 // into start, and the rest goes into end.
 void Series::SplitAt(int last_start, Series** start, Series** end) {
   *start = NULL;
