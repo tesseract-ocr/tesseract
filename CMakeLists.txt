@@ -137,6 +137,7 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
 
 include_directories(api)
+include_directories(arch)
 include_directories(ccmain)
 include_directories(ccstruct)
 include_directories(ccutil)
@@ -144,6 +145,7 @@ include_directories(classify)
 include_directories(cube)
 include_directories(cutil)
 include_directories(dict)
+include_directories(lstm)
 include_directories(neural_networks/runtime)
 include_directories(opencl)
 include_directories(textord)
@@ -159,6 +161,7 @@ string(SUBSTRING ${VERSION_MINOR} 0 1 VERSION_MINOR_0)
 string(SUBSTRING ${VERSION_MINOR} 1 1 VERSION_MINOR_1)
 
 file(GLOB tesseract_src
+    arch/*.cpp
     ccmain/*.cpp
     ccstruct/*.cpp
     ccutil/*.cpp
@@ -166,6 +169,7 @@ file(GLOB tesseract_src
     cube/*.cpp
     cutil/*.cpp
     dict/*.cpp
+    lstm/*.cpp
     neural_networks/runtime/*.cpp
     opencl/*.cpp
     textord/*.cpp
@@ -174,6 +178,7 @@ file(GLOB tesseract_src
 )
 file(GLOB tesseract_hdr
     api/*.h
+    arch/*.h
     ccmain/*.h
     ccstruct/*.h
     ccutil/*.h
@@ -181,6 +186,7 @@ file(GLOB tesseract_hdr
     cube/*.h
     cutil/*.h
     dict/*.h
+    lstm/*.h
     neural_networks/runtime/*.h
     opencl/*.h
     textord/*.h
