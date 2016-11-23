@@ -507,8 +507,7 @@ void vigorous_noise_removal(TO_BLOCK* block) {
             continue;  // Looks OK.
         }
         // It might be noise so get rid of it.
-        if (blob->cblob() != NULL)
-          delete blob->cblob();
+        delete blob->cblob();
         delete b_it.extract();
       } else {
         prev = blob;

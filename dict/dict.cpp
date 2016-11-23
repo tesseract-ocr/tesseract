@@ -191,7 +191,7 @@ Dict::Dict(CCUtil *ccutil)
 
 Dict::~Dict() {
   End();
-  if (hyphen_word_ != NULL) delete hyphen_word_;
+  delete hyphen_word_;
   if (output_ambig_words_file_ != NULL) fclose(output_ambig_words_file_);
 }
 
@@ -360,10 +360,8 @@ void Dict::End() {
   dawgs_.clear();
   successors_.clear();
   document_words_ = NULL;
-  if (pending_words_ != NULL) {
-    delete pending_words_;
-    pending_words_ = NULL;
-  }
+  delete pending_words_;
+  pending_words_ = NULL;
 }
 
 // Returns true if in light of the current state unichar_id is allowed

@@ -259,8 +259,8 @@ void split_to_blob(                                 //split the blob
                      pitch_error,
                      left_coutlines,
                      right_coutlines);
-  if (blob != NULL)
-    delete blob;                 //free it
+
+  delete blob;
 }
 
 /**********************************************************************
