@@ -568,9 +568,7 @@ int Wordrec::select_blob_to_split(
 
   for (x = 0; x < blob_choices.size(); ++x) {
     if (blob_choices[x] == NULL) {
-      if (fragments != NULL) {
-        delete[] fragments;
-      }
+      delete[] fragments;
       return x;
     } else {
       blob_choice = blob_choices[x];
@@ -614,9 +612,7 @@ int Wordrec::select_blob_to_split(
       }
     }
   }
-  if (fragments != NULL) {
-    delete[] fragments;
-  }
+  delete[] fragments;
   // TODO(daria): maybe a threshold of badness for
   // worst_near_fragment would be useful.
   return worst_index_near_fragment != -1 ?

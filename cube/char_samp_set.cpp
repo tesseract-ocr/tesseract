@@ -40,9 +40,7 @@ void CharSampSet::Cleanup() {
     // only free samples if owned by class
     if (own_samples_ == true) {
       for (int samp_idx = 0; samp_idx < cnt_; samp_idx++) {
-        if (samp_buff_[samp_idx] != NULL) {
-          delete samp_buff_[samp_idx];
-        }
+        delete samp_buff_[samp_idx];
       }
     }
     delete []samp_buff_;

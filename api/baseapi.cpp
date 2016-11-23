@@ -831,8 +831,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     return -1;
   if (FindLines() != 0)
     return -1;
-  if (page_res_ != NULL)
-    delete page_res_;
+  delete page_res_;
   if (block_list_->empty()) {
     page_res_ = new PAGE_RES(false, block_list_,
                              &tesseract_->prev_word_best_choice_);

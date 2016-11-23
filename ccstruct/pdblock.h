@@ -51,7 +51,7 @@ class PDBLK {
 
   /// destructor
   ~PDBLK() {
-    if (hand_poly) delete hand_poly;
+    delete hand_poly;
   }
 
   POLY_BLOCK *poly_block() const { return hand_poly; }
