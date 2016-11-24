@@ -132,7 +132,7 @@ static void ComputeBlackWhite(Pix* pix, float* black, float* white) {
   STATS mins(0, 256), maxes(0, 256);
   if (width >= 3) {
     int y = height / 2;
-    const l_uint32* line = pixGetData(pix) + pixGetWpl(pix) * y;
+    l_uint32* line = pixGetData(pix) + pixGetWpl(pix) * y;
     int prev = GET_DATA_BYTE(line, 0);
     int curr = GET_DATA_BYTE(line, 1);
     for (int x = 1; x + 1 < width; ++x) {
@@ -218,7 +218,7 @@ void NetworkIO::Copy2DImage(int batch, Pix* pix, float black, float contrast,
   int num_features = NumFeatures();
   bool color = num_features == 3;
   if (width > target_width) width = target_width;
-  const uinT32* line = pixGetData(pix);
+  uinT32* line = pixGetData(pix);
   for (int y = 0; y < target_height; ++y, line += wpl) {
     int x = 0;
     if (y < height) {
@@ -257,7 +257,7 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix* pix, float black,
   int x;
   for (x = 0; x < width; ++x, ++t) {
     for (int y = 0; y < height; ++y) {
-      const uinT32* line = pixGetData(pix) + wpl * y;
+      uinT32* line = pixGetData(pix) + wpl * y;
       int pixel = GET_DATA_BYTE(line, x);
       SetPixel(t, y, pixel, black, contrast);
     }
