@@ -21,8 +21,6 @@
 // the recognition results of Tesseract and Cube at the word level
 
 #include <algorithm>
-#include <string>
-#include <vector>
 #include <wctype.h>
 
 #include "tesseract_cube_combiner.h"

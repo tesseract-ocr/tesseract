@@ -9,8 +9,6 @@
 // limitations under the License.
 #ifdef _WIN32
 #include <io.h>
-#include <windows.h>
-
 #else
 #include <sys/types.h>
 #include <unistd.h>

@@ -67,13 +67,11 @@ project_group               (tessopt "Training Tools")
 
 set(common_training_src
     commandlineflags.cpp
-    commontraining.cpp
-)
-set(common_training_hdr
     commandlineflags.h
+    commontraining.cpp
     commontraining.h
 )
-add_library                 (common_training ${common_training_src} ${common_training_hdr})
+add_library                 (common_training ${common_training_src})
 target_link_libraries       (common_training tesseract tessopt)
 project_group               (common_training "Training Tools")
 
@@ -159,25 +157,42 @@ target_link_libraries       (wordlist2dawg tesseract)
 project_group               (wordlist2dawg "Training Tools")
 
 
-########################################
-# EXECUTABLE set_unicharset_properties
-########################################
-
 if (ICU_FOUND)
 
 include_directories(${ICU_INCLUDE_DIRS})
 
-add_executable              (set_unicharset_properties
-    set_unicharset_properties.cpp
-    unicharset_training_utils.cpp
-    unicharset_training_utils.h
+########################################
+# LIBRARY unicharset_training
+########################################
+
+set(unicharset_training_src
     fileio.cpp
     fileio.h
+    icuerrorcode.h
     normstrngs.cpp
     normstrngs.h
-    icuerrorcode.h
+    unicharset_training_utils.cpp
+    unicharset_training_utils.h
 )
-target_link_libraries       (set_unicharset_properties common_training ${ICU_LIBRARIES})
+add_library                 (unicharset_training ${unicharset_training_src})
+target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES})
+project_group               (unicharset_training "Training Tools")
+
+
+########################################
+# EXECUTABLE lstmtraining
+########################################
+
+add_executable              (lstmtraining lstmtraining.cpp)
+target_link_libraries       (lstmtraining unicharset_training)
+project_group               (lstmtraining "Training Tools")
+
+########################################
+# EXECUTABLE set_unicharset_properties
+########################################
+
+add_executable              (set_unicharset_properties set_unicharset_properties.cpp)
+target_link_libraries       (set_unicharset_properties unicharset_training)
 project_group               (set_unicharset_properties "Training Tools")
 
 
@@ -199,8 +214,6 @@ set(text2image_src
     boxchar.h
     degradeimage.cpp
     degradeimage.h
-    fileio.cpp
-    fileio.h
     ligature_table.cpp
     ligature_table.h
     normstrngs.cpp

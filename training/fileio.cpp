@@ -15,7 +15,6 @@
  *
  **********************************************************************/
 #ifdef _WIN32
-#include <windows.h>
 #ifndef unlink
 #include <io.h>
 #endif

@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #ifdef _WIN32
+#include <windows.h>
 struct addrinfo {
   struct sockaddr* ai_addr;
   int ai_addrlen;

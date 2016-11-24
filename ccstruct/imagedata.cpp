@@ -24,13 +24,13 @@
 
 #include "imagedata.h"
 
-#include <unistd.h>
-
 #include "allheaders.h"
 #include "boxread.h"
 #include "callcpp.h"
 #include "helpers.h"
 #include "tprintf.h"
+
+#include <thread>
 
 // Number of documents to read ahead while training. Doesn't need to be very
 // large.
@@ -449,7 +449,7 @@ const ImageData* DocumentData::GetPage(int index) {
     if (needs_loading) LoadPageInBackground(index);
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   return page;
 }

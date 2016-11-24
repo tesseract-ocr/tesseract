@@ -18,9 +18,6 @@
  **********************************************************************/
 
 #ifdef _WIN32
-#ifndef __GNUC__
-#include <windows.h>
-#endif  // __GNUC__
 #ifndef unlink
 #include <io.h>
 #endif

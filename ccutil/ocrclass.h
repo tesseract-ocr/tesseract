@@ -29,7 +29,6 @@
 
 #ifndef __GNUC__
 #ifdef _WIN32
-#include          <windows.h>
 #include          "gettimeofday.h"
 #endif
 #else

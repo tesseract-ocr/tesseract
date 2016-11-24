@@ -36,7 +36,6 @@
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
 
 #include <tiffio.h>
-#include <windows.h>
 
 static void Win32WarningHandler(const char* module, const char* fmt,
                                 va_list ap) {

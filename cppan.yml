@@ -1,8 +1,12 @@
 local_settings:
     cppan_dir: cppan
+    use_shared_libs: true
+
+type: library
 
 files:
   - api/.*\.cpp
+  - arch/.*\.cpp
   - ccmain/.*\.cpp
   - ccstruct/.*\.cpp
   - ccutil/.*\.cpp
@@ -18,6 +22,7 @@ files:
   - wordrec/.*\.cpp
 
   - api/.*\.h
+  - arch/.*\.h
   - ccmain/.*\.h
   - ccstruct/.*\.h
   - ccutil/.*\.h
@@ -34,8 +39,13 @@ files:
 
   - vs2010/port/.*
 
+exclude_from_build:
+  - api/tesseractmain.cpp
+  - viewer/svpaint.cpp
+
 include_directories:
   private:
+    - arch
     - classify
     - cube
     - cutil

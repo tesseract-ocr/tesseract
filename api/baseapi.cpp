@@ -34,8 +34,6 @@
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
 #undef __STRICT_ANSI__
 #endif  // _MSC_VER
-#include <stdlib.h>
-#include <windows.h>
 #include <fcntl.h>
 #include <io.h>
 #else

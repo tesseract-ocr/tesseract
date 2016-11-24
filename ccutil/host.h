@@ -64,7 +64,8 @@
 /* _WIN32 */
 #ifdef _WIN32
 #include <windows.h>
-#include <winbase.h>             // winbase.h contains windows.h
+#undef min
+#undef max
 #endif
 
 #include <stdint.h>              // int32_t, ...

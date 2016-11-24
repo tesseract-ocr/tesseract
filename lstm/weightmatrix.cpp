@@ -23,7 +23,7 @@
 #define NONX86_BUILD 1
 #endif
 
-#ifndef NONX86_BUILD
+#if defined(__linux__) && !defined(NONX86_BUILD)
 #include <cpuid.h>
 #endif
 #include "dotproductavx.h"
