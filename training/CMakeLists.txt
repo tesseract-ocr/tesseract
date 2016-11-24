@@ -234,7 +234,7 @@ endif()
 add_executable              (text2image ${text2image_src})
 target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
-target_link_libraries       (text2image tesseract common_training
+target_link_libraries       (text2image tesseract unicharset_training
     ${ICU_LIBRARIES}
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
