@@ -4,9 +4,9 @@
     <Import Project="leptonica_versionnumbers.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <LIBTESS_VERSION>303</LIBTESS_VERSION>
-    <LIBTESS_VERSION_R>3,3,0,0</LIBTESS_VERSION_R>
-    <LIBTESS_NUMBER>3.03</LIBTESS_NUMBER>
+    <LIBTESS_VERSION>400</LIBTESS_VERSION>
+    <LIBTESS_VERSION_R>4,0,0,0</LIBTESS_VERSION_R>
+    <LIBTESS_NUMBER>4.00</LIBTESS_NUMBER>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
