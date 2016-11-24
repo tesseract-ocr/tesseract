@@ -16,8 +16,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__AVX__)
+#if !defined(__AVX__) || defined(__i386__)
 // Implementation for non-avx archs.
+// Also used for 32 bit AVX archs because of missing _mm256_extract_epi64.
 
 #include "dotproductavx.h"
 #include <stdio.h>
