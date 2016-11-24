@@ -10,6 +10,7 @@ files:
   - cube/.*\.cpp
   - cutil/.*\.cpp
   - dict/.*\.cpp
+  - lstm/.*\.cpp
   - neural_networks/runtime/.*\.cpp
   - opencl/.*\.cpp
   - textord/.*\.cpp
@@ -24,6 +25,7 @@ files:
   - cube/.*\.h
   - cutil/.*\.h
   - dict/.*\.h
+  - lstm/.*\.h
   - neural_networks/runtime/.*\.h
   - opencl/.*\.h
   - textord/.*\.h
@@ -38,6 +40,7 @@ include_directories:
     - cube
     - cutil
     - dict
+    - lstm
     - neural_networks/runtime
     - opencl
     - textord
