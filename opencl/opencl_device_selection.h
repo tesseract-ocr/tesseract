@@ -1,3 +1,12 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #ifdef USE_OPENCL
 #ifndef DEVICE_SELECTION_H
 #define DEVICE_SELECTION_H
@@ -63,8 +72,10 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
     if (profile->devices!=NULL && sr!=NULL) {
       unsigned int i;
       for (i = 0; i < profile->numDevices; i++) {
-        if (profile->devices[i].oclDeviceName) free(profile->devices[i].oclDeviceName);
-        if (profile->devices[i].oclDriverVersion) free(profile->devices[i].oclDriverVersion);
+        if (profile->devices[i].oclDeviceName)
+          free(profile->devices[i].oclDeviceName);
+        if (profile->devices[i].oclDriverVersion)
+          free(profile->devices[i].oclDriverVersion);
         status = sr(profile->devices[i].score);
         if (status != DS_SUCCESS)
           break;
