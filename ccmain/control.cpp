@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
- * Author:					Ray Smith
- * Created:					Thu Apr 23 11:09:58 BST 1992
+ * Author:          Ray Smith
+ * Created:         Thu Apr 23 11:09:58 BST 1992
  * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -72,7 +72,6 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
     delete it;
   }
 }
-
 
 /**
  * Recognize a single word in interactive mode.
@@ -219,16 +218,14 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       if (pass_n == 1) {
         monitor->progress = 70 * w / words->size();
         if (monitor->progress_callback != NULL) {
-            TBOX box = pr_it->word()->word->bounding_box();
-            (*monitor->progress_callback)(monitor->progress,
-                                          box.left(), box.right(),
-                                          box.top(), box.bottom());
+          TBOX box = pr_it->word()->word->bounding_box();
+          (*monitor->progress_callback)(monitor->progress, box.left(),
+                                        box.right(), box.top(), box.bottom());
         }
       } else {
         monitor->progress = 70 + 30 * w / words->size();
-        if (monitor->progress_callback!=NULL) {
-                      (*monitor->progress_callback)(monitor->progress,
-                                                    0, 0, 0, 0);
+        if (monitor->progress_callback != NULL) {
+          (*monitor->progress_callback)(monitor->progress, 0, 0, 0, 0);
         }
       }
       if (monitor->deadline_exceeded() ||

@@ -523,12 +523,12 @@ const char* kAlignmentNames[] = {
 
 // Print basic information about this tab vector.
 void TabVector::Print(const char* prefix) {
-  tprintf("%s %s (%d,%d)->(%d,%d) w=%d s=%d, sort key=%d, boxes=%d,"
-          " partners=%d\n",
-          prefix, kAlignmentNames[alignment_],
-          startpt_.x(), startpt_.y(), endpt_.x(), endpt_.y(),
-          mean_width_, percent_score_, sort_key_,
-          boxes_.length(), partners_.length());
+  tprintf(
+      "%s %s (%d,%d)->(%d,%d) w=%d s=%d, sort key=%d, boxes=%d,"
+      " partners=%d\n",
+      prefix, kAlignmentNames[alignment_], startpt_.x(), startpt_.y(),
+      endpt_.x(), endpt_.y(), mean_width_, percent_score_, sort_key_,
+      boxes_.length(), partners_.length());
 }
 
 // Print basic information about this tab vector and every box in it.

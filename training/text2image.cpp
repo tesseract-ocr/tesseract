@@ -251,6 +251,8 @@ void ExtractFontProperties(const string &utf8_text,
       // the input consists of the separated characters.  NOTE(ranjith): As per
       // behdad@ this is not currently controllable at the level of the Pango
       // API.
+      // The most frequent of all is a single character "word" made by the CJK
+      // segmenter.
       // Safeguard against these cases here by just skipping the bigram.
       if (IsWhitespaceBox(boxes[b+1])) {
         continue;
@@ -445,7 +447,7 @@ int main(int argc, char** argv) {
     string pango_name;
     if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
       tprintf("Could not find font named %s.\n", FLAGS_font.c_str());
-      if (!pango_name.empty()) { 
+      if (!pango_name.empty()) {
         tprintf("Pango suggested font %s.\n", pango_name.c_str());
       }
       tprintf("Please correct --font arg.\n");
@@ -523,7 +525,7 @@ int main(int argc, char** argv) {
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
       tprintf("Failed to load unicharset from file %s\n",
-                 FLAGS_unicharset_file.c_str());
+              FLAGS_unicharset_file.c_str());
       exit(1);
     }
 
@@ -604,7 +606,8 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &randomizer, FLAGS_rotate_image ? &rotation : NULL);
+          pix = DegradeImage(pix, FLAGS_exposure, &randomizer,
+                             FLAGS_rotate_image ? &rotation : NULL);
         }
         render.RotatePageBoxes(rotation);
 

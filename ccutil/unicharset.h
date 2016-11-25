@@ -181,8 +181,7 @@ class UNICHARSET {
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET. Only the first length characters from unichar_repr are used.
-  UNICHAR_ID unichar_to_id(const char* const unichar_repr,
-                                 int length) const;
+  UNICHAR_ID unichar_to_id(const char* const unichar_repr, int length) const;
 
   // Return the minimum number of bytes that matches a legal UNICHAR_ID,
   // while leaving the rest of the string encodable. Returns 0 if the

@@ -20,7 +20,6 @@
  ** limitations under the License.
 ******************************************************************************/
 
-
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
@@ -53,10 +52,8 @@ int main (
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
 
-void WriteNormProtos (
-     const char  *Directory,
-     LIST  LabeledProtoList,
-   CLUSTERER *Clusterer);
+void WriteNormProtos (const char  *Directory, LIST  LabeledProtoList,
+                      CLUSTERER *Clusterer);
 
 /*
 PARAMDESC *ConvertToPARAMDESC(
@@ -80,7 +77,6 @@ CLUSTERCONFIG  CNConfig =
 {
   elliptical, 0.025, 0.05, 0.8, 1e-3, 0
 };
-
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -134,8 +130,7 @@ CLUSTERCONFIG  CNConfig =
 * @note Exceptions: none
 * @note History: Fri Aug 18 08:56:17 1989, DSJ, Created.
 */
-int main(int  argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   // Set the global Config parameters before parsing the command line.
   Config = CNConfig;
 
@@ -221,10 +216,8 @@ int main(int  argc, char* argv[])
 * @note Exceptions: none
 * @note History: Fri Aug 18 16:17:06 1989, DSJ, Created.
 */
-void WriteNormProtos (
-     const char  *Directory,
-     LIST  LabeledProtoList,
-     CLUSTERER *Clusterer)
+void WriteNormProtos(const char  *Directory, LIST  LabeledProtoList,
+                     CLUSTERER *Clusterer)
 {
   FILE    *File;
   STRING Filename;
@@ -240,8 +233,8 @@ void WriteNormProtos (
   Filename += "normproto";
   printf ("\nWriting %s ...", Filename.string());
   File = Efopen (Filename.string(), "wb");
-  fprintf(File,"%0d\n",Clusterer->SampleSize);
-  WriteParamDesc(File,Clusterer->SampleSize,Clusterer->ParamDesc);
+  fprintf(File, "%0d\n", Clusterer->SampleSize);
+  WriteParamDesc(File, Clusterer->SampleSize,Clusterer->ParamDesc);
   iterate(LabeledProtoList)
   {
     LabeledProto = (LABELEDLIST) first_node (LabeledProtoList);

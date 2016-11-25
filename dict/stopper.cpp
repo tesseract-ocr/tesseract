@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    stopper.c
- **	Purpose:     Stopping criteria for word classifier.
- **	Author:      Dan Johnson
- **	History:     Mon Apr 29 14:56:49 1991, DSJ, Created.
+ ** Filename:    stopper.c
+ ** Purpose:     Stopping criteria for word classifier.
+ ** Author:      Dan Johnson
+ ** History:     Mon Apr 29 14:56:49 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -41,7 +41,6 @@
 #pragma warning(disable:4800)  // int/bool warnings
 #endif
 
-using tesseract::ScriptPos;
 /*----------------------------------------------------------------------------
               Private Code
 ----------------------------------------------------------------------------*/

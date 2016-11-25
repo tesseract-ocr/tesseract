@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        oldbasel.cpp  (Formerly oldbl.c)
  * Description: A re-implementation of the old baseline algorithm.
- * Author:		Ray Smith
- * Created:		Wed Oct  6 09:41:48 BST 1993
+ * Author:    Ray Smith
+ * Created:   Wed Oct  6 09:41:48 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -122,7 +122,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
   TO_ROW **rows;                 //array of ptrs
   int rowcount;                  /*no of rows to do */
   int rowindex;                  /*no of row */
-                                 //iterator
+                                 // iterator
   TO_ROW_IT row_it = block->get_rows ();
 
   rowcount = row_it.length ();
@@ -1018,61 +1018,6 @@ int *partcount                   /*no of partitions */
   return bestpart;
 }
 
-
-///*merge_partitions(partids,partcount,blobcount,bestpart) discards funny looking
-//partitions and gives all the rest partid 0*/
-//
-//merge_partitions(partids,partcount,blobcount,bestpart)
-//register char              *partids;                     /*partition numbers*/
-//int                        partcount;                    /*no of partitions*/
-//int                        blobcount;                    /*no of blobs*/
-//int                        bestpart;                     /*best partition*/
-//{
-//   int                     blobindex;                    /*no along text line*/
-//   int                     runlength;                    /*run of same partition*/
-//   int                     bestrun;                      /*biggest runlength*/
-//
-//   bestrun=0;                                            /*no runs yet*/
-//   runlength=1;
-//   for (blobindex=1;blobindex<blobcount;blobindex++)
-//   {  if (partids[blobindex]!=partids[blobindex-1])
-//      {  if (runlength>bestrun)
-//            bestrun=runlength;                           /*find biggest run*/
-//         runlength=1;                                    /*new run*/
-//      }
-//      else
-//      {  runlength++;
-//      }
-//   }
-//   if (runlength>bestrun)
-//      bestrun=runlength;
-//
-//   for (blobindex=0;blobindex<blobcount;blobindex++)
-//   {  if (blobindex<1
-//      || partids[blobindex]!=partids[blobindex-1])
-//      {  if ((blobindex+1>=blobcount
-//         || partids[blobindex]!=partids[blobindex+1])
-//                                                         /*loner*/
-//         && (bestrun>2 || partids[blobindex]!=bestpart))
-//         {  partids[blobindex]=partcount;                /*discard loner*/
-//         }
-//         else if (blobindex+1<blobcount
-//         && partids[blobindex]==partids[blobindex+1]
-//                                                         /*pair*/
-//         && (blobindex+2>=blobcount
-//         || partids[blobindex]!=partids[blobindex+2])
-//         && (bestrun>3 || partids[blobindex]!=bestpart))
-//         {  partids[blobindex]=partcount;                /*discard both*/
-//            partids[blobindex+1]=partcount;
-//         }
-//      }
-//   }
-//   for (blobindex=0;blobindex<blobcount;blobindex++)
-//   {  if (partids[blobindex]<partcount)
-//         partids[blobindex]=0;                           /*all others together*/
-//   }
-//}
-
 /**********************************************************************
  * partition_coords
  *
@@ -1414,14 +1359,12 @@ int bestpart                     /*biggest partition */
   bestneg = 0.0;       /*no step yet */
   for (partition = 0; partition < partcount; partition++) {
     if (partition != bestpart) {
-
-	//by jetsoft divide by zero possible
-		if (partsizes[partition]==0)
-		partsteps[partition]=0;
-       else
-		partsteps[partition] /= partsizes[partition];
-	//
-
+      // by jetsoft divide by zero possible
+      if (partsizes[partition] == 0)
+        partsteps[partition] = 0;
+      else
+        partsteps[partition] /= partsizes[partition];
+      //
 
       if (partsteps[partition] >= MINASCRISE
       && partsizes[partition] > poscount) {
@@ -1459,8 +1402,8 @@ int blobcount,                   /*blobs in blobcoords */
 QSPLINE * baseline,              /*established */
 float jumplimit                  /*min ascender height */
 ) {
-  int blobindex;                 /*current blob */
-                                 /*height statistics */
+  int blobindex; /*current blob */
+                 /*height statistics */
   STATS heightstat (0, MAXHEIGHT);
   int height;                    /*height of blob */
   int xcentre;                   /*centre of blob */

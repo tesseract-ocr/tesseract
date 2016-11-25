@@ -26,6 +26,7 @@
 
 #ifdef _WIN32
 #ifndef __GNUC__
+#include "platform.h"
 #include <windows.h>
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
@@ -100,6 +101,17 @@ class SVMutex {
 #else
   pthread_mutex_t mutex_;
 #endif
+};
+
+// Auto-unlocking object that locks a mutex on construction and unlocks it
+// on destruction.
+class SVAutoLock {
+ public:
+  explicit SVAutoLock(SVMutex* mutex) : mutex_(mutex) { mutex->Lock(); }
+  ~SVAutoLock() { mutex_->Unlock(); }
+
+ private:
+  SVMutex* mutex_;
 };
 
 /// The SVNetwork class takes care of the remote connection for ScrollView

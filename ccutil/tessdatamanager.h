@@ -76,24 +76,24 @@ enum TessdataType {
  * kTessdataFileSuffixes[i] indicates the file suffix for
  * tessdata of type i (from TessdataType enum).
  */
-static const char * const kTessdataFileSuffixes[] = {
-  kLangConfigFileSuffix,        // 0
-  kUnicharsetFileSuffix,        // 1
-  kAmbigsFileSuffix,            // 2
-  kBuiltInTemplatesFileSuffix,  // 3
-  kBuiltInCutoffsFileSuffix,    // 4
-  kNormProtoFileSuffix,         // 5
-  kPuncDawgFileSuffix,          // 6
-  kSystemDawgFileSuffix,        // 7
-  kNumberDawgFileSuffix,        // 8
-  kFreqDawgFileSuffix,          // 9
-  kFixedLengthDawgsFileSuffix,  // 10  // deprecated
-  kCubeUnicharsetFileSuffix,    // 11
-  kCubeSystemDawgFileSuffix,    // 12
-  kShapeTableFileSuffix,        // 13
-  kBigramDawgFileSuffix,        // 14
-  kUnambigDawgFileSuffix,       // 15
-  kParamsModelFileSuffix,       // 16
+static const char *const kTessdataFileSuffixes[] = {
+    kLangConfigFileSuffix,        // 0
+    kUnicharsetFileSuffix,        // 1
+    kAmbigsFileSuffix,            // 2
+    kBuiltInTemplatesFileSuffix,  // 3
+    kBuiltInCutoffsFileSuffix,    // 4
+    kNormProtoFileSuffix,         // 5
+    kPuncDawgFileSuffix,          // 6
+    kSystemDawgFileSuffix,        // 7
+    kNumberDawgFileSuffix,        // 8
+    kFreqDawgFileSuffix,          // 9
+    kFixedLengthDawgsFileSuffix,  // 10  // deprecated
+    kCubeUnicharsetFileSuffix,    // 11
+    kCubeSystemDawgFileSuffix,    // 12
+    kShapeTableFileSuffix,        // 13
+    kBigramDawgFileSuffix,        // 14
+    kUnambigDawgFileSuffix,       // 15
+    kParamsModelFileSuffix,       // 16
 };
 
 /**
@@ -101,23 +101,23 @@ static const char * const kTessdataFileSuffixes[] = {
  * of type i (from TessdataType enum) is text, and is binary otherwise.
  */
 static const bool kTessdataFileIsText[] = {
-  true,                         // 0
-  true,                         // 1
-  true,                         // 2
-  false,                        // 3
-  true,                         // 4
-  true,                         // 5
-  false,                        // 6
-  false,                        // 7
-  false,                        // 8
-  false,                        // 9
-  false,                        // 10  // deprecated
-  true,                         // 11
-  false,                        // 12
-  false,                        // 13
-  false,                        // 14
-  false,                        // 15
-  true,                         // 16
+    true,   // 0
+    true,   // 1
+    true,   // 2
+    false,  // 3
+    true,   // 4
+    true,   // 5
+    false,  // 6
+    false,  // 7
+    false,  // 8
+    false,  // 9
+    false,  // 10  // deprecated
+    true,   // 11
+    false,  // 12
+    false,  // 13
+    false,  // 14
+    false,  // 15
+    true,   // 16
 };
 
 /**

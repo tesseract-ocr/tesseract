@@ -98,8 +98,8 @@ class DLLSYM ELIST_LINK
       next = NULL;
     }
 
-    void operator= (             //don't copy links
-    const ELIST_LINK &) {
+    void operator=(  // don't copy links
+        const ELIST_LINK &) {
       next = NULL;
     }
 };
@@ -273,8 +273,8 @@ class DLLSYM ELIST_ITERATOR
 
     bool cycled_list();  //Completed a cycle?
 
-    void add_to_end(                        //add at end &
-                    ELIST_LINK *new_link);  //don't move
+    void add_to_end(            // add at end &
+        ELIST_LINK *new_link);  // don't move
 
     void exchange(                            //positions of 2 links
                   ELIST_ITERATOR *other_it);  //other iterator
@@ -458,7 +458,6 @@ inline void ELIST_ITERATOR::add_before_then_move(  // element to add
   current = new_element;
 }
 
-
 /***********************************************************************
  *                          ELIST_ITERATOR::add_before_stay_put
  *
@@ -501,11 +500,11 @@ inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
   }
 }
 
-
 /***********************************************************************
  *                          ELIST_ITERATOR::add_list_after
  *
- *  Insert another list to this list after the current element but don't move the
+ *  Insert another list to this list after the current element but don't move
+ *the
  *  iterator.
  **********************************************************************/
 
@@ -959,30 +958,29 @@ ELISTIZEH_C( CLASSNAME )
   ELISTIZE( CLASSNAME ) MACRO
 ***********************************************************************/
 
-#define ELISTIZE(CLASSNAME)                                                 \
-                                                                            \
-/***********************************************************************    \
-*                           CLASSNAME##_zapper                              \
-*                                                                           \
-*  A function which can delete a CLASSNAME element.  This is passed to the  \
-*  generic clear list member function so that when a list is cleared the    \
-*  elements on the list are properly destroyed from the base class, even    \
-*  though we don't use a virtual destructor function.                       \
-**********************************************************************/     \
-                                                                            \
-DLLSYM void CLASSNAME##_zapper(ELIST_LINK* link) {                          \
-  delete reinterpret_cast<CLASSNAME*>(link);                                \
-}                                                                           \
-                                                                            \
-/* Become a deep copy of src_list*/                                         \
-void CLASSNAME##_LIST::deep_copy(const CLASSNAME##_LIST* src_list,          \
-               CLASSNAME* (*copier)(const CLASSNAME*)) {                    \
-                                                                            \
-  CLASSNAME##_IT from_it(const_cast<CLASSNAME##_LIST*>(src_list));          \
-  CLASSNAME##_IT to_it(this);                                               \
-                                                                            \
-  for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())  \
-    to_it.add_after_then_move((*copier)(from_it.data()));                   \
-}
+#define ELISTIZE(CLASSNAME)                                                   \
+                                                                              \
+  /***********************************************************************    \
+  *                           CLASSNAME##_zapper                              \
+  *                                                                           \
+  *  A function which can delete a CLASSNAME element.  This is passed to the  \
+  *  generic clear list member function so that when a list is cleared the    \
+  *  elements on the list are properly destroyed from the base class, even    \
+  *  though we don't use a virtual destructor function.                       \
+  **********************************************************************/     \
+                                                                              \
+  DLLSYM void CLASSNAME##_zapper(ELIST_LINK *link) {                          \
+    delete reinterpret_cast<CLASSNAME *>(link);                               \
+  }                                                                           \
+                                                                              \
+  /* Become a deep copy of src_list*/                                         \
+  void CLASSNAME##_LIST::deep_copy(const CLASSNAME##_LIST *src_list,          \
+                                   CLASSNAME *(*copier)(const CLASSNAME *)) { \
+    CLASSNAME##_IT from_it(const_cast<CLASSNAME##_LIST *>(src_list));         \
+    CLASSNAME##_IT to_it(this);                                               \
+                                                                              \
+    for (from_it.mark_cycle_pt(); !from_it.cycled_list(); from_it.forward())  \
+      to_it.add_after_then_move((*copier)(from_it.data()));                   \
+  }
 
 #endif

@@ -74,7 +74,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 #endif /* _WIN32 */
 #if defined(TESSDATA_PREFIX)
   } else {
-    /* Use tessdata prefix which was compiled in. */
+/* Use tessdata prefix which was compiled in. */
 #define _STR(a) #a
 #define _XSTR(a) _STR(a)
     datadir = _XSTR(TESSDATA_PREFIX);

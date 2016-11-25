@@ -1,8 +1,9 @@
 /**********************************************************************
  * File:        drawedg.h  (Formerly drawedge.h)
- * Description: Collection of functions to draw things to do with edge detection.
- * Author:					Ray Smith
- * Created:					Thu Jun 06 13:29:20 BST 1991
+ * Description: Collection of functions to draw things to do with edge
+ *detection.
+ * Author:          Ray Smith
+ * Created:         Thu Jun 06 13:29:20 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    mf.c
- **	Purpose:     Micro-feature interface to flexible feature extractor.
- **	Author:      Dan Johnson
- **	History:     Thu May 24 09:08:38 1990, DSJ, Created.
+ ** Filename:    mf.c
+ ** Purpose:     Micro-feature interface to flexible feature extractor.
+ ** Author:      Dan Johnson
+ ** History:     Thu May 24 09:08:38 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -36,7 +36,7 @@
  * Call the old micro-feature extractor and then copy
  * the features into the new format.  Then deallocate the
  * old micro-features.
- * @param Blob	blob to extract micro-features from
+ * @param Blob  blob to extract micro-features from
  * @param cn_denorm  control parameter to feature extractor.
  * @return Micro-features for Blob.
  * @note Exceptions: none

@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    picofeat.c
- **	Purpose:     Definition of pico-features.
- **	Author:      Dan Johnson
- **	History:     9/4/90, DSJ, Created.
+ ** Filename:    picofeat.c
+ ** Purpose:     Definition of pico-features.
+ ** Author:      Dan Johnson
+ ** History:     9/4/90, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -98,7 +98,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
  * nearest whole number of pico-features.  The pico-features
  * are spaced evenly over the entire segment.
  * Globals:
- * - classify_pico_feature_length	length of a single pico-feature
+ * - classify_pico_feature_length length of a single pico-feature
  * @param Start starting point of pico-feature
  * @param End ending point of pico-feature
  * @param FeatureSet set to add pico-feature to
