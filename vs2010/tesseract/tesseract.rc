@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "Tesseract command-line OCR engine"
             VALUE "FileVersion", "3,5,0,0"
             VALUE "InternalName", "tesseract"
-            VALUE "LegalCopyright", "Copyright (C) 2015 Google, Inc. Licensed under the Apache License, Version 2.0"
+            VALUE "LegalCopyright", "Copyright (C) 2016 Google, Inc. Licensed under the Apache License, Version 2.0"
             VALUE "OriginalFilename", "tesseract.exe"
             VALUE "ProductName", "Tesseract-OCR"
             VALUE "ProductVersion", "3.05.00dev"
