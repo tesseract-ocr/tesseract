@@ -696,7 +696,6 @@ void NetworkIO::MaxpoolTimeStep(int dest_t, const NetworkIO& src, int src_t,
 void NetworkIO::MaxpoolBackward(const NetworkIO& fwd,
                                 const GENERIC_2D_ARRAY<int>& maxes) {
   ASSERT_HOST(!int_mode_);
-  int width = fwd.Width();
   Zero();
   StrideMap::Index index(fwd.stride_map_);
   do {

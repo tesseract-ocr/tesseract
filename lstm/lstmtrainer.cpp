@@ -827,7 +827,6 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     return UNENCODABLE;
   }
   targets->Resize(*fwd_outputs, network_->NumOutputs());
-  double text_error = 100.0;
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
     if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
