@@ -1045,7 +1045,6 @@ KERNEL(
 \n          histResult[get_group_id(0)] = localHist[0];
 \n
 \n  } // kernel_HistogramRectAllChannelsReduction_Grey
-
 )
 
 // ThresholdRectToPix Kernel
@@ -1174,9 +1173,7 @@ void kernel_ThresholdRectToPix_OneChan(
         pix[w] = word;
     }
 }
-
 )
-
 
 KERNEL(
 \n#define RED_SHIFT             24\n
@@ -1209,10 +1206,9 @@ KERNEL(
     dstData[pixelIdx] = output;
 }
 )
-#endif
 
  ; // close char*
 
 #endif // USE_EXTERNAL_KERNEL
-//#endif //_OCL_KERNEL_H_
+#endif //_OCL_KERNEL_H_
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
