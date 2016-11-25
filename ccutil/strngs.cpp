@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        strngs.c  (Formerly strings.c)
  * Description: STRING class functions.
- * Author:					Ray Smith
- * Created:					Fri Feb 15 09:13:30 GMT 1991
+ * Author:          Ray Smith
+ * Created:         Fri Feb 15 09:13:30 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

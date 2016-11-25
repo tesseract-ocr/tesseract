@@ -128,7 +128,6 @@ FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
   return (Orientation);
 }                                /* ComputeOrientation */
 
-
 /**
  * Convert Outline to MicroFeatures
  * @param Outline         outline to extract micro-features from
@@ -164,7 +163,6 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
   return (MicroFeatures);
 }                                /* ConvertToMicroFeatures */
 
-
 /**
  * This routine computes the feature parameters which describe
  * the micro-feature that starts and Start and ends at End.
@@ -178,7 +176,7 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
  * @return New micro-feature or NULL if the feature was rejected.
  * @note Globals: none
  * @note Exceptions: none
- * @note History: 
+ * @note History:
  * - 7/26/89, DSJ, Created.
  * - 11/17/89, DSJ, Added handling for Start and End same point.
  */

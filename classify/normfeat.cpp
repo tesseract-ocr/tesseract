@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    normfeat.c
- **	Purpose:     Definition of char normalization features.
- **	Author:      Dan Johnson
- **	History:     12/14/90, DSJ, Created.
+ ** Filename:    normfeat.c
+ ** Purpose:     Definition of char normalization features.
+ ** Author:      Dan Johnson
+ ** History:     12/14/90, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -32,7 +32,6 @@
 FLOAT32 ActualOutlineLength(FEATURE Feature) {
   return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
 }
-
 
 /**
  * Return the character normalization feature for a blob.

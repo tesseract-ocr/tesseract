@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        blobbox.cpp  (Formerly blobnbox.c)
  * Description: Code for the textord blob class.
- * Author:					Ray Smith
- * Created:					Thu Jul 30 09:08:51 BST 1992
+ * Author:          Ray Smith
+ * Created:         Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

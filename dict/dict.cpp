@@ -35,8 +35,7 @@ Dict::Dict(CCUtil* ccutil)
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
       params_model_classify_(NULL),
       ccutil_(ccutil),
-      STRING_MEMBER(user_words_file, "",
-                    "A filename of user-provided words.",
+      STRING_MEMBER(user_words_file, "", "A filename of user-provided words.",
                     getCCUtil()->params()),
       STRING_INIT_MEMBER(user_words_suffix, "",
                          "A suffix of user-provided words located in tessdata.",
@@ -54,33 +53,41 @@ Dict::Dict(CCUtil* ccutil)
                        getCCUtil()->params()),
       BOOL_INIT_MEMBER(load_unambig_dawg, true, "Load unambiguous word dawg.",
                        getCCUtil()->params()),
-      BOOL_INIT_MEMBER(load_punc_dawg, true, "Load dawg with punctuation"
-                       " patterns.", getCCUtil()->params()),
-      BOOL_INIT_MEMBER(load_number_dawg, true, "Load dawg with number"
-                       " patterns.", getCCUtil()->params()),
-      BOOL_INIT_MEMBER(load_bigram_dawg, true, "Load dawg with special word "
-                       "bigrams.", getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_punc_dawg, true,
+                       "Load dawg with punctuation"
+                       " patterns.",
+                       getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_number_dawg, true,
+                       "Load dawg with number"
+                       " patterns.",
+                       getCCUtil()->params()),
+      BOOL_INIT_MEMBER(load_bigram_dawg, true,
+                       "Load dawg with special word "
+                       "bigrams.",
+                       getCCUtil()->params()),
       double_MEMBER(xheight_penalty_subscripts, 0.125,
                     "Score penalty (0.1 = 10%) added if there are subscripts "
                     "or superscripts in a word, but it is otherwise OK.",
                     getCCUtil()->params()),
       double_MEMBER(xheight_penalty_inconsistent, 0.25,
                     "Score penalty (0.1 = 10%) added if an xheight is "
-                    "inconsistent.", getCCUtil()->params()),
+                    "inconsistent.",
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_frequent_word, 1.0,
                     "Score multiplier for word matches which have good case and"
                     "are frequent in the given language (lower is better).",
                     getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_case_ok, 1.1,
                     "Score multiplier for word matches that have good case "
-                    "(lower is better).", getCCUtil()->params()),
+                    "(lower is better).",
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_case_bad, 1.3125,
                     "Default score multiplier for word matches, which may have "
                     "case issues (lower is better).",
                     getCCUtil()->params()),
       double_MEMBER(segment_penalty_ngram_best_choice, 1.24,
-                   "Multipler to for the best choice from the ngram model.",
-                   getCCUtil()->params()),
+                    "Multipler to for the best choice from the ngram model.",
+                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_nonword, 1.25,
                     "Score multiplier for glyph fragment segmentations which "
                     "do not match a dictionary word (lower is better).",
@@ -88,11 +95,13 @@ Dict::Dict(CCUtil* ccutil)
       double_MEMBER(segment_penalty_garbage, 1.50,
                     "Score multiplier for poorly cased strings that are not in"
                     " the dictionary and generally look like garbage (lower is"
-                    " better).", getCCUtil()->params()),
+                    " better).",
+                    getCCUtil()->params()),
       STRING_MEMBER(output_ambig_words_file, "",
                     "Output file for ambiguities found in the dictionary",
                     getCCUtil()->params()),
-      INT_MEMBER(dawg_debug_level, 0, "Set to 1 for general debug info"
+      INT_MEMBER(dawg_debug_level, 0,
+                 "Set to 1 for general debug info"
                  ", to 2 for more details, to 3 to see all the debug messages",
                  getCCUtil()->params()),
       INT_MEMBER(hyphen_debug_level, 0, "Debug level for hyphenated words.",
@@ -109,12 +118,12 @@ Dict::Dict(CCUtil* ccutil)
                     "Certainty threshold for non-dict words",
                     getCCUtil()->params()),
       double_MEMBER(stopper_phase2_certainty_rejection_offset, 1.0,
-                    "Reject certainty offset",
-                    getCCUtil()->params()),
+                    "Reject certainty offset", getCCUtil()->params()),
       INT_MEMBER(stopper_smallword_size, 2,
                  "Size of dict word to be treated as non-dict word",
                  getCCUtil()->params()),
-      double_MEMBER(stopper_certainty_per_char, -0.50, "Certainty to add"
+      double_MEMBER(stopper_certainty_per_char, -0.50,
+                    "Certainty to add"
                     " for each dict char above small word size.",
                     getCCUtil()->params()),
       double_MEMBER(stopper_allowable_character_badness, 3.0,
@@ -130,9 +139,9 @@ Dict::Dict(CCUtil* ccutil)
                   "Deprecated- backward compatibility only",
                   getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
-                 "Max words to keep in list",
-                 getCCUtil()->params()),
-      STRING_MEMBER(word_to_debug, "", "Word for which stopper debug"
+                 "Max words to keep in list", getCCUtil()->params()),
+      STRING_MEMBER(word_to_debug, "",
+                    "Word for which stopper debug"
                     " information should be printed to stdout",
                     getCCUtil()->params()),
       STRING_MEMBER(word_to_debug_lengths, "",
@@ -141,10 +150,10 @@ Dict::Dict(CCUtil* ccutil)
       INT_MEMBER(fragments_debug, 0, "Debug character fragments",
                  getCCUtil()->params()),
       BOOL_MEMBER(segment_nonalphabetic_script, false,
-                 "Don't use any alphabetic-specific tricks."
-                 "Set to true in the traineddata config file for"
-                 " scripts that are cursive or inherently fixed-pitch",
-                 getCCUtil()->params()),
+                  "Don't use any alphabetic-specific tricks."
+                  "Set to true in the traineddata config file for"
+                  " scripts that are cursive or inherently fixed-pitch",
+                  getCCUtil()->params()),
       BOOL_MEMBER(save_doc_words, 0, "Save Document Words",
                   getCCUtil()->params()),
       double_MEMBER(doc_dict_pending_threshold, 0.0,
@@ -152,8 +161,11 @@ Dict::Dict(CCUtil* ccutil)
                     getCCUtil()->params()),
       double_MEMBER(doc_dict_certainty_threshold, -2.25,
                     "Worst certainty for words that can be inserted into the"
-                    "document dictionary", getCCUtil()->params()),
-      INT_MEMBER(max_permuter_attempts, 10000, "Maximum number of different"
+                    "document dictionary",
+                    getCCUtil()->params()),
+      INT_MEMBER(max_permuter_attempts, 10000,
+                 "Maximum number of different"
+
                  " character choices to consider during permutation."
                  " This limit is especially useful when user patterns"
                  " are specified, since overly generic patterns can result in"

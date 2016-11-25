@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    normmatch.c
- **	Purpose:     Simple matcher based on character normalization features.
- **	Author:      Dan Johnson
- **	History:     Wed Dec 19 16:18:06 1990, DSJ, Created.
+ ** Filename:    normmatch.c
+ ** Purpose:     Simple matcher based on character normalization features.
+ ** Author:      Dan Johnson
+ ** History:     Wed Dec 19 16:18:06 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -197,10 +197,10 @@ double NormEvidenceOf(register double NormAdj) {
 /*---------------------------------------------------------------------------*/
 /**
  * This routine dumps out detailed normalization match info.
- * @param File		open text file to dump match debug info to
- * @param NumParams	# of parameters in proto and feature
- * @param Proto[]		array of prototype parameters
- * @param Feature[]	array of feature parameters
+ * @param File    open text file to dump match debug info to
+ * @param NumParams # of parameters in proto and feature
+ * @param Proto[]   array of prototype parameters
+ * @param Feature[] array of feature parameters
  * Globals: none
  * @return  none
  * @note Exceptions: none

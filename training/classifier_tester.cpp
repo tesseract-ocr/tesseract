@@ -48,9 +48,9 @@ enum ClassifierName {
 
 const char* names[] = {"pruner", "full",
 #ifndef NO_CUBE_BUILD
-  "cube", "cubetess",
+                       "cube", "cubetess",
 #endif  // NO_CUBE_BUILD
-  NULL };
+                       NULL};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
@@ -80,7 +80,7 @@ static tesseract::ShapeClassifier* InitializeClassifier(
   tesseract::Classify* classify = NULL;
   if (
 #ifndef NO_CUBE_BUILD
-    classifier == CN_CUBE || classifier == CN_CUBETESS ||
+      classifier == CN_CUBE || classifier == CN_CUBETESS ||
 #endif  // NO_CUBE_BUILD
       classifier == CN_PRUNER || classifier == CN_FULL) {
 #ifndef NO_CUBE_BUILD

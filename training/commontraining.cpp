@@ -39,8 +39,8 @@
 #include <math.h>
 
 using tesseract::CCUtil;
-using tesseract::FontInfo;
 using tesseract::IntFeatureSpace;
+using tesseract::FontInfo;
 using tesseract::ParamUtils;
 using tesseract::ShapeTable;
 
@@ -312,9 +312,7 @@ const char *GetNextFilename(int argc, const char* const * argv) {
     return argv[tessoptind++];
   else
     return NULL;
-}	/* GetNextFilename */
-
-
+} /* GetNextFilename */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -328,11 +326,8 @@ const char *GetNextFilename(int argc, const char* const * argv) {
  * @note Exceptions: none
  * @note History: Fri Aug 18 15:57:41 1989, DSJ, Created.
  */
-LABELEDLIST FindList (
-    LIST	List,
-    char	*Label)
-{
-  LABELEDLIST	LabeledList;
+LABELEDLIST FindList(LIST List, char* Label) {
+  LABELEDLIST LabeledList;
 
   iterate (List)
   {
@@ -342,7 +337,7 @@ LABELEDLIST FindList (
   }
   return (NULL);
 
-}	/* FindList */
+} /* FindList */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -354,10 +349,8 @@ LABELEDLIST FindList (
  * @note Exceptions: none
  * @note History: Fri Aug 18 16:08:46 1989, DSJ, Created.
  */
-LABELEDLIST NewLabeledList (
-    const char	*Label)
-{
-  LABELEDLIST	LabeledList;
+LABELEDLIST NewLabeledList(const char* Label) {
+  LABELEDLIST LabeledList;
 
   LabeledList = (LABELEDLIST) Emalloc (sizeof (LABELEDLISTNODE));
   LabeledList->Label = (char*)Emalloc (strlen (Label)+1);
@@ -367,7 +360,7 @@ LABELEDLIST NewLabeledList (
   LabeledList->font_sample_count = 0;
   return (LabeledList);
 
-}	/* NewLabeledList */
+} /* NewLabeledList */
 
 /*---------------------------------------------------------------------------*/
 // TODO(rays) This is now used only by cntraining. Convert cntraining to use
@@ -386,7 +379,7 @@ LABELEDLIST NewLabeledList (
  * @return none
  * @note Globals: none
  * @note Exceptions: none
- * @note History: 
+ * @note History:
  * - Fri Aug 18 13:11:39 1989, DSJ, Created.
  * - Tue May 17 1998 simplifications to structure, illiminated
  *   font, and feature specification levels of structure.
@@ -460,11 +453,10 @@ void FreeTrainingSamples(LIST CharList) {
   FEATURE_SET FeatureSet;
   LIST FeatureList;
 
-
-  iterate(CharList) {  /* iterate through all of the fonts */
+  iterate(CharList) { /* iterate through all of the fonts */
     char_sample = (LABELEDLIST) first_node(CharList);
     FeatureList = char_sample->List;
-    iterate(FeatureList) {  /* iterate through all of the classes */
+    iterate(FeatureList) { /* iterate through all of the classes */
       FeatureSet = (FEATURE_SET) first_node(FeatureList);
       FreeFeatureSet(FeatureSet);
     }
@@ -535,12 +527,12 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   if ( Sample != NULL ) free( Sample );
   return( Clusterer );
 
-}	/* SetUpForClustering */
+} /* SetUpForClustering */
 
 /*------------------------------------------------------------------------*/
 void MergeInsignificantProtos(LIST ProtoList, const char* label,
-                              CLUSTERER	*Clusterer, CLUSTERCONFIG *Config) {
-  PROTOTYPE	*Prototype;
+                              CLUSTERER* Clusterer, CLUSTERCONFIG* Config) {
+  PROTOTYPE* Prototype;
   bool debug = strcmp(FLAGS_test_ch.c_str(), label) == 0;
 
   LIST pProtoList = ProtoList;
@@ -600,7 +592,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
       Prototype->Significant = true;
     }
   }
-}	/* MergeInsignificantProtos */
+} /* MergeInsignificantProtos */
 
 /*-----------------------------------------------------------------------------*/
 void CleanUpUnusedData(
@@ -695,14 +687,11 @@ LIST RemoveInsignificantProtos(
   }
   FreeProtoList(&ProtoList);
   return (NewProtoList);
-}	/* RemoveInsignificantProtos */
+} /* RemoveInsignificantProtos */
 
 /*----------------------------------------------------------------------------*/
-MERGE_CLASS FindClass (
-    LIST	List,
-    const char	*Label)
-{
-  MERGE_CLASS	MergeClass;
+MERGE_CLASS FindClass(LIST List, const char* Label) {
+  MERGE_CLASS MergeClass;
 
   iterate (List)
   {
@@ -712,13 +701,11 @@ MERGE_CLASS FindClass (
   }
   return (NULL);
 
-}	/* FindClass */
+} /* FindClass */
 
 /*---------------------------------------------------------------------------*/
-MERGE_CLASS NewLabeledClass (
-    const char	*Label)
-{
-  MERGE_CLASS	MergeClass;
+MERGE_CLASS NewLabeledClass(const char* Label) {
+  MERGE_CLASS MergeClass;
 
   MergeClass = new MERGE_CLASS_NODE;
   MergeClass->Label = (char*)Emalloc (strlen (Label)+1);
@@ -726,7 +713,7 @@ MERGE_CLASS NewLabeledClass (
   MergeClass->Class = NewClass (MAX_NUM_PROTOS, MAX_NUM_CONFIGS);
   return (MergeClass);
 
-}	/* NewLabeledClass */
+} /* NewLabeledClass */
 
 /*-----------------------------------------------------------------------------*/
 /**
@@ -738,38 +725,36 @@ MERGE_CLASS NewLabeledClass (
  * @note Exceptions: none
  * @note History: Fri Aug 18 17:44:27 1989, DSJ, Created.
  */
-void FreeLabeledClassList (
-    LIST	ClassList)
-{
-  MERGE_CLASS	MergeClass;
+void FreeLabeledClassList(LIST ClassList) {
+  MERGE_CLASS MergeClass;
 
-  iterate (ClassList) 		/* iterate through all of the fonts */
+  iterate(ClassList) /* iterate through all of the fonts */
   {
     MergeClass = (MERGE_CLASS) first_node (ClassList);
     free (MergeClass->Label);
     FreeClass(MergeClass->Class);
     delete MergeClass;
   }
-  destroy (ClassList);
+  destroy(ClassList);
 
-}	/* FreeLabeledClassList */
+} /* FreeLabeledClassList */
 
 /* SetUpForFloat2Int */
 CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
                                 LIST LabeledClassList) {
-  MERGE_CLASS	MergeClass;
-  CLASS_TYPE		Class;
-  int				NumProtos;
-  int				NumConfigs;
-  int				NumWords;
-  int				i, j;
-  float			Values[3];
-  PROTO			NewProto;
-  PROTO			OldProto;
-  BIT_VECTOR		NewConfig;
-  BIT_VECTOR		OldConfig;
+  MERGE_CLASS MergeClass;
+  CLASS_TYPE Class;
+  int NumProtos;
+  int NumConfigs;
+  int NumWords;
+  int i, j;
+  float Values[3];
+  PROTO NewProto;
+  PROTO OldProto;
+  BIT_VECTOR NewConfig;
+  BIT_VECTOR OldConfig;
 
-  // 	printf("Float2Int ...\n");
+  //  printf("Float2Int ...\n");
 
   CLASS_STRUCT* float_classes = new CLASS_STRUCT[unicharset.size()];
   iterate(LabeledClassList)
@@ -835,20 +820,19 @@ void Normalize (
 } // Normalize
 
 /*-------------------------------------------------------------------------*/
-void FreeNormProtoList (
-    LIST	CharList)
+void FreeNormProtoList(LIST CharList)
 
 {
-  LABELEDLIST	char_sample;
+  LABELEDLIST char_sample;
 
-  iterate (CharList) 		/* iterate through all of the fonts */
+  iterate(CharList) /* iterate through all of the fonts */
   {
     char_sample = (LABELEDLIST) first_node (CharList);
     FreeLabeledList (char_sample);
   }
-  destroy (CharList);
+  destroy(CharList);
 
-}	// FreeNormProtoList
+}  // FreeNormProtoList
 
 /*---------------------------------------------------------------------------*/
 void AddToNormProtosList(
@@ -869,19 +853,16 @@ void AddToNormProtosList(
 }
 
 /*---------------------------------------------------------------------------*/
-int NumberOfProtos(
-    LIST ProtoList,
-    BOOL8	CountSigProtos,
-    BOOL8	CountInsigProtos)
-{
+int NumberOfProtos(LIST ProtoList, BOOL8 CountSigProtos,
+                   BOOL8 CountInsigProtos) {
   int N = 0;
-  PROTOTYPE	*Proto;
+  PROTOTYPE* Proto;
 
   iterate(ProtoList)
   {
     Proto = (PROTOTYPE *) first_node ( ProtoList );
-    if (( Proto->Significant && CountSigProtos )	||
-        ( ! Proto->Significant && CountInsigProtos ) )
+    if ((Proto->Significant && CountSigProtos) ||
+        (!Proto->Significant && CountInsigProtos))
       N++;
   }
   return(N);

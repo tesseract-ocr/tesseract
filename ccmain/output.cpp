@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        output.cpp  (Formerly output.c)
  * Description: Output pass
- * Author:					Phil Cheatle
- * Created:					Thu Aug  4 10:56:08 BST 1994
+ * Author:          Phil Cheatle
+ * Created:         Thu Aug  4 10:56:08 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,18 +78,16 @@ void Tesseract::output_pass(  //Tess output pass //send to api
   while (page_res_it.word () != NULL) {
     check_debug_pt (page_res_it.word (), 120);
 
-	if (target_word_box)
-	{
-
-		TBOX current_word_box=page_res_it.word ()->word->bounding_box();
-		FCOORD center_pt((current_word_box.right()+current_word_box.left())/2,(current_word_box.bottom()+current_word_box.top())/2);
-		if (!target_word_box->contains(center_pt))
-		{
-			page_res_it.forward ();
-			continue;
-		}
-
-	}
+    if (target_word_box) {
+      TBOX current_word_box = page_res_it.word()->word->bounding_box();
+      FCOORD center_pt(
+          (current_word_box.right() + current_word_box.left()) / 2,
+          (current_word_box.bottom() + current_word_box.top()) / 2);
+      if (!target_word_box->contains(center_pt)) {
+        page_res_it.forward();
+        continue;
+      }
+    }
     if (tessedit_write_block_separators &&
     block_of_last_word != page_res_it.block ()) {
       block_of_last_word = page_res_it.block ();
@@ -337,7 +335,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   rating_per_ch = word.rating() / word_res->reject_map.length();
 
   if (rating_per_ch >= suspect_rating_per_ch)
-    return;                      //Don't touch bad ratings
+    return;  // Don't touch bad ratings
 
   if ((word_res->tess_accepted) || (rating_per_ch < suspect_accept_rating)) {
     /* Unreject any Tess Acceptable word - but NOT tess reject chs*/

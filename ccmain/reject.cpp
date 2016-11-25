@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        reject.cpp  (Formerly reject.c)
  * Description: Rejection functions used in tessedit
- * Author:		Phil Cheatle
- * Created:		Wed Sep 23 16:50:21 BST 1992
+ * Author:    Phil Cheatle
+ * Created:   Wed Sep 23 16:50:21 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

@@ -48,9 +48,9 @@ ICOORD C_OUTLINE::step_coords[4] = {
  * @param length length of loop
  */
 
-C_OUTLINE::C_OUTLINE (CRACKEDGE * startpt, ICOORD bot_left, 
-                      ICOORD top_right, inT16 length)
-    : box (bot_left, top_right), start (startpt->pos), offsets(NULL) {
+C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
+                     inT16 length)
+    : box(bot_left, top_right), start(startpt->pos), offsets(NULL) {
   inT16 stepindex;               //index to step
   CRACKEDGE *edgept;             //current point
 
@@ -70,7 +70,6 @@ C_OUTLINE::C_OUTLINE (CRACKEDGE * startpt, ICOORD bot_left,
     edgept = edgept->next;
   }
 }
-
 
 /**
  * @name C_OUTLINE::C_OUTLINE
@@ -139,7 +138,7 @@ inT16 length                     //length of loop
  * @param rotation rotate to coord
  */
 
-C_OUTLINE::C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation) : offsets(NULL) {
+C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(NULL) {
   TBOX new_box;                   //easy bounding
   inT16 stepindex;               //index to step
   inT16 dirdiff;                 //direction change
@@ -300,7 +299,6 @@ inT32 C_OUTLINE::perimeter() const {
   return total_steps;
 }
 
-
 /**
  * @name C_OUTLINE::outer_area
  *
@@ -331,7 +329,6 @@ inT32 C_OUTLINE::outer_area() const {
 
   return total;
 }
-
 
 /**
  * @name C_OUTLINE::count_transitions
@@ -459,7 +456,6 @@ inT32 C_OUTLINE::count_transitions(inT32 threshold) {
   return total;
 }
 
-
 /**
  * @name C_OUTLINE::operator<
  *
@@ -468,8 +464,7 @@ inT32 C_OUTLINE::count_transitions(inT32 threshold) {
  */
 
 BOOL8
-C_OUTLINE::operator< (const C_OUTLINE & other) const
-{
+C_OUTLINE::operator<(const C_OUTLINE& other) const {
   inT16 count = 0;               //winding count
   ICOORD pos;                    //position of point
   inT32 stepindex;               //index to cstep
@@ -494,7 +489,6 @@ C_OUTLINE::operator< (const C_OUTLINE & other) const
   }
   return count != 0;
 }
-
 
 /**
  * @name C_OUTLINE::winding_number
@@ -534,7 +528,6 @@ inT16 C_OUTLINE::winding_number(ICOORD point) const {
   return count;                  //winding number
 }
 
-
 /**
  * C_OUTLINE::turn_direction
  *
@@ -563,7 +556,6 @@ inT16 C_OUTLINE::turn_direction() const {  //winding number
   return count;                  //winding number
 }
 
-
 /**
  * @name C_OUTLINE::reverse
  *
@@ -585,7 +577,6 @@ void C_OUTLINE::reverse() {  //reverse drection
     set_step (farindex, stepdir + halfturn);
   }
 }
-
 
 /**
  * @name C_OUTLINE::move
@@ -661,14 +652,27 @@ static void ComputeGradient(const l_uint32* data, int wpl,
                             int x, int y, int width, int height,
                             ICOORD* gradient) {
   const l_uint32* line = data + y * wpl;
-  int pix_x_y = x < width && y < height ?
-      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x) : 255;
-  int pix_x_prevy = x < width && y > 0 ?
-      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line - wpl)), x) : 255;
-  int pix_prevx_prevy = x > 0 && y > 0 ?
-      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<void const*>(line - wpl)), x - 1) : 255;
-  int pix_prevx_y = x > 0 && y < height ?
-      GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x - 1) : 255;
+  int pix_x_y =
+      x < width && y < height
+          ? GET_DATA_BYTE(
+                const_cast<void*>(reinterpret_cast<const void*>(line)), x)
+          : 255;
+  int pix_x_prevy =
+      x < width && y > 0
+          ? GET_DATA_BYTE(
+                const_cast<void*>(reinterpret_cast<const void*>(line - wpl)), x)
+          : 255;
+  int pix_prevx_prevy =
+      x > 0 && y > 0
+          ? GET_DATA_BYTE(
+                const_cast<void*>(reinterpret_cast<void const*>(line - wpl)),
+                x - 1)
+          : 255;
+  int pix_prevx_y =
+      x > 0 && y < height
+          ? GET_DATA_BYTE(
+                const_cast<void*>(reinterpret_cast<const void*>(line)), x - 1)
+          : 255;
   gradient->set_x(pix_x_y + pix_x_prevy - (pix_prevx_y + pix_prevx_prevy));
   gradient->set_y(pix_x_prevy + pix_prevx_prevy - (pix_x_y + pix_prevx_y));
 }
@@ -684,8 +688,10 @@ static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
   if (y <= 0 || y >= height)
     return false;
   const l_uint32* line = data + y * wpl;
-  int pixel1 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line - wpl)), x);
-  int pixel2 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x);
+  int pixel1 = GET_DATA_BYTE(
+      const_cast<void*>(reinterpret_cast<const void*>(line - wpl)), x);
+  int pixel2 =
+      GET_DATA_BYTE(const_cast<void*>(reinterpret_cast<const void*>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;
@@ -705,8 +711,10 @@ static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
                                    int* best_diff, int* best_sum, int* best_x) {
   if (x <= 0 || x >= width)
     return false;
-  int pixel1 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x - 1);
-  int pixel2 = GET_DATA_BYTE(const_cast<void*> (reinterpret_cast<const void *>(line)), x);
+  int pixel1 = GET_DATA_BYTE(
+      const_cast<void*>(reinterpret_cast<const void*>(line)), x - 1);
+  int pixel2 =
+      GET_DATA_BYTE(const_cast<void*>(reinterpret_cast<const void*>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;
@@ -954,8 +962,7 @@ void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
  */
 
 #ifndef GRAPHICS_DISABLED
-void C_OUTLINE::plot(ScrollView* window,
-                     ScrollView::Color colour) const {
+void C_OUTLINE::plot(ScrollView* window, ScrollView::Color colour) const {
   inT16 stepindex;               // index to cstep
   ICOORD pos;                    // current position
   DIR128 stepdir;                // direction of step
@@ -1016,7 +1023,6 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
 }
 #endif
 
-
 /**
  * @name C_OUTLINE::operator=
  *
@@ -1024,7 +1030,7 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
  * @param source assign from this
  */
 
-C_OUTLINE & C_OUTLINE::operator= (const C_OUTLINE & source) {
+C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   box = source.box;
   start = source.start;
   if (steps != NULL)

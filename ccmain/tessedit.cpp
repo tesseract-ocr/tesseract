@@ -44,7 +44,7 @@
 #include "params.h"
 
 #define VARDIR        "configs/" /*variables files */
-                                 //config under api
+                                 // config under api
 #define API_CONFIG      "configs/api_config"
 
 ETEXT_DESC *global_monitor = NULL;  // progress monitor

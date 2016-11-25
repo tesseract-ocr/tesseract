@@ -32,28 +32,22 @@ namespace tesseract {
 static const int kMinAbsoluteGarbageWordLength = 10;
 static const float kMinAbsoluteGarbageAlphanumFrac = 0.5f;
 
-const int case_state_table[6][4] = { {
-                                  /*  0. Beginning of word       */
-    /*    P   U   L   D                                          */
-                                  /* -1. Error on case           */
-      0, 1, 5, 4
-    },
-    {                            /*  1. After initial capital    */
-      0, 3, 2, 4
-    },
-    {                            /*  2. After lower case         */
-      0, -1, 2, -1
-    },
-    {                            /*  3. After upper case         */
-      0, 3, -1, 4
-    },
-    {                            /*  4. After a digit            */
-      0, -1, -1, 4
-    },
-    {                            /*  5. After initial lower case */
-      5, -1, 2, -1
-    },
-  };
+const int case_state_table[6][4] = {
+    {/*  0. Beginning of word       */
+     /*    P   U   L   D                                          */
+     /* -1. Error on case           */
+     0, 1, 5, 4},
+    {/*  1. After initial capital    */
+     0, 3, 2, 4},
+    {/*  2. After lower case         */
+     0, -1, 2, -1},
+    {/*  3. After upper case         */
+     0, 3, -1, 4},
+    {/*  4. After a digit            */
+     0, -1, -1, 4},
+    {/*  5. After initial lower case */
+     5, -1, 2, -1},
+};
 
 int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
   int state = 0;

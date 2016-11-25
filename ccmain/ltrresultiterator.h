@@ -92,8 +92,7 @@ class TESS_API LTRResultIterator : public PageIterator {
   float Confidence(PageIteratorLevel level) const;
 
   // Returns the attributes of the current row.
-  void RowAttributes(float* row_height,
-                     float* descenders,
+  void RowAttributes(float* row_height, float* descenders,
                      float* ascenders) const;
 
   // ============= Functions that refer to words only ============.

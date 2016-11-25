@@ -126,7 +126,7 @@ class TESS_API TessResultRenderer {
 
   private:
     const char* file_extension_;  // standard extension for generated output
-    const char* title_;           // title of document being renderered
+    const char* title_;                // title of document being renderered
     int imagenum_;                // index of last image added
 
     FILE* fout_;                  // output file pointer
@@ -153,13 +153,13 @@ class TESS_API TessHOcrRenderer : public TessResultRenderer {
   explicit TessHOcrRenderer(const char *outputbase, bool font_info);
   explicit TessHOcrRenderer(const char *outputbase);
 
-protected:
+ protected:
   virtual bool BeginDocumentHandler();
   virtual bool AddImageHandler(TessBaseAPI* api);
   virtual bool EndDocumentHandler();
 
-private:
-  bool font_info_;              // whether to print font information
+ private:
+  bool font_info_;  // whether to print font information
 };
 
 /**
@@ -167,15 +167,15 @@ private:
  */
 class TESS_API TessTsvRenderer : public TessResultRenderer {
  public:
-  explicit TessTsvRenderer(const char *outputbase, bool font_info);
-  explicit TessTsvRenderer(const char *outputbase);
+  explicit TessTsvRenderer(const char* outputbase, bool font_info);
+  explicit TessTsvRenderer(const char* outputbase);
 
-protected:
+ protected:
   virtual bool BeginDocumentHandler();
   virtual bool AddImageHandler(TessBaseAPI* api);
   virtual bool EndDocumentHandler();
 
-private:
+ private:
   bool font_info_;              // whether to print font information
 };
 
@@ -188,12 +188,12 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   // we load a custom PDF font from this location.
   TessPDFRenderer(const char *outputbase, const char *datadir);
 
-protected:
+ protected:
   virtual bool BeginDocumentHandler();
   virtual bool AddImageHandler(TessBaseAPI* api);
   virtual bool EndDocumentHandler();
 
-private:
+ private:
   // We don't want to have every image in memory at once,
   // so we store some metadata as we go along producing
   // PDFs one page at a time. At the end that metadata is

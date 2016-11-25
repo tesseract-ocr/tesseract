@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        pageres.h  (Formerly page_res.h)
  * Description: Results classes used by control.c
- * Author:		Phil Cheatle
+ * Author:      Phil Cheatle
  * Created:     Tue Sep 22 08:42:49 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -327,7 +327,7 @@ class WERD_RES : public ELIST_LINK {
   }
   // Deep copies everything except the ratings MATRIX.
   // To get that use deep_copy below.
-  WERD_RES(const WERD_RES &source) : ELIST_LINK(source) {
+  WERD_RES(const WERD_RES& source) : ELIST_LINK(source) {
     InitPointers();
     *this = source;            // see operator=
   }
@@ -630,7 +630,7 @@ class WERD_RES : public ELIST_LINK {
   static WERD_RES* deep_copy(const WERD_RES* src) {
     WERD_RES* result = new WERD_RES(*src);
     // That didn't copy the ratings, but we want a copy if there is one to
-    // begin width.
+    // begin with.
     if (src->ratings != NULL)
       result->ratings = src->ratings->DeepCopy();
     return result;

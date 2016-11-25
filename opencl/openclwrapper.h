@@ -19,7 +19,8 @@
 // including CL/cl.h doesn't occur until USE_OPENCL defined below
 
 // platform preprocessor commands
-#if defined( WIN32 ) || defined( __WIN32__ ) || defined( _WIN32 ) || defined( __CYGWIN__ ) || defined( __MINGW32__ )
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || \
+    defined(__CYGWIN__) || defined(__MINGW32__)
 #define ON_WINDOWS 1
 #define ON_LINUX   0
 #define ON_APPLE   0
@@ -89,21 +90,23 @@
     time_sub_start = time_funct_start; \
     time_sub_end = time_funct_start;
 
-#define PERF_COUNT_END \
-    QueryPerformanceCounter(&time_funct_end); \
-    elapsed_time_sec = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart); \
-    printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+#define PERF_COUNT_END                                                       \
+  QueryPerformanceCounter(&time_funct_end);                                  \
+  elapsed_time_sec = (time_funct_end.QuadPart - time_funct_start.QuadPart) / \
+                     (double)(freq.QuadPart);                                \
+  printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
 #endif
 
 #if PERF_COUNT_VERBOSE >= 3
-#define PERF_COUNT_SUB(SUB) \
-    QueryPerformanceCounter(&time_sub_end); \
-    elapsed_time_sec = (time_sub_end.QuadPart-time_sub_start.QuadPart)/(double)(freq.QuadPart); \
-    printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
-    time_sub_start = time_sub_end;
+#define PERF_COUNT_SUB(SUB)                                              \
+  QueryPerformanceCounter(&time_sub_end);                                \
+  elapsed_time_sec = (time_sub_end.QuadPart - time_sub_start.QuadPart) / \
+                     (double)(freq.QuadPart);                            \
+  printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);      \
+  time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
 #endif
@@ -121,21 +124,25 @@
     time_sub_start = time_funct_start; \
     time_sub_end = time_funct_start;
 
-#define PERF_COUNT_END \
-    clock_gettime( CLOCK_MONOTONIC, &time_funct_end ); \
-    elapsed_time_sec = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0; \
-    printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+#define PERF_COUNT_END                                                    \
+  clock_gettime(CLOCK_MONOTONIC, &time_funct_end);                        \
+  elapsed_time_sec =                                                      \
+      (time_funct_end.tv_sec - time_funct_start.tv_sec) * 1.0 +           \
+      (time_funct_end.tv_nsec - time_funct_start.tv_nsec) / 1000000000.0; \
+  printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
 #endif
 
 #if PERF_COUNT_VERBOSE >= 3
-#define PERF_COUNT_SUB(SUB) \
-    clock_gettime( CLOCK_MONOTONIC, &time_sub_end ); \
-    elapsed_time_sec = (time_sub_end.tv_sec - time_sub_start.tv_sec)*1.0 + (time_sub_end.tv_nsec - time_sub_start.tv_nsec)/1000000000.0; \
-    printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec); \
-    time_sub_start = time_sub_end;
+#define PERF_COUNT_SUB(SUB)                                           \
+  clock_gettime(CLOCK_MONOTONIC, &time_sub_end);                      \
+  elapsed_time_sec =                                                  \
+      (time_sub_end.tv_sec - time_sub_start.tv_sec) * 1.0 +           \
+      (time_sub_end.tv_nsec - time_sub_start.tv_nsec) / 1000000000.0; \
+  printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);   \
+  time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
 #endif
@@ -262,12 +269,12 @@ public:
     // OpenCL implementation of Morphology (Hollow = Closed - Open)
     static PIX* pixHollowCL(PIX  *pixd, PIX  *pixs, l_int32  close_hsize, l_int32  close_vsize, l_int32  open_hsize, l_int32  open_vsize, bool reqDataCopy);
 
-    static void pixGetLinesCL(PIX  *pixd, PIX  *pixs,
-                                            PIX** pix_vline, PIX** pix_hline,
-                                            PIX** pixClosed, bool  getpixClosed,
-                                            l_int32  close_hsize, l_int32  close_vsize,
-                                            l_int32  open_hsize, l_int32  open_vsize,
-                                            l_int32  line_hsize, l_int32  line_vsize);
+    static void pixGetLinesCL(PIX *pixd, PIX *pixs, PIX **pix_vline,
+                              PIX **pix_hline, PIX **pixClosed,
+                              bool getpixClosed, l_int32 close_hsize,
+                              l_int32 close_vsize, l_int32 open_hsize,
+                              l_int32 open_vsize, l_int32 line_hsize,
+                              l_int32 line_vsize);
 
     //int InitOpenclAttr( OpenCLEnv * env );
     //int ReleaseKernel( KernelEnv * env );
@@ -288,34 +295,24 @@ public:
     static void FreeOpenclDll();
 #endif
 
-
     inline static int AddKernelConfig( int kCount, const char *kName );
 
     /* for binarization */
-    static int HistogramRectOCL(
-        const unsigned char *imagedata,
-        int bytes_per_pixel,
-        int bytes_per_line,
-        int left,
-        int top,
-        int width,
-        int height,
-        int kHistogramSize,
-        int *histogramAllChannels);
+    static int HistogramRectOCL(const unsigned char *imagedata,
+                                int bytes_per_pixel, int bytes_per_line,
+                                int left, int top, int width, int height,
+                                int kHistogramSize, int *histogramAllChannels);
 
-    static int ThresholdRectToPixOCL(
-        const unsigned char* imagedata,
-        int bytes_per_pixel,
-        int bytes_per_line,
-        const int* thresholds,
-        const int* hi_values,
-        Pix** pix,
-        int rect_height,
-        int rect_width,
-        int rect_top,
-        int rect_left);
+    static int ThresholdRectToPixOCL(const unsigned char *imagedata,
+                                     int bytes_per_pixel, int bytes_per_line,
+                                     const int *thresholds,
+                                     const int *hi_values, Pix **pix,
+                                     int rect_height, int rect_width,
+                                     int rect_top, int rect_left);
 
-    static Pix * pixConvertRGBToGrayOCL( Pix *pix, float weightRed = 0.3, float weightGreen = 0.5, float weightBlue = 0.2 );
+    static Pix *pixConvertRGBToGrayOCL(Pix *pix, float weightRed = 0.3,
+                                       float weightGreen = 0.5,
+                                       float weightBlue = 0.2);
 
     static ds_device getDeviceSelection();
     static ds_device selectedDevice;

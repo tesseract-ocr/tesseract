@@ -31,8 +31,7 @@
 #define EQUAL         '='
 
 tesseract::ParamsVectors *GlobalParams() {
-  static tesseract::ParamsVectors global_params =
-    tesseract::ParamsVectors();
+  static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
   return &global_params;
 }
 

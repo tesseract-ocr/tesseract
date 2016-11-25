@@ -1,7 +1,9 @@
 /* -*-C-*-
  ******************************************************************************
  *
- * File:        matrix.h  (Formerly matrix.h)
+ * File:         matrix.h  (Formerly matrix.h)
+ * Description:  Generic 2-d array/matrix and banded triangular matrix class.
+ * Author:       Ray Smith
  * Description:  Ratings matrix code. (Used by associator)
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 16 13:22:06 1990

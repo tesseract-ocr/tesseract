@@ -760,7 +760,7 @@ void TextlineProjection::TruncateToImageBounds(TPOINT* pt) const {
   pt->y = ClipToRange<int>(pt->y, 0, pixGetHeight(pix_) - 1);
 }
 #ifdef _MSC_VER
-#pragma optimize( "", on )
+#pragma optimize("", on)
 #endif  // _MSC_VER
 
 // Transform tesseract image coordinates to coordinates used in the projection.
