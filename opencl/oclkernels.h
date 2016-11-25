@@ -1201,7 +1201,7 @@ KERNEL(
     unsigned int word = srcData[pixelIdx];
     int output =    (rwt * ((word >> RED_SHIFT)   & 0xff) +
                      gwt * ((word >> GREEN_SHIFT) & 0xff) +
-                     bwt * ((word >> BLUE_SHIFT)  & 0xff) + 0.5);
+                     bwt * ((word >> BLUE_SHIFT)  & 0xff) + 0.5f);
     // SET_DATA_BYTE
     dstData[pixelIdx] = output;
 }
