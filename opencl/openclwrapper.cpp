@@ -2394,9 +2394,9 @@ int OpenclDevice::ThresholdRectToPixOCL(const unsigned char *imageData,
   int retVal = 0;
   /* create pix result buffer */
   *pix = pixCreate(width, height, 1);
-  uinT32 *pixData = pixGetData(*pix);
+  uint32_t *pixData = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
-  int pixSize = wpl * height * sizeof(uinT32);  // number of pixels
+  int pixSize = wpl * height * sizeof(uint32_t);  // number of pixels
 
   cl_int clStatus;
   KernelEnv rEnv;
@@ -2784,13 +2784,13 @@ void ThresholdRectToPix_Native(const unsigned char* imagedata,
     int height = pixGetHeight(*pix);
 
   *pix = pixCreate(width, height, 1);
-  uinT32* pixdata = pixGetData(*pix);
+  uint32_t* pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
   const unsigned char* srcdata = imagedata + top * bytes_per_line +
                                  left * bytes_per_pixel;
   for (int y = 0; y < height; ++y) {
-    const uinT8* linedata = srcdata;
-    uinT32* pixline = pixdata + y * wpl;
+    const uint8_t* linedata = srcdata;
+    uint32_t* pixline = pixdata + y * wpl;
     for (int x = 0; x < width; ++x, linedata += bytes_per_pixel) {
       bool white_result = true;
       for (int ch = 0; ch < bytes_per_pixel; ++ch) {
