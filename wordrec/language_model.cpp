@@ -988,7 +988,7 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
             unichar, context_ptr, CertaintyScore(certainty)/denom, prob,
             ngram_and_classifier_cost);
   }
-  if (modified_context != NULL) delete[] modified_context;
+  delete[] modified_context;
   return ngram_and_classifier_cost;
 }
 

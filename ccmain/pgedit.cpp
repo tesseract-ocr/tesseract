@@ -191,7 +191,7 @@ ScrollView* bln_word_window_handle() {  // return handle
  */
 
 void build_image_window(int width, int height) {
-  if (image_win != NULL) { delete image_win; }
+  delete image_win;
   image_win = new ScrollView(editor_image_win_name.string(),
                              editor_image_xpos, editor_image_ypos,
                              width + 1,

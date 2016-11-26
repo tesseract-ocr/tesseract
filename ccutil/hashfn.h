@@ -63,7 +63,7 @@ template<class T> class SmartPtr {
     return ptr_;
   }
   void reset(T* ptr) {
-    if (ptr_ != NULL) delete ptr_;
+    delete ptr_;
     ptr_ = ptr;
   }
   bool operator==(const T* ptr) const {

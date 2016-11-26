@@ -195,9 +195,7 @@ SearchNode *SearchColumn::AddNode(LangModEdge *edge, int reco_cost,
     }
 
     // free the edge
-    if (edge != NULL) {
-      delete edge;
-    }
+    delete edge;
   }
 
   // update Min and Max Costs

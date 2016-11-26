@@ -96,10 +96,8 @@ bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
   num_raw_samples_ = samples_.size();
   if (!unicharset_.load_from_file(fp)) return false;
   if (!font_id_map_.DeSerialize(swap, fp)) return false;
-  if (font_class_array_ != NULL) {
-    delete font_class_array_;
-    font_class_array_ = NULL;
-  }
+  delete font_class_array_;
+  font_class_array_ = NULL;
   inT8 not_null;
   if (fread(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {

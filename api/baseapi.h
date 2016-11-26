@@ -373,8 +373,7 @@ class TESS_API TessBaseAPI {
    * delete it when it it is replaced or the API is destructed.
    */
   void SetThresholder(ImageThresholder* thresholder) {
-    if (thresholder_ != NULL)
-      delete thresholder_;
+    delete thresholder_;
     thresholder_ = thresholder;
     ClearResults();
   }
