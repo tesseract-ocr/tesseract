@@ -89,7 +89,6 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
       src_transpose = &transposed_input_;
     }
     // Run each network, putting the outputs into result.
-    int input_offset = 0;
     int out_offset = 0;
     for (int i = 0; i < stack_size; ++i) {
       stack_[i]->Forward(debug, input, src_transpose, scratch, result);
@@ -126,7 +125,6 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
     out_deltas.init_to_size(stack_size, NetworkScratch::IO());
     // Split the forward deltas for each stack element.
     int feature_offset = 0;
-    int out_offset = 0;
     for (int i = 0; i < stack_.size(); ++i) {
       int num_features = stack_[i]->NumOutputs();
       in_deltas[i].Resize(fwd_deltas, num_features, scratch);
@@ -153,7 +151,6 @@ bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
     // back_deltas.
     NetworkScratch::IO out_deltas;
     int feature_offset = 0;
-    int out_offset = 0;
     for (int i = 0; i < stack_.size(); ++i) {
       int num_features = stack_[i]->NumOutputs();
       in_deltas->CopyUnpacking(fwd_deltas, feature_offset, num_features);

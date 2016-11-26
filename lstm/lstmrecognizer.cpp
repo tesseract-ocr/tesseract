@@ -280,7 +280,6 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
   if (invert && pos_min < 0.5) {
     // Run again inverted and see if it is any better.
-    float inv_scale;
     NetworkIO inv_inputs, inv_outputs;
     inv_inputs.set_int_mode(IsIntMode());
     SetRandomSeed();
@@ -460,7 +459,6 @@ void LSTMRecognizer::DisplayForward(const NetworkIO& inputs,
                                     const char* window_name,
                                     ScrollView** window) {
 #ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
-  int x_scale = network_->XScaleFactor();
   Pix* input_pix = inputs.ToPix();
   Network::ClearWindow(false, window_name, pixGetWidth(input_pix),
                        pixGetHeight(input_pix), window);
@@ -595,7 +593,6 @@ void LSTMRecognizer::LabelsViaThreshold(const NetworkIO& output,
   int width = output.Width();
   int t = 0;
   // Skip any initial non-char.
-  int label = null_char_;
   while (t < width && NullIsBest(output, null_thr, null_char_, t)) {
     ++t;
   }
@@ -688,7 +685,6 @@ BLOB_CHOICE_LIST* LSTMRecognizer::GetBlobChoices(
     int col, int row, bool debug, const NetworkIO& output,
     const UNICHARSET* target_unicharset, int x_start, int x_end,
     float score_ratio) {
-  int width = x_end - x_start;
   float rating = 0.0f, certainty = 0.0f;
   int label = output.BestChoiceOverRange(x_start, x_end, UNICHAR_SPACE,
                                          null_char_, &rating, &certainty);
