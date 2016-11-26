@@ -821,6 +821,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
   NumFeatures = Features->NumFeatures;
   if (NumFeatures > UNLIKELY_NUM_FEAT) {
     FreeFeatureSet(Features);
+    *FloatFeatures = NULL;
     return 0;
   }
 
