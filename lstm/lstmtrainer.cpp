@@ -549,17 +549,18 @@ void LSTMTrainer::StartSubtrainer(STRING* log_msg) {
     *log_msg += " Failed to revert to previous best for trial!";
     delete sub_trainer_;
     sub_trainer_ = NULL;
+  } else {
+    log_msg->add_str_int(" Trial sub_trainer_ from iteration ",
+                         sub_trainer_->training_iteration());
+    // Reduce learning rate so it doesn't diverge this time.
+    sub_trainer_->ReduceLearningRates(this, log_msg);
+    // If it fails again, we will wait twice as long before reverting again.
+    int stall_offset = learning_iteration() - sub_trainer_->learning_iteration();
+    stall_iteration_ = learning_iteration() + 2 * stall_offset;
+    sub_trainer_->stall_iteration_ = stall_iteration_;
+    // Re-save the best trainer with the new learning rates and stall iteration.
+    checkpoint_writer_->Run(NO_BEST_TRAINER, sub_trainer_, &best_trainer_);
   }
-  log_msg->add_str_int(" Trial sub_trainer_ from iteration ",
-                       sub_trainer_->training_iteration());
-  // Reduce learning rate so it doesn't diverge this time.
-  sub_trainer_->ReduceLearningRates(this, log_msg);
-  // If it fails again, we will wait twice as long before reverting again.
-  int stall_offset = learning_iteration() - sub_trainer_->learning_iteration();
-  stall_iteration_ = learning_iteration() + 2 * stall_offset;
-  sub_trainer_->stall_iteration_ = stall_iteration_;
-  // Re-save the best trainer with the new learning rates and stall iteration.
-  checkpoint_writer_->Run(NO_BEST_TRAINER, sub_trainer_, &best_trainer_);
 }
 
 // While the sub_trainer_ is behind the current training iteration and its
