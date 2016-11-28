@@ -112,6 +112,7 @@ CharSamp *CharSamp::FromCharDumpFile(CachedFile *fp) {
     // read label
     if (fp->Read(label32, val32 * sizeof(*label32)) !=
         (val32 * sizeof(*label32))) {
+      delete [] label32;
       return NULL;
     }
     // null terminate
@@ -121,33 +122,42 @@ CharSamp *CharSamp::FromCharDumpFile(CachedFile *fp) {
   }
   // read coordinates
   if (fp->Read(&page, sizeof(page)) != sizeof(page)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&left, sizeof(left)) != sizeof(left)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&top, sizeof(top)) != sizeof(top)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&first_char, sizeof(first_char)) != sizeof(first_char)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&last_char, sizeof(last_char)) != sizeof(last_char)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&norm_top, sizeof(norm_top)) != sizeof(norm_top)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&norm_bottom, sizeof(norm_bottom)) != sizeof(norm_bottom)) {
+    delete [] label32;
     return NULL;
   }
   if (fp->Read(&norm_aspect_ratio, sizeof(norm_aspect_ratio)) !=
       sizeof(norm_aspect_ratio)) {
+    delete [] label32;
     return NULL;
   }
   // create the object
   CharSamp *char_samp = new CharSamp();
   if (char_samp == NULL) {
+    delete [] label32;
     return NULL;
   }
   // init
@@ -163,6 +173,7 @@ CharSamp *CharSamp::FromCharDumpFile(CachedFile *fp) {
   // load the Bmp8 part
   if (char_samp->LoadFromCharDumpFile(fp) == false) {
     delete char_samp;
+    delete [] label32;
     return NULL;
   }
   return char_samp;
