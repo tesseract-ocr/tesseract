@@ -819,7 +819,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
   Features = ExtractPicoFeatures(Blob);
 
   NumFeatures = Features->NumFeatures;
-  if (NumFeatures > UNLIKELY_NUM_FEAT) {
+  if (NumFeatures == 0 || NumFeatures > UNLIKELY_NUM_FEAT) {
     FreeFeatureSet(Features);
     return 0;
   }
