@@ -74,7 +74,8 @@ LSTM::LSTM(const STRING& name, int ni, int ns, int no, bool two_dimensional,
       ns_(ns),
       nf_(0),
       is_2d_(two_dimensional),
-      softmax_(NULL) {
+      softmax_(NULL),
+      input_width_(0) {
   if (two_dimensional) na_ += ns_;
   if (type_ == NT_LSTM || type_ == NT_LSTM_SUMMARY) {
     nf_ = 0;
