@@ -113,7 +113,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // previously setup UNICHARSET and UnicharCompress.
   // ctc_mode controls how the truth text is mapped to the network targets.
   // Note: Call before InitNetwork!
-  void InitCharSet(const UNICHARSET& unicharset, const UnicharCompress recoder);
+  void InitCharSet(const UNICHARSET& unicharset, const UnicharCompress& recoder);
 
   // Initializes the trainer with a network_spec in the network description
   // net_flags control network behavior according to the NetworkFlags enum.

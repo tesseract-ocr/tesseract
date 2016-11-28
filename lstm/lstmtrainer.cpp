@@ -147,7 +147,7 @@ void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
 // ctc_mode controls how the truth text is mapped to the network targets.
 // Note: Call before InitNetwork!
 void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
-                              const UnicharCompress recoder) {
+                              const UnicharCompress& recoder) {
   EmptyConstructor();
   int flags = TF_COMPRESS_UNICHARSET;
   training_flags_ = static_cast<TrainingFlags>(flags);
