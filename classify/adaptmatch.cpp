@@ -818,14 +818,14 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
   classify_norm_method.set_value(baseline);
   Features = ExtractPicoFeatures(Blob);
 
+  *FloatFeatures = Features;
+
   NumFeatures = Features->NumFeatures;
   if (NumFeatures > UNLIKELY_NUM_FEAT) {
-    FreeFeatureSet(Features);
     return 0;
   }
 
   ComputeIntFeatures(Features, IntFeatures);
-  *FloatFeatures = Features;
 
   return NumFeatures;
 }                                /* GetAdaptiveFeatures */
@@ -908,7 +908,8 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
 
     NumFeatures = GetAdaptiveFeatures(Blob, IntFeatures, &FloatFeatures);
     if (NumFeatures <= 0) {
-      return;  // Features already freed by GetAdaptiveFeatures.
+      FreeFeatureSet(FloatFeatures);
+      return;
     }
 
     // Only match configs with the matching font.
