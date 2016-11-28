@@ -179,14 +179,14 @@ int CharBigrams::Cost(const char_32 *char_32_ptr, CharSet *char_set) const {
     if (lower_32 && lower_32[0] != 0) {
       int cost_lower = MeanCostWithSpaces(lower_32);
       cost = MIN(cost, cost_lower);
-      delete [] lower_32;
     }
+    delete [] lower_32;
     char_32 *upper_32 = CubeUtils::ToUpper(char_32_ptr, char_set);
     if (upper_32 && upper_32[0] != 0) {
       int cost_upper = MeanCostWithSpaces(upper_32);
       cost = MIN(cost, cost_upper);
-      delete [] upper_32;
     }
+    delete [] upper_32;
   }
   return cost;
 }
