@@ -36,8 +36,7 @@ BeamSearch::BeamSearch(CubeRecoContext *cntxt, bool word_mode) {
 void BeamSearch::Cleanup() {
   if (col_ != NULL) {
     for (int col = 0; col < col_cnt_; col++) {
-      if (col_[col])
-        delete col_[col];
+      delete col_[col];
     }
     delete []col_;
   }
@@ -356,8 +355,7 @@ CharSamp **BeamSearch::BackTrack(SearchObject *srch_obj, SearchNode *srch_node,
     return NULL;
 
   if (str32) {
-    if (*str32)
-      delete [](*str32);  // clear existing value
+    delete [](*str32);  // clear existing value
     *str32 = srch_node->PathString();
     if (!*str32)
       return NULL;

@@ -55,40 +55,26 @@ CubeRecoContext::CubeRecoContext(Tesseract *tess_obj) {
 }
 
 CubeRecoContext::~CubeRecoContext() {
-  if (char_classifier_ != NULL) {
-    delete char_classifier_;
-    char_classifier_ = NULL;
-  }
+  delete char_classifier_;
+  char_classifier_ = NULL;
 
-  if (word_size_model_ != NULL) {
-    delete word_size_model_;
-    word_size_model_ = NULL;
-  }
+  delete word_size_model_;
+  word_size_model_ = NULL;
 
-  if (char_set_ != NULL) {
-    delete char_set_;
-    char_set_ = NULL;
-  }
+  delete char_set_;
+  char_set_ = NULL;
 
-  if (char_bigrams_ != NULL) {
-    delete char_bigrams_;
-    char_bigrams_ = NULL;
-  }
+  delete char_bigrams_;
+  char_bigrams_ = NULL;
 
-  if (word_unigrams_ != NULL) {
-    delete word_unigrams_;
-    word_unigrams_ = NULL;
-  }
+  delete word_unigrams_;
+  word_unigrams_ = NULL;
 
-  if (lang_mod_ != NULL) {
-    delete lang_mod_;
-    lang_mod_ = NULL;
-  }
+  delete lang_mod_;
+  lang_mod_ = NULL;
 
-  if (params_ != NULL) {
-    delete params_;
-    params_ = NULL;
-  }
+  delete params_;
+  params_ = NULL;
 }
 
 /**
