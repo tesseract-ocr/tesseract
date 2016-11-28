@@ -1201,6 +1201,9 @@ double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
   for (int i = 0; i < label_counts.size(); ++i) {
     char_errors += abs(label_counts[i]);
   }
+  if (truth_size == 0) {
+    return (char_errors == 0) ? 0.0 : 1.0;
+  }
   return static_cast<double>(char_errors) / truth_size;
 }
 
