@@ -54,47 +54,33 @@ void CubeObject::Init() {
 
 // Cleanup function
 void CubeObject::Cleanup() {
-  if (alt_list_ != NULL) {
-    delete alt_list_;
-    alt_list_ = NULL;
-  }
+  delete alt_list_;
+  alt_list_ = NULL;
 
-  if (deslanted_alt_list_ != NULL) {
-    delete deslanted_alt_list_;
-    deslanted_alt_list_ = NULL;
-  }
+  delete deslanted_alt_list_;
+  deslanted_alt_list_ = NULL;
 }
 
 CubeObject::~CubeObject() {
-  if (char_samp_ != NULL && own_char_samp_ == true) {
+  if (own_char_samp_ == true) {
     delete char_samp_;
     char_samp_ = NULL;
   }
 
-  if (srch_obj_ != NULL) {
-    delete srch_obj_;
-    srch_obj_ = NULL;
-  }
+  delete srch_obj_;
+  srch_obj_ = NULL;
 
-  if (deslanted_srch_obj_ != NULL) {
-    delete deslanted_srch_obj_;
-    deslanted_srch_obj_ = NULL;
-  }
+  delete deslanted_srch_obj_;
+  deslanted_srch_obj_ = NULL;
 
-  if (beam_obj_ != NULL) {
-    delete beam_obj_;
-    beam_obj_ = NULL;
-  }
+  delete beam_obj_;
+  beam_obj_ = NULL;
 
-  if (deslanted_beam_obj_ != NULL) {
-    delete deslanted_beam_obj_;
-    deslanted_beam_obj_ = NULL;
-  }
+  delete deslanted_beam_obj_;
+  deslanted_beam_obj_ = NULL;
 
-  if (deslanted_char_samp_ != NULL) {
-    delete deslanted_char_samp_;
-    deslanted_char_samp_ = NULL;
-  }
+  delete deslanted_char_samp_;
+  deslanted_char_samp_ = NULL;
 
   Cleanup();
 }

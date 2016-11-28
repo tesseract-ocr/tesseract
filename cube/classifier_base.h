@@ -49,21 +49,15 @@ class CharClassifier {
   virtual ~CharClassifier() {
     if (fold_sets_  != NULL) {
       for (int fold_set = 0; fold_set < fold_set_cnt_; fold_set++) {
-        if (fold_sets_[fold_set] != NULL) {
-          delete []fold_sets_[fold_set];
-        }
+        delete []fold_sets_[fold_set];
       }
       delete []fold_sets_;
       fold_sets_ = NULL;
     }
-    if (fold_set_len_ != NULL) {
-      delete []fold_set_len_;
-      fold_set_len_ = NULL;
-    }
-    if (feat_extract_ != NULL) {
-      delete feat_extract_;
-      feat_extract_ = NULL;
-    }
+    delete []fold_set_len_;
+    fold_set_len_ = NULL;
+    delete feat_extract_;
+    feat_extract_ = NULL;
   }
 
   // pure virtual functions that need to be implemented by any inheriting class

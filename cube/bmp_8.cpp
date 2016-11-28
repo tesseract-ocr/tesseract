@@ -48,18 +48,14 @@ Bmp8::~Bmp8() {
 // free buffer
 void Bmp8::FreeBmpBuffer(unsigned char **buff) {
   if (buff != NULL) {
-    if (buff[0] != NULL) {
-      delete []buff[0];
-    }
+    delete []buff[0];
     delete []buff;
   }
 }
 
 void Bmp8::FreeBmpBuffer(unsigned int **buff) {
   if (buff != NULL) {
-    if (buff[0] != NULL) {
-      delete []buff[0];
-    }
+    delete []buff[0];
     delete []buff;
   }
 }
@@ -77,7 +73,6 @@ unsigned char **Bmp8::CreateBmpBuffer(unsigned char init_val) {
 
   buff = (unsigned char **) new unsigned char *[hgt_ * sizeof(*buff)];
   if (!buff) {
-    delete []buff;
     return NULL;
   }
 
@@ -85,6 +80,7 @@ unsigned char **Bmp8::CreateBmpBuffer(unsigned char init_val) {
   buff[0] = (unsigned char *)
       new unsigned char[stride_ * hgt_ * sizeof(*buff[0])];
   if (!buff[0]) {
+    delete []buff;
     return NULL;
   }
 
@@ -105,13 +101,13 @@ unsigned int ** Bmp8::CreateBmpBuffer(int wid, int hgt,
   // compute stride (align on 4 byte boundries)
   buff = (unsigned int **) new unsigned int *[hgt * sizeof(*buff)];
   if (!buff) {
-    delete []buff;
     return NULL;
   }
 
   // alloc and init memory for buffer and line buffer
   buff[0] = (unsigned int *) new unsigned int[wid * hgt * sizeof(*buff[0])];
   if (!buff[0]) {
+    delete []buff;
     return NULL;
   }
 
