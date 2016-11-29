@@ -1559,8 +1559,12 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     }
     switch (res_it->WordDirection()) {
       // Only emit direction if different from current paragraph direction
-      case DIR_LEFT_TO_RIGHT: if (!para_is_ltr) hocr_str += " dir='ltr'"; break;
-      case DIR_RIGHT_TO_LEFT: if (para_is_ltr) hocr_str += " dir='rtl'"; break;
+      case DIR_LEFT_TO_RIGHT:
+        if (!para_is_ltr) hocr_str += " dir='ltr'";
+        break;
+      case DIR_RIGHT_TO_LEFT:
+        if (para_is_ltr) hocr_str += " dir='rtl'";
+        break;
       case DIR_MIX:
       case DIR_NEUTRAL:
       default:  // Do nothing.
