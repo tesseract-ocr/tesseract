@@ -89,7 +89,7 @@ class SVEventHandler {
 
 // Gets called by the SV Window. Does nothing on default, overwrite this
 // to implement the desired behaviour
-    virtual void Notify(const SVEvent* sve) { }
+    virtual void Notify(const SVEvent* sve) { (void)sve; }
 };
 
 // The ScrollView class provides the expernal API to the scrollviewer process.
@@ -327,7 +327,7 @@ class ScrollView {
 // be unique among menubar eventIDs.
   void MenuItem(const char* parent, const char* name, int cmdEvent);
 
-// This adds a new checkbox entry, which might initially be flagged.
+  // This adds a new checkbox entry, which might initially be flagged.
   void MenuItem(const char* parent, const char* name,
                 int cmdEvent, bool flagged);
 
