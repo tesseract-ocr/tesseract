@@ -620,7 +620,6 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   AppendPDFObject(buf);
 
   // FONT DESCRIPTOR
-  const int kCharHeight = 2;  // Effect: highlights are half height
   n = snprintf(buf, sizeof(buf),
                "7 0 obj\n"
                "<<\n"
@@ -636,10 +635,10 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "  /Type /FontDescriptor\n"
                ">>\n"
                "endobj\n",
-               1000 / kCharHeight,
-               1000 / kCharHeight,
+               1000,
+               1000,
                1000 / kCharWidth,
-               1000 / kCharHeight,
+               1000,
                8L      // Font data
                );
   if (n >= sizeof(buf)) return false;
