@@ -111,15 +111,11 @@ void PrintHelpForPSM() {
       "  8    Treat the image as a single word.\n"
       "  9    Treat the image as a single word in a circle.\n"
       " 10    Treat the image as a single character.\n"
-      //TODO: Consider publishing these modes.
-      #if 0
       " 11    Sparse text. Find as much text as possible in no"
       " particular order.\n"
       " 12    Sparse text with OSD.\n"
       " 13    Raw line. Treat the image as a single text line,\n"
-      "\t\t\tbypassing hacks that are Tesseract-specific.\n"
-      #endif
-      ;
+      "\t\t\tbypassing hacks that are Tesseract-specific.\n";
   printf("%s", msg);
 }
 
