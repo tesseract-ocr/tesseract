@@ -130,7 +130,7 @@ at Google since then.</simpara>
 </varlistentry>
 <varlistentry>
 <term>
-<emphasis>-psm N</emphasis>
+<emphasis>--psm N</emphasis>
 </term>
 <listitem>
 <simpara>
@@ -176,7 +176,7 @@ pdf  - Output in pdf instead of a text file.
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara><emphasis role="strong">Nota Bene:</emphasis>   The options <emphasis>-l lang</emphasis> and <emphasis>-psm N</emphasis> must occur
+<simpara><emphasis role="strong">Nota Bene:</emphasis>   The options <emphasis>-l lang</emphasis> and <emphasis>--psm N</emphasis> must occur
 before any <emphasis>configfile</emphasis>.</simpara>
 </refsect1>
 <refsect1 id="_single_options">

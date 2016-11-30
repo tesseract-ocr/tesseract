@@ -63,7 +63,7 @@ You can either [Install Tesseract via pre-built binary package](https://github.c
 
 Basic command line usage:
 
-    tesseract imagename outputbase [-l lang] [-psm pagesegmode] [configfiles...]
+    tesseract imagename outputbase [-l lang] [--psm pagesegmode] [configfiles...]
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`. 
 
