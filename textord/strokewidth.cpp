@@ -393,7 +393,7 @@ void StrokeWidth::GradeBlobsIntoPartitions(
 }
 
 static void PrintBoxWidths(BLOBNBOX* neighbour) {
-  TBOX nbox = neighbour->bounding_box();
+  const TBOX& nbox = neighbour->bounding_box();
   tprintf("Box (%d,%d)->(%d,%d): h-width=%.1f, v-width=%.1f p-width=%1.f\n",
           nbox.left(), nbox.bottom(), nbox.right(), nbox.top(),
           neighbour->horz_stroke_width(), neighbour->vert_stroke_width(),
@@ -1939,7 +1939,7 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
   gsearch.StartFullSearch();
   BLOBNBOX* bbox;
   while ((bbox = gsearch.NextFullSearch()) != NULL) {
-    TBOX box = bbox->bounding_box();
+    const TBOX& box = bbox->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
     int top_y = box.top();

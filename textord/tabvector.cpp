@@ -435,7 +435,7 @@ bool TabVector::SimilarTo(const ICOORD& vertical,
     vsearch.StartVerticalSearch(left, right, top_y);
     BLOBNBOX* blob;
     while ((blob = vsearch.NextVerticalSearch(true)) != NULL) {
-      TBOX box = blob->bounding_box();
+      const TBOX& box = blob->bounding_box();
       if (box.top() > bottom_y)
         return true;  // Nothing found.
       if (box.bottom() < top_y)
@@ -806,7 +806,7 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
     // Fit a line to all the boxes in the list.
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       BLOBNBOX* bbox = it.data();
-      TBOX box = bbox->bounding_box();
+      const TBOX& box = bbox->bounding_box();
       int x1 = IsRightTab() ? box.right() : box.left();
       ICOORD boxpt(x1, box.bottom());
       linepoints.Add(boxpt);
@@ -831,7 +831,7 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   int width_count = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* bbox = it.data();
-    TBOX box = bbox->bounding_box();
+    const TBOX& box = bbox->bounding_box();
     mean_width_ += box.width();
     ++width_count;
     int x1 = IsRightTab() ? box.right() : box.left();

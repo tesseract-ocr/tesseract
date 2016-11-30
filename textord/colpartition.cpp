@@ -918,7 +918,7 @@ void ColPartition::ComputeLimits() {
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       bbox = it.data();
       if (non_leader_count == 0 || bbox->flow() != BTFT_LEADER) {
-        TBOX box = bbox->bounding_box();
+        const TBOX& box = bbox->bounding_box();
         int area = box.area();
         top_stats.add(box.top(), area);
         bottom_stats.add(box.bottom(), area);
@@ -2121,7 +2121,7 @@ void ColPartition::RefinePartnersByOverlap(bool upper,
 // Return true if bbox belongs better in this than other.
 bool ColPartition::ThisPartitionBetter(BLOBNBOX* bbox,
                                        const ColPartition& other) {
-  TBOX box = bbox->bounding_box();
+  const TBOX& box = bbox->bounding_box();
   // Margins take priority.
   int left = box.left();
   int right = box.right();

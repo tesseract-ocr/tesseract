@@ -229,7 +229,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
                                        bbox->flow() == BTFT_TEXT_ON_IMAGE, 0.0,
                                        *gutter_width, box.top(), box.bottom());
   if (gutter_bbox != NULL) {
-    TBOX gutter_box = gutter_bbox->bounding_box();
+    const TBOX& gutter_box = gutter_bbox->bounding_box();
     *gutter_width = left ? tab_x - gutter_box.right()
                         : gutter_box.left() - tab_x;
   }
@@ -261,7 +261,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
   int neighbour_edge = left ? RightEdgeForBox(box, true, false)
                             : LeftEdgeForBox(box, true, false);
   if (neighbour != NULL) {
-    TBOX n_box = neighbour->bounding_box();
+    const TBOX& n_box = neighbour->bounding_box();
     if (debug) {
       tprintf("Found neighbour:");
       n_box.print();

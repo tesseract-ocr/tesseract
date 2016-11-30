@@ -360,7 +360,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
   // Non-text blocks must contain at least one row.
   ROW_IT row_it(block->row_list());
   if (row_it.empty()) {
-    TBOX box = block->bounding_box();
+    const TBOX& box = block->bounding_box();
     float height = box.height();
     inT32 xstarts[2] = {box.left(), box.right()};
     double coeffs[3] = {0.0, 0.0, static_cast<double>(box.bottom())};
