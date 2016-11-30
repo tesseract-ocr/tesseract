@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := tesseract-$(APP_ABI)
 
 LOCAL_STATIC_LIBRARIES := \
-    mobile_base \
+    base \
     leptonica-$(APP_ABI)
 
 LOCAL_C_INCLUDES := $(APP_C_INCLUDES)
@@ -51,7 +51,6 @@ LOCAL_CFLAGS := -DANDROID_BUILD -DNO_CUBE_BUILD -DGRAPHICS_DISABLED
 
 include $(BUILD_SHARED_LIBRARY)
 
-$(call import-module,mobile/base)
-$(call import-module,mobile/base)
+$(call import-module,base/port)
 $(call import-module,mobile/util/hash)
 $(call import-module,third_party/leptonica/android/jni)
