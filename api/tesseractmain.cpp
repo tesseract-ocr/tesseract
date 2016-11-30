@@ -143,7 +143,7 @@ void PrintHelpMessage(const char* program) {
       "  -c VAR=VALUE          Set value for config variables.\n"
       "                        Multiple -c arguments are allowed.\n"
       "  -psm NUM              Specify page segmentation mode.\n"
-      "  -oem NUM              Specify OCR Engine mode.\n"
+      "  --oem NUM             Specify OCR Engine mode.\n"
       "NOTE: These options must occur before any configfile.\n";
 
   printf("\n%s\n", ocr_options);
@@ -277,7 +277,7 @@ void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "-psm") == 0 && i + 1 < argc) {
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
-    } else if (strcmp(argv[i], "-oem") == 0 && i + 1 < argc) {
+    } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
       *enginemode = static_cast<tesseract::OcrEngineMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
