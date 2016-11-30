@@ -142,7 +142,7 @@ void PrintHelpMessage(const char* program) {
       "  -l LANG[+LANG]        Specify language(s) used for OCR.\n"
       "  -c VAR=VALUE          Set value for config variables.\n"
       "                        Multiple -c arguments are allowed.\n"
-      "  -psm NUM              Specify page segmentation mode.\n"
+      "  --psm NUM             Specify page segmentation mode.\n"
       "  --oem NUM             Specify OCR Engine mode.\n"
       "NOTE: These options must occur before any configfile.\n";
 
@@ -275,6 +275,11 @@ void ParseArgs(const int argc, char** argv, const char** lang,
       noocr = true;
       *list_langs = true;
     } else if (strcmp(argv[i], "-psm") == 0 && i + 1 < argc) {
+      // The parameter -psm is deprecated and was replaced by --psm.
+      // It is still supported for compatibility reasons.
+      *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
+      ++i;
+    } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
