@@ -362,8 +362,8 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
-                &italic, &bold, &fixed, &serif, &fraktur) != 6)
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name, &italic, &bold,
+                &fixed, &serif, &fraktur) != 6)
       continue;
     fontinfo.properties =
         (italic << 0) +

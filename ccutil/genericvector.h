@@ -238,14 +238,13 @@ class GenericVector {
   int binary_search(const T& target) const {
     int bottom = 0;
     int top = size_used_;
-    do {
+    while (top - bottom > 1) {
       int middle = (bottom + top) / 2;
       if (data_[middle] > target)
         top = middle;
       else
         bottom = middle;
     }
-    while (top - bottom > 1);
     return bottom;
   }
 

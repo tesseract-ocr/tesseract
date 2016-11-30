@@ -30,7 +30,7 @@ namespace tesseract {
 
 class Image;
 
-Dict::Dict(CCUtil* ccutil)
+Dict::Dict(CCUtil *ccutil)
     : letter_is_okay_(&tesseract::Dict::def_letter_is_okay),
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
       params_model_classify_(NULL),
@@ -165,7 +165,6 @@ Dict::Dict(CCUtil* ccutil)
                     getCCUtil()->params()),
       INT_MEMBER(max_permuter_attempts, 10000,
                  "Maximum number of different"
-
                  " character choices to consider during permutation."
                  " This limit is especially useful when user patterns"
                  " are specified, since overly generic patterns can result in"

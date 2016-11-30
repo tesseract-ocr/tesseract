@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        pageres.h  (Formerly page_res.h)
  * Description: Results classes used by control.c
- * Author:      Phil Cheatle
+ * Author:    Phil Cheatle
  * Created:     Tue Sep 22 08:42:49 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.

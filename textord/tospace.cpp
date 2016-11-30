@@ -462,10 +462,9 @@ void Textord::row_spacing_stats(
       MAX (row->kern_size, 2.5)));
     if (row->space_threshold > sane_threshold) {
       if (tosp_debug_level > 5)
-        tprintf ("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
-          block_idx, row_idx,
-          row->kern_size,
-          row->space_threshold, row->space_size, sane_threshold);
+        tprintf("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
+                block_idx, row_idx, row->kern_size, row->space_threshold,
+                row->space_size, sane_threshold);
       row->space_threshold = sane_threshold;
       if (row->space_size <= sane_threshold)
         row->space_size = row->space_threshold + 1.0f;
