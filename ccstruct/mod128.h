@@ -77,7 +77,6 @@ class DLLSYM DIR128
     inT8 get_dir() const {  //access function
       return dir;
     }
-    ICOORD vector() const;  //turn to vector
 
   private:
     inT8 dir;                    //a direction

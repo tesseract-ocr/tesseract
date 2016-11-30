@@ -892,7 +892,7 @@ void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE** choices) {
 void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
   int num_blobs = ratings->dimension();
   WERD_CHOICE* word_choice = new WERD_CHOICE(uch_set, num_blobs);
-  word_choice->set_permuter(TOP_CHOICE_PERM);
+  word_choice->set_permuter(permuter);
   for (int b = 0; b < num_blobs; ++b) {
     UNICHAR_ID unichar_id = UNICHAR_SPACE;
     float rating = MAX_INT32;
@@ -1105,6 +1105,7 @@ void WERD_RES::InitNonPointers() {
   x_height = 0.0;
   caps_height = 0.0;
   baseline_shift = 0.0f;
+  space_certainty = 0.0f;
   guessed_x_ht = TRUE;
   guessed_caps_ht = TRUE;
   combination = FALSE;

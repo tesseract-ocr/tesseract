@@ -295,6 +295,9 @@ class WERD_RES : public ELIST_LINK {
   float x_height;              // post match estimate
   float caps_height;           // post match estimate
   float baseline_shift;        // post match estimate.
+  // Certainty score for the spaces either side of this word (LSTM mode).
+  // MIN this value with the actual word certainty.
+  float space_certainty;
 
   /*
     To deal with fuzzy spaces we need to be able to combine "words" to form
