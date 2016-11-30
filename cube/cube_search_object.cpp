@@ -400,7 +400,7 @@ bool CubeSearchObject::ComputeSpaceCosts() {
     float prob = 0.0;
 
     // gap is too small => no space
-    if (gap < min_spc_gap_) {
+    if (gap < min_spc_gap_ || max_spc_gap_ == min_spc_gap_) {
       prob = 0.0;
     } else if (gap > max_spc_gap_) {
       // gap is too big => definite space
