@@ -56,12 +56,6 @@ CharClassifier *CharClassifierFactory::Create(const string &data_file_path,
       return NULL;
   }
 
-  if (feat_extract == NULL) {
-    fprintf(stderr, "Cube ERROR (CharClassifierFactory::Create): unable "
-              "to instantiate feature extraction object.\n");
-    return NULL;
-  }
-
   // create the classifier object
   CharClassifier *classifier_obj;
   switch (params->TypeClassifier()) {
@@ -77,12 +71,6 @@ CharClassifier *CharClassifierFactory::Create(const string &data_file_path,
       fprintf(stderr, "Cube ERROR (CharClassifierFactory::Create): invalid "
               "classifier type.\n");
       return NULL;
-  }
-
-  if (classifier_obj == NULL) {
-    fprintf(stderr, "Cube ERROR (CharClassifierFactory::Create): error "
-            "allocating memory for character classifier object.\n");
-    return NULL;
   }
 
   // Init the classifier

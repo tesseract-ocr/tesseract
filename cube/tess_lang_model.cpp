@@ -182,9 +182,6 @@ LangModEdge ** TessLangModel::GetEdges(CharAltList *alt_list,
     // preallocate the edge buffer
     (*edge_cnt) = dawg_cnt * max_edge_;
     edge_array = new LangModEdge *[(*edge_cnt)];
-    if (edge_array == NULL) {
-      return NULL;
-    }
 
     for (int dawg_idx = (*edge_cnt) = 0; dawg_idx < dawg_cnt; dawg_idx++) {
       const Dawg *curr_dawg = GetDawg(dawg_idx);
@@ -213,9 +210,6 @@ LangModEdge ** TessLangModel::GetEdges(CharAltList *alt_list,
     (*edge_cnt) = max_edge_;
     // allocate memory for edges
     edge_array = new LangModEdge *[(*edge_cnt)];
-    if (edge_array == NULL) {
-      return NULL;
-    }
 
     // get the FanOut edges from the root of each dawg
     (*edge_cnt) = FanOut(alt_list,
@@ -240,9 +234,6 @@ int TessLangModel::Edges(const char *strng, const Dawg *dawg,
       // create an edge object
       edge_array[edge_cnt] = new TessLangModEdge(cntxt_, dawg, edge_ref,
                                                  class_id);
-      if (edge_array[edge_cnt] == NULL) {
-        return 0;
-      }
 
       reinterpret_cast<TessLangModEdge *>(edge_array[edge_cnt])->
           SetEdgeMask(edge_mask);
@@ -264,10 +255,6 @@ int TessLangModel::OODEdges(CharAltList *alt_list, EDGE_REF edge_ref,
          alt_list->ClassCost(class_id) <= max_ood_shape_cost_)) {
       // create an edge object
       edge_array[edge_cnt] = new TessLangModEdge(cntxt_, class_id);
-      if (edge_array[edge_cnt] == NULL) {
-        return 0;
-      }
-
       edge_cnt++;
     }
   }
@@ -368,11 +355,9 @@ int TessLangModel::FanOut(CharAltList *alt_list, const Dawg *dawg,
               edge_array[edge_cnt] = new TessLangModEdge(cntxt_, dawg,
                   child_edge->StartEdge(), child_edge->EndEdge(), class_id);
 
-              if (edge_array[edge_cnt] != NULL) {
-                reinterpret_cast<TessLangModEdge *>(edge_array[edge_cnt])->
+              reinterpret_cast<TessLangModEdge *>(edge_array[edge_cnt])->
                     SetEdgeMask(edge_mask);
-                edge_cnt++;
-              }
+              edge_cnt++;
             }
           }
         }
@@ -486,8 +471,6 @@ void TessLangModel::RemoveInvalidCharacters(string *lm_str) {
 
   int len = CubeUtils::StrLen(lm_str32.c_str());
   char_32 *clean_str32 = new char_32[len + 1];
-  if (!clean_str32)
-    return;
   int clean_len = 0;
   for (int i = 0; i < len; ++i) {
     int class_id = char_set->ClassID((char_32)lm_str32[i]);

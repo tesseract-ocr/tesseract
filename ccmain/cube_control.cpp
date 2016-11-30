@@ -179,7 +179,7 @@ bool Tesseract::init_cube_objects(bool load_combiner,
   // Create the combiner object and load the combiner net for target languages.
   if (load_combiner) {
     tess_cube_combiner_ = new tesseract::TesseractCubeCombiner(cube_cntxt_);
-    if (!tess_cube_combiner_ || !tess_cube_combiner_->LoadCombinerNet()) {
+    if (!tess_cube_combiner_->LoadCombinerNet()) {
       delete cube_cntxt_;
       cube_cntxt_ = NULL;
       if (tess_cube_combiner_ != NULL) {

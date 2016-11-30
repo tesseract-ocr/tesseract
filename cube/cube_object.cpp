@@ -115,21 +115,11 @@ WordAltList *CubeObject::Recognize(LangModel *lang_mod, bool word_mode) {
   // create a beam search object
   if (beam_obj_ == NULL) {
     beam_obj_ = new BeamSearch(cntxt_, word_mode);
-    if (beam_obj_ == NULL) {
-      fprintf(stderr, "Cube ERROR (CubeObject::Recognize): could not construct "
-              "BeamSearch\n");
-      return NULL;
-    }
   }
 
   // create a cube search object
   if (srch_obj_ == NULL) {
     srch_obj_ = new CubeSearchObject(cntxt_, char_samp_);
-    if (srch_obj_ == NULL) {
-      fprintf(stderr, "Cube ERROR (CubeObject::Recognize): could not construct "
-              "CubeSearchObject\n");
-      return NULL;
-    }
   }
 
   // run a beam search against the tesslang model
@@ -142,11 +132,6 @@ WordAltList *CubeObject::Recognize(LangModel *lang_mod, bool word_mode) {
 
     if (deslanted_beam_obj_ == NULL) {
       deslanted_beam_obj_ = new BeamSearch(cntxt_);
-      if (deslanted_beam_obj_ == NULL) {
-        fprintf(stderr, "Cube ERROR (CubeObject::Recognize): could not "
-                "construct deslanted BeamSearch\n");
-        return NULL;
-      }
     }
 
     if (deslanted_srch_obj_ == NULL) {
@@ -162,11 +147,6 @@ WordAltList *CubeObject::Recognize(LangModel *lang_mod, bool word_mode) {
       }
 
       deslanted_srch_obj_ = new CubeSearchObject(cntxt_, deslanted_char_samp_);
-      if (deslanted_srch_obj_ == NULL) {
-        fprintf(stderr, "Cube ERROR (CubeObject::Recognize): could not "
-                "construct deslanted CubeSearchObject\n");
-        return NULL;
-      }
     }
 
     // run a beam search against the tesslang model
@@ -205,9 +185,6 @@ WordAltList *CubeObject::RecognizePhrase(LangModel *lang_mod) {
  */
 int CubeObject::WordCost(const char *str) {
   WordListLangModel *lang_mod = new WordListLangModel(cntxt_);
-  if (lang_mod == NULL) {
-    return WORST_COST;
-  }
 
   if (lang_mod->AddString(str) == false) {
     delete lang_mod;
@@ -242,9 +219,6 @@ CharAltList *CubeObject::RecognizeChar() {
 bool CubeObject::Normalize() {
   // create a cube search object
   CubeSearchObject *srch_obj = new CubeSearchObject(cntxt_, char_samp_);
-  if (srch_obj == NULL) {
-    return false;
-  }
   // Perform over-segmentation
   int seg_cnt = srch_obj->SegPtCnt();
   // Only perform normalization if segment count is large enough

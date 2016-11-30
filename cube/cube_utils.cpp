@@ -90,9 +90,6 @@ int CubeUtils::StrCmp(const char_32 *str1, const char_32 *str2) {
 char_32 *CubeUtils::StrDup(const char_32 *str32) {
   int len = StrLen(str32);
   char_32 *new_str = new char_32[len + 1];
-  if (new_str == NULL) {
-    return NULL;
-  }
   memcpy(new_str, str32, len * sizeof(*str32));
   new_str[len] = 0;
   return new_str;
@@ -165,9 +162,6 @@ unsigned char *CubeUtils::GetImageData(Pix *pix, int left, int top,
 
   // copy the char img to a temp buffer
   unsigned char *temp_buff = new unsigned char[wid * hgt];
-  if (temp_buff == NULL) {
-    return NULL;
-  }
   l_int32 w;
   l_int32 h;
   l_int32 d;
@@ -211,10 +205,6 @@ bool CubeUtils::ReadFileToString(const string &file_name, string *str) {
   // read the contents
   rewind(fp);
   char *buff = new char[file_size];
-  if (buff == NULL) {
-    fclose(fp);
-    return false;
-  }
   int read_bytes = fread(buff, 1, static_cast<int>(file_size), fp);
   if (read_bytes == file_size) {
     str->append(buff, file_size);
@@ -352,8 +342,6 @@ char_32 *CubeUtils::ToLower(const char_32 *str32, CharSet *char_set) {
   UNICHARSET *unicharset = char_set->InternalUnicharset();
   int len = StrLen(str32);
   char_32 *lower = new char_32[len + 1];
-  if (!lower)
-    return NULL;
   for (int i = 0; i < len; ++i) {
     char_32 ch = str32[i];
     if (ch == INVALID_UNICHAR_ID) {
@@ -385,8 +373,6 @@ char_32 *CubeUtils::ToUpper(const char_32 *str32, CharSet *char_set) {
   UNICHARSET *unicharset = char_set->InternalUnicharset();
   int len = StrLen(str32);
   char_32 *upper = new char_32[len + 1];
-  if (!upper)
-    return NULL;
   for (int i = 0; i < len; ++i) {
     char_32 ch = str32[i];
     if (ch == INVALID_UNICHAR_ID) {

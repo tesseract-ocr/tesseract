@@ -66,20 +66,14 @@ class CharSamp : public Bmp8 {
   void SetTop(unsigned short top) { top_ = top; }
   void SetPage(unsigned short page) { page_ = page; }
   void SetLabel(char_32 label) {
-    if (label32_ != NULL) {
-      delete []label32_;
-    }
+    delete []label32_;
     label32_ = new char_32[2];
-    if (label32_ != NULL) {
-      label32_[0] = label;
-      label32_[1] = 0;
-    }
+    label32_[0] = label;
+    label32_[1] = 0;
   }
   void SetLabel(const char_32 *label32) {
-    if (label32_ != NULL) {
-      delete []label32_;
-      label32_ = NULL;
-    }
+    delete []label32_;
+    label32_ = NULL;
     if (label32 != NULL) {
       // remove any byte order marks if any
       if (label32[0] == 0xfeff) {
@@ -87,10 +81,8 @@ class CharSamp : public Bmp8 {
       }
       int len = LabelLen(label32);
       label32_ = new char_32[len + 1];
-      if (label32_ != NULL) {
-        memcpy(label32_, label32, len * sizeof(*label32));
-        label32_[len] = 0;
-      }
+      memcpy(label32_, label32, len * sizeof(*label32));
+      label32_[len] = 0;
     }
   }
   void SetLabel(string str);
