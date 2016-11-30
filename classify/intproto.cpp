@@ -46,9 +46,7 @@
 #include "config_auto.h"
 #endif
 
-using tesseract::FontInfo;
 using tesseract::FontSet;
-using tesseract::FontSpacingInfo;
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -1708,8 +1706,10 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = -(inT16) ((Sin / Cos) * 256);
-      Filler->EndDelta = (inT16) ((Cos / Sin) * 256);
+      Filler->StartDelta = static_cast<inT16>(ClipToRange<int>(
+          -IntCastRounded((Sin / Cos) * 256), MIN_INT16, MAX_INT16));
+      Filler->EndDelta = static_cast<inT16>(ClipToRange<int>(
+          IntCastRounded((Cos / Sin) * 256), MIN_INT16, MAX_INT16));
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;
