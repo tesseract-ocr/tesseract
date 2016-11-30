@@ -276,7 +276,6 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 
 NODE_REF Trie::new_dawg_node() {
   TRIE_NODE_RECORD *node = new TRIE_NODE_RECORD();
-  if (node == NULL) return 0;  // failed to create new node
   nodes_.push_back(node);
   return nodes_.length() - 1;
 }

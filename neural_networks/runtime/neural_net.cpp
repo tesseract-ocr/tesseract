@@ -157,9 +157,6 @@ bool NeuralNet::CreateFastNet() {
       node->fan_in_cnt = neurons_[node_idx].fan_in_cnt();
       // allocate memory for fan-in nodes
       node->inputs = new WeightedNode[node->fan_in_cnt];
-      if (node->inputs == NULL) {
-        return false;
-      }
       for (int fan_in = 0; fan_in < node->fan_in_cnt; fan_in++) {
         // identify fan-in neuron
         const int id = neurons_[node_idx].fan_in(fan_in)->id();
@@ -222,9 +219,6 @@ NeuralNet *NeuralNet::FromFile(const string file_name) {
 NeuralNet *NeuralNet::FromInputBuffer(InputFileBuffer *ib) {
       // create a new net object
   NeuralNet *net_obj = new NeuralNet();
-  if (net_obj == NULL) {
-    return NULL;
-  }
       // load the net
   if (!net_obj->ReadBinary(ib)) {
     delete net_obj;
