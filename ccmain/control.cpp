@@ -536,7 +536,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         }
       }
     }
-    if (overrides_word1.size() >= 1) {
+    if (!overrides_word1.empty()) {
       // Excellent, we have some bigram matches.
       if (EqualIgnoringCaseAndTerminalPunct(*w_prev->best_choice,
                                             *overrides_word1[best_idx]) &&

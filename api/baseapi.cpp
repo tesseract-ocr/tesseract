@@ -2762,7 +2762,7 @@ void TessBaseAPI::GetFeaturesForBlob(TBLOB* blob,
   INT_FX_RESULT_STRUCT fx_info;
   tesseract_->ExtractFeatures(*blob, false, &bl_features,
                               &cn_features, &fx_info, &outline_counts);
-  if (cn_features.size() == 0 || cn_features.size() > MAX_NUM_INT_FEATURES) {
+  if (cn_features.empty() || cn_features.size() > MAX_NUM_INT_FEATURES) {
     *num_features = 0;
     return;  // Feature extraction failed.
   }
