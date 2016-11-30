@@ -1332,9 +1332,10 @@ BOOL8 Textord::make_a_word_break(
     we may need to set PARTICULAR spaces to fuzzy or not. The values will ONLY
     be used if the function returns TRUE - ie the word is to be broken.
     */
-    blanks = (uinT8) (current_gap / row->space_size);
-    if (blanks < 1)
-      blanks = 1;
+    int num_blanks = current_gap;
+    if (row->space_size > 1.0f)
+      num_blanks = IntCastRounded(current_gap / row->space_size);
+    blanks = static_cast<uinT8>(ClipToRange(num_blanks, 1, MAX_UINT8));
     fuzzy_sp = FALSE;
     fuzzy_non = FALSE;
     /*

@@ -1181,8 +1181,8 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
       if (best_end == NULL) {
         tprintf("No path\n");
       } else {
-        tprintf("Total cost = %d vs allowed %d\n",
-                best_end->total_cost(), blob_count);
+        tprintf("Total cost = %d vs allowed %d\n", best_end->total_cost(),
+                blob_count);
       }
     }
     delete [] projection;
@@ -1632,6 +1632,10 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
                                   ColPartition_LIST* used_parts) {
   if (block_parts->empty())
     return NULL;  // Nothing to do.
+  // If the block_parts are not in reading order, then it will make an invalid
+  // block polygon and bounding_box, so sort by bounding box now just to make
+  // sure.
+  block_parts->sort(&ColPartition::SortByBBox);
   ColPartition_IT it(block_parts);
   ColPartition* part = it.data();
   PolyBlockType type = part->type();
