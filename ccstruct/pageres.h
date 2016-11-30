@@ -590,7 +590,7 @@ class WERD_RES : public ELIST_LINK {
 
   // Creates a WERD_CHOICE for the word using the top choices from the leading
   // diagonal of the ratings matrix.
-  void FakeWordFromRatings();
+  void FakeWordFromRatings(PermuterType permuter);
 
   // Copies the best_choice strings to the correct_text for adaption/training.
   void BestChoiceToCorrectText();

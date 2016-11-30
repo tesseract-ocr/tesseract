@@ -426,7 +426,7 @@ void Wordrec::chop_word_main(WERD_RES *word) {
 
   if (word->best_choice == NULL) {
     // SegSearch found no valid paths, so just use the leading diagonal.
-    word->FakeWordFromRatings();
+    word->FakeWordFromRatings(TOP_CHOICE_PERM);
   }
   word->RebuildBestState();
   // If we finished without a hyphen at the end of the word, let the next word
