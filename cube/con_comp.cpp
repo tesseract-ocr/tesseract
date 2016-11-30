@@ -52,9 +52,6 @@ ConComp::~ConComp() {
 // adds a pt to the conn comp and updates its boundaries
 bool ConComp::Add(int x, int y) {
   ConCompPt *pt_ptr = new ConCompPt(x, y);
-  if (pt_ptr == NULL) {
-    return false;
-  }
 
   if (head_ == NULL) {
     left_ = x;
@@ -114,9 +111,6 @@ int *ConComp::CreateHistogram(int max_hist_wnd) {
 
   // alloc memo for histogram
   int *hist_array = new int[wid];
-  if (hist_array == NULL) {
-    return NULL;
-  }
 
   memset(hist_array, 0, wid * sizeof(*hist_array));
 
@@ -148,9 +142,6 @@ int *ConComp::SegmentHistogram(int *hist_array, int *seg_pt_cnt) {
     hgt = bottom_ - top_ + 1;
 
   int *x_seg_pt = new int[wid];
-  if (x_seg_pt == NULL) {
-    return NULL;
-  }
 
   int seg_pt_wnd = static_cast<int>(hgt * SEG_PT_WND_RATIO);
 
@@ -216,18 +207,9 @@ ConComp **ConComp::Segment(int max_hist_wnd, int *concomp_cnt) {
 
   // create concomp array
   ConComp **concomp_array = new ConComp *[seg_pt_cnt + 1];
-  if (concomp_array == NULL) {
-    delete []x_seg_pt;
-    return NULL;
-  }
 
   for (int concomp = 0; concomp <= seg_pt_cnt; concomp++) {
     concomp_array[concomp] = new ConComp();
-    if (concomp_array[concomp] == NULL) {
-      delete []x_seg_pt;
-      delete []concomp_array;
-      return NULL;
-    }
 
     // split concomps inherit the ID this concomp
     concomp_array[concomp]->SetID(id_);

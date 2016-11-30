@@ -56,10 +56,6 @@ bool CharAltList::Insert(int class_id, int cost, void *tag) {
     alt_cost_ = new int[max_alt_];
     alt_tag_ = new void *[max_alt_];
 
-    if (class_id_alt_ == NULL || alt_cost_ == NULL || alt_tag_ == NULL) {
-      return false;
-    }
-
     memset(alt_tag_, 0, max_alt_ * sizeof(*alt_tag_));
   }
 
@@ -67,9 +63,6 @@ bool CharAltList::Insert(int class_id, int cost, void *tag) {
     int class_cnt = char_set_->ClassCount();
 
     class_id_cost_ = new int[class_cnt];
-    if (class_id_cost_ == NULL) {
-      return false;
-    }
 
     for (int ich = 0; ich < class_cnt; ich++) {
       class_id_cost_[ich] = WORST_COST;

@@ -91,68 +91,62 @@ bool CubeLineObject::Process() {
   if (word_break_threshold > 0) {
     // over-allocate phrases object buffer
     phrases_ = new CubeObject *[con_comp_cnt];
-    if (phrases_ != NULL) {
-      // create a phrase if the horizontal distance between two consecutive
-      // concomps is higher than threshold
-      int start_con_idx = 0;
-      int current_phrase_limit = rtl ? con_comps[0]->Left() :
-                                       con_comps[0]->Right();
+    // create a phrase if the horizontal distance between two consecutive
+    // concomps is higher than threshold
+    int start_con_idx = 0;
+    int current_phrase_limit = rtl ? con_comps[0]->Left() :
+                                     con_comps[0]->Right();
 
-      for (int con_idx = 1; con_idx <= con_comp_cnt; con_idx++) {
-        bool create_new_phrase = true;
-        // if not at the end, compute the distance between two consecutive
-        // concomps
-        if (con_idx < con_comp_cnt) {
-          int dist = 0;
-          if (cntxt_->ReadingOrder() == tesseract::CubeRecoContext::R2L) {
-            dist = current_phrase_limit - con_comps[con_idx]->Right();
-          } else {
-            dist = con_comps[con_idx]->Left() - current_phrase_limit;
-          }
-          create_new_phrase = (dist > word_break_threshold);
-        }
-
-        // create a new phrase
-        if (create_new_phrase) {
-          // create a phrase corresponding to a range on components
-          bool left_most;
-          bool right_most;
-          CharSamp *phrase_char_samp =
-              CharSamp::FromConComps(con_comps, start_con_idx,
-                                     con_idx - start_con_idx, NULL,
-                                     &left_most, &right_most,
-                                     line_pix_->h);
-          if (phrase_char_samp == NULL) {
-            break;
-          }
-          phrases_[phrase_cnt_] = new CubeObject(cntxt_, phrase_char_samp);
-          if (phrases_[phrase_cnt_] == NULL) {
-            delete phrase_char_samp;
-            break;
-          }
-          // set the ownership of the charsamp to the cube object
-          phrases_[phrase_cnt_]->SetCharSampOwnership(true);
-          phrase_cnt_++;
-          // advance the starting index to the current index
-          start_con_idx = con_idx;
-          // set the limit of the newly starting phrase (if any)
-          if (con_idx < con_comp_cnt) {
-            current_phrase_limit = rtl ? con_comps[con_idx]->Left() :
-                                         con_comps[con_idx]->Right();
-          }
+    for (int con_idx = 1; con_idx <= con_comp_cnt; con_idx++) {
+      bool create_new_phrase = true;
+      // if not at the end, compute the distance between two consecutive
+      // concomps
+      if (con_idx < con_comp_cnt) {
+        int dist = 0;
+        if (cntxt_->ReadingOrder() == tesseract::CubeRecoContext::R2L) {
+          dist = current_phrase_limit - con_comps[con_idx]->Right();
         } else {
-          // update the limit of the current phrase
-          if (cntxt_->ReadingOrder() == tesseract::CubeRecoContext::R2L) {
-            current_phrase_limit = MIN(current_phrase_limit,
-                                       con_comps[con_idx]->Left());
-          } else {
-            current_phrase_limit = MAX(current_phrase_limit,
-                                       con_comps[con_idx]->Right());
-          }
+          dist = con_comps[con_idx]->Left() - current_phrase_limit;
+        }
+        create_new_phrase = (dist > word_break_threshold);
+      }
+
+      // create a new phrase
+      if (create_new_phrase) {
+        // create a phrase corresponding to a range on components
+        bool left_most;
+        bool right_most;
+        CharSamp *phrase_char_samp =
+            CharSamp::FromConComps(con_comps, start_con_idx,
+                                   con_idx - start_con_idx, NULL,
+                                   &left_most, &right_most,
+                                   line_pix_->h);
+        if (phrase_char_samp == NULL) {
+          break;
+        }
+        phrases_[phrase_cnt_] = new CubeObject(cntxt_, phrase_char_samp);
+        // set the ownership of the charsamp to the cube object
+        phrases_[phrase_cnt_]->SetCharSampOwnership(true);
+        phrase_cnt_++;
+        // advance the starting index to the current index
+        start_con_idx = con_idx;
+        // set the limit of the newly starting phrase (if any)
+        if (con_idx < con_comp_cnt) {
+          current_phrase_limit = rtl ? con_comps[con_idx]->Left() :
+                                       con_comps[con_idx]->Right();
+        }
+      } else {
+        // update the limit of the current phrase
+        if (cntxt_->ReadingOrder() == tesseract::CubeRecoContext::R2L) {
+          current_phrase_limit = MIN(current_phrase_limit,
+                                     con_comps[con_idx]->Left());
+        } else {
+          current_phrase_limit = MAX(current_phrase_limit,
+                                     con_comps[con_idx]->Right());
         }
       }
-      ret_val = true;
     }
+    ret_val = true;
   }
 
   // clean-up connected comps

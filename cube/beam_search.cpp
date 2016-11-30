@@ -123,11 +123,6 @@ WordAltList * BeamSearch::Search(SearchObject *srch_obj, LangModel *lang_mod) {
 
   // alloc memory for columns
   col_ = new SearchColumn *[col_cnt_];
-  if (!col_) {
-    fprintf(stderr, "Cube ERROR (BeamSearch::Search): could not construct "
-            "SearchColumn array\n");
-    return NULL;
-  }
   memset(col_, 0, col_cnt_ * sizeof(*col_));
 
   // for all possible segments
@@ -135,11 +130,6 @@ WordAltList * BeamSearch::Search(SearchObject *srch_obj, LangModel *lang_mod) {
     // create a search column
     col_[end_seg - 1] = new SearchColumn(end_seg - 1,
                                          cntxt_->Params()->BeamWidth());
-    if (!col_[end_seg - 1]) {
-      fprintf(stderr, "Cube ERROR (BeamSearch::Search): could not construct "
-              "SearchColumn for column %d\n", end_seg - 1);
-      return NULL;
-    }
 
     // for all possible start segments
     int init_seg = MAX(0, end_seg - cntxt_->Params()->MaxSegPerChar());
@@ -402,11 +392,6 @@ CharSamp **BeamSearch::SplitByNode(SearchObject *srch_obj,
 
   // Allocate memory for CharSamp array.
   CharSamp **chars = new CharSamp *[*char_cnt];
-  if (!chars) {
-    if (char_boxes)
-      boxaDestroy(char_boxes);
-    return NULL;
-  }
 
   int ch_idx = *char_cnt - 1;
   int seg_pt_cnt = srch_obj->SegPtCnt();

@@ -54,11 +54,6 @@ CubeTuningParams::~CubeTuningParams() {
 CubeTuningParams *CubeTuningParams::Create(const string &data_file_path,
                                            const string &lang) {
   CubeTuningParams *obj = new CubeTuningParams();
-  if (!obj) {
-    fprintf(stderr, "Cube ERROR (CubeTuningParams::Create): unable to "
-            "allocate new tuning params object\n");
-    return NULL;
-  }
 
   string tuning_params_file;
   tuning_params_file = data_file_path + lang;

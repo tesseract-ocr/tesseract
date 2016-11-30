@@ -131,11 +131,6 @@ bool CubeRecoContext::Load(TessdataManager *tessdata_manager,
   lang_mod_ = new TessLangModel(lm_params, data_file_path,
                                 tess_obj_->getDict().load_system_dawg,
                                 tessdata_manager, this);
-  if (lang_mod_ == NULL) {
-    fprintf(stderr, "Cube ERROR (CubeRecoContext::Load): unable to create "
-            "TessLangModel\n");
-    return false;
-  }
 
   // Create the optional char bigrams object.
   char_bigrams_ = CharBigrams::Create(data_file_path, lang_);
@@ -176,11 +171,6 @@ CubeRecoContext * CubeRecoContext::Create(Tesseract *tess_obj,
                                           UNICHARSET *tess_unicharset) {
   // create the object
   CubeRecoContext *cntxt = new CubeRecoContext(tess_obj);
-  if (cntxt == NULL) {
-    fprintf(stderr, "Cube ERROR (CubeRecoContext::Create): unable to create "
-            "CubeRecoContext object\n");
-    return NULL;
-  }
   // load the necessary components
   if (cntxt->Load(tessdata_manager, tess_unicharset) == false) {
     fprintf(stderr, "Cube ERROR (CubeRecoContext::Create): unable to init "

@@ -147,18 +147,7 @@ bool ConvNetCharClassifier::RunNets(CharSamp *char_samp) {
   // allocate i/p and o/p buffers if needed
   if (net_input_ == NULL) {
     net_input_ = new float[feat_cnt];
-    if (net_input_ == NULL) {
-      fprintf(stderr, "Cube ERROR (ConvNetCharClassifier::RunNets): "
-            "unable to allocate memory for input nodes\n");
-      return false;
-    }
-
     net_output_ = new float[class_cnt];
-    if (net_output_ == NULL) {
-      fprintf(stderr, "Cube ERROR (ConvNetCharClassifier::RunNets): "
-            "unable to allocate memory for output nodes\n");
-      return false;
-    }
   }
 
   // compute input features
@@ -205,11 +194,6 @@ CharAltList *ConvNetCharClassifier::Classify(CharSamp *char_samp) {
 
   // create an altlist
   CharAltList *alt_list = new CharAltList(char_set_, class_cnt);
-  if (alt_list == NULL) {
-    fprintf(stderr, "Cube WARNING (ConvNetCharClassifier::Classify): "
-            "returning emtpy CharAltList\n");
-    return NULL;
-  }
 
   for (int out = 1; out < class_cnt; out++) {
     int cost = CubeUtils::Prob2Cost(net_output_[out]);
@@ -261,14 +245,7 @@ bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
   fold_set_cnt_ = str_vec.size();
 
   fold_sets_ = new int *[fold_set_cnt_];
-  if (fold_sets_ == NULL) {
-    return false;
-  }
   fold_set_len_ = new int[fold_set_cnt_];
-  if (fold_set_len_ == NULL) {
-    fold_set_cnt_ = 0;
-    return false;
-  }
 
   for (int fold_set = 0; fold_set < fold_set_cnt_; fold_set++) {
     reinterpret_cast<TessLangModel *>(lang_mod)->RemoveInvalidCharacters(
@@ -287,12 +264,6 @@ bool ConvNetCharClassifier::LoadFoldingSets(const string &data_file_path,
     CubeUtils::UTF8ToUTF32(str_vec[fold_set].c_str(), &str32);
     fold_set_len_[fold_set] = str32.length();
     fold_sets_[fold_set] = new int[fold_set_len_[fold_set]];
-    if (fold_sets_[fold_set] == NULL) {
-      fprintf(stderr, "Cube ERROR (ConvNetCharClassifier::LoadFoldingSets): "
-              "could not allocate folding set\n");
-      fold_set_cnt_ = fold_set;
-      return false;
-    }
     for (int ch = 0; ch < fold_set_len_[fold_set]; ch++) {
       fold_sets_[fold_set][ch] = char_set_->ClassID(str32[ch]);
     }
@@ -375,14 +346,7 @@ bool ConvNetCharClassifier::LoadNets(const string &data_file_path,
   // allocate i/p and o/p buffers if needed
   if (net_input_ == NULL) {
     net_input_ = new float[feat_cnt];
-    if (net_input_ == NULL) {
-      return false;
-    }
-
     net_output_ = new float[class_cnt];
-    if (net_output_ == NULL) {
-      return false;
-    }
   }
 
   return true;

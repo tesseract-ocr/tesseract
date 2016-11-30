@@ -45,11 +45,6 @@ bool WordAltList::Insert(char_32 *word_str, int cost, void *tag) {
     word_alt_ = new char_32*[max_alt_];
     alt_cost_ = new int[max_alt_];
     alt_tag_ = new void *[max_alt_];
-
-    if (word_alt_ == NULL || alt_cost_ == NULL || alt_tag_ == NULL) {
-      return false;
-    }
-
     memset(alt_tag_, 0, max_alt_ * sizeof(*alt_tag_));
   } else {
     // check if alt already exists
@@ -69,9 +64,6 @@ bool WordAltList::Insert(char_32 *word_str, int cost, void *tag) {
   int len = CubeUtils::StrLen(word_str);
 
   word_alt_[alt_cnt_] = new char_32[len + 1];
-  if (word_alt_[alt_cnt_] == NULL) {
-    return false;
-  }
 
   if (len > 0) {
     memcpy(word_alt_[alt_cnt_], word_str, len * sizeof(*word_str));

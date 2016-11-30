@@ -72,9 +72,6 @@ TessLangModEdge::TessLangModEdge(CubeRecoContext *cntxt, const Dawg *dawg,
 
 char *TessLangModEdge::Description() const {
   char *char_ptr = new char[256];
-  if (!char_ptr) {
-    return NULL;
-  }
 
   char dawg_str[256];
   char edge_str[32];
@@ -115,9 +112,8 @@ int TessLangModEdge::CreateChildren(CubeRecoContext *cntxt,
   for (int i = 0; i < vec.size(); ++i) {
     const NodeChild &child = vec[i];
     if (child.unichar_id == INVALID_UNICHAR_ID) continue;
-    edge_array[edge_cnt] =
+    edge_array[edge_cnt++] =
       new TessLangModEdge(cntxt, dawg, child.edge_ref, child.unichar_id);
-    if (edge_array[edge_cnt] != NULL) edge_cnt++;
   }
   return edge_cnt;
 }
