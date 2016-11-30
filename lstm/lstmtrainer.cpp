@@ -134,8 +134,6 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename) {
 // Note: Call before InitNetwork!
 void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
                               const STRING& script_dir, int train_flags) {
-  // Call before InitNetwork.
-  ASSERT_HOST(network_ == NULL);
   EmptyConstructor();
   training_flags_ = train_flags;
   ccutil_.unicharset.CopyFrom(unicharset);
@@ -150,8 +148,6 @@ void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
 // Note: Call before InitNetwork!
 void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
                               const UnicharCompress recoder) {
-  // Call before InitNetwork.
-  ASSERT_HOST(network_ == NULL);
   EmptyConstructor();
   int flags = TF_COMPRESS_UNICHARSET;
   training_flags_ = static_cast<TrainingFlags>(flags);
@@ -217,6 +213,30 @@ int LSTMTrainer::InitTensorFlowNetwork(const std::string& tf_proto) {
   tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
   return 0;
 #endif
+}
+
+// Resets all the iteration counters for fine tuning or traininng a head,
+// where we want the error reporting to reset.
+void LSTMTrainer::InitIterations() {
+  sample_iteration_ = 0;
+  training_iteration_ = 0;
+  learning_iteration_ = 0;
+  prev_sample_iteration_ = 0;
+  best_error_rate_ = 100.0;
+  best_iteration_ = 0;
+  worst_error_rate_ = 0.0;
+  worst_iteration_ = 0;
+  stall_iteration_ = kMinStallIterations;
+  improvement_steps_ = kMinStallIterations;
+  perfect_delay_ = 0;
+  last_perfect_training_iteration_ = 0;
+  for (int i = 0; i < ET_COUNT; ++i) {
+    best_error_rates_[i] = 100.0;
+    worst_error_rates_[i] = 0.0;
+    error_buffers_[i].init_to_size(kRollingBufferSize_, 0.0);
+    error_rates_[i] = 100.0;
+  }
+  error_rate_of_last_saved_best_ = kMinStartedErrorRate;
 }
 
 // If the training sample is usable, grid searches for the optimal
@@ -460,8 +480,15 @@ bool LSTMTrainer::Serialize(TFile* fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 bool LSTMTrainer::DeSerialize(bool swap, TFile* fp) {
   if (!LSTMRecognizer::DeSerialize(swap, fp)) return false;
-  if (fp->FRead(&learning_iteration_, sizeof(learning_iteration_), 1) != 1)
-    return false;
+  if (fp->FRead(&learning_iteration_, sizeof(learning_iteration_), 1) != 1) {
+    // Special case. If we successfully decoded the recognizer, but fail here
+    // then it means we were just given a recognizer, so issue a warning and
+    // allow it.
+    tprintf("Warning: LSTMTrainer deserialized an LSTMRecognizer!\n");
+    learning_iteration_ = 0;
+    network_->SetEnableTraining(TS_RE_ENABLE);
+    return true;
+  }
   if (fp->FRead(&prev_sample_iteration_, sizeof(prev_sample_iteration_), 1) !=
       1)
     return false;
@@ -629,7 +656,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
   SaveTrainingDump(LIGHT, this, &orig_trainer);
   for (int i = 0; i < num_layers; ++i) {
     Network* layer = GetLayer(layers[i]);
-    num_weights[i] = layer->training() ? layer->num_weights() : 0;
+    num_weights[i] = layer->IsTraining() ? layer->num_weights() : 0;
   }
   int iteration = sample_iteration();
   for (int s = 0; s < num_samples; ++s) {
@@ -773,7 +800,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
       training_iteration() % debug_interval_ == 0;
   // Run backprop on the output.
   NetworkIO bp_deltas;
-  if (network_->training() &&
+  if (network_->IsTraining() &&
       (trainable != PERFECT ||
        training_iteration() >
            last_perfect_training_iteration_ + perfect_delay_)) {
@@ -827,6 +854,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     return UNENCODABLE;
   }
   targets->Resize(*fwd_outputs, network_->NumOutputs());
+  double text_error = 100.0;
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
     if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
@@ -900,9 +928,9 @@ bool LSTMTrainer::ReadSizedTrainingDump(const char* data, int size) {
 void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
   TFile fp;
   fp.OpenWrite(data);
-  network_->SetEnableTraining(false);
+  network_->SetEnableTraining(TS_TEMP_DISABLE);
   ASSERT_HOST(LSTMRecognizer::Serialize(&fp));
-  network_->SetEnableTraining(true);
+  network_->SetEnableTraining(TS_RE_ENABLE);
 }
 
 // Reads and returns a previously saved recognizer from memory.
@@ -942,25 +970,7 @@ void LSTMTrainer::EmptyConstructor() {
   serialize_amount_ = FULL;
   training_stage_ = 0;
   num_training_stages_ = 2;
-  prev_sample_iteration_ = 0;
-  best_error_rate_ = 100.0;
-  best_iteration_ = 0;
-  worst_error_rate_ = 0.0;
-  worst_iteration_ = 0;
-  stall_iteration_ = kMinStallIterations;
-  learning_iteration_ = 0;
-  improvement_steps_ = kMinStallIterations;
-  perfect_delay_ = 0;
-  last_perfect_training_iteration_ = 0;
-  for (int i = 0; i < ET_COUNT; ++i) {
-    best_error_rates_[i] = 100.0;
-    worst_error_rates_[i] = 0.0;
-    error_buffers_[i].init_to_size(kRollingBufferSize_, 0.0);
-    error_rates_[i] = 100.0;
-  }
-  sample_iteration_ = 0;
-  training_iteration_ = 0;
-  error_rate_of_last_saved_best_ = kMinStartedErrorRate;
+  InitIterations();
 }
 
 // Sets the unicharset properties using the given script_dir as a source of

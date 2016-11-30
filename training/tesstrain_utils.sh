@@ -23,6 +23,7 @@ else
 fi
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
+LINEDATA=0
 RUN_SHAPE_CLUSTERING=0
 EXTRACT_FONT_PROPERTIES=1
 WORKSPACE_DIR=`mktemp -d`
@@ -90,8 +91,8 @@ parse_flags() {
             --)
                 break;;
             --fontlist)
-    fn=0
-    FONTS=""
+                fn=0
+                FONTS=""
                 while test $j -lt ${#ARGV[@]}; do
                     test -z "${ARGV[$j]}" && break
                     test `echo ${ARGV[$j]} | cut -c -2` = "--" && break
@@ -124,6 +125,8 @@ parse_flags() {
                 i=$j ;;
             --overwrite)
                 OVERWRITE=1 ;;
+            --linedata_only)
+                LINEDATA=1 ;;
             --extract_font_properties)
                 EXTRACT_FONT_PROPERTIES=1 ;;
             --noextract_font_properties)
@@ -368,10 +371,11 @@ phase_D_generate_dawg() {
 phase_E_extract_features() {
     local box_config=$1
     local par_factor=$2
+    local ext=$3
     if [[ -z ${par_factor} || ${par_factor} -le 0 ]]; then
         par_factor=1
     fi
-    tlog "\n=== Phase E: Extracting features ==="
+    tlog "\n=== Phase E: Generating ${ext} files ==="
 
     local img_files=""
     for exposure in ${EXPOSURES}; do
@@ -401,7 +405,7 @@ phase_E_extract_features() {
     export TESSDATA_PREFIX=${OLD_TESSDATA_PREFIX}
     # Check that all the output files were produced.
     for img_file in ${img_files}; do
-        check_file_readable ${img_file%.*}.tr
+        check_file_readable "${img_file%.*}.${ext}"
     done
 }
 
@@ -484,6 +488,39 @@ phase_B_generate_ambiguities() {
   # TODO: Add support for generating ambiguities automatically.
 }
 
+make__lstmdata() {
+  tlog "\n=== Constructing LSTM training data ==="
+  local lang_prefix=${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}
+  if [[ ! -d ${OUTPUT_DIR} ]]; then
+      tlog "Creating new directory ${OUTPUT_DIR}"
+      mkdir -p ${OUTPUT_DIR}
+  fi
+
+  # Copy available files for this language from the langdata dir.
+  if [[ -r ${lang_prefix}.config ]]; then
+    tlog "Copying ${lang_prefix}.config to ${OUTPUT_DIR}"
+    cp ${lang_prefix}.config ${OUTPUT_DIR}
+    chmod u+w ${OUTPUT_DIR}/${LANG_CODE}.config
+  fi
+  if [[ -r "${TRAINING_DIR}/${LANG_CODE}.unicharset" ]]; then
+    tlog "Moving ${TRAINING_DIR}/${LANG_CODE}.unicharset to ${OUTPUT_DIR}"
+    mv "${TRAINING_DIR}/${LANG_CODE}.unicharset" "${OUTPUT_DIR}"
+  fi
+  for ext in number-dawg punc-dawg word-dawg; do
+    local src="${TRAINING_DIR}/${LANG_CODE}.${ext}"
+    if [[ -r "${src}" ]]; then
+      dest="${OUTPUT_DIR}/${LANG_CODE}.lstm-${ext}"
+      tlog "Moving ${src} to ${dest}"
+      mv "${src}" "${dest}"
+    fi
+  done
+  for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
+    tlog "Moving ${f} to ${OUTPUT_DIR}"
+    mv "${f}" "${OUTPUT_DIR}"
+  done
+  local lstm_list="${OUTPUT_DIR}/${LANG_CODE}.training_files.txt"
+  ls -1 "${OUTPUT_DIR}"/*.lstmf > "${lstm_list}"
+}
 
 make__traineddata() {
   tlog "\n=== Making final traineddata file ==="

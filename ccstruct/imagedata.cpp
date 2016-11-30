@@ -24,17 +24,17 @@
 
 #include "imagedata.h"
 
+#if defined(__MINGW32__)
+#include <unistd.h>
+#else
+#include <thread>
+#endif
+
 #include "allheaders.h"
 #include "boxread.h"
 #include "callcpp.h"
 #include "helpers.h"
 #include "tprintf.h"
-
-#if defined(__MINGW32__)
-# include <unistd.h>
-#else
-# include <thread>
-#endif
 
 // Number of documents to read ahead while training. Doesn't need to be very
 // large.
@@ -494,6 +494,21 @@ inT64 DocumentData::UnCache() {
   tprintf("Unloaded document %s, saving %d memory\n", document_name_.string(),
           memory_saved);
   return memory_saved;
+}
+
+// Shuffles all the pages in the document.
+void DocumentData::Shuffle() {
+  TRand random;
+  // Different documents get shuffled differently, but the same for the same
+  // name.
+  random.set_seed(document_name_.string());
+  int num_pages = pages_.size();
+  // Execute one random swap for each page in the document.
+  for (int i = 0; i < num_pages; ++i) {
+    int src = random.IntRand() % num_pages;
+    int dest = random.IntRand() % num_pages;
+    std::swap(pages_[src], pages_[dest]);
+  }
 }
 
 // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_

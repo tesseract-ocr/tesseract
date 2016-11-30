@@ -56,6 +56,17 @@ StaticShape FullyConnected::OutputShape(const StaticShape& input_shape) const {
   return result;
 }
 
+// Suspends/Enables training by setting the training_ flag. Serialize and
+// DeSerialize only operate on the run-time data if state is false.
+void FullyConnected::SetEnableTraining(TrainingState state) {
+  if (state == TS_RE_ENABLE) {
+    if (training_ == TS_DISABLED) weights_.InitBackward(false);
+    training_ = TS_ENABLED;
+  } else {
+    training_ = state;
+  }
+}
+
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
 int FullyConnected::InitWeights(float range, TRand* randomizer) {
@@ -78,14 +89,14 @@ void FullyConnected::DebugWeights() {
 // Writes to the given file. Returns false in case of error.
 bool FullyConnected::Serialize(TFile* fp) const {
   if (!Network::Serialize(fp)) return false;
-  if (!weights_.Serialize(training_, fp)) return false;
+  if (!weights_.Serialize(IsTraining(), fp)) return false;
   return true;
 }
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool FullyConnected::DeSerialize(bool swap, TFile* fp) {
-  if (!weights_.DeSerialize(training_, swap, fp)) return false;
+  if (!weights_.DeSerialize(IsTraining(), swap, fp)) return false;
   return true;
 }
 
@@ -129,14 +140,14 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
     }
     ForwardTimeStep(d_input, i_input, t, temp_line);
     output->WriteTimeStep(t, temp_line);
-    if (training() && type_ != NT_SOFTMAX) {
+    if (IsTraining() && type_ != NT_SOFTMAX) {
       acts_.CopyTimeStepFrom(t, *output, t);
     }
   }
   // Zero all the elements that are in the padding around images that allows
   // multiple different-sized images to exist in a single array.
   // acts_ is only used if this is not a softmax op.
-  if (training() && type_ != NT_SOFTMAX) {
+  if (IsTraining() && type_ != NT_SOFTMAX) {
     acts_.ZeroInvalidElements();
   }
   output->ZeroInvalidElements();
@@ -152,7 +163,7 @@ void FullyConnected::SetupForward(const NetworkIO& input,
                                   const TransposedArray* input_transpose) {
   // Softmax output is always float, so save the input type.
   int_mode_ = input.int_mode();
-  if (training()) {
+  if (IsTraining()) {
     acts_.Resize(input, no_);
     // Source_ is a transposed copy of input. It isn't needed if provided.
     external_source_ = input_transpose;
@@ -163,7 +174,7 @@ void FullyConnected::SetupForward(const NetworkIO& input,
 void FullyConnected::ForwardTimeStep(const double* d_input, const inT8* i_input,
                                      int t, double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
-  if (training() && external_source_ == NULL && d_input != NULL)
+  if (IsTraining() && external_source_ == NULL && d_input != NULL)
     source_t_.WriteStrided(t, d_input);
   if (d_input != NULL)
     weights_.MatrixDotVector(d_input, output_line);

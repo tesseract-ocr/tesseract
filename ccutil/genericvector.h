@@ -363,8 +363,7 @@ inline bool LoadDataFromFile(const STRING& filename,
   fseek(fp, 0, SEEK_END);
   size_t size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
-  // Pad with a 0, just in case we treat the result as a string.
-  data->init_to_size(static_cast<int>(size) + 1, 0);
+  data->init_to_size(static_cast<int>(size), 0);
   bool result = fread(&(*data)[0], 1, size, fp) == size;
   fclose(fp);
   return result;
@@ -379,6 +378,17 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
+}
+// Reads a file as a vector of STRING.
+inline bool LoadFileLinesToStrings(const STRING& filename,
+                                   GenericVector<STRING>* lines) {
+  GenericVector<char> data;
+  if (!LoadDataFromFile(filename.string(), &data)) {
+    return false;
+  }
+  STRING lines_str(&data[0], data.size());
+  lines_str.split('\n', lines);
+  return true;
 }
 
 template <typename T>

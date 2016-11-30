@@ -69,23 +69,47 @@ char const* const Network::kTypeNames[NT_COUNT] = {
 };
 
 Network::Network()
-  : type_(NT_NONE), training_(true), needs_to_backprop_(true),
-    network_flags_(0), ni_(0), no_(0), num_weights_(0),
-    forward_win_(NULL), backward_win_(NULL), randomizer_(NULL) {
-}
+    : type_(NT_NONE),
+      training_(TS_ENABLED),
+      needs_to_backprop_(true),
+      network_flags_(0),
+      ni_(0),
+      no_(0),
+      num_weights_(0),
+      forward_win_(NULL),
+      backward_win_(NULL),
+      randomizer_(NULL) {}
 Network::Network(NetworkType type, const STRING& name, int ni, int no)
-  : type_(type), training_(true), needs_to_backprop_(true),
-    network_flags_(0), ni_(ni), no_(no), num_weights_(0),
-    name_(name), forward_win_(NULL), backward_win_(NULL), randomizer_(NULL) {
-}
+    : type_(type),
+      training_(TS_ENABLED),
+      needs_to_backprop_(true),
+      network_flags_(0),
+      ni_(ni),
+      no_(no),
+      num_weights_(0),
+      name_(name),
+      forward_win_(NULL),
+      backward_win_(NULL),
+      randomizer_(NULL) {}
 
 Network::~Network() {
 }
 
-// Ends training by setting the training_ flag to false. Serialize and
-// DeSerialize will now only operate on the run-time data.
-void Network::SetEnableTraining(bool state) {
-  training_ = state;
+// Suspends/Enables/Permanently disables training by setting the training_
+// flag. Serialize and DeSerialize only operate on the run-time data if state
+// is TS_DISABLED or TS_TEMP_DISABLE. Specifying TS_TEMP_DISABLE will
+// temporarily disable layers in state TS_ENABLED, allowing a trainer to
+// serialize as if it were a recognizer.
+// TS_RE_ENABLE will re-enable layers that were previously in any disabled
+// state. If in TS_TEMP_DISABLE then the flag is just changed, but if in
+// TS_DISABLED, the deltas in the weight matrices are reinitialized so that a
+// recognizer can be converted back to a trainer.
+void Network::SetEnableTraining(TrainingState state) {
+  if (state == TS_RE_ENABLE) {
+    training_ = TS_ENABLED;
+  } else {
+    training_ = state;
+  }
 }
 
 // Sets flags that control the action of the network. See NetworkFlags enum
@@ -152,7 +176,7 @@ bool Network::DeSerialize(bool swap, TFile* fp) {
   }
   type_ = static_cast<NetworkType>(data);
   if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
-  training_ = data != 0;
+  training_ = data == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
   if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
   needs_to_backprop_ = data != 0;
   if (fp->FRead(&network_flags_, sizeof(network_flags_), 1) != 1) return false;

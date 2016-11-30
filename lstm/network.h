@@ -88,6 +88,16 @@ enum NetworkFlags {
   NF_ADA_GRAD = 128,          // Weight-specific learning rate.
 };
 
+// State of training and desired state used in SetEnableTraining.
+enum TrainingState {
+  // Valid states of training_.
+  TS_DISABLED,      // Disabled permanently.
+  TS_ENABLED,       // Enabled for backprop and to write a training dump.
+  TS_TEMP_DISABLE,  // Temporarily disabled to write a recognition dump.
+  // Valid only for SetEnableTraining.
+  TS_RE_ENABLE,  // Re-Enable whatever the current state.
+};
+
 // Base class for network types. Not quite an abstract base class, but almost.
 // Most of the time no isolated Network exists, except prior to
 // deserialization.
@@ -101,9 +111,7 @@ class Network {
   NetworkType type() const {
     return type_;
   }
-  bool training() const {
-    return training_;
-  }
+  bool IsTraining() const { return training_ == TS_ENABLED; }
   bool needs_to_backprop() const {
     return needs_to_backprop_;
   }
@@ -142,9 +150,16 @@ class Network {
   // multiple sub-networks that can have their own learning rate.
   virtual bool IsPlumbingType() const { return false; }
 
-  // Suspends/Enables training by setting the training_ flag. Serialize and
-  // DeSerialize only operate on the run-time data if state is false.
-  virtual void SetEnableTraining(bool state);
+  // Suspends/Enables/Permanently disables training by setting the training_
+  // flag. Serialize and DeSerialize only operate on the run-time data if state
+  // is TS_DISABLED or TS_TEMP_DISABLE. Specifying TS_TEMP_DISABLE will
+  // temporarily disable layers in state TS_ENABLED, allowing a trainer to
+  // serialize as if it were a recognizer.
+  // TS_RE_ENABLE will re-enable layers that were previously in any disabled
+  // state. If in TS_TEMP_DISABLE then the flag is just changed, but if in
+  // TS_DISABLED, the deltas in the weight matrices are reinitialized so that a
+  // recognizer can be converted back to a trainer.
+  virtual void SetEnableTraining(TrainingState state);
 
   // Sets flags that control the action of the network. See NetworkFlags enum
   // for bit values.
@@ -269,7 +284,7 @@ class Network {
 
  protected:
   NetworkType type_;          // Type of the derived network class.
-  bool training_;             // Are we currently training?
+  TrainingState training_;    // Are we currently training?
   bool needs_to_backprop_;    // This network needs to output back_deltas.
   inT32 network_flags_;       // Behavior control flags in NetworkFlags.
   inT32 ni_;                  // Number of input values.

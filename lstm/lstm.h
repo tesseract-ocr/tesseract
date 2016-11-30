@@ -69,6 +69,10 @@ class LSTM : public Network {
     return spec;
   }
 
+  // Suspends/Enables training by setting the training_ flag. Serialize and
+  // DeSerialize only operate on the run-time data if state is false.
+  virtual void SetEnableTraining(TrainingState state);
+
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
   virtual int InitWeights(float range, TRand* randomizer);

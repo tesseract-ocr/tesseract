@@ -266,6 +266,8 @@ class DocumentData {
   // Removes all pages from memory and frees the memory, but does not forget
   // the document metadata. Returns the memory saved.
   inT64 UnCache();
+  // Shuffles all the pages in the document.
+  void Shuffle();
 
  private:
   // Sets the value of total_pages_ behind a mutex.

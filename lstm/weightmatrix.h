@@ -92,7 +92,7 @@ class WeightMatrix {
 
   // Allocates any needed memory for running Backward, and zeroes the deltas,
   // thus eliminating any existing momentum.
-  void InitBackward();
+  void InitBackward(bool ada_grad);
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(bool training, TFile* fp) const;

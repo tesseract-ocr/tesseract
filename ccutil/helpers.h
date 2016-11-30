@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <functional>
+#include <string>
 
 #include "host.h"
 
@@ -42,6 +44,11 @@ class TRand {
   // Sets the seed to the given value.
   void set_seed(uinT64 seed) {
     seed_ = seed;
+  }
+  // Sets the seed using a hash of a string.
+  void set_seed(const std::string& str) {
+    std::hash<std::string> hasher;
+    set_seed(static_cast<uinT64>(hasher(str)));
   }
 
   // Returns an integer in the range 0 to MAX_INT32.

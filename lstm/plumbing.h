@@ -45,7 +45,7 @@ class Plumbing : public Network {
 
   // Suspends/Enables training by setting the training_ flag. Serialize and
   // DeSerialize only operate on the run-time data if state is false.
-  virtual void SetEnableTraining(bool state);
+  virtual void SetEnableTraining(TrainingState state);
 
   // Sets flags that control the action of the network. See NetworkFlags enum
   // for bit values.

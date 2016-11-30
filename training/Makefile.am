@@ -27,7 +27,7 @@ endif
 
 noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
-      fileio.h icuerrorcode.h ligature_table.h normstrngs.h \
+      fileio.h icuerrorcode.h ligature_table.h lstmtester.h normstrngs.h \
       mergenf.h pango_font_info.h stringrenderer.h \
       tessopt.h tlog.h unicharset_training_utils.h util.h
 
@@ -39,14 +39,14 @@ libtesseract_training_la_LIBADD = \
     
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
-      fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
+      fileio.cpp ligature_table.cpp lstmtester.cpp normstrngs.cpp pango_font_info.cpp \
       stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
 bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata \
-  dawg2wordlist lstmtraining mftraining set_unicharset_properties shapeclustering \
+  dawg2wordlist lstmeval lstmtraining mftraining set_unicharset_properties shapeclustering \
   text2image unicharset_extractor wordlist2dawg
 
 ambiguous_words_SOURCES = ambiguous_words.cpp
@@ -160,6 +160,33 @@ dawg2wordlist_LDADD += \
     ../ccutil/libtesseract_ccutil.la
 else
 dawg2wordlist_LDADD += \
+    ../api/libtesseract.la
+endif
+
+lstmeval_SOURCES = lstmeval.cpp
+#lstmeval_LDFLAGS = -static
+lstmeval_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(libicu)
+if USING_MULTIPLELIBS
+lstmeval_LDADD += \
+    ../textord/libtesseract_textord.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccmain/libtesseract_main.la \
+    ../cube/libtesseract_cube.la \
+    ../neural_networks/runtime/libtesseract_neural.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../ccutil/libtesseract_ccutil.la
+else
+lstmeval_LDADD += \
     ../api/libtesseract.la
 endif
 

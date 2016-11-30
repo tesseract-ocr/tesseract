@@ -83,7 +83,7 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
     // Source for divided replicated.
     NetworkScratch::IO source_part;
     TransposedArray* src_transpose = NULL;
-    if (training() && type_ == NT_REPLICATED) {
+    if (IsTraining() && type_ == NT_REPLICATED) {
       // Make a transposed copy of the input.
       input.Transpose(&transposed_input_);
       src_transpose = &transposed_input_;

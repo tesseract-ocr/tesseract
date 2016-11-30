@@ -64,6 +64,7 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
     return;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
+  images.Shuffle();
   if (!images.SaveDocument(lstmf_name.string(), NULL)) {
     tprintf("Failed to write training data to %s!\n", lstmf_name.string());
   }
@@ -79,7 +80,10 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
   int box_count = boxes.size();
   // Process all the text lines in this page, as defined by the boxes.
   int end_box = 0;
-  for (int start_box = 0; start_box < box_count; start_box = end_box) {
+  // Don't let \t, which marks newlines in the box file, get into the line
+  // content, as that makes the line unusable in training.
+  while (end_box < texts.size() && texts[end_box] == "\t") ++end_box;
+  for (int start_box = end_box; start_box < box_count; start_box = end_box) {
     // Find the textline of boxes starting at start and their bounding box.
     TBOX line_box = boxes[start_box];
     STRING line_str = texts[start_box];
@@ -115,7 +119,9 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
     }
     if (imagedata != NULL)
       training_data->AddPageToDocument(imagedata);
-    if (end_box < texts.size() && texts[end_box] == "\t") ++end_box;
+    // Don't let \t, which marks newlines in the box file, get into the line
+    // content, as that makes the line unusable in training.
+    while (end_box < texts.size() && texts[end_box] == "\t") ++end_box;
   }
 }
 

@@ -31,7 +31,7 @@ Plumbing::~Plumbing() {
 
 // Suspends/Enables training by setting the training_ flag. Serialize and
 // DeSerialize only operate on the run-time data if state is false.
-void Plumbing::SetEnableTraining(bool state) {
+void Plumbing::SetEnableTraining(TrainingState state) {
   Network::SetEnableTraining(state);
   for (int i = 0; i < stack_.size(); ++i)
     stack_[i]->SetEnableTraining(state);
@@ -91,13 +91,17 @@ void Plumbing::AddToStack(Network* network) {
 // Sets needs_to_backprop_ to needs_backprop and calls on sub-network
 // according to needs_backprop || any weights in this network.
 bool Plumbing::SetupNeedsBackprop(bool needs_backprop) {
-  needs_to_backprop_ = needs_backprop;
-  bool retval = needs_backprop;
-  for (int i = 0; i < stack_.size(); ++i) {
-    if (stack_[i]->SetupNeedsBackprop(needs_backprop))
-      retval = true;
+  if (IsTraining()) {
+    needs_to_backprop_ = needs_backprop;
+    bool retval = needs_backprop;
+    for (int i = 0; i < stack_.size(); ++i) {
+      if (stack_[i]->SetupNeedsBackprop(needs_backprop)) retval = true;
+    }
+    return retval;
   }
-  return retval;
+  // Frozen networks don't do backprop.
+  needs_to_backprop_ = false;
+  return false;
 }
 
 // Returns an integer reduction factor that the network applies to the
@@ -212,8 +216,9 @@ void Plumbing::Update(float learning_rate, float momentum, int num_samples) {
       else
         learning_rates_.push_back(learning_rate);
     }
-    if (stack_[i]->training())
+    if (stack_[i]->IsTraining()) {
       stack_[i]->Update(learning_rate, momentum, num_samples);
+    }
   }
 }
 

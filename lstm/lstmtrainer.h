@@ -127,6 +127,9 @@ class LSTMTrainer : public LSTMRecognizer {
   // Returns the global step of TensorFlow graph or 0 if failed.
   // Building a compatible TF graph: See tfnetwork.proto.
   int InitTensorFlowNetwork(const std::string& tf_proto);
+  // Resets all the iteration counters for fine tuning or training a head,
+  // where we want the error reporting to reset.
+  void InitIterations();
 
   // Accessors.
   double ActivationError() const {

@@ -102,6 +102,23 @@ StaticShape LSTM::OutputShape(const StaticShape& input_shape) const {
   return result;
 }
 
+// Suspends/Enables training by setting the training_ flag. Serialize and
+// DeSerialize only operate on the run-time data if state is false.
+void LSTM::SetEnableTraining(TrainingState state) {
+  if (state == TS_RE_ENABLE) {
+    if (training_ == TS_DISABLED) {
+      for (int w = 0; w < WT_COUNT; ++w) {
+        if (w == GFS && !Is2D()) continue;
+        gate_weights_[w].InitBackward(false);
+      }
+    }
+    training_ = TS_ENABLED;
+  } else {
+    training_ = state;
+  }
+  if (softmax_ != NULL) softmax_->SetEnableTraining(state);
+}
+
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
 int LSTM::InitWeights(float range, TRand* randomizer) {
@@ -148,7 +165,7 @@ bool LSTM::Serialize(TFile* fp) const {
   if (fp->FWrite(&na_, sizeof(na_), 1) != 1) return false;
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
-    if (!gate_weights_[w].Serialize(training_, fp)) return false;
+    if (!gate_weights_[w].Serialize(IsTraining(), fp)) return false;
   }
   if (softmax_ != NULL && !softmax_->Serialize(fp)) return false;
   return true;
@@ -169,7 +186,7 @@ bool LSTM::DeSerialize(bool swap, TFile* fp) {
   is_2d_ = false;
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
-    if (!gate_weights_[w].DeSerialize(training_, swap, fp)) return false;
+    if (!gate_weights_[w].DeSerialize(IsTraining(), swap, fp)) return false;
     if (w == CI) {
       ns_ = gate_weights_[CI].NumOutputs();
       is_2d_ = na_ - nf_ == ni_ + 2 * ns_;
@@ -322,7 +339,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     MultiplyAccumulate(ns_, temp_lines[CI], temp_lines[GI], curr_state);
     // Clip curr_state to a sane range.
     ClipVector<double>(ns_, -kStateClip, kStateClip, curr_state);
-    if (training_) {
+    if (IsTraining()) {
       // Save the gate node values.
       node_values_[CI].WriteTimeStep(t, temp_lines[CI]);
       node_values_[GI].WriteTimeStep(t, temp_lines[GI]);
@@ -331,7 +348,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
       if (Is2D()) node_values_[GFS].WriteTimeStep(t, temp_lines[GFS]);
     }
     FuncMultiply<HFunc>(curr_state, temp_lines[GO], ns_, curr_output);
-    if (training_) state_.WriteTimeStep(t, curr_state);
+    if (IsTraining()) state_.WriteTimeStep(t, curr_state);
     if (softmax_ != NULL) {
       if (input.int_mode()) {
         int_output->WriteTimeStep(0, curr_output);
@@ -697,7 +714,7 @@ void LSTM::PrintDW() {
 void LSTM::ResizeForward(const NetworkIO& input) {
   source_.Resize(input, na_);
   which_fg_.ResizeNoInit(input.Width(), ns_);
-  if (training_) {
+  if (IsTraining()) {
     state_.ResizeFloat(input, ns_);
     for (int w = 0; w < WT_COUNT; ++w) {
       if (w == GFS && !Is2D()) continue;

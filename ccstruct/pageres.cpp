@@ -529,13 +529,12 @@ void WERD_RES::FilterWordChoices(int debug_level) {
       if (choice->unichar_id(i) != best_choice->unichar_id(j) &&
           choice->certainty(i) - best_choice->certainty(j) < threshold) {
         if (debug_level >= 2) {
-          STRING label;
-          label.add_str_int("\nDiscarding bad choice #", index);
-          choice->print(label.string());
-          tprintf("i %d j %d Chunk %d Choice->Blob[i].Certainty %.4g"
-              " BestChoice->ChunkCertainty[Chunk] %g Threshold %g\n",
-              i, j, chunk, choice->certainty(i),
-              best_choice->certainty(j), threshold);
+          choice->print("WorstCertaintyDiffWorseThan");
+          tprintf(
+              "i %d j %d Choice->Blob[i].Certainty %.4g"
+              " WorstOtherChoiceCertainty %g Threshold %g\n",
+              i, j, choice->certainty(i), best_choice->certainty(j), threshold);
+          tprintf("Discarding bad choice #%d\n", index);
         }
         delete it.extract();
         break;

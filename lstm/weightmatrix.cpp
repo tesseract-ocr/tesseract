@@ -98,8 +98,6 @@ void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double>& input) {
 int WeightMatrix::InitWeightsFloat(int no, int ni, bool ada_grad,
                                    float weight_range, TRand* randomizer) {
   int_mode_ = false;
-  use_ada_grad_ = ada_grad;
-  if (use_ada_grad_) dw_sq_sum_.Resize(no, ni, 0.0);
   wf_.Resize(no, ni, 0.0);
   if (randomizer != NULL) {
     for (int i = 0; i < no; ++i) {
@@ -108,7 +106,7 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool ada_grad,
       }
     }
   }
-  InitBackward();
+  InitBackward(ada_grad);
   return ni * no;
 }
 
@@ -144,12 +142,14 @@ void WeightMatrix::ConvertToInt() {
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
 // thus eliminating any existing momentum.
-void WeightMatrix::InitBackward() {
+void WeightMatrix::InitBackward(bool ada_grad) {
   int no = int_mode_ ? wi_.dim1() : wf_.dim1();
   int ni = int_mode_ ? wi_.dim2() : wf_.dim2();
+  use_ada_grad_ = ada_grad;
   dw_.Resize(no, ni, 0.0);
   updates_.Resize(no, ni, 0.0);
   wf_t_.Transpose(wf_);
+  if (use_ada_grad_) dw_sq_sum_.Resize(no, ni, 0.0);
 }
 
 // Flag on mode to indicate that this weightmatrix uses inT8.
@@ -193,7 +193,7 @@ bool WeightMatrix::DeSerialize(bool training, bool swap, TFile* fp) {
   } else {
     if (!wf_.DeSerialize(swap, fp)) return false;
     if (training) {
-      InitBackward();
+      InitBackward(use_ada_grad_);
       if (!updates_.DeSerialize(swap, fp)) return false;
       if (use_ada_grad_ && !dw_sq_sum_.DeSerialize(swap, fp)) return false;
     }
@@ -216,7 +216,7 @@ bool WeightMatrix::DeSerializeOld(bool training, bool swap, TFile* fp) {
     FloatToDouble(float_array, &wf_);
   }
   if (training) {
-    InitBackward();
+    InitBackward(use_ada_grad_);
     if (!float_array.DeSerialize(swap, fp)) return false;
     FloatToDouble(float_array, &updates_);
     // Errs was only used in int training, which is now dead.

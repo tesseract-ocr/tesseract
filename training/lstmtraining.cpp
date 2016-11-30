@@ -20,6 +20,7 @@
 #include "base/commandlineflags.h"
 #endif
 #include "commontraining.h"
+#include "lstmtester.h"
 #include "lstmtrainer.h"
 #include "params.h"
 #include "strngs.h"
@@ -27,8 +28,8 @@
 #include "unicharset_training_utils.h"
 
 INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
-STRING_PARAM_FLAG(net_spec, "[I1,48Lt1,100O]", "Network specification");
-INT_PARAM_FLAG(train_mode, 64, "Controls gross training behavior.");
+STRING_PARAM_FLAG(net_spec, "", "Network specification");
+INT_PARAM_FLAG(train_mode, 80, "Controls gross training behavior.");
 INT_PARAM_FLAG(net_mode, 192, "Controls network behavior.");
 INT_PARAM_FLAG(perfect_sample_delay, 4,
                "How many imperfect samples between perfect ones.");
@@ -42,6 +43,10 @@ STRING_PARAM_FLAG(model_output, "lstmtrain", "Basename for output models");
 STRING_PARAM_FLAG(script_dir, "",
                   "Required to set unicharset properties or"
                   " use unicharset compression.");
+STRING_PARAM_FLAG(train_listfile, "",
+                  "File listing training files in lstmf training format.");
+STRING_PARAM_FLAG(eval_listfile, "",
+                  "File listing eval files in lstmf training format.");
 BOOL_PARAM_FLAG(stop_training, false,
                "Just convert the training model to a runtime model.");
 INT_PARAM_FLAG(append_index, -1, "Index in continue_from Network at which to"
@@ -106,9 +111,16 @@ int main(int argc, char **argv) {
   }
 
   // Get the list of files to process.
+  if (FLAGS_train_listfile.empty()) {
+    tprintf("Must supply a list of training filenames! --train_listfile\n");
+    return 1;
+  }
   GenericVector<STRING> filenames;
-  for (int arg = 1; arg < argc; ++arg) {
-    filenames.push_back(STRING(argv[arg]));
+  if (!tesseract::LoadFileLinesToStrings(FLAGS_train_listfile.c_str(),
+                                         &filenames)) {
+    tprintf("Failed to load list of training filenames from %s\n",
+            FLAGS_train_listfile.c_str());
+    return 1;
   }
 
   UNICHARSET unicharset;
@@ -125,6 +137,7 @@ int main(int argc, char **argv) {
         return 1;
       }
       tprintf("Continuing from %s\n", FLAGS_continue_from.c_str());
+      trainer.InitIterations();
     }
     if (FLAGS_continue_from.empty() || FLAGS_append_index >= 0) {
       // We need a unicharset to start from scratch or append.
@@ -164,6 +177,18 @@ int main(int argc, char **argv) {
   char* best_model_dump = NULL;
   size_t best_model_size = 0;
   STRING best_model_name;
+  tesseract::LSTMTester tester(static_cast<inT64>(FLAGS_max_image_MB) *
+                               1048576);
+  tesseract::TestCallback tester_callback = nullptr;
+  if (!FLAGS_eval_listfile.empty()) {
+    if (!tester.LoadAllEvalData(FLAGS_eval_listfile.c_str())) {
+      tprintf("Failed to load eval data from: %s\n",
+              FLAGS_eval_listfile.c_str());
+      return 1;
+    }
+    tester_callback =
+        NewPermanentTessCallback(&tester, &tesseract::LSTMTester::RunEvalAsync);
+  }
   do {
     // Train a few.
     int iteration = trainer.training_iteration();
@@ -173,11 +198,12 @@ int main(int argc, char **argv) {
       trainer.TrainOnLine(&trainer, false);
     }
     STRING log_str;
-    trainer.MaintainCheckpoints(NULL, &log_str);
+    trainer.MaintainCheckpoints(tester_callback, &log_str);
     tprintf("%s\n", log_str.string());
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < FLAGS_max_iterations ||
             FLAGS_max_iterations == 0));
+  delete tester_callback;
   tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
   return 0;
 } /* main */

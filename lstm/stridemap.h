@@ -69,8 +69,8 @@ class StrideMap {
     bool IsValid() const;
     // Returns true if the index of the given dimension is the last.
     bool IsLast(FlexDimensions dimension) const;
-    // Given that the dimensions up to and including dim-1 are valid, returns the
-    // maximum index for dimension dim.
+    // Given that the dimensions up to and including dim-1 are valid, returns
+    // the maximum index for dimension dim.
     int MaxIndexOfDim(FlexDimensions dim) const;
     // Adds the given offset to the given dimension. Returns true if the result
     // makes a valid index.
