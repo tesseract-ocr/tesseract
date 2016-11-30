@@ -68,7 +68,7 @@
 #undef max
 #endif
 
-#include <stdint.h>              // int32_t, ...
+#include <stdint.h>  // int32_t, ...
 
 /********************************************************/
 /* __MAC__ */

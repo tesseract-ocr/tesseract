@@ -1209,6 +1209,6 @@ KERNEL(
 
  ; // close char*
 
-#endif // USE_EXTERNAL_KERNEL
-#endif //_OCL_KERNEL_H_
+#endif  // USE_EXTERNAL_KERNEL
+#endif  //_OCL_KERNEL_H_
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

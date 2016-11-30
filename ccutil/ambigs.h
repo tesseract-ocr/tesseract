@@ -59,8 +59,7 @@ class UnicharIdArrayUtils {
   // less than length of array2, if any array1[i] is less than array2[i].
   // Returns 0 if the arrays are equal, 1 otherwise.
   // The function assumes that the arrays are terminated by INVALID_UNICHAR_ID.
-  static inline int compare(const UNICHAR_ID *ptr1,
-                            const UNICHAR_ID *ptr2) {
+  static inline int compare(const UNICHAR_ID *ptr1, const UNICHAR_ID *ptr2) {
     for (;;) {
       const UNICHAR_ID val1 = *ptr1++;
       const UNICHAR_ID val2 = *ptr2++;
