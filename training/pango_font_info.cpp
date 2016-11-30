@@ -686,7 +686,7 @@ void FontUtils::GetAllRenderableCharacters(const vector<string>& fonts,
 // Utilities written to be backward compatible with StringRender
 
 /* static */
-int FontUtils::FontScore(const unordered_map<char32, inT64>& ch_map,
+int FontUtils::FontScore(const TessHashMap<char32, inT64>& ch_map,
                          const string& fontname,
                          int* raw_score,
                          vector<bool>* ch_flags) {
@@ -703,7 +703,7 @@ int FontUtils::FontScore(const unordered_map<char32, inT64>& ch_map,
   }
   *raw_score = 0;
   int ok_chars = 0;
-  for (unordered_map<char32, inT64>::const_iterator it = ch_map.begin();
+  for (TessHashMap<char32, inT64>::const_iterator it = ch_map.begin();
        it != ch_map.end(); ++it) {
     bool covered = (IsWhitespace(it->first) ||
                     (pango_coverage_get(coverage, it->first)
@@ -721,7 +721,7 @@ int FontUtils::FontScore(const unordered_map<char32, inT64>& ch_map,
 
 
 /* static */
-string FontUtils::BestFonts(const unordered_map<char32, inT64>& ch_map,
+string FontUtils::BestFonts(const TessHashMap<char32, inT64>& ch_map,
                             vector<pair<const char*, vector<bool> > >* fonts) {
   const double kMinOKFraction = 0.99;
   // Weighted fraction of characters that must be renderable in a font to make
