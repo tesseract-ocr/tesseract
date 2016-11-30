@@ -819,10 +819,6 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   *pdf_object_size =
       b1_len + colorspace_len + b2_len + cid->nbytescomp + b3_len;
   *pdf_object = new char[*pdf_object_size];
-  if (!pdf_object) {
-    l_CIDataDestroy(&cid);
-    return false;
-  }
 
   char *p = *pdf_object;
   memcpy(p, b1, b1_len);

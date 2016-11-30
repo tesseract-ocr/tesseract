@@ -140,9 +140,6 @@ class NeuralNet {
       }
       // set the size of the neurons vector
       neurons_ = new Neuron[neuron_cnt_];
-      if (neurons_ == NULL) {
-        return false;
-      }
       // read & validate inputs
       if (input_buff->Read(&read_val, sizeof(read_val)) != sizeof(read_val)) {
         return false;
