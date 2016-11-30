@@ -24,6 +24,8 @@
 
 #define DLLSYM
 #ifdef _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #ifdef __GNUC__
 #define ultoa _ultoa
 #endif  /* __GNUC__ */

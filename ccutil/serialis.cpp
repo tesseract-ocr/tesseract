@@ -95,7 +95,7 @@ int TFile::FRead(void* buffer, int size, int count) {
   char* char_buffer = reinterpret_cast<char*>(buffer);
   if (data_->size() - offset_ < required_size)
     required_size = data_->size() - offset_;
-  if (required_size > 0)
+  if (required_size > 0 && char_buffer != NULL)
     memcpy(char_buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
   return required_size / size;

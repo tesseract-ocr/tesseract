@@ -181,6 +181,14 @@ bool STRING::DeSerialize(bool swap, TFile* fp) {
   return true;
 }
 
+// As DeSerialize, but only seeks past the data - hence a static method.
+bool STRING::SkipDeSerialize(bool swap, tesseract::TFile* fp) {
+  inT32 len;
+  if (fp->FRead(&len, sizeof(len), 1) != 1) return false;
+  if (swap) ReverseN(&len, sizeof(len));
+  return fp->FRead(NULL, 1, len) == len;
+}
+
 BOOL8 STRING::contains(const char c) const {
   return (c != '\0') && (strchr (GetCStr(), c) != NULL);
 }

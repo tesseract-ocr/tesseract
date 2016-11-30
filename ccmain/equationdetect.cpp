@@ -20,6 +20,7 @@
 #ifdef _MSC_VER
 #pragma warning(disable:4244)  // Conversion warnings
 #include <mathfix.h>
+#include <windows.h>
 #endif
 
 #ifdef __MINGW32__
