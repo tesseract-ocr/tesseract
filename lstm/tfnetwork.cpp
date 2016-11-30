@@ -69,7 +69,7 @@ bool TFNetwork::DeSerialize(bool swap, TFile* fp) {
 void TFNetwork::Forward(bool debug, const NetworkIO& input,
                         const TransposedArray* input_transpose,
                         NetworkScratch* scratch, NetworkIO* output) {
-  vector<std::pair<string, Tensor>> tf_inputs;
+  std::vector<std::pair<string, Tensor>> tf_inputs;
   int depth = input_shape_.depth();
   ASSERT_HOST(depth == input.NumFeatures());
   // TODO(rays) Allow batching. For now batch_size = 1.
@@ -104,8 +104,8 @@ void TFNetwork::Forward(bool debug, const NetworkIO& input,
     *eigen_htensor.data() = stride_map.Size(FD_HEIGHT);
     tf_inputs.emplace_back(model_proto_.image_heights(), height_tensor);
   }
-  vector<string> target_layers = {model_proto_.output_layer()};
-  vector<Tensor> outputs;
+  std::vector<string> target_layers = {model_proto_.output_layer()};
+  std::vector<Tensor> outputs;
   Status s = session_->Run(tf_inputs, target_layers, {}, &outputs);
   ASSERT_HOST(s.ok());
   ASSERT_HOST(outputs.size() == 1);

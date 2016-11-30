@@ -80,7 +80,7 @@ class PangoFontInfo {
   // If true, returns individual graphemes. Any whitespace characters in the
   // original string are also included in the list.
   bool CanRenderString(const char* utf8_word, int len,
-                       vector<string>* graphemes) const;
+                       std::vector<string>* graphemes) const;
   bool CanRenderString(const char* utf8_word, int len) const;
 
   // Retrieves the x_bearing and x_advance for the given utf8 character in the
@@ -169,29 +169,29 @@ class FontUtils {
   // best_match is not NULL, the closest matching font is returned there.
   static bool IsAvailableFont(const char* font_desc, string* best_match);
   // Outputs description names of available fonts.
-  static const vector<string>& ListAvailableFonts();
+  static const std::vector<string>& ListAvailableFonts();
 
   // Picks font among available fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         string* font_name, vector<string>* graphemes);
+                         string* font_name, std::vector<string>* graphemes);
 
   // Picks font among all_fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         const vector<string>& all_fonts,
-                         string* font_name, vector<string>* graphemes);
+                         const std::vector<string>& all_fonts,
+                         string* font_name, std::vector<string>* graphemes);
 
   // Returns a bitmask where the value of true at index 'n' implies that unicode
   // value 'n' is renderable by at least one available font.
-  static void GetAllRenderableCharacters(vector<bool>* unichar_bitmap);
+  static void GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap);
   // Variant of the above function that inspects only the provided font names.
-  static void GetAllRenderableCharacters(const vector<string>& font_names,
-                                         vector<bool>* unichar_bitmap);
+  static void GetAllRenderableCharacters(const std::vector<string>& font_names,
+                                         std::vector<bool>* unichar_bitmap);
   static void GetAllRenderableCharacters(const string& font_name,
-                                         vector<bool>* unichar_bitmap);
+                                         std::vector<bool>* unichar_bitmap);
 
   // NOTE: The following utilities were written to be backward compatible with
   // StringRender.
@@ -204,7 +204,7 @@ class FontUtils {
   // The return string is a list of the acceptable fonts that were used.
   static string BestFonts(
       const TessHashMap<char32, inT64>& ch_map,
-      vector<std::pair<const char*, vector<bool> > >* font_flag);
+      std::vector<std::pair<const char*, std::vector<bool> > >* font_flag);
 
   // FontScore returns the weighted renderability score of the given
   // hash map character table in the given font. The unweighted score
@@ -213,13 +213,13 @@ class FontUtils {
   // corresponding character (in order of iterating ch_map) can be rendered.
   static int FontScore(const TessHashMap<char32, inT64>& ch_map,
                        const string& fontname, int* raw_score,
-                       vector<bool>* ch_flags);
+                       std::vector<bool>* ch_flags);
 
   // PangoFontInfo is reinitialized, so clear the static list of fonts.
   static void ReInit();
 
  private:
-  static vector<string> available_fonts_;  // cache list
+  static std::vector<string> available_fonts_;  // cache list
 };
 }  // namespace tesseract
 
