@@ -127,36 +127,14 @@ bool CubeSearchObject::Init() {
 
   // init cache
   reco_cache_ = new CharAltList **[segment_cnt_];
-  if (reco_cache_ == NULL) {
-    fprintf(stderr, "Cube ERROR (CubeSearchObject::Init): could not "
-            "allocate CharAltList array\n");
-    return false;
-  }
 
   samp_cache_ = new CharSamp **[segment_cnt_];
-  if (samp_cache_ == NULL) {
-    fprintf(stderr, "Cube ERROR (CubeSearchObject::Init): could not "
-            "allocate CharSamp array\n");
-    return false;
-  }
 
   for (int seg = 0; seg < segment_cnt_; seg++) {
     reco_cache_[seg] = new CharAltList *[segment_cnt_];
-    if (reco_cache_[seg] == NULL) {
-      fprintf(stderr, "Cube ERROR (CubeSearchObject::Init): could not "
-              "allocate a single segment's CharAltList array\n");
-      return false;
-    }
-
     memset(reco_cache_[seg], 0, segment_cnt_ * sizeof(*reco_cache_[seg]));
 
     samp_cache_[seg] = new CharSamp *[segment_cnt_];
-    if (samp_cache_[seg] == NULL) {
-      fprintf(stderr, "Cube ERROR (CubeSearchObject::Init): could not "
-              "allocate a single segment's CharSamp array\n");
-      return false;
-    }
-
     memset(samp_cache_[seg], 0, segment_cnt_ * sizeof(*samp_cache_[seg]));
   }
 
@@ -305,12 +283,10 @@ CharAltList * CubeSearchObject::RecognizeSegment(int start_pt, int end_pt) {
         exp(-fabs(seg_cnt - 2.0)) *
         exp(-samp->Width() / static_cast<double>(samp->Height()));
 
-    if (alt_list) {
-      for (int class_idx = 0; class_idx < class_cnt; class_idx++) {
-        alt_list->Insert(class_idx, CubeUtils::Prob2Cost(prob_val));
-      }
-      reco_cache_[start_pt + 1][end_pt] = alt_list;
+    for (int class_idx = 0; class_idx < class_cnt; class_idx++) {
+      alt_list->Insert(class_idx, CubeUtils::Prob2Cost(prob_val));
     }
+    reco_cache_[start_pt + 1][end_pt] = alt_list;
   }
 
   return reco_cache_[start_pt + 1][end_pt];
@@ -353,11 +329,6 @@ bool CubeSearchObject::ComputeSpaceCosts() {
   // segmentation point
   int *max_left_x = new int[segment_cnt_ - 1];
   int *min_right_x = new int[segment_cnt_ - 1];
-  if (!max_left_x || !min_right_x) {
-    delete []min_right_x;
-    delete []max_left_x;
-    return false;
-  }
   if (rtl_) {
     min_right_x[0] = segments_[0]->Left();
     max_left_x[segment_cnt_ - 2] = segments_[segment_cnt_ - 1]->Right();
@@ -384,11 +355,6 @@ bool CubeSearchObject::ComputeSpaceCosts() {
   // trivial cases
   space_cost_ = new int[segment_cnt_ - 1];
   no_space_cost_ = new int[segment_cnt_ - 1];
-  if (!space_cost_ || !no_space_cost_) {
-    delete []min_right_x;
-    delete []max_left_x;
-    return false;
-  }
 
   // go through all segmentation points determining the horizontal gap between
   // the images on both sides of each break points. Use the gap to estimate

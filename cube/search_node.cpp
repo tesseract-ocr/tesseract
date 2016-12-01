@@ -147,9 +147,6 @@ char_32 *SearchNode::PathString() {
   }
 
   char_32 *char_ptr = new char_32[len + 1];
-  if (char_ptr == NULL) {
-    return NULL;
-  }
 
   int ch_idx = len;
 

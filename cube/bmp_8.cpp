@@ -72,17 +72,10 @@ unsigned char **Bmp8::CreateBmpBuffer(unsigned char init_val) {
   stride_ = ((wid_ % 4) == 0) ? wid_ : (4 * (1 + (wid_ / 4)));
 
   buff = (unsigned char **) new unsigned char *[hgt_ * sizeof(*buff)];
-  if (!buff) {
-    return NULL;
-  }
 
   // alloc and init memory for buffer and line buffer
   buff[0] = (unsigned char *)
       new unsigned char[stride_ * hgt_ * sizeof(*buff[0])];
-  if (!buff[0]) {
-    delete []buff;
-    return NULL;
-  }
 
   memset(buff[0], init_val, stride_ * hgt_ * sizeof(*buff[0]));
 
@@ -100,16 +93,9 @@ unsigned int ** Bmp8::CreateBmpBuffer(int wid, int hgt,
 
   // compute stride (align on 4 byte boundries)
   buff = (unsigned int **) new unsigned int *[hgt * sizeof(*buff)];
-  if (!buff) {
-    return NULL;
-  }
 
   // alloc and init memory for buffer and line buffer
   buff[0] = (unsigned int *) new unsigned int[wid * hgt * sizeof(*buff[0])];
-  if (!buff[0]) {
-    delete []buff;
-    return NULL;
-  }
 
   memset(buff[0], init_val, wid * hgt * sizeof(*buff[0]));
 
@@ -172,9 +158,6 @@ bool Bmp8::LoadFromCharDumpFile(CachedFile *fp) {
 
   // alloc memory & read the 3 channel buffer
   buff = new unsigned char[buf_size];
-  if (buff == NULL) {
-    return false;
-  }
 
   if (fp->Read(buff, buf_size) != buf_size) {
     delete []buff;
@@ -213,9 +196,6 @@ bool Bmp8::LoadFromCharDumpFile(CachedFile *fp) {
 Bmp8 * Bmp8::FromCharDumpFile(CachedFile *fp) {
   // create a Bmp8 object
   Bmp8 *bmp_obj = new Bmp8(0, 0);
-  if (bmp_obj == NULL) {
-    return NULL;
-  }
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
@@ -267,9 +247,6 @@ bool Bmp8::LoadFromCharDumpFile(FILE *fp) {
 
   // alloc memory & read the 3 channel buffer
   buff = new unsigned char[buf_size];
-  if (buff == NULL) {
-    return false;
-  }
 
   if (fread(buff, 1, buf_size, fp) != buf_size) {
     delete []buff;
@@ -308,9 +285,6 @@ bool Bmp8::LoadFromCharDumpFile(FILE *fp) {
 Bmp8 * Bmp8::FromCharDumpFile(FILE *fp) {
   // create a Bmp8 object
   Bmp8 *bmp_obj = new Bmp8(0, 0);
-  if (bmp_obj == NULL) {
-    return NULL;
-  }
 
   if (bmp_obj->LoadFromCharDumpFile(fp) == false) {
     delete bmp_obj;
@@ -545,9 +519,6 @@ bool Bmp8::SaveBmp2CharDumpFile(FILE *fp) const {
 
   // alloc memory & write the 3 channel buffer
   buff = new unsigned char[buf_size];
-  if (buff == NULL) {
-    return false;
-  }
 
   // copy the data
   for (y = 0, pix = 0; y < hgt_; y++) {
@@ -699,7 +670,7 @@ ConComp ** Bmp8::FindConComps(int *concomp_cnt, int min_size) const {
         // if there was no foreground pix, then create a new concomp
         if (master_concomp == NULL) {
           master_concomp = new ConComp();
-          if (master_concomp == NULL || master_concomp->Add(x, y) == false) {
+          if (master_concomp->Add(x, y) == false) {
             fprintf(stderr, "Cube ERROR (Bmp8::FindConComps): could not "
                     "allocate or add a connected component\n");
             FreeBmpBuffer(out_bmp_array);
@@ -711,13 +682,6 @@ ConComp ** Bmp8::FindConComps(int *concomp_cnt, int min_size) const {
           if ((alloc_concomp_cnt % kConCompAllocChunk) == 0) {
             ConComp **temp_con_comp =
                 new ConComp *[alloc_concomp_cnt + kConCompAllocChunk];
-            if (temp_con_comp == NULL) {
-              fprintf(stderr, "Cube ERROR (Bmp8::FindConComps): could not "
-                      "extend array of connected components\n");
-              FreeBmpBuffer(out_bmp_array);
-              delete []concomp_array;
-              return NULL;
-            }
 
             if (alloc_concomp_cnt > 0) {
               memcpy(temp_con_comp, concomp_array,
@@ -774,9 +738,6 @@ bool Bmp8::ComputeTanTable() {
   // alloc memory for tan table
   delete []tan_table_;
   tan_table_ = new float[kDeslantAngleCount];
-  if (tan_table_ == NULL) {
-    return false;
-  }
 
   for (ang_idx = 0, ang_val = kMinDeslantAngle;
        ang_idx < kDeslantAngleCount; ang_idx++) {
@@ -821,10 +782,6 @@ bool Bmp8::Deslant() {
   int **angle_hist = new int*[kDeslantAngleCount];
   for (ang_idx = 0; ang_idx < kDeslantAngleCount; ang_idx++) {
     angle_hist[ang_idx] = new int[des_wid];
-    if (angle_hist[ang_idx] == NULL) {
-      delete[] angle_hist;
-      return false;
-    }
     memset(angle_hist[ang_idx], 0, des_wid * sizeof(*angle_hist[ang_idx]));
   }
 
@@ -1006,10 +963,6 @@ bool Bmp8::HorizontalDeslant(double *deslant_angle) {
   int **angle_hist = new int*[kDeslantAngleCount];
   for (ang_idx = 0; ang_idx < kDeslantAngleCount; ang_idx++) {
     angle_hist[ang_idx] = new int[des_hgt];
-    if (angle_hist[ang_idx] == NULL) {
-      delete[] angle_hist;
-      return false;
-    }
     memset(angle_hist[ang_idx], 0, des_hgt * sizeof(*angle_hist[ang_idx]));
   }
 
@@ -1118,9 +1071,6 @@ float Bmp8::MeanHorizontalHistogramEntropy() const {
 
 int *Bmp8::HorizontalHistogram() const {
   int *hist = new int[hgt_];
-  if (hist == NULL) {
-    return NULL;
-  }
 
   // compute histograms
   for (int y = 0; y < hgt_; y++) {

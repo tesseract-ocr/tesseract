@@ -1285,8 +1285,6 @@ float tune_row_pitch2(                             //find fp cells
     return initial_pitch;
   }
   sum_proj = new STATS[textord_pitch_range * 2 + 1];
-  if (sum_proj == NULL)
-    return initial_pitch;
 
   for (pitch_delta = -textord_pitch_range; pitch_delta <= textord_pitch_range;
     pitch_delta++)

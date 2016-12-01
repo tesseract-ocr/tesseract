@@ -54,9 +54,6 @@ CharSet::~CharSet() {
 CharSet *CharSet::Create(TessdataManager *tessdata_manager,
                          UNICHARSET *tess_unicharset) {
   CharSet *char_set = new CharSet();
-  if (char_set == NULL) {
-    return NULL;
-  }
 
   // First look for Cube's unicharset; if not there, use tesseract's
   bool cube_unicharset_exists;
@@ -119,19 +116,9 @@ bool CharSet::LoadSupportedCharList(FILE *fp, UNICHARSET *tess_unicharset) {
   }
   // memory for class strings
   class_strings_ = new string_32*[class_cnt_];
-  if (class_strings_ == NULL) {
-    fprintf(stderr, "Cube ERROR (CharSet::InitMemory): could not "
-            "allocate memory for class strings.\n");
-    return false;
-  }
   // memory for unicharset map
   if (tess_unicharset) {
     unicharset_map_ = new int[class_cnt_];
-    if (unicharset_map_ == NULL) {
-      fprintf(stderr, "Cube ERROR (CharSet::InitMemory): could not "
-              "allocate memory for unicharset map.\n");
-      return false;
-    }
   }
 
   // Read in character strings and add to hash table
@@ -154,11 +141,6 @@ bool CharSet::LoadSupportedCharList(FILE *fp, UNICHARSET *tess_unicharset) {
     }
     CubeUtils::UTF8ToUTF32(str_line, &str32);
     class_strings_[class_id] = new string_32(str32);
-    if (class_strings_[class_id] == NULL) {
-      fprintf(stderr, "Cube ERROR (CharSet::ReadAndHashStrings): could not "
-              "allocate memory for class string with class_id=%d.\n", class_id);
-      return false;
-    }
 
     // Add to hash-table
     int hash_val = Hash(reinterpret_cast<const char_32 *>(str32.c_str()));

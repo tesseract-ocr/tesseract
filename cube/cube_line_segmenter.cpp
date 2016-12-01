@@ -126,9 +126,6 @@ Pixa *CubeLineSegmenter::CrackLine(Pix *cracked_line_pix,
                                    Box *cracked_line_box, int line_cnt) {
   // create lines pixa array
   Pixa **lines_pixa = new Pixa*[line_cnt];
-  if (lines_pixa == NULL) {
-    return NULL;
-  }
 
   memset(lines_pixa, 0, line_cnt * sizeof(*lines_pixa));
 
@@ -620,9 +617,6 @@ bool CubeLineSegmenter::AddLines(Pixa *lines) {
 // Index the specific pixa using RTL reading order
 int *CubeLineSegmenter::IndexRTL(Pixa *pixa) {
   int *pix_index = new int[pixa->n];
-  if (pix_index == NULL) {
-    return NULL;
-  }
 
   for (int pix = 0; pix < pixa->n; pix++) {
     pix_index[pix] = pix;

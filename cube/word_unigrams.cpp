@@ -76,32 +76,13 @@ WordUnigrams *WordUnigrams::Create(const string &data_file_path,
 
   // allocate memory
   WordUnigrams *word_unigrams_obj = new WordUnigrams();
-  if (word_unigrams_obj == NULL) {
-    fprintf(stderr, "Cube ERROR (WordUnigrams::Create): could not create "
-            "word unigrams object.\n");
-    return NULL;
-  }
 
   int full_len = str.length();
   int word_cnt = str_vec.size() / 2;
   word_unigrams_obj->words_ = new char*[word_cnt];
   word_unigrams_obj->costs_ = new int[word_cnt];
 
-  if (word_unigrams_obj->words_ == NULL ||
-      word_unigrams_obj->costs_ == NULL) {
-    fprintf(stderr, "Cube ERROR (WordUnigrams::Create): error allocating "
-            "word unigram fields.\n");
-    delete word_unigrams_obj;
-    return NULL;
-  }
-
   word_unigrams_obj->words_[0] = new char[full_len];
-  if (word_unigrams_obj->words_[0] == NULL) {
-    fprintf(stderr, "Cube ERROR (WordUnigrams::Create): error allocating "
-            "word unigram fields.\n");
-    delete word_unigrams_obj;
-    return NULL;
-  }
 
   // construct sorted list of words and costs
   word_unigrams_obj->word_cnt_ = 0;

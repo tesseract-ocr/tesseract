@@ -68,9 +68,6 @@ bool CachedFile::Open() {
   rewind(fp_);
   // alloc memory for buffer
   buff_ = new unsigned char[kCacheSize];
-  if (buff_ == NULL) {
-    return false;
-  }
   // init counters
   buff_size_ = 0;
   buff_pos_ = 0;

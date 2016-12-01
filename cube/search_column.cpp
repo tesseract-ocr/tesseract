@@ -62,9 +62,6 @@ bool SearchColumn::Init() {
   // create hash table
   if (node_hash_table_ == NULL) {
     node_hash_table_ = new SearchNodeHashTable();
-    if (node_hash_table_ == NULL) {
-      return false;
-    }
   }
 
   init_ = true;
@@ -144,9 +141,6 @@ SearchNode *SearchColumn::AddNode(LangModEdge *edge, int reco_cost,
   // node does not exist
   if (new_node == NULL) {
     new_node = new SearchNode(cntxt, parent_node, reco_cost, edge, col_idx_);
-    if (new_node == NULL) {
-      return NULL;
-    }
 
     // if the max node count has already been reached, check if the cost of
     // the new node exceeds the max cost. This indicates that it will be pruned
@@ -161,10 +155,6 @@ SearchNode *SearchColumn::AddNode(LangModEdge *edge, int reco_cost,
       // alloc a new buff
       SearchNode **new_node_buff =
           new SearchNode *[node_cnt_ + kNodeAllocChunk];
-      if (new_node_buff == NULL) {
-        delete new_node;
-        return NULL;
-      }
 
       // free existing after copying contents
       if (node_array_ != NULL) {

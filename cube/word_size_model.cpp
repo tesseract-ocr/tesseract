@@ -43,11 +43,6 @@ WordSizeModel *WordSizeModel::Create(const string &data_file_path,
                                      CharSet *char_set,
                                      bool contextual) {
   WordSizeModel *obj = new WordSizeModel(char_set, contextual);
-  if (!obj) {
-    fprintf(stderr, "Cube ERROR (WordSizeModel::Create): unable to allocate "
-            "new word size model object\n");
-    return NULL;
-  }
 
   if (!obj->Init(data_file_path, lang)) {
     delete obj;
@@ -96,19 +91,9 @@ bool WordSizeModel::Init(const string &data_file_path, const string &lang) {
       FontPairSizeInfo fnt_info;
 
       fnt_info.pair_size_info = new PairSizeInfo *[size_class_cnt];
-      if (!fnt_info.pair_size_info) {
-        fprintf(stderr, "Cube ERROR (WordSizeModel::Init): error allcoating "
-                "memory for font pair size info\n");
-        return false;
-      }
 
       fnt_info.pair_size_info[0] =
           new PairSizeInfo[size_class_cnt * size_class_cnt];
-      if (!fnt_info.pair_size_info[0]) {
-        fprintf(stderr, "Cube ERROR (WordSizeModel::Init): error allocating "
-                "memory for font pair size info\n");
-        return false;
-      }
 
       memset(fnt_info.pair_size_info[0], 0, size_class_cnt * size_class_cnt *
              sizeof(PairSizeInfo));
