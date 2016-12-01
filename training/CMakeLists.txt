@@ -169,6 +169,8 @@ set(unicharset_training_src
     fileio.cpp
     fileio.h
     icuerrorcode.h
+    lstmtester.cpp
+    lstmtester.h
     normstrngs.cpp
     normstrngs.h
     unicharset_training_utils.cpp
@@ -180,10 +182,19 @@ project_group               (unicharset_training "Training Tools")
 
 
 ########################################
+# EXECUTABLE lstmeval
+########################################
+
+add_executable              (lstmeval lstmeval.cpp)
+target_link_libraries       (lstmeval unicharset_training)
+project_group               (lstmeval "Training Tools")
+
+
+########################################
 # EXECUTABLE lstmtraining
 ########################################
 
-add_executable              (lstmtraining lstmtraining.cpp lstmeval.cpp lstmtester.cpp lstmtester.h)
+add_executable              (lstmtraining lstmtraining.cpp)
 target_link_libraries       (lstmtraining unicharset_training)
 project_group               (lstmtraining "Training Tools")
 
