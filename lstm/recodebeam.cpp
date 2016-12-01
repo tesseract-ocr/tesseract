@@ -40,6 +40,7 @@ const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
 RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress& recoder,
                                    int null_char, bool simple_text, Dict* dict)
     : recoder_(recoder),
+      beam_size_(0),
       dict_(dict),
       space_delimited_(true),
       is_simple_text_(simple_text),
