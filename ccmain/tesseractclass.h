@@ -38,7 +38,6 @@
 
 class BLOB_CHOICE_LIST_CLIST;
 class BLOCK_LIST;
-class CharSamp;
 struct OSResults;
 class PAGE_RES;
 class PAGE_RES_IT;
@@ -98,6 +97,7 @@ namespace tesseract {
 
 class ColumnFinder;
 #ifndef NO_CUBE_BUILD
+class CharSamp;
 class CubeLineObject;
 class CubeObject;
 class CubeRecoContext;
@@ -189,7 +189,7 @@ class Tesseract : public Wordrec {
   }
   // Destroy any existing pix and return a pointer to the pointer.
   Pix** mutable_pix_binary() {
-    Clear();
+    pixDestroy(&pix_binary_);
     return &pix_binary_;
   }
   Pix* pix_binary() const {
@@ -202,16 +202,20 @@ class Tesseract : public Wordrec {
     pixDestroy(&pix_grey_);
     pix_grey_ = grey_pix;
   }
-  // Returns a pointer to a Pix representing the best available image of the
-  // page. The image will be 8-bit grey if the input was grey or color. Note
-  // that in grey 0 is black and 255 is white. If the input was binary, then
-  // the returned Pix will be binary. Note that here black is 1 and white is 0.
-  // To tell the difference pixGetDepth() will return 8 or 1.
-  // In either case, the return value is a borrowed Pix, and should not be
-  // deleted or pixDestroyed.
-  Pix* BestPix() const {
-    return pix_grey_ != NULL ? pix_grey_ : pix_binary_;
+  Pix* pix_original() const { return pix_original_; }
+  // Takes ownership of the given original_pix.
+  void set_pix_original(Pix* original_pix) {
+    pixDestroy(&pix_original_);
+    pix_original_ = original_pix;
   }
+  // Returns a pointer to a Pix representing the best available (original) image
+  // of the page. Can be of any bit depth, but never color-mapped, as that has
+  // always been dealt with. Note that in grey and color, 0 is black and 255 is
+  // white. If the input was binary, then black is 1 and white is 0.
+  // To tell the difference pixGetDepth() will return 32, 8 or 1.
+  // In any case, the return value is a borrowed Pix, and should not be
+  // deleted or pixDestroyed.
+  Pix* BestPix() const { return pix_original_; }
   void set_pix_thresholds(Pix* thresholds) {
     pixDestroy(&pix_thresholds_);
     pix_thresholds_ = thresholds;
@@ -1174,6 +1178,8 @@ class Tesseract : public Wordrec {
   Pix* cube_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
+  // Original input image. Color if the input was color.
+  Pix* pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
   Pix* pix_thresholds_;
   // Input image resolution after any scaling. The resolution is not well

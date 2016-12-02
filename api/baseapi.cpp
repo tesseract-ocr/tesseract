@@ -34,8 +34,6 @@
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
 #undef __STRICT_ANSI__
 #endif  // _MSC_VER
-#include <stdlib.h>
-#include <windows.h>
 #include <fcntl.h>
 #include <io.h>
 #else
@@ -121,7 +119,6 @@ TessBaseAPI::TessBaseAPI()
     block_list_(NULL),
     page_res_(NULL),
     input_file_(NULL),
-    input_image_(NULL),
     output_file_(NULL),
     datapath_(NULL),
     language_(NULL),
@@ -130,6 +127,7 @@ TessBaseAPI::TessBaseAPI()
     truth_cb_(NULL),
     rect_left_(0), rect_top_(0), rect_width_(0), rect_height_(0),
     image_width_(0), image_height_(0) {
+    unknown_title_ = "";
 }
 
 TessBaseAPI::~TessBaseAPI() {
@@ -515,9 +513,7 @@ void TessBaseAPI::ClearAdaptiveClassifier() {
 
 /**
  * Provide an image for Tesseract to recognize. Format is as
- * TesseractRect above. Does not copy the image buffer, or take
- * ownership. The source image may be destroyed after Recognize is called,
- * either explicitly or implicitly via one of the Get*Text functions.
+ * TesseractRect above. Copies the image buffer and converts to Pix.
  * SetImage clears all recognition results, and sets the rectangle to the
  * full image, so it may be followed immediately by a GetUTF8Text, and it
  * will automatically perform recognition.
@@ -525,9 +521,11 @@ void TessBaseAPI::ClearAdaptiveClassifier() {
 void TessBaseAPI::SetImage(const unsigned char* imagedata,
                            int width, int height,
                            int bytes_per_pixel, int bytes_per_line) {
-  if (InternalSetImage())
+  if (InternalSetImage()) {
     thresholder_->SetImage(imagedata, width, height,
                            bytes_per_pixel, bytes_per_line);
+    SetInputImage(thresholder_->GetPixRect());
+  }
 }
 
 void TessBaseAPI::SetSourceResolution(int ppi) {
@@ -539,18 +537,17 @@ void TessBaseAPI::SetSourceResolution(int ppi) {
 
 /**
  * Provide an image for Tesseract to recognize. As with SetImage above,
- * Tesseract doesn't take a copy or ownership or pixDestroy the image, so
- * it must persist until after Recognize.
+ * Tesseract takes its own copy of the image, so it need not persist until
+ * after Recognize.
  * Pix vs raw, which to use?
- * Use Pix where possible. A future version of Tesseract may choose to use Pix
- * as its internal representation and discard IMAGE altogether.
- * Because of that, an implementation that sources and targets Pix may end up
- * with less copies than an implementation that does not.
+ * Use Pix where possible. Tesseract uses Pix as its internal representation
+ * and it is therefore more efficient to provide a Pix directly.
  */
 void TessBaseAPI::SetImage(Pix* pix) {
-  if (InternalSetImage())
+  if (InternalSetImage()) {
     thresholder_->SetImage(pix);
-  SetInputImage(pix);
+    SetInputImage(thresholder_->GetPixRect());
+  }
 }
 
 /**
@@ -693,8 +690,8 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
       if (pixa != NULL) {
         Pix* pix = NULL;
         if (raw_image) {
-          pix = page_it->GetImage(level, raw_padding, input_image_,
-                                  &left, &top);
+          pix = page_it->GetImage(level, raw_padding, GetInputImage(), &left,
+                                  &top);
         } else {
           pix = page_it->GetBinaryImage(level);
         }
@@ -938,15 +935,10 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   return 0;
 }
 
-void TessBaseAPI::SetInputImage(Pix *pix) {
-  if (input_image_)
-    pixDestroy(&input_image_);
-  input_image_ = NULL;
-  if (pix)
-    input_image_ = pixCopy(NULL, pix);
-}
+// Takes ownership of the input pix.
+void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
 
-Pix* TessBaseAPI::GetInputImage() { return input_image_; }
+Pix* TessBaseAPI::GetInputImage() { return tesseract_->pix_original(); }
 
 const char * TessBaseAPI::GetInputName() {
   if (input_file_)
@@ -990,8 +982,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
   }
 
   // Begin producing output
-  const char* kUnknownTitle = "";
-  if (renderer && !renderer->BeginDocument(kUnknownTitle)) {
+  if (renderer && !renderer->BeginDocument(unknown_title_)) {
     return false;
   }
 
@@ -1103,7 +1094,6 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer) {
-#ifndef ANDROID_BUILD
   PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
@@ -1160,8 +1150,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   // Begin the output
-  const char* kUnknownTitle = "";
-  if (renderer && !renderer->BeginDocument(kUnknownTitle)) {
+  if (renderer && !renderer->BeginDocument(unknown_title_)) {
     pixDestroy(&pix);
     return false;
   }
@@ -1183,9 +1172,6 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
   PERF_COUNT_END
   return true;
-#else
-  return false;
-#endif
 }
 
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
@@ -1756,7 +1742,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   int total_length = blob_count * kBytesPerBoxFileLine + utf8_length +
       kMaxBytesPerLine;
   char* result = new char[total_length];
-  strcpy(result, "\0");
+  result[0] = '\0';
   int output_length = 0;
   LTRResultIterator* it = GetLTRIterator();
   do {
@@ -1929,8 +1915,9 @@ char* TessBaseAPI::GetOsdText(int page_number) {
   // clockwise rotation needed to make the page upright
   int rotate = OrientationIdToValue(orient_id);
 
-  char* osd_buf = new char[255];
-  snprintf(osd_buf, 255,
+  const int kOsdBufsize = 255;
+  char* osd_buf = new char[kOsdBufsize];
+  snprintf(osd_buf, kOsdBufsize,
            "Page number: %d\n"
            "Orientation in degrees: %d\n"
            "Rotate: %d\n"
@@ -2058,7 +2045,7 @@ void TessBaseAPI::Clear() {
   if (thresholder_ != NULL)
     thresholder_->Clear();
   ClearResults();
-  SetInputImage(NULL);
+  if (tesseract_ != NULL) SetInputImage(NULL);
 }
 
 /**
@@ -2103,10 +2090,6 @@ void TessBaseAPI::End() {
   if (input_file_ != NULL) {
     delete input_file_;
     input_file_ = NULL;
-  }
-  if (input_image_ != NULL) {
-    pixDestroy(&input_image_);
-    input_image_ = NULL;
   }
   if (output_file_ != NULL) {
     delete output_file_;

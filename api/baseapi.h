@@ -142,6 +142,7 @@ class TESS_API TessBaseAPI {
    * is stored in the PDF so we need that as well.
    */
   const char* GetInputName();
+  // Takes ownership of the input pix.
   void SetInputImage(Pix *pix);
   Pix* GetInputImage();
   int GetSourceYResolution();
@@ -333,9 +334,7 @@ class TESS_API TessBaseAPI {
 
   /**
    * Provide an image for Tesseract to recognize. Format is as
-   * TesseractRect above. Does not copy the image buffer, or take
-   * ownership. The source image may be destroyed after Recognize is called,
-   * either explicitly or implicitly via one of the Get*Text functions.
+   * TesseractRect above. Copies the image buffer and converts to Pix.
    * SetImage clears all recognition results, and sets the rectangle to the
    * full image, so it may be followed immediately by a GetUTF8Text, and it
    * will automatically perform recognition.
@@ -345,13 +344,11 @@ class TESS_API TessBaseAPI {
 
   /**
    * Provide an image for Tesseract to recognize. As with SetImage above,
-   * Tesseract doesn't take a copy or ownership or pixDestroy the image, so
-   * it must persist until after Recognize.
+   * Tesseract takes its own copy of the image, so it need not persist until
+   * after Recognize.
    * Pix vs raw, which to use?
-   * Use Pix where possible. A future version of Tesseract may choose to use Pix
-   * as its internal representation and discard IMAGE altogether.
-   * Because of that, an implementation that sources and targets Pix may end up
-   * with less copies than an implementation that does not.
+   * Use Pix where possible. Tesseract uses Pix as its internal representation
+   * and it is therefore more efficient to provide a Pix directly.
    */
   void SetImage(Pix* pix);
 
@@ -866,7 +863,6 @@ class TESS_API TessBaseAPI {
   BLOCK_LIST*       block_list_;      ///< The page layout.
   PAGE_RES*         page_res_;        ///< The page-level data.
   STRING*           input_file_;      ///< Name used by training code.
-  Pix*              input_image_;     ///< Image used for searchable PDF
   STRING*           output_file_;     ///< Name used by debug code.
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
@@ -902,6 +898,12 @@ class TESS_API TessBaseAPI {
                                  int timeout_millisec,
                                  TessResultRenderer* renderer,
                                  int tessedit_page_number);
+  // There's currently no way to pass a document title from the
+  // Tesseract command line, and we have multiple places that choose
+  // to set the title to an empty string. Using a single named
+  // variable will hopefully reduce confusion if the situation changes
+  // in the future.
+  const char *unknown_title_;
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
