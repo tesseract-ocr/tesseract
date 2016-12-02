@@ -90,8 +90,8 @@ parse_flags() {
             --)
                 break;;
             --fontlist)
-        fn=0
-        FONTS=""
+    fn=0
+    FONTS=""
                 while test $j -lt ${#ARGV[@]}; do
                     test -z "${ARGV[$j]}" && break
                     test `echo ${ARGV[$j]} | cut -c -2` = "--" && break
@@ -199,7 +199,7 @@ generate_font_image() {
 
     local common_args="--fontconfig_tmpdir=${FONT_CONFIG_CACHE}"
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
-    common_args+=" --fontconfig_refresh_config_file=false --leading=${LEADING}"
+    common_args+=" --leading=${LEADING}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase}"
 
