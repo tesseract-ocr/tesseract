@@ -185,7 +185,8 @@ class FontUtils {
   // In the flags vector, each flag is set according to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
   // The return string is a list of the acceptable fonts that were used.
-  static string BestFonts(const unordered_map<char32, inT64>& ch_map,
+  static string BestFonts(
+      const TessHashMap<char32, inT64>& ch_map,
       vector<std::pair<const char*, vector<bool> > >* font_flag);
 
   // FontScore returns the weighted renderability score of the given
@@ -193,7 +194,7 @@ class FontUtils {
   // is also returned in raw_score.
   // The values in the bool vector ch_flags correspond to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
-  static int FontScore(const unordered_map<char32, inT64>& ch_map,
+  static int FontScore(const TessHashMap<char32, inT64>& ch_map,
                        const string& fontname, int* raw_score,
                        vector<bool>* ch_flags);
 

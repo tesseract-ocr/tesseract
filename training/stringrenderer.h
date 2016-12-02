@@ -210,7 +210,7 @@ class StringRenderer {
   Boxa* page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
-  hash_map<char32, inT64> char_map_;  // Time-saving char histogram.
+  TessHashMap<char32, inT64> char_map_;  // Time-saving char histogram.
   int total_chars_;   // Number in the string to be rendered.
   int font_index_;    // Index of next font to use in font list.
   int last_offset_;   // Offset returned from last successful rendering
