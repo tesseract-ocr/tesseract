@@ -27,7 +27,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>libtesseract304</ProjectName>
+    <ProjectName>libtesseract305</ProjectName>
     <ProjectGuid>{D14F28C7-0CAE-4C37-B174-40FDEFBD4FE0}</ProjectGuid>
     <RootNamespace>libtesseract</RootNamespace>
   </PropertyGroup>
