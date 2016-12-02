@@ -166,7 +166,6 @@ CharSamp *CharSamp::FromCharDumpFile(CachedFile *fp) {
   // load the Bmp8 part
   if (char_samp->LoadFromCharDumpFile(fp) == false) {
     delete char_samp;
-    delete [] label32;
     return NULL;
   }
   return char_samp;
