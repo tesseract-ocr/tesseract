@@ -36,7 +36,6 @@
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
 
 #include <tiffio.h>
-#include <windows.h>
 
 static void Win32WarningHandler(const char* module, const char* fmt,
                                 va_list ap) {
@@ -116,6 +115,18 @@ void PrintHelpForPSM() {
       " 12    Sparse text with OSD.\n"
       " 13    Raw line. Treat the image as a single text line,\n"
       "\t\t\tbypassing hacks that are Tesseract-specific.\n";
+
+  printf("%s", msg);
+}
+
+void PrintHelpForOEM() {
+  const char* msg =
+      "OCR Engine modes:\n"
+      "  0    Original Tesseract only.\n"
+      "  1    Cube only.\n"
+      "  2    Tesseract + cube.\n"
+      "  3    Default, based on what is available.\n";
+
   printf("%s", msg);
 }
 
@@ -131,15 +142,18 @@ void PrintHelpMessage(const char* program) {
       "  -c VAR=VALUE          Set value for config variables.\n"
       "                        Multiple -c arguments are allowed.\n"
       "  -psm NUM              Specify page segmentation mode.\n"
+      "  -oem NUM              Specify OCR Engine mode.\n"
       "NOTE: These options must occur before any configfile.\n";
 
   printf("\n%s\n", ocr_options);
   PrintHelpForPSM();
+  PrintHelpForOEM();
 
   const char* single_options =
       "Single options:\n"
       "  -h, --help            Show this help message.\n"
       "  --help-psm            Show page segmentation modes.\n"
+      "  --help-oem            Show OCR Engine modes.\n"
       "  -v, --version         Show version information.\n"
       "  --list-langs          List available languages for tesseract engine.\n"
       "  --print-parameters    Print tesseract parameters to stdout.\n";
@@ -213,7 +227,8 @@ void ParseArgs(const int argc, char** argv, const char** lang,
                const char** datapath, bool* list_langs, bool* print_parameters,
                GenericVector<STRING>* vars_vec,
                GenericVector<STRING>* vars_values, int* arg_i,
-               tesseract::PageSegMode* pagesegmode) {
+               tesseract::PageSegMode* pagesegmode,
+               tesseract::OcrEngineMode* enginemode) {
   if (argc == 1) {
     PrintHelpMessage(argv[0]);
     exit(0);
@@ -226,6 +241,10 @@ void ParseArgs(const int argc, char** argv, const char** lang,
     }
     if ((strcmp(argv[1], "--help-psm") == 0)) {
       PrintHelpForPSM();
+      exit(0);
+    }
+    if ((strcmp(argv[1], "--help-oem") == 0)) {
+      PrintHelpForOEM();
       exit(0);
     }
     if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
@@ -256,6 +275,9 @@ void ParseArgs(const int argc, char** argv, const char** lang,
       *list_langs = true;
     } else if (strcmp(argv[i], "-psm") == 0 && i + 1 < argc) {
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
+      ++i;
+    } else if (strcmp(argv[i], "-oem") == 0 && i + 1 < argc) {
+      *enginemode = static_cast<tesseract::OcrEngineMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
       noocr = true;
@@ -354,6 +376,7 @@ int main(int argc, char** argv) {
   bool print_parameters = false;
   int arg_i = 1;
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
+  tesseract::OcrEngineMode enginemode = tesseract::OEM_DEFAULT;
   /* main() calls functions like ParseArgs which call exit().
    * This results in memory leaks if vars_vec and vars_values are
    * declared as auto variables (destructor is not called then). */
@@ -366,7 +389,8 @@ int main(int argc, char** argv) {
 #endif /* HAVE_TIFFIO_H &&  _WIN32 */
 
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
-            &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode);
+            &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
+            &enginemode);
 
   bool banner = false;
   if (outputbase != NULL && strcmp(outputbase, "-") &&
@@ -379,8 +403,8 @@ int main(int argc, char** argv) {
 
   api.SetOutputName(outputbase);
 
-  int init_failed = api.Init(datapath, lang, tesseract::OEM_DEFAULT,
-                &(argv[arg_i]), argc - arg_i, &vars_vec, &vars_values, false);
+  int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
+                             argc - arg_i, &vars_vec, &vars_values, false);
   if (init_failed) {
     fprintf(stderr, "Could not initialize tesseract.\n");
     exit(1);
