@@ -49,7 +49,11 @@ void Wordrec::program_editup(const char *textbase,
   if (textbase != NULL) imagefile = textbase;
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
-  if (init_dict) getDict().Load(Dict::GlobalDawgCache());
+  if (init_dict) {
+    getDict().SetupForLoad(Dict::GlobalDawgCache());
+    getDict().Load(tessdata_manager.GetDataFileName().string(), lang);
+    getDict().FinishLoad();
+  }
   pass2_ok_split = chop_ok_split;
 }
 
