@@ -27,16 +27,6 @@
 #include <vector>
 #include "pageres.h"
 
-#ifdef _WIN32
-#include <windows.h>
-using namespace std;
-#endif
-
-#ifdef USE_STD_NAMESPACE
-using std::string;
-using std::vector;
-#endif
-
 namespace tesseract {
 
 class CubeObject;
@@ -72,15 +62,15 @@ class TesseractCubeCombiner {
   // output parameter will be true if both answers are identical,
   // false otherwise. Modifies the cube_alt_list, so no assumptions
   // should be made about its state upon return.
-  bool ComputeCombinerFeatures(const string &tess_res,
+  bool ComputeCombinerFeatures(const std::string &tess_res,
                                int tess_confidence,
                                CubeObject *cube_obj,
                                WordAltList *cube_alt_list,
-                               vector<double> *features,
+                               std::vector<double> *features,
                                bool *agreement);
 
   // Is the word valid according to Tesseract's language model
-  bool ValidWord(const string &str);
+  bool ValidWord(const std::string &str);
 
   // Loads the combiner neural network from file, using cube_cntxt_
   // to find path.
@@ -88,11 +78,11 @@ class TesseractCubeCombiner {
  private:
   // Normalize a UTF-8 string. Converts the UTF-8 string to UTF32 and optionally
   // strips punc and/or normalizes case and then converts back
-  string NormalizeString(const string &str, bool remove_punc, bool norm_case);
+    std::string NormalizeString(const std::string &str, bool remove_punc, bool norm_case);
 
   // Compares 2 strings after optionally normalizing them and or stripping
   // punctuation
-  int CompareStrings(const string &str1, const string &str2, bool ignore_punc,
+  int CompareStrings(const std::string &str1, const std::string &str2, bool ignore_punc,
                      bool norm_case);
 
   NeuralNet *combiner_net_;  // pointer to the combiner NeuralNet object
