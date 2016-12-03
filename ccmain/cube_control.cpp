@@ -182,10 +182,8 @@ bool Tesseract::init_cube_objects(bool load_combiner,
     if (!tess_cube_combiner_->LoadCombinerNet()) {
       delete cube_cntxt_;
       cube_cntxt_ = NULL;
-      if (tess_cube_combiner_ != NULL) {
-        delete tess_cube_combiner_;
-        tess_cube_combiner_ = NULL;
-      }
+      delete tess_cube_combiner_;
+      tess_cube_combiner_ = NULL;
       if (cube_debug_level > 0)
         tprintf("Cube ERROR (Failed to instantiate TesseractCubeCombiner\n");
       return false;
