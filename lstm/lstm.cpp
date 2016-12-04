@@ -18,7 +18,7 @@
 
 #include "lstm.h"
 
-#ifndef ANDROID_BUILD
+#ifdef _OPENMP
 #include <omp.h>
 #endif
 #include <stdio.h>

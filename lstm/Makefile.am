@@ -4,7 +4,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/dict -I$(top_srcdir)/lstm
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS =
-AM_CXXFLAGS = -fopenmp
+AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 if !NO_TESSDATA_PREFIX
 AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@/

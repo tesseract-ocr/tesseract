@@ -88,9 +88,7 @@ tesseract_LDADD = libtesseract.la
 
 tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
-if OPENMP
 tesseract_LDADD += $(OPENMP_CFLAGS)
-endif
 
 if T_WIN
 tesseract_LDADD += -lws2_32
@@ -99,4 +97,3 @@ endif
 if ADD_RT
 tesseract_LDADD += -lrt
 endif
-

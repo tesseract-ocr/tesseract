@@ -18,7 +18,9 @@
 
 #include "parallel.h"
 
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 #include "functions.h"  // For conditional undef of _OPENMP.
 #include "networkscratch.h"

@@ -8,6 +8,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/textord -I$(top_srcdir)/opencl
 
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
+AM_CPPFLAGS += $(OPENMP_CXXFLAGS)
 
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
