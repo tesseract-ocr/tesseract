@@ -81,12 +81,4 @@
     #endif
 #endif
 
-#if defined(_WIN32) || defined(__CYGWIN__)
-    #define _TESS_FILE_BASENAME_                                            \
-      (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#else   // Unices
-    #define _TESS_FILE_BASENAME_                                            \
-      (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#endif
-
 #endif  // TESSERACT_CCUTIL_PLATFORM_H_
