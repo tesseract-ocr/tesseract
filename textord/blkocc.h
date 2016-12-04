@@ -53,7 +53,7 @@ class REGION_OCC:public ELIST_LINK
     inT16 region_type;           //Type of crossing
 
     REGION_OCC() {
-    };                           //constructor used
+    }                            //constructor used
     //only in COPIER etc
     REGION_OCC(  //constructor
                float min,
