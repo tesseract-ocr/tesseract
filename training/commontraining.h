@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TESSERACT_TRAINING_COMMONTRAINING_H__
-#define TESSERACT_TRAINING_COMMONTRAINING_H__
+#ifndef TESSERACT_TRAINING_COMMONTRAINING_H_
+#define TESSERACT_TRAINING_COMMONTRAINING_H_
 
 #include "cluster.h"
 #include "commandlineflags.h"
@@ -167,4 +167,4 @@ int NumberOfProtos(
 
 
 void allocNormProtos();
-#endif  // TESSERACT_TRAINING_COMMONTRAINING_H__
+#endif  // TESSERACT_TRAINING_COMMONTRAINING_H_

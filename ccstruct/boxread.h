@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef TESSERACT_CCUTIL_BOXREAD_H__
-#define TESSERACT_CCUTIL_BOXREAD_H__
+#ifndef TESSERACT_CCUTIL_BOXREAD_H_
+#define TESSERACT_CCUTIL_BOXREAD_H_
 
 #include <stdio.h>
 #include "genericvector.h"
@@ -82,4 +82,4 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
 void MakeBoxFileStr(const char* unichar_str, const TBOX& box, int page_num,
                     STRING* box_str);
 
-#endif  // TESSERACT_CCUTIL_BOXREAD_H__
+#endif  // TESSERACT_CCUTIL_BOXREAD_H_

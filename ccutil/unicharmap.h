@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_UNICHARMAP_H__
-#define TESSERACT_CCUTIL_UNICHARMAP_H__
+#ifndef TESSERACT_CCUTIL_UNICHARMAP_H_
+#define TESSERACT_CCUTIL_UNICHARMAP_H_
 
 #include "unichar.h"
 
@@ -79,4 +79,4 @@ class UNICHARMAP {
   UNICHARMAP_NODE* nodes;
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHARMAP_H__
+#endif  // TESSERACT_CCUTIL_UNICHARMAP_H_

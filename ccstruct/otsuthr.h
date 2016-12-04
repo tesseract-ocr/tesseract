@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_OTSUTHR_H__
-#define TESSERACT_CCMAIN_OTSUTHR_H__
+#ifndef TESSERACT_CCMAIN_OTSUTHR_H_
+#define TESSERACT_CCMAIN_OTSUTHR_H_
 
 struct Pix;
 
@@ -53,4 +53,4 @@ int OtsuStats(const int* histogram, int* H_out, int* omega0_out);
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_OTSUTHR_H__
+#endif  // TESSERACT_CCMAIN_OTSUTHR_H_

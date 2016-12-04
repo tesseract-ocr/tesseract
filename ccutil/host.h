@@ -42,8 +42,8 @@
  ** limitations under the License.
  */
 
-#ifndef   __HOST__
-#define   __HOST__
+#ifndef TESSERACT_CCUTIL_HOST_H_
+#define TESSERACT_CCUTIL_HOST_H_
 
 /******************************************************************************
  **                                IMPORTANT!!!                                                                                                                 **
@@ -146,4 +146,4 @@ template<class T> bool NearlyEqual(T x, T y, T tolerance) {
   return diff <= tolerance && -diff <= tolerance;
 }
 
-#endif
+#endif // TESSERACT_CCUTIL_HOST_H_

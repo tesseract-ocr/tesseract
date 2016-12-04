@@ -19,8 +19,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_RESULT_ITERATOR_H__
-#define TESSERACT_CCMAIN_RESULT_ITERATOR_H__
+#ifndef TESSERACT_CCMAIN_RESULT_ITERATOR_H_
+#define TESSERACT_CCMAIN_RESULT_ITERATOR_H_
 
 #include "platform.h"
 #include "ltrresultiterator.h"
@@ -241,4 +241,4 @@ class TESS_API ResultIterator : public LTRResultIterator {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_RESULT_ITERATOR_H__
+#endif  // TESSERACT_CCMAIN_RESULT_ITERATOR_H_

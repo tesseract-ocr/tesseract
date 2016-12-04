@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_UNICHAR_H__
-#define TESSERACT_CCUTIL_UNICHAR_H__
+#ifndef TESSERACT_CCUTIL_UNICHAR_H_
+#define TESSERACT_CCUTIL_UNICHAR_H_
 
 #include <memory.h>
 #include <string.h>
@@ -162,4 +162,4 @@ class UNICHAR {
   char chars[UNICHAR_LEN];
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHAR_H__
+#endif  // TESSERACT_CCUTIL_UNICHAR_H_

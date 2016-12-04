@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_COLFIND_H__
-#define TESSERACT_TEXTORD_COLFIND_H__
+#ifndef TESSERACT_TEXTORD_COLFIND_H_
+#define TESSERACT_TEXTORD_COLFIND_H_
 
 #include "tabfind.h"
 #include "imagefind.h"
@@ -365,4 +365,4 @@ class ColumnFinder : public TabFind {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLFIND_H__
+#endif  // TESSERACT_TEXTORD_COLFIND_H_

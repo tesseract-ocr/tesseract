@@ -13,8 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TRAINING_TRAININGSAMPLESET_H__
-#define TESSERACT_TRAINING_TRAININGSAMPLESET_H__
+#ifndef TESSERACT_TRAINING_TRAININGSAMPLESET_H_
+#define TESSERACT_TRAINING_TRAININGSAMPLESET_H_
 
 #include "bitvector.h"
 #include "genericvector.h"

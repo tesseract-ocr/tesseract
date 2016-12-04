@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CLASSIFY_CLASSIFY_H__
-#define TESSERACT_CLASSIFY_CLASSIFY_H__
+#ifndef TESSERACT_CLASSIFY_CLASSIFY_H_
+#define TESSERACT_CLASSIFY_CLASSIFY_H_
 
 #include "adaptive.h"
 #include "ccstruct.h"
@@ -539,4 +539,4 @@ class Classify : public CCStruct {
 };
 }  // namespace tesseract
 
-#endif  // TESSERACT_CLASSIFY_CLASSIFY_H__
+#endif  // TESSERACT_CLASSIFY_CLASSIFY_H_

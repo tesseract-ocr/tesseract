@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_TABVECTOR_H__
-#define TESSERACT_TEXTORD_TABVECTOR_H__
+#ifndef TESSERACT_TEXTORD_TABVECTOR_H_
+#define TESSERACT_TEXTORD_TABVECTOR_H_
 
 #include "blobgrid.h"
 #include "clst.h"
@@ -427,4 +427,4 @@ class TabVector : public ELIST2_LINK {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TABVECTOR_H__
+#endif  // TESSERACT_TEXTORD_TABVECTOR_H_

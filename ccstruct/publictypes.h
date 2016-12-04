@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCSTRUCT_PUBLICTYPES_H__
-#define TESSERACT_CCSTRUCT_PUBLICTYPES_H__
+#ifndef TESSERACT_CCSTRUCT_PUBLICTYPES_H_
+#define TESSERACT_CCSTRUCT_PUBLICTYPES_H_
 
 // This file contains types that are used both by the API and internally
 // to Tesseract. In order to decouple the API from Tesseract and prevent cyclic
@@ -276,4 +276,4 @@ enum OcrEngineMode {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCSTRUCT_PUBLICTYPES_H__
+#endif  // TESSERACT_CCSTRUCT_PUBLICTYPES_H_

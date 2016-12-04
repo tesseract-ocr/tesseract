@@ -29,8 +29,8 @@
 // API calls at all and generate a java user interface from scratch (or
 // basically generate any kind of java program, possibly even dangerous ones).
 
-#ifndef TESSERACT_VIEWER_SCROLLVIEW_H__
-#define TESSERACT_VIEWER_SCROLLVIEW_H__
+#ifndef TESSERACT_VIEWER_SCROLLVIEW_H_
+#define TESSERACT_VIEWER_SCROLLVIEW_H_
 // TODO(rays) Move ScrollView into the tesseract namespace.
 #ifndef OCR_SCROLLVIEW_H__
 
@@ -415,4 +415,4 @@ class ScrollView {
 };
 
 #endif  // OCR_SCROLLVIEW_H__
-#endif  // TESSERACT_VIEWER_SCROLLVIEW_H__
+#endif  // TESSERACT_VIEWER_SCROLLVIEW_H_

@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef TESSERACT_CCUTIL_UNICODES_H__
-#define TESSERACT_CCUTIL_UNICODES_H__
+#ifndef TESSERACT_CCUTIL_UNICODES_H_
+#define TESSERACT_CCUTIL_UNICODES_H_
 
 namespace tesseract {
 
@@ -36,4 +36,4 @@ extern const char *kApostropheLikeUTF8[];
 
 }  // namespace
 
-#endif  // TESSERACT_CCUTIL_UNICODES_H__
+#endif  // TESSERACT_CCUTIL_UNICODES_H_

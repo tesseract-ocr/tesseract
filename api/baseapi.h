@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_API_BASEAPI_H__
-#define TESSERACT_API_BASEAPI_H__
+#ifndef TESSERACT_API_BASEAPI_H_
+#define TESSERACT_API_BASEAPI_H_
 
 #define TESSERACT_VERSION_STR "4.00.00alpha"
 #define TESSERACT_VERSION 0x040000
@@ -909,4 +909,4 @@ class TESS_API TessBaseAPI {
 STRING HOcrEscape(const char* text);
 }  // namespace tesseract.
 
-#endif  // TESSERACT_API_BASEAPI_H__
+#endif  // TESSERACT_API_BASEAPI_H_

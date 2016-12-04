@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_IMAGEFIND_H__
-#define TESSERACT_TEXTORD_IMAGEFIND_H__
+#ifndef TESSERACT_TEXTORD_IMAGEFIND_H_
+#define TESSERACT_TEXTORD_IMAGEFIND_H_
 
 #include "host.h"
 
@@ -155,5 +155,5 @@ class ImageFind {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_LINEFIND_H__
+#endif  // TESSERACT_TEXTORD_LINEFIND_H_
 

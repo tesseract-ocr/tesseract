@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_THRESHOLDER_H__
-#define TESSERACT_CCMAIN_THRESHOLDER_H__
+#ifndef TESSERACT_CCMAIN_THRESHOLDER_H_
+#define TESSERACT_CCMAIN_THRESHOLDER_H_
 
 #include "platform.h"
 #include "publictypes.h"
@@ -186,4 +186,4 @@ class TESS_API ImageThresholder {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_THRESHOLDER_H__
+#endif  // TESSERACT_CCMAIN_THRESHOLDER_H_

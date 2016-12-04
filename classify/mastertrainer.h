@@ -19,8 +19,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TRAINING_MASTERTRAINER_H__
-#define TESSERACT_TRAINING_MASTERTRAINER_H__
+#ifndef TESSERACT_TRAINING_MASTERTRAINER_H_
+#define TESSERACT_TRAINING_MASTERTRAINER_H_
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
@@ -309,4 +309,4 @@ class MasterTrainer {
 
 }  // namespace tesseract.
 
-#endif
+#endif // TESSERACT_TRAINING_MASTERTRAINER_H_

@@ -23,8 +23,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_TESSERACTCLASS_H__
-#define TESSERACT_CCMAIN_TESSERACTCLASS_H__
+#ifndef TESSERACT_CCMAIN_TESSERACTCLASS_H_
+#define TESSERACT_CCMAIN_TESSERACTCLASS_H_
 
 #include "allheaders.h"
 #include "control.h"
@@ -1277,4 +1277,4 @@ class Tesseract : public Wordrec {
 }  // namespace tesseract
 
 
-#endif  // TESSERACT_CCMAIN_TESSERACTCLASS_H__
+#endif  // TESSERACT_CCMAIN_TESSERACTCLASS_H_

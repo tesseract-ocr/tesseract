@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_UNICHARSET_H__
-#define TESSERACT_CCUTIL_UNICHARSET_H__
+#ifndef TESSERACT_CCUTIL_UNICHARSET_H_
+#define TESSERACT_CCUTIL_UNICHARSET_H_
 
 #include "errcode.h"
 #include "genericvector.h"
@@ -997,4 +997,4 @@ class UNICHARSET {
   int default_sid_;
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHARSET_H__
+#endif  // TESSERACT_CCUTIL_UNICHARSET_H_

@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_EQUATIONDETECT_H__
-#define TESSERACT_CCMAIN_EQUATIONDETECT_H__
+#ifndef TESSERACT_CCMAIN_EQUATIONDETECT_H_
+#define TESSERACT_CCMAIN_EQUATIONDETECT_H_
 
 #include "blobbox.h"
 #include "equationdetectbase.h"
