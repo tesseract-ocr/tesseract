@@ -7,10 +7,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifdef USE_OPENCL
+
 #ifndef DEVICE_SELECTION_H
 #define DEVICE_SELECTION_H
 
+#ifdef USE_OPENCL
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -580,5 +581,5 @@ cleanup:
   return status;
 }
 
-#endif
-#endif
+#endif // USE_OPENCL
+#endif // DEVICE_SELECTION_H

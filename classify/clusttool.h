@@ -15,8 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   __CLUSTERTOOL__
-#define   __CLUSTERTOOL__
+
+#ifndef TESSERACT_CLASSIFY_CLUSTTOOL_H_
+#define TESSERACT_CLASSIFY_CLUSTTOOL_H_
 
 //--------------------------Include Files---------------------------------------
 #include "host.h"
@@ -61,4 +62,4 @@ void WriteProtoList(FILE *File, uinT16 N, PARAM_DESC ParamDesc[],
 #define ILLEGALDISTRIBUTION 5008
 #define ILLEGALFLOAT  5009
 #define ILLEGALESSENTIALSPEC  5013
-#endif
+#endif // TESSERACT_CLASSIFY_CLUSTTOOL_H_
