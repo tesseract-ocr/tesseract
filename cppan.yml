@@ -3,6 +3,7 @@ local_settings:
     use_shared_libs: true
 
 type: library
+c++: 11
 
 files:
   - api/.*\.cpp
