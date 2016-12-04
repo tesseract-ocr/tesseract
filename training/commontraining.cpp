@@ -40,7 +40,6 @@
 
 using tesseract::CCUtil;
 using tesseract::IntFeatureSpace;
-using tesseract::FontInfo;
 using tesseract::ParamUtils;
 using tesseract::ShapeTable;
 
@@ -453,6 +452,7 @@ void FreeTrainingSamples(LIST CharList) {
   FEATURE_SET FeatureSet;
   LIST FeatureList;
 
+  LIST nodes = CharList;
   iterate(CharList) { /* iterate through all of the fonts */
     char_sample = (LABELEDLIST) first_node(CharList);
     FeatureList = char_sample->List;
@@ -462,7 +462,7 @@ void FreeTrainingSamples(LIST CharList) {
     }
     FreeLabeledList(char_sample);
   }
-  destroy(CharList);
+  destroy(nodes);
 }  /* FreeTrainingSamples */
 
 /*---------------------------------------------------------------------------*/
@@ -728,6 +728,7 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
 void FreeLabeledClassList(LIST ClassList) {
   MERGE_CLASS MergeClass;
 
+  LIST nodes = ClassList;
   iterate(ClassList) /* iterate through all of the fonts */
   {
     MergeClass = (MERGE_CLASS) first_node (ClassList);
@@ -735,7 +736,7 @@ void FreeLabeledClassList(LIST ClassList) {
     FreeClass(MergeClass->Class);
     delete MergeClass;
   }
-  destroy(ClassList);
+  destroy(nodes);
 
 } /* FreeLabeledClassList */
 
@@ -825,12 +826,13 @@ void FreeNormProtoList(LIST CharList)
 {
   LABELEDLIST char_sample;
 
+  LIST nodes = CharList;
   iterate(CharList) /* iterate through all of the fonts */
   {
     char_sample = (LABELEDLIST) first_node (CharList);
     FreeLabeledList (char_sample);
   }
-  destroy(CharList);
+  destroy(nodes);
 
 }  // FreeNormProtoList
 

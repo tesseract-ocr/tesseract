@@ -347,6 +347,11 @@ void StringRenderer::ClearBoxes() {
   boxaDestroy(&page_boxes_);
 }
 
+string StringRenderer::GetBoxesStr() {
+  BoxChar::PrepareToWrite(&boxchars_);
+  return BoxChar::GetTesseractBoxStr(page_height_, boxchars_);
+}
+
 void StringRenderer::WriteAllBoxes(const string& filename) {
   BoxChar::PrepareToWrite(&boxchars_);
   BoxChar::WriteTesseractBoxFile(filename, page_height_, boxchars_);
@@ -395,7 +400,7 @@ bool StringRenderer::GetClusterStrings(vector<string>* cluster_text) {
        it != start_byte_to_text.end(); ++it) {
     cluster_text->push_back(it->second);
   }
-  return cluster_text->size();
+  return !cluster_text->empty();
 }
 
 // Merges an array of BoxChars into words based on the identification of
@@ -495,7 +500,7 @@ void StringRenderer::ComputeClusterBoxes() {
     const int end_byte_index = cluster_start_to_end_index[start_byte_index];
     string cluster_text = string(text + start_byte_index,
                                  end_byte_index - start_byte_index);
-    if (cluster_text.size() && cluster_text[0] == '\n') {
+    if (!cluster_text.empty() && cluster_text[0] == '\n') {
       tlog(2, "Skipping newlines at start of text.\n");
       continue;
     }
@@ -595,11 +600,12 @@ void StringRenderer::ComputeClusterBoxes() {
       all_boxes = boxaCreate(0);
     boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
   }
-  boxaGetExtent(all_boxes, NULL, NULL, &page_box);
-  boxaDestroy(&all_boxes);
-  if (page_boxes_ == NULL)
-    page_boxes_ = boxaCreate(0);
-  boxaAddBox(page_boxes_, page_box, L_INSERT);
+  if (all_boxes != NULL) {
+    boxaGetExtent(all_boxes, NULL, NULL, &page_box);
+    boxaDestroy(&all_boxes);
+    if (page_boxes_ == NULL) page_boxes_ = boxaCreate(0);
+    boxaAddBox(page_boxes_, page_box, L_INSERT);
+  }
 }
 
 

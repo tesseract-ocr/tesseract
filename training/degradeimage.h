@@ -20,11 +20,12 @@
 #ifndef TESSERACT_TRAINING_DEGRADEIMAGE_H_
 #define TESSERACT_TRAINING_DEGRADEIMAGE_H_
 
-struct Pix;
+#include "allheaders.h"
+#include "genericvector.h"
+#include "helpers.h"  // For TRand.
+#include "rect.h"
 
 namespace tesseract {
-
-class TRand;
 
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
@@ -33,6 +34,27 @@ class TRand;
 // The input image is destroyed and a different image returned.
 struct Pix* DegradeImage(struct Pix* input, int exposure, TRand* randomizer,
                          float* rotation);
+
+// Creates and returns a Pix distorted by various means according to the bool
+// flags. If boxes is not NULL, the boxes are resized/positioned according to
+// any spatial distortion and also by the integer reduction factor box_scale
+// so they will match what the network will output.
+// Returns NULL on error. The returned Pix must be pixDestroyed.
+Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
+                         bool white_noise, bool smooth_noise, bool blur,
+                         int box_reduction, TRand* randomizer,
+                         GenericVector<TBOX>* boxes);
+// Distorts anything that has a non-null pointer with the same pseudo-random
+// perspective distortion. Width and height only need to be set if there
+// is no pix. If there is a pix, then they will be taken from there.
+void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
+                                   Pix** pix, GenericVector<TBOX>* boxes);
+// Computes the coefficients of a randomized projective transformation.
+// The image transform requires backward transformation coefficient, and the
+// box transform the forward coefficients.
+// Returns the incolor arg to pixProjective.
+int ProjectiveCoeffs(int width, int height, TRand* randomizer,
+                     float** im_coeffs, float** box_coeffs);
 
 }  // namespace tesseract
 

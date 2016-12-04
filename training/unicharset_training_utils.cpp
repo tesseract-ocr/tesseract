@@ -37,7 +37,8 @@ namespace tesseract {
 
 // Helper sets the character attribute properties and sets up the script table.
 // Does not set tops and bottoms.
-void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
+void SetupBasicProperties(bool report_errors, bool decompose,
+                          UNICHARSET* unicharset) {
   for (int unichar_id = 0; unichar_id < unicharset->size(); ++unichar_id) {
     // Convert any custom ligatures.
     const char* unichar_str = unicharset->id_to_unichar(unichar_id);
@@ -129,7 +130,7 @@ void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
     }
 
     // Record normalized version of this unichar.
-    STRING normed_str = tesseract::NormalizeUTF8String(unichar_str);
+    STRING normed_str = tesseract::NormalizeUTF8String(decompose, unichar_str);
     if (unichar_id != 0 && normed_str.length() > 0) {
       unicharset->set_normed(unichar_id, normed_str.c_str());
     } else {
@@ -158,7 +159,7 @@ void SetPropertiesForInputFile(const string& script_dir,
 
   // Set unichar properties
   tprintf("Setting unichar properties\n");
-  SetupBasicProperties(true, &unicharset);
+  SetupBasicProperties(true, false, &unicharset);
   string xheights_str;
   for (int s = 0; s < unicharset.get_script_table_size(); ++s) {
     // Load the unicharset for the script if available.

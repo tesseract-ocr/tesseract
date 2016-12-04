@@ -100,6 +100,9 @@ class BoxChar {
   // is needed to convert to tesseract coordinates.
   static void WriteTesseractBoxFile(const string& name, int height,
                                     const vector<BoxChar*>& boxes);
+  // Gets the tesseract box file as a string from the vector of boxes.
+  // The image height is needed to convert to tesseract coordinates.
+  static string GetTesseractBoxStr(int height, const vector<BoxChar*>& boxes);
 
  private:
   string ch_;
