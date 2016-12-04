@@ -766,7 +766,7 @@ PERF_COUNT_START("pixReadFromTiffKernel")
 
     l_uint32 *pResult = (l_uint32 *)malloc(w*h * sizeof(l_uint32));
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "composeRGBPixel", &clStatus );
-    CHECK_OPENCL( clStatus, "clCreateKernel");
+    CHECK_OPENCL( clStatus, "clCreateKernel composeRGBPixel");
 
     //Allocate input and output OCL buffers
     valuesCl = allocateZeroCopyBuffer(rEnv, tiffdata, w*h, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, &clStatus);
@@ -1390,6 +1390,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_HMORY;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor_5x5", &status );
+    CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_5x5");
 
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -1432,6 +1433,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_Y;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer_5x5", &status );
+    CHECK_OPENCL(status, "clCreateKernel morphoDilateVer_5x5");
 
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -1484,6 +1486,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_HMORY;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeHor_5x5", &status );
+    CHECK_OPENCL(status, "clCreateKernel morphoErodeHor_5x5");
 
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -1526,6 +1529,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
     localThreads[1] = GROUPSIZE_Y;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeVer_5x5", &status );
+    CHECK_OPENCL(status, "clCreateKernel morphoErodeVer_5x5");
 
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -1603,6 +1607,7 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
       // Generic case.
       rEnv.mpkKernel =
           clCreateKernel(rEnv.mpkProgram, "morphoDilateHor", &status);
+      CHECK_OPENCL(status, "clCreateKernel morphoDilateHor");
 
       status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
       status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
@@ -1626,6 +1631,7 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
       // Specific Horizontal pass kernel for half width < 32
       rEnv.mpkKernel =
           clCreateKernel(rEnv.mpkProgram, "morphoDilateHor_32word", &status);
+      CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_32word");
       isEven = (xp != xn);
 
       status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
@@ -1644,12 +1650,13 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
         pixtemp = pixsCLBuffer;
         pixsCLBuffer = pixdCLBuffer;
         pixdCLBuffer = pixtemp;
-        }
+      }
     }
 
     if (yp > 0 || yn > 0)
     {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer", &status );
+        CHECK_OPENCL(status, "clCreateKernel morphoDilateVer");
 
         status = clSetKernelArg(rEnv.mpkKernel,
             0,
@@ -1781,6 +1788,7 @@ cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h) {
   // Vertical Pass
   if (yp > 0 || yn > 0) {
     rEnv.mpkKernel = clCreateKernel(rEnv.mpkProgram, "morphoErodeVer", &status);
+    CHECK_OPENCL(status, "clCreateKernel morphoErodeVer");
 
     status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
     status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
@@ -1926,6 +1934,7 @@ pixORCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem ou
     globalThreads[1] = gsize;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixOR", &status );
+    CHECK_OPENCL(status, "clCreateKernel pixOR");
 
     status = clSetKernelArg(rEnv.mpkKernel,
         0,
@@ -1975,6 +1984,7 @@ pixANDCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem o
     globalThreads[1] = gsize;
 
     rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixAND", &status );
+    CHECK_OPENCL(status, "clCreateKernel pixAND");
 
     // Enqueue a kernel run call.
     status = clSetKernelArg(rEnv.mpkKernel,
@@ -2027,10 +2037,12 @@ pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_
     if (outBuffer != nullptr)
     {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixSubtract", &status );
+        CHECK_OPENCL(status, "clCreateKernel pixSubtract");
     }
     else
     {
         rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixSubtract_inplace", &status );
+        CHECK_OPENCL(status, "clCreateKernel pixSubtract_inplace");
     }
 
     // Enqueue a kernel run call.
