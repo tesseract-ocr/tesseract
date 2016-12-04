@@ -80,7 +80,7 @@ class BeamSearch {
   // best-cost path before the alternates list is sorted.
   inline int BestPresortedNodeIndex() const {
     return best_presorted_node_idx_;
-  };
+  }
 
  private:
   // Maximum reasonable segmentation point count

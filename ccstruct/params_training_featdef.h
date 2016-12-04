@@ -126,7 +126,7 @@ typedef GenericVector<ParamsTrainingHypothesis> ParamsTrainingHypothesisList;
 // explored on PASS1, PASS2, fix xheight pass, etc).
 class ParamsTrainingBundle {
  public:
-  ParamsTrainingBundle() {};
+  ParamsTrainingBundle() {}
   // Starts a new hypothesis list.
   // Should be called at the beginning of a new run of the segmentation search.
   void StartHypothesisList() {

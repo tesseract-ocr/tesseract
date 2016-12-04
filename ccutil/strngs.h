@@ -149,11 +149,11 @@ class TESS_API STRING
     // returns the string data part of storage
     inline char* GetCStr() {
       return ((char *)data_) + sizeof(STRING_HEADER);
-    };
+    }
 
     inline const char* GetCStr() const {
       return ((const char *)data_) + sizeof(STRING_HEADER);
-    };
+    }
     inline bool InvariantOk() const {
 #if STRING_IS_PROTECTED
       return (GetHeader()->used_ == 0) ?
