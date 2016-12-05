@@ -508,6 +508,20 @@ class WERD_CHOICE : public ELIST_LINK {
     }
     return word_str;
   }
+  // Returns true if any unichar_id in the word is a non-space-delimited char.
+  bool ContainsAnyNonSpaceDelimited() const {
+    for (int i = 0; i < length_; ++i) {
+      if (!unicharset_->IsSpaceDelimited(unichar_ids_[i])) return true;
+    }
+    return false;
+  }
+  // Returns true if the word is all spaces.
+  bool IsAllSpaces() const {
+    for (int i = 0; i < length_; ++i) {
+      if (unichar_ids_[i] != UNICHAR_SPACE) return false;
+    }
+    return true;
+  }
 
   // Call this to override the default (strict left to right graphemes)
   // with the fact that some engine produces a "reading order" set of

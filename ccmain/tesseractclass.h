@@ -210,6 +210,9 @@ class Tesseract : public Wordrec {
   void set_pix_original(Pix* original_pix) {
     pixDestroy(&pix_original_);
     pix_original_ = original_pix;
+    // Clone to sublangs as well.
+    for (int i = 0; i < sub_langs_.size(); ++i)
+      sub_langs_[i]->set_pix_original(pixClone(original_pix));
   }
   // Returns a pointer to a Pix representing the best available (original) image
   // of the page. Can be of any bit depth, but never color-mapped, as that has
@@ -261,20 +264,19 @@ class Tesseract : public Wordrec {
   Tesseract* get_sub_lang(int index) const {
     return sub_langs_[index];
   }
-  // Returns true if any language uses Tesseract (as opposed to cube).
+  // Returns true if any language uses Tesseract (as opposed to LSTM).
   bool AnyTessLang() const {
-    if (tessedit_ocr_engine_mode != OEM_CUBE_ONLY) return true;
+    if (tessedit_ocr_engine_mode != OEM_LSTM_ONLY) return true;
     for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_CUBE_ONLY)
-        return true;
+      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_LSTM_ONLY) return true;
     }
     return false;
   }
   // Returns true if any language uses the LSTM.
   bool AnyLSTMLang() const {
-    if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) return true;
+    if (tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY) return true;
     for (int i = 0; i < sub_langs_.size(); ++i) {
-      if (sub_langs_[i]->tessedit_ocr_engine_mode == OEM_LSTM_ONLY)
+      if (sub_langs_[i]->tessedit_ocr_engine_mode != OEM_TESSERACT_ONLY)
         return true;
     }
     return false;
@@ -340,8 +342,6 @@ class Tesseract : public Wordrec {
   // is also returned to enable calculation of output bounding boxes.
   ImageData* GetRectImage(const TBOX& box, const BLOCK& block, int padding,
                           TBOX* revised_box) const;
-  // Top-level function recognizes a single raw line.
-  void RecogRawLine(PAGE_RES* page_res);
   // Recognizes a word or group of words, converting to WERD_RES in *words.
   // Analogous to classify_word_pass1, but can handle a group of words as well.
   void LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
@@ -850,8 +850,8 @@ class Tesseract : public Wordrec {
             " 5=line, 6=word, 7=char"
             " (Values from PageSegMode enum in publictypes.h)");
   INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_TESSERACT_ONLY,
-            "Which OCR engine(s) to run (Tesseract, Cube, both). Defaults"
-            " to loading and running only Tesseract (no Cube, no combiner)."
+            "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
+            " to loading and running only Tesseract (no LSTM, no combiner)."
             " (Values from OcrEngineMode enum in tesseractclass.h)");
   STRING_VAR_H(tessedit_char_blacklist, "",
                "Blacklist of chars not to recognize");

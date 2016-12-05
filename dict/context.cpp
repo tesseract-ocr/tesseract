@@ -49,7 +49,7 @@ const int case_state_table[6][4] = {
      5, -1, 2, -1},
 };
 
-int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) {
+int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) const {
   int state = 0;
   int x;
   for (x = 0; x < word.length(); ++x) {

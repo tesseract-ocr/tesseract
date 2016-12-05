@@ -161,7 +161,7 @@ bool Tesseract::init_tesseract_lang_data(
   // Determine which ocr engine(s) should be loaded and used for recognition.
   if (oem != OEM_DEFAULT) tessedit_ocr_engine_mode.set_value(oem);
   if (tessdata_manager_debug_level) {
-    tprintf("Loading Tesseract/Cube with tessedit_ocr_engine_mode %d\n",
+    tprintf("Loading Tesseract/LSTM with tessedit_ocr_engine_mode %d\n",
             static_cast<int>(tessedit_ocr_engine_mode));
   }
 
@@ -174,9 +174,37 @@ bool Tesseract::init_tesseract_lang_data(
     return true;
   }
 
+// The various OcrEngineMode settings (see publictypes.h) determine which
+// engine-specific data files need to be loaded. Currently everything needs
+// the base tesseract data, which supplies other useful information, but
+// alternative engines, such as LSTM are optional.
+#ifndef ANDROID_BUILD
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
+      tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
+    if (tessdata_manager.swap()) {
+      tprintf("Error: LSTM requested on big-endian hardware!!\n");
+      tprintf("Big-endian not yet supported! Loading tesseract.\n");
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+    } else if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
+      lstm_recognizer_ = new LSTMRecognizer;
+      TFile fp;
+      fp.Open(tessdata_manager.GetDataFilePtr(), -1);
+      ASSERT_HOST(lstm_recognizer_->DeSerialize(tessdata_manager.swap(), &fp));
+      if (lstm_use_matrix)
+        lstm_recognizer_->LoadDictionary(tessdata_path.string(), language);
+    } else {
+      tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+    }
+  }
+#endif
+
   // Load the unicharset
-  if (!tessdata_manager.SeekToStart(TESSDATA_UNICHARSET) ||
-      !unicharset.load_from_file(tessdata_manager.GetDataFilePtr())) {
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
+    // Avoid requiring a unicharset when we aren't running base tesseract.
+    unicharset.CopyFrom(lstm_recognizer_->GetUnicharset());
+  } else if (!tessdata_manager.SeekToStart(TESSDATA_UNICHARSET) ||
+             !unicharset.load_from_file(tessdata_manager.GetDataFilePtr())) {
     return false;
   }
   if (unicharset.size() > MAX_NUM_CLASSES) {
@@ -203,11 +231,6 @@ bool Tesseract::init_tesseract_lang_data(
         ambigs_debug_level, use_ambigs_for_adaption, &unicharset);
     if (tessdata_manager_debug_level) tprintf("Loaded ambigs\n");
   }
-
-  // The various OcrEngineMode settings (see publictypes.h) determine which
-  // engine-specific data files need to be loaded. Currently everything needs
-  // the base tesseract data, which supplies other useful information, but
-  // alternative engines, such as cube and LSTM are optional.
 #ifndef NO_CUBE_BUILD
   if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
     ASSERT_HOST(init_cube_objects(false, &tessdata_manager));
@@ -217,22 +240,6 @@ bool Tesseract::init_tesseract_lang_data(
     ASSERT_HOST(init_cube_objects(true, &tessdata_manager));
     if (tessdata_manager_debug_level)
       tprintf("Loaded Cube with combiner\n");
-  } else if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
-    if (tessdata_manager.swap()) {
-      tprintf("Error: LSTM requested on big-endian hardware!!\n");
-      tprintf("Big-endian not yet supported! Loading tesseract.\n");
-      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
-    } else if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
-      lstm_recognizer_ = new LSTMRecognizer;
-      TFile fp;
-      fp.Open(tessdata_manager.GetDataFilePtr(), -1);
-      ASSERT_HOST(lstm_recognizer_->DeSerialize(tessdata_manager.swap(), &fp));
-      if (lstm_use_matrix)
-        lstm_recognizer_->LoadDictionary(tessdata_path.string(), language);
-    } else {
-      tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
-      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
-    }
   }
 #endif
   // Init ParamsModel.
@@ -425,16 +432,16 @@ int Tesseract::init_tesseract_internal(
     tessdata_manager.End();
     return 0;
   }
-  // If only Cube will be used, skip loading Tesseract classifier's
-  // pre-trained templates.
-  bool init_tesseract_classifier =
-    tessedit_ocr_engine_mode != OEM_CUBE_ONLY;
-  // If only Cube will be used and if it has its own Unicharset,
-  // skip initializing permuter and loading Tesseract Dawgs.
-  bool init_dict =
-    !(tessedit_ocr_engine_mode == OEM_CUBE_ONLY &&
-      tessdata_manager.SeekToStart(TESSDATA_CUBE_UNICHARSET));
-  program_editup(textbase, init_tesseract_classifier, init_dict);
+  // If only LSTM will be used, skip loading Tesseract classifier's
+  // pre-trained templates and dictionary.
+  bool init_tesseract = tessedit_ocr_engine_mode != OEM_LSTM_ONLY &&
+                        tessedit_ocr_engine_mode != OEM_CUBE_ONLY;
+  bool init_dict = init_tesseract;
+  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY &&
+      !tessdata_manager.SeekToStart(TESSDATA_CUBE_UNICHARSET)) {
+    init_dict = true;
+  }
+  program_editup(textbase, init_tesseract, init_dict);
   tessdata_manager.End();
   return 0;                      //Normal exit
 }

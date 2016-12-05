@@ -255,8 +255,9 @@ enum ParagraphJustification {
 */
 enum OcrEngineMode {
   OEM_TESSERACT_ONLY,           // Run Tesseract only - fastest
-  OEM_CUBE_ONLY,                // Run Cube only - better accuracy, but slower
-  OEM_TESSERACT_CUBE_COMBINED,  // Run both and combine results - best accuracy
+  OEM_LSTM_ONLY,                // Run just the LSTM line recognizer.
+  OEM_TESSERACT_LSTM_COMBINED,  // Run the LSTM recognizer, but allow fallback
+                                // to Tesseract when things get difficult.
   OEM_DEFAULT,                  // Specify this mode when calling init_*(),
                                 // to indicate that any of the above modes
                                 // should be automatically inferred from the
@@ -264,14 +265,8 @@ enum OcrEngineMode {
                                 // command-line configs, or if not specified
                                 // in any of the above should be set to the
                                 // default OEM_TESSERACT_ONLY.
-  // OEM_LSTM_ONLY will fall back (with a warning) to OEM_TESSERACT_ONLY where
-  // there is no network model available. This allows use of a mix of languages,
-  // some of which contain a network model, and some of which do not. Since the
-  // tesseract model is required for the LSTM to fall back to for "difficult"
-  // words anyway, this seems like a reasonable approach, but leaves the danger
-  // of not noticing that it is using the wrong engine if the warning is
-  // ignored.
-  OEM_LSTM_ONLY,                // Run just the LSTM line recognizer.
+  OEM_CUBE_ONLY,                // Run Cube only - better accuracy, but slower
+  OEM_TESSERACT_CUBE_COMBINED,  // Run both and combine results - best accuracy
 };
 
 }  // namespace tesseract.

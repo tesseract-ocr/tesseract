@@ -21,6 +21,8 @@
 // the recognition results of Tesseract and Cube at the word level
 
 #include <algorithm>
+#include <string>
+#include <vector>
 #include <wctype.h>
 
 #include "tesseract_cube_combiner.h"
@@ -125,12 +127,10 @@ bool TesseractCubeCombiner::ValidWord(const string &str) {
 // Public method for computing the combiner features. The agreement
 // output parameter will be true if both answers are identical,
 // and false otherwise.
-bool TesseractCubeCombiner::ComputeCombinerFeatures(const string &tess_str,
-                                                    int tess_confidence,
-                                                    CubeObject *cube_obj,
-                                                    WordAltList *cube_alt_list,
-                                                    vector<double> *features,
-                                                    bool *agreement) {
+bool TesseractCubeCombiner::ComputeCombinerFeatures(
+    const string &tess_str, int tess_confidence, CubeObject *cube_obj,
+    WordAltList *cube_alt_list, std::vector<double> *features,
+    bool *agreement) {
   features->clear();
   *agreement = false;
   if (cube_alt_list == NULL || cube_alt_list->AltCount() <= 0)

@@ -81,9 +81,9 @@ Tesseract::Tesseract()
           " (Values from PageSegMode enum in publictypes.h)",
           this->params()),
       INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_TESSERACT_ONLY,
-                      "Which OCR engine(s) to run (Tesseract, Cube, both)."
+                      "Which OCR engine(s) to run (Tesseract, LSTM, both)."
                       " Defaults to loading and running only Tesseract"
-                      " (no Cube,no combiner)."
+                      " (no LSTM,no combiner)."
                       " Values from OcrEngineMode enum in tesseractclass.h)",
                       this->params()),
       STRING_MEMBER(tessedit_char_blacklist, "",

@@ -107,7 +107,7 @@ bool Dict::AcceptableChoice(const WERD_CHOICE& best_choice,
   }
 }
 
-bool Dict::AcceptableResult(WERD_RES* word) {
+bool Dict::AcceptableResult(WERD_RES *word) const {
   if (word->best_choice == NULL) return false;
   float CertaintyThreshold = stopper_nondict_certainty_base - reject_offset_;
   int WordSize;
@@ -448,7 +448,7 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
   }
 }
 
-int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) {
+int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
   int shortest = MAX_INT32;
   int curr_len = 0;
   for (int w = 0; w < WordChoice.length(); ++w) {

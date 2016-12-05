@@ -123,10 +123,9 @@ void PrintHelpForOEM() {
   const char* msg =
       "OCR Engine modes:\n"
       "  0    Original Tesseract only.\n"
-      "  1    Cube only.\n"
-      "  2    Tesseract + cube.\n"
-      "  3    Default, based on what is available.\n"
-      "  4    Neural nets (LSTM) only.\n";
+      "  1    Neural nets LSTM only.\n"
+      "  2    Tesseract + LSTM.\n"
+      "  3    Default, based on what is available.\n";
 
   printf("%s", msg);
 }

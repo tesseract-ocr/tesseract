@@ -219,19 +219,6 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
 }
 
 #ifndef ANDROID_BUILD
-// Top-level function recognizes a single raw line.
-void Tesseract::RecogRawLine(PAGE_RES* page_res) {
-  PAGE_RES_IT it(page_res);
-  PointerVector<WERD_RES> words;
-  LSTMRecognizeWord(*it.block()->block, it.row()->row, it.word(), &words);
-  if (getDict().stopper_debug_level >= 1) {
-    for (int w = 0; w < words.size(); ++w) {
-      words[w]->DebugWordChoices(true, NULL);
-    }
-  }
-  it.ReplaceCurrentWord(&words);
-}
-
 // Recognizes a word or group of words, converting to WERD_RES in *words.
 // Analogous to classify_word_pass1, but can handle a group of words as well.
 void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
@@ -268,7 +255,17 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
   // for each of the output words.
   // If we drop a word as junk, then there is always a space in front of the
   // next.
-  bool deleted_prev = false;
+  const Dict* stopper_dict = lstm_recognizer_->GetDict();
+  if (stopper_dict == nullptr) stopper_dict = &getDict();
+  bool any_nonspace_delimited = false;
+  for (int w = 0; w < words->size(); ++w) {
+    WERD_RES* word = (*words)[w];
+    if (word->best_choice != nullptr &&
+        word->best_choice->ContainsAnyNonSpaceDelimited()) {
+      any_nonspace_delimited = true;
+      break;
+    }
+  }
   for (int w = 0; w < words->size(); ++w) {
     WERD_RES* word = (*words)[w];
     if (word->best_choice == NULL) {
@@ -284,9 +281,7 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
     }
     if (word->best_choice == NULL) {
       // It is a dud.
-      words->remove(w);
-      --w;
-      deleted_prev = true;
+      word->SetupFake(lstm_recognizer_->GetUnicharset());
     } else {
       // Set the best state.
       for (int i = 0; i < word->best_choice->length(); ++i) {
@@ -314,22 +309,21 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
         word->best_choice->print();
       }
       // Discard words that are impossibly bad, but allow a bit more for
-      // dictionary words.
+      // dictionary words, and keep bad words in non-space-delimited langs.
       if (word_certainty >= RecodeBeamSearch::kMinCertainty ||
+          any_nonspace_delimited ||
           (word_certainty >= kWorstDictCertainty &&
            Dict::valid_word_permuter(word->best_choice->permuter(), true))) {
-        word->best_choice->set_certainty(word_certainty);
-        if (deleted_prev) word->word->set_blanks(1);
+        word->tess_accepted = stopper_dict->AcceptableResult(word);
       } else {
         if (getDict().stopper_debug_level >= 1) {
           tprintf("Deleting word with certainty %g\n", word_certainty);
           word->best_choice->print();
         }
         // It is a dud.
-        words->remove(w);
-        --w;
-        deleted_prev = true;
+        word->SetupFake(lstm_recognizer_->GetUnicharset());
       }
+      word->best_choice->set_certainty(word_certainty);
     }
   }
 }

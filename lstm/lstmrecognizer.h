@@ -141,6 +141,8 @@ class LSTMRecognizer {
   bool IsUsingAdaGrad() const { return network_->TestFlag(NF_ADA_GRAD); }
   // Provides access to the UNICHARSET that this classifier works with.
   const UNICHARSET& GetUnicharset() const { return ccutil_.unicharset; }
+  // Provides access to the Dict that this classifier works with.
+  const Dict* GetDict() const { return dict_; }
   // Sets the sample iteration to the given value. The sample_iteration_
   // determines the seed for the random number generator. The training
   // iteration is incremented only by a successful training iteration.

@@ -31,21 +31,22 @@
 #include <errno.h>
 #endif
 #include <ctype.h>
-#include "ocrclass.h"
-#include "werdit.h"
+#include "callcpp.h"
+#include "control.h"
+#include "docqual.h"
 #include "drawfx.h"
-#include "tessbox.h"
-#include "tessvars.h"
+#include "fixspace.h"
+#include "globals.h"
+#include "lstmrecognizer.h"
+#include "ocrclass.h"
+#include "output.h"
 #include "pgedit.h"
 #include "reject.h"
-#include "fixspace.h"
-#include "docqual.h"
-#include "control.h"
-#include "output.h"
-#include "callcpp.h"
-#include "globals.h"
 #include "sorthelper.h"
+#include "tessbox.h"
 #include "tesseractclass.h"
+#include "tessvars.h"
+#include "werdit.h"
 
 #define MIN_FONT_ROW_COUNT  8
 #define MAX_XHEIGHT_DIFF  3
@@ -192,8 +193,8 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
       WERD_RES* word_res = new WERD_RES;
       word_res->InitForRetryRecognition(*word->word);
       word->lang_words.push_back(word_res);
-      // Cube doesn't get setup for pass2.
-      if (pass_n == 1 || lang_t->tessedit_ocr_engine_mode != OEM_CUBE_ONLY) {
+      // LSTM doesn't get setup for pass2.
+      if (pass_n == 1 || lang_t->tessedit_ocr_engine_mode != OEM_LSTM_ONLY) {
         word_res->SetupForRecognition(
               lang_t->unicharset, lang_t, BestPix(),
               lang_t->tessedit_ocr_engine_mode, NULL,
@@ -301,16 +302,6 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
                                 const TBOX* target_word_box,
                                 const char* word_config,
                                 int dopasses) {
-  // PSM_RAW_LINE is a special-case mode in which the layout analysis is
-  // completely ignored and LSTM is run on the raw image. There is no hope
-  // of running normal tesseract in this situation or of integrating output.
-#ifndef ANDROID_BUILD
-  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY &&
-      tessedit_pageseg_mode == PSM_RAW_LINE) {
-    RecogRawLine(page_res);
-    return true;
-  }
-#endif
   PAGE_RES_IT page_res_it(page_res);
 
   if (tessedit_minimal_rej_pass1) {
@@ -397,8 +388,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     if (!RecogAllWordsPassN(2, monitor, &page_res_it, &words)) return false;
   }
 
-  // The next passes can only be run if tesseract has been used, as cube
-  // doesn't set all the necessary outputs in WERD_RES.
+  // The next passes are only required for Tess-only.
   if (AnyTessLang() && !AnyLSTMLang()) {
     // ****************** Pass 3 *******************
     // Fix fuzzy spaces.
@@ -451,8 +441,13 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   for (page_res_it.restart_page(); page_res_it.word() != NULL;
        page_res_it.forward()) {
     WERD_RES* word = page_res_it.word();
-    if (word->best_choice == NULL || word->best_choice->length() == 0)
+    POLY_BLOCK* pb = page_res_it.block()->block != NULL
+                         ? page_res_it.block()->block->poly_block()
+                         : NULL;
+    if (word->best_choice == NULL || word->best_choice->length() == 0 ||
+        (word->best_choice->IsAllSpaces() && (pb == NULL || pb->IsText()))) {
       page_res_it.DeleteCurrentWord();
+    }
   }
 
   if (monitor != NULL) {
@@ -1376,11 +1371,19 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
     cube_word_pass1(block, row, *in_word);
     return;
   }
-  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
-    if (!(*in_word)->odd_size) {
+#endif
+#ifndef ANDROID_BUILD
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
+      tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
+    if (!(*in_word)->odd_size || tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
       LSTMRecognizeWord(*block, row, *in_word, out_words);
       if (!out_words->empty())
         return;  // Successful lstm recognition.
+    }
+    if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
+      // No fallback allowed, so use a fake.
+      (*in_word)->SetupFake(lstm_recognizer_->GetUnicharset());
+      return;
     }
     // Fall back to tesseract for failed words or odd words.
     (*in_word)->SetupForRecognition(unicharset, this, BestPix(),
@@ -1523,7 +1526,7 @@ void Tesseract::classify_word_pass2(const WordData& word_data,
                                     WERD_RES** in_word,
                                     PointerVector<WERD_RES>* out_words) {
   // Return if we do not want to run Tesseract.
-  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
+  if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
     return;
   }
   ROW* row = word_data.row;
@@ -1908,7 +1911,7 @@ static void find_modal_font(           //good chars in word
  * Get the fonts for the word.
  */
 void Tesseract::set_word_fonts(WERD_RES *word) {
-  // Don't try to set the word fonts for a cube word, as the configs
+  // Don't try to set the word fonts for an lstm word, as the configs
   // will be meaningless.
   if (word->chopped_word == NULL) return;
   ASSERT_HOST(word->best_choice != NULL);
