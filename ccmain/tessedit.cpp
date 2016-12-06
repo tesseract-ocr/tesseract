@@ -202,7 +202,9 @@ bool Tesseract::init_tesseract_lang_data(
   // Load the unicharset
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY) {
     // Avoid requiring a unicharset when we aren't running base tesseract.
+#ifndef ANDROID_BUILD
     unicharset.CopyFrom(lstm_recognizer_->GetUnicharset());
+#endif
   } else if (!tessdata_manager.SeekToStart(TESSDATA_UNICHARSET) ||
              !unicharset.load_from_file(tessdata_manager.GetDataFilePtr())) {
     return false;
