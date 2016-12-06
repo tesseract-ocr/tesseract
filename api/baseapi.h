@@ -847,9 +847,7 @@ class TESS_API TessBaseAPI {
                                     int** y1,
                                     PAGE_RES* page_res);
 
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
-    return page_res_;
-  }
+  TESS_LOCAL const PAGE_RES* GetPageRes() const { return page_res_; }
   /* @} */
 
 

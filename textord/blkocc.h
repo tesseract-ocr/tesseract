@@ -52,9 +52,8 @@ class REGION_OCC:public ELIST_LINK
     float max_x;                 //Highest x in region
     inT16 region_type;           //Type of crossing
 
-    REGION_OCC() {
-    }                            //constructor used
-    //only in COPIER etc
+    REGION_OCC() {}  // constructor used
+    // only in COPIER etc
     REGION_OCC(  //constructor
                float min,
                float max,
