@@ -181,8 +181,11 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Caller must use pixDestroy to free the created Pix.
 void ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   if (pix_channels_ == 0) {
-    // We have a binary image, so it just has to be cloned.
-    *pix = GetPixRect();
+    // We have a binary image, but it still has to be copied, as this API
+    // allows the caller to modify the output.
+    Pix* original = GetPixRect();
+    *pix = pixCopy(nullptr, original);
+    pixDestroy(&original);
   } else {
     OtsuThresholdRectToPix(pix_, pix);
   }
