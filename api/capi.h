@@ -286,9 +286,6 @@ TESS_API void  TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* han
 
 TESS_API void  TESS_CALL TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle, TessFillLatticeFunc f);
 
-// Deprecated, no longer working
-TESS_API BOOL  TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results);
-
 // Call TessDeleteText(*best_script_name) to free memory allocated by this function
 TESS_API BOOL  TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle, char** best_script_name,
                                                             int* best_orientation_deg, float* script_confidence,
