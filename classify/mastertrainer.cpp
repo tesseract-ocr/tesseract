@@ -214,10 +214,14 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
 // Must be called after ReadTrainingSamples, as the current number of images
 // is used as an offset for page numbers in the samples.
 void MasterTrainer::LoadPageImages(const char* filename) {
+  size_t offset = 0;
   int page;
   Pix* pix;
-  for (page = 0; (pix = pixReadTiff(filename, page)) != NULL; ++page) {
+  for (page = 0; ; page++) {
+    pix = pixReadFromMultipageTiff(filename, &offset);
+    if (!pix) break;
     page_images_.push_back(pix);
+    if (!offset) break;
   }
   tprintf("Loaded %d page images from %s\n", page, filename);
 }

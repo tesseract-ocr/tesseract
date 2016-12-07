@@ -984,6 +984,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
   OpenclDevice od;
 #endif  // USE_OPENCL
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
+  size_t offset = 0;
   for (; ; ++page) {
     if (tessedit_page_number >= 0)
       page = tessedit_page_number;
@@ -995,8 +996,8 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     } else {
 #endif  // USE_OPENCL
       pix = (data) ?
-          pixReadMemTiff(data, size, page) :
-          pixReadTiff(filename, page);
+          pixReadMemFromMultipageTiff(data, size, &offset) :
+          pixReadFromMultipageTiff(filename, &offset);
 #ifdef USE_OPENCL
     }
 #endif  // USE_OPENCL
@@ -1010,6 +1011,7 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     pixDestroy(&pix);
     if (!r) return false;
     if (tessedit_page_number >= 0) break;
+    if (!offset) break;
   }
   return true;
 #else
