@@ -164,8 +164,14 @@ void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
   int vertical_y = 1;
   tesseract::TabVector_LIST v_lines;
   tesseract::TabVector_LIST h_lines;
-  int resolution = (kMinCredibleResolution > pixGetXRes(pix)) ?
-      kMinCredibleResolution : pixGetXRes(pix);
+  int resolution;
+  if (kMinCredibleResolution > pixGetXRes(pix)) {
+    resolution = kMinCredibleResolution;
+    tprintf("Warning. Invalid resolution %d dpi. Using %d instead.\n",
+            pixGetXRes(pix), resolution);
+  } else {
+    resolution = pixGetXRes(pix);
+  }
 
   tesseract::LineFinder::FindAndRemoveLines(resolution, false, pix,
                                             &vertical_x, &vertical_y,
