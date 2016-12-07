@@ -388,6 +388,11 @@ int main(int argc, char** argv) {
   static GenericVector<STRING> vars_vec;
   static GenericVector<STRING> vars_values;
 
+#if !defined(DEBUG)
+  // Disable debugging and informational messages from Leptonica.
+  setMsgSeverity(L_SEVERITY_WARNING);
+#endif
+
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
   /* Show libtiff warnings on console (not in GUI). */
   TIFFSetWarningHandler(Win32WarningHandler);
