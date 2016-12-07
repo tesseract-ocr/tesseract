@@ -1891,31 +1891,44 @@ char* TessBaseAPI::GetUNLVText() {
   return result;
 }
 
+bool TessBaseAPI::DetectOrientationScript(int& orient_deg, float& orient_conf, std::string& script, float& script_conf) {
+  OSResults osr;
+
+  bool osd = DetectOS(&osr);
+  if (!osd) {
+    return false;
+  }
+
+  int orient_id = osr.best_result.orientation_id;
+  int script_id = osr.get_best_script(orient_id);
+  orient_conf = osr.best_result.oconfidence;
+  script_conf = osr.best_result.sconfidence;
+  const char* script_name =
+      osr.unicharset->get_script_from_script_id(script_id);
+
+  // clockwise orientation of the input image, in degrees
+  orient_deg = orient_id * 90;
+
+  script = script_name;
+  return true;
+}
+
 /**
  * The recognized text is returned as a char* which is coded
  * as UTF8 and must be freed with the delete [] operator.
  * page_number is a 0-based page index that will appear in the osd file.
  */
 char* TessBaseAPI::GetOsdText(int page_number) {
-  OSResults osr;
+  int orient_deg;
+  float orient_conf;
+  std::string script_name;
+  float script_conf;
 
-  bool osd = DetectOS(&osr);
-  if (!osd) {
+  if (!DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf))
     return NULL;
-  }
-
-  int orient_id = osr.best_result.orientation_id;
-  int script_id = osr.get_best_script(orient_id);
-  float orient_conf = osr.best_result.oconfidence;
-  float script_conf = osr.best_result.sconfidence;
-  const char* script_name =
-      osr.unicharset->get_script_from_script_id(script_id);
-
-  // clockwise orientation of the input image, in degrees
-  int orient_deg = orient_id * 90;
 
   // clockwise rotation needed to make the page upright
-  int rotate = OrientationIdToValue(orient_id);
+  int rotate = OrientationIdToValue(orient_deg / 90);
 
   const int kOsdBufsize = 255;
   char* osd_buf = new char[kOsdBufsize];
@@ -1926,7 +1939,7 @@ char* TessBaseAPI::GetOsdText(int page_number) {
            "Orientation confidence: %.2f\n"
            "Script: %s\n"
            "Script confidence: %.2f\n",
-           page_number, orient_deg, rotate, orient_conf, script_name,
+           page_number, orient_deg, rotate, orient_conf, script_name.c_str(),
            script_conf);
 
   return osd_buf;

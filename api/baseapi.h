@@ -26,6 +26,7 @@
                                             (patch))
 
 #include <stdio.h>
+#include <string>
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
@@ -617,6 +618,15 @@ class TESS_API TessBaseAPI {
    * and must be freed with the delete [] operator.
    */
   char* GetUNLVText();
+
+  /**
+   * Detect the orientation of the input image and apparent script (alphabet).
+   * orient_deg is the detected clockwise rotation of the input image
+   * orient_conf is the confidence (15.0 is reasonable)
+   * script is an ASCII string, the name of the script, e.g. "Latin"
+   * script_conf is confidence level in the script
+   */
+  bool DetectOrientationScript(int& orient_deg, float& orient_conf, std::string& script, float& script_conf);
 
   /**
    * The recognized text is returned as a char* which is coded
