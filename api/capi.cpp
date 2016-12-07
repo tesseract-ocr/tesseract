@@ -538,8 +538,37 @@ TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* hand
 
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results)
 {
-    return handle->DetectOS(results) ? TRUE : FALSE;
+    return FALSE; // Unsafe ABI, return FALSE always
 }
+
+TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle, char** best_script_name,
+                                                            int* best_orientation_deg, float* script_confidence,
+                                                            float* orientation_confidence)
+{
+    int orient_deg;
+    float orient_conf;
+    std::string script_name;
+    float script_conf;
+    BOOL success;
+
+    success = handle->DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf);
+    if (!success)
+        return FALSE;
+    if (best_script_name) {
+        *best_script_name = new char [script_name.length() + 1];
+        strcpy(*best_script_name, script_name.c_str());
+    }
+
+    if (best_orientation_deg)
+        *best_orientation_deg = orient_deg;
+    if (script_confidence)
+        *script_confidence = script_conf;
+    if (orientation_confidence)
+        *orientation_confidence = orient_conf;
+
+    return TRUE;
+}
+
 
 TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
                                                             int* num_features, int* FeatureOutlineIndex)
