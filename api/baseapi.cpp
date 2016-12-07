@@ -2220,6 +2220,8 @@ void TessBaseAPI::Threshold(Pix** pix) {
   if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
     // Use the minimum default resolution, as it is safer to under-estimate
     // than over-estimate resolution.
+    tprintf("Warning. Invalid resolution %d dpi. Using %d instead.\n",
+            y_res, kMinCredibleResolution);
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
   PageSegMode pageseg_mode =
