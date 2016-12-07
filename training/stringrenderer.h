@@ -135,7 +135,7 @@ class StringRenderer {
 
   // Get the boxchars of all clusters rendered thus far (or since the last call
   // to ClearBoxes()).
-  const vector<BoxChar*>& GetBoxes() const;
+  const std::vector<BoxChar*>& GetBoxes() const;
   // Get the rendered page bounding boxes of all pages created thus far (or
   // since last call to ClearBoxes()).
   Boxa* GetPageBoxes() const;
@@ -171,8 +171,8 @@ class StringRenderer {
   void SetWordUnderlineAttributes(const string& page_text);
   // Compute bounding boxes around grapheme clusters.
   void ComputeClusterBoxes();
-  void CorrectBoxPositionsToLayout(vector<BoxChar*>* boxchars);
-  bool GetClusterStrings(vector<string>* cluster_text);
+  void CorrectBoxPositionsToLayout(std::vector<BoxChar*>* boxchars);
+  bool GetClusterStrings(std::vector<string>* cluster_text);
   int FindFirstPageBreakOffset(const char* text, int text_length);
 
   PangoFontInfo font_;
@@ -204,7 +204,7 @@ class StringRenderer {
   int page_;
   // Boxes and associated text for all pages rendered with RenderToImage() since
   // the last call to ClearBoxes().
-  vector<BoxChar*> boxchars_;
+  std::vector<BoxChar*> boxchars_;
   int box_padding_;
   // Bounding boxes for pages since the last call to ClearBoxes().
   Boxa* page_boxes_;

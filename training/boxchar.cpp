@@ -49,7 +49,8 @@ void BoxChar::AddBox(int x, int y, int width, int height) {
 }
 
 /* static */
-void BoxChar::TranslateBoxes(int xshift, int yshift, vector<BoxChar*>* boxes) {
+void BoxChar::TranslateBoxes(int xshift, int yshift,
+                             std::vector<BoxChar*>* boxes) {
   for (int i = 0; i < boxes->size(); ++i) {
     BOX* box = (*boxes)[i]->box_;
     if (box != NULL) {
@@ -62,7 +63,7 @@ void BoxChar::TranslateBoxes(int xshift, int yshift, vector<BoxChar*>* boxes) {
 // Prepares for writing the boxes to a file by inserting newlines, spaces,
 // and re-ordering so the boxes are strictly left-to-right.
 /* static */
-void BoxChar::PrepareToWrite(vector<BoxChar*>* boxes) {
+void BoxChar::PrepareToWrite(std::vector<BoxChar*>* boxes) {
   bool rtl_rules = ContainsMostlyRTL(*boxes);
   bool vertical_rules = MostlyVertical(*boxes);
   InsertNewlines(rtl_rules, vertical_rules, boxes);
@@ -78,7 +79,7 @@ void BoxChar::PrepareToWrite(vector<BoxChar*>* boxes) {
 // Inserts newline (tab) characters into the vector at newline positions.
 /* static */
 void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
-                             vector<BoxChar*>* boxes) {
+                             std::vector<BoxChar*>* boxes) {
   int prev_i = -1;
   int max_shift = 0;
   for (int i = 0; i < boxes->size(); ++i) {
@@ -141,7 +142,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
 // Converts NULL boxes to space characters, with appropriate bounding boxes.
 /* static */
 void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
-                           vector<BoxChar*>* boxes) {
+                           std::vector<BoxChar*>* boxes) {
   // After InsertNewlines, any remaining null boxes are not newlines, and are
   // singletons, so add a box to each remaining null box.
   for (int i = 1; i + 1 < boxes->size(); ++i) {
@@ -197,7 +198,7 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
 
 // Reorders text in a right-to-left script in left-to-right order.
 /* static */
-void BoxChar::ReorderRTLText(vector<BoxChar*>* boxes) {
+void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
   // After adding newlines and spaces, this task is simply a matter of sorting
   // by left each group of boxes between newlines.
   BoxCharPtrSort sorter;
@@ -211,7 +212,7 @@ void BoxChar::ReorderRTLText(vector<BoxChar*>* boxes) {
 
 // Returns true if the vector contains mostly RTL characters.
 /* static */
-bool BoxChar::ContainsMostlyRTL(const vector<BoxChar*>& boxes) {
+bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
   int num_rtl = 0, num_ltr = 0;
   for (int i = 0; i < boxes.size(); ++i) {
     // Convert the unichar to UTF32 representation
@@ -240,7 +241,7 @@ bool BoxChar::ContainsMostlyRTL(const vector<BoxChar*>& boxes) {
 
 // Returns true if the text is mostly laid out vertically.
 /* static */
-bool BoxChar::MostlyVertical(const vector<BoxChar*>& boxes) {
+bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
   inT64 total_dx = 0, total_dy = 0;
   for (int i = 1; i < boxes.size(); ++i) {
     if (boxes[i - 1]->box_ != NULL && boxes[i]->box_ != NULL &&
@@ -259,7 +260,7 @@ bool BoxChar::MostlyVertical(const vector<BoxChar*>& boxes) {
 
 // Returns the total length of all the strings in the boxes.
 /* static */
-int BoxChar::TotalByteLength(const vector<BoxChar*>& boxes) {
+int BoxChar::TotalByteLength(const std::vector<BoxChar*>& boxes) {
   int total_length = 0;
   for (int i = 0; i < boxes.size(); ++i) total_length += boxes[i]->ch_.size();
   return total_length;
@@ -269,7 +270,8 @@ int BoxChar::TotalByteLength(const vector<BoxChar*>& boxes) {
 // The rotation is in radians clockwise about the given center.
 /* static */
 void BoxChar::RotateBoxes(float rotation, int xcenter, int ycenter,
-                          int start_box, int end_box, vector<BoxChar*>* boxes) {
+                          int start_box, int end_box,
+                          std::vector<BoxChar*>* boxes) {
   Boxa* orig = boxaCreate(0);
   for (int i = start_box; i < end_box; ++i) {
     BOX* box = (*boxes)[i]->box_;
@@ -289,13 +291,14 @@ void BoxChar::RotateBoxes(float rotation, int xcenter, int ycenter,
 const int kMaxLineLength = 1024;
 /* static */
 void BoxChar::WriteTesseractBoxFile(const string& filename, int height,
-                                    const vector<BoxChar*>& boxes) {
+                                    const std::vector<BoxChar*>& boxes) {
   string output = GetTesseractBoxStr(height, boxes);
   File::WriteStringToFileOrDie(output, filename);
 }
 
 /* static */
-string BoxChar::GetTesseractBoxStr(int height, const vector<BoxChar*>& boxes) {
+string BoxChar::GetTesseractBoxStr(int height,
+                                   const std::vector<BoxChar*>& boxes) {
   string output;
   char buffer[kMaxLineLength];
   for (int i = 0; i < boxes.size(); ++i) {
