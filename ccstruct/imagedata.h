@@ -25,6 +25,7 @@
 #include "normalis.h"
 #include "rect.h"
 #include "strngs.h"
+#include "svutil.h"
 
 struct Pix;
 
@@ -34,8 +35,22 @@ namespace tesseract {
 const int kFeaturePadding = 2;
 // Number of pixels to pad around text boxes.
 const int kImagePadding = 4;
-// Number of training images to combine into a mini-batch for training.
-const int kNumPagesPerMiniBatch = 100;
+
+// Enum to determine the caching and data sequencing strategy.
+enum CachingStrategy {
+  // Reads all of one file before moving on to the next. Requires samples to be
+  // shuffled across files. Uses the count of samples in the first file as
+  // the count in all the files to achieve high-speed random access. As a
+  // consequence, if subsequent files are smaller, they get entries used more
+  // than once, and if subsequent files are larger, some entries are not used.
+  // Best for larger data sets that don't fit in memory.
+  CS_SEQUENTIAL,
+  // Reads one sample from each file in rotation. Does not require shuffled
+  // samples, but is extremely disk-intensive. Samples in smaller files also
+  // get used more often than samples in larger files.
+  // Best for smaller data sets that mostly fit in memory.
+  CS_ROUND_ROBIN,
+};
 
 class WordFeature {
  public:
@@ -103,6 +118,8 @@ class ImageData {
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool swap, TFile* fp);
+  // As DeSerialize, but only seeks past the data - hence a static method.
+  static bool SkipDeSerialize(bool swap, tesseract::TFile* fp);
 
   // Other accessors.
   const STRING& imagefilename() const {
@@ -145,11 +162,12 @@ class ImageData {
   // Gets anything and everything with a non-NULL pointer, prescaled to a
   // given target_height (if 0, then the original image height), and aligned.
   // Also returns (if not NULL) the width and height of the scaled image.
-  // The return value is the scale factor that was applied to the image to
-  // achieve the target_height.
-  float PreScale(int target_height, Pix** pix,
-                 int* scaled_width, int* scaled_height,
-                 GenericVector<TBOX>* boxes) const;
+  // The return value is the scaled Pix, which must be pixDestroyed after use,
+  // and scale_factor (if not NULL) is set to the scale factor that was applied
+  // to the image to achieve the target_height.
+  Pix* PreScale(int target_height, int max_height, float* scale_factor,
+                int* scaled_width, int* scaled_height,
+                GenericVector<TBOX>* boxes) const;
 
   int MemoryUsed() const;
 
@@ -184,6 +202,8 @@ class ImageData {
 
 // A collection of ImageData that knows roughly how much memory it is using.
 class DocumentData {
+  friend void* ReCachePagesFunc(void* data);
+
  public:
   explicit DocumentData(const STRING& name);
   ~DocumentData();
@@ -192,6 +212,9 @@ class DocumentData {
   // is used to read the file.
   bool LoadDocument(const char* filename, const char* lang, int start_page,
                     inT64 max_memory, FileReader reader);
+  // Sets up the document, without actually loading it.
+  void SetDocument(const char* filename, const char* lang, inT64 max_memory,
+                   FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
   bool SaveDocument(const char* filename, FileWriter writer);
   bool SaveToBuffer(GenericVector<char>* buffer);
@@ -200,26 +223,62 @@ class DocumentData {
   void AddPageToDocument(ImageData* page);
 
   const STRING& document_name() const {
+    SVAutoLock lock(&general_mutex_);
     return document_name_;
   }
   int NumPages() const {
+    SVAutoLock lock(&general_mutex_);
     return total_pages_;
   }
   inT64 memory_used() const {
+    SVAutoLock lock(&general_mutex_);
     return memory_used_;
   }
+  // If the given index is not currently loaded, loads it using a separate
+  // thread. Note: there are 4 cases:
+  // Document uncached: IsCached() returns false, total_pages_ < 0.
+  // Required page is available: IsPageAvailable returns true. In this case,
+  // total_pages_ > 0 and
+  // pages_offset_ <= index%total_pages_ <= pages_offset_+pages_.size()
+  // Pages are loaded, but the required one is not.
+  // The requested page is being loaded by LoadPageInBackground. In this case,
+  // index == pages_offset_. Once the loading starts, the pages lock is held
+  // until it completes, at which point IsPageAvailable will unblock and return
+  // true.
+  void LoadPageInBackground(int index);
   // Returns a pointer to the page with the given index, modulo the total
-  // number of pages, recaching if needed.
+  // number of pages. Blocks until the background load is completed.
   const ImageData* GetPage(int index);
+  // Returns true if the requested page is available, and provides a pointer,
+  // which may be NULL if the document is empty. May block, even though it
+  // doesn't guarantee to return true.
+  bool IsPageAvailable(int index, ImageData** page);
   // Takes ownership of the given page index. The page is made NULL in *this.
   ImageData* TakePage(int index) {
+    SVAutoLock lock(&pages_mutex_);
     ImageData* page = pages_[index];
     pages_[index] = NULL;
     return page;
   }
+  // Returns true if the document is currently loaded or in the process of
+  // loading.
+  bool IsCached() const { return NumPages() >= 0; }
+  // Removes all pages from memory and frees the memory, but does not forget
+  // the document metadata. Returns the memory saved.
+  inT64 UnCache();
 
  private:
-  // Loads as many pages can fit in max_memory_ starting at index pages_offset_.
+  // Sets the value of total_pages_ behind a mutex.
+  void set_total_pages(int total) {
+    SVAutoLock lock(&general_mutex_);
+    total_pages_ = total;
+  }
+  void set_memory_used(inT64 memory_used) {
+    SVAutoLock lock(&general_mutex_);
+    memory_used_ = memory_used;
+  }
+  // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
+  // starting at index pages_offset_.
   bool ReCachePages();
 
  private:
@@ -239,43 +298,77 @@ class DocumentData {
   inT64 max_memory_;
   // Saved reader from LoadDocument to allow re-caching.
   FileReader reader_;
+  // Mutex that protects pages_ and pages_offset_ against multiple parallel
+  // loads, and provides a wait for page.
+  SVMutex pages_mutex_;
+  // Mutex that protects other data members that callers want to access without
+  // waiting for a load operation.
+  mutable SVMutex general_mutex_;
 };
 
 // A collection of DocumentData that knows roughly how much memory it is using.
+// Note that while it supports background read-ahead, it assumes that a single
+// thread is accessing documents, ie it is not safe for multiple threads to
+// access different documents in parallel, as one may de-cache the other's
+// content.
 class DocumentCache {
  public:
   explicit DocumentCache(inT64 max_memory);
   ~DocumentCache();
 
+  // Deletes all existing documents from the cache.
+  void Clear() {
+    documents_.clear();
+    num_pages_per_doc_ = 0;
+  }
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
   bool LoadDocuments(const GenericVector<STRING>& filenames, const char* lang,
-                     FileReader reader);
+                     CachingStrategy cache_strategy, FileReader reader);
 
-  // Adds document to the cache, throwing out other documents if needed.
+  // Adds document to the cache.
   bool AddToCache(DocumentData* data);
 
   // Finds and returns a document by name.
   DocumentData* FindDocument(const STRING& document_name) const;
 
-  // Returns a page by serial number, selecting them in a round-robin fashion
-  // from all the documents.
-  const ImageData* GetPageBySerial(int serial);
+  // Returns a page by serial number using the current cache_strategy_ to
+  // determine the mapping from serial number to page.
+  const ImageData* GetPageBySerial(int serial) {
+    if (cache_strategy_ == CS_SEQUENTIAL)
+      return GetPageSequential(serial);
+    else
+      return GetPageRoundRobin(serial);
+  }
 
   const PointerVector<DocumentData>& documents() const {
     return documents_;
   }
-  int total_pages() const {
-    return total_pages_;
-  }
+  // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache
+  // strategy, could take a long time.
+  int TotalPages();
 
  private:
+  // Returns a page by serial number, selecting them in a round-robin fashion
+  // from all the documents. Highly disk-intensive, but doesn't need samples
+  // to be shuffled between files to begin with.
+  const ImageData* GetPageRoundRobin(int serial);
+  // Returns a page by serial number, selecting them in sequence from each file.
+  // Requires the samples to be shuffled between the files to give a random or
+  // uniform distribution of data. Less disk-intensive than GetPageRoundRobin.
+  const ImageData* GetPageSequential(int serial);
+
+  // Helper counts the number of adjacent cached neighbour documents_ of index
+  // looking in direction dir, ie index+dir, index+2*dir etc.
+  int CountNeighbourDocs(int index, int dir);
+
   // A group of pages that corresponds in some loose way to a document.
   PointerVector<DocumentData> documents_;
-  // Total of all pages.
-  int total_pages_;
-  // Total of all memory used by the cache.
-  inT64 memory_used_;
+  // Strategy to use for caching and serializing data samples.
+  CachingStrategy cache_strategy_;
+  // Number of pages in the first document, used as a divisor in
+  // GetPageSequential to determine the document index.
+  int num_pages_per_doc_;
   // Max memory allowed in this cache.
   inT64 max_memory_;
 };
