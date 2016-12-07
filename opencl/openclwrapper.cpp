@@ -538,11 +538,11 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     // Release all resouces and memory
     for ( i = 0; i < numDevices; i++ )
     {
-        free(binaries[i]);
-        binaries[i] = NULL;
+      free(binaries[i]);
+      binaries[i] = NULL;
     }
 
-    free( binaries );
+    free(binaries);
     binaries = NULL;
 
     free(binarySizes);
@@ -550,7 +550,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
 
     free(mpArryDevsID);
     mpArryDevsID = NULL;
- 
+
     return 1;
 }
 
@@ -1142,7 +1142,7 @@ OpenclDevice::pixReadMemTiffCl(const l_uint8 *data,size_t size,l_int32  n)
         }
 
         if (pagefound == FALSE) {
-          L_WARNING("tiff page %d not found", procName, i);
+          L_WARNING("tiff page %d not found\n", procName, i);
           TIFFCleanup(tif);
           return NULL;
         }
