@@ -30,8 +30,10 @@
 #include "helpers.h"
 #include "tprintf.h"
 
-#if __cplusplus > 199711L  // C++11 support
-  #include <thread>
+#if defined(__MINGW32__)
+# include <unistd.h>
+##elif __cplusplus <= 199711L   // in C++11
+# include <thread>
 #endif
 
 // Number of documents to read ahead while training. Doesn't need to be very
@@ -451,9 +453,12 @@ const ImageData* DocumentData::GetPage(int index) {
     if (needs_loading) LoadPageInBackground(index);
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.
-#if __cplusplus > 199711L  // C++11 support
-	//TODO: We need to fix this for compilers without C++11 support (e.g. VS2010)
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+#if __cplusplus > 199711L
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+#elif _WIN32  // MSVS
+    Sleep(1000);
+#else
+    sleep(1);
 #endif
   }
   return page;
