@@ -32,7 +32,7 @@
 
 #if defined(__MINGW32__)
 # include <unistd.h>
-##elif __cplusplus <= 199711L   // in C++11
+#elif __cplusplus > 199711L   // in C++11
 # include <thread>
 #endif
 
