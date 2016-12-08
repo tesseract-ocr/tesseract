@@ -1888,7 +1888,15 @@ char* TessBaseAPI::GetUNLVText() {
   return result;
 }
 
-bool TessBaseAPI::DetectOrientationScript(int& orient_deg, float& orient_conf, std::string& script, float& script_conf) {
+/**
+ * Detect the orientation of the input image and apparent script (alphabet).
+ * orient_deg is the detected clockwise rotation of the input image in degrees (0, 90, 180, 270)
+ * orient_conf is the confidence (15.0 is reasonably confident)
+ * script_name is an ASCII string, the name of the script, e.g. "Latin"
+ * script_conf is confidence level in the script
+ * Returns true on success and writes values to each parameter as an output
+ */
+bool TessBaseAPI::DetectOrientationScript(int* orient_deg, float* orient_conf, const char** script_name, float* script_conf) {
   OSResults osr;
 
   bool osd = DetectOS(&osr);
@@ -1898,15 +1906,21 @@ bool TessBaseAPI::DetectOrientationScript(int& orient_deg, float& orient_conf, s
 
   int orient_id = osr.best_result.orientation_id;
   int script_id = osr.get_best_script(orient_id);
-  orient_conf = osr.best_result.oconfidence;
-  script_conf = osr.best_result.sconfidence;
-  const char* script_name =
+  if (orient_conf)
+    *orient_conf = osr.best_result.oconfidence;
+  if (orient_deg)
+    *orient_deg = orient_id * 90; // convert quadrant to degrees
+
+  if (script_name) {
+    const char* script =
       osr.unicharset->get_script_from_script_id(script_id);
 
-  // clockwise orientation of the input image, in degrees
-  orient_deg = orient_id * 90;
+    *script_name = script;
+  }
 
-  script = script_name;
+  if (script_conf)
+    *script_conf = osr.best_result.sconfidence;
+  
   return true;
 }
 
@@ -1918,10 +1932,10 @@ bool TessBaseAPI::DetectOrientationScript(int& orient_deg, float& orient_conf, s
 char* TessBaseAPI::GetOsdText(int page_number) {
   int orient_deg;
   float orient_conf;
-  std::string script_name;
+  const char* script_name;
   float script_conf;
 
-  if (!DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf))
+  if (!DetectOrientationScript(&orient_deg, &orient_conf, &script_name, &script_conf))
     return NULL;
 
   // clockwise rotation needed to make the page upright
@@ -1936,7 +1950,7 @@ char* TessBaseAPI::GetOsdText(int page_number) {
            "Orientation confidence: %.2f\n"
            "Script: %s\n"
            "Script confidence: %.2f\n",
-           page_number, orient_deg, rotate, orient_conf, script_name.c_str(),
+           page_number, orient_deg, rotate, orient_conf, script_name,
            script_conf);
 
   return osd_buf;

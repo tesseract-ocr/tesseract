@@ -290,9 +290,8 @@ TESS_API void  TESS_CALL TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle, Tess
 TESS_API BOOL  TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results);
 
 // Call TessDeleteText(*best_script_name) to free memory allocated by this function
-TESS_API BOOL  TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle, char** best_script_name,
-                                                            int* best_orientation_deg, float* script_confidence,
-                                                            float* orientation_confidence);
+TESS_API BOOL  TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
+                                                            int* orient_deg, float* orient_conf, const char **script_name, float* script_conf);
 
 TESS_API void  TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
                                                        int* num_features, int* FeatureOutlineIndex);
