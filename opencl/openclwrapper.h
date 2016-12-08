@@ -298,15 +298,14 @@ public:
     inline static int AddKernelConfig( int kCount, const char *kName );
 
     /* for binarization */
-    static int HistogramRectOCL(unsigned char *imagedata,
-                                int bytes_per_pixel, int bytes_per_line,
-                                int left, int top, int width, int height,
-                                int kHistogramSize, int *histogramAllChannels);
+    static int HistogramRectOCL(unsigned char *imagedata, int bytes_per_pixel,
+                                int bytes_per_line, int left, int top,
+                                int width, int height, int kHistogramSize,
+                                int *histogramAllChannels);
 
     static int ThresholdRectToPixOCL(unsigned char *imagedata,
                                      int bytes_per_pixel, int bytes_per_line,
-                                     int *thresholds,
-                                     int *hi_values, Pix **pix,
+                                     int *thresholds, int *hi_values, Pix **pix,
                                      int rect_height, int rect_width,
                                      int rect_top, int rect_left);
 
