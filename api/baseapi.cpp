@@ -1892,30 +1892,57 @@ char* TessBaseAPI::GetUNLVText() {
 }
 
 /**
+ * Detect the orientation of the input image and apparent script (alphabet).
+ * orient_deg is the detected clockwise rotation of the input image in degrees (0, 90, 180, 270)
+ * orient_conf is the confidence (15.0 is reasonably confident)
+ * script_name is an ASCII string, the name of the script, e.g. "Latin"
+ * script_conf is confidence level in the script
+ * Returns true on success and writes values to each parameter as an output
+ */
+bool TessBaseAPI::DetectOrientationScript(int* orient_deg, float* orient_conf, const char** script_name, float* script_conf) {
+  OSResults osr;
+
+  bool osd = DetectOS(&osr);
+  if (!osd) {
+    return false;
+  }
+
+  int orient_id = osr.best_result.orientation_id;
+  int script_id = osr.get_best_script(orient_id);
+  if (orient_conf)
+    *orient_conf = osr.best_result.oconfidence;
+  if (orient_deg)
+    *orient_deg = orient_id * 90; // convert quadrant to degrees
+
+  if (script_name) {
+    const char* script =
+      osr.unicharset->get_script_from_script_id(script_id);
+
+    *script_name = script;
+  }
+
+  if (script_conf)
+    *script_conf = osr.best_result.sconfidence;
+  
+  return true;
+}
+
+/**
  * The recognized text is returned as a char* which is coded
  * as UTF8 and must be freed with the delete [] operator.
  * page_number is a 0-based page index that will appear in the osd file.
  */
 char* TessBaseAPI::GetOsdText(int page_number) {
-  OSResults osr;
+  int orient_deg;
+  float orient_conf;
+  const char* script_name;
+  float script_conf;
 
-  bool osd = DetectOS(&osr);
-  if (!osd) {
+  if (!DetectOrientationScript(&orient_deg, &orient_conf, &script_name, &script_conf))
     return NULL;
-  }
-
-  int orient_id = osr.best_result.orientation_id;
-  int script_id = osr.get_best_script(orient_id);
-  float orient_conf = osr.best_result.oconfidence;
-  float script_conf = osr.best_result.sconfidence;
-  const char* script_name =
-      osr.unicharset->get_script_from_script_id(script_id);
-
-  // clockwise orientation of the input image, in degrees
-  int orient_deg = orient_id * 90;
 
   // clockwise rotation needed to make the page upright
-  int rotate = OrientationIdToValue(orient_id);
+  int rotate = OrientationIdToValue(orient_deg / 90);
 
   const int kOsdBufsize = 255;
   char* osd_buf = new char[kOsdBufsize];

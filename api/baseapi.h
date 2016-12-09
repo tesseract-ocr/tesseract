@@ -619,6 +619,16 @@ class TESS_API TessBaseAPI {
   char* GetUNLVText();
 
   /**
+   * Detect the orientation of the input image and apparent script (alphabet).
+   * orient_deg is the detected clockwise rotation of the input image in degrees (0, 90, 180, 270)
+   * orient_conf is the confidence (15.0 is reasonably confident)
+   * script_name is an ASCII string, the name of the script, e.g. "Latin"
+   * script_conf is confidence level in the script
+   * Returns true on success and writes values to each parameter as an output
+   */
+  bool DetectOrientationScript(int* orient_deg, float* orient_conf, const char** script_name, float* script_conf);
+
+  /**
    * The recognized text is returned as a char* which is coded
    * as UTF8 and must be freed with the delete [] operator.
    * page_number is a 0-based page index that will appear in the osd file.
