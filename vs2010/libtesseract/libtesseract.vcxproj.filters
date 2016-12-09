@@ -361,9 +361,6 @@
     <ClCompile Include="..\..\textord\linefind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cutil\listio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\wordrec\lm_consistency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1168,9 +1165,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ccstruct\linlsq.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\cutil\listio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\wordrec\lm_consistency.h">
