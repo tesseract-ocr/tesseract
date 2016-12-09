@@ -448,7 +448,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClCompile Include="..\..\wordrec\language_model.cpp" />
     <ClCompile Include="..\..\textord\linefind.cpp" />
     <ClCompile Include="..\..\ccstruct\linlsq.cpp" />
-    <ClCompile Include="..\..\cutil\listio.cpp" />
     <ClCompile Include="..\..\ccmain\ltrresultiterator.cpp" />
     <ClCompile Include="..\..\ccutil\mainblk.cpp" />
     <ClCompile Include="..\..\textord\makerow.cpp" />
@@ -716,7 +715,6 @@ copy "$(TargetDir)$(TargetName).lib" ..\..\..\lib
     <ClInclude Include="..\..\wordrec\language_model.h" />
     <ClInclude Include="..\..\textord\linefind.h" />
     <ClInclude Include="..\..\ccstruct\linlsq.h" />
-    <ClInclude Include="..\..\cutil\listio.h" />
     <ClInclude Include="..\..\ccutil\lsterr.h" />
     <ClInclude Include="..\..\ccmain\ltrresultiterator.h" />
     <ClInclude Include="..\..\textord\makerow.h" />
