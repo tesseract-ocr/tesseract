@@ -267,7 +267,7 @@ void REJ::full_print(FILE *fp) {
 
 //The REJMAP class has been hacked to use alloc_struct instead of new [].
 //This is to reduce memory fragmentation only as it is rather kludgy.
-//alloc_struct by-passes the call to the contsructor of REJ on each
+//alloc_struct by-passes the call to the constructor of REJ on each
 //array element. Although the constructor is empty, the BITS16 members
 //do have a constructor which sets all the flags to 0. The memset
 //replaces this functionality.
