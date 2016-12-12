@@ -132,7 +132,7 @@ class Dict {
   }
   /// If this word is hyphenated copy the base word (the part on
   /// the line before) of a hyphenated word into the given word.
-  /// This function assumes that word is not NULL.
+  /// This function assumes that word is not nullptr.
   inline void copy_hyphen_info(WERD_CHOICE *word) const {
     if (this->hyphenated()) {
       *word = *hyphen_word_;
@@ -308,9 +308,9 @@ class Dict {
 
   // Resets the document dictionary analogous to ResetAdaptiveClassifier.
   void ResetDocumentDictionary() {
-    if (pending_words_ != NULL)
+    if (pending_words_ != nullptr)
       pending_words_->clear();
-    if (document_words_ != NULL)
+    if (document_words_ != nullptr)
       document_words_->clear();
   }
 
@@ -341,7 +341,7 @@ class Dict {
    * can be obtained from dawg_args->updated_dawgs passed to
    * def_letter_is_okay for word_index-1.
    * Note: the function assumes that active_dawgs, nd updated_dawgs
-   * member variables of dawg_args are not NULL.
+   * member variables of dawg_args are not nullptr.
    *
    * Output:
    * The function fills in dawg_args->updated_dawgs vector with the
@@ -401,7 +401,7 @@ class Dict {
   float ParamsModelClassify(const char *lang, void *path);
   // Call params_model_classify_ member function.
   float CallParamsModelClassify(void *path) {
-    ASSERT_HOST(params_model_classify_ != NULL);  // ASSERT_HOST -> assert
+    ASSERT_HOST(params_model_classify_ != nullptr);  // ASSERT_HOST -> assert
     return (this->*params_model_classify_)(
         getCCUtil()->lang.string(), path);
   }

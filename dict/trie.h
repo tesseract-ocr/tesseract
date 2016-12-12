@@ -257,7 +257,7 @@ class Trie : public Dawg {
 
   // Adds a word to the Trie (creates the necessary nodes and edges).
   //
-  // If repetitions vector is not NULL, each entry in the vector indicates
+  // If repetitions vector is not nullptr, each entry in the vector indicates
   // whether the unichar id with the corresponding index in the word is allowed
   // to repeat an unlimited number of times. For each entry that is true, MARKER
   // flag of the corresponding edge created for this unichar id is set to true).
@@ -267,7 +267,7 @@ class Trie : public Dawg {
   bool add_word_to_dawg(const WERD_CHOICE &word,
                         const GenericVector<bool> *repetitions);
   bool add_word_to_dawg(const WERD_CHOICE &word) {
-    return add_word_to_dawg(word, NULL);
+    return add_word_to_dawg(word, nullptr);
   }
 
  protected:

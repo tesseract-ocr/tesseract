@@ -73,8 +73,8 @@ void Dict::go_deeper_dawg_fxn(
     GenericVector<UNICHAR_ID> encoding;
     const char *ngram_str = getUnicharset().id_to_unichar(orig_uch_id);
     // Since the string came out of the unicharset, failure is impossible.
-    ASSERT_HOST(getUnicharset().encode_string(ngram_str, true, &encoding, NULL,
-                                              NULL));
+    ASSERT_HOST(getUnicharset().encode_string(ngram_str, true, &encoding, nullptr,
+                                              nullptr));
     bool unigrams_ok = true;
     // Construct DawgArgs that reflect the current state.
     DawgPositionVector unigram_active_dawgs = *(more_args->active_dawgs);
@@ -119,21 +119,21 @@ void Dict::go_deeper_dawg_fxn(
         tprintf("found word = %s\n", word->debug_string().string());
       }
       if (strcmp(output_ambig_words_file.string(), "") != 0) {
-        if (output_ambig_words_file_ == NULL) {
+        if (output_ambig_words_file_ == nullptr) {
           output_ambig_words_file_ =
               fopen(output_ambig_words_file.string(), "wb+");
-          if (output_ambig_words_file_ == NULL) {
+          if (output_ambig_words_file_ == nullptr) {
             tprintf("Failed to open output_ambig_words_file %s\n",
                     output_ambig_words_file.string());
             exit(1);
           }
           STRING word_str;
-          word->string_and_lengths(&word_str, NULL);
+          word->string_and_lengths(&word_str, nullptr);
           word_str += " ";
           fprintf(output_ambig_words_file_, "%s", word_str.string());
         }
         STRING word_str;
-        word->string_and_lengths(&word_str, NULL);
+        word->string_and_lengths(&word_str, nullptr);
         word_str += " ";
         fprintf(output_ambig_words_file_, "%s", word_str.string());
       }
@@ -187,8 +187,8 @@ WERD_CHOICE *Dict::dawg_permute_and_select(
   float certainties[MAX_WERD_LENGTH];
   this->go_deeper_fxn_ = &tesseract::Dict::go_deeper_dawg_fxn;
   int attempts_left = max_permuter_attempts;
-  permute_choices((dawg_debug_level) ? "permute_dawg_debug" : NULL,
-      char_choices, 0, NULL, &word, certainties, &rating_limit, best_choice,
+  permute_choices((dawg_debug_level) ? "permute_dawg_debug" : nullptr,
+      char_choices, 0, nullptr, &word, certainties, &rating_limit, best_choice,
       &attempts_left, &dawg_args);
   delete[] active_dawgs;
   return best_choice;
@@ -301,7 +301,7 @@ void Dict::append_choices(
  * present and whether they can be concatenated.
  *
  * The given prev_char_frag_info contains:
- * - fragment: if not NULL contains information about immediately
+ * - fragment: if not nullptr contains information about immediately
  *   preceding fragmented character choice
  * - num_fragments: number of fragments that have been used so far
  *   to construct a character
@@ -311,7 +311,7 @@ void Dict::append_choices(
  *   ratings concatenated so far
  *
  * The output char_frag_info is filled in as follows:
- * - character: is set to be NULL if the choice is a non-matching
+ * - character: is set to be nullptr if the choice is a non-matching
  *   or non-ending fragment piece; is set to unichar of the given choice
  *   if it represents a regular character or a matching ending fragment
  * - fragment,num_fragments,certainty,rating are set as described above
@@ -326,7 +326,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
   const CHAR_FRAGMENT *this_fragment =
     getUnicharset().get_fragment(curr_unichar_id);
   const CHAR_FRAGMENT *prev_fragment =
-    prev_char_frag_info != NULL ? prev_char_frag_info->fragment : NULL;
+    prev_char_frag_info != nullptr ? prev_char_frag_info->fragment : nullptr;
 
   // Print debug info for fragments.
   if (debug && (prev_fragment || this_fragment)) {
@@ -361,7 +361,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
       if (this_fragment->is_ending()) {
         char_frag_info->unichar_id =
           getUnicharset().unichar_to_id(this_fragment->get_unichar());
-        char_frag_info->fragment = NULL;
+        char_frag_info->fragment = nullptr;
         if (debug) {
           tprintf("Built character %s from fragments\n",
                   getUnicharset().debug_str(
