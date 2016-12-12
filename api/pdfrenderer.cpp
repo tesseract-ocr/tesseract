@@ -706,12 +706,12 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   char b2[kBasicBufSize];
   if (!pdf_object_size || !pdf_object)
     return false;
-  *pdf_object = NULL;
+  *pdf_object = nullptr;
   *pdf_object_size = 0;
   if (!filename)
     return false;
 
-  L_Compressed_Data *cid = NULL;
+  L_Compressed_Data *cid = nullptr;
   const int kJpegQuality = 85;
 
   int format, sad;

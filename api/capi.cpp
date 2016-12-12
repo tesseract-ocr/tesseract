@@ -34,7 +34,7 @@ TESS_API void TESS_CALL TessDeleteText(char* text)
 
 TESS_API void TESS_CALL TessDeleteTextArray(char** arr)
 {
-    for (char** pos = arr; *pos != NULL; ++pos)
+    for (char** pos = arr; *pos != nullptr; ++pos)
         delete [] *pos;
     delete [] arr;
 }
@@ -222,7 +222,7 @@ TESS_API void TESS_CALL TessBaseAPIPrintVariables(const TessBaseAPI* handle, FIL
 TESS_API BOOL TESS_CALL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle, const char* filename)
 {
     FILE* fp = fopen(filename, "w");
-    if (fp != NULL)
+    if (fp != nullptr)
     {
         handle->PrintVariables(fp);
         fclose(fp);
@@ -243,7 +243,7 @@ TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapat
 {
     GenericVector<STRING> varNames;
     GenericVector<STRING> varValues;
-    if (vars_vec != NULL && vars_values != NULL) {
+    if (vars_vec != nullptr && vars_values != nullptr) {
         for (size_t i = 0; i < vars_vec_size; i++) {
             varNames.push_back(STRING(vars_vec[i]));
             varValues.push_back(STRING(vars_values[i]));
@@ -257,7 +257,7 @@ TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapat
 TESS_API int TESS_CALL TessBaseAPIInit1(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem,
                                         char** configs, int configs_size)
 {
-    return handle->Init(datapath, language, oem, configs, configs_size, NULL, NULL, false);
+    return handle->Init(datapath, language, oem, configs, configs_size, nullptr, nullptr, false);
 }
 
 TESS_API int TESS_CALL TessBaseAPIInit2(TessBaseAPI* handle, const char* datapath, const char* language, TessOcrEngineMode oem)
@@ -282,7 +282,7 @@ TESS_API char** TESS_CALL TessBaseAPIGetLoadedLanguagesAsVector(const TessBaseAP
     char** arr = new char*[languages.size() + 1];
     for (int index = 0; index < languages.size(); ++index)
         arr[index] = languages[index].strdup();
-    arr[languages.size()] = NULL;
+    arr[languages.size()] = nullptr;
     return arr;
 }
 
@@ -293,7 +293,7 @@ TESS_API char** TESS_CALL TessBaseAPIGetAvailableLanguagesAsVector(const TessBas
     char** arr = new char*[languages.size() + 1];
     for (int index = 0; index < languages.size(); ++index)
         arr[index] = languages[index].strdup();
-    arr[languages.size()] = NULL;
+    arr[languages.size()] = nullptr;
     return arr;
 }
 
@@ -469,7 +469,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle)
 
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number)
 {
-    return handle->GetHOCRText(NULL, page_number);
+    return handle->GetHOCRText(nullptr, page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)

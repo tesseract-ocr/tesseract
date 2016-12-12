@@ -51,7 +51,7 @@ class TESS_API TessResultRenderer {
     // and existing next(). The renderers should be unique across both lists.
     void insert(TessResultRenderer* next);
 
-    // Returns the next renderer or NULL.
+    // Returns the next renderer or nullptr.
     TessResultRenderer* next() { return next_; }
 
     /**

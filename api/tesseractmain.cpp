@@ -41,7 +41,7 @@
 
 static void Win32WarningHandler(const char* module, const char* fmt,
                                 va_list ap) {
-  if (module != NULL) {
+  if (module != nullptr) {
     fprintf(stderr, "%s: ", module);
   }
   fprintf(stderr, "Warning, ");
@@ -302,7 +302,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
 
   bool noocr = false;
   int i = 1;
-  while (i < argc && (*outputbase == NULL || argv[i][0] == '-')) {
+  while (i < argc && (*outputbase == nullptr || argv[i][0] == '-')) {
     if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
       *lang = argv[i + 1];
       ++i;
@@ -335,9 +335,9 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
       // handled properly after api init
       ++i;
-    } else if (*image == NULL) {
+    } else if (*image == nullptr) {
       *image = argv[i];
-    } else if (*outputbase == NULL) {
+    } else if (*outputbase == nullptr) {
       *outputbase = argv[i];
     }
     ++i;
@@ -350,7 +350,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     noocr = true;
   }
 
-  if (*outputbase == NULL && noocr == false) {
+  if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
     exit(1);
   }
@@ -409,7 +409,7 @@ static void PreloadRenderers(
     // added to the root, and leave the root in the vector.
     for (int r = 1; r < renderers->size(); ++r) {
       (*renderers)[0]->insert((*renderers)[r]);
-      (*renderers)[r] = NULL;
+      (*renderers)[r] = nullptr;
     }
   }
 }
@@ -421,9 +421,9 @@ static void PreloadRenderers(
 
 int main(int argc, char** argv) {
   const char* lang = "eng";
-  const char* image = NULL;
-  const char* outputbase = NULL;
-  const char* datapath = NULL;
+  const char* image = nullptr;
+  const char* outputbase = nullptr;
+  const char* datapath = nullptr;
   bool list_langs = false;
   bool print_parameters = false;
   int arg_i = 1;
@@ -450,7 +450,7 @@ int main(int argc, char** argv) {
             &enginemode);
 
   bool banner = false;
-  if (outputbase != NULL && strcmp(outputbase, "-") &&
+  if (outputbase != nullptr && strcmp(outputbase, "-") &&
       strcmp(outputbase, "stdout")) {
     banner = true;
   }
@@ -537,14 +537,14 @@ int main(int argc, char** argv) {
   static tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
 
   if (in_training_mode) {
-    renderers.push_back(NULL);
+    renderers.push_back(nullptr);
   } else {
     PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
   }
 
   if (!renderers.empty()) {
     if (banner) PrintBanner();
-    bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
+    bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
       return EXIT_FAILURE;
