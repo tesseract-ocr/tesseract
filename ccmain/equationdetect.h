@@ -220,7 +220,7 @@ class EquationDetect : public EquationDetectBase {
 
   // Search the nearest neighbor of part in one vertical direction as defined in
   // search_bottom. It returns the neighbor found that major x overlap with it,
-  // or NULL when not found.
+  // or nullptr when not found.
   ColPartition* SearchNNVertical(const bool search_bottom,
                                  const ColPartition* part);
 

@@ -31,10 +31,10 @@ PageIterator::PageIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
                            int rect_width, int rect_height)
     : page_res_(page_res),
       tesseract_(tesseract),
-      word_(NULL),
+      word_(nullptr),
       word_length_(0),
       blob_index_(0),
-      cblob_it_(NULL),
+      cblob_it_(nullptr),
       include_upper_dots_(false),
       include_lower_dots_(false),
       scale_(scale),
@@ -60,10 +60,10 @@ PageIterator::~PageIterator() {
 PageIterator::PageIterator(const PageIterator& src)
     : page_res_(src.page_res_),
       tesseract_(src.tesseract_),
-      word_(NULL),
+      word_(nullptr),
       word_length_(src.word_length_),
       blob_index_(src.blob_index_),
-      cblob_it_(NULL),
+      cblob_it_(nullptr),
       include_upper_dots_(src.include_upper_dots_),
       include_lower_dots_(src.include_lower_dots_),
       scale_(src.scale_),
@@ -94,8 +94,8 @@ const PageIterator& PageIterator::operator=(const PageIterator& src) {
 }
 
 bool PageIterator::PositionedAtSameWord(const PAGE_RES_IT* other) const {
-  return (it_ == NULL && it_ == other) ||
-     ((other != NULL) && (it_ != NULL) && (*it_ == *other));
+  return (it_ == nullptr && it_ == other) ||
+     ((other != nullptr) && (it_ != nullptr) && (*it_ == *other));
 }
 
 // ============= Moving around within the page ============.
@@ -107,7 +107,7 @@ void PageIterator::Begin() {
 }
 
 void PageIterator::RestartParagraph() {
-  if (it_->block() == NULL) return; // At end of the document.
+  if (it_->block() == nullptr) return; // At end of the document.
   PAGE_RES_IT para(page_res_);
   PAGE_RES_IT next_para(para);
   next_para.forward_paragraph();
@@ -144,8 +144,8 @@ void PageIterator::RestartRow() {
  * the appropriate language has been loaded into Tesseract.
  */
 bool PageIterator::Next(PageIteratorLevel level) {
-  if (it_->block() == NULL) return false;  // Already at the end!
-  if (it_->word() == NULL)
+  if (it_->block() == nullptr) return false;  // Already at the end!
+  if (it_->word() == nullptr)
     level = RIL_BLOCK;
 
   switch (level) {
@@ -163,7 +163,7 @@ bool PageIterator::Next(PageIteratorLevel level) {
       it_->forward_with_empties();
       break;
     case RIL_SYMBOL:
-      if (cblob_it_ != NULL)
+      if (cblob_it_ != nullptr)
         cblob_it_->forward();
       ++blob_index_;
       if (blob_index_ >= word_length_)
@@ -173,7 +173,7 @@ bool PageIterator::Next(PageIteratorLevel level) {
       break;
   }
   BeginWord(0);
-  return it_->block() != NULL;
+  return it_->block() != nullptr;
 }
 
 /**
@@ -182,8 +182,8 @@ bool PageIterator::Next(PageIteratorLevel level) {
  * moved to the start of a RIL_PARA.
  */
 bool PageIterator::IsAtBeginningOf(PageIteratorLevel level) const {
-  if (it_->block() == NULL) return false;  // Already at the end!
-  if (it_->word() == NULL) return true;  // In an image block.
+  if (it_->block() == nullptr) return false;  // Already at the end!
+  if (it_->word() == nullptr) return true;  // In an image block.
   switch (level) {
     case RIL_BLOCK:
       return blob_index_ == 0 && it_->block() != it_->prev_block();
@@ -267,7 +267,7 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
   if (Empty(level))
     return false;
   TBOX box;
-  PARA *para = NULL;
+  PARA *para = nullptr;
   switch (level) {
     case RIL_BLOCK:
       box = it_->block()->block->restricted_bounding_box(include_upper_dots_,
@@ -285,7 +285,7 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
                                                        include_lower_dots_);
       break;
     case RIL_SYMBOL:
-      if (cblob_it_ == NULL)
+      if (cblob_it_ == nullptr)
         box = it_->word()->box_word->BlobBox(blob_index_);
       else
         box = cblob_it_->data()->bounding_box();
@@ -302,7 +302,7 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
       }
     } while (other.Next(RIL_TEXTLINE));
   }
-  if (level != RIL_SYMBOL || cblob_it_ != NULL)
+  if (level != RIL_SYMBOL || cblob_it_ != nullptr)
     box.rotate(it_->block()->block->re_rotation());
   // Now we have a box in tesseract coordinates relative to the image rectangle,
   // we have to convert the coords to a top-down system.
@@ -346,8 +346,8 @@ bool PageIterator::BoundingBox(PageIteratorLevel level, const int padding,
 
 /** Return that there is no such object at a given level. */
 bool PageIterator::Empty(PageIteratorLevel level) const {
-  if (it_->block() == NULL) return true;  // Already at the end!
-  if (it_->word() == NULL && level != RIL_BLOCK) return true;  // image block
+  if (it_->block() == nullptr) return true;  // Already at the end!
+  if (it_->word() == nullptr && level != RIL_BLOCK) return true;  // image block
   if (level == RIL_SYMBOL && blob_index_ >= word_length_)
     return true;  // Zero length word, or already at the end of it.
   return false;
@@ -355,9 +355,9 @@ bool PageIterator::Empty(PageIteratorLevel level) const {
 
 /** Returns the type of the current block. See apitypes.h for PolyBlockType. */
 PolyBlockType PageIterator::BlockType() const {
-  if (it_->block() == NULL || it_->block()->block == NULL)
+  if (it_->block() == nullptr || it_->block()->block == nullptr)
     return PT_UNKNOWN;  // Already at the end!
-  if (it_->block()->block->pdblk.poly_block() == NULL)
+  if (it_->block()->block->pdblk.poly_block() == nullptr)
     return PT_FLOWING_TEXT;  // No layout analysis used - assume text.
   return it_->block()->block->pdblk.poly_block()->isA();
 }
@@ -365,10 +365,10 @@ PolyBlockType PageIterator::BlockType() const {
 /** Returns the polygon outline of the current block. The returned Pta must
  *  be ptaDestroy-ed after use. */
 Pta* PageIterator::BlockPolygon() const {
-  if (it_->block() == NULL || it_->block()->block == NULL)
-    return NULL;  // Already at the end!
-  if (it_->block()->block->pdblk.poly_block() == NULL)
-    return NULL;  // No layout analysis used - no polygon.
+  if (it_->block() == nullptr || it_->block()->block == nullptr)
+    return nullptr;  // Already at the end!
+  if (it_->block()->block->pdblk.poly_block() == nullptr)
+    return nullptr;  // No layout analysis used - no polygon.
   ICOORDELT_IT it(it_->block()->block->pdblk.poly_block()->points());
   Pta* pta = ptaCreate(it.length());
   int num_pts = 0;
@@ -407,12 +407,12 @@ Pta* PageIterator::BlockPolygon() const {
 Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
   int left, top, right, bottom;
   if (!BoundingBoxInternal(level, &left, &top, &right, &bottom))
-    return NULL;
-  if (level == RIL_SYMBOL && cblob_it_ != NULL &&
+    return nullptr;
+  if (level == RIL_SYMBOL && cblob_it_ != nullptr &&
       cblob_it_->data()->area() != 0)
     return cblob_it_->data()->render();
   Box* box = boxCreate(left, top, right - left, bottom - top);
-  Pix* pix = pixClipRectangle(tesseract_->pix_binary(), box, NULL);
+  Pix* pix = pixClipRectangle(tesseract_->pix_binary(), box, nullptr);
   boxDestroy(&box);
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
@@ -445,8 +445,8 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
                             int* left, int* top) const {
   int right, bottom;
   if (!BoundingBox(level, left, top, &right, &bottom))
-    return NULL;
-  if (original_img == NULL)
+    return nullptr;
+  if (original_img == nullptr)
     return GetBinaryImage(level);
 
   // Expand the box.
@@ -455,7 +455,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   right = MIN(right + padding, rect_width_);
   bottom = MIN(bottom + padding, rect_height_);
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
+  Pix* grey_pix = pixClipRectangle(original_img, box, nullptr);
   boxDestroy(&box);
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
@@ -486,7 +486,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
  */
 bool PageIterator::Baseline(PageIteratorLevel level,
                             int* x1, int* y1, int* x2, int* y2) const {
-  if (it_->word() == NULL) return false;  // Already at the end!
+  if (it_->word() == nullptr) return false;  // Already at the end!
   ROW* row = it_->row()->row;
   WERD* word = it_->word()->word;
   TBOX box = (level == RIL_WORD || level == RIL_SYMBOL)
@@ -575,18 +575,18 @@ void PageIterator::ParagraphInfo(tesseract::ParagraphJustification *just,
  */
 void PageIterator::BeginWord(int offset) {
   WERD_RES* word_res = it_->word();
-  if (word_res == NULL) {
+  if (word_res == nullptr) {
     // This is a non-text block, so there is no word.
     word_length_ = 0;
     blob_index_ = 0;
-    word_ = NULL;
+    word_ = nullptr;
     return;
   }
-  if (word_res->best_choice != NULL) {
+  if (word_res->best_choice != nullptr) {
     // Recognition has been done, so we are using the box_word, which
     // is already baseline denormalized.
     word_length_ = word_res->best_choice->length();
-    if (word_res->box_word != NULL) {
+    if (word_res->box_word != nullptr) {
       if (word_res->box_word->length() != word_length_) {
         tprintf("Corrupted word! best_choice[len=%d] = %s, box_word[len=%d]: ",
                 word_length_, word_res->best_choice->unichar_string().string(),
@@ -595,26 +595,26 @@ void PageIterator::BeginWord(int offset) {
       }
       ASSERT_HOST(word_res->box_word->length() == word_length_);
     }
-    word_ = NULL;
+    word_ = nullptr;
     // We will be iterating the box_word.
     delete cblob_it_;
-    cblob_it_ = NULL;
+    cblob_it_ = nullptr;
   } else {
     // No recognition yet, so a "symbol" is a cblob.
     word_ = word_res->word;
-    ASSERT_HOST(word_->cblob_list() != NULL);
+    ASSERT_HOST(word_->cblob_list() != nullptr);
     word_length_ = word_->cblob_list()->length();
-    if (cblob_it_ == NULL) cblob_it_ = new C_BLOB_IT;
+    if (cblob_it_ == nullptr) cblob_it_ = new C_BLOB_IT;
     cblob_it_->set_to_list(word_->cblob_list());
   }
   for (blob_index_ = 0; blob_index_ < offset; ++blob_index_) {
-    if (cblob_it_ != NULL)
+    if (cblob_it_ != nullptr)
       cblob_it_->forward();
   }
 }
 
 bool PageIterator::SetWordBlamerBundle(BlamerBundle *blamer_bundle) {
-  if (it_->word() != NULL) {
+  if (it_->word() != nullptr) {
     it_->word()->blamer_bundle = blamer_bundle;
     return true;
   } else {

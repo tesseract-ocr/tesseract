@@ -43,7 +43,7 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 
   STRING output_fname = fname;
   const char *lastdot = strrchr(output_fname.string(), '.');
-  if (lastdot != NULL) output_fname[lastdot - output_fname.string()] = '\0';
+  if (lastdot != nullptr) output_fname[lastdot - output_fname.string()] = '\0';
   output_fname += ".txt";
   FILE *output_file = open_file(output_fname.string(), "a+");
   return output_file;
@@ -51,10 +51,10 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
 bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
-  while (page_res_it->block() != NULL && page_res_it->word() == NULL)
+  while (page_res_it->block() != nullptr && page_res_it->word() == nullptr)
     page_res_it->forward();
 
-  if (page_res_it->word() != NULL) {
+  if (page_res_it->word() != nullptr) {
     *tbox = page_res_it->word()->word->bounding_box();
 
     // If tbox->left() is negative, the training image has vertical text and
@@ -82,7 +82,7 @@ void Tesseract::recog_training_segmented(const STRING &fname,
                                          FILE *output_file) {
   STRING box_fname = fname;
   const char *lastdot = strrchr(box_fname.string(), '.');
-  if (lastdot != NULL) box_fname[lastdot - box_fname.string()] = '\0';
+  if (lastdot != nullptr) box_fname[lastdot - box_fname.string()] = '\0';
   box_fname += ".box";
   // ReadNextBox() will close box_file
   FILE *box_file = open_file(box_fname.string(), "r");
@@ -138,10 +138,10 @@ void Tesseract::recog_training_segmented(const STRING &fname,
   // werd_res's don't get uch_sets, tesseract will crash when you try
   // to iterate over them. :-(
   int total_words = 0;
-  for (page_res_it.restart_page(); page_res_it.block() != NULL;
+  for (page_res_it.restart_page(); page_res_it.block() != nullptr;
        page_res_it.forward()) {
     if (page_res_it.word()) {
-      if (page_res_it.word()->uch_set == NULL)
+      if (page_res_it.word()->uch_set == nullptr)
         page_res_it.word()->SetupFake(unicharset);
       total_words++;
     }
@@ -209,11 +209,11 @@ void Tesseract::ambigs_classify_and_output(const char *label,
   classify_word_and_language(1, pr_it, &word_data);
   WERD_RES* werd_res = word_data.word;
   WERD_CHOICE *best_choice = werd_res->best_choice;
-  ASSERT_HOST(best_choice != NULL);
+  ASSERT_HOST(best_choice != nullptr);
 
   // Compute the number of unichars in the label.
   GenericVector<UNICHAR_ID> encoding;
-  if (!unicharset.encode_string(label, true, &encoding, NULL, NULL)) {
+  if (!unicharset.encode_string(label, true, &encoding, nullptr, nullptr)) {
     tprintf("Not outputting illegal unichar %s\n", label);
     return;
   }

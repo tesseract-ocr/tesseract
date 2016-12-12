@@ -73,11 +73,11 @@ extern const ParagraphModel *kCrownLeft;
 extern const ParagraphModel *kCrownRight;
 
 inline bool StrongModel(const ParagraphModel *model) {
-  return model != NULL && model != kCrownLeft && model != kCrownRight;
+  return model != nullptr && model != kCrownLeft && model != kCrownRight;
 }
 
 struct LineHypothesis {
-  LineHypothesis() : ty(LT_UNKNOWN), model(NULL) {}
+  LineHypothesis() : ty(LT_UNKNOWN), model(nullptr) {}
   LineHypothesis(LineType line_type, const ParagraphModel *m)
       : ty(line_type), model(m) {}
   LineHypothesis(const LineHypothesis &other)
@@ -135,11 +135,11 @@ class RowScratchRegisters {
   void DiscardNonMatchingHypotheses(const SetOfModels &models);
 
   // If we have only one hypothesis and that is that this line is a paragraph
-  // start line of a certain model, return that model.  Else return NULL.
+  // start line of a certain model, return that model.  Else return nullptr.
   const ParagraphModel *UniqueStartHypothesis() const;
 
   // If we have only one hypothesis and that is that this line is a paragraph
-  // body line of a certain model, return that model.  Else return NULL.
+  // body line of a certain model, return that model.  Else return nullptr.
   const ParagraphModel *UniqueBodyHypothesis() const;
 
   // Return the indentation for the side opposite of the aligned side.
@@ -206,7 +206,7 @@ class ParagraphTheory {
   void NonCenteredModels(SetOfModels *models);
 
   // If any of the non-centered paragraph models we know about fit
-  // rows[start, end), return it.  Else NULL.
+  // rows[start, end), return it.  Else nullptr.
   const ParagraphModel *Fits(const GenericVector<RowScratchRegisters> *rows,
                              int start, int end) const;
 
@@ -301,7 +301,7 @@ bool LikelyParagraphStart(const RowScratchRegisters &before,
                           const RowScratchRegisters &after,
                           tesseract::ParagraphJustification j);
 
-// Given a set of row_owners pointing to PARAs or NULL (no paragraph known),
+// Given a set of row_owners pointing to PARAs or nullptr (no paragraph known),
 // normalize each row_owner to point to an actual PARA, and output the
 // paragraphs in order onto paragraphs.
 void CanonicalizeDetectionResults(

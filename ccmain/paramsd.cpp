@@ -128,7 +128,7 @@ const char* ParamContent::GetDescription() const {
   else if (param_type_ == VT_BOOLEAN) { return bIt->info_str(); }
   else if (param_type_ == VT_DOUBLE) { return dIt->info_str(); }
   else if (param_type_ == VT_STRING) { return sIt->info_str(); }
-  else return NULL;
+  else return nullptr;
 }
 
 // Getter for the value.
@@ -141,7 +141,7 @@ STRING ParamContent::GetValue() const {
   } else if (param_type_ == VT_DOUBLE) {
     result.add_str_double("", *dIt);
   } else if (param_type_ == VT_STRING) {
-    if (((STRING) * (sIt)).string() != NULL) {
+    if (((STRING) * (sIt)).string() != nullptr) {
       result = sIt->string();
     } else {
       result = "Null";
@@ -160,7 +160,7 @@ void ParamContent::SetValue(const char* val) {
   } else if (param_type_ == VT_BOOLEAN) {
     bIt->set_value(atoi(val));
   } else if (param_type_ == VT_DOUBLE) {
-    dIt->set_value(strtod(val, NULL));
+    dIt->set_value(strtod(val, nullptr));
   } else if (param_type_ == VT_STRING) {
     sIt->set_value(val);
   }
@@ -201,7 +201,7 @@ SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
 
   // Add all parameters to a list.
   int v, i;
-  int num_iterations = (tess->params() == NULL) ? 1 : 2;
+  int num_iterations = (tess->params() == nullptr) ? 1 : 2;
   for (v = 0; v < num_iterations; ++v) {
     tesseract::ParamsVectors *vec = (v == 0) ? GlobalParams() : tess->params();
     for (i = 0; i < vec->int_params.size(); ++i) {
@@ -286,7 +286,7 @@ void ParamsEditor::Notify(const SVEvent* sve) {
 // empty window and attach the parameters editor to that window (ugly).
 ParamsEditor::ParamsEditor(tesseract::Tesseract* tess,
                                  ScrollView* sv) {
-  if (sv == NULL) {
+  if (sv == nullptr) {
     const char* name = "ParamEditorMAIN";
     sv = new ScrollView(name, 1, 1, 200, 200, 300, 200);
   }
@@ -323,7 +323,7 @@ void ParamsEditor::WriteParams(char *filename,
   FILE *fp;                      // input file
   char msg_str[255];
                                  // if file exists
-  if ((fp = fopen (filename, "rb")) != NULL) {
+  if ((fp = fopen (filename, "rb")) != nullptr) {
     fclose(fp);
     sprintf (msg_str, "Overwrite file " "%s" "? (Y/N)", filename);
     int a = sv_window_->ShowYesNoDialog(msg_str);
@@ -334,7 +334,7 @@ void ParamsEditor::WriteParams(char *filename,
 
 
   fp = fopen (filename, "wb");  // can we write to it?
-  if (fp == NULL) {
+  if (fp == nullptr) {
     sv_window_->AddMessage(
         "Can't write to file "
         "%s"

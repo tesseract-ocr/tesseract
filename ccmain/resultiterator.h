@@ -163,7 +163,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator &resit,
                               GenericVectorEqEq<int> *indices) const;
-  /** Same as above, but the caller's ssd gets filled in if ssd != NULL. */
+  /** Same as above, but the caller's ssd gets filled in if ssd != nullptr. */
   void CalculateTextlineOrder(bool paragraph_is_ltr,
                               const LTRResultIterator &resit,
                               GenericVector<StrongScriptDirection> *ssd,

@@ -109,9 +109,9 @@ ParamsEditor* pe;
 bool stillRunning = false;
 
 #ifdef __UNIX__
-FILE *debug_window = NULL;                // opened on demand
+FILE *debug_window = nullptr;                // opened on demand
 #endif
-ScrollView* bln_word_window = NULL;       // baseline norm words
+ScrollView* bln_word_window = nullptr;       // baseline norm words
 
 CMD_EVENTS mode = CHANGE_DISP_CMD_EVENT;  // selected words op
 
@@ -125,7 +125,7 @@ BOOL8 display_image = FALSE;
 BOOL8 display_blocks = FALSE;
 BOOL8 display_baselines = FALSE;
 
-PAGE_RES *current_page_res = NULL;
+PAGE_RES *current_page_res = nullptr;
 
 STRING_VAR(editor_image_win_name, "EditorImage",
            "Editor image window name");
@@ -158,7 +158,7 @@ class BlnEventHandler : public SVEventHandler {
  public:
   void Notify(const SVEvent* sv_event) {
     if (sv_event->type == SVET_DESTROY)
-      bln_word_window = NULL;
+      bln_word_window = nullptr;
     else if (sv_event->type == SVET_CLICK)
       show_point(current_page_res, sv_event->x, sv_event->y);
   }
@@ -171,7 +171,7 @@ class BlnEventHandler : public SVEventHandler {
  */
 ScrollView* bln_word_window_handle() {  // return handle
                                  // not opened yet
-  if (bln_word_window == NULL) {
+  if (bln_word_window == nullptr) {
     pgeditor_msg("Creating BLN word window...");
     bln_word_window = new ScrollView(editor_word_name.string(),
       editor_word_xpos, editor_word_ypos, editor_word_width,
@@ -316,7 +316,7 @@ void Tesseract::do_re_display(
 
   image_win->Brush(ScrollView::NONE);
   PAGE_RES_IT pr_it(current_page_res);
-  for (WERD_RES* word = pr_it.word(); word != NULL; word = pr_it.forward()) {
+  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
     (this->*word_painter)(&pr_it);
     if (display_baselines && pr_it.row() != pr_it.prev_row())
       pr_it.row()->row->plot_baseline(image_win, ScrollView::GREEN);
@@ -359,7 +359,7 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   image_win->SetVisible(true);
 
   image_win->AwaitEvent(SVET_DESTROY);
-  image_win->AddEventHandler(NULL);
+  image_win->AddEventHandler(nullptr);
 }
 }  // namespace tesseract
 
@@ -416,7 +416,7 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
     case SHOW_SMALLCAPS_CMD_EVENT:
     case SHOW_DROPCAPS_CMD_EVENT:
       if (!recog_done) {
-        recog_all_words(current_page_res, NULL, NULL, NULL, 0);
+        recog_all_words(current_page_res, nullptr, nullptr, nullptr, 0);
         recog_done = true;
       }
       break;
@@ -640,7 +640,7 @@ void Tesseract::process_image_event( // action in image win
  */
 void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
   ResetAdaptiveClassifier();
-  recog_all_words(page_res, NULL, &selection_box, word_config_.string(), 0);
+  recog_all_words(page_res, nullptr, &selection_box, word_config_.string(), 0);
 }
 }  // namespace tesseract
 
@@ -662,7 +662,7 @@ void show_point(PAGE_RES* page_res, float x, float y) {
 
   msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);
 
-  for (WERD_RES* word = pr_it.word(); word != NULL; word = pr_it.forward()) {
+  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
     if (pr_it.row() != pr_it.prev_row() &&
         pr_it.row()->row->bounding_box().contains(pt)) {
       msg_ptr += sprintf(msg_ptr, "BL(x)=%0.3f ",
@@ -728,10 +728,10 @@ BOOL8 Tesseract:: word_blank_and_set_display(PAGE_RES_IT* pr_it) {
  */
 BOOL8 Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
   WERD_RES* word_res = pr_it->word();
-  if (word_res->chopped_word == NULL) {
+  if (word_res->chopped_word == nullptr) {
     // Setup word normalization parameters.
     word_res->SetupForRecognition(unicharset, this, BestPix(),
-                                  tessedit_ocr_engine_mode, NULL,
+                                  tessedit_ocr_engine_mode, nullptr,
                                   classify_bln_numeric_mode,
                                   textord_use_cjk_fp_model,
                                   poly_allow_detailed_fx,
@@ -767,11 +767,11 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
   float shift;                   // from bot left
   C_BLOB_IT c_it;                // cblob iterator
 
-  if (color_mode != CM_RAINBOW && word_res->box_word != NULL) {
+  if (color_mode != CM_RAINBOW && word_res->box_word != nullptr) {
     BoxWord* box_word = word_res->box_word;
     WERD_CHOICE* best_choice = word_res->best_choice;
     int length = box_word->length();
-    if (word_res->fontinfo == NULL) return false;
+    if (word_res->fontinfo == nullptr) return false;
     const FontInfo& font_info = *word_res->fontinfo;
     for (int i = 0; i < length; ++i) {
       ScrollView::Color color = ScrollView::GREEN;
@@ -858,28 +858,28 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
   // Display correct text and blamer information.
   STRING text;
   STRING blame;
-  if (word->display_flag(DF_TEXT) && word->text() != NULL) {
+  if (word->display_flag(DF_TEXT) && word->text() != nullptr) {
     text = word->text();
   }
   if (word->display_flag(DF_BLAMER) &&
-      !(word_res->blamer_bundle != NULL &&
+      !(word_res->blamer_bundle != nullptr &&
         word_res->blamer_bundle->incorrect_result_reason() == IRR_CORRECT)) {
     text = "";
     const BlamerBundle *blamer_bundle = word_res->blamer_bundle;
-    if (blamer_bundle == NULL) {
+    if (blamer_bundle == nullptr) {
       text += "NULL";
     } else {
       text = blamer_bundle->TruthString();
     }
     text += " -> ";
     STRING best_choice_str;
-    if (word_res->best_choice == NULL) {
+    if (word_res->best_choice == nullptr) {
       best_choice_str = "NULL";
     } else {
-      word_res->best_choice->string_and_lengths(&best_choice_str, NULL);
+      word_res->best_choice->string_and_lengths(&best_choice_str, nullptr);
     }
     text += best_choice_str;
-    IncorrectResultReason reason = (blamer_bundle == NULL) ?
+    IncorrectResultReason reason = (blamer_bundle == nullptr) ?
         IRR_PAGE_LAYOUT : blamer_bundle->incorrect_result_reason();
     ASSERT_HOST(reason < IRR_NUM_REASONS)
     blame += " [";
@@ -920,16 +920,16 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
  * Dump members to the debug window
  */
 BOOL8 Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
-  if (pr_it->block()->block != NULL) {
+  if (pr_it->block()->block != nullptr) {
     tprintf("\nBlock data...\n");
-    pr_it->block()->block->print(NULL, FALSE);
+    pr_it->block()->block->print(nullptr, FALSE);
   }
   tprintf("\nRow data...\n");
-  pr_it->row()->row->print(NULL);
+  pr_it->row()->row->print(nullptr);
   tprintf("\nWord data...\n");
   WERD_RES* word_res = pr_it->word();
   word_res->word->print();
-  if (word_res->blamer_bundle != NULL && wordrec_debug_blamer &&
+  if (word_res->blamer_bundle != nullptr && wordrec_debug_blamer &&
       word_res->blamer_bundle->incorrect_result_reason() != IRR_CORRECT) {
     tprintf("Current blamer debug: %s\n",
             word_res->blamer_bundle->debug().string());
@@ -960,11 +960,11 @@ BOOL8 Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
 void Tesseract::blob_feature_display(PAGE_RES* page_res,
                                      const TBOX& selection_box) {
   PAGE_RES_IT* it = make_pseudo_word(page_res, selection_box);
-  if (it != NULL) {
+  if (it != nullptr) {
     WERD_RES* word_res = it->word();
     word_res->x_height = it->row()->row->x_height();
     word_res->SetupForRecognition(unicharset, this, BestPix(),
-                                  tessedit_ocr_engine_mode, NULL,
+                                  tessedit_ocr_engine_mode, nullptr,
                                   classify_bln_numeric_mode,
                                   textord_use_cjk_fp_model,
                                   poly_allow_detailed_fx,
@@ -975,7 +975,7 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
     GenericVector<INT_FEATURE_STRUCT> bl_features;
     GenericVector<INT_FEATURE_STRUCT> cn_features;
     Classify::ExtractFeatures(*bln_blob, classify_nonlinear_norm, &bl_features,
-                              &cn_features, &fx_info, NULL);
+                              &cn_features, &fx_info, nullptr);
     // Display baseline features.
     ScrollView* bl_win = CreateFeatureSpaceWindow("BL Features", 512, 0);
     ClearFeatureSpaceWindow(baseline, bl_win);

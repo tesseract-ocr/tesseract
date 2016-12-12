@@ -200,11 +200,11 @@ bool IsDigitLike(int ch) {
 }
 
 bool IsOpeningPunct(int ch) {
-  return strchr("'\"({[", ch) != NULL;
+  return strchr("'\"({[", ch) != nullptr;
 }
 
 bool IsTerminalPunct(int ch) {
-  return strchr(":'\".?!]})", ch) != NULL;
+  return strchr(":'\".?!]})", ch) != nullptr;
 }
 
 // Return a pointer after consuming as much text as qualifies as roman numeral.
@@ -262,7 +262,7 @@ bool LikelyListNumeral(const STRING &word) {
 
 bool LikelyListMark(const STRING &word) {
   const char *kListMarks = "0Oo*.,+.";
-  return word.size() == 1 && strchr(kListMarks, word[0]) != NULL;
+  return word.size() == 1 && strchr(kListMarks, word[0]) != nullptr;
 }
 
 bool AsciiLikelyListItem(const STRING &word) {
@@ -398,7 +398,7 @@ void LeftWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd,
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != NULL && werd->length() == 0)) {  // Empty
+  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) {  // Empty
     *ends_idea = true;
     return;
   }
@@ -445,7 +445,7 @@ void RightWordAttributes(const UNICHARSET *unicharset, const WERD_CHOICE *werd,
   *is_list = false;
   *starts_idea = false;
   *ends_idea = false;
-  if (utf8.size() == 0 || (werd != NULL && werd->length() == 0)) {  // Empty
+  if (utf8.size() == 0 || (werd != nullptr && werd->length() == 0)) {  // Empty
     *ends_idea = true;
     return;
   }
@@ -491,7 +491,7 @@ void RowScratchRegisters::AppendDebugInfo(const ParagraphTheory &theory,
 
   int model_numbers = 0;
   for (int h = 0; h < hypotheses_.size(); h++) {
-    if (hypotheses_[h].model == NULL)
+    if (hypotheses_[h].model == nullptr)
       continue;
     if (model_numbers > 0)
       model_string += ",";
@@ -566,7 +566,7 @@ void RowScratchRegisters::SetStartLine() {
     tprintf("Trying to set a line to be START when it's already BODY.\n");
   }
   if (current_lt == LT_UNKNOWN || current_lt == LT_BODY) {
-    hypotheses_.push_back_new(LineHypothesis(LT_START, NULL));
+    hypotheses_.push_back_new(LineHypothesis(LT_START, nullptr));
   }
 }
 
@@ -576,20 +576,20 @@ void RowScratchRegisters::SetBodyLine() {
     tprintf("Trying to set a line to be BODY when it's already START.\n");
   }
   if (current_lt == LT_UNKNOWN || current_lt == LT_START) {
-    hypotheses_.push_back_new(LineHypothesis(LT_BODY, NULL));
+    hypotheses_.push_back_new(LineHypothesis(LT_BODY, nullptr));
   }
 }
 
 void RowScratchRegisters::AddStartLine(const ParagraphModel *model) {
   hypotheses_.push_back_new(LineHypothesis(LT_START, model));
-  int old_idx = hypotheses_.get_index(LineHypothesis(LT_START, NULL));
+  int old_idx = hypotheses_.get_index(LineHypothesis(LT_START, nullptr));
   if (old_idx >= 0)
     hypotheses_.remove(old_idx);
 }
 
 void RowScratchRegisters::AddBodyLine(const ParagraphModel *model) {
   hypotheses_.push_back_new(LineHypothesis(LT_BODY, model));
-  int old_idx = hypotheses_.get_index(LineHypothesis(LT_BODY, NULL));
+  int old_idx = hypotheses_.get_index(LineHypothesis(LT_BODY, nullptr));
   if (old_idx >= 0)
     hypotheses_.remove(old_idx);
 }
@@ -610,20 +610,20 @@ void RowScratchRegisters::StrongHypotheses(SetOfModels *models) const {
 
 void RowScratchRegisters::NonNullHypotheses(SetOfModels *models) const {
   for (int h = 0; h < hypotheses_.size(); h++) {
-    if (hypotheses_[h].model != NULL)
+    if (hypotheses_[h].model != nullptr)
       models->push_back_new(hypotheses_[h].model);
   }
 }
 
 const ParagraphModel *RowScratchRegisters::UniqueStartHypothesis() const {
   if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_START)
-    return NULL;
+    return nullptr;
   return hypotheses_[0].model;
 }
 
 const ParagraphModel *RowScratchRegisters::UniqueBodyHypothesis() const {
   if (hypotheses_.size() != 1 || hypotheses_[0].ty != LT_BODY)
-    return NULL;
+    return nullptr;
   return hypotheses_[0].model;
 }
 
@@ -1236,7 +1236,7 @@ void ParagraphTheory::DiscardUnusedModels(const SetOfModels &used_models) {
 
 // Examine rows[start, end) and try to determine if an existing non-centered
 // paragraph model would fit them perfectly.  If so, return a pointer to it.
-// If not, return NULL.
+// If not, return nullptr.
 const ParagraphModel *ParagraphTheory::Fits(
     const GenericVector<RowScratchRegisters> *rows, int start, int end) const {
   for (int m = 0; m < models_->size(); m++) {
@@ -1245,7 +1245,7 @@ const ParagraphModel *ParagraphTheory::Fits(
         RowsFitModel(rows, start, end, model))
       return model;
   }
-  return NULL;
+  return nullptr;
 }
 
 void ParagraphTheory::NonCenteredModels(SetOfModels *models) {
@@ -1492,9 +1492,9 @@ void DowngradeWeakestToCrowns(int debug_level,
   int start;
   for (int end = rows->size(); end > 0; end = start) {
     // Search back for a body line of a unique type.
-    const ParagraphModel *model = NULL;
+    const ParagraphModel *model = nullptr;
     while (end > 0 &&
-           (model = (*rows)[end - 1].UniqueBodyHypothesis()) == NULL) {
+           (model = (*rows)[end - 1].UniqueBodyHypothesis()) == nullptr) {
       end--;
     }
     if (end == 0) break;
@@ -1952,7 +1952,7 @@ void ModelStrongEvidence(int debug_level,
     // do so and mark this sequence with that model.
     if (end > start + 1) {
       // emit a new paragraph if we have more than one line.
-      const ParagraphModel *model = NULL;
+      const ParagraphModel *model = nullptr;
       ParagraphModel new_model = ParagraphModelByOutline(
           debug_level, rows, start, end,
           Epsilon(InterwordSpace(*rows, start, end)));
@@ -2048,7 +2048,7 @@ void ConvertHypothesizedModelRunsToParagraphs(
   int start;
   for (; end > 0; end = start) {
     start = end - 1;
-    const ParagraphModel *model = NULL;
+    const ParagraphModel *model = nullptr;
     // TODO(eger): Be smarter about dealing with multiple hypotheses.
     bool single_line_paragraph = false;
     SetOfModels models;
@@ -2064,10 +2064,10 @@ void ConvertHypothesizedModelRunsToParagraphs(
         // do nothing
       }
       if (start < 0 || rows[start].GetLineType(model) != LT_START) {
-        model = NULL;
+        model = nullptr;
       }
     }
-    if (model == NULL) {
+    if (model == nullptr) {
       continue;
     }
     // rows[start, end) should be a paragraph.
@@ -2111,7 +2111,7 @@ void ConvertHypothesizedModelRunsToParagraphs(
             ? rows[start].ri_->rword_indicates_list_item
             : rows[start].ri_->lword_indicates_list_item;
     for (int row = start; row < end; row++) {
-      if ((*row_owners)[row] != NULL) {
+      if ((*row_owners)[row] != nullptr) {
         tprintf("Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
                 "more than once!\n");
         delete (*row_owners)[row];
@@ -2228,7 +2228,7 @@ void LeftoverSegments(const GenericVector<RowScratchRegisters> &rows,
   }
 }
 
-// Given a set of row_owners pointing to PARAs or NULL (no paragraph known),
+// Given a set of row_owners pointing to PARAs or nullptr (no paragraph known),
 // normalize each row_owner to point to an actual PARA, and output the
 // paragraphs in order onto paragraphs.
 void CanonicalizeDetectionResults(
@@ -2237,9 +2237,9 @@ void CanonicalizeDetectionResults(
   GenericVector<PARA *> &rows = *row_owners;
   paragraphs->clear();
   PARA_IT out(paragraphs);
-  PARA *formerly_null = NULL;
+  PARA *formerly_null = nullptr;
   for (int i = 0; i < rows.size(); i++) {
-    if (rows[i] == NULL) {
+    if (rows[i] == nullptr) {
       if (i == 0 || rows[i - 1] != formerly_null) {
         rows[i] = formerly_null = new PARA();
       } else {
@@ -2271,8 +2271,8 @@ void DetectParagraphs(int debug_level,
   GenericVector<RowScratchRegisters> rows;
   ParagraphTheory theory(models);
 
-  // Initialize row_owners to be a bunch of NULL pointers.
-  row_owners->init_to_size(row_infos->size(), NULL);
+  // Initialize row_owners to be a bunch of nullptr pointers.
+  row_owners->init_to_size(row_infos->size(), nullptr);
 
   // Set up row scratch registers for the main algorithm.
   rows.init_to_size(row_infos->size(), RowScratchRegisters());
@@ -2352,7 +2352,7 @@ void DetectParagraphs(int debug_level,
 
   DebugDump(debug_level > 0, "Final Paragraph Segmentation", theory, rows);
 
-  // Finally, clean up any dangling NULL row paragraph parents.
+  // Finally, clean up any dangling nullptr row paragraph parents.
   CanonicalizeDetectionResults(row_owners, paragraphs);
 }
 
@@ -2391,8 +2391,8 @@ void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
   WERD_RES *word_res = page_res_it.restart_row();
   ROW_RES *this_row = page_res_it.row();
 
-  WERD_RES *lword = NULL;
-  WERD_RES *rword = NULL;
+  WERD_RES *lword = nullptr;
+  WERD_RES *rword = nullptr;
   info->num_words = 0;
   do {
     if (word_res) {
@@ -2413,7 +2413,7 @@ void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
 void InitializeRowInfo(bool after_recognition,
                        const MutableIterator &it,
                        RowInfo *info) {
-  if (it.PageResIt()->row() != NULL) {
+  if (it.PageResIt()->row() != nullptr) {
     ROW *row = it.PageResIt()->row()->row;
     info->pix_ldistance = row->lmargin();
     info->pix_rdistance = row->rmargin();
@@ -2529,7 +2529,7 @@ void DetectParagraphs(int debug_level,
   do {
     if (!row.PageResIt()->row())
       continue;  // empty row.
-    row.PageResIt()->row()->row->set_para(NULL);
+    row.PageResIt()->row()->row->set_para(nullptr);
     row_infos.push_back(RowInfo());
     RowInfo &ri = row_infos.back();
     InitializeRowInfo(after_text_recognition, row, &ri);
@@ -2562,7 +2562,7 @@ void DetectParagraphs(int debug_level,
     DetectParagraphs(debug_level, &row_infos, &row_owners, block->para_list(),
                      models);
   } else {
-    row_owners.init_to_size(row_infos.size(), NULL);
+    row_owners.init_to_size(row_infos.size(), nullptr);
     CanonicalizeDetectionResults(&row_owners, block->para_list());
   }
 

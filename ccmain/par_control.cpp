@@ -25,7 +25,7 @@
 namespace tesseract {
 
 struct BlobData {
-  BlobData() : blob(NULL), choices(NULL) {}
+  BlobData() : blob(nullptr), choices(nullptr) {}
   BlobData(int index, Tesseract* tess, const WERD_RES& word)
     : blob(word.chopped_word->blobs[index]),
       tesseract(tess),
@@ -40,8 +40,8 @@ void Tesseract::PrerecAllWordsPar(const GenericVector<WordData>& words) {
   // Prepare all the blobs.
   GenericVector<BlobData> blobs;
   for (int w = 0; w < words.size(); ++w) {
-    if (words[w].word->ratings != NULL &&
-        words[w].word->ratings->get(0, 0) == NULL) {
+    if (words[w].word->ratings != nullptr &&
+        words[w].word->ratings->get(0, 0) == nullptr) {
       for (int s = 0; s < words[w].lang_words.size(); ++s) {
         Tesseract* sub = s < sub_langs_.size() ? sub_langs_[s] : this;
         const WERD_RES& word = *words[w].lang_words[s];
@@ -58,13 +58,13 @@ void Tesseract::PrerecAllWordsPar(const GenericVector<WordData>& words) {
 #endif  // _OPENMP
     for (int b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
-          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", White, NULL);
+          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", White, nullptr);
     }
   } else {
     // TODO(AMD) parallelize this.
     for (int b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
-          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", White, NULL);
+          blobs[b].tesseract->classify_blob(blobs[b].blob, "par", White, nullptr);
     }
   }
 }

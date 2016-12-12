@@ -136,12 +136,12 @@ struct TesseractStats {
 
 // Struct to hold all the pointers to relevant data for processing a word.
 struct WordData {
-  WordData() : word(NULL), row(NULL), block(NULL), prev_word(NULL) {}
+  WordData() : word(nullptr), row(nullptr), block(nullptr), prev_word(nullptr) {}
   explicit WordData(const PAGE_RES_IT& page_res_it)
     : word(page_res_it.word()), row(page_res_it.row()->row),
-      block(page_res_it.block()->block), prev_word(NULL) {}
+      block(page_res_it.block()->block), prev_word(nullptr) {}
   WordData(BLOCK* block_in, ROW* row_in, WERD_RES* word_res)
-    : word(word_res), row(row_in), block(block_in), prev_word(NULL) {}
+    : word(word_res), row(row_in), block(block_in), prev_word(nullptr) {}
 
   WERD_RES* word;
   ROW* row;
@@ -152,7 +152,7 @@ struct WordData {
 
 // Definition of a Tesseract WordRecognizer. The WordData provides the context
 // of row/block, in_word holds an initialized, possibly pre-classified word,
-// that the recognizer may or may not consume (but if so it sets *in_word=NULL)
+// that the recognizer may or may not consume (but if so it sets *in_word=nullptr)
 // and produces one or more output words in out_words, which may be the
 // consumed in_word, or may be generated independently.
 // This api allows both a conventional tesseract classifier to work, or a
@@ -220,7 +220,7 @@ class Tesseract : public Wordrec {
   Pix* BestPix() const {
     if (pixGetWidth(pix_original_) == ImageWidth())
       return pix_original_;
-    else if (pix_grey_ != NULL)
+    else if (pix_grey_ != nullptr)
       return pix_grey_;
     else
       return pix_binary_;
@@ -395,7 +395,7 @@ class Tesseract : public Wordrec {
                           bool* make_next_word_fuzzy);
   // Attempts to put noise/diacritic outlines into the blobs that they overlap.
   // Input: a set of noisy outlines that probably belong to the real_word.
-  // Output: outlines that overlapped blobs are set to NULL and put back into
+  // Output: outlines that overlapped blobs are set to nullptr and put back into
   // the word, either in the blobs or in the reject list.
   void AssignDiacriticsToOverlappingBlobs(
       const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
@@ -516,7 +516,7 @@ class Tesseract : public Wordrec {
                      const char *language,
                      OcrEngineMode oem) {
     TessdataManager mgr;
-    return init_tesseract(datapath, NULL, language, oem, NULL, 0, NULL, NULL,
+    return init_tesseract(datapath, nullptr, language, oem, nullptr, 0, nullptr, nullptr,
                           false, &mgr);
   }
   // Common initialization for a single language.
@@ -528,7 +528,7 @@ class Tesseract : public Wordrec {
   // language is the language code to load.
   // oem controls which engine(s) will operate on the image
   // configs (argv) is an array of config filenames to load variables from.
-  // May be NULL.
+  // May be nullptr.
   // configs_size (argc) is the number of elements in configs.
   // vars_vec is an optional vector of variables to set.
   // vars_values is an optional corresponding vector of values for the variables
@@ -1126,7 +1126,7 @@ class Tesseract : public Wordrec {
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Pix* pix_binary_;
-  // Grey-level input image if the input was not binary, otherwise NULL.
+  // Grey-level input image if the input was not binary, otherwise nullptr.
   Pix* pix_grey_;
   // Original input image. Color if the input was color.
   Pix* pix_original_;

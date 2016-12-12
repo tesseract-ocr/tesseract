@@ -54,15 +54,15 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts;
   // Get the boxes for this page, if there are any.
-  if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, NULL,
-                    NULL) ||
+  if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr,
+                    nullptr) ||
       boxes.empty()) {
     tprintf("Failed to read boxes from %s\n", input_imagename.string());
     return;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
   images.Shuffle();
-  if (!images.SaveDocument(lstmf_name.string(), NULL)) {
+  if (!images.SaveDocument(lstmf_name.string(), nullptr)) {
     tprintf("Failed to write training data to %s!\n", lstmf_name.string());
   }
 }
@@ -90,12 +90,12 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
       line_str += texts[end_box];
     }
     // Find the most overlapping block.
-    BLOCK* best_block = NULL;
+    BLOCK* best_block = nullptr;
     int best_overlap = 0;
     BLOCK_IT b_it(block_list);
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOCK* block = b_it.data();
-      if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText())
+      if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
         continue;  // Not a text block.
       TBOX block_box = block->pdblk.bounding_box();
       block_box.rotate(block->re_rotation());
@@ -107,14 +107,14 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
         }
       }
     }
-    ImageData* imagedata = NULL;
-    if (best_block == NULL) {
+    ImageData* imagedata = nullptr;
+    if (best_block == nullptr) {
       tprintf("No block overlapping textline: %s\n", line_str.string());
     } else {
       imagedata = GetLineData(line_box, boxes, texts, start_box, end_box,
                               *best_block);
     }
-    if (imagedata != NULL)
+    if (imagedata != nullptr)
       training_data->AddPageToDocument(imagedata);
     // Don't let \t, which marks newlines in the box file, get into the line
     // content, as that makes the line unusable in training.
@@ -133,7 +133,7 @@ ImageData* Tesseract::GetLineData(const TBOX& line_box,
   TBOX revised_box;
   ImageData* image_data = GetRectImage(line_box, block, kImagePadding,
                                        &revised_box);
-  if (image_data == NULL) return NULL;
+  if (image_data == nullptr) return nullptr;
   image_data->set_page_number(applybox_page);
   // Copy the boxes and shift them so they are relative to the image.
   FCOORD block_rotation(block.re_rotation().x(), -block.re_rotation().y());
@@ -185,11 +185,11 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
   TBOX image_box(0, 0, width, height);
   // Clip to image bounds;
   *revised_box &= image_box;
-  if (revised_box->null_box()) return NULL;
+  if (revised_box->null_box()) return nullptr;
   Box* clip_box = boxCreate(revised_box->left(), height - revised_box->top(),
                             revised_box->width(), revised_box->height());
-  Pix* box_pix = pixClipRectangle(pix, clip_box, NULL);
-  if (box_pix == NULL) return NULL;
+  Pix* box_pix = pixClipRectangle(pix, clip_box, nullptr);
+  if (box_pix == nullptr) return nullptr;
   boxDestroy(&clip_box);
   if (num_rotations > 0) {
     Pix* rot_pix = pixRotateOrth(box_pix, num_rotations);
@@ -235,7 +235,7 @@ void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
       word_box.set_top(baseline + row->x_height() + row->ascenders());
   }
   ImageData* im_data = GetRectImage(word_box, block, kImagePadding, &word_box);
-  if (im_data == NULL) return;
+  if (im_data == nullptr) return;
   lstm_recognizer_->RecognizeLine(*im_data, true, classify_debug_level > 0,
                                   kWorstDictCertainty / kCertaintyScale,
                                   word_box, words);
@@ -264,7 +264,7 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
   }
   for (int w = 0; w < words->size(); ++w) {
     WERD_RES* word = (*words)[w];
-    if (word->best_choice == NULL) {
+    if (word->best_choice == nullptr) {
       // It is a dud.
       word->SetupFake(lstm_recognizer_->GetUnicharset());
     } else {
