@@ -83,16 +83,16 @@ TrainingSample* BlobToTrainingSample(
     GenericVector<INT_FEATURE_STRUCT>* bl_features) {
   GenericVector<INT_FEATURE_STRUCT> cn_features;
   Classify::ExtractFeatures(blob, nonlinear_norm, bl_features,
-                            &cn_features, fx_info, NULL);
+                            &cn_features, fx_info, nullptr);
   // TODO(rays) Use blob->PreciseBoundingBox() instead.
   TBOX box = blob.bounding_box();
-  TrainingSample* sample = NULL;
+  TrainingSample* sample = nullptr;
   int num_features = fx_info->NumCN;
   if (num_features > 0) {
     sample = TrainingSample::CopyFromFeatures(*fx_info, box, &cn_features[0],
                                               num_features);
   }
-  if (sample != NULL) {
+  if (sample != nullptr) {
     // Set the bounding box (in original image coordinates) in the sample.
     TPOINT topleft, botright;
     topleft.x = box.left();
@@ -100,8 +100,8 @@ TrainingSample* BlobToTrainingSample(
     botright.x = box.right();
     botright.y = box.bottom();
     TPOINT original_topleft, original_botright;
-    blob.denorm().DenormTransform(NULL, topleft, &original_topleft);
-    blob.denorm().DenormTransform(NULL, botright, &original_botright);
+    blob.denorm().DenormTransform(nullptr, topleft, &original_topleft);
+    blob.denorm().DenormTransform(nullptr, botright, &original_botright);
     sample->set_bounding_box(TBOX(original_topleft.x, original_botright.y,
                                   original_botright.x, original_topleft.y));
   }
@@ -136,7 +136,7 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
   // Compute 1st and 2nd moments of the original outline.
   FCOORD center, second_moments;
   int length = blob.ComputeMoments(&center, &second_moments);
-  if (fx_info != NULL) {
+  if (fx_info != nullptr) {
     fx_info->Length = length;
     fx_info->Rx = IntCastRounded(second_moments.y());
     fx_info->Ry = IntCastRounded(second_moments.x());
@@ -145,7 +145,7 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
     fx_info->Ymean = IntCastRounded(center.y());
   }
   // Setup the denorm for Baseline normalization.
-  bl_denorm->SetupNormalization(NULL, NULL, &blob.denorm(), center.x(), 128.0f,
+  bl_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(), center.x(), 128.0f,
                                 1.0f, 1.0f, 128.0f, 128.0f);
   // Setup the denorm for character normalization.
   if (nonlinear_norm) {
@@ -158,7 +158,7 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
     cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX,
                               0.0f, 0.0f, x_coords, y_coords);
   } else {
-    cn_denorm->SetupNormalization(NULL, NULL, &blob.denorm(),
+    cn_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(),
                                   center.x(), center.y(),
                                   51.2f / second_moments.x(),
                                   51.2f / second_moments.y(),
@@ -322,7 +322,7 @@ static int GatherPoints(const C_OUTLINE* outline, double feature_length,
 
 // Extracts Tesseract features and appends them to the features vector.
 // Startpt to lastpt, inclusive, MUST have the same src_outline member,
-// which may be NULL. The vector from lastpt to its next is included in
+// which may be nullptr. The vector from lastpt to its next is included in
 // the feature extraction. Hidden edges should be excluded by the caller.
 // If force_poly is true, the features will be extracted from the polygonal
 // approximation even if more accurate data is available.
@@ -332,7 +332,7 @@ static void ExtractFeaturesFromRun(
     GenericVector<INT_FEATURE_STRUCT>* features) {
   const EDGEPT* endpt = lastpt->next;
   const C_OUTLINE* outline = startpt->src_outline;
-  if (outline != NULL && !force_poly) {
+  if (outline != nullptr && !force_poly) {
     // Detailed information is available. We have to normalize only from
     // the root_denorm to denorm.
     const DENORM* root_denorm = denorm.RootDenorm();
@@ -438,7 +438,7 @@ static void ExtractFeaturesFromRun(
 // (x,y) position and angle as measured counterclockwise from the vector
 // <-1, 0>, from blob using two normalizations defined by bl_denorm and
 // cn_denorm. See SetpuBLCNDenorms for definitions.
-// If outline_cn_counts is not NULL, on return it contains the cumulative
+// If outline_cn_counts is not nullptr, on return it contains the cumulative
 // number of cn features generated for each outline in the blob (in order).
 // Thus after the first outline, there were (*outline_cn_counts)[0] features,
 // after the second outline, there were (*outline_cn_counts)[1] features etc.
@@ -451,14 +451,14 @@ void Classify::ExtractFeatures(const TBLOB& blob,
   DENORM bl_denorm, cn_denorm;
   tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm,
                                         &bl_denorm, &cn_denorm, results);
-  if (outline_cn_counts != NULL)
+  if (outline_cn_counts != nullptr)
     outline_cn_counts->truncate(0);
   // Iterate the outlines.
-  for (TESSLINE* ol = blob.outlines; ol != NULL; ol = ol->next) {
+  for (TESSLINE* ol = blob.outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.
     EDGEPT* loop_pt = ol->FindBestStartPt();
     EDGEPT* pt = loop_pt;
-    if (pt == NULL) continue;
+    if (pt == nullptr) continue;
     do {
       if (pt->IsHidden()) continue;
       // Find a run of equal src_outline.
@@ -476,7 +476,7 @@ void Classify::ExtractFeatures(const TBLOB& blob,
                              false, cn_features);
       pt = last_pt;
     } while ((pt = pt->next) != loop_pt);
-    if (outline_cn_counts != NULL)
+    if (outline_cn_counts != nullptr)
       outline_cn_counts->push_back(cn_features->size());
   }
   results->NumBL = bl_features->size();

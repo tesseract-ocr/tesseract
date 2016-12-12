@@ -55,7 +55,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
     TrainingSample* mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Pix* page_pix = 0 <= page_index && page_index < page_images.size()
-                  ? page_images[page_index] : NULL;
+                  ? page_images[page_index] : nullptr;
     // No debug, no keep this.
     classifier->UnicharClassifySample(*mutable_sample, page_pix, 0,
                                       INVALID_UNICHAR_ID, &results);
@@ -88,7 +88,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
   unscaled_error = counter.ReportErrors(report_level, boosting_mode,
                                         fontinfo_table,
                                         *it, unichar_error, fonts_report);
-  if (scaled_error != NULL) *scaled_error = counter.scaled_error_;
+  if (scaled_error != nullptr) *scaled_error = counter.scaled_error_;
   if (report_level > 1) {
     // It is useful to know the time in microseconds/char.
     tprintf("Errors computed in %.2fs at %.1f μs/char\n",
@@ -121,7 +121,7 @@ void ErrorCounter::DebugNewErrors(
     TrainingSample* mutable_sample = it->MutableSample();
     int page_index = mutable_sample->page_num();
     Pix* page_pix = 0 <= page_index && page_index < page_images.size()
-                  ? page_images[page_index] : NULL;
+                  ? page_images[page_index] : nullptr;
     // No debug, no keep this.
     old_classifier->UnicharClassifySample(*mutable_sample, page_pix, 0,
                                           INVALID_UNICHAR_ID, &results);
@@ -335,8 +335,8 @@ bool ErrorCounter::AccumulateJunk(bool debug,
 // error rate to return.
 // The fontinfo_table from MasterTrainer provides the names of fonts.
 // The it determines the current subset of the training samples.
-// If not NULL, the top-choice unichar error rate is saved in unichar_error.
-// If not NULL, the report string is saved in fonts_report.
+// If not nullptr, the top-choice unichar error rate is saved in unichar_error.
+// If not nullptr, the report string is saved in fonts_report.
 // (Ignoring report_level).
 double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
                                   const FontInfoTable& fontinfo_table,
@@ -352,7 +352,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     totals += font_counts_[f];
     STRING font_report;
     if (ReportString(false, font_counts_[f], &font_report)) {
-      if (fonts_report != NULL) {
+      if (fonts_report != nullptr) {
         *fonts_report += fontinfo_table.get(f).name;
         *fonts_report += ": ";
         *fonts_report += font_report;
@@ -367,7 +367,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   // Report the totals.
   STRING total_report;
   bool any_results = ReportString(true, totals, &total_report);
-  if (fonts_report != NULL && fonts_report->length() == 0) {
+  if (fonts_report != nullptr && fonts_report->length() == 0) {
     // Make sure we return something even if there were no samples.
     *fonts_report = "NoSamplesFound: ";
     *fonts_report += total_report;
@@ -421,7 +421,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
   if (!ComputeRates(totals, rates))
     return 0.0;
   // Set output values if asked for.
-  if (unichar_error != NULL)
+  if (unichar_error != nullptr)
     *unichar_error = rates[CT_UNICHAR_TOP1_ERR];
   return rates[boosting_mode];
 }

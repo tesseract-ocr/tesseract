@@ -160,13 +160,13 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
 }                                /* ComputeNormMatch */
 
 void Classify::FreeNormProtos() {
-  if (NormProtos != NULL) {
+  if (NormProtos != nullptr) {
     for (int i = 0; i < NormProtos->NumProtos; i++)
       FreeProtoList(&NormProtos->Protos[i]);
     Efree(NormProtos->Protos);
     Efree(NormProtos->ParamDesc);
     Efree(NormProtos);
-    NormProtos = NULL;
+    NormProtos = nullptr;
   }
 }
 }  // namespace tesseract

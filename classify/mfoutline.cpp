@@ -39,7 +39,7 @@
  */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
-  return (blob == NULL)
+  return (blob == nullptr)
       ? NIL_LIST
       : ConvertOutlines(blob->outlines, outlines, outer);
 }
@@ -54,7 +54,7 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
   EDGEPT *StartPoint;
   EDGEPT *NextPoint;
 
-  if (outline == NULL || outline->loop == NULL)
+  if (outline == nullptr || outline->loop == nullptr)
     return MFOutline;
 
   StartPoint = outline->loop;
@@ -75,7 +75,7 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     EdgePoint = NextPoint;
   } while (EdgePoint != StartPoint);
 
-  if (MFOutline != NULL)
+  if (MFOutline != nullptr)
     MakeOutlineCircular(MFOutline);
   return MFOutline;
 }
@@ -94,9 +94,9 @@ LIST ConvertOutlines(TESSLINE *outline,
                      OUTLINETYPE outline_type) {
   MFOUTLINE mf_outline;
 
-  while (outline != NULL) {
+  while (outline != nullptr) {
     mf_outline = ConvertOutline(outline);
-    if (mf_outline != NULL)
+    if (mf_outline != nullptr)
       mf_outlines = push(mf_outlines, mf_outline);
     outline = outline->next;
   }
@@ -159,7 +159,7 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
   /* break the circular outline so we can use std. techniques to deallocate */
   Start = list_rest (Outline);
   set_rest(Outline, NIL_LIST);
-  while (Start != NULL) {
+  while (Start != nullptr) {
     free(first_node(Start));
     Start = pop (Start);
   }
@@ -466,13 +466,13 @@ MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
 
   InitialDirection = PointAt (EdgePoint)->Direction;
 
-  MFOUTLINE next_pt = NULL;
+  MFOUTLINE next_pt = nullptr;
   do {
     EdgePoint = NextPointAfter(EdgePoint);
     next_pt = NextPointAfter(EdgePoint);
   } while (PointAt(EdgePoint)->Direction == InitialDirection &&
            !PointAt(EdgePoint)->Hidden &&
-           next_pt != NULL && !PointAt(next_pt)->Hidden);
+           next_pt != nullptr && !PointAt(next_pt)->Hidden);
 
   return (EdgePoint);
 }

@@ -25,11 +25,11 @@ namespace tesseract {
 // ================== SampleIterator Implementation =================
 
 SampleIterator::SampleIterator()
-  : charset_map_(NULL),
-    shape_table_(NULL),
-    sample_set_(NULL),
+  : charset_map_(nullptr),
+    shape_table_(nullptr),
+    sample_set_(nullptr),
     randomize_(false),
-    owned_shape_table_(NULL) {
+    owned_shape_table_(nullptr) {
   num_shapes_ = 0;
   Begin();
 }
@@ -40,7 +40,7 @@ SampleIterator::~SampleIterator() {
 
 void SampleIterator::Clear() {
   delete owned_shape_table_;
-  owned_shape_table_ = NULL;
+  owned_shape_table_ = nullptr;
 }
 
 // See class comment for arguments.
@@ -53,7 +53,7 @@ void SampleIterator::Init(const IndexMapBiDi* charset_map,
   shape_table_ = shape_table;
   sample_set_ = sample_set;
   randomize_ = randomize;
-  if (shape_table_ == NULL && charset_map_ != NULL) {
+  if (shape_table_ == nullptr && charset_map_ != nullptr) {
     // The caller wishes to iterate by class. The easiest way to do this
     // is to create a dummy shape_table_ that we will own.
     int num_fonts = sample_set_->NumFonts();
@@ -71,7 +71,7 @@ void SampleIterator::Init(const IndexMapBiDi* charset_map,
     }
     shape_table_ = owned_shape_table_;
   }
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     num_shapes_ = shape_table_->NumShapes();
   } else {
     num_shapes_ = randomize ? sample_set_->num_samples()
@@ -101,7 +101,7 @@ bool SampleIterator::AtEnd() const {
 }
 
 const TrainingSample& SampleIterator::GetSample() const {
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     const UnicharAndFonts* shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
@@ -112,7 +112,7 @@ const TrainingSample& SampleIterator::GetSample() const {
 }
 
 TrainingSample* SampleIterator::MutableSample() const {
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     const UnicharAndFonts* shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
@@ -125,7 +125,7 @@ TrainingSample* SampleIterator::MutableSample() const {
 // Returns the total index (from the original set of samples) of the current
 // sample.
 int SampleIterator::GlobalSampleIndex() const {
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     const UnicharAndFonts* shape_entry = GetShapeEntry();
     int char_id = shape_entry->unichar_id;
     int font_id = shape_entry->font_ids[shape_font_index_];
@@ -138,9 +138,9 @@ int SampleIterator::GlobalSampleIndex() const {
 // Returns the index of the current sample in compact charset space, so
 // in a 2-class problem between x and y, the returned indices will all be
 // 0 or 1, and have nothing to do with the unichar_ids.
-// If the charset_map_ is NULL, then this is equal to GetSparseClassID().
+// If the charset_map_ is nullptr, then this is equal to GetSparseClassID().
 int SampleIterator::GetCompactClassID() const {
-  return charset_map_ != NULL ? charset_map_->SparseToCompact(shape_index_)
+  return charset_map_ != nullptr ? charset_map_->SparseToCompact(shape_index_)
                               : GetSparseClassID();
 }
 // Returns the index of the current sample in sparse charset space, so
@@ -148,13 +148,13 @@ int SampleIterator::GetCompactClassID() const {
 // x or y, where x and y may be unichar_ids (no shape_table_) or shape_ids
 // with a shape_table_.
 int SampleIterator::GetSparseClassID() const {
-  return shape_table_ != NULL ? shape_index_ : GetSample().class_id();
+  return shape_table_ != nullptr ? shape_index_ : GetSample().class_id();
 }
 
 // Moves on to the next indexable sample. If the end is reached, leaves
 // the state such that AtEnd() is true.
 void SampleIterator::Next() {
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     // Next sample in this class/font combination.
     ++sample_index_;
     if (sample_index_ < num_samples_)
@@ -173,7 +173,7 @@ void SampleIterator::Next() {
           do {
             ++shape_index_;
           } while (shape_index_ < num_shapes_ &&
-                   charset_map_ != NULL &&
+                   charset_map_ != nullptr &&
                    charset_map_->SparseToCompact(shape_index_) < 0);
           if (shape_index_ >= num_shapes_)
             return;  // The end.
@@ -194,15 +194,15 @@ void SampleIterator::Next() {
 
 // Returns the size of the compact charset space.
 int SampleIterator::CompactCharsetSize() const {
-  return charset_map_ != NULL ? charset_map_->CompactSize()
+  return charset_map_ != nullptr ? charset_map_->CompactSize()
                               : SparseCharsetSize();
 }
 
 // Returns the size of the sparse charset space.
 int SampleIterator::SparseCharsetSize() const {
-  return charset_map_ != NULL
+  return charset_map_ != nullptr
       ? charset_map_->SparseSize()
-      : (shape_table_ != NULL ? shape_table_->NumShapes()
+      : (shape_table_ != nullptr ? shape_table_->NumShapes()
                               : sample_set_->charsetsize());
 }
 

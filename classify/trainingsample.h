@@ -55,7 +55,7 @@ class TrainingSample : public ELIST_LINK {
   TrainingSample()
     : class_id_(INVALID_UNICHAR_ID), font_id_(0), page_num_(0),
       num_features_(0), num_micro_features_(0), outline_length_(0),
-      features_(NULL), micro_features_(NULL), weight_(1.0),
+      features_(nullptr), micro_features_(nullptr), weight_(1.0),
       max_dist_(0.0), sample_index_(0),
       features_are_indexed_(false), features_are_mapped_(false),
       is_error_(false) {
@@ -82,7 +82,7 @@ class TrainingSample : public ELIST_LINK {
   // It is assumed these can all be reconstructed from what is saved.
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
-  // Creates from the given file. Returns NULL in case of error.
+  // Creates from the given file. Returns nullptr in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
   static TrainingSample* DeSerializeCreate(bool swap, FILE* fp);
   // Reads from the given file. Returns false in case of error.
@@ -109,7 +109,7 @@ class TrainingSample : public ELIST_LINK {
   // Returns a pix of the original sample image. The pix is padded all round
   // by padding wherever possible.
   // The returned Pix must be pixDestroyed after use.
-  // If the input page_pix is NULL, NULL is returned.
+  // If the input page_pix is nullptr, nullptr is returned.
   Pix* GetSamplePix(int padding, Pix* page_pix) const;
 
   // Accessors.

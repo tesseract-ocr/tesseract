@@ -45,7 +45,7 @@ class ShapeClassifier {
   virtual ~ShapeClassifier() {}
 
   // Classifies the given [training] sample, writing to results.
-  // If page_pix is not NULL, the overriding function may call
+  // If page_pix is not nullptr, the overriding function may call
   // sample.GetSamplePix(padding, page_pix) to get an image of the sample
   // padded (with real image data) by the given padding to extract features
   // from the image of the character. Other members of TrainingSample:
@@ -75,7 +75,7 @@ class ShapeClassifier {
 
  public:
   // Returns the shape that contains unichar_id that has the best result.
-  // If result is not NULL, it is set with the shape_id and rating.
+  // If result is not nullptr, it is set with the shape_id and rating.
   // Returns -1 if ClassifySample fails to provide any result containing
   // unichar_id. BestShapeForUnichar does not need to be overridden if
   // ClassifySample respects the keep_this rule.
@@ -85,7 +85,7 @@ class ShapeClassifier {
   // Provides access to the ShapeTable that this classifier works with.
   virtual const ShapeTable* GetShapeTable() const = 0;
   // Provides access to the UNICHARSET that this classifier works with.
-  // Must be overridden IFF GetShapeTable() returns NULL.
+  // Must be overridden IFF GetShapeTable() returns nullptr.
   virtual const UNICHARSET& GetUnicharset() const;
 
   // Visual debugger classifies the given sample, displays the results and

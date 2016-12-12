@@ -53,7 +53,7 @@ void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
   int Cutoff;
   int i;
 
-  if (shape_table_ != NULL) {
+  if (shape_table_ != nullptr) {
     if (!shapetable_cutoffs_.DeSerialize(fp)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }

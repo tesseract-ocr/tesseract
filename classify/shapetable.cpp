@@ -236,7 +236,7 @@ void Shape::SortUnichars() {
   unichars_sorted_ = true;
 }
 
-ShapeTable::ShapeTable() : unicharset_(NULL), num_fonts_(0) {
+ShapeTable::ShapeTable() : unicharset_(nullptr), num_fonts_(0) {
 }
 ShapeTable::ShapeTable(const UNICHARSET& unicharset)
   : unicharset_(&unicharset), num_fonts_(0) {
@@ -366,7 +366,7 @@ int ShapeTable::AddShape(const Shape& other) {
 // Removes the shape given by the shape index.
 void ShapeTable::DeleteShape(int shape_id) {
   delete shape_table_[shape_id];
-  shape_table_[shape_id] = NULL;
+  shape_table_[shape_id] = nullptr;
   shape_table_.remove(shape_id);
 }
 
@@ -484,7 +484,7 @@ void ShapeTable::ForceFontMerges(int start, int end) {
     }
   }
   ShapeTable compacted(*unicharset_);
-  compacted.AppendMasterShapes(*this, NULL);
+  compacted.AppendMasterShapes(*this, nullptr);
   *this = compacted;
 }
 
@@ -658,15 +658,15 @@ bool ShapeTable::CommonFont(int shape_id1, int shape_id2) const {
 }
 
 // Appends the master shapes from other to this.
-// If not NULL, shape_map is set to map other shape_ids to this's shape_ids.
+// If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
 void ShapeTable::AppendMasterShapes(const ShapeTable& other,
                                     GenericVector<int>* shape_map) {
-  if (shape_map != NULL)
+  if (shape_map != nullptr)
     shape_map->init_to_size(other.NumShapes(), -1);
   for (int s = 0; s < other.shape_table_.size(); ++s) {
     if (other.shape_table_[s]->destination_index() < 0) {
       int index = AddShape(*other.shape_table_[s]);
-      if (shape_map != NULL)
+      if (shape_map != nullptr)
         (*shape_map)[s] = index;
     }
   }

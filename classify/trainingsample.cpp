@@ -75,13 +75,13 @@ bool TrainingSample::Serialize(FILE* fp) const {
   return true;
 }
 
-// Creates from the given file. Returns NULL in case of error.
+// Creates from the given file. Returns nullptr in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 TrainingSample* TrainingSample::DeSerializeCreate(bool swap, FILE* fp) {
   TrainingSample* sample = new TrainingSample;
   if (sample->DeSerialize(swap, fp)) return sample;
   delete sample;
-  return NULL;
+  return nullptr;
 }
 
 // Reads from the given file. Returns false in case of error.
@@ -209,11 +209,11 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   // Extract the INT features.
   delete[] features_;
   FEATURE_SET_STRUCT* char_features = char_desc->FeatureSets[int_feature_type];
-  if (char_features == NULL) {
+  if (char_features == nullptr) {
     tprintf("Error: no features to train on of type %s\n",
             kIntFeatureType);
     num_features_ = 0;
-    features_ = NULL;
+    features_ = nullptr;
   } else {
     num_features_ = char_features->NumFeatures;
     features_ = new INT_FEATURE_STRUCT[num_features_];
@@ -230,11 +230,11 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   // Extract the Micro features.
   delete[] micro_features_;
   char_features = char_desc->FeatureSets[micro_type];
-  if (char_features == NULL) {
+  if (char_features == nullptr) {
     tprintf("Error: no features to train on of type %s\n",
             kMicroFeatureType);
     num_micro_features_ = 0;
-    micro_features_ = NULL;
+    micro_features_ = nullptr;
   } else {
     num_micro_features_ = char_features->NumFeatures;
     micro_features_ = new MicroFeature[num_micro_features_];
@@ -246,7 +246,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   }
   // Extract the CN feature.
   char_features = char_desc->FeatureSets[cn_type];
-  if (char_features == NULL) {
+  if (char_features == nullptr) {
     tprintf("Error: no CN feature to train on.\n");
   } else {
     ASSERT_HOST(char_features->NumFeatures == 1);
@@ -258,7 +258,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   }
   // Extract the Geo feature.
   char_features = char_desc->FeatureSets[geo_type];
-  if (char_features == NULL) {
+  if (char_features == nullptr) {
     tprintf("Error: no Geo feature to train on.\n");
   } else {
     ASSERT_HOST(char_features->NumFeatures == 1);
@@ -306,7 +306,7 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
         pixSetPixel(pix, x, y, 1);
     }
   }
-  if (unicharset != NULL)
+  if (unicharset != nullptr)
     pixSetText(pix, unicharset->id_to_unichar(class_id_));
   return pix;
 }
@@ -324,10 +324,10 @@ void TrainingSample::DisplayFeatures(ScrollView::Color color,
 // Returns a pix of the original sample image. The pix is padded all round
 // by padding wherever possible.
 // The returned Pix must be pixDestroyed after use.
-// If the input page_pix is NULL, NULL is returned.
+// If the input page_pix is nullptr, nullptr is returned.
 Pix* TrainingSample::GetSamplePix(int padding, Pix* page_pix) const {
-  if (page_pix == NULL)
-    return NULL;
+  if (page_pix == nullptr)
+    return nullptr;
   int page_width = pixGetWidth(page_pix);
   int page_height = pixGetHeight(page_pix);
   TBOX padded_box = bounding_box();
@@ -337,7 +337,7 @@ Pix* TrainingSample::GetSamplePix(int padding, Pix* page_pix) const {
   padded_box &= page_box;
   Box* box = boxCreate(page_box.left(), page_height - page_box.top(),
                        page_box.width(), page_box.height());
-  Pix* sample_pix = pixClipRectangle(page_pix, box, NULL);
+  Pix* sample_pix = pixClipRectangle(page_pix, box, nullptr);
   boxDestroy(&box);
   return sample_pix;
 }

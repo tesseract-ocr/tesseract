@@ -55,7 +55,7 @@ const ShapeTable* TessClassifier::GetShapeTable() const {
   return classify_->shape_table();
 }
 // Provides access to the UNICHARSET that this classifier works with.
-// Only needs to be overridden if GetShapeTable() can return NULL.
+// Only needs to be overridden if GetShapeTable() can return nullptr.
 const UNICHARSET& TessClassifier::GetUnicharset() const {
   return classify_->unicharset;
 }
@@ -70,8 +70,8 @@ int TessClassifier::DisplayClassifyAs(
     PointerVector<ScrollView>* windows) {
   int shape_id = unichar_id;
   // TODO(rays) Fix this so it works with both flat and real shapetables.
-  //  if (GetShapeTable() != NULL)
-  //  shape_id = BestShapeForUnichar(sample, page_pix, unichar_id, NULL);
+  //  if (GetShapeTable() != nullptr)
+  //  shape_id = BestShapeForUnichar(sample, page_pix, unichar_id, nullptr);
   if (shape_id < 0) return index;
   if (UnusedClassIdIn(classify_->PreTrainedTemplates, shape_id)) {
     tprintf("No built-in templates for class/shape %d\n", shape_id);

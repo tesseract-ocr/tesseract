@@ -177,7 +177,7 @@ enum IntmatcherDebugAction {
 
 #define MaxNumClassesIn(T)    (T->NumClassPruners * CLASSES_PER_CP)
 #define LegalClassId(c)   ((c) >= 0 && (c) <= MAX_CLASS_ID)
-#define UnusedClassIdIn(T,c)  ((T)->Class[c] == NULL)
+#define UnusedClassIdIn(T,c)  ((T)->Class[c] == nullptr)
 #define ClassForClassId(T,c) ((T)->Class[c])
 #define ClassPrunersFor(T)  ((T)->ClassPruner)
 #define CPrunerIdFor(c)   ((c) / CLASSES_PER_CP)
