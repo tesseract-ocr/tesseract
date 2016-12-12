@@ -55,7 +55,7 @@ void FreeBitVector(BIT_VECTOR BitVector) {
 /**
  * This routine frees a bit vector.  It also decrements
  * the global counter that keeps track of the number of
- * bit vectors allocated.  If BitVector is NULL, then
+ * bit vectors allocated.  If BitVector is nullptr, then
  * the count is printed to stderr.
  *
  * Globals:

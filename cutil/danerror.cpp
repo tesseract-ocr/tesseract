@@ -40,7 +40,7 @@
  * @note History: 4/3/89, DSJ, Created.
  */
 void DoError(int Error, const char *Message) {
-  if (Message != NULL) {
+  if (Message != nullptr) {
     tprintf("\nError: %s!\n", Message);
   }
 

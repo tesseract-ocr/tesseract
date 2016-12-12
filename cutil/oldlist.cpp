@@ -58,7 +58,7 @@
   last         LAST                             x = last(l);
   concat       APPEND                           l = concat(r, s);
   count        LENGTH                           x = count(l);
-  search       MEMBER                           if (search(l, x, NULL))
+  search       MEMBER                           if (search(l, x, nullptr))
 
   To implement SETS use:
 
@@ -66,8 +66,8 @@
   set_union                                     l = set_union(r, s);
   intersection                                  l = intersection(r, s);
   set_difference                                l = set_difference(r, s);
-  delete                                        l = delete(s, x, NULL);
-  search                                        if (search(l, x, NULL))
+  delete                                        l = delete(s, x, nullptr);
+  search                                        if (search(l, x, nullptr))
 
   To Implement Associated LISTS use:
 
@@ -114,13 +114,13 @@ int count(LIST var_list) {
  *  This operation destroys the original list.  The caller will supply a
  *  routine that will compare each node to the
  *  key, and return a non-zero value when they match.  If the value
- *  NULL is supplied for is_equal, the is_key routine will be used.
+ *  nullptr is supplied for is_equal, the is_key routine will be used.
  **********************************************************************/
 LIST delete_d(LIST list, void *key, int_compare is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
-  if (is_equal == NULL) is_equal = is_same;
+  if (is_equal == nullptr) is_equal = is_same;
 
   while (list != NIL_LIST) {
     if (!(*is_equal)(first_node(list), key)) {
@@ -192,7 +192,7 @@ void destroy_nodes(LIST list, void_dest destructor) {
   ASSERT_HOST(destructor != nullptr);
 
   while (list != NIL_LIST) {
-    if (first_node(list) != NULL) (*destructor)(first_node(list));
+    if (first_node(list) != nullptr) (*destructor)(first_node(list));
     list = pop(list);
   }
 }
@@ -345,7 +345,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
   LIST l;
   int result;
 
-  if (compare == NULL) compare = (int_compare)strcmp;
+  if (compare == nullptr) compare = (int_compare)strcmp;
 
   l = var_list;
   iterate(l) {
@@ -365,11 +365,11 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
  *
  *  Search list, return NIL_LIST if not found. Return the list starting from
  *  the item if found.  The compare routine "is_equal" is passed in as
- *  the third parameter to this routine.   If the value NULL is supplied
+ *  the third parameter to this routine.   If the value nullptr is supplied
  *  for is_equal, the is_key routine will be used.
  **********************************************************************/
 LIST search(LIST list, void *key, int_compare is_equal) {
-  if (is_equal == NULL) is_equal = is_same;
+  if (is_equal == nullptr) is_equal = is_same;
 
   iterate(list) if ((*is_equal)(first_node(list), key)) return (list);
   return (NIL_LIST);

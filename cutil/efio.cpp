@@ -45,10 +45,10 @@ FILE *Efopen(const char *Name, const char *Mode) {
   char ErrorMessage[MAXERRORMESSAGE];
 
   File = fopen (Name, Mode);
-  if (File == NULL) {
+  if (File == nullptr) {
     sprintf (ErrorMessage, "Unable to open %s", Name);
     DoError(FOPENERROR, ErrorMessage); 
-    return (NULL);
+    return (nullptr);
   }
   else
     return (File);
