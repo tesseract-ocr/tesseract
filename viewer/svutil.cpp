@@ -63,7 +63,7 @@ SVMutex::SVMutex() {
 #ifdef _WIN32
   mutex_ = CreateMutex(0, FALSE, 0);
 #else
-  pthread_mutex_init(&mutex_, NULL);
+  pthread_mutex_init(&mutex_, nullptr);
 #endif
 }
 
@@ -88,7 +88,7 @@ void SVSync::StartThread(void* (*func)(void*), void* arg) {
 #ifdef _WIN32
   LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE)func;
   DWORD threadid;
-  HANDLE newthread = CreateThread(NULL,        // default security attributes
+  HANDLE newthread = CreateThread(nullptr,        // default security attributes
                                   0,           // use default stack size
                                   f,           // thread function
                                   arg,         // argument to thread function
@@ -112,7 +112,7 @@ void SVSync::ExitThread() {
 #ifdef _WIN32
   // ExitThread(0);
 #else
-  pthread_exit(0);
+  pthread_exit(nullptr);
 #endif
 }
 
@@ -127,8 +127,8 @@ void SVSync::StartProcess(const char* executable, const char* args) {
   STARTUPINFO start_info;
   PROCESS_INFORMATION proc_info;
   GetStartupInfo(&start_info);
-  if (!CreateProcess(NULL, const_cast<char*>(proc.c_str()), NULL, NULL, FALSE,
-                CREATE_NO_WINDOW | DETACHED_PROCESS, NULL, NULL,
+  if (!CreateProcess(nullptr, const_cast<char*>(proc.c_str()), nullptr, nullptr, FALSE,
+                CREATE_NO_WINDOW | DETACHED_PROCESS, nullptr, nullptr,
                 &start_info, &proc_info))
     return;
 #else
@@ -161,7 +161,7 @@ void SVSync::StartProcess(const char* executable, const char* args) {
         mutable_args[i] = ' ';
       }
     }
-    argv[argc] = NULL;
+    argv[argc] = nullptr;
     execvp(executable, argv);
     free(argv[0]);
     free(argv[1]);
@@ -188,7 +188,7 @@ SVSemaphore::SVSemaphore() {
 
 void SVSemaphore::Signal() {
 #ifdef _WIN32
-  ReleaseSemaphore(semaphore_, 1, NULL);
+  ReleaseSemaphore(semaphore_, 1, nullptr);
 #elif defined(__APPLE__)
   sem_post(semaphore_);
 #else
@@ -226,18 +226,18 @@ void SVNetwork::Flush() {
 // Receive a message from the server.
 // This will always return one line of char* (denoted by \n).
 char* SVNetwork::Receive() {
-  char* result = NULL;
+  char* result = nullptr;
 #if defined(_WIN32) || defined(__CYGWIN__)
-  if (has_content) { result = strtok (NULL, "\n"); }
+  if (has_content) { result = strtok (nullptr, "\n"); }
 #else
-  if (buffer_ptr_ != NULL) { result = strtok_r(NULL, "\n", &buffer_ptr_); }
+  if (buffer_ptr_ != nullptr) { result = strtok_r(nullptr, "\n", &buffer_ptr_); }
 #endif
 
   // This means there is something left in the buffer and we return it.
-  if (result != NULL) { return result;
+  if (result != nullptr) { return result;
   // Otherwise, we read from the stream_.
   } else {
-    buffer_ptr_ = NULL;
+    buffer_ptr_ = nullptr;
     has_content = false;
 
     // The timeout length is not really important since we are looping anyway
@@ -251,16 +251,16 @@ char* SVNetwork::Receive() {
     FD_ZERO(&readfds);
     FD_SET(stream_, &readfds);
 
-    int i = select(stream_+1, &readfds, NULL, NULL, &tv);
+    int i = select(stream_+1, &readfds, nullptr, nullptr, &tv);
 
     // The stream_ died.
-    if (i == 0) { return NULL; }
+    if (i == 0) { return nullptr; }
 
     // Read the message buffer.
     i = recv(stream_, msg_buffer_in_, kMaxMsgSize, 0);
 
     // Server quit (0) or error (-1).
-    if (i <= 0) { return NULL; }
+    if (i <= 0) { return nullptr; }
     msg_buffer_in_[i] = '\0';
     has_content = true;
 #ifdef _WIN32
@@ -355,9 +355,9 @@ static int GetAddrInfoNonLinux(const char* hostname, int port,
   name = gethostbyname(hostname);
 #endif
 
-  if (name == NULL) {
+  if (name == nullptr) {
     FreeAddrInfo(*addr_info);
-    *addr_info = NULL;
+    *addr_info = nullptr;
     return -1;
   }
 
@@ -378,7 +378,7 @@ static int GetAddrInfo(const char* hostname, int port,
 #if defined(__linux__)
   char port_str[40];
   snprintf(port_str, 40, "%d", port);
-  return getaddrinfo(hostname, port_str, NULL, address);
+  return getaddrinfo(hostname, port_str, nullptr, address);
 #else
   return GetAddrInfoNonLinux(hostname, port, address);
 #endif
@@ -391,9 +391,9 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   msg_buffer_in_[0] = '\0';
 
   has_content = false;
-  buffer_ptr_ = NULL;
+  buffer_ptr_ = nullptr;
 
-  struct addrinfo *addr_info = NULL;
+  struct addrinfo *addr_info = nullptr;
 
   if (GetAddrInfo(hostname, port, &addr_info) != 0) {
     std::cerr << "Error resolving name for ScrollView host "
@@ -406,7 +406,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   // If server is not there, we will start a new server as local child process.
   if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) < 0) {
     const char* scrollview_path = getenv("SCROLLVIEW_PATH");
-    if (scrollview_path == NULL) {
+    if (scrollview_path == nullptr) {
 #ifdef SCROLLVIEW_PATH
 #define _STR(a) #a
 #define _XSTR(a) _STR(a)

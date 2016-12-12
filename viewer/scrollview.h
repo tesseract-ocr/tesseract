@@ -72,8 +72,8 @@ struct SVEvent {
   int counter;         // Used to detect which kind of event to process next.
 
   SVEvent() {
-    window = NULL;
-    parameter = NULL;
+    window = nullptr;
+    parameter = nullptr;
   }
 
   SVEvent(const SVEvent&);
