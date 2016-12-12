@@ -31,7 +31,7 @@ EquationDetectBase::~EquationDetectBase() {
 
 void EquationDetectBase::RenderSpecialText(Pix* pix,
                                            BLOBNBOX* blob) {
-  ASSERT_HOST(pix != NULL && pixGetDepth(pix) == 32 && blob != NULL);
+  ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);
   const TBOX& tbox = blob->bounding_box();
   int height = pixGetHeight(pix);
   const int box_width = 5;

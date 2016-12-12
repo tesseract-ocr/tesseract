@@ -63,7 +63,7 @@ class ColPartitionSet : public ELIST_LINK {
   // Return an element of the parts_ list from its index.
   ColPartition* GetColumnByIndex(int index);
 
-  // Return the ColPartition that contains the given coords, if any, else NULL.
+  // Return the ColPartition that contains the given coords, if any, else nullptr.
   ColPartition* ColumnContaining(int x, int y);
 
   // Return the bounding boxes of columns at the given y-range

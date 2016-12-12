@@ -27,11 +27,11 @@ class C_OUTLINE_FRAG:public ELIST_LINK
 {
   public:
     C_OUTLINE_FRAG() {  //empty constructor
-      steps = NULL;
+      steps = nullptr;
       stepcount = 0;
     }
     ~C_OUTLINE_FRAG () {
-      if (steps != NULL)
+      if (steps != nullptr)
         delete [] steps;
     }
                                  //start coord

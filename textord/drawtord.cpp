@@ -35,7 +35,7 @@
 EXTERN BOOL_VAR (textord_show_fixed_cuts, FALSE,
 "Draw fixed pitch cell boundaries");
 
-EXTERN ScrollView* to_win = NULL;
+EXTERN ScrollView* to_win = nullptr;
 
 /**********************************************************************
  * create_to_win
@@ -45,7 +45,7 @@ EXTERN ScrollView* to_win = NULL;
 #ifndef GRAPHICS_DISABLED
 
 ScrollView* create_to_win(ICOORD page_tr) {
-  if (to_win != NULL) return to_win;
+  if (to_win != nullptr) return to_win;
   to_win = new ScrollView(TO_WIN_NAME, TO_WIN_XPOS, TO_WIN_YPOS,
                           page_tr.x() + 1, page_tr.y() + 1,
                           page_tr.x(), page_tr.y(), true);
@@ -55,7 +55,7 @@ ScrollView* create_to_win(ICOORD page_tr) {
 
 void close_to_win() {
   // to_win is leaked, but this enables the user to view the contents.
-  if (to_win != NULL) {
+  if (to_win != nullptr) {
     to_win->Update();
   }
 }
@@ -298,9 +298,9 @@ void plot_word_decisions(              //draw words
     }
     if (!blob->joined_to_prev())
       prev_x = blob_box.right();
-    if (blob->cblob () != NULL)
+    if (blob->cblob () != nullptr)
       blob->cblob ()->plot (win, colour, colour);
-    if (!blob->joined_to_prev() && blob->cblob() != NULL)
+    if (!blob->joined_to_prev() && blob->cblob() != nullptr)
       blob_count++;
   }
   if (pitch > 0 && textord_show_fixed_cuts && blob_count > 0)

@@ -39,12 +39,12 @@ BOOL_VAR(devanagari_split_debugimage, 0,
 namespace tesseract {
 
 ShiroRekhaSplitter::ShiroRekhaSplitter() {
-  orig_pix_ = NULL;
-  segmentation_block_list_ = NULL;
-  splitted_image_ = NULL;
+  orig_pix_ = nullptr;
+  segmentation_block_list_ = nullptr;
+  splitted_image_ = nullptr;
   global_xheight_ = kUnspecifiedXheight;
   perform_close_ = false;
-  debug_image_ = NULL;
+  debug_image_ = nullptr;
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
 }
@@ -59,7 +59,7 @@ void ShiroRekhaSplitter::Clear() {
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
   pixDestroy(&debug_image_);
-  segmentation_block_list_ = NULL;
+  segmentation_block_list_ = nullptr;
   global_xheight_ = kUnspecifiedXheight;
   perform_close_ = false;
 }
@@ -95,7 +95,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
   }
   // Create a copy of original image to store the splitting output.
   pixDestroy(&splitted_image_);
-  splitted_image_ = pixCopy(NULL, orig_pix_);
+  splitted_image_ = pixCopy(nullptr, orig_pix_);
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
@@ -114,7 +114,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     // A global measure is available for xheight, but no local information
     // exists.
     pixDestroy(&pix_for_ccs);
-    pix_for_ccs = pixCopy(NULL, orig_pix_);
+    pix_for_ccs = pixCopy(nullptr, orig_pix_);
     PerformClose(pix_for_ccs, global_xheight_);
   }
   Pixa* ccs;
@@ -130,7 +130,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
   if (ccs != nullptr) num_ccs = pixaGetCount(ccs);
   for (int i = 0; i < num_ccs; ++i) {
     Box* box = ccs->boxa->box[i];
-    Pix* word_pix = pixClipRectangle(orig_pix_, box, NULL);
+    Pix* word_pix = pixClipRectangle(orig_pix_, box, nullptr);
     ASSERT_HOST(word_pix);
     int xheight = GetXheightForCC(box);
     if (xheight == kUnspecifiedXheight && segmentation_block_list_ &&
@@ -275,7 +275,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
   // Obtain a vertical projection histogram for the resulting image.
   Box* box_to_clear = boxCreate(0, shirorekha_top - stroke_width / 3,
                                 width, 5 * stroke_width / 3);
-  Pix* word_in_xheight = pixCopy(NULL, pix);
+  Pix* word_in_xheight = pixCopy(nullptr, pix);
   pixClearInRect(word_in_xheight, box_to_clear);
   // Also clear any pixels which are below shirorekha_bottom + some leeway.
   // The leeway is set to xheight if the information is available, else it is a
@@ -367,7 +367,7 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
   RefreshWordBlobsFromNewBlobs(segmentation_block_list_,
                                new_blobs,
                                ((devanagari_split_debugimage && debug_image_) ?
-                                &not_found_blobs : NULL));
+                                &not_found_blobs : nullptr));
 
   if (devanagari_split_debuglevel > 0) {
     tprintf("After refreshing blobs:\n");
@@ -408,7 +408,7 @@ Box* ShiroRekhaSplitter::GetBoxForTBOX(const TBOX& tbox) const {
 // This method returns the computed mode-height of blobs in the pix.
 // It also prunes very small blobs from calculation.
 int ShiroRekhaSplitter::GetModeHeight(Pix* pix) {
-  Boxa* boxa = pixConnComp(pix, NULL, 8);
+  Boxa* boxa = pixConnComp(pix, nullptr, 8);
   STATS heights(0, pixGetHeight(pix));
   heights.clear();
   for (int i = 0; i < boxaGetCount(boxa); ++i) {
@@ -486,7 +486,7 @@ void PixelHistogram::ConstructVerticalCountHist(Pix* pix) {
 
 void PixelHistogram::ConstructHorizontalCountHist(Pix* pix) {
   Clear();
-  Numa* counts = pixCountPixelsByRow(pix, NULL);
+  Numa* counts = pixCountPixelsByRow(pix, nullptr);
   length_ = numaGetCount(counts);
   hist_ = new int[length_];
   for (int i = 0; i < length_; ++i) {

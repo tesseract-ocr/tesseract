@@ -66,7 +66,7 @@ class CCNonTextDetect : public BlobGrid {
   // WARNING: The blobs list blobs may be in the *this grid, but they are
   // not removed. If any deleted blobs might be in *this, then this must be
   // Clear()ed immediately after MarkAndDeleteNonTextBlobs is called.
-  // If the win is not NULL, deleted blobs are drawn on it in red, and kept
+  // If the win is not nullptr, deleted blobs are drawn on it in red, and kept
   void MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
                                  int max_blob_overlaps,
                                  ScrollView* win, ScrollView::Color ok_color,

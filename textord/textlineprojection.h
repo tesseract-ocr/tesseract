@@ -153,7 +153,7 @@ class TextlineProjection {
   // image by offset pixels. For simplicity, it is assumed that the vector is
   // either nearly horizontal or nearly vertical. It works on skewed textlines!
   // The end points are in external coordinates, and will be denormalized with
-  // the denorm if not NULL before further conversion to pix coordinates.
+  // the denorm if not nullptr before further conversion to pix coordinates.
   // After all the conversions, the offset is added to the direction
   // perpendicular to the line direction. The offset is thus in projection image
   // coordinates, which allows the caller to get a guaranteed displacement
@@ -177,7 +177,7 @@ class TextlineProjection {
   // the blob. Returns true if padding was in the horizontal direction.
   bool PadBlobBox(BLOBNBOX* blob, TBOX* bbox);
 
-  // Helper denormalizes the TPOINT with the denorm if not NULL, then
+  // Helper denormalizes the TPOINT with the denorm if not nullptr, then
   // converts to pix_ coordinates.
   void TransformToPixCoords(const DENORM* denorm, TPOINT* pt) const;
 

@@ -47,7 +47,7 @@ INT_VAR (pitsync_fake_depth, 1, "Max advance fake generation");
 FPSEGPT::FPSEGPT(                //constructor
                  FPCUTPT *cutpt  //create from new form
                 ) {
-  pred = NULL;
+  pred = nullptr;
   mean_sum = cutpt->sum ();
   sq_sum = cutpt->squares ();
   cost = cutpt->cost_function ();
@@ -68,7 +68,7 @@ FPSEGPT::FPSEGPT(                //constructor
 FPSEGPT::FPSEGPT (               //constructor
 int16_t x                          //position
 ):xpos (x) {
-  pred = NULL;
+  pred = nullptr;
   mean_sum = 0;
   sq_sum = 0;
   cost = 0;
@@ -104,7 +104,7 @@ FPSEGPT_LIST * prev_list         //previous segment
   FPSEGPT_IT pred_it = prev_list;//for previuos segment
 
   cost = MAX_FLOAT32;
-  pred = NULL;
+  pred = nullptr;
   faked = faking;
   terminal = FALSE;
   best_fake = INT16_MAX;
@@ -133,7 +133,7 @@ FPSEGPT_LIST * prev_list         //previous segment
     }
   }
   if (fake_count > best_fake + 1)
-    pred = NULL;                 //fail it
+    pred = nullptr;                 //fail it
 }
 
 
@@ -223,7 +223,7 @@ double check_pitch_sync(                        //find segmentation
   min_index = 0;
   region_index = 1;
   best_cost = MAX_FLOAT32;
-  best_end = NULL;
+  best_end = nullptr;
   min_it = *blob_it;
   min_box = box_next (&min_it);  //first box
   do {
@@ -274,7 +274,7 @@ double check_pitch_sync(                        //find segmentation
         segpt = new FPSEGPT (x, TRUE, offset, region_index,
           pitch, pitch_error, lattice_it.data ());
       }
-      if (segpt->previous () != NULL) {
+      if (segpt->previous () != nullptr) {
         segpt_it.add_after_then_move (segpt);
         if (x >= right_edge - pitch_error) {
           segpt->terminal = TRUE;//no more wanted
@@ -296,7 +296,7 @@ double check_pitch_sync(                        //find segmentation
       }
     }
     if (segpts->empty ()) {
-      if (best_end != NULL)
+      if (best_end != nullptr)
         break;                   //already found one
       make_illegal_segment (lattice_it.data (), min_box, min_it,
         region_index, pitch, pitch_error, segpts);
@@ -317,7 +317,7 @@ double check_pitch_sync(                        //find segmentation
     region_index++;
   }
   while (min_x < right_edge);
-  ASSERT_HOST (best_end != NULL);//must always find some
+  ASSERT_HOST (best_end != nullptr);//must always find some
 
   for (lattice_it.mark_cycle_pt (); !lattice_it.cycled_list ();
   lattice_it.forward ()) {
@@ -343,7 +343,7 @@ double check_pitch_sync(                        //find segmentation
       best_end = segpt->previous ();
     }
   }
-  ASSERT_HOST (best_end == NULL);
+  ASSERT_HOST (best_end == nullptr);
   ASSERT_HOST (!outseg_it.empty ());
   outseg_it.move_to_last ();
   mean_sum = outseg_it.data ()->sum ();
@@ -408,7 +408,7 @@ void make_illegal_segment(                          //find segmentation
       offset = blob_box.right () - x;
     segpt = new FPSEGPT (x, FALSE, offset,
       region_index, pitch, pitch_error, prev_list);
-    if (segpt->previous () != NULL) {
+    if (segpt->previous () != nullptr) {
       ASSERT_HOST (offset >= 0);
       fprintf (stderr, "made fake at %d\n", x);
                                  //make one up

@@ -30,10 +30,10 @@ ELISTIZE(WorkingPartSet)
 // has a SingletonPartner, make sure that it stays with its partner.
 void WorkingPartSet::AddPartition(ColPartition* part) {
   ColPartition* partner = part->SingletonPartner(true);
-  if (partner != NULL) {
+  if (partner != nullptr) {
     ASSERT_HOST(partner->SingletonPartner(false) == part);
   }
-  if (latest_part_ == NULL || partner == NULL) {
+  if (latest_part_ == nullptr || partner == nullptr) {
     // This partition goes at the end of the list
     part_it_.move_to_last();
   } else if (latest_part_->SingletonPartner(false) != part) {
@@ -88,24 +88,24 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
     // by linespacing into smaller blocks.
     ColPartition_LIST block_parts;
     ColPartition_IT block_it(&block_parts);
-    ColPartition* next_part = NULL;
+    ColPartition* next_part = nullptr;
     bool text_block = false;
     do {
       ColPartition* part = part_it_.extract();
       if (part->blob_type() == BRT_UNKNOWN ||
           (part->IsTextType() && part->type() != PT_TABLE))
         text_block = true;
-      part->set_working_set(NULL);
+      part->set_working_set(nullptr);
       part_it_.forward();
       block_it.add_after_then_move(part);
       next_part = part->SingletonPartner(false);
       if (part_it_.empty() || next_part != part_it_.data()) {
         // Sequences of partitions can get split by titles.
-        next_part = NULL;
+        next_part = nullptr;
       }
       // Merge adjacent blocks that are of the same type and let the
       // linespacing determine the real boundaries.
-      if (next_part == NULL && !part_it_.empty()) {
+      if (next_part == nullptr && !part_it_.empty()) {
         ColPartition* next_block_part = part_it_.data();
         const TBOX& part_box = part->bounding_box();
         const TBOX& next_box = next_block_part->bounding_box();
@@ -119,11 +119,11 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
             (text_block || part_box.bottom() <= next_box.top()))
           next_part = next_block_part;
       }
-    } while (!part_it_.empty() && next_part != NULL);
+    } while (!part_it_.empty() && next_part != nullptr);
     if (!text_block) {
       TO_BLOCK* to_block = ColPartition::MakeBlock(bleft, tright,
                                                    &block_parts, used_parts);
-      if (to_block != NULL) {
+      if (to_block != nullptr) {
         TO_BLOCK_IT to_block_it(&to_blocks_);
         to_block_it.add_to_end(to_block);
         BLOCK_IT block_it(&completed_blocks_);
@@ -137,7 +137,7 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
     }
   }
   part_it_.set_to_list(&part_set_);
-  latest_part_ = NULL;
+  latest_part_ = nullptr;
   ASSERT_HOST(completed_blocks_.length() == to_blocks_.length());
 }
 

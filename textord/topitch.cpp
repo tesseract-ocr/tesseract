@@ -84,7 +84,7 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_initial_words && testing_on) {
-    if (to_win == NULL)
+    if (to_win == nullptr)
       create_to_win(page_tr);
   }
 #endif
@@ -114,7 +114,7 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
        block_it.forward()) {
     block = block_it.data ();
     POLY_BLOCK* pb = block->block->pdblk.poly_block();
-    if (pb != NULL && !pb->IsText()) continue;  // Non-text doesn't exist!
+    if (pb != nullptr && !pb->IsText()) continue;  // Non-text doesn't exist!
     row_it.set_to_list (block->get_rows ());
     row_index = 1;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -170,7 +170,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
          block_it.forward()) {
       block = block_it.data();
       POLY_BLOCK* pb = block->block->pdblk.poly_block();
-      if (pb != NULL && !pb->IsText()) continue;  // Non text doesn't exist!
+      if (pb != nullptr && !pb->IsText()) continue;  // Non text doesn't exist!
       row_index = 1;
       row_it.set_to_list (block->get_rows ());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
@@ -486,7 +486,7 @@ BOOL8 try_doc_fixed(                             //determine pitch
   row_it.set_to_list (block_it.data ()->get_rows ());
   row = row_it.data ();
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NULL)
+  if (textord_show_page_cuts && to_win != nullptr)
     projection.plot (to_win, projection_left,
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
 #endif
@@ -505,7 +505,7 @@ BOOL8 try_doc_fixed(                             //determine pitch
       pitch_sd / total_row_count / pitch);
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NULL) {
+  if (textord_show_page_cuts && to_win != nullptr) {
     master_cells = &row->char_cells;
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
     block_it.forward ()) {
@@ -984,8 +984,8 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
     non_space = row->fixed_pitch;
-  POLY_BLOCK* pb = block != NULL ? block->pdblk.poly_block() : NULL;
-  if (textord_all_prop || (pb != NULL && !pb->IsText())) {
+  POLY_BLOCK* pb = block != nullptr ? block->pdblk.poly_block() : nullptr;
+  if (textord_all_prop || (pb != nullptr && !pb->IsText())) {
     // Set the decision to definitely proportional.
     pitch_sd = textord_words_def_prop * row->fixed_pitch;
     row->pitch_decision = PITCH_DEF_PROP;
@@ -1093,7 +1093,7 @@ BOOL8 count_pitch_stats(                       //find lines
       blob_box = blob->bounding_box ();
       if ((blob_box.left () - joined_box.right () < dm_gap
         && !blob_it.at_first ())
-        || blob->cblob() == NULL)
+        || blob->cblob() == nullptr)
         joined_box += blob_box;  //merge blobs
       else {
         blob_width = joined_box.width ();
@@ -1426,7 +1426,7 @@ float compute_pitch_sd(                            //find fp cells
   if (blob_it.empty ())
     return space_size * 10;
 #ifndef GRAPHICS_DISABLED
-  if (testing_on && to_win != NULL) {
+  if (testing_on && to_win != nullptr) {
     blob_box = blob_it.data ()->bounding_box ();
     projection->plot (to_win, projection_left,
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
@@ -1475,7 +1475,7 @@ float compute_pitch_sd(                            //find fp cells
       tprintf ("\n");
     }
 #ifndef GRAPHICS_DISABLED
-    if (textord_show_fixed_cuts && blob_count > 0 && to_win != NULL)
+    if (textord_show_fixed_cuts && blob_count > 0 && to_win != nullptr)
       plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
     seg_it.set_to_list (&seg_list);
@@ -1565,7 +1565,7 @@ float compute_pitch_sd2(                            //find fp cells
     return initial_pitch * 10;
   }
 #ifndef GRAPHICS_DISABLED
-  if (testing_on && to_win != NULL) {
+  if (testing_on && to_win != nullptr) {
     projection->plot (to_win, projection_left,
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
   }
@@ -1601,7 +1601,7 @@ float compute_pitch_sd2(                            //find fp cells
     tprintf ("\n");
   }
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_fixed_cuts && blob_count > 0 && to_win != NULL)
+  if (textord_show_fixed_cuts && blob_count > 0 && to_win != nullptr)
     plot_fp_cells2(to_win, ScrollView::GOLDENROD, row, &seg_list);
 #endif
   seg_it.set_to_list (&seg_list);
@@ -1727,7 +1727,7 @@ void print_pitch_sd(                        //find fp cells
   word_sync = sqrt (word_sync);
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_row_cuts && to_win != NULL)
+  if (textord_show_row_cuts && to_win != nullptr)
     plot_fp_cells2(to_win, ScrollView::CORAL, row, &seg_list);
 #endif
   seg_list.clear ();
@@ -1756,7 +1756,7 @@ void print_pitch_sd(                        //find fp cells
 void find_repeated_chars(TO_BLOCK *block,       // Block to search.
                          BOOL8 testing_on) {    // Debug mode.
   POLY_BLOCK* pb = block->block->pdblk.poly_block();
-  if (pb != NULL && !pb->IsText())
+  if (pb != nullptr && !pb->IsText())
     return;  // Don't find repeated chars in non-text blocks.
 
   TO_ROW *row;

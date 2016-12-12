@@ -60,8 +60,8 @@ const int kNoisePadding = 4;
 
 // Finds image regions within the BINARY source pix (page image) and returns
 // the image regions as a mask image.
-// The returned pix may be NULL, meaning no images found.
-// If not NULL, it must be PixDestroyed by the caller.
+// The returned pix may be nullptr, meaning no images found.
+// If not nullptr, it must be PixDestroyed by the caller.
 // If textord_tabfind_show_images, debug images are appended to pixa_debug.
 Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
   // Not worth looking at small images.
@@ -76,8 +76,8 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
 
   // Get the halftone mask directly from Leptonica.
   //
-  // Leptonica will print an error message and return NULL if we call
-  // pixGenHalftoneMask(pixr, NULL, ...) with too small image, so we
+  // Leptonica will print an error message and return nullptr if we call
+  // pixGenHalftoneMask(pixr, nullptr, ...) with too small image, so we
   // want to bypass that.
   if (pixGetWidth(pixr) < kMinImageFindSize ||
       pixGetHeight(pixr) < kMinImageFindSize) {
@@ -89,7 +89,7 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
   Pixa* pixadb = (textord_tabfind_show_images && pixa_debug != nullptr)
                      ? pixaCreate(0)
                      : nullptr;
-  Pix* pixht2 = pixGenerateHalftoneMask(pixr, NULL, &ht_found, pixadb);
+  Pix* pixht2 = pixGenerateHalftoneMask(pixr, nullptr, &ht_found, pixadb);
   if (pixadb) {
     Pix* pixdb = pixaDisplayTiledInColumns(pixadb, 3, 1.0, 20, 2);
     if (textord_tabfind_show_images && pixa_debug != nullptr)
@@ -98,9 +98,9 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
     pixaDestroy(&pixadb);
   }
   pixDestroy(&pixr);
-  if (!ht_found && pixht2 != NULL)
+  if (!ht_found && pixht2 != nullptr)
     pixDestroy(&pixht2);
-  if (pixht2 == NULL)
+  if (pixht2 == nullptr)
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
 
   // Expand back up again.
@@ -110,7 +110,7 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
   pixDestroy(&pixht2);
 
   // Fill to capture pixels near the mask edges that were missed
-  Pix *pixt = pixSeedfillBinary(NULL, pixht, pix, 8);
+  Pix *pixt = pixSeedfillBinary(nullptr, pixht, pix, 8);
   pixOr(pixht, pixht, pixt);
   pixDestroy(&pixt);
 
@@ -151,14 +151,14 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
 // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
 // analgous to pixConnComp, except that connected components which are nearly
 // rectangular are replaced with solid rectangles.
-// The returned boxa, pixa may be NULL, meaning no images found.
-// If not NULL, they must be destroyed by the caller.
+// The returned boxa, pixa may be nullptr, meaning no images found.
+// If not nullptr, they must be destroyed by the caller.
 // Resolution of pix should match the source image (Tesseract::pix_binary_)
 // so the output coordinate systems match.
 void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
                                           Boxa** boxa, Pixa** pixa) {
-  *boxa = NULL;
-  *pixa = NULL;
+  *boxa = nullptr;
+  *pixa = nullptr;
 
   if (textord_tabfind_show_images && pixa_debug != nullptr)
     pixa_debug->AddPix(pix, "Conncompimage");
@@ -182,7 +182,7 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
       pixSetAll(simple_pix);
       pixDestroy(&img_pix);
       // pixaReplacePix takes ownership of the simple_pix.
-      pixaReplacePix(*pixa, i, simple_pix, NULL);
+      pixaReplacePix(*pixa, i, simple_pix, nullptr);
       img_pix = pixaGetPix(*pixa, i, L_CLONE);
       // Fix the box to match the new pix.
       l_int32 x, y, width, height;
@@ -207,7 +207,7 @@ static bool HScanForEdge(uint32_t* data, int wpl, int x_start, int x_end,
                          int y_end, int y_step, int* y_start) {
   int mid_rows = 0;
   for (int y = *y_start; y != y_end; y += y_step) {
-    // Need pixCountPixelsInRow(pix, y, &pix_count, NULL) to count in a subset.
+    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a subset.
     int pix_count = 0;
     uint32_t* line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
@@ -272,7 +272,7 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
                                      double max_skew_gradient,
                                      int* x_start, int* y_start,
                                      int* x_end, int* y_end) {
-  ASSERT_HOST(pix != NULL);
+  ASSERT_HOST(pix != nullptr);
   *x_start = 0;
   *x_end = pixGetWidth(pix);
   *y_start = 0;
@@ -337,9 +337,9 @@ bool ImageFind::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
                                  int* x_end, int* y_end) {
   Box* input_box = boxCreate(*x_start, *y_start, *x_end - *x_start,
                              *y_end - *y_start);
-  Box* output_box = NULL;
-  pixClipBoxToForeground(pix, input_box, NULL, &output_box);
-  bool result = output_box != NULL;
+  Box* output_box = nullptr;
+  pixClipBoxToForeground(pix, input_box, nullptr, &output_box);
+  bool result = output_box != nullptr;
   if (result) {
     l_int32 x, y, width, height;
     boxGetGeometry(output_box, &x, &y, &width, &height);
@@ -419,7 +419,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
                                        Pix* color_map1, Pix* color_map2,
                                        Pix* rms_map,
                                        uint8_t* color1, uint8_t* color2) {
-  ASSERT_HOST(pix != NULL && pixGetDepth(pix) == 32);
+  ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32);
   // Pad the rectangle outwards by 2 (scaled) pixels if possible to get more
   // background.
   int width = pixGetWidth(pix);
@@ -437,7 +437,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   // Now crop the pix to the rectangle.
   Box* scaled_box = boxCreate(left_pad, height - top_pad,
                               width_pad, height_pad);
-  Pix* scaled = pixClipRectangle(pix, scaled_box, NULL);
+  Pix* scaled = pixClipRectangle(pix, scaled_box, nullptr);
 
   // Compute stats over the whole image.
   STATS red_stats(0, 256);
@@ -520,7 +520,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
     color1[L_ALPHA_CHANNEL] = 0;
     memcpy(color2, color1, 4);
   }
-  if (color_map1 != NULL) {
+  if (color_map1 != nullptr) {
     pixSetInRectArbitrary(color_map1, scaled_box,
                           ComposeRGB(color1[COLOR_RED],
                               color1[COLOR_GREEN],
@@ -612,7 +612,7 @@ int ImageFind::CountPixelsInRotatedBox(TBOX box, const TBOX& im_box,
               PIX_SRC, pix, box.left() - rotated_im_box.left(),
               rotated_im_box.top() - box.top());
   l_int32 result;
-  pixCountPixels(rect_pix, &result, NULL);
+  pixCountPixels(rect_pix, &result, nullptr);
   pixDestroy(&rect_pix);
   return result;
 }
@@ -762,7 +762,7 @@ static void DivideImageIntoParts(const TBOX& im_box, const FCOORD& rotation,
 
   rectsearch->StartRectSearch(im_box);
   ColPartition* part;
-  while ((part = rectsearch->NextRectSearch()) != NULL) {
+  while ((part = rectsearch->NextRectSearch()) != nullptr) {
     TBOX part_box = part->bounding_box();
     if (part_box.contains(im_box) && part->flow() >= BTFT_CHAIN) {
       // This image is completely covered by an existing text partition.
@@ -805,7 +805,7 @@ static int ExpandImageLeft(const TBOX& box, int left_limit,
   ColPartition* part;
   // Search right to left for any text that overlaps.
   search.StartSideSearch(box.left(), box.bottom(), box.top());
-  while ((part = search.NextSideSearch(true)) != NULL) {
+  while ((part = search.NextSideSearch(true)) != nullptr) {
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX& part_box(part->bounding_box());
       if (part_box.y_gap(box) < 0) {
@@ -815,11 +815,11 @@ static int ExpandImageLeft(const TBOX& box, int left_limit,
       }
     }
   }
-  if (part != NULL) {
+  if (part != nullptr) {
     // Search for the nearest text up to the one we already found.
     TBOX search_box(left_limit, box.bottom(), box.left(), box.top());
     search.StartRectSearch(search_box);
-    while ((part = search.NextRectSearch()) != NULL) {
+    while ((part = search.NextRectSearch()) != nullptr) {
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX& part_box(part->bounding_box());
         if (part_box.y_gap(box) < 0) {
@@ -841,7 +841,7 @@ static int ExpandImageRight(const TBOX& box, int right_limit,
   ColPartition* part;
   // Search left to right for any text that overlaps.
   search.StartSideSearch(box.right(), box.bottom(), box.top());
-  while ((part = search.NextSideSearch(false)) != NULL) {
+  while ((part = search.NextSideSearch(false)) != nullptr) {
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX& part_box(part->bounding_box());
       if (part_box.y_gap(box) < 0) {
@@ -851,11 +851,11 @@ static int ExpandImageRight(const TBOX& box, int right_limit,
       }
     }
   }
-  if (part != NULL) {
+  if (part != nullptr) {
     // Search for the nearest text up to the one we already found.
     TBOX search_box(box.left(), box.bottom(), right_limit, box.top());
     search.StartRectSearch(search_box);
-    while ((part = search.NextRectSearch()) != NULL) {
+    while ((part = search.NextRectSearch()) != nullptr) {
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX& part_box(part->bounding_box());
         if (part_box.y_gap(box) < 0) {
@@ -876,7 +876,7 @@ static int ExpandImageBottom(const TBOX& box, int bottom_limit,
   ColPartition* part;
   // Search right to left for any text that overlaps.
   search.StartVerticalSearch(box.left(), box.right(), box.bottom());
-  while ((part = search.NextVerticalSearch(true)) != NULL) {
+  while ((part = search.NextVerticalSearch(true)) != nullptr) {
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX& part_box(part->bounding_box());
       if (part_box.x_gap(box) < 0) {
@@ -886,11 +886,11 @@ static int ExpandImageBottom(const TBOX& box, int bottom_limit,
       }
     }
   }
-  if (part != NULL) {
+  if (part != nullptr) {
     // Search for the nearest text up to the one we already found.
     TBOX search_box(box.left(), bottom_limit, box.right(), box.bottom());
     search.StartRectSearch(search_box);
-    while ((part = search.NextRectSearch()) != NULL) {
+    while ((part = search.NextRectSearch()) != nullptr) {
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX& part_box(part->bounding_box());
         if (part_box.x_gap(box) < 0) {
@@ -911,7 +911,7 @@ static int ExpandImageTop(const TBOX& box, int top_limit,
   ColPartition* part;
   // Search right to left for any text that overlaps.
   search.StartVerticalSearch(box.left(), box.right(), box.top());
-  while ((part = search.NextVerticalSearch(false)) != NULL) {
+  while ((part = search.NextVerticalSearch(false)) != nullptr) {
     if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
       const TBOX& part_box(part->bounding_box());
       if (part_box.x_gap(box) < 0) {
@@ -921,11 +921,11 @@ static int ExpandImageTop(const TBOX& box, int top_limit,
       }
     }
   }
-  if (part != NULL) {
+  if (part != nullptr) {
     // Search for the nearest text up to the one we already found.
     TBOX search_box(box.left(), box.top(), box.right(), top_limit);
     search.StartRectSearch(search_box);
-    while ((part = search.NextRectSearch()) != NULL) {
+    while ((part = search.NextRectSearch()) != nullptr) {
       if (part->flow() == BTFT_STRONG_CHAIN || part->flow() == BTFT_CHAIN) {
         const TBOX& part_box(part->bounding_box());
         if (part_box.x_gap(box) < 0) {
@@ -1047,9 +1047,9 @@ static bool ExpandImageIntoParts(const TBOX& max_image_box,
   }
   rectsearch->StartRectSearch(max_image_box);
   ColPartition* part;
-  ColPartition* best_part = NULL;
+  ColPartition* best_part = nullptr;
   int best_dist = 0;
-  while ((part = rectsearch->NextRectSearch()) != NULL) {
+  while ((part = rectsearch->NextRectSearch()) != nullptr) {
     if (textord_tabfind_show_images > 1) {
       tprintf("Considering merge with part:");
       part->Print();
@@ -1079,14 +1079,14 @@ static bool ExpandImageIntoParts(const TBOX& max_image_box,
       int dist = x_dist * x_dist + y_dist * y_dist;
       if (dist > box.area() || dist > im_part_box.area())
         continue;  // Not close enough.
-      if (best_part == NULL || dist < best_dist) {
+      if (best_part == nullptr || dist < best_dist) {
         // We keep the nearest qualifier, which is not necessarily the nearest.
         best_part = part;
         best_dist = dist;
       }
     }
   }
-  if (best_part != NULL) {
+  if (best_part != nullptr) {
     // It needs expanding. We can do it without touching text.
     TBOX box = best_part->bounding_box();
     if (textord_tabfind_show_images > 1) {
@@ -1157,7 +1157,7 @@ static void EliminateWeakParts(const TBOX& im_box,
   ColPartitionGridSearch rectsearch(part_grid);
   ColPartition* part;
   rectsearch.StartRectSearch(im_box);
-  while ((part = rectsearch.NextRectSearch()) != NULL) {
+  while ((part = rectsearch.NextRectSearch()) != nullptr) {
     if (TestWeakIntersectedPart(im_box, part_list, part)) {
       BlobRegionType type = part->blob_type();
       if (type == BRT_POLYIMAGE || type == BRT_RECTIMAGE) {
@@ -1193,7 +1193,7 @@ static bool ScanForOverlappingText(ColPartitionGrid* part_grid, TBOX* box) {
   rectsearch.StartRectSearch(padded_box);
   ColPartition* part;
   bool any_text_in_padded_rect = false;
-  while ((part = rectsearch.NextRectSearch()) != NULL) {
+  while ((part = rectsearch.NextRectSearch()) != nullptr) {
     if (part->flow() == BTFT_CHAIN ||
         part->flow() == BTFT_STRONG_CHAIN) {
       // Text intersects the box.
@@ -1217,7 +1217,7 @@ static void MarkAndDeleteImageParts(const FCOORD& rerotate,
                                     ColPartitionGrid* part_grid,
                                     ColPartition_LIST* image_parts,
                                     Pix* image_pix) {
-  if (image_pix == NULL)
+  if (image_pix == nullptr)
     return;
   int imageheight = pixGetHeight(image_pix);
   ColPartition_IT part_it(image_parts);
@@ -1233,7 +1233,7 @@ static void MarkAndDeleteImageParts(const FCOORD& rerotate,
       int left = part_box.left();
       int top = part_box.top();
       pixRasterop(image_pix, left, imageheight - top,
-                  part_box.width(), part_box.height(), PIX_SET, NULL, 0, 0);
+                  part_box.width(), part_box.height(), PIX_SET, nullptr, 0, 0);
     }
     DeletePartition(part);
   }
@@ -1255,7 +1255,7 @@ void ImageFind::TransferImagePartsToImageMask(const FCOORD& rerotation,
   ColPartitionGridSearch gsearch(part_grid);
   gsearch.StartFullSearch();
   ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     BlobRegionType type = part->blob_type();
     if (type  == BRT_NOISE || type == BRT_RECTIMAGE || type == BRT_POLYIMAGE) {
       part_it.add_after_then_move(part);
@@ -1270,11 +1270,11 @@ void ImageFind::TransferImagePartsToImageMask(const FCOORD& rerotation,
 // keeping. We have to do this as a separate phase after creating the image
 // partitions as the small images are needed to join the larger ones together.
 static void DeleteSmallImages(ColPartitionGrid* part_grid) {
-  if (part_grid != NULL) return;
+  if (part_grid != nullptr) return;
   ColPartitionGridSearch gsearch(part_grid);
   gsearch.StartFullSearch();
   ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     // Only delete rectangular images, since if it became a poly image, it
     // is more evidence that it is somehow important.
     if (part->blob_type() == BRT_RECTIMAGE) {

@@ -88,16 +88,16 @@ void Textord::make_old_baselines(TO_BLOCK *block,   // block to do
   TO_ROW_IT row_it = block->get_rows();
   BLOBNBOX_IT blob_it;
 
-  prev_baseline = NULL;          // nothing yet
+  prev_baseline = nullptr;          // nothing yet
   for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
     row = row_it.data();
-    find_textlines(block, row, 2, NULL);
-    if (row->xheight <= 0 && prev_baseline != NULL)
+    find_textlines(block, row, 2, nullptr);
+    if (row->xheight <= 0 && prev_baseline != nullptr)
       find_textlines(block, row, 2, prev_baseline);
     if (row->xheight > 0) {  // was a good one
       prev_baseline = &row->baseline;
     } else {
-      prev_baseline = NULL;
+      prev_baseline = nullptr;
       blob_it.set_to_list(row->blob_list());
       if (textord_debug_baselines)
         tprintf("Row baseline generation failed on row at (%d,%d)\n",
@@ -537,7 +537,7 @@ float jumplimit                  /*guess half descenders */
   leftedge = blobcoords[0].left ();
                                  /*right edge of line */
   rightedge = blobcoords[blobcount - 1].right ();
-  if (spline == NULL             /*no given spline */
+  if (spline == nullptr             /*no given spline */
     || spline->segments < 3      /*or trivial */
                                  /*or too non-overlap */
     || spline->xcoords[1] > leftedge + MAXOVERLAP * (rightedge - leftedge)
@@ -685,7 +685,7 @@ float gradient                   //of line
   coeffs[1] = gradient;
   coeffs[2] = c;
   *baseline = QSPLINE (1, xstarts, coeffs);
-  if (spline != NULL             /*no given spline */
+  if (spline != nullptr             /*no given spline */
     && spline->segments >= 3     /*or trivial */
                                  /*or too non-overlap */
     && spline->xcoords[1] <= leftedge + MAXOVERLAP * (rightedge - leftedge)

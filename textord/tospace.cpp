@@ -54,7 +54,7 @@ void Textord::to_spacing(
   //estimated width of non space gaps for whole block
   int16_t block_non_space_gap_width;
   BOOL8 old_text_ord_proportional;//old fixed/prop result
-  GAPMAP *gapmap = NULL;          //map of big vert gaps in blk
+  GAPMAP *gapmap = nullptr;          //map of big vert gaps in blk
 
   block_it.set_to_list (blocks);
   block_index = 1;
@@ -995,14 +995,14 @@ ROW *Textord::make_prop_words(
       bblob = box_it.data ();
       blob_box = bblob->bounding_box ();
       if (bblob->joined_to_prev ()) {
-        if (bblob->cblob () != NULL) {
+        if (bblob->cblob () != nullptr) {
           cout_it.set_to_list (cblob_it.data ()->out_list ());
           cout_it.move_to_last ();
           cout_it.add_list_after (bblob->cblob ()->out_list ());
           delete bblob->cblob ();
         }
       } else {
-        if (bblob->cblob() != NULL)
+        if (bblob->cblob() != nullptr)
           cblob_it.add_after_then_move (bblob->cblob ());
         prev_x = blob_box.right ();
       }
@@ -1010,7 +1010,7 @@ ROW *Textord::make_prop_words(
       bblob = box_it.data ();
       blob_box = bblob->bounding_box ();
 
-      if (!bblob->joined_to_prev() && bblob->cblob() != NULL) {
+      if (!bblob->joined_to_prev() && bblob->cblob() != nullptr) {
         /* Real Blob - not multiple outlines or pre-chopped */
         prev_gap = current_gap;
         prev_within_xht_gap = current_within_xht_gap;
@@ -1039,7 +1039,7 @@ ROW *Textord::make_prop_words(
                               break_at_next_gap) ||
             box_it.at_first()) {
           /* Form a new word out of the blobs collected */
-          word = new WERD (&cblobs, prev_blanks, NULL);
+          word = new WERD (&cblobs, prev_blanks, nullptr);
           word_count++;
           word_it.add_after_then_move (word);
           if (bol) {
@@ -1173,7 +1173,7 @@ ROW *Textord::make_prop_words(
     }
     return real_row;
   }
-  return NULL;
+  return nullptr;
 }
 
 /**********************************************************************
@@ -1209,14 +1209,14 @@ ROW *Textord::make_blob_words(
       bblob = box_it.data();
       blob_box = bblob->bounding_box();
       if (bblob->joined_to_prev()) {
-        if (bblob->cblob() != NULL) {
+        if (bblob->cblob() != nullptr) {
           cout_it.set_to_list(cblob_it.data()->out_list());
           cout_it.move_to_last();
           cout_it.add_list_after(bblob->cblob()->out_list());
           delete bblob->cblob();
         }
       } else {
-        if (bblob->cblob() != NULL)
+        if (bblob->cblob() != nullptr)
           cblob_it.add_after_then_move(bblob->cblob());
       }
       box_it.forward();         // next one
@@ -1224,7 +1224,7 @@ ROW *Textord::make_blob_words(
       blob_box = bblob->bounding_box();
 
       if (!bblob->joined_to_prev() && !cblobs.empty()) {
-        word = new WERD(&cblobs, 1, NULL);
+        word = new WERD(&cblobs, 1, nullptr);
         word_count++;
         word_it.add_after_then_move(word);
         if (bol) {
@@ -1253,7 +1253,7 @@ ROW *Textord::make_blob_words(
     }
     return real_row;
   }
-  return NULL;
+  return nullptr;
 }
 
 BOOL8 Textord::make_a_word_break(
@@ -1783,7 +1783,7 @@ TBOX Textord::reduced_box_next(
       it->forward();
       blob = it->data();
     }
-    while (blob->cblob() == NULL || blob->joined_to_prev());
+    while (blob->cblob() == nullptr || blob->joined_to_prev());
     return reduced_box;
   }
   head_blob = blob;
@@ -1792,7 +1792,7 @@ TBOX Textord::reduced_box_next(
   do {
     it->forward ();
     blob = it->data ();
-    if (blob->cblob() == NULL)
+    if (blob->cblob() == nullptr)
                                  //was pre-chopped
       full_box += blob->bounding_box ();
     else if (blob->joined_to_prev ()) {
@@ -1802,7 +1802,7 @@ TBOX Textord::reduced_box_next(
     }
   }
                                  //until next real blob
-  while (blob->cblob() == NULL || blob->joined_to_prev());
+  while (blob->cblob() == nullptr || blob->joined_to_prev());
 
   if ((reduced_box.width () > 0) &&
     ((reduced_box.left () + tosp_near_lh_edge * reduced_box.width ())

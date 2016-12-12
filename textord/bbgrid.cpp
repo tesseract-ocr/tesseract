@@ -64,16 +64,16 @@ void GridBase::ClipGridCoords(int* x, int* y) const {
 }
 
 IntGrid::IntGrid() {
-  grid_ = NULL;
+  grid_ = nullptr;
 }
 
 IntGrid::IntGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright)
-  : grid_(NULL) {
+  : grid_(nullptr) {
   Init(gridsize, bleft, tright);
 }
 
 IntGrid::~IntGrid() {
-  if (grid_ != NULL)
+  if (grid_ != nullptr)
     delete [] grid_;
 }
 
@@ -81,7 +81,7 @@ IntGrid::~IntGrid() {
 // and bleft, tright are the bounding box of everything to go in it.
 void IntGrid::Init(int gridsize, const ICOORD& bleft, const ICOORD& tright) {
   GridBase::Init(gridsize, bleft, tright);
-  if (grid_ != NULL)
+  if (grid_ != nullptr)
     delete [] grid_;
   grid_ = new int[gridbuckets_];
   Clear();
@@ -109,7 +109,7 @@ void IntGrid::Rotate(const FCOORD& rotation) {
   TBOX box(bleft(), tright());
   box.rotate(rotation);
   int* old_grid = grid_;
-  grid_ = NULL;
+  grid_ = nullptr;
   Init(gridsize(), box.botleft(), box.topright());
   // Iterate over the old grid, copying data to the rotated position in the new.
   int oldi = 0;
@@ -201,7 +201,7 @@ Pix* IntGrid::ThresholdToPix(int threshold) const {
           GridCellValue(x - 1, y) > 0 && GridCellValue(x + 1, y) > 0 &&
               GridCellValue(x, y - 1) > 0 && GridCellValue(x, y + 1) > 0) {
         pixRasterop(pix, x * cellsize, tright().y() - ((y + 1) * cellsize),
-                    cellsize, cellsize, PIX_SET, NULL, 0, 0);
+                    cellsize, cellsize, PIX_SET, nullptr, 0, 0);
       }
     }
   }

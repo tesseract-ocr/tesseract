@@ -37,7 +37,7 @@ namespace tesseract {
 class PixelHistogram {
  public:
   PixelHistogram() {
-    hist_ = NULL;
+    hist_ = nullptr;
     length_ = 0;
   }
 

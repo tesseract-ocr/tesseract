@@ -330,15 +330,15 @@ void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode,
   // Find the best row, being the greatest mean word conf.
   float row_total_conf = 0.0f;
   int row_word_count = 0;
-  ROW_RES* best_row = NULL;
+  ROW_RES* best_row = nullptr;
   float best_conf = 0.0f;
-  for (it.restart_page(); it.word() != NULL; it.forward()) {
+  for (it.restart_page(); it.word() != nullptr; it.forward()) {
     WERD_RES* word = it.word();
     row_total_conf += word->best_choice->certainty();
     ++row_word_count;
     if (it.next_row() != it.row()) {
       row_total_conf /= row_word_count;
-      if (best_row == NULL || best_conf < row_total_conf) {
+      if (best_row == nullptr || best_conf < row_total_conf) {
         best_row = it.row();
         best_conf = row_total_conf;
       }
@@ -347,7 +347,7 @@ void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode,
     }
   }
   // Now eliminate any word not in the best row.
-  for (it.restart_page(); it.word() != NULL; it.forward()) {
+  for (it.restart_page(); it.word() != nullptr; it.forward()) {
     if (it.row() != best_row)
       it.DeleteCurrentWord();
   }

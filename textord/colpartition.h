@@ -99,7 +99,7 @@ class ColPartition : public ELIST2_LINK {
   // and sets it up to be a "big" partition (single-blob partition bigger
   // than the surrounding text that may be a dropcap, two or more vertically
   // touching characters, or some graphic element.
-  // If the given list is not NULL, the partition is also added to the list.
+  // If the given list is not nullptr, the partition is also added to the list.
   static ColPartition* MakeBigPartition(BLOBNBOX* box,
                                         ColPartition_LIST* big_part_list);
 
@@ -473,15 +473,15 @@ class ColPartition : public ELIST2_LINK {
   // pointer.
   void ClaimBoxes();
 
-  // NULL the owner of the blobs in this partition, so they can be deleted
+  // nullptr the owner of the blobs in this partition, so they can be deleted
   // independently of the ColPartition.
   void DisownBoxes();
-  // NULL the owner of the blobs in this partition that are owned by this
+  // nullptr the owner of the blobs in this partition that are owned by this
   // partition, so they can be deleted independently of the ColPartition.
   // Any blobs that are not owned by this partition get to keep their owner
   // without an assert failure.
   void DisownBoxesNoAssert();
-  // NULLs the owner of the blobs in this partition that are owned by this
+  // Nulls the owner of the blobs in this partition that are owned by this
   // partition and not leader blobs, removing them from the boxes_ list, thus
   // turning this partition back to a leader partition if it contains a leader,
   // or otherwise leaving it empty. Returns true if any boxes remain.
@@ -526,7 +526,7 @@ class ColPartition : public ELIST2_LINK {
   bool OKDiacriticMerge(const ColPartition& candidate, bool debug) const;
 
   // Sets the sort key using either the tab vector, or the bounding box if
-  // the tab vector is NULL. If the tab_vector lies inside the bounding_box,
+  // the tab vector is nullptr. If the tab_vector lies inside the bounding_box,
   // use the edge of the box as a key any way.
   void SetLeftTab(const TabVector* tab_vector);
   void SetRightTab(const TabVector* tab_vector);
@@ -562,7 +562,7 @@ class ColPartition : public ELIST2_LINK {
   // This asymmetric removal is so as not to mess up the iterator that is
   // working on partner's partner list.
   void RemovePartner(bool upper, ColPartition* partner);
-  // Returns the partner if the given partner is a singleton, otherwise NULL.
+  // Returns the partner if the given partner is a singleton, otherwise nullptr.
   ColPartition* SingletonPartner(bool upper);
 
   // Merge with the other partition and delete it.

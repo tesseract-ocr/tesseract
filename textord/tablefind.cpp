@@ -204,13 +204,13 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid* grid,
   ColPartitionGridSearch gsearch(grid);
   gsearch.SetUniqueMode(true);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     // Reject partitions with nothing useful inside of them.
     if (part->blob_type() == BRT_NOISE || part->bounding_box().area() <= 0)
       continue;
     ColPartition* clean_part = part->ShallowCopy();
-    ColPartition* leader_part = NULL;
+    ColPartition* leader_part = nullptr;
     if (part->IsLineType()) {
       InsertRulingPartition(clean_part);
       continue;
@@ -231,7 +231,7 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid* grid,
       if (!AllowBlob(*pblob))
         continue;
       if (pblob->flow() == BTFT_LEADER) {
-        if (leader_part == NULL) {
+        if (leader_part == nullptr) {
           leader_part = part->ShallowCopy();
           leader_part->set_flow(BTFT_LEADER);
         }
@@ -244,7 +244,7 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid* grid,
     ColPartition* fragmented = clean_part->CopyButDontOwnBlobs();
     InsertTextPartition(clean_part);
     SplitAndInsertFragmentedTextPartition(fragmented);
-    if (leader_part != NULL) {
+    if (leader_part != nullptr) {
       // TODO(nbeato): Note that ComputeLimits does not update the column
       // information. So the leader may appear to span more columns than it
       // really does later on when IsInSameColumnAs gets called to test
@@ -396,7 +396,7 @@ const ICOORD& TableFinder::tright() const {
 }
 
 void TableFinder::InsertTextPartition(ColPartition* part) {
-  ASSERT_HOST(part != NULL);
+  ASSERT_HOST(part != nullptr);
   if (AllowTextPartition(*part)) {
     clean_part_grid_.InsertBBox(true, true, part);
   } else {
@@ -404,7 +404,7 @@ void TableFinder::InsertTextPartition(ColPartition* part) {
   }
 }
 void TableFinder::InsertFragmentedTextPartition(ColPartition* part) {
-  ASSERT_HOST(part != NULL);
+  ASSERT_HOST(part != nullptr);
   if (AllowTextPartition(*part)) {
     fragmented_text_grid_.InsertBBox(true, true, part);
   } else {
@@ -412,7 +412,7 @@ void TableFinder::InsertFragmentedTextPartition(ColPartition* part) {
   }
 }
 void TableFinder::InsertLeaderPartition(ColPartition* part) {
-  ASSERT_HOST(part != NULL);
+  ASSERT_HOST(part != nullptr);
   if (!part->IsEmpty() && part->bounding_box().area() > 0) {
     leader_and_ruling_grid_.InsertBBox(true, true, part);
   } else {
@@ -438,7 +438,7 @@ void TableFinder::InsertImagePartition(ColPartition* part) {
 // Note: The code Assumes that blobs are sorted by the left side x!
 // This will not work (as well) if the blobs are sorted by center/right.
 void TableFinder::SplitAndInsertFragmentedTextPartition(ColPartition* part) {
-  ASSERT_HOST(part != NULL);
+  ASSERT_HOST(part != nullptr);
   // Bye bye empty partitions!
   if (part->boxes()->empty()) {
     delete part;
@@ -528,7 +528,7 @@ void TableFinder::GetColumnBlocks(ColPartitionSet** all_columns,
                                   ColSegment_LIST* column_blocks) {
   for (int i = 0; i < gridheight(); ++i) {
     ColPartitionSet* columns = all_columns[i];
-    if (columns != NULL) {
+    if (columns != nullptr) {
       ColSegment_LIST new_blocks;
       // Get boxes from the current vertical position on the grid
       columns->GetColumnBoxes(i * gridsize(), (i+1) * gridsize(), &new_blocks);
@@ -592,8 +592,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(grid);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     ColPartitionSet* columns = all_columns[gsearch.GridY()];
     TBOX box = part->bounding_box();
     int y = part->MidY();
@@ -614,8 +614,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
     // NOTE: used to be part_grid_, might cause issues now
     ColPartitionGridSearch hsearch(grid);
     hsearch.StartSideSearch(box.left(), box.bottom(), box.top());
-    ColPartition* neighbor = NULL;
-    while ((neighbor = hsearch.NextSideSearch(true)) != NULL) {
+    ColPartition* neighbor = nullptr;
+    while ((neighbor = hsearch.NextSideSearch(true)) != nullptr) {
       if (neighbor->type() == PT_PULLOUT_IMAGE ||
           neighbor->type() == PT_FLOWING_IMAGE ||
           neighbor->type() == PT_HEADING_IMAGE) {
@@ -627,8 +627,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
       }
     }
     hsearch.StartSideSearch(box.left(), box.bottom(), box.top());
-    neighbor = NULL;
-    while ((neighbor = hsearch.NextSideSearch(false)) != NULL) {
+    neighbor = nullptr;
+    while ((neighbor = hsearch.NextSideSearch(false)) != nullptr) {
       if (neighbor->type() == PT_PULLOUT_IMAGE ||
           neighbor->type() == PT_FLOWING_IMAGE ||
           neighbor->type() == PT_HEADING_IMAGE) {
@@ -682,9 +682,9 @@ void TableFinder::SetVerticalSpacing(ColPartition* part) {
   ColPartition* neighbor;
   int min_space_above = kMaxVerticalSpacing;
   int min_space_below = kMaxVerticalSpacing;
-  ColPartition* above_neighbor = NULL;
-  ColPartition* below_neighbor = NULL;
-  while ((neighbor = rectsearch.NextRectSearch()) != NULL) {
+  ColPartition* above_neighbor = nullptr;
+  ColPartition* below_neighbor = nullptr;
+  while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
     if (neighbor == part)
       continue;
     TBOX neighbor_box = neighbor->bounding_box();
@@ -718,8 +718,8 @@ void TableFinder::SetGlobalSpacings(ColPartitionGrid* grid) {
   ColPartitionGridSearch gsearch(grid);
   gsearch.SetUniqueMode(true);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     // TODO(nbeato): HACK HACK HACK! medians are equal to partition length.
     // ComputeLimits needs to get called somewhere outside of TableFinder
     // to make sure the partitions are properly initialized.
@@ -770,8 +770,8 @@ void TableFinder::set_global_median_ledding(int ledding) {
 void TableFinder::FindNeighbors() {
   ColPartitionGridSearch gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     // TODO(nbeato): Rename this function, meaning is different now.
     // IT is finding nearest neighbors its own way
     //SetVerticalSpacing(part);
@@ -833,8 +833,8 @@ void TableFinder::MarkPartitionsUsingLocalInformation() {
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
     gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (!part->IsTextType())  // Only consider text partitions
       continue;
     // Only consider partitions in dominant font size or smaller
@@ -963,8 +963,8 @@ bool TableFinder::HasLeaderAdjacent(const ColPartition& part) {
     bool right_to_left = (direction == 0);
     int x = right_to_left ? box.right() : box.left();
     hsearch.StartSideSearch(x, bottom, top);
-    ColPartition* leader = NULL;
-    while ((leader = hsearch.NextSideSearch(right_to_left)) != NULL) {
+    ColPartition* leader = nullptr;
+    while ((leader = hsearch.NextSideSearch(right_to_left)) != nullptr) {
       // The leader could be a horizontal ruling in the grid.
       // Make sure it is actually a leader.
       if (leader->flow() != BTFT_LEADER)
@@ -1000,8 +1000,8 @@ void TableFinder::FilterParagraphEndings() {
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->type() != PT_TABLE)
       continue;  // Consider only table partitions
 
@@ -1077,14 +1077,14 @@ void TableFinder::FilterParagraphEndings() {
 
 void TableFinder::FilterHeaderAndFooter() {
   // Consider top-most text colpartition as header and bottom most as footer
-  ColPartition* header = NULL;
-  ColPartition* footer = NULL;
+  ColPartition* header = nullptr;
+  ColPartition* footer = nullptr;
   int max_top = INT32_MIN;
   int min_bottom = INT32_MAX;
   ColPartitionGridSearch gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (!part->IsTextType())
       continue;  // Consider only text partitions
     int top = part->bounding_box().top();
@@ -1113,8 +1113,8 @@ void TableFinder::SmoothTablePartitionRuns() {
   // Iterate the ColPartitions in the grid.
   ColPartitionGridSearch gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->type() >= PT_TABLE || part->type() == PT_UNKNOWN)
       continue;  // Consider only text partitions
     ColPartition* upper_part = part->nearest_neighbor_above();
@@ -1128,8 +1128,8 @@ void TableFinder::SmoothTablePartitionRuns() {
   // Pass 2, do the opposite. If both the upper and lower neighbors
   // exist and are not tables, this probably shouldn't be a table.
   gsearch.StartFullSearch();
-  part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->type() != PT_TABLE)
       continue;  // Consider only text partitions
     ColPartition* upper_part = part->nearest_neighbor_above();
@@ -1155,8 +1155,8 @@ void TableFinder::SetColumnsType(ColSegment_LIST* column_blocks) {
         rsearch(&clean_part_grid_);
     rsearch.SetUniqueMode(true);
     rsearch.StartRectSearch(box);
-    ColPartition* part = NULL;
-    while ((part = rsearch.NextRectSearch()) != NULL) {
+    ColPartition* part = nullptr;
+    while ((part = rsearch.NextRectSearch()) != nullptr) {
       if (part->type() == PT_TABLE) {
         num_table_cells++;
       } else if (part->type() == PT_FLOWING_TEXT) {
@@ -1204,7 +1204,7 @@ void TableFinder::GridMergeColumnBlocks() {
     gsearch(&col_seg_grid_);
   gsearch.StartFullSearch();
   ColSegment* seg;
-  while ((seg = gsearch.NextFullSearch()) != NULL) {
+  while ((seg = gsearch.NextFullSearch()) != nullptr) {
     if (seg->type() != COL_TEXT)
       continue;  // only consider text blocks for split detection
     bool neighbor_found = false;
@@ -1222,8 +1222,8 @@ void TableFinder::GridMergeColumnBlocks() {
       GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
           rectsearch(&col_seg_grid_);
       rectsearch.StartRectSearch(box);
-      ColSegment* neighbor = NULL;
-      while ((neighbor = rectsearch.NextRectSearch()) != NULL) {
+      ColSegment* neighbor = nullptr;
+      while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
         if (neighbor == seg)
           continue;
         const TBOX& neighbor_box = neighbor->bounding_box();
@@ -1281,7 +1281,7 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
     gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
   ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->inside_table_column() || part->type() != PT_TABLE)
       continue;  // prevent a partition to be assigned to multiple columns
     const TBOX& box = part->bounding_box();
@@ -1294,9 +1294,9 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
     GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
         vsearch(&clean_part_grid_);
     vsearch.StartVerticalSearch(box.left(), box.right(), box.bottom());
-    ColPartition* neighbor = NULL;
+    ColPartition* neighbor = nullptr;
     bool found_neighbours = false;
-    while ((neighbor = vsearch.NextVerticalSearch(true)) != NULL) {
+    while ((neighbor = vsearch.NextVerticalSearch(true)) != nullptr) {
       // only consider neighbors not assigned to any column yet
       if (neighbor->inside_table_column())
         continue;
@@ -1337,7 +1337,7 @@ void TableFinder::GetTableRegions(ColSegment_LIST* table_columns,
   ASSERT_HOST(page_height > 0);
   // create a bool array to hold projection on y-axis
   bool* table_region = new bool[page_height];
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     const TBOX& part_box = part->bounding_box();
     // reset the projection array
     for (int i = 0; i < page_height; i++) {
@@ -1392,8 +1392,8 @@ void TableFinder::GridMergeTableRegions() {
   GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
       gsearch(&table_grid_);
   gsearch.StartFullSearch();
-  ColSegment* seg = NULL;
-  while ((seg = gsearch.NextFullSearch()) != NULL) {
+  ColSegment* seg = nullptr;
+  while ((seg = gsearch.NextFullSearch()) != nullptr) {
     bool neighbor_found = false;
     bool modified = false;  // Modified at least once
     do {
@@ -1406,8 +1406,8 @@ void TableFinder::GridMergeTableRegions() {
       GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
           rectsearch(&table_grid_);
       rectsearch.StartRectSearch(search_region);
-      ColSegment* neighbor = NULL;
-      while ((neighbor = rectsearch.NextRectSearch()) != NULL) {
+      ColSegment* neighbor = nullptr;
+      while ((neighbor = rectsearch.NextRectSearch()) != nullptr) {
         if (neighbor == seg)
           continue;
         const TBOX& neighbor_box = neighbor->bounding_box();
@@ -1457,8 +1457,8 @@ bool TableFinder::BelongToOneTable(const TBOX &box1, const TBOX &box2) {
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
       rectsearch(&clean_part_grid_);
   rectsearch.StartRectSearch(bbox);
-  ColPartition* part = NULL;
-  while ((part = rectsearch.NextRectSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = rectsearch.NextRectSearch()) != nullptr) {
     const TBOX& part_box = part->bounding_box();
     // return true if a colpartition spanning both table regions is found
     if (part_box.overlap(box1) && part_box.overlap(box2) &&
@@ -1493,8 +1493,8 @@ void TableFinder::AdjustTableBoundaries() {
   ColSegment_C_IT it(&adjusted_tables);
   ColSegmentGridSearch gsearch(&table_grid_);
   gsearch.StartFullSearch();
-  ColSegment* table = NULL;
-  while ((table = gsearch.NextFullSearch()) != NULL) {
+  ColSegment* table = nullptr;
+  while ((table = gsearch.NextFullSearch()) != nullptr) {
     const TBOX& table_box = table->bounding_box();
     TBOX grown_box = table_box;
     GrowTableBox(table_box, &grown_box);
@@ -1553,8 +1553,8 @@ void TableFinder::GrowTableToIncludePartials(const TBOX& table_box,
                                         &leader_and_ruling_grid_;
     ColPartitionGridSearch rectsearch(grid);
     rectsearch.StartRectSearch(search_range);
-    ColPartition* part = NULL;
-    while ((part = rectsearch.NextRectSearch()) != NULL) {
+    ColPartition* part = nullptr;
+    while ((part = rectsearch.NextRectSearch()) != nullptr) {
      // Only include text and table types.
       if (part->IsImageType())
         continue;
@@ -1577,8 +1577,8 @@ void TableFinder::GrowTableToIncludeLines(const TBOX& table_box,
   ColPartitionGridSearch rsearch(&leader_and_ruling_grid_);
   rsearch.SetUniqueMode(true);
   rsearch.StartRectSearch(search_range);
-  ColPartition* part = NULL;
-  while ((part = rsearch.NextRectSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = rsearch.NextRectSearch()) != nullptr) {
     // TODO(nbeato) This should also do vertical, but column
     // boundaries are breaking things. This function needs to be
     // updated to allow vertical lines as well.
@@ -1632,8 +1632,8 @@ bool TableFinder::HLineBelongsToTable(const ColPartition& part,
     ColPartitionGridSearch rectsearch(grid);
     rectsearch.SetUniqueMode(true);
     rectsearch.StartRectSearch(bbox);
-    ColPartition* extra_part = NULL;
-    while ((extra_part = rectsearch.NextRectSearch()) != NULL) {
+    ColPartition* extra_part = nullptr;
+    while ((extra_part = rectsearch.NextRectSearch()) != nullptr) {
       // ColPartition already in table
       const TBOX& extra_part_box = extra_part->bounding_box();
       if (extra_part_box.overlap_fraction(table_box) > kMinOverlapWithTable)
@@ -1670,9 +1670,9 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX* table_box) {
   ColPartitionGridSearch vsearch(&clean_part_grid_);
   vsearch.StartVerticalSearch(table_box->left(), table_box->right(),
                               table_box->top());
-  ColPartition* neighbor = NULL;
-  ColPartition* previous_neighbor = NULL;
-  while ((neighbor = vsearch.NextVerticalSearch(false)) != NULL) {
+  ColPartition* neighbor = nullptr;
+  ColPartition* previous_neighbor = nullptr;
+  while ((neighbor = vsearch.NextVerticalSearch(false)) != nullptr) {
     // Max distance to find a table heading.
     const int max_distance = kMaxColumnHeaderDistance *
                              neighbor->median_size();
@@ -1685,12 +1685,12 @@ void TableFinder::IncludeLeftOutColumnHeaders(TBOX* table_box) {
     // TODO(faisal): add some reasonable conditions here
     if (neighbor->type() == PT_TABLE || neighbor->IsLineType()) {
       table_box->set_top(box.top());
-      previous_neighbor = NULL;
+      previous_neighbor = nullptr;
       continue;
     }
     // If there are two text partitions, one above the other, without a table
     // cell on their left or right side, consider them a barrier and quit
-    if (previous_neighbor == NULL) {
+    if (previous_neighbor == nullptr) {
       previous_neighbor = neighbor;
     } else {
       const TBOX& previous_box = previous_neighbor->bounding_box();
@@ -1714,7 +1714,7 @@ void TableFinder::DeleteSingleColumnTables() {
       table_search(&table_grid_);
   table_search.StartFullSearch();
   ColSegment* table;
-  while ((table = table_search.NextFullSearch()) != NULL) {
+  while ((table = table_search.NextFullSearch()) != nullptr) {
     TBOX table_box = table->bounding_box();
     // reset the projection array
     for (int i = 0; i < page_width; i++) {
@@ -1726,7 +1726,7 @@ void TableFinder::DeleteSingleColumnTables() {
     rectsearch.SetUniqueMode(true);
     rectsearch.StartRectSearch(table_box);
     ColPartition* part;
-    while ((part = rectsearch.NextRectSearch()) != NULL) {
+    while ((part = rectsearch.NextRectSearch()) != nullptr) {
       if (!part->IsTextType())
         continue;  // Do not consider non-text partitions
       if (part->flow() == BTFT_LEADER)
@@ -1819,7 +1819,7 @@ bool TableFinder::GapInXProjection(int* xprojection, int length) {
 //       (rejected before)
 // Overall, this just needs some more work.
 void TableFinder::RecognizeTables() {
-  ScrollView* table_win = NULL;
+  ScrollView* table_win = nullptr;
   if (textord_show_tables) {
     table_win = MakeWindow(0, 0, "Table Structure");
     DisplayColPartitions(table_win, &fragmented_text_grid_,
@@ -1841,8 +1841,8 @@ void TableFinder::RecognizeTables() {
 
   ColSegmentGridSearch gsearch(&table_grid_);
   gsearch.StartFullSearch();
-  ColSegment* found_table = NULL;
-  while ((found_table = gsearch.NextFullSearch()) != NULL) {
+  ColSegment* found_table = nullptr;
+  while ((found_table = gsearch.NextFullSearch()) != nullptr) {
     gsearch.RemoveBBox();
 
     // The goal is to make the tables persistent in a list.
@@ -1852,7 +1852,7 @@ void TableFinder::RecognizeTables() {
 
     // Process a table. Good tables are inserted into the grid again later on
     // We can't change boxes in the grid while it is running a search.
-    if (table_structure != NULL) {
+    if (table_structure != nullptr) {
       if (textord_show_tables) {
         table_structure->Display(table_win, ScrollView::LIME_GREEN);
       }
@@ -1899,8 +1899,8 @@ void TableFinder::DisplayColSegmentGrid(ScrollView* win, ColSegmentGrid* grid,
   GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
     gsearch(grid);
   gsearch.StartFullSearch();
-  ColSegment* seg = NULL;
-  while ((seg = gsearch.NextFullSearch()) != NULL) {
+  ColSegment* seg = nullptr;
+  while ((seg = gsearch.NextFullSearch()) != nullptr) {
     const TBOX& box = seg->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
@@ -1927,8 +1927,8 @@ void TableFinder::DisplayColPartitions(ScrollView* win,
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
     gsearch(grid);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     color = default_color;
     if (part->type() == PT_TABLE)
       color = table_color;
@@ -1960,8 +1960,8 @@ void TableFinder::DisplayColPartitionConnections(
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
     gsearch(grid);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  ColPartition* part = nullptr;
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     const TBOX& box = part->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
@@ -2006,9 +2006,9 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
     gsearch(grid);
   gsearch.StartFullSearch();
-  ColPartition* part = NULL;
+  ColPartition* part = nullptr;
 
-  while ((part = gsearch.NextFullSearch()) != NULL) {
+  while ((part = gsearch.NextFullSearch()) != nullptr) {
     if (part->type() == PT_TABLE) {
       part->clear_table_type();
     }
@@ -2019,15 +2019,15 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
       table_search(&table_grid_);
   table_search.StartFullSearch();
   ColSegment* table;
-  while ((table = table_search.NextFullSearch()) != NULL) {
+  while ((table = table_search.NextFullSearch()) != nullptr) {
     const TBOX& table_box = table->bounding_box();
     // Start a rect search on table_box
     GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
         rectsearch(grid);
     rectsearch.StartRectSearch(table_box);
     ColPartition* part;
-    ColPartition* table_partition = NULL;
-    while ((part = rectsearch.NextRectSearch()) != NULL) {
+    ColPartition* table_partition = nullptr;
+    while ((part = rectsearch.NextRectSearch()) != nullptr) {
      // Do not consider image partitions
       if (!part->IsTextType())
         continue;
