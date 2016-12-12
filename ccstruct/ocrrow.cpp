@@ -43,7 +43,7 @@ int16_t kern,                      //char gap
 int16_t space                      //word gap
 )
     : baseline(spline_size, xstarts, coeffs),
-      para_(NULL) {
+      para_(nullptr) {
   kerning = kern;                //just store stuff
   spacing = space;
   xheight = x_height;
@@ -67,7 +67,7 @@ ROW::ROW(                 //constructor
          TO_ROW *to_row,  //source row
          int16_t kern,      //char gap
          int16_t space      //word gap
-        ) : para_(NULL) {
+        ) : para_(nullptr) {
   kerning = kern;                //just store stuff
   spacing = space;
   xheight = to_row->xheight;

@@ -76,7 +76,7 @@ class C_BLOB:public ELIST_LINK
     void rotate(const FCOORD& rotation);  // Rotate by given vector.
 
     // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
-    // if the supplied pix is 8-bit or the binary edges if NULL.
+    // if the supplied pix is 8-bit or the binary edges if nullptr.
     void ComputeEdgeOffsets(int threshold, Pix* pix);
 
     // Estimates and returns the baseline position based on the shape of the

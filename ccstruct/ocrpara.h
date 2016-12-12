@@ -28,11 +28,11 @@ class ParagraphModel;
 
 struct PARA : public ELIST_LINK {
  public:
-  PARA() : model(NULL), is_list_item(false),
+  PARA() : model(nullptr), is_list_item(false),
            is_very_first_or_continuation(false), has_drop_cap(false) {}
 
   // We do not own the model, we just reference it.
-  // model may be NULL if there is not a good model for this paragraph.
+  // model may be nullptr if there is not a good model for this paragraph.
   const ParagraphModel *model;
 
   bool is_list_item;

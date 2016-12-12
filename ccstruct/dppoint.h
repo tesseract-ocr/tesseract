@@ -36,7 +36,7 @@ namespace tesseract {
 //   array[i].AddLocalCost(cost_at_i)
 // }
 // DPPoint* best_end = DPPoint::Solve(..., array);
-// while (best_end != NULL) {
+// while (best_end != nullptr) {
 //   int cut_index = best_end - array;
 //   best_end = best_end->best_prev();
 // }
@@ -49,7 +49,7 @@ class DPPoint {
   typedef int64_t (DPPoint::*CostFunc)(const DPPoint* prev);
 
   DPPoint()
-    : local_cost_(0), total_cost_(INT32_MAX), total_steps_(1), best_prev_(NULL),
+    : local_cost_(0), total_cost_(INT32_MAX), total_steps_(1), best_prev_(nullptr),
       n_(0), sig_x_(0), sig_xsq_(0) {
   }
 

@@ -157,7 +157,7 @@ bool BLOB_CHOICE::PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
 }
 
 // Helper to find the BLOB_CHOICE in the bc_list that matches the given
-// unichar_id, or NULL if there is no match.
+// unichar_id, or nullptr if there is no match.
 BLOB_CHOICE* FindMatchingChoice(UNICHAR_ID char_id,
                                 BLOB_CHOICE_LIST* bc_list) {
   // Find the corresponding best BLOB_CHOICE.
@@ -169,7 +169,7 @@ BLOB_CHOICE* FindMatchingChoice(UNICHAR_ID char_id,
       return choice;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 const char *WERD_CHOICE::permuter_name(uint8_t permuter) {
@@ -194,7 +194,7 @@ const char *ScriptPosToString(enum ScriptPos script_pos) {
  * WERD_CHOICE::WERD_CHOICE
  *
  * Constructor to build a WERD_CHOICE from the given string.
- * The function assumes that src_string is not NULL.
+ * The function assumes that src_string is not nullptr.
  */
 WERD_CHOICE::WERD_CHOICE(const char *src_string,
                          const UNICHARSET &unicharset)
@@ -203,7 +203,7 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
   GenericVector<char> lengths;
   std::string cleaned = unicharset.CleanupString(src_string);
   if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
-                               NULL)) {
+                               nullptr)) {
     lengths.push_back('\0');
     STRING src_lengths = &lengths[0];
     this->init(cleaned.c_str(), src_lengths.string(), 0.0, 0.0, NO_PERM);
@@ -219,8 +219,8 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
  * Helper function to build a WERD_CHOICE from the given string,
  * fragment lengths, rating, certainty and permuter.
  *
- * The function assumes that src_string is not NULL.
- * src_lengths argument could be NULL, in which case the unichars
+ * The function assumes that src_string is not nullptr.
+ * src_lengths argument could be nullptr, in which case the unichars
  * in src_string are assumed to all be of length 1.
  */
 void WERD_CHOICE::init(const char *src_string,
@@ -271,7 +271,7 @@ const char *WERD_CHOICE::permuter_name() const {
 BLOB_CHOICE_LIST* WERD_CHOICE::blob_choices(int index, MATRIX* ratings) const {
   MATRIX_COORD coord = MatrixCoord(index);
   BLOB_CHOICE_LIST* result = ratings->get(coord.col, coord.row);
-  if (result == NULL) {
+  if (result == nullptr) {
     result = new BLOB_CHOICE_LIST;
     ratings->put(coord.col, coord.row, result);
   }
@@ -430,11 +430,11 @@ bool WERD_CHOICE::has_rtl_unichar_id() const {
 void WERD_CHOICE::string_and_lengths(STRING *word_str,
                                      STRING *word_lengths_str) const {
   *word_str = "";
-  if (word_lengths_str != NULL) *word_lengths_str = "";
+  if (word_lengths_str != nullptr) *word_lengths_str = "";
   for (int i = 0; i < length_; ++i) {
     const char *ch = unicharset_->id_to_unichar_ext(unichar_ids_[i]);
     *word_str += ch;
-    if (word_lengths_str != NULL) {
+    if (word_lengths_str != nullptr) {
       *word_lengths_str += strlen(ch);
     }
   }
@@ -551,7 +551,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word) {
     TBLOB* tblob = word->blobs[chunk_index];
     int uni_id = unichar_id(blob_index);
     TBOX blob_box = tblob->bounding_box();
-    if (state_ != NULL) {
+    if (state_ != nullptr) {
       for (int i = 1; i <  state_[blob_index]; ++i) {
         ++chunk_index;
         tblob = word->blobs[chunk_index];
@@ -594,7 +594,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word) {
         ScriptPositionOf(true, *unicharset_, tblob->bounding_box(),
                          unichar_id(blob_index));
       }
-      chunk_index += state_ != NULL ? state_[blob_index] : 1;
+      chunk_index += state_ != nullptr ? state_[blob_index] : 1;
     }
   }
 }
@@ -751,7 +751,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
 #ifndef GRAPHICS_DISABLED
   // Number of different colors to draw with.
   const int kNumColors = 6;
-  static ScrollView *segm_window = NULL;
+  static ScrollView *segm_window = nullptr;
   // Check the state against the static prev_drawn_state.
   static GenericVector<int> prev_drawn_state;
   bool already_done = prev_drawn_state.size() == length_;
@@ -765,7 +765,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   if (already_done || word->blobs.empty()) return;
 
   // Create the window if needed.
-  if (segm_window == NULL) {
+  if (segm_window == nullptr) {
     segm_window = new ScrollView("Segmentation", 5, 10, 500, 256,
                                  2000.0, 256.0, true);
   } else {

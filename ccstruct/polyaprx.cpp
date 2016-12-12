@@ -76,13 +76,13 @@ TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE* c_outline) {
   fix2(edgepts, area);
   EDGEPT* edgept = poly2(edgepts, area);  // 2nd approximation.
   EDGEPT* startpt = edgept;
-  EDGEPT* result = NULL;
-  EDGEPT* prev_result = NULL;
+  EDGEPT* result = nullptr;
+  EDGEPT* prev_result = nullptr;
   do {
     EDGEPT* new_pt = new EDGEPT;
     new_pt->pos = edgept->pos;
     new_pt->prev = prev_result;
-    if (prev_result == NULL) {
+    if (prev_result == nullptr) {
       result = new_pt;
     } else {
       prev_result->next = new_pt;
@@ -408,7 +408,7 @@ EDGEPT *poly2(                  //second poly
   if (area < 1200)
     area = 1200;                 /*minimum value */
 
-  loopstart = NULL;              /*not found it yet */
+  loopstart = nullptr;              /*not found it yet */
   edgept = startpt;              /*start of loop */
 
   do {
@@ -423,7 +423,7 @@ EDGEPT *poly2(                  //second poly
   }
   while (edgept != startpt);     /*until found or finished */
 
-  if (loopstart == NULL && (startpt->flags[FLAGS] & FIXED) == 0) {
+  if (loopstart == nullptr && (startpt->flags[FLAGS] & FIXED) == 0) {
                                  /*fixed start of loop */
     startpt->flags[FLAGS] |= FIXED;
     loopstart = startpt;         /*or start of loop */

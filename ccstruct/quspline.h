@@ -42,8 +42,8 @@ class QSPLINE
   public:
     QSPLINE() {  //empty constructor
       segments = 0;
-      xcoords = NULL;            //everything empty
-      quadratics = NULL;
+      xcoords = nullptr;            //everything empty
+      quadratics = nullptr;
     }
     QSPLINE(  //copy constructor
             const QSPLINE &src);

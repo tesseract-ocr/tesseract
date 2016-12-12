@@ -39,7 +39,7 @@ DENORM::DENORM() {
 }
 
 DENORM::DENORM(const DENORM &src) {
-  rotation_ = NULL;
+  rotation_ = nullptr;
   *this = src;
 }
 
@@ -50,8 +50,8 @@ DENORM & DENORM::operator=(const DENORM & src) {
   predecessor_ = src.predecessor_;
   pix_ = src.pix_;
   block_ = src.block_;
-  if (src.rotation_ == NULL)
-    rotation_ = NULL;
+  if (src.rotation_ == nullptr)
+    rotation_ = nullptr;
   else
     rotation_ = new FCOORD(*src.rotation_);
   x_origin_ = src.x_origin_;
@@ -70,19 +70,19 @@ DENORM::~DENORM() {
 // Initializes the denorm for a transformation. For details see the large
 // comment in normalis.h.
 // Arguments:
-// block: if not NULL, then this is the first transformation, and
+// block: if not nullptr, then this is the first transformation, and
 //        block->re_rotation() needs to be used after the Denorm
 //        transformation to get back to the image coords.
-// rotation: if not NULL, apply this rotation after translation to the
+// rotation: if not nullptr, apply this rotation after translation to the
 //           origin and scaling. (Usually a classify rotation.)
-// predecessor: if not NULL, then predecessor has been applied to the
+// predecessor: if not nullptr, then predecessor has been applied to the
 //              input space and needs to be undone to complete the inverse.
 // The above pointers are not owned by this DENORM and are assumed to live
 // longer than this denorm, except rotation, which is deep copied on input.
 //
 // x_origin: The x origin which will be mapped to final_xshift in the result.
 // y_origin: The y origin which will be mapped to final_yshift in the result.
-//           Added to result of row->baseline(x) if not NULL.
+//           Added to result of row->baseline(x) if not nullptr.
 //
 // x_scale: scale factor for the x-coordinate.
 // y_scale: scale factor for the y-coordinate. Ignored if segs is given.
@@ -100,8 +100,8 @@ void DENORM::SetupNormalization(const BLOCK* block,
                                 float final_xshift, float final_yshift) {
   Clear();
   block_ = block;
-  if (rotation == NULL)
-    rotation_ = NULL;
+  if (rotation == nullptr)
+    rotation_ = nullptr;
   else
     rotation_ = new FCOORD(*rotation);
   predecessor_ = predecessor;
@@ -311,7 +311,7 @@ void DENORM::LocalNormTransform(const TPOINT& pt, TPOINT* transformed) const {
 }
 void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
   FCOORD translated(pt.x() - x_origin_, pt.y() - y_origin_);
-  if (x_map_ != NULL && y_map_ != NULL) {
+  if (x_map_ != nullptr && y_map_ != nullptr) {
     int x = ClipToRange(IntCastRounded(translated.x()), 0, x_map_->size()-1);
     translated.set_x((*x_map_)[x]);
     int y = ClipToRange(IntCastRounded(translated.y()), 0, y_map_->size()-1);
@@ -319,7 +319,7 @@ void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
   } else {
     translated.set_x(translated.x() * x_scale_);
     translated.set_y(translated.y() * y_scale_);
-    if (rotation_ != NULL)
+    if (rotation_ != nullptr)
       translated.rotate(*rotation_);
   }
   transformed->set_x(translated.x() + final_xshift_);
@@ -328,7 +328,7 @@ void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
 
 // Transforms the given coords forward to normalized space using the
 // full transformation sequence defined by the block rotation, the
-// predecessors, deepest first, and finally this. If first_norm is not NULL,
+// predecessors, deepest first, and finally this. If first_norm is not nullptr,
 // then the first and deepest transformation used is first_norm, ending
 // with this, and the block rotation will not be applied.
 void DENORM::NormTransform(const DENORM* first_norm, const TPOINT& pt,
@@ -343,9 +343,9 @@ void DENORM::NormTransform(const DENORM* first_norm, const FCOORD& pt,
                            FCOORD* transformed) const {
   FCOORD src_pt(pt);
   if (first_norm != this) {
-    if (predecessor_ != NULL) {
+    if (predecessor_ != nullptr) {
       predecessor_->NormTransform(first_norm, pt, &src_pt);
-    } else if (block_ != NULL) {
+    } else if (block_ != nullptr) {
       FCOORD fwd_rotation(block_->re_rotation().x(),
                           -block_->re_rotation().y());
       src_pt.rotate(fwd_rotation);
@@ -365,13 +365,13 @@ void DENORM::LocalDenormTransform(const TPOINT& pt, TPOINT* original) const {
 }
 void DENORM::LocalDenormTransform(const FCOORD& pt, FCOORD* original) const {
   FCOORD rotated(pt.x() - final_xshift_, pt.y() - final_yshift_);
-  if (x_map_ != NULL && y_map_ != NULL) {
+  if (x_map_ != nullptr && y_map_ != nullptr) {
     int x = x_map_->binary_search(rotated.x());
     original->set_x(x + x_origin_);
     int y = y_map_->binary_search(rotated.y());
     original->set_y(y + y_origin_);
   } else {
-    if (rotation_ != NULL) {
+    if (rotation_ != nullptr) {
       FCOORD inverse_rotation(rotation_->x(), -rotation_->y());
       rotated.rotate(inverse_rotation);
     }
@@ -384,7 +384,7 @@ void DENORM::LocalDenormTransform(const FCOORD& pt, FCOORD* original) const {
 // Transforms the given coords all the way back to source image space using
 // the full transformation sequence defined by this and its predecessors
 // recursively, shallowest first, and finally any block re_rotation.
-// If last_denorm is not NULL, then the last transformation used will
+// If last_denorm is not nullptr, then the last transformation used will
 // be last_denorm, and the block re_rotation will never be executed.
 void DENORM::DenormTransform(const DENORM* last_denorm, const TPOINT& pt,
                              TPOINT* original) const {
@@ -398,9 +398,9 @@ void DENORM::DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
                              FCOORD* original) const {
   LocalDenormTransform(pt, original);
   if (last_denorm != this) {
-    if (predecessor_ != NULL) {
+    if (predecessor_ != nullptr) {
       predecessor_->DenormTransform(last_denorm, *original, original);
-    } else if (block_ != NULL) {
+    } else if (block_ != nullptr) {
       original->rotate(block_->re_rotation());
     }
   }
@@ -414,7 +414,7 @@ void DENORM::LocalNormBlob(TBLOB* blob) const {
   blob->Move(translation);
   if (y_scale_ != 1.0f)
     blob->Scale(y_scale_);
-  if (rotation_ != NULL)
+  if (rotation_ != nullptr)
     blob->Rotate(*rotation_);
   translation.set_x(IntCastRounded(final_xshift_));
   translation.set_y(IntCastRounded(final_yshift_));
@@ -455,8 +455,8 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   double ydiff = (bbox.top() - bbox.bottom()) + 2.0;
   FCOORD mid_bot(midx, bbox.bottom()), tmid_bot;
   FCOORD mid_high(midx, bbox.bottom() + ydiff), tmid_high;
-  DenormTransform(NULL, mid_bot, &tmid_bot);
-  DenormTransform(NULL, mid_high, &tmid_high);
+  DenormTransform(nullptr, mid_bot, &tmid_bot);
+  DenormTransform(nullptr, mid_high, &tmid_high);
 
   // bln_y_measure * yscale = image_y_measure
   double yscale = tmid_high.pt_to_pt_dist(tmid_bot) / ydiff;
@@ -503,7 +503,7 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
 
 // Prints the content of the DENORM for debug purposes.
 void DENORM::Print() const {
-  if (pix_ != NULL) {
+  if (pix_ != nullptr) {
     tprintf("Pix dimensions %d x %d x %d\n",
             pixGetWidth(pix_), pixGetHeight(pix_), pixGetDepth(pix_));
   }
@@ -514,7 +514,7 @@ void DENORM::Print() const {
             block_->re_rotation().x(), block_->re_rotation().y());
   }
   tprintf("Input Origin = (%g, %g)\n", x_origin_, y_origin_);
-  if (x_map_ != NULL && y_map_ != NULL) {
+  if (x_map_ != nullptr && y_map_ != nullptr) {
     tprintf("x map:\n");
     for (int x = 0; x < x_map_->size(); ++x) {
       tprintf("%g ", (*x_map_)[x]);
@@ -526,11 +526,11 @@ void DENORM::Print() const {
     tprintf("\n");
   } else {
     tprintf("Scale = (%g, %g)\n", x_scale_, y_scale_);
-    if (rotation_ != NULL)
+    if (rotation_ != nullptr)
       tprintf("Rotation = (%g, %g)\n", rotation_->x(), rotation_->y());
   }
   tprintf("Final Origin = (%g, %g)\n", final_xshift_, final_xshift_);
-  if (predecessor_ != NULL) {
+  if (predecessor_ != nullptr) {
     tprintf("Predecessor:\n");
     predecessor_->Print();
   }
@@ -541,29 +541,29 @@ void DENORM::Print() const {
 
 // Free allocated memory and clear pointers.
 void DENORM::Clear() {
-  if (x_map_ != NULL) {
+  if (x_map_ != nullptr) {
     delete x_map_;
-    x_map_ = NULL;
+    x_map_ = nullptr;
   }
-  if (y_map_ != NULL) {
+  if (y_map_ != nullptr) {
     delete y_map_;
-    y_map_ = NULL;
+    y_map_ = nullptr;
   }
-  if (rotation_ != NULL) {
+  if (rotation_ != nullptr) {
     delete rotation_;
-    rotation_ = NULL;
+    rotation_ = nullptr;
   }
 }
 
 // Setup default values.
 void DENORM::Init() {
   inverse_ = false;
-  pix_ = NULL;
-  block_ = NULL;
-  rotation_ = NULL;
-  predecessor_ = NULL;
-  x_map_ = NULL;
-  y_map_ = NULL;
+  pix_ = nullptr;
+  block_ = nullptr;
+  rotation_ = nullptr;
+  predecessor_ = nullptr;
+  x_map_ = nullptr;
+  y_map_ = nullptr;
   x_origin_ = 0.0f;
   y_origin_ = 0.0f;
   x_scale_ = 1.0f;

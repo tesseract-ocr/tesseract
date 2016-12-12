@@ -69,8 +69,8 @@ ELISTIZEH (C_OUTLINE)
 class DLLSYM C_OUTLINE:public ELIST_LINK {
  public:
   C_OUTLINE() {  //empty constructor
-      steps = NULL;
-      offsets = NULL;
+      steps = nullptr;
+      offsets = nullptr;
     }
     C_OUTLINE(                     //constructor
               CRACKEDGE *startpt,  //from edge detector
@@ -87,9 +87,9 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     static void FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines);
 
     ~C_OUTLINE () {              //destructor
-      if (steps != NULL)
+      if (steps != nullptr)
         free_mem(steps);
-      steps = NULL;
+      steps = nullptr;
       delete [] offsets;
     }
 
@@ -162,7 +162,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
       const ICOORD& step_to_next(step(index));
       FCOORD f_pos(pos.x() + step_to_next.x() / 2.0f,
                    pos.y() + step_to_next.y() / 2.0f);
-      if (offsets != NULL && offsets[index].pixel_diff > 0) {
+      if (offsets != nullptr && offsets[index].pixel_diff > 0) {
         float offset = offsets[index].offset_numerator;
         offset /= offsets[index].pixel_diff;
         if (step_to_next.x() != 0)
@@ -174,7 +174,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     }
     // Returns the step direction for the given index or -1 if there is none.
     int direction_at_index(int index) const {
-      if (offsets != NULL && offsets[index].pixel_diff > 0)
+      if (offsets != nullptr && offsets[index].pixel_diff > 0)
         return offsets[index].direction;
       return -1;
     }
@@ -183,7 +183,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     // is binary). Returns 0 if the gradient direction conflicts with the
     // step direction, indicating that this position could be skipped.
     int edge_strength_at_index(int index) const {
-      if (offsets != NULL)
+      if (offsets != nullptr)
         return offsets[index].pixel_diff;
       return 1;
     }

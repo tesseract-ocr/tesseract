@@ -138,15 +138,15 @@ void SEAM::ApplySeam(bool italic_blob, TBLOB* blob, TBLOB* other_blob) const {
 // Undoes ApplySeam by removing the seam between these two blobs.
 // Produces one blob as a result, and deletes other_blob.
 void SEAM::UndoSeam(TBLOB* blob, TBLOB* other_blob) const {
-  if (blob->outlines == NULL) {
+  if (blob->outlines == nullptr) {
     blob->outlines = other_blob->outlines;
-    other_blob->outlines = NULL;
+    other_blob->outlines = nullptr;
   }
 
   TESSLINE* outline = blob->outlines;
   while (outline->next) outline = outline->next;
   outline->next = other_blob->outlines;
-  other_blob->outlines = NULL;
+  other_blob->outlines = nullptr;
   delete other_blob;
 
   for (int s = 0; s < num_splits_; ++s) {
@@ -199,9 +199,9 @@ void SEAM::BreakPieces(const GenericVector<SEAM*>& seams,
   TESSLINE* outline = blobs[first]->outlines;
   int next_blob = first + 1;
 
-  while (outline != NULL && next_blob <= last) {
+  while (outline != nullptr && next_blob <= last) {
     if (outline->next == blobs[next_blob]->outlines) {
-      outline->next = NULL;
+      outline->next = nullptr;
       outline = blobs[next_blob]->outlines;
       ++next_blob;
     } else {

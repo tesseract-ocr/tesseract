@@ -53,7 +53,7 @@ BLOCK::BLOCK(const char *name,                //< filename
   spacing = space;
   font_class = -1;               //not assigned
   cell_over_xheight_ = 2.0f;
-  pdblk.hand_poly = NULL;
+  pdblk.hand_poly = nullptr;
   left_it.set_to_list (&pdblk.leftside);
   right_it.set_to_list (&pdblk.rightside);
                                  //make default box
@@ -339,7 +339,7 @@ void BLOCK::compute_row_margins() {
   // If Layout analysis was not called, default to this.
   POLY_BLOCK rect_block(pdblk.bounding_box(), PT_FLOWING_TEXT);
   POLY_BLOCK *pblock = &rect_block;
-  if (pdblk.poly_block() != NULL) {
+  if (pdblk.poly_block() != nullptr) {
     pblock = pdblk.poly_block();
   }
 
@@ -485,7 +485,7 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText())
+    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
       continue;  // Don't touch non-text blocks.
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());

@@ -96,7 +96,7 @@ void BLOBNBOX::merge(                    //merge blobs
 // Merge this with other, taking the outlines from other.
 // Other is not deleted, but left for the caller to handle.
 void BLOBNBOX::really_merge(BLOBNBOX* other) {
-  if (cblob_ptr != NULL && other->cblob_ptr != NULL) {
+  if (cblob_ptr != nullptr && other->cblob_ptr != nullptr) {
     C_OUTLINE_IT ol_it(cblob_ptr->out_list());
     ol_it.add_list_after(other->cblob_ptr->out_list());
   }
@@ -132,7 +132,7 @@ void BLOBNBOX::chop(                        //chop blobs
 
                                  //get no of chops
   blobcount = (int16_t) floor (box.width () / xheight);
-  if (blobcount > 1 && cblob_ptr != NULL) {
+  if (blobcount > 1 && cblob_ptr != nullptr) {
                                  //width of each
     blobwidth = (float) (box.width () + 1) / blobcount;
     for (blobindex = blobcount - 1, rightx = box.right ();
@@ -177,7 +177,7 @@ void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
     gaps[dir] = INT16_MAX;
     BLOBNBOX* neighbour = neighbours_[dir];
-    if (neighbour != NULL) {
+    if (neighbour != nullptr) {
       const TBOX& n_box = neighbour->bounding_box();
       if (dir == BND_LEFT || dir == BND_RIGHT) {
         gaps[dir] = box.x_gap(n_box);
@@ -205,12 +205,12 @@ void BLOBNBOX::MinMaxGapsClipped(int* h_min, int* h_max,
   if (*v_max > max_dimension && *v_min < max_dimension) *v_max = *v_min;
 }
 
-// NULLs out any neighbours that are DeletableNoise to remove references.
+// Nulls out any neighbours that are DeletableNoise to remove references.
 void BLOBNBOX::CleanNeighbours() {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
     BLOBNBOX* neighbour = neighbours_[dir];
-    if (neighbour != NULL && neighbour->DeletableNoise()) {
-      neighbours_[dir] = NULL;
+    if (neighbour != nullptr && neighbour->DeletableNoise()) {
+      neighbours_[dir] = nullptr;
       good_stroke_neighbours_[dir] = false;
     }
   }
@@ -234,7 +234,7 @@ int BLOBNBOX::NoisyNeighbours() const {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
     BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* blob = neighbour(bnd);
-    if (blob != NULL && blob->region_type() == BRT_NOISE)
+    if (blob != nullptr && blob->region_type() == BRT_NOISE)
       ++count;
   }
   return count;
@@ -245,7 +245,7 @@ int BLOBNBOX::NoisyNeighbours() const {
 // eg if it has a high aspect ratio, yet has a complex shape, such as a
 // joined word in Latin, Arabic, or Hindi, rather than being a -, I, l, 1 etc.
 bool BLOBNBOX::DefiniteIndividualFlow() {
-  if (cblob() == NULL) return false;
+  if (cblob() == nullptr) return false;
   int box_perimeter = 2 * (box.height() + box.width());
   if (box.width() > box.height() * kDefiniteAspectRatio) {
     // Attempt to distinguish a wide joined word from a dash.
@@ -329,7 +329,7 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
   FCOORD no_rotation(1.0f, 0.0f);
   float top = box.top();
   float bottom = box.bottom();
-  if (cblob_ptr != NULL) {
+  if (cblob_ptr != nullptr) {
     find_cblob_limits(cblob_ptr, static_cast<float>(left),
                       static_cast<float>(right), no_rotation,
                       bottom, top);
@@ -351,7 +351,7 @@ TBOX BLOBNBOX::BoundsWithinLimits(int left, int right) {
 // outline.
 void BLOBNBOX::EstimateBaselinePosition() {
   baseline_y_ = box.bottom();  // The default.
-  if (cblob_ptr == NULL) return;
+  if (cblob_ptr == nullptr) return;
   baseline_y_ = cblob_ptr->EstimateBaselinePosition();
 }
 
@@ -382,7 +382,7 @@ void BLOBNBOX::ComputeEdgeOffsets(Pix* thresholds, Pix* grey,
   int grey_height = 0;
   int thr_height = 0;
   int scale_factor = 1;
-  if (thresholds != NULL && grey != NULL) {
+  if (thresholds != nullptr && grey != nullptr) {
     grey_height = pixGetHeight(grey);
     thr_height = pixGetHeight(thresholds);
     scale_factor =
@@ -391,10 +391,10 @@ void BLOBNBOX::ComputeEdgeOffsets(Pix* thresholds, Pix* grey,
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
-    if (blob->cblob() != NULL) {
+    if (blob->cblob() != nullptr) {
       // Get the threshold that applies to this blob.
       l_uint32 threshold = 128;
-      if (thresholds != NULL && grey != NULL) {
+      if (thresholds != nullptr && grey != nullptr) {
         const TBOX& box = blob->cblob()->bounding_box();
         // Transform the coordinates if required.
         TPOINT pt((box.left() + box.right()) / 2,
@@ -480,7 +480,7 @@ ScrollView::Color BLOBNBOX::BoxColor() const {
 void BLOBNBOX::plot(ScrollView* window,                // window to draw in
                     ScrollView::Color blob_colour,     // for outer bits
                     ScrollView::Color child_colour) {  // for holes
-  if (cblob_ptr != NULL)
+  if (cblob_ptr != nullptr)
     cblob_ptr->plot(window, blob_colour, child_colour);
 }
 #endif
@@ -639,12 +639,12 @@ TBOX box_next(                 //get bounding box
   do {
     it->forward ();
     blob = it->data ();
-    if (blob->cblob() == NULL)
+    if (blob->cblob() == nullptr)
                                  //was pre-chopped
       result += blob->bounding_box ();
   }
                                  //until next real blob
-  while ((blob->cblob() == NULL) || blob->joined_to_prev());
+  while ((blob->cblob() == nullptr) || blob->joined_to_prev());
   return result;
 }
 
@@ -806,7 +806,7 @@ void TO_ROW::compute_vertical_projection() {  //project whole row
   projection_right = row_box.right () + PROJECTION_MARGIN;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data();
-    if (blob->cblob() != NULL)
+    if (blob->cblob() != nullptr)
       vertical_cblob_projection(blob->cblob(), &projection);
   }
 }
@@ -927,7 +927,7 @@ static void clear_blobnboxes(BLOBNBOX_LIST* boxes) {
   // have to delete them explicitly.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* box = it.data();
-    if (box->cblob() != NULL)
+    if (box->cblob() != nullptr)
       delete box->cblob();
   }
 }
@@ -938,7 +938,7 @@ static void clear_blobnboxes(BLOBNBOX_LIST* boxes) {
  * Zero out all scalar members.
  **********************************************************************/
 void TO_BLOCK::clear() {
-  block = NULL;
+  block = nullptr;
   pitch_decision = PITCH_DUNNO;
   line_spacing = 0.0;
   line_size = 0.0;
@@ -954,7 +954,7 @@ void TO_BLOCK::clear() {
   fp_nonsp = 0.0;
   pr_space = 0.0;
   pr_nonsp = 0.0;
-  key_row = NULL;
+  key_row = nullptr;
 }
 
 
@@ -1043,7 +1043,7 @@ void TO_BLOCK::DeleteUnownedNoise() {
 
 // Computes and stores the edge offsets on each blob for use in feature
 // extraction, using greyscale if the supplied grey and thresholds pixes
-// are 8-bit or otherwise (if NULL or not 8 bit) the original binary
+// are 8-bit or otherwise (if nullptr or not 8 bit) the original binary
 // edge step outlines.
 // Thresholds must either be the same size as grey or an integer down-scale
 // of grey.

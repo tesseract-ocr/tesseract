@@ -37,7 +37,7 @@ class BLOCK:public ELIST_LINK
       classify_rotation_(1.0f, 0.0f),
       skew_(1.0f, 0.0f) {
     right_to_left_ = false;
-    pdblk.hand_poly = NULL;
+    pdblk.hand_poly = nullptr;
   }
   BLOCK(const char *name,  //< filename
         BOOL8 prop,        //< proportional

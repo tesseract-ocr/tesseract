@@ -142,18 +142,18 @@ ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
   image_data->image_data_.resize_no_init(imagedatasize);
   memcpy(&image_data->image_data_[0], imagedata, imagedatasize);
   if (!image_data->AddBoxes(box_text)) {
-    if (truth_text == NULL || truth_text[0] == '\0') {
+    if (truth_text == nullptr || truth_text[0] == '\0') {
       tprintf("Error: No text corresponding to page %d from image %s!\n",
               page_number, name);
       delete image_data;
-      return NULL;
+      return nullptr;
     }
     image_data->transcription_ = truth_text;
     // If we have no boxes, the transcription is in the 0th box_texts_.
     image_data->box_texts_.push_back(truth_text);
     // We will create a box for the whole image on PreScale, to save unpacking
     // the image now.
-  } else if (truth_text != NULL && truth_text[0] != '\0' &&
+  } else if (truth_text != nullptr && truth_text[0] != '\0' &&
              image_data->transcription_ != truth_text) {
     // Save the truth text as it is present and disagrees with the box text.
     image_data->transcription_ = truth_text;
@@ -218,11 +218,11 @@ Pix* ImageData::GetPix() const {
   return GetPixInternal(image_data_);
 }
 
-// Gets anything and everything with a non-NULL pointer, prescaled to a
+// Gets anything and everything with a non-nullptr pointer, prescaled to a
 // given target_height (if 0, then the original image height), and aligned.
-// Also returns (if not NULL) the width and height of the scaled image.
+// Also returns (if not nullptr) the width and height of the scaled image.
 // The return value is the scaled Pix, which must be pixDestroyed after use,
-// and scale_factor (if not NULL) is set to the scale factor that was applied
+// and scale_factor (if not nullptr) is set to the scale factor that was applied
 // to the image to achieve the target_height.
 Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
                          int* scaled_width, int* scaled_height,
@@ -230,27 +230,27 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   int input_width = 0;
   int input_height = 0;
   Pix* src_pix = GetPix();
-  ASSERT_HOST(src_pix != NULL);
+  ASSERT_HOST(src_pix != nullptr);
   input_width = pixGetWidth(src_pix);
   input_height = pixGetHeight(src_pix);
   if (target_height == 0) {
     target_height = MIN(input_height, max_height);
   }
   float im_factor = static_cast<float>(target_height) / input_height;
-  if (scaled_width != NULL)
+  if (scaled_width != nullptr)
     *scaled_width = IntCastRounded(im_factor * input_width);
-  if (scaled_height != NULL)
+  if (scaled_height != nullptr)
     *scaled_height = target_height;
   // Get the scaled image.
   Pix* pix = pixScale(src_pix, im_factor, im_factor);
-  if (pix == NULL) {
+  if (pix == nullptr) {
     tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n",
             input_width, input_height, im_factor);
   }
-  if (scaled_width != NULL) *scaled_width = pixGetWidth(pix);
-  if (scaled_height != NULL) *scaled_height = pixGetHeight(pix);
+  if (scaled_width != nullptr) *scaled_width = pixGetWidth(pix);
+  if (scaled_height != nullptr) *scaled_height = pixGetHeight(pix);
   pixDestroy(&src_pix);
-  if (boxes != NULL) {
+  if (boxes != nullptr) {
     // Get the boxes.
     boxes->truncate(0);
     for (int b = 0; b < boxes_.size(); ++b) {
@@ -264,7 +264,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
       boxes->push_back(box);
     }
   }
-  if (scale_factor != NULL) *scale_factor = im_factor;
+  if (scale_factor != nullptr) *scale_factor = im_factor;
   return pix;
 }
 
@@ -278,7 +278,7 @@ void ImageData::Display() const {
   const int kTextSize = 64;
   // Draw the image.
   Pix* pix = GetPix();
-  if (pix == NULL) return;
+  if (pix == nullptr) return;
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   ScrollView* win = new ScrollView("Imagedata", 100, 100,
@@ -336,7 +336,7 @@ void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
 
 // Returns the Pix image for the image_data. Must be pixDestroyed after use.
 Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
-  Pix* pix = NULL;
+  Pix* pix = nullptr;
   if (!image_data.empty()) {
     // Convert the array to an image.
     const unsigned char* u_data =
@@ -349,12 +349,12 @@ Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
 // Parses the text string as a box file and adds any discovered boxes that
 // match the page number. Returns false on error.
 bool ImageData::AddBoxes(const char* box_text) {
-  if (box_text != NULL && box_text[0] != '\0') {
+  if (box_text != nullptr && box_text[0] != '\0') {
     GenericVector<TBOX> boxes;
     GenericVector<STRING> texts;
     GenericVector<int> box_pages;
     if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
-                     /*continue_on_failure*/ true, &boxes, &texts, NULL,
+                     /*continue_on_failure*/ true, &boxes, &texts, nullptr,
                      &box_pages)) {
       AddBoxes(boxes, texts, box_pages);
       return true;
@@ -370,7 +370,7 @@ bool ImageData::AddBoxes(const char* box_text) {
 void* ReCachePagesFunc(void* data) {
   DocumentData* document_data = static_cast<DocumentData*>(data);
   document_data->ReCachePages();
-  return NULL;
+  return nullptr;
 }
 
 DocumentData::DocumentData(const STRING& name)
@@ -379,7 +379,7 @@ DocumentData::DocumentData(const STRING& name)
       total_pages_(-1),
       memory_used_(0),
       max_memory_(0),
-      reader_(NULL) {}
+      reader_(nullptr) {}
 
 DocumentData::~DocumentData() {
   SVAutoLock lock_p(&pages_mutex_);
@@ -410,7 +410,7 @@ void DocumentData::SetDocument(const char* filename, int64_t max_memory,
 bool DocumentData::SaveDocument(const char* filename, FileWriter writer) {
   SVAutoLock lock(&pages_mutex_);
   TFile fp;
-  fp.OpenWrite(NULL);
+  fp.OpenWrite(nullptr);
   if (!pages_.Serialize(&fp) || !fp.CloseWrite(filename, writer)) {
     tprintf("Serialize failed: %s\n", filename);
     return false;
@@ -434,7 +434,7 @@ void DocumentData::AddPageToDocument(ImageData* page) {
 // If the given index is not currently loaded, loads it using a separate
 // thread.
 void DocumentData::LoadPageInBackground(int index) {
-  ImageData* page = NULL;
+  ImageData* page = nullptr;
   if (IsPageAvailable(index, &page)) return;
   SVAutoLock lock(&pages_mutex_);
   if (pages_offset_ == index) return;
@@ -446,7 +446,7 @@ void DocumentData::LoadPageInBackground(int index) {
 // Returns a pointer to the page with the given index, modulo the total
 // number of pages. Blocks until the background load is completed.
 const ImageData* DocumentData::GetPage(int index) {
-  ImageData* page = NULL;
+  ImageData* page = nullptr;
   while (!IsPageAvailable(index, &page)) {
     // If there is no background load scheduled, schedule one now.
     pages_mutex_.Lock();
@@ -465,13 +465,13 @@ const ImageData* DocumentData::GetPage(int index) {
 }
 
 // Returns true if the requested page is available, and provides a pointer,
-// which may be NULL if the document is empty. May block, even though it
+// which may be nullptr if the document is empty. May block, even though it
 // doesn't guarantee to return true.
 bool DocumentData::IsPageAvailable(int index, ImageData** page) {
   SVAutoLock lock(&pages_mutex_);
   int num_pages = NumPages();
   if (num_pages == 0 || index < 0) {
-    *page = NULL;  // Empty Document.
+    *page = nullptr;  // Empty Document.
     return true;
   }
   if (num_pages > 0) {
@@ -588,7 +588,7 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
   }
   if (!documents_.empty()) {
     // Try to get the first page now to verify the list of filenames.
-    if (GetPageBySerial(0) != NULL) return true;
+    if (GetPageBySerial(0) != nullptr) return true;
     tprintf("Load of page 0 failed!\n");
   }
   return false;
@@ -606,7 +606,7 @@ DocumentData* DocumentCache::FindDocument(const STRING& document_name) const {
     if (documents_[i]->document_name() == document_name)
       return documents_[i];
   }
-  return NULL;
+  return nullptr;
 }
 
 // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache

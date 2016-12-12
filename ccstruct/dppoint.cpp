@@ -30,7 +30,7 @@ namespace tesseract {
 DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
                         CostFunc cost_func, int size, DPPoint* points) {
   if (size <= 0 || max_step < min_step || min_step >= size)
-    return NULL;  // Degenerate, but not necessarily an error.
+    return nullptr;  // Degenerate, but not necessarily an error.
   ASSERT_HOST(min_step > 0);  // Infinite loop possible if this is not true.
   if (debug)
     tprintf("min = %d, max=%d\n",
@@ -38,9 +38,9 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
   // Evaluate the total cost at each point.
   for (int i = 0; i < size; ++i) {
     for (int offset = min_step; offset <= max_step; ++offset) {
-      DPPoint* prev = offset <= i ? points + i - offset : NULL;
+      DPPoint* prev = offset <= i ? points + i - offset : nullptr;
       int64_t new_cost = (points[i].*cost_func)(prev);
-      if (points[i].best_prev_ != NULL && offset > min_step * 2 &&
+      if (points[i].best_prev_ != nullptr && offset > min_step * 2 &&
           new_cost > points[i].total_cost_)
         break;  // Find only the first minimum if going over twice the min.
     }
@@ -66,8 +66,8 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
 
 // A CostFunc that takes the variance of step into account in the cost.
 int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
-  if (prev == NULL || prev == this) {
-    UpdateIfBetter(0, 1, NULL, 0, 0, 0);
+  if (prev == nullptr || prev == this) {
+    UpdateIfBetter(0, 1, nullptr, 0, 0, 0);
     return 0;
   }
 

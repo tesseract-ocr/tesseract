@@ -32,7 +32,7 @@ static const char* kMultiBlobLabelCode = "WordStr";
 // Open the boxfile based on the given image filename.
 FILE* OpenBoxFile(const STRING& fname) {
   STRING filename = BoxFileName(fname);
-  FILE* box_file = NULL;
+  FILE* box_file = nullptr;
   if (!(box_file = fopen(filename.string(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT, "Can't open box file %s",
                        filename.string());
@@ -45,7 +45,7 @@ FILE* OpenBoxFile(const STRING& fname) {
 // Skips blanks if skip_blanks is true.
 // The UTF-8 label of the box is put in texts, and the full box definition as
 // a string is put in box_texts, with the corresponding page number in pages.
-// Each of the output vectors is optional (may be NULL).
+// Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
                   GenericVector<TBOX>* boxes,
@@ -86,14 +86,14 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     }
     if (skip_blanks && (utf8_str == " " || utf8_str == "\t")) continue;
     if (target_page >= 0 && page != target_page) continue;
-    if (boxes != NULL) boxes->push_back(box);
-    if (texts != NULL) texts->push_back(utf8_str);
-    if (box_texts != NULL) {
+    if (boxes != nullptr) boxes->push_back(box);
+    if (texts != nullptr) texts->push_back(utf8_str);
+    if (box_texts != nullptr) {
       STRING full_text;
       MakeBoxFileStr(utf8_str.string(), box, target_page, &full_text);
       box_texts->push_back(full_text);
     }
-    if (pages != NULL) pages->push_back(page);
+    if (pages != nullptr) pages->push_back(page);
     ++num_boxes;
   }
   return num_boxes > 0;
@@ -103,7 +103,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
 STRING BoxFileName(const STRING& image_filename) {
   STRING box_filename = image_filename;
   const char *lastdot = strrchr(box_filename.string(), '.');
-  if (lastdot != NULL)
+  if (lastdot != nullptr)
     box_filename.truncate_at(lastdot - box_filename.string());
 
   box_filename += ".box";
@@ -202,7 +202,7 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   }
   // Test for long space-delimited string label.
   if (strcmp(uch, kMultiBlobLabelCode) == 0 &&
-      (buffptr = strchr(buffptr, '#')) != NULL) {
+      (buffptr = strchr(buffptr, '#')) != nullptr) {
     strncpy(uch, buffptr + 1, kBoxReadBufSize - 1);
     uch[kBoxReadBufSize - 1] = '\0';  // Prevent buffer overrun.
     chomp_string(uch);

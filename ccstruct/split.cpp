@@ -152,7 +152,7 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
   this_edgept->pos.y = y;
   // Now deal with the src_outline steps.
   C_OUTLINE* prev_ol = prev->src_outline;
-  if (prev_ol != NULL && prev->next == next) {
+  if (prev_ol != nullptr && prev->next == next) {
     // Compute the fraction of the segment that is being cut.
     FCOORD segment_vec(next->pos.x - prev->pos.x, next->pos.y - prev->pos.y);
     FCOORD target_vec(x - prev->pos.x, y - prev->pos.y);
@@ -183,7 +183,7 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
     prev->step_count = best_step - prev->start_step;
   } else {
     // The new point is poly only.
-    this_edgept->src_outline = NULL;
+    this_edgept->src_outline = nullptr;
     this_edgept->step_count = 0;
     this_edgept->start_step = 0;
   }
@@ -209,7 +209,7 @@ void remove_edgept(EDGEPT *point) {
   EDGEPT *prev = point->prev;
   EDGEPT *next = point->next;
   // Add point's steps onto prev's steps if they are from the same outline.
-  if (prev->src_outline == point->src_outline && prev->src_outline != NULL) {
+  if (prev->src_outline == point->src_outline && prev->src_outline != nullptr) {
     prev->step_count += point->step_count;
   }
   prev->next = next;
@@ -242,7 +242,7 @@ void SPLIT::Mark(ScrollView* window) const {
 // Inserts the resulting outlines into the given list.
 void SPLIT::SplitOutlineList(TESSLINE* outlines) const {
   SplitOutline();
-  while (outlines->next != NULL) outlines = outlines->next;
+  while (outlines->next != nullptr) outlines = outlines->next;
 
   outlines->next = new TESSLINE;
   outlines->next->loop = point1;
@@ -254,7 +254,7 @@ void SPLIT::SplitOutlineList(TESSLINE* outlines) const {
   outlines->next->loop = point2;
   outlines->next->ComputeBoundingBox();
 
-  outlines->next->next = NULL;
+  outlines->next->next = nullptr;
 }
 
 // Makes a split between these two edge points, but does not affect the
@@ -265,7 +265,7 @@ void SPLIT::SplitOutline() const {
   /* Create two new points */
   EDGEPT* new_point1 = make_edgept(point1->pos.x, point1->pos.y, temp1, point2);
   EDGEPT* new_point2 = make_edgept(point2->pos.x, point2->pos.y, temp2, point1);
-  // point1 and 2 are now cross-over points, so they must have NULL
+  // point1 and 2 are now cross-over points, so they must have nullptr
   // src_outlines and give their src_outline information their new
   // replacements.
   new_point1->src_outline = point1->src_outline;
@@ -274,10 +274,10 @@ void SPLIT::SplitOutline() const {
   new_point2->src_outline = point2->src_outline;
   new_point2->start_step = point2->start_step;
   new_point2->step_count = point2->step_count;
-  point1->src_outline = NULL;
+  point1->src_outline = nullptr;
   point1->start_step = 0;
   point1->step_count = 0;
-  point2->src_outline = NULL;
+  point2->src_outline = nullptr;
   point2->start_step = 0;
   point2->step_count = 0;
 }

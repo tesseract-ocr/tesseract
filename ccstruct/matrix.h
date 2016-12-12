@@ -66,11 +66,11 @@ class GENERIC_2D_ARRAY {
   }
   // Default constructor for array allocation. Use Resize to set the size.
   GENERIC_2D_ARRAY()
-    : array_(NULL), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
+    : array_(nullptr), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
       size_allocated_(0) {
   }
   GENERIC_2D_ARRAY(const GENERIC_2D_ARRAY<T>& src)
-    : array_(NULL), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
+    : array_(nullptr), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
       size_allocated_(0) {
     *this = src;
   }
@@ -554,7 +554,7 @@ class BandTriMatrix : public GENERIC_2D_ARRAY<T> {
         } else if (col >= this->dim1_ && j < array2->dim2_) {
           new_array[new_index] = array2->get(col - this->dim1_,
                                              col - this->dim1_ + j);
-          array2->put(col - this->dim1_, col - this->dim1_ + j, NULL);
+          array2->put(col - this->dim1_, col - this->dim1_ + j, nullptr);
         } else {
           new_array[new_index] = this->empty_;
         }

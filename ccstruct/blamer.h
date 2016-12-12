@@ -89,7 +89,7 @@ struct BlamerBundle {
   static const char *IncorrectReasonName(IncorrectResultReason irr);
   BlamerBundle() : truth_has_char_boxes_(false),
       incorrect_result_reason_(IRR_CORRECT),
-      lattice_data_(NULL) { ClearResults(); }
+      lattice_data_(nullptr) { ClearResults(); }
   BlamerBundle(const BlamerBundle &other) {
     this->CopyTruth(other);
     this->CopyResults(other);
@@ -181,7 +181,7 @@ struct BlamerBundle {
     correct_segmentation_rows_.clear();
     best_choice_is_dict_and_top_choice_ = false;
     delete[] lattice_data_;
-    lattice_data_ = NULL;
+    lattice_data_ = nullptr;
     lattice_size_ = 0;
   }
   void CopyTruth(const BlamerBundle &other) {
@@ -201,12 +201,12 @@ struct BlamerBundle {
     correct_segmentation_rows_ = other.correct_segmentation_rows_;
     best_choice_is_dict_and_top_choice_ =
         other.best_choice_is_dict_and_top_choice_;
-    if (other.lattice_data_ != NULL) {
+    if (other.lattice_data_ != nullptr) {
       lattice_data_ = new char[other.lattice_size_];
       memcpy(lattice_data_, other.lattice_data_, other.lattice_size_);
       lattice_size_ = other.lattice_size_;
     } else {
-      lattice_data_ = NULL;
+      lattice_data_ = nullptr;
     }
   }
   const char *IncorrectReason() const;

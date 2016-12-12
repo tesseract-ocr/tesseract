@@ -85,7 +85,7 @@ class WERD : public ELIST2_LINK {
     // all_blobs list, which correspond to the blobs in this werd object. The
     // blobs used to construct the new word are consumed and removed from the
     // input all_blobs list.
-    // Returns NULL if the word couldn't be constructed.
+    // Returns nullptr if the word couldn't be constructed.
     // Returns original blobs for which no matches were found in the output list
     // orphan_blobs (appends).
     WERD *ConstructWerdWithNewBlobs(C_BLOB_LIST *all_blobs,
@@ -170,7 +170,7 @@ class WERD : public ELIST2_LINK {
     void GetNoiseOutlines(GenericVector<C_OUTLINE *> *outlines);
     // Adds the selected outlines to the indcated real blobs, and puts the rest
     // back in rej_cblobs where they came from. Where the target_blobs entry is
-    // NULL, a run of wanted outlines is put into a single new blob.
+    // nullptr, a run of wanted outlines is put into a single new blob.
     // Ownership of the outlines is transferred back to the word. (Hence
     // GenericVector and not PointerVector.)
     // Returns true if any new blob was added to the start of the word, which
