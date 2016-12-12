@@ -135,16 +135,16 @@ class ETEXT_DESC {             // output header
         more_to_come(0),
         ocr_alive(0),
         err_code(0),
-        cancel(NULL),
-        progress_callback(NULL),
-        cancel_this(NULL) {
+        cancel(nullptr),
+        progress_callback(nullptr),
+        cancel_this(nullptr) {
     end_time.tv_sec = 0;
     end_time.tv_usec = 0;
   }
 
   // Sets the end time to be deadline_msecs milliseconds from now.
   void set_deadline_msecs(int32_t deadline_msecs) {
-    gettimeofday(&end_time, NULL);
+    gettimeofday(&end_time, nullptr);
     int32_t deadline_secs = deadline_msecs / 1000;
     end_time.tv_sec += deadline_secs;
     end_time.tv_usec += (deadline_msecs -  deadline_secs * 1000) * 1000;
@@ -158,7 +158,7 @@ class ETEXT_DESC {             // output header
   bool deadline_exceeded() const {
     if (end_time.tv_sec == 0 && end_time.tv_usec == 0) return false;
     struct timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     return (now.tv_sec > end_time.tv_sec || (now.tv_sec == end_time.tv_sec &&
                                              now.tv_usec > end_time.tv_usec));
   }

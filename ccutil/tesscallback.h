@@ -19,7 +19,7 @@
 #ifndef TESS_CALLBACK_SPECIALIZATIONS_H_
 #define TESS_CALLBACK_SPECIALIZATIONS_H_
 
-#include "host.h"  // For NULL.
+#include "host.h"  // For nullptr.
 
 struct TessCallbackUtils_ {
   static void FailIsRepeatable(const char* name);
@@ -63,7 +63,7 @@ class _ConstTessMemberResultCallback_0_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)();
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -94,7 +94,7 @@ class _ConstTessMemberResultCallback_0_0<del, void, T>
     } else {
       (object_->*member_)();
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -144,7 +144,7 @@ class _TessMemberResultCallback_0_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)();
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -175,7 +175,7 @@ class _TessMemberResultCallback_0_0<del, void, T>
     } else {
       (object_->*member_)();
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -223,7 +223,7 @@ class _TessFunctionResultCallback_0_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)();
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -252,7 +252,7 @@ class _TessFunctionResultCallback_0_0<del, void>
     } else {
       (*function_)();
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -307,7 +307,7 @@ class _ConstTessMemberResultCallback_1_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -336,7 +336,7 @@ class _ConstTessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure 
     } else {
       (object_->*member_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -381,7 +381,7 @@ class _TessMemberResultCallback_1_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -410,7 +410,7 @@ class _TessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure {
     } else {
       (object_->*member_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -453,7 +453,7 @@ class _TessFunctionResultCallback_1_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -480,7 +480,7 @@ class _TessFunctionResultCallback_1_0<del, void, P1> : public TessClosure {
     } else {
       (*function_)(p1_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -522,7 +522,7 @@ class _ConstTessMemberResultCallback_2_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -553,7 +553,7 @@ class _ConstTessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClos
     } else {
       (object_->*member_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -599,7 +599,7 @@ class _TessMemberResultCallback_2_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -630,7 +630,7 @@ class _TessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClosure {
     } else {
       (object_->*member_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -674,7 +674,7 @@ class _TessFunctionResultCallback_2_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -703,7 +703,7 @@ class _TessFunctionResultCallback_2_0<del, void, P1, P2> : public TessClosure {
     } else {
       (*function_)(p1_,p2_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -747,7 +747,7 @@ class _ConstTessMemberResultCallback_3_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -778,7 +778,7 @@ class _ConstTessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public Tess
     } else {
       (object_->*member_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -825,7 +825,7 @@ class _TessMemberResultCallback_3_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -856,7 +856,7 @@ class _TessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public TessClosu
     } else {
       (object_->*member_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -901,7 +901,7 @@ class _TessFunctionResultCallback_3_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -930,7 +930,7 @@ class _TessFunctionResultCallback_3_0<del, void, P1, P2, P3> : public TessClosur
     } else {
       (*function_)(p1_,p2_,p3_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -974,7 +974,7 @@ class _ConstTessMemberResultCallback_4_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1006,7 +1006,7 @@ class _ConstTessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public 
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1054,7 +1054,7 @@ class _TessMemberResultCallback_4_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1086,7 +1086,7 @@ class _TessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public TessC
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1132,7 +1132,7 @@ class _TessFunctionResultCallback_4_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -1162,7 +1162,7 @@ class _TessFunctionResultCallback_4_0<del, void, P1, P2, P3, P4> : public TessCl
     } else {
       (*function_)(p1_,p2_,p3_,p4_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -1207,7 +1207,7 @@ class _ConstTessMemberResultCallback_5_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1240,7 +1240,7 @@ class _ConstTessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : pub
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1289,7 +1289,7 @@ class _TessMemberResultCallback_5_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1322,7 +1322,7 @@ class _TessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : public T
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1369,7 +1369,7 @@ class _TessFunctionResultCallback_5_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -1400,7 +1400,7 @@ class _TessFunctionResultCallback_5_0<del, void, P1, P2, P3, P4, P5> : public Te
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -1446,7 +1446,7 @@ class _ConstTessMemberResultCallback_6_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1480,7 +1480,7 @@ class _ConstTessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> :
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1530,7 +1530,7 @@ class _TessMemberResultCallback_6_0 : public TessResultCallback<R> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1564,7 +1564,7 @@ class _TessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> : publ
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1612,7 +1612,7 @@ class _TessFunctionResultCallback_6_0 : public TessResultCallback<R> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -1644,7 +1644,7 @@ class _TessFunctionResultCallback_6_0<del, void, P1, P2, P3, P4, P5, P6> : publi
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -1743,7 +1743,7 @@ class _ConstTessMemberResultCallback_0_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1774,7 +1774,7 @@ class _ConstTessMemberResultCallback_0_1<del, void, T, A1>
     } else {
       (object_->*member_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1824,7 +1824,7 @@ class _TessMemberResultCallback_0_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -1855,7 +1855,7 @@ class _TessMemberResultCallback_0_1<del, void, T, A1>
     } else {
       (object_->*member_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -1903,7 +1903,7 @@ class _TessFunctionResultCallback_0_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -1932,7 +1932,7 @@ class _TessFunctionResultCallback_0_1<del, void, A1>
     } else {
       (*function_)(a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -1973,7 +1973,7 @@ class _ConstTessMemberResultCallback_1_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2002,7 +2002,7 @@ class _ConstTessMemberResultCallback_1_1<del, void, T, P1, A1> : public TessCall
     } else {
       (object_->*member_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2047,7 +2047,7 @@ class _TessMemberResultCallback_1_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2076,7 +2076,7 @@ class _TessMemberResultCallback_1_1<del, void, T, P1, A1> : public TessCallback1
     } else {
       (object_->*member_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2119,7 +2119,7 @@ class _TessFunctionResultCallback_1_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -2146,7 +2146,7 @@ class _TessFunctionResultCallback_1_1<del, void, P1, A1> : public TessCallback1<
     } else {
       (*function_)(p1_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -2188,7 +2188,7 @@ class _ConstTessMemberResultCallback_2_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2218,7 +2218,7 @@ class _ConstTessMemberResultCallback_2_1<del, void, T, P1, P2, A1> : public Tess
     } else {
       (object_->*member_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2264,7 +2264,7 @@ class _TessMemberResultCallback_2_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2294,7 +2294,7 @@ class _TessMemberResultCallback_2_1<del, void, T, P1, P2, A1> : public TessCallb
     } else {
       (object_->*member_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2338,7 +2338,7 @@ class _TessFunctionResultCallback_2_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -2366,7 +2366,7 @@ class _TessFunctionResultCallback_2_1<del, void, P1, P2, A1> : public TessCallba
     } else {
       (*function_)(p1_,p2_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -2409,7 +2409,7 @@ class _ConstTessMemberResultCallback_3_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2440,7 +2440,7 @@ class _ConstTessMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1> : public 
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2487,7 +2487,7 @@ class _TessMemberResultCallback_3_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2518,7 +2518,7 @@ class _TessMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1> : public TessC
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2563,7 +2563,7 @@ class _TessFunctionResultCallback_3_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -2592,7 +2592,7 @@ class _TessFunctionResultCallback_3_1<del, void, P1, P2, P3, A1> : public TessCa
     } else {
       (*function_)(p1_,p2_,p3_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -2636,7 +2636,7 @@ class _ConstTessMemberResultCallback_4_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2668,7 +2668,7 @@ class _ConstTessMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1> : pub
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2716,7 +2716,7 @@ class _TessMemberResultCallback_4_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2748,7 +2748,7 @@ class _TessMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1> : public T
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2794,7 +2794,7 @@ class _TessFunctionResultCallback_4_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -2824,7 +2824,7 @@ class _TessFunctionResultCallback_4_1<del, void, P1, P2, P3, P4, A1> : public Te
     } else {
       (*function_)(p1_,p2_,p3_,p4_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -2869,7 +2869,7 @@ class _ConstTessMemberResultCallback_5_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2902,7 +2902,7 @@ class _ConstTessMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1> :
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -2951,7 +2951,7 @@ class _TessMemberResultCallback_5_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -2984,7 +2984,7 @@ class _TessMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1> : publ
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3031,7 +3031,7 @@ class _TessFunctionResultCallback_5_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -3062,7 +3062,7 @@ class _TessFunctionResultCallback_5_1<del, void, P1, P2, P3, P4, P5, A1> : publi
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -3108,7 +3108,7 @@ class _ConstTessMemberResultCallback_6_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3142,7 +3142,7 @@ class _ConstTessMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3192,7 +3192,7 @@ class _TessMemberResultCallback_6_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3226,7 +3226,7 @@ class _TessMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1> : 
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3274,7 +3274,7 @@ class _TessFunctionResultCallback_6_1 : public TessResultCallback1<R,A1> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -3306,7 +3306,7 @@ class _TessFunctionResultCallback_6_1<del, void, P1, P2, P3, P4, P5, P6, A1> : p
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -3348,7 +3348,7 @@ class _ConstTessMemberResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3379,7 +3379,7 @@ class _ConstTessMemberResultCallback_0_2<del, void, T, A1, A2>
     } else {
       (object_->*member_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3429,7 +3429,7 @@ class _TessMemberResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3460,7 +3460,7 @@ class _TessMemberResultCallback_0_2<del, void, T, A1, A2>
     } else {
       (object_->*member_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3508,7 +3508,7 @@ class _TessFunctionResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -3537,7 +3537,7 @@ class _TessFunctionResultCallback_0_2<del, void, A1, A2>
     } else {
       (*function_)(a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -3578,7 +3578,7 @@ class _ConstTessMemberResultCallback_1_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3607,7 +3607,7 @@ class _ConstTessMemberResultCallback_1_2<del, void, T, P1, A1, A2> : public Tess
     } else {
       (object_->*member_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3652,7 +3652,7 @@ class _TessMemberResultCallback_1_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3681,7 +3681,7 @@ class _TessMemberResultCallback_1_2<del, void, T, P1, A1, A2> : public TessCallb
     } else {
       (object_->*member_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3724,7 +3724,7 @@ class _TessFunctionResultCallback_1_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -3751,7 +3751,7 @@ class _TessFunctionResultCallback_1_2<del, void, P1, A1, A2> : public TessCallba
     } else {
       (*function_)(p1_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -3793,7 +3793,7 @@ class _ConstTessMemberResultCallback_2_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3823,7 +3823,7 @@ class _ConstTessMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2> : public 
     } else {
       (object_->*member_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3869,7 +3869,7 @@ class _TessMemberResultCallback_2_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -3899,7 +3899,7 @@ class _TessMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2> : public TessC
     } else {
       (object_->*member_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -3943,7 +3943,7 @@ class _TessFunctionResultCallback_2_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -3971,7 +3971,7 @@ class _TessFunctionResultCallback_2_2<del, void, P1, P2, A1, A2> : public TessCa
     } else {
       (*function_)(p1_,p2_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -4014,7 +4014,7 @@ class _ConstTessMemberResultCallback_3_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4045,7 +4045,7 @@ class _ConstTessMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2> : pub
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4092,7 +4092,7 @@ class _TessMemberResultCallback_3_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4123,7 +4123,7 @@ class _TessMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2> : public T
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4168,7 +4168,7 @@ class _TessFunctionResultCallback_3_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -4197,7 +4197,7 @@ class _TessFunctionResultCallback_3_2<del, void, P1, P2, P3, A1, A2> : public Te
     } else {
       (*function_)(p1_,p2_,p3_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -4241,7 +4241,7 @@ class _ConstTessMemberResultCallback_4_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4273,7 +4273,7 @@ class _ConstTessMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2> :
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4321,7 +4321,7 @@ class _TessMemberResultCallback_4_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4353,7 +4353,7 @@ class _TessMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2> : publ
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4399,7 +4399,7 @@ class _TessFunctionResultCallback_4_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -4429,7 +4429,7 @@ class _TessFunctionResultCallback_4_2<del, void, P1, P2, P3, P4, A1, A2> : publi
     } else {
       (*function_)(p1_,p2_,p3_,p4_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -4474,7 +4474,7 @@ class _ConstTessMemberResultCallback_5_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4507,7 +4507,7 @@ class _ConstTessMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4556,7 +4556,7 @@ class _TessMemberResultCallback_5_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4589,7 +4589,7 @@ class _TessMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2> : 
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4636,7 +4636,7 @@ class _TessFunctionResultCallback_5_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -4667,7 +4667,7 @@ class _TessFunctionResultCallback_5_2<del, void, P1, P2, P3, P4, P5, A1, A2> : p
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -4713,7 +4713,7 @@ class _ConstTessMemberResultCallback_6_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4747,7 +4747,7 @@ class _ConstTessMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4797,7 +4797,7 @@ class _TessMemberResultCallback_6_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4831,7 +4831,7 @@ class _TessMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -4879,7 +4879,7 @@ class _TessFunctionResultCallback_6_2 : public TessResultCallback2<R,A1,A2> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -4911,7 +4911,7 @@ class _TessFunctionResultCallback_6_2<del, void, P1, P2, P3, P4, P5, P6, A1, A2>
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -4953,7 +4953,7 @@ class _ConstTessMemberResultCallback_0_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -4984,7 +4984,7 @@ class _ConstTessMemberResultCallback_0_3<del, void, T, A1, A2, A3>
     } else {
       (object_->*member_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5034,7 +5034,7 @@ class _TessMemberResultCallback_0_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5065,7 +5065,7 @@ class _TessMemberResultCallback_0_3<del, void, T, A1, A2, A3>
     } else {
       (object_->*member_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5113,7 +5113,7 @@ class _TessFunctionResultCallback_0_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -5142,7 +5142,7 @@ class _TessFunctionResultCallback_0_3<del, void, A1, A2, A3>
     } else {
       (*function_)(a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -5184,7 +5184,7 @@ class _ConstTessMemberResultCallback_1_3
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5214,7 +5214,7 @@ class _ConstTessMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3>
     } else {
       (object_->*member_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5259,7 +5259,7 @@ class _TessMemberResultCallback_1_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5289,7 +5289,7 @@ class _TessMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3>
     } else {
       (object_->*member_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5332,7 +5332,7 @@ class _TessFunctionResultCallback_1_3 : public TessCallback3<A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -5360,7 +5360,7 @@ class _TessFunctionResultCallback_1_3<del, void, P1, A1, A2, A3>
     } else {
       (*function_)(p1_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -5402,7 +5402,7 @@ class _ConstTessMemberResultCallback_2_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5432,7 +5432,7 @@ class _ConstTessMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3> : pub
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5479,7 +5479,7 @@ class _TessMemberResultCallback_2_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5509,7 +5509,7 @@ class _TessMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3> : public T
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5553,7 +5553,7 @@ class _TessFunctionResultCallback_2_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -5581,7 +5581,7 @@ class _TessFunctionResultCallback_2_3<del, void, P1, P2, A1, A2, A3> : public Te
     } else {
       (*function_)(p1_,p2_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -5624,7 +5624,7 @@ class _ConstTessMemberResultCallback_3_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5655,7 +5655,7 @@ class _ConstTessMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3> :
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5702,7 +5702,7 @@ class _TessMemberResultCallback_3_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5733,7 +5733,7 @@ class _TessMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3> : publ
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5778,7 +5778,7 @@ class _TessFunctionResultCallback_3_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -5807,7 +5807,7 @@ class _TessFunctionResultCallback_3_3<del, void, P1, P2, P3, A1, A2, A3> : publi
     } else {
       (*function_)(p1_,p2_,p3_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -5851,7 +5851,7 @@ class _ConstTessMemberResultCallback_4_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5883,7 +5883,7 @@ class _ConstTessMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -5931,7 +5931,7 @@ class _TessMemberResultCallback_4_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -5963,7 +5963,7 @@ class _TessMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3> : 
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6009,7 +6009,7 @@ class _TessFunctionResultCallback_4_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -6039,7 +6039,7 @@ class _TessFunctionResultCallback_4_3<del, void, P1, P2, P3, P4, A1, A2, A3> : p
     } else {
       (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -6084,7 +6084,7 @@ class _ConstTessMemberResultCallback_5_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6117,7 +6117,7 @@ class _ConstTessMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6166,7 +6166,7 @@ class _TessMemberResultCallback_5_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6199,7 +6199,7 @@ class _TessMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6246,7 +6246,7 @@ class _TessFunctionResultCallback_5_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -6277,7 +6277,7 @@ class _TessFunctionResultCallback_5_3<del, void, P1, P2, P3, P4, P5, A1, A2, A3>
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -6323,7 +6323,7 @@ class _ConstTessMemberResultCallback_6_3 : public TessResultCallback3<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6357,7 +6357,7 @@ class _ConstTessMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6407,7 +6407,7 @@ class _TessMemberResultCallback_6_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6441,7 +6441,7 @@ class _TessMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6489,7 +6489,7 @@ class _TessFunctionResultCallback_6_3 : public TessResultCallback3<R,A1,A2,A3> {
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -6521,7 +6521,7 @@ class _TessFunctionResultCallback_6_3<del, void, P1, P2, P3, P4, P5, P6, A1, A2,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -6561,7 +6561,7 @@ class _ConstTessMemberResultCallback_0_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6589,7 +6589,7 @@ class _ConstTessMemberResultCallback_0_4<del, void, T, A1, A2, A3, A4> : public 
     } else {
       (object_->*member_)(a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6633,7 +6633,7 @@ class _TessMemberResultCallback_0_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(a1,a2,a3,a4);
      //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6661,7 +6661,7 @@ class _TessMemberResultCallback_0_4<del, void, T, A1, A2, A3, A4> : public TessC
     } else {
       (object_->*member_)(a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6703,7 +6703,7 @@ class _TessFunctionResultCallback_0_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -6729,7 +6729,7 @@ class _TessFunctionResultCallback_0_4<del, void, A1, A2, A3, A4> : public TessCa
     } else {
       (*function_)(a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -6770,7 +6770,7 @@ class _ConstTessMemberResultCallback_1_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6799,7 +6799,7 @@ class _ConstTessMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4> : pub
     } else {
       (object_->*member_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6844,7 +6844,7 @@ class _TessMemberResultCallback_1_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -6873,7 +6873,7 @@ class _TessMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4> : public T
     } else {
       (object_->*member_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -6916,7 +6916,7 @@ class _TessFunctionResultCallback_1_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -6943,7 +6943,7 @@ class _TessFunctionResultCallback_1_4<del, void, P1, A1, A2, A3, A4> : public Te
     } else {
       (*function_)(p1_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -6985,7 +6985,7 @@ class _ConstTessMemberResultCallback_2_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7015,7 +7015,7 @@ class _ConstTessMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4> :
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7061,7 +7061,7 @@ class _TessMemberResultCallback_2_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7091,7 +7091,7 @@ class _TessMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4> : publ
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7135,7 +7135,7 @@ class _TessFunctionResultCallback_2_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -7163,7 +7163,7 @@ class _TessFunctionResultCallback_2_4<del, void, P1, P2, A1, A2, A3, A4> : publi
     } else {
       (*function_)(p1_,p2_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -7206,7 +7206,7 @@ class _ConstTessMemberResultCallback_3_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7237,7 +7237,7 @@ class _ConstTessMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7284,7 +7284,7 @@ class _TessMemberResultCallback_3_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7315,7 +7315,7 @@ class _TessMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4> : 
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7360,7 +7360,7 @@ class _TessFunctionResultCallback_3_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -7389,7 +7389,7 @@ class _TessFunctionResultCallback_3_4<del, void, P1, P2, P3, A1, A2, A3, A4> : p
     } else {
       (*function_)(p1_,p2_,p3_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -7433,7 +7433,7 @@ class _ConstTessMemberResultCallback_4_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7465,7 +7465,7 @@ class _ConstTessMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7513,7 +7513,7 @@ class _TessMemberResultCallback_4_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7545,7 +7545,7 @@ class _TessMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7591,7 +7591,7 @@ class _TessFunctionResultCallback_4_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -7621,7 +7621,7 @@ class _TessFunctionResultCallback_4_4<del, void, P1, P2, P3, P4, A1, A2, A3, A4>
     } else {
       (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -7666,7 +7666,7 @@ class _ConstTessMemberResultCallback_5_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7699,7 +7699,7 @@ class _ConstTessMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7748,7 +7748,7 @@ class _TessMemberResultCallback_5_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7781,7 +7781,7 @@ class _TessMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7828,7 +7828,7 @@ class _TessFunctionResultCallback_5_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -7859,7 +7859,7 @@ class _TessFunctionResultCallback_5_4<del, void, P1, P2, P3, P4, P5, A1, A2, A3,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -7905,7 +7905,7 @@ class _ConstTessMemberResultCallback_6_4 : public TessResultCallback4<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -7939,7 +7939,7 @@ class _ConstTessMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -7989,7 +7989,7 @@ class _TessMemberResultCallback_6_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8023,7 +8023,7 @@ class _TessMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8071,7 +8071,7 @@ class _TessFunctionResultCallback_6_4 : public TessResultCallback4<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -8103,7 +8103,7 @@ class _TessFunctionResultCallback_6_4<del, void, P1, P2, P3, P4, P5, P6, A1, A2,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -8157,7 +8157,7 @@ class _ConstTessMemberResultCallback_0_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8185,7 +8185,7 @@ class _ConstTessMemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5> : pub
     } else {
       (object_->*member_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8229,7 +8229,7 @@ class _TessMemberResultCallback_0_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8257,7 +8257,7 @@ class _TessMemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5> : public T
     } else {
       (object_->*member_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8299,7 +8299,7 @@ class _TessFunctionResultCallback_0_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -8325,7 +8325,7 @@ class _TessFunctionResultCallback_0_5<del, void, A1, A2, A3, A4, A5> : public Te
     } else {
       (*function_)(a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -8366,7 +8366,7 @@ class _ConstTessMemberResultCallback_1_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8395,7 +8395,7 @@ class _ConstTessMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5> :
     } else {
       (object_->*member_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8440,7 +8440,7 @@ class _TessMemberResultCallback_1_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8469,7 +8469,7 @@ class _TessMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5> : publ
     } else {
       (object_->*member_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8512,7 +8512,7 @@ class _TessFunctionResultCallback_1_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -8539,7 +8539,7 @@ class _TessFunctionResultCallback_1_5<del, void, P1, A1, A2, A3, A4, A5> : publi
     } else {
       (*function_)(p1_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -8581,7 +8581,7 @@ class _ConstTessMemberResultCallback_2_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8611,7 +8611,7 @@ class _ConstTessMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8657,7 +8657,7 @@ class _TessMemberResultCallback_2_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8687,7 +8687,7 @@ class _TessMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5> : 
     } else {
       (object_->*member_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8731,7 +8731,7 @@ class _TessFunctionResultCallback_2_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -8759,7 +8759,7 @@ class _TessFunctionResultCallback_2_5<del, void, P1, P2, A1, A2, A3, A4, A5> : p
     } else {
       (*function_)(p1_,p2_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -8802,7 +8802,7 @@ class _ConstTessMemberResultCallback_3_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8833,7 +8833,7 @@ class _ConstTessMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8880,7 +8880,7 @@ class _TessMemberResultCallback_3_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -8911,7 +8911,7 @@ class _TessMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5
     } else {
       (object_->*member_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -8956,7 +8956,7 @@ class _TessFunctionResultCallback_3_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -8985,7 +8985,7 @@ class _TessFunctionResultCallback_3_5<del, void, P1, P2, P3, A1, A2, A3, A4, A5>
     } else {
       (*function_)(p1_,p2_,p3_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -9029,7 +9029,7 @@ class _ConstTessMemberResultCallback_4_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9061,7 +9061,7 @@ class _ConstTessMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9109,7 +9109,7 @@ class _TessMemberResultCallback_4_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9141,7 +9141,7 @@ class _TessMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9187,7 +9187,7 @@ class _TessFunctionResultCallback_4_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -9217,7 +9217,7 @@ class _TessFunctionResultCallback_4_5<del, void, P1, P2, P3, P4, A1, A2, A3, A4,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -9263,7 +9263,7 @@ class _ConstTessMemberResultCallback_5_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9296,7 +9296,7 @@ class _ConstTessMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9345,7 +9345,7 @@ class _TessMemberResultCallback_5_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9378,7 +9378,7 @@ class _TessMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9425,7 +9425,7 @@ class _TessFunctionResultCallback_5_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -9456,7 +9456,7 @@ class _TessFunctionResultCallback_5_5<del, void, P1, P2, P3, P4, P5, A1, A2, A3,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }
@@ -9502,7 +9502,7 @@ class _ConstTessMemberResultCallback_6_5 : public TessResultCallback5<R,A1,A2,A3
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9536,7 +9536,7 @@ class _ConstTessMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9586,7 +9586,7 @@ class _TessMemberResultCallback_6_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
     } else {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
       return result;
     }
@@ -9620,7 +9620,7 @@ class _TessMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
     } else {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      member_ = NULL;
+      member_ = nullptr;
       delete this;
     }
   }
@@ -9668,7 +9668,7 @@ class _TessFunctionResultCallback_6_5 : public TessResultCallback5<R,A1,A2,A3,A4
     } else {
       R result = (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
       return result;
     }
@@ -9700,7 +9700,7 @@ class _TessFunctionResultCallback_6_5<del, void, P1, P2, P3, P4, P5, P6, A1, A2,
     } else {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_,a1,a2,a3,a4,a5);
       //  zero out the pointer to ensure segfault if used again
-      function_ = NULL;
+      function_ = nullptr;
       delete this;
     }
   }

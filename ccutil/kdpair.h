@@ -87,24 +87,24 @@ struct KDPairDec : public KDPair<Key, Data> {
 template <typename Key, typename Data>
 class KDPtrPair {
  public:
-  KDPtrPair() : data_(NULL) {}
+  KDPtrPair() : data_(nullptr) {}
   KDPtrPair(Key k, Data* d) : data_(d), key_(k) {}
-  // Copy constructor steals the pointer from src and NULLs it in src, thereby
+  // Copy constructor steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
   KDPtrPair(KDPtrPair& src) : data_(src.data_), key_(src.key_) {
-    src.data_ = NULL;
+    src.data_ = nullptr;
   }
   // Destructor deletes data, assuming it is the sole owner.
   ~KDPtrPair() {
     delete this->data_;
-    this->data_ = NULL;
+    this->data_ = nullptr;
   }
-  // Operator= steals the pointer from src and NULLs it in src, thereby
+  // Operator= steals the pointer from src and nulls it in src, thereby
   // moving the (single) ownership of the data.
   void operator=(KDPtrPair& src) {
     delete this->data_;
     this->data_ = src.data_;
-    src.data_ = NULL;
+    src.data_ = nullptr;
     this->key_ = src.key_;
   }
 
@@ -127,10 +127,10 @@ class KDPtrPair {
     delete data_;
     data_ = new_data;
   }
-  // Relinquishes ownership of the data pointer (setting it to NULL).
+  // Relinquishes ownership of the data pointer (setting it to nullptr).
   Data* extract_data() {
     Data* result = data_;
-    data_ = NULL;
+    data_ = nullptr;
     return result;
   }
 

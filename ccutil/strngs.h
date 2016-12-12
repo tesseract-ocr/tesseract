@@ -128,9 +128,9 @@ class TESS_API STRING
       // used_ is how much of the capacity is currently being used,
       // including a '\0' terminator.
       //
-      // If used_ is 0 then string is NULL (not even the '\0')
+      // If used_ is 0 then string is nullptr (not even the '\0')
       // else if used_ > 0 then it is strlen() + 1 (because it includes '\0')
-      // else strlen is >= 0 (not NULL) but needs to be computed.
+      // else strlen is >= 0 (not nullptr) but needs to be computed.
       //      this condition is set when encapsulation is violated because
       //      an API returned a mutable string.
       //
@@ -162,7 +162,7 @@ class TESS_API STRING
     inline bool InvariantOk() const {
 #if STRING_IS_PROTECTED
       return (GetHeader()->used_ == 0) ?
-        (string() == NULL) : (GetHeader()->used_ == (strlen(string()) + 1));
+        (string() == nullptr) : (GetHeader()->used_ == (strlen(string()) + 1));
 #else
       return true;
 #endif

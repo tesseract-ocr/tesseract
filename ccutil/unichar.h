@@ -80,7 +80,7 @@ class UNICHAR {
     return len >=0 && len < UNICHAR_LEN ? len : UNICHAR_LEN;
   }
 
-  // Get a UTF8 string, but NOT NULL terminated.
+  // Get a UTF8 string, but NOT nullptr terminated.
   const char* utf8() const {
     return chars;
   }
@@ -111,7 +111,7 @@ class UNICHAR {
    public:
     // Step to the next UTF8 character.
     // If the current position is at an illegal UTF8 character, then print an
-    // error message and step by one byte. If the current position is at a NULL
+    // error message and step by one byte. If the current position is at a nullptr
     // value, don't step past it.
     const_iterator& operator++();
 

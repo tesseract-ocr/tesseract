@@ -150,7 +150,7 @@ class GenericVector {
   // Clear the array, calling the clear callback function if any.
   // All the owned callbacks are also deleted.
   // If you don't want the callbacks to be deleted, before calling clear, set
-  // the callback to NULL.
+  // the callback to nullptr.
   void clear();
 
   // Delete objects pointed to by data_[i]
@@ -164,7 +164,7 @@ class GenericVector {
   // Read/Write the array to a file. This does _NOT_ read/write the callbacks.
   // The callback given must be permanent since they will be called more than
   // once. The given callback will be deleted at the end.
-  // If the callbacks are NULL, then the data is simply read/written using
+  // If the callbacks are nullptr, then the data is simply read/written using
   // fread (and swapping)/fwrite.
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
@@ -368,7 +368,7 @@ typedef bool (*FileWriter)(const GenericVector<char>& data,
 inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   bool result = false;
   FILE* fp = fopen(filename, "rb");
-  if (fp != NULL) {
+  if (fp != nullptr) {
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
@@ -392,7 +392,7 @@ inline bool LoadDataFromFile(const STRING& filename,
 inline bool SaveDataToFile(const GenericVector<char>& data,
                            const STRING& filename) {
   FILE* fp = fopen(filename.string(), "wb");
-  if (fp == NULL) return false;
+  if (fp == nullptr) return false;
   bool result =
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
@@ -524,7 +524,7 @@ class PointerVector : public GenericVector<T*> {
   // Clear the array, calling the clear callback function if any.
   // All the owned callbacks are also deleted.
   // If you don't want the callbacks to be deleted, before calling clear, set
-  // the callback to NULL.
+  // the callback to nullptr.
   void clear() {
     GenericVector<T*>::delete_data_pointers();
     GenericVector<T*>::clear();
@@ -539,7 +539,7 @@ class PointerVector : public GenericVector<T*> {
     int32_t used = GenericVector<T*>::size_used_;
     if (fwrite(&used, sizeof(used), 1, fp) != 1) return false;
     for (int i = 0; i < used; ++i) {
-      int8_t non_null = GenericVector<T*>::data_[i] != NULL;
+      int8_t non_null = GenericVector<T*>::data_[i] != nullptr;
       if (fwrite(&non_null, sizeof(non_null), 1, fp) != 1) return false;
       if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) return false;
     }
@@ -549,7 +549,7 @@ class PointerVector : public GenericVector<T*> {
     int32_t used = GenericVector<T*>::size_used_;
     if (fp->FWrite(&used, sizeof(used), 1) != 1) return false;
     for (int i = 0; i < used; ++i) {
-      int8_t non_null = GenericVector<T*>::data_[i] != NULL;
+      int8_t non_null = GenericVector<T*>::data_[i] != nullptr;
       if (fp->FWrite(&non_null, sizeof(non_null), 1) != 1) return false;
       if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) return false;
     }
@@ -571,7 +571,7 @@ class PointerVector : public GenericVector<T*> {
     for (int i = 0; i < reserved; ++i) {
       int8_t non_null;
       if (fread(&non_null, sizeof(non_null), 1, fp) != 1) return false;
-      T* item = NULL;
+      T* item = nullptr;
       if (non_null) {
         item = new T;
         if (!item->DeSerialize(swap, fp)) {
@@ -581,7 +581,7 @@ class PointerVector : public GenericVector<T*> {
         this->push_back(item);
       } else {
         // Null elements should keep their place in the vector.
-        this->push_back(NULL);
+        this->push_back(nullptr);
       }
     }
     return true;
@@ -607,7 +607,7 @@ class PointerVector : public GenericVector<T*> {
   bool DeSerializeElement(TFile* fp) {
     int8_t non_null;
     if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) return false;
-    T* item = NULL;
+    T* item = nullptr;
     if (non_null) {
       item = new T;
       if (!item->DeSerialize(fp)) {
@@ -617,7 +617,7 @@ class PointerVector : public GenericVector<T*> {
       this->push_back(item);
     } else {
       // Null elements should keep their place in the vector.
-      this->push_back(NULL);
+      this->push_back(nullptr);
     }
     return true;
   }
@@ -770,7 +770,7 @@ T GenericVector<T>::contains_index(int index) const {
 template <typename T>
 int GenericVector<T>::get_index(T object) const {
   for (int i = 0; i < size_used_; ++i) {
-    ASSERT_HOST(compare_cb_ != NULL);
+    ASSERT_HOST(compare_cb_ != nullptr);
     if (compare_cb_->Run(object, data_[i]))
       return i;
   }
@@ -856,21 +856,21 @@ void GenericVector<T>::set_compare_callback(
 template <typename T>
 void GenericVector<T>::clear() {
   if (size_reserved_ > 0) {
-    if (clear_cb_ != NULL)
+    if (clear_cb_ != nullptr)
       for (int i = 0; i < size_used_; ++i)
         clear_cb_->Run(data_[i]);
     delete[] data_;
-    data_ = NULL;
+    data_ = nullptr;
     size_used_ = 0;
     size_reserved_ = 0;
   }
-  if (clear_cb_ != NULL) {
+  if (clear_cb_ != nullptr) {
     delete clear_cb_;
-    clear_cb_ = NULL;
+    clear_cb_ = nullptr;
   }
-  if (compare_cb_ != NULL) {
+  if (compare_cb_ != nullptr) {
     delete compare_cb_;
-    compare_cb_ = NULL;
+    compare_cb_ = nullptr;
   }
 }
 
@@ -888,7 +888,7 @@ bool GenericVector<T>::write(
     FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const {
   if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) return false;
   if (fwrite(&size_used_, sizeof(size_used_), 1, f) != 1) return false;
-  if (cb != NULL) {
+  if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
       if (!cb->Run(f, data_[i])) {
         delete cb;
@@ -910,7 +910,7 @@ bool GenericVector<T>::read(
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   reserve(reserved);
   if (f->FReadEndian(&size_used_, sizeof(size_used_), 1) != 1) return false;
-  if (cb != NULL) {
+  if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
       if (!cb->Run(f, data_ + i)) {
         delete cb;
@@ -971,7 +971,7 @@ template <typename T>
 bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
   int32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
-  return fp->FRead(NULL, sizeof(T), reserved) == reserved;
+  return fp->FRead(nullptr, sizeof(T), reserved) == reserved;
 }
 
 // Writes a vector of classes to the given file. Assumes the existence of
@@ -1042,9 +1042,9 @@ void GenericVector<T>::move(GenericVector<T>* from) {
   this->size_used_ = from->size_used_;
   this->compare_cb_ = from->compare_cb_;
   this->clear_cb_ = from->clear_cb_;
-  from->data_ = NULL;
-  from->clear_cb_ = NULL;
-  from->compare_cb_ = NULL;
+  from->data_ = nullptr;
+  from->clear_cb_ = nullptr;
+  from->compare_cb_ = nullptr;
   from->size_used_ = 0;
   from->size_reserved_ = 0;
 }

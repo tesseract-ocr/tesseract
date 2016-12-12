@@ -106,7 +106,7 @@ CWinApp*					theapp						/*arguments*/\
 \
 \
 /*now get rid of the main app window*/\
-	if (theapp!=NULL && theapp->m_pMainWnd!=NULL)\
+	if (theapp!=nullptr && theapp->m_pMainWnd!=nullptr)\
 		PostMessage(theapp->m_pMainWnd->m_hWnd,WM_QUIT,0,0);\
 	free(argsin[0]);\
 	free(argsin[1]);\

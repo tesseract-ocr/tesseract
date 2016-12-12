@@ -95,7 +95,7 @@ class CHAR_FRAGMENT {
   }
 
   // Checks whether a given fragment is a continuation of this fragment.
-  // Assumes that the given fragment pointer is not NULL.
+  // Assumes that the given fragment pointer is not nullptr.
   inline bool is_continuation_of(const CHAR_FRAGMENT *fragment) const {
     return (strcmp(this->unichar, fragment->get_unichar()) == 0 &&
             this->total == fragment->get_total() &&
@@ -124,7 +124,7 @@ class CHAR_FRAGMENT {
   //
   // If parsing succeeded returns the pointer to the allocated CHAR_FRAGMENT
   // instance, otherwise (if the string does not represent a fragment or it
-  // looks like it does, but parsing it as a fragment fails) returns NULL.
+  // looks like it does, but parsing it as a fragment fails) returns nullptr.
   //
   // Note: The caller is responsible for deallocating memory
   // associated with the returned pointer.
@@ -209,9 +209,9 @@ class UNICHARSET {
   // else continues and inserts an INVALID_UNICHAR_ID in the returned encoding.
   // Returns true if the encoding succeeds completely, false if there is at
   // least one failure.
-  // If lengths is not NULL, then it is filled with the corresponding
+  // If lengths is not nullptr, then it is filled with the corresponding
   // byte length of each encoded UNICHAR_ID.
-  // If encoded_length is not NULL then on return it contains the length of
+  // If encoded_length is not nullptr then on return it contains the length of
   // str that was encoded. (if give_up_on_failure the location of the first
   // failure, otherwise strlen(str).)
   // WARNING: Caller must guarantee that str has already been cleaned of codes
@@ -292,26 +292,26 @@ class UNICHARSET {
   // Delete CHAR_FRAGMENTs stored in properties of unichars array.
   void delete_pointers_in_unichars() {
     for (int i = 0; i < size_used; ++i) {
-      if (unichars[i].properties.fragment != NULL) {
+      if (unichars[i].properties.fragment != nullptr) {
         delete unichars[i].properties.fragment;
-        unichars[i].properties.fragment = NULL;
+        unichars[i].properties.fragment = nullptr;
       }
     }
   }
 
   // Clear the UNICHARSET (all the previous data is lost).
   void clear() {
-    if (script_table != NULL) {
+    if (script_table != nullptr) {
       for (int i = 0; i < script_table_size_used; ++i)
         delete[] script_table[i];
       delete[] script_table;
-      script_table = NULL;
+      script_table = nullptr;
       script_table_size_used = 0;
     }
-    if (unichars != NULL) {
+    if (unichars != nullptr) {
       delete_pointers_in_unichars();
       delete[] unichars;
-      unichars = NULL;
+      unichars = nullptr;
     }
     script_table_size_reserved = 0;
     size_reserved = 0;
@@ -346,7 +346,7 @@ class UNICHARSET {
   // Returns true if the operation is successful.
   bool save_to_file(const char * const filename) const {
     FILE* file = fopen(filename, "w+b");
-    if (file == NULL) return false;
+    if (file == nullptr) return false;
     bool result = save_to_file(file);
     fclose(file);
     return result;
@@ -386,7 +386,7 @@ class UNICHARSET {
   // Returns true if the operation is successful.
   bool load_from_file(const char* const filename, bool skip_fragments) {
     FILE* file = fopen(filename, "rb");
-    if (file == NULL) return false;
+    if (file == nullptr) return false;
     bool result = load_from_file(file, skip_fragments);
     fclose(file);
     return result;
@@ -415,9 +415,9 @@ class UNICHARSET {
   bool major_right_to_left() const;
 
   // Set a whitelist and/or blacklist of characters to recognize.
-  // An empty or NULL whitelist enables everything (minus any blacklist).
-  // An empty or NULL blacklist disables nothing.
-  // An empty or NULL unblacklist has no effect.
+  // An empty or nullptr whitelist enables everything (minus any blacklist).
+  // An empty or nullptr blacklist disables nothing.
+  // An empty or nullptr unblacklist has no effect.
   // The blacklist overrides the whitelist.
   // The unblacklist overrides the blacklist.
   // Each list is a string of utf8 character strings. Boundaries between
@@ -719,7 +719,7 @@ class UNICHARSET {
   // SpecialUnicharCodes available. If false then there are normal unichars
   // at these codes and they should not be used.
   bool has_special_codes() const {
-    return get_fragment(UNICHAR_BROKEN) != NULL &&
+    return get_fragment(UNICHAR_BROKEN) != nullptr &&
         strcmp(id_to_unichar(UNICHAR_BROKEN),
                kSpecialUnicharCodes[UNICHAR_BROKEN]) == 0;
   }
@@ -731,7 +731,7 @@ class UNICHARSET {
   // Return a pointer to the CHAR_FRAGMENT class if the given
   // unichar id represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(UNICHAR_ID unichar_id) const {
-    if (INVALID_UNICHAR_ID == unichar_id) return NULL;
+    if (INVALID_UNICHAR_ID == unichar_id) return nullptr;
     ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.fragment;
   }
@@ -781,9 +781,9 @@ class UNICHARSET {
   // Return a pointer to the CHAR_FRAGMENT class struct if the given
   // unichar representation represents a character fragment.
   const CHAR_FRAGMENT *get_fragment(const char* const unichar_repr) const {
-    if (unichar_repr == NULL || unichar_repr[0] == '\0' ||
+    if (unichar_repr == nullptr || unichar_repr[0] == '\0' ||
         !ids.contains(unichar_repr, false)) {
-      return NULL;
+      return nullptr;
     }
     return get_fragment(unichar_to_id(unichar_repr));
   }
@@ -961,7 +961,7 @@ class UNICHARSET {
     GenericVector<UNICHAR_ID> normed_ids;
     STRING normed;  // normalized version of this unichar
     // Contains meta information about the fragment if a unichar represents
-    // a fragment of a character, otherwise should be set to NULL.
+    // a fragment of a character, otherwise should be set to nullptr.
     // It is assumed that character fragments are added to the unicharset
     // after the corresponding 'base' characters.
     CHAR_FRAGMENT *fragment;

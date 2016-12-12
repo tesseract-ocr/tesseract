@@ -64,7 +64,7 @@ const char* UNICHARSET::kCustomLigatures[][2] = {
   {"ſi", "\uE007"},  // long-s + i -> U+E007
   {"ſl", "\uE008"},  // long-s + l -> U+E008
   {"ſſ", "\uE009"},  // long-s + long-s -> U+E009
-  {NULL, NULL}
+  {nullptr, nullptr}
 };
 
 // List of mappings to make when ingesting strings from the outside.
@@ -102,7 +102,7 @@ void UNICHARSET::UNICHAR_PROPERTIES::Init() {
   mirror = 0;
   normed = "";
   direction = UNICHARSET::U_LEFT_TO_RIGHT;
-  fragment = NULL;
+  fragment = nullptr;
 }
 
 // Sets all ranges wide open. Initialization default in case there are
@@ -170,11 +170,11 @@ void UNICHARSET::UNICHAR_PROPERTIES::CopyFrom(const UNICHAR_PROPERTIES& src) {
 }
 
 UNICHARSET::UNICHARSET() :
-    unichars(NULL),
+    unichars(nullptr),
     ids(),
     size_used(0),
     size_reserved(0),
-    script_table(NULL),
+    script_table(nullptr),
     script_table_size_used(0),
     null_script("NULL") {
   clear();
@@ -230,7 +230,7 @@ UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
 int UNICHARSET::step(const char* str) const {
   GenericVector<UNICHAR_ID> encoding;
   GenericVector<char> lengths;
-  encode_string(str, true, &encoding, &lengths, NULL);
+  encode_string(str, true, &encoding, &lengths, nullptr);
   if (encoding.empty() || encoding[0] == INVALID_UNICHAR_ID) return 0;
   return lengths[0];
 }
@@ -241,14 +241,14 @@ int UNICHARSET::step(const char* str) const {
 bool UNICHARSET::encodable_string(const char *str,
                                   int *first_bad_position) const {
   GenericVector<UNICHAR_ID> encoding;
-  return encode_string(str, true, &encoding, NULL, first_bad_position);
+  return encode_string(str, true, &encoding, nullptr, first_bad_position);
 }
 
 // Encodes the given UTF-8 string with this UNICHARSET.
 // Returns true if the encoding succeeds completely, false if there is at
 // least one INVALID_UNICHAR_ID in the returned encoding, but in this case
 // the rest of the string is still encoded.
-// If lengths is not NULL, then it is filled with the corresponding
+// If lengths is not nullptr, then it is filled with the corresponding
 // byte length of each encoded UNICHAR_ID.
 // WARNING: Caller must guarantee that str has already been cleaned of codes
 // that do not belong in the unicharset, or encoding may fail.
@@ -280,8 +280,8 @@ bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
       working_lengths = best_lengths;
     }
   }
-  if (lengths != NULL) *lengths = best_lengths;
-  if (encoded_length != NULL) *encoded_length = str_pos;
+  if (lengths != nullptr) *lengths = best_lengths;
+  if (encoded_length != nullptr) *encoded_length = str_pos;
   return perfect;
 }
 
@@ -301,7 +301,7 @@ const char* UNICHARSET::id_to_unichar_ext(UNICHAR_ID id) const {
   // Resolve from the kCustomLigatures table if this is a private encoding.
   if (get_isprivate(id)) {
     const char* ch = id_to_unichar(id);
-    for (int i = 0; kCustomLigatures[i][0] != NULL; ++i) {
+    for (int i = 0; kCustomLigatures[i][0] != nullptr; ++i) {
       if (!strcmp(ch, kCustomLigatures[i][1])) {
         return kCustomLigatures[i][0];
       }
@@ -373,7 +373,7 @@ void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
   } else if (!encode_string(unichars[unichar_id].properties.normed.string(),
                             true, &unichars[unichar_id].properties.normed_ids,
-                            NULL, NULL)) {
+                            nullptr, nullptr)) {
     unichars[unichar_id].properties.normed_ids.truncate(0);
     unichars[unichar_id].properties.normed_ids.push_back(unichar_id);
   }
@@ -506,7 +506,7 @@ void UNICHARSET::encode_string(const char* str, int str_index, int str_length,
     // This is the best result so far.
     *best_total_length = str_index;
     *best_encoding = *encoding;
-    if (best_lengths != NULL)
+    if (best_lengths != nullptr)
       *best_lengths = *lengths;
   }
   if (str_index == str_length) return;
@@ -545,7 +545,7 @@ bool UNICHARSET::GetStrProperties(const char* utf8_str,
   props->SetRangesEmpty();
   int total_unicodes = 0;
   GenericVector<UNICHAR_ID> encoding;
-  if (!encode_string(utf8_str, true, &encoding, NULL, NULL))
+  if (!encode_string(utf8_str, true, &encoding, nullptr, nullptr))
     return false;  // Some part was invalid.
   for (int i = 0; i < encoding.size(); ++i) {
     int id = encoding[i];
@@ -655,7 +655,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
     CHAR_FRAGMENT* frag =
         CHAR_FRAGMENT::parse_from_string(unichars[size_used].representation);
     this->unichars[size_used].properties.fragment = frag;
-    if (frag != NULL && this->contains_unichar(frag->get_unichar())) {
+    if (frag != nullptr && this->contains_unichar(frag->get_unichar())) {
       this->unichars[size_used].properties.script_id =
         this->get_script(frag->get_unichar());
     }
@@ -731,7 +731,7 @@ class InMemoryFilePointer {
     const char *src_end = memory_ + mem_size_;
     char *dst_end = orig_dst + size - 1;
     if (size < 1) {
-      return fgets_ptr_ < src_end ? orig_dst : NULL;
+      return fgets_ptr_ < src_end ? orig_dst : nullptr;
     }
 
     char *dst = orig_dst;
@@ -740,7 +740,7 @@ class InMemoryFilePointer {
       ch = *dst++ = *fgets_ptr_++;
     }
     *dst = 0;
-    return (dst == orig_dst) ? NULL : orig_dst;
+    return (dst == orig_dst) ? nullptr : orig_dst;
   }
 
  private:
@@ -793,7 +793,7 @@ bool UNICHARSET::load_via_fgets(
   char buffer[256];
 
   this->clear();
-  if (fgets_cb->Run(buffer, sizeof(buffer)) == NULL ||
+  if (fgets_cb->Run(buffer, sizeof(buffer)) == nullptr ||
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
@@ -821,7 +821,7 @@ bool UNICHARSET::load_via_fgets(
     UNICHAR_ID mirror = id;
     char normed[64];
     int v = -1;
-    if (fgets_cb->Run(buffer, sizeof (buffer)) == NULL ||
+    if (fgets_cb->Run(buffer, sizeof (buffer)) == nullptr ||
         ((v = sscanf(buffer,
                      "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %63s %d %d %d %63s",
                      unichar, &properties,
@@ -852,7 +852,7 @@ bool UNICHARSET::load_via_fgets(
     }
 
     // Skip fragments if needed.
-    CHAR_FRAGMENT *frag = NULL;
+    CHAR_FRAGMENT *frag = nullptr;
     if (skip_fragments && (frag = CHAR_FRAGMENT::parse_from_string(unichar))) {
       int num_pieces = frag->get_total();
       delete frag;
@@ -971,38 +971,38 @@ bool UNICHARSET::major_right_to_left() const {
 }
 
 // Set a whitelist and/or blacklist of characters to recognize.
-// An empty or NULL whitelist enables everything (minus any blacklist).
-// An empty or NULL blacklist disables nothing.
-// An empty or NULL blacklist has no effect.
+// An empty or nullptr whitelist enables everything (minus any blacklist).
+// An empty or nullptr blacklist disables nothing.
+// An empty or nullptr blacklist has no effect.
 void UNICHARSET::set_black_and_whitelist(const char* blacklist,
                                          const char* whitelist,
                                          const char* unblacklist) {
-  bool def_enabled = whitelist == NULL || whitelist[0] == '\0';
+  bool def_enabled = whitelist == nullptr || whitelist[0] == '\0';
   // Set everything to default
   for (int ch = 0; ch < size_used; ++ch)
     unichars[ch].properties.enabled = def_enabled;
   if (!def_enabled) {
     // Enable the whitelist.
     GenericVector<UNICHAR_ID> encoding;
-    encode_string(whitelist, false, &encoding, NULL, NULL);
+    encode_string(whitelist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
         unichars[encoding[i]].properties.enabled = true;
     }
   }
-  if (blacklist != NULL && blacklist[0] != '\0') {
+  if (blacklist != nullptr && blacklist[0] != '\0') {
     // Disable the blacklist.
     GenericVector<UNICHAR_ID> encoding;
-    encode_string(blacklist, false, &encoding, NULL, NULL);
+    encode_string(blacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
         unichars[encoding[i]].properties.enabled = false;
     }
   }
-  if (unblacklist != NULL && unblacklist[0] != '\0') {
+  if (unblacklist != nullptr && unblacklist[0] != '\0') {
     // Re-enable the unblacklist.
     GenericVector<UNICHAR_ID> encoding;
-    encode_string(unblacklist, false, &encoding, NULL, NULL);
+    encode_string(unblacklist, false, &encoding, nullptr, nullptr);
     for (int i = 0; i < encoding.size(); ++i) {
       if (encoding[i] != INVALID_UNICHAR_ID)
         unichars[encoding[i]].properties.enabled = true;
@@ -1066,7 +1066,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   const char *ptr = string;
   int len = strlen(string);
   if (len < kMinLen || *ptr != kSeparator) {
-    return NULL;  // this string can not represent a fragment
+    return nullptr;  // this string can not represent a fragment
   }
   ptr++;  // move to the next character
   int step = 0;
@@ -1074,7 +1074,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
     step += UNICHAR::utf8_step(ptr + step);
   }
   if (step == 0 || step > UNICHAR_LEN) {
-    return NULL;  // no character for unichar or the character is too long
+    return nullptr;  // no character for unichar or the character is too long
   }
   char unichar[UNICHAR_LEN + 1];
   strncpy(unichar, ptr, step);
@@ -1083,13 +1083,13 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   int pos = 0;
   int total = 0;
   bool natural = false;
-  char *end_ptr = NULL;
+  char *end_ptr = nullptr;
   for (int i = 0; i < 2; i++) {
     if (ptr > string + len || *ptr != kSeparator) {
       if (i == 1 && *ptr == kNaturalFlag)
         natural = true;
       else
-        return NULL;  // Failed to parse fragment representation.
+        return nullptr;  // Failed to parse fragment representation.
     }
     ptr++;  // move to the next character
     i == 0 ? pos = static_cast<int>(strtol(ptr, &end_ptr, 10))
@@ -1097,7 +1097,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
     ptr = end_ptr;
   }
   if (ptr != string + len) {
-    return NULL;  // malformed fragment representation
+    return nullptr;  // malformed fragment representation
   }
   CHAR_FRAGMENT *fragment = new CHAR_FRAGMENT();
   fragment->set_all(unichar, pos, total, natural);

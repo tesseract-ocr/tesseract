@@ -111,7 +111,7 @@ class GenericHeap {
   // Get the value of the worst (largest, defined by operator< ) element.
   const Pair& PeekWorst() const { return heap_[IndexOfWorst()]; }
 
-  // Removes the top element of the heap. If entry is not NULL, the element
+  // Removes the top element of the heap. If entry is not nullptr, the element
   // is copied into *entry, otherwise it is discarded.
   // Returns false if the heap was already empty.
   // Time = O(log n).
@@ -119,7 +119,7 @@ class GenericHeap {
     int new_size = heap_.size() - 1;
     if (new_size < 0)
       return false;  // Already empty.
-    if (entry != NULL)
+    if (entry != nullptr)
       *entry = heap_[0];
     if (new_size > 0) {
       // Sift the hole at the start of the heap_ downwards to match the last
@@ -135,13 +135,13 @@ class GenericHeap {
   }
 
   // Removes the MAXIMUM element of the heap. (MIN from a MAX heap.) If entry is
-  // not NULL, the element is copied into *entry, otherwise it is discarded.
+  // not nullptr, the element is copied into *entry, otherwise it is discarded.
   // Time = O(n). Returns false if the heap was already empty.
   bool PopWorst(Pair* entry) {
     int worst_index = IndexOfWorst();
     if (worst_index < 0) return false;  // It cannot be empty!
     // Extract the worst element from the heap, leaving a hole at worst_index.
-    if (entry != NULL)
+    if (entry != nullptr)
       *entry = heap_[worst_index];
     int heap_size = heap_.size() - 1;
     if (heap_size > 0) {

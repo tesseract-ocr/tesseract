@@ -106,7 +106,7 @@ const int BitVector::hamming_table_[256] = {
 };
 
 
-BitVector::BitVector() : bit_size_(0), array_(NULL) {}
+BitVector::BitVector() : bit_size_(0), array_(nullptr) {}
 
 BitVector::BitVector(int length) : bit_size_(length) {
   array_ = new uint32_t[WordLength()];

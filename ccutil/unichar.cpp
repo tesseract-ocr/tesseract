@@ -149,7 +149,7 @@ int UNICHAR::utf8_step(const char* utf8_str) {
 }
 
 UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
-  ASSERT_HOST(it_ != NULL);
+  ASSERT_HOST(it_ != nullptr);
   int step = utf8_step(it_);
   if (step == 0) {
     tprintf("ERROR: Illegal UTF8 encountered.\n");
@@ -163,7 +163,7 @@ UNICHAR::const_iterator& UNICHAR::const_iterator::operator++() {
 }
 
 int UNICHAR::const_iterator::operator*() const {
-  ASSERT_HOST(it_ != NULL);
+  ASSERT_HOST(it_ != nullptr);
   const int len = utf8_step(it_);
   if (len == 0) {
     tprintf("WARNING: Illegal UTF8 encountered\n");
@@ -174,7 +174,7 @@ int UNICHAR::const_iterator::operator*() const {
 }
 
 int UNICHAR::const_iterator::get_utf8(char* utf8_output) const {
-  ASSERT_HOST(it_ != NULL);
+  ASSERT_HOST(it_ != nullptr);
   const int len = utf8_step(it_);
   if (len == 0) {
     tprintf("WARNING: Illegal UTF8 encountered\n");
@@ -186,7 +186,7 @@ int UNICHAR::const_iterator::get_utf8(char* utf8_output) const {
 }
 
 int UNICHAR::const_iterator::utf8_len() const {
-  ASSERT_HOST(it_ != NULL);
+  ASSERT_HOST(it_ != nullptr);
   const int len = utf8_step(it_);
   if (len == 0) {
     tprintf("WARNING: Illegal UTF8 encountered\n");

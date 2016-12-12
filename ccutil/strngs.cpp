@@ -117,7 +117,7 @@ STRING::STRING(const STRING& str) {
 }
 
 STRING::STRING(const char* cstr) {
-  if (cstr == NULL) {
+  if (cstr == nullptr) {
     // Empty STRINGs contain just the "\0".
     memcpy(AllocData(1, kMinCapacity), "", 1);
   } else {
@@ -129,7 +129,7 @@ STRING::STRING(const char* cstr) {
 }
 
 STRING::STRING(const char *data, int length) {
-  if (data == NULL) {
+  if (data == nullptr) {
     // Empty STRINGs contain just the "\0".
     memcpy(AllocData(1, kMinCapacity), "", 1);
   } else {
@@ -183,11 +183,11 @@ bool STRING::DeSerialize(TFile* fp) {
 bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
   int32_t len;
   if (fp->FReadEndian(&len, sizeof(len), 1) != 1) return false;
-  return fp->FRead(NULL, 1, len) == len;
+  return fp->FRead(nullptr, 1, len) == len;
 }
 
 BOOL8 STRING::contains(const char c) const {
-  return (c != '\0') && (strchr (GetCStr(), c) != NULL);
+  return (c != '\0') && (strchr (GetCStr(), c) != nullptr);
 }
 
 int32_t STRING::length() const {
@@ -198,7 +198,7 @@ int32_t STRING::length() const {
 const char* STRING::string() const {
   const STRING_HEADER* header = GetHeader();
   if (header->used_ == 0)
-    return NULL;
+    return nullptr;
 
   // mark header length unreliable because tesseract might
   // cast away the const and mutate the string directly.
@@ -330,8 +330,8 @@ BOOL8 STRING::operator!=(const char* cstr) const {
   FixHeader();
   const STRING_HEADER* this_header = GetHeader();
 
-  if (cstr == NULL)
-    return this_header->used_ > 1;  // either '\0' or NULL
+  if (cstr == nullptr)
+    return this_header->used_ > 1;  // either '\0' or nullptr
   else {
     int32_t length = strlen(cstr) + 1;
     return (this_header->used_ != length)
@@ -379,7 +379,7 @@ STRING & STRING::operator+=(const STRING& str) {
 }
 
 void STRING::add_str_int(const char* str, int number) {
-  if (str != NULL)
+  if (str != nullptr)
     *this += str;
   // Allow space for the maximum possible length of int64_t.
   char num_buffer[kMaxIntSize];
@@ -389,7 +389,7 @@ void STRING::add_str_int(const char* str, int number) {
 }
 // Appends the given string and double (as a %.8g) to this.
 void STRING::add_str_double(const char* str, double number) {
-  if (str != NULL)
+  if (str != nullptr)
     *this += str;
   // Allow space for the maximum possible length of %8g.
   char num_buffer[kMaxDoubleSize];

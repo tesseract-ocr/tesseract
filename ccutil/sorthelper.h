@@ -75,14 +75,14 @@ class SortHelper {
   }
 
   // Returns the frequency of the most frequent value.
-  // If max_value is not NULL, returns the most frequent value.
+  // If max_value is not nullptr, returns the most frequent value.
   // If the array is empty, returns -INT32_MAX and max_value is unchanged.
   int MaxCount(T* max_value) const {
     int best_count = -INT32_MAX;
     for (int i = 0; i < counts_.size(); ++i) {
       if (counts_[i].count > best_count) {
         best_count = counts_[i].count;
-        if (max_value != NULL)
+        if (max_value != nullptr)
           *max_value = counts_[i].value;
       }
     }

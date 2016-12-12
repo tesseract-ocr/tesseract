@@ -40,15 +40,15 @@ namespace tesseract {
 // getting moved around on the heap.
 class DoublePtr {
  public:
-  DoublePtr() : other_end_(NULL) {}
+  DoublePtr() : other_end_(nullptr) {}
   // Copy constructor steals the partner off src and is therefore a non
   // const reference arg.
   // Copying a const DoublePtr generates a compiler error.
   DoublePtr(DoublePtr& src) {
     other_end_ = src.other_end_;
-    if (other_end_ != NULL) {
+    if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      src.other_end_ = NULL;
+      src.other_end_ = nullptr;
     }
   }
   // Operator= steals the partner off src, and therefore needs src to be a non-
@@ -57,9 +57,9 @@ class DoublePtr {
   void operator=(DoublePtr& src) {
     Disconnect();
     other_end_ = src.other_end_;
-    if (other_end_ != NULL) {
+    if (other_end_ != nullptr) {
       other_end_->other_end_ = this;
-      src.other_end_ = NULL;
+      src.other_end_ = nullptr;
     }
   }
 
@@ -70,11 +70,11 @@ class DoublePtr {
     other->other_end_ = this;
     other_end_ = other;
   }
-  // Disconnects this and other, making OtherEnd() return NULL for both.
+  // Disconnects this and other, making OtherEnd() return nullptr for both.
   void Disconnect() {
-    if (other_end_ != NULL) {
-      other_end_->other_end_ = NULL;
-      other_end_ = NULL;
+    if (other_end_ != nullptr) {
+      other_end_->other_end_ = nullptr;
+      other_end_ = nullptr;
     }
   }
   // Returns the pointer to the other end of the double pointer.
@@ -84,7 +84,7 @@ class DoublePtr {
 
  private:
   // Pointer to the other end of the link. It is always true that either
-  // other_end_ == NULL or other_end_->other_end_ == this.
+  // other_end_ == nullptr or other_end_->other_end_ == this.
   DoublePtr* other_end_;
 };
 

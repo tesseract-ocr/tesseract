@@ -23,11 +23,11 @@
 #include "unicharmap.h"
 
 UNICHARMAP::UNICHARMAP() :
-nodes(0) {
+nodes(nullptr) {
 }
 
 UNICHARMAP::~UNICHARMAP() {
-  if (nodes != 0)
+  if (nodes != nullptr)
     delete[] nodes;
 }
 
@@ -61,7 +61,7 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
   if (*current_char == '\0') return;
   UNICHARMAP_NODE** current_nodes_pointer = &nodes;
   do {
-    if (*current_nodes_pointer == 0)
+    if (*current_nodes_pointer == nullptr)
       *current_nodes_pointer = new UNICHARMAP_NODE[256];
     if (current_char[1] == '\0') {
       (*current_nodes_pointer)
@@ -81,19 +81,19 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
 // found the right unichar_repr.
 bool UNICHARMAP::contains(const char* const unichar_repr,
                           int length) const {
-  if (unichar_repr == NULL || *unichar_repr == '\0') return false;
+  if (unichar_repr == nullptr || *unichar_repr == '\0') return false;
   if (length <= 0 || length > UNICHAR_LEN) return false;
   int index = 0;
   if (index >= length || unichar_repr[index] == '\0') return false;
   UNICHARMAP_NODE* current_nodes = nodes;
 
-  while (current_nodes != 0 && index + 1 < length &&
+  while (current_nodes != nullptr && index + 1 < length &&
          unichar_repr[index + 1] != '\0') {
     current_nodes =
         current_nodes[static_cast<unsigned char>(unichar_repr[index])].children;
     ++index;
   }
-  return current_nodes != 0 &&
+  return current_nodes != nullptr &&
          (index + 1 >= length || unichar_repr[index + 1] == '\0') &&
          current_nodes[static_cast<unsigned char>(unichar_repr[index])].id >= 0;
 }
@@ -105,7 +105,7 @@ int UNICHARMAP::minmatch(const char* const unichar_repr) const {
   if (*current_char == '\0') return 0;
   UNICHARMAP_NODE* current_nodes = nodes;
 
-  while (current_nodes != NULL && *current_char != '\0') {
+  while (current_nodes != nullptr && *current_char != '\0') {
     if (current_nodes[static_cast<unsigned char>(*current_char)].id >= 0)
       return current_char + 1 - unichar_repr;
     current_nodes =
@@ -116,21 +116,21 @@ int UNICHARMAP::minmatch(const char* const unichar_repr) const {
 }
 
 void UNICHARMAP::clear() {
-  if (nodes != 0)
+  if (nodes != nullptr)
   {
     delete[] nodes;
-    nodes = 0;
+    nodes = nullptr;
   }
 }
 
 UNICHARMAP::UNICHARMAP_NODE::UNICHARMAP_NODE() :
-children(0),
+children(nullptr),
 id(-1) {
 }
 
 // Recursively delete the children
 UNICHARMAP::UNICHARMAP_NODE::~UNICHARMAP_NODE() {
-  if (children != 0) {
+  if (children != nullptr) {
     delete[] children;
   }
 }

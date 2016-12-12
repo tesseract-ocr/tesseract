@@ -152,7 +152,7 @@ class UnicharAmbigs {
   const UnicharAmbigsVector &dang_ambigs() const { return dang_ambigs_; }
   const UnicharAmbigsVector &replace_ambigs() const { return replace_ambigs_; }
 
-  // Initializes the ambigs by adding a NULL pointer to each table.
+  // Initializes the ambigs by adding a nullptr pointer to each table.
   void InitUnicharAmbigs(const UNICHARSET& unicharset,
                          bool use_ambigs_for_adaption);
 
@@ -178,7 +178,7 @@ class UnicharAmbigs {
   // Returns definite 1-1 ambigs for the given unichar id.
   inline const UnicharIdVector *OneToOneDefiniteAmbigs(
       UNICHAR_ID unichar_id) const {
-    if (one_to_one_definite_ambigs_.empty()) return NULL;
+    if (one_to_one_definite_ambigs_.empty()) return nullptr;
     return one_to_one_definite_ambigs_[unichar_id];
   }
 
@@ -189,7 +189,7 @@ class UnicharAmbigs {
   // m will return a pointer to a vector with unichar ids of r,n,i.
   inline const UnicharIdVector *AmbigsForAdaption(
       UNICHAR_ID unichar_id) const {
-    if (ambigs_for_adaption_.empty()) return NULL;
+    if (ambigs_for_adaption_.empty()) return nullptr;
     return ambigs_for_adaption_[unichar_id];
   }
 
@@ -198,7 +198,7 @@ class UnicharAmbigs {
   // some ambiguity pair).
   inline const UnicharIdVector *ReverseAmbigsForAdaption(
       UNICHAR_ID unichar_id) const {
-    if (reverse_ambigs_for_adaption_.empty()) return NULL;
+    if (reverse_ambigs_for_adaption_.empty()) return nullptr;
     return reverse_ambigs_for_adaption_[unichar_id];
   }
 
