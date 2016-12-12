@@ -119,13 +119,13 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
     clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &num);
     numDevices+=num;
   }
-  if (numDevices == 0)
-    goto cleanup;
-  
-  devices = (cl_device_id*)malloc(numDevices*sizeof(cl_device_id));
-  if (devices == nullptr) {
-    status = DS_MEMORY_ERROR;
-    goto cleanup;
+
+  if (numDevices > 0) {
+    devices = (cl_device_id*)malloc(numDevices*sizeof(cl_device_id));
+    if (devices == nullptr) {
+      status = DS_MEMORY_ERROR;
+      goto cleanup;
+    }
   }
 
   profile->numDevices = numDevices+1;     // +1 to numDevices to include the native CPU
