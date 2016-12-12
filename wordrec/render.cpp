@@ -40,7 +40,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-ScrollView *blob_window = NULL;
+ScrollView *blob_window = nullptr;
 
 C_COL color_list[] = {
   Red, Cyan, Yellow, Blue, Green, White
@@ -63,7 +63,7 @@ BOOL_VAR(wordrec_blob_pause, 0, "Blob pause");
  **********************************************************************/
 void display_blob(TBLOB *blob, C_COL color) {
   /* Size of drawable */
-  if (blob_window == NULL) {
+  if (blob_window == nullptr) {
     blob_window = c_create_window ("Blobs", 520, 10,
       500, 256, -1000.0, 1000.0, 0.0, 256.0);
   }

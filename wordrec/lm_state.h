@@ -97,14 +97,14 @@ struct ViterbiStateEntry : public ELIST_LINK {
                     LanguageModelDawgInfo *d,
                     LanguageModelNgramInfo *n,
                     const char *debug_uch)
-    : cost(c), curr_b(b), parent_vse(pe), competing_vse(NULL),
+    : cost(c), curr_b(b), parent_vse(pe), competing_vse(nullptr),
       ratings_sum(b->rating()),
       min_certainty(b->certainty()), adapted(b->IsAdapted()), length(1),
       outline_length(ol), consistency_info(ci), associate_stats(as),
       top_choice_flags(tcf), dawg_info(d), ngram_info(n),
       updated(true) {
-    debug_str = (debug_uch == NULL) ? NULL : new STRING();
-    if (pe != NULL) {
+    debug_str = (debug_uch == nullptr) ? nullptr : new STRING();
+    if (pe != nullptr) {
       ratings_sum += pe->ratings_sum;
       if (pe->min_certainty < min_certainty) {
         min_certainty = pe->min_certainty;
@@ -112,9 +112,9 @@ struct ViterbiStateEntry : public ELIST_LINK {
       adapted += pe->adapted;
       length += pe->length;
       outline_length += pe->outline_length;
-      if (debug_uch != NULL) *debug_str += *(pe->debug_str);
+      if (debug_uch != nullptr) *debug_str += *(pe->debug_str);
     }
-    if (debug_str != NULL && debug_uch != NULL) *debug_str += debug_uch;
+    if (debug_str != nullptr && debug_uch != nullptr) *debug_str += debug_uch;
   }
   ~ViterbiStateEntry() {
     delete dawg_info;
@@ -131,7 +131,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
     return (ve1->cost < ve2->cost) ? -1 : 1;
   }
   inline bool Consistent() const {
-    if (dawg_info != NULL && consistency_info.NumInconsistentCase() == 0) {
+    if (dawg_info != nullptr && consistency_info.NumInconsistentCase() == 0) {
       return true;
     }
     return consistency_info.Consistent();
@@ -139,7 +139,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// Returns true if this VSE has an alphanumeric character as its classifier
   /// result.
   bool HasAlnumChoice(const UNICHARSET& unicharset) {
-    if (curr_b == NULL) return false;
+    if (curr_b == nullptr) return false;
     UNICHAR_ID unichar_id =  curr_b->unichar_id();
     if (unicharset.get_isalpha(unichar_id) ||
         unicharset.get_isdigit(unichar_id))
@@ -214,7 +214,7 @@ struct LanguageModelState {
 /// Bundle together all the things pertaining to the best choice/state.
 struct BestChoiceBundle {
   explicit BestChoiceBundle(int matrix_dimension)
-    : updated(false), best_vse(NULL) {
+    : updated(false), best_vse(nullptr) {
     beam.reserve(matrix_dimension);
     for (int i = 0; i < matrix_dimension; ++i)
       beam.push_back(new LanguageModelState);

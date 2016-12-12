@@ -27,7 +27,7 @@ ELISTIZE(ViterbiStateEntry)
 void ViterbiStateEntry::Print(const char *msg) const {
   tprintf("%s ViterbiStateEntry", msg);
   if (updated) tprintf("(NEW)");
-  if (this->debug_str != NULL) {
+  if (this->debug_str != nullptr) {
     tprintf(" str=%s", this->debug_str->string());
   }
   tprintf(" with ratings_sum=%.4f length=%d cost=%.6f",

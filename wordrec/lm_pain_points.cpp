@@ -39,7 +39,7 @@ LMPainPointsType LMPainPoints::Deque(MATRIX_COORD *pp, float *priority) {
     if (pain_points_heaps_[h].empty()) continue;
     *priority = pain_points_heaps_[h].PeekTop().key;
     *pp = pain_points_heaps_[h].PeekTop().data;
-    pain_points_heaps_[h].Pop(NULL);
+    pain_points_heaps_[h].Pop(nullptr);
     return static_cast<LMPainPointsType>(h);
   }
   return LM_PPTYPE_NUM;
@@ -86,7 +86,7 @@ void LMPainPoints::GenerateFromPath(float rating_cert_scale,
   // combining them will be beneficial. Blobs with high ratings might be
   // over-joined pieces of characters, but also could be blobs from an unseen
   // font or chopped pieces of complex characters.
-  while (curr_vse->parent_vse != NULL) {
+  while (curr_vse->parent_vse != nullptr) {
     ViterbiStateEntry* parent_vse = curr_vse->parent_vse;
     const MATRIX_COORD& curr_cell = curr_b->matrix_cell();
     const MATRIX_COORD& parent_cell = parent_vse->curr_b->matrix_cell();
@@ -158,7 +158,7 @@ bool LMPainPoints::GeneratePainPoint(
   }
   // Compute associate stats.
   AssociateStats associate_stats;
-  AssociateUtils::ComputeStats(col, row, NULL, 0, fixed_pitch_,
+  AssociateUtils::ComputeStats(col, row, nullptr, 0, fixed_pitch_,
                                max_char_wh_ratio, word_res, debug_level_,
                                &associate_stats);
   // For fixed-pitch fonts/languages: if the current combined blob overlaps
@@ -169,7 +169,7 @@ bool LMPainPoints::GeneratePainPoint(
     while (associate_stats.bad_fixed_pitch_right_gap &&
            row + 1 < word_res->ratings->dimension() &&
            !associate_stats.bad_fixed_pitch_wh_ratio) {
-      AssociateUtils::ComputeStats(col, ++row, NULL, 0, fixed_pitch_,
+      AssociateUtils::ComputeStats(col, ++row, nullptr, 0, fixed_pitch_,
                                    max_char_wh_ratio, word_res, debug_level_,
                                    &associate_stats);
     }

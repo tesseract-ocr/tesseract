@@ -51,7 +51,7 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   // For the first character not y-shifted, we only care if it is too small.
   // Too large is common in drop caps and small caps.
   // int16_t small_xht = b->min_xheight();
-  //  if (parent_vse == NULL && sp == LanguageModelConsistencyInfo::kNORM) {
+  //  if (parent_vse == nullptr && sp == LanguageModelConsistencyInfo::kNORM) {
   //  small_xht = 0;
   // }
   IntersectRange(b->min_xheight(), b->max_xheight(),

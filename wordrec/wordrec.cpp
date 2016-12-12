@@ -114,10 +114,10 @@ Wordrec::Wordrec() :
               "Save alternative paths found during chopping"
               " and segmentation search",
               params()) {
-  prev_word_best_choice_ = NULL;
+  prev_word_best_choice_ = nullptr;
   language_model_ = new LanguageModel(&get_fontinfo_table(),
                                       &(getDict()));
-  fill_lattice_ = NULL;
+  fill_lattice_ = nullptr;
 }
 
 Wordrec::~Wordrec() {

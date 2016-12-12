@@ -51,7 +51,7 @@ struct LMConsistencyInfo {
   static const int kNumPos = 3;
 
   explicit LMConsistencyInfo(const LMConsistencyInfo* parent_info) {
-    if (parent_info == NULL) {
+    if (parent_info == nullptr) {
       // Initialize from scratch.
       num_alphas = 0;
       num_digits = 0;
