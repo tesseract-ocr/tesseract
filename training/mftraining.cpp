@@ -148,7 +148,7 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
                                          clusterer->SampleSize);
   FreeClusterer(clusterer);
   MERGE_CLASS merge_class = FindClass(mf_classes, class_label);
-  if (merge_class == NULL) {
+  if (merge_class == nullptr) {
     merge_class = NewLabeledClass(class_label);
     mf_classes = push(mf_classes, merge_class);
   }
@@ -238,14 +238,14 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
 int main (int argc, char **argv) {
   ParseArguments(&argc, &argv);
 
-  ShapeTable* shape_table = NULL;
+  ShapeTable* shape_table = nullptr;
   STRING file_prefix;
   // Load the training data.
   MasterTrainer* trainer = tesseract::LoadTrainingData(argc, argv,
                                                        false,
                                                        &shape_table,
                                                        &file_prefix);
-  if (trainer == NULL)
+  if (trainer == nullptr)
     return 1;  // Failed.
 
   // Setup an index mapping from the shapes in the shape table to the classes

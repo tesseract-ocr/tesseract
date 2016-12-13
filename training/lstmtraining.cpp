@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
   checkpoint_file += "_checkpoint";
   STRING checkpoint_bak = checkpoint_file + ".bak";
   tesseract::LSTMTrainer trainer(
-      NULL, NULL, NULL, NULL, FLAGS_model_output.c_str(),
+      nullptr, nullptr, nullptr, nullptr, FLAGS_model_output.c_str(),
       checkpoint_file.c_str(), FLAGS_debug_interval,
       static_cast<inT64>(FLAGS_max_image_MB) * 1048576);
 
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
   }
 
   bool best_dumped = true;
-  char* best_model_dump = NULL;
+  char* best_model_dump = nullptr;
   size_t best_model_size = 0;
   STRING best_model_name;
   tesseract::LSTMTester tester(static_cast<inT64>(FLAGS_max_image_MB) *

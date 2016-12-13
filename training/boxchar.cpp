@@ -39,7 +39,7 @@ const int kMinNewlineRatio = 5;
 namespace tesseract {
 
 BoxChar::BoxChar(const char* utf8_str, int len) : ch_(utf8_str, len) {
-  box_ = NULL;
+  box_ = nullptr;
 }
 
 BoxChar::~BoxChar() { boxDestroy(&box_); }
@@ -53,7 +53,7 @@ void BoxChar::TranslateBoxes(int xshift, int yshift,
                              std::vector<BoxChar*>* boxes) {
   for (int i = 0; i < boxes->size(); ++i) {
     BOX* box = (*boxes)[i]->box_;
-    if (box != NULL) {
+    if (box != nullptr) {
       box->x += xshift;
       box->y += yshift;
     }
@@ -69,7 +69,7 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar*>* boxes) {
   InsertNewlines(rtl_rules, vertical_rules, boxes);
   InsertSpaces(rtl_rules, vertical_rules, boxes);
   for (int i = 0; i < boxes->size(); ++i) {
-    if ((*boxes)[i]->box_ == NULL) tprintf("Null box at index %d\n", i);
+    if ((*boxes)[i]->box_ == nullptr) tprintf("Null box at index %d\n", i);
   }
   if (rtl_rules) {
     ReorderRTLText(boxes);
@@ -84,14 +84,14 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
   int max_shift = 0;
   for (int i = 0; i < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
-    if (box == NULL) {
+    if (box == nullptr) {
       if (prev_i < 0 || prev_i < i - 1 || i + 1 == boxes->size()) {
         // Erase null boxes at the start of a line and after another null box.
         do {
           delete (*boxes)[i];
           boxes->erase(boxes->begin() + i);
           --i;
-        } while (i >= 0 && i + 1 == boxes->size() && (*boxes)[i]->box_ == NULL);
+        } while (i >= 0 && i + 1 == boxes->size() && (*boxes)[i]->box_ == nullptr);
       }
       continue;
     }
@@ -139,7 +139,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
   }
 }
 
-// Converts NULL boxes to space characters, with appropriate bounding boxes.
+// Converts nullptr boxes to space characters, with appropriate bounding boxes.
 /* static */
 void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
                            std::vector<BoxChar*>* boxes) {
@@ -147,10 +147,10 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
   // singletons, so add a box to each remaining null box.
   for (int i = 1; i + 1 < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
-    if (box == NULL) {
+    if (box == nullptr) {
       Box* prev = (*boxes)[i - 1]->box_;
       Box* next = (*boxes)[i + 1]->box_;
-      ASSERT_HOST(prev != NULL && next != NULL);
+      ASSERT_HOST(prev != nullptr && next != nullptr);
       int top = MIN(prev->y, next->y);
       int bottom = MAX(prev->y + prev->h, next->y + next->h);
       int left = prev->x + prev->w;
@@ -170,14 +170,14 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
              j >= 0 && (*boxes)[j]->ch_ != " " && (*boxes)[j]->ch_ != "\t";
              --j) {
           prev = (*boxes)[j]->box_;
-          ASSERT_HOST(prev != NULL);
+          ASSERT_HOST(prev != nullptr);
           if (prev->x < right) {
             right = prev->x;
           }
         }
         // Left becomes the max right of all next boxes forward to the first
         // space or newline.
-        for (int j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != NULL &&
+        for (int j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
                                 (*boxes)[j]->ch_ != "\t";
              ++j) {
           next = (*boxes)[j]->box_;
@@ -244,7 +244,7 @@ bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
 bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
   inT64 total_dx = 0, total_dy = 0;
   for (int i = 1; i < boxes.size(); ++i) {
-    if (boxes[i - 1]->box_ != NULL && boxes[i]->box_ != NULL &&
+    if (boxes[i - 1]->box_ != nullptr && boxes[i]->box_ != nullptr &&
         boxes[i - 1]->page_ == boxes[i]->page_) {
       int dx = boxes[i]->box_->x - boxes[i - 1]->box_->x;
       int dy = boxes[i]->box_->y - boxes[i - 1]->box_->y;
@@ -303,7 +303,7 @@ string BoxChar::GetTesseractBoxStr(int height,
   char buffer[kMaxLineLength];
   for (int i = 0; i < boxes.size(); ++i) {
     const Box* box = boxes[i]->box_;
-    if (box == NULL) {
+    if (box == nullptr) {
       tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
       return "";
     }

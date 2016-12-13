@@ -183,7 +183,7 @@ struct SpacingProperties {
 };
 
 static bool IsWhitespaceBox(const BoxChar* boxchar) {
-  return (boxchar->box() == NULL ||
+  return (boxchar->box() == nullptr ||
           SpanUTF8Whitespace(boxchar->ch().c_str()));
 }
 
@@ -223,7 +223,7 @@ void ExtractFontProperties(const string &utf8_text,
   int offset = 0;
   const char* text = utf8_text.c_str();
   while (offset < len) {
-    offset += render->RenderToImage(text + offset, strlen(text + offset), NULL);
+    offset += render->RenderToImage(text + offset, strlen(text + offset), nullptr);
     const vector<BoxChar*> &boxes = render->GetBoxes();
 
     // If the page break split a bigram, correct the offset so we try the bigram
@@ -316,7 +316,7 @@ bool MakeIndividualGlyphs(Pix* pix,
                           const int input_tiff_page) {
   // If checks fail, return false without exiting text2image
   if (!pix) {
-    tprintf("ERROR: MakeIndividualGlyphs(): Input Pix* is NULL\n");
+    tprintf("ERROR: MakeIndividualGlyphs(): Input Pix* is nullptr\n");
     return false;
   } else if (FLAGS_glyph_resized_size <= 0) {
     tprintf("ERROR: --glyph_resized_size must be positive\n");
@@ -359,7 +359,7 @@ bool MakeIndividualGlyphs(Pix* pix,
       continue;
     }
     // Crop the boxed character
-    Pix* pix_glyph = pixClipRectangle(pix, b, NULL);
+    Pix* pix_glyph = pixClipRectangle(pix, b, nullptr);
     if (!pix_glyph) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to clip, at i=%d\n", i);
       continue;
@@ -551,7 +551,7 @@ int main(int argc, char** argv) {
       int ngram_len = offsets[i].second;
       // Skip words that contain characters not in found in unicharset.
       if (!FLAGS_unicharset_file.empty() &&
-          !unicharset.encodable_string(curr_pos, NULL)) {
+          !unicharset.encodable_string(curr_pos, nullptr)) {
         continue;
       }
       rand_utf8.append(curr_pos, ngram_len);
@@ -589,7 +589,7 @@ int main(int argc, char** argv) {
     string font_used;
     for (int offset = 0; offset < strlen(to_render_utf8); ++im, ++page_num) {
       tlog(1, "Starting page %d\n", im);
-      Pix* pix = NULL;
+      Pix* pix = nullptr;
       if (FLAGS_find_fonts) {
         offset += render.RenderAllFontsToImage(FLAGS_min_coverage,
                                                to_render_utf8 + offset,
@@ -599,7 +599,7 @@ int main(int argc, char** argv) {
         offset += render.RenderToImage(to_render_utf8 + offset,
                                        strlen(to_render_utf8 + offset), &pix);
       }
-      if (pix != NULL) {
+      if (pix != nullptr) {
         float rotation = 0;
         if (pass == 1) {
           // Pass 2, do mirror rotation.
@@ -607,7 +607,7 @@ int main(int argc, char** argv) {
         }
         if (FLAGS_degrade_image) {
           pix = DegradeImage(pix, FLAGS_exposure, &randomizer,
-                             FLAGS_rotate_image ? &rotation : NULL);
+                             FLAGS_rotate_image ? &rotation : nullptr);
         }
         render.RotatePageBoxes(rotation);
 
@@ -660,7 +660,7 @@ int main(int argc, char** argv) {
     string filename = FLAGS_outputbase.c_str();
     filename += ".fontlist.txt";
     FILE* fp = fopen(filename.c_str(), "wb");
-    if (fp == NULL) {
+    if (fp == nullptr) {
       tprintf("Failed to create output font list %s\n", filename.c_str());
     } else {
       for (int i = 0; i < font_names.size(); ++i) {

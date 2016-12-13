@@ -42,7 +42,7 @@ FILE* File::Open(const string& filename, const string& mode) {
 FILE* File::OpenOrDie(const string& filename,
                       const string& mode) {
   FILE* stream = fopen(filename.c_str(), mode.c_str());
-  if (stream == NULL) {
+  if (stream == nullptr) {
     tprintf("Unable to open '%s' in mode '%s'\n", filename.c_str(),
             mode.c_str());
   }
@@ -52,7 +52,7 @@ FILE* File::OpenOrDie(const string& filename,
 void File::WriteStringToFileOrDie(const string& str,
                                   const string& filename) {
   FILE* stream = fopen(filename.c_str(), "wb");
-  if (stream == NULL) {
+  if (stream == nullptr) {
     tprintf("Unable to open '%s' for writing\n", filename.c_str());
     return;
   }
@@ -62,7 +62,7 @@ void File::WriteStringToFileOrDie(const string& str,
 
 bool File::Readable(const string& filename) {
   FILE* stream = fopen(filename.c_str(), "rb");
-  if (stream == NULL) {
+  if (stream == nullptr) {
     return false;
   }
   fclose(stream);
@@ -71,7 +71,7 @@ bool File::Readable(const string& filename) {
 
 bool File::ReadFileToString(const string& filename, string* out) {
   FILE* stream = File::Open(filename.c_str(), "rb");
-  if (stream == NULL)
+  if (stream == nullptr)
     return false;
   InputBuffer in(stream);
   *out = "";
@@ -113,8 +113,8 @@ bool File::DeleteMatchingFiles(const char* pattern) {
   glob_t pglob;
   char **paths;
   bool all_deleted = true;
-  if (glob(pattern, 0, NULL, &pglob) == 0) {
-    for (paths = pglob.gl_pathv; *paths != NULL; paths++) {
+  if (glob(pattern, 0, nullptr, &pglob) == 0) {
+    for (paths = pglob.gl_pathv; *paths != nullptr; paths++) {
       all_deleted &= File::Delete(*paths);
     }
     globfree(&pglob);
@@ -141,7 +141,7 @@ InputBuffer::InputBuffer(FILE* stream, size_t)
 }
 
 InputBuffer::~InputBuffer() {
-  if (stream_ != NULL) {
+  if (stream_ != nullptr) {
     fclose(stream_);
   }
 }
@@ -162,7 +162,7 @@ bool InputBuffer::Read(string* out) {
 
 bool InputBuffer::CloseFile() {
   int ret = fclose(stream_);
-  stream_ = NULL;
+  stream_ = nullptr;
   return ret == 0;
 }
 
@@ -179,7 +179,7 @@ OutputBuffer::OutputBuffer(FILE* stream, size_t)
 }
 
 OutputBuffer::~OutputBuffer() {
-  if (stream_ != NULL) {
+  if (stream_ != nullptr) {
     fclose(stream_);
   }
 }
@@ -190,7 +190,7 @@ void OutputBuffer::WriteString(const string& str) {
 
 bool OutputBuffer::CloseFile() {
   int ret = fclose(stream_);
-  stream_ = NULL;
+  stream_ = nullptr;
   return ret == 0;
 }
 

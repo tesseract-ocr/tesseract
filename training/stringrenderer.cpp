@@ -79,7 +79,7 @@ Pix* CairoARGB32ToPixFormat(cairo_surface_t *surface) {
   if (cairo_image_surface_get_format(surface) != CAIRO_FORMAT_ARGB32) {
     printf("Unexpected surface format %d\n",
            cairo_image_surface_get_format(surface));
-    return NULL;
+    return nullptr;
   }
   const int width = cairo_image_surface_get_width(surface);
   const int height = cairo_image_surface_get_height(surface);
@@ -108,14 +108,14 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
       underline_start_prob_(0),
       underline_continuation_prob_(0),
       underline_style_(PANGO_UNDERLINE_SINGLE),
-      features_(NULL),
+      features_(nullptr),
       drop_uncovered_chars_(true),
       strip_unrenderable_words_(false),
       add_ligatures_(false),
       output_word_boxes_(false),
-      surface_(NULL),
-      cr_(NULL),
-      layout_(NULL),
+      surface_(nullptr),
+      cr_(nullptr),
+      layout_(nullptr),
       start_box_(0),
       page_(0),
       box_padding_(0),
@@ -127,7 +127,7 @@ StringRenderer::StringRenderer(const string& font_desc, int page_width,
   pen_color_[2] = 0.0;
   set_font(font_desc);
   set_resolution(kDefaultOutputResolution);
-  page_boxes_ = NULL;
+  page_boxes_ = nullptr;
 }
 
 bool StringRenderer::set_font(const string& desc) {
@@ -224,15 +224,15 @@ void StringRenderer::SetLayoutProperties() {
 void StringRenderer::FreePangoCairo() {
   if (layout_) {
     g_object_unref(layout_);
-    layout_ = NULL;
+    layout_ = nullptr;
   }
   if (cr_) {
     cairo_destroy(cr_);
-    cr_ = NULL;
+    cr_ = nullptr;
   }
   if (surface_) {
     cairo_surface_destroy(surface_);
-    surface_ = NULL;
+    surface_ = nullptr;
   }
 }
 
@@ -297,7 +297,7 @@ int StringRenderer::FindFirstPageBreakOffset(const char* text,
   tlog(1, "len = %d  buf_len = %d\n", text_length, buf_length);
   pango_layout_set_text(layout_, text, buf_length);
 
-  PangoLayoutIter* line_iter = NULL;
+  PangoLayoutIter* line_iter = nullptr;
   { // Fontconfig caches some info here that is not freed before exit.
     DISABLE_HEAP_LEAK_CHECK;
     line_iter = pango_layout_get_iter(layout_);
@@ -308,8 +308,8 @@ int StringRenderer::FindFirstPageBreakOffset(const char* text,
   do {
     // Get bounding box of the current line
     PangoRectangle line_ink_rect;
-    pango_layout_iter_get_line_extents(line_iter, &line_ink_rect, NULL);
-    pango_extents_to_pixels(&line_ink_rect, NULL);
+    pango_layout_iter_get_line_extents(line_iter, &line_ink_rect, nullptr);
+    pango_extents_to_pixels(&line_ink_rect, nullptr);
     PangoLayoutLine* line = pango_layout_iter_get_line_readonly(line_iter);
     if (first_page) {
       page_top = line_ink_rect.y;
@@ -365,7 +365,7 @@ bool StringRenderer::GetClusterStrings(vector<string>* cluster_text) {
   do {
     PangoLayoutRun* run = pango_layout_iter_get_run_readonly(run_iter);
     if (!run) {
-      // End of line NULL run marker
+      // End of line nullptr run marker
       tlog(2, "Found end of line marker\n");
       continue;
     }
@@ -388,7 +388,7 @@ bool StringRenderer::GetClusterStrings(vector<string>* cluster_text) {
       if (add_ligatures_) {
         // Make sure the output box files have ligatured text in case the font
         // decided to use an unmapped glyph.
-        text = LigatureTable::Get()->AddLigatures(text, NULL);
+        text = LigatureTable::Get()->AddLigatures(text, nullptr);
       }
       start_byte_to_text[start_byte_index] = text;
     }
@@ -418,9 +418,9 @@ static void MergeBoxCharsToWords(vector<BoxChar*>* boxchars) {
   bool started_word = false;
   for (int i = 0; i < boxchars->size(); ++i) {
     if (boxchars->at(i)->ch() == " " ||
-        boxchars->at(i)->box() == NULL) {
+        boxchars->at(i)->box() == nullptr) {
       result.push_back(boxchars->at(i));
-      boxchars->at(i) = NULL;
+      boxchars->at(i) = nullptr;
       started_word = false;
       continue;
     }
@@ -429,7 +429,7 @@ static void MergeBoxCharsToWords(vector<BoxChar*>* boxchars) {
       // Begin new word
       started_word = true;
       result.push_back(boxchars->at(i));
-      boxchars->at(i) = NULL;
+      boxchars->at(i) = nullptr;
     } else {
       BoxChar* last_boxchar = result.back();
       // Compute bounding box union
@@ -448,7 +448,7 @@ static void MergeBoxCharsToWords(vector<BoxChar*>* boxchars) {
         // boxchar.
         result.push_back(new BoxChar(" ", 1));
         result.push_back(boxchars->at(i));
-        boxchars->at(i) = NULL;
+        boxchars->at(i) = nullptr;
         continue;
       }
       // Append to last word
@@ -458,7 +458,7 @@ static void MergeBoxCharsToWords(vector<BoxChar*>* boxchars) {
       last_box->y = top;
       last_box->h = bottom - top;
       delete boxchars->at(i);
-      boxchars->at(i) = NULL;
+      boxchars->at(i) = nullptr;
     }
   }
   boxchars->swap(result);
@@ -494,8 +494,8 @@ void StringRenderer::ComputeClusterBoxes() {
   do {
     PangoRectangle cluster_rect;
     pango_layout_iter_get_cluster_extents(cluster_iter, &cluster_rect,
-                                          NULL);
-    pango_extents_to_pixels(&cluster_rect, NULL);
+                                          nullptr);
+    pango_extents_to_pixels(&cluster_rect, nullptr);
     const int start_byte_index = pango_layout_iter_get_index(cluster_iter);
     const int end_byte_index = cluster_start_to_end_index[start_byte_index];
     string cluster_text = string(text + start_byte_index,
@@ -534,7 +534,7 @@ void StringRenderer::ComputeClusterBoxes() {
     if (add_ligatures_) {
       // Make sure the output box files have ligatured text in case the font
       // decided to use an unmapped glyph.
-      cluster_text = LigatureTable::Get()->AddLigatures(cluster_text, NULL);
+      cluster_text = LigatureTable::Get()->AddLigatures(cluster_text, nullptr);
     }
     BoxChar* boxchar = new BoxChar(cluster_text.c_str(), cluster_text.size());
     boxchar->set_page(page_);
@@ -592,18 +592,18 @@ void StringRenderer::ComputeClusterBoxes() {
   boxchars_.insert(boxchars_.end(), page_boxchars.begin(), page_boxchars.end());
 
   // Compute the page bounding box
-  Box* page_box = NULL;
-  Boxa* all_boxes = NULL;
+  Box* page_box = nullptr;
+  Boxa* all_boxes = nullptr;
   for (int i = 0; i < page_boxchars.size(); ++i) {
-    if (page_boxchars[i]->box() == NULL) continue;
-    if (all_boxes == NULL)
+    if (page_boxchars[i]->box() == nullptr) continue;
+    if (all_boxes == nullptr)
       all_boxes = boxaCreate(0);
     boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
   }
-  if (all_boxes != NULL) {
-    boxaGetExtent(all_boxes, NULL, NULL, &page_box);
+  if (all_boxes != nullptr) {
+    boxaGetExtent(all_boxes, nullptr, nullptr, &page_box);
     boxaDestroy(&all_boxes);
-    if (page_boxes_ == NULL) page_boxes_ = boxaCreate(0);
+    if (page_boxes_ == nullptr) page_boxes_ = boxaCreate(0);
     boxaAddBox(page_boxes_, page_box, L_INSERT);
   }
 }
@@ -650,7 +650,7 @@ int StringRenderer::StripUnrenderableWords(string* utf8_text) const {
 
 int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
                                            Pix** pix) {
-  Pix *orig_pix = NULL;
+  Pix *orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
     *pix = pixConvertTo8(orig_pix, false);
@@ -661,7 +661,7 @@ int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
 
 int StringRenderer::RenderToBinaryImage(const char* text, int text_length,
                                         int threshold, Pix** pix) {
-  Pix *orig_pix = NULL;
+  Pix *orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
     Pix* gray_pix = pixConvertTo8(orig_pix, false);
@@ -835,19 +835,19 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
 // do {
 //   Pix *pix;
 //   offset += renderer.RenderAllFontsToImage(min_proportion, txt + offset,
-//                                            strlen(txt + offset), NULL, &pix);
+//                                            strlen(txt + offset), nullptr, &pix);
 //   ...
 // } while (offset < strlen(text));
 //
 int StringRenderer::RenderAllFontsToImage(double min_coverage,
                                           const char* text, int text_length,
                                           string* font_used, Pix** image) {
-  *image = NULL;
+  *image = nullptr;
   // Select a suitable font to render the title with.
   const char kTitleTemplate[] = "%s : %d hits = %.2f%%, raw = %d = %.2f%%";
   string title_font;
   if (!FontUtils::SelectFont(kTitleTemplate, strlen(kTitleTemplate),
-                             &title_font, NULL)) {
+                             &title_font, nullptr)) {
     tprintf("WARNING: Could not find a font to render image title with!\n");
     title_font = "Arial";
   }
@@ -871,7 +871,7 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
     ++font_index_;
     int raw_score = 0;
     int ok_chars = FontUtils::FontScore(char_map_, all_fonts[i], &raw_score,
-                                        NULL);
+                                        nullptr);
     if (ok_chars > 0 && ok_chars >= total_chars_ * min_coverage) {
       set_font(all_fonts[i]);
       int offset = RenderToBinaryImage(text, text_length, 128, image);
@@ -892,7 +892,7 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
       // Add the font to the image.
       set_font(title_font);
       v_margin_ /= 8;
-      Pix* title_image = NULL;
+      Pix* title_image = nullptr;
       RenderToBinaryImage(title, strlen(title), 128, &title_image);
       pixOr(*image, *image, title_image);
       pixDestroy(&title_image);

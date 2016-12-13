@@ -40,7 +40,7 @@ enum ClassifierName {
 };
 
 const char* names[] = {"pruner", "full",
-                       NULL};
+                       nullptr};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
@@ -56,33 +56,33 @@ static tesseract::ShapeClassifier* InitializeClassifier(
   }
   if (classifier == CN_COUNT) {
     fprintf(stderr, "Invalid classifier name:%s\n", FLAGS_classifier.c_str());
-    return NULL;
+    return nullptr;
   }
 
   // We need to initialize tesseract to test.
   *api = new tesseract::TessBaseAPI;
   tesseract::OcrEngineMode engine_mode = tesseract::OEM_TESSERACT_ONLY;
-  tesseract::Tesseract* tesseract = NULL;
-  tesseract::Classify* classify = NULL;
+  tesseract::Tesseract* tesseract = nullptr;
+  tesseract::Classify* classify = nullptr;
   if (
       classifier == CN_PRUNER || classifier == CN_FULL) {
     if ((*api)->Init(FLAGS_tessdata_dir.c_str(), FLAGS_lang.c_str(),
                  engine_mode) < 0) {
       fprintf(stderr, "Tesseract initialization failed!\n");
-      return NULL;
+      return nullptr;
     }
     tesseract = const_cast<tesseract::Tesseract*>((*api)->tesseract());
     classify = reinterpret_cast<tesseract::Classify*>(tesseract);
-    if (classify->shape_table() == NULL) {
+    if (classify->shape_table() == nullptr) {
       fprintf(stderr, "Tesseract must contain a ShapeTable!\n");
-      return NULL;
+      return nullptr;
     }
   }
-  tesseract::ShapeClassifier* shape_classifier = NULL;
+  tesseract::ShapeClassifier* shape_classifier = nullptr;
 
   if (!FLAGS_T.empty()) {
     const char* config_name;
-    while ((config_name = GetNextFilename(argc, argv)) != NULL) {
+    while ((config_name = GetNextFilename(argc, argv)) != nullptr) {
       tprintf("Reading config file %s ...\n", config_name);
       (*api)->ReadConfigFile(config_name);
     }
@@ -93,7 +93,7 @@ static tesseract::ShapeClassifier* InitializeClassifier(
     shape_classifier = new tesseract::TessClassifier(false, classify);
   } else {
     fprintf(stderr, "%s tester not yet implemented\n", classifer_name);
-    return NULL;
+    return nullptr;
   }
   tprintf("Testing classifier %s:\n", classifer_name);
   return shape_classifier;
@@ -122,12 +122,12 @@ int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
   STRING file_prefix;
   tesseract::MasterTrainer* trainer = tesseract::LoadTrainingData(
-      argc, argv, false, NULL, &file_prefix);
+      argc, argv, false, nullptr, &file_prefix);
   tesseract::TessBaseAPI* api;
   // Decode the classifier string.
   tesseract::ShapeClassifier* shape_classifier = InitializeClassifier(
       FLAGS_classifier.c_str(), trainer->unicharset(), argc, argv, &api);
-  if (shape_classifier == NULL) {
+  if (shape_classifier == nullptr) {
     fprintf(stderr, "Classifier init failed!:%s\n", FLAGS_classifier.c_str());
     return 1;
   }
@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
 
   trainer->TestClassifierOnSamples(tesseract:: CT_UNICHAR_TOP1_ERR,
                                    MAX(3, FLAGS_debug_level), false,
-                                   shape_classifier, NULL);
+                                   shape_classifier, nullptr);
   delete shape_classifier;
   delete api;
   delete trainer;

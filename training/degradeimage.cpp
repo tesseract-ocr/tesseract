@@ -64,7 +64,7 @@ const int kMinRampSize = 1000;
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
 // Exposures in [-2,2] are most useful, with -3 and 3 being extreme.
-// If rotation is NULL, rotation is skipped. If *rotation is non-zero, the pix
+// If rotation is nullptr, rotation is skipped. If *rotation is non-zero, the pix
 // is rotated by *rotation else it is randomly rotated and *rotation is
 // modified.
 //
@@ -108,11 +108,11 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   pix = pixBlockconv(input, 1, 1);
   pixDestroy(&input);
   // A small random rotation helps to make the edges jaggy in a realistic way.
-  if (rotation != NULL) {
+  if (rotation != nullptr) {
     float radians_clockwise = 0.0f;
     if (*rotation) {
       radians_clockwise = *rotation;
-    } else if (randomizer != NULL) {
+    } else if (randomizer != nullptr) {
       radians_clockwise = randomizer->SignedRand(kRotationRange);
     }
 
@@ -154,7 +154,7 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
-      if (randomizer != NULL)
+      if (randomizer != nullptr)
         pixel += randomizer->IntRand() % (kSaltnPepper*2 + 1) - kSaltnPepper;
       if (height + width > kMinRampSize)
         pixel -= (2*x + y) * 32 / (height + width);
@@ -171,15 +171,15 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
 }
 
 // Creates and returns a Pix distorted by various means according to the bool
-// flags. If boxes is not NULL, the boxes are resized/positioned according to
+// flags. If boxes is not nullptr, the boxes are resized/positioned according to
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
-// Returns NULL on error. The returned Pix must be pixDestroyed.
+// Returns nullptr on error. The returned Pix must be pixDestroyed.
 Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
                          bool white_noise, bool smooth_noise, bool blur,
                          int box_reduction, TRand* randomizer,
                          GenericVector<TBOX>* boxes) {
-  Pix* distorted = pixCopy(NULL, const_cast<Pix*>(pix));
+  Pix* distorted = pixCopy(nullptr, const_cast<Pix*>(pix));
   // Things to do to synthetic training data.
   if (invert && randomizer->SignedRand(1.0) < 0)
     pixInvert(distorted, distorted);
@@ -203,7 +203,7 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
   }
   if (perspective)
     GeneratePerspectiveDistortion(0, 0, randomizer, &distorted, boxes);
-  if (boxes != NULL) {
+  if (boxes != nullptr) {
     for (int b = 0; b < boxes->size(); ++b) {
       (*boxes)[b].scale(1.0f / box_reduction);
       if ((*boxes)[b].width() <= 0)
@@ -218,25 +218,25 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
 // is no pix. If there is a pix, then they will be taken from there.
 void GeneratePerspectiveDistortion(int width, int height, TRand* randomizer,
                                    Pix** pix, GenericVector<TBOX>* boxes) {
-  if (pix != NULL && *pix != NULL) {
+  if (pix != nullptr && *pix != nullptr) {
     width = pixGetWidth(*pix);
     height = pixGetHeight(*pix);
   }
-  float* im_coeffs = NULL;
-  float* box_coeffs = NULL;
+  float* im_coeffs = nullptr;
+  float* box_coeffs = nullptr;
   l_int32 incolor =
       ProjectiveCoeffs(width, height, randomizer, &im_coeffs, &box_coeffs);
-  if (pix != NULL && *pix != NULL) {
+  if (pix != nullptr && *pix != nullptr) {
     // Transform the image.
     Pix* transformed = pixProjective(*pix, im_coeffs, incolor);
-    if (transformed == NULL) {
+    if (transformed == nullptr) {
       tprintf("Projective transformation failed!!\n");
       return;
     }
     pixDestroy(pix);
     *pix = transformed;
   }
-  if (boxes != NULL) {
+  if (boxes != nullptr) {
     // Transform the boxes.
     for (int b = 0; b < boxes->size(); ++b) {
       int x1, y1, x2, y2;

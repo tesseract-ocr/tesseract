@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
   const char  *PageName;
   FILE  *TrainingPage;
   LIST  CharList = NIL_LIST;
-  CLUSTERER  *Clusterer = NULL;
+  CLUSTERER  *Clusterer = nullptr;
   LIST    ProtoList = NIL_LIST;
   LIST    NormProtoList = NIL_LIST;
   LIST pCharList;
@@ -147,11 +147,11 @@ int main(int argc, char *argv[]) {
 
   ParseArguments(&argc, &argv);
   int num_fonts = 0;
-  while ((PageName = GetNextFilename(argc, argv)) != NULL) {
+  while ((PageName = GetNextFilename(argc, argv)) != nullptr) {
     printf("Reading %s ...\n", PageName);
     TrainingPage = Efopen(PageName, "rb");
     ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
-                        100, NULL, TrainingPage, &CharList);
+                        100, nullptr, TrainingPage, &CharList);
     fclose(TrainingPage);
     ++num_fonts;
   }
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     CharSample = (LABELEDLIST)first_node(pCharList);
     Clusterer =
       SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
-    if (Clusterer == NULL) {  // To avoid a SIGSEGV
+    if (Clusterer == nullptr) {  // To avoid a SIGSEGV
       fprintf(stderr, "Error: NULL clusterer!\n");
       return 1;
     }
@@ -229,7 +229,7 @@ void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
   int N;
 
   Filename = "";
-  if (Directory != NULL && Directory[0] != '\0')
+  if (Directory != nullptr && Directory[0] != '\0')
   {
     Filename += Directory;
     Filename += "/";
