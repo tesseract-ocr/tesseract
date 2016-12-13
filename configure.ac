@@ -421,12 +421,17 @@ fi
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
 # Check location of icu headers
-have_icu=false
-AC_CHECK_HEADERS([unicode/uchar.h], [have_icu=true], [have_icu=false])
-if !($have_icu); then
+PKG_CHECK_MODULES([ICU_UC], [icu-uc], [have_icu_uc=true], [have_icu_uc=false])
+PKG_CHECK_MODULES([ICU_I18N], [icu-i18n], [have_icu_i18n=true], [have_icu_i18n=false])
+if !($have_icu_uc && $have_icu_i18n); then
+  AC_CHECK_HEADERS([unicode/uchar.h], [have_icu=true], [have_icu=false])
+  if !($have_icu); then
         AC_MSG_WARN([Training tools WILL NOT be built because of missing icu library.])
         AC_MSG_WARN([Try to install libicu-devel package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
+  else
+    ICU_UC_LIBS="-licui18n -licuuc"
+  fi
 fi
 
 # Check location of pango headers
