@@ -11,7 +11,6 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
-libicu=-licui18n -licuuc
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
@@ -161,7 +160,7 @@ lstmeval_SOURCES = lstmeval.cpp
 lstmeval_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    $(libicu)
+    $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 lstmeval_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -188,7 +187,7 @@ lstmtraining_SOURCES = lstmtraining.cpp
 lstmtraining_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    $(libicu)
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 lstmtraining_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -214,7 +213,8 @@ mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
 mftraining_LDADD = \
     libtesseract_training.la \
-    libtesseract_tessopt.la
+    libtesseract_tessopt.la \
+    $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 mftraining_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -237,11 +237,10 @@ mftraining_LDADD += \
 endif
 
 set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
-#set_unicharset_properties_LDFLAGS = $(pkg-config --libs icu-uc)
 set_unicharset_properties_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    $(libicu)
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 set_unicharset_properties_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -293,7 +292,8 @@ text2image_SOURCES = text2image.cpp
 #text2image_LDFLAGS = -static
 text2image_LDADD = \
     libtesseract_training.la \
-    libtesseract_tessopt.la
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 text2image_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -314,7 +314,7 @@ else
 text2image_LDADD += \
     ../api/libtesseract.la
 endif
-text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
+text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0 \
 		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
