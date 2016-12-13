@@ -288,6 +288,7 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
         int length = word->best_choice->state(i);
         word->best_state.push_back(length);
       }
+      word->reject_map.initialise(word->best_choice->length());
       word->tess_failed = false;
       word->tess_accepted = true;
       word->tess_would_adapt = false;

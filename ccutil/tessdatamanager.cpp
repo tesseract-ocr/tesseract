@@ -162,21 +162,14 @@ bool TessdataManager::CombineDataFiles(
   }
 
   // Make sure that the required components are present.
-  if (file_ptr[TESSDATA_UNICHARSET] == NULL) {
-    tprintf("Error opening %sunicharset file\n", language_data_path_prefix);
+  if (!IncludesBaseComponents(offset_table) &&
+      !IncludesLSTMComponents(offset_table)) {
+    tprintf(
+        "Error: traineddata file must contain at least (a unicharset file"
+        "and inttemp) OR an lstm file.\n");
     fclose(output_file);
     return false;
   }
-  if (file_ptr[TESSDATA_INTTEMP] != NULL &&
-      (file_ptr[TESSDATA_PFFMTABLE] == NULL ||
-       file_ptr[TESSDATA_NORMPROTO] == NULL)) {
-    tprintf("Error opening %spffmtable and/or %snormproto files"
-            " while %sinttemp file was present\n", language_data_path_prefix,
-            language_data_path_prefix, language_data_path_prefix);
-    fclose(output_file);
-    return false;
-  }
-
   return WriteMetadata(offset_table, language_data_path_prefix, output_file);
 }
 
@@ -254,6 +247,19 @@ bool TessdataManager::TessdataTypeFromFileName(
   const char *suffix = strrchr(filename, '.');
   if (suffix == NULL || *(++suffix) == '\0') return false;
   return TessdataTypeFromFileSuffix(suffix, type, text_file);
+}
+
+// Returns true if the base Tesseract components are present.
+/* static */
+bool TessdataManager::IncludesBaseComponents(const inT64 *offset_table) {
+  return offset_table[TESSDATA_UNICHARSET] >= 0 &&
+         offset_table[TESSDATA_INTTEMP] >= 0;
+}
+
+// Returns true if the LSTM components are present.
+/* static */
+bool TessdataManager::IncludesLSTMComponents(const inT64 *offset_table) {
+  return offset_table[TESSDATA_LSTM] >= 0;
 }
 
 bool TessdataManager::ExtractToFile(const char *filename) {

@@ -101,7 +101,7 @@ Pix* Input::PrepareLSTMInputs(const ImageData& image_data,
     tprintf("Bad pix from ImageData!\n");
     return nullptr;
   }
-  if (width <= min_width) {
+  if (width <= min_width || height < min_width) {
     tprintf("Image too small to scale!! (%dx%d vs min width of %d)\n", width,
             height, min_width);
     pixDestroy(&pix);

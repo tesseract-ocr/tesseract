@@ -109,6 +109,17 @@ bool Tesseract::init_tesseract_lang_data(
                              tessdata_manager_debug_level)) {
     return false;
   }
+  if (oem == OEM_DEFAULT) {
+    // Set the engine mode from availablity, which can then be overidden by
+    // the config file when we read it below.
+    if (!tessdata_manager.IsLSTMAvailable()) {
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
+    } else if (!tessdata_manager.IsBaseAvailable()) {
+      tessedit_ocr_engine_mode.set_value(OEM_LSTM_ONLY);
+    } else {
+      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_LSTM_COMBINED);
+    }
+  }
 
   // If a language specific config file (lang.config) exists, load it in.
   if (tessdata_manager.SeekToStart(TESSDATA_LANG_CONFIG)) {
@@ -175,9 +186,8 @@ bool Tesseract::init_tesseract_lang_data(
   }
 
 // The various OcrEngineMode settings (see publictypes.h) determine which
-// engine-specific data files need to be loaded. Currently everything needs
-// the base tesseract data, which supplies other useful information, but
-// alternative engines, such as LSTM are optional.
+// engine-specific data files need to be loaded.
+// If LSTM_ONLY is requested, the base Tesseract files are *Not* required.
 #ifndef ANDROID_BUILD
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {

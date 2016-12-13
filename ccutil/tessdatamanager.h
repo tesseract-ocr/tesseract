@@ -66,8 +66,8 @@ enum TessdataType {
   TESSDATA_NUMBER_DAWG,         // 8
   TESSDATA_FREQ_DAWG,           // 9
   TESSDATA_FIXED_LENGTH_DAWGS,  // 10  // deprecated
-  TESSDATA_CUBE_UNICHARSET,     // 11
-  TESSDATA_CUBE_SYSTEM_DAWG,    // 12
+  TESSDATA_CUBE_UNICHARSET,     // 11  // deprecated
+  TESSDATA_CUBE_SYSTEM_DAWG,    // 12  // deprecated
   TESSDATA_SHAPE_TABLE,         // 13
   TESSDATA_BIGRAM_DAWG,         // 14
   TESSDATA_UNAMBIG_DAWG,        // 15
@@ -96,8 +96,8 @@ static const char *const kTessdataFileSuffixes[] = {
     kNumberDawgFileSuffix,        // 8
     kFreqDawgFileSuffix,          // 9
     kFixedLengthDawgsFileSuffix,  // 10  // deprecated
-    kCubeUnicharsetFileSuffix,    // 11
-    kCubeSystemDawgFileSuffix,    // 12
+    kCubeUnicharsetFileSuffix,    // 11  // deprecated
+    kCubeSystemDawgFileSuffix,    // 12  // deprecated
     kShapeTableFileSuffix,        // 13
     kBigramDawgFileSuffix,        // 14
     kUnambigDawgFileSuffix,       // 15
@@ -124,8 +124,8 @@ static const bool kTessdataFileIsText[] = {
     false,  // 8
     false,  // 9
     false,  // 10  // deprecated
-    true,   // 11
-    false,  // 12
+    true,   // 11  // deprecated
+    false,  // 12  // deprecated
     false,  // 13
     false,  // 14
     false,  // 15
@@ -163,6 +163,12 @@ class TessdataManager {
    * @return true on success.
    */
   bool Init(const char *data_file_name, int debug_level);
+
+  // Returns true if the base Tesseract components are present.
+  bool IsBaseAvailable() const { return IncludesBaseComponents(offset_table_); }
+
+  // Returns true if the LSTM components are present.
+  bool IsLSTMAvailable() const { return IncludesLSTMComponents(offset_table_); }
 
   // Return the name of the underlying data file.
   const STRING &GetDataFileName() const { return data_file_name_; }
@@ -280,6 +286,10 @@ class TessdataManager {
                                        bool *text_file);
 
  private:
+  // Returns true if the base Tesseract components are present.
+  static bool IncludesBaseComponents(const inT64 *offset_table);
+  // Returns true if the LSTM components are present.
+  static bool IncludesLSTMComponents(const inT64 *offset_table);
 
   /**
    * Opens the file whose name is a concatenation of language_data_path_prefix

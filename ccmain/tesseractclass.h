@@ -849,10 +849,9 @@ class Tesseract : public Wordrec {
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
             " (Values from PageSegMode enum in publictypes.h)");
-  INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_TESSERACT_ONLY,
+  INT_VAR_H(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
             "Which OCR engine(s) to run (Tesseract, LSTM, both). Defaults"
-            " to loading and running only Tesseract (no LSTM, no combiner)."
-            " (Values from OcrEngineMode enum in tesseractclass.h)");
+            " to loading and running the most accurate available.");
   STRING_VAR_H(tessedit_char_blacklist, "",
                "Blacklist of chars not to recognize");
   STRING_VAR_H(tessedit_char_whitelist, "",

@@ -80,11 +80,10 @@ Tesseract::Tesseract()
           " 5=line, 6=word, 7=char"
           " (Values from PageSegMode enum in publictypes.h)",
           this->params()),
-      INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_TESSERACT_ONLY,
+      INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
                       "Which OCR engine(s) to run (Tesseract, LSTM, both)."
-                      " Defaults to loading and running only Tesseract"
-                      " (no LSTM,no combiner)."
-                      " Values from OcrEngineMode enum in tesseractclass.h)",
+                      " Defaults to loading and running the most accurate"
+                      "available.",
                       this->params()),
       STRING_MEMBER(tessedit_char_blacklist, "",
                     "Blacklist of chars not to recognize", this->params()),
