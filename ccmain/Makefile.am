@@ -41,9 +41,6 @@ libtesseract_main_la_LIBADD = \
     ../classify/libtesseract_classify.la \
     ../cutil/libtesseract_cutil.la \
     ../opencl/libtesseract_opencl.la
-    if !NO_CUBE_BUILD
-        libtesseract_main_la_LIBADD += ../cube/libtesseract_cube.la
-    endif
 endif
 
 libtesseract_main_la_SOURCES = \
@@ -57,12 +54,3 @@ libtesseract_main_la_SOURCES = \
     tfacepp.cpp thresholder.cpp \
     werdit.cpp
 
-if !NO_CUBE_BUILD
-AM_CPPFLAGS += \
-    -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube
-noinst_HEADERS += \
-    cube_reco_context.h cubeclassifier.h tesseract_cube_combiner.h
-libtesseract_main_la_SOURCES += \
-    cube_control.cpp cube_reco_context.cpp cubeclassifier.cpp \
-    tesseract_cube_combiner.cpp
-endif

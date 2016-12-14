@@ -147,17 +147,6 @@ if test "$enable_graphics" = "no"; then
   AM_CONDITIONAL([GRAPHICS_DISABLED], true)
 fi
 
-# Check if cube should be disabled
-AC_MSG_CHECKING([whether to disable cube])
-AC_ARG_ENABLE([cube],
-  [AC_HELP_STRING([--disable-cube], [don't build cube support (experimental)])],
-    [disable_cube="yes"], [disable_cube="no"])
-AC_MSG_RESULT([$disable_cube])
-AM_CONDITIONAL([NO_CUBE_BUILD], [test "$disable_cube" = "yes"])
-if test "$disable_cube" = "yes"; then
-  AM_CPPFLAGS="-DNO_CUBE_BUILD $AM_CPPFLAGS"
-fi
-
 # check whether to build embedded version
 AC_MSG_CHECKING([--enable-embedded argument])
 AC_ARG_ENABLE([embedded],
@@ -531,11 +520,9 @@ AC_CONFIG_FILES([opencl/Makefile])
 AC_CONFIG_FILES([ccstruct/Makefile])
 AC_CONFIG_FILES([ccutil/Makefile])
 AC_CONFIG_FILES([classify/Makefile])
-AC_CONFIG_FILES([cube/Makefile])
 AC_CONFIG_FILES([cutil/Makefile])
 AC_CONFIG_FILES([dict/Makefile])
 AC_CONFIG_FILES([lstm/Makefile])
-AC_CONFIG_FILES([neural_networks/runtime/Makefile])
 AC_CONFIG_FILES([textord/Makefile])
 AC_CONFIG_FILES([viewer/Makefile])
 AC_CONFIG_FILES([wordrec/Makefile])
