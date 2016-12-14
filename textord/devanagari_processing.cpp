@@ -130,7 +130,9 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg) {
   // out the image regions corresponding to these boxes from the original image.
   // Conditionally run splitting on each of them.
   Boxa* regions_to_clear = boxaCreate(0);
-  for (int i = 0; i < pixaGetCount(ccs); ++i) {
+  int num_ccs = 0;
+  if (ccs != nullptr) num_ccs = pixaGetCount(ccs);
+  for (int i = 0; i < num_ccs; ++i) {
     Box* box = ccs->boxa->box[i];
     Pix* word_pix = pixClipRectangle(orig_pix_, box, NULL);
     ASSERT_HOST(word_pix);
