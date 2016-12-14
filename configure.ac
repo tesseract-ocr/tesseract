@@ -414,49 +414,12 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
-# Check location of leptonica/liblept headers.
-AC_ARG_VAR([LIBLEPT_HEADERSDIR], [Leptonica headers directory])
-
-PKG_CHECK_MODULES([LEPTONICA], [lept], [have_lept=true], [have_lept=false])
-if !($have_lept); then
-  AC_MSG_CHECKING([for leptonica])
-  if test "$LIBLEPT_HEADERSDIR" = "" ; then
-    LIBLEPT_HEADERSDIR="/usr/local/include /usr/include /opt/local/include/leptonica"
-  fi
-  for incd in $LIBLEPT_HEADERSDIR
-  do
-    for lept in . leptonica liblept
-    do
-      if test -r "$incd/$lept/allheaders.h" ; then
-        CPPFLAGS="$CPPFLAGS -I$incd/$lept"
-        have_lept=true
-      fi
-    done
-  done
-  if $have_lept; then
-    AC_MSG_RESULT(yes)
-  else
-    AC_MSG_ERROR([leptonica not found])
-  fi
-else
-  CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
-fi
-
+PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.71], [have_lept=true], [have_lept=false])
 if $have_lept; then
-  AC_CHECK_LIB([lept], [l_generateCIDataForPdf], [],
-               [AC_MSG_ERROR([leptonica library with pdf support (>= 1.71) is missing])])
+  CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
+else
+  AC_MSG_ERROR([Leptonica 1.71 or higher is required. Try to install libleptonica-dev package.])
 fi
-
-AC_MSG_CHECKING([leptonica headers version >= 1.71])
-AC_PREPROC_IFELSE(
-    [AC_LANG_PROGRAM([#include "allheaders.h"],
-[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 71)
-int i = 0;
-#else
-#error You need to upgrade your leptonica library!
-#endif])],
-    [AC_MSG_RESULT(yes)],
-    [AC_MSG_FAILURE([leptonica 1.71 or higher is required])])
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
