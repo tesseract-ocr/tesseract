@@ -313,6 +313,7 @@ TESS_API void  TESS_CALL TessNormalizeTBLOB(TBLOB* tblob, ROW* row, BOOL numeric
 TESS_API TessOcrEngineMode
                TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTruthCallback* cb);
+#endif
 
 TESS_API void  TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin);
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
