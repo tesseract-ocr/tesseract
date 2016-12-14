@@ -38,14 +38,14 @@ dist-hook:
 # Need to remove .svn directories from directories
 # added using EXTRA_DIST. $(distdir)/tessdata would in
 # theory suffice.
-	rm -rf `find $(distdir) -name .svn`
-	rm -rf `find $(distdir) -name .git`
-	rm -rf `find $(distdir) -name .deps`
-	rm -rf `find $(distdir) -name .libs`
-	rm -rf `find $(distdir) -name *.o`
-	rm -rf `find $(distdir) -name *.lo`
-	rm -rf `find $(distdir) -name *.la`
-	rm -rf `find $(distdir)/training -executable -type f`
+	rm -rf $(find $(distdir) -name .svn)
+	rm -rf $(find $(distdir) -name .git)
+	rm -rf $(find $(distdir) -name .deps)
+	rm -rf $(find $(distdir) -name .libs)
+	rm -rf $(find $(distdir) -name *.o)
+	rm -rf $(find $(distdir) -name *.lo)
+	rm -rf $(find $(distdir) -name *.la)
+	rm -rf $(find $(distdir)/training -executable -type f)
 	rm -rf $(distdir)/doc/html/*
 
 ScrollView.jar:
