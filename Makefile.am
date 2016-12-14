@@ -3,15 +3,14 @@ ACLOCAL_AMFLAGS = -I m4
 
 if ENABLE_TRAINING
 TRAINING_SUBDIR = training
-training:
-	$(MAKE)
-	@cd "$(top_builddir)/training" && $(MAKE)
-training-install:
-	@cd "$(top_builddir)/training" && $(MAKE) install
+training: all
+	@$(MAKE) -C training
+training-install: training
+	@$(MAKE) -C training install
 training-uninstall:
-	@cd "$(top_builddir)/training" && $(MAKE) uninstall
+	@$(MAKE) -C training uninstall
 clean-local:
-	@cd "$(top_builddir)/training" && $(MAKE) clean
+	@$(MAKE) -C training clean
 else
 training:
 	@echo "Need to reconfigure project, so there are no errors"
@@ -26,7 +25,7 @@ EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \
 	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
 
-DIST_SUBDIRS  = $(SUBDIRS) $(TRAINING_SUBDIR)
+DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(includedir)
