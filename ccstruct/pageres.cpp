@@ -303,9 +303,9 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
       static_cast<tesseract::OcrEngineMode>(norm_mode);
   tesseract = tess;
   POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
-  if ((norm_mode_hint != tesseract::OEM_CUBE_ONLY &&
-       norm_mode_hint != tesseract::OEM_LSTM_ONLY &&
-       word->cblob_list()->empty()) || (pb != NULL && !pb->IsText())) {
+  if ((norm_mode_hint != tesseract::OEM_LSTM_ONLY &&
+       word->cblob_list()->empty()) ||
+      (pb != NULL && !pb->IsText())) {
     // Empty words occur when all the blobs have been moved to the rej_blobs
     // list, which seems to occur frequently in junk.
     SetupFake(unicharset_in);

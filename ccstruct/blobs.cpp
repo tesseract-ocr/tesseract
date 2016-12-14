@@ -815,12 +815,10 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
   float input_y_offset = 0.0f;
   float final_y_offset = static_cast<float>(kBlnBaselineOffset);
   float scale = kBlnXHeight / x_height;
-  if (hint == tesseract::OEM_CUBE_ONLY || row == NULL) {
+  if (row == NULL) {
     word_middle = word_box.left();
     input_y_offset = word_box.bottom();
     final_y_offset = 0.0f;
-    if (hint == tesseract::OEM_CUBE_ONLY)
-      scale = 1.0f;
   } else {
     input_y_offset = row->base_line(word_middle) + baseline_shift;
   }
@@ -834,7 +832,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
       baseline = blob_box.bottom();
       blob_scale = ClipToRange(kBlnXHeight * 4.0f / (3 * blob_box.height()),
                                scale, scale * 1.5f);
-    } else if (row != NULL && hint != tesseract::OEM_CUBE_ONLY) {
+    } else if (row != NULL) {
       baseline = row->base_line(mid_x) + baseline_shift;
     }
     // The image will be 8-bit grey if the input was grey or color. Note that in

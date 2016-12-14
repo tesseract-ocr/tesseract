@@ -76,8 +76,7 @@ class WERD_RES;
 //             WordRec (wordrec/wordrec.h)
 //                         ^       Members include: WERD*, DENORM*
 //        Tesseract (ccmain/tesseractclass.h)
-//                                 Members include: Pix*, CubeRecoContext*,
-//                                 TesseractCubeCombiner*
+//                                 Members include: Pix*
 //
 // Other important classes:
 //
@@ -96,20 +95,11 @@ class WERD_RES;
 namespace tesseract {
 
 class ColumnFinder;
-#ifndef NO_CUBE_BUILD
-class CharSamp;
-class CubeLineObject;
-class CubeObject;
-class CubeRecoContext;
-#endif
 class DocumentData;
 class EquationDetect;
 class ImageData;
 class LSTMRecognizer;
 class Tesseract;
-#ifndef NO_CUBE_BUILD
-class TesseractCubeCombiner;
-#endif
 
 // A collection of various variables for statistics and debugging.
 struct TesseractStats {
@@ -486,34 +476,6 @@ class Tesseract : public Wordrec {
                              int *left_ok,
                              int *right_ok) const;
 
-  //// cube_control.cpp ///////////////////////////////////////////////////
-#ifndef NO_CUBE_BUILD
-  bool init_cube_objects(bool load_combiner,
-                         TessdataManager *tessdata_manager);
-  // Iterates through tesseract's results and calls cube on each word,
-  // combining the results with the existing tesseract result.
-  void run_cube_combiner(PAGE_RES *page_res);
-  // Recognizes a single word using (only) cube. Compatible with
-  // Tesseract's classify_word_pass1/classify_word_pass2.
-  void cube_word_pass1(BLOCK* block, ROW *row, WERD_RES *word);
-  // Cube recognizer to recognize a single word as with classify_word_pass1
-  // but also returns the cube object in case the combiner is needed.
-  CubeObject* cube_recognize_word(BLOCK* block, WERD_RES* word);
-  // Combines the cube and tesseract results for a single word, leaving the
-  // result in tess_word.
-  void cube_combine_word(CubeObject* cube_obj, WERD_RES* cube_word,
-                        WERD_RES* tess_word);
-  // Call cube on the current word, and write the result to word.
-  // Sets up a fake result  and returns false if something goes wrong.
-  bool cube_recognize(CubeObject *cube_obj, BLOCK* block, WERD_RES *word);
-  void fill_werd_res(const BoxWord& cube_box_word,
-                     const char* cube_best_str,
-                     WERD_RES* tess_werd_res);
-  bool extract_cube_state(CubeObject* cube_obj, int* num_chars,
-                          Boxa** char_boxes, CharSamp*** char_samples);
-  bool create_cube_box_word(Boxa *char_boxes, int num_chars,
-                            TBOX word_box, BoxWord* box_word);
-#endif
   //// output.h //////////////////////////////////////////////////////////
 
   void output_pass(PAGE_RES_IT &page_res_it, const TBOX *target_word_box);
@@ -949,7 +911,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(paragraph_text_based, true,
              "Run paragraph detection on the post-text-recognition "
              "(more accurate)");
-  INT_VAR_H(cube_debug_level, 1, "Print cube debug info.");
   BOOL_VAR_H(lstm_use_matrix, 1, "Use ratings matrix/beam searct with lstm");
   STRING_VAR_H(outlines_odd, "%| ", "Non standard number of outlines");
   STRING_VAR_H(outlines_2, "ij!?%\":;", "Non standard number of outlines");
@@ -1216,10 +1177,6 @@ class Tesseract : public Wordrec {
                                   PAGE_RES_IT* pr_it,
                                   FILE *output_file);
 
-#ifndef NO_CUBE_BUILD
-  inline CubeRecoContext *GetCubeRecoContext() { return cube_cntxt_; }
-#endif
-
  private:
   // The filename of a backup config file. If not null, then we currently
   // have a temporary debug config file loaded, and backup_config_file_
@@ -1230,8 +1187,6 @@ class Tesseract : public Wordrec {
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   Pix* pix_binary_;
-  // Unmodified image used for input to cube. Always valid.
-  Pix* cube_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
   // Original input image. Color if the input was color.
@@ -1260,11 +1215,6 @@ class Tesseract : public Wordrec {
   Tesseract* most_recently_used_;
   // The size of the font table, ie max possible font id + 1.
   int font_table_size_;
-#ifndef NO_CUBE_BUILD
-  // Cube objects.
-  CubeRecoContext* cube_cntxt_;
-  TesseractCubeCombiner *tess_cube_combiner_;
-#endif
   // Equation detector. Note: this pointer is NOT owned by the class.
   EquationDetect* equ_detect_;
   // LSTM recognizer, if available.

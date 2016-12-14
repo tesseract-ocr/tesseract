@@ -24,9 +24,6 @@
 #define VARABLED_H
 
 #include "elst.h"
-#ifndef NO_CUBE_BUILD
-#include "scrollview.h"
-#endif
 #include "params.h"
 #include "tesseractclass.h"
 

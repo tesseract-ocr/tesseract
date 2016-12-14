@@ -243,17 +243,6 @@ bool Tesseract::init_tesseract_lang_data(
         ambigs_debug_level, use_ambigs_for_adaption, &unicharset);
     if (tessdata_manager_debug_level) tprintf("Loaded ambigs\n");
   }
-#ifndef NO_CUBE_BUILD
-  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
-    ASSERT_HOST(init_cube_objects(false, &tessdata_manager));
-    if (tessdata_manager_debug_level)
-      tprintf("Loaded Cube w/out combiner\n");
-  } else if (tessedit_ocr_engine_mode == OEM_TESSERACT_CUBE_COMBINED) {
-    ASSERT_HOST(init_cube_objects(true, &tessdata_manager));
-    if (tessdata_manager_debug_level)
-      tprintf("Loaded Cube with combiner\n");
-  }
-#endif
   // Init ParamsModel.
   // Load pass1 and pass2 weights (for now these two sets are the same, but in
   // the future separate sets of weights can be generated).
@@ -446,14 +435,8 @@ int Tesseract::init_tesseract_internal(
   }
   // If only LSTM will be used, skip loading Tesseract classifier's
   // pre-trained templates and dictionary.
-  bool init_tesseract = tessedit_ocr_engine_mode != OEM_LSTM_ONLY &&
-                        tessedit_ocr_engine_mode != OEM_CUBE_ONLY;
-  bool init_dict = init_tesseract;
-  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY &&
-      !tessdata_manager.SeekToStart(TESSDATA_CUBE_UNICHARSET)) {
-    init_dict = true;
-  }
-  program_editup(textbase, init_tesseract, init_dict);
+  bool init_tesseract = tessedit_ocr_engine_mode != OEM_LSTM_ONLY;
+  program_editup(textbase, init_tesseract, init_tesseract);
   tessdata_manager.End();
   return 0;                      //Normal exit
 }

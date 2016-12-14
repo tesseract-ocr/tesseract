@@ -405,15 +405,6 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
     // ****************** Pass 5,6 *******************
     rejection_passes(page_res, monitor, target_word_box, word_config);
 
-#ifndef NO_CUBE_BUILD
-    // ****************** Pass 7 *******************
-    // Cube combiner.
-    // If cube is loaded and its combiner is present, run it.
-    if (tessedit_ocr_engine_mode == OEM_TESSERACT_CUBE_COMBINED) {
-      run_cube_combiner(page_res);
-    }
-#endif
-
     // ****************** Pass 8 *******************
     font_recognition_pass(page_res);
 
@@ -887,7 +878,7 @@ int Tesseract::RetryWithLanguage(const WordData& word_data,
                                  WordRecognizer recognizer,
                                  WERD_RES** in_word,
                                  PointerVector<WERD_RES>* best_words) {
-  bool debug = classify_debug_level || cube_debug_level;
+  bool debug = classify_debug_level;
   if (debug) {
     tprintf("Trying word using lang %s, oem %d\n",
             lang.string(), static_cast<int>(tessedit_ocr_engine_mode));
@@ -906,8 +897,7 @@ int Tesseract::RetryWithLanguage(const WordData& word_data,
       new_words[i]->DebugTopChoice("Lang result");
   }
   // Initial version is a bit of a hack based on better certainty and rating
-  // (to reduce false positives from cube) or a dictionary vs non-dictionary
-  // word.
+  // or a dictionary vs non-dictionary word.
   return SelectBestWords(classify_max_rating_ratio,
                          classify_max_certainty_margin,
                          debug, &new_words, best_words);
@@ -1291,7 +1281,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
   // Points to the best result. May be word or in lang_words.
   WERD_RES* word = word_data->word;
   clock_t start_t = clock();
-  if (classify_debug_level || cube_debug_level) {
+  if (classify_debug_level) {
     tprintf("%s word with lang %s at:",
             word->done ? "Already done" : "Processing",
             most_recently_used_->lang.string());
@@ -1365,13 +1355,6 @@ void Tesseract::classify_word_pass1(const WordData& word_data,
   BLOCK* block = word_data.block;
   prev_word_best_choice_ = word_data.prev_word != NULL
       ? word_data.prev_word->word->best_choice : NULL;
-#ifndef NO_CUBE_BUILD
-  // If we only intend to run cube - run it and return.
-  if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
-    cube_word_pass1(block, row, *in_word);
-    return;
-  }
-#endif
 #ifndef ANDROID_BUILD
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
