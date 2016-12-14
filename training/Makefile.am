@@ -58,8 +58,6 @@ ambiguous_words_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -85,8 +83,6 @@ classifier_tester_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -121,8 +117,6 @@ cntraining_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -145,8 +139,6 @@ dawg2wordlist_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../textord/libtesseract_textord.la \
     ../ccutil/libtesseract_ccutil.la
@@ -173,8 +165,6 @@ lstmeval_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -200,8 +190,6 @@ lstmtraining_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -227,8 +215,6 @@ mftraining_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -253,8 +239,6 @@ set_unicharset_properties_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -279,8 +263,6 @@ shapeclustering_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -306,8 +288,6 @@ text2image_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -345,8 +325,6 @@ wordlist2dawg_LDADD += \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../textord/libtesseract_textord.la \
     ../ccutil/libtesseract_ccutil.la

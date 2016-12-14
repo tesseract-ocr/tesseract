@@ -1,7 +1,7 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct -I$(top_srcdir)/cube \
+    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
@@ -36,10 +36,6 @@ libtesseract_api_la_LIBADD = \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la 
-    if !NO_CUBE_BUILD
-        libtesseract_api_la_LIBADD += ../cube/libtesseract_cube.la \
-            ../neural_networks/runtime/libtesseract_neural.la \
-    endif
 endif
 
 libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
@@ -69,10 +65,6 @@ libtesseract_la_LIBADD = \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la 
-if !NO_CUBE_BUILD
-libtesseract_la_LIBADD += ../cube/libtesseract_cube.la \
-        ../neural_networks/runtime/libtesseract_neural.la
-endif
 
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) -no-undefined
 
