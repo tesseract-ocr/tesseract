@@ -20,9 +20,6 @@ endif
 .PHONY: install-langs ScrollView.jar install-jars training
 
 SUBDIRS = arch ccutil viewer cutil opencl ccstruct dict classify wordrec textord lstm
-if !NO_CUBE_BUILD
-    SUBDIRS += neural_networks/runtime cube
-endif
 SUBDIRS += ccmain api . tessdata doc
 
 EXTRA_DIST = README.md\
