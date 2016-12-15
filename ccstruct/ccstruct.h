@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCSTRUCT_CCSTRUCT_H__
-#define TESSERACT_CCSTRUCT_CCSTRUCT_H__
+#ifndef TESSERACT_CCSTRUCT_CCSTRUCT_H_
+#define TESSERACT_CCSTRUCT_CCSTRUCT_H_
 
 #include "cutil.h"
 
@@ -41,4 +41,4 @@ class Tesseract;
 }  // namespace tesseract
 
 
-#endif  // TESSERACT_CCSTRUCT_CCSTRUCT_H__
+#endif  // TESSERACT_CCSTRUCT_CCSTRUCT_H_

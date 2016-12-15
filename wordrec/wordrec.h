@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_WORDREC_WORDREC_H__
-#define TESSERACT_WORDREC_WORDREC_H__
+#ifndef TESSERACT_WORDREC_WORDREC_H_
+#define TESSERACT_WORDREC_WORDREC_H_
 
 #include "associate.h"
 #include "classify.h"
@@ -491,4 +491,4 @@ class Wordrec : public Classify {
 
 }  // namespace tesseract
 
-#endif  // TESSERACT_WORDREC_WORDREC_H__
+#endif  // TESSERACT_WORDREC_WORDREC_H_

@@ -7,6 +7,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#ifndef TESSERACT_OPENCL_OPENCLWRAPPER_H_
+#define TESSERACT_OPENCL_OPENCLWRAPPER_H_
+
 #include <stdio.h>
 #include "allheaders.h"
 #include "pix.h"
@@ -322,4 +326,5 @@ public:
 };
 
 
-#endif
+#endif // USE_OPENCL
+#endif // TESSERACT_OPENCL_OPENCLWRAPPER_H_

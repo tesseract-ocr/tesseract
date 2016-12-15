@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CLASSIFY_INTFEATUREMAP_H__
-#define TESSERACT_CLASSIFY_INTFEATUREMAP_H__
+#ifndef TESSERACT_CLASSIFY_INTFEATUREMAP_H_
+#define TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 
 #include "intfeaturespace.h"
 #include "indexmapbidi.h"
@@ -160,4 +160,4 @@ class IntFeatureMap {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CLASSIFY_INTFEATUREMAP_H__
+#endif  // TESSERACT_CLASSIFY_INTFEATUREMAP_H_

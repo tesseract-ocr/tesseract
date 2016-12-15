@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_COLPARTITIONGRID_H__
-#define TESSERACT_TEXTORD_COLPARTITIONGRID_H__
+#ifndef TESSERACT_TEXTORD_COLPARTITIONGRID_H_
+#define TESSERACT_TEXTORD_COLPARTITIONGRID_H_
 
 #include "bbgrid.h"
 #include "colpartition.h"
@@ -255,4 +255,4 @@ class ColPartitionGrid : public BBGrid<ColPartition,
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLPARTITIONGRID_H__
+#endif  // TESSERACT_TEXTORD_COLPARTITIONGRID_H_

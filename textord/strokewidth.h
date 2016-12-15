@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_STROKEWIDTH_H__
-#define TESSERACT_TEXTORD_STROKEWIDTH_H__
+#ifndef TESSERACT_TEXTORD_STROKEWIDTH_H_
+#define TESSERACT_TEXTORD_STROKEWIDTH_H_
 
 #include "blobbox.h"        // BlobNeighourDir.
 #include "blobgrid.h"         // Base class.
@@ -352,4 +352,4 @@ class StrokeWidth : public BlobGrid {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_STROKEWIDTH_H__
+#endif  // TESSERACT_TEXTORD_STROKEWIDTH_H_

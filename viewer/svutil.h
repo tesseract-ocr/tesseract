@@ -21,8 +21,8 @@
 // classes, which are used for thread/process creation & synchronization
 // and network connection.
 
-#ifndef TESSERACT_VIEWER_SVUTIL_H__
-#define TESSERACT_VIEWER_SVUTIL_H__
+#ifndef TESSERACT_VIEWER_SVUTIL_H_
+#define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
 #ifndef __GNUC__
@@ -155,4 +155,4 @@ class SVNetwork {
   char* buffer_ptr_;  // Unix (strtok_r)
 };
 
-#endif  // TESSERACT_VIEWER_SVUTIL_H__
+#endif  // TESSERACT_VIEWER_SVUTIL_H_

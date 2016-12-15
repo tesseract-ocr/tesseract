@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_BBGRID_H__
-#define TESSERACT_TEXTORD_BBGRID_H__
+#ifndef TESSERACT_TEXTORD_BBGRID_H_
+#define TESSERACT_TEXTORD_BBGRID_H_
 
 #include "clst.h"
 #include "coutln.h"
@@ -958,4 +958,4 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::SetIterator() {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_BBGRID_H__
+#endif  // TESSERACT_TEXTORD_BBGRID_H_

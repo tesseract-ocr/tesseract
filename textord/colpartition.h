@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_COLPARTITION_H__
-#define TESSERACT_TEXTORD_COLPARTITION_H__
+#ifndef TESSERACT_TEXTORD_COLPARTITION_H_
+#define TESSERACT_TEXTORD_COLPARTITION_H_
 
 #include "bbgrid.h"
 #include "blobbox.h"       // For BlobRegionType.
@@ -933,4 +933,4 @@ typedef GridSearch<ColPartition,
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLPARTITION_H__
+#endif  // TESSERACT_TEXTORD_COLPARTITION_H_

@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef _TESS_CALLBACK_SPECIALIZATIONS_H
-#define _TESS_CALLBACK_SPECIALIZATIONS_H
+#ifndef TESS_CALLBACK_SPECIALIZATIONS_H_
+#define TESS_CALLBACK_SPECIALIZATIONS_H_
 
 #include "host.h"  // For NULL.
 
@@ -9718,4 +9718,4 @@ NewPermanentTessCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5), typena
   return new _TessFunctionResultCallback_6_5<false,R,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5>(function, p1, p2, p3, p4, p5, p6);
 }
 
-#endif /* _TESS_CALLBACK_SPECIALIZATIONS_H */
+#endif // TESS_CALLBACK_SPECIALIZATIONS_H_

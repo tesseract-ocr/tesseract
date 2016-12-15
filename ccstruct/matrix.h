@@ -26,8 +26,8 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-#ifndef TESSERACT_CCSTRUCT_MATRIX_H__
-#define TESSERACT_CCSTRUCT_MATRIX_H__
+#ifndef TESSERACT_CCSTRUCT_MATRIX_H_
+#define TESSERACT_CCSTRUCT_MATRIX_H_
 
 #include <math.h>
 #include "kdpair.h"
@@ -632,4 +632,4 @@ struct MATRIX_COORD {
 // The MatrixCoordPair contains a MATRIX_COORD and its priority.
 typedef tesseract::KDPairInc<float, MATRIX_COORD> MatrixCoordPair;
 
-#endif  // TESSERACT_CCSTRUCT_MATRIX_H__
+#endif  // TESSERACT_CCSTRUCT_MATRIX_H_

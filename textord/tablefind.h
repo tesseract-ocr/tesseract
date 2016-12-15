@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_TABLEFIND_H__
-#define TESSERACT_TEXTORD_TABLEFIND_H__
+#ifndef TESSERACT_TEXTORD_TABLEFIND_H_
+#define TESSERACT_TEXTORD_TABLEFIND_H_
 
 #include "colpartitiongrid.h"
 #include "elst.h"
@@ -432,4 +432,4 @@ class TableFinder {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TABLEFIND_H__
+#endif  // TESSERACT_TEXTORD_TABLEFIND_H_

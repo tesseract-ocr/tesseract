@@ -13,8 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TRAINING_TRAININGSAMPLE_H__
-#define TESSERACT_TRAINING_TRAININGSAMPLE_H__
+#ifndef TESSERACT_TRAINING_TRAININGSAMPLE_H_
+#define TESSERACT_TRAINING_TRAININGSAMPLE_H_
 
 #include "elst.h"
 #include "featdefs.h"
@@ -247,4 +247,4 @@ ELISTIZEH(TrainingSample)
 
 }  // namespace tesseract
 
-#endif  // TESSERACT_TRAINING_TRAININGSAMPLE_H__
+#endif  // TESSERACT_TRAINING_TRAININGSAMPLE_H_

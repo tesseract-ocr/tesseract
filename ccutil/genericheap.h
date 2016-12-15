@@ -19,11 +19,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "errcode.h"
-#include "genericvector.h"
-
 #ifndef TESSERACT_CCUTIL_GENERICHEAP_H_
 #define TESSERACT_CCUTIL_GENERICHEAP_H_
+
+#include "errcode.h"
+#include "genericvector.h"
 
 namespace tesseract {
 

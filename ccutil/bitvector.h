@@ -20,8 +20,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 
-#ifndef TESSERACT_CCUTIL_BITVECTOR_H__
-#define TESSERACT_CCUTIL_BITVECTOR_H__
+#ifndef TESSERACT_CCUTIL_BITVECTOR_H_
+#define TESSERACT_CCUTIL_BITVECTOR_H_
 
 #include <assert.h>
 #include <stdio.h>
@@ -140,4 +140,4 @@ class BitVector {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCUTIL_BITVECTOR_H__
+#endif  // TESSERACT_CCUTIL_BITVECTOR_H_

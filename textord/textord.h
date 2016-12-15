@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_TEXTORD_H__
-#define TESSERACT_TEXTORD_TEXTORD_H__
+#ifndef TESSERACT_TEXTORD_TEXTORD_H_
+#define TESSERACT_TEXTORD_TEXTORD_H_
 
 #include "ccstruct.h"
 #include "bbgrid.h"
@@ -400,4 +400,4 @@ class Textord {
 };
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TEXTORD_H__
+#endif  // TESSERACT_TEXTORD_TEXTORD_H_
