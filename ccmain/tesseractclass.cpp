@@ -265,7 +265,7 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_debug_quality_metrics, false,
                   "Output data to debug file", this->params()),
-      BOOL_MEMBER(bland_unrej, false, "unrej potential with no chekcs",
+      BOOL_MEMBER(bland_unrej, false, "unrej potential with no checks",
                   this->params()),
       double_MEMBER(quality_rowrej_pc, 1.1,
                     "good_quality_doc gte good char limit", this->params()),
