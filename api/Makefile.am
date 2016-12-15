@@ -80,6 +80,7 @@ tesseract_LDADD = libtesseract.la
 
 tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
+tesseract_LDADD += $(LEPTONICA_LIBS)
 tesseract_LDADD += $(OPENMP_CXXFLAGS)
 
 tesseract_LDADD += -ltiff
