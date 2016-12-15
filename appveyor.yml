@@ -17,6 +17,7 @@ before_build:
   - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
 
+install:
   - cmd: echo build_system_verbose: false>> %USERPROFILE%/.cppan/cppan.yml
 
 build_script:
