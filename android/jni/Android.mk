@@ -30,13 +30,6 @@ $(info local path=$(LOCAL_PATH))
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/../../api/*.cpp $(LOCAL_PATH)/../../ccmain/*.cpp $(LOCAL_PATH)/../../ccstruct/*.cpp $(LOCAL_PATH)/../../ccutil/*.cpp $(LOCAL_PATH)/../../classify/*.cpp $(LOCAL_PATH)/../../cutil/*.cpp $(LOCAL_PATH)/../../dict/*.cpp $(LOCAL_PATH)/../../image/*.cpp $(LOCAL_PATH)/../../textord/*.cpp $(LOCAL_PATH)/../../viewer/*.cpp $(LOCAL_PATH)/../../wordrec/*.cpp)
 
 EXPLICIT_SRC_EXCLUDES := \
-  $(LOCAL_PATH)/../../ccmain/cubeclassifier.cpp \
-  $(LOCAL_PATH)/../../ccmain/cubeclassifier.h  \
-  $(LOCAL_PATH)/../../ccmain/cube_control.cpp \
-  $(LOCAL_PATH)/../../ccmain/cube_reco_context.cpp \
-  $(LOCAL_PATH)/../../ccmain/cube_reco_context.h \
-  $(LOCAL_PATH)/../../ccmain/tesseract_cube_combiner.cpp \
-  $(LOCAL_PATH)/../../ccmain/tesseract_cube_combiner.h \
   $(LOCAL_PATH)/../../api/pdfrenderer.cpp \
   $(LOCAL_PATH)/../../api/tesseractmain.cpp \
 
@@ -47,7 +40,7 @@ LOCAL_SRC_FILES := $(LOCAL_SRC_FILES:$(LOCAL_PATH)/%=%)
 $(info local src files  = $(LOCAL_SRC_FILES))
 
 LOCAL_LDLIBS := -ldl -llog -ljnigraphics
-LOCAL_CFLAGS := -DANDROID_BUILD -DNO_CUBE_BUILD -DGRAPHICS_DISABLED
+LOCAL_CFLAGS := -DANDROID_BUILD -DGRAPHICS_DISABLED
 
 include $(BUILD_SHARED_LIBRARY)
 
