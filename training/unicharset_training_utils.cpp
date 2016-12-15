@@ -42,7 +42,7 @@ void SetupBasicProperties(bool report_errors, bool decompose,
   for (int unichar_id = 0; unichar_id < unicharset->size(); ++unichar_id) {
     // Convert any custom ligatures.
     const char* unichar_str = unicharset->id_to_unichar(unichar_id);
-    for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != NULL; ++i) {
+    for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != nullptr; ++i) {
       if (!strcmp(UNICHARSET::kCustomLigatures[i][1], unichar_str)) {
         unichar_str = UNICHARSET::kCustomLigatures[i][0];
         break;

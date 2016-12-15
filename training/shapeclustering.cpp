@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
   STRING file_prefix;
   tesseract::MasterTrainer* trainer = tesseract::LoadTrainingData(
-      argc, argv, false, NULL, &file_prefix);
+      argc, argv, false, nullptr, &file_prefix);
 
   if (!trainer)
     return 1;

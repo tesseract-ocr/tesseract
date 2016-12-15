@@ -48,7 +48,7 @@ void UTF32ToUTF8(const GenericVector<char32>& str32, STRING* utf8_str) {
   for (int i = 0; i < str32.length(); ++i) {
     UNICHAR uni_ch(str32[i]);
     char *utf8 = uni_ch.utf8_str();
-    if (utf8 != NULL) {
+    if (utf8 != nullptr) {
       (*utf8_str) += utf8;
       delete[] utf8;
     }
@@ -131,7 +131,7 @@ STRING NormalizeUTF8String(bool decompose, const char* str8) {
 void NormalizeChar32(char32 ch, bool decompose, GenericVector<char32>* str) {
   IcuErrorCode error_code;
   const icu::Normalizer2* nfkc = icu::Normalizer2::getInstance(
-      NULL, "nfkc", decompose ? UNORM2_DECOMPOSE : UNORM2_COMPOSE, error_code);
+      nullptr, "nfkc", decompose ? UNORM2_DECOMPOSE : UNORM2_COMPOSE, error_code);
   error_code.assertSuccess();
   error_code.reset();
 

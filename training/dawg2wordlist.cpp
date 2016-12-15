@@ -29,9 +29,9 @@ tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
                                   const char *filename) {
   const int kDictDebugLevel = 1;
   FILE *dawg_file = fopen(filename, "rb");
-  if (dawg_file == NULL) {
+  if (dawg_file == nullptr) {
     tprintf("Could not open %s for reading.\n", filename);
-    return NULL;
+    return nullptr;
   }
   tprintf("Loading word list from %s\n", filename);
   tesseract::Dawg *retval = new tesseract::SquishedDawg(
@@ -55,7 +55,7 @@ int WriteDawgAsWordlist(const UNICHARSET &unicharset,
                         const tesseract::Dawg *dawg,
                         const char *outfile_name) {
   FILE *out = fopen(outfile_name, "wb");
-  if (out == NULL) {
+  if (out == nullptr) {
     tprintf("Could not open %s for writing.\n", outfile_name);
     return 1;
   }
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   tesseract::Dawg *dict = LoadSquishedDawg(unicharset, dawg_file);
-  if (dict == NULL) {
+  if (dict == nullptr) {
     tprintf("Error loading dictionary from %s.\n", dawg_file);
     return 1;
   }

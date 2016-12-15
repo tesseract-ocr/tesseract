@@ -29,17 +29,17 @@ namespace tesseract {
 
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
-// If rotation is not NULL, the clockwise rotation in radians is saved there.
+// If rotation is not nullptr, the clockwise rotation in radians is saved there.
 // The input pix must be 8 bit grey. (Binary with values 0 and 255 is OK.)
 // The input image is destroyed and a different image returned.
 struct Pix* DegradeImage(struct Pix* input, int exposure, TRand* randomizer,
                          float* rotation);
 
 // Creates and returns a Pix distorted by various means according to the bool
-// flags. If boxes is not NULL, the boxes are resized/positioned according to
+// flags. If boxes is not nullptr, the boxes are resized/positioned according to
 // any spatial distortion and also by the integer reduction factor box_scale
 // so they will match what the network will output.
-// Returns NULL on error. The returned Pix must be pixDestroyed.
+// Returns nullptr on error. The returned Pix must be pixDestroyed.
 Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
                          bool white_noise, bool smooth_noise, bool blur,
                          int box_reduction, TRand* randomizer,

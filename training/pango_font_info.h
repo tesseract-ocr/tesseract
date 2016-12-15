@@ -162,11 +162,11 @@ class FontUtils {
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir
   static bool IsAvailableFont(const char* font_desc) {
-    return IsAvailableFont(font_desc, NULL);
+    return IsAvailableFont(font_desc, nullptr);
   }
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir. If false is returned, and
-  // best_match is not NULL, the closest matching font is returned there.
+  // best_match is not nullptr, the closest matching font is returned there.
   static bool IsAvailableFont(const char* font_desc, string* best_match);
   // Outputs description names of available fonts.
   static const std::vector<string>& ListAvailableFonts();

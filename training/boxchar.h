@@ -60,8 +60,8 @@ class BoxChar {
   // Sort function for sorting by left edge of box. Note that this will not
   // work properly until after InsertNewlines and InsertSpaces.
   bool operator<(const BoxChar& other) const {
-    if (box_ == NULL) return true;
-    if (other.box_ == NULL) return false;
+    if (box_ == nullptr) return true;
+    if (other.box_ == nullptr) return false;
     return box_->x < other.box_->x;
   }
 
@@ -74,7 +74,7 @@ class BoxChar {
   // Inserts newline (tab) characters into the vector at newline positions.
   static void InsertNewlines(bool rtl_rules, bool vertical_rules,
                              vector<BoxChar*>* boxes);
-  // Converts NULL boxes to space characters, with appropriate bounding boxes.
+  // Converts nullptr boxes to space characters, with appropriate bounding boxes.
   static void InsertSpaces(bool rtl_rules, bool vertical_rules,
                            vector<BoxChar*>* boxes);
   // Reorders text in a right-to-left script in left-to-right order.
