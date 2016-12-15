@@ -46,7 +46,7 @@ set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
 set(MINIMUM_LEPTONICA_VERSION 1.71)
 
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/cppan)
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
     if (NOT Leptonica_DIR AND NOT MSVC)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(Leptonica REQUIRED lept)
@@ -54,7 +54,7 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/cppan)
         find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
     endif()
 else()
-    add_subdirectory(cppan)
+    add_subdirectory(.cppan)
 endif()
 
 find_package(OpenCL QUIET)

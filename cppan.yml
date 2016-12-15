@@ -1,5 +1,4 @@
 local_settings:
-    cppan_dir: cppan
     use_shared_libs: true
 
 type: library
