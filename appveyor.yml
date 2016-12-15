@@ -17,8 +17,9 @@ before_build:
   - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
 
-  - cppan # dummy run
-  - echo build_system_verbose: false>> %USERPROFILE%\.cppan\cppan.yml
+  - cppan # dummy run to create %USERPROFILE%\.cppan\cppan.yml
+  - ps: Add-Content %USERPROFILE%\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"
+  #- echo build_system_verbose: false>> %USERPROFILE%\.cppan\cppan.yml
   - type %USERPROFILE%\.cppan\cppan.yml
 
 build_script:
