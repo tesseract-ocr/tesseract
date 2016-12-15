@@ -552,7 +552,7 @@ bool DocumentData::ReCachePages() {
     pages_.truncate(0);
   } else {
     tprintf("Loaded %d/%d pages (%d-%d) of document %s\n", pages_.size(),
-            loaded_pages, pages_offset_, pages_offset_ + pages_.size(),
+            loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
             document_name_.string());
   }
   set_total_pages(loaded_pages);
