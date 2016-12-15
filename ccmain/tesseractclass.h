@@ -947,7 +947,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_debug_doc_rejection, false, "Page stats");
   BOOL_VAR_H(tessedit_debug_quality_metrics, false,
              "Output data to debug file");
-  BOOL_VAR_H(bland_unrej, false, "unrej potential with no chekcs");
+  BOOL_VAR_H(bland_unrej, false, "unrej potential with no checks");
   double_VAR_H(quality_rowrej_pc, 1.1,
                "good_quality_doc gte good char limit");
   BOOL_VAR_H(unlv_tilde_crunching, true,
