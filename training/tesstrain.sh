@@ -45,7 +45,7 @@
 # appropriate --fonts_dir path.
 
 
-source `dirname $0`/tesstrain_utils.sh
+source "$(dirname $0)/tesstrain_utils.sh"
 
 ARGV=("$@")
 parse_flags
@@ -53,7 +53,7 @@ parse_flags
 mkdir -p ${TRAINING_DIR}
 tlog "\n=== Starting training for language '${LANG_CODE}'"
 
-source `dirname $0`/language-specific.sh
+source "$(dirname $0)/language-specific.sh"
 set_lang_specific_parameters ${LANG_CODE}
 
 initialize_fontconfig
@@ -61,7 +61,7 @@ initialize_fontconfig
 phase_I_generate_image 8
 phase_UP_generate_unicharset
 phase_D_generate_dawg
-if (( ${LINEDATA} )); then
+if ((LINEDATA)); then
   phase_E_extract_features "lstm.train" 8 "lstmf"
   make__lstmdata
 else

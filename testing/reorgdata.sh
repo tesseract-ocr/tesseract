@@ -36,11 +36,11 @@ do
 	mkdir -p $new
     	echo "Set $old -> $new"
 	#The pages file had - instead of _ so fix it and add the extension.
-	for page in `cat $old/PAGES`
+	for page in $(cat $old/PAGES)
 	do
     	    echo "${page%-*}_${page#*-}.$ext"
 	done >$new/pages
-	for f in `cat $new/pages`
+	for f in $(cat $new/pages)
 	do
     	    #Put a tif extension on the tif files.
 	    cp $old/${old}_B/$f $new/$f.tif

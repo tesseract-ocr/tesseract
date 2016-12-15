@@ -81,30 +81,30 @@ do
 	# Count the errors on all the pages.
 	$bindir/counttestset.sh $imdir/$set/pages
 	# Get the old character word and nonstop word errors.
-	olderrs=`cat testing/reports/1995.$set.sum | cut -f3`
-	oldwerrs=`cat testing/reports/1995.$set.sum | cut -f6`
-	oldnswerrs=`cat testing/reports/1995.$set.sum | cut -f9`
+	olderrs=$(cat testing/reports/1995.$set.sum | cut -f3)
+	oldwerrs=$(cat testing/reports/1995.$set.sum | cut -f6)
+	oldnswerrs=$(cat testing/reports/1995.$set.sum | cut -f9)
 	# Get the new character word and nonstop word errors and accuracy.
-	cherrs=`head -4 testing/reports/$set.characc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	chacc=`head -5 testing/reports/$set.characc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	wderrs=`head -4 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	wdacc=`head -5 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	nswderrs=`grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
-	    cut -c10-17 |tr -d '[:blank:]'`
-	nswdacc=`grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
-	    cut -c19-26 |tr -d '[:blank:]'`
+	cherrs=$(head -4 testing/reports/$set.characc |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	chacc=$(head -5 testing/reports/$set.characc |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	wderrs=$(head -4 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	wdacc=$(head -5 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	nswderrs=$(grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
+	    cut -c10-17 |tr -d '[:blank:]')
+	nswdacc=$(grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
+	    cut -c19-26 |tr -d '[:blank:]')
 	# Compute the percent change.
-	chdelta=`deltapc $cherrs $olderrs`
-	wdelta=`deltapc $wderrs $oldwerrs`
-	nswdelta=`deltapc $nswderrs $oldnswerrs`
+	chdelta=$(deltapc $cherrs $olderrs)
+	wdelta=$(deltapc $wderrs $oldwerrs)
+	nswdelta=$(deltapc $nswderrs $oldnswerrs)
 	sumfile=$rdir/$vid.$set.sum
         if [ -r testing/reports/$set.times ]
         then
-          total_time=`timesum testing/reports/$set.times`
+          total_time=$(timesum testing/reports/$set.times)
           if [ -r testing/reports/prev/$set.times ]
           then
             paste testing/reports/prev/$set.times testing/reports/$set.times |
@@ -125,9 +125,9 @@ do
     fi
 done
 # Compute grand total percent change.
-chdelta=`deltapc $totalerrs $totalolderrs`
-wdelta=`deltapc $totalwerrs $totaloldwerrs`
-nswdelta=`deltapc $totalnswerrs $totaloldnswerrs `
+chdelta=$(deltapc $totalerrs $totalolderrs)
+wdelta=$(deltapc $totalwerrs $totaloldwerrs)
+nswdelta=$(deltapc $totalnswerrs $totaloldnswerrs)
 tfile=$rdir/$vid.total.sum
 echo "$vid	Total	$totalerrs	-	$chdelta%	$totalwerrs\
 	-	$wdelta%	$totalnswerrs	-	$nswdelta%" >$tfile
