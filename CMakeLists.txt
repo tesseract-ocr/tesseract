@@ -142,11 +142,9 @@ include_directories(ccmain)
 include_directories(ccstruct)
 include_directories(ccutil)
 include_directories(classify)
-include_directories(cube)
 include_directories(cutil)
 include_directories(dict)
 include_directories(lstm)
-include_directories(neural_networks/runtime)
 include_directories(opencl)
 include_directories(textord)
 include_directories(vs2010/port)
@@ -166,11 +164,9 @@ file(GLOB tesseract_src
     ccstruct/*.cpp
     ccutil/*.cpp
     classify/*.cpp
-    cube/*.cpp
     cutil/*.cpp
     dict/*.cpp
     lstm/*.cpp
-    neural_networks/runtime/*.cpp
     opencl/*.cpp
     textord/*.cpp
     viewer/*.cpp
@@ -183,11 +179,9 @@ file(GLOB tesseract_hdr
     ccstruct/*.h
     ccutil/*.h
     classify/*.h
-    cube/*.h
     cutil/*.h
     dict/*.h
     lstm/*.h
-    neural_networks/runtime/*.h
     opencl/*.h
     textord/*.h
     viewer/*.h

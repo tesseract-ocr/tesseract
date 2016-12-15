@@ -12,11 +12,9 @@ files:
   - ccstruct/.*\.cpp
   - ccutil/.*\.cpp
   - classify/.*\.cpp
-  - cube/.*\.cpp
   - cutil/.*\.cpp
   - dict/.*\.cpp
   - lstm/.*\.cpp
-  - neural_networks/runtime/.*\.cpp
   - opencl/.*\.cpp
   - textord/.*\.cpp
   - viewer/.*\.cpp
@@ -28,11 +26,9 @@ files:
   - ccstruct/.*\.h
   - ccutil/.*\.h
   - classify/.*\.h
-  - cube/.*\.h
   - cutil/.*\.h
   - dict/.*\.h
   - lstm/.*\.h
-  - neural_networks/runtime/.*\.h
   - opencl/.*\.h
   - textord/.*\.h
   - viewer/.*\.h
@@ -48,11 +44,9 @@ include_directories:
   private:
     - arch
     - classify
-    - cube
     - cutil
     - dict
     - lstm
-    - neural_networks/runtime
     - opencl
     - textord
     - vs2010/port
