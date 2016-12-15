@@ -193,28 +193,6 @@ lang.fixed-length-dawgs
 </varlistentry>
 <varlistentry>
 <term>
-lang.cube-unicharset
-</term>
-<listitem>
-<simpara>
-  (Optional) A unicharset for cube, if cube was trained on a different set
-  of symbols.
-</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
-lang.cube-word-dawg
-</term>
-<listitem>
-<simpara>
-  (Optional) A word dawg for cube&#8217;s alternate unicharset.  Not needed if Cube
-  was trained with Tesseract&#8217;s unicharset.
-</simpara>
-</listitem>
-</varlistentry>
-<varlistentry>
-<term>
 lang.shapetable
 </term>
 <listitem>
