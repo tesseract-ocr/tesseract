@@ -64,8 +64,6 @@ build/*
 *.jar
 
 # tessdata
-*.cube.*
-*.tesseract_cube.*
 *.traineddata
 
 # OpenCL
