@@ -402,7 +402,7 @@ class Trie : public Dawg {
                              EDGE_VECTOR* backward_edges,
                              NODE_MARKER reduced_nodes);
 
-  /** 
+  /**
    * Order num_edges of consequtive EDGE_RECORDS in the given EDGE_VECTOR in
    * increasing order of unichar ids. This function is normally called
    * for all edges in a single node, and since number of edges in each node

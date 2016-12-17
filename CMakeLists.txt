@@ -54,11 +54,15 @@ if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
         find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
     endif()
 else()
+    if (STATIC)
+        set(CPPAN_BUILD_SHARED_LIBS 0)
+    else()
+        set(CPPAN_BUILD_SHARED_LIBS 1)
+    endif()
     add_subdirectory(.cppan)
 endif()
 
 find_package(OpenCL QUIET)
-find_package(PkgConfig)
 
 ###############################################################################
 #
@@ -203,7 +207,11 @@ set(tesseract_src ${tesseract_src}
 
 add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
 if (NOT STATIC)
-target_compile_definitions      (tesseract PUBLIC -DTESS_EXPORTS)
+target_compile_definitions      (tesseract
+    PRIVATE -DTESS_EXPORTS
+    INTERFACE -DTESS_IMPORTS
+)
+set_target_properties           (tesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 target_link_libraries           (tesseract ${LIB_Ws2_32} ${LIB_pthread})
 set_target_properties           (tesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
@@ -217,7 +225,8 @@ if (NOT CPPAN_BUILD)
     target_link_libraries       (tesseract ${Leptonica_LIBRARIES})
     export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 else()
-    target_link_libraries       (tesseract cppan)
+    target_link_libraries       (tesseract pvt.cppan.demo.leptonica)
+    add_dependencies            (tesseract cppan)
     file(WRITE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS tesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 endif()

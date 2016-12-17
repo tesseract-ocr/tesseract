@@ -2,56 +2,62 @@
 # tesseract
 #
 
-if (STATIC OR NOT (WIN32 OR CYGWIN))
+if (NOT CPPAN_BUILD AND NOT (WIN32 OR CYGWIN))
+    return()
+endif()
+
+if (CPPAN_BUILD)
+    set(ICU_FOUND 1)
+endif()
 
 # experimental
-if (MSVC)
+if (MSVC AND NOT CPPAN_BUILD)
+    include(CheckTypeSize)
+    check_type_size("void *" SIZEOF_VOID_P)
 
-include(CheckTypeSize)
-check_type_size("void *" SIZEOF_VOID_P)
+    if (SIZEOF_VOID_P EQUAL 8)
+        set(X64 1)
+        set(ARCH_DIR_NAME 64)
+    elseif (SIZEOF_VOID_P EQUAL 4)
+        set(X86 1)
+        set(ARCH_DIR_NAME 32)
+    else()
+        message(FATAL_ERROR "Cannot determine target architecture")
+    endif()
 
-if (SIZEOF_VOID_P EQUAL 8)
-    set(X64 1)
-    set(ARCH_DIR_NAME 64)
-elseif (SIZEOF_VOID_P EQUAL 4)
-    set(X86 1)
-    set(ARCH_DIR_NAME 32)
-else()
-    message(FATAL_ERROR "Cannot determine target architecture")
+    set(icu_dir "${CMAKE_CURRENT_BINARY_DIR}/icu")
+    set(icu_archive "${icu_dir}/icu${ARCH_DIR_NAME}.zip")
+
+    if (X86)
+        set(icu_hash 45167a240b60e36b59a87eda23490ce4)
+    else()
+        set(icu_hash 480c72491576c048de1218c3c5519399)
+    endif()
+
+    message(STATUS "Downloading latest ICU binaries")
+
+    file(DOWNLOAD
+        "http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
+        "${icu_archive}"
+        SHOW_PROGRESS
+        INACTIVITY_TIMEOUT 60 # seconds
+        EXPECTED_HASH MD5=${icu_hash}
+    )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xz "${icu_archive}"
+        WORKING_DIRECTORY "${icu_dir}"
+        RESULT_VARIABLE __result
+    )
+    if(NOT __result EQUAL 0)
+        message(FATAL_ERROR "error ${__result}")
+    endif()
+
+    set(ICU_ROOT ${icu_dir}/icu)
 endif()
-
-set(icu_dir "${CMAKE_CURRENT_BINARY_DIR}/icu")
-set(icu_archive "${icu_dir}/icu${ARCH_DIR_NAME}.zip")
-
-if (X86)
-    set(icu_hash 45167a240b60e36b59a87eda23490ce4)
-else()
-    set(icu_hash 480c72491576c048de1218c3c5519399)
-endif()
-
-message(STATUS "Downloading latest ICU binaries")
-
-file(DOWNLOAD
-    "http://download.icu-project.org/files/icu4c/56.1/icu4c-56_1-Win${ARCH_DIR_NAME}-msvc10.zip"
-    "${icu_archive}"
-    SHOW_PROGRESS
-    INACTIVITY_TIMEOUT 60 # seconds
-    EXPECTED_HASH MD5=${icu_hash}
-)
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar xz "${icu_archive}"
-    WORKING_DIRECTORY "${icu_dir}"
-    RESULT_VARIABLE __result
-)
-if(NOT __result EQUAL 0)
-    message(FATAL_ERROR "error ${__result}")
-endif()
-
-set(ICU_ROOT ${icu_dir}/icu)
-
-endif(MSVC)
 # experimental
 
+if (NOT CPPAN_BUILD)
 find_package(ICU COMPONENTS uc i18n)
+endif()
 
 ########################################
 # LIBRARY tessopt
@@ -159,7 +165,9 @@ project_group               (wordlist2dawg "Training Tools")
 
 if (ICU_FOUND)
 
+if (NOT CPPAN_BUILD)
 include_directories(${ICU_INCLUDE_DIRS})
+endif()
 
 ########################################
 # LIBRARY unicharset_training
@@ -177,7 +185,11 @@ set(unicharset_training_src
     unicharset_training_utils.h
 )
 add_library                 (unicharset_training ${unicharset_training_src})
+if (NOT CPPAN_BUILD)
 target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES})
+else()
+target_link_libraries       (unicharset_training common_training pvt.cppan.demo.unicode.icu.i18n)
+endif()
 project_group               (unicharset_training "Training Tools")
 
 
@@ -198,6 +210,7 @@ add_executable              (lstmtraining lstmtraining.cpp)
 target_link_libraries       (lstmtraining unicharset_training)
 project_group               (lstmtraining "Training Tools")
 
+
 ########################################
 # EXECUTABLE set_unicharset_properties
 ########################################
@@ -210,6 +223,10 @@ project_group               (set_unicharset_properties "Training Tools")
 ########################################
 # EXECUTABLE text2image
 ########################################
+
+if (NOT CPPAN_BUILD)
+find_package(PkgConfig)
+endif()
 
 if (PKG_CONFIG_FOUND)
 
@@ -246,7 +263,6 @@ add_executable              (text2image ${text2image_src})
 target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
 target_link_libraries       (text2image tesseract unicharset_training
-    ${ICU_LIBRARIES}
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
     ${PangoCairo_LIBRARIES}
@@ -257,6 +273,5 @@ project_group               (text2image "Training Tools")
 
 endif(PKG_CONFIG_FOUND)
 endif(ICU_FOUND)
-endif(STATIC OR NOT (WIN32 OR CYGWIN))
 
 ###############################################################################

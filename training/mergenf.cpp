@@ -33,7 +33,6 @@
 #include <string.h>
 #include <math.h>
 
-
 /*-------------------once in subfeat---------------------------------*/
 double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
 
@@ -199,9 +198,9 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
  *
  * @param New new proto to be filled in
  * @param Old old proto to be converted
- * 
+ *
  *  Globals: none
- * 
+ *
  * Exceptions: none
  * History: Mon Nov 26 09:45:39 1990, DSJ, Created.
  */

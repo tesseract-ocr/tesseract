@@ -61,5 +61,5 @@ extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
-extern FLOAT32 PicoFeatureLength;
+extern TESS_API FLOAT32 PicoFeatureLength;
 #endif

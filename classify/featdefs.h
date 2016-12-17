@@ -77,7 +77,7 @@ int ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
         Global Data Definitions and Declarations
 ----------------------------------------------------------------------------**/
 extern const FEATURE_DESC_STRUCT MicroFeatureDesc;
-extern const FEATURE_DESC_STRUCT PicoFeatDesc;
+extern TESS_API const FEATURE_DESC_STRUCT PicoFeatDesc;
 extern const FEATURE_DESC_STRUCT CharNormDesc;
 extern const FEATURE_DESC_STRUCT OutlineFeatDesc;
 extern const FEATURE_DESC_STRUCT IntFeatDesc;

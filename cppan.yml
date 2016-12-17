@@ -122,10 +122,14 @@ options:
               - WINDLLNAME="tesseract"
     shared:
         definitions:
-            public: TESS_EXPORTS
+            private:
+                - TESS_EXPORTS
+            interface:
+                - TESS_IMPORTS
 
 dependencies:
-  private:
-    # tesseract uses leptonica only internally
-    # and does not expose its interface to users
-    pvt.cppan.demo.leptonica: master
+    private:
+        pvt.cppan.demo.leptonica: master
+        # only for training tools, move to them later
+        pvt.cppan.demo.unicode.icu.i18n: "*"
+
