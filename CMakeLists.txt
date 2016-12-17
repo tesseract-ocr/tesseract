@@ -64,6 +64,8 @@ endif()
 
 find_package(OpenCL QUIET)
 
+option(BUILD_TRAINING_TOOLS "Build training tools" ON)
+
 ###############################################################################
 #
 # compiler and linker
@@ -246,6 +248,8 @@ set_target_properties           (tesseractmain PROPERTIES OUTPUT_NAME tesseract)
 
 ########################################
 
+if (BUILD_TRAINING_TOOLS)
 add_subdirectory(training)
+endif()
 
 ###############################################################################

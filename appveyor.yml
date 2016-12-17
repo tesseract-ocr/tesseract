@@ -16,8 +16,6 @@ before_build:
   - curl -fsS -o cppan.zip https://cppan.org/client/cppan-master-Windows-client.zip
   - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
-  
-  - cmake --version
 
   - cppan # dummy run to create %USERPROFILE%\.cppan\cppan.yml
   - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
@@ -26,5 +24,5 @@ build_script:
   - cppan
   - mkdir build
   - cd build
-  - cmake .. -G "%generator%"
+  - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off
   - cmake --build . --config Release
