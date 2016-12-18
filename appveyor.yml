@@ -1,7 +1,7 @@
 os: Visual Studio 2015
 
 platform:
-  #- Win32
+  - Win32
   - Win64
 
 configuration:
@@ -19,7 +19,7 @@ before_build:
 
   - cppan # dummy run to create %USERPROFILE%\.cppan\cppan.yml
   - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_warning_level: 0`n"'
-  #- ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
   
 build_script:
   - cppan
@@ -27,4 +27,3 @@ build_script:
   - cd build
   - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off
   - cmake --build . --config Release
-
