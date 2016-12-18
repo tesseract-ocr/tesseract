@@ -27,3 +27,4 @@ build_script:
   - cd build
   - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off
   - cmake --build . --config Release
+
