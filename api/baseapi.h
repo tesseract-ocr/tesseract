@@ -20,7 +20,7 @@
 #ifndef TESSERACT_API_BASEAPI_H_
 #define TESSERACT_API_BASEAPI_H_
 
-#define TESSERACT_VERSION_STR "4.00.00alpha"
+#define TESSERACT_VERSION_STR "4.0.0-alpha"
 #define TESSERACT_VERSION 0x040000
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
