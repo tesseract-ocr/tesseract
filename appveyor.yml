@@ -30,4 +30,4 @@ build_script:
 
 artifacts:
   - path: build\bin\Release
-    name: tesseract-appveyor
+    name: tesseract-$(APPVEYOR_BUILD_VERSION)
