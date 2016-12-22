@@ -10,7 +10,8 @@ For the latest online version of the README.md see:
 This package contains an OCR engine - `libtesseract` and a command line program - `tesseract`.
 
 The lead developer is Ray Smith. The maintainer is Zdenko Podobny. 
-For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/master/AUTHORS) and github's log of [contributors](https://github.com/tesseract-ocr/tesseract/graphs/contributors).
+For a list of contributors see [AUTHORS](https://github.com/tesseract-ocr/tesseract/blob/master/AUTHORS)
+and GitHub's log of [contributors](https://github.com/tesseract-ocr/tesseract/graphs/contributors).
 
 Tesseract has unicode (UTF-8) support, and can recognize more than 100
 languages "out of the box". It can be trained to recognize other languages. See [Tesseract Training](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) for more information. 
