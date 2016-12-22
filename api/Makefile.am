@@ -45,7 +45,7 @@ endif
 libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
-libtesseract_la_LDFLAGS = 
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS)
 libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
