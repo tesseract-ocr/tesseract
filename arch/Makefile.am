@@ -20,8 +20,13 @@ lib_LTLIBRARIES = libtesseract_avx.la libtesseract_sse.la
 libtesseract_avx_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 libtesseract_sse_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
 endif
+
+if AVX_OPT
 libtesseract_avx_la_CXXFLAGS = -mavx
+endif
+if SSE41_OPT
 libtesseract_sse_la_CXXFLAGS = -msse4.1
+endif
 
 libtesseract_avx_la_SOURCES = dotproductavx.cpp
 
