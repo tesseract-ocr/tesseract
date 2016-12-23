@@ -1,6 +1,6 @@
 local_settings:
     use_shared_libs: true
-    silent: false
+    #silent: false
 
     dependencies:
         pvt.cppan.demo.danbloomberg.leptonica: master
@@ -143,6 +143,10 @@ projects:
         dependencies:
             private:
                 pvt.cppan.demo.danbloomberg.leptonica: master
+
+    tesseractmain:
+        files: api/tesseractmain.cpp
+        dependencies: tesseract
 
     tessopt:
         type: lib
