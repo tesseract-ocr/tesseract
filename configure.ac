@@ -5,7 +5,7 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-AC_PREREQ([2.50])
+AC_PREREQ([2.59])
 AC_INIT([tesseract], [3.05.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
@@ -118,7 +118,7 @@ esac
 includedir="${includedir}/tesseract"
 
 AC_ARG_WITH([extra-includes],
-            [AC_HELP_STRING([--with-extra-includes=DIR],
+            [AS_HELP_STRING([--with-extra-includes=DIR],
                        [Define an additional directory for include files])],
             [if test -d "$withval" ; then
                CFLAGS="$CFLAGS -I$withval"
@@ -127,7 +127,7 @@ AC_ARG_WITH([extra-includes],
              fi])
 
 AC_ARG_WITH([extra-libraries],
-            [AC_HELP_STRING([--with-extra-libraries=DIR],
+            [AS_HELP_STRING([--with-extra-libraries=DIR],
                        [Define an additional directory for library files])],
             [if test -d "$withval" ; then
               LDFLAGS="$LDFLAGS -L$withval"
@@ -137,8 +137,8 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
- [AC_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
-AC_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
+ [AS_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
+AS_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
     [enable_graphics=$enableval],
     [enable_graphics="yes"])
 AC_MSG_RESULT([$enable_graphics])
@@ -150,7 +150,7 @@ fi
 # Check if cube should be disabled
 AC_MSG_CHECKING([whether to disable cube])
 AC_ARG_ENABLE([cube],
-  [AC_HELP_STRING([--disable-cube], [don't build cube support (experimental)])],
+  [AS_HELP_STRING([--disable-cube], [don't build cube support (experimental)])],
     [disable_cube="yes"], [disable_cube="no"])
 AC_MSG_RESULT([$disable_cube])
 AM_CONDITIONAL([NO_CUBE_BUILD], [test "$disable_cube" = "yes"])
@@ -255,7 +255,7 @@ AC_SUBST([OPENCL_LDFLAGS])
 # http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
-    [AC_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
+    [AS_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
     [enable_visibility=$enableval],
     [enable_visibility="no"])
 AC_MSG_RESULT([$enable_visibility])
@@ -264,7 +264,7 @@ AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 # check whether to build multiple libraries
 AC_MSG_CHECKING([--enable-multiple-libraries argument])
 AC_ARG_ENABLE([multiple-libraries],
-    [AC_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
+    [AS_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
     [enable_mlibs=$enableval],
     [enable_mlibs="no"])
 AC_MSG_RESULT([$enable_mlibs])
@@ -273,7 +273,7 @@ AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
 # Check if tessdata-prefix is disabled
 AC_MSG_CHECKING([whether to use tessdata-prefix])
 AC_ARG_ENABLE([tessdata-prefix],
-    [AC_HELP_STRING([--disable-tessdata-prefix],
+    [AS_HELP_STRING([--disable-tessdata-prefix],
             [don't set TESSDATA-PREFIX during compile])],
     [tessdata_prefix="no"], [tessdata_prefix="yes"])
 AC_MSG_RESULT([$tessdata_prefix])
@@ -282,7 +282,7 @@ AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 # Check whether enable debuging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
-    [AC_HELP_STRING([--enable-debug],
+    [AS_HELP_STRING([--enable-debug],
         [turn on debugging (default=no)])],
     [debug=$enableval],
     [debug="no"])
