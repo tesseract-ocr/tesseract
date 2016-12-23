@@ -1,5 +1,6 @@
 local_settings:
     use_shared_libs: true
+    silent: false
 
     dependencies:
         pvt.cppan.demo.danbloomberg.leptonica: master
@@ -7,11 +8,13 @@ local_settings:
 
 root_project: pvt.cppan.demo.google.tesseract
 
+common_settings:
+    c++: 11
+
 projects:
     tesseract:
-        type: library
-        c++: 11
-
+        type: lib
+        export_all_symbols: true
         files:
           - api/.*\.cpp
           - arch/.*\.cpp
@@ -48,10 +51,12 @@ projects:
           - viewer/svpaint.cpp
 
         include_directories:
-          private:
+          public:
+          #private:
             - arch
             - classify
             - cutil
+            - ccutil
             - dict
             - lstm
             - opencl
@@ -59,7 +64,7 @@ projects:
             - vs2010/port
             - viewer
             - wordrec
-          public:
+          #public:
             - api
             - ccmain
             - ccstruct
@@ -138,4 +143,85 @@ projects:
         dependencies:
             private:
                 pvt.cppan.demo.danbloomberg.leptonica: master
+
+    tessopt:
+        type: lib
+        static_only: true
+        files: training/tessopt.*
+        dependencies: tesseract
+
+    common_training:
+        type: lib
+        static_only: true
+        files:
+            - training/commandlineflags.cpp
+            - training/commandlineflags.h
+            - training/commontraining.cpp
+            - training/commontraining.h
+        dependencies: tessopt
+
+    ambiguous_words:
+        files: training/ambiguous_words.cpp
+        dependencies: tesseract
+
+    classifier_tester:
+        files: training/classifier_tester.cpp
+        dependencies: common_training
+
+    combine_tessdata:
+        files: training/combine_tessdata.cpp
+        dependencies: tesseract
+
+    cntraining:
+        files: training/cntraining.cpp
+        dependencies: common_training
+
+    dawg2wordlist:
+        files: training/dawg2wordlist.cpp
+        dependencies: tesseract
+
+    mftraining:
+        files:
+            - training/mftraining.cpp
+            - training/mergenf.*
+        dependencies: common_training
+
+    shapeclustering:
+        files: training/shapeclustering.cpp
+        dependencies: common_training
+
+    unicharset_extractor:
+        files: training/unicharset_extractor.cpp
+        dependencies: tessopt
+
+    wordlist2dawg:
+        files: training/wordlist2dawg.cpp
+        dependencies: tesseract
+
+    unicharset_training:
+        type: lib
+        static_only: true
+        files:
+            - training/fileio.*
+            - training/icuerrorcode.h
+            - training/lstmtester.*
+            - training/normstrngs.*
+            - training/unicharset_training_utils.*
+        dependencies:
+            - common_training
+            - pvt.cppan.demo.unicode.icu.i18n
+
+    lstmeval:
+        files: training/lstmeval.cpp
+        dependencies: unicharset_training
+
+    lstmtraining:
+        files: training/lstmtraining.cpp
+        dependencies: unicharset_training
+
+    set_unicharset_properties:
+        files: training/set_unicharset_properties.cpp
+        dependencies: unicharset_training
+
+    # text2image
 
