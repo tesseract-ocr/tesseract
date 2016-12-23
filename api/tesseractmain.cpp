@@ -63,25 +63,31 @@ void PrintVersionInfo() {
   lept_free(versionStrP);
 
 #ifdef USE_OPENCL
-    cl_platform_id platform;
+    cl_platform_id platform[4];
     cl_uint num_platforms;
-    cl_device_id devices[2];
-    cl_uint num_devices;
-    char info[256];
-    int i;
 
     printf(" OpenCL info:\n");
-    clGetPlatformIDs(1, &platform, &num_platforms);
-    printf("  Found %d platforms.\n", num_platforms);
-    clGetPlatformInfo(platform, CL_PLATFORM_NAME, 256, info, 0);
-    printf("  Platform name: %s.\n", info);
-    clGetPlatformInfo(platform, CL_PLATFORM_VERSION, 256, info, 0);
-    printf("  Version: %s.\n", info);
-    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 2, devices, &num_devices);
-    printf("  Found %d devices.\n", num_devices);
-    for (i = 0; i < num_devices; ++i) {
-      clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0);
-      printf("    Device %d name: %s.\n", i + 1, info);
+    if (clGetPlatformIDs(4, platform, &num_platforms) == CL_SUCCESS) {
+      printf("  Found %u platform(s).\n", num_platforms);
+      for (unsigned n = 0; n < num_platforms; n++) {
+        char info[256];
+        if (clGetPlatformInfo(platform[n], CL_PLATFORM_NAME, 256, info, 0) == CL_SUCCESS) {
+          printf("  Platform %u name: %s.\n", n + 1, info);
+        }
+        if (clGetPlatformInfo(platform[n], CL_PLATFORM_VERSION, 256, info, 0) == CL_SUCCESS) {
+          printf("  Version: %s.\n", info);
+        }
+        cl_device_id devices[2];
+        cl_uint num_devices;
+        if (clGetDeviceIDs(platform[n], CL_DEVICE_TYPE_ALL, 2, devices, &num_devices) == CL_SUCCESS) {
+          printf("  Found %u device(s).\n", num_devices);
+          for (unsigned i = 0; i < num_devices; ++i) {
+            if (clGetDeviceInfo(devices[i], CL_DEVICE_NAME, 256, info, 0) == CL_SUCCESS) {
+              printf("    Device %u name: %s.\n", i + 1, info);
+            }
+          }
+        }
+      }
     }
 #endif
 }
