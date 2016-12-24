@@ -3,7 +3,7 @@ local_settings:
     #silent: false
 
     dependencies:
-        pvt.cppan.demo.danbloomberg.leptonica: master
+        pvt.cppan.demo.danbloomberg.leptonica: 1
         pvt.cppan.demo.unicode.icu.i18n: "*"
 
 root_project: pvt.cppan.demo.google.tesseract
@@ -142,7 +142,7 @@ projects:
 
         dependencies:
             private:
-                pvt.cppan.demo.danbloomberg.leptonica: master
+                pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tesseractmain:
         files: api/tesseractmain.cpp
