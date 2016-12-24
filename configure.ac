@@ -415,11 +415,11 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
-PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.71], [have_lept=true], [have_lept=false])
+PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
   CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
 else
-  AC_MSG_ERROR([Leptonica 1.71 or higher is required. Try to install libleptonica-dev package.])
+  AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
