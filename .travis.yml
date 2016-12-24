@@ -34,7 +34,7 @@ install:
   - if [[ $OSX ]]; then export ICU_ROOT=/usr/local/opt/icu4c ; fi
   - wget https://www.cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.sh
   - sudo sh cmake-3.6.1-Linux-x86_64.sh --skip-license --prefix=/usr
-  - wget -O leptonica.zip https://github.com/DanBloomberg/leptonica/archive/v$LEPT_VER.zip
+  - wget -O leptonica.zip https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.zip
   - unzip leptonica.zip -d .
   - cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build
   - make -C leptonica-$LEPT_VER/build
