@@ -10,8 +10,10 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+if (NOT APPVEYOR)
 if (WIN32 AND CMAKE_VERSION VERSION_EQUAL 3.6 OR (CMAKE_VERSION VERSION_GREATER 3.6 AND CMAKE_VERSION VERSION_LESS 3.7))
     message(FATAL_ERROR "You have bugged CMake version 3.6 which is known to not work with tesseract. Please, upgrade CMake.")
+endif()
 endif()
 
 # In-source builds are disabled.
