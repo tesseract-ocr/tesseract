@@ -18,9 +18,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "tesseractclass.h"
-#ifdef _OPENMP
-#include <omp.h>
-#endif // _OPENMP
 
 namespace tesseract {
 
@@ -53,9 +50,6 @@ void Tesseract::PrerecAllWordsPar(const GenericVector<WordData>& words) {
   }
   // Pre-classify all the blobs.
   if (tessedit_parallelize > 1) {
-#ifdef _OPENMP
-    #pragma omp parallel for num_threads(10)
-#endif // _OPENMP
     for (int b = 0; b < blobs.size(); ++b) {
       *blobs[b].choices =
           blobs[b].tesseract->classify_blob(blobs[b].blob, "par", White, NULL);

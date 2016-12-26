@@ -170,9 +170,6 @@ if test "$enable_embedded" = "yes"; then
   AM_CPPFLAGS="-DEMBEDDED $AM_CPPFLAGS"
 fi
 
-# check whether to build OpenMP support
-AC_OPENMP
-
 # check whether to build opencl version
 AC_MSG_CHECKING([--enable-opencl argument])
 AC_ARG_ENABLE([opencl],
