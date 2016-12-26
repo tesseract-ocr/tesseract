@@ -25,7 +25,7 @@ build_script:
   - cppan
   - mkdir build
   - cd build
-  - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off
+  - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off -DAPPVEYOR=1
   - cmake --build . --config Release
 
 artifacts:
