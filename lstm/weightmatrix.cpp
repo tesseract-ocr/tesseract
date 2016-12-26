@@ -19,7 +19,7 @@
 #include "weightmatrix.h"
 
 #undef NONX86_BUILD
-#if defined(ANDROID_BUILD) or defined(__PPC__) or defined(_ARCH_PPC64)
+#if !defined(__x86_64__) && !defined(__i386__) && !defined(_WIN32) || defined(ANDROID_BUILD)
 #define NONX86_BUILD 1
 #endif
 
