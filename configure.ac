@@ -433,24 +433,16 @@ do
   done
 done
 
-if test "$have_lept" = yes ; then
-  AC_MSG_RESULT(yes)
-  AC_CHECK_LIB([lept], [l_generateCIDataForPdf], [],
-               [AC_MSG_ERROR([leptonica library with pdf support (>= 1.71) is missing])])
-else
-  AC_MSG_ERROR([leptonica not found])
-fi
-
-AC_MSG_CHECKING([leptonica headers version >= 1.71])
+AC_MSG_CHECKING([leptonica headers version >= 1.74])
 AC_PREPROC_IFELSE(
     [AC_LANG_PROGRAM([#include "allheaders.h"],
-[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 71)
+[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 74)
 int i = 0;
 #else
 #error You need to upgrade your leptonica library!
 #endif])],
     [AC_MSG_RESULT(yes)],
-    [AC_MSG_FAILURE([leptonica 1.71 or higher is required])])
+    [AC_MSG_FAILURE([leptonica 1.74 or higher is required])])
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
