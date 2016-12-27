@@ -29,6 +29,7 @@
 # if defined(__linux__) || defined(__MINGW32__)
 #  include <cpuid.h>
 # elif defined(_WIN32)
+#  include <intrin.h>
 # endif
 #endif
 #include "dotproductavx.h"
@@ -70,6 +71,14 @@ class SIMDDetect {
       if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
         sse_available_ = (ecx & 0x00080000) != 0;
         avx_available_ = (ecx & 0x10000000) != 0;
+      }
+# elif defined(_WIN32)
+      int cpuInfo[4];
+      __cpuid(cpuInfo, 0);
+      if (cpuInfo[0] >= 1) {
+        __cpuid(cpuInfo, 1);
+        sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
+        avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
       }
 # endif
       if (avx_available_) tprintf("Found AVX\n");
