@@ -28,6 +28,7 @@ libtesseract_api_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \
@@ -57,6 +58,7 @@ libtesseract_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \
