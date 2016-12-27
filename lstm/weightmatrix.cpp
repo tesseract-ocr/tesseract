@@ -18,13 +18,19 @@
 
 #include "weightmatrix.h"
 
-#undef NONX86_BUILD
-#if !defined(__x86_64__) && !defined(__i386__) && !defined(_WIN32) || defined(ANDROID_BUILD)
-#define NONX86_BUILD 1
-#endif
+#undef X86_BUILD
+#if defined(__x86_64__) || defined(__i386__) || defined(_WIN32)
+# if !defined(ANDROID_BUILD)
+#  define X86_BUILD 1
+# endif // !ANDROID_BUILD
+#endif // x86 target
 
-#if defined(__linux__) && !defined(NONX86_BUILD)
-#include <cpuid.h>
+#if defined(X86_BUILD)
+# if defined(__linux__) || defined(__MINGW32__)
+#  include <cpuid.h>
+# elif defined(_WIN32)
+#  include <intrin.h>
+# endif
 #endif
 #include "dotproductavx.h"
 #include "dotproductsse.h"
@@ -58,18 +64,28 @@ class SIMDDetect {
   // any other available SIMD equipment.
   void TestArchitecture() {
     SVAutoLock lock(&arch_mutex_);
-    if (arch_tested_) return;
-#if defined(__linux__) && !defined(NONX86_BUILD)
-    if (__get_cpuid_max(0, NULL) >= 1) {
+    if (!arch_tested_) {
+#if defined(X86_BUILD)
+# if defined(__linux__) || defined(__MINGW32__)
       unsigned int eax, ebx, ecx, edx;
-      __get_cpuid(1, &eax, &ebx, &ecx, &edx);
-      sse_available_ = (ecx & 0x00080000) != 0;
-      avx_available_ = (ecx & 0x10000000) != 0;
+      if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
+        sse_available_ = (ecx & 0x00080000) != 0;
+        avx_available_ = (ecx & 0x10000000) != 0;
+      }
+# elif defined(_WIN32)
+      int cpuInfo[4];
+      __cpuid(cpuInfo, 0);
+      if (cpuInfo[0] >= 1) {
+        __cpuid(cpuInfo, 1);
+        sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
+        avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
+      }
+# endif
+      if (avx_available_) tprintf("Found AVX\n");
+      if (sse_available_) tprintf("Found SSE\n");
+#endif // X86_BUILD
+      arch_tested_ = true;
     }
-#endif
-    if (avx_available_) tprintf("Found AVX\n");
-    if (sse_available_) tprintf("Found SSE\n");
-    arch_tested_ = true;
   }
 
  private:
@@ -439,5 +455,3 @@ void WeightMatrix::MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
 }
 
 }  // namespace tesseract.
-
-#undef NONX86_BUILD
