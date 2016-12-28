@@ -15,6 +15,8 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#include "platform.h"
+
 // Architecture detector. Add code here to detect any other architectures for
 // SIMD-based faster dot product functions. Intended to be a single static
 // object, but it does no real harm to have more than one.
@@ -37,7 +39,7 @@ class SIMDDetect {
   // Singleton.
   static SIMDDetect detector;
   // If true, then AVX has been detected.
-  static bool avx_available_;
+  static TESS_API bool avx_available_;
   // If true, then SSe4.1 has been detected.
-  static bool sse_available_;
+  static TESS_API bool sse_available_;
 };
