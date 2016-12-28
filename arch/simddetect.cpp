@@ -60,7 +60,5 @@ SIMDDetect::SIMDDetect() {
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
   }
 # endif
-  if (avx_available_) tprintf("Found AVX\n");
-  if (sse_available_) tprintf("Found SSE\n");
 #endif // X86_BUILD
 }

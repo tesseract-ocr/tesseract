@@ -28,6 +28,7 @@
 #include "baseapi.h"
 #include "basedir.h"
 #include "renderer.h"
+#include "simddetect.h"
 #include "strngs.h"
 #include "tprintf.h"
 #include "openclwrapper.h"
@@ -90,6 +91,10 @@ void PrintVersionInfo() {
       }
     }
 #endif
+  if (SIMDDetect::IsAVXAvailable())
+    printf(" Found AVX\n");
+  if (SIMDDetect::IsSSEAvailable())
+    printf(" Found SSE\n");
 }
 
 void PrintUsage(const char* program) {
