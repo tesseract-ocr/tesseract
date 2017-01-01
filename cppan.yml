@@ -146,7 +146,9 @@ projects:
 
     tesseractmain:
         files: api/tesseractmain.cpp
-        dependencies: tesseract
+        dependencies:
+            - tesseract
+            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tessopt:
         type: lib
@@ -162,11 +164,15 @@ projects:
             - training/commandlineflags.h
             - training/commontraining.cpp
             - training/commontraining.h
-        dependencies: tessopt
+        dependencies:
+            - tessopt
+            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     ambiguous_words:
         files: training/ambiguous_words.cpp
-        dependencies: tesseract
+        dependencies:
+            - tesseract
+            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     classifier_tester:
         files: training/classifier_tester.cpp
