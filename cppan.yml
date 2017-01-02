@@ -154,6 +154,7 @@ projects:
         type: lib
         static_only: true
         files: training/tessopt.*
+        include_directories: training
         dependencies: tesseract
 
     common_training:
@@ -164,6 +165,7 @@ projects:
             - training/commandlineflags.h
             - training/commontraining.cpp
             - training/commontraining.h
+        include_directories: training
         dependencies:
             - tessopt
             - pvt.cppan.demo.danbloomberg.leptonica: 1
@@ -217,6 +219,7 @@ projects:
             - training/lstmtester.*
             - training/normstrngs.*
             - training/unicharset_training_utils.*
+        include_directories: training
         dependencies:
             - common_training
             - pvt.cppan.demo.unicode.icu.i18n
