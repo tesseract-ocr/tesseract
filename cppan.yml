@@ -121,4 +121,4 @@ dependencies:
   private:
     # tesseract uses leptonica only internally
     # and does not expose its interface to users
-    pvt.cppan.demo.leptonica: master
+    pvt.cppan.demo.danbloomberg.leptonica: 1.73
