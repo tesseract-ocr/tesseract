@@ -368,14 +368,34 @@ AC_COMPILE_IFELSE(
   ]])
 ], [
      AC_MSG_RESULT(yes)
-     has_cpp11=yes
    ],
    [
      AC_MSG_RESULT(no)
-     has_cpp11=no
+     AC_MSG_ERROR([Your compiler does not have the necessary c++11 support! Cannot proceed.])
    ])
 AC_CHECK_FUNCS([snprintf],, [snprintfworks=yes])
 CXXFLAGS="$OLD_CXXFLAGS"
+
+
+# set c++11 support based on platform/compiler
+case "${host_os}" in
+  cygwin*)
+    CXXFLAGS="$CXXFLAGS -std=gnu++11"
+    ;;
+  *-darwin* | *-macos10*)
+     if test "x$CLANG" = "xyes"; then
+       CXXFLAGS="$CXXFLAGS -std=c++11 "
+       LDFLAGS="$LDFLAGS -stdlib=libc++"
+     else
+       CXXFLAGS="$CXXFLAGS -std=c++11"
+     fi
+    ;;
+  *)
+    # default
+    CXXFLAGS="$CXXFLAGS -std=c++11"
+    ;;
+esac
+
 
 # ----------------------------------------
 # Check for libraries
@@ -458,29 +478,6 @@ else
       CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 
-# set c++11 support based on platform/compiler
-if test "x$has_cpp11" = "xyes"; then
-  case "${host_os}" in
-    cygwin*)
-      CXXFLAGS="$CXXFLAGS -std=gnu++11"
-      ;;
-    *-darwin* | *-macos10*)
-       if test "x$CLANG" = "xyes"; then
-         CXXFLAGS="$CXXFLAGS -std=c++11 "
-         LDFLAGS="$LDFLAGS -stdlib=libc++"
-       else
-         CXXFLAGS="$CXXFLAGS -std=c++11"
-       fi
-      ;;
-    *)
-      # default
-      CXXFLAGS="$CXXFLAGS -std=c++11"
-      ;;
-  esac
-else
-  AC_MSG_WARN([Training tools WILL NOT be built because of missing c++11 support.])
-  AM_CONDITIONAL([ENABLE_TRAINING], false)
-fi
 
 # ----------------------------------------
 # Final Tasks and Output
