@@ -94,11 +94,6 @@ projects:
           - sys/wait.h
           - tiffio.h
           - unistd.h
-          - cairo/cairo-version.h
-          - CL/cl.h
-          - OpenCL/cl.h
-          - pango-1.0/pango/pango-features.h
-          - unicode/uchar.h
 
         check_type_size:
           - long long int
