@@ -25,6 +25,7 @@ build_script:
   - mkdir build
   - cd build
   - cppan --build ..
+  - echo test
   #- mkdir build
   #- cd build
   #- cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off -DAPPVEYOR=1
