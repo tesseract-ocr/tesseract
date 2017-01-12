@@ -3,11 +3,12 @@
 If you have cloned Tesseract from GitHub, you must generate
 the configure script.
 
-If you have tesseract 3.0x installation in your system, please remove it
+If you have tesseract 4.0x installation in your system, please remove it
 before new build.
 
 Known dependencies for training tools (excluding leptonica):
- * compiler with c++ support
+ * compiler with c++11 support
+ * autoconf-archive
  * pango-devel
  * cairo-devel
  * icu-devel

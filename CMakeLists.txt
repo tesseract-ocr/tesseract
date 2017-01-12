@@ -10,6 +10,12 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
+if (NOT APPVEYOR)
+if (WIN32 AND (CMAKE_VERSION VERSION_EQUAL 3.6 OR (CMAKE_VERSION VERSION_GREATER 3.6 AND CMAKE_VERSION VERSION_LESS 3.7)))
+    message(FATAL_ERROR "You have bugged CMake version 3.6 which is known to not work with tesseract. Please, upgrade CMake.")
+endif()
+endif()
+
 # In-source builds are disabled.
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     message(FATAL_ERROR
@@ -44,12 +50,12 @@ set(VERSION_MAJOR 3)
 set(VERSION_MINOR 05)
 set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
 
-set(MINIMUM_LEPTONICA_VERSION 1.71)
+set(MINIMUM_LEPTONICA_VERSION 1.74)
 
 if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
     if (NOT Leptonica_DIR AND NOT MSVC)
         find_package(PkgConfig REQUIRED)
-        pkg_check_modules(Leptonica REQUIRED lept)
+        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
     else()
         find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
     endif()
@@ -227,7 +233,7 @@ if (NOT CPPAN_BUILD)
     target_link_libraries       (tesseract ${Leptonica_LIBRARIES})
     export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 else()
-    target_link_libraries       (tesseract pvt.cppan.demo.leptonica)
+    target_link_libraries       (tesseract pvt.cppan.demo.danbloomberg.leptonica)
     add_dependencies            (tesseract cppan)
     file(WRITE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS tesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)

@@ -5,7 +5,7 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-AC_PREREQ([2.50])
+AC_PREREQ([2.59])
 AC_INIT([tesseract], [4.0.0-dev], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
@@ -115,10 +115,22 @@ case "${host_os}" in
         ;;
 esac
 
+## Checks for supported compiler options.
+AM_CONDITIONAL([AVX_OPT], false)
+AM_CONDITIONAL([SSE41_OPT], false)
+AX_CHECK_COMPILE_FLAG([-mavx], [avx=1], [avx=0])
+AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=1], [sse41=0])
+if test x$avx = x1; then
+    AM_CONDITIONAL([AVX_OPT], true)
+fi
+if test x$sse41 = x1; then
+    AM_CONDITIONAL([SSE41_OPT], true)
+fi
+
 includedir="${includedir}/tesseract"
 
 AC_ARG_WITH([extra-includes],
-            [AC_HELP_STRING([--with-extra-includes=DIR],
+            [AS_HELP_STRING([--with-extra-includes=DIR],
                        [Define an additional directory for include files])],
             [if test -d "$withval" ; then
                CFLAGS="$CFLAGS -I$withval"
@@ -127,7 +139,7 @@ AC_ARG_WITH([extra-includes],
              fi])
 
 AC_ARG_WITH([extra-libraries],
-            [AC_HELP_STRING([--with-extra-libraries=DIR],
+            [AS_HELP_STRING([--with-extra-libraries=DIR],
                        [Define an additional directory for library files])],
             [if test -d "$withval" ; then
               LDFLAGS="$LDFLAGS -L$withval"
@@ -137,8 +149,8 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
- [AC_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
-AC_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
+ [AS_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
+AS_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
     [enable_graphics=$enableval],
     [enable_graphics="yes"])
 AC_MSG_RESULT([$enable_graphics])
@@ -244,7 +256,7 @@ AC_SUBST([OPENCL_LDFLAGS])
 # http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
-    [AC_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
+    [AS_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
     [enable_visibility=$enableval],
     [enable_visibility="no"])
 AC_MSG_RESULT([$enable_visibility])
@@ -253,7 +265,7 @@ AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 # check whether to build multiple libraries
 AC_MSG_CHECKING([--enable-multiple-libraries argument])
 AC_ARG_ENABLE([multiple-libraries],
-    [AC_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
+    [AS_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
     [enable_mlibs=$enableval],
     [enable_mlibs="no"])
 AC_MSG_RESULT([$enable_mlibs])
@@ -262,7 +274,7 @@ AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
 # Check if tessdata-prefix is disabled
 AC_MSG_CHECKING([whether to use tessdata-prefix])
 AC_ARG_ENABLE([tessdata-prefix],
-    [AC_HELP_STRING([--disable-tessdata-prefix],
+    [AS_HELP_STRING([--disable-tessdata-prefix],
             [don't set TESSDATA-PREFIX during compile])],
     [tessdata_prefix="no"], [tessdata_prefix="yes"])
 AC_MSG_RESULT([$tessdata_prefix])
@@ -271,7 +283,7 @@ AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 # Check whether enable debuging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
-    [AC_HELP_STRING([--enable-debug],
+    [AS_HELP_STRING([--enable-debug],
         [turn on debugging (default=no)])],
     [debug=$enableval],
     [debug="no"])
@@ -356,14 +368,34 @@ AC_COMPILE_IFELSE(
   ]])
 ], [
      AC_MSG_RESULT(yes)
-     has_cpp11=yes
    ],
    [
      AC_MSG_RESULT(no)
-     has_cpp11=no
+     AC_MSG_ERROR([Your compiler does not have the necessary c++11 support! Cannot proceed.])
    ])
 AC_CHECK_FUNCS([snprintf],, [snprintfworks=yes])
 CXXFLAGS="$OLD_CXXFLAGS"
+
+
+# set c++11 support based on platform/compiler
+case "${host_os}" in
+  cygwin*)
+    CXXFLAGS="$CXXFLAGS -std=gnu++11"
+    ;;
+  *-darwin* | *-macos10*)
+     if test "x$CLANG" = "xyes"; then
+       CXXFLAGS="$CXXFLAGS -std=c++11 "
+       LDFLAGS="$LDFLAGS -stdlib=libc++"
+     else
+       CXXFLAGS="$CXXFLAGS -std=c++11"
+     fi
+    ;;
+  *)
+    # default
+    CXXFLAGS="$CXXFLAGS -std=c++11"
+    ;;
+esac
+
 
 # ----------------------------------------
 # Check for libraries
@@ -403,11 +435,11 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
-PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.71], [have_lept=true], [have_lept=false])
+PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
   CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
 else
-  AC_MSG_ERROR([Leptonica 1.71 or higher is required. Try to install libleptonica-dev package.])
+  AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
@@ -446,29 +478,6 @@ else
       CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
 fi
 
-# set c++11 support based on platform/compiler
-if test "x$has_cpp11" = "xyes"; then
-  case "${host_os}" in
-    cygwin*)
-      CXXFLAGS="$CXXFLAGS -std=gnu++11"
-      ;;
-    *-darwin* | *-macos10*)
-       if test "x$CLANG" = "xyes"; then
-         CXXFLAGS="$CXXFLAGS -std=c++11 "
-         LDFLAGS="$LDFLAGS -stdlib=libc++"
-       else
-         CXXFLAGS="$CXXFLAGS -std=c++11"
-       fi
-      ;;
-    *)
-      # default
-      CXXFLAGS="$CXXFLAGS -std=c++11"
-      ;;
-  esac
-else
-  AC_MSG_WARN([Training tools WILL NOT be built because of missing c++11 support.])
-  AM_CONDITIONAL([ENABLE_TRAINING], false)
-fi
 
 # ----------------------------------------
 # Final Tasks and Output

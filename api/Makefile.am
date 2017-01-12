@@ -28,6 +28,7 @@ libtesseract_api_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \
@@ -45,7 +46,7 @@ endif
 libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
-libtesseract_la_LDFLAGS = 
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS)
 libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
@@ -57,6 +58,7 @@ libtesseract_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \

@@ -18,72 +18,13 @@
 
 #include "weightmatrix.h"
 
-#undef NONX86_BUILD
-#if defined(ANDROID_BUILD) or defined(__PPC__) or defined(_ARCH_PPC64)
-#define NONX86_BUILD 1
-#endif
-
-#if defined(__linux__) && !defined(NONX86_BUILD)
-#include <cpuid.h>
-#endif
 #include "dotproductavx.h"
 #include "dotproductsse.h"
+#include "simddetect.h"
 #include "statistc.h"
-#include "svutil.h"
 #include "tprintf.h"
 
 namespace tesseract {
-
-// Architecture detector. Add code here to detect any other architectures for
-// SIMD-based faster dot product functions. Intended to be a single static
-// object, but it does no real harm to have more than one.
-class SIMDDetect {
- public:
-  SIMDDetect()
-      : arch_tested_(false), avx_available_(false), sse_available_(false) {}
-
-  // Returns true if AVX is available on this system.
-  bool IsAVXAvailable() {
-    if (!arch_tested_) TestArchitecture();
-    return avx_available_;
-  }
-  // Returns true if SSE4.1 is available on this system.
-  bool IsSSEAvailable() {
-    if (!arch_tested_) TestArchitecture();
-    return sse_available_;
-  }
-
- private:
-  // Tests the architecture in a system-dependent way to detect AVX, SSE and
-  // any other available SIMD equipment.
-  void TestArchitecture() {
-    SVAutoLock lock(&arch_mutex_);
-    if (arch_tested_) return;
-#if defined(__linux__) && !defined(NONX86_BUILD)
-    if (__get_cpuid_max(0, NULL) >= 1) {
-      unsigned int eax, ebx, ecx, edx;
-      __get_cpuid(1, &eax, &ebx, &ecx, &edx);
-      sse_available_ = (ecx & 0x00080000) != 0;
-      avx_available_ = (ecx & 0x10000000) != 0;
-    }
-#endif
-    if (avx_available_) tprintf("Found AVX\n");
-    if (sse_available_) tprintf("Found SSE\n");
-    arch_tested_ = true;
-  }
-
- private:
-  // Detect architecture in only a single thread.
-  SVMutex arch_mutex_;
-  // Flag set to true after TestArchitecture has been called.
-  bool arch_tested_;
-  // If true, then AVX has been detected.
-  bool avx_available_;
-  // If true, then SSe4.1 has been detected.
-  bool sse_available_;
-};
-
-static SIMDDetect detector;
 
 // Copies the whole input transposed, converted to double, into *this.
 void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double>& input) {
@@ -242,7 +183,7 @@ void WeightMatrix::MatrixDotVector(const inT8* u, double* v) const {
   for (int i = 0; i < num_out; ++i) {
     const inT8* Wi = wi_[i];
     int total = 0;
-    if (detector.IsSSEAvailable()) {
+    if (SIMDDetect::IsSSEAvailable()) {
       total = IntDotProductSSE(u, Wi, num_in);
     } else {
       for (int j = 0; j < num_in; ++j) total += Wi[j] * u[j];
@@ -394,8 +335,8 @@ double WeightMatrix::DotProduct(const double* u, const double* v, int n) {
   // is about 8% faster than sse. This suggests that the time is memory
   // bandwidth constrained and could benefit from holding the reused vector
   // in AVX registers.
-  if (detector.IsAVXAvailable()) return DotProductAVX(u, v, n);
-  if (detector.IsSSEAvailable()) return DotProductSSE(u, v, n);
+  if (SIMDDetect::IsAVXAvailable()) return DotProductAVX(u, v, n);
+  if (SIMDDetect::IsSSEAvailable()) return DotProductSSE(u, v, n);
   double total = 0.0;
   for (int k = 0; k < n; ++k) total += u[k] * v[k];
   return total;
@@ -439,5 +380,3 @@ void WeightMatrix::MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
 }
 
 }  // namespace tesseract.
-
-#undef NONX86_BUILD
