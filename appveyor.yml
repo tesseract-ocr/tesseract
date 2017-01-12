@@ -8,8 +8,8 @@ configuration:
   - Release
 
 before_build:
-  - if %platform%==Win32 set generator=Visual Studio 14
-  - if %platform%==Win64 set generator=Visual Studio 14 Win64
+  - if %platform%==Win32 set generator=Visual Studio 14 2015
+  - if %platform%==Win64 set generator=Visual Studio 14 2015 Win64
   - if %platform%==Win32 set vcplatform=Win32
   - if %platform%==Win64 set vcplatform=x64
 
