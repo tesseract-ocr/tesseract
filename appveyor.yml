@@ -24,9 +24,9 @@ before_build:
 build_script:
   - mkdir build
   - cd build
-  - cmd: echo local_settings: > cppan.yml
-  - cmd: echo     generator: %generator% >> cppan.yml
-  - cmd: echo     use_shared_libs: true >> cppan.yml
+  - cmd: 'echo local_settings: > cppan.yml'
+  - cmd: 'echo     generator: %generator% >> cppan.yml'
+  - cmd: 'echo     use_shared_libs: true >> cppan.yml'
   - cppan --build ..
   #- mkdir build
   #- cd build
