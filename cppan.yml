@@ -1,6 +1,7 @@
 local_settings:
     use_shared_libs: true
-    #silent: false
+    #generator: Visual Studio 14 2015 Win64
+    silent: false
     #copy_import_libs: true
     build:
         c_flags: /W0
