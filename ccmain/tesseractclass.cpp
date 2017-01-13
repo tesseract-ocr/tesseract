@@ -452,7 +452,7 @@ Tesseract::Tesseract()
                   this->params()),
       INT_MEMBER(tessedit_page_number, -1,
                  "-1 -> All pages"
-                 " , else specifc page to process",
+                 " , else specific page to process",
                  this->params()),
       BOOL_MEMBER(tessedit_write_images, false,
                   "Capture the image from the IPE", this->params()),
