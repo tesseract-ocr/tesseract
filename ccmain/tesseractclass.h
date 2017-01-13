@@ -1065,7 +1065,7 @@ class Tesseract : public Wordrec {
   INT_VAR_H(min_sane_x_ht_pixels, 8, "Reject any x-ht lt or eq than this");
   BOOL_VAR_H(tessedit_create_boxfile, false, "Output text with boxes");
   INT_VAR_H(tessedit_page_number, -1,
-            "-1 -> All pages, else specifc page to process");
+            "-1 -> All pages, else specific page to process");
   BOOL_VAR_H(tessedit_write_images, false, "Capture the image from the IPE");
   BOOL_VAR_H(interactive_display_mode, false, "Run interactively?");
   STRING_VAR_H(file_type, ".tif", "Filename extension");
