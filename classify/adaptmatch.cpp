@@ -514,7 +514,7 @@ void Classify::EndAdaptiveClassifier() {
  *  Parameters:
  *      load_pre_trained_templates  Indicates whether the pre-trained
  *                     templates (inttemp, normproto and pffmtable components)
- *                     should be lodaded. Should only be set to true if the
+ *                     should be loaded. Should only be set to true if the
  *                     necessary classifier components are present in the
  *                     [lang].traineddata file.
  *  Globals:
