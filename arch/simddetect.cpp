@@ -26,7 +26,7 @@
 #endif // x86 target
 
 #if defined(X86_BUILD)
-# if defined(__linux__) || defined(__MINGW32__) || defined(__APPLE__)
+# if defined(__GNUC__) || defined(__clang__) || defined(__MINGW32__) || defined(__MINGW64__) 
 #  include <cpuid.h>
 # elif defined(_WIN32)
 #  include <intrin.h>
@@ -45,7 +45,7 @@ bool SIMDDetect::sse_available_;
 // any other available SIMD equipment.
 SIMDDetect::SIMDDetect() {
 #if defined(X86_BUILD)
-# if defined(__linux__) || defined(__MINGW32__) || defined(__APPLE__)
+# if defined(__GNUC__) || defined(__clang__) || defined(__MINGW32__) || defined(__MINGW64__) 
   unsigned int eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
     sse_available_ = (ecx & 0x00080000) != 0;
@@ -60,7 +60,7 @@ SIMDDetect::SIMDDetect() {
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
   }
 # else
-#  error "I don't know how to test for SIMD on this platform"
+#  error "I don't know how to test for SIMD with this compiler"
 # endif
 #endif // X86_BUILD
 }
