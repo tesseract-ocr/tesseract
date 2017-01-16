@@ -23,8 +23,9 @@
 #define TRAININGDATA_LIGATURE_TABLE_H_
 
 #include <string>
+#include <unordered_map>
+#include <memory>
 
-#include "hashfn.h"
 #include "util.h"
 
 namespace tesseract {
@@ -32,7 +33,7 @@ namespace tesseract {
 class PangoFontInfo;  // defined in pango_font_info.h
 
 // Map to substitute strings for ligatures.
-typedef TessHashMap<string, string, StringHash> LigHash;
+typedef std::unordered_map<string, string, StringHash> LigHash;
 
 class LigatureTable {
  public:
@@ -61,7 +62,7 @@ class LigatureTable {
   // corresponding ligature characters.
   void Init();
 
-  static SmartPtr<LigatureTable> instance_;
+  static std::unique_ptr<LigatureTable> instance_;
   LigHash norm_to_lig_table_;
   LigHash lig_to_norm_table_;
   int min_lig_length_;

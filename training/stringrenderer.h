@@ -31,8 +31,8 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
-#include "hashfn.h"
 #include "host.h"
 #include "pango_font_info.h"
 #include "pango/pango-layout.h"
@@ -210,7 +210,7 @@ class StringRenderer {
   Boxa* page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
-  TessHashMap<char32, inT64> char_map_;  // Time-saving char histogram.
+  std::unordered_map<char32, inT64> char_map_;  // Time-saving char histogram.
   int total_chars_;   // Number in the string to be rendered.
   int font_index_;    // Index of next font to use in font list.
   int last_offset_;   // Offset returned from last successful rendering

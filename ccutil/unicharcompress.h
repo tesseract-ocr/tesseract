@@ -22,7 +22,8 @@
 #ifndef TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 #define TESSERACT_CCUTIL_UNICHARCOMPRESS_H_
 
-#include "hashfn.h"
+#include <unordered_map>
+
 #include "serialis.h"
 #include "strngs.h"
 #include "unicharset.h"
@@ -236,17 +237,19 @@ class UnicharCompress {
   // encoder_ is the only part that is serialized. The rest is computed on load.
   GenericVector<RecodedCharID> encoder_;
   // Decoder converts the output of encoder back to a unichar-id.
-  TessHashMap<RecodedCharID, int, RecodedCharID::RecodedCharIDHash> decoder_;
+  std::unordered_map<RecodedCharID, int,
+                           RecodedCharID::RecodedCharIDHash>
+      decoder_;
   // True if the index is a valid single or start code.
   GenericVector<bool> is_valid_start_;
   // Maps a prefix code to a list of valid next codes.
   // The map owns the vectors.
-  TessHashMap<RecodedCharID, GenericVectorEqEq<int>*,
+  std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
               RecodedCharID::RecodedCharIDHash>
       next_codes_;
   // Maps a prefix code to a list of valid final codes.
   // The map owns the vectors.
-  TessHashMap<RecodedCharID, GenericVectorEqEq<int>*,
+  std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
               RecodedCharID::RecodedCharIDHash>
       final_codes_;
   // Max of any value in encoder_ + 1.

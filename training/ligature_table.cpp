@@ -46,7 +46,7 @@ const int kMinLigature = 0xfb00;
 const int kMaxLigature = 0xfb17;  // Don't put the wide Hebrew letters in.
 
 /* static */
-SmartPtr<LigatureTable> LigatureTable::instance_;
+std::unique_ptr<LigatureTable> LigatureTable::instance_;
 
 /* static */
 LigatureTable* LigatureTable::Get() {

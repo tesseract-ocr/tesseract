@@ -1211,7 +1211,7 @@ double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
 // Computes word recall error rate using a very simple bag of words algorithm.
 // NOTE that this is destructive on both input strings.
 double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
-  typedef TessHashMap<std::string, int, std::hash<std::string> > StrMap;
+  typedef std::unordered_map<std::string, int, std::hash<std::string> > StrMap;
   GenericVector<STRING> truth_words, ocr_words;
   truth_str->split(' ', &truth_words);
   if (truth_words.empty()) return 0.0;

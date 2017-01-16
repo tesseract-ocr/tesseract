@@ -57,9 +57,9 @@ struct RadicalStrokedHash {
 };
 
 // A hash map to convert unicodes to radical,stroke pair.
-typedef TessHashMap<int, RadicalStroke> RSMap;
+typedef std::unordered_map<int, RadicalStroke> RSMap;
 // A hash map to count occurrences of each radical,stroke pair.
-typedef TessHashMap<RadicalStroke, int, RadicalStrokedHash> RSCounts;
+typedef std::unordered_map<RadicalStroke, int, RadicalStrokedHash> RSCounts;
 
 // Helper function builds the RSMap from the radical-stroke file, which has
 // already been read into a STRING. Returns false on error.
