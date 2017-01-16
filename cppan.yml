@@ -1,5 +1,5 @@
 local_settings:
-    use_shared_libs: true
+    #use_shared_libs: true
     #generator: Visual Studio 14 2015 Win64
     silent: false
     #copy_import_libs: true
