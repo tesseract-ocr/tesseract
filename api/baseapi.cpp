@@ -1085,7 +1085,15 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
 
   // Maybe we have a filelist
   if (r != 0 || format == IFF_UNKNOWN) {
-    STRING s(buf.c_str());
+    STRING s;
+    if (stdInput) {
+      s = buf.c_str();
+    } else {
+      std::ifstream t(filename);
+      std::string u((std::istreambuf_iterator<char>(t)),
+                    std::istreambuf_iterator<char>());
+      s = u.c_str();
+    }
     return ProcessPagesFileList(NULL, &s, retry_config,
                                 timeout_millisec, renderer,
                                 tesseract_->tessedit_page_number);
