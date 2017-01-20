@@ -1130,7 +1130,7 @@ set_lang_specific_parameters() {
           TRAINING_DATA_ARGUMENTS=" --infrequent_ratio=100" ;;
     kur ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
 
-    *) err "Error: ${lang} is not a valid language code"
+    *) err_exit "Error: ${lang} is not a valid language code"
   esac
   if [[ ${FLAGS_mean_count} -gt 0 ]]; then
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${FLAGS_mean_count}"
