@@ -1009,6 +1009,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_create_hocr, false, "Write .html hOCR output file");
   BOOL_VAR_H(tessedit_create_tsv, false, "Write .tsv output file");
   BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
+  BOOL_VAR_H(textonly_pdf, false, "Invisible text only for PDF");
   STRING_VAR_H(unrecognised_char, "|",
                "Output char for unidentified blobs");
   INT_VAR_H(suspect_level, 99, "Suspect marker level");

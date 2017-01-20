@@ -337,8 +337,10 @@ void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
-      renderers->push_back(
-          new tesseract::TessPDFRenderer(outputbase, api->GetDatapath()));
+      bool textonly;
+      api->GetBoolVariable("textonly_pdf", &textonly);
+      renderers->push_back(new tesseract::TessPDFRenderer(
+          outputbase, api->GetDatapath(), textonly));
     }
 
     api->GetBoolVariable("tessedit_write_unlv", &b);
