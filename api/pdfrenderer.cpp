@@ -852,7 +852,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   double width = pixGetWidth(pix) * 72.0 / ppi;
   double height = pixGetHeight(pix) * 72.0 / ppi;
 
-  snprintf(buf2, sizeof(buf2), "XObject << /Im1 %ld 0 R >>\n", obj_ + 2);
+  snprintf(buf2, sizeof(buf2), "/XObject << /Im1 %ld 0 R >>\n", obj_ + 2);
   const char *xobject = (textonly_) ? "" : buf2;
 
   // PAGE
