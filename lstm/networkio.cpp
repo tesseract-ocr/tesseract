@@ -553,7 +553,6 @@ void NetworkIO::EnsureBestLabel(int t, int label) {
     // remainder to best_label.
     int num_classes = NumFeatures();
     float* targets = f_[t];
-    float enhancement = (1.0f - targets[label]) / 3.0f;
     for (int c = 0; c < num_classes; ++c) {
       if (c == label) {
         targets[c] += (1.0 - targets[c]) * (2 / 3.0);

@@ -593,7 +593,6 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
 
 // Adds document to the cache.
 bool DocumentCache::AddToCache(DocumentData* data) {
-  inT64 new_memory = data->memory_used();
   documents_.push_back(data);
   return true;
 }
