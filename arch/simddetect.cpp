@@ -26,7 +26,7 @@
 #endif // x86 target
 
 #if defined(X86_BUILD)
-# if defined(__linux__) || defined(__MINGW32__)
+# if defined(__GNUC__) || defined(__MINGW32__)
 #  include <cpuid.h>
 # elif defined(_WIN32)
 #  include <intrin.h>
@@ -43,9 +43,11 @@ bool SIMDDetect::sse_available_;
 // Constructor.
 // Tests the architecture in a system-dependent way to detect AVX, SSE and
 // any other available SIMD equipment.
+// __GNUC__ is also defined by compilers that include GNU extensions such as clang.
+// __MINGW32__ includes 64-bit mingw
 SIMDDetect::SIMDDetect() {
 #if defined(X86_BUILD)
-# if defined(__linux__) || defined(__MINGW32__)
+# if defined(__GNUC__) || defined(__MINGW32__)
   unsigned int eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
     sse_available_ = (ecx & 0x00080000) != 0;
@@ -59,6 +61,8 @@ SIMDDetect::SIMDDetect() {
     sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
   }
+# else
+#  error "I don't know how to test for SIMD with this compiler"
 # endif
 #endif // X86_BUILD
 }
