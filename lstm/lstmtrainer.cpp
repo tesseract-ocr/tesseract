@@ -55,8 +55,6 @@ const int kNumPagesPerBatch = 100;
 const int kMinStartedErrorRate = 75;
 // Error rate at which to transition to stage 1.
 const double kStageTransitionThreshold = 10.0;
-// How often to test for flipping.
-const int kFlipTestRate = 20;
 // Confidence beyond which the truth is more likely wrong than the recognizer.
 const double kHighConfidence = 0.9375;  // 15/16.
 // Fraction of weight sign-changing total to constitute a definite improvement.
@@ -856,7 +854,6 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     return UNENCODABLE;
   }
   targets->Resize(*fwd_outputs, network_->NumOutputs());
-  double text_error = 100.0;
   LossType loss_type = OutputLossType();
   if (loss_type == LT_SOFTMAX) {
     if (!ComputeTextTargets(*fwd_outputs, truth_labels, targets)) {
