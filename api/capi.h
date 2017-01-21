@@ -122,7 +122,8 @@ TESS_API void  TESS_CALL TessDeleteBlockList(BLOCK_LIST* block_list);
 TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outputbase, BOOL font_info);
-TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir);
+TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
+                                                             BOOL textonly);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* outputbase);
 
