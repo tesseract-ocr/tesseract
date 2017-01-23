@@ -134,14 +134,12 @@ projects:
                         - TESS_IMPORTS
 
         dependencies:
-            private:
-                pvt.cppan.demo.danbloomberg.leptonica: 1
+            pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tesseractmain:
         files: api/tesseractmain.cpp
         dependencies:
             - tesseract
-            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tessopt:
         type: lib
@@ -161,13 +159,11 @@ projects:
         include_directories: training
         dependencies:
             - tessopt
-            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     ambiguous_words:
         files: training/ambiguous_words.cpp
         dependencies:
             - tesseract
-            - pvt.cppan.demo.danbloomberg.leptonica: 1
 
     classifier_tester:
         files: training/classifier_tester.cpp
