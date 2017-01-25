@@ -709,11 +709,6 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   L_COMP_DATA *cid = NULL;
   const int kJpegQuality = 85;
 
-  // TODO(jbreiden) Leptonica 1.71 doesn't correctly handle certain
-  // types of PNG files, especially if there are 2 samples per pixel.
-  // We can get rid of this logic after Leptonica 1.72 is released and
-  // has propagated everywhere. Bug discussion as follows.
-  // https://code.google.com/p/tesseract-ocr/issues/detail?id=1300
   int format, sad;
   findFileFormat(filename, &format);
   if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
