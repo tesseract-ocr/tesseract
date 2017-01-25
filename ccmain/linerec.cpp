@@ -309,6 +309,7 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
                 word_certainty);
         word->best_choice->print();
       }
+      word->best_choice->set_certainty(word_certainty);
       // Discard words that are impossibly bad, but allow a bit more for
       // dictionary words, and keep bad words in non-space-delimited langs.
       if (word_certainty >= RecodeBeamSearch::kMinCertainty ||
@@ -324,7 +325,6 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
         // It is a dud.
         word->SetupFake(lstm_recognizer_->GetUnicharset());
       }
-      word->best_choice->set_certainty(word_certainty);
     }
   }
 }

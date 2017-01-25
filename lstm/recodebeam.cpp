@@ -276,6 +276,15 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
     }
     if (t < width) {
       int unichar_id = best_nodes[t]->unichar_id;
+      if (unichar_id == UNICHAR_SPACE && !certs->empty() &&
+          best_nodes[t]->permuter != NO_PERM) {
+        // All the rating and certainty go on the previous character except
+        // for the space itself.
+        if (certainty < certs->back()) certs->back() = certainty;
+        ratings->back() += rating;
+        certainty = 0.0;
+        rating = 0.0;
+      }
       unichar_ids->push_back(unichar_id);
       xcoords->push_back(t);
       do {

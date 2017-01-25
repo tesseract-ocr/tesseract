@@ -28,11 +28,12 @@
 
 #include "allheaders.h"
 #include "control.h"
-#include "docqual.h"
+#include "debugpixa.h"
 #include "devanagari_processing.h"
+#include "docqual.h"
 #include "genericvector.h"
-#include "params.h"
 #include "ocrclass.h"
+#include "params.h"
 #include "textord.h"
 #include "wordrec.h"
 
@@ -372,9 +373,8 @@ class Tesseract : public Wordrec {
   // Helper to recognize the word using the given (language-specific) tesseract.
   // Returns positive if this recognizer found more new best words than the
   // number kept from best_words.
-  int RetryWithLanguage(const WordData& word_data,
-                        WordRecognizer recognizer,
-                        WERD_RES** in_word,
+  int RetryWithLanguage(const WordData& word_data, WordRecognizer recognizer,
+                        bool debug, WERD_RES** in_word,
                         PointerVector<WERD_RES>* best_words);
   // Moves good-looking "noise"/diacritics from the reject list to the main
   // blob list on the current word. Returns true if anything was done, and
@@ -907,6 +907,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(test_pt, false, "Test for point");
   double_VAR_H(test_pt_x, 99999.99, "xcoord");
   double_VAR_H(test_pt_y, 99999.99, "ycoord");
+  INT_VAR_H(multilang_debug_level, 0, "Print multilang debug info.");
   INT_VAR_H(paragraph_debug_level, 0, "Print paragraph debug info.");
   BOOL_VAR_H(paragraph_text_based, true,
              "Run paragraph detection on the post-text-recognition "
@@ -1194,6 +1195,8 @@ class Tesseract : public Wordrec {
   Pix* pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
   Pix* pix_thresholds_;
+  // Debug images. If non-empty, will be written on destruction.
+  DebugPixa pixa_debug_;
   // Input image resolution after any scaling. The resolution is not well
   // transmitted by operations on Pix, so we keep an independent record here.
   int source_resolution_;

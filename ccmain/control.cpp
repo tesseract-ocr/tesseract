@@ -754,16 +754,32 @@ void Tesseract::script_pos_pass(PAGE_RES* page_res) {
   }
 }
 
-// Factored helper considers the indexed word and updates all the pointed
-// values.
-static void EvaluateWord(const PointerVector<WERD_RES>& words, int index,
-                         float* rating, float* certainty, bool* bad,
-                         bool* valid_permuter, int* right, int* next_left) {
+// Helper finds the gap between the index word and the next.
+static void WordGap(const PointerVector<WERD_RES>& words, int index, int* right,
+                    int* next_left) {
   *right = -MAX_INT32;
   *next_left = MAX_INT32;
   if (index < words.size()) {
+    *right = words[index]->word->bounding_box().right();
+    if (index + 1 < words.size())
+      *next_left = words[index + 1]->word->bounding_box().left();
+  }
+}
+
+// Factored helper computes the rating, certainty, badness and validity of
+// the permuter of the words in [first_index, end_index).
+static void EvaluateWordSpan(const PointerVector<WERD_RES>& words,
+                             int first_index, int end_index, float* rating,
+                             float* certainty, bool* bad,
+                             bool* valid_permuter) {
+  if (end_index <= first_index) {
+    *bad = true;
+    *valid_permuter = false;
+  }
+  for (int index = first_index; index < end_index && index < words.size();
+       ++index) {
     WERD_CHOICE* choice = words[index]->best_choice;
-    if (choice == NULL) {
+    if (choice == nullptr) {
       *bad = true;
     } else {
       *rating += choice->rating();
@@ -771,12 +787,6 @@ static void EvaluateWord(const PointerVector<WERD_RES>& words, int index,
       if (!Dict::valid_word_permuter(choice->permuter(), false))
         *valid_permuter = false;
     }
-    *right = words[index]->word->bounding_box().right();
-    if (index + 1 < words.size())
-      *next_left = words[index + 1]->word->bounding_box().left();
-  } else {
-    *valid_permuter = false;
-    *bad = true;
   }
 }
 
@@ -801,24 +811,13 @@ static int SelectBestWords(double rating_ratio,
   while (b < best_words->size() || n < new_words->size()) {
     // Start of the current run in each.
     int start_b = b, start_n = n;
-    // Rating of the current run in each.
-    float b_rating = 0.0f, n_rating = 0.0f;
-    // Certainty of the current run in each.
-    float b_certainty = 0.0f, n_certainty = 0.0f;
-    // True if any word is missing its best choice.
-    bool b_bad = false, n_bad = false;
-    // True if all words have a valid permuter.
-    bool b_valid_permuter = true, n_valid_permuter = true;
-
     while (b < best_words->size() || n < new_words->size()) {
       int b_right = -MAX_INT32;
       int next_b_left = MAX_INT32;
-      EvaluateWord(*best_words, b, &b_rating, &b_certainty, &b_bad,
-                   &b_valid_permuter, &b_right, &next_b_left);
+      WordGap(*best_words, b, &b_right, &next_b_left);
       int n_right = -MAX_INT32;
       int next_n_left = MAX_INT32;
-      EvaluateWord(*new_words, n, &n_rating, &n_certainty, &n_bad,
-                   &n_valid_permuter, &n_right, &next_n_left);
+      WordGap(*new_words, n, &n_right, &next_n_left);
       if (MAX(b_right, n_right) < MIN(next_b_left, next_n_left)) {
         // The word breaks overlap. [start_b,b] and [start_n, n] match.
         break;
@@ -830,6 +829,20 @@ static int SelectBestWords(double rating_ratio,
       else
         ++n;
     }
+    // Rating of the current run in each.
+    float b_rating = 0.0f, n_rating = 0.0f;
+    // Certainty of the current run in each.
+    float b_certainty = 0.0f, n_certainty = 0.0f;
+    // True if any word is missing its best choice.
+    bool b_bad = false, n_bad = false;
+    // True if all words have a valid permuter.
+    bool b_valid_permuter = true, n_valid_permuter = true;
+    int end_b = b < best_words->size() ? b + 1 : b;
+    int end_n = n < new_words->size() ? n + 1 : n;
+    EvaluateWordSpan(*best_words, start_b, end_b, &b_rating, &b_certainty,
+                     &b_bad, &b_valid_permuter);
+    EvaluateWordSpan(*new_words, start_n, end_n, &n_rating, &n_certainty,
+                     &n_bad, &n_valid_permuter);
     bool new_better = false;
     if (!n_bad && (b_bad || (n_certainty > b_certainty &&
                              n_rating < b_rating) ||
@@ -837,7 +850,7 @@ static int SelectBestWords(double rating_ratio,
                              n_rating < b_rating * rating_ratio &&
                              n_certainty > b_certainty - certainty_margin))) {
       // New is better.
-      for (int i = start_n; i <= n; ++i) {
+      for (int i = start_n; i < end_n; ++i) {
         out_words.push_back((*new_words)[i]);
         (*new_words)[i] = NULL;
         ++num_new;
@@ -845,14 +858,12 @@ static int SelectBestWords(double rating_ratio,
       new_better = true;
     } else if (!b_bad) {
       // Current best is better.
-      for (int i = start_b; i <= b; ++i) {
+      for (int i = start_b; i < end_b; ++i) {
         out_words.push_back((*best_words)[i]);
         (*best_words)[i] = NULL;
         ++num_best;
       }
     }
-    int end_b = b < best_words->size() ? b + 1 : b;
-    int end_n = n < new_words->size() ? n + 1 : n;
     if (debug) {
       tprintf("%d new words %s than %d old words: r: %g v %g c: %g v %g"
               " valid dict: %d v %d\n",
@@ -875,10 +886,9 @@ static int SelectBestWords(double rating_ratio,
 // Returns positive if this recognizer found more new best words than the
 // number kept from best_words.
 int Tesseract::RetryWithLanguage(const WordData& word_data,
-                                 WordRecognizer recognizer,
+                                 WordRecognizer recognizer, bool debug,
                                  WERD_RES** in_word,
                                  PointerVector<WERD_RES>* best_words) {
-  bool debug = classify_debug_level;
   if (debug) {
     tprintf("Trying word using lang %s, oem %d\n",
             lang.string(), static_cast<int>(tessedit_ocr_engine_mode));
@@ -1281,7 +1291,8 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
   // Points to the best result. May be word or in lang_words.
   WERD_RES* word = word_data->word;
   clock_t start_t = clock();
-  if (classify_debug_level) {
+  bool debug = classify_debug_level > 0 || multilang_debug_level > 0;
+  if (debug) {
     tprintf("%s word with lang %s at:",
             word->done ? "Already done" : "Processing",
             most_recently_used_->lang.string());
@@ -1300,12 +1311,12 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
          most_recently_used_ != sub_langs_[sub]; ++sub) {}
   }
   most_recently_used_->RetryWithLanguage(
-      *word_data, recognizer, &word_data->lang_words[sub], &best_words);
+      *word_data, recognizer, debug, &word_data->lang_words[sub], &best_words);
   Tesseract* best_lang_tess = most_recently_used_;
   if (!WordsAcceptable(best_words)) {
     // Try all the other languages to see if they are any better.
     if (most_recently_used_ != this &&
-        this->RetryWithLanguage(*word_data, recognizer,
+        this->RetryWithLanguage(*word_data, recognizer, debug,
                                 &word_data->lang_words[sub_langs_.size()],
                                 &best_words) > 0) {
       best_lang_tess = this;
@@ -1313,7 +1324,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
     for (int i = 0; !WordsAcceptable(best_words) && i < sub_langs_.size();
          ++i) {
       if (most_recently_used_ != sub_langs_[i] &&
-          sub_langs_[i]->RetryWithLanguage(*word_data, recognizer,
+          sub_langs_[i]->RetryWithLanguage(*word_data, recognizer, debug,
                                            &word_data->lang_words[i],
                                            &best_words) > 0) {
         best_lang_tess = sub_langs_[i];
