@@ -13,6 +13,8 @@
 #ifndef TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 #define TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 
+#include "allheaders.h"
+#include "debugpixa.h"
 #include "ocrblock.h"
 #include "params.h"
 
@@ -84,7 +86,7 @@ class ShiroRekhaSplitter {
   // Returns true if a split was actually performed.
   // If split_for_pageseg is true, the pageseg_split_strategy_ is used for
   // splitting. If false, the ocr_split_strategy_ is used.
-  bool Split(bool split_for_pageseg);
+  bool Split(bool split_for_pageseg, DebugPixa* pixa_debug);
 
   // Clears the memory held by this object.
   void Clear();
@@ -151,9 +153,6 @@ class ShiroRekhaSplitter {
   BLOCK_LIST* segmentation_block_list() {
     return segmentation_block_list_;
   }
-
-  // This method dumps a debug image to the specified location.
-  void DumpDebugImage(const char* filename) const;
 
   // This method returns the computed mode-height of blobs in the pix.
   // It also prunes very small blobs from calculation. Could be used to provide

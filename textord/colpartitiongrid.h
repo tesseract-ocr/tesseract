@@ -106,11 +106,6 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   bool GridSmoothNeighbours(BlobTextFlowType source_type, Pix* nontext_map,
                             const TBOX& im_box, const FCOORD& rerotation);
 
-  // Compute the mean RGB of the light and dark pixels in each ColPartition
-  // and also the rms error in the linearity of color.
-  void ComputePartitionColors(Pix* scaled_color, int scaled_factor,
-                              const FCOORD& rerotation);
-
   // Reflects the grid and its colpartitions in the y-axis, assuming that
   // all blob boxes have already been done.
   void ReflectInYAxis();

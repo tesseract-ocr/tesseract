@@ -171,10 +171,6 @@ class TrainingSampleSet {
   // Generates indexed features for all samples with the supplied feature_space.
   void IndexFeatures(const IntFeatureSpace& feature_space);
 
-  // Delete outlier samples with few features that are shared with others.
-  // IndexFeatures must have been called already.
-  void DeleteOutliers(const IntFeatureSpace& feature_space, bool debug);
-
   // Marks the given sample for deletion.
   // Deletion is actually completed by DeleteDeadSamples.
   void KillSample(TrainingSample* sample);

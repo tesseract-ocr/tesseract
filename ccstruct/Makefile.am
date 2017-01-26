@@ -12,7 +12,7 @@ endif
 include_HEADERS = publictypes.h
 noinst_HEADERS = \
     blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
+    debugpixa.h detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
     imagedata.h \
     ipoints.h \
     linlsq.h matrix.h mod128.h normalis.h \

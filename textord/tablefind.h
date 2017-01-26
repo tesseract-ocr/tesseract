@@ -389,11 +389,6 @@ class TableFinder {
   void DisplayColSegmentGrid(ScrollView* win, ColSegmentGrid* grid,
                              ScrollView::Color color);
 
-  // Write ColParitions and Tables to a PIX image
-  // Note: This method is only for debug purpose during development and
-  // would not be part of checked in code
-  void WriteToPix(const FCOORD& reskew);
-
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.

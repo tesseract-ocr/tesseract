@@ -645,46 +645,6 @@ bool ColPartitionGrid::GridSmoothNeighbours(BlobTextFlowType source_type,
   return any_changed;
 }
 
-// Compute the mean RGB of the light and dark pixels in each ColPartition
-// and also the rms error in the linearity of color.
-void ColPartitionGrid::ComputePartitionColors(Pix* scaled_color,
-                                              int scaled_factor,
-                                              const FCOORD& rerotation) {
-  if (scaled_color == NULL)
-    return;
-  Pix* color_map1 = NULL;
-  Pix* color_map2 = NULL;
-  Pix* rms_map = NULL;
-  if (textord_tabfind_show_color_fit) {
-    int width = pixGetWidth(scaled_color);
-    int height = pixGetHeight(scaled_color);
-    color_map1 = pixCreate(width, height, 32);
-    color_map2 = pixCreate(width, height, 32);
-    rms_map = pixCreate(width, height, 8);
-  }
-  // Iterate the ColPartitions in the grid.
-  ColPartitionGridSearch gsearch(this);
-  gsearch.StartFullSearch();
-  ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
-    TBOX part_box = part->bounding_box();
-    part_box.rotate_large(rerotation);
-    ImageFind::ComputeRectangleColors(part_box, scaled_color,
-                                      scaled_factor,
-                                      color_map1, color_map2, rms_map,
-                                      part->color1(), part->color2());
-  }
-  if (color_map1 != NULL) {
-    pixWrite("swcolorinput.png", scaled_color, IFF_PNG);
-    pixWrite("swcolor1.png", color_map1, IFF_PNG);
-    pixWrite("swcolor2.png", color_map2, IFF_PNG);
-    pixWrite("swrms.png", rms_map, IFF_PNG);
-    pixDestroy(&color_map1);
-    pixDestroy(&color_map2);
-    pixDestroy(&rms_map);
-  }
-}
-
 // Reflects the grid and its colpartitions in the y-axis, assuming that
 // all blob boxes have already been done.
 void ColPartitionGrid::ReflectInYAxis() {

@@ -403,7 +403,7 @@ int main(int argc, char** argv) {
 
 #if !defined(DEBUG)
   // Disable debugging and informational messages from Leptonica.
-  setMsgSeverity(L_SEVERITY_WARNING);
+  setMsgSeverity(L_SEVERITY_ERROR);
 #endif
 
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
