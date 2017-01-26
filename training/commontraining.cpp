@@ -189,8 +189,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
   bool shape_analysis = false;
   if (shape_table != nullptr) {
     *shape_table = LoadShapeTable(*file_prefix);
-    if (*shape_table != nullptr)
-      shape_analysis = true;
+    if (*shape_table != nullptr) shape_analysis = true;
   } else {
     shape_analysis = true;
   }
@@ -501,7 +500,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               const char* program_feature_type) {
   uinT16 N;
   int i, j;
-  FLOAT32 *Sample = nullptr;
+  FLOAT32* Sample = nullptr;
   CLUSTERER *Clusterer;
   inT32 CharID;
   LIST FeatureList = nullptr;
@@ -516,8 +515,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   iterate(FeatureList) {
     FeatureSet = (FEATURE_SET) first_node(FeatureList);
     for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr)
-        Sample = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+      if (Sample == nullptr) Sample = (FLOAT32*)Emalloc(N * sizeof(FLOAT32));
       for (j = 0; j < N; j++)
         Sample[j] = FeatureSet->Features[i]->Params[j];
       MakeSample (Clusterer, Sample, CharID);
@@ -603,18 +601,15 @@ void CleanUpUnusedData(
   iterate(ProtoList)
   {
     Prototype = (PROTOTYPE *) first_node (ProtoList);
-    if(Prototype->Variance.Elliptical != nullptr)
-    {
+    if (Prototype->Variance.Elliptical != nullptr) {
       memfree(Prototype->Variance.Elliptical);
       Prototype->Variance.Elliptical = nullptr;
     }
-    if(Prototype->Magnitude.Elliptical != nullptr)
-    {
+    if (Prototype->Magnitude.Elliptical != nullptr) {
       memfree(Prototype->Magnitude.Elliptical);
       Prototype->Magnitude.Elliptical = nullptr;
     }
-    if(Prototype->Weight.Elliptical != nullptr)
-    {
+    if (Prototype->Weight.Elliptical != nullptr) {
       memfree(Prototype->Weight.Elliptical);
       Prototype->Weight.Elliptical = nullptr;
     }
@@ -653,8 +648,7 @@ LIST RemoveInsignificantProtos(
 
       for (i=0; i < N; i++)
         NewProto->Mean[i] = Proto->Mean[i];
-      if (Proto->Variance.Elliptical != nullptr)
-      {
+      if (Proto->Variance.Elliptical != nullptr) {
         NewProto->Variance.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
         for (i=0; i < N; i++)
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
@@ -662,8 +656,7 @@ LIST RemoveInsignificantProtos(
       else
         NewProto->Variance.Elliptical = nullptr;
       //---------------------------------------------
-      if (Proto->Magnitude.Elliptical != nullptr)
-      {
+      if (Proto->Magnitude.Elliptical != nullptr) {
         NewProto->Magnitude.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
         for (i=0; i < N; i++)
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
@@ -671,8 +664,7 @@ LIST RemoveInsignificantProtos(
       else
         NewProto->Magnitude.Elliptical = nullptr;
       //------------------------------------------------
-      if (Proto->Weight.Elliptical != nullptr)
-      {
+      if (Proto->Weight.Elliptical != nullptr) {
         NewProto->Weight.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
         for (i=0; i < N; i++)
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];

@@ -325,6 +325,5 @@ public:
 
 };
 
-
-#endif // USE_OPENCL
-#endif // TESSERACT_OPENCL_OPENCLWRAPPER_H_
+#endif  // USE_OPENCL
+#endif  // TESSERACT_OPENCL_OPENCLWRAPPER_H_

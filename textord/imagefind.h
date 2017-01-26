@@ -157,4 +157,3 @@ class ImageFind {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_LINEFIND_H_
-

@@ -309,4 +309,4 @@ class MasterTrainer {
 
 }  // namespace tesseract.
 
-#endif // TESSERACT_TRAINING_MASTERTRAINER_H_
+#endif  // TESSERACT_TRAINING_MASTERTRAINER_H_

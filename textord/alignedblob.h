@@ -124,4 +124,3 @@ class AlignedBlob : public BlobGrid {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_ALIGNEDBLOB_H_
-

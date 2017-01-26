@@ -85,7 +85,8 @@ const int kDefaultResolution = 300;
 string PangoFontInfo::fonts_dir_;
 string PangoFontInfo::cache_dir_;
 
-PangoFontInfo::PangoFontInfo() : desc_(nullptr), resolution_(kDefaultResolution) {
+PangoFontInfo::PangoFontInfo()
+    : desc_(nullptr), resolution_(kDefaultResolution) {
   Clear();
 }
 
@@ -578,8 +579,8 @@ bool FontUtils::IsAvailableFont(const char* input_query_desc,
 }
 
 static bool ShouldIgnoreFontFamilyName(const char* query) {
-  static const char* kIgnoredFamilyNames[]
-      = { "Sans", "Serif", "Monospace", nullptr };
+  static const char* kIgnoredFamilyNames[] = {"Sans", "Serif", "Monospace",
+                                              nullptr};
   const char** list = kIgnoredFamilyNames;
   for (; *list != nullptr; ++list) {
     if (!strcmp(*list, query))
@@ -662,8 +663,8 @@ void FontUtils::GetAllRenderableCharacters(vector<bool>* unichar_bitmap) {
 void FontUtils::GetAllRenderableCharacters(const string& font_name,
                                            vector<bool>* unichar_bitmap) {
   PangoFontInfo font_info(font_name);
-  PangoCoverage* coverage = pango_font_get_coverage(
-      font_info.ToPangoFont(), nullptr);
+  PangoCoverage* coverage =
+      pango_font_get_coverage(font_info.ToPangoFont(), nullptr);
   CharCoverageMapToBitmap(coverage, unichar_bitmap);
 }
 
@@ -675,8 +676,8 @@ void FontUtils::GetAllRenderableCharacters(const vector<string>& fonts,
   tlog(1, "Processing %d fonts\n", fonts.size());
   for (int i = 0; i < fonts.size(); ++i) {
     PangoFontInfo font_info(fonts[i]);
-    PangoCoverage* coverage = pango_font_get_coverage(
-        font_info.ToPangoFont(), nullptr);
+    PangoCoverage* coverage =
+        pango_font_get_coverage(font_info.ToPangoFont(), nullptr);
     // Mark off characters that any font can render.
     pango_coverage_max(all_coverage, coverage);
   }

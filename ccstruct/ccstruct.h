@@ -40,5 +40,4 @@ class CCStruct : public CUtil {
 class Tesseract;
 }  // namespace tesseract
 
-
 #endif  // TESSERACT_CCSTRUCT_CCSTRUCT_H_

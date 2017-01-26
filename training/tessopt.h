@@ -31,4 +31,4 @@ char *argv[],                    //args
 const char *arglist                    //string of arg chars
 );
 
-#endif // TESSERACT_TRAINING_TESSOPT_H_
+#endif  // TESSERACT_TRAINING_TESSOPT_H_

@@ -237,20 +237,19 @@ class UnicharCompress {
   // encoder_ is the only part that is serialized. The rest is computed on load.
   GenericVector<RecodedCharID> encoder_;
   // Decoder converts the output of encoder back to a unichar-id.
-  std::unordered_map<RecodedCharID, int,
-                           RecodedCharID::RecodedCharIDHash>
+  std::unordered_map<RecodedCharID, int, RecodedCharID::RecodedCharIDHash>
       decoder_;
   // True if the index is a valid single or start code.
   GenericVector<bool> is_valid_start_;
   // Maps a prefix code to a list of valid next codes.
   // The map owns the vectors.
   std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
-              RecodedCharID::RecodedCharIDHash>
+                     RecodedCharID::RecodedCharIDHash>
       next_codes_;
   // Maps a prefix code to a list of valid final codes.
   // The map owns the vectors.
   std::unordered_map<RecodedCharID, GenericVectorEqEq<int>*,
-              RecodedCharID::RecodedCharIDHash>
+                     RecodedCharID::RecodedCharIDHash>
       final_codes_;
   // Max of any value in encoder_ + 1.
   int code_range_;

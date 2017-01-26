@@ -245,8 +245,7 @@ int main (int argc, char **argv) {
                                                        false,
                                                        &shape_table,
                                                        &file_prefix);
-  if (trainer == nullptr)
-    return 1;  // Failed.
+  if (trainer == nullptr) return 1;  // Failed.
 
   // Setup an index mapping from the shapes in the shape table to the classes
   // that will be trained. In keeping with the original design, each shape

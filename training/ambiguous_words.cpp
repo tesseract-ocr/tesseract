@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
   GenericVector<STRING> vars_values;
   vars_vec.push_back("output_ambig_words_file");
   vars_values.push_back(output_file_str);
-  api.Init(tessdata_dir, lang.string(), tesseract::OEM_TESSERACT_ONLY,
-           nullptr, 0, &vars_vec, &vars_values, false);
+  api.Init(tessdata_dir, lang.string(), tesseract::OEM_TESSERACT_ONLY, nullptr,
+           0, &vars_vec, &vars_values, false);
   tesseract::Dict &dict = api.tesseract()->getDict();
   FILE *input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {

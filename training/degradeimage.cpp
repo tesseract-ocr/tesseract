@@ -64,7 +64,8 @@ const int kMinRampSize = 1000;
 // Degrade the pix as if by a print/copy/scan cycle with exposure > 0
 // corresponding to darkening on the copier and <0 lighter and 0 not copied.
 // Exposures in [-2,2] are most useful, with -3 and 3 being extreme.
-// If rotation is nullptr, rotation is skipped. If *rotation is non-zero, the pix
+// If rotation is nullptr, rotation is skipped. If *rotation is non-zero, the
+// pix
 // is rotated by *rotation else it is randomly rotated and *rotation is
 // modified.
 //

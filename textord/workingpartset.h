@@ -88,4 +88,3 @@ ELISTIZEH(WorkingPartSet)
 }  // namespace tesseract.
 
 #endif  // TESSERACT_TEXTORD_WORKINGPARSET_H_
-

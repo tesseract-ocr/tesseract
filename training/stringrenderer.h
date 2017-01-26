@@ -30,8 +30,8 @@
 #define TESSERACT_TRAINING_STRINGRENDERER_H_
 
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "host.h"
 #include "pango_font_info.h"

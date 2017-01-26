@@ -120,5 +120,5 @@ class ParamsEditor : public SVEventHandler {
   ScrollView* sv_window_;
 };
 
-#endif // GRAPHICS_DISABLED
-#endif // TESSERACT_CCMAIN_PARAMSD_H_
+#endif  // GRAPHICS_DISABLED
+#endif  // TESSERACT_CCMAIN_PARAMSD_H_

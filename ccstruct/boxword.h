@@ -97,5 +97,4 @@ class BoxWord {
 
 }  // namespace tesseract.
 
-
 #endif  // TESSERACT_CSTRUCT_BOXWORD_H_

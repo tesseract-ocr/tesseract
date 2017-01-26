@@ -74,7 +74,8 @@ class BoxChar {
   // Inserts newline (tab) characters into the vector at newline positions.
   static void InsertNewlines(bool rtl_rules, bool vertical_rules,
                              vector<BoxChar*>* boxes);
-  // Converts nullptr boxes to space characters, with appropriate bounding boxes.
+  // Converts nullptr boxes to space characters, with appropriate bounding
+  // boxes.
   static void InsertSpaces(bool rtl_rules, bool vertical_rules,
                            vector<BoxChar*>* boxes);
   // Reorders text in a right-to-left script in left-to-right order.

@@ -22,9 +22,9 @@
 #ifndef TRAININGDATA_LIGATURE_TABLE_H_
 #define TRAININGDATA_LIGATURE_TABLE_H_
 
+#include <memory>
 #include <string>
 #include <unordered_map>
-#include <memory>
 
 #include "util.h"
 

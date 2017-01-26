@@ -146,4 +146,4 @@ template<class T> bool NearlyEqual(T x, T y, T tolerance) {
   return diff <= tolerance && -diff <= tolerance;
 }
 
-#endif // TESSERACT_CCUTIL_HOST_H_
+#endif  // TESSERACT_CCUTIL_HOST_H_

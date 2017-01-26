@@ -223,7 +223,8 @@ void ExtractFontProperties(const string &utf8_text,
   int offset = 0;
   const char* text = utf8_text.c_str();
   while (offset < len) {
-    offset += render->RenderToImage(text + offset, strlen(text + offset), nullptr);
+    offset +=
+        render->RenderToImage(text + offset, strlen(text + offset), nullptr);
     const vector<BoxChar*> &boxes = render->GetBoxes();
 
     // If the page break split a bigram, correct the offset so we try the bigram

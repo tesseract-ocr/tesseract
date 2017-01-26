@@ -417,8 +417,7 @@ static void MergeBoxCharsToWords(vector<BoxChar*>* boxchars) {
   vector<BoxChar*> result;
   bool started_word = false;
   for (int i = 0; i < boxchars->size(); ++i) {
-    if (boxchars->at(i)->ch() == " " ||
-        boxchars->at(i)->box() == nullptr) {
+    if (boxchars->at(i)->ch() == " " || boxchars->at(i)->box() == nullptr) {
       result.push_back(boxchars->at(i));
       boxchars->at(i) = nullptr;
       started_word = false;
@@ -493,8 +492,7 @@ void StringRenderer::ComputeClusterBoxes() {
   map<int, BoxChar*> start_byte_to_box;
   do {
     PangoRectangle cluster_rect;
-    pango_layout_iter_get_cluster_extents(cluster_iter, &cluster_rect,
-                                          nullptr);
+    pango_layout_iter_get_cluster_extents(cluster_iter, &cluster_rect, nullptr);
     pango_extents_to_pixels(&cluster_rect, nullptr);
     const int start_byte_index = pango_layout_iter_get_index(cluster_iter);
     const int end_byte_index = cluster_start_to_end_index[start_byte_index];
@@ -596,8 +594,7 @@ void StringRenderer::ComputeClusterBoxes() {
   Boxa* all_boxes = nullptr;
   for (int i = 0; i < page_boxchars.size(); ++i) {
     if (page_boxchars[i]->box() == nullptr) continue;
-    if (all_boxes == nullptr)
-      all_boxes = boxaCreate(0);
+    if (all_boxes == nullptr) all_boxes = boxaCreate(0);
     boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
   }
   if (all_boxes != nullptr) {
@@ -650,7 +647,7 @@ int StringRenderer::StripUnrenderableWords(string* utf8_text) const {
 
 int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
                                            Pix** pix) {
-  Pix *orig_pix = nullptr;
+  Pix* orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
     *pix = pixConvertTo8(orig_pix, false);
@@ -661,7 +658,7 @@ int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
 
 int StringRenderer::RenderToBinaryImage(const char* text, int text_length,
                                         int threshold, Pix** pix) {
-  Pix *orig_pix = nullptr;
+  Pix* orig_pix = nullptr;
   int offset = RenderToImage(text, text_length, &orig_pix);
   if (orig_pix) {
     Pix* gray_pix = pixConvertTo8(orig_pix, false);
@@ -835,7 +832,8 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
 // do {
 //   Pix *pix;
 //   offset += renderer.RenderAllFontsToImage(min_proportion, txt + offset,
-//                                            strlen(txt + offset), nullptr, &pix);
+//                                            strlen(txt + offset), nullptr,
+//                                            &pix);
 //   ...
 // } while (offset < strlen(text));
 //
@@ -870,8 +868,8 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
   for (int i = font_index_; i < all_fonts.size(); ++i) {
     ++font_index_;
     int raw_score = 0;
-    int ok_chars = FontUtils::FontScore(char_map_, all_fonts[i], &raw_score,
-                                        nullptr);
+    int ok_chars =
+        FontUtils::FontScore(char_map_, all_fonts[i], &raw_score, nullptr);
     if (ok_chars > 0 && ok_chars >= total_chars_ * min_coverage) {
       set_font(all_fonts[i]);
       int offset = RenderToBinaryImage(text, text_length, 128, image);

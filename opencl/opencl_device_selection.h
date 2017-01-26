@@ -122,7 +122,7 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   }
 
   if (numDevices > 0) {
-    devices = (cl_device_id*)malloc(numDevices*sizeof(cl_device_id));
+    devices = (cl_device_id*)malloc(numDevices * sizeof(cl_device_id));
     if (devices == nullptr) {
       status = DS_MEMORY_ERROR;
       goto cleanup;
@@ -578,5 +578,5 @@ cleanup:
   return status;
 }
 
-#endif // USE_OPENCL
-#endif // DEVICE_SELECTION_H
+#endif  // USE_OPENCL
+#endif  // DEVICE_SELECTION_H

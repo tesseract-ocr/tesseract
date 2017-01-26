@@ -21,9 +21,9 @@
 #define TESSERACT_TRAINING_PANGO_FONT_INFO_H_
 
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <unordered_map>
 
 #include "commandlineflags.h"
 #include "host.h"

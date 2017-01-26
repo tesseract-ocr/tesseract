@@ -91,7 +91,8 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
           delete (*boxes)[i];
           boxes->erase(boxes->begin() + i);
           --i;
-        } while (i >= 0 && i + 1 == boxes->size() && (*boxes)[i]->box_ == nullptr);
+        } while (i >= 0 && i + 1 == boxes->size() &&
+                 (*boxes)[i]->box_ == nullptr);
       }
       continue;
     }
@@ -178,7 +179,7 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
         // Left becomes the max right of all next boxes forward to the first
         // space or newline.
         for (int j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
-                                (*boxes)[j]->ch_ != "\t";
+                            (*boxes)[j]->ch_ != "\t";
              ++j) {
           next = (*boxes)[j]->box_;
           if (next->x + next->w > left) {

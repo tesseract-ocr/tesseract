@@ -39,8 +39,7 @@ enum ClassifierName {
   CN_COUNT
 };
 
-const char* names[] = {"pruner", "full",
-                       nullptr};
+const char* names[] = {"pruner", "full", nullptr};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
@@ -121,8 +120,8 @@ static tesseract::ShapeClassifier* InitializeClassifier(
 int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
   STRING file_prefix;
-  tesseract::MasterTrainer* trainer = tesseract::LoadTrainingData(
-      argc, argv, false, nullptr, &file_prefix);
+  tesseract::MasterTrainer* trainer =
+      tesseract::LoadTrainingData(argc, argv, false, nullptr, &file_prefix);
   tesseract::TessBaseAPI* api;
   // Decode the classifier string.
   tesseract::ShapeClassifier* shape_classifier = InitializeClassifier(
@@ -137,7 +136,7 @@ int main(int argc, char **argv) {
   // We want to test with replicated samples too.
   trainer->ReplicateAndRandomizeSamplesIfRequired();
 
-  trainer->TestClassifierOnSamples(tesseract:: CT_UNICHAR_TOP1_ERR,
+  trainer->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR,
                                    MAX(3, FLAGS_debug_level), false,
                                    shape_classifier, nullptr);
   delete shape_classifier;

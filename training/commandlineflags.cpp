@@ -97,13 +97,13 @@ void SetStringFlagValue(const char* flag_name, const char* new_val) {
 }
 
 bool SafeAtoi(const char* str, int* val) {
-  char *endptr = nullptr;
+  char* endptr = nullptr;
   *val = strtol(str, &endptr, 10);
   return endptr != nullptr && *endptr == '\0';
 }
 
 bool SafeAtod(const char* str, double* val) {
-  char *endptr = nullptr;
+  char* endptr = nullptr;
   *val = strtod(str, &endptr);
   return endptr != nullptr && *endptr == '\0';
 }

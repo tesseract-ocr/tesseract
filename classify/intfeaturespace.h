@@ -106,5 +106,4 @@ class IntFeatureSpace {
 
 }  // namespace tesseract.
 
-
 #endif  // TESSERACT_CLASSIFY_INTFEATURESPACE_H_

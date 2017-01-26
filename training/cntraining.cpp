@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
   const char  *PageName;
   FILE  *TrainingPage;
   LIST  CharList = NIL_LIST;
-  CLUSTERER  *Clusterer = nullptr;
+  CLUSTERER *Clusterer = nullptr;
   LIST    ProtoList = NIL_LIST;
   LIST    NormProtoList = NIL_LIST;
   LIST pCharList;
@@ -150,8 +150,8 @@ int main(int argc, char *argv[]) {
   while ((PageName = GetNextFilename(argc, argv)) != nullptr) {
     printf("Reading %s ...\n", PageName);
     TrainingPage = Efopen(PageName, "rb");
-    ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE,
-                        100, nullptr, TrainingPage, &CharList);
+    ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE, 100, nullptr,
+                        TrainingPage, &CharList);
     fclose(TrainingPage);
     ++num_fonts;
   }
@@ -229,8 +229,7 @@ void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
   int N;
 
   Filename = "";
-  if (Directory != nullptr && Directory[0] != '\0')
-  {
+  if (Directory != nullptr && Directory[0] != '\0') {
     Filename += Directory;
     Filename += "/";
   }

@@ -99,4 +99,3 @@ class DPPoint {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_CCSTRUCT_DPPOINT_H_
-

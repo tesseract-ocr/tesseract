@@ -71,8 +71,7 @@ bool File::Readable(const string& filename) {
 
 bool File::ReadFileToString(const string& filename, string* out) {
   FILE* stream = File::Open(filename.c_str(), "rb");
-  if (stream == nullptr)
-    return false;
+  if (stream == nullptr) return false;
   InputBuffer in(stream);
   *out = "";
   in.Read(out);

@@ -40,5 +40,5 @@ const ERRCODE BAD_PARAMETER = "List parameter error";
 const ERRCODE STILL_LINKED =
     "Attempting to add an element with non NULL links, to a list";
 
-#endif // !NDEBUG
-#endif // TESSERACT_CCUTIL_LSTERR_H_
+#endif  // !NDEBUG
+#endif  // TESSERACT_CCUTIL_LSTERR_H_
