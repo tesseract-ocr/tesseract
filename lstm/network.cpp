@@ -16,6 +16,11 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "network.h"
 
 #include <stdlib.h>
@@ -277,27 +282,31 @@ double Network::Random(double range) {
   return randomizer_->SignedRand(range);
 }
 
-#ifndef GRAPHICS_DISABLED
 // === Debug image display methods. ===
 // Displays the image of the matrix to the forward window.
 void Network::DisplayForward(const NetworkIO& matrix) {
+#ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* image = matrix.ToPix();
   ClearWindow(false, name_.string(), pixGetWidth(image),
               pixGetHeight(image), &forward_win_);
   DisplayImage(image, forward_win_);
   forward_win_->Update();
+#endif  // GRAPHICS_DISABLED
 }
 
 // Displays the image of the matrix to the backward window.
 void Network::DisplayBackward(const NetworkIO& matrix) {
+#ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* image = matrix.ToPix();
   STRING window_name = name_ + "-back";
   ClearWindow(false, window_name.string(), pixGetWidth(image),
               pixGetHeight(image), &backward_win_);
   DisplayImage(image, backward_win_);
   backward_win_->Update();
+#endif  // GRAPHICS_DISABLED
 }
 
+#ifndef GRAPHICS_DISABLED
 // Creates the window if needed, otherwise clears it.
 void Network::ClearWindow(bool tess_coords, const char* window_name,
                           int width, int height, ScrollView** window) {
