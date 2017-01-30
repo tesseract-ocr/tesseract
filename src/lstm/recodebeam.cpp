@@ -47,7 +47,7 @@ void RecodeNode::Print(int null_char, const UNICHARSET& unicharset,
     tprintf("label=%d, uid=%d=%s", code, unichar_id,
             unicharset.debug_str(unichar_id).string());
   }
-  tprintf(" score=%g, c=%g,%s%s%s perm=%d, hash=%lx", score, certainty,
+  tprintf(" score=%g, c=%g,%s%s%s perm=%d, hash=%llx", score, certainty,
           start_of_dawg ? " DawgStart" : "", start_of_word ? " Start" : "",
           end_of_word ? " End" : "", permuter, code_hash);
   if (depth > 0 && prev != nullptr) {
