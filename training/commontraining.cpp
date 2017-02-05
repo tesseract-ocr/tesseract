@@ -121,7 +121,7 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   FILE* shape_fp = fopen(shape_table_file.string(), "rb");
   if (shape_fp != nullptr) {
     shape_table = new ShapeTable;
-    if (!shape_table->DeSerialize(false, shape_fp)) {
+    if (!shape_table->DeSerialize(shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
@@ -259,7 +259,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       tprintf("Can't read file %s to initialize master trainer\n",
               FLAGS_T.c_str());
     } else {
-      success = trainer->DeSerialize(false, fp);
+      success = trainer->DeSerialize(fp);
       fclose(fp);
     }
     if (!success) {
