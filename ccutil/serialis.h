@@ -27,6 +27,7 @@
 
 template <typename T> class GenericVector;
 class STRING;
+class TBOX;
 
 /***********************************************************************
   QUOTE_IT   MACRO DEFINITION
@@ -37,6 +38,8 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 #define QUOTE_IT( parm ) #parm
 
 namespace tesseract {
+
+class StaticShape;
 
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.
@@ -69,6 +72,19 @@ class TFile {
   char* FGets(char* buffer, int buffer_size);
   // Replicates fread, returning the number of items read.
   int FRead(void* buffer, int size, int count);
+  int FRead(char* buffer, unsigned count);
+  int FRead(int8_t* buffer, unsigned count);
+  int FRead(int16_t* buffer, unsigned count);
+  int FRead(int32_t* buffer, unsigned count);
+  int FRead(int64_t* buffer, unsigned count);
+  int FRead(uint8_t* buffer, unsigned count);
+  int FRead(uint16_t* buffer, unsigned count);
+  int FRead(uint32_t* buffer, unsigned count);
+  int FRead(uint64_t* buffer, unsigned count);
+  int FRead(float* buffer, unsigned count);
+  int FRead(double* buffer, unsigned count);
+  int FRead(StaticShape* buffer, unsigned count);
+  int FRead(TBOX* buffer, unsigned count);
   // Resets the TFile as if it has been Opened, but nothing read.
   // Only allowed while reading!
   void Rewind();

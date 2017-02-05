@@ -164,47 +164,50 @@ bool Network::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
 // Should be overridden by subclasses, but NOT called by their DeSerialize.
-bool Network::DeSerialize(bool swap, TFile* fp) {
+bool Network::DeSerialize(TFile* fp) {
   inT8 data = 0;
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&data, 1) != 1) return false;
   if (data == NT_NONE) {
     STRING type_name;
-    if (!type_name.DeSerialize(swap, fp)) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+    if (!type_name.DeSerialize(fp)) return false;
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
     if (data == NT_COUNT) {
       tprintf("Invalid network layer type:%s\n", type_name.string());
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
       return false;
     }
   }
   type_ = static_cast<NetworkType>(data);
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&data, 1) != 1) return false;
   training_ = data == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&data, 1) != 1) return false;
   needs_to_backprop_ = data != 0;
-  if (fp->FRead(&network_flags_, sizeof(network_flags_), 1) != 1) return false;
-  if (fp->FRead(&ni_, sizeof(ni_), 1) != 1) return false;
-  if (fp->FRead(&no_, sizeof(no_), 1) != 1) return false;
-  if (fp->FRead(&num_weights_, sizeof(num_weights_), 1) != 1) return false;
-  if (!name_.DeSerialize(swap, fp)) return false;
-  if (swap) {
-    ReverseN(&network_flags_, sizeof(network_flags_));
-    ReverseN(&ni_, sizeof(ni_));
-    ReverseN(&no_, sizeof(no_));
-    ReverseN(&num_weights_, sizeof(num_weights_));
-  }
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&network_flags_, 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&ni_, 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&no_, 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&num_weights_, 1) != 1) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (!name_.DeSerialize(fp)) return false;
   return true;
 }
 
 // Reads from the given file. Returns NULL in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
 // Determines the type of the serialized class and calls its DeSerialize
 // on a new object of the appropriate type, which is returned.
-Network* Network::CreateFromFile(bool swap, TFile* fp) {
+Network* Network::CreateFromFile(TFile* fp) {
   Network stub;
-  if (!stub.DeSerialize(swap, fp)) return NULL;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (!stub.DeSerialize(fp)) return NULL;
   Network* network = NULL;
   switch (stub.type_) {
     case NT_CONVOLVE:
@@ -248,6 +251,7 @@ Network* Network::CreateFromFile(bool swap, TFile* fp) {
       network = new TFNetwork(stub.name_);
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
       return NULL;
 #endif
       break;
@@ -263,14 +267,16 @@ Network* Network::CreateFromFile(bool swap, TFile* fp) {
       network = new FullyConnected(stub.name_, stub.ni_, stub.no_, stub.type_);
       break;
     default:
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
       return NULL;
   }
   network->training_ = stub.training_;
   network->needs_to_backprop_ = stub.needs_to_backprop_;
   network->network_flags_ = stub.network_flags_;
   network->num_weights_ = stub.num_weights_;
-  if (!network->DeSerialize(swap, fp)) {
+  if (!network->DeSerialize(fp)) {
     delete network;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
     return NULL;
   }
   return network;

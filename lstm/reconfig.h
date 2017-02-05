@@ -57,8 +57,7 @@ class Reconfig : public Network {
   // Writes to the given file. Returns false in case of error.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.

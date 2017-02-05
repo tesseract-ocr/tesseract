@@ -59,9 +59,8 @@ class TFNetwork : public Network {
   // Should be overridden by subclasses, but called by their Serialize.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
   // Should be overridden by subclasses, but NOT called by their DeSerialize.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.

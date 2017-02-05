@@ -191,15 +191,11 @@ bool Tesseract::init_tesseract_lang_data(
 #ifndef ANDROID_BUILD
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
-    if (tessdata_manager.swap()) {
-      tprintf("Error: LSTM requested on big-endian hardware!!\n");
-      tprintf("Big-endian not yet supported! Loading tesseract.\n");
-      tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
-    } else if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
+    if (tessdata_manager.SeekToStart(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer;
       TFile fp;
       fp.Open(tessdata_manager.GetDataFilePtr(), -1);
-      ASSERT_HOST(lstm_recognizer_->DeSerialize(tessdata_manager.swap(), &fp));
+      ASSERT_HOST(lstm_recognizer_->DeSerialize(&fp));
       if (lstm_use_matrix)
         lstm_recognizer_->LoadDictionary(tessdata_path.string(), language);
     } else {

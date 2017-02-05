@@ -44,23 +44,12 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
             "to the parent directory of your \"tessdata\" directory.\n");
     return false;
   }
-  fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_);
-  swap_ = (actual_tessdata_num_entries_ > kMaxNumTessdataEntries);
-  if (swap_) {
-    ReverseN(&actual_tessdata_num_entries_,
-             sizeof(actual_tessdata_num_entries_));
-  }
+  fread(&actual_tessdata_num_entries_, data_file_);
   if (actual_tessdata_num_entries_ > TESSDATA_NUM_ENTRIES) {
     // For forward compatibility, truncate to the number we can handle.
     actual_tessdata_num_entries_ = TESSDATA_NUM_ENTRIES;
   }
-  fread(offset_table_, sizeof(inT64),
-        actual_tessdata_num_entries_, data_file_);
-  if (swap_) {
-    for (i = 0 ; i < actual_tessdata_num_entries_; ++i) {
-      ReverseN(&offset_table_[i], sizeof(offset_table_[i]));
-    }
-  }
+  fread(offset_table_, data_file_, actual_tessdata_num_entries_);
   if (debug_level_) {
     tprintf("TessdataManager loaded %d types of tesseract data files.\n",
             actual_tessdata_num_entries_);

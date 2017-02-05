@@ -53,15 +53,13 @@ class TESS_API STRING
     // Writes to the given file. Returns false in case of error.
     bool Serialize(FILE* fp) const;
     // Reads from the given file. Returns false in case of error.
-    // If swap is true, assumes a big/little-endian swap is needed.
-    bool DeSerialize(bool swap, FILE* fp);
+    bool DeSerialize(FILE* fp);
     // Writes to the given file. Returns false in case of error.
     bool Serialize(tesseract::TFile* fp) const;
     // Reads from the given file. Returns false in case of error.
-    // If swap is true, assumes a big/little-endian swap is needed.
-    bool DeSerialize(bool swap, tesseract::TFile* fp);
+    bool DeSerialize(tesseract::TFile* fp);
     // As DeSerialize, but only seeks past the data - hence a static method.
-    static bool SkipDeSerialize(bool swap, tesseract::TFile* fp);
+    static bool SkipDeSerialize(tesseract::TFile* fp);
 
     BOOL8 contains(const char c) const;
     inT32 length() const;

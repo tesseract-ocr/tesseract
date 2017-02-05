@@ -23,7 +23,9 @@
 #include <math.h>
 #include "points.h"
 #include "ndminx.h"
+#ifndef GRAPHICS_DISABLED
 #include "scrollview.h"
+#endif
 #include "strngs.h"
 #include "tprintf.h"
 
@@ -289,8 +291,7 @@ class DLLSYM TBOX  {  // bounding box
     // Writes to the given file. Returns false in case of error.
     bool Serialize(FILE* fp) const;
     // Reads from the given file. Returns false in case of error.
-    // If swap is true, assumes a big/little-endian swap is needed.
-    bool DeSerialize(bool swap, FILE* fp);
+    bool DeSerialize(FILE* fp);
 
     friend TBOX& operator+=(TBOX&, const TBOX&);
     // in place union

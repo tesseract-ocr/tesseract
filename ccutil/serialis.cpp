@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        serialis.h  (Formerly serialmac.h)
+ * File:        serialis.cpp
  * Description: Inline routines and macros for serialisation functions
  * Author:      Phil Cheatle
  * Created:     Tue Oct 08 08:33:12 BST 1991
@@ -20,6 +20,9 @@
 #include "serialis.h"
 #include <stdio.h>
 #include "genericvector.h"
+#define GRAPHICS_DISABLED
+#include "../ccstruct/rect.h"
+#include "../lstm/static_shape.h"
 
 namespace tesseract {
 
@@ -74,7 +77,7 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
     data_is_owned_ = true;
   }
   data_->init_to_size(size, 0);
-  return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
+  return fread(&(*data_)[0], fp, size);
 }
 
 char* TFile::FGets(char* buffer, int buffer_size) {
@@ -90,6 +93,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
 
 int TFile::FRead(void* buffer, int size, int count) {
   ASSERT_HOST(!is_writing_);
+  printf("%s:%u %s(%p, %d, %d)\n", __FILE__, __LINE__, __func__, buffer, size, count);
   int required_size = size * count;
   if (required_size <= 0) return 0;
   char* char_buffer = reinterpret_cast<char*>(buffer);
@@ -99,6 +103,79 @@ int TFile::FRead(void* buffer, int size, int count) {
     memcpy(char_buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
   return required_size / size;
+}
+
+int TFile::FRead(char* buffer, unsigned count) {
+  return FRead(buffer, sizeof(*buffer), count);
+}
+
+int TFile::FRead(int8_t* buffer, unsigned count) {
+  return FRead(buffer, sizeof(*buffer), count);
+}
+
+int TFile::FRead(int16_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le((uint16_t &)buffer[i]);
+  return m;
+}
+
+int TFile::FRead(int32_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le((uint32_t &)buffer[i]);
+  return m;
+}
+
+int TFile::FRead(int64_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le((uint64_t &)buffer[i]);
+  return m;
+}
+
+int TFile::FRead(uint8_t* buffer, unsigned count) {
+  return FRead(buffer, sizeof(*buffer), count);
+}
+
+int TFile::FRead(uint16_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le(buffer[i]);
+  return m;
+}
+
+int TFile::FRead(uint32_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le(buffer[i]);
+  return m;
+}
+
+int TFile::FRead(uint64_t* buffer, unsigned count) {
+  size_t m = FRead(buffer, sizeof(*buffer), count);
+  for (size_t i = 0; i < m; i++)
+    convert2le(buffer[i]);
+  return m;
+}
+
+int TFile::FRead(float* buffer, unsigned count) {
+  assert(sizeof(float) == sizeof(uint32_t));
+  size_t m = FRead((uint32_t *)buffer, count);
+  printf("%s:%u %s(%p, %u) => %f\n", __FILE__, __LINE__, __func__, buffer, count, *buffer);
+  return m;
+}
+
+int TFile::FRead(double* buffer, unsigned count) {
+  assert(sizeof(double) == sizeof(uint64_t));
+  size_t m = FRead((uint64_t *)buffer, count);
+  printf("%s:%u %s(%p, %u) => %f\n", __FILE__, __LINE__, __func__, buffer, count, *buffer);
+  return m;
+}
+
+int TFile::FRead(TBOX* buffer, unsigned count) {
+  assert(0);
+  return FRead(buffer, sizeof(*buffer), count);
 }
 
 void TFile::Rewind() {
@@ -140,6 +217,4 @@ int TFile::FWrite(const void* buffer, int size, int count) {
   return count;
 }
 
-
 }  // namespace tesseract.
-

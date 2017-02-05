@@ -86,8 +86,7 @@ class UnicityTable {
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
   bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
-  /// swap is used to switch the endianness.
-  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
+  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb);
 
  private:
   GenericVector<T> table_;
@@ -194,8 +193,8 @@ bool UnicityTable<T>::write(
 
 template <typename T>
 bool UnicityTable<T>::read(
-    FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap) {
-  return table_.read(f, cb, swap);
+    FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb) {
+  return table_.read(f, cb);
 }
 
 // This method clear the current object, then, does a shallow copy of

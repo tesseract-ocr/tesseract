@@ -42,14 +42,13 @@ namespace tesseract {
  * array are set to an arbitrarily high cutoff value.
  * @param CutoffFile name of file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
- * @param swap
  * @param end_offset
  * @return none
  * @note Globals: none
  * @note Exceptions: none
  * @note History: Wed Feb 20 09:38:26 1991, DSJ, Created.
  */
-void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
+void Classify::ReadNewCutoffs(FILE *CutoffFile, inT64 end_offset,
                               CLASS_CUTOFF_ARRAY Cutoffs) {
   char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
@@ -57,7 +56,7 @@ void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
   int i;
 
   if (shape_table_ != NULL) {
-    if (!shapetable_cutoffs_.DeSerialize(swap, CutoffFile)) {
+    if (!shapetable_cutoffs_.DeSerialize(CutoffFile)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }

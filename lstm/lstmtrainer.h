@@ -215,8 +215,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Writes to the given file. Returns false in case of error.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to

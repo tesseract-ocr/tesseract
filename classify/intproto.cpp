@@ -760,9 +760,7 @@ namespace tesseract {
  */
 INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   int i, j, w, x, y, z;
-  BOOL8 swap;
-  int nread;
-  int unicharset_size;
+  int32_t unicharset_size;
   int version_id = 0;
   INT_TEMPLATES Templates;
   CLASS_PRUNER_STRUCT* Pruner;
@@ -786,29 +784,17 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   /* first read the high level template struct */
   Templates = NewIntTemplates();
   // Read Templates in parts for 64 bit compatibility.
-  if (fread(&unicharset_size, sizeof(int), 1, File) != 1)
+  assert(sizeof(int) == sizeof(int32_t));
+  if (!fread(&unicharset_size, File))
     cprintf("Bad read of inttemp!\n");
-  if (fread(&Templates->NumClasses,
-            sizeof(Templates->NumClasses), 1, File) != 1 ||
-      fread(&Templates->NumClassPruners,
-            sizeof(Templates->NumClassPruners), 1, File) != 1)
+  if (!fread(&Templates->NumClasses, File) ||
+      !fread(&Templates->NumClassPruners, File))
     cprintf("Bad read of inttemp!\n");
-  // Swap status is determined automatically.
-  swap = Templates->NumClassPruners < 0 ||
-    Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS;
-  if (swap) {
-    Reverse32(&Templates->NumClassPruners);
-    Reverse32(&Templates->NumClasses);
-    Reverse32(&unicharset_size);
-  }
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
-    if (fread(&Templates->NumClasses, sizeof(Templates->NumClasses),
-              1, File) != 1)
+    if (!fread(&Templates->NumClasses, File))
       cprintf("Bad read of inttemp!\n");
-    if (swap)
-      Reverse32(&Templates->NumClasses);
   }
 
   if (version_id < 3) {
@@ -817,40 +803,17 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   }
 
   if (version_id < 2) {
-    for (i = 0; i < unicharset_size; ++i) {
-      if (fread(&IndexFor[i], sizeof(inT16), 1, File) != 1)
-        cprintf("Bad read of inttemp!\n");
-    }
-    for (i = 0; i < Templates->NumClasses; ++i) {
-      if (fread(&ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
-        cprintf("Bad read of inttemp!\n");
-    }
-    if (swap) {
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse16(&IndexFor[i]);
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse32(&ClassIdFor[i]);
-    }
+    if (!fread(IndexFor, File, unicharset_size))
+      cprintf("Bad read of inttemp!\n");
+    if (!fread(ClassIdFor, File, Templates->NumClasses))
+      cprintf("Bad read of inttemp!\n");
   }
 
   /* then read in the class pruners */
   for (i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = new CLASS_PRUNER_STRUCT;
-    if ((nread =
-         fread(Pruner, 1, sizeof(CLASS_PRUNER_STRUCT),
-                File)) != sizeof(CLASS_PRUNER_STRUCT))
+    if (!fread(Pruner, File))
       cprintf("Bad read of inttemp!\n");
-    if (swap) {
-      for (x = 0; x < NUM_CP_BUCKETS; x++) {
-        for (y = 0; y < NUM_CP_BUCKETS; y++) {
-          for (z = 0; z < NUM_CP_BUCKETS; z++) {
-            for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              Reverse32(&Pruner->p[x][y][z][w]);
-            }
-          }
-        }
-      }
-    }
     if (version_id < 2) {
       TempClassPruner[i] = Pruner;
     } else {
@@ -914,39 +877,24 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
     Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
-    if (fread(&Class->NumProtos, sizeof(Class->NumProtos), 1, File) != 1 ||
-        fread(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File) != 1 ||
-        fread(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File) != 1)
+    if (!fread(&Class->NumProtos, File) ||
+        !fread(&Class->NumProtoSets, File) ||
+        !fread(&Class->NumConfigs, File))
       cprintf ("Bad read of inttemp!\n");
     if (version_id == 0) {
       // Only version 0 writes 5 pointless pointers to the file.
-      for (j = 0; j < 5; ++j) {
-        int junk;
-        if (fread(&junk, sizeof(junk), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
-      }
+      int32_t junk;
+      assert(sizeof(int) == sizeof(int32_t));
+      if (!fread(&junk, File, 5))
+        cprintf ("Bad read of inttemp!\n");
     }
     if (version_id < 4) {
-      for (j = 0; j < MaxNumConfigs; ++j) {
-        if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
-      }
+      if (!fread(Class->ConfigLengths, File, MaxNumConfigs))
+        cprintf ("Bad read of inttemp!\n");
     } else {
       ASSERT_HOST(Class->NumConfigs < MaxNumConfigs);
-      for (j = 0; j < Class->NumConfigs; ++j) {
-        if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
-      }
+      if (!fread(Class->ConfigLengths, File, Class->NumConfigs))
+        cprintf ("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
       ClassForClassId (Templates, ClassIdFor[i]) = Class;
@@ -958,9 +906,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     Lengths = NULL;
     if (MaxNumIntProtosIn (Class) > 0) {
       Lengths = (uinT8 *)Emalloc(sizeof(uinT8) * MaxNumIntProtosIn(Class));
-      if ((nread =
-           fread((char *)Lengths, sizeof(uinT8),
-                 MaxNumIntProtosIn(Class), File)) != MaxNumIntProtosIn (Class))
+      if (!fread(Lengths, File, MaxNumIntProtosIn(Class)))
         cprintf ("Bad read of inttemp!\n");
     }
     Class->ProtoLengths = Lengths;
@@ -969,48 +915,28 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     for (j = 0; j < Class->NumProtoSets; j++) {
       ProtoSet = (PROTO_SET)Emalloc(sizeof(PROTO_SET_STRUCT));
       if (version_id < 3) {
-        if ((nread =
-             fread((char *) &ProtoSet->ProtoPruner, 1,
-                    sizeof(PROTO_PRUNER), File)) != sizeof(PROTO_PRUNER))
+        if (!fread(&ProtoSet->ProtoPruner[0][0][0], File,
+                   sizeof(ProtoSet->ProtoPruner) / sizeof(ProtoSet->ProtoPruner[0][0][0])))
           cprintf("Bad read of inttemp!\n");
         for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
-          if ((nread = fread((char *) &ProtoSet->Protos[x].A, 1,
-                             sizeof(inT8), File)) != sizeof(inT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].B, 1,
-                             sizeof(uinT8), File)) != sizeof(uinT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].C, 1,
-                             sizeof(inT8), File)) != sizeof(inT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].Angle, 1,
-                             sizeof(uinT8), File)) != sizeof(uinT8))
+          if (!fread(&ProtoSet->Protos[x].A, File) ||
+              !fread(&ProtoSet->Protos[x].B, File) ||
+              !fread(&ProtoSet->Protos[x].C, File) ||
+              !fread(&ProtoSet->Protos[x].Angle, File))
             cprintf("Bad read of inttemp!\n");
-          for (y = 0; y < WerdsPerConfigVec; y++)
-            if ((nread = fread((char *) &ProtoSet->Protos[x].Configs[y], 1,
-                               sizeof(uinT32), File)) != sizeof(uinT32))
-              cprintf("Bad read of inttemp!\n");
+          if (!fread(ProtoSet->Protos[x].Configs, File, WerdsPerConfigVec))
+            cprintf("Bad read of inttemp!\n");
         }
       } else {
-        if ((nread =
-             fread((char *) ProtoSet, 1, sizeof(PROTO_SET_STRUCT),
-                   File)) != sizeof(PROTO_SET_STRUCT))
+        if (!fread(ProtoSet, File))
           cprintf("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        for (x = 0; x < NUM_PP_PARAMS; x++)
-          for (y = 0; y < NUM_PP_BUCKETS; y++)
-            for (z = 0; z < WERDS_PER_PP_VECTOR; z++)
-              Reverse32(&ProtoSet->ProtoPruner[x][y][z]);
-        for (x = 0; x < PROTOS_PER_PROTO_SET; x++)
-          for (y = 0; y < WerdsPerConfigVec; y++)
-            Reverse32(&ProtoSet->Protos[x].Configs[y]);
       }
       Class->ProtoSets[j] = ProtoSet;
     }
     if (version_id < 4)
       Class->font_set_id = -1;
     else {
-      fread(&Class->font_set_id, sizeof(int), 1, File);
-      if (swap)
-        Reverse32(&Class->font_set_id);
+      fread(&Class->font_set_id, File);
     }
   }
 
@@ -1037,13 +963,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info), swap);
+    this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info));
     if (version_id >= 5) {
       this->fontinfo_table_.read(File,
-                                 NewPermanentTessCallback(read_spacing_info),
-                                 swap);
+                                 NewPermanentTessCallback(read_spacing_info));
     }
-    this->fontset_table_.read(File, NewPermanentTessCallback(read_set), swap);
+    this->fontset_table_.read(File, NewPermanentTessCallback(read_set));
   }
 
   // Clean up.

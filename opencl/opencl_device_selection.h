@@ -360,7 +360,7 @@ static ds_status readProFile(const char* fileName, char** content,
     fclose(input);
     return DS_FILE_ERROR;
   }
-  fread(binary, sizeof(char), size, input);
+  fread(binary, input, size);
   fclose(input);
 
   *contentSize = size;

@@ -87,23 +87,22 @@ bool MasterTrainer::Serialize(FILE* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool MasterTrainer::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&norm_mode_, sizeof(norm_mode_), 1, fp) != 1) return false;
-  if (swap) {
-    ReverseN(&norm_mode_, sizeof(norm_mode_));
-  }
+bool MasterTrainer::DeSerialize(FILE* fp) {
+  int32_t norm_mode;
+  assert(sizeof(norm_mode) == sizeof(norm_mode_));
+  if (!fread(&norm_mode, fp)) return false;
+  norm_mode_ = NormalizationMode(norm_mode);
   if (!unicharset_.load_from_file(fp)) return false;
   charsetsize_ = unicharset_.size();
-  if (!feature_space_.DeSerialize(swap, fp)) return false;
+  if (!feature_space_.DeSerialize(fp)) return false;
   feature_map_.Init(feature_space_);
-  if (!samples_.DeSerialize(swap, fp)) return false;
-  if (!junk_samples_.DeSerialize(swap, fp)) return false;
-  if (!verify_samples_.DeSerialize(swap, fp)) return false;
-  if (!master_shapes_.DeSerialize(swap, fp)) return false;
-  if (!flat_shapes_.DeSerialize(swap, fp)) return false;
-  if (!fontinfo_table_.DeSerialize(swap, fp)) return false;
-  if (!xheights_.DeSerialize(swap, fp)) return false;
+  if (!samples_.DeSerialize(fp)) return false;
+  if (!junk_samples_.DeSerialize(fp)) return false;
+  if (!verify_samples_.DeSerialize(fp)) return false;
+  if (!master_shapes_.DeSerialize(fp)) return false;
+  if (!flat_shapes_.DeSerialize(fp)) return false;
+  if (!fontinfo_table_.DeSerialize(fp)) return false;
+  if (!xheights_.DeSerialize(fp)) return false;
   return true;
 }
 

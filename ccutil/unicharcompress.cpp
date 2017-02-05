@@ -315,9 +315,8 @@ bool UnicharCompress::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool UnicharCompress::DeSerialize(bool swap, TFile* fp) {
-  if (!encoder_.DeSerializeClasses(swap, fp)) return false;
+bool UnicharCompress::DeSerialize(TFile* fp) {
+  if (!encoder_.DeSerializeClasses(fp)) return false;
   ComputeCodeRange();
   SetupDecoder();
   return true;
