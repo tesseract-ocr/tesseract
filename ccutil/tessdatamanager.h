@@ -150,6 +150,7 @@ class TessdataManager {
  public:
   TessdataManager() {
     data_file_ = NULL;
+    debug_level_ = 1;
     actual_tessdata_num_entries_ = 0;
     for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
       offset_table_[i] = -1;

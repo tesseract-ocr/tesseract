@@ -36,6 +36,8 @@ namespace tesseract {
 bool TessdataManager::Init(const char *data_file_name, int debug_level) {
   int i;
   debug_level_ = debug_level;
+  if (debug_level_ == 0)
+    debug_level_ = 1;
   data_file_name_ = data_file_name;
   data_file_ = fopen(data_file_name, "rb");
   if (data_file_ == NULL) {

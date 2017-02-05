@@ -214,7 +214,7 @@ Tesseract::Tesseract()
       BOOL_MEMBER(test_pt, false, "Test for point", this->params()),
       double_MEMBER(test_pt_x, 99999.99, "xcoord", this->params()),
       double_MEMBER(test_pt_y, 99999.99, "ycoord", this->params()),
-      INT_MEMBER(multilang_debug_level, 0, "Print multilang debug info.",
+      INT_MEMBER(multilang_debug_level, 1, "Print multilang debug info.",
                  this->params()),
       INT_MEMBER(paragraph_debug_level, 0, "Print paragraph debug info.",
                  this->params()),
