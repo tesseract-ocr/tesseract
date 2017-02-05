@@ -163,7 +163,7 @@ class GenericVector {
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
   bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
-  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb);
+  bool read(FILE* f, TessResultCallback2<bool, FILE*, T*>* cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
@@ -881,14 +881,14 @@ bool GenericVector<T>::write(
 
 template <typename T>
 bool GenericVector<T>::read(FILE* f,
-                            TessResultCallback3<bool, FILE*, T*, bool>* cb) {
+                            TessResultCallback2<bool, FILE*, T*>* cb) {
   inT32 reserved;
   if (!fread(&reserved, f)) return false;
   reserve(reserved);
   if (!fread(&size_used_, f)) return false;
   if (cb != NULL) {
     for (int i = 0; i < size_used_; ++i) {
-      if (!cb->Run(f, data_ + i, false)) {
+      if (!cb->Run(f, data_ + i)) {
         delete cb;
         return false;
       }

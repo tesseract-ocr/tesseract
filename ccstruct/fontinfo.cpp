@@ -31,8 +31,8 @@ bool FontInfo::Serialize(FILE* fp) const {
 }
 // Reads from the given file. Returns false in case of error.
 bool FontInfo::DeSerialize(FILE* fp) {
-  if (!read_info(fp, this, false)) return false;
-  if (!read_spacing_info(fp, this, false)) return false;
+  if (!read_info(fp, this)) return false;
+  if (!read_spacing_info(fp, this)) return false;
   return true;
 }
 
@@ -147,7 +147,7 @@ void FontSetDeleteCallback(FontSet fs) {
 
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
-bool read_info(FILE* f, FontInfo* fi, bool) {
+bool read_info(FILE* f, FontInfo* fi) {
   uint32_t size;
   if (!fread(&size, f)) return false;
   char* font_name = new char[size + 1];
@@ -167,7 +167,7 @@ bool write_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_spacing_info(FILE *f, FontInfo* fi, bool) {
+bool read_spacing_info(FILE *f, FontInfo* fi) {
   inT32 vec_size, kern_size;
   if (!fread(&vec_size, f)) return false;
   ASSERT_HOST(vec_size >= 0);
@@ -224,7 +224,7 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_set(FILE* f, FontSet* fs, bool) {
+bool read_set(FILE* f, FontSet* fs) {
   if (!fread(&fs->size, f)) return false;
   fs->configs = new int[fs->size];
   ASSERT_HOST(sizeof(int) == sizeof(int32_t));

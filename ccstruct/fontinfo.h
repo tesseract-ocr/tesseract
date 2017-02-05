@@ -175,11 +175,11 @@ void FontInfoDeleteCallback(FontInfo f);
 void FontSetDeleteCallback(FontSet fs);
 
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
-bool read_info(FILE* f, FontInfo* fi, bool swap);
+bool read_info(FILE* f, FontInfo* fi);
 bool write_info(FILE* f, const FontInfo& fi);
-bool read_spacing_info(FILE *f, FontInfo* fi, bool swap);
+bool read_spacing_info(FILE *f, FontInfo* fi);
 bool write_spacing_info(FILE* f, const FontInfo& fi);
-bool read_set(FILE* f, FontSet* fs, bool swap);
+bool read_set(FILE* f, FontSet* fs);
 bool write_set(FILE* f, const FontSet& fs);
 
 }  // namespace tesseract.

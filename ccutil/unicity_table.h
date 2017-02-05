@@ -86,7 +86,7 @@ class UnicityTable {
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
   bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
-  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb);
+  bool read(FILE* f, TessResultCallback2<bool, FILE*, T*>* cb);
 
  private:
   GenericVector<T> table_;
@@ -193,7 +193,7 @@ bool UnicityTable<T>::write(
 
 template <typename T>
 bool UnicityTable<T>::read(
-    FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb) {
+    FILE* f, TessResultCallback2<bool, FILE*, T*>* cb) {
   return table_.read(f, cb);
 }
 
