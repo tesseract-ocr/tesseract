@@ -311,8 +311,8 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
  * @note History: Tue Mar 19 14:11:01 1991, DSJ, Created.
  */
 ADAPT_CLASS ReadAdaptedClass(FILE *File) {
-  int NumTempProtos;
-  int NumConfigs;
+  int32_t NumTempProtos;
+  int32_t NumConfigs;
   int i;
   ADAPT_CLASS Class;
   TEMP_PROTO TempProto;
@@ -330,7 +330,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
     WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
 
   /* then read in the list of temporary protos */
-  fread ((char *) &NumTempProtos, sizeof (int), 1, File);
+  fread (&NumTempProtos, sizeof(NumTempProtos), 1, File);
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     TempProto =
@@ -341,7 +341,7 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
   }
 
   /* then read in the adapted configs */
-  fread ((char *) &NumConfigs, sizeof (int), 1, File);
+  fread (&NumConfigs, sizeof(NumConfigs), 1, File);
   for (i = 0; i < NumConfigs; i++)
     if (test_bit (Class->PermConfigs, i))
       Class->Config[i].Perm = ReadPermConfig (File);
