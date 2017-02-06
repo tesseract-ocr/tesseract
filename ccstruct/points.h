@@ -163,7 +163,7 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
 {
   public:
     ///empty constructor
-    ICOORDELT() {  
+    ICOORDELT() {
     }
     ///constructor from ICOORD
     ICOORDELT (ICOORD icoord):ICOORD (icoord) {
