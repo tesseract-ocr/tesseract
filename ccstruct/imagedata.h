@@ -72,8 +72,7 @@ class WordFeature {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(FILE* fp);
 
  private:
   inT16 x_;
@@ -116,10 +115,9 @@ class ImageData {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, TFile* fp);
+  bool DeSerialize(TFile* fp);
   // As DeSerialize, but only seeks past the data - hence a static method.
-  static bool SkipDeSerialize(bool swap, tesseract::TFile* fp);
+  static bool SkipDeSerialize(tesseract::TFile* fp);
 
   // Other accessors.
   const STRING& imagefilename() const {

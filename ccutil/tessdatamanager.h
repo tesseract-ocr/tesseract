@@ -217,9 +217,6 @@ class TessdataManager {
       data_file_ = NULL;
     }
   }
-  bool swap() const {
-    return swap_;
-  }
 
   /** Writes the number of entries and the given offset table to output_file.
    * Returns false on error.
@@ -315,8 +312,6 @@ class TessdataManager {
   STRING data_file_name_;  // name of the data file.
   FILE *data_file_;  ///< pointer to the data file.
   int debug_level_;
-  // True if the bytes need swapping.
-  bool swap_;
 };
 
 

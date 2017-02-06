@@ -53,11 +53,10 @@ bool TFNetwork::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
 // Should be overridden by subclasses, but NOT called by their DeSerialize.
-bool TFNetwork::DeSerialize(bool swap, TFile* fp) {
+bool TFNetwork::DeSerialize(TFile* fp) {
   GenericVector<char> data;
-  if (!data.DeSerialize(swap, fp)) return false;
+  if (!data.DeSerialize(fp)) return false;
   if (!model_proto_.ParseFromArray(&data[0], data.size())) {
     return false;
   }

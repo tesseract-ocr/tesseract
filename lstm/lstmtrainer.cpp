@@ -480,9 +480,8 @@ bool LSTMTrainer::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool LSTMTrainer::DeSerialize(bool swap, TFile* fp) {
-  if (!LSTMRecognizer::DeSerialize(swap, fp)) return false;
+bool LSTMTrainer::DeSerialize(TFile* fp) {
+  if (!LSTMRecognizer::DeSerialize(fp)) return false;
   if (fp->FRead(&learning_iteration_, sizeof(learning_iteration_), 1) != 1) {
     // Special case. If we successfully decoded the recognizer, but fail here
     // then it means we were just given a recognizer, so issue a warning and
@@ -500,7 +499,7 @@ bool LSTMTrainer::DeSerialize(bool swap, TFile* fp) {
                 sizeof(last_perfect_training_iteration_), 1) != 1)
     return false;
   for (int i = 0; i < ET_COUNT; ++i) {
-    if (!error_buffers_[i].DeSerialize(swap, fp)) return false;
+    if (!error_buffers_[i].DeSerialize(fp)) return false;
   }
   if (fp->FRead(&error_rates_, sizeof(error_rates_), 1) != 1) return false;
   if (fp->FRead(&training_stage_, sizeof(training_stage_), 1) != 1)
@@ -522,12 +521,12 @@ bool LSTMTrainer::DeSerialize(bool swap, TFile* fp) {
     return false;
   if (fp->FRead(&stall_iteration_, sizeof(stall_iteration_), 1) != 1)
     return false;
-  if (!best_model_data_.DeSerialize(swap, fp)) return false;
-  if (!worst_model_data_.DeSerialize(swap, fp)) return false;
-  if (amount != NO_BEST_TRAINER && !best_trainer_.DeSerialize(swap, fp))
+  if (!best_model_data_.DeSerialize(fp)) return false;
+  if (!worst_model_data_.DeSerialize(fp)) return false;
+  if (amount != NO_BEST_TRAINER && !best_trainer_.DeSerialize(fp))
     return false;
   GenericVector<char> sub_data;
-  if (!sub_data.DeSerialize(swap, fp)) return false;
+  if (!sub_data.DeSerialize(fp)) return false;
   delete sub_trainer_;
   if (sub_data.empty()) {
     sub_trainer_ = NULL;
@@ -535,8 +534,8 @@ bool LSTMTrainer::DeSerialize(bool swap, TFile* fp) {
     sub_trainer_ = new LSTMTrainer();
     if (!ReadTrainingDump(sub_data, sub_trainer_)) return false;
   }
-  if (!best_error_history_.DeSerialize(swap, fp)) return false;
-  if (!best_error_iterations_.DeSerialize(swap, fp)) return false;
+  if (!best_error_history_.DeSerialize(fp)) return false;
+  if (!best_error_iterations_.DeSerialize(fp)) return false;
   if (fp->FRead(&improvement_steps_, sizeof(improvement_steps_), 1) != 1)
     return false;
   return true;
@@ -925,7 +924,7 @@ bool LSTMTrainer::ReadTrainingDump(const GenericVector<char>& data,
 bool LSTMTrainer::ReadSizedTrainingDump(const char* data, int size) {
   TFile fp;
   fp.Open(data, size);
-  return DeSerialize(false, &fp);
+  return DeSerialize(&fp);
 }
 
 // Writes the recognizer to memory, so that it can be used for testing later.
@@ -943,7 +942,7 @@ LSTMRecognizer* LSTMTrainer::ReadRecognitionDump(
   TFile fp;
   fp.Open(&data[0], data.size());
   LSTMRecognizer* recognizer = new LSTMRecognizer;
-  ASSERT_HOST(recognizer->DeSerialize(false, &fp));
+  ASSERT_HOST(recognizer->DeSerialize(&fp));
   return recognizer;
 }
 

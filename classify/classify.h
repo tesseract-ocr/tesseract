@@ -103,7 +103,7 @@ class Classify : public CCStruct {
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
+  void ReadNewCutoffs(FILE *CutoffFile, inT64 end_offset,
                       CLASS_CUTOFF_ARRAY Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);

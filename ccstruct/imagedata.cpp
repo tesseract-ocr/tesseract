@@ -87,10 +87,8 @@ bool WordFeature::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool WordFeature::DeSerialize(bool swap, FILE* fp) {
+bool WordFeature::DeSerialize(FILE* fp) {
   if (fread(&x_, sizeof(x_), 1, fp) != 1) return false;
-  if (swap) ReverseN(&x_, sizeof(x_));
   if (fread(&y_, sizeof(y_), 1, fp) != 1) return false;
   if (fread(&dir_, sizeof(dir_), 1, fp) != 1) return false;
   return true;
@@ -176,16 +174,14 @@ bool ImageData::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool ImageData::DeSerialize(bool swap, TFile* fp) {
-  if (!imagefilename_.DeSerialize(swap, fp)) return false;
+bool ImageData::DeSerialize(TFile* fp) {
+  if (!imagefilename_.DeSerialize(fp)) return false;
   if (fp->FRead(&page_number_, sizeof(page_number_), 1) != 1) return false;
-  if (swap) ReverseN(&page_number_, sizeof(page_number_));
-  if (!image_data_.DeSerialize(swap, fp)) return false;
-  if (!transcription_.DeSerialize(swap, fp)) return false;
+  if (!image_data_.DeSerialize(fp)) return false;
+  if (!transcription_.DeSerialize(fp)) return false;
   // WARNING: Will not work across different endian machines.
-  if (!boxes_.DeSerialize(swap, fp)) return false;
-  if (!box_texts_.DeSerializeClasses(swap, fp)) return false;
+  if (!boxes_.DeSerialize(fp)) return false;
+  if (!box_texts_.DeSerializeClasses(fp)) return false;
   inT8 vertical = 0;
   if (fp->FRead(&vertical, sizeof(vertical), 1) != 1) return false;
   vertical_text_ = vertical != 0;
@@ -193,14 +189,14 @@ bool ImageData::DeSerialize(bool swap, TFile* fp) {
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
-bool ImageData::SkipDeSerialize(bool swap, TFile* fp) {
-  if (!STRING::SkipDeSerialize(swap, fp)) return false;
+bool ImageData::SkipDeSerialize(TFile* fp) {
+  if (!STRING::SkipDeSerialize(fp)) return false;
   inT32 page_number;
   if (fp->FRead(&page_number, sizeof(page_number), 1) != 1) return false;
-  if (!GenericVector<char>::SkipDeSerialize(swap, fp)) return false;
-  if (!STRING::SkipDeSerialize(swap, fp)) return false;
-  if (!GenericVector<TBOX>::SkipDeSerialize(swap, fp)) return false;
-  if (!GenericVector<STRING>::SkipDeSerializeClasses(swap, fp)) return false;
+  if (!GenericVector<char>::SkipDeSerialize(fp)) return false;
+  if (!STRING::SkipDeSerialize(fp)) return false;
+  if (!GenericVector<TBOX>::SkipDeSerialize(fp)) return false;
+  if (!GenericVector<STRING>::SkipDeSerializeClasses(fp)) return false;
   inT8 vertical = 0;
   return fp->FRead(&vertical, sizeof(vertical), 1) == 1;
 }
@@ -522,7 +518,7 @@ bool DocumentData::ReCachePages() {
   pages_.truncate(0);
   TFile fp;
   if (!fp.Open(document_name_, reader_) ||
-      !PointerVector<ImageData>::DeSerializeSize(false, &fp, &loaded_pages) ||
+      !PointerVector<ImageData>::DeSerializeSize(&fp, &loaded_pages) ||
       loaded_pages <= 0) {
     tprintf("Deserialize header failed: %s\n", document_name_.string());
     return false;
@@ -534,9 +530,9 @@ bool DocumentData::ReCachePages() {
   for (page = 0; page < loaded_pages; ++page) {
     if (page < pages_offset_ ||
         (max_memory_ > 0 && memory_used() > max_memory_)) {
-      if (!PointerVector<ImageData>::DeSerializeSkip(false, &fp)) break;
+      if (!PointerVector<ImageData>::DeSerializeSkip(&fp)) break;
     } else {
-      if (!pages_.DeSerializeElement(false, &fp)) break;
+      if (!pages_.DeSerializeElement(&fp)) break;
       ImageData* image_data = pages_.back();
       if (image_data->imagefilename().length() == 0) {
         image_data->set_imagefilename(document_name_);

@@ -45,9 +45,8 @@ bool IntFeatureSpace::Serialize(FILE* fp) const {
 }
 
 // DeSerializes the feature space definition from the given file.
-// If swap is true, the data is big/little-endian swapped.
 // Returns false on error.
-bool IntFeatureSpace::DeSerialize(bool swap, FILE* fp) {
+bool IntFeatureSpace::DeSerialize(FILE* fp) {
   if (fread(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1)
     return false;
   if (fread(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1)

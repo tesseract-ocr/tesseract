@@ -188,10 +188,9 @@ bool TBOX::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool TBOX::DeSerialize(bool swap, FILE* fp) {
-  if (!bot_left.DeSerialize(swap, fp)) return false;
-  if (!top_right.DeSerialize(swap, fp)) return false;
+bool TBOX::DeSerialize(FILE* fp) {
+  if (!bot_left.DeSerialize(fp)) return false;
+  if (!top_right.DeSerialize(fp)) return false;
   return true;
 }
 

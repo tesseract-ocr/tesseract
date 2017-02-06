@@ -66,14 +66,9 @@ bool ICOORD::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool ICOORD::DeSerialize(bool swap, FILE* fp) {
+bool ICOORD::DeSerialize(FILE* fp) {
   if (fread(&xcoord, sizeof(xcoord), 1, fp) != 1) return false;
   if (fread(&ycoord, sizeof(ycoord), 1, fp) != 1) return false;
-  if (swap) {
-    ReverseN(&xcoord, sizeof(xcoord));
-    ReverseN(&ycoord, sizeof(ycoord));
-  }
   return true;
 }
 

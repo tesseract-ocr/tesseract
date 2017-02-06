@@ -83,11 +83,9 @@ class TrainingSample : public ELIST_LINK {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Creates from the given file. Returns NULL in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  static TrainingSample* DeSerializeCreate(bool swap, FILE* fp);
+  static TrainingSample* DeSerializeCreate(FILE* fp);
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(FILE* fp);
 
   // Extracts the needed information from the CHAR_DESC_STRUCT.
   void ExtractCharDesc(int feature_type, int micro_type,

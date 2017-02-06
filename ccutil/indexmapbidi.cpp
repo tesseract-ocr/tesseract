@@ -48,14 +48,11 @@ bool IndexMap::Serialize(FILE* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool IndexMap::DeSerialize(bool swap, FILE* fp) {
+bool IndexMap::DeSerialize(FILE* fp) {
   inT32 sparse_size;
   if (fread(&sparse_size, sizeof(sparse_size), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&sparse_size, sizeof(sparse_size));
   sparse_size_ = sparse_size;
-  if (!compact_map_.DeSerialize(swap, fp)) return false;
+  if (!compact_map_.DeSerialize(fp)) return false;
   return true;
 }
 
@@ -205,11 +202,10 @@ bool IndexMapBiDi::Serialize(FILE* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool IndexMapBiDi::DeSerialize(bool swap, FILE* fp) {
-  if (!IndexMap::DeSerialize(swap, fp)) return false;
+bool IndexMapBiDi::DeSerialize(FILE* fp) {
+  if (!IndexMap::DeSerialize(fp)) return false;
   GenericVector<inT32> remaining_pairs;
-  if (!remaining_pairs.DeSerialize(swap, fp)) return false;
+  if (!remaining_pairs.DeSerialize(fp)) return false;
   sparse_map_.init_to_size(sparse_size_, -1);
   for (int i = 0; i < compact_map_.size(); ++i) {
     sparse_map_[compact_map_[i]] = i;
