@@ -76,3 +76,6 @@ kernel*.bin
 /build*
 /cppan
 /win*
+*.dll
+*.exe
+*.lnk
