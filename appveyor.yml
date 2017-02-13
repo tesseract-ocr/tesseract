@@ -8,18 +8,31 @@ configuration:
   - Release
 
 before_build:
-  - if %platform%==Win32 set generator=Visual Studio 14
-  - if %platform%==Win64 set generator=Visual Studio 14 Win64
+  - if %platform%==Win32 set generator=Visual Studio 14 2015
+  - if %platform%==Win64 set generator=Visual Studio 14 2015 Win64
   - if %platform%==Win32 set vcplatform=Win32
   - if %platform%==Win64 set vcplatform=x64
-  
+
   - curl -fsS -L -o cppan.zip https://cppan.org/client/cppan-master-Windows-client.zip
   - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
-  
+
+  - cppan # dummy run to create %USERPROFILE%\.cppan\cppan.yml
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nvar_check_jobs: 1`n"'
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_warning_level: 0`n"'
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
+
 build_script:
-  - cppan
   - mkdir build
   - cd build
-  - cmake .. -G "%generator%" -DSTATIC=1
-  - msbuild tesseract.sln /p:Platform=%vcplatform% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  #- cmd: 'echo local_settings: > cppan.yml'
+  #- cmd: 'echo     generator: %generator% >> cppan.yml'
+  #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
+  #- cppan --build ..
+  - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off -DAPPVEYOR=1
+  - cmake --build . --config Release
+
+artifacts:
+  - path: build\bin\Release
+  #- path: build
+    name: tesseract-$(APPVEYOR_BUILD_VERSION)

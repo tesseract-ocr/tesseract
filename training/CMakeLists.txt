@@ -2,10 +2,16 @@
 # tesseract
 #
 
-if (STATIC OR NOT (WIN32 OR CYGWIN))
+if (NOT CPPAN_BUILD AND NOT (WIN32 OR CYGWIN))
+    return()
+endif()
+
+if (CPPAN_BUILD)
+    set(ICU_FOUND 1)
+endif()
 
 # experimental
-if (MSVC)
+if (MSVC AND NOT CPPAN_BUILD)
 
 include(CheckTypeSize)
 check_type_size("void *" SIZEOF_VOID_P)
@@ -48,10 +54,12 @@ endif()
 
 set(ICU_ROOT ${icu_dir}/icu)
 
-endif(MSVC)
+endif()
 # experimental
 
+if (NOT CPPAN_BUILD)
 find_package(ICU COMPONENTS uc i18n)
+endif()
 
 ########################################
 # LIBRARY tessopt
@@ -165,7 +173,9 @@ project_group               (wordlist2dawg "Training Tools")
 
 if (ICU_FOUND)
 
+if (NOT CPPAN_BUILD)
 include_directories(${ICU_INCLUDE_DIRS})
+endif()
 
 add_executable              (set_unicharset_properties
     set_unicharset_properties.cpp
@@ -177,7 +187,11 @@ add_executable              (set_unicharset_properties
     normstrngs.h
     icuerrorcode.h
 )
+if (NOT CPPAN_BUILD)
 target_link_libraries       (set_unicharset_properties common_training ${ICU_LIBRARIES})
+else()
+target_link_libraries       (set_unicharset_properties common_training pvt.cppan.demo.unicode.icu.i18n)
+endif()
 project_group               (set_unicharset_properties "Training Tools")
 
 
@@ -233,6 +247,5 @@ project_group               (text2image "Training Tools")
 
 endif(PKG_CONFIG_FOUND)
 endif(ICU_FOUND)
-endif(STATIC OR NOT (WIN32 OR CYGWIN))
 
 ###############################################################################
