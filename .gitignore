@@ -75,6 +75,7 @@ kernel*.bin
 # build dirs
 /build*
 /cppan
+/.cppan
 /win*
 *.dll
 *.exe
