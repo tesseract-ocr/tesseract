@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ([2.59])
-AC_INIT([tesseract], [3.05.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_INIT([tesseract], [3.05.00], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
@@ -18,8 +18,8 @@ AC_PREFIX_DEFAULT([/usr/local])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2015
-PACKAGE_DATE="07/11"
+PACKAGE_YEAR=2017
+PACKAGE_DATE="02/16"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
