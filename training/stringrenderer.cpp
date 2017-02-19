@@ -244,7 +244,7 @@ void StringRenderer::SetWordUnderlineAttributes(const string& page_text) {
   int offset = 0;
   TRand rand;
   bool started_underline = false;
-  PangoAttribute* und_attr = nullptr;
+  PangoAttribute* und_attr = NULL;
 
   while (offset < page_text.length()) {
     offset += SpanUTF8Whitespace(text + offset);
@@ -263,7 +263,7 @@ void StringRenderer::SetWordUnderlineAttributes(const string& page_text) {
         // previous word.
         pango_attr_list_insert(attr_list, und_attr);
         started_underline = false;
-        und_attr = nullptr;
+        und_attr = NULL;
       }
     }
     if (!started_underline && RandBool(underline_start_prob_, &rand)) {
