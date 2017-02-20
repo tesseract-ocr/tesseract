@@ -185,6 +185,8 @@ TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
   datadir_ = datadir;
   textonly_ = textonly;
   offsets_.push_back(0);
+  producer_ = "Tesseract ";
+  producer_.append(TESSERACT_VERSION_STR);
 }
 
 void TessPDFRenderer::AppendPDFObjectDIY(size_t objectsize) {
@@ -964,11 +966,11 @@ bool TessPDFRenderer::EndDocumentHandler() {
   n = snprintf(buf, sizeof(buf),
                "%ld 0 obj\n"
                "<<\n"
-               "  /Producer (Tesseract %s)\n"
+               "  /Producer (%s)\n"
                "  /CreationDate (D:%s)\n"
                "  /Title (%s)"
                ">>\n"
-               "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
+               "endobj\n", obj_, producer_.c_str(), datestr, title());
   lept_free(datestr);
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);

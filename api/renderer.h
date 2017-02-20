@@ -24,6 +24,7 @@
 #include "genericvector.h"
 #include "platform.h"
 #include "publictypes.h"
+#include <string>
 
 namespace tesseract {
 
@@ -202,6 +203,7 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   long int obj_;                     // counter for PDF objects
   GenericVector<long int> offsets_;  // offset of every PDF object in bytes
   GenericVector<long int> pages_;    // object number for every /Page object
+  std::string producer_;             // producer 
   const char *datadir_;              // where to find the custom font
   bool textonly_;                    // skip images if set
   // Bookkeeping only. DIY = Do It Yourself.
@@ -210,6 +212,8 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   void AppendPDFObject(const char *data);
   // Create the /Contents object for an entire page.
   char* GetPDFTextObjects(TessBaseAPI* api, double width, double height);
+  // Set producer.
+  void SetProducer(const std::string& producer) { producer_ = producer; }
   // Turn an image into a PDF object. Only transcode if we have to.
   static bool imageToPDFObj(Pix *pix, char *filename, long int objnum,
                           char **pdf_object, long int *pdf_object_size);
