@@ -84,7 +84,6 @@ if (STATIC)
 endif()
 
 if (WIN32)
-    add_definitions(-D__SSE4_1__)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
@@ -213,6 +212,17 @@ set(tesseract_src ${tesseract_src}
     api/renderer.cpp
     api/pdfrenderer.cpp
 )
+
+if (WIN32)
+    set_source_files_properties(
+        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+    if (MSVC)
+        set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
+            PROPERTIES COMPILE_FLAGS "/arch:AVX")
+    endif()
+endif()
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
 if (NOT STATIC)

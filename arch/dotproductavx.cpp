@@ -90,8 +90,17 @@ double DotProductAVX(const double* u, const double* v, int n) {
   // _mm256_extract_f64 doesn't exist, but resist the temptation to use an sse
   // instruction, as that introduces a 70 cycle delay. All this casting is to
   // fool the instrinsics into thinking we are extracting the bottom int64.
+  auto cast_sum = _mm256_castpd_si256(sum);
   *(reinterpret_cast<inT64*>(&result)) =
-      _mm256_extract_epi64(_mm256_castpd_si256(sum), 0);
+#ifndef _WIN32
+      _mm256_extract_epi64(cast_sum, 0)
+#else
+      // this is a very simple workaround that probably could be activated
+      // for all other platforms that do not have _mm256_extract_epi64
+      // _mm256_extract_epi64(X, Y) == ((uint64_t*)&X)[Y]
+      ((uint64_t*)&cast_sum)[0]
+#endif
+      ;
   while (offset < n) {
     result += u[offset] * v[offset];
     ++offset;

@@ -108,13 +108,19 @@ projects:
           - _Bool
 
         pre_sources: |
-            # dummy config file
-            if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
-                file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
-            endif()
+            file_write_once(${BDIR}/config_auto.h "")
 
         post_sources: |
-            if (NOT WIN32)
+            if (WIN32)
+                set_source_files_properties(
+                    ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+                    PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                if (MSVC)
+                    set_source_files_properties(
+                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
+                        PROPERTIES COMPILE_FLAGS "/arch:AVX")
+                endif()
+            else()
                 remove_src_dir(vs2010/port/*)
             endif()
 
