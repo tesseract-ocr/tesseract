@@ -17,7 +17,7 @@ common_settings:
     c++: 11
 
 projects:
-    tesseract:
+    libtesseract:
         type: lib
         export_all_symbols: true
         files:
@@ -136,17 +136,17 @@ projects:
         dependencies:
             pvt.cppan.demo.danbloomberg.leptonica: 1.74
 
-    tesseractmain:
+    tesseract:
         files: api/tesseractmain.cpp
         dependencies:
-            - tesseract
+            - libtesseract
 
     tessopt:
         type: lib
         static_only: true
         files: training/tessopt.*
         include_directories: training
-        dependencies: tesseract
+        dependencies: libtesseract
 
     common_training:
         type: lib
@@ -162,8 +162,7 @@ projects:
 
     ambiguous_words:
         files: training/ambiguous_words.cpp
-        dependencies:
-            - tesseract
+        dependencies: libtesseract
 
     classifier_tester:
         files: training/classifier_tester.cpp
@@ -171,7 +170,7 @@ projects:
 
     combine_tessdata:
         files: training/combine_tessdata.cpp
-        dependencies: tesseract
+        dependencies: libtesseract
 
     cntraining:
         files: training/cntraining.cpp
@@ -179,7 +178,7 @@ projects:
 
     dawg2wordlist:
         files: training/dawg2wordlist.cpp
-        dependencies: tesseract
+        dependencies: libtesseract
 
     mftraining:
         files:
@@ -197,7 +196,7 @@ projects:
 
     wordlist2dawg:
         files: training/wordlist2dawg.cpp
-        dependencies: tesseract
+        dependencies: libtesseract
 
     unicharset_training:
         type: lib

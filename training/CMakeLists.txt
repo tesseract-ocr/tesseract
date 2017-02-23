@@ -82,7 +82,7 @@ set(common_training_hdr
     commontraining.h
 )
 add_library                 (common_training ${common_training_src} ${common_training_hdr})
-target_link_libraries       (common_training tesseract tessopt)
+target_link_libraries       (common_training libtesseract tessopt)
 project_group               (common_training "Training Tools")
 
 
@@ -91,7 +91,7 @@ project_group               (common_training "Training Tools")
 ########################################
 
 add_executable              (ambiguous_words ambiguous_words.cpp)
-target_link_libraries       (ambiguous_words tesseract)
+target_link_libraries       (ambiguous_words libtesseract)
 project_group               (ambiguous_words "Training Tools")
 
 
@@ -109,7 +109,7 @@ project_group               (classifier_tester "Training Tools")
 ########################################
 
 add_executable              (combine_tessdata combine_tessdata.cpp)
-target_link_libraries       (combine_tessdata tesseract)
+target_link_libraries       (combine_tessdata libtesseract)
 project_group               (combine_tessdata "Training Tools")
 
 
@@ -127,7 +127,7 @@ project_group               (cntraining "Training Tools")
 ########################################
 
 add_executable              (dawg2wordlist dawg2wordlist.cpp)
-target_link_libraries       (dawg2wordlist tesseract)
+target_link_libraries       (dawg2wordlist libtesseract)
 project_group               (dawg2wordlist "Training Tools")
 
 
@@ -154,7 +154,7 @@ project_group               (shapeclustering "Training Tools")
 ########################################
 
 add_executable              (unicharset_extractor unicharset_extractor.cpp)
-target_link_libraries       (unicharset_extractor tesseract tessopt)
+target_link_libraries       (unicharset_extractor libtesseract tessopt)
 project_group               (unicharset_extractor "Training Tools")
 
 
@@ -163,7 +163,7 @@ project_group               (unicharset_extractor "Training Tools")
 ########################################
 
 add_executable              (wordlist2dawg wordlist2dawg.cpp)
-target_link_libraries       (wordlist2dawg tesseract)
+target_link_libraries       (wordlist2dawg libtesseract)
 project_group               (wordlist2dawg "Training Tools")
 
 
@@ -235,7 +235,7 @@ endif()
 add_executable              (text2image ${text2image_src})
 target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
-target_link_libraries       (text2image tesseract common_training
+target_link_libraries       (text2image libtesseract common_training
     ${ICU_LIBRARIES}
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
