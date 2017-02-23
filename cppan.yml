@@ -17,7 +17,7 @@ common_settings:
     c++: 11
 
 projects:
-    tesseract:
+    libtesseract:
         type: lib
         export_all_symbols: true
         files:
@@ -136,7 +136,7 @@ projects:
         dependencies:
             pvt.cppan.demo.danbloomberg.leptonica: 1
 
-    tesseractmain:
+    tesseract:
         files: api/tesseractmain.cpp
         dependencies:
             - tesseract
