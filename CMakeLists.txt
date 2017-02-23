@@ -84,6 +84,7 @@ if (STATIC)
 endif()
 
 if (WIN32)
+    add_definitions(-D__SSE4_1__)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
