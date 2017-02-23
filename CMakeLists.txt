@@ -213,30 +213,30 @@ set(tesseract_src ${tesseract_src}
     api/pdfrenderer.cpp
 )
 
-add_library                     (tesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
+add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
 if (NOT STATIC)
-target_compile_definitions      (tesseract
+target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
     INTERFACE -DTESS_IMPORTS
 )
-set_target_properties           (tesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
+set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
-target_link_libraries           (tesseract ${LIB_Ws2_32} ${LIB_pthread})
-set_target_properties           (tesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
-set_target_properties           (tesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+target_link_libraries           (libtesseract ${LIB_Ws2_32} ${LIB_pthread})
+set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
 if (WIN32)
-set_target_properties           (tesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
-set_target_properties           (tesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
+set_target_properties           (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
 endif()
 
 if (NOT CPPAN_BUILD)
-    target_link_libraries       (tesseract ${Leptonica_LIBRARIES})
-    export(TARGETS tesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    target_link_libraries       (libtesseract ${Leptonica_LIBRARIES})
+    export(TARGETS libtesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 else()
-    target_link_libraries       (tesseract pvt.cppan.demo.danbloomberg.leptonica)
-    add_dependencies            (tesseract cppan)
+    target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
+    add_dependencies            (libtesseract cppan)
     file(WRITE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_BINARY_DIR}/cppan.cmake)\n")
-    export(TARGETS tesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    export(TARGETS libtesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
 endif()
 
 ########################################
@@ -248,9 +248,8 @@ set(tesseractmain_src
     vs2010/tesseract/resource.h
     vs2010/tesseract/tesseract.rc
 )
-add_executable                  (tesseractmain ${tesseractmain_src})
-target_link_libraries           (tesseractmain tesseract)
-set_target_properties           (tesseractmain PROPERTIES OUTPUT_NAME tesseract)
+add_executable                  (tesseract ${tesseractmain_src})
+target_link_libraries           (tesseract libtesseract)
 
 ########################################
 
