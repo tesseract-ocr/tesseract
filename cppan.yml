@@ -113,11 +113,11 @@ projects:
         post_sources: |
             if (WIN32)
                 set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+                    ${SDIR}/arch/dotproductsse.cpp
                     PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
                 if (MSVC)
                     set_source_files_properties(
-                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
+                        ${SDIR}/arch/dotproductavx.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX")
                 endif()
             else()
