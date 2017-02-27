@@ -119,13 +119,9 @@ esac
 AM_CONDITIONAL([AVX_OPT], false)
 AM_CONDITIONAL([SSE41_OPT], false)
 
-# The current implementation for AVX uses 64 bit code.
-AC_CHECK_SIZEOF([void *])
-if test "$ac_cv_sizeof_void_p" = "8"; then
-    AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false])
-    if $avx; then
-        AM_CONDITIONAL([AVX_OPT], true)
-    fi
+AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false])
+if $avx; then
+    AM_CONDITIONAL([AVX_OPT], true)
 fi
 
 AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false])
