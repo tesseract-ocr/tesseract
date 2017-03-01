@@ -72,7 +72,7 @@ bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
 
   while ((end_offset < 0 || ftell(fp) < end_offset) &&
          fgets(line, MAX_PATH, fp)) {
-    if (line[0] != '\n' && line[0] != '#') {
+    if (line[0] != '\r' && line[0] != '\n' && line[0] != '#') {
       chomp_string(line);  // remove newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
