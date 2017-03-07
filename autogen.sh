@@ -46,6 +46,18 @@ if [ "$1" = "clean" ]; then
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
+# Prevent any errors that might result from failing to properly invoke `libtoolize` or `glibtoolize,` whichever 
+# is present on your system, from occurring by testing for its existence and capturing the absolute path to its 
+# location for caching purposes prior to using it later on in 'Step 2:'  
+if command -v libtoolize >/dev/null 2>&1; then
+  LIBTOOLIZE="$(command -v libtoolize)"
+elif command -v glibtoolize >/dev/null 2>&1; then
+  LIBTOOLIZE="$(command -v glibtoolize)"
+else
+  echo "Unable to find a valid copy of libtoolize in your PATH!"
+  bail_out
+fi
+
 # create m4 directory if it not exists
 if [ ! -d m4 ];  then
     mkdir m4
@@ -71,8 +83,8 @@ aclocal -I config || bail_out
 # --- Step 2:
 
 echo "Running libtoolize"
-libtoolize -f -c || glibtoolize -f -c || bail_out
-libtoolize --automake || glibtoolize --automake || bail_out
+$LIBTOOLIZE -f -c || bail_out
+$LIBTOOLIZE --automake || bail_out
 
 # --- Step 3: Generate config.h.in from:
 #             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
