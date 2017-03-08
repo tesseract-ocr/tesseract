@@ -138,7 +138,6 @@ void Input::PreparePixInput(const StaticShape& shape, const Pix* pix,
     else
       normed_pix = pixConvertTo8(var_pix, false);
   }
-  int width = pixGetWidth(normed_pix);
   int height = pixGetHeight(normed_pix);
   int target_height = shape.height();
   if (target_height == 1) target_height = shape.depth();
