@@ -281,7 +281,6 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
   } state = ST_NORMAL;
   char *sarg = NULL;    // %s %c or %[ string argument
   enum Bail bail = BAIL_NONE;
-  int sign;
   int converted = 0;    // Successful conversions
   unsigned long matchmap[((1 << CHAR_BIT)+(CHAR_BIT * sizeof(long) - 1)) /
       (CHAR_BIT * sizeof(long))];
@@ -363,28 +362,28 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
             case 'P':   // Upper case pointer
             case 'p':   // Pointer
               rank = RANK_PTR;
-              base = 0; sign = 0;
+              base = 0;
             goto scan_int;
 
             case 'i':   // Base-independent integer
-              base = 0; sign = 1;
+              base = 0;
             goto scan_int;
 
             case 'd':   // Decimal integer
-              base = 10; sign = 1;
+              base = 10;
             goto scan_int;
 
             case 'o':   // Octal integer
-              base = 8; sign = 0;
+              base = 8;
             goto scan_int;
 
             case 'u':   // Unsigned decimal integer
-              base = 10; sign = 0;
+              base = 10;
             goto scan_int;
 
             case 'x':   // Hexadecimal integer
             case 'X':
-              base = 16; sign = 0;
+              base = 16;
             goto scan_int;
 
             case 'n':   // Number of characters consumed
