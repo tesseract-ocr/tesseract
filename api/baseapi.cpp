@@ -1616,13 +1616,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
 
     // Now, process the word...
     int left, top, right, bottom;
-    bool bold, italic, underlined, monospace, serif, smallcaps;
-    int pointsize, font_id;
-    const char* font_name;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-    font_name =
-        res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
-                                   &serif, &smallcaps, &pointsize, &font_id);
     word_num++;
     tsv_str.add_str_int("5\t", page_num);  // level 5 - word
     tsv_str.add_str_int("\t", block_num);
