@@ -83,7 +83,7 @@ aclocal -I config || bail_out
 
 # --- Step 2:
 
-echo "Running libtoolize"
+echo "Running $LIBTOOLIZE"
 $LIBTOOLIZE -f -c || bail_out
 $LIBTOOLIZE --automake || bail_out
 
