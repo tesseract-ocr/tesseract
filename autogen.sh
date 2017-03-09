@@ -55,7 +55,7 @@ if command -v libtoolize >/dev/null 2>&1; then
 elif command -v glibtoolize >/dev/null 2>&1; then
   LIBTOOLIZE="$(command -v glibtoolize)"
 else
-  echo "Unable to find a valid copy of libtoolize in your PATH!"
+  echo "Unable to find a valid copy of libtoolize or glibtoolize in your PATH!"
   bail_out
 fi
 
