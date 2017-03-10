@@ -335,7 +335,7 @@ void join_edges(CRACKEDGE *edge1,  // edges to join
   if (edge1->pos.x() + edge1->stepx != edge2->pos.x()
   || edge1->pos.y() + edge1->stepy != edge2->pos.y()) {
     CRACKEDGE *tempedge = edge1;
-    edge1 = edge2;               // swap araound
+    edge1 = edge2;               // swap around
     edge2 = tempedge;
   }
 
