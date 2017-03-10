@@ -1,0 +1,34 @@
+name: tesseract
+version: master
+summary: open source optical character recognition engine
+description: |
+  Tesseract has unicode (UTF-8) support, and can recognize more than 100
+  languages "out of the box". It can be trained to recognize other languages.
+  Tesseract supports various output formats: plain-text, hocr(html), pdf.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+apps:
+  tesseract:
+    command: env TESSDATA_PREFIX=$SNAP_USER_COMMON tesseract
+    plugs: [home]
+
+parts:
+  tesseract:
+    source: .
+    plugin: autotools
+    build-packages:
+      - autoconf-archive
+      - pkg-config
+      - libpng12-dev
+      - libjpeg8-dev
+      - libtiff5-dev
+      - zlib1g-dev
+      - libicu-dev
+      - libpango1.0-dev
+      - libcairo2-dev
+    after: [leptonica]
+  leptonica:
+    source: http://www.leptonica.org/source/leptonica-1.74.1.tar.gz
+    plugin: autotools
