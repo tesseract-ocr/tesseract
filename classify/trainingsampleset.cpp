@@ -507,22 +507,6 @@ bool TrainingSampleSet::DeleteableSample(const TrainingSample* sample) {
   return sample == NULL || sample->class_id() < 0;
 }
 
-static Pix* DebugSample(const UNICHARSET& unicharset,
-                        TrainingSample* sample) {
-  tprintf("\nOriginal features:\n");
-  for (int i = 0; i < sample->num_features(); ++i) {
-    sample->features()[i].print();
-  }
-  if (sample->features_are_mapped()) {
-    tprintf("\nMapped features:\n");
-    for (int i = 0; i < sample->mapped_features().size(); ++i) {
-      tprintf("%d ", sample->mapped_features()[i]);
-    }
-    tprintf("\n");
-  }
-  return sample->RenderToPix(&unicharset);
-}
-
 // Construct an array to access the samples by font,class pair.
 void TrainingSampleSet::OrganizeByFontAndClass() {
   // Font indexes are sparse, so we used a map to compact them, so we can
