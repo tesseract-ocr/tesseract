@@ -177,7 +177,7 @@ class UNICHARSET {
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET.
-  UNICHAR_ID unichar_to_id(const char* const unichar_repr) const;
+  UNICHAR_ID TESS_API unichar_to_id(const char* const unichar_repr) const;
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET. Only the first length characters from unichar_repr are used.
@@ -234,7 +234,7 @@ class UNICHARSET {
   }
 
   // Add a unichar representation to the set.
-  void unichar_insert(const char* const unichar_repr);
+  void TESS_API unichar_insert(const char* const unichar_repr);
 
   // Return true if the given unichar id exists within the set.
   // Relies on the fact that unichar ids are contiguous in the unicharset.
@@ -244,7 +244,7 @@ class UNICHARSET {
   }
 
   // Return true if the given unichar representation exists within the set.
-  bool contains_unichar(const char* const unichar_repr) const;
+  bool TESS_API contains_unichar(const char* const unichar_repr) const;
   bool contains_unichar(const char* const unichar_repr, int length) const;
 
   // Return true if the given unichar representation corresponds to the given
@@ -327,7 +327,7 @@ class UNICHARSET {
 
   // Saves the content of the UNICHARSET to the given STRING.
   // Returns true if the operation is successful.
-  bool save_to_string(STRING *str) const;
+  bool TESS_API save_to_string(STRING *str) const;
 
   // Load a unicharset from a unicharset file that has been loaded into
   // the given memory buffer.

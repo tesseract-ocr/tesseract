@@ -66,7 +66,7 @@ struct ShapeDist {
 // Initially supports shape clustering and mftrainining.
 // Other important features of the MasterTrainer are conditioning the data
 // by outlier elimination, replication with perturbation, and serialization.
-class MasterTrainer {
+class TESS_API MasterTrainer {
  public:
   MasterTrainer(NormalizationMode norm_mode, bool shape_analysis,
                 bool replicate_samples, int debug_level);
@@ -298,7 +298,7 @@ class MasterTrainer {
   int debug_level_;
   // Feature map used to construct reduced feature spaces for compact
   // classifiers.
-  IntFeatureMap feature_map_;
+  IntFeatureMap TESS_API feature_map_;
   // Vector of Pix pointers used for classifiers that need the image.
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.

@@ -83,7 +83,7 @@ void FreeKDNode(KDNODE *Node);
 
 FLOAT32 DistanceSquared(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]);
 
-FLOAT32 ComputeDistance(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]);
+FLOAT32 TESS_API ComputeDistance(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]);
 
 int QueryInSearch(KDTREE *tree);
 

@@ -244,7 +244,7 @@ class Dict {
                              CHAR_FRAGMENT_INFO *char_frag_info);
 
   /* stopper.cpp *************************************************************/
-  bool NoDangerousAmbig(WERD_CHOICE *BestChoice,
+  bool TESS_API NoDangerousAmbig(WERD_CHOICE *BestChoice,
                         DANGERR *fixpt,
                         bool fix_replaceable,
                         MATRIX* ratings);

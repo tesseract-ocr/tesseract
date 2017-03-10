@@ -23,6 +23,7 @@
 #define THIRD_PARTY_TESSERACT_CCMAIN_CUBECLASSIFIER_H_
 
 #include "shapeclassifier.h"
+#include "platform.h"
 
 namespace tesseract {
 
@@ -35,7 +36,7 @@ class TrainingSample;
 struct UnicharRating;
 
 // Cube implementation of a ShapeClassifier.
-class CubeClassifier : public ShapeClassifier {
+class TESS_API CubeClassifier : public ShapeClassifier {
  public:
   explicit CubeClassifier(Tesseract* tesseract);
   virtual ~CubeClassifier();
@@ -55,7 +56,7 @@ class CubeClassifier : public ShapeClassifier {
 };
 
 // Combination of Tesseract class pruner with scoring by cube.
-class CubeTessClassifier : public ShapeClassifier {
+class TESS_API CubeTessClassifier : public ShapeClassifier {
  public:
   explicit CubeTessClassifier(Tesseract* tesseract);
   virtual ~CubeTessClassifier();

@@ -261,7 +261,7 @@ class Shape {
 // that the shape represents.
 // Each UnicharAndFonts also lists the fonts of the unichar_id that were
 // mapped to the shape during training.
-class ShapeTable {
+class TESS_API ShapeTable {
  public:
   ShapeTable();
   // The UNICHARSET reference supplied here, or in set_unicharset below must

@@ -29,7 +29,7 @@ void SavePixForCrash(int resolution, Pix* pix);
 
 void signal_exit(int signal_code);
 
-void err_exit(); 
+void TESS_API err_exit(); 
 
 void set_global_loc_code(int loc_code); 
 

@@ -55,7 +55,7 @@ typedef FEATURE_DEFS_STRUCT *FEATURE_DEFS;
 /*----------------------------------------------------------------------
     Generic functions for manipulating character descriptions
 ----------------------------------------------------------------------*/
-void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
+void TESS_API InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs);
 
 void FreeCharDescription(CHAR_DESC CharDesc);
 
@@ -67,10 +67,10 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
 void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc, STRING* str);
 
-CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+CHAR_DESC TESS_API ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               FILE *File);
 
-int ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
+int TESS_API ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
                            const char *ShortName);
 
 /**----------------------------------------------------------------------------

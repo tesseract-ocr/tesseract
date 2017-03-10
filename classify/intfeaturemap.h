@@ -75,7 +75,7 @@ class IntFeatureMap {
 
   // Copies the given feature_space and uses it as the index feature map
   // from INT_FEATURE_STRUCT.
-  void Init(const IntFeatureSpace& feature_space);
+  void TESS_API Init(const IntFeatureSpace& feature_space);
 
   // Helper to return an offset index feature. In this context an offset
   // feature with a dir of +/-1 is a feature of a similar direction,

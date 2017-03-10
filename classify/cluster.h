@@ -107,15 +107,15 @@ typedef struct {
 /*--------------------------------------------------------------------------
         Public Function Prototypes
 --------------------------------------------------------------------------*/
-CLUSTERER *MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]);
+CLUSTERER TESS_API *MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]);
 
-SAMPLE *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, inT32 CharID);
+SAMPLE TESS_API *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, inT32 CharID);
 
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
-void FreeClusterer(CLUSTERER *Clusterer);
+void TESS_API FreeClusterer(CLUSTERER *Clusterer);
 
-void FreeProtoList(LIST *ProtoList);
+void TESS_API FreeProtoList(LIST *ProtoList);
 
 void FreePrototype(void *arg);  // PROTOTYPE *Prototype);
 
@@ -125,7 +125,7 @@ FLOAT32 Mean(PROTOTYPE *Proto, uinT16 Dimension);
 
 FLOAT32 StandardDeviation(PROTOTYPE *Proto, uinT16 Dimension);
 
-inT32 MergeClusters(inT16 N, PARAM_DESC ParamDesc[], inT32 n1, inT32 n2,
+inT32 TESS_API MergeClusters(inT16 N, PARAM_DESC ParamDesc[], inT32 n1, inT32 n2,
                     FLOAT32 m[], FLOAT32 m1[], FLOAT32 m2[]);
 
 //--------------Global Data Definitions and Declarations---------------------------

@@ -268,7 +268,7 @@ const char *ScriptPosToString(tesseract::ScriptPos script_pos);
 
 }  // namespace tesseract.
 
-class WERD_CHOICE : public ELIST_LINK {
+class TESS_API WERD_CHOICE : public ELIST_LINK {
  public:
   static const float kBadRating;
   static const char *permuter_name(uinT8 permuter);

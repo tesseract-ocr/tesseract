@@ -166,13 +166,13 @@ void CopyProto(PROTO Src, PROTO Dest);
 
 void FillABC(PROTO Proto);
 
-void FreeClass(CLASS_TYPE Class);
+void TESS_API FreeClass(CLASS_TYPE Class);
 
 void FreeClassFields(CLASS_TYPE Class);
 
 void InitPrototypes();
 
-CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
+CLASS_TYPE TESS_API NewClass(int NumProtos, int NumConfigs);
 
 void PrintProtos(CLASS_TYPE Class);
 
