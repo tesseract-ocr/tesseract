@@ -110,7 +110,7 @@ bool Tesseract::init_tesseract_lang_data(
     return false;
   }
   if (oem == OEM_DEFAULT) {
-    // Set the engine mode from availablity, which can then be overidden by
+    // Set the engine mode from availability, which can then be overidden by
     // the config file when we read it below.
     if (!tessdata_manager.IsLSTMAvailable()) {
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
