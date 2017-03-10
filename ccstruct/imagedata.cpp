@@ -438,7 +438,9 @@ void DocumentData::LoadPageInBackground(int index) {
   if (pages_offset_ == index) return;
   pages_offset_ = index;
   pages_.clear();
+  #ifndef GRAPHICS_DISABLED
   SVSync::StartThread(ReCachePagesFunc, this);
+  #endif  // GRAPHICS_DISABLED
 }
 
 // Returns a pointer to the page with the given index, modulo the total
