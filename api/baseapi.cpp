@@ -1039,9 +1039,8 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
           od.pixReadTiffCl(filename, page);
     } else {
 #endif  // USE_OPENCL
-      pix = (data) ?
-          pixReadMemFromMultipageTiff(data, size, &offset) :
-          pixReadFromMultipageTiff(filename, &offset);
+    pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
+                 : pixReadFromMultipageTiff(filename, &offset);
 #ifdef USE_OPENCL
     }
 #endif  // USE_OPENCL
