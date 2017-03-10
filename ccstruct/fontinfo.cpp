@@ -241,7 +241,7 @@ bool read_set(FILE* f, FontSet* fs, bool swap) {
   if (fread(&fs->size, sizeof(fs->size), 1, f) != 1) return false;
   if (swap)
     Reverse32(&fs->size);
-  fs->configs = new int[fs->size];
+  fs->configs = new int32_t[fs->size];
   for (int i = 0; i < fs->size; ++i) {
     if (fread(&fs->configs[i], sizeof(fs->configs[i]), 1, f) != 1) return false;
     if (swap)
