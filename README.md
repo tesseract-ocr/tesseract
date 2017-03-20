@@ -5,7 +5,7 @@ For the latest online version of the README.md see:
     
   https://github.com/tesseract-ocr/tesseract/blob/master/README.md
 
-#About
+# About
 
 This package contains an OCR engine - `libtesseract` and a command line program - `tesseract`.
 
@@ -24,7 +24,7 @@ You should note that in many cases, in order to get better OCR results, you'll n
 
 The latest stable version is 3.04.01, released in February 2016.
 
-#Brief history
+# Brief history
 
 Tesseract was originally developed at Hewlett-Packard Laboratories Bristol and
 at Hewlett-Packard Co, Greeley Colorado between 1985 and 1994, with some
@@ -34,13 +34,13 @@ In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 
 [Release Notes](https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes)
 
-#For developers
+# For developers
 
 Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/api/capi.h) or [C++](https://github.com/tesseract-ocr/tesseract/blob/master/api/baseapi.h) API to build their own application. If you need bindings to `libtesseract` for other programming languages, please see the [wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
 
 Documentation of Tesseract generated from source code by doxygen can be found on [tesseract-ocr.github.io](http://tesseract-ocr.github.io/).
 
-#License
+# License
 
     The code in this repository is licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -56,11 +56,11 @@ Documentation of Tesseract generated from source code by doxygen can be found on
 
 **NOTE**: This software depends on other packages that may be licensed under different open source licenses.
 
-#Installing Tesseract
+# Installing Tesseract
 
 You can either [Install Tesseract via pre-built binary package](https://github.com/tesseract-ocr/tesseract/wiki) or [build it from source](https://github.com/tesseract-ocr/tesseract/wiki/Compiling).
 
-#Running Tesseract
+# Running Tesseract
 
 Basic command line usage:
 
@@ -68,7 +68,7 @@ Basic command line usage:
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`. 
 
-#Support
+# Support
 
 Mailing-lists:
 * [tesseract-ocr](https://groups.google.com/d/forum/tesseract-ocr) - For tesseract users. 
