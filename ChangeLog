@@ -3,6 +3,28 @@
   * Improvements to PDF rendering.
   * Fixes to trainingdata rendering.
 
+2017-02-16 - V3.05.00
+  * Made some fine tuning to the hOCR output.
+  * Added TSV as another optional output format.
+  * Fixed ABI break introduced in 3.04.00 with the AnalyseLayout() method.
+  * text2image tool - Enable all OpenType ligatures available in a font. This feature requires Pango 1.38 or newer.
+  * Training tools - Replaced asserts with tprintf() and exit(1).
+  * Fixed Cygwin compatibility.
+  * Improved multipage tiff processing.
+  * Improved the embedded pdf font (pdf.ttf).
+  * Enable selection of OCR engine mode from command line.
+  * Changed tesseract command line parameter '-psm' to '--psm'.
+  * Write output of tesseract --help, --version and --list-langs to stdout instead of stderr.
+  * Added new C API for orientation and script detection, removed the old one.
+  * Increased minimum autoconf version to 2.59.
+  * Removed dead code.
+  * Fixed many compiler warning.
+  * Fixed memory and resource leaks.
+  * Fixed some issues with the 'Cube' OCR engine.
+  * Fixed some openCL issues.
+  * Added option to build Tesseract with CMake build system.
+  * Implemented CPPAN support for easy Windows building.
+
 2016-02-17 - V3.04.01
   * Added OSD renderer for psm 0. Works for single page and multi-page images.
   * Improve tesstrain.sh script.
