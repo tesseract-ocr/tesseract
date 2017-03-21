@@ -9,6 +9,7 @@
   * Improved the embedded pdf font (pdf.ttf).
   * Enable selection of OCR engine mode from command line.
   * Changed tesseract command line parameter '-psm' to '--psm'.
+  * Write output of tesseract --help, --version and --list-langs to stdout instead of stderr.
   * Added new C API for orientation and script detection, removed the old one.
   * Increased minimum autoconf version to 2.59.
   * Removed dead code.
