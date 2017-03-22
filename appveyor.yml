@@ -36,7 +36,7 @@ build_script:
   #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
   #- cppan --build ..
   - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off -DAPPVEYOR=1
-  - cmake --build . --config Release #> bin\Release\log.txt 2>&1
+  - cmake --build . --config Release > bin\Release\log.txt 2>&1
 
 artifacts:
   - path: build\bin\Release
