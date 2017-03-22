@@ -298,7 +298,7 @@ class TESS_API MasterTrainer {
   int debug_level_;
   // Feature map used to construct reduced feature spaces for compact
   // classifiers.
-  IntFeatureMap TESS_API feature_map_;
+  IntFeatureMap feature_map_;
   // Vector of Pix pointers used for classifiers that need the image.
   // Indexed by page_num_ in the samples.
   // These images are owned by the trainer and need to be pixDestroyed.

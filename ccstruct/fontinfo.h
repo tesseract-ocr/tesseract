@@ -25,6 +25,8 @@
 #include "host.h"
 #include "unichar.h"
 
+#include <stdint.h>
+
 template <typename T> class UnicityTable;
 
 namespace tesseract {
