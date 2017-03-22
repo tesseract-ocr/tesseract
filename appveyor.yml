@@ -5,7 +5,11 @@ platform:
   - Win64
 
 configuration:
-  - Release
+  - Release  
+  
+ # for curl
+ install:
+   - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
 
 before_build:
   - if %platform%==Win32 set generator=Visual Studio 14 2015
