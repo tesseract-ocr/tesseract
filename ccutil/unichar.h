@@ -47,7 +47,7 @@ enum StrongScriptDirection {
 
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
-// multple Unicode characters representing the NFKC expansion of a ligature
+// multiple Unicode characters representing the NFKC expansion of a ligature
 // such as fi, ffl etc. These are also stored as utf8.
 class UNICHAR {
  public:
