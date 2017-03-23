@@ -169,7 +169,7 @@ void PrintHelpMessage(const char* program) {
       "  --help-oem            Show OCR Engine modes.\n"
       "  -v, --version         Show version information.\n"
       "  --list-langs          List available languages for tesseract engine.\n"
-      "  --print-parameters    Print tesseract parameters to stdout.\n";
+      "  --print-parameters    Print tesseract parameters.\n";
 
   printf("\n%s", single_options);
 }
