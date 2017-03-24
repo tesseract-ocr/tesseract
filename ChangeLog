@@ -1,9 +1,10 @@
 2016-11-11 to 2017-March - V4.00.00-alpha
   * Added new neural network system based on LSTMs, with major accuracy gains.
+  * Added LSTM models+lang models to 101 languages. (tessdata repository)
   * Improvements to PDF rendering.
   * Fixes to trainingdata rendering.
+  * Improved multi-page TIFF handling.
   * Fixed damage to binary images when processing PDFs.
-  * Fixed multilang for LSTM.
   * Fixes to training process to allow incremental training from a recognition model.
   * Made LSTM the default engine, pushed cube out.
   * Deleted cube code.
@@ -15,6 +16,7 @@
   * Added Support for VS2015 and VS2017 with CPPAN.
   * Implemented invisible text only for PDF.
   * Added AVX / SSE support for Windows
+  * Enabled OpenMP support.
   * Miscellaneous Fixes.
 
 2017-02-16 - V3.05.00
