@@ -1974,7 +1974,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
     for (t = 0; text[t] != '\0'; ++t) {
       if (text[t] == '\n' || text[t] == ' ')
         continue;
-      while (wordstr[w] != '\0' && wordstr[w] == ' ')
+      while (wordstr[w] == ' ')
         ++w;
       if (text[t] != wordstr[w])
         break;
