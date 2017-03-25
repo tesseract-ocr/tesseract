@@ -48,11 +48,9 @@ bool Input::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Input::DeSerialize(bool swap, TFile* fp) {
-  if (fp->FRead(&shape_, sizeof(shape_), 1) != 1) return false;
-  // TODO(rays) swaps!
-  return true;
+bool Input::DeSerialize(TFile* fp) {
+  assert(sizeof(shape_) == 5 * sizeof(uint32_t));
+  return fp->FRead((uint32_t *)&shape_, 5) == 5;
 }
 
 // Returns an integer reduction factor that the network applies to the

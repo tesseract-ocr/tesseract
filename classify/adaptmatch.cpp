@@ -541,8 +541,7 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
 
     if (tessdata_manager.SeekToStart(TESSDATA_SHAPE_TABLE)) {
       shape_table_ = new ShapeTable(unicharset);
-      if (!shape_table_->DeSerialize(tessdata_manager.swap(),
-                                     tessdata_manager.GetDataFilePtr())) {
+      if (!shape_table_->DeSerialize(tessdata_manager.GetDataFilePtr())) {
         tprintf("Error loading shape table!\n");
         delete shape_table_;
         shape_table_ = NULL;
@@ -553,7 +552,6 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
 
     ASSERT_HOST(tessdata_manager.SeekToStart(TESSDATA_PFFMTABLE));
     ReadNewCutoffs(tessdata_manager.GetDataFilePtr(),
-                   tessdata_manager.swap(),
                    tessdata_manager.GetEndOffset(TESSDATA_PFFMTABLE),
                    CharNormCutoffs);
     if (tessdata_manager.DebugLevel() > 0) tprintf("Loaded pffmtable\n");

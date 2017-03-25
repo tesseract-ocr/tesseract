@@ -116,8 +116,7 @@ class Plumbing : public Network {
   // Writes to the given file. Returns false in case of error.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // Updates the weights using the given learning rate and momentum.
   // num_samples is the quotient to be used in the adagrad computation iff

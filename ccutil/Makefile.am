@@ -2,6 +2,11 @@ AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS =
 AM_CXXFLAGS =
 
+AM_CPPFLAGS += \
+    -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
+    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
+    -I$(top_srcdir)/viewer
+
 if !NO_TESSDATA_PREFIX
 AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@/
 endif
@@ -14,7 +19,8 @@ endif
 include_HEADERS = \
 	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
 	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
-	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h
+	tesscallback.h tessio.h \
+        unichar.h unicharcompress.h unicharmap.h unicharset.h
 
 noinst_HEADERS = \
     ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
@@ -37,7 +43,7 @@ libtesseract_ccutil_la_SOURCES = \
     globaloc.cpp indexmapbidi.cpp \
     mainblk.cpp memry.cpp \
     serialis.cpp strngs.cpp scanutils.cpp \
-    tessdatamanager.cpp tprintf.cpp \
+    tessdatamanager.cpp tessio.cpp tprintf.cpp \
     unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 

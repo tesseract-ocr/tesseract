@@ -121,22 +121,21 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool WeightMatrix::DeSerialize(bool training, bool swap, TFile* fp) {
+bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   uinT8 mode = 0;
-  if (fp->FRead(&mode, sizeof(mode), 1) != 1) return false;
+  if (fp->FRead(&mode, 1) != 1) return false;
   int_mode_ = (mode & kInt8Flag) != 0;
   use_ada_grad_ = (mode & kAdaGradFlag) != 0;
-  if ((mode & kDoubleFlag) == 0) return DeSerializeOld(training, swap, fp);
+  if ((mode & kDoubleFlag) == 0) return DeSerializeOld(training, fp);
   if (int_mode_) {
-    if (!wi_.DeSerialize(swap, fp)) return false;
-    if (!scales_.DeSerialize(swap, fp)) return false;
+    if (!wi_.DeSerialize(fp)) return false;
+    if (!scales_.DeSerialize(fp)) return false;
   } else {
-    if (!wf_.DeSerialize(swap, fp)) return false;
+    if (!wf_.DeSerialize(fp)) return false;
     if (training) {
       InitBackward(use_ada_grad_);
-      if (!updates_.DeSerialize(swap, fp)) return false;
-      if (use_ada_grad_ && !dw_sq_sum_.DeSerialize(swap, fp)) return false;
+      if (!updates_.DeSerialize(fp)) return false;
+      if (use_ada_grad_ && !dw_sq_sum_.DeSerialize(fp)) return false;
     }
   }
   return true;
@@ -144,24 +143,24 @@ bool WeightMatrix::DeSerialize(bool training, bool swap, TFile* fp) {
 
 // As DeSerialize, but reads an old (float) format WeightMatrix for
 // backward compatibility.
-bool WeightMatrix::DeSerializeOld(bool training, bool swap, TFile* fp) {
+bool WeightMatrix::DeSerializeOld(bool training, TFile* fp) {
   GENERIC_2D_ARRAY<float> float_array;
   if (int_mode_) {
-    if (!wi_.DeSerialize(swap, fp)) return false;
+    if (!wi_.DeSerialize(fp)) return false;
     GenericVector<float> old_scales;
-    if (!old_scales.DeSerialize(swap, fp)) return false;
+    if (!old_scales.DeSerialize(fp)) return false;
     scales_.init_to_size(old_scales.size(), 0.0);
     for (int i = 0; i < old_scales.size(); ++i) scales_[i] = old_scales[i];
   } else {
-    if (!float_array.DeSerialize(swap, fp)) return false;
+    if (!float_array.DeSerialize(fp)) return false;
     FloatToDouble(float_array, &wf_);
   }
   if (training) {
     InitBackward(use_ada_grad_);
-    if (!float_array.DeSerialize(swap, fp)) return false;
+    if (!float_array.DeSerialize(fp)) return false;
     FloatToDouble(float_array, &updates_);
     // Errs was only used in int training, which is now dead.
-    if (!float_array.DeSerialize(swap, fp)) return false;
+    if (!float_array.DeSerialize(fp)) return false;
   }
   return true;
 }

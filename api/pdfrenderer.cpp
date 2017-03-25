@@ -661,7 +661,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   char *buffer = new char[size];
-  if (fread(buffer, 1, size, fp) != size) {
+  if (!fread(buffer, fp, size)) {
     fclose(fp);
     delete[] buffer;
     return false;

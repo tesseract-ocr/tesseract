@@ -159,33 +159,30 @@ bool STRING::Serialize(TFile* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool STRING::DeSerialize(bool swap, FILE* fp) {
+bool STRING::DeSerialize(FILE* fp) {
   inT32 len;
-  if (fread(&len, sizeof(len), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&len, sizeof(len));
+  if (!fread(&len, fp)) return false;
   truncate_at(len);
-  if (static_cast<int>(fread(GetCStr(), 1, len, fp)) != len) return false;
-  return true;
+  return fread(GetCStr(), fp, len);
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool STRING::DeSerialize(bool swap, TFile* fp) {
+bool STRING::DeSerialize(TFile* fp) {
   inT32 len;
-  if (fp->FRead(&len, sizeof(len), 1) != 1) return false;
-  if (swap)
-    ReverseN(&len, sizeof(len));
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  if (fp->FRead(&len, 1) != 1) return false;
+  printf("len=0x%x=%d\n", len, len);
   truncate_at(len);
-  if (fp->FRead(GetCStr(), 1, len) != len) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
+  printf("len=0x%x=%d\n", len, len);
+  if (fp->FRead(GetCStr(), len) != len) return false;
+  printf("%s:%u (%s)\n", __FILE__, __LINE__, __func__);
   return true;
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
-bool STRING::SkipDeSerialize(bool swap, tesseract::TFile* fp) {
+bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
   inT32 len;
-  if (fp->FRead(&len, sizeof(len), 1) != 1) return false;
-  if (swap) ReverseN(&len, sizeof(len));
+  if (fp->FRead(&len, 1) != 1) return false;
   return fp->FRead(NULL, 1, len) == len;
 }
 

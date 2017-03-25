@@ -151,29 +151,18 @@ class GENERIC_2D_ARRAY {
 
   // Reads from the given file. Returns false in case of error.
   // Only works with bitwise-serializeable types!
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp) {
-    if (!DeSerializeSize(swap, fp)) return false;
-    if (fread(&empty_, sizeof(empty_), 1, fp) != 1) return false;
-    if (swap) ReverseN(&empty_, sizeof(empty_));
+  bool DeSerialize(FILE* fp) {
+    if (!DeSerializeSize(fp)) return false;
+    if (!fread(&empty_, fp)) return false;
     int size = num_elements();
-    if (fread(array_, sizeof(*array_), size, fp) != size) return false;
-    if (swap) {
-      for (int i = 0; i < size; ++i)
-        ReverseN(&array_[i], sizeof(array_[i]));
-    }
+    if (!fread(array_, fp, size)) return false;
     return true;
   }
-  bool DeSerialize(bool swap, tesseract::TFile* fp) {
-    if (!DeSerializeSize(swap, fp)) return false;
-    if (fp->FRead(&empty_, sizeof(empty_), 1) != 1) return false;
-    if (swap) ReverseN(&empty_, sizeof(empty_));
+  bool DeSerialize(tesseract::TFile* fp) {
+    if (!DeSerializeSize(fp)) return false;
+    if (fp->FRead(&empty_, 1) != 1) return false;
     int size = num_elements();
-    if (fp->FRead(array_, sizeof(*array_), size) != size) return false;
-    if (swap) {
-      for (int i = 0; i < size; ++i)
-        ReverseN(&array_[i], sizeof(array_[i]));
-    }
+    if (fp->FRead(array_, size) != size) return false;
     return true;
   }
 
@@ -190,14 +179,13 @@ class GENERIC_2D_ARRAY {
   }
 
   // Reads from the given file. Returns false in case of error.
-  // Assumes a T::DeSerialize(bool swap, FILE*) function.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerializeClasses(bool swap, FILE* fp) {
-    if (!DeSerializeSize(swap, fp)) return false;
-    if (!empty_.DeSerialize(swap, fp)) return false;
+  // Assumes a T::DeSerialize(FILE*) function.
+  bool DeSerializeClasses(FILE* fp) {
+    if (!DeSerializeSize(fp)) return false;
+    if (!empty_.DeSerialize(fp)) return false;
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
-      if (!array_[i].DeSerialize(swap, fp)) return false;
+      if (!array_[i].DeSerialize(fp)) return false;
     }
     return true;
   }
@@ -475,27 +463,16 @@ class GENERIC_2D_ARRAY {
     return true;
   }
   // Factored helper to deserialize the size.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerializeSize(bool swap, FILE* fp) {
-    inT32 size1, size2;
-    if (fread(&size1, sizeof(size1), 1, fp) != 1) return false;
-    if (fread(&size2, sizeof(size2), 1, fp) != 1) return false;
-    if (swap) {
-      ReverseN(&size1, sizeof(size1));
-      ReverseN(&size2, sizeof(size2));
-    }
-    Resize(size1, size2, empty_);
+  bool DeSerializeSize(FILE* fp) {
+    int32_t size[2];
+    if (!fread(size, fp, 2)) return false;
+    Resize(size[0], size[1], empty_);
     return true;
   }
-  bool DeSerializeSize(bool swap, tesseract::TFile* fp) {
-    inT32 size1, size2;
-    if (fp->FRead(&size1, sizeof(size1), 1) != 1) return false;
-    if (fp->FRead(&size2, sizeof(size2), 1) != 1) return false;
-    if (swap) {
-      ReverseN(&size1, sizeof(size1));
-      ReverseN(&size2, sizeof(size2));
-    }
-    Resize(size1, size2, empty_);
+  bool DeSerializeSize(tesseract::TFile* fp) {
+    int32_t size[2];
+    if (fp->FRead(size, 2) != 2) return false;
+    Resize(size[0], size[1], empty_);
     return true;
   }
 

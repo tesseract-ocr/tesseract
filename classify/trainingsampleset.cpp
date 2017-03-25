@@ -51,20 +51,11 @@ bool TrainingSampleSet::FontClassInfo::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool TrainingSampleSet::FontClassInfo::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&num_raw_samples, sizeof(num_raw_samples), 1, fp) != 1)
-    return false;
-  if (fread(&canonical_sample, sizeof(canonical_sample), 1, fp) != 1)
-    return false;
-  if (fread(&canonical_dist, sizeof(canonical_dist), 1, fp) != 1) return false;
-  if (!samples.DeSerialize(swap, fp)) return false;
-  if (swap) {
-    ReverseN(&num_raw_samples, sizeof(num_raw_samples));
-    ReverseN(&canonical_sample, sizeof(canonical_sample));
-    ReverseN(&canonical_dist, sizeof(canonical_dist));
-  }
-  return true;
+bool TrainingSampleSet::FontClassInfo::DeSerialize(FILE* fp) {
+  return fread(&num_raw_samples, fp) &&
+         fread(&canonical_sample, fp) &&
+         fread(&canonical_dist, fp) &&
+         samples.DeSerialize(fp);
 }
 
 TrainingSampleSet::TrainingSampleSet(const FontInfoTable& font_table)
@@ -90,20 +81,19 @@ bool TrainingSampleSet::Serialize(FILE* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
-  if (!samples_.DeSerialize(swap, fp)) return false;
+bool TrainingSampleSet::DeSerialize(FILE* fp) {
+  if (!samples_.DeSerialize(fp)) return false;
   num_raw_samples_ = samples_.size();
   if (!unicharset_.load_from_file(fp)) return false;
-  if (!font_id_map_.DeSerialize(swap, fp)) return false;
+  if (!font_id_map_.DeSerialize(fp)) return false;
   delete font_class_array_;
   font_class_array_ = NULL;
   inT8 not_null;
-  if (fread(&not_null, sizeof(not_null), 1, fp) != 1) return false;
+  if (!fread(&not_null, fp)) return false;
   if (not_null) {
     FontClassInfo empty;
     font_class_array_ = new GENERIC_2D_ARRAY<FontClassInfo >(1, 1 , empty);
-    if (!font_class_array_->DeSerializeClasses(swap, fp)) return false;
+    if (!font_class_array_->DeSerializeClasses(fp)) return false;
   }
   unicharset_size_ = unicharset_.size();
   return true;

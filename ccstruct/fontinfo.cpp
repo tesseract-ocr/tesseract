@@ -30,10 +30,9 @@ bool FontInfo::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool FontInfo::DeSerialize(bool swap, FILE* fp) {
-  if (!read_info(fp, this, swap)) return false;
-  if (!read_spacing_info(fp, this, swap)) return false;
+bool FontInfo::DeSerialize(FILE* fp) {
+  if (!read_info(fp, this)) return false;
+  if (!read_spacing_info(fp, this)) return false;
   return true;
 }
 
@@ -50,10 +49,9 @@ bool FontInfoTable::Serialize(FILE* fp) const {
   return this->SerializeClasses(fp);
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool FontInfoTable::DeSerialize(bool swap, FILE* fp) {
+bool FontInfoTable::DeSerialize(FILE* fp) {
   truncate(0);
-  return this->DeSerializeClasses(swap, fp);
+  return this->DeSerializeClasses(fp);
 }
 
 // Returns true if the given set of fonts includes one with the same
@@ -149,20 +147,15 @@ void FontSetDeleteCallback(FontSet fs) {
 
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
-bool read_info(FILE* f, FontInfo* fi, bool swap) {
-  inT32 size;
-  if (fread(&size, sizeof(size), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&size);
+bool read_info(FILE* f, FontInfo* fi) {
+  uint32_t size;
+  if (!fread(&size, f)) return false;
   char* font_name = new char[size + 1];
   fi->name = font_name;
-  if (static_cast<int>(fread(font_name, sizeof(*font_name), size, f)) != size)
+  if (!fread(font_name, f, size))
     return false;
   font_name[size] = '\0';
-  if (fread(&fi->properties, sizeof(fi->properties), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&fi->properties);
-  return true;
+  return fread(&fi->properties, f);
 }
 
 bool write_info(FILE* f, const FontInfo& fi) {
@@ -174,32 +167,26 @@ bool write_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_spacing_info(FILE *f, FontInfo* fi, bool swap) {
+bool read_spacing_info(FILE *f, FontInfo* fi) {
   inT32 vec_size, kern_size;
-  if (fread(&vec_size, sizeof(vec_size), 1, f) != 1) return false;
-  if (swap) Reverse32(&vec_size);
+  if (!fread(&vec_size, f)) return false;
   ASSERT_HOST(vec_size >= 0);
   if (vec_size == 0) return true;
   fi->init_spacing(vec_size);
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = new FontSpacingInfo();
-    if (fread(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, f) != 1 ||
-        fread(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, f) != 1 ||
-        fread(&kern_size, sizeof(kern_size), 1, f) != 1) {
+    if (!fread(&fs->x_gap_before, f) ||
+        !fread(&fs->x_gap_after, f) ||
+        !fread(&kern_size, f)) {
       delete fs;
       return false;
-    }
-    if (swap) {
-      ReverseN(&(fs->x_gap_before), sizeof(fs->x_gap_before));
-      ReverseN(&(fs->x_gap_after), sizeof(fs->x_gap_after));
-      Reverse32(&kern_size);
     }
     if (kern_size < 0) {  // indication of a NULL entry in fi->spacing_vec
       delete fs;
       continue;
     }
-    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
-                          !fs->kerned_x_gaps.DeSerialize(swap, f))) {
+    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(f) ||
+                          !fs->kerned_x_gaps.DeSerialize(f))) {
       delete fs;
       return false;
     }
@@ -237,17 +224,11 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_set(FILE* f, FontSet* fs, bool swap) {
-  if (fread(&fs->size, sizeof(fs->size), 1, f) != 1) return false;
-  if (swap)
-    Reverse32(&fs->size);
+bool read_set(FILE* f, FontSet* fs) {
+  if (!fread(&fs->size, f)) return false;
   fs->configs = new int[fs->size];
-  for (int i = 0; i < fs->size; ++i) {
-    if (fread(&fs->configs[i], sizeof(fs->configs[i]), 1, f) != 1) return false;
-    if (swap)
-      Reverse32(&fs->configs[i]);
-  }
-  return true;
+  ASSERT_HOST(sizeof(int) == sizeof(int32_t));
+  return fread(fs->configs, f, fs->size);
 }
 
 bool write_set(FILE* f, const FontSet& fs) {

@@ -150,6 +150,7 @@ class TessdataManager {
  public:
   TessdataManager() {
     data_file_ = NULL;
+    debug_level_ = 1;
     actual_tessdata_num_entries_ = 0;
     for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
       offset_table_[i] = -1;
@@ -191,7 +192,7 @@ class TessdataManager {
       return false;
     } else {
       ASSERT_HOST(fseek(data_file_,
-                        static_cast<size_t>(offset_table_[tessdata_type]),
+                        offset_table_[tessdata_type],
                         SEEK_SET) == 0);
       return true;
     }
@@ -216,9 +217,6 @@ class TessdataManager {
       fclose(data_file_);
       data_file_ = NULL;
     }
-  }
-  bool swap() const {
-    return swap_;
   }
 
   /** Writes the number of entries and the given offset table to output_file.
@@ -315,8 +313,6 @@ class TessdataManager {
   STRING data_file_name_;  // name of the data file.
   FILE *data_file_;  ///< pointer to the data file.
   int debug_level_;
-  // True if the bytes need swapping.
-  bool swap_;
 };
 
 
