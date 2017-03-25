@@ -7,11 +7,11 @@ sudo: required
 
 os:
   - linux
-  #- osx
+  - osx
 
-branches:
-  only:
-    - master
+#branches:
+  #only:
+    #- master
 
 addons:
   apt:
