@@ -57,6 +57,7 @@ class TESS_API TessResultRenderer {
     /**
      * Starts a new document with the given title.
      * This clears the contents of the output data.
+     * Title should use UTF-8 encoding.
      */
     bool BeginDocument(const char* title);
 
