@@ -60,6 +60,14 @@ Documentation of Tesseract generated from source code by doxygen can be found on
 
 You can either [Install Tesseract via pre-built binary package](https://github.com/tesseract-ocr/tesseract/wiki) or [build it from source](https://github.com/tesseract-ocr/tesseract/wiki/Compiling).
 
+## Supported Compilers
+
+* GCC 4.8 and above
+* Clang 3.4 and above
+* MSVC 2015, 2017
+
+Other compilers might work, but are not officially supported.
+
 # Running Tesseract
 
 Basic command line usage:
