@@ -220,7 +220,7 @@ case "${host_os}" in
       fi
       AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
       OPENCL_CPPFLAGS=""
-      OPENCL_LDFLAGS="-framework OpenCL"
+      OPENCL_LDFLAGS="-framework OpenCL -ltiff"
     fi
     ;;
   *)
