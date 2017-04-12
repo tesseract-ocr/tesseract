@@ -33,21 +33,21 @@ do
     if [ -r "$old/PAGES" ]
     then
 	new=${s#*/}.$ext
-	mkdir -p $new
+	mkdir -p "$new"
     	echo "Set $old -> $new"
 	#The pages file had - instead of _ so fix it and add the extension.
 	for page in $(cat $old/PAGES)
 	do
     	    echo "${page%-*}_${page#*-}.$ext"
-	done >$new/pages
-	for f in $(cat $new/pages)
+	done >"$new/pages"
+	for f in $(cat "$new/pages")
 	do
     	    #Put a tif extension on the tif files.
-	    cp $old/${old}_B/$f $new/$f.tif
+	    cp "$old/${old}_B/$f" "$new/$f.tif"
 	    #Put a uzn extension on the zone files.
-	    cp $old/${old}_B/${f}Z $new/$f.uzn
+	    cp "$old/${old}_B/${f}Z" "$new/$f.uzn"
 	    #Cat all the truth files together and put into a single txt file.
-	    cat $old/${old}_GT/${f%.$ext}.Z* >$new/$f.txt
+	    cat "$old/${old}_GT/${f%.$ext}".Z* >"$new/$f.txt"
 	done
     fi
 done
