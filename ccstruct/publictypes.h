@@ -213,7 +213,7 @@ enum PageIteratorLevel {
 };
 
 /**
- * JUSTIFICATION_UNKNONW
+ * JUSTIFICATION_UNKNOWN
  *   The alignment is not clearly one of the other options.  This could happen
  *   for example if there are only one or two lines of text or the text looks
  *   like source code or poetry.
