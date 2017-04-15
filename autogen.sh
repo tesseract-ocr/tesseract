@@ -59,7 +59,7 @@ else
   bail_out
 fi
 
-# create m4 directory if it not exists
+# create m4 directory if it does not exist
 if [ ! -d m4 ];  then
     mkdir m4
 fi
