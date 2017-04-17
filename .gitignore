@@ -19,7 +19,7 @@ vs2010/LIB_Debug/*
 vs2010/LIB_Release/*
 vs2010/LIB_OpenCL_Release/*
 vs2010/LIB_OpenCL_Debug/*
-
+vs2015/build/*
 
 
 # Linux
