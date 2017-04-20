@@ -119,12 +119,7 @@ include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
-set(INCLUDE_DIR
-    ${CMAKE_SOURCE_DIR}/api
-    ${CMAKE_SOURCE_DIR}/ccmain
-    ${CMAKE_SOURCE_DIR}/ccstruct
-    ${CMAKE_SOURCE_DIR}/ccutil
-)
+set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
