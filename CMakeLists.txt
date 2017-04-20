@@ -270,4 +270,88 @@ if (BUILD_TRAINING_TOOLS)
 add_subdirectory(training)
 endif()
 
+get_target_property(tesseract_NAME libtesseract NAME)
+get_target_property(tesseract_VERSION libtesseract VERSION)
+get_target_property(tesseract_OUTPUT_NAME libtesseract OUTPUT_NAME)
+configure_file(tesseract.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tesseract.pc DESTINATION lib/pkgconfig)
+install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(EXPORT TesseractTargets DESTINATION cmake)
+install(FILES
+    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake
+    ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake
+    DESTINATION cmake)
+
+install(FILES
+    # from api/makefile.am
+    api/apitypes.h
+    api/baseapi.h 
+    api/capi.h 
+    api/renderer.h
+
+    #from arch/makefile.am
+    arch/dotproductavx.h
+    arch/dotproductsse.h 
+    arch/simddetect.h
+
+    #from ccmain/makefile.am
+    ccmain/thresholder.h
+    ccmain/ltrresultiterator.h 
+    ccmain/pageiterator.h 
+    ccmain/resultiterator.h 
+    ccmain/osdetect.h
+
+    #from ccstruct/makefile.am
+    ccstruct/publictypes.h 
+
+    #from ccutil/makefile.am
+    ccutil/basedir.h 
+    ccutil/errcode.h 
+    ccutil/fileerr.h 
+    ccutil/genericvector.h 
+    ccutil/helpers.h 
+    ccutil/host.h 
+    ccutil/memry.h 
+    ccutil/ndminx.h
+    ccutil/params.h
+    ccutil/ocrclass.h 
+    ccutil/platform.h 
+    ccutil/serialis.h 
+    ccutil/strngs.h 
+    ccutil/tesscallback.h
+    ccutil/unichar.h 
+    ccutil/unicharcompress.h 
+    ccutil/unicharmap.h 
+    ccutil/unicharset.h
+
+    #from lstm/makefile.am
+    lstm/convolve.h
+    lstm/ctc.h 
+    lstm/fullyconnected.h 
+    lstm/functions.h 
+    lstm/input.h
+    lstm/lstm.h 
+    lstm/lstmrecognizer.h 
+    lstm/lstmtrainer.h 
+    lstm/maxpool.h
+    lstm/networkbuilder.h 
+    lstm/network.h 
+    lstm/networkio.h 
+    lstm/networkscratch.h
+    lstm/parallel.h 
+    lstm/plumbing.h 
+    lstm/recodebeam.h 
+    lstm/reconfig.h 
+    lstm/reversed.h
+    lstm/series.h 
+    lstm/static_shape.h 
+    lstm/stridemap.h 
+    lstm/tfnetwork.h 
+    lstm/weightmatrix.h
+
+    #${CMAKE_BINARY_DIR}/src/endianness.h
+    DESTINATION include/tesseract)
+
+
 ###############################################################################
