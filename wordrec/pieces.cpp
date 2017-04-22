@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 
 #include "blobs.h"
-#include "freelist.h"
 #include "helpers.h"
 #include "matrix.h"
 #include "ndminx.h"
