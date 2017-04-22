@@ -27,7 +27,7 @@ before_install:
   
   - if [[ $OSX ]]; then brew update; fi
 
-  - export LEPT_VER=1.73
+  - export LEPT_VER=1.74
 
 install:
   - if [[ $OSX ]]; then brew install icu4c pango; brew link --force gettext; fi
