@@ -23,7 +23,6 @@
 #include "language_model.h"
 
 #include "dawg.h"
-#include "freelist.h"
 #include "intproto.h"
 #include "helpers.h"
 #include "lm_state.h"

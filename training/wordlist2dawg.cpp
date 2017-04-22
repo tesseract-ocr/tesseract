@@ -26,7 +26,6 @@
 #include "dawg.h"
 #include "dict.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "trie.h"

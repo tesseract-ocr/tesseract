@@ -37,7 +37,6 @@
 #include "callcpp.h"
 #include "const.h"
 #include "findseam.h"
-#include "freelist.h"
 #include "globals.h"
 #include "render.h"
 #include "pageres.h"
