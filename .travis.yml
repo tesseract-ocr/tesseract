@@ -2,7 +2,7 @@ language: cpp
 
 notifications:
   email: false
-  
+
 sudo: required
 
 os:
@@ -24,10 +24,10 @@ addons:
 before_install:
   - if [[ $TRAVIS_OS_NAME == linux   ]]; then LINUX=true; fi
   - if [[ $TRAVIS_OS_NAME == osx     ]]; then OSX=true; fi
-  
+
   #- if [[ $OSX ]]; then brew update; fi
 
-  - export LEPT_VER=1.74.0
+  - export LEPT_VER=1.74.1
 
 install:
   #- if [[ $OSX ]]; then brew install icu4c pango; brew link --force gettext; fi
