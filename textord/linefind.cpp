@@ -306,10 +306,8 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
   pixDestroy(&pix_non_hline);
   pixDestroy(&pix_intersections);
   if (pixa_display != NULL) {
-#if LIBLEPT_MINOR_VERSION >= 69 || LIBLEPT_MAJOR_VERSION > 1
     pixaConvertToPdf(pixa_display, resolution, 1.0f, 0, 0, "LineFinding",
                      "vhlinefinding.pdf");
-#endif
     pixaDestroy(&pixa_display);
   }
   PERF_COUNT_END
