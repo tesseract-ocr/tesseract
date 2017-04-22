@@ -17,5 +17,5 @@ in this distribution is now licensed under the Apache License:
 Other Dependencies and Licenses:
 ================================
 
-Tesseract uses Leptonica library (http://leptonica.com/) with a very weakly
-restricted copyright license (http://leptonica.com/about-the-license.html)
+Tesseract uses Leptonica library (http://leptonica.com/) which essentially
+uses a BSD 2-clause license. (http://leptonica.com/about-the-license.html)
