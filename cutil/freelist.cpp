@@ -23,10 +23,6 @@ int *memalloc(int size) {
   return static_cast<int*>(malloc(static_cast<size_t>(size)));
 }
 
-int *memrealloc(void *ptr, int size, int oldsize) {
-  return static_cast<int*>(realloc(ptr, static_cast<size_t>(size)));
-}
-
 void memfree(void *element) {
   free(element);
 }
