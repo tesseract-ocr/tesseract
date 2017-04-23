@@ -9,7 +9,6 @@
   * Made LSTM the default engine, pushed cube out.
   * Deleted cube code.
   * Changed OEModes --oem 0 for legacy tesseract engine, --oem 1 for LSTM, --oem 2 for both, --oem 3 for default.
-  * Require leptonica 1.74 or higher.
   * Avoid use of Leptonica debug parameters or functions.
   * Fixed multi-language mode.
   * Removed support for VS2010.
@@ -34,6 +33,7 @@
   * Added new C API for orientation and script detection, removed the old one.
   * Increased minimum autoconf version to 2.59.
   * Removed dead code.
+  * Require Leptonica 1.74 or higher.
   * Fixed many compiler warning.
   * Fixed memory and resource leaks.
   * Fixed some issues with the 'Cube' OCR engine.
