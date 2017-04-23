@@ -411,53 +411,27 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
-# Check location of leptonica/liblept headers.
-AC_MSG_CHECKING([for leptonica])
-AC_ARG_VAR([LIBLEPT_HEADERSDIR], [Leptonica headers directory])
-
-have_lept=no
-if test "$LIBLEPT_HEADERSDIR" = "" ; then
-  LIBLEPT_HEADERSDIR="/usr/local/include /usr/include /opt/local/include/leptonica"
-fi
-for incd in $LIBLEPT_HEADERSDIR
-do
-  for lept in . leptonica liblept
-  do
-    if test -r "$incd/$lept/allheaders.h" ; then
-      CPPFLAGS="$CPPFLAGS -I$incd/$lept"
-      have_lept=yes
-    fi
-  done
-done
-
-if test "$have_lept" = yes ; then
-  AC_MSG_RESULT(yes)
-  AC_CHECK_LIB([lept], [l_generateCIDataForPdf], [],
-               [AC_MSG_ERROR([leptonica library with pdf support (>= 1.71) is missing])])
+PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
+if $have_lept; then
+  CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
 else
-  AC_MSG_ERROR([leptonica not found])
+  AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
-
-AC_MSG_CHECKING([leptonica headers version >= 1.74])
-AC_PREPROC_IFELSE(
-    [AC_LANG_PROGRAM([#include "allheaders.h"],
-[#if (LIBLEPT_MAJOR_VERSION >= 1) && (LIBLEPT_MINOR_VERSION >= 74)
-int i = 0;
-#else
-#error You need to upgrade your leptonica library!
-#endif])],
-    [AC_MSG_RESULT(yes)],
-    [AC_MSG_FAILURE([leptonica 1.74 or higher is required])])
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
 # Check location of icu headers
-have_icu=false
-AC_CHECK_HEADERS([unicode/uchar.h], [have_icu=true], [have_icu=false])
-if !($have_icu); then
+PKG_CHECK_MODULES([ICU_UC], [icu-uc], [have_icu_uc=true], [have_icu_uc=false])
+PKG_CHECK_MODULES([ICU_I18N], [icu-i18n], [have_icu_i18n=true], [have_icu_i18n=false])
+if !($have_icu_uc && $have_icu_i18n); then
+  AC_CHECK_HEADERS([unicode/uchar.h], [have_icu=true], [have_icu=false])
+  if !($have_icu); then
         AC_MSG_WARN([Training tools WILL NOT be built because of missing icu library.])
         AC_MSG_WARN([Try to install libicu-devel package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
+  else
+    ICU_UC_LIBS="-licui18n -licuuc"
+  fi
 fi
 
 # Check location of pango headers

@@ -625,10 +625,6 @@ void EquationDetect::IdentifySeedParts() {
 }
 
 float EquationDetect::ComputeForegroundDensity(const TBOX& tbox) {
-#if LIBLEPT_MINOR_VERSION < 69 && LIBLEPT_MAJOR_VERSION <= 1
-  // This will disable the detector because no seed will be identified.
-  return 1.0f;
-#else
   Pix *pix_bi = lang_tesseract_->pix_binary();
   int pix_height = pixGetHeight(pix_bi);
   Box* box = boxCreate(tbox.left(), pix_height - tbox.top(),
@@ -640,7 +636,6 @@ float EquationDetect::ComputeForegroundDensity(const TBOX& tbox) {
   boxDestroy(&box);
 
   return fract;
-#endif
 }
 
 bool EquationDetect::CheckSeedFgDensity(const float density_th,

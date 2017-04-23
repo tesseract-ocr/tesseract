@@ -13,6 +13,7 @@
   * Added new C API for orientation and script detection, removed the old one.
   * Increased minimum autoconf version to 2.59.
   * Removed dead code.
+  * Require Leptonica 1.74 or higher.
   * Fixed many compiler warning.
   * Fixed memory and resource leaks.
   * Fixed some issues with the 'Cube' OCR engine.
@@ -63,7 +64,7 @@
     text and truetype fonts.
   * Added support for PDF output with searchable text.
   * Removed entire IMAGE class and all code in image directory.
-  * Tesseract executable: support for output to stdout; limited support for one 
+  * Tesseract executable: support for output to stdout; limited support for one
     page images from stdin  (especially on Windows)
   * Added Renderer to API to allow document-level processing and output
     of document formats, like hOCR, PDF.
@@ -148,12 +149,12 @@
   * Added TessdataManager to combine data files into a single file.
   * Some dead code deleted.
   * VC++6 no longer supported. It can't cope with the use of templates.
-  * Many more languages added. 
+  * Many more languages added.
   * Doxygenation of most of the function header comments.
   * Added man pages.
   * Added bash completion script (issue 247: thanks to neskiem)
   * Fix integer overview in thresholding (issue 366: thanks to Cyanide.Drake)
-  * Add Danish Fraktur support (issues 300, 360: thanks to 
+  * Add Danish Fraktur support (issues 300, 360: thanks to
     dsl602230@vip.cybercity.dk)
   * Fix file pointer leak (issue 359, thanks to yukihiro.nakadaira)
   * Fix an error using user-words (Issue 345: thanks to max.markin)
@@ -162,7 +163,7 @@
   * Fix an automake error (Issue 318, thanks to ichanjz)
   * Fix a Win32 crash on fileFormatIsTiff() (Issues 304, 316, 317, 330, 347,
     349, 352: thanks to nguyenq87, max.markin, zdenop)
-  * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
+  * Fixed a number of errors in newer (stricter) versions of VC++ (Issues
     301, among others)
 
 2009-06-30 - V2.04

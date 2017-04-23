@@ -7,8 +7,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef _OCL_KERNEL_H_
-#define _OCL_KERNEL_H_
+
+#ifndef TESSERACT_OPENCL_OCLKERNELS_H_
+#define TESSERACT_OPENCL_OCLKERNELS_H_
+
 #ifndef USE_EXTERNAL_KERNEL
 #define KERNEL( ... )# __VA_ARGS__ "\n"
 // Double precision is a default of spreadsheets
@@ -1210,5 +1212,5 @@ KERNEL(
  ; // close char*
 
 #endif  // USE_EXTERNAL_KERNEL
-#endif  //_OCL_KERNEL_H_
+#endif  // TESSERACT_OPENCL_OCLKERNELS_H_
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
