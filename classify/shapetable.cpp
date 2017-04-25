@@ -70,12 +70,9 @@ bool UnicharAndFonts::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool UnicharAndFonts::DeSerialize(bool swap, FILE* fp) {
+bool UnicharAndFonts::DeSerialize(FILE* fp) {
   if (fread(&unichar_id, sizeof(unichar_id), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&unichar_id, sizeof(unichar_id));
-  if (!font_ids.DeSerialize(swap, fp)) return false;
+  if (!font_ids.DeSerialize(fp)) return false;
   return true;
 }
 
@@ -95,13 +92,12 @@ bool Shape::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Shape::DeSerialize(bool swap, FILE* fp) {
+bool Shape::DeSerialize(FILE* fp) {
   uinT8 sorted;
   if (fread(&sorted, sizeof(sorted), 1, fp) != 1)
     return false;
   unichars_sorted_ = sorted != 0;
-  if (!unichars_.DeSerializeClasses(swap, fp)) return false;
+  if (!unichars_.DeSerializeClasses(fp)) return false;
   return true;
 }
 
@@ -252,9 +248,8 @@ bool ShapeTable::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool ShapeTable::DeSerialize(bool swap, FILE* fp) {
-  if (!shape_table_.DeSerialize(swap, fp)) return false;
+bool ShapeTable::DeSerialize(FILE* fp) {
+  if (!shape_table_.DeSerialize(fp)) return false;
   num_fonts_ = 0;
   return true;
 }

@@ -760,7 +760,6 @@ namespace tesseract {
  */
 INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   int i, j, w, x, y, z;
-  BOOL8 swap;
   int nread;
   int unicharset_size;
   int version_id = 0;
@@ -793,22 +792,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
       fread(&Templates->NumClassPruners,
             sizeof(Templates->NumClassPruners), 1, File) != 1)
     cprintf("Bad read of inttemp!\n");
-  // Swap status is determined automatically.
-  swap = Templates->NumClassPruners < 0 ||
-    Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS;
-  if (swap) {
-    Reverse32(&Templates->NumClassPruners);
-    Reverse32(&Templates->NumClasses);
-    Reverse32(&unicharset_size);
-  }
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
     if (fread(&Templates->NumClasses, sizeof(Templates->NumClasses),
               1, File) != 1)
       cprintf("Bad read of inttemp!\n");
-    if (swap)
-      Reverse32(&Templates->NumClasses);
   }
 
   if (version_id < 3) {
@@ -825,12 +814,6 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
       if (fread(&ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
         cprintf("Bad read of inttemp!\n");
     }
-    if (swap) {
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse16(&IndexFor[i]);
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse32(&ClassIdFor[i]);
-    }
   }
 
   /* then read in the class pruners */
@@ -840,17 +823,6 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
          fread(Pruner, 1, sizeof(CLASS_PRUNER_STRUCT),
                 File)) != sizeof(CLASS_PRUNER_STRUCT))
       cprintf("Bad read of inttemp!\n");
-    if (swap) {
-      for (x = 0; x < NUM_CP_BUCKETS; x++) {
-        for (y = 0; y < NUM_CP_BUCKETS; y++) {
-          for (z = 0; z < NUM_CP_BUCKETS; z++) {
-            for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              Reverse32(&Pruner->p[x][y][z][w]);
-            }
-          }
-        }
-      }
-    }
     if (version_id < 2) {
       TempClassPruner[i] = Pruner;
     } else {
@@ -931,21 +903,11 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
         if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
           cprintf ("Bad read of inttemp!\n");
       }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
-      }
     } else {
       ASSERT_HOST(Class->NumConfigs < MaxNumConfigs);
       for (j = 0; j < Class->NumConfigs; ++j) {
         if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
           cprintf ("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
       }
     }
     if (version_id < 2) {
@@ -994,23 +956,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
                    File)) != sizeof(PROTO_SET_STRUCT))
           cprintf("Bad read of inttemp!\n");
       }
-      if (swap) {
-        for (x = 0; x < NUM_PP_PARAMS; x++)
-          for (y = 0; y < NUM_PP_BUCKETS; y++)
-            for (z = 0; z < WERDS_PER_PP_VECTOR; z++)
-              Reverse32(&ProtoSet->ProtoPruner[x][y][z]);
-        for (x = 0; x < PROTOS_PER_PROTO_SET; x++)
-          for (y = 0; y < WerdsPerConfigVec; y++)
-            Reverse32(&ProtoSet->Protos[x].Configs[y]);
-      }
       Class->ProtoSets[j] = ProtoSet;
     }
     if (version_id < 4)
       Class->font_set_id = -1;
     else {
       fread(&Class->font_set_id, sizeof(int), 1, File);
-      if (swap)
-        Reverse32(&Class->font_set_id);
     }
   }
 
@@ -1037,13 +988,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info), swap);
+    this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info));
     if (version_id >= 5) {
       this->fontinfo_table_.read(File,
-                                 NewPermanentTessCallback(read_spacing_info),
-                                 swap);
+                                 NewPermanentTessCallback(read_spacing_info));
     }
-    this->fontset_table_.read(File, NewPermanentTessCallback(read_set), swap);
+    this->fontset_table_.read(File, NewPermanentTessCallback(read_set));
   }
 
   // Clean up.

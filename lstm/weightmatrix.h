@@ -97,11 +97,10 @@ class WeightMatrix {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(bool training, TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool training, bool swap, TFile* fp);
+  bool DeSerialize(bool training, TFile* fp);
   // As DeSerialize, but reads an old (float) format WeightMatrix for
   // backward compatibility.
-  bool DeSerializeOld(bool training, bool swap, TFile* fp);
+  bool DeSerializeOld(bool training, TFile* fp);
 
   // Computes matrix.vector v = Wu.
   // u is of size W.dim2() - 1 and the output v is of size W.dim1().

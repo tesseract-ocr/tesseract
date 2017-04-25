@@ -323,30 +323,20 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   if (debug_level) tprintf("Reading squished dawg\n");
 
   // Read the magic number and if it does not match kDawgMagicNumber
-  // set swap to true to indicate that we need to switch endianness.
   inT16 magic;
   fread(&magic, sizeof(inT16), 1, file);
-  bool swap = (magic != kDawgMagicNumber);
+  ASSERT_HOST(magic == kDawgMagicNumber);
 
   int unicharset_size;
   fread(&unicharset_size, sizeof(inT32), 1, file);
   fread(&num_edges_, sizeof(inT32), 1, file);
 
-  if (swap) {
-    ReverseN(&unicharset_size, sizeof(unicharset_size));
-    ReverseN(&num_edges_, sizeof(num_edges_));
-  }
   ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
   Dawg::init(type, lang, perm, unicharset_size, debug_level);
 
   edges_ = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges_);
   fread(&edges_[0], sizeof(EDGE_RECORD), num_edges_, file);
   EDGE_REF edge;
-  if (swap) {
-    for (edge = 0; edge < num_edges_; ++edge) {
-      ReverseN(&edges_[edge], sizeof(edges_[edge]));
-    }
-  }
   if (debug_level > 2) {
     tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n",
             type_, lang_.string(), perm_, unicharset_size_, num_edges_);

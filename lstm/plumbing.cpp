@@ -187,19 +187,18 @@ bool Plumbing::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Plumbing::DeSerialize(bool swap, TFile* fp) {
+bool Plumbing::DeSerialize(TFile* fp) {
   stack_.truncate(0);
   no_ = 0;  // We will be modifying this as we AddToStack.
   inT32 size;
   if (fp->FRead(&size, sizeof(size), 1) != 1) return false;
   for (int i = 0; i < size; ++i) {
-    Network* network = CreateFromFile(swap, fp);
+    Network* network = CreateFromFile(fp);
     if (network == NULL) return false;
     AddToStack(network);
   }
   if ((network_flags_ & NF_LAYER_SPECIFIC_LR) &&
-      !learning_rates_.DeSerialize(swap, fp)) {
+      !learning_rates_.DeSerialize(fp)) {
     return false;
   }
   return true;

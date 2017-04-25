@@ -208,9 +208,8 @@ class Network {
   // Should be overridden by subclasses, but called by their Serialize.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
   // Should be overridden by subclasses, but NOT called by their DeSerialize.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // Updates the weights using the given learning rate and momentum.
   // num_samples is the quotient to be used in the adagrad computation iff
@@ -223,10 +222,9 @@ class Network {
                                 double* changed) const {}
 
   // Reads from the given file. Returns NULL in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
   // Determines the type of the serialized class and calls its DeSerialize
   // on a new object of the appropriate type, which is returned.
-  static Network* CreateFromFile(bool swap, TFile* fp);
+  static Network* CreateFromFile(TFile* fp);
 
   // Runs forward propagation of activations on the input line.
   // Note that input and output are both 2-d arrays.

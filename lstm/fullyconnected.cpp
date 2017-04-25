@@ -94,9 +94,8 @@ bool FullyConnected::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool FullyConnected::DeSerialize(bool swap, TFile* fp) {
-  if (!weights_.DeSerialize(IsTraining(), swap, fp)) return false;
+bool FullyConnected::DeSerialize(TFile* fp) {
+  if (!weights_.DeSerialize(IsTraining(), fp)) return false;
   return true;
 }
 
