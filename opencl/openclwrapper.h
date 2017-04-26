@@ -317,8 +317,6 @@ public:
     static ds_device selectedDevice;
     static bool deviceIsSelected;
     static bool selectedDeviceIsOpenCL();
-    static bool selectedDeviceIsNativeCPU();
-
 };
 
 #endif  // USE_OPENCL

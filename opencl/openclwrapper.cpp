@@ -3611,9 +3611,4 @@ bool OpenclDevice::selectedDeviceIsOpenCL() {
   return (device.type == DS_DEVICE_OPENCL_DEVICE);
 }
 
-bool OpenclDevice::selectedDeviceIsNativeCPU() {
-  ds_device device = getDeviceSelection();
-  return (device.type == DS_DEVICE_NATIVE_CPU);
-}
-
 #endif
