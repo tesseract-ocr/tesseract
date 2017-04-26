@@ -313,10 +313,6 @@ public:
                                      int rect_height, int rect_width,
                                      int rect_top, int rect_left);
 
-    static Pix *pixConvertRGBToGrayOCL(Pix *pix, float weightRed = 0.3,
-                                       float weightGreen = 0.5,
-                                       float weightBlue = 0.2);
-
     static ds_device getDeviceSelection();
     static ds_device selectedDevice;
     static bool deviceIsSelected;
