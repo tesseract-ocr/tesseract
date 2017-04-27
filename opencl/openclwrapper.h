@@ -241,37 +241,13 @@ public:
     static int BinaryGenerated( const char * clFileName, FILE ** fhandle );
     //static int CompileKernelFile( const char *filename, GPUEnv *gpuInfo, const char *buildOption );
     static l_uint32* pixReadFromTiffKernel(l_uint32 *tiffdata,l_int32 w,l_int32 h,l_int32 wpl, l_uint32 *line);
-    static Pix* pixReadTiffCl( const char *filename, l_int32 n );
-    static PIX * pixReadStreamTiffCl ( FILE *fp, l_int32 n );
-	static PIX * pixReadMemTiffCl(const l_uint8 *data, size_t size, l_int32  n);
-    static PIX* pixReadFromTiffStreamCl(TIFF  *tif);
     static int composeRGBPixelCl(int *tiffdata,int *line,int h,int w);
-    static l_int32 getTiffStreamResolutionCl(TIFF *tif,l_int32  *pxres,l_int32  *pyres);
-    static TIFF* fopenTiffCl(FILE *fp,const char  *modestring);
 
 /* OpenCL implementations of Morphological operations*/
 
     //Initialiation of OCL buffers used in Morph operations
     static int initMorphCLAllocations(l_int32  wpl, l_int32  h, PIX* pixs);
     static void releaseMorphCLBuffers();
-
-    // OpenCL implementation of Morphology Dilate
-    static PIX* pixDilateBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-
-    // OpenCL implementation of Morphology Erode
-    static PIX* pixErodeBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-
-    // OpenCL implementation of Morphology Close
-    static PIX* pixCloseBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-
-    // OpenCL implementation of Morphology Open
-    static PIX* pixOpenBrickCL(PIX  *pixd, PIX  *pixs, l_int32  hsize, l_int32  vsize, bool reqDataCopy);
-
-    // OpenCL implementation of Morphology Open
-    static PIX* pixSubtractCL(PIX  *pixd, PIX  *pixs1, PIX  *pixs2, bool reqDataCopy);
-
-    // OpenCL implementation of Morphology (Hollow = Closed - Open)
-    static PIX* pixHollowCL(PIX  *pixd, PIX  *pixs, l_int32  close_hsize, l_int32  close_vsize, l_int32  open_hsize, l_int32  open_vsize, bool reqDataCopy);
 
     static void pixGetLinesCL(PIX *pixd, PIX *pixs, PIX **pix_vline,
                               PIX **pix_hline, PIX **pixClosed,
@@ -290,8 +266,6 @@ public:
     //int RegisterKernelWrapper( const char *kernelName, cl_kernel_function function );
     //int RunKernelWrapper( cl_kernel_function function, const char * kernelName, void **usrdata );
     //int GetKernelEnvAndFunc( const char *kernelName, KernelEnv *env, cl_kernel_function *function );
-    // static cl_device_id performDeviceSelection( );
-    //static bool thresholdRectToPixMicroBench( TessScoreEvaluationInputData input, ds_device_type type);
 
     static int LoadOpencl();
 #ifdef WIN32
