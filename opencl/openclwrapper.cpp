@@ -170,15 +170,15 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   memset(profile, 0, sizeof(ds_profile));
 
   clGetPlatformIDs(0, nullptr, &numPlatforms);
-  if (numPlatforms == 0)
-    goto cleanup;
 
-  platforms = (cl_platform_id*)malloc(numPlatforms*sizeof(cl_platform_id));
-  if (platforms == nullptr) {
-    status = DS_MEMORY_ERROR;
-    goto cleanup;
+  if (numPlatforms > 0) {
+    platforms = (cl_platform_id*)malloc(numPlatforms*sizeof(cl_platform_id));
+    if (platforms == nullptr) {
+      status = DS_MEMORY_ERROR;
+      goto cleanup;
+    }
+    clGetPlatformIDs(numPlatforms, platforms, nullptr);
   }
-  clGetPlatformIDs(numPlatforms, platforms, nullptr);
 
   numDevices = 0;
   for (i = 0; i < (unsigned int)numPlatforms; i++) {
