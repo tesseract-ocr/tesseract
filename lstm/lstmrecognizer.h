@@ -167,7 +167,7 @@ class LSTMRecognizer {
   // on the unicharset matching. This enables training to deserialize a model
   // from checkpoint or restore without having to go back and reload the
   // dictionary.
-  bool LoadDictionary(const char* data_file_name, const char* lang);
+  bool LoadDictionary(const char* lang, TessdataManager* mgr);
 
   // Recognizes the line image, contained within image_data, returning the
   // ratings matrix and matching box_word for each WERD_RES in the output.

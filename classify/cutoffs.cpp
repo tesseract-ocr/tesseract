@@ -49,7 +49,7 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 20 09:38:26 1991, DSJ, Created.
  */
-void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
+void Classify::ReadNewCutoffs(TFile* fp, bool swap,
                               CLASS_CUTOFF_ARRAY Cutoffs) {
   char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
@@ -57,23 +57,24 @@ void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
   int i;
 
   if (shape_table_ != NULL) {
-    if (!shapetable_cutoffs_.DeSerialize(swap, CutoffFile)) {
+    if (!shapetable_cutoffs_.DeSerialize(swap, fp)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }
   for (i = 0; i < MAX_NUM_CLASSES; i++)
     Cutoffs[i] = MAX_CUTOFF;
 
-  while ((end_offset < 0 || ftell(CutoffFile) < end_offset) &&
-         tfscanf(CutoffFile, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d",
-                Class, &Cutoff) == 2) {
+  const int kMaxLineSize = 100;
+  char line[kMaxLineSize];
+  while (fp->FGets(line, kMaxLineSize) != nullptr &&
+         sscanf(line, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d", Class,
+                &Cutoff) == 2) {
     if (strcmp(Class, "NULL") == 0) {
       ClassId = unicharset.unichar_to_id(" ");
     } else {
       ClassId = unicharset.unichar_to_id(Class);
     }
     Cutoffs[ClassId] = Cutoff;
-    SkipNewline(CutoffFile);
   }
 }
 

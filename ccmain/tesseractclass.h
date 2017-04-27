@@ -496,20 +496,17 @@ class Tesseract : public Wordrec {
   // string and recursively any additional languages required by any language
   // traineddata file (via tessedit_load_sublangs in its config) that is loaded.
   // See init_tesseract_internal for args.
-  int init_tesseract(const char *arg0,
-                     const char *textbase,
-                     const char *language,
-                     OcrEngineMode oem,
-                     char **configs,
-                     int configs_size,
-                     const GenericVector<STRING> *vars_vec,
-                     const GenericVector<STRING> *vars_values,
-                     bool set_only_init_params);
+  int init_tesseract(const char* arg0, const char* textbase,
+                     const char* language, OcrEngineMode oem, char** configs,
+                     int configs_size, const GenericVector<STRING>* vars_vec,
+                     const GenericVector<STRING>* vars_values,
+                     bool set_only_init_params, TessdataManager* mgr);
   int init_tesseract(const char *datapath,
                      const char *language,
                      OcrEngineMode oem) {
-    return init_tesseract(datapath, NULL, language, oem,
-                          NULL, 0, NULL, NULL, false);
+    TessdataManager mgr;
+    return init_tesseract(datapath, NULL, language, oem, NULL, 0, NULL, NULL,
+                          false, &mgr);
   }
   // Common initialization for a single language.
   // arg0 is the datapath for the tessdata directory, which could be the
@@ -527,36 +524,30 @@ class Tesseract : public Wordrec {
   // in vars_vec.
   // If set_only_init_params is true, then only the initialization variables
   // will be set.
-  int init_tesseract_internal(const char *arg0,
-                              const char *textbase,
-                              const char *language,
-                              OcrEngineMode oem,
-                              char **configs,
-                              int configs_size,
-                              const GenericVector<STRING> *vars_vec,
-                              const GenericVector<STRING> *vars_values,
-                              bool set_only_init_params);
+  int init_tesseract_internal(const char* arg0, const char* textbase,
+                              const char* language, OcrEngineMode oem,
+                              char** configs, int configs_size,
+                              const GenericVector<STRING>* vars_vec,
+                              const GenericVector<STRING>* vars_values,
+                              bool set_only_init_params, TessdataManager* mgr);
 
   // Set the universal_id member of each font to be unique among all
   // instances of the same font loaded.
   void SetupUniversalFontIds();
 
-  int init_tesseract_lm(const char *arg0,
-                        const char *textbase,
-                        const char *language);
+  int init_tesseract_lm(const char* arg0, const char* textbase,
+                        const char* language, TessdataManager* mgr);
 
   void recognize_page(STRING& image_name);
   void end_tesseract();
 
-  bool init_tesseract_lang_data(const char *arg0,
-                                const char *textbase,
-                                const char *language,
-                                OcrEngineMode oem,
-                                char **configs,
-                                int configs_size,
-                                const GenericVector<STRING> *vars_vec,
-                                const GenericVector<STRING> *vars_values,
-                                bool set_only_init_params);
+  bool init_tesseract_lang_data(const char* arg0, const char* textbase,
+                                const char* language, OcrEngineMode oem,
+                                char** configs, int configs_size,
+                                const GenericVector<STRING>* vars_vec,
+                                const GenericVector<STRING>* vars_values,
+                                bool set_only_init_params,
+                                TessdataManager* mgr);
 
   void ParseLanguageString(const char* lang_str,
                            GenericVector<STRING>* to_load,
@@ -1074,8 +1065,6 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(interactive_display_mode, false, "Run interactively?");
   STRING_VAR_H(file_type, ".tif", "Filename extension");
   BOOL_VAR_H(tessedit_override_permuter, true, "According to dict_word");
-  INT_VAR_H(tessdata_manager_debug_level, 0,
-            "Debug level for TessdataManager functions.");
   STRING_VAR_H(tessedit_load_sublangs, "",
                "List of languages to load with this one");
   BOOL_VAR_H(tessedit_use_primary_params_model, false,

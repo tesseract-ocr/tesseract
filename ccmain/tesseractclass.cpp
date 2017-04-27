@@ -466,10 +466,6 @@ Tesseract::Tesseract()
       STRING_MEMBER(file_type, ".tif", "Filename extension", this->params()),
       BOOL_MEMBER(tessedit_override_permuter, true, "According to dict_word",
                   this->params()),
-      INT_MEMBER(tessdata_manager_debug_level, 0,
-                 "Debug level for"
-                 " TessdataManager functions.",
-                 this->params()),
       STRING_MEMBER(tessedit_load_sublangs, "",
                     "List of languages to load with this one", this->params()),
       BOOL_MEMBER(tessedit_use_primary_params_model, false,

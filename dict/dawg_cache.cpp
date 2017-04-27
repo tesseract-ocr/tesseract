@@ -27,44 +27,33 @@
 namespace tesseract {
 
 struct DawgLoader {
-  DawgLoader(const STRING &lang,
-             const char *data_file_name,
-             TessdataType tessdata_dawg_type,
-             int dawg_debug_level)
+  DawgLoader(const STRING &lang, TessdataType tessdata_dawg_type,
+             int dawg_debug_level, TessdataManager *data_file)
       : lang_(lang),
-        data_file_name_(data_file_name),
+        data_file_(data_file),
         tessdata_dawg_type_(tessdata_dawg_type),
         dawg_debug_level_(dawg_debug_level) {}
 
   Dawg *Load();
 
   STRING lang_;
-  const char *data_file_name_;
+  TessdataManager *data_file_;
   TessdataType tessdata_dawg_type_;
   int dawg_debug_level_;
 };
 
-Dawg *DawgCache::GetSquishedDawg(
-    const STRING &lang,
-    const char *data_file_name,
-    TessdataType tessdata_dawg_type,
-    int debug_level) {
-  STRING data_id = data_file_name;
+Dawg *DawgCache::GetSquishedDawg(const STRING &lang,
+                                 TessdataType tessdata_dawg_type,
+                                 int debug_level, TessdataManager *data_file) {
+  STRING data_id = data_file->GetDataFileName();
   data_id += kTessdataFileSuffixes[tessdata_dawg_type];
-  DawgLoader loader(lang, data_file_name, tessdata_dawg_type, debug_level);
+  DawgLoader loader(lang, tessdata_dawg_type, debug_level, data_file);
   return dawgs_.Get(data_id, NewTessCallback(&loader, &DawgLoader::Load));
 }
 
 Dawg *DawgLoader::Load() {
-  TessdataManager data_loader;
-  if (!data_loader.Init(data_file_name_, dawg_debug_level_)) {
-    return NULL;
-  }
-  if (!data_loader.SeekToStart(tessdata_dawg_type_)) {
-    data_loader.End();
-    return NULL;
-  }
-  FILE *fp = data_loader.GetDataFilePtr();
+  TFile fp;
+  if (!data_file_->GetComponent(tessdata_dawg_type_, &fp)) return nullptr;
   DawgType dawg_type;
   PermuterType perm_type;
   switch (tessdata_dawg_type_) {
@@ -96,13 +85,13 @@ Dawg *DawgLoader::Load() {
       perm_type = FREQ_DAWG_PERM;
       break;
     default:
-      data_loader.End();
-      return NULL;
+      return nullptr;
   }
   SquishedDawg *retval =
-      new SquishedDawg(fp, dawg_type, lang_, perm_type, dawg_debug_level_);
-  data_loader.End();
-  return retval;
+      new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
+  if (retval->Load(&fp)) return retval;
+  delete retval;
+  return nullptr;
 }
 
 }  // namespace tesseract

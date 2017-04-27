@@ -59,7 +59,6 @@ STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
 STRING_PARAM_FLAG(X, "", "File listing font xheights");
 STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
-STRING_PARAM_FLAG(T, "", "File to load trainer from");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
@@ -118,10 +117,10 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   ShapeTable* shape_table = nullptr;
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
-  FILE* shape_fp = fopen(shape_table_file.string(), "rb");
-  if (shape_fp != nullptr) {
+  TFile shape_fp;
+  if (shape_fp.Open(shape_table_file.string(), nullptr)) {
     shape_table = new ShapeTable;
-    if (!shape_table->DeSerialize(false, shape_fp)) {
+    if (!shape_table->DeSerialize(false, &shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
@@ -131,7 +130,6 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
       tprintf("Read shape table %s of %d shapes\n",
               shape_table_file.string(), num_shapes);
     }
-    fclose(shape_fp);
   } else {
     tprintf("Warning: No shape table file present: %s\n",
             shape_table_file.string());
@@ -199,75 +197,55 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
                                              FLAGS_debug_level);
   IntFeatureSpace fs;
   fs.Init(kBoostXYBuckets, kBoostXYBuckets, kBoostDirBuckets);
-  if (FLAGS_T.empty()) {
-    trainer->LoadUnicharset(FLAGS_U.c_str());
-    // Get basic font information from font_properties.
-    if (!FLAGS_F.empty()) {
-      if (!trainer->LoadFontInfo(FLAGS_F.c_str())) {
-        delete trainer;
-        return nullptr;
-      }
-    }
-    if (!FLAGS_X.empty()) {
-      if (!trainer->LoadXHeights(FLAGS_X.c_str())) {
-        delete trainer;
-        return nullptr;
-      }
-    }
-    trainer->SetFeatureSpace(fs);
-    const char* page_name;
-    // Load training data from .tr files on the command line.
-    while ((page_name = GetNextFilename(argc, argv)) != nullptr) {
-      tprintf("Reading %s ...\n", page_name);
-      trainer->ReadTrainingSamples(page_name, feature_defs, false);
-
-      // If there is a file with [lang].[fontname].exp[num].fontinfo present,
-      // read font spacing information in to fontinfo_table.
-      int pagename_len = strlen(page_name);
-      char *fontinfo_file_name = new char[pagename_len + 7];
-      strncpy(fontinfo_file_name, page_name, pagename_len - 2);  // remove "tr"
-      strcpy(fontinfo_file_name + pagename_len - 2, "fontinfo");  // +"fontinfo"
-      trainer->AddSpacingInfo(fontinfo_file_name);
-      delete[] fontinfo_file_name;
-
-      // Load the images into memory if required by the classifier.
-      if (FLAGS_load_images) {
-        STRING image_name = page_name;
-        // Chop off the tr and replace with tif. Extension must be tif!
-        image_name.truncate_at(image_name.length() - 2);
-        image_name += "tif";
-        trainer->LoadPageImages(image_name.string());
-      }
-    }
-    trainer->PostLoadCleanup();
-    // Write the master trainer if required.
-    if (!FLAGS_output_trainer.empty()) {
-      FILE* fp = fopen(FLAGS_output_trainer.c_str(), "wb");
-      if (fp == nullptr) {
-        tprintf("Can't create saved trainer data!\n");
-      } else {
-        trainer->Serialize(fp);
-        fclose(fp);
-      }
-    }
-  } else {
-    bool success = false;
-    tprintf("Loading master trainer from file:%s\n",
-            FLAGS_T.c_str());
-    FILE* fp = fopen(FLAGS_T.c_str(), "rb");
-    if (fp == nullptr) {
-      tprintf("Can't read file %s to initialize master trainer\n",
-              FLAGS_T.c_str());
-    } else {
-      success = trainer->DeSerialize(false, fp);
-      fclose(fp);
-    }
-    if (!success) {
-      tprintf("Deserialize of master trainer failed!\n");
+  trainer->LoadUnicharset(FLAGS_U.c_str());
+  // Get basic font information from font_properties.
+  if (!FLAGS_F.empty()) {
+    if (!trainer->LoadFontInfo(FLAGS_F.c_str())) {
       delete trainer;
       return nullptr;
     }
-    trainer->SetFeatureSpace(fs);
+  }
+  if (!FLAGS_X.empty()) {
+    if (!trainer->LoadXHeights(FLAGS_X.c_str())) {
+      delete trainer;
+      return nullptr;
+    }
+  }
+  trainer->SetFeatureSpace(fs);
+  const char* page_name;
+  // Load training data from .tr files on the command line.
+  while ((page_name = GetNextFilename(argc, argv)) != nullptr) {
+    tprintf("Reading %s ...\n", page_name);
+    trainer->ReadTrainingSamples(page_name, feature_defs, false);
+
+    // If there is a file with [lang].[fontname].exp[num].fontinfo present,
+    // read font spacing information in to fontinfo_table.
+    int pagename_len = strlen(page_name);
+    char* fontinfo_file_name = new char[pagename_len + 7];
+    strncpy(fontinfo_file_name, page_name, pagename_len - 2);   // remove "tr"
+    strcpy(fontinfo_file_name + pagename_len - 2, "fontinfo");  // +"fontinfo"
+    trainer->AddSpacingInfo(fontinfo_file_name);
+    delete[] fontinfo_file_name;
+
+    // Load the images into memory if required by the classifier.
+    if (FLAGS_load_images) {
+      STRING image_name = page_name;
+      // Chop off the tr and replace with tif. Extension must be tif!
+      image_name.truncate_at(image_name.length() - 2);
+      image_name += "tif";
+      trainer->LoadPageImages(image_name.string());
+    }
+  }
+  trainer->PostLoadCleanup();
+  // Write the master trainer if required.
+  if (!FLAGS_output_trainer.empty()) {
+    FILE* fp = fopen(FLAGS_output_trainer.c_str(), "wb");
+    if (fp == nullptr) {
+      tprintf("Can't create saved trainer data!\n");
+    } else {
+      trainer->Serialize(fp);
+      fclose(fp);
+    }
   }
   trainer->PreTrainingSetup();
   if (!FLAGS_O.empty() &&

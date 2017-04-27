@@ -60,9 +60,8 @@ class ParamUtils {
       SetParamConstraint constraint,
       ParamsVectors *member_params);
 
-  // Read parameters from the given file pointer (stop at end_offset).
-  static bool ReadParamsFromFp(FILE *fp, inT64 end_offset,
-                               SetParamConstraint constraint,
+  // Read parameters from the given file pointer.
+  static bool ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
                                ParamsVectors *member_params);
 
   // Set a parameters to have the given value.

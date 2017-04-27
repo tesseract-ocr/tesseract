@@ -74,9 +74,6 @@ class MasterTrainer {
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
-  // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
 
   // Loads an initial unicharset, or sets one up if the file cannot be read.
   void LoadUnicharset(const char* filename);

@@ -66,7 +66,6 @@ class CCUtil {
   STRING imagebasename;  // name of image
   STRING lang;
   STRING language_data_path_prefix;
-  TessdataManager tessdata_manager;
   UNICHARSET unicharset;
   UnicharAmbigs unichar_ambigs;
   STRING imagefile;  // image file name

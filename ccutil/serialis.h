@@ -67,6 +67,10 @@ class TFile {
   // the line is longer. Does nothing if buffer_size <= 0.
   // To use fscanf use FGets and sscanf.
   char* FGets(char* buffer, int buffer_size);
+  // Replicates fread, followed by a swap of the bytes if needed, returning the
+  // number of items read. If swap is true then the count items will each have
+  // size bytes reversed.
+  int FReadEndian(void* buffer, int size, int count, bool swap);
   // Replicates fread, returning the number of items read.
   int FRead(void* buffer, int size, int count);
   // Resets the TFile as if it has been Opened, but nothing read.

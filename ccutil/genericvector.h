@@ -162,7 +162,9 @@ class GenericVector {
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
   bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
-  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
+  bool read(tesseract::TFile* f,
+            TessResultCallback3<bool, tesseract::TFile*, T*, bool>* cb,
+            bool swap);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
@@ -885,15 +887,14 @@ bool GenericVector<T>::write(
 }
 
 template <typename T>
-bool GenericVector<T>::read(FILE* f,
-                            TessResultCallback3<bool, FILE*, T*, bool>* cb,
-                            bool swap) {
+bool GenericVector<T>::read(
+    tesseract::TFile* f,
+    TessResultCallback3<bool, tesseract::TFile*, T*, bool>* cb, bool swap) {
   inT32 reserved;
-  if (fread(&reserved, sizeof(reserved), 1, f) != 1) return false;
-  if (swap) Reverse32(&reserved);
+  if (f->FReadEndian(&reserved, sizeof(reserved), 1, swap) != 1) return false;
   reserve(reserved);
-  if (fread(&size_used_, sizeof(size_used_), 1, f) != 1) return false;
-  if (swap) Reverse32(&size_used_);
+  if (f->FReadEndian(&size_used_, sizeof(size_used_), 1, swap) != 1)
+    return false;
   if (cb != NULL) {
     for (int i = 0; i < size_used_; ++i) {
       if (!cb->Run(f, data_ + i, swap)) {
@@ -903,11 +904,8 @@ bool GenericVector<T>::read(FILE* f,
     }
     delete cb;
   } else {
-    if (fread(data_, sizeof(T), size_used_, f) != size_used_) return false;
-    if (swap) {
-      for (int i = 0; i < size_used_; ++i)
-        ReverseN(&data_[i], sizeof(T));
-    }
+    if (f->FReadEndian(data_, sizeof(T), size_used_, swap) != size_used_)
+      return false;
   }
   return true;
 }

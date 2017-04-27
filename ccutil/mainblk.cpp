@@ -55,7 +55,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 
   char *tessdata_prefix = getenv("TESSDATA_PREFIX");
 
-  if (argv0 != NULL) {
+  if (argv0 != NULL && *argv0 != '\0') {
     /* Use tessdata prefix from the command line. */
     datadir = argv0;
   } else if (tessdata_prefix) {

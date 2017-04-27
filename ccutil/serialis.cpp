@@ -88,6 +88,17 @@ char* TFile::FGets(char* buffer, int buffer_size) {
   return size > 0 ? buffer : NULL;
 }
 
+int TFile::FReadEndian(void* buffer, int size, int count, bool swap) {
+  int num_read = FRead(buffer, size, count);
+  if (swap) {
+    char* char_buffer = reinterpret_cast<char*>(buffer);
+    for (int i = 0; i < num_read; ++i, char_buffer += size) {
+      ReverseN(char_buffer, size);
+    }
+  }
+  return num_read;
+}
+
 int TFile::FRead(void* buffer, int size, int count) {
   ASSERT_HOST(!is_writing_);
   int required_size = size * count;

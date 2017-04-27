@@ -201,7 +201,12 @@ class Dawg {
   }
 
  protected:
-  Dawg() {}
+  Dawg(DawgType type, const STRING &lang, PermuterType perm, int debug_level)
+      : type_(type),
+        lang_(lang),
+        perm_(perm),
+        unicharset_size_(0),
+        debug_level_(debug_level) {}
 
   /// Returns the next node visited by following this edge.
   inline NODE_REF next_node_from_edge_rec(const EDGE_RECORD &edge_rec) const {
@@ -274,10 +279,9 @@ class Dawg {
             (!word_end || (word_end == other_word_end)));
   }
 
-  /// Sets type_, lang_, perm_, unicharset_size_.
+  /// Sets unicharset_size_.
   /// Initializes the values of various masks from unicharset_size_.
-  void init(DawgType type, const STRING &lang,
-            PermuterType perm, int unicharset_size, int debug_level);
+  void init(int unicharset_size);
 
   /// Matches all of the words that are represented by this string.
   /// If wilcard is set to something other than INVALID_UNICHAR_ID,
@@ -407,31 +411,35 @@ class DawgPositionVector : public GenericVector<DawgPosition> {
 //
 class SquishedDawg : public Dawg {
  public:
-  SquishedDawg(FILE *file, DawgType type, const STRING &lang,
-               PermuterType perm, int debug_level) {
-    read_squished_dawg(file, type, lang, perm, debug_level);
+  SquishedDawg(DawgType type, const STRING &lang, PermuterType perm,
+               int debug_level)
+      : Dawg(type, lang, perm, debug_level) {}
+  SquishedDawg(const char *filename, DawgType type, const STRING &lang,
+               PermuterType perm, int debug_level)
+      : Dawg(type, lang, perm, debug_level) {
+    TFile file;
+    ASSERT_HOST(file.Open(filename, nullptr));
+    ASSERT_HOST(read_squished_dawg(&file));
     num_forward_edges_in_node0 = num_forward_edges(0);
-  }
-  SquishedDawg(const char* filename, DawgType type,
-               const STRING &lang, PermuterType perm, int debug_level) {
-    FILE *file = fopen(filename, "rb");
-    if (file == NULL) {
-      tprintf("Failed to open dawg file %s\n", filename);
-      exit(1);
-    }
-    read_squished_dawg(file, type, lang, perm, debug_level);
-    num_forward_edges_in_node0 = num_forward_edges(0);
-    fclose(file);
   }
   SquishedDawg(EDGE_ARRAY edges, int num_edges, DawgType type,
-               const STRING &lang, PermuterType perm,
-               int unicharset_size, int debug_level) :
-    edges_(edges), num_edges_(num_edges) {
-    init(type, lang, perm, unicharset_size, debug_level);
+               const STRING &lang, PermuterType perm, int unicharset_size,
+               int debug_level)
+      : Dawg(type, lang, perm, debug_level),
+        edges_(edges),
+        num_edges_(num_edges) {
+    init(unicharset_size);
     num_forward_edges_in_node0 = num_forward_edges(0);
     if (debug_level > 3) print_all("SquishedDawg:");
   }
   ~SquishedDawg();
+
+  // Loads using the given TFile. Returns false on failure.
+  bool Load(TFile *fp) {
+    if (!read_squished_dawg(fp)) return false;
+    num_forward_edges_in_node0 = num_forward_edges(0);
+    return true;
+  }
 
   int NumEdges() { return num_edges_; }
 
@@ -529,8 +537,7 @@ class SquishedDawg : public Dawg {
   inT32 num_forward_edges(NODE_REF node) const;
 
   /// Reads SquishedDawg from a file.
-  void read_squished_dawg(FILE *file, DawgType type, const STRING &lang,
-                          PermuterType perm, int debug_level);
+  bool read_squished_dawg(TFile *file);
 
   /// Prints the contents of an edge indicated by the given EDGE_REF.
   void print_edge(EDGE_REF edge) const;
@@ -547,7 +554,7 @@ class SquishedDawg : public Dawg {
 
   // Member variables.
   EDGE_ARRAY edges_;
-  int num_edges_;
+  inT32 num_edges_;
   int num_forward_edges_in_node0;
 };
 

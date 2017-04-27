@@ -86,27 +86,6 @@ bool MasterTrainer::Serialize(FILE* fp) const {
   return true;
 }
 
-// Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool MasterTrainer::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&norm_mode_, sizeof(norm_mode_), 1, fp) != 1) return false;
-  if (swap) {
-    ReverseN(&norm_mode_, sizeof(norm_mode_));
-  }
-  if (!unicharset_.load_from_file(fp)) return false;
-  charsetsize_ = unicharset_.size();
-  if (!feature_space_.DeSerialize(swap, fp)) return false;
-  feature_map_.Init(feature_space_);
-  if (!samples_.DeSerialize(swap, fp)) return false;
-  if (!junk_samples_.DeSerialize(swap, fp)) return false;
-  if (!verify_samples_.DeSerialize(swap, fp)) return false;
-  if (!master_shapes_.DeSerialize(swap, fp)) return false;
-  if (!flat_shapes_.DeSerialize(swap, fp)) return false;
-  if (!fontinfo_table_.DeSerialize(swap, fp)) return false;
-  if (!xheights_.DeSerialize(swap, fp)) return false;
-  return true;
-}
-
 // Load an initial unicharset, or set one up if the file cannot be read.
 void MasterTrainer::LoadUnicharset(const char* filename) {
   if (!unicharset_.load_from_file(filename)) {

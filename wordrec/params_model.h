@@ -61,7 +61,7 @@ class ParamsModel {
 
   // Returns true on success.
   bool LoadFromFile(const char *lang, const char *full_path);
-  bool LoadFromFp(const char *lang, FILE *fp, inT64 end_offset);
+  bool LoadFromFp(const char *lang, TFile *fp);
 
   const GenericVector<float>& weights() const {
     return weights_vec_[pass_];

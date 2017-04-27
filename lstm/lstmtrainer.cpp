@@ -1223,7 +1223,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
     std::string truth_word(truth_words[i].string());
     StrMap::iterator it = word_counts.find(truth_word);
     if (it == word_counts.end())
-      word_counts.insert(make_pair(truth_word, 1));
+      word_counts.insert(std::make_pair(truth_word, 1));
     else
       ++it->second;
   }
@@ -1231,7 +1231,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
     std::string ocr_word(ocr_words[i].string());
     StrMap::iterator it = word_counts.find(ocr_word);
     if (it == word_counts.end())
-      word_counts.insert(make_pair(ocr_word, -1));
+      word_counts.insert(std::make_pair(ocr_word, -1));
     else
       --it->second;
   }

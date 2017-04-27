@@ -20,22 +20,23 @@
 #define TESSERACT_CLASSIFY_CLUSTTOOL_H_
 
 //--------------------------Include Files---------------------------------------
-#include "host.h"
-#include "cluster.h"
 #include <stdio.h>
+#include "cluster.h"
+#include "host.h"
+#include "serialis.h"
 
 /*-------------------------------------------------------------------------
         Public Function Prototype
 --------------------------------------------------------------------------*/
-uinT16 ReadSampleSize(FILE *File);
+uinT16 ReadSampleSize(tesseract::TFile *fp);
 
-PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N);
+PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uinT16 N);
 
-PROTOTYPE *ReadPrototype(FILE *File, uinT16 N);
+PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uinT16 N);
 
-PROTOSTYLE ReadProtoStyle(FILE *File);
+PROTOSTYLE ReadProtoStyle(const char *style);
 
-FLOAT32 *ReadNFloats (FILE * File, uinT16 N, FLOAT32 Buffer[]);
+FLOAT32 *ReadNFloats(tesseract::TFile *fp, uinT16 N, FLOAT32 Buffer[]);
 
 void WriteParamDesc(FILE *File, uinT16 N, const PARAM_DESC ParamDesc[]);
 

@@ -127,12 +127,11 @@ bool LSTMRecognizer::DeSerialize(bool swap, TFile* fp) {
 // on the unicharset matching. This enables training to deserialize a model
 // from checkpoint or restore without having to go back and reload the
 // dictionary.
-bool LSTMRecognizer::LoadDictionary(const char* data_file_name,
-                                    const char* lang) {
+bool LSTMRecognizer::LoadDictionary(const char* lang, TessdataManager* mgr) {
   delete dict_;
   dict_ = new Dict(&ccutil_);
   dict_->SetupForLoad(Dict::GlobalDawgCache());
-  dict_->LoadLSTM(data_file_name, lang);
+  dict_->LoadLSTM(lang, mgr);
   if (dict_->FinishLoad()) return true;  // Success.
   tprintf("Failed to load any lstm-specific dictionaries for lang %s!!\n",
           lang);

@@ -221,35 +221,35 @@ void Dict::SetupForLoad(DawgCache *dawg_cache) {
 }
 
 // Loads the dawgs needed by Tesseract. Call FinishLoad() after.
-void Dict::Load(const char *data_file_name, const STRING &lang) {
+void Dict::Load(const STRING &lang, TessdataManager *data_file) {
   // Load dawgs_.
   if (load_punc_dawg) {
-    punc_dawg_ = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_PUNC_DAWG, dawg_debug_level);
+    punc_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_PUNC_DAWG,
+                                              dawg_debug_level, data_file);
     if (punc_dawg_) dawgs_ += punc_dawg_;
   }
   if (load_system_dawg) {
     Dawg *system_dawg = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_SYSTEM_DAWG, dawg_debug_level);
+        lang, TESSDATA_SYSTEM_DAWG, dawg_debug_level, data_file);
     if (system_dawg) dawgs_ += system_dawg;
   }
   if (load_number_dawg) {
     Dawg *number_dawg = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_NUMBER_DAWG, dawg_debug_level);
+        lang, TESSDATA_NUMBER_DAWG, dawg_debug_level, data_file);
     if (number_dawg) dawgs_ += number_dawg;
   }
   if (load_bigram_dawg) {
-    bigram_dawg_ = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_BIGRAM_DAWG, dawg_debug_level);
+    bigram_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_BIGRAM_DAWG,
+                                                dawg_debug_level, data_file);
   }
   if (load_freq_dawg) {
-    freq_dawg_ = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_FREQ_DAWG, dawg_debug_level);
+    freq_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_FREQ_DAWG,
+                                              dawg_debug_level, data_file);
     if (freq_dawg_) { dawgs_ += freq_dawg_; }
   }
   if (load_unambig_dawg) {
-    unambig_dawg_ = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_UNAMBIG_DAWG, dawg_debug_level);
+    unambig_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_UNAMBIG_DAWG,
+                                                 dawg_debug_level, data_file);
     if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
 
@@ -302,21 +302,21 @@ void Dict::Load(const char *data_file_name, const STRING &lang) {
 }
 
 // Loads the dawgs needed by the LSTM model. Call FinishLoad() after.
-void Dict::LoadLSTM(const char *data_file_name, const STRING &lang) {
+void Dict::LoadLSTM(const STRING &lang, TessdataManager *data_file) {
   // Load dawgs_.
   if (load_punc_dawg) {
-    punc_dawg_ = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_LSTM_PUNC_DAWG, dawg_debug_level);
+    punc_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_LSTM_PUNC_DAWG,
+                                              dawg_debug_level, data_file);
     if (punc_dawg_) dawgs_ += punc_dawg_;
   }
   if (load_system_dawg) {
     Dawg *system_dawg = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_LSTM_SYSTEM_DAWG, dawg_debug_level);
+        lang, TESSDATA_LSTM_SYSTEM_DAWG, dawg_debug_level, data_file);
     if (system_dawg) dawgs_ += system_dawg;
   }
   if (load_number_dawg) {
     Dawg *number_dawg = dawg_cache_->GetSquishedDawg(
-        lang, data_file_name, TESSDATA_LSTM_NUMBER_DAWG, dawg_debug_level);
+        lang, TESSDATA_LSTM_NUMBER_DAWG, dawg_debug_level, data_file);
     if (number_dawg) dawgs_ += number_dawg;
   }
 }

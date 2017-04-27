@@ -44,14 +44,14 @@ namespace tesseract {
  * and Dawg models.
  */
 void Wordrec::program_editup(const char *textbase,
-                             bool init_classifier,
-                             bool init_dict) {
+                             TessdataManager *init_classifier,
+                             TessdataManager *init_dict) {
   if (textbase != NULL) imagefile = textbase;
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
   if (init_dict) {
     getDict().SetupForLoad(Dict::GlobalDawgCache());
-    getDict().Load(tessdata_manager.GetDataFileName().string(), lang);
+    getDict().Load(lang, init_dict);
     getDict().FinishLoad();
   }
   pass2_ok_split = chop_ok_split;

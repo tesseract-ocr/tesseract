@@ -29,14 +29,15 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
-#include "platform.h"
 #include "apitypes.h"
+#include "pageiterator.h"
+#include "platform.h"
+#include "publictypes.h"
+#include "resultiterator.h"
+#include "serialis.h"
+#include "tesscallback.h"
 #include "thresholder.h"
 #include "unichar.h"
-#include "tesscallback.h"
-#include "publictypes.h"
-#include "pageiterator.h"
-#include "resultiterator.h"
 
 template <typename T> class GenericVector;
 class PAGE_RES;
@@ -237,6 +238,13 @@ class TESS_API TessBaseAPI {
   int Init(const char* datapath, const char* language) {
     return Init(datapath, language, OEM_DEFAULT, NULL, 0, NULL, NULL, false);
   }
+  // In-memory version reads the traineddata file directly from the given
+  // data[data_size] array, and/or reads data via a FileReader.
+  int Init(const char* data, int data_size, const char* language,
+           OcrEngineMode mode, char** configs, int configs_size,
+           const GenericVector<STRING>* vars_vec,
+           const GenericVector<STRING>* vars_values,
+           bool set_only_non_debug_params, FileReader reader);
 
   /**
    * Returns the languages string used in the last valid initialization.
@@ -859,6 +867,7 @@ class TESS_API TessBaseAPI {
   Tesseract*        tesseract_;       ///< The underlying data object.
   Tesseract*        osd_tesseract_;   ///< For orientation & script detection.
   EquationDetect*   equ_detect_;      ///<The equation detector.
+  FileReader reader_;                 ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;     ///< Image thresholding module.
   GenericVector<ParagraphModel *>* paragraph_models_;
   BLOCK_LIST*       block_list_;      ///< The page layout.

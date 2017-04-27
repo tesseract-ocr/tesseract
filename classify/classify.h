@@ -103,16 +103,15 @@ class Classify : public CCStruct {
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
-                      CLASS_CUTOFF_ARRAY Cutoffs);
+  void ReadNewCutoffs(TFile* fp, bool swap, CLASS_CUTOFF_ARRAY Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-  ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File);
+  ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
   /* normmatch.cpp ************************************************************/
   FLOAT32 ComputeNormMatch(CLASS_ID ClassId,
                            const FEATURE_STRUCT& feature, BOOL8 DebugMatch);
   void FreeNormProtos();
-  NORM_PROTOS *ReadNormProtos(FILE *File, inT64 end_offset);
+  NORM_PROTOS* ReadNormProtos(TFile* fp);
   /* protos.cpp ***************************************************************/
   void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
   INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
@@ -138,7 +137,7 @@ class Classify : public CCStruct {
   void LearnPieces(const char* fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char* correct_text,
                    WERD_RES* word);
-  void InitAdaptiveClassifier(bool load_pre_trained_templates);
+  void InitAdaptiveClassifier(TessdataManager* mgr);
   void InitAdaptedClass(TBLOB *Blob,
                         CLASS_ID ClassId,
                         int FontinfoId,
@@ -335,7 +334,7 @@ class Classify : public CCStruct {
                                uinT8* char_norm_array);
   void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
   /* intproto.cpp *************************************************************/
-  INT_TEMPLATES ReadIntTemplates(FILE *File);
+  INT_TEMPLATES ReadIntTemplates(bool swap, TFile* fp);
   void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                          const UNICHARSET& target_unicharset);
   CLASS_ID GetClassToDebug(const char *Prompt, bool* adaptive_on,

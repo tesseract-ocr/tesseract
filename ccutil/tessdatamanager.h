@@ -109,34 +109,6 @@ static const char *const kTessdataFileSuffixes[] = {
 };
 
 /**
- * If kTessdataFileIsText[i] is true - the tessdata component
- * of type i (from TessdataType enum) is text, and is binary otherwise.
- */
-static const bool kTessdataFileIsText[] = {
-    true,   // 0
-    true,   // 1
-    true,   // 2
-    false,  // 3
-    true,   // 4
-    true,   // 5
-    false,  // 6
-    false,  // 7
-    false,  // 8
-    false,  // 9
-    false,  // 10  // deprecated
-    true,   // 11  // deprecated
-    false,  // 12  // deprecated
-    false,  // 13
-    false,  // 14
-    false,  // 15
-    true,   // 16
-    false,  // 17
-    false,  // 18
-    false,  // 19
-    false,  // 20
-};
-
-/**
  * TessdataType could be updated to contain more entries, however
  * we do not expect that number to be astronomically high.
  * In order to automatically detect endianness TessdataManager will
@@ -148,93 +120,61 @@ static const int kMaxNumTessdataEntries = 1000;
 
 class TessdataManager {
  public:
-  TessdataManager() {
-    data_file_ = NULL;
-    actual_tessdata_num_entries_ = 0;
-    for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
-      offset_table_[i] = -1;
-    }
-  }
+  TessdataManager() : reader_(nullptr), is_loaded_(false), swap_(false) {}
+  explicit TessdataManager(FileReader reader)
+      : reader_(reader), is_loaded_(false), swap_(false) {}
   ~TessdataManager() {}
-  int DebugLevel() { return debug_level_; }
 
+  bool swap() const { return swap_; }
+  bool is_loaded() const { return is_loaded_; }
+
+  // Lazily loads from the the given filename. Won't actually read the file
+  // until it needs it.
+  void LoadFileLater(const char *data_file_name);
   /**
-   * Opens the given data file and reads the offset table.
+   * Opens and reads the given data file right now.
    * @return true on success.
    */
-  bool Init(const char *data_file_name, int debug_level);
+  bool Init(const char *data_file_name);
+  // Loads from the given memory buffer as if a file, remembering name as some
+  // arbitrary source id for caching.
+  bool LoadMemBuffer(const char *name, const char *data, int size);
+  // Overwrites a single entry of the given type.
+  void OverwriteEntry(TessdataType type, const char *data, int size);
+
+  // Saves to the given filename.
+  bool SaveFile(const STRING &filename, FileWriter writer) const;
+  // Serializes to the given vector.
+  void Serialize(GenericVector<char> *data) const;
+  // Resets to the initial state, keeping the reader.
+  void Clear();
+
+  // Prints a directory of contents.
+  void Directory() const;
+
+  // Opens the given TFile pointer to the given component type.
+  // Returns false in case of failure.
+  bool GetComponent(TessdataType type, TFile *fp);
 
   // Returns true if the base Tesseract components are present.
-  bool IsBaseAvailable() const { return IncludesBaseComponents(offset_table_); }
+  bool IsBaseAvailable() const {
+    return !entries_[TESSDATA_UNICHARSET].empty() &&
+           !entries_[TESSDATA_INTTEMP].empty();
+  }
 
   // Returns true if the LSTM components are present.
-  bool IsLSTMAvailable() const { return IncludesLSTMComponents(offset_table_); }
+  bool IsLSTMAvailable() const { return !entries_[TESSDATA_LSTM].empty(); }
 
   // Return the name of the underlying data file.
   const STRING &GetDataFileName() const { return data_file_name_; }
-
-  /** Returns data file pointer. */
-  inline FILE *GetDataFilePtr() const { return data_file_; }
-
-  /**
-   * Returns false if there is no data of the given type.
-   * Otherwise does a seek on the data_file_ to position the pointer
-   * at the start of the data of the given type.
-   */
-  inline bool SeekToStart(TessdataType tessdata_type) {
-    if (debug_level_) {
-      tprintf("TessdataManager: seek to offset %lld - start of tessdata"
-              "type %d (%s))\n", offset_table_[tessdata_type],
-              tessdata_type, kTessdataFileSuffixes[tessdata_type]);
-    }
-    if (offset_table_[tessdata_type] < 0) {
-      return false;
-    } else {
-      ASSERT_HOST(fseek(data_file_,
-                        static_cast<size_t>(offset_table_[tessdata_type]),
-                        SEEK_SET) == 0);
-      return true;
-    }
-  }
-  /** Returns the end offset for the given tesseract data file type. */
-  inline inT64 GetEndOffset(TessdataType tessdata_type) const {
-    int index = tessdata_type + 1;
-    while (index < actual_tessdata_num_entries_ && offset_table_[index] == -1) {
-      ++index;  // skip tessdata types not present in the combined file
-    }
-    if (debug_level_) {
-      tprintf("TessdataManager: end offset for type %d is %lld\n",
-              tessdata_type,
-              (index == actual_tessdata_num_entries_) ? -1
-              : offset_table_[index]);
-    }
-    return (index == actual_tessdata_num_entries_) ? -1 : offset_table_[index] - 1;
-  }
-  /** Closes data_file_ (if it was opened by Init()). */
-  inline void End() {
-    if (data_file_ != NULL) {
-      fclose(data_file_);
-      data_file_ = NULL;
-    }
-  }
-  bool swap() const {
-    return swap_;
-  }
-
-  /** Writes the number of entries and the given offset table to output_file.
-   * Returns false on error.
-   */
-  static bool WriteMetadata(inT64 *offset_table,
-                            const char *language_data_path_prefix,
-                            FILE *output_file);
 
   /**
    * Reads all the standard tesseract config and data files for a language
    * at the given path and bundles them up into one binary data file.
    * Returns true if the combined traineddata file was successfully written.
    */
-  static bool CombineDataFiles(const char *language_data_path_prefix,
-                               const char *output_filename);
+  bool CombineDataFiles(const char *language_data_path_prefix,
+                        const char *output_filename);
 
   /**
    * Gets the individual components from the data_file_ with which the class was
@@ -258,67 +198,33 @@ class TessdataManager {
   bool ExtractToFile(const char *filename);
 
   /**
-   * Copies data from the given input file to the output_file provided.
-   * If num_bytes_to_copy is >= 0, only num_bytes_to_copy is copied from
-   * the input file, otherwise all the data in the input file is copied.
-   */
-  static void CopyFile(FILE *input_file, FILE *output_file,
-                       bool newline_end, inT64 num_bytes_to_copy);
-
-  /**
    * Fills type with TessdataType of the tessdata component represented by the
    * given file name. E.g. tessdata/eng.unicharset -> TESSDATA_UNICHARSET.
-   * Sets *text_file to true if the component is in text format (e.g.
-   * unicharset, unichar ambigs, config, etc).
    * @return true if the tessdata component type could be determined
    * from the given file name.
    */
   static bool TessdataTypeFromFileSuffix(const char *suffix,
-                                         TessdataType *type,
-                                         bool *text_file);
+                                         TessdataType *type);
 
   /**
    * Tries to determine tessdata component file suffix from filename,
    * returns true on success.
    */
   static bool TessdataTypeFromFileName(const char *filename,
-                                       TessdataType *type,
-                                       bool *text_file);
+                                       TessdataType *type);
 
  private:
-  // Returns true if the base Tesseract components are present.
-  static bool IncludesBaseComponents(const inT64 *offset_table);
-  // Returns true if the LSTM components are present.
-  static bool IncludesLSTMComponents(const inT64 *offset_table);
-
-  /**
-   * Opens the file whose name is a concatenation of language_data_path_prefix
-   * and file_suffix. Returns a file pointer to the opened file.
-   */
-  static FILE *GetFilePtr(const char *language_data_path_prefix,
-                          const char *file_suffix, bool text_file);
-
-  /**
-   * Each offset_table_[i] contains a file offset in the combined data file
-   * where the data of TessdataFileType i is stored.
-   */
-  inT64 offset_table_[TESSDATA_NUM_ENTRIES];
-  /**
-   * Actual number of entries in the tessdata table. This value can only be
-   * same or smaller than TESSDATA_NUM_ENTRIES, but can never be larger,
-   * since then it would be impossible to interpret the type of tessdata at
-   * indices same and higher than TESSDATA_NUM_ENTRIES.
-   * This parameter is used to allow for backward compatibility
-   * when new tessdata types are introduced.
-   */
-  inT32 actual_tessdata_num_entries_;
-  STRING data_file_name_;  // name of the data file.
-  FILE *data_file_;  ///< pointer to the data file.
-  int debug_level_;
+  // Name of file it came from.
+  STRING data_file_name_;
+  // Function to load the file when we need it.
+  FileReader reader_;
+  // True if the file has been loaded.
+  bool is_loaded_;
   // True if the bytes need swapping.
   bool swap_;
+  // Contents of each element of the traineddata file.
+  GenericVector<char> entries_[TESSDATA_NUM_ENTRIES];
 };
-
 
 }  // namespace tesseract
 

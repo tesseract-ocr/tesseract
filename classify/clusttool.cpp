@@ -25,8 +25,11 @@
 #include <stdio.h>
 #include <math.h>
 
+using tesseract::TFile;
+
 //---------------Global Data Definitions and Declarations--------------------
 #define TOKENSIZE 80         //< max size of tokens read from an input file
+#define QUOTED_TOKENSIZE "79"
 #define MAXSAMPLESIZE 65535  //< max num of dimensions in feature space
 //#define MAXBLOCKSIZE  65535   //< max num of samples in a character (block
 // size)
@@ -41,11 +44,14 @@
  * @note Exceptions: ILLEGALSAMPLESIZE  illegal format or range
  * @note History: 6/6/89, DSJ, Created.
  */
-uinT16 ReadSampleSize(FILE *File) {
-  int SampleSize;
+uinT16 ReadSampleSize(TFile *fp) {
+  int SampleSize = 0;
 
-  if ((tfscanf(File, "%d", &SampleSize) != 1) ||
-    (SampleSize < 0) || (SampleSize > MAXSAMPLESIZE))
+  const int kMaxLineSize = 100;
+  char line[kMaxLineSize];
+  if (fp->FGets(line, kMaxLineSize) == nullptr ||
+      sscanf(line, "%d", &SampleSize) != 1 || (SampleSize < 0) ||
+      (SampleSize > MAXSAMPLESIZE))
     DoError (ILLEGALSAMPLESIZE, "Illegal sample size");
   return (SampleSize);
 }
@@ -64,30 +70,28 @@ uinT16 ReadSampleSize(FILE *File) {
  * @note Globals: None
  * @note History: 6/6/89, DSJ, Created.
  */
-PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
-  int i;
+PARAM_DESC *ReadParamDesc(TFile *fp, uinT16 N) {
   PARAM_DESC *ParamDesc;
-  char Token[TOKENSIZE];
+  char linear_token[TOKENSIZE], essential_token[TOKENSIZE];
 
   ParamDesc = (PARAM_DESC *) Emalloc (N * sizeof (PARAM_DESC));
-  for (i = 0; i < N; i++) {
-    if (tfscanf(File, "%s", Token) != 1)
-      DoError (ILLEGALCIRCULARSPEC,
-        "Illegal circular/linear specification");
-    if (Token[0] == 'c')
+  for (int i = 0; i < N; i++) {
+    const int kMaxLineSize = TOKENSIZE * 4;
+    char line[kMaxLineSize];
+    if (fp->FGets(line, kMaxLineSize) == nullptr ||
+        sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
+               linear_token, essential_token, &ParamDesc[i].Min,
+               &ParamDesc[i].Max) != 4)
+      DoError(ILLEGALCIRCULARSPEC, "Illegal Parameter specification");
+    if (linear_token[0] == 'c')
       ParamDesc[i].Circular = TRUE;
     else
       ParamDesc[i].Circular = FALSE;
 
-    if (tfscanf(File, "%s", Token) != 1)
-      DoError (ILLEGALESSENTIALSPEC,
-        "Illegal essential/non-essential spec");
-    if (Token[0] == 'e')
+    if (linear_token[0] == 'e')
       ParamDesc[i].NonEssential = FALSE;
     else
       ParamDesc[i].NonEssential = TRUE;
-    if (tfscanf(File, "%f%f", &(ParamDesc[i].Min), &(ParamDesc[i].Max)) != 2)
-      DoError (ILLEGALMINMAXSPEC, "Illegal min or max specification");
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
     ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
@@ -111,123 +115,68 @@ PARAM_DESC *ReadParamDesc(FILE *File, uinT16 N) {
  * @note Globals: None
  * @note History: 6/6/89, DSJ, Created.
  */
-PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
-  char Token[TOKENSIZE];
-  int Status;
+PROTOTYPE *ReadPrototype(TFile *fp, uinT16 N) {
+  char sig_token[TOKENSIZE], shape_token[TOKENSIZE];
   PROTOTYPE *Proto;
   int SampleCount;
   int i;
 
-  if ((Status = tfscanf(File, "%s", Token)) == 1) {
-    Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
-    Proto->Cluster = NULL;
-    if (Token[0] == 's')
-      Proto->Significant = TRUE;
-    else
-      Proto->Significant = FALSE;
-
-    Proto->Style = ReadProtoStyle (File);
-
-    if ((tfscanf(File, "%d", &SampleCount) != 1) || (SampleCount < 0))
-      DoError (ILLEGALSAMPLECOUNT, "Illegal sample count");
-    Proto->NumSamples = SampleCount;
-
-    Proto->Mean = ReadNFloats (File, N, NULL);
-    if (Proto->Mean == NULL)
-      DoError (ILLEGALMEANSPEC, "Illegal prototype mean");
-
-    switch (Proto->Style) {
-      case spherical:
-        if (ReadNFloats (File, 1, &(Proto->Variance.Spherical)) == NULL)
-          DoError (ILLEGALVARIANCESPEC, "Illegal prototype variance");
-        Proto->Magnitude.Spherical =
-          1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Spherical));
-        Proto->TotalMagnitude =
-          pow (Proto->Magnitude.Spherical, (float) N);
-        Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
-        Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
-        Proto->Distrib = NULL;
-        break;
-      case elliptical:
-        Proto->Variance.Elliptical = ReadNFloats (File, N, NULL);
-        if (Proto->Variance.Elliptical == NULL)
-          DoError (ILLEGALVARIANCESPEC, "Illegal prototype variance");
-        Proto->Magnitude.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-        Proto->Weight.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-        Proto->TotalMagnitude = 1.0;
-        for (i = 0; i < N; i++) {
-          Proto->Magnitude.Elliptical[i] =
-            1.0 /
-            sqrt ((double) (2.0 * PI * Proto->Variance.Elliptical[i]));
-          Proto->Weight.Elliptical[i] =
-            1.0 / Proto->Variance.Elliptical[i];
-          Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-        }
-        Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
-        Proto->Distrib = NULL;
-        break;
-      case mixed:
-        Proto->Distrib =
-          (DISTRIBUTION *) Emalloc (N * sizeof (DISTRIBUTION));
-        for (i = 0; i < N; i++) {
-          if (tfscanf(File, "%s", Token) != 1)
-            DoError (ILLEGALDISTRIBUTION,
-              "Illegal prototype distribution");
-          switch (Token[0]) {
-            case 'n':
-              Proto->Distrib[i] = normal;
-              break;
-            case 'u':
-              Proto->Distrib[i] = uniform;
-              break;
-            case 'r':
-              Proto->Distrib[i] = D_random;
-              break;
-            default:
-              DoError (ILLEGALDISTRIBUTION,
-                "Illegal prototype distribution");
-          }
-        }
-        Proto->Variance.Elliptical = ReadNFloats (File, N, NULL);
-        if (Proto->Variance.Elliptical == NULL)
-          DoError (ILLEGALVARIANCESPEC, "Illegal prototype variance");
-        Proto->Magnitude.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-        Proto->Weight.Elliptical =
-          (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-        Proto->TotalMagnitude = 1.0;
-        for (i = 0; i < N; i++) {
-          switch (Proto->Distrib[i]) {
-            case normal:
-              Proto->Magnitude.Elliptical[i] = 1.0 /
-                sqrt ((double)
-                (2.0 * PI * Proto->Variance.Elliptical[i]));
-              Proto->Weight.Elliptical[i] =
-                1.0 / Proto->Variance.Elliptical[i];
-              break;
-            case uniform:
-            case D_random:
-              Proto->Magnitude.Elliptical[i] = 1.0 /
-                (2.0 * Proto->Variance.Elliptical[i]);
-              break;
-            case DISTRIBUTION_COUNT:
-              ASSERT_HOST(!"Distribution count not allowed!");
-          }
-          Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-        }
-        Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
-        break;
-    }
-    return (Proto);
+  const int kMaxLineSize = TOKENSIZE * 4;
+  char line[kMaxLineSize];
+  if (fp->FGets(line, kMaxLineSize) == nullptr ||
+      sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %d",
+             sig_token, shape_token, &SampleCount) != 3) {
+    tprintf("Invalid prototype: %s\n", line);
+    return nullptr;
   }
-  else if (Status == EOF)
-    return (NULL);
-  else {
-    DoError (ILLEGALSIGNIFICANCESPEC, "Illegal significance specification");
-    return (NULL);
+  Proto = (PROTOTYPE *)Emalloc(sizeof(PROTOTYPE));
+  Proto->Cluster = NULL;
+  if (sig_token[0] == 's')
+    Proto->Significant = TRUE;
+  else
+    Proto->Significant = FALSE;
+
+  Proto->Style = ReadProtoStyle(shape_token);
+
+  if (SampleCount < 0) DoError(ILLEGALSAMPLECOUNT, "Illegal sample count");
+  Proto->NumSamples = SampleCount;
+
+  Proto->Mean = ReadNFloats(fp, N, NULL);
+  if (Proto->Mean == NULL) DoError(ILLEGALMEANSPEC, "Illegal prototype mean");
+
+  switch (Proto->Style) {
+    case spherical:
+      if (ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) == NULL)
+        DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
+      Proto->Magnitude.Spherical =
+          1.0 / sqrt((double)(2.0 * PI * Proto->Variance.Spherical));
+      Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, (float)N);
+      Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
+      Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
+      Proto->Distrib = NULL;
+      break;
+    case elliptical:
+      Proto->Variance.Elliptical = ReadNFloats(fp, N, NULL);
+      if (Proto->Variance.Elliptical == NULL)
+        DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
+      Proto->Magnitude.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+      Proto->Weight.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+      Proto->TotalMagnitude = 1.0;
+      for (i = 0; i < N; i++) {
+        Proto->Magnitude.Elliptical[i] =
+            1.0 / sqrt((double)(2.0 * PI * Proto->Variance.Elliptical[i]));
+        Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
+        Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
+      }
+      Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
+      Proto->Distrib = NULL;
+      break;
+    default:
+      Efree(Proto);
+      tprintf("Invalid prototype style\n");
+      return nullptr;
   }
+  return Proto;
 }
 
 /**
@@ -239,30 +188,19 @@ PROTOTYPE *ReadPrototype(FILE *File, uinT16 N) {
  * @note Exceptions: ILLEGALSTYLESPEC illegal prototype style specification
  * @note History: 6/8/89, DSJ, Created.
  */
-PROTOSTYLE ReadProtoStyle(FILE *File) {
-  char Token[TOKENSIZE];
-  PROTOSTYLE Style;
-
-  if (tfscanf(File, "%s", Token) != 1)
-    DoError (ILLEGALSTYLESPEC, "Illegal prototype style specification");
-  switch (Token[0]) {
+PROTOSTYLE ReadProtoStyle(const char *shape) {
+  switch (shape[0]) {
     case 's':
-      Style = spherical;
-      break;
+      return spherical;
     case 'e':
-      Style = elliptical;
-      break;
-    case 'm':
-      Style = mixed;
-      break;
+      return elliptical;
     case 'a':
-      Style = automatic;
-      break;
+      return automatic;
     default:
-      Style = elliptical;
-      DoError (ILLEGALSTYLESPEC, "Illegal prototype style specification");
+      break;
   }
-  return (Style);
+  tprintf("Invalid prototype style specification:%s\n", shape);
+  return elliptical;
 }
 
 /**
@@ -279,28 +217,30 @@ PROTOSTYLE ReadProtoStyle(FILE *File) {
  * @note Exceptions: ILLEGALFLOAT
  * @note History: 6/6/89, DSJ, Created.
  */
-FLOAT32* ReadNFloats(FILE * File, uinT16 N, FLOAT32 Buffer[]) {
+FLOAT32 *ReadNFloats(TFile *fp, uinT16 N, FLOAT32 Buffer[]) {
+  const int kMaxLineSize = 1024;
+  char line[kMaxLineSize];
+  if (fp->FGets(line, kMaxLineSize) == nullptr) {
+    tprintf("Hit EOF in ReadNFloats!\n");
+    return nullptr;
+  }
   bool needs_free = false;
-  int i;
-  int NumFloatsRead;
 
   if (Buffer == NULL) {
     Buffer = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
     needs_free = true;
   }
 
-  for (i = 0; i < N; i++) {
-    NumFloatsRead = tfscanf(File, "%f", &(Buffer[i]));
-    if (NumFloatsRead != 1) {
-      if ((NumFloatsRead == EOF) && (i == 0)) {
-        if (needs_free) {
-          Efree(Buffer);
-        }
-        return NULL;
-      } else {
-        DoError(ILLEGALFLOAT, "Illegal float specification");
-      }
+  char *startptr = line;
+  for (int i = 0; i < N; i++) {
+    char *endptr;
+    Buffer[i] = strtof(startptr, &endptr);
+    if (endptr == startptr) {
+      tprintf("Read of %d floats failed!\n", N);
+      if (needs_free) Efree(Buffer);
+      return nullptr;
     }
+    startptr = endptr;
   }
   return Buffer;
 }

@@ -242,7 +242,7 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Dec 19 16:38:49 1990, DSJ, Created.
  */
-NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
+NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   NORM_PROTOS *NormProtos;
   int i;
   char unichar[2 * UNICHAR_LEN + 1];
@@ -258,26 +258,26 @@ NORM_PROTOS *Classify::ReadNormProtos(FILE *File, inT64 end_offset) {
     NormProtos->Protos[i] = NIL_LIST;
 
   /* read file header and save in data structure */
-  NormProtos->NumParams = ReadSampleSize (File);
-  NormProtos->ParamDesc = ReadParamDesc (File, NormProtos->NumParams);
+  NormProtos->NumParams = ReadSampleSize(fp);
+  NormProtos->ParamDesc = ReadParamDesc(fp, NormProtos->NumParams);
 
   /* read protos for each class into a separate list */
-  while ((end_offset < 0 || ftell(File) < end_offset) &&
-         tfscanf(File, "%s %d", unichar, &NumProtos) == 2) {
+  const int kMaxLineSize = 100;
+  char line[kMaxLineSize];
+  while (fp->FGets(line, kMaxLineSize) != nullptr) {
+    if (sscanf(line, "%s %d", unichar, &NumProtos) != 2) continue;
     if (unicharset.contains_unichar(unichar)) {
       unichar_id = unicharset.unichar_to_id(unichar);
       Protos = NormProtos->Protos[unichar_id];
       for (i = 0; i < NumProtos; i++)
-        Protos =
-            push_last (Protos, ReadPrototype (File, NormProtos->NumParams));
+        Protos = push_last(Protos, ReadPrototype(fp, NormProtos->NumParams));
       NormProtos->Protos[unichar_id] = Protos;
     } else {
-      cprintf("Error: unichar %s in normproto file is not in unichar set.\n",
+      tprintf("Error: unichar %s in normproto file is not in unichar set.\n",
               unichar);
       for (i = 0; i < NumProtos; i++)
-        FreePrototype(ReadPrototype (File, NormProtos->NumParams));
+        FreePrototype(ReadPrototype(fp, NormProtos->NumParams));
     }
-    SkipNewline(File);
   }
   return (NormProtos);
 }                                /* ReadNormProtos */
