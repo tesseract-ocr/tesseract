@@ -2,12 +2,12 @@
 .\"     Title: tesseract
 .\"    Author: [see the "AUTHOR" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 06/28/2015
+.\"      Date: 03/23/2017
 .\"    Manual: \ \&
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "TESSERACT" "1" "06/28/2015" "\ \&" "\ \&"
+.TH "TESSERACT" "1" "03/23/2017" "\ \&" "\ \&"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -84,7 +84,7 @@ Set value for control parameter\&. Multiple \-c arguments are allowed\&.
 The language to use\&. If none is specified, English is assumed\&. Multiple languages may be specified, separated by plus characters\&. Tesseract uses 3\-character ISO 639\-2 language codes\&. (See LANGUAGES)
 .RE
 .PP
-\fI\--psm N\fR
+\fI\-\-psm N\fR
 .RS 4
 Set Tesseract to only run a subset of layout analysis and assume a certain form of image\&. The options for
 \fBN\fR
@@ -105,6 +105,26 @@ are:
 8 = Treat the image as a single word\&.
 9 = Treat the image as a single word in a circle\&.
 10 = Treat the image as a single character\&.
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fI\-\-oem N\fR
+.RS 4
+Specify OCR Engine mode\&. The options for
+\fBN\fR
+are:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+0 = Original Tesseract only\&.
+1 = Neural nets LSTM only\&.
+2 = Tesseract + LSTM\&.
+3 = Default, based on what is available\&.
 .fi
 .if n \{\
 .RE
@@ -139,22 +159,37 @@ pdf \- Output in pdf instead of a text file\&.
 .RE
 .RE
 .sp
-\fBNota Bene:\fR The options \fI\-l lang\fR and \fI\--psm N\fR must occur before any \fIconfigfile\fR\&.
+\fBNota Bene:\fR The options \fI\-l lang\fR and \fI\-\-psm N\fR must occur before any \fIconfigfile\fR\&.
 .SH "SINGLE OPTIONS"
 .PP
-\fI\-v\fR
+\fI\-h, \-\-help\fR
+.RS 4
+Show help message\&.
+.RE
+.PP
+\fI\-\-help\-psm\fR
+.RS 4
+Show page segmentation modes\&.
+.RE
+.PP
+\fI\-\-help\-oem\fR
+.RS 4
+Show OCR Engine modes\&.
+.RE
+.PP
+\fI\-v, \-\-version\fR
 .RS 4
 Returns the current version of the tesseract(1) executable\&.
 .RE
 .PP
 \fI\-\-list\-langs\fR
 .RS 4
-list available languages for tesseract engine\&. Can be used with \-\-tessdata\-dir\&.
+List available languages for tesseract engine\&. Can be used with \-\-tessdata\-dir\&.
 .RE
 .PP
 \fI\-\-print\-parameters\fR
 .RS 4
-print tesseract parameters to the stdout\&.
+Print tesseract parameters\&.
 .RE
 .SH "LANGUAGES"
 .sp
@@ -220,7 +255,7 @@ user_patterns_suffix user\-patterns
 Now, if you pass the word \fIbazaar\fR as a trailing command line parameter to Tesseract, Tesseract will not bother loading the system dictionary nor the dictionary of frequent words and will load and use the eng\&.user\-words and eng\&.user\-patterns files you provided\&. The former is a simple word list, one per line\&. The format of the latter is documented in dict/trie\&.h on read_pattern_list()\&.
 .SH "HISTORY"
 .sp
-The engine was developed at Hewlett Packard Laboratories Bristol and at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more changes made in 1996 to port to Windows, and some C++izing in 1998\&. A lot of the code was written in C, and then some more was written in C++\&. The C\e++ code makes heavy use of a list system using macros\&. This predates stl, was portable before stl, and is more efficient than stl lists, but has the big negative that if you do get a segmentation violation, it is hard to debug\&.
+The engine was developed at Hewlett Packard Laboratories Bristol and at Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more changes made in 1996 to port to Windows, and some C++izing in 1998\&. A lot of the code was written in C, and then some more was written in C++\&. The C++ code makes heavy use of a list system using macros\&. This predates stl, was portable before stl, and is more efficient than stl lists, but has the big negative that if you do get a segmentation violation, it is hard to debug\&.
 .sp
 Version 2\&.00 brought Unicode (UTF\-8) support, six languages, and the ability to train Tesseract\&.
 .sp
