@@ -66,27 +66,27 @@ class BoxChar {
   }
 
   static void TranslateBoxes(int xshift, int yshift,
-                             vector<BoxChar*>* boxes);
+                             std::vector<BoxChar*>* boxes);
 
   // Prepares for writing the boxes to a file by inserting newlines, spaces,
   // and re-ordering so the boxes are strictly left-to-right.
-  static void PrepareToWrite(vector<BoxChar*>* boxes);
+  static void PrepareToWrite(std::vector<BoxChar*>* boxes);
   // Inserts newline (tab) characters into the vector at newline positions.
   static void InsertNewlines(bool rtl_rules, bool vertical_rules,
-                             vector<BoxChar*>* boxes);
+                             std::vector<BoxChar*>* boxes);
   // Converts nullptr boxes to space characters, with appropriate bounding
   // boxes.
   static void InsertSpaces(bool rtl_rules, bool vertical_rules,
-                           vector<BoxChar*>* boxes);
+                           std::vector<BoxChar*>* boxes);
   // Reorders text in a right-to-left script in left-to-right order.
-  static void ReorderRTLText(vector<BoxChar*>* boxes);
+  static void ReorderRTLText(std::vector<BoxChar*>* boxes);
   // Returns true if the vector contains mostly RTL characters.
-  static bool ContainsMostlyRTL(const vector<BoxChar*>& boxes);
+  static bool ContainsMostlyRTL(const std::vector<BoxChar*>& boxes);
   // Returns true if the text is mostly laid out vertically.
-  static bool MostlyVertical(const vector<BoxChar*>& boxes);
+  static bool MostlyVertical(const std::vector<BoxChar*>& boxes);
 
   // Returns the total length of all the strings in the boxes.
-  static int TotalByteLength(const vector<BoxChar*>& boxes);
+  static int TotalByteLength(const std::vector<BoxChar*>& boxes);
 
   // Rotate the vector of boxes between start and end by the given rotation.
   // The rotation is in radians clockwise about the given center.
@@ -95,15 +95,16 @@ class BoxChar {
                           int ycenter,
                           int start_box,
                           int end_box,
-                          vector<BoxChar*>* boxes);
+                          std::vector<BoxChar*>* boxes);
 
   // Create a tesseract box file from the vector of boxes. The image height
   // is needed to convert to tesseract coordinates.
   static void WriteTesseractBoxFile(const string& name, int height,
-                                    const vector<BoxChar*>& boxes);
+                                    const std::vector<BoxChar*>& boxes);
   // Gets the tesseract box file as a string from the vector of boxes.
   // The image height is needed to convert to tesseract coordinates.
-  static string GetTesseractBoxStr(int height, const vector<BoxChar*>& boxes);
+  static string GetTesseractBoxStr(int height,
+                                   const std::vector<BoxChar*>& boxes);
 
  private:
   string ch_;

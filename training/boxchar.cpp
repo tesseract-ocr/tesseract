@@ -207,7 +207,7 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
   for (int start = 0; start < boxes->size(); start = end + 1) {
     end = start + 1;
     while (end < boxes->size() && (*boxes)[end]->ch_ != "\t") ++end;
-    sort(boxes->begin() + start, boxes->begin() + end, sorter);
+    std::sort(boxes->begin() + start, boxes->begin() + end, sorter);
   }
 }
 
