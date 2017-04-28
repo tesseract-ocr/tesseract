@@ -206,8 +206,8 @@ void destroy_nodes(LIST list, void_dest destructor) {
     destructor = memfree;
 
   while (list != NIL_LIST) {
-    (*destructor) (first_node (list));
-    list = pop (list);
+    if (first_node(list) != NULL) (*destructor)(first_node(list));
+    list = pop(list);
   }
 }
 
@@ -400,7 +400,6 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
   }
   return (push_last (var_list, variable));
 }
-
 
 /**********************************************************************
  *   s e a r c h

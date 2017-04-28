@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    outfeat.c
- **	Purpose:     Definition of outline-features.
- **	Author:      Dan Johnson
- **	History:     11/13/90, DSJ, Created.
+ ** Filename:    outfeat.c
+ ** Purpose:     Definition of outline-features.
+ ** Author:      Dan Johnson
+ ** History:     11/13/90, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -40,7 +40,7 @@ namespace tesseract {
  * @return Outline-features for Blob.
  * @note Globals: none
  * @note Exceptions: none
- * @note History: 
+ * @note History:
  * - 11/13/90, DSJ, Created.
  * - 05/24/91, DSJ, Updated for either char or baseline normalize.
  */
@@ -115,7 +115,7 @@ void AddOutlineFeatureToSet(FPOINT *Start,
  * @return none (results are returned in FeatureSet)
  * @note Globals: none
  * @note Exceptions: none
- * @note History: 
+ * @note History:
  * - 11/13/90, DSJ, Created.
  * - 5/24/91, DSJ, Added hidden edge capability.
  */

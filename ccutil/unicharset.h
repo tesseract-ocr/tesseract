@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_UNICHARSET_H__
-#define TESSERACT_CCUTIL_UNICHARSET_H__
+#ifndef TESSERACT_CCUTIL_UNICHARSET_H_
+#define TESSERACT_CCUTIL_UNICHARSET_H_
 
 #include "errcode.h"
 #include "genericvector.h"
@@ -141,7 +141,7 @@ class UNICHARSET {
   // Custom list of characters and their ligature forms (UTF8)
   // These map to unicode values in the private use area (PUC) and are supported
   // by only few font families (eg. Wyld, Adobe Caslon Pro).
-  static const char* kCustomLigatures[][2];
+  static TESS_API const char* kCustomLigatures[][2];
 
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
   static const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
@@ -181,8 +181,7 @@ class UNICHARSET {
 
   // Return the UNICHAR_ID of a given unichar representation within the
   // UNICHARSET. Only the first length characters from unichar_repr are used.
-  UNICHAR_ID unichar_to_id(const char* const unichar_repr,
-                                 int length) const;
+  UNICHAR_ID unichar_to_id(const char* const unichar_repr, int length) const;
 
   // Return the minimum number of bytes that matches a legal UNICHAR_ID,
   // while leaving the rest of the string encodable. Returns 0 if the
@@ -291,6 +290,8 @@ class UNICHARSET {
     han_sid_ = 0;
     hiragana_sid_ = 0;
     katakana_sid_ = 0;
+    thai_sid_ = 0;
+    hangul_sid_ = 0;
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
@@ -605,6 +606,16 @@ class UNICHARSET {
     return unichars[unichar_id].properties.AnyRangeEmpty();
   }
 
+  // Returns true if the script of the given id is space delimited.
+  // Returns false for Han and Thai scripts.
+  bool IsSpaceDelimited(UNICHAR_ID unichar_id) const {
+    if (INVALID_UNICHAR_ID == unichar_id) return true;
+    int script_id = get_script(unichar_id);
+    return script_id != han_sid_ && script_id != thai_sid_ &&
+           script_id != hangul_sid_ && script_id != hiragana_sid_ &&
+           script_id != katakana_sid_;
+  }
+
   // Return the script name of the given unichar.
   // The returned pointer will always be the same for the same script, it's
   // managed by unicharset and thus MUST NOT be deleted
@@ -774,7 +785,7 @@ class UNICHARSET {
 
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
-    if (unichar_id == UNICHAR_SPACE && has_special_codes()) return " ";
+    if (unichar_id == UNICHAR_SPACE) return " ";
     return unichars[unichar_id].properties.normed.string();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
@@ -836,6 +847,8 @@ class UNICHARSET {
   int han_sid() const { return han_sid_; }
   int hiragana_sid() const { return hiragana_sid_; }
   int katakana_sid() const { return katakana_sid_; }
+  int thai_sid() const { return thai_sid_; }
+  int hangul_sid() const { return hangul_sid_; }
   int default_sid() const { return default_sid_; }
 
   // Returns true if the unicharset has the concept of upper/lower case.
@@ -978,8 +991,10 @@ class UNICHARSET {
   int han_sid_;
   int hiragana_sid_;
   int katakana_sid_;
+  int thai_sid_;
+  int hangul_sid_;
   // The most frequently occurring script in the charset.
   int default_sid_;
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHARSET_H__
+#endif  // TESSERACT_CCUTIL_UNICHARSET_H_

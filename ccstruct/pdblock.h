@@ -29,90 +29,74 @@ struct Pix;
 
 CLISTIZEH (PDBLK)
 ///page block
-class PDBLK
-{
+class PDBLK {
   friend class BLOCK_RECT_IT;    //< block iterator
 
-  public:
-    ///empty constructor
-    PDBLK() {
-      hand_poly = NULL;
-      index_ = 0;
-    }
-    ///simple constructor
-    PDBLK(inT16 xmin,  //< bottom left
-          inT16 ymin,
-          inT16 xmax,  //< top right
-          inT16 ymax);
+ public:
+  /// empty constructor
+  PDBLK() {
+    hand_poly = NULL;
+    index_ = 0;
+  }
+  /// simple constructor
+  PDBLK(inT16 xmin,  //< bottom left
+        inT16 ymin,
+        inT16 xmax,  //< top right
+        inT16 ymax);
 
-    ///set vertex lists
-    ///@param left list of left vertices
-    ///@param right list of right vertices
-    void set_sides(ICOORDELT_LIST *left,
-                   ICOORDELT_LIST *right);
+  /// set vertex lists
+  ///@param left list of left vertices
+  ///@param right list of right vertices
+  void set_sides(ICOORDELT_LIST *left, ICOORDELT_LIST *right);
 
-    ///destructor
-    ~PDBLK () {
-      if (hand_poly) delete hand_poly;
-    }
+  /// destructor
+  ~PDBLK() { delete hand_poly; }
 
-    POLY_BLOCK *poly_block() const {
-      return hand_poly;
-    }
-    ///set the poly block
-    void set_poly_block(POLY_BLOCK *blk) {
-      hand_poly = blk;
-    }
-    ///get box
-    void bounding_box(ICOORD &bottom_left,        //bottom left
-                      ICOORD &top_right) const {  //topright
-      bottom_left = box.botleft ();
-      top_right = box.topright ();
-    }
-    ///get real box
-    const TBOX &bounding_box() const {
-      return box;
-    }
+  POLY_BLOCK *poly_block() const { return hand_poly; }
+  /// set the poly block
+  void set_poly_block(POLY_BLOCK *blk) { hand_poly = blk; }
+  /// get box
+  void bounding_box(ICOORD &bottom_left,        // bottom left
+                    ICOORD &top_right) const {  // topright
+    bottom_left = box.botleft();
+    top_right = box.topright();
+  }
+  /// get real box
+  const TBOX &bounding_box() const { return box; }
 
-    int index() const {
-      return index_;
-    }
-    void set_index(int value) {
-      index_ = value;
-    }
+  int index() const { return index_; }
+  void set_index(int value) { index_ = value; }
 
-    ///is pt inside block
-    BOOL8 contains(ICOORD pt);
+  /// is pt inside block
+  BOOL8 contains(ICOORD pt);
 
-    /// reposition block
-    void move(const ICOORD vec);  // by vector
+  /// reposition block
+  void move(const ICOORD vec);  // by vector
 
-    // Returns a binary Pix mask with a 1 pixel for every pixel within the
-    // block. Rotates the coordinate system by rerotation prior to rendering.
-    // If not NULL, mask_box is filled with the position box of the returned
-    // mask image.
-    Pix *render_mask(const FCOORD &rerotation, TBOX *mask_box);
+  // Returns a binary Pix mask with a 1 pixel for every pixel within the
+  // block. Rotates the coordinate system by rerotation prior to rendering.
+  // If not NULL, mask_box is filled with the position box of the returned
+  // mask image.
+  Pix *render_mask(const FCOORD &rerotation, TBOX *mask_box);
 
-    #ifndef GRAPHICS_DISABLED
-    ///draw histogram
-    ///@param window window to draw in
-    ///@param serial serial number
-    ///@param colour colour to draw in
-    void plot(ScrollView* window,
-              inT32 serial,
-              ScrollView::Color colour);
-    #endif  // GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
+  /// draw histogram
+  ///@param window window to draw in
+  ///@param serial serial number
+  ///@param colour colour to draw in
+  void plot(ScrollView *window, inT32 serial, ScrollView::Color colour);
+#endif  // GRAPHICS_DISABLED
 
-    ///assignment
-    ///@param source from this
-    PDBLK & operator= (const PDBLK & source);
+  /// assignment
+  ///@param source from this
+  PDBLK &operator=(const PDBLK &source);
 
-  protected:
-    POLY_BLOCK *hand_poly;       //< weird as well
-    ICOORDELT_LIST leftside;     //< left side vertices
-    ICOORDELT_LIST rightside;    //< right side vertices
-    TBOX box;                    //< bounding box
-    int index_;                  //< Serial number of this block.
+ protected:
+  POLY_BLOCK *hand_poly;     //< weird as well
+  ICOORDELT_LIST leftside;   //< left side vertices
+  ICOORDELT_LIST rightside;  //< right side vertices
+  TBOX box;                  //< bounding box
+  int index_;                //< Serial number of this block.
 };
 
 class DLLSYM BLOCK_RECT_IT       //rectangle iterator

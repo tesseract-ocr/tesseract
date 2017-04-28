@@ -42,8 +42,8 @@
  ** limitations under the License.
  */
 
-#ifndef   __HOST__
-#define   __HOST__
+#ifndef TESSERACT_CCUTIL_HOST_H_
+#define TESSERACT_CCUTIL_HOST_H_
 
 /******************************************************************************
  **                                IMPORTANT!!!                                                                                                                 **
@@ -59,12 +59,16 @@
  ** of the computer and/or operating system.
  ******************************************************************************/
 
+#include <limits>
 #include "platform.h"
 /* _WIN32 */
 #ifdef _WIN32
 #include <windows.h>
-#include <winbase.h>             // winbase.h contains windows.h
+#undef min
+#undef max
 #endif
+
+#include <stdint.h>  // int32_t, ...
 
 /********************************************************/
 /* __MAC__ */
@@ -95,19 +99,14 @@
 //typedef HANDLE FD*  PHANDLE;
 
 // definitions of portable data types (numbers and characters)
-typedef SIGNED char inT8;
-typedef unsigned char uinT8;
-typedef short inT16;
-typedef unsigned short uinT16;
-typedef int inT32;
-typedef unsigned int uinT32;
-#if (_MSC_VER >= 1200)            //%%% vkr for VC 6.0
-typedef INT64 inT64;
-typedef UINT64 uinT64;
-#else
-typedef long long int inT64;
-typedef unsigned long long int uinT64;
-#endif                           //%%% vkr for VC 6.0
+typedef int8_t inT8;
+typedef uint8_t uinT8;
+typedef int16_t inT16;
+typedef uint16_t uinT16;
+typedef int32_t inT32;
+typedef uint32_t uinT32;
+typedef int64_t inT64;
+typedef uint64_t uinT64;
 typedef float FLOAT32;
 typedef double FLOAT64;
 typedef unsigned char BOOL8;
@@ -121,15 +120,16 @@ typedef unsigned char BOOL8;
 #define MAX_UINT8 0xff
 #define MAX_UINT16  0xffff
 #define MAX_UINT32  0xffffffff
-#define MAX_FLOAT32 ((float)3.40282347e+38)
+#define MAX_FLOAT32 std::numeric_limits<float>::max()
 
-#define MIN_INT8  0x80
-#define MIN_INT16 0x8000
-#define MIN_INT32 static_cast<int>(0x80000000)
+#define MIN_INT8 static_cast<inT8>(0x80)
+#define MIN_INT16 static_cast<inT16>(0x8000)
+#define MIN_INT32 static_cast<inT32>(0x80000000)
 #define MIN_UINT8 0x00
 #define MIN_UINT16  0x0000
 #define MIN_UINT32  0x00000000
-#define MIN_FLOAT32 ((float)1.17549435e-38)
+// Minimum positive value ie 1e-37ish.
+#define MIN_FLOAT32 std::numeric_limits<float>::min()
 
 // Defines
 #ifndef TRUE
@@ -146,4 +146,4 @@ template<class T> bool NearlyEqual(T x, T y, T tolerance) {
   return diff <= tolerance && -diff <= tolerance;
 }
 
-#endif
+#endif  // TESSERACT_CCUTIL_HOST_H_

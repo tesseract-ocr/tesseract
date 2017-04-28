@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_TABFIND_H__
-#define TESSERACT_TEXTORD_TABFIND_H__
+#ifndef TESSERACT_TEXTORD_TABFIND_H_
+#define TESSERACT_TEXTORD_TABFIND_H_
 
 #include "alignedblob.h"
 #include "tesscallback.h"
@@ -382,4 +382,4 @@ class TabFind : public AlignedBlob {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TABFIND_H__
+#endif  // TESSERACT_TEXTORD_TABFIND_H_

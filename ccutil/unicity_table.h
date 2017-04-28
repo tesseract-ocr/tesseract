@@ -87,7 +87,9 @@ class UnicityTable {
   /// Returns false on read/write error.
   bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
   /// swap is used to switch the endianness.
-  bool read(FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap);
+  bool read(tesseract::TFile* f,
+            TessResultCallback3<bool, tesseract::TFile*, T*, bool>* cb,
+            bool swap);
 
  private:
   GenericVector<T> table_;
@@ -194,7 +196,8 @@ bool UnicityTable<T>::write(
 
 template <typename T>
 bool UnicityTable<T>::read(
-    FILE* f, TessResultCallback3<bool, FILE*, T*, bool>* cb, bool swap) {
+    tesseract::TFile* f,
+    TessResultCallback3<bool, tesseract::TFile*, T*, bool>* cb, bool swap) {
   return table_.read(f, cb, swap);
 }
 

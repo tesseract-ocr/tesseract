@@ -65,6 +65,7 @@
 //
 int main(int argc, char **argv) {
   int i;
+  tesseract::TessdataManager tm;
   if (argc == 2) {
     printf("Combining tessdata files\n");
     STRING lang = argv[1];
@@ -73,8 +74,7 @@ int main(int argc, char **argv) {
       lang += '.';
     STRING output_file = lang;
     output_file += kTrainedDataSuffix;
-    if (!tesseract::TessdataManager::CombineDataFiles(
-        lang.string(), output_file.string())) {
+    if (!tm.CombineDataFiles(lang.string(), output_file.string())) {
       printf("Error combining tessdata files into %s\n",
              output_file.string());
     } else {
@@ -83,8 +83,7 @@ int main(int argc, char **argv) {
   } else if (argc >= 4 && (strcmp(argv[1], "-e") == 0 ||
                            strcmp(argv[1], "-u") == 0)) {
     // Initialize TessdataManager with the data in the given traineddata file.
-    tesseract::TessdataManager tm;
-    tm.Init(argv[2], 0);
+    tm.Init(argv[2]);
     printf("Extracting tessdata components from %s\n", argv[2]);
     if (strcmp(argv[1], "-e") == 0) {
       for (i = 3; i < argc; ++i) {
@@ -107,7 +106,6 @@ int main(int argc, char **argv) {
         }
       }
     }
-    tm.End();
   } else if (argc >= 4 && strcmp(argv[1], "-o") == 0) {
     // Rename the current traineddata file to a temporary name.
     const char *new_traineddata_filename = argv[2];
@@ -120,12 +118,10 @@ int main(int argc, char **argv) {
     }
 
     // Initialize TessdataManager with the data in the given traineddata file.
-    tesseract::TessdataManager tm;
-    tm.Init(traineddata_filename.string(), 0);
+    tm.Init(traineddata_filename.string());
 
     // Write the updated traineddata file.
     tm.OverwriteComponents(new_traineddata_filename, argv+3, argc-3);
-    tm.End();
   } else {
     printf("Usage for combining tessdata components:\n"
            "  %s language_data_path_prefix\n"
@@ -143,4 +139,5 @@ int main(int argc, char **argv) {
            "  (e.g. %s -u eng.traineddata tmp/eng.)\n", argv[0], argv[0]);
     return 1;
   }
+  tm.Directory();
 }

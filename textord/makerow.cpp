@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
- * Author:		Ray Smith
- * Created:		Mon Sep 21 14:34:48 BST 1992
+ * Author:    Ray Smith
+ * Created:   Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -507,8 +507,7 @@ void vigorous_noise_removal(TO_BLOCK* block) {
             continue;  // Looks OK.
         }
         // It might be noise so get rid of it.
-        if (blob->cblob() != NULL)
-          delete blob->cblob();
+        delete blob->cblob();
         delete b_it.extract();
       } else {
         prev = blob;
@@ -671,7 +670,7 @@ BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            ) {
-  inT32 next_index;              //of neighbouring row
+  inT32 next_index;              // of neighbouring row
   inT32 row_offset;              //from current row
   inT32 abs_dist;                //absolute distance
   inT8 row_inc;                  //increment to row_index
@@ -1786,7 +1785,7 @@ static int CountOverlaps(const TBOX& box, int min_height,
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
-    TBOX blob_box = blob->bounding_box();
+    const TBOX &blob_box = blob->bounding_box();
     if (blob_box.height() >= min_height && box.major_overlap(blob_box)) {
       ++overlaps;
     }

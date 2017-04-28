@@ -20,12 +20,12 @@
 #include "config_auto.h"
 #endif
 
+#include "allheaders.h"
 #include "baseapi.h"
-#include "renderer.h"
 #include "math.h"
+#include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"
-#include "allheaders.h"
 
 #ifdef _MSC_VER
 #include "mathfix.h"
@@ -159,7 +159,7 @@ CIDToGIDMap.
 
 OK there is a small problem there, if I use GID 0 then Acrobat gets
 upset about it and complains it cannot extract the font. If I set the
-CIDToGIDMap so that all the entries are 1 instead, its happy. Totally
+CIDToGIDMap so that all the entries are 1 instead, it's happy. Totally
 mad......
 
 */
@@ -169,19 +169,26 @@ namespace tesseract {
 // Use for PDF object fragments. Must be large enough
 // to hold a colormap with 256 colors in the verbose
 // PDF representation.
-const int kBasicBufSize = 2048;
+static const int kBasicBufSize = 2048;
 
 // If the font is 10 pts, nominal character width is 5 pts
-const int kCharWidth = 2;
+static const int kCharWidth = 2;
+
+// Used for memory allocation. A codepoint must take no more than this
+// many bytes, when written in the PDF way. e.g. "<0063>" for the
+// letter 'c'
+static const int kMaxBytesPerCodepoint = 20;
 
 /**********************************************************************
  * PDF Renderer interface implementation
  **********************************************************************/
 
-TessPDFRenderer::TessPDFRenderer(const char* outputbase, const char *datadir)
+TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
+                                 bool textonly)
     : TessResultRenderer(outputbase, "pdf") {
   obj_  = 0;
   datadir_ = datadir;
+  textonly_ = textonly;
   offsets_.push_back(0);
 }
 
@@ -282,7 +289,7 @@ void AffineMatrix(int writing_direction,
   }
 }
 
-// There are some really stupid PDF viewers in the wild, such as
+// There are some really awkward PDF viewers in the wild, such as
 // 'Preview' which ships with the Mac. They do a better job with text
 // selection and highlighting when given perfectly flat baseline
 // instead of very slightly tilted. We clip small tilts to appease
@@ -300,6 +307,23 @@ void ClipBaseline(int ppi, int x1, int y1, int x2, int y2,
   double run = abs(x2 - x1) * 72 / ppi;
   if (rise < 2.0 && 2.0 < run)
     *line_y1 = *line_y2 = (y1 + y2) / 2;
+}
+
+bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
+  if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
+    tprintf("Dropping invalid codepoint %d\n", code);
+    return false;
+  }
+  if (code < 0x10000) {
+    snprintf(utf16, kMaxBytesPerCodepoint, "%04X", code);
+  } else {
+    int a = code - 0x010000;
+    int high_surrogate = (0x03FF & (a >> 10)) + 0xD800;
+    int low_surrogate = (0x03FF & a) + 0xDC00;
+    snprintf(utf16, kMaxBytesPerCodepoint,
+             "%04X%04X", high_surrogate, low_surrogate);
+  }
+  return true;
 }
 
 char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
@@ -326,7 +350,11 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
   pdf_str.add_str_double("", prec(width));
   pdf_str += " 0 0 ";
   pdf_str.add_str_double("", prec(height));
-  pdf_str += " 0 0 cm /Im1 Do Q\n";
+  pdf_str += " 0 0 cm";
+  if (!textonly_) {
+    pdf_str += " /Im1 Do";
+  }
+  pdf_str += " Q\n";
 
   int line_x1 = 0;
   int line_y1 = 0;
@@ -436,25 +464,13 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       if (grapheme && grapheme[0] != '\0') {
         GenericVector<int> unicodes;
         UNICHAR::UTF8ToUnicode(grapheme, &unicodes);
-        char utf16[20];
+        char utf16[kMaxBytesPerCodepoint];
         for (int i = 0; i < unicodes.length(); i++) {
           int code = unicodes[i];
-          // Convert to UTF-16BE https://en.wikipedia.org/wiki/UTF-16
-          if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
-                tprintf("Dropping invalid codepoint %d\n", code);
-                continue;
+          if (CodepointToUtf16be(code, utf16)) {
+            pdf_word += utf16;
+            pdf_word_len++;
           }
-          if (code < 0x10000) {
-            snprintf(utf16, sizeof(utf16), "<%04X>", code);
-          } else {
-            int a = code - 0x010000;
-            int high_surrogate = (0x03FF & (a >> 10)) + 0xD800;
-            int low_surrogate = (0x03FF & a) + 0xDC00;
-            snprintf(utf16, sizeof(utf16), "<%04X%04X>",
-                     high_surrogate, low_surrogate);
-          }
-          pdf_word += utf16;
-          pdf_word_len++;
         }
       }
       delete []grapheme;
@@ -465,9 +481,9 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           kCharWidth * prec(100.0 * word_length / (fontsize * pdf_word_len));
       pdf_str.add_str_double("", h_stretch);
       pdf_str += " Tz";          // horizontal stretch
-      pdf_str += " [ ";
+      pdf_str += " [ <";
       pdf_str += pdf_word;       // UTF-16BE representation
-      pdf_str += " ] TJ";        // show the text
+      pdf_str += "> ] TJ";       // show the text
     }
     if (last_word_in_line) {
       pdf_str += " \n";
@@ -567,7 +583,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "<<\n"
                "  /Length %lu /Filter /FlateDecode\n"
                ">>\n"
-               "stream\n", (unsigned long)len);
+               "stream\n",
+               (unsigned long)len);
   if (n >= sizeof(buf)) {
     lept_free(comp);
     return false;
@@ -619,7 +636,6 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   AppendPDFObject(buf);
 
   // FONT DESCRIPTOR
-  const int kCharHeight = 2;  // Effect: highlights are half height
   n = snprintf(buf, sizeof(buf),
                "7 0 obj\n"
                "<<\n"
@@ -635,10 +651,10 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "  /Type /FontDescriptor\n"
                ">>\n"
                "endobj\n",
-               1000 / kCharHeight,
-               1000 / kCharHeight,
+               1000,
+               1000,
                1000 / kCharWidth,
-               1000 / kCharHeight,
+               1000,
                8L      // Font data
                );
   if (n >= sizeof(buf)) return false;
@@ -703,11 +719,6 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   L_COMP_DATA *cid = NULL;
   const int kJpegQuality = 85;
 
-  // TODO(jbreiden) Leptonica 1.71 doesn't correctly handle certain
-  // types of PNG files, especially if there are 2 samples per pixel.
-  // We can get rid of this logic after Leptonica 1.72 is released and
-  // has propagated everywhere. Bug discussion as follows.
-  // https://code.google.com/p/tesseract-ocr/issues/detail?id=1300
   int format, sad;
   findFileFormat(filename, &format);
   if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
@@ -819,10 +830,6 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   *pdf_object_size =
       b1_len + colorspace_len + b2_len + cid->nbytescomp + b3_len;
   *pdf_object = new char[*pdf_object_size];
-  if (!pdf_object) {
-    l_CIDataDestroy(&cid);
-    return false;
-  }
 
   char *p = *pdf_object;
   memcpy(p, b1, b1_len);
@@ -841,6 +848,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
 bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   size_t n;
   char buf[kBasicBufSize];
+  char buf2[kBasicBufSize];
   Pix *pix = api->GetInputImage();
   char *filename = (char *)api->GetInputName();
   int ppi = api->GetSourceYResolution();
@@ -848,6 +856,9 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
     return false;
   double width = pixGetWidth(pix) * 72.0 / ppi;
   double height = pixGetHeight(pix) * 72.0 / ppi;
+
+  snprintf(buf2, sizeof(buf2), "/XObject << /Im1 %ld 0 R >>\n", obj_ + 2);
+  const char *xobject = (textonly_) ? "" : buf2;
 
   // PAGE
   n = snprintf(buf, sizeof(buf),
@@ -859,19 +870,18 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
                "  /Contents %ld 0 R\n"
                "  /Resources\n"
                "  <<\n"
-               "    /XObject << /Im1 %ld 0 R >>\n"
+               "    %s"
                "    /ProcSet [ /PDF /Text /ImageB /ImageI /ImageC ]\n"
                "    /Font << /f-0-0 %ld 0 R >>\n"
                "  >>\n"
                ">>\n"
                "endobj\n",
                obj_,
-               2L,            // Pages object
-               width,
-               height,
-               obj_ + 1,      // Contents object
-               obj_ + 2,      // Image object
-               3L);           // Type0 Font
+               2L,  // Pages object
+               width, height,
+               obj_ + 1,  // Contents object
+               xobject,   // Image object
+               3L);       // Type0 Font
   if (n >= sizeof(buf)) return false;
   pages_.push_back(obj_);
   AppendPDFObject(buf);
@@ -908,13 +918,15 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   objsize += strlen(b2);
   AppendPDFObjectDIY(objsize);
 
-  char *pdf_object;
-  if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize)) {
-    return false;
+  if (!textonly_) {
+    char *pdf_object = nullptr;
+    if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize)) {
+      return false;
+    }
+    AppendData(pdf_object, objsize);
+    AppendPDFObjectDIY(objsize);
+    delete[] pdf_object;
   }
-  AppendData(pdf_object, objsize);
-  AppendPDFObjectDIY(objsize);
-  delete[] pdf_object;
   return true;
 }
 
@@ -958,15 +970,27 @@ bool TessPDFRenderer::EndDocumentHandler() {
   offsets_.back() += pages_objsize;    // manipulation #2
 
   // INFO
+  STRING utf16_title = "FEFF";  // byte_order_marker
+  GenericVector<int> unicodes;
+  UNICHAR::UTF8ToUnicode(title(), &unicodes);
+  char utf16[kMaxBytesPerCodepoint];
+  for (int i = 0; i < unicodes.length(); i++) {
+    int code = unicodes[i];
+    if (CodepointToUtf16be(code, utf16)) {
+      utf16_title += utf16;
+    }
+  }
+
   char* datestr = l_getFormattedDate();
   n = snprintf(buf, sizeof(buf),
                "%ld 0 obj\n"
                "<<\n"
                "  /Producer (Tesseract %s)\n"
                "  /CreationDate (D:%s)\n"
-               "  /Title (%s)"
+               "  /Title <%s>\n"
                ">>\n"
-               "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
+               "endobj\n",
+               obj_, TESSERACT_VERSION_STR, datestr, utf16_title.c_str());
   lept_free(datestr);
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);

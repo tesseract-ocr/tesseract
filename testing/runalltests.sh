@@ -25,12 +25,12 @@ then
   echo "Run $0 from the tesseract-ocr root directory!"
   exit 1
 fi
-if [ ! -r api/tesseract -a ! -r tesseract.exe ]
+if [ ! -r api/tesseract ] && [ ! -r tesseract.exe ]
 then
   echo "Please build tesseract before running $0"
   exit 1
 fi
-if [ ! -r testing/unlv/accuracy -a ! -r testing/unlv/accuracy.exe ]
+if [ ! -r testing/unlv/accuracy ] && [ ! -r testing/unlv/accuracy.exe ]
 then
   echo "Please download the UNLV accuracy tools (and build) to testing/unlv"
   exit 1
@@ -39,7 +39,7 @@ fi
 #deltapc new old calculates the %change from old to new
 deltapc() {
 awk ' BEGIN {
-printf("%.2f", 100.0*('$1'-'$2')/'$2');
+printf("%.2f", 100.0*('"$1"'-'"$2"')/'"$2"');
 }'
 }
 
@@ -53,7 +53,7 @@ total = 0.0;
 }
 END {
   printf("%.2f\n", total);
-}' $1
+}' "$1"
 }
 
 imdir="$1"
@@ -74,47 +74,47 @@ totaloldwerrs=0
 totaloldnswerrs=0
 for set in $testsets
 do
-    if [ -r $imdir/$set/pages ]
+    if [ -r "$imdir/$set/pages" ]
     then
 	# Run tesseract on all the pages.
-	$bindir/runtestset.sh $imdir/$set/pages
+	$bindir/runtestset.sh "$imdir/$set/pages"
 	# Count the errors on all the pages.
-	$bindir/counttestset.sh $imdir/$set/pages
+	$bindir/counttestset.sh "$imdir/$set/pages"
 	# Get the old character word and nonstop word errors.
-	olderrs=`cat testing/reports/1995.$set.sum | cut -f3`
-	oldwerrs=`cat testing/reports/1995.$set.sum | cut -f6`
-	oldnswerrs=`cat testing/reports/1995.$set.sum | cut -f9`
+	olderrs=$(cut -f3 "testing/reports/1995.$set.sum")
+	oldwerrs=$(cut -f6 "testing/reports/1995.$set.sum")
+	oldnswerrs=$(cut -f9 "testing/reports/1995.$set.sum")
 	# Get the new character word and nonstop word errors and accuracy.
-	cherrs=`head -4 testing/reports/$set.characc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	chacc=`head -5 testing/reports/$set.characc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	wderrs=`head -4 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	wdacc=`head -5 testing/reports/$set.wordacc |tail -1 |cut -c1-9 |
-	    tr -d '[:blank:]'`
-	nswderrs=`grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
-	    cut -c10-17 |tr -d '[:blank:]'`
-	nswdacc=`grep Total testing/reports/$set.wordacc |head -2 |tail -1 |
-	    cut -c19-26 |tr -d '[:blank:]'`
+	cherrs=$(head -4 "testing/reports/$set.characc" |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	chacc=$(head -5 "testing/reports/$set.characc" |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	wderrs=$(head -4 "testing/reports/$set.wordacc" |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	wdacc=$(head -5 "testing/reports/$set.wordacc" |tail -1 |cut -c1-9 |
+	    tr -d '[:blank:]')
+	nswderrs=$(grep Total "testing/reports/$set.wordacc" |head -2 |tail -1 |
+	    cut -c10-17 |tr -d '[:blank:]')
+	nswdacc=$(grep Total "testing/reports/$set.wordacc" |head -2 |tail -1 |
+	    cut -c19-26 |tr -d '[:blank:]')
 	# Compute the percent change.
-	chdelta=`deltapc $cherrs $olderrs`
-	wdelta=`deltapc $wderrs $oldwerrs`
-	nswdelta=`deltapc $nswderrs $oldnswerrs`
+	chdelta=$(deltapc "$cherrs" "$olderrs")
+	wdelta=$(deltapc "$wderrs" "$oldwerrs")
+	nswdelta=$(deltapc "$nswderrs" "$oldnswerrs")
 	sumfile=$rdir/$vid.$set.sum
-        if [ -r testing/reports/$set.times ]
+        if [ -r "testing/reports/$set.times" ]
         then
-          total_time=`timesum testing/reports/$set.times`
-          if [ -r testing/reports/prev/$set.times ]
+          total_time=$(timesum "testing/reports/$set.times")
+          if [ -r "testing/reports/prev/$set.times" ]
           then
-            paste testing/reports/prev/$set.times testing/reports/$set.times |
-              awk '{ printf("%s %.2f\n", $1, $4-$2); }' |sort -k2n >testing/reports/$set.timedelta
+            paste "testing/reports/prev/$set.times" "testing/reports/$set.times" |
+              awk '{ printf("%s %.2f\n", $1, $4-$2); }' |sort -k2n >"testing/reports/$set.timedelta"
           fi
 	else
           total_time='0.0'
         fi
         echo "$vid	$set	$cherrs	$chacc	$chdelta%	$wderrs	$wdacc\
-	$wdelta%	$nswderrs	$nswdacc	$nswdelta%	${total_time}s" >$sumfile
+	$wdelta%	$nswderrs	$nswdacc	$nswdelta%	${total_time}s" >"$sumfile"
 	# Sum totals over all the testsets.
 	let totalerrs=totalerrs+cherrs
 	let totalwerrs=totalwerrs+wderrs
@@ -125,10 +125,10 @@ do
     fi
 done
 # Compute grand total percent change.
-chdelta=`deltapc $totalerrs $totalolderrs`
-wdelta=`deltapc $totalwerrs $totaloldwerrs`
-nswdelta=`deltapc $totalnswerrs $totaloldnswerrs `
+chdelta=$(deltapc $totalerrs $totalolderrs)
+wdelta=$(deltapc $totalwerrs $totaloldwerrs)
+nswdelta=$(deltapc $totalnswerrs $totaloldnswerrs)
 tfile=$rdir/$vid.total.sum
 echo "$vid	Total	$totalerrs	-	$chdelta%	$totalwerrs\
-	-	$wdelta%	$totalnswerrs	-	$nswdelta%" >$tfile
-cat $rdir/1995.*.sum $rdir/$vid.*.sum >$rdir/$vid.summary
+	-	$wdelta%	$totalnswerrs	-	$nswdelta%" >"$tfile"
+cat $rdir/1995.*.sum "$rdir/$vid".*.sum >"$rdir/$vid".summary

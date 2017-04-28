@@ -59,17 +59,18 @@ class UnicharIdArrayUtils {
   // less than length of array2, if any array1[i] is less than array2[i].
   // Returns 0 if the arrays are equal, 1 otherwise.
   // The function assumes that the arrays are terminated by INVALID_UNICHAR_ID.
-  static inline int compare(const UNICHAR_ID array1[],
-                            const UNICHAR_ID array2[]) {
-    const UNICHAR_ID *ptr1 = array1;
-    const UNICHAR_ID *ptr2 = array2;
-    while (*ptr1 != INVALID_UNICHAR_ID && *ptr2 != INVALID_UNICHAR_ID) {
-      if (*ptr1 != *ptr2) return *ptr1 < *ptr2 ? -1 : 1;
-      ++ptr1;
-      ++ptr2;
+  static inline int compare(const UNICHAR_ID *ptr1, const UNICHAR_ID *ptr2) {
+    for (;;) {
+      const UNICHAR_ID val1 = *ptr1++;
+      const UNICHAR_ID val2 = *ptr2++;
+      if (val1 != val2) {
+        if (val1 == INVALID_UNICHAR_ID) return -1;
+        if (val2 == INVALID_UNICHAR_ID) return 1;
+        if (val1 < val2) return -1;
+        return 1;
+      }
+      if (val1 == INVALID_UNICHAR_ID) return 0;
     }
-    if (*ptr1 == INVALID_UNICHAR_ID && *ptr2 == INVALID_UNICHAR_ID) return 0;
-    return *ptr1 == INVALID_UNICHAR_ID ? -1 : 1;
   }
 
   // Look uid in the vector of uids.  If found, the index of the matched

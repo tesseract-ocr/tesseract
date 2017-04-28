@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        polyblk.c  (Formerly poly_block.c)
  * Description: Polygonal blocks
- * Author:					Sheelagh Lloyd?
+ * Author:          Sheelagh Lloyd?
  * Created:
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
@@ -294,6 +294,8 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
       }
     }
   }
+
+  delete lines;
 }
 #endif
 

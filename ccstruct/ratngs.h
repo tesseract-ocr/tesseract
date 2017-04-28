@@ -288,7 +288,8 @@ class WERD_CHOICE : public ELIST_LINK {
                src_certainty, src_permuter);
   }
   WERD_CHOICE(const char *src_string, const UNICHARSET &unicharset);
-  WERD_CHOICE(const WERD_CHOICE &word) : ELIST_LINK(word), unicharset_(word.unicharset_) {
+  WERD_CHOICE(const WERD_CHOICE &word)
+      : ELIST_LINK(word), unicharset_(word.unicharset_) {
     this->init(word.length());
     this->operator=(word);
   }
@@ -506,6 +507,20 @@ class WERD_CHOICE : public ELIST_LINK {
       word_str += " ";
     }
     return word_str;
+  }
+  // Returns true if any unichar_id in the word is a non-space-delimited char.
+  bool ContainsAnyNonSpaceDelimited() const {
+    for (int i = 0; i < length_; ++i) {
+      if (!unicharset_->IsSpaceDelimited(unichar_ids_[i])) return true;
+    }
+    return false;
+  }
+  // Returns true if the word is all spaces.
+  bool IsAllSpaces() const {
+    for (int i = 0; i < length_; ++i) {
+      if (unichar_ids_[i] != UNICHAR_SPACE) return false;
+    }
+    return true;
   }
 
   // Call this to override the default (strict left to right graphemes)

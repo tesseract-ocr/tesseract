@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CUTIL_CUTIL_CLASS_H__
-#define TESSERACT_CUTIL_CUTIL_CLASS_H__
+#ifndef TESSERACT_CUTIL_CUTIL_CLASS_H_
+#define TESSERACT_CUTIL_CUTIL_CLASS_H_
 
 #include "ccutil.h"
 #include "const.h"
@@ -34,4 +34,4 @@ class CUtil : public CCUtil {
 
 }  // namespace tesseract
 
-#endif  // TESSERACT_CUTIL_CUTIL_CLASS_H__
+#endif  // TESSERACT_CUTIL_CUTIL_CLASS_H_

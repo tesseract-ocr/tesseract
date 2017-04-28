@@ -1,4 +1,13 @@
 #!/bin/bash
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 if [ $# -ne 1 ]
 then
@@ -24,21 +33,21 @@ do
     if [ -r "$old/PAGES" ]
     then
 	new=${s#*/}.$ext
-	mkdir -p $new
+	mkdir -p "$new"
     	echo "Set $old -> $new"
 	#The pages file had - instead of _ so fix it and add the extension.
-	for page in `cat $old/PAGES`
+	for page in $(cat $old/PAGES)
 	do
     	    echo "${page%-*}_${page#*-}.$ext"
-	done >$new/pages
-	for f in `cat $new/pages`
+	done >"$new/pages"
+	for f in $(cat "$new/pages")
 	do
     	    #Put a tif extension on the tif files.
-	    cp $old/${old}_B/$f $new/$f.tif
+	    cp "$old/${old}_B/$f" "$new/$f.tif"
 	    #Put a uzn extension on the zone files.
-	    cp $old/${old}_B/${f}Z $new/$f.uzn
+	    cp "$old/${old}_B/${f}Z" "$new/$f.uzn"
 	    #Cat all the truth files together and put into a single txt file.
-	    cat $old/${old}_GT/${f%.$ext}.Z* >$new/$f.txt
+	    cat "$old/${old}_GT/${f%.$ext}".Z* >"$new/$f.txt"
 	done
     fi
 done

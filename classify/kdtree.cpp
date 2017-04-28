@@ -70,11 +70,11 @@ class MinK {
   const Element* elements() { return elements_; }
 
  private:
-  const Key max_key_;  //< the maximum possible Key
-  Element* elements_;  //< unsorted array of elements
+  const Key max_key_;   //< the maximum possible Key
+  Element *elements_;   //< unsorted array of elements
   int elements_count_;  //< the number of results collected so far
-  int k_;  //< the number of results we want from the search
-  int max_index_;  //< the index of the result with the largest key
+  int k_;               //< the number of results we want from the search
+  int max_index_;       //< the index of the result with the largest key
 };
 
 template<typename Key, typename Value>
@@ -117,7 +117,8 @@ bool MinK<Key, Value>::insert(Key key, Value value) {
 
 
 //-----------------------------------------------------------------------------
-/** Helper class for searching for the k closest points to query_point in tree. */
+/** Helper class for searching for the k closest points to query_point in tree.
+ */
 class KDTreeSearch {
  public:
   KDTreeSearch(KDTREE* tree, FLOAT32 *query_point, int k_closest);
@@ -241,14 +242,13 @@ void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
   *PtrToNode = MakeKDNode(Tree, Key, (void *) Data, Level);
 }                                /* KDStore */
 
-
 /**
- * This routine deletes a node from Tree.  The node to be	
- * deleted is specified by the Key for the node and the Data	
- * contents of the node.  These two pointers must be identical	
- * to the pointers that were used for the node when it was	
- * originally stored in the tree.  A node will be deleted from	
- * the tree only if its key and data pointers are identical	
+ * This routine deletes a node from Tree.  The node to be
+ * deleted is specified by the Key for the node and the Data
+ * contents of the node.  These two pointers must be identical
+ * to the pointers that were used for the node when it was
+ * originally stored in the tree.  A node will be deleted from
+ * the tree only if its key and data pointers are identical
  * to Key and Data respectively.  The tree is re-formed by removing
  * the affected subtree and inserting all elements but the root.
  *
@@ -297,7 +297,6 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
     FreeSubTree(Current);
   }
 }                                /* KDDelete */
-
 
 /**
  * This routine searches the K-D tree specified by Tree and
@@ -442,7 +441,7 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
 
 
 /*---------------------------------------------------------------------------*/
-/** 
+/**
  *Returns the Euclidean distance squared between p1 and p2 for all essential
  * dimensions.
  * @param k      keys are in k-space
@@ -540,7 +539,6 @@ void Walk(KDTREE *tree, void_proc action, void *context,
   if (sub_tree->Right != NULL)
     Walk(tree, action, context, sub_tree->Right, NextLevel(tree, level));
 }
-
 
 /** Given a subtree nodes, insert all of its elements into tree. */
 void InsertNodes(KDTREE *tree, KDNODE *nodes) {

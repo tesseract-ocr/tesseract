@@ -126,11 +126,11 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
 
 TEMP_PROTO NewTempProto();
 
-ADAPT_CLASS ReadAdaptedClass(FILE *File);
+ADAPT_CLASS ReadAdaptedClass(tesseract::TFile *File);
 
-PERM_CONFIG ReadPermConfig(FILE *File);
+PERM_CONFIG ReadPermConfig(tesseract::TFile *File);
 
-TEMP_CONFIG ReadTempConfig(FILE *File);
+TEMP_CONFIG ReadTempConfig(tesseract::TFile *File);
 
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
 

@@ -29,11 +29,8 @@ namespace tesseract {
 
 class DawgCache {
  public:
-  Dawg *GetSquishedDawg(
-      const STRING &lang,
-      const char *data_file_name,
-      TessdataType tessdata_dawg_type,
-      int debug_level);
+  Dawg *GetSquishedDawg(const STRING &lang, TessdataType tessdata_dawg_type,
+                        int debug_level, TessdataManager *data_file);
 
 #ifdef WITH_HFST
   Dawg *GetHfstWordModel(

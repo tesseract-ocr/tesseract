@@ -1,4 +1,14 @@
 #
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # Set some language specific variables. Works in conjunction with
 # tesstrain.sh
 #
@@ -868,6 +878,9 @@ set_lang_specific_parameters() {
   AMBIGS_FILTER_DENOMINATOR="100000"
   LEADING="32"
   MEAN_COUNT="40"  # Default for latin script.
+  # Language to mix with the language for maximum accuracy. Defaults to eng.
+  # If no language is good, set to the base language.
+  MIX_LANG="eng"
 
   case ${lang} in
     # Latin languages.
@@ -959,11 +972,13 @@ set_lang_specific_parameters() {
           WORD_DAWG_SIZE=1000000
           test -z "$FONTS" && FONTS=( "${EARLY_LATIN_FONTS[@]}" );;
 
-    # Cyrillic script-based languages.
+    # Cyrillic script-based languages. It is bad to mix Latin with Cyrillic.
     rus ) test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" )
+          MIX_LANG="rus"
           NUMBER_DAWG_FACTOR=0.05
           WORD_DAWG_SIZE=1000000 ;;
     aze_cyrl | bel | bul | kaz | mkd | srp | tgk | ukr | uzb_cyrl )
+          MIX_LANG="${lang}"
           test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" ) ;;
 
     # Special code for performing Cyrillic language-id that is trained on
@@ -1115,7 +1130,7 @@ set_lang_specific_parameters() {
           TRAINING_DATA_ARGUMENTS=" --infrequent_ratio=100" ;;
     kur ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
 
-    *) err "Error: ${lang} is not a valid language code"
+    *) err_exit "Error: ${lang} is not a valid language code"
   esac
   if [[ ${FLAGS_mean_count} -gt 0 ]]; then
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${FLAGS_mean_count}"

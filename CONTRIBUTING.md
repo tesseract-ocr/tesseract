@@ -24,7 +24,7 @@ When creating an issue, please report your operating system, including its speci
 
 Search through open and closed issues to see if similar issue has been reported already (and sometimes also has been solved). 
 
-Similary, before you post your question in the forum, search through past threads to see if similar question has been asked already.
+Similarly, before you post your question in the forum, search through past threads to see if similar question has been asked already.
 
 Read the [wiki](https://github.com/tesseract-ocr/tesseract/wiki) before you report your issue or ask a question in the forum.
 
@@ -44,7 +44,7 @@ When attaching a file to the issue report / forum ...
 
 Do not attach programs or libraries to your issues/posts.
 
-For large files or for programs, add a link to a iocation where they can be downloaded (your site, Git repo, Google Drive, Dropbox etc.)
+For large files or for programs, add a link to a location where they can be downloaded (your site, Git repo, Google Drive, Dropbox etc.)
 
 Attaching a multi-page TIFF image is useful only if you have problem with multi-page functionality, otherwise attach only one or a few single page images. 
 

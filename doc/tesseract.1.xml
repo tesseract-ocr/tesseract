@@ -130,7 +130,7 @@ at Google since then.</simpara>
 </varlistentry>
 <varlistentry>
 <term>
-<emphasis>-psm N</emphasis>
+<emphasis>--psm N</emphasis>
 </term>
 <listitem>
 <simpara>
@@ -148,6 +148,20 @@ at Google since then.</simpara>
 8 = Treat the image as a single word.
 9 = Treat the image as a single word in a circle.
 10 = Treat the image as a single character.</literallayout>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--oem N</emphasis>
+</term>
+<listitem>
+<simpara>
+        Specify OCR Engine mode. The options for <emphasis role="strong">N</emphasis> are:
+</simpara>
+<literallayout class="monospaced">0 = Original Tesseract only.
+1 = Neural nets LSTM only.
+2 = Tesseract + LSTM.
+3 = Default, based on what is available.</literallayout>
 </listitem>
 </varlistentry>
 <varlistentry>
@@ -176,7 +190,7 @@ pdf  - Output in pdf instead of a text file.
 </listitem>
 </varlistentry>
 </variablelist>
-<simpara><emphasis role="strong">Nota Bene:</emphasis>   The options <emphasis>-l lang</emphasis> and <emphasis>-psm N</emphasis> must occur
+<simpara><emphasis role="strong">Nota Bene:</emphasis>   The options <emphasis>-l lang</emphasis> and <emphasis>--psm N</emphasis> must occur
 before any <emphasis>configfile</emphasis>.</simpara>
 </refsect1>
 <refsect1 id="_single_options">
@@ -184,7 +198,37 @@ before any <emphasis>configfile</emphasis>.</simpara>
 <variablelist>
 <varlistentry>
 <term>
-<emphasis>-v</emphasis>
+<emphasis>-h, --help</emphasis>
+</term>
+<listitem>
+<simpara>
+        Show help message.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--help-psm</emphasis>
+</term>
+<listitem>
+<simpara>
+        Show page segmentation modes.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>--help-oem</emphasis>
+</term>
+<listitem>
+<simpara>
+        Show OCR Engine modes.
+</simpara>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+<emphasis>-v, --version</emphasis>
 </term>
 <listitem>
 <simpara>
@@ -198,7 +242,7 @@ before any <emphasis>configfile</emphasis>.</simpara>
 </term>
 <listitem>
 <simpara>
-        list available languages for tesseract engine. Can be used with --tessdata-dir.
+        List available languages for tesseract engine. Can be used with --tessdata-dir.
 </simpara>
 </listitem>
 </varlistentry>
@@ -208,7 +252,7 @@ before any <emphasis>configfile</emphasis>.</simpara>
 </term>
 <listitem>
 <simpara>
-        print tesseract parameters to the stdout.
+        Print tesseract parameters.
 </simpara>
 </listitem>
 </varlistentry>
@@ -377,7 +421,7 @@ on read_pattern_list().</simpara>
 Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more
 changes made in 1996 to port to Windows, and some C++izing in 1998. A
 lot of the code was written in C, and then some more was written in C++.
-The C\++ code makes heavy use of a list system using macros. This predates
+The C++ code makes heavy use of a list system using macros. This predates
 stl, was portable before stl, and is more efficient than stl lists, but has
 the big negative that if you do get a segmentation violation, it is hard to
 debug.</simpara>

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        topitch.cpp  (Formerly to_pitch.c)
  * Description: Code to determine fixed pitchness and the pitch if fixed.
- * Author:		Ray Smith
- * Created:		Tue Aug 24 16:57:29 BST 1993
+ * Author:    Ray Smith
+ * Created:   Tue Aug 24 16:57:29 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -1084,7 +1084,7 @@ BOOL8 count_pitch_stats(                       //find lines
     return FALSE;
   prev_valid = FALSE;
   prev_centre = 0;
-  prev_right = 0;                //stop compiler warning
+  prev_right = 0;  // stop compiler warning
   joined_box = blob_it.data ()->bounding_box ();
   do {
     blob_it.forward ();
@@ -1285,8 +1285,6 @@ float tune_row_pitch2(                             //find fp cells
     return initial_pitch;
   }
   sum_proj = new STATS[textord_pitch_range * 2 + 1];
-  if (sum_proj == NULL)
-    return initial_pitch;
 
   for (pitch_delta = -textord_pitch_range; pitch_delta <= textord_pitch_range;
     pitch_delta++)

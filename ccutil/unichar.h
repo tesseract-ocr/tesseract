@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_UNICHAR_H__
-#define TESSERACT_CCUTIL_UNICHAR_H__
+#ifndef TESSERACT_CCUTIL_UNICHAR_H_
+#define TESSERACT_CCUTIL_UNICHAR_H_
 
 #include <memory.h>
 #include <string.h>
@@ -47,7 +47,7 @@ enum StrongScriptDirection {
 
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
-// multple Unicode characters representing the NFKC expansion of a ligature
+// multiple Unicode characters representing the NFKC expansion of a ligature
 // such as fi, ffl etc. These are also stored as utf8.
 class UNICHAR {
  public:
@@ -162,4 +162,4 @@ class UNICHAR {
   char chars[UNICHAR_LEN];
 };
 
-#endif  // TESSERACT_CCUTIL_UNICHAR_H__
+#endif  // TESSERACT_CCUTIL_UNICHAR_H_

@@ -2052,7 +2052,7 @@ void ConvertHypothesizedModelRunsToParagraphs(
     bool single_line_paragraph = false;
     SetOfModels models;
     rows[start].NonNullHypotheses(&models);
-    if (models.size() > 0) {
+    if (!models.empty()) {
       model = models[0];
       if (rows[start].GetLineType(model) != LT_BODY)
         single_line_paragraph = true;
@@ -2113,6 +2113,7 @@ void ConvertHypothesizedModelRunsToParagraphs(
       if ((*row_owners)[row] != NULL) {
         tprintf("Memory leak! ConvertHypothesizeModelRunsToParagraphs() called "
                 "more than once!\n");
+        delete (*row_owners)[row];
       }
       (*row_owners)[row] = p;
     }
@@ -2189,17 +2190,17 @@ void LeftoverSegments(const GenericVector<RowScratchRegisters> &rows,
     SetOfModels models_w_crowns;
     rows[i].StrongHypotheses(&models);
     rows[i].NonNullHypotheses(&models_w_crowns);
-    if (models.empty() && models_w_crowns.size() > 0) {
+    if (models.empty() && !models_w_crowns.empty()) {
       // Crown paragraph.  Is it followed by a modeled line?
       for (int end = i + 1; end < rows.size(); end++) {
         SetOfModels end_models;
         SetOfModels strong_end_models;
         rows[end].NonNullHypotheses(&end_models);
         rows[end].StrongHypotheses(&strong_end_models);
-        if (end_models.size() == 0) {
+        if (end_models.empty()) {
           needs_fixing = true;
           break;
-        } else if (strong_end_models.size() > 0) {
+        } else if (!strong_end_models.empty()) {
           needs_fixing = false;
           break;
         }
@@ -2484,7 +2485,7 @@ void InitializeRowInfo(bool after_recognition,
   info->ltr = ltr >= rtl;
   info->has_leaders = num_leaders > 3;
   info->num_words = werds.size();
-  if (werds.size() > 0) {
+  if (!werds.empty()) {
     WERD_RES *lword = werds[0], *rword = werds[werds.size() - 1];
     info->lword_text = lword->best_choice->unichar_string().string();
     info->rword_text = rword->best_choice->unichar_string().string();
@@ -2537,7 +2538,7 @@ void DetectParagraphs(int debug_level,
 
   // If we're called before text recognition, we might not have
   // tight block bounding boxes, so trim by the minimum on each side.
-  if (row_infos.size() > 0) {
+  if (!row_infos.empty()) {
     int min_lmargin = row_infos[0].pix_ldistance;
     int min_rmargin = row_infos[0].pix_rdistance;
     for (int i = 1; i < row_infos.size(); i++) {

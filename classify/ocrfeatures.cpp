@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    features.c
- **	Purpose:     Generic definition of a feature.
- **	Author:      Dan Johnson
- **	History:     Mon May 21 10:49:04 1990, DSJ, Created.
+ ** Filename:    features.c
+ ** Purpose:     Generic definition of a feature.
+ ** Author:      Dan Johnson
+ ** History:     Mon May 21 10:49:04 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -66,12 +66,11 @@ void FreeFeature(FEATURE Feature) {
 
 }                                /* FreeFeature */
 
-
 /**
  * Release the memory consumed by the specified feature
  * set.  This routine also frees the memory consumed by the
  * features contained in the set.
- * @param FeatureSet	set of features to be freed
+ * @param FeatureSet  set of features to be freed
  * @return none
  * @note History: Mon May 21 13:59:46 1990, DSJ, Created.
  */
@@ -85,11 +84,10 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
   }
 }                                /* FreeFeatureSet */
 
-
 /**
  * Allocate and return a new feature of the specified
  * type.
- * @param FeatureDesc	description of feature to be created.
+ * @param FeatureDesc description of feature to be created.
  * @return New #FEATURE.
  * @note History: Mon May 21 14:06:42 1990, DSJ, Created.
  */
@@ -105,11 +103,10 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
 
 }                                /* NewFeature */
 
-
 /**
  * Allocate and return a new feature set large enough to
  * hold the specified number of features.
- * @param NumFeatures	maximum # of features to be put in feature set
+ * @param NumFeatures maximum # of features to be put in feature set
  * @return New #FEATURE_SET.
  * @note History: Mon May 21 14:22:40 1990, DSJ, Created.
  */
@@ -124,7 +121,6 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
 
 }                                /* NewFeatureSet */
 
-
 /**
  * Create a new feature of the specified type and read in
  * the value of its parameters from File.  The extra penalty
@@ -135,10 +131,11 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @param File open text file to read feature from
  * @param FeatureDesc specifies type of feature to read from File
  * @return New #FEATURE read from File.
- * @note Exceptions: #ILLEGAL_FEATURE_PARAM if text file doesn't match expected format
+ * @note Exceptions: #ILLEGAL_FEATURE_PARAM if text file doesn't match expected
+ * format
  * @note History: Wed May 23 08:53:16 1990, DSJ, Created.
  */
-FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
+FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
   int i;
 
@@ -153,7 +150,6 @@ FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   return (Feature);
 }                                /* ReadFeature */
 
-
 /**
  * Create a new feature set of the specified type and read in
  * the features from File.  The correct text representation
@@ -165,7 +161,7 @@ FEATURE ReadFeature(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @return New feature set read from File.
  * @note History: Wed May 23 09:17:31 1990, DSJ, Created.
  */
-FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
+FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE_SET FeatureSet;
   int NumFeatures;
   int i;
@@ -179,7 +175,6 @@ FEATURE_SET ReadFeatureSet(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   return (FeatureSet);
 }                                /* ReadFeatureSet */
-
 
 /**
  * Appends a textual representation of Feature to str.
@@ -203,7 +198,6 @@ void WriteFeature(FEATURE Feature, STRING* str) {
   *str += "\n";
 }                                /* WriteFeature */
 
-
 /**
  * Write a textual representation of FeatureSet to File.
  * This representation is an integer specifying the number of
@@ -224,7 +218,6 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
   }
 }                                /* WriteFeatureSet */
 
-
 /**
  * Write a textual representation of FeatureDesc to File
  * in the old format (i.e. the format used by the clusterer).
@@ -240,7 +233,7 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
  * @return none
  * @note History: Fri May 25 15:27:18 1990, DSJ, Created.
  */
-void WriteOldParamDesc(FILE *File, const FEATURE_DESC_STRUCT* FeatureDesc) {
+void WriteOldParamDesc(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   int i;
 
   fprintf (File, "%d\n", FeatureDesc->NumParams);

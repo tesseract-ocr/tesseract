@@ -15,6 +15,10 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
+
+#ifndef TESSERACT_TRAINING_MERGENF_H_
+#define TESSERACT_TRAINING_MERGENF_H_
+
 /**----------------------------------------------------------------------------
 					Include Files and Type Defines
 ----------------------------------------------------------------------------**/
@@ -95,3 +99,5 @@ BOOL8 PointInside (
      FRECT	*Rectangle,
      FLOAT32	X,
 	 FLOAT32	Y);
+
+#endif  // TESSERACT_TRAINING_MERGENF_H_

@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#include          "errcode.h"    //must be last include
+#ifndef TESSERACT_CCUTIL_LSTERR_H_
+#define TESSERACT_CCUTIL_LSTERR_H_
 
-#ifndef LSTERR_H
-#define LSTERR_H
+#include          "errcode.h"    //must be last include
 
 const ERRCODE DONT_CONSTRUCT_LIST_BY_COPY =
 "Can't create a list by assignment";
@@ -38,6 +38,7 @@ const ERRCODE NULL_PREV = "Previous element on the list is NULL";
 const ERRCODE EMPTY_LIST = "List is empty";
 const ERRCODE BAD_PARAMETER = "List parameter error";
 const ERRCODE STILL_LINKED =
-"Attempting to add an element with non NULL links, to a list";
-#endif
-#endif
+    "Attempting to add an element with non NULL links, to a list";
+
+#endif  // !NDEBUG
+#endif  // TESSERACT_CCUTIL_LSTERR_H_

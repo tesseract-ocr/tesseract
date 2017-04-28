@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_WORDREC_WORDREC_H__
-#define TESSERACT_WORDREC_WORDREC_H__
+#ifndef TESSERACT_WORDREC_WORDREC_H_
+#define TESSERACT_WORDREC_WORDREC_H_
 
 #include "associate.h"
 #include "classify.h"
@@ -200,9 +200,8 @@ class Wordrec : public Classify {
   }
 
   // tface.cpp
-  void program_editup(const char *textbase,
-                      bool init_classifier,
-                      bool init_permute);
+  void program_editup(const char *textbase, TessdataManager *init_classifier,
+                      TessdataManager *init_dict);
   void cc_recog(WERD_RES *word);
   void program_editdown(inT32 elasped_time);
   void set_pass1();
@@ -491,4 +490,4 @@ class Wordrec : public Classify {
 
 }  // namespace tesseract
 
-#endif  // TESSERACT_WORDREC_WORDREC_H__
+#endif  // TESSERACT_WORDREC_WORDREC_H_

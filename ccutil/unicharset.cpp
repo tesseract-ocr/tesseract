@@ -906,6 +906,8 @@ void UNICHARSET::post_load_setup() {
   han_sid_ = get_script_id_from_name("Han");
   hiragana_sid_ = get_script_id_from_name("Hiragana");
   katakana_sid_ = get_script_id_from_name("Katakana");
+  thai_sid_ = get_script_id_from_name("Thai");
+  hangul_sid_ = get_script_id_from_name("Hangul");
 
   // Compute default script. Use the highest-counting alpha script, that is
   // not the common script, as that still contains some "alphas".

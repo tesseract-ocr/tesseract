@@ -152,19 +152,27 @@ void ImageThresholder::SetImage(const Pix* pix) {
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
   // Convert the image as necessary so it is one of binary, plain RGB, or
-  // 8 bit with no colormap.
-  if (depth > 1 && depth < 8) {
+  // 8 bit with no colormap. Guarantee that we always end up with our own copy,
+  // not just a clone of the input.
+  if (pixGetColormap(src)) {
+    Pix* tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
+    depth = pixGetDepth(tmp);
+    if (depth > 1 && depth < 8) {
+      pix_ = pixConvertTo8(tmp, false);
+      pixDestroy(&tmp);
+    } else {
+      pix_ = tmp;
+    }
+  } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
-  } else if (pixGetColormap(src)) {
-    pix_ = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
   } else {
-    pix_ = pixClone(src);
+    pix_ = pixCopy(NULL, src);
   }
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
   pix_wpl_ = pixGetWpl(pix_);
   scale_ = 1;
-  estimated_res_ = yres_ = pixGetYRes(src);
+  estimated_res_ = yres_ = pixGetYRes(pix_);
   Init();
 }
 
@@ -173,8 +181,11 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Caller must use pixDestroy to free the created Pix.
 void ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   if (pix_channels_ == 0) {
-    // We have a binary image, so it just has to be cloned.
-    *pix = GetPixRect();
+    // We have a binary image, but it still has to be copied, as this API
+    // allows the caller to modify the output.
+    Pix* original = GetPixRect();
+    *pix = pixCopy(nullptr, original);
+    pixDestroy(&original);
   } else {
     OtsuThresholdRectToPix(pix_, pix);
   }
@@ -257,10 +268,10 @@ void ImageThresholder::OtsuThresholdRectToPix(Pix* src_pix,
   OpenclDevice od;
   if ((num_channels == 4 || num_channels == 1) &&
       od.selectedDeviceIsOpenCL() && rect_top_ == 0 && rect_left_ == 0 ) {
-    od.ThresholdRectToPixOCL((const unsigned char*)pixGetData(src_pix),
-                             num_channels, pixGetWpl(src_pix) * 4,
-                             thresholds, hi_values, out_pix /*pix_OCL*/,
-                             rect_height_, rect_width_, rect_top_, rect_left_);
+    od.ThresholdRectToPixOCL((unsigned char*)pixGetData(src_pix), num_channels,
+                             pixGetWpl(src_pix) * 4, thresholds, hi_values,
+                             out_pix /*pix_OCL*/, rect_height_, rect_width_,
+                             rect_top_, rect_left_);
   } else {
 #endif
     ThresholdRectToPix(src_pix, num_channels, thresholds, hi_values, out_pix);

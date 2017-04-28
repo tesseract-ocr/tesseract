@@ -96,10 +96,8 @@ bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
   num_raw_samples_ = samples_.size();
   if (!unicharset_.load_from_file(fp)) return false;
   if (!font_id_map_.DeSerialize(swap, fp)) return false;
-  if (font_class_array_ != NULL) {
-    delete font_class_array_;
-    font_class_array_ = NULL;
-  }
+  delete font_class_array_;
+  font_class_array_ = NULL;
   inT8 not_null;
   if (fread(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {
@@ -489,81 +487,6 @@ void TrainingSampleSet::IndexFeatures(const IntFeatureSpace& feature_space) {
     samples_[s]->IndexFeatures(feature_space);
 }
 
-// Delete outlier samples with few features that are shared with others.
-// IndexFeatures must have been called already.
-void TrainingSampleSet::DeleteOutliers(const IntFeatureSpace& feature_space,
-                                       bool debug) {
-  if (font_class_array_ == NULL)
-    OrganizeByFontAndClass();
-  Pixa* pixa = NULL;
-  if (debug)
-    pixa = pixaCreate(0);
-  GenericVector<int> feature_counts;
-  int fs_size = feature_space.Size();
-  int font_size = font_id_map_.CompactSize();
-  for (int font_index = 0; font_index < font_size; ++font_index) {
-    for (int c = 0; c < unicharset_size_; ++c) {
-      // Create a histogram of the features used by all samples of this
-      // font/class combination.
-      feature_counts.init_to_size(fs_size, 0);
-      FontClassInfo& fcinfo = (*font_class_array_)(font_index, c);
-      int sample_count = fcinfo.samples.size();
-      if (sample_count < kMinOutlierSamples)
-        continue;
-      for (int i = 0; i < sample_count; ++i) {
-        int s = fcinfo.samples[i];
-        const GenericVector<int>& features = samples_[s]->indexed_features();
-        for (int f = 0; f < features.size(); ++f) {
-          ++feature_counts[features[f]];
-        }
-      }
-      for (int i = 0; i < sample_count; ++i) {
-        int s = fcinfo.samples[i];
-        const TrainingSample& sample = *samples_[s];
-        const GenericVector<int>& features = sample.indexed_features();
-        // A feature that has a histogram count of 1 is only used by this
-        // sample, making it 'bad'. All others are 'good'.
-        int good_features = 0;
-        int bad_features = 0;
-        for (int f = 0; f < features.size(); ++f) {
-          if (feature_counts[features[f]] > 1)
-            ++good_features;
-          else
-            ++bad_features;
-        }
-        // If more than 1/3 features are bad, then this is an outlier.
-        if (bad_features * 2 > good_features) {
-          tprintf("Deleting outlier sample of %s, %d good, %d bad\n",
-                  SampleToString(sample).string(),
-                  good_features, bad_features);
-          if (debug) {
-            pixaAddPix(pixa, sample.RenderToPix(&unicharset_), L_INSERT);
-            // Add the previous sample as well, so it is easier to see in
-            // the output what is wrong with this sample.
-            int t;
-            if (i == 0)
-              t = fcinfo.samples[1];
-            else
-              t = fcinfo.samples[i - 1];
-            const TrainingSample &csample = *samples_[t];
-            pixaAddPix(pixa, csample.RenderToPix(&unicharset_), L_INSERT);
-          }
-          // Mark the sample for deletion.
-          KillSample(samples_[s]);
-        }
-      }
-    }
-  }
-  // Truly delete all bad samples and renumber everything.
-  DeleteDeadSamples();
-  if (pixa != NULL) {
-    Pix* pix = pixaDisplayTiledInRows(pixa, 1, 2600, 1.0, 0, 10, 10);
-    pixaDestroy(&pixa);
-    pixWrite("outliers.png", pix, IFF_PNG);
-    pixDestroy(&pix);
-  }
-}
-
 // Marks the given sample index for deletion.
 // Deletion is actually completed by DeleteDeadSamples.
 void TrainingSampleSet::KillSample(TrainingSample* sample) {
@@ -582,22 +505,6 @@ void TrainingSampleSet::DeleteDeadSamples() {
 // to having a negative classid.
 bool TrainingSampleSet::DeleteableSample(const TrainingSample* sample) {
   return sample == NULL || sample->class_id() < 0;
-}
-
-static Pix* DebugSample(const UNICHARSET& unicharset,
-                        TrainingSample* sample) {
-  tprintf("\nOriginal features:\n");
-  for (int i = 0; i < sample->num_features(); ++i) {
-    sample->features()[i].print();
-  }
-  if (sample->features_are_mapped()) {
-    tprintf("\nMapped features:\n");
-    for (int i = 0; i < sample->mapped_features().size(); ++i) {
-      tprintf("%d ", sample->mapped_features()[i]);
-    }
-    tprintf("\n");
-  }
-  return sample->RenderToPix(&unicharset);
 }
 
 // Construct an array to access the samples by font,class pair.
@@ -747,12 +654,6 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
   if (debug) {
     tprintf("Global worst dist = %g, between sample %d and %d\n",
             global_worst_dist, worst_s1, worst_s2);
-    Pix* pix1 = DebugSample(unicharset_, samples_[worst_s1]);
-    Pix* pix2 = DebugSample(unicharset_, samples_[worst_s2]);
-    pixOr(pix1, pix1, pix2);
-    pixWrite("worstpair.png", pix1, IFF_PNG);
-    pixDestroy(&pix1);
-    pixDestroy(&pix2);
   }
 }
 

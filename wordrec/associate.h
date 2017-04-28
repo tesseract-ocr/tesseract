@@ -47,9 +47,7 @@ struct AssociateStats {
     gap_sum = 0;
   }
 
-  void Print() {
-    tprintf("AssociateStats: w(%g %d)\n", shape_cost, bad_shape);
-  }
+  void Print() { tprintf("AssociateStats: s(%g %d)\n", shape_cost, bad_shape); }
 
   float shape_cost;           // cost of blob shape
   bool bad_shape;             // true if the shape of the blob is unacceptable

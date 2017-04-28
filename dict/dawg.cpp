@@ -174,11 +174,7 @@ bool Dawg::match_words(WERD_CHOICE *word, inT32 index,
   return false;
 }
 
-void Dawg::init(DawgType type, const STRING &lang,
-                PermuterType perm, int unicharset_size, int debug_level) {
-  type_ = type;
-  lang_ = lang;
-  perm_ = perm;
+void Dawg::init(int unicharset_size) {
   ASSERT_HOST(unicharset_size > 0);
   unicharset_size_ = unicharset_size;
   // Set bit masks. We will use the value unicharset_size_ as a null char, so
@@ -188,8 +184,6 @@ void Dawg::init(DawgType type, const STRING &lang,
   letter_mask_ = ~(~0ull << flag_start_bit_);
   next_node_mask_ = ~0ull << (flag_start_bit_ + NUM_FLAG_BITS);
   flags_mask_ = ~(letter_mask_ | next_node_mask_);
-
-  debug_level_ = debug_level;
 }
 
 
@@ -315,44 +309,34 @@ void SquishedDawg::print_edge(EDGE_REF edge) const {
   }
 }
 
-void SquishedDawg::read_squished_dawg(FILE *file,
-                                      DawgType type,
-                                      const STRING &lang,
-                                      PermuterType perm,
-                                      int debug_level) {
-  if (debug_level) tprintf("Reading squished dawg\n");
+bool SquishedDawg::read_squished_dawg(TFile *file) {
+  if (debug_level_) tprintf("Reading squished dawg\n");
 
   // Read the magic number and if it does not match kDawgMagicNumber
   // set swap to true to indicate that we need to switch endianness.
   inT16 magic;
-  fread(&magic, sizeof(inT16), 1, file);
+  if (file->FRead(&magic, sizeof(inT16), 1) != 1) return false;
   bool swap = (magic != kDawgMagicNumber);
 
-  int unicharset_size;
-  fread(&unicharset_size, sizeof(inT32), 1, file);
-  fread(&num_edges_, sizeof(inT32), 1, file);
-
-  if (swap) {
-    ReverseN(&unicharset_size, sizeof(unicharset_size));
-    ReverseN(&num_edges_, sizeof(num_edges_));
-  }
+  inT32 unicharset_size;
+  if (file->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1, swap) !=
+      1)
+    return false;
+  if (file->FReadEndian(&num_edges_, sizeof(num_edges_), 1, swap) != 1)
+    return false;
   ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
-  Dawg::init(type, lang, perm, unicharset_size, debug_level);
+  Dawg::init(unicharset_size);
 
   edges_ = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges_);
-  fread(&edges_[0], sizeof(EDGE_RECORD), num_edges_, file);
-  EDGE_REF edge;
-  if (swap) {
-    for (edge = 0; edge < num_edges_; ++edge) {
-      ReverseN(&edges_[edge], sizeof(edges_[edge]));
-    }
-  }
-  if (debug_level > 2) {
+  if (file->FReadEndian(&edges_[0], sizeof(edges_[0]), num_edges_, swap) !=
+      num_edges_)
+    return false;
+  if (debug_level_ > 2) {
     tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n",
             type_, lang_.string(), perm_, unicharset_size_, num_edges_);
-    for (edge = 0; edge < num_edges_; ++edge)
-      print_edge(edge);
+    for (EDGE_REF edge = 0; edge < num_edges_; ++edge) print_edge(edge);
   }
+  return true;
 }
 
 NODE_MAP SquishedDawg::build_node_map(inT32 *num_nodes) const {

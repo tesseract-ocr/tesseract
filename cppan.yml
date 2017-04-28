@@ -1,124 +1,270 @@
 local_settings:
-    cppan_dir: cppan
+    #use_shared_libs: true
+    #generator: Visual Studio 14 2015 Win64
+    silent: false
+    #copy_import_libs: true
+    build:
+        c_flags: /W0
+        cxx_flags: /W0
 
-files:
-  - api/.*\.cpp
-  - ccmain/.*\.cpp
-  - ccstruct/.*\.cpp
-  - ccutil/.*\.cpp
-  - classify/.*\.cpp
-  - cube/.*\.cpp
-  - cutil/.*\.cpp
-  - dict/.*\.cpp
-  - neural_networks/runtime/.*\.cpp
-  - opencl/.*\.cpp
-  - textord/.*\.cpp
-  - viewer/.*\.cpp
-  - wordrec/.*\.cpp
+    dependencies:
+        pvt.cppan.demo.danbloomberg.leptonica: 1
+        pvt.cppan.demo.unicode.icu.i18n: "*"
 
-  - api/.*\.h
-  - ccmain/.*\.h
-  - ccstruct/.*\.h
-  - ccutil/.*\.h
-  - classify/.*\.h
-  - cube/.*\.h
-  - cutil/.*\.h
-  - dict/.*\.h
-  - neural_networks/runtime/.*\.h
-  - opencl/.*\.h
-  - textord/.*\.h
-  - viewer/.*\.h
-  - wordrec/.*\.h
+root_project: pvt.cppan.demo.google.tesseract
 
-  - vs2010/port/.*
+common_settings:
+    c++: 11
 
-include_directories:
-  private:
-    - classify
-    - cube
-    - cutil
-    - dict
-    - neural_networks/runtime
-    - opencl
-    - textord
-    - vs2010/port
-    - viewer
-    - wordrec
-  public:
-    - api
-    - ccmain
-    - ccstruct
-    - ccutil
+projects:
+    libtesseract:
+        type: lib
+        export_all_symbols: true
+        files:
+          - api/.*\.cpp
+          - arch/.*\.cpp
+          - ccmain/.*\.cpp
+          - ccstruct/.*\.cpp
+          - ccutil/.*\.cpp
+          - classify/.*\.cpp
+          - cutil/.*\.cpp
+          - dict/.*\.cpp
+          - lstm/.*\.cpp
+          - opencl/.*\.cpp
+          - textord/.*\.cpp
+          - viewer/.*\.cpp
+          - wordrec/.*\.cpp
 
-check_function_exists:
-  - getline
+          - api/.*\.h
+          - arch/.*\.h
+          - ccmain/.*\.h
+          - ccstruct/.*\.h
+          - ccutil/.*\.h
+          - classify/.*\.h
+          - cutil/.*\.h
+          - dict/.*\.h
+          - lstm/.*\.h
+          - opencl/.*\.h
+          - textord/.*\.h
+          - viewer/.*\.h
+          - wordrec/.*\.h
 
-check_symbol_exists:
-  snprintf: stdio.h
+          - vs2010/port/.*
 
-check_include_exists:
-  - dlfcn.h
-  - inttypes.h
-  - limits.h
-  - malloc.h
-  - memory.h
-  - stdbool.h
-  - stdint.h
-  - stdlib.h
-  - strings.h
-  - string.h
-  - sys/ipc.h
-  - sys/shm.h
-  - sys/stat.h
-  - sys/types.h
-  - sys/wait.h
-  - tiffio.h
-  - unistd.h
-  - cairo/cairo-version.h
-  - CL/cl.h
-  - OpenCL/cl.h
-  - pango-1.0/pango/pango-features.h
-  - unicode/uchar.h
+        exclude_from_build:
+          - api/tesseractmain.cpp
+          - viewer/svpaint.cpp
 
-check_type_size:
-  - long long int
-  - off_t
-  - mbstate_t
-  - wchar_t
-  - _Bool
+        include_directories:
+          public:
+          #private:
+            - arch
+            - classify
+            - cutil
+            - ccutil
+            - dict
+            - lstm
+            - opencl
+            - textord
+            - vs2010/port
+            - viewer
+            - wordrec
+          #public:
+            - api
+            - ccmain
+            - ccstruct
+            - ccutil
 
-pre_sources: |
-    # dummy config file
-    if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
-    endif()
+        check_function_exists:
+          - getline
 
-post_sources: |
-    if (NOT WIN32)
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/gettimeofday.cpp")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/gettimeofday.h")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/mathfix.h")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strcasestr.cpp")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strcasestr.h")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strtok_r.cpp")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/strtok_r.h")
-        list(REMOVE_ITEM src "${CMAKE_CURRENT_SOURCE_DIR}/vs2010/port/vcsversion.h")
-    endif()
+        check_symbol_exists:
+          snprintf: stdio.h
 
-options:
-    any:
-        definitions:
-            public:
-              - HAVE_CONFIG_H
-              - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
-              - USE_STD_NAMESPACE=1
-              - WINDLLNAME="tesseract"
-    shared:
-        definitions:
-            public: TESS_EXPORTS
+        check_include_exists:
+          - dlfcn.h
+          - inttypes.h
+          - limits.h
+          - malloc.h
+          - memory.h
+          - stdbool.h
+          - stdint.h
+          - stdlib.h
+          - strings.h
+          - string.h
+          - sys/ipc.h
+          - sys/shm.h
+          - sys/stat.h
+          - sys/types.h
+          - sys/wait.h
+          - tiffio.h
+          - unistd.h
 
-dependencies:
-  private:
-    # tesseract uses leptonica only internally
-    # and does not expose its interface to users
-    pvt.cppan.demo.leptonica: master
+        check_type_size:
+          - long long int
+          - off_t
+          - mbstate_t
+          - wchar_t
+          - _Bool
+
+        pre_sources: |
+            file_write_once(${BDIR}/config_auto.h "")
+
+        post_sources: |
+            if (WIN32)
+                set_source_files_properties(
+                    ${SDIR}/arch/dotproductsse.cpp
+                    PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                if (MSVC)
+                    set_source_files_properties(
+                        ${SDIR}/arch/dotproductavx.cpp
+                        PROPERTIES COMPILE_FLAGS "/arch:AVX")
+                endif()
+            else()
+                remove_src_dir(vs2010/port/*)
+            endif()
+
+        options:
+            any:
+                definitions:
+                    public:
+                      - HAVE_CONFIG_H
+                      - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
+                      - USE_STD_NAMESPACE=1
+                      - WINDLLNAME="tesseract"
+            shared:
+                definitions:
+                    private:
+                        - TESS_EXPORTS
+                    interface:
+                        - TESS_IMPORTS
+
+        dependencies:
+            pvt.cppan.demo.danbloomberg.leptonica: 1
+
+    tesseract:
+        files: api/tesseractmain.cpp
+        dependencies:
+            - libtesseract
+
+    tessopt:
+        type: lib
+        static_only: true
+        files: training/tessopt.*
+        include_directories: training
+        dependencies: libtesseract
+
+    common_training:
+        type: lib
+        static_only: true
+        files:
+            - training/commandlineflags.cpp
+            - training/commandlineflags.h
+            - training/commontraining.cpp
+            - training/commontraining.h
+        include_directories: training
+        dependencies:
+            - tessopt
+
+    ambiguous_words:
+        files: training/ambiguous_words.cpp
+        dependencies:
+            - libtesseract
+
+    classifier_tester:
+        files: training/classifier_tester.cpp
+        dependencies: common_training
+
+    combine_tessdata:
+        files: training/combine_tessdata.cpp
+        dependencies: libtesseract
+
+    cntraining:
+        files: training/cntraining.cpp
+        dependencies: common_training
+
+    dawg2wordlist:
+        files: training/dawg2wordlist.cpp
+        dependencies: libtesseract
+
+    mftraining:
+        files:
+            - training/mftraining.cpp
+            - training/mergenf.*
+        dependencies: common_training
+
+    shapeclustering:
+        files: training/shapeclustering.cpp
+        dependencies: common_training
+
+    unicharset_extractor:
+        files: training/unicharset_extractor.cpp
+        dependencies: tessopt
+
+    wordlist2dawg:
+        files: training/wordlist2dawg.cpp
+        dependencies: libtesseract
+
+    unicharset_training:
+        type: lib
+        static_only: true
+        files:
+            - training/fileio.*
+            - training/icuerrorcode.h
+            - training/lstmtester.*
+            - training/normstrngs.*
+            - training/unicharset_training_utils.*
+        include_directories: training
+        dependencies:
+            - common_training
+            - pvt.cppan.demo.unicode.icu.i18n
+
+    lstmeval:
+        files: training/lstmeval.cpp
+        dependencies: unicharset_training
+
+    lstmtraining:
+        files: training/lstmtraining.cpp
+        dependencies: unicharset_training
+
+    set_unicharset_properties:
+        files: training/set_unicharset_properties.cpp
+        dependencies: unicharset_training
+
+    text2image:
+        files:
+            - training/text2image.cpp
+            - training/boxchar.cpp
+            - training/boxchar.h
+            - training/degradeimage.cpp
+            - training/degradeimage.h
+            - training/ligature_table.cpp
+            - training/ligature_table.h
+            - training/normstrngs.cpp
+            - training/normstrngs.h
+            - training/pango_font_info.cpp
+            - training/pango_font_info.h
+            - training/stringrenderer.cpp
+            - training/stringrenderer.h
+            - training/tlog.cpp
+            - training/tlog.h
+            - training/util.h
+            - training/icuerrorcode.h
+
+        dependencies:
+            - unicharset_training
+            - pvt.cppan.demo.gnome.pango.pangocairo: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+

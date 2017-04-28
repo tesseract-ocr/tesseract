@@ -87,8 +87,9 @@ class Trie : public Dawg {
   // contain more edges than max_num_edges, all the edges are cleared
   // so that new inserts can proceed).
   Trie(DawgType type, const STRING &lang, PermuterType perm,
-       int unicharset_size, int debug_level) {
-    init(type, lang, perm, unicharset_size, debug_level);
+       int unicharset_size, int debug_level)
+      : Dawg(type, lang, perm, debug_level) {
+    init(unicharset_size);
     num_edges_ = 0;
     deref_node_index_mask_ = ~letter_mask_;
     new_dawg_node();  // need to allocate node 0
@@ -402,7 +403,7 @@ class Trie : public Dawg {
                              EDGE_VECTOR* backward_edges,
                              NODE_MARKER reduced_nodes);
 
-  /** 
+  /**
    * Order num_edges of consequtive EDGE_RECORDS in the given EDGE_VECTOR in
    * increasing order of unichar ids. This function is normally called
    * for all edges in a single node, and since number of edges in each node

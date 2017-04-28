@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TESSERACT_TRAINING_COMMONTRAINING_H__
-#define TESSERACT_TRAINING_COMMONTRAINING_H__
+#ifndef TESSERACT_TRAINING_COMMONTRAINING_H_
+#define TESSERACT_TRAINING_COMMONTRAINING_H_
 
 #include "cluster.h"
 #include "commandlineflags.h"
@@ -70,7 +70,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
 
 // Creates a MasterTraininer and loads the training data into it:
 // Initializes feature_defs and IntegerFX.
-// Loads the shape_table if shape_table != NULL.
+// Loads the shape_table if shape_table != nullptr.
 // Loads initial unicharset from -U command-line option.
 // If FLAGS_input_trainer is set, loads the majority of data from there, else:
 //   Loads font info from -F option.
@@ -79,7 +79,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
 //   Deletes outliers and computes canonical samples.
 //   If FLAGS_output_trainer is set, saves the trainer for future use.
 // Computes canonical and cloud features.
-// If shape_table is not NULL, but failed to load, make a fake flat one,
+// If shape_table is not nullptr, but failed to load, make a fake flat one,
 // as shape clustering was not run.
 MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
                                 bool replication,
@@ -167,4 +167,4 @@ int NumberOfProtos(
 
 
 void allocNormProtos();
-#endif  // TESSERACT_TRAINING_COMMONTRAINING_H__
+#endif  // TESSERACT_TRAINING_COMMONTRAINING_H_

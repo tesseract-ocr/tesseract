@@ -30,6 +30,8 @@
 #endif
 #include <stdio.h>
 
+using tesseract::TFile;
+
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
@@ -310,7 +312,7 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
  * @note Exceptions: none
  * @note History: Tue Mar 19 14:11:01 1991, DSJ, Created.
  */
-ADAPT_CLASS ReadAdaptedClass(FILE *File) {
+ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
   int NumTempProtos;
   int NumConfigs;
   int i;
@@ -319,34 +321,34 @@ ADAPT_CLASS ReadAdaptedClass(FILE *File) {
 
   /* first read high level adapted class structure */
   Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
-  fread ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
+  fp->FRead(Class, sizeof(ADAPT_CLASS_STRUCT), 1);
 
   /* then read in the definitions of the permanent protos and configs */
   Class->PermProtos = NewBitVector (MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector (MAX_NUM_CONFIGS);
-  fread ((char *) Class->PermProtos, sizeof (uinT32),
-    WordsInVectorOfSize (MAX_NUM_PROTOS), File);
-  fread ((char *) Class->PermConfigs, sizeof (uinT32),
-    WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
+  fp->FRead(Class->PermProtos, sizeof(uinT32),
+            WordsInVectorOfSize(MAX_NUM_PROTOS));
+  fp->FRead(Class->PermConfigs, sizeof(uinT32),
+            WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
   /* then read in the list of temporary protos */
-  fread ((char *) &NumTempProtos, sizeof (int), 1, File);
+  fp->FRead(&NumTempProtos, sizeof(int), 1);
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
     TempProto =
       (TEMP_PROTO) alloc_struct (sizeof (TEMP_PROTO_STRUCT),
       "TEMP_PROTO_STRUCT");
-    fread ((char *) TempProto, sizeof (TEMP_PROTO_STRUCT), 1, File);
+    fp->FRead(TempProto, sizeof(TEMP_PROTO_STRUCT), 1);
     Class->TempProtos = push_last (Class->TempProtos, TempProto);
   }
 
   /* then read in the adapted configs */
-  fread ((char *) &NumConfigs, sizeof (int), 1, File);
+  fp->FRead(&NumConfigs, sizeof(int), 1);
   for (i = 0; i < NumConfigs; i++)
     if (test_bit (Class->PermConfigs, i))
-      Class->Config[i].Perm = ReadPermConfig (File);
+      Class->Config[i].Perm = ReadPermConfig(fp);
     else
-      Class->Config[i].Temp = ReadTempConfig (File);
+      Class->Config[i].Temp = ReadTempConfig(fp);
 
   return (Class);
 
@@ -366,20 +368,20 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Mon Mar 18 15:18:10 1991, DSJ, Created.
  */
-ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
+ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
   int i;
   ADAPT_TEMPLATES Templates;
 
   /* first read the high level adaptive template struct */
   Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
-  fread ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
+  fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
 
   /* then read in the basic integer templates */
-  Templates->Templates = ReadIntTemplates (File);
+  Templates->Templates = ReadIntTemplates(false, fp);
 
   /* then read in the adaptive info for each class */
   for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
-    Templates->Class[i] = ReadAdaptedClass (File);
+    Templates->Class[i] = ReadAdaptedClass(fp);
   }
   return (Templates);
 
@@ -399,15 +401,15 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(FILE *File) {
  * @note Exceptions: none
  * @note History: Tue Mar 19 14:25:26 1991, DSJ, Created.
  */
-PERM_CONFIG ReadPermConfig(FILE *File) {
+PERM_CONFIG ReadPermConfig(TFile *fp) {
   PERM_CONFIG Config = (PERM_CONFIG) alloc_struct(sizeof(PERM_CONFIG_STRUCT),
                                                   "PERM_CONFIG_STRUCT");
   uinT8 NumAmbigs;
-  fread ((char *) &NumAmbigs, sizeof(uinT8), 1, File);
+  fp->FRead(&NumAmbigs, sizeof(uinT8), 1);
   Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
-  fread(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs, File);
+  fp->FRead(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs);
   Config->Ambigs[NumAmbigs] = -1;
-  fread(&(Config->FontinfoId), sizeof(int), 1, File);
+  fp->FRead(&(Config->FontinfoId), sizeof(int), 1);
 
   return (Config);
 
@@ -426,17 +428,16 @@ PERM_CONFIG ReadPermConfig(FILE *File) {
  * @note Exceptions: none
  * @note History: Tue Mar 19 14:29:59 1991, DSJ, Created.
  */
-TEMP_CONFIG ReadTempConfig(FILE *File) {
+TEMP_CONFIG ReadTempConfig(TFile *fp) {
   TEMP_CONFIG Config;
 
   Config =
     (TEMP_CONFIG) alloc_struct (sizeof (TEMP_CONFIG_STRUCT),
     "TEMP_CONFIG_STRUCT");
-  fread ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
+  fp->FRead(Config, sizeof(TEMP_CONFIG_STRUCT), 1);
 
   Config->Protos = NewBitVector (Config->ProtoVectorSize * BITSINLONG);
-  fread ((char *) Config->Protos, sizeof (uinT32),
-    Config->ProtoVectorSize, File);
+  fp->FRead(Config->Protos, sizeof(uinT32), Config->ProtoVectorSize);
 
   return (Config);
 

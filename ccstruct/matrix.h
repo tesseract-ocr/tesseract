@@ -1,8 +1,12 @@
 /* -*-C-*-
  ******************************************************************************
+ * File:         matrix.h  (Formerly matrix.h)
+ * Description:  Generic 2-d array/matrix and banded triangular matrix class.
+ * Author:       Ray Smith
+ * TODO(rays) Separate from ratings matrix, which it also contains:
  *
- * File:        matrix.h  (Formerly matrix.h)
- * Description:  Ratings matrix code. (Used by associator)
+ * Descrition:   Ratings matrix class (specialization of banded matrix).
+ *               Segmentation search matrix of lists of BLOB_CHOICE.
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 16 13:22:06 1990
  * Modified:     Tue Mar 19 16:00:20 1991 (Mark Seaman) marks@hpgrlt
@@ -22,12 +26,16 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-#ifndef TESSERACT_CCSTRUCT_MATRIX_H__
-#define TESSERACT_CCSTRUCT_MATRIX_H__
+#ifndef TESSERACT_CCSTRUCT_MATRIX_H_
+#define TESSERACT_CCSTRUCT_MATRIX_H_
 
+#include <math.h>
 #include "kdpair.h"
+#include "points.h"
+#include "serialis.h"
 #include "unicharset.h"
 
+class BLOB_CHOICE;
 class BLOB_CHOICE_LIST;
 
 #define NOT_CLASSIFIED reinterpret_cast<BLOB_CHOICE_LIST*>(0)
@@ -44,34 +52,60 @@ class GENERIC_2D_ARRAY {
   // either pass the memory in, or allocate after by calling Resize().
   GENERIC_2D_ARRAY(int dim1, int dim2, const T& empty, T* array)
     : empty_(empty), dim1_(dim1), dim2_(dim2), array_(array)  {
+    size_allocated_ = dim1 * dim2;
   }
   // Original constructor for a full rectangular matrix DOES allocate memory
   // and initialize it to empty.
   GENERIC_2D_ARRAY(int dim1, int dim2, const T& empty)
     : empty_(empty), dim1_(dim1), dim2_(dim2)  {
-    array_ = new T[dim1_ * dim2_];
-    for (int x = 0; x < dim1_; x++)
-      for (int y = 0; y < dim2_; y++)
-        this->put(x, y, empty_);
+    int new_size = dim1 * dim2;
+    array_ = new T[new_size];
+    size_allocated_ = new_size;
+    for (int i = 0; i < size_allocated_; ++i)
+      array_[i] = empty_;
+  }
+  // Default constructor for array allocation. Use Resize to set the size.
+  GENERIC_2D_ARRAY()
+    : array_(NULL), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
+      size_allocated_(0) {
+  }
+  GENERIC_2D_ARRAY(const GENERIC_2D_ARRAY<T>& src)
+    : array_(NULL), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
+      size_allocated_(0) {
+    *this = src;
   }
   virtual ~GENERIC_2D_ARRAY() { delete[] array_; }
+
+  void operator=(const GENERIC_2D_ARRAY<T>& src) {
+    ResizeNoInit(src.dim1(), src.dim2());
+    memcpy(array_, src.array_, num_elements() * sizeof(array_[0]));
+  }
+
+  // Reallocate the array to the given size. Does not keep old data, but does
+  // not initialize the array either.
+  void ResizeNoInit(int size1, int size2) {
+    int new_size = size1 * size2;
+    if (new_size > size_allocated_) {
+      delete [] array_;
+      array_ = new T[new_size];
+      size_allocated_ = new_size;
+    }
+    dim1_ = size1;
+    dim2_ = size2;
+  }
 
   // Reallocate the array to the given size. Does not keep old data.
   void Resize(int size1, int size2, const T& empty) {
     empty_ = empty;
-    if (size1 != dim1_ || size2 != dim2_) {
-      dim1_ = size1;
-      dim2_ = size2;
-      delete [] array_;
-      array_ = new T[dim1_ * dim2_];
-    }
+    ResizeNoInit(size1, size2);
     Clear();
   }
 
   // Reallocate the array to the given size, keeping old data.
   void ResizeWithCopy(int size1, int size2) {
     if (size1 != dim1_ || size2 != dim2_) {
-      T* new_array = new T[size1 * size2];
+      int new_size = size1 * size2;
+      T* new_array = new T[new_size];
       for (int col = 0; col < size1; ++col) {
         for (int row = 0; row < size2; ++row) {
           int old_index = col * dim2() + row;
@@ -87,6 +121,7 @@ class GENERIC_2D_ARRAY {
       array_ = new_array;
       dim1_ = size1;
       dim2_ = size2;
+      size_allocated_ = new_size;
     }
   }
 
@@ -106,9 +141,16 @@ class GENERIC_2D_ARRAY {
     if (fwrite(array_, sizeof(*array_), size, fp) != size) return false;
     return true;
   }
+  bool Serialize(tesseract::TFile* fp) const {
+    if (!SerializeSize(fp)) return false;
+    if (fp->FWrite(&empty_, sizeof(empty_), 1) != 1) return false;
+    int size = num_elements();
+    if (fp->FWrite(array_, sizeof(*array_), size) != size) return false;
+    return true;
+  }
 
   // Reads from the given file. Returns false in case of error.
-  // Only works with bitwise-serializeable typ
+  // Only works with bitwise-serializeable types!
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(bool swap, FILE* fp) {
     if (!DeSerializeSize(swap, fp)) return false;
@@ -116,6 +158,18 @@ class GENERIC_2D_ARRAY {
     if (swap) ReverseN(&empty_, sizeof(empty_));
     int size = num_elements();
     if (fread(array_, sizeof(*array_), size, fp) != size) return false;
+    if (swap) {
+      for (int i = 0; i < size; ++i)
+        ReverseN(&array_[i], sizeof(array_[i]));
+    }
+    return true;
+  }
+  bool DeSerialize(bool swap, tesseract::TFile* fp) {
+    if (!DeSerializeSize(swap, fp)) return false;
+    if (fp->FRead(&empty_, sizeof(empty_), 1) != 1) return false;
+    if (swap) ReverseN(&empty_, sizeof(empty_));
+    int size = num_elements();
+    if (fp->FRead(array_, sizeof(*array_), size) != size) return false;
     if (swap) {
       for (int i = 0; i < size; ++i)
         ReverseN(&array_[i], sizeof(array_[i]));
@@ -163,11 +217,17 @@ class GENERIC_2D_ARRAY {
   }
 
   // Put a list element into the matrix at a specific location.
+  void put(ICOORD pos, const T& thing) {
+    array_[this->index(pos.x(), pos.y())] = thing;
+  }
   void put(int column, int row, const T& thing) {
     array_[this->index(column, row)] = thing;
   }
 
   // Get the item at a specified location from the matrix.
+  T get(ICOORD pos) const {
+    return array_[this->index(pos.x(), pos.y())];
+  }
   T get(int column, int row) const {
     return array_[this->index(column, row)];
   }
@@ -185,6 +245,207 @@ class GENERIC_2D_ARRAY {
   }
   const T* operator[](int column) const {
     return &array_[this->index(column, 0)];
+  }
+
+  // Adds addend to *this, element-by-element.
+  void operator+=(const GENERIC_2D_ARRAY<T>& addend) {
+    if (dim2_ == addend.dim2_) {
+      // Faster if equal size in the major dimension.
+      int size = MIN(num_elements(), addend.num_elements());
+      for (int i = 0; i < size; ++i) {
+        array_[i] += addend.array_[i];
+      }
+    } else {
+      for (int x = 0; x < dim1_; x++) {
+        for (int y = 0; y < dim2_; y++) {
+          (*this)(x, y) += addend(x, y);
+        }
+      }
+    }
+  }
+  // Subtracts minuend from *this, element-by-element.
+  void operator-=(const GENERIC_2D_ARRAY<T>& minuend) {
+    if (dim2_ == minuend.dim2_) {
+      // Faster if equal size in the major dimension.
+      int size = MIN(num_elements(), minuend.num_elements());
+      for (int i = 0; i < size; ++i) {
+        array_[i] -= minuend.array_[i];
+      }
+    } else {
+      for (int x = 0; x < dim1_; x++) {
+        for (int y = 0; y < dim2_; y++) {
+          (*this)(x, y) -= minuend(x, y);
+        }
+      }
+    }
+  }
+  // Adds addend to all elements.
+  void operator+=(const T& addend) {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      array_[i] += addend;
+    }
+  }
+  // Multiplies *this by factor, element-by-element.
+  void operator*=(const T& factor) {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      array_[i] *= factor;
+    }
+  }
+  // Clips *this to the given range.
+  void Clip(const T& rangemin, const T& rangemax) {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      array_[i] = ClipToRange(array_[i], rangemin, rangemax);
+    }
+  }
+  // Returns true if all elements of *this are within the given range.
+  // Only uses operator<
+  bool WithinBounds(const T& rangemin, const T& rangemax) const {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      const T& value = array_[i];
+      if (value < rangemin || rangemax < value)
+        return false;
+    }
+    return true;
+  }
+  // Normalize the whole array.
+  double Normalize() {
+    int size = num_elements();
+    if (size <= 0) return 0.0;
+    // Compute the mean.
+    double mean = 0.0;
+    for (int i = 0; i < size; ++i) {
+      mean += array_[i];
+    }
+    mean /= size;
+    // Subtract the mean and compute the standard deviation.
+    double sd = 0.0;
+    for (int i = 0; i < size; ++i) {
+      double normed = array_[i] - mean;
+      array_[i] = normed;
+      sd += normed * normed;
+    }
+    sd = sqrt(sd / size);
+    if (sd > 0.0) {
+      // Divide by the sd.
+      for (int i = 0; i < size; ++i) {
+        array_[i] /= sd;
+      }
+    }
+    return sd;
+  }
+
+  // Returns the maximum value of the array.
+  T Max() const {
+    int size = num_elements();
+    if (size <= 0) return empty_;
+    // Compute the max.
+    T max_value = array_[0];
+    for (int i = 1; i < size; ++i) {
+      const T& value = array_[i];
+      if (value > max_value) max_value = value;
+    }
+    return max_value;
+  }
+
+  // Returns the maximum absolute value of the array.
+  T MaxAbs() const {
+    int size = num_elements();
+    if (size <= 0) return empty_;
+    // Compute the max.
+    T max_abs = static_cast<T>(0);
+    for (int i = 0; i < size; ++i) {
+      T value = static_cast<T>(fabs(array_[i]));
+      if (value > max_abs) max_abs = value;
+    }
+    return max_abs;
+  }
+
+  // Accumulates the element-wise sums of squares of src into *this.
+  void SumSquares(const GENERIC_2D_ARRAY<T>& src) {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      array_[i] += src.array_[i] * src.array_[i];
+    }
+  }
+
+  // Scales each element using the ada-grad algorithm, ie array_[i] by
+  // sqrt(num_samples/max(1,sqsum[i])).
+  void AdaGradScaling(const GENERIC_2D_ARRAY<T>& sqsum, int num_samples) {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      array_[i] *= sqrt(num_samples / MAX(1.0, sqsum.array_[i]));
+    }
+  }
+
+  void AssertFinite() const {
+    int size = num_elements();
+    for (int i = 0; i < size; ++i) {
+      ASSERT_HOST(isfinite(array_[i]));
+    }
+  }
+
+  // REGARDLESS OF THE CURRENT DIMENSIONS, treats the data as a
+  // num_dims-dimensional array/tensor with dimensions given by dims, (ordered
+  // from most significant to least significant, the same as standard C arrays)
+  // and moves src_dim to dest_dim, with the initial dest_dim and any dimensions
+  // in between shifted towards the hole left by src_dim. Example:
+  // Current data content: array_=[0, 1, 2, ....119]
+  //   perhaps *this may be of dim[40, 3], with values [[0, 1, 2][3, 4, 5]...
+  //   but the current dimensions are irrelevant.
+  // num_dims = 4, dims=[5, 4, 3, 2]
+  // src_dim=3, dest_dim=1
+  // tensor=[[[[0, 1][2, 3][4, 5]]
+  //          [[6, 7][8, 9][10, 11]]
+  //          [[12, 13][14, 15][16, 17]]
+  //          [[18, 19][20, 21][22, 23]]]
+  //         [[[24, 25]...
+  // output dims =[5, 2, 4, 3]
+  // output tensor=[[[[0, 2, 4][6, 8, 10][12, 14, 16][18, 20, 22]]
+  //                 [[1, 3, 5][7, 9, 11][13, 15, 17][19, 21, 23]]]
+  //                [[[24, 26, 28]...
+  // which is stored in the array_ as:
+  //   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 1, 3, 5, 7, 9, 11, 13...]
+  // NOTE: the 2 stored matrix dimensions are simply copied from *this. To
+  // change the dimensions after the transpose, use ResizeNoInit.
+  // Higher dimensions above 2 are strictly the responsibility of the caller.
+  void RotatingTranspose(const int* dims, int num_dims, int src_dim,
+                         int dest_dim, GENERIC_2D_ARRAY<T>* result) const {
+    int max_d = MAX(src_dim, dest_dim);
+    int min_d = MIN(src_dim, dest_dim);
+    // In a tensor of shape [d0, d1... min_d, ... max_d, ... dn-2, dn-1], the
+    // ends outside of min_d and max_d are unaffected, with [max_d +1, dn-1]
+    // being contiguous blocks of data that will move together, and
+    // [d0, min_d -1] being replicas of the transpose operation.
+    // num_replicas represents the large dimensions unchanged by the operation.
+    // move_size represents the small dimensions unchanged by the operation.
+    // src_step represents the stride in the src between each adjacent group
+    // in the destination.
+    int num_replicas = 1, move_size = 1, src_step = 1;
+    for (int d = 0; d < min_d; ++d) num_replicas *= dims[d];
+    for (int d = max_d + 1; d < num_dims; ++d) move_size *= dims[d];
+    for (int d = src_dim + 1; d < num_dims; ++d) src_step *= dims[d];
+    if (src_dim > dest_dim) src_step *= dims[src_dim];
+    // wrap_size is the size of a single replica, being the amount that is
+    // handled num_replicas times.
+    int wrap_size = move_size;
+    for (int d = min_d; d <= max_d; ++d) wrap_size *= dims[d];
+    result->ResizeNoInit(dim1_, dim2_);
+    result->empty_ = empty_;
+    const T* src = array_;
+    T* dest = result->array_;
+    for (int replica = 0; replica < num_replicas; ++replica) {
+      for (int start = 0; start < src_step; start += move_size) {
+        for (int pos = start; pos < wrap_size; pos += src_step) {
+          memcpy(dest, src + pos, sizeof(*dest) * move_size);
+          dest += move_size;
+        }
+      }
+      src += wrap_size;
+    }
   }
 
   // Delete objects pointed to by array_[i].
@@ -206,6 +467,13 @@ class GENERIC_2D_ARRAY {
     if (fwrite(&size, sizeof(size), 1, fp) != 1) return false;
     return true;
   }
+  bool SerializeSize(tesseract::TFile* fp) const {
+    inT32 size = dim1_;
+    if (fp->FWrite(&size, sizeof(size), 1) != 1) return false;
+    size = dim2_;
+    if (fp->FWrite(&size, sizeof(size), 1) != 1) return false;
+    return true;
+  }
   // Factored helper to deserialize the size.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeSize(bool swap, FILE* fp) {
@@ -219,11 +487,26 @@ class GENERIC_2D_ARRAY {
     Resize(size1, size2, empty_);
     return true;
   }
+  bool DeSerializeSize(bool swap, tesseract::TFile* fp) {
+    inT32 size1, size2;
+    if (fp->FRead(&size1, sizeof(size1), 1) != 1) return false;
+    if (fp->FRead(&size2, sizeof(size2), 1) != 1) return false;
+    if (swap) {
+      ReverseN(&size1, sizeof(size1));
+      ReverseN(&size2, sizeof(size2));
+    }
+    Resize(size1, size2, empty_);
+    return true;
+  }
 
   T* array_;
   T empty_;   // The unused cell.
   int dim1_;  // Size of the 1st dimension in indexing functions.
   int dim2_;  // Size of the 2nd dimension in indexing functions.
+  // The total size to which the array can be expanded before a realloc is
+  // needed. If Resize is used, memory is retained so it can be re-expanded
+  // without a further alloc, and this stores the allocated size.
+  int size_allocated_;
 };
 
 // A generic class to store a banded triangular matrix with entries of type T.
@@ -349,4 +632,4 @@ struct MATRIX_COORD {
 // The MatrixCoordPair contains a MATRIX_COORD and its priority.
 typedef tesseract::KDPairInc<float, MATRIX_COORD> MatrixCoordPair;
 
-#endif  // TESSERACT_CCSTRUCT_MATRIX_H__
+#endif  // TESSERACT_CCSTRUCT_MATRIX_H_

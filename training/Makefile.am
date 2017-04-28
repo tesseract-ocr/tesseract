@@ -3,6 +3,7 @@ AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE\
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
+    -I$(top_srcdir)/lstm -I$(top_srcdir)/arch \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
@@ -10,14 +11,6 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
-if MINGW
-# try static build
-#AM_LDFLAGS += -all-static
-#libic=-lsicuin -licudt -lsicuuc
-libicu=-licuin -licuuc
-else
-libicu=-licui18n -licuuc
-endif
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY
@@ -26,7 +19,7 @@ endif
 
 noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
-      fileio.h icuerrorcode.h ligature_table.h normstrngs.h \
+      fileio.h icuerrorcode.h ligature_table.h lstmtester.h normstrngs.h \
       mergenf.h pango_font_info.h stringrenderer.h \
       tessopt.h tlog.h unicharset_training_utils.h util.h
 
@@ -38,14 +31,14 @@ libtesseract_training_la_LIBADD = \
     
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
-      fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
+      fileio.cpp ligature_table.cpp lstmtester.cpp normstrngs.cpp pango_font_info.cpp \
       stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
 bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata \
-  dawg2wordlist mftraining set_unicharset_properties shapeclustering \
+  dawg2wordlist lstmeval lstmtraining mftraining set_unicharset_properties shapeclustering \
   text2image unicharset_extractor wordlist2dawg
 
 ambiguous_words_SOURCES = ambiguous_words.cpp
@@ -58,12 +51,13 @@ ambiguous_words_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -82,12 +76,13 @@ classifier_tester_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -115,12 +110,13 @@ cntraining_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -136,12 +132,13 @@ if USING_MULTIPLELIBS
 dawg2wordlist_LDADD += \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../textord/libtesseract_textord.la \
     ../ccutil/libtesseract_ccutil.la
@@ -150,22 +147,74 @@ dawg2wordlist_LDADD += \
     ../api/libtesseract.la
 endif
 
+lstmeval_SOURCES = lstmeval.cpp
+#lstmeval_LDFLAGS = -static
+lstmeval_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(ICU_UC_LIBS)
+if USING_MULTIPLELIBS
+lstmeval_LDADD += \
+    ../textord/libtesseract_textord.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccmain/libtesseract_main.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../ccutil/libtesseract_ccutil.la
+else
+lstmeval_LDADD += \
+    ../api/libtesseract.la
+endif
+
+lstmtraining_SOURCES = lstmtraining.cpp
+#lstmtraining_LDFLAGS = -static
+lstmtraining_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+if USING_MULTIPLELIBS
+lstmtraining_LDADD += \
+    ../textord/libtesseract_textord.la \
+    ../classify/libtesseract_classify.la \
+    ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
+    ../ccstruct/libtesseract_ccstruct.la \
+    ../cutil/libtesseract_cutil.la \
+    ../viewer/libtesseract_viewer.la \
+    ../ccmain/libtesseract_main.la \
+    ../wordrec/libtesseract_wordrec.la \
+    ../ccutil/libtesseract_ccutil.la
+else
+lstmtraining_LDADD += \
+    ../api/libtesseract.la
+endif
+
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
 mftraining_LDADD = \
     libtesseract_training.la \
-    libtesseract_tessopt.la
+    libtesseract_tessopt.la \
+    $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 mftraining_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -174,22 +223,22 @@ mftraining_LDADD += \
 endif
 
 set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
-#set_unicharset_properties_LDFLAGS = $(pkg-config --libs icu-uc)
 set_unicharset_properties_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    $(libicu)
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 set_unicharset_properties_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../ccstruct/libtesseract_ccstruct.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -207,12 +256,13 @@ shapeclustering_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
@@ -224,25 +274,27 @@ text2image_SOURCES = text2image.cpp
 #text2image_LDFLAGS = -static
 text2image_LDADD = \
     libtesseract_training.la \
-    libtesseract_tessopt.la
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 text2image_LDADD += \
     ../textord/libtesseract_textord.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../ccutil/libtesseract_ccutil.la
 else
 text2image_LDADD += \
     ../api/libtesseract.la
 endif
-text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
+text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0 \
 		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
@@ -266,12 +318,13 @@ if USING_MULTIPLELIBS
 wordlist2dawg_LDADD += \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccmain/libtesseract_main.la \
-    ../cube/libtesseract_cube.la \
-    ../neural_networks/runtime/libtesseract_neural.la \
     ../wordrec/libtesseract_wordrec.la \
     ../textord/libtesseract_textord.la \
     ../ccutil/libtesseract_ccutil.la
@@ -309,3 +362,17 @@ shapeclustering_LDFLAGS = $(OPENCL_LDFLAGS)
 text2image_LDFLAGS = $(OPENCL_LDFLAGS)
 unicharset_extractor_LDFLAGS = $(OPENCL_LDFLAGS)
 wordlist2dawg_LDFLAGS = $(OPENCL_LDFLAGS)
+
+ambiguous_words_LDADD += $(LEPTONICA_LIBS)
+classifier_tester_LDADD += $(LEPTONICA_LIBS)
+cntraining_LDADD += $(LEPTONICA_LIBS)
+combine_tessdata_LDADD += $(LEPTONICA_LIBS)
+dawg2wordlist_LDADD += $(LEPTONICA_LIBS)
+lstmeval_LDADD += $(LEPTONICA_LIBS)
+lstmtraining_LDADD += $(LEPTONICA_LIBS)
+mftraining_LDADD += $(LEPTONICA_LIBS)
+set_unicharset_properties_LDADD += $(LEPTONICA_LIBS)
+shapeclustering_LDADD += $(LEPTONICA_LIBS)
+text2image_LDADD += $(LEPTONICA_LIBS)
+unicharset_extractor_LDFLAGS += $(LEPTONICA_LIBS) 
+wordlist2dawg_LDADD += $(LEPTONICA_LIBS)

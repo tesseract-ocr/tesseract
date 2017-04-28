@@ -1,6 +1,7 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
     -DUSE_STD_NAMESPACE \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct -I$(top_srcdir)/cube \
+    -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
+    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
@@ -27,15 +28,15 @@ libtesseract_api_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la 
-    if !NO_CUBE_BUILD
-        libtesseract_api_la_LIBADD += ../cube/libtesseract_cube.la \
-            ../neural_networks/runtime/libtesseract_neural.la \
-    endif
 endif
 
 libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
@@ -45,7 +46,7 @@ endif
 libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
-libtesseract_la_LDFLAGS = 
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS)
 libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
@@ -57,15 +58,15 @@ libtesseract_la_LIBADD = \
     ../wordrec/libtesseract_wordrec.la \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_arch.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
     ../cutil/libtesseract_cutil.la \
     ../viewer/libtesseract_viewer.la \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la 
-if !NO_CUBE_BUILD
-libtesseract_la_LIBADD += ../cube/libtesseract_cube.la \
-        ../neural_networks/runtime/libtesseract_neural.la
-endif
 
 libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) -no-undefined
 
@@ -81,9 +82,10 @@ tesseract_LDADD = libtesseract.la
 
 tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
-if OPENMP
-tesseract_LDADD += $(OPENMP_CFLAGS)
-endif
+tesseract_LDADD += $(LEPTONICA_LIBS)
+tesseract_LDADD += $(OPENMP_CXXFLAGS)
+
+tesseract_LDADD += -ltiff
 
 if T_WIN
 tesseract_LDADD += -lws2_32
@@ -92,4 +94,3 @@ endif
 if ADD_RT
 tesseract_LDADD += -lrt
 endif
-

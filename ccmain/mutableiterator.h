@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_MUTABLEITERATOR_H__
-#define TESSERACT_CCMAIN_MUTABLEITERATOR_H__
+#ifndef TESSERACT_CCMAIN_MUTABLEITERATOR_H_
+#define TESSERACT_CCMAIN_MUTABLEITERATOR_H_
 
 #include "resultiterator.h"
 
@@ -61,4 +61,4 @@ class MutableIterator : public ResultIterator {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_MUTABLEITERATOR_H__
+#endif  // TESSERACT_CCMAIN_MUTABLEITERATOR_H_

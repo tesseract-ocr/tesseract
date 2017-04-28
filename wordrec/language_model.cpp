@@ -32,7 +32,7 @@
 #include "params.h"
 #include "params_training_featdef.h"
 
-#if defined(_MSC_VER) || defined(ANDROID)
+#if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(ANDROID)
 double log2(double n) {
   return log(n) / log(2.0);
 }
@@ -988,7 +988,7 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
             unichar, context_ptr, CertaintyScore(certainty)/denom, prob,
             ngram_and_classifier_cost);
   }
-  if (modified_context != NULL) delete[] modified_context;
+  delete[] modified_context;
   return ngram_and_classifier_cost;
 }
 

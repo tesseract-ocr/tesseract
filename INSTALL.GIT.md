@@ -3,11 +3,12 @@
 If you have cloned Tesseract from GitHub, you must generate
 the configure script.
 
-If you have tesseract 3.0x installation in your system, please remove it
+If you have tesseract 4.0x installation in your system, please remove it
 before new build.
 
 Known dependencies for training tools (excluding leptonica):
- * compiler with c++ support
+ * compiler with c++11 support
+ * autoconf-archive
  * pango-devel
  * cairo-devel
  * icu-devel
@@ -24,7 +25,7 @@ So, the steps for making Tesseract are:
 You need to install at least English language and OSD data files to TESSDATA_PREFIX
 directory. You can retrieve single file with tools like [wget](https://www.gnu.org/software/wget/), [curl](https://curl.haxx.se/), [GithubDownloader](https://github.com/intezer/GithubDownloader) or browser.
 
-All language data files can be retrieved from git repository (usefull only for packagers!):
+All language data files can be retrieved from git repository (useful only for packagers!):
 
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 

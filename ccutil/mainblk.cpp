@@ -55,7 +55,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 
   char *tessdata_prefix = getenv("TESSDATA_PREFIX");
 
-  if (argv0 != NULL) {
+  if (argv0 != NULL && *argv0 != '\0') {
     /* Use tessdata prefix from the command line. */
     datadir = argv0;
   } else if (tessdata_prefix) {
@@ -74,7 +74,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 #endif /* _WIN32 */
 #if defined(TESSDATA_PREFIX)
   } else {
-    /* Use tessdata prefix which was compiled in. */
+/* Use tessdata prefix which was compiled in. */
 #define _STR(a) #a
 #define _XSTR(a) _STR(a)
     datadir = _XSTR(TESSDATA_PREFIX);

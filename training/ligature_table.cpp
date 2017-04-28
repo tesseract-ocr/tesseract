@@ -46,11 +46,11 @@ const int kMinLigature = 0xfb00;
 const int kMaxLigature = 0xfb17;  // Don't put the wide Hebrew letters in.
 
 /* static */
-SmartPtr<LigatureTable> LigatureTable::instance_;
+std::unique_ptr<LigatureTable> LigatureTable::instance_;
 
 /* static */
 LigatureTable* LigatureTable::Get() {
-  if (instance_ == NULL) {
+  if (instance_ == nullptr) {
     instance_.reset(new LigatureTable());
     instance_->Init();
   }
@@ -93,7 +93,7 @@ void LigatureTable::Init() {
       }
     }
     // Add custom extra ligatures.
-    for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != NULL; ++i) {
+    for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != nullptr; ++i) {
       norm_to_lig_table_[UNICHARSET::kCustomLigatures[i][0]] =
           UNICHARSET::kCustomLigatures[i][1];
       int norm_length = strlen(UNICHARSET::kCustomLigatures[i][0]);
@@ -138,8 +138,8 @@ string LigatureTable::RemoveCustomLigatures(const string& str) const {
     len = it.get_utf8(tmp);
     tmp[len] = '\0';
     norm_ind = -1;
-    for (int i = 0; UNICHARSET::kCustomLigatures[i][0] != NULL && norm_ind < 0;
-         ++i) {
+    for (int i = 0;
+         UNICHARSET::kCustomLigatures[i][0] != nullptr && norm_ind < 0; ++i) {
       if (!strcmp(tmp, UNICHARSET::kCustomLigatures[i][1])) {
         norm_ind = i;
       }

@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_COLPARTITIONSET_H__
-#define TESSERACT_TEXTORD_COLPARTITIONSET_H__
+#ifndef TESSERACT_TEXTORD_COLPARTITIONSET_H_
+#define TESSERACT_TEXTORD_COLPARTITIONSET_H_
 
 #include "colpartition.h"   // For ColPartition_LIST.
 #include "genericvector.h"  // For GenericVector.
@@ -170,4 +170,4 @@ ELISTIZEH(ColPartitionSet)
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLPARTITION_H__
+#endif  // TESSERACT_TEXTORD_COLPARTITION_H_

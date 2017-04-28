@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        rect.c  (Formerly box.c)
  * Description: Bounding box class definition.
- * Author:					Phil Cheatle
- * Created:					Wed Oct 16 15:18:45 BST 1991
+ * Author:          Phil Cheatle
+ * Created:         Wed Oct 16 15:18:45 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,10 +29,10 @@
  *
  **********************************************************************/
 
-TBOX::TBOX(                   //constructor
-         const ICOORD pt1,  //one corner
-         const ICOORD pt2   //the other corner
-        ) {
+TBOX::TBOX(            // constructor
+    const ICOORD pt1,  // one corner
+    const ICOORD pt2   // the other corner
+    ) {
   if (pt1.x () <= pt2.x ()) {
     if (pt1.y () <= pt2.y ()) {
       bot_left = pt1;

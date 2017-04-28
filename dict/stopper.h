@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    stopper.h
- **	Purpose:     Stopping criteria for word classifier.
- **	Author:      Dan Johnson
- **	History:     Wed May  1 09:42:57 1991, DSJ, Created.
+ ** Filename:    stopper.h
+ ** Purpose:     Stopping criteria for word classifier.
+ ** Author:      Dan Johnson
+ ** History:     Wed May  1 09:42:57 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at

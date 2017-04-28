@@ -262,10 +262,6 @@ class BaselineDetect {
                                          bool show_final_rows,
                                          Textord* textord);
 
-  // Set up the image and filename, so that a debug image with the detected
-  // baseline rendered will be saved.
-  void SetDebugImage(Pix* pixIn, const STRING& output_path);
-
  private:
   // Average (median) skew of the blocks on the page among those that have
   // a good angle of their own.
@@ -274,9 +270,6 @@ class BaselineDetect {
   int debug_level_;
   // The blocks that we are working with.
   PointerVector<BaselineBlock> blocks_;
-
-  Pix* pix_debug_;
-  STRING debug_file_prefix_;
 };
 
 }  // namespace tesseract

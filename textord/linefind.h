@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_LINEFIND_H__
-#define TESSERACT_TEXTORD_LINEFIND_H__
+#ifndef TESSERACT_TEXTORD_LINEFIND_H_
+#define TESSERACT_TEXTORD_LINEFIND_H_
 
 struct Boxa;
 struct Pix;
@@ -146,5 +146,4 @@ class LineFinder {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_LINEFIND_H__
-
+#endif  // TESSERACT_TEXTORD_LINEFIND_H_

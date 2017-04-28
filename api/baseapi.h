@@ -17,11 +17,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_API_BASEAPI_H__
-#define TESSERACT_API_BASEAPI_H__
+#ifndef TESSERACT_API_BASEAPI_H_
+#define TESSERACT_API_BASEAPI_H_
 
-#define TESSERACT_VERSION_STR "3.05.00dev"
-#define TESSERACT_VERSION 0x030500
+#define TESSERACT_VERSION_STR "4.00.00alpha"
+#define TESSERACT_VERSION 0x040000
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
 
@@ -29,14 +29,15 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
-#include "platform.h"
 #include "apitypes.h"
+#include "pageiterator.h"
+#include "platform.h"
+#include "publictypes.h"
+#include "resultiterator.h"
+#include "serialis.h"
+#include "tesscallback.h"
 #include "thresholder.h"
 #include "unichar.h"
-#include "tesscallback.h"
-#include "publictypes.h"
-#include "pageiterator.h"
-#include "resultiterator.h"
 
 template <typename T> class GenericVector;
 class PAGE_RES;
@@ -65,9 +66,6 @@ struct TBLOB;
 
 namespace tesseract {
 
-#ifndef NO_CUBE_BUILD
-class CubeRecoContext;
-#endif  // NO_CUBE_BUILD
 class Dawg;
 class Dict;
 class EquationDetect;
@@ -142,6 +140,7 @@ class TESS_API TessBaseAPI {
    * is stored in the PDF so we need that as well.
    */
   const char* GetInputName();
+  // Takes ownership of the input pix.
   void SetInputImage(Pix *pix);
   Pix* GetInputImage();
   int GetSourceYResolution();
@@ -239,6 +238,13 @@ class TESS_API TessBaseAPI {
   int Init(const char* datapath, const char* language) {
     return Init(datapath, language, OEM_DEFAULT, NULL, 0, NULL, NULL, false);
   }
+  // In-memory version reads the traineddata file directly from the given
+  // data[data_size] array, and/or reads data via a FileReader.
+  int Init(const char* data, int data_size, const char* language,
+           OcrEngineMode mode, char** configs, int configs_size,
+           const GenericVector<STRING>* vars_vec,
+           const GenericVector<STRING>* vars_values,
+           bool set_only_non_debug_params, FileReader reader);
 
   /**
    * Returns the languages string used in the last valid initialization.
@@ -333,9 +339,7 @@ class TESS_API TessBaseAPI {
 
   /**
    * Provide an image for Tesseract to recognize. Format is as
-   * TesseractRect above. Does not copy the image buffer, or take
-   * ownership. The source image may be destroyed after Recognize is called,
-   * either explicitly or implicitly via one of the Get*Text functions.
+   * TesseractRect above. Copies the image buffer and converts to Pix.
    * SetImage clears all recognition results, and sets the rectangle to the
    * full image, so it may be followed immediately by a GetUTF8Text, and it
    * will automatically perform recognition.
@@ -345,13 +349,11 @@ class TESS_API TessBaseAPI {
 
   /**
    * Provide an image for Tesseract to recognize. As with SetImage above,
-   * Tesseract doesn't take a copy or ownership or pixDestroy the image, so
-   * it must persist until after Recognize.
+   * Tesseract takes its own copy of the image, so it need not persist until
+   * after Recognize.
    * Pix vs raw, which to use?
-   * Use Pix where possible. A future version of Tesseract may choose to use Pix
-   * as its internal representation and discard IMAGE altogether.
-   * Because of that, an implementation that sources and targets Pix may end up
-   * with less copies than an implementation that does not.
+   * Use Pix where possible. Tesseract uses Pix as its internal representation
+   * and it is therefore more efficient to provide a Pix directly.
    */
   void SetImage(Pix* pix);
 
@@ -376,8 +378,7 @@ class TESS_API TessBaseAPI {
    * delete it when it it is replaced or the API is destructed.
    */
   void SetThresholder(ImageThresholder* thresholder) {
-    if (thresholder_ != NULL)
-      delete thresholder_;
+    delete thresholder_;
     thresholder_ = thresholder;
     ClearResults();
   }
@@ -588,8 +589,8 @@ class TESS_API TessBaseAPI {
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
    * monitor can be used to
-   * 	cancel the recognition
-   * 	receive progress callbacks
+   *  cancel the recognition
+   *  receive progress callbacks
    */
   char* GetHOCRText(ETEXT_DESC* monitor, int page_number);
 
@@ -621,6 +622,18 @@ class TESS_API TessBaseAPI {
    * and must be freed with the delete [] operator.
    */
   char* GetUNLVText();
+
+  /**
+   * Detect the orientation of the input image and apparent script (alphabet).
+   * orient_deg is the detected clockwise rotation of the input image in degrees
+   * (0, 90, 180, 270)
+   * orient_conf is the confidence (15.0 is reasonably confident)
+   * script_name is an ASCII string, the name of the script, e.g. "Latin"
+   * script_conf is confidence level in the script
+   * Returns true on success and writes values to each parameter as an output
+   */
+  bool DetectOrientationScript(int* orient_deg, float* orient_conf,
+                               const char** script_name, float* script_conf);
 
   /**
    * The recognized text is returned as a char* which is coded
@@ -750,20 +763,11 @@ class TESS_API TessBaseAPI {
    */
   static void NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode);
 
-  Tesseract* tesseract() const {
-    return tesseract_;
-  }
+  Tesseract* tesseract() const { return tesseract_; }
 
-  OcrEngineMode oem() const {
-    return last_oem_requested_;
-  }
+  OcrEngineMode oem() const { return last_oem_requested_; }
 
   void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
-
-#ifndef NO_CUBE_BUILD
-  /** Return a pointer to underlying CubeRecoContext object if present. */
-  CubeRecoContext *GetCubeRecoContext() const;
-#endif  // NO_CUBE_BUILD
 
   void set_min_orientation_margin(double margin);
 
@@ -855,9 +859,7 @@ class TESS_API TessBaseAPI {
                                     int** y1,
                                     PAGE_RES* page_res);
 
-  TESS_LOCAL const PAGE_RES* GetPageRes() const {
-    return page_res_;
-  };
+  TESS_LOCAL const PAGE_RES* GetPageRes() const { return page_res_; }
   /* @} */
 
 
@@ -865,12 +867,12 @@ class TESS_API TessBaseAPI {
   Tesseract*        tesseract_;       ///< The underlying data object.
   Tesseract*        osd_tesseract_;   ///< For orientation & script detection.
   EquationDetect*   equ_detect_;      ///<The equation detector.
+  FileReader reader_;                 ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;     ///< Image thresholding module.
   GenericVector<ParagraphModel *>* paragraph_models_;
   BLOCK_LIST*       block_list_;      ///< The page layout.
   PAGE_RES*         page_res_;        ///< The page-level data.
   STRING*           input_file_;      ///< Name used by training code.
-  Pix*              input_image_;     ///< Image used for searchable PDF
   STRING*           output_file_;     ///< Name used by debug code.
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
@@ -898,7 +900,7 @@ class TESS_API TessBaseAPI {
                             const char* retry_config, int timeout_millisec,
                             TessResultRenderer* renderer,
                             int tessedit_page_number);
-  // TIFF supports multipage so gets special consideration
+  // TIFF supports multipage so gets special consideration.
   bool ProcessPagesMultipageTiff(const unsigned char *data,
                                  size_t size,
                                  const char* filename,
@@ -906,10 +908,16 @@ class TESS_API TessBaseAPI {
                                  int timeout_millisec,
                                  TessResultRenderer* renderer,
                                  int tessedit_page_number);
+  // There's currently no way to pass a document title from the
+  // Tesseract command line, and we have multiple places that choose
+  // to set the title to an empty string. Using a single named
+  // variable will hopefully reduce confusion if the situation changes
+  // in the future.
+  const char *unknown_title_ = "";
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */
 STRING HOcrEscape(const char* text);
 }  // namespace tesseract.
 
-#endif  // TESSERACT_API_BASEAPI_H__
+#endif  // TESSERACT_API_BASEAPI_H_

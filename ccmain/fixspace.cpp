@@ -3,8 +3,8 @@
  * Description: Implements a pass over the page res, exploring the alternative
  *              spacing possibilities, trying to use context to improve the
  *              word spacing
-* Author:		Phil Cheatle
-* Created:		Thu Oct 21 11:38:43 BST 1993
+* Author:   Phil Cheatle
+* Created:    Thu Oct 21 11:38:43 BST 1993
 *
 * (C) Copyright 1993, Hewlett-Packard Ltd.
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -210,7 +210,6 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
     prev_word_best_choice_ = word->best_choice;
   }
 }
-
 
 /**
  * @name eval_word_spacing()

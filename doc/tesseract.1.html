@@ -847,7 +847,7 @@ at Google since then.</p></div>
 </p>
 </dd>
 <dt class="hdlist1">
-<em>-psm N</em>
+<em>--psm N</em>
 </dt>
 <dd>
 <p>
@@ -867,6 +867,21 @@ at Google since then.</p></div>
 8 = Treat the image as a single word.
 9 = Treat the image as a single word in a circle.
 10 = Treat the image as a single character.</code></pre>
+</div></div>
+</dd>
+<dt class="hdlist1">
+<em>--oem N</em>
+</dt>
+<dd>
+<p>
+        Specify OCR Engine mode. The options for <strong>N</strong> are:
+</p>
+<div class="literalblock">
+<div class="content">
+<pre><code>0 = Original Tesseract only.
+1 = Neural nets LSTM only.
+2 = Tesseract + LSTM.
+3 = Default, based on what is available.</code></pre>
 </div></div>
 </dd>
 <dt class="hdlist1">
@@ -893,7 +908,7 @@ pdf  - Output in pdf instead of a text file.
 </ul></div>
 </dd>
 </dl></div>
-<div class="paragraph"><p><strong>Nota Bene:</strong>   The options <em>-l lang</em> and <em>-psm N</em> must occur
+<div class="paragraph"><p><strong>Nota Bene:</strong>   The options <em>-l lang</em> and <em>--psm N</em> must occur
 before any <em>configfile</em>.</p></div>
 </div>
 </div>
@@ -902,7 +917,31 @@ before any <em>configfile</em>.</p></div>
 <div class="sectionbody">
 <div class="dlist"><dl>
 <dt class="hdlist1">
-<em>-v</em>
+<em>-h, --help</em>
+</dt>
+<dd>
+<p>
+        Show help message.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>--help-psm</em>
+</dt>
+<dd>
+<p>
+        Show page segmentation modes.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>--help-oem</em>
+</dt>
+<dd>
+<p>
+        Show OCR Engine modes.
+</p>
+</dd>
+<dt class="hdlist1">
+<em>-v, --version</em>
 </dt>
 <dd>
 <p>
@@ -914,7 +953,7 @@ before any <em>configfile</em>.</p></div>
 </dt>
 <dd>
 <p>
-        list available languages for tesseract engine. Can be used with --tessdata-dir.
+        List available languages for tesseract engine. Can be used with --tessdata-dir.
 </p>
 </dd>
 <dt class="hdlist1">
@@ -922,7 +961,7 @@ before any <em>configfile</em>.</p></div>
 </dt>
 <dd>
 <p>
-        print tesseract parameters to the stdout.
+        Print tesseract parameters.
 </p>
 </dd>
 </dl></div>
@@ -1099,7 +1138,7 @@ on read_pattern_list().</p></div>
 Hewlett Packard Co, Greeley Colorado between 1985 and 1994, with some more
 changes made in 1996 to port to Windows, and some C++izing in 1998. A
 lot of the code was written in C, and then some more was written in C++.
-The C\++ code makes heavy use of a list system using macros. This predates
+The C++ code makes heavy use of a list system using macros. This predates
 stl, was portable before stl, and is more efficient than stl lists, but has
 the big negative that if you do get a segmentation violation, it is hard to
 debug.</p></div>
@@ -1156,7 +1195,7 @@ Lloyd, Shobhit Saxena, and Thomas Kielbus.</p></div>
 <div id="footnotes"><hr /></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-06-28 22:23:47 CEST
+Last updated 2017-03-23 19:56:19 GMT
 </div>
 </div>
 </body>

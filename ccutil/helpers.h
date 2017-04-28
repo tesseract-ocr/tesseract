@@ -27,6 +27,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <functional>
+#include <string>
 
 #include "host.h"
 
@@ -42,6 +44,11 @@ class TRand {
   // Sets the seed to the given value.
   void set_seed(uinT64 seed) {
     seed_ = seed;
+  }
+  // Sets the seed using a hash of a string.
+  void set_seed(const std::string& str) {
+    std::hash<std::string> hasher;
+    set_seed(static_cast<uinT64>(hasher(str)));
   }
 
   // Returns an integer in the range 0 to MAX_INT32.
@@ -73,7 +80,7 @@ class TRand {
 
 // Remove newline (if any) at the end of the string.
 inline void chomp_string(char *str) {
-  int last_index = (int)strlen(str) - 1;
+  int last_index = static_cast<int>(strlen(str)) - 1;
   while (last_index >= 0 &&
          (str[last_index] == '\n' || str[last_index] == '\r')) {
     str[last_index--] = '\0';

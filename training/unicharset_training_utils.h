@@ -33,7 +33,13 @@ namespace tesseract {
 
 // Helper sets the character attribute properties and sets up the script table.
 // Does not set tops and bottoms.
-void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset);
+void SetupBasicProperties(bool report_errors, bool decompose,
+                          UNICHARSET* unicharset);
+// Default behavior is to compose, until it is proven that decomposed benefits
+// at least one language.
+inline void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
+  SetupBasicProperties(report_errors, false, unicharset);
+}
 
 // Helper to set the properties for an input unicharset file, writes to the
 // output file. If an appropriate script unicharset can be found in the

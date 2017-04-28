@@ -229,7 +229,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
                                        bbox->flow() == BTFT_TEXT_ON_IMAGE, 0.0,
                                        *gutter_width, box.top(), box.bottom());
   if (gutter_bbox != NULL) {
-    TBOX gutter_box = gutter_bbox->bounding_box();
+    const TBOX& gutter_box = gutter_bbox->bounding_box();
     *gutter_width = left ? tab_x - gutter_box.right()
                         : gutter_box.left() - tab_x;
   }
@@ -261,7 +261,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
   int neighbour_edge = left ? RightEdgeForBox(box, true, false)
                             : LeftEdgeForBox(box, true, false);
   if (neighbour != NULL) {
-    TBOX n_box = neighbour->bounding_box();
+    const TBOX& n_box = neighbour->bounding_box();
     if (debug) {
       tprintf("Found neighbour:");
       n_box.print();
@@ -440,13 +440,8 @@ bool TabFind::FindTabVectors(TabVector_LIST* hlines,
   #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_finaltabs) {
     tab_win = MakeWindow(640, 50, "FinalTabs");
-    if (textord_debug_images) {
-      tab_win->Image(AlignedBlob::textord_debug_pix().string(),
-                     image_origin_.x(), image_origin_.y());
-    } else {
-      DisplayBoxes(tab_win);
-      DisplayTabs("FinalTabs", tab_win);
-    }
+    DisplayBoxes(tab_win);
+    DisplayTabs("FinalTabs", tab_win);
     tab_win = DisplayTabVectors(tab_win);
   }
   #endif  // GRAPHICS_DISABLED
@@ -1277,32 +1272,6 @@ bool TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
   RotateBlobList(*deskew, &block->blobs);
   RotateBlobList(*deskew, &block->small_blobs);
   RotateBlobList(*deskew, &block->noise_blobs);
-  if (textord_debug_images) {
-    // Rotate the debug pix and arrange for it to be drawn at the correct
-    // pixel offset.
-    Pix* pix_grey = pixRead(AlignedBlob::textord_debug_pix().string());
-    int width = pixGetWidth(pix_grey);
-    int height = pixGetHeight(pix_grey);
-    float angle = atan2(deskew->y(), deskew->x());
-    // Positive angle is clockwise to pixRotate.
-    Pix* pix_rot = pixRotate(pix_grey, -angle, L_ROTATE_AREA_MAP,
-                             L_BRING_IN_WHITE, width, height);
-    // The image must be translated by the rotation of its center, since it
-    // has just been rotated about its center.
-    ICOORD center_offset(width / 2, height / 2);
-    ICOORD new_center_offset(center_offset);
-    new_center_offset.rotate(*deskew);
-    image_origin_ += new_center_offset - center_offset;
-    // The image grew as it was rotated, so offset the (top/left) origin
-    // by half the change in size. y is opposite to x because it is drawn
-    // at ist top/left, not bottom/left.
-    ICOORD corner_offset((width - pixGetWidth(pix_rot)) / 2,
-                         (pixGetHeight(pix_rot) - height) / 2);
-    image_origin_ += corner_offset;
-    pixWrite(AlignedBlob::textord_debug_pix().string(), pix_rot, IFF_PNG);
-    pixDestroy(&pix_grey);
-    pixDestroy(&pix_rot);
-  }
 
   // Rotate the horizontal vectors. The vertical vectors don't need
   // rotating as they can just be refitted.

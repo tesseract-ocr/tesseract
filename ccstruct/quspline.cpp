@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        quspline.cpp  (Formerly qspline.c)
  * Description: Code for the QSPLINE class.
- * Author:	Ray Smith
- * Created:	Tue Oct 08 17:16:12 BST 1991
+ * Author:  Ray Smith
+ * Created: Tue Oct 08 17:16:12 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

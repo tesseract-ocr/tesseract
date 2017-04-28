@@ -27,7 +27,7 @@
  **********************************************************************/
 
 /***********************************************************************
- *							ELIST2::internal_clear
+ *              ELIST2::internal_clear
  *
  *  Used by the destructor and the "clear" member function of derived list
  *  classes to destroy all the elements on the list.
@@ -58,7 +58,7 @@ void (*zapper) (ELIST2_LINK *)) {
 }
 
 /***********************************************************************
- *							ELIST2::assign_to_sublist
+ *              ELIST2::assign_to_sublist
  *
  *  The list is set to a sublist of another list.  "This" list must be empty
  *  before this function is invoked.  The two iterators passed must refer to
@@ -82,9 +82,8 @@ void ELIST2::assign_to_sublist(                            //to this list
   last = start_it->extract_sublist (end_it);
 }
 
-
 /***********************************************************************
- *							ELIST2::length
+ *              ELIST2::length
  *
  *  Return count of elements on list
  **********************************************************************/
@@ -98,9 +97,8 @@ inT32 ELIST2::length() const {  // count elements
   return count;
 }
 
-
 /***********************************************************************
- *							ELIST2::sort
+ *              ELIST2::sort
  *
  *  Sort elements on list
  *  NB If you don't like the const declarations in the comparator, coerce yours:
@@ -180,7 +178,7 @@ void ELIST2::add_sorted(int comparator(const void*, const void*),
  **********************************************************************/
 
 /***********************************************************************
- *							ELIST2_ITERATOR::forward
+ *              ELIST2_ITERATOR::forward
  *
  *  Move the iterator to the next element of the list.
  *  REMEMBER: ALL LISTS ARE CIRCULAR.
@@ -218,9 +216,8 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
   return current;
 }
 
-
 /***********************************************************************
- *							ELIST2_ITERATOR::backward
+ *              ELIST2_ITERATOR::backward
  *
  *  Move the iterator to the previous element of the list.
  *  REMEMBER: ALL LISTS ARE CIRCULAR.
@@ -257,9 +254,8 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
   return current;
 }
 
-
 /***********************************************************************
- *							ELIST2_ITERATOR::data_relative
+ *              ELIST2_ITERATOR::data_relative
  *
  *  Return the data pointer to the element "offset" elements from current.
  *  (This function can't be INLINEd because it contains a loop)
@@ -289,9 +285,8 @@ ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
   return ptr;
 }
 
-
 /***********************************************************************
- *							ELIST2_ITERATOR::exchange()
+ *              ELIST2_ITERATOR::exchange()
  *
  *  Given another iterator, whose current element is a different element on
  *  the same list list OR an element of another list, exchange the two current
@@ -399,9 +394,8 @@ void ELIST2_ITERATOR::exchange(                              //positions of 2 li
   other_it->current = old_current;
 }
 
-
 /***********************************************************************
- *							ELIST2_ITERATOR::extract_sublist()
+ *              ELIST2_ITERATOR::extract_sublist()
  *
  *  This is a private member, used only by ELIST2::assign_to_sublist.
  *  Given another iterator for the same list, extract the links from THIS to
@@ -445,7 +439,7 @@ ELIST2_LINK *ELIST2_ITERATOR::extract_sublist(                              //fr
 
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
-    if (temp_it.cycled_list ())  //can't find end pt
+    if (temp_it.cycled_list())   // can't find end pt
       BAD_SUBLIST.error ("ELIST2_ITERATOR.extract_sublist", ABORT, NULL);
 
     if (temp_it.at_last ()) {

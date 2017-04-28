@@ -22,10 +22,11 @@
 #include "config_auto.h"
 #endif
 
-#include "devanagari_processing.h"
 #include "allheaders.h"
-#include "tordmain.h"
+#include "debugpixa.h"
+#include "devanagari_processing.h"
 #include "statistc.h"
+#include "tordmain.h"
 
 // Flags controlling the debugging information for shiro-rekha splitting
 // strategies.
@@ -63,11 +64,6 @@ void ShiroRekhaSplitter::Clear() {
   perform_close_ = false;
 }
 
-// This method dumps a debug image to the specified location.
-void ShiroRekhaSplitter::DumpDebugImage(const char* filename) const {
-  pixWrite(filename, debug_image_, IFF_PNG);
-}
-
 // On setting the input image, a clone of it is owned by this class.
 void ShiroRekhaSplitter::set_orig_pix(Pix* pix) {
   if (orig_pix_) {
@@ -81,7 +77,7 @@ void ShiroRekhaSplitter::set_orig_pix(Pix* pix) {
 // split_for_pageseg should be true if the splitting is being done prior to
 // page segmentation. This mode uses the flag
 // pageseg_devanagari_split_strategy to determine the splitting strategy.
-bool ShiroRekhaSplitter::Split(bool split_for_pageseg) {
+bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
   SplitStrategy split_strategy = split_for_pageseg ? pageseg_split_strategy_ :
       ocr_split_strategy_;
   if (split_strategy == NO_SPLIT) {
@@ -130,7 +126,9 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg) {
   // out the image regions corresponding to these boxes from the original image.
   // Conditionally run splitting on each of them.
   Boxa* regions_to_clear = boxaCreate(0);
-  for (int i = 0; i < pixaGetCount(ccs); ++i) {
+  int num_ccs = 0;
+  if (ccs != nullptr) num_ccs = pixaGetCount(ccs);
+  for (int i = 0; i < num_ccs; ++i) {
     Box* box = ccs->boxa->box[i];
     Pix* word_pix = pixClipRectangle(orig_pix_, box, NULL);
     ASSERT_HOST(word_pix);
@@ -161,9 +159,9 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg) {
   }
   boxaDestroy(&regions_to_clear);
   pixaDestroy(&ccs);
-  if (devanagari_split_debugimage) {
-    DumpDebugImage(split_for_pageseg ? "pageseg_split_debug.png" :
-                   "ocr_split_debug.png");
+  if (devanagari_split_debugimage && pixa_debug != nullptr) {
+    pixa_debug->AddPix(debug_image_,
+                       split_for_pageseg ? "pageseg_split" : "ocr_split");
   }
   return true;
 }

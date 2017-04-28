@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef TESSERACT_CCSTRUCT_DPPOINT_H__
-#define TESSERACT_CCSTRUCT_DPPOINT_H__
+#ifndef TESSERACT_CCSTRUCT_DPPOINT_H_
+#define TESSERACT_CCSTRUCT_DPPOINT_H_
 
 #include "host.h"
 
@@ -98,5 +98,4 @@ class DPPoint {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCSTRUCT_DPPOINT_H__
-
+#endif  // TESSERACT_CCSTRUCT_DPPOINT_H_

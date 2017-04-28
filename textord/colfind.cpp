@@ -290,8 +290,8 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
 int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
                              int scaled_factor, TO_BLOCK* input_block,
                              Pix* photo_mask_pix, Pix* thresholds_pix,
-                             Pix* grey_pix, BLOCK_LIST* blocks,
-                             BLOBNBOX_LIST* diacritic_blobs,
+                             Pix* grey_pix, DebugPixa* pixa_debug,
+                             BLOCK_LIST* blocks, BLOBNBOX_LIST* diacritic_blobs,
                              TO_BLOCK_LIST* to_blocks) {
   pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
@@ -304,11 +304,13 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
       &projection_, diacritic_blobs, &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
-                                   input_block, this, &part_grid_, &big_parts_);
+                                   input_block, this, pixa_debug, &part_grid_,
+                                   &big_parts_);
     ImageFind::TransferImagePartsToImageMask(rerotate_, &part_grid_,
                                              photo_mask_pix);
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
-                                   input_block, this, &part_grid_, &big_parts_);
+                                   input_block, this, pixa_debug, &part_grid_,
+                                   &big_parts_);
   }
   part_grid_.ReTypeBlobs(&image_bblobs_);
   TidyBlobs(input_block);
@@ -441,9 +443,6 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
     if (textord_tabfind_show_partitions) {
       ScrollView* window = MakeWindow(400, 300, "Partitions");
       if (window != NULL) {
-        if (textord_debug_images)
-          window->Image(AlignedBlob::textord_debug_pix().string(),
-                        image_origin().x(), image_origin().y());
         part_grid_.DisplayBoxes(window);
         if (!textord_debug_printable)
           DisplayTabVectors(window);
@@ -519,11 +518,7 @@ void ColumnFinder::DisplayBlocks(BLOCK_LIST* blocks) {
       blocks_win_ = MakeWindow(700, 300, "Blocks");
     else
       blocks_win_->Clear();
-    if (textord_debug_images)
-      blocks_win_->Image(AlignedBlob::textord_debug_pix().string(),
-                         image_origin().x(), image_origin().y());
-    else
-      DisplayBoxes(blocks_win_);
+    DisplayBoxes(blocks_win_);
     BLOCK_IT block_it(blocks);
     int serial = 1;
     for (block_it.mark_cycle_pt(); !block_it.cycled_list();
@@ -543,11 +538,7 @@ void ColumnFinder::DisplayBlocks(BLOCK_LIST* blocks) {
 void ColumnFinder::DisplayColumnBounds(PartSetVector* sets) {
 #ifndef GRAPHICS_DISABLED
   ScrollView* col_win = MakeWindow(50, 300, "Columns");
-  if (textord_debug_images)
-    col_win->Image(AlignedBlob::textord_debug_pix().string(),
-                   image_origin().x(), image_origin().y());
-  else
-    DisplayBoxes(col_win);
+  DisplayBoxes(col_win);
   col_win->Pen(textord_debug_printable ? ScrollView::BLUE : ScrollView::GREEN);
   for (int i = 0; i < gridheight_; ++i) {
     ColPartitionSet* columns = best_columns_[i];

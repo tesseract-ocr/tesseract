@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_ALIGNEDBLOB_H__
-#define TESSERACT_TEXTORD_ALIGNEDBLOB_H__
+#ifndef TESSERACT_TEXTORD_ALIGNEDBLOB_H_
+#define TESSERACT_TEXTORD_ALIGNEDBLOB_H_
 
 #include "bbgrid.h"
 #include "blobbox.h"
@@ -29,8 +29,6 @@
 extern INT_VAR_H(textord_debug_bugs, 0,
                  "Turn on output related to bugs in tab finding");
 extern INT_VAR_H(textord_debug_tabfind, 2, "Debug tab finding");
-extern BOOL_VAR_H(textord_debug_images, false,
-                "Use greyed image background for debug");
 extern BOOL_VAR_H(textord_debug_printable, false,
                   "Make debug windows printable");
 
@@ -102,17 +100,6 @@ class AlignedBlob : public BlobGrid {
                                    BLOBNBOX* bbox,
                                    int* vertical_x, int* vertical_y);
 
-  // Increment the serial number counter and set the string to use
-  // for a filename if textord_debug_images is true.
-  static void IncrementDebugPix();
-
-  // Return the string to use for a filename if textord_debug_images is true.
-  // Use IncrementDebugPix first to set the filename, and each time is
-  // to be incremented.
-  static const STRING& textord_debug_pix() {
-    return textord_debug_pix_;
-  }
-
  private:
   // Find a set of blobs that are aligned in the given vertical
   // direction with the given blob. Returns a list of aligned
@@ -132,14 +119,8 @@ class AlignedBlob : public BlobGrid {
   BLOBNBOX* FindAlignedBlob(const AlignedBlobParams& p,
                             bool top_to_bottom, BLOBNBOX* bbox,
                             int x_start, int* end_y);
-
-  // Name of image file to use if textord_debug_images is true.
-  static STRING textord_debug_pix_;
-  // Index to image file to use if textord_debug_images is true.
-  static int debug_pix_index_;
 };
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_ALIGNEDBLOB_H__
-
+#endif  // TESSERACT_TEXTORD_ALIGNEDBLOB_H_

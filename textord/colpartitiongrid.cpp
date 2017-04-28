@@ -86,7 +86,7 @@ void ColPartitionGrid::HandleClick(int x, int y) {
   ColPartition* neighbour;
   FCOORD click(x, y);
   while ((neighbour = radsearch.NextRadSearch()) != NULL) {
-    TBOX nbox = neighbour->bounding_box();
+    const TBOX& nbox = neighbour->bounding_box();
     if (nbox.contains(click)) {
       tprintf("Block box:");
       neighbour->bounding_box().print();
@@ -645,46 +645,6 @@ bool ColPartitionGrid::GridSmoothNeighbours(BlobTextFlowType source_type,
   return any_changed;
 }
 
-// Compute the mean RGB of the light and dark pixels in each ColPartition
-// and also the rms error in the linearity of color.
-void ColPartitionGrid::ComputePartitionColors(Pix* scaled_color,
-                                              int scaled_factor,
-                                              const FCOORD& rerotation) {
-  if (scaled_color == NULL)
-    return;
-  Pix* color_map1 = NULL;
-  Pix* color_map2 = NULL;
-  Pix* rms_map = NULL;
-  if (textord_tabfind_show_color_fit) {
-    int width = pixGetWidth(scaled_color);
-    int height = pixGetHeight(scaled_color);
-    color_map1 = pixCreate(width, height, 32);
-    color_map2 = pixCreate(width, height, 32);
-    rms_map = pixCreate(width, height, 8);
-  }
-  // Iterate the ColPartitions in the grid.
-  ColPartitionGridSearch gsearch(this);
-  gsearch.StartFullSearch();
-  ColPartition* part;
-  while ((part = gsearch.NextFullSearch()) != NULL) {
-    TBOX part_box = part->bounding_box();
-    part_box.rotate_large(rerotation);
-    ImageFind::ComputeRectangleColors(part_box, scaled_color,
-                                      scaled_factor,
-                                      color_map1, color_map2, rms_map,
-                                      part->color1(), part->color2());
-  }
-  if (color_map1 != NULL) {
-    pixWrite("swcolorinput.png", scaled_color, IFF_PNG);
-    pixWrite("swcolor1.png", color_map1, IFF_PNG);
-    pixWrite("swcolor2.png", color_map2, IFF_PNG);
-    pixWrite("swrms.png", rms_map, IFF_PNG);
-    pixDestroy(&color_map1);
-    pixDestroy(&color_map2);
-    pixDestroy(&rms_map);
-  }
-}
-
 // Reflects the grid and its colpartitions in the y-axis, assuming that
 // all blob boxes have already been done.
 void ColPartitionGrid::ReflectInYAxis() {
@@ -1037,7 +997,7 @@ void ColPartitionGrid::ListFindMargins(ColPartitionSet** best_columns,
     ColPartition* part = part_it.data();
     ColPartitionSet* columns = NULL;
     if (best_columns != NULL) {
-      TBOX part_box = part->bounding_box();
+      const TBOX& part_box = part->bounding_box();
       // Get the columns from the y grid coord.
       int grid_x, grid_y;
       GridCoords(part_box.left(), part_box.bottom(), &grid_x, &grid_y);
@@ -1376,7 +1336,7 @@ void ColPartitionGrid::FindMergeCandidates(const ColPartition* part,
     // combined box to see if anything else is inappropriately overlapped.
     if (!part_box.contains(c_box) && !c_box.contains(part_box)) {
       // Search the combined rectangle to see if anything new is overlapped.
-      // This is a preliminary test designed to quickly weed-out stupid
+      // This is a preliminary test designed to quickly weed-out poor
       // merge candidates that would create a big list of overlapped objects
       // for the squared-order overlap analysis. Eg. vertical and horizontal
       // line-like objects that overlap real text when merged:
@@ -1569,7 +1529,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
     const TBOX& im_box, const FCOORD& rerotation,
     bool debug, const ColPartition& part, int* best_distance) {
   // Set up a rectangle search bounded by the part.
-  TBOX part_box = part.bounding_box();
+  const TBOX& part_box = part.bounding_box();
   TBOX search_box;
   ICOORD dist_scaling;
   ComputeSearchBoxAndScaling(direction, part_box, gridsize(),
@@ -1619,10 +1579,10 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
         image_bias - htext_score >= kSmoothDecisionMargin &&
         image_bias - vtext_score >= kSmoothDecisionMargin) {
       *best_distance = dists[NPT_IMAGE][0];
-      if (dists[NPT_WEAK_VTEXT].size() > 0 &&
+      if (!dists[NPT_WEAK_VTEXT].empty() &&
           *best_distance > dists[NPT_WEAK_VTEXT][0])
         *best_distance = dists[NPT_WEAK_VTEXT][0];
-      if (dists[NPT_WEAK_HTEXT].size() > 0 &&
+      if (!dists[NPT_WEAK_HTEXT].empty() &&
           *best_distance > dists[NPT_WEAK_HTEXT][0])
         *best_distance = dists[NPT_WEAK_HTEXT][0];
       return BRT_POLYIMAGE;

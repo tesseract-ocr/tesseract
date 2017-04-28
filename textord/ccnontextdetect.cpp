@@ -305,7 +305,7 @@ bool CCNonTextDetect::BlobOverlapsTooMuch(BLOBNBOX* blob, int max_overlaps) {
   // Search the grid to see what intersects it.
   // Setup a Rectangle search for overlapping this blob.
   BlobGridSearch rsearch(this);
-  TBOX box = blob->bounding_box();
+  const TBOX& box = blob->bounding_box();
   rsearch.StartRectSearch(box);
   rsearch.SetUniqueMode(true);
   BLOBNBOX* neighbour;

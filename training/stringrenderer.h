@@ -30,9 +30,9 @@
 #define TESSERACT_TRAINING_STRINGRENDERER_H_
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include "hashfn.h"
 #include "host.h"
 #include "pango_font_info.h"
 #include "pango/pango-layout.h"
@@ -90,7 +90,7 @@ class StringRenderer {
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
   }
-  void set_features(const char *features) {
+  void set_features(const char* features) {
     free(features_);
     features_ = strdup(features);
   }
@@ -130,16 +130,12 @@ class StringRenderer {
   const PangoFontInfo& font() const {
     return font_;
   }
-  int h_margin() const {
-    return h_margin_;
-  }
-  int v_margin() const {
-    return v_margin_;
-  }
+  int h_margin() const { return h_margin_; }
+  int v_margin() const { return v_margin_; }
 
   // Get the boxchars of all clusters rendered thus far (or since the last call
   // to ClearBoxes()).
-  const vector<BoxChar*>& GetBoxes() const;
+  const std::vector<BoxChar*>& GetBoxes() const;
   // Get the rendered page bounding boxes of all pages created thus far (or
   // since last call to ClearBoxes()).
   Boxa* GetPageBoxes() const;
@@ -148,6 +144,9 @@ class StringRenderer {
   void RotatePageBoxes(float rotation);
   // Delete all boxes.
   void ClearBoxes();
+  // Returns the boxes in a boxfile string.
+  string GetBoxesStr();
+  // Writes the boxes to a boxfile.
   void WriteAllBoxes(const string& filename);
   // Removes space-delimited words from the string that are not renderable by
   // the current font and returns the count of such words.
@@ -172,8 +171,8 @@ class StringRenderer {
   void SetWordUnderlineAttributes(const string& page_text);
   // Compute bounding boxes around grapheme clusters.
   void ComputeClusterBoxes();
-  void CorrectBoxPositionsToLayout(vector<BoxChar*>* boxchars);
-  bool GetClusterStrings(vector<string>* cluster_text);
+  void CorrectBoxPositionsToLayout(std::vector<BoxChar*>* boxchars);
+  bool GetClusterStrings(std::vector<string>* cluster_text);
   int FindFirstPageBreakOffset(const char* text, int text_length);
 
   PangoFontInfo font_;
@@ -189,7 +188,7 @@ class StringRenderer {
   double underline_start_prob_;
   double underline_continuation_prob_;
   PangoUnderline underline_style_;
-  char *features_;
+  char* features_;
   // Text filtering options
   bool drop_uncovered_chars_;
   bool strip_unrenderable_words_;
@@ -205,13 +204,13 @@ class StringRenderer {
   int page_;
   // Boxes and associated text for all pages rendered with RenderToImage() since
   // the last call to ClearBoxes().
-  vector<BoxChar*> boxchars_;
+  std::vector<BoxChar*> boxchars_;
   int box_padding_;
   // Bounding boxes for pages since the last call to ClearBoxes().
   Boxa* page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
-  hash_map<char32, inT64> char_map_;  // Time-saving char histogram.
+  std::unordered_map<char32, inT64> char_map_;  // Time-saving char histogram.
   int total_chars_;   // Number in the string to be rendered.
   int font_index_;    // Index of next font to use in font list.
   int last_offset_;   // Offset returned from last successful rendering

@@ -37,9 +37,9 @@
 #include "scrollview.h"
 
 #ifdef _MSC_VER
-#pragma warning(disable:4786)  // Don't give stupid warnings for stl
-#pragma warning(disable:4018)  // signed/unsigned warnings
-#pragma warning(disable:4530)  // exception warnings
+#pragma warning(disable : 4786)  // Don't give irrelevant warnings for stl
+#pragma warning(disable : 4018)  // signed/unsigned warnings
+#pragma warning(disable : 4530)  // exception warnings
 #endif
 
 const int kSvPort = 8461;

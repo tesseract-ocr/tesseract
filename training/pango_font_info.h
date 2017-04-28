@@ -21,13 +21,19 @@
 #define TESSERACT_TRAINING_PANGO_FONT_INFO_H_
 
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "hashfn.h"
+#include "commandlineflags.h"
 #include "host.h"
-#include "util.h"
 #include "pango/pango-font.h"
+#include "pango/pango.h"
+#include "pango/pangocairo.h"
+#include "util.h"
+
+DECLARE_STRING_PARAM_FLAG(fonts_dir);
+DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
 
 typedef signed int char32;
 
@@ -44,6 +50,7 @@ class PangoFontInfo {
     DECORATIVE,
   };
   PangoFontInfo();
+  ~PangoFontInfo();
   // Initialize from parsing a font description name, defined as a string of the
   // format:
   //   "FamilyName [FaceName] [PointSize]"
@@ -73,7 +80,7 @@ class PangoFontInfo {
   // If true, returns individual graphemes. Any whitespace characters in the
   // original string are also included in the list.
   bool CanRenderString(const char* utf8_word, int len,
-                       vector<string>* graphemes) const;
+                       std::vector<string>* graphemes) const;
   bool CanRenderString(const char* utf8_word, int len) const;
 
   // Retrieves the x_bearing and x_advance for the given utf8 character in the
@@ -83,25 +90,29 @@ class PangoFontInfo {
   bool GetSpacingProperties(const string& utf8_char,
                             int* x_bearing, int* x_advance) const;
 
-  // Initializes FontConfig by setting its environment variable and creating
-  // a fonts.conf file that points to the given fonts_dir. Once initialized,
-  // it is not re-initialized unless force_clear is true.
-  static void InitFontConfig(bool force_clear, const string& fonts_dir);
+  // If not already initialized, initializes FontConfig by setting its
+  // environment variable and creating a fonts.conf file that points to the
+  // FLAGS_fonts_dir and the cache to FLAGS_fontconfig_tmpdir.
+  static void SoftInitFontConfig();
+  // Re-initializes font config, whether or not already initialized.
+  // If already initialized, any existing cache is deleted, just to be sure.
+  static void HardInitFontConfig(const string& fonts_dir,
+                                 const string& cache_dir);
 
   // Accessors
   string DescriptionName() const;
   // Font Family name eg. "Arial"
   const string& family_name() const    { return family_name_; }
   // Size in points (1/72"), rounded to the nearest integer.
-  int font_size() const          { return font_size_; }
-  bool is_bold() const           { return is_bold_; }
-  bool is_italic() const         { return is_italic_; }
-  bool is_smallcaps() const      { return is_smallcaps_; }
-  bool is_monospace() const      { return is_monospace_; }
-  bool is_fraktur() const        { return is_fraktur_; }
+  int font_size() const { return font_size_; }
+  bool is_bold() const { return is_bold_; }
+  bool is_italic() const { return is_italic_; }
+  bool is_smallcaps() const { return is_smallcaps_; }
+  bool is_monospace() const { return is_monospace_; }
+  bool is_fraktur() const { return is_fraktur_; }
   FontTypeEnum font_type() const { return font_type_; }
 
-  int resolution() const         { return resolution_; }
+  int resolution() const { return resolution_; }
   void set_resolution(const int resolution) {
     resolution_ = resolution;
   }
@@ -130,8 +141,14 @@ class PangoFontInfo {
   int resolution_;
   // Fontconfig operates through an environment variable, so it intrinsically
   // cannot be thread-friendly, but you can serialize multiple independent
-  // font configurations by calling InitFontConfig(true, path).
-  static bool fontconfig_initialized_;
+  // font configurations by calling HardInitFontConfig(fonts_dir, cache_dir).
+  // These hold the last initialized values set by HardInitFontConfig or
+  // the first call to SoftInitFontConfig.
+  // Directory to be scanned for font files.
+  static string fonts_dir_;
+  // Directory to store the cache of font information. (Can be the same as
+  // fonts_dir_)
+  static string cache_dir_;
 
  private:
   PangoFontInfo(const PangoFontInfo&);
@@ -145,36 +162,36 @@ class FontUtils {
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir
   static bool IsAvailableFont(const char* font_desc) {
-    return IsAvailableFont(font_desc, NULL);
+    return IsAvailableFont(font_desc, nullptr);
   }
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir. If false is returned, and
-  // best_match is not NULL, the closest matching font is returned there.
+  // best_match is not nullptr, the closest matching font is returned there.
   static bool IsAvailableFont(const char* font_desc, string* best_match);
   // Outputs description names of available fonts.
-  static const vector<string>& ListAvailableFonts();
+  static const std::vector<string>& ListAvailableFonts();
 
   // Picks font among available fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         string* font_name, vector<string>* graphemes);
+                         string* font_name, std::vector<string>* graphemes);
 
   // Picks font among all_fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         const vector<string>& all_fonts,
-                         string* font_name, vector<string>* graphemes);
+                         const std::vector<string>& all_fonts,
+                         string* font_name, std::vector<string>* graphemes);
 
   // Returns a bitmask where the value of true at index 'n' implies that unicode
   // value 'n' is renderable by at least one available font.
-  static void GetAllRenderableCharacters(vector<bool>* unichar_bitmap);
+  static void GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap);
   // Variant of the above function that inspects only the provided font names.
-  static void GetAllRenderableCharacters(const vector<string>& font_names,
-                                         vector<bool>* unichar_bitmap);
+  static void GetAllRenderableCharacters(const std::vector<string>& font_names,
+                                         std::vector<bool>* unichar_bitmap);
   static void GetAllRenderableCharacters(const string& font_name,
-                                         vector<bool>* unichar_bitmap);
+                                         std::vector<bool>* unichar_bitmap);
 
   // NOTE: The following utilities were written to be backward compatible with
   // StringRender.
@@ -185,23 +202,24 @@ class FontUtils {
   // In the flags vector, each flag is set according to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
   // The return string is a list of the acceptable fonts that were used.
-  static string BestFonts(const unordered_map<char32, inT64>& ch_map,
-      vector<std::pair<const char*, vector<bool> > >* font_flag);
+  static string BestFonts(
+      const std::unordered_map<char32, inT64>& ch_map,
+      std::vector<std::pair<const char*, std::vector<bool> > >* font_flag);
 
   // FontScore returns the weighted renderability score of the given
   // hash map character table in the given font. The unweighted score
   // is also returned in raw_score.
   // The values in the bool vector ch_flags correspond to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
-  static int FontScore(const unordered_map<char32, inT64>& ch_map,
+  static int FontScore(const std::unordered_map<char32, inT64>& ch_map,
                        const string& fontname, int* raw_score,
-                       vector<bool>* ch_flags);
+                       std::vector<bool>* ch_flags);
 
   // PangoFontInfo is reinitialized, so clear the static list of fonts.
   static void ReInit();
 
  private:
-  static vector<string> available_fonts_;  // cache list
+  static std::vector<string> available_fonts_;  // cache list
 };
 }  // namespace tesseract
 
