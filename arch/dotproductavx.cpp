@@ -88,7 +88,7 @@ double DotProductAVX(const double* u, const double* v, int n) {
   double result;
   // _mm256_extract_f64 doesn't exist, but resist the temptation to use an sse
   // instruction, as that introduces a 70 cycle delay. All this casting is to
-  // fool the instrinsics into thinking we are extracting the bottom int64.
+  // fool the intrinsics into thinking we are extracting the bottom int64.
   auto cast_sum = _mm256_castpd_si256(sum);
   *(reinterpret_cast<inT64*>(&result)) =
 #if defined(_WIN32) || defined(__i386__)
