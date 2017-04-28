@@ -203,8 +203,8 @@ class Tesseract : public Wordrec {
     pix_original_ = original_pix;
     // Clone to sublangs as well.
     for (int i = 0; i < sub_langs_.size(); ++i)
-      sub_langs_[i]->set_pix_original(
-          original_pix ? pixClone(original_pix) : nullptr);
+      sub_langs_[i]->set_pix_original(original_pix ? pixClone(original_pix)
+                                                   : nullptr);
   }
   // Returns a pointer to a Pix representing the best available (original) image
   // of the page. Can be of any bit depth, but never color-mapped, as that has

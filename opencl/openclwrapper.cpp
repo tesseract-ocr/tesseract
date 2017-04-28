@@ -84,32 +84,29 @@ cl_mem pixThBuffer; //output from thresholdtopix calculation
 cl_int clStatus;
 KernelEnv rEnv;
 
-#define DS_TAG_VERSION                      "<version>"
-#define DS_TAG_VERSION_END                  "</version>"
-#define DS_TAG_DEVICE                       "<device>"
-#define DS_TAG_DEVICE_END                   "</device>"
-#define DS_TAG_SCORE                        "<score>"
-#define DS_TAG_SCORE_END                    "</score>"
-#define DS_TAG_DEVICE_TYPE                  "<type>"
-#define DS_TAG_DEVICE_TYPE_END              "</type>"
-#define DS_TAG_DEVICE_NAME                  "<name>"
-#define DS_TAG_DEVICE_NAME_END              "</name>"
-#define DS_TAG_DEVICE_DRIVER_VERSION        "<driver>"
-#define DS_TAG_DEVICE_DRIVER_VERSION_END    "</driver>"
+#define DS_TAG_VERSION "<version>"
+#define DS_TAG_VERSION_END "</version>"
+#define DS_TAG_DEVICE "<device>"
+#define DS_TAG_DEVICE_END "</device>"
+#define DS_TAG_SCORE "<score>"
+#define DS_TAG_SCORE_END "</score>"
+#define DS_TAG_DEVICE_TYPE "<type>"
+#define DS_TAG_DEVICE_TYPE_END "</type>"
+#define DS_TAG_DEVICE_NAME "<name>"
+#define DS_TAG_DEVICE_NAME_END "</name>"
+#define DS_TAG_DEVICE_DRIVER_VERSION "<driver>"
+#define DS_TAG_DEVICE_DRIVER_VERSION_END "</driver>"
 
-#define DS_DEVICE_NATIVE_CPU_STRING  "native_cpu"
+#define DS_DEVICE_NATIVE_CPU_STRING "native_cpu"
 
 #define DS_DEVICE_NAME_LENGTH 256
 
-typedef enum {
-  DS_EVALUATE_ALL,
-  DS_EVALUATE_NEW_ONLY
-} ds_evaluation_type;
+typedef enum { DS_EVALUATE_ALL, DS_EVALUATE_NEW_ONLY } ds_evaluation_type;
 
 typedef struct {
-  unsigned int  numDevices;
-  ds_device*    devices;
-  const char*   version;
+  unsigned int numDevices;
+  ds_device *devices;
+  const char *version;
 } ds_profile;
 
 typedef enum {
@@ -130,11 +127,11 @@ typedef enum {
 // device->score) update the data size of score. The encoding and the format
 // of the score data is implementation defined. The function should return
 // DS_SUCCESS if there's no error to be reported.
-typedef ds_status (*ds_perf_evaluator)(ds_device* device, void* data);
+typedef ds_status (*ds_perf_evaluator)(ds_device *device, void *data);
 
 // deallocate memory used by score
-typedef ds_status (*ds_score_release)(void* score);
-static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
+typedef ds_status (*ds_score_release)(void *score);
+static ds_status releaseDSProfile(ds_profile *profile, ds_score_release sr) {
   ds_status status = DS_SUCCESS;
   if (profile != nullptr) {
     if (profile->devices != nullptr && sr != nullptr) {
@@ -143,8 +140,7 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
         free(profile->devices[i].oclDeviceName);
         free(profile->devices[i].oclDriverVersion);
         status = sr(profile->devices[i].score);
-        if (status != DS_SUCCESS)
-          break;
+        if (status != DS_SUCCESS) break;
       }
       free(profile->devices);
     }
@@ -153,18 +149,18 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
   return status;
 }
 
-static ds_status initDSProfile(ds_profile** p, const char* version) {
+static ds_status initDSProfile(ds_profile **p, const char *version) {
   int numDevices;
   cl_uint numPlatforms;
-  cl_platform_id* platforms = nullptr;
-  cl_device_id* devices = nullptr;
+  cl_platform_id *platforms = nullptr;
+  cl_device_id *devices = nullptr;
   ds_status status = DS_SUCCESS;
   unsigned int next;
   unsigned int i;
 
   if (p == nullptr) return DS_INVALID_PROFILE;
 
-  ds_profile* profile = (ds_profile*)malloc(sizeof(ds_profile));
+  ds_profile *profile = (ds_profile *)malloc(sizeof(ds_profile));
   if (profile == nullptr) return DS_MEMORY_ERROR;
 
   memset(profile, 0, sizeof(ds_profile));
@@ -172,7 +168,7 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   clGetPlatformIDs(0, nullptr, &numPlatforms);
 
   if (numPlatforms > 0) {
-    platforms = (cl_platform_id*)malloc(numPlatforms*sizeof(cl_platform_id));
+    platforms = (cl_platform_id *)malloc(numPlatforms * sizeof(cl_platform_id));
     if (platforms == nullptr) {
       status = DS_MEMORY_ERROR;
       goto cleanup;
@@ -184,26 +180,27 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   for (i = 0; i < (unsigned int)numPlatforms; i++) {
     cl_uint num;
     clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &num);
-    numDevices+=num;
+    numDevices += num;
   }
 
   if (numDevices > 0) {
-    devices = (cl_device_id*)malloc(numDevices * sizeof(cl_device_id));
+    devices = (cl_device_id *)malloc(numDevices * sizeof(cl_device_id));
     if (devices == nullptr) {
       status = DS_MEMORY_ERROR;
       goto cleanup;
     }
   }
 
-  profile->numDevices = numDevices+1;     // +1 to numDevices to include the native CPU
+  profile->numDevices =
+      numDevices + 1;  // +1 to numDevices to include the native CPU
   profile->devices =
-      (ds_device*)malloc(profile->numDevices * sizeof(ds_device));
+      (ds_device *)malloc(profile->numDevices * sizeof(ds_device));
   if (profile->devices == nullptr) {
     profile->numDevices = 0;
     status = DS_MEMORY_ERROR;
     goto cleanup;
   }
-  memset(profile->devices, 0, profile->numDevices*sizeof(ds_device));
+  memset(profile->devices, 0, profile->numDevices * sizeof(ds_device));
 
   next = 0;
   for (i = 0; i < (unsigned int)numPlatforms; i++) {
@@ -220,14 +217,14 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
       clGetDeviceInfo(profile->devices[next].oclDeviceID, CL_DEVICE_NAME,
                       DS_DEVICE_NAME_LENGTH, &buffer, nullptr);
       length = strlen(buffer);
-      profile->devices[next].oclDeviceName = (char*)malloc(length+1);
-      memcpy(profile->devices[next].oclDeviceName, buffer, length+1);
+      profile->devices[next].oclDeviceName = (char *)malloc(length + 1);
+      memcpy(profile->devices[next].oclDeviceName, buffer, length + 1);
 
       clGetDeviceInfo(profile->devices[next].oclDeviceID, CL_DRIVER_VERSION,
                       DS_DEVICE_NAME_LENGTH, &buffer, nullptr);
       length = strlen(buffer);
-      profile->devices[next].oclDriverVersion = (char*)malloc(length+1);
-      memcpy(profile->devices[next].oclDriverVersion, buffer, length+1);
+      profile->devices[next].oclDriverVersion = (char *)malloc(length + 1);
+      memcpy(profile->devices[next].oclDriverVersion, buffer, length + 1);
     }
   }
   profile->devices[next].type = DS_DEVICE_NATIVE_CPU;
@@ -247,10 +244,10 @@ cleanup:
   return status;
 }
 
-static ds_status profileDevices(ds_profile* profile,
+static ds_status profileDevices(ds_profile *profile,
                                 const ds_evaluation_type type,
                                 ds_perf_evaluator evaluator,
-                                void* evaluatorData, unsigned int* numUpdates) {
+                                void *evaluatorData, unsigned int *numUpdates) {
   ds_status status = DS_SUCCESS;
   unsigned int i;
   unsigned int updates = 0;
@@ -266,37 +263,37 @@ static ds_status profileDevices(ds_profile* profile,
     ds_status evaluatorStatus;
 
     switch (type) {
-    case DS_EVALUATE_NEW_ONLY:
-      if (profile->devices[i].score != nullptr) break;
+      case DS_EVALUATE_NEW_ONLY:
+        if (profile->devices[i].score != nullptr) break;
       //  else fall through
-    case DS_EVALUATE_ALL:
-      evaluatorStatus = evaluator(profile->devices+i, evaluatorData);
-      if (evaluatorStatus != DS_SUCCESS) {
-        status = evaluatorStatus;
-        return status;
-      }
-      updates++;
-      break;
-    default:
-      return DS_INVALID_PERF_EVALUATOR_TYPE;
-      break;
+      case DS_EVALUATE_ALL:
+        evaluatorStatus = evaluator(profile->devices + i, evaluatorData);
+        if (evaluatorStatus != DS_SUCCESS) {
+          status = evaluatorStatus;
+          return status;
+        }
+        updates++;
+        break;
+      default:
+        return DS_INVALID_PERF_EVALUATOR_TYPE;
+        break;
     };
   }
-  if (numUpdates)
-    *numUpdates = updates;
+  if (numUpdates) *numUpdates = updates;
   return status;
 }
 
-static const char* findString(const char* contentStart, const char* contentEnd,
-                              const char* string) {
+static const char *findString(const char *contentStart, const char *contentEnd,
+                              const char *string) {
   size_t stringLength;
-  const char* currentPosition;
-  const char* found = nullptr;
+  const char *currentPosition;
+  const char *found = nullptr;
   stringLength = strlen(string);
   currentPosition = contentStart;
-  for(currentPosition = contentStart; currentPosition < contentEnd; currentPosition++) {
+  for (currentPosition = contentStart; currentPosition < contentEnd;
+       currentPosition++) {
     if (*currentPosition == string[0]) {
-      if (currentPosition+stringLength < contentEnd) {
+      if (currentPosition + stringLength < contentEnd) {
         if (strncmp(currentPosition, string, stringLength) == 0) {
           found = currentPosition;
           break;
@@ -307,14 +304,14 @@ static const char* findString(const char* contentStart, const char* contentEnd,
   return found;
 }
 
-static ds_status readProFile(const char* fileName, char** content,
-                             size_t* contentSize) {
+static ds_status readProFile(const char *fileName, char **content,
+                             size_t *contentSize) {
   size_t size = 0;
 
   *contentSize = 0;
   *content = nullptr;
 
-  FILE* input = fopen(fileName, "rb");
+  FILE *input = fopen(fileName, "rb");
   if (input == nullptr) {
     return DS_FILE_ERROR;
   }
@@ -322,7 +319,7 @@ static ds_status readProFile(const char* fileName, char** content,
   fseek(input, 0L, SEEK_END);
   size = ftell(input);
   rewind(input);
-  char* binary = (char*)malloc(size);
+  char *binary = (char *)malloc(size);
   if (binary == nullptr) {
     fclose(input);
     return DS_FILE_ERROR;
@@ -335,26 +332,25 @@ static ds_status readProFile(const char* fileName, char** content,
   return DS_SUCCESS;
 }
 
-typedef ds_status (*ds_score_deserializer)(ds_device* device,
-                                           const unsigned char* serializedScore,
+typedef ds_status (*ds_score_deserializer)(ds_device *device,
+                                           const unsigned char *serializedScore,
                                            unsigned int serializedScoreSize);
 
-static ds_status readProfileFromFile(ds_profile* profile,
+static ds_status readProfileFromFile(ds_profile *profile,
                                      ds_score_deserializer deserializer,
-                                     const char* file) {
-
+                                     const char *file) {
   ds_status status = DS_SUCCESS;
-  char* contentStart = nullptr;
-  const char* contentEnd = nullptr;
+  char *contentStart = nullptr;
+  const char *contentEnd = nullptr;
   size_t contentSize;
 
   if (profile == nullptr) return DS_INVALID_PROFILE;
 
   status = readProFile(file, &contentStart, &contentSize);
   if (status == DS_SUCCESS) {
-    const char* currentPosition;
-    const char* dataStart;
-    const char* dataEnd;
+    const char *currentPosition;
+    const char *dataStart;
+    const char *dataEnd;
     size_t versionStringLength;
 
     contentEnd = contentStart + contentSize;
@@ -375,37 +371,37 @@ static ds_status readProfileFromFile(ds_profile* profile,
     }
 
     versionStringLength = strlen(profile->version);
-    if (versionStringLength!=(dataEnd-dataStart)
-        || strncmp(profile->version, dataStart, versionStringLength)!=0) {
+    if (versionStringLength != (dataEnd - dataStart) ||
+        strncmp(profile->version, dataStart, versionStringLength) != 0) {
       // version mismatch
       status = DS_PROFILE_FILE_ERROR;
       goto cleanup;
     }
-    currentPosition = dataEnd+strlen(DS_TAG_VERSION_END);
+    currentPosition = dataEnd + strlen(DS_TAG_VERSION_END);
 
     // parse the device information
     while (1) {
       unsigned int i;
 
-      const char* deviceTypeStart;
-      const char* deviceTypeEnd;
+      const char *deviceTypeStart;
+      const char *deviceTypeEnd;
       ds_device_type deviceType;
 
-      const char* deviceNameStart;
-      const char* deviceNameEnd;
+      const char *deviceNameStart;
+      const char *deviceNameEnd;
 
-      const char* deviceScoreStart;
-      const char* deviceScoreEnd;
+      const char *deviceScoreStart;
+      const char *deviceScoreEnd;
 
-      const char* deviceDriverStart;
-      const char* deviceDriverEnd;
+      const char *deviceDriverStart;
+      const char *deviceDriverEnd;
 
       dataStart = findString(currentPosition, contentEnd, DS_TAG_DEVICE);
       if (dataStart == nullptr) {
         // nothing useful remain, quit...
         break;
       }
-      dataStart+=strlen(DS_TAG_DEVICE);
+      dataStart += strlen(DS_TAG_DEVICE);
       dataEnd = findString(dataStart, contentEnd, DS_TAG_DEVICE_END);
       if (dataEnd == nullptr) {
         status = DS_PROFILE_FILE_ERROR;
@@ -418,9 +414,9 @@ static ds_status readProfileFromFile(ds_profile* profile,
         status = DS_PROFILE_FILE_ERROR;
         goto cleanup;
       }
-      deviceTypeStart+=strlen(DS_TAG_DEVICE_TYPE);
-      deviceTypeEnd = findString(deviceTypeStart, contentEnd,
-                                 DS_TAG_DEVICE_TYPE_END);
+      deviceTypeStart += strlen(DS_TAG_DEVICE_TYPE);
+      deviceTypeEnd =
+          findString(deviceTypeStart, contentEnd, DS_TAG_DEVICE_TYPE_END);
       if (deviceTypeEnd == nullptr) {
         status = DS_PROFILE_FILE_ERROR;
         goto cleanup;
@@ -429,27 +425,26 @@ static ds_status readProfileFromFile(ds_profile* profile,
 
       // parse the device name
       if (deviceType == DS_DEVICE_OPENCL_DEVICE) {
-
         deviceNameStart = findString(dataStart, contentEnd, DS_TAG_DEVICE_NAME);
         if (deviceNameStart == nullptr) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
-        deviceNameStart+=strlen(DS_TAG_DEVICE_NAME);
-        deviceNameEnd = findString(deviceNameStart, contentEnd,
-                                   DS_TAG_DEVICE_NAME_END);
+        deviceNameStart += strlen(DS_TAG_DEVICE_NAME);
+        deviceNameEnd =
+            findString(deviceNameStart, contentEnd, DS_TAG_DEVICE_NAME_END);
         if (deviceNameEnd == nullptr) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
 
-        deviceDriverStart = findString(dataStart, contentEnd,
-                                       DS_TAG_DEVICE_DRIVER_VERSION);
+        deviceDriverStart =
+            findString(dataStart, contentEnd, DS_TAG_DEVICE_DRIVER_VERSION);
         if (deviceDriverStart == nullptr) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
-        deviceDriverStart+=strlen(DS_TAG_DEVICE_DRIVER_VERSION);
+        deviceDriverStart += strlen(DS_TAG_DEVICE_DRIVER_VERSION);
         deviceDriverEnd = findString(deviceDriverStart, contentEnd,
                                      DS_TAG_DEVICE_DRIVER_VERSION_END);
         if (deviceDriverEnd == nullptr) {
@@ -465,23 +460,24 @@ static ds_status readProfileFromFile(ds_profile* profile,
 
             actualDeviceNameLength = strlen(profile->devices[i].oclDeviceName);
             driverVersionLength = strlen(profile->devices[i].oclDriverVersion);
-            if (actualDeviceNameLength == (deviceNameEnd - deviceNameStart)
-               && driverVersionLength == (deviceDriverEnd - deviceDriverStart)
-               && strncmp(profile->devices[i].oclDeviceName, deviceNameStart,
-                          actualDeviceNameLength)==0
-               && strncmp(profile->devices[i].oclDriverVersion, deviceDriverStart,
-                          driverVersionLength)==0) {
-              deviceScoreStart = findString(dataStart, contentEnd, DS_TAG_SCORE);
+            if (actualDeviceNameLength == (deviceNameEnd - deviceNameStart) &&
+                driverVersionLength == (deviceDriverEnd - deviceDriverStart) &&
+                strncmp(profile->devices[i].oclDeviceName, deviceNameStart,
+                        actualDeviceNameLength) == 0 &&
+                strncmp(profile->devices[i].oclDriverVersion, deviceDriverStart,
+                        driverVersionLength) == 0) {
+              deviceScoreStart =
+                  findString(dataStart, contentEnd, DS_TAG_SCORE);
               if (deviceNameStart == nullptr) {
                 status = DS_PROFILE_FILE_ERROR;
                 goto cleanup;
               }
-              deviceScoreStart+=strlen(DS_TAG_SCORE);
-              deviceScoreEnd = findString(deviceScoreStart, contentEnd,
-                                          DS_TAG_SCORE_END);
-              status = deserializer(profile->devices+i,
-                                    (const unsigned char*)deviceScoreStart,
-                                    deviceScoreEnd-deviceScoreStart);
+              deviceScoreStart += strlen(DS_TAG_SCORE);
+              deviceScoreEnd =
+                  findString(deviceScoreStart, contentEnd, DS_TAG_SCORE_END);
+              status = deserializer(profile->devices + i,
+                                    (const unsigned char *)deviceScoreStart,
+                                    deviceScoreEnd - deviceScoreStart);
               if (status != DS_SUCCESS) {
                 goto cleanup;
               }
@@ -496,12 +492,12 @@ static ds_status readProfileFromFile(ds_profile* profile,
               status = DS_PROFILE_FILE_ERROR;
               goto cleanup;
             }
-            deviceScoreStart+=strlen(DS_TAG_SCORE);
-            deviceScoreEnd = findString(deviceScoreStart, contentEnd,
-                                        DS_TAG_SCORE_END);
-            status = deserializer(profile->devices+i,
-                                  (const unsigned char*)deviceScoreStart,
-                                  deviceScoreEnd-deviceScoreStart);
+            deviceScoreStart += strlen(DS_TAG_SCORE);
+            deviceScoreEnd =
+                findString(deviceScoreStart, contentEnd, DS_TAG_SCORE_END);
+            status = deserializer(profile->devices + i,
+                                  (const unsigned char *)deviceScoreStart,
+                                  deviceScoreEnd - deviceScoreStart);
             if (status != DS_SUCCESS) {
               goto cleanup;
             }
@@ -510,7 +506,7 @@ static ds_status readProfileFromFile(ds_profile* profile,
       }
 
       // skip over the current one to find the next device
-      currentPosition = dataEnd+strlen(DS_TAG_DEVICE_END);
+      currentPosition = dataEnd + strlen(DS_TAG_DEVICE_END);
     }
   }
 cleanup:
@@ -518,17 +514,17 @@ cleanup:
   return status;
 }
 
-typedef ds_status (*ds_score_serializer)(ds_device* device,
-                                         void** serializedScore,
-                                         unsigned int* serializedScoreSize);
-static ds_status writeProfileToFile(ds_profile* profile,
+typedef ds_status (*ds_score_serializer)(ds_device *device,
+                                         void **serializedScore,
+                                         unsigned int *serializedScoreSize);
+static ds_status writeProfileToFile(ds_profile *profile,
                                     ds_score_serializer serializer,
-                                    const char* file) {
+                                    const char *file) {
   ds_status status = DS_SUCCESS;
 
   if (profile == nullptr) return DS_INVALID_PROFILE;
 
-  FILE* profileFile = fopen(file, "wb");
+  FILE *profileFile = fopen(file, "wb");
   if (profileFile == nullptr) {
     status = DS_FILE_ERROR;
   } else {
@@ -536,25 +532,26 @@ static ds_status writeProfileToFile(ds_profile* profile,
 
     // write version string
     fwrite(DS_TAG_VERSION, sizeof(char), strlen(DS_TAG_VERSION), profileFile);
-    fwrite(profile->version, sizeof(char), strlen(profile->version), profileFile);
-    fwrite(DS_TAG_VERSION_END, sizeof(char), strlen(DS_TAG_VERSION_END), profileFile);
+    fwrite(profile->version, sizeof(char), strlen(profile->version),
+           profileFile);
+    fwrite(DS_TAG_VERSION_END, sizeof(char), strlen(DS_TAG_VERSION_END),
+           profileFile);
     fwrite("\n", sizeof(char), 1, profileFile);
 
     for (i = 0; i < profile->numDevices && status == DS_SUCCESS; i++) {
-      void* serializedScore;
+      void *serializedScore;
       unsigned int serializedScoreSize;
 
       fwrite(DS_TAG_DEVICE, sizeof(char), strlen(DS_TAG_DEVICE), profileFile);
 
       fwrite(DS_TAG_DEVICE_TYPE, sizeof(char), strlen(DS_TAG_DEVICE_TYPE),
              profileFile);
-      fwrite(&profile->devices[i].type,sizeof(ds_device_type),1, profileFile);
+      fwrite(&profile->devices[i].type, sizeof(ds_device_type), 1, profileFile);
       fwrite(DS_TAG_DEVICE_TYPE_END, sizeof(char),
              strlen(DS_TAG_DEVICE_TYPE_END), profileFile);
 
-      switch(profile->devices[i].type) {
-      case DS_DEVICE_NATIVE_CPU:
-        {
+      switch (profile->devices[i].type) {
+        case DS_DEVICE_NATIVE_CPU: {
           // There's no need to emit a device name for the native CPU device.
           /*
           fwrite(DS_TAG_DEVICE_NAME, sizeof(char), strlen(DS_TAG_DEVICE_NAME),
@@ -564,14 +561,12 @@ static ds_status writeProfileToFile(ds_profile* profile,
           fwrite(DS_TAG_DEVICE_NAME_END, sizeof(char),
                  strlen(DS_TAG_DEVICE_NAME_END), profileFile);
           */
-        }
-        break;
-      case DS_DEVICE_OPENCL_DEVICE:
-        {
+        } break;
+        case DS_DEVICE_OPENCL_DEVICE: {
           fwrite(DS_TAG_DEVICE_NAME, sizeof(char), strlen(DS_TAG_DEVICE_NAME),
                  profileFile);
-          fwrite(profile->devices[i].oclDeviceName,
-                 sizeof(char),strlen(profile->devices[i].oclDeviceName), profileFile);
+          fwrite(profile->devices[i].oclDeviceName, sizeof(char),
+                 strlen(profile->devices[i].oclDeviceName), profileFile);
           fwrite(DS_TAG_DEVICE_NAME_END, sizeof(char),
                  strlen(DS_TAG_DEVICE_NAME_END), profileFile);
 
@@ -581,24 +576,25 @@ static ds_status writeProfileToFile(ds_profile* profile,
                  strlen(profile->devices[i].oclDriverVersion), profileFile);
           fwrite(DS_TAG_DEVICE_DRIVER_VERSION_END, sizeof(char),
                  strlen(DS_TAG_DEVICE_DRIVER_VERSION_END), profileFile);
-        }
-        break;
-      default:
-        status = DS_UNKNOWN_DEVICE_TYPE;
-        break;
+        } break;
+        default:
+          status = DS_UNKNOWN_DEVICE_TYPE;
+          break;
       };
 
       fwrite(DS_TAG_SCORE, sizeof(char), strlen(DS_TAG_SCORE), profileFile);
-      status = serializer(profile->devices+i, &serializedScore,
+      status = serializer(profile->devices + i, &serializedScore,
                           &serializedScoreSize);
       if (status == DS_SUCCESS && serializedScore != nullptr &&
           serializedScoreSize > 0) {
         fwrite(serializedScore, sizeof(char), serializedScoreSize, profileFile);
         free(serializedScore);
       }
-      fwrite(DS_TAG_SCORE_END, sizeof(char), strlen(DS_TAG_SCORE_END), profileFile);
-      fwrite(DS_TAG_DEVICE_END, sizeof(char), strlen(DS_TAG_DEVICE_END), profileFile);
-      fwrite("\n",sizeof(char),1,profileFile);
+      fwrite(DS_TAG_SCORE_END, sizeof(char), strlen(DS_TAG_SCORE_END),
+             profileFile);
+      fwrite(DS_TAG_DEVICE_END, sizeof(char), strlen(DS_TAG_DEVICE_END),
+             profileFile);
+      fwrite("\n", sizeof(char), 1, profileFile);
     }
     fclose(profileFile);
   }

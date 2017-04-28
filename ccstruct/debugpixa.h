@@ -44,7 +44,7 @@ class DebugPixa {
   // The collection of images to put in the PDF.
   Pixa* pixa_;
   // The fonts used to draw text captions.
-  L_BMF* fonts_;
+  L_Bmf* fonts_;
 };
 
 }  // namespace tesseract

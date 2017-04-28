@@ -235,7 +235,7 @@ enum PageIteratorLevel {
  *
  * JUSTIFICATION_RIGHT
  *   Each line, except possibly the first, is flush to the same right tab stop.
-*/
+ */
 enum ParagraphJustification {
   JUSTIFICATION_UNKNOWN,
   JUSTIFICATION_LEFT,

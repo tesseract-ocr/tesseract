@@ -23,13 +23,9 @@
 class SIMDDetect {
  public:
   // Returns true if AVX is available on this system.
-  static inline bool IsAVXAvailable() {
-    return detector.avx_available_;
-  }
+  static inline bool IsAVXAvailable() { return detector.avx_available_; }
   // Returns true if SSE4.1 is available on this system.
-  static inline bool IsSSEAvailable() {
-    return detector.sse_available_;
-  }
+  static inline bool IsSSEAvailable() { return detector.sse_available_; }
 
  private:
   // Constructor, must set all static member variables.
