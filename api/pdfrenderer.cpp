@@ -716,7 +716,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   if (!filename)
     return false;
 
-  L_COMP_DATA *cid = NULL;
+  L_Compressed_Data *cid = NULL;
   const int kJpegQuality = 85;
 
   int format, sad;

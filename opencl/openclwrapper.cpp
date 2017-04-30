@@ -690,18 +690,18 @@ cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer, size_t nElem
     return membuffer;
 }
 
-PIX *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, PIX *pixd, PIX *pixs,
+Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
                        int elements, cl_mem_flags flags, bool memcopy = false,
                        bool sync = true) {
   PROCNAME("mapOutputCLBuffer");
   if (!pixd) {
     if (memcopy) {
       if ((pixd = pixCreateTemplate(pixs)) == nullptr)
-        (PIX *)ERROR_PTR("pixd not made", procName, nullptr);
+        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
     } else {
       if ((pixd = pixCreateHeader(pixGetWidth(pixs), pixGetHeight(pixs),
                                   pixGetDepth(pixs))) == nullptr)
-        (PIX *)ERROR_PTR("pixd not made", procName, nullptr);
+        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
     }
   }
   l_uint32 *pValues = (l_uint32 *)clEnqueueMapBuffer(
@@ -756,7 +756,7 @@ void OpenclDevice::releaseMorphCLBuffers()
   pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = nullptr;
 }
 
-int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, PIX* pixs)
+int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs)
 {
     SetKernelEnv( &rEnv );
 
@@ -1767,8 +1767,8 @@ cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
 
 // OpenCL implementation of Get Lines from pix function
 //Note: Assumes the source and dest opencl buffer are initialized. No check done
-void OpenclDevice::pixGetLinesCL(PIX *pixd, PIX *pixs, PIX **pix_vline,
-                                 PIX **pix_hline, PIX **pixClosed,
+void OpenclDevice::pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline,
+                                 Pix **pix_hline, Pix **pixClosed,
                                  bool getpixClosed, l_int32 close_hsize,
                                  l_int32 close_vsize, l_int32 open_hsize,
                                  l_int32 open_vsize, l_int32 line_hsize,
