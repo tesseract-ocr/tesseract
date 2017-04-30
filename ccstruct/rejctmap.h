@@ -219,8 +219,7 @@ class REJMAP
       const REJMAP & source);    //from this
 
     ~REJMAP () {                 //destructor
-      if (ptr != NULL)
-        free_struct (ptr, len * sizeof (REJ), "REJ");
+      free(ptr);
     }
 
     void initialise(  //Redefine map

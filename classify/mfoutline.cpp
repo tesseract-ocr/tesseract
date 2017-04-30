@@ -160,7 +160,7 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
   Start = list_rest (Outline);
   set_rest(Outline, NIL_LIST);
   while (Start != NULL) {
-    free_struct (first_node (Start), sizeof (MFEDGEPT), "MFEDGEPT");
+    free(first_node(Start));
     Start = pop (Start);
   }
 
@@ -219,7 +219,7 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
 /*---------------------------------------------------------------------------*/
 /** Return a new edge point for a micro-feature outline. */
 MFEDGEPT *NewEdgePoint() {
-  return ((MFEDGEPT *) alloc_struct(sizeof(MFEDGEPT), "MFEDGEPT"));
+  return (MFEDGEPT *) malloc(sizeof(MFEDGEPT));
 }
 
 
