@@ -37,9 +37,9 @@
 template <typename T>
 class GenericVector {
  public:
-  GenericVector() {
-    init(kDefaultVectorSize);
-  }
+  GenericVector() : size_used_(0), size_reserved_(0), data_(NULL),
+                    clear_cb_(NULL), compare_cb_(NULL) {}
+
   GenericVector(int size, T init_val) {
     init(size);
     init_to_size(size, init_val);
