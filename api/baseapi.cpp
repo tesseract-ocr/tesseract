@@ -2091,18 +2091,12 @@ void TessBaseAPI::Clear() {
  */
 void TessBaseAPI::End() {
   Clear();
-  if (thresholder_ != NULL) {
-    delete thresholder_;
-    thresholder_ = NULL;
-  }
-  if (page_res_ != NULL) {
-    delete page_res_;
-    page_res_ = NULL;
-  }
-  if (block_list_ != NULL) {
-    delete block_list_;
-    block_list_ = NULL;
-  }
+  delete thresholder_;
+  thresholder_ = NULL;
+  delete page_res_;
+  page_res_ = NULL;
+  delete block_list_;
+  block_list_ = NULL;
   if (paragraph_models_ != NULL) {
     paragraph_models_->delete_data_pointers();
     delete paragraph_models_;
@@ -2114,30 +2108,18 @@ void TessBaseAPI::End() {
       osd_tesseract_ = NULL;
     tesseract_ = NULL;
   }
-  if (osd_tesseract_ != NULL) {
-    delete osd_tesseract_;
-    osd_tesseract_ = NULL;
-  }
-  if (equ_detect_ != NULL) {
-    delete equ_detect_;
-    equ_detect_ = NULL;
-  }
-  if (input_file_ != NULL) {
-    delete input_file_;
-    input_file_ = NULL;
-  }
-  if (output_file_ != NULL) {
-    delete output_file_;
-    output_file_ = NULL;
-  }
-  if (datapath_ != NULL) {
-    delete datapath_;
-    datapath_ = NULL;
-  }
-  if (language_ != NULL) {
-    delete language_;
-    language_ = NULL;
-  }
+  delete osd_tesseract_;
+  osd_tesseract_ = NULL;
+  delete equ_detect_;
+  equ_detect_ = NULL;
+  delete input_file_;
+  input_file_ = NULL;
+  delete output_file_;
+  output_file_ = NULL;
+  delete datapath_;
+  datapath_ = NULL;
+  delete language_;
+  language_ = NULL;
 }
 
 // Clear any library-level memory caches.
