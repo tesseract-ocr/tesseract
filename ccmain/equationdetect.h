@@ -23,6 +23,7 @@
 #include "blobbox.h"
 #include "equationdetectbase.h"
 #include "genericvector.h"
+#include "tesseractclass.h"
 #include "unichar.h"
 
 class BLOBNBOX;
@@ -244,7 +245,7 @@ class EquationDetect : public EquationDetectBase {
   void PrintSpecialBlobsDensity(const ColPartition* part) const;
 
   // The tesseract engine intialized from equation training data.
-  Tesseract* equ_tesseract_;
+  Tesseract equ_tesseract_;
 
   // The tesseract engine used for OCR. This pointer is passed in by the caller,
   // so do NOT destroy it in this class.
