@@ -141,7 +141,7 @@ class SVNetwork {
 
  private:
   /// The mutex for access to Send() and Flush().
-  SVMutex* mutex_send_;
+  SVMutex mutex_send_;
   /// The actual stream_ to the server.
   int stream_;
   /// Stores the last received message-chunk from the server.

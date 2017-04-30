@@ -208,19 +208,19 @@ void SVSemaphore::Wait() {
 
 // Place a message in the message buffer (and flush it).
 void SVNetwork::Send(const char* msg) {
-  mutex_send_->Lock();
+  mutex_send_.Lock();
   msg_buffer_out_.append(msg);
-  mutex_send_->Unlock();
+  mutex_send_.Unlock();
 }
 
 // Send the whole buffer.
 void SVNetwork::Flush() {
-  mutex_send_->Lock();
+  mutex_send_.Lock();
   while (!msg_buffer_out_.empty()) {
     int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
     msg_buffer_out_.erase(0, i);
   }
-  mutex_send_->Unlock();
+  mutex_send_.Unlock();
 }
 
 // Receive a message from the server.
@@ -387,7 +387,6 @@ static int GetAddrInfo(const char* hostname, int port,
 
 // Set up a connection to a ScrollView on hostname:port.
 SVNetwork::SVNetwork(const char* hostname, int port) {
-  mutex_send_ = new SVMutex();
   msg_buffer_in_ = new char[kMaxMsgSize + 1];
   msg_buffer_in_[0] = '\0';
 
@@ -448,7 +447,6 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 
 SVNetwork::~SVNetwork() {
   delete[] msg_buffer_in_;
-  delete mutex_send_;
 }
 
 #endif  // GRAPHICS_DISABLED
