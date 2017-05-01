@@ -56,7 +56,7 @@ Import original HP distribution
 
 #define CHARS_PER_LINE 500
 
-#if defined(__STDC__) || defined(__cplusplus) || MAC_OR_DOS
+#if defined(__STDC__) || defined(__cplusplus)
 # define _ARGS(s) s
 #else
 # define _ARGS(s) ()
