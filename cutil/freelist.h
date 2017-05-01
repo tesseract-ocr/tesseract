@@ -36,8 +36,6 @@
 ----------------------------------------------------------------------*/
 int *memalloc(int size);
 
-int *memrealloc(void *ptr, int size, int oldsize);
-
 void memfree(void *element);
 
 #endif

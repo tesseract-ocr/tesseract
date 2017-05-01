@@ -29,7 +29,6 @@
 #include "gradechop.h"
 #include "plotedges.h"
 #include "outlines.h"
-#include "freelist.h"
 #include "seam.h"
 #include "wordrec.h"
 

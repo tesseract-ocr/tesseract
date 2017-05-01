@@ -28,7 +28,6 @@
 
 #include "cutil.h"
 #include "dawg.h"
-#include "freelist.h"
 #include "globals.h"
 #include "ndminx.h"
 #include "stopper.h"
