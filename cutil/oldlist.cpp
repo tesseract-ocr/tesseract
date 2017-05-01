@@ -85,9 +85,6 @@
 #include "oldlist.h"
 #include "structures.h"
 #include <stdio.h>
-#if MAC_OR_DOS
-#include <stdlib.h>
-#endif
 
 /*----------------------------------------------------------------------
               M a c r o s
