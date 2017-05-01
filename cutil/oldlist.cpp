@@ -87,8 +87,6 @@
 #include <stdio.h>
 #if MAC_OR_DOS
 #include <stdlib.h>
-#else
-#include "freelist.h"
 #endif
 
 /*----------------------------------------------------------------------
@@ -202,8 +200,7 @@ LIST destroy(LIST list) {
  *  Return the space taken by the LISTs of a list to the heap.
  **********************************************************************/
 void destroy_nodes(LIST list, void_dest destructor) {
-  if (destructor == NULL)
-    destructor = memfree;
+  ASSERT_HOST(destructor != NULL);
 
   while (list != NIL_LIST) {
     if (first_node(list) != NULL) (*destructor)(first_node(list));
