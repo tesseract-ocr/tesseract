@@ -184,9 +184,6 @@ Classify::Classify()
   learn_debug_win_ = NULL;
   learn_fragmented_word_debug_win_ = NULL;
   learn_fragments_debug_win_ = NULL;
-
-  CharNormCutoffs = new uinT16[MAX_NUM_CLASSES];
-  BaselineCutoffs = new uinT16[MAX_NUM_CLASSES];
 }
 
 Classify::~Classify() {
@@ -194,8 +191,6 @@ Classify::~Classify() {
   delete learn_debug_win_;
   delete learn_fragmented_word_debug_win_;
   delete learn_fragments_debug_win_;
-  delete[] CharNormCutoffs;
-  delete[] BaselineCutoffs;
 }
 
 

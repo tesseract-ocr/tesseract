@@ -529,8 +529,8 @@ class Classify : public CCStruct {
   // value in the adaptive classifier. Both are indexed by unichar_id.
   // shapetable_cutoffs_ provides a similar value for each shape in the
   // shape_table_
-  uinT16* CharNormCutoffs;
-  uinT16* BaselineCutoffs;
+  uinT16 CharNormCutoffs[MAX_NUM_CLASSES];
+  uinT16 BaselineCutoffs[MAX_NUM_CLASSES];
   GenericVector<uinT16> shapetable_cutoffs_;
   ScrollView* learn_debug_win_;
   ScrollView* learn_fragmented_word_debug_win_;

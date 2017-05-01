@@ -90,10 +90,7 @@ void STATS::clear() {  // clear out buckets
  * Destructor for a stats class.
  **********************************************************************/
 STATS::~STATS () {
-  if (buckets_ != NULL) {
-    delete [] buckets_;
-    buckets_ = NULL;
-  }
+  delete [] buckets_;
 }
 
 /**********************************************************************
