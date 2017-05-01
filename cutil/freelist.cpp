@@ -13,16 +13,6 @@
 
 #include <stdlib.h>
 
-
-// With improvements in OS memory allocators, internal memory management is
-// no longer required, so these functions all map to their malloc-family
-// equivalents.
-
-
-int *memalloc(int size) {
-  return static_cast<int*>(malloc(static_cast<size_t>(size)));
-}
-
 void memfree(void *element) {
   free(element);
 }
