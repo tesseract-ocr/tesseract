@@ -42,7 +42,6 @@ void TessdataManager::LoadFileLater(const char *data_file_name) {
 
 bool TessdataManager::Init(const char *data_file_name) {
   GenericVector<char> data;
-  bool result = true;
   if (reader_ == nullptr) {
     if (!LoadDataFromFile(data_file_name, &data)) return false;
   } else {
