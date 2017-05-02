@@ -28,7 +28,7 @@ namespace tesseract {
 double DotProductSSE(const double* u, const double* v, int n);
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-inT32 IntDotProductSSE(const inT8* u, const inT8* v, int n);
+int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n);
 
 }  // namespace tesseract.
 
