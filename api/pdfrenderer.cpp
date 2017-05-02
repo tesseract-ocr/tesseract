@@ -175,9 +175,9 @@ const int kBasicBufSize = 2048;
 const int kCharWidth = 2;
 
 // Used for memory allocation. A codepoint must take no more than this
-// many bytes, when written in the PDF way. e.g. "<0063>" for the
-// letter 'c'
-const int kMaxBytesPerCodepoint = 20;
+// many hexadecimal digits, when written in the PDF way,
+// e.g., "<0063>" for the letter 'c'; does not include final '\0' in buffer.
+const int kMaxHexDigitsPerCodepoint = 4 + 4; // at most 2 surrogates
 
 /**********************************************************************
  * PDF Renderer interface implementation
@@ -309,20 +309,27 @@ void ClipBaseline(int ppi, int x1, int y1, int x2, int y2,
     *line_y1 = *line_y2 = (y1 + y2) / 2;
 }
 
-bool CodepointToUtf16be(int code, char *utf16) {
-  if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
+bool CodepointToUtf16be(int code, char *utf16, size_t utf16_buflen) {
+  if (! (0 <= code && code <= 0x10FFFF) || (0xD800 <= code && code < 0xE000)) {
     tprintf("Dropping invalid codepoint %d\n", code);
     return false;
   }
+  int res_snprintf;
   if (code < 0x10000) {
-    snprintf(utf16, sizeof(utf16), "%04X", code);
+    res_snprintf = snprintf(utf16, utf16_buflen, "%04X", code);
   } else {
     int a = code - 0x010000;
-    int high_surrogate = (0x03FF & (a >> 10)) + 0xD800;
-    int low_surrogate = (0x03FF & a) + 0xDC00;
-    snprintf(utf16, sizeof(utf16), "%04X%04X", high_surrogate, low_surrogate);
+    int high = (0x03FF & (a >> 10)) + 0xD800;
+    int low = (0x03FF & a) + 0xDC00;
+    res_snprintf = snprintf(utf16, utf16_buflen, "%04X%04X", high, low);
   }
-  return true;
+  const bool result =
+      4 <= res_snprintf &&
+      static_cast<size_t>(res_snprintf) < utf16_buflen;
+  if (!result) {
+    tprintf("Unexpected problem, dropping codepoint %d\n", code);
+  }
+  return result;
 }
 
 char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
@@ -463,10 +470,10 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       if (grapheme && grapheme[0] != '\0') {
         GenericVector<int> unicodes;
         UNICHAR::UTF8ToUnicode(grapheme, &unicodes);
-        char utf16[kMaxBytesPerCodepoint];
+        char utf16[kMaxHexDigitsPerCodepoint + 1];
         for (int i = 0; i < unicodes.length(); i++) {
           int code = unicodes[i];
-          if (CodepointToUtf16be(code, utf16)) {
+          if (CodepointToUtf16be(code, utf16, sizeof(utf16))) {
             pdf_word += utf16;
             pdf_word_len++;
           }
@@ -977,10 +984,10 @@ bool TessPDFRenderer::EndDocumentHandler() {
   STRING utf16_title = "FEFF";  // byte_order_marker
   GenericVector<int> unicodes;
   UNICHAR::UTF8ToUnicode(title(), &unicodes);
-  char utf16[kMaxBytesPerCodepoint];
+  char utf16[kMaxHexDigitsPerCodepoint + 1];
   for (int i = 0; i < unicodes.length(); i++) {
     int code = unicodes[i];
-    if (CodepointToUtf16be(code, utf16)) {
+    if (CodepointToUtf16be(code, utf16, sizeof(utf16))) {
       utf16_title += utf16;
     }
   }
