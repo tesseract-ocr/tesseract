@@ -847,9 +847,9 @@ int IntegerMatcher::UpdateTablesForFeature(
             M3 = ~M3;
           A3 >>= mult_trunc_shift_bits_;
           M3 >>= mult_trunc_shift_bits_;
-          if (A3 > evidence_mult_mask_)
+          if (A3 > evidence_mult_mask_) // TODO: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
             A3 = evidence_mult_mask_;
-          if (M3 > evidence_mult_mask_)
+          if (M3 > evidence_mult_mask_) // TODO: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
             M3 = evidence_mult_mask_;
 
           A4 = (A3 * A3) + (M3 * M3);

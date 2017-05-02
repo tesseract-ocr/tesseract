@@ -666,8 +666,13 @@ bool TessPDFRenderer::BeginDocumentHandler() {
     tprintf("Can not open file \"%s\"!\n", buf);
     return false;
   }
-  fseek(fp, 0, SEEK_END);
-  long int size = ftell(fp);
+  const int res_fseek = fseek(fp, 0, SEEK_END);
+  const long int res_ftell = ftell(fp);
+  if (res_fseek != 0 || res_ftell < 0) {
+    tprintf("Can not determine size of file \"%s\"!\n", buf);
+    return false;
+  }
+  const size_t size = static_cast<size_t>(res_ftell);
   fseek(fp, 0, SEEK_SET);
   char *buffer = new char[size];
   if (fread(buffer, 1, size, fp) != size) {
@@ -951,7 +956,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   if (n >= sizeof(buf)) return false;
   AppendString(buf);
   size_t pages_objsize  = strlen(buf);
-  for (size_t i = 0; i < pages_.size(); i++) {
+  for (size_t i = 0; i < pages_.unsigned_size(); i++) {
     n = snprintf(buf, sizeof(buf),
                  "%ld 0 R ", pages_[i]);
     if (n >= sizeof(buf)) return false;

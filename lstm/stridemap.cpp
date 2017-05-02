@@ -45,12 +45,12 @@ int StrideMap::Index::MaxIndexOfDim(FlexDimensions dim) const {
   if (dim == FD_BATCH) return max_index;
   int batch = indices_[FD_BATCH];
   if (dim == FD_HEIGHT) {
-    if (batch >= stride_map_->heights_.size() ||
+    if (batch >= stride_map_->heights_.size() || // TODO: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
         stride_map_->heights_[batch] > max_index)
       return max_index;
     return stride_map_->heights_[batch] - 1;
   }
-  if (batch >= stride_map_->widths_.size() ||
+  if (batch >= stride_map_->widths_.size() || // TODO: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
       stride_map_->widths_[batch] > max_index)
     return max_index;
   return stride_map_->widths_[batch] - 1;

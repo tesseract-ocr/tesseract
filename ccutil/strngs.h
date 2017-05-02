@@ -20,6 +20,7 @@
 #ifndef           STRNGS_H
 #define           STRNGS_H
 
+#include          <assert.h>
 #include          <stdio.h>
 #include          <string.h>
 #include          "platform.h"
@@ -66,6 +67,12 @@ class TESS_API STRING
     BOOL8 contains(const char c) const;
     inT32 length() const;
     inT32 size() const { return length(); }
+    // Same as size() but as size_t. Unsigned to help prevent g++ -Wsign-compare warnings.
+    // TODO: Instead, make size() return an unsigned type, if possible (not investigated).
+    size_t unsigned_size() const {
+      assert(0 <= size()); // TODO: validate
+      return static_cast<size_t>(size());
+    }
     const char *string() const;
     const char *c_str() const;
 

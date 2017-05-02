@@ -184,7 +184,7 @@ void NetworkIO::FromPixes(const StaticShape& shape,
   stride_map_.SetStride(h_w_pairs);
   ResizeToMap(int_mode(), stride_map_, shape.depth());
   // Iterate over the images again to copy the data.
-  for (int b = 0; b < pixes.size(); ++b) {
+  for (size_t b = 0; b < pixes.size(); ++b) {
     Pix* pix = const_cast<Pix*>(pixes[b]);
     float black = 0.0f, white = 255.0f;
     if (shape.depth() != 3) ComputeBlackWhite(pix, &black, &white);
