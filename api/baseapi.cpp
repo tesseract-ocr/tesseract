@@ -760,7 +760,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   fprintf(fp, "P5 %d %d 255\n", width, height);
   for (int y = 0; y < height; ++y, data += pixGetWpl(pix)) {
     for (int x = 0; x < width; ++x) {
-      uinT8 b = GET_DATA_BIT(data, x) ? 0 : 255;
+      uint8_t b = GET_DATA_BIT(data, x) ? 0 : 255;
       fwrite(&b, 1, 1, fp);
     }
   }
