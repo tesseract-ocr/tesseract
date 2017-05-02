@@ -41,7 +41,6 @@ typedef struct
   uinT8 NumTimesSeen;
   uinT8 ProtoVectorSize;
   PROTO_ID MaxProtoId;
-  LIST ContextsSeen;
   BIT_VECTOR Protos;
   int FontinfoId;  // font information inferred from pre-trained templates
 } TEMP_CONFIG_STRUCT;

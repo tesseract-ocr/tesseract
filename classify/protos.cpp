@@ -28,7 +28,6 @@
 #include "protos.h"
 #include "const.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include "callcpp.h"
 #include "tprintf.h"
 #include "scanutils.h"
@@ -230,11 +229,11 @@ void FreeClassFields(CLASS_TYPE Class) {
 
   if (Class) {
     if (Class->MaxNumProtos > 0)
-      memfree (Class->Prototypes);
+      free(Class->Prototypes);
     if (Class->MaxNumConfigs > 0) {
       for (i = 0; i < Class->NumConfigs; i++)
         FreeBitVector (Class->Configurations[i]);
-      memfree (Class->Configurations);
+      free(Class->Configurations);
     }
   }
 }

@@ -22,7 +22,6 @@
 #include "emalloc.h"
 #include "callcpp.h"
 #include "danerror.h"
-#include "freelist.h"
 #include "scanutils.h"
 
 #include <assert.h>
@@ -75,7 +74,7 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
   if (FeatureSet) {
     for (i = 0; i < FeatureSet->NumFeatures; i++)
       FreeFeature(FeatureSet->Features[i]);
-    memfree(FeatureSet);
+    free(FeatureSet);
   }
 }                                /* FreeFeatureSet */
 

@@ -22,7 +22,6 @@
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
-#include "freelist.h"
 #include "globals.h"
 #include "intfeaturespace.h"
 #include "mastertrainer.h"
@@ -579,18 +578,12 @@ void CleanUpUnusedData(
   iterate(ProtoList)
   {
     Prototype = (PROTOTYPE *) first_node (ProtoList);
-    if (Prototype->Variance.Elliptical != nullptr) {
-      memfree(Prototype->Variance.Elliptical);
-      Prototype->Variance.Elliptical = nullptr;
-    }
-    if (Prototype->Magnitude.Elliptical != nullptr) {
-      memfree(Prototype->Magnitude.Elliptical);
-      Prototype->Magnitude.Elliptical = nullptr;
-    }
-    if (Prototype->Weight.Elliptical != nullptr) {
-      memfree(Prototype->Weight.Elliptical);
-      Prototype->Weight.Elliptical = nullptr;
-    }
+    free(Prototype->Variance.Elliptical);
+    Prototype->Variance.Elliptical = nullptr;
+    free(Prototype->Magnitude.Elliptical);
+    Prototype->Magnitude.Elliptical = nullptr;
+    free(Prototype->Weight.Elliptical);
+    Prototype->Weight.Elliptical = nullptr;
   }
 }
 

@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------------*/
 #include "adaptive.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include "globals.h"
 #include "classify.h"
 
@@ -81,11 +80,8 @@ void AddAdaptedClass(ADAPT_TEMPLATES Templates,
  */
 void FreeTempConfig(TEMP_CONFIG Config) {
   assert (Config != NULL);
-
-  destroy_nodes (Config->ContextsSeen, memfree);
   FreeBitVector (Config->Protos);
   free(Config);
-
 }                                /* FreeTempConfig */
 
 /*---------------------------------------------------------------------------*/
@@ -231,7 +227,6 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
   Config->NumTimesSeen = 1;
   Config->MaxProtoId = MaxProtoId;
   Config->ProtoVectorSize = WordsInVectorOfSize (NumProtos);
-  Config->ContextsSeen = NIL_LIST;
   zero_all_bits (Config->Protos, Config->ProtoVectorSize);
   Config->FontinfoId = FontinfoId;
 
@@ -547,8 +542,6 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
  */
 void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
   assert (Config != NULL);
-                                 /* contexts not yet implemented */
-  assert (Config->ContextsSeen == NULL);
 
   fwrite ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
   fwrite ((char *) Config->Protos, sizeof (uinT32),

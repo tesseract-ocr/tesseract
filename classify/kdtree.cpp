@@ -24,7 +24,6 @@
 #include "kdtree.h"
 #include "const.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -349,7 +348,7 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
  */
 void FreeKDTree(KDTREE *Tree) {
   FreeSubTree(Tree->Root.Left);
-  memfree(Tree);
+  free(Tree);
 }                                /* FreeKDTree */
 
 
@@ -389,7 +388,7 @@ KDNODE *MakeKDNode(KDTREE *tree, FLOAT32 Key[], void *Data, int Index) {
 
 /*---------------------------------------------------------------------------*/
 void FreeKDNode(KDNODE *Node) {
-  memfree ((char *)Node);
+  free(Node);
 }
 
 
@@ -555,6 +554,6 @@ void FreeSubTree(KDNODE *sub_tree) {
   if (sub_tree != NULL) {
     FreeSubTree(sub_tree->Left);
     FreeSubTree(sub_tree->Right);
-    memfree(sub_tree);
+    free(sub_tree);
   }
 }
