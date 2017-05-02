@@ -760,7 +760,6 @@ namespace tesseract {
  */
 INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
   int i, j, w, x, y, z;
-  int nread;
   int unicharset_size;
   int version_id = 0;
   INT_TEMPLATES Templates;
