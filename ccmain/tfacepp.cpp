@@ -69,10 +69,10 @@ void Tesseract::recog_word(WERD_RES *word) {
   }
   if (tessedit_override_permuter) {
     /* Override the permuter type if a straight dictionary check disagrees. */
-    uinT8 perm_type = word->best_choice->permuter();
+    uint8_t perm_type = word->best_choice->permuter();
     if ((perm_type != SYSTEM_DAWG_PERM) &&
         (perm_type != FREQ_DAWG_PERM) && (perm_type != USER_DAWG_PERM)) {
-      uinT8 real_dict_perm_type = dict_word(*word->best_choice);
+      uint8_t real_dict_perm_type = dict_word(*word->best_choice);
       if (((real_dict_perm_type == SYSTEM_DAWG_PERM) ||
            (real_dict_perm_type == FREQ_DAWG_PERM) ||
            (real_dict_perm_type == USER_DAWG_PERM)) &&

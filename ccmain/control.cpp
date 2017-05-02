@@ -641,7 +641,7 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
     word_char_quality(word, page_res_it.row()->row,
                       &all_char_quality, &accepted_all_char_quality);
     stats_.doc_char_quality += all_char_quality;
-    uinT8 permuter_type = word->best_choice->permuter();
+    uint8_t permuter_type = word->best_choice->permuter();
     if ((permuter_type == SYSTEM_DAWG_PERM) ||
         (permuter_type == FREQ_DAWG_PERM) ||
         (permuter_type == USER_DAWG_PERM)) {
@@ -1881,7 +1881,7 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
 static void find_modal_font(           //good chars in word
                      STATS *fonts,     //font stats
                      inT16 *font_out,   //output font
-                     inT8 *font_count  //output count
+                     int8_t *font_count  //output count
                     ) {
   inT16 font;                     //font index
   inT32 count;                   //pile couat
@@ -1999,7 +1999,7 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
     }
   }
   inT16 doc_font;                 // modal font
-  inT8 doc_font_count;           // modal font
+  int8_t doc_font_count;           // modal font
   find_modal_font(&doc_fonts, &doc_font, &doc_font_count);
   if (doc_font_count == 0)
     return;
