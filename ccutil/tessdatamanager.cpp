@@ -44,7 +44,8 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
             "to the parent directory of your \"tessdata\" directory.\n");
     return false;
   }
-  fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_);
+  if (fread(&actual_tessdata_num_entries_, sizeof(inT32), 1, data_file_) != 1)
+    return false;
   swap_ = (actual_tessdata_num_entries_ > kMaxNumTessdataEntries);
   if (swap_) {
     ReverseN(&actual_tessdata_num_entries_,
@@ -54,8 +55,9 @@ bool TessdataManager::Init(const char *data_file_name, int debug_level) {
     // For forward compatibility, truncate to the number we can handle.
     actual_tessdata_num_entries_ = TESSDATA_NUM_ENTRIES;
   }
-  fread(offset_table_, sizeof(inT64),
-        actual_tessdata_num_entries_, data_file_);
+  if (fread(offset_table_, sizeof(inT64), actual_tessdata_num_entries_, data_file_)
+        != static_cast<size_t>(actual_tessdata_num_entries_))
+    return false;
   if (swap_) {
     for (i = 0 ; i < actual_tessdata_num_entries_; ++i) {
       ReverseN(&offset_table_[i], sizeof(offset_table_[i]));
