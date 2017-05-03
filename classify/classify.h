@@ -103,7 +103,7 @@ class Classify : public CCStruct {
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(TFile* fp, bool swap, CLASS_CUTOFF_ARRAY Cutoffs);
+  void ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
@@ -334,7 +334,7 @@ class Classify : public CCStruct {
                                uinT8* char_norm_array);
   void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
   /* intproto.cpp *************************************************************/
-  INT_TEMPLATES ReadIntTemplates(bool swap, TFile* fp);
+  INT_TEMPLATES ReadIntTemplates(TFile* fp);
   void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                          const UNICHARSET& target_unicharset);
   CLASS_ID GetClassToDebug(const char *Prompt, bool* adaptive_on,

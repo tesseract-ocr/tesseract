@@ -42,8 +42,7 @@ bool LSTMTester::LoadAllEvalData(const STRING& filenames_file) {
 // loaded.
 bool LSTMTester::LoadAllEvalData(const GenericVector<STRING>& filenames) {
   test_data_.Clear();
-  bool result =
-      test_data_.LoadDocuments(filenames, "eng", CS_SEQUENTIAL, nullptr);
+  bool result = test_data_.LoadDocuments(filenames, CS_SEQUENTIAL, nullptr);
   total_pages_ = test_data_.TotalPages();
   return result;
 }

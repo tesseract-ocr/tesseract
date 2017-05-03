@@ -311,23 +311,24 @@ void SquishedDawg::print_edge(EDGE_REF edge) const {
 bool SquishedDawg::read_squished_dawg(TFile *file) {
   if (debug_level_) tprintf("Reading squished dawg\n");
 
-  // Read the magic number and if it does not match kDawgMagicNumber
-  // set swap to true to indicate that we need to switch endianness.
+  // Read the magic number and check that it matches kDawgMagicNumber, as
+  // auto-endian fixing should make sure it is always correct.
   inT16 magic;
-  if (file->FRead(&magic, sizeof(inT16), 1) != 1) return false;
-  bool swap = (magic != kDawgMagicNumber);
+  if (file->FReadEndian(&magic, sizeof(magic), 1) != 1) return false;
+  if (magic != kDawgMagicNumber) {
+    tprintf("Bad magic number on dawg: %d vs %d\n", magic, kDawgMagicNumber);
+    return false;
+  }
 
   inT32 unicharset_size;
-  if (file->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1, swap) !=
-      1)
+  if (file->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1)
     return false;
-  if (file->FReadEndian(&num_edges_, sizeof(num_edges_), 1, swap) != 1)
-    return false;
+  if (file->FReadEndian(&num_edges_, sizeof(num_edges_), 1) != 1) return false;
   ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
   Dawg::init(unicharset_size);
 
   edges_ = new EDGE_RECORD[num_edges_];
-  if (file->FReadEndian(&edges_[0], sizeof(edges_[0]), num_edges_, swap) !=
+  if (file->FReadEndian(&edges_[0], sizeof(edges_[0]), num_edges_) !=
       num_edges_)
     return false;
   if (debug_level_ > 2) {

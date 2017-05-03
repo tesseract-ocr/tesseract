@@ -116,10 +116,9 @@ class ImageData {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, TFile* fp);
+  bool DeSerialize(TFile* fp);
   // As DeSerialize, but only seeks past the data - hence a static method.
-  static bool SkipDeSerialize(bool swap, tesseract::TFile* fp);
+  static bool SkipDeSerialize(tesseract::TFile* fp);
 
   // Other accessors.
   const STRING& imagefilename() const {
@@ -210,11 +209,10 @@ class DocumentData {
 
   // Reads all the pages in the given lstmf filename to the cache. The reader
   // is used to read the file.
-  bool LoadDocument(const char* filename, const char* lang, int start_page,
-                    inT64 max_memory, FileReader reader);
+  bool LoadDocument(const char* filename, int start_page, inT64 max_memory,
+                    FileReader reader);
   // Sets up the document, without actually loading it.
-  void SetDocument(const char* filename, const char* lang, inT64 max_memory,
-                   FileReader reader);
+  void SetDocument(const char* filename, inT64 max_memory, FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
   bool SaveDocument(const char* filename, FileWriter writer);
   bool SaveToBuffer(GenericVector<char>* buffer);
@@ -286,8 +284,6 @@ class DocumentData {
  private:
   // A name for this document.
   STRING document_name_;
-  // The language of this document.
-  STRING lang_;
   // A group of pages that corresponds in some loose way to a document.
   PointerVector<ImageData> pages_;
   // Page number of the first index in pages_.
@@ -325,7 +321,7 @@ class DocumentCache {
   }
   // Adds all the documents in the list of filenames, counting memory.
   // The reader is used to read the files.
-  bool LoadDocuments(const GenericVector<STRING>& filenames, const char* lang,
+  bool LoadDocuments(const GenericVector<STRING>& filenames,
                      CachingStrategy cache_strategy, FileReader reader);
 
   // Adds document to the cache.

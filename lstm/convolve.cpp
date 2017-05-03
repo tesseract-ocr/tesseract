@@ -42,14 +42,9 @@ bool Convolve::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Convolve::DeSerialize(bool swap, TFile* fp) {
-  if (fp->FRead(&half_x_, sizeof(half_x_), 1) != 1) return false;
-  if (fp->FRead(&half_y_, sizeof(half_y_), 1) != 1) return false;
-  if (swap) {
-    ReverseN(&half_x_, sizeof(half_x_));
-    ReverseN(&half_y_, sizeof(half_y_));
-  }
+bool Convolve::DeSerialize(TFile* fp) {
+  if (fp->FReadEndian(&half_x_, sizeof(half_x_), 1) != 1) return false;
+  if (fp->FReadEndian(&half_y_, sizeof(half_y_), 1) != 1) return false;
   no_ = ni_ * (2*half_x_ + 1) * (2*half_y_ + 1);
   return true;
 }

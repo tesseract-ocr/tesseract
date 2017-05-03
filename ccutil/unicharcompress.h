@@ -69,17 +69,12 @@ class RecodedCharID {
   }
   // Reads from the given file. Returns false in case of error.
   // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, TFile* fp) {
+  bool DeSerialize(TFile* fp) {
     if (fp->FRead(&self_normalized_, sizeof(self_normalized_), 1) != 1)
       return false;
-    if (fp->FRead(&length_, sizeof(length_), 1) != 1) return false;
-    if (swap) ReverseN(&length_, sizeof(length_));
-    if (fp->FRead(code_, sizeof(code_[0]), length_) != length_) return false;
-    if (swap) {
-      for (int i = 0; i < length_; ++i) {
-        ReverseN(&code_[i], sizeof(code_[i]));
-      }
-    }
+    if (fp->FReadEndian(&length_, sizeof(length_), 1) != 1) return false;
+    if (fp->FReadEndian(code_, sizeof(code_[0]), length_) != length_)
+      return false;
     return true;
   }
   bool operator==(const RecodedCharID& other) const {
@@ -205,8 +200,8 @@ class UnicharCompress {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, TFile* fp);
+
+  bool DeSerialize(TFile* fp);
 
   // Returns a STRING containing a text file that describes the encoding thus:
   // <index>[,<index>]*<tab><UTF8-str><newline>

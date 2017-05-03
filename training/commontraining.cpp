@@ -119,7 +119,7 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   TFile shape_fp;
   if (shape_fp.Open(shape_table_file.string(), nullptr)) {
     shape_table = new ShapeTable;
-    if (!shape_table->DeSerialize(false, &shape_fp)) {
+    if (!shape_table->DeSerialize(&shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",

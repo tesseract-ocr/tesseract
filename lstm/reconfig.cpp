@@ -59,14 +59,9 @@ bool Reconfig::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Reconfig::DeSerialize(bool swap, TFile* fp) {
-  if (fp->FRead(&x_scale_, sizeof(x_scale_), 1) != 1) return false;
-  if (fp->FRead(&y_scale_, sizeof(y_scale_), 1) != 1) return false;
-  if (swap) {
-    ReverseN(&x_scale_, sizeof(x_scale_));
-    ReverseN(&y_scale_, sizeof(y_scale_));
-  }
+bool Reconfig::DeSerialize(TFile* fp) {
+  if (fp->FReadEndian(&x_scale_, sizeof(x_scale_), 1) != 1) return false;
+  if (fp->FReadEndian(&y_scale_, sizeof(y_scale_), 1) != 1) return false;
   no_ = ni_ * x_scale_ * y_scale_;
   return true;
 }

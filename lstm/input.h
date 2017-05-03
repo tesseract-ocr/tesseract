@@ -51,9 +51,7 @@ class Input : public Network {
   // Should be overridden by subclasses, but called by their Serialize.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  // Should be overridden by subclasses, but NOT called by their DeSerialize.
-  virtual bool DeSerialize(bool swap, TFile* fp);
+  virtual bool DeSerialize(TFile* fp);
 
   // Returns an integer reduction factor that the network applies to the
   // time sequence. Assumes that any 2-d is already eliminated. Used for

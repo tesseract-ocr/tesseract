@@ -758,7 +758,7 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
  */
-INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
+INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   int i, j, w, x, y, z;
   int unicharset_size;
   int version_id = 0;
@@ -784,18 +784,18 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
   /* first read the high level template struct */
   Templates = NewIntTemplates();
   // Read Templates in parts for 64 bit compatibility.
-  if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1, swap) != 1)
+  if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1)
     tprintf("Bad read of inttemp!\n");
-  if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses), 1,
-                      swap) != 1 ||
+  if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses),
+                      1) != 1 ||
       fp->FReadEndian(&Templates->NumClassPruners,
-                      sizeof(Templates->NumClassPruners), 1, swap) != 1)
+                      sizeof(Templates->NumClassPruners), 1) != 1)
     tprintf("Bad read of inttemp!\n");
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
     if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses),
-                        1, swap) != 1)
+                        1) != 1)
       tprintf("Bad read of inttemp!\n");
   }
 
@@ -805,12 +805,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
   }
 
   if (version_id < 2) {
-    if (fp->FReadEndian(IndexFor, sizeof(IndexFor[0]), unicharset_size, swap) !=
+    if (fp->FReadEndian(IndexFor, sizeof(IndexFor[0]), unicharset_size) !=
         unicharset_size) {
       tprintf("Bad read of inttemp!\n");
     }
     if (fp->FReadEndian(ClassIdFor, sizeof(ClassIdFor[0]),
-                        Templates->NumClasses, swap) != Templates->NumClasses) {
+                        Templates->NumClasses) != Templates->NumClasses) {
       tprintf("Bad read of inttemp!\n");
     }
   }
@@ -820,8 +820,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
       NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR;
   for (i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = new CLASS_PRUNER_STRUCT;
-    if (fp->FReadEndian(Pruner, sizeof(Pruner->p[0][0][0][0]), kNumBuckets,
-                        swap) != kNumBuckets) {
+    if (fp->FReadEndian(Pruner, sizeof(Pruner->p[0][0][0][0]), kNumBuckets) !=
+        kNumBuckets) {
       tprintf("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
@@ -887,8 +887,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
     Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
-    if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1, swap) !=
-            1 ||
+    if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
         fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1)
       tprintf("Bad read of inttemp!\n");
@@ -902,8 +901,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
     }
     int num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     ASSERT_HOST(num_configs <= MaxNumConfigs);
-    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uinT16), num_configs,
-                        swap) != num_configs) {
+    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uinT16), num_configs) !=
+        num_configs) {
       tprintf("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
@@ -927,8 +926,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
       ProtoSet = (PROTO_SET)Emalloc(sizeof(PROTO_SET_STRUCT));
       int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner,
-                          sizeof(ProtoSet->ProtoPruner[0][0][0]), num_buckets,
-                          swap) != num_buckets)
+                          sizeof(ProtoSet->ProtoPruner[0][0][0]),
+                          num_buckets) != num_buckets)
         tprintf("Bad read of inttemp!\n");
       for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
         if (fp->FRead(&ProtoSet->Protos[x].A, sizeof(ProtoSet->Protos[x].A),
@@ -942,7 +941,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
           tprintf("Bad read of inttemp!\n");
         if (fp->FReadEndian(&ProtoSet->Protos[x].Configs,
                             sizeof(ProtoSet->Protos[x].Configs[0]),
-                            WerdsPerConfigVec, swap) != WerdsPerConfigVec)
+                            WerdsPerConfigVec) != WerdsPerConfigVec)
           cprintf("Bad read of inttemp!\n");
       }
       Class->ProtoSets[j] = ProtoSet;
@@ -950,7 +949,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
     if (version_id < 4) {
       Class->font_set_id = -1;
     } else {
-      fp->FReadEndian(&Class->font_set_id, sizeof(Class->font_set_id), 1, swap);
+      fp->FReadEndian(&Class->font_set_id, sizeof(Class->font_set_id), 1);
     }
   }
 
@@ -977,12 +976,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(bool swap, TFile *fp) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(fp, NewPermanentTessCallback(read_info), swap);
+    this->fontinfo_table_.read(fp, NewPermanentTessCallback(read_info));
     if (version_id >= 5) {
-      this->fontinfo_table_.read(
-          fp, NewPermanentTessCallback(read_spacing_info), swap);
+      this->fontinfo_table_.read(fp,
+                                 NewPermanentTessCallback(read_spacing_info));
     }
-    this->fontset_table_.read(fp, NewPermanentTessCallback(read_set), swap);
+    this->fontset_table_.read(fp, NewPermanentTessCallback(read_set));
   }
 
   // Clean up.

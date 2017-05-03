@@ -365,7 +365,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
   fp->FRead(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1);
 
   /* then read in the basic integer templates */
-  Templates->Templates = ReadIntTemplates(false, fp);
+  Templates->Templates = ReadIntTemplates(fp);
 
   /* then read in the adaptive info for each class */
   for (i = 0; i < (Templates->Templates)->NumClasses; i++) {

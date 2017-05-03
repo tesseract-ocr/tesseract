@@ -173,10 +173,9 @@ bool LSTM::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool LSTM::DeSerialize(bool swap, TFile* fp) {
-  if (fp->FRead(&na_, sizeof(na_), 1) != 1) return false;
-  if (swap) ReverseN(&na_, sizeof(na_));
+
+bool LSTM::DeSerialize(TFile* fp) {
+  if (fp->FReadEndian(&na_, sizeof(na_), 1) != 1) return false;
   if (type_ == NT_LSTM_SOFTMAX) {
     nf_ = no_;
   } else if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
@@ -187,7 +186,7 @@ bool LSTM::DeSerialize(bool swap, TFile* fp) {
   is_2d_ = false;
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
-    if (!gate_weights_[w].DeSerialize(IsTraining(), swap, fp)) return false;
+    if (!gate_weights_[w].DeSerialize(IsTraining(), fp)) return false;
     if (w == CI) {
       ns_ = gate_weights_[CI].NumOutputs();
       is_2d_ = na_ - nf_ == ni_ + 2 * ns_;
@@ -195,11 +194,10 @@ bool LSTM::DeSerialize(bool swap, TFile* fp) {
   }
   delete softmax_;
   if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    softmax_ =
-        reinterpret_cast<FullyConnected*>(Network::CreateFromFile(swap, fp));
-    if (softmax_ == NULL) return false;
+    softmax_ = reinterpret_cast<FullyConnected*>(Network::CreateFromFile(fp));
+    if (softmax_ == nullptr) return false;
   } else {
-    softmax_ = NULL;
+    softmax_ = nullptr;
   }
   return true;
 }

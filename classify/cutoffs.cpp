@@ -49,15 +49,14 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 20 09:38:26 1991, DSJ, Created.
  */
-void Classify::ReadNewCutoffs(TFile* fp, bool swap,
-                              CLASS_CUTOFF_ARRAY Cutoffs) {
+void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
   char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
   int Cutoff;
   int i;
 
   if (shape_table_ != NULL) {
-    if (!shapetable_cutoffs_.DeSerialize(swap, fp)) {
+    if (!shapetable_cutoffs_.DeSerialize(fp)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }

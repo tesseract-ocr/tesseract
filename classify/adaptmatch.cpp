@@ -535,11 +535,11 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
   if (language_data_path_prefix.length() > 0 && mgr != nullptr) {
     TFile fp;
     ASSERT_HOST(mgr->GetComponent(TESSDATA_INTTEMP, &fp));
-    PreTrainedTemplates = ReadIntTemplates(mgr->swap(), &fp);
+    PreTrainedTemplates = ReadIntTemplates(&fp);
 
     if (mgr->GetComponent(TESSDATA_SHAPE_TABLE, &fp)) {
       shape_table_ = new ShapeTable(unicharset);
-      if (!shape_table_->DeSerialize(mgr->swap(), &fp)) {
+      if (!shape_table_->DeSerialize(&fp)) {
         tprintf("Error loading shape table!\n");
         delete shape_table_;
         shape_table_ = NULL;
@@ -547,7 +547,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
     }
 
     ASSERT_HOST(mgr->GetComponent(TESSDATA_PFFMTABLE, &fp));
-    ReadNewCutoffs(&fp, mgr->swap(), CharNormCutoffs);
+    ReadNewCutoffs(&fp, CharNormCutoffs);
 
     ASSERT_HOST(mgr->GetComponent(TESSDATA_NORMPROTO, &fp));
     NormProtos = ReadNormProtos(&fp);

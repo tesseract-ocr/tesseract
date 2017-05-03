@@ -166,6 +166,7 @@ bool ImageData::Serialize(TFile* fp) const {
   if (!imagefilename_.Serialize(fp)) return false;
   if (fp->FWrite(&page_number_, sizeof(page_number_), 1) != 1) return false;
   if (!image_data_.Serialize(fp)) return false;
+  if (!language_.Serialize(fp)) return false;
   if (!transcription_.Serialize(fp)) return false;
   // WARNING: Will not work across different endian machines.
   if (!boxes_.Serialize(fp)) return false;
@@ -177,15 +178,16 @@ bool ImageData::Serialize(TFile* fp) const {
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool ImageData::DeSerialize(bool swap, TFile* fp) {
-  if (!imagefilename_.DeSerialize(swap, fp)) return false;
-  if (fp->FRead(&page_number_, sizeof(page_number_), 1) != 1) return false;
-  if (swap) ReverseN(&page_number_, sizeof(page_number_));
-  if (!image_data_.DeSerialize(swap, fp)) return false;
-  if (!transcription_.DeSerialize(swap, fp)) return false;
+bool ImageData::DeSerialize(TFile* fp) {
+  if (!imagefilename_.DeSerialize(fp)) return false;
+  if (fp->FReadEndian(&page_number_, sizeof(page_number_), 1) != 1)
+    return false;
+  if (!image_data_.DeSerialize(fp)) return false;
+  if (!language_.DeSerialize(fp)) return false;
+  if (!transcription_.DeSerialize(fp)) return false;
   // WARNING: Will not work across different endian machines.
-  if (!boxes_.DeSerialize(swap, fp)) return false;
-  if (!box_texts_.DeSerializeClasses(swap, fp)) return false;
+  if (!boxes_.DeSerialize(fp)) return false;
+  if (!box_texts_.DeSerializeClasses(fp)) return false;
   inT8 vertical = 0;
   if (fp->FRead(&vertical, sizeof(vertical), 1) != 1) return false;
   vertical_text_ = vertical != 0;
@@ -193,14 +195,15 @@ bool ImageData::DeSerialize(bool swap, TFile* fp) {
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
-bool ImageData::SkipDeSerialize(bool swap, TFile* fp) {
-  if (!STRING::SkipDeSerialize(swap, fp)) return false;
+bool ImageData::SkipDeSerialize(TFile* fp) {
+  if (!STRING::SkipDeSerialize(fp)) return false;
   inT32 page_number;
   if (fp->FRead(&page_number, sizeof(page_number), 1) != 1) return false;
-  if (!GenericVector<char>::SkipDeSerialize(swap, fp)) return false;
-  if (!STRING::SkipDeSerialize(swap, fp)) return false;
-  if (!GenericVector<TBOX>::SkipDeSerialize(swap, fp)) return false;
-  if (!GenericVector<STRING>::SkipDeSerializeClasses(swap, fp)) return false;
+  if (!GenericVector<char>::SkipDeSerialize(fp)) return false;
+  if (!STRING::SkipDeSerialize(fp)) return false;
+  if (!STRING::SkipDeSerialize(fp)) return false;
+  if (!GenericVector<TBOX>::SkipDeSerialize(fp)) return false;
+  if (!GenericVector<STRING>::SkipDeSerializeClasses(fp)) return false;
   inT8 vertical = 0;
   return fp->FRead(&vertical, sizeof(vertical), 1) == 1;
 }
@@ -384,21 +387,19 @@ DocumentData::~DocumentData() {
 
 // Reads all the pages in the given lstmf filename to the cache. The reader
 // is used to read the file.
-bool DocumentData::LoadDocument(const char* filename, const char* lang,
-                                int start_page, inT64 max_memory,
-                                FileReader reader) {
-  SetDocument(filename, lang, max_memory, reader);
+bool DocumentData::LoadDocument(const char* filename, int start_page,
+                                inT64 max_memory, FileReader reader) {
+  SetDocument(filename, max_memory, reader);
   pages_offset_ = start_page;
   return ReCachePages();
 }
 
 // Sets up the document, without actually loading it.
-void DocumentData::SetDocument(const char* filename, const char* lang,
-                               inT64 max_memory, FileReader reader) {
+void DocumentData::SetDocument(const char* filename, inT64 max_memory,
+                               FileReader reader) {
   SVAutoLock lock_p(&pages_mutex_);
   SVAutoLock lock(&general_mutex_);
   document_name_ = filename;
-  lang_ = lang;
   pages_offset_ = -1;
   max_memory_ = max_memory;
   reader_ = reader;
@@ -522,7 +523,7 @@ bool DocumentData::ReCachePages() {
   pages_.truncate(0);
   TFile fp;
   if (!fp.Open(document_name_, reader_) ||
-      !PointerVector<ImageData>::DeSerializeSize(false, &fp, &loaded_pages) ||
+      !PointerVector<ImageData>::DeSerializeSize(&fp, &loaded_pages) ||
       loaded_pages <= 0) {
     tprintf("Deserialize header failed: %s\n", document_name_.string());
     return false;
@@ -534,15 +535,17 @@ bool DocumentData::ReCachePages() {
   for (page = 0; page < loaded_pages; ++page) {
     if (page < pages_offset_ ||
         (max_memory_ > 0 && memory_used() > max_memory_)) {
-      if (!PointerVector<ImageData>::DeSerializeSkip(false, &fp)) break;
+      if (!PointerVector<ImageData>::DeSerializeSkip(&fp)) {
+        tprintf("Deserializeskip failed\n");
+        break;
+      }
     } else {
-      if (!pages_.DeSerializeElement(false, &fp)) break;
+      if (!pages_.DeSerializeElement(&fp)) break;
       ImageData* image_data = pages_.back();
       if (image_data->imagefilename().length() == 0) {
         image_data->set_imagefilename(document_name_);
         image_data->set_page_number(page);
       }
-      image_data->set_language(lang_);
       set_memory_used(memory_used() + image_data->MemoryUsed());
     }
   }
@@ -567,7 +570,6 @@ DocumentCache::~DocumentCache() {}
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.
 bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
-                                  const char* lang,
                                   CachingStrategy cache_strategy,
                                   FileReader reader) {
   cache_strategy_ = cache_strategy;
@@ -580,7 +582,7 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
   for (int arg = 0; arg < filenames.size(); ++arg) {
     STRING filename = filenames[arg];
     DocumentData* document = new DocumentData(filename);
-    document->SetDocument(filename.string(), lang, fair_share_memory, reader);
+    document->SetDocument(filename.string(), fair_share_memory, reader);
     AddToCache(document);
   }
   if (!documents_.empty()) {

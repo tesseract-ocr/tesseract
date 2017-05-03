@@ -59,11 +59,12 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   inT32 num_entries = TESSDATA_NUM_ENTRIES;
   if (fp.FRead(&num_entries, sizeof(num_entries), 1) != 1) return false;
   swap_ = num_entries > kMaxNumTessdataEntries || num_entries < 0;
+  fp.set_swap(swap_);
   if (swap_) ReverseN(&num_entries, sizeof(num_entries));
   GenericVector<inT64> offset_table;
   offset_table.init_to_size(num_entries, -1);
-  if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries,
-                     swap_) != num_entries)
+  if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries) !=
+      num_entries)
     return false;
   for (int i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {
     if (offset_table[i] >= 0) {
@@ -152,6 +153,7 @@ bool TessdataManager::GetComponent(TessdataType type, TFile *fp) {
   if (!is_loaded_ && !Init(data_file_name_.string())) return false;
   if (entries_[type].empty()) return false;
   fp->Open(&entries_[type][0], entries_[type].size());
+  fp->set_swap(swap_);
   return true;
 }
 

@@ -24,8 +24,11 @@
 namespace tesseract {
 
 TFile::TFile()
-    : offset_(0), data_(NULL), data_is_owned_(false), is_writing_(false) {
-}
+    : offset_(0),
+      data_(NULL),
+      data_is_owned_(false),
+      is_writing_(false),
+      swap_(false) {}
 
 TFile::~TFile() {
   if (data_is_owned_)
@@ -39,6 +42,7 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   }
   offset_ = 0;
   is_writing_ = false;
+  swap_ = false;
   if (reader == NULL)
     return LoadDataFromFile(filename, data_);
   else
@@ -52,6 +56,7 @@ bool TFile::Open(const char* data, int size) {
     data_is_owned_ = true;
   }
   is_writing_ = false;
+  swap_ = false;
   data_->init_to_size(size, 0);
   memcpy(&(*data_)[0], data, size);
   return true;
@@ -69,6 +74,7 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
   }
   int size = end_offset - current_pos;
   is_writing_ = false;
+  swap_ = false;
   if (!data_is_owned_) {
     data_ = new GenericVector<char>;
     data_is_owned_ = true;
@@ -88,9 +94,9 @@ char* TFile::FGets(char* buffer, int buffer_size) {
   return size > 0 ? buffer : NULL;
 }
 
-int TFile::FReadEndian(void* buffer, int size, int count, bool swap) {
+int TFile::FReadEndian(void* buffer, int size, int count) {
   int num_read = FRead(buffer, size, count);
-  if (swap) {
+  if (swap_) {
     char* char_buffer = reinterpret_cast<char*>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
@@ -128,6 +134,7 @@ void TFile::OpenWrite(GenericVector<char>* data) {
     data_is_owned_ = true;
   }
   is_writing_ = true;
+  swap_ = false;
   data_->truncate(0);
 }
 

@@ -49,7 +49,7 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   DocumentData images(lstmf_name);
   if (applybox_page > 0) {
     // Load existing document for the previous pages.
-    if (!images.LoadDocument(lstmf_name.string(), "eng", 0, 0, NULL)) {
+    if (!images.LoadDocument(lstmf_name.string(), 0, 0, nullptr)) {
       tprintf("Failed to read training data from %s!\n", lstmf_name.string());
       return;
     }

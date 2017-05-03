@@ -31,9 +31,9 @@ bool FontInfo::Serialize(FILE* fp) const {
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool FontInfo::DeSerialize(bool swap, TFile* fp) {
-  if (!read_info(fp, this, swap)) return false;
-  if (!read_spacing_info(fp, this, swap)) return false;
+bool FontInfo::DeSerialize(TFile* fp) {
+  if (!read_info(fp, this)) return false;
+  if (!read_spacing_info(fp, this)) return false;
   return true;
 }
 
@@ -51,9 +51,9 @@ bool FontInfoTable::Serialize(FILE* fp) const {
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
-bool FontInfoTable::DeSerialize(bool swap, TFile* fp) {
+bool FontInfoTable::DeSerialize(TFile* fp) {
   truncate(0);
-  return this->DeSerializeClasses(swap, fp);
+  return this->DeSerializeClasses(fp);
 }
 
 // Returns true if the given set of fonts includes one with the same
@@ -149,14 +149,14 @@ void FontSetDeleteCallback(FontSet fs) {
 
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
-bool read_info(TFile* f, FontInfo* fi, bool swap) {
+bool read_info(TFile* f, FontInfo* fi) {
   inT32 size;
-  if (f->FReadEndian(&size, sizeof(size), 1, swap) != 1) return false;
+  if (f->FReadEndian(&size, sizeof(size), 1) != 1) return false;
   char* font_name = new char[size + 1];
   fi->name = font_name;
   if (f->FRead(font_name, sizeof(*font_name), size) != size) return false;
   font_name[size] = '\0';
-  if (f->FReadEndian(&fi->properties, sizeof(fi->properties), 1, swap) != 1)
+  if (f->FReadEndian(&fi->properties, sizeof(fi->properties), 1) != 1)
     return false;
   return true;
 }
@@ -170,19 +170,17 @@ bool write_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_spacing_info(TFile* f, FontInfo* fi, bool swap) {
+bool read_spacing_info(TFile* f, FontInfo* fi) {
   inT32 vec_size, kern_size;
-  if (f->FReadEndian(&vec_size, sizeof(vec_size), 1, swap) != 1) return false;
+  if (f->FReadEndian(&vec_size, sizeof(vec_size), 1) != 1) return false;
   ASSERT_HOST(vec_size >= 0);
   if (vec_size == 0) return true;
   fi->init_spacing(vec_size);
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = new FontSpacingInfo();
-    if (f->FReadEndian(&fs->x_gap_before, sizeof(fs->x_gap_before), 1, swap) !=
-            1 ||
-        f->FReadEndian(&fs->x_gap_after, sizeof(fs->x_gap_after), 1, swap) !=
-            1 ||
-        f->FReadEndian(&kern_size, sizeof(kern_size), 1, swap) != 1) {
+    if (f->FReadEndian(&fs->x_gap_before, sizeof(fs->x_gap_before), 1) != 1 ||
+        f->FReadEndian(&fs->x_gap_after, sizeof(fs->x_gap_after), 1) != 1 ||
+        f->FReadEndian(&kern_size, sizeof(kern_size), 1) != 1) {
       delete fs;
       return false;
     }
@@ -190,8 +188,8 @@ bool read_spacing_info(TFile* f, FontInfo* fi, bool swap) {
       delete fs;
       continue;
     }
-    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(swap, f) ||
-                          !fs->kerned_x_gaps.DeSerialize(swap, f))) {
+    if (kern_size > 0 && (!fs->kerned_unichar_ids.DeSerialize(f) ||
+                          !fs->kerned_x_gaps.DeSerialize(f))) {
       delete fs;
       return false;
     }
@@ -229,11 +227,10 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
   return true;
 }
 
-bool read_set(TFile* f, FontSet* fs, bool swap) {
-  if (f->FReadEndian(&fs->size, sizeof(fs->size), 1, swap) != 1) return false;
+bool read_set(TFile* f, FontSet* fs) {
+  if (f->FReadEndian(&fs->size, sizeof(fs->size), 1) != 1) return false;
   fs->configs = new int[fs->size];
-  if (f->FReadEndian(fs->configs, sizeof(fs->configs[0]), fs->size, swap) !=
-      fs->size)
+  if (f->FReadEndian(fs->configs, sizeof(fs->configs[0]), fs->size) != fs->size)
     return false;
   return true;
 }

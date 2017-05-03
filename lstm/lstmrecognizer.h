@@ -158,8 +158,7 @@ class LSTMRecognizer {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, TFile* fp);
+  bool DeSerialize(TFile* fp);
   // Loads the dictionary if possible from the traineddata file.
   // Prints a warning message, and returns false but otherwise fails silently
   // and continues to work without it if loading fails.
