@@ -179,7 +179,12 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Threshold the source image as efficiently as possible to the output Pix.
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.
-void ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
+/// Returns false on error.
+bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
+  if (image_width_ > MAX_INT16 || image_height_ > MAX_INT16) {
+    tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
+    return false;
+  }
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
@@ -189,6 +194,7 @@ void ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   } else {
     OtsuThresholdRectToPix(pix_, pix);
   }
+  return true;
 }
 
 // Gets a pix that contains an 8 bit threshold value at each pixel. The

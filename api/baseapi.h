@@ -798,7 +798,7 @@ class TESS_API TessBaseAPI {
    * Run the thresholder to make the thresholded image. If pix is not NULL,
    * the source is thresholded to pix instead of the internal IMAGE.
    */
-  TESS_LOCAL virtual void Threshold(Pix** pix);
+  TESS_LOCAL virtual bool Threshold(Pix** pix);
 
   /**
    * Find lines from the image making the BLOCK_LIST.

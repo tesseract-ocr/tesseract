@@ -590,10 +590,11 @@ void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
  * Get a copy of the internal thresholded image from Tesseract.
  */
 Pix* TessBaseAPI::GetThresholdedImage() {
-  if (tesseract_ == NULL || thresholder_ == NULL)
-    return NULL;
-  if (tesseract_->pix_binary() == NULL)
-    Threshold(tesseract_->mutable_pix_binary());
+  if (tesseract_ == nullptr || thresholder_ == nullptr) return nullptr;
+  if (tesseract_->pix_binary() == nullptr &&
+      !Threshold(tesseract_->mutable_pix_binary())) {
+    return nullptr;
+  }
   return pixClone(tesseract_->pix_binary());
 }
 
@@ -2189,7 +2190,7 @@ bool TessBaseAPI::InternalSetImage() {
  * to an existing pixDestroyable Pix.
  * The usual argument to Threshold is Tesseract::mutable_pix_binary().
  */
-void TessBaseAPI::Threshold(Pix** pix) {
+bool TessBaseAPI::Threshold(Pix** pix) {
   ASSERT_HOST(pix != NULL);
   if (*pix != NULL)
     pixDestroy(pix);
@@ -2205,7 +2206,7 @@ void TessBaseAPI::Threshold(Pix** pix) {
   PageSegMode pageseg_mode =
       static_cast<PageSegMode>(
           static_cast<int>(tesseract_->tessedit_pageseg_mode));
-  thresholder_->ThresholdToPix(pageseg_mode, pix);
+  if (!thresholder_->ThresholdToPix(pageseg_mode, pix)) return false;
   thresholder_->GetImageSizes(&rect_left_, &rect_top_,
                               &rect_width_, &rect_height_,
                               &image_width_, &image_height_);
@@ -2229,6 +2230,7 @@ void TessBaseAPI::Threshold(Pix** pix) {
   }
   tesseract_->set_source_resolution(estimated_res);
   SavePixForCrash(estimated_res, *pix);
+  return true;
 }
 
 /** Find lines from the image making the BLOCK_LIST. */
@@ -2246,12 +2248,8 @@ int TessBaseAPI::FindLines() {
     tesseract_ = new Tesseract;
     tesseract_->InitAdaptiveClassifier(nullptr);
   }
-  if (tesseract_->pix_binary() == NULL)
-    Threshold(tesseract_->mutable_pix_binary());
-  if (tesseract_->ImageWidth() > MAX_INT16 ||
-      tesseract_->ImageHeight() > MAX_INT16) {
-    tprintf("Image too large: (%d, %d)\n",
-            tesseract_->ImageWidth(), tesseract_->ImageHeight());
+  if (tesseract_->pix_binary() == NULL &&
+      !Threshold(tesseract_->mutable_pix_binary())) {
     return -1;
   }
 
@@ -2359,11 +2357,13 @@ bool TessBaseAPI::DetectOS(OSResults* osr) {
   if (tesseract_ == NULL)
     return false;
   ClearResults();
-  if (tesseract_->pix_binary() == NULL)
-    Threshold(tesseract_->mutable_pix_binary());
+  if (tesseract_->pix_binary() == NULL &&
+      !Threshold(tesseract_->mutable_pix_binary())) {
+    return false;
+  }
   if (input_file_ == NULL)
     input_file_ = new STRING(kInputFile);
-  return orientation_and_script_detection(*input_file_, osr, tesseract_);
+  return orientation_and_script_detection(*input_file_, osr, tesseract_) > 0;
 }
 
 void TessBaseAPI::set_min_orientation_margin(double margin) {
