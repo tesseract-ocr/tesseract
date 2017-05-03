@@ -513,7 +513,7 @@ BOOL8 Tesseract::terrible_word_crunch(WERD_RES *word,
 
   if ((word->best_choice->unichar_string().length () == 0) ||
     (strspn (word->best_choice->unichar_string().string(), " ") ==
-    word->best_choice->unichar_string().length ()))
+    word->best_choice->unichar_string().unsigned_size()))
     crunch_mode = 1;
   else {
     adjusted_len = word->reject_map.length ();

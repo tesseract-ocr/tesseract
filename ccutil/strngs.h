@@ -66,6 +66,9 @@ class TESS_API STRING
     BOOL8 contains(const char c) const;
     inT32 length() const;
     inT32 size() const { return length(); }
+    // Workaround to avoid g++ -Wsign-compare warnings,
+    // assumes that length() is a nonnegative integer that fits in size_t.
+    size_t unsigned_size() const { return static_cast<size_t>(length()); }
     const char *string() const;
     const char *c_str() const;
 

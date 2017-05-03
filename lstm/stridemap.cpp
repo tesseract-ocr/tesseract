@@ -43,7 +43,7 @@ bool StrideMap::Index::IsLast(FlexDimensions dimension) const {
 int StrideMap::Index::MaxIndexOfDim(FlexDimensions dim) const {
   int max_index = stride_map_->shape_[dim] - 1;
   if (dim == FD_BATCH) return max_index;
-  int batch = indices_[FD_BATCH];
+  const size_t batch = static_cast<size_t>(indices_[FD_BATCH]); // TODO: safe?
   if (dim == FD_HEIGHT) {
     if (batch >= stride_map_->heights_.size() ||
         stride_map_->heights_[batch] > max_index)

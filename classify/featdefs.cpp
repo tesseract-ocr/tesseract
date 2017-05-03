@@ -139,10 +139,8 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  * @note History: Wed May 23 13:52:19 1990, DSJ, Created.
  */
 void FreeCharDescription(CHAR_DESC CharDesc) {
-  int i;
-
   if (CharDesc) {
-    for (i = 0; i < CharDesc->NumFeatureSets; i++)
+    for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
       FreeFeatureSet (CharDesc->FeatureSets[i]);
     Efree(CharDesc);
   }
@@ -163,12 +161,11 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  */
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
-  int i;
 
   CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
-  for (i = 0; i < CharDesc->NumFeatureSets; i++)
+  for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
     CharDesc->FeatureSets[i] = NULL;
 
   return (CharDesc);
@@ -196,16 +193,15 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  */
 void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc, STRING* str) {
-  int Type;
   int NumSetsToWrite = 0;
 
-  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++)
     if (CharDesc->FeatureSets[Type])
       NumSetsToWrite++;
 
   str->add_str_int(" ", NumSetsToWrite);
   *str += "\n";
-  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
     if (CharDesc->FeatureSets[Type]) {
       *str += FeatureDefs.FeatureDesc[Type]->ShortName;
       *str += " ";
@@ -220,7 +216,7 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                           CHAR_DESC CharDesc) {
   bool anything_written = false;
   bool well_formed = true;
-  for (int Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
     if (CharDesc->FeatureSets[Type]) {
       for (int i = 0; i < CharDesc->FeatureSets[Type]->NumFeatures; i++) {
         FEATURE feat = CharDesc->FeatureSets[Type]->Features[i];
