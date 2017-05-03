@@ -28,7 +28,7 @@ double DotProductSSE(const double* u, const double* v, int n) {
   fprintf(stderr, "DotProductSSE can't be used on Android\n");
   abort();
 }
-inT32 IntDotProductSSE(const inT8* u, const inT8* v, int n) {
+int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
   fprintf(stderr, "IntDotProductSSE can't be used on Android\n");
   abort();
 }
@@ -99,7 +99,7 @@ double DotProductSSE(const double* u, const double* v, int n) {
 
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel SSE intrinsics to access the SIMD instruction set.
-inT32 IntDotProductSSE(const inT8* u, const inT8* v, int n) {
+int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
   int max_offset = n - 8;
   int offset = 0;
   // Accumulate a set of 4 32-bit sums in sum, by loading 8 pairs of 8-bit
@@ -128,7 +128,7 @@ inT32 IntDotProductSSE(const inT8* u, const inT8* v, int n) {
   // Sum the 4 packed 32 bit sums and extract the low result.
   sum = _mm_hadd_epi32(sum, sum);
   sum = _mm_hadd_epi32(sum, sum);
-  inT32 result = _mm_cvtsi128_si32(sum);
+  int32_t result = _mm_cvtsi128_si32(sum);
   while (offset < n) {
     result += u[offset] * v[offset];
     ++offset;
