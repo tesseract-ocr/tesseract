@@ -72,6 +72,11 @@ class GenericVector {
   int size() const {
     return size_used_;
   }
+  // Workaround to avoid g++ -Wsign-compare warnings,
+  // assumes that size_used_() is a nonnegative integer that fits in size_t.
+  size_t unsigned_size() const {
+    return static_cast<size_t>(size_used_);
+  }
   int size_reserved() const {
     return size_reserved_;
   }
@@ -882,7 +887,8 @@ bool GenericVector<T>::write(
     }
     delete cb;
   } else {
-    if (fwrite(data_, sizeof(T), size_used_, f) != size_used_) return false;
+    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size())
+      return false;
   }
   return true;
 }
@@ -915,9 +921,9 @@ bool GenericVector<T>::read(
 // read/write of T will work. Returns false in case of error.
 template <typename T>
 bool GenericVector<T>::Serialize(FILE* fp) const {
-  if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) return false;
-  if (fwrite(data_, sizeof(*data_), size_used_, fp) != size_used_) return false;
-  return true;
+  return
+      fwrite(&size_used_, sizeof(size_used_), 1, fp) == 1 &&
+      fwrite(data_, sizeof(*data_), size_used_, fp) == unsigned_size();
 }
 template <typename T>
 bool GenericVector<T>::Serialize(tesseract::TFile* fp) const {
@@ -937,7 +943,7 @@ bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
   if (swap) Reverse32(&reserved);
   reserve(reserved);
   size_used_ = reserved;
-  if (fread(data_, sizeof(T), size_used_, fp) != size_used_) return false;
+  if (fread(data_, sizeof(T), size_used_, fp) != unsigned_size()) return false;
   if (swap) {
     for (int i = 0; i < size_used_; ++i)
       ReverseN(&data_[i], sizeof(data_[i]));
@@ -1010,7 +1016,7 @@ bool GenericVector<T>::DeSerializeClasses(bool swap, tesseract::TFile* fp) {
   if (swap) Reverse32(&reserved);
   T empty;
   init_to_size(reserved, empty);
-  for (int i = 0; i < reserved; ++i) {
+  for (uinT32 i = 0; i < reserved; ++i) {
     if (!data_[i].DeSerialize(swap, fp)) return false;
   }
   return true;
@@ -1020,7 +1026,7 @@ bool GenericVector<T>::SkipDeSerializeClasses(bool swap, tesseract::TFile* fp) {
   uinT32 reserved;
   if (fp->FRead(&reserved, sizeof(reserved), 1) != 1) return false;
   if (swap) Reverse32(&reserved);
-  for (int i = 0; i < reserved; ++i) {
+  for (uinT32 i = 0; i < reserved; ++i) {
     if (!T::SkipDeSerialize(swap, fp)) return false;
   }
   return true;
