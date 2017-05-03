@@ -285,6 +285,8 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
     // RAW_LINE, SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
     gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE,
                                to_block, to_blocks);
+  } else {
+    gradient = 0.0f; // TODO: correct default value?
   }
   BaselineDetect baseline_detector(textord_baseline_debug,
                                    reskew, to_blocks);
