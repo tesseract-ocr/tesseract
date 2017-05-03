@@ -658,6 +658,7 @@ template <typename T>
 void GenericVector<T>::reserve(int size) {
   if (size_reserved_ >= size || size <= 0)
     return;
+  if (size < kDefaultVectorSize) size = kDefaultVectorSize;
   T* new_array = new T[size];
   for (int i = 0; i < size_used_; ++i)
     new_array[i] = data_[i];
