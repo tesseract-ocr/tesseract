@@ -181,7 +181,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Caller must use pixDestroy to free the created Pix.
 /// Returns false on error.
 bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
-  if (image_width_ > MAX_INT16 || image_height_ > MAX_INT16) {
+  if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }

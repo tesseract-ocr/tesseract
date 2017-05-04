@@ -473,7 +473,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1,
                    2 * padding + 1);
     pixInvert(resized_mask, resized_mask);
-    pixSetMasked(grey_pix, resized_mask, MAX_UINT32);
+    pixSetMasked(grey_pix, resized_mask, UINT32_MAX);
     pixDestroy(&resized_mask);
   }
   return grey_pix;

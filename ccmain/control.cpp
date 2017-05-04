@@ -757,8 +757,8 @@ void Tesseract::script_pos_pass(PAGE_RES* page_res) {
 // Helper finds the gap between the index word and the next.
 static void WordGap(const PointerVector<WERD_RES>& words, int index, int* right,
                     int* next_left) {
-  *right = -MAX_INT32;
-  *next_left = MAX_INT32;
+  *right = -INT32_MAX;
+  *next_left = INT32_MAX;
   if (index < words.size()) {
     *right = words[index]->word->bounding_box().right();
     if (index + 1 < words.size())
@@ -812,11 +812,11 @@ static int SelectBestWords(double rating_ratio,
     // Start of the current run in each.
     int start_b = b, start_n = n;
     while (b < best_words->size() || n < new_words->size()) {
-      int b_right = -MAX_INT32;
-      int next_b_left = MAX_INT32;
+      int b_right = -INT32_MAX;
+      int next_b_left = INT32_MAX;
       WordGap(*best_words, b, &b_right, &next_b_left);
-      int n_right = -MAX_INT32;
-      int next_n_left = MAX_INT32;
+      int n_right = -INT32_MAX;
+      int next_n_left = INT32_MAX;
       WordGap(*new_words, n, &n_right, &next_n_left);
       if (MAX(b_right, n_right) < MIN(next_b_left, next_n_left)) {
         // The word breaks overlap. [start_b,b] and [start_n, n] match.
@@ -1890,7 +1890,7 @@ static void find_modal_font(  // good chars in word
     font = (int16_t) fonts->mode ();
     *font_out = font;
     count = fonts->pile_count (font);
-    *font_count = count < MAX_INT8 ? count : MAX_INT8;
+    *font_count = count < INT8_MAX ? count : INT8_MAX;
     fonts->add (font, -*font_count);
   }
   else {
@@ -1953,10 +1953,10 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   }
   word->fontinfo = font_id1 >= 0 ? &fontinfo_table_.get(font_id1) : NULL;
   word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.get(font_id2) : NULL;
-  // Each score has a limit of MAX_UINT16, so divide by that to get the number
+  // Each score has a limit of UINT16_MAX, so divide by that to get the number
   // of "votes" for that font, ie number of perfect scores.
-  word->fontinfo_id_count = ClipToRange(score1 / MAX_UINT16, 1, MAX_INT8);
-  word->fontinfo_id2_count = ClipToRange(score2 / MAX_UINT16, 0, MAX_INT8);
+  word->fontinfo_id_count = ClipToRange(score1 / UINT16_MAX, 1, INT8_MAX);
+  word->fontinfo_id2_count = ClipToRange(score2 / UINT16_MAX, 0, INT8_MAX);
   if (score1 > 0) {
     FontInfo fi = fontinfo_table_.get(font_id1);
     if (tessedit_debug_fonts) {

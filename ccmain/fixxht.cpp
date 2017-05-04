@@ -100,8 +100,8 @@ int Tesseract::CountMisfitTops(WERD_RES *word_res) {
 // See comment above for overall algorithm.
 float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
                                           float* baseline_shift) {
-  STATS top_stats(0, MAX_UINT8);
-  STATS shift_stats(-MAX_UINT8, MAX_UINT8);
+  STATS top_stats(0, UINT8_MAX);
+  STATS shift_stats(-UINT8_MAX, UINT8_MAX);
   int bottom_shift = 0;
   int num_blobs = word_res->rebuild_word->NumBlobs();
   do {

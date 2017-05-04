@@ -664,12 +664,12 @@ void EquationDetect::SplitCPHor(ColPartition* part,
     // the previous blob may have a "more right" right side.
     // Account for this by always keeping the largest "right"
     // so far.
-    int previous_right = MIN_INT32;
+    int previous_right = INT32_MIN;
 
     // Look for the next split in the partition.
     for (box_it.mark_cycle_pt(); !box_it.cycled_list(); box_it.forward()) {
       const TBOX& box = box_it.data()->bounding_box();
-      if (previous_right != MIN_INT32 &&
+      if (previous_right != INT32_MIN &&
           box.left() - previous_right > kThreshold) {
         // We have a split position. Split the partition in two pieces.
         // Insert the left piece in the grid and keep processing the right.
@@ -708,17 +708,17 @@ void EquationDetect::SplitCPHorLite(ColPartition* part,
   // Account for this by always keeping the largest "right"
   // so far.
   TBOX union_box;
-  int previous_right = MIN_INT32;
+  int previous_right = INT32_MIN;
   BLOBNBOX_C_IT box_it(part->boxes());
   for (box_it.mark_cycle_pt(); !box_it.cycled_list(); box_it.forward()) {
     const TBOX& box = box_it.data()->bounding_box();
-    if (previous_right != MIN_INT32 &&
+    if (previous_right != INT32_MIN &&
         box.left() - previous_right > kThreshold) {
       // We have a split position.
       splitted_boxes->push_back(union_box);
-      previous_right = MIN_INT32;
+      previous_right = INT32_MIN;
     }
-    if (previous_right == MIN_INT32) {
+    if (previous_right == INT32_MIN) {
       union_box = box;
     } else {
       union_box += box;
@@ -728,7 +728,7 @@ void EquationDetect::SplitCPHorLite(ColPartition* part,
   }
 
   // Add the last piece.
-  if (previous_right != MIN_INT32) {
+  if (previous_right != INT32_MIN) {
     splitted_boxes->push_back(union_box);
   }
 }

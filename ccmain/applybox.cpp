@@ -268,11 +268,11 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
   }
   GenericVector<BLOB_CHOICE*> blob_choices;
   ASSERT_HOST(!word_res->chopped_word->blobs.empty());
-  float rating = static_cast<float>(MAX_INT8);
+  float rating = static_cast<float>(INT8_MAX);
   for (int i = 0; i < word_res->chopped_word->NumBlobs(); ++i) {
     // The rating and certainty are not quite arbitrary. Since
     // select_blob_to_chop uses the worst certainty to choose, they all have
-    // to be different, so starting with MAX_INT8, subtract 1/8 for each blob
+    // to be different, so starting with INT8_MAX, subtract 1/8 for each blob
     // in here, and then divide by e each time they are chopped, which
     // should guarantee a set of unequal values for the whole tree of blobs
     // produced, however much chopping is required. The chops are thus only

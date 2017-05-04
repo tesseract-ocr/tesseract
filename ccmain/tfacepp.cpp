@@ -143,7 +143,7 @@ void Tesseract::recog_word_recursive(WERD_RES *word) {
  **********************************************************************/
 void Tesseract::split_and_recog_word(WERD_RES *word) {
   // Find the biggest blob gap in the chopped_word.
-  int bestgap = -MAX_INT32;
+  int bestgap = -INT32_MAX;
   int split_index = 0;
   for (int b = 1; b < word->chopped_word->NumBlobs(); ++b) {
     TBOX prev_box = word->chopped_word->blobs[b - 1]->bounding_box();

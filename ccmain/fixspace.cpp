@@ -376,16 +376,16 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   WERD_RES *prev_word;
   WERD_RES *combo;
   WERD *copy_word;
-  int16_t prev_right = -MAX_INT16;
+  int16_t prev_right = -INT16_MAX;
   TBOX box;
   int16_t gap;
-  int16_t min_gap = MAX_INT16;
+  int16_t min_gap = INT16_MAX;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
     if (!word->part_of_combo) {
       box = word->word->bounding_box();
-      if (prev_right > -MAX_INT16) {
+      if (prev_right > -INT16_MAX) {
         gap = box.left() - prev_right;
         if (gap < min_gap)
           min_gap = gap;
@@ -393,16 +393,16 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
       prev_right = box.right();
     }
   }
-  if (min_gap < MAX_INT16) {
-    prev_right = -MAX_INT16;        // back to start
+  if (min_gap < INT16_MAX) {
+    prev_right = -INT16_MAX;        // back to start
     word_it.set_to_list(&words);
     // Note: we can't use cycle_pt due to inserted combos at start of list.
-    for (; (prev_right == -MAX_INT16) || !word_it.at_first();
+    for (; (prev_right == -INT16_MAX) || !word_it.at_first();
          word_it.forward()) {
       word = word_it.data();
       if (!word->part_of_combo) {
         box = word->word->bounding_box();
-        if (prev_right > -MAX_INT16) {
+        if (prev_right > -INT16_MAX) {
           gap = box.left() - prev_right;
           if (gap <= min_gap) {
             prev_word = prev_word_it.data();

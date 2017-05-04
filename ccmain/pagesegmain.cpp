@@ -71,7 +71,7 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
   l_int32 max_count;
   pixCountConnComp(pixt, 8, &max_count);
   // The count has to go up before we start looking for the minimum.
-  l_int32 min_count = MAX_INT32;
+  l_int32 min_count = INT32_MAX;
   Pix* pixout = NULL;
   for (int i = 1; i < kMaxCircleErosions; i++) {
     pixDestroy(&pixt);
