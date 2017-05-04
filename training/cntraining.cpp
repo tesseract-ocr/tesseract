@@ -63,7 +63,7 @@ PARAMDESC *ConvertToPARAMDESC(
 
 void WriteProtos(
      FILE  *File,
-     uinT16  N,
+     uint16_t  N,
      LIST  ProtoList,
      BOOL8  WriteSigProtos,
      BOOL8  WriteInsigProtos);
@@ -261,7 +261,7 @@ void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
 /*-------------------------------------------------------------------------*/
 void WriteProtos(
      FILE  *File,
-     uinT16  N,
+     uint16_t  N,
      LIST  ProtoList,
      BOOL8  WriteSigProtos,
      BOOL8  WriteInsigProtos)

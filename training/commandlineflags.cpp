@@ -12,14 +12,14 @@
 #ifndef GOOGLE_TESSERACT
 
 namespace tesseract {
-bool IntFlagExists(const char* flag_name, inT32* value) {
+bool IntFlagExists(const char* flag_name, int32_t* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
   IntParam *p = ParamUtils::FindParam<IntParam>(
       full_flag_name.string(), GlobalParams()->int_params, empty);
   if (p == nullptr) return false;
-  *value = (inT32)(*p);
+  *value = (int32_t)(*p);
   return true;
 }
 
@@ -56,7 +56,7 @@ bool StringFlagExists(const char* flag_name, const char** value) {
 }
 
 
-void SetIntFlagValue(const char* flag_name, const inT32 new_val) {
+void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
@@ -117,7 +117,7 @@ void PrintCommandLineFlags() {
       printf("  --%s  %s  (type:int default:%d)\n",
              GlobalParams()->int_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->int_params[i]->info_str(),
-             inT32(*(GlobalParams()->int_params[i])));
+             int32_t(*(GlobalParams()->int_params[i])));
     }
   }
   for (int i = 0; i < GlobalParams()->double_params.size(); ++i) {
@@ -198,8 +198,8 @@ void ParseCommandLineFlags(const char* usage,
     }
 
     // Find the flag name in the list of global flags.
-    // inT32 flag
-    inT32 int_val;
+    // int32_t flag
+    int32_t int_val;
     if (IntFlagExists(lhs.string(), &int_val)) {
       if (rhs != nullptr) {
         if (!strlen(rhs)) {
@@ -221,7 +221,7 @@ void ParseCommandLineFlags(const char* usage,
         } else {
           ++i;
           if (!SafeAtoi((*argv)[i], &int_val)) {
-            tprintf("ERROR: Could not parse inT32 from %s\n", (*argv)[i]);
+            tprintf("ERROR: Could not parse int32_t from %s\n", (*argv)[i]);
             exit(1);
           }
         }

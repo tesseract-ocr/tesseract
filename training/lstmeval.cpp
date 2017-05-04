@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     mgr.OverwriteEntry(tesseract::TESSDATA_LSTM, &model_data[0],
                        model_data.size());
   }
-  tesseract::LSTMTester tester(static_cast<inT64>(FLAGS_max_image_MB) *
+  tesseract::LSTMTester tester(static_cast<int64_t>(FLAGS_max_image_MB) *
                                1048576);
   if (!tester.LoadAllEvalData(FLAGS_eval_listfile.c_str())) {
     tprintf("Failed to load eval data from: %s\n", FLAGS_eval_listfile.c_str());
