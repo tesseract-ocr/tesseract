@@ -49,20 +49,8 @@ typedef unsigned char BOOL8;
 
 #endif /* _WIN32 */
 
-#define MAX_INT8  0x7f
-#define MAX_INT16 0x7fff
-#define MAX_INT32 0x7fffffff
-#define MAX_UINT8 0xff
-#define MAX_UINT16  0xffff
-#define MAX_UINT32  0xffffffff
 #define MAX_FLOAT32 std::numeric_limits<float>::max()
 
-#define MIN_INT8 static_cast<int8_t>(0x80)
-#define MIN_INT16 static_cast<int16_t>(0x8000)
-#define MIN_INT32 static_cast<int32_t>(0x80000000)
-#define MIN_UINT8 0x00
-#define MIN_UINT16  0x0000
-#define MIN_UINT32  0x00000000
 // Minimum positive value ie 1e-37ish.
 #define MIN_FLOAT32 std::numeric_limits<float>::min()
 
