@@ -31,14 +31,6 @@
 #include <cstdint>    // int32_t, ...
 
 // definitions of portable data types (numbers and characters)
-typedef int8_t inT8;
-typedef uint8_t uinT8;
-typedef int16_t inT16;
-typedef uint16_t uinT16;
-typedef int32_t inT32;
-typedef uint32_t uinT32;
-typedef int64_t inT64;
-typedef uint64_t uinT64;
 typedef float FLOAT32;
 typedef double FLOAT64;
 typedef unsigned char BOOL8;

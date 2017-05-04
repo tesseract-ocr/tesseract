@@ -40,7 +40,7 @@ namespace tesseract {
 bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
-  inT16 nameoffset;              // offset for real name
+  int16_t nameoffset;              // offset for real name
 
   if (*file == PLUS) {
     nameoffset = 1;

@@ -109,7 +109,7 @@ class DLLSYM CLIST
                            CLIST_ITERATOR *start_it,  //from list start
                            CLIST_ITERATOR *end_it);   //from list end
 
-    inT32 length() const;  //# elements in list
+    int32_t length() const;  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -202,7 +202,7 @@ class DLLSYM CLIST_ITERATOR
     }
 
     void *data_relative(               //get data + or - ...
-                        inT8 offset);  //offset from current
+                        int8_t offset);  //offset from current
 
     void *forward();  //move to next element
 
@@ -238,7 +238,7 @@ class DLLSYM CLIST_ITERATOR
     void exchange(                            //positions of 2 links
                   CLIST_ITERATOR *other_it);  //other iterator
 
-    inT32 length();  //# elements in list
+    int32_t length();  //# elements in list
 
     void sort (                  //sort elements
       int comparator (           //comparison routine
@@ -705,7 +705,7 @@ inline BOOL8 CLIST_ITERATOR::cycled_list() {
  *
  **********************************************************************/
 
-inline inT32 CLIST_ITERATOR::length() {
+inline int32_t CLIST_ITERATOR::length() {
   #ifndef NDEBUG
   if (!list)
     NO_LIST.error ("CLIST_ITERATOR::length", ABORT, NULL);
@@ -881,7 +881,7 @@ CLISTIZEH_C.
                                                                              \
     CLASSNAME *data() { return (CLASSNAME *)CLIST_ITERATOR::data(); }        \
                                                                              \
-    CLASSNAME *data_relative(inT8 offset) {                                  \
+    CLASSNAME *data_relative(int8_t offset) {                                  \
       return (CLASSNAME *)CLIST_ITERATOR::data_relative(offset);             \
     }                                                                        \
                                                                              \

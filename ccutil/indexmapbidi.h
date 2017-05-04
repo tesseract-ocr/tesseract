@@ -77,7 +77,7 @@ class IndexMap {
   int sparse_size_;
   // The compact space covers integers in the range [0, compact_map_.size()-1].
   // Each element contains the corresponding sparse index.
-  GenericVector<inT32> compact_map_;
+  GenericVector<int32_t> compact_map_;
 };
 
 // Bidirectional many-to-one mapping between a sparse and a compact discrete
@@ -172,7 +172,7 @@ class IndexMapBiDi : public IndexMap {
   }
 
   // Direct look-up of the compact index for each element in sparse space.
-  GenericVector<inT32> sparse_map_;
+  GenericVector<int32_t> sparse_map_;
 };
 
 }  // namespace tesseract.

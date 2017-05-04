@@ -41,7 +41,7 @@ void IndexMap::CopyFrom(const IndexMapBiDi& src) {
 
 // Writes to the given file. Returns false in case of error.
 bool IndexMap::Serialize(FILE* fp) const {
-  inT32 sparse_size = sparse_size_;
+  int32_t sparse_size = sparse_size_;
   if (fwrite(&sparse_size, sizeof(sparse_size), 1, fp) != 1) return false;
   if (!compact_map_.Serialize(fp)) return false;
   return true;
@@ -50,7 +50,7 @@ bool IndexMap::Serialize(FILE* fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool IndexMap::DeSerialize(bool swap, FILE* fp) {
-  inT32 sparse_size;
+  int32_t sparse_size;
   if (fread(&sparse_size, sizeof(sparse_size), 1, fp) != 1) return false;
   if (swap)
     ReverseN(&sparse_size, sizeof(sparse_size));
@@ -169,7 +169,7 @@ void IndexMapBiDi::CompleteMerges() {
   }
   // Compact the compact_map, leaving tmp_compact_map saying where each
   // index went to in the compacted map.
-  GenericVector<inT32> tmp_compact_map;
+  GenericVector<int32_t> tmp_compact_map;
   tmp_compact_map.init_to_size(compact_size, -1);
   compact_size = 0;
   for (int i = 0; i < compact_map_.size(); ++i) {
@@ -193,7 +193,7 @@ bool IndexMapBiDi::Serialize(FILE* fp) const {
   // Make a vector containing the rest of the map. If the map is many-to-one
   // then each additional sparse entry needs to be stored.
   // Normally we store only the compact map to save space.
-  GenericVector<inT32> remaining_pairs;
+  GenericVector<int32_t> remaining_pairs;
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0 && compact_map_[sparse_map_[i]] != i) {
       remaining_pairs.push_back(i);
@@ -208,7 +208,7 @@ bool IndexMapBiDi::Serialize(FILE* fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 bool IndexMapBiDi::DeSerialize(bool swap, FILE* fp) {
   if (!IndexMap::DeSerialize(swap, fp)) return false;
-  GenericVector<inT32> remaining_pairs;
+  GenericVector<int32_t> remaining_pairs;
   if (!remaining_pairs.DeSerialize(swap, fp)) return false;
   sparse_map_.init_to_size(sparse_size_, -1);
   for (int i = 0; i < compact_map_.size(); ++i) {

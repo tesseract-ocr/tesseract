@@ -43,7 +43,7 @@ tprintf_internal(                       // Trace printf
   va_list args;                  // variable args
   static FILE *debugfp = NULL;   // debug file
                                  // debug window
-  inT32 offset = 0;              // into message
+  int32_t offset = 0;              // into message
   static char msg[MAX_MSG_LEN + 1];
 
   va_start(args, format);  // variable list

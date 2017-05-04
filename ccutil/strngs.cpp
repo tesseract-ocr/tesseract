@@ -381,7 +381,7 @@ STRING & STRING::operator+=(const STRING& str) {
 void STRING::add_str_int(const char* str, int number) {
   if (str != NULL)
     *this += str;
-  // Allow space for the maximum possible length of inT64.
+  // Allow space for the maximum possible length of int64_t.
   char num_buffer[kMaxIntSize];
   snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
   num_buffer[kMaxIntSize - 1] = '\0';

@@ -29,7 +29,7 @@ namespace tesseract {
 // Fast lookup table to get the first least significant set bit in a byte.
 // For zero, the table has 255, but since it is a special case, most code
 // that uses this table will check for zero before looking up lsb_index_.
-const uinT8 BitVector::lsb_index_[256] = {
+const uint8_t BitVector::lsb_index_[256] = {
   255, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
   5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,
@@ -50,7 +50,7 @@ const uinT8 BitVector::lsb_index_[256] = {
 
 // Fast lookup table to get the residual bits after zeroing the first (lowest)
 // set bit in a byte.
-const uinT8 BitVector::lsb_eroded_[256] = {
+const uint8_t BitVector::lsb_eroded_[256] = {
   0, 0, 0, 0x2, 0, 0x4, 0x4, 0x6,
   0, 0x8, 0x8, 0x0a, 0x08, 0x0c, 0x0c, 0x0e,
   0, 0x10, 0x10, 0x12, 0x10, 0x14, 0x14, 0x16,
@@ -109,12 +109,12 @@ const int BitVector::hamming_table_[256] = {
 BitVector::BitVector() : bit_size_(0), array_(NULL) {}
 
 BitVector::BitVector(int length) : bit_size_(length) {
-  array_ = new uinT32[WordLength()];
+  array_ = new uint32_t[WordLength()];
   SetAllFalse();
 }
 
 BitVector::BitVector(const BitVector& src) : bit_size_(src.bit_size_) {
-  array_ = new uinT32[WordLength()];
+  array_ = new uint32_t[WordLength()];
   memcpy(array_, src.array_, ByteLength());
 }
 
@@ -146,7 +146,7 @@ bool BitVector::Serialize(FILE* fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool BitVector::DeSerialize(bool swap, FILE* fp) {
-  uinT32 new_bit_size;
+  uint32_t new_bit_size;
   if (fread(&new_bit_size, sizeof(new_bit_size), 1, fp) != 1) return false;
   if (swap) {
     ReverseN(&new_bit_size, sizeof(new_bit_size));
@@ -179,8 +179,8 @@ int BitVector::NextSetBit(int prev_bit) const {
   int next_word = WordIndex(next_bit);
   int bit_index = next_word * kBitFactor;
   int word_end = bit_index + kBitFactor;
-  uinT32 word = array_[next_word];
-  uinT8 byte = word & 0xff;
+  uint32_t word = array_[next_word];
+  uint8_t byte = word & 0xff;
   while (bit_index < word_end) {
     if (bit_index + 8 > next_bit && byte != 0) {
       while (bit_index + lsb_index_[byte] < next_bit && byte != 0)
@@ -213,7 +213,7 @@ int BitVector::NumSetBits() const {
   int wordlen = WordLength();
   int total_bits = 0;
   for (int w = 0; w < wordlen; ++w) {
-    uinT32 word = array_[w];
+    uint32_t word = array_[w];
     for (int i = 0; i < 4; ++i) {
       total_bits += hamming_table_[word & 0xff];
       word >>= 8;
@@ -259,7 +259,7 @@ void BitVector::Alloc(int length) {
   int new_wordlength = WordLength();
   if (new_wordlength != initial_wordlength) {
     delete [] array_;
-    array_ = new uinT32[new_wordlength];
+    array_ = new uint32_t[new_wordlength];
   }
 }
 

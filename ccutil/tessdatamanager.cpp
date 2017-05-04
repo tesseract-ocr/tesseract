@@ -57,20 +57,20 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   data_file_name_ = name;
   TFile fp;
   fp.Open(data, size);
-  inT32 num_entries = TESSDATA_NUM_ENTRIES;
+  int32_t num_entries = TESSDATA_NUM_ENTRIES;
   if (fp.FRead(&num_entries, sizeof(num_entries), 1) != 1) return false;
   swap_ = num_entries > kMaxNumTessdataEntries || num_entries < 0;
   fp.set_swap(swap_);
   if (swap_) ReverseN(&num_entries, sizeof(num_entries));
   if (num_entries > kMaxNumTessdataEntries || num_entries < 0) return false;
-  GenericVector<inT64> offset_table;
+  GenericVector<int64_t> offset_table;
   offset_table.resize_no_init(num_entries);
   if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries) !=
       num_entries)
     return false;
   for (int i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {
     if (offset_table[i] >= 0) {
-      inT64 entry_size = size - offset_table[i];
+      int64_t entry_size = size - offset_table[i];
       int j = i + 1;
       while (j < num_entries && offset_table[j] == -1) ++j;
       if (j < num_entries) entry_size = offset_table[j] - offset_table[i];
@@ -109,8 +109,8 @@ bool TessdataManager::SaveFile(const STRING &filename,
 void TessdataManager::Serialize(GenericVector<char> *data) const {
   ASSERT_HOST(is_loaded_);
   // Compute the offset_table and total size.
-  inT64 offset_table[TESSDATA_NUM_ENTRIES];
-  inT64 offset = sizeof(inT32) + sizeof(offset_table);
+  int64_t offset_table[TESSDATA_NUM_ENTRIES];
+  int64_t offset = sizeof(int32_t) + sizeof(offset_table);
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     if (entries_[i].empty()) {
       offset_table[i] = -1;
@@ -120,7 +120,7 @@ void TessdataManager::Serialize(GenericVector<char> *data) const {
     }
   }
   data->init_to_size(offset, 0);
-  inT32 num_entries = TESSDATA_NUM_ENTRIES;
+  int32_t num_entries = TESSDATA_NUM_ENTRIES;
   TFile fp;
   fp.OpenWrite(data);
   fp.FWrite(&num_entries, sizeof(num_entries), 1);
@@ -143,7 +143,7 @@ void TessdataManager::Clear() {
 // Prints a directory of contents.
 void TessdataManager::Directory() const {
   tprintf("Version string:%s\n", VersionString().c_str());
-  int offset = TESSDATA_NUM_ENTRIES * sizeof(inT64);
+  int offset = TESSDATA_NUM_ENTRIES * sizeof(int64_t);
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     if (!entries_[i].empty()) {
       tprintf("%d:%s:size=%d, offset=%d\n", i, kTessdataFileSuffixes[i],
