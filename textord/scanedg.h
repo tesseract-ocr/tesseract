@@ -40,16 +40,16 @@ void block_edges(Pix *t_image,         // thresholded image
                  C_OUTLINE_IT* outline_it);
 void make_margins(PDBLK *block,            // block in image
                   BLOCK_LINE_IT *line_it,  // for old style
-                  uinT8 *pixels,           // pixels to strip
-                  uinT8 margin,            // white-out pixel
-                  inT16 left,              // block edges
-                  inT16 right,
-                  inT16 y);                // line coord                 );
-void line_edges(inT16 x,                     // coord of line start
-                inT16 y,                     // coord of line
-                inT16 xext,                  // width of line
-                uinT8 uppercolour,           // start of prev line
-                uinT8 * bwpos,               // thresholded line
+                  uint8_t *pixels,           // pixels to strip
+                  uint8_t margin,            // white-out pixel
+                  int16_t left,              // block edges
+                  int16_t right,
+                  int16_t y);                // line coord                 );
+void line_edges(int16_t x,                     // coord of line start
+                int16_t y,                     // coord of line
+                int16_t xext,                  // width of line
+                uint8_t uppercolour,           // start of prev line
+                uint8_t * bwpos,               // thresholded line
                 CRACKEDGE ** prevline,       // edges in progress
                 CRACKEDGE **free_cracks,
                 C_OUTLINE_IT* outline_it);

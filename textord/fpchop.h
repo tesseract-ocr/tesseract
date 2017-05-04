@@ -38,10 +38,10 @@ class C_OUTLINE_FRAG:public ELIST_LINK
     C_OUTLINE_FRAG(ICOORD start_pt,
                    ICOORD end_pt,       //end coord
                    C_OUTLINE *outline,  //source of steps
-                   inT16 start_index,
-                   inT16 end_index);
+                   int16_t start_index,
+                   int16_t end_index);
                                  //other end
-    C_OUTLINE_FRAG(C_OUTLINE_FRAG *head, inT16 tail_y);
+    C_OUTLINE_FRAG(C_OUTLINE_FRAG *head, int16_t tail_y);
     C_OUTLINE *close();  //copy to outline
     C_OUTLINE_FRAG & operator= ( //assign
       const C_OUTLINE_FRAG & src);
@@ -49,9 +49,9 @@ class C_OUTLINE_FRAG:public ELIST_LINK
     ICOORD start;                //start coord
     ICOORD end;                  //end coord
     DIR128 *steps;                //step array
-    inT32 stepcount;             //no of steps
+    int32_t stepcount;             //no of steps
     C_OUTLINE_FRAG *other_end;   //head if a tail
-    inT16 ycoord;                //coord of cut pt
+    int16_t ycoord;                //coord of cut pt
 
   private:
 };
@@ -70,43 +70,43 @@ ROW *fixed_pitch_words(                 //find lines
                       );
 WERD *add_repeated_word(                         //move repeated word
                         WERD_IT *rep_it,         //repeated words
-                        inT16 &rep_left,         //left edge of word
-                        inT16 &prev_chop_coord,  //previous word end
-                        uinT8 &blanks,           //no of blanks
+                        int16_t &rep_left,         //left edge of word
+                        int16_t &prev_chop_coord,  //previous word end
+                        uint8_t &blanks,           //no of blanks
                         float pitch,             //char cell size
                         WERD_IT *word_it         //list of words
                        );
 void split_to_blob(                                 //split the blob
                    BLOBNBOX *blob,                  //blob to split
-                   inT16 chop_coord,                //place to chop
+                   int16_t chop_coord,                //place to chop
                    float pitch_error,               //allowed deviation
                    C_OUTLINE_LIST *left_coutlines,  //for cblobs
                    C_OUTLINE_LIST *right_coutlines);
 void fixed_chop_cblob(                                //split the blob
                       C_BLOB *blob,                   //blob to split
-                      inT16 chop_coord,               //place to chop
+                      int16_t chop_coord,               //place to chop
                       float pitch_error,              //allowed deviation
                       C_OUTLINE_LIST *left_outlines,  //left half of chop
                       C_OUTLINE_LIST *right_outlines  //right half of chop
                      );
 void fixed_split_coutline(                        //chop the outline
                           C_OUTLINE *srcline,     //source outline
-                          inT16 chop_coord,       //place to chop
+                          int16_t chop_coord,       //place to chop
                           float pitch_error,      //allowed deviation
                           C_OUTLINE_IT *left_it,  //left half of chop
                           C_OUTLINE_IT *right_it  //right half of chop
                          );
 BOOL8 fixed_chop_coutline(                                  //chop the outline
                           C_OUTLINE *srcline,               //source outline
-                          inT16 chop_coord,                 //place to chop
+                          int16_t chop_coord,                 //place to chop
                           float pitch_error,                //allowed deviation
                           C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
                           C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
                          );
 void save_chop_cfragment(                            //chop the outline
-                         inT16 head_index,           //head of fragment
+                         int16_t head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment
-                         inT16 tail_index,           //tail of fragment
+                         int16_t tail_index,           //tail of fragment
                          ICOORD tail_pos,            //tail of fragment
                          C_OUTLINE *srcline,         //source of edgesteps
                          C_OUTLINE_FRAG_LIST *frags  //fragment list

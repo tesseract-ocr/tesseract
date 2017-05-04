@@ -125,7 +125,7 @@ void plot_to_row(                 //draw a row
 void plot_parallel_row(                 //draw a row
                        TO_ROW *row,     //row to draw
                        float gradient,  //gradients of lines
-                       inT32 left,      //edge of block
+                       int32_t left,      //edge of block
                        ScrollView::Color colour,   //colour to draw in
                        FCOORD rotation  //rotation for line
                       ) {
@@ -164,13 +164,13 @@ void plot_parallel_row(                 //draw a row
 
 void
 draw_occupation (                //draw projection
-inT32 xleft,                     //edge of block
-inT32 ybottom,                   //bottom of block
-inT32 min_y,                     //coordinate limits
-inT32 max_y, inT32 occupation[], //projection counts
-inT32 thresholds[]               //for drop out
+int32_t xleft,                     //edge of block
+int32_t ybottom,                   //bottom of block
+int32_t min_y,                     //coordinate limits
+int32_t max_y, int32_t occupation[], //projection counts
+int32_t thresholds[]               //for drop out
 ) {
-  inT32 line_index;              //pixel coord
+  int32_t line_index;              //pixel coord
   ScrollView::Color colour;                 //of histogram
   float fleft = (float) xleft;   //float version
 
@@ -210,7 +210,7 @@ inT32 thresholds[]               //for drop out
 void draw_meanlines(                  //draw a block
                     TO_BLOCK *block,  //block to draw
                     float gradient,   //gradients of lines
-                    inT32 left,       //edge of block
+                    int32_t left,       //edge of block
                     ScrollView::Color colour,    //colour to draw in
                     FCOORD rotation   //rotation for line
                    ) {
@@ -249,13 +249,13 @@ void draw_meanlines(                  //draw a block
 
 void plot_word_decisions(              //draw words
                          ScrollView* win,   //window tro draw in
-                         inT16 pitch,  //of block
+                         int16_t pitch,  //of block
                          TO_ROW *row   //row to draw
                         ) {
   ScrollView::Color colour = ScrollView::MAGENTA;       //current colour
   ScrollView::Color rect_colour;            //fuzzy colour
-  inT32 prev_x;                  //end of prev blob
-  inT16 blob_count;              //blobs in word
+  int32_t prev_x;                  //end of prev blob
+  int16_t blob_count;              //blobs in word
   BLOBNBOX *blob;                //current blob
   TBOX blob_box;                  //bounding box
                                  //iterator
@@ -321,13 +321,13 @@ void plot_fp_cells(                        //draw words
                    ScrollView* win,             //window tro draw in
                    ScrollView::Color colour,          //colour of lines
                    BLOBNBOX_IT *blob_it,   //blobs
-                   inT16 pitch,            //of block
-                   inT16 blob_count,       //no of real blobs
+                   int16_t pitch,            //of block
+                   int16_t blob_count,       //no of real blobs
                    STATS *projection,      //vertical
-                   inT16 projection_left,  //edges //scale factor
-                   inT16 projection_right,
+                   int16_t projection_left,  //edges //scale factor
+                   int16_t projection_right,
                    float projection_scale) {
-  inT16 occupation;              //occupied cells
+  int16_t occupation;              //occupied cells
   TBOX word_box;                  //bounding box
   FPSEGPT_LIST seg_list;         //list of cuts
   FPSEGPT_IT seg_it;

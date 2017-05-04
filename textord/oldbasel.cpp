@@ -440,7 +440,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
 
 int get_blob_coords(                    //get boxes
                     TO_ROW *row,        //row to use
-                    inT32 lineheight,   //block level
+                    int32_t lineheight,   //block level
                     TBOX *blobcoords,    //ouput boxes
                     BOOL8 &holed_line,  //lost a lot of blobs
                     int &outcount       //no of real blobs
@@ -635,7 +635,7 @@ float jumplimit                  /*guess half descenders */
   }
   else {
     *baseline = *spline;         /*copy it */
-    shift = ICOORD (0, (inT16) (blobcoords[0].bottom ()
+    shift = ICOORD (0, (int16_t) (blobcoords[0].bottom ()
       - spline->y (blobcoords[0].right ())));
     baseline->move (shift);
   }
@@ -665,7 +665,7 @@ float gradient                   //of line
   ICOORD shift;                  //shift of spline
 
   tesseract::DetLineFit lms;  // straight baseline
-  inT32 xstarts[2];              //straight line
+  int32_t xstarts[2];              //straight line
   double coeffs[3];
   float c;                       //line parameter
 
@@ -693,7 +693,7 @@ float gradient                   //of line
   - MAXOVERLAP * (rightedge - leftedge)) {
     *baseline = *spline;         /*copy it */
     x = (leftedge + rightedge) / 2.0;
-    shift = ICOORD (0, (inT16) (gradient * x + c - spline->y (x)));
+    shift = ICOORD (0, (int16_t) (gradient * x + c - spline->y (x)));
     baseline->move (shift);
   }
 }
@@ -1270,7 +1270,7 @@ int &segments                    //no of segments
         tprintf
           ("Resegmenting spline failed - insufficient pts (%d,%d,%d,%d)\n",
           startindex, centreindex, endindex,
-          (inT32) textord_spline_medianwin);
+          (int32_t) textord_spline_medianwin);
       }
     }
     //              else tprintf("Spline step at %d is %g\n",

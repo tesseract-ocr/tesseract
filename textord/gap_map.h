@@ -24,16 +24,16 @@ class GAPMAP
     }
 
     BOOL8 table_gap(               //Is gap a table?
-                    inT16 left,    //From here
-                    inT16 right);  //To here
+                    int16_t left,    //From here
+                    int16_t right);  //To here
 
   private:
-    inT16 total_rows;            //in block
-    inT16 min_left;              //Left extreme
-    inT16 max_right;             //Right extreme
-    inT16 bucket_size;           // half an x ht
-    inT16 *map;                  //empty counts
-    inT16 map_max;               //map[0..max_map]       defind
+    int16_t total_rows;            //in block
+    int16_t min_left;              //Left extreme
+    int16_t max_right;             //Right extreme
+    int16_t bucket_size;           // half an x ht
+    int16_t *map;                  //empty counts
+    int16_t map_max;               //map[0..max_map]       defind
     BOOL8 any_tabs;
 };
 

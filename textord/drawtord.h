@@ -50,38 +50,38 @@ void plot_to_row(                 //draw a row
 void plot_parallel_row(                 //draw a row
                        TO_ROW *row,     //row to draw
                        float gradient,  //gradients of lines
-                       inT32 left,      //edge of block
+                       int32_t left,      //edge of block
                        ScrollView::Color colour,   //colour to draw in
                        FCOORD rotation  //rotation for line
                       );
 void draw_occupation (           //draw projection
-inT32 xleft,                     //edge of block
-inT32 ybottom,                   //bottom of block
-inT32 min_y,                     //coordinate limits
-inT32 max_y, inT32 occupation[], //projection counts
-inT32 thresholds[]               //for drop out
+int32_t xleft,                     //edge of block
+int32_t ybottom,                   //bottom of block
+int32_t min_y,                     //coordinate limits
+int32_t max_y, int32_t occupation[], //projection counts
+int32_t thresholds[]               //for drop out
 );
 void draw_meanlines(                  //draw a block
                     TO_BLOCK *block,  //block to draw
                     float gradient,   //gradients of lines
-                    inT32 left,       //edge of block
+                    int32_t left,       //edge of block
                     ScrollView::Color colour,    //colour to draw in
                     FCOORD rotation   //rotation for line
                    );
 void plot_word_decisions(              //draw words
                          ScrollView* win,   //window tro draw in
-                         inT16 pitch,  //of block
+                         int16_t pitch,  //of block
                          TO_ROW *row   //row to draw
                         );
 void plot_fp_cells(                        //draw words
                    ScrollView* win,             //window tro draw in
                    ScrollView::Color colour,          //colour of lines
                    BLOBNBOX_IT *blob_it,   //blobs
-                   inT16 pitch,            //of block
-                   inT16 blob_count,       //no of real blobs
+                   int16_t pitch,            //of block
+                   int16_t blob_count,       //no of real blobs
                    STATS *projection,      //vertical
-                   inT16 projection_left,  //edges //scale factor
-                   inT16 projection_right,
+                   int16_t projection_left,  //edges //scale factor
+                   int16_t projection_right,
                    float projection_scale);
 void plot_fp_cells2(                        //draw words
                     ScrollView* win,             //window tro draw in

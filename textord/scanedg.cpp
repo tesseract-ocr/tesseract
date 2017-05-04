@@ -54,9 +54,9 @@ void block_edges(Pix *t_pix,           // thresholded image
   for (int x = block_width; x >= 0; x--)
     ptrline[x] = NULL;           //  no lines in progress
 
-  uinT8* bwline = new uinT8[width];
+  uint8_t* bwline = new uint8_t[width];
 
-  uinT8 margin = WHITE_PIX;
+  uint8_t margin = WHITE_PIX;
 
   for (int y = tright.y() - 1; y >= bleft.y() - 1; y--) {
     if (y >= bleft.y() && y < tright.y()) {
@@ -88,16 +88,16 @@ void block_edges(Pix *t_pix,           // thresholded image
 void make_margins(                         //get a line
                   PDBLK *block,            //block in image
                   BLOCK_LINE_IT *line_it,  //for old style
-                  uinT8 *pixels,           //pixels to strip
-                  uinT8 margin,            //white-out pixel
-                  inT16 left,              //block edges
-                  inT16 right,
-                  inT16 y                  //line coord
+                  uint8_t *pixels,           //pixels to strip
+                  uint8_t margin,            //white-out pixel
+                  int16_t left,              //block edges
+                  int16_t right,
+                  int16_t y                  //line coord
                  ) {
   PB_LINE_IT *lines;
   ICOORDELT_IT seg_it;
-  inT32 start;                   //of segment
-  inT16 xext;                    //of segment
+  int32_t start;                   //of segment
+  int16_t xext;                    //of segment
   int xindex;                    //index to pixel
 
   if (block->poly_block () != NULL) {
@@ -142,11 +142,11 @@ void make_margins(                         //get a line
  * When edges close into loops, send them for approximation.
  **********************************************************************/
 
-void line_edges(inT16 x,                         // coord of line start
-                inT16 y,                         // coord of line
-                inT16 xext,                      // width of line
-                uinT8 uppercolour,               // start of prev line
-                uinT8 * bwpos,                   // thresholded line
+void line_edges(int16_t x,                         // coord of line start
+                int16_t y,                         // coord of line
+                int16_t xext,                      // width of line
+                uint8_t uppercolour,               // start of prev line
+                uint8_t * bwpos,                   // thresholded line
                 CRACKEDGE ** prevline,           // edges in progress
                 CRACKEDGE **free_cracks,
                 C_OUTLINE_IT* outline_it) {

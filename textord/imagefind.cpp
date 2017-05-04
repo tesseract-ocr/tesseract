@@ -202,14 +202,14 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
 // <= mid_width rows with min_count <= pix_count <= max_count then
 // a row with pix_count > max_count then
 // true is returned, and *y_start = the first y with pix_count >= min_count.
-static bool HScanForEdge(uinT32* data, int wpl, int x_start, int x_end,
+static bool HScanForEdge(uint32_t* data, int wpl, int x_start, int x_end,
                          int min_count, int mid_width, int max_count,
                          int y_end, int y_step, int* y_start) {
   int mid_rows = 0;
   for (int y = *y_start; y != y_end; y += y_step) {
     // Need pixCountPixelsInRow(pix, y, &pix_count, NULL) to count in a subset.
     int pix_count = 0;
-    uinT32* line = data + wpl * y;
+    uint32_t* line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
       if (GET_DATA_BIT(line, x))
         ++pix_count;
@@ -234,13 +234,13 @@ static bool HScanForEdge(uinT32* data, int wpl, int x_start, int x_end,
 // <= mid_width cols with min_count <= pix_count <= max_count then
 // a column with pix_count > max_count then
 // true is returned, and *x_start = the first x with pix_count >= min_count.
-static bool VScanForEdge(uinT32* data, int wpl, int y_start, int y_end,
+static bool VScanForEdge(uint32_t* data, int wpl, int y_start, int y_end,
                          int min_count, int mid_width, int max_count,
                          int x_end, int x_step, int* x_start) {
   int mid_cols = 0;
   for (int x = *x_start; x != x_end; x += x_step) {
     int pix_count = 0;
-    uinT32* line = data + y_start * wpl;
+    uint32_t* line = data + y_start * wpl;
     for (int y = y_start; y < y_end; ++y, line += wpl) {
       if (GET_DATA_BIT(line, x))
         ++pix_count;
@@ -278,7 +278,7 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
   *y_start = 0;
   *y_end = pixGetHeight(pix);
 
-  uinT32* data = pixGetData(pix);
+  uint32_t* data = pixGetData(pix);
   int wpl = pixGetWpl(pix);
   bool any_cut = false;
   bool left_done = false;
@@ -356,9 +356,9 @@ bool ImageFind::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
 // Given a point in 3-D (RGB) space, returns the squared Euclidean distance
 // of the point from the given line, defined by a pair of points in the 3-D
 // (RGB) space, line1 and line2.
-double ImageFind::ColorDistanceFromLine(const uinT8* line1,
-                                        const uinT8* line2,
-                                        const uinT8* point) {
+double ImageFind::ColorDistanceFromLine(const uint8_t* line1,
+                                        const uint8_t* line2,
+                                        const uint8_t* point) {
   int line_vector[kRGBRMSColors];
   int point_vector[kRGBRMSColors];
   for (int i = 0; i < kRGBRMSColors; ++i) {
@@ -390,19 +390,19 @@ double ImageFind::ColorDistanceFromLine(const uinT8* line1,
 
 
 // Returns the leptonica combined code for the given RGB triplet.
-uinT32 ImageFind::ComposeRGB(uinT32 r, uinT32 g, uinT32 b) {
+uint32_t ImageFind::ComposeRGB(uint32_t r, uint32_t g, uint32_t b) {
   l_uint32 result;
   composeRGBPixel(r, g, b, &result);
   return result;
 }
 
-// Returns the input value clipped to a uinT8.
-uinT8 ImageFind::ClipToByte(double pixel) {
+// Returns the input value clipped to a uint8_t.
+uint8_t ImageFind::ClipToByte(double pixel) {
   if (pixel < 0.0)
     return 0;
   else if (pixel >= 255.0)
     return 255;
-  return static_cast<uinT8>(pixel);
+  return static_cast<uint8_t>(pixel);
 }
 
 // Computes the light and dark extremes of color in the given rectangle of
@@ -418,7 +418,7 @@ uinT8 ImageFind::ClipToByte(double pixel) {
 void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
                                        Pix* color_map1, Pix* color_map2,
                                        Pix* rms_map,
-                                       uinT8* color1, uinT8* color2) {
+                                       uint8_t* color1, uint8_t* color2) {
   ASSERT_HOST(pix != NULL && pixGetDepth(pix) == 32);
   // Pad the rectangle outwards by 2 (scaled) pixels if possible to get more
   // background.
@@ -443,7 +443,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   STATS red_stats(0, 256);
   STATS green_stats(0, 256);
   STATS blue_stats(0, 256);
-  uinT32* data = pixGetData(scaled);
+  uint32_t* data = pixGetData(scaled);
   ASSERT_HOST(pixGetWpl(scaled) == width_pad);
   for (int y = 0; y < height_pad; ++y) {
     for (int x = 0; x < width_pad; ++x, ++data) {
@@ -487,7 +487,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   if (best_i8r >= kMinColorDifference) {
     LLSQ line1;
     LLSQ line2;
-    uinT32* data = pixGetData(scaled);
+    uint32_t* data = pixGetData(scaled);
     for (int im_y = 0; im_y < height_pad; ++im_y) {
       for (int im_x = 0; im_x < width_pad; ++im_x, ++data) {
         int x = GET_DATA_BYTE(data, x_color);

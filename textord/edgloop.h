@@ -42,7 +42,7 @@ void complete_edge(CRACKEDGE *start,  //start of loop
 ScrollView::Color check_path_legal(                  //certify outline
                         CRACKEDGE *start  //start of loop
                        );
-inT16 loop_bounding_box(                    //get bounding box
+int16_t loop_bounding_box(                    //get bounding box
                         CRACKEDGE *&start,  //edge loop
                         ICOORD &botleft,    //bounding box
                         ICOORD &topright);

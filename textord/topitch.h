@@ -51,16 +51,16 @@ void fix_row_pitch(                        //get some value
                    TO_ROW *bad_row,        //row to fix
                    TO_BLOCK *bad_block,    //block of bad_row
                    TO_BLOCK_LIST *blocks,  //blocks to scan
-                   inT32 row_target,       //number of row
-                   inT32 block_target      //number of block
+                   int32_t row_target,       //number of row
+                   int32_t block_target      //number of block
                   );
 void compute_block_pitch( TO_BLOCK *block,     // input list
                          FCOORD rotation,      // for drawing
-                         inT32 block_index,    // block number
+                         int32_t block_index,    // block number
                          BOOL8 testing_on);    // correct orientation
 BOOL8 compute_rows_pitch(                    //find line stats
                          TO_BLOCK *block,    //block to do
-                         inT32 block_index,  //block number
+                         int32_t block_index,  //block number
                          BOOL8 testing_on    //correct orientation
                         );
 BOOL8 try_doc_fixed(                             //determine pitch
@@ -70,44 +70,44 @@ BOOL8 try_doc_fixed(                             //determine pitch
                    );
 BOOL8 try_block_fixed(                   //find line stats
                       TO_BLOCK *block,   //block to do
-                      inT32 block_index  //block number
+                      int32_t block_index  //block number
                      );
 BOOL8 try_rows_fixed(                    //find line stats
                      TO_BLOCK *block,    //block to do
-                     inT32 block_index,  //block number
+                     int32_t block_index,  //block number
                      BOOL8 testing_on    //correct orientation
                     );
 void print_block_counts(                   //find line stats
                         TO_BLOCK *block,   //block to do
-                        inT32 block_index  //block number
+                        int32_t block_index  //block number
                        );
 void count_block_votes(                   //find line stats
                        TO_BLOCK *block,   //block to do
-                       inT32 &def_fixed,  //add to counts
-                       inT32 &def_prop,
-                       inT32 &maybe_fixed,
-                       inT32 &maybe_prop,
-                       inT32 &corr_fixed,
-                       inT32 &corr_prop,
-                       inT32 &dunno);
+                       int32_t &def_fixed,  //add to counts
+                       int32_t &def_prop,
+                       int32_t &maybe_fixed,
+                       int32_t &maybe_prop,
+                       int32_t &corr_fixed,
+                       int32_t &corr_prop,
+                       int32_t &dunno);
 BOOL8 row_pitch_stats(                  //find line stats
                       TO_ROW *row,      //current row
-                      inT32 maxwidth,   //of spaces
+                      int32_t maxwidth,   //of spaces
                       BOOL8 testing_on  //correct orientation
                      );
 BOOL8 find_row_pitch(                    //find lines
                      TO_ROW *row,        //row to do
-                     inT32 maxwidth,     //max permitted space
-                     inT32 dm_gap,       //ignorable gaps
+                     int32_t maxwidth,     //max permitted space
+                     int32_t dm_gap,       //ignorable gaps
                      TO_BLOCK *block,    //block of row
-                     inT32 block_index,  //block_number
-                     inT32 row_index,    //number of row
+                     int32_t block_index,  //block_number
+                     int32_t row_index,    //number of row
                      BOOL8 testing_on    //correct orientation
                     );
 BOOL8 fixed_pitch_row(                   //find lines
                       TO_ROW *row,       //row to do
                       BLOCK* block,
-                      inT32 block_index  //block_number
+                      int32_t block_index  //block_number
                      );
 BOOL8 count_pitch_stats(                       //find lines
                         TO_ROW *row,           //row to do
@@ -117,64 +117,64 @@ BOOL8 count_pitch_stats(                       //find lines
                         float min_space,       //estimate space size
                         BOOL8 ignore_outsize,  //discard big objects
                         BOOL8 split_outsize,   //split big objects
-                        inT32 dm_gap           //ignorable gaps
+                        int32_t dm_gap           //ignorable gaps
                        );
 float tune_row_pitch(                             //find fp cells
                      TO_ROW *row,                 //row to do
                      STATS *projection,           //vertical projection
-                     inT16 projection_left,       //edge of projection
-                     inT16 projection_right,      //edge of projection
+                     int16_t projection_left,       //edge of projection
+                     int16_t projection_right,      //edge of projection
                      float space_size,            //size of blank
                      float &initial_pitch,        //guess at pitch
                      float &best_sp_sd,           //space sd
-                     inT16 &best_mid_cuts,        //no of cheap cuts
+                     int16_t &best_mid_cuts,        //no of cheap cuts
                      ICOORDELT_LIST *best_cells,  //row cells
                      BOOL8 testing_on             //inidividual words
                     );
 float tune_row_pitch2(                             //find fp cells
                       TO_ROW *row,                 //row to do
                       STATS *projection,           //vertical projection
-                      inT16 projection_left,       //edge of projection
-                      inT16 projection_right,      //edge of projection
+                      int16_t projection_left,       //edge of projection
+                      int16_t projection_right,      //edge of projection
                       float space_size,            //size of blank
                       float &initial_pitch,        //guess at pitch
                       float &best_sp_sd,           //space sd
-                      inT16 &best_mid_cuts,        //no of cheap cuts
+                      int16_t &best_mid_cuts,        //no of cheap cuts
                       ICOORDELT_LIST *best_cells,  //row cells
                       BOOL8 testing_on             //inidividual words
                      );
 float compute_pitch_sd (         //find fp cells
 TO_ROW * row,                    //row to do
 STATS * projection,              //vertical projection
-inT16 projection_left,           //edge
-inT16 projection_right,          //edge
+int16_t projection_left,           //edge
+int16_t projection_right,          //edge
 float space_size,                //size of blank
 float initial_pitch,             //guess at pitch
 float &sp_sd,                    //space sd
-inT16 & mid_cuts,                //no of free cuts
+int16_t & mid_cuts,                //no of free cuts
 ICOORDELT_LIST * row_cells,      //list of chop pts
 BOOL8 testing_on,                //inidividual words
-inT16 start = 0,                 //start of good range
-inT16 end = 0                    //end of good range
+int16_t start = 0,                 //start of good range
+int16_t end = 0                    //end of good range
 );
 float compute_pitch_sd2 (        //find fp cells
 TO_ROW * row,                    //row to do
 STATS * projection,              //vertical projection
-inT16 projection_left,           //edge
-inT16 projection_right,          //edge
+int16_t projection_left,           //edge
+int16_t projection_right,          //edge
 float initial_pitch,             //guess at pitch
-inT16 & occupation,              //no of occupied cells
-inT16 & mid_cuts,                //no of free cuts
+int16_t & occupation,              //no of occupied cells
+int16_t & mid_cuts,                //no of free cuts
 ICOORDELT_LIST * row_cells,      //list of chop pts
 BOOL8 testing_on,                //inidividual words
-inT16 start = 0,                 //start of good range
-inT16 end = 0                    //end of good range
+int16_t start = 0,                 //start of good range
+int16_t end = 0                    //end of good range
 );
 void print_pitch_sd(                        //find fp cells
                     TO_ROW *row,            //row to do
                     STATS *projection,      //vertical projection
-                    inT16 projection_left,  //edges //size of blank
-                    inT16 projection_right,
+                    int16_t projection_left,  //edges //size of blank
+                    int16_t projection_right,
                     float space_size,
                     float initial_pitch     //guess at pitch
                    );

@@ -280,7 +280,7 @@ double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
     if (text->IsTextType())
       area_covered += text->bounding_box().intersection(kCellBox).area();
   }
-  const inT32 current_area = kCellBox.area();
+  const int32_t current_area = kCellBox.area();
   if (current_area == 0) {
     return 1.0;
   }

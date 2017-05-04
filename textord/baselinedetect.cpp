@@ -554,7 +554,7 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
     TO_ROW_IT row_it = block_->get_rows();
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       TO_ROW* row = row_it.data();
-      inT32 xstarts[2] = { block_box.left(), block_box.right() };
+      int32_t xstarts[2] = { block_box.left(), block_box.right() };
       double coeffs[3] = { 0.0, row->line_m(), row->line_c() };
       row->baseline = QSPLINE(1, xstarts, coeffs);
       textord->compute_row_xheight(row, block_->block->classify_rotation(),

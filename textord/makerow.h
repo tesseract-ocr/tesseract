@@ -115,9 +115,9 @@ extern BOOL_VAR_H(textord_debug_blob, FALSE, "Print test blob information");
 
 inline void get_min_max_xheight(int block_linesize,
                                 int *min_height, int *max_height) {
-  *min_height = static_cast<inT32>(floor(block_linesize * textord_minxh));
+  *min_height = static_cast<int32_t>(floor(block_linesize * textord_minxh));
   if (*min_height < textord_min_xheight) *min_height = textord_min_xheight;
-  *max_height = static_cast<inT32>(ceil(block_linesize * 3.0));
+  *max_height = static_cast<int32_t>(ceil(block_linesize * 3.0));
 }
 
 inline ROW_CATEGORY get_row_category(const TO_ROW *row) {
@@ -150,20 +150,20 @@ void cleanup_rows_making(ICOORD page_tr,     // top right
                          TO_BLOCK *block,    // block to do
                          float gradient,     // gradient to fit
                          FCOORD rotation,    // for drawing
-                         inT32 block_edge,   // edge of block
+                         int32_t block_edge,   // edge of block
                          BOOL8 testing_on);  // correct orientation
 void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
                              FCOORD rotation,   //deskew vector
-                             inT32 block_edge,  //left edge
+                             int32_t block_edge,  //left edge
                              BOOL8 testing_on   //correct orientation
                             );
 BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW *row,        //row to test
-                            inT32 distance,     //dropout dist
+                            int32_t distance,     //dropout dist
                             float dist_limit,   //threshold distance
-                            inT32 line_index,   //index of row
+                            int32_t line_index,   //index of row
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            );
@@ -174,29 +174,29 @@ TBOX deskew_block_coords(                  //block box
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
-                             inT32 min_y,        //min coord in block
-                             inT32 max_y,        //in block
-                             inT32 *occupation,  //output projection
-                             inT32 *deltas       //derivative
+                             int32_t min_y,        //min coord in block
+                             int32_t max_y,        //in block
+                             int32_t *occupation,  //output projection
+                             int32_t *deltas       //derivative
                             );
 void compute_occupation_threshold(                    //project blobs
-                                  inT32 low_window,   //below result point
-                                  inT32 high_window,  //above result point
-                                  inT32 line_count,   //array sizes
-                                  inT32 *occupation,  //input projection
-                                  inT32 *thresholds   //output thresholds
+                                  int32_t low_window,   //below result point
+                                  int32_t high_window,  //above result point
+                                  int32_t line_count,   //array sizes
+                                  int32_t *occupation,  //input projection
+                                  int32_t *thresholds   //output thresholds
                                  );
 void compute_dropout_distances(                    //project blobs
-                               inT32 *occupation,  //input projection
-                               inT32 *thresholds,  //output thresholds
-                               inT32 line_count    //array sizes
+                               int32_t *occupation,  //input projection
+                               int32_t *thresholds,  //output thresholds
+                               int32_t line_count    //array sizes
                               );
 void expand_rows(                   //find lines
                  ICOORD page_tr,    //top right
                  TO_BLOCK *block,   //block to do
                  float gradient,    //gradient to fit
                  FCOORD rotation,   //for drawing
-                 inT32 block_edge,  //edge of block
+                 int32_t block_edge,  //edge of block
                  BOOL8 testing_on   //correct orientation
                 );
 void adjust_row_limits(                 //tidy limits
@@ -215,15 +215,15 @@ int compute_xheight_from_modes(
     STATS *heights, STATS *floating_heights, bool cap_only, int min_height,
     int max_height, float *xheight, float *ascrise);
 
-inT32 compute_row_descdrop(TO_ROW *row,     // row to do
+int32_t compute_row_descdrop(TO_ROW *row,     // row to do
                            float gradient,  // global skew
                            int xheight_blob_count,
                            STATS *heights);
-inT32 compute_height_modes(STATS *heights,    // stats to search
-                           inT32 min_height,  // bottom of range
-                           inT32 max_height,  // top of range
-                           inT32 *modes,      // output array
-                           inT32 maxmodes);   // size of modes
+int32_t compute_height_modes(STATS *heights,    // stats to search
+                           int32_t min_height,  // bottom of range
+                           int32_t max_height,  // top of range
+                           int32_t *modes,      // output array
+                           int32_t maxmodes);   // size of modes
 void correct_row_xheight(TO_ROW *row,    // row to fix
                          float xheight,  // average values
                          float ascrise,
@@ -239,7 +239,7 @@ void pre_associate_blobs( ICOORD page_tr,   // top right
 void fit_parallel_rows(TO_BLOCK *block,   // block to do
                        float gradient,    // gradient to fit
                        FCOORD rotation,   // for drawing
-                       inT32 block_edge,  // edge of block
+                       int32_t block_edge,  // edge of block
                        BOOL8 testing_on);  // correct orientation
 void fit_parallel_lms(float gradient,  // forced gradient
                       TO_ROW *row);      // row to fit
@@ -248,14 +248,14 @@ void make_baseline_spline(TO_ROW *row,     // row to fit
 BOOL8 segment_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-inT32 & segments,                //no fo segments
-inT32 xstarts[]                  //coords of segments
+int32_t & segments,                //no fo segments
+int32_t xstarts[]                  //coords of segments
 );
 double *linear_spline_baseline ( //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-inT32 & segments,                //no fo segments
-inT32 xstarts[]                  //coords of segments
+int32_t & segments,                //no fo segments
+int32_t xstarts[]                  //coords of segments
 );
 void assign_blobs_to_rows(                      //find lines
                           TO_BLOCK *block,      //block to do

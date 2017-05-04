@@ -84,8 +84,8 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
       delete bblob;
     }
     // Convert the TO_ROW to a ROW.
-    ROW* real_row = new ROW(row, static_cast<inT16>(row->kern_size),
-                            static_cast<inT16>(row->space_size));
+    ROW* real_row = new ROW(row, static_cast<int16_t>(row->kern_size),
+                            static_cast<int16_t>(row->space_size));
     WERD_IT word_it(real_row->word_list());
     WERD* word = new WERD(&cblobs, 0, NULL);
     word->set_flag(W_BOL, TRUE);
@@ -145,11 +145,11 @@ void set_row_spaces(                  //find space sizes
     row = row_it.data ();
     if (row->fixed_pitch == 0) {
       row->min_space =
-        (inT32) ceil (row->pr_space -
+        (int32_t) ceil (row->pr_space -
         (row->pr_space -
         row->pr_nonsp) * textord_words_definite_spread);
       row->max_nonspace =
-        (inT32) floor (row->pr_nonsp +
+        (int32_t) floor (row->pr_nonsp +
         (row->pr_space -
         row->pr_nonsp) * textord_words_definite_spread);
       if (testing_on && textord_show_initial_words) {
@@ -162,7 +162,7 @@ void set_row_spaces(                  //find space sizes
     }
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on) {
-      plot_word_decisions (to_win, (inT16) row->fixed_pitch, row);
+      plot_word_decisions (to_win, (int16_t) row->fixed_pitch, row);
     }
 #endif
   }
@@ -175,19 +175,19 @@ void set_row_spaces(                  //find space sizes
  * Compute the max nonspace and min space for the row.
  */
 
-inT32 row_words(                  //compute space size
+int32_t row_words(                  //compute space size
                 TO_BLOCK *block,  //block it came from
                 TO_ROW *row,      //row to operate on
-                inT32 maxwidth,   //max expected space size
+                int32_t maxwidth,   //max expected space size
                 FCOORD rotation,  //for drawing
                 BOOL8 testing_on  //for debug
                ) {
   BOOL8 testing_row;             //contains testpt
   BOOL8 prev_valid;              //if decent size
-  inT32 prev_x;                  //end of prev blob
-  inT32 cluster_count;           //no of clusters
-  inT32 gap_index;               //which cluster
-  inT32 smooth_factor;           //for smoothing stats
+  int32_t prev_x;                //end of prev blob
+  int32_t cluster_count;         //no of clusters
+  int32_t gap_index;             //which cluster
+  int32_t smooth_factor;         //for smoothing stats
   BLOBNBOX *blob;                //current blob
   float lower, upper;            //clustering parameters
   float gaps[3];                 //gap clusers
@@ -200,7 +200,7 @@ inT32 row_words(                  //compute space size
 
   testpt = ICOORD (textord_test_x, textord_test_y);
   smooth_factor =
-    (inT32) (block->xheight * textord_wordstats_smooth_factor + 1.5);
+    (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = FALSE;
@@ -313,9 +313,9 @@ inT32 row_words(                  //compute space size
     }
   }
   row->min_space =
-    (inT32) ceil (upper - (upper - lower) * textord_words_definite_spread);
+    (int32_t) ceil (upper - (upper - lower) * textord_words_definite_spread);
   row->max_nonspace =
-    (inT32) floor (lower + (upper - lower) * textord_words_definite_spread);
+    (int32_t) floor (lower + (upper - lower) * textord_words_definite_spread);
   row->space_threshold = (row->max_nonspace + row->min_space) / 2;
   row->space_size = upper;
   row->kern_size = lower;
@@ -342,24 +342,24 @@ inT32 row_words(                  //compute space size
  * Compute the max nonspace and min space for the row.
  */
 
-inT32 row_words2(                  //compute space size
+int32_t row_words2(                  //compute space size
                  TO_BLOCK *block,  //block it came from
                  TO_ROW *row,      //row to operate on
-                 inT32 maxwidth,   //max expected space size
+                 int32_t maxwidth,   //max expected space size
                  FCOORD rotation,  //for drawing
                  BOOL8 testing_on  //for debug
                 ) {
   BOOL8 testing_row;             //contains testpt
   BOOL8 prev_valid;              //if decent size
   BOOL8 this_valid;              //current blob big enough
-  inT32 prev_x;                  //end of prev blob
-  inT32 min_width;               //min interesting width
-  inT32 valid_count;             //good gaps
-  inT32 total_count;             //total gaps
-  inT32 cluster_count;           //no of clusters
-  inT32 prev_count;              //previous cluster_count
-  inT32 gap_index;               //which cluster
-  inT32 smooth_factor;           //for smoothing stats
+  int32_t prev_x;                  //end of prev blob
+  int32_t min_width;               //min interesting width
+  int32_t valid_count;             //good gaps
+  int32_t total_count;             //total gaps
+  int32_t cluster_count;           //no of clusters
+  int32_t prev_count;              //previous cluster_count
+  int32_t gap_index;               //which cluster
+  int32_t smooth_factor;           //for smoothing stats
   BLOBNBOX *blob;                //current blob
   float lower, upper;            //clustering parameters
   ICOORD testpt;
@@ -374,14 +374,14 @@ inT32 row_words2(                  //compute space size
 
   testpt = ICOORD (textord_test_x, textord_test_y);
   smooth_factor =
-    (inT32) (block->xheight * textord_wordstats_smooth_factor + 1.5);
+    (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = FALSE;
   prev_x = -MAX_INT16;
   testing_row = FALSE;
                                  //min blob size
-  min_width = (inT32) block->pr_space;
+  min_width = (int32_t) block->pr_space;
   total_count = 0;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
@@ -468,9 +468,9 @@ inT32 row_words2(                  //compute space size
     upper = block->pr_space;
   }
   row->min_space =
-    (inT32) ceil (upper - (upper - lower) * textord_words_definite_spread);
+    (int32_t) ceil (upper - (upper - lower) * textord_words_definite_spread);
   row->max_nonspace =
-    (inT32) floor (lower + (upper - lower) * textord_words_definite_spread);
+    (int32_t) floor (lower + (upper - lower) * textord_words_definite_spread);
   row->space_threshold = (row->max_nonspace + row->min_space) / 2;
   row->space_size = upper;
   row->kern_size = lower;
@@ -539,9 +539,9 @@ void make_real_words(
       real_row_it.add_after_then_move (real_row);
     }
   }
-  block->block->set_stats (block->fixed_pitch == 0, (inT16) block->kern_size,
-    (inT16) block->space_size,
-    (inT16) block->fixed_pitch);
+  block->block->set_stats (block->fixed_pitch == 0, (int16_t) block->kern_size,
+    (int16_t) block->space_size,
+    (int16_t) block->fixed_pitch);
   block->block->check_pitch ();
 }
 
@@ -569,7 +569,7 @@ ROW *make_rep_words(                 //make a row
     word_box += word_it.data ()->bounding_box ();
   row->xheight = block->xheight;
   real_row = new ROW(row,
-    (inT16) block->kern_size, (inT16) block->space_size);
+    (int16_t) block->kern_size, (int16_t) block->space_size);
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
   word_it.add_list_after (&row->rep_words);
@@ -586,16 +586,16 @@ ROW *make_rep_words(                 //make a row
  */
 
 WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
-                     inT32 blobcount,      //no of blobs to use
+                     int32_t blobcount,      //no of blobs to use
                      BOOL8 bol,            //start of line
-                     uinT8 blanks          //no of blanks
+                     uint8_t blanks          //no of blanks
                     ) {
   C_OUTLINE_IT cout_it;
   C_BLOB_LIST cblobs;
   C_BLOB_IT cblob_it = &cblobs;
   WERD *word;                    // new word
   BLOBNBOX *bblob;               // current blob
-  inT32 blobindex;               // in row
+  int32_t blobindex;               // in row
 
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     bblob = box_it->extract();

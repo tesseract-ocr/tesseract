@@ -85,8 +85,8 @@ ICOORD tright):         bl(bleft), tr(tright) {
 
 C_OUTLINE_LIST *
 OL_BUCKETS::operator()(       // array access
-inT16 x,                      // image coords
-inT16 y) {
+int16_t x,                      // image coords
+int16_t y) {
   return &buckets[(y-bl.y()) / BUCKETSIZE * bxdim + (x-bl.x()) / BUCKETSIZE];
 }
 
@@ -111,17 +111,17 @@ inT16 y) {
  * flattening out boxed or reversed video text regions.
  */
 
-inT32 OL_BUCKETS::outline_complexity(
+int32_t OL_BUCKETS::outline_complexity(
                                      C_OUTLINE *outline,   // parent outline
-                                     inT32 max_count,      // max output
-                                     inT16 depth           // recurion depth
+                                     int32_t max_count,      // max output
+                                     int16_t depth           // recurion depth
                                     ) {
-  inT16 xmin, xmax;              // coord limits
-  inT16 ymin, ymax;
-  inT16 xindex, yindex;          // current bucket
+  int16_t xmin, xmax;              // coord limits
+  int16_t ymin, ymax;
+  int16_t xindex, yindex;          // current bucket
   C_OUTLINE *child;              // current child
-  inT32 child_count;             // no of children
-  inT32 grandchild_count;        // no of grandchildren
+  int32_t child_count;             // no of children
+  int32_t grandchild_count;        // no of grandchildren
   C_OUTLINE_IT child_it;         // search iterator
 
   TBOX olbox = outline->bounding_box();
@@ -151,12 +151,12 @@ inT32 OL_BUCKETS::outline_complexity(
             tprintf("Discard outline on child_count=%d > "
                     "max_children_per_outline=%d\n",
                     child_count,
-                    static_cast<inT32>(edges_max_children_per_outline));
+                    static_cast<int32_t>(edges_max_children_per_outline));
           return max_count + child_count;
         }
 
         // Compute the "complexity" of each child recursively
-        inT32 remaining_count = max_count - child_count - grandchild_count;
+        int32_t remaining_count = max_count - child_count - grandchild_count;
         if (remaining_count > 0)
           grandchild_count += edges_children_per_grandchild *
                               outline_complexity(child, remaining_count, depth);
@@ -180,21 +180,21 @@ inT32 OL_BUCKETS::outline_complexity(
  * Find number of descendants of this outline.
  */
 // TODO(rays) Merge with outline_complexity.
-inT32 OL_BUCKETS::count_children(                     // recursive count
+int32_t OL_BUCKETS::count_children(                     // recursive count
                                  C_OUTLINE *outline,  // parent outline
-                                 inT32 max_count      // max output
+                                 int32_t max_count      // max output
                                 ) {
   BOOL8 parent_box;              // could it be boxy
-  inT16 xmin, xmax;              // coord limits
-  inT16 ymin, ymax;
-  inT16 xindex, yindex;          // current bucket
+  int16_t xmin, xmax;              // coord limits
+  int16_t ymin, ymax;
+  int16_t xindex, yindex;          // current bucket
   C_OUTLINE *child;              // current child
-  inT32 child_count;             // no of children
-  inT32 grandchild_count;        // no of grandchildren
-  inT32 parent_area;             // potential box
+  int32_t child_count;             // no of children
+  int32_t grandchild_count;        // no of grandchildren
+  int32_t parent_area;             // potential box
   FLOAT32 max_parent_area;       // potential box
-  inT32 child_area;              // current child
-  inT32 child_length;            // current child
+  int32_t child_area;              // current child
+  int32_t child_length;            // current child
   TBOX olbox;
   C_OUTLINE_IT child_it;         // search iterator
 
@@ -300,9 +300,9 @@ void OL_BUCKETS::extract_children(                     // recursive count
                                   C_OUTLINE *outline,  // parent outline
                                   C_OUTLINE_IT *it     // destination iterator
                                  ) {
-  inT16 xmin, xmax;              // coord limits
-  inT16 ymin, ymax;
-  inT16 xindex, yindex;          // current bucket
+  int16_t xmin, xmax;              // coord limits
+  int16_t ymin, ymax;
+  int16_t xindex, yindex;          // current bucket
   TBOX olbox;
   C_OUTLINE_IT child_it;         // search iterator
 
@@ -443,7 +443,7 @@ BOOL8 capture_children(                       // find children
                        C_OUTLINE_IT *blob_it  // output outlines
                       ) {
   C_OUTLINE *outline;            // master outline
-  inT32 child_count;             // no of children
+  int32_t child_count;             // no of children
 
   outline = blob_it->data();
   if (edges_use_new_outline_complexity)

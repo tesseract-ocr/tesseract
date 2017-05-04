@@ -40,17 +40,17 @@
 
 void FPCUTPT::setup(                     //constructor
                     FPCUTPT *cutpts,     //predecessors
-                    inT16 array_origin,  //start coord
+                    int16_t array_origin,  //start coord
                     STATS *projection,   //vertical occupation
-                    inT16 zero_count,    //official zero
-                    inT16 pitch,         //proposed pitch
-                    inT16 x,             //position
-                    inT16 offset         //dist to gap
+                    int16_t zero_count,    //official zero
+                    int16_t pitch,         //proposed pitch
+                    int16_t x,             //position
+                    int16_t offset         //dist to gap
                    ) {
                                  //half of pitch
-  inT16 half_pitch = pitch / 2 - 1;
-  uinT32 lead_flag;              //new flag
-  inT32 ind;                     //current position
+  int16_t half_pitch = pitch / 2 - 1;
+  uint32_t lead_flag;              //new flag
+  int32_t ind;                     //current position
 
   if (half_pitch > 31)
     half_pitch = 31;
@@ -97,30 +97,30 @@ void FPCUTPT::setup(                     //constructor
 
 void FPCUTPT::assign(                         //constructor
                      FPCUTPT *cutpts,         //predecessors
-                     inT16 array_origin,      //start coord
-                     inT16 x,                 //position
+                     int16_t array_origin,      //start coord
+                     int16_t x,                 //position
                      BOOL8 faking,            //faking this one
                      BOOL8 mid_cut,           //cheap cut.
-                     inT16 offset,            //dist to gap
+                     int16_t offset,            //dist to gap
                      STATS *projection,       //vertical occupation
                      float projection_scale,  //scaling
-                     inT16 zero_count,        //official zero
-                     inT16 pitch,             //proposed pitch
-                     inT16 pitch_error        //allowed tolerance
+                     int16_t zero_count,        //official zero
+                     int16_t pitch,             //proposed pitch
+                     int16_t pitch_error        //allowed tolerance
                     ) {
   int index;                     //test index
   int balance_index;             //for balance factor
-  inT16 balance_count;           //ding factor
-  inT16 r_index;                 //test cut number
+  int16_t balance_count;           //ding factor
+  int16_t r_index;                 //test cut number
   FPCUTPT *segpt;                //segment point
-  inT32 dist;                    //from prev segment
+  int32_t dist;                    //from prev segment
   double sq_dist;                //squared distance
   double mean;                   //mean pitch
   double total;                  //total dists
   double factor;                 //cost function
                                  //half of pitch
-  inT16 half_pitch = pitch / 2 - 1;
-  uinT32 lead_flag;              //new flag
+  int16_t half_pitch = pitch / 2 - 1;
+  uint32_t lead_flag;              //new flag
 
   if (half_pitch > 31)
     half_pitch = 31;
@@ -170,7 +170,7 @@ void FPCUTPT::assign(                         //constructor
                 <= zero_count);
           }
           balance_count =
-            (inT16) (balance_count * textord_balance_factor /
+            (int16_t) (balance_count * textord_balance_factor /
             projection_scale);
         }
         r_index = segpt->region_index + 1;
@@ -205,29 +205,29 @@ void FPCUTPT::assign(                         //constructor
 
 void FPCUTPT::assign_cheap(                         //constructor
                            FPCUTPT *cutpts,         //predecessors
-                           inT16 array_origin,      //start coord
-                           inT16 x,                 //position
+                           int16_t array_origin,      //start coord
+                           int16_t x,                 //position
                            BOOL8 faking,            //faking this one
                            BOOL8 mid_cut,           //cheap cut.
-                           inT16 offset,            //dist to gap
+                           int16_t offset,            //dist to gap
                            STATS *projection,       //vertical occupation
                            float projection_scale,  //scaling
-                           inT16 zero_count,        //official zero
-                           inT16 pitch,             //proposed pitch
-                           inT16 pitch_error        //allowed tolerance
+                           int16_t zero_count,        //official zero
+                           int16_t pitch,             //proposed pitch
+                           int16_t pitch_error        //allowed tolerance
                           ) {
   int index;                     //test index
-  inT16 balance_count;           //ding factor
-  inT16 r_index;                 //test cut number
+  int16_t balance_count;           //ding factor
+  int16_t r_index;                 //test cut number
   FPCUTPT *segpt;                //segment point
-  inT32 dist;                    //from prev segment
+  int32_t dist;                    //from prev segment
   double sq_dist;                //squared distance
   double mean;                   //mean pitch
   double total;                  //total dists
   double factor;                 //cost function
                                  //half of pitch
-  inT16 half_pitch = pitch / 2 - 1;
-  uinT32 lead_flag;              //new flag
+  int16_t half_pitch = pitch / 2 - 1;
+  uint32_t lead_flag;              //new flag
 
   if (half_pitch > 31)
     half_pitch = 31;
@@ -263,7 +263,7 @@ void FPCUTPT::assign_cheap(                         //constructor
           balance_count++;
           lead_flag &= lead_flag - 1;
         }
-        balance_count = (inT16) (balance_count * textord_balance_factor
+        balance_count = (int16_t) (balance_count * textord_balance_factor
           / projection_scale);
       }
       r_index = segpt->region_index + 1;
@@ -297,29 +297,29 @@ void FPCUTPT::assign_cheap(                         //constructor
 
 double check_pitch_sync2(                          //find segmentation
                          BLOBNBOX_IT *blob_it,     //blobs to do
-                         inT16 blob_count,         //no of blobs
-                         inT16 pitch,              //pitch estimate
-                         inT16 pitch_error,        //tolerance
+                         int16_t blob_count,         //no of blobs
+                         int16_t pitch,              //pitch estimate
+                         int16_t pitch_error,        //tolerance
                          STATS *projection,        //vertical
-                         inT16 projection_left,    //edges //scale factor
-                         inT16 projection_right,
+                         int16_t projection_left,    //edges //scale factor
+                         int16_t projection_right,
                          float projection_scale,
-                         inT16 &occupation_count,  //no of occupied cells
+                         int16_t &occupation_count,  //no of occupied cells
                          FPSEGPT_LIST *seg_list,   //output list
-                         inT16 start,              //start of good range
-                         inT16 end                 //end of good range
+                         int16_t start,              //start of good range
+                         int16_t end                 //end of good range
                         ) {
   BOOL8 faking;                  //illegal cut pt
   BOOL8 mid_cut;                 //cheap cut pt.
-  inT16 x;                       //current coord
-  inT16 blob_index;              //blob number
-  inT16 left_edge;               //of word
-  inT16 right_edge;              //of word
-  inT16 array_origin;            //x coord of array
-  inT16 offset;                  //dist to legal area
-  inT16 zero_count;              //projection zero
-  inT16 best_left_x = 0;         //for equals
-  inT16 best_right_x = 0;        //right edge
+  int16_t x;                       //current coord
+  int16_t blob_index;              //blob number
+  int16_t left_edge;               //of word
+  int16_t right_edge;              //of word
+  int16_t array_origin;            //x coord of array
+  int16_t offset;                  //dist to legal area
+  int16_t zero_count;              //projection zero
+  int16_t best_left_x = 0;         //for equals
+  int16_t best_right_x = 0;        //right edge
   TBOX this_box;                  //bounding box
   TBOX next_box;                  //box of next blob
   FPSEGPT *segpt;                //segment point
@@ -327,8 +327,8 @@ double check_pitch_sync2(                          //find segmentation
   double best_cost;              //best path
   double mean_sum;               //computes result
   FPCUTPT *best_end;             //end of best path
-  inT16 best_fake;               //best fake level
-  inT16 best_count;              //no of cuts
+  int16_t best_fake;               //best fake level
+  int16_t best_count;              //no of cuts
   BLOBNBOX_IT this_it;           //copy iterator
   FPSEGPT_IT seg_it = seg_list;  //output iterator
 
@@ -493,31 +493,31 @@ double check_pitch_sync2(                          //find segmentation
  **********************************************************************/
 
 double check_pitch_sync3(                          //find segmentation
-                         inT16 projection_left,    //edges //to be considered 0
-                         inT16 projection_right,
-                         inT16 zero_count,
-                         inT16 pitch,              //pitch estimate
-                         inT16 pitch_error,        //tolerance
+                         int16_t projection_left,    //edges //to be considered 0
+                         int16_t projection_right,
+                         int16_t zero_count,
+                         int16_t pitch,              //pitch estimate
+                         int16_t pitch_error,        //tolerance
                          STATS *projection,        //vertical
                          float projection_scale,   //scale factor
-                         inT16 &occupation_count,  //no of occupied cells
+                         int16_t &occupation_count,  //no of occupied cells
                          FPSEGPT_LIST *seg_list,   //output list
-                         inT16 start,              //start of good range
-                         inT16 end                 //end of good range
+                         int16_t start,              //start of good range
+                         int16_t end                 //end of good range
                         ) {
   BOOL8 faking;                  //illegal cut pt
   BOOL8 mid_cut;                 //cheap cut pt.
-  inT16 left_edge;               //of word
-  inT16 right_edge;              //of word
-  inT16 x;                       //current coord
-  inT16 array_origin;            //x coord of array
-  inT16 offset;                  //dist to legal area
-  inT16 projection_offset;       //from scaled projection
-  inT16 prev_zero;               //previous zero dist
-  inT16 next_zero;               //next zero dist
-  inT16 zero_offset;             //scan window
-  inT16 best_left_x = 0;         //for equals
-  inT16 best_right_x = 0;        //right edge
+  int16_t left_edge;               //of word
+  int16_t right_edge;              //of word
+  int16_t x;                       //current coord
+  int16_t array_origin;            //x coord of array
+  int16_t offset;                  //dist to legal area
+  int16_t projection_offset;       //from scaled projection
+  int16_t prev_zero;               //previous zero dist
+  int16_t next_zero;               //next zero dist
+  int16_t zero_offset;             //scan window
+  int16_t best_left_x = 0;         //for equals
+  int16_t best_right_x = 0;        //right edge
   FPSEGPT *segpt;                //segment point
   FPCUTPT *cutpts;               //array of points
   BOOL8 *mins;                   //local min results
@@ -526,8 +526,8 @@ double check_pitch_sync3(                          //find segmentation
   double best_cost;              //best path
   double mean_sum;               //computes result
   FPCUTPT *best_end;             //end of best path
-  inT16 best_fake;               //best fake level
-  inT16 best_count;              //no of cuts
+  int16_t best_fake;               //best fake level
+  int16_t best_count;              //no of cuts
   FPSEGPT_IT seg_it = seg_list;  //output iterator
 
   end = (end - start) % pitch;
@@ -536,7 +536,7 @@ double check_pitch_sync3(                          //find segmentation
   if ((pitch - 3) / 2 < pitch_error)
     pitch_error = (pitch - 3) / 2;
                                  //min dist of zero
-  zero_offset = (inT16) (pitch * pitsync_joined_edge);
+  zero_offset = (int16_t) (pitch * pitsync_joined_edge);
   for (left_edge = projection_left; projection->pile_count (left_edge) == 0
     && left_edge < projection_right; left_edge++);
   for (right_edge = projection_right; projection->pile_count (right_edge) == 0
@@ -603,7 +603,7 @@ double check_pitch_sync3(                          //find segmentation
       }
       else {
         projection_offset =
-          (inT16) (projection->pile_count (x) / projection_scale);
+          (int16_t) (projection->pile_count (x) / projection_scale);
         if (projection_offset > offset)
           offset = projection_offset;
         mid_cut = TRUE;

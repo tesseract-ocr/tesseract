@@ -53,11 +53,11 @@ ROW *fixed_pitch_words(                 //find lines
                        FCOORD rotation  //for drawing
                       ) {
   BOOL8 bol;                     //start of line
-  uinT8 blanks;                  //in front of word
-  uinT8 new_blanks;              //blanks in empty cell
-  inT16 chop_coord;              //chop boundary
-  inT16 prev_chop_coord;         //start of cell
-  inT16 rep_left;                //left edge of rep word
+  uint8_t blanks;                  //in front of word
+  uint8_t new_blanks;              //blanks in empty cell
+  int16_t chop_coord;              //chop boundary
+  int16_t prev_chop_coord;         //start of cell
+  int16_t rep_left;                //left edge of rep word
   ROW *real_row;                 //output row
   C_OUTLINE_LIST left_coutlines;
   C_OUTLINE_LIST right_coutlines;
@@ -68,8 +68,8 @@ ROW *fixed_pitch_words(                 //find lines
                                  //repeated blobs
   WERD_IT rep_it = &row->rep_words;
   WERD *word;                    //new word
-  inT32 xstarts[2];              //row ends
-  inT32 prev_x;                  //end of prev blob
+  int32_t xstarts[2];              //row ends
+  int32_t prev_x;                  //end of prev blob
                                  //iterator
   BLOBNBOX_IT box_it = row->blob_list ();
                                  //boundaries
@@ -137,14 +137,14 @@ ROW *fixed_pitch_words(                 //find lines
     } else {
       if (rep_left < chop_coord) {
         if (rep_left > prev_chop_coord)
-          new_blanks = (uinT8) floor ((rep_left - prev_chop_coord)
+          new_blanks = (uint8_t) floor ((rep_left - prev_chop_coord)
             / row->fixed_pitch + 0.5);
         else
           new_blanks = 0;
       }
       else {
         if (chop_coord > prev_chop_coord)
-          new_blanks = (uinT8) floor ((chop_coord - prev_chop_coord)
+          new_blanks = (uint8_t) floor ((chop_coord - prev_chop_coord)
             / row->fixed_pitch + 0.5);
         else
           new_blanks = 0;
@@ -189,7 +189,7 @@ ROW *fixed_pitch_words(                 //find lines
   if (prev_chop_coord > prev_x)
     prev_x = prev_chop_coord;
   xstarts[1] = prev_x + 1;
-  real_row = new ROW (row, (inT16) row->kern_size, (inT16) row->space_size);
+  real_row = new ROW (row, (int16_t) row->kern_size, (int16_t) row->space_size);
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
   word_it.add_list_after (&words);
@@ -206,17 +206,17 @@ ROW *fixed_pitch_words(                 //find lines
 
 WERD *add_repeated_word(                         //move repeated word
                         WERD_IT *rep_it,         //repeated words
-                        inT16 &rep_left,         //left edge of word
-                        inT16 &prev_chop_coord,  //previous word end
-                        uinT8 &blanks,           //no of blanks
+                        int16_t &rep_left,         //left edge of word
+                        int16_t &prev_chop_coord,  //previous word end
+                        uint8_t &blanks,           //no of blanks
                         float pitch,             //char cell size
                         WERD_IT *word_it         //list of words
                        ) {
   WERD *word;                    //word to move
-  inT16 new_blanks;              //extra blanks
+  int16_t new_blanks;              //extra blanks
 
   if (rep_left > prev_chop_coord) {
-    new_blanks = (uinT8) floor ((rep_left - prev_chop_coord) / pitch + 0.5);
+    new_blanks = (uint8_t) floor ((rep_left - prev_chop_coord) / pitch + 0.5);
     blanks += new_blanks;
   }
   word = rep_it->extract ();
@@ -242,7 +242,7 @@ WERD *add_repeated_word(                         //move repeated word
 
 void split_to_blob(                                 //split the blob
                    BLOBNBOX *blob,                  //blob to split
-                   inT16 chop_coord,                //place to chop
+                   int16_t chop_coord,                //place to chop
                    float pitch_error,               //allowed deviation
                    C_OUTLINE_LIST *left_coutlines,  //for cblobs
                    C_OUTLINE_LIST *right_coutlines) {
@@ -272,7 +272,7 @@ void split_to_blob(                                 //split the blob
 
 void fixed_chop_cblob(                                //split the blob
                       C_BLOB *blob,                   //blob to split
-                      inT16 chop_coord,               //place to chop
+                      int16_t chop_coord,               //place to chop
                       float pitch_error,              //allowed deviation
                       C_OUTLINE_LIST *left_outlines,  //left half of chop
                       C_OUTLINE_LIST *right_outlines  //right half of chop
@@ -318,7 +318,7 @@ void fixed_chop_cblob(                                //split the blob
 
 void fixed_split_coutline(                        //chop the outline
                           C_OUTLINE *srcline,     //source outline
-                          inT16 chop_coord,       //place to chop
+                          int16_t chop_coord,       //place to chop
                           float pitch_error,      //allowed deviation
                           C_OUTLINE_IT *left_it,  //left half of chop
                           C_OUTLINE_IT *right_it  //right half of chop
@@ -400,22 +400,22 @@ void fixed_split_coutline(                        //chop the outline
 
 BOOL8 fixed_chop_coutline(                                  //chop the outline
                           C_OUTLINE *srcline,               //source outline
-                          inT16 chop_coord,                 //place to chop
+                          int16_t chop_coord,                 //place to chop
                           float pitch_error,                //allowed deviation
                           C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
                           C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
                          ) {
   BOOL8 first_frag;              //fragment
-  inT16 left_edge;               //of outline
-  inT16 startindex;              //in first fragment
-  inT32 length;                  //of outline
-  inT16 stepindex;               //into outline
-  inT16 head_index;              //start of fragment
+  int16_t left_edge;               //of outline
+  int16_t startindex;              //in first fragment
+  int32_t length;                  //of outline
+  int16_t stepindex;               //into outline
+  int16_t head_index;              //start of fragment
   ICOORD head_pos;               //start of fragment
-  inT16 tail_index;              //end of fragment
+  int16_t tail_index;              //end of fragment
   ICOORD tail_pos;               //end of fragment
   ICOORD pos;                    //current point
-  inT16 first_index = 0;         //first tail
+  int16_t first_index = 0;         //first tail
   ICOORD first_pos;              //first tail
 
   length = srcline->pathlength ();
@@ -520,18 +520,18 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
  **********************************************************************/
 
 void save_chop_cfragment(                            //chop the outline
-                         inT16 head_index,           //head of fragment
+                         int16_t head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment
-                         inT16 tail_index,           //tail of fragment
+                         int16_t tail_index,           //tail of fragment
                          ICOORD tail_pos,            //tail of fragment
                          C_OUTLINE *srcline,         //source of edgesteps
                          C_OUTLINE_FRAG_LIST *frags  //fragment list
                         ) {
-  inT16 jump;                    //gap across end
-  inT16 stepcount;               //total steps
+  int16_t jump;                    //gap across end
+  int16_t stepcount;               //total steps
   C_OUTLINE_FRAG *head;          //head of fragment
   C_OUTLINE_FRAG *tail;          //tail of fragment
-  inT16 tail_y;                  //ycoord of tail
+  int16_t tail_y;                  //ycoord of tail
 
   ASSERT_HOST (tail_pos.x () == head_pos.x ());
   ASSERT_HOST (tail_index != head_index);
@@ -563,8 +563,8 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG(                     //record fragment
                                ICOORD start_pt,     //start coord
                                ICOORD end_pt,       //end coord
                                C_OUTLINE *outline,  //source of steps
-                               inT16 start_index,
-                               inT16 end_index) {
+                               int16_t start_index,
+                               int16_t end_index) {
   start = start_pt;
   end = end_pt;
   ycoord = start_pt.y ();
@@ -593,7 +593,7 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG(                     //record fragment
 
 C_OUTLINE_FRAG::C_OUTLINE_FRAG(                       //record fragment
                                C_OUTLINE_FRAG *head,  //other end
-                               inT16 tail_y) {
+                               int16_t tail_y) {
   ycoord = tail_y;
   other_end = head;
   start = head->start;
@@ -742,8 +742,8 @@ void join_segments(                         //join pieces
                    C_OUTLINE_FRAG *top      //top of cut
                   ) {
   DIR128 *steps;                  //new steps
-  inT32 stepcount;               //no of steps
-  inT16 fake_count;              //fake steps
+  int32_t stepcount;               //no of steps
+  int16_t fake_count;              //fake steps
   DIR128 fake_step;               //step entry
 
   ASSERT_HOST (bottom->end.x () == top->start.x ());
@@ -777,8 +777,8 @@ void join_segments(                         //join pieces
 
 C_OUTLINE *C_OUTLINE_FRAG::close() {  //join pieces
   DIR128 *new_steps;              //new steps
-  inT32 new_stepcount;           //no of steps
-  inT16 fake_count;              //fake steps
+  int32_t new_stepcount;           //no of steps
+  int16_t fake_count;              //fake steps
   DIR128 fake_step;               //step entry
 
   ASSERT_HOST (start.x () == end.x ());

@@ -40,13 +40,13 @@ GAPMAP::GAPMAP(                 //Constructor
   BLOBNBOX_IT blob_it;           //iterator
   TBOX blob_box;
   TBOX prev_blob_box;
-  inT16 gap_width;
-  inT16 start_of_row;
-  inT16 end_of_row;
+  int16_t gap_width;
+  int16_t start_of_row;
+  int16_t end_of_row;
   STATS xht_stats (0, 128);
-  inT16 min_quantum;
-  inT16 max_quantum;
-  inT16 i;
+  int16_t min_quantum;
+  int16_t max_quantum;
+  int16_t i;
 
   row_it.set_to_list (block->get_rows ());
   /*
@@ -61,7 +61,7 @@ GAPMAP::GAPMAP(                 //Constructor
     row = row_it.data ();
     if (!row->blob_list ()->empty ()) {
       total_rows++;
-      xht_stats.add ((inT16) floor (row->xheight + 0.5), 1);
+      xht_stats.add ((int16_t) floor (row->xheight + 0.5), 1);
       blob_it.set_to_list (row->blob_list ());
       start_of_row = blob_it.data ()->bounding_box ().left ();
       end_of_row = blob_it.data_relative (-1)->bounding_box ().right ();
@@ -76,9 +76,9 @@ GAPMAP::GAPMAP(                 //Constructor
     min_left = max_right = 0;
     return;
   }
-  bucket_size = (inT16) floor (xht_stats.median () + 0.5) / 2;
+  bucket_size = (int16_t) floor (xht_stats.median () + 0.5) / 2;
   map_max = (max_right - min_left) / bucket_size;
-  map = (inT16 *) alloc_mem ((map_max + 1) * sizeof (inT16));
+  map = (int16_t *) alloc_mem ((map_max + 1) * sizeof (int16_t));
   for (i = 0; i <= map_max; i++)
     map[i] = 0;
 
@@ -157,12 +157,12 @@ GAPMAP::GAPMAP(                 //Constructor
  *************************************************************************/
 
 BOOL8 GAPMAP::table_gap(             //Is gap a table?
-                        inT16 left,  //From here
-                        inT16 right  //To here
+                        int16_t left,  //From here
+                        int16_t right  //To here
                        ) {
-  inT16 min_quantum;
-  inT16 max_quantum;
-  inT16 i;
+  int16_t min_quantum;
+  int16_t max_quantum;
+  int16_t i;
   BOOL8 tab_found = FALSE;
 
   if (!any_tabs)
