@@ -59,13 +59,9 @@ typedef unsigned char LanguageModelFlagsType;
 /// component. It stores the set of active dawgs in which the sequence of
 /// letters on a path can be found.
 struct LanguageModelDawgInfo {
-  LanguageModelDawgInfo(DawgPositionVector *a, PermuterType pt) : permuter(pt) {
-    active_dawgs = new DawgPositionVector(*a);
-  }
-  ~LanguageModelDawgInfo() {
-    delete active_dawgs;
-  }
-  DawgPositionVector *active_dawgs;
+  LanguageModelDawgInfo(const DawgPositionVector *a, PermuterType pt)
+    : active_dawgs(*a), permuter(pt) {}
+  DawgPositionVector active_dawgs;
   PermuterType permuter;
 };
 

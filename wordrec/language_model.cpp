@@ -796,7 +796,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     dawg_args_->permuter = NO_PERM;
   } else {
     if (parent_vse->dawg_info == NULL) return NULL;  // not a dict word path
-    dawg_args_->active_dawgs = parent_vse->dawg_info->active_dawgs;
+    dawg_args_->active_dawgs = &parent_vse->dawg_info->active_dawgs;
     dawg_args_->permuter = parent_vse->dawg_info->permuter;
   }
 
@@ -822,8 +822,8 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     int i;
     // Check a that the path terminated before the current character is a word.
     bool has_word_ending = false;
-    for (i = 0; i < parent_vse->dawg_info->active_dawgs->size(); ++i) {
-      const DawgPosition &pos = (*parent_vse->dawg_info->active_dawgs)[i];
+    for (i = 0; i < parent_vse->dawg_info->active_dawgs.size(); ++i) {
+      const DawgPosition &pos = parent_vse->dawg_info->active_dawgs[i];
       const Dawg *pdawg = pos.dawg_index < 0
           ? NULL : dict_->GetDawg(pos.dawg_index);
       if (pdawg == NULL || pos.back_to_punc) continue;;
