@@ -41,7 +41,7 @@ class UNICHARSET;
 // It might be cleanest to change the types of most of the Trie/Dawg related
 // typedefs to int and restrict the casts to extracting these values from
 // the 64 bit EDGE_RECORD.
-typedef inT64 EDGE_INDEX;  // index of an edge in a given node
+typedef int64_t EDGE_INDEX;  // index of an edge in a given node
 typedef bool *NODE_MARKER;
 typedef GenericVector<EDGE_RECORD> EDGE_VECTOR;
 
@@ -417,9 +417,9 @@ class Trie : public Dawg {
 
   // Member variables
   TRIE_NODES nodes_;              // vector of nodes in the Trie
-  uinT64 num_edges_;              // sum of all edges (forward and backward)
-  uinT64 deref_direction_mask_;   // mask for EDGE_REF to extract direction
-  uinT64 deref_node_index_mask_;  // mask for EDGE_REF to extract node index
+  uint64_t num_edges_;              // sum of all edges (forward and backward)
+  uint64_t deref_direction_mask_;   // mask for EDGE_REF to extract direction
+  uint64_t deref_node_index_mask_;  // mask for EDGE_REF to extract node index
   // Freelist of edges in the root backwards node that were previously zeroed.
   GenericVector<EDGE_INDEX> root_back_freelist_;
   // Variables for translating character class codes denoted in user patterns

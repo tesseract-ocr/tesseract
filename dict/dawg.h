@@ -39,10 +39,10 @@
 
 #ifndef __GNUC__
 #ifdef _WIN32
-#define NO_EDGE                (inT64) 0xffffffffffffffffi64
+#define NO_EDGE                (int64_t) 0xffffffffffffffffi64
 #endif  /*_WIN32*/
 #else
-#define NO_EDGE                (inT64) 0xffffffffffffffffll
+#define NO_EDGE                (int64_t) 0xffffffffffffffffll
 #endif /*__GNUC__*/
 
 /*----------------------------------------------------------------------
@@ -50,10 +50,10 @@
 ----------------------------------------------------------------------*/
 class UNICHARSET;
 
-typedef uinT64 EDGE_RECORD;
+typedef uint64_t EDGE_RECORD;
 typedef EDGE_RECORD *EDGE_ARRAY;
-typedef inT64 EDGE_REF;
-typedef inT64 NODE_REF;
+typedef int64_t EDGE_REF;
+typedef int64_t NODE_REF;
 typedef EDGE_REF *NODE_MAP;
 
 namespace tesseract {
@@ -82,12 +82,12 @@ enum DawgType {
               C o n s t a n t s
 ----------------------------------------------------------------------*/
 
-#define FORWARD_EDGE           (inT32) 0
-#define BACKWARD_EDGE          (inT32) 1
-#define MAX_NODE_EDGES_DISPLAY (inT64) 100
-#define MARKER_FLAG            (inT64) 1
-#define DIRECTION_FLAG         (inT64) 2
-#define WERD_END_FLAG          (inT64) 4
+#define FORWARD_EDGE           (int32_t) 0
+#define BACKWARD_EDGE          (int32_t) 1
+#define MAX_NODE_EDGES_DISPLAY (int64_t) 100
+#define MARKER_FLAG            (int64_t) 1
+#define DIRECTION_FLAG         (int64_t) 2
+#define WERD_END_FLAG          (int64_t) 4
 #define LETTER_START_BIT       0
 #define NUM_FLAG_BITS          3
 #define REFFORMAT "%" PRId64
@@ -119,7 +119,7 @@ static const char kWildcard[] = "*";
 class Dawg {
  public:
   /// Magic number to determine endianness when reading the Dawg from file.
-  static const inT16 kDawgMagicNumber = 42;
+  static const int16_t kDawgMagicNumber = 42;
   /// A special unichar id that indicates that any appropriate pattern
   /// (e.g.dicitonary word, 0-9 digit, etc) can be inserted instead
   /// Used for expressing patterns in punctuation and number Dawgs.
@@ -289,7 +289,7 @@ class Dawg {
   /// the *'s in this string are interpreted as wildcards.
   /// WERD_CHOICE param is not passed by const so that wildcard searches
   /// can modify it and work without having to copy WERD_CHOICEs.
-  bool match_words(WERD_CHOICE *word, inT32 index,
+  bool match_words(WERD_CHOICE *word, int32_t index,
                    NODE_REF node, UNICHAR_ID wildcard) const;
 
   // Recursively iterate over all words in a dawg (see public iterate_words).
@@ -303,15 +303,15 @@ class Dawg {
   /// Permuter code that should be used if the word is found in this Dawg.
   PermuterType perm_;
   // Variables to construct various edge masks. Formerly:
-  // #define NEXT_EDGE_MASK (inT64) 0xfffffff800000000i64
-  // #define FLAGS_MASK     (inT64) 0x0000000700000000i64
-  // #define LETTER_MASK    (inT64) 0x00000000ffffffffi64
+  // #define NEXT_EDGE_MASK (int64_t) 0xfffffff800000000i64
+  // #define FLAGS_MASK     (int64_t) 0x0000000700000000i64
+  // #define LETTER_MASK    (int64_t) 0x00000000ffffffffi64
   int unicharset_size_;
   int flag_start_bit_;
   int next_node_start_bit_;
-  uinT64 next_node_mask_;
-  uinT64 flags_mask_;
-  uinT64 letter_mask_;
+  uint64_t next_node_mask_;
+  uint64_t flags_mask_;
+  uint64_t letter_mask_;
   // Level of debug statements to print to stdout.
   int debug_level_;
 };
@@ -370,9 +370,9 @@ struct DawgPosition {
         back_to_punc == other.back_to_punc;
   }
 
-  inT8 dawg_index;
+  int8_t dawg_index;
   EDGE_REF dawg_ref;
-  inT8 punc_index;
+  int8_t punc_index;
   EDGE_REF punc_ref;
   // Have we returned to the punc dawg at the end of the word?
   bool back_to_punc;
@@ -539,7 +539,7 @@ class SquishedDawg : public Dawg {
   }
 
   /// Counts and returns the number of forward edges in this node.
-  inT32 num_forward_edges(NODE_REF node) const;
+  int32_t num_forward_edges(NODE_REF node) const;
 
   /// Reads SquishedDawg from a file.
   bool read_squished_dawg(TFile *file);
@@ -554,11 +554,11 @@ class SquishedDawg : public Dawg {
     tprintf("__________________________\n");
   }
   /// Constructs a mapping from the memory node indices to disk node indices.
-  std::unique_ptr<EDGE_REF[]> build_node_map(inT32 *num_nodes) const;
+  std::unique_ptr<EDGE_REF[]> build_node_map(int32_t *num_nodes) const;
 
   // Member variables.
   EDGE_ARRAY edges_;
-  inT32 num_edges_;
+  int32_t num_edges_;
   int num_forward_edges_in_node0;
 };
 

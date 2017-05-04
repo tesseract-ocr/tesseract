@@ -38,13 +38,13 @@ typedef UNICHAR_ID CLASS_ID;
 /** a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
-typedef inT16 PROTO_ID;
+typedef int16_t PROTO_ID;
 #define NO_PROTO  (-1)
 
 /** FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number
   of features in a character description. */
-typedef uinT8 FEATURE_ID;
+typedef uint8_t FEATURE_ID;
 #define NO_FEATURE      255
 #define NOISE_FEATURE   254
 #define MISSING_PROTO   254

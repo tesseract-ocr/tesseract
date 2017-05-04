@@ -190,8 +190,8 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
   bool marker_flag = false;
   EDGE_INDEX edge_index;
   int i;
-  inT32 still_finding_chars = true;
-  inT32 word_end = false;
+  int32_t still_finding_chars = true;
+  int32_t word_end = false;
   bool  add_failed = false;
   bool found;
 

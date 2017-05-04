@@ -32,7 +32,7 @@
 class MATRIX;
 class WERD_RES;
 
-#define MAX_WERD_LENGTH        (inT64) 128
+#define MAX_WERD_LENGTH        (int64_t) 128
 #define NO_RATING               -1
 
 /** Struct used to hold temporary information about fragments. */
@@ -452,7 +452,7 @@ class Dict {
   /// non-space-delimited languages).
 
   /// Check all the DAWGs to see if this word is in any of them.
-  inline static bool valid_word_permuter(uinT8 perm, bool numbers_ok) {
+  inline static bool valid_word_permuter(uint8_t perm, bool numbers_ok) {
     return (perm == SYSTEM_DAWG_PERM || perm == FREQ_DAWG_PERM ||
             perm == DOC_DAWG_PERM || perm == USER_DAWG_PERM ||
             perm == USER_PATTERN_PERM || perm == COMPOUND_PERM ||
