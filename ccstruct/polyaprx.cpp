@@ -556,7 +556,7 @@ void cutline(                //recursive refine
   perp = LENGTH (vecsum);
   ASSERT_HOST (perp != 0);
 
-  if (maxperp < 256 * MAX_INT16) {
+  if (maxperp < 256 * INT16_MAX) {
     maxperp <<= 8;
     maxperp /= perp;             /*true max perp */
   }
@@ -564,7 +564,7 @@ void cutline(                //recursive refine
     maxperp /= perp;
     maxperp <<= 8;               /*avoid overflow */
   }
-  if (squaresum < 256 * MAX_INT16)
+  if (squaresum < 256 * INT16_MAX)
                                  /*mean squared perp */
     perp = (squaresum << 8) / (perp * ptcount);
   else

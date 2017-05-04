@@ -30,7 +30,7 @@
 #endif
 
 #define PBLOCK_LABEL_SIZE 150
-#define INTERSECTING MAX_INT16
+#define INTERSECTING INT16_MAX
 
 int lessthan(const void *first, const void *second);
 

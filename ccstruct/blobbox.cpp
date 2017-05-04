@@ -137,8 +137,8 @@ void BLOBNBOX::chop(                        //chop blobs
     blobwidth = (float) (box.width () + 1) / blobcount;
     for (blobindex = blobcount - 1, rightx = box.right ();
     blobindex >= 0; blobindex--, rightx -= blobwidth) {
-      ymin = (float) MAX_INT32;
-      ymax = (float) -MAX_INT32;
+      ymin = (float) INT32_MAX;
+      ymax = (float) -INT32_MAX;
       blob_it = *start_it;
       do {
         blob = blob_it.data ();
@@ -175,7 +175,7 @@ void BLOBNBOX::chop(                        //chop blobs
 // indexed by BlobNeighbourDir.
 void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    gaps[dir] = MAX_INT16;
+    gaps[dir] = INT16_MAX;
     BLOBNBOX* neighbour = neighbours_[dir];
     if (neighbour != NULL) {
       const TBOX& n_box = neighbour->bounding_box();
@@ -505,8 +505,8 @@ void find_cblob_limits(                  //get y limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) MAX_INT32;
-  ymax = (float) -MAX_INT32;
+  ymin = (float) INT32_MAX;
+  ymax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -544,8 +544,8 @@ void find_cblob_vlimits(               //get y limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) MAX_INT32;
-  ymax = (float) -MAX_INT32;
+  ymin = (float) INT32_MAX;
+  ymax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -581,8 +581,8 @@ void find_cblob_hlimits(                //get x limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  xmin = (float) MAX_INT32;
-  xmax = (float) -MAX_INT32;
+  xmin = (float) INT32_MAX;
+  xmax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords

@@ -29,7 +29,7 @@
 
 class DENORM;
 
-#define INTERSECTING    MAX_INT16//no winding number
+#define INTERSECTING    INT16_MAX//no winding number
 
                                  //mask to get step
 #define STEP_MASK       3

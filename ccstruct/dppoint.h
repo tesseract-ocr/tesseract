@@ -49,7 +49,7 @@ class DPPoint {
   typedef int64_t (DPPoint::*CostFunc)(const DPPoint* prev);
 
   DPPoint()
-    : local_cost_(0), total_cost_(MAX_INT32), total_steps_(1), best_prev_(NULL),
+    : local_cost_(0), total_cost_(INT32_MAX), total_steps_(1), best_prev_(NULL),
       n_(0), sig_x_(0), sig_xsq_(0) {
   }
 

@@ -375,7 +375,7 @@ int32_t STATS::cluster(float lower,         // thresholds
       count = buckets_[entry] - clusters[0].buckets_[entry];
       //remaining pile
       if (count > 0) {           //any to handle
-        min_dist = static_cast<float>(MAX_INT32);
+        min_dist = static_cast<float>(INT32_MAX);
         best_cluster = 0;
         for (cluster = 1; cluster <= cluster_count; cluster++) {
           dist = entry + rangemin_ - centres[cluster];

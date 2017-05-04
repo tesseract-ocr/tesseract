@@ -112,10 +112,10 @@ TBOX TBOX::intersection(  //shared area box
       top = top_right.y ();
   }
   else {
-    left = MAX_INT16;
-    bottom = MAX_INT16;
-    top = -MAX_INT16;
-    right = -MAX_INT16;
+    left = INT16_MAX;
+    bottom = INT16_MAX;
+    top = -INT16_MAX;
+    right = -INT16_MAX;
   }
   return TBOX (left, bottom, right, top);
 }
@@ -242,10 +242,10 @@ TBOX& operator&=(TBOX& op1, const TBOX& op2) {
       op1.top_right.set_y (op2.top_right.y ());
   }
   else {
-    op1.bot_left.set_x (MAX_INT16);
-    op1.bot_left.set_y (MAX_INT16);
-    op1.top_right.set_x (-MAX_INT16);
-    op1.top_right.set_y (-MAX_INT16);
+    op1.bot_left.set_x (INT16_MAX);
+    op1.bot_left.set_y (INT16_MAX);
+    op1.top_right.set_x (-INT16_MAX);
+    op1.top_right.set_y (-INT16_MAX);
   }
   return op1;
 }

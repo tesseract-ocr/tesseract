@@ -896,8 +896,8 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
   word_choice->set_permuter(permuter);
   for (int b = 0; b < num_blobs; ++b) {
     UNICHAR_ID unichar_id = UNICHAR_SPACE;
-    float rating = MAX_INT32;
-    float certainty = -MAX_INT32;
+    float rating = INT32_MAX;
+    float certainty = -INT32_MAX;
     BLOB_CHOICE_LIST* choices = ratings->get(b, b);
     if (choices != NULL && !choices->empty()) {
       BLOB_CHOICE_IT bc_it(choices);
@@ -1307,7 +1307,7 @@ static void ComputeBlobEnds(const WERD_RES& word, C_BLOB_LIST* next_word_blobs,
     }
     // This blob_box is crap, so for now we are only looking for the
     // boundaries between them.
-    int blob_end = MAX_INT32;
+    int blob_end = INT32_MAX;
     if (!blob_it.at_first() || next_word_blobs != NULL) {
       if (blob_it.at_first())
         blob_it.set_to_list(next_word_blobs);

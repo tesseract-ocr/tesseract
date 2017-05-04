@@ -30,7 +30,7 @@
 class DLLSYM TBOX  {  // bounding box
   public:
     TBOX ():       // empty constructor making a null box
-    bot_left (MAX_INT16, MAX_INT16), top_right (-MAX_INT16, -MAX_INT16) {
+    bot_left (INT16_MAX, INT16_MAX), top_right (-INT16_MAX, -INT16_MAX) {
     }
 
     TBOX(          // constructor

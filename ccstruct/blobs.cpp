@@ -223,10 +223,10 @@ void TESSLINE::SetupFromPos() {
 
 // Recomputes the bounding box from the points in the loop.
 void TESSLINE::ComputeBoundingBox() {
-  int minx = MAX_INT32;
-  int miny = MAX_INT32;
-  int maxx = -MAX_INT32;
-  int maxy = -MAX_INT32;
+  int minx = INT32_MAX;
+  int miny = INT32_MAX;
+  int maxx = -INT32_MAX;
+  int maxy = -INT32_MAX;
 
   // Find boundaries.
   start = loop->pos;
@@ -258,8 +258,8 @@ void TESSLINE::ComputeBoundingBox() {
 // have to divide by the modulus of vec.
 void TESSLINE::MinMaxCrossProduct(const TPOINT vec,
                                   int* min_xp, int* max_xp) const {
-  *min_xp = MAX_INT32;
-  *max_xp = MIN_INT32;
+  *min_xp = INT32_MAX;
+  *max_xp = INT32_MIN;
   EDGEPT* this_edge = loop;
   do {
     if (!this_edge->IsHidden() || !this_edge->prev->IsHidden()) {
