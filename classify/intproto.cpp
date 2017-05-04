@@ -215,9 +215,9 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta)
 }
 /** Builds a feature from ints with all the necessary clipping and casting. */
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
-  : X(static_cast<uint8_t>(ClipToRange(x, 0, MAX_UINT8))),
-    Y(static_cast<uint8_t>(ClipToRange(y, 0, MAX_UINT8))),
-    Theta(static_cast<uint8_t>(ClipToRange(theta, 0, MAX_UINT8))),
+  : X(static_cast<uint8_t>(ClipToRange(x, 0, UINT8_MAX))),
+    Y(static_cast<uint8_t>(ClipToRange(y, 0, UINT8_MAX))),
+    Theta(static_cast<uint8_t>(ClipToRange(theta, 0, UINT8_MAX))),
     CP_misses(0) {
 }
 
@@ -1645,9 +1645,9 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
       Filler->StartDelta = static_cast<int16_t>(ClipToRange<int>(
-          -IntCastRounded((Sin / Cos) * 256), MIN_INT16, MAX_INT16));
+          -IntCastRounded((Sin / Cos) * 256), INT16_MIN, INT16_MAX));
       Filler->EndDelta = static_cast<int16_t>(ClipToRange<int>(
-          IntCastRounded((Cos / Sin) * 256), MIN_INT16, MAX_INT16));
+          IntCastRounded((Cos / Sin) * 256), INT16_MIN, INT16_MAX));
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;

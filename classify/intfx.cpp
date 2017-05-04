@@ -155,7 +155,7 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
     blob.GetPreciseBoundingBox(&box);
     box.pad(1, 1);
     blob.GetEdgeCoords(box, &x_coords, &y_coords);
-    cn_denorm->SetupNonLinear(&blob.denorm(), box, MAX_UINT8, MAX_UINT8,
+    cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX,
                               0.0f, 0.0f, x_coords, y_coords);
   } else {
     cn_denorm->SetupNormalization(NULL, NULL, &blob.denorm(),

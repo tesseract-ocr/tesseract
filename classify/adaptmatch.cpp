@@ -91,7 +91,7 @@ struct ADAPT_RESULTS {
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
   inline void Initialize() {
-    BlobLength = MAX_INT32;
+    BlobLength = INT32_MAX;
     HasNonfragment = false;
     ComputeBest();
   }
@@ -1740,7 +1740,7 @@ void Classify::ComputeCharNormArrays(FEATURE_STRUCT* norm_feature,
     if (shape_table_ == NULL) {
       ComputeIntCharNormArray(*norm_feature, pruner_array);
     } else {
-      memset(pruner_array, MAX_UINT8,
+      memset(pruner_array, UINT8_MAX,
              templates->NumClasses * sizeof(pruner_array[0]));
       // Each entry in the pruner norm array is the MIN of all the entries of
       // the corresponding unichars in the CharNormArray.

@@ -169,11 +169,11 @@ TrainingSample* TrainingSample::RandomizedCopy(int index) const {
       double result = (features_[i].X - kRandomizingCenter) * scaling;
       result += kRandomizingCenter;
       sample->features_[i].X = ClipToRange(static_cast<int>(result + 0.5), 0,
-                                           MAX_UINT8);
+                                           UINT8_MAX);
       result = (features_[i].Y - kRandomizingCenter) * scaling;
       result += kRandomizingCenter + yshift;
       sample->features_[i].Y = ClipToRange(static_cast<int>(result + 0.5), 0,
-                                           MAX_UINT8);
+                                           UINT8_MAX);
     }
   }
   return sample;

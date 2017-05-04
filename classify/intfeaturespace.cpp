@@ -92,7 +92,7 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
   // Round the x,y position to a feature. Search for a valid theta.
   INT_FEATURE_STRUCT feature(x, y, 0);
   int index = -1;
-  for (int theta = 0; theta <= MAX_UINT8 && index < 0; ++theta) {
+  for (int theta = 0; theta <= UINT8_MAX && index < 0; ++theta) {
     feature.Theta = theta;
     index = Index(feature);
   }
