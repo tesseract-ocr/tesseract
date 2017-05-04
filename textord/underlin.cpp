@@ -126,7 +126,7 @@ TO_ROW *most_overlapping_row(                    //find best row
   float bestover;                //best overlap
 
   best_row = NULL;
-  bestover = (float) -MAX_INT32;
+  bestover = (float) -INT32_MAX;
   if (row_it.empty ())
     return NULL;
   row = row_it.data ();

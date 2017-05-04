@@ -107,7 +107,7 @@ FPSEGPT_LIST * prev_list         //previous segment
   pred = NULL;
   faked = faking;
   terminal = FALSE;
-  best_fake = MAX_INT16;
+  best_fake = INT16_MAX;
   mid_cuts = 0;
   for (pred_it.mark_cycle_pt (); !pred_it.cycled_list (); pred_it.forward ()) {
     segpt = pred_it.data ();

@@ -66,8 +66,8 @@ extern BOOL_VAR_H (textord_fix_makerow_bug, TRUE,
 extern BOOL_VAR_H (textord_cblob_blockocc, TRUE,
 "Use new projection for underlines");
 extern BOOL_VAR_H (textord_debug_xheights, FALSE, "Test xheight algorithms");
-extern INT_VAR_H (textord_test_x, -MAX_INT32, "coord of test pt");
-extern INT_VAR_H (textord_test_y, -MAX_INT32, "coord of test pt");
+extern INT_VAR_H (textord_test_x, -INT32_MAX, "coord of test pt");
+extern INT_VAR_H (textord_test_y, -INT32_MAX, "coord of test pt");
 extern INT_VAR_H (textord_min_blobs_in_row, 4,
 "Min blobs before gradient counted");
 extern INT_VAR_H (textord_spline_minblobs, 8,

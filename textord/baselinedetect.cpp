@@ -745,8 +745,8 @@ double BaselineBlock::FitLineSpacingModel(
   double median_offset = MedianOfCircularValues(m_in, &offsets);
   // Now fit a line to quantized line number and offset.
   LLSQ llsq;
-  int min_index = MAX_INT32;
-  int max_index = -MAX_INT32;
+  int min_index = INT32_MAX;
+  int max_index = -INT32_MAX;
   for (int i = 0; i < positions.size(); ++i) {
     double y_pos = positions[i];
     int row_index = IntCastRounded((y_pos - median_offset) / m_in);

@@ -433,8 +433,8 @@ BOOL8 try_doc_fixed(                             //determine pitch
   row_it.set_to_list (block_it.data ()->get_rows ());
   master_x = row_it.data ()->projection_left;
   master_y = row_it.data ()->baseline.y (master_x);
-  projection_left = MAX_INT16;
-  projection_right = -MAX_INT16;
+  projection_left = INT16_MAX;
+  projection_right = -INT16_MAX;
   prop_blocks = 0;
   fixed_blocks = 0;
   total_row_count = 0;

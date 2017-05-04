@@ -81,11 +81,11 @@ ROW *fixed_pitch_words(                 //find lines
   }
 #endif
 
-  prev_x = -MAX_INT16;
+  prev_x = -INT16_MAX;
   bol = TRUE;
   blanks = 0;
   if (rep_it.empty ())
-    rep_left = MAX_INT16;
+    rep_left = INT16_MAX;
   else
     rep_left = rep_it.data ()->bounding_box ().left ();
   if (box_it.empty ())
@@ -225,7 +225,7 @@ WERD *add_repeated_word(                         //move repeated word
   word->set_blanks (blanks);
   rep_it->forward ();
   if (rep_it->empty ())
-    rep_left = MAX_INT16;
+    rep_left = INT16_MAX;
   else
     rep_left = rep_it->data ()->bounding_box ().left ();
   blanks = 0;

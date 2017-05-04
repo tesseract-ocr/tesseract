@@ -142,13 +142,13 @@ void FPCUTPT::assign(                         //constructor
   faked = faking;
   terminal = FALSE;
   region_index = 0;
-  fake_count = MAX_INT16;
+  fake_count = INT16_MAX;
   for (index = x - pitch - pitch_error; index <= x - pitch + pitch_error;
   index++) {
     if (index >= array_origin) {
       segpt = &cutpts[index - array_origin];
       dist = x - segpt->xpos;
-      if (!segpt->terminal && segpt->fake_count < MAX_INT16) {
+      if (!segpt->terminal && segpt->fake_count < INT16_MAX) {
         balance_count = 0;
         if (textord_balance_factor > 0) {
           if (textord_fast_pitch_test) {
@@ -249,12 +249,12 @@ void FPCUTPT::assign_cheap(                         //constructor
   faked = faking;
   terminal = FALSE;
   region_index = 0;
-  fake_count = MAX_INT16;
+  fake_count = INT16_MAX;
   index = x - pitch;
   if (index >= array_origin) {
     segpt = &cutpts[index - array_origin];
     dist = x - segpt->xpos;
-    if (!segpt->terminal && segpt->fake_count < MAX_INT16) {
+    if (!segpt->terminal && segpt->fake_count < INT16_MAX) {
       balance_count = 0;
       if (textord_balance_factor > 0) {
         lead_flag = back_balance ^ segpt->fwd_balance;
@@ -414,9 +414,9 @@ double check_pitch_sync2(                          //find segmentation
     x++;
   }
 
-  best_fake = MAX_INT16;
-  best_cost = MAX_INT32;
-  best_count = MAX_INT16;
+  best_fake = INT16_MAX;
+  best_cost = INT32_MAX;
+  best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
     cutpts[x - array_origin].assign (cutpts, array_origin, x,
@@ -444,7 +444,7 @@ double check_pitch_sync2(                          //find segmentation
     }
     x++;
   }
-  ASSERT_HOST (best_fake < MAX_INT16);
+  ASSERT_HOST (best_fake < INT16_MAX);
 
   best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
   if (this_box.right () == textord_test_x
@@ -629,9 +629,9 @@ double check_pitch_sync3(                          //find segmentation
       next_zero = x + zero_offset;
   }
 
-  best_fake = MAX_INT16;
-  best_cost = MAX_INT32;
-  best_count = MAX_INT16;
+  best_fake = INT16_MAX;
+  best_cost = INT32_MAX;
+  best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
     cutpts[x - array_origin].assign (cutpts, array_origin, x,
@@ -659,7 +659,7 @@ double check_pitch_sync3(                          //find segmentation
     }
     x++;
   }
-  ASSERT_HOST (best_fake < MAX_INT16);
+  ASSERT_HOST (best_fake < INT16_MAX);
 
   best_end = &cutpts[(best_left_x + best_right_x) / 2 - array_origin];
   //      for (x=left_edge-pitch;x<right_edge+pitch;x++)

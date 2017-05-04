@@ -53,8 +53,8 @@ GAPMAP::GAPMAP(                 //Constructor
     Find left and right extremes and bucket size
   */
   map = NULL;
-  min_left = MAX_INT16;
-  max_right = -MAX_INT16;
+  min_left = INT16_MAX;
+  max_right = -INT16_MAX;
   total_rows = 0;
   any_tabs = FALSE;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {

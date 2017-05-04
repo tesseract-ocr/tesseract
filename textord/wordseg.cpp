@@ -204,7 +204,7 @@ int32_t row_words(                  //compute space size
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = FALSE;
-  prev_x = -MAX_INT32;
+  prev_x = -INT32_MAX;
   testing_row = FALSE;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
@@ -378,7 +378,7 @@ int32_t row_words2(                  //compute space size
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = FALSE;
-  prev_x = -MAX_INT16;
+  prev_x = -INT16_MAX;
   testing_row = FALSE;
                                  //min blob size
   min_width = (int32_t) block->pr_space;
@@ -400,7 +400,7 @@ int32_t row_words2(                  //compute space size
   valid_count = gap_stats.get_total ();
   if (valid_count < total_count * textord_words_minlarge) {
     gap_stats.clear ();
-    prev_x = -MAX_INT16;
+    prev_x = -INT16_MAX;
     for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
     blob_it.forward ()) {
       blob = blob_it.data ();

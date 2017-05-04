@@ -104,7 +104,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
     // new parts in column_set to this.
     ColPartition_IT part_it(&parts_);
     ASSERT_HOST(!part_it.empty());
-    int prev_right = MIN_INT32;
+    int prev_right = INT32_MIN;
     part_it.mark_cycle_pt();
     ColPartition_IT col_it(&column_set->parts_);
     for (col_it.mark_cycle_pt(); !col_it.cycled_list(); col_it.forward()) {

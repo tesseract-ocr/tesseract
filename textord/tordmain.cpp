@@ -206,7 +206,7 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
                               TO_BLOCK_LIST *to_blocks) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  if (width > MAX_INT16 || height > MAX_INT16) {
+  if (width > INT16_MAX || height > INT16_MAX) {
     tprintf("Input image too large! (%d, %d)\n", width, height);
     return;  // Can't handle it.
   }

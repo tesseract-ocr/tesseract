@@ -920,7 +920,7 @@ float ydiffs[]                   /*output */
 
   diffsum = 0.0f;
   bestindex = 0;
-  bestsum = (float) MAX_INT32;
+  bestsum = (float) INT32_MAX;
   drift = 0.0f;
   lastx = blobcoords[0].left ();
                                  /*do each blob in row */
@@ -1571,7 +1571,7 @@ int modelist[], int modenum      //no of modes to get
 ) {
   int mode_count;
   int last_i = 0;
-  int last_max = MAX_INT32;
+  int last_max = INT32_MAX;
   int i;
   int mode;
   int total_max = 0;

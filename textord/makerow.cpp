@@ -59,8 +59,8 @@ BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
 BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
 INT_VAR(textord_skewsmooth_offset, 4, "For smooth factor");
 INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
-INT_VAR(textord_test_x, -MAX_INT32, "coord of test pt");
-INT_VAR(textord_test_y, -MAX_INT32, "coord of test pt");
+INT_VAR(textord_test_x, -INT32_MAX, "coord of test pt");
+INT_VAR(textord_test_y, -INT32_MAX, "coord of test pt");
 INT_VAR(textord_min_blobs_in_row, 4, "Min blobs before gradient counted");
 INT_VAR(textord_spline_minblobs, 8, "Min blobs in each spline segment");
 INT_VAR(textord_spline_medianwin, 6, "Size of window for spline segmentation");
@@ -1496,7 +1496,7 @@ int compute_xheight_from_modes(
   if (blob_count == 0) return 0;
   int modes[MAX_HEIGHT_MODES];  // biggest piles
   bool in_best_pile = FALSE;
-  int prev_size = -MAX_INT32;
+  int prev_size = -INT32_MAX;
   int best_count = 0;
   int mode_count = compute_height_modes(heights, min_height, max_height,
                                         modes, MAX_HEIGHT_MODES);
@@ -1651,7 +1651,7 @@ int32_t compute_height_modes(STATS *heights,    // stats to search
 
   src_count = max_height + 1 - min_height;
   dest_count = 0;
-  least_count = MAX_INT32;
+  least_count = INT32_MAX;
   least_index = -1;
   for (src_index = 0; src_index < src_count; src_index++) {
     pile_count = heights->pile_count(min_height + src_index);

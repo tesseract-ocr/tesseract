@@ -910,7 +910,7 @@ ROW *Textord::make_prop_words(
   WERD_IT word_it;               // new words
   WERD *word;                    // new word
   WERD_IT rep_char_it;           // repeated char words
-  int32_t next_rep_char_word_right = MAX_INT32;
+  int32_t next_rep_char_word_right = INT32_MAX;
   float repetition_spacing;      // gap between repetitions
   int32_t xstarts[2];              // row ends
   int32_t prev_x;                  // end of prev blob
@@ -919,12 +919,12 @@ ROW *Textord::make_prop_words(
   BLOBNBOX_IT box_it;            // iterator
   TBOX prev_blob_box;
   TBOX next_blob_box;
-  int16_t prev_gap = MAX_INT16;
-  int16_t current_gap = MAX_INT16;
-  int16_t next_gap = MAX_INT16;
-  int16_t prev_within_xht_gap = MAX_INT16;
-  int16_t current_within_xht_gap = MAX_INT16;
-  int16_t next_within_xht_gap = MAX_INT16;
+  int16_t prev_gap = INT16_MAX;
+  int16_t current_gap = INT16_MAX;
+  int16_t next_gap = INT16_MAX;
+  int16_t prev_within_xht_gap = INT16_MAX;
+  int16_t current_within_xht_gap = INT16_MAX;
+  int16_t next_within_xht_gap = INT16_MAX;
   int16_t word_count = 0;
 
   rep_char_it.set_to_list (&(row->rep_words));
@@ -933,7 +933,7 @@ ROW *Textord::make_prop_words(
       rep_char_it.data ()->bounding_box ().right ();
   }
 
-  prev_x = -MAX_INT16;
+  prev_x = -INT16_MAX;
   cblob_it.set_to_list (&cblobs);
   box_it.set_to_list (row->blob_list ());
   word_it.set_to_list (&words);
@@ -975,7 +975,7 @@ ROW *Textord::make_prop_words(
       prev_fuzzy_sp = FALSE;
       prev_fuzzy_non = FALSE;
       if (rep_char_it.empty ()) {
-        next_rep_char_word_right = MAX_INT32;
+        next_rep_char_word_right = INT32_MAX;
       }
       else {
         rep_char_it.forward ();
@@ -1096,7 +1096,7 @@ ROW *Textord::make_prop_words(
             fuzzy_non = FALSE;
 
             if (rep_char_it.empty ()) {
-              next_rep_char_word_right = MAX_INT32;
+              next_rep_char_word_right = INT32_MAX;
             }
             else {
               rep_char_it.forward ();
@@ -1296,7 +1296,7 @@ BOOL8 Textord::make_a_word_break(
   if (tosp_old_to_method) {
                                  //Boring old method
     space = current_gap > row->max_nonspace;
-    if (space && (current_gap < MAX_INT16)) {
+    if (space && (current_gap < INT16_MAX)) {
       if (current_gap < row->min_space) {
         if (current_gap > row->space_threshold) {
           blanks = 1;
@@ -1335,7 +1335,7 @@ BOOL8 Textord::make_a_word_break(
     int num_blanks = current_gap;
     if (row->space_size > 1.0f)
       num_blanks = IntCastRounded(current_gap / row->space_size);
-    blanks = static_cast<uint8_t>(ClipToRange(num_blanks, 1, MAX_UINT8));
+    blanks = static_cast<uint8_t>(ClipToRange(num_blanks, 1, UINT8_MAX));
     fuzzy_sp = FALSE;
     fuzzy_non = FALSE;
     /*
@@ -1491,9 +1491,9 @@ BOOL8 Textord::make_a_word_break(
 
       /* Heuristics to turn dubious kerns to spaces */
       /* TRIED THIS BUT IT MADE THINGS WORSE
-          if ( prev_gap == MAX_INT16 )
+          if ( prev_gap == INT16_MAX )
             prev_gap = 0;  // start of row
-          if ( next_gap == MAX_INT16 )
+          if ( next_gap == INT16_MAX )
             next_gap = 0;  // end of row
       */
       if ((prev_blob_box.width () > 0) &&
@@ -1612,8 +1612,8 @@ void Textord::peek_at_next_gap(TO_ROW *row,
   next_blob_box = box_next (&box_it);
   next_reduced_blob_box = reduced_box_next (row, &reduced_box_it);
   if (box_it.at_first ()) {
-    next_gap = MAX_INT16;
-    next_within_xht_gap = MAX_INT16;
+    next_gap = INT16_MAX;
+    next_within_xht_gap = INT16_MAX;
   }
   else {
     bit_beyond = box_it.data ()->bounding_box ();
@@ -1858,21 +1858,21 @@ TBOX Textord::reduced_box_for_blob(
   Find LH limit of blob ABOVE the xht. This is so that we can detect certain
   caps ht chars which should NOT have their box reduced: T, Y, V, W etc
   */
-  left_limit = (float) MAX_INT32;
-  junk = (float) -MAX_INT32;
+  left_limit = (float) INT32_MAX;
+  junk = (float) -INT32_MAX;
   find_cblob_hlimits(blob->cblob(), (baseline + 1.1 * row->xheight),
-                     static_cast<float>(MAX_INT16), left_limit, junk);
+                     static_cast<float>(INT16_MAX), left_limit, junk);
   if (left_limit > junk)
-    *left_above_xht = MAX_INT16; //No area above xht
+    *left_above_xht = INT16_MAX; //No area above xht
   else
     *left_above_xht = (int16_t) floor (left_limit);
   /*
   Find reduced LH limit of blob - the left extent of the region ABOVE the
   baseline.
   */
-  left_limit = (float) MAX_INT32;
-  junk = (float) -MAX_INT32;
-  find_cblob_hlimits(blob->cblob(), baseline, static_cast<float>(MAX_INT16),
+  left_limit = (float) INT32_MAX;
+  junk = (float) -INT32_MAX;
+  find_cblob_hlimits(blob->cblob(), baseline, static_cast<float>(INT16_MAX),
                      left_limit, junk);
 
   if (left_limit > junk)
@@ -1880,9 +1880,9 @@ TBOX Textord::reduced_box_for_blob(
   /*
   Find reduced RH limit of blob - the right extent of the region BELOW the xht.
   */
-  junk = (float) MAX_INT32;
-  right_limit = (float) -MAX_INT32;
-  find_cblob_hlimits(blob->cblob(), static_cast<float>(-MAX_INT16),
+  junk = (float) INT32_MAX;
+  right_limit = (float) -INT32_MAX;
+  find_cblob_hlimits(blob->cblob(), static_cast<float>(-INT16_MAX),
                      (baseline + row->xheight), junk, right_limit);
   if (junk > right_limit)
     return TBOX ();               //no area within xht so return empty box
