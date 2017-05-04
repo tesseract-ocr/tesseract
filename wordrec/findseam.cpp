@@ -218,7 +218,7 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
   EDGEPT_CLIST new_points;
   SEAM *seam = NULL;
   TESSLINE *outline;
-  inT16 num_points = 0;
+  int16_t num_points = 0;
 
 #ifndef GRAPHICS_DISABLED
   if (chop_debug > 2)
@@ -294,13 +294,13 @@ SEAM *Wordrec::pick_good_seam(TBLOB *blob) {
  * queue and seam pile that have already been initialized and used.
  **********************************************************************/
 void Wordrec::try_point_pairs(EDGEPT * points[MAX_NUM_POINTS],
-                              inT16 num_points,
+                              int16_t num_points,
                               SeamQueue* seam_queue,
                               SeamPile* seam_pile,
                               SEAM ** seam,
                               TBLOB * blob) {
-  inT16 x;
-  inT16 y;
+  int16_t x;
+  int16_t y;
   PRIORITY priority;
 
   for (x = 0; x < num_points; x++) {
@@ -332,14 +332,14 @@ void Wordrec::try_point_pairs(EDGEPT * points[MAX_NUM_POINTS],
  * removed once a seam is chosen if they are not part of the seam.
  **********************************************************************/
 void Wordrec::try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
-                                  inT16 num_points,
+                                  int16_t num_points,
                                   EDGEPT_CLIST *new_points,
                                   SeamQueue* seam_queue,
                                   SeamPile* seam_pile,
                                   SEAM ** seam,
                                   TBLOB * blob) {
   EDGEPT *vertical_point = NULL;
-  inT16 x;
+  int16_t x;
   PRIORITY priority;
   TESSLINE *outline;
 

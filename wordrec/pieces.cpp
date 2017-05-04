@@ -54,8 +54,8 @@ using tesseract::ScoredFont;
  **********************************************************************/
 namespace tesseract {
 BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
-                                          inT16 start,
-                                          inT16 end,
+                                          int16_t start,
+                                          int16_t end,
                                           const char* description,
                                           TWERD *word,
                                           BlamerBundle *blamer_bundle) {
@@ -135,8 +135,8 @@ void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
  * Merge the fragment lists in choice_lists and append it to the
  * ratings matrix.
  **********************************************************************/
-void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
-                                           inT16 num_frag_parts,
+void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
+                                           int16_t num_frag_parts,
                                            BLOB_CHOICE_LIST *choice_lists,
                                            MATRIX *ratings) {
   BLOB_CHOICE_IT *choice_lists_it = new BLOB_CHOICE_IT[num_frag_parts];
@@ -278,9 +278,9 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
  * number of pieces we are looking for and num_blobs is the size of the
  * ratings matrix.
  **********************************************************************/
-void Wordrec::get_fragment_lists(inT16 current_frag, inT16 current_row,
-                                 inT16 start, inT16 num_frag_parts,
-                                 inT16 num_blobs, MATRIX *ratings,
+void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row,
+                                 int16_t start, int16_t num_frag_parts,
+                                 int16_t num_blobs, MATRIX *ratings,
                                  BLOB_CHOICE_LIST *choice_lists) {
   if (current_frag == num_frag_parts) {
     merge_and_put_fragment_lists(start, current_row - 1, num_frag_parts,
@@ -288,7 +288,7 @@ void Wordrec::get_fragment_lists(inT16 current_frag, inT16 current_row,
     return;
   }
 
-  for (inT16 x = current_row; x < num_blobs; x++) {
+  for (int16_t x = current_row; x < num_blobs; x++) {
     BLOB_CHOICE_LIST *choices = ratings->get(current_row, x);
     if (choices == NULL)
       continue;
@@ -310,9 +310,9 @@ void Wordrec::get_fragment_lists(inT16 current_frag, inT16 current_row,
  * Try to merge fragments in the ratings matrix and put the result in
  * the corresponding row and column
  **********************************************************************/
-void Wordrec::merge_fragments(MATRIX *ratings, inT16 num_blobs) {
+void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
   BLOB_CHOICE_LIST choice_lists[CHAR_FRAGMENT::kMaxChunks];
-  for (inT16 start = 0; start < num_blobs; start++) {
+  for (int16_t start = 0; start < num_blobs; start++) {
     for (int frag_parts = 2; frag_parts <= CHAR_FRAGMENT::kMaxChunks;
          frag_parts++) {
       get_fragment_lists(0, start, start, frag_parts, num_blobs,
@@ -321,8 +321,8 @@ void Wordrec::merge_fragments(MATRIX *ratings, inT16 num_blobs) {
   }
 
   // Delete fragments from the rating matrix
-  for (inT16 x = 0; x < num_blobs; x++) {
-    for (inT16 y = x; y < num_blobs; y++) {
+  for (int16_t x = 0; x < num_blobs; x++) {
+    for (int16_t y = x; y < num_blobs; y++) {
       BLOB_CHOICE_LIST *choices = ratings->get(x, y);
       if (choices != NULL) {
         BLOB_CHOICE_IT choices_it(choices);

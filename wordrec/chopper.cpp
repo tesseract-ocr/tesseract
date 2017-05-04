@@ -130,7 +130,7 @@ void restore_outline_tree(TESSLINE *srcline) {
 
 // Helper runs all the checks on a seam to make sure it is valid.
 // Returns the seam if OK, otherwise deletes the seam and returns NULL.
-static SEAM* CheckSeam(int debug_level, inT32 blob_number, TWERD* word,
+static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
                        TBLOB* blob, TBLOB* other_blob,
                        const GenericVector<SEAM*>& seams, SEAM* seam) {
   if (seam == NULL || blob->outlines == NULL || other_blob->outlines == NULL ||
@@ -166,7 +166,7 @@ static SEAM* CheckSeam(int debug_level, inT32 blob_number, TWERD* word,
  * it was successful.
  */
 namespace tesseract {
-SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
+SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
                                  bool italic_blob,
                                  const GenericVector<SEAM*>& seams) {
   if (repair_unchopped_blobs)
@@ -220,7 +220,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
 }
 
 
-SEAM *Wordrec::chop_numbered_blob(TWERD *word, inT32 blob_number,
+SEAM *Wordrec::chop_numbered_blob(TWERD *word, int32_t blob_number,
                                   bool italic_blob,
                                   const GenericVector<SEAM*>& seams) {
   return attempt_blob_chop(word, word->blobs[blob_number], blob_number,
@@ -648,7 +648,7 @@ int Wordrec::select_blob_to_split_from_fixpt(DANGERR *fixpt) {
  * Check to see if one of these outlines is totally contained within
  * the bounding box of the other.
  **********************************************************************/
-inT16 total_containment(TBLOB *blob1, TBLOB *blob2) {
+int16_t total_containment(TBLOB *blob1, TBLOB *blob2) {
   TBOX box1 = blob1->bounding_box();
   TBOX box2 = blob2->bounding_box();
   return box1.contains(box2) || box2.contains(box1);

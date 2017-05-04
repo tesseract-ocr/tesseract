@@ -50,7 +50,7 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   // TODO(eger): Figure out a better way to account for small caps.
   // For the first character not y-shifted, we only care if it is too small.
   // Too large is common in drop caps and small caps.
-  // inT16 small_xht = b->min_xheight();
+  // int16_t small_xht = b->min_xheight();
   //  if (parent_vse == NULL && sp == LanguageModelConsistencyInfo::kNORM) {
   //  small_xht = 0;
   // }

@@ -219,7 +219,7 @@ void Wordrec::prioritize_points(TESSLINE *outline, PointHeap* points) {
  * the local minimum is reset to NULL.
  */
 void Wordrec::new_min_point(EDGEPT *local_min, PointHeap* points) {
-  inT16 dir;
+  int16_t dir;
 
   dir = direction (local_min);
 
@@ -243,7 +243,7 @@ void Wordrec::new_min_point(EDGEPT *local_min, PointHeap* points) {
  * the local minimum is reset to NULL.
  */
 void Wordrec::new_max_point(EDGEPT *local_max, PointHeap* points) {
-  inT16 dir;
+  int16_t dir;
 
   dir = direction (local_max);
 
