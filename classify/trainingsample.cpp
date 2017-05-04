@@ -221,11 +221,11 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
     features_ = new INT_FEATURE_STRUCT[num_features_];
     for (int f = 0; f < num_features_; ++f) {
       features_[f].X =
-          static_cast<uinT8>(char_features->Features[f]->Params[IntX]);
+          static_cast<uint8_t>(char_features->Features[f]->Params[IntX]);
       features_[f].Y =
-          static_cast<uinT8>(char_features->Features[f]->Params[IntY]);
+          static_cast<uint8_t>(char_features->Features[f]->Params[IntY]);
       features_[f].Theta =
-          static_cast<uinT8>(char_features->Features[f]->Params[IntDir]);
+          static_cast<uint8_t>(char_features->Features[f]->Params[IntDir]);
       features_[f].CP_misses = 0;
     }
   }

@@ -41,7 +41,7 @@ class IntFeatureSpace {
   // Default copy constructors and assignment OK!
 
   // Setup the feature space with the given dimensions.
-  void Init(uinT8 xbuckets, uinT8 ybuckets, uinT8 thetabuckets);
+  void Init(uint8_t xbuckets, uint8_t ybuckets, uint8_t thetabuckets);
 
   // Serializes the feature space definition to the given file.
   // Returns false on error.
@@ -67,11 +67,11 @@ class IntFeatureSpace {
         ThetaBucket(f.Theta);
   }
   // Bulk calls to Index. Maps the given array of features to a vector of
-  // inT32 indices in the same order as the input.
+  // int32_t indices in the same order as the input.
   void IndexFeatures(const INT_FEATURE_STRUCT* features, int num_features,
                      GenericVector<int>* mapped_features) const;
   // Bulk calls to Index. Maps the given array of features to a vector of
-  // sorted inT32 indices.
+  // sorted int32_t indices.
   void IndexAndSortFeatures(const INT_FEATURE_STRUCT* features,
                             int num_features,
                             GenericVector<int>* sorted_features) const;
@@ -99,9 +99,9 @@ class IntFeatureSpace {
   INT_FEATURE_STRUCT PositionFromBuckets(int x, int y, int theta) const;
 
   // Feature space definition - serialized.
-  uinT8 x_buckets_;
-  uinT8 y_buckets_;
-  uinT8 theta_buckets_;
+  uint8_t x_buckets_;
+  uint8_t y_buckets_;
+  uint8_t theta_buckets_;
 };
 
 }  // namespace tesseract.

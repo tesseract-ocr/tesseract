@@ -56,11 +56,11 @@ struct CLASS_STRUCT {
     : NumProtos(0), MaxNumProtos(0), Prototypes(NULL),
       NumConfigs(0), MaxNumConfigs(0), Configurations(NULL) {
   }
-  inT16 NumProtos;
-  inT16 MaxNumProtos;
+  int16_t NumProtos;
+  int16_t MaxNumProtos;
   PROTO Prototypes;
-  inT16 NumConfigs;
-  inT16 MaxNumConfigs;
+  int16_t NumConfigs;
+  int16_t MaxNumConfigs;
   CONFIGS Configurations;
   UnicityTableEqEq<int> font_set;
 };

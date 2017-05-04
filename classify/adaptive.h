@@ -27,8 +27,8 @@
 
 typedef struct
 {
-  uinT16 ProtoId;
-  uinT16 dummy;
+  uint16_t ProtoId;
+  uint16_t dummy;
   PROTO_STRUCT Proto;
 }
 
@@ -38,8 +38,8 @@ typedef TEMP_PROTO_STRUCT *TEMP_PROTO;
 
 typedef struct
 {
-  uinT8 NumTimesSeen;
-  uinT8 ProtoVectorSize;
+  uint8_t NumTimesSeen;
+  uint8_t ProtoVectorSize;
   PROTO_ID MaxProtoId;
   BIT_VECTOR Protos;
   int FontinfoId;  // font information inferred from pre-trained templates
@@ -61,9 +61,9 @@ typedef union
 
 typedef struct
 {
-  uinT8 NumPermConfigs;
-  uinT8 MaxNumTimesSeen;  // maximum number of times any TEMP_CONFIG was seen
-  uinT8 dummy[2];         // (cut at matcher_min_examples_for_prototyping)
+  uint8_t NumPermConfigs;
+  uint8_t MaxNumTimesSeen;  // maximum number of times any TEMP_CONFIG was seen
+  uint8_t dummy[2];         // (cut at matcher_min_examples_for_prototyping)
   BIT_VECTOR PermProtos;
   BIT_VECTOR PermConfigs;
   LIST TempProtos;
@@ -75,8 +75,8 @@ typedef struct
 {
   INT_TEMPLATES Templates;
   int NumNonEmptyClasses;
-  uinT8 NumPermClasses;
-  uinT8 dummy[3];
+  uint8_t NumPermClasses;
+  uint8_t dummy[3];
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
 } ADAPT_TEMPLATES_STRUCT;
 typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;

@@ -86,7 +86,7 @@ int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
 
 // Writes to the given file. Returns false in case of error.
 bool Shape::Serialize(FILE* fp) const {
-  uinT8 sorted = unichars_sorted_;
+  uint8_t sorted = unichars_sorted_;
   if (fwrite(&sorted, sizeof(sorted), 1, fp) != 1)
     return false;
   if (!unichars_.SerializeClasses(fp)) return false;
@@ -95,7 +95,7 @@ bool Shape::Serialize(FILE* fp) const {
 // Reads from the given file. Returns false in case of error.
 
 bool Shape::DeSerialize(TFile* fp) {
-  uinT8 sorted;
+  uint8_t sorted;
   if (fp->FRead(&sorted, sizeof(sorted), 1) != 1) return false;
   unichars_sorted_ = sorted != 0;
   return unichars_.DeSerializeClasses(fp);
@@ -172,7 +172,7 @@ bool Shape::ContainsFont(int font_id) const {
 // Returns true if the shape contains the given font properties, ignoring
 // unichar_id.
 bool Shape::ContainsFontProperties(const FontInfoTable& font_table,
-                                   uinT32 properties) const {
+                                   uint32_t properties) const {
   for (int c = 0; c < unichars_.size(); ++c) {
     GenericVector<int>& font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {
@@ -186,7 +186,7 @@ bool Shape::ContainsFontProperties(const FontInfoTable& font_table,
 // ignoring unichar_id.
 bool Shape::ContainsMultipleFontProperties(
     const FontInfoTable& font_table) const {
-  uinT32 properties = font_table.get(unichars_[0].font_ids[0]).properties;
+  uint32_t properties = font_table.get(unichars_[0].font_ids[0]).properties;
   for (int c = 0; c < unichars_.size(); ++c) {
     GenericVector<int>& font_list = unichars_[c].font_ids;
     for (int f = 0; f < font_list.size(); ++f) {

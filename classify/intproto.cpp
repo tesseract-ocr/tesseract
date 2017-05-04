@@ -76,9 +76,9 @@ SWITCH_TYPE;
 typedef struct
 {
   SWITCH_TYPE Type;
-  inT8 X, Y;
-  inT16 YInit;
-  inT16 Delta;
+  int8_t X, Y;
+  int16_t YInit;
+  int16_t Delta;
 }
 
 
@@ -86,11 +86,11 @@ FILL_SWITCH;
 
 typedef struct
 {
-  uinT8 NextSwitch;
-  uinT8 AngleStart, AngleEnd;
-  inT8 X;
-  inT16 YStart, YEnd;
-  inT16 StartDelta, EndDelta;
+  uint8_t NextSwitch;
+  uint8_t AngleStart, AngleEnd;
+  int8_t X;
+  int16_t YStart, YEnd;
+  int16_t StartDelta, EndDelta;
   FILL_SWITCH Switch[MAX_NUM_SWITCHES];
 }
 
@@ -99,9 +99,9 @@ TABLE_FILLER;
 
 typedef struct
 {
-  inT8 X;
-  inT8 YStart, YEnd;
-  uinT8 AngleStart, AngleEnd;
+  int8_t X;
+  int8_t YStart, YEnd;
+  uint8_t AngleStart, AngleEnd;
 }
 
 
@@ -131,17 +131,17 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets);
 
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
-            register uinT32 ClassMask,
-            register uinT32 ClassCount,
-            register uinT32 WordIndex);
+            register uint32_t ClassMask,
+            register uint32_t ClassCount,
+            register uint32_t WordIndex);
 
 BOOL8 FillerDone(TABLE_FILLER *Filler);
 
-void FillPPCircularBits(uinT32
+void FillPPCircularBits(uint32_t
                         ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                         int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug);
 
-void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug);
 
 void GetCPPadsForLevel(int Level,
@@ -207,17 +207,17 @@ double_VAR(classify_pp_side_pad, 2.5, "Proto Pruner Side Pad");
 -----------------------------------------------------------------------------*/
 /// Builds a feature from an FCOORD for position with all the necessary
 /// clipping and rounding.
-INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uinT8 theta)
-  : X(ClipToRange<inT16>(static_cast<inT16>(pos.x() + 0.5), 0, 255)),
-    Y(ClipToRange<inT16>(static_cast<inT16>(pos.y() + 0.5), 0, 255)),
+INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta)
+  : X(ClipToRange<int16_t>(static_cast<int16_t>(pos.x() + 0.5), 0, 255)),
+    Y(ClipToRange<int16_t>(static_cast<int16_t>(pos.y() + 0.5), 0, 255)),
     Theta(theta),
     CP_misses(0) {
 }
 /** Builds a feature from ints with all the necessary clipping and casting. */
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
-  : X(static_cast<uinT8>(ClipToRange(x, 0, MAX_UINT8))),
-    Y(static_cast<uinT8>(ClipToRange(y, 0, MAX_UINT8))),
-    Theta(static_cast<uinT8>(ClipToRange(theta, 0, MAX_UINT8))),
+  : X(static_cast<uint8_t>(ClipToRange(x, 0, MAX_UINT8))),
+    Y(static_cast<uint8_t>(ClipToRange(y, 0, MAX_UINT8))),
+    Theta(static_cast<uint8_t>(ClipToRange(theta, 0, MAX_UINT8))),
     CP_misses(0) {
 }
 
@@ -295,7 +295,7 @@ int AddIntProto(INT_CLASS Class) {
   int ProtoSetId;
   PROTO_SET ProtoSet;
   INT_PROTO Proto;
-  uinT32 *Word;
+  uint32_t *Word;
 
   if (Class->NumProtos >= MAX_NUM_PROTOS)
     return (NO_PROTO);
@@ -311,8 +311,8 @@ int AddIntProto(INT_CLASS Class) {
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths =
-      (uinT8 *)Erealloc(Class->ProtoLengths,
-                        MaxNumIntProtosIn(Class) * sizeof(uinT8));
+      (uint8_t *)Erealloc(Class->ProtoLengths,
+                        MaxNumIntProtosIn(Class) * sizeof(uint8_t));
     memset(&Class->ProtoLengths[Index], 0,
            sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
   }
@@ -344,9 +344,9 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
 #define MAX_LEVEL     2
 {
   CLASS_PRUNER_STRUCT* Pruner;
-  uinT32 ClassMask;
-  uinT32 ClassCount;
-  uinT32 WordIndex;
+  uint32_t ClassMask;
+  uint32_t ClassCount;
+  uint32_t WordIndex;
   int Level;
   FLOAT32 EndPad, SidePad, AnglePad;
   TABLE_FILLER TableFiller;
@@ -432,13 +432,13 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
  * notionally (param + offset) * num_buckets, but clipped and casted to the
  * appropriate type.
  */
-uinT8 Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint8_t Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
-  return static_cast<uinT8>(ClipToRange(bucket, 0, num_buckets - 1));
+  return static_cast<uint8_t>(ClipToRange(bucket, 0, num_buckets - 1));
 }
-uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint16_t Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
-  return static_cast<uinT16>(ClipToRange(bucket, 0, num_buckets - 1));
+  return static_cast<uint16_t>(ClipToRange(bucket, 0, num_buckets - 1));
 }
 
 /**
@@ -446,9 +446,9 @@ uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
  * notionally (param + offset) * num_buckets, but modded and casted to the
  * appropriate type.
  */
-uinT8 CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint8_t CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
-  return static_cast<uinT8>(Modulo(bucket, num_buckets));
+  return static_cast<uint8_t>(Modulo(bucket, num_buckets));
 }                                /* CircBucketFor */
 
 
@@ -534,7 +534,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   if (Param < 0 || Param >= 256)
     P->Angle = 0;
   else
-    P->Angle = (uinT8) Param;
+    P->Angle = (uint8_t) Param;
 
   /* round proto length to nearest integer number of pico-features */
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
@@ -687,7 +687,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   }
   if (MaxNumIntProtosIn (Class) > 0) {
     Class->ProtoLengths =
-      (uinT8 *)Emalloc(MaxNumIntProtosIn (Class) * sizeof (uinT8));
+      (uint8_t *)Emalloc(MaxNumIntProtosIn (Class) * sizeof (uint8_t));
     memset(Class->ProtoLengths, 0,
            MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
   } else {
@@ -765,19 +765,19 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   INT_TEMPLATES Templates;
   CLASS_PRUNER_STRUCT* Pruner;
   INT_CLASS Class;
-  uinT8 *Lengths;
+  uint8_t *Lengths;
   PROTO_SET ProtoSet;
 
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
   CLASS_ID class_id, max_class_id;
-  inT16 *IndexFor = new inT16[MAX_NUM_CLASSES];
+  int16_t *IndexFor = new int16_t[MAX_NUM_CLASSES];
   CLASS_ID *ClassIdFor = new CLASS_ID[MAX_NUM_CLASSES];
   CLASS_PRUNER_STRUCT **TempClassPruner =
       new CLASS_PRUNER_STRUCT*[MAX_NUM_CLASS_PRUNERS];
-  uinT32 SetBitsForMask =           // word with NUM_BITS_PER_CLASS
+  uint32_t SetBitsForMask =           // word with NUM_BITS_PER_CLASS
     (1 << NUM_BITS_PER_CLASS) - 1;  // set starting at bit 0
-  uinT32 Mask, NewMask, ClassBits;
+  uint32_t Mask, NewMask, ClassBits;
   int MaxNumConfigs = MAX_NUM_CONFIGS;
   int WerdsPerConfigVec = WERDS_PER_CONFIG_VEC;
 
@@ -894,14 +894,14 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     if (version_id == 0) {
       // Only version 0 writes 5 pointless pointers to the file.
       for (j = 0; j < 5; ++j) {
-        inT32 junk;
+        int32_t junk;
         if (fp->FRead(&junk, sizeof(junk), 1) != 1)
           tprintf("Bad read of inttemp!\n");
       }
     }
     int num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
     ASSERT_HOST(num_configs <= MaxNumConfigs);
-    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uinT16), num_configs) !=
+    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uint16_t), num_configs) !=
         num_configs) {
       tprintf("Bad read of inttemp!\n");
     }
@@ -914,8 +914,8 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     /* then read in the proto lengths */
     Lengths = NULL;
     if (MaxNumIntProtosIn (Class) > 0) {
-      Lengths = (uinT8 *)Emalloc(sizeof(uinT8) * MaxNumIntProtosIn(Class));
-      if (fp->FRead(Lengths, sizeof(uinT8), MaxNumIntProtosIn(Class)) !=
+      Lengths = (uint8_t *)Emalloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class));
+      if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class))
         tprintf("Bad read of inttemp!\n");
     }
@@ -1099,12 +1099,12 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
     ASSERT_HOST(Class->NumConfigs == this->fontset_table_.get(Class->font_set_id).size);
     fwrite(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File);
     for (j = 0; j < Class->NumConfigs; ++j) {
-      fwrite(&Class->ConfigLengths[j], sizeof(uinT16), 1, File);
+      fwrite(&Class->ConfigLengths[j], sizeof(uint16_t), 1, File);
     }
 
     /* then write out the proto lengths */
     if (MaxNumIntProtosIn (Class) > 0) {
-      fwrite ((char *) (Class->ProtoLengths), sizeof (uinT8),
+      fwrite ((char *) (Class->ProtoLengths), sizeof (uint8_t),
               MaxNumIntProtosIn (Class), File);
     }
 
@@ -1180,11 +1180,11 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
  */
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
-            register uinT32 ClassMask,
-            register uinT32 ClassCount,
-            register uinT32 WordIndex) {
+            register uint32_t ClassMask,
+            register uint32_t ClassCount,
+            register uint32_t WordIndex) {
   int X, Y, Angle;
-  uinT32 OldWord;
+  uint32_t OldWord;
 
   X = FillSpec->X;
   if (X < 0)
@@ -1249,7 +1249,7 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
  * @note Exceptions: none
  * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
  */
-void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                         int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
@@ -1292,7 +1292,7 @@ void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
  * @note Exceptions: none
  * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
  */
-void FillPPLinearBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
+void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
@@ -1594,8 +1594,8 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = -(inT16) ((Cos / Sin) * 256);
-      Filler->EndDelta = (inT16) ((Sin / Cos) * 256);
+      Filler->StartDelta = -(int16_t) ((Cos / Sin) * 256);
+      Filler->EndDelta = (int16_t) ((Sin / Cos) * 256);
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Cos / Sin;
@@ -1644,9 +1644,9 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = static_cast<inT16>(ClipToRange<int>(
+      Filler->StartDelta = static_cast<int16_t>(ClipToRange<int>(
           -IntCastRounded((Sin / Cos) * 256), MIN_INT16, MAX_INT16));
-      Filler->EndDelta = static_cast<inT16>(ClipToRange<int>(
+      Filler->EndDelta = static_cast<int16_t>(ClipToRange<int>(
           IntCastRounded((Cos / Sin) * 256), MIN_INT16, MAX_INT16));
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
@@ -1737,7 +1737,7 @@ void RenderIntProto(ScrollView *window,
   FLOAT32 Length;
   int Xmin, Xmax, Ymin, Ymax;
   FLOAT32 X, Y, Dx, Dy;
-  uinT32 ProtoMask;
+  uint32_t ProtoMask;
   int Bucket;
 
   assert(ProtoId >= 0);

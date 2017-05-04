@@ -238,13 +238,13 @@ class TrainingSampleSet {
     bool DeSerialize(bool swap, FILE* fp);
 
     // Number of raw samples.
-    inT32 num_raw_samples;
+    int32_t num_raw_samples;
     // Index of the canonical sample.
-    inT32 canonical_sample;
+    int32_t canonical_sample;
     // Max distance of the canonical sample from any other.
     float canonical_dist;
     // Sample indices for the samples, including replicated.
-    GenericVector<inT32> samples;
+    GenericVector<int32_t> samples;
 
     // Non-serialized cache data.
     // Indexed features of the canonical sample.

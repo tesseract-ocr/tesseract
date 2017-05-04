@@ -139,7 +139,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
  * @param Config FIXME
  */
 FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
-  inT16 Pid;
+  int16_t Pid;
   FLOAT32 TotalLength = 0;
 
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
@@ -160,7 +160,7 @@ FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
  * @param Class The class to use
  */
 FLOAT32 ClassProtoLength(CLASS_TYPE Class) {
-  inT16 Pid;
+  int16_t Pid;
   FLOAT32 TotalLength = 0;
 
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
@@ -269,7 +269,7 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
  * Print the list of prototypes in this class type.
  **********************************************************************/
 void PrintProtos(CLASS_TYPE Class) {
-  inT16 Pid;
+  int16_t Pid;
 
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     cprintf ("Proto %d:\t", Pid);

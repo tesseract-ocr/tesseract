@@ -33,13 +33,13 @@ class TrainingSample;
 }
 
 struct INT_FX_RESULT_STRUCT {
-  inT32 Length;                  // total length of all outlines
-  inT16 Xmean, Ymean;            // center of mass of all outlines
-  inT16 Rx, Ry;                  // radius of gyration
-  inT16 NumBL, NumCN;            // number of features extracted
-  inT16 Width;                   // Width of blob in BLN coords.
-  uinT8 YBottom;                 // Bottom of blob in BLN coords.
-  uinT8 YTop;                    // Top of blob in BLN coords.
+  int32_t Length;                  // total length of all outlines
+  int16_t Xmean, Ymean;            // center of mass of all outlines
+  int16_t Rx, Ry;                  // radius of gyration
+  int16_t NumBL, NumCN;            // number of features extracted
+  int16_t Width;                   // Width of blob in BLN coords.
+  uint8_t YBottom;                 // Bottom of blob in BLN coords.
+  uint8_t YTop;                    // Top of blob in BLN coords.
 };
 
 // The standard feature length
@@ -52,7 +52,7 @@ void InitIntegerFX();
 
 // Returns a vector representing the direction of a feature with the given
 // theta direction in an INT_FEATURE_STRUCT.
-FCOORD FeatureDirection(uinT8 theta);
+FCOORD FeatureDirection(uint8_t theta);
 
 namespace tesseract {
   // Generates a TrainingSample from a TBLOB. Extracts features and sets

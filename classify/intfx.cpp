@@ -67,7 +67,7 @@ void InitIntegerFX() {
 
 // Returns a vector representing the direction of a feature with the given
 // theta direction in an INT_FEATURE_STRUCT.
-FCOORD FeatureDirection(uinT8 theta) {
+FCOORD FeatureDirection(uint8_t theta) {
   return FCOORD(cos_table[theta], sin_table[theta]);
 }
 
@@ -168,7 +168,7 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
 
 // Helper normalizes the direction, assuming that it is at the given
 // unnormed_pos, using the given denorm, starting at the root_denorm.
-uinT8 NormalizeDirection(uinT8 dir, const FCOORD& unnormed_pos,
+uint8_t NormalizeDirection(uint8_t dir, const FCOORD& unnormed_pos,
                          const DENORM& denorm, const DENORM* root_denorm) {
   // Convert direction to a vector.
   FCOORD unnormed_end;
@@ -239,7 +239,7 @@ static int ComputeFeatures(const FCOORD& start_pt, const FCOORD& end_pt,
   FCOORD feature_vector(end_pt - start_pt);
   if (feature_vector.x() == 0.0f && feature_vector.y() == 0.0f) return 0;
   // Compute theta for the feature based on its direction.
-  uinT8 theta = feature_vector.to_direction();
+  uint8_t theta = feature_vector.to_direction();
   // Compute the number of features and lambda_step.
   double target_length = feature_vector.length();
   int num_features = IntCastRounded(target_length / feature_length);

@@ -444,8 +444,8 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
     bool valid = unicharset_.contains_unichar(uch);
     if (valid) {
       spacing = new FontSpacingInfo();
-      spacing->x_gap_before = static_cast<inT16>(x_gap_before * scale);
-      spacing->x_gap_after = static_cast<inT16>(x_gap_after * scale);
+      spacing->x_gap_before = static_cast<int16_t>(x_gap_before * scale);
+      spacing->x_gap_after = static_cast<int16_t>(x_gap_after * scale);
     }
     for (int k = 0; k < num_kerned; ++k) {
       if (tfscanf(fontinfo_file, "%s %d", kerned_uch, &x_gap) != 2) {
@@ -457,7 +457,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
       if (!valid || !unicharset_.contains_unichar(kerned_uch)) continue;
       spacing->kerned_unichar_ids.push_back(
           unicharset_.unichar_to_id(kerned_uch));
-      spacing->kerned_x_gaps.push_back(static_cast<inT16>(x_gap * scale));
+      spacing->kerned_x_gaps.push_back(static_cast<int16_t>(x_gap * scale));
     }
     if (valid) fi->add_spacing(unicharset_.unichar_to_id(uch), spacing);
   }
@@ -585,8 +585,8 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
   // classifier needs one indexed by its shape class id.
   // We put the shapetable_cutoffs in a GenericVector, and compute the
   // unicharset cutoffs along the way.
-  GenericVector<uinT16> shapetable_cutoffs;
-  GenericVector<uinT16> unichar_cutoffs;
+  GenericVector<uint16_t> shapetable_cutoffs;
+  GenericVector<uint16_t> unichar_cutoffs;
   for (int c = 0; c < unicharset.size(); ++c)
     unichar_cutoffs.push_back(0);
   /* then write out each class */
@@ -594,11 +594,11 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
     INT_CLASS Class = ClassForClassId(int_templates, i);
     // Todo: Test with min instead of max
     // int MaxLength = LengthForConfigId(Class, 0);
-    uinT16 max_length = 0;
+    uint16_t max_length = 0;
     for (int config_id = 0; config_id < Class->NumConfigs; config_id++) {
       // Todo: Test with min instead of max
       // if (LengthForConfigId (Class, config_id) < MaxLength)
-      uinT16 length = Class->ConfigLengths[config_id];
+      uint16_t length = Class->ConfigLengths[config_id];
       if (length > max_length)
         max_length = Class->ConfigLengths[config_id];
       int shape_id = float_classes[i].font_set.get(config_id);

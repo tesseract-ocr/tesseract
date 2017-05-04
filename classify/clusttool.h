@@ -28,25 +28,25 @@
 /*-------------------------------------------------------------------------
         Public Function Prototype
 --------------------------------------------------------------------------*/
-uinT16 ReadSampleSize(tesseract::TFile *fp);
+uint16_t ReadSampleSize(tesseract::TFile *fp);
 
-PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uinT16 N);
+PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uint16_t N);
 
-PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uinT16 N);
+PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uint16_t N);
 
 PROTOSTYLE ReadProtoStyle(const char *style);
 
-FLOAT32 *ReadNFloats(tesseract::TFile *fp, uinT16 N, FLOAT32 Buffer[]);
+FLOAT32 *ReadNFloats(tesseract::TFile *fp, uint16_t N, FLOAT32 Buffer[]);
 
-void WriteParamDesc(FILE *File, uinT16 N, const PARAM_DESC ParamDesc[]);
+void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]);
 
-void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto);
+void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto);
 
-void WriteNFloats (FILE * File, uinT16 N, FLOAT32 Array[]);
+void WriteNFloats (FILE * File, uint16_t N, FLOAT32 Array[]);
 
 void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle);
 
-void WriteProtoList(FILE *File, uinT16 N, PARAM_DESC ParamDesc[],
+void WriteProtoList(FILE *File, uint16_t N, PARAM_DESC ParamDesc[],
                     LIST ProtoList, BOOL8 WriteSigProtos,
                     BOOL8 WriteInsigProtos);
 

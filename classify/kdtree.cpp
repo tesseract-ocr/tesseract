@@ -178,7 +178,7 @@ void KDTreeSearch::Search(int *result_count,
 /// @return a new KDTREE based on the specified parameters.
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
-KDTREE *MakeKDTree(inT16 KeySize, const PARAM_DESC KeyDesc[]) {
+KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
   KDTREE *KDTree = (KDTREE *) Emalloc(
       sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC));
   for (int i = 0; i < KeySize; i++) {
@@ -528,7 +528,7 @@ bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
  * @param level  current level in the tree for this node
  */
 void Walk(KDTREE *tree, void_proc action, void *context,
-          KDNODE *sub_tree, inT32 level) {
+          KDNODE *sub_tree, int32_t level) {
   (*action)(context, sub_tree->Data, level);
   if (sub_tree->Left != NULL)
     Walk(tree, action, context, sub_tree->Left, NextLevel(tree, level));

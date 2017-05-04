@@ -67,16 +67,16 @@ extern INT_VAR_H(classify_adapt_feature_thresh, 230,
 #define  SE_TABLE_SIZE  512
 
 struct ScratchEvidence {
-  uinT8 feature_evidence_[MAX_NUM_CONFIGS];
+  uint8_t feature_evidence_[MAX_NUM_CONFIGS];
   int sum_feature_evidence_[MAX_NUM_CONFIGS];
-  uinT8 proto_evidence_[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
+  uint8_t proto_evidence_[MAX_NUM_PROTOS][MAX_PROTO_INDEX];
 
   void Clear(const INT_CLASS class_template);
   void ClearFeatureEvidence(const INT_CLASS class_template);
-  void NormalizeSums(INT_CLASS ClassTemplate, inT16 NumFeatures,
-                     inT32 used_features);
+  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures,
+                     int32_t used_features);
   void UpdateSumOfProtoEvidences(
-    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, inT16 NumFeatures);
+    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, int16_t NumFeatures);
 };
 
 
@@ -100,7 +100,7 @@ class IntegerMatcher {
   void Match(INT_CLASS ClassTemplate,
              BIT_VECTOR ProtoMask,
              BIT_VECTOR ConfigMask,
-             inT16 NumFeatures,
+             int16_t NumFeatures,
              const INT_FEATURE_STRUCT* Features,
              tesseract::UnicharRating* Result,
              int AdaptFeatureThreshold,
@@ -115,8 +115,8 @@ class IntegerMatcher {
   int FindGoodProtos(INT_CLASS ClassTemplate,
                      BIT_VECTOR ProtoMask,
                      BIT_VECTOR ConfigMask,
-                     uinT16 BlobLength,
-                     inT16 NumFeatures,
+                     uint16_t BlobLength,
+                     int16_t NumFeatures,
                      INT_FEATURE_ARRAY Features,
                      PROTO_ID *ProtoArray,
                      int AdaptProtoThreshold,
@@ -125,8 +125,8 @@ class IntegerMatcher {
   int FindBadFeatures(INT_CLASS ClassTemplate,
                       BIT_VECTOR ProtoMask,
                       BIT_VECTOR ConfigMask,
-                      uinT16 BlobLength,
-                      inT16 NumFeatures,
+                      uint16_t BlobLength,
+                      int16_t NumFeatures,
                       INT_FEATURE_ARRAY Features,
                       FEATURE_ID *FeatureArray,
                       int AdaptFeatureThreshold,
@@ -152,7 +152,7 @@ class IntegerMatcher {
       BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
       const ScratchEvidence &tables,
-      inT16 NumFeatures,
+      int16_t NumFeatures,
       int Debug);
 
   void DisplayProtoDebugInfo(
@@ -166,7 +166,7 @@ class IntegerMatcher {
       INT_CLASS ClassTemplate,
       BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
-      inT16 NumFeatures,
+      int16_t NumFeatures,
       const INT_FEATURE_STRUCT* Features,
       int AdaptFeatureThreshold,
       int Debug,
@@ -175,26 +175,26 @@ class IntegerMatcher {
 
 
  private:
-  uinT8 similarity_evidence_table_[SE_TABLE_SIZE];
-  uinT32 evidence_table_mask_;
-  uinT32 mult_trunc_shift_bits_;
-  uinT32 table_trunc_shift_bits_;
+  uint8_t similarity_evidence_table_[SE_TABLE_SIZE];
+  uint32_t evidence_table_mask_;
+  uint32_t mult_trunc_shift_bits_;
+  uint32_t table_trunc_shift_bits_;
   tesseract::IntParam *classify_debug_level_;
-  uinT32 evidence_mult_mask_;
+  uint32_t evidence_mult_mask_;
 };
 
 /**----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------**/
 void IMDebugConfiguration(INT_FEATURE FeatureNum,
-                          uinT16 ActualProtoNum,
-                          uinT8 Evidence,
+                          uint16_t ActualProtoNum,
+                          uint8_t Evidence,
                           BIT_VECTOR ConfigMask,
-                          uinT32 ConfigWord);
+                          uint32_t ConfigWord);
 
 void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
-                             uinT8 *FeatureEvidence,
-                             inT32 ConfigCount);
+                             uint8_t *FeatureEvidence,
+                             int32_t ConfigCount);
 
 void HeapSort (int n, register int ra[], register int rb[]);
 
