@@ -280,8 +280,8 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix* pix, float black,
 void NetworkIO::SetPixel(int t, int f, int pixel, float black, float contrast) {
   float float_pixel = (pixel - black) / contrast - 1.0f;
   if (int_mode_) {
-    i_[t][f] = ClipToRange(IntCastRounded((MAX_INT8 + 1) * float_pixel),
-                           -MAX_INT8, MAX_INT8);
+    i_[t][f] = ClipToRange(IntCastRounded((INT8_MAX + 1) * float_pixel),
+                           -INT8_MAX, INT8_MAX);
   } else {
     f_[t][f] = float_pixel;
   }
@@ -374,7 +374,7 @@ void NetworkIO::Print(int num) const {
     for (int t = 0; t < Width(); ++t) {
       if (num == 0 || t < num || t + num >= Width()) {
         if (int_mode_) {
-          tprintf(" %g", static_cast<float>(i_[t][y]) / MAX_INT8);
+          tprintf(" %g", static_cast<float>(i_[t][y]) / INT8_MAX);
         } else {
           tprintf(" %g", f_[t][y]);
         }
@@ -423,7 +423,7 @@ void NetworkIO::Randomize(int t, int offset, int num_features,
   if (int_mode_) {
     int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i)
-      line[i] = IntCastRounded(randomizer->SignedRand(MAX_INT8));
+      line[i] = IntCastRounded(randomizer->SignedRand(INT8_MAX));
   } else {
     // float mode.
     float* line = f_[t] + offset;
@@ -604,7 +604,7 @@ void NetworkIO::ReadTimeStep(int t, double* output) const {
   if (int_mode_) {
     const int8_t* line = i_[t];
     for (int i = 0; i < i_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]) / MAX_INT8;
+      output[i] = static_cast<double>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t];
@@ -620,7 +620,7 @@ void NetworkIO::AddTimeStep(int t, double* inout) const {
   if (int_mode_) {
     const int8_t* line = i_[t];
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<double>(line[i]) / MAX_INT8;
+      inout[i] += static_cast<double>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t];
@@ -636,7 +636,7 @@ void NetworkIO::AddTimeStepPart(int t, int offset, int num_features,
   if (int_mode_) {
     const int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<float>(line[i]) / MAX_INT8;
+      inout[i] += static_cast<float>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t] + offset;
@@ -658,8 +658,8 @@ void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features,
   if (int_mode_) {
     int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
-      line[i] = ClipToRange(IntCastRounded(input[i] * MAX_INT8),
-                            -MAX_INT8, MAX_INT8);
+      line[i] = ClipToRange(IntCastRounded(input[i] * INT8_MAX),
+                            -INT8_MAX, INT8_MAX);
     }
   } else {
     float* line = f_[t] + offset;
@@ -750,7 +750,7 @@ void NetworkIO::CombineOutputs(const NetworkIO& base_output,
       int8_t* out_line = i_[t];
       const int8_t* base_line = base_output.i_[t];
       const int8_t* comb_line = combiner_output.i_[t];
-      float base_weight = static_cast<float>(comb_line[no]) / MAX_INT8;
+      float base_weight = static_cast<float>(comb_line[no]) / INT8_MAX;
       float boost_weight = 1.0f - base_weight;
       for (int i = 0; i < no; ++i) {
         out_line[i] = IntCastRounded(base_line[i] * base_weight +

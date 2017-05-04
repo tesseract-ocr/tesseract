@@ -191,7 +191,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
       BLOB_CHOICE_IT bc_it(choices);
       BLOB_CHOICE* choice = new BLOB_CHOICE(
           unichar_ids[i], ratings[i], certs[i], -1, 1.0f,
-          static_cast<float>(MAX_INT16), 0.0f, BCC_STATIC_CLASSIFIER);
+          static_cast<float>(INT16_MAX), 0.0f, BCC_STATIC_CLASSIFIER);
       int col = i - word_start;
       choice->set_matrix_cell(col, col);
       bc_it.add_after_then_move(choice);

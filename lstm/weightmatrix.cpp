@@ -93,7 +93,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
 // Converts a float network to an int network. Each set of input weights that
 // corresponds to a single output weight is converted independently:
 // Compute the max absolute value of the weight set.
-// Scale so the max absolute value becomes MAX_INT8.
+// Scale so the max absolute value becomes INT8_MAX.
 // Round to integer.
 // Store a multiplicative scale factor (as a double) that will reproduce
 //   the original value, subject to rounding errors.
@@ -109,7 +109,7 @@ void WeightMatrix::ConvertToInt() {
       double abs_val = fabs(f_line[f]);
       if (abs_val > max_abs) max_abs = abs_val;
     }
-    double scale = max_abs / MAX_INT8;
+    double scale = max_abs / INT8_MAX;
     scales_[t] = scale;
     if (scale == 0.0) scale = 1.0;
     for (int f = 0; f < dim2; ++f) {
