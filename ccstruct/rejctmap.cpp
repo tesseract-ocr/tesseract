@@ -272,15 +272,15 @@ REJMAP &REJMAP::operator=(const REJMAP &source) {
   return *this;
 }
 
-void REJMAP::initialise(inT16 length) {
+void REJMAP::initialise(int16_t length) {
   ptr.reset(new REJ[length]);
   len = length;
 }
 
 
-inT16 REJMAP::accept_count() {  //How many accepted?
+int16_t REJMAP::accept_count() {  //How many accepted?
   int i;
-  inT16 count = 0;
+  int16_t count = 0;
 
   for (i = 0; i < len; i++) {
     if (ptr[i].accepted ())
@@ -313,7 +313,7 @@ BOOL8 REJMAP::quality_recoverable_rejects() {  //Any potential rejs?
 
 
 void REJMAP::remove_pos(           //Cut out an element
-                        inT16 pos  //element to remove
+                        int16_t pos  //element to remove
                        ) {
   ASSERT_HOST (pos >= 0);
   ASSERT_HOST (pos < len);

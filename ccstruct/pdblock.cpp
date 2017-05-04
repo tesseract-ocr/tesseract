@@ -37,9 +37,9 @@ CLISTIZE (PDBLK)
  * Constructor for a simple rectangular block.
  **********************************************************************/
 PDBLK::PDBLK (                   //rectangular block
-inT16 xmin,                      //bottom left
-inT16 ymin, inT16 xmax,          //top right
-inT16 ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
+int16_t xmin,                      //bottom left
+int16_t ymin, int16_t xmax,          //top right
+int16_t ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
                                  //boundaries
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
@@ -177,7 +177,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
 #ifndef GRAPHICS_DISABLED
 void PDBLK::plot(                //draw outline
                  ScrollView* window,  //window to draw in
-                 inT32 serial,   //serial number
+                 int32_t serial,   //serial number
                  ScrollView::Color colour   //colour to draw in
                 ) {
   ICOORD startpt;                //start of outline
@@ -342,9 +342,9 @@ void BLOCK_RECT_IT::forward() {  //next rectangle
  * Get the the start and width of a line in the block.
  **********************************************************************/
 
-inT16 BLOCK_LINE_IT::get_line(             //get a line
-                              inT16 y,     //line to get
-                              inT16 &xext  //output extent
+int16_t BLOCK_LINE_IT::get_line(             //get a line
+                              int16_t y,     //line to get
+                              int16_t &xext  //output extent
                              ) {
   ICOORD bleft;                  //bounding box
   ICOORD tright;                 //of block & rect

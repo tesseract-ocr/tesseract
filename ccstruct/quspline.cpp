@@ -36,14 +36,14 @@
  **********************************************************************/
 
 QSPLINE::QSPLINE(                 //constructor
-                 inT32 count,     //no of segments
-                 inT32 *xstarts,  //start coords
+                 int32_t count,     //no of segments
+                 int32_t *xstarts,  //start coords
                  double *coeffs   //coefficients
                 ) {
-  inT32 index;                   //segment index
+  int32_t index;                   //segment index
 
                                  //get memory
-  xcoords = (inT32 *) alloc_mem ((count + 1) * sizeof (inT32));
+  xcoords = (int32_t *) alloc_mem ((count + 1) * sizeof (int32_t));
   quadratics = (QUAD_COEFFS *) alloc_mem (count * sizeof (QUAD_COEFFS));
   segments = count;
   for (index = 0; index < segments; index++) {
@@ -73,14 +73,14 @@ int degree                       //fit required
 ) {
   int pointindex;                /*no along text line */
   int segment;                   /*segment no */
-  inT32 *ptcounts;               //no in each segment
+  int32_t *ptcounts;               //no in each segment
   QLSQ qlsq;                     /*accumulator */
 
   segments = segcount;
-  xcoords = (inT32 *) alloc_mem ((segcount + 1) * sizeof (inT32));
-  ptcounts = (inT32 *) alloc_mem ((segcount + 1) * sizeof (inT32));
+  xcoords = (int32_t *) alloc_mem ((segcount + 1) * sizeof (int32_t));
+  ptcounts = (int32_t *) alloc_mem ((segcount + 1) * sizeof (int32_t));
   quadratics = (QUAD_COEFFS *) alloc_mem (segcount * sizeof (QUAD_COEFFS));
-  memmove (xcoords, xstarts, (segcount + 1) * sizeof (inT32));
+  memmove (xcoords, xstarts, (segcount + 1) * sizeof (int32_t));
   ptcounts[0] = 0;               /*none in any yet */
   for (segment = 0, pointindex = 0; pointindex < pointcount; pointindex++) {
     while (segment < segcount && xpts[pointindex] >= xstarts[segment]) {
@@ -175,9 +175,9 @@ const QSPLINE & source) {
     free_mem(quadratics);
 
   segments = source.segments;
-  xcoords = (inT32 *) alloc_mem ((segments + 1) * sizeof (inT32));
+  xcoords = (int32_t *) alloc_mem ((segments + 1) * sizeof (int32_t));
   quadratics = (QUAD_COEFFS *) alloc_mem (segments * sizeof (QUAD_COEFFS));
-  memmove (xcoords, source.xcoords, (segments + 1) * sizeof (inT32));
+  memmove (xcoords, source.xcoords, (segments + 1) * sizeof (int32_t));
   memmove (quadratics, source.quadratics, segments * sizeof (QUAD_COEFFS));
   return *this;
 }
@@ -217,7 +217,7 @@ double QSPLINE::step(            //find step functions
 double QSPLINE::y(          //evaluate
                   double x  //coord to evaluate at
                  ) const {
-  inT32 index;                   //segment index
+  int32_t index;                   //segment index
 
   index = spline_index (x);
   return quadratics[index].y (x);//in correct segment
@@ -230,12 +230,12 @@ double QSPLINE::y(          //evaluate
  * Return the index to the largest xcoord not greater than x.
  **********************************************************************/
 
-inT32 QSPLINE::spline_index(          //evaluate
+int32_t QSPLINE::spline_index(          //evaluate
                             double x  //coord to evaluate at
                            ) const {
-  inT32 index;                   //segment index
-  inT32 bottom;                  //bottom of range
-  inT32 top;                     //top of range
+  int32_t index;                   //segment index
+  int32_t bottom;                  //bottom of range
+  int32_t top;                     //top of range
 
   bottom = 0;
   top = segments;
@@ -259,8 +259,8 @@ inT32 QSPLINE::spline_index(          //evaluate
 void QSPLINE::move(            // reposition spline
                    ICOORD vec  // by vector
                   ) {
-  inT32 segment;                 //index of segment
-  inT16 x_shift = vec.x ();
+  int32_t segment;                 //index of segment
+  int16_t x_shift = vec.x ();
 
   for (segment = 0; segment < segments; segment++) {
     xcoords[segment] += x_shift;
@@ -348,7 +348,7 @@ void QSPLINE::extrapolate(                  //linear extrapolation
   segments = dest_segment;
   free_mem(xcoords);
   free_mem(quadratics);
-  xcoords = (inT32 *) xstarts;
+  xcoords = (int32_t *) xstarts;
   quadratics = quads;
 }
 
@@ -364,8 +364,8 @@ void QSPLINE::plot(                //draw it
                    ScrollView* window,  //window to draw in
                    ScrollView::Color colour   //colour to draw in
                   ) const {
-  inT32 segment;                 //index of segment
-  inT16 step;                    //index of poly piece
+  int32_t segment;                 //index of segment
+  int16_t step;                    //index of poly piece
   double increment;              //x increment
   double x;                      //x coord
 
@@ -391,8 +391,8 @@ void QSPLINE::plot(Pix *pix) const {
     return;
   }
 
-  inT32 segment;  // Index of segment
-  inT16 step;  // Index of poly piece
+  int32_t segment;  // Index of segment
+  int16_t step;  // Index of poly piece
   double increment;  // x increment
   double x;  // x coord
   double height = static_cast<double>(pixGetHeight(pix));

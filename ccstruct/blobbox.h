@@ -235,7 +235,7 @@ class BLOBNBOX:public ELIST_LINK
       red_box = new_box;
       reduced = true;
     }
-    inT32 enclosed_area() const {
+    int32_t enclosed_area() const {
       return area;
     }
     bool joined_to_prev() const {
@@ -510,13 +510,13 @@ class BLOBNBOX:public ELIST_LINK
   TabType right_tab_type_;      // Indicates tab-stop assessment
   BlobRegionType region_type_;  // Type of region this blob belongs to
   BlobTextFlowType flow_;       // Quality of text flow.
-  inT16 left_rule_;             // x-coord of nearest but not crossing rule line
-  inT16 right_rule_;            // x-coord of nearest but not crossing rule line
-  inT16 left_crossing_rule_;    // x-coord of nearest or crossing rule line
-  inT16 right_crossing_rule_;   // x-coord of nearest or crossing rule line
-  inT16 base_char_top_;         // y-coord of top/bottom of diacritic base,
-  inT16 base_char_bottom_;      // if it exists else top/bottom of this blob.
-  inT16 baseline_y_;            // Estimate of baseline position.
+  int16_t left_rule_;             // x-coord of nearest but not crossing rule line
+  int16_t right_rule_;            // x-coord of nearest but not crossing rule line
+  int16_t left_crossing_rule_;    // x-coord of nearest or crossing rule line
+  int16_t right_crossing_rule_;   // x-coord of nearest or crossing rule line
+  int16_t base_char_top_;         // y-coord of top/bottom of diacritic base,
+  int16_t base_char_bottom_;      // if it exists else top/bottom of this blob.
+  int16_t baseline_y_;            // Estimate of baseline position.
   int line_crossings_;          // Number of line intersections touched.
   BLOBNBOX* base_char_blob_;    // The blob that was the base char.
   float horz_stroke_width_;     // Median horizontal stroke width
@@ -641,8 +641,8 @@ class TO_ROW: public ELIST2_LINK
     BOOL8 merged;
     BOOL8 all_caps;              // had no ascenders
     BOOL8 used_dm_model;         // in guessing pitch
-    inT16 projection_left;       // start of projection
-    inT16 projection_right;      // start of projection
+    int16_t projection_left;       // start of projection
+    int16_t projection_right;      // start of projection
     PITCH_TYPE pitch_decision;   // how strong is decision
     float fixed_pitch;           // pitch or 0
     float fp_space;              // sp if fixed pitch
@@ -656,9 +656,9 @@ class TO_ROW: public ELIST2_LINK
     float descdrop;              // descenders
     float body_size;             // of CJK characters.  Assumed to be
                                  // xheight+ascrise for non-CJK text.
-    inT32 min_space;             // min size for real space
-    inT32 max_nonspace;          // max size of non-space
-    inT32 space_threshold;       // space vs nonspace
+    int32_t min_space;             // min size for real space
+    int32_t max_nonspace;          // max size of non-space
+    int32_t space_threshold;       // space vs nonspace
     float kern_size;             // average non-space
     float space_size;            // average space
     WERD_LIST rep_words;         // repeated chars
@@ -785,8 +785,8 @@ class TO_BLOCK:public ELIST_LINK
     float fixed_pitch;           //pitch or 0
     float kern_size;             //average non-space
     float space_size;            //average space
-    inT32 min_space;             //min definite space
-    inT32 max_nonspace;          //max definite
+    int32_t min_space;             //min definite space
+    int32_t max_nonspace;          //max definite
     float fp_space;              //sp if fixed pitch
     float fp_nonsp;              //nonsp if fixed pitch
     float pr_space;              //sp if prop

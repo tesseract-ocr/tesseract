@@ -48,8 +48,8 @@ class QSPLINE
     QSPLINE(  //copy constructor
             const QSPLINE &src);
     QSPLINE(                  //constructor
-            inT32 count,      //number of segments
-            inT32 *xstarts,   //segment starts
+            int32_t count,      //number of segments
+            int32_t *xstarts,   //segment starts
             double *coeffs);  //coefficients
     ~QSPLINE ();                 //destructor
     QSPLINE (                    //least squares fit
@@ -90,10 +90,10 @@ class QSPLINE
 
   private:
 
-    inT32 spline_index(                  //binary search
+    int32_t spline_index(                  //binary search
                        double x) const;  //for x
-    inT32 segments;              //no of segments
-    inT32 *xcoords;              //no of coords
+    int32_t segments;              //no of segments
+    int32_t *xcoords;              //no of coords
     QUAD_COEFFS *quadratics;     //spline pieces
 };
 #endif

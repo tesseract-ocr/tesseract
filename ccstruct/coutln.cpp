@@ -49,9 +49,9 @@ ICOORD C_OUTLINE::step_coords[4] = {
  */
 
 C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
-                     inT16 length)
+                     int16_t length)
     : box(bot_left, top_right), start(startpt->pos), offsets(NULL) {
-  inT16 stepindex;               //index to step
+  int16_t stepindex;               //index to step
   CRACKEDGE *edgept;             //current point
 
   stepcount = length;            //no of steps
@@ -60,7 +60,7 @@ C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
     return;
   }
                                  //get memory
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uint8_t *) alloc_mem (step_mem());
   memset(steps, 0, step_mem());
   edgept = startpt;
 
@@ -80,21 +80,21 @@ C_OUTLINE::C_OUTLINE (
 //constructor
                                  //steps to copy
 ICOORD startpt, DIR128 * new_steps,
-inT16 length                     //length of loop
+int16_t length                     //length of loop
 ):start (startpt), offsets(NULL) {
-  inT8 dirdiff;                  //direction difference
+  int8_t dirdiff;                  //direction difference
   DIR128 prevdir;                //previous direction
   DIR128 dir;                    //current direction
   DIR128 lastdir;                //dir of last step
   TBOX new_box;                   //easy bounding
-  inT16 stepindex;               //index to step
-  inT16 srcindex;                //source steps
+  int16_t stepindex;               //index to step
+  int16_t srcindex;                //source steps
   ICOORD pos;                    //current position
 
   pos = startpt;
   stepcount = length;            // No. of steps.
   ASSERT_HOST(length >= 0);
-  steps = static_cast<uinT8*>(alloc_mem(step_mem()));  // Get memory.
+  steps = static_cast<uint8_t*>(alloc_mem(step_mem()));  // Get memory.
   memset(steps, 0, step_mem());
 
   lastdir = new_steps[length - 1];
@@ -140,15 +140,15 @@ inT16 length                     //length of loop
 
 C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(NULL) {
   TBOX new_box;                   //easy bounding
-  inT16 stepindex;               //index to step
-  inT16 dirdiff;                 //direction change
+  int16_t stepindex;               //index to step
+  int16_t dirdiff;                 //direction change
   ICOORD pos;                    //current position
   ICOORD prevpos;                //previous dest point
 
   ICOORD destpos;                //destination point
-  inT16 destindex;               //index to step
+  int16_t destindex;               //index to step
   DIR128 dir;                    //coded direction
-  uinT8 new_step;
+  uint8_t new_step;
 
   stepcount = srcline->stepcount * 2;
   if (stepcount == 0) {
@@ -158,7 +158,7 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(NULL) {
     return;
   }
                                  //get memory
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uint8_t *) alloc_mem (step_mem());
   memset(steps, 0, step_mem());
 
   for (int iteration = 0; iteration < 2; ++iteration) {
@@ -252,10 +252,10 @@ void C_OUTLINE::FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines) {
  * Compute the area of the outline.
  */
 
-inT32 C_OUTLINE::area() const {
+int32_t C_OUTLINE::area() const {
   int stepindex;                 //current step
-  inT32 total_steps;             //steps to do
-  inT32 total;                   //total area
+  int32_t total_steps;             //steps to do
+  int32_t total;                   //total area
   ICOORD pos;                    //position of point
   ICOORD next_step;              //step to next pix
   // We aren't going to modify the list, or its contents, but there is
@@ -286,8 +286,8 @@ inT32 C_OUTLINE::area() const {
  * Compute the perimeter of the outline and its first level children.
  */
 
-inT32 C_OUTLINE::perimeter() const {
-  inT32 total_steps;             // Return value.
+int32_t C_OUTLINE::perimeter() const {
+  int32_t total_steps;             // Return value.
   // We aren't going to modify the list, or its contents, but there is
   // no const iterator.
   C_OUTLINE_IT it(const_cast<C_OUTLINE_LIST*>(&children));
@@ -305,10 +305,10 @@ inT32 C_OUTLINE::perimeter() const {
  * Compute the area of the outline.
  */
 
-inT32 C_OUTLINE::outer_area() const {
+int32_t C_OUTLINE::outer_area() const {
   int stepindex;                 //current step
-  inT32 total_steps;             //steps to do
-  inT32 total;                   //total area
+  int32_t total_steps;             //steps to do
+  int32_t total;                   //total area
   ICOORD pos;                    //position of point
   ICOORD next_step;              //step to next pix
 
@@ -337,7 +337,7 @@ inT32 C_OUTLINE::outer_area() const {
  * @param threshold winding number on size
  */
 
-inT32 C_OUTLINE::count_transitions(inT32 threshold) {
+int32_t C_OUTLINE::count_transitions(int32_t threshold) {
   BOOL8 first_was_max_x;         //what was first
   BOOL8 first_was_max_y;
   BOOL8 looking_for_max_x;       //what is next
@@ -345,11 +345,11 @@ inT32 C_OUTLINE::count_transitions(inT32 threshold) {
   BOOL8 looking_for_max_y;       //what is next
   BOOL8 looking_for_min_y;
   int stepindex;                 //current step
-  inT32 total_steps;             //steps to do
+  int32_t total_steps;             //steps to do
                                  //current limits
-  inT32 max_x, min_x, max_y, min_y;
-  inT32 initial_x, initial_y;    //initial limits
-  inT32 total;                   //total changes
+  int32_t max_x, min_x, max_y, min_y;
+  int32_t initial_x, initial_y;    //initial limits
+  int32_t total;                   //total changes
   ICOORD pos;                    //position of point
   ICOORD next_step;              //step to next pix
 
@@ -465,9 +465,9 @@ inT32 C_OUTLINE::count_transitions(inT32 threshold) {
 
 BOOL8
 C_OUTLINE::operator<(const C_OUTLINE& other) const {
-  inT16 count = 0;               //winding count
+  int16_t count = 0;               //winding count
   ICOORD pos;                    //position of point
-  inT32 stepindex;               //index to cstep
+  int32_t stepindex;               //index to cstep
 
   if (!box.overlap (other.box))
     return FALSE;                //can't be contained
@@ -497,12 +497,12 @@ C_OUTLINE::operator<(const C_OUTLINE& other) const {
  * @param point point to wind around
  */
 
-inT16 C_OUTLINE::winding_number(ICOORD point) const {
-  inT16 stepindex;               //index to cstep
-  inT16 count;                   //winding count
+int16_t C_OUTLINE::winding_number(ICOORD point) const {
+  int16_t stepindex;               //index to cstep
+  int16_t count;                   //winding count
   ICOORD vec;                    //to current point
   ICOORD stepvec;                //step vector
-  inT32 cross;                   //cross product
+  int32_t cross;                   //cross product
 
   vec = start - point;           //vector to it
   count = 0;
@@ -534,12 +534,12 @@ inT16 C_OUTLINE::winding_number(ICOORD point) const {
  * @return the sum direction delta of the outline.
  */
 
-inT16 C_OUTLINE::turn_direction() const {  //winding number
+int16_t C_OUTLINE::turn_direction() const {  //winding number
   DIR128 prevdir;                //previous direction
   DIR128 dir;                    //current direction
-  inT16 stepindex;               //index to cstep
-  inT8 dirdiff;                  //direction difference
-  inT16 count;                   //winding count
+  int16_t stepindex;               //index to cstep
+  int8_t dirdiff;                  //direction difference
+  int16_t count;                   //winding count
 
   if (stepcount == 0)
     return 128;
@@ -565,9 +565,9 @@ inT16 C_OUTLINE::turn_direction() const {  //winding number
 void C_OUTLINE::reverse() {  //reverse drection
   DIR128 halfturn = MODULUS / 2; //amount to shift
   DIR128 stepdir;                //direction of step
-  inT16 stepindex;               //index to cstep
-  inT16 farindex;                //index to other side
-  inT16 halfsteps;               //half of stepcount
+  int16_t stepindex;               //index to cstep
+  int16_t farindex;                //index to other side
+  int16_t halfsteps;               //half of stepcount
 
   halfsteps = (stepcount + 1) / 2;
   for (stepindex = 0; stepindex < halfsteps; stepindex++) {
@@ -794,8 +794,8 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
           (best_x - x) * best_diff;
     }
     offsets[s].offset_numerator =
-        static_cast<inT8>(ClipToRange(offset, -MAX_INT8, MAX_INT8));
-    offsets[s].pixel_diff = static_cast<uinT8>(ClipToRange(best_diff, 0 ,
+        static_cast<int8_t>(ClipToRange(offset, -MAX_INT8, MAX_INT8));
+    offsets[s].pixel_diff = static_cast<uint8_t>(ClipToRange(best_diff, 0 ,
                                                            MAX_UINT8));
     if (negative) gradient = -gradient;
     // Compute gradient angle quantized to 256 directions, rotated by 64 (pi/2)
@@ -879,8 +879,8 @@ void C_OUTLINE::ComputeBinaryOffsets() {
       offset = pos_totals[dir_index] - best_diff * edge_pos;
     }
     offsets[s].offset_numerator =
-        static_cast<inT8>(ClipToRange(offset, -MAX_INT8, MAX_INT8));
-    offsets[s].pixel_diff = static_cast<uinT8>(ClipToRange(best_diff, 0 ,
+        static_cast<int8_t>(ClipToRange(offset, -MAX_INT8, MAX_INT8));
+    offsets[s].pixel_diff = static_cast<uint8_t>(ClipToRange(best_diff, 0 ,
                                                            MAX_UINT8));
     // The direction is just the vector from start to end of the window.
     FCOORD direction(head_pos.x() - tail_pos.x(), head_pos.y() - tail_pos.y());
@@ -942,7 +942,7 @@ void C_OUTLINE::render_outline(int left, int top, Pix* pix) const {
 
 #ifndef GRAPHICS_DISABLED
 void C_OUTLINE::plot(ScrollView* window, ScrollView::Color colour) const {
-  inT16 stepindex;               // index to cstep
+  int16_t stepindex;               // index to cstep
   ICOORD pos;                    // current position
   DIR128 stepdir;                // direction of step
 
@@ -1015,7 +1015,7 @@ C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   if (steps != NULL)
     free_mem(steps);
   stepcount = source.stepcount;
-  steps = (uinT8 *) alloc_mem (step_mem());
+  steps = (uint8_t *) alloc_mem (step_mem());
   memmove (steps, source.steps, step_mem());
   if (!children.empty ())
     children.clear ();

@@ -204,7 +204,7 @@ class REJ
 class REJMAP
 {
   std::unique_ptr<REJ[]> ptr;  // ptr to the chars
-  inT16 len;                   // Number of chars
+  int16_t len;                 //Number of chars
 
  public:
   REJMAP() : len(0) {}
@@ -214,27 +214,27 @@ class REJMAP
   REJMAP &operator=(const REJMAP &source);
 
   // Sets up the ptr array to length, whatever it was before.
-  void initialise(inT16 length);
+  void initialise(int16_t length);
 
-  REJ &operator[](        // access function
-      inT16 index) const  // map index
+  REJ &operator[](         // access function
+      int16_t index) const // map index
   {
     ASSERT_HOST(index < len);
     return ptr[index];  // no bounds checks
     }
 
-    inT32 length() const {  //map length
+    int32_t length() const {  //map length
       return len;
     }
 
-    inT16 accept_count();  //How many accepted?
+    int16_t accept_count();  //How many accepted?
 
-    inT16 reject_count() {  //How many rejects?
+    int16_t reject_count() {  //How many rejects?
       return len - accept_count ();
     }
 
     void remove_pos(             //Cut out an element
-                    inT16 pos);  //element to remove
+                    int16_t pos);  //element to remove
 
     void print(FILE *fp);
 

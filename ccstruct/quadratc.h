@@ -48,8 +48,8 @@ class QUAD_COEFFS
         y - q = ax^2 - 2apx + ap^2 + bx - bp + c
           y = ax^2 + (b - 2ap)x + (c - bp + ap^2 + q)
       ************************************************************/
-      inT16 p = vec.x ();
-      inT16 q = vec.y ();
+      int16_t p = vec.x ();
+      int16_t q = vec.y ();
 
       c = (float) (c - b * p + a * p * p + q);
       b = (float) (b - 2 * a * p);

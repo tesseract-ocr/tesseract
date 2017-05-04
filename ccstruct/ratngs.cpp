@@ -172,7 +172,7 @@ BLOB_CHOICE* FindMatchingChoice(UNICHAR_ID char_id,
   return NULL;
 }
 
-const char *WERD_CHOICE::permuter_name(uinT8 permuter) {
+const char *WERD_CHOICE::permuter_name(uint8_t permuter) {
   return kPermuterTypeNames[permuter];
 }
 
@@ -227,7 +227,7 @@ void WERD_CHOICE::init(const char *src_string,
                        const char *src_lengths,
                        float src_rating,
                        float src_certainty,
-                       uinT8 src_permuter) {
+                       uint8_t src_permuter) {
   int src_string_len = strlen(src_string);
   if (src_string_len == 0) {
     this->init(8);

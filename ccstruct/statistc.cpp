@@ -37,14 +37,14 @@ using tesseract::KDPairInc;
  *
  * Construct a new stats element by allocating and zeroing the memory.
  **********************************************************************/
-STATS::STATS(inT32 min_bucket_value, inT32 max_bucket_value_plus_1) {
+STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
   if (max_bucket_value_plus_1 <= min_bucket_value) {
     min_bucket_value = 0;
     max_bucket_value_plus_1 = 1;
   }
   rangemin_ = min_bucket_value;                // setup
   rangemax_ = max_bucket_value_plus_1;
-  buckets_ = new inT32[rangemax_ - rangemin_];
+  buckets_ = new int32_t[rangemax_ - rangemin_];
   clear();
 }
 
@@ -59,13 +59,13 @@ STATS::STATS() {
  *
  * Alter the range on an existing stats element.
  **********************************************************************/
-bool STATS::set_range(inT32 min_bucket_value, inT32 max_bucket_value_plus_1) {
+bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
   if (max_bucket_value_plus_1 <= min_bucket_value) {
     return false;
   }
   if (rangemax_ - rangemin_ != max_bucket_value_plus_1 - min_bucket_value) {
     delete [] buckets_;
-    buckets_ = new inT32[max_bucket_value_plus_1 - min_bucket_value];
+    buckets_ = new int32_t[max_bucket_value_plus_1 - min_bucket_value];
   }
   rangemin_ = min_bucket_value;                // setup
   rangemax_ = max_bucket_value_plus_1;
@@ -96,7 +96,7 @@ STATS::~STATS() { delete[] buckets_; }
  *
  * Add a set of samples to (or delete from) a pile.
  **********************************************************************/
-void STATS::add(inT32 value, inT32 count) {
+void STATS::add(int32_t value, int32_t count) {
   if (buckets_ == NULL) {
     return;
   }
@@ -110,12 +110,12 @@ void STATS::add(inT32 value, inT32 count) {
  *
  * Find the mode of a stats class.
  **********************************************************************/
-inT32 STATS::mode() const {  // get mode of samples
+int32_t STATS::mode() const {  // get mode of samples
   if (buckets_ == NULL) {
     return rangemin_;
   }
-  inT32 max = buckets_[0];           // max cell count
-  inT32 maxindex = 0;                // index of max
+  int32_t max = buckets_[0];           // max cell count
+  int32_t maxindex = 0;                // index of max
   for (int index = rangemax_ - rangemin_ - 1; index > 0; --index) {
     if (buckets_[index] > max) {
       max = buckets_[index];      // find biggest
@@ -134,9 +134,9 @@ double STATS::mean() const {  //get mean of samples
   if (buckets_ == NULL || total_count_ <= 0) {
     return static_cast<double>(rangemin_);
   }
-  inT64 sum = 0;
+  int64_t sum = 0;
   for (int index = rangemax_ - rangemin_ - 1; index >= 0; --index) {
-    sum += static_cast<inT64>(index) * buckets_[index];
+    sum += static_cast<int64_t>(index) * buckets_[index];
   }
   return static_cast<double>(sum) / total_count_ + rangemin_;
 }
@@ -150,10 +150,10 @@ double STATS::sd() const {  //standard deviation
   if (buckets_ == NULL || total_count_ <= 0) {
     return 0.0;
   }
-  inT64 sum = 0;
+  int64_t sum = 0;
   double sqsum = 0.0;
   for (int index = rangemax_ - rangemin_ - 1; index >= 0; --index) {
-    sum += static_cast<inT64>(index) * buckets_[index];
+    sum += static_cast<int64_t>(index) * buckets_[index];
     sqsum += static_cast<double>(index) * index * buckets_[index];
   }
   double variance = static_cast<double>(sum) / total_count_;
@@ -201,11 +201,11 @@ double STATS::ile(double frac) const {
  *
  * Find REAL minimum bucket - ile(0.0) isn't necessarily correct
  **********************************************************************/
-inT32 STATS::min_bucket() const {  // Find min
+int32_t STATS::min_bucket() const {  // Find min
   if (buckets_ == NULL || total_count_ == 0) {
     return rangemin_;
   }
-  inT32 min = 0;
+  int32_t min = 0;
   for (min = 0; (min < rangemax_ - rangemin_) && (buckets_[min] == 0); min++);
   return rangemin_ + min;
 }
@@ -216,11 +216,11 @@ inT32 STATS::min_bucket() const {  // Find min
  * Find REAL maximum bucket - ile(1.0) isn't necessarily correct
  **********************************************************************/
 
-inT32 STATS::max_bucket() const {  // Find max
+int32_t STATS::max_bucket() const {  // Find max
   if (buckets_ == NULL || total_count_ == 0) {
     return rangemin_;
   }
-  inT32 max;
+  int32_t max;
   for (max = rangemax_ - rangemin_ - 1; max > 0 && buckets_[max] == 0; max--);
   return rangemin_ + max;
 }
@@ -241,8 +241,8 @@ double STATS::median() const {  //get median
   double median = ile(0.5);
   int median_pile = static_cast<int>(floor(median));
   if ((total_count_ > 1) && (pile_count(median_pile) == 0)) {
-    inT32 min_pile;
-    inT32 max_pile;
+    int32_t min_pile;
+    int32_t max_pile;
     /* Find preceding non zero pile */
     for (min_pile = median_pile; pile_count(min_pile) == 0; min_pile--);
     /* Find following non zero pile */
@@ -257,14 +257,14 @@ double STATS::median() const {  //get median
  *
  * Return TRUE if this point is a local min.
  **********************************************************************/
-bool STATS::local_min(inT32 x) const {
+bool STATS::local_min(int32_t x) const {
   if (buckets_ == NULL) {
     return false;
   }
   x = ClipToRange(x, rangemin_, rangemax_ - 1) - rangemin_;
   if (buckets_[x] == 0)
     return true;
-  inT32 index;                   // table index
+  int32_t index;                   // table index
   for (index = x - 1; index >= 0 && buckets_[index] == buckets_[x]; --index);
   if (index >= 0 && buckets_[index] < buckets_[x])
     return false;
@@ -284,7 +284,7 @@ bool STATS::local_min(inT32 x) const {
  * The factor gives the height of the triangle, i.e. the weight of the
  * centre.
  **********************************************************************/
-void STATS::smooth(inT32 factor) {
+void STATS::smooth(int32_t factor) {
   if (buckets_ == NULL || factor < 2) {
     return;
   }
@@ -315,22 +315,22 @@ void STATS::smooth(inT32 factor) {
  * The return value is the current number of clusters.
  **********************************************************************/
 
-inT32 STATS::cluster(float lower,         // thresholds
+int32_t STATS::cluster(float lower,         // thresholds
                      float upper,
                      float multiple,      // distance threshold
-                     inT32 max_clusters,  // max no to make
+                     int32_t max_clusters,  // max no to make
                      STATS *clusters) {   // array of clusters
   BOOL8 new_cluster;             // added one
   float *centres;                // cluster centres
-  inT32 entry;                   // bucket index
-  inT32 cluster;                 // cluster index
-  inT32 best_cluster;            // one to assign to
-  inT32 new_centre = 0;          // residual mode
-  inT32 new_mode;                // pile count of new_centre
-  inT32 count;                   // pile to place
+  int32_t entry;                   // bucket index
+  int32_t cluster;                 // cluster index
+  int32_t best_cluster;            // one to assign to
+  int32_t new_centre = 0;          // residual mode
+  int32_t new_mode;                // pile count of new_centre
+  int32_t count;                   // pile to place
   float dist;                    // from cluster
   float min_dist;                // from best_cluster
-  inT32 cluster_count;           // no of clusters
+  int32_t cluster_count;           // no of clusters
 
   if (buckets_ == NULL || max_clusters < 1)
     return 0;
@@ -533,8 +533,8 @@ void STATS::print() const {
   if (buckets_ == NULL) {
     return;
   }
-  inT32 min = min_bucket() - rangemin_;
-  inT32 max = max_bucket() - rangemin_;
+  int32_t min = min_bucket() - rangemin_;
+  int32_t max = max_bucket() - rangemin_;
 
   int num_printed = 0;
   for (int index = min; index <= max; index++) {
@@ -559,8 +559,8 @@ void STATS::print_summary() const {
   if (buckets_ == NULL) {
     return;
   }
-  inT32 min = min_bucket();
-  inT32 max = max_bucket();
+  int32_t min = min_bucket();
+  int32_t max = max_bucket();
   tprintf("Total count=%d\n", total_count_);
   tprintf("Min=%.2f Really=%d\n", ile(0.0), min);
   tprintf("Lower quartile=%.2f\n", ile(0.25));
@@ -633,11 +633,11 @@ void STATS::plotline(ScrollView* window,  // to draw in
  * if the members were sorted, without actually sorting.
  **********************************************************************/
 
-inT32 choose_nth_item(inT32 index, float *array, inT32 count) {
-  inT32 next_sample;             // next one to do
-  inT32 next_lesser;             // space for new
-  inT32 prev_greater;            // last one saved
-  inT32 equal_count;             // no of equal ones
+int32_t choose_nth_item(int32_t index, float *array, int32_t count) {
+  int32_t next_sample;             // next one to do
+  int32_t next_lesser;             // space for new
+  int32_t prev_greater;            // last one saved
+  int32_t equal_count;             // no of equal ones
   float pivot;                   // proposed median
   float sample;                  // current sample
 
@@ -656,7 +656,7 @@ inT32 choose_nth_item(inT32 index, float *array, inT32 count) {
       index = 0;                 // ensure legal
     else if (index >= count)
       index = count - 1;
-    equal_count = (inT32) (rand() % count);
+    equal_count = (int32_t) (rand() % count);
     pivot = array[equal_count];
                                  // fill gap
     array[equal_count] = array[0];
@@ -700,14 +700,14 @@ inT32 choose_nth_item(inT32 index, float *array, inT32 count) {
  * Returns the index of what would be the nth item in the array
  * if the members were sorted, without actually sorting.
  **********************************************************************/
-inT32 choose_nth_item(inT32 index, void *array, inT32 count, size_t size,
+int32_t choose_nth_item(int32_t index, void *array, int32_t count, size_t size,
                       int (*compar)(const void*, const void*)) {
   int result;                    // of compar
-  inT32 next_sample;             // next one to do
-  inT32 next_lesser;             // space for new
-  inT32 prev_greater;            // last one saved
-  inT32 equal_count;             // no of equal ones
-  inT32 pivot;                   // proposed median
+  int32_t next_sample;             // next one to do
+  int32_t next_lesser;             // space for new
+  int32_t prev_greater;            // last one saved
+  int32_t equal_count;             // no of equal ones
+  int32_t pivot;                   // proposed median
 
   if (count <= 1)
     return 0;
@@ -723,7 +723,7 @@ inT32 choose_nth_item(inT32 index, void *array, inT32 count, size_t size,
     index = 0;                   // ensure legal
   else if (index >= count)
     index = count - 1;
-  pivot = (inT32) (rand () % count);
+  pivot = (int32_t) (rand () % count);
   swap_entries (array, size, pivot, 0);
   next_lesser = 0;
   prev_greater = count;
@@ -763,8 +763,8 @@ inT32 choose_nth_item(inT32 index, void *array, inT32 count, size_t size,
  **********************************************************************/
 void swap_entries(void *array,   // array of entries
                   size_t size,   // size of entry
-                  inT32 index1,  // entries to swap
-                  inT32 index2) {
+                  int32_t index1,  // entries to swap
+                  int32_t index2) {
   char tmp;
   char *ptr1;                    // to entries
   char *ptr2;

@@ -38,7 +38,7 @@ class DLLSYM TBOX  {  // bounding box
         const ICOORD pt2);  // the other corner
 
     TBOX(                    // constructor
-        inT16 left, inT16 bottom, inT16 right, inT16 top);
+        int16_t left, int16_t bottom, int16_t right, int16_t top);
 
     TBOX(  // box around FCOORD
         const FCOORD pt);
@@ -51,28 +51,28 @@ class DLLSYM TBOX  {  // bounding box
       return bot_left == other.bot_left && top_right == other.top_right;
     }
 
-    inT16 top() const {  // coord of top
+    int16_t top() const {  // coord of top
       return top_right.y ();
     }
     void set_top(int y) {
       top_right.set_y(y);
     }
 
-    inT16 bottom() const {  // coord of bottom
+    int16_t bottom() const {  // coord of bottom
       return bot_left.y ();
     }
     void set_bottom(int y) {
       bot_left.set_y(y);
     }
 
-    inT16 left() const {  // coord of left
+    int16_t left() const {  // coord of left
       return bot_left.x ();
     }
     void set_left(int x) {
       bot_left.set_x(x);
     }
 
-    inT16 right() const {  // coord of right
+    int16_t right() const {  // coord of right
       return top_right.x ();
     }
     void set_right(int x) {
@@ -101,21 +101,21 @@ class DLLSYM TBOX  {  // bounding box
       return top_right;
     }
 
-    inT16 height() const {  // how high is it?
+    int16_t height() const {  // how high is it?
       if (!null_box ())
         return top_right.y () - bot_left.y ();
       else
         return 0;
     }
 
-    inT16 width() const {  // how high is it?
+    int16_t width() const {  // how high is it?
       if (!null_box ())
         return top_right.x () - bot_left.x ();
       else
         return 0;
     }
 
-    inT32 area() const {  // what is the area?
+    int32_t area() const {  // what is the area?
       if (!null_box ())
         return width () * height ();
       else
@@ -131,22 +131,22 @@ class DLLSYM TBOX  {  // bounding box
     }
 
     void move_bottom_edge(                  // move one edge
-                          const inT16 y) {  // by +/- y
+                          const int16_t y) {  // by +/- y
       bot_left += ICOORD (0, y);
     }
 
     void move_left_edge(                  // move one edge
-                        const inT16 x) {  // by +/- x
+                        const int16_t x) {  // by +/- x
       bot_left += ICOORD (x, 0);
     }
 
     void move_right_edge(                  // move one edge
-                         const inT16 x) {  // by +/- x
+                         const int16_t x) {  // by +/- x
       top_right += ICOORD (x, 0);
     }
 
     void move_top_edge(                  // move one edge
-                       const inT16 y) {  // by +/- y
+                       const int16_t y) {  // by +/- y
       top_right += ICOORD (0, y);
     }
 
@@ -158,29 +158,29 @@ class DLLSYM TBOX  {  // bounding box
 
     void move(                     // move box
               const FCOORD vec) {  // by float vector
-      bot_left.set_x ((inT16) floor (bot_left.x () + vec.x ()));
+      bot_left.set_x ((int16_t) floor (bot_left.x () + vec.x ()));
       // round left
-      bot_left.set_y ((inT16) floor (bot_left.y () + vec.y ()));
+      bot_left.set_y ((int16_t) floor (bot_left.y () + vec.y ()));
       // round down
-      top_right.set_x ((inT16) ceil (top_right.x () + vec.x ()));
+      top_right.set_x ((int16_t) ceil (top_right.x () + vec.x ()));
       // round right
-      top_right.set_y ((inT16) ceil (top_right.y () + vec.y ()));
+      top_right.set_y ((int16_t) ceil (top_right.y () + vec.y ()));
       // round up
     }
 
     void scale(                  // scale box
                const float f) {  // by multiplier
-      bot_left.set_x ((inT16) floor (bot_left.x () * f));  // round left
-      bot_left.set_y ((inT16) floor (bot_left.y () * f));  // round down
-      top_right.set_x ((inT16) ceil (top_right.x () * f));  // round right
-      top_right.set_y ((inT16) ceil (top_right.y () * f));  // round up
+      bot_left.set_x ((int16_t) floor (bot_left.x () * f));  // round left
+      bot_left.set_y ((int16_t) floor (bot_left.y () * f));  // round down
+      top_right.set_x ((int16_t) ceil (top_right.x () * f));  // round right
+      top_right.set_y ((int16_t) ceil (top_right.y () * f));  // round up
     }
     void scale(                     // scale box
                const FCOORD vec) {  // by float vector
-      bot_left.set_x ((inT16) floor (bot_left.x () * vec.x ()));
-      bot_left.set_y ((inT16) floor (bot_left.y () * vec.y ()));
-      top_right.set_x ((inT16) ceil (top_right.x () * vec.x ()));
-      top_right.set_y ((inT16) ceil (top_right.y () * vec.y ()));
+      bot_left.set_x ((int16_t) floor (bot_left.x () * vec.x ()));
+      bot_left.set_y ((int16_t) floor (bot_left.y () * vec.y ()));
+      top_right.set_x ((int16_t) ceil (top_right.x () * vec.x ()));
+      top_right.set_y ((int16_t) ceil (top_right.y () * vec.y ()));
     }
 
     // rotate doesn't enlarge the box - it just rotates the bottom-left
@@ -310,8 +310,8 @@ class DLLSYM TBOX  {  // bounding box
 inline TBOX::TBOX(   // constructor
     const FCOORD pt  // floating centre
     ) {
-  bot_left = ICOORD ((inT16) floor (pt.x ()), (inT16) floor (pt.y ()));
-  top_right = ICOORD ((inT16) ceil (pt.x ()), (inT16) ceil (pt.y ()));
+  bot_left = ICOORD ((int16_t) floor (pt.x ()), (int16_t) floor (pt.y ()));
+  top_right = ICOORD ((int16_t) ceil (pt.x ()), (int16_t) ceil (pt.y ()));
 }
 
 
@@ -400,7 +400,7 @@ inline bool TBOX::x_overlap(const TBOX &box) const {
  **********************************************************************/
 
 inline bool TBOX::major_x_overlap(const TBOX &box) const {
-  inT16 overlap = box.width();
+  int16_t overlap = box.width();
   if (this->left() > box.left()) {
     overlap -= this->left() - box.left();
   }
@@ -427,7 +427,7 @@ inline bool TBOX::y_overlap(const TBOX &box) const {
  **********************************************************************/
 
 inline bool TBOX::major_y_overlap(const TBOX &box) const {
-  inT16 overlap = box.height();
+  int16_t overlap = box.height();
   if (this->bottom() > box.bottom()) {
     overlap -= this->bottom() - box.bottom();
   }

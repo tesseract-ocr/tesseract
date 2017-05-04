@@ -59,7 +59,7 @@ const int par2 = 6750 / (approx_dist * approx_dist);
 
 TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE* c_outline) {
   TBOX loop_box;                  // bounding box
-  inT32 area;                    // loop area
+  int32_t area;                    // loop area
   EDGEPT stack_edgepts[FASTEDGELENGTH];  // converted path
   EDGEPT* edgepts = stack_edgepts;
 
@@ -116,15 +116,15 @@ edgesteps_to_edgepts (           //convert outline
 C_OUTLINE * c_outline,           //input
 EDGEPT edgepts[]                 //output is array
 ) {
-  inT32 length;                  //steps in path
+  int32_t length;                  //steps in path
   ICOORD pos;                    //current coords
-  inT32 stepindex;               //current step
-  inT32 stepinc;                 //increment
-  inT32 epindex;                 //current EDGEPT
-  inT32 count;                   //repeated steps
+  int32_t stepindex;               //current step
+  int32_t stepinc;                 //increment
+  int32_t epindex;                 //current EDGEPT
+  int32_t count;                   //repeated steps
   ICOORD vec;                    //for this 8 step
   ICOORD prev_vec;
-  inT8 epdir;                    //of this step
+  int8_t epdir;                    //of this step
   DIR128 prevdir;                //prvious dir
   DIR128 dir;                    //of this step
 

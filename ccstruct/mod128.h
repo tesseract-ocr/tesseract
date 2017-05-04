@@ -33,33 +33,33 @@ class DLLSYM DIR128
     }                            //empty constructor
 
     DIR128(                //constructor
-           inT16 value) {  //value to assign
+           int16_t value) {  //value to assign
       value %= MODULUS;          //modulo arithmetic
       if (value < 0)
         value += MODULUS;        //done properly
-      dir = (inT8) value;
+      dir = (int8_t) value;
     }
     DIR128(const FCOORD fc);  //quantize vector
 
-    DIR128 & operator= (         //assign of inT16
-    inT16 value) {               //value to assign
+    DIR128 & operator= (         //assign of int16_t
+    int16_t value) {               //value to assign
       value %= MODULUS;          //modulo arithmetic
       if (value < 0)
         value += MODULUS;        //done properly
-      dir = (inT8) value;
+      dir = (int8_t) value;
       return *this;
     }
-    inT8 operator- (             //subtraction
+    int8_t operator- (             //subtraction
       const DIR128 & minus) const//for signed result
     {
                                  //result
-      inT16 result = dir - minus.dir;
+      int16_t result = dir - minus.dir;
 
       if (result > MODULUS / 2)
         result -= MODULUS;       //get in range
       else if (result < -MODULUS / 2)
         result += MODULUS;
-      return (inT8) result;
+      return (int8_t) result;
     }
     DIR128 operator+ (           //addition
       const DIR128 & add) const  //of itself
@@ -74,11 +74,11 @@ class DLLSYM DIR128
       *this = dir + add.dir;     //let = do the work
       return *this;
     }
-    inT8 get_dir() const {  //access function
+    int8_t get_dir() const {  //access function
       return dir;
     }
 
   private:
-    inT8 dir;                    //a direction
+    int8_t dir;                    //a direction
 };
 #endif

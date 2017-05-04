@@ -34,11 +34,11 @@ ELISTIZE (BLOCK)
  */
 BLOCK::BLOCK(const char *name,                //< filename
              BOOL8 prop,                      //< proportional
-             inT16 kern,                      //< kerning
-             inT16 space,                     //< spacing
-             inT16 xmin,                      //< bottom left
-             inT16 ymin, inT16 xmax,          //< top right
-             inT16 ymax)
+             int16_t kern,                      //< kerning
+             int16_t space,                     //< spacing
+             int16_t xmin,                      //< bottom left
+             int16_t ymin, int16_t xmax,          //< top right
+             int16_t ymax)
   : PDBLK (xmin, ymin, xmax, ymax),
     filename(name),
     re_rotation_(1.0f, 0.0f),

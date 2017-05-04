@@ -28,9 +28,9 @@ class CRACKEDGE {
   CRACKEDGE() {}
 
   ICOORD pos;                  /*position of crack */
-  inT8 stepx;                  //edge step
-  inT8 stepy;
-  inT8 stepdir;                //chaincode
+  int8_t stepx;                  //edge step
+  int8_t stepy;
+  int8_t stepdir;                //chaincode
   CRACKEDGE *prev;             /*previous point */
   CRACKEDGE *next;             /*next point */
 };

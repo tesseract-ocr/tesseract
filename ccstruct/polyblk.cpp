@@ -99,12 +99,12 @@ void POLY_BLOCK::compute_bb() {  //constructor
  * @param point point to wind around
  */
 
-inT16 POLY_BLOCK::winding_number(const ICOORD &point) {
-  inT16 count;                   //winding count
+int16_t POLY_BLOCK::winding_number(const ICOORD &point) {
+  int16_t count;                   //winding count
   ICOORD pt;                     //current point
   ICOORD vec;                    //point to current point
   ICOORD vvec;                   //current point to next point
-  inT32 cross;                   //cross product
+  int32_t cross;                   //cross product
   ICOORDELT_IT it = &vertices;   //iterator
 
   count = 0;
@@ -138,7 +138,7 @@ inT16 POLY_BLOCK::winding_number(const ICOORD &point) {
 
 /// @return true if other is inside this.
 bool POLY_BLOCK::contains(POLY_BLOCK *other) {
-  inT16 count;                   // winding count
+  int16_t count;                   // winding count
   ICOORDELT_IT it = &vertices;   // iterator
   ICOORD vertex;
 
@@ -193,8 +193,8 @@ void POLY_BLOCK::rotate(FCOORD rotation) {
     pos.set_x (pt->x ());
     pos.set_y (pt->y ());
     pos.rotate (rotation);
-    pt->set_x ((inT16) (floor (pos.x () + 0.5)));
-    pt->set_y ((inT16) (floor (pos.y () + 0.5)));
+    pt->set_x ((int16_t) (floor (pos.x () + 0.5)));
+    pt->set_y ((int16_t) (floor (pos.y () + 0.5)));
     pts.forward ();
   }
   while (!pts.at_first ());
@@ -243,7 +243,7 @@ void POLY_BLOCK::move(ICOORD shift) {
 
 
 #ifndef GRAPHICS_DISABLED
-void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
+void POLY_BLOCK::plot(ScrollView* window, int32_t num) {
   ICOORDELT_IT v = &vertices;
 
   window->Pen(ColorForPolyBlockType(type));
@@ -271,8 +271,8 @@ void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
 
 
 void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
-  inT16 y;
-  inT16 width;
+  int16_t y;
+  int16_t width;
   PB_LINE_IT *lines;
   ICOORDELT_IT s_it;
 
@@ -303,7 +303,7 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 
 /// @return true if the polygons of other and this overlap.
 bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
-  inT16 count;                   // winding count
+  int16_t count;                   // winding count
   ICOORDELT_IT it = &vertices;   // iterator
   ICOORD vertex;
 
@@ -341,7 +341,7 @@ bool POLY_BLOCK::overlap(POLY_BLOCK *other) {
 }
 
 
-ICOORDELT_LIST *PB_LINE_IT::get_line(inT16 y) {
+ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
   ICOORDELT_IT v, r;
   ICOORDELT_LIST *result;
   ICOORDELT *x, *current, *previous;
@@ -361,7 +361,7 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(inT16 y) {
         (current->x () - previous->x ()) * (fy -
         previous->y ()) /
         (current->y () - previous->y ()));
-      x = new ICOORDELT ((inT16) fx, 0);
+      x = new ICOORDELT ((int16_t) fx, 0);
       r.add_to_end (x);
     }
   }

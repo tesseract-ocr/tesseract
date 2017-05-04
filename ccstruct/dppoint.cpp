@@ -39,7 +39,7 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
   for (int i = 0; i < size; ++i) {
     for (int offset = min_step; offset <= max_step; ++offset) {
       DPPoint* prev = offset <= i ? points + i - offset : NULL;
-      inT64 new_cost = (points[i].*cost_func)(prev);
+      int64_t new_cost = (points[i].*cost_func)(prev);
       if (points[i].best_prev_ != NULL && offset > min_step * 2 &&
           new_cost > points[i].total_cost_)
         break;  // Find only the first minimum if going over twice the min.
@@ -65,25 +65,25 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
 }
 
 // A CostFunc that takes the variance of step into account in the cost.
-inT64 DPPoint::CostWithVariance(const DPPoint* prev) {
+int64_t DPPoint::CostWithVariance(const DPPoint* prev) {
   if (prev == NULL || prev == this) {
     UpdateIfBetter(0, 1, NULL, 0, 0, 0);
     return 0;
   }
 
   int delta = this - prev;
-  inT32 n = prev->n_ + 1;
-  inT32 sig_x = prev->sig_x_ + delta;
-  inT64 sig_xsq = prev->sig_xsq_ + delta * delta;
-  inT64 cost = (sig_xsq - sig_x * sig_x / n) / n;
+  int32_t n = prev->n_ + 1;
+  int32_t sig_x = prev->sig_x_ + delta;
+  int64_t sig_xsq = prev->sig_xsq_ + delta * delta;
+  int64_t cost = (sig_xsq - sig_x * sig_x / n) / n;
   cost += prev->total_cost_;
   UpdateIfBetter(cost, prev->total_steps_ + 1, prev, n, sig_x, sig_xsq);
   return cost;
 }
 
 // Update the other members if the cost is lower.
-void DPPoint::UpdateIfBetter(inT64 cost, inT32 steps, const DPPoint* prev,
-                             inT32 n, inT32 sig_x, inT64 sig_xsq) {
+void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
+                             int32_t n, int32_t sig_x, int64_t sig_xsq) {
   if (cost < total_cost_) {
     total_cost_ = cost;
     total_steps_ = steps;

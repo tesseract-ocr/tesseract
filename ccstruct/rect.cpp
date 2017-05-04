@@ -62,7 +62,7 @@ TBOX::TBOX(            // constructor
  **********************************************************************/
 
 TBOX::TBOX(                    //constructor
-    inT16 left, inT16 bottom, inT16 right, inT16 top)
+    int16_t left, int16_t bottom, int16_t right, int16_t top)
     : bot_left(left, bottom), top_right(right, top) {
 }
 
@@ -86,10 +86,10 @@ void TBOX::rotate_large(const FCOORD& vec) {
 
 TBOX TBOX::intersection(  //shared area box
                       const TBOX &box) const {
-  inT16 left;
-  inT16 bottom;
-  inT16 right;
-  inT16 top;
+  int16_t left;
+  int16_t bottom;
+  int16_t right;
+  int16_t top;
   if (overlap (box)) {
     if (box.bot_left.x () > bot_left.x ())
       left = box.bot_left.x ();

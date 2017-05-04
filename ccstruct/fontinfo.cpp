@@ -60,7 +60,7 @@ bool FontInfoTable::DeSerialize(TFile* fp) {
 // properties as font_id.
 bool FontInfoTable::SetContainsFontProperties(
     int font_id, const GenericVector<ScoredFont>& font_set) const {
-  uinT32 properties = get(font_id).properties;
+  uint32_t properties = get(font_id).properties;
   for (int f = 0; f < font_set.size(); ++f) {
     if (get(font_set[f].fontinfo_id).properties == properties)
       return true;
@@ -73,7 +73,7 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
     const GenericVector<ScoredFont>& font_set) const {
   if (font_set.empty()) return false;
   int first_font = font_set[0].fontinfo_id;
-  uinT32 properties = get(first_font).properties;
+  uint32_t properties = get(first_font).properties;
   for (int f = 1; f < font_set.size(); ++f) {
     if (get(font_set[f].fontinfo_id).properties != properties)
       return true;
@@ -150,7 +150,7 @@ void FontSetDeleteCallback(FontSet fs) {
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
 bool read_info(TFile* f, FontInfo* fi) {
-  inT32 size;
+  int32_t size;
   if (f->FReadEndian(&size, sizeof(size), 1) != 1) return false;
   char* font_name = new char[size + 1];
   fi->name = font_name;
@@ -162,7 +162,7 @@ bool read_info(TFile* f, FontInfo* fi) {
 }
 
 bool write_info(FILE* f, const FontInfo& fi) {
-  inT32 size = strlen(fi.name);
+  int32_t size = strlen(fi.name);
   if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
   if (static_cast<int>(fwrite(fi.name, sizeof(*fi.name), size, f)) != size)
     return false;
@@ -171,7 +171,7 @@ bool write_info(FILE* f, const FontInfo& fi) {
 }
 
 bool read_spacing_info(TFile* f, FontInfo* fi) {
-  inT32 vec_size, kern_size;
+  int32_t vec_size, kern_size;
   if (f->FReadEndian(&vec_size, sizeof(vec_size), 1) != 1) return false;
   ASSERT_HOST(vec_size >= 0);
   if (vec_size == 0) return true;
@@ -199,12 +199,12 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
 }
 
 bool write_spacing_info(FILE* f, const FontInfo& fi) {
-  inT32 vec_size = (fi.spacing_vec == NULL) ? 0 : fi.spacing_vec->size();
+  int32_t vec_size = (fi.spacing_vec == NULL) ? 0 : fi.spacing_vec->size();
   if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
-  inT16 x_gap_invalid = -1;
+  int16_t x_gap_invalid = -1;
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = fi.spacing_vec->get(i);
-    inT32 kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
+    int32_t kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
     if (fs == NULL) {
       // Valid to have the identical fwrites. Writing invalid x-gaps.
       if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||

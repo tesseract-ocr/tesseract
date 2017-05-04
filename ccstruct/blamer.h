@@ -30,7 +30,7 @@
 #include "strngs.h"
 #include "tesscallback.h"
 
-static const inT16 kBlamerBoxTolerance = 5;
+static const int16_t kBlamerBoxTolerance = 5;
 
 // Enum for expressing the source of error.
 // Note: Please update kIncorrectResultReasonNames when modifying this enum.

@@ -46,7 +46,7 @@ class DPPoint {
   // The cost function evaluates the total cost at this (excluding this's
   // local_cost) and if it beats this's total_cost, then
   // replace the appropriate values in this.
-  typedef inT64 (DPPoint::*CostFunc)(const DPPoint* prev);
+  typedef int64_t (DPPoint::*CostFunc)(const DPPoint* prev);
 
   DPPoint()
     : local_cost_(0), total_cost_(MAX_INT32), total_steps_(1), best_prev_(NULL),
@@ -62,7 +62,7 @@ class DPPoint {
                         CostFunc cost_func, int size, DPPoint* points);
 
   // A CostFunc that takes the variance of step into account in the cost.
-  inT64 CostWithVariance(const DPPoint* prev);
+  int64_t CostWithVariance(const DPPoint* prev);
 
   // Accessors.
   int total_cost() const {
@@ -82,18 +82,18 @@ class DPPoint {
   // Code common to different cost functions.
 
   // Update the other members if the cost is lower.
-  void UpdateIfBetter(inT64 cost, inT32 steps, const DPPoint* prev,
-                      inT32 n, inT32 sig_x, inT64 sig_xsq);
+  void UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
+                      int32_t n, int32_t sig_x, int64_t sig_xsq);
 
-  inT32 local_cost_;    // Cost of this point on its own.
-  inT32 total_cost_;    // Sum of all costs in best path to here.
+  int32_t local_cost_;    // Cost of this point on its own.
+  int32_t total_cost_;    // Sum of all costs in best path to here.
                         // During cost calculations local_cost is excluded.
-  inT32 total_steps_;   // Number of steps in best path to here.
+  int32_t total_steps_;   // Number of steps in best path to here.
   const DPPoint* best_prev_;  // Pointer to prev point in best path from here.
   // Information for computing the variance part of the cost.
-  inT32 n_;             // Number of steps in best path to here for variance.
-  inT32 sig_x_;         // Sum of step sizes for computing variance.
-  inT64 sig_xsq_;       // Sum of squares of steps for computing variance.
+  int32_t n_;             // Number of steps in best path to here for variance.
+  int32_t sig_x_;         // Sum of step sizes for computing variance.
+  int64_t sig_xsq_;       // Sum of squares of steps for computing variance.
 };
 
 }  // namespace tesseract.

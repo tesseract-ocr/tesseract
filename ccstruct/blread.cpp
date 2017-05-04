@@ -35,8 +35,8 @@
 
 bool read_unlv_file(                    //print list of sides
                      STRING name,        //basename of file
-                     inT32 xsize,        //image size
-                     inT32 ysize,        //image size
+                     int32_t xsize,        //image size
+                     int32_t ysize,        //image size
                      BLOCK_LIST *blocks  //output list
                     ) {
   FILE *pdfp;                    //file pointer
@@ -54,8 +54,8 @@ bool read_unlv_file(                    //print list of sides
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
                                  //make rect block
       block = new BLOCK (name.string (), TRUE, 0, 0,
-                         (inT16) x, (inT16) (ysize - y - height),
-                         (inT16) (x + width), (inT16) (ysize - y));
+                         (int16_t) x, (int16_t) (ysize - y - height),
+                         (int16_t) (x + width), (int16_t) (ysize - y));
                                  //on end of list
       block_it.add_to_end (block);
     }
