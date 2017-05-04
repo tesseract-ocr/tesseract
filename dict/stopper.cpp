@@ -449,7 +449,7 @@ void Dict::ReplaceAmbig(int wrong_ngram_begin_index, int wrong_ngram_size,
 }
 
 int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
-  int shortest = MAX_INT32;
+  int shortest = INT32_MAX;
   int curr_len = 0;
   for (int w = 0; w < WordChoice.length(); ++w) {
     if (getUnicharset().get_isalpha(WordChoice.unichar_id(w))) {
@@ -461,7 +461,7 @@ int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
   }
   if (curr_len > 0 && curr_len < shortest) {
     shortest = curr_len;
-  } else if (shortest == MAX_INT32) {
+  } else if (shortest == INT32_MAX) {
     shortest = 0;
   }
   return shortest;
