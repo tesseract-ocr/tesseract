@@ -678,7 +678,7 @@ bool ResultIterator::BidiDebug(int min_level) const {
   IntParam *p = ParamUtils::FindParam<IntParam>(
       "bidi_debug", GlobalParams()->int_params,
       tesseract_->params()->int_params);
-  if (p != NULL) debug_level = (inT32)(*p);
+  if (p != NULL) debug_level = (int32_t)(*p);
   return debug_level >= min_level;
 }
 

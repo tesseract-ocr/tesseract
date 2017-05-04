@@ -118,14 +118,14 @@ struct TesseractStats {
       last_char_was_tilde(false),
       write_results_empty_block(true) {}
 
-  inT32 adaption_word_number;
-  inT16 doc_blob_quality;
-  inT16 doc_outline_errs;
-  inT16 doc_char_quality;
-  inT16 good_char_count;
-  inT16 doc_good_char_quality;
-  inT32 word_count;  // count of word in the document
-  inT32 dict_words;  // number of dicitionary words in the document
+  int32_t adaption_word_number;
+  int16_t doc_blob_quality;
+  int16_t doc_outline_errs;
+  int16_t doc_char_quality;
+  int16_t good_char_count;
+  int16_t doc_good_char_quality;
+  int32_t word_count;  // count of word in the document
+  int32_t dict_words;  // number of dicitionary words in the document
   STRING dump_words_str;  // accumulator used by dump_words()
   // Flags used by write_results()
   bool tilde_crunch_written;
@@ -499,8 +499,8 @@ class Tesseract : public Wordrec {
   UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
   BOOL8 acceptable_number_string(const char *s,
                                  const char *lengths);
-  inT16 count_alphanums(const WERD_CHOICE &word);
-  inT16 count_alphas(const WERD_CHOICE &word);
+  int16_t count_alphanums(const WERD_CHOICE &word);
+  int16_t count_alphas(const WERD_CHOICE &word);
   //// tessedit.h ////////////////////////////////////////////////////////
   void read_config_file(const char *filename, SetParamConstraint constraint);
   // Initialize for potentially a set of languages defined by the language
@@ -572,7 +572,7 @@ class Tesseract : public Wordrec {
   void process_image_event( // action in image win
                            const SVEvent &event);
   BOOL8 process_cmd_win_event(                 // UI command semantics
-                              inT32 cmd_event,  // which menu item?
+                              int32_t cmd_event,  // which menu item?
                               char *new_value   // any prompt data
                              );
   void debug_word(PAGE_RES* page_res, const TBOX &selection_box);
@@ -588,18 +588,18 @@ class Tesseract : public Wordrec {
   void blob_feature_display(PAGE_RES* page_res, const TBOX& selection_box);
   //// reject.h //////////////////////////////////////////////////////////
   // make rej map for word
-  void make_reject_map(WERD_RES *word, ROW *row, inT16 pass);
+  void make_reject_map(WERD_RES *word, ROW *row, int16_t pass);
   BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map);
-  inT16 first_alphanum_index(const char *word,
+  int16_t first_alphanum_index(const char *word,
                              const char *word_lengths);
-  inT16 first_alphanum_offset(const char *word,
+  int16_t first_alphanum_offset(const char *word,
                               const char *word_lengths);
-  inT16 alpha_count(const char *word,
+  int16_t alpha_count(const char *word,
                     const char *word_lengths);
   BOOL8 word_contains_non_1_digit(const char *word,
                                   const char *word_lengths);
   void dont_allow_1Il(WERD_RES *word);
-  inT16 count_alphanums(  //how many alphanums
+  int16_t count_alphanums(  //how many alphanums
                         WERD_RES *word);
   void flip_0O(WERD_RES *word);
   BOOL8 non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id);
@@ -611,8 +611,8 @@ class Tesseract : public Wordrec {
   void nn_recover_rejects(WERD_RES *word, ROW *row);
   void set_done(  //set done flag
                 WERD_RES *word,
-                inT16 pass);
-  inT16 safe_dict_word(const WERD_RES *werd_res);  // is best_choice in dict?
+                int16_t pass);
+  int16_t safe_dict_word(const WERD_RES *werd_res);  // is best_choice in dict?
   void flip_hyphens(WERD_RES *word);
   void reject_I_1_L(WERD_RES *word);
   void reject_edge_blobs(WERD_RES *word);
@@ -620,7 +620,7 @@ class Tesseract : public Wordrec {
   //// adaptions.h ///////////////////////////////////////////////////////
   BOOL8 word_adaptable(  //should we adapt?
                        WERD_RES *word,
-                       uinT16 mode);
+                       uint16_t mode);
 
   //// tfacepp.cpp ///////////////////////////////////////////////////////
   void recog_word_recursive(WERD_RES* word);
@@ -635,20 +635,20 @@ class Tesseract : public Wordrec {
                   BlamerBundle *orig_bb) const;
   //// fixspace.cpp ///////////////////////////////////////////////////////
   BOOL8 digit_or_numeric_punct(WERD_RES *word, int char_position);
-  inT16 eval_word_spacing(WERD_RES_LIST &word_res_list);
+  int16_t eval_word_spacing(WERD_RES_LIST &word_res_list);
   void match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK* block);
-  inT16 fp_eval_word_spacing(WERD_RES_LIST &word_res_list);
+  int16_t fp_eval_word_spacing(WERD_RES_LIST &word_res_list);
   void fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK* block);
   void fix_fuzzy_space_list(WERD_RES_LIST &best_perm, ROW *row, BLOCK* block);
   void fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row, BLOCK* block);
   void fix_fuzzy_spaces(                      //find fuzzy words
                         ETEXT_DESC *monitor,  //progress monitor
-                        inT32 word_count,     //count of words in doc
+                        int32_t word_count,     //count of words in doc
                         PAGE_RES *page_res);
-  void dump_words(WERD_RES_LIST &perm, inT16 score,
-                  inT16 mode, BOOL8 improved);
+  void dump_words(WERD_RES_LIST &perm, int16_t score,
+                  int16_t mode, BOOL8 improved);
   BOOL8 fixspace_thinks_word_done(WERD_RES *word);
-  inT16 worst_noise_blob(WERD_RES *word_res, float *worst_noise_score);
+  int16_t worst_noise_blob(WERD_RES *word_res, float *worst_noise_score);
   float blob_noise_score(TBLOB *blob);
   void break_noisiest_blob_word(WERD_RES_LIST &words);
   //// docqual.cpp ////////////////////////////////////////////////////////
@@ -666,15 +666,15 @@ class Tesseract : public Wordrec {
                                BOOL8 good_quality_doc);
   void convert_bad_unlv_chs(WERD_RES *word_res);
   void tilde_delete(PAGE_RES_IT &page_res_it);
-  inT16 word_blob_quality(WERD_RES *word, ROW *row);
-  void word_char_quality(WERD_RES *word, ROW *row, inT16 *match_count,
-                         inT16 *accepted_match_count);
+  int16_t word_blob_quality(WERD_RES *word, ROW *row);
+  void word_char_quality(WERD_RES *word, ROW *row, int16_t *match_count,
+                         int16_t *accepted_match_count);
   void unrej_good_chs(WERD_RES *word, ROW *row);
-  inT16 count_outline_errs(char c, inT16 outline_count);
-  inT16 word_outline_errs(WERD_RES *word);
+  int16_t count_outline_errs(char c, int16_t outline_count);
+  int16_t word_outline_errs(WERD_RES *word);
   BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level);
-  CRUNCH_MODE word_deletable(WERD_RES *word, inT16 &delete_mode);
-  inT16 failure_count(WERD_RES *word);
+  CRUNCH_MODE word_deletable(WERD_RES *word, int16_t &delete_mode);
+  int16_t failure_count(WERD_RES *word);
   BOOL8 noise_outlines(TWERD *word);
   //// pagewalk.cpp ///////////////////////////////////////////////////////
   void

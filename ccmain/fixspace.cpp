@@ -46,7 +46,7 @@ namespace tesseract {
  * @param[out] page_res
  */
 void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
-                                 inT32 word_count,
+                                 int32_t word_count,
                                  PAGE_RES *page_res) {
   BLOCK_RES_IT block_res_it;
   ROW_RES_IT row_res_it;
@@ -54,9 +54,9 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
   WERD_RES_IT word_res_it_to;
   WERD_RES *word_res;
   WERD_RES_LIST fuzzy_space_words;
-  inT16 new_length;
+  int16_t new_length;
   BOOL8 prevent_null_wd_fixsp;   // DON'T process blobless wds
-  inT32 word_index;              // current word
+  int32_t word_index;              // current word
 
   block_res_it.set_to_list(&page_res->block_res_list);
   word_index = 0;
@@ -145,9 +145,9 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
 void Tesseract::fix_fuzzy_space_list(WERD_RES_LIST &best_perm,
                                      ROW *row,
                                      BLOCK* block) {
-  inT16 best_score;
+  int16_t best_score;
   WERD_RES_LIST current_perm;
-  inT16 current_score;
+  int16_t current_score;
   BOOL8 improved = FALSE;
 
   best_score = eval_word_spacing(best_perm);  // default score
@@ -236,16 +236,16 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
  * confirmed. The only score is from the joined 1. "PS7a713/7a" scores 2.
  *
  */
-inT16 Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
+int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_res_it(&word_res_list);
-  inT16 total_score = 0;
-  inT16 word_count = 0;
-  inT16 done_word_count = 0;
-  inT16 word_len;
-  inT16 i;
-  inT16 offset;
+  int16_t total_score = 0;
+  int16_t word_count = 0;
+  int16_t done_word_count = 0;
+  int16_t word_len;
+  int16_t i;
+  int16_t offset;
   WERD_RES *word;                 // current word
-  inT16 prev_word_score = 0;
+  int16_t prev_word_score = 0;
   BOOL8 prev_word_done = FALSE;
   BOOL8 prev_char_1 = FALSE;      // prev ch a "1/I/l"?
   BOOL8 prev_char_digit = FALSE;  // prev ch 2..9 or 0
@@ -376,10 +376,10 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
   WERD_RES *prev_word;
   WERD_RES *combo;
   WERD *copy_word;
-  inT16 prev_right = -MAX_INT16;
+  int16_t prev_right = -MAX_INT16;
   TBOX box;
-  inT16 gap;
-  inT16 min_gap = MAX_INT16;
+  int16_t gap;
+  int16_t min_gap = MAX_INT16;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
@@ -446,8 +446,8 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
 }
 
 namespace tesseract {
-void Tesseract::dump_words(WERD_RES_LIST &perm, inT16 score,
-                           inT16 mode, BOOL8 improved) {
+void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
+                           int16_t mode, BOOL8 improved) {
   WERD_RES_IT word_res_it(&perm);
 
   if (debug_fix_space_level > 0) {
@@ -537,8 +537,8 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row,
   WERD_RES *word_res;
   WERD_RES_LIST sub_word_list;
   WERD_RES_IT sub_word_list_it(&sub_word_list);
-  inT16 blob_index;
-  inT16 new_length;
+  int16_t blob_index;
+  int16_t new_length;
   float junk;
 
   word_res = word_res_it.data();
@@ -568,12 +568,12 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row,
 
 void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row,
                                      BLOCK* block) {
-  inT16 best_score;
+  int16_t best_score;
   WERD_RES_IT best_perm_it(&best_perm);
   WERD_RES_LIST current_perm;
   WERD_RES_IT current_perm_it(&current_perm);
   WERD_RES *old_word_res;
-  inT16 current_score;
+  int16_t current_score;
   BOOL8 improved = FALSE;
 
   best_score = fp_eval_word_spacing(best_perm);  // default score
@@ -626,8 +626,8 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   C_BLOB_IT new_blob_it;
   C_BLOB_IT new_rej_cblob_it;
   WERD *new_word;
-  inT16 start_of_noise_blob;
-  inT16 i;
+  int16_t start_of_noise_blob;
+  int16_t i;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     blob_index = worst_noise_blob(word_it.data(), &noise_score);
@@ -677,7 +677,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   word_res->ClearResults();
 }
 
-inT16 Tesseract::worst_noise_blob(WERD_RES *word_res,
+int16_t Tesseract::worst_noise_blob(WERD_RES *word_res,
                                   float *worst_noise_score) {
   float noise_score[512];
   int i;
@@ -759,9 +759,9 @@ inT16 Tesseract::worst_noise_blob(WERD_RES *word_res,
 
 float Tesseract::blob_noise_score(TBLOB *blob) {
   TBOX box;                       // BB of outline
-  inT16 outline_count = 0;
-  inT16 max_dimension;
-  inT16 largest_outline_dimension = 0;
+  int16_t outline_count = 0;
+  int16_t max_dimension;
+  int16_t largest_outline_dimension = 0;
 
   for (TESSLINE* ol = blob->outlines; ol != NULL; ol= ol->next) {
     outline_count++;
@@ -795,7 +795,7 @@ float Tesseract::blob_noise_score(TBLOB *blob) {
 void fixspace_dbg(WERD_RES *word) {
   TBOX box = word->word->bounding_box();
   BOOL8 show_map_detail = FALSE;
-  inT16 i;
+  int16_t i;
 
   box.print();
   tprintf(" \"%s\" ", word->best_choice->unichar_string().string());
@@ -827,11 +827,11 @@ void fixspace_dbg(WERD_RES *word) {
  * Penalise any potential noise chars
  */
 namespace tesseract {
-inT16 Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
+int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
   WERD_RES_IT word_it(&word_res_list);
   WERD_RES *word;
-  inT16 score = 0;
-  inT16 i;
+  int16_t score = 0;
+  int16_t i;
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {

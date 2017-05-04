@@ -301,13 +301,13 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
                                           Pix** pix) const {
   PERF_COUNT_START("ThresholdRectToPix")
   *pix = pixCreate(rect_width_, rect_height_, 1);
-  uinT32* pixdata = pixGetData(*pix);
+  uint32_t* pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
   int src_wpl = pixGetWpl(src_pix);
-  uinT32* srcdata = pixGetData(src_pix);
+  uint32_t* srcdata = pixGetData(src_pix);
   for (int y = 0; y < rect_height_; ++y) {
-    const uinT32* linedata = srcdata + (y + rect_top_) * src_wpl;
-    uinT32* pixline = pixdata + y * wpl;
+    const uint32_t* linedata = srcdata + (y + rect_top_) * src_wpl;
+    uint32_t* pixline = pixdata + y * wpl;
     for (int x = 0; x < rect_width_; ++x) {
       bool white_result = true;
       for (int ch = 0; ch < num_channels; ++ch) {

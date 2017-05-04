@@ -44,7 +44,7 @@
 namespace tesseract {
 BOOL8 Tesseract::word_adaptable(  //should we adapt?
                                 WERD_RES *word,
-                                uinT16 mode) {
+                                uint16_t mode) {
   if (tessedit_adaption_debug) {
     tprintf("Running word_adaptable() for %s rating %.4f certainty %.4f\n",
           word->best_choice == NULL ? "" :

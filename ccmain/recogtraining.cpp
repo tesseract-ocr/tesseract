@@ -29,7 +29,7 @@
 
 namespace tesseract {
 
-const inT16 kMaxBoxEdgeDiff = 2;
+const int16_t kMaxBoxEdgeDiff = 2;
 
 // Sets flags necessary for recognition in the training mode.
 // Opens and returns the pointer to the output file.
