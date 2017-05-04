@@ -194,7 +194,7 @@ void Wordrec::UpdateSegSearchNodes(
     if (segsearch_debug_level > 0) {
       tprintf("\n\nUpdateSegSearchNodes: col=%d, rows=[%d,%d], alljust=%d\n",
               col, first_row, last_row,
-              (*pending)[col].IsRowJustClassified(MAX_INT32));
+              (*pending)[col].IsRowJustClassified(INT32_MAX));
     }
     // Iterate over the pending list for this column.
     for (int row = first_row; row <= last_row; ++row) {
