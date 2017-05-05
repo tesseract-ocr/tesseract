@@ -15,8 +15,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_API_RENDERER_H__
-#define TESSERACT_API_RENDERER_H__
+#ifndef TESSERACT_API_RENDERER_H_
+#define TESSERACT_API_RENDERER_H_
 
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
@@ -57,6 +57,7 @@ class TESS_API TessResultRenderer {
     /**
      * Starts a new document with the given title.
      * This clears the contents of the output data.
+     * Title should use UTF-8 encoding.
      */
     bool BeginDocument(const char* title);
 
@@ -251,4 +252,4 @@ class TESS_API TessOsdRenderer : public TessResultRenderer {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_API_RENDERER_H__
+#endif  // TESSERACT_API_RENDERER_H_

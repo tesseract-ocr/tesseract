@@ -159,7 +159,7 @@ CIDToGIDMap.
 
 OK there is a small problem there, if I use GID 0 then Acrobat gets
 upset about it and complains it cannot extract the font. If I set the
-CIDToGIDMap so that all the entries are 1 instead, its happy. Totally
+CIDToGIDMap so that all the entries are 1 instead, it's happy. Totally
 mad......
 
 */
@@ -169,10 +169,15 @@ namespace tesseract {
 // Use for PDF object fragments. Must be large enough
 // to hold a colormap with 256 colors in the verbose
 // PDF representation.
-const int kBasicBufSize = 2048;
+static const int kBasicBufSize = 2048;
 
 // If the font is 10 pts, nominal character width is 5 pts
-const int kCharWidth = 2;
+static const int kCharWidth = 2;
+
+// Used for memory allocation. A codepoint must take no more than this
+// many bytes, when written in the PDF way. e.g. "<0063>" for the
+// letter 'c'
+static const int kMaxBytesPerCodepoint = 20;
 
 /**********************************************************************
  * PDF Renderer interface implementation
@@ -302,6 +307,23 @@ void ClipBaseline(int ppi, int x1, int y1, int x2, int y2,
   double run = abs(x2 - x1) * 72 / ppi;
   if (rise < 2.0 && 2.0 < run)
     *line_y1 = *line_y2 = (y1 + y2) / 2;
+}
+
+bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
+  if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
+    tprintf("Dropping invalid codepoint %d\n", code);
+    return false;
+  }
+  if (code < 0x10000) {
+    snprintf(utf16, kMaxBytesPerCodepoint, "%04X", code);
+  } else {
+    int a = code - 0x010000;
+    int high_surrogate = (0x03FF & (a >> 10)) + 0xD800;
+    int low_surrogate = (0x03FF & a) + 0xDC00;
+    snprintf(utf16, kMaxBytesPerCodepoint,
+             "%04X%04X", high_surrogate, low_surrogate);
+  }
+  return true;
 }
 
 char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
@@ -442,25 +464,13 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       if (grapheme && grapheme[0] != '\0') {
         GenericVector<int> unicodes;
         UNICHAR::UTF8ToUnicode(grapheme, &unicodes);
-        char utf16[20];
+        char utf16[kMaxBytesPerCodepoint];
         for (int i = 0; i < unicodes.length(); i++) {
           int code = unicodes[i];
-          // Convert to UTF-16BE https://en.wikipedia.org/wiki/UTF-16
-          if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
-            tprintf("Dropping invalid codepoint %d\n", code);
-            continue;
+          if (CodepointToUtf16be(code, utf16)) {
+            pdf_word += utf16;
+            pdf_word_len++;
           }
-          if (code < 0x10000) {
-            snprintf(utf16, sizeof(utf16), "<%04X>", code);
-          } else {
-            int a = code - 0x010000;
-            int high_surrogate = (0x03FF & (a >> 10)) + 0xD800;
-            int low_surrogate = (0x03FF & a) + 0xDC00;
-            snprintf(utf16, sizeof(utf16), "<%04X%04X>",
-                     high_surrogate, low_surrogate);
-          }
-          pdf_word += utf16;
-          pdf_word_len++;
         }
       }
       delete []grapheme;
@@ -471,9 +481,9 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           kCharWidth * prec(100.0 * word_length / (fontsize * pdf_word_len));
       pdf_str.add_str_double("", h_stretch);
       pdf_str += " Tz";          // horizontal stretch
-      pdf_str += " [ ";
+      pdf_str += " [ <";
       pdf_str += pdf_word;       // UTF-16BE representation
-      pdf_str += " ] TJ";        // show the text
+      pdf_str += "> ] TJ";       // show the text
     }
     if (last_word_in_line) {
       pdf_str += " \n";
@@ -706,7 +716,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   if (!filename)
     return false;
 
-  L_COMP_DATA *cid = NULL;
+  L_Compressed_Data *cid = NULL;
   const int kJpegQuality = 85;
 
   int format, sad;
@@ -960,15 +970,27 @@ bool TessPDFRenderer::EndDocumentHandler() {
   offsets_.back() += pages_objsize;    // manipulation #2
 
   // INFO
+  STRING utf16_title = "FEFF";  // byte_order_marker
+  GenericVector<int> unicodes;
+  UNICHAR::UTF8ToUnicode(title(), &unicodes);
+  char utf16[kMaxBytesPerCodepoint];
+  for (int i = 0; i < unicodes.length(); i++) {
+    int code = unicodes[i];
+    if (CodepointToUtf16be(code, utf16)) {
+      utf16_title += utf16;
+    }
+  }
+
   char* datestr = l_getFormattedDate();
   n = snprintf(buf, sizeof(buf),
                "%ld 0 obj\n"
                "<<\n"
                "  /Producer (Tesseract %s)\n"
                "  /CreationDate (D:%s)\n"
-               "  /Title (%s)"
+               "  /Title <%s>\n"
                ">>\n"
-               "endobj\n", obj_, TESSERACT_VERSION_STR, datestr, title());
+               "endobj\n",
+               obj_, TESSERACT_VERSION_STR, datestr, utf16_title.c_str());
   lept_free(datestr);
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
