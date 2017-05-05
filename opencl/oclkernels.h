@@ -1177,38 +1177,6 @@ void kernel_ThresholdRectToPix_OneChan(
 }
 )
 
-KERNEL(
-\n#define RED_SHIFT             24\n
-\n#define GREEN_SHIFT           16\n
-\n#define BLUE_SHIFT            8\n
-\n#define SET_DATA_BYTE( pdata, n, val ) (*(l_uint8 *)((l_uintptr_t)((l_uint8 *)(pdata) + (n)) ^ 3) = (val))\n
-\n
-\n__attribute__((reqd_work_group_size(256, 1, 1)))\n
-\n__kernel\n
-\nvoid kernel_RGBToGray(
-    __global const unsigned int *srcData,
-    __global unsigned char *dstData,
-    int srcWPL,
-    int dstWPL,
-    int height,
-    int width,
-    float rwt,
-    float gwt,
-    float bwt ) {
-
-    // pixel index
-    int pixelIdx = get_global_id(0);
-    if (pixelIdx >= height*width) return;
-
-    unsigned int word = srcData[pixelIdx];
-    int output =    (rwt * ((word >> RED_SHIFT)   & 0xff) +
-                     gwt * ((word >> GREEN_SHIFT) & 0xff) +
-                     bwt * ((word >> BLUE_SHIFT)  & 0xff) + 0.5f);
-    // SET_DATA_BYTE
-    dstData[pixelIdx] = output;
-}
-)
-
  ; // close char*
 
 #endif  // USE_EXTERNAL_KERNEL

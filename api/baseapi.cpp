@@ -1024,26 +1024,13 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             int tessedit_page_number) {
 #ifndef ANDROID_BUILD
   Pix *pix = NULL;
-#ifdef USE_OPENCL
-  OpenclDevice od;
-#endif  // USE_OPENCL
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
   for (; ; ++page) {
     if (tessedit_page_number >= 0)
       page = tessedit_page_number;
-#ifdef USE_OPENCL
-    if ( od.selectedDeviceIsOpenCL() ) {
-      pix = (data) ?
-          od.pixReadMemTiffCl(data, size, page) :
-          od.pixReadTiffCl(filename, page);
-    } else {
-#endif  // USE_OPENCL
     pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
                  : pixReadFromMultipageTiff(filename, &offset);
-#ifdef USE_OPENCL
-    }
-#endif  // USE_OPENCL
     if (pix == NULL) break;
     tprintf("Page %d\n", page + 1);
     char page_str[kMaxIntSize];
