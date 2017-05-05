@@ -79,10 +79,10 @@ static struct tiff_transform tiff_orientation_transforms[] = {
 
 static const l_int32 MAX_PAGES_IN_TIFF_FILE = 3000;
 
-cl_mem pixsCLBuffer, pixdCLBuffer, pixdCLIntermediate; //Morph operations buffers
-cl_mem pixThBuffer; //output from thresholdtopix calculation
-cl_int clStatus;
-KernelEnv rEnv;
+static cl_mem pixsCLBuffer, pixdCLBuffer, pixdCLIntermediate; //Morph operations buffers
+static cl_mem pixThBuffer; //output from thresholdtopix calculation
+static cl_int clStatus;
+static KernelEnv rEnv;
 
 #define DS_TAG_VERSION "<version>"
 #define DS_TAG_VERSION_END "</version>"
@@ -602,7 +602,7 @@ static ds_status writeProfileToFile(ds_profile *profile,
 }
 
 // substitute invalid characters in device name with _
-void legalizeFileName( char *fileName) {
+static void legalizeFileName( char *fileName) {
     //printf("fileName: %s\n", fileName);
     const char *invalidChars =
         "/\?:*\"><| ";  // space is valid but can cause headaches
@@ -625,7 +625,7 @@ void legalizeFileName( char *fileName) {
     }
 }
 
-void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
+static void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
     //printf("[DS] populateGPUEnvFromDevice\n");
     size_t size;
     gpuInfo->mnIsUserCreated = 1;
@@ -682,7 +682,9 @@ int OpenclDevice::SetKernelEnv( KernelEnv *envInfo )
     return 1;
 }
 
-cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer, size_t nElements, cl_mem_flags flags, cl_int *pStatus)
+static cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer,
+                                     size_t nElements, cl_mem_flags flags,
+                                     cl_int *pStatus)
 {
     cl_mem membuffer = clCreateBuffer( rEnv.mpkContext, (cl_mem_flags) (flags),
                                         nElements * sizeof(l_uint32), hostbuffer, pStatus);
@@ -690,6 +692,7 @@ cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer, size_t nElem
     return membuffer;
 }
 
+static
 Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
                        int elements, cl_mem_flags flags, bool memcopy = false,
                        bool sync = true) {
@@ -724,7 +727,9 @@ Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
   return pixd;
 }
 
- cl_mem allocateIntBuffer( KernelEnv rEnv, const l_uint32 *_pValues, size_t nElements, cl_int *pStatus , bool sync = false)
+static cl_mem allocateIntBuffer(KernelEnv rEnv, const l_uint32 *_pValues,
+                                size_t nElements, cl_int *pStatus,
+                                bool sync = false)
 {
    cl_mem xValues =
        clCreateBuffer(rEnv.mpkContext, (cl_mem_flags)(CL_MEM_READ_WRITE),
@@ -1297,8 +1302,7 @@ PERF_COUNT_END
 }
 
 //Morphology Dilate operation for 5x5 structuring element. Invokes the relevant OpenCL kernels
-cl_int
-pixDilateCL_55(l_int32  wpl, l_int32  h)
+static cl_int pixDilateCL_55(l_int32 wpl, l_int32 h)
 {
     size_t globalThreads[2];
     cl_mem pixtemp;
@@ -1365,8 +1369,7 @@ pixDilateCL_55(l_int32  wpl, l_int32  h)
 }
 
 //Morphology Erode operation for 5x5 structuring element. Invokes the relevant OpenCL kernels
-cl_int
-pixErodeCL_55(l_int32  wpl, l_int32  h)
+static cl_int pixErodeCL_55(l_int32 wpl, l_int32 h)
 {
     size_t globalThreads[2];
     cl_mem pixtemp;
@@ -1439,7 +1442,7 @@ pixErodeCL_55(l_int32  wpl, l_int32  h)
 }
 
 //Morphology Dilate operation. Invokes the relevant OpenCL kernels
-cl_int
+static cl_int
 pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 {
     l_int32  xp, yp, xn, yn;
@@ -1546,7 +1549,7 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 }
 
 //Morphology Erode operation. Invokes the relevant OpenCL kernels
-cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h) {
+static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h) {
   l_int32 xp, yp, xn, yn;
   SEL *sel;
   size_t globalThreads[2];
@@ -1653,8 +1656,7 @@ cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h) {
 }
 
 //Morphology Open operation. Invokes the relevant OpenCL kernels
-cl_int
-pixOpenCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
+static cl_int pixOpenCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
 {
     cl_int status;
     cl_mem pixtemp;
@@ -1672,8 +1674,7 @@ pixOpenCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 }
 
 //Morphology Close operation. Invokes the relevant OpenCL kernels
-cl_int
-pixCloseCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
+static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
 {
     cl_int status;
     cl_mem pixtemp;
@@ -1691,7 +1692,7 @@ pixCloseCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
 }
 
 //pix OR operation: outbuffer = buffer1 | buffer2
-cl_int
+static cl_int
 pixORCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem outbuffer)
 {
     cl_int status;
@@ -1729,6 +1730,7 @@ pixORCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem ou
 }
 
 //output = buffer1 & ~(buffer2)
+static
 cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
                           cl_mem buffer2, cl_mem outBuffer = nullptr) {
   cl_int status;
@@ -2140,7 +2142,7 @@ typedef struct _TessScoreEvaluationInputData {
     Pix *pix;
 } TessScoreEvaluationInputData;
 
-void populateTessScoreEvaluationInputData( TessScoreEvaluationInputData *input ) {
+static void populateTessScoreEvaluationInputData(TessScoreEvaluationInputData *input) {
     srand(1);
     // 8.5x11 inches @ 300dpi rounded to clean multiples
     int height = 3328; // %256
@@ -2229,7 +2231,7 @@ typedef struct _TessDeviceScore {
  * Micro Benchmarks for Device Selection
  *****************************************************************************/
 
-double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
+static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
     double time = 0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
@@ -2314,7 +2316,7 @@ double composeRGBPixelMicroBench( GPUEnv *env, TessScoreEvaluationInputData inpu
     return time;
 }
 
-double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
+static double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
     double time;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
@@ -2397,7 +2399,7 @@ double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input,
 }
 
 //Reproducing the ThresholdRectToPix native version
-void ThresholdRectToPix_Native(const unsigned char* imagedata,
+static void ThresholdRectToPix_Native(const unsigned char* imagedata,
                                           int bytes_per_pixel,
                                           int bytes_per_line,
                                           const int* thresholds,
@@ -2434,7 +2436,7 @@ void ThresholdRectToPix_Native(const unsigned char* imagedata,
   }
 }
 
-double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
+static double thresholdRectToPixMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
     double time;
     int retVal = 0;
 #if ON_WINDOWS
@@ -2530,7 +2532,7 @@ double thresholdRectToPixMicroBench( GPUEnv *env, TessScoreEvaluationInputData i
     return time;
 }
 
-double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
+static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
 
     double time = 0;
 #if ON_WINDOWS
@@ -2628,7 +2630,7 @@ double getLineMasksMorphMicroBench( GPUEnv *env, TessScoreEvaluationInputData in
 #include "stdlib.h"
 
 // encode score object as byte string
-ds_status serializeScore( ds_device* device, void **serializedScore, unsigned int* serializedScoreSize ) {
+static ds_status serializeScore( ds_device* device, void **serializedScore, unsigned int* serializedScoreSize ) {
     *serializedScoreSize = sizeof(TessDeviceScore);
     *serializedScore = new unsigned char[*serializedScoreSize];
     memcpy(*serializedScore, device->score, *serializedScoreSize);
@@ -2636,20 +2638,20 @@ ds_status serializeScore( ds_device* device, void **serializedScore, unsigned in
 }
 
 // parses byte string and stores in score object
-ds_status deserializeScore( ds_device* device, const unsigned char* serializedScore, unsigned int serializedScoreSize ) {
+static ds_status deserializeScore( ds_device* device, const unsigned char* serializedScore, unsigned int serializedScoreSize ) {
     // check that serializedScoreSize == sizeof(TessDeviceScore);
     device->score = new TessDeviceScore;
     memcpy(device->score, serializedScore, serializedScoreSize);
     return DS_SUCCESS;
 }
 
-ds_status releaseScore(void *score) {
+static ds_status releaseScore(void *score) {
   delete (TessDeviceScore *)score;
   return DS_SUCCESS;
 }
 
 // evaluate devices
-ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
+static ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
     // overwrite statuc gpuEnv w/ current device
     // so native opencl calls can be used; they use static gpuEnv
     printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
