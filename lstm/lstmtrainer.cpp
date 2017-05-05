@@ -488,7 +488,7 @@ bool LSTMTrainer::DeSerialize(TFile* fp) {
     // allow it.
     tprintf("Warning: LSTMTrainer deserialized an LSTMRecognizer!\n");
     learning_iteration_ = 0;
-    network_->SetEnableTraining(TS_ENABLED);
+    network_->SetEnableTraining(TS_RE_ENABLE);
     return true;
   }
   if (fp->FReadEndian(&prev_sample_iteration_, sizeof(prev_sample_iteration_),
