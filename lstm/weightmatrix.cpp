@@ -47,7 +47,8 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool ada_grad,
       }
     }
   }
-  InitBackward(ada_grad);
+  use_ada_grad_ = ada_grad;
+  InitBackward();
   return ni * no;
 }
 
@@ -83,10 +84,9 @@ void WeightMatrix::ConvertToInt() {
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
 // thus eliminating any existing momentum.
-void WeightMatrix::InitBackward(bool ada_grad) {
+void WeightMatrix::InitBackward() {
   int no = int_mode_ ? wi_.dim1() : wf_.dim1();
   int ni = int_mode_ ? wi_.dim2() : wf_.dim2();
-  use_ada_grad_ = ada_grad;
   dw_.Resize(no, ni, 0.0);
   updates_.Resize(no, ni, 0.0);
   wf_t_.Transpose(wf_);
@@ -134,7 +134,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
-      InitBackward(use_ada_grad_);
+      InitBackward();
       if (!updates_.DeSerialize(fp)) return false;
       if (use_ada_grad_ && !dw_sq_sum_.DeSerialize(fp)) return false;
     }
@@ -157,7 +157,7 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile* fp) {
     FloatToDouble(float_array, &wf_);
   }
   if (training) {
-    InitBackward(use_ada_grad_);
+    InitBackward();
     if (!float_array.DeSerialize(fp)) return false;
     FloatToDouble(float_array, &updates_);
     // Errs was only used in int training, which is now dead.

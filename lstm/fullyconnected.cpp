@@ -56,13 +56,17 @@ StaticShape FullyConnected::OutputShape(const StaticShape& input_shape) const {
   return result;
 }
 
-// Suspends/Enables training by setting the training_ flag. Serialize and
-// DeSerialize only operate on the run-time data if state is false.
+// Suspends/Enables training by setting the training_ flag.
 void FullyConnected::SetEnableTraining(TrainingState state) {
   if (state == TS_RE_ENABLE) {
-    if (training_ == TS_DISABLED) weights_.InitBackward(false);
-    training_ = TS_ENABLED;
+    // Enable only from temp disabled.
+    if (training_ == TS_TEMP_DISABLE) training_ = TS_ENABLED;
+  } else if (state == TS_TEMP_DISABLE) {
+    // Temp disable only from enabled.
+    if (training_ == TS_ENABLED) training_ = state;
   } else {
+    if (state == TS_ENABLED && training_ == TS_DISABLED)
+      weights_.InitBackward();
     training_ = state;
   }
 }

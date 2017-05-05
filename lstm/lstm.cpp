@@ -107,14 +107,18 @@ StaticShape LSTM::OutputShape(const StaticShape& input_shape) const {
 // DeSerialize only operate on the run-time data if state is false.
 void LSTM::SetEnableTraining(TrainingState state) {
   if (state == TS_RE_ENABLE) {
-    if (training_ == TS_DISABLED) {
+    // Enable only from temp disabled.
+    if (training_ == TS_TEMP_DISABLE) training_ = TS_ENABLED;
+  } else if (state == TS_TEMP_DISABLE) {
+    // Temp disable only from enabled.
+    if (training_ == TS_ENABLED) training_ = state;
+  } else {
+    if (state == TS_ENABLED && training_ == TS_DISABLED) {
       for (int w = 0; w < WT_COUNT; ++w) {
         if (w == GFS && !Is2D()) continue;
-        gate_weights_[w].InitBackward(false);
+        gate_weights_[w].InitBackward();
       }
     }
-    training_ = TS_ENABLED;
-  } else {
     training_ = state;
   }
   if (softmax_ != NULL) softmax_->SetEnableTraining(state);

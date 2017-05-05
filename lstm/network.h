@@ -93,9 +93,10 @@ enum TrainingState {
   // Valid states of training_.
   TS_DISABLED,      // Disabled permanently.
   TS_ENABLED,       // Enabled for backprop and to write a training dump.
+                    // Re-enable from ANY disabled state.
   TS_TEMP_DISABLE,  // Temporarily disabled to write a recognition dump.
   // Valid only for SetEnableTraining.
-  TS_RE_ENABLE,  // Re-Enable whatever the current state.
+  TS_RE_ENABLE,  // Re-Enable from TS_TEMP_DISABLE, but not TS_DISABLED.
 };
 
 // Base class for network types. Not quite an abstract base class, but almost.
