@@ -49,13 +49,13 @@ do
   fi
 #  echo "$srcdir/$page.tif"
   # Count character errors.
-  testing/unlv/accuracy $srcdir/$page.txt $resdir/$page.txt $resdir/$page.acc
+  testing/unlv/accuracy "$srcdir/$page.txt" "$resdir/$page.txt" "$resdir/$page.acc"
   accfiles="$accfiles $resdir/$page.acc"
   # Count word errors.
-  testing/unlv/wordacc $srcdir/$page.txt $resdir/$page.txt $resdir/$page.wa
+  testing/unlv/wordacc "$srcdir/$page.txt" "$resdir/$page.txt" "$resdir/$page.wa"
   wafiles="$wafiles $resdir/$page.wa"
-done <$pages
-testing/unlv/accsum $accfiles >testing/reports/$setname.characc
-testing/unlv/wordaccsum $wafiles >testing/reports/$setname.wordacc
+done <"$pages"
+testing/unlv/accsum "$accfiles" >"testing/reports/$setname.characc"
+testing/unlv/wordaccsum "$wafiles" >"testing/reports/$setname.wordacc"
 
 
