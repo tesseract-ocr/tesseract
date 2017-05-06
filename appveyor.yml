@@ -4,6 +4,9 @@ platform:
   - Win32
   - Win64
 
+cache:
+  - C:/Users/appveyor/.cppan
+
 configuration:
   - Release
   
