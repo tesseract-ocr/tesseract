@@ -3,6 +3,9 @@ os: Visual Studio 2017
 platform:
   - Win32
   - Win64
+  
+cache:
+  - c:/Users/appveyor/.cppan/storage
 
 configuration:
   - Release  
@@ -35,8 +38,8 @@ build_script:
   #- cmd: 'echo     generator: %generator% >> cppan.yml'
   #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
   #- cppan --build ..
-  - cmake .. -G "%generator%" -DBUILD_TRAINING_TOOLS=Off -DAPPVEYOR=1
-  - cmake --build . --config Release > bin\Release\log.txt 2>&1
+  - cmake .. -G "%generator%"
+  - cmake --build . --config Release
 
 artifacts:
   - path: build\bin\Release
