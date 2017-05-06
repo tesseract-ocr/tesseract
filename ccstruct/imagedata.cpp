@@ -47,7 +47,7 @@ WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
 
 WordFeature::WordFeature(const FCOORD& fcoord, uint8_t dir)
   : x_(IntCastRounded(fcoord.x())),
-    y_(ClipToRange(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
+    y_(ClipToRange<int>(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
     dir_(dir) {
 }
 

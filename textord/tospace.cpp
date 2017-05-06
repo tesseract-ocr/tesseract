@@ -1335,7 +1335,7 @@ BOOL8 Textord::make_a_word_break(
     int num_blanks = current_gap;
     if (row->space_size > 1.0f)
       num_blanks = IntCastRounded(current_gap / row->space_size);
-    blanks = static_cast<uint8_t>(ClipToRange(num_blanks, 1, UINT8_MAX));
+    blanks = static_cast<uint8_t>(ClipToRange<int>(num_blanks, 1, UINT8_MAX));
     fuzzy_sp = FALSE;
     fuzzy_non = FALSE;
     /*

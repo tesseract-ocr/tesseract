@@ -794,9 +794,8 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
           (best_x - x) * best_diff;
     }
     offsets[s].offset_numerator =
-        static_cast<int8_t>(ClipToRange(offset, -INT8_MAX, INT8_MAX));
-    offsets[s].pixel_diff = static_cast<uint8_t>(ClipToRange(best_diff, 0 ,
-                                                           UINT8_MAX));
+        ClipToRange<int>(offset, -INT8_MAX, INT8_MAX);
+    offsets[s].pixel_diff = ClipToRange<int>(best_diff, 0, UINT8_MAX);
     if (negative) gradient = -gradient;
     // Compute gradient angle quantized to 256 directions, rotated by 64 (pi/2)
     // to convert from gradient direction to edge direction.
@@ -879,9 +878,8 @@ void C_OUTLINE::ComputeBinaryOffsets() {
       offset = pos_totals[dir_index] - best_diff * edge_pos;
     }
     offsets[s].offset_numerator =
-        static_cast<int8_t>(ClipToRange(offset, -INT8_MAX, INT8_MAX));
-    offsets[s].pixel_diff = static_cast<uint8_t>(ClipToRange(best_diff, 0 ,
-                                                           UINT8_MAX));
+        ClipToRange<int>(offset, -INT8_MAX, INT8_MAX);
+    offsets[s].pixel_diff = ClipToRange<int>(best_diff, 0, UINT8_MAX);
     // The direction is just the vector from start to end of the window.
     FCOORD direction(head_pos.x() - tail_pos.x(), head_pos.y() - tail_pos.y());
     offsets[s].direction = direction.to_direction();

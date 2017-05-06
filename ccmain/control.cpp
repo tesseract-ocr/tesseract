@@ -1955,8 +1955,8 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.get(font_id2) : NULL;
   // Each score has a limit of UINT16_MAX, so divide by that to get the number
   // of "votes" for that font, ie number of perfect scores.
-  word->fontinfo_id_count = ClipToRange(score1 / UINT16_MAX, 1, INT8_MAX);
-  word->fontinfo_id2_count = ClipToRange(score2 / UINT16_MAX, 0, INT8_MAX);
+  word->fontinfo_id_count = ClipToRange<int>(score1 / UINT16_MAX, 1, INT8_MAX);
+  word->fontinfo_id2_count = ClipToRange<int>(score2 / UINT16_MAX, 0, INT8_MAX);
   if (score1 > 0) {
     FontInfo fi = fontinfo_table_.get(font_id1);
     if (tessedit_debug_fonts) {

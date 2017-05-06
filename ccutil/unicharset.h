@@ -582,13 +582,13 @@ class UNICHARSET {
                       int min_bottom, int max_bottom,
                       int min_top, int max_top) {
     unichars[unichar_id].properties.min_bottom =
-        static_cast<uint8_t>(ClipToRange(min_bottom, 0, UINT8_MAX));
+        ClipToRange<int>(min_bottom, 0, UINT8_MAX);
     unichars[unichar_id].properties.max_bottom =
-        static_cast<uint8_t>(ClipToRange(max_bottom, 0, UINT8_MAX));
+        ClipToRange<int>(max_bottom, 0, UINT8_MAX);
     unichars[unichar_id].properties.min_top =
-        static_cast<uint8_t>(ClipToRange(min_top, 0, UINT8_MAX));
+        ClipToRange<int>(min_top, 0, UINT8_MAX);
     unichars[unichar_id].properties.max_top =
-        static_cast<uint8_t>(ClipToRange(max_top, 0, UINT8_MAX));
+        ClipToRange<int>(max_top, 0, UINT8_MAX);
   }
   // Returns the width stats (as mean, sd) of the given unichar relative to the
   // median advance of all characters in the character set.

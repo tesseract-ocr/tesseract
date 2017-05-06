@@ -215,9 +215,9 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta)
 }
 /** Builds a feature from ints with all the necessary clipping and casting. */
 INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
-  : X(static_cast<uint8_t>(ClipToRange(x, 0, UINT8_MAX))),
-    Y(static_cast<uint8_t>(ClipToRange(y, 0, UINT8_MAX))),
-    Theta(static_cast<uint8_t>(ClipToRange(theta, 0, UINT8_MAX))),
+  : X(static_cast<uint8_t>(ClipToRange<int>(x, 0, UINT8_MAX))),
+    Y(static_cast<uint8_t>(ClipToRange<int>(y, 0, UINT8_MAX))),
+    Theta(static_cast<uint8_t>(ClipToRange<int>(theta, 0, UINT8_MAX))),
     CP_misses(0) {
 }
 
@@ -434,11 +434,11 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
  */
 uint8_t Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
-  return static_cast<uint8_t>(ClipToRange(bucket, 0, num_buckets - 1));
+  return static_cast<uint8_t>(ClipToRange<int>(bucket, 0, num_buckets - 1));
 }
 uint16_t Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
-  return static_cast<uint16_t>(ClipToRange(bucket, 0, num_buckets - 1));
+  return static_cast<uint16_t>(ClipToRange<int>(bucket, 0, num_buckets - 1));
 }
 
 /**
