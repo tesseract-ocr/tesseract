@@ -235,7 +235,7 @@ set(text2image_src ${text2image_src} ../vs2010/port/strcasestr.cpp)
 endif()
 
 add_executable              (text2image ${text2image_src})
-target_link_libraries       (text2image unicharset_training)
+target_link_libraries       (text2image common_training)
 if (PKG_CONFIG_FOUND)
 target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
