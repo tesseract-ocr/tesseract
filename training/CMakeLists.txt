@@ -199,13 +199,15 @@ project_group               (set_unicharset_properties "Training Tools")
 # EXECUTABLE text2image
 ########################################
 
-if (PKG_CONFIG_FOUND)
+if (PKG_CONFIG_FOUND OR CPPAN_BUILD)
 
+if (PKG_CONFIG_FOUND)
 pkg_check_modules(Pango REQUIRED pango)
 pkg_check_modules(Cairo REQUIRED cairo)
 pkg_check_modules(PangoFt2 REQUIRED pangoft2)
 pkg_check_modules(PangoCairo REQUIRED pangocairo)
 pkg_check_modules(FontConfig REQUIRED fontconfig)
+endif()
 
 set(text2image_src
     text2image.cpp
@@ -233,19 +235,24 @@ set(text2image_src ${text2image_src} ../vs2010/port/strcasestr.cpp)
 endif()
 
 add_executable              (text2image ${text2image_src})
+target_link_libraries       (text2image unicharset_training)
+if (PKG_CONFIG_FOUND)
 target_include_directories  (text2image BEFORE PRIVATE ${Cairo_INCLUDE_DIRS} ${Pango_INCLUDE_DIRS})
 target_compile_definitions  (text2image PRIVATE -DPANGO_ENABLE_ENGINE)
-target_link_libraries       (text2image libtesseract common_training
-    ${ICU_LIBRARIES}
+target_link_libraries       (text2image
     ${Pango_LIBRARIES}
     ${Cairo_LIBRARIES}
     ${PangoCairo_LIBRARIES}
     ${PangoFt2_LIBRARIES}
     ${FontConfig_LIBRARIES}
 )
+endif()
+if (CPPAN_BUILD)
+target_link_libraries       (text2image pvt.cppan.demo.gnome.pango.pangocairo)
+endif()
 project_group               (text2image "Training Tools")
-
-endif(PKG_CONFIG_FOUND)
+  
+endif()
 endif(ICU_FOUND)
 
 ###############################################################################
