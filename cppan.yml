@@ -3,9 +3,14 @@ local_settings:
     #generator: Visual Studio 14 2015 Win64
     silent: false
     #copy_import_libs: true
-    build:
-        c_flags: /W0
-        cxx_flags: /W0
+    #build:
+        #c_flags: /W0
+        #cxx_flags: /W0
+    builds:
+        vs2017:
+            generator: Visual Studio 15 2017
+        vs2017_64:
+            generator: Visual Studio 15 2017 Win64
 
     dependencies:
         pvt.cppan.demo.danbloomberg.leptonica: 1
