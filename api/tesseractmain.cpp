@@ -403,7 +403,7 @@ int main(int argc, char** argv) {
   static GenericVector<STRING> vars_vec;
   static GenericVector<STRING> vars_values;
 
-#if !defined(DEBUG)
+#ifdef NDEBUG
   // Disable debugging and informational messages from Leptonica.
   setMsgSeverity(L_SEVERITY_ERROR);
 #endif
