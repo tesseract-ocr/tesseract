@@ -65,7 +65,7 @@ void FullyConnected::SetEnableTraining(TrainingState state) {
     // Temp disable only from enabled.
     if (training_ == TS_ENABLED) training_ = state;
   } else {
-    if (state == TS_ENABLED && training_ == TS_DISABLED)
+    if (state == TS_ENABLED && training_ != TS_ENABLED)
       weights_.InitBackward();
     training_ = state;
   }
