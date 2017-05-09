@@ -97,7 +97,7 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
 bool Classify::WriteTRFile(const STRING& filename) {
   STRING tr_filename = filename + ".tr";
   FILE* fp = Efopen(tr_filename.string(), "wb");
-  int len = tr_file_data_.length();
+  size_t len = tr_file_data_.length();
   bool result =
       fwrite(&tr_file_data_[0], sizeof(tr_file_data_[0]), len, fp) == len;
   fclose(fp);
