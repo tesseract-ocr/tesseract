@@ -19,6 +19,7 @@
 #include "config_auto.h"
 #endif
 
+#include <memory> // std::unique_ptr
 #include <string.h>
 #include "baseapi.h"
 #include "genericvector.h"
@@ -122,13 +123,12 @@ TessTextRenderer::TessTextRenderer(const char *outputbase)
 }
 
 bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* utf8 = api->GetUTF8Text();
+  const std::unique_ptr<const char[]> utf8(api->GetUTF8Text());
   if (utf8 == NULL) {
     return false;
   }
 
-  AppendString(utf8);
-  delete[] utf8;
+  AppendString(utf8.get());
 
   bool pageBreak = false;
   api->GetBoolVariable("include_page_breaks", &pageBreak);

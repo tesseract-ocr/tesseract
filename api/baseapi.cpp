@@ -1980,9 +1980,9 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
   PageSegMode current_psm = GetPageSegMode();
   SetPageSegMode(mode);
   SetVariable("classify_enable_learning", "0");
-  char* text = GetUTF8Text();
+  const std::unique_ptr<const char[]> text(GetUTF8Text());
   if (debug) {
-    tprintf("Trying to adapt \"%s\" to \"%s\"\n", text, wordstr);
+    tprintf("Trying to adapt \"%s\" to \"%s\"\n", text.get(), wordstr);
   }
   if (text != NULL) {
     PAGE_RES_IT it(page_res_);
@@ -2022,7 +2022,6 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
       tesseract_->EnableLearning = true;
       tesseract_->LearnWord(NULL, word_res);
     }
-    delete [] text;
   } else {
     success = false;
   }
