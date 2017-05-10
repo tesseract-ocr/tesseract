@@ -1577,6 +1577,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 /**
  * Make a TSV-formatted string from the internal data structures.
  * page_number is 0-based but will appear in the output as 1-based.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetTSVText(int page_number) {
   if (tesseract_ == NULL || (page_res_ == NULL && Recognize(NULL) < 0))

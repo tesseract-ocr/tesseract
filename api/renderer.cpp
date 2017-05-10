@@ -218,11 +218,10 @@ bool TessTsvRenderer::BeginDocumentHandler() {
 bool TessTsvRenderer::EndDocumentHandler() { return true; }
 
 bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* tsv = api->GetTSVText(imagenum());
+  const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum()));
   if (tsv == NULL) return false;
 
-  AppendString(tsv);
-  delete[] tsv;
+  AppendString(tsv.get());
 
   return true;
 }

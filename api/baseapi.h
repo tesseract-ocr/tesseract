@@ -606,6 +606,7 @@ class TESS_API TessBaseAPI {
   /**
    * Make a TSV-formatted string from the internal data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetTSVText(int page_number);
 
