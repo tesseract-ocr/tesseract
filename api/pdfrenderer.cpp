@@ -20,6 +20,7 @@
 #include "config_auto.h"
 #endif
 
+#include <memory> // std::unique_ptr
 #include "allheaders.h"
 #include "baseapi.h"
 #include "math.h"
@@ -460,10 +461,10 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     STRING pdf_word("");
     int pdf_word_len = 0;
     do {
-      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
+      const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != '\0') {
         GenericVector<int> unicodes;
-        UNICHAR::UTF8ToUnicode(grapheme, &unicodes);
+        UNICHAR::UTF8ToUnicode(grapheme.get(), &unicodes);
         char utf16[kMaxBytesPerCodepoint];
         for (int i = 0; i < unicodes.length(); i++) {
           int code = unicodes[i];
@@ -473,7 +474,6 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
           }
         }
       }
-      delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (word_length > 0 && pdf_word_len > 0 && fontsize > 0) {

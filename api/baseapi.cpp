@@ -46,6 +46,7 @@
 #include <string>
 #include <iterator>
 #include <fstream>
+#include <memory> // std::unique_ptr
 
 #include "allheaders.h"
 
@@ -1267,9 +1268,8 @@ char* TessBaseAPI::GetUTF8Text() {
   ResultIterator *it = GetIterator();
   do {
     if (it->Empty(RIL_PARA)) continue;
-    char *para_text = it->GetUTF8Text(RIL_PARA);
-    text += para_text;
-    delete []para_text;
+    const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
+    text += para_text.get();
   } while (it->Next(RIL_PARA));
   char* result = new char[text.length() + 1];
   strncpy(result, text.string(), text.length() + 1);
@@ -1539,11 +1539,10 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (bold) hocr_str += "<strong>";
     if (italic) hocr_str += "<em>";
     do {
-      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
+      const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
-        hocr_str += HOcrEscape(grapheme);
+        hocr_str += HOcrEscape(grapheme.get());
       }
-      delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (italic) hocr_str += "</em>";
@@ -1661,7 +1660,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
     if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) bcnt++;
 
     do {
-      tsv_str += res_it->GetUTF8Text(RIL_SYMBOL);
+      tsv_str += std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     tsv_str += "\n";  // end of row
