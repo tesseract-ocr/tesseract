@@ -1717,7 +1717,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   do {
     int left, top, right, bottom;
     if (it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom)) {
-      char* text = it->GetUTF8Text(RIL_SYMBOL);
+      const std::unique_ptr</*non-const*/ char[]> text(it->GetUTF8Text(RIL_SYMBOL));
       // Tesseract uses space for recognition failure. Fix to a reject
       // character, kTesseractReject so we don't create illegal box files.
       for (int i = 0; text[i] != '\0'; ++i) {
@@ -1726,10 +1726,9 @@ char* TessBaseAPI::GetBoxText(int page_number) {
       }
       snprintf(result + output_length, total_length - output_length,
                "%s %d %d %d %d %d\n",
-               text, left, image_height_ - bottom,
+               text.get(), left, image_height_ - bottom,
                right, image_height_ - top, page_number);
       output_length += strlen(result + output_length);
-      delete [] text;
       // Just in case...
       if (output_length + kMaxBytesPerLine > total_length)
         break;
