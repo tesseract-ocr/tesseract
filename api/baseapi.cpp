@@ -1393,6 +1393,7 @@ static void AddBoxToTSV(const PageIterator* it, PageIteratorLevel level,
  * Image name/input_file_ can be set by SetInputName before calling
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetHOCRText(int page_number) {
   return GetHOCRText(NULL, page_number);
@@ -1405,6 +1406,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
  * Image name/input_file_ can be set by SetInputName before calling
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == NULL || (page_res_ == NULL && Recognize(monitor) < 0))

@@ -186,11 +186,10 @@ bool TessHOcrRenderer::EndDocumentHandler() {
 }
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* hocr = api->GetHOCRText(imagenum());
+  const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
   if (hocr == NULL) return false;
 
-  AppendString(hocr);
-  delete[] hocr;
+  AppendString(hocr.get());
 
   return true;
 }
