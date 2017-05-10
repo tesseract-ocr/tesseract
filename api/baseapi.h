@@ -612,10 +612,10 @@ class TESS_API TessBaseAPI {
 
   /**
    * The recognized text is returned as a char* which is coded in the same
-   * format as a box file used in training. Returned string must be freed with
-   * the delete [] operator.
+   * format as a box file used in training.
    * Constructs coordinates in the original image - not just the rectangle.
    * page_number is a 0-based page index that will appear in the box file.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetBoxText(int page_number);
 

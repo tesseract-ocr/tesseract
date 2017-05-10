@@ -251,11 +251,10 @@ TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
 }
 
 bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* text = api->GetBoxText(imagenum());
+  const std::unique_ptr<const char[]> text(api->GetBoxText(imagenum()));
   if (text == NULL) return false;
 
-  AppendString(text);
-  delete[] text;
+  AppendString(text.get());
 
   return true;
 }

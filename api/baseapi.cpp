@@ -1702,8 +1702,9 @@ const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
 
 /**
  * The recognized text is returned as a char* which is coded
- * as a UTF8 box file and must be freed with the delete [] operator.
+ * as a UTF8 box file.
  * page_number is a 0-base page index that will appear in the box file.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetBoxText(int page_number) {
   if (tesseract_ == NULL ||
