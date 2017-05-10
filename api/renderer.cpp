@@ -234,11 +234,10 @@ TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
 }
 
 bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* unlv = api->GetUNLVText();
+  const std::unique_ptr<const char[]> unlv(api->GetUNLVText());
   if (unlv == NULL) return false;
 
-  AppendString(unlv);
-  delete[] unlv;
+  AppendString(unlv.get());
 
   return true;
 }

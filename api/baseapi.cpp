@@ -1757,8 +1757,8 @@ const int kLatinChs[] = {
 
 /**
  * The recognized text is returned as a char* which is coded
- * as UNLV format Latin-1 with specific reject and suspect codes
- * and must be freed with the delete [] operator.
+ * as UNLV format Latin-1 with specific reject and suspect codes.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetUNLVText() {
   if (tesseract_ == NULL ||
