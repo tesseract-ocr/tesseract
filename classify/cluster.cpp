@@ -1123,9 +1123,9 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   if (TotalDims < N + 1 || TotalDims < 2)
     return NULL;
   const int kMatrixSize = N * N * sizeof(FLOAT32);
-  FLOAT32* Covariance = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32* Inverse = reinterpret_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32* Delta = reinterpret_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+  FLOAT32* Covariance = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
+  FLOAT32* Inverse = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
+  FLOAT32* Delta = static_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
     int row_offset = i * N;
@@ -1749,13 +1749,13 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   BOOL8 Symmetrical;
 
   // allocate memory needed for data structure
-  Buckets = reinterpret_cast<BUCKETS*>(Emalloc(sizeof(BUCKETS)));
+  Buckets = static_cast<BUCKETS*>(Emalloc(sizeof(BUCKETS)));
   Buckets->NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   Buckets->SampleCount = SampleCount;
   Buckets->Confidence = Confidence;
-  Buckets->Count = reinterpret_cast<uinT32*>(
+  Buckets->Count = static_cast<uinT32*>(
       Emalloc(Buckets->NumberOfBuckets * sizeof(uinT32)));
-  Buckets->ExpectedCount = reinterpret_cast<FLOAT32*>(
+  Buckets->ExpectedCount = static_cast<FLOAT32*>(
       Emalloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
 
   // initialize simple fields

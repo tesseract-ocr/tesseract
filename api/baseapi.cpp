@@ -165,7 +165,7 @@ size_t TessBaseAPI::getOpenCLDevice(void **data) {
 #if USE_DEVICE_SELECTION
   ds_device device = OpenclDevice::getDeviceSelection();
   if (device.type == DS_DEVICE_OPENCL_DEVICE) {
-    *data = reinterpret_cast<void*>(new cl_device_id);
+    *data = new cl_device_id;
     memcpy(*data, &device.oclDeviceID, sizeof(cl_device_id));
     return sizeof(cl_device_id);
   }

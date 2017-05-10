@@ -26,6 +26,7 @@
 #include "params.h"
 #include "strngs.h"
 #include "tessclassifier.h"
+#include "tesseractclass.h"
 
 STRING_PARAM_FLAG(classifier, "", "Classifier to test");
 STRING_PARAM_FLAG(lang, "eng", "Language to test");
@@ -70,7 +71,7 @@ static tesseract::ShapeClassifier* InitializeClassifier(
       return nullptr;
     }
     tesseract = const_cast<tesseract::Tesseract*>((*api)->tesseract());
-    classify = reinterpret_cast<tesseract::Classify*>(tesseract);
+    classify = static_cast<tesseract::Classify*>(tesseract);
     if (classify->shape_table() == nullptr) {
       fprintf(stderr, "Tesseract must contain a ShapeTable!\n");
       return nullptr;

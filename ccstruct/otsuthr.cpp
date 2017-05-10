@@ -162,7 +162,7 @@ void HistogramRect(Pix* src_pix, int channel,
     const l_uint32* linedata = srcdata + y * src_wpl;
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(const_cast<void*>(
-          reinterpret_cast<const void *>(linedata)),
+          static_cast<const void *>(linedata)),
           (x + left) * num_channels + channel);
       ++histogram[pixel];
     }

@@ -370,7 +370,7 @@ void Dict::End() {
 int Dict::def_letter_is_okay(void* void_dawg_args,
                              UNICHAR_ID unichar_id,
                              bool word_end) const {
-  DawgArgs *dawg_args = reinterpret_cast<DawgArgs*>(void_dawg_args);
+  DawgArgs *dawg_args = static_cast<DawgArgs*>(void_dawg_args);
 
   if (dawg_debug_level >= 3) {
     tprintf("def_letter_is_okay: current unichar=%s word_end=%d"

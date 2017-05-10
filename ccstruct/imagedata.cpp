@@ -112,8 +112,8 @@ void FloatWordFeature::FromWordFeatures(
 // Sort function to sort first by x-bucket, then by y.
 /* static */
 int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
-  const FloatWordFeature* f1 = reinterpret_cast<const FloatWordFeature*>(v1);
-  const FloatWordFeature* f2 = reinterpret_cast<const FloatWordFeature*>(v2);
+  const FloatWordFeature* f1 = static_cast<const FloatWordFeature*>(v1);
+  const FloatWordFeature* f2 = static_cast<const FloatWordFeature*>(v2);
   int x_diff = f1->x_bucket - f2->x_bucket;
   if (x_diff == 0) return f1->y - f2->y;
   return x_diff;
@@ -367,7 +367,7 @@ bool ImageData::AddBoxes(const char* box_text) {
 
 // Thread function to call ReCachePages.
 void* ReCachePagesFunc(void* data) {
-  DocumentData* document_data = reinterpret_cast<DocumentData*>(data);
+  DocumentData* document_data = static_cast<DocumentData*>(data);
   document_data->ReCachePages();
   return NULL;
 }

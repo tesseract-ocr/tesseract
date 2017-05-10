@@ -2242,7 +2242,7 @@ void Classify::ShowBestMatchFor(int shape_id,
   tprintf("Static Shape ID: %d\n", shape_id);
   ShowMatchDisplay();
   im_.Match(ClassForClassId(PreTrainedTemplates, shape_id),
-            AllProtosOn, reinterpret_cast<BIT_VECTOR>(&config_mask),
+            AllProtosOn, &config_mask, // TODO: or reinterpret_cast<BIT_VECTOR>(&config_mask) anyway?
             num_features, features, &cn_result,
             classify_adapt_feature_threshold,
             matcher_debug_flags,

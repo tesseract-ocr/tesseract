@@ -421,8 +421,8 @@ int sort_cmp(const void* t1, const void* t2) {
 // return > 0 if t1 > t2
 template <typename T>
 int sort_ptr_cmp(const void* t1, const void* t2) {
-  const T* a = *reinterpret_cast<T * const *>(t1);
-  const T* b = *reinterpret_cast<T * const *>(t2);
+  const T* a = *static_cast<T * const *>(t1);
+  const T* b = *static_cast<T * const *>(t2);
   if (*a < *b) {
     return -1;
   } else if (*b < *a) {

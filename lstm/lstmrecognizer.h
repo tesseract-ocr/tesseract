@@ -95,7 +95,7 @@ class LSTMRecognizer {
   // to access a specific layer.
   GenericVector<STRING> EnumerateLayers() const {
     ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
-    Series* series = reinterpret_cast<Series*>(network_);
+    Series* series = static_cast<Series*>(network_);
     GenericVector<STRING> layers;
     series->EnumerateLayers(NULL, &layers);
     return layers;
@@ -104,7 +104,7 @@ class LSTMRecognizer {
   Network* GetLayer(const STRING& id) const {
     ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
-    Series* series = reinterpret_cast<Series*>(network_);
+    Series* series = static_cast<Series*>(network_);
     return series->GetLayer(&id[1]);
   }
   // Returns the learning rate of the layer from its id.
@@ -112,7 +112,7 @@ class LSTMRecognizer {
     ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       ASSERT_HOST(id.length() > 1 && id[0] == ':');
-      Series* series = reinterpret_cast<Series*>(network_);
+      Series* series = static_cast<Series*>(network_);
       return series->LayerLearningRate(&id[1]);
     } else {
       return learning_rate_;
@@ -133,7 +133,7 @@ class LSTMRecognizer {
   void ScaleLayerLearningRate(const STRING& id, double factor) {
     ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
-    Series* series = reinterpret_cast<Series*>(network_);
+    Series* series = static_cast<Series*>(network_);
     series->ScaleLayerLearningRate(&id[1], factor);
   }
 

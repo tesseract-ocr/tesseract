@@ -94,7 +94,7 @@ inT16 length                     //length of loop
   pos = startpt;
   stepcount = length;            // No. of steps.
   ASSERT_HOST(length >= 0);
-  steps = reinterpret_cast<uinT8*>(alloc_mem(step_mem()));  // Get memory.
+  steps = static_cast<uinT8*>(alloc_mem(step_mem()));  // Get memory.
   memset(steps, 0, step_mem());
 
   lastdir = new_steps[length - 1];
@@ -655,23 +655,23 @@ static void ComputeGradient(const l_uint32* data, int wpl,
   int pix_x_y =
       x < width && y < height
           ? GET_DATA_BYTE(
-                const_cast<void*>(reinterpret_cast<const void*>(line)), x)
+                const_cast<void*>(static_cast<const void*>(line)), x)
           : 255;
   int pix_x_prevy =
       x < width && y > 0
           ? GET_DATA_BYTE(
-                const_cast<void*>(reinterpret_cast<const void*>(line - wpl)), x)
+                const_cast<void*>(static_cast<const void*>(line - wpl)), x)
           : 255;
   int pix_prevx_prevy =
       x > 0 && y > 0
           ? GET_DATA_BYTE(
-                const_cast<void*>(reinterpret_cast<void const*>(line - wpl)),
+                const_cast<void*>(static_cast<void const*>(line - wpl)),
                 x - 1)
           : 255;
   int pix_prevx_y =
       x > 0 && y < height
           ? GET_DATA_BYTE(
-                const_cast<void*>(reinterpret_cast<const void*>(line)), x - 1)
+                const_cast<void*>(static_cast<const void*>(line)), x - 1)
           : 255;
   gradient->set_x(pix_x_y + pix_x_prevy - (pix_prevx_y + pix_prevx_prevy));
   gradient->set_y(pix_x_prevy + pix_prevx_prevy - (pix_x_y + pix_prevx_y));
@@ -689,9 +689,9 @@ static bool EvaluateVerticalDiff(const l_uint32* data, int wpl, int diff_sign,
     return false;
   const l_uint32* line = data + y * wpl;
   int pixel1 = GET_DATA_BYTE(
-      const_cast<void*>(reinterpret_cast<const void*>(line - wpl)), x);
+      const_cast<void*>(static_cast<const void*>(line - wpl)), x);
   int pixel2 =
-      GET_DATA_BYTE(const_cast<void*>(reinterpret_cast<const void*>(line)), x);
+      GET_DATA_BYTE(const_cast<void*>(static_cast<const void*>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;
@@ -712,9 +712,9 @@ static bool EvaluateHorizontalDiff(const l_uint32* line, int diff_sign,
   if (x <= 0 || x >= width)
     return false;
   int pixel1 = GET_DATA_BYTE(
-      const_cast<void*>(reinterpret_cast<const void*>(line)), x - 1);
+      const_cast<void*>(static_cast<const void*>(line)), x - 1);
   int pixel2 =
-      GET_DATA_BYTE(const_cast<void*>(reinterpret_cast<const void*>(line)), x);
+      GET_DATA_BYTE(const_cast<void*>(static_cast<const void*>(line)), x);
   int diff = (pixel2 - pixel1) * diff_sign;
   if (diff > *best_diff) {
     *best_diff = diff;

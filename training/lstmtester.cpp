@@ -119,7 +119,7 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
 // it will call UnlockRunning to release the lock after RunEvalSync completes.
 /* static */
 void* LSTMTester::ThreadFunc(void* lstmtester_void) {
-  LSTMTester* lstmtester = reinterpret_cast<LSTMTester*>(lstmtester_void);
+  LSTMTester* lstmtester = static_cast<LSTMTester*>(lstmtester_void);
   lstmtester->test_result_ = lstmtester->RunEvalSync(
       lstmtester->test_iteration_, lstmtester->test_training_errors_,
       lstmtester->test_model_data_, lstmtester->test_training_stage_);

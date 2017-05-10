@@ -42,14 +42,14 @@ class SortHelper {
   };
   // qsort function to sort by decreasing count.
   static int SortPairsByCount(const void* v1, const void* v2) {
-    const SortPair<T>* p1 = reinterpret_cast<const SortPair<T>*>(v1);
-    const SortPair<T>* p2 = reinterpret_cast<const SortPair<T>*>(v2);
+    const SortPair<T>* p1 = static_cast<const SortPair<T>*>(v1);
+    const SortPair<T>* p2 = static_cast<const SortPair<T>*>(v2);
     return p2->count - p1->count;
   }
   // qsort function to sort by decreasing value.
   static int SortPairsByValue(const void* v1, const void* v2) {
-    const SortPair<T>* p1 = reinterpret_cast<const SortPair<T>*>(v1);
-    const SortPair<T>* p2 = reinterpret_cast<const SortPair<T>*>(v2);
+    const SortPair<T>* p1 = static_cast<const SortPair<T>*>(v1);
+    const SortPair<T>* p2 = static_cast<const SortPair<T>*>(v2);
     if (p2->value - p1->value < 0) return -1;
     if (p2->value - p1->value > 0) return 1;
     return 0;
