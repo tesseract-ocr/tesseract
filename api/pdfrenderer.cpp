@@ -883,12 +883,11 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendPDFObject(buf);
 
   // CONTENTS
-  char* pdftext = GetPDFTextObjects(api, width, height);
-  long pdftext_len = strlen(pdftext);
-  unsigned char *pdftext_casted = reinterpret_cast<unsigned char *>(pdftext);
+  const std::unique_ptr</*non-const*/ char[]> pdftext(GetPDFTextObjects(api, width, height));
+  const long pdftext_len = strlen(pdftext.get());
   size_t len;
   unsigned char *comp_pdftext =
-      zlibCompress(pdftext_casted, pdftext_len, &len);
+      zlibCompress(reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
   long comp_pdftext_len = len;
   n = snprintf(buf, sizeof(buf),
                "%ld 0 obj\n"
@@ -897,7 +896,6 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
                ">>\n"
                "stream\n", obj_, comp_pdftext_len);
   if (n >= sizeof(buf)) {
-    delete[] pdftext;
     lept_free(comp_pdftext);
     return false;
   }
@@ -906,7 +904,6 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendData(reinterpret_cast<char *>(comp_pdftext), comp_pdftext_len);
   objsize += comp_pdftext_len;
   lept_free(comp_pdftext);
-  delete[] pdftext;
   const char *b2 =
       "endstream\n"
       "endobj\n";
