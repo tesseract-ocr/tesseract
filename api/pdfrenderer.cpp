@@ -570,14 +570,13 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 
   // CIDTOGIDMAP
   const int kCIDToGIDMapSize = 2 * (1 << 16);
-  unsigned char *cidtogidmap = new unsigned char[kCIDToGIDMapSize];
+  const std::unique_ptr</*non-const*/ unsigned char[]> cidtogidmap(new unsigned char[kCIDToGIDMapSize]);
   for (int i = 0; i < kCIDToGIDMapSize; i++) {
     cidtogidmap[i] = (i % 2) ? 1 : 0;
   }
   size_t len;
   unsigned char *comp =
-      zlibCompress(cidtogidmap, kCIDToGIDMapSize, &len);
-  delete[] cidtogidmap;
+      zlibCompress(cidtogidmap.get(), kCIDToGIDMapSize, &len);
   n = snprintf(buf, sizeof(buf),
                "5 0 obj\n"
                "<<\n"
