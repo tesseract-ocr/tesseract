@@ -669,10 +669,9 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   fseek(fp, 0, SEEK_END);
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
-  char *buffer = new char[size];
-  if (fread(buffer, 1, size, fp) != size) {
+  const std::unique_ptr</*non-const*/ char[]> buffer(new char[size]);
+  if (fread(buffer.get(), 1, size, fp) != size) {
     fclose(fp);
-    delete[] buffer;
     return false;
   }
   fclose(fp);
@@ -685,13 +684,11 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                ">>\n"
                "stream\n", size, size);
   if (n >= sizeof(buf)) {
-    delete[] buffer;
     return false;
   }
   AppendString(buf);
   objsize  = strlen(buf);
-  AppendData(buffer, size);
-  delete[] buffer;
+  AppendData(buffer.get(), size);
   objsize += size;
   AppendString(endstream_endobj);
   objsize += strlen(endstream_endobj);
