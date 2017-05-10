@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <stdio.h>
+#include <memory> // std::unique_ptr
 #include "elst.h"
 #include "polyblk.h"
 
@@ -273,7 +274,6 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
   inT16 y;
   inT16 width;
   PB_LINE_IT *lines;
-  ICOORDELT_LIST *segments;
   ICOORDELT_IT s_it;
 
   lines = new PB_LINE_IT (this);
@@ -281,9 +281,9 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 
   for (y = this->bounding_box ()->bottom ();
   y <= this->bounding_box ()->top (); y++) {
-    segments = lines->get_line (y);
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line (y));
     if (!segments->empty ()) {
-      s_it.set_to_list (segments);
+      s_it.set_to_list (segments.get());
       for (s_it.mark_cycle_pt (); !s_it.cycled_list (); s_it.forward ()) {
         // Note different use of ICOORDELT, x coord is x coord of pixel
         // at the start of line segment, y coord is length of line segment
