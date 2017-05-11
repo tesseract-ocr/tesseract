@@ -46,6 +46,7 @@
 #include <string>
 #include <iterator>
 #include <fstream>
+#include <memory> // std::unique_ptr
 
 #include "allheaders.h"
 
@@ -1267,9 +1268,8 @@ char* TessBaseAPI::GetUTF8Text() {
   ResultIterator *it = GetIterator();
   do {
     if (it->Empty(RIL_PARA)) continue;
-    char *para_text = it->GetUTF8Text(RIL_PARA);
-    text += para_text;
-    delete []para_text;
+    const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
+    text += para_text.get();
   } while (it->Next(RIL_PARA));
   char* result = new char[text.length() + 1];
   strncpy(result, text.string(), text.length() + 1);
@@ -1393,6 +1393,7 @@ static void AddBoxToTSV(const PageIterator* it, PageIteratorLevel level,
  * Image name/input_file_ can be set by SetInputName before calling
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetHOCRText(int page_number) {
   return GetHOCRText(NULL, page_number);
@@ -1405,6 +1406,7 @@ char* TessBaseAPI::GetHOCRText(int page_number) {
  * Image name/input_file_ can be set by SetInputName before calling
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == NULL || (page_res_ == NULL && Recognize(monitor) < 0))
@@ -1539,11 +1541,10 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (bold) hocr_str += "<strong>";
     if (italic) hocr_str += "<em>";
     do {
-      const char *grapheme = res_it->GetUTF8Text(RIL_SYMBOL);
+      const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
-        hocr_str += HOcrEscape(grapheme);
+        hocr_str += HOcrEscape(grapheme.get());
       }
-      delete []grapheme;
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (italic) hocr_str += "</em>";
@@ -1576,6 +1577,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 /**
  * Make a TSV-formatted string from the internal data structures.
  * page_number is 0-based but will appear in the output as 1-based.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetTSVText(int page_number) {
   if (tesseract_ == NULL || (page_res_ == NULL && Recognize(NULL) < 0))
@@ -1661,7 +1663,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
     if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) bcnt++;
 
     do {
-      tsv_str += res_it->GetUTF8Text(RIL_SYMBOL);
+      tsv_str += std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     tsv_str += "\n";  // end of row
@@ -1700,8 +1702,9 @@ const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
 
 /**
  * The recognized text is returned as a char* which is coded
- * as a UTF8 box file and must be freed with the delete [] operator.
+ * as a UTF8 box file.
  * page_number is a 0-base page index that will appear in the box file.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetBoxText(int page_number) {
   if (tesseract_ == NULL ||
@@ -1718,7 +1721,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   do {
     int left, top, right, bottom;
     if (it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom)) {
-      char* text = it->GetUTF8Text(RIL_SYMBOL);
+      const std::unique_ptr</*non-const*/ char[]> text(it->GetUTF8Text(RIL_SYMBOL));
       // Tesseract uses space for recognition failure. Fix to a reject
       // character, kTesseractReject so we don't create illegal box files.
       for (int i = 0; text[i] != '\0'; ++i) {
@@ -1727,10 +1730,9 @@ char* TessBaseAPI::GetBoxText(int page_number) {
       }
       snprintf(result + output_length, total_length - output_length,
                "%s %d %d %d %d %d\n",
-               text, left, image_height_ - bottom,
+               text.get(), left, image_height_ - bottom,
                right, image_height_ - top, page_number);
       output_length += strlen(result + output_length);
-      delete [] text;
       // Just in case...
       if (output_length + kMaxBytesPerLine > total_length)
         break;
@@ -1755,8 +1757,8 @@ const int kLatinChs[] = {
 
 /**
  * The recognized text is returned as a char* which is coded
- * as UNLV format Latin-1 with specific reject and suspect codes
- * and must be freed with the delete [] operator.
+ * as UNLV format Latin-1 with specific reject and suspect codes.
+ * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetUNLVText() {
   if (tesseract_ == NULL ||
@@ -1981,9 +1983,9 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
   PageSegMode current_psm = GetPageSegMode();
   SetPageSegMode(mode);
   SetVariable("classify_enable_learning", "0");
-  char* text = GetUTF8Text();
+  const std::unique_ptr<const char[]> text(GetUTF8Text());
   if (debug) {
-    tprintf("Trying to adapt \"%s\" to \"%s\"\n", text, wordstr);
+    tprintf("Trying to adapt \"%s\" to \"%s\"\n", text.get(), wordstr);
   }
   if (text != NULL) {
     PAGE_RES_IT it(page_res_);
@@ -2023,7 +2025,6 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
       tesseract_->EnableLearning = true;
       tesseract_->LearnWord(NULL, word_res);
     }
-    delete [] text;
   } else {
     success = false;
   }

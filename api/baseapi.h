@@ -591,6 +591,7 @@ class TESS_API TessBaseAPI {
    * monitor can be used to
    *  cancel the recognition
    *  receive progress callbacks
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetHOCRText(ETEXT_DESC* monitor, int page_number);
 
@@ -598,28 +599,30 @@ class TESS_API TessBaseAPI {
    * Make a HTML-formatted string with hOCR markup from the internal
    * data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetHOCRText(int page_number);
 
   /**
    * Make a TSV-formatted string from the internal data structures.
    * page_number is 0-based but will appear in the output as 1-based.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetTSVText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same
-   * format as a box file used in training. Returned string must be freed with
-   * the delete [] operator.
+   * format as a box file used in training.
    * Constructs coordinates in the original image - not just the rectangle.
    * page_number is a 0-based page index that will appear in the box file.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetBoxText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded
-   * as UNLV format Latin-1 with specific reject and suspect codes
-   * and must be freed with the delete [] operator.
+   * as UNLV format Latin-1 with specific reject and suspect codes.
+   * Returned string must be freed with the delete [] operator.
    */
   char* GetUNLVText();
 

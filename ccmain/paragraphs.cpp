@@ -21,6 +21,7 @@
 #endif
 
 #include <ctype.h>
+#include <memory> // std::unique_ptr
 
 #include "genericvector.h"
 #include "helpers.h"
@@ -2446,8 +2447,8 @@ void InitializeRowInfo(bool after_recognition,
     return;
   }
   info->text = "";
-  char *text = it.GetUTF8Text(RIL_TEXTLINE);
-  int trailing_ws_idx = strlen(text);  // strip trailing space
+  const std::unique_ptr<const char[]> text(it.GetUTF8Text(RIL_TEXTLINE));
+  int trailing_ws_idx = strlen(text.get());  // strip trailing space
   while (trailing_ws_idx > 0 &&
          // isspace() only takes ASCII
          ((text[trailing_ws_idx - 1] & 0x80) == 0) &&
@@ -2460,7 +2461,6 @@ void InitializeRowInfo(bool after_recognition,
     for (int i = 0; i < trailing_ws_idx; i++)
       info->text += text[i];
   }
-  delete []text;
 
   if (info->text.size() == 0) {
     return;

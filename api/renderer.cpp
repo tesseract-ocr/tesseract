@@ -19,6 +19,7 @@
 #include "config_auto.h"
 #endif
 
+#include <memory> // std::unique_ptr
 #include <string.h>
 #include "baseapi.h"
 #include "genericvector.h"
@@ -122,13 +123,12 @@ TessTextRenderer::TessTextRenderer(const char *outputbase)
 }
 
 bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* utf8 = api->GetUTF8Text();
+  const std::unique_ptr<const char[]> utf8(api->GetUTF8Text());
   if (utf8 == NULL) {
     return false;
   }
 
-  AppendString(utf8);
-  delete[] utf8;
+  AppendString(utf8.get());
 
   bool pageBreak = false;
   api->GetBoolVariable("include_page_breaks", &pageBreak);
@@ -186,11 +186,10 @@ bool TessHOcrRenderer::EndDocumentHandler() {
 }
 
 bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* hocr = api->GetHOCRText(imagenum());
+  const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
   if (hocr == NULL) return false;
 
-  AppendString(hocr);
-  delete[] hocr;
+  AppendString(hocr.get());
 
   return true;
 }
@@ -219,11 +218,10 @@ bool TessTsvRenderer::BeginDocumentHandler() {
 bool TessTsvRenderer::EndDocumentHandler() { return true; }
 
 bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* tsv = api->GetTSVText(imagenum());
+  const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum()));
   if (tsv == NULL) return false;
 
-  AppendString(tsv);
-  delete[] tsv;
+  AppendString(tsv.get());
 
   return true;
 }
@@ -236,11 +234,10 @@ TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
 }
 
 bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* unlv = api->GetUNLVText();
+  const std::unique_ptr<const char[]> unlv(api->GetUNLVText());
   if (unlv == NULL) return false;
 
-  AppendString(unlv);
-  delete[] unlv;
+  AppendString(unlv.get());
 
   return true;
 }
@@ -253,11 +250,10 @@ TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
 }
 
 bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* text = api->GetBoxText(imagenum());
+  const std::unique_ptr<const char[]> text(api->GetBoxText(imagenum()));
   if (text == NULL) return false;
 
-  AppendString(text);
-  delete[] text;
+  AppendString(text.get());
 
   return true;
 }
