@@ -51,7 +51,7 @@ void BoxChar::AddBox(int x, int y, int width, int height) {
 /* static */
 void BoxChar::TranslateBoxes(int xshift, int yshift,
                              std::vector<BoxChar*>* boxes) {
-  for (int i = 0; i < boxes->size(); ++i) {
+  for (size_t i = 0; i < boxes->size(); ++i) {
     BOX* box = (*boxes)[i]->box_;
     if (box != nullptr) {
       box->x += xshift;
@@ -68,8 +68,8 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar*>* boxes) {
   bool vertical_rules = MostlyVertical(*boxes);
   InsertNewlines(rtl_rules, vertical_rules, boxes);
   InsertSpaces(rtl_rules, vertical_rules, boxes);
-  for (int i = 0; i < boxes->size(); ++i) {
-    if ((*boxes)[i]->box_ == nullptr) tprintf("Null box at index %d\n", i);
+  for (unsigned int i = 0; i < boxes->size(); ++i) {
+    if ((*boxes)[i]->box_ == nullptr) tprintf("Null box at index %u\n", i);
   }
   if (rtl_rules) {
     ReorderRTLText(boxes);
@@ -82,16 +82,16 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
                              std::vector<BoxChar*>* boxes) {
   int prev_i = -1;
   int max_shift = 0;
-  for (int i = 0; i < boxes->size(); ++i) {
+  for (int i = 0; static_cast<unsigned int>(i) < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
     if (box == nullptr) {
-      if (prev_i < 0 || prev_i < i - 1 || i + 1 == boxes->size()) {
+      if (prev_i < 0 || prev_i < i - 1 || static_cast<unsigned int>(i) + 1 == boxes->size()) {
         // Erase null boxes at the start of a line and after another null box.
         do {
           delete (*boxes)[i];
           boxes->erase(boxes->begin() + i);
           --i;
-        } while (i >= 0 && i + 1 == boxes->size() &&
+        } while (i >= 0 && static_cast<unsigned int>(i) + 1 == boxes->size() &&
                  (*boxes)[i]->box_ == nullptr);
       }
       continue;
@@ -146,7 +146,7 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
                            std::vector<BoxChar*>* boxes) {
   // After InsertNewlines, any remaining null boxes are not newlines, and are
   // singletons, so add a box to each remaining null box.
-  for (int i = 1; i + 1 < boxes->size(); ++i) {
+  for (int i = 1; static_cast<unsigned int>(i) + 1 < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
     if (box == nullptr) {
       Box* prev = (*boxes)[i - 1]->box_;
@@ -178,8 +178,8 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
         }
         // Left becomes the max right of all next boxes forward to the first
         // space or newline.
-        for (int j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
-                            (*boxes)[j]->ch_ != "\t";
+        for (size_t j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
+                               (*boxes)[j]->ch_ != "\t";
              ++j) {
           next = (*boxes)[j]->box_;
           if (next->x + next->w > left) {
@@ -203,8 +203,8 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
   // After adding newlines and spaces, this task is simply a matter of sorting
   // by left each group of boxes between newlines.
   BoxCharPtrSort sorter;
-  int end = 0;
-  for (int start = 0; start < boxes->size(); start = end + 1) {
+  size_t end = 0;
+  for (size_t start = 0; start < boxes->size(); start = end + 1) {
     end = start + 1;
     while (end < boxes->size() && (*boxes)[end]->ch_ != "\t") ++end;
     std::sort(boxes->begin() + start, boxes->begin() + end, sorter);
@@ -215,13 +215,13 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
 /* static */
 bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
   int num_rtl = 0, num_ltr = 0;
-  for (int i = 0; i < boxes.size(); ++i) {
+  for (unsigned int i = 0; i < boxes.size(); ++i) {
     // Convert the unichar to UTF32 representation
     GenericVector<char32> uni_vector;
     if (!UNICHAR::UTF8ToUnicode(boxes[i]->ch_.c_str(), &uni_vector)) {
-      tprintf("Illegal utf8 in boxchar %d string:%s = ", i,
+      tprintf("Illegal utf8 in boxchar %u string:%s = ", i,
               boxes[i]->ch_.c_str());
-      for (int c = 0; c < boxes[i]->ch_.size(); ++c) {
+      for (size_t c = 0; c < boxes[i]->ch_.size(); ++c) {
         tprintf(" 0x%x", boxes[i]->ch_[c]);
       }
       tprintf("\n");
@@ -244,7 +244,7 @@ bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
 /* static */
 bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
   inT64 total_dx = 0, total_dy = 0;
-  for (int i = 1; i < boxes.size(); ++i) {
+  for (size_t i = 1; i < boxes.size(); ++i) {
     if (boxes[i - 1]->box_ != nullptr && boxes[i]->box_ != nullptr &&
         boxes[i - 1]->page_ == boxes[i]->page_) {
       int dx = boxes[i]->box_->x - boxes[i - 1]->box_->x;
@@ -263,7 +263,7 @@ bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
 /* static */
 int BoxChar::TotalByteLength(const std::vector<BoxChar*>& boxes) {
   int total_length = 0;
-  for (int i = 0; i < boxes.size(); ++i) total_length += boxes[i]->ch_.size();
+  for (size_t i = 0; i < boxes.size(); ++i) total_length += boxes[i]->ch_.size();
   return total_length;
 }
 
@@ -302,7 +302,7 @@ string BoxChar::GetTesseractBoxStr(int height,
                                    const std::vector<BoxChar*>& boxes) {
   string output;
   char buffer[kMaxLineLength];
-  for (int i = 0; i < boxes.size(); ++i) {
+  for (size_t i = 0; i < boxes.size(); ++i) {
     const Box* box = boxes[i]->box_;
     if (box == nullptr) {
       tprintf("Error: Call PrepareToWrite before WriteTesseractBoxFile!!\n");
