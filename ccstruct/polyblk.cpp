@@ -254,7 +254,7 @@ void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, INT32FORMAT, num);
+    sprintf(temp_buff, "%" PRId32, num);
     #else
     ltoa (num, temp_buff, 10);
     #endif

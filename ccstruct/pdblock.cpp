@@ -196,7 +196,7 @@ void PDBLK::plot(                //draw outline
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, INT32FORMAT, serial);
+    sprintf(temp_buff, "%" PRId32, serial);
     #else
     ultoa (serial, temp_buff, 10);
     #endif
