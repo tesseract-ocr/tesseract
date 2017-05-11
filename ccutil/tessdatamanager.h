@@ -128,9 +128,6 @@ class TessdataManager {
   bool swap() const { return swap_; }
   bool is_loaded() const { return is_loaded_; }
 
-  // Lazily loads from the the given filename. Won't actually read the file
-  // until it needs it.
-  void LoadFileLater(const char *data_file_name);
   /**
    * Opens and reads the given data file right now.
    * @return true on success.

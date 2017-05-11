@@ -33,13 +33,6 @@
 
 namespace tesseract {
 
-// Lazily loads from the the given filename. Won't actually read the file
-// until it needs it.
-void TessdataManager::LoadFileLater(const char *data_file_name) {
-  Clear();
-  data_file_name_ = data_file_name;
-}
-
 bool TessdataManager::Init(const char *data_file_name) {
   GenericVector<char> data;
   if (reader_ == nullptr) {
