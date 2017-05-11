@@ -80,14 +80,6 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   return true;
 }
 
-// Overwrites a single entry of the given type.
-void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
-                                     int size) {
-  is_loaded_ = true;
-  entries_[type].resize_no_init(size);
-  memcpy(&entries_[type][0], data, size);
-}
-
 // Saves to the given filename.
 bool TessdataManager::SaveFile(const STRING &filename,
                                FileWriter writer) const {

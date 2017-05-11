@@ -139,8 +139,6 @@ class TessdataManager {
   // Loads from the given memory buffer as if a file, remembering name as some
   // arbitrary source id for caching.
   bool LoadMemBuffer(const char *name, const char *data, int size);
-  // Overwrites a single entry of the given type.
-  void OverwriteEntry(TessdataType type, const char *data, int size);
 
   // Saves to the given filename.
   bool SaveFile(const STRING &filename, FileWriter writer) const;
