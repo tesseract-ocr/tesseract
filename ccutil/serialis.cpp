@@ -109,11 +109,10 @@ int TFile::FRead(void* buffer, int size, int count) {
   ASSERT_HOST(!is_writing_);
   int required_size = size * count;
   if (required_size <= 0) return 0;
-  char* char_buffer = static_cast<char*>(buffer);
   if (data_->size() - offset_ < required_size)
     required_size = data_->size() - offset_;
-  if (required_size > 0 && char_buffer != NULL)
-    memcpy(char_buffer, &(*data_)[offset_], required_size);
+  if (required_size > 0 && buffer != NULL)
+    memcpy(buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
   return required_size / size;
 }
