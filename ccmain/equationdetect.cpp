@@ -56,24 +56,24 @@ namespace tesseract {
 // Utility ColParition sort functions.
 ///////////////////////////////////////////////////////////////////////////
 static int SortCPByTopReverse(const void* p1, const void* p2) {
-  const ColPartition* cp1 = *reinterpret_cast<ColPartition* const*>(p1);
-  const ColPartition* cp2 = *reinterpret_cast<ColPartition* const*>(p2);
+  const ColPartition* cp1 = *static_cast<ColPartition* const*>(p1);
+  const ColPartition* cp2 = *static_cast<ColPartition* const*>(p2);
   ASSERT_HOST(cp1 != NULL && cp2 != NULL);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
   return box2.top() - box1.top();
 }
 
 static int SortCPByBottom(const void* p1, const void* p2) {
-  const ColPartition* cp1 = *reinterpret_cast<ColPartition* const*>(p1);
-  const ColPartition* cp2 = *reinterpret_cast<ColPartition* const*>(p2);
+  const ColPartition* cp1 = *static_cast<ColPartition* const*>(p1);
+  const ColPartition* cp2 = *static_cast<ColPartition* const*>(p2);
   ASSERT_HOST(cp1 != NULL && cp2 != NULL);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
   return box1.bottom() - box2.bottom();
 }
 
 static int SortCPByHeight(const void* p1, const void* p2) {
-  const ColPartition* cp1 = *reinterpret_cast<ColPartition* const*>(p1);
-  const ColPartition* cp2 = *reinterpret_cast<ColPartition* const*>(p2);
+  const ColPartition* cp1 = *static_cast<ColPartition* const*>(p1);
+  const ColPartition* cp2 = *static_cast<ColPartition* const*>(p2);
   ASSERT_HOST(cp1 != NULL && cp2 != NULL);
   const TBOX &box1(cp1->bounding_box()), &box2(cp2->bounding_box());
   return box1.height() - box2.height();

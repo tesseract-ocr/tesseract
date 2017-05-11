@@ -281,8 +281,8 @@ NODE_REF Trie::new_dawg_node() {
 
 // Sort function to sort words by decreasing order of length.
 static int sort_strings_by_dec_length(const void* v1, const void* v2) {
-  const STRING* s1 = reinterpret_cast<const STRING*>(v1);
-  const STRING* s2 = reinterpret_cast<const STRING*>(v2);
+  const STRING* s1 = static_cast<const STRING*>(v1);
+  const STRING* s2 = static_cast<const STRING*>(v2);
   return s2->length() - s1->length();
 }
 

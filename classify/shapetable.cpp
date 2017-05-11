@@ -79,8 +79,8 @@ bool UnicharAndFonts::DeSerialize(TFile* fp) {
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
 int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
-  const UnicharAndFonts* p1 = reinterpret_cast<const UnicharAndFonts*>(v1);
-  const UnicharAndFonts* p2 = reinterpret_cast<const UnicharAndFonts*>(v2);
+  const UnicharAndFonts* p1 = static_cast<const UnicharAndFonts*>(v1);
+  const UnicharAndFonts* p2 = static_cast<const UnicharAndFonts*>(v2);
   return p1->unichar_id - p2->unichar_id;
 }
 

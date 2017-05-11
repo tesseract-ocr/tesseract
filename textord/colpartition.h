@@ -707,9 +707,9 @@ class ColPartition : public ELIST2_LINK {
   // Sort function to sort by bounding box.
   static int SortByBBox(const void* p1, const void* p2) {
     const ColPartition* part1 =
-        *reinterpret_cast<const ColPartition* const*>(p1);
+        *static_cast<const ColPartition* const*>(p1);
     const ColPartition* part2 =
-        *reinterpret_cast<const ColPartition* const*>(p2);
+        *static_cast<const ColPartition* const*>(p2);
     int mid_y1 = part1->bounding_box_.y_middle();
     int mid_y2 = part2->bounding_box_.y_middle();
     if ((part2->bounding_box_.bottom() <= mid_y1 &&

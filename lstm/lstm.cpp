@@ -198,7 +198,7 @@ bool LSTM::DeSerialize(TFile* fp) {
   }
   delete softmax_;
   if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    softmax_ = reinterpret_cast<FullyConnected*>(Network::CreateFromFile(fp));
+    softmax_ = static_cast<FullyConnected*>(Network::CreateFromFile(fp));
     if (softmax_ == nullptr) return false;
   } else {
     softmax_ = nullptr;
@@ -651,7 +651,7 @@ void LSTM::Update(float learning_rate, float momentum, int num_samples) {
 void LSTM::CountAlternators(const Network& other, double* same,
                             double* changed) const {
   ASSERT_HOST(other.type() == type_);
-  const LSTM* lstm = reinterpret_cast<const LSTM*>(&other);
+  const LSTM* lstm = static_cast<const LSTM*>(&other);
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
     gate_weights_[w].CountAlternators(lstm->gate_weights_[w], same, changed);

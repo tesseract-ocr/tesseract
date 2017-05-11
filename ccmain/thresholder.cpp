@@ -312,7 +312,7 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
       bool white_result = true;
       for (int ch = 0; ch < num_channels; ++ch) {
         int pixel = GET_DATA_BYTE(const_cast<void*>(
-                                  reinterpret_cast<const void *>(linedata)),
+                                  static_cast<const void *>(linedata)),
                                   (x + rect_left_) * num_channels + ch);
         if (hi_values[ch] >= 0 &&
             (pixel > thresholds[ch]) == (hi_values[ch] == 0)) {

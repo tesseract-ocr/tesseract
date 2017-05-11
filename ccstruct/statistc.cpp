@@ -772,8 +772,8 @@ void swap_entries(void *array,   // array of entries
   char *ptr2;
   size_t count;                  // of bytes
 
-  ptr1 = reinterpret_cast<char*>(array) + index1 * size;
-  ptr2 = reinterpret_cast<char*>(array) + index2 * size;
+  ptr1 = static_cast<char*>(array) + index1 * size;
+  ptr2 = static_cast<char*>(array) + index2 * size;
   for (count = 0; count < size; count++) {
     tmp = *ptr1;
     *ptr1++ = *ptr2;

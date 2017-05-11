@@ -52,7 +52,7 @@ bool NetworkBuilder::InitNetwork(int num_outputs, STRING network_spec,
   if (append_index >= 0) {
     // Split the current network after the given append_index.
     ASSERT_HOST(*network != NULL && (*network)->type() == NT_SERIES);
-    Series* series = reinterpret_cast<Series*>(*network);
+    Series* series = static_cast<Series*>(*network);
     Series* top_series = NULL;
     series->SplitAt(append_index, &bottom_series, &top_series);
     if (bottom_series == NULL || top_series == NULL) {

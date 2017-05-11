@@ -97,7 +97,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
 int TFile::FReadEndian(void* buffer, int size, int count) {
   int num_read = FRead(buffer, size, count);
   if (swap_) {
-    char* char_buffer = reinterpret_cast<char*>(buffer);
+    char* char_buffer = static_cast<char*>(buffer);
     for (int i = 0; i < num_read; ++i, char_buffer += size) {
       ReverseN(char_buffer, size);
     }
@@ -109,7 +109,7 @@ int TFile::FRead(void* buffer, int size, int count) {
   ASSERT_HOST(!is_writing_);
   int required_size = size * count;
   if (required_size <= 0) return 0;
-  char* char_buffer = reinterpret_cast<char*>(buffer);
+  char* char_buffer = static_cast<char*>(buffer);
   if (data_->size() - offset_ < required_size)
     required_size = data_->size() - offset_;
   if (required_size > 0 && char_buffer != NULL)
@@ -150,7 +150,7 @@ int TFile::FWrite(const void* buffer, int size, int count) {
   ASSERT_HOST(is_writing_);
   int total = size * count;
   if (total <= 0) return 0;
-  const char* buf = reinterpret_cast<const char*>(buffer);
+  const char* buf = static_cast<const char*>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
   for (int i = 0; i < total; ++i)
