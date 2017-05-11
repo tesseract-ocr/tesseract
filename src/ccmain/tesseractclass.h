@@ -556,7 +556,7 @@ class Tesseract : public Wordrec {
   void SetupUniversalFontIds();
 
   int init_tesseract_lm(const char* arg0, const char* textbase,
-                        const char* language, TessdataManager* mgr);
+                        const char* language);
 
   void recognize_page(STRING& image_name);
   void end_tesseract();

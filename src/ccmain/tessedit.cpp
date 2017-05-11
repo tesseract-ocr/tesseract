@@ -460,12 +460,13 @@ void Tesseract::SetupUniversalFontIds() {
 
 // init the LM component
 int Tesseract::init_tesseract_lm(const char *arg0, const char *textbase,
-                                 const char *language, TessdataManager *mgr) {
+                                 const char *language) {
+  TessdataManager mgr;
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
-                                nullptr, 0, nullptr, nullptr, false, mgr))
+                                nullptr, 0, nullptr, nullptr, false, &mgr))
     return -1;
   getDict().SetupForLoad(Dict::GlobalDawgCache());
-  getDict().Load(lang, mgr);
+  getDict().Load(lang, &mgr);
   getDict().FinishLoad();
   return 0;
 }

@@ -477,8 +477,7 @@ int TessBaseAPI::InitLangMod(const char* datapath, const char* language) {
     tesseract_ = new Tesseract;
   else
     ParamUtils::ResetToDefaults(tesseract_->params());
-  TessdataManager mgr;
-  return tesseract_->init_tesseract_lm(datapath, nullptr, language, &mgr);
+  return tesseract_->init_tesseract_lm(datapath, nullptr, language);
 }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
