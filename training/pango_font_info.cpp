@@ -673,8 +673,8 @@ void FontUtils::GetAllRenderableCharacters(const std::vector<string>& fonts,
                                            std::vector<bool>* unichar_bitmap) {
   // Form the union of coverage maps from the fonts
   PangoCoverage* all_coverage = pango_coverage_new();
-  tlog(1, "Processing %d fonts\n", fonts.size());
-  for (int i = 0; i < fonts.size(); ++i) {
+  tlog(1, "Processing %u fonts\n", static_cast<unsigned>(fonts.size()));
+  for (unsigned i = 0; i < fonts.size(); ++i) {
     PangoFontInfo font_info(fonts[i]);
     PangoCoverage* coverage =
         pango_font_get_coverage(font_info.ToPangoFont(), nullptr);
@@ -738,7 +738,7 @@ string FontUtils::BestFonts(
   int most_ok_chars = 0;
   int best_raw_score = 0;
   const std::vector<string>& font_names = FontUtils::ListAvailableFonts();
-  for (int i = 0; i < font_names.size(); ++i) {
+  for (unsigned i = 0; i < font_names.size(); ++i) {
     std::vector<bool> ch_flags;
     int raw_score = 0;
     int ok_chars = FontScore(ch_map, font_names[i], &raw_score, &ch_flags);
@@ -763,7 +763,7 @@ string FontUtils::BestFonts(
   int override_enough = static_cast<int>(most_ok_chars * kMinWeightedFraction);
 
   string font_list;
-  for (int i = 0; i < font_names.size(); ++i) {
+  for (unsigned i = 0; i < font_names.size(); ++i) {
     int score = font_scores[i];
     int raw_score = raw_scores[i];
     if ((score >= least_good_enough && raw_score >= least_raw_enough) ||
@@ -798,7 +798,7 @@ bool FontUtils::SelectFont(const char* utf8_word, const int utf8_len,
                            string* font_name, std::vector<string>* graphemes) {
   if (font_name) font_name->clear();
   if (graphemes) graphemes->clear();
-  for (int i = 0; i < all_fonts.size(); ++i) {
+  for (unsigned i = 0; i < all_fonts.size(); ++i) {
     PangoFontInfo font;
     std::vector<string> found_graphemes;
     ASSERT_HOST_MSG(font.ParseFontDescriptionName(all_fonts[i]),

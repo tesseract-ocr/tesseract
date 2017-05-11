@@ -89,7 +89,7 @@ enum DawgType {
 #define WERD_END_FLAG          (inT64) 4
 #define LETTER_START_BIT       0
 #define NUM_FLAG_BITS          3
-#define REFFORMAT "%lld"
+#define REFFORMAT "%" PRId64
 
 static const bool kDawgSuccessors[DAWG_TYPE_COUNT][DAWG_TYPE_COUNT] = {
   { 0, 1, 1, 0 },  // for DAWG_TYPE_PUNCTUATION
