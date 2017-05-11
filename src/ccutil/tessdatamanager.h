@@ -154,13 +154,11 @@ class TessdataManager {
   // Resets to the initial state, keeping the reader.
   void Clear();
 
-  // Prints a directory of contents.
-  void Directory() const;
-
   // Returns true if the component requested is present.
   bool IsComponentAvailable(TessdataType type) const {
     return !entries_[type].empty();
   }
+
   // Opens the given TFile pointer to the given component type.
   // Returns false in case of failure.
   bool GetComponent(TessdataType type, TFile *fp);
@@ -184,6 +182,11 @@ class TessdataManager {
 
   // Return the name of the underlying data file.
   const STRING &GetDataFileName() const { return data_file_name_; }
+
+  /* The remaining public methods are only used for combine_tessdata. */
+
+  // Prints a directory of contents.
+  void Directory() const;
 
   /**
    * Reads all the standard tesseract config and data files for a language
@@ -214,6 +217,8 @@ class TessdataManager {
    */
   bool ExtractToFile(const char *filename);
 
+ private:
+
   /**
    * Fills type with TessdataType of the tessdata component represented by the
    * given file name. E.g. tessdata/eng.unicharset -> TESSDATA_UNICHARSET.
@@ -230,7 +235,6 @@ class TessdataManager {
   static bool TessdataTypeFromFileName(const char *filename,
                                        TessdataType *type);
 
- private:
   // Name of file it came from.
   STRING data_file_name_;
   // Function to load the file when we need it.
