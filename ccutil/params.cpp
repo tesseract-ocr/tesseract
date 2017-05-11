@@ -108,7 +108,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
   if (ip && ip->constraint_ok(constraint) &&
-      sscanf(value, INT32FORMAT, &intval) == 1) ip->set_value(intval);
+      sscanf(value, "%d", &intval) == 1) ip->set_value(intval);
 
   // Look for the parameter among bool parameters.
   BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
