@@ -126,9 +126,6 @@ typedef unsigned char BOOL8;
 
 #endif /* _WIN32 */
 
-#define INT32FORMAT "%" PRId32
-#define INT64FORMAT "%" PRId64
-
 #define MAX_INT8  0x7f
 #define MAX_INT16 0x7fff
 #define MAX_INT32 0x7fffffff
