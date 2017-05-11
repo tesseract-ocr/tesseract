@@ -789,8 +789,6 @@ void compute_line_occupation(                    //project blobs
   inT32 line_count;              //maxy-miny+1
   inT32 line_index;              //of scan line
   int index;                     //array index for daft compilers
-  float top, bottom;             //coords of blob
-  inT32 width;                   //of blob
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
   BLOBNBOX *blob;                //current blob
@@ -812,24 +810,13 @@ void compute_line_occupation(                    //project blobs
       blob = blob_it.data ();
       blob_box = blob->bounding_box ();
       blob_box.rotate (rotation);//de-skew it
-      top = blob_box.top ();
-      bottom = blob_box.bottom ();
-      width =
-        (inT32) floor ((FLOAT32) (blob_box.right () - blob_box.left ()));
-      if ((inT32) floor (bottom) < min_y
-        || (inT32) floor (bottom) - min_y >= line_count)
-        fprintf (stderr,
-          "Bad y coord of bottom, " INT32FORMAT "(" INT32FORMAT ","
-          INT32FORMAT ")\n", (inT32) floor (bottom), min_y, max_y);
+      int32_t width = blob_box.right() - blob_box.left();
+      index = blob_box.bottom() - min_y;
+      ASSERT_HOST(index >= 0 && index < line_count);
                                  //count transitions
-      index = (inT32) floor (bottom) - min_y;
       deltas[index] += width;
-      if ((inT32) floor (top) < min_y
-        || (inT32) floor (top) - min_y >= line_count)
-        fprintf (stderr,
-          "Bad y coord of top, " INT32FORMAT "(" INT32FORMAT ","
-          INT32FORMAT ")\n", (inT32) floor (top), min_y, max_y);
-      index = (inT32) floor (top) - min_y;
+      index = blob_box.top() - min_y;
+      ASSERT_HOST(index >= 0 && index < line_count);
       deltas[index] -= width;
     }
   }
