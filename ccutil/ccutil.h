@@ -22,7 +22,6 @@
 #include "ambigs.h"
 #include "errcode.h"
 #include "strngs.h"
-#include "tessdatamanager.h"
 #include "params.h"
 #include "unicharset.h"
 
