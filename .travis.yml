@@ -21,6 +21,12 @@ addons:
     sources:
     #- ubuntu-toolchain-r-test
     packages:
+      # Try different packages for compressed archives.
+      - libarchive-dev
+      # Trusty does not support libminizip-dev (requires Zenial).
+      #libminizip-dev
+      - libzip-dev
+      - libzzip-dev
     #- g++-6
 
 #matrix:
