@@ -78,7 +78,7 @@ AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 AC_SUBST([AM_CPPFLAGS])
 
 OPENCL_INC="/opt/AMDAPP/include"
-OPENCL_LIBS="-lOpenCL -ltiff"
+OPENCL_LIBS="-lOpenCL"
 #############################
 #
 # Platform specific setup
@@ -220,7 +220,7 @@ case "${host_os}" in
       fi
       AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
       OPENCL_CPPFLAGS=""
-      OPENCL_LDFLAGS="-framework OpenCL -ltiff"
+      OPENCL_LDFLAGS="-framework OpenCL"
     fi
     ;;
   *)
@@ -233,9 +233,6 @@ case "${host_os}" in
         fi
         if !($have_opencl_lib); then
             AC_MSG_ERROR([Required OpenCL library not found!])
-        fi
-        if !($have_tiff); then
-            AC_MSG_ERROR([Required TIFF headers not found! Try to install libtiff-dev?? package.])
         fi
         AM_CPPFLAGS="-DUSE_OPENCL $AM_CPPFLAGS"
         OPENCL_CPPFLAGS="-I${OPENCL_INC}"
