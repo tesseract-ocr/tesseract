@@ -35,6 +35,7 @@
 #include "tprintf.h"
 #include "unicity_table.h"
 
+#include <assert.h>
 #include <math.h>
 
 using tesseract::CCUtil;
@@ -368,8 +369,9 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
   CHAR_DESC char_desc;
-  int   i;
-  int feature_type = ShortNameToFeatureType(feature_defs, feature_name);
+  int ShortNameToFeatureType_res = ShortNameToFeatureType(feature_defs, feature_name);
+  assert(0 <= ShortNameToFeatureType_res);
+  unsigned int feature_type = static_cast<unsigned int>(ShortNameToFeatureType_res);
   // Zero out the font_sample_count for all the classes.
   LIST it = *training_samples;
   iterate(it) {
@@ -404,7 +406,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
     } else {
       FreeFeatureSet(feature_samples);
     }
-    for (i = 0; i < char_desc->NumFeatureSets; i++) {
+    for (size_t i = 0; i < char_desc->NumFeatureSets; i++) {
       if (feature_type != i)
         FreeFeatureSet(char_desc->FeatureSets[i]);
     }

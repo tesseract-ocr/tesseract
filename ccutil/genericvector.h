@@ -72,6 +72,12 @@ class GenericVector {
   int size() const {
     return size_used_;
   }
+  // Workaround to avoid g++ -Wsign-compare warnings.
+  unsigned int unsigned_size() const {
+    static_assert(sizeof(size_used_) <= sizeof(unsigned int), "");
+    assert(0 <= size_used_);
+    return static_cast<unsigned int>(size_used_);
+  }
   int size_reserved() const {
     return size_reserved_;
   }
@@ -880,7 +886,7 @@ bool GenericVector<T>::write(
     }
     delete cb;
   } else {
-    if (fwrite(data_, sizeof(T), size_used_, f) != size_used_) return false;
+    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size()) return false;
   }
   return true;
 }
@@ -912,7 +918,7 @@ bool GenericVector<T>::read(
 template <typename T>
 bool GenericVector<T>::Serialize(FILE* fp) const {
   if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) return false;
-  if (fwrite(data_, sizeof(*data_), size_used_, fp) != size_used_) return false;
+  if (fwrite(data_, sizeof(*data_), size_used_, fp) != unsigned_size()) return false;
   return true;
 }
 template <typename T>
@@ -933,7 +939,7 @@ bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
   if (swap) Reverse32(&reserved);
   reserve(reserved);
   size_used_ = reserved;
-  if (fread(data_, sizeof(T), size_used_, fp) != size_used_) return false;
+  if (fread(data_, sizeof(T), size_used_, fp) != unsigned_size()) return false;
   if (swap) {
     for (int i = 0; i < size_used_; ++i)
       ReverseN(&data_[i], sizeof(data_[i]));
@@ -982,7 +988,7 @@ bool GenericVector<T>::SerializeClasses(tesseract::TFile* fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 template <typename T>
 bool GenericVector<T>::DeSerializeClasses(bool swap, FILE* fp) {
-  uinT32 reserved;
+  inT32 reserved;
   if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
   if (swap) Reverse32(&reserved);
   T empty;
@@ -994,7 +1000,7 @@ bool GenericVector<T>::DeSerializeClasses(bool swap, FILE* fp) {
 }
 template <typename T>
 bool GenericVector<T>::DeSerializeClasses(tesseract::TFile* fp) {
-  uinT32 reserved;
+  inT32 reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   T empty;
   init_to_size(reserved, empty);
@@ -1005,7 +1011,7 @@ bool GenericVector<T>::DeSerializeClasses(tesseract::TFile* fp) {
 }
 template <typename T>
 bool GenericVector<T>::SkipDeSerializeClasses(tesseract::TFile* fp) {
-  uinT32 reserved;
+  inT32 reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   for (int i = 0; i < reserved; ++i) {
     if (!T::SkipDeSerialize(fp)) return false;

@@ -190,14 +190,12 @@ static bool IsWhitespaceBox(const BoxChar* boxchar) {
 static string StringReplace(const string& in,
                             const string& oldsub, const string& newsub) {
   string out;
-  int start_pos = 0;
-  do {
-    int pos = in.find(oldsub, start_pos);
-    if (pos == string::npos) break;
+  size_t start_pos = 0, pos;
+  while ((pos = in.find(oldsub, start_pos)) != string::npos) {
     out.append(in.data() + start_pos, pos - start_pos);
     out.append(newsub.data(), newsub.length());
     start_pos = pos + oldsub.length();
-  } while (true);
+  }
   out.append(in.data() + start_pos, in.length() - start_pos);
   return out;
 }
@@ -239,7 +237,7 @@ void ExtractFontProperties(const string &utf8_text,
       offset -= boxes[boxes.size() - 1]->ch().size();
     }
 
-    for (int b = 0; b < boxes.size(); b += 2) {
+    for (size_t b = 0; b < boxes.size(); b += 2) {
       while (b < boxes.size() && IsWhitespaceBox(boxes[b])) ++b;
       if (b + 1 >= boxes.size()) break;
       const string &ch0 = boxes[b]->ch();
@@ -422,8 +420,8 @@ int main(int argc, char** argv) {
 
   if (FLAGS_list_available_fonts) {
     const std::vector<string>& all_fonts = FontUtils::ListAvailableFonts();
-    for (int i = 0; i < all_fonts.size(); ++i) {
-      printf("%3d: %s\n", i, all_fonts[i].c_str());
+    for (unsigned int i = 0; i < all_fonts.size(); ++i) {
+      printf("%3u: %s\n", i, all_fonts[i].c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
                       "Font %s is unrecognized.\n", all_fonts[i].c_str());
     }
@@ -517,10 +515,10 @@ int main(int argc, char** argv) {
     // Try to preserve behavior of old text2image by expanding inter-word
     // spaces by a factor of 4.
     const string kSeparator = FLAGS_render_ngrams ? "    " : " ";
-    // Also restrict the number of charactes per line to try and avoid
+    // Also restrict the number of characters per line to try and avoid
     // line-breaking in the middle of words like "-A", "R$" etc. which are
     // otherwise allowed by the standard unicode line-breaking rules.
-    const int kCharsPerLine = (FLAGS_ptsize > 20) ? 50 : 100;
+    const unsigned int kCharsPerLine = (FLAGS_ptsize > 20) ? 50 : 100;
     string rand_utf8;
     UNICHARSET unicharset;
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
@@ -547,7 +545,7 @@ int main(int argc, char** argv) {
     if (FLAGS_render_ngrams)
       std::random_shuffle(offsets.begin(), offsets.end());
 
-    for (int i = 0, line = 1; i < offsets.size(); ++i) {
+    for (size_t i = 0, line = 1; i < offsets.size(); ++i) {
       const char *curr_pos = str8 + offsets[i].first;
       int ngram_len = offsets[i].second;
       // Skip words that contain characters not in found in unicharset.
@@ -588,7 +586,7 @@ int main(int argc, char** argv) {
   for (int pass = 0; pass < num_pass; ++pass) {
     int page_num = 0;
     string font_used;
-    for (int offset = 0; offset < strlen(to_render_utf8); ++im, ++page_num) {
+    for (size_t offset = 0; offset < strlen(to_render_utf8); ++im, ++page_num) {
       tlog(1, "Starting page %d\n", im);
       Pix* pix = nullptr;
       if (FLAGS_find_fonts) {
@@ -664,7 +662,7 @@ int main(int argc, char** argv) {
     if (fp == nullptr) {
       tprintf("Failed to create output font list %s\n", filename.c_str());
     } else {
-      for (int i = 0; i < font_names.size(); ++i) {
+      for (size_t i = 0; i < font_names.size(); ++i) {
         fprintf(fp, "%s\n", font_names[i].c_str());
       }
       fclose(fp);

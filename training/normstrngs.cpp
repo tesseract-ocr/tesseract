@@ -20,6 +20,7 @@
 
 #include "normstrngs.h"
 
+#include <assert.h>
 #include "icuerrorcode.h"
 #include "unichar.h"
 #include "unicode/normalizer2.h"  // From libicu
@@ -181,7 +182,13 @@ bool IsWhitespace(const char32 ch) {
 }
 
 bool IsUTF8Whitespace(const char* text) {
+#if 0 // intent
   return SpanUTF8Whitespace(text) == strlen(text);
+#else // avoiding g++ -Wsign-compare warning
+  const int res = SpanUTF8Whitespace(text);
+  assert(0 <= res);
+  return static_cast<unsigned int>(res) == strlen(text);
+#endif
 }
 
 int SpanUTF8Whitespace(const char* text) {

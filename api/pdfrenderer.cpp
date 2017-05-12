@@ -670,7 +670,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   const std::unique_ptr</*non-const*/ char[]> buffer(new char[size]);
-  if (fread(buffer.get(), 1, size, fp) != size) {
+  if (fread(buffer.get(), 1, size, fp) != static_cast<unsigned long>(size)) {
     fclose(fp);
     return false;
   }
@@ -945,7 +945,7 @@ bool TessPDFRenderer::EndDocumentHandler() {
   if (n >= sizeof(buf)) return false;
   AppendString(buf);
   size_t pages_objsize  = strlen(buf);
-  for (size_t i = 0; i < pages_.size(); i++) {
+  for (size_t i = 0; i < pages_.unsigned_size(); i++) {
     n = snprintf(buf, sizeof(buf),
                  "%ld 0 R ", pages_[i]);
     if (n >= sizeof(buf)) return false;
