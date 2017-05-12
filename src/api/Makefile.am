@@ -88,6 +88,17 @@ tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
 tesseract_LDADD += $(LEPTONICA_LIBS)
 tesseract_LDADD += $(OPENMP_CXXFLAGS)
+if HAVE_LIBARCHIVE
+tesseract_LDADD += $(libarchive_LIBS)
+else
+if HAVE_LIBZIP
+tesseract_LDADD += $(libzip_LIBS)
+else
+if HAVE_MINIZIP
+tesseract_LDADD += $(minizip_LIBS)
+endif
+endif
+endif
 
 if T_WIN
 tesseract_LDADD += -ltiff

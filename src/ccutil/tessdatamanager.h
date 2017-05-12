@@ -219,6 +219,8 @@ class TessdataManager {
 
  private:
 
+  bool LoadZipFile(const char *filename);
+
   /**
    * Fills type with TessdataType of the tessdata component represented by the
    * given file name. E.g. tessdata/eng.unicharset -> TESSDATA_UNICHARSET.

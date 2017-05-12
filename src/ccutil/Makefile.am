@@ -40,6 +40,18 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 
+if HAVE_LIBARCHIVE
+AM_CPPFLAGS += $(libarchive_CFLAGS)
+else
+if HAVE_LIBZIP
+AM_CPPFLAGS += $(libzip_CFLAGS)
+else
+if HAVE_MINIZIP
+AM_CPPFLAGS += $(minizip_CFLAGS)
+endif
+endif
+endif
+
 if T_WIN
 AM_CPPFLAGS += -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
 endif
