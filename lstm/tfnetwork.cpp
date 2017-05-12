@@ -46,7 +46,7 @@ bool TFNetwork::Serialize(TFile* fp) const {
   string proto_str;
   model_proto_.SerializeToString(&proto_str);
   GenericVector<char> data;
-  data.init_to_size(proto_str.size(), 0);
+  data.resize_no_init(proto_str.size());
   memcpy(&data[0], proto_str.data(), proto_str.size());
   if (!data.Serialize(fp)) return false;
   return true;

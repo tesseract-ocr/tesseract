@@ -139,7 +139,7 @@ ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
   image_data->page_number_ = page_number;
   image_data->language_ = lang;
   // Save the imagedata.
-  image_data->image_data_.init_to_size(imagedatasize, 0);
+  image_data->image_data_.resize_no_init(imagedatasize);
   memcpy(&image_data->image_data_[0], imagedata, imagedatasize);
   if (!image_data->AddBoxes(box_text)) {
     if (truth_text == NULL || truth_text[0] == '\0') {
@@ -329,7 +329,7 @@ void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
   size_t size;
   pixWriteMem(&data, &size, pix, IFF_PNG);
   pixDestroy(&pix);
-  image_data->init_to_size(size, 0);
+  image_data->resize_no_init(size);
   memcpy(&(*image_data)[0], data, size);
   free(data);
 }
