@@ -26,6 +26,7 @@ addons:
 matrix:
   include:
     - os: osx
+      install:
       script: brew install tesseract --HEAD
       cache:
         directories:
