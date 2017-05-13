@@ -33,13 +33,6 @@
 
 namespace tesseract {
 
-// Lazily loads from the the given filename. Won't actually read the file
-// until it needs it.
-void TessdataManager::LoadFileLater(const char *data_file_name) {
-  Clear();
-  data_file_name_ = data_file_name;
-}
-
 bool TessdataManager::Init(const char *data_file_name) {
   GenericVector<char> data;
   if (reader_ == nullptr) {
@@ -78,14 +71,6 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   }
   is_loaded_ = true;
   return true;
-}
-
-// Overwrites a single entry of the given type.
-void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
-                                     int size) {
-  is_loaded_ = true;
-  entries_[type].resize_no_init(size);
-  memcpy(&entries_[type][0], data, size);
 }
 
 // Saves to the given filename.

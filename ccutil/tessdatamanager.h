@@ -128,9 +128,6 @@ class TessdataManager {
   bool swap() const { return swap_; }
   bool is_loaded() const { return is_loaded_; }
 
-  // Lazily loads from the the given filename. Won't actually read the file
-  // until it needs it.
-  void LoadFileLater(const char *data_file_name);
   /**
    * Opens and reads the given data file right now.
    * @return true on success.
@@ -139,8 +136,6 @@ class TessdataManager {
   // Loads from the given memory buffer as if a file, remembering name as some
   // arbitrary source id for caching.
   bool LoadMemBuffer(const char *name, const char *data, int size);
-  // Overwrites a single entry of the given type.
-  void OverwriteEntry(TessdataType type, const char *data, int size);
 
   // Saves to the given filename.
   bool SaveFile(const STRING &filename, FileWriter writer) const;
