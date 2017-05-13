@@ -62,7 +62,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   fp.set_swap(swap_);
   if (swap_) ReverseN(&num_entries, sizeof(num_entries));
   GenericVector<inT64> offset_table;
-  offset_table.init_to_size(num_entries, -1);
+  offset_table.resize_no_init(num_entries);
   if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries) !=
       num_entries)
     return false;
@@ -72,7 +72,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
       int j = i + 1;
       while (j < num_entries && offset_table[j] == -1) ++j;
       if (j < num_entries) entry_size = offset_table[j] - offset_table[i];
-      entries_[i].init_to_size(entry_size, 0);
+      entries_[i].resize_no_init(entry_size);
       if (fp.FRead(&entries_[i][0], 1, entry_size) != entry_size) return false;
     }
   }
@@ -84,7 +84,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
 void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
                                      int size) {
   is_loaded_ = true;
-  entries_[type].init_to_size(size, 0);
+  entries_[type].resize_no_init(size);
   memcpy(&entries_[type][0], data, size);
 }
 

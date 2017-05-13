@@ -150,7 +150,7 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile* fp) {
     if (!wi_.DeSerialize(fp)) return false;
     GenericVector<float> old_scales;
     if (!old_scales.DeSerialize(fp)) return false;
-    scales_.init_to_size(old_scales.size(), 0.0);
+    scales_.resize_no_init(old_scales.size());
     for (int i = 0; i < old_scales.size(); ++i) scales_[i] = old_scales[i];
   } else {
     if (!float_array.DeSerialize(fp)) return false;
