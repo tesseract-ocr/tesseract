@@ -47,10 +47,12 @@ TessResultRenderer::TessResultRenderer(const char *outputbase,
 }
 
 TessResultRenderer::~TessResultRenderer() {
- if (fout_ != stdout)
-    fclose(fout_);
-  else
-    clearerr(fout_);
+  if (fout_ != nullptr) {
+    if (fout_ != stdout)
+      fclose(fout_);
+    else
+      clearerr(fout_);
+  }
   delete next_;
 }
 
