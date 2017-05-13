@@ -2089,12 +2089,10 @@ void TessBaseAPI::End() {
     delete paragraph_models_;
     paragraph_models_ = NULL;
   }
-  if (tesseract_ != NULL) {
-    delete tesseract_;
-    if (osd_tesseract_ == tesseract_)
-      osd_tesseract_ = NULL;
-    tesseract_ = NULL;
-  }
+  if (osd_tesseract_ == tesseract_)
+    osd_tesseract_ = NULL;
+  delete tesseract_;
+  tesseract_ = NULL;
   delete osd_tesseract_;
   osd_tesseract_ = NULL;
   delete equ_detect_;
