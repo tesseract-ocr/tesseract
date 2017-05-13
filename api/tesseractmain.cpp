@@ -27,6 +27,7 @@
 #include "allheaders.h"
 #include "baseapi.h"
 #include "basedir.h"
+#include "dict.h"
 #include "openclwrapper.h"
 #include "osdetect.h"
 #include "renderer.h"
@@ -424,7 +425,14 @@ int main(int argc, char** argv) {
   }
 
   PERF_COUNT_START("Tesseract:main")
-  tesseract::TessBaseAPI api;
+
+  // Call GlobalDawgCache here to create the global DawgCache object before
+  // the TessBaseAPI object. This fixes the order of destructor calls:
+  // first TessBaseAPI must be destructed, DawgCache must be the last object.
+  tesseract::Dict::GlobalDawgCache();
+
+  // Avoid memory leak caused by auto variable when exit() is called.
+  static tesseract::TessBaseAPI api;
 
   api.SetOutputName(outputbase);
 
@@ -493,7 +501,8 @@ int main(int argc, char** argv) {
       (api.GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
       (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
 
-  tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
+  // Avoid memory leak caused by auto variable when exit() is called.
+  static tesseract::PointerVector<tesseract::TessResultRenderer> renderers;
 
   if (in_training_mode) {
     renderers.push_back(NULL);
