@@ -440,14 +440,14 @@ int main(int argc, char** argv) {
                              argc - arg_i, &vars_vec, &vars_values, false);
   if (init_failed) {
     fprintf(stderr, "Could not initialize tesseract.\n");
-    exit(1);
+    return EXIT_FAILURE;
   }
 
   SetVariablesFromCLArgs(&api, argc, argv);
 
   if (list_langs) {
     PrintLangsList(&api);
-    exit(0);
+    return EXIT_SUCCESS;
   }
 
   if (print_parameters) {
@@ -455,18 +455,18 @@ int main(int argc, char** argv) {
      fprintf(stdout, "Tesseract parameters:\n");
      api.PrintVariables(fout);
      api.End();
-     exit(0);
+     return EXIT_SUCCESS;
   }
 
   FixPageSegMode(&api, pagesegmode);
 
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
-    int ret_val = 0;
+    int ret_val = EXIT_SUCCESS;
 
     Pix* pixs = pixRead(image);
     if (!pixs) {
       fprintf(stderr, "Cannot open input file: %s\n", image);
-      exit(2);
+      return 2;
     }
 
     api.SetImage(pixs);
@@ -484,13 +484,13 @@ int main(int argc, char** argv) {
           "Deskew angle: %.4f\n",
           orientation, direction, order, deskew_angle);
     } else {
-      ret_val = 1;
+      ret_val = EXIT_FAILURE;
     }
 
     delete it;
 
     pixDestroy(&pixs);
-    exit(ret_val);
+    return ret_val;
   }
 
   // set in_training_mode to true when using one of these configs:
@@ -515,10 +515,11 @@ int main(int argc, char** argv) {
     bool succeed = api.ProcessPages(image, NULL, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
-      exit(1);
+      return EXIT_FAILURE;
     }
   }
 
   PERF_COUNT_END
-  return 0;                      // Normal exit
+
+  return EXIT_SUCCESS;
 }
