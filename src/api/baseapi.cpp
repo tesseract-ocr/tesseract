@@ -1336,7 +1336,7 @@ char *TessBaseAPI::GetUTF8Text() {
     return nullptr;
   }
   std::string text("");
-  ResultIterator *it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> it(GetIterator());
   do {
     if (it->Empty(RIL_PARA)) {
       continue;
@@ -1346,7 +1346,6 @@ char *TessBaseAPI::GetUTF8Text() {
   } while (it->Next(RIL_PARA));
   char *result = new char[text.length() + 1];
   strncpy(result, text.c_str(), text.length() + 1);
-  delete it;
   return result;
 }
 
@@ -1450,7 +1449,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
   tsv_str += "\t" + std::to_string(rect_height_);
   tsv_str += "\t-1\t\n";
 
-  ResultIterator *res_it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -1468,7 +1467,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_BLOCK, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_BLOCK, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
@@ -1480,7 +1479,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_PARA, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_PARA, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
@@ -1491,7 +1490,7 @@ char *TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t" + std::to_string(par_num);
       tsv_str += "\t" + std::to_string(line_num);
       tsv_str += "\t" + std::to_string(word_num);
-      AddBoxToTSV(res_it, RIL_TEXTLINE, tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_TEXTLINE, tsv_str);
       tsv_str += "\t-1\t\n"; // end of row for line
     }
 
@@ -1532,7 +1531,6 @@ char *TessBaseAPI::GetTSVText(int page_number) {
 
   char *ret = new char[tsv_str.length() + 1];
   strcpy(ret, tsv_str.c_str());
-  delete res_it;
   return ret;
 }
 
