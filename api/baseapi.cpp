@@ -665,9 +665,9 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
                                       const int raw_padding,
                                       Pixa** pixa, int** blockids,
                                       int** paraids) {
-  PageIterator* page_it = GetIterator();
+  /*non-const*/ std::unique_ptr</*non-const*/ PageIterator> page_it(GetIterator());
   if (page_it == NULL)
-    page_it = AnalyseLayout();
+    page_it.reset(AnalyseLayout());
   if (page_it == NULL)
     return NULL;  // Failed.
 
@@ -678,13 +678,13 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
   TessResultCallback<bool>* get_bbox = NULL;
   if (raw_image) {
     // Get bounding box in original raw image with padding.
-    get_bbox = NewPermanentTessCallback(page_it, &PageIterator::BoundingBox,
+    get_bbox = NewPermanentTessCallback(page_it.get(), &PageIterator::BoundingBox,
                                         level, raw_padding,
                                         &left, &top, &right, &bottom);
   } else {
     // Get bounding box from binarized imaged. Note that this could be
     // differently scaled from the original image.
-    get_bbox = NewPermanentTessCallback(page_it,
+    get_bbox = NewPermanentTessCallback(page_it.get(),
                                         &PageIterator::BoundingBoxInternal,
                                         level, &left, &top, &right, &bottom);
   }
@@ -737,7 +737,6 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
       ++component_index;
     }
   } while (page_it->Next(level));
-  delete page_it;
   delete get_bbox;
   return boxa;
 }
@@ -1160,12 +1159,8 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
 
   if (tesseract_->tessedit_pageseg_mode == PSM_AUTO_ONLY) {
     // Disabled character recognition
-    PageIterator* it = AnalyseLayout();
-
-    if (it == NULL) {
+    if (! std::unique_ptr<const PageIterator>(AnalyseLayout())) {
       failed = true;
-    } else {
-      delete it;
     }
   } else if (tesseract_->tessedit_pageseg_mode == PSM_OSD_ONLY) {
     failed = FindLines() != 0;
@@ -2106,7 +2101,7 @@ bool TessBaseAPI::IsValidCharacter(const char *utf8_character) {
 // TODO(rays) Obsolete this function and replace with a more aptly named
 // function that returns image coordinates rather than tesseract coordinates.
 bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
-  PageIterator* it = AnalyseLayout();
+  const std::unique_ptr<const PageIterator> it(AnalyseLayout());
   if (it == NULL) {
     return false;
   }
@@ -2121,7 +2116,6 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   // textline's bounding box.
   int left, top, right, bottom;
   if (!it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom)) {
-    delete it;
     return false;
   }
   int left_y = IntCastRounded(*out_slope * left + *out_offset);
@@ -2134,7 +2128,6 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   // the slope and height - offset for the offset.
   *out_slope = -*out_slope;
   *out_offset = rect_height_ - *out_offset;
-  delete it;
 
   return true;
 }

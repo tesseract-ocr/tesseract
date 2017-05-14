@@ -23,6 +23,7 @@
 #endif
 
 #include <iostream>
+#include <memory> // std::unique_ptr
 
 #include "allheaders.h"
 #include "baseapi.h"
@@ -476,7 +477,7 @@ int main(int argc, char** argv) {
     tesseract::TextlineOrder order;
     float deskew_angle;
 
-    tesseract::PageIterator* it = api.AnalyseLayout();
+    const std::unique_ptr<const tesseract::PageIterator> it(api.AnalyseLayout());
     if (it) {
       it->Orientation(&orientation, &direction, &order, &deskew_angle);
       tprintf(
@@ -486,8 +487,6 @@ int main(int argc, char** argv) {
     } else {
       ret_val = EXIT_FAILURE;
     }
-
-    delete it;
 
     pixDestroy(&pixs);
     return ret_val;
