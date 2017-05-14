@@ -1259,7 +1259,7 @@ char* TessBaseAPI::GetUTF8Text() {
       (!recognition_done_ && Recognize(NULL) < 0))
     return NULL;
   STRING text("");
-  ResultIterator *it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> it(GetIterator());
   do {
     if (it->Empty(RIL_PARA)) continue;
     const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
@@ -1267,7 +1267,6 @@ char* TessBaseAPI::GetUTF8Text() {
   } while (it->Next(RIL_PARA));
   char* result = new char[text.length() + 1];
   strncpy(result, text.string(), text.length() + 1);
-  delete it;
   return result;
 }
 
@@ -1450,7 +1449,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   hocr_str.add_str_int("; ppageno ", page_number);
   hocr_str += "'>\n";
 
-  ResultIterator *res_it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -1462,7 +1461,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       para_is_ltr = true;  // reset to default direction
       hocr_str += "   <div class='ocr_carea'";
       AddIdTohOCR(&hocr_str, "block", page_id, bcnt);
-      AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
+      AddBoxTohOCR(res_it.get(), RIL_BLOCK, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
       hocr_str += "\n    <p class='ocr_par'";
@@ -1477,12 +1476,12 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         hocr_str += paragraph_lang;
         hocr_str += "'";
       }
-      AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
+      AddBoxTohOCR(res_it.get(), RIL_PARA, &hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       hocr_str += "\n     <span class='ocr_line'";
       AddIdTohOCR(&hocr_str, "line", page_id, lcnt);
-      AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
+      AddBoxTohOCR(res_it.get(), RIL_TEXTLINE, &hocr_str);
     }
 
     // Now, process the word...
@@ -1564,7 +1563,6 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 
   char *ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());
-  delete res_it;
   return ret;
 }
 
@@ -1596,7 +1594,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
   tsv_str.add_str_int("\t", rect_height_);
   tsv_str += "\t-1\t\n";
 
-  ResultIterator* res_it = GetIterator();
+  const std::unique_ptr</*non-const*/ ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -1611,7 +1609,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
       tsv_str.add_str_int("\t", par_num);
       tsv_str.add_str_int("\t", line_num);
       tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_BLOCK, &tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_BLOCK, &tsv_str);
       tsv_str += "\t-1\t\n";  // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
@@ -1621,7 +1619,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
       tsv_str.add_str_int("\t", par_num);
       tsv_str.add_str_int("\t", line_num);
       tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_PARA, &tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_PARA, &tsv_str);
       tsv_str += "\t-1\t\n";  // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
@@ -1631,7 +1629,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
       tsv_str.add_str_int("\t", par_num);
       tsv_str.add_str_int("\t", line_num);
       tsv_str.add_str_int("\t", word_num);
-      AddBoxToTSV(res_it, RIL_TEXTLINE, &tsv_str);
+      AddBoxToTSV(res_it.get(), RIL_TEXTLINE, &tsv_str);
       tsv_str += "\t-1\t\n";  // end of row for line
     }
 
@@ -1666,7 +1664,6 @@ char* TessBaseAPI::GetTSVText(int page_number) {
 
   char* ret = new char[tsv_str.length() + 1];
   strcpy(ret, tsv_str.string());
-  delete res_it;
   return ret;
 }
 
