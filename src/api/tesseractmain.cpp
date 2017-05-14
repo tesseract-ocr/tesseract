@@ -27,6 +27,7 @@
 #endif
 #include <cstdlib> // for std::getenv
 #include <iostream>
+#include <memory> // std::unique_ptr
 
 #include <allheaders.h>
 #include <tesseract/baseapi.h>
@@ -706,7 +707,7 @@ int main(int argc, char **argv) {
     tesseract::TextlineOrder order;
     float deskew_angle;
 
-    const tesseract::PageIterator *it = api.AnalyseLayout();
+    const std::unique_ptr<const tesseract::PageIterator> it(api.AnalyseLayout());
     if (it) {
       // TODO: Implement output of page segmentation, see documentation
       // ("Automatic page segmentation, but no OSD, or OCR").
@@ -718,8 +719,6 @@ int main(int argc, char **argv) {
     } else {
       ret_val = EXIT_FAILURE;
     }
-
-    delete it;
 
     pixDestroy(&pixs);
     return ret_val;
