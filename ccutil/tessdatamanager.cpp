@@ -54,6 +54,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   swap_ = num_entries > kMaxNumTessdataEntries || num_entries < 0;
   fp.set_swap(swap_);
   if (swap_) ReverseN(&num_entries, sizeof(num_entries));
+  if (num_entries > kMaxNumTessdataEntries || num_entries < 0) return false;
   GenericVector<inT64> offset_table;
   offset_table.resize_no_init(num_entries);
   if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries) !=
