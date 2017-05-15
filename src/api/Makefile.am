@@ -96,6 +96,10 @@ tesseract_LDADD += $(libzip_LIBS)
 else
 if HAVE_MINIZIP
 tesseract_LDADD += $(minizip_LIBS)
+else
+if HAVE_ZZIPLIB
+tesseract_LDADD += $(zziplib_LIBS)
+endif
 endif
 endif
 endif

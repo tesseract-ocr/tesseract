@@ -48,6 +48,10 @@ AM_CPPFLAGS += $(libzip_CFLAGS)
 else
 if HAVE_MINIZIP
 AM_CPPFLAGS += $(minizip_CFLAGS)
+else
+if HAVE_ZZIPLIB
+AM_CPPFLAGS += $(zziplib_CFLAGS)
+endif
 endif
 endif
 endif

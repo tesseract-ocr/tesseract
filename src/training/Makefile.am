@@ -290,7 +290,11 @@ else
 if HAVE_MINIZIP
 extralib = $(minizip_LIBS)
 else
+if HAVE_ZZIPLIB
+extralib = $(zziplib_LIBS)
+else
 extralib =
+endif
 endif
 endif
 endif

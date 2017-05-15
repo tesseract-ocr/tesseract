@@ -33,6 +33,8 @@
 #include <zip.h>
 #elif defined(HAVE_MINIZIP)
 #include <unzip.h>
+#elif defined(HAVE_ZZIPLIB)
+#include <zzip/lib.h>
 #endif // ZIP supported
 
 #include "errcode.h"
@@ -274,8 +276,41 @@ bool TessdataManager::LoadZipFile(const char *filename) {
   return result;
 }
 #elif defined(HAVE_ZZIPLIB)
-// TODO: currently not implemented.
-#define HAVE_NOZIP
+bool TessdataManager::LoadZipFile(const char *filename) {
+  bool result = false;
+#ifndef NDEBUG
+  tprintf("TessdataManager::%s(%s)\n", __func__, filename);
+#endif
+  zzip_error_t err;
+  ZZIP_DIR *dir = zzip_dir_open(filename, &err);
+  if (dir != nullptr) {
+    ZZIP_DIRENT d;
+    while (zzip_dir_read(dir, &d)) {
+      TessdataType type;
+      if (TessdataTypeFromFileName(d.d_name, &type)) {
+#ifndef NDEBUG
+        tprintf("TessdataTypeFromFileName(%s, ...) passed, type %d\n",
+                d.d_name, type);
+#endif
+        ZZIP_FILE *f = zzip_file_open(dir, d.d_name, 0);
+        if (f != nullptr) {
+          entries_[type].resize_no_init(d.st_size);
+          ssize_t len = zzip_file_read(f, &entries_[type][0], d.st_size);
+          if (len != d.st_size) {
+#ifndef NDEBUG
+            tprintf("zzip_file_read(...) failed\n");
+#endif
+          }
+          zzip_file_close(f);
+        }
+      }
+    }
+    is_loaded_ = true;
+    zzip_dir_close(dir);
+    result = true;
+  }
+  return result;
+}
 #else
 #define HAVE_NOZIP
 #endif // ZIP supported
