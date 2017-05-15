@@ -64,7 +64,7 @@ uninstall:
 	rm -f $(scrollview_path)/*.jar
 endif
 
-clean :
+clean-local:
 	rm -f ScrollView.jar $(SCROLLVIEW_CLASSES)
 
 # all-am does nothing, to make the java part optional.
