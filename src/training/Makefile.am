@@ -281,22 +281,18 @@ text2image_LDADD += $(LEPTONICA_LIBS)
 unicharset_extractor_LDADD += $(LEPTONICA_LIBS)
 wordlist2dawg_LDADD += $(LEPTONICA_LIBS)
 
-if HAVE_LIBARCHIVE
-extralib = $(libarchive_LIBS)
-else
-if HAVE_LIBZIP
-extralib = $(libzip_LIBS)
-else
-if HAVE_MINIZIP
-extralib = $(minizip_LIBS)
-else
-if HAVE_ZZIPLIB
-extralib = $(zziplib_LIBS)
-else
 extralib =
+if HAVE_LIBARCHIVE
+extralib += $(libarchive_LIBS)
 endif
+if HAVE_LIBZIP
+extralib += $(libzip_LIBS)
 endif
+if HAVE_MINIZIP
+extralib += $(minizip_LIBS)
 endif
+if HAVE_ZZIPLIB
+extralib += $(zziplib_LIBS)
 endif
 
 ambiguous_words_LDADD += $(extralib)

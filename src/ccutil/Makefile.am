@@ -42,18 +42,15 @@ libtesseract_ccutil_la_SOURCES = \
 
 if HAVE_LIBARCHIVE
 AM_CPPFLAGS += $(libarchive_CFLAGS)
-else
+endif
 if HAVE_LIBZIP
 AM_CPPFLAGS += $(libzip_CFLAGS)
-else
+endif
 if HAVE_MINIZIP
 AM_CPPFLAGS += $(minizip_CFLAGS)
-else
+endif
 if HAVE_ZZIPLIB
 AM_CPPFLAGS += $(zziplib_CFLAGS)
-endif
-endif
-endif
 endif
 
 if T_WIN

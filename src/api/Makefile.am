@@ -90,18 +90,15 @@ tesseract_LDADD += $(LEPTONICA_LIBS)
 tesseract_LDADD += $(OPENMP_CXXFLAGS)
 if HAVE_LIBARCHIVE
 tesseract_LDADD += $(libarchive_LIBS)
-else
+endif
 if HAVE_LIBZIP
 tesseract_LDADD += $(libzip_LIBS)
-else
+endif
 if HAVE_MINIZIP
 tesseract_LDADD += $(minizip_LIBS)
-else
+endif
 if HAVE_ZZIPLIB
 tesseract_LDADD += $(zziplib_LIBS)
-endif
-endif
-endif
 endif
 
 if T_WIN

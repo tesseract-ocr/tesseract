@@ -29,13 +29,21 @@
 #if defined(HAVE_LIBARCHIVE)
 #include <archive.h>
 #include <archive_entry.h>
-#elif defined(HAVE_LIBZIP)
+#endif
+#if defined(HAVE_LIBZIP)
+#if defined(HAVE_MINIZIP)
+// libminizip provides minizip/zip.h. Hack to get the right one.
+#include "/usr/include/zip.h"
+#else
 #include <zip.h>
-#elif defined(HAVE_MINIZIP)
+#endif
+#endif
+#if defined(HAVE_MINIZIP)
 #include <unzip.h>
-#elif defined(HAVE_ZZIPLIB)
+#endif
+#if defined(HAVE_ZZIPLIB)
 #include <zzip/lib.h>
-#endif // ZIP supported
+#endif
 
 #include "errcode.h"
 #include "helpers.h"
@@ -65,7 +73,7 @@ void TessdataManager::LoadFileLater(const char *data_file_name) {
 }
 
 #if defined(HAVE_LIBARCHIVE)
-bool TessdataManager::LoadZipFile(const char *filename) {
+bool TessdataManager::LoadArchiveFile(const char *filename) {
   bool result = false;
 #ifndef NDEBUG
   tprintf("TessdataManager::%s(%s)\n", __func__, filename);
@@ -116,7 +124,9 @@ bool TessdataManager::LoadZipFile(const char *filename) {
   }
   return result;
 }
-#elif defined(HAVE_LIBZIP)
+#endif
+
+#if defined(HAVE_LIBZIP)
 bool TessdataManager::LoadZipFile(const char *filename) {
   bool result = false;
 #ifndef NDEBUG
@@ -180,8 +190,10 @@ bool TessdataManager::LoadZipFile(const char *filename) {
   }
   return result;
 }
-#elif defined(HAVE_MINIZIP)
-bool TessdataManager::LoadZipFile(const char *filename) {
+#endif
+
+#if defined(HAVE_MINIZIP)
+bool TessdataManager::LoadMinizipFile(const char *filename) {
   bool result = false;
 #ifndef NDEBUG
   tprintf("TessdataManager::%s(%s)\n", __func__, filename);
@@ -275,8 +287,10 @@ bool TessdataManager::LoadZipFile(const char *filename) {
   }
   return result;
 }
-#elif defined(HAVE_ZZIPLIB)
-bool TessdataManager::LoadZipFile(const char *filename) {
+#endif
+
+#if defined(HAVE_ZZIPLIB)
+bool TessdataManager::LoadZzipFile(const char *filename) {
   bool result = false;
 #ifndef NDEBUG
   tprintf("TessdataManager::%s(%s)\n", __func__, filename);
@@ -311,9 +325,7 @@ bool TessdataManager::LoadZipFile(const char *filename) {
   }
   return result;
 }
-#else
-#define HAVE_NOZIP
-#endif // ZIP supported
+#endif
 
 bool TessdataManager::Init(const char *data_file_name) {
 #ifndef NDEBUG
@@ -321,9 +333,23 @@ bool TessdataManager::Init(const char *data_file_name) {
 #endif
   GenericVector<char> data;
   if (reader_ == nullptr) {
-#if !defined(HAVE_NOZIP)
+    const char *tessarchive = getenv("TESSARCHIVE");
+#if defined(HAVE_LIBARCHIVE)
+    if (tessarchive == nullptr || strcmp(tessarchive, "libarchive") == 0)
+    if (LoadArchiveFile(data_file_name)) return true;
+#endif
+#if defined(HAVE_MINIZIP)
+    if (tessarchive == nullptr || strcmp(tessarchive, "libminizip") == 0)
     if (LoadZipFile(data_file_name)) return true;
 #endif // HAVE_MINIZIP
+#if defined(HAVE_LIBZIP)
+    if (tessarchive == nullptr || strcmp(tessarchive, "libzip") == 0)
+    if (LoadZipFile(data_file_name)) return true;
+#endif // HAVE_MINIZIP
+#if defined(HAVE_ZZIPLIB)
+    if (tessarchive == nullptr || strcmp(tessarchive, "libzzip") == 0)
+    if (LoadZzipFile(data_file_name)) return true;
+#endif
     if (!LoadDataFromFile(data_file_name, &data)) return false;
   } else {
     if (!(*reader_)(data_file_name, &data)) return false;

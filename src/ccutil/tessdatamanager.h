@@ -219,7 +219,14 @@ class TessdataManager {
 
  private:
 
+  // Use libarchive.
+  bool LoadArchiveFile(const char *filename);
+  // Use libminizip.
+  bool LoadMinizipFile(const char *filename);
+  // Use libzip.
   bool LoadZipFile(const char *filename);
+  // Use libzzip.
+  bool LoadZzipFile(const char *filename);
 
   /**
    * Fills type with TessdataType of the tessdata component represented by the
