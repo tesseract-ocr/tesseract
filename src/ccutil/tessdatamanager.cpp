@@ -75,51 +75,29 @@ void TessdataManager::LoadFileLater(const char *data_file_name) {
 #if defined(HAVE_LIBARCHIVE)
 bool TessdataManager::LoadArchiveFile(const char *filename) {
   bool result = false;
-#ifndef NDEBUG
-  tprintf("TessdataManager::%s(%s)\n", __func__, filename);
-#endif
   archive *a = archive_read_new();
   if (a != nullptr) {
-    archive_read_support_filter_all(a); // new
+    archive_read_support_filter_all(a);
     archive_read_support_format_all(a);
-      std::string zipfile(filename);
-      bool found = false;
-      if (archive_read_open_filename(a, zipfile.c_str(), 4096) == ARCHIVE_OK) {
-        found = true;
-      } else {
-        archive_read_free(a);
-        zipfile += ".zip";
-        a = archive_read_new();
-        archive_read_support_filter_all(a);
-        archive_read_support_format_all(a);
-        if (archive_read_open_filename(a, zipfile.c_str(), 4096) == ARCHIVE_OK) {
-          found = true;
-        }
-      }
-      if (found) {
-        archive_entry *ae;
-        while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
-          const char *fileName = archive_entry_pathname(ae);
+    if (archive_read_open_filename(a, filename, 4096) == ARCHIVE_OK) {
+      archive_entry *ae;
+      while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
+        const char *component = archive_entry_pathname(ae);
+        if (component != nullptr) {
           TessdataType type;
-          if (fileName != nullptr &&
-              TessdataTypeFromFileName(fileName, &type)) {
-#if !defined(NDEBUG)
-            tprintf("TessdataTypeFromFileName(%s, ...) passed, type %d\n",
-                    fileName, type);
-#endif
+          if (TessdataTypeFromFileName(component, &type)) {
             int64_t size = archive_entry_size(ae);
             if (size > 0) {
               entries_[type].resize_no_init(size);
               if (archive_read_data(a, &entries_[type][0], size) == size) {
+                is_loaded_ = true;
               }
             }
           }
         }
-        is_loaded_ = true;
-        result = true;
       }
-      archive_read_close(a);
-    //~ }
+      result = is_loaded_;
+    }
     archive_read_free(a);
   }
   return result;
@@ -129,46 +107,24 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
 #if defined(HAVE_LIBZIP)
 bool TessdataManager::LoadZipFile(const char *filename) {
   bool result = false;
-#ifndef NDEBUG
-  tprintf("TessdataManager::%s(%s)\n", __func__, filename);
-#endif
-  std::string zipfile(filename);
   int err;
-  zip_t *uf = zip_open(zipfile.c_str(), ZIP_RDONLY, &err);
-  if (uf == nullptr) {
-    zipfile += ".zip";
-    uf = zip_open(zipfile.c_str(), ZIP_RDONLY, &err);
-  }
+  zip_t *uf = zip_open(filename, ZIP_RDONLY, &err);
   if (uf != nullptr) {
-#ifndef NDEBUG
-    tprintf("zip_open(%s) passed\n", zipfile.c_str());
-#endif
     int64_t nEntries = zip_get_num_entries(uf, ZIP_FL_UNCHANGED);
     for (int i = 0; i < nEntries; i++) {
       zip_stat_t zipStat;
       if (zip_stat_index(uf, i, ZIP_FL_UNCHANGED, &zipStat) == 0 &&
           (zipStat.valid & ZIP_STAT_NAME) && (zipStat.valid & ZIP_STAT_SIZE)) {
-#ifndef NDEBUG
-        tprintf("zip_get_name(...) passed, file %s\n", zipStat.name);
-#endif
         TessdataType type;
         if (TessdataTypeFromFileName(zipStat.name, &type)) {
-#ifndef NDEBUG
-          tprintf("TessdataTypeFromFileName(%s, ...) passed, type %d\n",
-                  zipStat.name, type);
-#endif
           zip_file_t *zipFile = zip_fopen_index(uf, i, ZIP_FL_UNCHANGED);
           if (zipFile == nullptr) {
-#ifndef NDEBUG
             tprintf("zip_fopen_index(...) failed\n");
-#endif
           } else {
             entries_[type].resize_no_init(zipStat.size);
             if (zip_fread(zipFile, &entries_[type][0], zipStat.size) !=
                 static_cast<int64_t>(zipStat.size)) {
-#ifndef NDEBUG
               tprintf("zip_fread(...) failed\n");
-#endif
             }
             zip_fclose(zipFile);
           }
@@ -178,15 +134,9 @@ bool TessdataManager::LoadZipFile(const char *filename) {
     is_loaded_ = true;
     err = zip_close(uf);
     if (err != 0) {
-#ifndef NDEBUG
       tprintf("zip_close(...) failed\n");
-#endif
     }
     result = true;
-  } else {
-#ifndef NDEBUG
-    tprintf("zip_open(%s) failed\n", zipfile.c_str());
-#endif
   }
   return result;
 }
@@ -195,30 +145,15 @@ bool TessdataManager::LoadZipFile(const char *filename) {
 #if defined(HAVE_MINIZIP)
 bool TessdataManager::LoadMinizipFile(const char *filename) {
   bool result = false;
-#ifndef NDEBUG
-  tprintf("TessdataManager::%s(%s)\n", __func__, filename);
-#endif
-  std::string zipfile(filename);
-  unzFile uf = unzOpen(zipfile.c_str());
-  if (uf == nullptr) {
-    zipfile += ".zip";
-    uf = unzOpen(zipfile.c_str());
-  }
+  unzFile uf = unzOpen(filename);
   if (uf != nullptr) {
-#ifndef NDEBUG
-    tprintf("unzOpen(%s) passed\n", zipfile.c_str());
-#endif
     unz_global_info global_info;
     int err;
     err = unzGetGlobalInfo(uf, &global_info);
     if (err == UNZ_OK) {
-#ifndef NDEBUG
-      tprintf("unzGetGlobalInfo(...) passed, zip file with %lu entries\n",
-              global_info.number_entry);
-#endif
     }
     unz_file_info file_info;
-    char fileName[32];
+    char component[32];
     char extraField[32];
     char comment[32];
     //~ $1 = {version = 798, version_needed = 20, flag = 0, compression_method = 8, dosDate = 1252768343, crc = 2481269679, compressed_size = 7131663, uncompressed_size = 16109842,
@@ -226,64 +161,40 @@ bool TessdataManager::LoadMinizipFile(const char *filename) {
     //~ tm_hour = 23, tm_mday = 11, tm_mon = 4, tm_year = 2017}}
     for (unsigned i = 0; i < global_info.number_entry; i++) {
       err = unzGetCurrentFileInfo(uf, &file_info,
-                                  fileName, sizeof(fileName),
+                                  component, sizeof(component),
                                   extraField, sizeof(extraField),
                                   comment, sizeof(comment));
       if (err == UNZ_OK) {
-#ifndef NDEBUG
-      tprintf("unzGetCurrentFileInfo(...) passed, file %s, %lu byte\n",
-              fileName, file_info.uncompressed_size);
-#endif
         TessdataType type;
-        if (TessdataTypeFromFileName(fileName, &type)) {
-#ifndef NDEBUG
-          tprintf("TessdataTypeFromFileName(%s, ...) passed, type %d\n",
-                  fileName, type);
-#endif
+        if (TessdataTypeFromFileName(component, &type)) {
           err = unzOpenCurrentFilePassword(uf, nullptr);
           if (err != UNZ_OK) {
-#ifndef NDEBUG
             tprintf("unzOpenCurrentFilePassword(...) failed, err %d\n", err);
-#endif
           } else {
             entries_[type].resize_no_init(file_info.uncompressed_size);
             err = unzReadCurrentFile(uf, &entries_[type][0], file_info.uncompressed_size);
             if (err < UNZ_OK) {
-#ifndef NDEBUG
               tprintf("unzReadCurrentFile(...) failed, err %d\n", err);
-#endif
             }
             err = unzCloseCurrentFile(uf);
             if (err != UNZ_OK) {
-#ifndef NDEBUG
               tprintf("unzCloseCurrentFile(...) failed\n");
-#endif
             }
           }
         }
       }
-      //~ err = unzGoToFirstFile(uf);
 
       err = unzGoToNextFile(uf);
       if (err != UNZ_OK) {
-#ifndef NDEBUG
         tprintf("unzGoToNextFile(...) failed\n");
-#endif
       }
     }
     is_loaded_ = true;
     err = unzClose(uf);
     if (err != UNZ_OK) {
-#ifndef NDEBUG
       tprintf("unzClose(...) failed\n");
-#endif
     }
     result = true;
-  } else {
-#ifndef NDEBUG
-    tprintf("unzOpen(%s) failed\n", zipfile.c_str());
-    perror(zipfile.c_str());
-#endif
   }
   return result;
 }
@@ -292,9 +203,6 @@ bool TessdataManager::LoadMinizipFile(const char *filename) {
 #if defined(HAVE_ZZIPLIB)
 bool TessdataManager::LoadZzipFile(const char *filename) {
   bool result = false;
-#ifndef NDEBUG
-  tprintf("TessdataManager::%s(%s)\n", __func__, filename);
-#endif
   zzip_error_t err;
   ZZIP_DIR *dir = zzip_dir_open(filename, &err);
   if (dir != nullptr) {
@@ -302,18 +210,12 @@ bool TessdataManager::LoadZzipFile(const char *filename) {
     while (zzip_dir_read(dir, &d)) {
       TessdataType type;
       if (TessdataTypeFromFileName(d.d_name, &type)) {
-#ifndef NDEBUG
-        tprintf("TessdataTypeFromFileName(%s, ...) passed, type %d\n",
-                d.d_name, type);
-#endif
         ZZIP_FILE *f = zzip_file_open(dir, d.d_name, 0);
         if (f != nullptr) {
           entries_[type].resize_no_init(d.st_size);
           ssize_t len = zzip_file_read(f, &entries_[type][0], d.st_size);
           if (len != d.st_size) {
-#ifndef NDEBUG
             tprintf("zzip_file_read(...) failed\n");
-#endif
           }
           zzip_file_close(f);
         }
@@ -328,9 +230,6 @@ bool TessdataManager::LoadZzipFile(const char *filename) {
 #endif
 
 bool TessdataManager::Init(const char *data_file_name) {
-#ifndef NDEBUG
-  tprintf("TessdataManager::%s(%s)\n", __func__, data_file_name);
-#endif
   GenericVector<char> data;
   if (reader_ == nullptr) {
     const char *tessarchive = getenv("TESSARCHIVE");
@@ -495,7 +394,6 @@ bool TessdataManager::CombineDataFiles(
     const char *language_data_path_prefix,
     const char *output_filename) {
   // Load individual tessdata components from files.
-  // TODO: This method supports only the proprietary file format.
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     TessdataType type;
     ASSERT_HOST(TessdataTypeFromFileSuffix(kTessdataFileSuffixes[i], &type));
