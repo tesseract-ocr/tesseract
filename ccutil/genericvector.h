@@ -364,10 +364,10 @@ typedef bool (*FileWriter)(const GenericVector<char>& data,
                            const STRING& filename);
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
-inline bool LoadDataFromFile(const STRING& filename,
+inline bool LoadDataFromFile(const char *filename,
                              GenericVector<char>* data) {
   bool result = false;
-  FILE* fp = fopen(filename.string(), "rb");
+  FILE* fp = fopen(filename, "rb");
   if (fp != NULL) {
     fseek(fp, 0, SEEK_END);
     size_t size = ftell(fp);
@@ -380,6 +380,12 @@ inline bool LoadDataFromFile(const STRING& filename,
   }
   return result;
 }
+
+inline bool LoadDataFromFile(const STRING& filename,
+                             GenericVector<char>* data) {
+  return LoadDataFromFile(filename.string(), data);
+}
+
 // The default FileWriter writes the vector of char to the filename file,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
@@ -670,7 +676,7 @@ void GenericVector<T>::reserve(int size) {
   T* new_array = new T[size];
   for (int i = 0; i < size_used_; ++i)
     new_array[i] = data_[i];
-  if (data_ != NULL) delete[] data_;
+  delete[] data_;
   data_ = new_array;
   size_reserved_ = size;
 }
