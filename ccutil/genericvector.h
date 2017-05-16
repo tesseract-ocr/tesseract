@@ -676,7 +676,7 @@ void GenericVector<T>::reserve(int size) {
   T* new_array = new T[size];
   for (int i = 0; i < size_used_; ++i)
     new_array[i] = data_[i];
-  if (data_ != NULL) delete[] data_;
+  delete[] data_;
   data_ = new_array;
   size_reserved_ = size;
 }
