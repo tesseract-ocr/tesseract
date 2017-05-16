@@ -79,7 +79,7 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
   if (a != nullptr) {
     archive_read_support_filter_all(a);
     archive_read_support_format_all(a);
-    if (archive_read_open_filename(a, filename, 4096) == ARCHIVE_OK) {
+    if (archive_read_open_filename(a, filename, 8192) == ARCHIVE_OK) {
       archive_entry *ae;
       while (archive_read_next_header(a, &ae) == ARCHIVE_OK) {
         const char *component = archive_entry_pathname(ae);
@@ -97,6 +97,9 @@ bool TessdataManager::LoadArchiveFile(const char *filename) {
         }
       }
       result = is_loaded_;
+    } else {
+      tprintf("archive_read_open_filename(...,%s,...) failed, %s\n",
+              filename, strerror(archive_errno(a)));
     }
     archive_read_free(a);
   }
