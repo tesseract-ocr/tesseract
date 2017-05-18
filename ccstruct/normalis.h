@@ -245,9 +245,11 @@ class DENORM {
   // Prints the content of the DENORM for debug purposes.
   void Print() const;
 
+  // Borrowed pointer.
   Pix* pix() const {
     return pix_;
   }
+  // Borrows pointer.
   void set_pix(Pix* pix) {
     pix_ = pix;
   }
@@ -285,7 +287,7 @@ class DENORM {
   // Setup default values.
   void Init();
 
-  // Best available image.
+  // Best available image; borrowed pointer.
   Pix* pix_;
   // True if the source image is white-on-black.
   bool inverse_;

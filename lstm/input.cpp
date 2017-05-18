@@ -19,6 +19,7 @@
 #include "input.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "imagedata.h"
 #include "pageres.h"
 #include "scrollview.h"
@@ -92,8 +93,8 @@ Pix* Input::PrepareLSTMInputs(const ImageData& image_data,
   // Note that NumInputs() is defined as input image height.
   int target_height = network->NumInputs();
   int width, height;
-  Pix* pix = image_data.PreScale(target_height, kMaxInputHeight, image_scale,
-                                 &width, &height, nullptr);
+  const PixPtr pix(image_data.PreScale(target_height, kMaxInputHeight, image_scale,
+                                       &width, &height, nullptr));
   if (pix == nullptr) {
     tprintf("Bad pix from ImageData!\n");
     return nullptr;
@@ -101,10 +102,9 @@ Pix* Input::PrepareLSTMInputs(const ImageData& image_data,
   if (width <= min_width || height < min_width) {
     tprintf("Image too small to scale!! (%dx%d vs min width of %d)\n", width,
             height, min_width);
-    pixDestroy(&pix);
     return nullptr;
   }
-  return pix;
+  return pix.detach();
 }
 
 // Converts the given pix to a NetworkIO of height and depth appropriate to the
@@ -119,35 +119,26 @@ void Input::PreparePixInput(const StaticShape& shape, const Pix* pix,
   bool color = shape.depth() == 3;
   Pix* var_pix = const_cast<Pix*>(pix);
   int depth = pixGetDepth(var_pix);
-  Pix* normed_pix = nullptr;
-  // On input to BaseAPI, an image is forced to be 1, 8 or 24 bit, without
-  // colormap, so we just have to deal with depth conversion here.
-  if (color) {
-    // Force RGB.
-    if (depth == 32)
-      normed_pix = pixClone(var_pix);
-    else
-      normed_pix = pixConvertTo32(var_pix);
-  } else {
-    // Convert non-8-bit images to 8 bit.
-    if (depth == 8)
-      normed_pix = pixClone(var_pix);
-    else
-      normed_pix = pixConvertTo8(var_pix, false);
-  }
-  int height = pixGetHeight(normed_pix);
+  /*used with reset()*/ PixPtr normed_pix(
+    // On input to BaseAPI, an image is forced to be 1, 8 or 24 bit, without
+    // colormap, so we just have to deal with depth conversion here.
+    color ? (
+      // Force RGB.
+      (depth == 32) ? pixClone(var_pix) : pixConvertTo32(var_pix)
+    ) : (
+      // Convert non-8-bit images to 8 bit.
+      (depth == 8) ? pixClone(var_pix) : pixConvertTo8(var_pix, false)
+    ) );
+  int height = pixGetHeight(normed_pix.p());
   int target_height = shape.height();
   if (target_height == 1) target_height = shape.depth();
   if (target_height == 0) target_height = height;
   float im_factor = static_cast<float>(target_height) / height;
   if (im_factor != 1.0f) {
     // Get the scaled image.
-    Pix* scaled_pix = pixScale(normed_pix, im_factor, im_factor);
-    pixDestroy(&normed_pix);
-    normed_pix = scaled_pix;
+    normed_pix.reset(pixScale(normed_pix.p(), im_factor, im_factor));
   }
-  input->FromPix(shape, normed_pix, randomizer);
-  pixDestroy(&normed_pix);
+  input->FromPix(shape, normed_pix.p(), randomizer);
 }
 
 }  // namespace tesseract.

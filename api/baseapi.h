@@ -142,6 +142,7 @@ class TESS_API TessBaseAPI {
   const char* GetInputName();
   // Takes ownership of the input pix.
   void SetInputImage(Pix *pix);
+  // Borrowed pointer.
   Pix* GetInputImage();
   int GetSourceYResolution();
   const char* GetDatapath();

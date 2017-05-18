@@ -2192,8 +2192,8 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
-        Pix *pix = pixCreate(input.width, input.height, 32);
-        l_uint32 *pixData = pixGetData(pix);
+        const PixPtr pix(pixCreate(input.width, input.height, 32));
+        l_uint32 *pixData = pixGetData(pix.p());
         int i, j;
         int idx = 0;
         for (i = 0; i < input.height ; i++) {
@@ -2217,7 +2217,6 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
         clock_gettime( CLOCK_MONOTONIC, &time_funct_end );
         time = (time_funct_end.tv_sec - time_funct_start.tv_sec)*1.0 + (time_funct_end.tv_nsec - time_funct_start.tv_nsec)/1000000000.0;
 #endif
-        pixDestroy(&pix);
     }
 
 
@@ -2464,15 +2463,15 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_start);
 #elif ON_APPLE
-      start = mach_absolute_time();
+        start = mach_absolute_time();
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
         OpenclDevice::gpuEnv = *env;
         OpenclDevice::initMorphCLAllocations(wpl, input.height, input.pix);
-        Pix *pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
+        /*used with rawOut()*/ PixPtr pix_vline, pix_hline, pix_closed;
         OpenclDevice::pixGetLinesCL(
-            nullptr, input.pix, &pix_vline, &pix_hline, &pix_closed, true,
+            nullptr, input.pix, &pix_vline.rawOut(), &pix_hline.rawOut(), &pix_closed.rawOut(), true,
             closing_brick, closing_brick, max_line_width, max_line_width,
             min_line_length, min_line_length);
 
@@ -2498,7 +2497,7 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #endif
 
         // native serial code
-        Pix *src_pix = input.pix;
+#if 0 // previous code
         Pix *pix_closed =
             pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
         Pix *pix_solid =
@@ -2508,6 +2507,16 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
         Pix *pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
         Pix *pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
         pixDestroy(&pix_hollow);
+#else // TODO: validate (pixDestroy() now moved to after timer stops for pix_solid and pix_hollow, added for pix_vline, pix_hline, and pix_closed)
+        Pix *src_pix = input.pix; // borrowed pointer
+        const PixPtr pix_closed(
+            pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick) );
+        const PixPtr pix_solid(
+            pixOpenBrick(nullptr, pix_closed.p(), max_line_width, max_line_width) );
+        const PixPtr pix_hollow(pixSubtract(nullptr, pix_closed.p(), pix_solid.p()));
+        const PixPtr pix_vline(pixOpenBrick(nullptr, pix_hollow.p(), 1, min_line_length));
+        const PixPtr pix_hline(pixOpenBrick(nullptr, pix_hollow.p(), min_line_length, 1));
+#endif
 
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);

@@ -31,6 +31,7 @@
 #endif
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "boxread.h"
 #include "callcpp.h"
 #include "helpers.h"
@@ -229,10 +230,10 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
                          GenericVector<TBOX>* boxes) const {
   int input_width = 0;
   int input_height = 0;
-  Pix* src_pix = GetPix();
+  const PixPtr src_pix(GetPix());
   ASSERT_HOST(src_pix != NULL);
-  input_width = pixGetWidth(src_pix);
-  input_height = pixGetHeight(src_pix);
+  input_width = pixGetWidth(src_pix.p());
+  input_height = pixGetHeight(src_pix.p());
   if (target_height == 0) {
     target_height = MIN(input_height, max_height);
   }
@@ -242,14 +243,13 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   if (scaled_height != NULL)
     *scaled_height = target_height;
   // Get the scaled image.
-  Pix* pix = pixScale(src_pix, im_factor, im_factor);
+  const PixPtr pix(pixScale(src_pix.p(), im_factor, im_factor));
   if (pix == NULL) {
     tprintf("Scaling pix of size %d, %d by factor %g made null pix!!\n",
             input_width, input_height, im_factor);
   }
-  if (scaled_width != NULL) *scaled_width = pixGetWidth(pix);
-  if (scaled_height != NULL) *scaled_height = pixGetHeight(pix);
-  pixDestroy(&src_pix);
+  if (scaled_width != NULL) *scaled_width = pixGetWidth(pix.p());
+  if (scaled_height != NULL) *scaled_height = pixGetHeight(pix.p());
   if (boxes != NULL) {
     // Get the boxes.
     boxes->truncate(0);
@@ -265,7 +265,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
     }
   }
   if (scale_factor != NULL) *scale_factor = im_factor;
-  return pix;
+  return pix.detach();
 }
 
 int ImageData::MemoryUsed() const {
@@ -277,16 +277,15 @@ void ImageData::Display() const {
 #ifndef GRAPHICS_DISABLED
   const int kTextSize = 64;
   // Draw the image.
-  Pix* pix = GetPix();
+  const PixPtr pix(GetPix());
   if (pix == NULL) return;
-  int width = pixGetWidth(pix);
-  int height = pixGetHeight(pix);
+  int width = pixGetWidth(pix.p());
+  int height = pixGetHeight(pix.p());
   ScrollView* win = new ScrollView("Imagedata", 100, 100,
                                    2 * (width + 2 * kTextSize),
                                    2 * (height + 4 * kTextSize),
                                    width + 10, height + 3 * kTextSize, true);
-  win->Image(pix, 0, height - 1);
-  pixDestroy(&pix);
+  win->Image(pix.p(), 0, height - 1);
   // Draw the boxes.
   win->Pen(ScrollView::RED);
   win->Brush(ScrollView::NONE);

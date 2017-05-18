@@ -19,6 +19,7 @@
 #include "tesseractclass.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "boxread.h"
 #include "imagedata.h"
 #ifndef ANDROID_BUILD
@@ -189,23 +190,17 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
   // Clip to image bounds;
   *revised_box &= image_box;
   if (revised_box->null_box()) return NULL;
-  Box* clip_box = boxCreate(revised_box->left(), height - revised_box->top(),
-                            revised_box->width(), revised_box->height());
-  Pix* box_pix = pixClipRectangle(pix, clip_box, NULL);
+  const BoxPtr clip_box(boxCreate(revised_box->left(), height - revised_box->top(),
+                                  revised_box->width(), revised_box->height()));
+  /*used with reset(), release()*/ PixPtr box_pix(pixClipRectangle(pix, clip_box.p(), NULL));
   if (box_pix == NULL) return NULL;
-  boxDestroy(&clip_box);
   if (num_rotations > 0) {
-    Pix* rot_pix = pixRotateOrth(box_pix, num_rotations);
-    pixDestroy(&box_pix);
-    box_pix = rot_pix;
+    box_pix.reset(pixRotateOrth(box_pix.p(), num_rotations));
   }
   // Convert sub-8-bit images to 8 bit.
-  int depth = pixGetDepth(box_pix);
+  int depth = pixGetDepth(box_pix.p());
   if (depth < 8) {
-    Pix* grey;
-    grey = pixConvertTo8(box_pix, false);
-    pixDestroy(&box_pix);
-    box_pix = grey;
+    box_pix.reset(pixConvertTo8(box_pix.p(), false));
   }
   bool vertical_text = false;
   if (num_rotations > 0) {
@@ -215,7 +210,7 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
     if (num_rotations != 2)
       vertical_text = true;
   }
-  return new ImageData(vertical_text, box_pix);
+  return new ImageData(vertical_text, box_pix.release());
 }
 
 #ifndef ANDROID_BUILD

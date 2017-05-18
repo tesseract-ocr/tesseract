@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "allheaders.h"  // from leptonica
+#include "raiileptonica.h"
 #include "boxchar.h"
 #include "commandlineflags.h"
 #include "degradeimage.h"
@@ -358,43 +359,39 @@ bool MakeIndividualGlyphs(Pix* pix,
       continue;
     }
     // Crop the boxed character
-    Pix* pix_glyph = pixClipRectangle(pix, b, nullptr);
+    const PixPtr pix_glyph(pixClipRectangle(pix, b, nullptr));
     if (!pix_glyph) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to clip, at i=%d\n", i);
       continue;
     }
     // Resize to square
-    Pix* pix_glyph_sq = pixScaleToSize(pix_glyph,
-                                       FLAGS_glyph_resized_size,
-                                       FLAGS_glyph_resized_size);
+    const PixPtr pix_glyph_sq(pixScaleToSize(pix_glyph.p(),
+                                             FLAGS_glyph_resized_size,
+                                             FLAGS_glyph_resized_size));
     if (!pix_glyph_sq) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to resize, at i=%d\n", i);
       continue;
     }
     // Zero-pad
-    Pix* pix_glyph_sq_pad = pixAddBorder(pix_glyph_sq,
-                                         FLAGS_glyph_num_border_pixels_to_pad,
-                                         0);
+    const PixPtr pix_glyph_sq_pad(pixAddBorder(pix_glyph_sq.p(),
+                                               FLAGS_glyph_num_border_pixels_to_pad,
+                                               0));
     if (!pix_glyph_sq_pad) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n",
               i);
       continue;
     }
     // Write out
-    Pix* pix_glyph_sq_pad_8 = pixConvertTo8(pix_glyph_sq_pad, false);
+    const PixPtr pix_glyph_sq_pad_8(pixConvertTo8(pix_glyph_sq_pad.p(), false));
     char filename[1024];
     snprintf(filename, 1024, "%s_%d.jpg", FLAGS_outputbase.c_str(),
              glyph_count++);
-    if (pixWriteJpeg(filename, pix_glyph_sq_pad_8, 100, 0)) {
+    if (pixWriteJpeg(filename, pix_glyph_sq_pad_8.p(), 100, 0)) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to write JPEG to %s,"
               " at i=%d\n", filename, i);
       continue;
     }
 
-    pixDestroy(&pix_glyph);
-    pixDestroy(&pix_glyph_sq);
-    pixDestroy(&pix_glyph_sq_pad);
-    pixDestroy(&pix_glyph_sq_pad_8);
     n_boxes_saved++;
     y_previous = y;
   }
@@ -588,15 +585,15 @@ int main(int argc, char** argv) {
     string font_used;
     for (size_t offset = 0; offset < strlen(to_render_utf8); ++im, ++page_num) {
       tlog(1, "Starting page %d\n", im);
-      Pix* pix = nullptr;
+      /*used with rawOut()*/ PixPtr pix;
       if (FLAGS_find_fonts) {
         offset += render.RenderAllFontsToImage(FLAGS_min_coverage,
                                                to_render_utf8 + offset,
                                                strlen(to_render_utf8 + offset),
-                                               &font_used, &pix);
+                                               &font_used, &pix.rawOut());
       } else {
         offset += render.RenderToImage(to_render_utf8 + offset,
-                                       strlen(to_render_utf8 + offset), &pix);
+                                       strlen(to_render_utf8 + offset), &pix.rawOut());
       }
       if (pix != nullptr) {
         float rotation = 0;
@@ -605,8 +602,8 @@ int main(int argc, char** argv) {
           rotation = -1 * page_rotation[page_num];
         }
         if (FLAGS_degrade_image) {
-          pix = DegradeImage(pix, FLAGS_exposure, &randomizer,
-                             FLAGS_rotate_image ? &rotation : nullptr);
+          pix.reset(DegradeImage(pix.detach(), FLAGS_exposure, &randomizer,
+                                 FLAGS_rotate_image ? &rotation : nullptr));
         }
         render.RotatePageBoxes(rotation);
 
@@ -615,10 +612,8 @@ int main(int argc, char** argv) {
           page_rotation.push_back(rotation);
         }
 
-        Pix* gray_pix = pixConvertTo8(pix, false);
-        pixDestroy(&pix);
-        Pix* binary = pixThresholdToBinary(gray_pix, 128);
-        pixDestroy(&gray_pix);
+        const PixPtr gray_pix(pixConvertTo8(pix.p(), false));
+        const PixPtr binary(pixThresholdToBinary(gray_pix.p(), 128));
         char tiff_name[1024];
         if (FLAGS_find_fonts) {
           if (FLAGS_render_per_font) {
@@ -626,23 +621,22 @@ int main(int argc, char** argv) {
                 font_used, " ", "_");
             snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
                      fontname_for_file.c_str());
-            pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");
+            pixWriteTiff(tiff_name, binary.p(), IFF_TIFF_G4, "w");
             tprintf("Rendered page %d to file %s\n", im, tiff_name);
           } else {
             font_names.push_back(font_used);
           }
         } else {
           snprintf(tiff_name, 1024, "%s.tif", FLAGS_outputbase.c_str());
-          pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, im == 0 ? "w" : "a");
+          pixWriteTiff(tiff_name, binary.p(), IFF_TIFF_G4, im == 0 ? "w" : "a");
           tprintf("Rendered page %d to file %s\n", im, tiff_name);
         }
         // Make individual glyphs
         if (FLAGS_output_individual_glyph_images) {
-          if (!MakeIndividualGlyphs(binary, render.GetBoxes(), im)) {
+          if (!MakeIndividualGlyphs(binary.p(), render.GetBoxes(), im)) {
             tprintf("ERROR: Individual glyphs not saved\n");
           }
         }
-        pixDestroy(&binary);
       }
       if (FLAGS_find_fonts && offset != 0) {
         // We just want a list of names, or some sample images so we don't need

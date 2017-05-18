@@ -161,6 +161,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     median_size_.set_y(y);
   }
 
+  // Call pixDestroy() on result after use.
   Pix* render_mask(TBOX* mask_box) {
     return PDBLK::render_mask(re_rotation_, mask_box);
   }

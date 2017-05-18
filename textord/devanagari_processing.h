@@ -185,6 +185,7 @@ class ShiroRekhaSplitter {
 
   // Returns a new box object for the corresponding TBOX, based on the original
   // image's coordinate system.
+  // Call pixDestroy() on result after use.
   Box* GetBoxForTBOX(const TBOX& tbox) const;
 
   // This method returns y-extents of the shiro-rekha computed from the input

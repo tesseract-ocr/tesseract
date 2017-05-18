@@ -34,6 +34,7 @@
 #include "params.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 
 INT_VAR(textord_tabfind_show_images, false, "Show image blobs");
 
@@ -70,71 +71,59 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
 
   // Reduce by factor 2.
-  Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
+  const PixPtr pixr(pixReduceRankBinaryCascade(pix, 1, 0, 0, 0));
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixr, "CascadeReduced");
+    pixa_debug->AddPix(pixr.p(), "CascadeReduced");
 
   // Get the halftone mask directly from Leptonica.
   //
   // Leptonica will print an error message and return NULL if we call
   // pixGenHalftoneMask(pixr, NULL, ...) with too small image, so we
   // want to bypass that.
-  if (pixGetWidth(pixr) < kMinImageFindSize ||
-      pixGetHeight(pixr) < kMinImageFindSize) {
-    pixDestroy(&pixr);
+  if (pixGetWidth(pixr.p()) < kMinImageFindSize ||
+      pixGetHeight(pixr.p()) < kMinImageFindSize) {
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
   }
   l_int32 ht_found = 0;
-  Pix *pixht2 = pixGenHalftoneMask(pixr, NULL, &ht_found,
-                                   textord_tabfind_show_images);
-  pixDestroy(&pixr);
-  if (!ht_found && pixht2 != NULL)
-    pixDestroy(&pixht2);
-  if (pixht2 == NULL)
+  const PixPtr pixht2(pixGenHalftoneMask(pixr.p(), NULL, &ht_found,
+                                         textord_tabfind_show_images));
+  if (! ht_found || ! pixht2)
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
 
   // Expand back up again.
-  Pix *pixht = pixExpandReplicate(pixht2, 2);
+  const PixPtr pixht(pixExpandReplicate(pixht2.p(), 2));
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixht, "HalftoneReplicated");
-  pixDestroy(&pixht2);
+    pixa_debug->AddPix(pixht.p(), "HalftoneReplicated");
 
   // Fill to capture pixels near the mask edges that were missed
-  Pix *pixt = pixSeedfillBinary(NULL, pixht, pix, 8);
-  pixOr(pixht, pixht, pixt);
-  pixDestroy(&pixt);
+  const PixPtr pixt(pixSeedfillBinary(NULL, pixht.p(), pix, 8));
+  pixOr(pixht.p(), pixht.p(), pixt.p());
 
   // Eliminate lines and bars that may be joined to images.
-  Pix* pixfinemask = pixReduceRankBinaryCascade(pixht, 1, 1, 3, 3);
-  pixDilateBrick(pixfinemask, pixfinemask, 5, 5);
+  const PixPtr pixfinemask(pixReduceRankBinaryCascade(pixht.p(), 1, 1, 3, 3));
+  pixDilateBrick(pixfinemask.p(), pixfinemask.p(), 5, 5);
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixfinemask, "FineMask");
-  Pix* pixreduced = pixReduceRankBinaryCascade(pixht, 1, 1, 1, 1);
-  Pix* pixreduced2 = pixReduceRankBinaryCascade(pixreduced, 3, 3, 3, 0);
-  pixDestroy(&pixreduced);
-  pixDilateBrick(pixreduced2, pixreduced2, 5, 5);
-  Pix* pixcoarsemask = pixExpandReplicate(pixreduced2, 8);
-  pixDestroy(&pixreduced2);
+    pixa_debug->AddPix(pixfinemask.p(), "FineMask");
+  const PixPtr pixreduced(pixReduceRankBinaryCascade(pixht.p(), 1, 1, 1, 1));
+  const PixPtr pixreduced2(pixReduceRankBinaryCascade(pixreduced.p(), 3, 3, 3, 0));
+  pixDilateBrick(pixreduced2.p(), pixreduced2.p(), 5, 5);
+  const PixPtr pixcoarsemask(pixExpandReplicate(pixreduced2.p(), 8));
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixcoarsemask, "CoarseMask");
+    pixa_debug->AddPix(pixcoarsemask.p(), "CoarseMask");
   // Combine the coarse and fine image masks.
-  pixAnd(pixcoarsemask, pixcoarsemask, pixfinemask);
-  pixDestroy(&pixfinemask);
+  pixAnd(pixcoarsemask.p(), pixcoarsemask.p(), pixfinemask.p());
   // Dilate a bit to make sure we get everything.
-  pixDilateBrick(pixcoarsemask, pixcoarsemask, 3, 3);
-  Pix* pixmask = pixExpandReplicate(pixcoarsemask, 16);
-  pixDestroy(&pixcoarsemask);
+  pixDilateBrick(pixcoarsemask.p(), pixcoarsemask.p(), 3, 3);
+  const PixPtr pixmask(pixExpandReplicate(pixcoarsemask.p(), 16));
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixmask, "MaskDilated");
+    pixa_debug->AddPix(pixmask.p(), "MaskDilated");
   // And the image mask with the line and bar remover.
-  pixAnd(pixht, pixht, pixmask);
-  pixDestroy(&pixmask);
+  pixAnd(pixht.p(), pixht.p(), pixmask.p());
   if (textord_tabfind_show_images && pixa_debug != nullptr)
-    pixa_debug->AddPix(pixht, "FinalMask");
+    pixa_debug->AddPix(pixht.p(), "FinalMask");
   // Make the result image the same size as the input.
   Pix* result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
-  pixOr(result, result, pixht);
-  pixDestroy(&pixht);
+  pixOr(result, result, pixht.p());
   return result;
 }
 
@@ -157,31 +146,26 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
   // Rectangularize the individual images. If a sharp edge in vertical and/or
   // horizontal occupancy can be found, it indicates a probably rectangular
   // image with unwanted bits merged on, so clip to the approximate rectangle.
-  int npixes = 0;
-  if (*boxa != nullptr && *pixa != nullptr) npixes = pixaGetCount(*pixa);
+  const int npixes = (*boxa != nullptr && *pixa != nullptr) ? pixaGetCount(*pixa) : 0;
   for (int i = 0; i < npixes; ++i) {
     int x_start, x_end, y_start, y_end;
-    Pix* img_pix = pixaGetPix(*pixa, i, L_CLONE);
+    const PixPtr img_pix(pixaGetPix(*pixa, i, L_CLONE));
     if (textord_tabfind_show_images && pixa_debug != nullptr)
-      pixa_debug->AddPix(img_pix, "A component");
-    if (pixNearlyRectangular(img_pix, kMinRectangularFraction,
+      pixa_debug->AddPix(img_pix.p(), "A component");
+    if (pixNearlyRectangular(img_pix.p(), kMinRectangularFraction,
                              kMaxRectangularFraction,
                              kMaxRectangularGradient,
                              &x_start, &y_start, &x_end, &y_end)) {
-      Pix* simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
-      pixSetAll(simple_pix);
-      pixDestroy(&img_pix);
-      // pixaReplacePix takes ownership of the simple_pix.
-      pixaReplacePix(*pixa, i, simple_pix, NULL);
-      img_pix = pixaGetPix(*pixa, i, L_CLONE);
+      const PixPtr simple_pix(pixCreate(x_end - x_start, y_end - y_start, 1));
+      pixSetAll(simple_pix.p());
+      pixaReplacePix(*pixa, i, simple_pix.detach(), NULL);
       // Fix the box to match the new pix.
       l_int32 x, y, width, height;
       boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
-      Box* simple_box = boxCreate(x + x_start, y + y_start,
-                                  x_end - x_start, y_end - y_start);
-      boxaReplaceBox(*boxa, i, simple_box);
+      const BoxPtr simple_box(boxCreate(x + x_start, y + y_start,
+                                        x_end - x_start, y_end - y_start));
+      boxaReplaceBox(*boxa, i, simple_box.detach());
     }
-    pixDestroy(&img_pix);
   }
 }
 
@@ -325,21 +309,19 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
 // pixels at all.
 bool ImageFind::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
                                  int* x_end, int* y_end) {
-  Box* input_box = boxCreate(*x_start, *y_start, *x_end - *x_start,
-                             *y_end - *y_start);
-  Box* output_box = NULL;
-  pixClipBoxToForeground(pix, input_box, NULL, &output_box);
+  const BoxPtr input_box(boxCreate(*x_start, *y_start, *x_end - *x_start,
+                                   *y_end - *y_start));
+  /*used with rawOut()*/ BoxPtr output_box;
+  pixClipBoxToForeground(pix, input_box.p(), NULL, &output_box.rawOut());
   bool result = output_box != NULL;
   if (result) {
     l_int32 x, y, width, height;
-    boxGetGeometry(output_box, &x, &y, &width, &height);
+    boxGetGeometry(output_box.p(), &x, &y, &width, &height);
     *x_start = x;
     *y_start = y;
     *x_end = x + width;
     *y_end = y + height;
-    boxDestroy(&output_box);
   }
-  boxDestroy(&input_box);
   return result;
 }
 
@@ -425,16 +407,16 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4)
     return;
   // Now crop the pix to the rectangle.
-  Box* scaled_box = boxCreate(left_pad, height - top_pad,
-                              width_pad, height_pad);
-  Pix* scaled = pixClipRectangle(pix, scaled_box, NULL);
+  const BoxPtr scaled_box(boxCreate(left_pad, height - top_pad,
+                                    width_pad, height_pad));
+  const PixPtr scaled(pixClipRectangle(pix, scaled_box.p(), NULL));
 
   // Compute stats over the whole image.
   STATS red_stats(0, 256);
   STATS green_stats(0, 256);
   STATS blue_stats(0, 256);
-  uinT32* data = pixGetData(scaled);
-  ASSERT_HOST(pixGetWpl(scaled) == width_pad);
+  uinT32* data = pixGetData(scaled.p());
+  ASSERT_HOST(pixGetWpl(scaled.p()) == width_pad);
   for (int y = 0; y < height_pad; ++y) {
     for (int x = 0; x < width_pad; ++x, ++data) {
       int r = GET_DATA_BYTE(data, COLOR_RED);
@@ -477,7 +459,7 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   if (best_i8r >= kMinColorDifference) {
     LLSQ line1;
     LLSQ line2;
-    uinT32* data = pixGetData(scaled);
+    uinT32* data = pixGetData(scaled.p());
     for (int im_y = 0; im_y < height_pad; ++im_y) {
       for (int im_x = 0; im_x < width_pad; ++im_x, ++data) {
         int x = GET_DATA_BYTE(data, x_color);
@@ -511,18 +493,16 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
     memcpy(color2, color1, 4);
   }
   if (color_map1 != NULL) {
-    pixSetInRectArbitrary(color_map1, scaled_box,
+    pixSetInRectArbitrary(color_map1, scaled_box.p(),
                           ComposeRGB(color1[COLOR_RED],
                               color1[COLOR_GREEN],
                               color1[COLOR_BLUE]));
-    pixSetInRectArbitrary(color_map2, scaled_box,
+    pixSetInRectArbitrary(color_map2, scaled_box.p(),
                           ComposeRGB(color2[COLOR_RED],
                               color2[COLOR_GREEN],
                               color2[COLOR_BLUE]));
-    pixSetInRectArbitrary(rms_map, scaled_box, color1[L_ALPHA_CHANNEL]);
+    pixSetInRectArbitrary(rms_map, scaled_box.p(), color1[L_ALPHA_CHANNEL]);
   }
-  pixDestroy(&scaled);
-  boxDestroy(&scaled_box);
 }
 
 // ================ CUTTING POLYGONAL IMAGES FROM A RECTANGLE ================
@@ -597,13 +577,12 @@ int ImageFind::CountPixelsInRotatedBox(TBOX box, const TBOX& im_box,
   box.rotate(rotation);
   TBOX rotated_im_box(im_box);
   rotated_im_box.rotate(rotation);
-  Pix* rect_pix = pixCreate(box.width(), box.height(), 1);
-  pixRasterop(rect_pix, 0, 0, box.width(), box.height(),
+  const PixPtr rect_pix(pixCreate(box.width(), box.height(), 1));
+  pixRasterop(rect_pix.p(), 0, 0, box.width(), box.height(),
               PIX_SRC, pix, box.left() - rotated_im_box.left(),
               rotated_im_box.top() - box.top());
   l_int32 result;
-  pixCountPixels(rect_pix, &result, NULL);
-  pixDestroy(&rect_pix);
+  pixCountPixels(rect_pix.p(), &result, NULL);
   return result;
 }
 
@@ -1295,28 +1274,27 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
                                     ColPartitionGrid* part_grid,
                                     ColPartition_LIST* big_parts) {
   int imageheight = pixGetHeight(image_pix);
-  Boxa* boxa;
-  Pixa* pixa;
-  ConnCompAndRectangularize(image_pix, pixa_debug, &boxa, &pixa);
+  /*used with rawOut()*/ BoxaPtr boxa;
+  /*used with rawOut()*/ PixaPtr pixa;
+  ConnCompAndRectangularize(image_pix, pixa_debug, &boxa.rawOut(), &pixa.rawOut());
   // Iterate the connected components in the image regions mask.
   int nboxes = 0;
-  if (boxa != nullptr && pixa != nullptr) nboxes = boxaGetCount(boxa);
+  if (boxa != nullptr && pixa != nullptr) nboxes = boxaGetCount(boxa.p());
   for (int i = 0; i < nboxes; ++i) {
     l_int32 x, y, width, height;
-    boxaGetBoxGeometry(boxa, i, &x, &y, &width, &height);
-    Pix* pix = pixaGetPix(pixa, i, L_CLONE);
+    boxaGetBoxGeometry(boxa.p(), i, &x, &y, &width, &height);
+    const PixPtr pix(pixaGetPix(pixa.p(), i, L_CLONE));
     TBOX im_box(x, imageheight -y - height, x + width, imageheight - y);
     im_box.rotate(rotation);  // Now matches all partitions and blobs.
     ColPartitionGridSearch rectsearch(part_grid);
     rectsearch.SetUniqueMode(true);
     ColPartition_LIST part_list;
-    DivideImageIntoParts(im_box, rotation, rerotation, pix,
+    DivideImageIntoParts(im_box, rotation, rerotation, pix.p(),
                          &rectsearch, &part_list);
     if (textord_tabfind_show_images && pixa_debug != nullptr) {
-      pixa_debug->AddPix(pix, "ImageComponent");
+      pixa_debug->AddPix(pix.p(), "ImageComponent");
       tprintf("Component has %d parts\n", part_list.length());
     }
-    pixDestroy(&pix);
     if (!part_list.empty()) {
       ColPartition_IT part_it(&part_list);
       if (part_list.singleton()) {
@@ -1345,8 +1323,6 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
       }
     }
   }
-  boxaDestroy(&boxa);
-  pixaDestroy(&pixa);
   DeleteSmallImages(part_grid);
   if (textord_tabfind_show_images) {
     ScrollView* images_win_ = part_grid->MakeWindow(1000, 400, "With Images");

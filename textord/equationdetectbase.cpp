@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "blobbox.h"
 #include "equationdetectbase.h"
 
@@ -38,28 +39,27 @@ void EquationDetectBase::RenderSpecialText(Pix* pix,
 
   // Coordinate translation: tesseract use left bottom as the original, while
   // leptonica uses left top as the original.
-  Box *box = boxCreate(tbox.left(), height - tbox.top(),
-                         tbox.width(), tbox.height());
+  const BoxPtr box(boxCreate(tbox.left(), height - tbox.top(),
+                             tbox.width(), tbox.height()));
   switch (blob->special_text_type()) {
     case BSTT_MATH:  // Red box.
-      pixRenderBoxArb(pix, box, box_width, 255, 0, 0);
+      pixRenderBoxArb(pix, box.p(), box_width, 255, 0, 0);
       break;
     case BSTT_DIGIT:  // cyan box.
-      pixRenderBoxArb(pix, box, box_width, 0, 255, 255);
+      pixRenderBoxArb(pix, box.p(), box_width, 0, 255, 255);
       break;
     case BSTT_ITALIC:  // Green box.
-      pixRenderBoxArb(pix, box, box_width, 0, 255, 0);
+      pixRenderBoxArb(pix, box.p(), box_width, 0, 255, 0);
       break;
     case BSTT_UNCLEAR:  // blue box.
-      pixRenderBoxArb(pix, box, box_width, 0, 255, 0);
+      pixRenderBoxArb(pix, box.p(), box_width, 0, 255, 0);
       break;
     case BSTT_NONE:
     default:
       // yellow box.
-      pixRenderBoxArb(pix, box, box_width, 255, 255, 0);
+      pixRenderBoxArb(pix, box.p(), box_width, 255, 255, 0);
       break;
   }
-  boxDestroy(&box);
 }
 
 };  // namespace tesseract

@@ -42,6 +42,7 @@
 #include "tesseractclass.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "edgblob.h"
 #include "equationdetect.h"
 #include "globals.h"
@@ -697,8 +698,7 @@ void Tesseract::PrepareForPageseg() {
         static_cast<inT32>(sub_langs_[i]->pageseg_devanagari_split_strategy));
     if (pageseg_strategy > max_pageseg_strategy)
       max_pageseg_strategy = pageseg_strategy;
-    pixDestroy(&sub_langs_[i]->pix_binary_);
-    sub_langs_[i]->pix_binary_ = pixClone(pix_binary());
+    asPixPtr(sub_langs_[i]->pix_binary_).reset(pixClone(pix_binary()));
   }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
   // the newly splitted image.
@@ -706,8 +706,7 @@ void Tesseract::PrepareForPageseg() {
   splitter_.set_pageseg_split_strategy(max_pageseg_strategy);
   if (splitter_.Split(true, &pixa_debug_)) {
     ASSERT_HOST(splitter_.splitted_image());
-    pixDestroy(&pix_binary_);
-    pix_binary_ = pixClone(splitter_.splitted_image());
+    asPixPtr(pix_binary_).reset(pixClone(splitter_.splitted_image()));
   }
 }
 
@@ -736,8 +735,7 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
   bool split_for_ocr = splitter_.Split(false, &pixa_debug_);
   // Restore pix_binary to the binarized original pix for future reference.
   ASSERT_HOST(splitter_.orig_pix());
-  pixDestroy(&pix_binary_);
-  pix_binary_ = pixClone(splitter_.orig_pix());
+  asPixPtr(pix_binary_).reset(pixClone(splitter_.orig_pix()));
   // If the pageseg and ocr strategies are different, refresh the block list
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.

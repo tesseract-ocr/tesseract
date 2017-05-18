@@ -32,6 +32,7 @@
 #include "tprintf.h"
 #include "unicharset.h"
 #include "unicode/uchar.h"  // from libicu
+#include "raiileptonica.h"
 
 // Absolute Ratio of dx:dy or dy:dx to be a newline.
 const int kMinNewlineRatio = 5;
@@ -45,6 +46,7 @@ BoxChar::BoxChar(const char* utf8_str, int len) : ch_(utf8_str, len) {
 BoxChar::~BoxChar() { boxDestroy(&box_); }
 
 void BoxChar::AddBox(int x, int y, int width, int height) {
+  // TODO: "assert(! box_);"?
   box_ = boxCreate(x, y, width, height);
 }
 
@@ -52,8 +54,7 @@ void BoxChar::AddBox(int x, int y, int width, int height) {
 void BoxChar::TranslateBoxes(int xshift, int yshift,
                              std::vector<BoxChar*>* boxes) {
   for (size_t i = 0; i < boxes->size(); ++i) {
-    BOX* box = (*boxes)[i]->box_;
-    if (box != nullptr) {
+    if (Box* const box = (*boxes)[i]->box_) {
       box->x += xshift;
       box->y += yshift;
     }
@@ -273,20 +274,17 @@ int BoxChar::TotalByteLength(const std::vector<BoxChar*>& boxes) {
 void BoxChar::RotateBoxes(float rotation, int xcenter, int ycenter,
                           int start_box, int end_box,
                           std::vector<BoxChar*>* boxes) {
-  Boxa* orig = boxaCreate(0);
+  const BoxaPtr orig(boxaCreate(0));
   for (int i = start_box; i < end_box; ++i) {
-    BOX* box = (*boxes)[i]->box_;
-    if (box) boxaAddBox(orig, box, L_CLONE);
+    if (Box* const box = (*boxes)[i]->box_)
+      boxaAddBox(orig.p(), box, L_CLONE);
   }
-  Boxa* rotated = boxaRotate(orig, xcenter, ycenter, rotation);
-  boxaDestroy(&orig);
+  const BoxaPtr rotated(boxaRotate(orig.p(), xcenter, ycenter, rotation));
   for (int i = start_box, box_ind = 0; i < end_box; ++i) {
-    if ((*boxes)[i]->box_) {
-      boxDestroy(&((*boxes)[i]->box_));
-      (*boxes)[i]->box_ = boxaGetBox(rotated, box_ind++, L_CLONE);
+    if (/*used with reset()*/ BoxPtr &box = asBoxPtr((*boxes)[i]->box_)) {
+      box.reset(boxaGetBox(rotated.p(), box_ind++, L_CLONE));
     }
   }
-  boxaDestroy(&rotated);
 }
 
 const int kMaxLineLength = 1024;

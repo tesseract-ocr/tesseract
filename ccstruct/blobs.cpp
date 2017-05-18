@@ -849,7 +849,7 @@ void TWERD::BLNormalize(const BLOCK* block, const ROW* row, Pix* pix,
                                     input_y_offset, scale, scale,
                                     0.0f, final_y_offset);
     word_denorm->set_inverse(inverse);
-    word_denorm->set_pix(pix);
+    word_denorm->set_pix(pix); // no reference transfer
   }
 }
 

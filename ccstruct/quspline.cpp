@@ -18,6 +18,7 @@
  **********************************************************************/
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "memry.h"
 #include "quadlsq.h"
 #include "quspline.h"
@@ -396,7 +397,7 @@ void QSPLINE::plot(Pix *pix) const {
   double increment;  // x increment
   double x;  // x coord
   double height = static_cast<double>(pixGetHeight(pix));
-  Pta* points = ptaCreate(QSPLINE_PRECISION * segments);
+  const PtaPtr points(ptaCreate(QSPLINE_PRECISION * segments));
   const int kLineWidth = 5;
 
   for (segment = 0; segment < segments; segment++) {
@@ -405,21 +406,20 @@ void QSPLINE::plot(Pix *pix) const {
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {
       double y = height - quadratics[segment].y(x);
-      ptaAddPt(points, x, y);
+      ptaAddPt(points.p(), x, y);
       x += increment;
     }
   }
 
   switch (pixGetDepth(pix)) {
     case 1:
-      pixRenderPolyline(pix, points, kLineWidth, L_SET_PIXELS, 1);
+      pixRenderPolyline(pix, points.p(), kLineWidth, L_SET_PIXELS, 1);
       break;
     case 32:
-      pixRenderPolylineArb(pix, points, kLineWidth, 255, 0, 0, 1);
+      pixRenderPolylineArb(pix, points.p(), kLineWidth, 255, 0, 0, 1);
       break;
     default:
-      pixRenderPolyline(pix, points, kLineWidth, L_CLEAR_PIXELS, 1);
+      pixRenderPolyline(pix, points.p(), kLineWidth, L_CLEAR_PIXELS, 1);
       break;
   }
-  ptaDestroy(&points);
 }

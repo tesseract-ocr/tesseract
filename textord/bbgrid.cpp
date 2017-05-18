@@ -248,10 +248,9 @@ Pix* TraceOutlineOnReducedPix(C_OUTLINE* outline, int gridsize,
 #if 0  // Example code shows how to use TraceOutlineOnReducedPix.
   C_OUTLINE_IT ol_it(blob->cblob()->out_list());
   int grid_left, grid_bottom;
-  Pix* pix = TraceOutlineOnReducedPix(ol_it.data(), gridsize_, bleft_,
-                                      &grid_left, &grid_bottom);
-  grid->InsertPixPtBBox(grid_left, grid_bottom, pix, blob);
-  pixDestroy(&pix);
+  const PixPtr pix(TraceOutlineOnReducedPix(ol_it.data(), gridsize_, bleft_,
+                                            &grid_left, &grid_bottom));
+  grid->InsertPixPtBBox(grid_left, grid_bottom, pix.p(), blob);
 #endif
 
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.

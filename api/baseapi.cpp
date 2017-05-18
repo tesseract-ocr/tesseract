@@ -48,6 +48,7 @@
 #include <memory> // std::unique_ptr
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 
 #include "baseapi.h"
 #include "blobclass.h"
@@ -547,7 +548,7 @@ void TessBaseAPI::SetImage(const unsigned char* imagedata,
   if (InternalSetImage()) {
     thresholder_->SetImage(imagedata, width, height,
                            bytes_per_pixel, bytes_per_line);
-    SetInputImage(thresholder_->GetPixRect());
+    SetInputImage(thresholder_->GetPixRect()); // reference transfer
   }
 }
 
@@ -569,7 +570,7 @@ void TessBaseAPI::SetSourceResolution(int ppi) {
 void TessBaseAPI::SetImage(Pix* pix) {
   if (InternalSetImage()) {
     thresholder_->SetImage(pix);
-    SetInputImage(thresholder_->GetPixRect());
+    SetInputImage(thresholder_->GetPixRect()); // reference transfer
   }
 }
 
@@ -665,7 +666,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
                                       const int raw_padding,
                                       Pixa** pixa, int** blockids,
                                       int** paraids) {
-  /*non-const*/ std::unique_ptr</*non-const*/ PageIterator> page_it(GetIterator());
+  /*used with reset()*/ std::unique_ptr</*non-const*/ PageIterator> page_it(GetIterator());
   if (page_it == NULL)
     page_it.reset(AnalyseLayout());
   if (page_it == NULL)
@@ -694,7 +695,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
       ++component_count;
   } while (page_it->Next(level));
 
-  Boxa* boxa = boxaCreate(component_count);
+  const BoxaPtr boxa(boxaCreate(component_count));
   if (pixa != NULL)
     *pixa = pixaCreate(component_count);
   if (blockids != NULL)
@@ -709,18 +710,15 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
   do {
     if (get_bbox->Run() &&
         (!text_only || PTIsTextType(page_it->BlockType()))) {
-      Box* lbox = boxCreate(left, top, right - left, bottom - top);
-      boxaAddBox(boxa, lbox, L_INSERT);
+      const BoxPtr lbox(boxCreate(left, top, right - left, bottom - top));
+      boxaAddBox(boxa.p(), lbox.p(), L_CLONE);
       if (pixa != NULL) {
-        Pix* pix = NULL;
-        if (raw_image) {
-          pix = page_it->GetImage(level, raw_padding, GetInputImage(), &left,
-                                  &top);
-        } else {
-          pix = page_it->GetBinaryImage(level);
-        }
-        pixaAddPix(*pixa, pix, L_INSERT);
-        pixaAddBox(*pixa, lbox, L_CLONE);
+        const PixPtr pix(
+          raw_image
+          ? page_it->GetImage(level, raw_padding, GetInputImage(), &left, &top)
+          : page_it->GetBinaryImage(level) );
+        pixaAddPix(*pixa, pix.p(), L_CLONE);
+        pixaAddBox(*pixa, lbox.p(), L_CLONE);
       }
       if (paraids != NULL) {
         (*paraids)[component_index] = paraid;
@@ -738,7 +736,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
     }
   } while (page_it->Next(level));
   delete get_bbox;
-  return boxa;
+  return boxa.detach();
 }
 
 int TessBaseAPI::GetThresholdedImageScaleFactor() const {
@@ -753,7 +751,7 @@ void TessBaseAPI::DumpPGM(const char* filename) {
   if (tesseract_ == NULL)
     return;
   FILE *fp = fopen(filename, "wb");
-  Pix* pix = tesseract_->pix_binary();
+  Pix* pix = tesseract_->pix_binary(); // borrowed pointer
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   l_uint32* data = pixGetData(pix);
@@ -917,6 +915,7 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
 // Takes ownership of the input pix.
 void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
 
+// Borrowed pointer.
 Pix* TessBaseAPI::GetInputImage() { return tesseract_->pix_original(); }
 
 const char * TessBaseAPI::GetInputName() {
@@ -974,15 +973,14 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
       snprintf(pagename, sizeof(pagename), "%s", lines[page].c_str());
     }
     chomp_string(pagename);
-    Pix *pix = pixRead(pagename);
+    const PixPtr pix(pixRead(pagename));
     if (pix == NULL) {
       tprintf("Image file %s cannot be read!\n", pagename);
       return false;
     }
     tprintf("Page %d : %s\n", page, pagename);
-    bool r = ProcessPage(pix, page, pagename, retry_config,
+    bool r = ProcessPage(pix.p(), page, pagename, retry_config,
                          timeout_millisec, renderer);
-    pixDestroy(&pix);
     if (!r) return false;
     if (tessedit_page_number >= 0) break;
     ++page;
@@ -1003,22 +1001,22 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
 #ifndef ANDROID_BUILD
-  Pix *pix = NULL;
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
   for (; ; ++page) {
     if (tessedit_page_number >= 0)
       page = tessedit_page_number;
-    pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
-                 : pixReadFromMultipageTiff(filename, &offset);
+    const PixPtr pix(
+        data
+        ? pixReadMemFromMultipageTiff(data, size, &offset)
+        : pixReadFromMultipageTiff(filename, &offset) );
     if (pix == NULL) break;
     tprintf("Page %d\n", page + 1);
     char page_str[kMaxIntSize];
     snprintf(page_str, kMaxIntSize - 1, "%d", page);
     SetVariable("applybox_page", page_str);
-    bool r = ProcessPage(pix, page, filename, retry_config,
-                           timeout_millisec, renderer);
-    pixDestroy(&pix);
+    bool r = ProcessPage(pix.p(), page, filename, retry_config,
+                         timeout_millisec, renderer);
     if (!r) return false;
     if (tessedit_page_number >= 0) break;
     if (!offset) break;
@@ -1115,18 +1113,15 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
                format == IFF_TIFF_ZIP);
 
+  const PixPtr pix(tiff ? nullptr : stdInput ? pixReadMem(data, buf.size()) : pixRead(filename));
+
   // Fail early if we can, before producing any output
-  Pix *pix = NULL;
-  if (!tiff) {
-    pix = (stdInput) ? pixReadMem(data, buf.size()) : pixRead(filename);
-    if (pix == NULL) {
-      return false;
-    }
+  if (!tiff && !pix) {
+    return false;
   }
 
   // Begin the output
   if (renderer && !renderer->BeginDocument(unknown_title_)) {
-    pixDestroy(&pix);
     return false;
   }
 
@@ -1135,11 +1130,8 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
       ProcessPagesMultipageTiff(data, buf.size(), filename, retry_config,
                                 timeout_millisec, renderer,
                                 tesseract_->tessedit_page_number) :
-      ProcessPage(pix, 0, filename, retry_config,
+      ProcessPage(pix.p(), 0, filename, retry_config,
                   timeout_millisec, renderer);
-
-  // Clean up memory as needed
-  pixDestroy(&pix);
 
   // End the output
   if (!r || (renderer && !renderer->EndDocument())) {
@@ -1180,8 +1172,8 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
 
   if (tesseract_->tessedit_write_images) {
 #ifndef ANDROID_BUILD
-    Pix* page_pix = GetThresholdedImage();
-    pixWrite("tessinput.tif", page_pix, IFF_TIFF_G4);
+    const PixPtr page_pix(GetThresholdedImage());
+    pixWrite("tessinput.tif", page_pix.p(), IFF_TIFF_G4);
 #endif  // ANDROID_BUILD
   }
 
@@ -2180,8 +2172,7 @@ bool TessBaseAPI::InternalSetImage() {
  */
 bool TessBaseAPI::Threshold(Pix** pix) {
   ASSERT_HOST(pix != NULL);
-  if (*pix != NULL)
-    pixDestroy(pix);
+  asPixPtr(*pix).reset();
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int y_res = thresholder_->GetScaledYResolution();
   if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
@@ -2199,8 +2190,8 @@ bool TessBaseAPI::Threshold(Pix** pix) {
                               &rect_width_, &rect_height_,
                               &image_width_, &image_height_);
   if (!thresholder_->IsBinary()) {
-    tesseract_->set_pix_thresholds(thresholder_->GetPixRectThresholds());
-    tesseract_->set_pix_grey(thresholder_->GetPixRectGrey());
+    tesseract_->set_pix_thresholds(thresholder_->GetPixRectThresholds()); // reference transfer
+    tesseract_->set_pix_grey(thresholder_->GetPixRectGrey()); // reference transfer
   } else {
     tesseract_->set_pix_thresholds(NULL);
     tesseract_->set_pix_grey(NULL);

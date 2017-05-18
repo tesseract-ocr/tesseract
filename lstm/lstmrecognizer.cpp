@@ -24,6 +24,7 @@
 #include "lstmrecognizer.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "callcpp.h"
 #include "dict.h"
 #include "genericheap.h"
@@ -262,23 +263,22 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   // This ensures consistent recognition results.
   SetRandomSeed();
   int min_width = network_->XScaleFactor();
-  Pix* pix = Input::PrepareLSTMInputs(image_data, network_, min_width,
-                                      &randomizer_, scale_factor);
+  const PixPtr pix(Input::PrepareLSTMInputs(image_data, network_, min_width,
+                                            &randomizer_, scale_factor));
   if (pix == NULL) {
     tprintf("Line cannot be recognized!!\n");
     return false;
   }
-  if (network_->IsTraining() && pixGetWidth(pix) > kMaxImageWidth) {
-    tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix),
-            pixGetHeight(pix));
-    pixDestroy(&pix);
+  if (network_->IsTraining() && pixGetWidth(pix.p()) > kMaxImageWidth) {
+    tprintf("Image too large to learn!! Size = %dx%d\n", pixGetWidth(pix.p()),
+            pixGetHeight(pix.p()));
     return false;
   }
   // Reduction factor from image to coords.
   *scale_factor = min_width / *scale_factor;
   inputs->set_int_mode(IsIntMode());
   SetRandomSeed();
-  Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, inputs);
+  Input::PreparePixInput(network_->InputShape(), pix.p(), &randomizer_, inputs);
   network_->Forward(debug, *inputs, NULL, &scratch_space_, outputs);
   // Check for auto inversion.
   float pos_min, pos_mean, pos_sd;
@@ -288,8 +288,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     NetworkIO inv_inputs, inv_outputs;
     inv_inputs.set_int_mode(IsIntMode());
     SetRandomSeed();
-    pixInvert(pix, pix);
-    Input::PreparePixInput(network_->InputShape(), pix, &randomizer_,
+    pixInvert(pix.p(), pix.p());
+    Input::PreparePixInput(network_->InputShape(), pix.p(), &randomizer_,
                            &inv_inputs);
     network_->Forward(debug, inv_inputs, NULL, &scratch_space_, &inv_outputs);
     float inv_min, inv_mean, inv_sd;
@@ -309,7 +309,6 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
       network_->Forward(debug, *inputs, NULL, &scratch_space_, outputs);
     }
   }
-  pixDestroy(&pix);
   if (debug) {
     GenericVector<int> labels, coords;
     LabelsFromOutputs(*outputs, label_threshold, &labels, &coords);

@@ -17,6 +17,7 @@
 
 #include "textlineprojection.h"
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "bbgrid.h"         // Base class.
 #include "blobbox.h"        // BlobNeighourDir.
 #include "blobs.h"
@@ -62,20 +63,17 @@ TextlineProjection::~TextlineProjection() {
 void TextlineProjection::ConstructProjection(TO_BLOCK* input_block,
                                              const FCOORD& rotation,
                                              Pix* nontext_map) {
-  pixDestroy(&pix_);
   TBOX image_box(0, 0, pixGetWidth(nontext_map), pixGetHeight(nontext_map));
   x_origin_ = 0;
   y_origin_ = image_box.height();
   int width = (image_box.width() + scale_factor_ - 1) / scale_factor_;
   int height = (image_box.height() + scale_factor_ - 1) / scale_factor_;
 
-  pix_ = pixCreate(width, height, 8);
+  asPixPtr(pix_).reset(pixCreate(width, height, 8));
   ProjectBlobs(&input_block->blobs, rotation, image_box, nontext_map);
   ProjectBlobs(&input_block->large_blobs, rotation, image_box, nontext_map);
-  Pix* final_pix = pixBlockconv(pix_, 1, 1);
-//  Pix* final_pix = pixBlockconv(pix_, 2, 2);
-  pixDestroy(&pix_);
-  pix_ = final_pix;
+  asPixPtr(pix_).reset(pixBlockconv(pix_, 1, 1));
+//  asPixPtr(pix_).reset(pixBlockconv(pix_, 2, 2));
 }
 
 // Display the blobs in the window colored according to textline quality.
@@ -122,11 +120,11 @@ void TextlineProjection::DisplayProjection() const {
 #ifndef GRAPHICS_DISABLED
   int width = pixGetWidth(pix_);
   int height = pixGetHeight(pix_);
-  Pix* pixc = pixCreate(width, height, 32);
+  const PixPtr pixc(pixCreate(width, height, 32));
   int src_wpl = pixGetWpl(pix_);
-  int col_wpl = pixGetWpl(pixc);
+  int col_wpl = pixGetWpl(pixc.p());
   uinT32* src_data = pixGetData(pix_);
-  uinT32* col_data = pixGetData(pixc);
+  uinT32* col_data = pixGetData(pixc.p());
   for (int y = 0; y < height; ++y, src_data += src_wpl, col_data += col_wpl) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(src_data, x);
@@ -142,9 +140,8 @@ void TextlineProjection::DisplayProjection() const {
   }
   ScrollView* win = new ScrollView("Projection", 0, 0,
                                    width, height, width, height);
-  win->Image(pixc, 0, 0);
+  win->Image(pixc.p(), 0, 0);
   win->Update();
-  pixDestroy(&pixc);
 #endif  // GRAPHICS_DISABLED
 }
 
@@ -574,21 +571,19 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM* denorm,
 // Returns an empty box if there are no black pixels in the source box.
 static TBOX BoundsWithinBox(Pix* pix, const TBOX& box) {
   int im_height = pixGetHeight(pix);
-  Box* input_box = boxCreate(box.left(), im_height - box.top(),
-                             box.width(), box.height());
-  Box* output_box = NULL;
-  pixClipBoxToForeground(pix, input_box, NULL, &output_box);
+  const BoxPtr input_box(boxCreate(box.left(), im_height - box.top(),
+                                   box.width(), box.height()));
+  /*used with rawOut()*/ BoxPtr output_box;
+  pixClipBoxToForeground(pix, input_box.p(), NULL, &output_box.rawOut());
   TBOX result_box;
   if (output_box != NULL) {
     l_int32 x, y, width, height;
-    boxGetGeometry(output_box, &x, &y, &width, &height);
+    boxGetGeometry(output_box.p(), &x, &y, &width, &height);
     result_box.set_left(x);
     result_box.set_right(x + width);
     result_box.set_top(im_height - y);
     result_box.set_bottom(result_box.top() - height);
-    boxDestroy(&output_box);
   }
-  boxDestroy(&input_box);
   return result_box;
 }
 

@@ -27,6 +27,7 @@
 #define TESSERACT_CCMAIN_TESSERACTCLASS_H_
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "control.h"
 #include "debugpixa.h"
 #include "devanagari_processing.h"
@@ -192,15 +193,14 @@ class Tesseract : public Wordrec {
   Pix* pix_grey() const {
     return pix_grey_;
   }
+  // Takes ownership of the given grey_pix.
   void set_pix_grey(Pix* grey_pix) {
-    pixDestroy(&pix_grey_);
-    pix_grey_ = grey_pix;
+    asPixPtr(pix_grey_).reset(grey_pix);
   }
   Pix* pix_original() const { return pix_original_; }
   // Takes ownership of the given original_pix.
   void set_pix_original(Pix* original_pix) {
-    pixDestroy(&pix_original_);
-    pix_original_ = original_pix;
+    asPixPtr(pix_original_).reset(original_pix);
     // Clone to sublangs as well.
     for (int i = 0; i < sub_langs_.size(); ++i)
       sub_langs_[i]->set_pix_original(original_pix ? pixClone(original_pix)
@@ -214,9 +214,9 @@ class Tesseract : public Wordrec {
   // In any case, the return value is a borrowed Pix, and should not be
   // deleted or pixDestroyed.
   Pix* BestPix() const { return pix_original_; }
+  // Takes ownership of the given thresholds.
   void set_pix_thresholds(Pix* thresholds) {
-    pixDestroy(&pix_thresholds_);
-    pix_thresholds_ = thresholds;
+    asPixPtr(pix_thresholds_).reset(thresholds);
   }
   int source_resolution() const {
     return source_resolution_;

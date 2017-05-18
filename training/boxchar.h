@@ -108,7 +108,7 @@ class BoxChar {
 
  private:
   string ch_;
-  Box* box_;
+  Box* box_; // owns reference
   int page_;
 };
 

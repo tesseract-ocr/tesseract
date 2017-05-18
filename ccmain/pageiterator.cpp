@@ -20,6 +20,7 @@
 
 #include "pageiterator.h"
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "helpers.h"
 #include "pageres.h"
 #include "tesseractclass.h"
@@ -370,16 +371,16 @@ Pta* PageIterator::BlockPolygon() const {
   if (it_->block()->block->poly_block() == NULL)
     return NULL;  // No layout analysis used - no polygon.
   ICOORDELT_IT it(it_->block()->block->poly_block()->points());
-  Pta* pta = ptaCreate(it.length());
+  const PtaPtr pta(ptaCreate(it.length()));
   int num_pts = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
     ICOORD* pt = it.data();
     // Convert to top-down coords within the input image.
     float x = static_cast<float>(pt->x()) / scale_ + rect_left_;
     float y = rect_top_ + rect_height_ - static_cast<float>(pt->y()) / scale_;
-    ptaAddPt(pta, x, y);
+    ptaAddPt(pta.p(), x, y);
   }
-  return pta;
+  return pta.detach();
 }
 
 /**
@@ -410,23 +411,21 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
     return NULL;
   if (level == RIL_SYMBOL && cblob_it_ != NULL &&
       cblob_it_->data()->area() != 0)
-    return cblob_it_->data()->render();
-  Box* box = boxCreate(left, top, right - left, bottom - top);
-  Pix* pix = pixClipRectangle(tesseract_->pix_binary(), box, NULL);
-  boxDestroy(&box);
+    return cblob_it_->data()->render(); // reference transfer
+  const BoxPtr box(boxCreate(left, top, right - left, bottom - top));
+  const PixPtr pix(pixClipRectangle(tesseract_->pix_binary(), box.p(), NULL));
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
     TBOX mask_box;
-    Pix* mask = it_->block()->block->render_mask(&mask_box);
+    const PixPtr mask(it_->block()->block->render_mask(&mask_box));
     int mask_x = left - mask_box.left();
     int mask_y = top - (tesseract_->ImageHeight() - mask_box.top());
     // AND the mask and pix, putting the result in pix.
-    pixRasterop(pix, MAX(0, -mask_x), MAX(0, -mask_y), pixGetWidth(pix),
-                pixGetHeight(pix), PIX_SRC & PIX_DST, mask, MAX(0, mask_x),
+    pixRasterop(pix.p(), MAX(0, -mask_x), MAX(0, -mask_y), pixGetWidth(pix.p()),
+                pixGetHeight(pix.p()), PIX_SRC & PIX_DST, mask.p(), MAX(0, mask_x),
                 MAX(0, mask_y));
-    pixDestroy(&mask);
   }
-  return pix;
+  return pix.detach();
 }
 
 /**
@@ -454,29 +453,26 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
   *top = MAX(*top - padding, 0);
   right = MIN(right + padding, rect_width_);
   bottom = MIN(bottom + padding, rect_height_);
-  Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
-  Pix* grey_pix = pixClipRectangle(original_img, box, NULL);
-  boxDestroy(&box);
+  const BoxPtr box(boxCreate(*left, *top, right - *left, bottom - *top));
+  const PixPtr grey_pix(pixClipRectangle(original_img, box.p(), NULL));
   if (level == RIL_BLOCK || level == RIL_PARA) {
     // Clip to the block polygon as well.
     TBOX mask_box;
-    Pix* mask = it_->block()->block->render_mask(&mask_box);
+    const PixPtr mask(it_->block()->block->render_mask(&mask_box));
     // Copy the mask registered correctly into an image the size of grey_pix.
     int mask_x = *left - mask_box.left();
     int mask_y = *top - (pixGetHeight(original_img) - mask_box.top());
-    int width = pixGetWidth(grey_pix);
-    int height = pixGetHeight(grey_pix);
-    Pix* resized_mask = pixCreate(width, height, 1);
-    pixRasterop(resized_mask, MAX(0, -mask_x), MAX(0, -mask_y), width, height,
-                PIX_SRC, mask, MAX(0, mask_x), MAX(0, mask_y));
-    pixDestroy(&mask);
-    pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1,
+    int width = pixGetWidth(grey_pix.p());
+    int height = pixGetHeight(grey_pix.p());
+    const PixPtr resized_mask(pixCreate(width, height, 1));
+    pixRasterop(resized_mask.p(), MAX(0, -mask_x), MAX(0, -mask_y), width, height,
+                PIX_SRC, mask.p(), MAX(0, mask_x), MAX(0, mask_y));
+    pixDilateBrick(resized_mask.p(), resized_mask.p(), 2 * padding + 1,
                    2 * padding + 1);
-    pixInvert(resized_mask, resized_mask);
-    pixSetMasked(grey_pix, resized_mask, MAX_UINT32);
-    pixDestroy(&resized_mask);
+    pixInvert(resized_mask.p(), resized_mask.p());
+    pixSetMasked(grey_pix.p(), resized_mask.p(), MAX_UINT32);
   }
-  return grey_pix;
+  return grey_pix.detach();
 }
 
 /**

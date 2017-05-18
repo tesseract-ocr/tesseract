@@ -38,6 +38,7 @@
 #include "helpers.h"
 #include "ratngs.h"
 #include "tesseractclass.h"
+#include "raiileptonica.h"
 
 // Config variables.
 BOOL_VAR(equationdetect_save_bi_image, false, "Save input bi image");
@@ -612,13 +613,11 @@ void EquationDetect::IdentifySeedParts() {
 float EquationDetect::ComputeForegroundDensity(const TBOX& tbox) {
   Pix *pix_bi = lang_tesseract_->pix_binary();
   int pix_height = pixGetHeight(pix_bi);
-  Box* box = boxCreate(tbox.left(), pix_height - tbox.top(),
-                       tbox.width(), tbox.height());
-  Pix *pix_sub = pixClipRectangle(pix_bi, box, NULL);
+  const BoxPtr box(boxCreate(tbox.left(), pix_height - tbox.top(),
+                             tbox.width(), tbox.height()));
+  const PixPtr pix_sub(pixClipRectangle(pix_bi, box.p(), NULL));
   l_float32 fract;
-  pixForegroundFraction(pix_sub, &fract);
-  pixDestroy(&pix_sub);
-  boxDestroy(&box);
+  pixForegroundFraction(pix_sub.p(), &fract);
 
   return fract;
 }
@@ -1464,43 +1463,39 @@ void EquationDetect::GetOutputTiffName(const char* name,
 }
 
 void EquationDetect::PaintSpecialTexts(const STRING& outfile) const {
-  Pix *pix = NULL, *pixBi = lang_tesseract_->pix_binary();
-  pix = pixConvertTo32(pixBi);
+  const PixPtr pix(pixConvertTo32(lang_tesseract_->pix_binary()));
   ColPartitionGridSearch gsearch(part_grid_);
   ColPartition* part = NULL;
   gsearch.StartFullSearch();
   while ((part = gsearch.NextFullSearch()) != NULL) {
     BLOBNBOX_C_IT blob_it(part->boxes());
     for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
-      RenderSpecialText(pix, blob_it.data());
+      RenderSpecialText(pix.p(), blob_it.data());
     }
   }
 
-  pixWrite(outfile.string(), pix, IFF_TIFF_LZW);
-  pixDestroy(&pix);
+  pixWrite(outfile.string(), pix.p(), IFF_TIFF_LZW);
 }
 
 void EquationDetect::PaintColParts(const STRING& outfile) const {
-  Pix *pix = pixConvertTo32(lang_tesseract_->BestPix());
+  const PixPtr pix(pixConvertTo32(lang_tesseract_->BestPix()));
   ColPartitionGridSearch gsearch(part_grid_);
   gsearch.StartFullSearch();
   ColPartition* part = NULL;
   while ((part = gsearch.NextFullSearch()) != NULL) {
     const TBOX& tbox = part->bounding_box();
-    Box *box = boxCreate(tbox.left(), pixGetHeight(pix) - tbox.top(),
-                         tbox.width(), tbox.height());
+    const BoxPtr box(boxCreate(tbox.left(), pixGetHeight(pix.p()) - tbox.top(),
+                               tbox.width(), tbox.height()));
     if (part->type() == PT_EQUATION) {
-      pixRenderBoxArb(pix, box, 5, 255, 0, 0);
+      pixRenderBoxArb(pix.p(), box.p(), 5, 255, 0, 0);
     } else if (part->type() == PT_INLINE_EQUATION) {
-      pixRenderBoxArb(pix, box, 5, 0, 255, 0);
+      pixRenderBoxArb(pix.p(), box.p(), 5, 0, 255, 0);
     } else {
-      pixRenderBoxArb(pix, box, 5, 0, 0, 255);
+      pixRenderBoxArb(pix.p(), box.p(), 5, 0, 0, 255);
     }
-    boxDestroy(&box);
   }
 
-  pixWrite(outfile.string(), pix, IFF_TIFF_LZW);
-  pixDestroy(&pix);
+  pixWrite(outfile.string(), pix.p(), IFF_TIFF_LZW);
 }
 
 void EquationDetect::PrintSpecialBlobsDensity(const ColPartition* part) const {

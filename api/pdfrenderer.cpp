@@ -22,6 +22,7 @@
 
 #include <memory> // std::unique_ptr
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "baseapi.h"
 #include "math.h"
 #include "renderer.h"
@@ -713,9 +714,8 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   int format, sad;
   findFileFormat(filename, &format);
   if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
-    Pix *p1 = pixAlphaBlendUniform(pix, 0xffffff00);
-    sad = pixGenerateCIData(p1, L_FLATE_ENCODE, 0, 0, &cid);
-    pixDestroy(&p1);
+    const PixPtr p1(pixAlphaBlendUniform(pix, 0xffffff00));
+    sad = pixGenerateCIData(p1.p(), L_FLATE_ENCODE, 0, 0, &cid);
   } else {
     sad = l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
   }
@@ -840,7 +840,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   size_t n;
   char buf[kBasicBufSize];
   char buf2[kBasicBufSize];
-  Pix *pix = api->GetInputImage();
+  Pix *pix = api->GetInputImage(); // borrowed pointer
   char *filename = (char *)api->GetInputName();
   int ppi = api->GetSourceYResolution();
   if (!pix || ppi <= 0)

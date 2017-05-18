@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "allheaders.h"     // from leptonica
+#include "raiileptonica.h"
 #include "boxchar.h"
 #include "ligature_table.h"
 #include "normstrngs.h"
@@ -589,18 +590,17 @@ void StringRenderer::ComputeClusterBoxes() {
   boxchars_.insert(boxchars_.end(), page_boxchars.begin(), page_boxchars.end());
 
   // Compute the page bounding box
-  Box* page_box = nullptr;
-  Boxa* all_boxes = nullptr;
+  /*used with reset()*/ BoxaPtr all_boxes;
   for (size_t i = 0; i < page_boxchars.size(); ++i) {
     if (page_boxchars[i]->box() == nullptr) continue;
-    if (all_boxes == nullptr) all_boxes = boxaCreate(0);
-    boxaAddBox(all_boxes, page_boxchars[i]->mutable_box(), L_CLONE);
+    if (all_boxes == nullptr) all_boxes.reset(boxaCreate(0));
+    boxaAddBox(all_boxes.p(), page_boxchars[i]->mutable_box(), L_CLONE);
   }
   if (all_boxes != nullptr) {
-    boxaGetExtent(all_boxes, nullptr, nullptr, &page_box);
-    boxaDestroy(&all_boxes);
+    /*used with rawOut()*/ BoxPtr page_box;
+    boxaGetExtent(all_boxes.p(), nullptr, nullptr, &page_box.rawOut());
     if (page_boxes_ == nullptr) page_boxes_ = boxaCreate(0);
-    boxaAddBox(page_boxes_, page_box, L_INSERT);
+    boxaAddBox(page_boxes_, page_box.p(), L_CLONE);
   }
 }
 
@@ -647,26 +647,23 @@ int StringRenderer::StripUnrenderableWords(string* utf8_text) const {
 
 int StringRenderer::RenderToGrayscaleImage(const char* text, int text_length,
                                            Pix** pix) {
-  Pix* orig_pix = nullptr;
-  int offset = RenderToImage(text, text_length, &orig_pix);
+  /*used with rawOut()*/ PixPtr orig_pix;
+  int offset = RenderToImage(text, text_length, &orig_pix.rawOut());
   if (orig_pix) {
-    *pix = pixConvertTo8(orig_pix, false);
-    pixDestroy(&orig_pix);
+    *pix = pixConvertTo8(orig_pix.p(), false);
   }
   return offset;
 }
 
 int StringRenderer::RenderToBinaryImage(const char* text, int text_length,
                                         int threshold, Pix** pix) {
-  Pix* orig_pix = nullptr;
-  int offset = RenderToImage(text, text_length, &orig_pix);
+  /*used with rawOut()*/ PixPtr orig_pix;
+  int offset = RenderToImage(text, text_length, &orig_pix.rawOut());
   if (orig_pix) {
-    Pix* gray_pix = pixConvertTo8(orig_pix, false);
-    pixDestroy(&orig_pix);
-    *pix = pixThresholdToBinary(gray_pix, threshold);
-    pixDestroy(&gray_pix);
+    const PixPtr gray_pix(pixConvertTo8(orig_pix.p(), false));
+    *pix = pixThresholdToBinary(gray_pix.p(), threshold);
   } else {
-    *pix = orig_pix;
+    *pix = orig_pix.detach();
   }
   return offset;
 }
@@ -891,10 +888,9 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
       // Add the font to the image.
       set_font(title_font);
       v_margin_ /= 8;
-      Pix* title_image = nullptr;
-      RenderToBinaryImage(title, strlen(title), 128, &title_image);
-      pixOr(*image, *image, title_image);
-      pixDestroy(&title_image);
+      /*used with rawOut()*/ PixPtr title_image;
+      RenderToBinaryImage(title, strlen(title), 128, &title_image.rawOut());
+      pixOr(*image, *image, title_image.p());
 
       v_margin_ *= 8;
       set_font(orig_font);

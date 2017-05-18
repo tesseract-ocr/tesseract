@@ -26,6 +26,7 @@
 #include <memory> // std::unique_ptr
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "baseapi.h"
 #include "basedir.h"
 #include "dict.h"
@@ -464,13 +465,13 @@ int main(int argc, char** argv) {
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     int ret_val = EXIT_SUCCESS;
 
-    Pix* pixs = pixRead(image);
+    const PixPtr pixs(pixRead(image));
     if (!pixs) {
       fprintf(stderr, "Cannot open input file: %s\n", image);
       return 2;
     }
 
-    api.SetImage(pixs);
+    api.SetImage(pixs.p());
 
     tesseract::Orientation orientation;
     tesseract::WritingDirection direction;
@@ -488,7 +489,6 @@ int main(int argc, char** argv) {
       ret_val = EXIT_FAILURE;
     }
 
-    pixDestroy(&pixs);
     return ret_val;
   }
 

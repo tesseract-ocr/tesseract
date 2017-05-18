@@ -34,6 +34,7 @@
 #endif
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
@@ -61,38 +62,33 @@ const int kMaxCircleErosions = 8;
 // if the image doesn't meet the trivial conditions that it uses to determine
 // success.
 static Pix* RemoveEnclosingCircle(Pix* pixs) {
-  Pix* pixsi = pixInvert(NULL, pixs);
-  Pix* pixc = pixCreateTemplate(pixs);
-  pixSetOrClearBorder(pixc, 1, 1, 1, 1, PIX_SET);
-  pixSeedfillBinary(pixc, pixc, pixsi, 4);
-  pixInvert(pixc, pixc);
-  pixDestroy(&pixsi);
-  Pix* pixt = pixAnd(NULL, pixs, pixc);
+  const PixPtr pixsi(pixInvert(NULL, pixs));
+  const PixPtr pixc(pixCreateTemplate(pixs));
+  pixSetOrClearBorder(pixc.p(), 1, 1, 1, 1, PIX_SET);
+  pixSeedfillBinary(pixc.p(), pixc.p(), pixsi.p(), 4);
+  pixInvert(pixc.p(), pixc.p());
+  /*used with reset()*/ PixPtr pixt(pixAnd(NULL, pixs, pixc.p()));
   l_int32 max_count;
-  pixCountConnComp(pixt, 8, &max_count);
+  pixCountConnComp(pixt.p(), 8, &max_count);
   // The count has to go up before we start looking for the minimum.
   l_int32 min_count = MAX_INT32;
-  Pix* pixout = NULL;
+  /*used with reset(), release()*/ PixPtr pixout;
   for (int i = 1; i < kMaxCircleErosions; i++) {
-    pixDestroy(&pixt);
-    pixErodeBrick(pixc, pixc, 3, 3);
-    pixt = pixAnd(NULL, pixs, pixc);
+    pixErodeBrick(pixc.p(), pixc.p(), 3, 3);
+    pixt.reset(pixAnd(NULL, pixs, pixc.p()));
     l_int32 count;
-    pixCountConnComp(pixt, 8, &count);
+    pixCountConnComp(pixt.p(), 8, &count);
     if (i == 1 || count > max_count) {
       max_count = count;
       min_count = count;
     } else if (i > 1 && count < min_count) {
       min_count = count;
-      pixDestroy(&pixout);
-      pixout = pixCopy(NULL, pixt);  // Save the best.
+      pixout.reset(pixCopy(NULL, pixt.p()));  // Save the best.
     } else if (count >= min_count) {
       break;  // We have passed by the best.
     }
   }
-  pixDestroy(&pixt);
-  pixDestroy(&pixc);
-  return pixout;
+  return pixout.release();
 }
 
 /**
@@ -150,10 +146,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     deskew_ = FCOORD(1.0f, 0.0f);
     reskew_ = FCOORD(1.0f, 0.0f);
     if (pageseg_mode == PSM_CIRCLE_WORD) {
-      Pix* pixcleaned = RemoveEnclosingCircle(pix_binary_);
-      if (pixcleaned != NULL) {
-        pixDestroy(&pix_binary_);
-        pix_binary_ = pixcleaned;
+      if (Pix* const pixcleaned = RemoveEnclosingCircle(pix_binary_)) { // reference transfer
+        asPixPtr(pix_binary_).reset(pixcleaned);
       }
     }
   }
@@ -205,15 +199,15 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
                            TO_BLOCK_LIST* to_blocks,
                            BLOBNBOX_LIST* diacritic_blobs, Tesseract* osd_tess,
                            OSResults* osr) {
-  Pix* photomask_pix = NULL;
-  Pix* musicmask_pix = NULL;
+  /*used with rawOut()*/ PixPtr photomask_pix;
+  /*used with rawOut()*/ PixPtr musicmask_pix;
   // The blocks made by the ColumnFinder. Moved to blocks before return.
   BLOCK_LIST found_blocks;
   TO_BLOCK_LIST temp_blocks;
 
   ColumnFinder* finder = SetupPageSegAndDetectOrientation(
-      pageseg_mode, blocks, osd_tess, osr, &temp_blocks, &photomask_pix,
-      &musicmask_pix);
+      pageseg_mode, blocks, osd_tess, osr, &temp_blocks, &photomask_pix.rawOut(),
+      &musicmask_pix.rawOut());
   int result = 0;
   if (finder != NULL) {
     TO_BLOCK_IT to_block_it(&temp_blocks);
@@ -221,21 +215,19 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
     if (musicmask_pix != NULL) {
       // TODO(rays) pass the musicmask_pix into FindBlocks and mark music
       // blocks separately. For now combine with photomask_pix.
-      pixOr(photomask_pix, photomask_pix, musicmask_pix);
+      pixOr(photomask_pix.p(), photomask_pix.p(), musicmask_pix.p());
     }
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
     result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
-                                to_block, photomask_pix, pix_thresholds_,
+                                to_block, photomask_pix.p(), pix_thresholds_,
                                 pix_grey_, &pixa_debug_, &found_blocks,
                                 diacritic_blobs, to_blocks);
     if (result >= 0)
       finder->GetDeskewVectors(&deskew_, &reskew_);
     delete finder;
   }
-  pixDestroy(&photomask_pix);
-  pixDestroy(&musicmask_pix);
   if (result < 0) return result;
 
   blocks->clear();

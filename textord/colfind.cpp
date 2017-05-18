@@ -41,6 +41,7 @@
 #include "tablefind.h"
 #include "params.h"
 #include "workingpartset.h"
+#include "raiileptonica.h"
 
 namespace tesseract {
 
@@ -159,13 +160,13 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
   }
   #endif  // GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
-  pixDestroy(&nontext_map_);
+  // TODO: validate that nontext_map_ not used between this point and reset() below
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
   stroke_width_->SetNeighboursOnMediumBlobs(input_block);
   CCNonTextDetect nontext_detect(gridsize(), bleft(), tright());
   // Remove obvious noise and make the initial non-text map.
-  nontext_map_ = nontext_detect.ComputeNonTextMask(textord_debug_tabfind,
-                                                   photo_mask_pix, input_block);
+  asPixPtr(nontext_map_).reset(nontext_detect.ComputeNonTextMask(
+      textord_debug_tabfind, photo_mask_pix, input_block ));
   stroke_width_->FindTextlineDirectionAndFixBrokenCJK(pageseg_mode, cjk_script_,
                                                       input_block);
   // Clear the strokewidth grid ready for rotation or leader finding.

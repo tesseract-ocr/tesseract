@@ -18,6 +18,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 
 #include "thresholder.h"
 
@@ -64,9 +65,9 @@ void ImageThresholder::SetImage(const unsigned char* imagedata,
                                 int bytes_per_pixel, int bytes_per_line) {
   int bpp = bytes_per_pixel * 8;
   if (bpp == 0) bpp = 1;
-  Pix* pix = pixCreate(width, height, bpp == 24 ? 32 : bpp);
-  l_uint32* data = pixGetData(pix);
-  int wpl = pixGetWpl(pix);
+  const PixPtr pix(pixCreate(width, height, bpp == 24 ? 32 : bpp));
+  l_uint32* data = pixGetData(pix.p());
+  int wpl = pixGetWpl(pix.p());
   switch (bpp) {
   case 1:
     for (int y = 0; y < height; ++y, data += wpl, imagedata += bytes_per_line) {
@@ -111,9 +112,8 @@ void ImageThresholder::SetImage(const unsigned char* imagedata,
   default:
     tprintf("Cannot convert RAW image to Pix with bpp = %d\n", bpp);
   }
-  pixSetYRes(pix, 300);
-  SetImage(pix);
-  pixDestroy(&pix);
+  pixSetYRes(pix.p(), 300);
+  SetImage(pix.p());
 }
 
 // Store the coordinates of the rectangle to process for later use.
@@ -146,8 +146,7 @@ void ImageThresholder::GetImageSizes(int* left, int* top,
 // immediately after, but may not go away until after the Thresholder has
 // finished with it.
 void ImageThresholder::SetImage(const Pix* pix) {
-  if (pix_ != NULL)
-    pixDestroy(&pix_);
+  asPixPtr(pix_).reset();
   Pix* src = const_cast<Pix*>(pix);
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
@@ -155,14 +154,9 @@ void ImageThresholder::SetImage(const Pix* pix) {
   // 8 bit with no colormap. Guarantee that we always end up with our own copy,
   // not just a clone of the input.
   if (pixGetColormap(src)) {
-    Pix* tmp = pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC);
-    depth = pixGetDepth(tmp);
-    if (depth > 1 && depth < 8) {
-      pix_ = pixConvertTo8(tmp, false);
-      pixDestroy(&tmp);
-    } else {
-      pix_ = tmp;
-    }
+    const PixPtr tmp(pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC));
+    depth = pixGetDepth(tmp.p());
+    pix_ = (depth > 1 && depth < 8) ? pixConvertTo8(tmp.p(), false) : tmp.detach();
   } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
@@ -188,9 +182,7 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
   if (pix_channels_ == 0) {
     // We have a binary image, but it still has to be copied, as this API
     // allows the caller to modify the output.
-    Pix* original = GetPixRect();
-    *pix = pixCopy(nullptr, original);
-    pixDestroy(&original);
+    *pix = pixCopy(nullptr, PixPtr(GetPixRect()).p());
   } else {
     OtsuThresholdRectToPix(pix_, pix);
   }
@@ -206,13 +198,12 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
 // Returns NULL if the input is binary. PixDestroy after use.
 Pix* ImageThresholder::GetPixRectThresholds() {
   if (IsBinary()) return NULL;
-  Pix* pix_grey = GetPixRectGrey();
-  int width = pixGetWidth(pix_grey);
-  int height = pixGetHeight(pix_grey);
+  const PixPtr pix_grey(GetPixRectGrey());
+  int width = pixGetWidth(pix_grey.p());
+  int height = pixGetHeight(pix_grey.p());
   int* thresholds;
   int* hi_values;
-  OtsuThreshold(pix_grey, 0, 0, width, height, &thresholds, &hi_values);
-  pixDestroy(&pix_grey);
+  OtsuThreshold(pix_grey.p(), 0, 0, width, height, &thresholds, &hi_values);
   Pix* pix_thresholds = pixCreate(width, height, 8);
   int threshold = thresholds[0] > 0 ? thresholds[0] : 128;
   pixSetAllArbitrary(pix_thresholds, threshold);
@@ -237,10 +228,8 @@ Pix* ImageThresholder::GetPixRect() {
     return pixClone(pix_);
   } else {
     // Crop to the given rectangle.
-    Box* box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);
-    Pix* cropped = pixClipRectangle(pix_, box, NULL);
-    boxDestroy(&box);
-    return cropped;
+    const BoxPtr box(boxCreate(rect_left_, rect_top_, rect_width_, rect_height_));
+    return pixClipRectangle(pix_, box.p(), NULL);
   }
 }
 
@@ -249,15 +238,14 @@ Pix* ImageThresholder::GetPixRect() {
 // The returned Pix must be pixDestroyed.
 // Provided to the classifier to extract features from the greyscale image.
 Pix* ImageThresholder::GetPixRectGrey() {
-  Pix* pix = GetPixRect();  // May have to be reduced to grey.
-  int depth = pixGetDepth(pix);
-  if (depth != 8) {
-    Pix* result = depth < 8 ? pixConvertTo8(pix, false)
-                            : pixConvertRGBToLuminance(pix);
-    pixDestroy(&pix);
-    return result;
-  }
-  return pix;
+  const PixPtr pix(GetPixRect());  // May have to be reduced to grey.
+  int depth = pixGetDepth(pix.p());
+  return
+      depth == 8
+      ? pix.detach()
+      : depth < 8
+      ? pixConvertTo8(pix.p(), false)
+      : pixConvertRGBToLuminance(pix.p());
 }
 
 // Otsu thresholds the rectangle, taking the rectangle from *this.

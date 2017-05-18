@@ -347,12 +347,14 @@ class ScrollView {
   int TranslateYCoordinate(int y);
 
  private:
+#if 0 // TODO: never defined or used
 // Transfers a binary Image.
   void TransferBinaryImage(struct Pix* image);
 // Transfers a gray scale Image.
   void TransferGrayImage(struct Pix* image);
 // Transfers a 32-Bit Image.
   void Transfer32bppImage(struct Pix* image);
+#endif
 
 // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char* name, int x_pos, int y_pos, int x_size,

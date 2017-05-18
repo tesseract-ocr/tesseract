@@ -22,6 +22,7 @@
 
 #include <math.h>
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "helpers.h"
 #include "intfeaturemap.h"
 #include "normfeat.h"
@@ -337,11 +338,9 @@ Pix* TrainingSample::GetSamplePix(int padding, Pix* page_pix) const {
   // Clip the padded_box to the limits of the page
   TBOX page_box(0, 0, page_width, page_height);
   padded_box &= page_box;
-  Box* box = boxCreate(page_box.left(), page_height - page_box.top(),
-                       page_box.width(), page_box.height());
-  Pix* sample_pix = pixClipRectangle(page_pix, box, NULL);
-  boxDestroy(&box);
-  return sample_pix;
+  const BoxPtr box(boxCreate(page_box.left(), page_height - page_box.top(),
+                             page_box.width(), page_box.height()));
+  return pixClipRectangle(page_pix, box.p(), NULL);
 }
 
 }  // namespace tesseract

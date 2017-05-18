@@ -37,6 +37,7 @@
 #include "tordmain.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 
 #undef EXTERN
 #define EXTERN
@@ -58,15 +59,13 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   const TBOX& box = blob->bounding_box();
   int width = box.width();
   int height = box.height();
-  Box* blob_pix_box = boxCreate(box.left(), pix_height - box.top(),
-                                width, height);
-  Pix* pix_blob = pixClipRectangle(pix, blob_pix_box, NULL);
-  boxDestroy(&blob_pix_box);
-  Pix* dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
-  pixDestroy(&pix_blob);
+  const BoxPtr blob_pix_box(boxCreate(box.left(), pix_height - box.top(),
+                                      width, height));
+  const PixPtr pix_blob(pixClipRectangle(pix, blob_pix_box.p(), NULL));
+  const PixPtr dist_pix(pixDistanceFunction(pix_blob.p(), 4, 8, L_BOUNDARY_BG));
   // Compute the stroke widths.
-  uinT32* data = pixGetData(dist_pix);
-  int wpl = pixGetWpl(dist_pix);
+  uinT32* data = pixGetData(dist_pix.p());
+  int wpl = pixGetWpl(dist_pix.p());
   // Horizontal width of stroke.
   STATS h_stats(0, width + 1);
   for (int y = 0; y < height; ++y) {
@@ -119,7 +118,6 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
       pixel = next_pixel;
     }
   }
-  pixDestroy(&dist_pix);
   // Store the horizontal and vertical width in the blob, keeping both
   // widths if there is enough information, otherwse only the one with
   // the most samples.

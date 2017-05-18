@@ -20,6 +20,7 @@
 #include          <stdlib.h>
 #include          <memory> // std::unique_ptr
 #include          "allheaders.h"
+#include          "raiileptonica.h"
 #include          "blckerr.h"
 #include          "pdblock.h"
 
@@ -126,10 +127,11 @@ void PDBLK::move(                  // reposition block
 
 // Returns a binary Pix mask with a 1 pixel for every pixel within the
 // block. Rotates the coordinate system by rerotation prior to rendering.
+// Call pixDestroy() on result after use.
 Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
   TBOX rotated_box(box);
   rotated_box.rotate(rerotation);
-  Pix* pix = pixCreate(rotated_box.width(), rotated_box.height(), 1);
+  const PixPtr pix(pixCreate(rotated_box.width(), rotated_box.height(), 1));
   if (hand_poly != NULL) {
     // We are going to rotate, so get a deep copy of the points and
     // make a new POLY_BLOCK with it.
@@ -150,7 +152,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
           int start = s_it.data()->x();
           int xext = s_it.data()->y();
           // Set the run of pixels to 1.
-          pixRasterop(pix, start - rotated_box.left(),
+          pixRasterop(pix.p(), start - rotated_box.left(),
                       rotated_box.height() - 1 - (y - rotated_box.bottom()),
                       xext, 1, PIX_SET, NULL, 0, 0);
         }
@@ -159,11 +161,11 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     delete lines;
   } else {
     // Just fill the whole block as there is only a bounding box.
-    pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(),
+    pixRasterop(pix.p(), 0, 0, rotated_box.width(), rotated_box.height(),
                 PIX_SET, NULL, 0, 0);
   }
   if (mask_box != NULL) *mask_box = rotated_box;
-  return pix;
+  return pix.detach();
 }
 
 

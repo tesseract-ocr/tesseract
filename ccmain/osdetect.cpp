@@ -32,6 +32,7 @@
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
+#include "raiileptonica.h"
 
 const int kMinCharactersToTry = 50;
 const int kMaxCharactersToTry = 5 * kMinCharactersToTry;
@@ -158,7 +159,7 @@ void OSResults::accumulate(const OSResults& osr) {
 // image, so that non-text blobs are removed from consideration.
 void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
                             TO_BLOCK_LIST *to_blocks) {
-  Pix *pix = tess->pix_binary();
+  Pix* const pix = tess->pix_binary(); // borrowed pointer
   ASSERT_HOST(pix != NULL);
   int vertical_x = 0;
   int vertical_y = 1;
@@ -176,10 +177,9 @@ void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
   tesseract::LineFinder::FindAndRemoveLines(resolution, false, pix,
                                             &vertical_x, &vertical_y,
                                             NULL, &v_lines, &h_lines);
-  Pix* im_pix = tesseract::ImageFind::FindImages(pix, nullptr);
+  const PixPtr im_pix(tesseract::ImageFind::FindImages(pix, nullptr));
   if (im_pix != NULL) {
-    pixSubtract(pix, pix, im_pix);
-    pixDestroy(&im_pix);
+    pixSubtract(pix, pix, im_pix.p());
   }
   tess->mutable_textord()->find_components(tess->pix_binary(),
                                            blocks, to_blocks);

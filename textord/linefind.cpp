@@ -34,6 +34,7 @@
 #include "openclwrapper.h"
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 
 namespace tesseract {
 
@@ -72,23 +73,20 @@ static void RemoveUnusedLineSegments(bool horizontal_lines,
     BLOBNBOX* blob = bbox_it.data();
     if (blob->left_tab_type() != TT_VLINE) {
       const TBOX& box = blob->bounding_box();
-      Box* pixbox = NULL;
-      if (horizontal_lines) {
+      const BoxPtr pixbox(
+        horizontal_lines
         // Horizontal lines are in tess format and also have x and y flipped
         // (to use FindVerticalAlignment) so we have to flip x and y and then
         // convert to Leptonica by height - flipped x (ie the right edge).
         // See GetLineBoxes for more explanation.
-        pixbox = boxCreate(box.bottom(), height - box.right(),
-                           box.height(), box.width());
-      } else {
+        ? boxCreate(box.bottom(), height - box.right(),
+                    box.height(), box.width())
         // For vertical lines, just flip upside-down to convert to Leptonica.
         // The y position of the box in Leptonica terms is the distance from
         // the top of the image to the top of the box.
-        pixbox = boxCreate(box.left(), height - box.top(),
-                           box.width(), box.height());
-      }
-      pixClearInRect(line_pix, pixbox);
-      boxDestroy(&pixbox);
+        : boxCreate(box.left(), height - box.top(),
+                    box.width(), box.height()) );
+      pixClearInRect(line_pix, pixbox.p());
     }
   }
 }
@@ -102,25 +100,23 @@ static void SubtractLinesAndResidue(Pix* line_pix, Pix* non_line_pix,
   // First remove the lines themselves.
   pixSubtract(src_pix, src_pix, line_pix);
   // Subtract the non-lines from the image to get the residue.
-  Pix* residue_pix = pixSubtract(NULL, src_pix, non_line_pix);
+  const PixPtr residue_pix(pixSubtract(NULL, src_pix, non_line_pix));
   // Dilate the lines so they touch the residue.
-  Pix* fat_line_pix = pixDilateBrick(NULL, line_pix, 3, 3);
+  const PixPtr fat_line_pix(pixDilateBrick(NULL, line_pix, 3, 3));
   // Seed fill the fat lines to get all the residue.
-  pixSeedfillBinary(fat_line_pix, fat_line_pix, residue_pix, 8);
+  pixSeedfillBinary(fat_line_pix.p(), fat_line_pix.p(), residue_pix.p(), 8);
   // Subtract the residue from the original image.
-  pixSubtract(src_pix, src_pix, fat_line_pix);
-  pixDestroy(&fat_line_pix);
-  pixDestroy(&residue_pix);
+  pixSubtract(src_pix, src_pix, fat_line_pix.p());
 }
 
 // Returns the maximum strokewidth in the given binary image by doubling
 // the maximum of the distance function.
 static int MaxStrokeWidth(Pix* pix) {
-  Pix* dist_pix = pixDistanceFunction(pix, 4, 8, L_BOUNDARY_BG);
-  int width = pixGetWidth(dist_pix);
-  int height = pixGetHeight(dist_pix);
-  int wpl = pixGetWpl(dist_pix);
-  l_uint32* data = pixGetData(dist_pix);
+  const PixPtr dist_pix(pixDistanceFunction(pix, 4, 8, L_BOUNDARY_BG));
+  int width = pixGetWidth(dist_pix.p());
+  int height = pixGetHeight(dist_pix.p());
+  int wpl = pixGetWpl(dist_pix.p());
+  l_uint32* data = pixGetData(dist_pix.p());
   // Find the maximum value in the distance image.
   int max_dist = 0;
   for (int y = 0; y < height; ++y) {
@@ -131,20 +127,15 @@ static int MaxStrokeWidth(Pix* pix) {
     }
     data += wpl;
   }
-  pixDestroy(&dist_pix);
   return max_dist * 2;
 }
 
 // Returns the number of components in the intersection_pix touched by line_box.
 static int NumTouchingIntersections(Box* line_box, Pix* intersection_pix) {
   if (intersection_pix == NULL) return 0;
-  Pix* rect_pix = pixClipRectangle(intersection_pix, line_box, NULL);
-  Boxa* boxa = pixConnComp(rect_pix, NULL, 8);
-  pixDestroy(&rect_pix);
-  if (boxa == NULL) return false;
-  int result = boxaGetCount(boxa);
-  boxaDestroy(&boxa);
-  return result;
+  const PixPtr rect_pix(pixClipRectangle(intersection_pix, line_box, NULL));
+  const BoxaPtr boxa(pixConnComp(rect_pix.p(), NULL, 8));
+  return (boxa != NULL) ? boxaGetCount(boxa.p()) : 0;
 }
 
 // Returns the number of black pixels found in the box made by adding the line
@@ -165,12 +156,10 @@ static int CountPixelsAdjacentToLine(int line_width, Box* line_box,
     x = MAX(0, x - line_width);
     box_width = right - x;
   }
-  Box* box = boxCreate(x, y, box_width, box_height);
-  Pix* rect_pix = pixClipRectangle(nonline_pix, box, NULL);
-  boxDestroy(&box);
+  const BoxPtr box(boxCreate(x, y, box_width, box_height));
+  const PixPtr rect_pix(pixClipRectangle(nonline_pix, box.p(), NULL));
   l_int32 result;
-  pixCountPixels(rect_pix, &result, NULL);
-  pixDestroy(&rect_pix);
+  pixCountPixels(rect_pix.p(), &result, NULL);
   return result;
 }
 
@@ -186,18 +175,16 @@ static int CountPixelsAdjacentToLine(int line_width, Box* line_box,
 static int FilterFalsePositives(int resolution, Pix* nonline_pix,
                                 Pix* intersection_pix, Pix* line_pix) {
   int min_thick_length = static_cast<int>(resolution * kThickLengthMultiple);
-  Pixa* pixa = NULL;
-  Boxa* boxa = pixConnComp(line_pix, &pixa, 8);
+  /*used with rawOut()*/ PixaPtr pixa;
+  const BoxaPtr boxa(pixConnComp(line_pix, &pixa.rawOut(), 8));
   // Iterate over the boxes to remove false positives.
-  int nboxes = boxaGetCount(boxa);
+  int nboxes = boxaGetCount(boxa.p());
   int remaining_boxes = nboxes;
   for (int i = 0; i < nboxes; ++i) {
-    Box* box = boxaGetBox(boxa, i, L_CLONE);
+    const BoxPtr box(boxaGetBox(boxa.p(), i, L_CLONE));
     l_int32 x, y, box_width, box_height;
-    boxGetGeometry(box, &x, &y, &box_width, &box_height);
-    Pix* comp_pix = pixaGetPix(pixa, i, L_CLONE);
-    int max_width = MaxStrokeWidth(comp_pix);
-    pixDestroy(&comp_pix);
+    boxGetGeometry(box.p(), &x, &y, &box_width, &box_height);
+    int max_width = MaxStrokeWidth(PixPtr(pixaGetPix(pixa.p(), i, L_CLONE)).p());
     bool bad_line = false;
     // If the length is too short to stand-alone as a line, and the box width
     // is thick enough, and the stroke width is thick enough it is bad.
@@ -209,22 +196,19 @@ static int FilterFalsePositives(int resolution, Pix* nonline_pix,
     }
     if (!bad_line &&
         (intersection_pix == NULL ||
-        NumTouchingIntersections(box, intersection_pix) < 2)) {
+        NumTouchingIntersections(box.p(), intersection_pix) < 2)) {
       // Test non-line density near the line.
-      int nonline_count = CountPixelsAdjacentToLine(max_width, box,
+      int nonline_count = CountPixelsAdjacentToLine(max_width, box.p(),
                                                     nonline_pix);
       if (nonline_count > box_height * box_width * kMaxNonLineDensity)
         bad_line = true;
     }
     if (bad_line) {
       // Not a good line.
-      pixClearInRect(line_pix, box);
+      pixClearInRect(line_pix, box.p());
       --remaining_boxes;
     }
-    boxDestroy(&box);
   }
-  pixaDestroy(&pixa);
-  boxaDestroy(&boxa);
   return remaining_boxes;
 }
 
@@ -250,65 +234,55 @@ void LineFinder::FindAndRemoveLines(int resolution, bool debug, Pix* pix,
     tprintf("Error in parameters for LineFinder::FindAndRemoveLines\n");
     return;
   }
-  Pix* pix_vline = NULL;
-  Pix* pix_non_vline = NULL;
-  Pix* pix_hline = NULL;
-  Pix* pix_non_hline = NULL;
-  Pix* pix_intersections = NULL;
-  Pixa* pixa_display = debug ? pixaCreate(0) : NULL;
-  GetLineMasks(resolution, pix, &pix_vline, &pix_non_vline, &pix_hline,
-               &pix_non_hline, &pix_intersections, pix_music_mask,
-               pixa_display);
+  /*used with rawOut(), rawInOut()*/ PixPtr pix_vline, pix_non_vline,
+      pix_hline(nullptr), pix_non_hline(nullptr), pix_intersections(nullptr);
+  const PixaPtr pixa_display(debug ? pixaCreate(0) : NULL);
+  GetLineMasks(resolution, pix, &pix_vline.rawOut(), &pix_non_vline.rawOut(), &pix_hline.rawOut(),
+               &pix_non_hline.rawOut(), &pix_intersections.rawOut(), pix_music_mask,
+               pixa_display.p());
   // Find lines, convert to TabVector_LIST and remove those that are used.
-  FindAndRemoveVLines(resolution, pix_intersections, vertical_x, vertical_y,
-                      &pix_vline, pix_non_vline, pix, v_lines);
+  FindAndRemoveVLines(resolution, pix_intersections.p(), vertical_x, vertical_y,
+                      &pix_vline.rawInOut(), pix_non_vline.p(), pix, v_lines);
   if (pix_hline != NULL) {
     // Recompute intersections and re-filter false positive h-lines.
     if (pix_vline != NULL)
-      pixAnd(pix_intersections, pix_vline, pix_hline);
+      pixAnd(pix_intersections.p(), pix_vline.p(), pix_hline.p());
     else
-      pixDestroy(&pix_intersections);
-    if (!FilterFalsePositives(resolution, pix_non_hline, pix_intersections,
-                              pix_hline)) {
-      pixDestroy(&pix_hline);
+      pix_intersections.reset();
+    if (!FilterFalsePositives(resolution, pix_non_hline.p(), pix_intersections.p(),
+                              pix_hline.p())) {
+      pix_hline.reset();
     }
   }
-  FindAndRemoveHLines(resolution, pix_intersections, *vertical_x, *vertical_y,
-                      &pix_hline, pix_non_hline, pix, h_lines);
+  FindAndRemoveHLines(resolution, pix_intersections.p(), *vertical_x, *vertical_y,
+                      &pix_hline.rawInOut(), pix_non_hline.p(), pix, h_lines);
   if (pixa_display != NULL && pix_vline != NULL)
-    pixaAddPix(pixa_display, pix_vline, L_CLONE);
+    pixaAddPix(pixa_display.p(), pix_vline.p(), L_CLONE);
   if (pixa_display != NULL && pix_hline != NULL)
-    pixaAddPix(pixa_display, pix_hline, L_CLONE);
+    pixaAddPix(pixa_display.p(), pix_hline.p(), L_CLONE);
   if (pix_vline != NULL && pix_hline != NULL) {
     // Remove joins (intersections) where lines cross, and the residue.
     // Recalculate the intersections, since some lines have been deleted.
-    pixAnd(pix_intersections, pix_vline, pix_hline);
+    pixAnd(pix_intersections.p(), pix_vline.p(), pix_hline.p());
     // Fatten up the intersections and seed-fill to get the intersection
     // residue.
-    Pix* pix_join_residue = pixDilateBrick(NULL, pix_intersections, 5, 5);
-    pixSeedfillBinary(pix_join_residue, pix_join_residue, pix, 8);
+    const PixPtr pix_join_residue(pixDilateBrick(NULL, pix_intersections.p(), 5, 5));
+    pixSeedfillBinary(pix_join_residue.p(), pix_join_residue.p(), pix, 8);
     // Now remove the intersection residue.
-    pixSubtract(pix, pix, pix_join_residue);
-    pixDestroy(&pix_join_residue);
+    pixSubtract(pix, pix, pix_join_residue.p());
   }
   // Remove any detected music.
   if (pix_music_mask != NULL && *pix_music_mask != NULL) {
     if (pixa_display != NULL)
-      pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
+      pixaAddPix(pixa_display.p(), *pix_music_mask, L_CLONE);
     pixSubtract(pix, pix, *pix_music_mask);
   }
   if (pixa_display != NULL)
-    pixaAddPix(pixa_display, pix, L_CLONE);
+    pixaAddPix(pixa_display.p(), pix, L_CLONE);
 
-  pixDestroy(&pix_vline);
-  pixDestroy(&pix_non_vline);
-  pixDestroy(&pix_hline);
-  pixDestroy(&pix_non_hline);
-  pixDestroy(&pix_intersections);
   if (pixa_display != NULL) {
-    pixaConvertToPdf(pixa_display, resolution, 1.0f, 0, 0, "LineFinding",
+    pixaConvertToPdf(pixa_display.p(), resolution, 1.0f, 0, 0, "LineFinding",
                      "vhlinefinding.pdf");
-    pixaDestroy(&pixa_display);
   }
   PERF_COUNT_END
 }
@@ -490,71 +464,65 @@ void LineFinder::FindLineVectors(const ICOORD& bleft, const ICOORD& tright,
 static Pix* FilterMusic(int resolution, Pix* pix_closed,
                         Pix* pix_vline, Pix* pix_hline,
                         l_int32* v_empty, l_int32* h_empty) {
-  int max_stave_height = static_cast<int>(resolution * kMaxStaveHeight);
-  Pix* intersection_pix = pixAnd(NULL, pix_vline, pix_hline);
-  Boxa* boxa = pixConnComp(pix_vline, NULL, 8);
-  // Iterate over the boxes to find music bars.
-  int nboxes = boxaGetCount(boxa);
-  Pix* music_mask = NULL;
-  for (int i = 0; i < nboxes; ++i) {
-    Box* box = boxaGetBox(boxa, i, L_CLONE);
-    l_int32 x, y, box_width, box_height;
-    boxGetGeometry(box, &x, &y, &box_width, &box_height);
-    int joins = NumTouchingIntersections(box, intersection_pix);
-    // Test for the join density being at least 5 per max_stave_height,
-    // ie (joins-1)/box_height >= (5-1)/max_stave_height.
-    if (joins >= 5 && (joins - 1) * max_stave_height >= 4 * box_height) {
-      // This is a music bar. Add to the mask.
-      if (music_mask == NULL)
-        music_mask = pixCreate(pixGetWidth(pix_vline), pixGetHeight(pix_vline),
-                               1);
-      pixSetInRect(music_mask, box);
+  /*used with reset(), release()*/ PixPtr music_mask;
+  if (true) {
+    int max_stave_height = static_cast<int>(resolution * kMaxStaveHeight);
+    const PixPtr intersection_pix(pixAnd(NULL, pix_vline, pix_hline));
+    const BoxaPtr boxa(pixConnComp(pix_vline, NULL, 8));
+    // Iterate over the boxes to find music bars.
+    int nboxes = boxaGetCount(boxa.p());
+    for (int i = 0; i < nboxes; ++i) {
+      const BoxPtr box(boxaGetBox(boxa.p(), i, L_CLONE));
+      l_int32 x, y, box_width, box_height;
+      boxGetGeometry(box.p(), &x, &y, &box_width, &box_height);
+      int joins = NumTouchingIntersections(box.p(), intersection_pix.p());
+      // Test for the join density being at least 5 per max_stave_height,
+      // ie (joins-1)/box_height >= (5-1)/max_stave_height.
+      if (joins >= 5 && (joins - 1) * max_stave_height >= 4 * box_height) {
+        // This is a music bar. Add to the mask.
+        if (music_mask == NULL)
+          music_mask.reset(pixCreate(pixGetWidth(pix_vline), pixGetHeight(pix_vline), 1));
+        pixSetInRect(music_mask.p(), box.p());
+      }
     }
-    boxDestroy(&box);
   }
-  boxaDestroy(&boxa);
-  pixDestroy(&intersection_pix);
   if (music_mask != NULL) {
     // The mask currently contains just the bars. Use the mask as a seed
     // and the pix_closed as the mask for a seedfill to get all the
     // intersecting staves.
-    pixSeedfillBinary(music_mask, music_mask, pix_closed, 8);
+    pixSeedfillBinary(music_mask.p(), music_mask.p(), pix_closed, 8);
     // Filter out false positives. CCs in the music_mask should be the vast
     // majority of the pixels in their bounding boxes, as we expect just a
     // tiny amount of text, a few phrase marks, and crescendo etc left.
-    Boxa* boxa = pixConnComp(music_mask, NULL, 8);
+    const BoxaPtr boxa(pixConnComp(music_mask.p(), NULL, 8));
     // Iterate over the boxes to find music components.
-    int nboxes = boxaGetCount(boxa);
+    int nboxes = boxaGetCount(boxa.p());
     for (int i = 0; i < nboxes; ++i) {
-      Box* box = boxaGetBox(boxa, i, L_CLONE);
-      Pix* rect_pix = pixClipRectangle(music_mask, box, NULL);
+      const BoxPtr box(boxaGetBox(boxa.p(), i, L_CLONE));
+      const PixPtr rect_pix1(pixClipRectangle(music_mask.p(), box.p(), NULL));
       l_int32 music_pixels;
-      pixCountPixels(rect_pix, &music_pixels, NULL);
-      pixDestroy(&rect_pix);
-      rect_pix = pixClipRectangle(pix_closed, box, NULL);
+      pixCountPixels(rect_pix1.p(), &music_pixels, NULL);
+      const PixPtr rect_pix2(pixClipRectangle(pix_closed, box.p(), NULL));
       l_int32 all_pixels;
-      pixCountPixels(rect_pix, &all_pixels, NULL);
-      pixDestroy(&rect_pix);
+      pixCountPixels(rect_pix2.p(), &all_pixels, NULL);
       if (music_pixels < kMinMusicPixelFraction * all_pixels) {
         // False positive. Delete from the music mask.
-        pixClearInRect(music_mask, box);
+        pixClearInRect(music_mask.p(), box.p());
       }
-      boxDestroy(&box);
     }
     l_int32 no_remaining_music;
-    boxaDestroy(&boxa);
-    pixZero(music_mask, &no_remaining_music);
+    pixZero(music_mask.p(), &no_remaining_music);
     if (no_remaining_music) {
-      pixDestroy(&music_mask);
+      music_mask.reset(nullptr);
     } else {
-      pixSubtract(pix_vline, pix_vline, music_mask);
-      pixSubtract(pix_hline, pix_hline, music_mask);
+      pixSubtract(pix_vline, pix_vline, music_mask.p());
+      pixSubtract(pix_hline, pix_hline, music_mask.p());
       // We may have deleted all the lines
       pixZero(pix_vline, v_empty);
       pixZero(pix_hline, h_empty);
     }
   }
-  return music_mask;
+  return music_mask.release();
 }
 
 // Most of the heavy lifting of line finding. Given src_pix and its separate
@@ -574,8 +542,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
                               Pix** pix_hline, Pix** pix_non_hline,
                               Pix** pix_intersections, Pix** pix_music_mask,
                               Pixa* pixa_display) {
-  Pix* pix_closed = NULL;
-  Pix* pix_hollow = NULL;
+  /*used with rawOut()/reset()*/ PixPtr pix_closed;
 
   int max_line_width = resolution / kThinLineFraction;
   int min_line_length = resolution / kMinLineLengthFraction;
@@ -595,7 +562,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
                                                         src_pix);
     bool getpixclosed = pix_music_mask != NULL ? true : false;
     OpenclDevice::pixGetLinesCL(NULL, src_pix, pix_vline, pix_hline,
-                                &pix_closed, getpixclosed, closing_brick,
+                                &pix_closed.rawOut(), getpixclosed, closing_brick,
                                 closing_brick, max_line_width, max_line_width,
                                 min_line_length, min_line_length);
   } else {
@@ -603,27 +570,23 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   // Close up small holes, making it less likely that false alarms are found
   // in thickened text (as it will become more solid) and also smoothing over
   // some line breaks and nicks in the edges of the lines.
-  pix_closed = pixCloseBrick(NULL, src_pix, closing_brick, closing_brick);
+  pix_closed.reset(pixCloseBrick(NULL, src_pix, closing_brick, closing_brick));
   if (pixa_display != NULL)
-    pixaAddPix(pixa_display, pix_closed, L_CLONE);
+    pixaAddPix(pixa_display, pix_closed.p(), L_CLONE);
   // Open up with a big box to detect solid areas, which can then be subtracted.
   // This is very generous and will leave in even quite wide lines.
-  Pix* pix_solid = pixOpenBrick(NULL, pix_closed, max_line_width,
-                                max_line_width);
+  const PixPtr pix_solid(pixOpenBrick(NULL, pix_closed.p(), max_line_width,
+                                      max_line_width));
   if (pixa_display != NULL)
-    pixaAddPix(pixa_display, pix_solid, L_CLONE);
-  pix_hollow = pixSubtract(NULL, pix_closed, pix_solid);
-
-  pixDestroy(&pix_solid);
+    pixaAddPix(pixa_display, pix_solid.p(), L_CLONE);
+  const PixPtr pix_hollow(pixSubtract(NULL, pix_closed.p(), pix_solid.p()));
 
   // Now open up in both directions independently to find lines of at least
   // 1 inch/kMinLineLengthFraction in length.
   if (pixa_display != NULL)
-    pixaAddPix(pixa_display, pix_hollow, L_CLONE);
-  *pix_vline = pixOpenBrick(NULL, pix_hollow, 1, min_line_length);
-  *pix_hline = pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
-
-  pixDestroy(&pix_hollow);
+    pixaAddPix(pixa_display, pix_hollow.p(), L_CLONE);
+  *pix_vline = pixOpenBrick(NULL, pix_hollow.p(), 1, min_line_length);
+  *pix_hline = pixOpenBrick(NULL, pix_hollow.p(), min_line_length, 1);
 #ifdef USE_OPENCL
   }
 #endif
@@ -636,30 +599,29 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   pixZero(*pix_hline, &h_empty);
   if (pix_music_mask != NULL) {
     if (!v_empty && !h_empty) {
-      *pix_music_mask = FilterMusic(resolution, pix_closed,
+      *pix_music_mask = FilterMusic(resolution, pix_closed.p(),
                                     *pix_vline, *pix_hline,
                                     &v_empty, &h_empty);
     } else {
       *pix_music_mask = NULL;
     }
   }
-  pixDestroy(&pix_closed);
-  Pix* pix_nonlines = NULL;
+  /*used with reset()*/ PixPtr pix_nonlines;
   *pix_intersections = NULL;
-  Pix* extra_non_hlines = NULL;
+  /*used with reset()*/ PixPtr extra_non_hlines;
   if (!v_empty) {
     // Subtract both line candidates from the source to get definite non-lines.
-    pix_nonlines = pixSubtract(NULL, src_pix, *pix_vline);
+    pix_nonlines.reset(pixSubtract(NULL, src_pix, *pix_vline));
     if (!h_empty) {
-      pixSubtract(pix_nonlines, pix_nonlines, *pix_hline);
+      pixSubtract(pix_nonlines.p(), pix_nonlines.p(), *pix_hline);
       // Intersections are a useful indicator for likelihood of being a line.
       *pix_intersections = pixAnd(NULL, *pix_vline, *pix_hline);
       // Candidate vlines are not hlines (apart from the intersections)
       // and vice versa.
-      extra_non_hlines = pixSubtract(NULL, *pix_vline, *pix_intersections);
+      extra_non_hlines.reset(pixSubtract(NULL, *pix_vline, *pix_intersections));
     }
-    *pix_non_vline = pixErodeBrick(NULL, pix_nonlines, kMaxLineResidue, 1);
-    pixSeedfillBinary(*pix_non_vline, *pix_non_vline, pix_nonlines, 8);
+    *pix_non_vline = pixErodeBrick(NULL, pix_nonlines.p(), kMaxLineResidue, 1);
+    pixSeedfillBinary(*pix_non_vline, *pix_non_vline, pix_nonlines.p(), 8);
     if (!h_empty) {
       // Candidate hlines are not vlines.
       pixOr(*pix_non_vline, *pix_non_vline, *pix_hline);
@@ -673,7 +635,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
     pixDestroy(pix_vline);
     *pix_non_vline = NULL;
     if (!h_empty) {
-      pix_nonlines = pixSubtract(NULL, src_pix, *pix_hline);
+      pix_nonlines.reset(pixSubtract(NULL, src_pix, *pix_hline));
     }
   }
   if (h_empty) {
@@ -683,11 +645,10 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
       return;
     }
   } else {
-    *pix_non_hline = pixErodeBrick(NULL, pix_nonlines, 1, kMaxLineResidue);
-    pixSeedfillBinary(*pix_non_hline, *pix_non_hline, pix_nonlines, 8);
+    *pix_non_hline = pixErodeBrick(NULL, pix_nonlines.p(), 1, kMaxLineResidue);
+    pixSeedfillBinary(*pix_non_hline, *pix_non_hline, pix_nonlines.p(), 8);
     if (extra_non_hlines != NULL) {
-      pixOr(*pix_non_hline, *pix_non_hline, extra_non_hlines);
-      pixDestroy(&extra_non_hlines);
+      pixOr(*pix_non_hline, *pix_non_hline, extra_non_hlines.p());
     }
     if (!FilterFalsePositives(resolution, *pix_non_hline, *pix_intersections,
                               *pix_hline))
@@ -696,7 +657,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
   if (pixa_display != NULL) {
     if (*pix_vline != NULL) pixaAddPix(pixa_display, *pix_vline, L_CLONE);
     if (*pix_hline != NULL) pixaAddPix(pixa_display, *pix_hline, L_CLONE);
-    if (pix_nonlines != NULL) pixaAddPix(pixa_display, pix_nonlines, L_CLONE);
+    if (pix_nonlines != NULL) pixaAddPix(pixa_display, pix_nonlines.p(), L_CLONE);
     if (*pix_non_vline != NULL)
       pixaAddPix(pixa_display, *pix_non_vline, L_CLONE);
     if (*pix_non_hline != NULL)
@@ -706,7 +667,6 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
     if (pix_music_mask != NULL && *pix_music_mask != NULL)
       pixaAddPix(pixa_display, *pix_music_mask, L_CLONE);
   }
-  pixDestroy(&pix_nonlines);
 }
 
 // Returns a list of boxes corresponding to the candidate line segments. Sets
@@ -746,10 +706,9 @@ void LineFinder::GetLineBoxes(bool horizontal_lines,
     bbox_it.add_to_end(bblob);
     // Determine whether the line segment touches two intersections.
     const TBOX& bbox = bblob->bounding_box();
-    Box* box = boxCreate(bbox.left(), bbox.bottom(),
-                         bbox.width(), bbox.height());
-    bblob->set_line_crossings(NumTouchingIntersections(box, pix_intersections));
-    boxDestroy(&box);
+    const BoxPtr box(boxCreate(bbox.left(), bbox.bottom(),
+                               bbox.width(), bbox.height()));
+    bblob->set_line_crossings(NumTouchingIntersections(box.p(), pix_intersections));
     // Transform the bounding box prior to finding lines. To save writing
     // two line finders, flip x and y for horizontal lines and re-use the
     // tab-stop detection code. For vertical lines we still have to flip the

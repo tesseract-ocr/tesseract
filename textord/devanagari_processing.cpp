@@ -23,6 +23,7 @@
 #endif
 
 #include "allheaders.h"
+#include "raiileptonica.h"
 #include "debugpixa.h"
 #include "devanagari_processing.h"
 #include "statistc.h"
@@ -66,10 +67,7 @@ void ShiroRekhaSplitter::Clear() {
 
 // On setting the input image, a clone of it is owned by this class.
 void ShiroRekhaSplitter::set_orig_pix(Pix* pix) {
-  if (orig_pix_) {
-    pixDestroy(&orig_pix_);
-  }
-  orig_pix_ = pixClone(pix);
+  asPixPtr(orig_pix_).reset(pixClone(pix));
 }
 
 // Top-level method to perform splitting based on current settings.
@@ -94,18 +92,16 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
             segmentation_block_list_ ? "yes" : "no");
   }
   // Create a copy of original image to store the splitting output.
-  pixDestroy(&splitted_image_);
-  splitted_image_ = pixCopy(NULL, orig_pix_);
+  asPixPtr(splitted_image_).reset(pixCopy(NULL, orig_pix_));
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
-    pixDestroy(&debug_image_);
-    debug_image_ = pixConvertTo32(orig_pix_);
+    asPixPtr(debug_image_).reset(pixConvertTo32(orig_pix_));
   }
 
   // Determine all connected components in the input image. A close operation
   // may be required prior to this, depending on the current settings.
-  Pix* pix_for_ccs = pixClone(orig_pix_);
+  /*used with reset()*/ PixPtr pix_for_ccs(pixClone(orig_pix_));
   if (perform_close_ && global_xheight_ != kUnspecifiedXheight &&
       !segmentation_block_list_) {
     if (devanagari_split_debuglevel > 0) {
@@ -113,25 +109,22 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     }
     // A global measure is available for xheight, but no local information
     // exists.
-    pixDestroy(&pix_for_ccs);
-    pix_for_ccs = pixCopy(NULL, orig_pix_);
-    PerformClose(pix_for_ccs, global_xheight_);
+    pix_for_ccs.reset(pixCopy(NULL, orig_pix_));
+    PerformClose(pix_for_ccs.p(), global_xheight_);
   }
-  Pixa* ccs;
-  Boxa* tmp_boxa = pixConnComp(pix_for_ccs, &ccs, 8);
-  boxaDestroy(&tmp_boxa);
-  pixDestroy(&pix_for_ccs);
+  /*used with rawOut()*/ PixaPtr ccs;
+  BoxaPtr(pixConnComp(pix_for_ccs.p(), &ccs.rawOut(), 8)); // immediately destroyed
 
   // Iterate over all connected components. Get their bounding boxes and clip
   // out the image regions corresponding to these boxes from the original image.
   // Conditionally run splitting on each of them.
-  Boxa* regions_to_clear = boxaCreate(0);
+  const BoxaPtr regions_to_clear(boxaCreate(0));
   int num_ccs = 0;
-  if (ccs != nullptr) num_ccs = pixaGetCount(ccs);
+  if (ccs != nullptr) num_ccs = pixaGetCount(ccs.p());
   for (int i = 0; i < num_ccs; ++i) {
     Box* box = ccs->boxa->box[i];
-    Pix* word_pix = pixClipRectangle(orig_pix_, box, NULL);
-    ASSERT_HOST(word_pix);
+    const PixPtr word_pix(pixClipRectangle(orig_pix_, box, NULL));
+    ASSERT_HOST(word_pix.p());
     int xheight = GetXheightForCC(box);
     if (xheight == kUnspecifiedXheight && segmentation_block_list_ &&
         devanagari_split_debugimage) {
@@ -143,22 +136,18 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     // larger graphemes.
     if (xheight == kUnspecifiedXheight ||
         (box->w > xheight / 3 && box->h > xheight / 2)) {
-      SplitWordShiroRekha(split_strategy, word_pix, xheight,
-                          box->x, box->y, regions_to_clear);
+      SplitWordShiroRekha(split_strategy, word_pix.p(), xheight,
+                          box->x, box->y, regions_to_clear.p());
     } else if (devanagari_split_debuglevel > 0) {
       tprintf("CC dropped from splitting: %d,%d (%d, %d)\n",
               box->x, box->y, box->w, box->h);
     }
-    pixDestroy(&word_pix);
   }
   // Actually clear the boxes now.
-  for (int i = 0; i < boxaGetCount(regions_to_clear); ++i) {
-    Box* box = boxaGetBox(regions_to_clear, i, L_CLONE);
-    pixClearInRect(splitted_image_, box);
-    boxDestroy(&box);
+  for (int i = 0, i_end = boxaGetCount(regions_to_clear.p()); i < i_end; ++i) {
+    const BoxPtr box(boxaGetBox(regions_to_clear.p(), i, L_CLONE));
+    pixClearInRect(splitted_image_, box.p());
   }
-  boxaDestroy(&regions_to_clear);
-  pixaDestroy(&ccs);
   if (devanagari_split_debugimage && pixa_debug != nullptr) {
     pixa_debug->AddPix(debug_image_,
                        split_for_pageseg ? "pageseg_split" : "ocr_split");
@@ -273,10 +262,10 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
 
   // Clear the ascender and descender regions of the word.
   // Obtain a vertical projection histogram for the resulting image.
-  Box* box_to_clear = boxCreate(0, shirorekha_top - stroke_width / 3,
-                                width, 5 * stroke_width / 3);
-  Pix* word_in_xheight = pixCopy(NULL, pix);
-  pixClearInRect(word_in_xheight, box_to_clear);
+  const BoxPtr box_to_clear(boxCreate(0, shirorekha_top - stroke_width / 3,
+                                      width, 5 * stroke_width / 3));
+  const PixPtr word_in_xheight(pixCopy(NULL, pix));
+  pixClearInRect(word_in_xheight.p(), box_to_clear.p());
   // Also clear any pixels which are below shirorekha_bottom + some leeway.
   // The leeway is set to xheight if the information is available, else it is a
   // multiplier applied to the stroke width.
@@ -289,12 +278,10 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
   }
   box_to_clear->y = shirorekha_bottom + leeway_to_keep;
   box_to_clear->h = height - box_to_clear->y;
-  pixClearInRect(word_in_xheight, box_to_clear);
-  boxDestroy(&box_to_clear);
+  pixClearInRect(word_in_xheight.p(), box_to_clear.p());
 
   PixelHistogram vert_hist;
-  vert_hist.ConstructVerticalCountHist(word_in_xheight);
-  pixDestroy(&word_in_xheight);
+  vert_hist.ConstructVerticalCountHist(word_in_xheight.p());
 
   // If the number of black pixel in any column of the image is less than a
   // fraction of the stroke width, treat it as noise / a stray mark. Perform
@@ -326,18 +313,17 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
         int split_width = minimal_split ? 1 : j;
         int split_left = minimal_split ? i + (j / 2) - (split_width / 2) : i;
         if (!minimal_split || (i != 0 && i + j != width)) {
-          Box* box_to_clear =
+          const BoxPtr box_to_clear(
               boxCreate(word_left + split_left,
                         word_top + shirorekha_top - stroke_width / 3,
                         split_width,
-                        5 * stroke_width / 3);
+                        5 * stroke_width / 3) );
           if (box_to_clear) {
-            boxaAddBox(regions_to_clear, box_to_clear, L_CLONE);
+            boxaAddBox(regions_to_clear, box_to_clear.p(), L_CLONE);
             // Mark this in the debug image if needed.
             if (devanagari_split_debugimage) {
-              pixRenderBoxArb(debug_image_, box_to_clear, 1, 128, 255, 128);
+              pixRenderBoxArb(debug_image_, box_to_clear.p(), 1, 128, 255, 128);
             }
-            boxDestroy(&box_to_clear);
             cur_component_width = 0;
           }
         }
@@ -381,9 +367,8 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
          not_found_it.forward()) {
       C_BLOB* not_found = not_found_it.data();
       TBOX not_found_box = not_found->bounding_box();
-      Box* box_to_plot = GetBoxForTBOX(not_found_box);
-      pixRenderBoxArb(debug_image_, box_to_plot, 1, 255, 0, 255);
-      boxDestroy(&box_to_plot);
+      const BoxPtr box_to_plot(GetBoxForTBOX(not_found_box));
+      pixRenderBoxArb(debug_image_, box_to_plot.p(), 1, 255, 0, 255);
     }
 
     // Plot out the blobs unused from all blobs.
@@ -391,15 +376,15 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
     for (all_blobs_it.mark_cycle_pt(); !all_blobs_it.cycled_list();
          all_blobs_it.forward()) {
       C_BLOB* a_blob = all_blobs_it.data();
-      Box* box_to_plot = GetBoxForTBOX(a_blob->bounding_box());
-      pixRenderBoxArb(debug_image_, box_to_plot, 3, 0, 127, 0);
-      boxDestroy(&box_to_plot);
+      const BoxPtr box_to_plot(GetBoxForTBOX(a_blob->bounding_box()));
+      pixRenderBoxArb(debug_image_, box_to_plot.p(), 3, 0, 127, 0);
     }
   }
 }
 
 // Returns a new box object for the corresponding TBOX, based on the original
 // image's coordinate system.
+// Call boxDestroy() on result after use.
 Box* ShiroRekhaSplitter::GetBoxForTBOX(const TBOX& tbox) const {
   return boxCreate(tbox.left(), pixGetHeight(orig_pix_) - tbox.top() - 1,
                    tbox.width(), tbox.height());
@@ -408,17 +393,15 @@ Box* ShiroRekhaSplitter::GetBoxForTBOX(const TBOX& tbox) const {
 // This method returns the computed mode-height of blobs in the pix.
 // It also prunes very small blobs from calculation.
 int ShiroRekhaSplitter::GetModeHeight(Pix* pix) {
-  Boxa* boxa = pixConnComp(pix, NULL, 8);
+  const BoxaPtr boxa(pixConnComp(pix, NULL, 8));
   STATS heights(0, pixGetHeight(pix));
   heights.clear();
-  for (int i = 0; i < boxaGetCount(boxa); ++i) {
-    Box* box = boxaGetBox(boxa, i, L_CLONE);
+  for (int i = 0, i_end = boxaGetCount(boxa.p()); i < i_end; ++i) {
+    const BoxPtr box(boxaGetBox(boxa.p(), i, L_CLONE));
     if (box->h >= 3 || box->w >= 3) {
       heights.add(box->h, 1);
     }
-    boxDestroy(&box);
   }
-  boxaDestroy(&boxa);
   return heights.mode();
 }
 
@@ -486,15 +469,14 @@ void PixelHistogram::ConstructVerticalCountHist(Pix* pix) {
 
 void PixelHistogram::ConstructHorizontalCountHist(Pix* pix) {
   Clear();
-  Numa* counts = pixCountPixelsByRow(pix, NULL);
-  length_ = numaGetCount(counts);
+  const NumaPtr counts(pixCountPixelsByRow(pix, NULL));
+  length_ = numaGetCount(counts.p());
   hist_ = new int[length_];
   for (int i = 0; i < length_; ++i) {
     l_int32 val = 0;
-    numaGetIValue(counts, i, &val);
+    numaGetIValue(counts.p(), i, &val);
     hist_[i] = val;
   }
-  numaDestroy(&counts);
 }
 
 }  // namespace tesseract.
