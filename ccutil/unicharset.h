@@ -292,6 +292,7 @@ class UNICHARSET {
     katakana_sid_ = 0;
     thai_sid_ = 0;
     hangul_sid_ = 0;
+    default_sid_ = 0;
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
