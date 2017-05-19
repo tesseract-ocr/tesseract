@@ -10,6 +10,7 @@ https://github.com/tesseract-ocr/tesseract/blob/master/README.md
 
 ### Other
 [![Insight.io](https://www.insight.io/repoBadge/github.com/tesseract-ocr/tesseract)](https://insight.io/github.com/tesseract-ocr/tesseract)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 
 # About
 
