@@ -1691,44 +1691,6 @@ static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
     return status;
 }
 
-//pix OR operation: outbuffer = buffer1 | buffer2
-static cl_int
-pixORCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1, cl_mem buffer2, cl_mem outbuffer)
-{
-    cl_int status;
-    size_t globalThreads[2];
-    int gsize;
-    size_t localThreads[] = {GROUPSIZE_X, GROUPSIZE_Y};
-
-    gsize = (wpl + GROUPSIZE_X - 1)/ GROUPSIZE_X * GROUPSIZE_X;
-    globalThreads[0] = gsize;
-    gsize = (h + GROUPSIZE_Y - 1)/ GROUPSIZE_Y * GROUPSIZE_Y;
-    globalThreads[1] = gsize;
-
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "pixOR", &status );
-    CHECK_OPENCL(status, "clCreateKernel pixOR");
-
-    status = clSetKernelArg(rEnv.mpkKernel,
-        0,
-        sizeof(cl_mem),
-        &buffer1);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        1,
-        sizeof(cl_mem),
-        &buffer2);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        2,
-        sizeof(cl_mem),
-        &outbuffer);
-    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(wpl), &wpl);
-    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
-    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
-
-    return status;
-}
-
 //output = buffer1 & ~(buffer2)
 static
 cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
