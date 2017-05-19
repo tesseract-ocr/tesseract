@@ -358,15 +358,18 @@ typedef bool (*FileWriter)(const GenericVector<char>& data,
 // returning false on error.
 inline bool LoadDataFromFile(const STRING& filename,
                              GenericVector<char>* data) {
+  bool result = false;
   FILE* fp = fopen(filename.string(), "rb");
-  if (fp == NULL) return false;
-  fseek(fp, 0, SEEK_END);
-  size_t size = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-  // Pad with a 0, just in case we treat the result as a string.
-  data->init_to_size(static_cast<int>(size) + 1, 0);
-  bool result = fread(&(*data)[0], 1, size, fp) == size;
-  fclose(fp);
+  if (fp != NULL) {
+    fseek(fp, 0, SEEK_END);
+    size_t size = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    if (size > 0) {
+      data->resize_no_init(size);
+      result = fread(&(*data)[0], 1, size, fp) == size;
+    }
+    fclose(fp);
+  }
   return result;
 }
 // The default FileWriter writes the vector of char to the filename file,
