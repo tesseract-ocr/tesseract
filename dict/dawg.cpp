@@ -35,7 +35,6 @@
 #include "cutil.h"
 #include "dict.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include "helpers.h"
 #include "strngs.h"
 #include "tesscallback.h"
@@ -197,7 +196,7 @@ void Dawg::init(DawgType type, const STRING &lang,
          F u n c t i o n s   f o r   S q u i s h e d    D a w g
 ----------------------------------------------------------------------*/
 
-SquishedDawg::~SquishedDawg() { memfree(edges_); }
+SquishedDawg::~SquishedDawg() { delete[] edges_; }
 
 EDGE_REF SquishedDawg::edge_char_of(NODE_REF node,
                                     UNICHAR_ID unichar_id,
@@ -339,7 +338,7 @@ void SquishedDawg::read_squished_dawg(FILE *file,
   ASSERT_HOST(num_edges_ > 0);  // DAWG should not be empty
   Dawg::init(type, lang, perm, unicharset_size, debug_level);
 
-  edges_ = (EDGE_ARRAY) memalloc(sizeof(EDGE_RECORD) * num_edges_);
+  edges_ = new EDGE_RECORD[num_edges_];
   fread(&edges_[0], sizeof(EDGE_RECORD), num_edges_, file);
   EDGE_REF edge;
   if (swap) {
