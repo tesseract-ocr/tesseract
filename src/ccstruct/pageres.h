@@ -685,7 +685,10 @@ class PAGE_RES_IT {
 
   // Do two PAGE_RES_ITs point at the same word?
   // This is much cheaper than cmp().
-  bool operator ==(const PAGE_RES_IT &other) const;
+  bool operator ==(const PAGE_RES_IT &other) const {
+    return word_res == other.word_res && row_res == other.row_res &&
+           block_res == other.block_res;
+  }
 
   bool operator !=(const PAGE_RES_IT &other) const {return !(*this == other); }
 

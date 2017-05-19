@@ -1191,13 +1191,6 @@ void WERD_RES::ClearRatings() {
   }
 }
 
-
-bool PAGE_RES_IT::operator ==(const PAGE_RES_IT &other) const {
-  return word_res == other.word_res &&
-      row_res == other.row_res &&
-      block_res == other.block_res;
-}
-
 int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
   ASSERT_HOST(page_res == other.page_res);
   if (other.block_res == nullptr) {
