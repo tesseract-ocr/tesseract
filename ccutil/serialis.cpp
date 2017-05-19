@@ -52,7 +52,7 @@ bool TFile::Open(const char* data, int size) {
     data_is_owned_ = true;
   }
   is_writing_ = false;
-  data_->init_to_size(size, 0);
+  data_->resize_no_init(size);
   memcpy(&(*data_)[0], data, size);
   return true;
 }
@@ -73,7 +73,7 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
     data_ = new GenericVector<char>;
     data_is_owned_ = true;
   }
-  data_->init_to_size(size, 0);
+  data_->resize_no_init(size);
   return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
 }
 

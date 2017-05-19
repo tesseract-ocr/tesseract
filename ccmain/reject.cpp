@@ -232,7 +232,7 @@ float compute_reject_threshold(WERD_CHOICE* word) {
 
   int blob_count = word->length();
   GenericVector<float> ratings;
-  ratings.init_to_size(blob_count, 0.0f);
+  ratings.resize_no_init(blob_count);
   for (int i = 0; i < blob_count; ++i) {
     ratings[i] = word->certainty(i);
   }
