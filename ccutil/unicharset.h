@@ -290,6 +290,7 @@ class UNICHARSET {
     han_sid_ = 0;
     hiragana_sid_ = 0;
     katakana_sid_ = 0;
+    default_sid_ = 0;
   }
 
   // Return the size of the set (the number of different UNICHAR it holds).
