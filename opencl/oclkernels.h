@@ -76,38 +76,6 @@ KERNEL(
 )
 
 KERNEL(
-\n__kernel void pixAND(__global int *dword, __global int *sword, __global int *outword,
-                            const int wpl, const int h)
-{
-    const unsigned int row = get_global_id(1);
-    const unsigned int col = get_global_id(0);
-    const unsigned int pos = row * wpl + col;
-
-    //Ignore the execss
-    if (row >= h || col >= wpl)
-        return;
-
-     *(outword + pos) = *(dword + pos) & (*(sword + pos));
-}\n
-)
-
-KERNEL(
-\n__kernel void pixOR(__global int *dword, __global int *sword, __global int *outword,
-                            const int wpl, const int h)
-{
-    const unsigned int row = get_global_id(1);
-    const unsigned int col = get_global_id(0);
-    const unsigned int pos = row * wpl + col;
-
-    //Ignore the execss
-    if (row >= h || col >= wpl)
-        return;
-
-    *(outword + pos) = *(dword + pos) | (*(sword + pos));
-}\n
-)
-
-KERNEL(
 \n__kernel void morphoDilateHor_5x5(__global int *sword,__global int *dword,
                             const int wpl, const int h)
 {
@@ -885,36 +853,6 @@ void kernel_HistogramRectOneChannel(
 }
 )
 
-
-KERNEL(
-// unused
-\n  __attribute__((reqd_work_group_size(256, 1, 1)))
-\n  __kernel
-\n  void kernel_HistogramRectAllChannels_Grey(
-\n      __global const uchar* data,
-\n      uint numPixels,
-\n        __global uint *histBuffer) { // each wg will write HIST_SIZE*NUM_CHANNELS into this result; cpu will accumulate across wg's
-\n
-\n      /* declare variables */
-\n
-\n      // work indices
-\n      size_t groupId = get_group_id(0);
-\n      size_t localId = get_local_id(0); // 0 -> 256-1
-\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
-\n      uint numThreads = get_global_size(0);
-\n
-\n      /* accumulate in global memory */
-\n      for ( uint pc = get_global_id(0); pc < numPixels; pc += get_global_size(0) ) {
-\n          uchar value = data[ pc ];
-\n          int idx = value * get_global_size(0) + get_global_id(0);
-\n           histBuffer[ idx ]++;
-\n
-\n      }
-\n
-\n  } // kernel_HistogramRectAllChannels_Grey
-
-)
-
 // HistogramRect Kernel: Reduction
 // only supports 4 channels
 // each work group handles a single channel of a single histogram bin
@@ -998,55 +936,6 @@ void kernel_HistogramRectOneChannelReduction(
         histResult[get_group_id(0)] = localHist[0];
     }
 } // kernel_HistogramRectOneChannelReduction
-)
-
-
-KERNEL(
-// unused
-  // each work group (x256) handles a histogram bin
-\n  __attribute__((reqd_work_group_size(256, 1, 1)))
-\n  __kernel
-\n  void kernel_HistogramRectAllChannelsReduction_Grey(
-\n      int n, // pixel redundancy that needs to be accumulated
-\n      __global uint *histBuffer,
-\n      __global uint* histResult) { // each wg accumulates 1 bin
-\n
-\n      /* declare variables */
-\n
-\n      // work indices
-\n      size_t groupId = get_group_id(0);
-\n      size_t localId = get_local_id(0); // 0 -> 256-1
-\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
-\n      uint numThreads = get_global_size(0);
-\n        unsigned int hist = 0;
-\n
-\n      /* accumulate in global memory */
-\n      for ( uint p = 0; p < n; p+=GROUP_SIZE) {
-\n            hist += histBuffer[ (get_group_id(0)*n + p)];
-\n      }
-\n
-\n      /* reduction in local memory */
-\n      // populate local memory
-\n      __local unsigned int localHist[GROUP_SIZE];
-
-\n      localHist[localId] = hist;
-\n      barrier(CLK_LOCAL_MEM_FENCE);
-\n
-\n      for (int stride = GROUP_SIZE/2; stride >= 1; stride /= 2) {
-\n          if (localId < stride) {
-\n              hist = localHist[ (localId+stride)];
-\n          }
-\n          barrier(CLK_LOCAL_MEM_FENCE);
-\n          if (localId < stride) {
-\n              localHist[ localId] += hist;
-\n          }
-\n          barrier(CLK_LOCAL_MEM_FENCE);
-\n      }
-\n
-\n      if (localId == 0)
-\n          histResult[get_group_id(0)] = localHist[0];
-\n
-\n  } // kernel_HistogramRectAllChannelsReduction_Grey
 )
 
 // ThresholdRectToPix Kernel
