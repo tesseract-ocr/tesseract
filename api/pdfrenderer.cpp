@@ -919,7 +919,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendPDFObjectDIY(objsize);
 
   if (!textonly_) {
-    char *pdf_object = nullptr;
+    char *pdf_object = NULL;
     if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize)) {
       return false;
     }

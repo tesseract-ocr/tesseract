@@ -118,7 +118,7 @@ LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
     BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
                      "Use sigmoidal score for certainty",
                      dict->getCCUtil()->params()),
-  dawg_args_(nullptr, new DawgPositionVector(), NO_PERM),
+  dawg_args_(NULL, new DawgPositionVector(), NO_PERM),
   fontinfo_table_(fontinfo_table), dict_(dict),
   fixed_pitch_(false), max_char_wh_ratio_(0.0),
   acceptable_choice_found_(false) {
@@ -857,7 +857,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
       tprintf("Letter was OK for unichar %d, normed %d\n",
               b.unichar_id(), normed_ids[i]);
   }
-  dawg_args_.active_dawgs = nullptr;
+  dawg_args_.active_dawgs = NULL;
   if (dawg_args_.permuter != NO_PERM) {
     dawg_info = new LanguageModelDawgInfo(dawg_args_.updated_dawgs,
                                           dawg_args_.permuter);

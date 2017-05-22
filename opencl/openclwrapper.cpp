@@ -133,8 +133,8 @@ typedef ds_status (*ds_perf_evaluator)(ds_device *device, void *data);
 typedef ds_status (*ds_score_release)(void *score);
 static ds_status releaseDSProfile(ds_profile *profile, ds_score_release sr) {
   ds_status status = DS_SUCCESS;
-  if (profile != nullptr) {
-    if (profile->devices != nullptr && sr != nullptr) {
+  if (profile != NULL) {
+    if (profile->devices != NULL && sr != NULL) {
       unsigned int i;
       for (i = 0; i < profile->numDevices; i++) {
         free(profile->devices[i].oclDeviceName);
@@ -152,40 +152,40 @@ static ds_status releaseDSProfile(ds_profile *profile, ds_score_release sr) {
 static ds_status initDSProfile(ds_profile **p, const char *version) {
   int numDevices;
   cl_uint numPlatforms;
-  cl_platform_id *platforms = nullptr;
-  cl_device_id *devices = nullptr;
+  cl_platform_id *platforms = NULL;
+  cl_device_id *devices = NULL;
   ds_status status = DS_SUCCESS;
   unsigned int next;
   unsigned int i;
 
-  if (p == nullptr) return DS_INVALID_PROFILE;
+  if (p == NULL) return DS_INVALID_PROFILE;
 
   ds_profile *profile = (ds_profile *)malloc(sizeof(ds_profile));
-  if (profile == nullptr) return DS_MEMORY_ERROR;
+  if (profile == NULL) return DS_MEMORY_ERROR;
 
   memset(profile, 0, sizeof(ds_profile));
 
-  clGetPlatformIDs(0, nullptr, &numPlatforms);
+  clGetPlatformIDs(0, NULL, &numPlatforms);
 
   if (numPlatforms > 0) {
     platforms = (cl_platform_id *)malloc(numPlatforms * sizeof(cl_platform_id));
-    if (platforms == nullptr) {
+    if (platforms == NULL) {
       status = DS_MEMORY_ERROR;
       goto cleanup;
     }
-    clGetPlatformIDs(numPlatforms, platforms, nullptr);
+    clGetPlatformIDs(numPlatforms, platforms, NULL);
   }
 
   numDevices = 0;
   for (i = 0; i < (unsigned int)numPlatforms; i++) {
     cl_uint num;
-    clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &num);
+    clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, NULL, &num);
     numDevices += num;
   }
 
   if (numDevices > 0) {
     devices = (cl_device_id *)malloc(numDevices * sizeof(cl_device_id));
-    if (devices == nullptr) {
+    if (devices == NULL) {
       status = DS_MEMORY_ERROR;
       goto cleanup;
     }
@@ -195,7 +195,7 @@ static ds_status initDSProfile(ds_profile **p, const char *version) {
       numDevices + 1;  // +1 to numDevices to include the native CPU
   profile->devices =
       (ds_device *)malloc(profile->numDevices * sizeof(ds_device));
-  if (profile->devices == nullptr) {
+  if (profile->devices == NULL) {
     profile->numDevices = 0;
     status = DS_MEMORY_ERROR;
     goto cleanup;
@@ -215,13 +215,13 @@ static ds_status initDSProfile(ds_profile **p, const char *version) {
       profile->devices[next].oclDeviceID = devices[j];
 
       clGetDeviceInfo(profile->devices[next].oclDeviceID, CL_DEVICE_NAME,
-                      DS_DEVICE_NAME_LENGTH, &buffer, nullptr);
+                      DS_DEVICE_NAME_LENGTH, &buffer, NULL);
       length = strlen(buffer);
       profile->devices[next].oclDeviceName = (char *)malloc(length + 1);
       memcpy(profile->devices[next].oclDeviceName, buffer, length + 1);
 
       clGetDeviceInfo(profile->devices[next].oclDeviceID, CL_DRIVER_VERSION,
-                      DS_DEVICE_NAME_LENGTH, &buffer, nullptr);
+                      DS_DEVICE_NAME_LENGTH, &buffer, NULL);
       length = strlen(buffer);
       profile->devices[next].oclDriverVersion = (char *)malloc(length + 1);
       memcpy(profile->devices[next].oclDriverVersion, buffer, length + 1);
@@ -252,10 +252,10 @@ static ds_status profileDevices(ds_profile *profile,
   unsigned int i;
   unsigned int updates = 0;
 
-  if (profile == nullptr) {
+  if (profile == NULL) {
     return DS_INVALID_PROFILE;
   }
-  if (evaluator == nullptr) {
+  if (evaluator == NULL) {
     return DS_INVALID_PERF_EVALUATOR;
   }
 
@@ -264,7 +264,7 @@ static ds_status profileDevices(ds_profile *profile,
 
     switch (type) {
       case DS_EVALUATE_NEW_ONLY:
-        if (profile->devices[i].score != nullptr) break;
+        if (profile->devices[i].score != NULL) break;
       //  else fall through
       case DS_EVALUATE_ALL:
         evaluatorStatus = evaluator(profile->devices + i, evaluatorData);
@@ -287,7 +287,7 @@ static const char *findString(const char *contentStart, const char *contentEnd,
                               const char *string) {
   size_t stringLength;
   const char *currentPosition;
-  const char *found = nullptr;
+  const char *found = NULL;
   stringLength = strlen(string);
   currentPosition = contentStart;
   for (currentPosition = contentStart; currentPosition < contentEnd;
@@ -309,10 +309,10 @@ static ds_status readProFile(const char *fileName, char **content,
   size_t size = 0;
 
   *contentSize = 0;
-  *content = nullptr;
+  *content = NULL;
 
   FILE *input = fopen(fileName, "rb");
-  if (input == nullptr) {
+  if (input == NULL) {
     return DS_FILE_ERROR;
   }
 
@@ -320,7 +320,7 @@ static ds_status readProFile(const char *fileName, char **content,
   size = ftell(input);
   rewind(input);
   char *binary = (char *)malloc(size);
-  if (binary == nullptr) {
+  if (binary == NULL) {
     fclose(input);
     return DS_FILE_ERROR;
   }
@@ -340,11 +340,11 @@ static ds_status readProfileFromFile(ds_profile *profile,
                                      ds_score_deserializer deserializer,
                                      const char *file) {
   ds_status status = DS_SUCCESS;
-  char *contentStart = nullptr;
-  const char *contentEnd = nullptr;
+  char *contentStart = NULL;
+  const char *contentEnd = NULL;
   size_t contentSize;
 
-  if (profile == nullptr) return DS_INVALID_PROFILE;
+  if (profile == NULL) return DS_INVALID_PROFILE;
 
   status = readProFile(file, &contentStart, &contentSize);
   if (status == DS_SUCCESS) {
@@ -358,14 +358,14 @@ static ds_status readProfileFromFile(ds_profile *profile,
 
     // parse the version string
     dataStart = findString(currentPosition, contentEnd, DS_TAG_VERSION);
-    if (dataStart == nullptr) {
+    if (dataStart == NULL) {
       status = DS_PROFILE_FILE_ERROR;
       goto cleanup;
     }
     dataStart += strlen(DS_TAG_VERSION);
 
     dataEnd = findString(dataStart, contentEnd, DS_TAG_VERSION_END);
-    if (dataEnd == nullptr) {
+    if (dataEnd == NULL) {
       status = DS_PROFILE_FILE_ERROR;
       goto cleanup;
     }
@@ -397,27 +397,27 @@ static ds_status readProfileFromFile(ds_profile *profile,
       const char *deviceDriverEnd;
 
       dataStart = findString(currentPosition, contentEnd, DS_TAG_DEVICE);
-      if (dataStart == nullptr) {
+      if (dataStart == NULL) {
         // nothing useful remain, quit...
         break;
       }
       dataStart += strlen(DS_TAG_DEVICE);
       dataEnd = findString(dataStart, contentEnd, DS_TAG_DEVICE_END);
-      if (dataEnd == nullptr) {
+      if (dataEnd == NULL) {
         status = DS_PROFILE_FILE_ERROR;
         goto cleanup;
       }
 
       // parse the device type
       deviceTypeStart = findString(dataStart, contentEnd, DS_TAG_DEVICE_TYPE);
-      if (deviceTypeStart == nullptr) {
+      if (deviceTypeStart == NULL) {
         status = DS_PROFILE_FILE_ERROR;
         goto cleanup;
       }
       deviceTypeStart += strlen(DS_TAG_DEVICE_TYPE);
       deviceTypeEnd =
           findString(deviceTypeStart, contentEnd, DS_TAG_DEVICE_TYPE_END);
-      if (deviceTypeEnd == nullptr) {
+      if (deviceTypeEnd == NULL) {
         status = DS_PROFILE_FILE_ERROR;
         goto cleanup;
       }
@@ -426,28 +426,28 @@ static ds_status readProfileFromFile(ds_profile *profile,
       // parse the device name
       if (deviceType == DS_DEVICE_OPENCL_DEVICE) {
         deviceNameStart = findString(dataStart, contentEnd, DS_TAG_DEVICE_NAME);
-        if (deviceNameStart == nullptr) {
+        if (deviceNameStart == NULL) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
         deviceNameStart += strlen(DS_TAG_DEVICE_NAME);
         deviceNameEnd =
             findString(deviceNameStart, contentEnd, DS_TAG_DEVICE_NAME_END);
-        if (deviceNameEnd == nullptr) {
+        if (deviceNameEnd == NULL) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
 
         deviceDriverStart =
             findString(dataStart, contentEnd, DS_TAG_DEVICE_DRIVER_VERSION);
-        if (deviceDriverStart == nullptr) {
+        if (deviceDriverStart == NULL) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
         deviceDriverStart += strlen(DS_TAG_DEVICE_DRIVER_VERSION);
         deviceDriverEnd = findString(deviceDriverStart, contentEnd,
                                      DS_TAG_DEVICE_DRIVER_VERSION_END);
-        if (deviceDriverEnd == nullptr) {
+        if (deviceDriverEnd == NULL) {
           status = DS_PROFILE_FILE_ERROR;
           goto cleanup;
         }
@@ -468,7 +468,7 @@ static ds_status readProfileFromFile(ds_profile *profile,
                         driverVersionLength) == 0) {
               deviceScoreStart =
                   findString(dataStart, contentEnd, DS_TAG_SCORE);
-              if (deviceNameStart == nullptr) {
+              if (deviceNameStart == NULL) {
                 status = DS_PROFILE_FILE_ERROR;
                 goto cleanup;
               }
@@ -488,7 +488,7 @@ static ds_status readProfileFromFile(ds_profile *profile,
         for (i = 0; i < profile->numDevices; i++) {
           if (profile->devices[i].type == DS_DEVICE_NATIVE_CPU) {
             deviceScoreStart = findString(dataStart, contentEnd, DS_TAG_SCORE);
-            if (deviceScoreStart == nullptr) {
+            if (deviceScoreStart == NULL) {
               status = DS_PROFILE_FILE_ERROR;
               goto cleanup;
             }
@@ -522,10 +522,10 @@ static ds_status writeProfileToFile(ds_profile *profile,
                                     const char *file) {
   ds_status status = DS_SUCCESS;
 
-  if (profile == nullptr) return DS_INVALID_PROFILE;
+  if (profile == NULL) return DS_INVALID_PROFILE;
 
   FILE *profileFile = fopen(file, "wb");
-  if (profileFile == nullptr) {
+  if (profileFile == NULL) {
     status = DS_FILE_ERROR;
   } else {
     unsigned int i;
@@ -585,7 +585,7 @@ static ds_status writeProfileToFile(ds_profile *profile,
       fwrite(DS_TAG_SCORE, sizeof(char), strlen(DS_TAG_SCORE), profileFile);
       status = serializer(profile->devices + i, &serializedScore,
                           &serializedScoreSize);
-      if (status == DS_SUCCESS && serializedScore != nullptr &&
+      if (status == DS_SUCCESS && serializedScore != NULL &&
           serializedScoreSize > 0) {
         fwrite(serializedScore, sizeof(char), serializedScoreSize, profileFile);
         free(serializedScore);
@@ -616,7 +616,7 @@ static void legalizeFileName( char *fileName) {
         // initial ./ is valid for present directory
         //if (*pos == '.') pos++;
         //if (*pos == '/') pos++;
-        for (char *pos = strstr(fileName, invalidStr); pos != nullptr;
+        for (char *pos = strstr(fileName, invalidStr); pos != NULL;
              pos = strstr(pos + 1, invalidStr)) {
           // printf("\tfound: %s, ", pos);
           pos[0] = '_';
@@ -647,8 +647,8 @@ static void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
     props[0] = CL_CONTEXT_PLATFORM;
     props[1] = (cl_context_properties) gpuInfo->mpPlatformID;
     props[2] = 0;
-    gpuInfo->mpContext = clCreateContext(props, 1, &gpuInfo->mpDevID, nullptr,
-                                         nullptr, &clStatus);
+    gpuInfo->mpContext = clCreateContext(props, 1, &gpuInfo->mpDevID, NULL,
+                                         NULL, &clStatus);
     CHECK_OPENCL( clStatus, "populateGPUEnv::createContext");
     // queue
     cl_command_queue_properties queueProperties = 0;
@@ -659,8 +659,8 @@ static void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
 int OpenclDevice::LoadOpencl()
 {
 #ifdef WIN32
-  HINSTANCE HOpenclDll = nullptr;
-  void *OpenclDll = nullptr;
+  HINSTANCE HOpenclDll = NULL;
+  void *OpenclDll = NULL;
   // fprintf(stderr, " LoadOpenclDllxx... \n");
   OpenclDll = static_cast<HINSTANCE>(HOpenclDll);
   OpenclDll = LoadLibrary("openCL.dll");
@@ -699,17 +699,17 @@ Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
   PROCNAME("mapOutputCLBuffer");
   if (!pixd) {
     if (memcopy) {
-      if ((pixd = pixCreateTemplate(pixs)) == nullptr)
-        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
+      if ((pixd = pixCreateTemplate(pixs)) == NULL)
+        (Pix *)ERROR_PTR("pixd not made", procName, NULL);
     } else {
       if ((pixd = pixCreateHeader(pixGetWidth(pixs), pixGetHeight(pixs),
-                                  pixGetDepth(pixs))) == nullptr)
-        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
+                                  pixGetDepth(pixs))) == NULL)
+        (Pix *)ERROR_PTR("pixd not made", procName, NULL);
     }
   }
   l_uint32 *pValues = (l_uint32 *)clEnqueueMapBuffer(
       rEnv.mpkCmdQueue, clbuffer, CL_TRUE, flags, 0,
-      elements * sizeof(l_uint32), 0, nullptr, nullptr, nullptr);
+      elements * sizeof(l_uint32), 0, NULL, NULL, NULL);
 
   if (memcopy) {
     memcpy(pixGetData(pixd), pValues, elements * sizeof(l_uint32));
@@ -717,8 +717,8 @@ Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
     pixSetData(pixd, pValues);
   }
 
-  clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, clbuffer, pValues, 0, nullptr,
-                          nullptr);
+  clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, clbuffer, pValues, 0, NULL,
+                          NULL);
 
   if (sync) {
     clFinish(rEnv.mpkCmdQueue);
@@ -733,17 +733,17 @@ static cl_mem allocateIntBuffer(KernelEnv rEnv, const l_uint32 *_pValues,
 {
    cl_mem xValues =
        clCreateBuffer(rEnv.mpkContext, (cl_mem_flags)(CL_MEM_READ_WRITE),
-                      nElements * sizeof(l_int32), nullptr, pStatus);
+                      nElements * sizeof(l_int32), NULL, pStatus);
 
-   if (_pValues != nullptr) {
+   if (_pValues != NULL) {
      l_int32 *pValues = (l_int32 *)clEnqueueMapBuffer(
          rEnv.mpkCmdQueue, xValues, CL_TRUE, CL_MAP_WRITE, 0,
-         nElements * sizeof(l_int32), 0, nullptr, nullptr, nullptr);
+         nElements * sizeof(l_int32), 0, NULL, NULL, NULL);
 
      memcpy(pValues, _pValues, nElements * sizeof(l_int32));
 
-     clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, xValues, pValues, 0, nullptr,
-                             nullptr);
+     clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, xValues, pValues, 0, NULL,
+                             NULL);
 
      if (sync) clFinish(rEnv.mpkCmdQueue);
     }
@@ -754,25 +754,25 @@ static cl_mem allocateIntBuffer(KernelEnv rEnv, const l_uint32 *_pValues,
 
 void OpenclDevice::releaseMorphCLBuffers()
 {
-  if (pixdCLIntermediate != nullptr) clReleaseMemObject(pixdCLIntermediate);
-  if (pixsCLBuffer != nullptr) clReleaseMemObject(pixsCLBuffer);
-  if (pixdCLBuffer != nullptr) clReleaseMemObject(pixdCLBuffer);
-  if (pixThBuffer != nullptr) clReleaseMemObject(pixThBuffer);
-  pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = nullptr;
+  if (pixdCLIntermediate != NULL) clReleaseMemObject(pixdCLIntermediate);
+  if (pixsCLBuffer != NULL) clReleaseMemObject(pixsCLBuffer);
+  if (pixdCLBuffer != NULL) clReleaseMemObject(pixdCLBuffer);
+  if (pixThBuffer != NULL) clReleaseMemObject(pixThBuffer);
+  pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = NULL;
 }
 
 int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs)
 {
     SetKernelEnv( &rEnv );
 
-    if (pixThBuffer != nullptr) {
-      pixsCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
+    if (pixThBuffer != NULL) {
+      pixsCLBuffer = allocateZeroCopyBuffer(rEnv, NULL, wpl * h,
                                             CL_MEM_ALLOC_HOST_PTR, &clStatus);
 
       // Get the output from ThresholdToPix operation
       clStatus =
           clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixThBuffer, pixsCLBuffer, 0, 0,
-                              sizeof(l_uint32) * wpl * h, 0, nullptr, nullptr);
+                              sizeof(l_uint32) * wpl * h, 0, NULL, NULL);
     }
     else
     {
@@ -783,11 +783,11 @@ int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs)
         pixsCLBuffer = allocateZeroCopyBuffer(rEnv, srcdata, wpl*h, CL_MEM_USE_HOST_PTR, &clStatus);
     }
 
-    pixdCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
+    pixdCLBuffer = allocateZeroCopyBuffer(rEnv, NULL, wpl * h,
                                           CL_MEM_ALLOC_HOST_PTR, &clStatus);
 
     pixdCLIntermediate = allocateZeroCopyBuffer(
-        rEnv, nullptr, wpl * h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
+        rEnv, NULL, wpl * h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
 
     return (int)clStatus;
 }
@@ -892,18 +892,18 @@ int OpenclDevice::ReleaseOpenclEnv( GPUEnv *gpuInfo )
         {
             clStatus = clReleaseProgram( gpuEnv.mpArryPrograms[i] );
             CHECK_OPENCL( clStatus, "clReleaseProgram" );
-            gpuEnv.mpArryPrograms[i] = nullptr;
+            gpuEnv.mpArryPrograms[i] = NULL;
         }
     }
     if ( gpuEnv.mpCmdQueue )
     {
         clReleaseCommandQueue( gpuEnv.mpCmdQueue );
-        gpuEnv.mpCmdQueue = nullptr;
+        gpuEnv.mpCmdQueue = NULL;
     }
     if ( gpuEnv.mpContext )
     {
         clReleaseContext( gpuEnv.mpContext );
-        gpuEnv.mpContext = nullptr;
+        gpuEnv.mpContext = NULL;
     }
     isInited = 0;
     gpuInfo->mnIsUserCreated = 0;
@@ -915,12 +915,12 @@ int OpenclDevice::BinaryGenerated( const char * clFileName, FILE ** fhandle )
     unsigned int i = 0;
     cl_int clStatus;
     int status = 0;
-    char *str = nullptr;
-    FILE *fd = nullptr;
+    char *str = NULL;
+    FILE *fd = NULL;
     char fileName[256] = {0}, cl_name[128] = {0};
     char deviceName[1024];
     clStatus = clGetDeviceInfo(gpuEnv.mpArryDevsID[i], CL_DEVICE_NAME,
-                               sizeof(deviceName), deviceName, nullptr);
+                               sizeof(deviceName), deviceName, NULL);
     CHECK_OPENCL(clStatus, "clGetDeviceInfo");
     str = (char *)strstr(clFileName, (char *)".cl");
     memcpy(cl_name, clFileName, str - clFileName);
@@ -928,8 +928,8 @@ int OpenclDevice::BinaryGenerated( const char * clFileName, FILE ** fhandle )
     sprintf(fileName, "%s-%s.bin", cl_name, deviceName);
     legalizeFileName(fileName);
     fd = fopen(fileName, "rb");
-    status = (fd != nullptr) ? 1 : 0;
-    if (fd != nullptr) {
+    status = (fd != NULL) ? 1 : 0;
+    if (fd != NULL) {
       *fhandle = fd;
     }
     return status;
@@ -942,7 +942,7 @@ int OpenclDevice::CachedOfKernerPrg( const GPUEnv *gpuEnvCached, const char * cl
     {
         if ( strcasecmp( gpuEnvCached->mArryKnelSrcFile[i], clFileName ) == 0 )
         {
-          if (gpuEnvCached->mpArryPrograms[i] != nullptr) {
+          if (gpuEnvCached->mpArryPrograms[i] != NULL) {
             return 1;
             }
         }
@@ -952,9 +952,9 @@ int OpenclDevice::CachedOfKernerPrg( const GPUEnv *gpuEnvCached, const char * cl
 }
 int OpenclDevice::WriteBinaryToFile( const char* fileName, const char* birary, size_t numBytes )
 {
-  FILE *output = nullptr;
+  FILE *output = NULL;
   output = fopen(fileName, "wb");
-  if (output == nullptr) {
+  if (output == NULL) {
     return 0;
     }
 
@@ -971,20 +971,20 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     size_t *binarySizes;
     cl_uint numDevices;
     cl_device_id *mpArryDevsID;
-    char **binaries, *str = nullptr;
+    char **binaries, *str = NULL;
 
     clStatus = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES,
-                                sizeof(numDevices), &numDevices, nullptr);
+                                sizeof(numDevices), &numDevices, NULL);
     CHECK_OPENCL( clStatus, "clGetProgramInfo" );
 
     mpArryDevsID = (cl_device_id*) malloc( sizeof(cl_device_id) * numDevices );
-    if (mpArryDevsID == nullptr) {
+    if (mpArryDevsID == NULL) {
       return 0;
     }
     /* grab the handles to all of the devices in the program. */
     clStatus = clGetProgramInfo(program, CL_PROGRAM_DEVICES,
                                 sizeof(cl_device_id) * numDevices, mpArryDevsID,
-                                nullptr);
+                                NULL);
     CHECK_OPENCL( clStatus, "clGetProgramInfo" );
 
     /* figure out the sizes of each of the binaries. */
@@ -992,12 +992,12 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
 
     clStatus =
         clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES,
-                         sizeof(size_t) * numDevices, binarySizes, nullptr);
+                         sizeof(size_t) * numDevices, binarySizes, NULL);
     CHECK_OPENCL( clStatus, "clGetProgramInfo" );
 
     /* copy over all of the generated binaries. */
     binaries = (char**) malloc( sizeof(char *) * numDevices );
-    if (binaries == nullptr) {
+    if (binaries == NULL) {
       return 0;
     }
 
@@ -1006,18 +1006,18 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
         if ( binarySizes[i] != 0 )
         {
             binaries[i] = (char*) malloc( sizeof(char) * binarySizes[i] );
-            if (binaries[i] == nullptr) {
+            if (binaries[i] == NULL) {
               return 0;
             }
         }
         else
         {
-          binaries[i] = nullptr;
+          binaries[i] = NULL;
         }
     }
 
     clStatus = clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                sizeof(char *) * numDevices, binaries, nullptr);
+                                sizeof(char *) * numDevices, binaries, NULL);
     CHECK_OPENCL(clStatus,"clGetProgramInfo");
 
     /* dump out each binary into its own separate file. */
@@ -1029,7 +1029,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
         {
             char deviceName[1024];
             clStatus = clGetDeviceInfo(mpArryDevsID[i], CL_DEVICE_NAME,
-                                       sizeof(deviceName), deviceName, nullptr);
+                                       sizeof(deviceName), deviceName, NULL);
             CHECK_OPENCL( clStatus, "clGetDeviceInfo" );
 
             str = (char*) strstr( clFileName, (char*) ".cl" );
@@ -1050,17 +1050,17 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     for ( i = 0; i < numDevices; i++ )
     {
       free(binaries[i]);
-      binaries[i] = nullptr;
+      binaries[i] = NULL;
     }
 
     free(binaries);
-    binaries = nullptr;
+    binaries = NULL;
 
     free(binarySizes);
-    binarySizes = nullptr;
+    binarySizes = NULL;
 
     free(mpArryDevsID);
-    mpArryDevsID = nullptr;
+    mpArryDevsID = NULL;
 
     return 1;
 }
@@ -1070,7 +1070,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
 //PERF_COUNT_START("CompileKernelFile")
     cl_int clStatus = 0;
     size_t length;
-    char *buildLog = nullptr, *binary;
+    char *buildLog = NULL, *binary;
     const char *source;
     size_t source_size[1];
     int b_error, binary_status, binaryExisted, idx;
@@ -1095,11 +1095,11 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
     if ( binaryExisted == 1 )
     {
       clStatus = clGetContextInfo(gpuInfo->mpContext, CL_CONTEXT_NUM_DEVICES,
-                                  sizeof(numDevices), &numDevices, nullptr);
+                                  sizeof(numDevices), &numDevices, NULL);
       CHECK_OPENCL(clStatus, "clGetContextInfo");
 
       mpArryDevsID = (cl_device_id *)malloc(sizeof(cl_device_id) * numDevices);
-      if (mpArryDevsID == nullptr) {
+      if (mpArryDevsID == NULL) {
         return 0;
         }
 //PERF_COUNT_SUB("get numDevices")
@@ -1125,11 +1125,11 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
 
         fclose( fd );
 //PERF_COUNT_SUB("read file")
-        fd = nullptr;
+        fd = NULL;
         // grab the handles to all of the devices in the context.
         clStatus = clGetContextInfo(gpuInfo->mpContext, CL_CONTEXT_DEVICES,
                                     sizeof(cl_device_id) * numDevices,
-                                    mpArryDevsID, nullptr);
+                                    mpArryDevsID, NULL);
         CHECK_OPENCL( clStatus, "clGetContextInfo" );
 //PERF_COUNT_SUB("get devices")
         //fprintf(stderr, "[OD] Create kernel from binary\n");
@@ -1140,7 +1140,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
 //PERF_COUNT_SUB("clCreateProgramWithBinary")
         free( binary );
         free( mpArryDevsID );
-        mpArryDevsID = nullptr;
+        mpArryDevsID = NULL;
         // PERF_COUNT_SUB("binaryExisted")
     }
     else
@@ -1153,7 +1153,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
 //PERF_COUNT_SUB("!binaryExisted")
     }
 
-    if (gpuInfo->mpArryPrograms[idx] == (cl_program) nullptr) {
+    if (gpuInfo->mpArryPrograms[idx] == (cl_program) NULL) {
       return 0;
     }
 
@@ -1165,14 +1165,14 @@ PERF_COUNT_START("OD::CompileKernel::clBuildProgram")
     {
       clStatus =
           clBuildProgram(gpuInfo->mpArryPrograms[idx], 1, gpuInfo->mpArryDevsID,
-                         buildOption, nullptr, nullptr);
+                         buildOption, NULL, NULL);
       // PERF_COUNT_SUB("clBuildProgram notUserCreated")
     }
     else
     {
       clStatus =
           clBuildProgram(gpuInfo->mpArryPrograms[idx], 1, &(gpuInfo->mpDevID),
-                         buildOption, nullptr, nullptr);
+                         buildOption, NULL, NULL);
       // PERF_COUNT_SUB("clBuildProgram isUserCreated")
     }
 PERF_COUNT_END
@@ -1183,13 +1183,13 @@ PERF_COUNT_END
         {
           clStatus = clGetProgramBuildInfo(
               gpuInfo->mpArryPrograms[idx], gpuInfo->mpArryDevsID[0],
-              CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
+              CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
         }
         else
         {
           clStatus = clGetProgramBuildInfo(
               gpuInfo->mpArryPrograms[idx], gpuInfo->mpDevID,
-              CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
+              CL_PROGRAM_BUILD_LOG, 0, NULL, &length);
         }
         if ( clStatus != CL_SUCCESS )
         {
@@ -1197,7 +1197,7 @@ PERF_COUNT_END
             return 0;
         }
         buildLog = (char*) malloc( length );
-        if (buildLog == (char *)nullptr) {
+        if (buildLog == (char *)NULL) {
           return 0;
         }
         if ( !gpuInfo->mnIsUserCreated )
@@ -1217,7 +1217,7 @@ PERF_COUNT_END
         }
 
         fd1 = fopen( "kernel-build.log", "w+" );
-        if (fd1 != nullptr) {
+        if (fd1 != NULL) {
           fwrite(buildLog, sizeof(char), length, fd1);
           fclose(fd1);
         }
@@ -1283,16 +1283,16 @@ PERF_COUNT_START("pixReadFromTiffKernel")
     //Kernel enqueue
 PERF_COUNT_SUB("before")
 clStatus =
-    clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
-                           globalThreads, localThreads, 0, nullptr, nullptr);
+    clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, NULL,
+                           globalThreads, localThreads, 0, NULL, NULL);
 CHECK_OPENCL(clStatus, "clEnqueueNDRangeKernel");
 
 /* map results back from gpu */
 void *ptr = clEnqueueMapBuffer(rEnv.mpkCmdQueue, outputCl, CL_TRUE, CL_MAP_READ,
-                               0, w * h * sizeof(l_uint32), 0, nullptr, nullptr,
+                               0, w * h * sizeof(l_uint32), 0, NULL, NULL,
                                &clStatus);
 CHECK_OPENCL(clStatus, "clEnqueueMapBuffer outputCl");
-clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, outputCl, ptr, 0, nullptr, nullptr);
+clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, outputCl, ptr, 0, NULL, NULL);
 
 // Sync
 clFinish(rEnv.mpkCmdQueue);
@@ -1332,8 +1332,8 @@ static cl_int pixDilateCL_55(l_int32 wpl, l_int32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
 
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     //Swap source and dest buffers
     pixtemp = pixsCLBuffer;
@@ -1362,8 +1362,8 @@ static cl_int pixDilateCL_55(l_int32 wpl, l_int32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
     status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     return status;
 }
@@ -1403,8 +1403,8 @@ static cl_int pixErodeCL_55(l_int32 wpl, l_int32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
 
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     //Swap source and dest buffers
     pixtemp = pixsCLBuffer;
@@ -1435,8 +1435,8 @@ static cl_int pixErodeCL_55(l_int32 wpl, l_int32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(fwmask), &fwmask);
     status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(lwmask), &lwmask);
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     return status;
 }
@@ -1489,8 +1489,8 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
       status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(wpl), &wpl);
       status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(h), &h);
       status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                      nullptr, globalThreads, localThreads, 0,
-                                      nullptr, nullptr);
+                                      NULL, globalThreads, localThreads, 0,
+                                      NULL, NULL);
 
       if (yp > 0 || yn > 0) {
         pixtemp = pixsCLBuffer;
@@ -1513,8 +1513,8 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
       status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
       status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(isEven), &isEven);
       status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                      nullptr, globalThreads, localThreads, 0,
-                                      nullptr, nullptr);
+                                      NULL, globalThreads, localThreads, 0,
+                                      NULL, NULL);
 
       if (yp > 0 || yn > 0) {
         pixtemp = pixsCLBuffer;
@@ -1541,8 +1541,8 @@ pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
         status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
         status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(yn), &yn);
         status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                        nullptr, globalThreads, localThreads, 0,
-                                        nullptr, nullptr);
+                                        NULL, globalThreads, localThreads, 0,
+                                        NULL, NULL);
     }
 
     return status;
@@ -1600,8 +1600,8 @@ static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 7, sizeof(rwmask), &rwmask);
     status = clSetKernelArg(rEnv.mpkKernel, 8, sizeof(lwmask), &lwmask);
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     if (yp > 0 || yn > 0) {
       pixtemp = pixsCLBuffer;
@@ -1624,8 +1624,8 @@ static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h)
     status = clSetKernelArg(rEnv.mpkKernel, 7, sizeof(lwmask), &lwmask);
     status = clSetKernelArg(rEnv.mpkKernel, 8, sizeof(isEven), &isEven);
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
 
     if (yp > 0 || yn > 0) {
       pixtemp = pixsCLBuffer;
@@ -1648,8 +1648,8 @@ static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h)
         clSetKernelArg(rEnv.mpkKernel, 5, sizeof(isAsymmetric), &isAsymmetric);
     status = clSetKernelArg(rEnv.mpkKernel, 6, sizeof(yn), &yn);
     status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+                                    NULL, globalThreads, localThreads, 0,
+                                    NULL, NULL);
   }
 
   return status;
@@ -1694,7 +1694,7 @@ static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
 //output = buffer1 & ~(buffer2)
 static
 cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
-                          cl_mem buffer2, cl_mem outBuffer = nullptr) {
+                          cl_mem buffer2, cl_mem outBuffer = NULL) {
   cl_int status;
   size_t globalThreads[2];
   int gsize;
@@ -1705,7 +1705,7 @@ cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
   gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
   globalThreads[1] = gsize;
 
-  if (outBuffer != nullptr) {
+  if (outBuffer != NULL) {
     rEnv.mpkKernel = clCreateKernel(rEnv.mpkProgram, "pixSubtract", &status);
     CHECK_OPENCL(status, "clCreateKernel pixSubtract");
   } else {
@@ -1719,12 +1719,12 @@ cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
   status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &buffer2);
   status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
   status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
-  if (outBuffer != nullptr) {
+  if (outBuffer != NULL) {
     status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(cl_mem), &outBuffer);
   }
   status =
-      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
-                             globalThreads, localThreads, 0, nullptr, nullptr);
+      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, NULL,
+                             globalThreads, localThreads, 0, NULL, NULL);
 
   return status;
 }
@@ -1756,7 +1756,7 @@ void OpenclDevice::pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline,
   // this will be later used for pixsubtract
   clStatus =
       clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixdCLBuffer, pixdCLIntermediate, 0,
-                          0, sizeof(int) * wpl * h, 0, nullptr, nullptr);
+                          0, sizeof(int) * wpl * h, 0, NULL, NULL);
 
   // Second step: Open Operation - Erode followed by Dilate
   pixtemp = pixsCLBuffer;
@@ -1777,14 +1777,14 @@ void OpenclDevice::pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline,
   // this will be later used
   clStatus =
       clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixdCLBuffer, pixdCLIntermediate, 0,
-                          0, sizeof(int) * wpl * h, 0, nullptr, nullptr);
+                          0, sizeof(int) * wpl * h, 0, NULL, NULL);
 
   pixtemp = pixsCLBuffer;
   pixsCLBuffer = pixdCLBuffer;
   pixdCLBuffer = pixtemp;
 
   // Fourth step: Get vertical line
-  // pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
+  // pixOpenBrick(NULL, pix_hollow, 1, min_line_length);
   clStatus = pixOpenCL(1, line_vsize, wpl, h);
 
   // Copy the vertical line output to CPU buffer
@@ -1796,7 +1796,7 @@ void OpenclDevice::pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline,
   pixdCLIntermediate = pixtemp;
 
   // Fifth step: Get horizontal line
-  // pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
+  // pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
   clStatus = pixOpenCL(line_hsize, 1, wpl, h);
 
   // Copy the horizontal line output to CPU buffer
@@ -1839,7 +1839,7 @@ int OpenclDevice::HistogramRectOCL(unsigned char *imageData,
   int block_size = 256;
   cl_uint numCUs;
   clStatus = clGetDeviceInfo(gpuEnv.mpDevID, CL_DEVICE_MAX_COMPUTE_UNITS,
-                             sizeof(numCUs), &numCUs, nullptr);
+                             sizeof(numCUs), &numCUs, NULL);
   CHECK_OPENCL(clStatus, "clCreateBuffer imageBuffer");
 
   int requestedOccupancy = 10;
@@ -1865,7 +1865,7 @@ int OpenclDevice::HistogramRectOCL(unsigned char *imageData,
 
   cl_mem tmpHistogramBuffer =
       clCreateBuffer(histKern.mpkContext, CL_MEM_READ_WRITE,
-                     tmpHistogramBins * sizeof(cl_uint), nullptr, &clStatus);
+                     tmpHistogramBins * sizeof(cl_uint), NULL, &clStatus);
   CHECK_OPENCL(clStatus, "clCreateBuffer tmpHistogramBuffer");
 
   /* atomic sync buffer */
@@ -1900,12 +1900,12 @@ int OpenclDevice::HistogramRectOCL(unsigned char *imageData,
     //Initialize tmpHistogramBuffer buffer
     ptr = clEnqueueMapBuffer(
         histKern.mpkCmdQueue, tmpHistogramBuffer, CL_TRUE, CL_MAP_WRITE, 0,
-        tmpHistogramBins * sizeof(cl_uint), 0, nullptr, nullptr, &clStatus);
+        tmpHistogramBins * sizeof(cl_uint), 0, NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer tmpHistogramBuffer");
 
     memset(ptr, 0, tmpHistogramBins*sizeof(cl_uint));
     clEnqueueUnmapMemObject(histKern.mpkCmdQueue, tmpHistogramBuffer, ptr, 0,
-                            nullptr, nullptr);
+                            NULL, NULL);
 
     /* set kernel 1 arguments */
     clStatus =
@@ -1933,8 +1933,8 @@ int OpenclDevice::HistogramRectOCL(unsigned char *imageData,
     /* launch histogram */
 PERF_COUNT_SUB("before")
 clStatus = clEnqueueNDRangeKernel(histKern.mpkCmdQueue, histKern.mpkKernel, 1,
-                                  nullptr, global_work_size, local_work_size, 0,
-                                  nullptr, nullptr);
+                                  NULL, global_work_size, local_work_size, 0,
+                                  NULL, NULL);
 CHECK_OPENCL(clStatus,
              "clEnqueueNDRangeKernel kernel_HistogramRectAllChannels");
 clFinish(histKern.mpkCmdQueue);
@@ -1943,8 +1943,8 @@ if (clStatus != 0) {
     }
     /* launch histogram */
     clStatus = clEnqueueNDRangeKernel(
-        histRedKern.mpkCmdQueue, histRedKern.mpkKernel, 1, nullptr,
-        red_global_work_size, local_work_size, 0, nullptr, nullptr);
+        histRedKern.mpkCmdQueue, histRedKern.mpkKernel, 1, NULL,
+        red_global_work_size, local_work_size, 0, NULL, NULL);
     CHECK_OPENCL( clStatus, "clEnqueueNDRangeKernel kernel_HistogramRectAllChannelsReduction" );
     clFinish( histRedKern.mpkCmdQueue );
     if (clStatus != 0) {
@@ -1956,13 +1956,13 @@ if (clStatus != 0) {
     ptr = clEnqueueMapBuffer(histRedKern.mpkCmdQueue, histogramBuffer, CL_TRUE,
                              CL_MAP_READ, 0,
                              kHistogramSize * bytes_per_pixel * sizeof(int), 0,
-                             nullptr, nullptr, &clStatus);
+                             NULL, NULL, &clStatus);
     CHECK_OPENCL( clStatus, "clEnqueueMapBuffer histogramBuffer");
     if (clStatus != 0) {
       retVal = -1;
     }
     clEnqueueUnmapMemObject(histRedKern.mpkCmdQueue, histogramBuffer, ptr, 0,
-                            nullptr, nullptr);
+                            NULL, NULL);
 
     clReleaseMemObject(histogramBuffer);
     clReleaseMemObject(imageBuffer);
@@ -1997,7 +1997,7 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char *imageData,
   int block_size = 256;
   cl_uint numCUs = 6;
   clStatus = clGetDeviceInfo(gpuEnv.mpDevID, CL_DEVICE_MAX_COMPUTE_UNITS,
-                             sizeof(numCUs), &numCUs, nullptr);
+                             sizeof(numCUs), &numCUs, NULL);
   CHECK_OPENCL(clStatus, "clCreateBuffer imageBuffer");
 
   int requestedOccupancy = 10;
@@ -2064,8 +2064,8 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char *imageData,
   /* launch kernel & wait */
   PERF_COUNT_SUB("before")
   clStatus = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 1,
-                                    nullptr, global_work_size, local_work_size,
-                                    0, nullptr, nullptr);
+                                    NULL, global_work_size, local_work_size,
+                                    0, NULL, NULL);
   CHECK_OPENCL(clStatus, "clEnqueueNDRangeKernel kernel_ThresholdRectToPix");
   clFinish(rEnv.mpkCmdQueue);
   PERF_COUNT_SUB("kernel")
@@ -2076,10 +2076,10 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char *imageData,
   /* map results back from gpu */
   void *ptr =
       clEnqueueMapBuffer(rEnv.mpkCmdQueue, pixThBuffer, CL_TRUE, CL_MAP_READ, 0,
-                         pixSize, 0, nullptr, nullptr, &clStatus);
+                         pixSize, 0, NULL, NULL, &clStatus);
   CHECK_OPENCL(clStatus, "clEnqueueMapBuffer histogramBuffer");
-  clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, pixThBuffer, ptr, 0, nullptr,
-                          nullptr);
+  clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, pixThBuffer, ptr, 0, NULL,
+                          NULL);
 
   clReleaseMemObject(imageBuffer);
   clReleaseMemObject(thresholdsBuffer);
@@ -2221,7 +2221,7 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
         OpenclDevice::gpuEnv = *env;
         int wpl = pixGetWpl(input.pix);
         OpenclDevice::pixReadFromTiffKernel(tiffdata, input.width, input.height,
-                                            wpl, nullptr);
+                                            wpl, NULL);
 #if ON_WINDOWS
         QueryPerformanceCounter(&time_funct_end);
         time = (time_funct_end.QuadPart-time_funct_start.QuadPart)/(double)(freq.QuadPart);
@@ -2529,9 +2529,9 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
         Pix *src_pix = input.pix;
         OpenclDevice::gpuEnv = *env;
         OpenclDevice::initMorphCLAllocations(wpl, input.height, input.pix);
-        Pix *pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
+        Pix *pix_vline = NULL, *pix_hline = NULL, *pix_closed = NULL;
         OpenclDevice::pixGetLinesCL(
-            nullptr, input.pix, &pix_vline, &pix_hline, &pix_closed, true,
+            NULL, input.pix, &pix_vline, &pix_hline, &pix_closed, true,
             closing_brick, closing_brick, max_line_width, max_line_width,
             min_line_length, min_line_length);
 
@@ -2559,13 +2559,13 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
         // native serial code
         Pix *src_pix = input.pix;
         Pix *pix_closed =
-            pixCloseBrick(nullptr, src_pix, closing_brick, closing_brick);
+            pixCloseBrick(NULL, src_pix, closing_brick, closing_brick);
         Pix *pix_solid =
-            pixOpenBrick(nullptr, pix_closed, max_line_width, max_line_width);
-        Pix *pix_hollow = pixSubtract(nullptr, pix_closed, pix_solid);
+            pixOpenBrick(NULL, pix_closed, max_line_width, max_line_width);
+        Pix *pix_hollow = pixSubtract(NULL, pix_closed, pix_solid);
         pixDestroy(&pix_solid);
-        Pix *pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
-        Pix *pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
+        Pix *pix_vline = pixOpenBrick(NULL, pix_hollow, 1, min_line_length);
+        Pix *pix_hline = pixOpenBrick(NULL, pix_hollow, min_line_length, 1);
         pixDestroy(&pix_hollow);
 
 #if ON_WINDOWS
@@ -2617,7 +2617,7 @@ static ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
     // overwrite statuc gpuEnv w/ current device
     // so native opencl calls can be used; they use static gpuEnv
     printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
-    GPUEnv *env = nullptr;
+    GPUEnv *env = NULL;
     if (device->type == DS_DEVICE_OPENCL_DEVICE) {
         env = new GPUEnv;
         //printf("[DS] populating tmp GPUEnv from device\n");
@@ -2745,7 +2745,7 @@ ds_device OpenclDevice::getDeviceSelection( ) {
 
       bool overridden = false;
       char *overrideDeviceStr = getenv("TESSERACT_OPENCL_DEVICE");
-      if (overrideDeviceStr != nullptr) {
+      if (overrideDeviceStr != NULL) {
         int overrideDeviceIdx = atoi(overrideDeviceStr);
         if (overrideDeviceIdx > 0 && overrideDeviceIdx <= profile->numDevices) {
           printf(
@@ -2777,9 +2777,9 @@ ds_device OpenclDevice::getDeviceSelection( ) {
       printf("[DS] OpenCL runtime not available.\n");
       selectedDevice.type = DS_DEVICE_NATIVE_CPU;
       selectedDevice.oclDeviceName = "(null)";
-      selectedDevice.score = nullptr;
-      selectedDevice.oclDeviceID = nullptr;
-      selectedDevice.oclDriverVersion = nullptr;
+      selectedDevice.score = NULL;
+      selectedDevice.oclDeviceID = NULL;
+      selectedDevice.oclDriverVersion = NULL;
     }
     deviceIsSelected = true;
     PERF_COUNT_SUB("select from Profile")
