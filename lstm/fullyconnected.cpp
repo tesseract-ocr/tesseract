@@ -28,7 +28,11 @@
 #include "networkscratch.h"
 
 // Number of threads to use for parallel calculation of Forward and Backward.
+#ifdef _OPENMP
 const int kNumThreads = 4;
+#else
+const int kNumThreads = 1;
+#endif
 
 namespace tesseract {
 
@@ -117,7 +121,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
   temp_lines.init_to_size(kNumThreads, NetworkScratch::FloatVec());
   GenericVector<NetworkScratch::FloatVec> curr_input;
   curr_input.init_to_size(kNumThreads, NetworkScratch::FloatVec());
-  for (int i = 0; i < temp_lines.size(); ++i) {
+  for (int i = 0; i < kNumThreads; ++i) {
     temp_lines[i].Init(no_, scratch);
     curr_input[i].Init(ni_, scratch);
   }
@@ -208,7 +212,7 @@ bool FullyConnected::Backward(bool debug, const NetworkIO& fwd_deltas,
   back_deltas->Resize(fwd_deltas, ni_);
   GenericVector<NetworkScratch::FloatVec> errors;
   errors.init_to_size(kNumThreads, NetworkScratch::FloatVec());
-  for (int i = 0; i < errors.size(); ++i) errors[i].Init(no_, scratch);
+  for (int i = 0; i < kNumThreads; ++i) errors[i].Init(no_, scratch);
   GenericVector<NetworkScratch::FloatVec> temp_backprops;
   if (needs_to_backprop_) {
     temp_backprops.init_to_size(kNumThreads, NetworkScratch::FloatVec());
