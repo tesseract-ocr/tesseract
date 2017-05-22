@@ -6,21 +6,21 @@
 
 If you think you found a bug in Tesseract, please create an issue.
 
-Use the [users mailing-list](https://groups.google.com/d/forum/tesseract-ocr) instead of creating an Issue if ...
+Use the [users mailing-list](https://groups.google.com/forum/#!forum/tesseract-ocr) instead of creating an Issue if ...
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) wiki page. 
-* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process.  Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki/tesstrain.sh) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
+* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process.  Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
 * You have a general question. 
 
 An issue should only be reported if the platform you are using is one of these:
   * Linux (but not a version that is more than 4 years old)
   * Windows (Windows 7 or newer version)
-  * Mac (last 3 releases)
+  * Mac OSX (last 3 releases)
 
 For older versions or other operating systems, use the Tesseract forum.
 
-When creating an issue, please report your operating system, including its specific version: "Ubuntu 16.04", "Windows 10", "OS X 10.11" etc.
+When creating an issue, please report your operating system, including its specific version: "Ubuntu 16.04", "Windows 10", "Mac OSX 10.11" etc.
 
 Search through open and closed issues to see if similar issue has been reported already (and sometimes also has been solved). 
 
@@ -60,7 +60,7 @@ Use 'Preview' before you send your issue. Read it again before sending.
 
 Note that most of the people that respond to issues and answer questions are either other 'regular' users or **volunteers** developers. Please be nice to them :-)
 
-The [tesseract developers](http://groups.google.com/group/tesseract-dev/) forum should be used to discuss Tesseract development: bug fixes, enhancements, add-ons for Tesseract.
+The [tesseract developers](https://groups.google.com/forum/#!forum/tesseract-dev) forum should be used to discuss Tesseract development: bug fixes, enhancements, add-ons for Tesseract.
 
 Sometimes you will not get a respond to your issue or question. We apologize in advance! Please don't take it personally. There can be many reasons for this, including: time limits, no one knows the answer (at least not the ones that are available at that time) or just that 
 your question has been asked (and has been answered) many times before...
