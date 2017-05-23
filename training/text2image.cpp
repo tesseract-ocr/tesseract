@@ -204,12 +204,12 @@ static string StringReplace(const string& in,
 // Renders the bigrams and calls FontInfo::GetSpacingProperties() to
 // obtain spacing information. Produces the output .fontinfo file with a line
 // per unichar of the form:
-// unichar space_before space_after kerned1 kerned_space1 kerned2 ...
+// unichar space_before space_after kerned_number kerned1 kerned_space1 kerned2 ...
 // Fox example, if unichar "A" has spacing of 0 pixels before and -1 pixels
 // after, is kerned with "V" resulting in spacing of "AV" to be -7 and kerned
 // with "T", such that "AT" has spacing of -5, the entry/line for unichar "A"
 // in .fontinfo file will be:
-// A 0 -1 T -5 V -7
+// A 0 -1 2 T -5 V -7
 void ExtractFontProperties(const string &utf8_text,
                            StringRenderer *render,
                            const string &output_base) {
@@ -277,8 +277,8 @@ void ExtractFontProperties(const string &utf8_text,
         spacing_map_it1 = spacing_map.find(ch1);
         ++ok_count;
       }
-      if (ok_count == 2 && xgap != (spacing_map_it0->second.x_gap_after +
-                                    spacing_map_it1->second.x_gap_before)) {
+      if (xgap != (spacing_map_it0->second.x_gap_after +
+                   spacing_map_it1->second.x_gap_before)) {
         spacing_map_it0->second.kerned_x_gaps[ch1] = xgap;
       }
     }
