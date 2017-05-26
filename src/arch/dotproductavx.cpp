@@ -42,41 +42,34 @@ namespace tesseract {
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
 double DotProductAVX(const double* u, const double* v, int n) {
-  int max_offset = n - 4;
+  int max_offset = n - 3;
   int offset = 0;
   // Accumulate a set of 4 sums in sum, by loading pairs of 4 values from u and
   // v, and multiplying them together in parallel.
   __m256d sum = _mm256_setzero_pd();
-  if (offset <= max_offset) {
-    offset = 4;
+  if (max_offset > 0) {
     // Aligned load is reputedly faster but requires 32 byte aligned input.
-    if ((reinterpret_cast<uintptr_t>(u) & 31) == 0 &&
-        (reinterpret_cast<uintptr_t>(v) & 31) == 0) {
-      // Use aligned load.
-      __m256d floats1 = _mm256_load_pd(u);
-      __m256d floats2 = _mm256_load_pd(v);
-      // Multiply.
-      sum = _mm256_mul_pd(floats1, floats2);
-      while (offset <= max_offset) {
-        floats1 = _mm256_load_pd(u + offset);
-        floats2 = _mm256_load_pd(v + offset);
-        offset += 4;
+    if ((reinterpret_cast<const uintptr_t>(u) & 31) == 0 &&
+        (reinterpret_cast<const uintptr_t>(v) & 31) == 0) {
+      do {
+        // Use aligned load.
+        __m256d floats1 = _mm256_load_pd(u + offset);
+        __m256d floats2 = _mm256_load_pd(v + offset);
+        // Multiply.
         __m256d product = _mm256_mul_pd(floats1, floats2);
         sum = _mm256_add_pd(sum, product);
-      }
+        offset += 4;
+      } while (offset < max_offset);
     } else {
-      // Use unaligned load.
-      __m256d floats1 = _mm256_loadu_pd(u);
-      __m256d floats2 = _mm256_loadu_pd(v);
-      // Multiply.
-      sum = _mm256_mul_pd(floats1, floats2);
-      while (offset <= max_offset) {
-        floats1 = _mm256_loadu_pd(u + offset);
-        floats2 = _mm256_loadu_pd(v + offset);
-        offset += 4;
+      do {
+        // Use unaligned load.
+        __m256d floats1 = _mm256_loadu_pd(u + offset);
+        __m256d floats2 = _mm256_loadu_pd(v + offset);
+        // Multiply.
         __m256d product = _mm256_mul_pd(floats1, floats2);
         sum = _mm256_add_pd(sum, product);
-      }
+        offset += 4;
+      } while (offset < max_offset);
     }
   }
   // Add the 4 product sums together horizontally. Not so easy as with sse, as
