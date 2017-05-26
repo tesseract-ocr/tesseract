@@ -72,30 +72,7 @@ double DotProductAVX(const double* u, const double* v, int n) {
       } while (offset < max_offset);
     }
   }
-  // Add the 4 product sums together horizontally. Not so easy as with sse, as
-  // there is no add across the upper/lower 128 bit boundary, so permute to
-  // move the upper 128 bits to lower in another register.
-  __m256d sum2 = _mm256_permute2f128_pd(sum, sum, 1);
-  sum = _mm256_hadd_pd(sum, sum2);
-  sum = _mm256_hadd_pd(sum, sum);
-  double result;
-  // _mm256_extract_f64 doesn't exist, but resist the temptation to use an sse
-  // instruction, as that introduces a 70 cycle delay. All this casting is to
-  // fool the intrinsics into thinking we are extracting the bottom int64.
-  auto cast_sum = _mm256_castpd_si256(sum);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-  *(reinterpret_cast<int64_t*>(&result)) =
-#if defined(_WIN32) || defined(__i386__)
-      // This is a very simple workaround that is activated
-      // for all platforms that do not have _mm256_extract_epi64.
-      // _mm256_extract_epi64(X, Y) == ((uint64_t*)&X)[Y]
-      ((uint64_t*)&cast_sum)[0]
-#else
-      _mm256_extract_epi64(cast_sum, 0)
-#endif
-      ;
-#pragma GCC diagnostic pop
+  double result = sum[0] + sum[1] + sum[2] + sum[3];
   while (offset < n) {
     result += u[offset] * v[offset];
     ++offset;
