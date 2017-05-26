@@ -42,7 +42,7 @@ namespace tesseract {
 // Computes and returns the dot product of the n-vectors u and v.
 // Uses Intel AVX intrinsics to access the SIMD instruction set.
 double DotProductAVX(const double* u, const double* v, int n) {
-  int max_offset = n - 3;
+  int max_offset = n - 7;
   int offset = 0;
   // Accumulate a set of 4 sums in sum, by loading pairs of 4 values from u and
   // v, and multiplying them together in parallel.
@@ -59,6 +59,11 @@ double DotProductAVX(const double* u, const double* v, int n) {
         __m256d product = _mm256_mul_pd(floats1, floats2);
         sum = _mm256_add_pd(sum, product);
         offset += 4;
+        floats1 = _mm256_load_pd(u + offset);
+        floats2 = _mm256_load_pd(v + offset);
+        product = _mm256_mul_pd(floats1, floats2);
+        sum = _mm256_add_pd(sum, product);
+        offset += 4;
       } while (offset < max_offset);
     } else {
       do {
@@ -69,10 +74,17 @@ double DotProductAVX(const double* u, const double* v, int n) {
         __m256d product = _mm256_mul_pd(floats1, floats2);
         sum = _mm256_add_pd(sum, product);
         offset += 4;
+        floats1 = _mm256_loadu_pd(u + offset);
+        floats2 = _mm256_loadu_pd(v + offset);
+        product = _mm256_mul_pd(floats1, floats2);
+        sum = _mm256_add_pd(sum, product);
+        offset += 4;
       } while (offset < max_offset);
     }
   }
-  double result = sum[0] + sum[1] + sum[2] + sum[3];
+  double tmp[4];
+  _mm256_store_pd(&tmp[0], sum);
+  double result = tmp[0] + tmp[1] + tmp[2] + tmp[3];
   while (offset < n) {
     result += u[offset] * v[offset];
     ++offset;
