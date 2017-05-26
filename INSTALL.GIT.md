@@ -9,6 +9,8 @@ before new build.
 Known dependencies for training tools (excluding leptonica):
  * compiler with c++11 support
  * autoconf-archive
+ * automake
+ * pkg-config
  * pango-devel
  * cairo-devel
  * icu-devel
@@ -32,14 +34,14 @@ All language data files can be retrieved from git repository (useful only for pa
 (Repository is huge - more that 1.2 GB. You do not need to download
 all languages). 
 
-To compile ScrollView.jar you need to download piccolo2d-core-3.0.jar
+You need an Internet connection to compile ScrollView.jar because the build will automatically download piccolo2d-core-3.0.jar
 and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to tesseract/java.
 
-Then run:
+Just run:
 
     $ make ScrollView.jar
 
-and follow instruction on [Viewer Debugging wiki](https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging).
+and follow the instruction on [Viewer Debugging wiki](https://github.com/tesseract-ocr/tesseract/wiki/ViewerDebugging).
 
 
 # CMAKE
