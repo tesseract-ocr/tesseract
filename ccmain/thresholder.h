@@ -22,8 +22,7 @@
 
 #include "platform.h"
 #include "publictypes.h"
-
-struct Pix;
+#include "raiileptonica_forward.h"
 
 namespace tesseract {
 
@@ -168,8 +167,7 @@ class TESS_API ImageThresholder {
 
  protected:
   /// Clone or other copy of the source Pix.
-  /// The pix will always be PixDestroy()ed on destruction of the class.
-  Pix*                 pix_;
+  PixPtr               pix_;
 
   int                  image_width_;    //< Width of source pix_.
   int                  image_height_;   //< Height of source pix_.

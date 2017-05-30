@@ -31,7 +31,7 @@
 namespace tesseract {
 
 ImageThresholder::ImageThresholder()
-  : pix_(NULL),
+  : pix_(),
     image_width_(0), image_height_(0),
     pix_channels_(0), pix_wpl_(0),
     scale_(1), yres_(300), estimated_res_(300) {
@@ -44,7 +44,7 @@ ImageThresholder::~ImageThresholder() {
 
 // Destroy the Pix if there is one, freeing memory.
 void ImageThresholder::Clear() {
-  pixDestroy(&pix_);
+  pix_.reset();
 }
 
 // Return true if no image has been set.
@@ -146,7 +146,7 @@ void ImageThresholder::GetImageSizes(int* left, int* top,
 // immediately after, but may not go away until after the Thresholder has
 // finished with it.
 void ImageThresholder::SetImage(const Pix* pix) {
-  asPixPtr(pix_).reset();
+  pix_.reset(); // TODO: still necessary with new type PixPtr?
   Pix* src = const_cast<Pix*>(pix);
   int depth;
   pixGetDimensions(src, &image_width_, &image_height_, &depth);
@@ -156,17 +156,17 @@ void ImageThresholder::SetImage(const Pix* pix) {
   if (pixGetColormap(src)) {
     const PixPtr tmp(pixRemoveColormap(src, REMOVE_CMAP_BASED_ON_SRC));
     depth = pixGetDepth(tmp.p());
-    pix_ = (depth > 1 && depth < 8) ? pixConvertTo8(tmp.p(), false) : tmp.detach();
+    pix_.reset((depth > 1 && depth < 8) ? pixConvertTo8(tmp.p(), false) : tmp.detach());
   } else if (depth > 1 && depth < 8) {
-    pix_ = pixConvertTo8(src, false);
+    pix_.reset(pixConvertTo8(src, false));
   } else {
-    pix_ = pixCopy(NULL, src);
+    pix_.reset(pixCopy(NULL, src));
   }
-  depth = pixGetDepth(pix_);
+  depth = pixGetDepth(pix_.p());
   pix_channels_ = depth / 8;
-  pix_wpl_ = pixGetWpl(pix_);
+  pix_wpl_ = pixGetWpl(pix_.p());
   scale_ = 1;
-  estimated_res_ = yres_ = pixGetYRes(pix_);
+  estimated_res_ = yres_ = pixGetYRes(pix_.p());
   Init();
 }
 
@@ -184,7 +184,7 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
     // allows the caller to modify the output.
     *pix = pixCopy(nullptr, PixPtr(GetPixRect()).p());
   } else {
-    OtsuThresholdRectToPix(pix_, pix);
+    OtsuThresholdRectToPix(pix_.p(), pix);
   }
   return true;
 }
@@ -225,11 +225,11 @@ void ImageThresholder::Init() {
 Pix* ImageThresholder::GetPixRect() {
   if (IsFullImage()) {
     // Just clone the whole thing.
-    return pixClone(pix_);
+    return pix_.detach();
   } else {
     // Crop to the given rectangle.
     const BoxPtr box(boxCreate(rect_left_, rect_top_, rect_width_, rect_height_));
-    return pixClipRectangle(pix_, box.p(), NULL);
+    return pixClipRectangle(pix_.p(), box.p(), NULL);
   }
 }
 

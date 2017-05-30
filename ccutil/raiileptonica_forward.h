@@ -16,12 +16,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_RAIILEPTONICA_H_
-#define TESSERACT_CCUTIL_RAIILEPTONICA_H_
+#ifndef TESSERACT_CCUTIL_RAIILEPTONICA_FORWARD_H_
+#define TESSERACT_CCUTIL_RAIILEPTONICA_FORWARD_H_
 
-#include "raiileptonica_forward.h"
-#include <assert.h>
-#include "allheaders.h" // Leptonica
+#include <memory> // std::unique_ptr
 
 // These are smart pointers that will manage a single reference to
 // a Leptonica object, but without implying unique global ownership.
@@ -54,53 +52,38 @@
 
 // See usage below for M1 and M2, defined with common prefix M0:
 #define TESSERACT_CCUTIL_RAIILEPTONICA_M0(T,What,what)                        \
-    /*What##Ptr_deleter*/                                                     \
+    struct T;                                                                 \
+    struct What##Ptr_deleter {                                                \
       /*must not throw any exceptions*/                                       \
-      inline void What##Ptr_deleter::operator() (T* what) const {             \
-        what##Destroy(&what);                                                 \
-      }                                                                       \
-    inline What##Ptr& as##What##Ptr(T* &what) {                               \
-      /*for empty-base optimization*/                                         \
-      static_assert(std::is_standard_layout<What##Ptr>::value, "");           \
-      /*so the size should be the same as that of a raw pointer*/             \
-      static_assert(sizeof(What##Ptr) == sizeof(T*), "");                     \
-      /*and we will assume that there are no dirty tricks*/                   \
-      assert(reinterpret_cast<What##Ptr&>(what).p() == what);                 \
-      /*so hopefully this is safe*/                                           \
-      return reinterpret_cast<What##Ptr&>(what);                              \
-    }                                                                         \
+      void operator() (T* what) const;                                        \
+    };                                                                        \
+    struct What##Ptr : std::unique_ptr<T, What##Ptr_deleter> {                \
+     private:                                                                 \
+      typedef std::unique_ptr<T, What##Ptr_deleter> super;                    \
+     public:                                                                  \
+      explicit What##Ptr(T* what = nullptr) : super(what) {}                  \
+      /*don't visually wag the dog, e.g., pix.get() -> pix.p()*/              \
+      T* get() const = delete;                                                \
+      T* p() const { return super::get(); }                                   \
 
-// The prefix is the whole story:
+// Simply close off What##Ptr:
 #define TESSERACT_CCUTIL_RAIILEPTONICA_M1(T,What,what)                        \
         TESSERACT_CCUTIL_RAIILEPTONICA_M0(T,What,what)                        \
+    };                                                                        \
 
-// Some more What##Ptr member function definitions:
+// Add to What##Ptr, then close off:
 #define TESSERACT_CCUTIL_RAIILEPTONICA_M2(T,What,what)                        \
         TESSERACT_CCUTIL_RAIILEPTONICA_M0(T,What,what)                        \
-    /*What##Ptr*/                                                             \
       /*prefer const + detach() to non-const + release()*/                    \
       /*  (named after intrusive_ptr::detach())*/                             \
-      inline T* What##Ptr::detach() const {                                   \
-        /*avoiding implementation differentiation between*/                   \
-        /*  what##Clone(T*) and what##Copy(T*, L_CLONE)*/                     \
-        p()->refcount++;                                                      \
-        return p();                                                           \
-      }                                                                       \
+      T* detach() const;                                                      \
       /*strictly for use as an input&output argument*/                        \
-      inline T* &What##Ptr::rawInOut() {                                      \
-        /*same static_assert's as for as##What##Ptr()*/                       \
-        /*and we will assume that there are no dirty tricks*/                 \
-        assert(reinterpret_cast<T* &>(*this) == p());                         \
-        /*so hopefully this is safe*/                                         \
-        return reinterpret_cast<T* &>(*this);                                 \
-      }                                                                       \
+      T* &rawInOut();                                                         \
       /*strictly for use as an output argument,*/                             \
       /*  right after default initialisation*/                                \
       /*well, also for Tesseract::mutable_pix_binary()...*/                   \
-      inline T* &What##Ptr::rawOut() {                                        \
-        assert(! p()); /*precondition*/                                       \
-        return rawInOut();                                                    \
-      }                                                                       \
+      T* &rawOut();                                                           \
+    };                                                                        \
 
 // without reference count, T != What:
 TESSERACT_CCUTIL_RAIILEPTONICA_M1(L_Bmf,Bmf,bmf)
@@ -117,4 +100,4 @@ TESSERACT_CCUTIL_RAIILEPTONICA_M2(Pta,Pta,pta)
 #undef TESSERACT_CCUTIL_RAIILEPTONICA_M1
 #undef TESSERACT_CCUTIL_RAIILEPTONICA_M0
 
-#endif // TESSERACT_CCUTIL_RAIILEPTONICA_H_
+#endif // TESSERACT_CCUTIL_RAIILEPTONICA_FORWARD_H_
