@@ -434,6 +434,11 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
   }
 }
 
+const STRING& TessBaseAPI::GetTessDataDir() const
+{
+  return tesseract_->datadir;
+}
+
 /**
  * Init only the lang model component of Tesseract. The only functions
  * that work after this init are SetVariable and IsValidWord.
