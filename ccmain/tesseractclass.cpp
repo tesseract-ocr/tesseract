@@ -607,7 +607,7 @@ Tesseract::Tesseract()
       pix_binary_(),
       pix_grey_(),
       pix_original_(),
-      pix_thresholds_(NULL),
+      pix_thresholds_(),
       source_resolution_(0),
       textord_(this),
       right_to_left_(false),
@@ -639,7 +639,7 @@ void Tesseract::Clear() {
   pixa_debug_.WritePDF(debug_name.string());
   pix_binary_.reset();
   pix_grey_.reset();
-  pixDestroy(&pix_thresholds_);
+  pix_thresholds_.reset();
   pixDestroy(&scaled_color_);
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);

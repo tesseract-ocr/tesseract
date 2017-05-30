@@ -166,7 +166,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   bool cjk_mode = textord_use_cjk_fp_model;
 
   textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_.p(),
-                       pix_thresholds_, pix_grey_.p(), splitting || cjk_mode,
+                       pix_thresholds_.p(), pix_grey_.p(), splitting || cjk_mode,
                        &diacritic_blobs, blocks, &to_blocks);
   return auto_page_seg_ret_val;
 }
@@ -221,7 +221,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
       finder->SetEquationDetect(equ_detect_);
     }
     result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
-                                to_block, photomask_pix.p(), pix_thresholds_,
+                                to_block, photomask_pix.p(), pix_thresholds_.p(),
                                 pix_grey_.p(), &pixa_debug_, &found_blocks,
                                 diacritic_blobs, to_blocks);
     if (result >= 0)

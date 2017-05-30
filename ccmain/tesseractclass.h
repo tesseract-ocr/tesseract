@@ -219,7 +219,7 @@ class Tesseract : public Wordrec {
   Pix* BestPix() const { return pix_original_.p(); }
   // Takes ownership of the given thresholds.
   void set_pix_thresholds(Pix* thresholds) {
-    asPixPtr(pix_thresholds_).reset(thresholds);
+    pix_thresholds_.reset(thresholds);
   }
   int source_resolution() const {
     return source_resolution_;
@@ -1188,7 +1188,7 @@ class Tesseract : public Wordrec {
   // Original input image. Color if the input was color.
   PixPtr pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
-  Pix* pix_thresholds_;
+  PixPtr pix_thresholds_;
   // Debug images. If non-empty, will be written on destruction.
   DebugPixa pixa_debug_;
   // Input image resolution after any scaling. The resolution is not well
