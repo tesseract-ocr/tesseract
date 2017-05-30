@@ -191,12 +191,13 @@ class Tesseract : public Wordrec {
   Pix* pix_binary() const {
     return pix_binary_.p();
   }
+  // Borrowed pointer.
   Pix* pix_grey() const {
-    return pix_grey_;
+    return pix_grey_.p();
   }
   // Takes ownership of the given grey_pix.
   void set_pix_grey(Pix* grey_pix) {
-    asPixPtr(pix_grey_).reset(grey_pix);
+    pix_grey_.reset(grey_pix);
   }
   // Borrowed pointer.
   Pix* pix_original() const { return pix_original_.p(); }
@@ -1183,7 +1184,7 @@ class Tesseract : public Wordrec {
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
   PixPtr pix_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
-  Pix* pix_grey_;
+  PixPtr pix_grey_;
   // Original input image. Color if the input was color.
   PixPtr pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.

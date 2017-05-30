@@ -605,7 +605,7 @@ Tesseract::Tesseract()
 
       backup_config_file_(NULL),
       pix_binary_(),
-      pix_grey_(NULL),
+      pix_grey_(),
       pix_original_(),
       pix_thresholds_(NULL),
       source_resolution_(0),
@@ -638,7 +638,7 @@ void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.string());
   pix_binary_.reset();
-  pixDestroy(&pix_grey_);
+  pix_grey_.reset();
   pixDestroy(&pix_thresholds_);
   pixDestroy(&scaled_color_);
   deskew_ = FCOORD(1.0f, 0.0f);
