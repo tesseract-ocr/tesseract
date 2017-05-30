@@ -606,7 +606,7 @@ Tesseract::Tesseract()
       backup_config_file_(NULL),
       pix_binary_(NULL),
       pix_grey_(NULL),
-      pix_original_(NULL),
+      pix_original_(),
       pix_thresholds_(NULL),
       source_resolution_(0),
       textord_(this),
@@ -626,7 +626,6 @@ Tesseract::Tesseract()
 
 Tesseract::~Tesseract() {
   Clear();
-  pixDestroy(&pix_original_);
   end_tesseract();
   sub_langs_.delete_data_pointers();
 #ifndef ANDROID_BUILD

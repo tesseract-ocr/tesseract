@@ -41,11 +41,6 @@
 //   pix_ = final_pix;
 // with just:
 //   asPixPtr(pix_).reset(pixBlockconv(pix_, 1, 1));
-// (The unnamed namespace lets the compiler currently help
-// prevent inadvertent usage across compilation units,
-// until it is perhaps decided otherwise.)
-
-namespace {
 
 // TODO: or make What##Ptr ancestry private,
 //         with "using declarations" for whitelisted features?
@@ -85,7 +80,7 @@ namespace {
         return rawInOut();                                          \
       }                                                             \
     };                                                              \
-    What##Ptr& as##What##Ptr(What* &what) {                         \
+    inline What##Ptr& as##What##Ptr(What* &what) {                  \
       /*for empty-base optimization*/                               \
       static_assert(std::is_standard_layout<What##Ptr>::value, ""); \
       /*so the size should be the same as that of a raw pointer*/   \
@@ -95,13 +90,6 @@ namespace {
       /*so hopefully this is safe*/                                 \
       return reinterpret_cast<What##Ptr&>(what);                    \
     }                                                               \
-    struct What##DoNotUseThisType {                                 \
-      void donotcallthisfunction() {                                \
-        /*silence any unused-function complaints*/                  \
-        What* what = nullptr;                                       \
-        as##What##Ptr(what).reset(nullptr);                         \
-      }                                                             \
-    };                                                              \
 
 TESSERACT_CCUTIL_RAIILEPTONICA_M(Box,box)
 TESSERACT_CCUTIL_RAIILEPTONICA_M(Numa,numa)
@@ -111,7 +99,5 @@ TESSERACT_CCUTIL_RAIILEPTONICA_M(Boxa,boxa)
 TESSERACT_CCUTIL_RAIILEPTONICA_M(Pixa,pixa)
 
 #undef TESSERACT_CCUTIL_RAIILEPTONICA_M
-
-} // unnamed namespace
 
 #endif // TESSERACT_CCUTIL_RAIILEPTONICA_H_

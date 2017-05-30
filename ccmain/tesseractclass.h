@@ -197,10 +197,11 @@ class Tesseract : public Wordrec {
   void set_pix_grey(Pix* grey_pix) {
     asPixPtr(pix_grey_).reset(grey_pix);
   }
-  Pix* pix_original() const { return pix_original_; }
+  // Borrowed pointer.
+  Pix* pix_original() const { return pix_original_.p(); }
   // Takes ownership of the given original_pix.
   void set_pix_original(Pix* original_pix) {
-    asPixPtr(pix_original_).reset(original_pix);
+    pix_original_.reset(original_pix);
     // Clone to sublangs as well.
     for (int i = 0; i < sub_langs_.size(); ++i)
       sub_langs_[i]->set_pix_original(original_pix ? pixClone(original_pix)
@@ -213,7 +214,7 @@ class Tesseract : public Wordrec {
   // To tell the difference pixGetDepth() will return 32, 8 or 1.
   // In any case, the return value is a borrowed Pix, and should not be
   // deleted or pixDestroyed.
-  Pix* BestPix() const { return pix_original_; }
+  Pix* BestPix() const { return pix_original_.p(); }
   // Takes ownership of the given thresholds.
   void set_pix_thresholds(Pix* thresholds) {
     asPixPtr(pix_thresholds_).reset(thresholds);
@@ -1183,7 +1184,7 @@ class Tesseract : public Wordrec {
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
   // Original input image. Color if the input was color.
-  Pix* pix_original_;
+  PixPtr pix_original_;
   // Thresholds that were used to generate the thresholded image from grey.
   Pix* pix_thresholds_;
   // Debug images. If non-empty, will be written on destruction.
