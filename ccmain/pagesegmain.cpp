@@ -99,8 +99,8 @@ static Pix* RemoveEnclosingCircle(Pix* pixs) {
 int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
                            Tesseract* osd_tess, OSResults* osr) {
   ASSERT_HOST(pix_binary_ != NULL);
-  int width = pixGetWidth(pix_binary_);
-  int height = pixGetHeight(pix_binary_);
+  int width = pixGetWidth(pix_binary_.p());
+  int height = pixGetHeight(pix_binary_.p());
   // Get page segmentation mode.
   PageSegMode pageseg_mode = static_cast<PageSegMode>(
       static_cast<int>(tessedit_pageseg_mode));
@@ -146,8 +146,8 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     deskew_ = FCOORD(1.0f, 0.0f);
     reskew_ = FCOORD(1.0f, 0.0f);
     if (pageseg_mode == PSM_CIRCLE_WORD) {
-      if (Pix* const pixcleaned = RemoveEnclosingCircle(pix_binary_)) { // reference transfer
-        asPixPtr(pix_binary_).reset(pixcleaned);
+      if (Pix* const pixcleaned = RemoveEnclosingCircle(pix_binary_.p())) { // reference transfer
+        pix_binary_.reset(pixcleaned);
       }
     }
   }
@@ -165,7 +165,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
       pageseg_devanagari_split_strategy != ShiroRekhaSplitter::NO_SPLIT;
   bool cjk_mode = textord_use_cjk_fp_model;
 
-  textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_,
+  textord_.TextordPage(pageseg_mode, reskew_, width, height, pix_binary_.p(),
                        pix_thresholds_, pix_grey_, splitting || cjk_mode,
                        &diacritic_blobs, blocks, &to_blocks);
   return auto_page_seg_ret_val;
@@ -275,25 +275,25 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
 
   ASSERT_HOST(pix_binary_ != NULL);
   if (tessedit_dump_pageseg_images) {
-    pixa_debug_.AddPix(pix_binary_, "PageSegInput");
+    pixa_debug_.AddPix(pix_binary_.p(), "PageSegInput");
   }
   // Leptonica is used to find the rule/separator lines in the input.
   LineFinder::FindAndRemoveLines(source_resolution_,
-                                 textord_tabfind_show_vlines, pix_binary_,
+                                 textord_tabfind_show_vlines, pix_binary_.p(),
                                  &vertical_x, &vertical_y, music_mask_pix,
                                  &v_lines, &h_lines);
   if (tessedit_dump_pageseg_images) {
-    pixa_debug_.AddPix(pix_binary_, "NoLines");
+    pixa_debug_.AddPix(pix_binary_.p(), "NoLines");
   }
   // Leptonica is used to find a mask of the photo regions in the input.
-  *photo_mask_pix = ImageFind::FindImages(pix_binary_, &pixa_debug_);
+  *photo_mask_pix = ImageFind::FindImages(pix_binary_.p(), &pixa_debug_);
   if (tessedit_dump_pageseg_images) {
-    pixa_debug_.AddPix(pix_binary_, "NoImages");
+    pixa_debug_.AddPix(pix_binary_.p(), "NoImages");
   }
   if (!PSM_COL_FIND_ENABLED(pageseg_mode)) v_lines.clear();
 
   // The rest of the algorithm uses the usual connected components.
-  textord_.find_components(pix_binary_, blocks, to_blocks);
+  textord_.find_components(pix_binary_.p(), blocks, to_blocks);
 
   TO_BLOCK_IT to_block_it(to_blocks);
   // There must be exactly one input block.

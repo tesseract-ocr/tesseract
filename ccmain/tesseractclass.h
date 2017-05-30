@@ -184,11 +184,12 @@ class Tesseract : public Wordrec {
   }
   // Destroy any existing pix and return a pointer to the pointer.
   Pix** mutable_pix_binary() {
-    pixDestroy(&pix_binary_);
-    return &pix_binary_;
+    pix_binary_.reset(); // mutable_pix_binary() only used with TessBaseAPI::Threshold(Pix** pix), which also performs reset(), so this seems to be redundant
+    return &pix_binary_.rawOut();
   }
+  // Borrowed pointer.
   Pix* pix_binary() const {
-    return pix_binary_;
+    return pix_binary_.p();
   }
   Pix* pix_grey() const {
     return pix_grey_;
@@ -226,10 +227,10 @@ class Tesseract : public Wordrec {
     source_resolution_ = ppi;
   }
   int ImageWidth() const {
-    return pixGetWidth(pix_binary_);
+    return pixGetWidth(pix_binary_.p());
   }
   int ImageHeight() const {
-    return pixGetHeight(pix_binary_);
+    return pixGetHeight(pix_binary_.p());
   }
   Pix* scaled_color() const {
     return scaled_color_;
@@ -1180,7 +1181,7 @@ class Tesseract : public Wordrec {
   STRING word_config_;
   // Image used for input to layout analysis and tesseract recognition.
   // May be modified by the ShiroRekhaSplitter to eliminate the top-line.
-  Pix* pix_binary_;
+  PixPtr pix_binary_;
   // Grey-level input image if the input was not binary, otherwise NULL.
   Pix* pix_grey_;
   // Original input image. Color if the input was color.

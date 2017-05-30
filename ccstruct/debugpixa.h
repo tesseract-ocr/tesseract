@@ -21,12 +21,12 @@ class DebugPixa {
     bmfDestroy(&fonts_);
   }
 
-  // Adds the given pix to the set of pages in the PDF file, with the given
-  // caption added to the top.
+  // Adds (a copy of) the given pix to the set of pages in the PDF file,
+  // with the given caption added to the top.
   void AddPix(const Pix* pix, const char* caption) {
     int depth = pixGetDepth(const_cast<Pix*>(pix));
     int color = depth < 8 ? 1 : (depth > 8 ? 0x00ff0000 : 0x80);
-    Pix* pix_debug = pixAddSingleTextblock(
+    Pix* pix_debug = pixAddSingleTextblock( // a new Pix, or nullptr for error (TODO: error handling?)
         const_cast<Pix*>(pix), fonts_, caption, color, L_ADD_BELOW, nullptr);
     pixaAddPix(pixa_, pix_debug, L_INSERT);
   }

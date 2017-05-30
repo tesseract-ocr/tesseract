@@ -75,6 +75,7 @@
       }                                                             \
       /*strictly for use as an output argument,*/                   \
       /*  right after default initialisation*/                      \
+      /*well, also for Tesseract::mutable_pix_binary()...*/         \
       What* &rawOut() {                                             \
         assert(! p()); /*precondition*/                             \
         return rawInOut();                                          \

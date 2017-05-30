@@ -604,7 +604,7 @@ Tesseract::Tesseract()
       // END DEPRECATED PARAMETERS
 
       backup_config_file_(NULL),
-      pix_binary_(NULL),
+      pix_binary_(),
       pix_grey_(NULL),
       pix_original_(),
       pix_thresholds_(NULL),
@@ -637,7 +637,7 @@ Tesseract::~Tesseract() {
 void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.string());
-  pixDestroy(&pix_binary_);
+  pix_binary_.reset();
   pixDestroy(&pix_grey_);
   pixDestroy(&pix_thresholds_);
   pixDestroy(&scaled_color_);
@@ -697,7 +697,7 @@ void Tesseract::PrepareForPageseg() {
         static_cast<inT32>(sub_langs_[i]->pageseg_devanagari_split_strategy));
     if (pageseg_strategy > max_pageseg_strategy)
       max_pageseg_strategy = pageseg_strategy;
-    asPixPtr(sub_langs_[i]->pix_binary_).reset(pixClone(pix_binary()));
+    sub_langs_[i]->pix_binary_.reset(pixClone(pix_binary()));
   }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
   // the newly splitted image.
@@ -705,7 +705,7 @@ void Tesseract::PrepareForPageseg() {
   splitter_.set_pageseg_split_strategy(max_pageseg_strategy);
   if (splitter_.Split(true, &pixa_debug_)) {
     ASSERT_HOST(splitter_.splitted_image());
-    asPixPtr(pix_binary_).reset(pixClone(splitter_.splitted_image()));
+    pix_binary_.reset(pixClone(splitter_.splitted_image()));
   }
 }
 
@@ -734,13 +734,13 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
   bool split_for_ocr = splitter_.Split(false, &pixa_debug_);
   // Restore pix_binary to the binarized original pix for future reference.
   ASSERT_HOST(splitter_.orig_pix());
-  asPixPtr(pix_binary_).reset(pixClone(splitter_.orig_pix()));
+  pix_binary_.reset(pixClone(splitter_.orig_pix()));
   // If the pageseg and ocr strategies are different, refresh the block list
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.
   if (splitter_.HasDifferentSplitStrategies()) {
-    BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_),
-                pixGetHeight(pix_binary_));
+    BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_.p()),
+                pixGetHeight(pix_binary_.p()));
     Pix* pix_for_ocr = split_for_ocr ? splitter_.splitted_image() :
         splitter_.orig_pix();
     extract_edges(pix_for_ocr, &block);
