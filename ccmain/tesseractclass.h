@@ -233,15 +233,17 @@ class Tesseract : public Wordrec {
   int ImageHeight() const {
     return pixGetHeight(pix_binary_.p());
   }
+  // Borrowed pointer.
   Pix* scaled_color() const {
-    return scaled_color_;
+    return scaled_color_.p();
   }
   int scaled_factor() const {
     return scaled_factor_;
   }
+  // Takes ownership of the given color.
   void SetScaledColor(int factor, Pix* color) {
     scaled_factor_ = factor;
-    scaled_color_ = color;
+    scaled_color_.reset(color);
   }
   const Textord& textord() const {
     return textord_;
@@ -1201,7 +1203,7 @@ class Tesseract : public Wordrec {
   Textord textord_;
   // True if the primary language uses right_to_left reading order.
   bool right_to_left_;
-  Pix* scaled_color_;
+  PixPtr scaled_color_;
   int scaled_factor_;
   FCOORD deskew_;
   FCOORD reskew_;

@@ -220,7 +220,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
-    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
+    result = finder->FindBlocks(pageseg_mode, scaled_color_.p(), scaled_factor_,
                                 to_block, photomask_pix.p(), pix_thresholds_.p(),
                                 pix_grey_.p(), &pixa_debug_, &found_blocks,
                                 diacritic_blobs, to_blocks);

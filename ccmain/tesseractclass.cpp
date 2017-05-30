@@ -611,7 +611,7 @@ Tesseract::Tesseract()
       source_resolution_(0),
       textord_(this),
       right_to_left_(false),
-      scaled_color_(NULL),
+      scaled_color_(),
       scaled_factor_(-1),
       deskew_(1.0f, 0.0f),
       reskew_(1.0f, 0.0f),
@@ -640,7 +640,7 @@ void Tesseract::Clear() {
   pix_binary_.reset();
   pix_grey_.reset();
   pix_thresholds_.reset();
-  pixDestroy(&scaled_color_);
+  scaled_color_.reset();
   deskew_ = FCOORD(1.0f, 0.0f);
   reskew_ = FCOORD(1.0f, 0.0f);
   splitter_.Clear();
