@@ -64,7 +64,12 @@ TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outpu
     return new TessHOcrRenderer(outputbase, font_info);
 }
 
-TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
+TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir)
+{
+    return new TessPDFRenderer(outputbase, datadir, false);
+}
+
+TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreateTextonly(const char* outputbase, const char* datadir,
                                                              BOOL textonly)
 {
     return new TessPDFRenderer(outputbase, datadir, textonly);

@@ -183,6 +183,11 @@ static const int kMaxBytesPerCodepoint = 20;
  * PDF Renderer interface implementation
  **********************************************************************/
 
+TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir)
+    : TessResultRenderer(outputbase, "pdf") {
+  TessPDFRenderer(outputbase, datadir, false);
+}
+
 TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
                                  bool textonly)
     : TessResultRenderer(outputbase, "pdf") {
