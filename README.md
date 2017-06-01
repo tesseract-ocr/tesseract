@@ -22,7 +22,7 @@ This project does not include a GUI application. If you need one, please see the
 
 You should note that in many cases, in order to get better OCR results, you'll need to [improve the quality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) of the image you are giving Tesseract.
 
-The latest stable version is 3.05.00, released in February 2017.
+The latest stable version is 3.05.01, released on 1st June 2017.
 
 # Brief history
 
