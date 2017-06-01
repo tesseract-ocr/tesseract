@@ -8,7 +8,7 @@
 **Other**
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
 [![Doxygen Documentation](https://img.shields.io/badge/Doxygen-documentation-brightgreen.svg)](http://tesseract-ocr.github.io/)
-[![Wiki Documentation](https://img.shields.io/badge/wiki-documentation-orange.svg](https://github.com/tesseract-ocr/tesseract/wiki)
+[![Wiki Documentation](https://img.shields.io/badge/wiki-documentation-orange.svg)](https://github.com/tesseract-ocr/tesseract/wiki)
 [![Insight.io Documentation](https://www.insight.io/repoBadge/github.com/tesseract-ocr/tesseract)](https://insight.io/github.com/tesseract-ocr/tesseract)
 
 ## About
