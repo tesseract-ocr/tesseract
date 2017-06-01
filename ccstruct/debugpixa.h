@@ -11,14 +11,10 @@ namespace tesseract {
 class DebugPixa {
  public:
   // TODO(rays) add another constructor with size control.
-  DebugPixa() : pixa_(pixaCreate(0)) {
-    fonts_ = bmfCreate(nullptr, 14);
-  }
+  DebugPixa() : pixa_(pixaCreate(0)), fonts_(bmfCreate(nullptr, 14)) {}
   // If the filename_ has been set and there are any debug images, they are
   // written to the set filename_.
-  ~DebugPixa() {
-    bmfDestroy(&fonts_);
-  }
+  ~DebugPixa() {}
 
   // Adds (a copy of) the given pix to the set of pages in the PDF file,
   // with the given caption added to the top.
@@ -26,7 +22,7 @@ class DebugPixa {
     int depth = pixGetDepth(const_cast<Pix*>(pix));
     int color = depth < 8 ? 1 : (depth > 8 ? 0x00ff0000 : 0x80);
     Pix* pix_debug = pixAddSingleTextblock( // a new Pix, or nullptr for error (TODO: error handling?)
-        const_cast<Pix*>(pix), fonts_, caption, color, L_ADD_BELOW, nullptr);
+        const_cast<Pix*>(pix), fonts_.p(), caption, color, L_ADD_BELOW, nullptr);
     pixaAddPix(pixa_.p(), pix_debug, L_INSERT);
   }
 
@@ -43,7 +39,7 @@ class DebugPixa {
   // The collection of images to put in the PDF.
   PixaPtr pixa_;
   // The fonts used to draw text captions.
-  L_Bmf* fonts_;
+  BmfPtr fonts_;
 };
 
 }  // namespace tesseract
