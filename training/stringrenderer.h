@@ -179,7 +179,7 @@ class StringRenderer {
   // Page properties
   int page_width_, page_height_, h_margin_, v_margin_;
   // Text rendering properties
-  int pen_color_[3];
+  double pen_color_[3];
   double char_spacing_;
   int leading_, resolution_;
   bool vertical_text_;
