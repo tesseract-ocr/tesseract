@@ -1,15 +1,13 @@
 # Tesseract OCR
+  
+### Build 
+[![Build Status](https://travis-ci.org/tesseract-ocr/tesseract.svg?branch=master)](https://travis-ci.org/tesseract-ocr/tesseract)
+[![Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819/branch/master?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
 
-**Travis**
-[![Travis Build Status](https://travis-ci.org/tesseract-ocr/tesseract.svg?branch=master)](https://travis-ci.org/tesseract-ocr/tesseract)
-**Appveyor**
-[![Appveyor Build status](https://ci.appveyor.com/api/projects/status/miah0ikfsf0j3819/branch/master?svg=true)](https://ci.appveyor.com/project/zdenop/tesseract/)
-
-**Other**
+### Other
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/tesseract-ocr/badge.svg)](https://scan.coverity.com/projects/tesseract-ocr)
-[![Doxygen Documentation](https://img.shields.io/badge/Doxygen-documentation-brightgreen.svg)](http://tesseract-ocr.github.io/)
-[![Wiki Documentation](https://img.shields.io/badge/wiki-documentation-orange.svg)](https://github.com/tesseract-ocr/tesseract/wiki)
-[![Insight.io Documentation](https://www.insight.io/repoBadge/github.com/tesseract-ocr/tesseract)](https://insight.io/github.com/tesseract-ocr/tesseract)
+[![Insight.io](https://www.insight.io/repoBadge/github.com/tesseract-ocr/tesseract)](https://insight.io/github.com/tesseract-ocr/tesseract)
+
 
 ## About
 
@@ -36,7 +34,7 @@ at Hewlett-Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 
-The latest stable version is **[3.05.00](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.00)**, released in February 2017. Source code is available from [3.05 branch on github](https://github.com/tesseract-ocr/tesseract/tree/3.05). 3.05.01 bug-fix release is expected in May/June 2017.
+The latest stable version is **[3.05.01](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.01)**, released on June 1, 2017. Latest source code for 3.05 is available from [3.05 branch on github](https://github.com/tesseract-ocr/tesseract/tree/3.05). 
 
 Source code for the new **[LSTM based 4.00.00alpha version](https://github.com/tesseract-ocr/tesseract)** is available from the master branch on github. Please note this branch is under active development. 
 
