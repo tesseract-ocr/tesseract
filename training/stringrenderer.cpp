@@ -331,7 +331,7 @@ const std::vector<BoxChar*>& StringRenderer::GetBoxes() const {
 }
 
 Boxa* StringRenderer::GetPageBoxes() const {
-    return page_boxes_;
+    return page_boxes_.p();
 }
 
 void StringRenderer::RotatePageBoxes(float rotation) {
@@ -344,7 +344,7 @@ void StringRenderer::ClearBoxes() {
   for (size_t i = 0; i < boxchars_.size(); ++i)
     delete boxchars_[i];
   boxchars_.clear();
-  boxaDestroy(&page_boxes_);
+  page_boxes_.reset();
 }
 
 string StringRenderer::GetBoxesStr() {
@@ -599,8 +599,8 @@ void StringRenderer::ComputeClusterBoxes() {
   if (all_boxes != nullptr) {
     /*used with rawOut()*/ BoxPtr page_box;
     boxaGetExtent(all_boxes.p(), nullptr, nullptr, &page_box.rawOut());
-    if (page_boxes_ == nullptr) page_boxes_ = boxaCreate(0);
-    boxaAddBox(page_boxes_, page_box.p(), L_CLONE);
+    if (page_boxes_ == nullptr) page_boxes_.reset(boxaCreate(0));
+    boxaAddBox(page_boxes_.p(), page_box.p(), L_CLONE);
   }
 }
 

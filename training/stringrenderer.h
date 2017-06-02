@@ -38,8 +38,7 @@
 #include "pango/pango-layout.h"
 #include "pango/pangocairo.h"
 
-struct Boxa;
-struct Pix;
+#include "raiileptonica.h"
 
 namespace tesseract {
 
@@ -137,7 +136,7 @@ class StringRenderer {
   // to ClearBoxes()).
   const std::vector<BoxChar*>& GetBoxes() const;
   // Get the rendered page bounding boxes of all pages created thus far (or
-  // since last call to ClearBoxes()).
+  // since last call to ClearBoxes()). Borrowed pointer.
   Boxa* GetPageBoxes() const;
 
   // Rotate the boxes on the most recent page by the given rotation.
@@ -207,7 +206,7 @@ class StringRenderer {
   std::vector<BoxChar*> boxchars_;
   int box_padding_;
   // Bounding boxes for pages since the last call to ClearBoxes().
-  Boxa* page_boxes_;
+  BoxaPtr page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
   std::unordered_map<char32, inT64> char_map_;  // Time-saving char histogram.
