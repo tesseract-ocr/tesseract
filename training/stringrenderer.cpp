@@ -432,8 +432,8 @@ static void MergeBoxCharsToWords(std::vector<BoxChar*>* boxchars) {
     } else {
       BoxChar* last_boxchar = result.back();
       // Compute bounding box union
-      const Box* box = boxchars->at(i)->box();
-      Box* last_box = last_boxchar->mutable_box();
+      const Box* const box = boxchars->at(i)->box(); // borrowed pointer
+      Box* const last_box = last_boxchar->mutable_box(); // borrowed pointer
       int left = min(last_box->x, box->x);
       int right = max(last_box->x + last_box->w, box->x + box->w);
       int top = min(last_box->y, box->y);

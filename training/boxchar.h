@@ -27,13 +27,12 @@
 #include <vector>
 
 #include "allheaders.h"  // from Leptonica
+#include "raiileptonica.h" // BoxPtr
 
 #ifdef USE_STD_NAMESPACE
 using std::string;
 using std::vector;
 #endif
-
-struct Box;
 
 namespace tesseract {
 
@@ -45,7 +44,8 @@ class BoxChar {
 
   // Accessors.
   const string& ch() const { return ch_; }
-  const Box* box() const   { return box_; }
+  // Borrowed pointer.
+  const Box* box() const   { return box_.p(); }
   const int& page() const  { return page_; }
 
 
@@ -55,7 +55,8 @@ class BoxChar {
   void set_page(int page) { page_ = page; }
 
   string* mutable_ch() { return &ch_; }
-  Box* mutable_box()   { return box_; }
+  // Borrowed pointer.
+  Box* mutable_box()   { return box_.p(); }
 
   // Sort function for sorting by left edge of box. Note that this will not
   // work properly until after InsertNewlines and InsertSpaces.
@@ -108,7 +109,7 @@ class BoxChar {
 
  private:
   string ch_;
-  Box* box_; // owns reference
+  BoxPtr box_;
   int page_;
 };
 
