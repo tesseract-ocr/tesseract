@@ -344,7 +344,7 @@ class ColumnFinder : public TabFind {
   // Horizontal line separators.
   TabVector_LIST horizontal_lines_;
   // Image map of photo/noise areas on the page.
-  Pix* nontext_map_;
+  PixPtr nontext_map_;
   // Textline projection map.
   TextlineProjection projection_;
   // Sequence of DENORMS that indicate how to get back to the original image

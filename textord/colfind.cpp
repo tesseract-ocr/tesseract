@@ -89,7 +89,7 @@ ColumnFinder::ColumnFinder(int gridsize,
     tabfind_aligned_gap_fraction_(aligned_gap_fraction),
     reskew_(1.0f, 0.0f), rotation_(1.0f, 0.0f), rerotate_(1.0f, 0.0f),
     best_columns_(NULL), stroke_width_(NULL),
-    part_grid_(gridsize, bleft, tright), nontext_map_(NULL),
+    part_grid_(gridsize, bleft, tright), nontext_map_(nullptr),
     projection_(resolution),
     denorm_(NULL), input_blobs_win_(NULL), equation_detect_(NULL) {
   TabVector_IT h_it(&horizontal_lines_);
@@ -104,7 +104,6 @@ ColumnFinder::~ColumnFinder() {
   if (stroke_width_ != NULL)
     delete stroke_width_;
   delete input_blobs_win_;
-  pixDestroy(&nontext_map_);
   while (denorm_ != NULL) {
     DENORM* dead_denorm = denorm_;
     denorm_ = const_cast<DENORM*>(denorm_->predecessor());
@@ -160,12 +159,13 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
   }
   #endif  // GRAPHICS_DISABLED
   SetBlockRuleEdges(input_block);
-  // TODO: validate that nontext_map_ not used between this point and reset() below
+  // TODO: validate that nontext_map_ not used between this point and reset() below,
+  //       otherwise restore provisional .reset()
   // Run a preliminary strokewidth neighbour detection on the medium blobs.
   stroke_width_->SetNeighboursOnMediumBlobs(input_block);
   CCNonTextDetect nontext_detect(gridsize(), bleft(), tright());
   // Remove obvious noise and make the initial non-text map.
-  asPixPtr(nontext_map_).reset(nontext_detect.ComputeNonTextMask(
+  nontext_map_.reset(nontext_detect.ComputeNonTextMask(
       textord_debug_tabfind, photo_mask_pix, input_block ));
   stroke_width_->FindTextlineDirectionAndFixBrokenCJK(pageseg_mode, cjk_script_,
                                                       input_block);
@@ -294,14 +294,14 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
                              Pix* grey_pix, DebugPixa* pixa_debug,
                              BLOCK_LIST* blocks, BLOBNBOX_LIST* diacritic_blobs,
                              TO_BLOCK_LIST* to_blocks) {
-  pixOr(photo_mask_pix, photo_mask_pix, nontext_map_);
+  pixOr(photo_mask_pix, photo_mask_pix, nontext_map_.p());
   stroke_width_->FindLeaderPartitions(input_block, &part_grid_);
   stroke_width_->RemoveLineResidue(&big_parts_);
   FindInitialTabVectors(NULL, min_gutter_width_, tabfind_aligned_gap_fraction_,
                         input_block);
   SetBlockRuleEdges(input_block);
   stroke_width_->GradeBlobsIntoPartitions(
-      pageseg_mode, rerotate_, input_block, nontext_map_, denorm_, cjk_script_,
+      pageseg_mode, rerotate_, input_block, nontext_map_.p(), denorm_, cjk_script_,
       &projection_, diacritic_blobs, &part_grid_, &big_parts_);
   if (!PSM_SPARSE(pageseg_mode)) {
     ImageFind::FindImagePartitions(photo_mask_pix, rotation_, rerotate_,
