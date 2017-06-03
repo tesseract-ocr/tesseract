@@ -287,8 +287,6 @@ text2image_LDADD += -lws2_32
 wordlist2dawg_LDADD += -lws2_32
 
 AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
-noinst_HEADERS += ../vs2010/port/strcasestr.h
-libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
 endif
 
 ambiguous_words_LDFLAGS = $(OPENCL_LDFLAGS)
