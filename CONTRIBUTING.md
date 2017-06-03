@@ -16,7 +16,7 @@ Use the [users mailing-list](https://groups.google.com/d/forum/tesseract-ocr) in
 An issue should only be reported if the platform you are using is one of these:
   * Linux (but not a version that is more than 4 years old)
   * Windows (Windows 7 or newer version)
-  * Mac OS X (last 3 releases)
+  * macOS (last 3 releases)
 
 For older versions or other operating systems, use the Tesseract forum.
 
