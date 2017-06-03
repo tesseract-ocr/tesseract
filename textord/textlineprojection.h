@@ -15,9 +15,9 @@
 #define TESSERACT_TEXTORD_TEXTLINEPROJECTION_H_
 
 #include "blobgrid.h"      // For BlobGrid
+#include "raiileptonica.h" // For PixPtr
 
 class DENORM;
-struct Pix;
 struct TPOINT;
 
 namespace tesseract {
@@ -198,7 +198,7 @@ class TextlineProjection {
   // The image of horizontally smeared blob boxes summed to provide a
   // textline density map. As with a horizontal projection, the map has
   // dips in the gaps between textlines.
-  Pix* pix_;
+  PixPtr pix_;
 };
 
 }  // namespace tesseract.

@@ -44,14 +44,12 @@ const int kMaxTabStopOverrun = 6;
 namespace tesseract {
 
 TextlineProjection::TextlineProjection(int resolution)
-  : x_origin_(0), y_origin_(0), pix_(NULL) {
+  : x_origin_(0), y_origin_(0), pix_(nullptr) {
   // The projection map should be about 100 ppi, whatever the input.
   scale_factor_ = IntCastRounded(resolution / 100.0);
   if (scale_factor_ < 1) scale_factor_ = 1;
 }
-TextlineProjection::~TextlineProjection() {
-  pixDestroy(&pix_);
-}
+TextlineProjection::~TextlineProjection() {}
 
 // Build the projection profile given the input_block containing lists of
 // blobs, a rotation to convert to image coords,
@@ -69,11 +67,11 @@ void TextlineProjection::ConstructProjection(TO_BLOCK* input_block,
   int width = (image_box.width() + scale_factor_ - 1) / scale_factor_;
   int height = (image_box.height() + scale_factor_ - 1) / scale_factor_;
 
-  asPixPtr(pix_).reset(pixCreate(width, height, 8));
+  pix_.reset(pixCreate(width, height, 8));
   ProjectBlobs(&input_block->blobs, rotation, image_box, nontext_map);
   ProjectBlobs(&input_block->large_blobs, rotation, image_box, nontext_map);
-  asPixPtr(pix_).reset(pixBlockconv(pix_, 1, 1));
-//  asPixPtr(pix_).reset(pixBlockconv(pix_, 2, 2));
+  pix_.reset(pixBlockconv(pix_.p(), 1, 1));
+//  pix_.reset(pixBlockconv(pix_.p(), 2, 2));
 }
 
 // Display the blobs in the window colored according to textline quality.
@@ -118,12 +116,12 @@ void TextlineProjection::MoveNonTextlineBlobs(
 // Create a window and display the projection in it.
 void TextlineProjection::DisplayProjection() const {
 #ifndef GRAPHICS_DISABLED
-  int width = pixGetWidth(pix_);
-  int height = pixGetHeight(pix_);
+  int width = pixGetWidth(pix_.p());
+  int height = pixGetHeight(pix_.p());
   const PixPtr pixc(pixCreate(width, height, 32));
-  int src_wpl = pixGetWpl(pix_);
+  int src_wpl = pixGetWpl(pix_.p());
   int col_wpl = pixGetWpl(pixc.p());
-  uinT32* src_data = pixGetData(pix_);
+  uinT32* src_data = pixGetData(pix_.p());
   uinT32* col_data = pixGetData(pixc.p());
   for (int y = 0; y < height; ++y, src_data += src_wpl, col_data += col_wpl) {
     for (int x = 0; x < width; ++x) {
@@ -274,9 +272,9 @@ int TextlineProjection::VerticalDistance(bool debug, int x,
   y1 = ImageYToProjectionY(y1);
   y2 = ImageYToProjectionY(y2);
   if (y1 == y2) return 0;
-  int wpl = pixGetWpl(pix_);
+  int wpl = pixGetWpl(pix_.p());
   int step = y1 < y2 ? 1 : -1;
-  uinT32* data = pixGetData(pix_) + y1 * wpl;
+  uinT32* data = pixGetData(pix_.p()) + y1 * wpl;
   wpl *= step;
   int prev_pixel = GET_DATA_BYTE(data, x);
   int distance = 0;
@@ -307,9 +305,9 @@ int TextlineProjection::HorizontalDistance(bool debug, int x1, int x2,
   x2 = ImageXToProjectionX(x2);
   y = ImageYToProjectionY(y);
   if (x1 == x2) return 0;
-  int wpl = pixGetWpl(pix_);
+  int wpl = pixGetWpl(pix_.p());
   int step = x1 < x2 ? 1 : -1;
-  uinT32* data = pixGetData(pix_) + y * wpl;
+  uinT32* data = pixGetData(pix_.p()) + y * wpl;
   int prev_pixel = GET_DATA_BYTE(data, x1);
   int distance = 0;
   int right_way_steps = 0;
@@ -519,8 +517,8 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM* denorm,
   TransformToPixCoords(denorm, &end_pt);
   TruncateToImageBounds(&start_pt);
   TruncateToImageBounds(&end_pt);
-  int wpl = pixGetWpl(pix_);
-  uinT32* data = pixGetData(pix_);
+  int wpl = pixGetWpl(pix_.p());
+  uinT32* data = pixGetData(pix_.p());
   int total = 0;
   int count = 0;
   int x_delta = end_pt.x - start_pt.x;
@@ -624,8 +622,8 @@ void TextlineProjection::IncrementRectangle8Bit(const TBOX& box) {
   int scaled_top = ImageYToProjectionY(box.top());
   int scaled_right = ImageXToProjectionX(box.right());
   int scaled_bottom = ImageYToProjectionY(box.bottom());
-  int wpl = pixGetWpl(pix_);
-  uinT32* data = pixGetData(pix_) + scaled_top * wpl;
+  int wpl = pixGetWpl(pix_.p());
+  uinT32* data = pixGetData(pix_.p()) + scaled_top * wpl;
   for (int y = scaled_top; y <= scaled_bottom; ++y) {
     for (int x = scaled_left; x <= scaled_right; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
@@ -748,8 +746,8 @@ void TextlineProjection::TransformToPixCoords(const DENORM* denorm,
 #endif  // _MSC_VER
 // Helper truncates the TPOINT to be within the pix_.
 void TextlineProjection::TruncateToImageBounds(TPOINT* pt) const {
-  pt->x = ClipToRange<int>(pt->x, 0, pixGetWidth(pix_) - 1);
-  pt->y = ClipToRange<int>(pt->y, 0, pixGetHeight(pix_) - 1);
+  pt->x = ClipToRange<int>(pt->x, 0, pixGetWidth(pix_.p()) - 1);
+  pt->y = ClipToRange<int>(pt->y, 0, pixGetHeight(pix_.p()) - 1);
 }
 #ifdef _MSC_VER
 #pragma optimize("", on)
@@ -757,11 +755,11 @@ void TextlineProjection::TruncateToImageBounds(TPOINT* pt) const {
 
 // Transform tesseract image coordinates to coordinates used in the projection.
 int TextlineProjection::ImageXToProjectionX(int x) const {
-  x = ClipToRange((x - x_origin_) / scale_factor_, 0, pixGetWidth(pix_) - 1);
+  x = ClipToRange((x - x_origin_) / scale_factor_, 0, pixGetWidth(pix_.p()) - 1);
   return x;
 }
 int TextlineProjection::ImageYToProjectionY(int y) const {
-  y = ClipToRange((y_origin_ - y) / scale_factor_, 0, pixGetHeight(pix_) - 1);
+  y = ClipToRange((y_origin_ - y) / scale_factor_, 0, pixGetHeight(pix_.p()) - 1);
   return y;
 }
 
