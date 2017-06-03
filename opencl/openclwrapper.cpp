@@ -58,27 +58,6 @@ static const l_uint32 rmask32[] = {
     0x01ffffff, 0x03ffffff, 0x07ffffff, 0x0fffffff, 0x1fffffff, 0x3fffffff,
     0x7fffffff, 0xffffffff};
 
-struct tiff_transform {
-    int vflip;    /* if non-zero, image needs a vertical fip */
-    int hflip;    /* if non-zero, image needs a horizontal flip */
-    int rotate;   /* -1 -> counterclockwise 90-degree rotation,
-                      0 -> no rotation
-                      1 -> clockwise 90-degree rotation */
-};
-
-static struct tiff_transform tiff_orientation_transforms[] = {
-    {0, 0, 0},
-    {0, 1, 0},
-    {1, 1, 0},
-    {1, 0, 0},
-    {0, 1, -1},
-    {0, 0, 1},
-    {0, 1, 1},
-    {0, 0, -1}
-};
-
-static const l_int32 MAX_PAGES_IN_TIFF_FILE = 3000;
-
 static cl_mem pixsCLBuffer, pixdCLBuffer, pixdCLIntermediate; //Morph operations buffers
 static cl_mem pixThBuffer; //output from thresholdtopix calculation
 static cl_int clStatus;
@@ -726,31 +705,6 @@ Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
 
   return pixd;
 }
-
-static cl_mem allocateIntBuffer(KernelEnv rEnv, const l_uint32 *_pValues,
-                                size_t nElements, cl_int *pStatus,
-                                bool sync = false)
-{
-   cl_mem xValues =
-       clCreateBuffer(rEnv.mpkContext, (cl_mem_flags)(CL_MEM_READ_WRITE),
-                      nElements * sizeof(l_int32), NULL, pStatus);
-
-   if (_pValues != NULL) {
-     l_int32 *pValues = (l_int32 *)clEnqueueMapBuffer(
-         rEnv.mpkCmdQueue, xValues, CL_TRUE, CL_MAP_WRITE, 0,
-         nElements * sizeof(l_int32), 0, NULL, NULL, NULL);
-
-     memcpy(pValues, _pValues, nElements * sizeof(l_int32));
-
-     clEnqueueUnmapMemObject(rEnv.mpkCmdQueue, xValues, pValues, 0, NULL,
-                             NULL);
-
-     if (sync) clFinish(rEnv.mpkCmdQueue);
-    }
-
-    return xValues;
-}
-
 
 void OpenclDevice::releaseMorphCLBuffers()
 {
