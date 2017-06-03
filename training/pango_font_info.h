@@ -105,7 +105,6 @@ class PangoFontInfo {
   const string& family_name() const    { return family_name_; }
   // Size in points (1/72"), rounded to the nearest integer.
   int font_size() const { return font_size_; }
-  bool is_bold() const { return is_bold_; }
   bool is_italic() const { return is_italic_; }
   FontTypeEnum font_type() const { return font_type_; }
 
@@ -125,7 +124,6 @@ class PangoFontInfo {
   // Font properties set automatically from parsing the font description name.
   string family_name_;
   int font_size_;
-  bool is_bold_;
   bool is_italic_;
   FontTypeEnum font_type_;
   // The Pango description that was used to initialize the instance.

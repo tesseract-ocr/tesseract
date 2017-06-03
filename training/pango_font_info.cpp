@@ -88,7 +88,6 @@ PangoFontInfo::PangoFontInfo(const string& desc)
 
 void PangoFontInfo::Clear() {
   font_size_ = 0;
-  is_bold_ = false;
   is_italic_ = false;
   family_name_.clear();
   font_type_ = UNKNOWN;
@@ -193,7 +192,6 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
   is_italic_ = (PANGO_STYLE_ITALIC == style ||
                 PANGO_STYLE_OBLIQUE == style);
 
-  is_bold_ = (pango_font_description_get_weight(desc) >= PANGO_WEIGHT_BOLD);
   return true;
 }
 
