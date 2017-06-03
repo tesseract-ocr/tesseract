@@ -108,7 +108,6 @@ class PangoFontInfo {
   bool is_bold() const { return is_bold_; }
   bool is_italic() const { return is_italic_; }
   bool is_smallcaps() const { return is_smallcaps_; }
-  bool is_monospace() const { return is_monospace_; }
   FontTypeEnum font_type() const { return font_type_; }
 
   int resolution() const { return resolution_; }
@@ -130,7 +129,6 @@ class PangoFontInfo {
   bool is_bold_;
   bool is_italic_;
   bool is_smallcaps_;
-  bool is_monospace_;
   FontTypeEnum font_type_;
   // The Pango description that was used to initialize the instance.
   PangoFontDescription* desc_;
