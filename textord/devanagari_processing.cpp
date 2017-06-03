@@ -41,7 +41,6 @@ namespace tesseract {
 
 ShiroRekhaSplitter::ShiroRekhaSplitter() {
   segmentation_block_list_ = NULL;
-  splitted_image_ = NULL;
   global_xheight_ = kUnspecifiedXheight;
   perform_close_ = false;
   debug_image_ = NULL;
@@ -55,7 +54,7 @@ ShiroRekhaSplitter::~ShiroRekhaSplitter() {
 
 void ShiroRekhaSplitter::Clear() {
   orig_pix_.reset();
-  pixDestroy(&splitted_image_);
+  splitted_image_.reset();
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
   pixDestroy(&debug_image_);
@@ -91,7 +90,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
             segmentation_block_list_ ? "yes" : "no");
   }
   // Create a copy of original image to store the splitting output.
-  asPixPtr(splitted_image_).reset(pixCopy(NULL, orig_pix_.p()));
+  splitted_image_.reset(pixCopy(NULL, orig_pix_.p()));
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
@@ -145,7 +144,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
   // Actually clear the boxes now.
   for (int i = 0, i_end = boxaGetCount(regions_to_clear.p()); i < i_end; ++i) {
     const BoxPtr box(boxaGetBox(regions_to_clear.p(), i, L_CLONE));
-    pixClearInRect(splitted_image_, box.p());
+    pixClearInRect(splitted_image_.p(), box.p());
   }
   if (devanagari_split_debugimage && pixa_debug != nullptr) {
     pixa_debug->AddPix(debug_image_,
