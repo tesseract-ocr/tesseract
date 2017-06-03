@@ -455,7 +455,7 @@ const ImageData* DocumentData::GetPage(int index) {
     if (needs_loading) LoadPageInBackground(index);
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.
-#if __cplusplus > 199711L
+#if __cplusplus > 199711L && !defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::seconds(1));
 #elif _WIN32  // MSVS
     Sleep(1000);
