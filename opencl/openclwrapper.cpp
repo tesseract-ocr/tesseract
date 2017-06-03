@@ -330,7 +330,6 @@ static ds_status readProfileFromFile(ds_profile *profile,
     const char *currentPosition;
     const char *dataStart;
     const char *dataEnd;
-    size_t versionStringLength;
 
     contentEnd = contentStart + contentSize;
     currentPosition = contentStart;
@@ -349,8 +348,8 @@ static ds_status readProfileFromFile(ds_profile *profile,
       goto cleanup;
     }
 
-    versionStringLength = strlen(profile->version);
-    if (versionStringLength != (dataEnd - dataStart) ||
+    size_t versionStringLength = strlen(profile->version);
+    if (versionStringLength + dataStart != dataEnd ||
         strncmp(profile->version, dataStart, versionStringLength) != 0) {
       // version mismatch
       status = DS_PROFILE_FILE_ERROR;
@@ -439,8 +438,8 @@ static ds_status readProfileFromFile(ds_profile *profile,
 
             actualDeviceNameLength = strlen(profile->devices[i].oclDeviceName);
             driverVersionLength = strlen(profile->devices[i].oclDriverVersion);
-            if (actualDeviceNameLength == (deviceNameEnd - deviceNameStart) &&
-                driverVersionLength == (deviceDriverEnd - deviceDriverStart) &&
+            if (deviceNameStart + actualDeviceNameLength == deviceNameEnd &&
+                deviceDriverStart + driverVersionLength == deviceDriverEnd &&
                 strncmp(profile->devices[i].oclDeviceName, deviceNameStart,
                         actualDeviceNameLength) == 0 &&
                 strncmp(profile->devices[i].oclDriverVersion, deviceDriverStart,
@@ -586,7 +585,7 @@ static void legalizeFileName( char *fileName) {
     const char *invalidChars =
         "/\?:*\"><| ";  // space is valid but can cause headaches
     // for each invalid char
-    for (int i = 0; i < strlen(invalidChars); i++) {
+    for (unsigned i = 0; i < strlen(invalidChars); i++) {
         char invalidStr[4];
         invalidStr[0] = invalidChars[i];
         invalidStr[1] = '\0';
@@ -1805,7 +1804,6 @@ int OpenclDevice::HistogramRectOCL(unsigned char *imageData,
       static_cast<size_t>(block_size * kHistogramSize * bytes_per_pixel)};
 
   /* map histogramAllChannels as write only */
-  int numBins = kHistogramSize * bytes_per_pixel * numWorkGroups;
 
   cl_mem histogramBuffer = clCreateBuffer(
       histKern.mpkContext, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
@@ -2000,7 +1998,6 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char *imageData,
   /* set kernel arguments */
   clStatus = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &imageBuffer);
   CHECK_OPENCL(clStatus, "clSetKernelArg imageBuffer");
-  cl_uint numPixels = width * height;
   clStatus = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(int), &height);
   CHECK_OPENCL(clStatus, "clSetKernelArg height");
   clStatus = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(int), &width);
@@ -2197,9 +2194,6 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
 #endif
         Pix *pix = pixCreate(input.width, input.height, 32);
         l_uint32 *pixData = pixGetData(pix);
-        int wpl = pixGetWpl(pix);
-        //l_uint32* output_gpu=pixReadFromTiffKernel(tiffdata,w,h,wpl,line);
-        //pixSetData(pix, output_gpu);
         int i, j;
         int idx = 0;
         for (i = 0; i < input.height ; i++) {
@@ -2245,14 +2239,11 @@ static double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData
     timespec time_funct_start, time_funct_end;
 #endif
 
-    unsigned char pixelHi = (unsigned char)255;
-
     int left = 0;
     int top = 0;
     int kHistogramSize = 256;
     int bytes_per_line = input.width*input.numChannels;
     int *histogramAllChannels = new int[kHistogramSize*input.numChannels];
-    int retVal = 0;
     // function call
     if (type == DS_DEVICE_OPENCL_DEVICE) {
 #if ON_WINDOWS
@@ -2264,8 +2255,7 @@ static double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData
 #endif
 
         OpenclDevice::gpuEnv = *env;
-        int wpl = pixGetWpl(input.pix);
-        retVal = OpenclDevice::HistogramRectOCL(
+        int retVal = OpenclDevice::HistogramRectOCL(
             input.imageData, input.numChannels, bytes_per_line, top, left,
             input.width, input.height, kHistogramSize, histogramAllChannels);
 
@@ -2354,7 +2344,6 @@ static void ThresholdRectToPix_Native(const unsigned char* imagedata,
 
 static double thresholdRectToPixMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
     double time;
-    int retVal = 0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
@@ -2394,8 +2383,7 @@ static double thresholdRectToPixMicroBench(GPUEnv *env, TessScoreEvaluationInput
 #endif
 
         OpenclDevice::gpuEnv = *env;
-        int wpl = pixGetWpl(input.pix);
-        retVal = OpenclDevice::ThresholdRectToPixOCL(
+        int retVal = OpenclDevice::ThresholdRectToPixOCL(
             input.imageData, input.numChannels, bytes_per_line, thresholds,
             hi_values, &input.pix, input.height, input.width, top, left);
 
@@ -2480,7 +2468,6 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
-        Pix *src_pix = input.pix;
         OpenclDevice::gpuEnv = *env;
         OpenclDevice::initMorphCLAllocations(wpl, input.height, input.pix);
         Pix *pix_vline = nullptr, *pix_hline = nullptr, *pix_closed = nullptr;
@@ -2677,12 +2664,12 @@ ds_device OpenclDevice::getDeviceSelection( ) {
       // select fastest using custom Tesseract selection algorithm
       float bestTime = FLT_MAX;  // begin search with worst possible time
       int bestDeviceIdx = -1;
-      for (int d = 0; d < profile->numDevices; d++) {
+      for (unsigned d = 0; d < profile->numDevices; d++) {
         ds_device device = profile->devices[d];
         TessDeviceScore score = *(TessDeviceScore *)device.score;
 
         float time = score.time;
-        printf("[DS] Device[%i] %i:%s score is %f\n", d + 1, device.type,
+        printf("[DS] Device[%u] %i:%s score is %f\n", d + 1, device.type,
                device.oclDeviceName, time);
         if (time < bestTime) {
           bestTime = time;
