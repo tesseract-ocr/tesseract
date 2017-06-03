@@ -257,9 +257,6 @@ set(text2image_src
     util.h
     icuerrorcode.h
 )
-if (CYGWIN)
-set(text2image_src ${text2image_src} ../vs2010/port/strcasestr.cpp)
-endif()
 
 add_executable              (text2image ${text2image_src})
 target_link_libraries       (text2image unicharset_training)
