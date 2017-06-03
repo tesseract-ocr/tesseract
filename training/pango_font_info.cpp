@@ -26,15 +26,7 @@
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
 
-#if (defined __MINGW32__)
-#include "strcasestr.h"
-#elif !defined(_GNU_SOURCE)
-// needed for strcasestr in string.h
-#define _GNU_SOURCE
-#endif
-
 #elif defined(_MSC_VER)
-#include "strcasestr.h"
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #endif
@@ -233,10 +225,7 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
                    == PANGO_VARIANT_SMALL_CAPS);
 
   is_bold_ = (pango_font_description_get_weight(desc) >= PANGO_WEIGHT_BOLD);
-  // We don't have a way to detect whether a font is of type Fraktur. The fonts
-  // we currently use all have "Fraktur" in their family name, so we do a
-  // fragile but functional check for that here.
-  is_fraktur_ = (strcasestr(family, "Fraktur") != NULL);
+
   return true;
 }
 
