@@ -46,16 +46,6 @@
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
-#ifdef _MSC_VER
-#ifndef strcasecmp
-#define strcasecmp stricmp
-#endif
-#include <Shlwapi.h>
-#ifndef strcasestr
-#define strcasestr StrStrIA
-#endif
-#endif
-
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 
@@ -232,10 +222,6 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
                    == PANGO_VARIANT_SMALL_CAPS);
 
   is_bold_ = (pango_font_description_get_weight(desc) >= PANGO_WEIGHT_BOLD);
-  // We don't have a way to detect whether a font is of type Fraktur. The fonts
-  // we currently use all have "Fraktur" in their family name, so we do a
-  // fragile but functional check for that here.
-  is_fraktur_ = (strcasestr(family, "Fraktur") != nullptr);
   return true;
 }
 

@@ -196,9 +196,6 @@ target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES
 else()
 target_link_libraries       (unicharset_training common_training pvt.cppan.demo.unicode.icu.i18n)
 endif()
-if (WIN32)
-target_link_libraries       (unicharset_training Shlwapi)
-endif()
 project_group               (unicharset_training "Training Tools")
 
 
