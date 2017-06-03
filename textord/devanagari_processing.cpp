@@ -40,7 +40,6 @@ BOOL_VAR(devanagari_split_debugimage, 0,
 namespace tesseract {
 
 ShiroRekhaSplitter::ShiroRekhaSplitter() {
-  orig_pix_ = NULL;
   segmentation_block_list_ = NULL;
   splitted_image_ = NULL;
   global_xheight_ = kUnspecifiedXheight;
@@ -55,7 +54,7 @@ ShiroRekhaSplitter::~ShiroRekhaSplitter() {
 }
 
 void ShiroRekhaSplitter::Clear() {
-  pixDestroy(&orig_pix_);
+  orig_pix_.reset();
   pixDestroy(&splitted_image_);
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
@@ -67,7 +66,7 @@ void ShiroRekhaSplitter::Clear() {
 
 // On setting the input image, a clone of it is owned by this class.
 void ShiroRekhaSplitter::set_orig_pix(Pix* pix) {
-  asPixPtr(orig_pix_).reset(pixClone(pix));
+  orig_pix_.reset(pixClone(pix));
 }
 
 // Top-level method to perform splitting based on current settings.
@@ -92,16 +91,16 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
             segmentation_block_list_ ? "yes" : "no");
   }
   // Create a copy of original image to store the splitting output.
-  asPixPtr(splitted_image_).reset(pixCopy(NULL, orig_pix_));
+  asPixPtr(splitted_image_).reset(pixCopy(NULL, orig_pix_.p()));
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
-    asPixPtr(debug_image_).reset(pixConvertTo32(orig_pix_));
+    asPixPtr(debug_image_).reset(pixConvertTo32(orig_pix_.p()));
   }
 
   // Determine all connected components in the input image. A close operation
   // may be required prior to this, depending on the current settings.
-  /*used with reset()*/ PixPtr pix_for_ccs(pixClone(orig_pix_));
+  /*used with reset()*/ PixPtr pix_for_ccs(orig_pix_.detach());
   if (perform_close_ && global_xheight_ != kUnspecifiedXheight &&
       !segmentation_block_list_) {
     if (devanagari_split_debuglevel > 0) {
@@ -109,7 +108,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     }
     // A global measure is available for xheight, but no local information
     // exists.
-    pix_for_ccs.reset(pixCopy(NULL, orig_pix_));
+    pix_for_ccs.reset(pixCopy(NULL, orig_pix_.p()));
     PerformClose(pix_for_ccs.p(), global_xheight_);
   }
   /*used with rawOut()*/ PixaPtr ccs;
@@ -123,7 +122,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
   if (ccs != nullptr) num_ccs = pixaGetCount(ccs.p());
   for (int i = 0; i < num_ccs; ++i) {
     Box* box = ccs->boxa->box[i];
-    const PixPtr word_pix(pixClipRectangle(orig_pix_, box, NULL));
+    const PixPtr word_pix(pixClipRectangle(orig_pix_.p(), box, NULL));
     ASSERT_HOST(word_pix.p());
     int xheight = GetXheightForCC(box);
     if (xheight == kUnspecifiedXheight && segmentation_block_list_ &&
@@ -169,9 +168,9 @@ int ShiroRekhaSplitter::GetXheightForCC(Box* cc_bbox) {
   }
   // Compute the box coordinates in Tesseract's coordinate system.
   TBOX bbox(cc_bbox->x,
-            pixGetHeight(orig_pix_) - cc_bbox->y - cc_bbox->h - 1,
+            pixGetHeight(orig_pix_.p()) - cc_bbox->y - cc_bbox->h - 1,
             cc_bbox->x + cc_bbox->w,
-            pixGetHeight(orig_pix_) - cc_bbox->y - 1);
+            pixGetHeight(orig_pix_.p()) - cc_bbox->y - 1);
   // Iterate over all blocks.
   BLOCK_IT block_it(segmentation_block_list_);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
@@ -386,7 +385,7 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
 // image's coordinate system.
 // Call boxDestroy() on result after use.
 Box* ShiroRekhaSplitter::GetBoxForTBOX(const TBOX& tbox) const {
-  return boxCreate(tbox.left(), pixGetHeight(orig_pix_) - tbox.top() - 1,
+  return boxCreate(tbox.left(), pixGetHeight(orig_pix_.p()) - tbox.top() - 1,
                    tbox.width(), tbox.height());
 }
 

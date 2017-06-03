@@ -131,7 +131,7 @@ class ShiroRekhaSplitter {
   // Returns the input image provided to the object. This object is owned by
   // this class. Callers may want to clone the returned pix to work with it.
   Pix* orig_pix() {
-    return orig_pix_;
+    return orig_pix_.p();
   }
 
   SplitStrategy ocr_split_strategy() const {
@@ -195,7 +195,7 @@ class ShiroRekhaSplitter {
                                     int* shirorekha_bottom,
                                     int* shirorekha_ylevel);
 
-  Pix* orig_pix_;         // Just a clone of the input image passed.
+  PixPtr orig_pix_;       // Just a clone of the input image passed.
   Pix* splitted_image_;   // Image produced after the last splitting round. The
                           // object is owned by this class.
   SplitStrategy pageseg_split_strategy_;
