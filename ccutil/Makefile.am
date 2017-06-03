@@ -1,48 +1,78 @@
-AUTOMAKE_OPTIONS = subdir-objects
-SUBDIRS =
-AM_CXXFLAGS =
+include_HEADERS += \
+    ccutil/basedir.h \
+    ccutil/errcode.h \
+    ccutil/fileerr.h \
+    ccutil/genericvector.h \
+    ccutil/helpers.h \
+    ccutil/host.h \
+    ccutil/memry.h \
+    ccutil/ndminx.h \
+    ccutil/params.h \
+    ccutil/ocrclass.h \
+    ccutil/platform.h \
+    ccutil/serialis.h \
+    ccutil/strngs.h \
+    ccutil/tesscallback.h \
+    ccutil/unichar.h \
+    ccutil/unicharcompress.h \
+    ccutil/unicharmap.h \
+    ccutil/unicharset.h
 
-if !NO_TESSDATA_PREFIX
-AM_CXXFLAGS += -DTESSDATA_PREFIX=@datadir@/
-endif
+libtesseract_la_SOURCES += \
+    ccutil/ambigs.h \
+    ccutil/bits16.h \
+    ccutil/bitvector.h \
+    ccutil/ccutil.h \
+    ccutil/clst.h \
+    ccutil/doubleptr.h \
+    ccutil/elst2.h \
+    ccutil/elst.h \
+    ccutil/genericheap.h \
+    ccutil/globaloc.h \
+    ccutil/indexmapbidi.h \
+    ccutil/kdpair.h \
+    ccutil/lsterr.h \
+    ccutil/mainblk.h \
+    ccutil/nwmain.h \
+    ccutil/object_cache.h \
+    ccutil/qrsequence.h \
+    ccutil/sorthelper.h \
+    ccutil/stderr.h \
+    ccutil/scanutils.h \
+    ccutil/tessdatamanager.h \
+    ccutil/tprintf.h \
+    ccutil/unicity_table.h \
+    ccutil/unicodes.h \
+    ccutil/universalambigs.h
 
-if VISIBILITY
-AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
-AM_CPPFLAGS += -DTESS_EXPORTS
-endif
-
-include_HEADERS = \
-	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
-	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
-	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h
-
-noinst_HEADERS = \
-    ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
-    elst.h genericheap.h globaloc.h indexmapbidi.h kdpair.h lsterr.h \
-    nwmain.h object_cache.h qrsequence.h sorthelper.h stderr.h \
-    scanutils.h tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
-    universalambigs.h
-
-if !USING_MULTIPLELIBS
-noinst_LTLIBRARIES = libtesseract_ccutil.la
-else
-lib_LTLIBRARIES = libtesseract_ccutil.la
-libtesseract_ccutil_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-endif
-
-libtesseract_ccutil_la_SOURCES = \
-    ambigs.cpp basedir.cpp bits16.cpp bitvector.cpp \
-    ccutil.cpp clst.cpp \
-    elst2.cpp elst.cpp errcode.cpp \
-    globaloc.cpp indexmapbidi.cpp \
-    mainblk.cpp memry.cpp \
-    serialis.cpp strngs.cpp scanutils.cpp \
-    tessdatamanager.cpp tprintf.cpp \
-    unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
-    params.cpp universalambigs.cpp
+libtesseract_la_SOURCES += \
+    ccutil/ambigs.cpp \
+    ccutil/basedir.cpp \
+    ccutil/bits16.cpp \
+    ccutil/bitvector.cpp \
+    ccutil/ccutil.cpp \
+    ccutil/clst.cpp \
+    ccutil/elst2.cpp \
+    ccutil/elst.cpp \
+    ccutil/errcode.cpp \
+    ccutil/globaloc.cpp \
+    ccutil/indexmapbidi.cpp \
+    ccutil/mainblk.cpp \
+    ccutil/memry.cpp \
+    ccutil/serialis.cpp \
+    ccutil/strngs.cpp \
+    ccutil/scanutils.cpp \
+    ccutil/tessdatamanager.cpp \
+    ccutil/tprintf.cpp \
+    ccutil/unichar.cpp \
+    ccutil/unicharcompress.cpp \
+    ccutil/unicharmap.cpp \
+    ccutil/unicharset.cpp \
+    ccutil/unicodes.cpp \
+    ccutil/params.cpp \
+    ccutil/universalambigs.cpp
 
 if T_WIN
-AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
-noinst_HEADERS += ../vs2010/port/strtok_r.h
-libtesseract_ccutil_la_SOURCES += ../vs2010/port/strtok_r.cpp
+libtesseract_la_SOURCES += vs2010/port/strtok_r.h
+libtesseract_la_SOURCES += vs2010/port/strtok_r.cpp
 endif

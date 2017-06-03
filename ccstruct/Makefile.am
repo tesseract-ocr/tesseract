@@ -1,47 +1,89 @@
-AM_CPPFLAGS += \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/opencl
-AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
-    
-if VISIBILITY
-AM_CPPFLAGS += -DTESS_EXPORTS \
-    -fvisibility=hidden -fvisibility-inlines-hidden
-endif
+include_HEADERS += \
+    ccstruct/publictypes.h
 
-include_HEADERS = publictypes.h
-noinst_HEADERS = \
-    blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
-    debugpixa.h detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
-    imagedata.h \
-    ipoints.h \
-    linlsq.h matrix.h mod128.h normalis.h \
-    ocrblock.h ocrpara.h ocrrow.h otsuthr.h \
-    pageres.h params_training_featdef.h \
-    pdblock.h points.h polyaprx.h polyblk.h \
-    quadlsq.h quadratc.h quspline.h ratngs.h rect.h rejctmap.h \
-    seam.h split.h statistc.h stepblob.h vecfuncs.h werd.h
+libtesseract_la_SOURCES += \
+    ccstruct/blamer.h \
+    ccstruct/blckerr.h \
+    ccstruct/blobbox.h \
+    ccstruct/blobs.h \
+    ccstruct/blread.h \
+    ccstruct/boxread.h \
+    ccstruct/boxword.h \
+    ccstruct/ccstruct.h \
+    ccstruct/coutln.h \
+    ccstruct/crakedge.h \
+    ccstruct/debugpixa.h \
+    ccstruct/detlinefit.h \
+    ccstruct/dppoint.h \
+    ccstruct/fontinfo.h \
+    ccstruct/genblob.h \
+    ccstruct/hpdsizes.h \
+    ccstruct/imagedata.h \
+    ccstruct/ipoints.h \
+    ccstruct/linlsq.h \
+    ccstruct/matrix.h \
+    ccstruct/mod128.h \
+    ccstruct/normalis.h \
+    ccstruct/ocrblock.h \
+    ccstruct/ocrpara.h \
+    ccstruct/ocrrow.h \
+    ccstruct/otsuthr.h \
+    ccstruct/pageres.h \
+    ccstruct/params_training_featdef.h \
+    ccstruct/pdblock.h \
+    ccstruct/points.h \
+    ccstruct/polyaprx.h \
+    ccstruct/polyblk.h \
+    ccstruct/quadlsq.h \
+    ccstruct/quadratc.h \
+    ccstruct/quspline.h \
+    ccstruct/ratngs.h \
+    ccstruct/rect.h \
+    ccstruct/rejctmap.h \
+    ccstruct/seam.h \
+    ccstruct/split.h \
+    ccstruct/statistc.h \
+    ccstruct/stepblob.h \
+    ccstruct/vecfuncs.h \
+    ccstruct/werd.h
 
-if !USING_MULTIPLELIBS
-noinst_LTLIBRARIES = libtesseract_ccstruct.la
-else
-lib_LTLIBRARIES = libtesseract_ccstruct.la
-libtesseract_ccstruct_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_ccstruct_la_LIBADD = \
-    ../ccutil/libtesseract_ccutil.la \
-    ../cutil/libtesseract_cutil.la \
-    ../viewer/libtesseract_viewer.la \
-    ../opencl/libtesseract_opencl.la 
-endif
-
-libtesseract_ccstruct_la_SOURCES = \
-    blamer.cpp blobbox.cpp blobs.cpp blread.cpp boxread.cpp boxword.cpp ccstruct.cpp coutln.cpp \
-    detlinefit.cpp dppoint.cpp fontinfo.cpp genblob.cpp \
-    imagedata.cpp \
-    linlsq.cpp matrix.cpp mod128.cpp normalis.cpp \
-    ocrblock.cpp ocrpara.cpp ocrrow.cpp otsuthr.cpp \
-    pageres.cpp pdblock.cpp points.cpp polyaprx.cpp polyblk.cpp \
-    params_training_featdef.cpp publictypes.cpp \
-    quadlsq.cpp quspline.cpp ratngs.cpp rect.cpp rejctmap.cpp \
-    seam.cpp split.cpp statistc.cpp stepblob.cpp \
-    vecfuncs.cpp werd.cpp
+libtesseract_la_SOURCES += \
+    ccstruct/blamer.cpp \
+    ccstruct/blobbox.cpp \
+    ccstruct/blobs.cpp \
+    ccstruct/blread.cpp \
+    ccstruct/boxread.cpp \
+    ccstruct/boxword.cpp \
+    ccstruct/ccstruct.cpp \
+    ccstruct/coutln.cpp \
+    ccstruct/detlinefit.cpp \
+    ccstruct/dppoint.cpp \
+    ccstruct/fontinfo.cpp \
+    ccstruct/genblob.cpp \
+    ccstruct/imagedata.cpp \
+    ccstruct/linlsq.cpp \
+    ccstruct/matrix.cpp \
+    ccstruct/mod128.cpp \
+    ccstruct/normalis.cpp \
+    ccstruct/ocrblock.cpp \
+    ccstruct/ocrpara.cpp \
+    ccstruct/ocrrow.cpp \
+    ccstruct/otsuthr.cpp \
+    ccstruct/pageres.cpp \
+    ccstruct/pdblock.cpp \
+    ccstruct/points.cpp \
+    ccstruct/polyaprx.cpp \
+    ccstruct/polyblk.cpp \
+    ccstruct/params_training_featdef.cpp \
+    ccstruct/publictypes.cpp \
+    ccstruct/quadlsq.cpp \
+    ccstruct/quspline.cpp \
+    ccstruct/ratngs.cpp \
+    ccstruct/rect.cpp \
+    ccstruct/rejctmap.cpp \
+    ccstruct/seam.cpp \
+    ccstruct/split.cpp \
+    ccstruct/statistc.cpp \
+    ccstruct/stepblob.cpp \
+    ccstruct/vecfuncs.cpp \
+    ccstruct/werd.cpp
