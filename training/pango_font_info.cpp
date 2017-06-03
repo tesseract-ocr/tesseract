@@ -90,7 +90,6 @@ void PangoFontInfo::Clear() {
   font_size_ = 0;
   is_bold_ = false;
   is_italic_ = false;
-  is_smallcaps_ = false;
   family_name_.clear();
   font_type_ = UNKNOWN;
   if (desc_) {
@@ -193,8 +192,6 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
   PangoStyle style = pango_font_description_get_style(desc);
   is_italic_ = (PANGO_STYLE_ITALIC == style ||
                 PANGO_STYLE_OBLIQUE == style);
-  is_smallcaps_ = (pango_font_description_get_variant(desc)
-                   == PANGO_VARIANT_SMALL_CAPS);
 
   is_bold_ = (pango_font_description_get_weight(desc) >= PANGO_WEIGHT_BOLD);
   return true;
