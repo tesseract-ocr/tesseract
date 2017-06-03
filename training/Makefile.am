@@ -220,8 +220,6 @@ wordlist2dawg_LDADD += -lws2_32
 
 AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
 
-libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.h
-libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
 endif  #  T_WIN
 
 
