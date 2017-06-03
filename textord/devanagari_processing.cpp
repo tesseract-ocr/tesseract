@@ -43,7 +43,6 @@ ShiroRekhaSplitter::ShiroRekhaSplitter() {
   segmentation_block_list_ = NULL;
   global_xheight_ = kUnspecifiedXheight;
   perform_close_ = false;
-  debug_image_ = NULL;
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
 }
@@ -57,7 +56,7 @@ void ShiroRekhaSplitter::Clear() {
   splitted_image_.reset();
   pageseg_split_strategy_ = NO_SPLIT;
   ocr_split_strategy_ = NO_SPLIT;
-  pixDestroy(&debug_image_);
+  debug_image_.reset();
   segmentation_block_list_ = NULL;
   global_xheight_ = kUnspecifiedXheight;
   perform_close_ = false;
@@ -94,7 +93,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
 
   // Initialize debug image if required.
   if (devanagari_split_debugimage) {
-    asPixPtr(debug_image_).reset(pixConvertTo32(orig_pix_.p()));
+    debug_image_.reset(pixConvertTo32(orig_pix_.p()));
   }
 
   // Determine all connected components in the input image. A close operation
@@ -126,7 +125,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     int xheight = GetXheightForCC(box);
     if (xheight == kUnspecifiedXheight && segmentation_block_list_ &&
         devanagari_split_debugimage) {
-      pixRenderBoxArb(debug_image_, box, 1, 255, 0, 0);
+      pixRenderBoxArb(debug_image_.p(), box, 1, 255, 0, 0);
     }
     // If some xheight measure is available, attempt to pre-eliminate small
     // blobs from the shiro-rekha process. This is primarily to save the CCs
@@ -147,7 +146,7 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     pixClearInRect(splitted_image_.p(), box.p());
   }
   if (devanagari_split_debugimage && pixa_debug != nullptr) {
-    pixa_debug->AddPix(debug_image_,
+    pixa_debug->AddPix(debug_image_.p(),
                        split_for_pageseg ? "pageseg_split" : "ocr_split");
   }
   return true;
@@ -320,7 +319,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
             boxaAddBox(regions_to_clear, box_to_clear.p(), L_CLONE);
             // Mark this in the debug image if needed.
             if (devanagari_split_debugimage) {
-              pixRenderBoxArb(debug_image_, box_to_clear.p(), 1, 128, 255, 128);
+              pixRenderBoxArb(debug_image_.p(), box_to_clear.p(), 1, 128, 255, 128);
             }
             cur_component_width = 0;
           }
@@ -366,7 +365,7 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
       C_BLOB* not_found = not_found_it.data();
       TBOX not_found_box = not_found->bounding_box();
       const BoxPtr box_to_plot(GetBoxForTBOX(not_found_box));
-      pixRenderBoxArb(debug_image_, box_to_plot.p(), 1, 255, 0, 255);
+      pixRenderBoxArb(debug_image_.p(), box_to_plot.p(), 1, 255, 0, 255);
     }
 
     // Plot out the blobs unused from all blobs.
@@ -375,7 +374,7 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
          all_blobs_it.forward()) {
       C_BLOB* a_blob = all_blobs_it.data();
       const BoxPtr box_to_plot(GetBoxForTBOX(a_blob->bounding_box()));
-      pixRenderBoxArb(debug_image_, box_to_plot.p(), 3, 0, 127, 0);
+      pixRenderBoxArb(debug_image_.p(), box_to_plot.p(), 3, 0, 127, 0);
     }
   }
 }

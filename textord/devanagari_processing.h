@@ -200,7 +200,7 @@ class ShiroRekhaSplitter {
                           // object is owned by this class.
   SplitStrategy pageseg_split_strategy_;
   SplitStrategy ocr_split_strategy_;
-  Pix* debug_image_;
+  PixPtr debug_image_;
   // This block list is used as a golden segmentation when performing splitting.
   BLOCK_LIST* segmentation_block_list_;
   int global_xheight_;
