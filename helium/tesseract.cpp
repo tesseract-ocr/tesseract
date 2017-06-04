@@ -1,0 +1,119 @@
+// Copyright 2006 Google Inc.
+// All Rights Reserved.
+// Author: <renn@google.com> (Marius Renn)
+
+// Tesseract includes
+//NOTE: Ugly ifdefs!
+#ifdef EMBEDDED
+#include "tessembedded.h"
+#include "pageres.h"
+#include "tessvars.h"
+#include "control.h"
+#else
+#include "ccmain/tessedit.h"
+#include "ccstruct/pageres.h"
+#include "ccmain/tessvars.h"
+#include "ccmain/control.h"
+#endif
+
+// This is to make the ratings file parser happy.
+BOOL_VAR (tessedit_write_images, FALSE,
+                 "Capture the image from the IPE");
+
+#undef LOG
+
+// Local includes
+#include "debugging.h"
+#include "tesseract.h"
+#include "mask.h"
+
+extern IMAGE page_image;
+
+using namespace helium;
+
+const char* kArguments[3] = { "tesseract", "out", "batch" };
+
+int Tesseract::Init(const char* datapath,
+                    const char *lang,
+                    const char *configfile) {
+  int res = api_.Init(datapath, lang);
+  if (!res && configfile)
+      api_.ReadConfigFile(configfile);
+  return res;
+}
+
+void Tesseract::ReadMask(const Mask& mask, bool flipped) {
+  IMAGELINE line;
+  page_image.create(mask.width(), mask.height(), 1);
+  line.init(mask.width());
+  bool* mask_ptr = flipped ? mask.Access(0, mask.height() - 1) : mask.data();
+
+  for (int y = 0; y < mask.height(); ++y) {
+    for (int x = 0; x < mask.width(); ++x) line.pixels[x] = !(*(mask_ptr++));
+    page_image.put_line(0, y, mask.width(), &line, 0);
+    if (flipped) mask_ptr -= mask.width() * 2;
+  }
+}
+
+bool Tesseract::DetectBaseline(const Mask& mask,
+                               int& out_offset,
+                               float& out_slope,
+                               bool flipped) {
+  MaskThresholder* mt = new MaskThresholder(mask, flipped);
+  api_.SetThresholder(mt);
+  return api_.GetTextDirection(&out_offset, &out_slope);
+}
+
+void MaskToBuffer(const Mask& mask, unsigned char* buf) {
+  bool* mask_ptr = mask.data();
+  for (int y = 0; y < mask.height(); ++y)
+    for (int x = 0; x < mask.width(); ++x)
+      *buf++ = *(mask_ptr++) ? 0 : 255;
+}
+
+char* Tesseract::RecognizeText(const Mask& mask) {
+  // MaskThresholder* mt = new MaskThresholder(mask, true);
+  // api_.SetThresholder(mt);
+  // Check with Ray on directly passing in image after fixing Otsu thresholding
+  unsigned char* buf = new unsigned char[mask.width() * mask.height()];
+  MaskToBuffer(mask, buf);
+  api_.SetImage(buf, mask.width(), mask.height(), 1, mask.width());
+  api_.Recognize(NULL);
+
+  delete[] buf;
+  char *text = api_.GetUTF8Text();
+
+  if (tessedit_write_images) 
+      page_image.write("tessinput.tif");
+
+  return text;
+}
+
+void Tesseract::End() {
+  api_.End();
+}
+
+tesseract::TessBaseAPI Tesseract::api_;
+
+MaskThresholder::MaskThresholder(const Mask& mask, bool flipped)
+  : mask_(mask), flipped_(flipped) {
+  image_width_ = mask.width();
+  image_height_ = mask.height();
+  image_data_ = NULL;
+  image_bytespp_ = sizeof(bool);
+  image_bytespl_ = image_width_ * sizeof(bool);
+  Init();
+}
+
+void MaskThresholder::ThresholdToIMAGE(IMAGE* image) {
+  IMAGELINE line;
+  image->create(mask_.width(), mask_.height(), 1);
+  line.init(mask_.width());
+  bool* mask_ptr = flipped_ ? mask_.Access(0, mask_.height() - 1) : mask_.data();
+
+  for (int y = 0; y < mask_.height(); ++y) {
+    for (int x = 0; x < mask_.width(); ++x) line.pixels[x] = !(*(mask_ptr++));
+    image->put_line(0, y, mask_.width(), &line, 0);
+    if (flipped_) mask_ptr -= mask_.width() * 2;
+  }
+}

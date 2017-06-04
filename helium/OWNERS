@@ -1,0 +1,5 @@
+# This looks redundant, but it makes it easier to manage third_party:
+# Every package with a BUILD file must also have an OWNERS file.
+# See http://wiki/Main/ThirdParty, "Requirements for third_party code".
+
+file:../OWNERS
