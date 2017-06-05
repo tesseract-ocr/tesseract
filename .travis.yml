@@ -5,7 +5,7 @@ language: cpp
 dist: trusty
 
 env:
-  - LEPT_VER=1.74.1
+  - LEPT_VER=1.74.2
 
 notifications:
   email: false
