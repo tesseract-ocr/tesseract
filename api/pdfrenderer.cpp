@@ -28,10 +28,6 @@
 #include "strngs.h"
 #include "tprintf.h"
 
-#ifdef _MSC_VER
-#include "mathfix.h"
-#endif
-
 /*
 
 Design notes from Ken Sharp, with light editing.
