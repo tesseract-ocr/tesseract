@@ -27,11 +27,7 @@
 #ifndef            CCUTIL_OCRCLASS_H_
 #define            CCUTIL_OCRCLASS_H_
 
-#ifndef __GNUC__
-#ifdef _WIN32
-#include          "gettimeofday.h"
-#endif
-#else
+#ifdef __GNUC__
 #include          <sys/time.h>
 #endif
 #include          <ctime>
@@ -116,6 +112,18 @@ typedef bool (*PROGRESS_FUNC)(int progress, int left, int right, int top,
 typedef bool (*PROGRESS_FUNC2)(ETEXT_DESC* ths, int left, int right, int top,
                                int bottom);
 
+static inline uint64_t t_ms() {
+  uint64_t t;
+#ifdef _WIN32
+  t = GetTickCount();
+#else
+  timeval tv;
+  gettimeofday(&tv, nullptr);
+  t = tv.tv_sec * 1000ULL + tv.tv_usec / 1000;
+#endif
+  return t;
+}
+
 class ETEXT_DESC {             // output header
  public:
   int16_t count;     /// chars in this buffer(0)
@@ -130,7 +138,7 @@ class ETEXT_DESC {             // output header
   PROGRESS_FUNC progress_callback;  /// called whenever progress increases
   PROGRESS_FUNC2 progress_callback2;/// monitor-aware progress callback
   void* cancel_this;                /// this or other data for cancel
-  struct timeval end_time;          /// Time to stop. Expected to be set only
+  uint64_t end_time;                /// Time to stop. Expected to be set only
                                     /// by call to set_deadline_msecs().
   EANYCODE_CHAR text[1];            /// character data
 
@@ -143,30 +151,20 @@ class ETEXT_DESC {             // output header
         cancel(nullptr),
         progress_callback(nullptr),
         progress_callback2(&default_progress_func),
-        cancel_this(nullptr) {
-    end_time.tv_sec = 0;
-    end_time.tv_usec = 0;
+        cancel_this(nullptr),
+        end_time(0) {
   }
 
   // Sets the end time to be deadline_msecs milliseconds from now.
   void set_deadline_msecs(int32_t deadline_msecs) {
-    gettimeofday(&end_time, nullptr);
-    int32_t deadline_secs = deadline_msecs / 1000;
-    end_time.tv_sec += deadline_secs;
-    end_time.tv_usec += (deadline_msecs -  deadline_secs * 1000) * 1000;
-    if (end_time.tv_usec > 1000000) {
-      end_time.tv_usec -= 1000000;
-      ++end_time.tv_sec;
-    }
+    end_time = t_ms() + deadline_msecs;
   }
 
   // Returns false if we've not passed the end_time, or have not set a deadline.
   bool deadline_exceeded() const {
-    if (end_time.tv_sec == 0 && end_time.tv_usec == 0) return false;
-    struct timeval now;
-    gettimeofday(&now, nullptr);
-    return (now.tv_sec > end_time.tv_sec || (now.tv_sec == end_time.tv_sec &&
-                                             now.tv_usec > end_time.tv_usec));
+    if (end_time == 0) return false;
+    uint64_t now = t_ms();
+    return now > end_time;
   }
 
 private:

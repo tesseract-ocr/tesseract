@@ -64,8 +64,6 @@ projects:
           - src/viewer/.*\.h
           - src/wordrec/.*\.h
 
-          - src/vs2010/port/.*
-
         exclude_from_build:
           - src/api/tesseractmain.cpp
           - src/viewer/svpaint.cpp
@@ -81,7 +79,6 @@ projects:
             - src/lstm
             - src/opencl
             - src/textord
-            - src/vs2010/port
             - src/viewer
             - src/wordrec
           #public:
@@ -140,8 +137,6 @@ projects:
                         ${SDIR}/src/arch/intsimdmatrixavx2.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX2")
                 endif()
-            else()
-                remove_src_dir(src/vs2010/port/*)
             endif()
 
         options:
