@@ -192,8 +192,6 @@ shapeclustering_LDADD += -lws2_32
 unicharset_extractor_LDADD += -lws2_32
 text2image_LDADD += -lws2_32
 wordlist2dawg_LDADD += -lws2_32
-
-AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
 endif
 
 ambiguous_words_LDFLAGS = $(OPENCL_LDFLAGS)
