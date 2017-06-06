@@ -9,9 +9,10 @@ os:
   - linux
   - osx
 
-#branches:
-  #only:
-    #- master
+branches:
+  only:
+    - master
+    - 3.05
 
 addons:
   apt:
