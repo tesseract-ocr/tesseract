@@ -83,6 +83,27 @@ void SVMutex::Unlock() {
 #endif
 }
 
+// Create new thread.
+void SVSync::StartThread(void *(*func)(void*), void* arg) {
+#ifdef _WIN32
+  LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE) func;
+  DWORD threadid;
+  HANDLE newthread = CreateThread(
+  NULL,          // default security attributes
+  0,             // use default stack size
+  f,             // thread function
+  arg,           // argument to thread function
+  0,             // use default creation flags
+  &threadid);    // returns the thread identifier
+#else
+  pthread_t helper;
+  pthread_attr_t attr;
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+  pthread_create(&helper, &attr, func, arg);
+#endif
+}
+
 #ifndef GRAPHICS_DISABLED
 
 const int kMaxMsgSize = 4096;
@@ -183,29 +204,6 @@ void SVSemaphore::Wait() {
   sem_wait(semaphore_);
 #else
   sem_wait(&semaphore_);
-#endif
-}
-
-
-// Create new thread.
-
-void SVSync::StartThread(void *(*func)(void*), void* arg) {
-#ifdef _WIN32
-  LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE) func;
-  DWORD threadid;
-  HANDLE newthread = CreateThread(
-  NULL,          // default security attributes
-  0,             // use default stack size
-  f,             // thread function
-  arg,           // argument to thread function
-  0,             // use default creation flags
-  &threadid);    // returns the thread identifier
-#else
-  pthread_t helper;
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&helper, &attr, func, arg);
 #endif
 }
 
