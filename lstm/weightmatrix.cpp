@@ -335,9 +335,12 @@ double WeightMatrix::DotProduct(const double* u, const double* v, int n) {
   // is about 8% faster than sse. This suggests that the time is memory
   // bandwidth constrained and could benefit from holding the reused vector
   // in AVX registers.
+  #if _OPENMP < 201307 // before OpenMP 4.0 try something else first
   if (SIMDDetect::IsAVXAvailable()) return DotProductAVX(u, v, n);
   if (SIMDDetect::IsSSEAvailable()) return DotProductSSE(u, v, n);
+  #endif
   double total = 0.0;
+  #pragma omp simd reduction(+:total) // ignored before OpenMP 4.0
   for (int k = 0; k < n; ++k) total += u[k] * v[k];
   return total;
 }
