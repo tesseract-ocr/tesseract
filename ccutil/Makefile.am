@@ -72,7 +72,3 @@ libtesseract_la_SOURCES += \
     ccutil/params.cpp \
     ccutil/universalambigs.cpp
 
-if T_WIN
-libtesseract_la_SOURCES += vs2010/port/strtok_r.h
-libtesseract_la_SOURCES += vs2010/port/strtok_r.cpp
-endif
