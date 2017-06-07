@@ -71,4 +71,3 @@ libtesseract_la_SOURCES += \
     ccutil/unicodes.cpp \
     ccutil/params.cpp \
     ccutil/universalambigs.cpp
-

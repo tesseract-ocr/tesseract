@@ -29,7 +29,6 @@
 #if defined(_WIN32)
 #ifdef _MSC_VER
 #include "vcsversion.h"
-#include "mathfix.h"
 #elif MINGW
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
 #undef __STRICT_ANSI__

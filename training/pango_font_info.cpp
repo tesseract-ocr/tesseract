@@ -25,10 +25,6 @@
 #if (defined __MINGW32__) || (defined __CYGWIN__)
 // workaround for stdlib.h and putenv
 #undef __STRICT_ANSI__
-
-#elif defined(_MSC_VER)
-#define strncasecmp _strnicmp
-#define strcasecmp _stricmp
 #endif
 
 #include <stdlib.h>
@@ -92,10 +88,6 @@ PangoFontInfo::PangoFontInfo(const string& desc)
 
 void PangoFontInfo::Clear() {
   font_size_ = 0;
-  is_bold_ = false;
-  is_italic_ = false;
-  is_smallcaps_ = false;
-  is_monospace_ = false;
   family_name_.clear();
   font_type_ = UNKNOWN;
   if (desc_) {
@@ -176,29 +168,6 @@ static void ListFontFamilies(PangoFontFamily*** families,
   pango_font_map_list_families(font_map, families, n_families);
 }
 
-// Inspects whether a given font family is monospace. If the font is not
-// available, it cannot make a decision and returns false by default.
-static bool IsMonospaceFontFamily(const char* family_name) {
-  PangoFontFamily** families = 0;
-  int n_families = 0;
-  bool is_monospace = false;
-  ListFontFamilies(&families, &n_families);
-  ASSERT_HOST(n_families > 0);
-  bool found = false;
-  for (int i = 0; i < n_families; ++i) {
-    if (!strcasecmp(family_name, pango_font_family_get_name(families[i]))) {
-      is_monospace = pango_font_family_is_monospace(families[i]);
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    tlog(1, "Could not find monospace property of family %s\n", family_name);
-  }
-  g_free(families);
-  return is_monospace;
-}
-
 bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
   Clear();
   const char* family = pango_font_description_get_family(desc);
@@ -211,7 +180,6 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
   }
   family_name_ = string(family);
   desc_ = pango_font_description_copy(desc);
-  is_monospace_ = IsMonospaceFontFamily(family);
 
   // Set font size in points
   font_size_ = pango_font_description_get_size(desc);
@@ -219,13 +187,6 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
     font_size_ /= PANGO_SCALE;
   }
 
-  PangoStyle style = pango_font_description_get_style(desc);
-  is_italic_ = (PANGO_STYLE_ITALIC == style ||
-                PANGO_STYLE_OBLIQUE == style);
-  is_smallcaps_ = (pango_font_description_get_variant(desc)
-                   == PANGO_VARIANT_SMALL_CAPS);
-
-  is_bold_ = (pango_font_description_get_weight(desc) >= PANGO_WEIGHT_BOLD);
   return true;
 }
 
