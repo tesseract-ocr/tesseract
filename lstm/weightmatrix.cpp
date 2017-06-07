@@ -183,9 +183,14 @@ void WeightMatrix::MatrixDotVector(const inT8* u, double* v) const {
   for (int i = 0; i < num_out; ++i) {
     const inT8* Wi = wi_[i];
     int total = 0;
+    #if _OPENMP < 201307 // before OpenMP 4.0 try something else first
     if (SIMDDetect::IsSSEAvailable()) {
       total = IntDotProductSSE(u, Wi, num_in);
-    } else {
+    }
+    else
+    #endif
+    {
+      #pragma omp simd reduction(+:total) // ignored before OpenMP 4.0
       for (int j = 0; j < num_in; ++j) total += Wi[j] * u[j];
     }
     // Add in the bias and correct for integer values.
