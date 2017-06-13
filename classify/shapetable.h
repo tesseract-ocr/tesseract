@@ -54,8 +54,8 @@ struct UnicharRating {
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
-    const UnicharRating* a = reinterpret_cast<const UnicharRating *>(t1);
-    const UnicharRating* b = reinterpret_cast<const UnicharRating *>(t2);
+    const UnicharRating* a = static_cast<const UnicharRating *>(t1);
+    const UnicharRating* b = static_cast<const UnicharRating *>(t2);
     if (a->rating > b->rating) {
       return -1;
     } else if (a->rating < b->rating) {
@@ -100,8 +100,8 @@ struct ShapeRating {
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
-    const ShapeRating* a = reinterpret_cast<const ShapeRating *>(t1);
-    const ShapeRating* b = reinterpret_cast<const ShapeRating *>(t2);
+    const ShapeRating* a = static_cast<const ShapeRating *>(t1);
+    const ShapeRating* b = static_cast<const ShapeRating *>(t2);
     if (a->rating > b->rating) {
       return -1;
     } else if (a->rating < b->rating) {
@@ -167,8 +167,7 @@ struct UnicharAndFonts {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(TFile* fp);
 
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void* v1, const void* v2);
@@ -190,8 +189,7 @@ class Shape {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(TFile* fp);
 
   int destination_index() const {
     return destination_index_;
@@ -271,8 +269,7 @@ class ShapeTable {
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
-  bool DeSerialize(bool swap, FILE* fp);
+  bool DeSerialize(TFile* fp);
 
   // Accessors.
   int NumShapes() const {

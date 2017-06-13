@@ -23,7 +23,6 @@
 #include "language_model.h"
 
 #include "dawg.h"
-#include "freelist.h"
 #include "intproto.h"
 #include "helpers.h"
 #include "lm_state.h"
@@ -32,7 +31,7 @@
 #include "params.h"
 #include "params_training_featdef.h"
 
-#if defined(_MSC_VER) || defined(ANDROID)
+#if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(ANDROID)
 double log2(double n) {
   return log(n) / log(2.0);
 }
@@ -119,20 +118,15 @@ LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
     BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
                      "Use sigmoidal score for certainty",
                      dict->getCCUtil()->params()),
+  dawg_args_(nullptr, new DawgPositionVector(), NO_PERM),
   fontinfo_table_(fontinfo_table), dict_(dict),
   fixed_pitch_(false), max_char_wh_ratio_(0.0),
   acceptable_choice_found_(false) {
   ASSERT_HOST(dict_ != NULL);
-  dawg_args_ = new DawgArgs(NULL, new DawgPositionVector(), NO_PERM);
-  very_beginning_active_dawgs_ = new DawgPositionVector();
-  beginning_active_dawgs_ = new DawgPositionVector();
 }
 
 LanguageModel::~LanguageModel() {
-  delete very_beginning_active_dawgs_;
-  delete beginning_active_dawgs_;
-  delete dawg_args_->updated_dawgs;
-  delete dawg_args_;
+  delete dawg_args_.updated_dawgs;
 }
 
 void LanguageModel::InitForWord(const WERD_CHOICE *prev_word,
@@ -145,10 +139,10 @@ void LanguageModel::InitForWord(const WERD_CHOICE *prev_word,
   correct_segmentation_explored_ = false;
 
   // Initialize vectors with beginning DawgInfos.
-  very_beginning_active_dawgs_->clear();
-  dict_->init_active_dawgs(very_beginning_active_dawgs_, false);
-  beginning_active_dawgs_->clear();
-  dict_->default_dawgs(beginning_active_dawgs_, false);
+  very_beginning_active_dawgs_.clear();
+  dict_->init_active_dawgs(&very_beginning_active_dawgs_, false);
+  beginning_active_dawgs_.clear();
+  dict_->default_dawgs(&beginning_active_dawgs_, false);
 
   // Fill prev_word_str_ with the last language_model_ngram_order
   // unichars from prev_word.
@@ -792,18 +786,18 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   // Initialize active_dawgs from parent_vse if it is not NULL.
   // Otherwise use very_beginning_active_dawgs_.
   if (parent_vse == NULL) {
-    dawg_args_->active_dawgs = very_beginning_active_dawgs_;
-    dawg_args_->permuter = NO_PERM;
+    dawg_args_.active_dawgs = &very_beginning_active_dawgs_;
+    dawg_args_.permuter = NO_PERM;
   } else {
     if (parent_vse->dawg_info == NULL) return NULL;  // not a dict word path
-    dawg_args_->active_dawgs = parent_vse->dawg_info->active_dawgs;
-    dawg_args_->permuter = parent_vse->dawg_info->permuter;
+    dawg_args_.active_dawgs = &parent_vse->dawg_info->active_dawgs;
+    dawg_args_.permuter = parent_vse->dawg_info->permuter;
   }
 
   // Deal with hyphenated words.
   if (word_end && dict_->has_hyphen_end(b.unichar_id(), curr_col == 0)) {
     if (language_model_debug_level > 0) tprintf("Hyphenated word found\n");
-    return new LanguageModelDawgInfo(dawg_args_->active_dawgs,
+    return new LanguageModelDawgInfo(dawg_args_.active_dawgs,
                                      COMPOUND_PERM);
   }
 
@@ -816,14 +810,14 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     // Do not allow compounding of words with lengths shorter than
     // language_model_min_compound_length
     if (parent_vse == NULL || word_end ||
-        dawg_args_->permuter == COMPOUND_PERM ||
+        dawg_args_.permuter == COMPOUND_PERM ||
         parent_vse->length < language_model_min_compound_length) return NULL;
 
     int i;
     // Check a that the path terminated before the current character is a word.
     bool has_word_ending = false;
-    for (i = 0; i < parent_vse->dawg_info->active_dawgs->size(); ++i) {
-      const DawgPosition &pos = (*parent_vse->dawg_info->active_dawgs)[i];
+    for (i = 0; i < parent_vse->dawg_info->active_dawgs.size(); ++i) {
+      const DawgPosition &pos = parent_vse->dawg_info->active_dawgs[i];
       const Dawg *pdawg = pos.dawg_index < 0
           ? NULL : dict_->GetDawg(pos.dawg_index);
       if (pdawg == NULL || pos.back_to_punc) continue;;
@@ -836,7 +830,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     if (!has_word_ending) return NULL;
 
     if (language_model_debug_level > 0) tprintf("Compound word found\n");
-    return new LanguageModelDawgInfo(beginning_active_dawgs_, COMPOUND_PERM);
+    return new LanguageModelDawgInfo(&beginning_active_dawgs_, COMPOUND_PERM);
   }  // done dealing with compound words
 
   LanguageModelDawgInfo *dawg_info = NULL;
@@ -851,22 +845,22 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     if (language_model_debug_level > 2)
       tprintf("Test Letter OK for unichar %d, normed %d\n",
               b.unichar_id(), normed_ids[i]);
-    dict_->LetterIsOkay(dawg_args_, normed_ids[i],
+    dict_->LetterIsOkay(&dawg_args_, normed_ids[i],
                         word_end && i == normed_ids.size() - 1);
-    if (dawg_args_->permuter == NO_PERM) {
+    if (dawg_args_.permuter == NO_PERM) {
       break;
     } else if (i < normed_ids.size() - 1) {
-      tmp_active_dawgs = *dawg_args_->updated_dawgs;
-      dawg_args_->active_dawgs = &tmp_active_dawgs;
+      tmp_active_dawgs = *dawg_args_.updated_dawgs;
+      dawg_args_.active_dawgs = &tmp_active_dawgs;
     }
     if (language_model_debug_level > 2)
       tprintf("Letter was OK for unichar %d, normed %d\n",
               b.unichar_id(), normed_ids[i]);
   }
-  dawg_args_->active_dawgs = NULL;
-  if (dawg_args_->permuter != NO_PERM) {
-    dawg_info = new LanguageModelDawgInfo(dawg_args_->updated_dawgs,
-                                          dawg_args_->permuter);
+  dawg_args_.active_dawgs = nullptr;
+  if (dawg_args_.permuter != NO_PERM) {
+    dawg_info = new LanguageModelDawgInfo(dawg_args_.updated_dawgs,
+                                          dawg_args_.permuter);
   } else if (language_model_debug_level > 3) {
     tprintf("Letter %s not OK!\n",
             dict_->getUnicharset().id_to_unichar(b.unichar_id()));
@@ -988,7 +982,7 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
             unichar, context_ptr, CertaintyScore(certainty)/denom, prob,
             ngram_and_classifier_cost);
   }
-  if (modified_context != NULL) delete[] modified_context;
+  delete[] modified_context;
   return ngram_and_classifier_cost;
 }
 
@@ -1321,7 +1315,7 @@ void LanguageModel::UpdateBestChoice(
     // Update hyphen state if we are dealing with a dictionary word.
     if (vse->dawg_info != NULL) {
       if (dict_->has_hyphen_end(*word)) {
-        dict_->set_hyphen_word(*word, *(dawg_args_->active_dawgs));
+        dict_->set_hyphen_word(*word, *(dawg_args_.active_dawgs));
       } else {
         dict_->reset_hyphen_vars(true);
       }

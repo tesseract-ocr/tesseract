@@ -26,7 +26,6 @@
 #include "dawg.h"
 #include "dict.h"
 #include "emalloc.h"
-#include "freelist.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "trie.h"
@@ -76,7 +75,7 @@ int main(int argc, char** argv) {
     }
     tprintf("Reducing Trie to SquishedDawg\n");
     tesseract::SquishedDawg *dawg = trie.trie_to_dawg();
-    if (dawg != NULL && dawg->NumEdges() > 0) {
+    if (dawg != nullptr && dawg->NumEdges() > 0) {
       tprintf("Writing squished DAWG to '%s'\n", dawg_filename);
       dawg->write_squished_dawg(dawg_filename);
     } else {

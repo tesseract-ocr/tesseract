@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H__
-#define TESSERACT_CLASSIFY_INTFEATURESPACE_H__
+#ifndef TESSERACT_CLASSIFY_INTFEATURESPACE_H_
+#define TESSERACT_CLASSIFY_INTFEATURESPACE_H_
 
 #include "genericvector.h"
 #include "intproto.h"
@@ -106,5 +106,4 @@ class IntFeatureSpace {
 
 }  // namespace tesseract.
 
-
-#endif  // TESSERACT_CLASSIFY_INTFEATURESPACE_H__
+#endif  // TESSERACT_CLASSIFY_INTFEATURESPACE_H_

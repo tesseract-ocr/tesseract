@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    featdefs.c
- **	Purpose:     Definitions of currently defined feature types.
- **	Author:      Dan Johnson
- **	History:     Mon May 21 10:26:21 1990, DSJ, Created.
+ ** Filename:    featdefs.c
+ ** Purpose:     Definitions of currently defined feature types.
+ ** Author:      Dan Johnson
+ ** History:     Mon May 21 10:26:21 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -18,10 +18,6 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#ifdef _MSC_VER
-#include <mathfix.h>
-#endif
-
 #include "featdefs.h"
 #include "emalloc.h"
 #include "danerror.h"
@@ -139,10 +135,8 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  * @note History: Wed May 23 13:52:19 1990, DSJ, Created.
  */
 void FreeCharDescription(CHAR_DESC CharDesc) {
-  int i;
-
   if (CharDesc) {
-    for (i = 0; i < CharDesc->NumFeatureSets; i++)
+    for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
       FreeFeatureSet (CharDesc->FeatureSets[i]);
     Efree(CharDesc);
   }
@@ -163,12 +157,10 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  */
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
-  int i;
-
   CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
-  for (i = 0; i < CharDesc->NumFeatureSets; i++)
+  for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
     CharDesc->FeatureSets[i] = NULL;
 
   return (CharDesc);
@@ -196,16 +188,15 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  */
 void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc, STRING* str) {
-  int Type;
   int NumSetsToWrite = 0;
 
-  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++)
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++)
     if (CharDesc->FeatureSets[Type])
       NumSetsToWrite++;
 
   str->add_str_int(" ", NumSetsToWrite);
   *str += "\n";
-  for (Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
     if (CharDesc->FeatureSets[Type]) {
       *str += FeatureDefs.FeatureDesc[Type]->ShortName;
       *str += " ";
@@ -220,7 +211,7 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                           CHAR_DESC CharDesc) {
   bool anything_written = false;
   bool well_formed = true;
-  for (int Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
+  for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++) {
     if (CharDesc->FeatureSets[Type]) {
       for (int i = 0; i < CharDesc->FeatureSets[Type]->NumFeatures; i++) {
         FEATURE feat = CharDesc->FeatureSets[Type]->Features[i];
@@ -289,13 +280,13 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * the feature type for the feature with the specified short
  * name.  Trap an error if the specified name is not found.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param FeatureDefs    definitions of feature types/extractors
  * @param ShortName short name of a feature type
  * @return Feature type which corresponds to ShortName.
- * @note Exceptions: 
+ * @note Exceptions:
  * - ILLEGAL_SHORT_NAME
  * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */

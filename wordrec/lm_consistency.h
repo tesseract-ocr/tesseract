@@ -18,13 +18,13 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#ifndef TESSERACT_WORDREC_LM_CONSISTENCY_H_
+#define TESSERACT_WORDREC_LM_CONSISTENCY_H_
+
 #include "dawg.h"
 #include "dict.h"
 #include "host.h"
 #include "ratngs.h"
-
-#ifndef TESSERACT_WORDREC_CONSISTENCY_H_
-#define TESSERACT_WORDREC_CONSISTENCY_H_
 
 namespace tesseract {
 
@@ -137,7 +137,6 @@ struct LMConsistencyInfo {
   XHeightConsistencyEnum xht_decision;
 };
 
-
 }  // namespace tesseract
 
-#endif  // TESSERACT_WORDREC_CONSISTENCY_H_
+#endif  // TESSERACT_WORDREC_LM_CONSISTENCY_H_

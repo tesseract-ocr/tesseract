@@ -16,19 +16,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCUTIL_CCUTIL_H__
-#define TESSERACT_CCUTIL_CCUTIL_H__
+#ifndef TESSERACT_CCUTIL_CCUTIL_H_
+#define TESSERACT_CCUTIL_CCUTIL_H_
 
 #include "ambigs.h"
 #include "errcode.h"
 #include "strngs.h"
-#include "tessdatamanager.h"
 #include "params.h"
 #include "unicharset.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#else
+#ifndef _WIN32
 #include <pthread.h>
 #include <semaphore.h>
 #endif
@@ -68,7 +65,6 @@ class CCUtil {
   STRING imagebasename;  // name of image
   STRING lang;
   STRING language_data_path_prefix;
-  TessdataManager tessdata_manager;
   UNICHARSET unicharset;
   UnicharAmbigs unichar_ambigs;
   STRING imagefile;  // image file name
@@ -96,4 +92,4 @@ class CCUtil {
 extern CCUtilMutex tprintfMutex;  // should remain global
 }  // namespace tesseract
 
-#endif  // TESSERACT_CCUTIL_CCUTIL_H__
+#endif  // TESSERACT_CCUTIL_CCUTIL_H_

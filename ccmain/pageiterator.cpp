@@ -87,7 +87,7 @@ const PageIterator& PageIterator::operator=(const PageIterator& src) {
   rect_top_ = src.rect_top_;
   rect_width_ = src.rect_width_;
   rect_height_ = src.rect_height_;
-  if (it_ != NULL) delete it_;
+  delete it_;
   it_ = new PAGE_RES_IT(*src.it_);
   BeginWord(src.blob_index_);
   return *this;
@@ -566,6 +566,7 @@ void PageIterator::ParagraphInfo(tesseract::ParagraphJustification *just,
   *is_crown = para->is_very_first_or_continuation;
   *first_line_indent = para->model->first_indent() -
       para->model->body_indent();
+  *just = para->model->justification();
 }
 
 /**
@@ -596,10 +597,8 @@ void PageIterator::BeginWord(int offset) {
     }
     word_ = NULL;
     // We will be iterating the box_word.
-    if (cblob_it_ != NULL) {
-      delete cblob_it_;
-      cblob_it_ = NULL;
-    }
+    delete cblob_it_;
+    cblob_it_ = NULL;
   } else {
     // No recognition yet, so a "symbol" is a cblob.
     word_ = word_res->word;

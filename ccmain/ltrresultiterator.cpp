@@ -145,13 +145,12 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
   return 0.0f;
 }
 
-void LTRResultIterator::RowAttributes(float* row_height,
-                                      float* descenders,
+void LTRResultIterator::RowAttributes(float* row_height, float* descenders,
                                       float* ascenders) const {
-    *row_height = it_->row()->row->x_height() + it_->row()-> row->ascenders()
-                  - it_->row()->row->descenders();
-    *descenders = it_->row()->row->descenders();
-    *ascenders = it_->row()->row->ascenders();
+  *row_height = it_->row()->row->x_height() + it_->row()->row->ascenders() -
+                it_->row()->row->descenders();
+  *descenders = it_->row()->row->descenders();
+  *ascenders = it_->row()->row->ascenders();
 }
 
 // Returns the font attributes of the current word. If iterating at a higher
@@ -219,6 +218,12 @@ bool LTRResultIterator::WordIsFromDictionary() const {
   int permuter = it_->word()->best_choice->permuter();
   return permuter == SYSTEM_DAWG_PERM || permuter == FREQ_DAWG_PERM ||
          permuter == USER_DAWG_PERM;
+}
+
+// Returns the number of blanks before the current word.
+int LTRResultIterator::BlanksBeforeWord() const {
+  if (it_->word() == NULL) return 1;
+  return it_->word()->word->space();
 }
 
 // Returns true if the current word is numeric.

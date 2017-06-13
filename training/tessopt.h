@@ -17,6 +17,9 @@
  *
  **********************************************************************/
 
+#ifndef TESSERACT_TRAINING_TESSOPT_H_
+#define TESSERACT_TRAINING_TESSOPT_H_
+
 #include          "host.h"
 
 extern int tessoptind;
@@ -27,3 +30,5 @@ inT32 argc,                      //arg count
 char *argv[],                    //args
 const char *arglist                    //string of arg chars
 );
+
+#endif  // TESSERACT_TRAINING_TESSOPT_H_

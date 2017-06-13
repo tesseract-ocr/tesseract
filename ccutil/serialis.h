@@ -61,12 +61,18 @@ class TFile {
   bool Open(const char* data, int size);
   // From an open file and an end offset.
   bool Open(FILE* fp, inT64 end_offset);
+  // Sets the value of the swap flag, so that FReadEndian does the right thing.
+  void set_swap(bool value) { swap_ = value; }
 
   // Reads a line like fgets. Returns NULL on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if
   // the line is longer. Does nothing if buffer_size <= 0.
   // To use fscanf use FGets and sscanf.
   char* FGets(char* buffer, int buffer_size);
+  // Replicates fread, followed by a swap of the bytes if needed, returning the
+  // number of items read. If swap_ is true then the count items will each have
+  // size bytes reversed.
+  int FReadEndian(void* buffer, int size, int count);
   // Replicates fread, returning the number of items read.
   int FRead(void* buffer, int size, int count);
   // Resets the TFile as if it has been Opened, but nothing read.
@@ -92,6 +98,8 @@ class TFile {
   bool data_is_owned_;
   // True if the TFile is open for writing.
   bool is_writing_;
+  // True if bytes need to be swapped in FReadEndian.
+  bool swap_;
 };
 
 }  // namespace tesseract.

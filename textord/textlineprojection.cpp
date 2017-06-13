@@ -119,6 +119,7 @@ void TextlineProjection::MoveNonTextlineBlobs(
 
 // Create a window and display the projection in it.
 void TextlineProjection::DisplayProjection() const {
+#ifndef GRAPHICS_DISABLED
   int width = pixGetWidth(pix_);
   int height = pixGetHeight(pix_);
   Pix* pixc = pixCreate(width, height, 32);
@@ -139,16 +140,12 @@ void TextlineProjection::DisplayProjection() const {
       col_data[x] = result;
     }
   }
-#if 0
-  // TODO(rays) uncomment when scrollview can display non-binary images.
   ScrollView* win = new ScrollView("Projection", 0, 0,
                                    width, height, width, height);
   win->Image(pixc, 0, 0);
   win->Update();
-#else
-  pixWrite("projection.png", pixc, IFF_PNG);
-#endif
   pixDestroy(&pixc);
+#endif  // GRAPHICS_DISABLED
 }
 
 // Compute the distance of the box from the partition using curved projection
@@ -760,7 +757,7 @@ void TextlineProjection::TruncateToImageBounds(TPOINT* pt) const {
   pt->y = ClipToRange<int>(pt->y, 0, pixGetHeight(pix_) - 1);
 }
 #ifdef _MSC_VER
-#pragma optimize( "", on )
+#pragma optimize("", on)
 #endif  // _MSC_VER
 
 // Transform tesseract image coordinates to coordinates used in the projection.

@@ -46,9 +46,7 @@
 #include "config_auto.h"
 #endif
 
-using tesseract::FontInfo;
 using tesseract::FontSet;
-using tesseract::FontSpacingInfo;
 
 /* match debug display constants*/
 #define PROTO_PRUNER_SCALE  (4.0)
@@ -326,9 +324,7 @@ int AddIntProto(INT_CLASS Class) {
        Word < Proto->Configs + WERDS_PER_CONFIG_VEC; *Word++ = 0);
 
   return (Index);
-
 }
-
 
 /**
  * This routine adds Proto to the class pruning tables
@@ -371,7 +367,6 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
     }
   }
 }                                /* AddProtoToClassPruner */
-
 
 /**
  * This routine updates the proto pruner lookup tables
@@ -431,7 +426,6 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_Y], Index, Y, Pad, debug);
 }                                /* AddProtoToProtoPruner */
-
 
 /**
  * Returns a quantized bucket for the given param shifted by offset,
@@ -550,7 +544,6 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
             P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
 }                                /* ConvertProto */
 
-
 /**
  * This routine converts from the old floating point format
  * to the new integer format.
@@ -627,14 +620,13 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
  * @note Exceptions: none
  * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-void DisplayIntFeature(const INT_FEATURE_STRUCT* Feature, FLOAT32 Evidence) {
+void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, FLOAT32 Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntFeature(IntMatchWindow, Feature, color);
   if (FeatureDisplayWindow) {
     RenderIntFeature(FeatureDisplayWindow, Feature, color);
   }
 }                                /* DisplayIntFeature */
-
 
 /**
  * This routine renders the specified proto into a
@@ -720,7 +712,6 @@ void free_int_class(INT_CLASS int_class) {
   Efree(int_class);
 }
 
-
 /**
  * This routine allocates a new set of integer templates
  * initialized to hold 0 classes.
@@ -767,10 +758,8 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
  */
-INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
+INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   int i, j, w, x, y, z;
-  BOOL8 swap;
-  int nread;
   int unicharset_size;
   int version_id = 0;
   INT_TEMPLATES Templates;
@@ -795,29 +784,19 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   /* first read the high level template struct */
   Templates = NewIntTemplates();
   // Read Templates in parts for 64 bit compatibility.
-  if (fread(&unicharset_size, sizeof(int), 1, File) != 1)
-    cprintf("Bad read of inttemp!\n");
-  if (fread(&Templates->NumClasses,
-            sizeof(Templates->NumClasses), 1, File) != 1 ||
-      fread(&Templates->NumClassPruners,
-            sizeof(Templates->NumClassPruners), 1, File) != 1)
-    cprintf("Bad read of inttemp!\n");
-  // Swap status is determined automatically.
-  swap = Templates->NumClassPruners < 0 ||
-    Templates->NumClassPruners > MAX_NUM_CLASS_PRUNERS;
-  if (swap) {
-    Reverse32(&Templates->NumClassPruners);
-    Reverse32(&Templates->NumClasses);
-    Reverse32(&unicharset_size);
-  }
+  if (fp->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1)
+    tprintf("Bad read of inttemp!\n");
+  if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses),
+                      1) != 1 ||
+      fp->FReadEndian(&Templates->NumClassPruners,
+                      sizeof(Templates->NumClassPruners), 1) != 1)
+    tprintf("Bad read of inttemp!\n");
   if (Templates->NumClasses < 0) {
     // This file has a version id!
     version_id = -Templates->NumClasses;
-    if (fread(&Templates->NumClasses, sizeof(Templates->NumClasses),
-              1, File) != 1)
-      cprintf("Bad read of inttemp!\n");
-    if (swap)
-      Reverse32(&Templates->NumClasses);
+    if (fp->FReadEndian(&Templates->NumClasses, sizeof(Templates->NumClasses),
+                        1) != 1)
+      tprintf("Bad read of inttemp!\n");
   }
 
   if (version_id < 3) {
@@ -826,39 +805,24 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   }
 
   if (version_id < 2) {
-    for (i = 0; i < unicharset_size; ++i) {
-      if (fread(&IndexFor[i], sizeof(inT16), 1, File) != 1)
-        cprintf("Bad read of inttemp!\n");
+    if (fp->FReadEndian(IndexFor, sizeof(IndexFor[0]), unicharset_size) !=
+        unicharset_size) {
+      tprintf("Bad read of inttemp!\n");
     }
-    for (i = 0; i < Templates->NumClasses; ++i) {
-      if (fread(&ClassIdFor[i], sizeof(CLASS_ID), 1, File) != 1)
-        cprintf("Bad read of inttemp!\n");
-    }
-    if (swap) {
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse16(&IndexFor[i]);
-      for (i = 0; i < Templates->NumClasses; i++)
-        Reverse32(&ClassIdFor[i]);
+    if (fp->FReadEndian(ClassIdFor, sizeof(ClassIdFor[0]),
+                        Templates->NumClasses) != Templates->NumClasses) {
+      tprintf("Bad read of inttemp!\n");
     }
   }
 
   /* then read in the class pruners */
+  const int kNumBuckets =
+      NUM_CP_BUCKETS * NUM_CP_BUCKETS * NUM_CP_BUCKETS * WERDS_PER_CP_VECTOR;
   for (i = 0; i < Templates->NumClassPruners; i++) {
     Pruner = new CLASS_PRUNER_STRUCT;
-    if ((nread =
-         fread(Pruner, 1, sizeof(CLASS_PRUNER_STRUCT),
-                File)) != sizeof(CLASS_PRUNER_STRUCT))
-      cprintf("Bad read of inttemp!\n");
-    if (swap) {
-      for (x = 0; x < NUM_CP_BUCKETS; x++) {
-        for (y = 0; y < NUM_CP_BUCKETS; y++) {
-          for (z = 0; z < NUM_CP_BUCKETS; z++) {
-            for (w = 0; w < WERDS_PER_CP_VECTOR; w++) {
-              Reverse32(&Pruner->p[x][y][z][w]);
-            }
-          }
-        }
-      }
+    if (fp->FReadEndian(Pruner, sizeof(Pruner->p[0][0][0][0]), kNumBuckets) !=
+        kNumBuckets) {
+      tprintf("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
       TempClassPruner[i] = Pruner;
@@ -923,39 +887,23 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
     Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
-    if (fread(&Class->NumProtos, sizeof(Class->NumProtos), 1, File) != 1 ||
-        fread(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1, File) != 1 ||
-        fread(&Class->NumConfigs, sizeof(Class->NumConfigs), 1, File) != 1)
-      cprintf ("Bad read of inttemp!\n");
+    if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
+        fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
+        fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1)
+      tprintf("Bad read of inttemp!\n");
     if (version_id == 0) {
       // Only version 0 writes 5 pointless pointers to the file.
       for (j = 0; j < 5; ++j) {
-        int junk;
-        if (fread(&junk, sizeof(junk), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
+        inT32 junk;
+        if (fp->FRead(&junk, sizeof(junk), 1) != 1)
+          tprintf("Bad read of inttemp!\n");
       }
     }
-    if (version_id < 4) {
-      for (j = 0; j < MaxNumConfigs; ++j) {
-        if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
-      }
-    } else {
-      ASSERT_HOST(Class->NumConfigs < MaxNumConfigs);
-      for (j = 0; j < Class->NumConfigs; ++j) {
-        if (fread(&Class->ConfigLengths[j], sizeof(uinT16), 1, File) != 1)
-          cprintf ("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        Reverse16(&Class->NumProtos);
-        for (j = 0; j < MaxNumConfigs; j++)
-          Reverse16(&Class->ConfigLengths[j]);
-      }
+    int num_configs = version_id < 4 ? MaxNumConfigs : Class->NumConfigs;
+    ASSERT_HOST(num_configs <= MaxNumConfigs);
+    if (fp->FReadEndian(Class->ConfigLengths, sizeof(uinT16), num_configs) !=
+        num_configs) {
+      tprintf("Bad read of inttemp!\n");
     }
     if (version_id < 2) {
       ClassForClassId (Templates, ClassIdFor[i]) = Class;
@@ -967,59 +915,41 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     Lengths = NULL;
     if (MaxNumIntProtosIn (Class) > 0) {
       Lengths = (uinT8 *)Emalloc(sizeof(uinT8) * MaxNumIntProtosIn(Class));
-      if ((nread =
-           fread((char *)Lengths, sizeof(uinT8),
-                 MaxNumIntProtosIn(Class), File)) != MaxNumIntProtosIn (Class))
-        cprintf ("Bad read of inttemp!\n");
+      if (fp->FRead(Lengths, sizeof(uinT8), MaxNumIntProtosIn(Class)) !=
+          MaxNumIntProtosIn(Class))
+        tprintf("Bad read of inttemp!\n");
     }
     Class->ProtoLengths = Lengths;
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
       ProtoSet = (PROTO_SET)Emalloc(sizeof(PROTO_SET_STRUCT));
-      if (version_id < 3) {
-        if ((nread =
-             fread((char *) &ProtoSet->ProtoPruner, 1,
-                    sizeof(PROTO_PRUNER), File)) != sizeof(PROTO_PRUNER))
+      int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
+      if (fp->FReadEndian(&ProtoSet->ProtoPruner,
+                          sizeof(ProtoSet->ProtoPruner[0][0][0]),
+                          num_buckets) != num_buckets)
+        tprintf("Bad read of inttemp!\n");
+      for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
+        if (fp->FRead(&ProtoSet->Protos[x].A, sizeof(ProtoSet->Protos[x].A),
+                      1) != 1 ||
+            fp->FRead(&ProtoSet->Protos[x].B, sizeof(ProtoSet->Protos[x].B),
+                      1) != 1 ||
+            fp->FRead(&ProtoSet->Protos[x].C, sizeof(ProtoSet->Protos[x].C),
+                      1) != 1 ||
+            fp->FRead(&ProtoSet->Protos[x].Angle,
+                      sizeof(ProtoSet->Protos[x].Angle), 1) != 1)
+          tprintf("Bad read of inttemp!\n");
+        if (fp->FReadEndian(&ProtoSet->Protos[x].Configs,
+                            sizeof(ProtoSet->Protos[x].Configs[0]),
+                            WerdsPerConfigVec) != WerdsPerConfigVec)
           cprintf("Bad read of inttemp!\n");
-        for (x = 0; x < PROTOS_PER_PROTO_SET; x++) {
-          if ((nread = fread((char *) &ProtoSet->Protos[x].A, 1,
-                             sizeof(inT8), File)) != sizeof(inT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].B, 1,
-                             sizeof(uinT8), File)) != sizeof(uinT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].C, 1,
-                             sizeof(inT8), File)) != sizeof(inT8) ||
-              (nread = fread((char *) &ProtoSet->Protos[x].Angle, 1,
-                             sizeof(uinT8), File)) != sizeof(uinT8))
-            cprintf("Bad read of inttemp!\n");
-          for (y = 0; y < WerdsPerConfigVec; y++)
-            if ((nread = fread((char *) &ProtoSet->Protos[x].Configs[y], 1,
-                               sizeof(uinT32), File)) != sizeof(uinT32))
-              cprintf("Bad read of inttemp!\n");
-        }
-      } else {
-        if ((nread =
-             fread((char *) ProtoSet, 1, sizeof(PROTO_SET_STRUCT),
-                   File)) != sizeof(PROTO_SET_STRUCT))
-          cprintf("Bad read of inttemp!\n");
-      }
-      if (swap) {
-        for (x = 0; x < NUM_PP_PARAMS; x++)
-          for (y = 0; y < NUM_PP_BUCKETS; y++)
-            for (z = 0; z < WERDS_PER_PP_VECTOR; z++)
-              Reverse32(&ProtoSet->ProtoPruner[x][y][z]);
-        for (x = 0; x < PROTOS_PER_PROTO_SET; x++)
-          for (y = 0; y < WerdsPerConfigVec; y++)
-            Reverse32(&ProtoSet->Protos[x].Configs[y]);
       }
       Class->ProtoSets[j] = ProtoSet;
     }
-    if (version_id < 4)
+    if (version_id < 4) {
       Class->font_set_id = -1;
-    else {
-      fread(&Class->font_set_id, sizeof(int), 1, File);
-      if (swap)
-        Reverse32(&Class->font_set_id);
+    } else {
+      fp->FReadEndian(&Class->font_set_id, sizeof(Class->font_set_id), 1);
     }
   }
 
@@ -1046,13 +976,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(FILE *File) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(File, NewPermanentTessCallback(read_info), swap);
+    this->fontinfo_table_.read(fp, NewPermanentTessCallback(read_info));
     if (version_id >= 5) {
-      this->fontinfo_table_.read(File,
-                                 NewPermanentTessCallback(read_spacing_info),
-                                 swap);
+      this->fontinfo_table_.read(fp,
+                                 NewPermanentTessCallback(read_spacing_info));
     }
-    this->fontset_table_.read(File, NewPermanentTessCallback(read_set), swap);
+    this->fontset_table_.read(fp, NewPermanentTessCallback(read_set));
   }
 
   // Clean up.
@@ -1218,7 +1147,6 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
 
 }                                /* BucketStart */
 
-
 /**
  * This routine returns the parameter value which
  * corresponds to the end of the specified bucket.
@@ -1235,7 +1163,6 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
 FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
   return (((FLOAT32) (Bucket + 1) / NumBuckets) - Offset);
 }                                /* BucketEnd */
-
 
 /**
  * This routine fills in the section of a class pruner
@@ -1284,7 +1211,6 @@ void DoFill(FILL_SPEC *FillSpec,
     }
 }                                /* DoFill */
 
-
 /**
  * Return TRUE if the specified table filler is done, i.e.
  * if it has no more lines to fill.
@@ -1305,7 +1231,6 @@ BOOL8 FillerDone(TABLE_FILLER *Filler) {
     return (FALSE);
 
 }                                /* FillerDone */
-
 
 /**
  * This routine sets Bit in each bit vector whose
@@ -1348,7 +1273,6 @@ void FillPPCircularBits(uinT32 ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
   }
 
 }                                /* FillPPCircularBits */
-
 
 /**
  * This routine sets Bit in each bit vector whose
@@ -1516,7 +1440,6 @@ void GetCPPadsForLevel(int Level,
 
 }                                /* GetCPPadsForLevel */
 
-
 /**
  * @param Evidence  evidence value to return color for
  * @return Color which corresponds to specified Evidence value.
@@ -1537,7 +1460,6 @@ ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
   else
     return ScrollView::BLUE;
 }                                /* GetMatchColorFor */
-
 
 /**
  * This routine returns (in Fill) the specification of
@@ -1588,7 +1510,6 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   Filler->YEnd += Filler->EndDelta;
 
 }                                /* GetNextFill */
-
 
 /**
  * This routine computes a data structure (Filler)
@@ -1723,8 +1644,10 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = -(inT16) ((Sin / Cos) * 256);
-      Filler->EndDelta = (inT16) ((Cos / Sin) * 256);
+      Filler->StartDelta = static_cast<inT16>(ClipToRange<int>(
+          -IntCastRounded((Sin / Cos) * 256), MIN_INT16, MAX_INT16));
+      Filler->EndDelta = static_cast<inT16>(ClipToRange<int>(
+          IntCastRounded((Cos / Sin) * 256), MIN_INT16, MAX_INT16));
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Sin / Cos;
@@ -1786,7 +1709,6 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   window->SetCursor(X, Y);
   window->DrawTo(X + Dx, Y + Dy);
 }                                /* RenderIntFeature */
-
 
 /**
  * This routine extracts the parameters of the specified

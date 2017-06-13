@@ -24,8 +24,11 @@
 namespace tesseract {
 
 TFile::TFile()
-    : offset_(0), data_(NULL), data_is_owned_(false), is_writing_(false) {
-}
+    : offset_(0),
+      data_(NULL),
+      data_is_owned_(false),
+      is_writing_(false),
+      swap_(false) {}
 
 TFile::~TFile() {
   if (data_is_owned_)
@@ -39,6 +42,7 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   }
   offset_ = 0;
   is_writing_ = false;
+  swap_ = false;
   if (reader == NULL)
     return LoadDataFromFile(filename, data_);
   else
@@ -52,7 +56,8 @@ bool TFile::Open(const char* data, int size) {
     data_is_owned_ = true;
   }
   is_writing_ = false;
-  data_->init_to_size(size, 0);
+  swap_ = false;
+  data_->resize_no_init(size);
   memcpy(&(*data_)[0], data, size);
   return true;
 }
@@ -69,11 +74,12 @@ bool TFile::Open(FILE* fp, inT64 end_offset) {
   }
   int size = end_offset - current_pos;
   is_writing_ = false;
+  swap_ = false;
   if (!data_is_owned_) {
     data_ = new GenericVector<char>;
     data_is_owned_ = true;
   }
-  data_->init_to_size(size, 0);
+  data_->resize_no_init(size);
   return static_cast<int>(fread(&(*data_)[0], 1, size, fp)) == size;
 }
 
@@ -88,15 +94,25 @@ char* TFile::FGets(char* buffer, int buffer_size) {
   return size > 0 ? buffer : NULL;
 }
 
+int TFile::FReadEndian(void* buffer, int size, int count) {
+  int num_read = FRead(buffer, size, count);
+  if (swap_) {
+    char* char_buffer = static_cast<char*>(buffer);
+    for (int i = 0; i < num_read; ++i, char_buffer += size) {
+      ReverseN(char_buffer, size);
+    }
+  }
+  return num_read;
+}
+
 int TFile::FRead(void* buffer, int size, int count) {
   ASSERT_HOST(!is_writing_);
   int required_size = size * count;
   if (required_size <= 0) return 0;
-  char* char_buffer = reinterpret_cast<char*>(buffer);
   if (data_->size() - offset_ < required_size)
     required_size = data_->size() - offset_;
-  if (required_size > 0)
-    memcpy(char_buffer, &(*data_)[offset_], required_size);
+  if (required_size > 0 && buffer != NULL)
+    memcpy(buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
   return required_size / size;
 }
@@ -117,6 +133,7 @@ void TFile::OpenWrite(GenericVector<char>* data) {
     data_is_owned_ = true;
   }
   is_writing_ = true;
+  swap_ = false;
   data_->truncate(0);
 }
 
@@ -132,7 +149,7 @@ int TFile::FWrite(const void* buffer, int size, int count) {
   ASSERT_HOST(is_writing_);
   int total = size * count;
   if (total <= 0) return 0;
-  const char* buf = reinterpret_cast<const char*>(buffer);
+  const char* buf = static_cast<const char*>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
   for (int i = 0; i < total; ++i)

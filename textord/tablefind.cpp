@@ -114,11 +114,6 @@ const int kLargeTableRowCount = 6;
 // Minimum number of rows in a table
 const int kMinRowsInTable = 3;
 
-// The number of "whitespace blobs" that should appear between the
-// ColPartition's bounding box and the column tab stops to the left/right
-// when looking for center justified tab stops.
-const double kRequiredFullJustifiedSpacing = 4.0;
-
 // The amount of padding (multiplied by global_median_xheight_ during use)
 // that is vertically added to the search adjacent leader search during
 // ColPartition marking.
@@ -148,7 +143,6 @@ const double kMaxXProjectionGapFactor = 2.0;
 const double kStrokeWidthFractionalTolerance = 0.25;
 const double kStrokeWidthConstantTolerance = 2.0;
 
-BOOL_VAR(textord_dump_table_images, false, "Paint table detection output");
 BOOL_VAR(textord_show_tables, false, "Show table regions");
 BOOL_VAR(textord_tablefind_show_mark, false,
          "Debug table marking steps in detail");
@@ -376,9 +370,6 @@ void TableFinder::LocateTables(ColPartitionGrid* grid,
 #endif  // GRAPHICS_DISABLED
   }
 
-  if (textord_dump_table_images)
-    WriteToPix(reskew);
-
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.
@@ -555,7 +546,7 @@ void TableFinder::GroupColumnBlocks(ColSegment_LIST* new_blocks,
   // iterate through the source list
   for (src_it.mark_cycle_pt(); !src_it.cycled_list(); src_it.forward()) {
     ColSegment* src_seg = src_it.data();
-    TBOX src_box = src_seg->bounding_box();
+    const TBOX& src_box = src_seg->bounding_box();
     bool match_found = false;
     // iterate through the destination list to find a matching column block
     for (dest_it.mark_cycle_pt(); !dest_it.cycled_list(); dest_it.forward()) {
@@ -1347,7 +1338,7 @@ void TableFinder::GetTableRegions(ColSegment_LIST* table_columns,
   // create a bool array to hold projection on y-axis
   bool* table_region = new bool[page_height];
   while ((part = gsearch.NextFullSearch()) != NULL) {
-    TBOX part_box = part->bounding_box();
+    const TBOX& part_box = part->bounding_box();
     // reset the projection array
     for (int i = 0; i < page_height; i++) {
       table_region[i] = false;
@@ -1979,7 +1970,7 @@ void TableFinder::DisplayColPartitionConnections(
 
     ColPartition* upper_part = part->nearest_neighbor_above();
     if (upper_part) {
-      TBOX upper_box = upper_part->bounding_box();
+      const TBOX& upper_box = upper_part->bounding_box();
       int mid_x = (left_x + right_x) / 2;
       int mid_y = (top_y + bottom_y) / 2;
       int other_x = (upper_box.left() + upper_box.right()) / 2;
@@ -1990,7 +1981,7 @@ void TableFinder::DisplayColPartitionConnections(
     }
     ColPartition* lower_part = part->nearest_neighbor_below();
     if (lower_part) {
-      TBOX lower_box = lower_part->bounding_box();
+      const TBOX& lower_box = lower_part->bounding_box();
       int mid_x = (left_x + right_x) / 2;
       int mid_y = (top_y + bottom_y) / 2;
       int other_x = (lower_box.left() + lower_box.right()) / 2;
@@ -2002,80 +1993,6 @@ void TableFinder::DisplayColPartitionConnections(
   }
   win->UpdateWindow();
 #endif
-}
-
-
-// Write debug image and text file.
-// Note: This method is only for debug purpose during development and
-// would not be part of checked in code
-void TableFinder::WriteToPix(const FCOORD& reskew) {
-  // Input file must be named test1.tif
-  PIX* pix = pixRead("test1.tif");
-  if (!pix) {
-    tprintf("Input file test1.tif not found.\n");
-    return;
-  }
-  int img_height = pixGetHeight(pix);
-  int img_width = pixGetWidth(pix);
-  // Maximum number of text or table partitions
-  int num_boxes = 10;
-  BOXA* text_box_array = boxaCreate(num_boxes);
-  BOXA* table_box_array = boxaCreate(num_boxes);
-  GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
-    gsearch(&clean_part_grid_);
-  gsearch.StartFullSearch();
-  ColPartition* part;
-  // load colpartitions into text_box_array and table_box_array
-  while ((part = gsearch.NextFullSearch()) != NULL) {
-    TBOX box = part->bounding_box();
-    box.rotate_large(reskew);
-    BOX* lept_box = boxCreate(box.left(), img_height - box.top(),
-                              box.right() - box.left(),
-                              box.top() - box.bottom());
-    if (part->type() == PT_TABLE)
-      boxaAddBox(table_box_array, lept_box, L_INSERT);
-    else
-      boxaAddBox(text_box_array, lept_box, L_INSERT);
-  }
-  // draw colpartitions on the output image
-  PIX* out = pixDrawBoxa(pix, text_box_array, 3, 0xff000000);
-  out = pixDrawBoxa(out, table_box_array, 3, 0x0000ff00);
-
-  BOXA* table_array = boxaCreate(num_boxes);
-  // text file containing detected table bounding boxes
-  FILE* fptr = fopen("tess-table.txt", "wb");
-  GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>
-      table_search(&table_grid_);
-  table_search.StartFullSearch();
-  ColSegment* table;
-  // load table boxes to table_array and write them to text file as well
-  while ((table = table_search.NextFullSearch()) != NULL) {
-    TBOX box = table->bounding_box();
-    box.rotate_large(reskew);
-    // Since deskewing introduces negative coordinates, reskewing
-    // might not completely recover from that since both steps enlarge
-    // the actual box. Hence a box that undergoes deskewing/reskewing
-    // may go out of image boundaries. Crop a table box if needed to
-    // contain it inside the image dimensions.
-    box = box.intersection(TBOX(0, 0, img_width - 1, img_height - 1));
-    BOX* lept_box = boxCreate(box.left(), img_height - box.top(),
-                              box.right() - box.left(),
-                              box.top() - box.bottom());
-    boxaAddBox(table_array, lept_box, L_INSERT);
-    fprintf(fptr, "%d %d %d %d TABLE\n", box.left(),
-            img_height - box.top(), box.right(), img_height - box.bottom());
-  }
-  fclose(fptr);
-  // paint table boxes on the debug image
-  out = pixDrawBoxa(out, table_array, 5, 0x7fff0000);
-
-  pixWrite("out.png", out, IFF_PNG);
-  // memory cleanup
-  boxaDestroy(&text_box_array);
-  boxaDestroy(&table_box_array);
-  boxaDestroy(&table_array);
-  pixDestroy(&pix);
-  pixDestroy(&out);
 }
 
 // Merge all colpartitions in table regions to make them a single
@@ -2103,7 +2020,7 @@ void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
   table_search.StartFullSearch();
   ColSegment* table;
   while ((table = table_search.NextFullSearch()) != NULL) {
-    TBOX table_box = table->bounding_box();
+    const TBOX& table_box = table->bounding_box();
     // Start a rect search on table_box
     GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>
         rectsearch(grid);

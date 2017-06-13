@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CCMAIN_PAGEITERATOR_H__
-#define TESSERACT_CCMAIN_PAGEITERATOR_H__
+#ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
+#define TESSERACT_CCMAIN_PAGEITERATOR_H_
 
 #include "publictypes.h"
 #include "platform.h"
@@ -361,4 +361,4 @@ class TESS_API PageIterator {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_CCMAIN_PAGEITERATOR_H__
+#endif  // TESSERACT_CCMAIN_PAGEITERATOR_H_

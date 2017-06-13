@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CSTRUCT_BOXWORD_H__
-#define TESSERACT_CSTRUCT_BOXWORD_H__
+#ifndef TESSERACT_CSTRUCT_BOXWORD_H_
+#define TESSERACT_CSTRUCT_BOXWORD_H_
 
 #include "genericvector.h"
 #include "rect.h"
@@ -82,9 +82,7 @@ class BoxWord {
   const TBOX& bounding_box() const {
     return bbox_;
   }
-  int length() const {
-    return length_;
-  }
+  int length() const { return length_; }
   const TBOX& BlobBox(int index) const {
     return boxes_[index];
   }
@@ -99,5 +97,4 @@ class BoxWord {
 
 }  // namespace tesseract.
 
-
-#endif  // TESSERACT_CSTRUCT_BOXWORD_H__
+#endif  // TESSERACT_CSTRUCT_BOXWORD_H_

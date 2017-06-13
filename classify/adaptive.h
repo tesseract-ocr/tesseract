@@ -41,7 +41,6 @@ typedef struct
   uinT8 NumTimesSeen;
   uinT8 ProtoVectorSize;
   PROTO_ID MaxProtoId;
-  LIST ContextsSeen;
   BIT_VECTOR Protos;
   int FontinfoId;  // font information inferred from pre-trained templates
 } TEMP_CONFIG_STRUCT;
@@ -126,11 +125,11 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
 
 TEMP_PROTO NewTempProto();
 
-ADAPT_CLASS ReadAdaptedClass(FILE *File);
+ADAPT_CLASS ReadAdaptedClass(tesseract::TFile *File);
 
-PERM_CONFIG ReadPermConfig(FILE *File);
+PERM_CONFIG ReadPermConfig(tesseract::TFile *File);
 
-TEMP_CONFIG ReadTempConfig(FILE *File);
+TEMP_CONFIG ReadTempConfig(tesseract::TFile *File);
 
 void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
 

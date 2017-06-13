@@ -18,9 +18,6 @@
  **********************************************************************/
 
 #ifdef _WIN32
-#ifndef __GNUC__
-#include <windows.h>
-#endif  // __GNUC__
 #ifndef unlink
 #include <io.h>
 #endif
@@ -40,6 +37,7 @@
 #include "blobbox.h"
 #include "blread.h"
 #include "colfind.h"
+#include "debugpixa.h"
 #include "equationdetect.h"
 #include "imagefind.h"
 #include "linefind.h"
@@ -54,10 +52,6 @@
 
 namespace tesseract {
 
-/// Minimum believable resolution.
-const int kMinCredibleResolution = 70;
-/// Default resolution used if input in not believable.
-const int kDefaultResolution = 300;
 // Max erosions to perform in removing an enclosing circle.
 const int kMaxCircleErosions = 8;
 
@@ -183,28 +177,6 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   return auto_page_seg_ret_val;
 }
 
-// Helper writes a grey image to a file for use by scrollviewer.
-// Normally for speed we don't display the image in the layout debug windows.
-// If textord_debug_images is true, we draw the image as a background to some
-// of the debug windows. printable determines whether these
-// images are optimized for printing instead of screen display.
-static void WriteDebugBackgroundImage(bool printable, Pix* pix_binary) {
-  Pix* grey_pix = pixCreate(pixGetWidth(pix_binary),
-                            pixGetHeight(pix_binary), 8);
-  // Printable images are light grey on white, but for screen display
-  // they are black on dark grey so the other colors show up well.
-  if (printable) {
-    pixSetAll(grey_pix);
-    pixSetMasked(grey_pix, pix_binary, 192);
-  } else {
-    pixSetAllArbitrary(grey_pix, 64);
-    pixSetMasked(grey_pix, pix_binary, 0);
-  }
-  AlignedBlob::IncrementDebugPix();
-  pixWrite(AlignedBlob::textord_debug_pix().string(), grey_pix, IFF_PNG);
-  pixDestroy(&grey_pix);
-}
-
 /**
  * Auto page segmentation. Divide the page image into blocks of uniform
  * text linespacing and images.
@@ -233,9 +205,6 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
                            TO_BLOCK_LIST* to_blocks,
                            BLOBNBOX_LIST* diacritic_blobs, Tesseract* osd_tess,
                            OSResults* osr) {
-  if (textord_debug_images) {
-    WriteDebugBackgroundImage(textord_debug_printable, pix_binary_);
-  }
   Pix* photomask_pix = NULL;
   Pix* musicmask_pix = NULL;
   // The blocks made by the ColumnFinder. Moved to blocks before return.
@@ -257,9 +226,10 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
     if (equ_detect_) {
       finder->SetEquationDetect(equ_detect_);
     }
-    result = finder->FindBlocks(
-        pageseg_mode, scaled_color_, scaled_factor_, to_block, photomask_pix,
-        pix_thresholds_, pix_grey_, &found_blocks, diacritic_blobs, to_blocks);
+    result = finder->FindBlocks(pageseg_mode, scaled_color_, scaled_factor_,
+                                to_block, photomask_pix, pix_thresholds_,
+                                pix_grey_, &pixa_debug_, &found_blocks,
+                                diacritic_blobs, to_blocks);
     if (result >= 0)
       finder->GetDeskewVectors(&deskew_, &reskew_);
     delete finder;
@@ -272,11 +242,6 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
   BLOCK_IT block_it(blocks);
   // Move the found blocks to the input/output blocks.
   block_it.add_list_after(&found_blocks);
-
-  if (textord_debug_images) {
-    // The debug image is no longer needed so delete it.
-    unlink(AlignedBlob::textord_debug_pix().string());
-  }
   return result;
 }
 
@@ -318,19 +283,21 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
 
   ASSERT_HOST(pix_binary_ != NULL);
   if (tessedit_dump_pageseg_images) {
-    pixWrite("tessinput.png", pix_binary_, IFF_PNG);
+    pixa_debug_.AddPix(pix_binary_, "PageSegInput");
   }
   // Leptonica is used to find the rule/separator lines in the input.
   LineFinder::FindAndRemoveLines(source_resolution_,
                                  textord_tabfind_show_vlines, pix_binary_,
                                  &vertical_x, &vertical_y, music_mask_pix,
                                  &v_lines, &h_lines);
-  if (tessedit_dump_pageseg_images)
-    pixWrite("tessnolines.png", pix_binary_, IFF_PNG);
+  if (tessedit_dump_pageseg_images) {
+    pixa_debug_.AddPix(pix_binary_, "NoLines");
+  }
   // Leptonica is used to find a mask of the photo regions in the input.
-  *photo_mask_pix = ImageFind::FindImages(pix_binary_);
-  if (tessedit_dump_pageseg_images)
-    pixWrite("tessnoimages.png", pix_binary_, IFF_PNG);
+  *photo_mask_pix = ImageFind::FindImages(pix_binary_, &pixa_debug_);
+  if (tessedit_dump_pageseg_images) {
+    pixa_debug_.AddPix(pix_binary_, "NoImages");
+  }
   if (!PSM_COL_FIND_ENABLED(pageseg_mode)) v_lines.clear();
 
   // The rest of the algorithm uses the usual connected components.
@@ -416,9 +383,10 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
                   "Don't rotate.\n", osd_margin);
           osd_orientation = 0;
         } else {
-          tprintf("OSD: Weak margin (%.2f) for %d blob text block, "
-                  "but using orientation anyway: %d\n",
-                  osd_margin, osd_blobs.length(), osd_orientation);
+          tprintf(
+              "OSD: Weak margin (%.2f) for %d blob text block, "
+              "but using orientation anyway: %d\n",
+              osd_margin, osd_blobs.length(), osd_orientation);
         }
       }
     }

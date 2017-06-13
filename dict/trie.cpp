@@ -34,7 +34,6 @@
 #include "callcpp.h"
 #include "dawg.h"
 #include "dict.h"
-#include "freelist.h"
 #include "genericvector.h"
 #include "helpers.h"
 #include "kdpair.h"
@@ -276,15 +275,14 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 
 NODE_REF Trie::new_dawg_node() {
   TRIE_NODE_RECORD *node = new TRIE_NODE_RECORD();
-  if (node == NULL) return 0;  // failed to create new node
   nodes_.push_back(node);
   return nodes_.length() - 1;
 }
 
 // Sort function to sort words by decreasing order of length.
 static int sort_strings_by_dec_length(const void* v1, const void* v2) {
-  const STRING* s1 = reinterpret_cast<const STRING*>(v1);
-  const STRING* s2 = reinterpret_cast<const STRING*>(v2);
+  const STRING* s1 = static_cast<const STRING*>(v1);
+  const STRING* s2 = static_cast<const STRING*>(v2);
   return s2->length() - s1->length();
 }
 
@@ -548,8 +546,7 @@ SquishedDawg *Trie::trie_to_dawg() {
 
   // Convert nodes_ vector into EDGE_ARRAY translating the next node references
   // in edges using node_ref_map. Empty nodes and backward edges are dropped.
-  EDGE_ARRAY edge_array =
-    (EDGE_ARRAY)memalloc(num_forward_edges * sizeof(EDGE_RECORD));
+  EDGE_ARRAY edge_array = new EDGE_RECORD[num_forward_edges];
   EDGE_ARRAY edge_array_ptr = edge_array;
   for (i = 0; i < nodes_.size(); ++i) {
     TRIE_NODE_RECORD *node_ptr = nodes_[i];
@@ -575,7 +572,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node,
                                      const EDGE_RECORD &edge1,
                                      const EDGE_RECORD &edge2) {
   if (debug_level_ > 1) {
-    tprintf("\nCollapsing node %d:\n", node);
+    tprintf("\nCollapsing node %" PRIi64 ":\n", node);
     print_node(node, MAX_NODE_EDGES_DISPLAY);
     tprintf("Candidate edges: ");
     print_edge_rec(edge1);

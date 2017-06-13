@@ -62,7 +62,8 @@ const int kNoisePadding = 4;
 // the image regions as a mask image.
 // The returned pix may be NULL, meaning no images found.
 // If not NULL, it must be PixDestroyed by the caller.
-Pix* ImageFind::FindImages(Pix* pix) {
+// If textord_tabfind_show_images, debug images are appended to pixa_debug.
+Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
   // Not worth looking at small images.
   if (pixGetWidth(pix) < kMinImageFindSize ||
       pixGetHeight(pix) < kMinImageFindSize)
@@ -70,14 +71,15 @@ Pix* ImageFind::FindImages(Pix* pix) {
 
   // Reduce by factor 2.
   Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
-  pixDisplayWrite(pixr, textord_tabfind_show_images);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixr, "CascadeReduced");
 
   // Get the halftone mask directly from Leptonica.
   //
   // Leptonica will print an error message and return NULL if we call
   // pixGenHalftoneMask(pixr, NULL, ...) with too small image, so we
   // want to bypass that.
-  if (pixGetWidth(pixr) < kMinImageFindSize || 
+  if (pixGetWidth(pixr) < kMinImageFindSize ||
       pixGetHeight(pixr) < kMinImageFindSize) {
     pixDestroy(&pixr);
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
@@ -93,7 +95,8 @@ Pix* ImageFind::FindImages(Pix* pix) {
 
   // Expand back up again.
   Pix *pixht = pixExpandReplicate(pixht2, 2);
-  pixDisplayWrite(pixht, textord_tabfind_show_images);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixht, "HalftoneReplicated");
   pixDestroy(&pixht2);
 
   // Fill to capture pixels near the mask edges that were missed
@@ -104,14 +107,16 @@ Pix* ImageFind::FindImages(Pix* pix) {
   // Eliminate lines and bars that may be joined to images.
   Pix* pixfinemask = pixReduceRankBinaryCascade(pixht, 1, 1, 3, 3);
   pixDilateBrick(pixfinemask, pixfinemask, 5, 5);
-  pixDisplayWrite(pixfinemask, textord_tabfind_show_images);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixfinemask, "FineMask");
   Pix* pixreduced = pixReduceRankBinaryCascade(pixht, 1, 1, 1, 1);
   Pix* pixreduced2 = pixReduceRankBinaryCascade(pixreduced, 3, 3, 3, 0);
   pixDestroy(&pixreduced);
   pixDilateBrick(pixreduced2, pixreduced2, 5, 5);
   Pix* pixcoarsemask = pixExpandReplicate(pixreduced2, 8);
   pixDestroy(&pixreduced2);
-  pixDisplayWrite(pixcoarsemask, textord_tabfind_show_images);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixcoarsemask, "CoarseMask");
   // Combine the coarse and fine image masks.
   pixAnd(pixcoarsemask, pixcoarsemask, pixfinemask);
   pixDestroy(&pixfinemask);
@@ -119,13 +124,13 @@ Pix* ImageFind::FindImages(Pix* pix) {
   pixDilateBrick(pixcoarsemask, pixcoarsemask, 3, 3);
   Pix* pixmask = pixExpandReplicate(pixcoarsemask, 16);
   pixDestroy(&pixcoarsemask);
-  if (textord_tabfind_show_images)
-    pixWrite("junkexpandedcoarsemask.png", pixmask, IFF_PNG);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixmask, "MaskDilated");
   // And the image mask with the line and bar remover.
   pixAnd(pixht, pixht, pixmask);
   pixDestroy(&pixmask);
-  if (textord_tabfind_show_images)
-    pixWrite("junkfinalimagemask.png", pixht, IFF_PNG);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pixht, "FinalMask");
   // Make the result image the same size as the input.
   Pix* result = pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
   pixOr(result, result, pixht);
@@ -140,22 +145,25 @@ Pix* ImageFind::FindImages(Pix* pix) {
 // If not NULL, they must be destroyed by the caller.
 // Resolution of pix should match the source image (Tesseract::pix_binary_)
 // so the output coordinate systems match.
-void ImageFind::ConnCompAndRectangularize(Pix* pix, Boxa** boxa, Pixa** pixa) {
+void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
+                                          Boxa** boxa, Pixa** pixa) {
   *boxa = NULL;
   *pixa = NULL;
 
-  if (textord_tabfind_show_images)
-    pixWrite("junkconncompimage.png", pix, IFF_PNG);
+  if (textord_tabfind_show_images && pixa_debug != nullptr)
+    pixa_debug->AddPix(pix, "Conncompimage");
   // Find the individual image regions in the mask image.
   *boxa = pixConnComp(pix, pixa, 8);
   // Rectangularize the individual images. If a sharp edge in vertical and/or
   // horizontal occupancy can be found, it indicates a probably rectangular
   // image with unwanted bits merged on, so clip to the approximate rectangle.
-  int npixes = pixaGetCount(*pixa);
+  int npixes = 0;
+  if (*boxa != nullptr && *pixa != nullptr) npixes = pixaGetCount(*pixa);
   for (int i = 0; i < npixes; ++i) {
     int x_start, x_end, y_start, y_end;
     Pix* img_pix = pixaGetPix(*pixa, i, L_CLONE);
-    pixDisplayWrite(img_pix, textord_tabfind_show_images);
+    if (textord_tabfind_show_images && pixa_debug != nullptr)
+      pixa_debug->AddPix(img_pix, "A component");
     if (pixNearlyRectangular(img_pix, kMinRectangularFraction,
                              kMaxRectangularFraction,
                              kMaxRectangularGradient,
@@ -1115,7 +1123,7 @@ static bool TestWeakIntersectedPart(const TBOX& im_box,
                                     ColPartition* part) {
   if (part->flow() < BTFT_STRONG_CHAIN) {
     // A weak partition intersects the box.
-    TBOX part_box = part->bounding_box();
+    const TBOX& part_box = part->bounding_box();
     if (im_box.contains(part_box)) {
       int area = part_box.area();
       int intersect_area = IntersectArea(part_box, part_list);
@@ -1180,7 +1188,7 @@ static bool ScanForOverlappingText(ColPartitionGrid* part_grid, TBOX* box) {
         part->flow() == BTFT_STRONG_CHAIN) {
       // Text intersects the box.
       any_text_in_padded_rect = true;
-      TBOX part_box = part->bounding_box();
+      const TBOX& part_box = part->bounding_box();
       if (box->overlap(part_box)) {
         return true;
       }
@@ -1281,19 +1289,18 @@ static void DeleteSmallImages(ColPartitionGrid* part_grid) {
 // Since the other blobs in the other partitions will be owned by the block,
 // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
 // situation and collect the image blobs.
-void ImageFind::FindImagePartitions(Pix* image_pix,
-                                   const FCOORD& rotation,
-                                   const FCOORD& rerotation,
-                                   TO_BLOCK* block,
-                                   TabFind* tab_grid,
-                                   ColPartitionGrid* part_grid,
-                                   ColPartition_LIST* big_parts) {
+void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
+                                    const FCOORD& rerotation, TO_BLOCK* block,
+                                    TabFind* tab_grid, DebugPixa* pixa_debug,
+                                    ColPartitionGrid* part_grid,
+                                    ColPartition_LIST* big_parts) {
   int imageheight = pixGetHeight(image_pix);
   Boxa* boxa;
   Pixa* pixa;
-  ConnCompAndRectangularize(image_pix, &boxa, &pixa);
+  ConnCompAndRectangularize(image_pix, pixa_debug, &boxa, &pixa);
   // Iterate the connected components in the image regions mask.
-  int nboxes = boxaGetCount(boxa);
+  int nboxes = 0;
+  if (boxa != nullptr && pixa != nullptr) nboxes = boxaGetCount(boxa);
   for (int i = 0; i < nboxes; ++i) {
     l_int32 x, y, width, height;
     boxaGetBoxGeometry(boxa, i, &x, &y, &width, &height);
@@ -1305,8 +1312,8 @@ void ImageFind::FindImagePartitions(Pix* image_pix,
     ColPartition_LIST part_list;
     DivideImageIntoParts(im_box, rotation, rerotation, pix,
                          &rectsearch, &part_list);
-    if (textord_tabfind_show_images) {
-      pixWrite("junkimagecomponent.png", pix, IFF_PNG);
+    if (textord_tabfind_show_images && pixa_debug != nullptr) {
+      pixa_debug->AddPix(pix, "ImageComponent");
       tprintf("Component has %d parts\n", part_list.length());
     }
     pixDestroy(&pix);

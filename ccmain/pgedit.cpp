@@ -191,7 +191,7 @@ ScrollView* bln_word_window_handle() {  // return handle
  */
 
 void build_image_window(int width, int height) {
-  if (image_win != NULL) { delete image_win; }
+  delete image_win;
   image_win = new ScrollView(editor_image_win_name.string(),
                              editor_image_xpos, editor_image_ypos,
                              width + 1,
@@ -544,8 +544,7 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
 
     default:
-      sprintf(msg, "Unrecognised event " INT32FORMAT "(%s)",
-               cmd_event, new_value);
+      sprintf(msg, "Unrecognised event %" PRId32 "(%s)", cmd_event, new_value);
       image_win->AddMessage(msg);
     break;
   }

@@ -16,8 +16,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_CLASSIFY_CLASSIFY_H__
-#define TESSERACT_CLASSIFY_CLASSIFY_H__
+#ifndef TESSERACT_CLASSIFY_CLASSIFY_H_
+#define TESSERACT_CLASSIFY_CLASSIFY_H_
 
 #include "adaptive.h"
 #include "ccstruct.h"
@@ -103,16 +103,15 @@ class Classify : public CCStruct {
                    const uinT8* normalization_factors,
                    const uinT16* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
-                      CLASS_CUTOFF_ARRAY Cutoffs);
+  void ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-  ADAPT_TEMPLATES ReadAdaptedTemplates(FILE *File);
+  ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
   /* normmatch.cpp ************************************************************/
   FLOAT32 ComputeNormMatch(CLASS_ID ClassId,
                            const FEATURE_STRUCT& feature, BOOL8 DebugMatch);
   void FreeNormProtos();
-  NORM_PROTOS *ReadNormProtos(FILE *File, inT64 end_offset);
+  NORM_PROTOS* ReadNormProtos(TFile* fp);
   /* protos.cpp ***************************************************************/
   void ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class);
   INT_TEMPLATES CreateIntTemplates(CLASSES FloatProtos,
@@ -138,7 +137,7 @@ class Classify : public CCStruct {
   void LearnPieces(const char* fontname, int start, int length, float threshold,
                    CharSegmentationType segmentation, const char* correct_text,
                    WERD_RES* word);
-  void InitAdaptiveClassifier(bool load_pre_trained_templates);
+  void InitAdaptiveClassifier(TessdataManager* mgr);
   void InitAdaptedClass(TBLOB *Blob,
                         CLASS_ID ClassId,
                         int FontinfoId,
@@ -335,7 +334,7 @@ class Classify : public CCStruct {
                                uinT8* char_norm_array);
   void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
   /* intproto.cpp *************************************************************/
-  INT_TEMPLATES ReadIntTemplates(FILE *File);
+  INT_TEMPLATES ReadIntTemplates(TFile* fp);
   void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                          const UNICHARSET& target_unicharset);
   CLASS_ID GetClassToDebug(const char *Prompt, bool* adaptive_on,
@@ -530,8 +529,8 @@ class Classify : public CCStruct {
   // value in the adaptive classifier. Both are indexed by unichar_id.
   // shapetable_cutoffs_ provides a similar value for each shape in the
   // shape_table_
-  uinT16* CharNormCutoffs;
-  uinT16* BaselineCutoffs;
+  uinT16 CharNormCutoffs[MAX_NUM_CLASSES];
+  uinT16 BaselineCutoffs[MAX_NUM_CLASSES];
   GenericVector<uinT16> shapetable_cutoffs_;
   ScrollView* learn_debug_win_;
   ScrollView* learn_fragmented_word_debug_win_;
@@ -539,4 +538,4 @@ class Classify : public CCStruct {
 };
 }  // namespace tesseract
 
-#endif  // TESSERACT_CLASSIFY_CLASSIFY_H__
+#endif  // TESSERACT_CLASSIFY_CLASSIFY_H_

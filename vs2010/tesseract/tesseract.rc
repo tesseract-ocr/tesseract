@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,5,0,0
- PRODUCTVERSION 3,5,0,0
+ FILEVERSION 4,0,0,0
+ PRODUCTVERSION 4,0,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -70,12 +70,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "Tesseract command-line OCR engine"
-            VALUE "FileVersion", "3,5,0,0"
+            VALUE "FileVersion", "4,0,0,0"
             VALUE "InternalName", "tesseract"
-            VALUE "LegalCopyright", "Copyright (C) 2015 Google, Inc. Licensed under the Apache License, Version 2.0"
+            VALUE "LegalCopyright", "Copyright (C) 2016 Google, Inc. Licensed under the Apache License, Version 2.0"
             VALUE "OriginalFilename", "tesseract.exe"
             VALUE "ProductName", "Tesseract-OCR"
-            VALUE "ProductVersion", "3.05.00dev"
+            VALUE "ProductVersion", "4.00.00dev"
         END
     END
     BLOCK "VarFileInfo"

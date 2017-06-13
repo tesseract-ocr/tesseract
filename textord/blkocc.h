@@ -52,9 +52,8 @@ class REGION_OCC:public ELIST_LINK
     float max_x;                 //Highest x in region
     inT16 region_type;           //Type of crossing
 
-    REGION_OCC() {
-    };                           //constructor used
-    //only in COPIER etc
+    REGION_OCC() {}  // constructor used
+    // only in COPIER etc
     REGION_OCC(  //constructor
                float min,
                float max,
@@ -72,12 +71,12 @@ ELISTIZEH (REGION_OCC)
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
 
-BOOL8						range_in_band[
+BOOL8           range_in_band[
               range within band?
-inT16						band_max,
-inT16						band_min,
-inT16						range_max,
-inT16						range_min]
+inT16           band_max,
+inT16           band_min,
+inT16           range_max,
+inT16           range_min]
 {
   if ( (range_min >= band_min) && (range_max < band_max) )
     return TRUE;
@@ -91,12 +90,12 @@ inT16						range_min]
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
 
-BOOL8						range_overlaps_band[
+BOOL8           range_overlaps_band[
               range crosses band?
-inT16						band_max,
-inT16						band_min,
-inT16						range_max,
-inT16						range_min]
+inT16           band_max,
+inT16           band_min,
+inT16           range_max,
+inT16           range_min]
 {
   if ( (range_max >= band_min) && (range_min < band_max) )
     return TRUE;

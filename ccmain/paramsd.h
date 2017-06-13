@@ -19,14 +19,12 @@
 //
 // Tesseract parameter editor is used to edit all the parameters used
 // within tesseract from the ui.
+#ifndef TESSERACT_CCMAIN_PARAMSD_H_
+#define TESSERACT_CCMAIN_PARAMSD_H_
+
 #ifndef GRAPHICS_DISABLED
-#ifndef VARABLED_H
-#define VARABLED_H
 
 #include "elst.h"
-#ifndef NO_CUBE_BUILD
-#include "scrollview.h"
-#endif
 #include "params.h"
 #include "tesseractclass.h"
 
@@ -122,5 +120,5 @@ class ParamsEditor : public SVEventHandler {
   ScrollView* sv_window_;
 };
 
-#endif
-#endif
+#endif  // GRAPHICS_DISABLED
+#endif  // TESSERACT_CCMAIN_PARAMSD_H_

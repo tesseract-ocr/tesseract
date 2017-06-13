@@ -20,6 +20,7 @@
 
 #include "normstrngs.h"
 
+#include <assert.h>
 #include "icuerrorcode.h"
 #include "unichar.h"
 #include "unicode/normalizer2.h"  // From libicu
@@ -48,7 +49,7 @@ void UTF32ToUTF8(const GenericVector<char32>& str32, STRING* utf8_str) {
   for (int i = 0; i < str32.length(); ++i) {
     UNICHAR uni_ch(str32[i]);
     char *utf8 = uni_ch.utf8_str();
-    if (utf8 != NULL) {
+    if (utf8 != nullptr) {
       (*utf8_str) += utf8;
       delete[] utf8;
     }
@@ -113,12 +114,12 @@ bool is_double_quote(const char32 ch) {
   return false;
 }
 
-STRING NormalizeUTF8String(const char* str8) {
+STRING NormalizeUTF8String(bool decompose, const char* str8) {
   GenericVector<char32> str32, out_str32, norm_str;
   UTF8ToUTF32(str8, &str32);
   for (int i = 0; i < str32.length(); ++i) {
     norm_str.clear();
-    NormalizeChar32(str32[i], &norm_str);
+    NormalizeChar32(str32[i], decompose, &norm_str);
     for (int j = 0; j < norm_str.length(); ++j) {
       out_str32.push_back(norm_str[j]);
     }
@@ -128,10 +129,11 @@ STRING NormalizeUTF8String(const char* str8) {
   return out_str8;
 }
 
-void NormalizeChar32(char32 ch, GenericVector<char32>* str) {
+void NormalizeChar32(char32 ch, bool decompose, GenericVector<char32>* str) {
   IcuErrorCode error_code;
   const icu::Normalizer2* nfkc = icu::Normalizer2::getInstance(
-      NULL, "nfkc", UNORM2_COMPOSE, error_code);
+      nullptr, "nfkc", decompose ? UNORM2_DECOMPOSE : UNORM2_COMPOSE,
+      error_code);
   error_code.assertSuccess();
   error_code.reset();
 
@@ -180,7 +182,13 @@ bool IsWhitespace(const char32 ch) {
 }
 
 bool IsUTF8Whitespace(const char* text) {
+#if 0 // intent
   return SpanUTF8Whitespace(text) == strlen(text);
+#else // avoiding g++ -Wsign-compare warning
+  const int res = SpanUTF8Whitespace(text);
+  assert(0 <= res);
+  return static_cast<unsigned int>(res) == strlen(text);
+#endif
 }
 
 int SpanUTF8Whitespace(const char* text) {

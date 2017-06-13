@@ -21,12 +21,13 @@
 // classes, which are used for thread/process creation & synchronization
 // and network connection.
 
-#ifndef TESSERACT_VIEWER_SVUTIL_H__
-#define TESSERACT_VIEWER_SVUTIL_H__
+#ifndef TESSERACT_VIEWER_SVUTIL_H_
+#define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
 #ifndef __GNUC__
 #include <windows.h>
+#include "platform.h"
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
@@ -102,6 +103,17 @@ class SVMutex {
 #endif
 };
 
+// Auto-unlocking object that locks a mutex on construction and unlocks it
+// on destruction.
+class SVAutoLock {
+ public:
+  explicit SVAutoLock(SVMutex* mutex) : mutex_(mutex) { mutex->Lock(); }
+  ~SVAutoLock() { mutex_->Unlock(); }
+
+ private:
+  SVMutex* mutex_;
+};
+
 /// The SVNetwork class takes care of the remote connection for ScrollView
 /// This means setting up and maintaining a remote connection, sending and
 /// receiving messages and closing the connection.
@@ -129,7 +141,7 @@ class SVNetwork {
 
  private:
   /// The mutex for access to Send() and Flush().
-  SVMutex* mutex_send_;
+  SVMutex mutex_send_;
   /// The actual stream_ to the server.
   int stream_;
   /// Stores the last received message-chunk from the server.
@@ -143,4 +155,4 @@ class SVNetwork {
   char* buffer_ptr_;  // Unix (strtok_r)
 };
 
-#endif  // TESSERACT_VIEWER_SVUTIL_H__
+#endif  // TESSERACT_VIEWER_SVUTIL_H_

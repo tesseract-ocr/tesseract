@@ -906,6 +906,8 @@ void UNICHARSET::post_load_setup() {
   han_sid_ = get_script_id_from_name("Han");
   hiragana_sid_ = get_script_id_from_name("Hiragana");
   katakana_sid_ = get_script_id_from_name("Katakana");
+  thai_sid_ = get_script_id_from_name("Thai");
+  hangul_sid_ = get_script_id_from_name("Hangul");
 
   // Compute default script. Use the highest-counting alpha script, that is
   // not the common script, as that still contains some "alphas".
@@ -1007,13 +1009,13 @@ int UNICHARSET::add_script(const char* script) {
   if (script_table_size_reserved == 0) {
     script_table_size_reserved = 8;
     script_table = new char*[script_table_size_reserved];
-  }
-  if (script_table_size_used + 1 >= script_table_size_reserved) {
-    char** new_script_table = new char*[script_table_size_reserved * 2];
-    memcpy(new_script_table, script_table, script_table_size_reserved * sizeof(char*));
+  } else if (script_table_size_used >= script_table_size_reserved) {
+    assert(script_table_size_used == script_table_size_reserved);
+    script_table_size_reserved += script_table_size_reserved;
+    char** new_script_table = new char*[script_table_size_reserved];
+    memcpy(new_script_table, script_table, script_table_size_used * sizeof(char*));
     delete[] script_table;
     script_table = new_script_table;
-      script_table_size_reserved = 2 * script_table_size_reserved;
   }
   script_table[script_table_size_used] = new char[strlen(script) + 1];
   strcpy(script_table[script_table_size_used], script);

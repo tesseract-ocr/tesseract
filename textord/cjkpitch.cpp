@@ -91,8 +91,8 @@ class SimpleStats {
 
  private:
   static int float_compare(const void* a, const void* b) {
-    const float* f_a = reinterpret_cast<const float*>(a);
-    const float* f_b = reinterpret_cast<const float*>(b);
+    const float* f_a = static_cast<const float*>(a);
+    const float* f_b = static_cast<const float*>(b);
     return (*f_a > *f_b) ? 1 : ((*f_a < *f_b) ? -1 : 0);
   }
 
@@ -159,8 +159,8 @@ class LocalCorrelation {
 
  private:
   static int float_pair_compare(const void* a, const void* b) {
-    const float_pair* f_a = reinterpret_cast<const float_pair*>(a);
-    const float_pair* f_b = reinterpret_cast<const float_pair*>(b);
+    const float_pair* f_a = static_cast<const float_pair*>(a);
+    const float_pair* f_b = static_cast<const float_pair*>(b);
     return (f_a->x > f_b->x) ? 1 : ((f_a->x < f_b->x) ? -1 : 0);
   }
 

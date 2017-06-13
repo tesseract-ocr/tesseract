@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_EQUATIONDETECTBASE_H__
-#define TESSERACT_TEXTORD_EQUATIONDETECTBASE_H__
+#ifndef TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
+#define TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
 
 class BLOBNBOX_LIST;
 class TO_BLOCK;
@@ -56,4 +56,4 @@ class EquationDetectBase {
 
 };  // namespace tesseract
 
-#endif  // TESSERACT_TEXTORD_EQUATIONDETECTBASE_H__
+#endif  // TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_

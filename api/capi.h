@@ -68,9 +68,6 @@ typedef tesseract::ProbabilityInContextFunc TessProbabilityInContextFunc;
 typedef tesseract::FillLatticeFunc TessFillLatticeFunc;
 typedef tesseract::Dawg TessDawg;
 typedef tesseract::TruthCallback TessTruthCallback;
-#ifndef NO_CUBE_BUILD
-typedef tesseract::CubeRecoContext TessCubeRecoContext;
-#endif  // NO_CUBE_BUILD
 typedef tesseract::Orientation TessOrientation;
 typedef tesseract::ParagraphJustification TessParagraphJustification;
 typedef tesseract::WritingDirection TessWritingDirection;
@@ -88,7 +85,7 @@ typedef struct TessPageIterator TessPageIterator;
 typedef struct TessResultIterator TessResultIterator;
 typedef struct TessMutableIterator TessMutableIterator;
 typedef struct TessChoiceIterator TessChoiceIterator;
-typedef enum TessOcrEngineMode     { OEM_TESSERACT_ONLY, OEM_CUBE_ONLY, OEM_TESSERACT_CUBE_COMBINED, OEM_DEFAULT } TessOcrEngineMode;
+typedef enum TessOcrEngineMode     { OEM_TESSERACT_ONLY, OEM_LSTM_ONLY, OEM_TESSERACT_LSTM_COMBINED, OEM_DEFAULT } TessOcrEngineMode;
 typedef enum TessPageSegMode       { PSM_OSD_ONLY, PSM_AUTO_OSD, PSM_AUTO_ONLY, PSM_AUTO, PSM_SINGLE_COLUMN, PSM_SINGLE_BLOCK_VERT_TEXT,
                                      PSM_SINGLE_BLOCK, PSM_SINGLE_LINE, PSM_SINGLE_WORD, PSM_CIRCLE_WORD, PSM_SINGLE_CHAR, PSM_SPARSE_TEXT,
                                      PSM_SPARSE_TEXT_OSD, PSM_COUNT } TessPageSegMode;
@@ -122,7 +119,8 @@ TESS_API void  TESS_CALL TessDeleteBlockList(BLOCK_LIST* block_list);
 TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outputbase, BOOL font_info);
-TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir);
+TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
+                                                             BOOL textonly);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* outputbase);
 
@@ -285,7 +283,10 @@ TESS_API void  TESS_CALL TessBaseAPIClearPersistentCache(TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* handle, TessProbabilityInContextFunc f);
 
 TESS_API void  TESS_CALL TessBaseAPISetFillLatticeFunc(TessBaseAPI* handle, TessFillLatticeFunc f);
-TESS_API BOOL  TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results);
+
+// Call TessDeleteText(*best_script_name) to free memory allocated by this function
+TESS_API BOOL  TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
+                                                            int* orient_deg, float* orient_conf, const char **script_name, float* script_conf);
 
 TESS_API void  TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
                                                        int* num_features, int* FeatureOutlineIndex);
@@ -313,11 +314,6 @@ TESS_API void  TESS_CALL TessNormalizeTBLOB(TBLOB* tblob, ROW* row, BOOL numeric
 TESS_API TessOcrEngineMode
                TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle);
 TESS_API void  TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle, TessTruthCallback* cb);
-
-#ifndef NO_CUBE_BUILD
-TESS_API TessCubeRecoContext*
-               TESS_CALL TessBaseAPIGetCubeRecoContext(const TessBaseAPI* handle);
-#endif  // NO_CUBE_BUILD
 #endif
 
 TESS_API void  TESS_CALL TessBaseAPISetMinOrientationMargin(TessBaseAPI* handle, double margin);

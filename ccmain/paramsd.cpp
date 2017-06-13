@@ -184,9 +184,9 @@ void ParamsEditor::GetPrefixes(const char* s, STRING* level_one,
 // Compare two VC objects by their name.
 int ParamContent::Compare(const void* v1, const void* v2) {
   const ParamContent* one =
-    *reinterpret_cast<const ParamContent* const *>(v1);
+    *static_cast<const ParamContent* const *>(v1);
   const ParamContent* two =
-    *reinterpret_cast<const ParamContent* const *>(v2);
+    *static_cast<const ParamContent* const *>(v2);
   return strcmp(one->GetName(), two->GetName());
 }
 
@@ -329,13 +329,19 @@ void ParamsEditor::WriteParams(char *filename,
     fclose(fp);
     sprintf (msg_str, "Overwrite file " "%s" "? (Y/N)", filename);
     int a = sv_window_->ShowYesNoDialog(msg_str);
-    if (a == 'n') { return; }  // don't write
+    if (a == 'n') {
+      return;
+    }  // don't write
   }
 
 
   fp = fopen (filename, "wb");  // can we write to it?
   if (fp == NULL) {
-    sv_window_->AddMessage("Can't write to file " "%s" "", filename);
+    sv_window_->AddMessage(
+        "Can't write to file "
+        "%s"
+        "",
+        filename);
     return;
   }
 

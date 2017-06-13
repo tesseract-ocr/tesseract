@@ -31,9 +31,8 @@
 #define EQUAL         '='
 
 tesseract::ParamsVectors *GlobalParams() {
-  static tesseract::ParamsVectors *global_params =
-    new tesseract::ParamsVectors();
-  return global_params;
+  static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
+  return &global_params;
 }
 
 namespace tesseract {
@@ -42,8 +41,6 @@ bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
   inT16 nameoffset;              // offset for real name
-  FILE *fp;                      // file pointer
-                                 // iterators
 
   if (*file == PLUS) {
     nameoffset = 1;
@@ -53,27 +50,23 @@ bool ParamUtils::ReadParamsFile(const char *file,
     nameoffset = 0;
   }
 
-  fp = fopen(file + nameoffset, "rb");
-  if (fp == NULL) {
+  TFile fp;
+  if (!fp.Open(file + nameoffset, nullptr)) {
     tprintf("read_params_file: Can't open %s\n", file + nameoffset);
     return true;
   }
-  const bool anyerr = ReadParamsFromFp(fp, -1, constraint, member_params);
-  fclose(fp);
-  return anyerr;
+  return ReadParamsFromFp(constraint, &fp, member_params);
 }
 
-bool ParamUtils::ReadParamsFromFp(FILE *fp, inT64 end_offset,
-                                  SetParamConstraint constraint,
+bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
                                   ParamsVectors *member_params) {
   char line[MAX_PATH];           // input line
   bool anyerr = false;           // true if any error
   bool foundit;                  // found parameter
   char *valptr;                  // value field
 
-  while ((end_offset < 0 || ftell(fp) < end_offset) &&
-         fgets(line, MAX_PATH, fp)) {
-    if (line[0] != '\n' && line[0] != '#') {
+  while (fp->FGets(line, MAX_PATH) != nullptr) {
+    if (line[0] != '\r' && line[0] != '\n' && line[0] != '#') {
       chomp_string(line);  // remove newline
       for (valptr = line; *valptr && *valptr != ' ' && *valptr != '\t';
         valptr++);
@@ -109,7 +102,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
   if (ip && ip->constraint_ok(constraint) &&
-      sscanf(value, INT32FORMAT, &intval) == 1) ip->set_value(intval);
+      sscanf(value, "%d", &intval) == 1) ip->set_value(intval);
 
   // Look for the parameter among bool parameters.
   BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,

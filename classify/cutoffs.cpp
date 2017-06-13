@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    cutoffs.c
- **	Purpose:     Routines to manipulate an array of class cutoffs.
- **	Author:      Dan Johnson
- **	History:     Wed Feb 20 09:28:51 1991, DSJ, Created.
+ ** Filename:    cutoffs.c
+ ** Purpose:     Routines to manipulate an array of class cutoffs.
+ ** Author:      Dan Johnson
+ ** History:     Wed Feb 20 09:28:51 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -49,31 +49,31 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 20 09:38:26 1991, DSJ, Created.
  */
-void Classify::ReadNewCutoffs(FILE *CutoffFile, bool swap, inT64 end_offset,
-                              CLASS_CUTOFF_ARRAY Cutoffs) {
+void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
   char Class[UNICHAR_LEN + 1];
   CLASS_ID ClassId;
   int Cutoff;
   int i;
 
   if (shape_table_ != NULL) {
-    if (!shapetable_cutoffs_.DeSerialize(swap, CutoffFile)) {
+    if (!shapetable_cutoffs_.DeSerialize(fp)) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }
   for (i = 0; i < MAX_NUM_CLASSES; i++)
     Cutoffs[i] = MAX_CUTOFF;
 
-  while ((end_offset < 0 || ftell(CutoffFile) < end_offset) &&
-         tfscanf(CutoffFile, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d",
-                Class, &Cutoff) == 2) {
+  const int kMaxLineSize = 100;
+  char line[kMaxLineSize];
+  while (fp->FGets(line, kMaxLineSize) != nullptr &&
+         sscanf(line, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d", Class,
+                &Cutoff) == 2) {
     if (strcmp(Class, "NULL") == 0) {
       ClassId = unicharset.unichar_to_id(" ");
     } else {
       ClassId = unicharset.unichar_to_id(Class);
     }
     Cutoffs[ClassId] = Cutoff;
-    SkipNewline(CutoffFile);
   }
 }
 

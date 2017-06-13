@@ -18,8 +18,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_WORKINGPARSET_H__
-#define TESSERACT_TEXTORD_WORKINGPARSET_H__
+#ifndef TESSERACT_TEXTORD_WORKINGPARSET_H_
+#define TESSERACT_TEXTORD_WORKINGPARSET_H_
 
 #include "blobbox.h"       // For TO_BLOCK_LIST and BLOCK_LIST.
 #include "colpartition.h"  // For ColPartition_LIST.
@@ -87,5 +87,4 @@ ELISTIZEH(WorkingPartSet)
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_WORKINGPARSET_H__
-
+#endif  // TESSERACT_TEXTORD_WORKINGPARSET_H_

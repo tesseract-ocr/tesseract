@@ -36,14 +36,6 @@ void free_string(char *string) {
   free(string);
 }
 
-void* alloc_struct(inT32 count, const char *) {
-  return malloc(count);
-}
-
-void free_struct(void *deadstruct, inT32, const char *) {
-  free(deadstruct);
-}
-
 void *alloc_mem(inT32 count) {
   return malloc(static_cast<size_t>(count));
 }

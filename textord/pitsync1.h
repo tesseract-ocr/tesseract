@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        pitsync1.h  (Formerly pitsync.h)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
- * Author:		Ray Smith
- * Created:		Thu Nov 19 11:48:05 GMT 1992
+ * Author:    Ray Smith
+ * Created:   Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ class FPSEGPT:public ELIST_LINK
             FPSEGPT_LIST *prev_list);  //previous segment
     FPSEGPT(FPCUTPT *cutpt);  //build from new type
 
-    inT32 position() {  //access func
+    inT32 position() {  // access func
       return xpos;
     }
     double cost_function() {

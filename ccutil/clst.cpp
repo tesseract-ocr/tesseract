@@ -26,7 +26,7 @@
  **********************************************************************/
 
 /***********************************************************************
- *							CLIST::internal_deep_clear
+ *              CLIST::internal_deep_clear
  *
  *  Used by the "deep_clear" member function of derived list
  *  classes to destroy all the elements on the list.
@@ -56,9 +56,8 @@ void (*zapper) (void *)) {       //ptr to zapper functn
   }
 }
 
-
 /***********************************************************************
- *							CLIST::shallow_clear
+ *              CLIST::shallow_clear
  *
  *  Used by the destructor and the "shallow_clear" member function of derived
  *  list classes to destroy the list.
@@ -83,7 +82,7 @@ void CLIST::shallow_clear() {  //destroy all links
 }
 
 /***********************************************************************
- *							CLIST::assign_to_sublist
+ *              CLIST::assign_to_sublist
  *
  *  The list is set to a sublist of another list.  "This" list must be empty
  *  before this function is invoked.  The two iterators passed must refer to
@@ -107,9 +106,8 @@ void CLIST::assign_to_sublist(                           //to this list
   last = start_it->extract_sublist (end_it);
 }
 
-
 /***********************************************************************
- *							CLIST::length
+ *              CLIST::length
  *
  *  Return count of elements on list
  **********************************************************************/
@@ -123,9 +121,8 @@ inT32 CLIST::length() const {  //count elements
   return count;
 }
 
-
 /***********************************************************************
- *							CLIST::sort
+ *              CLIST::sort
  *
  *  Sort elements on list
  **********************************************************************/
@@ -239,7 +236,7 @@ void CLIST::set_subtract(int comparator(const void*, const void*),
  **********************************************************************/
 
 /***********************************************************************
- *							CLIST_ITERATOR::forward
+ *              CLIST_ITERATOR::forward
  *
  *  Move the iterator to the next element of the list.
  *  REMEMBER: ALL LISTS ARE CIRCULAR.
@@ -276,9 +273,8 @@ void *CLIST_ITERATOR::forward() {
   return current->data;
 }
 
-
 /***********************************************************************
- *							CLIST_ITERATOR::data_relative
+ *              CLIST_ITERATOR::data_relative
  *
  *  Return the data pointer to the element "offset" elements from current.
  *  "offset" must not be less than -1.
@@ -312,9 +308,8 @@ void *CLIST_ITERATOR::data_relative(                //get data + or - ...
   return ptr->data;
 }
 
-
 /***********************************************************************
- *							CLIST_ITERATOR::move_to_last()
+ *              CLIST_ITERATOR::move_to_last()
  *
  *  Move current so that it is set to the end of the list.
  *  Return data just in case anyone wants it.
@@ -336,9 +331,8 @@ void *CLIST_ITERATOR::move_to_last() {
     return current->data;
 }
 
-
 /***********************************************************************
- *							CLIST_ITERATOR::exchange()
+ *              CLIST_ITERATOR::exchange()
  *
  *  Given another iterator, whose current element is a different element on
  *  the same list list OR an element of another list, exchange the two current
@@ -434,9 +428,8 @@ void CLIST_ITERATOR::exchange(                             //positions of 2 link
   other_it->current = old_current;
 }
 
-
 /***********************************************************************
- *							CLIST_ITERATOR::extract_sublist()
+ *              CLIST_ITERATOR::extract_sublist()
  *
  *  This is a private member, used only by CLIST::assign_to_sublist.
  *  Given another iterator for the same list, extract the links from THIS to
@@ -478,7 +471,7 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
 
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
-    if (temp_it.cycled_list ())  //can't find end pt
+    if (temp_it.cycled_list())   // can't find end pt
       BAD_SUBLIST.error ("CLIST_ITERATOR.extract_sublist", ABORT, NULL);
 
     if (temp_it.at_last ()) {

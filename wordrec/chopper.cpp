@@ -37,7 +37,6 @@
 #include "callcpp.h"
 #include "const.h"
 #include "findseam.h"
-#include "freelist.h"
 #include "globals.h"
 #include "render.h"
 #include "pageres.h"
@@ -426,7 +425,7 @@ void Wordrec::chop_word_main(WERD_RES *word) {
 
   if (word->best_choice == NULL) {
     // SegSearch found no valid paths, so just use the leading diagonal.
-    word->FakeWordFromRatings();
+    word->FakeWordFromRatings(TOP_CHOICE_PERM);
   }
   word->RebuildBestState();
   // If we finished without a hyphen at the end of the word, let the next word
@@ -568,9 +567,7 @@ int Wordrec::select_blob_to_split(
 
   for (x = 0; x < blob_choices.size(); ++x) {
     if (blob_choices[x] == NULL) {
-      if (fragments != NULL) {
-        delete[] fragments;
-      }
+      delete[] fragments;
       return x;
     } else {
       blob_choice = blob_choices[x];
@@ -614,9 +611,7 @@ int Wordrec::select_blob_to_split(
       }
     }
   }
-  if (fragments != NULL) {
-    delete[] fragments;
-  }
+  delete[] fragments;
   // TODO(daria): maybe a threshold of badness for
   // worst_near_fragment would be useful.
   return worst_index_near_fragment != -1 ?

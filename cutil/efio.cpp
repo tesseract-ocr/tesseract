@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:	efio.c
- **	Purpose:	Utility I/O routines
- **	Author:		Dan Johnson
- **	History:	5/21/89, DSJ, Created.
+ ** Filename: efio.c
+ ** Purpose:  Utility I/O routines
+ ** Author:   Dan Johnson
+ ** History:  5/21/89, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -40,7 +40,7 @@
  * @note Exceptions: #FOPENERROR unable to open specified file
  * @note History: 5/21/89, DSJ, Created.
  */
-FILE *Efopen(const char *Name, const char *Mode) { 
+FILE *Efopen(const char *Name, const char *Mode) {
   FILE *File;
   char ErrorMessage[MAXERRORMESSAGE];
 

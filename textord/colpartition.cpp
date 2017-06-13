@@ -918,7 +918,7 @@ void ColPartition::ComputeLimits() {
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       bbox = it.data();
       if (non_leader_count == 0 || bbox->flow() != BTFT_LEADER) {
-        TBOX box = bbox->bounding_box();
+        const TBOX& box = bbox->bounding_box();
         int area = box.area();
         top_stats.add(box.top(), area);
         bottom_stats.add(box.bottom(), area);
@@ -1181,8 +1181,8 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
       if (best_end == NULL) {
         tprintf("No path\n");
       } else {
-        tprintf("Total cost = %d vs allowed %d\n",
-                best_end->total_cost(), blob_count);
+        tprintf("Total cost = %d vs allowed %d\n", best_end->total_cost(),
+                blob_count);
       }
     }
     delete [] projection;
@@ -1632,6 +1632,10 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
                                   ColPartition_LIST* used_parts) {
   if (block_parts->empty())
     return NULL;  // Nothing to do.
+  // If the block_parts are not in reading order, then it will make an invalid
+  // block polygon and bounding_box, so sort by bounding box now just to make
+  // sure.
+  block_parts->sort(&ColPartition::SortByBBox);
   ColPartition_IT it(block_parts);
   ColPartition* part = it.data();
   PolyBlockType type = part->type();
@@ -2121,7 +2125,7 @@ void ColPartition::RefinePartnersByOverlap(bool upper,
 // Return true if bbox belongs better in this than other.
 bool ColPartition::ThisPartitionBetter(BLOBNBOX* bbox,
                                        const ColPartition& other) {
-  TBOX box = bbox->bounding_box();
+  const TBOX& box = bbox->bounding_box();
   // Margins take priority.
   int left = box.left();
   int right = box.right();

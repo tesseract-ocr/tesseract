@@ -1,12 +1,14 @@
 AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
+    -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/classify  -I$(top_srcdir)/dict \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/textord -I$(top_srcdir)/opencl
 
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
+AM_CPPFLAGS += $(OPENMP_CXXFLAGS)
 
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
@@ -33,18 +35,18 @@ libtesseract_main_la_LIBADD = \
     ../ccstruct/libtesseract_ccstruct.la \
     ../viewer/libtesseract_viewer.la \
     ../dict/libtesseract_dict.la \
+    ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_sse.la \
+    ../lstm/libtesseract_lstm.la \
     ../classify/libtesseract_classify.la \
     ../cutil/libtesseract_cutil.la \
     ../opencl/libtesseract_opencl.la
-    if !NO_CUBE_BUILD
-        libtesseract_main_la_LIBADD += ../cube/libtesseract_cube.la
-    endif
 endif
 
 libtesseract_main_la_SOURCES = \
     adaptions.cpp applybox.cpp control.cpp  \
     docqual.cpp equationdetect.cpp fixspace.cpp fixxht.cpp \
-    ltrresultiterator.cpp \
+    linerec.cpp ltrresultiterator.cpp \
     osdetect.cpp output.cpp pageiterator.cpp pagesegmain.cpp \
     pagewalk.cpp par_control.cpp paragraphs.cpp paramsd.cpp pgedit.cpp recogtraining.cpp \
     reject.cpp resultiterator.cpp superscript.cpp \
@@ -52,12 +54,3 @@ libtesseract_main_la_SOURCES = \
     tfacepp.cpp thresholder.cpp \
     werdit.cpp
 
-if !NO_CUBE_BUILD
-AM_CPPFLAGS += \
-    -I$(top_srcdir)/neural_networks/runtime -I$(top_srcdir)/cube
-noinst_HEADERS += \
-    cube_reco_context.h cubeclassifier.h tesseract_cube_combiner.h
-libtesseract_main_la_SOURCES += \
-    cube_control.cpp cube_reco_context.cpp cubeclassifier.cpp \
-    tesseract_cube_combiner.cpp
-endif

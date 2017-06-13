@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        ocrclass.h
  * Description: Class definitions and constants for the OCR API.
- * Author:					Hewlett-Packard Co
+ * Author:          Hewlett-Packard Co
  *
  * (C) Copyright 1996, Hewlett-Packard Co.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,6 @@
 
 #ifndef __GNUC__
 #ifdef _WIN32
-#include          <windows.h>
 #include          "gettimeofday.h"
 #endif
 #else
@@ -110,28 +109,35 @@ typedef struct {                  /*single character */
  * user words found. If it returns true then operation is cancelled.
  **********************************************************************/
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
-typedef bool (*PROGRESS_FUNC)(int progress,
-                              int left, int right, int top, int bottom);
+typedef bool (*PROGRESS_FUNC)(int progress, int left, int right, int top,
+                              int bottom);
 
 class ETEXT_DESC {             // output header
  public:
-  inT16 count;                 /// chars in this buffer(0)
-  inT16 progress;              /// percent complete increasing (0-100)
+  inT16 count;     /// chars in this buffer(0)
+  inT16 progress;  /// percent complete increasing (0-100)
   /** Progress monitor covers word recognition and it does not cover layout
   * analysis.
   * See Ray comment in https://github.com/tesseract-ocr/tesseract/pull/27 */
-  inT8 more_to_come;           /// true if not last
-  volatile inT8 ocr_alive;     /// ocr sets to 1, HP 0
-  inT8 err_code;               /// for errcode use
-  CANCEL_FUNC cancel;          /// returns true to cancel
-  PROGRESS_FUNC progress_callback; /// called whenever progress increases
-  void* cancel_this;           /// this or other data for cancel
-  struct timeval end_time;     /** time to stop. expected to be set only by call
-                               * to set_deadline_msecs() */
-  EANYCODE_CHAR text[1];       /// character data
+  inT8 more_to_come;                /// true if not last
+  volatile inT8 ocr_alive;          /// ocr sets to 1, HP 0
+  inT8 err_code;                    /// for errcode use
+  CANCEL_FUNC cancel;               /// returns true to cancel
+  PROGRESS_FUNC progress_callback;  /// called whenever progress increases
+  void* cancel_this;                /// this or other data for cancel
+  struct timeval end_time;          /// Time to stop. Expected to be set only
+                                    /// by call to set_deadline_msecs().
+  EANYCODE_CHAR text[1];            /// character data
 
-  ETEXT_DESC() : count(0), progress(0), more_to_come(0), ocr_alive(0),
-                   err_code(0), cancel(NULL), cancel_this(NULL) {
+  ETEXT_DESC()
+      : count(0),
+        progress(0),
+        more_to_come(0),
+        ocr_alive(0),
+        err_code(0),
+        cancel(NULL),
+        progress_callback(NULL),
+        cancel_this(NULL) {
     end_time.tv_sec = 0;
     end_time.tv_usec = 0;
   }

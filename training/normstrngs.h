@@ -39,11 +39,16 @@ void UTF32ToUTF8(const GenericVector<char32>& str32, STRING* utf8_str);
 // assumption of this function is that the input is already as fully composed
 // as it can be, but may require some compatibility normalizations or just
 // OCR evaluation related normalizations.
-void NormalizeChar32(char32 ch, GenericVector<char32>* str);
+void NormalizeChar32(char32 ch, bool decompose, GenericVector<char32>* str);
 
 // Normalize a UTF8 string. Same as above, but for UTF8-encoded strings, that
 // can contain multiple UTF32 code points.
-STRING NormalizeUTF8String(const char* str8);
+STRING NormalizeUTF8String(bool decompose, const char* str8);
+// Default behavior is to compose, until it is proven that decomposed benefits
+// at least one language.
+inline STRING NormalizeUTF8String(const char* str8) {
+  return NormalizeUTF8String(false, str8);
+}
 
 // Apply just the OCR-specific normalizations and return the normalized char.
 char32 OCRNormalize(char32 ch);

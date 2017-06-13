@@ -45,8 +45,6 @@ const int kMinColumnWidth = 200;
 const double kMinFractionalLinesInColumn = 0.125;
 // Fraction of height used as alignment tolerance for aligned tabs.
 const double kAlignedFraction = 0.03125;
-// Minimum gutter width in absolute inch (multiplied by resolution)
-const double kMinGutterWidthAbsolute = 0.02;
 // Maximum gutter width (in absolute inch) that we care about
 const double kMaxGutterWidthAbsolute = 2.00;
 // Multiplier of gridsize for min gutter width of TT_MAYBE_RAGGED blobs.
@@ -54,27 +52,8 @@ const int kRaggedGutterMultiple = 5;
 // Min aspect ratio of tall objects to be considered a separator line.
 // (These will be ignored in searching the gutter for obstructions.)
 const double kLineFragmentAspectRatio = 10.0;
-// Multiplier of new y positions in running average for skew estimation.
-const double kSmoothFactor = 0.25;
-// Min coverage for a good baseline between vectors
-const double kMinBaselineCoverage = 0.5;
-// Minimum overlap fraction when scanning text lines for column widths.
-const double kCharVerticalOverlapFraction = 0.375;
-// Maximum horizontal gap allowed when scanning for column widths
-const double kMaxHorizontalGap = 3.0;
-// Maximum upper quartile error allowed on a baseline fit as a fraction
-// of height.
-const double kMaxBaselineError = 0.4375;
 // Min number of points to accept after evaluation.
 const int kMinEvaluatedTabs = 3;
-// Minimum aspect ratio of a textline to make a good textline blob with a
-// single blob.
-const int kMaxTextLineBlobRatio = 5;
-// Minimum aspect ratio of a textline to make a good textline blob with
-// multiple blobs. Target ratio varies according to number of blobs.
-const int kMinTextLineBlobRatio = 3;
-// Fraction of box area covered by image to make a blob image.
-const double kMinImageArea = 0.5;
 // Up to 30 degrees is allowed for rotations of diacritic blobs.
 // Keep this value slightly larger than kCosSmallAngle in blobbox.cpp
 // so that the assert there never fails.
@@ -250,7 +229,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
                                        bbox->flow() == BTFT_TEXT_ON_IMAGE, 0.0,
                                        *gutter_width, box.top(), box.bottom());
   if (gutter_bbox != NULL) {
-    TBOX gutter_box = gutter_bbox->bounding_box();
+    const TBOX& gutter_box = gutter_bbox->bounding_box();
     *gutter_width = left ? tab_x - gutter_box.right()
                         : gutter_box.left() - tab_x;
   }
@@ -282,7 +261,7 @@ void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
   int neighbour_edge = left ? RightEdgeForBox(box, true, false)
                             : LeftEdgeForBox(box, true, false);
   if (neighbour != NULL) {
-    TBOX n_box = neighbour->bounding_box();
+    const TBOX& n_box = neighbour->bounding_box();
     if (debug) {
       tprintf("Found neighbour:");
       n_box.print();
@@ -461,13 +440,8 @@ bool TabFind::FindTabVectors(TabVector_LIST* hlines,
   #ifndef GRAPHICS_DISABLED
   if (textord_tabfind_show_finaltabs) {
     tab_win = MakeWindow(640, 50, "FinalTabs");
-    if (textord_debug_images) {
-      tab_win->Image(AlignedBlob::textord_debug_pix().string(),
-                     image_origin_.x(), image_origin_.y());
-    } else {
-      DisplayBoxes(tab_win);
-      DisplayTabs("FinalTabs", tab_win);
-    }
+    DisplayBoxes(tab_win);
+    DisplayTabs("FinalTabs", tab_win);
     tab_win = DisplayTabVectors(tab_win);
   }
   #endif  // GRAPHICS_DISABLED
@@ -1298,32 +1272,6 @@ bool TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
   RotateBlobList(*deskew, &block->blobs);
   RotateBlobList(*deskew, &block->small_blobs);
   RotateBlobList(*deskew, &block->noise_blobs);
-  if (textord_debug_images) {
-    // Rotate the debug pix and arrange for it to be drawn at the correct
-    // pixel offset.
-    Pix* pix_grey = pixRead(AlignedBlob::textord_debug_pix().string());
-    int width = pixGetWidth(pix_grey);
-    int height = pixGetHeight(pix_grey);
-    float angle = atan2(deskew->y(), deskew->x());
-    // Positive angle is clockwise to pixRotate.
-    Pix* pix_rot = pixRotate(pix_grey, -angle, L_ROTATE_AREA_MAP,
-                             L_BRING_IN_WHITE, width, height);
-    // The image must be translated by the rotation of its center, since it
-    // has just been rotated about its center.
-    ICOORD center_offset(width / 2, height / 2);
-    ICOORD new_center_offset(center_offset);
-    new_center_offset.rotate(*deskew);
-    image_origin_ += new_center_offset - center_offset;
-    // The image grew as it was rotated, so offset the (top/left) origin
-    // by half the change in size. y is opposite to x because it is drawn
-    // at ist top/left, not bottom/left.
-    ICOORD corner_offset((width - pixGetWidth(pix_rot)) / 2,
-                         (pixGetHeight(pix_rot) - height) / 2);
-    image_origin_ += corner_offset;
-    pixWrite(AlignedBlob::textord_debug_pix().string(), pix_rot, IFF_PNG);
-    pixDestroy(&pix_grey);
-    pixDestroy(&pix_rot);
-  }
 
   // Rotate the horizontal vectors. The vertical vectors don't need
   // rotating as they can just be refitted.

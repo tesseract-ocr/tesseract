@@ -10,21 +10,21 @@ Use the [users mailing-list](https://groups.google.com/d/forum/tesseract-ocr) in
 * You have problems using Tesseract and need some help.
 * You have problems installing the software.
 * You are not satisfied with the accuracy of the OCR, and want to ask how you can improve it. Note: You should first read the [ImproveQuality](https://github.com/tesseract-ocr/tesseract/wiki/ImproveQuality) wiki page. 
-* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process.  Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki/tesstrain.sh) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
+* You are trying to train Tesseract and you have a problem and/or want to ask a question about the training process. Note: You should first read the **official** guides [[1]](https://github.com/tesseract-ocr/tesseract/wiki) or [[2]](https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract) found in the project wiki.
 * You have a general question. 
 
 An issue should only be reported if the platform you are using is one of these:
   * Linux (but not a version that is more than 4 years old)
   * Windows (Windows 7 or newer version)
-  * Mac (last 3 releases)
+  * macOS (last 3 releases)
 
 For older versions or other operating systems, use the Tesseract forum.
 
-When creating an issue, please report your operating system, including its specific version: "Ubuntu 16.04", "Windows 10", "OS X 10.11" etc.
+When creating an issue, please report your operating system, including its specific version: "Ubuntu 16.04", "Windows 10", "Mac OS X 10.11" etc.
 
 Search through open and closed issues to see if similar issue has been reported already (and sometimes also has been solved). 
 
-Similary, before you post your question in the forum, search through past threads to see if similar question has been asked already.
+Similarly, before you post your question in the forum, search through past threads to see if similar question has been asked already.
 
 Read the [wiki](https://github.com/tesseract-ocr/tesseract/wiki) before you report your issue or ask a question in the forum.
 
@@ -44,7 +44,7 @@ When attaching a file to the issue report / forum ...
 
 Do not attach programs or libraries to your issues/posts.
 
-For large files or for programs, add a link to a iocation where they can be downloaded (your site, Git repo, Google Drive, Dropbox etc.)
+For large files or for programs, add a link to a location where they can be downloaded (your site, Git repo, Google Drive, Dropbox etc.)
 
 Attaching a multi-page TIFF image is useful only if you have problem with multi-page functionality, otherwise attach only one or a few single page images. 
 

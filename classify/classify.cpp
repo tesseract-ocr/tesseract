@@ -151,8 +151,8 @@ Classify::Classify()
       INT_MEMBER(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ", this->params()),
       EnableLearning(true),
-      INT_MEMBER(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word",
-                 this->params()),
+      INT_MEMBER(il1_adaption_test, 0,
+                 "Don't adapt to i/I at beginning of word", this->params()),
       BOOL_MEMBER(classify_bln_numeric_mode, 0,
                   "Assume the input is numbers [0-9].", this->params()),
       double_MEMBER(speckle_large_max_size, 0.30, "Max large speckle size",
@@ -184,9 +184,6 @@ Classify::Classify()
   learn_debug_win_ = NULL;
   learn_fragmented_word_debug_win_ = NULL;
   learn_fragments_debug_win_ = NULL;
-
-  CharNormCutoffs = new uinT16[MAX_NUM_CLASSES];
-  BaselineCutoffs = new uinT16[MAX_NUM_CLASSES];
 }
 
 Classify::~Classify() {
@@ -194,8 +191,6 @@ Classify::~Classify() {
   delete learn_debug_win_;
   delete learn_fragmented_word_debug_win_;
   delete learn_fragments_debug_win_;
-  delete[] CharNormCutoffs;
-  delete[] BaselineCutoffs;
 }
 
 

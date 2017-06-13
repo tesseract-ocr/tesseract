@@ -209,7 +209,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
                                      int geo_type,
                                      CHAR_DESC_STRUCT* char_desc) {
   // Extract the INT features.
-  if (features_ != NULL) delete [] features_;
+  delete[] features_;
   FEATURE_SET_STRUCT* char_features = char_desc->FeatureSets[int_feature_type];
   if (char_features == NULL) {
     tprintf("Error: no features to train on of type %s\n",
@@ -230,7 +230,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
     }
   }
   // Extract the Micro features.
-  if (micro_features_ != NULL) delete [] micro_features_;
+  delete[] micro_features_;
   char_features = char_desc->FeatureSets[micro_type];
   if (char_features == NULL) {
     tprintf("Error: no features to train on of type %s\n",

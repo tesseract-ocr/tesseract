@@ -18,12 +18,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_BBGRID_H__
-#define TESSERACT_TEXTORD_BBGRID_H__
+#ifndef TESSERACT_TEXTORD_BBGRID_H_
+#define TESSERACT_TEXTORD_BBGRID_H_
+
+#include <unordered_set>
 
 #include "clst.h"
 #include "coutln.h"
-#include "hashfn.h"
 #include "rect.h"
 #include "scrollview.h"
 
@@ -364,15 +365,15 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
-  unordered_set<BBC*, PtrHash<BBC> > returns_;
+  std::unordered_set<BBC*, PtrHash<BBC> > returns_;
 };
 
 // Sort function to sort a BBC by bounding_box().left().
 template<class BBC>
 int SortByBoxLeft(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *reinterpret_cast<const BBC* const *>(void1);
-  const BBC* p2 = *reinterpret_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const *>(void1);
+  const BBC* p2 = *static_cast<const BBC* const *>(void2);
   int result = p1->bounding_box().left() - p2->bounding_box().left();
   if (result != 0)
     return result;
@@ -389,8 +390,8 @@ int SortByBoxLeft(const void* void1, const void* void2) {
 template<class BBC>
 int SortRightToLeft(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *reinterpret_cast<const BBC* const *>(void1);
-  const BBC* p2 = *reinterpret_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const *>(void1);
+  const BBC* p2 = *static_cast<const BBC* const *>(void2);
   int result = p2->bounding_box().right() - p1->bounding_box().right();
   if (result != 0)
     return result;
@@ -407,8 +408,8 @@ int SortRightToLeft(const void* void1, const void* void2) {
 template<class BBC>
 int SortByBoxBottom(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *reinterpret_cast<const BBC* const *>(void1);
-  const BBC* p2 = *reinterpret_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const *>(void1);
+  const BBC* p2 = *static_cast<const BBC* const *>(void2);
   int result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
   if (result != 0)
     return result;
@@ -623,7 +624,7 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::DisplayBoxes(ScrollView* tab_win) {
   gsearch.StartFullSearch();
   BBC* bbox;
   while ((bbox = gsearch.NextFullSearch()) != NULL) {
-    TBOX box = bbox->bounding_box();
+    const TBOX& box = bbox->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
     int top_y = box.top();
@@ -958,4 +959,4 @@ void GridSearch<BBC, BBC_CLIST, BBC_C_IT>::SetIterator() {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_BBGRID_H__
+#endif  // TESSERACT_TEXTORD_BBGRID_H_

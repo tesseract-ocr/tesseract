@@ -25,8 +25,8 @@
 // A SVMenuNode can both be used in the context_ of popup menus as well as
 // menu bars.
 
-#ifndef TESSERACT_VIEWER_SVMNODE_H__
-#define TESSERACT_VIEWER_SVMNODE_H__
+#ifndef TESSERACT_VIEWER_SVMNODE_H_
+#define TESSERACT_VIEWER_SVMNODE_H_
 
 #include "strngs.h"
 
@@ -93,4 +93,4 @@ class SVMenuNode {
   STRING description_;
 };
 
-#endif  // TESSERACT_VIEWER_SVMNODE_H__
+#endif  // TESSERACT_VIEWER_SVMNODE_H_

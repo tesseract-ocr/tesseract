@@ -1,6 +1,16 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#ifndef _OCL_KERNEL_H_
-#define _OCL_KERNEL_H_
+#ifndef TESSERACT_OPENCL_OCLKERNELS_H_
+#define TESSERACT_OPENCL_OCLKERNELS_H_
+
 #ifndef USE_EXTERNAL_KERNEL
 #define KERNEL( ... )# __VA_ARGS__ "\n"
 // Double precision is a default of spreadsheets
@@ -50,7 +60,7 @@ KERNEL(
 )
 
 KERNEL(
-\n__kernel void pixSubtract(__global int *dword, __global int *sword, 
+\n__kernel void pixSubtract(__global int *dword, __global int *sword,
                             const int wpl, const int h, __global int *outword)
 {
     const unsigned int row = get_global_id(1);
@@ -66,38 +76,6 @@ KERNEL(
 )
 
 KERNEL(
-\n__kernel void pixAND(__global int *dword, __global int *sword, __global int *outword,
-                            const int wpl, const int h)
-{
-    const unsigned int row = get_global_id(1);
-    const unsigned int col = get_global_id(0);
-    const unsigned int pos = row * wpl + col;
-
-    //Ignore the execss
-    if (row >= h || col >= wpl)
-        return;
-
-     *(outword + pos) = *(dword + pos) & (*(sword + pos));
-}\n
-)
-
-KERNEL(
-\n__kernel void pixOR(__global int *dword, __global int *sword, __global int *outword,
-                            const int wpl, const int h)
-{
-    const unsigned int row = get_global_id(1);
-    const unsigned int col = get_global_id(0);
-    const unsigned int pos = row * wpl + col;
-
-    //Ignore the execss
-    if (row >= h || col >= wpl)
-        return;
-
-    *(outword + pos) = *(dword + pos) | (*(sword + pos));
-}\n
-)
-
-KERNEL(
 \n__kernel void morphoDilateHor_5x5(__global int *sword,__global int *dword,
                             const int wpl, const int h)
 {
@@ -105,15 +83,15 @@ KERNEL(
     unsigned int prevword, nextword, currword,tempword;
     unsigned int destword;
     const int col = pos % wpl;
-    
+
     //Ignore the execss
     if (pos >= (wpl * h))
         return;
-    
-    
-    currword = *(sword + pos);  
+
+
+    currword = *(sword + pos);
     destword = currword;
-    
+
     //Handle boundary conditions
     if(col==0)
         prevword=0;
@@ -124,9 +102,9 @@ KERNEL(
         nextword=0;
     else
         nextword = *(sword + pos + 1);
-    
+
     //Loop unrolled
-    
+
     //1 bit to left and 1 bit to right
         //Get the max value on LHS of every pixel
         tempword = (prevword << (31)) | ((currword >> 1));
@@ -142,10 +120,10 @@ KERNEL(
         //Get max value on RHS of every pixel
         tempword = (currword << 2) | (nextword >> (30));
         destword |= tempword;
-    
-    
+
+
     *(dword + pos) = destword;
-    
+
 }\n
 )
 
@@ -200,7 +178,7 @@ KERNEL(
     unsigned int destword, tempword, lastword, currword;
     unsigned int lnextword, lprevword, rnextword, rprevword, firstword, secondword;
     int i, j, siter, eiter;
-    
+
     //Ignore the execss
     if (pos >= (wpl*h) || (xn < 1 && xp < 1))
         return;
@@ -225,7 +203,7 @@ KERNEL(
         firstword = 0x0;
     else
         firstword = *(sword + pos - 1);
-    
+
     //Get next word
     if (col == (wpl - 1))
         secondword = 0x0;
@@ -237,7 +215,7 @@ KERNEL(
     {
         //Get the max value on LHS of every pixel
         tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0x0 : (firstword << (32-i)) | ((currword >> i));
-        
+
         destword |= tempword;
 
         //Get max value on RHS of every pixel
@@ -266,11 +244,11 @@ KERNEL(
     else
         firstword = *(sword + row*wpl + siter);
 
-    if (eiter >= wpl)   
+    if (eiter >= wpl)
         lastword = 0x0;
     else
         lastword = *(sword + row*wpl + eiter);
-    
+
     for ( i = 1; i < nwords; i++)
     {
         //Gets LHS words
@@ -280,14 +258,14 @@ KERNEL(
             secondword = *(sword + row*wpl + siter + i);
 
         lprevword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
-        
+
         firstword = secondword;
 
         if ((siter + i + 1) < 0)
             secondword = 0x0;
         else
             secondword = *(sword + row*wpl + siter + i + 1);
-        
+
         lnextword = firstword << (32 - parbitsxn) | secondword >> parbitsxn;
 
         //Gets RHS words
@@ -295,7 +273,7 @@ KERNEL(
             firstword = 0x0;
         else
             firstword = *(sword + row*wpl + eiter - i);
-            
+
         rnextword = firstword << parbitsxp | lastword >> (32 - parbitsxp);
 
         lastword = firstword;
@@ -325,7 +303,7 @@ KERNEL(
         lastword = firstword;
         firstword = secondword;
     }
-    
+
     *(dword + pos) = destword;
 }\n
 )
@@ -342,14 +320,14 @@ KERNEL(
     unsigned int prevword, nextword, currword,tempword;
     unsigned int destword;
     int i;
-    
+
     //Ignore the execss
     if (pos >= (wpl * h))
         return;
 
-    currword = *(sword + pos);  
+    currword = *(sword + pos);
     destword = currword;
-    
+
     //Handle boundary conditions
     if(col==0)
         prevword=0;
@@ -360,7 +338,7 @@ KERNEL(
         nextword=0;
     else
         nextword = *(sword + pos + 1);
-    
+
     for (i = 1; i <= halfwidth; i++)
     {
         //Get the max value on LHS of every pixel
@@ -377,7 +355,7 @@ KERNEL(
 
         //Get max value on RHS of every pixel
         tempword = (currword << i) | (nextword >> (32 - i));
-        
+
         destword |= tempword;
     }
 
@@ -397,7 +375,7 @@ KERNEL(
     unsigned int tempword;
     unsigned int destword;
     int i, siter, eiter;
-    
+
     //Ignore the execss
     if (row >= h || col >= wpl)
         return;
@@ -427,27 +405,27 @@ KERNEL(
     unsigned int prevword, nextword, currword,tempword;
     unsigned int destword;
     const int col = pos % wpl;
-    
+
     //Ignore the execss
     if (pos >= (wpl * h))
         return;
-    
-    currword = *(sword + pos);  
+
+    currword = *(sword + pos);
     destword = currword;
-    
+
     //Handle boundary conditions
     if(col==0)
         prevword=0xffffffff;
     else
         prevword = *(sword + pos - 1);
-    
+
     if(col==(wpl - 1))
         nextword=0xffffffff;
     else
         nextword = *(sword + pos + 1);
-    
+
     //Loop unrolled
-    
+
     //1 bit to left and 1 bit to right
         //Get the min value on LHS of every pixel
         tempword = (prevword << (31)) | ((currword >> 1));
@@ -463,10 +441,10 @@ KERNEL(
         //Get min value on RHS of every pixel
         tempword = (currword << 2) | (nextword >> (30));
         destword &= tempword;
-    
-    
+
+
     *(dword + pos) = destword;
-    
+
 }\n
 )
 
@@ -491,7 +469,7 @@ KERNEL(
     if (row < 2 || row >= (h - 2))
     {
         destword = 0x0;
-    }   
+    }
     else
     {
         //2 words above
@@ -518,7 +496,7 @@ KERNEL(
         tempword = *(sword + i*wpl + col);
         destword &= tempword;
 
-        if (col == 0) 
+        if (col == 0)
         {
             destword &= fwmask;
         }
@@ -534,7 +512,7 @@ KERNEL(
 )
 
 KERNEL(
-\n__kernel void morphoErodeHor(__global int *sword,__global int *dword, const int xp, const int xn, const int wpl, 
+\n__kernel void morphoErodeHor(__global int *sword,__global int *dword, const int xp, const int xn, const int wpl,
                                 const int h, const char isAsymmetric, const int rwmask, const int lwmask)
 {
     const int col = get_global_id(0);
@@ -569,7 +547,7 @@ KERNEL(
         firstword = 0xffffffff;
     else
         firstword = *(sword + pos - 1);
-    
+
     //Get next word
     if (col == (wpl - 1))
         secondword = 0xffffffff;
@@ -585,7 +563,7 @@ KERNEL(
 
         //Get max value on RHS of every pixel
         tempword = ((i == parbitsxp) && (parbitsxp != parbitsxn)) ? 0xffffffff : (currword << i) | (secondword >> (32 - i));
-        
+
         //tempword = (currword << i) | (secondword >> (32 - i));
         destword &= tempword;
     }
@@ -614,18 +592,18 @@ KERNEL(
         *(dword + pos) = destword;
         return;
     }
-    
+
     if (siter < 0)
         firstword = 0xffffffff;
     else
         firstword = *(sword + row*wpl + siter);
 
-    if (eiter >= wpl)   
+    if (eiter >= wpl)
         lastword = 0xffffffff;
     else
         lastword = *(sword + row*wpl + eiter);
-    
-    
+
+
     for ( i = 1; i < nwords; i++)
     {
         //Gets LHS words
@@ -635,14 +613,14 @@ KERNEL(
             secondword = *(sword + row*wpl + siter + i);
 
         lprevword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
-        
+
         firstword = secondword;
 
         if ((siter + i + 1) < 0)
             secondword = 0xffffffff;
         else
             secondword = *(sword + row*wpl + siter + i + 1);
-        
+
         lnextword = firstword << (32 - parbitsxp) | secondword >> (parbitsxp);
 
         //Gets RHS words
@@ -650,7 +628,7 @@ KERNEL(
             firstword = 0xffffffff;
         else
             firstword = *(sword + row*wpl + eiter - i);
-            
+
         rnextword = firstword << parbitsxn | lastword >> (32 - parbitsxn);
 
         lastword = firstword;
@@ -680,7 +658,7 @@ KERNEL(
         lastword = firstword;
         firstword = secondword;
     }
-    
+
     if (isAsymmetric)
     {
         //Clear boundary pixels
@@ -700,8 +678,8 @@ KERNEL(
 
 KERNEL(
 \n__kernel void morphoErodeHor_32word(__global int *sword,__global int *dword,
-                            const int halfwidth, const int wpl, 
-                            const int h, const char clearBoundPixH, 
+                            const int halfwidth, const int wpl,
+                            const int h, const char clearBoundPixH,
                             const int rwmask, const int lwmask,
                             const char isEven)
 {
@@ -715,25 +693,25 @@ KERNEL(
     if (pos >= (wpl * h))
         return;
 
-    currword = *(sword + pos);  
+    currword = *(sword + pos);
     destword = currword;
-    
+
     //Handle boundary conditions
     if(col==0)
         prevword=0xffffffff;
     else
         prevword = *(sword + pos - 1);
-    
+
     if(col==(wpl - 1))
         nextword=0xffffffff;
     else
         nextword = *(sword + pos + 1);
-    
+
     for (i = 1; i <= halfwidth; i++)
     {
         //Get the min value on LHS of every pixel
         tempword = (prevword << (32-i)) | ((currword >> i));
-        
+
         destword &= tempword;
 
         //Get min value on RHS of every pixel
@@ -751,7 +729,7 @@ KERNEL(
 
     if (clearBoundPixH)
     {
-        if (col == 0) 
+        if (col == 0)
         {
             destword &= rwmask;
         }
@@ -767,7 +745,7 @@ KERNEL(
 
 KERNEL(
 \n__kernel void morphoErodeVer(__global int *sword,__global int *dword,
-                            const int yp, 
+                            const int yp,
                             const int wpl, const int h,
                             const char clearBoundPixV, const int yn)
 {
@@ -776,7 +754,7 @@ KERNEL(
     const unsigned int pos = row * wpl + col;
     unsigned int tempword, destword;
     int i, siter, eiter;
-    
+
     //Ignore the execss
     if (row >= h || col >= wpl)
         return;
@@ -796,7 +774,7 @@ KERNEL(
 
     //Clear boundary pixels
     if (clearBoundPixV && ((row < yp) || ((h - row) <= yn)))
-    {   
+    {
         destword = 0x0;
     }
 
@@ -873,36 +851,6 @@ void kernel_HistogramRectOneChannel(
         atomic_inc( &histBuffer[ pixels.s7*HIST_REDUNDANCY + threadOffset ]);
     }
 }
-)
-
-
-KERNEL(
-// unused
-\n  __attribute__((reqd_work_group_size(256, 1, 1)))
-\n  __kernel
-\n  void kernel_HistogramRectAllChannels_Grey(
-\n      __global const uchar* data,
-\n      uint numPixels,
-\n        __global uint *histBuffer) { // each wg will write HIST_SIZE*NUM_CHANNELS into this result; cpu will accumulate across wg's
-\n  
-\n      /* declare variables */
-\n  
-\n      // work indices
-\n      size_t groupId = get_group_id(0);
-\n      size_t localId = get_local_id(0); // 0 -> 256-1
-\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
-\n      uint numThreads = get_global_size(0);
-\n  
-\n      /* accumulate in global memory */
-\n      for ( uint pc = get_global_id(0); pc < numPixels; pc += get_global_size(0) ) {
-\n          uchar value = data[ pc ];
-\n          int idx = value * get_global_size(0) + get_global_id(0);
-\n           histBuffer[ idx ]++;
-\n          
-\n      }
-\n      
-\n  } // kernel_HistogramRectAllChannels_Grey
-
 )
 
 // HistogramRect Kernel: Reduction
@@ -990,74 +938,24 @@ void kernel_HistogramRectOneChannelReduction(
 } // kernel_HistogramRectOneChannelReduction
 )
 
-
-KERNEL(
-// unused
-  // each work group (x256) handles a histogram bin 
-\n  __attribute__((reqd_work_group_size(256, 1, 1)))
-\n  __kernel
-\n  void kernel_HistogramRectAllChannelsReduction_Grey(
-\n      int n, // pixel redundancy that needs to be accumulated
-\n      __global uint *histBuffer,
-\n      __global uint* histResult) { // each wg accumulates 1 bin
-\n  
-\n      /* declare variables */
-\n  
-\n      // work indices
-\n      size_t groupId = get_group_id(0);
-\n      size_t localId = get_local_id(0); // 0 -> 256-1
-\n      size_t globalId = get_global_id(0); // 0 -> 8*10*256-1=20480-1
-\n      uint numThreads = get_global_size(0);
-\n        unsigned int hist = 0;
-\n  
-\n      /* accumulate in global memory */
-\n      for ( uint p = 0; p < n; p+=GROUP_SIZE) {
-\n            hist += histBuffer[ (get_group_id(0)*n + p)];
-\n      }
-\n  
-\n      /* reduction in local memory */
-\n      // populate local memory
-\n      __local unsigned int localHist[GROUP_SIZE];
-
-\n      localHist[localId] = hist;
-\n      barrier(CLK_LOCAL_MEM_FENCE);
-\n  
-\n      for (int stride = GROUP_SIZE/2; stride >= 1; stride /= 2) {
-\n          if (localId < stride) {
-\n              hist = localHist[ (localId+stride)];
-\n          }
-\n          barrier(CLK_LOCAL_MEM_FENCE);
-\n          if (localId < stride) {
-\n              localHist[ localId] += hist;
-\n          }
-\n          barrier(CLK_LOCAL_MEM_FENCE);
-\n      }
-\n  
-\n      if (localId == 0)
-\n          histResult[get_group_id(0)] = localHist[0];
-\n  
-\n  } // kernel_HistogramRectAllChannelsReduction_Grey
-
-)
-
 // ThresholdRectToPix Kernel
 // only supports 4 channels
 // imageData is input image (24-bits/pixel)
 // pix is output image (1-bit/pixel)
 KERNEL(
-\n#define CHAR_VEC_WIDTH 8 \n
+\n#define CHAR_VEC_WIDTH 4 \n
 \n#define PIXELS_PER_WORD 32 \n
 \n#define PIXELS_PER_BURST 8 \n
 \n#define BURSTS_PER_WORD (PIXELS_PER_WORD/PIXELS_PER_BURST) \n
  typedef union {
   uchar s[PIXELS_PER_BURST*NUM_CHANNELS];
-  uchar8 v[(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH];
+  uchar4 v[(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH];
  } charVec;
 
 __attribute__((reqd_work_group_size(256, 1, 1)))
 __kernel
 void kernel_ThresholdRectToPix(
-    __global const uchar8 *imageData,
+    __global const uchar4 *imageData,
     int height,
     int width,
     int wpl, // words per line
@@ -1076,22 +974,24 @@ void kernel_ThresholdRectToPix(
     // for each word (32 pixels) in output image
     for ( uint w = get_global_id(0); w < wpl*height; w += get_global_size(0) ) {
         unsigned int word = 0; // all bits start at zero
-
         // for each burst in word
         for ( int b = 0; b < BURSTS_PER_WORD; b++) {
-
             // load burst
             charVec pixels;
-            for ( int i = 0; i < (PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH; i++ ) {
-                pixels.v[i] = imageData[w*(BURSTS_PER_WORD*(PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH) + b*((PIXELS_PER_BURST*NUM_CHANNELS)/CHAR_VEC_WIDTH)  + i];
-            }
+            int offset = (w / wpl) * width;
+            offset += (w % wpl) * PIXELS_PER_WORD;
+            offset += b * PIXELS_PER_BURST;
+
+            for (int i = 0; i < PIXELS_PER_BURST; ++i)
+                pixels.v[i] = imageData[offset + i];
 
             // for each pixel in burst
             for ( int p = 0; p < PIXELS_PER_BURST; p++) {
                 for ( int c = 0; c < NUM_CHANNELS; c++) {
                     unsigned char pixChan = pixels.s[p*NUM_CHANNELS + c];
                     if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
-                        word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
+                        const uint kTopBit = 0x80000000;
+                        word |=  (kTopBit >> ((b*PIXELS_PER_BURST+p)&31));
                     }
                 }
             }
@@ -1145,10 +1045,10 @@ void kernel_ThresholdRectToPix_OneChan(
 
             // for each pixel in burst
             for ( int p = 0; p < PIXELS_PER_BURST; p++) {
-                
+
                   //int littleEndianIdx = p ^ 3;
                   //int bigEndianIdx = p;
-                  int idx = 
+                  int idx =
 \n#ifdef __ENDIAN_LITTLE__\n
                   p ^ 3;
 \n#else\n
@@ -1156,52 +1056,18 @@ void kernel_ThresholdRectToPix_OneChan(
 \n#endif\n
                 unsigned char pixChan = pixels.s[idx];
                 if (pHi_Values[0] >= 0 && (pixChan > pThresholds[0]) == (pHi_Values[0] == 0)) {
-                    word |=  (0x80000000 >> ((b*PIXELS_PER_BURST+p)&31));
+                    const uint kTopBit = 0x80000000;
+                    word |=  (kTopBit >> ((b*PIXELS_PER_BURST+p)&31));
                 }
             }
         }
         pix[w] = word;
     }
 }
-
 )
-
-
-KERNEL(
-\n#define RED_SHIFT		24\n
-\n#define GREEN_SHIFT		16\n
-\n#define BLUE_SHIFT		8\n
-\n#define SET_DATA_BYTE( pdata, n, val ) (*(l_uint8 *)((l_uintptr_t)((l_uint8 *)(pdata) + (n)) ^ 3) = (val))\n
-\n
-\n__attribute__((reqd_work_group_size(256, 1, 1)))\n
-\n__kernel\n
-\nvoid kernel_RGBToGray(
-    __global const unsigned int *srcData,
-	__global unsigned char *dstData,
-    int srcWPL,
-    int dstWPL,
-    int height,
-    int width,
-	float rwt,
-	float gwt,
-	float bwt ) {
-    
-    // pixel index
-    int pixelIdx = get_global_id(0);
-    if (pixelIdx >= height*width) return;
-
-	unsigned int word = srcData[pixelIdx];
-	int output =	(rwt * ((word >> RED_SHIFT)	  & 0xff) +
-                     gwt * ((word >> GREEN_SHIFT) & 0xff) +
-                     bwt * ((word >> BLUE_SHIFT)  & 0xff) + 0.5);
-    // SET_DATA_BYTE
-    dstData[pixelIdx] = output;
-}
-)
-#endif
 
  ; // close char*
 
-#endif // USE_EXTERNAL_KERNEL
-//#endif //_OCL_KERNEL_H_
+#endif  // USE_EXTERNAL_KERNEL
+#endif  // TESSERACT_OPENCL_OCLKERNELS_H_
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */

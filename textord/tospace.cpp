@@ -1,3 +1,12 @@
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 /**********************************************************************
  * tospace.cpp
  *
@@ -419,9 +428,8 @@ void Textord::row_spacing_stats(
     if (suspected_table &&
     (row->space_size < tosp_table_kn_sp_ratio * row->kern_size)) {
       if (tosp_debug_level > 5)
-        tprintf ("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f.\n",
-          block_idx, row_idx,
-          row->kern_size, row->space_threshold, row->space_size);
+        tprintf("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f.\n", block_idx,
+                row_idx, row->kern_size, row->space_threshold, row->space_size);
       row->space_threshold =
         (inT32) (tosp_table_kn_sp_ratio * row->kern_size);
       row->space_size = MAX (row->space_threshold + 1, row->xheight);
@@ -441,10 +449,9 @@ void Textord::row_spacing_stats(
           MAX (tosp_min_sane_kn_sp * MAX (row->kern_size, 2.5),
           row->xheight / 2);
       if (tosp_debug_level > 5)
-        tprintf
-          ("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f -> %3.2f.\n",
-          block_idx, row_idx, row->kern_size, row->space_threshold,
-          row->space_size, sane_space);
+        tprintf("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f -> %3.2f.\n",
+                block_idx, row_idx, row->kern_size, row->space_threshold,
+                row->space_size, sane_space);
       row->space_size = sane_space;
       row->space_threshold =
         inT32 (floor ((row->space_size + row->kern_size) /
@@ -455,10 +462,9 @@ void Textord::row_spacing_stats(
       MAX (row->kern_size, 2.5)));
     if (row->space_threshold > sane_threshold) {
       if (tosp_debug_level > 5)
-        tprintf ("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
-          block_idx, row_idx,
-          row->kern_size,
-          row->space_threshold, row->space_size, sane_threshold);
+        tprintf("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
+                block_idx, row_idx, row->kern_size, row->space_threshold,
+                row->space_size, sane_threshold);
       row->space_threshold = sane_threshold;
       if (row->space_size <= sane_threshold)
         row->space_size = row->space_threshold + 1.0f;
@@ -498,7 +504,7 @@ void Textord::row_spacing_stats(
       MIN (inT32 (ceil (tosp_fuzzy_space_factor * row->xheight)),
       inT32 (row->space_size));
     if (row->min_space <= row->space_threshold)
-                                 //Don't be silly
+      // Don't be silly
       row->min_space = row->space_threshold + 1;
     /*
     Lets try to guess the max certain kern gap by looking at the cluster of
@@ -559,7 +565,7 @@ void Textord::row_spacing_stats(
       row->kern_size));
   }
   if (row->max_nonspace > row->space_threshold) {
-                                 //Don't be silly
+    // Don't be silly
     row->max_nonspace = row->space_threshold;
   }
 
@@ -700,8 +706,8 @@ BOOL8 Textord::isolated_row_stats(TO_ROW *row,
     ((small_gaps_count / (float) total) < tosp_enough_small_gaps) ||
   (total - small_gaps_count < 1)) {
     if (tosp_debug_level > 5)
-      tprintf ("B:%d R:%d -- Can't do isolated row stats.\n",
-        block_idx, row_idx);
+      tprintf("B:%d R:%d -- Can't do isolated row stats.\n", block_idx,
+              row_idx);
     return FALSE;
   }
   blob_it.set_to_list (row->blob_list ());
@@ -1130,10 +1136,10 @@ ROW *Textord::make_prop_words(
       else
         blanks = 0;
       if (tosp_debug_level > 5)
-        tprintf
-          ("Repch wd at EOL (%d,%d). rep spacing %5.2f; Lgap:%d (%d blanks)\n",
-          word->bounding_box ().left (), word->bounding_box ().bottom (),
-          repetition_spacing, current_gap, blanks);
+        tprintf(
+            "Repch wd at EOL (%d,%d). rep spacing %5.2f; Lgap:%d (%d blanks)\n",
+            word->bounding_box().left(), word->bounding_box().bottom(),
+            repetition_spacing, current_gap, blanks);
       word->set_blanks (blanks);
                                  //NO uncertainty
       word->set_flag (W_FUZZY_SP, FALSE);
@@ -1326,9 +1332,10 @@ BOOL8 Textord::make_a_word_break(
     we may need to set PARTICULAR spaces to fuzzy or not. The values will ONLY
     be used if the function returns TRUE - ie the word is to be broken.
     */
-    blanks = (uinT8) (current_gap / row->space_size);
-    if (blanks < 1)
-      blanks = 1;
+    int num_blanks = current_gap;
+    if (row->space_size > 1.0f)
+      num_blanks = IntCastRounded(current_gap / row->space_size);
+    blanks = static_cast<uinT8>(ClipToRange(num_blanks, 1, MAX_UINT8));
     fuzzy_sp = FALSE;
     fuzzy_non = FALSE;
     /*
@@ -1686,10 +1693,9 @@ void Textord::mark_gap(
       blob.bottom () + blob.height () / 2.0f);
  }
   if (tosp_debug_level > 5)
-    tprintf ("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d %d\n",
-      blob.left () - current_gap / 2, blob.bottom (), rule,
-      prev_gap, prev_blob_width, current_gap,
-      next_blob_width, next_gap);
+    tprintf("  (%d,%d) Sp<->Kn Rule %d %d %d %d %d %d\n",
+            blob.left() - current_gap / 2, blob.bottom(), rule, prev_gap,
+            prev_blob_width, current_gap, next_blob_width, next_gap);
 }
 #endif
 
@@ -1727,8 +1733,7 @@ BOOL8 Textord::ignore_big_gap(TO_ROW *row,
                               inT16 right) {
   inT16 gap = right - left + 1;
 
-  if (tosp_ignore_big_gaps > 999)
-    return FALSE;                //Don't ignore
+  if (tosp_ignore_big_gaps > 999) return FALSE;  // Don't ignore
   if (tosp_ignore_big_gaps > 0)
     return (gap > tosp_ignore_big_gaps * row->xheight);
   if (gap > tosp_ignore_very_big_gaps * row->xheight)
@@ -1749,7 +1754,6 @@ BOOL8 Textord::ignore_big_gap(TO_ROW *row,
   }
   return FALSE;
 }
-
 
 /**********************************************************************
  * reduced_box_next

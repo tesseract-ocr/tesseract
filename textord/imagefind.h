@@ -18,9 +18,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_IMAGEFIND_H__
-#define TESSERACT_TEXTORD_IMAGEFIND_H__
+#ifndef TESSERACT_TEXTORD_IMAGEFIND_H_
+#define TESSERACT_TEXTORD_IMAGEFIND_H_
 
+#include "debugpixa.h"
 #include "host.h"
 
 struct Boxa;
@@ -45,7 +46,8 @@ class ImageFind {
   // the image regions as a mask image.
   // The returned pix may be NULL, meaning no images found.
   // If not NULL, it must be PixDestroyed by the caller.
-  static Pix* FindImages(Pix* pix);
+  // If textord_tabfind_show_images, debug images are appended to pixa_debug.
+  static Pix* FindImages(Pix* pix, DebugPixa* pixa_debug);
 
   // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
   // analgous to pixConnComp, except that connected components which are nearly
@@ -54,7 +56,8 @@ class ImageFind {
   // If not NULL, they must be destroyed by the caller.
   // Resolution of pix should match the source image (Tesseract::pix_binary_)
   // so the output coordinate systems match.
-  static void ConnCompAndRectangularize(Pix* pix, Boxa** boxa, Pixa** pixa);
+  static void ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
+                                        Boxa** boxa, Pixa** pixa);
 
   // Returns true if there is a rectangle in the source pix, such that all
   // pixel rows and column slices outside of it have less than
@@ -144,16 +147,13 @@ class ImageFind {
   // Since the other blobs in the other partitions will be owned by the block,
   // ColPartitionGrid::ReTypeBlobs must be called afterwards to fix this
   // situation and collect the image blobs.
-  static void FindImagePartitions(Pix* image_pix,
-                                  const FCOORD& rotation,
-                                  const FCOORD& rerotation,
-                                  TO_BLOCK* block,
-                                  TabFind* tab_grid,
+  static void FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
+                                  const FCOORD& rerotation, TO_BLOCK* block,
+                                  TabFind* tab_grid, DebugPixa* pixa_debug,
                                   ColPartitionGrid* part_grid,
                                   ColPartition_LIST* big_parts);
 };
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_LINEFIND_H__
-
+#endif  // TESSERACT_TEXTORD_LINEFIND_H_

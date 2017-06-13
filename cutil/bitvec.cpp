@@ -24,7 +24,6 @@
 #include <stdio.h>
 
 #include "emalloc.h"
-#include "freelist.h"
 #include "tprintf.h"
 
 /*-----------------------------------------------------------------------------

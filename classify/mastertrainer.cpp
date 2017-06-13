@@ -86,27 +86,6 @@ bool MasterTrainer::Serialize(FILE* fp) const {
   return true;
 }
 
-// Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool MasterTrainer::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&norm_mode_, sizeof(norm_mode_), 1, fp) != 1) return false;
-  if (swap) {
-    ReverseN(&norm_mode_, sizeof(norm_mode_));
-  }
-  if (!unicharset_.load_from_file(fp)) return false;
-  charsetsize_ = unicharset_.size();
-  if (!feature_space_.DeSerialize(swap, fp)) return false;
-  feature_map_.Init(feature_space_);
-  if (!samples_.DeSerialize(swap, fp)) return false;
-  if (!junk_samples_.DeSerialize(swap, fp)) return false;
-  if (!verify_samples_.DeSerialize(swap, fp)) return false;
-  if (!master_shapes_.DeSerialize(swap, fp)) return false;
-  if (!flat_shapes_.DeSerialize(swap, fp)) return false;
-  if (!fontinfo_table_.DeSerialize(swap, fp)) return false;
-  if (!xheights_.DeSerialize(swap, fp)) return false;
-  return true;
-}
-
 // Load an initial unicharset, or set one up if the file cannot be read.
 void MasterTrainer::LoadUnicharset(const char* filename) {
   if (!unicharset_.load_from_file(filename)) {
@@ -214,10 +193,14 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
 // Must be called after ReadTrainingSamples, as the current number of images
 // is used as an offset for page numbers in the samples.
 void MasterTrainer::LoadPageImages(const char* filename) {
+  size_t offset = 0;
   int page;
   Pix* pix;
-  for (page = 0; (pix = pixReadTiff(filename, page)) != NULL; ++page) {
+  for (page = 0;; page++) {
+    pix = pixReadFromMultipageTiff(filename, &offset);
+    if (!pix) break;
     page_images_.push_back(pix);
+    if (!offset) break;
   }
   tprintf("Loaded %d page images from %s\n", page, filename);
 }
@@ -362,9 +345,11 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
     fontinfo.name = font_name;
     fontinfo.properties = 0;
     fontinfo.universal_id = 0;
-    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name,
-                &italic, &bold, &fixed, &serif, &fraktur) != 6)
+    if (tfscanf(fp, "%1024s %i %i %i %i %i\n", font_name, &italic, &bold,
+                &fixed, &serif, &fraktur) != 6) {
+      delete[] font_name;
       continue;
+    }
     fontinfo.properties =
         (italic << 0) +
         (bold << 1) +
@@ -373,6 +358,8 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
         (fraktur << 4);
     if (!fontinfo_table_.contains(fontinfo)) {
       fontinfo_table_.push_back(fontinfo);
+    } else {
+      delete[] font_name;
     }
   }
   fclose(fp);
@@ -877,6 +864,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
       if (good_ch != INVALID_UNICHAR_ID)
         good_junk[good_ch] = true;  // We want this one.
     }
+    delete frag;
   }
 #endif
   // For now just use all the junk that was from natural fragments.
@@ -891,6 +879,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
       junk_samples_.extract_sample(s);
       samples_.AddSample(frag_set.id_to_unichar(junk_id), sample);
     }
+    delete frag;
   }
   junk_samples_.DeleteDeadSamples();
   junk_samples_.OrganizeByFontAndClass();

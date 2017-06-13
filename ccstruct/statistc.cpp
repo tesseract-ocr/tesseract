@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        statistc.c  (Formerly stats.c)
  * Description: Simple statistical package for integer values.
- * Author:					Ray Smith
- * Created:					Mon Feb 04 16:56:05 GMT 1991
+ * Author:          Ray Smith
+ * Created:         Mon Feb 04 16:56:05 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,10 +90,7 @@ void STATS::clear() {  // clear out buckets
  * Destructor for a stats class.
  **********************************************************************/
 STATS::~STATS () {
-  if (buckets_ != NULL) {
-    delete [] buckets_;
-    buckets_ = NULL;
-  }
+  delete [] buckets_;
 }
 
 /**********************************************************************
@@ -214,7 +211,6 @@ inT32 STATS::min_bucket() const {  // Find min
   for (min = 0; (min < rangemax_ - rangemin_) && (buckets_[min] == 0); min++);
   return rangemin_ + min;
 }
-
 
 /**********************************************************************
  * STATS::max_bucket
@@ -776,8 +772,8 @@ void swap_entries(void *array,   // array of entries
   char *ptr2;
   size_t count;                  // of bytes
 
-  ptr1 = reinterpret_cast<char*>(array) + index1 * size;
-  ptr2 = reinterpret_cast<char*>(array) + index2 * size;
+  ptr1 = static_cast<char*>(array) + index1 * size;
+  ptr2 = static_cast<char*>(array) + index2 * size;
   for (count = 0; count < size; count++) {
     tmp = *ptr1;
     *ptr1++ = *ptr2;

@@ -18,6 +18,7 @@
  **********************************************************************/
 
 #include          <stdlib.h>
+#include          <memory> // std::unique_ptr
 #include          "allheaders.h"
 #include          "blckerr.h"
 #include          "pdblock.h"
@@ -140,9 +141,9 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     // rasterized interior. (Runs of interior pixels on a line.)
     PB_LINE_IT *lines = new PB_LINE_IT(&image_block);
     for (int y = box.bottom(); y < box.top(); ++y) {
-      ICOORDELT_LIST* segments = lines->get_line(y);
+      const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line(y));
       if (!segments->empty()) {
-        ICOORDELT_IT s_it(segments);
+        ICOORDELT_IT s_it(segments.get());
         // Each element of segments is a start x and x size of the
         // run of interior pixels.
         for (s_it.mark_cycle_pt(); !s_it.cycled_list(); s_it.forward()) {
@@ -154,7 +155,6 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
                       xext, 1, PIX_SET, NULL, 0, 0);
         }
       }
-      delete segments;
     }
     delete lines;
   } else {
@@ -196,7 +196,7 @@ void PDBLK::plot(                //draw outline
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, INT32FORMAT, serial);
+    sprintf(temp_buff, "%" PRId32, serial);
     #else
     ultoa (serial, temp_buff, 10);
     #endif

@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        polyblk.c  (Formerly poly_block.c)
  * Description: Polygonal blocks
- * Author:					Sheelagh Lloyd?
+ * Author:          Sheelagh Lloyd?
  * Created:
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <stdio.h>
+#include <memory> // std::unique_ptr
 #include "elst.h"
 #include "polyblk.h"
 
@@ -253,7 +254,7 @@ void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, INT32FORMAT, num);
+    sprintf(temp_buff, "%" PRId32, num);
     #else
     ltoa (num, temp_buff, 10);
     #endif
@@ -273,7 +274,6 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
   inT16 y;
   inT16 width;
   PB_LINE_IT *lines;
-  ICOORDELT_LIST *segments;
   ICOORDELT_IT s_it;
 
   lines = new PB_LINE_IT (this);
@@ -281,9 +281,9 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 
   for (y = this->bounding_box ()->bottom ();
   y <= this->bounding_box ()->top (); y++) {
-    segments = lines->get_line (y);
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line (y));
     if (!segments->empty ()) {
-      s_it.set_to_list (segments);
+      s_it.set_to_list (segments.get());
       for (s_it.mark_cycle_pt (); !s_it.cycled_list (); s_it.forward ()) {
         // Note different use of ICOORDELT, x coord is x coord of pixel
         // at the start of line segment, y coord is length of line segment
@@ -294,6 +294,8 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
       }
     }
   }
+
+  delete lines;
 }
 #endif
 

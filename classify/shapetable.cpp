@@ -70,19 +70,17 @@ bool UnicharAndFonts::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool UnicharAndFonts::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&unichar_id, sizeof(unichar_id), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&unichar_id, sizeof(unichar_id));
-  if (!font_ids.DeSerialize(swap, fp)) return false;
+
+bool UnicharAndFonts::DeSerialize(TFile* fp) {
+  if (fp->FReadEndian(&unichar_id, sizeof(unichar_id), 1) != 1) return false;
+  if (!font_ids.DeSerialize(fp)) return false;
   return true;
 }
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
 int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
-  const UnicharAndFonts* p1 = reinterpret_cast<const UnicharAndFonts*>(v1);
-  const UnicharAndFonts* p2 = reinterpret_cast<const UnicharAndFonts*>(v2);
+  const UnicharAndFonts* p1 = static_cast<const UnicharAndFonts*>(v1);
+  const UnicharAndFonts* p2 = static_cast<const UnicharAndFonts*>(v2);
   return p1->unichar_id - p2->unichar_id;
 }
 
@@ -95,14 +93,12 @@ bool Shape::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool Shape::DeSerialize(bool swap, FILE* fp) {
+
+bool Shape::DeSerialize(TFile* fp) {
   uinT8 sorted;
-  if (fread(&sorted, sizeof(sorted), 1, fp) != 1)
-    return false;
+  if (fp->FRead(&sorted, sizeof(sorted), 1) != 1) return false;
   unichars_sorted_ = sorted != 0;
-  if (!unichars_.DeSerializeClasses(swap, fp)) return false;
-  return true;
+  return unichars_.DeSerializeClasses(fp);
 }
 
 // Adds a font_id for the given unichar_id. If the unichar_id is not
@@ -252,9 +248,9 @@ bool ShapeTable::Serialize(FILE* fp) const {
   return true;
 }
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
-bool ShapeTable::DeSerialize(bool swap, FILE* fp) {
-  if (!shape_table_.DeSerialize(swap, fp)) return false;
+
+bool ShapeTable::DeSerialize(TFile* fp) {
+  if (!shape_table_.DeSerialize(fp)) return false;
   num_fonts_ = 0;
   return true;
 }

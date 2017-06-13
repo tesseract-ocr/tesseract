@@ -100,17 +100,15 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
 bool ParamsModel::LoadFromFile(
     const char *lang,
     const char *full_path) {
-  FILE *fp = fopen(full_path, "rb");
-  if (!fp) {
+  TFile fp;
+  if (!fp.Open(full_path, nullptr)) {
     tprintf("Error opening file %s\n", full_path);
     return false;
   }
-  bool result = LoadFromFp(lang, fp, -1);
-  fclose(fp);
-  return result;
+  return LoadFromFp(lang, &fp);
 }
 
-bool ParamsModel::LoadFromFp(const char *lang, FILE *fp, inT64 end_offset) {
+bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
   BitVector present;
@@ -120,9 +118,8 @@ bool ParamsModel::LoadFromFp(const char *lang, FILE *fp, inT64 end_offset) {
   GenericVector<float> &weights = weights_vec_[pass_];
   weights.init_to_size(PTRAIN_NUM_FEATURE_TYPES, 0.0);
 
-  while ((end_offset < 0 || ftell(fp) < end_offset) &&
-      fgets(line, kMaxLineSize, fp)) {
-    char *key = NULL;
+  while (fp->FGets(line, kMaxLineSize) != nullptr) {
+    char *key = nullptr;
     float value;
     if (!ParseLine(line, &key, &value))
       continue;

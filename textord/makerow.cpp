@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
- * Author:		Ray Smith
- * Created:		Mon Sep 21 14:34:48 BST 1992
+ * Author:    Ray Smith
+ * Created:   Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -507,8 +507,7 @@ void vigorous_noise_removal(TO_BLOCK* block) {
             continue;  // Looks OK.
         }
         // It might be noise so get rid of it.
-        if (blob->cblob() != NULL)
-          delete blob->cblob();
+        delete blob->cblob();
         delete b_it.extract();
       } else {
         prev = blob;
@@ -671,7 +670,7 @@ BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            ) {
-  inT32 next_index;              //of neighbouring row
+  inT32 next_index;              // of neighbouring row
   inT32 row_offset;              //from current row
   inT32 abs_dist;                //absolute distance
   inT8 row_inc;                  //increment to row_index
@@ -790,8 +789,6 @@ void compute_line_occupation(                    //project blobs
   inT32 line_count;              //maxy-miny+1
   inT32 line_index;              //of scan line
   int index;                     //array index for daft compilers
-  float top, bottom;             //coords of blob
-  inT32 width;                   //of blob
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
   BLOBNBOX *blob;                //current blob
@@ -813,24 +810,13 @@ void compute_line_occupation(                    //project blobs
       blob = blob_it.data ();
       blob_box = blob->bounding_box ();
       blob_box.rotate (rotation);//de-skew it
-      top = blob_box.top ();
-      bottom = blob_box.bottom ();
-      width =
-        (inT32) floor ((FLOAT32) (blob_box.right () - blob_box.left ()));
-      if ((inT32) floor (bottom) < min_y
-        || (inT32) floor (bottom) - min_y >= line_count)
-        fprintf (stderr,
-          "Bad y coord of bottom, " INT32FORMAT "(" INT32FORMAT ","
-          INT32FORMAT ")\n", (inT32) floor (bottom), min_y, max_y);
+      int32_t width = blob_box.right() - blob_box.left();
+      index = blob_box.bottom() - min_y;
+      ASSERT_HOST(index >= 0 && index < line_count);
                                  //count transitions
-      index = (inT32) floor (bottom) - min_y;
       deltas[index] += width;
-      if ((inT32) floor (top) < min_y
-        || (inT32) floor (top) - min_y >= line_count)
-        fprintf (stderr,
-          "Bad y coord of top, " INT32FORMAT "(" INT32FORMAT ","
-          INT32FORMAT ")\n", (inT32) floor (top), min_y, max_y);
-      index = (inT32) floor (top) - min_y;
+      index = blob_box.top() - min_y;
+      ASSERT_HOST(index >= 0 && index < line_count);
       deltas[index] -= width;
     }
   }
@@ -1786,7 +1772,7 @@ static int CountOverlaps(const TBOX& box, int min_height,
   BLOBNBOX_IT blob_it(blobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
-    TBOX blob_box = blob->bounding_box();
+    const TBOX &blob_box = blob->bounding_box();
     if (blob_box.height() >= min_height && box.major_overlap(blob_box)) {
       ++overlaps;
     }

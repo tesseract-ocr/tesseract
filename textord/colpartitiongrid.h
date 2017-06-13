@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_COLPARTITIONGRID_H__
-#define TESSERACT_TEXTORD_COLPARTITIONGRID_H__
+#ifndef TESSERACT_TEXTORD_COLPARTITIONGRID_H_
+#define TESSERACT_TEXTORD_COLPARTITIONGRID_H_
 
 #include "bbgrid.h"
 #include "colpartition.h"
@@ -105,11 +105,6 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // Returns true if anything was changed.
   bool GridSmoothNeighbours(BlobTextFlowType source_type, Pix* nontext_map,
                             const TBOX& im_box, const FCOORD& rerotation);
-
-  // Compute the mean RGB of the light and dark pixels in each ColPartition
-  // and also the rms error in the linearity of color.
-  void ComputePartitionColors(Pix* scaled_color, int scaled_factor,
-                              const FCOORD& rerotation);
 
   // Reflects the grid and its colpartitions in the y-axis, assuming that
   // all blob boxes have already been done.
@@ -255,4 +250,4 @@ class ColPartitionGrid : public BBGrid<ColPartition,
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_COLPARTITIONGRID_H__
+#endif  // TESSERACT_TEXTORD_COLPARTITIONGRID_H_

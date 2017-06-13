@@ -20,8 +20,6 @@ vs2010/LIB_Release/*
 vs2010/LIB_OpenCL_Release/*
 vs2010/LIB_OpenCL_Debug/*
 
-
-
 # Linux
 # ignore local configuration
 config.*
@@ -36,7 +34,11 @@ libtool
 stamp-h1
 tesseract.pc
 config_auto.h
-doc/html/*
+/doc/html/*
+/doc/*.1
+/doc/*.5
+/doc/*.html
+/doc/*.xml
 api/tesseract
 training/ambiguous_words
 training/classifier_tester
@@ -52,6 +54,8 @@ training/wordlist2dawg
 *.patch
 
 # ignore compilation files
+build/*
+/bin
 */.deps/*
 */.libs/*
 *.lo
@@ -63,8 +67,6 @@ training/wordlist2dawg
 *.jar
 
 # tessdata
-*.cube.*
-*.tesseract_cube.*
 *.traineddata
 
 # OpenCL
@@ -73,5 +75,10 @@ kernel*.bin
 
 # build dirs
 /build*
+/.cppan
 /cppan
+/*.dll
+/*.lib
+/*.exe
+/*.lnk
 /win*

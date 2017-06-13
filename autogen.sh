@@ -1,4 +1,13 @@
 #!/bin/sh
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 # This is a simple script which is meant to help developers
 # better deal with the GNU autotools, specifically:
@@ -37,7 +46,20 @@ if [ "$1" = "clean" ]; then
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
-# create m4 directory if it not exists
+# Prevent any errors that might result from failing to properly invoke 
+# `libtoolize` or `glibtoolize,` whichever is present on your system, 
+# from occurring by testing for its existence and capturing the absolute path to 
+# its location for caching purposes prior to using it later on in 'Step 2:'  
+if command -v libtoolize >/dev/null 2>&1; then
+  LIBTOOLIZE="$(command -v libtoolize)"
+elif command -v glibtoolize >/dev/null 2>&1; then
+  LIBTOOLIZE="$(command -v glibtoolize)"
+else
+  echo "Unable to find a valid copy of libtoolize or glibtoolize in your PATH!"
+  bail_out
+fi
+
+# create m4 directory if it does not exist
 if [ ! -d m4 ];  then
     mkdir m4
 fi
@@ -61,9 +83,9 @@ aclocal -I config || bail_out
 
 # --- Step 2:
 
-echo "Running libtoolize"
-libtoolize -f -c || glibtoolize -f -c || bail_out
-libtoolize --automake || glibtoolize --automake || bail_out
+echo "Running $LIBTOOLIZE"
+$LIBTOOLIZE -f -c || bail_out
+$LIBTOOLIZE --automake || bail_out
 
 # --- Step 3: Generate config.h.in from:
 #             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
@@ -82,7 +104,7 @@ autoheader -f || bail_out
 # they are copied from the system so they can be used in a distribution.
 
 echo "Running automake --add-missing --copy"
-automake --add-missing -c  -Wno-portability > /dev/null || bail_out
+automake --add-missing --copy --warnings=all || bail_out
 
 # --- Step 5: Generate configure and include/miaconfig.h from:
 #             . configure.ac

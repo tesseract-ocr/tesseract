@@ -35,7 +35,8 @@
 ----------------------------------------------------------------------------*/
 
 /*---------------------------------------------------------------------------*/
-/** Convert a blob into a list of MFOUTLINEs (float-based microfeature format). */
+/** Convert a blob into a list of MFOUTLINEs (float-based microfeature format).
+ */
 LIST ConvertBlob(TBLOB *blob) {
   LIST outlines = NIL_LIST;
   return (blob == NULL)
@@ -159,7 +160,7 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
   Start = list_rest (Outline);
   set_rest(Outline, NIL_LIST);
   while (Start != NULL) {
-    free_struct (first_node (Start), sizeof (MFEDGEPT), "MFEDGEPT");
+    free(first_node(Start));
     Start = pop (Start);
   }
 
@@ -218,7 +219,7 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
 /*---------------------------------------------------------------------------*/
 /** Return a new edge point for a micro-feature outline. */
 MFEDGEPT *NewEdgePoint() {
-  return ((MFEDGEPT *) alloc_struct(sizeof(MFEDGEPT), "MFEDGEPT"));
+  return (MFEDGEPT *) malloc(sizeof(MFEDGEPT));
 }
 
 
@@ -344,7 +345,6 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
 
 }                                /* ChangeDirection */
 
-
 /**
  * This routine normalizes each point in Outline by
  * translating it to the specified center and scaling it
@@ -377,7 +377,6 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
   while (Current != First);
 
 }                                /* CharNormalizeOutline */
-
 
 /**
  * This routine computes the slope from Start to Finish and

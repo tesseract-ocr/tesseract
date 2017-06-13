@@ -84,8 +84,6 @@ const double kMaxDiacriticDistanceRatio = 1.25;
 // Max x-gap between a diacritic and its base char as a fraction of the height
 // of the base char (allowing other blobs to fill the gap.)
 const double kMaxDiacriticGapToBaseCharHeight = 1.0;
-// Radius of a search for diacritics in grid units.
-const int kSearchRadius = 2;
 // Ratio between longest side of a line and longest side of a character.
 // (neighbor_min > blob_min * kLineTrapShortest &&
 //  neighbor_max < blob_max / kLineTrapLongest)
@@ -104,9 +102,6 @@ const int kLineResiduePadRatio = 3;
 const double kLineResidueSizeRatio = 1.75;
 // Aspect ratio filter for OSD.
 const float kSizeRatioToReject = 2.0;
-// Max number of normal blobs a large blob may overlap before it is rejected
-// and determined to be image
-const int kMaxLargeOverlaps = 3;
 // Expansion factor for search box for good neighbours.
 const double kNeighbourSearchFactor = 2.5;
 // Factor of increase of overlap when adding diacritics to make an image noisy.
@@ -114,8 +109,6 @@ const double kNoiseOverlapGrowthFactor = 4.0;
 // Fraction of the image size to add overlap when adding diacritics for an
 // image to qualify as noisy.
 const double kNoiseOverlapAreaFactor = 1.0 / 512;
-// Ratio of perimeter^2/area for a blob to be considered noise vs i dot.
-const double kShapePerimeterRatio = 3.0;
 
 StrokeWidth::StrokeWidth(int gridsize,
                          const ICOORD& bleft, const ICOORD& tright)
@@ -400,7 +393,7 @@ void StrokeWidth::GradeBlobsIntoPartitions(
 }
 
 static void PrintBoxWidths(BLOBNBOX* neighbour) {
-  TBOX nbox = neighbour->bounding_box();
+  const TBOX& nbox = neighbour->bounding_box();
   tprintf("Box (%d,%d)->(%d,%d): h-width=%.1f, v-width=%.1f p-width=%1.f\n",
           nbox.left(), nbox.bottom(), nbox.right(), nbox.top(),
           neighbour->horz_stroke_width(), neighbour->vert_stroke_width(),
@@ -1946,7 +1939,7 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
   gsearch.StartFullSearch();
   BLOBNBOX* bbox;
   while ((bbox = gsearch.NextFullSearch()) != NULL) {
-    TBOX box = bbox->bounding_box();
+    const TBOX& box = bbox->bounding_box();
     int left_x = box.left();
     int right_x = box.right();
     int top_y = box.top();

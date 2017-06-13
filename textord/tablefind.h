@@ -17,8 +17,8 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef TESSERACT_TEXTORD_TABLEFIND_H__
-#define TESSERACT_TEXTORD_TABLEFIND_H__
+#ifndef TESSERACT_TEXTORD_TABLEFIND_H_
+#define TESSERACT_TEXTORD_TABLEFIND_H_
 
 #include "colpartitiongrid.h"
 #include "elst.h"
@@ -389,11 +389,6 @@ class TableFinder {
   void DisplayColSegmentGrid(ScrollView* win, ColSegmentGrid* grid,
                              ScrollView::Color color);
 
-  // Write ColParitions and Tables to a PIX image
-  // Note: This method is only for debug purpose during development and
-  // would not be part of checked in code
-  void WriteToPix(const FCOORD& reskew);
-
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.
@@ -432,4 +427,4 @@ class TableFinder {
 
 }  // namespace tesseract.
 
-#endif  // TESSERACT_TEXTORD_TABLEFIND_H__
+#endif  // TESSERACT_TEXTORD_TABLEFIND_H_

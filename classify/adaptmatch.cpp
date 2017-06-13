@@ -514,7 +514,7 @@ void Classify::EndAdaptiveClassifier() {
  *  Parameters:
  *      load_pre_trained_templates  Indicates whether the pre-trained
  *                     templates (inttemp, normproto and pffmtable components)
- *                     should be lodaded. Should only be set to true if the
+ *                     should be loaded. Should only be set to true if the
  *                     necessary classifier components are present in the
  *                     [lang].traineddata file.
  *  Globals:
@@ -524,7 +524,7 @@ void Classify::EndAdaptiveClassifier() {
  *                            enables use of pre-adapted templates
  *  @note History: Mon Mar 11 12:49:34 1991, DSJ, Created.
  */
-void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
+void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
   if (!classify_enable_adaptive_matcher)
     return;
   if (AllProtosOn != NULL)
@@ -532,37 +532,25 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
 
   // If there is no language_data_path_prefix, the classifier will be
   // adaptive only.
-  if (language_data_path_prefix.length() > 0 &&
-      load_pre_trained_templates) {
-    ASSERT_HOST(tessdata_manager.SeekToStart(TESSDATA_INTTEMP));
-    PreTrainedTemplates =
-      ReadIntTemplates(tessdata_manager.GetDataFilePtr());
-    if (tessdata_manager.DebugLevel() > 0) tprintf("Loaded inttemp\n");
+  if (language_data_path_prefix.length() > 0 && mgr != nullptr) {
+    TFile fp;
+    ASSERT_HOST(mgr->GetComponent(TESSDATA_INTTEMP, &fp));
+    PreTrainedTemplates = ReadIntTemplates(&fp);
 
-    if (tessdata_manager.SeekToStart(TESSDATA_SHAPE_TABLE)) {
+    if (mgr->GetComponent(TESSDATA_SHAPE_TABLE, &fp)) {
       shape_table_ = new ShapeTable(unicharset);
-      if (!shape_table_->DeSerialize(tessdata_manager.swap(),
-                                     tessdata_manager.GetDataFilePtr())) {
+      if (!shape_table_->DeSerialize(&fp)) {
         tprintf("Error loading shape table!\n");
         delete shape_table_;
         shape_table_ = NULL;
-      } else if (tessdata_manager.DebugLevel() > 0) {
-        tprintf("Successfully loaded shape table!\n");
       }
     }
 
-    ASSERT_HOST(tessdata_manager.SeekToStart(TESSDATA_PFFMTABLE));
-    ReadNewCutoffs(tessdata_manager.GetDataFilePtr(),
-                   tessdata_manager.swap(),
-                   tessdata_manager.GetEndOffset(TESSDATA_PFFMTABLE),
-                   CharNormCutoffs);
-    if (tessdata_manager.DebugLevel() > 0) tprintf("Loaded pffmtable\n");
+    ASSERT_HOST(mgr->GetComponent(TESSDATA_PFFMTABLE, &fp));
+    ReadNewCutoffs(&fp, CharNormCutoffs);
 
-    ASSERT_HOST(tessdata_manager.SeekToStart(TESSDATA_NORMPROTO));
-    NormProtos =
-      ReadNormProtos(tessdata_manager.GetDataFilePtr(),
-                     tessdata_manager.GetEndOffset(TESSDATA_NORMPROTO));
-    if (tessdata_manager.DebugLevel() > 0) tprintf("Loaded normproto\n");
+    ASSERT_HOST(mgr->GetComponent(TESSDATA_NORMPROTO, &fp));
+    NormProtos = ReadNormProtos(&fp);
     static_classifier_ = new TessClassifier(false, this);
   }
 
@@ -582,21 +570,19 @@ void Classify::InitAdaptiveClassifier(bool load_pre_trained_templates) {
   }
 
   if (classify_use_pre_adapted_templates) {
-    FILE *File;
+    TFile fp;
     STRING Filename;
 
     Filename = imagefile;
     Filename += ADAPT_TEMPLATE_SUFFIX;
-    File = fopen(Filename.string(), "rb");
-    if (File == NULL) {
+    if (!fp.Open(Filename.string(), nullptr)) {
       AdaptedTemplates = NewAdaptedTemplates(true);
     } else {
       cprintf("\nReading pre-adapted templates from %s ...\n",
               Filename.string());
       fflush(stdout);
-      AdaptedTemplates = ReadAdaptedTemplates(File);
+      AdaptedTemplates = ReadAdaptedTemplates(&fp);
       cprintf("\n");
-      fclose(File);
       PrintAdaptedTemplates(stdout, AdaptedTemplates);
 
       for (int i = 0; i < AdaptedTemplates->Templates->NumClasses; i++) {
@@ -819,7 +805,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
   Features = ExtractPicoFeatures(Blob);
 
   NumFeatures = Features->NumFeatures;
-  if (NumFeatures > UNLIKELY_NUM_FEAT) {
+  if (NumFeatures == 0 || NumFeatures > UNLIKELY_NUM_FEAT) {
     FreeFeatureSet(Features);
     return 0;
   }
@@ -907,8 +893,9 @@ void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
     IClass = ClassForClassId(adaptive_templates->Templates, ClassId);
 
     NumFeatures = GetAdaptiveFeatures(Blob, IntFeatures, &FloatFeatures);
-    if (NumFeatures <= 0)
-      return;
+    if (NumFeatures <= 0) {
+      return;  // Features already freed by GetAdaptiveFeatures.
+    }
 
     // Only match configs with the matching font.
     BIT_VECTOR MatchingFontConfigs = NewBitVector(MAX_NUM_PROTOS);
@@ -1001,10 +988,10 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
               6 | 0x19, matcher_debug_separate_windows);
     UpdateMatchDisplay();
   }
+
+  delete sample;
 #endif
 }
-
-
 
 /**
  * This routine adds the result of a classification into
@@ -1993,8 +1980,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  PERM_CONFIG Perm = (PERM_CONFIG) alloc_struct(sizeof(PERM_CONFIG_STRUCT),
-                                                "PERM_CONFIG_STRUCT");
+  PERM_CONFIG Perm = (PERM_CONFIG) malloc(sizeof(PERM_CONFIG_STRUCT));
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 
@@ -2256,7 +2242,7 @@ void Classify::ShowBestMatchFor(int shape_id,
   tprintf("Static Shape ID: %d\n", shape_id);
   ShowMatchDisplay();
   im_.Match(ClassForClassId(PreTrainedTemplates, shape_id),
-            AllProtosOn, reinterpret_cast<BIT_VECTOR>(&config_mask),
+            AllProtosOn, &config_mask, // TODO: or reinterpret_cast<BIT_VECTOR>(&config_mask) anyway?
             num_features, features, &cn_result,
             classify_adapt_feature_threshold,
             matcher_debug_flags,
