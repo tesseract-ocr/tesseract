@@ -1,7 +1,5 @@
 CCMAIN_HDR = \
              ../ccmain/control.h \
-             ../ccmain/cube_reco_context.h \
-             ../ccmain/cubeclassifier.h \
              ../ccmain/docqual.h \
              ../ccmain/equationdetect.h \
              ../ccmain/fixspace.h \
@@ -15,7 +13,6 @@ CCMAIN_HDR = \
              ../ccmain/tessbox.h \
              ../ccmain/tessedit.h \
              ../ccmain/tesseractclass.h \
-             ../ccmain/tesseract_cube_combiner.h \
              ../ccmain/tessvars.h \
              ../ccmain/werdit.h
 
@@ -30,13 +27,11 @@ CCMAIN_SRC = \
              ../ccmain/adaptions.cpp \
              ../ccmain/applybox.cpp \
              ../ccmain/control.cpp \
-             ../ccmain/cube_control.cpp \
-             ../ccmain/cube_reco_context.cpp \
-             ../ccmain/cubeclassifier.cpp \
              ../ccmain/docqual.cpp \
              ../ccmain/equationdetect.cpp \
              ../ccmain/fixspace.cpp \
              ../ccmain/fixxht.cpp \
+             ../ccmain/linerec.cpp \
              ../ccmain/ltrresultiterator.cpp \
              ../ccmain/osdetect.cpp \
              ../ccmain/output.cpp \
@@ -51,7 +46,6 @@ CCMAIN_SRC = \
              ../ccmain/reject.cpp \
              ../ccmain/resultiterator.cpp \
              ../ccmain/superscript.cpp \
-             ../ccmain/tesseract_cube_combiner.cpp \
              ../ccmain/tessbox.cpp \
              ../ccmain/tessedit.cpp \
              ../ccmain/tesseractclass.cpp \

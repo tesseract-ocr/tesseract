@@ -9,7 +9,6 @@ CCUTIL_HDR = \
              ../ccutil/elst.h \
              ../ccutil/genericheap.h \
              ../ccutil/globaloc.h \
-             ../ccutil/hashfn.h \
              ../ccutil/indexmapbidi.h \
              ../ccutil/kdpair.h \
              ../ccutil/lsterr.h \
@@ -41,6 +40,7 @@ CCUTIL_INSTHDR = \
                  ../ccutil/strngs.h \
                  ../ccutil/tesscallback.h \
                  ../ccutil/unichar.h \
+                 ../ccutil/unicharcompress.h \
                  ../ccutil/unicharmap.h \
                  ../ccutil/unicharset.h
 
@@ -65,6 +65,7 @@ CCUTIL_SRC = \
              ../ccutil/tessdatamanager.cpp \
              ../ccutil/tprintf.cpp \
              ../ccutil/unichar.cpp \
+             ../ccutil/unicharcompress.cpp \
              ../ccutil/unicharmap.cpp \
              ../ccutil/unicharset.cpp \
              ../ccutil/unicodes.cpp \

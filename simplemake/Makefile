@@ -8,7 +8,7 @@ CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
            -Wall \
            -fPIC \
            -std=c++11 \
-           -I../ccmain -I../api -I../ccutil -I../ccstruct -I../viewer -I../textord -I../dict -I../classify -I../display -I../wordrec -I../cutil -I../neural_networks/runtime -I../cube -I../opencl \
+           -I../ccmain -I../api -I../ccutil -I../ccstruct -I../viewer -I../textord -I../dict -I../classify -I../display -I../wordrec -I../cutil -I../lstm -I../arch -I../opencl \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
            $(OPENCL_CPPFLAGS) $(NOGRAPHICS_CPPFLAGS) $(EMBEDDED_CPPFLAGS) $(VISIBILITY_CPPFLAGS) \
@@ -32,14 +32,14 @@ all: autoconfig $(BIN) $(LIB) $(STATIC_LIB)
 # Source and header files
 
 include api.mk
+include arch.mk
 include ccmain.mk
 include ccstruct.mk
 include ccutil.mk
 include classify.mk
-include cube.mk
 include cutil.mk
 include dict.mk
-include neural_networks.mk
+include lstm.mk
 include opencl.mk
 include textord.mk
 include training.mk
@@ -49,9 +49,9 @@ include wordrec.mk
 include tessdata.mk
 include scrollview.mk
 
-OBJ = $(API_OBJ) $(CCMAIN_OBJ) $(CCSTRUCT_OBJ) $(CCUTIL_OBJ) $(CLASSIFY_OBJ) $(CUBE_OBJ) $(CUTIL_OBJ) $(DICT_OBJ) $(NEURAL_OBJ) $(OPENCL_OBJ) $(TEXTORD_OBJ) $(VIEWER_OBJ) $(WORDREC_OBJ) $(EXTRA_OBJ)
+OBJ = $(API_OBJ) $(ARCH_OBJ) $(CCMAIN_OBJ) $(CCSTRUCT_OBJ) $(CCUTIL_OBJ) $(CLASSIFY_OBJ) $(CUTIL_OBJ) $(DICT_OBJ) $(LSTM_OBJ) $(OPENCL_OBJ) $(TEXTORD_OBJ) $(VIEWER_OBJ) $(WORDREC_OBJ) $(EXTRA_OBJ)
 
-INSTHDR = $(API_INSTHDR) $(CCMAIN_INSTHDR) $(CCSTRUCT_INSTHDR) $(CCUTIL_INSTHDR)
+INSTHDR = $(API_INSTHDR) $(ARCH_INSTHDR) $(CCMAIN_INSTHDR) $(CCSTRUCT_INSTHDR) $(CCUTIL_INSTHDR)
 
 
 # Inference rules

@@ -7,9 +7,7 @@ CUTIL_HDR = \
             ../cutil/danerror.h \
             ../cutil/efio.h \
             ../cutil/emalloc.h \
-            ../cutil/freelist.h \
             ../cutil/globals.h \
-            ../cutil/listio.h \
             ../cutil/oldlist.h \
             ../cutil/structures.h
 
@@ -21,8 +19,6 @@ CUTIL_SRC = \
             ../cutil/danerror.cpp \
             ../cutil/efio.cpp \
             ../cutil/emalloc.cpp \
-            ../cutil/freelist.cpp \
-            ../cutil/listio.cpp \
             ../cutil/oldlist.cpp \
             ../cutil/structures.cpp
 
