@@ -7,6 +7,7 @@ CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
            -Wall \
            -fPIC \
+           -O2 \
            -std=c++11 \
            -I../ccmain -I../api -I../ccutil -I../ccstruct -I../viewer -I../textord -I../dict -I../classify -I../display -I../wordrec -I../cutil -I../lstm -I../arch -I../opencl \
            $(LEPT_CPPFLAGS) \
