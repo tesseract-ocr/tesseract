@@ -25,6 +25,8 @@
 #include <winbase.h>             // winbase.h contains windows.h
 #endif
 
+#include <cstdint>      // int32_t, ...
+
 // definitions of portable data types (numbers and characters)
 typedef SIGNED char inT8;
 typedef unsigned char uinT8;
