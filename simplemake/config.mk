@@ -9,6 +9,7 @@ TESSDATAPREFIX = $(PREFIX)/share/tesseract-ocr
 #NOGRAPHICS_CPPFLAGS = -DGRAPHICS_DISABLED
 #EMBEDDED_CPPFLAGS = -DEMBEDDED
 #VISIBILITY_CPPFLAGS = -DTESS_EXPORTS -fvisibility=hidden -fvisibility-inlines-hidden
+ARCH_CPPFLAGS = -mavx -msse4.1
 
 # Dependencies needed for training tools
 ICU_LDFLAGS = -licui18n -licuuc -licudata

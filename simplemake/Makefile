@@ -12,7 +12,7 @@ CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
            -I../ccmain -I../api -I../ccutil -I../ccstruct -I../viewer -I../textord -I../dict -I../classify -I../display -I../wordrec -I../cutil -I../lstm -I../arch -I../opencl \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
-           $(OPENCL_CPPFLAGS) $(NOGRAPHICS_CPPFLAGS) $(EMBEDDED_CPPFLAGS) $(VISIBILITY_CPPFLAGS) \
+           $(OPENCL_CPPFLAGS) $(NOGRAPHICS_CPPFLAGS) $(EMBEDDED_CPPFLAGS) $(VISIBILITY_CPPFLAGS) $(ARCH_CPPFLAGS) \
            $(EXTRA_CPPFLAGS)
 LDFLAGS = -lpthread $(EXTRA_LDFLAGS)
 
