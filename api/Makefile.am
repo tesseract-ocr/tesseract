@@ -81,6 +81,9 @@ tesseract_LDADD = libtesseract.la
 
 tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
+tesseract_LDADD += $(LEPTONICA_LIBS)
+tesseract_LDADD += $(OPENMP_CXXFLAGS)
+
 if T_WIN
 tesseract_LDADD += -lws2_32 -ltiff
 libtesseract_la_LDFLAGS += -no-undefined -Wl,--as-needed -lws2_32
