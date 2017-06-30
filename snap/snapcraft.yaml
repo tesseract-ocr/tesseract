@@ -30,5 +30,5 @@ parts:
       - libcairo2-dev
     after: [leptonica]
   leptonica:
-    source: http://www.leptonica.org/source/leptonica-1.74.2.tar.gz
+    source: https://github.com/DanBloomberg/leptonica/archive/1.74.2.tar.gz
     plugin: autotools
