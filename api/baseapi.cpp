@@ -888,7 +888,7 @@ int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
   if (tesseract_ == NULL)
     return -1;
   if (thresholder_ == NULL || thresholder_->IsEmpty()) {
-    tprintf("Please call SetImage before attempting recognition.");
+    tprintf("Please call SetImage before attempting recognition.\n");
     return -1;
   }
   if (page_res_ != NULL)
@@ -2173,7 +2173,7 @@ void TessBaseAPI::SetFillLatticeFunc(FillLatticeFunc f) {
 /** Common code for setting the image. */
 bool TessBaseAPI::InternalSetImage() {
   if (tesseract_ == NULL) {
-    tprintf("Please call Init before attempting to set an image.");
+    tprintf("Please call Init before attempting to set an image.\n");
     return false;
   }
   if (thresholder_ == NULL)
@@ -2234,7 +2234,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
 /** Find lines from the image making the BLOCK_LIST. */
 int TessBaseAPI::FindLines() {
   if (thresholder_ == NULL || thresholder_->IsEmpty()) {
-    tprintf("Please call SetImage before attempting recognition.");
+    tprintf("Please call SetImage before attempting recognition.\n");
     return -1;
   }
   if (recognition_done_)
