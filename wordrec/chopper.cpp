@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        chopper.c  (Formerly chopper.c)
+ * File:         chopper.cpp  (Formerly chopper.c)
  * Description:
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987

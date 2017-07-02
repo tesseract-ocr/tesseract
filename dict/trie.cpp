@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        trie.c  (Formerly trie.c)
+ * File:         trie.cpp  (Formerly trie.c)
  * Description:  Functions to build a trie data structure.
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987

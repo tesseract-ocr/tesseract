@@ -1,7 +1,7 @@
 // Copyright 2011 Google Inc. All Rights Reserved.
 // Author: rays@google.com (Ray Smith)
 ///////////////////////////////////////////////////////////////////////
-// File:        shapeclassifier.h
+// File:        shapeclassifier.cpp
 // Description: Base interface class for classifiers that return a
 //              shape index.
 // Author:      Ray Smith

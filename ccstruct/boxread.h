@@ -1,8 +1,8 @@
 /**********************************************************************
- * File:        boxread.cpp
+ * File:        boxread.h
  * Description: Read data from a box file.
- * Author:		Ray Smith
- * Created:		Fri Aug 24 17:47:23 PDT 2007
+ * Author:	Ray Smith
+ * Created:	Fri Aug 24 17:47:23 PDT 2007
  *
  * (C) Copyright 2007, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        TabFind.cpp
+// File:        tabfind.cpp
 // Description: Subclass of BBGrid to find vertically aligned blobs.
 // Author:      Ray Smith
 // Created:     Fri Mar 21 15:03:01 PST 2008

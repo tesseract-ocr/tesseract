@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        gradechop.c  (Formerly gradechop.c)
+ * File:         gradechop.cpp  (Formerly gradechop.c)
  * Description:
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987

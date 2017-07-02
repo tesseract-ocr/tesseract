@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
- * File:        hyphen.c  (Formerly hyphen.c)
- * Description: Functions for maintaining information about hyphenated words.
+ * File:	 hyphen.cpp  (Formerly hyphen.c)
+ * Description:  Functions for maintaining information about hyphenated words.
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987
  * Modified:     Thu Mar 14 11:09:43 1991 (Mark Seaman) marks@hpgrlt

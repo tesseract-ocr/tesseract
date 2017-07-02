@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        plotedges.c  (Formerly plotedges.c)
+ * File:         plotedges.cpp  (Formerly plotedges.c)
  * Description:  Graphics routines for "Edges" and "Outlines" windows
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Jul 28 13:14:48 1989

@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        paragraphs.h
+ * File:        paragraphs_internal.h
  * Description: Paragraph Detection internal data structures.
  * Author:      David Eger
  * Created:     11 March 2011

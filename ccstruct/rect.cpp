@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        rect.c  (Formerly box.c)
+ * File:        rect.cpp  (Formerly box.c)
  * Description: Bounding box class definition.
  * Author:          Phil Cheatle
  * Created:         Wed Oct 16 15:18:45 BST 1991

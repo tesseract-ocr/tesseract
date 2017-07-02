@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        edgblob.c (Formerly edgeloop.c)
+ * File:        edgblob.cpp (Formerly edgeloop.c)
  * Description: Functions to clean up an outline before approximation.
  * Author:		Ray Smith
  * Created:		Tue Mar 26 16:56:25 GMT 1991

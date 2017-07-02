@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        networkbuilder.h
+// File:        networkbuilder.cpp
 // Description: Class to parse the network description language and
 //              build a corresponding network.
 // Author:      Ray Smith

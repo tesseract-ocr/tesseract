@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        simddetect.h
+// File:        simddetect.cpp
 // Description: Architecture detector.
 // Author:      Stefan Weil (based on code from Ray Smith)
 //

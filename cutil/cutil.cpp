@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:         cutil.c
+ * File:         cutil.cpp
  * Description:  General utility functions
  * Author:       Mark Seaman, SW Productivity
  * Created:      Fri Oct 16 14:37:00 1987

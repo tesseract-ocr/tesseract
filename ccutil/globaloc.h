@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        errcode.h  (Formerly error.h)
+ * File:        globaloc.h  (Formerly error.h)
  * Description: Header file for generic error handler class
  * Author:      Ray Smith
  * Created:     Tue May  1 16:23:36 BST 1990

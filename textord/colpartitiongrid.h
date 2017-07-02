@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        colpartitionrid.h
+// File:        colpartitiongrid.h
 // Description: Class collecting code that acts on a BBGrid of ColPartitions.
 // Author:      Ray Smith
 // Created:     Mon Oct 05 08:42:01 PDT 2009
