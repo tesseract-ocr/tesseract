@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        wordclass.c  (Formerly wordclass.c)
+ * File:         wordclass.cpp  (Formerly wordclass.c)
  * Description:  Word classifier
  * Author:       Mark Seaman, OCR Technology
  * Created:      Tue Jan 30 14:03:25 1990

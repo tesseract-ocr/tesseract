@@ -1,8 +1,8 @@
 /**********************************************************************
- * File:			word.c
+ * File:	word.h
  * Description: Code for the WERD class.
- * Author:		Ray Smith
- * Created:		Tue Oct 08 14:32:12 BST 1991
+ * Author:	Ray Smith
+ * Created:	Tue Oct 08 14:32:12 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

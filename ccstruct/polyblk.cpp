@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        polyblk.c  (Formerly poly_block.c)
+ * File:        polyblk.cpp  (Formerly poly_block.c)
  * Description: Polygonal blocks
  * Author:          Sheelagh Lloyd?
  * Created:

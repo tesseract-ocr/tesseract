@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        boxword.h
+// File:        boxword.cpp
 // Description: Class to represent the bounding boxes of the output.
 // Author:      Ray Smith
 // Created:     Tue May 25 14:18:14 PDT 2010

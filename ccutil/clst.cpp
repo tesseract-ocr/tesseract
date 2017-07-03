@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        clst.c  (Formerly clist.c)
+ * File:        clst.cpp  (Formerly clist.c)
  * Description: CONS cell list handling code which is not in the include file.
  * Author:      Phil Cheatle
  * Created:     Mon Jan 28 08:33:13 GMT 1991

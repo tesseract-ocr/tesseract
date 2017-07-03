@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        context.c  (Formerly context.c)
+ * File:         context.cpp  (Formerly context.c)
  * Description:  Context checking functions
  * Author:       Mark Seaman, OCR Technology
  * Created:      Thu Feb 15 11:18:24 1990

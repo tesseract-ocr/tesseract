@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        UnicityTable.h
+// File:        unicity_table.h
 // Description: a class to uniquify objects, manipulating them using integers
 // ids.
 // Author:      Samuel Charron

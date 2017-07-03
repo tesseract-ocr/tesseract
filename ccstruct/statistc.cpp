@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        statistc.c  (Formerly stats.c)
+ * File:        statistc.cpp  (Formerly stats.c)
  * Description: Simple statistical package for integer values.
  * Author:          Ray Smith
  * Created:         Mon Feb 04 16:56:05 GMT 1991

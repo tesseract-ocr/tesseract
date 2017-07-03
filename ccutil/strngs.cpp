@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        strngs.c  (Formerly strings.c)
+ * File:        strngs.cpp  (Formerly strings.c)
  * Description: STRING class functions.
  * Author:          Ray Smith
  * Created:         Fri Feb 15 09:13:30 GMT 1991

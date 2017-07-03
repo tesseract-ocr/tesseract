@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        ambigs.cc
+// File:        ambigs.cpp
 // Description: Functions for dealing with ambiguities
 //              (training and recognition).
 // Author:      Daria Antonova

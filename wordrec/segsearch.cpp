@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        segsearch.h
+// File:        segsearch.cpp
 // Description: Segmentation search functions.
 // Author:      Daria Antonova
 // Created:     Mon Jun 23 11:26:43 PDT 2008

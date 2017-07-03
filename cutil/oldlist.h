@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        list.h  (Formerly list.h)
+ * File:         oldlist.h  (Formerly list.h)
  * Description:  List processing procedures declarations.
  * Author:       Mark Seaman, SW Productivity
  * Created:      Fri Oct 16 14:37:00 1987

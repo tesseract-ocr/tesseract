@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        weightmatrix.h
+// File:        weightmatrix.cpp
 // Description: Hides distinction between float/int implementations.
 // Author:      Ray Smith
 // Created:     Tue Jun 17 11:46:20 PST 2014

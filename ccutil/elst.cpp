@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        elst.c  (Formerly elist.c)
+ * File:        elst.cpp  (Formerly elist.c)
  * Description: Embedded list handling code which is not in the include file.
  * Author:      Phil Cheatle
  * Created:     Fri Jan 04 13:55:49 GMT 1991

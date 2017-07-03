@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        getopt.c
+ * File:        tessopt.cpp
  * Description: Re-implementation of the unix code.
  * Author:					Ray Smith
  * Created:					Tue Nov 28 05:52:50 MST 1995

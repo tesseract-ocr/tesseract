@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        paramsd.cpp
+// File:        paramsd.h
 // Description: Tesseract parameter editor
 // Author:      Joern Wanke
 // Created:     Wed Jul 18 10:05:01 PDT 2007

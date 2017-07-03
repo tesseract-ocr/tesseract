@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        pain_points.cpp
+// File:        lm_pain_points.cpp
 // Description: Functions that utilize the knowledge about the properties
 //              of the paths explored by the segmentation search in order
 //              to "pain points" - the locations in the ratings matrix

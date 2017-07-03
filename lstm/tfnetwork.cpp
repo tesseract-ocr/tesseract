@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        tfnetwork.h
+// File:        tfnetwork.cpp
 // Description: Encapsulation of an entire tensorflow graph as a
 //              Tesseract Network.
 // Author:      Ray Smith

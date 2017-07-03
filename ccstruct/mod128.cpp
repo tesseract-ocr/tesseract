@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        mod128.c  (Formerly dir128.c)
+ * File:        mod128.cpp  (Formerly dir128.c)
  * Description: Code to convert a DIR128 to an ICOORD.
  * Author:          Ray Smith
  * Created:         Tue Oct 22 11:56:09 BST 1991

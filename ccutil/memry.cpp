@@ -1,5 +1,5 @@
 /**********************************************************************
- * File:        memry.c  (Formerly memory.c)
+ * File:        memry.cpp  (Formerly memory.c)
  * Description: Memory allocation with builtin safety checks.
  * Author:					Ray Smith
  * Created:					Wed Jan 22 09:43:33 GMT 1992

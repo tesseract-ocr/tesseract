@@ -1,7 +1,7 @@
 /* -*-C-*-
 ###############################################################################
 #
-# File:         list.c
+# File:         oldlist.cpp
 # Description:  List processing procedures.
 # Author:       Mark Seaman, Software Productivity
 # Created:      Thu Jul 23 13:24:09 1987

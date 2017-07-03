@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        maxpool.h
+// File:        maxpool.cpp
 // Description: Standard Max-Pooling layer.
 // Author:      Ray Smith
 // Created:     Tue Mar 18 16:28:18 PST 2014
