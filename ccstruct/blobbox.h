@@ -233,7 +233,7 @@ class BLOBNBOX:public ELIST_LINK
     }
     void set_reduced_box(TBOX new_box) {
       red_box = new_box;
-      reduced = TRUE;
+      reduced = true;
     }
     inT32 enclosed_area() const {
       return area;
@@ -503,8 +503,8 @@ class BLOBNBOX:public ELIST_LINK
   TBOX box;                     // bounding box
   TBOX red_box;                 // bounding box
   int area:30;                  // enclosed area
-  int joined:1;                 // joined to prev
-  int reduced:1;                // reduced box set
+  unsigned joined:1;            // joined to prev
+  unsigned reduced:1;           // reduced box set
   int repeated_set_;            // id of the set of repeated blobs
   TabType left_tab_type_;       // Indicates tab-stop assessment
   TabType right_tab_type_;      // Indicates tab-stop assessment
