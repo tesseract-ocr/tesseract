@@ -58,8 +58,9 @@ static const l_uint32 rmask32[] = {
     0x01ffffff, 0x03ffffff, 0x07ffffff, 0x0fffffff, 0x1fffffff, 0x3fffffff,
     0x7fffffff, 0xffffffff};
 
-static cl_mem pixsCLBuffer, pixdCLBuffer, pixdCLIntermediate; //Morph operations buffers
-static cl_mem pixThBuffer; //output from thresholdtopix calculation
+static cl_mem pixsCLBuffer, pixdCLBuffer,
+    pixdCLIntermediate;     // Morph operations buffers
+static cl_mem pixThBuffer;  // output from thresholdtopix calculation
 static cl_int clStatus;
 static KernelEnv rEnv;
 
@@ -580,58 +581,58 @@ static ds_status writeProfileToFile(ds_profile *profile,
 }
 
 // substitute invalid characters in device name with _
-static void legalizeFileName( char *fileName) {
-    //printf("fileName: %s\n", fileName);
-    const char *invalidChars =
-        "/\?:*\"><| ";  // space is valid but can cause headaches
-    // for each invalid char
-    for (unsigned i = 0; i < strlen(invalidChars); i++) {
-        char invalidStr[4];
-        invalidStr[0] = invalidChars[i];
-        invalidStr[1] = '\0';
-        //printf("eliminating %s\n", invalidStr);
-        //char *pos = strstr(fileName, invalidStr);
-        // initial ./ is valid for present directory
-        //if (*pos == '.') pos++;
-        //if (*pos == '/') pos++;
-        for (char *pos = strstr(fileName, invalidStr); pos != nullptr;
-             pos = strstr(pos + 1, invalidStr)) {
-          // printf("\tfound: %s, ", pos);
-          pos[0] = '_';
-          // printf("fileName: %s\n", fileName);
-        }
+static void legalizeFileName(char *fileName) {
+  // printf("fileName: %s\n", fileName);
+  const char *invalidChars =
+      "/\?:*\"><| ";  // space is valid but can cause headaches
+  // for each invalid char
+  for (unsigned i = 0; i < strlen(invalidChars); i++) {
+    char invalidStr[4];
+    invalidStr[0] = invalidChars[i];
+    invalidStr[1] = '\0';
+    // printf("eliminating %s\n", invalidStr);
+    // char *pos = strstr(fileName, invalidStr);
+    // initial ./ is valid for present directory
+    // if (*pos == '.') pos++;
+    // if (*pos == '/') pos++;
+    for (char *pos = strstr(fileName, invalidStr); pos != nullptr;
+         pos = strstr(pos + 1, invalidStr)) {
+      // printf("\tfound: %s, ", pos);
+      pos[0] = '_';
+      // printf("fileName: %s\n", fileName);
     }
+  }
 }
 
-static void populateGPUEnvFromDevice( GPUEnv *gpuInfo, cl_device_id device ) {
-    //printf("[DS] populateGPUEnvFromDevice\n");
-    size_t size;
-    gpuInfo->mnIsUserCreated = 1;
-    // device
-    gpuInfo->mpDevID = device;
-    gpuInfo->mpArryDevsID = new cl_device_id[1];
-    gpuInfo->mpArryDevsID[0] = gpuInfo->mpDevID;
-    clStatus =
-        clGetDeviceInfo(gpuInfo->mpDevID, CL_DEVICE_TYPE,
-                        sizeof(cl_device_type), &gpuInfo->mDevType, &size);
-    CHECK_OPENCL( clStatus, "populateGPUEnv::getDeviceInfo(TYPE)");
-    // platform
-    clStatus =
-        clGetDeviceInfo(gpuInfo->mpDevID, CL_DEVICE_PLATFORM,
-                        sizeof(cl_platform_id), &gpuInfo->mpPlatformID, &size);
-    CHECK_OPENCL( clStatus, "populateGPUEnv::getDeviceInfo(PLATFORM)");
-    // context
-    cl_context_properties props[3];
-    props[0] = CL_CONTEXT_PLATFORM;
-    props[1] = (cl_context_properties) gpuInfo->mpPlatformID;
-    props[2] = 0;
-    gpuInfo->mpContext = clCreateContext(props, 1, &gpuInfo->mpDevID, nullptr,
-                                         nullptr, &clStatus);
-    CHECK_OPENCL( clStatus, "populateGPUEnv::createContext");
-    // queue
-    cl_command_queue_properties queueProperties = 0;
-    gpuInfo->mpCmdQueue = clCreateCommandQueue( gpuInfo->mpContext, gpuInfo->mpDevID, queueProperties, &clStatus );
-    CHECK_OPENCL( clStatus, "populateGPUEnv::createCommandQueue");
+static void populateGPUEnvFromDevice(GPUEnv *gpuInfo, cl_device_id device) {
+  // printf("[DS] populateGPUEnvFromDevice\n");
+  size_t size;
+  gpuInfo->mnIsUserCreated = 1;
+  // device
+  gpuInfo->mpDevID = device;
+  gpuInfo->mpArryDevsID = new cl_device_id[1];
+  gpuInfo->mpArryDevsID[0] = gpuInfo->mpDevID;
+  clStatus = clGetDeviceInfo(gpuInfo->mpDevID, CL_DEVICE_TYPE,
+                             sizeof(cl_device_type), &gpuInfo->mDevType, &size);
+  CHECK_OPENCL(clStatus, "populateGPUEnv::getDeviceInfo(TYPE)");
+  // platform
+  clStatus =
+      clGetDeviceInfo(gpuInfo->mpDevID, CL_DEVICE_PLATFORM,
+                      sizeof(cl_platform_id), &gpuInfo->mpPlatformID, &size);
+  CHECK_OPENCL(clStatus, "populateGPUEnv::getDeviceInfo(PLATFORM)");
+  // context
+  cl_context_properties props[3];
+  props[0] = CL_CONTEXT_PLATFORM;
+  props[1] = (cl_context_properties)gpuInfo->mpPlatformID;
+  props[2] = 0;
+  gpuInfo->mpContext =
+      clCreateContext(props, 1, &gpuInfo->mpDevID, nullptr, nullptr, &clStatus);
+  CHECK_OPENCL(clStatus, "populateGPUEnv::createContext");
+  // queue
+  cl_command_queue_properties queueProperties = 0;
+  gpuInfo->mpCmdQueue = clCreateCommandQueue(
+      gpuInfo->mpContext, gpuInfo->mpDevID, queueProperties, &clStatus);
+  CHECK_OPENCL(clStatus, "populateGPUEnv::createCommandQueue");
 }
 
 int OpenclDevice::LoadOpencl()
@@ -662,27 +663,26 @@ int OpenclDevice::SetKernelEnv( KernelEnv *envInfo )
 
 static cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer,
                                      size_t nElements, cl_mem_flags flags,
-                                     cl_int *pStatus)
-{
-    cl_mem membuffer = clCreateBuffer( rEnv.mpkContext, (cl_mem_flags) (flags),
-                                        nElements * sizeof(l_uint32), hostbuffer, pStatus);
+                                     cl_int *pStatus) {
+  cl_mem membuffer =
+      clCreateBuffer(rEnv.mpkContext, (cl_mem_flags)(flags),
+                     nElements * sizeof(l_uint32), hostbuffer, pStatus);
 
-    return membuffer;
+  return membuffer;
 }
 
-static
-Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd, Pix *pixs,
-                       int elements, cl_mem_flags flags, bool memcopy = false,
-                       bool sync = true) {
+static Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd,
+                              Pix *pixs, int elements, cl_mem_flags flags,
+                              bool memcopy = false, bool sync = true) {
   PROCNAME("mapOutputCLBuffer");
   if (!pixd) {
     if (memcopy) {
       if ((pixd = pixCreateTemplate(pixs)) == nullptr)
-        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
+        tprintf("pixd not made\n");
     } else {
       if ((pixd = pixCreateHeader(pixGetWidth(pixs), pixGetHeight(pixs),
                                   pixGetDepth(pixs))) == nullptr)
-        (Pix *)ERROR_PTR("pixd not made", procName, nullptr);
+        tprintf("pixd not made\n");
     }
   }
   l_uint32 *pValues = (l_uint32 *)clEnqueueMapBuffer(
@@ -714,35 +714,34 @@ void OpenclDevice::releaseMorphCLBuffers()
   pixdCLIntermediate = pixsCLBuffer = pixdCLBuffer = pixThBuffer = nullptr;
 }
 
-int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs)
-{
-    SetKernelEnv( &rEnv );
+int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix *pixs) {
+  SetKernelEnv(&rEnv);
 
-    if (pixThBuffer != nullptr) {
-      pixsCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
-                                            CL_MEM_ALLOC_HOST_PTR, &clStatus);
-
-      // Get the output from ThresholdToPix operation
-      clStatus =
-          clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixThBuffer, pixsCLBuffer, 0, 0,
-                              sizeof(l_uint32) * wpl * h, 0, nullptr, nullptr);
-    }
-    else
-    {
-        //Get data from the source image
-        l_uint32* srcdata = (l_uint32*) malloc(wpl*h*sizeof(l_uint32));
-        memcpy(srcdata, pixGetData(pixs), wpl*h*sizeof(l_uint32));
-
-        pixsCLBuffer = allocateZeroCopyBuffer(rEnv, srcdata, wpl*h, CL_MEM_USE_HOST_PTR, &clStatus);
-    }
-
-    pixdCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
+  if (pixThBuffer != nullptr) {
+    pixsCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
                                           CL_MEM_ALLOC_HOST_PTR, &clStatus);
 
-    pixdCLIntermediate = allocateZeroCopyBuffer(
-        rEnv, nullptr, wpl * h, CL_MEM_ALLOC_HOST_PTR, &clStatus);
+    // Get the output from ThresholdToPix operation
+    clStatus =
+        clEnqueueCopyBuffer(rEnv.mpkCmdQueue, pixThBuffer, pixsCLBuffer, 0, 0,
+                            sizeof(l_uint32) * wpl * h, 0, nullptr, nullptr);
+  } else {
+    // Get data from the source image
+    l_uint32 *srcdata =
+        reinterpret_cast<l_uint32 *>(malloc(wpl * h * sizeof(l_uint32)));
+    memcpy(srcdata, pixGetData(pixs), wpl * h * sizeof(l_uint32));
 
-    return (int)clStatus;
+    pixsCLBuffer = allocateZeroCopyBuffer(rEnv, srcdata, wpl * h,
+                                          CL_MEM_USE_HOST_PTR, &clStatus);
+  }
+
+  pixdCLBuffer = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
+                                        CL_MEM_ALLOC_HOST_PTR, &clStatus);
+
+  pixdCLIntermediate = allocateZeroCopyBuffer(rEnv, nullptr, wpl * h,
+                                              CL_MEM_ALLOC_HOST_PTR, &clStatus);
+
+  return (int)clStatus;
 }
 
 int OpenclDevice::InitEnv()
@@ -1255,254 +1254,222 @@ PERF_COUNT_END
 }
 
 //Morphology Dilate operation for 5x5 structuring element. Invokes the relevant OpenCL kernels
-static cl_int pixDilateCL_55(l_int32 wpl, l_int32 h)
-{
-    size_t globalThreads[2];
-    cl_mem pixtemp;
-    cl_int status;
-    int gsize;
-    size_t localThreads[2];
+static cl_int pixDilateCL_55(l_int32 wpl, l_int32 h) {
+  size_t globalThreads[2];
+  cl_mem pixtemp;
+  cl_int status;
+  int gsize;
+  size_t localThreads[2];
 
-    //Horizontal pass
-    gsize = (wpl*h + GROUPSIZE_HMORX - 1)/ GROUPSIZE_HMORX * GROUPSIZE_HMORX;
-    globalThreads[0] = gsize;
-    globalThreads[1] = GROUPSIZE_HMORY;
-    localThreads[0] = GROUPSIZE_HMORX;
-    localThreads[1] = GROUPSIZE_HMORY;
+  // Horizontal pass
+  gsize = (wpl * h + GROUPSIZE_HMORX - 1) / GROUPSIZE_HMORX * GROUPSIZE_HMORX;
+  globalThreads[0] = gsize;
+  globalThreads[1] = GROUPSIZE_HMORY;
+  localThreads[0] = GROUPSIZE_HMORX;
+  localThreads[1] = GROUPSIZE_HMORY;
 
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateHor_5x5", &status );
-    CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_5x5");
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "morphoDilateHor_5x5", &status);
+  CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_5x5");
 
-    status = clSetKernelArg(rEnv.mpkKernel,
-        0,
-        sizeof(cl_mem),
-        &pixsCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        1,
-        sizeof(cl_mem),
-        &pixdCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
-    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
+  status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
+  status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
 
-    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+  status =
+      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
+                             globalThreads, localThreads, 0, nullptr, nullptr);
 
-    //Swap source and dest buffers
-    pixtemp = pixsCLBuffer;
-    pixsCLBuffer = pixdCLBuffer;
-    pixdCLBuffer = pixtemp;
+  // Swap source and dest buffers
+  pixtemp = pixsCLBuffer;
+  pixsCLBuffer = pixdCLBuffer;
+  pixdCLBuffer = pixtemp;
 
-    //Vertical
-    gsize = (wpl + GROUPSIZE_X - 1)/ GROUPSIZE_X * GROUPSIZE_X;
-    globalThreads[0] = gsize;
-    gsize = (h + GROUPSIZE_Y - 1)/ GROUPSIZE_Y * GROUPSIZE_Y;
-    globalThreads[1] = gsize;
-    localThreads[0] = GROUPSIZE_X;
-    localThreads[1] = GROUPSIZE_Y;
+  // Vertical
+  gsize = (wpl + GROUPSIZE_X - 1) / GROUPSIZE_X * GROUPSIZE_X;
+  globalThreads[0] = gsize;
+  gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
+  globalThreads[1] = gsize;
+  localThreads[0] = GROUPSIZE_X;
+  localThreads[1] = GROUPSIZE_Y;
 
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer_5x5", &status );
-    CHECK_OPENCL(status, "clCreateKernel morphoDilateVer_5x5");
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "morphoDilateVer_5x5", &status);
+  CHECK_OPENCL(status, "clCreateKernel morphoDilateVer_5x5");
 
-    status = clSetKernelArg(rEnv.mpkKernel,
-        0,
-        sizeof(cl_mem),
-        &pixsCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        1,
-        sizeof(cl_mem),
-        &pixdCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
-    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
-    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+  status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
+  status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
+  status =
+      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
+                             globalThreads, localThreads, 0, nullptr, nullptr);
 
-    return status;
+  return status;
 }
 
 //Morphology Erode operation for 5x5 structuring element. Invokes the relevant OpenCL kernels
-static cl_int pixErodeCL_55(l_int32 wpl, l_int32 h)
-{
-    size_t globalThreads[2];
-    cl_mem pixtemp;
-    cl_int status;
-    int gsize;
-    l_uint32 fwmask, lwmask;
-    size_t localThreads[2];
+static cl_int pixErodeCL_55(l_int32 wpl, l_int32 h) {
+  size_t globalThreads[2];
+  cl_mem pixtemp;
+  cl_int status;
+  int gsize;
+  l_uint32 fwmask, lwmask;
+  size_t localThreads[2];
 
-    lwmask = lmask32[31 - 2];
-    fwmask = rmask32[31 - 2];
+  lwmask = lmask32[31 - 2];
+  fwmask = rmask32[31 - 2];
 
-    //Horizontal pass
-    gsize = (wpl*h + GROUPSIZE_HMORX - 1)/ GROUPSIZE_HMORX * GROUPSIZE_HMORX;
-    globalThreads[0] = gsize;
-    globalThreads[1] = GROUPSIZE_HMORY;
-    localThreads[0] = GROUPSIZE_HMORX;
-    localThreads[1] = GROUPSIZE_HMORY;
+  // Horizontal pass
+  gsize = (wpl * h + GROUPSIZE_HMORX - 1) / GROUPSIZE_HMORX * GROUPSIZE_HMORX;
+  globalThreads[0] = gsize;
+  globalThreads[1] = GROUPSIZE_HMORY;
+  localThreads[0] = GROUPSIZE_HMORX;
+  localThreads[1] = GROUPSIZE_HMORY;
 
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeHor_5x5", &status );
-    CHECK_OPENCL(status, "clCreateKernel morphoErodeHor_5x5");
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "morphoErodeHor_5x5", &status);
+  CHECK_OPENCL(status, "clCreateKernel morphoErodeHor_5x5");
 
-    status = clSetKernelArg(rEnv.mpkKernel,
-        0,
-        sizeof(cl_mem),
-        &pixsCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        1,
-        sizeof(cl_mem),
-        &pixdCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
-    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
+  status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
+  status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
 
-    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+  status =
+      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
+                             globalThreads, localThreads, 0, nullptr, nullptr);
 
-    //Swap source and dest buffers
-    pixtemp = pixsCLBuffer;
-    pixsCLBuffer = pixdCLBuffer;
-    pixdCLBuffer = pixtemp;
+  // Swap source and dest buffers
+  pixtemp = pixsCLBuffer;
+  pixsCLBuffer = pixdCLBuffer;
+  pixdCLBuffer = pixtemp;
 
-    //Vertical
-    gsize = (wpl + GROUPSIZE_X - 1)/ GROUPSIZE_X * GROUPSIZE_X;
-    globalThreads[0] = gsize;
-    gsize = (h + GROUPSIZE_Y - 1)/ GROUPSIZE_Y * GROUPSIZE_Y;
-    globalThreads[1] = gsize;
-    localThreads[0] = GROUPSIZE_X;
-    localThreads[1] = GROUPSIZE_Y;
+  // Vertical
+  gsize = (wpl + GROUPSIZE_X - 1) / GROUPSIZE_X * GROUPSIZE_X;
+  globalThreads[0] = gsize;
+  gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
+  globalThreads[1] = gsize;
+  localThreads[0] = GROUPSIZE_X;
+  localThreads[1] = GROUPSIZE_Y;
 
-    rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoErodeVer_5x5", &status );
-    CHECK_OPENCL(status, "clCreateKernel morphoErodeVer_5x5");
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "morphoErodeVer_5x5", &status);
+  CHECK_OPENCL(status, "clCreateKernel morphoErodeVer_5x5");
 
-    status = clSetKernelArg(rEnv.mpkKernel,
-        0,
-        sizeof(cl_mem),
-        &pixsCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel,
-        1,
-        sizeof(cl_mem),
-        &pixdCLBuffer);
-    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
-    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
-    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(fwmask), &fwmask);
-    status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(lwmask), &lwmask);
-    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                    nullptr, globalThreads, localThreads, 0,
-                                    nullptr, nullptr);
+  status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+  status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
+  status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
+  status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(fwmask), &fwmask);
+  status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(lwmask), &lwmask);
+  status =
+      clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
+                             globalThreads, localThreads, 0, nullptr, nullptr);
 
-    return status;
+  return status;
 }
 
 //Morphology Dilate operation. Invokes the relevant OpenCL kernels
-static cl_int
-pixDilateCL(l_int32  hsize, l_int32  vsize, l_int32  wpl, l_int32  h)
-{
-    l_int32  xp, yp, xn, yn;
-    SEL* sel;
-    size_t globalThreads[2];
-    cl_mem pixtemp;
-    cl_int status;
-    int gsize;
-    size_t localThreads[2];
-    char isEven;
+static cl_int pixDilateCL(l_int32 hsize, l_int32 vsize, l_int32 wpl,
+                          l_int32 h) {
+  l_int32 xp, yp, xn, yn;
+  SEL *sel;
+  size_t globalThreads[2];
+  cl_mem pixtemp;
+  cl_int status;
+  int gsize;
+  size_t localThreads[2];
+  char isEven;
 
-    OpenclDevice::SetKernelEnv( &rEnv );
+  OpenclDevice::SetKernelEnv(&rEnv);
 
-    if (hsize == 5 && vsize == 5)
-    {
-        //Specific case for 5x5
-        status = pixDilateCL_55(wpl, h);
-        return status;
-    }
-
-    sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
-
-    selFindMaxTranslations(sel, &xp, &yp, &xn, &yn);
-    selDestroy(&sel);
-    //global and local work dimensions for Horizontal pass
-    gsize = (wpl + GROUPSIZE_X - 1)/ GROUPSIZE_X * GROUPSIZE_X;
-    globalThreads[0] = gsize;
-    gsize = (h + GROUPSIZE_Y - 1)/ GROUPSIZE_Y * GROUPSIZE_Y;
-    globalThreads[1] = gsize;
-    localThreads[0] = GROUPSIZE_X;
-    localThreads[1] = GROUPSIZE_Y;
-
-    if (xp > 31 || xn > 31)
-    {
-      // Generic case.
-      rEnv.mpkKernel =
-          clCreateKernel(rEnv.mpkProgram, "morphoDilateHor", &status);
-      CHECK_OPENCL(status, "clCreateKernel morphoDilateHor");
-
-      status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
-      status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
-      status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(xp), &xp);
-      status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(xn), &xn);
-      status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(wpl), &wpl);
-      status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(h), &h);
-      status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                      nullptr, globalThreads, localThreads, 0,
-                                      nullptr, nullptr);
-
-      if (yp > 0 || yn > 0) {
-        pixtemp = pixsCLBuffer;
-        pixsCLBuffer = pixdCLBuffer;
-        pixdCLBuffer = pixtemp;
-        }
-    }
-    else if (xp > 0 || xn > 0 )
-    {
-      // Specific Horizontal pass kernel for half width < 32
-      rEnv.mpkKernel =
-          clCreateKernel(rEnv.mpkProgram, "morphoDilateHor_32word", &status);
-      CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_32word");
-      isEven = (xp != xn);
-
-      status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
-      status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
-      status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(xp), &xp);
-      status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(wpl), &wpl);
-      status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
-      status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(isEven), &isEven);
-      status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                      nullptr, globalThreads, localThreads, 0,
-                                      nullptr, nullptr);
-
-      if (yp > 0 || yn > 0) {
-        pixtemp = pixsCLBuffer;
-        pixsCLBuffer = pixdCLBuffer;
-        pixdCLBuffer = pixtemp;
-      }
-    }
-
-    if (yp > 0 || yn > 0)
-    {
-        rEnv.mpkKernel = clCreateKernel( rEnv.mpkProgram, "morphoDilateVer", &status );
-        CHECK_OPENCL(status, "clCreateKernel morphoDilateVer");
-
-        status = clSetKernelArg(rEnv.mpkKernel,
-            0,
-            sizeof(cl_mem),
-            &pixsCLBuffer);
-        status = clSetKernelArg(rEnv.mpkKernel,
-            1,
-            sizeof(cl_mem),
-            &pixdCLBuffer);
-        status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(yp), &yp);
-        status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(wpl), &wpl);
-        status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
-        status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(yn), &yn);
-        status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
-                                        nullptr, globalThreads, localThreads, 0,
-                                        nullptr, nullptr);
-    }
-
+  if (hsize == 5 && vsize == 5) {
+    // Specific case for 5x5
+    status = pixDilateCL_55(wpl, h);
     return status;
+  }
+
+  sel = selCreateBrick(vsize, hsize, vsize / 2, hsize / 2, SEL_HIT);
+
+  selFindMaxTranslations(sel, &xp, &yp, &xn, &yn);
+  selDestroy(&sel);
+  // global and local work dimensions for Horizontal pass
+  gsize = (wpl + GROUPSIZE_X - 1) / GROUPSIZE_X * GROUPSIZE_X;
+  globalThreads[0] = gsize;
+  gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
+  globalThreads[1] = gsize;
+  localThreads[0] = GROUPSIZE_X;
+  localThreads[1] = GROUPSIZE_Y;
+
+  if (xp > 31 || xn > 31) {
+    // Generic case.
+    rEnv.mpkKernel =
+        clCreateKernel(rEnv.mpkProgram, "morphoDilateHor", &status);
+    CHECK_OPENCL(status, "clCreateKernel morphoDilateHor");
+
+    status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(xp), &xp);
+    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(xn), &xn);
+    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(wpl), &wpl);
+    status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(h), &h);
+    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
+                                    nullptr, globalThreads, localThreads, 0,
+                                    nullptr, nullptr);
+
+    if (yp > 0 || yn > 0) {
+      pixtemp = pixsCLBuffer;
+      pixsCLBuffer = pixdCLBuffer;
+      pixdCLBuffer = pixtemp;
+    }
+  } else if (xp > 0 || xn > 0) {
+    // Specific Horizontal pass kernel for half width < 32
+    rEnv.mpkKernel =
+        clCreateKernel(rEnv.mpkProgram, "morphoDilateHor_32word", &status);
+    CHECK_OPENCL(status, "clCreateKernel morphoDilateHor_32word");
+    isEven = (xp != xn);
+
+    status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(xp), &xp);
+    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(wpl), &wpl);
+    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
+    status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(isEven), &isEven);
+    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
+                                    nullptr, globalThreads, localThreads, 0,
+                                    nullptr, nullptr);
+
+    if (yp > 0 || yn > 0) {
+      pixtemp = pixsCLBuffer;
+      pixsCLBuffer = pixdCLBuffer;
+      pixdCLBuffer = pixtemp;
+    }
+  }
+
+  if (yp > 0 || yn > 0) {
+    rEnv.mpkKernel =
+        clCreateKernel(rEnv.mpkProgram, "morphoDilateVer", &status);
+    CHECK_OPENCL(status, "clCreateKernel morphoDilateVer");
+
+    status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &pixsCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &pixdCLBuffer);
+    status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(yp), &yp);
+    status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(wpl), &wpl);
+    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(h), &h);
+    status = clSetKernelArg(rEnv.mpkKernel, 5, sizeof(yn), &yn);
+    status = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2,
+                                    nullptr, globalThreads, localThreads, 0,
+                                    nullptr, nullptr);
+  }
+
+  return status;
 }
 
 //Morphology Erode operation. Invokes the relevant OpenCL kernels
-static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h) {
+static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl,
+                         l_uint32 h) {
   l_int32 xp, yp, xn, yn;
   SEL *sel;
   size_t globalThreads[2];
@@ -1609,45 +1576,42 @@ static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl, l_uint32 h)
 }
 
 //Morphology Open operation. Invokes the relevant OpenCL kernels
-static cl_int pixOpenCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
-{
-    cl_int status;
-    cl_mem pixtemp;
+static cl_int pixOpenCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h) {
+  cl_int status;
+  cl_mem pixtemp;
 
-    //Erode followed by Dilate
-    status = pixErodeCL(hsize, vsize, wpl, h);
+  // Erode followed by Dilate
+  status = pixErodeCL(hsize, vsize, wpl, h);
 
-    pixtemp = pixsCLBuffer;
-    pixsCLBuffer = pixdCLBuffer;
-    pixdCLBuffer = pixtemp;
+  pixtemp = pixsCLBuffer;
+  pixsCLBuffer = pixdCLBuffer;
+  pixdCLBuffer = pixtemp;
 
-    status = pixDilateCL(hsize, vsize, wpl, h);
+  status = pixDilateCL(hsize, vsize, wpl, h);
 
-    return status;
+  return status;
 }
 
 //Morphology Close operation. Invokes the relevant OpenCL kernels
-static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h)
-{
-    cl_int status;
-    cl_mem pixtemp;
+static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h) {
+  cl_int status;
+  cl_mem pixtemp;
 
-    //Dilate followed by Erode
-    status = pixDilateCL(hsize, vsize, wpl, h);
+  // Dilate followed by Erode
+  status = pixDilateCL(hsize, vsize, wpl, h);
 
-    pixtemp = pixsCLBuffer;
-    pixsCLBuffer = pixdCLBuffer;
-    pixdCLBuffer = pixtemp;
+  pixtemp = pixsCLBuffer;
+  pixsCLBuffer = pixdCLBuffer;
+  pixdCLBuffer = pixtemp;
 
-    status = pixErodeCL(hsize, vsize, wpl, h);
+  status = pixErodeCL(hsize, vsize, wpl, h);
 
-    return status;
+  return status;
 }
 
 //output = buffer1 & ~(buffer2)
-static
-cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
-                          cl_mem buffer2, cl_mem outBuffer = nullptr) {
+static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
+                                 cl_mem buffer2, cl_mem outBuffer = nullptr) {
   cl_int status;
   size_t globalThreads[2];
   int gsize;
@@ -2055,83 +2019,91 @@ typedef struct _TessScoreEvaluationInputData {
     Pix *pix;
 } TessScoreEvaluationInputData;
 
-static void populateTessScoreEvaluationInputData(TessScoreEvaluationInputData *input) {
-    srand(1);
-    // 8.5x11 inches @ 300dpi rounded to clean multiples
-    int height = 3328; // %256
-    int width = 2560; // %512
-    int numChannels = 4;
-    input->height = height;
-    input->width = width;
-    input->numChannels = numChannels;
-    unsigned char (*imageData4)[4] = (unsigned char (*)[4]) malloc(height*width*numChannels*sizeof(unsigned char)); // new unsigned char[4][height*width];
-    input->imageData = (unsigned char *) &imageData4[0];
+static void populateTessScoreEvaluationInputData(
+    TessScoreEvaluationInputData *input) {
+  srand(1);
+  // 8.5x11 inches @ 300dpi rounded to clean multiples
+  int height = 3328;  // %256
+  int width = 2560;   // %512
+  int numChannels = 4;
+  input->height = height;
+  input->width = width;
+  input->numChannels = numChannels;
+  unsigned char(*imageData4)[4] = (unsigned char(*)[4])malloc(
+      height * width * numChannels *
+      sizeof(unsigned char));  // new unsigned char[4][height*width];
+  input->imageData = (unsigned char *)&imageData4[0];
 
-    // zero out image
-    unsigned char pixelWhite[4] = {  0,   0,   0, 255};
-    unsigned char pixelBlack[4] = {255, 255, 255, 255};
-    for (int p = 0; p < height*width; p++) {
-        //unsigned char tmp[4] = imageData4[0];
-        imageData4[p][0] = pixelWhite[0];
-        imageData4[p][1] = pixelWhite[1];
-        imageData4[p][2] = pixelWhite[2];
-        imageData4[p][3] = pixelWhite[3];
+  // zero out image
+  unsigned char pixelWhite[4] = {0, 0, 0, 255};
+  unsigned char pixelBlack[4] = {255, 255, 255, 255};
+  for (int p = 0; p < height * width; p++) {
+    // unsigned char tmp[4] = imageData4[0];
+    imageData4[p][0] = pixelWhite[0];
+    imageData4[p][1] = pixelWhite[1];
+    imageData4[p][2] = pixelWhite[2];
+    imageData4[p][3] = pixelWhite[3];
+  }
+  // random lines to be eliminated
+  int maxLineWidth = 64;  // pixels wide
+  int numLines = 10;
+  // vertical lines
+  for (int i = 0; i < numLines; i++) {
+    int lineWidth = rand() % maxLineWidth;
+    int vertLinePos = lineWidth + rand() % (width - 2 * lineWidth);
+    // printf("[PI] VerticalLine @ %i (w=%i)\n", vertLinePos, lineWidth);
+    for (int row = vertLinePos - lineWidth / 2;
+         row < vertLinePos + lineWidth / 2; row++) {
+      for (int col = 0; col < height; col++) {
+        // imageData4[row*width+col] = pixelBlack;
+        imageData4[row * width + col][0] = pixelBlack[0];
+        imageData4[row * width + col][1] = pixelBlack[1];
+        imageData4[row * width + col][2] = pixelBlack[2];
+        imageData4[row * width + col][3] = pixelBlack[3];
+      }
     }
-    // random lines to be eliminated
-    int maxLineWidth = 64; // pixels wide
-    int numLines = 10;
-    // vertical lines
-    for (int i = 0; i < numLines; i++) {
-        int lineWidth = rand()%maxLineWidth;
-        int vertLinePos = lineWidth + rand()%(width-2*lineWidth);
-        //printf("[PI] VerticalLine @ %i (w=%i)\n", vertLinePos, lineWidth);
-        for (int row = vertLinePos-lineWidth/2; row < vertLinePos+lineWidth/2; row++) {
-            for (int col = 0; col < height; col++) {
-                //imageData4[row*width+col] = pixelBlack;
-                imageData4[row*width+col][0] = pixelBlack[0];
-                imageData4[row*width+col][1] = pixelBlack[1];
-                imageData4[row*width+col][2] = pixelBlack[2];
-                imageData4[row*width+col][3] = pixelBlack[3];
-            }
-        }
+  }
+  // horizontal lines
+  for (int i = 0; i < numLines; i++) {
+    int lineWidth = rand() % maxLineWidth;
+    int horLinePos = lineWidth + rand() % (height - 2 * lineWidth);
+    // printf("[PI] HorizontalLine @ %i (w=%i)\n", horLinePos, lineWidth);
+    for (int row = 0; row < width; row++) {
+      for (int col = horLinePos - lineWidth / 2;
+           col < horLinePos + lineWidth / 2;
+           col++) {  // for (int row = vertLinePos-lineWidth/2; row <
+                     // vertLinePos+lineWidth/2; row++) {
+        // printf("[PI] HoizLine pix @ (%3i, %3i)\n", row, col);
+        // imageData4[row*width+col] = pixelBlack;
+        imageData4[row * width + col][0] = pixelBlack[0];
+        imageData4[row * width + col][1] = pixelBlack[1];
+        imageData4[row * width + col][2] = pixelBlack[2];
+        imageData4[row * width + col][3] = pixelBlack[3];
+      }
     }
-    // horizontal lines
-    for (int i = 0; i < numLines; i++) {
-        int lineWidth = rand()%maxLineWidth;
-        int horLinePos = lineWidth + rand()%(height-2*lineWidth);
-        //printf("[PI] HorizontalLine @ %i (w=%i)\n", horLinePos, lineWidth);
-        for (int row = 0; row < width; row++) {
-            for (int col = horLinePos-lineWidth/2; col < horLinePos+lineWidth/2; col++) { // for (int row = vertLinePos-lineWidth/2; row < vertLinePos+lineWidth/2; row++) {
-                //printf("[PI] HoizLine pix @ (%3i, %3i)\n", row, col);
-                //imageData4[row*width+col] = pixelBlack;
-                imageData4[row*width+col][0] = pixelBlack[0];
-                imageData4[row*width+col][1] = pixelBlack[1];
-                imageData4[row*width+col][2] = pixelBlack[2];
-                imageData4[row*width+col][3] = pixelBlack[3];
-            }
-        }
+  }
+  // spots (noise, squares)
+  float fractionBlack = 0.1;  // how much of the image should be blackened
+  int numSpots =
+      (height * width) * fractionBlack / (maxLineWidth * maxLineWidth / 2 / 2);
+  for (int i = 0; i < numSpots; i++) {
+    int lineWidth = rand() % maxLineWidth;
+    int col = lineWidth + rand() % (width - 2 * lineWidth);
+    int row = lineWidth + rand() % (height - 2 * lineWidth);
+    // printf("[PI] Spot[%i/%i] @ (%3i, %3i)\n", i, numSpots, row, col );
+    for (int r = row - lineWidth / 2; r < row + lineWidth / 2; r++) {
+      for (int c = col - lineWidth / 2; c < col + lineWidth / 2; c++) {
+        // printf("[PI] \tSpot[%i/%i] @ (%3i, %3i)\n", i, numSpots, r, c );
+        // imageData4[row*width+col] = pixelBlack;
+        imageData4[r * width + c][0] = pixelBlack[0];
+        imageData4[r * width + c][1] = pixelBlack[1];
+        imageData4[r * width + c][2] = pixelBlack[2];
+        imageData4[r * width + c][3] = pixelBlack[3];
+      }
     }
-    // spots (noise, squares)
-    float fractionBlack = 0.1; // how much of the image should be blackened
-    int numSpots = (height*width)*fractionBlack/(maxLineWidth*maxLineWidth/2/2);
-    for (int i = 0; i < numSpots; i++) {
-        int lineWidth = rand()%maxLineWidth;
-        int col = lineWidth + rand()%(width-2*lineWidth);
-        int row = lineWidth + rand()%(height-2*lineWidth);
-        //printf("[PI] Spot[%i/%i] @ (%3i, %3i)\n", i, numSpots, row, col );
-        for (int r = row-lineWidth/2; r < row+lineWidth/2; r++) {
-            for (int c = col-lineWidth/2; c < col+lineWidth/2; c++) {
-                //printf("[PI] \tSpot[%i/%i] @ (%3i, %3i)\n", i, numSpots, r, c );
-                //imageData4[row*width+col] = pixelBlack;
-                imageData4[r*width+c][0] = pixelBlack[0];
-                imageData4[r*width+c][1] = pixelBlack[1];
-                imageData4[r*width+c][2] = pixelBlack[2];
-                imageData4[r*width+c][3] = pixelBlack[3];
-            }
-        }
-    }
+  }
 
-    input->pix = pixCreate(input->width, input->height, 1);
+  input->pix = pixCreate(input->width, input->height, 1);
 }
 
 typedef struct _TessDeviceScore {
@@ -2144,8 +2116,10 @@ typedef struct _TessDeviceScore {
  * Micro Benchmarks for Device Selection
  *****************************************************************************/
 
-static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
-    double time = 0;
+static double composeRGBPixelMicroBench(GPUEnv *env,
+                                        TessScoreEvaluationInputData input,
+                                        ds_device_type type) {
+  double time = 0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
@@ -2226,8 +2200,10 @@ static double composeRGBPixelMicroBench(GPUEnv *env, TessScoreEvaluationInputDat
     return time;
 }
 
-static double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type ) {
-    double time;
+static double histogramRectMicroBench(GPUEnv *env,
+                                      TessScoreEvaluationInputData input,
+                                      ds_device_type type) {
+  double time;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
@@ -2305,16 +2281,14 @@ static double histogramRectMicroBench( GPUEnv *env, TessScoreEvaluationInputData
 }
 
 //Reproducing the ThresholdRectToPix native version
-static void ThresholdRectToPix_Native(const unsigned char* imagedata,
-                                          int bytes_per_pixel,
-                                          int bytes_per_line,
-                                          const int* thresholds,
-                                          const int* hi_values,
-                                          Pix** pix) {
-    int top = 0;
-    int left = 0;
-    int width = pixGetWidth(*pix);
-    int height = pixGetHeight(*pix);
+static void ThresholdRectToPix_Native(const unsigned char *imagedata,
+                                      int bytes_per_pixel, int bytes_per_line,
+                                      const int *thresholds,
+                                      const int *hi_values, Pix **pix) {
+  int top = 0;
+  int left = 0;
+  int width = pixGetWidth(*pix);
+  int height = pixGetHeight(*pix);
 
   *pix = pixCreate(width, height, 1);
   uint32_t *pixdata = pixGetData(*pix);
@@ -2342,8 +2316,10 @@ static void ThresholdRectToPix_Native(const unsigned char* imagedata,
   }
 }
 
-static double thresholdRectToPixMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
-    double time;
+static double thresholdRectToPixMicroBench(GPUEnv *env,
+                                           TessScoreEvaluationInputData input,
+                                           ds_device_type type) {
+  double time;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
@@ -2436,9 +2412,10 @@ static double thresholdRectToPixMicroBench(GPUEnv *env, TessScoreEvaluationInput
     return time;
 }
 
-static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputData input, ds_device_type type) {
-
-    double time = 0;
+static double getLineMasksMorphMicroBench(GPUEnv *env,
+                                          TessScoreEvaluationInputData input,
+                                          ds_device_type type) {
+  double time = 0;
 #if ON_WINDOWS
     LARGE_INTEGER freq, time_funct_start, time_funct_end;
     QueryPerformanceFrequency(&freq);
@@ -2533,19 +2510,22 @@ static double getLineMasksMorphMicroBench(GPUEnv *env, TessScoreEvaluationInputD
 #include "stdlib.h"
 
 // encode score object as byte string
-static ds_status serializeScore( ds_device* device, void **serializedScore, unsigned int* serializedScoreSize ) {
-    *serializedScoreSize = sizeof(TessDeviceScore);
-    *serializedScore = new unsigned char[*serializedScoreSize];
-    memcpy(*serializedScore, device->score, *serializedScoreSize);
-    return DS_SUCCESS;
+static ds_status serializeScore(ds_device *device, void **serializedScore,
+                                unsigned int *serializedScoreSize) {
+  *serializedScoreSize = sizeof(TessDeviceScore);
+  *serializedScore = new unsigned char[*serializedScoreSize];
+  memcpy(*serializedScore, device->score, *serializedScoreSize);
+  return DS_SUCCESS;
 }
 
 // parses byte string and stores in score object
-static ds_status deserializeScore( ds_device* device, const unsigned char* serializedScore, unsigned int serializedScoreSize ) {
-    // check that serializedScoreSize == sizeof(TessDeviceScore);
-    device->score = new TessDeviceScore;
-    memcpy(device->score, serializedScore, serializedScoreSize);
-    return DS_SUCCESS;
+static ds_status deserializeScore(ds_device *device,
+                                  const unsigned char *serializedScore,
+                                  unsigned int serializedScoreSize) {
+  // check that serializedScoreSize == sizeof(TessDeviceScore);
+  device->score = new TessDeviceScore;
+  memcpy(device->score, serializedScore, serializedScoreSize);
+  return DS_SUCCESS;
 }
 
 static ds_status releaseScore(void *score) {
@@ -2554,58 +2534,68 @@ static ds_status releaseScore(void *score) {
 }
 
 // evaluate devices
-static ds_status evaluateScoreForDevice( ds_device *device, void *inputData) {
-    // overwrite statuc gpuEnv w/ current device
-    // so native opencl calls can be used; they use static gpuEnv
-    printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
-    GPUEnv *env = nullptr;
-    if (device->type == DS_DEVICE_OPENCL_DEVICE) {
-        env = new GPUEnv;
-        //printf("[DS] populating tmp GPUEnv from device\n");
-        populateGPUEnvFromDevice( env, device->oclDeviceID);
-        env->mnFileCount = 0; //argc;
-        env->mnKernelCount = 0UL;
-        //printf("[DS] compiling kernels for tmp GPUEnv\n");
-        OpenclDevice::gpuEnv = *env;
-        OpenclDevice::CompileKernelFile(env, "");
-    }
+static ds_status evaluateScoreForDevice(ds_device *device, void *inputData) {
+  // overwrite statuc gpuEnv w/ current device
+  // so native opencl calls can be used; they use static gpuEnv
+  printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName,
+         device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
+  GPUEnv *env = nullptr;
+  if (device->type == DS_DEVICE_OPENCL_DEVICE) {
+    env = new GPUEnv;
+    // printf("[DS] populating tmp GPUEnv from device\n");
+    populateGPUEnvFromDevice(env, device->oclDeviceID);
+    env->mnFileCount = 0;  // argc;
+    env->mnKernelCount = 0UL;
+    // printf("[DS] compiling kernels for tmp GPUEnv\n");
+    OpenclDevice::gpuEnv = *env;
+    OpenclDevice::CompileKernelFile(env, "");
+  }
 
-    TessScoreEvaluationInputData *input = (TessScoreEvaluationInputData *)inputData;
+  TessScoreEvaluationInputData *input =
+      static_cast<TessScoreEvaluationInputData *>(inputData);
 
-    // pixReadTiff
-    double composeRGBPixelTime = composeRGBPixelMicroBench( env, *input, device->type );
+  // pixReadTiff
+  double composeRGBPixelTime =
+      composeRGBPixelMicroBench(env, *input, device->type);
 
-    // HistogramRect
-    double histogramRectTime = histogramRectMicroBench( env, *input, device->type );
+  // HistogramRect
+  double histogramRectTime = histogramRectMicroBench(env, *input, device->type);
 
-    // ThresholdRectToPix
-    double thresholdRectToPixTime = thresholdRectToPixMicroBench( env, *input, device->type );
+  // ThresholdRectToPix
+  double thresholdRectToPixTime =
+      thresholdRectToPixMicroBench(env, *input, device->type);
 
-    // getLineMasks
-    double getLineMasksMorphTime = getLineMasksMorphMicroBench( env, *input, device->type );
+  // getLineMasks
+  double getLineMasksMorphTime =
+      getLineMasksMorphMicroBench(env, *input, device->type);
 
+  // weigh times (% of cpu time)
+  // these weights should be the % execution time that the native cpu code took
+  float composeRGBPixelWeight = 1.2f;
+  float histogramRectWeight = 2.4f;
+  float thresholdRectToPixWeight = 4.5f;
+  float getLineMasksMorphWeight = 5.0f;
 
-    // weigh times (% of cpu time)
-    // these weights should be the % execution time that the native cpu code took
-    float composeRGBPixelWeight     = 1.2f;
-    float histogramRectWeight       = 2.4f;
-    float thresholdRectToPixWeight  = 4.5f;
-    float getLineMasksMorphWeight = 5.0f;
+  float weightedTime = composeRGBPixelWeight * composeRGBPixelTime +
+                       histogramRectWeight * histogramRectTime +
+                       thresholdRectToPixWeight * thresholdRectToPixTime +
+                       getLineMasksMorphWeight * getLineMasksMorphTime;
+  device->score = new TessDeviceScore;
+  ((TessDeviceScore *)device->score)->time = weightedTime;
 
-    float weightedTime = composeRGBPixelWeight * composeRGBPixelTime +
-                         histogramRectWeight * histogramRectTime +
-                         thresholdRectToPixWeight * thresholdRectToPixTime +
-                         getLineMasksMorphWeight * getLineMasksMorphTime;
-    device->score = new TessDeviceScore;
-    ((TessDeviceScore *)device->score)->time = weightedTime;
-
-    printf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName, device->type==DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native" );
-    printf("[DS]%25s: %f (w=%.1f)\n", "composeRGBPixel", composeRGBPixelTime, composeRGBPixelWeight );
-    printf("[DS]%25s: %f (w=%.1f)\n", "HistogramRect", histogramRectTime, histogramRectWeight );
-    printf("[DS]%25s: %f (w=%.1f)\n", "ThresholdRectToPix", thresholdRectToPixTime, thresholdRectToPixWeight );
-    printf("[DS]%25s: %f (w=%.1f)\n", "getLineMasksMorph", getLineMasksMorphTime, getLineMasksMorphWeight );
-    printf("[DS]%25s: %f\n", "Score", ((TessDeviceScore *)device->score)->time );
-    return DS_SUCCESS;
+  printf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName,
+         device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
+  printf("[DS]%25s: %f (w=%.1f)\n", "composeRGBPixel", composeRGBPixelTime,
+         composeRGBPixelWeight);
+  printf("[DS]%25s: %f (w=%.1f)\n", "HistogramRect", histogramRectTime,
+         histogramRectWeight);
+  printf("[DS]%25s: %f (w=%.1f)\n", "ThresholdRectToPix",
+         thresholdRectToPixTime, thresholdRectToPixWeight);
+  printf("[DS]%25s: %f (w=%.1f)\n", "getLineMasksMorph", getLineMasksMorphTime,
+         getLineMasksMorphWeight);
+  printf("[DS]%25s: %f\n", "Score",
+         static_cast<TessDeviceScore *>(device->score)->time);
+  return DS_SUCCESS;
 }
 
 // initial call to select device

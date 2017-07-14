@@ -40,40 +40,40 @@
 
   To implement a STACK use:
 
-  push       to add to the Stack                  l = push (l, (LIST) "jim");
-  pop          to remove items from the Stack     l = pop (l);
-  first_node        to access the head                 name = (char *) first_node (l);
+  push         to add to the Stack             l = push(l, (LIST)"jim");
+  pop          to remove items from the Stack  l = pop(l);
+  first_node   to access the head              name = (char *)first_node(l);
 
   To implement a QUEUE use:
 
-  push_last    to add to the Queue                 l = push_last (l, (LIST) "jim");
-  pop                  remove items from the Queue l = pop (l);
-  first_node                to access the head          name = (char *) first_node (l);
+  push_last    to add to the Queue              l = push_last(l, (LIST)"x");
+  pop          remove items from the Queue      l = pop(l);
+  first_node   to access the head               name = (char *)first_node (l);
 
   To implement LISP like functions use:
 
-  first_node           CAR                              x = (int) first_node (l);
-  rest            CDR                              l = list_rest (l);
-  push            CONS                             l = push (l, (LIST) this);
-  last            LAST                             x = last (l);
-  concat          APPEND                           l = concat (r, s);
-  count           LENGTH                           x = count (l);
-  search          MEMBER                           if (search (l, x, NULL))
+  first_node   CAR                              x = (int)first_node(l);
+  rest         CDR                              l = list_rest (l);
+  push         CONS                             l = push(l, (LIST)this);
+  last         LAST                             x = last(l);
+  concat       APPEND                           l = concat(r, s);
+  count        LENGTH                           x = count(l);
+  search       MEMBER                           if (search(l, x, NULL))
 
   To implement SETS use:
 
-  adjoin                                           l  = adjoin (l, x);
-  set_union                                        l = set_union (r, s);
-  intersection                                     l = intersection (r, s);
-  set_difference                                   l = set_difference (r, s);
-  delete                                           l = delete (s, x, NULL);
-  search                                           if (search (l, x, NULL))
+  adjoin                                        l  = adjoin(l, x);
+  set_union                                     l = set_union(r, s);
+  intersection                                  l = intersection(r, s);
+  set_difference                                l = set_difference(r, s);
+  delete                                        l = delete(s, x, NULL);
+  search                                        if (search(l, x, NULL))
 
   To Implement Associated LISTS use:
 
-  lpush                                            l = lpush (l, p);
-  assoc                                            s = assoc (l, x);
-  adelete                                          l = adelete (l, x);
+  lpush                                         l = lpush(l, p);
+  assoc                                         s = assoc(l, x);
+  adelete                                       l = adelete(l, x);
 
   The following rules of closure exist for the functions provided.
   a = first_node (push (a, b))
@@ -83,14 +83,14 @@
 
 ******************************************************************************/
 #include "oldlist.h"
-#include "structures.h"
 #include <stdio.h>
+#include "structures.h"
 
 /*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
-#define add_on(l,x)     l = push (l,first_node (x))
-#define next_one(l)     l = list_rest (l)
+#define add_on(l, x) l = push(l, first_node(x))
+#define next_one(l) l = list_rest(l)
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -103,10 +103,9 @@
 int count(LIST var_list) {
   int temp = 0;
 
-  iterate (var_list) temp += 1;
+  iterate(var_list) temp += 1;
   return (temp);
 }
-
 
 /**********************************************************************
  *  d e l e t e    d
@@ -121,58 +120,52 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
-  if (is_equal == NULL)
-    is_equal = is_same;
+  if (is_equal == NULL) is_equal = is_same;
 
   while (list != NIL_LIST) {
-    if (!(*is_equal) (first_node (list), key)) {
+    if (!(*is_equal)(first_node(list), key)) {
       if (last_one == NIL_LIST) {
         last_one = list;
-        list = list_rest (list);
+        list = list_rest(list);
         result = last_one;
         set_rest(last_one, NIL_LIST);
-      }
-      else {
+      } else {
         set_rest(last_one, list);
         last_one = list;
-        list = list_rest (list);
+        list = list_rest(list);
         set_rest(last_one, NIL_LIST);
       }
-    }
-    else {
-      list = pop (list);
+    } else {
+      list = pop(list);
     }
   }
   return (result);
 }
 
 LIST delete_d(LIST list, void *key,
-              TessResultCallback2<int, void*, void*>* is_equal) {
+              TessResultCallback2<int, void *, void *> *is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
   while (list != NIL_LIST) {
-    if (!(*is_equal).Run (first_node (list), key)) {
+    if (!(*is_equal).Run(first_node(list), key)) {
       if (last_one == NIL_LIST) {
         last_one = list;
-        list = list_rest (list);
+        list = list_rest(list);
         result = last_one;
         set_rest(last_one, NIL_LIST);
-      }
-      else {
+      } else {
         set_rest(last_one, list);
         last_one = list;
-        list = list_rest (list);
+        list = list_rest(list);
         set_rest(last_one, NIL_LIST);
       }
-    }
-    else {
-      list = pop (list);
+    } else {
+      list = pop(list);
     }
   }
   return (result);
 }
-
 
 /**********************************************************************
  *  d e s t r o y
@@ -183,13 +176,12 @@ LIST destroy(LIST list) {
   LIST next;
 
   while (list != NIL_LIST) {
-    next = list_rest (list);
+    next = list_rest(list);
     free_cell(list);
     list = next;
   }
   return (NIL_LIST);
 }
-
 
 /**********************************************************************
  *  d e s t r o y   n o d e s
@@ -197,14 +189,13 @@ LIST destroy(LIST list) {
  *  Return the space taken by the LISTs of a list to the heap.
  **********************************************************************/
 void destroy_nodes(LIST list, void_dest destructor) {
-  ASSERT_HOST(destructor != NULL);
+  ASSERT_HOST(destructor != nullptr);
 
   while (list != NIL_LIST) {
     if (first_node(list) != NULL) (*destructor)(first_node(list));
     list = pop(list);
   }
 }
-
 
 /**********************************************************************
  *  i n s e r t
@@ -216,26 +207,14 @@ void insert(LIST list, void *node) {
   LIST element;
 
   if (list != NIL_LIST) {
-    element = push (NIL_LIST, node);
-    set_rest (element, list_rest (list));
+    element = push(NIL_LIST, node);
+    set_rest(element, list_rest(list));
     set_rest(list, element);
-    node = first_node (list);
-    list->node = first_node (list_rest (list));
-    list->next->node = (LIST) node;
+    node = first_node(list);
+    list->node = first_node(list_rest(list));
+    list->next->node = (LIST)node;
   }
 }
-
-
-/**********************************************************************
- *  i s   s a m e   n o d e
- *
- *  Compare the list node with the key value return TRUE (non-zero)
- *  if they are equivalent strings.  (Return FALSE if not)
- **********************************************************************/
-int is_same_node(void *item1, void *item2) {
-  return (item1 == item2);
-}
-
 
 /**********************************************************************
  *  i s   s a m e
@@ -244,9 +223,8 @@ int is_same_node(void *item1, void *item2) {
  *  if they are equivalent strings.  (Return FALSE if not)
  **********************************************************************/
 int is_same(void *item1, void *item2) {
-  return (!strcmp ((char *) item1, (char *) item2));
+  return strcmp((char *)item1, (char *)item2) == 0 ? 1 : 0;
 }
-
 
 /**********************************************************************
  *  j o i n
@@ -256,12 +234,10 @@ int is_same(void *item1, void *item2) {
  *  first list updated.
  **********************************************************************/
 LIST join(LIST list1, LIST list2) {
-  if (list1 == NIL_LIST)
-    return (list2);
-  set_rest (last (list1), list2);
+  if (list1 == NIL_LIST) return (list2);
+  set_rest(last(list1), list2);
   return (list1);
 }
-
 
 /**********************************************************************
  *  l a s t
@@ -269,11 +245,9 @@ LIST join(LIST list1, LIST list2) {
  *  Return the last list item (this is list type).
  **********************************************************************/
 LIST last(LIST var_list) {
-  while (list_rest (var_list) != NIL_LIST)
-    var_list = list_rest (var_list);
+  while (list_rest(var_list) != NIL_LIST) var_list = list_rest(var_list);
   return (var_list);
 }
-
 
 /**********************************************************************
  *  n t h   c e l l
@@ -283,12 +257,10 @@ LIST last(LIST var_list) {
 void *nth_cell(LIST var_list, int item_num) {
   int x = 0;
   iterate(var_list) {
-    if (x++ == item_num)
-      return (var_list);
+    if (x++ == item_num) return (var_list);
   }
   return (var_list);
 }
-
 
 /**********************************************************************
  *  p o p
@@ -299,14 +271,13 @@ void *nth_cell(LIST var_list, int item_num) {
 LIST pop(LIST list) {
   LIST temp;
 
-  temp = list_rest (list);
+  temp = list_rest(list);
 
   if (list != NIL_LIST) {
     free_cell(list);
   }
   return (temp);
 }
-
 
 /**********************************************************************
  *  p u s h
@@ -317,12 +288,11 @@ LIST pop(LIST list) {
 LIST push(LIST list, void *element) {
   LIST t;
 
-  t = new_cell ();
-  t->node = (LIST) element;
+  t = new_cell();
+  t->node = (LIST)element;
   set_rest(t, list);
   return (t);
 }
-
 
 /**********************************************************************
  *  p u s h   l a s t
@@ -333,14 +303,12 @@ LIST push_last(LIST list, void *item) {
   LIST t;
 
   if (list != NIL_LIST) {
-    t = last (list);
-    t->next = push (NIL_LIST, item);
+    t = last(list);
+    t->next = push(NIL_LIST, item);
     return (list);
-  }
-  else
-    return (push (NIL_LIST, item));
+  } else
+    return (push(NIL_LIST, item));
 }
-
 
 /**********************************************************************
  *  r e v e r s e
@@ -351,10 +319,9 @@ LIST push_last(LIST list, void *item) {
 LIST reverse(LIST list) {
   LIST newlist = NIL_LIST;
 
-  iterate (list) copy_first (list, newlist);
+  iterate(list) copy_first(list, newlist);
   return (newlist);
 }
-
 
 /**********************************************************************
  *  r e v e r s e   d
@@ -363,11 +330,10 @@ LIST reverse(LIST list) {
  *  destroyed.
  **********************************************************************/
 LIST reverse_d(LIST list) {
-  LIST result = reverse (list);
+  LIST result = reverse(list);
   destroy(list);
   return (result);
 }
-
 
 /**********************************************************************
  *  s   a d j o i n
@@ -379,12 +345,11 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
   LIST l;
   int result;
 
-  if (compare == NULL)
-    compare = (int_compare) strcmp;
+  if (compare == NULL) compare = (int_compare)strcmp;
 
   l = var_list;
   iterate(l) {
-    result = (*compare) (variable, first_node (l));
+    result = (*compare)(variable, first_node(l));
     if (result == 0)
       return (var_list);
     else if (result < 0) {
@@ -392,7 +357,7 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
       return (var_list);
     }
   }
-  return (push_last (var_list, variable));
+  return (push_last(var_list, variable));
 }
 
 /**********************************************************************
@@ -404,16 +369,14 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
  *  for is_equal, the is_key routine will be used.
  **********************************************************************/
 LIST search(LIST list, void *key, int_compare is_equal) {
-  if (is_equal == NULL)
-    is_equal = is_same;
+  if (is_equal == NULL) is_equal = is_same;
 
-  iterate (list) if ((*is_equal) (first_node (list), key))
-  return (list);
+  iterate(list) if ((*is_equal)(first_node(list), key)) return (list);
   return (NIL_LIST);
 }
 
-LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>* is_equal) {
-  iterate (list) if ((*is_equal).Run(first_node (list), key))
-  return (list);
+LIST search(LIST list, void *key,
+            TessResultCallback2<int, void *, void *> *is_equal) {
+  iterate(list) if ((*is_equal).Run(first_node(list), key)) return (list);
   return (NIL_LIST);
 }

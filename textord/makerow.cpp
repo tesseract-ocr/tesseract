@@ -813,7 +813,7 @@ void compute_line_occupation(                    //project blobs
       int32_t width = blob_box.right() - blob_box.left();
       index = blob_box.bottom() - min_y;
       ASSERT_HOST(index >= 0 && index < line_count);
-                                 //count transitions
+      // count transitions
       deltas[index] += width;
       index = blob_box.top() - min_y;
       ASSERT_HOST(index >= 0 && index < line_count);

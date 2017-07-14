@@ -37,9 +37,9 @@
 template <typename T>
 class GenericVector {
  public:
-  GenericVector() : size_used_(0), size_reserved_(0), data_(NULL),
-                    clear_cb_(NULL), compare_cb_(NULL) {}
-
+  GenericVector() {
+    init(kDefaultVectorSize);
+  }
   GenericVector(int size, T init_val) {
     init(size);
     init_to_size(size, init_val);
@@ -73,10 +73,11 @@ class GenericVector {
     return size_used_;
   }
   // Workaround to avoid g++ -Wsign-compare warnings.
-  unsigned int unsigned_size() const {
-    static_assert(sizeof(size_used_) <= sizeof(unsigned int), "");
+  size_t unsigned_size() const {
+    static_assert(sizeof(size_used_) <= sizeof(size_t),
+                  "Wow! sizeof(size_t) < sizeof(int32_t)!!");
     assert(0 <= size_used_);
-    return static_cast<unsigned int>(size_used_);
+    return static_cast<size_t>(size_used_);
   }
   int size_reserved() const {
     return size_reserved_;
@@ -364,8 +365,7 @@ typedef bool (*FileWriter)(const GenericVector<char>& data,
                            const STRING& filename);
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
-inline bool LoadDataFromFile(const char *filename,
-                             GenericVector<char>* data) {
+inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   bool result = false;
   FILE* fp = fopen(filename, "rb");
   if (fp != NULL) {
@@ -437,8 +437,8 @@ int sort_cmp(const void* t1, const void* t2) {
 // return > 0 if t1 > t2
 template <typename T>
 int sort_ptr_cmp(const void* t1, const void* t2) {
-  const T* a = *static_cast<T * const *>(t1);
-  const T* b = *static_cast<T * const *>(t2);
+  const T* a = *static_cast<T* const*>(t1);
+  const T* b = *static_cast<T* const*>(t2);
   if (*a < *b) {
     return -1;
   } else if (*b < *a) {
@@ -896,7 +896,8 @@ bool GenericVector<T>::write(
     }
     delete cb;
   } else {
-    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size()) return false;
+    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size())
+      return false;
   }
   return true;
 }
@@ -928,7 +929,8 @@ bool GenericVector<T>::read(
 template <typename T>
 bool GenericVector<T>::Serialize(FILE* fp) const {
   if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) return false;
-  if (fwrite(data_, sizeof(*data_), size_used_, fp) != unsigned_size()) return false;
+  if (fwrite(data_, sizeof(*data_), size_used_, fp) != unsigned_size())
+    return false;
   return true;
 }
 template <typename T>

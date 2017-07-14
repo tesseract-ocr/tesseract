@@ -117,8 +117,8 @@ class C_BLOB:public ELIST_LINK
     }
 
     static int SortByXMiddle(const void *v1, const void *v2) {
-      const C_BLOB* blob1 = *static_cast<const C_BLOB* const *>(v1);
-      const C_BLOB* blob2 = *static_cast<const C_BLOB* const *>(v2);
+      const C_BLOB* blob1 = *static_cast<const C_BLOB* const*>(v1);
+      const C_BLOB* blob2 = *static_cast<const C_BLOB* const*>(v2);
       return blob1->bounding_box().x_middle() -
              blob2->bounding_box().x_middle();
     }

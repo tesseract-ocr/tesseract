@@ -13,6 +13,9 @@
 
 #include "commontraining.h"
 
+#include <assert.h>
+#include <math.h>
+
 #include "allheaders.h"
 #include "ccutil.h"
 #include "classify.h"
@@ -34,9 +37,6 @@
 #include "tessopt.h"
 #include "tprintf.h"
 #include "unicity_table.h"
-
-#include <assert.h>
-#include <math.h>
 
 using tesseract::CCUtil;
 using tesseract::IntFeatureSpace;
@@ -369,9 +369,8 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
   CHAR_DESC char_desc;
-  int ShortNameToFeatureType_res = ShortNameToFeatureType(feature_defs, feature_name);
-  assert(0 <= ShortNameToFeatureType_res);
-  unsigned int feature_type = static_cast<unsigned int>(ShortNameToFeatureType_res);
+  uint32_t feature_type = ShortNameToFeatureType(feature_defs, feature_name);
+
   // Zero out the font_sample_count for all the classes.
   LIST it = *training_samples;
   iterate(it) {
@@ -485,7 +484,8 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   LIST FeatureList = nullptr;
   FEATURE_SET FeatureSet = nullptr;
 
-  int desc_index = ShortNameToFeatureType(FeatureDefs, program_feature_type);
+  int32_t desc_index =
+      ShortNameToFeatureType(FeatureDefs, program_feature_type);
   N = FeatureDefs.FeatureDesc[desc_index]->NumParams;
   Clusterer = MakeClusterer(N, FeatureDefs.FeatureDesc[desc_index]->ParamDesc);
 

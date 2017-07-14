@@ -530,14 +530,14 @@ class Dict {
   DawgVector dawgs_;
   SuccessorListsVector successors_;
   Trie *pending_words_;
+  /// The following pointers are only cached for convenience.
+  /// The dawgs will be deleted when dawgs_ vector is destroyed.
   // bigram_dawg_ points to a dawg of two-word bigrams which always supercede if
   // any of them are present on the best choices list for a word pair.
   // the bigrams are stored as space-separated words where:
   // (1) leading and trailing punctuation has been removed from each word and
   // (2) any digits have been replaced with '?' marks.
   Dawg *bigram_dawg_;
-  /// The following pointers are only cached for convenience.
-  /// The dawgs will be deleted when dawgs_ vector is destroyed.
   // TODO(daria): need to support multiple languages in the future,
   // so maybe will need to maintain a list of dawgs of each kind.
   Dawg *freq_dawg_;

@@ -116,9 +116,7 @@ EquationDetect::EquationDetect(const char* equ_datapath,
   cps_super_bbox_ = NULL;
 }
 
-EquationDetect::~EquationDetect() {
-  delete(cps_super_bbox_);
-}
+EquationDetect::~EquationDetect() { delete (cps_super_bbox_); }
 
 void EquationDetect::SetLangTesseract(Tesseract* lang_tesseract) {
   lang_tesseract_ = lang_tesseract;
@@ -258,8 +256,8 @@ BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(
 
 void EquationDetect::IdentifySpecialText() {
   // Set configuration for Tesseract::AdaptiveClassifier.
-  equ_tesseract_.tess_cn_matching.set_value(true);  // turn it on
-  equ_tesseract_.tess_bn_matching.set_value(false);
+  equ_tesseract_.tess_cn_matching.set_value(1);  // turn it on
+  equ_tesseract_.tess_bn_matching.set_value(0);
 
   // Set the multiplier to zero for lang_tesseract_ to improve the accuracy.
   int classify_class_pruner = lang_tesseract_->classify_class_pruner_multiplier;

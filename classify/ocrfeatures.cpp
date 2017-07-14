@@ -56,9 +56,7 @@ BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
  * @return none
  * @note History: Mon May 21 13:33:27 1990, DSJ, Created.
  */
-void FreeFeature(FEATURE Feature) {
-  free(Feature);
-}                                /* FreeFeature */
+void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
 
 /**
  * Release the memory consumed by the specified feature
@@ -88,9 +86,8 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
 
-  Feature = (FEATURE) malloc(sizeof(FEATURE_STRUCT) +
-    (FeatureDesc->NumParams - 1) *
-    sizeof (FLOAT32));
+  Feature = (FEATURE)malloc(sizeof(FEATURE_STRUCT) +
+                            (FeatureDesc->NumParams - 1) * sizeof(FLOAT32));
   Feature->Type = FeatureDesc;
   return (Feature);
 

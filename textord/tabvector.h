@@ -292,8 +292,8 @@ class TabVector : public ELIST2_LINK {
 
   // Sort function for E2LIST::sort to sort by sort_key_.
   static int SortVectorsByKey(const void* v1, const void* v2) {
-    const TabVector* tv1 = *static_cast<const TabVector* const *>(v1);
-    const TabVector* tv2 = *static_cast<const TabVector* const *>(v2);
+    const TabVector* tv1 = *static_cast<const TabVector* const*>(v1);
+    const TabVector* tv2 = *static_cast<const TabVector* const*>(v2);
     return tv1->sort_key_ - tv2->sort_key_;
   }
 

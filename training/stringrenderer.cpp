@@ -141,11 +141,11 @@ void StringRenderer::set_resolution(const int resolution) {
 }
 
 void StringRenderer::set_underline_start_prob(const double frac) {
-  underline_start_prob_ = min(max(frac, 0.0), 1.0);
+  underline_start_prob_ = std::min(std::max(frac, 0.0), 1.0);
 }
 
 void StringRenderer::set_underline_continuation_prob(const double frac) {
-  underline_continuation_prob_ = min(max(frac, 0.0), 1.0);
+  underline_continuation_prob_ = std::min(std::max(frac, 0.0), 1.0);
 }
 
 StringRenderer::~StringRenderer() {
@@ -191,6 +191,7 @@ void StringRenderer::SetLayoutProperties() {
   int max_height = page_height_ - 2 * v_margin_;
   tlog(3, "max_width = %d, max_height = %d\n", max_width, max_height);
   if (vertical_text_) {
+    using std::swap;
     swap(max_width, max_height);
   }
   pango_layout_set_width(layout_, max_width * PANGO_SCALE);
@@ -340,8 +341,7 @@ void StringRenderer::RotatePageBoxes(float rotation) {
 
 
 void StringRenderer::ClearBoxes() {
-  for (size_t i = 0; i < boxchars_.size(); ++i)
-    delete boxchars_[i];
+  for (size_t i = 0; i < boxchars_.size(); ++i) delete boxchars_[i];
   boxchars_.clear();
   boxaDestroy(&page_boxes_);
 }
@@ -433,10 +433,10 @@ static void MergeBoxCharsToWords(std::vector<BoxChar*>* boxchars) {
       // Compute bounding box union
       const Box* box = boxchars->at(i)->box();
       Box* last_box = last_boxchar->mutable_box();
-      int left = min(last_box->x, box->x);
-      int right = max(last_box->x + last_box->w, box->x + box->w);
-      int top = min(last_box->y, box->y);
-      int bottom = max(last_box->y + last_box->h, box->y + box->h);
+      int left = std::min(last_box->x, box->x);
+      int right = std::max(last_box->x + last_box->w, box->x + box->w);
+      int top = std::min(last_box->y, box->y);
+      int bottom = std::max(last_box->y + last_box->h, box->y + box->h);
       // Conclude that the word was broken to span multiple lines based on the
       // size of the merged bounding box in relation to those of the individual
       // characters seen so far.
@@ -523,9 +523,9 @@ void StringRenderer::ComputeClusterBoxes() {
                     "cluster_text:%s  start_byte_index:%d\n",
                     cluster_text.c_str(), start_byte_index);
     if (box_padding_) {
-      cluster_rect.x = max(0, cluster_rect.x - box_padding_);
+      cluster_rect.x = std::max(0, cluster_rect.x - box_padding_);
       cluster_rect.width += 2 * box_padding_;
-      cluster_rect.y = max(0, cluster_rect.y - box_padding_);
+      cluster_rect.y = std::max(0, cluster_rect.y - box_padding_);
       cluster_rect.height += 2 * box_padding_;
     }
     if (add_ligatures_) {
@@ -865,8 +865,8 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
     tprintf("Total chars = %d\n", total_chars_);
   }
   const std::vector<string>& all_fonts = FontUtils::ListAvailableFonts();
-  assert(0 <= font_index_);
-  for (unsigned int i = static_cast<unsigned int>(font_index_); i < all_fonts.size(); ++i) {
+
+  for (size_t i = font_index_; i < all_fonts.size(); ++i) {
     ++font_index_;
     int raw_score = 0;
     int ok_chars =

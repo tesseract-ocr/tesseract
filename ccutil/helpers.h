@@ -182,7 +182,7 @@ inline int IntCastRounded(double x) {
 
 // Reverse the order of bytes in a n byte quantity for big/little-endian switch.
 inline void ReverseN(void* ptr, int num_bytes) {
-  char *cptr = static_cast<char *>(ptr);
+  char* cptr = static_cast<char*>(ptr);
   int halfsize = num_bytes / 2;
   for (int i = 0; i < halfsize; ++i) {
     char tmp = cptr[i];

@@ -19,8 +19,8 @@
 #include "config_auto.h"
 #endif
 
-#include <memory> // std::unique_ptr
 #include <string.h>
+#include <memory>  // std::unique_ptr
 #include "baseapi.h"
 #include "genericvector.h"
 #include "renderer.h"

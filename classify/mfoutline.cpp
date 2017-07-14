@@ -219,9 +219,8 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
 /*---------------------------------------------------------------------------*/
 /** Return a new edge point for a micro-feature outline. */
 MFEDGEPT *NewEdgePoint() {
-  return (MFEDGEPT *) malloc(sizeof(MFEDGEPT));
+  return reinterpret_cast<MFEDGEPT *>(malloc(sizeof(MFEDGEPT)));
 }
-
 
 /*---------------------------------------------------------------------------*/
 /**

@@ -50,7 +50,7 @@ inline STRING NormalizeUTF8String(const char* str8) {
   return NormalizeUTF8String(false, str8);
 }
 
-// Apply just the OCR-specific normalizations and return the normalized char.
+// Applies just the OCR-specific normalizations and return the normalized char.
 char32 OCRNormalize(char32 ch);
 
 // Returns true if the OCRNormalized ch1 and ch2 are the same.
@@ -67,11 +67,11 @@ bool IsUTF8Whitespace(const char* text);
 
 // Returns the length of bytes of the prefix of 'text' that have the White_Space
 // unicode property.
-int SpanUTF8Whitespace(const char* text);
+unsigned int SpanUTF8Whitespace(const char* text);
 
 // Returns the length of bytes of the prefix of 'text' that DO NOT have the
 // White_Space unicode property.
-int SpanUTF8NotWhitespace(const char* text);
+unsigned int SpanUTF8NotWhitespace(const char* text);
 
 // Returns true if the char is interchange valid i.e. no C0 or C1 control codes
 // (other than CR LF HT FF) and no non-characters.

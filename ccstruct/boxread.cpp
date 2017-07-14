@@ -206,7 +206,7 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   // Validate UTF8 by making unichars with it.
   int used = 0;
   while (used < uch_len) {
-    UNICHAR ch(uch + used, uch_len - used);
+    tesseract::UNICHAR ch(uch + used, uch_len - used);
     int new_used = ch.utf8_len();
     if (new_used == 0) {
       tprintf("Bad UTF-8 str %s starts with 0x%02x at col %d\n",

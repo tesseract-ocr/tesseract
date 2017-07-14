@@ -75,16 +75,16 @@ BLOB_CHOICE_LIST *Wordrec::classify_piece(const GenericVector<SEAM*>& seams,
 
 template<class BLOB_CHOICE>
 int SortByUnicharID(const void *void1, const void *void2) {
-  const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE * const *>(void1);
-  const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE * const *>(void2);
+  const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE *const *>(void1);
+  const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE *const *>(void2);
 
   return p1->unichar_id() - p2->unichar_id();
 }
 
 template<class BLOB_CHOICE>
 int SortByRating(const void *void1, const void *void2) {
-  const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE * const *>(void1);
-  const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE * const *>(void2);
+  const BLOB_CHOICE *p1 = *static_cast<const BLOB_CHOICE *const *>(void1);
+  const BLOB_CHOICE *p2 = *static_cast<const BLOB_CHOICE *const *>(void2);
 
   if (p1->rating() < p2->rating())
     return 1;

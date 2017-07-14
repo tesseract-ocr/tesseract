@@ -44,7 +44,7 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifdef __UNIX__
 #include          <assert.h>
 #endif
-#include          "memry.h"
+#include <memory>
 #include          "bits16.h"
 #include                   "params.h"
 
@@ -203,33 +203,24 @@ class REJ
 
 class REJMAP
 {
-  REJ *ptr;                      //ptr to the chars
-  inT16 len;                     //Number of chars
+  std::unique_ptr<REJ[]> ptr;  // ptr to the chars
+  inT16 len;                   // Number of chars
 
-  public:
-    REJMAP() {  //constructor
-      ptr = NULL;
-      len = 0;
-    }
+ public:
+  REJMAP() : len(0) {}
 
-    REJMAP(  //classwise copy
-           const REJMAP &rejmap);
+  REJMAP(const REJMAP &rejmap) { *this = rejmap; }
 
-    REJMAP & operator= (         //assign REJMAP
-      const REJMAP & source);    //from this
+  REJMAP &operator=(const REJMAP &source);
 
-    ~REJMAP () {                 //destructor
-      free(ptr);
-    }
+  // Sets up the ptr array to length, whatever it was before.
+  void initialise(inT16 length);
 
-    void initialise(  //Redefine map
-                    inT16 length);
-
-    REJ & operator[](            //access function
-      inT16 index) const         //map index
-    {
-      ASSERT_HOST (index < len);
-      return ptr[index];         //no bounds checks
+  REJ &operator[](        // access function
+      inT16 index) const  // map index
+  {
+    ASSERT_HOST(index < len);
+    return ptr[index];  // no bounds checks
     }
 
     inT32 length() const {  //map length

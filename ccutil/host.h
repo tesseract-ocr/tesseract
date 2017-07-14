@@ -27,8 +27,8 @@
 #undef max
 #endif
 
-#include <cinttypes>    // PRId32, ...
-#include <cstdint>      // int32_t, ...
+#include <cinttypes>  // PRId32, ...
+#include <cstdint>    // int32_t, ...
 
 // definitions of portable data types (numbers and characters)
 typedef int8_t inT8;
@@ -48,11 +48,11 @@ typedef unsigned char BOOL8;
 /* MinGW defines the standard PRI... macros, but MSVS doesn't. */
 
 #if !defined(PRId32)
-# define PRId32 "d"
+#define PRId32 "d"
 #endif
 
 #if !defined(PRId64)
-# define PRId64 "I64d"
+#define PRId64 "I64d"
 #endif
 
 #endif /* _WIN32 */

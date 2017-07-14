@@ -17,12 +17,12 @@
  *
  **********************************************************************/
 
+#include "polyblk.h"
 #include <ctype.h>
 #include <math.h>
 #include <stdio.h>
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr
 #include "elst.h"
-#include "polyblk.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -254,7 +254,7 @@ void POLY_BLOCK::plot(ScrollView* window, inT32 num) {
     window->TextAttributes("Times", 80, false, false, false);
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, "%" PRId32, num);
+    snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, num);
     #else
     ltoa (num, temp_buff, 10);
     #endif
@@ -281,9 +281,10 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
 
   for (y = this->bounding_box ()->bottom ();
   y <= this->bounding_box ()->top (); y++) {
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line (y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
+        lines->get_line(y));
     if (!segments->empty ()) {
-      s_it.set_to_list (segments.get());
+      s_it.set_to_list(segments.get());
       for (s_it.mark_cycle_pt (); !s_it.cycled_list (); s_it.forward ()) {
         // Note different use of ICOORDELT, x coord is x coord of pixel
         // at the start of line segment, y coord is length of line segment

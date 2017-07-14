@@ -40,14 +40,6 @@ void *alloc_mem(inT32 count) {
   return malloc(static_cast<size_t>(count));
 }
 
-void *alloc_big_zeros(inT32 count) {
-  return calloc(static_cast<size_t>(count), 1);
-}
-
 void free_mem(void *oldchunk) {
-  free(oldchunk);
-}
-
-void free_big_mem(void *oldchunk) {
   free(oldchunk);
 }

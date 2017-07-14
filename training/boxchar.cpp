@@ -24,6 +24,7 @@
 
 #include <stddef.h>
 #include <algorithm>
+#include <vector>
 
 #include "fileio.h"
 #include "genericvector.h"
@@ -82,17 +83,16 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
                              std::vector<BoxChar*>* boxes) {
   int prev_i = -1;
   int max_shift = 0;
-  for (int i = 0; static_cast<unsigned int>(i) < boxes->size(); ++i) {
+  for (size_t i = 0; i < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
     if (box == nullptr) {
-      if (prev_i < 0 || prev_i < i - 1 || static_cast<unsigned int>(i) + 1 == boxes->size()) {
+      if (prev_i < 0 || prev_i + 1 < i || i + 1 == boxes->size()) {
         // Erase null boxes at the start of a line and after another null box.
         do {
           delete (*boxes)[i];
           boxes->erase(boxes->begin() + i);
-          --i;
-        } while (i >= 0 && static_cast<unsigned int>(i) + 1 == boxes->size() &&
-                 (*boxes)[i]->box_ == nullptr);
+          if (i == 0) break;
+        } while (i-- == boxes->size() && (*boxes)[i]->box_ == nullptr);
       }
       continue;
     }
@@ -120,7 +120,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
             x = 0;
           }
         }
-        if (prev_i == i - 1) {
+        if (prev_i + 1 == i) {
           // New character needed.
           BoxChar* new_box = new BoxChar("\t", 1);
           new_box->AddBox(x, y, width, height);
@@ -146,7 +146,7 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
                            std::vector<BoxChar*>* boxes) {
   // After InsertNewlines, any remaining null boxes are not newlines, and are
   // singletons, so add a box to each remaining null box.
-  for (int i = 1; static_cast<unsigned int>(i) + 1 < boxes->size(); ++i) {
+  for (size_t i = 1; i + 1 < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
     if (box == nullptr) {
       Box* prev = (*boxes)[i - 1]->box_;
@@ -178,8 +178,9 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
         }
         // Left becomes the max right of all next boxes forward to the first
         // space or newline.
-        for (size_t j = i + 2; j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
-                               (*boxes)[j]->ch_ != "\t";
+        for (size_t j = i + 2;
+             j < boxes->size() && (*boxes)[j]->box_ != nullptr &&
+             (*boxes)[j]->ch_ != "\t";
              ++j) {
           next = (*boxes)[j]->box_;
           if (next->x + next->w > left) {
@@ -215,11 +216,12 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
 /* static */
 bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
   int num_rtl = 0, num_ltr = 0;
-  for (unsigned int i = 0; i < boxes.size(); ++i) {
+  for (size_t i = 0; i < boxes.size(); ++i) {
     // Convert the unichar to UTF32 representation
-    GenericVector<char32> uni_vector;
-    if (!UNICHAR::UTF8ToUnicode(boxes[i]->ch_.c_str(), &uni_vector)) {
-      tprintf("Illegal utf8 in boxchar %u string:%s = ", i,
+    std::vector<char32> uni_vector =
+        UNICHAR::UTF8ToUTF32(boxes[i]->ch_.c_str());
+    if (uni_vector.empty()) {
+      tprintf("Illegal utf8 in boxchar %d string:%s = ", i,
               boxes[i]->ch_.c_str());
       for (size_t c = 0; c < boxes[i]->ch_.size(); ++c) {
         tprintf(" 0x%x", boxes[i]->ch_[c]);
@@ -227,8 +229,8 @@ bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
       tprintf("\n");
       continue;
     }
-    for (int j = 0; j < uni_vector.size(); ++j) {
-      UCharDirection dir = u_charDirection(uni_vector[j]);
+    for (char32 ch : uni_vector) {
+      UCharDirection dir = u_charDirection(ch);
       if (dir == U_RIGHT_TO_LEFT || dir == U_RIGHT_TO_LEFT_ARABIC ||
           dir == U_ARABIC_NUMBER) {
         ++num_rtl;
@@ -263,7 +265,8 @@ bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
 /* static */
 int BoxChar::TotalByteLength(const std::vector<BoxChar*>& boxes) {
   int total_length = 0;
-  for (size_t i = 0; i < boxes.size(); ++i) total_length += boxes[i]->ch_.size();
+  for (size_t i = 0; i < boxes.size(); ++i)
+    total_length += boxes[i]->ch_.size();
   return total_length;
 }
 

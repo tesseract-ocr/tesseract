@@ -372,8 +372,8 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
 template<class BBC>
 int SortByBoxLeft(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *static_cast<const BBC* const *>(void1);
-  const BBC* p2 = *static_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const*>(void1);
+  const BBC* p2 = *static_cast<const BBC* const*>(void2);
   int result = p1->bounding_box().left() - p2->bounding_box().left();
   if (result != 0)
     return result;
@@ -390,8 +390,8 @@ int SortByBoxLeft(const void* void1, const void* void2) {
 template<class BBC>
 int SortRightToLeft(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *static_cast<const BBC* const *>(void1);
-  const BBC* p2 = *static_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const*>(void1);
+  const BBC* p2 = *static_cast<const BBC* const*>(void2);
   int result = p2->bounding_box().right() - p1->bounding_box().right();
   if (result != 0)
     return result;
@@ -408,8 +408,8 @@ int SortRightToLeft(const void* void1, const void* void2) {
 template<class BBC>
 int SortByBoxBottom(const void* void1, const void* void2) {
   // The void*s are actually doubly indirected, so get rid of one level.
-  const BBC* p1 = *static_cast<const BBC* const *>(void1);
-  const BBC* p2 = *static_cast<const BBC* const *>(void2);
+  const BBC* p1 = *static_cast<const BBC* const*>(void1);
+  const BBC* p2 = *static_cast<const BBC* const*>(void2);
   int result = p1->bounding_box().bottom() - p2->bounding_box().bottom();
   if (result != 0)
     return result;

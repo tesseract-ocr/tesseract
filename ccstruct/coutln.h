@@ -1,7 +1,7 @@
 /**********************************************************************
- * File:					coutln.h      (Formerly:  coutline.c)
- * Description: Code for the C_OUTLINE class.
- * Author:					Ray Smith
+ * File:					coutln.h      (Formerly:
+ *coutline.c) Description: Code for the C_OUTLINE class. Author:
+ *Ray Smith
  * Created:					Mon Oct 07 16:01:57 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.

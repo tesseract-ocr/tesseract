@@ -60,7 +60,7 @@ typedef unsigned char LanguageModelFlagsType;
 /// letters on a path can be found.
 struct LanguageModelDawgInfo {
   LanguageModelDawgInfo(const DawgPositionVector *a, PermuterType pt)
-    : active_dawgs(*a), permuter(pt) {}
+      : active_dawgs(*a), permuter(pt) {}
   DawgPositionVector active_dawgs;
   PermuterType permuter;
 };
@@ -125,9 +125,9 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// non-increasing order of costs.
   static int Compare(const void *e1, const void *e2) {
     const ViterbiStateEntry *ve1 =
-      *static_cast<const ViterbiStateEntry * const *>(e1);
+        *static_cast<const ViterbiStateEntry *const *>(e1);
     const ViterbiStateEntry *ve2 =
-      *static_cast<const ViterbiStateEntry * const *>(e2);
+        *static_cast<const ViterbiStateEntry *const *>(e2);
     return (ve1->cost < ve2->cost) ? -1 : 1;
   }
   inline bool Consistent() const {

@@ -190,10 +190,8 @@ class BLOB_CHOICE: public ELIST_LINK
     }
     // Sort function for sorting BLOB_CHOICEs in increasing order of rating.
     static int SortByRating(const void *p1, const void *p2) {
-      const BLOB_CHOICE *bc1 =
-          *static_cast<const BLOB_CHOICE * const *>(p1);
-      const BLOB_CHOICE *bc2 =
-          *static_cast<const BLOB_CHOICE * const *>(p2);
+      const BLOB_CHOICE *bc1 = *static_cast<const BLOB_CHOICE *const *>(p1);
+      const BLOB_CHOICE *bc2 = *static_cast<const BLOB_CHOICE *const *>(p2);
       return (bc1->rating_ < bc2->rating_) ? -1 : 1;
     }
 

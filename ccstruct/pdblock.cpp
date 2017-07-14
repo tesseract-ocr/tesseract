@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#include          <stdlib.h>
-#include          <memory> // std::unique_ptr
-#include          "allheaders.h"
-#include          "blckerr.h"
-#include          "pdblock.h"
+#include "pdblock.h"
+#include <stdlib.h>
+#include <memory>  // std::unique_ptr
+#include "allheaders.h"
+#include "blckerr.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -141,7 +141,8 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     // rasterized interior. (Runs of interior pixels on a line.)
     PB_LINE_IT *lines = new PB_LINE_IT(&image_block);
     for (int y = box.bottom(); y < box.top(); ++y) {
-      const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line(y));
+      const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
+          lines->get_line(y));
       if (!segments->empty()) {
         ICOORDELT_IT s_it(segments.get());
         // Each element of segments is a start x and x size of the
@@ -196,7 +197,7 @@ void PDBLK::plot(                //draw outline
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
     #if defined(__UNIX__) || defined(MINGW)
-    sprintf(temp_buff, "%" PRId32, serial);
+    snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, serial);
     #else
     ultoa (serial, temp_buff, 10);
     #endif

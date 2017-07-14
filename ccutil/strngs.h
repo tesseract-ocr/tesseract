@@ -20,11 +20,11 @@
 #ifndef           STRNGS_H
 #define           STRNGS_H
 
-#include          <assert.h>
-#include          <stdio.h>
-#include          <string.h>
-#include          "platform.h"
-#include          "memry.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+#include "memry.h"
+#include "platform.h"
 
 namespace tesseract {
 class TFile;

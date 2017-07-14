@@ -19,14 +19,14 @@
 
 #include "scanedg.h"
 
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr
 
 #include "allheaders.h"
 #include "edgloop.h"
 
 #define WHITE_PIX     1          /*thresholded colours */
 #define BLACK_PIX     0
-                                 /*W->B->W */
+// Flips between WHITE_PIX and BLACK_PIX.
 #define FLIP_COLOUR(pix)  (1-(pix))
 
 /**********************************************************************
@@ -102,9 +102,10 @@ void make_margins(                         //get a line
 
   if (block->poly_block () != NULL) {
     lines = new PB_LINE_IT (block->poly_block ());
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(lines->get_line (y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
+        lines->get_line(y));
     if (!segments->empty ()) {
-      seg_it.set_to_list (segments.get());
+      seg_it.set_to_list(segments.get());
       seg_it.mark_cycle_pt ();
       start = seg_it.data ()->x ();
       xext = seg_it.data ()->y ();
@@ -335,7 +336,7 @@ void join_edges(CRACKEDGE *edge1,  // edges to join
   if (edge1->pos.x() + edge1->stepx != edge2->pos.x()
   || edge1->pos.y() + edge1->stepy != edge2->pos.y()) {
     CRACKEDGE *tempedge = edge1;
-    edge1 = edge2;               // swap around
+    edge1 = edge2;  // swap around
     edge2 = tempedge;
   }
 

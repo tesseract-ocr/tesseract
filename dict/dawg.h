@@ -432,7 +432,7 @@ class SquishedDawg : public Dawg {
     num_forward_edges_in_node0 = num_forward_edges(0);
     if (debug_level > 3) print_all("SquishedDawg:");
   }
-  ~SquishedDawg();
+  virtual ~SquishedDawg();
 
   // Loads using the given TFile. Returns false on failure.
   bool Load(TFile *fp) {

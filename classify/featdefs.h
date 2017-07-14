@@ -70,8 +70,8 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
 CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               FILE *File);
 
-int ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                           const char *ShortName);
+uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                                const char *ShortName);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

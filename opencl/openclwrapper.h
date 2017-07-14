@@ -242,7 +242,7 @@ public:
 /* OpenCL implementations of Morphological operations*/
 
     //Initialiation of OCL buffers used in Morph operations
-    static int initMorphCLAllocations(l_int32  wpl, l_int32  h, Pix* pixs);
+    static int initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix *pixs);
     static void releaseMorphCLBuffers();
 
     static void pixGetLinesCL(Pix *pixd, Pix *pixs, Pix **pix_vline,

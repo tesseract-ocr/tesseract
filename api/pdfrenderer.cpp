@@ -20,7 +20,7 @@
 #include "config_auto.h"
 #endif
 
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr
 #include "allheaders.h"
 #include "baseapi.h"
 #include "math.h"
@@ -457,13 +457,12 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     STRING pdf_word("");
     int pdf_word_len = 0;
     do {
-      const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
+      const std::unique_ptr<const char[]> grapheme(
+          res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != '\0') {
-        GenericVector<int> unicodes;
-        UNICHAR::UTF8ToUnicode(grapheme.get(), &unicodes);
+        std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(grapheme.get());
         char utf16[kMaxBytesPerCodepoint];
-        for (int i = 0; i < unicodes.length(); i++) {
-          int code = unicodes[i];
+        for (char32 code : unicodes) {
           if (CodepointToUtf16be(code, utf16)) {
             pdf_word += utf16;
             pdf_word_len++;
@@ -566,13 +565,13 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 
   // CIDTOGIDMAP
   const int kCIDToGIDMapSize = 2 * (1 << 16);
-  const std::unique_ptr</*non-const*/ unsigned char[]> cidtogidmap(new unsigned char[kCIDToGIDMapSize]);
+  const std::unique_ptr<unsigned char[]> cidtogidmap(
+      new unsigned char[kCIDToGIDMapSize]);
   for (int i = 0; i < kCIDToGIDMapSize; i++) {
     cidtogidmap[i] = (i % 2) ? 1 : 0;
   }
   size_t len;
-  unsigned char *comp =
-      zlibCompress(cidtogidmap.get(), kCIDToGIDMapSize, &len);
+  unsigned char *comp = zlibCompress(cidtogidmap.get(), kCIDToGIDMapSize, &len);
   n = snprintf(buf, sizeof(buf),
                "5 0 obj\n"
                "<<\n"
@@ -665,8 +664,8 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   fseek(fp, 0, SEEK_END);
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
-  const std::unique_ptr</*non-const*/ char[]> buffer(new char[size]);
-  if (fread(buffer.get(), 1, size, fp) != static_cast<unsigned long>(size)) {
+  const std::unique_ptr<char[]> buffer(new char[size]);
+  if (fread(buffer.get(), 1, size, fp) != static_cast<size_t>(size)) {
     fclose(fp);
     return false;
   }
@@ -879,11 +878,11 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   AppendPDFObject(buf);
 
   // CONTENTS
-  const std::unique_ptr</*non-const*/ char[]> pdftext(GetPDFTextObjects(api, width, height));
-  const long pdftext_len = strlen(pdftext.get());
+  const std::unique_ptr<char[]> pdftext(GetPDFTextObjects(api, width, height));
+  const size_t pdftext_len = strlen(pdftext.get());
   size_t len;
-  unsigned char *comp_pdftext =
-      zlibCompress(reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
+  unsigned char *comp_pdftext = zlibCompress(
+      reinterpret_cast<unsigned char *>(pdftext.get()), pdftext_len, &len);
   long comp_pdftext_len = len;
   n = snprintf(buf, sizeof(buf),
                "%ld 0 obj\n"
@@ -960,11 +959,9 @@ bool TessPDFRenderer::EndDocumentHandler() {
 
   // INFO
   STRING utf16_title = "FEFF";  // byte_order_marker
-  GenericVector<int> unicodes;
-  UNICHAR::UTF8ToUnicode(title(), &unicodes);
+  std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(title());
   char utf16[kMaxBytesPerCodepoint];
-  for (int i = 0; i < unicodes.length(); i++) {
-    int code = unicodes[i];
+  for (char32 code : unicodes) {
     if (CodepointToUtf16be(code, utf16)) {
       utf16_title += utf16;
     }

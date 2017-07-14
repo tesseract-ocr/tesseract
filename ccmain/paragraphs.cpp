@@ -21,7 +21,7 @@
 #endif
 
 #include <ctype.h>
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr
 
 #include "genericvector.h"
 #include "helpers.h"

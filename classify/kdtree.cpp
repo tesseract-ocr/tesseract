@@ -137,10 +137,8 @@ class KDTreeSearch {
   MinK<FLOAT32, void *> results_;
 };
 
-KDTreeSearch::KDTreeSearch(KDTREE* tree, FLOAT32 *query_point, int k_closest) :
-    tree_(tree),
-    query_point_(query_point),
-    results_(MAXSEARCH, k_closest) {
+KDTreeSearch::KDTreeSearch(KDTREE *tree, FLOAT32 *query_point, int k_closest)
+    : tree_(tree), query_point_(query_point), results_(MAXSEARCH, k_closest) {
   sb_min_ = new FLOAT32[tree->KeySize];
   sb_max_ = new FLOAT32[tree->KeySize];
 }
@@ -166,8 +164,9 @@ void KDTreeSearch::Search(int *result_count,
     int count = results_.elements_count();
     *result_count = count;
     for (int j = 0; j < count; j++) {
-      // TODO: why FLOAT64 here?
-      distances[j] = (FLOAT32) sqrt((FLOAT64)results_.elements()[j].key);
+      // Pre-cast to float64 as key is a template type and we have no control
+      // over its actual type.
+      distances[j] = (FLOAT32)sqrt((FLOAT64)results_.elements()[j].key);
       results[j] = results_.elements()[j].value;
     }
   }
@@ -387,10 +386,7 @@ KDNODE *MakeKDNode(KDTREE *tree, FLOAT32 Key[], void *Data, int Index) {
 
 
 /*---------------------------------------------------------------------------*/
-void FreeKDNode(KDNODE *Node) {
-  free(Node);
-}
-
+void FreeKDNode(KDNODE *Node) { free(Node); }
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -405,8 +401,8 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
   if (!BoxIntersectsSearch(sb_min_, sb_max_))
     return;
 
-  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc,
-                                  query_point_, sub_tree->Key),
+  results_.insert(DistanceSquared(tree_->KeySize, tree_->KeyDesc, query_point_,
+                                  sub_tree->Key),
                   sub_tree->Data);
 
   if (query_point_[level] < sub_tree->BranchPoint) {
@@ -479,7 +475,7 @@ FLOAT32 ComputeDistance(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]) {
 /// one wrap distance away from the query.
 bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
   FLOAT32 *query = query_point_;
-  // Why FLOAT64?
+  // Compute the sum in higher precision.
   FLOAT64 total_distance = 0.0;
   FLOAT64 radius_squared =
       results_.max_insertable_key() * results_.max_insertable_key();

@@ -43,91 +43,89 @@ const float LanguageModel::kMaxAvgNgramCost = 25.0f;
 
 LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
                              Dict *dict)
-  : INT_MEMBER(language_model_debug_level, 0, "Language model debug level",
-               dict->getCCUtil()->params()),
-    BOOL_INIT_MEMBER(language_model_ngram_on, false,
-                     "Turn on/off the use of character ngram model",
-                     dict->getCCUtil()->params()),
-    INT_MEMBER(language_model_ngram_order, 8,
-               "Maximum order of the character ngram model",
-               dict->getCCUtil()->params()),
-    INT_MEMBER(language_model_viterbi_list_max_num_prunable, 10,
-               "Maximum number of prunable (those for which"
-               " PrunablePath() is true) entries in each viterbi list"
-               " recorded in BLOB_CHOICEs",
-               dict->getCCUtil()->params()),
-    INT_MEMBER(language_model_viterbi_list_max_size, 500,
-               "Maximum size of viterbi lists recorded in BLOB_CHOICEs",
-               dict->getCCUtil()->params()),
-    double_MEMBER(language_model_ngram_small_prob, 0.000001,
-                  "To avoid overly small denominators use this as the "
-                  "floor of the probability returned by the ngram model.",
+    : INT_MEMBER(language_model_debug_level, 0, "Language model debug level",
+                 dict->getCCUtil()->params()),
+      BOOL_INIT_MEMBER(language_model_ngram_on, false,
+                       "Turn on/off the use of character ngram model",
+                       dict->getCCUtil()->params()),
+      INT_MEMBER(language_model_ngram_order, 8,
+                 "Maximum order of the character ngram model",
+                 dict->getCCUtil()->params()),
+      INT_MEMBER(language_model_viterbi_list_max_num_prunable, 10,
+                 "Maximum number of prunable (those for which"
+                 " PrunablePath() is true) entries in each viterbi list"
+                 " recorded in BLOB_CHOICEs",
+                 dict->getCCUtil()->params()),
+      INT_MEMBER(language_model_viterbi_list_max_size, 500,
+                 "Maximum size of viterbi lists recorded in BLOB_CHOICEs",
+                 dict->getCCUtil()->params()),
+      double_MEMBER(language_model_ngram_small_prob, 0.000001,
+                    "To avoid overly small denominators use this as the "
+                    "floor of the probability returned by the ngram model.",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_ngram_nonmatch_score, -40.0,
+                    "Average classifier score of a non-matching unichar.",
+                    dict->getCCUtil()->params()),
+      BOOL_MEMBER(language_model_ngram_use_only_first_uft8_step, false,
+                  "Use only the first UTF8 step of the given string"
+                  " when computing log probabilities.",
                   dict->getCCUtil()->params()),
-    double_MEMBER(language_model_ngram_nonmatch_score, -40.0,
-                  "Average classifier score of a non-matching unichar.",
-                  dict->getCCUtil()->params()),
-    BOOL_MEMBER(language_model_ngram_use_only_first_uft8_step, false,
-                "Use only the first UTF8 step of the given string"
-                " when computing log probabilities.",
-                dict->getCCUtil()->params()),
-    double_MEMBER(language_model_ngram_scale_factor, 0.03,
-                  "Strength of the character ngram model relative to the"
-                  " character classifier ",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_ngram_rating_factor, 16.0,
-                  "Factor to bring log-probs into the same range as ratings"
-                  " when multiplied by outline length ",
-                  dict->getCCUtil()->params()),
-    BOOL_MEMBER(language_model_ngram_space_delimited_language, true,
-                "Words are delimited by space",
-                dict->getCCUtil()->params()),
-    INT_MEMBER(language_model_min_compound_length, 3,
-               "Minimum length of compound words",
-               dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_non_freq_dict_word, 0.1,
-                  "Penalty for words not in the frequent word dictionary",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_non_dict_word, 0.15,
-                  "Penalty for non-dictionary words",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_punc, 0.2,
-                  "Penalty for inconsistent punctuation",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_case, 0.1,
-                  "Penalty for inconsistent case",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_script, 0.5,
-                  "Penalty for inconsistent script",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_chartype, 0.3,
-                  "Penalty for inconsistent character type",
-                  dict->getCCUtil()->params()),
-    // TODO(daria, rays): enable font consistency checking
-    // after improving font analysis.
-    double_MEMBER(language_model_penalty_font, 0.00,
-                  "Penalty for inconsistent font",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_spacing, 0.05,
-                  "Penalty for inconsistent spacing",
-                  dict->getCCUtil()->params()),
-    double_MEMBER(language_model_penalty_increment, 0.01,
-                  "Penalty increment",
-                  dict->getCCUtil()->params()),
-    INT_MEMBER(wordrec_display_segmentations, 0, "Display Segmentations",
-               dict->getCCUtil()->params()),
-    BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
-                     "Use sigmoidal score for certainty",
-                     dict->getCCUtil()->params()),
-  dawg_args_(nullptr, new DawgPositionVector(), NO_PERM),
-  fontinfo_table_(fontinfo_table), dict_(dict),
-  fixed_pitch_(false), max_char_wh_ratio_(0.0),
-  acceptable_choice_found_(false) {
+      double_MEMBER(language_model_ngram_scale_factor, 0.03,
+                    "Strength of the character ngram model relative to the"
+                    " character classifier ",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_ngram_rating_factor, 16.0,
+                    "Factor to bring log-probs into the same range as ratings"
+                    " when multiplied by outline length ",
+                    dict->getCCUtil()->params()),
+      BOOL_MEMBER(language_model_ngram_space_delimited_language, true,
+                  "Words are delimited by space", dict->getCCUtil()->params()),
+      INT_MEMBER(language_model_min_compound_length, 3,
+                 "Minimum length of compound words",
+                 dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_non_freq_dict_word, 0.1,
+                    "Penalty for words not in the frequent word dictionary",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_non_dict_word, 0.15,
+                    "Penalty for non-dictionary words",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_punc, 0.2,
+                    "Penalty for inconsistent punctuation",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_case, 0.1,
+                    "Penalty for inconsistent case",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_script, 0.5,
+                    "Penalty for inconsistent script",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_chartype, 0.3,
+                    "Penalty for inconsistent character type",
+                    dict->getCCUtil()->params()),
+      // TODO(daria, rays): enable font consistency checking
+      // after improving font analysis.
+      double_MEMBER(language_model_penalty_font, 0.00,
+                    "Penalty for inconsistent font",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_spacing, 0.05,
+                    "Penalty for inconsistent spacing",
+                    dict->getCCUtil()->params()),
+      double_MEMBER(language_model_penalty_increment, 0.01, "Penalty increment",
+                    dict->getCCUtil()->params()),
+      INT_MEMBER(wordrec_display_segmentations, 0, "Display Segmentations",
+                 dict->getCCUtil()->params()),
+      BOOL_INIT_MEMBER(language_model_use_sigmoidal_certainty, false,
+                       "Use sigmoidal score for certainty",
+                       dict->getCCUtil()->params()),
+      dawg_args_(nullptr, new DawgPositionVector(), NO_PERM),
+      fontinfo_table_(fontinfo_table),
+      dict_(dict),
+      fixed_pitch_(false),
+      max_char_wh_ratio_(0.0),
+      acceptable_choice_found_(false) {
   ASSERT_HOST(dict_ != NULL);
 }
 
-LanguageModel::~LanguageModel() {
-  delete dawg_args_.updated_dawgs;
-}
+LanguageModel::~LanguageModel() { delete dawg_args_.updated_dawgs; }
 
 void LanguageModel::InitForWord(const WERD_CHOICE *prev_word,
                                 bool fixed_pitch, float max_char_wh_ratio,
@@ -797,8 +795,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   // Deal with hyphenated words.
   if (word_end && dict_->has_hyphen_end(b.unichar_id(), curr_col == 0)) {
     if (language_model_debug_level > 0) tprintf("Hyphenated word found\n");
-    return new LanguageModelDawgInfo(dawg_args_.active_dawgs,
-                                     COMPOUND_PERM);
+    return new LanguageModelDawgInfo(dawg_args_.active_dawgs, COMPOUND_PERM);
   }
 
   // Deal with compound words.
@@ -811,7 +808,8 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     // language_model_min_compound_length
     if (parent_vse == NULL || word_end ||
         dawg_args_.permuter == COMPOUND_PERM ||
-        parent_vse->length < language_model_min_compound_length) return NULL;
+        parent_vse->length < language_model_min_compound_length)
+      return NULL;
 
     int i;
     // Check a that the path terminated before the current character is a word.

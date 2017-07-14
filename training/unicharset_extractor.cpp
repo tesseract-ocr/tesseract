@@ -38,6 +38,8 @@
 #include "unichar.h"
 #include "unicharset.h"
 
+using tesseract::UNICHAR;
+
 static const char* const kUnicharsetFileName = "unicharset";
 
 UNICHAR_ID wc_to_unichar_id(const UNICHARSET &unicharset, int wc) {

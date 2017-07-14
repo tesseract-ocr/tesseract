@@ -41,11 +41,11 @@
 #include <string.h>
 #endif  // _WIN32
 
-#include <iostream>
-#include <string>
-#include <iterator>
 #include <fstream>
-#include <memory> // std::unique_ptr
+#include <iostream>
+#include <iterator>
+#include <memory>  // std::unique_ptr
+#include <string>
 
 #include "allheaders.h"
 
@@ -1540,7 +1540,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (bold) hocr_str += "<strong>";
     if (italic) hocr_str += "<em>";
     do {
-      const std::unique_ptr<const char[]> grapheme(res_it->GetUTF8Text(RIL_SYMBOL));
+      const std::unique_ptr<const char[]> grapheme(
+          res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
         hocr_str += HOcrEscape(grapheme.get());
       }
@@ -1662,7 +1663,8 @@ char* TessBaseAPI::GetTSVText(int page_number) {
     if (res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD)) bcnt++;
 
     do {
-      tsv_str += std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
+      tsv_str +=
+          std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     tsv_str += "\n";  // end of row
@@ -1720,7 +1722,8 @@ char* TessBaseAPI::GetBoxText(int page_number) {
   do {
     int left, top, right, bottom;
     if (it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom)) {
-      const std::unique_ptr</*non-const*/ char[]> text(it->GetUTF8Text(RIL_SYMBOL));
+      const std::unique_ptr</*non-const*/ char[]> text(
+          it->GetUTF8Text(RIL_SYMBOL));
       // Tesseract uses space for recognition failure. Fix to a reject
       // character, kTesseractReject so we don't create illegal box files.
       for (int i = 0; text[i] != '\0'; ++i) {
@@ -1728,8 +1731,7 @@ char* TessBaseAPI::GetBoxText(int page_number) {
           text[i] = kTesseractReject;
       }
       snprintf(result + output_length, total_length - output_length,
-               "%s %d %d %d %d %d\n",
-               text.get(), left, image_height_ - bottom,
+               "%s %d %d %d %d %d\n", text.get(), left, image_height_ - bottom,
                right, image_height_ - top, page_number);
       output_length += strlen(result + output_length);
       // Just in case...
@@ -2063,8 +2065,7 @@ void TessBaseAPI::End() {
     delete paragraph_models_;
     paragraph_models_ = NULL;
   }
-  if (osd_tesseract_ == tesseract_)
-    osd_tesseract_ = nullptr;
+  if (osd_tesseract_ == tesseract_) osd_tesseract_ = nullptr;
   delete tesseract_;
   tesseract_ = nullptr;
   delete osd_tesseract_;

@@ -221,7 +221,7 @@ void free_adapted_templates(ADAPT_TEMPLATES templates) {
 TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
   int NumProtos = MaxProtoId + 1;
 
-  TEMP_CONFIG Config = (TEMP_CONFIG) malloc(sizeof(TEMP_CONFIG_STRUCT));
+  TEMP_CONFIG Config = (TEMP_CONFIG)malloc(sizeof(TEMP_CONFIG_STRUCT));
   Config->Protos = NewBitVector (NumProtos);
 
   Config->NumTimesSeen = 1;
@@ -246,7 +246,7 @@ TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId) {
  * @note History: Thu Mar 14 13:31:31 1991, DSJ, Created.
  */
 TEMP_PROTO NewTempProto() {
-  return (TEMP_PROTO) malloc(sizeof(TEMP_PROTO_STRUCT));
+  return (TEMP_PROTO)malloc(sizeof(TEMP_PROTO_STRUCT));
 }                                /* NewTempProto */
 
 
@@ -325,7 +325,7 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
   fp->FRead(&NumTempProtos, sizeof(int), 1);
   Class->TempProtos = NIL_LIST;
   for (i = 0; i < NumTempProtos; i++) {
-    TEMP_PROTO TempProto = (TEMP_PROTO) malloc(sizeof(TEMP_PROTO_STRUCT));
+    TEMP_PROTO TempProto = (TEMP_PROTO)malloc(sizeof(TEMP_PROTO_STRUCT));
     fp->FRead(TempProto, sizeof(TEMP_PROTO_STRUCT), 1);
     Class->TempProtos = push_last (Class->TempProtos, TempProto);
   }
@@ -390,7 +390,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
  * @note History: Tue Mar 19 14:25:26 1991, DSJ, Created.
  */
 PERM_CONFIG ReadPermConfig(TFile *fp) {
-  PERM_CONFIG Config = (PERM_CONFIG) malloc(sizeof(PERM_CONFIG_STRUCT));
+  PERM_CONFIG Config = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
   uinT8 NumAmbigs;
   fp->FRead(&NumAmbigs, sizeof(uinT8), 1);
   Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
@@ -416,7 +416,7 @@ PERM_CONFIG ReadPermConfig(TFile *fp) {
  * @note History: Tue Mar 19 14:29:59 1991, DSJ, Created.
  */
 TEMP_CONFIG ReadTempConfig(TFile *fp) {
-  TEMP_CONFIG Config = (TEMP_CONFIG) malloc(sizeof(TEMP_CONFIG_STRUCT));
+  TEMP_CONFIG Config = (TEMP_CONFIG)malloc(sizeof(TEMP_CONFIG_STRUCT));
   fp->FRead(Config, sizeof(TEMP_CONFIG_STRUCT), 1);
 
   Config->Protos = NewBitVector (Config->ProtoVectorSize * BITSINLONG);

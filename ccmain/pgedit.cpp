@@ -544,7 +544,8 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
 
     default:
-      sprintf(msg, "Unrecognised event %" PRId32 "(%s)", cmd_event, new_value);
+      snprintf(msg, sizeof(msg), "Unrecognised event %" PRId32 "(%s)",
+               cmd_event, new_value);
       image_win->AddMessage(msg);
     break;
   }

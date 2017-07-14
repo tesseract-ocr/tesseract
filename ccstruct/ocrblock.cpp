@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#include <stdlib.h>
-#include <memory> // std::unique_ptr
-#include "blckerr.h"
 #include "ocrblock.h"
+#include <stdlib.h>
+#include <memory>  // std::unique_ptr
+#include "blckerr.h"
 #include "stepblob.h"
 #include "tprintf.h"
 
@@ -381,7 +381,8 @@ void BLOCK::compute_row_margins() {
     TBOX row_box = row->bounding_box();
     int left_y = row->base_line(row_box.left()) + row->x_height();
     int left_margin;
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_left(lines.get_line(left_y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_left(
+        lines.get_line(left_y));
     LeftMargin(segments_left.get(), row_box.left(), &left_margin);
 
     if (row_box.top() >= drop_cap_bottom) {
@@ -394,7 +395,8 @@ void BLOCK::compute_row_margins() {
 
     int right_y = row->base_line(row_box.right()) + row->x_height();
     int right_margin;
-    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_right(lines.get_line(right_y));
+    const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments_right(
+        lines.get_line(right_y));
     RightMargin(segments_right.get(), row_box.right(), &right_margin);
     row->set_lmargin(left_margin);
     row->set_rmargin(right_margin);

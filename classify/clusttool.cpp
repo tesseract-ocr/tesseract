@@ -227,7 +227,7 @@ FLOAT32 *ReadNFloats(TFile *fp, uinT16 N, FLOAT32 Buffer[]) {
   bool needs_free = false;
 
   if (Buffer == NULL) {
-    Buffer = static_cast<FLOAT32*>(Emalloc(N * sizeof(FLOAT32)));
+    Buffer = static_cast<FLOAT32 *>(Emalloc(N * sizeof(FLOAT32)));
     needs_free = true;
   }
 

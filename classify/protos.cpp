@@ -228,8 +228,7 @@ void FreeClassFields(CLASS_TYPE Class) {
   int i;
 
   if (Class) {
-    if (Class->MaxNumProtos > 0)
-      free(Class->Prototypes);
+    if (Class->MaxNumProtos > 0) free(Class->Prototypes);
     if (Class->MaxNumConfigs > 0) {
       for (i = 0; i < Class->NumConfigs; i++)
         FreeBitVector (Class->Configurations[i]);

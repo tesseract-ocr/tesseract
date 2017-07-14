@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        basedir.cpp  (Formerly getpath.c)
- * Description: Find the directory location of the current executable using PATH.
- * Author:      Ray Smith
- * Created:     Mon Jul 09 09:06:39 BST 1990
+ * Description: Find the directory location of the current executable using
+ *PATH. Author:      Ray Smith Created:     Mon Jul 09 09:06:39 BST 1990
  *
  * (C) Copyright 1990, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

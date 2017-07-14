@@ -25,36 +25,11 @@
 #include "unichar.h"
 #include "unicode/normalizer2.h"  // From libicu
 #include "unicode/translit.h"     // From libicu
+#include "unicode/uchar.h"        // From libicu
 #include "unicode/unorm2.h"       // From libicu
+#include "unicode/uscript.h"      // From libicu
 
 namespace tesseract {
-
-void UTF8ToUTF32(const char* utf8_str, GenericVector<char32>* str32) {
-  str32->clear();
-  str32->reserve(strlen(utf8_str));
-  int len = strlen(utf8_str);
-  int step = 0;
-  for (int ch = 0; ch < len; ch += step) {
-    step = UNICHAR::utf8_step(utf8_str + ch);
-    if (step > 0) {
-      UNICHAR uni_ch(utf8_str + ch, step);
-      (*str32) += uni_ch.first_uni();
-    }
-  }
-}
-
-void UTF32ToUTF8(const GenericVector<char32>& str32, STRING* utf8_str) {
-  utf8_str->ensure(str32.length());
-  utf8_str->assign("", 0);
-  for (int i = 0; i < str32.length(); ++i) {
-    UNICHAR uni_ch(str32[i]);
-    char *utf8 = uni_ch.utf8_str();
-    if (utf8 != nullptr) {
-      (*utf8_str) += utf8;
-      delete[] utf8;
-    }
-  }
-}
 
 bool is_hyphen_punc(const char32 ch) {
   static const int kNumHyphenPuncUnicodes = 13;
@@ -171,42 +146,33 @@ bool IsOCREquivalent(char32 ch1, char32 ch2) {
 
 bool IsValidCodepoint(const char32 ch) {
   // In the range [0, 0xD800) or [0xE000, 0x10FFFF]
-  return (static_cast<uinT32>(ch) < 0xD800)
-      || (ch >= 0xE000 && ch <= 0x10FFFF);
+  return (static_cast<uinT32>(ch) < 0xD800) || (ch >= 0xE000 && ch <= 0x10FFFF);
 }
 
 bool IsWhitespace(const char32 ch) {
-  ASSERT_HOST_MSG(IsValidCodepoint(ch),
-                  "Invalid Unicode codepoint: 0x%x\n", ch);
+  ASSERT_HOST_MSG(IsValidCodepoint(ch), "Invalid Unicode codepoint: 0x%x\n",
+                  ch);
   return u_isUWhiteSpace(static_cast<UChar32>(ch));
 }
 
 bool IsUTF8Whitespace(const char* text) {
-#if 0 // intent
   return SpanUTF8Whitespace(text) == strlen(text);
-#else // avoiding g++ -Wsign-compare warning
-  const int res = SpanUTF8Whitespace(text);
-  assert(0 <= res);
-  return static_cast<unsigned int>(res) == strlen(text);
-#endif
 }
 
-int SpanUTF8Whitespace(const char* text) {
+unsigned int SpanUTF8Whitespace(const char* text) {
   int n_white = 0;
   for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text));
-       ++it) {
+       it != UNICHAR::end(text, strlen(text)); ++it) {
     if (!IsWhitespace(*it)) break;
     n_white += it.utf8_len();
   }
   return n_white;
 }
 
-int SpanUTF8NotWhitespace(const char* text) {
+unsigned int SpanUTF8NotWhitespace(const char* text) {
   int n_notwhite = 0;
   for (UNICHAR::const_iterator it = UNICHAR::begin(text, strlen(text));
-       it != UNICHAR::end(text, strlen(text));
-       ++it) {
+       it != UNICHAR::end(text, strlen(text)); ++it) {
     if (IsWhitespace(*it)) break;
     n_notwhite += it.utf8_len();
   }
@@ -215,33 +181,31 @@ int SpanUTF8NotWhitespace(const char* text) {
 
 bool IsInterchangeValid(const char32 ch) {
   return IsValidCodepoint(ch) &&
-      !(ch >= 0xFDD0 && ch <= 0xFDEF) &&  // Noncharacters.
-      !(ch >= 0xFFFE && ch <= 0xFFFF) &&
-      !(ch >= 0x1FFFE && ch <= 0x1FFFF) &&
-      !(ch >= 0x2FFFE && ch <= 0x2FFFF) &&
-      !(ch >= 0x3FFFE && ch <= 0x3FFFF) &&
-      !(ch >= 0x4FFFE && ch <= 0x4FFFF) &&
-      !(ch >= 0x5FFFE && ch <= 0x5FFFF) &&
-      !(ch >= 0x6FFFE && ch <= 0x6FFFF) &&
-      !(ch >= 0x7FFFE && ch <= 0x7FFFF) &&
-      !(ch >= 0x8FFFE && ch <= 0x8FFFF) &&
-      !(ch >= 0x9FFFE && ch <= 0x9FFFF) &&
-      !(ch >= 0xAFFFE && ch <= 0xAFFFF) &&
-      !(ch >= 0xBFFFE && ch <= 0xBFFFF) &&
-      !(ch >= 0xCFFFE && ch <= 0xCFFFF) &&
-      !(ch >= 0xDFFFE && ch <= 0xDFFFF) &&
-      !(ch >= 0xEFFFE && ch <= 0xEFFFF) &&
-      !(ch >= 0xFFFFE && ch <= 0xFFFFF) &&
-      !(ch >= 0x10FFFE && ch <= 0x10FFFF) &&
-      (!u_isISOControl(static_cast<UChar32>(ch)) ||
-       ch == '\n' || ch == '\f' || ch == '\t' || ch == '\r');
+         !(ch >= 0xFDD0 && ch <= 0xFDEF) &&  // Noncharacters.
+         !(ch >= 0xFFFE && ch <= 0xFFFF) && !(ch >= 0x1FFFE && ch <= 0x1FFFF) &&
+         !(ch >= 0x2FFFE && ch <= 0x2FFFF) &&
+         !(ch >= 0x3FFFE && ch <= 0x3FFFF) &&
+         !(ch >= 0x4FFFE && ch <= 0x4FFFF) &&
+         !(ch >= 0x5FFFE && ch <= 0x5FFFF) &&
+         !(ch >= 0x6FFFE && ch <= 0x6FFFF) &&
+         !(ch >= 0x7FFFE && ch <= 0x7FFFF) &&
+         !(ch >= 0x8FFFE && ch <= 0x8FFFF) &&
+         !(ch >= 0x9FFFE && ch <= 0x9FFFF) &&
+         !(ch >= 0xAFFFE && ch <= 0xAFFFF) &&
+         !(ch >= 0xBFFFE && ch <= 0xBFFFF) &&
+         !(ch >= 0xCFFFE && ch <= 0xCFFFF) &&
+         !(ch >= 0xDFFFE && ch <= 0xDFFFF) &&
+         !(ch >= 0xEFFFE && ch <= 0xEFFFF) &&
+         !(ch >= 0xFFFFE && ch <= 0xFFFFF) &&
+         !(ch >= 0x10FFFE && ch <= 0x10FFFF) &&
+         (!u_isISOControl(static_cast<UChar32>(ch)) || ch == '\n' ||
+          ch == '\f' || ch == '\t' || ch == '\r');
 }
 
 bool IsInterchangeValid7BitAscii(const char32 ch) {
-  return IsValidCodepoint(ch) &&
-      ch <= 128 &&
-      (!u_isISOControl(static_cast<UChar32>(ch)) ||
-       ch == '\n' || ch == '\f' || ch == '\t' || ch == '\r');
+  return IsValidCodepoint(ch) && ch <= 128 &&
+         (!u_isISOControl(static_cast<UChar32>(ch)) || ch == '\n' ||
+          ch == '\f' || ch == '\t' || ch == '\r');
 }
 
 char32 FullwidthToHalfwidth(const char32 ch) {

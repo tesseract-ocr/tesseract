@@ -241,7 +241,8 @@ void Dict::Load(const STRING &lang, TessdataManager *data_file) {
   if (load_bigram_dawg) {
     bigram_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_BIGRAM_DAWG,
                                                 dawg_debug_level, data_file);
-    if (bigram_dawg_) dawgs_ += bigram_dawg_;
+    // The bigram_dawg_ is NOT used like the other dawgs! DO NOT add to the
+    // dawgs_!!
   }
   if (load_freq_dawg) {
     freq_dawg_ = dawg_cache_->GetSquishedDawg(lang, TESSDATA_FREQ_DAWG,
@@ -352,6 +353,7 @@ void Dict::End() {
       delete dawgs_[i];
     }
   }
+  dawg_cache_->FreeDawg(bigram_dawg_);
   if (dawg_cache_is_ours_) {
     delete dawg_cache_;
     dawg_cache_ = NULL;
@@ -370,7 +372,7 @@ void Dict::End() {
 int Dict::def_letter_is_okay(void* void_dawg_args,
                              UNICHAR_ID unichar_id,
                              bool word_end) const {
-  DawgArgs *dawg_args = static_cast<DawgArgs*>(void_dawg_args);
+  DawgArgs *dawg_args = static_cast<DawgArgs *>(void_dawg_args);
 
   if (dawg_debug_level >= 3) {
     tprintf("def_letter_is_okay: current unichar=%s word_end=%d"

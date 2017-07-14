@@ -29,11 +29,7 @@ extern char *alloc_string(inT32 count);
 extern void free_string(char *string);
 // get some memory
 extern void *alloc_mem(inT32 count);
-// get some memory initialized to 0.
-extern void *alloc_big_zeros(inT32 count);
 // free mem from alloc_mem
 extern void free_mem(void *oldchunk);
-// free mem from alloc_big_zeros
-extern void free_big_mem(void *oldchunk);
 
 #endif

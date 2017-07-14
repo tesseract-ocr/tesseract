@@ -1980,7 +1980,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  PERM_CONFIG Perm = (PERM_CONFIG) malloc(sizeof(PERM_CONFIG_STRUCT));
+  PERM_CONFIG Perm = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 
@@ -2241,11 +2241,9 @@ void Classify::ShowBestMatchFor(int shape_id,
 
   tprintf("Static Shape ID: %d\n", shape_id);
   ShowMatchDisplay();
-  im_.Match(ClassForClassId(PreTrainedTemplates, shape_id),
-            AllProtosOn, &config_mask, // TODO: or reinterpret_cast<BIT_VECTOR>(&config_mask) anyway?
-            num_features, features, &cn_result,
-            classify_adapt_feature_threshold,
-            matcher_debug_flags,
+  im_.Match(ClassForClassId(PreTrainedTemplates, shape_id), AllProtosOn,
+            &config_mask, num_features, features, &cn_result,
+            classify_adapt_feature_threshold, matcher_debug_flags,
             matcher_debug_separate_windows);
   UpdateMatchDisplay();
 #endif  // GRAPHICS_DISABLED

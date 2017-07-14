@@ -1878,11 +1878,11 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
  *
  * Find the modal font and remove from the stats.
  */
-static void find_modal_font(           //good chars in word
-                     STATS *fonts,     //font stats
-                     inT16 *font_out,   //output font
-                     int8_t *font_count  //output count
-                    ) {
+static void find_modal_font(  // good chars in word
+    STATS* fonts,             // font stats
+    inT16* font_out,          // output font
+    int8_t* font_count        // output count
+) {
   inT16 font;                     //font index
   inT32 count;                   //pile couat
 
@@ -1999,7 +1999,7 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
     }
   }
   inT16 doc_font;                 // modal font
-  int8_t doc_font_count;           // modal font
+  int8_t doc_font_count;          // modal font
   find_modal_font(&doc_fonts, &doc_font, &doc_font_count);
   if (doc_font_count == 0)
     return;

@@ -70,8 +70,8 @@
  * join              - Concatenates list 1 and list 2.
  * delete_d          - Removes the requested elements from the list.
  * transform_d       - Modifies the list by applying a function to each node.
- * insert            - Add a new element into this spot in a list. (not NIL_LIST)
- * push_last         - Add a new element onto the end of a list.
+ * insert            - Add a new element into this spot in a list. (not
+ *NIL_LIST) push_last         - Add a new element onto the end of a list.
  * reverse_d         - Reverse a list and destroy the old one.
  *
  * ASSOCIATED LISTS:
@@ -248,8 +248,6 @@ LIST destroy(LIST list);
 void destroy_nodes(LIST list, void_dest destructor);
 
 void insert(LIST list, void *node);
-
-int is_same_node(void *item1, void *item2);
 
 int is_same(void *item1, void *item2);
 

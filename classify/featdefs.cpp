@@ -290,13 +290,13 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * - ILLEGAL_SHORT_NAME
  * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */
-int ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                           const char *ShortName) {
+uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
+                                const char *ShortName) {
   int i;
 
   for (i = 0; i < FeatureDefs.NumFeatureTypes; i++)
     if (!strcmp ((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
-      return (i);
+      return static_cast<uint32_t>(i);
   DoError (ILLEGAL_SHORT_NAME, "Illegal short name for a feature");
   return 0;
 
