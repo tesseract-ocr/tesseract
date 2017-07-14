@@ -1,57 +1,85 @@
-AM_CPPFLAGS += \
-    -DUSE_STD_NAMESPACE \
-    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
-    -I$(top_srcdir)/cutil -I$(top_srcdir)/classify -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/opencl
+libtesseract_la_SOURCES += \
+    textord/alignedblob.h \
+    textord/baselinedetect.h \
+    textord/bbgrid.h \
+    textord/blkocc.h \
+    textord/blobgrid.h \
+    textord/ccnontextdetect.h \
+    textord/cjkpitch.h \
+    textord/colfind.h \
+    textord/colpartition.h \
+    textord/colpartitionset.h \
+    textord/colpartitiongrid.h \
+    textord/devanagari_processing.h \
+    textord/drawedg.h \
+    textord/drawtord.h \
+    textord/edgblob.h \
+    textord/edgloop.h \
+    textord/equationdetectbase.h \
+    textord/fpchop.h \
+    textord/gap_map.h \
+    textord/imagefind.h \
+    textord/linefind.h \
+    textord/makerow.h \
+    textord/oldbasel.h \
+    textord/pithsync.h \
+    textord/pitsync1.h \
+    textord/scanedg.h \
+    textord/sortflts.h \
+    textord/strokewidth.h \
+    textord/tabfind.h \
+    textord/tablefind.h \
+    textord/tabvector.h \
+    textord/tablerecog.h \
+    textord/textlineprojection.h \
+    textord/textord.h \
+    textord/topitch.h \
+    textord/tordmain.h \
+    textord/tovars.h \
+    textord/underlin.h \
+    textord/wordseg.h \
+    textord/workingpartset.h
 
-AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
-        
-if VISIBILITY
-AM_CPPFLAGS += -DTESS_EXPORTS \
-    -fvisibility=hidden -fvisibility-inlines-hidden
-endif
+libtesseract_la_SOURCES += \
+    textord/alignedblob.cpp \
+    textord/baselinedetect.cpp \
+    textord/bbgrid.cpp \
+    textord/blkocc.cpp \
+    textord/blobgrid.cpp \
+    textord/ccnontextdetect.cpp \
+    textord/cjkpitch.cpp \
+    textord/colfind.cpp \
+    textord/colpartition.cpp \
+    textord/colpartitionset.cpp \
+    textord/colpartitiongrid.cpp \
+    textord/devanagari_processing.cpp \
+    textord/drawedg.cpp \
+    textord/drawtord.cpp \
+    textord/edgblob.cpp \
+    textord/edgloop.cpp \
+    textord/equationdetectbase.cpp \
+    textord/fpchop.cpp \
+    textord/gap_map.cpp \
+    textord/imagefind.cpp \
+    textord/linefind.cpp \
+    textord/makerow.cpp \
+    textord/oldbasel.cpp \
+    textord/pithsync.cpp \
+    textord/pitsync1.cpp \
+    textord/scanedg.cpp \
+    textord/sortflts.cpp \
+    textord/strokewidth.cpp \
+    textord/tabfind.cpp \
+    textord/tablefind.cpp \
+    textord/tabvector.cpp \
+    textord/tablerecog.cpp \
+    textord/textlineprojection.cpp \
+    textord/textord.cpp \
+    textord/topitch.cpp \
+    textord/tordmain.cpp \
+    textord/tospace.cpp \
+    textord/tovars.cpp \
+    textord/underlin.cpp \
+    textord/wordseg.cpp \
+    textord/workingpartset.cpp
 
-
-noinst_HEADERS = \
-    alignedblob.h baselinedetect.h bbgrid.h blkocc.h blobgrid.h \
-    ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
-    colpartitiongrid.h \
-    devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
-    equationdetectbase.h \
-    fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
-    pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
-    tabfind.h tablefind.h tabvector.h \
-    tablerecog.h textlineprojection.h textord.h \
-    topitch.h tordmain.h tovars.h \
-    underlin.h wordseg.h workingpartset.h
-
-if !USING_MULTIPLELIBS
-noinst_LTLIBRARIES = libtesseract_textord.la
-else
-lib_LTLIBRARIES = libtesseract_textord.la
-libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_textord_la_LIBADD = \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../viewer/libtesseract_viewer.la \
-    ../wordrec/libtesseract_wordrec.la \
-    ../cutil/libtesseract_cutil.la \
-    ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la \
-    ../opencl/libtesseract_opencl.la 
-endif
-
-libtesseract_textord_la_SOURCES = \
-    alignedblob.cpp baselinedetect.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
-    ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
-    colpartitiongrid.cpp devanagari_processing.cpp \
-    drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
-    equationdetectbase.cpp \
-    fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
-    pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
-    tabfind.cpp tablefind.cpp tabvector.cpp \
-    tablerecog.cpp textlineprojection.cpp textord.cpp \
-    topitch.cpp tordmain.cpp tospace.cpp tovars.cpp \
-    underlin.cpp wordseg.cpp workingpartset.cpp

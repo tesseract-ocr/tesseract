@@ -5,12 +5,13 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-AC_PREREQ([2.59])
+AC_PREREQ([2.63])
 AC_INIT([tesseract], [4.00.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+#https://www.gnu.org/software/autoconf/manual/autoconf-2.66/html_node/C_002b_002b-Compiler.html
+: ${CXXFLAGS=""}
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
-CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([api/tesseractmain.cpp])
@@ -75,7 +76,10 @@ AM_CONDITIONAL([T_WIN], false)
 AM_CONDITIONAL([MINGW], false)
 AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
+
 AC_SUBST([AM_CPPFLAGS])
+AC_SUBST([AM_CXXFLAGS])
+AC_SUBST([AM_LDFLAGS])
 
 OPENCL_INC="/opt/AMDAPP/include"
 OPENCL_LIBS="-lOpenCL"
@@ -261,15 +265,6 @@ AC_ARG_ENABLE([visibility],
 AC_MSG_RESULT([$enable_visibility])
 AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 
-# check whether to build multiple libraries
-AC_MSG_CHECKING([--enable-multiple-libraries argument])
-AC_ARG_ENABLE([multiple-libraries],
-    [AS_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
-    [enable_mlibs=$enableval],
-    [enable_mlibs="no"])
-AC_MSG_RESULT([$enable_mlibs])
-AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
-
 # Check if tessdata-prefix is disabled
 AC_MSG_CHECKING([whether to use tessdata-prefix])
 AC_ARG_ENABLE([tessdata-prefix],
@@ -288,11 +283,11 @@ AC_ARG_ENABLE([debug],
     [debug="no"])
 AC_MSG_RESULT([$debug])
 if test x"$debug" = x"yes"; then
-    AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -O0 -DDEBUG"
+    AM_CXXFLAGS="$AM_CXXFLAGS -g -O0"
+    AM_CPPFLAGS="$AM_CPPFLAGS  -DDEBUG -Wall"
 else
-    AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
+    AM_CXXFLAGS="$AM_CXXFLAGS -O2"
+    AM_CPPFLAGS="$AM_CPPFLAGS -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
@@ -300,22 +295,12 @@ fi
 # Always look into a "gnu" directory.
 curwd=`pwd`
 if test -d $curwd/gnu/include ; then
-   CPPFLAGS="$CPPFLAGS -I$curwd/gnu/include"
+   AM_CPPFLAGS="$AM_CPPFLAGS -I$curwd/gnu/include"
 fi
 if test -d $curwd/gnu/lib ; then
-   LDFLAGS="$LDFLAGS -L$curwd/gnu/lib"
+   AM_LDFLAGS="$AM_LDFLAGS -L$curwd/gnu/lib"
 fi
 
-# ----------------------------------------
-# Check Compiler Characteristics and
-# configure automake. The two appear to
-# be intimately linked...
-# ----------------------------------------
-
-AC_PROG_LIBTOOL
-
-# ----------------------------------------
-# Additional checking of compiler characteristics
 # ----------------------------------------
 
 # Check Endianness. If Big Endian, this will define WORDS_BIGENDIAN
@@ -323,21 +308,14 @@ AC_PROG_LIBTOOL
 # or MOTOROLA_BYTE_ORDER.
 AC_C_BIGENDIAN
 
-
-# ----------------------------------------
-# Check for programs we need
 # ----------------------------------------
 
-# Check where all the following programs are and set
-# variables accordingly:
 LT_INIT
 
 
 # ----------------------------------------
 # C++ related options
 # ----------------------------------------
-
-AC_LANG_CPLUSPLUS
 
 AC_MSG_CHECKING([if compiling with clang])
 AC_COMPILE_IFELSE(
@@ -379,19 +357,19 @@ CXXFLAGS="$OLD_CXXFLAGS"
 # set c++11 support based on platform/compiler
 case "${host_os}" in
   cygwin*)
-    CXXFLAGS="$CXXFLAGS -std=gnu++11"
+    AM_CXXFLAGS="$AM_CXXFLAGS -std=gnu++11"
     ;;
   *-darwin* | *-macos10*)
      if test "x$CLANG" = "xyes"; then
-       CXXFLAGS="$CXXFLAGS -std=c++11 "
-       LDFLAGS="$LDFLAGS -stdlib=libc++"
+       AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11 "
+       AM_LDFLAGS="$AM_LDFLAGS -stdlib=libc++"
      else
-       CXXFLAGS="$CXXFLAGS -std=c++11"
+       AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11"
      fi
     ;;
   *)
     # default
-    CXXFLAGS="$CXXFLAGS -std=c++11"
+    AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11"
     ;;
 esac
 
@@ -464,7 +442,7 @@ if !($have_pango); then
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
 else
-      CPPFLAGS="$CPPFLAGS $pango_CFLAGS"
+      AM_CPPFLAGS="$AM_CPPFLAGS $pango_CFLAGS"
 fi
 
 # Check location of cairo headers
@@ -474,7 +452,7 @@ if !($have_cairo); then
         AC_MSG_WARN([Try to install libcairo-dev?? package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
 else
-      CPPFLAGS="$CPPFLAGS $cairo_CFLAGS"
+      AM_CPPFLAGS="$AM_CPPFLAGS $cairo_CFLAGS"
 fi
 
 
@@ -484,19 +462,6 @@ fi
 
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
-AC_CONFIG_FILES([api/Makefile])
-AC_CONFIG_FILES([arch/Makefile])
-AC_CONFIG_FILES([ccmain/Makefile])
-AC_CONFIG_FILES([opencl/Makefile])
-AC_CONFIG_FILES([ccstruct/Makefile])
-AC_CONFIG_FILES([ccutil/Makefile])
-AC_CONFIG_FILES([classify/Makefile])
-AC_CONFIG_FILES([cutil/Makefile])
-AC_CONFIG_FILES([dict/Makefile])
-AC_CONFIG_FILES([lstm/Makefile])
-AC_CONFIG_FILES([textord/Makefile])
-AC_CONFIG_FILES([viewer/Makefile])
-AC_CONFIG_FILES([wordrec/Makefile])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])

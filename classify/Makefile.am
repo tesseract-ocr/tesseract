@@ -1,50 +1,72 @@
-AM_CPPFLAGS += \
-    -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/viewer
-    
-if VISIBILITY
-AM_CPPFLAGS += -DTESS_EXPORTS \
-    -fvisibility=hidden -fvisibility-inlines-hidden
-endif
+libtesseract_la_SOURCES += \
+    classify/adaptive.h \
+    classify/blobclass.h \
+    classify/classify.h \
+    classify/cluster.h \
+    classify/clusttool.h \
+    classify/cutoffs.h \
+    classify/errorcounter.h \
+    classify/featdefs.h \
+    classify/float2int.h \
+    classify/fpoint.h \
+    classify/intfeaturedist.h \
+    classify/intfeaturemap.h \
+    classify/intfeaturespace.h \
+    classify/intfx.h \
+    classify/intmatcher.h \
+    classify/intproto.h \
+    classify/kdtree.h \
+    classify/mastertrainer.h \
+    classify/mf.h \
+    classify/mfdefs.h \
+    classify/mfoutline.h \
+    classify/mfx.h \
+    classify/normfeat.h \
+    classify/normmatch.h \
+    classify/ocrfeatures.h \
+    classify/outfeat.h \
+    classify/picofeat.h \
+    classify/protos.h \
+    classify/sampleiterator.h \
+    classify/shapeclassifier.h \
+    classify/shapetable.h \
+    classify/tessclassifier.h \
+    classify/trainingsample.h \
+    classify/trainingsampleset.h
 
-noinst_HEADERS = \
-    adaptive.h blobclass.h \
-    classify.h cluster.h clusttool.h cutoffs.h \
-    errorcounter.h \
-    featdefs.h float2int.h fpoint.h \
-    intfeaturedist.h intfeaturemap.h intfeaturespace.h \
-    intfx.h intmatcher.h intproto.h kdtree.h \
-    mastertrainer.h mf.h mfdefs.h mfoutline.h mfx.h \
-    normfeat.h normmatch.h \
-    ocrfeatures.h outfeat.h picofeat.h protos.h \
-    sampleiterator.h shapeclassifier.h shapetable.h \
-    tessclassifier.h trainingsample.h trainingsampleset.h
-
-if !USING_MULTIPLELIBS
-noinst_LTLIBRARIES = libtesseract_classify.la
-else
-lib_LTLIBRARIES = libtesseract_classify.la
-libtesseract_classify_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_classify_la_LIBADD = \
-    ../ccutil/libtesseract_ccutil.la \
-    ../cutil/libtesseract_cutil.la \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../dict/libtesseract_dict.la \
-    ../viewer/libtesseract_viewer.la
-endif
-
-libtesseract_classify_la_SOURCES = \
-    adaptive.cpp adaptmatch.cpp blobclass.cpp \
-    classify.cpp cluster.cpp clusttool.cpp cutoffs.cpp \
-    errorcounter.cpp \
-    featdefs.cpp float2int.cpp fpoint.cpp \
-    intfeaturedist.cpp intfeaturemap.cpp intfeaturespace.cpp \
-    intfx.cpp intmatcher.cpp intproto.cpp kdtree.cpp \
-    mastertrainer.cpp mf.cpp mfdefs.cpp mfoutline.cpp mfx.cpp \
-    normfeat.cpp normmatch.cpp \
-    ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
-    sampleiterator.cpp shapeclassifier.cpp shapetable.cpp \
-    tessclassifier.cpp trainingsample.cpp trainingsampleset.cpp 
-
-
+libtesseract_la_SOURCES += \
+    classify/adaptive.cpp \
+    classify/adaptmatch.cpp \
+    classify/blobclass.cpp \
+    classify/classify.cpp \
+    classify/cluster.cpp \
+    classify/clusttool.cpp \
+    classify/cutoffs.cpp \
+    classify/errorcounter.cpp \
+    classify/featdefs.cpp \
+    classify/float2int.cpp \
+    classify/fpoint.cpp \
+    classify/intfeaturedist.cpp \
+    classify/intfeaturemap.cpp \
+    classify/intfeaturespace.cpp \
+    classify/intfx.cpp \
+    classify/intmatcher.cpp \
+    classify/intproto.cpp \
+    classify/kdtree.cpp \
+    classify/mastertrainer.cpp \
+    classify/mf.cpp \
+    classify/mfdefs.cpp \
+    classify/mfoutline.cpp \
+    classify/mfx.cpp \
+    classify/normfeat.cpp \
+    classify/normmatch.cpp \
+    classify/ocrfeatures.cpp \
+    classify/outfeat.cpp \
+    classify/picofeat.cpp \
+    classify/protos.cpp \
+    classify/sampleiterator.cpp \
+    classify/shapeclassifier.cpp \
+    classify/shapetable.cpp \
+    classify/tessclassifier.cpp \
+    classify/trainingsample.cpp \
+    classify/trainingsampleset.cpp
