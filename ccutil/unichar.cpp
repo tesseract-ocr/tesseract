@@ -226,3 +226,19 @@ std::vector<char32> UNICHAR::UTF8ToUTF32(const char* utf8_str) {
   return unicodes;
 }
 
+// Returns an empty string if the input contains an invalid unicode.
+string UNICHAR::UTF32ToUTF8(const std::vector<char32>& str32) {
+  string utf8_str;
+  for (char32 ch : str32) {
+    UNICHAR uni_ch(ch);
+    int step;
+    if (uni_ch.utf8_len() > 0 && (step = utf8_step(uni_ch.utf8())) > 0) {
+      utf8_str.append(uni_ch.utf8(), step);
+    } else {
+      return "";
+    }
+  }
+  return utf8_str;
+}
+
+}  // namespace tesseract

@@ -21,7 +21,9 @@ noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
       fileio.h icuerrorcode.h ligature_table.h lstmtester.h normstrngs.h \
       mergenf.h pango_font_info.h stringrenderer.h \
-      tessopt.h tlog.h unicharset_training_utils.h util.h
+      tessopt.h tlog.h unicharset_training_utils.h util.h \
+      validate_grapheme.h validate_indic.h validate_khmer.h \
+      validate_myanmar.h validator.h
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
@@ -32,7 +34,9 @@ libtesseract_training_la_LIBADD = \
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp ligature_table.cpp lstmtester.cpp normstrngs.cpp pango_font_info.cpp \
-      stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp
+      stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp \
+      validate_grapheme.cpp validate_indic.cpp validate_khmer.cpp \
+      validate_myanmar.cpp validator.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp

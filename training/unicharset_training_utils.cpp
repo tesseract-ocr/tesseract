@@ -122,8 +122,14 @@ void SetupBasicProperties(bool report_errors, bool decompose,
     }
 
     // Record normalized version of this unichar.
-    string normed_str = tesseract::NormalizeUTF8String(decompose, unichar_str);
-    if (unichar_id != 0 && !normed_str.empty()) {
+    string normed_str;
+    if (unichar_id != 0 &&
+        tesseract::NormalizeUTF8String(
+            decompose ? tesseract::UnicodeNormMode::kNFKD
+                      : tesseract::UnicodeNormMode::kNFKC,
+            tesseract::OCRNorm::kNormalize, tesseract::GraphemeNorm::kNone,
+            unichar_str, &normed_str) &&
+        !normed_str.empty()) {
       unicharset->set_normed(unichar_id, normed_str.c_str());
     } else {
       unicharset->set_normed(unichar_id, unichar_str);
