@@ -53,6 +53,12 @@
 #define SIGNED signed
 #endif
 
+// Fix to map between google use of string without std and everywhere else.
+#ifdef USE_STD_NAMESPACE
+#include <string>
+using std::string;
+#endif
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

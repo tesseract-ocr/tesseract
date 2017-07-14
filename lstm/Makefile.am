@@ -1,7 +1,7 @@
 AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/arch -I$(top_srcdir)/viewer -I$(top_srcdir)/classify \
-    -I$(top_srcdir)/dict -I$(top_srcdir)/lstm
+    -I$(top_srcdir)/dict -I$(top_srcdir)/lstm -DUSE_STD_NAMESPACE
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS =
 AM_CXXFLAGS = $(OPENMP_CXXFLAGS)

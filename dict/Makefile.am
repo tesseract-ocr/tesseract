@@ -1,5 +1,5 @@
 AM_CPPFLAGS += -I$(top_srcdir)/cutil -I$(top_srcdir)/ccutil \
-    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer
+    -I$(top_srcdir)/ccstruct -I$(top_srcdir)/viewer -DUSE_STD_NAMESPACE
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
