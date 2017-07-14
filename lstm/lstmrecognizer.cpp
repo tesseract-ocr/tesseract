@@ -115,6 +115,9 @@ bool LSTMRecognizer::DeSerialize(TFile* fp) {
       tprintf("Space was garbled in recoding!!\n");
       return false;
     }
+  } else {
+    recoder_.SetupPassThrough(GetUnicharset());
+    training_flags_ |= TF_COMPRESS_UNICHARSET;
   }
   network_->SetRandomizer(&randomizer_);
   network_->CacheXScaleFactor(network_->XScaleFactor());
@@ -145,91 +148,21 @@ bool LSTMRecognizer::LoadDictionary(const char* lang, TessdataManager* mgr) {
 // ratings matrix and matching box_word for each WERD_RES in the output.
 void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
-                                   bool use_alternates,
-                                   const UNICHARSET* target_unicharset,
-                                   const TBOX& line_box, float score_ratio,
-                                   bool one_word,
+                                   const TBOX& line_box,
                                    PointerVector<WERD_RES>* words) {
   NetworkIO outputs;
-  float label_threshold = use_alternates ? 0.75f : 0.0f;
   float scale_factor;
   NetworkIO inputs;
-  if (!RecognizeLine(image_data, invert, debug, false, label_threshold,
-                     &scale_factor, &inputs, &outputs))
+  if (!RecognizeLine(image_data, invert, debug, false, &scale_factor, &inputs,
+                     &outputs))
     return;
-  if (IsRecoding()) {
-    if (search_ == NULL) {
-      search_ =
-          new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
-    }
-    search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, NULL);
-    search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
-                                    &GetUnicharset(), words);
-  } else {
-    GenericVector<int> label_coords;
-    GenericVector<int> labels;
-    LabelsFromOutputs(outputs, label_threshold, &labels, &label_coords);
-    WordsFromOutputs(outputs, labels, label_coords, line_box, debug,
-                     use_alternates, one_word, score_ratio, scale_factor,
-                     target_unicharset, words);
+  if (search_ == NULL) {
+    search_ =
+        new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
-}
-
-// Builds a set of tesseract-compatible WERD_RESs aligned to line_box,
-// corresponding to the network output in outputs, labels, label_coords.
-// one_word generates a single word output, that may include spaces inside.
-// use_alternates generates alternative BLOB_CHOICEs and segmentation paths.
-// If not NULL, we attempt to translate the output to target_unicharset, but do
-// not guarantee success, due to mismatches. In that case the output words are
-// marked with our UNICHARSET, not the caller's.
-void LSTMRecognizer::WordsFromOutputs(
-    const NetworkIO& outputs, const GenericVector<int>& labels,
-    const GenericVector<int> label_coords, const TBOX& line_box, bool debug,
-    bool use_alternates, bool one_word, float score_ratio, float scale_factor,
-    const UNICHARSET* target_unicharset, PointerVector<WERD_RES>* words) {
-  // Convert labels to unichar-ids.
-  int word_end = 0;
-  float prev_space_cert = 0.0f;
-  for (int i = 0; i < labels.size(); i = word_end) {
-    word_end = i + 1;
-    if (labels[i] == null_char_ || labels[i] == UNICHAR_SPACE) {
-      continue;
-    }
-    float space_cert = 0.0f;
-    if (one_word) {
-      word_end = labels.size();
-    } else {
-      // Find the end of the word at the first null_char_ that leads to the
-      // first UNICHAR_SPACE.
-      while (word_end < labels.size() && labels[word_end] != UNICHAR_SPACE)
-        ++word_end;
-      if (word_end < labels.size()) {
-        float rating;
-        outputs.ScoresOverRange(label_coords[word_end],
-                                label_coords[word_end] + 1, UNICHAR_SPACE,
-                                null_char_, &rating, &space_cert);
-      }
-      while (word_end > i && labels[word_end - 1] == null_char_) --word_end;
-    }
-    ASSERT_HOST(word_end > i);
-    // Create a WERD_RES for the output word.
-    if (debug)
-      tprintf("Creating word from outputs over [%d,%d)\n", i, word_end);
-    WERD_RES* word =
-        WordFromOutput(line_box, outputs, i, word_end, score_ratio,
-                       MIN(prev_space_cert, space_cert), debug,
-                       use_alternates && !SimpleTextOutput(), target_unicharset,
-                       labels, label_coords, scale_factor);
-    if (word == NULL && target_unicharset != NULL) {
-      // Unicharset translation failed - use decoder_ instead, and disable
-      // the segmentation search on output, as it won't understand the encoding.
-      word = WordFromOutput(line_box, outputs, i, word_end, score_ratio,
-                            MIN(prev_space_cert, space_cert), debug, false,
-                            NULL, labels, label_coords, scale_factor);
-    }
-    prev_space_cert = space_cert;
-    words->push_back(word);
-  }
+  search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, NULL);
+  search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
+                                  &GetUnicharset(), words);
 }
 
 // Helper computes min and mean best results in the output.
@@ -251,12 +184,10 @@ void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
 
 // Recognizes the image_data, returning the labels,
 // scores, and corresponding pairs of start, end x-coords in coords.
-// If label_threshold is positive, uses it for making the labels, otherwise
-// uses standard ctc.
 bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, bool re_invert,
-                                   float label_threshold, float* scale_factor,
-                                   NetworkIO* inputs, NetworkIO* outputs) {
+                                   float* scale_factor, NetworkIO* inputs,
+                                   NetworkIO* outputs) {
   // Maximum width of image to train on.
   const int kMaxImageWidth = 2560;
   // This ensures consistent recognition results.
@@ -312,133 +243,11 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   pixDestroy(&pix);
   if (debug) {
     GenericVector<int> labels, coords;
-    LabelsFromOutputs(*outputs, label_threshold, &labels, &coords);
+    LabelsFromOutputs(*outputs, &labels, &coords);
     DisplayForward(*inputs, labels, coords, "LSTMForward", &debug_win_);
     DebugActivationPath(*outputs, labels, coords);
   }
   return true;
-}
-
-// Returns a tesseract-compatible WERD_RES from the line recognizer outputs.
-// line_box should be the bounding box of the line image in the main image,
-// outputs the output of the network,
-// [word_start, word_end) the interval over which to convert,
-// score_ratio for choosing alternate classifier choices,
-// use_alternates to control generation of alternative segmentations,
-// labels, label_coords, scale_factor from RecognizeLine above.
-// If target_unicharset is not NULL, attempts to translate the internal
-// unichar_ids to the target_unicharset, but falls back to untranslated ids
-// if the translation should fail.
-WERD_RES* LSTMRecognizer::WordFromOutput(
-    const TBOX& line_box, const NetworkIO& outputs, int word_start,
-    int word_end, float score_ratio, float space_certainty, bool debug,
-    bool use_alternates, const UNICHARSET* target_unicharset,
-    const GenericVector<int>& labels, const GenericVector<int>& label_coords,
-    float scale_factor) {
-  WERD_RES* word_res = InitializeWord(
-      line_box, word_start, word_end, space_certainty, use_alternates,
-      target_unicharset, labels, label_coords, scale_factor);
-  int max_blob_run = word_res->ratings->bandwidth();
-  for (int width = 1; width <= max_blob_run; ++width) {
-    int col = 0;
-    for (int i = word_start; i + width <= word_end; ++i) {
-      if (labels[i] != null_char_) {
-        // Starting at i, use width labels, but stop at the next null_char_.
-        // This forms all combinations of blobs between regions of null_char_.
-        int j = i + 1;
-        while (j - i < width && labels[j] != null_char_) ++j;
-        if (j - i == width) {
-          // Make the blob choices.
-          int end_coord = label_coords[j];
-          if (j < word_end && labels[j] == null_char_)
-            end_coord = label_coords[j + 1];
-          BLOB_CHOICE_LIST* choices = GetBlobChoices(
-              col, col + width - 1, debug, outputs, target_unicharset,
-              label_coords[i], end_coord, score_ratio);
-          if (choices == NULL) {
-            delete word_res;
-            return NULL;
-          }
-          word_res->ratings->put(col, col + width - 1, choices);
-        }
-        ++col;
-      }
-    }
-  }
-  if (use_alternates) {
-    // Merge adjacent single results over null_char boundaries.
-    int col = 0;
-    for (int i = word_start; i + 2 < word_end; ++i) {
-      if (labels[i] != null_char_ && labels[i + 1] == null_char_ &&
-          labels[i + 2] != null_char_ &&
-          (i == word_start || labels[i - 1] == null_char_) &&
-          (i + 3 == word_end || labels[i + 3] == null_char_)) {
-        int end_coord = label_coords[i + 3];
-        if (i + 3 < word_end && labels[i + 3] == null_char_)
-          end_coord = label_coords[i + 4];
-        BLOB_CHOICE_LIST* choices =
-            GetBlobChoices(col, col + 1, debug, outputs, target_unicharset,
-                           label_coords[i], end_coord, score_ratio);
-        if (choices == NULL) {
-          delete word_res;
-          return NULL;
-        }
-        word_res->ratings->put(col, col + 1, choices);
-      }
-      if (labels[i] != null_char_) ++col;
-    }
-  } else {
-    word_res->FakeWordFromRatings(TOP_CHOICE_PERM);
-  }
-  return word_res;
-}
-
-// Sets up a word with the ratings matrix and fake blobs with boxes in the
-// right places.
-WERD_RES* LSTMRecognizer::InitializeWord(const TBOX& line_box, int word_start,
-                                         int word_end, float space_certainty,
-                                         bool use_alternates,
-                                         const UNICHARSET* target_unicharset,
-                                         const GenericVector<int>& labels,
-                                         const GenericVector<int>& label_coords,
-                                         float scale_factor) {
-  // Make a fake blob for each non-zero label.
-  C_BLOB_LIST blobs;
-  C_BLOB_IT b_it(&blobs);
-  // num_blobs is the length of the diagonal of the ratings matrix.
-  int num_blobs = 0;
-  // max_blob_run is the diagonal width of the ratings matrix
-  int max_blob_run = 0;
-  int blob_run = 0;
-  for (int i = word_start; i < word_end; ++i) {
-    if (IsRecoding() && !recoder_.IsValidFirstCode(labels[i])) continue;
-    if (labels[i] != null_char_) {
-      // Make a fake blob.
-      TBOX box(label_coords[i], 0, label_coords[i + 1], line_box.height());
-      box.scale(scale_factor);
-      box.move(ICOORD(line_box.left(), line_box.bottom()));
-      box.set_top(line_box.top());
-      b_it.add_after_then_move(C_BLOB::FakeBlob(box));
-      ++num_blobs;
-      ++blob_run;
-    }
-    if (labels[i] == null_char_ || i + 1 == word_end) {
-      if (blob_run > max_blob_run)
-        max_blob_run = blob_run;
-    }
-  }
-  if (!use_alternates) max_blob_run = 1;
-  ASSERT_HOST(label_coords.size() >= word_end);
-  // Make a fake word from the blobs.
-  WERD* word = new WERD(&blobs, word_start > 1 ? 1 : 0, NULL);
-  // Make a WERD_RES from the word.
-  WERD_RES* word_res = new WERD_RES(word);
-  word_res->uch_set =
-      target_unicharset != NULL ? target_unicharset : &GetUnicharset();
-  word_res->combination = true;  // Give it ownership of the word.
-  word_res->space_certainty = space_certainty;
-  word_res->ratings = new MATRIX(num_blobs, max_blob_run);
-  return word_res;
 }
 
 // Converts an array of labels to utf-8, whether or not the labels are
@@ -569,83 +378,14 @@ static bool NullIsBest(const NetworkIO& output, float null_thr,
 // and start xcoords of each char, and each null_char_, with an additional
 // final xcoord for the end of the output.
 // The conversion method is determined by internal state.
-void LSTMRecognizer::LabelsFromOutputs(const NetworkIO& outputs, float null_thr,
+void LSTMRecognizer::LabelsFromOutputs(const NetworkIO& outputs,
                                        GenericVector<int>* labels,
                                        GenericVector<int>* xcoords) {
   if (SimpleTextOutput()) {
     LabelsViaSimpleText(outputs, labels, xcoords);
-  } else if (IsRecoding()) {
-    LabelsViaReEncode(outputs, labels, xcoords);
-  } else if (null_thr <= 0.0) {
-    LabelsViaCTC(outputs, labels, xcoords);
   } else {
-    LabelsViaThreshold(outputs, null_thr, labels, xcoords);
+    LabelsViaReEncode(outputs, labels, xcoords);
   }
-}
-
-// Converts the network output to a sequence of labels, using a threshold
-// on the null_char_ to determine character boundaries. Outputs labels, scores
-// and start xcoords of each char, and each null_char_, with an additional
-// final xcoord for the end of the output.
-// The label output is the one with the highest score in the interval between
-// null_chars_.
-void LSTMRecognizer::LabelsViaThreshold(const NetworkIO& output,
-                                        float null_thr,
-                                        GenericVector<int>* labels,
-                                        GenericVector<int>* xcoords) {
-  labels->truncate(0);
-  xcoords->truncate(0);
-  int width = output.Width();
-  int t = 0;
-  // Skip any initial non-char.
-  while (t < width && NullIsBest(output, null_thr, null_char_, t)) {
-    ++t;
-  }
-  while (t < width) {
-    ASSERT_HOST(!std::isnan(output.f(t)[null_char_]));
-    int label = output.BestLabel(t, null_char_, null_char_, NULL);
-    int char_start = t++;
-    while (t < width && !NullIsBest(output, null_thr, null_char_, t) &&
-           label == output.BestLabel(t, null_char_, null_char_, NULL)) {
-      ++t;
-    }
-    int char_end = t;
-    labels->push_back(label);
-    xcoords->push_back(char_start);
-    // Find the end of the non-char, and compute its score.
-    while (t < width && NullIsBest(output, null_thr, null_char_, t)) {
-      ++t;
-    }
-    if (t > char_end) {
-      labels->push_back(null_char_);
-      xcoords->push_back(char_end);
-    }
-  }
-  xcoords->push_back(width);
-}
-
-// Converts the network output to a sequence of labels, with scores and
-// start x-coords of the character labels. Retains the null_char_ as the
-// end x-coord, where already present, otherwise the start of the next
-// character is the end.
-// The number of labels, scores, and xcoords is always matched, except that
-// there is always an additional xcoord for the last end position.
-void LSTMRecognizer::LabelsViaCTC(const NetworkIO& output,
-                                  GenericVector<int>* labels,
-                                  GenericVector<int>* xcoords) {
-  labels->truncate(0);
-  xcoords->truncate(0);
-  int width = output.Width();
-  int t = 0;
-  while (t < width) {
-    float score = 0.0f;
-    int label = output.BestLabel(t, &score);
-    labels->push_back(label);
-    xcoords->push_back(t);
-    while (++t < width && output.BestLabel(t, NULL) == label) {
-    }
-  }
-  xcoords->push_back(width);
 }
 
 // As LabelsViaCTC except that this function constructs the best path that
@@ -679,82 +419,6 @@ void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO& output,
     }
   }
   xcoords->push_back(width);
-}
-
-// Helper returns a BLOB_CHOICE_LIST for the choices in a given x-range.
-// Handles either LSTM labels or direct unichar-ids.
-// Score ratio determines the worst ratio between top choice and remainder.
-// If target_unicharset is not NULL, attempts to translate to the target
-// unicharset, returning NULL on failure.
-BLOB_CHOICE_LIST* LSTMRecognizer::GetBlobChoices(
-    int col, int row, bool debug, const NetworkIO& output,
-    const UNICHARSET* target_unicharset, int x_start, int x_end,
-    float score_ratio) {
-  float rating = 0.0f, certainty = 0.0f;
-  int label = output.BestChoiceOverRange(x_start, x_end, UNICHAR_SPACE,
-                                         null_char_, &rating, &certainty);
-  int unichar_id = label == null_char_ ? UNICHAR_SPACE : label;
-  if (debug) {
-    tprintf("Best choice over range %d,%d=unichar%d=%s r = %g, cert=%g\n",
-            x_start, x_end, unichar_id, DecodeSingleLabel(label), rating,
-            certainty);
-  }
-  BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
-  BLOB_CHOICE_IT bc_it(choices);
-  if (!AddBlobChoices(unichar_id, rating, certainty, col, row,
-                      target_unicharset, &bc_it)) {
-    delete choices;
-    return NULL;
-  }
-  // Get the other choices.
-  double best_cert = certainty;
-  for (int c = 0; c < output.NumFeatures(); ++c) {
-    if (c == label || c == UNICHAR_SPACE || c == null_char_) continue;
-    // Compute the score over the range.
-    output.ScoresOverRange(x_start, x_end, c, null_char_, &rating, &certainty);
-    int unichar_id = c == null_char_ ? UNICHAR_SPACE : c;
-    if (certainty >= best_cert - score_ratio &&
-        !AddBlobChoices(unichar_id, rating, certainty, col, row,
-                        target_unicharset, &bc_it)) {
-      delete choices;
-      return NULL;
-    }
-  }
-  choices->sort(&BLOB_CHOICE::SortByRating);
-  if (bc_it.length() > kMaxChoices) {
-    bc_it.move_to_first();
-    for (int i = 0; i < kMaxChoices; ++i)
-      bc_it.forward();
-    while (!bc_it.at_first()) {
-      delete bc_it.extract();
-      bc_it.forward();
-    }
-  }
-  return choices;
-}
-
-// Adds to the given iterator, the blob choices for the target_unicharset
-// that correspond to the given LSTM unichar_id.
-// Returns false if unicharset translation failed.
-bool LSTMRecognizer::AddBlobChoices(int unichar_id, float rating,
-                                    float certainty, int col, int row,
-                                    const UNICHARSET* target_unicharset,
-                                    BLOB_CHOICE_IT* bc_it) {
-  int target_id = unichar_id;
-  if (target_unicharset != NULL) {
-    const char* utf8 = GetUnicharset().id_to_unichar(unichar_id);
-    if (target_unicharset->contains_unichar(utf8)) {
-      target_id = target_unicharset->unichar_to_id(utf8);
-    } else {
-      return false;
-    }
-  }
-  BLOB_CHOICE* choice = new BLOB_CHOICE(target_id, rating, certainty, -1, 1.0f,
-                                        static_cast<float>(MAX_INT16), 0.0f,
-                                        BCC_STATIC_CLASSIFIER);
-  choice->set_matrix_cell(col, row);
-  bc_it->add_after_then_move(choice);
-  return true;
 }
 
 // Returns a string corresponding to the label starting at start. Sets *end

@@ -180,13 +180,9 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
   weight_range_ = weight_range;
   learning_rate_ = learning_rate;
   momentum_ = momentum;
-  int num_outputs = null_char_ == GetUnicharset().size()
-                        ? null_char_ + 1
-                        : GetUnicharset().size();
-  if (IsRecoding()) num_outputs = recoder_.code_range();
-  if (!NetworkBuilder::InitNetwork(num_outputs, network_spec, append_index,
-                                   net_flags, weight_range, &randomizer_,
-                                   &network_)) {
+  if (!NetworkBuilder::InitNetwork(recoder_.code_range(), network_spec,
+                                   append_index, net_flags, weight_range,
+                                   &randomizer_, &network_)) {
     return false;
   }
   network_str_ += network_spec;
@@ -852,7 +848,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   float image_scale;
   NetworkIO inputs;
   bool invert = trainingdata->boxes().empty();
-  if (!RecognizeLine(*trainingdata, invert, debug, invert, 0.0f, &image_scale,
+  if (!RecognizeLine(*trainingdata, invert, debug, invert, &image_scale,
                      &inputs, fwd_outputs)) {
     tprintf("Image not trainable\n");
     return UNENCODABLE;
@@ -875,10 +871,10 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   }
   GenericVector<int> ocr_labels;
   GenericVector<int> xcoords;
-  LabelsFromOutputs(*fwd_outputs, 0.0f, &ocr_labels, &xcoords);
+  LabelsFromOutputs(*fwd_outputs, &ocr_labels, &xcoords);
   // CTC does not produce correct target labels to begin with.
   if (loss_type != LT_CTC) {
-    LabelsFromOutputs(*targets, 0.0f, &truth_labels, &xcoords);
+    LabelsFromOutputs(*targets, &truth_labels, &xcoords);
   }
   if (!DebugLSTMTraining(inputs, *trainingdata, *fwd_outputs, truth_labels,
                          *targets)) {
@@ -1021,8 +1017,9 @@ void LSTMTrainer::SetUnicharsetProperties(const STRING& script_dir) {
       tprintf("Failed to load radical-stroke info from: %s\n",
               filename.string());
     }
-    training_flags_ &= ~TF_COMPRESS_UNICHARSET;
   }
+  training_flags_ |= TF_COMPRESS_UNICHARSET;
+  recoder_.SetupPassThrough(GetUnicharset());
 }
 
 // Outputs the string and periodically displays the given network inputs
@@ -1043,7 +1040,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
     // Get class labels, xcoords and string.
     GenericVector<int> labels;
     GenericVector<int> xcoords;
-    LabelsFromOutputs(outputs, 0.0f, &labels, &xcoords);
+    LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
     tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
             training_iteration(), text.string());

@@ -31,9 +31,6 @@
 
 namespace tesseract {
 
-// Arbitarary penalty for non-dictionary words.
-// TODO(rays) How to learn this?
-const float kNonDictionaryPenalty = 5.0f;
 // Scale factor to make certainty more comparable to Tesseract.
 const float kCertaintyScale = 7.0f;
 // Worst acceptable certainty for a dictionary word.
@@ -241,8 +238,7 @@ void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
   if (im_data == NULL) return;
   lstm_recognizer_->RecognizeLine(*im_data, true, classify_debug_level > 0,
                                   kWorstDictCertainty / kCertaintyScale,
-                                  lstm_use_matrix, &unicharset, word_box, 2.0,
-                                  false, words);
+                                  word_box, words);
   delete im_data;
   SearchWords(words);
 }
@@ -269,17 +265,6 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
   for (int w = 0; w < words->size(); ++w) {
     WERD_RES* word = (*words)[w];
     if (word->best_choice == NULL) {
-      // If we are using the beam search, the unicharset had better match!
-      word->SetupWordScript(unicharset);
-      WordSearch(word);
-    } else if (word->best_choice->unicharset() == &unicharset &&
-               !lstm_recognizer_->IsRecoding()) {
-      // We set up the word without using the dictionary, so set the permuter
-      // now, but we can only do it because the unicharsets match.
-      word->best_choice->set_permuter(
-          getDict().valid_word(*word->best_choice, true));
-    }
-    if (word->best_choice == NULL) {
       // It is a dud.
       word->SetupFake(lstm_recognizer_->GetUnicharset());
     } else {
@@ -297,10 +282,6 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
       float word_certainty = MIN(word->space_certainty,
                                  word->best_choice->certainty());
       word_certainty *= kCertaintyScale;
-      // Arbitrary ding factor for non-dictionary words.
-      if (!lstm_recognizer_->IsRecoding() &&
-          !Dict::valid_word_permuter(word->best_choice->permuter(), true))
-        word_certainty -= kNonDictionaryPenalty;
       if (getDict().stopper_debug_level >= 1) {
         tprintf("Best choice certainty=%g, space=%g, scaled=%g, final=%g\n",
                 word->best_choice->certainty(), word->space_certainty,

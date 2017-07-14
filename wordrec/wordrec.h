@@ -270,9 +270,6 @@ class Wordrec : public Classify {
   void SegSearch(WERD_RES* word_res,
                  BestChoiceBundle* best_choice_bundle,
                  BlamerBundle* blamer_bundle);
-  // Setup and run just the initial segsearch on an established matrix,
-  // without doing any additional chopping or joining.
-  void WordSearch(WERD_RES* word_res);
 
   // Setup and run just the initial segsearch on an established matrix,
   // without doing any additional chopping or joining.

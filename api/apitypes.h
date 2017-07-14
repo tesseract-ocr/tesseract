@@ -21,6 +21,7 @@
 #define TESSERACT_API_APITYPES_H_
 
 #include "publictypes.h"
+#include "version.h"
 
 // The types used by the API and Page/ResultIterator can be found in:
 //   ccstruct/publictypes.h

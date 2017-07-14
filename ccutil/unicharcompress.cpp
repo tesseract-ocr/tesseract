@@ -238,6 +238,11 @@ void UnicharCompress::SetupPassThrough(const UNICHARSET& unicharset) {
     code.Set(0, u);
     codes.push_back(code);
   }
+  if (!unicharset.has_special_codes()) {
+    RecodedCharID code;
+    code.Set(0, unicharset.size());
+    codes.push_back(code);
+  }
   SetupDirect(codes);
 }
 
