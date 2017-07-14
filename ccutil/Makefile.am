@@ -15,7 +15,8 @@ endif
 include_HEADERS = \
 	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
 	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
-	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h
+	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h \
+    version.h
 
 noinst_HEADERS = \
     ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \

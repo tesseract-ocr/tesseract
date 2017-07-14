@@ -68,10 +68,24 @@ LSTMRecognizer::~LSTMRecognizer() {
   delete search_;
 }
 
+// Loads a model from mgr, including the dictionary only if lang is not null.
+bool LSTMRecognizer::Load(const char* lang, TessdataManager* mgr) {
+  TFile fp;
+  if (!mgr->GetComponent(TESSDATA_LSTM, &fp)) return false;
+  if (!DeSerialize(mgr, &fp)) return false;
+  if (lang == nullptr) return true;
+  // Allow it to run without a dictionary.
+  LoadDictionary(lang, mgr);
+  return true;
+}
+
 // Writes to the given file. Returns false in case of error.
-bool LSTMRecognizer::Serialize(TFile* fp) const {
+bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
+  bool include_charsets = mgr == nullptr ||
+                          !mgr->IsComponentAvailable(TESSDATA_LSTM_RECODER) ||
+                          !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
   if (!network_->Serialize(fp)) return false;
-  if (!GetUnicharset().save_to_file(fp)) return false;
+  if (include_charsets && !GetUnicharset().save_to_file(fp)) return false;
   if (!network_str_.Serialize(fp)) return false;
   if (fp->FWrite(&training_flags_, sizeof(training_flags_), 1) != 1)
     return false;
@@ -83,16 +97,20 @@ bool LSTMRecognizer::Serialize(TFile* fp) const {
   if (fp->FWrite(&weight_range_, sizeof(weight_range_), 1) != 1) return false;
   if (fp->FWrite(&learning_rate_, sizeof(learning_rate_), 1) != 1) return false;
   if (fp->FWrite(&momentum_, sizeof(momentum_), 1) != 1) return false;
-  if (IsRecoding() && !recoder_.Serialize(fp)) return false;
+  if (include_charsets && IsRecoding() && !recoder_.Serialize(fp)) return false;
   return true;
 }
 
 // Reads from the given file. Returns false in case of error.
-bool LSTMRecognizer::DeSerialize(TFile* fp) {
+bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   delete network_;
   network_ = Network::CreateFromFile(fp);
   if (network_ == NULL) return false;
-  if (!ccutil_.unicharset.load_from_file(fp, false)) return false;
+  bool include_charsets = mgr == nullptr ||
+                          !mgr->IsComponentAvailable(TESSDATA_LSTM_RECODER) ||
+                          !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
+  if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false))
+    return false;
   if (!network_str_.DeSerialize(fp)) return false;
   if (fp->FReadEndian(&training_flags_, sizeof(training_flags_), 1) != 1)
     return false;
@@ -107,6 +125,25 @@ bool LSTMRecognizer::DeSerialize(TFile* fp) {
   if (fp->FReadEndian(&learning_rate_, sizeof(learning_rate_), 1) != 1)
     return false;
   if (fp->FReadEndian(&momentum_, sizeof(momentum_), 1) != 1) return false;
+  if (include_charsets && !LoadRecoder(fp)) return false;
+  if (!include_charsets && !LoadCharsets(mgr)) return false;
+  network_->SetRandomizer(&randomizer_);
+  network_->CacheXScaleFactor(network_->XScaleFactor());
+  return true;
+}
+
+// Loads the charsets from mgr.
+bool LSTMRecognizer::LoadCharsets(const TessdataManager* mgr) {
+  TFile fp;
+  if (!mgr->GetComponent(TESSDATA_LSTM_UNICHARSET, &fp)) return false;
+  if (!ccutil_.unicharset.load_from_file(&fp, false)) return false;
+  if (!mgr->GetComponent(TESSDATA_LSTM_RECODER, &fp)) return false;
+  if (!LoadRecoder(&fp)) return false;
+  return true;
+}
+
+// Loads the Recoder.
+bool LSTMRecognizer::LoadRecoder(TFile* fp) {
   if (IsRecoding()) {
     if (!recoder_.DeSerialize(fp)) return false;
     RecodedCharID code;
@@ -119,8 +156,6 @@ bool LSTMRecognizer::DeSerialize(TFile* fp) {
     recoder_.SetupPassThrough(GetUnicharset());
     training_flags_ |= TF_COMPRESS_UNICHARSET;
   }
-  network_->SetRandomizer(&randomizer_);
-  network_->CacheXScaleFactor(network_->XScaleFactor());
   return true;
 }
 

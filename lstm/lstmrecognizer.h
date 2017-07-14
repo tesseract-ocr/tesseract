@@ -155,10 +155,20 @@ class LSTMRecognizer {
   }
   int null_char() const { return null_char_; }
 
+  // Loads a model from mgr, including the dictionary only if lang is not null.
+  bool Load(const char* lang, TessdataManager* mgr);
+
   // Writes to the given file. Returns false in case of error.
-  bool Serialize(TFile* fp) const;
+  // If mgr contains a unicharset and recoder, then they are not encoded to fp.
+  bool Serialize(const TessdataManager* mgr, TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  bool DeSerialize(TFile* fp);
+  // If mgr contains a unicharset and recoder, then they are taken from there,
+  // otherwise, they are part of the serialization in fp.
+  bool DeSerialize(const TessdataManager* mgr, TFile* fp);
+  // Loads the charsets from mgr.
+  bool LoadCharsets(const TessdataManager* mgr);
+  // Loads the Recoder.
+  bool LoadRecoder(TFile* fp);
   // Loads the dictionary if possible from the traineddata file.
   // Prints a warning message, and returns false but otherwise fails silently
   // and continues to work without it if loading fails.

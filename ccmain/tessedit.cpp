@@ -188,10 +188,10 @@ bool Tesseract::init_tesseract_lang_data(
 #ifndef ANDROID_BUILD
   if (tessedit_ocr_engine_mode == OEM_LSTM_ONLY ||
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
-    if (mgr->GetComponent(TESSDATA_LSTM, &fp)) {
+    if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer;
-      ASSERT_HOST(lstm_recognizer_->DeSerialize(&fp));
-      if (lstm_use_matrix) lstm_recognizer_->LoadDictionary(language, mgr);
+      ASSERT_HOST(
+          lstm_recognizer_->Load(lstm_use_matrix ? language : nullptr, mgr));
     } else {
       tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);

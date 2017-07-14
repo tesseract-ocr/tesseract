@@ -26,6 +26,9 @@
 #include "tprintf.h"
 
 STRING_PARAM_FLAG(model, "", "Name of model file (training or recognition)");
+STRING_PARAM_FLAG(traineddata, "",
+                  "If model is a training checkpoint, then traineddata must "
+                  "be the traineddata file that was given to the trainer");
 STRING_PARAM_FLAG(eval_listfile, "",
                   "File listing sample files in lstmf training format.");
 INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
@@ -40,10 +43,22 @@ int main(int argc, char **argv) {
     tprintf("Must provide a --eval_listfile!\n");
     return 1;
   }
-  GenericVector<char> model_data;
-  if (!tesseract::LoadDataFromFile(FLAGS_model.c_str(), &model_data)) {
-    tprintf("Failed to load model from: %s\n", FLAGS_eval_listfile.c_str());
-    return 1;
+  tesseract::TessdataManager mgr;
+  if (!mgr.Init(FLAGS_model.c_str())) {
+    tprintf("%s is not a recognition model, trying training checkpoint...\n",
+            FLAGS_model.c_str());
+    if (!mgr.Init(FLAGS_traineddata.c_str())) {
+      tprintf("Failed to load language model from %s!\n",
+              FLAGS_traineddata.c_str());
+      return 1;
+    }
+    GenericVector<char> model_data;
+    if (!tesseract::LoadDataFromFile(FLAGS_model.c_str(), &model_data)) {
+      tprintf("Failed to load model from: %s\n", FLAGS_model.c_str());
+      return 1;
+    }
+    mgr.OverwriteEntry(tesseract::TESSDATA_LSTM, &model_data[0],
+                       model_data.size());
   }
   tesseract::LSTMTester tester(static_cast<inT64>(FLAGS_max_image_MB) *
                                1048576);
@@ -52,7 +67,7 @@ int main(int argc, char **argv) {
     return 1;
   }
   double errs = 0.0;
-  STRING result = tester.RunEvalSync(0, &errs, model_data, 0);
+  STRING result = tester.RunEvalSync(0, &errs, mgr, 0);
   tprintf("%s\n", result.string());
   return 0;
 } /* main */

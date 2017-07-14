@@ -53,12 +53,11 @@ class LSTMTester {
   //   LSTMTrainer.
   // training_stage: an arbitrary number on the progress of training.
   STRING RunEvalAsync(int iteration, const double* training_errors,
-                      const GenericVector<char>& model_data,
-                      int training_stage);
+                      const TessdataManager& model_mgr, int training_stage);
   // Runs an evaluation synchronously on the stored eval data and returns a
   // string describing the results. Args as RunEvalAsync.
   STRING RunEvalSync(int iteration, const double* training_errors,
-                     const GenericVector<char>& model_data, int training_stage);
+                     const TessdataManager& model_mgr, int training_stage);
 
  private:
   // Static helper thread function for RunEvalAsync, with a specific signature
@@ -84,7 +83,7 @@ class LSTMTester {
   // Stored copies of the args for use while running asynchronously.
   int test_iteration_;
   const double* test_training_errors_;
-  GenericVector<char> test_model_data_;
+  TessdataManager test_model_mgr_;
   int test_training_stage_;
   STRING test_result_;
 };
