@@ -1516,4 +1516,4 @@ void EquationDetect::PrintSpecialBlobsDensity(const ColPartition* part) const {
   tprintf("\n");
 }
 
-};  // namespace tesseract
+}  // namespace tesseract

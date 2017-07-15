@@ -175,7 +175,7 @@ struct EDGEPT {
 };
 
 // For use in chop and findseam to keep a list of which EDGEPTs were inserted.
-CLISTIZEH(EDGEPT);
+CLISTIZEH(EDGEPT)
 
 struct TESSLINE {
   TESSLINE() : is_hole(false), loop(NULL), next(NULL) {}

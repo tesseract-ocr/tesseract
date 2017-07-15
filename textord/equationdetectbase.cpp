@@ -62,4 +62,4 @@ void EquationDetectBase::RenderSpecialText(Pix* pix,
   boxDestroy(&box);
 }
 
-};  // namespace tesseract
+}  // namespace tesseract

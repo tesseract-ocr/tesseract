@@ -33,4 +33,4 @@
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-makestructure(new_cell, free_cell, list_rec);
+makestructure(new_cell, free_cell, list_rec)

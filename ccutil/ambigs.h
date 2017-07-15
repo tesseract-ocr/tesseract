@@ -134,7 +134,7 @@ class AmbigSpec : public ELIST_LINK {
   AmbigType type;
   int wrong_ngram_size;
 };
-ELISTIZEH(AmbigSpec);
+ELISTIZEH(AmbigSpec)
 
 // AMBIG_TABLE[i] stores a set of ambiguities whose
 // wrong ngram starts with unichar id i.
