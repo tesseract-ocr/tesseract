@@ -22,7 +22,7 @@
 
 namespace tesseract {
 
-ELISTIZE(ViterbiStateEntry);
+ELISTIZE(ViterbiStateEntry)
 
 void ViterbiStateEntry::Print(const char *msg) const {
   tprintf("%s ViterbiStateEntry", msg);

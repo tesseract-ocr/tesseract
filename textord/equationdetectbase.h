@@ -54,6 +54,6 @@ class EquationDetectBase {
   static void RenderSpecialText(Pix* pix, BLOBNBOX* blob);
 };
 
-};  // namespace tesseract
+}  // namespace tesseract
 
 #endif  // TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_

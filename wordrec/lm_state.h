@@ -187,7 +187,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
   STRING *debug_str;
 };
 
-ELISTIZEH(ViterbiStateEntry);
+ELISTIZEH(ViterbiStateEntry)
 
 /// Struct to store information maintained by various language model components.
 struct LanguageModelState {

@@ -71,7 +71,8 @@ static bool DecodeRadicalStrokeTable(STRING* radical_stroke_table,
   radical_stroke_table->split('\n', &lines);
   for (int i = 0; i < lines.size(); ++i) {
     if (lines[i].length() == 0 || lines[i][0] == '#') continue;
-    int unicode, radical, strokes;
+    unsigned unicode;
+    int radical, strokes;
     STRING str_radical;
     if (sscanf(lines[i].string(), "%x\t%d.%d", &unicode, &radical, &strokes) ==
         3) {
