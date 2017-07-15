@@ -46,6 +46,16 @@
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
 
+#ifdef _MSC_VER
+#ifndef strcasecmp
+#define strcasecmp stricmp
+#endif
+#include <Shlwapi.h>
+#ifndef strcasestr
+#define strcasestr StrStrIA
+#endif
+#endif
+
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 

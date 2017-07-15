@@ -219,10 +219,17 @@ projects:
             - training/lstmtester.*
             - training/normstrngs.*
             - training/unicharset_training_utils.*
+            - training/validat.*
         include_directories: training
         dependencies:
             - common_training
             - pvt.cppan.demo.unicode.icu.i18n
+        options:
+            any:
+                link_libraries:
+                    win32:
+                        private:
+                            - Shlwapi
 
     lstmeval:
         files: training/lstmeval.cpp

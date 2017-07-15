@@ -183,12 +183,21 @@ set(unicharset_training_src
     normstrngs.h
     unicharset_training_utils.cpp
     unicharset_training_utils.h
+
+    validate_grapheme.h validate_indic.h validate_khmer.h
+    validate_myanmar.h validator.h
+    validate_grapheme.cpp validate_indic.cpp validate_khmer.cpp
+    validate_myanmar.cpp validator.cpp
+
 )
 add_library                 (unicharset_training ${unicharset_training_src})
 if (NOT CPPAN_BUILD)
 target_link_libraries       (unicharset_training common_training ${ICU_LIBRARIES})
 else()
 target_link_libraries       (unicharset_training common_training pvt.cppan.demo.unicode.icu.i18n)
+endif()
+if (WIN32)
+target_link_libraries       (unicharset_training Shlwapi)
 endif()
 project_group               (unicharset_training "Training Tools")
 
