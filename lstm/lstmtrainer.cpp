@@ -1268,7 +1268,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
   if (error_rate > best_error_rate_
       && iteration < best_iteration_ + kErrorGraphInterval) {
     // Too soon to record a new point.
-    if (tester != NULL) {
+    if (tester != NULL && !worst_model_data_.empty()) {
       mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                           worst_model_data_.size());
       return tester->Run(worst_iteration_, NULL, mgr_, CurrentTrainingStage());
