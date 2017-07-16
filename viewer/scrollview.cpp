@@ -809,7 +809,7 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
     base64[code_len++] = kBase64Table[remainder & 63];
   SendRawMessage(base64);
   delete [] base64;
-  free(data);
+  lept_free(data);
 }
 
 // Escapes the ' character with a \, so it can be processed by LUA.

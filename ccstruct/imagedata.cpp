@@ -331,7 +331,7 @@ void ImageData::SetPixInternal(Pix* pix, GenericVector<char>* image_data) {
   pixDestroy(&pix);
   image_data->resize_no_init(size);
   memcpy(&(*image_data)[0], data, size);
-  free(data);
+  lept_free(data);
 }
 
 // Returns the Pix image for the image_data. Must be pixDestroyed after use.
