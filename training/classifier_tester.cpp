@@ -17,9 +17,9 @@
 //  Author:   Ray Smith
 
 #include <stdio.h>
-#ifndef USE_STD_NAMESPACE
+#ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
-#endif  // USE_STD_NAMESPACE
+#endif  // GOOGLE_TESSERACT
 #include "baseapi.h"
 #include "commontraining.h"
 #include "mastertrainer.h"

@@ -22,9 +22,7 @@
 
 #include <string>
 
-#ifdef USE_STD_NAMESPACE
-using std::string;
-#endif
+#include "platform.h"
 
 class STATS;
 class UNICHARSET;

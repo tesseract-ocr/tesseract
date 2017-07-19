@@ -50,12 +50,6 @@
 #include "unicharset.h"
 #include "util.h"
 
-#ifdef USE_STD_NAMESPACE
-using std::make_pair;
-using std::map;
-using std::pair;
-#endif
-
 // A number with which to initialize the random number generator.
 const int kRandomSeed = 0x18273645;
 

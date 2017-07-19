@@ -27,11 +27,7 @@
 #include <vector>
 
 #include "allheaders.h"  // from Leptonica
-
-#ifdef USE_STD_NAMESPACE
-using std::string;
-using std::vector;
-#endif
+#include "platform.h"
 
 struct Box;
 

@@ -25,10 +25,7 @@
 #include <string>
 #include <vector>
 
-#ifdef USE_STD_NAMESPACE
-using std::string;
-using std::vector;
-#endif
+#include "platform.h"
 
 // StringHash is the hashing functor needed by the stl hash map.
 #ifndef COMPILER_MSVC

@@ -49,7 +49,7 @@
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
 
-#ifndef USE_STD_NAMESPACE
+#ifdef GOOGLE_TESSERACT
 #include "ocr/trainingdata/typesetting/legacy_fonts.h"
 BOOL_PARAM_FLAG(use_only_legacy_fonts, false,
                 "Overrides --fonts_dir and sets the known universe of fonts to"
@@ -544,7 +544,7 @@ const std::vector<string>& FontUtils::ListAvailableFonts() {
   if (!available_fonts_.empty()) {
     return available_fonts_;
   }
-#ifndef USE_STD_NAMESPACE
+#ifdef GOOGLE_TESSERACT
   if (FLAGS_use_only_legacy_fonts) {
     // Restrict view to list of fonts in legacy_fonts.h
     tprintf("Using list of legacy fonts only\n");

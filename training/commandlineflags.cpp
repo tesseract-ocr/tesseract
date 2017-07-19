@@ -9,7 +9,7 @@
 // limitations under the License.
 #include "commandlineflags.h"
 
-#ifdef USE_STD_NAMESPACE
+#ifndef GOOGLE_TESSERACT
 
 namespace tesseract {
 bool IntFlagExists(const char* flag_name, inT32* value) {

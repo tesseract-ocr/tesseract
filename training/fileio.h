@@ -21,9 +21,7 @@
 #include <cstdio>
 #include <string>
 
-#ifdef USE_STD_NAMESPACE
-using std::string;
-#endif
+#include "platform.h"
 
 namespace tesseract {
 

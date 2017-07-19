@@ -20,7 +20,7 @@
 #include "config_auto.h"
 #endif
 
-#ifndef USE_STD_NAMESPACE
+#ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
 #endif
 #include "commontraining.h"

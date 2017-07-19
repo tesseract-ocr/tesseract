@@ -19,7 +19,7 @@
 #ifndef TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 #define TESSERACT_TRAINING_COMMANDLINEFLAGS_H_
 
-#ifdef USE_STD_NAMESPACE
+#ifndef GOOGLE_TESSERACT
 
 #include <stdlib.h>
 #include "tprintf.h"
