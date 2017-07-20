@@ -82,6 +82,10 @@ class TESS_API ResultIterator : public LTRResultIterator {
   virtual bool IsAtFinalElement(PageIteratorLevel level,
                                 PageIteratorLevel element) const;
 
+  // ============= Functions that refer to words only ============.
+  // Returns the number of blanks before the current word.
+  int BlanksBeforeWord() const;
+
   // ============= Accessing data ==============.
 
   /**
