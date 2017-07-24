@@ -254,6 +254,8 @@ target_link_libraries           (tesseract libtesseract)
 
 if (EXISTS ${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt)
     add_subdirectory(googletest)
+    add_executable(tesseract_tests tests/tesseracttests.cpp)
+    target_link_libraries(tesseract_tests gtest_main)
 endif()
 
 if (BUILD_TRAINING_TOOLS)
