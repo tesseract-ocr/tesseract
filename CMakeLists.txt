@@ -252,6 +252,10 @@ target_link_libraries           (tesseract libtesseract)
 
 ########################################
 
+if (EXISTS ${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt)
+    add_subdirectory(googletest)
+endif()
+
 if (BUILD_TRAINING_TOOLS)
 add_subdirectory(training)
 endif()
