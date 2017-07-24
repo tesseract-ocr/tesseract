@@ -357,7 +357,7 @@ bool UnicharAmbigs::InsertIntoTable(
   // Insert the corresponding correct ngram into the unicharset.
   // Unicharset code assumes that the "base" ngram is inserted into
   // the unicharset before fragments of this ngram are inserted.
-  unicharset->unichar_insert(replacement_string);
+  unicharset->unichar_insert(replacement_string, OldUncleanUnichars::kTrue);
   ambig_spec->correct_ngram_id =
     unicharset->unichar_to_id(replacement_string);
   if (replacement_ambig_part_size > 1) {
@@ -372,7 +372,7 @@ bool UnicharAmbigs::InsertIntoTable(
     } else {
       STRING frag_str = CHAR_FRAGMENT::to_string(
           replacement_string, i, test_ambig_part_size, false);
-      unicharset->unichar_insert(frag_str.string());
+      unicharset->unichar_insert(frag_str.string(), OldUncleanUnichars::kTrue);
       unichar_id = unicharset->unichar_to_id(frag_str.string());
     }
     ambig_spec->correct_fragments[i] = unichar_id;

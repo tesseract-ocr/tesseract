@@ -24,6 +24,7 @@
 
 #include "ratngs.h"
 
+#include <string>
 #include "blobs.h"
 #include "callcpp.h"
 #include "genericvector.h"
@@ -200,10 +201,12 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
     : unicharset_(&unicharset){
   GenericVector<UNICHAR_ID> encoding;
   GenericVector<char> lengths;
-  if (unicharset.encode_string(src_string, true, &encoding, &lengths, NULL)) {
+  string cleaned = unicharset.CleanupString(src_string);
+  if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
+                               NULL)) {
     lengths.push_back('\0');
     STRING src_lengths = &lengths[0];
-    this->init(src_string, src_lengths.string(), 0.0, 0.0, NO_PERM);
+    this->init(cleaned.c_str(), src_lengths.string(), 0.0, 0.0, NO_PERM);
   } else {  // There must have been an invalid unichar in the string.
     this->init(8);
     this->make_bad();

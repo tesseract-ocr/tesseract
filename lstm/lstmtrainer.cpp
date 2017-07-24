@@ -170,6 +170,7 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
   tprintf("Training parameters:\n  Debug interval = %d,"
           " weights = %g, learning rate = %g, momentum=%g\n",
           debug_interval_, weight_range_, learning_rate_, momentum_);
+  tprintf("null char=%d\n", null_char_);
   return true;
 }
 
@@ -733,7 +734,8 @@ bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
   GenericVector<int> internal_labels;
   labels->truncate(0);
   if (!simple_text) labels->push_back(null_char);
-  if (unicharset.encode_string(str.string(), true, &internal_labels, NULL,
+  string cleaned = unicharset.CleanupString(str.string());
+  if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, NULL,
                                &err_index)) {
     bool success = true;
     for (int i = 0; i < internal_labels.size(); ++i) {
@@ -759,8 +761,8 @@ bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
     if (success) return true;
   }
   tprintf("Encoding of string failed! Failure bytes:");
-  while (err_index < str.length()) {
-    tprintf(" %x", str[err_index++]);
+  while (err_index < cleaned.size()) {
+    tprintf(" %x", cleaned[err_index++]);
   }
   tprintf("\n");
   return false;
@@ -813,8 +815,9 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
       training_iteration() % debug_interval_ == 0;
   GenericVector<int> truth_labels;
   if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
-    tprintf("Can't encode transcription: %s\n",
-            trainingdata->transcription().string());
+    tprintf("Can't encode transcription: '%s' in language '%s'\n",
+            trainingdata->transcription().string(),
+            trainingdata->language().string());
     return UNENCODABLE;
   }
   int w = 0;

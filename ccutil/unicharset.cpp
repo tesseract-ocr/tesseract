@@ -67,6 +67,15 @@ const char* UNICHARSET::kCustomLigatures[][2] = {
   {NULL, NULL}
 };
 
+// List of mappings to make when ingesting strings from the outside.
+// The substitutions clean up text that should exist for rendering of
+// synthetic data, but not in the recognition set.
+const char* UNICHARSET::kCleanupMaps[][2] = {
+    {"\u0640", ""},    // TATWEEL is deleted.
+    {"\ufb01", "fi"},  // fi ligature->fi pair.
+    {"\ufb02", "fl"},  // fl ligature->fl pair.
+    {nullptr, nullptr}};
+
 // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
 const char* UNICHARSET::kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT] = {
     " ",
@@ -196,15 +205,21 @@ void UNICHARSET::reserve(int unichars_number) {
 
 UNICHAR_ID
 UNICHARSET::unichar_to_id(const char* const unichar_repr) const {
-  return ids.contains(unichar_repr) ?
-    ids.unichar_to_id(unichar_repr) : INVALID_UNICHAR_ID;
+  string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  return ids.contains(cleaned.data(), cleaned.size())
+             ? ids.unichar_to_id(cleaned.data(), cleaned.size())
+             : INVALID_UNICHAR_ID;
 }
 
 UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
                                      int length) const {
   assert(length > 0 && length <= UNICHAR_LEN);
-  return ids.contains(unichar_repr, length) ?
-    ids.unichar_to_id(unichar_repr, length) : INVALID_UNICHAR_ID;
+  string cleaned(unichar_repr, length);
+  if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
+  return ids.contains(cleaned.data(), cleaned.size())
+             ? ids.unichar_to_id(cleaned.data(), cleaned.size())
+             : INVALID_UNICHAR_ID;
 }
 
 // Return the minimum number of bytes that matches a legal UNICHAR_ID,
@@ -235,6 +250,9 @@ bool UNICHARSET::encodable_string(const char *str,
 // the rest of the string is still encoded.
 // If lengths is not NULL, then it is filled with the corresponding
 // byte length of each encoded UNICHAR_ID.
+// WARNING: Caller must guarantee that str has already been cleaned of codes
+// that do not belong in the unicharset, or encoding may fail.
+// Use CleanupString to perform the cleaning.
 bool UNICHARSET::encode_string(const char* str, bool give_up_on_failure,
                                GenericVector<UNICHAR_ID>* encoding,
                                GenericVector<char>* lengths,
@@ -429,7 +447,7 @@ void UNICHARSET::CopyFrom(const UNICHARSET& src) {
   for (int ch = 0; ch < src.size_used; ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
-    unichar_insert(utf8);
+    unichar_insert_backwards_compatible(utf8);
     unichars[ch].properties.ExpandRangesFrom(src_props);
   }
   // Set properties, including mirror and other_case, WITHOUT reordering
@@ -445,24 +463,13 @@ void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
   for (int ch = 0; ch < src.size_used; ++ch) {
     const UNICHAR_PROPERTIES& src_props = src.unichars[ch].properties;
     const char* utf8 = src.id_to_unichar(ch);
-    if (ch >= SPECIAL_UNICHAR_CODES_COUNT && src_props.AnyRangeEmpty()) {
-      // Only use fully valid entries.
-      tprintf("Bad properties for index %d, char %s: "
-              "%d,%d %d,%d %g,%g %g,%g %g,%g\n",
-              ch, utf8, src_props.min_bottom, src_props.max_bottom,
-              src_props.min_top, src_props.max_top,
-              src_props.width, src_props.width_sd,
-              src_props.bearing, src_props.bearing_sd,
-              src_props.advance, src_props.advance_sd);
-      continue;
-    }
     int id = size_used;
     if (contains_unichar(utf8)) {
       id = unichar_to_id(utf8);
       // Just expand current ranges.
       unichars[id].properties.ExpandRangesFrom(src_props);
     } else {
-      unichar_insert(utf8);
+      unichar_insert_backwards_compatible(utf8);
       unichars[id].properties.SetRangesEmpty();
     }
   }
@@ -613,40 +620,55 @@ char UNICHARSET::get_chartype(UNICHAR_ID id) const {
   return 0;
 }
 
-void UNICHARSET::unichar_insert(const char* const unichar_repr) {
-  if (!ids.contains(unichar_repr)) {
-    if (strlen(unichar_repr) > UNICHAR_LEN) {
-      fprintf(stderr, "Utf8 buffer too big, size=%d for %s\n",
-              int(strlen(unichar_repr)), unichar_repr);
+void UNICHARSET::unichar_insert(const char* const unichar_repr,
+                                OldUncleanUnichars old_style) {
+  if (old_style == OldUncleanUnichars::kTrue) old_style_included_ = true;
+  string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
+    const char* str = cleaned.c_str();
+    GenericVector<int> encoding;
+    if (!old_style_included_ &&
+        encode_string(str, true, &encoding, nullptr, nullptr))
       return;
-    }
     if (size_used == size_reserved) {
       if (size_used == 0)
         reserve(8);
       else
         reserve(2 * size_used);
     }
-
-    strcpy(unichars[size_used].representation, unichar_repr);
+    int index = 0;
+    do {
+      if (index > UNICHAR_LEN) {
+        fprintf(stderr, "Utf8 buffer too big, size>%d for %s\n", UNICHAR_LEN,
+                unichar_repr);
+        return;
+      }
+      unichars[size_used].representation[index++] = *str++;
+    } while (*str != '\0');
+    unichars[size_used].representation[index] = '\0';
     this->set_script(size_used, null_script);
     // If the given unichar_repr represents a fragmented character, set
     // fragment property to a pointer to CHAR_FRAGMENT class instance with
     // information parsed from the unichar representation. Use the script
     // of the base unichar for the fragmented character if possible.
-    CHAR_FRAGMENT *frag = CHAR_FRAGMENT::parse_from_string(unichar_repr);
+    CHAR_FRAGMENT* frag =
+        CHAR_FRAGMENT::parse_from_string(unichars[size_used].representation);
     this->unichars[size_used].properties.fragment = frag;
     if (frag != NULL && this->contains_unichar(frag->get_unichar())) {
       this->unichars[size_used].properties.script_id =
         this->get_script(frag->get_unichar());
     }
     this->unichars[size_used].properties.enabled = true;
-    ids.insert(unichar_repr, size_used);
+    ids.insert(unichars[size_used].representation, size_used);
     ++size_used;
   }
 }
 
 bool UNICHARSET::contains_unichar(const char* const unichar_repr) const {
-  return ids.contains(unichar_repr);
+  string cleaned =
+      old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
+  return ids.contains(cleaned.data(), cleaned.size());
 }
 
 bool UNICHARSET::contains_unichar(const char* const unichar_repr,
@@ -654,7 +676,9 @@ bool UNICHARSET::contains_unichar(const char* const unichar_repr,
   if (length == 0) {
     return false;
   }
-  return ids.contains(unichar_repr, length);
+  string cleaned(unichar_repr, length);
+  if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
+  return ids.contains(cleaned.data(), cleaned.size());
 }
 
 bool UNICHARSET::eq(UNICHAR_ID unichar_id,
@@ -840,7 +864,7 @@ bool UNICHARSET::load_via_fgets(
     if (strcmp(unichar, "NULL") == 0)
       this->unichar_insert(" ");
     else
-      this->unichar_insert(unichar);
+      this->unichar_insert_backwards_compatible(unichar);
 
     this->set_isalpha(id, properties & ISALPHA_MASK);
     this->set_islower(id, properties & ISLOWER_MASK);
@@ -1087,4 +1111,33 @@ int UNICHARSET::get_script_id_from_name(const char* script_name) const {
       return i;
   }
   return 0;  // 0 is always the null_script
+}
+
+// Removes/replaces content that belongs in rendered text, but not in the
+// unicharset.
+/* static */
+string UNICHARSET::CleanupString(const char* utf8_str, int length) {
+  string result;
+  result.reserve(length);
+  char ch;
+  while ((ch = *utf8_str) != '\0' && --length >= 0) {
+    int key_index = 0;
+    const char* key;
+    while ((key = kCleanupMaps[key_index][0]) != nullptr) {
+      int match = 0;
+      while (key[match] != '\0' && key[match] == utf8_str[match]) ++match;
+      if (key[match] == '\0') {
+        utf8_str += match;
+        break;
+      }
+      ++key_index;
+    }
+    if (key == nullptr) {
+      result.push_back(ch);
+      ++utf8_str;
+    } else {
+      result.append(kCleanupMaps[key_index][1]);
+    }
+  }
+  return result;
 }

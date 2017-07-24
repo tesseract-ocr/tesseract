@@ -117,7 +117,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
   direct_set.clear();
   radicals.clear();
   // Always keep space as 0;
-  direct_set.unichar_insert(" ");
+  direct_set.unichar_insert(" ", OldUncleanUnichars::kTrue);
   // Null char is next if we have one.
   if (null_id >= 0) {
     direct_set.unichar_insert(kNullChar);
@@ -160,7 +160,8 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
       if (it != radical_map.end()) {
         // This is Han. Convert to radical, stroke, index.
         if (!radicals.contains_unichar(it->second.radical.string())) {
-          radicals.unichar_insert(it->second.radical.string());
+          radicals.unichar_insert(it->second.radical.string(),
+                                  OldUncleanUnichars::kTrue);
         }
         int radical = radicals.unichar_to_id(it->second.radical.string());
         int num_strokes = it->second.num_strokes;
