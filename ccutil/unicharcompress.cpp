@@ -20,72 +20,65 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "unicharcompress.h"
+#include <memory>
 #include "tprintf.h"
 
 namespace tesseract {
 
 // String used to represent the null_id in direct_set.
 const char* kNullChar = "<nul>";
+// Radix to make unique values from the stored radical codes.
+const int kRadicalRadix = 29;
 
-// Local struct used only for processing the radical-stroke table.
-struct RadicalStroke {
-  RadicalStroke() : num_strokes(0) {}
-  RadicalStroke(const STRING& r, int s) : radical(r), num_strokes(s) {}
-
-  bool operator==(const RadicalStroke& other) const {
-    return radical == other.radical && num_strokes == other.num_strokes;
+// "Hash" function for const std::vector<int> computes the sum of elements.
+// Build a unique number for each code sequence that we can use as the index in
+// a hash map of ints instead of trying to hash the vectors.
+static int RadicalPreHash(const std::vector<int>& rs) {
+  size_t result = 0;
+  for (int radical : rs) {
+    result *= kRadicalRadix;
+    result += radical;
   }
+  return result;
+}
 
-  // The radical is encoded as a string because its format is of an int with
-  // an optional ' mark to indicate a simplified shape. To treat these as
-  // distinct, we use a string and a UNICHARSET to do the integer mapping.
-  STRING radical;
-  // The number of strokes we treat as dense and just take the face value from
-  // the table.
-  int num_strokes;
-};
+// A hash map to convert unicodes to radical encoding.
+typedef std::unordered_map<int, std::unique_ptr<std::vector<int>>> RSMap;
+// A hash map to count occurrences of each radical encoding.
+typedef std::unordered_map<int, int> RSCounts;
 
-// Hash functor for RadicalStroke.
-struct RadicalStrokedHash {
-  size_t operator()(const RadicalStroke& rs) const {
-    size_t result = rs.num_strokes;
-    for (int i = 0; i < rs.radical.length(); ++i) {
-      result ^= rs.radical[i] << (6 * i + 8);
-    }
-    return result;
+static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
+  if (radical_data_line->length() == 0 || (*radical_data_line)[0] == '#')
+    return true;
+  GenericVector<STRING> entries;
+  radical_data_line->split(' ', &entries);
+  if (entries.size() < 2) return false;
+  char* end = nullptr;
+  int unicode = strtol(&entries[0][0], &end, 10);
+  if (*end != '\0') return false;
+  std::unique_ptr<std::vector<int>> radicals(new std::vector<int>);
+  for (int i = 1; i < entries.size(); ++i) {
+    int radical = strtol(&entries[i][0], &end, 10);
+    if (*end != '\0') return false;
+    radicals->push_back(radical);
   }
-};
-
-// A hash map to convert unicodes to radical,stroke pair.
-typedef std::unordered_map<int, RadicalStroke> RSMap;
-// A hash map to count occurrences of each radical,stroke pair.
-typedef std::unordered_map<RadicalStroke, int, RadicalStrokedHash> RSCounts;
+  (*radical_map)[unicode] = std::move(radicals);
+  return true;
+}
 
 // Helper function builds the RSMap from the radical-stroke file, which has
 // already been read into a STRING. Returns false on error.
 // The radical_stroke_table is non-const because it gets split and the caller
 // is unlikely to want to use it again.
-static bool DecodeRadicalStrokeTable(STRING* radical_stroke_table,
-                                     RSMap* radical_map) {
+static bool DecodeRadicalTable(STRING* radical_data, RSMap* radical_map) {
   GenericVector<STRING> lines;
-  radical_stroke_table->split('\n', &lines);
+  radical_data->split('\n', &lines);
   for (int i = 0; i < lines.size(); ++i) {
-    if (lines[i].length() == 0 || lines[i][0] == '#') continue;
-    unsigned unicode;
-    int radical, strokes;
-    STRING str_radical;
-    if (sscanf(lines[i].string(), "%x\t%d.%d", &unicode, &radical, &strokes) ==
-        3) {
-      str_radical.add_str_int("", radical);
-    } else if (sscanf(lines[i].string(), "%x\t%d'.%d", &unicode, &radical,
-                      &strokes) == 3) {
-      str_radical.add_str_int("'", radical);
-    } else {
-      tprintf("Invalid format in radical stroke table at line %d: %s\n", i,
+    if (!DecodeRadicalLine(&lines[i], radical_map)) {
+      tprintf("Invalid format in radical table at line %d: %s\n", i,
               lines[i].string());
       return false;
     }
-    (*radical_map)[unicode] = RadicalStroke(str_radical, strokes);
   }
   return true;
 }
@@ -108,14 +101,13 @@ UnicharCompress& UnicharCompress::operator=(const UnicharCompress& src) {
 bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
                                       STRING* radical_stroke_table) {
   RSMap radical_map;
-  if (!DecodeRadicalStrokeTable(radical_stroke_table, &radical_map))
+  if (radical_stroke_table != nullptr &&
+      !DecodeRadicalTable(radical_stroke_table, &radical_map))
     return false;
   encoder_.clear();
   UNICHARSET direct_set;
-  UNICHARSET radicals;
-  // To avoid unused codes, clear the special codes from the unicharsets.
+  // To avoid unused codes, clear the special codes from the direct_set.
   direct_set.clear();
-  radicals.clear();
   // Always keep space as 0;
   direct_set.unichar_insert(" ", OldUncleanUnichars::kTrue);
   // Null char is next if we have one.
@@ -134,41 +126,31 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
   int han_offset = hangul_offset + kTotalJamos;
   int max_num_strokes = -1;
   for (int u = 0; u <= unicharset.size(); ++u) {
-    bool self_normalized = false;
     // We special-case allow null_id to be equal to unicharset.size() in case
     // there is no space in unicharset for it.
-    if (u == unicharset.size()) {
-      if (u == null_id) {
-        self_normalized = true;
-      } else {
-        break;  // Finished.
-      }
-    } else {
-      self_normalized = strcmp(unicharset.id_to_unichar(u),
-                               unicharset.get_normed_unichar(u)) == 0;
-    }
+    if (u == unicharset.size() && u != null_id) break;  // Finished
     RecodedCharID code;
     // Convert to unicodes.
     std::vector<char32> unicodes;
+    string cleaned;
+    if (u < unicharset.size())
+      cleaned = UNICHARSET::CleanupString(unicharset.id_to_unichar(u));
     if (u < unicharset.size() &&
-        (unicodes = UNICHAR::UTF8ToUTF32(unicharset.get_normed_unichar(u)))
-                .size() == 1) {
+        (unicodes = UNICHAR::UTF8ToUTF32(cleaned.c_str())).size() == 1) {
       // Check single unicodes for Hangul/Han and encode if so.
       int unicode = unicodes[0];
       int leading, vowel, trailing;
       auto it = radical_map.find(unicode);
       if (it != radical_map.end()) {
-        // This is Han. Convert to radical, stroke, index.
-        if (!radicals.contains_unichar(it->second.radical.string())) {
-          radicals.unichar_insert(it->second.radical.string(),
-                                  OldUncleanUnichars::kTrue);
+        // This is Han. Use the radical codes directly.
+        int num_radicals = it->second->size();
+        for (int c = 0; c < num_radicals; ++c) {
+          code.Set(c, han_offset + (*it->second)[c]);
         }
-        int radical = radicals.unichar_to_id(it->second.radical.string());
-        int num_strokes = it->second.num_strokes;
-        int num_samples = radical_counts[it->second]++;
-        if (num_strokes > max_num_strokes) max_num_strokes = num_strokes;
-        code.Set3(radical + han_offset, num_strokes + han_offset,
-                  num_samples + han_offset);
+        int pre_hash = RadicalPreHash(*it->second);
+        int num_samples = radical_counts[pre_hash]++;
+        if (num_samples > 0)
+          code.Set(num_radicals, han_offset + num_samples + kRadicalRadix);
       } else if (DecomposeHangul(unicode, &leading, &vowel, &trailing)) {
         // This is Hangul. Since we know the exact size of each part at compile
         // time, it gets the bottom set of codes.
@@ -190,9 +172,8 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
         for (int i = 0; i < unicodes.size(); ++i) {
           int position = code.length();
           if (position >= RecodedCharID::kMaxCodeLen) {
-            tprintf("Unichar %d=%s->%s is too long to encode!!\n", u,
-                    unicharset.id_to_unichar(u),
-                    unicharset.get_normed_unichar(u));
+            tprintf("Unichar %d=%s is too long to encode!!\n", u,
+                    unicharset.id_to_unichar(u));
             return false;
           }
           int uni = unicodes[i];
@@ -202,7 +183,8 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
             direct_set.unichar_insert(utf8);
           code.Set(position, direct_set.unichar_to_id(utf8));
           delete[] utf8;
-          if (direct_set.size() > unicharset.size()) {
+          if (direct_set.size() >
+              unicharset.size() + !unicharset.has_special_codes()) {
             // Code space got bigger!
             tprintf("Code space expanded from original unicharset!!\n");
             return false;
@@ -210,7 +192,6 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
         }
       }
     }
-    code.set_self_normalized(self_normalized);
     encoder_.push_back(code);
   }
   // Now renumber Han to make all codes unique. We already added han_offset to
@@ -218,13 +199,17 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
   // In the uniqued Han encoding, the 1st code uses the next radical_map.size()
   // values, the 2nd code uses the next max_num_strokes+1 values, and the 3rd
   // code uses the rest for the max number of duplicated radical/stroke combos.
-  int num_radicals = radicals.size();
-  for (int u = 0; u < unicharset.size(); ++u) {
-    RecodedCharID* code = &encoder_[u];
-    if ((*code)(0) >= han_offset) {
-      code->Set(1, (*code)(1) + num_radicals);
-      code->Set(2, (*code)(2) + num_radicals + max_num_strokes + 1);
+  int code_offset = 0;
+  for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
+    int max_offset = 0;
+    for (int u = 0; u < unicharset.size(); ++u) {
+      RecodedCharID* code = &encoder_[u];
+      if (code->length() <= i) continue;
+      max_offset = std::max(max_offset, (*code)(i)-han_offset);
+      code->Set(i, (*code)(i) + code_offset);
     }
+    if (max_offset == 0) break;
+    code_offset += max_offset + 1;
   }
   DefragmentCodeValues(null_id >= 0 ? 1 : -1);
   SetupDecoder();
@@ -395,8 +380,7 @@ void UnicharCompress::SetupDecoder() {
   is_valid_start_.init_to_size(code_range_, false);
   for (int c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID& code = encoder_[c];
-    if (code.self_normalized() || decoder_.find(code) == decoder_.end())
-      decoder_[code] = c;
+    decoder_[code] = c;
     is_valid_start_[code(0)] = true;
     RecodedCharID prefix = code;
     int len = code.length() - 1;

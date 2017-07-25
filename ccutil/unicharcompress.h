@@ -36,7 +36,7 @@ class RecodedCharID {
   // The maximum length of a code.
   static const int kMaxCodeLen = 9;
 
-  RecodedCharID() : self_normalized_(0), length_(0) {
+  RecodedCharID() : self_normalized_(1), length_(0) {
     memset(code_, 0, sizeof(code_));
   }
   void Truncate(int length) { length_ = length; }
@@ -54,8 +54,6 @@ class RecodedCharID {
     code_[2] = code2;
   }
   // Accessors
-  bool self_normalized() const { return self_normalized_ != 0; }
-  void set_self_normalized(bool value) { self_normalized_ = value; }
   int length() const { return length_; }
   int operator()(int index) const { return code_[index]; }
 
@@ -133,9 +131,6 @@ class RecodedCharID {
 // position). For non-CJK, the same code value CAN be used in multiple
 // positions, eg the ff ligature is converted to <f> <nullchar> <f>, where <f>
 // is the same code as is used for the single f.
-// NOTE that an intended consequence of using the normalized text from the
-// unicharset is that the fancy quotes all map to a single code, so round-trip
-// conversion doesn't work for all unichar-ids.
 class UnicharCompress {
  public:
   UnicharCompress();
@@ -175,12 +170,7 @@ class UnicharCompress {
   // invalid input), and the encoding itself in code.
   int EncodeUnichar(int unichar_id, RecodedCharID* code) const;
   // Decodes code, returning the original unichar-id, or
-  // INVALID_UNICHAR_ID if the input is invalid. Note that this is not a perfect
-  // inverse of EncodeUnichar, since the unichar-id of U+2019 (curly single
-  // quote), for example, will have the same encoding as the unichar-id of
-  // U+0027 (ascii '). The foldings are obtained from the input unicharset,
-  // which in turn obtains them from NormalizeUTF8String in normstrngs.cpp,
-  // and include NFKC normalization plus others like quote and dash folding.
+  // INVALID_UNICHAR_ID if the input is invalid.
   int DecodeUnichar(const RecodedCharID& code) const;
   // Returns true if the given code is a valid start or single code.
   bool IsValidFirstCode(int code) const { return is_valid_start_[code]; }
