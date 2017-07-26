@@ -21,6 +21,7 @@
 
 #include "unicharcompress.h"
 #include <memory>
+#include <algorithm>
 #include "tprintf.h"
 
 namespace tesseract {
