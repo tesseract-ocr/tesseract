@@ -242,7 +242,7 @@ Tesseract::Tesseract()
                     "%rej allowed before rej whole row", this->params()),
       double_MEMBER(tessedit_whole_wd_rej_row_percent, 70.00,
                     "Number of row rejects in whole word rejects"
-                    "which prevents whole row rejection",
+                    " which prevents whole row rejection",
                     this->params()),
       BOOL_MEMBER(tessedit_preserve_blk_rej_perfect_wds, true,
                   "Only rej partially rejected words in block rejection",
@@ -576,13 +576,13 @@ Tesseract::Tesseract()
                   " evaluation",
                   this->params()),
       double_MEMBER(heuristic_segcost_rating_base, 1.25,
-                    "base factor for adding segmentation cost into word rating."
+                    "base factor for adding segmentation cost into word rating. "
                     "It's a multiplying factor, the larger the value above 1, "
                     "the bigger the effect of segmentation cost.",
                     this->params()),
       double_MEMBER(heuristic_weight_rating, 1.0,
                     "weight associated with char rating in combined cost of"
-                    "state",
+                    " state",
                     this->params()),
       double_MEMBER(heuristic_weight_width, 1000.0,
                     "weight associated with width evidence in combined cost of"
