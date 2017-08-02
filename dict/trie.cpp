@@ -290,40 +290,27 @@ bool Trie::read_and_add_word_list(const char *filename,
                                   const UNICHARSET &unicharset,
                                   Trie::RTLReversePolicy reverse_policy) {
   GenericVector<STRING> word_list;
-  if (!read_word_list(filename, unicharset, reverse_policy, &word_list))
-    return false;
+  if (!read_word_list(filename, &word_list)) return false;
   word_list.sort(sort_strings_by_dec_length);
-  return add_word_list(word_list, unicharset);
+  return add_word_list(word_list, unicharset, reverse_policy);
 }
 
 bool Trie::read_word_list(const char *filename,
-                          const UNICHARSET &unicharset,
-                          Trie::RTLReversePolicy reverse_policy,
                           GenericVector<STRING>* words) {
   FILE *word_file;
-  char string[CHARS_PER_LINE];
+  char line_str[CHARS_PER_LINE];
   int  word_count = 0;
 
   word_file = fopen(filename, "rb");
   if (word_file == NULL) return false;
 
-  while (fgets(string, CHARS_PER_LINE, word_file) != NULL) {
-    chomp_string(string);  // remove newline
-    WERD_CHOICE word(string, unicharset);
-    if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL &&
-        word.has_rtl_unichar_id()) ||
-        reverse_policy == RRP_FORCE_REVERSE) {
-      word.reverse_and_mirror_unichar_ids();
-    }
+  while (fgets(line_str, sizeof(line_str), word_file) != NULL) {
+    chomp_string(line_str);  // remove newline
+    STRING word_str(line_str);
     ++word_count;
     if (debug_level_ && word_count % 10000 == 0)
       tprintf("Read %d words so far\n", word_count);
-    if (word.length() != 0 && !word.contains_unichar_id(INVALID_UNICHAR_ID)) {
-      words->push_back(word.unichar_string());
-    } else if (debug_level_) {
-      tprintf("Skipping invalid word %s\n", string);
-      if (debug_level_ >= 3) word.print();
-    }
+    words->push_back(word_str);
   }
   if (debug_level_)
     tprintf("Read %d words total.\n", word_count);
@@ -331,10 +318,18 @@ bool Trie::read_word_list(const char *filename,
   return true;
 }
 
-bool Trie::add_word_list(const GenericVector<STRING>& words,
-                   const UNICHARSET &unicharset) {
+bool Trie::add_word_list(const GenericVector<STRING> &words,
+                         const UNICHARSET &unicharset,
+                         Trie::RTLReversePolicy reverse_policy) {
   for (int i = 0; i < words.size(); ++i) {
     WERD_CHOICE word(words[i].string(), unicharset);
+    if (word.length() == 0 || word.contains_unichar_id(INVALID_UNICHAR_ID))
+      continue;
+    if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL &&
+         word.has_rtl_unichar_id()) ||
+        reverse_policy == RRP_FORCE_REVERSE) {
+      word.reverse_and_mirror_unichar_ids();
+    }
     if (!word_in_dawg(word)) {
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {

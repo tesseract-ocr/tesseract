@@ -79,6 +79,9 @@ INT_PARAM_FLAG(xsize, 3600, "Width of output image");
 // Max height of output image (in pixels).
 INT_PARAM_FLAG(ysize, 4800, "Height of output image");
 
+// Max number of pages to produce.
+INT_PARAM_FLAG(max_pages, 0, "Maximum number of pages to output (0=unlimited)");
+
 // Margin around text (in pixels).
 INT_PARAM_FLAG(margin, 100, "Margin round edges of image");
 
@@ -579,7 +582,10 @@ int Main() {
   for (int pass = 0; pass < num_pass; ++pass) {
     int page_num = 0;
     string font_used;
-    for (size_t offset = 0; offset < strlen(to_render_utf8); ++im, ++page_num) {
+    for (size_t offset = 0;
+         offset < strlen(to_render_utf8) &&
+         (FLAGS_max_pages == 0 || page_num < FLAGS_max_pages);
+         ++im, ++page_num) {
       tlog(1, "Starting page %d\n", im);
       Pix* pix = nullptr;
       if (FLAGS_find_fonts) {

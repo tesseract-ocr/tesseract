@@ -55,9 +55,11 @@ class LSTMTester {
   STRING RunEvalAsync(int iteration, const double* training_errors,
                       const TessdataManager& model_mgr, int training_stage);
   // Runs an evaluation synchronously on the stored eval data and returns a
-  // string describing the results. Args as RunEvalAsync.
+  // string describing the results. Args as RunEvalAsync, except verbosity,
+  // which outputs errors, if 1, or all results if 2.
   STRING RunEvalSync(int iteration, const double* training_errors,
-                     const TessdataManager& model_mgr, int training_stage);
+                     const TessdataManager& model_mgr, int training_stage,
+                     int verbosity);
 
  private:
   // Static helper thread function for RunEvalAsync, with a specific signature

@@ -29,9 +29,8 @@
 
 INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
 STRING_PARAM_FLAG(net_spec, "", "Network specification");
-INT_PARAM_FLAG(train_mode, 80, "Controls gross training behavior.");
 INT_PARAM_FLAG(net_mode, 192, "Controls network behavior.");
-INT_PARAM_FLAG(perfect_sample_delay, 4,
+INT_PARAM_FLAG(perfect_sample_delay, 0,
                "How many imperfect samples between perfect ones.");
 DOUBLE_PARAM_FLAG(target_error_rate, 0.01, "Final error rate in percent.");
 DOUBLE_PARAM_FLAG(weight_range, 0.1, "Range of initial random weights.");
@@ -40,21 +39,23 @@ DOUBLE_PARAM_FLAG(momentum, 0.9, "Decay factor for repeating deltas.");
 INT_PARAM_FLAG(max_image_MB, 6000, "Max memory to use for images.");
 STRING_PARAM_FLAG(continue_from, "", "Existing model to extend");
 STRING_PARAM_FLAG(model_output, "lstmtrain", "Basename for output models");
-STRING_PARAM_FLAG(script_dir, "",
-                  "Required to set unicharset properties or"
-                  " use unicharset compression.");
 STRING_PARAM_FLAG(train_listfile, "",
                   "File listing training files in lstmf training format.");
 STRING_PARAM_FLAG(eval_listfile, "",
                   "File listing eval files in lstmf training format.");
 BOOL_PARAM_FLAG(stop_training, false,
                "Just convert the training model to a runtime model.");
+BOOL_PARAM_FLAG(convert_to_int, false,
+                "Convert the recognition model to an integer model.");
+BOOL_PARAM_FLAG(sequential_training, false,
+                "Use the training files sequentially instead of round-robin.");
 INT_PARAM_FLAG(append_index, -1, "Index in continue_from Network at which to"
                " attach the new network defined by net_spec");
 BOOL_PARAM_FLAG(debug_network, false,
                 "Get info on distribution of weight values");
 INT_PARAM_FLAG(max_iterations, 0, "If set, exit after this many iterations");
-DECLARE_STRING_PARAM_FLAG(U);
+STRING_PARAM_FLAG(traineddata, "",
+                  "Combined Dawgs/Unicharset/Recoder for language model");
 
 // Number of training images to train between calls to MaintainCheckpoints.
 const int kNumPagesPerBatch = 100;
@@ -85,6 +86,7 @@ int main(int argc, char **argv) {
       nullptr, nullptr, nullptr, nullptr, FLAGS_model_output.c_str(),
       checkpoint_file.c_str(), FLAGS_debug_interval,
       static_cast<inT64>(FLAGS_max_image_MB) * 1048576);
+  trainer.InitCharSet(FLAGS_traineddata.c_str());
 
   // Reading something from an existing model doesn't require many flags,
   // so do it now and exit.
@@ -97,12 +99,8 @@ int main(int argc, char **argv) {
     if (FLAGS_debug_network) {
       trainer.DebugNetwork();
     } else {
-      if (FLAGS_train_mode & tesseract::TF_INT_MODE)
-        trainer.ConvertToInt();
-      GenericVector<char> recognizer_data;
-      trainer.SaveRecognitionDump(&recognizer_data);
-      if (!tesseract::SaveDataToFile(recognizer_data,
-                                     FLAGS_model_output.c_str())) {
+      if (FLAGS_convert_to_int) trainer.ConvertToInt();
+      if (!trainer.SaveTraineddata(FLAGS_model_output.c_str())) {
         tprintf("Failed to write recognition model : %s\n",
                 FLAGS_model_output.c_str());
       }
@@ -123,7 +121,6 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  UNICHARSET unicharset;
   // Checkpoints always take priority if they are available.
   if (trainer.TryLoadingCheckpoint(checkpoint_file.string()) ||
       trainer.TryLoadingCheckpoint(checkpoint_bak.string())) {
@@ -140,14 +137,6 @@ int main(int argc, char **argv) {
       trainer.InitIterations();
     }
     if (FLAGS_continue_from.empty() || FLAGS_append_index >= 0) {
-      // We need a unicharset to start from scratch or append.
-      string unicharset_str;
-      // Character coding to be used by the classifier.
-      if (!unicharset.load_from_file(FLAGS_U.c_str())) {
-        tprintf("Error: must provide a -U unicharset!\n");
-        return 1;
-      }
-      tesseract::SetupBasicProperties(true, &unicharset);
       if (FLAGS_append_index >= 0) {
         tprintf("Appending a new network to an old one!!");
         if (FLAGS_continue_from.empty()) {
@@ -156,8 +145,6 @@ int main(int argc, char **argv) {
         }
       }
       // We are initializing from scratch.
-      trainer.InitCharSet(unicharset, FLAGS_script_dir.c_str(),
-                          FLAGS_train_mode);
       if (!trainer.InitNetwork(FLAGS_net_spec.c_str(), FLAGS_append_index,
                                FLAGS_net_mode, FLAGS_weight_range,
                                FLAGS_learning_rate, FLAGS_momentum)) {
@@ -168,7 +155,9 @@ int main(int argc, char **argv) {
       trainer.set_perfect_delay(FLAGS_perfect_sample_delay);
     }
   }
-  if (!trainer.LoadAllTrainingData(filenames)) {
+  if (!trainer.LoadAllTrainingData(
+          filenames, FLAGS_sequential_training ? tesseract::CS_SEQUENTIAL
+                                               : tesseract::CS_ROUND_ROBIN)) {
     tprintf("Load of images failed!!\n");
     return 1;
   }

@@ -139,6 +139,42 @@ void SetupBasicProperties(bool report_errors, bool decompose,
   unicharset->post_load_setup();
 }
 
+// Helper sets the properties from universal script unicharsets, if found.
+void SetScriptProperties(const string& script_dir, UNICHARSET* unicharset) {
+  for (int s = 0; s < unicharset->get_script_table_size(); ++s) {
+    // Load the unicharset for the script if available.
+    string filename = script_dir + "/" +
+                      unicharset->get_script_from_script_id(s) + ".unicharset";
+    UNICHARSET script_set;
+    if (script_set.load_from_file(filename.c_str())) {
+      unicharset->SetPropertiesFromOther(script_set);
+    } else if (s != unicharset->common_sid() && s != unicharset->null_sid()) {
+      tprintf("Failed to load script unicharset from:%s\n", filename.c_str());
+    }
+  }
+  for (int c = SPECIAL_UNICHAR_CODES_COUNT; c < unicharset->size(); ++c) {
+    if (unicharset->PropertiesIncomplete(c)) {
+      tprintf("Warning: properties incomplete for index %d = %s\n", c,
+              unicharset->id_to_unichar(c));
+    }
+  }
+}
+
+// Helper gets the combined x-heights string.
+string GetXheightString(const string& script_dir,
+                        const UNICHARSET& unicharset) {
+  string xheights_str;
+  for (int s = 0; s < unicharset.get_script_table_size(); ++s) {
+    // Load the xheights for the script if available.
+    string filename = script_dir + "/" +
+                      unicharset.get_script_from_script_id(s) + ".xheights";
+    string script_heights;
+    if (File::ReadFileToString(filename, &script_heights))
+      xheights_str += script_heights;
+  }
+  return xheights_str;
+}
+
 // Helper to set the properties for an input unicharset file, writes to the
 // output file. If an appropriate script unicharset can be found in the
 // script_dir directory, then the tops and bottoms are expanded using the
@@ -158,29 +194,11 @@ void SetPropertiesForInputFile(const string& script_dir,
   // Set unichar properties
   tprintf("Setting unichar properties\n");
   SetupBasicProperties(true, false, &unicharset);
-  string xheights_str;
-  for (int s = 0; s < unicharset.get_script_table_size(); ++s) {
-    // Load the unicharset for the script if available.
-    string filename = script_dir + "/" +
-        unicharset.get_script_from_script_id(s) + ".unicharset";
-    UNICHARSET script_set;
-    if (script_set.load_from_file(filename.c_str())) {
-      unicharset.SetPropertiesFromOther(script_set);
-    }
-    // Load the xheights for the script if available.
-    filename = script_dir + "/" + unicharset.get_script_from_script_id(s) +
-        ".xheights";
-    string script_heights;
-    if (File::ReadFileToString(filename, &script_heights))
-      xheights_str += script_heights;
-  }
-  if (!output_xheights_file.empty())
+  tprintf("Setting script properties\n");
+  SetScriptProperties(script_dir, &unicharset);
+  if (!output_xheights_file.empty()) {
+    string xheights_str = GetXheightString(script_dir, unicharset);
     File::WriteStringToFileOrDie(xheights_str, output_xheights_file);
-  for (int c = SPECIAL_UNICHAR_CODES_COUNT; c < unicharset.size(); ++c) {
-    if (unicharset.PropertiesIncomplete(c)) {
-      tprintf("Warning: properties incomplete for index %d = %s\n",
-              c, unicharset.id_to_unichar(c));
-    }
   }
 
   // Write the output unicharset

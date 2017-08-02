@@ -130,22 +130,6 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename) {
   return checkpoint_reader_->Run(data, this);
 }
 
-// Initializes the character set encode/decode mechanism.
-// train_flags control training behavior according to the TrainingFlags
-// enum, including character set encoding.
-// script_dir is required for TF_COMPRESS_UNICHARSET, and, if provided,
-// fully initializes the unicharset from the universal unicharsets.
-// Note: Call before InitNetwork!
-void LSTMTrainer::InitCharSet(const UNICHARSET& unicharset,
-                              const STRING& script_dir, int train_flags) {
-  EmptyConstructor();
-  training_flags_ = train_flags;
-  ccutil_.unicharset.CopyFrom(unicharset);
-  null_char_ = GetUnicharset().has_special_codes() ? UNICHAR_BROKEN
-                                                   : GetUnicharset().size();
-  SetUnicharsetProperties(script_dir);
-}
-
 // Initializes the trainer with a network_spec in the network description
 // net_flags control network behavior according to the NetworkFlags enum.
 // There isn't really much difference between them - only where the effects
@@ -278,9 +262,10 @@ void LSTMTrainer::DebugNetwork() {
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for training. Returns false if nothing was
 // loaded.
-bool LSTMTrainer::LoadAllTrainingData(const GenericVector<STRING>& filenames) {
+bool LSTMTrainer::LoadAllTrainingData(const GenericVector<STRING>& filenames,
+                                      CachingStrategy cache_strategy) {
   training_data_.Clear();
-  return training_data_.LoadDocuments(filenames, CacheStrategy(), file_reader_);
+  return training_data_.LoadDocuments(filenames, cache_strategy, file_reader_);
 }
 
 // Keeps track of best and locally worst char error_rate and launches tests
@@ -908,6 +893,15 @@ bool LSTMTrainer::ReadLocalTrainingDump(const TessdataManager* mgr,
   return DeSerialize(mgr, &fp);
 }
 
+// Writes the full recognition traineddata to the given filename.
+bool LSTMTrainer::SaveTraineddata(const STRING& filename) {
+  GenericVector<char> recognizer_data;
+  SaveRecognitionDump(&recognizer_data);
+  mgr_.OverwriteEntry(TESSDATA_LSTM, &recognizer_data[0],
+                      recognizer_data.size());
+  return mgr_.SaveFile(filename, file_writer_);
+}
+
 // Writes the recognizer to memory, so that it can be used for testing later.
 void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
   TFile fp;
@@ -962,52 +956,6 @@ void LSTMTrainer::EmptyConstructor() {
   training_stage_ = 0;
   num_training_stages_ = 2;
   InitIterations();
-}
-
-// Sets the unicharset properties using the given script_dir as a source of
-// script unicharsets. If the flag TF_COMPRESS_UNICHARSET is true, also sets
-// up the recoder_ to simplify the unicharset.
-void LSTMTrainer::SetUnicharsetProperties(const STRING& script_dir) {
-  tprintf("Setting unichar properties\n");
-  for (int s = 0; s < GetUnicharset().get_script_table_size(); ++s) {
-    if (strcmp("NULL", GetUnicharset().get_script_from_script_id(s)) == 0)
-      continue;
-    // Load the unicharset for the script if available.
-    STRING filename = script_dir + "/" +
-                      GetUnicharset().get_script_from_script_id(s) +
-                      ".unicharset";
-    UNICHARSET script_set;
-    GenericVector<char> data;
-    if ((*file_reader_)(filename, &data) &&
-        script_set.load_from_inmemory_file(&data[0], data.size())) {
-      tprintf("Setting properties for script %s\n",
-              GetUnicharset().get_script_from_script_id(s));
-      ccutil_.unicharset.SetPropertiesFromOther(script_set);
-    }
-  }
-  if (IsRecoding()) {
-    STRING filename = script_dir + "/radical-stroke.txt";
-    GenericVector<char> data;
-    if ((*file_reader_)(filename, &data)) {
-      data += '\0';
-      STRING stroke_table = &data[0];
-      if (recoder_.ComputeEncoding(GetUnicharset(), null_char_,
-                                   &stroke_table)) {
-        RecodedCharID code;
-        recoder_.EncodeUnichar(null_char_, &code);
-        null_char_ = code(0);
-        // Space should encode as itself.
-        recoder_.EncodeUnichar(UNICHAR_SPACE, &code);
-        ASSERT_HOST(code(0) == UNICHAR_SPACE);
-        return;
-      }
-    } else {
-      tprintf("Failed to load radical-stroke info from: %s\n",
-              filename.string());
-    }
-  }
-  training_flags_ |= TF_COMPRESS_UNICHARSET;
-  recoder_.SetupPassThrough(GetUnicharset());
 }
 
 // Outputs the string and periodically displays the given network inputs

@@ -101,14 +101,6 @@ class LSTMTrainer : public LSTMRecognizer {
   // false in case of failure.
   bool TryLoadingCheckpoint(const char* filename);
 
-  // Initializes the character set encode/decode mechanism.
-  // train_flags control training behavior according to the TrainingFlags
-  // enum, including character set encoding.
-  // script_dir is required for TF_COMPRESS_UNICHARSET, and, if provided,
-  // fully initializes the unicharset from the universal unicharsets.
-  // Note: Call before InitNetwork!
-  void InitCharSet(const UNICHARSET& unicharset, const STRING& script_dir,
-                   int train_flags);
   // Initializes the character set encode/decode mechanism directly from a
   // previously setup traineddata containing dawgs, UNICHARSET and
   // UnicharCompress. Note: Call before InitNetwork!
@@ -186,7 +178,8 @@ class LSTMTrainer : public LSTMRecognizer {
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
-  bool LoadAllTrainingData(const GenericVector<STRING>& filenames);
+  bool LoadAllTrainingData(const GenericVector<STRING>& filenames,
+                           CachingStrategy cache_strategy);
 
   // Keeps track of best and locally worst error rate, using internally computed
   // values. See MaintainCheckpointsSpecific for more detail.
@@ -315,11 +308,11 @@ class LSTMTrainer : public LSTMRecognizer {
   // Sets up the data for MaintainCheckpoints from a light ReadTrainingDump.
   void SetupCheckpointInfo();
 
+  // Writes the full recognition traineddata to the given filename.
+  bool SaveTraineddata(const STRING& filename);
+
   // Writes the recognizer to memory, so that it can be used for testing later.
   void SaveRecognitionDump(GenericVector<char>* data) const;
-
-  // Writes current best model to a file, unless it has already been written.
-  bool SaveBestModel(FileWriter writer) const;
 
   // Returns a suitable filename for a training dump, based on the model_base_,
   // the iteration and the error rates.
@@ -335,11 +328,6 @@ class LSTMTrainer : public LSTMRecognizer {
 
   // Factored sub-constructor sets up reasonable default values.
   void EmptyConstructor();
-
-  // Sets the unicharset properties using the given script_dir as a source of
-  // script unicharsets. If the flag TF_COMPRESS_UNICHARSET is true, also sets
-  // up the recoder_ to simplify the unicharset.
-  void SetUnicharsetProperties(const STRING& script_dir);
 
   // Outputs the string and periodically displays the given network inputs
   // as an image in the given window, and the corresponding labels at the

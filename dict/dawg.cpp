@@ -339,16 +339,15 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   return true;
 }
 
-NODE_MAP SquishedDawg::build_node_map(inT32 *num_nodes) const {
+std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(
+    inT32 *num_nodes) const {
   EDGE_REF   edge;
-  NODE_MAP   node_map;
+  std::unique_ptr<EDGE_REF[]> node_map(new EDGE_REF[num_edges_]);
   inT32       node_counter;
   inT32       num_edges;
 
-  node_map = (NODE_MAP) malloc(sizeof(EDGE_REF) * num_edges_);
-
   for (edge = 0; edge < num_edges_; edge++)       // init all slots
-    node_map [edge] = -1;
+    node_map[edge] = -1;
 
   node_counter = num_forward_edges(0);
 
@@ -366,25 +365,25 @@ NODE_MAP SquishedDawg::build_node_map(inT32 *num_nodes) const {
       edge--;
     }
   }
-  return (node_map);
+  return node_map;
 }
 
-void SquishedDawg::write_squished_dawg(FILE *file) {
+bool SquishedDawg::write_squished_dawg(TFile *file) {
   EDGE_REF    edge;
   inT32       num_edges;
   inT32       node_count = 0;
-  NODE_MAP    node_map;
   EDGE_REF    old_index;
   EDGE_RECORD temp_record;
 
   if (debug_level_) tprintf("write_squished_dawg\n");
 
-  node_map = build_node_map(&node_count);
+  std::unique_ptr<EDGE_REF[]> node_map(build_node_map(&node_count));
 
   // Write the magic number to help detecting a change in endianness.
   inT16 magic = kDawgMagicNumber;
-  fwrite(&magic, sizeof(inT16), 1, file);
-  fwrite(&unicharset_size_, sizeof(inT32), 1, file);
+  if (file->FWrite(&magic, sizeof(magic), 1) != 1) return false;
+  if (file->FWrite(&unicharset_size_, sizeof(unicharset_size_), 1) != 1)
+    return false;
 
   // Count the number of edges in this Dawg.
   num_edges = 0;
@@ -392,7 +391,8 @@ void SquishedDawg::write_squished_dawg(FILE *file) {
     if (forward_edge(edge))
       num_edges++;
 
-  fwrite(&num_edges, sizeof(inT32), 1, file);  // write edge count to file
+  // Write edge count to file.
+  if (file->FWrite(&num_edges, sizeof(num_edges), 1) != 1) return false;
 
   if (debug_level_) {
     tprintf("%d nodes in DAWG\n", node_count);
@@ -405,7 +405,8 @@ void SquishedDawg::write_squished_dawg(FILE *file) {
         old_index = next_node_from_edge_rec(edges_[edge]);
         set_next_node(edge, node_map[old_index]);
         temp_record = edges_[edge];
-        fwrite(&(temp_record), sizeof(EDGE_RECORD), 1, file);
+        if (file->FWrite(&temp_record, sizeof(temp_record), 1) != 1)
+          return false;
         set_next_node(edge, old_index);
       } while (!last_edge(edge++));
 
@@ -416,7 +417,7 @@ void SquishedDawg::write_squished_dawg(FILE *file) {
       edge--;
     }
   }
-  free(node_map);
+  return true;
 }
 
 }  // namespace tesseract

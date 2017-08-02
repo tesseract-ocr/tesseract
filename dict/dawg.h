@@ -31,9 +31,10 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
+#include <memory>
 #include "elst.h"
-#include "ratngs.h"
 #include "params.h"
+#include "ratngs.h"
 #include "tesscallback.h"
 
 #ifndef __GNUC__
@@ -483,18 +484,22 @@ class SquishedDawg : public Dawg {
   void print_node(NODE_REF node, int max_num_edges) const;
 
   /// Writes the squished/reduced Dawg to a file.
-  void write_squished_dawg(FILE *file);
+  bool write_squished_dawg(TFile *file);
 
   /// Opens the file with the given filename and writes the
   /// squished/reduced Dawg to the file.
-  void write_squished_dawg(const char *filename) {
-    FILE *file = fopen(filename, "wb");
-    if (file == NULL) {
-      tprintf("Error opening %s\n", filename);
-      exit(1);
+  bool write_squished_dawg(const char *filename) {
+    TFile file;
+    file.OpenWrite(nullptr);
+    if (!this->write_squished_dawg(&file)) {
+      tprintf("Error serializing %s\n", filename);
+      return false;
     }
-    this->write_squished_dawg(file);
-    fclose(file);
+    if (!file.CloseWrite(filename, nullptr)) {
+      tprintf("Error writing file %s\n", filename);
+      return false;
+    }
+    return true;
   }
 
  private:
@@ -549,8 +554,7 @@ class SquishedDawg : public Dawg {
     tprintf("__________________________\n");
   }
   /// Constructs a mapping from the memory node indices to disk node indices.
-  NODE_MAP build_node_map(inT32 *num_nodes) const;
-
+  std::unique_ptr<EDGE_REF[]> build_node_map(inT32 *num_nodes) const;
 
   // Member variables.
   EDGE_ARRAY edges_;

@@ -32,6 +32,8 @@ STRING_PARAM_FLAG(traineddata, "",
 STRING_PARAM_FLAG(eval_listfile, "",
                   "File listing sample files in lstmf training format.");
 INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
+INT_PARAM_FLAG(verbosity, 1,
+               "Amount of diagnosting information to output (0-2).");
 
 int main(int argc, char **argv) {
   ParseArguments(&argc, &argv);
@@ -45,6 +47,10 @@ int main(int argc, char **argv) {
   }
   tesseract::TessdataManager mgr;
   if (!mgr.Init(FLAGS_model.c_str())) {
+    if (FLAGS_traineddata.empty()) {
+      tprintf("Must supply --traineddata to eval a training checkpoint!\n");
+      return 1;
+    }
     tprintf("%s is not a recognition model, trying training checkpoint...\n",
             FLAGS_model.c_str());
     if (!mgr.Init(FLAGS_traineddata.c_str())) {
@@ -67,7 +73,9 @@ int main(int argc, char **argv) {
     return 1;
   }
   double errs = 0.0;
-  STRING result = tester.RunEvalSync(0, &errs, mgr, 0);
+  STRING result =
+      tester.RunEvalSync(0, &errs, mgr,
+                         /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
   tprintf("%s\n", result.string());
   return 0;
 } /* main */

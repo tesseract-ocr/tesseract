@@ -44,11 +44,19 @@ err_exit() {
 run_command() {
     local cmd=$(which $1)
     if [[ -z ${cmd} ]]; then
-        err_exit "$1 not found"
+      for d in api training; do
+        cmd=$(which $d/$1)
+        if [[ ! -z ${cmd} ]]; then
+          break
+        fi
+      done
+      if [[ -z ${cmd} ]]; then
+          err_exit "$1 not found"
+      fi
     fi
     shift
     tlog "[$(date)] ${cmd} $@"
-    ${cmd} "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}
+    "${cmd}" "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}
     # check completion status
     if [[ $? -gt 0 ]]; then
         err_exit "Program $(basename ${cmd}) failed. Abort."
@@ -204,7 +212,7 @@ generate_font_image() {
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
     common_args+=" --leading=${LEADING}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
-    common_args+=" --outputbase=${outbase}"
+    common_args+=" --outputbase=${outbase} --max_pages=3"
 
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
@@ -490,36 +498,43 @@ phase_B_generate_ambiguities() {
 
 make__lstmdata() {
   tlog "\n=== Constructing LSTM training data ==="
-  local lang_prefix=${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}
-  if [[ ! -d ${OUTPUT_DIR} ]]; then
+  local lang_prefix="${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}"
+  if [[ ! -d "${OUTPUT_DIR}" ]]; then
       tlog "Creating new directory ${OUTPUT_DIR}"
-      mkdir -p ${OUTPUT_DIR}
+      mkdir -p "${OUTPUT_DIR}"
   fi
+  local lang_is_rtl=""
+  # TODO(rays) set using script lang lists.
+  case "${LANG_CODE}" in
+    ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )
+      lang_is_rtl="--lang_is_rtl" ;;
+    * ) ;;
+  esac
+  local pass_through=""
+  # TODO(rays) set using script lang lists.
+  case "${LANG_CODE}" in
+    asm | ben | bih | hin | mar | nep | guj | kan | mal | tam | tel | pan | \
+    dzo | sin | san | bod | ori | khm | mya | tha | lao | heb | yid | ara | \
+    fas | pus | snd | urd | div | syr | uig | kur_ara )
+      pass_through="--pass_through_recoder" ;;
+    * ) ;;
+  esac
 
-  # Copy available files for this language from the langdata dir.
-  if [[ -r ${lang_prefix}.config ]]; then
-    tlog "Copying ${lang_prefix}.config to ${OUTPUT_DIR}"
-    cp ${lang_prefix}.config ${OUTPUT_DIR}
-    chmod u+w ${OUTPUT_DIR}/${LANG_CODE}.config
-  fi
-  if [[ -r "${TRAINING_DIR}/${LANG_CODE}.unicharset" ]]; then
-    tlog "Moving ${TRAINING_DIR}/${LANG_CODE}.unicharset to ${OUTPUT_DIR}"
-    mv "${TRAINING_DIR}/${LANG_CODE}.unicharset" "${OUTPUT_DIR}"
-  fi
-  for ext in number-dawg punc-dawg word-dawg; do
-    local src="${TRAINING_DIR}/${LANG_CODE}.${ext}"
-    if [[ -r "${src}" ]]; then
-      dest="${OUTPUT_DIR}/${LANG_CODE}.lstm-${ext}"
-      tlog "Moving ${src} to ${dest}"
-      mv "${src}" "${dest}"
-    fi
-  done
+  # Build the starter traineddata from the inputs.
+  run_command combine_lang_model \
+    --input_unicharset "${TRAINING_DIR}/${LANG_CODE}.unicharset" \
+    --script_dir "${LANGDATA_ROOT}" \
+    --words "${lang_prefix}.wordlist" \
+    --numbers "${lang_prefix}.numbers" \
+    --puncs "${lang_prefix}.punc" \
+    --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
+    "${pass_through}" "${lang_is_rtl}"
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
     mv "${f}" "${OUTPUT_DIR}"
   done
   local lstm_list="${OUTPUT_DIR}/${LANG_CODE}.training_files.txt"
-  ls -1 "${OUTPUT_DIR}"/*.lstmf > "${lstm_list}"
+  ls -1 "${OUTPUT_DIR}/${LANG_CODE}".*.lstmf > "${lstm_list}"
 }
 
 make__traineddata() {

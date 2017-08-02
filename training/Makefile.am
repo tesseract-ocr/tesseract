@@ -19,8 +19,8 @@ endif
 
 noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
-      fileio.h icuerrorcode.h ligature_table.h lstmtester.h normstrngs.h \
-      mergenf.h pango_font_info.h stringrenderer.h \
+      fileio.h icuerrorcode.h lang_model_helpers.h ligature_table.h \
+      lstmtester.h mergenf.h normstrngs.h pango_font_info.h stringrenderer.h \
       tessopt.h tlog.h unicharset_training_utils.h util.h \
       validate_grapheme.h validate_indic.h validate_khmer.h \
       validate_myanmar.h validator.h
@@ -33,15 +33,15 @@ libtesseract_training_la_LIBADD = \
     
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
-      fileio.cpp ligature_table.cpp lstmtester.cpp normstrngs.cpp pango_font_info.cpp \
-      stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp \
+      fileio.cpp lang_model_helpers.cpp ligature_table.cpp lstmtester.cpp \
+      normstrngs.cpp pango_font_info.cpp stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp \
       validate_grapheme.cpp validate_indic.cpp validate_khmer.cpp \
       validate_myanmar.cpp validator.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
-bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_tessdata \
+bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_lang_model combine_tessdata \
   dawg2wordlist lstmeval lstmtraining mftraining set_unicharset_properties shapeclustering \
   text2image unicharset_extractor wordlist2dawg
 
@@ -94,11 +94,26 @@ classifier_tester_LDADD += \
     ../api/libtesseract.la
 endif
 
+combine_lang_model_SOURCES = combine_lang_model.cpp
+#combine_lang_model_LDFLAGS = -static
+combine_lang_model_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+if USING_MULTIPLELIBS
+combine_lang_model_LDADD += \
+    ../ccutil/libtesseract_ccutil.la
+else
+combine_lang_model_LDADD += \
+    ../api/libtesseract.la
+endif
+
 combine_tessdata_SOURCES = combine_tessdata.cpp
 #combine_tessdata_LDFLAGS = -static
 if USING_MULTIPLELIBS
 combine_tessdata_LDADD = \
-    ../ccutil/libtesseract_ccutil.la
+    ../ccutil/libtesseract_ccutil.la \
+    ../lstm/libtesseract_lstm.la
 else
 combine_tessdata_LDADD = \
     ../api/libtesseract.la

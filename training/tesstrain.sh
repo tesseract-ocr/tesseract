@@ -60,11 +60,11 @@ initialize_fontconfig
 
 phase_I_generate_image 8
 phase_UP_generate_unicharset
-phase_D_generate_dawg
 if ((LINEDATA)); then
   phase_E_extract_features "lstm.train" 8 "lstmf"
   make__lstmdata
 else
+  phase_D_generate_dawg
   phase_E_extract_features "box.train" 8 "tr"
   phase_C_cluster_prototypes "${TRAINING_DIR}/${LANG_CODE}.normproto"
   if [[ "${ENABLE_SHAPE_CLUSTERING}" == "y" ]]; then

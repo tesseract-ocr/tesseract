@@ -81,7 +81,7 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
 // describing the results.
 STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
                                const TessdataManager& model_mgr,
-                               int training_stage) {
+                               int training_stage, int verbosity) {
   LSTMTrainer trainer;
   trainer.InitCharSet(model_mgr);
   TFile fp;
@@ -97,11 +97,20 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
     const ImageData* trainingdata = test_data_.GetPageBySerial(eval_iteration);
     trainer.SetIteration(++eval_iteration);
     NetworkIO fwd_outputs, targets;
-    if (trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets) !=
-        UNENCODABLE) {
+    Trainability result =
+        trainer.PrepareForBackward(trainingdata, &fwd_outputs, &targets);
+    if (result != UNENCODABLE) {
       char_error += trainer.NewSingleError(tesseract::ET_CHAR_ERROR);
       word_error += trainer.NewSingleError(tesseract::ET_WORD_RECERR);
       ++error_count;
+      if (verbosity > 1 || (verbosity > 0 && result != PERFECT)) {
+        tprintf("Truth:%s\n", trainingdata->transcription().string());
+        GenericVector<int> ocr_labels;
+        GenericVector<int> xcoords;
+        trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
+        STRING ocr_text = trainer.DecodeLabels(ocr_labels);
+        tprintf("OCR  :%s\n", ocr_text.string());
+      }
     }
   }
   char_error *= 100.0 / total_pages_;
@@ -125,7 +134,8 @@ void* LSTMTester::ThreadFunc(void* lstmtester_void) {
   LSTMTester* lstmtester = static_cast<LSTMTester*>(lstmtester_void);
   lstmtester->test_result_ = lstmtester->RunEvalSync(
       lstmtester->test_iteration_, lstmtester->test_training_errors_,
-      lstmtester->test_model_mgr_, lstmtester->test_training_stage_);
+      lstmtester->test_model_mgr_, lstmtester->test_training_stage_,
+      /*verbosity*/ 0);
   lstmtester->UnlockRunning();
   return lstmtester_void;
 }

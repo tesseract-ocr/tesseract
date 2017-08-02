@@ -177,18 +177,16 @@ class Trie : public Dawg {
                               const UNICHARSET &unicharset,
                               Trie::RTLReversePolicy reverse);
 
-  // Reads a list of words from the given file, applying the reverse_policy,
-  // according to information in the unicharset.
+  // Reads a list of words from the given file.
   // Returns false on error.
   bool read_word_list(const char *filename,
-                      const UNICHARSET &unicharset,
-                      Trie::RTLReversePolicy reverse_policy,
                       GenericVector<STRING>* words);
   // Adds a list of words previously read using read_word_list to the trie
-  // using the given unicharset to convert to unichar-ids.
+  // using the given unicharset and reverse_policy to convert to unichar-ids.
   // Returns false on error.
-  bool add_word_list(const GenericVector<STRING>& words,
-                     const UNICHARSET &unicharset);
+  bool add_word_list(const GenericVector<STRING> &words,
+                     const UNICHARSET &unicharset,
+                     Trie::RTLReversePolicy reverse_policy);
 
   // Inserts the list of patterns from the given file into the Trie.
   // The pattern list file should contain one pattern per line in UTF-8 format.
