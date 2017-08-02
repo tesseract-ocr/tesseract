@@ -128,9 +128,6 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
   GenericVector<char> data;
   if (!(*file_reader_)(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
-<<<<<<< Updated upstream
-  return checkpoint_reader_->Run(data, this);
-=======
   if (!checkpoint_reader_->Run(data, this)) return false;
   StaticShape shape = network_->OutputShape(network_->InputShape());
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
@@ -161,7 +158,6 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
   network_->RemapOutputs(old_recoder.code_range(), code_map);
   tprintf("Previous null char=%d mapped to %d\n", old_null_char, null_char_);
   return true;
->>>>>>> Stashed changes
 }
 
 // Initializes the trainer with a network_spec in the network description
@@ -954,7 +950,7 @@ STRING LSTMTrainer::DumpFilename() const {
   STRING filename;
   filename.add_str_double(model_base_.string(), best_error_rate_);
   filename.add_str_int("_", best_iteration_);
-  filename += ".lstm";
+  filename += ".checkpoint";
   return filename;
 }
 

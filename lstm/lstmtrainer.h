@@ -98,15 +98,10 @@ class LSTMTrainer : public LSTMRecognizer {
   virtual ~LSTMTrainer();
 
   // Tries to deserialize a trainer from the given file and silently returns
-<<<<<<< Updated upstream
-  // false in case of failure.
-  bool TryLoadingCheckpoint(const char* filename);
-=======
   // false in case of failure. If old_traineddata is not null, then it is
   // assumed that the character set is to be re-mapped from old_traininddata to
   // the new, with consequent change in weight matrices etc.
   bool TryLoadingCheckpoint(const char* filename, const char* old_traineddata);
->>>>>>> Stashed changes
 
   // Initializes the character set encode/decode mechanism directly from a
   // previously setup traineddata containing dawgs, UNICHARSET and
