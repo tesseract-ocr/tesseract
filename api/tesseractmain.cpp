@@ -96,6 +96,9 @@ void PrintVersionInfo() {
     }
     }
 #endif
+    if (SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
+    if (SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
+    if (SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
     if (SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
     if (SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
 }
