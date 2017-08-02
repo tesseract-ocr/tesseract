@@ -251,14 +251,6 @@ class LSTMTrainer : public LSTMRecognizer {
                            const UnicharCompress* recoder, bool simple_text,
                            int null_char, GenericVector<int>* labels);
 
-  // Converts the network to int if not already.
-  void ConvertToInt() {
-    if ((training_flags_ & TF_INT_MODE) == 0) {
-      network_->ConvertToInt();
-      training_flags_ |= TF_INT_MODE;
-    }
-  }
-
   // Performs forward-backward on the given trainingdata.
   // Returns the sample that was used or NULL if the next sample was deemed
   // unusable. samples_trainer could be this or an alternative trainer that

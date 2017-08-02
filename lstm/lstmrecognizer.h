@@ -127,6 +127,14 @@ class LSTMRecognizer {
     series->ScaleLayerLearningRate(&id[1], factor);
   }
 
+  // Converts the network to int if not already.
+  void ConvertToInt() {
+    if ((training_flags_ & TF_INT_MODE) == 0) {
+      network_->ConvertToInt();
+      training_flags_ |= TF_INT_MODE;
+    }
+  }
+
   // Provides access to the UNICHARSET that this classifier works with.
   const UNICHARSET& GetUnicharset() const { return ccutil_.unicharset; }
   // Provides access to the UnicharCompress that this classifier works with.

@@ -18,6 +18,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "lstmrecognizer.h"
 #include "tessdatamanager.h"
 
 // Main program to combine/extract/overwrite tessdata components
@@ -122,6 +123,31 @@ int main(int argc, char **argv) {
 
     // Write the updated traineddata file.
     tm.OverwriteComponents(new_traineddata_filename, argv+3, argc-3);
+  } else if (argc == 3 && strcmp(argv[1], "-c") == 0) {
+    tm.Init(argv[2]);
+    tesseract::TFile fp;
+    if (!tm.GetComponent(tesseract::TESSDATA_LSTM, &fp)) {
+      tprintf("No LSTM Component found in %s!\n", argv[2]);
+      exit(1);
+    }
+    tesseract::LSTMRecognizer recognizer;
+    if (!recognizer.DeSerialize(&tm, &fp)) {
+      tprintf("Failed to deserialize LSTM in %s!\n", argv[2]);
+      exit(1);
+    }
+    recognizer.ConvertToInt();
+    GenericVector<char> lstm_data;
+    fp.OpenWrite(&lstm_data);
+    ASSERT_HOST(recognizer.Serialize(&tm, &fp));
+    tm.OverwriteEntry(tesseract::TESSDATA_LSTM, &lstm_data[0],
+                      lstm_data.size());
+    if (!tm.SaveFile(argv[2], nullptr)) {
+      tprintf("Failed to write modified traineddata:%s!\n", argv[2]);
+      exit(1);
+    }
+  } else if (argc == 3 && strcmp(argv[1], "-d") == 0) {
+    // Initialize TessdataManager with the data in the given traineddata file.
+    tm.Init(argv[2]);
   } else {
     printf("Usage for combining tessdata components:\n"
            "  %s language_data_path_prefix\n"
@@ -137,6 +163,14 @@ int main(int argc, char **argv) {
     printf("Usage for unpacking all tessdata components:\n"
            "  %s -u traineddata_file output_path_prefix\n"
            "  (e.g. %s -u eng.traineddata tmp/eng.)\n", argv[0], argv[0]);
+    printf(
+        "Usage for listing directory of components:\n"
+        "  %s -d traineddata_file\n",
+        argv[0]);
+    printf(
+        "Usage for compacting LSTM component to int:\n"
+        "  %s -c traineddata_file\n",
+        argv[0]);
     return 1;
   }
   tm.Directory();
