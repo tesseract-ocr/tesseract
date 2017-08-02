@@ -360,19 +360,22 @@ class GENERIC_2D_ARRAY {
   }
 
   // Accumulates the element-wise sums of squares of src into *this.
-  void SumSquares(const GENERIC_2D_ARRAY<T>& src) {
+  void SumSquares(const GENERIC_2D_ARRAY<T>& src, T decay_factor) {
+    T update_factor = 1.0 - decay_factor;
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
-      array_[i] += src.array_[i] * src.array_[i];
+      array_[i] = array_[i] * decay_factor +
+                  update_factor * src.array_[i] * src.array_[i];
     }
   }
 
-  // Scales each element using the ada-grad algorithm, ie array_[i] by
-  // sqrt(num_samples/max(1,sqsum[i])).
-  void AdaGradScaling(const GENERIC_2D_ARRAY<T>& sqsum, int num_samples) {
+  // Scales each element using the adam algorithm, ie array_[i] by
+  // sqrt(sqsum[i] + epsilon)).
+  void AdamUpdate(const GENERIC_2D_ARRAY<T>& sum,
+                  const GENERIC_2D_ARRAY<T>& sqsum, T epsilon) {
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
-      array_[i] *= sqrt(num_samples / MAX(1.0, sqsum.array_[i]));
+      array_[i] += sum.array_[i] / (sqrt(sqsum.array_[i]) + epsilon);
     }
   }
 

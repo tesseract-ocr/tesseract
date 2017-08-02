@@ -34,8 +34,9 @@ INT_PARAM_FLAG(perfect_sample_delay, 0,
                "How many imperfect samples between perfect ones.");
 DOUBLE_PARAM_FLAG(target_error_rate, 0.01, "Final error rate in percent.");
 DOUBLE_PARAM_FLAG(weight_range, 0.1, "Range of initial random weights.");
-DOUBLE_PARAM_FLAG(learning_rate, 1.0e-4, "Weight factor for new deltas.");
-DOUBLE_PARAM_FLAG(momentum, 0.9, "Decay factor for repeating deltas.");
+DOUBLE_PARAM_FLAG(learning_rate, 10.0e-4, "Weight factor for new deltas.");
+DOUBLE_PARAM_FLAG(momentum, 0.5, "Decay factor for repeating deltas.");
+DOUBLE_PARAM_FLAG(adam_beta, 0.999, "Decay factor for repeating deltas.");
 INT_PARAM_FLAG(max_image_MB, 6000, "Max memory to use for images.");
 STRING_PARAM_FLAG(continue_from, "", "Existing model to extend");
 STRING_PARAM_FLAG(model_output, "lstmtrain", "Basename for output models");
@@ -56,6 +57,11 @@ BOOL_PARAM_FLAG(debug_network, false,
 INT_PARAM_FLAG(max_iterations, 0, "If set, exit after this many iterations");
 STRING_PARAM_FLAG(traineddata, "",
                   "Combined Dawgs/Unicharset/Recoder for language model");
+<<<<<<< Updated upstream
+=======
+STRING_PARAM_FLAG(old_traineddata, "",
+                  "Previous traineddata arg when changing the character set");
+>>>>>>> Stashed changes
 
 // Number of training images to train between calls to MaintainCheckpoints.
 const int kNumPagesPerBatch = 100;
@@ -91,7 +97,7 @@ int main(int argc, char **argv) {
   // Reading something from an existing model doesn't require many flags,
   // so do it now and exit.
   if (FLAGS_stop_training || FLAGS_debug_network) {
-    if (!trainer.TryLoadingCheckpoint(FLAGS_continue_from.c_str())) {
+    if (!trainer.TryLoadingCheckpoint(FLAGS_continue_from.c_str(), nullptr)) {
       tprintf("Failed to read continue from: %s\n",
               FLAGS_continue_from.c_str());
       return 1;
@@ -122,14 +128,17 @@ int main(int argc, char **argv) {
   }
 
   // Checkpoints always take priority if they are available.
-  if (trainer.TryLoadingCheckpoint(checkpoint_file.string()) ||
-      trainer.TryLoadingCheckpoint(checkpoint_bak.string())) {
+  if (trainer.TryLoadingCheckpoint(checkpoint_file.string(), nullptr) ||
+      trainer.TryLoadingCheckpoint(checkpoint_bak.string(), nullptr)) {
     tprintf("Successfully restored trainer from %s\n",
             checkpoint_file.string());
   } else {
     if (!FLAGS_continue_from.empty()) {
       // Load a past model file to improve upon.
-      if (!trainer.TryLoadingCheckpoint(FLAGS_continue_from.c_str())) {
+      if (!trainer.TryLoadingCheckpoint(FLAGS_continue_from.c_str(),
+                                        FLAGS_append_index >= 0
+                                            ? FLAGS_continue_from.c_str()
+                                            : FLAGS_old_traineddata.c_str())) {
         tprintf("Failed to continue from: %s\n", FLAGS_continue_from.c_str());
         return 1;
       }
@@ -147,7 +156,8 @@ int main(int argc, char **argv) {
       // We are initializing from scratch.
       if (!trainer.InitNetwork(FLAGS_net_spec.c_str(), FLAGS_append_index,
                                FLAGS_net_mode, FLAGS_weight_range,
-                               FLAGS_learning_rate, FLAGS_momentum)) {
+                               FLAGS_learning_rate, FLAGS_momentum,
+                               FLAGS_adam_beta)) {
         tprintf("Failed to create network from spec: %s\n",
                 FLAGS_net_spec.c_str());
         return 1;

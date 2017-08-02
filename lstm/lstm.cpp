@@ -132,10 +132,23 @@ int LSTM::InitWeights(float range, TRand* randomizer) {
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
     num_weights_ += gate_weights_[w].InitWeightsFloat(
-        ns_, na_ + 1, TestFlag(NF_ADA_GRAD), range, randomizer);
+        ns_, na_ + 1, TestFlag(NF_ADAM), range, randomizer);
   }
   if (softmax_ != NULL) {
     num_weights_ += softmax_->InitWeights(range, randomizer);
+  }
+  return num_weights_;
+}
+
+// Changes the number of outputs to the size of the given code_map, copying
+// the old weight matrix entries for each output from code_map[output] where
+// non-negative, and uses the mean (over all outputs) of the existing weights
+// for all outputs with negative code_map entries. Returns the new number of
+// weights. Only operates on Softmax layers with old_no outputs.
+int LSTM::RemapOutputs(int old_no, const std::vector<int>& code_map) {
+  if (softmax_ != NULL) {
+    num_weights_ -= softmax_->num_weights();
+    num_weights_ += softmax_->RemapOutputs(old_no, code_map);
   }
   return num_weights_;
 }
@@ -618,27 +631,22 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   if (softmax_ != NULL) {
     softmax_->FinishBackward(*softmax_errors_t);
   }
-  if (needs_to_backprop_) {
-    // Normalize the inputerr in back_deltas.
-    back_deltas->CopyWithNormalization(*back_deltas, fwd_deltas);
-    return true;
-  }
-  return false;
+  return needs_to_backprop_;
 }
 
-// Updates the weights using the given learning rate and momentum.
-// num_samples is the quotient to be used in the adagrad computation iff
-// use_ada_grad_ is true.
-void LSTM::Update(float learning_rate, float momentum, int num_samples) {
+// Updates the weights using the given learning rate, momentum and adam_beta.
+// num_samples is used in the adam computation iff use_adam_ is true.
+void LSTM::Update(float learning_rate, float momentum, float adam_beta,
+                  int num_samples) {
 #if DEBUG_DETAIL > 3
   PrintW();
 #endif
   for (int w = 0; w < WT_COUNT; ++w) {
     if (w == GFS && !Is2D()) continue;
-    gate_weights_[w].Update(learning_rate, momentum, num_samples);
+    gate_weights_[w].Update(learning_rate, momentum, adam_beta, num_samples);
   }
   if (softmax_ != NULL) {
-    softmax_->Update(learning_rate, momentum, num_samples);
+    softmax_->Update(learning_rate, momentum, adam_beta, num_samples);
   }
 #if DEBUG_DETAIL > 3
   PrintDW();

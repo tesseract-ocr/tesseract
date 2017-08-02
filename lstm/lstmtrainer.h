@@ -98,8 +98,15 @@ class LSTMTrainer : public LSTMRecognizer {
   virtual ~LSTMTrainer();
 
   // Tries to deserialize a trainer from the given file and silently returns
+<<<<<<< Updated upstream
   // false in case of failure.
   bool TryLoadingCheckpoint(const char* filename);
+=======
+  // false in case of failure. If old_traineddata is not null, then it is
+  // assumed that the character set is to be re-mapped from old_traininddata to
+  // the new, with consequent change in weight matrices etc.
+  bool TryLoadingCheckpoint(const char* filename, const char* old_traineddata);
+>>>>>>> Stashed changes
 
   // Initializes the character set encode/decode mechanism directly from a
   // previously setup traineddata containing dawgs, UNICHARSET and
@@ -120,7 +127,8 @@ class LSTMTrainer : public LSTMRecognizer {
   // For other args see NetworkBuilder::InitNetwork.
   // Note: Be sure to call InitCharSet before InitNetwork!
   bool InitNetwork(const STRING& network_spec, int append_index, int net_flags,
-                   float weight_range, float learning_rate, float momentum);
+                   float weight_range, float learning_rate, float momentum,
+                   float adam_beta);
   // Initializes a trainer from a serialized TFNetworkModel proto.
   // Returns the global step of TensorFlow graph or 0 if failed.
   // Building a compatible TF graph: See tfnetwork.proto.
@@ -320,11 +328,17 @@ class LSTMTrainer : public LSTMRecognizer {
 
   // Fills the whole error buffer of the given type with the given value.
   void FillErrorBuffer(double new_error, ErrorTypes type);
+  // Helper generates a map from each current recoder_ code (ie softmax index)
+  // to the corresponding old_recoder code, or -1 if there isn't one.
+  std::vector<int> MapRecoder(const UNICHARSET& old_chset,
+                              const UnicharCompress& old_recoder) const;
 
  protected:
   // Private version of InitCharSet above finishes the job after initializing
   // the mgr_ data member.
   void InitCharSet();
+  // Helper computes and sets the null_char_.
+  void SetNullChar();
 
   // Factored sub-constructor sets up reasonable default values.
   void EmptyConstructor();

@@ -55,9 +55,9 @@ LSTMRecognizer::LSTMRecognizer()
       training_iteration_(0),
       sample_iteration_(0),
       null_char_(UNICHAR_BROKEN),
-      weight_range_(0.0f),
       learning_rate_(0.0f),
       momentum_(0.0f),
+      adam_beta_(0.0f),
       dict_(NULL),
       search_(NULL),
       debug_win_(NULL) {}
@@ -94,7 +94,7 @@ bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
   if (fp->FWrite(&sample_iteration_, sizeof(sample_iteration_), 1) != 1)
     return false;
   if (fp->FWrite(&null_char_, sizeof(null_char_), 1) != 1) return false;
-  if (fp->FWrite(&weight_range_, sizeof(weight_range_), 1) != 1) return false;
+  if (fp->FWrite(&adam_beta_, sizeof(adam_beta_), 1) != 1) return false;
   if (fp->FWrite(&learning_rate_, sizeof(learning_rate_), 1) != 1) return false;
   if (fp->FWrite(&momentum_, sizeof(momentum_), 1) != 1) return false;
   if (include_charsets && IsRecoding() && !recoder_.Serialize(fp)) return false;
@@ -120,8 +120,7 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (fp->FReadEndian(&sample_iteration_, sizeof(sample_iteration_), 1) != 1)
     return false;
   if (fp->FReadEndian(&null_char_, sizeof(null_char_), 1) != 1) return false;
-  if (fp->FReadEndian(&weight_range_, sizeof(weight_range_), 1) != 1)
-    return false;
+  if (fp->FReadEndian(&adam_beta_, sizeof(adam_beta_), 1) != 1) return false;
   if (fp->FReadEndian(&learning_rate_, sizeof(learning_rate_), 1) != 1)
     return false;
   if (fp->FReadEndian(&momentum_, sizeof(momentum_), 1) != 1) return false;
@@ -207,14 +206,22 @@ void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
   STATS stats(0, kOutputScale + 1);
   for (int t = 0; t < outputs.Width(); ++t) {
     int best_label = outputs.BestLabel(t, NULL);
-    if (best_label != null_char_ || t == 0) {
+    if (best_label != null_char_) {
       float best_output = outputs.f(t)[best_label];
       stats.add(static_cast<int>(kOutputScale * best_output), 1);
     }
   }
-  *min_output = static_cast<float>(stats.min_bucket()) / kOutputScale;
-  *mean_output = stats.mean() / kOutputScale;
-  *sd = stats.sd() / kOutputScale;
+  // If the output is all nulls it could be that the photometric interpretation
+  // is wrong, so make it look bad, so the other way can win, even if not great.
+  if (stats.get_total() == 0) {
+    *min_output = 0.0f;
+    *mean_output = 0.0f;
+    *sd = 1.0f;
+  } else {
+    *min_output = static_cast<float>(stats.min_bucket()) / kOutputScale;
+    *mean_output = stats.mean() / kOutputScale;
+    *sd = stats.sd() / kOutputScale;
+  }
 }
 
 // Recognizes the image_data, returning the labels,

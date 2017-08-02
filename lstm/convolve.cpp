@@ -112,7 +112,7 @@ bool Convolve::Backward(bool debug, const NetworkIO& fwd_deltas,
       }
     }
   } while (src_index.Increment());
-  back_deltas->CopyWithNormalization(*delta_sum, fwd_deltas);
+  back_deltas->CopyAll(*delta_sum);
   return true;
 }
 

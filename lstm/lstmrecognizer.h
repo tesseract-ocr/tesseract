@@ -45,8 +45,6 @@ class ImageData;
 // Enum indicating training mode control flags.
 enum TrainingFlags {
   TF_INT_MODE = 1,
-  TF_AUTO_HARDEN = 2,
-  TF_ROUND_ROBIN_TRAINING = 16,
   TF_COMPRESS_UNICHARSET = 64,
 };
 
@@ -69,9 +67,6 @@ class LSTMRecognizer {
   double learning_rate() const {
     return learning_rate_;
   }
-  bool IsHardening() const {
-    return (training_flags_ & TF_AUTO_HARDEN) != 0;
-  }
   LossType OutputLossType() const {
     if (network_ == nullptr) return LT_NONE;
     StaticShape shape;
@@ -83,11 +78,6 @@ class LSTMRecognizer {
   // True if recoder_ is active to re-encode text to a smaller space.
   bool IsRecoding() const {
     return (training_flags_ & TF_COMPRESS_UNICHARSET) != 0;
-  }
-  // Returns the cache strategy for the DocumentCache.
-  CachingStrategy CacheStrategy() const {
-    return training_flags_ & TF_ROUND_ROBIN_TRAINING ? CS_ROUND_ROBIN
-                                                     : CS_SEQUENTIAL;
   }
   // Returns true if the network is a TensorFlow network.
   bool IsTensorFlow() const { return network_->type() == NT_TENSORFLOW; }
@@ -137,10 +127,10 @@ class LSTMRecognizer {
     series->ScaleLayerLearningRate(&id[1], factor);
   }
 
-  // True if the network is using adagrad to train.
-  bool IsUsingAdaGrad() const { return network_->TestFlag(NF_ADA_GRAD); }
   // Provides access to the UNICHARSET that this classifier works with.
   const UNICHARSET& GetUnicharset() const { return ccutil_.unicharset; }
+  // Provides access to the UnicharCompress that this classifier works with.
+  const UnicharCompress& GetRecoder() const { return recoder_; }
   // Provides access to the Dict that this classifier works with.
   const Dict* GetDict() const { return dict_; }
   // Sets the sample iteration to the given value. The sample_iteration_
@@ -215,6 +205,12 @@ class LSTMRecognizer {
                       const GenericVector<int>& label_coords,
                       const char* window_name,
                       ScrollView** window);
+  // Converts the network output to a sequence of labels. Outputs labels, scores
+  // and start xcoords of each char, and each null_char_, with an additional
+  // final xcoord for the end of the output.
+  // The conversion method is determined by internal state.
+  void LabelsFromOutputs(const NetworkIO& outputs, GenericVector<int>* labels,
+                         GenericVector<int>* xcoords);
 
  protected:
   // Sets the random seed from the sample_iteration_;
@@ -241,12 +237,6 @@ class LSTMRecognizer {
   void DebugActivationRange(const NetworkIO& outputs, const char* label,
                             int best_choice, int x_start, int x_end);
 
-  // Converts the network output to a sequence of labels. Outputs labels, scores
-  // and start xcoords of each char, and each null_char_, with an additional
-  // final xcoord for the end of the output.
-  // The conversion method is determined by internal state.
-  void LabelsFromOutputs(const NetworkIO& outputs, GenericVector<int>* labels,
-                         GenericVector<int>* xcoords);
   // As LabelsViaCTC except that this function constructs the best path that
   // contains only legal sequences of subcodes for recoder_.
   void LabelsViaReEncode(const NetworkIO& output, GenericVector<int>* labels,
@@ -290,11 +280,11 @@ class LSTMRecognizer {
   // Index in softmax of null character. May take the value UNICHAR_BROKEN or
   // ccutil_.unicharset.size().
   inT32 null_char_;
-  // Range used for the initial random numbers in the weights.
-  float weight_range_;
   // Learning rate and momentum multipliers of deltas in backprop.
   float learning_rate_;
   float momentum_;
+  // Smoothing factor for 2nd moment of gradients.
+  float adam_beta_;
 
   // === NOT SERIALIZED.
   TRand randomizer_;

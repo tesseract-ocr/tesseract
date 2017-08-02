@@ -1,4 +1,4 @@
-AM_CPPFLAGS += -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
+AM_CPPFLAGS += -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer -DUSE_STD_NAMESPACE
 AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS =
 AM_CXXFLAGS =

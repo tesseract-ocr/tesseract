@@ -57,6 +57,12 @@ class Plumbing : public Network {
   // and should not be deleted by any of the networks.
   // Returns the number of weights initialized.
   virtual int InitWeights(float range, TRand* randomizer);
+  // Changes the number of outputs to the size of the given code_map, copying
+  // the old weight matrix entries for each output from code_map[output] where
+  // non-negative, and uses the mean (over all outputs) of the existing weights
+  // for all outputs with negative code_map entries. Returns the new number of
+  // weights. Only operates on Softmax layers with old_no outputs.
+  int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
 
   // Converts a float network to an int network.
   virtual void ConvertToInt();
@@ -118,10 +124,10 @@ class Plumbing : public Network {
   // Reads from the given file. Returns false in case of error.
   virtual bool DeSerialize(TFile* fp);
 
-  // Updates the weights using the given learning rate and momentum.
-  // num_samples is the quotient to be used in the adagrad computation iff
-  // use_ada_grad_ is true.
-  virtual void Update(float learning_rate, float momentum, int num_samples);
+  // Updates the weights using the given learning rate, momentum and adam_beta.
+  // num_samples is used in the adam computation iff use_adam_ is true.
+  void Update(float learning_rate, float momentum, float adam_beta,
+              int num_samples) override;
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.

@@ -62,14 +62,20 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
 // backward steps with the matrix and updates to the weights.
 class WeightMatrix {
  public:
-  WeightMatrix() : int_mode_(false), use_ada_grad_(false) {}
+  WeightMatrix() : int_mode_(false), use_adam_(false) {}
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
   // Note the order is outputs, inputs, as this is the order of indices to
   // the matrix, so the adjacent elements are multiplied by the input during
   // a forward operation.
-  int InitWeightsFloat(int no, int ni, bool ada_grad, float weight_range,
+  int InitWeightsFloat(int no, int ni, bool use_adam, float weight_range,
                        TRand* randomizer);
+  // Changes the number of outputs to the size of the given code_map, copying
+  // the old weight matrix entries for each output from code_map[output] where
+  // non-negative, and uses the mean (over all outputs) of the existing weights
+  // for all outputs with negative code_map entries. Returns the new number of
+  // weights.
+  int RemapOutputs(const std::vector<int>& code_map);
 
   // Converts a float network to an int network. Each set of input weights that
   // corresponds to a single output weight is converted independently:
@@ -123,10 +129,10 @@ class WeightMatrix {
   // Runs parallel if requested. Note that inputs must be transposed.
   void SumOuterTransposed(const TransposedArray& u, const TransposedArray& v,
                           bool parallel);
-  // Updates the weights using the given learning rate and momentum.
-  // num_samples is the quotient to be used in the adagrad computation iff
-  // use_ada_grad_ is true.
-  void Update(double learning_rate, double momentum, int num_samples);
+  // Updates the weights using the given learning rate, momentum and adam_beta.
+  // num_samples is used in the Adam correction factor.
+  void Update(double learning_rate, double momentum, double adam_beta,
+              int num_samples);
   // Adds the dw_ in other to the dw_ is *this.
   void AddDeltas(const WeightMatrix& other);
   // Sums the products of weight updates in *this and other, splitting into
@@ -163,8 +169,8 @@ class WeightMatrix {
   TransposedArray wf_t_;
   // Which of wf_ and wi_ are we actually using.
   bool int_mode_;
-  // True if we are running adagrad in this weight matrix.
-  bool use_ada_grad_;
+  // True if we are running adam in this weight matrix.
+  bool use_adam_;
   // If we are using wi_, then scales_ is a factor to restore the row product
   // with a vector to the correct range.
   GenericVector<double> scales_;
@@ -172,8 +178,8 @@ class WeightMatrix {
   // amount to be added to wf_/wi_.
   GENERIC_2D_ARRAY<double> dw_;
   GENERIC_2D_ARRAY<double> updates_;
-  // Iff use_ada_grad_, the sum of squares of dw_. The number of samples is
-  // given to Update(). Serialized iff use_ada_grad_.
+  // Iff use_adam_, the sum of squares of dw_. The number of samples is
+  // given to Update(). Serialized iff use_adam_.
   GENERIC_2D_ARRAY<double> dw_sq_sum_;
 };
 

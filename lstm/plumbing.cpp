@@ -57,6 +57,19 @@ int Plumbing::InitWeights(float range, TRand* randomizer) {
   return num_weights_;
 }
 
+// Changes the number of outputs to the size of the given code_map, copying
+// the old weight matrix entries for each output from code_map[output] where
+// non-negative, and uses the mean (over all outputs) of the existing weights
+// for all outputs with negative code_map entries. Returns the new number of
+// weights. Only operates on Softmax layers with old_no outputs.
+int Plumbing::RemapOutputs(int old_no, const std::vector<int>& code_map) {
+  num_weights_ = 0;
+  for (int i = 0; i < stack_.size(); ++i) {
+    num_weights_ += stack_[i]->RemapOutputs(old_no, code_map);
+  }
+  return num_weights_;
+}
+
 // Converts a float network to an int network.
 void Plumbing::ConvertToInt() {
   for (int i = 0; i < stack_.size(); ++i)
@@ -204,10 +217,10 @@ bool Plumbing::DeSerialize(TFile* fp) {
   return true;
 }
 
-// Updates the weights using the given learning rate and momentum.
-// num_samples is the quotient to be used in the adagrad computation iff
-// use_ada_grad_ is true.
-void Plumbing::Update(float learning_rate, float momentum, int num_samples) {
+// Updates the weights using the given learning rate, momentum and adam_beta.
+// num_samples is used in the adam computation iff use_adam_ is true.
+void Plumbing::Update(float learning_rate, float momentum, float adam_beta,
+                      int num_samples) {
   for (int i = 0; i < stack_.size(); ++i) {
     if (network_flags_ & NF_LAYER_SPECIFIC_LR) {
       if (i < learning_rates_.size())
@@ -216,7 +229,7 @@ void Plumbing::Update(float learning_rate, float momentum, int num_samples) {
         learning_rates_.push_back(learning_rate);
     }
     if (stack_[i]->IsTraining()) {
-      stack_[i]->Update(learning_rate, momentum, num_samples);
+      stack_[i]->Update(learning_rate, momentum, adam_beta, num_samples);
     }
   }
 }

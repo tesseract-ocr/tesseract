@@ -79,8 +79,21 @@ void FullyConnected::SetEnableTraining(TrainingState state) {
 // scale `range` picked according to the random number generator `randomizer`.
 int FullyConnected::InitWeights(float range, TRand* randomizer) {
   Network::SetRandomizer(randomizer);
-  num_weights_ = weights_.InitWeightsFloat(no_, ni_ + 1, TestFlag(NF_ADA_GRAD),
+  num_weights_ = weights_.InitWeightsFloat(no_, ni_ + 1, TestFlag(NF_ADAM),
                                            range, randomizer);
+  return num_weights_;
+}
+
+// Changes the number of outputs to the size of the given code_map, copying
+// the old weight matrix entries for each output from code_map[output] where
+// non-negative, and uses the mean (over all outputs) of the existing weights
+// for all outputs with negative code_map entries. Returns the new number of
+// weights. Only operates on Softmax layers with old_no outputs.
+int FullyConnected::RemapOutputs(int old_no, const std::vector<int>& code_map) {
+  if (type_ == NT_SOFTMAX && no_ == old_no) {
+    num_weights_ = weights_.RemapOutputs(code_map);
+    no_ = code_map.size();
+  }
   return num_weights_;
 }
 
@@ -240,7 +253,6 @@ bool FullyConnected::Backward(bool debug, const NetworkIO& fwd_deltas,
   FinishBackward(*errors_t.get());
   if (needs_to_backprop_) {
     back_deltas->ZeroInvalidElements();
-    back_deltas->CopyWithNormalization(*back_deltas, fwd_deltas);
 #if DEBUG_DETAIL > 0
     tprintf("F Backprop:%s\n", name_.string());
     back_deltas->Print(10);
@@ -281,12 +293,11 @@ void FullyConnected::FinishBackward(const TransposedArray& errors_t) {
     weights_.SumOuterTransposed(errors_t, *external_source_, true);
 }
 
-// Updates the weights using the given learning rate and momentum.
-// num_samples is the quotient to be used in the adagrad computation iff
-// use_ada_grad_ is true.
+// Updates the weights using the given learning rate, momentum and adam_beta.
+// num_samples is used in the adam computation iff use_adam_ is true.
 void FullyConnected::Update(float learning_rate, float momentum,
-                            int num_samples) {
-  weights_.Update(learning_rate, momentum, num_samples);
+                            float adam_beta, int num_samples) {
+  weights_.Update(learning_rate, momentum, adam_beta, num_samples);
 }
 
 // Sums the products of weight updates in *this and other, splitting into

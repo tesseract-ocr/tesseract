@@ -123,11 +123,45 @@ LSTMTrainer::~LSTMTrainer() {
 
 // Tries to deserialize a trainer from the given file and silently returns
 // false in case of failure.
-bool LSTMTrainer::TryLoadingCheckpoint(const char* filename) {
+bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
+                                       const char* old_traineddata) {
   GenericVector<char> data;
   if (!(*file_reader_)(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
+<<<<<<< Updated upstream
   return checkpoint_reader_->Run(data, this);
+=======
+  if (!checkpoint_reader_->Run(data, this)) return false;
+  StaticShape shape = network_->OutputShape(network_->InputShape());
+  if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
+       network_->NumOutputs() == recoder_.code_range()) ||
+      filename == old_traineddata) {
+    return true;  // Normal checkpoint load complete.
+  }
+  tprintf("Code range changed from %d to %d!!\n", network_->NumOutputs(),
+          recoder_.code_range());
+  if (old_traineddata == nullptr || *old_traineddata == '\0') {
+    tprintf("Must supply the old traineddata for code conversion!\n");
+    return false;
+  }
+  TessdataManager old_mgr;
+  ASSERT_HOST(old_mgr.Init(old_traineddata));
+  TFile fp;
+  if (!old_mgr.GetComponent(TESSDATA_LSTM_UNICHARSET, &fp)) return false;
+  UNICHARSET old_chset;
+  if (!old_chset.load_from_file(&fp, false)) return false;
+  if (!old_mgr.GetComponent(TESSDATA_LSTM_RECODER, &fp)) return false;
+  UnicharCompress old_recoder;
+  if (!old_recoder.DeSerialize(&fp)) return false;
+  std::vector<int> code_map = MapRecoder(old_chset, old_recoder);
+  // Set the null_char_ to the new value.
+  int old_null_char = null_char_;
+  SetNullChar();
+  // Map the softmax(s) in the network.
+  network_->RemapOutputs(old_recoder.code_range(), code_map);
+  tprintf("Previous null char=%d mapped to %d\n", old_null_char, null_char_);
+  return true;
+>>>>>>> Stashed changes
 }
 
 // Initializes the trainer with a network_spec in the network description
@@ -138,11 +172,13 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename) {
 // Note: Be sure to call InitCharSet before InitNetwork!
 bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
                               int net_flags, float weight_range,
-                              float learning_rate, float momentum) {
+                              float learning_rate, float momentum,
+                              float adam_beta) {
   mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec.string());
-  weight_range_ = weight_range;
+  adam_beta_ = adam_beta;
   learning_rate_ = learning_rate;
   momentum_ = momentum;
+  SetNullChar();
   if (!NetworkBuilder::InitNetwork(recoder_.code_range(), network_spec,
                                    append_index, net_flags, weight_range,
                                    &randomizer_, &network_)) {
@@ -151,9 +187,10 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
   network_str_ += network_spec;
   tprintf("Built network:%s from request %s\n",
           network_->spec().string(), network_spec.string());
-  tprintf("Training parameters:\n  Debug interval = %d,"
-          " weights = %g, learning rate = %g, momentum=%g\n",
-          debug_interval_, weight_range_, learning_rate_, momentum_);
+  tprintf(
+      "Training parameters:\n  Debug interval = %d,"
+      " weights = %g, learning rate = %g, momentum=%g\n",
+      debug_interval_, weight_range, learning_rate_, momentum_);
   tprintf("null char=%d\n", null_char_);
   return true;
 }
@@ -606,8 +643,6 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     LR_SAME,  // Learning rate will stay the same.
     LR_COUNT  // Size of arrays.
   };
-  // Epsilon is so small that it may as well be zero, but still positive.
-  const double kEpsilon = 1.0e-30;
   GenericVector<STRING> layers = EnumerateLayers();
   int num_layers = layers.size();
   GenericVector<int> num_weights;
@@ -636,7 +671,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
       LSTMTrainer copy_trainer;
       samples_trainer->ReadTrainingDump(orig_trainer, &copy_trainer);
       // Clear the updates, doing nothing else.
-      copy_trainer.network_->Update(0.0, 0.0, 0);
+      copy_trainer.network_->Update(0.0, 0.0, 0.0, 0);
       // Adjust the learning rate in each layer.
       for (int i = 0; i < num_layers; ++i) {
         if (num_weights[i] == 0) continue;
@@ -656,9 +691,11 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
         LSTMTrainer layer_trainer;
         samples_trainer->ReadTrainingDump(updated_trainer, &layer_trainer);
         Network* layer = layer_trainer.GetLayer(layers[i]);
-        // Update the weights in just the layer, and also zero the updates
-        // matrix (to epsilon).
-        layer->Update(0.0, kEpsilon, 0);
+        // Update the weights in just the layer, using Adam if enabled.
+        layer->Update(0.0, momentum_, adam_beta_,
+                      layer_trainer.training_iteration_ + 1);
+        // Zero the updates matrix again.
+        layer->Update(0.0, 0.0, 0.0, 0);
         // Train again on the same sample, again holding back the updates.
         layer_trainer.TrainOnLine(trainingdata, true);
         // Count the sign changes in the updates in layer vs in copy_trainer.
@@ -773,7 +810,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
        training_iteration() >
            last_perfect_training_iteration_ + perfect_delay_)) {
     network_->Backward(debug, targets, &scratch_space_, &bp_deltas);
-    network_->Update(learning_rate_, batch ? -1.0f : momentum_,
+    network_->Update(learning_rate_, batch ? -1.0f : momentum_, adam_beta_,
                      training_iteration_ + 1);
   }
 #ifndef GRAPHICS_DISABLED
@@ -928,6 +965,41 @@ void LSTMTrainer::FillErrorBuffer(double new_error, ErrorTypes type) {
   error_rates_[type] = 100.0 * new_error;
 }
 
+// Helper generates a map from each current recoder_ code (ie softmax index)
+// to the corresponding old_recoder code, or -1 if there isn't one.
+std::vector<int> LSTMTrainer::MapRecoder(
+    const UNICHARSET& old_chset, const UnicharCompress& old_recoder) const {
+  int num_new_codes = recoder_.code_range();
+  int num_new_unichars = GetUnicharset().size();
+  std::vector<int> code_map(num_new_codes, -1);
+  for (int c = 0; c < num_new_codes; ++c) {
+    int old_code = -1;
+    // Find all new unichar_ids that recode to something that includes c.
+    // The <= is to include the null char, which may be beyond the unicharset.
+    for (int uid = 0; uid <= num_new_unichars; ++uid) {
+      RecodedCharID codes;
+      int length = recoder_.EncodeUnichar(uid, &codes);
+      int code_index = 0;
+      while (code_index < length && codes(code_index) != c) ++code_index;
+      if (code_index == length) continue;
+      // The old unicharset must have the same unichar.
+      int old_uid =
+          uid < num_new_unichars
+              ? old_chset.unichar_to_id(GetUnicharset().id_to_unichar(uid))
+              : old_chset.size() - 1;
+      if (old_uid == INVALID_UNICHAR_ID) continue;
+      // The encoding of old_uid at the same code_index is the old code.
+      RecodedCharID old_codes;
+      if (code_index < old_recoder.EncodeUnichar(old_uid, &old_codes)) {
+        old_code = old_codes(code_index);
+        break;
+      }
+    }
+    code_map[c] = old_code;
+  }
+  return code_map;
+}
+
 // Private version of InitCharSet above finishes the job after initializing
 // the mgr_ data member.
 void LSTMTrainer::InitCharSet() {
@@ -939,6 +1011,11 @@ void LSTMTrainer::InitCharSet() {
         "Must provide a traineddata containing lstm_unicharset and"
         " lstm_recoder!\n" != nullptr);
   }
+  SetNullChar();
+}
+
+// Helper computes and sets the null_char_.
+void LSTMTrainer::SetNullChar() {
   null_char_ = GetUnicharset().has_special_codes() ? UNICHAR_BROKEN
                                                    : GetUnicharset().size();
   RecodedCharID code;

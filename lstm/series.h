@@ -46,6 +46,12 @@ class Series : public Plumbing {
   // scale `range` picked according to the random number generator `randomizer`.
   // Returns the number of weights initialized.
   virtual int InitWeights(float range, TRand* randomizer);
+  // Changes the number of outputs to the size of the given code_map, copying
+  // the old weight matrix entries for each output from code_map[output] where
+  // non-negative, and uses the mean (over all outputs) of the existing weights
+  // for all outputs with negative code_map entries. Returns the new number of
+  // weights. Only operates on Softmax layers with old_no outputs.
+  int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
 
   // Sets needs_to_backprop_ to needs_backprop and returns true if
   // needs_backprop || any weights in this network so the next layer forward
