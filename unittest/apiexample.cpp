@@ -43,7 +43,7 @@ TEST(TesseractTest, ApiExample)
     // Get OCR result
     outText = api->GetUTF8Text();
 
-   ASSERT_EQ(outText, gtText) << "Phototest.tif with default values OCR does not match ground truth";
+   ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
 
     // Destroy used object and release memory
     api->End();
