@@ -14,6 +14,9 @@
 // limitations under the License.
 #include "lang_model_helpers.h"
 
+#if defined(_WIN32)
+#include <direct.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cstdlib>
@@ -37,7 +40,11 @@ bool WriteFile(const string& output_dir, const string& lang,
   string dirname = output_dir + "/" + lang;
   // Attempt to make the directory, but ignore errors, as it may not be a
   // standard filesystem, and the writer will complain if not successful.
+#if defined(_WIN32)
+  _mkdir(dirname.c_str());
+#else
   mkdir(dirname.c_str(), S_IRWXU | S_IRWXG);
+#endif
   string filename = dirname + "/" + lang + suffix;
   if (writer == nullptr)
     return SaveDataToFile(data, filename.c_str());
