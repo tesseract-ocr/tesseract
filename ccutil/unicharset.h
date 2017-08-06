@@ -151,7 +151,7 @@ class UNICHARSET {
   static TESS_API const char* kCustomLigatures[][2];
 
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
-  static const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
+  static TESS_API const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
 
   // ICU 2.0 UCharDirection enum (from third_party/icu/include/unicode/uchar.h)
   enum Direction {

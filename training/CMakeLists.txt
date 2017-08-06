@@ -177,6 +177,8 @@ set(unicharset_training_src
     fileio.cpp
     fileio.h
     icuerrorcode.h
+    lang_model_helpers.cpp
+    lang_model_helpers.h
     lstmtester.cpp
     lstmtester.h
     normstrngs.cpp
@@ -197,6 +199,15 @@ else()
 target_link_libraries       (unicharset_training common_training pvt.cppan.demo.unicode.icu.i18n)
 endif()
 project_group               (unicharset_training "Training Tools")
+
+
+########################################
+# EXECUTABLE combine_lang_model
+########################################
+
+add_executable              (combine_lang_model combine_lang_model.cpp)
+target_link_libraries       (combine_lang_model unicharset_training)
+project_group               (combine_lang_model "Training Tools")
 
 
 ########################################
