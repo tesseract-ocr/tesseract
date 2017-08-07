@@ -199,6 +199,8 @@ int CombineLangModel(const UNICHARSET& unicharset, const string& script_dir,
   if (!WriteUnicharset(unicharset, output_dir, lang, writer, &traineddata)) {
     tprintf("Error writing unicharset!!\n");
     return EXIT_FAILURE;
+  } else {
+    tprintf("Config file is optional, continuing...\n");
   }
   // If there is a config file, read it and add to traineddata.
   string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
