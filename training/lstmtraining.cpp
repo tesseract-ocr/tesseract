@@ -74,6 +74,10 @@ int main(int argc, char **argv) {
     tprintf("Must provide a --model_output!\n");
     return 1;
   }
+  if (FLAGS_traineddata.empty()) {
+    tprintf("Must provide a --traineddata see training wiki\n");
+    return 1;
+  }
   STRING model_output = FLAGS_model_output.c_str();
   for (int i = 0; i < model_output.length(); ++i) {
     if (model_output[i] == '[' || model_output[i] == ']')
