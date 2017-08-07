@@ -84,7 +84,10 @@ int main(int argc, char **argv) {
   } else if (argc >= 4 && (strcmp(argv[1], "-e") == 0 ||
                            strcmp(argv[1], "-u") == 0)) {
     // Initialize TessdataManager with the data in the given traineddata file.
-    tm.Init(argv[2]);
+    if (!tm.Init(argv[2])) {
+      tprintf("Failed to read %s\n", argv[2]);
+      exit(1);
+    }
     printf("Extracting tessdata components from %s\n", argv[2]);
     if (strcmp(argv[1], "-e") == 0) {
       for (i = 3; i < argc; ++i) {
@@ -124,7 +127,10 @@ int main(int argc, char **argv) {
     // Write the updated traineddata file.
     tm.OverwriteComponents(new_traineddata_filename, argv+3, argc-3);
   } else if (argc == 3 && strcmp(argv[1], "-c") == 0) {
-    tm.Init(argv[2]);
+    if (!tm.Init(argv[2])) {
+      tprintf("Failed to read %s\n", argv[2]);
+      exit(1);
+    }
     tesseract::TFile fp;
     if (!tm.GetComponent(tesseract::TESSDATA_LSTM, &fp)) {
       tprintf("No LSTM Component found in %s!\n", argv[2]);
