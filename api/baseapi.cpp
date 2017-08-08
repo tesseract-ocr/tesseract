@@ -106,6 +106,8 @@ const int kMaxIntSize = 22;
 const int kMinCredibleResolution = 70;
 /** Maximum believable resolution.  */
 const int kMaxCredibleResolution = 2400;
+/** Default resolution.  */
+const int kDefaultResolution = 300;
 
 TessBaseAPI::TessBaseAPI()
     : tesseract_(nullptr),
@@ -2199,8 +2201,8 @@ bool TessBaseAPI::Threshold(Pix** pix) {
     // Use the minimum default resolution, as it is safer to under-estimate
     // than over-estimate resolution.
     tprintf("Warning. Invalid resolution %d dpi. Using %d instead.\n", y_res,
-            kMinCredibleResolution);
-    thresholder_->SetSourceYResolution(kMinCredibleResolution);
+            kDefaultResolution);
+    thresholder_->SetSourceYResolution(kDefaultResolution);
   }
   PageSegMode pageseg_mode =
       static_cast<PageSegMode>(
