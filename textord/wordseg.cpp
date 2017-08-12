@@ -183,6 +183,7 @@ inT32 row_words(                  //compute space size
                 BOOL8 testing_on  //for debug
                ) {
   BOOL8 testing_row;             //contains testpt
+  BOOL8 prev_valid;              //if decent size
   inT32 prev_x;                  //end of prev blob
   inT32 cluster_count;           //no of clusters
   inT32 gap_index;               //which cluster
@@ -217,9 +218,10 @@ inT32 row_words(                  //compute space size
     blob = blob_it.data ();
     if (!blob->joined_to_prev ()) {
       blob_box = blob->bounding_box ();
-      if (blob_box.left () - prev_x < maxwidth) {
+      if (prev_valid && blob_box.left () - prev_x < maxwidth) {
         gap_stats.add (blob_box.left () - prev_x, 1);
       }
+      prev_valid = TRUE;
       prev_x = blob_box.right ();
     }
   }
