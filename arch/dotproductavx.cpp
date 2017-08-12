@@ -90,6 +90,8 @@ double DotProductAVX(const double* u, const double* v, int n) {
   // instruction, as that introduces a 70 cycle delay. All this casting is to
   // fool the intrinsics into thinking we are extracting the bottom int64.
   auto cast_sum = _mm256_castpd_si256(sum);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing")
   *(reinterpret_cast<int64_t*>(&result)) =
 #if defined(_WIN32) || defined(__i386__)
       // This is a very simple workaround that is activated
@@ -100,6 +102,7 @@ double DotProductAVX(const double* u, const double* v, int n) {
       _mm256_extract_epi64(cast_sum, 0)
 #endif
       ;
+#pragma GCC diagnostic pop
   while (offset < n) {
     result += u[offset] * v[offset];
     ++offset;
