@@ -441,16 +441,17 @@ int main(int argc, char** argv) {
 
   int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
                              argc - arg_i, &vars_vec, &vars_values, false);
-  if (init_failed) {
-    fprintf(stderr, "Could not initialize tesseract.\n");
-    return EXIT_FAILURE;
-  }
 
   SetVariablesFromCLArgs(&api, argc, argv);
 
   if (list_langs) {
     PrintLangsList(&api);
     return EXIT_SUCCESS;
+  }
+
+  if (init_failed) {
+    fprintf(stderr, "Could not initialize tesseract.\n");
+    return EXIT_FAILURE;
   }
 
   if (print_parameters) {
