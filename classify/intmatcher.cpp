@@ -483,7 +483,6 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            bool SeparateDebugWindows) {
   ScratchEvidence *tables = new ScratchEvidence();
   int Feature;
-  int BestMatch;
 
   if (MatchDebuggingOn (Debug))
     cprintf ("Integer Matcher -------------------------------------------\n");
@@ -521,7 +520,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   tables->UpdateSumOfProtoEvidences(ClassTemplate, ConfigMask, NumFeatures);
   tables->NormalizeSums(ClassTemplate, NumFeatures, NumFeatures);
 
-  BestMatch = FindBestMatch(ClassTemplate, *tables, Result);
+  FindBestMatch(ClassTemplate, *tables, Result);
 
 #ifndef GRAPHICS_DISABLED
   if (PrintMatchSummaryOn(Debug))
@@ -847,9 +846,9 @@ int IntegerMatcher::UpdateTablesForFeature(
             M3 = ~M3;
           A3 >>= mult_trunc_shift_bits_;
           M3 >>= mult_trunc_shift_bits_;
-          if (A3 > evidence_mult_mask_)
+          if ((unsigned)A3 > evidence_mult_mask_)
             A3 = evidence_mult_mask_;
-          if (M3 > evidence_mult_mask_)
+          if ((unsigned)M3 > evidence_mult_mask_)
             M3 = evidence_mult_mask_;
 
           A4 = (A3 * A3) + (M3 * M3);

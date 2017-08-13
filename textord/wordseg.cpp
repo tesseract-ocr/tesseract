@@ -184,9 +184,7 @@ inT32 row_words(                  //compute space size
                ) {
   BOOL8 testing_row;             //contains testpt
   BOOL8 prev_valid;              //if decent size
-  BOOL8 this_valid;              //current blob big enough
   inT32 prev_x;                  //end of prev blob
-  inT32 min_gap;                 //min interesting gap
   inT32 cluster_count;           //no of clusters
   inT32 gap_index;               //which cluster
   inT32 smooth_factor;           //for smoothing stats
@@ -215,20 +213,16 @@ inT32 row_words(                  //compute space size
       testing_row = TRUE;
     gap_stats.add (blob_box.width (), 1);
   }
-  min_gap = (inT32) floor (gap_stats.ile (textord_words_width_ile));
   gap_stats.clear ();
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
     if (!blob->joined_to_prev ()) {
       blob_box = blob->bounding_box ();
-      //                      this_valid=blob_box.width()>=min_gap;
-      this_valid = TRUE;
-      if (this_valid && prev_valid
-      && blob_box.left () - prev_x < maxwidth) {
+      if (prev_valid && blob_box.left () - prev_x < maxwidth) {
         gap_stats.add (blob_box.left () - prev_x, 1);
       }
+      prev_valid = TRUE;
       prev_x = blob_box.right ();
-      prev_valid = this_valid;
     }
   }
   if (gap_stats.get_total () == 0) {
