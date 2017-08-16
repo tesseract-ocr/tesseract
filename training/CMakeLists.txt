@@ -11,7 +11,7 @@ if (CPPAN_BUILD)
 endif()
 
 # experimental
-if (MSVC AND NOT CPPAN_BUILD)
+if (MSVC AND NOT CPPAN_BUILD AND NOT USE_SYSTEM_ICU)
     include(CheckTypeSize)
     check_type_size("void *" SIZEOF_VOID_P)
 
@@ -56,7 +56,7 @@ endif()
 # experimental
 
 if (NOT CPPAN_BUILD)
-find_package(ICU COMPONENTS uc i18n)
+    find_package(ICU COMPONENTS uc i18n)
 endif()
 
 ########################################
