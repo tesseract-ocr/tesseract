@@ -82,3 +82,6 @@ kernel*.bin
 /*.exe
 /*.lnk
 /win*
+
+# GoogleTest
+googletest
