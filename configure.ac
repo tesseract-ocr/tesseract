@@ -521,15 +521,16 @@ echo "$ sudo make install"
 # echo "$ sudo make install LANGS=\"eng ara deu\""
 # echo "  Or:"
 # echo "$ sudo make install-langs"
+echo ""
 
 AM_COND_IF([ENABLE_TRAINING],
-  [echo ""
-   echo "Training tools can be build and installed (after building of $PACKAGE_NAME) with:"
+  [
+   echo "Training tools can be built and installed with:"
    echo ""
    echo "$ make training"
    echo "$ sudo make training-install"
    echo ""],
-  [echo ""
+  [
    echo "You can not build training tools because of missing dependency."
    echo "Check configure output for details."
    echo ""]
