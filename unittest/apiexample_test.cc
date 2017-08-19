@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        apiexample.cpp
+// File:        apiexample_test.cc
 // Description: Api Example for Tesseract.
 // Author:      ShreeDevi Kumar
 //
@@ -23,27 +23,33 @@
 
 TEST(TesseractTest, ApiExample) 
 {
-    const char* imagefile = "../testing/phototest.tif";
-    const char* groundtruth = "testfiles/phototest.txt";
     char *outText;
-    std::locale loc("en_US.UTF-8"); 
-    std::ifstream file(groundtruth);
-    file.imbue(loc); 
+    std::locale loc("en_US.UTF-8"); // You can also use "" for the default system locale
+    std::ifstream file("testfiles/phototest.txt");
+    file.imbue(loc); // Use it for file input
     std::string gtText((std::istreambuf_iterator<char>(file)),
              std::istreambuf_iterator<char>());
+	
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
+    // Initialize tesseract-ocr with English, without specifying tessdata path
     if (api->Init(NULL, "eng")) {
         fprintf(stderr, "Could not initialize tesseract.\n");
         exit(1);
     }
-    Pix *image = pixRead(imagefile);
+
+    // Open input image with leptonica library
+    Pix *image = pixRead("../testing/phototest.tif");
     api->SetImage(image);
-    api->SetPageSegMode(tesseract::PSM_AUTO_OSD);
+    // Get OCR result
     outText = api->GetUTF8Text();
-    ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
+
+   ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
+
+    // Destroy used object and release memory
     api->End();
     delete [] outText;
     pixDestroy(&image);
+
 }
 
 int main(int argc, char **argv) {
