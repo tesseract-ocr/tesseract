@@ -658,8 +658,9 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING *text) {
   }
   *text += line_separator_;
   // If we just finished a paragraph, add an extra newline.
-  if (it_->block() == NULL || IsAtBeginningOf(RIL_PARA))
+  if (IsAtBeginningOf(RIL_PARA)) {
     *text += paragraph_separator_;
+  }
 }
 
 void ResultIterator::AppendUTF8ParagraphText(STRING *text) const {
