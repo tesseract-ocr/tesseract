@@ -34,7 +34,7 @@ Wordrec::Wordrec() :
               params()),
   BOOL_MEMBER(force_word_assoc, FALSE,
               "force associator to run regardless of what enable_assoc is."
-              "This is used for CJK where component grouping is necessary.",
+              " This is used for CJK where component grouping is necessary.",
               CCUtil::params()),
   double_MEMBER(wordrec_worst_state, 1.0, "Worst segmentation state",
                 params()),
@@ -106,7 +106,7 @@ Wordrec::Wordrec() :
              params()),
   INT_MEMBER(segsearch_max_futile_classifications, 20,
              "Maximum number of pain point classifications per chunk that"
-             "did not result in finding a better word choice.",
+             " did not result in finding a better word choice.",
              params()),
   double_MEMBER(segsearch_max_char_wh_ratio, 2.0,
                 "Maximum character width-to-height ratio", params()),

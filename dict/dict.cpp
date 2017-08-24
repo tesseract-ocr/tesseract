@@ -75,7 +75,7 @@ Dict::Dict(CCUtil *ccutil)
                     getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_frequent_word, 1.0,
                     "Score multiplier for word matches which have good case and"
-                    "are frequent in the given language (lower is better).",
+                    " are frequent in the given language (lower is better).",
                     getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_case_ok, 1.1,
                     "Score multiplier for word matches that have good case "
@@ -151,7 +151,7 @@ Dict::Dict(CCUtil *ccutil)
                  getCCUtil()->params()),
       BOOL_MEMBER(segment_nonalphabetic_script, false,
                   "Don't use any alphabetic-specific tricks."
-                  "Set to true in the traineddata config file for"
+                  " Set to true in the traineddata config file for"
                   " scripts that are cursive or inherently fixed-pitch",
                   getCCUtil()->params()),
       BOOL_MEMBER(save_doc_words, 0, "Save Document Words",
@@ -161,7 +161,7 @@ Dict::Dict(CCUtil *ccutil)
                     getCCUtil()->params()),
       double_MEMBER(doc_dict_certainty_threshold, -2.25,
                     "Worst certainty for words that can be inserted into the"
-                    "document dictionary",
+                    " document dictionary",
                     getCCUtil()->params()),
       INT_MEMBER(max_permuter_attempts, 10000,
                  "Maximum number of different"
