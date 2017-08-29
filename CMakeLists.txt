@@ -227,6 +227,8 @@ set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJ
 if (WIN32)
 set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+else()
+set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
 if (NOT CPPAN_BUILD)
