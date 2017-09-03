@@ -81,7 +81,7 @@ bool ValidateGrapheme::IsBadlyFormed(char32 prev_ch, char32 ch) {
 // for examples in Devanagari). The Unicode standard discourages specifying
 // vowels this way, but they are sometimes encountered in text, probably because
 // some editors still permit it. Renderers however dislike such pairs, and so
-// this function may be used to detect their occurence for removal.
+// this function may be used to detect their occurrence for removal.
 // TODO(rays) This function only covers a subset of Indic languages and doesn't
 // include all rules. Add rules as appropriate to support other languages or
 // find a way to generalize these existing rules that makes use of the
@@ -164,7 +164,7 @@ bool ValidateGrapheme::IsBadlyFormedThai(char32 prev_ch, char32 ch) {
        prev_ch == 0xe37)) {
     return true;
   }
-  // Dont allow the standalone vowel U+0e24 to be followed by other vowels.
+  // Don't allow the standalone vowel U+0e24 to be followed by other vowels.
   if ((0xe30 <= ch && ch <= 0xe4D) && prev_ch == 0xe24) {
     return true;
   }
