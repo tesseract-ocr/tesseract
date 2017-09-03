@@ -1,14 +1,19 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-AM_CPPFLAGS += \
-    -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE \
-    -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
-    -I$(top_srcdir)/lstm -I$(top_srcdir)/arch \
-    -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/classify -I$(top_srcdir)/display \
-    -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
+AM_CPPFLAGS += -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE
+AM_CPPFLAGS += -I$(top_srcdir)/api
+AM_CPPFLAGS += -I$(top_srcdir)/arch 
+AM_CPPFLAGS += -I$(top_srcdir)/ccmain
+AM_CPPFLAGS += -I$(top_srcdir)/ccstruct 
+AM_CPPFLAGS += -I$(top_srcdir)/ccutil 
+AM_CPPFLAGS += -I$(top_srcdir)/classify 
+AM_CPPFLAGS += -I$(top_srcdir)/cutil
+AM_CPPFLAGS += -I$(top_srcdir)/dict 
+AM_CPPFLAGS += -I$(top_srcdir)/display 
+AM_CPPFLAGS += -I$(top_srcdir)/lstm 
+AM_CPPFLAGS += -I$(top_srcdir)/textord 
+AM_CPPFLAGS += -I$(top_srcdir)/viewer 
+AM_CPPFLAGS += -I$(top_srcdir)/wordrec
 	
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la
