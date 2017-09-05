@@ -1074,7 +1074,7 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
 }
 
 // In the ideal scenario, Tesseract will start working on data as soon
-// as it can. For example, if you steam a filelist through stdin, we
+// as it can. For example, if you stream a filelist through stdin, we
 // should start the OCR process as soon as the first filename is
 // available. This is particularly useful when hooking Tesseract up to
 // slow hardware such as a book scanning machine.

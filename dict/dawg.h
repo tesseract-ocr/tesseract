@@ -1,8 +1,8 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:         dawg.h  (Formerly dawg.h)
- * Description:  Definition of a class that represents Directed Accyclic Word
+ * File:         dawg.h
+ * Description:  Definition of a class that represents Directed Acyclic Word
  *               Graph (DAWG), functions to build and manipulate the DAWG.
  * Author:       Mark Seaman, SW Productivity
  * Created:      Fri Oct 16 14:37:00 1987

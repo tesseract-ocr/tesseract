@@ -2,7 +2,7 @@
  ********************************************************************************
  *
  * File:         dawg.cpp  (Formerly dawg.c)
- * Description:  Use a Directed Accyclic Word Graph
+ * Description:  Use a Directed Acyclic Word Graph
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Oct 16 14:37:00 1987
  * Modified:     Wed Jul 24 16:59:16 1991 (Mark Seaman) marks@hpgrlt
