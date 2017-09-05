@@ -20,7 +20,7 @@ endif
 .PHONY: install-langs ScrollView.jar install-jars training
 
 SUBDIRS = arch ccutil viewer cutil opencl ccstruct dict classify wordrec textord lstm
-SUBDIRS += ccmain api . tessdata doc
+SUBDIRS += ccmain api . tessdata doc unittest
 
 EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \

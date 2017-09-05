@@ -66,7 +66,7 @@ AC_SUBST([GENERIC_VERSION])
 # ----------------------------------------
 
 # Do not require README file (we use README.md)
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
 AM_MAINTAINER_MODE
 
@@ -501,6 +501,7 @@ AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])
 AC_CONFIG_FILES([testing/Makefile])
+AC_CONFIG_FILES([unittest/Makefile])
 AC_CONFIG_FILES([java/Makefile])
 AC_CONFIG_FILES([java/com/Makefile])
 AC_CONFIG_FILES([java/com/google/Makefile])
