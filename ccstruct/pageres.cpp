@@ -1331,7 +1331,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   if (input_word->word->flag(W_BOL)) {
     (*words)[0]->word->set_flag(W_BOL, true);
   } else {
-    (*words)[0]->word->set_blanks(1);
+    (*words)[0]->word->set_blanks(input_word->word->space());
   }
   words->back()->word->set_flag(W_EOL, input_word->word->flag(W_EOL));
 
