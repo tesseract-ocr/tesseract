@@ -28,22 +28,25 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include
 
 check_PROGRAMS = \
   apiexample_test \
+  intsimdmatrix_test \
   tesseracttests \
   matrix_test
 
 TESTS = $(check_PROGRAMS)
 
 #List of source files needed to build the executable:
+	
+apiexample_test_SOURCES = apiexample_test.cc
+apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS)
 
-tesseracttests_SOURCES = ../tests/tesseracttests.cpp
-tesseracttests_LDADD = $(GTEST_LIBS)
+intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
+intsimdmatrix_test_LDADD = $(GTEST_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS)
-	
-apiexample_test_SOURCES = apiexample_test.cc
-#apiexample_test_LDFLAGS = -static
-apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS)
+
+tesseracttests_SOURCES = ../tests/tesseracttests.cpp
+tesseracttests_LDADD = $(GTEST_LIBS)
 
 if USING_MULTIPLELIBS
 apiexample_test_LDADD = \
@@ -60,6 +63,7 @@ apiexample_test_LDADD += $(GTEST_LIBS)
 # for windows
 if T_WIN
 apiexample_test_LDADD += -lws2_32
+intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
 

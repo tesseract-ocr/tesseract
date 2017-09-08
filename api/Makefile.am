@@ -30,6 +30,7 @@ libtesseract_api_la_LIBADD = \
     ../dict/libtesseract_dict.la \
     ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_avx2.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \
@@ -60,6 +61,7 @@ libtesseract_la_LIBADD = \
     ../dict/libtesseract_dict.la \
     ../arch/libtesseract_arch.la \
     ../arch/libtesseract_avx.la \
+    ../arch/libtesseract_avx2.la \
     ../arch/libtesseract_sse.la \
     ../lstm/libtesseract_lstm.la \
     ../ccstruct/libtesseract_ccstruct.la \

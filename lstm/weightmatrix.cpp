@@ -20,6 +20,7 @@
 
 #include "dotproductavx.h"
 #include "dotproductsse.h"
+#include "intsimdmatrix.h"
 #include "simddetect.h"
 #include "statistc.h"
 #include "tprintf.h"
@@ -61,10 +62,7 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam,
 // the old weight matrix entries for each output from code_map[output] where
 // non-negative, and uses the mean (over all outputs) of the existing weights
 // for all outputs with negative code_map entries. Returns the new number of
-// weights. Can be used to change the character set addressed by an output
-// softmax.
-// TODO(rays) A RemapInputs would also be useful, so a change can be made
-// in the middle of a network.
+// weights.
 int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
   GENERIC_2D_ARRAY<double> old_wf(wf_);
   int old_no = wf_.dim1();
@@ -114,6 +112,8 @@ void WeightMatrix::ConvertToInt() {
   }
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
+  multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
+  if (multiplier_ != nullptr) multiplier_->Init(wi_);
 }
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
@@ -165,6 +165,8 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
+    multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
+    if (multiplier_ != nullptr) multiplier_->Init(wi_);
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
@@ -212,19 +214,8 @@ void WeightMatrix::MatrixDotVector(const double* u, double* v) const {
 
 void WeightMatrix::MatrixDotVector(const inT8* u, double* v) const {
   ASSERT_HOST(int_mode_);
-  int num_out = wi_.dim1();
-  int num_in = wi_.dim2() - 1;
-  for (int i = 0; i < num_out; ++i) {
-    const inT8* Wi = wi_[i];
-    int total = 0;
-    if (SIMDDetect::IsSSEAvailable()) {
-      total = IntDotProductSSE(u, Wi, num_in);
-    } else {
-      for (int j = 0; j < num_in; ++j) total += Wi[j] * u[j];
-    }
-    // Add in the bias and correct for integer values.
-    v[i] = (static_cast<double>(total) / MAX_INT8 + Wi[num_in]) * scales_[i];
-  }
+  ASSERT_HOST(multiplier_ != nullptr);
+  multiplier_->MatrixDotVector(wi_, scales_, u, v);
 }
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the

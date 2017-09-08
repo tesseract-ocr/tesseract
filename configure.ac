@@ -117,11 +117,17 @@ esac
 
 ## Checks for supported compiler options.
 AM_CONDITIONAL([AVX_OPT], false)
+AM_CONDITIONAL([AVX2_OPT], false)
 AM_CONDITIONAL([SSE41_OPT], false)
 
 AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false])
 if $avx; then
     AM_CONDITIONAL([AVX_OPT], true)
+fi
+
+AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false])
+if $avx2; then
+    AM_CONDITIONAL([AVX2_OPT], true)
 fi
 
 AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false])

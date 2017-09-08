@@ -81,10 +81,12 @@ class GENERIC_2D_ARRAY {
     memcpy(array_, src.array_, num_elements() * sizeof(array_[0]));
   }
 
-  // Reallocate the array to the given size. Does not keep old data, but does
+  // Reallocates the array to the given size. Does not keep old data, but does
   // not initialize the array either.
-  void ResizeNoInit(int size1, int size2) {
-    int new_size = size1 * size2;
+  // The allocated memory is expanded on the end by pad, allowing deliberate
+  // access beyond the bounds of the array.
+  void ResizeNoInit(int size1, int size2, int pad = 0) {
+    int new_size = size1 * size2 + pad;
     if (new_size > size_allocated_) {
       delete [] array_;
       array_ = new T[new_size];
@@ -92,6 +94,8 @@ class GENERIC_2D_ARRAY {
     }
     dim1_ = size1;
     dim2_ = size2;
+    // Fill the padding data so it isn't uninitialized.
+    for (int i = size1 * size2; i < new_size; ++i) array_[i] = empty_;
   }
 
   // Reallocate the array to the given size. Does not keep old data.

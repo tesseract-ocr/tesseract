@@ -327,6 +327,10 @@ class NetworkIO {
   }
 
  private:
+  // Returns the padding required for the given number of features in order
+  // for the SIMD operations to be safe.
+  static int GetPadding(int num_features);
+
   // Choice of float vs 8 bit int for data.
   GENERIC_2D_ARRAY<float> f_;
   GENERIC_2D_ARRAY<inT8> i_;
@@ -334,6 +338,10 @@ class NetworkIO {
   bool int_mode_;
   // Stride for 2d input data.
   StrideMap stride_map_;
+  // Holds the optimal integer multiplier for this machine.
+  // This is a leaked, lazily initialized singleton, and is used for computing
+  // padding to apply to i_ for SIMD use.
+  static IntSimdMatrix* multiplier_;
 };
 
 }  // namespace tesseract.

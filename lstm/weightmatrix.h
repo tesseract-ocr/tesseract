@@ -19,7 +19,9 @@
 #ifndef TESSERACT_LSTM_WEIGHTMATRIX_H_
 #define TESSERACT_LSTM_WEIGHTMATRIX_H_
 
+#include <memory>
 #include "genericvector.h"
+#include "intsimdmatrix.h"
 #include "matrix.h"
 #include "tprintf.h"
 
@@ -74,10 +76,7 @@ class WeightMatrix {
   // the old weight matrix entries for each output from code_map[output] where
   // non-negative, and uses the mean (over all outputs) of the existing weights
   // for all outputs with negative code_map entries. Returns the new number of
-  // weights. Can be used to change the character set addressed by an output
-  // softmax.
-  // TODO(rays) A RemapInputs would also be useful, so a change can be made
-  // in the middle of a network.
+  // weights.
   int RemapOutputs(const std::vector<int>& code_map);
 
   // Converts a float network to an int network. Each set of input weights that
@@ -88,6 +87,12 @@ class WeightMatrix {
   // Store a multiplicative scale factor (as a float) that will reproduce
   //   the original value, subject to rounding errors.
   void ConvertToInt();
+  // Returns the size rounded up to an internal factor used by the SIMD
+  // implementation for its input.
+  int RoundInputs(int size) const {
+    if (multiplier_ == nullptr) return size;
+    return multiplier_->RoundInputs(size);
+  }
 
   // Accessors.
   bool is_int_mode() const {
@@ -184,6 +189,8 @@ class WeightMatrix {
   // Iff use_adam_, the sum of squares of dw_. The number of samples is
   // given to Update(). Serialized iff use_adam_.
   GENERIC_2D_ARRAY<double> dw_sq_sum_;
+  // Holds the optimal integer multiplier for this machine.
+  std::unique_ptr<IntSimdMatrix> multiplier_;
 };
 
 }  // namespace tesseract.

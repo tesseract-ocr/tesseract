@@ -30,12 +30,17 @@ const float kMinCertainty = -20.0f;
 // Probability corresponding to kMinCertainty.
 const float kMinProb = exp(kMinCertainty);
 
+// Holds the optimal integer multiplier for this machine.
+// This is a leaked, lazily initialized singleton, and is used for computing
+// padding to apply to i_ for SIMD use.
+IntSimdMatrix* NetworkIO::multiplier_ = nullptr;
+
 // Resizes to a specific size as a 2-d temp buffer. No batches, no y-dim.
 void NetworkIO::Resize2d(bool int_mode, int width, int num_features) {
   stride_map_ = StrideMap();
   int_mode_ = int_mode;
   if (int_mode_) {
-    i_.ResizeNoInit(width, num_features);
+    i_.ResizeNoInit(width, num_features, GetPadding(num_features));
   } else {
     f_.ResizeNoInit(width, num_features);
   }
@@ -51,7 +56,7 @@ void NetworkIO::ResizeToMap(bool int_mode, const StrideMap& stride_map,
   stride_map_ = stride_map;
   int_mode_ = int_mode;
   if (int_mode_) {
-    i_.ResizeNoInit(stride_map.Width(), num_features);
+    i_.ResizeNoInit(stride_map.Width(), num_features, GetPadding(num_features));
   } else {
     f_.ResizeNoInit(stride_map.Width(), num_features);
   }
@@ -974,6 +979,19 @@ void NetworkIO::ClipVector(int t, float range) {
   int dim = f_.dim2();
   for (int i = 0; i < dim; ++i)
     v[i] = ClipToRange(v[i], -range, range);
+}
+
+// Returns the padding required for the given number of features in order
+// for the SIMD operations to be safe.
+/* static */
+int NetworkIO::GetPadding(int num_features) {
+  if (multiplier_ == nullptr)
+    multiplier_ = IntSimdMatrix::GetFastestMultiplier();
+  int pad = 0;
+  if (multiplier_ != nullptr) {
+    pad = multiplier_->RoundInputs(num_features) - num_features;
+  }
+  return pad;
 }
 
 }  // namespace tesseract.
