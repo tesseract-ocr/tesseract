@@ -64,9 +64,8 @@ class StringRenderer {
                             int text_length, string* font_used, Pix** pix);
 
   bool set_font(const string& desc);
-  void set_char_spacing(double char_spacing) {
-    char_spacing_ = char_spacing;
-  }
+  // Char spacing is in PIXELS!!!!.
+  void set_char_spacing(int char_spacing) { char_spacing_ = char_spacing; }
   void set_leading(int leading) {
     leading_ = leading;
   }
@@ -180,7 +179,7 @@ class StringRenderer {
   int page_width_, page_height_, h_margin_, v_margin_;
   // Text rendering properties
   double pen_color_[3];
-  double char_spacing_;
+  int char_spacing_;
   int leading_, resolution_;
   bool vertical_text_;
   bool gravity_hint_strong_;

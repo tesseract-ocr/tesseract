@@ -188,13 +188,14 @@ void StringRenderer::SetLayoutProperties() {
     swap(max_width, max_height);
   }
   pango_layout_set_width(layout_, max_width * PANGO_SCALE);
-  pango_layout_set_wrap(layout_, PANGO_WRAP_WORD);
+  // Ultra-wide Thai strings need to wrap at char level.
+  pango_layout_set_wrap(layout_, PANGO_WRAP_WORD_CHAR);
 
   // Adjust character spacing
   PangoAttrList* attr_list = pango_attr_list_new();
   if (char_spacing_) {
-    PangoAttribute* spacing_attr = pango_attr_letter_spacing_new(
-        static_cast<int>(char_spacing_ * PANGO_SCALE + 0.5));
+    PangoAttribute* spacing_attr =
+        pango_attr_letter_spacing_new(char_spacing_ * PANGO_SCALE);
     spacing_attr->start_index = 0;
     spacing_attr->end_index = static_cast<guint>(-1);
     pango_attr_list_change(attr_list, spacing_attr);
