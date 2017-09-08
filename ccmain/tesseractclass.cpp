@@ -576,9 +576,9 @@ Tesseract::Tesseract()
                   " evaluation",
                   this->params()),
       double_MEMBER(heuristic_segcost_rating_base, 1.25,
-                    "base factor for adding segmentation cost into word rating. "
-                    "It's a multiplying factor, the larger the value above 1, "
-                    "the bigger the effect of segmentation cost.",
+                    "Base factor for adding segmentation cost into word rating."
+                    " It's a multiplying factor, the larger the value above 1,"
+                    " the bigger the effect of segmentation cost.",
                     this->params()),
       double_MEMBER(heuristic_weight_rating, 1.0,
                     "weight associated with char rating in combined cost of"
