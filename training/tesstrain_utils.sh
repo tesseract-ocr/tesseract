@@ -287,14 +287,12 @@ phase_UP_generate_unicharset() {
     tlog "\n=== Phase UP: Generating unicharset and unichar properties files ==="
 
     local box_files=$(ls ${TRAINING_DIR}/*.box)
-    run_command unicharset_extractor -D "${TRAINING_DIR}/" ${box_files}
-    local outfile=${TRAINING_DIR}/unicharset
     UNICHARSET_FILE="${TRAINING_DIR}/${LANG_CODE}.unicharset"
-    check_file_readable ${outfile}
-    mv ${outfile} ${UNICHARSET_FILE}
+    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+      --norm_mode "${NORM_MODE}" ${box_files}
+    check_file_readable ${UNICHARSET_FILE}
 
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"
-    check_file_readable ${UNICHARSET_FILE}
     run_command set_unicharset_properties \
         -U ${UNICHARSET_FILE} -O ${UNICHARSET_FILE} -X ${XHEIGHTS_FILE} \
         --script_dir=${LANGDATA_ROOT}
@@ -347,11 +345,9 @@ phase_D_generate_dawg() {
     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
     # 2/RRP_FORCE_REVERSE for the punctuation DAWG.
     local punc_reverse_policy=0;
-    case ${LANG_CODE} in
-      ara | div| fas | pus | snd | syr | uig | urd | heb | yid )
-        punc_reverse_policy=2 ;;
-      * ) ;;
-    esac
+    if [[ "${LANG_IS_RTL}" == "1" ]]; then
+      punc_reverse_policy=2
+    fi
     if [[ ! -s ${PUNC_FILE} ]]; then
         PUNC_FILE="${LANGDATA_ROOT}/common.punc"
     fi
@@ -504,21 +500,13 @@ make__lstmdata() {
       mkdir -p "${OUTPUT_DIR}"
   fi
   local lang_is_rtl=""
-  # TODO(rays) set using script lang lists.
-  case "${LANG_CODE}" in
-    ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )
-      lang_is_rtl="--lang_is_rtl" ;;
-    * ) ;;
-  esac
+  if [[ "${LANG_IS_RTL}" == "1" ]]; then
+    lang_is_rtl="--lang_is_rtl"
+  fi
   local pass_through=""
-  # TODO(rays) set using script lang lists.
-  case "${LANG_CODE}" in
-    asm | ben | bih | hin | mar | nep | guj | kan | mal | tam | tel | pan | \
-    dzo | sin | san | bod | ori | khm | mya | tha | lao | heb | yid | ara | \
-    fas | pus | snd | urd | div | syr | uig | kur_ara )
-      pass_through="--pass_through_recoder" ;;
-    * ) ;;
-  esac
+  if [[ "${NORM_MODE}" -ge "2" ]]; then
+    pass_through="--pass_through_recoder"
+  fi
 
   # Build the starter traineddata from the inputs.
   run_command combine_lang_model \

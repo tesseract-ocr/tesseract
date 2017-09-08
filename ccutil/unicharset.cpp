@@ -879,10 +879,9 @@ bool UNICHARSET::load_via_fgets(
     this->set_bearing_stats(id, bearing, bearing_sd);
     this->set_advance_stats(id, advance, advance_sd);
     this->set_direction(id, static_cast<UNICHARSET::Direction>(direction));
-    ASSERT_HOST(other_case < unicharset_size);
-    this->set_other_case(id, (v>3) ? other_case : id);
-    ASSERT_HOST(mirror < unicharset_size);
-    this->set_mirror(id, (v>8) ? mirror : id);
+    this->set_other_case(
+        id, (v > 3 && other_case < unicharset_size) ? other_case : id);
+    this->set_mirror(id, (v > 8 && mirror < unicharset_size) ? mirror : id);
     this->set_normed(id, (v>16) ? normed : unichar);
   }
   post_load_setup();

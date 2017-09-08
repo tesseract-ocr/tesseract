@@ -29,11 +29,7 @@ VALID_LANGUAGE_CODES="afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat
                       uig ukr urd uzb uzb_cyrl vie yid"
 
 # Codes for which we have webtext but no fonts:
-# armenian, dhivehi, mongolian (we support mongolian cyrillic as in the webtext,
-# but not mongolian script with vertical writing direction), sindhi (for which
-# we have persian script webtext, but real sindhi text can be in persian OR
-# devanagari script)
-UNUSABLE_LANGUAGE_CODES="hye div mon snd"
+UNUSABLE_LANGUAGE_CODES=""
 
 FRAKTUR_FONTS=(
     "CaslonishFraxx Medium" \
@@ -1142,6 +1138,19 @@ set_lang_specific_parameters() {
 
   # Default to 0 exposure if it hasn't been set
   test -z "$EXPOSURES" && EXPOSURES=0
+  # Set right-to-left and normalization mode.
+  case "${LANG_CODE}" in
+    ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )
+      LANG_IS_RTL="1"
+      NORM_MODE="2" ;;
+    asm | ben | bih | hin | mar | nep | guj | kan | mal | tam | tel | pan | \
+    dzo | sin | san | bod | ori | khm | mya | tha | lao )
+      LANG_IS_RTL="0"
+      NORM_MODE="2" ;;
+    * )
+      LANG_IS_RTL="0"
+      NORM_MODE="1" ;;
+  esac
 }
 
 #=============================================================================
