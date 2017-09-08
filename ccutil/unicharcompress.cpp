@@ -20,8 +20,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "unicharcompress.h"
-#include <memory>
 #include <algorithm>
+#include <memory>
 #include "tprintf.h"
 
 namespace tesseract {

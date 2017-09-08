@@ -846,9 +846,9 @@ int IntegerMatcher::UpdateTablesForFeature(
             M3 = ~M3;
           A3 >>= mult_trunc_shift_bits_;
           M3 >>= mult_trunc_shift_bits_;
-          if ((unsigned)A3 > evidence_mult_mask_)
+          if (static_cast<uint32_t>(A3) > evidence_mult_mask_)
             A3 = evidence_mult_mask_;
-          if ((unsigned)M3 > evidence_mult_mask_)
+          if (static_cast<uint32_t>(M3) > evidence_mult_mask_)
             M3 = evidence_mult_mask_;
 
           A4 = (A3 * A3) + (M3 * M3);

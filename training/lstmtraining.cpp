@@ -58,7 +58,8 @@ INT_PARAM_FLAG(max_iterations, 0, "If set, exit after this many iterations");
 STRING_PARAM_FLAG(traineddata, "",
                   "Combined Dawgs/Unicharset/Recoder for language model");
 STRING_PARAM_FLAG(old_traineddata, "",
-                  "Previous traineddata arg when changing the character set");
+                  "When changing the character set, this specifies the old"
+                  " character set that is to be replaced");
 
 // Number of training images to train between calls to MaintainCheckpoints.
 const int kNumPagesPerBatch = 100;
