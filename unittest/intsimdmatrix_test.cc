@@ -80,9 +80,9 @@ class IntSimdMatrixTest : public ::testing::Test {
 // Tests that the SSE implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, SSE) {
   if (SIMDDetect::IsSSEAvailable()) {
-    LOG(INFO) << "SSE found! Continuing...";
+    tprintf("SSE found! Continuing...");
   } else {
-    LOG(INFO) << "No SSE found! Not Tested!";
+    tprintf("No SSE found! Not Tested!");
     return;
   }
   std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrixSSE());
@@ -92,9 +92,9 @@ TEST_F(IntSimdMatrixTest, SSE) {
 // Tests that the AVX2 implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, AVX2) {
   if (SIMDDetect::IsAVX2Available()) {
-    LOG(INFO) << "AVX2 found! Continuing...";
+    tprintf("AVX2 found! Continuing...");
   } else {
-    LOG(INFO) << "No AVX2 found! Not Tested!";
+    tprintf("No AVX2 found! Not Tested!");
     return;
   }
   std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrixAVX2());
