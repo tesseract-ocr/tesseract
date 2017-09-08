@@ -310,13 +310,22 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
   TO_BLOCK* to_block = to_block_it.data();
   TBOX blkbox = to_block->block->bounding_box();
   ColumnFinder* finder = NULL;
+  int estimated_resolution = source_resolution_;
+  if (source_resolution_ == kMinCredibleResolution) {
+    // Try to estimate resolution from typical body text size.
+    int res = IntCastRounded(to_block->line_size * kResolutionEstimationFactor);
+    if (res > estimated_resolution && res < kMaxCredibleResolution) {
+      estimated_resolution = res;
+      tprintf("Estimating resolution as %d\n", estimated_resolution);
+    }
+  }
 
   if (to_block->line_size >= 2) {
     finder = new ColumnFinder(static_cast<int>(to_block->line_size),
                               blkbox.botleft(), blkbox.topright(),
-                              source_resolution_, textord_use_cjk_fp_model,
-                              textord_tabfind_aligned_gap_fraction,
-                              &v_lines, &h_lines, vertical_x, vertical_y);
+                              estimated_resolution, textord_use_cjk_fp_model,
+                              textord_tabfind_aligned_gap_fraction, &v_lines,
+                              &h_lines, vertical_x, vertical_y);
 
     finder->SetupAndFilterNoise(pageseg_mode, *photo_mask_pix, to_block);
 

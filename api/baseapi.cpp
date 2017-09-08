@@ -102,15 +102,6 @@ const char* kInputFile = "noname.tif";
 const char* kOldVarsFile = "failed_vars.txt";
 /** Max string length of an int.  */
 const int kMaxIntSize = 22;
-/**
- * Minimum believable resolution. Used as a default if there is no other
- * information, as it is safer to under-estimate than over-estimate.
- */
-const int kMinCredibleResolution = 70;
-/** Maximum believable resolution.  */
-const int kMaxCredibleResolution = 2400;
-/** Default resolution.  */
-const int kDefaultResolution = 300;
 
 /* Add all available languages recursively.
 */
@@ -2225,8 +2216,8 @@ bool TessBaseAPI::Threshold(Pix** pix) {
     // Use the minimum default resolution, as it is safer to under-estimate
     // than over-estimate resolution.
     tprintf("Warning. Invalid resolution %d dpi. Using %d instead.\n", y_res,
-            kDefaultResolution);
-    thresholder_->SetSourceYResolution(kDefaultResolution);
+            kMinCredibleResolution);
+    thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
   PageSegMode pageseg_mode =
       static_cast<PageSegMode>(

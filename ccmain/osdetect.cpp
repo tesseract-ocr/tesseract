@@ -58,9 +58,6 @@ const char* ScriptDetector::korean_script_ = "Korean";
 const char* ScriptDetector::japanese_script_ = "Japanese";
 const char* ScriptDetector::fraktur_script_ = "Fraktur";
 
-// Minimum believable resolution.
-const int kMinCredibleResolution = 70;
-
 void OSResults::update_best_orientation() {
   float first = orientations[0];
   float second = orientations[1];
