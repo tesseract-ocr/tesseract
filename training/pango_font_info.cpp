@@ -231,6 +231,8 @@ bool PangoFontInfo::CoversUTF8Text(const char* utf8_text, int byte_length) const
       return false;
     }
   }
+  pango_coverage_unref(coverage);
+  g_object_unref(font);
   return true;
 }
 
@@ -293,6 +295,8 @@ int PangoFontInfo::DropUncoveredChars(string* utf8_text) const {
     my_strnmove(out, utf8_char, utf8_len);
     out += utf8_len;
   }
+  pango_coverage_unref(coverage);
+  g_object_unref(font);
   utf8_text->resize(out - utf8_text->c_str());
   return num_dropped_chars;
 }
@@ -316,6 +320,7 @@ bool PangoFontInfo::GetSpacingProperties(const string& utf8_char,
         reinterpret_cast<PangoFcFont*>(font), *it);
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
+      g_object_unref(font);
       return false;
     }
     // Find the ink glyph extents for the glyph
@@ -332,6 +337,7 @@ bool PangoFontInfo::GetSpacingProperties(const string& utf8_char,
   }
   *x_bearing = min_bearing;
   *x_advance = total_advance;
+  g_object_unref(font);
   return true;
 }
 
@@ -612,9 +618,11 @@ void FontUtils::GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap) {
 void FontUtils::GetAllRenderableCharacters(const string& font_name,
                                            std::vector<bool>* unichar_bitmap) {
   PangoFontInfo font_info(font_name);
-  PangoCoverage* coverage =
-      pango_font_get_coverage(font_info.ToPangoFont(), nullptr);
+  PangoFont* font = font_info.ToPangoFont();
+  PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
   CharCoverageMapToBitmap(coverage, unichar_bitmap);
+  pango_coverage_unref(coverage);
+  g_object_unref(font);
 }
 
 /* static */
@@ -625,10 +633,12 @@ void FontUtils::GetAllRenderableCharacters(const std::vector<string>& fonts,
   tlog(1, "Processing %u fonts\n", static_cast<unsigned>(fonts.size()));
   for (unsigned i = 0; i < fonts.size(); ++i) {
     PangoFontInfo font_info(fonts[i]);
-    PangoCoverage* coverage =
-        pango_font_get_coverage(font_info.ToPangoFont(), nullptr);
+    PangoFont* font = font_info.ToPangoFont();
+    PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
     // Mark off characters that any font can render.
     pango_coverage_max(all_coverage, coverage);
+    pango_coverage_unref(coverage);
+    g_object_unref(font);
   }
   CharCoverageMapToBitmap(all_coverage, unichar_bitmap);
   pango_coverage_unref(all_coverage);
@@ -667,6 +677,8 @@ int FontUtils::FontScore(const std::unordered_map<char32, inT64>& ch_map,
       ch_flags->push_back(covered);
     }
   }
+  pango_coverage_unref(coverage);
+  g_object_unref(font);
   return ok_chars;
 }
 
