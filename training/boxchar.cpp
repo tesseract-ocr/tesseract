@@ -39,14 +39,45 @@ const int kMinNewlineRatio = 5;
 
 namespace tesseract {
 
-BoxChar::BoxChar(const char* utf8_str, int len) : ch_(utf8_str, len) {
-  box_ = nullptr;
-}
+BoxChar::BoxChar(const char* utf8_str, int len)
+    : ch_(utf8_str, len), box_(nullptr), page_(0), rtl_index_(-1) {}
 
 BoxChar::~BoxChar() { boxDestroy(&box_); }
 
 void BoxChar::AddBox(int x, int y, int width, int height) {
   box_ = boxCreate(x, y, width, height);
+}
+
+// Increments *num_rtl and *num_ltr according to the directionality of
+// characters in the box.
+void BoxChar::GetDirection(int* num_rtl, int* num_ltr) const {
+  // Convert the unichar to UTF32 representation
+  std::vector<char32> uni_vector = UNICHAR::UTF8ToUTF32(ch_.c_str());
+  if (uni_vector.empty()) {
+    tprintf("Illegal utf8 in boxchar string:%s = ", ch_.c_str());
+    for (int c = 0; c < ch_.size(); ++c) {
+      tprintf(" 0x%x", ch_[c]);
+    }
+    tprintf("\n");
+    return;
+  }
+  for (char32 ch : uni_vector) {
+    UCharDirection dir = u_charDirection(ch);
+    if (dir == U_RIGHT_TO_LEFT || dir == U_RIGHT_TO_LEFT_ARABIC ||
+        dir == U_ARABIC_NUMBER || dir == U_RIGHT_TO_LEFT_ISOLATE) {
+      ++*num_rtl;
+    } else if (dir != U_DIR_NON_SPACING_MARK && dir != U_BOUNDARY_NEUTRAL) {
+      ++*num_ltr;
+    }
+  }
+}
+
+// Reverses the order of unicodes within the box. If Pango generates a
+// ligature, these will get reversed on output, so reverse now.
+void BoxChar::ReverseUnicodesInBox() {
+  std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(ch_.c_str());
+  std::reverse(unicodes.begin(), unicodes.end());
+  ch_ = UNICHAR::UTF32ToUTF8(unicodes);
 }
 
 /* static */
@@ -105,14 +136,16 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
         shift = -shift;
       }
       if (-shift > max_shift) {
-        // This is a newline.
-        int width = prev_box->w;
-        int height = prev_box->h;
-        int x = prev_box->x + width;
+        // This is a newline. Since nothing cares about the size of the box,
+        // except the out-of-bounds checker, minimize the chance of creating
+        // a box outside the image by making the width and height 1.
+        int width = 1;
+        int height = 1;
+        int x = prev_box->x + prev_box->w;
         int y = prev_box->y;
         if (vertical_rules) {
           x = prev_box->x;
-          y = prev_box->y + height;
+          y = prev_box->y + prev_box->h;
         } else if (rtl_rules) {
           x = prev_box->x - width;
           if (x < 0) {
@@ -201,8 +234,19 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
 // Reorders text in a right-to-left script in left-to-right order.
 /* static */
 void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
-  // After adding newlines and spaces, this task is simply a matter of sorting
-  // by left each group of boxes between newlines.
+  // Ideally we need the inverse of the algorithm used by ResultIterator.
+  // For now, let's try a sort that reverses original positions for RTL
+  // characters, otherwise by x-position. This should be much closer to
+  // correct than just sorting by x-position.
+  int num_boxes = boxes->size();
+  for (int i = 0; i < num_boxes; ++i) {
+    int num_rtl = 0, num_ltr = 0;
+    (*boxes)[i]->GetDirection(&num_rtl, &num_ltr);
+    if (num_rtl > num_ltr) {
+      (*boxes)[i]->set_rtl_index(i);
+      (*boxes)[i]->ReverseUnicodesInBox();
+    }
+  }
   BoxCharPtrSort sorter;
   size_t end = 0;
   for (size_t start = 0; start < boxes->size(); start = end + 1) {
@@ -216,28 +260,8 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
 /* static */
 bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
   int num_rtl = 0, num_ltr = 0;
-  for (size_t i = 0; i < boxes.size(); ++i) {
-    // Convert the unichar to UTF32 representation
-    std::vector<char32> uni_vector =
-        UNICHAR::UTF8ToUTF32(boxes[i]->ch_.c_str());
-    if (uni_vector.empty()) {
-      tprintf("Illegal utf8 in boxchar %d string:%s = ", i,
-              boxes[i]->ch_.c_str());
-      for (size_t c = 0; c < boxes[i]->ch_.size(); ++c) {
-        tprintf(" 0x%x", boxes[i]->ch_[c]);
-      }
-      tprintf("\n");
-      continue;
-    }
-    for (char32 ch : uni_vector) {
-      UCharDirection dir = u_charDirection(ch);
-      if (dir == U_RIGHT_TO_LEFT || dir == U_RIGHT_TO_LEFT_ARABIC ||
-          dir == U_ARABIC_NUMBER) {
-        ++num_rtl;
-      } else {
-        ++num_ltr;
-      }
-    }
+  for (int i = 0; i < boxes.size(); ++i) {
+    boxes[i]->GetDirection(&num_rtl, &num_ltr);
   }
   return num_rtl > num_ltr;
 }

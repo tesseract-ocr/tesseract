@@ -43,7 +43,8 @@ class BoxChar {
   const string& ch() const { return ch_; }
   const Box* box() const   { return box_; }
   const int& page() const  { return page_; }
-
+  void set_rtl_index(int index) { rtl_index_ = index; }
+  const int& rtl_index() const { return rtl_index_; }
 
   // Set the box_ member.
   void AddBox(int x, int y, int width, int height);
@@ -60,6 +61,12 @@ class BoxChar {
     if (other.box_ == nullptr) return false;
     return box_->x < other.box_->x;
   }
+  // Increments *num_rtl and *num_ltr according to the directionality of
+  // characters in the box.
+  void GetDirection(int* num_rtl, int* num_ltr) const;
+  // Reverses the order of unicodes within the box. If Pango generates a
+  // ligature, these will get reversed on output, so reverse now.
+  void ReverseUnicodesInBox();
 
   static void TranslateBoxes(int xshift, int yshift,
                              std::vector<BoxChar*>* boxes);
@@ -106,11 +113,16 @@ class BoxChar {
   string ch_;
   Box* box_;
   int page_;
+  // If the box is an RTL character, contains the original position in the
+  // array of boxes (before reversal), otherwise -1.
+  int rtl_index_;
 };
 
 // Sort predicate to sort a vector of BoxChar*.
 struct BoxCharPtrSort {
   bool operator()(const BoxChar* box1, const BoxChar* box2) const {
+    if (box1->rtl_index() >= 0 && box2->rtl_index() >= 0)
+      return box2->rtl_index() < box1->rtl_index();
     return *box1 < *box2;
   }
 };
