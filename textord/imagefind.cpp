@@ -84,9 +84,19 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
     pixDestroy(&pixr);
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
   }
+  // Get the halftone mask.
   l_int32 ht_found = 0;
-  Pix *pixht2 = pixGenHalftoneMask(pixr, NULL, &ht_found,
-                                   textord_tabfind_show_images);
+  Pixa* pixadb = (textord_tabfind_show_images && pixa_debug != nullptr)
+                     ? pixaCreate(0)
+                     : nullptr;
+  Pix* pixht2 = pixGenerateHalftoneMask(pixr, NULL, &ht_found, pixadb);
+  if (pixadb) {
+    Pix* pixdb = pixaDisplayTiledInColumns(pixadb, 3, 1.0, 20, 2);
+    if (textord_tabfind_show_images && pixa_debug != nullptr)
+      pixa_debug->AddPix(pixdb, "HalftoneMask");
+    pixDestroy(&pixdb);
+    pixaDestroy(&pixadb);
+  }
   pixDestroy(&pixr);
   if (!ht_found && pixht2 != NULL)
     pixDestroy(&pixht2);
