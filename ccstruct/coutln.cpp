@@ -603,7 +603,7 @@ void C_OUTLINE::move(const ICOORD vec) {
  */
 bool C_OUTLINE::IsLegallyNested() const {
   if (stepcount == 0) return true;
-  int parent_area = outer_area();
+  int64_t parent_area = outer_area();
   // We aren't going to modify the list, or its contents, but there is
   // no const iterator.
   C_OUTLINE_IT child_it(const_cast<C_OUTLINE_LIST*>(&children));
