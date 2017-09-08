@@ -172,11 +172,17 @@ class Network {
   // and should not be deleted by any of the networks.
   // Returns the number of weights initialized.
   virtual int InitWeights(float range, TRand* randomizer);
-  // Changes the number of outputs to the size of the given code_map, copying
-  // the old weight matrix entries for each output from code_map[output] where
-  // non-negative, and uses the mean (over all outputs) of the existing weights
-  // for all outputs with negative code_map entries. Returns the new number of
-  // weights. Only operates on Softmax layers with old_no outputs.
+  // Changes the number of outputs to the outside world to the size of the given
+  // code_map. Recursively searches the entire network for Softmax layers that
+  // have exactly old_no outputs, and operates only on those, leaving all others
+  // unchanged. This enables networks with multiple output layers to get all
+  // their softmaxes updated, but if an internal layer, uses one of those
+  // softmaxes for input, then the inputs will effectively be scrambled.
+  // TODO(rays) Fix this before any such network is implemented.
+  // The softmaxes are resized by copying the old weight matrix entries for each
+  // output from code_map[output] where non-negative, and uses the mean (over
+  // all outputs) of the existing weights for all outputs with negative code_map
+  // entries. Returns the new number of weights.
   virtual int RemapOutputs(int old_no, const std::vector<int>& code_map) {
     return 0;
   }

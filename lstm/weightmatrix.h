@@ -74,7 +74,10 @@ class WeightMatrix {
   // the old weight matrix entries for each output from code_map[output] where
   // non-negative, and uses the mean (over all outputs) of the existing weights
   // for all outputs with negative code_map entries. Returns the new number of
-  // weights.
+  // weights. Can be used to change the character set addressed by an output
+  // softmax.
+  // TODO(rays) A RemapInputs would also be useful, so a change can be made
+  // in the middle of a network.
   int RemapOutputs(const std::vector<int>& code_map);
 
   // Converts a float network to an int network. Each set of input weights that

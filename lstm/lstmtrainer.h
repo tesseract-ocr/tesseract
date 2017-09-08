@@ -99,7 +99,7 @@ class LSTMTrainer : public LSTMRecognizer {
 
   // Tries to deserialize a trainer from the given file and silently returns
   // false in case of failure. If old_traineddata is not null, then it is
-  // assumed that the character set is to be re-mapped from old_traininddata to
+  // assumed that the character set is to be re-mapped from old_traineddata to
   // the new, with consequent change in weight matrices etc.
   bool TryLoadingCheckpoint(const char* filename, const char* old_traineddata);
 

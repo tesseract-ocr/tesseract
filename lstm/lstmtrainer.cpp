@@ -135,7 +135,7 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
       filename == old_traineddata) {
     return true;  // Normal checkpoint load complete.
   }
-  tprintf("Code range changed from %d to %d!!\n", network_->NumOutputs(),
+  tprintf("Code range changed from %d to %d!\n", network_->NumOutputs(),
           recoder_.code_range());
   if (old_traineddata == nullptr || *old_traineddata == '\0') {
     tprintf("Must supply the old traineddata for code conversion!\n");

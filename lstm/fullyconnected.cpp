@@ -84,11 +84,9 @@ int FullyConnected::InitWeights(float range, TRand* randomizer) {
   return num_weights_;
 }
 
-// Changes the number of outputs to the size of the given code_map, copying
-// the old weight matrix entries for each output from code_map[output] where
-// non-negative, and uses the mean (over all outputs) of the existing weights
-// for all outputs with negative code_map entries. Returns the new number of
-// weights. Only operates on Softmax layers with old_no outputs.
+// Recursively searches the network for softmaxes with old_no outputs,
+// and remaps their outputs according to code_map. See network.h for details.
+
 int FullyConnected::RemapOutputs(int old_no, const std::vector<int>& code_map) {
   if (type_ == NT_SOFTMAX && no_ == old_no) {
     num_weights_ = weights_.RemapOutputs(code_map);
