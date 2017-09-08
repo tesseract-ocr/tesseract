@@ -182,7 +182,8 @@ class LSTMTrainer : public LSTMRecognizer {
   // tesseract into memory ready for training. Returns false if nothing was
   // loaded.
   bool LoadAllTrainingData(const GenericVector<STRING>& filenames,
-                           CachingStrategy cache_strategy);
+                           CachingStrategy cache_strategy,
+                           bool randomly_rotate);
 
   // Keeps track of best and locally worst error rate, using internally computed
   // values. See MaintainCheckpointsSpecific for more detail.
@@ -409,6 +410,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Checkpoint filename.
   STRING checkpoint_name_;
   // Training data.
+  bool randomly_rotate_;
   DocumentCache training_data_;
   // Name to use when saving best_trainer_.
   STRING best_model_name_;

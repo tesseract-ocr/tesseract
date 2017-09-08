@@ -60,6 +60,8 @@ STRING_PARAM_FLAG(traineddata, "",
 STRING_PARAM_FLAG(old_traineddata, "",
                   "When changing the character set, this specifies the old"
                   " character set that is to be replaced");
+BOOL_PARAM_FLAG(randomly_rotate, false,
+                "Train OSD and randomly turn training samples upside-down");
 
 // Number of training images to train between calls to MaintainCheckpoints.
 const int kNumPagesPerBatch = 100;
@@ -167,9 +169,11 @@ int main(int argc, char **argv) {
       trainer.set_perfect_delay(FLAGS_perfect_sample_delay);
     }
   }
-  if (!trainer.LoadAllTrainingData(
-          filenames, FLAGS_sequential_training ? tesseract::CS_SEQUENTIAL
-                                               : tesseract::CS_ROUND_ROBIN)) {
+  if (!trainer.LoadAllTrainingData(filenames,
+                                   FLAGS_sequential_training
+                                       ? tesseract::CS_SEQUENTIAL
+                                       : tesseract::CS_ROUND_ROBIN,
+                                   FLAGS_randomly_rotate)) {
     tprintf("Load of images failed!!\n");
     return 1;
   }

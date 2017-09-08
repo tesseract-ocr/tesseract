@@ -71,7 +71,8 @@ const int kTargetXScale = 5;
 const int kTargetYScale = 100;
 
 LSTMTrainer::LSTMTrainer()
-    : training_data_(0),
+    : randomly_rotate_(false),
+      training_data_(0),
       file_reader_(LoadDataFromFile),
       file_writer_(SaveDataToFile),
       checkpoint_reader_(
@@ -88,7 +89,8 @@ LSTMTrainer::LSTMTrainer(FileReader file_reader, FileWriter file_writer,
                          CheckPointWriter checkpoint_writer,
                          const char* model_base, const char* checkpoint_name,
                          int debug_interval, inT64 max_memory)
-    : training_data_(max_memory),
+    : randomly_rotate_(false),
+      training_data_(max_memory),
       file_reader_(file_reader),
       file_writer_(file_writer),
       checkpoint_reader_(checkpoint_reader),
@@ -296,7 +298,9 @@ void LSTMTrainer::DebugNetwork() {
 // tesseract into memory ready for training. Returns false if nothing was
 // loaded.
 bool LSTMTrainer::LoadAllTrainingData(const GenericVector<STRING>& filenames,
-                                      CachingStrategy cache_strategy) {
+                                      CachingStrategy cache_strategy,
+                                      bool randomly_rotate) {
+  randomly_rotate_ = randomly_rotate;
   training_data_.Clear();
   return training_data_.LoadDocuments(filenames, cache_strategy, file_reader_);
 }
@@ -838,6 +842,23 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
             trainingdata->language().string());
     return UNENCODABLE;
   }
+  bool upside_down = false;
+  if (randomly_rotate_) {
+    // This ensures consistent training results.
+    SetRandomSeed();
+    upside_down = randomizer_.SignedRand(1.0) > 0.0;
+    if (upside_down) {
+      // Modify the truth labels to match the rotation:
+      // Apart from space and null, increment the label. This is changes the
+      // script-id to the same script-id but upside-down.
+      // The labels need to be reversed in order, as the first is now the last.
+      for (int c = 0; c < truth_labels.size(); ++c) {
+        if (truth_labels[c] != UNICHAR_SPACE && truth_labels[c] != null_char_)
+          ++truth_labels[c];
+      }
+      truth_labels.reverse();
+    }
+  }
   int w = 0;
   while (w < truth_labels.size() &&
          (truth_labels[w] == UNICHAR_SPACE || truth_labels[w] == null_char_))
@@ -850,8 +871,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   float image_scale;
   NetworkIO inputs;
   bool invert = trainingdata->boxes().empty();
-  if (!RecognizeLine(*trainingdata, invert, debug, invert, &image_scale,
-                     &inputs, fwd_outputs)) {
+  if (!RecognizeLine(*trainingdata, invert, debug, invert, upside_down,
+                     &image_scale, &inputs, fwd_outputs)) {
     tprintf("Image not trainable\n");
     return UNENCODABLE;
   }

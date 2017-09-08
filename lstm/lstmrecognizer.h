@@ -199,8 +199,8 @@ class LSTMRecognizer {
   // forward outputs for the best photometric interpretation.
   // inputs is filled with the used inputs to the network.
   bool RecognizeLine(const ImageData& image_data, bool invert, bool debug,
-                     bool re_invert, float* scale_factor, NetworkIO* inputs,
-                     NetworkIO* outputs);
+                     bool re_invert, bool upside_down, float* scale_factor,
+                     NetworkIO* inputs, NetworkIO* outputs);
 
   // Converts an array of labels to utf-8, whether or not the labels are
   // augmented with character boundaries.

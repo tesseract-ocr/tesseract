@@ -187,8 +187,8 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
-  if (!RecognizeLine(image_data, invert, debug, false, &scale_factor, &inputs,
-                     &outputs))
+  if (!RecognizeLine(image_data, invert, debug, false, false, &scale_factor,
+                     &inputs, &outputs))
     return;
   if (search_ == NULL) {
     search_ =
@@ -227,7 +227,7 @@ void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
 // Recognizes the image_data, returning the labels,
 // scores, and corresponding pairs of start, end x-coords in coords.
 bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
-                                   bool debug, bool re_invert,
+                                   bool debug, bool re_invert, bool upside_down,
                                    float* scale_factor, NetworkIO* inputs,
                                    NetworkIO* outputs) {
   // Maximum width of image to train on.
@@ -247,6 +247,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     pixDestroy(&pix);
     return false;
   }
+  if (upside_down) pixRotate180(pix, pix);
   // Reduction factor from image to coords.
   *scale_factor = min_width / *scale_factor;
   inputs->set_int_mode(IsIntMode());
