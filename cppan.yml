@@ -208,7 +208,7 @@ projects:
 
     unicharset_extractor:
         files: training/unicharset_extractor.cpp
-        dependencies: tessopt
+        dependencies: unicharset_training
 
     wordlist2dawg:
         files: training/wordlist2dawg.cpp
