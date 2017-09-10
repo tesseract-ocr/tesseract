@@ -33,7 +33,7 @@ class IntSimdMatrixTest : public ::testing::Test {
     GENERIC_2D_ARRAY<int8_t> a(no, ni, 0);
     for (int i = 0; i < no; ++i) {
       for (int j = 0; j < ni; ++j) {
-        a(i, j) = static_cast<int8_t>(random_.SignedRand(MAX_INT8));
+        a(i, j) = static_cast<int8_t>(random_.SignedRand(INT8_MAX));
       }
     }
     return a;
@@ -43,7 +43,7 @@ class IntSimdMatrixTest : public ::testing::Test {
     int rounded_size = matrix.RoundInputs(size);
     std::vector<int8_t> v(rounded_size, 0);
     for (int i = 0; i < size; ++i) {
-      v[i] = static_cast<int8_t>(random_.SignedRand(MAX_INT8));
+      v[i] = static_cast<int8_t>(random_.SignedRand(INT8_MAX));
     }
     return v;
   }
