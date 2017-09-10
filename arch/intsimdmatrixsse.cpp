@@ -31,7 +31,7 @@ static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
                                     double* v) {
   int total = IntDotProductSSE(u, wi, num_in);
   // Add in the bias and correct for integer values.
-  *v = (static_cast<double>(total) / MAX_INT8 + wi[num_in]) * *scales;
+  *v = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * *scales;
 }
 #endif  // __SSE4_1__
 

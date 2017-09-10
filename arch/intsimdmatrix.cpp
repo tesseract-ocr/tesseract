@@ -103,7 +103,7 @@ void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
       int total = 0;
       for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
       // Add in the bias and correct for integer values.
-      v[i] = (static_cast<double>(total) / MAX_INT8 + wi[num_in]) * scales[i];
+      v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
     }
   } else {
     const int8_t* w_data = shaped_w_.data();
