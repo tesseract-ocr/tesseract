@@ -345,7 +345,9 @@ text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0 \
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static
 unicharset_extractor_LDADD = \
-    libtesseract_tessopt.la
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 unicharset_extractor_LDADD += \
     ../ccutil/libtesseract_ccutil.la \
