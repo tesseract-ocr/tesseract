@@ -32,7 +32,7 @@ libtesseract_training_la_LIBADD = \
 #    ../api/libtesseract.la
     
 libtesseract_training_la_SOURCES = \
-    boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
+      boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp lang_model_helpers.cpp ligature_table.cpp lstmtester.cpp \
       normstrngs.cpp pango_font_info.cpp stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp \
       validate_grapheme.cpp validate_indic.cpp validate_khmer.cpp \
@@ -41,9 +41,22 @@ libtesseract_training_la_SOURCES = \
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
 
-bin_PROGRAMS = ambiguous_words classifier_tester cntraining combine_lang_model combine_tessdata \
-  dawg2wordlist lstmeval lstmtraining mftraining set_unicharset_properties shapeclustering \
-  text2image unicharset_extractor wordlist2dawg
+bin_PROGRAMS = \
+   ambiguous_words\
+   classifier_tester \
+   cntraining \
+   combine_lang_model \
+   combine_tessdata \
+   dawg2wordlist \
+   lstmeval \
+   lstmtraining \
+   merge_unicharsets \
+   mftraining \
+   set_unicharset_properties \
+   shapeclustering \
+   text2image \
+   unicharset_extractor \
+   wordlist2dawg
 
 ambiguous_words_SOURCES = ambiguous_words.cpp
 ambiguous_words_LDADD = \
@@ -216,6 +229,19 @@ lstmtraining_LDADD += \
     ../api/libtesseract.la
 endif
 
+merge_unicharsets_SOURCES = merge_unicharsets.cpp
+#merge_unicharsets_LDFLAGS = -static
+merge_unicharsets_LDADD = \
+    libtesseract_tessopt.la
+if USING_MULTIPLELIBS
+merge_unicharsets_LDADD += \
+    ../ccutil/libtesseract_ccutil.la \
+    ../ccstruct/libtesseract_ccstruct.la
+else
+merge_unicharsets_LDADD += \
+    ../api/libtesseract.la
+endif
+
 mftraining_SOURCES = mftraining.cpp mergenf.cpp
 #mftraining_LDFLAGS = -static
 mftraining_LDADD = \
@@ -319,9 +345,7 @@ text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0 \
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static
 unicharset_extractor_LDADD = \
-    libtesseract_training.la \
-    libtesseract_tessopt.la \
-    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+    libtesseract_tessopt.la
 if USING_MULTIPLELIBS
 unicharset_extractor_LDADD += \
     ../ccutil/libtesseract_ccutil.la \
@@ -360,6 +384,7 @@ classifier_tester_LDADD += -lws2_32
 cntraining_LDADD += -lws2_32
 combine_tessdata_LDADD += -lws2_32
 dawg2wordlist_LDADD += -lws2_32
+merge_unicharsets_LDADD += -lws2_32
 mftraining_LDADD += -lws2_32
 set_unicharset_properties_LDADD += -lws2_32
 shapeclustering_LDADD += -lws2_32
@@ -375,6 +400,7 @@ classifier_tester_LDFLAGS = $(OPENCL_LDFLAGS)
 cntraining_LDFLAGS = $(OPENCL_LDFLAGS)
 combine_tessdata_LDFLAGS = $(OPENCL_LDFLAGS)
 dawg2wordlist_LDFLAGS = $(OPENCL_LDFLAGS)
+merge_unicharsets_LDFLAGS = $(OPENCL_LDFLAGS)
 mftraining_LDFLAGS = $(OPENCL_LDFLAGS)
 set_unicharset_properties_LDFLAGS = $(OPENCL_LDFLAGS)
 shapeclustering_LDFLAGS = $(OPENCL_LDFLAGS)
