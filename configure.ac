@@ -267,15 +267,6 @@ AC_ARG_ENABLE([visibility],
 AC_MSG_RESULT([$enable_visibility])
 AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 
-# check whether to build multiple libraries
-AC_MSG_CHECKING([--enable-multiple-libraries argument])
-AC_ARG_ENABLE([multiple-libraries],
-    [AS_HELP_STRING([--enable-multiple-libraries],[enable multiple libraries (default=no)])],
-    [enable_mlibs=$enableval],
-    [enable_mlibs="no"])
-AC_MSG_RESULT([$enable_mlibs])
-AM_CONDITIONAL([USING_MULTIPLELIBS], [test "$enable_mlibs" = "yes"])
-
 # Check if tessdata-prefix is disabled
 AC_MSG_CHECKING([whether to use tessdata-prefix])
 AC_ARG_ENABLE([tessdata-prefix],

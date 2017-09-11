@@ -25,12 +25,7 @@ noinst_HEADERS = \
     scanutils.h tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
     universalambigs.h
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_ccutil.la
-else
-lib_LTLIBRARIES = libtesseract_ccutil.la
-libtesseract_ccutil_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-endif
 
 libtesseract_ccutil_la_SOURCES = \
     ambigs.cpp basedir.cpp bits16.cpp bitvector.cpp \

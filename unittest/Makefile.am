@@ -24,18 +24,8 @@ libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
 
 # Build unittests
 GTEST_LIBS =  libgtest.la libgtest_main.la
-if USING_MULTIPLELIBS
-TESS_LIBS = \
-    $(top_srcdir)/ccutil/libtesseract_ccutil.la \
-    $(top_srcdir)/arch/libtesseract_arch.la \
-    $(top_srcdir)/arch/libtesseract_avx.la \
-    $(top_srcdir)/arch/libtesseract_avx2.la \
-    $(top_srcdir)/arch/libtesseract_sse.la \
-    $(top_srcdir)/ccstruct/libtesseract_ccstruct.la
-else
 TESS_LIBS = \
     $(top_srcdir)/api/libtesseract.la
-endif
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include  
 
 check_PROGRAMS = \

@@ -12,17 +12,8 @@ include_HEADERS = dotproductavx.h dotproductsse.h intsimdmatrix.h intsimdmatrixa
 
 noinst_HEADERS =
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_avx.la libtesseract_avx2.la libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_arch.la
-else
-lib_LTLIBRARIES = libtesseract_avx.la libtesseract_avx2.la libtesseract_sse.la
-lib_LTLIBRARIES += libtesseract_arch.la
-libtesseract_arch_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_avx_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_avx2_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_sse_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-endif
 
 if AVX_OPT
 libtesseract_avx_la_CXXFLAGS = -mavx

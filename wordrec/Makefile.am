@@ -18,19 +18,7 @@ noinst_HEADERS = \
     render.h \
     wordrec.h
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_wordrec.la
-else
-lib_LTLIBRARIES = libtesseract_wordrec.la
-libtesseract_wordrec_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_wordrec_la_LIBADD = \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../cutil/libtesseract_cutil.la \
-    ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la \
-    ../viewer/libtesseract_viewer.la
-endif
 
 libtesseract_wordrec_la_SOURCES = \
     associate.cpp chop.cpp chopper.cpp \
