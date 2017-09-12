@@ -59,3 +59,12 @@ tesseracttests_LDADD  += -lws2_32
 
 AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
 endif
+
+EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/testing/phototest.tif
+EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/testing/phototest.txt
+
+$(abs_top_builddir)/testing/phototest.tif:
+	ln -s $(top_srcdir)/testing/phototest.tif $(top_builddir)/testing/phototest.tif
+
+$(abs_top_builddir)/testing/phototest.txt:
+	ln -s $(top_srcdir)/testing/phototest.txt $(top_builddir)/testing/phototest.txt
