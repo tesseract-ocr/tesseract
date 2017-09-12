@@ -23,25 +23,7 @@ noinst_HEADERS = \
     output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
     reject.h tessbox.h tessedit.h tesseractclass.h tessvars.h werdit.h
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_main.la
-else
-lib_LTLIBRARIES = libtesseract_main.la
-libtesseract_main_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_main_la_LIBADD = \
-    ../wordrec/libtesseract_wordrec.la \
-    ../textord/libtesseract_textord.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../viewer/libtesseract_viewer.la \
-    ../dict/libtesseract_dict.la \
-    ../arch/libtesseract_avx.la \
-    ../arch/libtesseract_sse.la \
-    ../lstm/libtesseract_lstm.la \
-    ../classify/libtesseract_classify.la \
-    ../cutil/libtesseract_cutil.la \
-    ../opencl/libtesseract_opencl.la
-endif
 
 libtesseract_main_la_SOURCES = \
     adaptions.cpp applybox.cpp control.cpp  \

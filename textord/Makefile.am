@@ -27,21 +27,7 @@ noinst_HEADERS = \
     topitch.h tordmain.h tovars.h \
     underlin.h wordseg.h workingpartset.h
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_textord.la
-else
-lib_LTLIBRARIES = libtesseract_textord.la
-libtesseract_textord_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_textord_la_LIBADD = \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../viewer/libtesseract_viewer.la \
-    ../wordrec/libtesseract_wordrec.la \
-    ../cutil/libtesseract_cutil.la \
-    ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la \
-    ../opencl/libtesseract_opencl.la 
-endif
 
 libtesseract_textord_la_SOURCES = \
     alignedblob.cpp baselinedetect.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \

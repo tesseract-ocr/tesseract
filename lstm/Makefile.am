@@ -24,12 +24,7 @@ include_HEADERS = \
 
 noinst_HEADERS = 
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_lstm.la
-else
-lib_LTLIBRARIES = libtesseract_lstm.la
-libtesseract_lstm_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-endif
 
 libtesseract_lstm_la_SOURCES = \
 	convolve.cpp ctc.cpp fullyconnected.cpp functions.cpp input.cpp \

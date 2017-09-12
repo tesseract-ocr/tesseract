@@ -17,28 +17,7 @@ endif
 include_HEADERS = apitypes.h baseapi.h capi.h renderer.h
 lib_LTLIBRARIES = 
 
-if !USING_MULTIPLELIBS
 noinst_LTLIBRARIES = libtesseract_api.la
-else
-lib_LTLIBRARIES += libtesseract_api.la
-libtesseract_api_la_LDFLAGS = -version-info $(GENERIC_LIBRARY_VERSION)
-libtesseract_api_la_LIBADD = \
-    ../ccmain/libtesseract_main.la \
-    ../textord/libtesseract_textord.la \
-    ../wordrec/libtesseract_wordrec.la \
-    ../classify/libtesseract_classify.la \
-    ../dict/libtesseract_dict.la \
-    ../arch/libtesseract_arch.la \
-    ../arch/libtesseract_avx.la \
-    ../arch/libtesseract_avx2.la \
-    ../arch/libtesseract_sse.la \
-    ../lstm/libtesseract_lstm.la \
-    ../ccstruct/libtesseract_ccstruct.la \
-    ../cutil/libtesseract_cutil.la \
-    ../viewer/libtesseract_viewer.la \
-    ../ccutil/libtesseract_ccutil.la \
-    ../opencl/libtesseract_opencl.la 
-endif
 
 libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
