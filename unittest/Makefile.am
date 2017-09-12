@@ -24,8 +24,7 @@ libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
 
 # Build unittests
 GTEST_LIBS =  libgtest.la libgtest_main.la
-TESS_LIBS = \
-    $(top_srcdir)/api/libtesseract.la
+TESS_LIBS = $(top_builddir)/api/libtesseract.la
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include  
 
 check_PROGRAMS = \
