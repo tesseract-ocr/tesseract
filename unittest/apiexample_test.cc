@@ -39,11 +39,12 @@ TEST(TesseractTest, ApiExample)
 
     // Open input image with leptonica library
     Pix *image = pixRead("../testing/phototest.tif");
+    ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
     api->SetImage(image);
     // Get OCR result
     outText = api->GetUTF8Text();
 
-   ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
+    ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
 
     // Destroy used object and release memory
     api->End();
