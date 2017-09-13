@@ -24,7 +24,7 @@
 TEST(TesseractTest, ApiExample) 
 {
     char *outText;
-    std::locale loc("en_US.UTF-8"); // You can also use "" for the default system locale
+    std::locale loc("C"); // You can also use "" for the default system locale
     std::ifstream file("../testing/phototest.txt");
     file.imbue(loc); // Use it for file input
     std::string gtText((std::istreambuf_iterator<char>(file)),
