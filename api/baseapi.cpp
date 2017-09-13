@@ -1526,9 +1526,9 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (font_info) {
       if (font_name) {
         hocr_str += "; x_font ";
-        hocr_str += HOcrEscape(font_name);
+        hocr_str += HOcrEscape(font_name);      
+        hocr_str.add_str_int("; x_fsize ", pointsize);
       }
-      hocr_str.add_str_int("; x_fsize ", pointsize);
     }
     hocr_str += "'";
     const char* lang = res_it->WordRecognitionLanguage();
