@@ -24,7 +24,7 @@
 TEST(TesseractTest, ApiExample) 
 {
     char *outText;
-    std::locale loc("en_US.UTF-8"); // You can also use "" for the default system locale
+    std::locale loc("C"); // You can also use "" for the default system locale
     std::ifstream file("../testing/phototest.txt");
     file.imbue(loc); // Use it for file input
     std::string gtText((std::istreambuf_iterator<char>(file)),
@@ -32,18 +32,16 @@ TEST(TesseractTest, ApiExample)
 	
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
     // Initialize tesseract-ocr with English, without specifying tessdata path
-    if (api->Init(NULL, "eng")) {
-        fprintf(stderr, "Could not initialize tesseract.\n");
-        exit(1);
-    }
+    ASSERT_FALSE(api->Init(nullptr, "eng")) << "Could not initialize tesseract.";
 
     // Open input image with leptonica library
     Pix *image = pixRead("../testing/phototest.tif");
+    ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
     api->SetImage(image);
     // Get OCR result
     outText = api->GetUTF8Text();
 
-   ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
+    ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
 
     // Destroy used object and release memory
     api->End();
