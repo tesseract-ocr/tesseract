@@ -32,10 +32,7 @@ TEST(TesseractTest, ApiExample)
 	
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
     // Initialize tesseract-ocr with English, without specifying tessdata path
-    if (api->Init(NULL, "eng")) {
-        fprintf(stderr, "Could not initialize tesseract.\n");
-        exit(1);
-    }
+    ASSERT_FALSE(api->Init(nullptr, "eng")) << "Could not initialize tesseract.";
 
     // Open input image with leptonica library
     Pix *image = pixRead("../testing/phototest.tif");
