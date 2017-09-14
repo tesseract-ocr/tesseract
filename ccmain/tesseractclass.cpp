@@ -634,6 +634,19 @@ Tesseract::~Tesseract() {
 #endif
 }
 
+Dict& Tesseract::getDict()
+{
+    if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang())
+    {
+        if (lstm_recognizer_ && lstm_recognizer_->GetDict())
+        {
+            return *const_cast<Dict*>(lstm_recognizer_->GetDict());
+        }
+    }
+    return Classify::getDict();
+  }
+
+
 void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
   pixa_debug_.WritePDF(debug_name.string());

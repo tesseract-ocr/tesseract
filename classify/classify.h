@@ -62,7 +62,7 @@ class Classify : public CCStruct {
  public:
   Classify();
   virtual ~Classify();
-  Dict& getDict() {
+  virtual Dict& getDict() {
     return dict_;
   }
 
