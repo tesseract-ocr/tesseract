@@ -17,7 +17,7 @@ training:
 	@echo "Need to reconfigure project, so there are no errors"
 endif
 
-.PHONY: install-langs ScrollView.jar install-jars training
+.PHONY: doc install-langs ScrollView.jar install-jars training
 
 SUBDIRS = arch ccutil viewer cutil opencl ccstruct dict classify wordrec textord lstm
 SUBDIRS += ccmain api . tessdata doc unittest
@@ -51,9 +51,7 @@ ScrollView.jar:
 install-jars:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
 
-doc-dummy:
-
-doc: doc-dummy
+doc:
 	-srcdir="$(top_srcdir)" builddir="$(top_builddir)" \
 	version="@PACKAGE_VERSION@" name="@PACKAGE_NAME@" \
 	doxygen $(top_srcdir)/doc/Doxyfile
