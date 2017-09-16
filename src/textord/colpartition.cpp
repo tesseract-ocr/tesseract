@@ -1343,7 +1343,7 @@ bool ColPartition::HasGoodBaseline() {
     width = last_pt.x() - first_pt.x();
   }
   // Maximum median error allowed to be a good text line.
-  if (height_count == 0) 
+  if (height_count == 0)
     return false;
   double max_error = kMaxBaselineError * total_height / height_count;
   ICOORD start_pt, end_pt;

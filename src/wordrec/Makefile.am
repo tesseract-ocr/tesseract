@@ -61,5 +61,5 @@ libtesseract_wordrec_la_SOURCES += \
     plotedges.cpp \
     render.cpp \
     segsearch.cpp \
-    wordclass.cpp 
+    wordclass.cpp
 endif

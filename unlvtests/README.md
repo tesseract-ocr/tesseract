@@ -6,7 +6,7 @@ See http://www.expervision.com/wp-content/uploads/2012/12/1995.The_Fourth_Annual
 but first you have to get the tools and data used by  UNLV:
 
 ### Step 1: to download the images go to
-https://sourceforge.net/projects/isri-ocr-evaluation-tools-alt/files/ 
+https://sourceforge.net/projects/isri-ocr-evaluation-tools-alt/files/
 and get doe3.3B.tar.gz, bus.3B.tar.gz, mag.3B.tar.gz and news.3B.tar.gz
 spn.3B.tar.gz is incorrect in this repo, so get it from code.google
 
@@ -20,7 +20,7 @@ curl  -L https://sourceforge.net/projects/isri-ocr-evaluation-tools-alt/files/ne
 curl  -L https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/isri-ocr-evaluation-tools/spn.3B.tar.gz > spn.3B.tar.gz
 ```
 
-### Step 2: extract the files. 
+### Step 2: extract the files.
 It doesn't really matter where
 in your filesystem you put them, but they must go under a common
 root so you have directories doe3.3B, bus.3B, mag.3B and news.3B. in, for example,
@@ -80,7 +80,7 @@ unlvtests/runalltests_spa.sh ~/ISRI-OCRtk 4_fast_spa ../tessdata_fast
 If you just want to remove all lines which have 100% recognition,
 you can add a 'awk' command like this:
 
-ocrevalutf8 wordacc ground.txt ocr.txt | awk '$3 != 100 {print $0}'  
+ocrevalutf8 wordacc ground.txt ocr.txt | awk '$3 != 100 {print $0}'
 results.txt
 
 or if you've already got a results file you want to change, you can do this:
@@ -90,5 +90,5 @@ awk '$3 != 100 {print $0}'  results.txt  newresults.txt
 If you only want the last sections where things are broken down by
 word, you can add a sed command, like this:
 
-ocrevalutf8 wordacc ground.txt ocr.txt | sed '/^   Count   Missed %Right   $/,$ 
+ocrevalutf8 wordacc ground.txt ocr.txt | sed '/^   Count   Missed %Right   $/,$
 !d' | awk '$3 != 100 {print $0}'  results.txt

@@ -5,13 +5,13 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       vs_ver: 15 2017
       vs_platform: " Win64"
-  
+
 configuration:
   - Release
-  
+
 cache:
   - c:/Users/appveyor/.cppan/storage
-  
+
 # for curl
 install:
   - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
@@ -25,7 +25,7 @@ before_build:
   - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_warning_level: 0`n"'
   - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
   - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nvar_check_jobs: 1`n"'
-  
+
 build_script:
   - mkdir build
   - mkdir build\bin

@@ -36,7 +36,7 @@ namespace tesseract {
  * For each class in the unicharset, clears the corresponding
  * entry in char_norm_array.  char_norm_array is indexed by unichar_id.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param char_norm_array array to be cleared
@@ -47,13 +47,13 @@ void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
 
 
 /*---------------------------------------------------------------------------*/
-/** 
+/**
  * For each class in unicharset, computes the match between
  * norm_feature and the normalization protos for that class.
  * Converts this number to the range from 0 - 255 and stores it
  * into char_norm_array.  CharNormArray is indexed by unichar_id.
  *
- * Globals: 
+ * Globals:
  * - PreTrainedTemplates current set of built-in templates
  *
  * @param norm_feature character normalization feature
@@ -81,7 +81,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  * in Features into integer format and saves it into
  * IntFeatures.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param Features floating point pico-features to be converted

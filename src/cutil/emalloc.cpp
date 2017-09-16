@@ -42,7 +42,7 @@ void *Erealloc(void *ptr, int size) {
   return Buffer;
 }
 
-void Efree(void *ptr) { 
+void Efree(void *ptr) {
   ASSERT_HOST(ptr != nullptr);
-  free(ptr); 
+  free(ptr);
 }

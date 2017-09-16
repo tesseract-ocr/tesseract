@@ -34,7 +34,7 @@
  * This routine uses realloc to increase the size of
  * the specified bit vector.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param Vector bit vector to be expanded

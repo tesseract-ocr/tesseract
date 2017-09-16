@@ -186,7 +186,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert,
                   &GetUnicharset(), glyph_confidences);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
-                                  &GetUnicharset(), words, 
+                                  &GetUnicharset(), words,
                                   glyph_confidences);
 }
 

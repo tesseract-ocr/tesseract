@@ -37,13 +37,13 @@ class QuickTest : public testing::Test {
     ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract for $lang.";
     api->End();
   }
-  
+
 // For all languages
-   
+
   class LoadLanguage : public QuickTest ,
       public ::testing::WithParamInterface<const char*> {
   };
-  
+
   TEST_P(LoadLanguage, afr) {LangLoader("afr" , GetParam());}
   TEST_P(LoadLanguage, amh) {LangLoader("amh" , GetParam());}
   TEST_P(LoadLanguage, ara) {LangLoader("ara" , GetParam());}
@@ -169,18 +169,18 @@ class QuickTest : public testing::Test {
   TEST_P(LoadLanguage, yid) {LangLoader("yid" , GetParam());}
   TEST_P(LoadLanguage, yor) {LangLoader("yor" , GetParam());}
 
-  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadLanguage, 
+  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_fast") );
-  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadLanguage, 
+  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_best") );
-  INSTANTIATE_TEST_CASE_P( Tessdata, LoadLanguage, 
+  INSTANTIATE_TEST_CASE_P( Tessdata, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR) );
 
 // For all scripts
 
   class LoadScript : public QuickTest ,
       public ::testing::WithParamInterface<const char*> {
-  };  
+  };
 
   TEST_P(LoadScript, Arabic) {LangLoader("script/Arabic" , GetParam());}
   TEST_P(LoadScript, Armenian) {LangLoader("script/Armenian" , GetParam());}
@@ -219,19 +219,19 @@ class QuickTest : public testing::Test {
   TEST_P(LoadScript, Thai) {LangLoader("script/Thai" , GetParam());}
   TEST_P(LoadScript, Tibetan) {LangLoader("script/Tibetan" , GetParam());}
   TEST_P(LoadScript, Vietnamese) {LangLoader("script/Vietnamese" , GetParam());}
-  
-  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadScript, 
+
+  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_fast") );
-  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadScript, 
+  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_best") );
-  INSTANTIATE_TEST_CASE_P( Tessdata, LoadScript, 
+  INSTANTIATE_TEST_CASE_P( Tessdata, LoadScript,
                         ::testing::Values(TESSDATA_DIR) );
 
 // Use class LoadLang for languages which are NOT there in all three repos
 
   class LoadLang : public QuickTest {
   };
-  
+
   TEST_F(LoadLang, kmrFast) {LangLoader("kmr" , TESSDATA_DIR "_fast");}
   TEST_F(LoadLang, kmrBest) {LangLoader("kmr" , TESSDATA_DIR "_best");}
 //  TEST_F(LoadLang, kmrBestInt) {LangLoader("kmr" , TESSDATA_DIR);}

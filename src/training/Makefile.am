@@ -20,8 +20,8 @@ if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif
 
-# TODO: training programs can not be linked to shared library created 
-# with -fvisibility 
+# TODO: training programs can not be linked to shared library created
+# with -fvisibility
 if VISIBILITY
 AM_LDFLAGS += -all-static
 endif
@@ -57,9 +57,9 @@ endif
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_LIBADD = \
-    ../cutil/libtesseract_cutil.la 
+    ../cutil/libtesseract_cutil.la
 #    ../api/libtesseract.la
-    
+
 libtesseract_training_la_SOURCES = \
     boxchar.cpp \
     commandlineflags.cpp \
@@ -275,5 +275,5 @@ lstmeval_LDADD += $(LEPTONICA_LIBS)
 lstmtraining_LDADD += $(LEPTONICA_LIBS)
 set_unicharset_properties_LDADD += $(LEPTONICA_LIBS)
 text2image_LDADD += $(LEPTONICA_LIBS)
-unicharset_extractor_LDADD += $(LEPTONICA_LIBS) 
+unicharset_extractor_LDADD += $(LEPTONICA_LIBS)
 wordlist2dawg_LDADD += $(LEPTONICA_LIBS)
