@@ -217,7 +217,7 @@ bool IsOCREquivalent(char32 ch1, char32 ch2) {
 
 bool IsValidCodepoint(const char32 ch) {
   // In the range [0, 0xD800) or [0xE000, 0x10FFFF]
-  return (static_cast<UChar32>(ch) < 0xD800) || (ch >= 0xE000 && ch <= 0x10FFFF);
+  return (static_cast<uint32_t>(ch) < 0xD800) || (ch >= 0xE000 && ch <= 0x10FFFF);
 }
 
 bool IsWhitespace(const char32 ch) {
