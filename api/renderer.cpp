@@ -132,10 +132,8 @@ bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
 
   AppendString(utf8.get());
 
-  bool pageBreak = false;
-  api->GetBoolVariable("include_page_breaks", &pageBreak);
   const char* pageSeparator = api->GetStringVariable("page_separator");
-  if (pageBreak) {
+  if (pageSeparator != nullptr && *pageSeparator != '\0') {
     AppendString(pageSeparator);
   }
 

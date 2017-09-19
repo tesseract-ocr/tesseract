@@ -1103,9 +1103,6 @@ class Tesseract : public Wordrec {
   INT_VAR_H(tessedit_parallelize, 0, "Run in parallel where possible");
   BOOL_VAR_H(preserve_interword_spaces, false,
              "Preserve multiple interword spaces");
-  BOOL_VAR_H(include_page_breaks, false,
-             "Include page separator string in output text after each "
-             "image/page.");
   STRING_VAR_H(page_separator, "\f",
                "Page separator (default is form feed control character)");
 
