@@ -50,7 +50,8 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
                                      /*report_errors*/ true,
                                      strings[i].string(), &normalized)) {
       for (const string& normed : normalized) {
-        if (normed.empty() || IsWhitespace(normed[0])) continue;
+       // normed[0] has converted to utf-8
+        if (normed.empty() || IsUTF8Whitespace(normed[0])) continue;
         unicharset->unichar_insert(normed.c_str());
       }
     } else {
