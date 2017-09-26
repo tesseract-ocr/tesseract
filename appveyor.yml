@@ -1,4 +1,4 @@
-os: Visual Studio 2017
+image: Visual Studio 2017
 
 platform:
   - Win32
