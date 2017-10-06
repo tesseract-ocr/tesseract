@@ -238,10 +238,10 @@ class UNICHARSET {
 
   // Removes/replaces content that belongs in rendered text, but not in the
   // unicharset.
-  static string CleanupString(const char* utf8_str) {
+  static std::string CleanupString(const char* utf8_str) {
     return CleanupString(utf8_str, strlen(utf8_str));
   }
-  static string CleanupString(const char* utf8_str, int length);
+  static std::string CleanupString(const char* utf8_str, int length);
 
   // Return a STRING containing debug information on the unichar, including
   // the id_to_unichar, its hex unicodes and the properties.
@@ -262,7 +262,7 @@ class UNICHARSET {
   // Adds a unichar representation to the set. Avoids setting old_style to true,
   // unless it is necessary to make the new unichar get added.
   void unichar_insert_backwards_compatible(const char* const unichar_repr) {
-    string cleaned = CleanupString(unichar_repr);
+    std::string cleaned = CleanupString(unichar_repr);
     if (cleaned != unichar_repr) {
       unichar_insert(unichar_repr, OldUncleanUnichars::kTrue);
     } else {
