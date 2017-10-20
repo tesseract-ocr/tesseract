@@ -169,6 +169,12 @@ const char* LTRResultIterator::WordFontAttributes(bool* is_bold,
                                                   bool* is_smallcaps,
                                                   int* pointsize,
                                                   int* font_id) const {
+  float row_height = it_->row()->row->x_height() +
+      it_->row()->row->ascenders() - it_->row()->row->descenders();
+  // Convert from pixels to printers points.
+  *pointsize = scaled_yres_ > 0
+      ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5)
+      : 0;
   if (it_->word() == NULL) return NULL;  // Already at the end!
   if (it_->word()->fontinfo == NULL) {
     *font_id = -1;
@@ -182,12 +188,6 @@ const char* LTRResultIterator::WordFontAttributes(bool* is_bold,
   *is_monospace = font_info.is_fixed_pitch();
   *is_serif = font_info.is_serif();
   *is_smallcaps = it_->word()->small_caps;
-  float row_height = it_->row()->row->x_height() +
-      it_->row()->row->ascenders() - it_->row()->row->descenders();
-  // Convert from pixels to printers points.
-  *pointsize = scaled_yres_ > 0
-      ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5)
-      : 0;
 
   return font_info.name;
 }
