@@ -95,7 +95,9 @@ int Main(int argc, char** argv) {
 }  // namespace tesseract
 
 int main(int argc, char** argv) {
-  tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
+  if (argc > 1) {
+    tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
+  }
   if (argc < 2) {
     tprintf(
         "Usage: %s [--output_unicharset filename] [--norm_mode mode]"
