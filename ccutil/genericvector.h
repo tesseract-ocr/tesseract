@@ -370,9 +370,10 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   FILE* fp = fopen(filename, "rb");
   if (fp != NULL) {
     fseek(fp, 0, SEEK_END);
-    size_t size = ftell(fp);
+    long size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    if (size > 0) {
+    // Trying to open a directory on Linux sets size to LONG_MAX. Catch it here.
+    if (size > 0 && size < LONG_MAX) {
       data->resize_no_init(size);
       result = fread(&(*data)[0], 1, size, fp) == size;
     }
