@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <iterator>
 
 #include "icuerrorcode.h"
 #include "unicode/uchar.h"    // From libicu
@@ -11,6 +12,7 @@
 #include "validate_indic.h"
 #include "validate_khmer.h"
 #include "validate_myanmar.h"
+
 
 namespace tesseract {
 
