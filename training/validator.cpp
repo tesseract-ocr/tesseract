@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <iterator>
 
 #include "icuerrorcode.h"
 #include "unicode/uchar.h"    // From libicu
