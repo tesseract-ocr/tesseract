@@ -200,7 +200,7 @@ void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
     ROW_IT r_it(block->row_list());
     for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward ()) {
       ROW* row = r_it.data();
-      float diff = fabs(row->x_height() - median_xheight);
+      double diff = fabs(row->x_height() - median_xheight);
       if (diff > max_deviation) {
         if (applybox_debug) {
           tprintf("row xheight=%g, but median xheight = %g\n",
