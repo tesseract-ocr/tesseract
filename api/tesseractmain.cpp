@@ -238,6 +238,13 @@ void FixPageSegMode(tesseract::TessBaseAPI* api,
     api->SetPageSegMode(pagesegmode);
 }
 
+void checkArgValues (int arg, const char* mode, int count) {
+  if (arg >= count || arg < 0) {
+    printf("Invalid %s value, please enter a number between 0-%d", mode, count - 1);
+    exit(0); 
+  }
+}
+
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 void ParseArgs(const int argc, char** argv, const char** lang,
                const char** image, const char** outputbase,
@@ -293,12 +300,15 @@ void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "-psm") == 0 && i + 1 < argc) {
       // The parameter -psm is deprecated and was replaced by --psm.
       // It is still supported for compatibility reasons.
+      checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
+      checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
+      checkArgValues(atoi(argv[i+1]), "OEM", tesseract::OEM_COUNT);
       *enginemode = static_cast<tesseract::OcrEngineMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
