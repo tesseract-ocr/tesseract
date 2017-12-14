@@ -13,6 +13,7 @@
 #include "validate_khmer.h"
 #include "validate_myanmar.h"
 
+
 namespace tesseract {
 
 // Some specific but universally useful unicodes.
