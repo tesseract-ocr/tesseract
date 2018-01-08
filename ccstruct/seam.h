@@ -178,7 +178,7 @@ class SEAM {
 
  private:
   // Maximum number of splits that a SEAM can hold.
-  static const int kMaxNumSplits = 3;
+  static const uint8_t kMaxNumSplits = 3;
   // Priority of this split. Lower is better.
   float priority_;
   // Position of the middle of the seam.
@@ -189,7 +189,7 @@ class SEAM {
   inT8 widthp_;
   inT8 widthn_;
   // Number of splits_ that are used.
-  inT8 num_splits_;
+  uint8_t num_splits_;
   // Set of pairs of points that are the ends of each split in the SEAM.
   SPLIT splits_[kMaxNumSplits];
 };

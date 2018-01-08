@@ -62,7 +62,7 @@ void SEAM::CombineWith(const SEAM& other) {
   location_ += other.location_;
   location_ /= 2;
 
-  for (int s = 0; s < other.num_splits_ && num_splits_ < kMaxNumSplits; ++s)
+  for (uint8_t s = 0; s < other.num_splits_ && num_splits_ < kMaxNumSplits; ++s)
     splits_[num_splits_++] = other.splits_[s];
 }
 
