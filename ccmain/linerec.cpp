@@ -291,21 +291,8 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
         word->best_choice->print();
       }
       word->best_choice->set_certainty(word_certainty);
-      // Discard words that are impossibly bad, but allow a bit more for
-      // dictionary words, and keep bad words in non-space-delimited langs.
-      if (word_certainty >= RecodeBeamSearch::kMinCertainty ||
-          any_nonspace_delimited ||
-          (word_certainty >= kWorstDictCertainty &&
-           Dict::valid_word_permuter(word->best_choice->permuter(), true))) {
-        word->tess_accepted = stopper_dict->AcceptableResult(word);
-      } else {
-        if (getDict().stopper_debug_level >= 1) {
-          tprintf("Deleting word with certainty %g\n", word_certainty);
-          word->best_choice->print();
-        }
-        // It is a dud.
-        word->SetupFake(lstm_recognizer_->GetUnicharset());
-      }
+
+      word->tess_accepted = stopper_dict->AcceptableResult(word);
     }
   }
 }
