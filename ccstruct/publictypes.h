@@ -277,8 +277,6 @@ enum OcrEngineMode {
                                 // command-line configs, or if not specified
                                 // in any of the above should be set to the
                                 // default OEM_TESSERACT_ONLY.
-  OEM_CUBE_ONLY,                // Run Cube only - better accuracy, but slower
-  OEM_TESSERACT_CUBE_COMBINED,  // Run both and combine results - best accuracy
   OEM_COUNT			// Number of OEMs
 };
 
