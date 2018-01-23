@@ -21,6 +21,13 @@ root_project: pvt.cppan.demo.google.tesseract
 common_settings:
     c++: 11
 
+    options:
+        any:
+            compiler_options:
+                msvc:
+                    private:
+                        - /openmp
+
 projects:
     libtesseract:
         type: lib

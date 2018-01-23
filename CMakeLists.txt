@@ -82,7 +82,7 @@ if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp")
     endif()
 
     set(LIB_Ws2_32 Ws2_32)
