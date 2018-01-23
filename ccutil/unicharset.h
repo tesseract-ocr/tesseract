@@ -517,7 +517,9 @@ class UNICHARSET {
   // Return the ispunctuation property of the given unichar.
   bool get_ispunctuation(UNICHAR_ID unichar_id) const {
     if (INVALID_UNICHAR_ID == unichar_id) return false;
-    ASSERT_HOST(contains_unichar_id(unichar_id));
+    // @see https://github.com/tesseract-ocr/tesseract/issues/1222#issuecomment-352024977
+    // ASSERT_HOST(contains_unichar_id(unichar_id));
+    if (!contains_unichar_id(unichar_id)) return false;
     return unichars[unichar_id].properties.ispunctuation;
   }
 
