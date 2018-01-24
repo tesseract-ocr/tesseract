@@ -204,21 +204,33 @@ set(tesseract_src ${tesseract_src}
 )
 
 if (WIN32)
-    set_source_files_properties(
-        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
-        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
     if (MSVC)
+        set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+            PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+        set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixsse.cpp
+            PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
         set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
             PROPERTIES COMPILE_FLAGS "/arch:AVX")
+        set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixavx2.cpp
+            PROPERTIES COMPILE_FLAGS "/arch:AVX2")
     endif()
 else()
     set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
             PROPERTIES COMPILE_FLAGS "-msse4.1")
     set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixsse.cpp
+            PROPERTIES COMPILE_FLAGS "-msse4.1")
+    set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
             PROPERTIES COMPILE_FLAGS "-mavx")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixavx2.cpp
+            PROPERTIES COMPILE_FLAGS "-mavx2")
 endif()
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
@@ -288,69 +300,69 @@ install(FILES
 install(FILES
     # from api/makefile.am
     api/apitypes.h
-    api/baseapi.h 
-    api/capi.h 
+    api/baseapi.h
+    api/capi.h
     api/renderer.h
 
     #from arch/makefile.am
     arch/dotproductavx.h
-    arch/dotproductsse.h 
+    arch/dotproductsse.h
     arch/simddetect.h
 
     #from ccmain/makefile.am
     ccmain/thresholder.h
-    ccmain/ltrresultiterator.h 
-    ccmain/pageiterator.h 
-    ccmain/resultiterator.h 
+    ccmain/ltrresultiterator.h
+    ccmain/pageiterator.h
+    ccmain/resultiterator.h
     ccmain/osdetect.h
 
     #from ccstruct/makefile.am
-    ccstruct/publictypes.h 
+    ccstruct/publictypes.h
 
     #from ccutil/makefile.am
-    ccutil/basedir.h 
-    ccutil/errcode.h 
-    ccutil/fileerr.h 
-    ccutil/genericvector.h 
-    ccutil/helpers.h 
-    ccutil/host.h 
-    ccutil/memry.h 
+    ccutil/basedir.h
+    ccutil/errcode.h
+    ccutil/fileerr.h
+    ccutil/genericvector.h
+    ccutil/helpers.h
+    ccutil/host.h
+    ccutil/memry.h
     ccutil/ndminx.h
     ccutil/params.h
-    ccutil/ocrclass.h 
-    ccutil/platform.h 
-    ccutil/serialis.h 
-    ccutil/strngs.h 
+    ccutil/ocrclass.h
+    ccutil/platform.h
+    ccutil/serialis.h
+    ccutil/strngs.h
     ccutil/tesscallback.h
-    ccutil/unichar.h 
-    ccutil/unicharcompress.h 
-    ccutil/unicharmap.h 
+    ccutil/unichar.h
+    ccutil/unicharcompress.h
+    ccutil/unicharmap.h
     ccutil/unicharset.h
     ccutil/version.h
 
     #from lstm/makefile.am
     lstm/convolve.h
-    lstm/ctc.h 
-    lstm/fullyconnected.h 
-    lstm/functions.h 
+    lstm/ctc.h
+    lstm/fullyconnected.h
+    lstm/functions.h
     lstm/input.h
-    lstm/lstm.h 
-    lstm/lstmrecognizer.h 
-    lstm/lstmtrainer.h 
+    lstm/lstm.h
+    lstm/lstmrecognizer.h
+    lstm/lstmtrainer.h
     lstm/maxpool.h
-    lstm/networkbuilder.h 
-    lstm/network.h 
-    lstm/networkio.h 
+    lstm/networkbuilder.h
+    lstm/network.h
+    lstm/networkio.h
     lstm/networkscratch.h
-    lstm/parallel.h 
-    lstm/plumbing.h 
-    lstm/recodebeam.h 
-    lstm/reconfig.h 
+    lstm/parallel.h
+    lstm/plumbing.h
+    lstm/recodebeam.h
+    lstm/reconfig.h
     lstm/reversed.h
-    lstm/series.h 
-    lstm/static_shape.h 
-    lstm/stridemap.h 
-    lstm/tfnetwork.h 
+    lstm/series.h
+    lstm/static_shape.h
+    lstm/stridemap.h
+    lstm/tfnetwork.h
     lstm/weightmatrix.h
 
     #${CMAKE_BINARY_DIR}/src/endianness.h

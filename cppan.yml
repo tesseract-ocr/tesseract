@@ -124,13 +124,19 @@ projects:
 
         post_sources: |
             if (WIN32)
-                set_source_files_properties(
-                    ${SDIR}/arch/dotproductsse.cpp
-                    PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
                 if (MSVC)
                     set_source_files_properties(
-                        ${SDIR}/arch/dotproductavx.cpp
+                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+                        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                    set_source_files_properties(
+                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixsse.cpp
+                        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                    set_source_files_properties(
+                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX")
+                    set_source_files_properties(
+                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixavx2.cpp
+                        PROPERTIES COMPILE_FLAGS "/arch:AVX2")
                 endif()
             else()
                 remove_src_dir(vs2010/port/*)

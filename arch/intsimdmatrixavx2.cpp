@@ -21,6 +21,7 @@
 #ifdef __AVX2__
 #include <immintrin.h>
 #include <stdint.h>
+#include <algorithm>
 #include <vector>
 
 namespace tesseract {
@@ -74,7 +75,15 @@ inline void ExtractResults(__m256i& result, __m256i& shift_id,
                            const int8_t*& wi, const double*& scales,
                            int num_out, double*& v) {
   for (int out = 0; out < num_out; ++out) {
-    int32_t res = _mm256_extract_epi32(result, 0);
+    int32_t res =
+#ifndef _MSC_VER
+        _mm256_extract_epi32(result, 0)
+#else
+        // Workaround MSVC's ICE
+        // _mm256_extract_epi32(X, Y) == ((int32_t*)&X)[Y]
+        ((int32_t*)&result)[0]
+#endif
+        ;
     *v++ = (static_cast<double>(res) / MAX_INT8 + *wi++) * *scales++;
     // Rotate the results in int32_t units, so the next result is ready.
     result = _mm256_permutevar8x32_epi32(result, shift_id);
