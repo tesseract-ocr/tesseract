@@ -307,6 +307,9 @@ install(FILES
     #from arch/makefile.am
     arch/dotproductavx.h
     arch/dotproductsse.h
+    intsimdmatrix.h
+    intsimdmatrixavx2.h
+    intsimdmatrixsse.h
     arch/simddetect.h
 
     #from ccmain/makefile.am
