@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
-#include "log.h"
+//#include "log.h"
 #include "include_gunit.h"
 #include "baseapi.h"
 #include "leptonica/allheaders.h"
@@ -39,7 +39,7 @@ class QuickTest : public testing::Test {
   };
 
   void OCRTester(const char* imgname, const char* groundtruth, const char* tessdatadir, const char* lang) {
-    log.info() << tessdatadir << " for language: " << lang << std::endl;
+    //log.info() << tessdatadir << " for language: " << lang << std::endl;
     char *outText;
     std::locale loc("C"); // You can also use "" for the default system locale
     std::ifstream file(groundtruth);
