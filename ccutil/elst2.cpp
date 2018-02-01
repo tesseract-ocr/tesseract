@@ -242,7 +242,6 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
       cycle_pt = prev;
     current = prev;
   }
-  prev = current->prev;
 
   #ifndef NDEBUG
   if (!current)
@@ -251,6 +250,8 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
     NULL_PREV.error ("ELIST2_ITERATOR::backward", ABORT,
       "This is: %p  Current is: %p", this, current);
   #endif
+
+  prev = current->prev;
   return current;
 }
 
