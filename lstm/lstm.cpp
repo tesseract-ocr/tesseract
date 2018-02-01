@@ -396,9 +396,9 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     if (softmax_ != nullptr) {
       if (input.int_mode()) {
         int_output->WriteTimeStepPart(0, 0, ns_, curr_output);
-        softmax_->ForwardTimeStep(nullptr, int_output->i(0), t, softmax_output);
+        softmax_->ForwardTimeStep(int_output->i(0), t, softmax_output);
       } else {
-        softmax_->ForwardTimeStep(curr_output, nullptr, t, softmax_output);
+        softmax_->ForwardTimeStep(curr_output, t, softmax_output);
       }
       output->WriteTimeStep(t, softmax_output);
       if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
