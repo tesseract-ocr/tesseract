@@ -258,7 +258,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
 
 static void checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d", mode, count - 1);
+    printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
     exit(0);
   }
 }
