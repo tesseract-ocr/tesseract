@@ -310,11 +310,6 @@ void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
       int oem = atoi(argv[i + 1]);
       checkArgValues(oem, "OEM", tesseract::OEM_COUNT);
-      if (oem == tesseract::OEM_TESSERACT_ONLY ||
-          oem == tesseract::OEM_TESSERACT_LSTM_COMBINED) {
-        printf("Legacy OCR Engine is not supported anymore.\n");
-        exit(2);
-      }
       *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
