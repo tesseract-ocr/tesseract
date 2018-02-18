@@ -139,9 +139,9 @@ void PrintHelpForPSM() {
 void PrintHelpForOEM() {
   const char* msg =
       "OCR Engine modes:\n"
-      "  0    Original Tesseract only.\n"
+      "  0    Original Tesseract only (unsupported).\n"
       "  1    Neural nets LSTM only.\n"
-      "  2    Tesseract + LSTM.\n"
+      "  2    Tesseract + LSTM (unsupported).\n"
       "  3    Default, based on what is available.\n";
 
   printf("%s", msg);
@@ -308,8 +308,14 @@ void ParseArgs(const int argc, char** argv, const char** lang,
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
-      checkArgValues(atoi(argv[i+1]), "OEM", tesseract::OEM_COUNT);
-      *enginemode = static_cast<tesseract::OcrEngineMode>(atoi(argv[i + 1]));
+      int oem = atoi(argv[i + 1]);
+      checkArgValues(oem, "OEM", tesseract::OEM_COUNT);
+      if (oem == tesseract::OEM_TESSERACT_ONLY ||
+          oem == tesseract::OEM_TESSERACT_LSTM_COMBINED) {
+        printf("Legacy OCR Engine is not supported anymore.\n");
+        exit(2);
+      }
+      *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
       noocr = true;

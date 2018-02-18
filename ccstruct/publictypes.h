@@ -266,10 +266,11 @@ enum ParagraphJustification {
  * mention the connection to OcrEngineMode in the comments.
 */
 enum OcrEngineMode {
-  OEM_TESSERACT_ONLY,           // Run Tesseract only - fastest
+  OEM_TESSERACT_ONLY,           // Run Tesseract only - fastest; deprecated
   OEM_LSTM_ONLY,                // Run just the LSTM line recognizer.
   OEM_TESSERACT_LSTM_COMBINED,  // Run the LSTM recognizer, but allow fallback
                                 // to Tesseract when things get difficult.
+                                // deprecated
   OEM_DEFAULT,                  // Specify this mode when calling init_*(),
                                 // to indicate that any of the above modes
                                 // should be automatically inferred from the
