@@ -540,7 +540,7 @@ void PageIterator::Orientation(tesseract::Orientation *orientation,
                 : WRITING_DIRECTION_LEFT_TO_RIGHT);
 
   // Textline Order
-  bool is_mongolian = false;  // TODO(eger): fix me
+  const bool is_mongolian = false;  // TODO(eger): fix me
   *textline_order = is_vertical_text
       ? (is_mongolian
          ? TEXTLINE_ORDER_LEFT_TO_RIGHT

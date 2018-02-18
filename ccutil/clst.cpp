@@ -261,7 +261,6 @@ void *CLIST_ITERATOR::forward() {
       cycle_pt = next;
     current = next;
   }
-  next = current->next;
 
   #ifndef NDEBUG
   if (!current)
@@ -270,6 +269,8 @@ void *CLIST_ITERATOR::forward() {
     NULL_NEXT.error ("CLIST_ITERATOR::forward", ABORT,
                      "This is: %p  Current is: %p", this, current);
   #endif
+
+  next = current->next;
   return current->data;
 }
 
