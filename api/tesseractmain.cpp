@@ -129,9 +129,9 @@ static void PrintHelpForPSM() {
 static void PrintHelpForOEM() {
   const char* msg =
       "OCR Engine modes:\n"
-      "  0    Legacy Tesseract only.\n"
-      "  1    Neural nets LSTM only.\n"
-      "  2    Legacy + LSTM Tesseract.\n"
+      "  0    Legacy engine only.\n"
+      "  1    Neural nets LSTM engine only.\n"
+      "  2    Legacy + LSTM engines.\n"
       "  3    Default, based on what is available.\n";
 
   printf("%s", msg);
