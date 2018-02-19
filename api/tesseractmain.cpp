@@ -51,7 +51,7 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 
 #endif /* HAVE_TIFFIO_H &&  _WIN32 */
 
-void PrintVersionInfo() {
+static void PrintVersionInfo() {
   char* versionStrP;
 
   printf("tesseract %s\n", tesseract::TessBaseAPI::Version());
@@ -103,17 +103,7 @@ void PrintVersionInfo() {
     if (SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
 }
 
-void PrintUsage(const char* program) {
-  printf(
-      "Usage:\n"
-      "  %s --help | --help-psm | --help-oem | --version\n"
-      "  %s --list-langs [--tessdata-dir PATH]\n"
-      "  %s --print-parameters [options...] [configfile...]\n"
-      "  %s imagename|stdin outputbase|stdout [options...] [configfile...]\n",
-      program, program, program, program);
-}
-
-void PrintHelpForPSM() {
+static void PrintHelpForPSM() {
   const char* msg =
       "Page segmentation modes:\n"
       "  0    Orientation and script detection (OSD) only.\n"
@@ -131,26 +121,30 @@ void PrintHelpForPSM() {
       " particular order.\n"
       " 12    Sparse text with OSD.\n"
       " 13    Raw line. Treat the image as a single text line,\n"
-      "\t\t\tbypassing hacks that are Tesseract-specific.\n";
+      "       bypassing hacks that are Tesseract-specific.\n";
 
   printf("%s", msg);
 }
 
-void PrintHelpForOEM() {
+static void PrintHelpForOEM() {
   const char* msg =
       "OCR Engine modes:\n"
-      "  0    Original Tesseract only (unsupported).\n"
+      "  0    Legacy Tesseract only.\n"
       "  1    Neural nets LSTM only.\n"
-      "  2    Tesseract + LSTM (unsupported).\n"
+      "  2    Legacy + LSTM Tesseract.\n"
       "  3    Default, based on what is available.\n";
 
   printf("%s", msg);
 }
 
-void PrintHelpMessage(const char* program) {
-  PrintUsage(program);
-
-  const char* ocr_options =
+static void PrintHelpExtra(const char* program) {
+  printf(
+      "Usage:\n"
+      "  %s --help | --help-extra | --help-psm | --help-oem | --version\n"
+      "  %s --list-langs [--tessdata-dir PATH]\n"
+      "  %s --print-parameters [options...] [configfile...]\n"
+      "  %s imagename|imagelist|stdin outputbase|stdout [options...] [configfile...]\n"
+      "\n"
       "OCR options:\n"
       "  --tessdata-dir PATH   Specify the location of tessdata path.\n"
       "  --user-words PATH     Specify the location of user words file.\n"
@@ -160,26 +154,50 @@ void PrintHelpMessage(const char* program) {
       "                        Multiple -c arguments are allowed.\n"
       "  --psm NUM             Specify page segmentation mode.\n"
       "  --oem NUM             Specify OCR Engine mode.\n"
-      "NOTE: These options must occur before any configfile.\n";
+      "NOTE: These options must occur before any configfile.\n"
+      "\n",
+      program, program, program, program
+  );
 
-  printf("\n%s\n", ocr_options);
   PrintHelpForPSM();
+  printf("\n");
   PrintHelpForOEM();
 
-  const char* single_options =
+  printf(
+      "\n"
       "Single options:\n"
-      "  -h, --help            Show this help message.\n"
+      "  -h, --help            Show minimal help message.\n"
+      "  --help-extra          Show extra help for advanced users.\n"
       "  --help-psm            Show page segmentation modes.\n"
       "  --help-oem            Show OCR Engine modes.\n"
       "  -v, --version         Show version information.\n"
       "  --list-langs          List available languages for tesseract engine.\n"
-      "  --print-parameters    Print tesseract parameters.\n";
-
-  printf("\n%s", single_options);
+      "  --print-parameters    Print tesseract parameters.\n"
+  );
 }
 
-void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
-                            char** argv) {
+static void PrintHelpMessage(const char* program) {
+  printf(
+      "Usage:\n"
+      "  %s --help | --help-extra | --version\n"
+      "  %s --list-langs\n"
+      "  %s imagename outputbase [options...] [configfile...]\n"
+      "\n"
+      "OCR options:\n"
+      "  -l LANG[+LANG]        Specify language(s) used for OCR.\n"
+      "NOTE: These options must occur before any configfile.\n"
+      "\n"
+      "Single options:\n"
+      "  --help                Show this help message.\n"
+      "  --help-extra          Show extra help for advanced users.\n"
+      "  --version             Show version information.\n"
+      "  --list-langs          List available languages for tesseract engine.\n",
+      program, program, program
+  );
+}
+
+static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
+                                   char** argv) {
   char opt1[256], opt2[255];
   for (int i = 0; i < argc; i++) {
     if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
@@ -202,7 +220,7 @@ void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
   }
 }
 
-void PrintLangsList(tesseract::TessBaseAPI* api) {
+static void PrintLangsList(tesseract::TessBaseAPI* api) {
   GenericVector<STRING> languages;
   api->GetAvailableLanguagesAsVector(&languages);
   printf("List of available languages (%d):\n", languages.size());
@@ -213,7 +231,7 @@ void PrintLangsList(tesseract::TessBaseAPI* api) {
   api->End();
 }
 
-void PrintBanner() {
+static void PrintBanner() {
   tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
           tesseract::TessBaseAPI::Version());
 }
@@ -232,27 +250,28 @@ void PrintBanner() {
  * It would be simpler if we could set the value before Init,
  * but that doesn't work.
  */
-void FixPageSegMode(tesseract::TessBaseAPI* api,
-                    tesseract::PageSegMode pagesegmode) {
+static void FixPageSegMode(tesseract::TessBaseAPI* api,
+                           tesseract::PageSegMode pagesegmode) {
   if (api->GetPageSegMode() == tesseract::PSM_SINGLE_BLOCK)
     api->SetPageSegMode(pagesegmode);
 }
 
-void checkArgValues (int arg, const char* mode, int count) {
+static void checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d", mode, count - 1);
-    exit(0); 
+    printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
+    exit(0);
   }
 }
 
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
-void ParseArgs(const int argc, char** argv, const char** lang,
-               const char** image, const char** outputbase,
-               const char** datapath, bool* list_langs, bool* print_parameters,
-               GenericVector<STRING>* vars_vec,
-               GenericVector<STRING>* vars_values, int* arg_i,
-               tesseract::PageSegMode* pagesegmode,
-               tesseract::OcrEngineMode* enginemode) {
+static void ParseArgs(const int argc, char** argv, const char** lang,
+                      const char** image, const char** outputbase,
+                      const char** datapath,
+                      bool* list_langs, bool* print_parameters,
+                      GenericVector<STRING>* vars_vec,
+                      GenericVector<STRING>* vars_values, int* arg_i,
+                      tesseract::PageSegMode* pagesegmode,
+                      tesseract::OcrEngineMode* enginemode) {
   if (argc == 1) {
     PrintHelpMessage(argv[0]);
     exit(0);
@@ -261,6 +280,10 @@ void ParseArgs(const int argc, char** argv, const char** lang,
   if (argc == 2) {
     if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
       PrintHelpMessage(argv[0]);
+      exit(0);
+    }
+    if (strcmp(argv[1], "--help-extra") == 0) {
+      PrintHelpExtra(argv[0]);
       exit(0);
     }
     if ((strcmp(argv[1], "--help-psm") == 0)) {
@@ -310,11 +333,6 @@ void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
       int oem = atoi(argv[i + 1]);
       checkArgValues(oem, "OEM", tesseract::OEM_COUNT);
-      if (oem == tesseract::OEM_TESSERACT_ONLY ||
-          oem == tesseract::OEM_TESSERACT_LSTM_COMBINED) {
-        printf("Legacy OCR Engine is not supported anymore.\n");
-        exit(2);
-      }
       *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
@@ -344,7 +362,7 @@ void ParseArgs(const int argc, char** argv, const char** lang,
   }
 }
 
-void PreloadRenderers(
+static void PreloadRenderers(
     tesseract::TessBaseAPI* api,
     tesseract::PointerVector<tesseract::TessResultRenderer>* renderers,
     tesseract::PageSegMode pagesegmode, const char* outputbase) {
