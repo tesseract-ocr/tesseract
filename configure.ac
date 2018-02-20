@@ -276,7 +276,7 @@ AC_ARG_ENABLE([tessdata-prefix],
 AC_MSG_RESULT([$tessdata_prefix])
 AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 
-# Check whether enable debuging
+# Check whether to enable debugging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
     [AS_HELP_STRING([--enable-debug],
