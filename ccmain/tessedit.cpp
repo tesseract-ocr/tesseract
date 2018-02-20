@@ -106,20 +106,10 @@ bool Tesseract::init_tesseract_lang_data(
   // Initialize TessdataManager.
   STRING tessdata_path = language_data_path_prefix + kTrainedDataSuffix;
   if (!mgr->is_loaded() && !mgr->Init(tessdata_path.string())) {
-    // Try without tessdata.
-    m_data_sub_dir.set_value("");
-    main_setup(arg0, textbase);
-    language_data_path_prefix = datadir;
-    language_data_path_prefix += lang;
-    language_data_path_prefix += ".";
-    tessdata_path = language_data_path_prefix + kTrainedDataSuffix;
-    if (!mgr->Init(tessdata_path.string())) {
-      tprintf("Error opening data file %s\n", tessdata_path.string());
-      tprintf(
-          "Please make sure the TESSDATA_PREFIX environment variable is set"
-          " to your \"tessdata\" directory.\n");
-      return false;
-    }
+    tprintf("Error opening data file %s\n", tessdata_path.string());
+    tprintf("Please make sure the TESSDATA_PREFIX environment variable is set"
+            " to your \"tessdata\" directory.\n");
+    return false;
   }
   if (oem == OEM_DEFAULT) {
     // Set the engine mode from availability, which can then be overidden by
