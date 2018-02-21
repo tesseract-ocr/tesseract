@@ -278,17 +278,3 @@ projects:
         dependencies:
             - unicharset_training
             - pvt.cppan.demo.gnome.pango.pangocairo: 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
