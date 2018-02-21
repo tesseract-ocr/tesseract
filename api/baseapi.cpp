@@ -2287,9 +2287,15 @@ int TessBaseAPI::FindLines() {
     } else {
       osd_tesseract_ = new Tesseract;
       TessdataManager mgr(reader_);
-      if (osd_tesseract_->init_tesseract(datapath_->string(), nullptr, "osd",
-                                         OEM_TESSERACT_ONLY, nullptr, 0,
-                                         nullptr, nullptr, false, &mgr) == 0) {
+      if (datapath_ == nullptr) {
+        tprintf("Warning: Auto orientation and script detection requested,"
+                " but data path is undefined\n");
+        delete osd_tesseract_;
+        osd_tesseract_ = nullptr;
+      } else if (osd_tesseract_->init_tesseract(datapath_->string(), nullptr,
+                                                "osd", OEM_TESSERACT_ONLY,
+                                                nullptr, 0, nullptr, nullptr,
+                                                false, &mgr) == 0) {
         osd_tess = osd_tesseract_;
         osd_tesseract_->set_source_resolution(
             thresholder_->GetSourceYResolution());
