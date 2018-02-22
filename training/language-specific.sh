@@ -26,7 +26,7 @@ VALID_LANGUAGE_CODES="afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat
                       lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori
                       pan pol por pus ron rus san sin slk slv snd spa spa_old
                       sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur
-                      uig ukr urd uzb uzb_cyrl vie yid"
+                      uig ukr urd uzb uzb_cyrl vie yid gle_uncial"
 
 # Codes for which we have webtext but no fonts:
 UNUSABLE_LANGUAGE_CODES=""
@@ -106,6 +106,32 @@ NEOLATIN_FONTS=(
     "IM FELL Double Pica PRO Italic" \
     "IM FELL French Canon PRO Italic" \
     "IM FELL Great Primer PRO Italic" \
+)
+
+IRISH_UNCIAL_FONTS=(
+  "Bunchlo Arsa Dubh GC" \
+  "Bunchlo Arsa GC" \
+  "Bunchlo Arsa GC Bold" \
+  "Bunchlo Dubh GC" \
+  "Bunchlo GC" \
+  "Bunchlo GC Bold" \
+  "Bunchlo Nua GC Bold" \
+  "Bunchló na Nod GC" \
+  "Gadelica" \
+  "Glanchlo Dubh GC" \
+  "Glanchlo GC" \
+  "Glanchlo GC Bold" \
+  "Seanchló Dubh GC" \
+  "Seanchló GC" \
+  "Seanchló GC Bold" \
+  "Seanchló na Nod GC" \
+  "Seanchló Ársa Dubh GC" \
+  "Seanchló Ársa GC" \
+  "Seanchló Ársa GC Bold" \
+  "Tromchlo Beag GC" \
+  "Tromchlo Mor GC" \
+  "Urchlo GC" \
+  "Urchlo GC Bold" \
 )
 
 EARLY_LATIN_FONTS=(
@@ -931,6 +957,7 @@ set_lang_specific_parameters() {
     fin ) ;;
     fra ) WORD_DAWG_FACTOR=0.08 ;;
     gle ) ;;
+    gle_uncial ) test -z "$FONTS" && FONTS=( "${IRISH_UNCIAL_FONTS[@]}" );;
     glg ) ;;
     hat ) ;;
     hrv ) ;;
