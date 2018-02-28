@@ -161,7 +161,7 @@ class UNICHAR {
   static std::vector<char32> UTF8ToUTF32(const char* utf8_str);
   // Converts a vector of unicodes to a utf8 string.
   // Returns an empty string if the input contains an invalid unicode.
-  static string UTF32ToUTF8(const std::vector<char32>& str32);
+  static std::string UTF32ToUTF8(const std::vector<char32>& str32);
 
  private:
   // A UTF-8 representation of 1 or more Unicode characters.
