@@ -2,7 +2,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/opencl
-AM_CPPFLAGS += $(OPENCL_CPPFLAGS) -DUSE_STD_NAMESPACE
+AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
     
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \

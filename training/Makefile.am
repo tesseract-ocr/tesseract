@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS += \
-    -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE\
+    -DPANGO_ENABLE_ENGINE \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/lstm -I$(top_srcdir)/arch \

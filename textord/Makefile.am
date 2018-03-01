@@ -1,5 +1,4 @@
 AM_CPPFLAGS += \
-    -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/wordrec -I$(top_srcdir)/api \
