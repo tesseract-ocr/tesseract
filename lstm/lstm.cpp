@@ -67,6 +67,27 @@ const double kStateClip = 100.0;
 // Max absolute value of gate_errors (the gradients).
 const double kErrClip = 1.0f;
 
+// Calculate ceil(log2(n)).
+static inline uint32_t ceil_log2(uint32_t n)
+{
+  // l2 = (unsigned)log2(n).
+#if defined(__GNUC__)
+  // Use fast inline assembler code for gcc or clang.
+  uint32_t l2 = 31 - __builtin_clz(n);
+#else
+  if (n == 0) return UINT_MAX;
+  if (n == 1) return 0;
+  uint32_t val = n;
+  uint32_t int l2 = 0;
+  while (val > 1) {
+      val >>= 1;
+      l2++;
+  }
+#endif
+  // Round up if n is not a power of 2.
+  return (n == (1u << l2)) ? l2 : l2 + 1;
+}
+
 LSTM::LSTM(const STRING& name, int ni, int ns, int no, bool two_dimensional,
            NetworkType type)
     : Network(type, name, ni, no),
@@ -82,7 +103,7 @@ LSTM::LSTM(const STRING& name, int ni, int ns, int no, bool two_dimensional,
     // networkbuilder ensures this is always true.
     ASSERT_HOST(no == ns);
   } else if (type_ == NT_LSTM_SOFTMAX || type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    nf_ = type_ == NT_LSTM_SOFTMAX ? no_ : IntCastRounded(ceil(log2(no_)));
+    nf_ = type_ == NT_LSTM_SOFTMAX ? no_ : ceil_log2(no_);
     softmax_ = new FullyConnected("LSTM Softmax", ns_, no_, NT_SOFTMAX);
   } else {
     tprintf("%d is invalid type of LSTM!\n", type);
@@ -193,7 +214,7 @@ bool LSTM::DeSerialize(TFile* fp) {
   if (type_ == NT_LSTM_SOFTMAX) {
     nf_ = no_;
   } else if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
-    nf_ = IntCastRounded(ceil(log2(no_)));
+    nf_ = ceil_log2(no_);
   } else {
     nf_ = 0;
   }
