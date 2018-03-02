@@ -31,13 +31,13 @@
 #include "params.h"
 #include "params_training_featdef.h"
 
+namespace tesseract {
+
 #if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(ANDROID)
-double log2(double n) {
+static inline double log2(double n) {
   return log(n) / log(2.0);
 }
 #endif  // _MSC_VER
-
-namespace tesseract {
 
 const float LanguageModel::kMaxAvgNgramCost = 25.0f;
 
