@@ -33,7 +33,7 @@ namespace tesseract {
 class PangoFontInfo;  // defined in pango_font_info.h
 
 // Map to substitute strings for ligatures.
-typedef std::unordered_map<string, string, StringHash> LigHash;
+typedef std::unordered_map<std::string, std::string, StringHash> LigHash;
 
 class LigatureTable {
  public:
@@ -43,11 +43,11 @@ class LigatureTable {
   // Convert the utf8 string so that ligaturizable sequences, such as "fi" get
   // replaced by the (utf8 code for) appropriate ligature characters. Only do so
   // if the corresponding ligature character is renderable in the current font.
-  string AddLigatures(const string& str, const PangoFontInfo* font) const;
+  std::string AddLigatures(const std::string& str, const PangoFontInfo* font) const;
   // Remove all ligatures.
-  string RemoveLigatures(const string& str) const;
+  std::string RemoveLigatures(const std::string& str) const;
   // Remove only custom ligatures (eg. "ct") encoded in the private-use-area.
-  string RemoveCustomLigatures(const string& str) const;
+  std::string RemoveCustomLigatures(const std::string& str) const;
 
   const LigHash& norm_to_lig_table() const {
     return norm_to_lig_table_;

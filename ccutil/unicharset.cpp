@@ -205,7 +205,7 @@ void UNICHARSET::reserve(int unichars_number) {
 
 UNICHAR_ID
 UNICHARSET::unichar_to_id(const char* const unichar_repr) const {
-  string cleaned =
+  std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   return ids.contains(cleaned.data(), cleaned.size())
              ? ids.unichar_to_id(cleaned.data(), cleaned.size())
@@ -215,7 +215,7 @@ UNICHARSET::unichar_to_id(const char* const unichar_repr) const {
 UNICHAR_ID UNICHARSET::unichar_to_id(const char* const unichar_repr,
                                      int length) const {
   assert(length > 0 && length <= UNICHAR_LEN);
-  string cleaned(unichar_repr, length);
+  std::string cleaned(unichar_repr, length);
   if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
   return ids.contains(cleaned.data(), cleaned.size())
              ? ids.unichar_to_id(cleaned.data(), cleaned.size())
@@ -623,7 +623,7 @@ char UNICHARSET::get_chartype(UNICHAR_ID id) const {
 void UNICHARSET::unichar_insert(const char* const unichar_repr,
                                 OldUncleanUnichars old_style) {
   if (old_style == OldUncleanUnichars::kTrue) old_style_included_ = true;
-  string cleaned =
+  std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   if (!cleaned.empty() && !ids.contains(cleaned.data(), cleaned.size())) {
     const char* str = cleaned.c_str();
@@ -666,7 +666,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
 }
 
 bool UNICHARSET::contains_unichar(const char* const unichar_repr) const {
-  string cleaned =
+  std::string cleaned =
       old_style_included_ ? unichar_repr : CleanupString(unichar_repr);
   return ids.contains(cleaned.data(), cleaned.size());
 }
@@ -676,7 +676,7 @@ bool UNICHARSET::contains_unichar(const char* const unichar_repr,
   if (length == 0) {
     return false;
   }
-  string cleaned(unichar_repr, length);
+  std::string cleaned(unichar_repr, length);
   if (!old_style_included_) cleaned = CleanupString(unichar_repr, length);
   return ids.contains(cleaned.data(), cleaned.size());
 }
@@ -1115,8 +1115,8 @@ int UNICHARSET::get_script_id_from_name(const char* script_name) const {
 // Removes/replaces content that belongs in rendered text, but not in the
 // unicharset.
 /* static */
-string UNICHARSET::CleanupString(const char* utf8_str, int length) {
-  string result;
+std::string UNICHARSET::CleanupString(const char* utf8_str, int length) {
+  std::string result;
   result.reserve(length);
   char ch;
   while ((ch = *utf8_str) != '\0' && --length >= 0) {

@@ -39,19 +39,19 @@ inline void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
   SetupBasicProperties(report_errors, false, unicharset);
 }
 // Helper sets the properties from universal script unicharsets, if found.
-void SetScriptProperties(const string& script_dir, UNICHARSET* unicharset);
+void SetScriptProperties(const std::string& script_dir, UNICHARSET* unicharset);
 // Helper gets the combined x-heights string.
-string GetXheightString(const string& script_dir, const UNICHARSET& unicharset);
+std::string GetXheightString(const std::string& script_dir, const UNICHARSET& unicharset);
 
 // Helper to set the properties for an input unicharset file, writes to the
 // output file. If an appropriate script unicharset can be found in the
 // script_dir directory, then the tops and bottoms are expanded using the
 // script unicharset.
 // If non-empty, xheight data for the fonts are written to the xheights_file.
-void SetPropertiesForInputFile(const string& script_dir,
-                               const string& input_unicharset_file,
-                               const string& output_unicharset_file,
-                               const string& output_xheights_file);
+void SetPropertiesForInputFile(const std::string& script_dir,
+                               const std::string& input_unicharset_file,
+                               const std::string& output_unicharset_file,
+                               const std::string& output_xheights_file);
 
 }  // namespace tesseract.
 

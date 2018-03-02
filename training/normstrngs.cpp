@@ -146,7 +146,7 @@ static void StripJoiners(std::vector<char32>* str32) {
 // the result string is produced on a "best effort" basis.
 bool NormalizeUTF8String(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
                          GraphemeNorm grapheme_normalize, const char* str8,
-                         string* normalized) {
+                         std::string* normalized) {
   std::vector<char32> normed32;
   NormalizeUTF8ToUTF32(u_mode, ocr_normalize, str8, &normed32);
   if (grapheme_normalize == GraphemeNorm::kNormalize) {
@@ -172,7 +172,7 @@ bool NormalizeUTF8String(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
 bool NormalizeCleanAndSegmentUTF8(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
                                   GraphemeNormMode g_mode, bool report_errors,
                                   const char* str8,
-                                  std::vector<string>* graphemes) {
+                                  std::vector<std::string>* graphemes) {
   std::vector<char32> normed32;
   NormalizeUTF8ToUTF32(u_mode, ocr_normalize, str8, &normed32);
   StripJoiners(&normed32);

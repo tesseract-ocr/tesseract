@@ -44,12 +44,12 @@ namespace tesseract {
 static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
                                    int norm_mode, UNICHARSET* unicharset) {
   for (int i = 0; i < strings.size(); ++i) {
-    std::vector<string> normalized;
+    std::vector<std::string> normalized;
     if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
                                      /*report_errors*/ true,
                                      strings[i].string(), &normalized)) {
-      for (const string& normed : normalized) {
+      for (const std::string& normed : normalized) {
 
        // normed is a UTF-8 encoded string
         if (normed.empty() || IsUTF8Whitespace(normed.c_str())) continue;

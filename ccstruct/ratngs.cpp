@@ -201,7 +201,7 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
     : unicharset_(&unicharset){
   GenericVector<UNICHAR_ID> encoding;
   GenericVector<char> lengths;
-  string cleaned = unicharset.CleanupString(src_string);
+  std::string cleaned = unicharset.CleanupString(src_string);
   if (unicharset.encode_string(cleaned.c_str(), true, &encoding, &lengths,
                                NULL)) {
     lengths.push_back('\0');

@@ -318,16 +318,16 @@ void BoxChar::RotateBoxes(float rotation, int xcenter, int ycenter,
 
 const int kMaxLineLength = 1024;
 /* static */
-void BoxChar::WriteTesseractBoxFile(const string& filename, int height,
+void BoxChar::WriteTesseractBoxFile(const std::string& filename, int height,
                                     const std::vector<BoxChar*>& boxes) {
-  string output = GetTesseractBoxStr(height, boxes);
+  std::string output = GetTesseractBoxStr(height, boxes);
   File::WriteStringToFileOrDie(output, filename);
 }
 
 /* static */
-string BoxChar::GetTesseractBoxStr(int height,
-                                   const std::vector<BoxChar*>& boxes) {
-  string output;
+std::string BoxChar::GetTesseractBoxStr(int height,
+                                        const std::vector<BoxChar*>& boxes) {
+  std::string output;
   char buffer[kMaxLineLength];
   for (size_t i = 0; i < boxes.size(); ++i) {
     const Box* box = boxes[i]->box_;

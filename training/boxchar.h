@@ -40,7 +40,7 @@ class BoxChar {
   ~BoxChar();
 
   // Accessors.
-  const string& ch() const { return ch_; }
+  const std::string& ch() const { return ch_; }
   const Box* box() const   { return box_; }
   const int& page() const  { return page_; }
   void set_rtl_index(int index) { rtl_index_ = index; }
@@ -51,7 +51,7 @@ class BoxChar {
 
   void set_page(int page) { page_ = page; }
 
-  string* mutable_ch() { return &ch_; }
+  std::string* mutable_ch() { return &ch_; }
   Box* mutable_box()   { return box_; }
 
   // Sort function for sorting by left edge of box. Note that this will not
@@ -102,15 +102,15 @@ class BoxChar {
 
   // Create a tesseract box file from the vector of boxes. The image height
   // is needed to convert to tesseract coordinates.
-  static void WriteTesseractBoxFile(const string& name, int height,
+  static void WriteTesseractBoxFile(const std::string& name, int height,
                                     const std::vector<BoxChar*>& boxes);
   // Gets the tesseract box file as a string from the vector of boxes.
   // The image height is needed to convert to tesseract coordinates.
-  static string GetTesseractBoxStr(int height,
-                                   const std::vector<BoxChar*>& boxes);
+  static std::string GetTesseractBoxStr(int height,
+                                        const std::vector<BoxChar*>& boxes);
 
  private:
-  string ch_;
+  std::string ch_;
   Box* box_;
   int page_;
   // If the box is an RTL character, contains the original position in the

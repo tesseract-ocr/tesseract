@@ -30,22 +30,22 @@ class File {
  public:
   // Try to open the file 'filename' in mode 'mode'.
   // Stop the program if it cannot open it.
-  static FILE* OpenOrDie(const string& filename, const string& mode);
-  static FILE* Open(const string& filename, const string& mode);
+  static FILE* OpenOrDie(const std::string& filename, const std::string& mode);
+  static FILE* Open(const std::string& filename, const std::string& mode);
 
   // Try to open the file 'filename' and to write 'str' in it.
   // Stop the program if it fails.
-  static void WriteStringToFileOrDie(const string& str, const string& filename);
+  static void WriteStringToFileOrDie(const std::string& str, const std::string& filename);
 
   // Return true if the file 'filename' is readable.
-  static bool Readable(const string& filename);
+  static bool Readable(const std::string& filename);
 
-  static bool ReadFileToString(const string& filename, string* out);
+  static bool ReadFileToString(const std::string& filename, std::string* out);
 
   // Helper methods
 
   // Concatenate file paths removing any extra intervening '/' symbols.
-  static string JoinPath(const string& prefix, const string& suffix);
+  static std::string JoinPath(const std::string& prefix, const std::string& suffix);
   // Delete a filename or all filenames matching a glob pattern.
   static bool Delete(const char* pathname);
   static bool DeleteMatchingFiles(const char* pattern);
@@ -63,7 +63,7 @@ class InputBuffer {
   // Read data until end-of-file.
   // The data is stored in '*out'.
   // Return false if an error occurs, true otherwise.
-  bool Read(string* out);
+  bool Read(std::string* out);
 
   // Close the FILE* used by InputBuffer.
   // Return false if an error occurs, true otherwise.
@@ -84,7 +84,7 @@ class OutputBuffer {
   ~OutputBuffer();
 
   // Write string 'str' to the open FILE*.
-  void WriteString(const string& str);
+  void WriteString(const std::string& str);
 
   // Close the FILE* used by InputBuffer.
   // Return false if an error occurs, true otherwise.

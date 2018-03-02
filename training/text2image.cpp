@@ -176,7 +176,7 @@ struct SpacingProperties {
   // used by the FreeType font engine.
   int x_gap_before;  // horizontal x bearing
   int x_gap_after;   // horizontal advance - x_gap_before - width
-  std::map<string, int> kerned_x_gaps;
+  std::map<std::string, int> kerned_x_gaps;
 };
 
 static bool IsWhitespaceBox(const BoxChar* boxchar) {
@@ -184,11 +184,11 @@ static bool IsWhitespaceBox(const BoxChar* boxchar) {
           SpanUTF8Whitespace(boxchar->ch().c_str()));
 }
 
-static string StringReplace(const string& in,
-                            const string& oldsub, const string& newsub) {
-  string out;
+static std::string StringReplace(const std::string& in,
+                                 const std::string& oldsub, const std::string& newsub) {
+  std::string out;
   size_t start_pos = 0, pos;
-  while ((pos = in.find(oldsub, start_pos)) != string::npos) {
+  while ((pos = in.find(oldsub, start_pos)) != std::string::npos) {
     out.append(in.data() + start_pos, pos - start_pos);
     out.append(newsub.data(), newsub.length());
     start_pos = pos + oldsub.length();
@@ -207,12 +207,12 @@ static string StringReplace(const string& in,
 // with "T", such that "AT" has spacing of -5, the entry/line for unichar "A"
 // in .fontinfo file will be:
 // A 0 -1 T -5 V -7
-void ExtractFontProperties(const string &utf8_text,
+void ExtractFontProperties(const std::string &utf8_text,
                            StringRenderer *render,
-                           const string &output_base) {
-  std::map<string, SpacingProperties> spacing_map;
-  std::map<string, SpacingProperties>::iterator spacing_map_it0;
-  std::map<string, SpacingProperties>::iterator spacing_map_it1;
+                           const std::string &output_base) {
+  std::map<std::string, SpacingProperties> spacing_map;
+  std::map<std::string, SpacingProperties>::iterator spacing_map_it0;
+  std::map<std::string, SpacingProperties>::iterator spacing_map_it1;
   int x_bearing, x_advance;
   int len = utf8_text.length();
   int offset = 0;
@@ -237,7 +237,7 @@ void ExtractFontProperties(const string &utf8_text,
     for (size_t b = 0; b < boxes.size(); b += 2) {
       while (b < boxes.size() && IsWhitespaceBox(boxes[b])) ++b;
       if (b + 1 >= boxes.size()) break;
-      const string &ch0 = boxes[b]->ch();
+      const std::string &ch0 = boxes[b]->ch();
       // We encountered a ligature. This happens in at least two scenarios:
       // One is when the rendered bigram forms a grapheme cluster (eg. the
       // second character in the bigram is a combining vowel), in which case we
@@ -264,7 +264,7 @@ void ExtractFontProperties(const string &utf8_text,
         spacing_map_it0 = spacing_map.find(ch0);
         ++ok_count;
       }
-      const string &ch1 = boxes[b+1]->ch();
+      const std::string &ch1 = boxes[b+1]->ch();
       tlog(3, "%s%s\n", ch0.c_str(), ch1.c_str());
       spacing_map_it1 = spacing_map.find(ch1);
       if (spacing_map_it1 == spacing_map.end() &&
@@ -281,12 +281,12 @@ void ExtractFontProperties(const string &utf8_text,
     }
     render->ClearBoxes();
   }
-  string output_string;
+  std::string output_string;
   const int kBufSize = 1024;
   char buf[kBufSize];
   snprintf(buf, kBufSize, "%d\n", static_cast<int>(spacing_map.size()));
   output_string.append(buf);
-  std::map<string, SpacingProperties>::const_iterator spacing_map_it;
+  std::map<std::string, SpacingProperties>::const_iterator spacing_map_it;
   for (spacing_map_it = spacing_map.begin();
        spacing_map_it != spacing_map.end(); ++spacing_map_it) {
     snprintf(buf, kBufSize,
@@ -295,7 +295,7 @@ void ExtractFontProperties(const string &utf8_text,
              spacing_map_it->second.x_gap_after,
              static_cast<int>(spacing_map_it->second.kerned_x_gaps.size()));
     output_string.append(buf);
-    std::map<string, int>::const_iterator kern_it;
+    std::map<std::string, int>::const_iterator kern_it;
     for (kern_it = spacing_map_it->second.kerned_x_gaps.begin();
          kern_it != spacing_map_it->second.kerned_x_gaps.end(); ++kern_it) {
       snprintf(buf, kBufSize,
@@ -414,7 +414,7 @@ using tesseract::StringRenderer;
 
 int Main() {
   if (FLAGS_list_available_fonts) {
-    const std::vector<string>& all_fonts = FontUtils::ListAvailableFonts();
+    const std::vector<std::string>& all_fonts = FontUtils::ListAvailableFonts();
     for (unsigned int i = 0; i < all_fonts.size(); ++i) {
       printf("%3u: %s\n", i, all_fonts[i].c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
@@ -438,7 +438,7 @@ int Main() {
   }
 
   if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
-    string pango_name;
+    std::string pango_name;
     if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
       tprintf("Could not find font named %s.\n", FLAGS_font.c_str());
       if (!pango_name.empty()) {
@@ -493,7 +493,7 @@ int Main() {
     exit(1);
   }
 
-  string src_utf8;
+  std::string src_utf8;
   // This c_str is NOT redundant!
   if (!File::ReadFileToString(FLAGS_text.c_str(), &src_utf8)) {
     tprintf("Failed to read file: %s\n", FLAGS_text.c_str());
@@ -509,12 +509,12 @@ int Main() {
   if (FLAGS_render_ngrams || FLAGS_only_extract_font_properties) {
     // Try to preserve behavior of old text2image by expanding inter-word
     // spaces by a factor of 4.
-    const string kSeparator = FLAGS_render_ngrams ? "    " : " ";
+    const std::string kSeparator = FLAGS_render_ngrams ? "    " : " ";
     // Also restrict the number of characters per line to try and avoid
     // line-breaking in the middle of words like "-A", "R$" etc. which are
     // otherwise allowed by the standard unicode line-breaking rules.
     const unsigned int kCharsPerLine = (FLAGS_ptsize > 20) ? 50 : 100;
-    string rand_utf8;
+    std::string rand_utf8;
     UNICHARSET unicharset;
     if (FLAGS_render_ngrams && !FLAGS_unicharset_file.empty() &&
         !unicharset.load_from_file(FLAGS_unicharset_file.c_str())) {
@@ -544,7 +544,7 @@ int Main() {
       const char *curr_pos = str8 + offsets[i].first;
       int ngram_len = offsets[i].second;
       // Skip words that contain characters not in found in unicharset.
-      string cleaned = UNICHARSET::CleanupString(curr_pos, ngram_len);
+      std::string cleaned = UNICHARSET::CleanupString(curr_pos, ngram_len);
       if (!FLAGS_unicharset_file.empty() &&
           !unicharset.encodable_string(cleaned.c_str(), nullptr)) {
         continue;
@@ -574,14 +574,14 @@ int Main() {
 
   tesseract::TRand randomizer;
   randomizer.set_seed(kRandomSeed);
-  std::vector<string> font_names;
+  std::vector<std::string> font_names;
   // We use a two pass mechanism to rotate images in both direction.
   // The first pass(0) will rotate the images in random directions and
   // the second pass(1) will mirror those rotations.
   int num_pass = FLAGS_bidirectional_rotation ? 2 : 1;
   for (int pass = 0; pass < num_pass; ++pass) {
     int page_num = 0;
-    string font_used;
+    std::string font_used;
     for (size_t offset = 0;
          offset < strlen(to_render_utf8) &&
          (FLAGS_max_pages == 0 || page_num < FLAGS_max_pages);
@@ -621,7 +621,7 @@ int Main() {
         char tiff_name[1024];
         if (FLAGS_find_fonts) {
           if (FLAGS_render_per_font) {
-            string fontname_for_file = tesseract::StringReplace(
+            std::string fontname_for_file = tesseract::StringReplace(
                 font_used, " ", "_");
             snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
                      fontname_for_file.c_str());
@@ -651,11 +651,11 @@ int Main() {
     }
   }
   if (!FLAGS_find_fonts) {
-    string box_name = FLAGS_outputbase.c_str();
+    std::string box_name = FLAGS_outputbase.c_str();
     box_name += ".box";
     render.WriteAllBoxes(box_name);
   } else if (!FLAGS_render_per_font && !font_names.empty()) {
-    string filename = FLAGS_outputbase.c_str();
+    std::string filename = FLAGS_outputbase.c_str();
     filename += ".fontlist.txt";
     FILE* fp = fopen(filename.c_str(), "wb");
     if (fp == nullptr) {
