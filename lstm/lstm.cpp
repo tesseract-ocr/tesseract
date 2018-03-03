@@ -78,7 +78,7 @@ static inline uint32_t ceil_log2(uint32_t n)
   if (n == 0) return UINT_MAX;
   if (n == 1) return 0;
   uint32_t val = n;
-  uint32_t int l2 = 0;
+  uint32_t l2 = 0;
   while (val > 1) {
       val >>= 1;
       l2++;
