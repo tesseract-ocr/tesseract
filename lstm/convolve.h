@@ -63,8 +63,8 @@ class Convolve : public Network {
 
  protected:
   // Serialized data.
-  inT32 half_x_;
-  inT32 half_y_;
+  int32_t half_x_;
+  int32_t half_y_;
 };
 
 }  // namespace tesseract.

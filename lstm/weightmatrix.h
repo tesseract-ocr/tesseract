@@ -60,7 +60,7 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
 };  // class TransposedArray
 
 // Generic weight matrix for network layers. Can store the matrix as either
-// an array of floats or inT8. Provides functions to compute the forward and
+// an array of floats or int8_t. Provides functions to compute the forward and
 // backward steps with the matrix and updates to the weights.
 class WeightMatrix {
  public:
@@ -122,7 +122,7 @@ class WeightMatrix {
   // implement the bias, but it doesn't actually have it.
   // Asserts that the call matches what we have.
   void MatrixDotVector(const double* u, double* v) const;
-  void MatrixDotVector(const inT8* u, double* v) const;
+  void MatrixDotVector(const int8_t* u, double* v) const;
   // MatrixDotVector for peep weights, MultiplyAccumulate adds the
   // component-wise products of *this[0] and v to inout.
   void MultiplyAccumulate(const double* v, double* inout);
@@ -172,7 +172,7 @@ class WeightMatrix {
  private:
   // Choice between float and 8 bit int implementations.
   GENERIC_2D_ARRAY<double> wf_;
-  GENERIC_2D_ARRAY<inT8> wi_;
+  GENERIC_2D_ARRAY<int8_t> wi_;
   // Transposed copy of wf_, used only for Backward, and set with each Update.
   TransposedArray wf_t_;
   // Which of wf_ and wi_ are we actually using.

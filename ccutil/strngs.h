@@ -65,32 +65,32 @@ class TESS_API STRING
     static bool SkipDeSerialize(tesseract::TFile* fp);
 
     BOOL8 contains(const char c) const;
-    inT32 length() const;
-    inT32 size() const { return length(); }
+    int32_t length() const;
+    int32_t size() const { return length(); }
     // Workaround to avoid g++ -Wsign-compare warnings.
-    uinT32 unsigned_size() const {
-      const inT32 len = length();
+    uint32_t unsigned_size() const {
+      const int32_t len = length();
       assert(0 <= len);
-      return static_cast<uinT32>(len);
+      return static_cast<uint32_t>(len);
     }
     const char *string() const;
     const char *c_str() const;
 
     inline char* strdup() const {
-     inT32 len = length() + 1;
+     int32_t len = length() + 1;
      return strncpy(new char[len], GetCStr(), len);
     }
 
 #if STRING_IS_PROTECTED
-    const char &operator[] (inT32 index) const;
+    const char &operator[] (int32_t index) const;
     // len is number of chars in s to insert starting at index in this string
-    void insert_range(inT32 index, const char*s, int len);
-    void erase_range(inT32 index, int len);
+    void insert_range(int32_t index, const char*s, int len);
+    void erase_range(int32_t index, int len);
 #else
-    char &operator[] (inT32 index) const;
+    char &operator[] (int32_t index) const;
 #endif
     void split(const char c, GenericVector<STRING> *splited);
-    void truncate_at(inT32 index);
+    void truncate_at(int32_t index);
 
     BOOL8 operator== (const STRING & string) const;
     BOOL8 operator!= (const STRING & string) const;
@@ -118,7 +118,7 @@ class TESS_API STRING
     void add_str_double(const char* str, double number);
 
     // ensure capacity but keep pointer encapsulated
-    inline void ensure(inT32 min_capacity) { ensure_cstr(min_capacity); }
+    inline void ensure(int32_t min_capacity) { ensure_cstr(min_capacity); }
 
   private:
     typedef struct STRING_HEADER {
@@ -171,7 +171,7 @@ class TESS_API STRING
     // Ensure string has requested capacity as optimization
     // to avoid unnecessary reallocations.
     // The return value is a cstr buffer with at least requested capacity
-    char* ensure_cstr(inT32 min_capacity);
+    char* ensure_cstr(int32_t min_capacity);
 
     void FixHeader() const;  // make used_ non-negative, even if const
 

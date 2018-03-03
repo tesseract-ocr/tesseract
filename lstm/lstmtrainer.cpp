@@ -88,7 +88,7 @@ LSTMTrainer::LSTMTrainer(FileReader file_reader, FileWriter file_writer,
                          CheckPointReader checkpoint_reader,
                          CheckPointWriter checkpoint_writer,
                          const char* model_base, const char* checkpoint_name,
-                         int debug_interval, inT64 max_memory)
+                         int debug_interval, int64_t max_memory)
     : randomly_rotate_(false),
       training_data_(max_memory),
       file_reader_(file_reader),
@@ -446,7 +446,7 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (fp->FWrite(&error_rates_, sizeof(error_rates_), 1) != 1) return false;
   if (fp->FWrite(&training_stage_, sizeof(training_stage_), 1) != 1)
     return false;
-  uinT8 amount = serialize_amount;
+  uint8_t amount = serialize_amount;
   if (fp->FWrite(&amount, sizeof(amount), 1) != 1) return false;
   if (serialize_amount == LIGHT) return true;  // We are done.
   if (fp->FWrite(&best_error_rate_, sizeof(best_error_rate_), 1) != 1)
@@ -505,7 +505,7 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (fp->FRead(&error_rates_, sizeof(error_rates_), 1) != 1) return false;
   if (fp->FReadEndian(&training_stage_, sizeof(training_stage_), 1) != 1)
     return false;
-  uinT8 amount;
+  uint8_t amount;
   if (fp->FRead(&amount, sizeof(amount), 1) != 1) return false;
   if (amount == LIGHT) return true;  // Don't read the rest.
   if (fp->FReadEndian(&best_error_rate_, sizeof(best_error_rate_), 1) != 1)

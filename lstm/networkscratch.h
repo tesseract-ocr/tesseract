@@ -242,7 +242,7 @@ class NetworkScratch {
   };  // class Stack.
 
  private:
-  // If true, the network weights are inT8, if false, float.
+  // If true, the network weights are int8_t, if false, float.
   bool int_mode_;
   // Stacks of NetworkIO and GenericVector<float>. Once allocated, they are not
   // deleted until the NetworkScratch is deleted.

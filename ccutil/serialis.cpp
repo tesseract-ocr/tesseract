@@ -62,9 +62,9 @@ bool TFile::Open(const char* data, int size) {
   return true;
 }
 
-bool TFile::Open(FILE* fp, inT64 end_offset) {
+bool TFile::Open(FILE* fp, int64_t end_offset) {
   offset_ = 0;
-  inT64 current_pos = ftell(fp);
+  int64_t current_pos = ftell(fp);
   if (end_offset < 0) {
     if (fseek(fp, 0, SEEK_END))
       return false;

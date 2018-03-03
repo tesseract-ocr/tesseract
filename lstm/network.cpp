@@ -123,7 +123,7 @@ void Network::SetEnableTraining(TrainingState state) {
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
-void Network::SetNetworkFlags(uinT32 flags) {
+void Network::SetNetworkFlags(uint32_t flags) {
   network_flags_ = flags;
 }
 
@@ -151,7 +151,7 @@ bool Network::SetupNeedsBackprop(bool needs_backprop) {
 
 // Writes to the given file. Returns false in case of error.
 bool Network::Serialize(TFile* fp) const {
-  inT8 data = NT_NONE;
+  int8_t data = NT_NONE;
   if (fp->FWrite(&data, sizeof(data), 1) != 1) return false;
   STRING type_name = kTypeNames[type_];
   if (!type_name.Serialize(fp)) return false;
@@ -170,7 +170,7 @@ bool Network::Serialize(TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 // Should be overridden by subclasses, but NOT called by their DeSerialize.
 bool Network::DeSerialize(TFile* fp) {
-  inT8 data = 0;
+  int8_t data = 0;
   if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
   if (data == NT_NONE) {
     STRING type_name;

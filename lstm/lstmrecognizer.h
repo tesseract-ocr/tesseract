@@ -223,7 +223,7 @@ class LSTMRecognizer {
  protected:
   // Sets the random seed from the sample_iteration_;
   void SetRandomSeed() {
-    inT64 seed = static_cast<inT64>(sample_iteration_) * 0x10000001;
+    int64_t seed = static_cast<int64_t>(sample_iteration_) * 0x10000001;
     randomizer_.set_seed(seed);
     randomizer_.IntRand();
   }
@@ -280,14 +280,14 @@ class LSTMRecognizer {
   STRING network_str_;
   // Flags used to determine the training method of the network.
   // See enum TrainingFlags above.
-  inT32 training_flags_;
+  int32_t training_flags_;
   // Number of actual backward training steps used.
-  inT32 training_iteration_;
+  int32_t training_iteration_;
   // Index into training sample set. sample_iteration >= training_iteration_.
-  inT32 sample_iteration_;
+  int32_t sample_iteration_;
   // Index in softmax of null character. May take the value UNICHAR_BROKEN or
   // ccutil_.unicharset.size().
-  inT32 null_char_;
+  int32_t null_char_;
   // Learning rate and momentum multipliers of deltas in backprop.
   float learning_rate_;
   float momentum_;

@@ -39,7 +39,7 @@ void Plumbing::SetEnableTraining(TrainingState state) {
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
-void Plumbing::SetNetworkFlags(uinT32 flags) {
+void Plumbing::SetNetworkFlags(uint32_t flags) {
   Network::SetNetworkFlags(flags);
   for (int i = 0; i < stack_.size(); ++i)
     stack_[i]->SetNetworkFlags(flags);
@@ -184,7 +184,7 @@ float* Plumbing::LayerLearningRatePtr(const char* id) const {
 // Writes to the given file. Returns false in case of error.
 bool Plumbing::Serialize(TFile* fp) const {
   if (!Network::Serialize(fp)) return false;
-  inT32 size = stack_.size();
+  int32_t size = stack_.size();
   // Can't use PointerVector::Serialize here as we need a special DeSerialize.
   if (fp->FWrite(&size, sizeof(size), 1) != 1) return false;
   for (int i = 0; i < size; ++i)
@@ -200,7 +200,7 @@ bool Plumbing::Serialize(TFile* fp) const {
 bool Plumbing::DeSerialize(TFile* fp) {
   stack_.truncate(0);
   no_ = 0;  // We will be modifying this as we AddToStack.
-  inT32 size;
+  int32_t size;
   if (fp->FReadEndian(&size, sizeof(size), 1) != 1) return false;
   for (int i = 0; i < size; ++i) {
     Network* network = CreateFromFile(fp);

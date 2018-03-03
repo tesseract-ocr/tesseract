@@ -147,7 +147,7 @@ bool ParamUtils::GetParamAsString(const char *name,
                                      member_params->int_params);
   if (ip) {
     char buf[128];
-    snprintf(buf, sizeof(buf), "%d", inT32(*ip));
+    snprintf(buf, sizeof(buf), "%d", int32_t(*ip));
     *value = buf;
     return true;
   }
@@ -177,7 +177,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (i = 0; i < vec->int_params.size(); ++i) {
       fprintf(fp, "%s\t%d\t%s\n", vec->int_params[i]->name_str(),
-              (inT32)(*vec->int_params[i]), vec->int_params[i]->info_str());
+              (int32_t)(*vec->int_params[i]), vec->int_params[i]->info_str());
     }
     for (i = 0; i < vec->bool_params.size(); ++i) {
       fprintf(fp, "%s\t%d\t%s\n", vec->bool_params[i]->name_str(),

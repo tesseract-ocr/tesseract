@@ -94,7 +94,7 @@ class LSTMTrainer : public LSTMRecognizer {
               CheckPointReader checkpoint_reader,
               CheckPointWriter checkpoint_writer,
               const char* model_base, const char* checkpoint_name,
-              int debug_interval, inT64 max_memory);
+              int debug_interval, int64_t max_memory);
   virtual ~LSTMTrainer();
 
   // Tries to deserialize a trainer from the given file and silently returns

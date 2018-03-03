@@ -67,7 +67,7 @@ void STRING::DiscardData() {
 
 // This is a private method; ensure FixHeader is called (or used_ is well defined)
 // beforehand
-char* STRING::ensure_cstr(inT32 min_capacity) {
+char* STRING::ensure_cstr(int32_t min_capacity) {
   STRING_HEADER* orig_header = GetHeader();
   if (min_capacity <= orig_header->capacity_)
     return ((char *)this->data_) + sizeof(STRING_HEADER);
@@ -146,14 +146,14 @@ STRING::~STRING() {
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(FILE* fp) const {
-  inT32 len = length();
+  int32_t len = length();
   if (fwrite(&len, sizeof(len), 1, fp) != 1) return false;
   if (static_cast<int>(fwrite(GetCStr(), 1, len, fp)) != len) return false;
   return true;
 }
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(TFile* fp) const {
-  inT32 len = length();
+  int32_t len = length();
   if (fp->FWrite(&len, sizeof(len), 1) != 1) return false;
   if (fp->FWrite(GetCStr(), 1, len) != len) return false;
   return true;
@@ -161,7 +161,7 @@ bool STRING::Serialize(TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool STRING::DeSerialize(bool swap, FILE* fp) {
-  inT32 len;
+  int32_t len;
   if (fread(&len, sizeof(len), 1, fp) != 1) return false;
   if (swap)
     ReverseN(&len, sizeof(len));
@@ -172,7 +172,7 @@ bool STRING::DeSerialize(bool swap, FILE* fp) {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool STRING::DeSerialize(TFile* fp) {
-  inT32 len;
+  int32_t len;
   if (fp->FReadEndian(&len, sizeof(len), 1) != 1) return false;
   truncate_at(len);
   if (fp->FRead(GetCStr(), 1, len) != len) return false;
@@ -181,7 +181,7 @@ bool STRING::DeSerialize(TFile* fp) {
 
 // As DeSerialize, but only seeks past the data - hence a static method.
 bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
-  inT32 len;
+  int32_t len;
   if (fp->FReadEndian(&len, sizeof(len), 1) != 1) return false;
   return fp->FRead(NULL, 1, len) == len;
 }
@@ -190,7 +190,7 @@ BOOL8 STRING::contains(const char c) const {
   return (c != '\0') && (strchr (GetCStr(), c) != NULL);
 }
 
-inT32 STRING::length() const {
+int32_t STRING::length() const {
   FixHeader();
   return GetHeader()->used_ - 1;
 }
@@ -218,11 +218,11 @@ const char* STRING::c_str() const {
  * Also makes the [] operator return a const so it is immutable
  */
 #if STRING_IS_PROTECTED
-const char& STRING::operator[](inT32 index) const {
+const char& STRING::operator[](int32_t index) const {
   return GetCStr()[index];
 }
 
-void STRING::insert_range(inT32 index, const char* str, int len) {
+void STRING::insert_range(int32_t index, const char* str, int len) {
   // if index is outside current range, then also grow size of string
   // to accmodate the requested range.
   STRING_HEADER* this_header = GetHeader();
@@ -255,7 +255,7 @@ void STRING::insert_range(inT32 index, const char* str, int len) {
   assert(InvariantOk());
 }
 
-void STRING::erase_range(inT32 index, int len) {
+void STRING::erase_range(int32_t index, int len) {
   char* this_cstr = GetCStr();
   STRING_HEADER* this_header = GetHeader();
 
@@ -266,7 +266,7 @@ void STRING::erase_range(inT32 index, int len) {
 }
 
 #else
-void STRING::truncate_at(inT32 index) {
+void STRING::truncate_at(int32_t index) {
   ASSERT_HOST(index >= 0);
   FixHeader();
   char* this_cstr = ensure_cstr(index + 1);
@@ -275,7 +275,7 @@ void STRING::truncate_at(inT32 index) {
   assert(InvariantOk());
 }
 
-char& STRING::operator[](inT32 index) const {
+char& STRING::operator[](int32_t index) const {
   // Code is casting away this const and mutating the string,
   // so mark used_ as -1 to flag it unreliable.
   GetHeader()->used_ = -1;
@@ -333,7 +333,7 @@ BOOL8 STRING::operator!=(const char* cstr) const {
   if (cstr == NULL)
     return this_header->used_ > 1;  // either '\0' or NULL
   else {
-    inT32 length = strlen(cstr) + 1;
+    int32_t length = strlen(cstr) + 1;
     return (this_header->used_ != length)
             || (memcmp(GetCStr(), cstr, length) != 0);
   }

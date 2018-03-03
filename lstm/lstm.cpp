@@ -360,7 +360,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     MultiplyVectorsInPlace(ns_, temp_lines[GF1], curr_state);
     if (Is2D()) {
       // Max-pool the forget gates (in 2-d) instead of blindly adding.
-      inT8* which_fg_col = which_fg_[t];
+      int8_t* which_fg_col = which_fg_[t];
       memset(which_fg_col, 1, ns_ * sizeof(which_fg_col[0]));
       if (valid_2d) {
         const double* stepped_state = states[mod_t];

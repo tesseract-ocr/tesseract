@@ -49,7 +49,7 @@ class Plumbing : public Network {
 
   // Sets flags that control the action of the network. See NetworkFlags enum
   // for bit values.
-  virtual void SetNetworkFlags(uinT32 flags);
+  virtual void SetNetworkFlags(uint32_t flags);
 
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.

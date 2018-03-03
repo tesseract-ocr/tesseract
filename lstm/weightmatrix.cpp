@@ -103,7 +103,7 @@ void WeightMatrix::ConvertToInt() {
   int dim2 = wi_.dim2();
   for (int t = 0; t < wi_.dim1(); ++t) {
     double* f_line = wf_[t];
-    inT8* i_line = wi_[t];
+    int8_t* i_line = wi_[t];
     double max_abs = 0.0;
     for (int f = 0; f < dim2; ++f) {
       double abs_val = fabs(f_line[f]);
@@ -133,7 +133,7 @@ void WeightMatrix::InitBackward() {
   if (use_adam_) dw_sq_sum_.Resize(no, ni, 0.0);
 }
 
-// Flag on mode to indicate that this weightmatrix uses inT8.
+// Flag on mode to indicate that this weightmatrix uses int8_t.
 const int kInt8Flag = 1;
 // Flag on mode to indicate that this weightmatrix uses adam.
 const int kAdamFlag = 4;
@@ -146,7 +146,7 @@ const int kDoubleFlag = 128;
 bool WeightMatrix::Serialize(bool training, TFile* fp) const {
   // For backward compatibility, add kDoubleFlag to mode to indicate the doubles
   // format, without errs, so we can detect and read old format weight matrices.
-  uinT8 mode =
+  uint8_t mode =
       (int_mode_ ? kInt8Flag : 0) | (use_adam_ ? kAdamFlag : 0) | kDoubleFlag;
   if (fp->FWrite(&mode, sizeof(mode), 1) != 1) return false;
   if (int_mode_) {
@@ -163,7 +163,7 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 
 bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
-  uinT8 mode = 0;
+  uint8_t mode = 0;
   if (fp->FRead(&mode, sizeof(mode), 1) != 1) return false;
   int_mode_ = (mode & kInt8Flag) != 0;
   use_adam_ = (mode & kAdamFlag) != 0;
@@ -218,7 +218,7 @@ void WeightMatrix::MatrixDotVector(const double* u, double* v) const {
   MatrixDotVectorInternal(wf_, true, false, u, v);
 }
 
-void WeightMatrix::MatrixDotVector(const inT8* u, double* v) const {
+void WeightMatrix::MatrixDotVector(const int8_t* u, double* v) const {
   ASSERT_HOST(int_mode_);
   ASSERT_HOST(multiplier_ != nullptr);
   multiplier_->MatrixDotVector(wi_, scales_, u, v);
