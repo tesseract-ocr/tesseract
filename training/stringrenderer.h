@@ -47,7 +47,7 @@ class BoxChar;
 
 class StringRenderer {
  public:
-  StringRenderer(const string& font_desc, int page_width, int page_height);
+  StringRenderer(const std::string& font_desc, int page_width, int page_height);
   ~StringRenderer();
 
   // Renders the text with the chosen font and returns the byte offset up to
@@ -61,9 +61,9 @@ class StringRenderer {
   // at least min_coverage fraction of the input text. Use 1.0 to require that
   // a font be able to render all the text.
   int RenderAllFontsToImage(double min_coverage, const char* text,
-                            int text_length, string* font_used, Pix** pix);
+                            int text_length, std::string* font_used, Pix** pix);
 
-  bool set_font(const string& desc);
+  bool set_font(const std::string& desc);
   // Char spacing is in PIXELS!!!!.
   void set_char_spacing(int char_spacing) { char_spacing_ = char_spacing; }
   void set_leading(int leading) {
@@ -144,22 +144,22 @@ class StringRenderer {
   // Delete all boxes.
   void ClearBoxes();
   // Returns the boxes in a boxfile string.
-  string GetBoxesStr();
+  std::string GetBoxesStr();
   // Writes the boxes to a boxfile.
-  void WriteAllBoxes(const string& filename);
+  void WriteAllBoxes(const std::string& filename);
   // Removes space-delimited words from the string that are not renderable by
   // the current font and returns the count of such words.
-  int StripUnrenderableWords(string* utf8_text) const;
+  int StripUnrenderableWords(std::string* utf8_text) const;
 
   // Insert a Word Joiner symbol (U+2060) between adjacent characters, excluding
   // spaces and combining types, in each word before rendering to ensure words
   // are not broken across lines. The output boxchars will not contain the
   // joiner.
-  static string InsertWordJoiners(const string& text);
+  static std::string InsertWordJoiners(const std::string& text);
 
   // Helper functions to convert fullwidth Latin and halfwidth Basic Latin.
-  static string ConvertBasicLatinToFullwidthLatin(const string& text);
-  static string ConvertFullwidthLatinToBasicLatin(const string& text);
+  static std::string ConvertBasicLatinToFullwidthLatin(const std::string& text);
+  static std::string ConvertFullwidthLatinToBasicLatin(const std::string& text);
 
  protected:
   // Init and free local renderer objects.
@@ -167,11 +167,11 @@ class StringRenderer {
   void FreePangoCairo();
   // Set rendering properties.
   void SetLayoutProperties();
-  void SetWordUnderlineAttributes(const string& page_text);
+  void SetWordUnderlineAttributes(const std::string& page_text);
   // Compute bounding boxes around grapheme clusters.
   void ComputeClusterBoxes();
   void CorrectBoxPositionsToLayout(std::vector<BoxChar*>* boxchars);
-  bool GetClusterStrings(std::vector<string>* cluster_text);
+  bool GetClusterStrings(std::vector<std::string>* cluster_text);
   int FindFirstPageBreakOffset(const char* text, int text_length);
 
   PangoFontInfo font_;

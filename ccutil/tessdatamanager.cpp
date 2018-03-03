@@ -172,13 +172,13 @@ bool TessdataManager::GetComponent(TessdataType type, TFile *fp) const {
 }
 
 // Returns the current version string.
-string TessdataManager::VersionString() const {
-  return string(&entries_[TESSDATA_VERSION][0],
-                entries_[TESSDATA_VERSION].size());
+std::string TessdataManager::VersionString() const {
+  return std::string(&entries_[TESSDATA_VERSION][0],
+                     entries_[TESSDATA_VERSION].size());
 }
 
 // Sets the version string to the given v_str.
-void TessdataManager::SetVersionString(const string &v_str) {
+void TessdataManager::SetVersionString(const std::string &v_str) {
   entries_[TESSDATA_VERSION].resize_no_init(v_str.size());
   memcpy(&entries_[TESSDATA_VERSION][0], v_str.data(), v_str.size());
 }

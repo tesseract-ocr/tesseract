@@ -33,11 +33,11 @@ namespace tesseract {
 // Default writer will overwrite any existing file, but a supplied writer
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
-bool WriteFile(const string& output_dir, const string& lang,
-               const string& suffix, const GenericVector<char>& data,
+bool WriteFile(const std::string& output_dir, const std::string& lang,
+               const std::string& suffix, const GenericVector<char>& data,
                FileWriter writer) {
   if (lang.empty()) return true;
-  string dirname = output_dir + "/" + lang;
+  std::string dirname = output_dir + "/" + lang;
   // Attempt to make the directory, but ignore errors, as it may not be a
   // standard filesystem, and the writer will complain if not successful.
 #if defined(_WIN32)
@@ -45,7 +45,7 @@ bool WriteFile(const string& output_dir, const string& lang,
 #else
   mkdir(dirname.c_str(), S_IRWXU | S_IRWXG);
 #endif
-  string filename = dirname + "/" + lang + suffix;
+  std::string filename = dirname + "/" + lang + suffix;
   if (writer == nullptr)
     return SaveDataToFile(data, filename.c_str());
   else
@@ -54,7 +54,7 @@ bool WriteFile(const string& output_dir, const string& lang,
 
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const string& filename, FileReader reader) {
+STRING ReadFile(const std::string& filename, FileReader reader) {
   if (filename.empty()) return STRING();
   GenericVector<char> data;
   bool read_result;
@@ -68,8 +68,8 @@ STRING ReadFile(const string& filename, FileReader reader) {
 }
 
 // Helper writes the unicharset to file and to the traineddata.
-bool WriteUnicharset(const UNICHARSET& unicharset, const string& output_dir,
-                     const string& lang, FileWriter writer,
+bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
+                     const std::string& lang, FileWriter writer,
                      TessdataManager* traineddata) {
   GenericVector<char> unicharset_data;
   TFile fp;
@@ -83,7 +83,7 @@ bool WriteUnicharset(const UNICHARSET& unicharset, const string& output_dir,
 // Helper creates the recoder and writes it to the traineddata, and a human-
 // readable form to file.
 bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
-                  const string& output_dir, const string& lang,
+                  const std::string& output_dir, const std::string& lang,
                   FileWriter writer, STRING* radical_table_data,
                   TessdataManager* traineddata) {
   UnicharCompress recoder;
@@ -182,9 +182,9 @@ static bool WriteDawgs(const GenericVector<STRING>& words,
 
 // The main function for combine_lang_model.cpp.
 // Returns EXIT_SUCCESS or EXIT_FAILURE for error.
-int CombineLangModel(const UNICHARSET& unicharset, const string& script_dir,
-                     const string& version_str, const string& output_dir,
-                     const string& lang, bool pass_through_recoder,
+int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
+                     const std::string& version_str, const std::string& output_dir,
+                     const std::string& lang, bool pass_through_recoder,
                      const GenericVector<STRING>& words,
                      const GenericVector<STRING>& puncs,
                      const GenericVector<STRING>& numbers, bool lang_is_rtl,
@@ -203,13 +203,13 @@ int CombineLangModel(const UNICHARSET& unicharset, const string& script_dir,
     tprintf("Config file is optional, continuing...\n");
   }
   // If there is a config file, read it and add to traineddata.
-  string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
+  std::string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
   STRING config_file = ReadFile(config_filename, reader);
   if (config_file.length() > 0) {
     traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0],
                                config_file.length());
   }
-  string radical_filename = script_dir + "/radical-stroke.txt";
+  std::string radical_filename = script_dir + "/radical-stroke.txt";
   STRING radical_data = ReadFile(radical_filename, reader);
   if (radical_data.length() == 0) {
     tprintf("Error reading radical code table %s\n", radical_filename.c_str());

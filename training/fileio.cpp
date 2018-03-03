@@ -35,12 +35,12 @@ namespace tesseract {
 ///////////////////////////////////////////////////////////////////////////////
 // File::
 ///////////////////////////////////////////////////////////////////////////////
-FILE* File::Open(const string& filename, const string& mode) {
+FILE* File::Open(const std::string& filename, const std::string& mode) {
   return fopen(filename.c_str(), mode.c_str());
 }
 
-FILE* File::OpenOrDie(const string& filename,
-                      const string& mode) {
+FILE* File::OpenOrDie(const std::string& filename,
+                      const std::string& mode) {
   FILE* stream = fopen(filename.c_str(), mode.c_str());
   if (stream == nullptr) {
     tprintf("Unable to open '%s' in mode '%s'\n", filename.c_str(),
@@ -49,8 +49,8 @@ FILE* File::OpenOrDie(const string& filename,
   return stream;
 }
 
-void File::WriteStringToFileOrDie(const string& str,
-                                  const string& filename) {
+void File::WriteStringToFileOrDie(const std::string& str,
+                                  const std::string& filename) {
   FILE* stream = fopen(filename.c_str(), "wb");
   if (stream == nullptr) {
     tprintf("Unable to open '%s' for writing\n", filename.c_str());
@@ -60,7 +60,7 @@ void File::WriteStringToFileOrDie(const string& str,
   ASSERT_HOST(fclose(stream) == 0);
 }
 
-bool File::Readable(const string& filename) {
+bool File::Readable(const std::string& filename) {
   FILE* stream = fopen(filename.c_str(), "rb");
   if (stream == nullptr) {
     return false;
@@ -69,7 +69,7 @@ bool File::Readable(const string& filename) {
   return true;
 }
 
-bool File::ReadFileToString(const string& filename, string* out) {
+bool File::ReadFileToString(const std::string& filename, std::string* out) {
   FILE* stream = File::Open(filename.c_str(), "rb");
   if (stream == nullptr) return false;
   InputBuffer in(stream);
@@ -78,7 +78,7 @@ bool File::ReadFileToString(const string& filename, string* out) {
   return in.CloseFile();
 }
 
-string File::JoinPath(const string& prefix, const string& suffix) {
+std::string File::JoinPath(const std::string& prefix, const std::string& suffix) {
   return (prefix.empty() || prefix[prefix.size() - 1] == '/')
              ? prefix + suffix
              : prefix + "/" + suffix;
@@ -145,7 +145,7 @@ InputBuffer::~InputBuffer() {
   }
 }
 
-bool InputBuffer::Read(string* out) {
+bool InputBuffer::Read(std::string* out) {
   char buf[BUFSIZ + 1];
   int l;
   while ((l = fread(buf, 1, BUFSIZ, stream_)) > 0) {
@@ -183,7 +183,7 @@ OutputBuffer::~OutputBuffer() {
   }
 }
 
-void OutputBuffer::WriteString(const string& str) {
+void OutputBuffer::WriteString(const std::string& str) {
   fputs(str.c_str(), stream_);
 }
 

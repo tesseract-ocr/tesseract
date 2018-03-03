@@ -133,7 +133,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
     RecodedCharID code;
     // Convert to unicodes.
     std::vector<char32> unicodes;
-    string cleaned;
+    std::string cleaned;
     if (u < unicharset.size())
       cleaned = UNICHARSET::CleanupString(unicharset.id_to_unichar(u));
     if (u < unicharset.size() &&

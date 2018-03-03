@@ -65,14 +65,14 @@ class PangoFontInfo {
   // Weight   : Ultra-Light, Light, Medium, Semi-Bold, Bold, Ultra-Bold, Heavy
   // Stretch  : Ultra-Condensed, Extra-Condensed, Condensed, Semi-Condensed,
   //            Semi-Expanded, Expanded, Extra-Expanded, Ultra-Expanded.
-  explicit PangoFontInfo(const string& name);
-  bool ParseFontDescriptionName(const string& name);
+  explicit PangoFontInfo(const std::string& name);
+  bool ParseFontDescriptionName(const std::string& name);
 
   // Returns true if the font have codepoint coverage for the specified text.
   bool CoversUTF8Text(const char* utf8_text, int byte_length) const;
   // Modifies string to remove unicode points that are not covered by the
   // font. Returns the number of characters dropped.
-  int DropUncoveredChars(string* utf8_text) const;
+  int DropUncoveredChars(std::string* utf8_text) const;
 
   // Returns true if the entire string can be rendered by the font with full
   // character coverage and no unknown glyph or dotted-circle glyph
@@ -80,14 +80,14 @@ class PangoFontInfo {
   // If true, returns individual graphemes. Any whitespace characters in the
   // original string are also included in the list.
   bool CanRenderString(const char* utf8_word, int len,
-                       std::vector<string>* graphemes) const;
+                       std::vector<std::string>* graphemes) const;
   bool CanRenderString(const char* utf8_word, int len) const;
 
   // Retrieves the x_bearing and x_advance for the given utf8 character in the
   // font. Returns false if the glyph for the character could not be found in
   // the font.
   // Ref: http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-3.html
-  bool GetSpacingProperties(const string& utf8_char,
+  bool GetSpacingProperties(const std::string& utf8_char,
                             int* x_bearing, int* x_advance) const;
 
   // If not already initialized, initializes FontConfig by setting its
@@ -96,13 +96,13 @@ class PangoFontInfo {
   static void SoftInitFontConfig();
   // Re-initializes font config, whether or not already initialized.
   // If already initialized, any existing cache is deleted, just to be sure.
-  static void HardInitFontConfig(const string& fonts_dir,
-                                 const string& cache_dir);
+  static void HardInitFontConfig(const std::string& fonts_dir,
+                                 const std::string& cache_dir);
 
   // Accessors
-  string DescriptionName() const;
+  std::string DescriptionName() const;
   // Font Family name eg. "Arial"
-  const string& family_name() const    { return family_name_; }
+  const std::string& family_name() const    { return family_name_; }
   // Size in points (1/72"), rounded to the nearest integer.
   int font_size() const { return font_size_; }
   FontTypeEnum font_type() const { return font_type_; }
@@ -121,7 +121,7 @@ class PangoFontInfo {
   PangoFont* ToPangoFont() const;
 
   // Font properties set automatically from parsing the font description name.
-  string family_name_;
+  std::string family_name_;
   int font_size_;
   FontTypeEnum font_type_;
   // The Pango description that was used to initialize the instance.
@@ -135,10 +135,10 @@ class PangoFontInfo {
   // These hold the last initialized values set by HardInitFontConfig or
   // the first call to SoftInitFontConfig.
   // Directory to be scanned for font files.
-  static string fonts_dir_;
+  static std::string fonts_dir_;
   // Directory to store the cache of font information. (Can be the same as
   // fonts_dir_)
-  static string cache_dir_;
+  static std::string cache_dir_;
 
  private:
   PangoFontInfo(const PangoFontInfo&);
@@ -157,30 +157,30 @@ class FontUtils {
   // Returns true if the font of the given description name is available in the
   // target directory specified by --fonts_dir. If false is returned, and
   // best_match is not nullptr, the closest matching font is returned there.
-  static bool IsAvailableFont(const char* font_desc, string* best_match);
+  static bool IsAvailableFont(const char* font_desc, std::string* best_match);
   // Outputs description names of available fonts.
-  static const std::vector<string>& ListAvailableFonts();
+  static const std::vector<std::string>& ListAvailableFonts();
 
   // Picks font among available fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         string* font_name, std::vector<string>* graphemes);
+                         std::string* font_name, std::vector<std::string>* graphemes);
 
   // Picks font among all_fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         const std::vector<string>& all_fonts,
-                         string* font_name, std::vector<string>* graphemes);
+                         const std::vector<std::string>& all_fonts,
+                         std::string* font_name, std::vector<std::string>* graphemes);
 
   // Returns a bitmask where the value of true at index 'n' implies that unicode
   // value 'n' is renderable by at least one available font.
   static void GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap);
   // Variant of the above function that inspects only the provided font names.
-  static void GetAllRenderableCharacters(const std::vector<string>& font_names,
+  static void GetAllRenderableCharacters(const std::vector<std::string>& font_names,
                                          std::vector<bool>* unichar_bitmap);
-  static void GetAllRenderableCharacters(const string& font_name,
+  static void GetAllRenderableCharacters(const std::string& font_name,
                                          std::vector<bool>* unichar_bitmap);
 
   // NOTE: The following utilities were written to be backward compatible with
@@ -192,7 +192,7 @@ class FontUtils {
   // In the flags vector, each flag is set according to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
   // The return string is a list of the acceptable fonts that were used.
-  static string BestFonts(
+  static std::string BestFonts(
       const std::unordered_map<char32, inT64>& ch_map,
       std::vector<std::pair<const char*, std::vector<bool> > >* font_flag);
 
@@ -202,14 +202,14 @@ class FontUtils {
   // The values in the bool vector ch_flags correspond to whether the
   // corresponding character (in order of iterating ch_map) can be rendered.
   static int FontScore(const std::unordered_map<char32, inT64>& ch_map,
-                       const string& fontname, int* raw_score,
+                       const std::string& fontname, int* raw_score,
                        std::vector<bool>* ch_flags);
 
   // PangoFontInfo is reinitialized, so clear the static list of fonts.
   static void ReInit();
 
  private:
-  static std::vector<string> available_fonts_;  // cache list
+  static std::vector<std::string> available_fonts_;  // cache list
 };
 }  // namespace tesseract
 

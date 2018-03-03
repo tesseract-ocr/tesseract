@@ -34,9 +34,9 @@
 
 namespace tesseract {
 
-static string EncodeAsUTF8(const char32 ch32) {
+static std::string EncodeAsUTF8(const char32 ch32) {
   UNICHAR uni_ch(ch32);
-  return string(uni_ch.utf8(), uni_ch.utf8_len());
+  return std::string(uni_ch.utf8(), uni_ch.utf8_len());
 }
 
 // Range of optional latin ligature characters in Unicode to build ligatures
@@ -65,13 +65,13 @@ void LigatureTable::Init() {
     for (char32 lig = kMinLigature; lig <= kMaxLigature; ++lig) {
       // For each char in the range, convert to utf8, nfkc normalize, and if
       // the strings are different put the both mappings in the hash_maps.
-      string lig8 = EncodeAsUTF8(lig);
+      std::string lig8 = EncodeAsUTF8(lig);
       icu::UnicodeString unicode_lig8(static_cast<UChar32>(lig));
       icu::UnicodeString normed8_result;
       icu::ErrorCode status;
       icu::Normalizer::normalize(unicode_lig8, UNORM_NFKC, 0, normed8_result,
                                  status);
-      string normed8;
+      std::string normed8;
       normed8_result.toUTF8String(normed8);
       // The icu::Normalizer maps the "LONG S T" ligature to "st". Correct that
       // here manually so that AddLigatures() will work as desired.
@@ -108,8 +108,8 @@ void LigatureTable::Init() {
   }
 }
 
-string LigatureTable::RemoveLigatures(const string& str) const {
-  string result;
+std::string LigatureTable::RemoveLigatures(const std::string& str) const {
+  std::string result;
   UNICHAR::const_iterator it_begin = UNICHAR::begin(str.c_str(), str.length());
   UNICHAR::const_iterator it_end = UNICHAR::end(str.c_str(), str.length());
   char tmp[5];
@@ -127,8 +127,8 @@ string LigatureTable::RemoveLigatures(const string& str) const {
   return result;
 }
 
-string LigatureTable::RemoveCustomLigatures(const string& str) const {
-  string result;
+std::string LigatureTable::RemoveCustomLigatures(const std::string& str) const {
+  std::string result;
   UNICHAR::const_iterator it_begin = UNICHAR::begin(str.c_str(), str.length());
   UNICHAR::const_iterator it_end = UNICHAR::end(str.c_str(), str.length());
   char tmp[5];
@@ -153,9 +153,9 @@ string LigatureTable::RemoveCustomLigatures(const string& str) const {
   return result;
 }
 
-string LigatureTable::AddLigatures(const string& str,
-                                   const PangoFontInfo* font) const {
-  string result;
+std::string LigatureTable::AddLigatures(const std::string& str,
+                                        const PangoFontInfo* font) const {
+  std::string result;
   int len = str.size();
   int step = 0;
   int i = 0;
@@ -163,7 +163,7 @@ string LigatureTable::AddLigatures(const string& str,
     step = 0;
     for (int liglen = max_norm_length_; liglen >= min_norm_length_; --liglen) {
       if (i + liglen <= len) {
-        string lig_cand = str.substr(i, liglen);
+        std::string lig_cand = str.substr(i, liglen);
         LigHash::const_iterator it = norm_to_lig_table_.find(lig_cand);
         if (it != norm_to_lig_table_.end()) {
           tlog(3, "Considering %s -> %s\n", lig_cand.c_str(),

@@ -106,7 +106,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Initializes the character set encode/decode mechanism directly from a
   // previously setup traineddata containing dawgs, UNICHARSET and
   // UnicharCompress. Note: Call before InitNetwork!
-  void InitCharSet(const string& traineddata_path) {
+  void InitCharSet(const std::string& traineddata_path) {
     ASSERT_HOST(mgr_.Init(traineddata_path.c_str()));
     InitCharSet();
   }

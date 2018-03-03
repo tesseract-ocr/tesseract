@@ -178,9 +178,9 @@ class TessdataManager {
   bool GetComponent(TessdataType type, TFile *fp) const;
 
   // Returns the current version string.
-  string VersionString() const;
+  std::string VersionString() const;
   // Sets the version string to the given v_str.
-  void SetVersionString(const string &v_str);
+  void SetVersionString(const std::string &v_str);
 
   // Returns true if the base Tesseract components are present.
   bool IsBaseAvailable() const {

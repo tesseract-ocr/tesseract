@@ -29,16 +29,16 @@ namespace tesseract {
 // Default writer will overwrite any existing file, but a supplied writer
 // can do its own thing. If lang is empty, returns true but does nothing.
 // NOTE that suffix should contain any required . for the filename.
-bool WriteFile(const string& output_dir, const string& lang,
-               const string& suffix, const GenericVector<char>& data,
+bool WriteFile(const std::string& output_dir, const std::string& lang,
+               const std::string& suffix, const GenericVector<char>& data,
                FileWriter writer);
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const string& filename, FileReader reader);
+STRING ReadFile(const std::string& filename, FileReader reader);
 
 // Helper writes the unicharset to file and to the traineddata.
-bool WriteUnicharset(const UNICHARSET& unicharset, const string& output_dir,
-                     const string& lang, FileWriter writer,
+bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
+                     const std::string& lang, FileWriter writer,
                      TessdataManager* traineddata);
 // Helper creates the recoder from the unicharset and writes it to the
 // traineddata, with a human-readable form to file at:
@@ -53,7 +53,7 @@ bool WriteUnicharset(const UNICHARSET& unicharset, const string& output_dir,
 // radical_table_data, which must be the content of the file:
 // langdata/radical-stroke.txt.
 bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
-                  const string& output_dir, const string& lang,
+                  const std::string& output_dir, const std::string& lang,
                   FileWriter writer, STRING* radical_table_data,
                   TessdataManager* traineddata);
 
@@ -71,9 +71,9 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
 // puncs must be non-empty.
 // lang_is_rtl indicates that the language is generally written from right
 // to left (eg Arabic/Hebrew).
-int CombineLangModel(const UNICHARSET& unicharset, const string& script_dir,
-                     const string& version_str, const string& output_dir,
-                     const string& lang, bool pass_through_recoder,
+int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
+                     const std::string& version_str, const std::string& output_dir,
+                     const std::string& lang, bool pass_through_recoder,
                      const GenericVector<STRING>& words,
                      const GenericVector<STRING>& puncs,
                      const GenericVector<STRING>& numbers, bool lang_is_rtl,

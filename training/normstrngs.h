@@ -56,7 +56,7 @@ enum class GraphemeNorm {
 // the result string is produced on a "best effort" basis.
 bool NormalizeUTF8String(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
                          GraphemeNorm grapheme_normalize, const char* str8,
-                         string* normalized);
+                         std::string* normalized);
 // Normalizes a UTF8 string according to the given modes and splits into
 // graphemes according to g_mode. Returns true on success. If false is returned,
 // some failure or invalidity was present, and the result string is produced on
@@ -64,7 +64,7 @@ bool NormalizeUTF8String(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
 bool NormalizeCleanAndSegmentUTF8(UnicodeNormMode u_mode, OCRNorm ocr_normalize,
                                   GraphemeNormMode g_mode, bool report_errors,
                                   const char* str8,
-                                  std::vector<string>* graphemes);
+                                  std::vector<std::string>* graphemes);
 
 // Applies just the OCR-specific normalizations and return the normalized char.
 char32 OCRNormalize(char32 ch);

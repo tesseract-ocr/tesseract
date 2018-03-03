@@ -91,7 +91,7 @@ void SetupBasicProperties(bool report_errors, bool decompose,
         other_case[i] = unichar_islower ? u_toupper(uni_vector[i]) :
           u_tolower(uni_vector[i]);
       }
-      string other_case_uch = UNICHAR::UTF32ToUTF8(other_case);
+      std::string other_case_uch = UNICHAR::UTF32ToUTF8(other_case);
       UNICHAR_ID other_case_id =
           unicharset->unichar_to_id(other_case_uch.c_str());
       if (other_case_id != INVALID_UNICHAR_ID) {
@@ -112,7 +112,7 @@ void SetupBasicProperties(bool report_errors, bool decompose,
                                       u_charDirection(uni_vector[i])));
       }
     }
-    string mirror_uch = UNICHAR::UTF32ToUTF8(mirrors);
+    std::string mirror_uch = UNICHAR::UTF32ToUTF8(mirrors);
     UNICHAR_ID mirror_uch_id = unicharset->unichar_to_id(mirror_uch.c_str());
     if (mirror_uch_id != INVALID_UNICHAR_ID) {
       unicharset->set_mirror(unichar_id, mirror_uch_id);
@@ -122,7 +122,7 @@ void SetupBasicProperties(bool report_errors, bool decompose,
     }
 
     // Record normalized version of this unichar.
-    string normed_str;
+    std::string normed_str;
     if (unichar_id != 0 &&
         tesseract::NormalizeUTF8String(
             decompose ? tesseract::UnicodeNormMode::kNFKD
@@ -140,10 +140,10 @@ void SetupBasicProperties(bool report_errors, bool decompose,
 }
 
 // Helper sets the properties from universal script unicharsets, if found.
-void SetScriptProperties(const string& script_dir, UNICHARSET* unicharset) {
+void SetScriptProperties(const std::string& script_dir, UNICHARSET* unicharset) {
   for (int s = 0; s < unicharset->get_script_table_size(); ++s) {
     // Load the unicharset for the script if available.
-    string filename = script_dir + "/" +
+    std::string filename = script_dir + "/" +
                       unicharset->get_script_from_script_id(s) + ".unicharset";
     UNICHARSET script_set;
     if (script_set.load_from_file(filename.c_str())) {
@@ -161,14 +161,14 @@ void SetScriptProperties(const string& script_dir, UNICHARSET* unicharset) {
 }
 
 // Helper gets the combined x-heights string.
-string GetXheightString(const string& script_dir,
+std::string GetXheightString(const std::string& script_dir,
                         const UNICHARSET& unicharset) {
-  string xheights_str;
+  std::string xheights_str;
   for (int s = 0; s < unicharset.get_script_table_size(); ++s) {
     // Load the xheights for the script if available.
-    string filename = script_dir + "/" +
+    std::string filename = script_dir + "/" +
                       unicharset.get_script_from_script_id(s) + ".xheights";
-    string script_heights;
+    std::string script_heights;
     if (File::ReadFileToString(filename, &script_heights))
       xheights_str += script_heights;
   }
@@ -180,10 +180,10 @@ string GetXheightString(const string& script_dir,
 // script_dir directory, then the tops and bottoms are expanded using the
 // script unicharset.
 // If non-empty, xheight data for the fonts are written to the xheights_file.
-void SetPropertiesForInputFile(const string& script_dir,
-                               const string& input_unicharset_file,
-                               const string& output_unicharset_file,
-                               const string& output_xheights_file) {
+void SetPropertiesForInputFile(const std::string& script_dir,
+                               const std::string& input_unicharset_file,
+                               const std::string& output_unicharset_file,
+                               const std::string& output_xheights_file) {
   UNICHARSET unicharset;
 
   // Load the input unicharset
@@ -197,7 +197,7 @@ void SetPropertiesForInputFile(const string& script_dir,
   tprintf("Setting script properties\n");
   SetScriptProperties(script_dir, &unicharset);
   if (!output_xheights_file.empty()) {
-    string xheights_str = GetXheightString(script_dir, unicharset);
+    std::string xheights_str = GetXheightString(script_dir, unicharset);
     File::WriteStringToFileOrDie(xheights_str, output_xheights_file);
   }
 
