@@ -77,7 +77,6 @@ class CCUtil {
   // Member parameters.
   // These have to be declared and initialized after params_ member, since
   // params_ should be initialized before parameters are added to it.
-  STRING_VAR_H(m_data_sub_dir, "tessdata/", "Directory for data files");
   #ifdef _WIN32
   STRING_VAR_H(tessedit_module_name, WINDLLNAME,
                "Module colocated with tessdata dir");

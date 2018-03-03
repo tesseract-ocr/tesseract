@@ -77,7 +77,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 /* Use tessdata prefix which was compiled in. */
 #define _STR(a) #a
 #define _XSTR(a) _STR(a)
-    datadir = _XSTR(TESSDATA_PREFIX);
+    datadir = _XSTR(TESSDATA_PREFIX) "/tessdata";
 #undef _XSTR
 #undef _STR
 #endif
@@ -86,13 +86,6 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
   // datadir may still be empty:
   if (datadir.length() == 0) {
     datadir = "./";
-  } else {
-    // Remove tessdata from the end if present, as we will add it back!
-    int length = datadir.length();
-    if (length >= 8 && strcmp(&datadir[length - 8], "tessdata") == 0)
-      datadir.truncate_at(length - 8);
-    else if (length >= 9 && strcmp(&datadir[length - 9], "tessdata/") == 0)
-      datadir.truncate_at(length - 9);
   }
 
   // check for missing directory separator
@@ -100,7 +93,5 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
   lastchar += datadir.length() - 1;
   if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
     datadir += "/";
-
-  datadir += m_data_sub_dir;     /**< data directory */
 }
 }  // namespace tesseract
