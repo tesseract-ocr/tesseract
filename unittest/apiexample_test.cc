@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        apiexample_test.cc
-// Description: Api Example for Tesseract.
+// Description: Api Test for Tesseract using text fixtures and parameters.
 // Author:      ShreeDevi Kumar
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,44 +13,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
-#include "gtest/gtest.h"
+
+// expects clone of tessdata_fast repo in ../../tessdata_fast
+
+//#include "log.h"
+#include "include_gunit.h"
 #include "baseapi.h"
 #include "leptonica/allheaders.h"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <locale>
+#include <limits.h>
+#include <time.h>
 
-TEST(TesseractTest, ApiExample) 
-{
+namespace {
+
+class QuickTest : public testing::Test {
+ protected:
+  virtual void SetUp() {
+    start_time_ = time(NULL);
+  }
+  virtual void TearDown() {
+    const time_t end_time = time(NULL);
+    EXPECT_TRUE(end_time - start_time_ <=25) << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);
+  }
+  time_t start_time_;
+  };
+
+  void OCRTester(const char* imgname, const char* groundtruth, const char* tessdatadir, const char* lang) {
+    //log.info() << tessdatadir << " for language: " << lang << std::endl;
     char *outText;
     std::locale loc("C"); // You can also use "" for the default system locale
-    std::ifstream file("../testing/phototest.txt");
+    std::ifstream file(groundtruth);
     file.imbue(loc); // Use it for file input
-    std::string gtText((std::istreambuf_iterator<char>(file)),
-             std::istreambuf_iterator<char>());
-	
+    std::string gtText((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
-    // Initialize tesseract-ocr with English, without specifying tessdata path
-    ASSERT_FALSE(api->Init(nullptr, "eng")) << "Could not initialize tesseract.";
-
-    // Open input image with leptonica library
-    Pix *image = pixRead("../testing/phototest.tif");
+    ASSERT_FALSE(api->Init(tessdatadir, lang)) << "Could not initialize tesseract.";
+    Pix *image = pixRead(imgname);
     ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
     api->SetImage(image);
-    // Get OCR result
     outText = api->GetUTF8Text();
-
-    ASSERT_EQ(gtText,outText) << "Phototest.tif with default values OCR does not match ground truth";
-
-    // Destroy used object and release memory
+    EXPECT_EQ(gtText,outText) << "Phototest.tif OCR does not match ground truth for " << ::testing::PrintToString(lang);
     api->End();
     delete [] outText;
     pixDestroy(&image);
+  }
 
-}
+  class MatchGroundTruth : public QuickTest ,
+      public ::testing::WithParamInterface<const char*> {
+  };
+  
+  TEST_P(MatchGroundTruth, FastPhototestOCR) {
+  OCRTester("../testing/phototest.tif" ,"../testing/phototest.txt" , "../../tessdata_fast", GetParam());
+  }
+  
+  INSTANTIATE_TEST_CASE_P( EngLatinDevaArabLang, MatchGroundTruth, 
+                        ::testing::Values("eng", "Latin", "Devanagari", "Arabic") );
 
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+  class EuroText : public QuickTest {
+  };
+  
+  TEST_F(EuroText, FastOCR) {
+  OCRTester("../testing/eurotext.tif" ,"../testing/eurotext.txt" , "../../tessdata_fast", "Latin");
+  }
+  
+}  // namespace

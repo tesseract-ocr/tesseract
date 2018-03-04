@@ -30,8 +30,10 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include
 check_PROGRAMS = \
   apiexample_test \
   intsimdmatrix_test \
-  tesseracttests \
-  matrix_test
+  matrix_test \
+  osd_test \
+  tesseracttests 
+
 
 TESTS = $(check_PROGRAMS)
 
@@ -47,6 +49,9 @@ intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+osd_test_SOURCES = osd_test.cc
+osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
@@ -55,6 +60,7 @@ if T_WIN
 apiexample_test_LDADD += -lws2_32
 intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
+osd_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
 
 AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
