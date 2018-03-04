@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-AM_CPPFLAGS += -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE
+AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 AM_CPPFLAGS += -I$(top_srcdir)/api
 AM_CPPFLAGS += -I$(top_srcdir)/arch 
 AM_CPPFLAGS += -I$(top_srcdir)/ccmain
@@ -14,7 +14,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/lstm
 AM_CPPFLAGS += -I$(top_srcdir)/textord 
 AM_CPPFLAGS += -I$(top_srcdir)/viewer 
 AM_CPPFLAGS += -I$(top_srcdir)/wordrec
-	
+
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la
 libgtest_la_SOURCES = ../googletest/googletest/src/gtest-all.cc
@@ -36,7 +36,7 @@ check_PROGRAMS = \
 TESTS = $(check_PROGRAMS)
 
 #List of source files needed to build the executable:
-	
+
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)

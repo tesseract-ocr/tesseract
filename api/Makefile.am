@@ -1,5 +1,4 @@
 AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
-    -DUSE_STD_NAMESPACE \
     -I$(top_srcdir)/arch -I$(top_srcdir)/lstm \
     -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
     -I$(top_srcdir)/viewer \

@@ -2,7 +2,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil \
     -I$(top_srcdir)/cutil -I$(top_srcdir)/classify \
     -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/viewer -DUSE_STD_NAMESPACE
+    -I$(top_srcdir)/viewer
 
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \

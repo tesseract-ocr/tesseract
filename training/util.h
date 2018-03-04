@@ -55,7 +55,7 @@ struct StringHash : public stdext::hash_compare <std::string> {
 };
 #endif  // !COMPILER_MSVC
 
-#ifndef USE_STD_NAMESPACE
+#ifdef GOOGLE_TESSERACT
 #include "base/heap-checker.h"
 #define DISABLE_HEAP_LEAK_CHECK HeapLeakChecker::Disabler disabler
 #else
