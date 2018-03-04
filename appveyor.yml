@@ -46,3 +46,4 @@ artifacts:
   - path: build\bin\Release
   #- path: build
     name: tesseract-$(APPVEYOR_BUILD_VERSION)
+
