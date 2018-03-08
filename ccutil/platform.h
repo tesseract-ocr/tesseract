@@ -38,9 +38,6 @@
 #if (_MSC_VER < 1900)
 #define snprintf _snprintf
 #endif
-#if (_MSC_VER <= 1400)
-#define vsnprintf _vsnprintf
-#endif /* (_MSC_VER <= 1400) */
 #endif /* defined(_MSC_VER) */
 #else
 #define __UNIX__
