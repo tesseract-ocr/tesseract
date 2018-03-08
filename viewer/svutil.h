@@ -31,9 +31,6 @@
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
-#if (_MSC_VER <= 1400)
-#define vsnprintf _vsnprintf
-#endif
 #pragma warning(disable:4786)
 #else
 #include "platform.h"
