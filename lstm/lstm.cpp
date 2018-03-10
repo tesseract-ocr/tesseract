@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if !defined(__GNUC__) && defined(_MSC_VER)
+#include <intrin.h>     // _BitScanReverse
+#endif
+
 #include "fullyconnected.h"
 #include "functions.h"
 #include "networkscratch.h"
@@ -74,6 +78,10 @@ static inline uint32_t ceil_log2(uint32_t n)
 #if defined(__GNUC__)
   // Use fast inline assembler code for gcc or clang.
   uint32_t l2 = 31 - __builtin_clz(n);
+#elif defined(_MSC_VER)
+  // Use fast intrinsic function for MS compiler.
+  unsigned long l2 = 0;
+  _BitScanReverse(&l2, n);
 #else
   if (n == 0) return UINT_MAX;
   if (n == 1) return 0;
