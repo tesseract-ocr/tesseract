@@ -241,7 +241,7 @@ class UNICHARSET {
   static std::string CleanupString(const char* utf8_str) {
     return CleanupString(utf8_str, strlen(utf8_str));
   }
-  static std::string CleanupString(const char* utf8_str, int length);
+  static std::string CleanupString(const char* utf8_str, size_t length);
 
   // Return a STRING containing debug information on the unichar, including
   // the id_to_unichar, its hex unicodes and the properties.
