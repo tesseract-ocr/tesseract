@@ -1115,11 +1115,11 @@ int UNICHARSET::get_script_id_from_name(const char* script_name) const {
 // Removes/replaces content that belongs in rendered text, but not in the
 // unicharset.
 /* static */
-std::string UNICHARSET::CleanupString(const char* utf8_str, int length) {
+std::string UNICHARSET::CleanupString(const char* utf8_str, size_t length) {
   std::string result;
   result.reserve(length);
   char ch;
-  while ((ch = *utf8_str) != '\0' && --length >= 0) {
+  while ((ch = *utf8_str) != '\0' && length-- > 0) {
     int key_index = 0;
     const char* key;
     while ((key = kCleanupMaps[key_index][0]) != nullptr) {
