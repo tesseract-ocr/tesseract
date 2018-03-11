@@ -75,7 +75,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2016 Google, Inc. Licensed under the Apache License, Version 2.0"
             VALUE "OriginalFilename", "tesseract.exe"
             VALUE "ProductName", "Tesseract-OCR"
-            VALUE "ProductVersion", "4.00.00dev"
+            VALUE "ProductVersion", "4.0.0-beta.1"
         END
     END
     BLOCK "VarFileInfo"
