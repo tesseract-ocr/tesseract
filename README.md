@@ -33,7 +33,7 @@ In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 
 The latest stable version is **[3.05.01](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.01)**, released on June 1, 2017. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05).
 
-Source code for the new **[LSTM based 4.00.00alpha version](https://github.com/tesseract-ocr/tesseract)** is available from the master branch on GitHub. Please note this branch is under active development.
+Source code for the new **[LSTM based 4.0 version](https://github.com/tesseract-ocr/tesseract)** is available from the master branch on GitHub. Please note this branch is under active development.
 
 See **[Release Notes](https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes)** and **[Change Log](https://github.com/tesseract-ocr/tesseract/blob/master/ChangeLog)** for more details of the releases.
 
