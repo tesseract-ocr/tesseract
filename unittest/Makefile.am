@@ -1,5 +1,15 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
+# Absolute path of directory 'tessdata' with traineddata files
+# (must be on same level as top source directory).
+TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
+
+# Absolute path of directory 'testing' with test images and ground truth texts
+# (must be directly below top source directory).
+TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/testing
+
+AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
+AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 AM_CPPFLAGS += -I$(top_srcdir)/api
 AM_CPPFLAGS += -I$(top_srcdir)/arch 
