@@ -65,17 +65,21 @@ class QuickTest : public testing::Test {
   };
   
   TEST_P(MatchGroundTruth, FastPhototestOCR) {
-  OCRTester("../testing/phototest.tif" ,"../testing/phototest.txt" , "../../tessdata_fast", GetParam());
+    OCRTester(TESTING_DIR "/phototest.tif",
+              TESTING_DIR "/phototest.txt",
+              TESSDATA_DIR "_fast", GetParam());
   }
   
   INSTANTIATE_TEST_CASE_P( EngLatinDevaArabLang, MatchGroundTruth, 
-                        ::testing::Values("eng", "Latin", "Devanagari", "Arabic") );
+                        ::testing::Values("eng", "script/Latin", "script/Devanagari", "script/Arabic") );
 
   class EuroText : public QuickTest {
   };
   
   TEST_F(EuroText, FastOCR) {
-  OCRTester("../testing/eurotext.tif" ,"../testing/eurotext.txt" , "../../tessdata_fast", "Latin");
+    OCRTester(TESTING_DIR "/eurotext.tif",
+              TESTING_DIR "/eurotext.txt",
+              TESSDATA_DIR "_fast", "script/Latin");
   }
   
 }  // namespace

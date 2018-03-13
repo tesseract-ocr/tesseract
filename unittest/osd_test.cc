@@ -62,49 +62,55 @@ class TestClass : public testing::Test {
   INSTANTIATE_TEST_CASE_P( TessdataEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values("../testing/phototest.tif" , "../testing/eurotext.tif" , "../testing/hebrew.png"),
-                        ::testing::Values("../../tessdata")));
+                        ::testing::Values(TESTING_DIR "/phototest.tif",
+                                          TESTING_DIR "/eurotext.tif",
+                                          TESTING_DIR "/hebrew.png"),
+                        ::testing::Values(TESSDATA_DIR)));
                         
   INSTANTIATE_TEST_CASE_P( TessdataBestEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values("../testing/phototest.tif" , "../testing/eurotext.tif" , "../testing/hebrew.png"),
-                        ::testing::Values("../../tessdata_best")));
+                        ::testing::Values(TESTING_DIR "/phototest.tif",
+                                          TESTING_DIR "/eurotext.tif",
+                                          TESTING_DIR "/hebrew.png"),
+                        ::testing::Values(TESSDATA_DIR "_best")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values("../testing/phototest.tif" , "../testing/eurotext.tif" , "../testing/hebrew.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/phototest.tif",
+                                          TESTING_DIR "/eurotext.tif",
+                                          TESTING_DIR "/hebrew.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated90, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(90),
-                        ::testing::Values("../testing/phototest-rotated-R.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/phototest-rotated-R.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated180, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(180),
-                        ::testing::Values("../testing/phototest-rotated-180.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/phototest-rotated-180.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated270, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(270),
-                        ::testing::Values("../testing/phototest-rotated-L.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/phototest-rotated-L.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastDevaRotated270, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(270),
-                        ::testing::Values("../testing/devatest-rotated-270.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/devatest-rotated-270.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastDeva, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values("../testing/devatest.png"),
-                        ::testing::Values("../../tessdata_fast")));
+                        ::testing::Values(TESTING_DIR "/devatest.png"),
+                        ::testing::Values(TESSDATA_DIR "_fast")));
                         
 }  // namespace
