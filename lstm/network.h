@@ -164,7 +164,7 @@ class Network {
 
   // Sets flags that control the action of the network. See NetworkFlags enum
   // for bit values.
-  virtual void SetNetworkFlags(uinT32 flags);
+  virtual void SetNetworkFlags(uint32_t flags);
 
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
@@ -299,10 +299,10 @@ class Network {
   NetworkType type_;          // Type of the derived network class.
   TrainingState training_;    // Are we currently training?
   bool needs_to_backprop_;    // This network needs to output back_deltas.
-  inT32 network_flags_;       // Behavior control flags in NetworkFlags.
-  inT32 ni_;                  // Number of input values.
-  inT32 no_;                  // Number of output values.
-  inT32 num_weights_;         // Number of weights in this and sub-network.
+  int32_t network_flags_;     // Behavior control flags in NetworkFlags.
+  int32_t ni_;                // Number of input values.
+  int32_t no_;                // Number of output values.
+  int32_t num_weights_;       // Number of weights in this and sub-network.
   STRING name_;               // A unique name for this layer.
 
   // NOT-serialized debug data.

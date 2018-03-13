@@ -75,8 +75,8 @@ class Reconfig : public Network {
   // Non-serialized data used to store parameters between forward and back.
   StrideMap back_map_;
   // Serialized data.
-  inT32 x_scale_;
-  inT32 y_scale_;
+  int32_t x_scale_;
+  int32_t y_scale_;
 };
 
 }  // namespace tesseract.

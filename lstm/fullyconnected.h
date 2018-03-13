@@ -91,7 +91,7 @@ class FullyConnected : public Network {
   // Components of Forward so FullyConnected can be reused inside LSTM.
   void SetupForward(const NetworkIO& input,
                     const TransposedArray* input_transpose);
-  void ForwardTimeStep(const double* d_input, const inT8* i_input, int t,
+  void ForwardTimeStep(const double* d_input, const int8_t* i_input, int t,
                        double* output_line);
 
   // Runs backward propagation of errors on the deltas line.

@@ -60,7 +60,7 @@ class TFile {
   // From an existing memory buffer.
   bool Open(const char* data, int size);
   // From an open file and an end offset.
-  bool Open(FILE* fp, inT64 end_offset);
+  bool Open(FILE* fp, int64_t end_offset);
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
   void set_swap(bool value) { swap_ = value; }
 

@@ -129,14 +129,14 @@ class LSTM : public Network {
   // Size of padded input to weight matrices = ni_ + no_ for 1-D operation
   // and ni_ + 2 * no_ for 2-D operation. Note that there is a phantom 1 input
   // for the bias that makes the weight matrices of size [na + 1][no].
-  inT32 na_;
+  int32_t na_;
   // Number of internal states. Equal to no_ except for a softmax LSTM.
   // ns_ is NOT serialized, but is calculated from gate_weights_.
-  inT32 ns_;
+  int32_t ns_;
   // Number of additional feedback states. The softmax types feed back
   // additional output information on top of the ns_ internal states.
   // In the case of a binary-coded (EMBEDDED) softmax, nf_ < no_.
-  inT32 nf_;
+  int32_t nf_;
   // Flag indicating 2-D operation.
   bool is_2d_;
 
@@ -149,7 +149,7 @@ class LSTM : public Network {
   // Internal state used during forward operation, of size [width, ns].
   NetworkIO state_;
   // State of the 2-d maxpool, generated during forward, used during backward.
-  GENERIC_2D_ARRAY<inT8> which_fg_;
+  GENERIC_2D_ARRAY<int8_t> which_fg_;
   // Internal state saved from forward, but used only during backward.
   NetworkIO node_values_[WT_COUNT];
   // Preserved input stride_map used for Backward when NT_LSTM_SQUASHED.

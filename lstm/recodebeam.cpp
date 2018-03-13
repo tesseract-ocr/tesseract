@@ -736,7 +736,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
   float score = cert;
   if (prev != NULL) score += prev->score;
   if (heap->size() < max_size || score > heap->PeekTop().data.score) {
-    uinT64 hash = ComputeCodeHash(code, dup, prev);
+    uint64_t hash = ComputeCodeHash(code, dup, prev);
     RecodeNode node(code, unichar_id, permuter, dawg_start, word_start, end,
                     dup, cert, score, prev, d, hash);
     if (UpdateHeapIfMatched(&node, heap)) return;
@@ -791,12 +791,12 @@ bool RecodeBeamSearch::UpdateHeapIfMatched(RecodeNode* new_node,
 }
 
 // Computes and returns the code-hash for the given code and prev.
-uinT64 RecodeBeamSearch::ComputeCodeHash(int code, bool dup,
-                                         const RecodeNode* prev) const {
-  uinT64 hash = prev == nullptr ? 0 : prev->code_hash;
+uint64_t RecodeBeamSearch::ComputeCodeHash(int code, bool dup,
+                                           const RecodeNode* prev) const {
+  uint64_t hash = prev == nullptr ? 0 : prev->code_hash;
   if (!dup && code != null_char_) {
     int num_classes = recoder_.code_range();
-    uinT64 carry = (((hash >> 32) * num_classes) >> 32);
+    uint64_t carry = (((hash >> 32) * num_classes) >> 32);
     hash *= num_classes;
     hash += carry;
     hash += code;

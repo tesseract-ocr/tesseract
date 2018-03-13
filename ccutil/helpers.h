@@ -42,17 +42,17 @@ class TRand {
  public:
   TRand() : seed_(1) {}
   // Sets the seed to the given value.
-  void set_seed(uinT64 seed) {
+  void set_seed(uint64_t seed) {
     seed_ = seed;
   }
   // Sets the seed using a hash of a string.
   void set_seed(const std::string& str) {
     std::hash<std::string> hasher;
-    set_seed(static_cast<uinT64>(hasher(str)));
+    set_seed(static_cast<uint64_t>(hasher(str)));
   }
 
   // Returns an integer in the range 0 to MAX_INT32.
-  inT32 IntRand() {
+  int32_t IntRand() {
     Iterate();
     return seed_ >> 33;
   }
@@ -73,7 +73,7 @@ class TRand {
   }
 
   // The current value of the seed.
-  uinT64 seed_;
+  uint64_t seed_;
 };
 
 }  // namespace tesseract

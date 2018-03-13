@@ -223,7 +223,7 @@ void NetworkIO::Copy2DImage(int batch, Pix* pix, float black, float contrast,
   int num_features = NumFeatures();
   bool color = num_features == 3;
   if (width > target_width) width = target_width;
-  uinT32* line = pixGetData(pix);
+  uint32_t* line = pixGetData(pix);
   for (int y = 0; y < target_height; ++y, line += wpl) {
     int x = 0;
     if (y < height) {
@@ -262,7 +262,7 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix* pix, float black,
   int x;
   for (x = 0; x < width; ++x, ++t) {
     for (int y = 0; y < height; ++y) {
-      uinT32* line = pixGetData(pix) + wpl * y;
+      uint32_t* line = pixGetData(pix) + wpl * y;
       int pixel = GET_DATA_BYTE(line, x);
       SetPixel(t, y, pixel, black, contrast);
     }
@@ -307,7 +307,7 @@ Pix* NetworkIO::ToPix() const {
     int im_y = top_im_y;
     int t = index.t();
     if (int_mode_) {
-      const inT8* features = i_[t];
+      const int8_t* features = i_[t];
       for (int y = 0; y < num_features; ++y, im_y += im_height) {
         int pixel = features[y * feature_factor];
         // 1 or 2 features use greyscale.
@@ -421,7 +421,7 @@ void NetworkIO::ZeroTimeStepGeneral(int t, int offset, int num_features) {
 void NetworkIO::Randomize(int t, int offset, int num_features,
                           TRand* randomizer) {
   if (int_mode_) {
-    inT8* line = i_[t] + offset;
+    int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i)
       line[i] = IntCastRounded(randomizer->SignedRand(MAX_INT8));
   } else {
@@ -602,7 +602,7 @@ bool NetworkIO::AnySuspiciousTruth(float confidence_thr) const {
 // Reads a single timestep to floats in the range [-1, 1].
 void NetworkIO::ReadTimeStep(int t, double* output) const {
   if (int_mode_) {
-    const inT8* line = i_[t];
+    const int8_t* line = i_[t];
     for (int i = 0; i < i_.dim2(); ++i) {
       output[i] = static_cast<double>(line[i]) / MAX_INT8;
     }
@@ -618,7 +618,7 @@ void NetworkIO::ReadTimeStep(int t, double* output) const {
 void NetworkIO::AddTimeStep(int t, double* inout) const {
   int num_features = NumFeatures();
   if (int_mode_) {
-    const inT8* line = i_[t];
+    const int8_t* line = i_[t];
     for (int i = 0; i < num_features; ++i) {
       inout[i] += static_cast<double>(line[i]) / MAX_INT8;
     }
@@ -634,7 +634,7 @@ void NetworkIO::AddTimeStep(int t, double* inout) const {
 void NetworkIO::AddTimeStepPart(int t, int offset, int num_features,
                                 float* inout) const {
   if (int_mode_) {
-    const inT8* line = i_[t] + offset;
+    const int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
       inout[i] += static_cast<float>(line[i]) / MAX_INT8;
     }
@@ -656,7 +656,7 @@ void NetworkIO::WriteTimeStep(int t, const double* input) {
 void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features,
                                   const double* input) {
   if (int_mode_) {
-    inT8* line = i_[t] + offset;
+    int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
       line[i] = ClipToRange(IntCastRounded(input[i] * MAX_INT8),
                             -MAX_INT8, MAX_INT8);
@@ -675,8 +675,8 @@ void NetworkIO::MaxpoolTimeStep(int dest_t, const NetworkIO& src, int src_t,
   ASSERT_HOST(int_mode_ == src.int_mode_);
   if (int_mode_) {
     int dim = i_.dim2();
-    inT8* dest_line = i_[dest_t];
-    const inT8* src_line = src.i_[src_t];
+    int8_t* dest_line = i_[dest_t];
+    const int8_t* src_line = src.i_[src_t];
     for (int i = 0; i < dim; ++i) {
       if (dest_line[i] < src_line[i]) {
         dest_line[i] = src_line[i];
@@ -721,7 +721,7 @@ float NetworkIO::MinOfMaxes() const {
   for (int t = 0; t < width; ++t) {
     float max_value = -MAX_FLOAT32;
     if (int_mode_) {
-      const inT8* column = i_[t];
+      const int8_t* column = i_[t];
       for (int i = 0; i < num_features; ++i) {
         if (column[i] > max_value) max_value = column[i];
       }
@@ -747,9 +747,9 @@ void NetworkIO::CombineOutputs(const NetworkIO& base_output,
   if (int_mode_) {
     // Number of outputs from base and final result.
     for (int t = 0; t < width; ++t) {
-      inT8* out_line = i_[t];
-      const inT8* base_line = base_output.i_[t];
-      const inT8* comb_line = combiner_output.i_[t];
+      int8_t* out_line = i_[t];
+      const int8_t* base_line = base_output.i_[t];
+      const int8_t* comb_line = combiner_output.i_[t];
       float base_weight = static_cast<float>(comb_line[no]) / MAX_INT8;
       float boost_weight = 1.0f - base_weight;
       for (int i = 0; i < no; ++i) {

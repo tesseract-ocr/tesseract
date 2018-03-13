@@ -148,7 +148,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
 #endif
     double* temp_line = temp_lines[thread_id];
     const double* d_input = NULL;
-    const inT8* i_input = NULL;
+    const int8_t* i_input = NULL;
     if (input.int_mode()) {
       i_input = input.i(t);
     } else {
@@ -188,7 +188,7 @@ void FullyConnected::SetupForward(const NetworkIO& input,
   }
 }
 
-void FullyConnected::ForwardTimeStep(const double* d_input, const inT8* i_input,
+void FullyConnected::ForwardTimeStep(const double* d_input, const int8_t* i_input,
                                      int t, double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   if (IsTraining() && external_source_ == NULL && d_input != NULL)

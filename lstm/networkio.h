@@ -34,7 +34,7 @@ struct Pix;
 namespace tesseract {
 
 // Class to contain all the input/output of a network, allowing for fixed or
-// variable-strided 2d to 1d mapping, and float or inT8 values. Provides
+// variable-strided 2d to 1d mapping, and float or int8_t values. Provides
 // enough calculating functions to hide the detail of the implementation.
 class NetworkIO {
  public:
@@ -120,7 +120,7 @@ class NetworkIO {
     ASSERT_HOST(!int_mode_);
     return f_[t];
   }
-  const inT8* i(int t) const {
+  const int8_t* i(int t) const {
     ASSERT_HOST(int_mode_);
     return i_[t];
   }
@@ -262,8 +262,8 @@ class NetworkIO {
     ASSERT_HOST(!v_io.int_mode_);
     int dim = f_.dim2();
     if (int_mode_) {
-      const inT8* u = i_[t];
-      const inT8* v = v_io.i_[t];
+      const int8_t* u = i_[t];
+      const int8_t* v = v_io.i_[t];
       for (int i = 0; i < dim; ++i) {
         product[i] = f(u[i] / static_cast<double>(MAX_INT8)) * v[i] /
                      static_cast<double>(MAX_INT8);
@@ -333,7 +333,7 @@ class NetworkIO {
 
   // Choice of float vs 8 bit int for data.
   GENERIC_2D_ARRAY<float> f_;
-  GENERIC_2D_ARRAY<inT8> i_;
+  GENERIC_2D_ARRAY<int8_t> i_;
   // Which of f_ and i_ are we actually using.
   bool int_mode_;
   // Stride for 2d input data.
