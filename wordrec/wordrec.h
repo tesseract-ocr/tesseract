@@ -203,7 +203,7 @@ class Wordrec : public Classify {
   void program_editup(const char *textbase, TessdataManager *init_classifier,
                       TessdataManager *init_dict);
   void cc_recog(WERD_RES *word);
-  void program_editdown(inT32 elasped_time);
+  void program_editdown(int32_t elasped_time);
   void set_pass1();
   void set_pass2();
   int end_recog();
@@ -301,9 +301,9 @@ class Wordrec : public Classify {
                                  EDGEPT_CLIST *new_points);
 
   // chopper.cpp
-  SEAM *attempt_blob_chop(TWERD *word, TBLOB *blob, inT32 blob_number,
+  SEAM *attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
                           bool italic_blob, const GenericVector<SEAM*>& seams);
-  SEAM *chop_numbered_blob(TWERD *word, inT32 blob_number,
+  SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number,
                            bool italic_blob, const GenericVector<SEAM*>& seams);
   SEAM *chop_overlapping_blob(const GenericVector<TBOX>& boxes,
                               bool italic_blob,
@@ -339,12 +339,12 @@ class Wordrec : public Classify {
                     const SEAM* seam, SeamQueue* seam_queue);
   SEAM *pick_good_seam(TBLOB *blob);
   void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-                        inT16 num_points,
+                        int16_t num_points,
                         SeamQueue* seam_queue,
                         SeamPile* seam_pile,
                         SEAM ** seam, TBLOB * blob);
   void try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
-                           inT16 num_points,
+                           int16_t num_points,
                            EDGEPT_CLIST *new_points,
                            SeamQueue* seam_queue,
                            SeamPile* seam_pile,
@@ -360,15 +360,15 @@ class Wordrec : public Classify {
 
   // pieces.cpp
   virtual BLOB_CHOICE_LIST *classify_piece(const GenericVector<SEAM*>& seams,
-                                           inT16 start,
-                                           inT16 end,
+                                           int16_t start,
+                                           int16_t end,
                                            const char* description,
                                            TWERD *word,
                                            BlamerBundle *blamer_bundle);
   // Try to merge fragments in the ratings matrix and put the result in
   // the corresponding row and column
   void merge_fragments(MATRIX *ratings,
-                       inT16 num_blobs);
+                       int16_t num_blobs);
   // Recursively go through the ratings matrix to find lists of fragments
   // to be merged in the function merge_and_put_fragment_lists.
   // current_frag is the position of the piece we are looking for.
@@ -377,18 +377,18 @@ class Wordrec : public Classify {
   // to append the results to the matrix. num_frag_parts is the total
   // number of pieces we are looking for and num_blobs is the size of the
   // ratings matrix.
-  void get_fragment_lists(inT16 current_frag,
-                          inT16 current_row,
-                          inT16 start,
-                          inT16 num_frag_parts,
-                          inT16 num_blobs,
+  void get_fragment_lists(int16_t current_frag,
+                          int16_t current_row,
+                          int16_t start,
+                          int16_t num_frag_parts,
+                          int16_t num_blobs,
                           MATRIX *ratings,
                           BLOB_CHOICE_LIST *choice_lists);
   // Merge the fragment lists in choice_lists and append it to the
   // ratings matrix
-  void merge_and_put_fragment_lists(inT16 row,
-                                    inT16 column,
-                                    inT16 num_frag_parts,
+  void merge_and_put_fragment_lists(int16_t row,
+                                    int16_t column,
+                                    int16_t num_frag_parts,
                                     BLOB_CHOICE_LIST *choice_lists,
                                     MATRIX *ratings);
   // Filter the fragment list so that the filtered_choices only contain

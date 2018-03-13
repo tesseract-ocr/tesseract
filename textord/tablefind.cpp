@@ -458,12 +458,12 @@ void TableFinder::SplitAndInsertFragmentedTextPartition(ColPartition* part) {
     // the previous blob may have a "more right" right side.
     // Account for this by always keeping the largest "right"
     // so far.
-    int previous_right = MIN_INT32;
+    int previous_right = INT32_MIN;
 
     // Look for the next split in the partition.
     for (box_it.mark_cycle_pt(); !box_it.cycled_list(); box_it.forward()) {
       const TBOX& box = box_it.data()->bounding_box();
-      if (previous_right != MIN_INT32 &&
+      if (previous_right != INT32_MIN &&
           box.left() - previous_right > kThreshold) {
         // We have a split position. Split the partition in two pieces.
         // Insert the left piece in the grid and keep processing the right.
@@ -649,7 +649,7 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
       // TODO(nbeato): What constitutes a good value?
       // 0 is the default value when not set, explicitly noting it needs to
       // be something else.
-      part->set_space_above(MAX_INT32);
+      part->set_space_above(INT32_MAX);
     }
 
     ColPartition* lower_part = part->SingletonPartner(false);
@@ -661,7 +661,7 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
       // TODO(nbeato): What constitutes a good value?
       // 0 is the default value when not set, explicitly noting it needs to
       // be something else.
-      part->set_space_below(MAX_INT32);
+      part->set_space_below(INT32_MAX);
     }
   }
 }
@@ -1079,8 +1079,8 @@ void TableFinder::FilterHeaderAndFooter() {
   // Consider top-most text colpartition as header and bottom most as footer
   ColPartition* header = NULL;
   ColPartition* footer = NULL;
-  int max_top = MIN_INT32;
-  int min_bottom = MAX_INT32;
+  int max_top = INT32_MIN;
+  int min_bottom = INT32_MAX;
   ColPartitionGridSearch gsearch(&clean_part_grid_);
   gsearch.StartFullSearch();
   ColPartition* part = NULL;

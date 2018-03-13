@@ -23,9 +23,9 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-// TODO(rays) Rename BITSINLONG to BITSINuinT32, and use sizeof.
+// TODO(rays) Rename BITSINLONG to BITSINuint32_t, and use sizeof.
 #define BITSINLONG      32       /**< no of bits in a long */
-typedef uinT32 *BIT_VECTOR;
+typedef uint32_t *BIT_VECTOR;
 
 /*-----------------------------------------------------------------------------
           Public Function Prototypes

@@ -209,7 +209,7 @@ class StringRenderer {
   Boxa* page_boxes_;
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
-  std::unordered_map<char32, inT64> char_map_;  // Time-saving char histogram.
+  std::unordered_map<char32, int64_t> char_map_;  // Time-saving char histogram.
   int total_chars_;   // Number in the string to be rendered.
   unsigned int font_index_;  // Index of next font to use in font list.
   int last_offset_;   // Offset returned from last successful rendering

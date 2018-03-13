@@ -57,8 +57,8 @@ ELISTIZEH (WERD_RES)
  *************************************************************************/
 class PAGE_RES {                 // page result
  public:
-  inT32 char_count;
-  inT32 rej_count;
+  int32_t char_count;
+  int32_t rej_count;
   BLOCK_RES_LIST block_res_list;
   BOOL8 rejected;
   // Updated every time PAGE_RES_IT iterating on this PAGE_RES moves to
@@ -97,10 +97,10 @@ class PAGE_RES {                 // page result
 class BLOCK_RES:public ELIST_LINK {
  public:
   BLOCK * block;               // real block
-  inT32 char_count;            // chars in block
-  inT32 rej_count;             // rejected chars
-  inT16 font_class;            //
-  inT16 row_count;
+  int32_t char_count;            // chars in block
+  int32_t rej_count;             // rejected chars
+  int16_t font_class;            //
+  int16_t row_count;
   float x_height;
   BOOL8 font_assigned;         // block already
   //      processed
@@ -125,9 +125,9 @@ class BLOCK_RES:public ELIST_LINK {
 class ROW_RES:public ELIST_LINK {
  public:
   ROW * row;                   // real row
-  inT32 char_count;            // chars in block
-  inT32 rej_count;             // rejected chars
-  inT32 whole_word_rej_count;  // rejs in total rej wds
+  int32_t char_count;            // chars in block
+  int32_t rej_count;             // rejected chars
+  int32_t whole_word_rej_count;  // rejs in total rej wds
   WERD_RES_LIST word_res_list;
 
   ROW_RES() {
@@ -282,13 +282,13 @@ class WERD_RES : public ELIST_LINK {
   BOOL8 done;                   // ready for output?
   bool small_caps;              // word appears to be small caps
   bool odd_size;                // word is bigger than line or leader dots.
-  inT8 italic;
-  inT8 bold;
+  int8_t italic;
+  int8_t bold;
   // The fontinfos are pointers to data owned by the classifier.
   const FontInfo* fontinfo;
   const FontInfo* fontinfo2;
-  inT8 fontinfo_id_count;       // number of votes
-  inT8 fontinfo_id2_count;      // number of votes
+  int8_t fontinfo_id_count;       // number of votes
+  int8_t fontinfo_id2_count;      // number of votes
   BOOL8 guessed_x_ht;
   BOOL8 guessed_caps_ht;
   CRUNCH_MODE unlv_crunch_mode;

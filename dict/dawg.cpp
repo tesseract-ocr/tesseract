@@ -141,10 +141,10 @@ void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far,
   }
 }
 
-bool Dawg::match_words(WERD_CHOICE *word, inT32 index,
+bool Dawg::match_words(WERD_CHOICE *word, int32_t index,
                        NODE_REF node, UNICHAR_ID wildcard) const {
   EDGE_REF edge;
-  inT32 word_end;
+  int32_t word_end;
 
   if (wildcard != INVALID_UNICHAR_ID && word->unichar_id(index) == wildcard) {
     bool any_matched = false;
@@ -224,9 +224,9 @@ EDGE_REF SquishedDawg::edge_char_of(NODE_REF node,
   return (NO_EDGE);  // not found
 }
 
-inT32 SquishedDawg::num_forward_edges(NODE_REF node) const {
+int32_t SquishedDawg::num_forward_edges(NODE_REF node) const {
   EDGE_REF   edge = node;
-  inT32        num  = 0;
+  int32_t        num  = 0;
 
   if (forward_edge (edge)) {
     do {
@@ -313,14 +313,14 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
 
   // Read the magic number and check that it matches kDawgMagicNumber, as
   // auto-endian fixing should make sure it is always correct.
-  inT16 magic;
+  int16_t magic;
   if (file->FReadEndian(&magic, sizeof(magic), 1) != 1) return false;
   if (magic != kDawgMagicNumber) {
     tprintf("Bad magic number on dawg: %d vs %d\n", magic, kDawgMagicNumber);
     return false;
   }
 
-  inT32 unicharset_size;
+  int32_t unicharset_size;
   if (file->FReadEndian(&unicharset_size, sizeof(unicharset_size), 1) != 1)
     return false;
   if (file->FReadEndian(&num_edges_, sizeof(num_edges_), 1) != 1) return false;
@@ -340,11 +340,11 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
 }
 
 std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(
-    inT32 *num_nodes) const {
+    int32_t *num_nodes) const {
   EDGE_REF   edge;
   std::unique_ptr<EDGE_REF[]> node_map(new EDGE_REF[num_edges_]);
-  inT32       node_counter;
-  inT32       num_edges;
+  int32_t    node_counter;
+  int32_t    num_edges;
 
   for (edge = 0; edge < num_edges_; edge++)       // init all slots
     node_map[edge] = -1;
@@ -370,8 +370,8 @@ std::unique_ptr<EDGE_REF[]> SquishedDawg::build_node_map(
 
 bool SquishedDawg::write_squished_dawg(TFile *file) {
   EDGE_REF    edge;
-  inT32       num_edges;
-  inT32       node_count = 0;
+  int32_t     num_edges;
+  int32_t     node_count = 0;
   EDGE_REF    old_index;
   EDGE_RECORD temp_record;
 
@@ -380,7 +380,7 @@ bool SquishedDawg::write_squished_dawg(TFile *file) {
   std::unique_ptr<EDGE_REF[]> node_map(build_node_map(&node_count));
 
   // Write the magic number to help detecting a change in endianness.
-  inT16 magic = kDawgMagicNumber;
+  int16_t magic = kDawgMagicNumber;
   if (file->FWrite(&magic, sizeof(magic), 1) != 1) return false;
   if (file->FWrite(&unicharset_size_, sizeof(unicharset_size_), 1) != 1)
     return false;

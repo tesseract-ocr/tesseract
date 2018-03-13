@@ -265,8 +265,8 @@ class NetworkIO {
       const int8_t* u = i_[t];
       const int8_t* v = v_io.i_[t];
       for (int i = 0; i < dim; ++i) {
-        product[i] = f(u[i] / static_cast<double>(MAX_INT8)) * v[i] /
-                     static_cast<double>(MAX_INT8);
+        product[i] = f(u[i] / static_cast<double>(INT8_MAX)) * v[i] /
+                     static_cast<double>(INT8_MAX);
       }
     } else {
       const float* u = f_[t];

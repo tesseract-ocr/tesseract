@@ -28,8 +28,8 @@ INT_VAR(textord_debug_tabfind, 0, "Debug tab finding");
 INT_VAR(textord_debug_bugs, 0, "Turn on output related to bugs in tab finding");
 INT_VAR(textord_testregion_left, -1, "Left edge of debug reporting rectangle");
 INT_VAR(textord_testregion_top, -1, "Top edge of debug reporting rectangle");
-INT_VAR(textord_testregion_right, MAX_INT32, "Right edge of debug rectangle");
-INT_VAR(textord_testregion_bottom, MAX_INT32, "Bottom edge of debug rectangle");
+INT_VAR(textord_testregion_right, INT32_MAX, "Right edge of debug rectangle");
+INT_VAR(textord_testregion_bottom, INT32_MAX, "Bottom edge of debug rectangle");
 BOOL_VAR(textord_debug_printable, false, "Make debug windows printable");
 
 namespace tesseract {
@@ -133,8 +133,8 @@ AlignedBlobParams::AlignedBlobParams(int vertical_x, int vertical_y,
 // Fit the vertical vector into an ICOORD, which is 16 bit.
 void AlignedBlobParams::set_vertical(int vertical_x, int vertical_y) {
   int factor = 1;
-  if (vertical_y > MAX_INT16)
-    factor = vertical_y / MAX_INT16 + 1;
+  if (vertical_y > INT16_MAX)
+    factor = vertical_y / INT16_MAX + 1;
   vertical.set_x(vertical_x / factor);
   vertical.set_y(vertical_y / factor);
 }

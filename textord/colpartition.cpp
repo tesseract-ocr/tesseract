@@ -81,9 +81,9 @@ const int kMaxColorDistance = 900;
 // blob_type is the blob_region_type_ of the blobs in this partition.
 // Vertical is the direction of logical vertical on the possibly skewed image.
 ColPartition::ColPartition(BlobRegionType blob_type, const ICOORD& vertical)
-  : left_margin_(-MAX_INT32), right_margin_(MAX_INT32),
-    median_bottom_(MAX_INT32), median_top_(-MAX_INT32), median_size_(0),
-    median_left_(MAX_INT32), median_right_(-MAX_INT32), median_width_(0),
+  : left_margin_(-INT32_MAX), right_margin_(INT32_MAX),
+    median_bottom_(INT32_MAX), median_top_(-INT32_MAX), median_size_(0),
+    median_left_(INT32_MAX), median_right_(-INT32_MAX), median_width_(0),
     blob_type_(blob_type), flow_(BTFT_NONE), good_blob_score_(0),
     good_width_(false), good_column_(false),
     left_key_tab_(false), right_key_tab_(false),
@@ -468,8 +468,8 @@ bool ColPartition::MatchingStrokeWidth(const ColPartition& other,
 bool ColPartition::OKDiacriticMerge(const ColPartition& candidate,
                                     bool debug) const {
   BLOBNBOX_C_IT it(const_cast<BLOBNBOX_CLIST*>(&boxes_));
-  int min_top = MAX_INT32;
-  int max_bottom = -MAX_INT32;
+  int min_top = INT32_MAX;
+  int max_bottom = -INT32_MAX;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* blob = it.data();
     if (!blob->IsDiacritic()) {
@@ -1650,10 +1650,10 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
   ICOORDELT_LIST vertices;
   ICOORDELT_IT vert_it(&vertices);
   ICOORD start, end;
-  int min_x = MAX_INT32;
-  int max_x = -MAX_INT32;
-  int min_y = MAX_INT32;
-  int max_y = -MAX_INT32;
+  int min_x = INT32_MAX;
+  int max_x = -INT32_MAX;
+  int min_y = INT32_MAX;
+  int max_y = -INT32_MAX;
   int iteration = 0;
   do {
     if (iteration == 0)
@@ -2448,8 +2448,8 @@ void ColPartition::LeftEdgeRun(ColPartition_IT* part_it,
       start_y = (start_y + prev_bottom) / 2;
   }
   int end_y = part->bounding_box_.bottom();
-  int margin_right = MAX_INT32;
-  int margin_left = -MAX_INT32;
+  int margin_right = INT32_MAX;
+  int margin_left = -INT32_MAX;
   UpdateLeftMargin(*part, &margin_left, &margin_right);
   do {
     part_it->forward();
@@ -2459,8 +2459,8 @@ void ColPartition::LeftEdgeRun(ColPartition_IT* part_it,
   // The run ended. If we were pushed inwards, compute the next run and
   // extend it backwards into the run we just calculated to find the end of
   // this run that provides a tight box.
-  int next_margin_right = MAX_INT32;
-  int next_margin_left = -MAX_INT32;
+  int next_margin_right = INT32_MAX;
+  int next_margin_left = -INT32_MAX;
   UpdateLeftMargin(*part, &next_margin_left, &next_margin_right);
   if (next_margin_left > margin_right) {
     ColPartition_IT next_it(*part_it);
@@ -2535,8 +2535,8 @@ void ColPartition::RightEdgeRun(ColPartition_IT* part_it,
       start_y = (start_y + next_y) / 2;
   }
   int end_y = part->bounding_box_.top();
-  int margin_right = MAX_INT32;
-  int margin_left = -MAX_INT32;
+  int margin_right = INT32_MAX;
+  int margin_left = -INT32_MAX;
   UpdateRightMargin(*part, &margin_left, &margin_right);
   do {
     part_it->backward();
@@ -2545,8 +2545,8 @@ void ColPartition::RightEdgeRun(ColPartition_IT* part_it,
            UpdateRightMargin(*part, &margin_left, &margin_right));
   // The run ended. If we were pushed inwards, compute the next run and
   // extend it backwards to find the end of this run for a tight box.
-  int next_margin_right = MAX_INT32;
-  int next_margin_left = -MAX_INT32;
+  int next_margin_right = INT32_MAX;
+  int next_margin_left = -INT32_MAX;
   UpdateRightMargin(*part, &next_margin_left, &next_margin_right);
   if (next_margin_right < margin_left) {
     ColPartition_IT next_it(*part_it);

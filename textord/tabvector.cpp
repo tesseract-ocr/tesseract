@@ -79,8 +79,8 @@ bool TabConstraint::CompatibleConstraints(TabConstraint_LIST* list1,
                                           TabConstraint_LIST* list2) {
   if (list1 == list2)
     return false;
-  int y_min = -MAX_INT32;
-  int y_max = MAX_INT32;
+  int y_min = -INT32_MAX;
+  int y_max = INT32_MAX;
   if (textord_debug_tabfind > 3)
     tprintf("Testing constraint compatibility\n");
   GetConstraints(list1, &y_min, &y_max);
@@ -117,8 +117,8 @@ void TabConstraint::MergeConstraints(TabConstraint_LIST* list1,
 // Set all the tops and bottoms as appropriate to a mean of the
 // constrained range. Delete all the constraints and list.
 void TabConstraint::ApplyConstraints(TabConstraint_LIST* constraints) {
-  int y_min = -MAX_INT32;
-  int y_max = MAX_INT32;
+  int y_min = -INT32_MAX;
+  int y_max = INT32_MAX;
   GetConstraints(constraints, &y_min, &y_max);
   int y = (y_min + y_max) / 2;
   TabConstraint_IT it(constraints);
@@ -823,7 +823,7 @@ bool TabVector::Fit(ICOORD vertical, bool force_parallel) {
   }
   int start_y = startpt_.y();
   int end_y = endpt_.y();
-  sort_key_ = IsLeftTab() ? MAX_INT32 : -MAX_INT32;
+  sort_key_ = IsLeftTab() ? INT32_MAX : -INT32_MAX;
   BLOBNBOX_C_IT it(&boxes_);
   // Choose a line parallel to the vertical such that all boxes are on the
   // correct side of it.

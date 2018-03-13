@@ -608,15 +608,15 @@ void FPRow::EstimatePitch(bool pass1) {
   heights_.Clear();
   if (num_chars() == 0) return;
 
-  inT32 cx0, cx1;
+  int32_t cx0, cx1;
   bool prev_was_good = is_good(0);
   cx0 = center_x(0);
 
   heights_.Add(box(0).height());
   for (int i = 1; i < num_chars(); i++) {
     cx1 = center_x(i);
-    inT32 pitch = cx1 - cx0;
-    inT32 gap = MAX(0, real_body(i - 1).x_gap(real_body(i)));
+    int32_t pitch = cx1 - cx0;
+    int32_t gap = MAX(0, real_body(i - 1).x_gap(real_body(i)));
 
     heights_.Add(box(i).height());
     // Ignore if the pitch is too close.  But don't ignore wide pitch

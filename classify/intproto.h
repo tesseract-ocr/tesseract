@@ -41,7 +41,7 @@ class FCOORD;
 #define Y_SHIFT   (0.5)
 
 #define MAX_PROTO_INDEX   24
-#define BITS_PER_WERD   static_cast<int>(8 * sizeof(uinT32))
+#define BITS_PER_WERD   static_cast<int>(8 * sizeof(uint32_t))
 /* Script detection: increase this number to 128 */
 #define MAX_NUM_CONFIGS   64
 #define MAX_NUM_PROTOS    512
@@ -74,22 +74,22 @@ class FCOORD;
  * 4th dimension is determined by using CPrunerWordIndexFor(c),
  * where c is the corresponding class id. */
 struct CLASS_PRUNER_STRUCT {
-  uinT32 p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
+  uint32_t p[NUM_CP_BUCKETS][NUM_CP_BUCKETS][NUM_CP_BUCKETS][WERDS_PER_CP_VECTOR];
 };
 
 typedef struct
 {
-  inT8 A;
-  uinT8 B;
-  inT8 C;
-  uinT8 Angle;
-  uinT32 Configs[WERDS_PER_CONFIG_VEC];
+  int8_t A;
+  uint8_t B;
+  int8_t C;
+  uint8_t Angle;
+  uint32_t Configs[WERDS_PER_CONFIG_VEC];
 }
 
 
 INT_PROTO_STRUCT, *INT_PROTO;
 
-typedef uinT32 PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
+typedef uint32_t PROTO_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR];
 
 typedef struct
 {
@@ -100,17 +100,17 @@ typedef struct
 
 PROTO_SET_STRUCT, *PROTO_SET;
 
-typedef uinT32 CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
+typedef uint32_t CONFIG_PRUNER[NUM_PP_PARAMS][NUM_PP_BUCKETS][4];
 
 
 typedef struct
 {
-  uinT16 NumProtos;
-  uinT8 NumProtoSets;
-  uinT8 NumConfigs;
+  uint16_t NumProtos;
+  uint8_t NumProtoSets;
+  uint8_t NumConfigs;
   PROTO_SET ProtoSets[MAX_NUM_PROTO_SETS];
-  uinT8 *ProtoLengths;
-  uinT16 ConfigLengths[MAX_NUM_CONFIGS];
+  uint8_t *ProtoLengths;
+  uint16_t ConfigLengths[MAX_NUM_CONFIGS];
   int font_set_id;  // FontSet id, see above
 }
 
@@ -136,14 +136,14 @@ struct INT_FEATURE_STRUCT {
   INT_FEATURE_STRUCT() : X(0), Y(0), Theta(0), CP_misses(0) { }
   // Builds a feature from an FCOORD for position with all the necessary
   // clipping and rounding.
-  INT_FEATURE_STRUCT(const FCOORD& pos, uinT8 theta);
+  INT_FEATURE_STRUCT(const FCOORD& pos, uint8_t theta);
   // Builds a feature from ints with all the necessary clipping and casting.
   INT_FEATURE_STRUCT(int x, int y, int theta);
 
-  uinT8 X;
-  uinT8 Y;
-  uinT8 Theta;
-  inT8 CP_misses;
+  uint8_t X;
+  uint8_t Y;
+  uint8_t Theta;
+  int8_t CP_misses;
 
   void print() const {
     tprintf("(%d,%d):%d\n", X, Y, Theta);
@@ -218,10 +218,10 @@ void AddProtoToClassPruner(PROTO Proto,
 void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                            INT_CLASS Class, bool debug);
 
-uinT8 Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets);
-uinT16 Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets);
+uint8_t Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets);
+uint16_t Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets);
 
-uinT8 CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets);
+uint8_t CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets);
 
 void UpdateMatchDisplay();
 

@@ -275,7 +275,7 @@ void Dict::append_choices(
   // Add the next unichar.
   float old_rating = word->rating();
   float old_certainty = word->certainty();
-  uinT8 old_permuter = word->permuter();
+  uint8_t old_permuter = word->permuter();
   certainties[word->length()] = char_frag_info.certainty;
   word->append_unichar_id_space_allocated(
       char_frag_info.unichar_id, char_frag_info.num_fragments,

@@ -280,8 +280,8 @@ void NetworkIO::Copy1DGreyImage(int batch, Pix* pix, float black,
 void NetworkIO::SetPixel(int t, int f, int pixel, float black, float contrast) {
   float float_pixel = (pixel - black) / contrast - 1.0f;
   if (int_mode_) {
-    i_[t][f] = ClipToRange(IntCastRounded((MAX_INT8 + 1) * float_pixel),
-                           -MAX_INT8, MAX_INT8);
+    i_[t][f] = ClipToRange<int>(IntCastRounded((INT8_MAX + 1) * float_pixel),
+                           -INT8_MAX, INT8_MAX);
   } else {
     f_[t][f] = float_pixel;
   }
@@ -311,12 +311,12 @@ Pix* NetworkIO::ToPix() const {
       for (int y = 0; y < num_features; ++y, im_y += im_height) {
         int pixel = features[y * feature_factor];
         // 1 or 2 features use greyscale.
-        int red = ClipToRange(pixel + 128, 0, 255);
+        int red = ClipToRange<int>(pixel + 128, 0, 255);
         int green = red, blue = red;
         if (feature_factor == 3) {
           // With 3 features assume RGB color.
-          green = ClipToRange(features[y * feature_factor + 1] + 128, 0, 255);
-          blue = ClipToRange(features[y * feature_factor + 2] + 128, 0, 255);
+          green = ClipToRange<int>(features[y * feature_factor + 1] + 128, 0, 255);
+          blue = ClipToRange<int>(features[y * feature_factor + 2] + 128, 0, 255);
         } else if (num_features > 3) {
           // More than 3 features use false yellow/blue color, assuming a signed
           // input in the range [-1,1].
@@ -338,18 +338,18 @@ Pix* NetworkIO::ToPix() const {
       for (int y = 0; y < num_features; ++y, im_y += im_height) {
         float pixel = features[y * feature_factor];
         // 1 or 2 features use greyscale.
-        int red = ClipToRange(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+        int red = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
         int green = red, blue = red;
         if (feature_factor == 3) {
           // With 3 features assume RGB color.
           pixel = features[y * feature_factor + 1];
-          green = ClipToRange(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+          green = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
           pixel = features[y * feature_factor + 2];
-          blue = ClipToRange(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+          blue = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
         } else if (num_features > 3) {
           // More than 3 features use false yellow/blue color, assuming a signed
           // input in the range [-1,1].
-          red = ClipToRange(IntCastRounded(fabs(pixel) * 255), 0, 255);
+          red = ClipToRange<int>(IntCastRounded(fabs(pixel) * 255), 0, 255);
           if (pixel >= 0) {
             green = red;
             blue = 0;
@@ -374,7 +374,7 @@ void NetworkIO::Print(int num) const {
     for (int t = 0; t < Width(); ++t) {
       if (num == 0 || t < num || t + num >= Width()) {
         if (int_mode_) {
-          tprintf(" %g", static_cast<float>(i_[t][y]) / MAX_INT8);
+          tprintf(" %g", static_cast<float>(i_[t][y]) / INT8_MAX);
         } else {
           tprintf(" %g", f_[t][y]);
         }
@@ -423,7 +423,7 @@ void NetworkIO::Randomize(int t, int offset, int num_features,
   if (int_mode_) {
     int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i)
-      line[i] = IntCastRounded(randomizer->SignedRand(MAX_INT8));
+      line[i] = IntCastRounded(randomizer->SignedRand(INT8_MAX));
   } else {
     // float mode.
     float* line = f_[t] + offset;
@@ -604,7 +604,7 @@ void NetworkIO::ReadTimeStep(int t, double* output) const {
   if (int_mode_) {
     const int8_t* line = i_[t];
     for (int i = 0; i < i_.dim2(); ++i) {
-      output[i] = static_cast<double>(line[i]) / MAX_INT8;
+      output[i] = static_cast<double>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t];
@@ -620,7 +620,7 @@ void NetworkIO::AddTimeStep(int t, double* inout) const {
   if (int_mode_) {
     const int8_t* line = i_[t];
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<double>(line[i]) / MAX_INT8;
+      inout[i] += static_cast<double>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t];
@@ -636,7 +636,7 @@ void NetworkIO::AddTimeStepPart(int t, int offset, int num_features,
   if (int_mode_) {
     const int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
-      inout[i] += static_cast<float>(line[i]) / MAX_INT8;
+      inout[i] += static_cast<float>(line[i]) / INT8_MAX;
     }
   } else {
     const float* line = f_[t] + offset;
@@ -658,8 +658,8 @@ void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features,
   if (int_mode_) {
     int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
-      line[i] = ClipToRange(IntCastRounded(input[i] * MAX_INT8),
-                            -MAX_INT8, MAX_INT8);
+      line[i] = ClipToRange<int>(IntCastRounded(input[i] * INT8_MAX),
+                                 -INT8_MAX, INT8_MAX);
     }
   } else {
     float* line = f_[t] + offset;
@@ -750,7 +750,7 @@ void NetworkIO::CombineOutputs(const NetworkIO& base_output,
       int8_t* out_line = i_[t];
       const int8_t* base_line = base_output.i_[t];
       const int8_t* comb_line = combiner_output.i_[t];
-      float base_weight = static_cast<float>(comb_line[no]) / MAX_INT8;
+      float base_weight = static_cast<float>(comb_line[no]) / INT8_MAX;
       float boost_weight = 1.0f - base_weight;
       for (int i = 0; i < no; ++i) {
         out_line[i] = IntCastRounded(base_line[i] * base_weight +
@@ -978,7 +978,7 @@ void NetworkIO::ClipVector(int t, float range) {
   float* v = f_[t];
   int dim = f_.dim2();
   for (int i = 0; i < dim; ++i)
-    v[i] = ClipToRange(v[i], -range, range);
+    v[i] = ClipToRange<float>(v[i], -range, range);
 }
 
 // Returns the padding required for the given number of features in order

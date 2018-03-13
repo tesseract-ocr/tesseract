@@ -213,7 +213,7 @@ int IntFeatureMap::ComputeOffsetFeature(int index_feature, int dir) const {
       double y_pos = f.Y + feature_dir.y() * (m * dir);
       int x = IntCastRounded(x_pos);
       int y = IntCastRounded(y_pos);
-      if (x >= 0 && x <= MAX_UINT8 && y >= 0 && y <= MAX_UINT8) {
+      if (x >= 0 && x <= UINT8_MAX && y >= 0 && y <= UINT8_MAX) {
         INT_FEATURE_STRUCT offset_f;
         offset_f.X = x;
         offset_f.Y = y;

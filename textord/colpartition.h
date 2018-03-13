@@ -282,10 +282,10 @@ class ColPartition : public ELIST2_LINK {
   void set_space_to_right(int space) {
     space_to_right_ = space;
   }
-  uinT8* color1() {
+  uint8_t* color1() {
     return color1_;
   }
-  uinT8* color2() {
+  uint8_t* color2() {
     return color2_;
   }
   bool owns_blobs() const {
@@ -917,8 +917,8 @@ class ColPartition : public ELIST2_LINK {
   int space_to_left_;    // Distance from the left edge of the column
   int space_to_right_;   // Distance from the right edge of the column
   // Color foreground/background data.
-  uinT8 color1_[kRGBRMSColors];
-  uinT8 color2_[kRGBRMSColors];
+  uint8_t color1_[kRGBRMSColors];
+  uint8_t color2_[kRGBRMSColors];
   bool owns_blobs_;  // Does the partition own its blobs?
   // The density of special blobs.
   float special_blobs_densities_[BSTT_COUNT];

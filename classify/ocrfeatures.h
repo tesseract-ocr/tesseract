@@ -44,8 +44,8 @@ struct INT_FX_RESULT_STRUCT;
 // parameters are required to be the first parameters in the feature.
 
 struct PARAM_DESC {
-  inT8 Circular;                   // TRUE if dimension wraps around
-  inT8 NonEssential;               // TRUE if dimension not used in searches
+  int8_t Circular;                   // TRUE if dimension wraps around
+  int8_t NonEssential;               // TRUE if dimension not used in searches
   FLOAT32 Min;                     // low end of range for circular dimensions
   FLOAT32 Max;                     // high end of range for circular dimensions
   FLOAT32 Range;                   // Max - Min
@@ -54,7 +54,7 @@ struct PARAM_DESC {
 };
 
 struct FEATURE_DESC_STRUCT {
-  uinT16 NumParams;                // total # of params
+  uint16_t NumParams;                // total # of params
   const char *ShortName;           // short name for feature
   const PARAM_DESC *ParamDesc;     // array - one per param
 };
@@ -67,8 +67,8 @@ struct FEATURE_STRUCT {
 typedef FEATURE_STRUCT *FEATURE;
 
 struct FEATURE_SET_STRUCT {
-  uinT16 NumFeatures;            // number of features in set
-  uinT16 MaxNumFeatures;         // maximum size of feature set
+  uint16_t NumFeatures;            // number of features in set
+  uint16_t MaxNumFeatures;         // maximum size of feature set
   FEATURE Features[1];           // variable size array of features
 };
 typedef FEATURE_SET_STRUCT *FEATURE_SET;

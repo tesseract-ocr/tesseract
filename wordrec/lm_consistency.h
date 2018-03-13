@@ -110,7 +110,7 @@ struct LMConsistencyInfo {
   }
   float BodyMaxXHeight() const {
     if (InconsistentXHeight())
-      return static_cast<float>(MAX_INT16);
+      return static_cast<float>(INT16_MAX);
     return xht_hi[kNORM];
   }
 
@@ -130,10 +130,10 @@ struct LMConsistencyInfo {
   // Metrics clumped by position.
   float xht_lo[kNumPos];
   float xht_hi[kNumPos];
-  inT16 xht_count[kNumPos];
-  inT16 xht_count_punc[kNumPos];
-  inT16 xht_sp;
-  inT16 xpos_entropy;
+  int16_t xht_count[kNumPos];
+  int16_t xht_count_punc[kNumPos];
+  int16_t xht_sp;
+  int16_t xpos_entropy;
   XHeightConsistencyEnum xht_decision;
 };
 

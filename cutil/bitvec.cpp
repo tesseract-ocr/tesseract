@@ -87,6 +87,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * @note History: Tue Oct 23 16:51:27 1990, DSJ, Created.
  */
 BIT_VECTOR NewBitVector(int NumBits) {
-  return ((BIT_VECTOR) Emalloc(sizeof(uinT32) *
+  return ((BIT_VECTOR) Emalloc(sizeof(uint32_t) *
     WordsInVectorOfSize(NumBits)));
 }                                /* NewBitVector */

@@ -88,9 +88,9 @@ void ELIST2::assign_to_sublist(                            //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 ELIST2::length() const {  // count elements
+int32_t ELIST2::length() const {  // count elements
   ELIST2_ITERATOR it(const_cast<ELIST2*>(this));
-  inT32 count = 0;
+  int32_t count = 0;
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
     count++;
@@ -110,10 +110,10 @@ ELIST2::sort (                   //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   ELIST2_ITERATOR it(this);
-  inT32 count;
+  int32_t count;
   ELIST2_LINK **base;            //ptr array to sort
   ELIST2_LINK **current;
-  inT32 i;
+  int32_t i;
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
@@ -268,7 +268,7 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
  **********************************************************************/
 
 ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
-                                            inT8 offset) {  //offset from current
+                                            int8_t offset) {  //offset from current
   ELIST2_LINK *ptr;
 
   #ifndef NDEBUG

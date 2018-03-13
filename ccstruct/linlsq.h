@@ -38,7 +38,7 @@ class LLSQ {
   void add(const LLSQ& other);
   // Deletes an element with a weight of 1.
   void remove(double x, double y);
-  inT32 count() const {  // no of elements
+  int32_t count() const {  // no of elements
     return static_cast<int>(total_weight + 0.5);
   }
 

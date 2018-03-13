@@ -118,11 +118,11 @@ void BLOBNBOX::chop(                        //chop blobs
                     FCOORD rotation,        //for landscape
                     float xheight           //of line
                    ) {
-  inT16 blobcount;               //no of blobs
+  int16_t blobcount;               //no of blobs
   BLOBNBOX *newblob;             //fake blob
   BLOBNBOX *blob;                //current blob
-  inT16 blobindex;               //number of chop
-  inT16 leftx;                   //left edge of blob
+  int16_t blobindex;               //number of chop
+  int16_t leftx;                   //left edge of blob
   float blobwidth;               //width of each
   float rightx;                  //right edge to scan
   float ymin, ymax;              //limits of new blob
@@ -131,14 +131,14 @@ void BLOBNBOX::chop(                        //chop blobs
   BLOBNBOX_IT blob_it;           //blob iterator
 
                                  //get no of chops
-  blobcount = (inT16) floor (box.width () / xheight);
+  blobcount = (int16_t) floor (box.width () / xheight);
   if (blobcount > 1 && cblob_ptr != NULL) {
                                  //width of each
     blobwidth = (float) (box.width () + 1) / blobcount;
     for (blobindex = blobcount - 1, rightx = box.right ();
     blobindex >= 0; blobindex--, rightx -= blobwidth) {
-      ymin = (float) MAX_INT32;
-      ymax = (float) -MAX_INT32;
+      ymin = (float) INT32_MAX;
+      ymax = (float) -INT32_MAX;
       blob_it = *start_it;
       do {
         blob = blob_it.data ();
@@ -150,11 +150,11 @@ void BLOBNBOX::chop(                        //chop blobs
       }
       while (blob != end_it->data ());
       if (ymin < ymax) {
-        leftx = (inT16) floor (rightx - blobwidth);
+        leftx = (int16_t) floor (rightx - blobwidth);
         if (leftx < box.left ())
           leftx = box.left ();   //clip to real box
-        bl = ICOORD (leftx, (inT16) floor (ymin));
-        tr = ICOORD ((inT16) ceil (rightx), (inT16) ceil (ymax));
+        bl = ICOORD (leftx, (int16_t) floor (ymin));
+        tr = ICOORD ((int16_t) ceil (rightx), (int16_t) ceil (ymax));
         if (blobindex == 0)
           box = TBOX (bl, tr);    //change box
         else {
@@ -175,7 +175,7 @@ void BLOBNBOX::chop(                        //chop blobs
 // indexed by BlobNeighbourDir.
 void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    gaps[dir] = MAX_INT16;
+    gaps[dir] = INT16_MAX;
     BLOBNBOX* neighbour = neighbours_[dir];
     if (neighbour != NULL) {
       const TBOX& n_box = neighbour->bounding_box();
@@ -498,15 +498,15 @@ void find_cblob_limits(                  //get y limits
                        FCOORD rotation,  //for landscape
                        float &ymin,      //output y limits
                        float &ymax) {
-  inT16 stepindex;               //current point
+  int16_t stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) MAX_INT32;
-  ymax = (float) -MAX_INT32;
+  ymin = (float) INT32_MAX;
+  ymax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -537,15 +537,15 @@ void find_cblob_vlimits(               //get y limits
                         float rightx,
                         float &ymin,   //output y limits
                         float &ymax) {
-  inT16 stepindex;               //current point
+  int16_t stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) MAX_INT32;
-  ymax = (float) -MAX_INT32;
+  ymin = (float) INT32_MAX;
+  ymax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -574,15 +574,15 @@ void find_cblob_hlimits(                //get x limits
                         float topy,
                         float &xmin,    //output x limits
                         float &xmax) {
-  inT16 stepindex;               //current point
+  int16_t stepindex;               //current point
   ICOORD pos;                    //current coords
   ICOORD vec;                    //rotated step
   C_OUTLINE *outline;            //current outline
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  xmin = (float) MAX_INT32;
-  xmax = (float) -MAX_INT32;
+  xmin = (float) INT32_MAX;
+  xmax = (float) -INT32_MAX;
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -886,8 +886,8 @@ void vertical_coutline_projection(                     //project outlines
                                  ) {
   ICOORD pos;                    //current point
   ICOORD step;                   //edge step
-  inT32 length;                  //of outline
-  inT16 stepindex;               //current step
+  int32_t length;                  //of outline
+  int16_t stepindex;               //current step
   C_OUTLINE_IT out_it = outline->child ();
 
   pos = outline->start_pos ();

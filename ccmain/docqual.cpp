@@ -52,8 +52,8 @@ struct DocQualCallbacks {
   }
 
   WERD_RES* word;
-  inT16 match_count;
-  inT16 accepted_match_count;
+  int16_t match_count;
+  int16_t accepted_match_count;
 };
 
 /*************************************************************************
@@ -62,7 +62,7 @@ struct DocQualCallbacks {
  * ASSUME blobs in both initial word and box_word are in ascending order of
  * left hand blob edge.
  *************************************************************************/
-inT16 Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
+int16_t Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
   if (word->bln_boxes == NULL ||
       word->rebuild_word == NULL || word->rebuild_word->blobs.empty())
     return 0;
@@ -74,9 +74,9 @@ inT16 Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
   return cb.match_count;
 }
 
-inT16 Tesseract::word_outline_errs(WERD_RES *word) {
-  inT16 i = 0;
-  inT16 err_count = 0;
+int16_t Tesseract::word_outline_errs(WERD_RES *word) {
+  int16_t i = 0;
+  int16_t err_count = 0;
 
   if (word->rebuild_word != NULL) {
     for (int b = 0; b < word->rebuild_word->NumBlobs(); ++b) {
@@ -96,8 +96,8 @@ inT16 Tesseract::word_outline_errs(WERD_RES *word) {
  *************************************************************************/
 void Tesseract::word_char_quality(WERD_RES *word,
                                   ROW *row,
-                                  inT16 *match_count,
-                                  inT16 *accepted_match_count) {
+                                  int16_t *match_count,
+                                  int16_t *accepted_match_count) {
   if (word->bln_boxes == NULL || word->rebuild_word == NULL ||
       word->rebuild_word->blobs.empty()) {
     *match_count = 0;
@@ -128,7 +128,7 @@ void Tesseract::unrej_good_chs(WERD_RES *word, ROW *row) {
       NewPermanentTessCallback(&cb, &DocQualCallbacks::AcceptIfGoodQuality));
 }
 
-inT16 Tesseract::count_outline_errs(char c, inT16 outline_count) {
+int16_t Tesseract::count_outline_errs(char c, int16_t outline_count) {
   int expected_outline_count;
 
   if (STRING (outlines_odd).contains (c))
@@ -237,15 +237,15 @@ void Tesseract::unrej_good_quality_words(  //unreject potential
 void Tesseract::doc_and_block_rejection(  //reject big chunks
                                         PAGE_RES_IT &page_res_it,
                                         BOOL8 good_quality_doc) {
-  inT16 block_no = 0;
-  inT16 row_no = 0;
+  int16_t block_no = 0;
+  int16_t row_no = 0;
   BLOCK_RES *current_block;
   ROW_RES *current_row;
 
   BOOL8 rej_word;
   BOOL8 prev_word_rejected;
-  inT16 char_quality = 0;
-  inT16 accepted_char_quality;
+  int16_t char_quality = 0;
+  int16_t accepted_char_quality;
 
   if (page_res_it.page_res->rej_count * 100.0 /
       page_res_it.page_res->char_count > tessedit_reject_doc_percent) {
@@ -596,9 +596,9 @@ void Tesseract::tilde_delete(PAGE_RES_IT &page_res_it) {
   PAGE_RES_IT copy_it;
   BOOL8 deleting_from_bol = FALSE;
   BOOL8 marked_delete_point = FALSE;
-  inT16 debug_delete_mode;
+  int16_t debug_delete_mode;
   CRUNCH_MODE delete_mode;
-  inT16 x_debug_delete_mode;
+  int16_t x_debug_delete_mode;
   CRUNCH_MODE x_delete_mode;
 
   page_res_it.restart_page();
@@ -896,7 +896,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
  *          >75% of the outline BBs have longest dimension < 0.5xht
  *************************************************************************/
 
-CRUNCH_MODE Tesseract::word_deletable(WERD_RES *word, inT16 &delete_mode) {
+CRUNCH_MODE Tesseract::word_deletable(WERD_RES *word, int16_t &delete_mode) {
   int word_len = word->reject_map.length ();
   float rating_per_ch;
   TBOX box;                       //BB of word
@@ -967,7 +967,7 @@ CRUNCH_MODE Tesseract::word_deletable(WERD_RES *word, inT16 &delete_mode) {
   return CR_NONE;
 }
 
-inT16 Tesseract::failure_count(WERD_RES *word) {
+int16_t Tesseract::failure_count(WERD_RES *word) {
   const char *str = word->best_choice->unichar_string().string();
   int tess_rejs = 0;
 
@@ -981,9 +981,9 @@ inT16 Tesseract::failure_count(WERD_RES *word) {
 
 BOOL8 Tesseract::noise_outlines(TWERD *word) {
   TBOX box;                       // BB of outline
-  inT16 outline_count = 0;
-  inT16 small_outline_count = 0;
-  inT16 max_dimension;
+  int16_t outline_count = 0;
+  int16_t small_outline_count = 0;
+  int16_t max_dimension;
   float small_limit = kBlnXHeight * crunch_small_outlines_size;
 
   for (int b = 0; b < word->NumBlobs(); ++b) {

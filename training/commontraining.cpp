@@ -476,11 +476,11 @@ void FreeLabeledList(LABELEDLIST LabeledList) {
 CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               LABELEDLIST char_sample,
                               const char* program_feature_type) {
-  uinT16 N;
+  uint16_t N;
   int i, j;
   FLOAT32* Sample = nullptr;
   CLUSTERER *Clusterer;
-  inT32 CharID;
+  int32_t CharID;
   LIST FeatureList = nullptr;
   FEATURE_SET FeatureSet = nullptr;
 
@@ -556,7 +556,7 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
     }
   }
   // Mark significant those that now have enough samples.
-  int min_samples = (inT32) (Config->MinSamples * Clusterer->NumChar);
+  int min_samples = (int32_t) (Config->MinSamples * Clusterer->NumChar);
   pProtoList = ProtoList;
   iterate(pProtoList) {
     Prototype = (PROTOTYPE *) first_node (pProtoList);

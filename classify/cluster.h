@@ -35,7 +35,7 @@ typedef struct sample {
   unsigned SampleCount:30;       // number of samples in this cluster
   struct sample *Left;           // ptr to left sub-cluster
   struct sample *Right;          // ptr to right sub-cluster
-  inT32 CharID;                  // identifier of char sample came from
+  int32_t CharID;                  // identifier of char sample came from
   FLOAT32 Mean[1];               // mean of cluster - SampleSize floats
 } CLUSTER;
 
@@ -84,20 +84,20 @@ typedef struct {
 } PROTOTYPE;
 
 typedef struct {
-  inT16 SampleSize;              // number of parameters per sample
+  int16_t SampleSize;              // number of parameters per sample
   PARAM_DESC *ParamDesc;         // description of each parameter
-  inT32 NumberOfSamples;         // total number of samples being clustered
+  int32_t NumberOfSamples;         // total number of samples being clustered
   KDTREE *KDTree;                // for optimal nearest neighbor searching
   CLUSTER *Root;                 // ptr to root cluster of cluster tree
   LIST ProtoList;                // list of prototypes
-  inT32 NumChar;                 // # of characters represented by samples
+  int32_t NumChar;                 // # of characters represented by samples
   // cache of reusable histograms by distribution type and number of buckets.
   BUCKETS* bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
 } CLUSTERER;
 
 typedef struct {
-  inT32 NumSamples;              // number of samples in list
-  inT32 MaxNumSamples;           // maximum size of list
+  int32_t NumSamples;              // number of samples in list
+  int32_t MaxNumSamples;           // maximum size of list
   SAMPLE *Sample[1];             // array of ptrs to sample data structures
 } SAMPLELIST;
 
@@ -107,9 +107,9 @@ typedef struct {
 /*--------------------------------------------------------------------------
         Public Function Prototypes
 --------------------------------------------------------------------------*/
-CLUSTERER *MakeClusterer (inT16 SampleSize, const PARAM_DESC ParamDesc[]);
+CLUSTERER *MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]);
 
-SAMPLE *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, inT32 CharID);
+SAMPLE *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, int32_t CharID);
 
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
@@ -121,11 +121,11 @@ void FreePrototype(void *arg);  // PROTOTYPE *Prototype);
 
 CLUSTER *NextSample(LIST *SearchState);
 
-FLOAT32 Mean(PROTOTYPE *Proto, uinT16 Dimension);
+FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension);
 
-FLOAT32 StandardDeviation(PROTOTYPE *Proto, uinT16 Dimension);
+FLOAT32 StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension);
 
-inT32 MergeClusters(inT16 N, PARAM_DESC ParamDesc[], inT32 n1, inT32 n2,
+int32_t MergeClusters(int16_t N, PARAM_DESC ParamDesc[], int32_t n1, int32_t n2,
                     FLOAT32 m[], FLOAT32 m1[], FLOAT32 m2[]);
 
 //--------------Global Data Definitions and Declarations---------------------------

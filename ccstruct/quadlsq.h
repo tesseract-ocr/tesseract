@@ -36,7 +36,7 @@ class QLSQ
     void remove(           //delete element
                 double x,  //coords to delete
                 double y);
-    inT32 count() {  //no of elements
+    int32_t count() {  //no of elements
       return n;
     }
 
@@ -53,7 +53,7 @@ class QLSQ
     }
 
   private:
-    inT32 n;                     //no of elements
+    int32_t n;                     //no of elements
     double a, b, c;              //result
     double sigx;                 //sum of x
     double sigy;                 //sum of y

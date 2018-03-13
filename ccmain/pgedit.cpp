@@ -395,7 +395,7 @@ void pgeditor_show_point( // display coords
 
 namespace tesseract {
 BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
-                                       inT32 cmd_event,  // which menu item?
+                                       int32_t cmd_event,  // which menu item?
                                        char *new_value   // any prompt data
                                       ) {
   char msg[160];
@@ -820,19 +820,19 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
     return true;
   }
   /*
-    Note the double coercions of(COLOUR)((inT32)editor_image_word_bb_color)
+    Note the double coercions of(COLOUR)((int32_t)editor_image_word_bb_color)
     etc. are to keep the compiler happy.
   */
                                  // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((inT32)
+     (ScrollView::Color)((int32_t)
       editor_image_word_bb_color),
-     (ScrollView::Color)((inT32)
+     (ScrollView::Color)((int32_t)
       editor_image_word_bb_color));
 
     ScrollView::Color c = (ScrollView::Color)
-       ((inT32) editor_image_blob_bb_color);
+       ((int32_t) editor_image_blob_bb_color);
     image_win->Pen(c);
     c_it.set_to_list(word->cblob_list());
     for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward())
@@ -907,8 +907,8 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
 
   if (!displayed_something)      // display BBox anyway
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((inT32) editor_image_word_bb_color),
-     (ScrollView::Color)((inT32)
+     (ScrollView::Color)((int32_t) editor_image_word_bb_color),
+     (ScrollView::Color)((int32_t)
       editor_image_word_bb_color));
   return TRUE;
 }

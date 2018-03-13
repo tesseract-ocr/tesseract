@@ -54,14 +54,14 @@
  * number of points.
  **********************************************************************/
 
-inT32 pixels_to_pts(               //convert coords
-                    inT32 pixels,
-                    inT32 pix_res  //resolution
+int32_t pixels_to_pts(               //convert coords
+                    int32_t pixels,
+                    int32_t pix_res  //resolution
                    ) {
   float pts;                     //converted value
 
   pts = pixels * 72.0 / pix_res;
-  return (inT32) (pts + 0.5);    //round it
+  return (int32_t) (pts + 0.5);    //round it
 }
 
 namespace tesseract {
@@ -248,8 +248,8 @@ char determine_newline_type(                   //test line ends
                             WERD *next_word,   //next word
                             BLOCK *next_block  //block of next word
                            ) {
-  inT16 end_gap;                 //to right edge
-  inT16 width;                   //of next word
+  int16_t end_gap;                 //to right edge
+  int16_t width;                   //of next word
   TBOX word_box;                  //bounding
   TBOX next_box;                  //next word
   TBOX block_box;                 //block bounding
@@ -265,7 +265,7 @@ char determine_newline_type(                   //test line ends
   block_box = block->bounding_box ();
                                  //gap to eol
   end_gap = block_box.right () - word_box.right ();
-  end_gap -= (inT32) block->space ();
+  end_gap -= (int32_t) block->space ();
   width = next_box.right () - next_box.left ();
   //      tprintf("end_gap=%d-%d=%d, width=%d-%d=%d, nl=%d\n",
   //              block_box.right(),word_box.right(),end_gap,
@@ -395,7 +395,7 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   }
 }
 
-inT16 Tesseract::count_alphas(const WERD_CHOICE &word) {
+int16_t Tesseract::count_alphas(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
     if (word.unicharset()->get_isalpha(word.unichar_id(i)))
@@ -405,7 +405,7 @@ inT16 Tesseract::count_alphas(const WERD_CHOICE &word) {
 }
 
 
-inT16 Tesseract::count_alphanums(const WERD_CHOICE &word) {
+int16_t Tesseract::count_alphanums(const WERD_CHOICE &word) {
   int count = 0;
   for (int i = 0; i < word.length(); ++i) {
     if (word.unicharset()->get_isalpha(word.unichar_id(i)) ||

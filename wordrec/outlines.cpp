@@ -61,7 +61,7 @@ bool Wordrec::near_point(EDGEPT *point,
 
   if (x0 == x1) {
                                  /* Handle vertical line */
-    p.x = (inT16) x0;
+    p.x = (int16_t) x0;
     p.y = point->pos.y;
   }
   else {
@@ -70,9 +70,9 @@ bool Wordrec::near_point(EDGEPT *point,
     intercept = y1 - x1 * slope;
 
     /* Find perpendicular */
-    p.x = (inT16) ((point->pos.x + (point->pos.y - intercept) * slope) /
+    p.x = (int16_t) ((point->pos.x + (point->pos.y - intercept) * slope) /
       (slope * slope + 1));
-    p.y = (inT16) (slope * p.x + intercept);
+    p.y = (int16_t) (slope * p.x + intercept);
   }
 
   if (is_on_line (p, line_pt_0->pos, line_pt_1->pos) &&

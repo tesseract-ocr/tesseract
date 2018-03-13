@@ -37,7 +37,7 @@
 void complete_edge(CRACKEDGE *start,  //start of loop
                    C_OUTLINE_IT* outline_it) {
   ScrollView::Color colour;                 //colour to draw in
-  inT16 looplength;              //steps in loop
+  int16_t looplength;              //steps in loop
   ICOORD botleft;                //bounding box
   ICOORD topright;
   C_OUTLINE *outline;            //new outline
@@ -69,8 +69,8 @@ ScrollView::Color check_path_legal(                  //certify outline
                        ) {
   int lastchain;              //last chain code
   int chaindiff;               //chain code diff
-  inT32 length;                  //length of loop
-  inT32 chainsum;                //sum of chain diffs
+  int32_t length;                  //length of loop
+  int32_t chainsum;                //sum of chain diffs
   CRACKEDGE *edgept;             //current point
   const ERRCODE ED_ILLEGAL_SUM = "Illegal sum of chain codes";
 
@@ -116,12 +116,12 @@ ScrollView::Color check_path_legal(                  //certify outline
  * Find the bounding box of the edge loop.
  **********************************************************************/
 
-inT16 loop_bounding_box(                    //get bounding box
+int16_t loop_bounding_box(                    //get bounding box
                         CRACKEDGE *&start,  //edge loop
                         ICOORD &botleft,    //bounding box
                         ICOORD &topright) {
-  inT16 length;                  //length of loop
-  inT16 leftmost;                //on top row
+  int16_t length;                  //length of loop
+  int16_t leftmost;                //on top row
   CRACKEDGE *edgept;             //current point
   CRACKEDGE *realstart;          //topleft start
 

@@ -45,7 +45,7 @@ ELIST2IZE(WERD)
  *   blank_count   blanks in front of the word
  *   text          correct text, outlives this WERD
  */
-WERD::WERD(C_BLOB_LIST *blob_list, uinT8 blank_count, const char *text)
+WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
   : blanks(blank_count),
     flags(0),
     script_id_(0),
@@ -53,8 +53,8 @@ WERD::WERD(C_BLOB_LIST *blob_list, uinT8 blank_count, const char *text)
   C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
   C_OUTLINE_IT c_outline_it;
-  inT16 inverted_vote = 0;
-  inT16 non_inverted_vote = 0;
+  int16_t inverted_vote = 0;
+  int16_t non_inverted_vote = 0;
 
   // Move blob_list's elements into cblobs.
   start_it.add_list_after(blob_list);

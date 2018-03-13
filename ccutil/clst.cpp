@@ -112,9 +112,9 @@ void CLIST::assign_to_sublist(                           //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 CLIST::length() const {  //count elements
+int32_t CLIST::length() const {  //count elements
   CLIST_ITERATOR it(const_cast<CLIST*>(this));
-  inT32 count = 0;
+  int32_t count = 0;
 
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
     count++;
@@ -132,10 +132,10 @@ CLIST::sort (                    //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   CLIST_ITERATOR it(this);
-  inT32 count;
+  int32_t count;
   void **base;                   //ptr array to sort
   void **current;
-  inT32 i;
+  int32_t i;
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
@@ -283,7 +283,7 @@ void *CLIST_ITERATOR::forward() {
  **********************************************************************/
 
 void *CLIST_ITERATOR::data_relative(                //get data + or - ...
-                                    inT8 offset) {  //offset from current
+                                    int8_t offset) {  //offset from current
   CLIST_LINK *ptr;
 
   #ifndef NDEBUG

@@ -39,10 +39,10 @@ class PDBLK {
     index_ = 0;
   }
   /// simple constructor
-  PDBLK(inT16 xmin,  //< bottom left
-        inT16 ymin,
-        inT16 xmax,  //< top right
-        inT16 ymax);
+  PDBLK(int16_t xmin,  //< bottom left
+        int16_t ymin,
+        int16_t xmax,  //< top right
+        int16_t ymax);
 
   /// set vertex lists
   ///@param left list of left vertices
@@ -84,7 +84,7 @@ class PDBLK {
   ///@param window window to draw in
   ///@param serial serial number
   ///@param colour colour to draw in
-  void plot(ScrollView *window, inT32 serial, ScrollView::Color colour);
+  void plot(ScrollView *window, int32_t serial, ScrollView::Color colour);
 #endif  // GRAPHICS_DISABLED
 
   /// assignment
@@ -133,8 +133,8 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     }
 
   private:
-    inT16 ymin;                  //< bottom of rectangle
-    inT16 ymax;                  //< top of rectangle
+    int16_t ymin;                  //< bottom of rectangle
+    int16_t ymax;                  //< top of rectangle
     PDBLK *block;                //< block to iterate
     ICOORDELT_IT left_it;        //< boundary iterators
     ICOORDELT_IT right_it;
@@ -162,8 +162,8 @@ class DLLSYM BLOCK_LINE_IT
     ///get a line
     ///@param y line to get
     ///@param xext output extent
-    inT16 get_line(inT16 y,
-                   inT16 &xext);
+    int16_t get_line(int16_t y,
+                   int16_t &xext);
 
   private:
     PDBLK * block;               //< block to iterate

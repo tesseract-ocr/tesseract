@@ -45,7 +45,7 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
-void Classify::ClearCharNormArray(uinT8* char_norm_array) {
+void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
   memset(char_norm_array, 0, sizeof(*char_norm_array) * unicharset.size());
 }                                /* ClearCharNormArray */
 
@@ -67,7 +67,7 @@ void Classify::ClearCharNormArray(uinT8* char_norm_array) {
  * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
 void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
-                                       uinT8* char_norm_array) {
+                                       uint8_t* char_norm_array) {
   for (int i = 0; i < unicharset.size(); i++) {
     if (i < PreTrainedTemplates->NumClasses) {
       int norm_adjust = static_cast<int>(INT_CHAR_NORM_RANGE *

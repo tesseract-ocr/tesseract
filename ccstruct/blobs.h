@@ -49,7 +49,7 @@ class WERD;
 
 struct TPOINT {
   TPOINT(): x(0), y(0) {}
-  TPOINT(inT16 vx, inT16 vy) : x(vx), y(vy) {}
+  TPOINT(int16_t vx, int16_t vy) : x(vx), y(vy) {}
   TPOINT(const ICOORD &ic) : x(ic.x()), y(ic.y()) {}
 
   void operator+=(const TPOINT& other) {
@@ -68,8 +68,8 @@ struct TPOINT {
   static bool IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
                         const TPOINT& b1);
 
-  inT16 x;                       // absolute x coord.
-  inT16 y;                       // absolute y coord.
+  int16_t x;                       // absolute x coord.
+  int16_t y;                       // absolute y coord.
 };
 typedef TPOINT VECTOR;           // structure for coordinates.
 

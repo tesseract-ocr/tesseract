@@ -79,9 +79,9 @@ struct UnicharRating {
   // True if this result is from the adaptive classifier.
   bool adapted;
   // Index of best matching font configuration of result.
-  uinT8 config;
+  uint8_t config;
   // Number of features that were total misses - were liked by no classes.
-  uinT16 feature_misses;
+  uint16_t feature_misses;
   // Unsorted collection of fontinfo ids and scores. Note that a raw result
   // from the IntegerMatch will contain config ids, that require transforming
   // to fontinfo ids via fontsets and (possibly) shapetable.
@@ -172,8 +172,8 @@ struct UnicharAndFonts {
   // Sort function to sort a pair of UnicharAndFonts by unichar_id.
   static int SortByUnicharId(const void* v1, const void* v2);
 
-  GenericVector<inT32> font_ids;
-  inT32 unichar_id;
+  GenericVector<int32_t> font_ids;
+  int32_t unichar_id;
 };
 
 // A Shape is a collection of unichar-ids and a list of fonts associated with
@@ -223,7 +223,7 @@ class Shape {
   // Returns true if the shape contains the given font properties, ignoring
   // unichar_id.
   bool ContainsFontProperties(const FontInfoTable& font_table,
-                              uinT32 properties) const;
+                              uint32_t properties) const;
   // Returns true if the shape contains multiple different font properties,
   // ignoring unichar_id.
   bool ContainsMultipleFontProperties(const FontInfoTable& font_table) const;

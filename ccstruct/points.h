@@ -39,8 +39,8 @@ class ICOORD
     ///constructor
     ///@param xin x value
     ///@param yin y value
-    ICOORD(inT16 xin,
-           inT16 yin) {
+    ICOORD(int16_t xin,
+           int16_t yin) {
       xcoord = xin;
       ycoord = yin;
     }
@@ -49,20 +49,20 @@ class ICOORD
     }
 
     ///access function
-    inT16 x() const {
+    int16_t x() const {
       return xcoord;
     }
     ///access_function
-    inT16 y() const {
+    int16_t y() const {
       return ycoord;
     }
 
     ///rewrite function
-    void set_x(inT16 xin) {
+    void set_x(int16_t xin) {
       xcoord = xin;              //write new value
     }
     ///rewrite function
-    void set_y(inT16 yin) {  //value to set
+    void set_y(int16_t yin) {  //value to set
       ycoord = yin;
     }
 
@@ -119,22 +119,22 @@ class ICOORD
     ///subtract
     friend ICOORD & operator-= (ICOORD &, const ICOORD &);
     ///scalar product
-    friend inT32 operator% (const ICOORD &, const ICOORD &);
+    friend int32_t operator% (const ICOORD &, const ICOORD &);
     ///cross product
-    friend inT32 operator *(const ICOORD &,
+    friend int32_t operator *(const ICOORD &,
                             const ICOORD &);
     ///multiply
     friend ICOORD operator *(const ICOORD &,
-                             inT16);
+                             int16_t);
     ///multiply
-    friend ICOORD operator *(inT16,
+    friend ICOORD operator *(int16_t,
                              const ICOORD &);
     ///multiply
-    friend ICOORD & operator*= (ICOORD &, inT16);
+    friend ICOORD & operator*= (ICOORD &, int16_t);
     ///divide
-    friend ICOORD operator/ (const ICOORD &, inT16);
+    friend ICOORD operator/ (const ICOORD &, int16_t);
     ///divide
-    friend ICOORD & operator/= (ICOORD &, inT16);
+    friend ICOORD & operator/= (ICOORD &, int16_t);
     ///rotate
     ///@param vec by vector
     void rotate(const FCOORD& vec);
@@ -154,8 +154,8 @@ class ICOORD
     bool DeSerialize(bool swap, FILE* fp);
 
   protected:
-    inT16 xcoord;                //< x value
-    inT16 ycoord;                //< y value
+    int16_t xcoord;                //< x value
+    int16_t ycoord;                //< y value
 };
 
 class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
@@ -171,8 +171,8 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
     ///constructor
     ///@param xin x value
     ///@param yin y value
-    ICOORDELT(inT16 xin,
-              inT16 yin) {
+    ICOORDELT(int16_t xin,
+              int16_t yin) {
       xcoord = xin;
       ycoord = yin;
     }
@@ -251,17 +251,17 @@ class DLLSYM FCOORD
     }
     // Returns the standard feature direction corresponding to this.
     // See binary_angle_plus_pi below for a description of the direction.
-    uinT8 to_direction() const;
+    uint8_t to_direction() const;
     // Sets this with a unit vector in the given standard feature direction.
-    void from_direction(uinT8 direction);
+    void from_direction(uint8_t direction);
 
     // Converts an angle in radians (from ICOORD::angle or FCOORD::angle) to a
     // standard feature direction as an unsigned angle in 256ths of a circle
     // measured anticlockwise from (-1, 0).
-    static uinT8 binary_angle_plus_pi(double angle);
+    static uint8_t binary_angle_plus_pi(double angle);
     // Inverse of binary_angle_plus_pi returns an angle in radians for the
     // given standard feature direction.
-    static double angle_from_direction(uinT8 direction);
+    static double angle_from_direction(uint8_t direction);
     // Returns the point on the given line nearest to this, ie the point such
     // that the vector point->this is perpendicular to the line.
     // The line is defined as a line_point and a dir_vector for its direction.

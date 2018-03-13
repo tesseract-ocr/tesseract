@@ -285,7 +285,7 @@ bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
   IntParam *p = ParamUtils::FindParam<IntParam>(
       name, GlobalParams()->int_params, tesseract_->params()->int_params);
   if (p == NULL) return false;
-  *value = (inT32)(*p);
+  *value = (int32_t)(*p);
   return true;
 }
 
@@ -1697,7 +1697,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
 /** The 5 numbers output for each box (the usual 4 and a page number.) */
 const int kNumbersPerBlob = 5;
 /**
- * The number of bytes taken by each number. Since we use inT16 for ICOORD,
+ * The number of bytes taken by each number. Since we use int16_t for ICOORD,
  * assume only 5 digits max.
  */
 const int kBytesPerNumber = 5;
@@ -1707,7 +1707,7 @@ const int kBytesPerNumber = 5;
  * original UTF8 characters, and one kMaxBytesPerLine for safety.
  */
 const int kBytesPerBoxFileLine = (kBytesPerNumber + 1) * kNumbersPerBlob + 1;
-/** Max bytes in the decimal representation of inT64. */
+/** Max bytes in the decimal representation of int64_t. */
 const int kBytesPer64BitNumber = 20;
 /**
  * A maximal single box could occupy kNumbersPerBlob numbers at
@@ -2479,7 +2479,7 @@ ROW *TessBaseAPI::MakeTessOCRRow(float baseline,
                                  float xheight,
                                  float descender,
                                  float ascender) {
-  inT32 xstarts[] = {-32000};
+  int32_t xstarts[] = {-32000};
   double quad_coeffs[] = {0, 0, baseline};
   return new ROW(1,
                  xstarts,

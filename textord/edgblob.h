@@ -39,8 +39,8 @@ class OL_BUCKETS
       delete[]buckets;
     }
     C_OUTLINE_LIST *operator () (//array access
-      inT16 x,                   //image coords
-      inT16 y);
+      int16_t x,                   //image coords
+      int16_t y);
                                  //first non-empty bucket
     C_OUTLINE_LIST *start_scan() {
       for (index = 0; buckets[index].empty () && index < bxdim * bydim - 1;
@@ -52,24 +52,24 @@ class OL_BUCKETS
       for (; buckets[index].empty () && index < bxdim * bydim - 1; index++);
       return &buckets[index];
     }
-    inT32 count_children(                     //recursive sum
+    int32_t count_children(                     //recursive sum
                          C_OUTLINE *outline,  //parent outline
-                         inT32 max_count);    // max output
-    inT32 outline_complexity(                 // new version of count_children
+                         int32_t max_count);    // max output
+    int32_t outline_complexity(                 // new version of count_children
                          C_OUTLINE *outline,  // parent outline
-                         inT32 max_count,     // max output
-                         inT16 depth);        // level of recursion
+                         int32_t max_count,     // max output
+                         int16_t depth);        // level of recursion
     void extract_children(                     //single level get
                           C_OUTLINE *outline,  //parent outline
                           C_OUTLINE_IT *it);   //destination iterator
 
   private:
     C_OUTLINE_LIST * buckets;    //array of buckets
-    inT16 bxdim;                 //size of array
-    inT16 bydim;
+    int16_t bxdim;                 //size of array
+    int16_t bydim;
     ICOORD bl;                   //corners
     ICOORD tr;
-    inT32 index;                 //for extraction scan
+    int32_t index;                 //for extraction scan
 };
 
 void extract_edges(Pix* pix,        // thresholded image

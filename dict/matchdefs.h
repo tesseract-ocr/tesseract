@@ -28,7 +28,7 @@
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
   if more different classes need to be classified */
-#define MAX_NUM_CLASSES   MAX_INT16
+#define MAX_NUM_CLASSES   INT16_MAX
 #define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
 
 /** a CLASS_ID is the ascii character to be associated with a class */
@@ -38,13 +38,13 @@ typedef UNICHAR_ID CLASS_ID;
 /** a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
-typedef inT16 PROTO_ID;
+typedef int16_t PROTO_ID;
 #define NO_PROTO  (-1)
 
 /** FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number
   of features in a character description. */
-typedef uinT8 FEATURE_ID;
+typedef uint8_t FEATURE_ID;
 #define NO_FEATURE      255
 #define NOISE_FEATURE   254
 #define MISSING_PROTO   254

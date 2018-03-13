@@ -463,14 +463,14 @@ class GENERIC_2D_ARRAY {
  protected:
   // Factored helper to serialize the size.
   bool SerializeSize(FILE* fp) const {
-    inT32 size = dim1_;
+    int32_t size = dim1_;
     if (fwrite(&size, sizeof(size), 1, fp) != 1) return false;
     size = dim2_;
     if (fwrite(&size, sizeof(size), 1, fp) != 1) return false;
     return true;
   }
   bool SerializeSize(tesseract::TFile* fp) const {
-    inT32 size = dim1_;
+    int32_t size = dim1_;
     if (fp->FWrite(&size, sizeof(size), 1) != 1) return false;
     size = dim2_;
     if (fp->FWrite(&size, sizeof(size), 1) != 1) return false;
@@ -479,7 +479,7 @@ class GENERIC_2D_ARRAY {
   // Factored helper to deserialize the size.
   // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerializeSize(bool swap, FILE* fp) {
-    inT32 size1, size2;
+    int32_t size1, size2;
     if (fread(&size1, sizeof(size1), 1, fp) != 1) return false;
     if (fread(&size2, sizeof(size2), 1, fp) != 1) return false;
     if (swap) {
@@ -490,7 +490,7 @@ class GENERIC_2D_ARRAY {
     return true;
   }
   bool DeSerializeSize(tesseract::TFile* fp) {
-    inT32 size1, size2;
+    int32_t size1, size2;
     if (fp->FReadEndian(&size1, sizeof(size1), 1) != 1) return false;
     if (fp->FReadEndian(&size2, sizeof(size2), 1) != 1) return false;
     Resize(size1, size2, empty_);

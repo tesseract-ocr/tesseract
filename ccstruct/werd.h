@@ -64,7 +64,7 @@ class WERD : public ELIST2_LINK {
     //   blob_list - blobs of the word (we take this list's contents)
     //   blanks - number of blanks before the word
     //   text - correct text (outlives WERD)
-    WERD(C_BLOB_LIST *blob_list, uinT8 blanks, const char *text);
+    WERD(C_BLOB_LIST *blob_list, uint8_t blanks, const char *text);
 
     // WERD constructed from:
     //   blob_list - blobs in the word
@@ -101,10 +101,10 @@ class WERD : public ELIST2_LINK {
       return &cblobs;
     }
 
-    uinT8 space() {  // access function
+    uint8_t space() {  // access function
       return blanks;
     }
-    void set_blanks(uinT8 new_blanks) {
+    void set_blanks(uint8_t new_blanks) {
       blanks = new_blanks;
     }
     int script_id() const {
@@ -128,8 +128,8 @@ class WERD : public ELIST2_LINK {
     BOOL8 flag(WERD_FLAGS mask) const { return flags.bit(mask); }
     void set_flag(WERD_FLAGS mask, BOOL8 value) { flags.set_bit(mask, value); }
 
-    BOOL8 display_flag(uinT8 flag) const { return disp_flags.bit(flag); }
-    void set_display_flag(uinT8 flag, BOOL8 value) {
+    BOOL8 display_flag(uint8_t flag) const { return disp_flags.bit(flag); }
+    void set_display_flag(uint8_t flag, BOOL8 value) {
       disp_flags.set_bit(flag, value);
     }
 
@@ -182,11 +182,11 @@ class WERD : public ELIST2_LINK {
                              bool *make_next_word_fuzzy);
 
  private:
-    uinT8 blanks;                // no of blanks
-    uinT8 dummy;                 // padding
+    uint8_t blanks;                // no of blanks
+    uint8_t dummy;                 // padding
     BITS16 flags;                // flags about word
     BITS16 disp_flags;           // display flags
-    inT16 script_id_;            // From unicharset.
+    int16_t script_id_;            // From unicharset.
     STRING correct;              // correct text
     C_BLOB_LIST cblobs;          // compacted blobs
     C_BLOB_LIST rej_cblobs;      // DUFF blobs

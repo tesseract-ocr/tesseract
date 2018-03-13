@@ -82,7 +82,7 @@ class WeightMatrix {
   // Converts a float network to an int network. Each set of input weights that
   // corresponds to a single output weight is converted independently:
   // Compute the max absolute value of the weight set.
-  // Scale so the max absolute value becomes MAX_INT8.
+  // Scale so the max absolute value becomes INT8_MAX.
   // Round to integer.
   // Store a multiplicative scale factor (as a float) that will reproduce
   //   the original value, subject to rounding errors.

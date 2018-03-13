@@ -74,7 +74,7 @@ StructuredTable::StructuredTable()
       space_right_(0),
       median_cell_height_(0),
       median_cell_width_(0),
-      max_text_height_(MAX_INT32) {
+      max_text_height_(INT32_MAX) {
 }
 
 StructuredTable::~StructuredTable() {
@@ -280,7 +280,7 @@ double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
     if (text->IsTextType())
       area_covered += text->bounding_box().intersection(kCellBox).area();
   }
-  const inT32 current_area = kCellBox.area();
+  const int32_t current_area = kCellBox.area();
   if (current_area == 0) {
     return 1.0;
   }
@@ -403,8 +403,8 @@ void StructuredTable::FindWhitespacedRows() {
   GenericVectorEqEq<int> top_sides;
   // We will be "shrinking" partitions, so keep the min/max around to
   // make sure the bottom/top lines do not intersect text.
-  int min_bottom = MAX_INT32;
-  int max_top = MIN_INT32;
+  int min_bottom = INT32_MAX;
+  int max_top = INT32_MIN;
 
   // Look at each text partition. We want to find the partitions
   // that have extremal bottom/top sides. These will give us a basis
@@ -463,10 +463,10 @@ void StructuredTable::FindWhitespacedRows() {
 }
 
 void StructuredTable::CalculateMargins() {
-  space_above_ = MAX_INT32;
-  space_below_ = MAX_INT32;
-  space_right_ = MAX_INT32;
-  space_left_ = MAX_INT32;
+  space_above_ = INT32_MAX;
+  space_below_ = INT32_MAX;
+  space_right_ = INT32_MAX;
+  space_left_ = INT32_MAX;
   UpdateMargins(text_grid_);
   UpdateMargins(line_grid_);
 }
@@ -497,7 +497,7 @@ int StructuredTable::FindVerticalMargin(ColPartitionGrid* grid, int border,
     if (distance >= 0)
       return distance;
   }
-  return MAX_INT32;
+  return INT32_MAX;
 }
 int StructuredTable::FindHorizontalMargin(ColPartitionGrid* grid, int border,
                                           bool decrease) const {
@@ -513,7 +513,7 @@ int StructuredTable::FindHorizontalMargin(ColPartitionGrid* grid, int border,
     if (distance >= 0)
       return distance;
   }
-  return MAX_INT32;
+  return INT32_MAX;
 }
 
 void StructuredTable::CalculateStats() {
@@ -606,7 +606,7 @@ void StructuredTable::FindCellSplitLocations(const GenericVector<int>& min_list,
   int min_index = 0;
   int max_index = 0;
   int stacked_partitions = 0;
-  int last_cross_position = MAX_INT32;
+  int last_cross_position = INT32_MAX;
   // max_index will expire after min_index.
   // However, we can't "increase" the hill size if min_index expired.
   // So finish processing when min_index expires.
@@ -614,17 +614,17 @@ void StructuredTable::FindCellSplitLocations(const GenericVector<int>& min_list,
     // Increase the hill count.
     if (min_list[min_index] < max_list[max_index]) {
       ++stacked_partitions;
-      if (last_cross_position != MAX_INT32 &&
+      if (last_cross_position != INT32_MAX &&
           stacked_partitions > max_merged) {
         int mid = (last_cross_position + min_list[min_index]) / 2;
         locations->push_back(mid);
-        last_cross_position = MAX_INT32;
+        last_cross_position = INT32_MAX;
       }
       ++min_index;
     } else {
       // Decrease the hill count.
       --stacked_partitions;
-      if (last_cross_position == MAX_INT32 &&
+      if (last_cross_position == INT32_MAX &&
           stacked_partitions <= max_merged) {
         last_cross_position = max_list[max_index];
       }
@@ -708,7 +708,7 @@ TableRecognizer::TableRecognizer()
       line_grid_(NULL),
       min_height_(0),
       min_width_(0),
-      max_text_height_(MAX_INT32) {
+      max_text_height_(INT32_MAX) {
 }
 
 TableRecognizer::~TableRecognizer() {
@@ -892,7 +892,7 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
   // Find the bottom of the table by trying a few different locations. For
   // each location, the top, left, and right are fixed. We start the search
   // in a smaller table to favor best_cols getting a good estimate sooner.
-  int last_bottom = MAX_INT32;
+  int last_bottom = INT32_MAX;
   int bottom = NextHorizontalSplit(guess_box.left(), guess_box.right(),
                                    kMidGuessY - min_height_ / 2, true);
   int top = NextHorizontalSplit(guess_box.left(), guess_box.right(),
@@ -954,7 +954,7 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
 
   // TODO(nbeato) comments: follow modified code above... put it in a function!
   found_good_border = false;
-  int last_top = MIN_INT32;
+  int last_top = INT32_MIN;
   top = NextHorizontalSplit(guess_box.left(), guess_box.right(),
                             kMidGuessY + min_height_ / 2, false);
   int previous_above = 0;

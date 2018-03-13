@@ -51,18 +51,18 @@ class TRand {
     set_seed(static_cast<uint64_t>(hasher(str)));
   }
 
-  // Returns an integer in the range 0 to MAX_INT32.
+  // Returns an integer in the range 0 to INT32_MAX.
   int32_t IntRand() {
     Iterate();
     return seed_ >> 33;
   }
   // Returns a floating point value in the range [-range, range].
   double SignedRand(double range) {
-    return range * 2.0 * IntRand() / MAX_INT32 - range;
+    return range * 2.0 * IntRand() / INT32_MAX - range;
   }
   // Returns a floating point value in the range [0, range].
   double UnsignedRand(double range) {
-    return range * IntRand() / MAX_INT32;
+    return range * IntRand() / INT32_MAX;
   }
 
  private:

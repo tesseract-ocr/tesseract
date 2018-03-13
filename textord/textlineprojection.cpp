@@ -125,8 +125,8 @@ void TextlineProjection::DisplayProjection() const {
   Pix* pixc = pixCreate(width, height, 32);
   int src_wpl = pixGetWpl(pix_);
   int col_wpl = pixGetWpl(pixc);
-  uinT32* src_data = pixGetData(pix_);
-  uinT32* col_data = pixGetData(pixc);
+  uint32_t* src_data = pixGetData(pix_);
+  uint32_t* col_data = pixGetData(pixc);
   for (int y = 0; y < height; ++y, src_data += src_wpl, col_data += col_wpl) {
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(src_data, x);
@@ -279,7 +279,7 @@ int TextlineProjection::VerticalDistance(bool debug, int x,
   if (y1 == y2) return 0;
   int wpl = pixGetWpl(pix_);
   int step = y1 < y2 ? 1 : -1;
-  uinT32* data = pixGetData(pix_) + y1 * wpl;
+  uint32_t* data = pixGetData(pix_) + y1 * wpl;
   wpl *= step;
   int prev_pixel = GET_DATA_BYTE(data, x);
   int distance = 0;
@@ -312,7 +312,7 @@ int TextlineProjection::HorizontalDistance(bool debug, int x1, int x2,
   if (x1 == x2) return 0;
   int wpl = pixGetWpl(pix_);
   int step = x1 < x2 ? 1 : -1;
-  uinT32* data = pixGetData(pix_) + y * wpl;
+  uint32_t* data = pixGetData(pix_) + y * wpl;
   int prev_pixel = GET_DATA_BYTE(data, x1);
   int distance = 0;
   int right_way_steps = 0;
@@ -457,7 +457,7 @@ int TextlineProjection::EvaluateBoxInternal(const TBOX& box,
 // This gives a positive value for a good top edge and negative for bottom.
 // Returns the best result out of +2/-2, +3/-1, +1/-3 pixels from the edge.
 int TextlineProjection::BestMeanGradientInRow(const DENORM* denorm,
-                                              inT16 min_x, inT16 max_x, inT16 y,
+                                              int16_t min_x, int16_t max_x, int16_t y,
                                               bool best_is_max) const {
   TPOINT start_pt(min_x, y);
   TPOINT end_pt(max_x, y);
@@ -483,8 +483,8 @@ int TextlineProjection::BestMeanGradientInRow(const DENORM* denorm,
 // 2 pixels to the right.
 // This gives a positive value for a good left edge and negative for right.
 // Returns the best result out of +2/-2, +3/-1, +1/-3 pixels from the edge.
-int TextlineProjection::BestMeanGradientInColumn(const DENORM* denorm, inT16 x,
-                                                 inT16 min_y, inT16 max_y,
+int TextlineProjection::BestMeanGradientInColumn(const DENORM* denorm, int16_t x,
+                                                 int16_t min_y, int16_t max_y,
                                                  bool best_is_max) const {
   TPOINT start_pt(x, min_y);
   TPOINT end_pt(x, max_y);
@@ -523,7 +523,7 @@ int TextlineProjection::MeanPixelsInLineSegment(const DENORM* denorm,
   TruncateToImageBounds(&start_pt);
   TruncateToImageBounds(&end_pt);
   int wpl = pixGetWpl(pix_);
-  uinT32* data = pixGetData(pix_);
+  uint32_t* data = pixGetData(pix_);
   int total = 0;
   int count = 0;
   int x_delta = end_pt.x - start_pt.x;
@@ -630,7 +630,7 @@ void TextlineProjection::IncrementRectangle8Bit(const TBOX& box) {
   int scaled_right = ImageXToProjectionX(box.right());
   int scaled_bottom = ImageYToProjectionY(box.bottom());
   int wpl = pixGetWpl(pix_);
-  uinT32* data = pixGetData(pix_) + scaled_top * wpl;
+  uint32_t* data = pixGetData(pix_) + scaled_top * wpl;
   for (int y = scaled_top; y <= scaled_bottom; ++y) {
     for (int x = scaled_left; x <= scaled_right; ++x) {
       int pixel = GET_DATA_BYTE(data, x);

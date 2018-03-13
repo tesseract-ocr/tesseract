@@ -42,12 +42,12 @@ class BLOCK:public ELIST_LINK, public PDBLK
   }
   BLOCK(const char *name,  //< filename
         BOOL8 prop,        //< proportional
-        inT16 kern,        //< kerning
-        inT16 space,       //< spacing
-        inT16 xmin,        //< bottom left
-        inT16 ymin,
-        inT16 xmax,        //< top right
-        inT16 ymax);
+        int16_t kern,        //< kerning
+        int16_t space,       //< spacing
+        int16_t xmin,        //< bottom left
+        int16_t ymin,
+        int16_t xmax,        //< top right
+        int16_t ymax);
 
   ~BLOCK () {
   }
@@ -60,20 +60,20 @@ class BLOCK:public ELIST_LINK, public PDBLK
    * @param ch_pitch pitch if fixed
    */
   void set_stats(BOOL8 prop,
-                 inT16 kern,
-                 inT16 space,
-                 inT16 ch_pitch) {
+                 int16_t kern,
+                 int16_t space,
+                 int16_t ch_pitch) {
     proportional = prop;
-    kerning = (inT8) kern;
+    kerning = (int8_t) kern;
     spacing = space;
     pitch = ch_pitch;
   }
   /// set char size
-  void set_xheight(inT32 height) {
+  void set_xheight(int32_t height) {
     xheight = height;
   }
   /// set font class
-  void set_font_class(inT16 font) {
+  void set_font_class(int16_t font) {
     font_class = font;
   }
   /// return proportional
@@ -87,19 +87,19 @@ class BLOCK:public ELIST_LINK, public PDBLK
     right_to_left_ = value;
   }
   /// return pitch
-  inT32 fixed_pitch() const {
+  int32_t fixed_pitch() const {
     return pitch;
   }
   /// return kerning
-  inT16 kern() const {
+  int16_t kern() const {
     return kerning;
   }
   /// return font class
-  inT16 font() const {
+  int16_t font() const {
     return font_class;
   }
   /// return spacing
-  inT16 space() const {
+  int16_t space() const {
     return spacing;
   }
   /// return filename
@@ -107,7 +107,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
     return filename.string ();
   }
   /// return xheight
-  inT32 x_height() const {
+  int32_t x_height() const {
     return xheight;
   }
   float cell_over_xheight() const {
@@ -195,11 +195,11 @@ class BLOCK:public ELIST_LINK, public PDBLK
  private:
   BOOL8 proportional;          //< proportional
   bool right_to_left_;         //< major script is right to left.
-  inT8 kerning;                //< inter blob gap
-  inT16 spacing;               //< inter word gap
-  inT16 pitch;                 //< pitch of non-props
-  inT16 font_class;            //< correct font class
-  inT32 xheight;               //< height of chars
+  int8_t kerning;                //< inter blob gap
+  int16_t spacing;               //< inter word gap
+  int16_t pitch;                 //< pitch of non-props
+  int16_t font_class;            //< correct font class
+  int32_t xheight;               //< height of chars
   float cell_over_xheight_;    //< Ratio of cell height to xheight.
   STRING filename;             //< name of block
   ROW_LIST rows;               //< rows in block

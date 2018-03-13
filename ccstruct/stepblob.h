@@ -66,11 +66,11 @@ class C_BLOB:public ELIST_LINK
     }
 
     TBOX bounding_box() const;  // compute bounding box
-    inT32 area();  //compute area
-    inT32 perimeter();  // Total perimeter of outlines and 1st level children.
-    inT32 outer_area();  //compute area
-    inT32 count_transitions(                   //count maxima
-                            inT32 threshold);  //size threshold
+    int32_t area();  //compute area
+    int32_t perimeter();  // Total perimeter of outlines and 1st level children.
+    int32_t outer_area();  //compute area
+    int32_t count_transitions(                   //count maxima
+                            int32_t threshold);  //size threshold
 
     void move(const ICOORD vec);  // repostion blob by vector
     void rotate(const FCOORD& rotation);  // Rotate by given vector.
@@ -81,7 +81,7 @@ class C_BLOB:public ELIST_LINK
 
     // Estimates and returns the baseline position based on the shape of the
     // outlines.
-    inT16 EstimateBaselinePosition();
+    int16_t EstimateBaselinePosition();
 
     // Returns a Pix rendering of the blob. pixDestroy after use.
     Pix* render();

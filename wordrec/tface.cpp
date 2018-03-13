@@ -75,7 +75,7 @@ int Wordrec::end_recog() {
  * This function holds any nessessary post processing for the Wise Owl
  * program.
  */
-void Wordrec::program_editdown(inT32 elasped_time) {
+void Wordrec::program_editdown(int32_t elasped_time) {
   EndAdaptiveClassifier();
   getDict().End();
 }

@@ -35,18 +35,18 @@ class FPSEGPT:public ELIST_LINK
     FPSEGPT() {  //empty
     }
     FPSEGPT(           //constructor
-            inT16 x);  //position
+            int16_t x);  //position
     FPSEGPT(                           //constructor
-            inT16 x,                   //position
+            int16_t x,                   //position
             BOOL8 faking,              //faking this one
-            inT16 offset,              //extra cost dist
-            inT16 region_index,        //segment number
-            inT16 pitch,               //proposed pitch
-            inT16 pitch_error,         //allowed tolerance
+            int16_t offset,              //extra cost dist
+            int16_t region_index,        //segment number
+            int16_t pitch,               //proposed pitch
+            int16_t pitch_error,         //allowed tolerance
             FPSEGPT_LIST *prev_list);  //previous segment
     FPSEGPT(FPCUTPT *cutpt);  //build from new type
 
-    inT32 position() {  // access func
+    int32_t position() {  // access func
       return xpos;
     }
     double cost_function() {
@@ -61,18 +61,18 @@ class FPSEGPT:public ELIST_LINK
     FPSEGPT *previous() {
       return pred;
     }
-    inT16 cheap_cuts() const {  //no of cheap cuts
+    int16_t cheap_cuts() const {  //no of cheap cuts
       return mid_cuts;
     }
 
                                  //faked split point
     BOOL8 faked;
     BOOL8 terminal;              //successful end
-    inT16 fake_count;            //total fakes to here
+    int16_t fake_count;            //total fakes to here
 
   private:
-    inT16 mid_cuts;              //no of cheap cuts
-    inT32 xpos;                  //location
+    int16_t mid_cuts;              //no of cheap cuts
+    int32_t xpos;                  //location
     FPSEGPT *pred;               //optimal previous
     double mean_sum;             //mean so far
     double sq_sum;               //summed distsances
@@ -92,9 +92,9 @@ extern
 INT_VAR_H (pitsync_fake_depth, 1, "Max advance fake generation");
 double check_pitch_sync(                        //find segmentation
                         BLOBNBOX_IT *blob_it,   //blobs to do
-                        inT16 blob_count,       //no of blobs
-                        inT16 pitch,            //pitch estimate
-                        inT16 pitch_error,      //tolerance
+                        int16_t blob_count,       //no of blobs
+                        int16_t pitch,            //pitch estimate
+                        int16_t pitch_error,      //tolerance
                         STATS *projection,      //vertical
                         FPSEGPT_LIST *seg_list  //output list
                        );
@@ -102,12 +102,12 @@ void make_illegal_segment(                          //find segmentation
                           FPSEGPT_LIST *prev_list,  //previous segments
                           TBOX blob_box,             //bounding box
                           BLOBNBOX_IT blob_it,      //iterator
-                          inT16 region_index,       //number of segment
-                          inT16 pitch,              //pitch estimate
-                          inT16 pitch_error,        //tolerance
+                          int16_t region_index,       //number of segment
+                          int16_t pitch,              //pitch estimate
+                          int16_t pitch_error,        //tolerance
                           FPSEGPT_LIST *seg_list    //output list
                          );
-inT16 vertical_torow_projection(                   //project whole row
+int16_t vertical_torow_projection(                   //project whole row
                                 TO_ROW *row,       //row to do
                                 STATS *projection  //output
                                );

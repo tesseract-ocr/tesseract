@@ -160,44 +160,44 @@ class Textord {
                            GAPMAP *gapmap,
                            BOOL8 &old_text_ord_proportional,
                            //resulting estimate
-                           inT16 &block_space_gap_width,
+                           int16_t &block_space_gap_width,
                            //resulting estimate
-                           inT16 &block_non_space_gap_width
+                           int16_t &block_non_space_gap_width
                            );
   void row_spacing_stats(TO_ROW *row,
                          GAPMAP *gapmap,
-                         inT16 block_idx,
-                         inT16 row_idx,
+                         int16_t block_idx,
+                         int16_t row_idx,
                          //estimate for block
-                         inT16 block_space_gap_width,
+                         int16_t block_space_gap_width,
                          //estimate for block
-                         inT16 block_non_space_gap_width
+                         int16_t block_non_space_gap_width
                          );
   void old_to_method(TO_ROW *row,
                      STATS *all_gap_stats,
                      STATS *space_gap_stats,
                      STATS *small_gap_stats,
-                     inT16 block_space_gap_width,
+                     int16_t block_space_gap_width,
                      //estimate for block
-                     inT16 block_non_space_gap_width
+                     int16_t block_non_space_gap_width
                      );
   BOOL8 isolated_row_stats(TO_ROW *row,
                            GAPMAP *gapmap,
                            STATS *all_gap_stats,
                            BOOL8 suspected_table,
-                           inT16 block_idx,
-                           inT16 row_idx);
-  inT16 stats_count_under(STATS *stats, inT16 threshold);
+                           int16_t block_idx,
+                           int16_t row_idx);
+  int16_t stats_count_under(STATS *stats, int16_t threshold);
   void improve_row_threshold(TO_ROW *row, STATS *all_gap_stats);
   BOOL8 make_a_word_break(TO_ROW *row,   // row being made
                           TBOX blob_box, // for next_blob // how many blanks?
-                          inT16 prev_gap,
+                          int16_t prev_gap,
                           TBOX prev_blob_box,
-                          inT16 real_current_gap,
-                          inT16 within_xht_current_gap,
+                          int16_t real_current_gap,
+                          int16_t within_xht_current_gap,
                           TBOX next_blob_box,
-                          inT16 next_gap,
-                          uinT8 &blanks,
+                          int16_t next_gap,
+                          uint8_t &blanks,
                           BOOL8 &fuzzy_sp,
                           BOOL8 &fuzzy_non,
                           BOOL8& prev_gap_was_a_space,
@@ -208,26 +208,26 @@ class Textord {
   void peek_at_next_gap(TO_ROW *row,
                         BLOBNBOX_IT box_it,
                         TBOX &next_blob_box,
-                        inT16 &next_gap,
-                        inT16 &next_within_xht_gap);
+                        int16_t &next_gap,
+                        int16_t &next_within_xht_gap);
   void mark_gap(TBOX blob,    //blob following gap
-                inT16 rule,  // heuristic id
-                inT16 prev_gap,
-                inT16 prev_blob_width,
-                inT16 current_gap,
-                inT16 next_blob_width,
-                inT16 next_gap);
+                int16_t rule,  // heuristic id
+                int16_t prev_gap,
+                int16_t prev_blob_width,
+                int16_t current_gap,
+                int16_t next_blob_width,
+                int16_t next_gap);
   float find_mean_blob_spacing(WERD *word);
   BOOL8 ignore_big_gap(TO_ROW *row,
-                       inT32 row_length,
+                       int32_t row_length,
                        GAPMAP *gapmap,
-                       inT16 left,
-                       inT16 right);
+                       int16_t left,
+                       int16_t right);
   //get bounding box
   TBOX reduced_box_next(TO_ROW *row,     //current row
                         BLOBNBOX_IT *it  //iterator to blobds
                         );
-  TBOX reduced_box_for_blob(BLOBNBOX *blob, TO_ROW *row, inT16 *left_above_xht);
+  TBOX reduced_box_for_blob(BLOBNBOX *blob, TO_ROW *row, int16_t *left_above_xht);
   // tordmain.cpp ///////////////////////////////////////////
   float filter_noise_blobs(BLOBNBOX_LIST *src_list,
                            BLOBNBOX_LIST *noise_list,

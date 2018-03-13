@@ -50,14 +50,14 @@ class REGION_OCC:public ELIST_LINK
   public:
     float min_x;                 //Lowest x in region
     float max_x;                 //Highest x in region
-    inT16 region_type;           //Type of crossing
+    int16_t region_type;           //Type of crossing
 
     REGION_OCC() {}  // constructor used
     // only in COPIER etc
     REGION_OCC(  //constructor
                float min,
                float max,
-               inT16 region) {
+               int16_t region) {
       min_x = min;
       max_x = max;
       region_type = region;
@@ -73,10 +73,10 @@ class in an include file...
 
 BOOL8           range_in_band[
               range within band?
-inT16           band_max,
-inT16           band_min,
-inT16           range_max,
-inT16           range_min]
+int16_t           band_max,
+int16_t           band_min,
+int16_t           range_max,
+int16_t           range_min]
 {
   if ( (range_min >= band_min) && (range_max < band_max) )
     return TRUE;
@@ -92,10 +92,10 @@ class in an include file...
 
 BOOL8           range_overlaps_band[
               range crosses band?
-inT16           band_max,
-inT16           band_min,
-inT16           range_max,
-inT16           range_min]
+int16_t           band_max,
+int16_t           band_min,
+int16_t           range_max,
+int16_t           range_min]
 {
   if ( (range_max >= band_min) && (range_min < band_max) )
     return TRUE;
@@ -126,23 +126,23 @@ have significantly changed bands until it has moved out of the error margin.
 class BAND
 {
   public:
-    inT16 max_max;               //upper max
-    inT16 max;                   //nominal max
-    inT16 min_max;               //lower max
-    inT16 max_min;               //upper min
-    inT16 min;                   //nominal min
-    inT16 min_min;               //lower min
+    int16_t max_max;               //upper max
+    int16_t max;                   //nominal max
+    int16_t min_max;               //lower max
+    int16_t max_min;               //upper min
+    int16_t min;                   //nominal min
+    int16_t min_min;               //lower min
 
     BAND() {
     }                            // constructor
 
     void set(                      // initialise a band
-             inT16 new_max_max,    // upper max
-             inT16 new_max,        // new nominal max
-             inT16 new_min_max,    // new lower max
-             inT16 new_max_min,    // new upper min
-             inT16 new_min,        // new nominal min
-             inT16 new_min_min) {  // new lower min
+             int16_t new_max_max,    // upper max
+             int16_t new_max,        // new nominal max
+             int16_t new_min_max,    // new lower max
+             int16_t new_max_min,    // new upper min
+             int16_t new_min,        // new nominal min
+             int16_t new_min_min) {  // new lower min
       max_max = new_max_max;
       max = new_max;
       min_max = new_min_max;
@@ -255,8 +255,8 @@ extern double_VAR_H (textord_underline_threshold, 0.9,
 BOOL8 test_underline(                   //look for underlines
                      BOOL8 testing_on,  //drawing blob
                      C_BLOB *blob,      //blob to test
-                     inT16 baseline,    //coords of baseline
-                     inT16 xheight      //height of line
+                     int16_t baseline,    //coords of baseline
+                     int16_t xheight      //height of line
                     );
 
 #endif

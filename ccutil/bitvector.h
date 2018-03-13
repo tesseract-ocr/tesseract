@@ -35,10 +35,10 @@ class BitVector {
   // Fast lookup table to get the first least significant set bit in a byte.
   // For zero, the table has 255, but since it is a special case, most code
   // that uses this table will check for zero before looking up lsb_index_.
-  static const uinT8 lsb_index_[256];
+  static const uint8_t lsb_index_[256];
   // Fast lookup table to get the residual bits after zeroing the least
   // significant set bit in a byte.
-  static const uinT8 lsb_eroded_[256];
+  static const uint8_t lsb_eroded_[256];
   // Fast lookup table to give the number of set bits in a byte.
   static const int hamming_table_[256];
 
@@ -114,7 +114,7 @@ class BitVector {
     return index / kBitFactor;
   }
   // Returns a mask to select the appropriate bit for the given index.
-  uinT32 BitMask(int index) const {
+  uint32_t BitMask(int index) const {
     return 1 << (index & (kBitFactor - 1));
   }
   // Returns the number of array elements needed to represent the current
@@ -128,13 +128,13 @@ class BitVector {
   }
 
   // Number of bits in this BitVector.
-  inT32 bit_size_;
+  int32_t bit_size_;
   // Array of words used to pack the bits.
-  // Bits are stored little-endian by uinT32 word, ie by word first and then
+  // Bits are stored little-endian by uint32_t word, ie by word first and then
   // starting with the least significant bit in each word.
-  uinT32* array_;
+  uint32_t* array_;
   // Number of bits in an array_ element.
-  static const int kBitFactor = sizeof(uinT32) * 8;
+  static const int kBitFactor = sizeof(uint32_t) * 8;
 };
 
 }  // namespace tesseract.

@@ -648,7 +648,7 @@ void FontUtils::GetAllRenderableCharacters(const std::vector<std::string>& fonts
 // Utilities written to be backward compatible with StringRender
 
 /* static */
-int FontUtils::FontScore(const std::unordered_map<char32, inT64>& ch_map,
+int FontUtils::FontScore(const std::unordered_map<char32, int64_t>& ch_map,
                          const std::string& fontname, int* raw_score,
                          std::vector<bool>* ch_flags) {
   PangoFontInfo font_info;
@@ -664,7 +664,7 @@ int FontUtils::FontScore(const std::unordered_map<char32, inT64>& ch_map,
   }
   *raw_score = 0;
   int ok_chars = 0;
-  for (std::unordered_map<char32, inT64>::const_iterator it = ch_map.begin();
+  for (std::unordered_map<char32, int64_t>::const_iterator it = ch_map.begin();
        it != ch_map.end(); ++it) {
     bool covered = (IsWhitespace(it->first) ||
                     (pango_coverage_get(coverage, it->first)
@@ -685,7 +685,7 @@ int FontUtils::FontScore(const std::unordered_map<char32, inT64>& ch_map,
 
 /* static */
 std::string FontUtils::BestFonts(
-    const std::unordered_map<char32, inT64>& ch_map,
+    const std::unordered_map<char32, int64_t>& ch_map,
     std::vector<std::pair<const char*, std::vector<bool> > >* fonts) {
   const double kMinOKFraction = 0.99;
   // Weighted fraction of characters that must be renderable in a font to make

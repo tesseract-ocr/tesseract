@@ -61,7 +61,7 @@ class DLLSYM POLY_BLOCK {
   // Move by adding shift to all coordinates.
   void move(ICOORD shift);
 
-  void plot(ScrollView* window, inT32 num);
+  void plot(ScrollView* window, int32_t num);
 
   #ifndef GRAPHICS_DISABLED
   void fill(ScrollView* window, ScrollView::Color colour);
@@ -76,7 +76,7 @@ class DLLSYM POLY_BLOCK {
   // Returns the winding number of this around the test_pt.
   // Positive for anticlockwise, negative for clockwise, and zero for
   // test_pt outside this.
-  inT16 winding_number(const ICOORD &test_pt);
+  int16_t winding_number(const ICOORD &test_pt);
 
   #ifndef GRAPHICS_DISABLED
   // Static utility functions to handle the PolyBlockType.
@@ -105,7 +105,7 @@ class DLLSYM PB_LINE_IT {
   // Each element of the returned list is the start (x) and extent(y) of
   // a run inside the region.
   // Delete the returned list after use.
-  ICOORDELT_LIST *get_line(inT16 y);
+  ICOORDELT_LIST *get_line(int16_t y);
 
  private:
   POLY_BLOCK * block;

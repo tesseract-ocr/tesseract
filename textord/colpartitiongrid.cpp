@@ -448,7 +448,7 @@ ColPartition* ColPartitionGrid::BestMergeCandidate(
   non_candidate_neighbours.set_subtract(SortByBoxLeft<ColPartition>, true,
                                         &neighbours, candidates);
   int worst_nc_increase = 0;
-  int best_increase = MAX_INT32;
+  int best_increase = INT32_MAX;
   int best_area = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     ColPartition* candidate = it.data();
@@ -1120,7 +1120,7 @@ void ColPartitionGrid::FindFigureCaptions() {
         // or a big gap that indicates a separation from the body text.
         int line_count = 0;
         int biggest_gap = 0;
-        int smallest_gap = MAX_INT16;
+        int smallest_gap = INT16_MAX;
         int total_height = 0;
         int mean_height = 0;
         ColPartition* end_partner = NULL;
@@ -1215,7 +1215,7 @@ void ColPartitionGrid::FindPartitionPartners(bool upper, ColPartition* part) {
   vsearch.StartVerticalSearch(box.left(), box.right(), part->MidY());
   ColPartition* neighbour;
   ColPartition* best_neighbour = NULL;
-  int best_dist = MAX_INT32;
+  int best_dist = INT32_MAX;
   while ((neighbour = vsearch.NextVerticalSearch(!upper)) != NULL) {
     if (neighbour == part || neighbour->type() == PT_NOISE)
       continue;  // Noise is not allowed to partner anything.
@@ -1261,7 +1261,7 @@ void ColPartitionGrid::FindVPartitionPartners(bool to_the_left,
   hsearch.StartSideSearch(mid_x, box.bottom(), box.top());
   ColPartition* neighbour;
   ColPartition* best_neighbour = NULL;
-  int best_dist = MAX_INT32;
+  int best_dist = INT32_MAX;
   while ((neighbour = hsearch.NextSideSearch(to_the_left)) != NULL) {
     if (neighbour == part || neighbour->type() == PT_NOISE)
       continue;  // Noise is not allowed to partner anything.
@@ -1411,7 +1411,7 @@ bool ColPartitionGrid::SmoothRegionType(Pix* nontext_map,
     part_box.print();
   }
   BlobRegionType best_type = BRT_UNKNOWN;
-  int best_dist = MAX_INT32;
+  int best_dist = INT32_MAX;
   int max_dist = MIN(part_box.width(), part_box.height());
   max_dist = MAX(max_dist * kMaxNeighbourDistFactor, gridsize() * 2);
   // Search with the pad truncated on each side of the box in turn.
@@ -1552,7 +1552,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
   int min_dist = 0;
   do {
     // Find the minimum new entry across the vectors
-    min_dist = MAX_INT32;
+    min_dist = INT32_MAX;
     for (int i = 0; i < NPT_COUNT; ++i) {
       if (counts[i] < dists[i].size() && dists[i][counts[i]] < min_dist)
         min_dist = dists[i][counts[i]];
@@ -1596,7 +1596,7 @@ BlobRegionType ColPartitionGrid::SmoothInOneDirection(
       *best_distance = dists[NPT_VTEXT][0];
       return BRT_VERT_TEXT;
     }
-  } while (min_dist < MAX_INT32);
+  } while (min_dist < INT32_MAX);
   return BRT_UNKNOWN;
 }
 

@@ -317,7 +317,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
   int num_blobs = word->chopped_word->blobs.size();
   int box_index = 0;
   int blob_index = 0;
-  inT16 truth_x = -1;
+  int16_t truth_x = -1;
   while (box_index < truth_word_.length() && blob_index < num_blobs) {
     truth_x = norm_truth_word_.BlobBox(box_index).right();
     TBLOB * curr_blob = word->chopped_word->blobs[blob_index];
@@ -416,15 +416,15 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
   int num_blobs = word->NumBlobs();
   if (num_blobs == 0) return;  // No blobs to play with.
   int blob_index = 0;
-  inT16 next_box_x = word->blobs[blob_index]->bounding_box().right();
+  int16_t next_box_x = word->blobs[blob_index]->bounding_box().right();
   for (int truth_idx = 0; blob_index < num_blobs &&
        truth_idx < norm_truth_word_.length();
        ++blob_index) {
     ++next_box_col;
-    inT16 curr_box_x = next_box_x;
+    int16_t curr_box_x = next_box_x;
     if (blob_index + 1 < num_blobs)
       next_box_x = word->blobs[blob_index + 1]->bounding_box().right();
-    inT16 truth_x = norm_truth_word_.BlobBox(truth_idx).right();
+    int16_t truth_x = norm_truth_word_.BlobBox(truth_idx).right();
     debug_str.add_str_int("Box x coord vs. truth: ", curr_box_x);
     debug_str.add_str_int(" ", truth_x);
     debug_str += "\n";

@@ -81,7 +81,7 @@ bool TrainingSampleSet::Serialize(FILE* fp) const {
   if (!samples_.Serialize(fp)) return false;
   if (!unicharset_.save_to_file(fp)) return false;
   if (!font_id_map_.Serialize(fp)) return false;
-  inT8 not_null = font_class_array_ != NULL;
+  int8_t not_null = font_class_array_ != NULL;
   if (fwrite(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {
     if (!font_class_array_->SerializeClasses(fp)) return false;
@@ -98,7 +98,7 @@ bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
   if (!font_id_map_.DeSerialize(swap, fp)) return false;
   delete font_class_array_;
   font_class_array_ = NULL;
-  inT8 not_null;
+  int8_t not_null;
   if (fread(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {
     FontClassInfo empty;

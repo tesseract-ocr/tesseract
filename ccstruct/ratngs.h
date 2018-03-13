@@ -82,10 +82,10 @@ class BLOB_CHOICE: public ELIST_LINK
     float certainty() const {
       return certainty_;
     }
-    inT16 fontinfo_id() const {
+    int16_t fontinfo_id() const {
       return fontinfo_id_;
     }
-    inT16 fontinfo_id2() const {
+    int16_t fontinfo_id2() const {
       return fontinfo_id2_;
     }
     const GenericVector<tesseract::ScoredFont>& fonts() const {
@@ -114,10 +114,10 @@ class BLOB_CHOICE: public ELIST_LINK
     const MATRIX_COORD& matrix_cell() {
       return matrix_cell_;
     }
-    inT16 xgap_before() const {
+    int16_t xgap_before() const {
       return xgap_before_;
     }
-    inT16 xgap_after() const {
+    int16_t xgap_after() const {
       return xgap_after_;
     }
     float min_xheight() const {
@@ -157,10 +157,10 @@ class BLOB_CHOICE: public ELIST_LINK
       matrix_cell_.col = col;
       matrix_cell_.row = row;
     }
-    void set_xgap_before(inT16 gap) {
+    void set_xgap_before(int16_t gap) {
       xgap_before_ = gap;
     }
-    void set_xgap_after(inT16 gap) {
+    void set_xgap_after(int16_t gap) {
       xgap_after_ = gap;
     }
     void set_classifier(BlobChoiceClassifier classifier) {
@@ -199,8 +199,8 @@ class BLOB_CHOICE: public ELIST_LINK
   UNICHAR_ID unichar_id_;          // unichar id
   // Fonts and scores. Allowed to be empty.
   GenericVector<tesseract::ScoredFont> fonts_;
-  inT16 fontinfo_id_;              // char font information
-  inT16 fontinfo_id2_;             // 2nd choice font information
+  int16_t fontinfo_id_;              // char font information
+  int16_t fontinfo_id2_;             // 2nd choice font information
   // Rating is the classifier distance weighted by the length of the outline
   // in the blob. In terms of probability, classifier distance is -klog p such
   // that the resulting distance is in the range [0, 1] and then
@@ -216,8 +216,8 @@ class BLOB_CHOICE: public ELIST_LINK
   // Holds the position of this choice in the ratings matrix.
   // Used to location position in the matrix during path backtracking.
   MATRIX_COORD matrix_cell_;
-  inT16 xgap_before_;
-  inT16 xgap_after_;
+  int16_t xgap_before_;
+  int16_t xgap_after_;
   // X-height range (in image pixels) that this classification supports.
   float min_xheight_;
   float max_xheight_;
@@ -269,7 +269,7 @@ const char *ScriptPosToString(tesseract::ScriptPos script_pos);
 class WERD_CHOICE : public ELIST_LINK {
  public:
   static const float kBadRating;
-  static const char *permuter_name(uinT8 permuter);
+  static const char *permuter_name(uint8_t permuter);
 
   WERD_CHOICE(const UNICHARSET *unicharset)
     : unicharset_(unicharset) { this->init(8); }
@@ -279,7 +279,7 @@ class WERD_CHOICE : public ELIST_LINK {
               const char *src_lengths,
               float src_rating,
               float src_certainty,
-              uinT8 src_permuter,
+              uint8_t src_permuter,
               const UNICHARSET &unicharset)
     : unicharset_(&unicharset) {
     this->init(src_string, src_lengths, src_rating,
@@ -339,7 +339,7 @@ class WERD_CHOICE : public ELIST_LINK {
     min_x_height_ = min_height;
     max_x_height_ = max_height;
   }
-  inline uinT8 permuter() const {
+  inline uint8_t permuter() const {
     return permuter_;
   }
   const char *permuter_name() const;
@@ -368,7 +368,7 @@ class WERD_CHOICE : public ELIST_LINK {
   inline void set_certainty(float new_val) {
     certainty_ = new_val;
   }
-  inline void set_permuter(uinT8 perm) {
+  inline void set_permuter(uint8_t perm) {
     permuter_ = perm;
   }
   // Note: this function should only be used if all the fields
@@ -433,7 +433,7 @@ class WERD_CHOICE : public ELIST_LINK {
   /// in src_string are assumed to all be of length 1.
   void init(const char *src_string, const char *src_lengths,
             float src_rating, float src_certainty,
-            uinT8 src_permuter);
+            uint8_t src_permuter);
 
   /// Set the fields in this choice to be default (bad) values.
   inline void make_bad() {
@@ -619,7 +619,7 @@ class WERD_CHOICE : public ELIST_LINK {
   // xheight computed from the result, or 0 if inconsistent.
   float min_x_height_;
   float max_x_height_;
-  uinT8 permuter_;           // permuter code
+  uint8_t permuter_;           // permuter code
 
   // Normally, the ratings_ matrix represents the recognition results in order
   // from left-to-right.  However, some engines (say Cube) may return

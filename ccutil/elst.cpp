@@ -87,9 +87,9 @@ void ELIST::assign_to_sublist(                           //to this list
  *  Return count of elements on list
  **********************************************************************/
 
-inT32 ELIST::length() const {  // count elements
+int32_t ELIST::length() const {  // count elements
   ELIST_ITERATOR it(const_cast<ELIST*>(this));
-  inT32 count = 0;
+  int32_t count = 0;
 
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
     count++;
@@ -109,10 +109,10 @@ ELIST::sort (                    //sort elements
 int comparator (                 //comparison routine
 const void *, const void *)) {
   ELIST_ITERATOR it(this);
-  inT32 count;
+  int32_t count;
   ELIST_LINK **base;             //ptr array to sort
   ELIST_LINK **current;
-  inT32 i;
+  int32_t i;
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
@@ -231,7 +231,7 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
  **********************************************************************/
 
 ELIST_LINK *ELIST_ITERATOR::data_relative(                //get data + or - ...
-                                          inT8 offset) {  //offset from current
+                                          int8_t offset) {  //offset from current
   ELIST_LINK *ptr;
 
   #ifndef NDEBUG

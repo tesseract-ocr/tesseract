@@ -80,8 +80,8 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
  * @param pr_it the page results iterator
  */
 BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
-  inT16 char_qual;
-  inT16 good_char_qual;
+  int16_t char_qual;
+  int16_t good_char_qual;
 
   WordData word_data(*pr_it);
   SetupWordPassN(2, &word_data);
@@ -636,8 +636,8 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
     stats_.doc_blob_quality += blob_quality;
     int outline_errs = word_outline_errs(word);
     stats_.doc_outline_errs += outline_errs;
-    inT16 all_char_quality;
-    inT16 accepted_all_char_quality;
+    int16_t all_char_quality;
+    int16_t accepted_all_char_quality;
     word_char_quality(word, page_res_it.row()->row,
                       &all_char_quality, &accepted_all_char_quality);
     stats_.doc_char_quality += all_char_quality;
@@ -757,8 +757,8 @@ void Tesseract::script_pos_pass(PAGE_RES* page_res) {
 // Helper finds the gap between the index word and the next.
 static void WordGap(const PointerVector<WERD_RES>& words, int index, int* right,
                     int* next_left) {
-  *right = -MAX_INT32;
-  *next_left = MAX_INT32;
+  *right = -INT32_MAX;
+  *next_left = INT32_MAX;
   if (index < words.size()) {
     *right = words[index]->word->bounding_box().right();
     if (index + 1 < words.size())
@@ -812,11 +812,11 @@ static int SelectBestWords(double rating_ratio,
     // Start of the current run in each.
     int start_b = b, start_n = n;
     while (b < best_words->size() || n < new_words->size()) {
-      int b_right = -MAX_INT32;
-      int next_b_left = MAX_INT32;
+      int b_right = -INT32_MAX;
+      int next_b_left = INT32_MAX;
       WordGap(*best_words, b, &b_right, &next_b_left);
-      int n_right = -MAX_INT32;
-      int next_n_left = MAX_INT32;
+      int n_right = -INT32_MAX;
+      int next_n_left = INT32_MAX;
       WordGap(*new_words, n, &n_right, &next_n_left);
       if (MAX(b_right, n_right) < MIN(next_b_left, next_n_left)) {
         // The word breaks overlap. [start_b,b] and [start_n, n] match.
@@ -1793,7 +1793,7 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(
 
 BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
   BOOL8 show_map_detail = FALSE;
-  inT16 i;
+  int16_t i;
 
   if (!test_pt)
     return FALSE;
@@ -1880,17 +1880,17 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
  */
 static void find_modal_font(  // good chars in word
     STATS* fonts,             // font stats
-    inT16* font_out,          // output font
+    int16_t* font_out,        // output font
     int8_t* font_count        // output count
 ) {
-  inT16 font;                     //font index
-  inT32 count;                   //pile couat
+  int16_t font;  //font index
+  int32_t count; //pile count
 
   if (fonts->get_total () > 0) {
-    font = (inT16) fonts->mode ();
+    font = (int16_t) fonts->mode ();
     *font_out = font;
     count = fonts->pile_count (font);
-    *font_count = count < MAX_INT8 ? count : MAX_INT8;
+    *font_count = count < INT8_MAX ? count : INT8_MAX;
     fonts->add (font, -*font_count);
   }
   else {
@@ -1935,7 +1935,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   }
   // Find the top and 2nd choice for the word.
   int score1 = 0, score2 = 0;
-  inT16 font_id1 = -1, font_id2 = -1;
+  int16_t font_id1 = -1, font_id2 = -1;
   for (int f = 0; f < fontinfo_size; ++f) {
     if (tessedit_debug_fonts && font_total_score[f] > 0) {
       tprintf("Font %s, total score = %d\n",
@@ -1953,10 +1953,10 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   }
   word->fontinfo = font_id1 >= 0 ? &fontinfo_table_.get(font_id1) : NULL;
   word->fontinfo2 = font_id2 >= 0 ? &fontinfo_table_.get(font_id2) : NULL;
-  // Each score has a limit of MAX_UINT16, so divide by that to get the number
+  // Each score has a limit of UINT16_MAX, so divide by that to get the number
   // of "votes" for that font, ie number of perfect scores.
-  word->fontinfo_id_count = ClipToRange(score1 / MAX_UINT16, 1, MAX_INT8);
-  word->fontinfo_id2_count = ClipToRange(score2 / MAX_UINT16, 0, MAX_INT8);
+  word->fontinfo_id_count = ClipToRange<int>(score1 / UINT16_MAX, 1, INT8_MAX);
+  word->fontinfo_id2_count = ClipToRange<int>(score2 / UINT16_MAX, 0, INT8_MAX);
   if (score1 > 0) {
     FontInfo fi = fontinfo_table_.get(font_id1);
     if (tessedit_debug_fonts) {
@@ -1998,7 +1998,7 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
       doc_fonts.add(word->fontinfo2->universal_id, word->fontinfo_id2_count);
     }
   }
-  inT16 doc_font;                 // modal font
+  int16_t doc_font;               // modal font
   int8_t doc_font_count;          // modal font
   find_modal_font(&doc_fonts, &doc_font, &doc_font_count);
   if (doc_font_count == 0)

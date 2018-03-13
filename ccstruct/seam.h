@@ -186,8 +186,8 @@ class SEAM {
   // A range such that all splits in *this SEAM are contained within blobs in
   // the range [index - widthn_,index + widthp_] where index is the index of
   // this SEAM in the seams vector.
-  inT8 widthp_;
-  inT8 widthn_;
+  int8_t widthp_;
+  int8_t widthn_;
   // Number of splits_ that are used.
   uint8_t num_splits_;
   // Set of pairs of points that are the ends of each split in the SEAM.

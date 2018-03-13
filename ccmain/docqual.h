@@ -30,6 +30,6 @@ enum GARBAGE_LEVEL
   G_TERRIBLE
 };
 
-inT16 word_blob_quality(WERD_RES *word, ROW *row);
+int16_t word_blob_quality(WERD_RES *word, ROW *row);
 void reject_whole_page(PAGE_RES_IT &page_res_it);
 #endif

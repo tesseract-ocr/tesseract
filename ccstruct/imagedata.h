@@ -55,7 +55,7 @@ enum CachingStrategy {
 class WordFeature {
  public:
   WordFeature();
-  WordFeature(const FCOORD& fcoord, uinT8 dir);
+  WordFeature(const FCOORD& fcoord, uint8_t dir);
 
   // Computes the maximum x and y value in the features.
   static void ComputeSize(const GenericVector<WordFeature>& features,
@@ -76,9 +76,9 @@ class WordFeature {
   bool DeSerialize(bool swap, FILE* fp);
 
  private:
-  inT16 x_;
-  uinT8 y_;
-  uinT8 dir_;
+  int16_t x_;
+  uint8_t y_;
+  uint8_t dir_;
 };
 
 // A floating-point version of WordFeature, used as an intermediate during
@@ -190,7 +190,7 @@ class ImageData {
 
  private:
   STRING imagefilename_;             // File to read image from.
-  inT32 page_number_;                // Page number if multi-page tif or -1.
+  int32_t page_number_;                // Page number if multi-page tif or -1.
   GenericVector<char> image_data_;   // PNG file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.
@@ -209,10 +209,10 @@ class DocumentData {
 
   // Reads all the pages in the given lstmf filename to the cache. The reader
   // is used to read the file.
-  bool LoadDocument(const char* filename, int start_page, inT64 max_memory,
+  bool LoadDocument(const char* filename, int start_page, int64_t max_memory,
                     FileReader reader);
   // Sets up the document, without actually loading it.
-  void SetDocument(const char* filename, inT64 max_memory, FileReader reader);
+  void SetDocument(const char* filename, int64_t max_memory, FileReader reader);
   // Writes all the pages to the given filename. Returns false on error.
   bool SaveDocument(const char* filename, FileWriter writer);
   bool SaveToBuffer(GenericVector<char>* buffer);
@@ -228,7 +228,7 @@ class DocumentData {
     SVAutoLock lock(&general_mutex_);
     return total_pages_;
   }
-  inT64 memory_used() const {
+  int64_t memory_used() const {
     SVAutoLock lock(&general_mutex_);
     return memory_used_;
   }
@@ -263,7 +263,7 @@ class DocumentData {
   bool IsCached() const { return NumPages() >= 0; }
   // Removes all pages from memory and frees the memory, but does not forget
   // the document metadata. Returns the memory saved.
-  inT64 UnCache();
+  int64_t UnCache();
   // Shuffles all the pages in the document.
   void Shuffle();
 
@@ -273,7 +273,7 @@ class DocumentData {
     SVAutoLock lock(&general_mutex_);
     total_pages_ = total;
   }
-  void set_memory_used(inT64 memory_used) {
+  void set_memory_used(int64_t memory_used) {
     SVAutoLock lock(&general_mutex_);
     memory_used_ = memory_used;
   }
@@ -291,9 +291,9 @@ class DocumentData {
   // Total number of pages in document (may exceed size of pages_.)
   int total_pages_;
   // Total of all pix sizes in the document.
-  inT64 memory_used_;
+  int64_t memory_used_;
   // Max memory to use at any time.
-  inT64 max_memory_;
+  int64_t max_memory_;
   // Saved reader from LoadDocument to allow re-caching.
   FileReader reader_;
   // Mutex that protects pages_ and pages_offset_ against multiple parallel
@@ -311,7 +311,7 @@ class DocumentData {
 // content.
 class DocumentCache {
  public:
-  explicit DocumentCache(inT64 max_memory);
+  explicit DocumentCache(int64_t max_memory);
   ~DocumentCache();
 
   // Deletes all existing documents from the cache.
@@ -368,7 +368,7 @@ class DocumentCache {
   // GetPageSequential to determine the document index.
   int num_pages_per_doc_;
   // Max memory allowed in this cache.
-  inT64 max_memory_;
+  int64_t max_memory_;
 };
 
 }  // namespace tesseract

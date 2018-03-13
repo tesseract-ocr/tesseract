@@ -29,7 +29,7 @@
 
 class DENORM;
 
-#define INTERSECTING    MAX_INT16//no winding number
+#define INTERSECTING    INT16_MAX//no winding number
 
                                  //mask to get step
 #define STEP_MASK       3
@@ -57,9 +57,9 @@ enum C_OUTLINE_FLAGS
 // If the pixel_diff is zero, it means that the direction of the gradient
 // is in conflict with the step direction, so this step is to be ignored.
 struct EdgeOffset {
-  inT8 offset_numerator;
-  uinT8 pixel_diff;
-  uinT8 direction;
+  int8_t offset_numerator;
+  uint8_t pixel_diff;
+  uint8_t direction;
 };
 
 class DLLSYM C_OUTLINE;          //forward declaration
@@ -76,10 +76,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
               CRACKEDGE *startpt,  //from edge detector
               ICOORD bot_left,     //bounding box //length of loop
               ICOORD top_right,
-              inT16 length);
+              int16_t length);
     C_OUTLINE(ICOORD startpt,    //start of loop
               DIR128 *new_steps,  //steps in loop
-              inT16 length);     //length of loop
+              int16_t length);     //length of loop
                                  //outline to copy
     C_OUTLINE(C_OUTLINE *srcline, FCOORD rotation);  //and rotate
 
@@ -112,30 +112,30 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
       return box;
     }
     void set_step(                    //set a step
-                  inT16 stepindex,    //index of step
-                  inT8 stepdir) {     //chain code
+                  int16_t stepindex,    //index of step
+                  int8_t stepdir) {     //chain code
       int shift = stepindex%4 * 2;
-      uinT8 mask = 3 << shift;
+      uint8_t mask = 3 << shift;
       steps[stepindex/4] = ((stepdir << shift) & mask) |
                            (steps[stepindex/4] & ~mask);
       //squeeze 4 into byte
     }
     void set_step(                    //set a step
-                  inT16 stepindex,    //index of step
+                  int16_t stepindex,    //index of step
                   DIR128 stepdir) {   //direction
                                  //clean it
-      inT8 chaindir = stepdir.get_dir() >> (DIRBITS - 2);
+      int8_t chaindir = stepdir.get_dir() >> (DIRBITS - 2);
                                  //difference
       set_step(stepindex, chaindir);
       //squeeze 4 into byte
     }
 
-    inT32 pathlength() const {  //get path length
+    int32_t pathlength() const {  //get path length
       return stepcount;
     }
     // Return step at a given index as a DIR128.
     DIR128 step_dir(int index) const {
-      return DIR128((inT16)(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
+      return DIR128((int16_t)(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
                       (DIRBITS - 2)));
     }
     // Return the step vector for the given outline position.
@@ -194,11 +194,11 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
       return (steps[index / 4] >> (index % 4 * 2)) & STEP_MASK;
     }
 
-    inT32 area() const;  // Returns area of self and 1st level children.
-    inT32 perimeter() const;  // Total perimeter of self and 1st level children.
-    inT32 outer_area() const;  // Returns area of self only.
-    inT32 count_transitions(                   //count maxima
-                            inT32 threshold);  //size threshold
+    int32_t area() const;  // Returns area of self and 1st level children.
+    int32_t perimeter() const;  // Total perimeter of self and 1st level children.
+    int32_t outer_area() const;  // Returns area of self only.
+    int32_t count_transitions(                   //count maxima
+                            int32_t threshold);  //size threshold
 
     BOOL8 operator< (            //containment test
       const C_OUTLINE & other) const;
@@ -207,10 +207,10 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     {
       return other < *this;      //use the < to do it
     }
-    inT16 winding_number(                       //get winding number
+    int16_t winding_number(                       //get winding number
                          ICOORD testpt) const;  //around this point
                                  //get direction
-    inT16 turn_direction() const;
+    int16_t turn_direction() const;
     void reverse();  //reverse direction
 
     void move(                    // reposition outline
@@ -281,9 +281,9 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
 
     TBOX box;                    // bounding box
     ICOORD start;                // start coord
-    inT16 stepcount;             // no of steps
+    int16_t stepcount;             // no of steps
     BITS16 flags;                // flags about outline
-    uinT8 *steps;                // step array
+    uint8_t *steps;                // step array
     EdgeOffset* offsets;         // Higher precision edge.
     C_OUTLINE_LIST children;     // child elements
     static ICOORD step_coords[4];

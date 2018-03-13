@@ -65,12 +65,12 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   Pix* dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
   pixDestroy(&pix_blob);
   // Compute the stroke widths.
-  uinT32* data = pixGetData(dist_pix);
+  uint32_t* data = pixGetData(dist_pix);
   int wpl = pixGetWpl(dist_pix);
   // Horizontal width of stroke.
   STATS h_stats(0, width + 1);
   for (int y = 0; y < height; ++y) {
-    uinT32* pixels = data + y*wpl;
+    uint32_t* pixels = data + y*wpl;
     int prev_pixel = 0;
     int pixel = GET_DATA_BYTE(pixels, 0);
     for (int x = 1; x < width; ++x) {
@@ -99,7 +99,7 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
     int prev_pixel = 0;
     int pixel = GET_DATA_BYTE(data, x);
     for (int y = 1; y < height; ++y) {
-      uinT32* pixels = data + y*wpl;
+      uint32_t* pixels = data + y*wpl;
       int next_pixel = GET_DATA_BYTE(pixels, x);
       // We are looking for a pixel that is equal to its horizontal neighbours,
       // yet greater than its upper neighbour.
@@ -206,7 +206,7 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
                               TO_BLOCK_LIST *to_blocks) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  if (width > MAX_INT16 || height > MAX_INT16) {
+  if (width > INT16_MAX || height > INT16_MAX) {
     tprintf("Input image too large! (%d, %d)\n", width, height);
     return;  // Can't handle it.
   }
@@ -289,8 +289,8 @@ float Textord::filter_noise_blobs(
     BLOBNBOX_LIST *noise_list,    // noise list
     BLOBNBOX_LIST *small_list,    // small blobs
     BLOBNBOX_LIST *large_list) {  // large blobs
-  inT16 height;                  //height of blob
-  inT16 width;                   //of blob
+  int16_t height;                  //height of blob
+  int16_t width;                   //of blob
   BLOBNBOX *blob;                //current blob
   float initial_x;               //first guess
   BLOBNBOX_IT src_it = src_list; //iterators
@@ -363,7 +363,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
   if (row_it.empty()) {
     const TBOX& box = block->bounding_box();
     float height = box.height();
-    inT32 xstarts[2] = {box.left(), box.right()};
+    int32_t xstarts[2] = {box.left(), box.right()};
     double coeffs[3] = {0.0, 0.0, static_cast<double>(box.bottom())};
     ROW* row = new ROW(1, xstarts, coeffs, height / 2.0f, height / 4.0f,
                        height / 4.0f, 0, 1);
@@ -466,12 +466,12 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  inT32 blob_size;               //biggest size
-  inT32 trans_count = 0;         //no of transitions
-  inT32 trans_threshold;         //noise tolerance
-  inT32 dot_count;               //small objects
-  inT32 norm_count;              //normal objects
-  inT32 super_norm_count;        //real char-like
+  int32_t blob_size;               //biggest size
+  int32_t trans_count = 0;         //no of transitions
+  int32_t trans_threshold;         //noise tolerance
+  int32_t dot_count;               //small objects
+  int32_t norm_count;              //normal objects
+  int32_t super_norm_count;        //real char-like
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -566,18 +566,18 @@ void Textord::clean_noise_from_words(          //remove empties
                                      ROW *row  //row to clean
                                     ) {
   TBOX blob_box;                  //bounding box
-  inT8 *word_dud;                //was it chucked
+  int8_t *word_dud;                //was it chucked
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  inT32 blob_size;               //biggest size
-  inT32 trans_count;             //no of transitions
-  inT32 trans_threshold;         //noise tolerance
-  inT32 dot_count;               //small objects
-  inT32 norm_count;              //normal objects
-  inT32 dud_words;               //number discarded
-  inT32 ok_words;                //number remaining
-  inT32 word_index;              //current word
+  int32_t blob_size;               //biggest size
+  int32_t trans_count;             //no of transitions
+  int32_t trans_threshold;         //noise tolerance
+  int32_t dot_count;               //small objects
+  int32_t norm_count;              //normal objects
+  int32_t dud_words;               //number discarded
+  int32_t ok_words;                //number remaining
+  int32_t word_index;              //current word
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -586,7 +586,7 @@ void Textord::clean_noise_from_words(          //remove empties
   ok_words = word_it.length ();
   if (ok_words == 0 || textord_no_rejects)
     return;
-  word_dud = (inT8 *) alloc_mem (ok_words * sizeof (inT8));
+  word_dud = (int8_t *) alloc_mem (ok_words * sizeof (int8_t));
   dud_words = 0;
   ok_words = 0;
   word_index = 0;
@@ -888,10 +888,10 @@ void tweak_row_baseline(ROW *row,
   TBOX blob_box;                 //bounding box
   C_BLOB *blob;                  //current blob
   WERD *word;                    //current word
-  inT32 blob_count;              //no of blobs
-  inT32 src_index;               //source segment
-  inT32 dest_index;              //destination segment
-  inT32 *xstarts;                //spline segments
+  int32_t blob_count;              //no of blobs
+  int32_t src_index;               //source segment
+  int32_t dest_index;              //destination segment
+  int32_t *xstarts;                //spline segments
   double *coeffs;                //spline coeffs
   float ydiff;                   //baseline error
   float x_centre;                //centre of blob
@@ -908,8 +908,8 @@ void tweak_row_baseline(ROW *row,
   if (blob_count == 0)
     return;
   xstarts =
-    (inT32 *) alloc_mem ((blob_count + row->baseline.segments + 1) *
-    sizeof (inT32));
+    (int32_t *) alloc_mem ((blob_count + row->baseline.segments + 1) *
+    sizeof (int32_t));
   coeffs =
     (double *) alloc_mem ((blob_count + row->baseline.segments) * 3 *
     sizeof (double));

@@ -80,7 +80,7 @@ using tesseract::UnicharRating;
 using tesseract::ScoredFont;
 
 struct ADAPT_RESULTS {
-  inT32 BlobLength;
+  int32_t BlobLength;
   bool HasNonfragment;
   UNICHAR_ID best_unichar_id;
   int best_match_index;
@@ -91,7 +91,7 @@ struct ADAPT_RESULTS {
   /// Initializes data members to the default values. Sets the initial
   /// rating of each class to be the worst possible rating (1.0).
   inline void Initialize() {
-    BlobLength = MAX_INT32;
+    BlobLength = INT32_MAX;
     HasNonfragment = false;
     ComputeBest();
   }
@@ -979,7 +979,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
   tprintf("Best match to temp config %d = %4.1f%%.\n",
           int_result.config, int_result.rating * 100.0);
   if (classify_learning_debug_level >= 2) {
-    uinT32 ConfigMask;
+    uint32_t ConfigMask;
     ConfigMask = 1 << int_result.config;
     ShowMatchDisplay();
     im_.Match(int_class, AllProtosOn, (BIT_VECTOR)&ConfigMask,
@@ -1076,7 +1076,7 @@ void Classify::AmbigClassifier(
     UNICHAR_ID *ambiguities,
     ADAPT_RESULTS *results) {
   if (int_features.empty()) return;
-  uinT8* CharNormArray = new uinT8[unicharset.size()];
+  uint8_t* CharNormArray = new uint8_t[unicharset.size()];
   UnicharRating int_result;
 
   results->BlobLength = GetCharNormFeature(fx_info, templates, NULL,
@@ -1111,9 +1111,9 @@ void Classify::AmbigClassifier(
 /// Factored-out calls to IntegerMatcher based on class pruner results.
 /// Returns integer matcher results inside CLASS_PRUNER_RESULTS structure.
 void Classify::MasterMatcher(INT_TEMPLATES templates,
-                             inT16 num_features,
+                             int16_t num_features,
                              const INT_FEATURE_STRUCT* features,
-                             const uinT8* norm_factors,
+                             const uint8_t* norm_factors,
                              ADAPT_CLASS* classes,
                              int debug,
                              int matcher_multiplier,
@@ -1153,7 +1153,7 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
 void Classify::ExpandShapesAndApplyCorrections(
     ADAPT_CLASS* classes, bool debug, int class_id, int bottom, int top,
     float cp_rating, int blob_length, int matcher_multiplier,
-    const uinT8* cn_factors,
+    const uint8_t* cn_factors,
     UnicharRating* int_result, ADAPT_RESULTS* final_results) {
   if (classes != NULL) {
     // Adapted result. Convert configs to fontinfo_ids.
@@ -1229,7 +1229,7 @@ double Classify::ComputeCorrectedRating(bool debug, int unichar_id,
                                         int feature_misses,
                                         int bottom, int top,
                                         int blob_length, int matcher_multiplier,
-                                        const uinT8* cn_factors) {
+                                        const uint8_t* cn_factors) {
   // Compute class feature corrections.
   double cn_corrected = im_.ApplyCNCorrection(1.0 - im_rating, blob_length,
                                               cn_factors[unichar_id],
@@ -1294,7 +1294,7 @@ UNICHAR_ID *Classify::BaselineClassifier(
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return NULL;
-  uinT8* CharNormArray = new uinT8[unicharset.size()];
+  uint8_t* CharNormArray = new uint8_t[unicharset.size()];
   ClearCharNormArray(CharNormArray);
 
   Results->BlobLength = IntCastRounded(fx_info.Length / kStandardFeatureLength);
@@ -1371,10 +1371,10 @@ int Classify::CharNormTrainingSample(bool pruner_only,
                 sample.geo_feature(GeoTop), sample.geo_feature(GeoTop));
   // Compute the char_norm_array from the saved cn_feature.
   FEATURE norm_feature = sample.GetCNFeature();
-  uinT8* char_norm_array = new uinT8[unicharset.size()];
+  uint8_t* char_norm_array = new uint8_t[unicharset.size()];
   int num_pruner_classes = MAX(unicharset.size(),
                                PreTrainedTemplates->NumClasses);
-  uinT8* pruner_norm_array = new uinT8[num_pruner_classes];
+  uint8_t* pruner_norm_array = new uint8_t[num_pruner_classes];
   adapt_results->BlobLength =
       static_cast<int>(ActualOutlineLength(norm_feature) * 20 + 0.5);
   ComputeCharNormArrays(norm_feature, PreTrainedTemplates, char_norm_array,
@@ -1713,8 +1713,8 @@ bool Classify::LooksLikeGarbage(TBLOB *blob) {
  */
 int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
                                  INT_TEMPLATES templates,
-                                 uinT8* pruner_norm_array,
-                                 uinT8* char_norm_array) {
+                                 uint8_t* pruner_norm_array,
+                                 uint8_t* char_norm_array) {
   FEATURE norm_feature = NewFeature(&CharNormDesc);
   float baseline = kBlnBaselineOffset;
   float scale = MF_SCALE_FACTOR;
@@ -1733,14 +1733,14 @@ int Classify::GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
 // pruner_array as appropriate according to the existence of the shape_table.
 void Classify::ComputeCharNormArrays(FEATURE_STRUCT* norm_feature,
                                      INT_TEMPLATES_STRUCT* templates,
-                                     uinT8* char_norm_array,
-                                     uinT8* pruner_array) {
+                                     uint8_t* char_norm_array,
+                                     uint8_t* pruner_array) {
   ComputeIntCharNormArray(*norm_feature, char_norm_array);
   if (pruner_array != NULL) {
     if (shape_table_ == NULL) {
       ComputeIntCharNormArray(*norm_feature, pruner_array);
     } else {
-      memset(pruner_array, MAX_UINT8,
+      memset(pruner_array, UINT8_MAX,
              templates->NumClasses * sizeof(pruner_array[0]));
       // Each entry in the pruner norm array is the MIN of all the entries of
       // the corresponding unichars in the CharNormArray.
@@ -2220,7 +2220,7 @@ void Classify::ShowBestMatchFor(int shape_id,
                                 const INT_FEATURE_STRUCT* features,
                                 int num_features) {
 #ifndef GRAPHICS_DISABLED
-  uinT32 config_mask;
+  uint32_t config_mask;
   if (UnusedClassIdIn(PreTrainedTemplates, shape_id)) {
     tprintf("No built-in templates for class/shape %d\n", shape_id);
     return;

@@ -269,7 +269,7 @@ bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
 // Returns true if the text is mostly laid out vertically.
 /* static */
 bool BoxChar::MostlyVertical(const std::vector<BoxChar*>& boxes) {
-  inT64 total_dx = 0, total_dy = 0;
+  int64_t total_dx = 0, total_dy = 0;
   for (size_t i = 1; i < boxes.size(); ++i) {
     if (boxes[i - 1]->box_ != nullptr && boxes[i]->box_ != nullptr &&
         boxes[i - 1]->page_ == boxes[i]->page_) {

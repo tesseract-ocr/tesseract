@@ -45,9 +45,9 @@ namespace tesseract {
 WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
 }
 
-WordFeature::WordFeature(const FCOORD& fcoord, uinT8 dir)
+WordFeature::WordFeature(const FCOORD& fcoord, uint8_t dir)
   : x_(IntCastRounded(fcoord.x())),
-    y_(ClipToRange(IntCastRounded(fcoord.y()), 0, MAX_UINT8)),
+    y_(ClipToRange<int>(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
     dir_(dir) {
 }
 
@@ -171,7 +171,7 @@ bool ImageData::Serialize(TFile* fp) const {
   // WARNING: Will not work across different endian machines.
   if (!boxes_.Serialize(fp)) return false;
   if (!box_texts_.SerializeClasses(fp)) return false;
-  inT8 vertical = vertical_text_;
+  int8_t vertical = vertical_text_;
   if (fp->FWrite(&vertical, sizeof(vertical), 1) != 1) return false;
   return true;
 }
@@ -188,7 +188,7 @@ bool ImageData::DeSerialize(TFile* fp) {
   // WARNING: Will not work across different endian machines.
   if (!boxes_.DeSerialize(fp)) return false;
   if (!box_texts_.DeSerializeClasses(fp)) return false;
-  inT8 vertical = 0;
+  int8_t vertical = 0;
   if (fp->FRead(&vertical, sizeof(vertical), 1) != 1) return false;
   vertical_text_ = vertical != 0;
   return true;
@@ -197,14 +197,14 @@ bool ImageData::DeSerialize(TFile* fp) {
 // As DeSerialize, but only seeks past the data - hence a static method.
 bool ImageData::SkipDeSerialize(TFile* fp) {
   if (!STRING::SkipDeSerialize(fp)) return false;
-  inT32 page_number;
+  int32_t page_number;
   if (fp->FRead(&page_number, sizeof(page_number), 1) != 1) return false;
   if (!GenericVector<char>::SkipDeSerialize(fp)) return false;
   if (!STRING::SkipDeSerialize(fp)) return false;
   if (!STRING::SkipDeSerialize(fp)) return false;
   if (!GenericVector<TBOX>::SkipDeSerialize(fp)) return false;
   if (!GenericVector<STRING>::SkipDeSerializeClasses(fp)) return false;
-  inT8 vertical = 0;
+  int8_t vertical = 0;
   return fp->FRead(&vertical, sizeof(vertical), 1) == 1;
 }
 
@@ -389,14 +389,14 @@ DocumentData::~DocumentData() {
 // Reads all the pages in the given lstmf filename to the cache. The reader
 // is used to read the file.
 bool DocumentData::LoadDocument(const char* filename, int start_page,
-                                inT64 max_memory, FileReader reader) {
+                                int64_t max_memory, FileReader reader) {
   SetDocument(filename, max_memory, reader);
   pages_offset_ = start_page;
   return ReCachePages();
 }
 
 // Sets up the document, without actually loading it.
-void DocumentData::SetDocument(const char* filename, inT64 max_memory,
+void DocumentData::SetDocument(const char* filename, int64_t max_memory,
                                FileReader reader) {
   SVAutoLock lock_p(&pages_mutex_);
   SVAutoLock lock(&general_mutex_);
@@ -486,9 +486,9 @@ bool DocumentData::IsPageAvailable(int index, ImageData** page) {
 
 // Removes all pages from memory and frees the memory, but does not forget
 // the document metadata.
-inT64 DocumentData::UnCache() {
+int64_t DocumentData::UnCache() {
   SVAutoLock lock(&pages_mutex_);
-  inT64 memory_saved = memory_used();
+  int64_t memory_saved = memory_used();
   pages_.clear();
   pages_offset_ = -1;
   set_total_pages(-1);
@@ -564,7 +564,7 @@ bool DocumentData::ReCachePages() {
 }
 
 // A collection of DocumentData that knows roughly how much memory it is using.
-DocumentCache::DocumentCache(inT64 max_memory)
+DocumentCache::DocumentCache(int64_t max_memory)
     : num_pages_per_doc_(0), max_memory_(max_memory) {}
 DocumentCache::~DocumentCache() {}
 
@@ -574,7 +574,7 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
                                   CachingStrategy cache_strategy,
                                   FileReader reader) {
   cache_strategy_ = cache_strategy;
-  inT64 fair_share_memory = 0;
+  int64_t fair_share_memory = 0;
   // In the round-robin case, each DocumentData handles restricting its content
   // to its fair share of memory. In the sequential case, DocumentCache
   // determines which DocumentDatas are held entirely in memory.
@@ -665,7 +665,7 @@ const ImageData* DocumentCache::GetPageSequential(int serial) {
       documents_[doc_index]->GetPage(serial % num_pages_per_doc_);
   // Count up total memory. Background loading makes it more complicated to
   // keep a running count.
-  inT64 total_memory = 0;
+  int64_t total_memory = 0;
   for (int d = 0; d < num_docs; ++d) {
     total_memory += documents_[d]->memory_used();
   }

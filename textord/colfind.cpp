@@ -670,13 +670,13 @@ bool ColumnFinder::AssignColumns(const PartSetVector& part_sets) {
     best_columns_[y] = NULL;
   int column_count = column_sets_.size();
   // column_set_costs[part_sets_ index][column_sets_ index] is
-  // < MAX_INT32 if the partition set is compatible with the column set,
+  // < INT32_MAX if the partition set is compatible with the column set,
   // in which case its value is the cost for that set used in deciding
   // which competing set to assign.
   // any_columns_possible[part_sets_ index] is true if any of
-  // possible_column_sets[part_sets_ index][*] is < MAX_INT32.
+  // possible_column_sets[part_sets_ index][*] is < INT32_MAX.
   // assigned_costs[part_sets_ index] is set to the column_set_costs
-  // of the assigned column_sets_ index or MAX_INT32 if none is set.
+  // of the assigned column_sets_ index or INT32_MAX if none is set.
   // On return the best_columns_ member is set.
   bool* any_columns_possible = new bool[set_count];
   int* assigned_costs = new int[set_count];
@@ -690,7 +690,7 @@ bool ColumnFinder::AssignColumns(const PartSetVector& part_sets) {
                                   line_set->bounding_box().bottom());
     column_set_costs[part_i] = new int[column_count];
     any_columns_possible[part_i] = false;
-    assigned_costs[part_i] = MAX_INT32;
+    assigned_costs[part_i] = INT32_MAX;
     for (int col_i = 0; col_i < column_count; ++col_i) {
       if (line_set != NULL &&
           column_sets_.get(col_i)->CompatibleColumns(debug, line_set,
@@ -699,7 +699,7 @@ bool ColumnFinder::AssignColumns(const PartSetVector& part_sets) {
             column_sets_.get(col_i)->UnmatchedWidth(line_set);
         any_columns_possible[part_i] = true;
       } else {
-        column_set_costs[part_i][col_i] = MAX_INT32;
+        column_set_costs[part_i][col_i] = INT32_MAX;
         if (debug)
           tprintf("Set id %d did not match at y=%d, lineset =%p\n",
                   col_i, part_i, line_set);

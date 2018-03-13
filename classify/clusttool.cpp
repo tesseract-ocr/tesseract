@@ -44,7 +44,7 @@ using tesseract::TFile;
  * @note Exceptions: ILLEGALSAMPLESIZE  illegal format or range
  * @note History: 6/6/89, DSJ, Created.
  */
-uinT16 ReadSampleSize(TFile *fp) {
+uint16_t ReadSampleSize(TFile *fp) {
   int SampleSize = 0;
 
   const int kMaxLineSize = 100;
@@ -70,7 +70,7 @@ uinT16 ReadSampleSize(TFile *fp) {
  * @note Globals: None
  * @note History: 6/6/89, DSJ, Created.
  */
-PARAM_DESC *ReadParamDesc(TFile *fp, uinT16 N) {
+PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
   char linear_token[TOKENSIZE], essential_token[TOKENSIZE];
 
@@ -115,7 +115,7 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uinT16 N) {
  * @note Globals: None
  * @note History: 6/6/89, DSJ, Created.
  */
-PROTOTYPE *ReadPrototype(TFile *fp, uinT16 N) {
+PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   char sig_token[TOKENSIZE], shape_token[TOKENSIZE];
   PROTOTYPE *Proto;
   int SampleCount;
@@ -217,7 +217,7 @@ PROTOSTYLE ReadProtoStyle(const char *shape) {
  * @note Exceptions: ILLEGALFLOAT
  * @note History: 6/6/89, DSJ, Created.
  */
-FLOAT32 *ReadNFloats(TFile *fp, uinT16 N, FLOAT32 Buffer[]) {
+FLOAT32 *ReadNFloats(TFile *fp, uint16_t N, FLOAT32 Buffer[]) {
   const int kMaxLineSize = 1024;
   char line[kMaxLineSize];
   if (fp->FGets(line, kMaxLineSize) == nullptr) {
@@ -256,7 +256,7 @@ FLOAT32 *ReadNFloats(TFile *fp, uinT16 N, FLOAT32 Buffer[]) {
  * @note Exceptions: None
  * @note History: 6/6/89, DSJ, Created.
  */
-void WriteParamDesc(FILE *File, uinT16 N, const PARAM_DESC ParamDesc[]) {
+void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
   int i;
 
   for (i = 0; i < N; i++) {
@@ -285,7 +285,7 @@ void WriteParamDesc(FILE *File, uinT16 N, const PARAM_DESC ParamDesc[]) {
  * @note Exceptions: None
  * @note History: 6/12/89, DSJ, Created.
  */
-void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto) {
+void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   int i;
 
   if (Proto->Significant)
@@ -335,7 +335,7 @@ void WritePrototype(FILE *File, uinT16 N, PROTOTYPE *Proto) {
  * @note Exceptions: None
  * @note History: 6/6/89, DSJ, Created.
  */
-void WriteNFloats(FILE * File, uinT16 N, FLOAT32 Array[]) {
+void WriteNFloats(FILE * File, uint16_t N, FLOAT32 Array[]) {
   for (int i = 0; i < N; i++)
     fprintf(File, " %9.6f", Array[i]);
   fprintf(File, "\n");
@@ -386,7 +386,7 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @note History: 6/12/89, DSJ, Created.
 */
 
-void WriteProtoList(FILE *File, uinT16 N, PARAM_DESC ParamDesc[],
+void WriteProtoList(FILE *File, uint16_t N, PARAM_DESC ParamDesc[],
                     LIST ProtoList, BOOL8 WriteSigProtos,
                     BOOL8 WriteInsigProtos) {
   PROTOTYPE *Proto;

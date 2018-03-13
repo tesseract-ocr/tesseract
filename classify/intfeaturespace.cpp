@@ -26,7 +26,7 @@ IntFeatureSpace::IntFeatureSpace()
   : x_buckets_(0), y_buckets_(0), theta_buckets_(0) {
 }
 
-void IntFeatureSpace::Init(uinT8 xbuckets, uinT8 ybuckets, uinT8 thetabuckets) {
+void IntFeatureSpace::Init(uint8_t xbuckets, uint8_t ybuckets, uint8_t thetabuckets) {
   x_buckets_ = xbuckets;
   y_buckets_ = ybuckets;
   theta_buckets_ = thetabuckets;
@@ -66,7 +66,7 @@ INT_FEATURE_STRUCT IntFeatureSpace::PositionFromIndex(int index) const {
 }
 
 // Bulk calls to Index. Maps the given array of features to a vector of
-// inT32 indices in the same order as the input.
+// int32_t indices in the same order as the input.
 void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT* features,
                                     int num_features,
                                     GenericVector<int>* mapped_features) const {
@@ -76,7 +76,7 @@ void IntFeatureSpace::IndexFeatures(const INT_FEATURE_STRUCT* features,
 }
 
 // Bulk calls to Index. Maps the given array of features to a vector of
-// sorted inT32 indices.
+// sorted int32_t indices.
 void IntFeatureSpace::IndexAndSortFeatures(
     const INT_FEATURE_STRUCT* features, int num_features,
     GenericVector<int>* sorted_features) const {
@@ -92,7 +92,7 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
   // Round the x,y position to a feature. Search for a valid theta.
   INT_FEATURE_STRUCT feature(x, y, 0);
   int index = -1;
-  for (int theta = 0; theta <= MAX_UINT8 && index < 0; ++theta) {
+  for (int theta = 0; theta <= UINT8_MAX && index < 0; ++theta) {
     feature.Theta = theta;
     index = Index(feature);
   }
@@ -109,7 +109,7 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
   if (x != 0 || y != 0) {
     double angle = atan2(static_cast<double>(y), static_cast<double>(x)) + PI;
     angle *= kIntFeatureExtent / (2.0 * PI);
-    feature.Theta = static_cast<uinT8>(angle + 0.5);
+    feature.Theta = static_cast<uint8_t>(angle + 0.5);
     index = Index(feature);
     if (index < 0) {
       tprintf("Feature failed to map to a valid index:");

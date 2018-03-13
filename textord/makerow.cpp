@@ -59,8 +59,8 @@ BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
 BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
 INT_VAR(textord_skewsmooth_offset, 4, "For smooth factor");
 INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
-INT_VAR(textord_test_x, -MAX_INT32, "coord of test pt");
-INT_VAR(textord_test_y, -MAX_INT32, "coord of test pt");
+INT_VAR(textord_test_x, -INT32_MAX, "coord of test pt");
+INT_VAR(textord_test_y, -INT32_MAX, "coord of test pt");
 INT_VAR(textord_min_blobs_in_row, 4, "Min blobs before gradient counted");
 INT_VAR(textord_spline_minblobs, 8, "Min blobs in each spline segment");
 INT_VAR(textord_spline_medianwin, 6, "Size of window for spline segmentation");
@@ -289,12 +289,12 @@ void compute_page_skew(                        //get average gradient
                        float &page_m,          //average gradient
                        float &page_err         //average error
                       ) {
-  inT32 row_count;               //total rows
-  inT32 blob_count;              //total_blobs
-  inT32 row_err;                 //integer error
+  int32_t row_count;               //total rows
+  int32_t blob_count;              //total_blobs
+  int32_t row_err;                 //integer error
   float *gradients;              //of rows
   float *errors;                 //of rows
-  inT32 row_index;               //of total
+  int32_t row_index;               //of total
   TO_ROW *row;                   //current row
   TO_BLOCK_IT block_it = blocks; //iterator
   TO_ROW_IT row_it;
@@ -333,7 +333,7 @@ void compute_page_skew(                        //get average gradient
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       blob_count = row->blob_list ()->length ();
-      row_err = (inT32) ceil (row->line_error ());
+      row_err = (int32_t) ceil (row->line_error ());
       if (row_err <= 0)
         row_err = 1;
       if (textord_biased_skewcalc) {
@@ -370,10 +370,10 @@ void compute_page_skew(                        //get average gradient
     }
   }
   row_count = row_index;
-  row_index = choose_nth_item ((inT32) (row_count * textord_skew_ile),
+  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
     gradients, row_count);
   page_m = gradients[row_index];
-  row_index = choose_nth_item ((inT32) (row_count * textord_skew_ile),
+  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
     errors, row_count);
   page_err = errors[row_index];
   free_mem(gradients);
@@ -526,7 +526,7 @@ void cleanup_rows_making(                   //find lines
                   TO_BLOCK *block,   //block to do
                   float gradient,    //gradient to fit
                   FCOORD rotation,   //for drawing
-                  inT32 block_edge,  //edge of block
+                  int32_t block_edge,  //edge of block
                   BOOL8 testing_on  //correct orientation
                  ) {
                                  //iterators
@@ -578,19 +578,19 @@ void delete_non_dropout_rows(                   //find lines
                              TO_BLOCK *block,   //block to do
                              float gradient,    //global skew
                              FCOORD rotation,   //deskew vector
-                             inT32 block_edge,  //left edge
+                             int32_t block_edge,  //left edge
                              BOOL8 testing_on   //correct orientation
                             ) {
   TBOX block_box;                 //deskewed block
-  inT32 *deltas;                 //change in occupation
-  inT32 *occupation;             //of pixel coords
-  inT32 max_y;                   //in block
-  inT32 min_y;
-  inT32 line_index;              //of scan line
-  inT32 line_count;              //no of scan lines
-  inT32 distance;                //to drop-out
-  inT32 xleft;                   //of block
-  inT32 ybottom;                 //of block
+  int32_t *deltas;                 //change in occupation
+  int32_t *occupation;             //of pixel coords
+  int32_t max_y;                   //in block
+  int32_t min_y;
+  int32_t line_index;              //of scan line
+  int32_t line_count;              //no of scan lines
+  int32_t distance;                //to drop-out
+  int32_t xleft;                   //of block
+  int32_t ybottom;                 //of block
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
   BLOBNBOX_IT blob_it = &block->blobs;
@@ -603,7 +603,7 @@ void delete_non_dropout_rows(                   //find lines
   min_y = block_box.bottom () - 1;
   max_y = block_box.top () + 1;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    line_index = (inT32) floor (row_it.data ()->intercept ());
+    line_index = (int32_t) floor (row_it.data ()->intercept ());
     if (line_index <= min_y)
       min_y = line_index - 1;
     if (line_index >= max_y)
@@ -612,17 +612,17 @@ void delete_non_dropout_rows(                   //find lines
   line_count = max_y - min_y + 1;
   if (line_count <= 0)
     return;                      //empty block
-  deltas = (inT32 *) alloc_mem (line_count * sizeof (inT32));
-  occupation = (inT32 *) alloc_mem (line_count * sizeof (inT32));
+  deltas = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
+  occupation = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
   if (deltas == NULL || occupation == NULL)
     MEMORY_OUT.error ("compute_line_spacing", ABORT, NULL);
 
   compute_line_occupation(block, gradient, min_y, max_y, occupation, deltas);
-  compute_occupation_threshold ((inT32)
+  compute_occupation_threshold ((int32_t)
     ceil (block->line_spacing *
     (tesseract::CCStruct::kDescenderFraction +
     tesseract::CCStruct::kAscenderFraction)),
-    (inT32) ceil (block->line_spacing *
+    (int32_t) ceil (block->line_spacing *
     (tesseract::CCStruct::kXHeightFraction +
     tesseract::CCStruct::kAscenderFraction)),
     max_y - min_y + 1, occupation, deltas);
@@ -634,7 +634,7 @@ void delete_non_dropout_rows(                   //find lines
   compute_dropout_distances(occupation, deltas, line_count);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    line_index = (inT32) floor (row->intercept ());
+    line_index = (int32_t) floor (row->intercept ());
     distance = deltas[line_index - min_y];
     if (find_best_dropout_row (row, distance, block->line_spacing / 2,
     line_index, &row_it, testing_on)) {
@@ -664,16 +664,16 @@ void delete_non_dropout_rows(                   //find lines
  */
 BOOL8 find_best_dropout_row(                    //find neighbours
                             TO_ROW *row,        //row to test
-                            inT32 distance,     //dropout dist
+                            int32_t distance,     //dropout dist
                             float dist_limit,   //threshold distance
-                            inT32 line_index,   //index of row
+                            int32_t line_index,   //index of row
                             TO_ROW_IT *row_it,  //current position
                             BOOL8 testing_on    //correct orientation
                            ) {
-  inT32 next_index;              // of neighbouring row
-  inT32 row_offset;              //from current row
-  inT32 abs_dist;                //absolute distance
-  inT8 row_inc;                  //increment to row_index
+  int32_t next_index;              // of neighbouring row
+  int32_t row_offset;              //from current row
+  int32_t abs_dist;                //absolute distance
+  int8_t row_inc;                  //increment to row_index
   TO_ROW *next_row;              //nextious row
 
   if (testing_on)
@@ -698,7 +698,7 @@ BOOL8 find_best_dropout_row(                    //find neighbours
     row_offset = row_inc;
     do {
       next_row = row_it->data_relative (row_offset);
-      next_index = (inT32) floor (next_row->intercept ());
+      next_index = (int32_t) floor (next_row->intercept ());
       if ((distance < 0
         && next_index < line_index
         && next_index > line_index + distance + distance)
@@ -781,13 +781,13 @@ TBOX deskew_block_coords(                  //block box
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
-                             inT32 min_y,        //min coord in block
-                             inT32 max_y,        //in block
-                             inT32 *occupation,  //output projection
-                             inT32 *deltas       //derivative
+                             int32_t min_y,        //min coord in block
+                             int32_t max_y,        //in block
+                             int32_t *occupation,  //output projection
+                             int32_t *deltas       //derivative
                             ) {
-  inT32 line_count;              //maxy-miny+1
-  inT32 line_index;              //of scan line
+  int32_t line_count;              //maxy-miny+1
+  int32_t line_index;              //of scan line
   int index;                     //array index for daft compilers
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
@@ -832,23 +832,23 @@ void compute_line_occupation(                    //project blobs
  * Compute thresholds for textline or not for the occupation array.
  */
 void compute_occupation_threshold(                    //project blobs
-                                  inT32 low_window,   //below result point
-                                  inT32 high_window,  //above result point
-                                  inT32 line_count,   //array sizes
-                                  inT32 *occupation,  //input projection
-                                  inT32 *thresholds   //output thresholds
+                                  int32_t low_window,   //below result point
+                                  int32_t high_window,  //above result point
+                                  int32_t line_count,   //array sizes
+                                  int32_t *occupation,  //input projection
+                                  int32_t *thresholds   //output thresholds
                                  ) {
-  inT32 line_index;              //of thresholds line
-  inT32 low_index;               //in occupation
-  inT32 high_index;              //in occupation
-  inT32 sum;                     //current average
-  inT32 divisor;                 //to get thresholds
-  inT32 min_index;               //of min occ
-  inT32 min_occ;                 //min in locality
-  inT32 test_index;              //for finding min
+  int32_t line_index;              //of thresholds line
+  int32_t low_index;               //in occupation
+  int32_t high_index;              //in occupation
+  int32_t sum;                     //current average
+  int32_t divisor;                 //to get thresholds
+  int32_t min_index;               //of min occ
+  int32_t min_occ;                 //min in locality
+  int32_t test_index;              //for finding min
 
   divisor =
-    (inT32) ceil ((low_window + high_window) / textord_occupancy_threshold);
+    (int32_t) ceil ((low_window + high_window) / textord_occupancy_threshold);
   if (low_window + high_window < line_count) {
     for (sum = 0, high_index = 0; high_index < low_window; high_index++)
       sum += occupation[high_index];
@@ -913,15 +913,15 @@ void compute_occupation_threshold(                    //project blobs
  * Compute the distance from each coordinate to the nearest dropout.
  */
 void compute_dropout_distances(                    //project blobs
-                               inT32 *occupation,  //input projection
-                               inT32 *thresholds,  //output thresholds
-                               inT32 line_count    //array sizes
+                               int32_t *occupation,  //input projection
+                               int32_t *thresholds,  //output thresholds
+                               int32_t line_count    //array sizes
                               ) {
-  inT32 line_index;              //of thresholds line
-  inT32 distance;                //from prev dropout
-  inT32 next_dist;               //to next dropout
-  inT32 back_index;              //for back filling
-  inT32 prev_threshold;          //before overwrite
+  int32_t line_index;              //of thresholds line
+  int32_t distance;                //from prev dropout
+  int32_t next_dist;               //to next dropout
+  int32_t back_index;              //for back filling
+  int32_t prev_threshold;          //before overwrite
 
   distance = -line_count;
   line_index = 0;
@@ -964,7 +964,7 @@ void expand_rows(                   //find lines
                  TO_BLOCK *block,   //block to do
                  float gradient,    //gradient to fit
                  FCOORD rotation,   //for drawing
-                 inT32 block_edge,  //edge of block
+                 int32_t block_edge,  //edge of block
                  BOOL8 testing_on   //correct orientation
                 ) {
   BOOL8 swallowed_row;           //eaten a neighbour
@@ -1157,13 +1157,13 @@ void compute_row_stats(                  //find lines
                        TO_BLOCK *block,  //block to do
                        BOOL8 testing_on  //correct orientation
                       ) {
-  inT32 row_index;               //of median
+  int32_t row_index;               //of median
   TO_ROW *row;                   //current row
   TO_ROW *prev_row;              //previous row
   float iqr;                     //inter quartile range
   TO_ROW_IT row_it = block->get_rows ();
                                  //number of rows
-  inT16 rowcount = row_it.length ();
+  int16_t rowcount = row_it.length ();
   TO_ROW **rows;                 //for choose nth
 
   rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
@@ -1274,7 +1274,7 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
       CCStruct::kXHeightFraction;
   float desc_frac_xheight = CCStruct::kDescenderFraction /
       CCStruct::kXHeightFraction;
-  inT32 min_height, max_height;         // limits on xheight
+  int32_t min_height, max_height;         // limits on xheight
   TO_ROW_IT row_it = block->get_rows();
   if (row_it.empty()) return;  // no rows
 
@@ -1300,16 +1300,16 @@ void Textord::compute_block_xheight(TO_BLOCK *block, float gradient) {
     }
     ROW_CATEGORY row_category = get_row_category(row);
     if (row_category == ROW_ASCENDERS_FOUND) {
-      row_asc_xheights.add(static_cast<inT32>(row->xheight),
+      row_asc_xheights.add(static_cast<int32_t>(row->xheight),
                            row->xheight_evidence);
-      row_asc_ascrise.add(static_cast<inT32>(row->ascrise),
+      row_asc_ascrise.add(static_cast<int32_t>(row->ascrise),
                           row->xheight_evidence);
-      row_asc_descdrop.add(static_cast<inT32>(-row->descdrop),
+      row_asc_descdrop.add(static_cast<int32_t>(-row->descdrop),
                            row->xheight_evidence);
     } else if (row_category == ROW_DESCENDERS_FOUND) {
-      row_desc_xheights.add(static_cast<inT32>(row->xheight),
+      row_desc_xheights.add(static_cast<int32_t>(row->xheight),
                             row->xheight_evidence);
-      row_desc_descdrop.add(static_cast<inT32>(-row->descdrop),
+      row_desc_descdrop.add(static_cast<int32_t>(-row->descdrop),
                             row->xheight_evidence);
     } else if (row_category == ROW_UNKNOWN) {
       fill_heights(row, gradient, min_height, max_height,
@@ -1443,9 +1443,9 @@ void fill_heights(TO_ROW *row, float gradient, int min_height,
       else
         top -= gradient * xcentre + row->parallel_c();
       if (top >= min_height && top <= max_height) {
-        heights->add(static_cast<inT32>(floor(top + 0.5)), 1);
+        heights->add(static_cast<int32_t>(floor(top + 0.5)), 1);
         if (height / top < textord_min_blob_height_fraction) {
-          floating_heights->add(static_cast<inT32>(floor(top + 0.5)), 1);
+          floating_heights->add(static_cast<int32_t>(floor(top + 0.5)), 1);
         }
       }
     }
@@ -1496,7 +1496,7 @@ int compute_xheight_from_modes(
   if (blob_count == 0) return 0;
   int modes[MAX_HEIGHT_MODES];  // biggest piles
   bool in_best_pile = FALSE;
-  int prev_size = -MAX_INT32;
+  int prev_size = -INT32_MAX;
   int best_count = 0;
   int mode_count = compute_height_modes(heights, min_height, max_height,
                                         modes, MAX_HEIGHT_MODES);
@@ -1577,7 +1577,7 @@ int compute_xheight_from_modes(
  * number of blobs in the row, the function returns the descender
  * height, returns 0 otherwise.
  */
-inT32 compute_row_descdrop(TO_ROW *row, float gradient,
+int32_t compute_row_descdrop(TO_ROW *row, float gradient,
                            int xheight_blob_count, STATS *asc_heights) {
   // Count how many potential ascenders are in this row.
   int i_min = asc_heights->min_bucket();
@@ -1593,10 +1593,10 @@ inT32 compute_row_descdrop(TO_ROW *row, float gradient,
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  inT32 min_height =
-    static_cast<inT32>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  inT32 max_height =
-    static_cast<inT32>(floor(row->xheight * textord_descx_ratio_max));
+  int32_t min_height =
+    static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
+  int32_t max_height =
+    static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
   float xcentre;                 // centre of blob
   float height;                  // height of blob
   BLOBNBOX_IT blob_it = row->blob_list();
@@ -1637,21 +1637,21 @@ inT32 compute_row_descdrop(TO_ROW *row, float gradient,
  * Find the top maxmodes values in the input array and put their
  * indices in the output in the order in which they occurred.
  */
-inT32 compute_height_modes(STATS *heights,    // stats to search
-                           inT32 min_height,  // bottom of range
-                           inT32 max_height,  // top of range
-                           inT32 *modes,      // output array
-                           inT32 maxmodes) {  // size of modes
-  inT32 pile_count;              // no in source pile
-  inT32 src_count;               // no of source entries
-  inT32 src_index;               // current entry
-  inT32 least_count;             // height of smalllest
-  inT32 least_index;             // index of least
-  inT32 dest_count;              // index in modes
+int32_t compute_height_modes(STATS *heights,    // stats to search
+                           int32_t min_height,  // bottom of range
+                           int32_t max_height,  // top of range
+                           int32_t *modes,      // output array
+                           int32_t maxmodes) {  // size of modes
+  int32_t pile_count;              // no in source pile
+  int32_t src_count;               // no of source entries
+  int32_t src_index;               // current entry
+  int32_t least_count;             // height of smalllest
+  int32_t least_index;             // index of least
+  int32_t dest_count;              // index in modes
 
   src_count = max_height + 1 - min_height;
   dest_count = 0;
-  least_count = MAX_INT32;
+  least_count = INT32_MAX;
   least_index = -1;
   for (src_index = 0; src_index < src_count; src_index++) {
     pile_count = heights->pile_count(min_height + src_index);
@@ -1824,8 +1824,8 @@ void separate_underlines(TO_BLOCK *block,  // block to do
           blob_rotation);
         if (test_underline(
             testing_on && textord_show_final_rows,
-            rotated_blob, static_cast<inT16>(row->intercept()),
-            static_cast<inT16>(
+            rotated_blob, static_cast<int16_t>(row->intercept()),
+            static_cast<int16_t>(
                 block->line_size *
                 (tesseract::CCStruct::kXHeightFraction +
                  tesseract::CCStruct::kAscenderFraction / 2.0f)))) {
@@ -1949,7 +1949,7 @@ void fit_parallel_rows(                   //find lines
                        TO_BLOCK *block,   //block to do
                        float gradient,    //gradient to fit
                        FCOORD rotation,   //for drawing
-                       inT32 block_edge,  //edge of block
+                       int32_t block_edge,  //edge of block
                        BOOL8 testing_on   //correct orientation
                       ) {
 #ifndef GRAPHICS_DISABLED
@@ -2072,12 +2072,12 @@ void Textord::make_spline_rows(TO_BLOCK *block,   // block to do
  */
 void make_baseline_spline(TO_ROW *row,     //row to fit
                           TO_BLOCK *block) {
-  inT32 *xstarts;                // spline boundaries
+  int32_t *xstarts;                // spline boundaries
   double *coeffs;                // quadratic coeffs
-  inT32 segments;                // no of segments
+  int32_t segments;                // no of segments
 
   xstarts =
-    (inT32 *) alloc_mem((row->blob_list()->length() + 1) * sizeof(inT32));
+    (int32_t *) alloc_mem((row->blob_list()->length() + 1) * sizeof(int32_t));
   if (segment_baseline(row, block, segments, xstarts)
   && !textord_straight_baselines && !textord_parallel_baselines) {
     coeffs = linear_spline_baseline(row, block, segments, xstarts);
@@ -2106,8 +2106,8 @@ BOOL8
 segment_baseline (               //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-inT32 & segments,                //no fo segments
-inT32 xstarts[]                  //coords of segments
+int32_t & segments,                //no fo segments
+int32_t xstarts[]                  //coords of segments
 ) {
   BOOL8 needs_curve;             //needs curved line
   int blobcount;                 //no of blobs
@@ -2205,8 +2205,8 @@ double *
 linear_spline_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-inT32 & segments,                //no fo segments
-inT32 xstarts[]                  //coords of segments
+int32_t & segments,                //no fo segments
+int32_t xstarts[]                  //coords of segments
 ) {
   int blobcount;                 //no of blobs
   int blobindex;                 //current blob
@@ -2220,7 +2220,7 @@ inT32 xstarts[]                  //coords of segments
   float b, c;                    //fitted curve
   tesseract::DetLineFit lms;
   double *coeffs;                //quadratic coeffs
-  inT32 segment;                 //current segment
+  int32_t segment;                 //current segment
 
   box = box_next_pre_chopped (&blob_it);
   xstarts[0] = box.left ();
@@ -2305,9 +2305,9 @@ void assign_blobs_to_rows(                      //find lines
   float ycoord;                  //current y
   float top, bottom;             //of blob
   float g_length = 1.0f;         //from gradient
-  inT16 row_count;               //no of rows
-  inT16 left_x;                  //left edge
-  inT16 last_x;                  //previous edge
+  int16_t row_count;               //no of rows
+  int16_t left_x;                  //left edge
+  int16_t last_x;                  //previous edge
   float block_skew;              //y delta
   float smooth_factor;           //for new coords
   float near_dist;               //dist to nearest row

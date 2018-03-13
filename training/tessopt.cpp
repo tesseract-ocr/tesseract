@@ -31,7 +31,7 @@ char *tessoptarg;
  **********************************************************************/
 
 int tessopt (                         //parse args
-inT32 argc,                      //arg count
+int32_t argc,                      //arg count
 char *argv[],                    //args
 const char *arglist                    //string of arg chars
 ) {

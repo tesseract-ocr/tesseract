@@ -28,7 +28,7 @@ namespace tesseract {
 
 class LSTMTester {
  public:
-  LSTMTester(inT64 max_memory);
+  LSTMTester(int64_t max_memory);
 
   // Loads a set of lstmf files that were created using the lstm.train config to
   // tesseract into memory ready for testing. Returns false if nothing was

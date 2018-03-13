@@ -202,7 +202,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
 // Helper computes min and mean best results in the output.
 void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
                                  float* mean_output, float* sd) {
-  const int kOutputScale = MAX_INT8;
+  const int kOutputScale = INT8_MAX;
   STATS stats(0, kOutputScale + 1);
   for (int t = 0; t < outputs.Width(); ++t) {
     int best_label = outputs.BestLabel(t, NULL);

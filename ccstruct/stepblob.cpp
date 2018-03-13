@@ -267,10 +267,10 @@ TBOX C_BLOB::bounding_box() const {  // bounding box
  * Return the area of the blob.
  **********************************************************************/
 
-inT32 C_BLOB::area() {  //area
+int32_t C_BLOB::area() {  //area
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  inT32 total;                   //total area
+  int32_t total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -286,10 +286,10 @@ inT32 C_BLOB::area() {  //area
  * Return the perimeter of the top and 2nd level outlines.
  **********************************************************************/
 
-inT32 C_BLOB::perimeter() {
+int32_t C_BLOB::perimeter() {
   C_OUTLINE *outline;            // current outline
   C_OUTLINE_IT it = &outlines;   // outlines of blob
-  inT32 total;                   // total perimeter
+  int32_t total;                   // total perimeter
 
   total = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -306,10 +306,10 @@ inT32 C_BLOB::perimeter() {
  * Return the area of the blob.
  **********************************************************************/
 
-inT32 C_BLOB::outer_area() {  //area
+int32_t C_BLOB::outer_area() {  //area
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  inT32 total;                   //total area
+  int32_t total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -327,12 +327,12 @@ inT32 C_BLOB::outer_area() {  //area
  * Chlid outlines are not counted.
  **********************************************************************/
 
-inT32 C_BLOB::count_transitions(                 //area
-                                inT32 threshold  //on size
+int32_t C_BLOB::count_transitions(                 //area
+                                int32_t threshold  //on size
                                ) {
   C_OUTLINE *outline;            //current outline
   C_OUTLINE_IT it = &outlines;   //outlines of blob
-  inT32 total;                   //total area
+  int32_t total;                   //total area
 
   total = 0;
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
@@ -424,7 +424,7 @@ void C_BLOB::ComputeEdgeOffsets(int threshold, Pix* pix) {
 //    |-    -|
 //     |   -|
 //     |---|                     <=  Bottom of blob
-inT16 C_BLOB::EstimateBaselinePosition() {
+int16_t C_BLOB::EstimateBaselinePosition() {
   TBOX box = bounding_box();
   int left = box.left();
   int width = box.width();

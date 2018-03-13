@@ -554,7 +554,7 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
     TO_ROW_IT row_it = block_->get_rows();
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       TO_ROW* row = row_it.data();
-      inT32 xstarts[2] = { block_box.left(), block_box.right() };
+      int32_t xstarts[2] = { block_box.left(), block_box.right() };
       double coeffs[3] = { 0.0, row->line_m(), row->line_c() };
       row->baseline = QSPLINE(1, xstarts, coeffs);
       textord->compute_row_xheight(row, block_->block->classify_rotation(),
@@ -745,8 +745,8 @@ double BaselineBlock::FitLineSpacingModel(
   double median_offset = MedianOfCircularValues(m_in, &offsets);
   // Now fit a line to quantized line number and offset.
   LLSQ llsq;
-  int min_index = MAX_INT32;
-  int max_index = -MAX_INT32;
+  int min_index = INT32_MAX;
+  int max_index = -INT32_MAX;
   for (int i = 0; i < positions.size(); ++i) {
     double y_pos = positions[i];
     int row_index = IntCastRounded((y_pos - median_offset) / m_in);

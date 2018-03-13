@@ -181,7 +181,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
 // Caller must use pixDestroy to free the created Pix.
 /// Returns false on error.
 bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
-  if (image_width_ > MAX_INT16 || image_height_ > MAX_INT16) {
+  if (image_width_ > INT16_MAX || image_height_ > INT16_MAX) {
     tprintf("Image too large: (%d, %d)\n", image_width_, image_height_);
     return false;
   }
@@ -301,13 +301,13 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
                                           Pix** pix) const {
   PERF_COUNT_START("ThresholdRectToPix")
   *pix = pixCreate(rect_width_, rect_height_, 1);
-  uinT32* pixdata = pixGetData(*pix);
+  uint32_t* pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
   int src_wpl = pixGetWpl(src_pix);
-  uinT32* srcdata = pixGetData(src_pix);
+  uint32_t* srcdata = pixGetData(src_pix);
   for (int y = 0; y < rect_height_; ++y) {
-    const uinT32* linedata = srcdata + (y + rect_top_) * src_wpl;
-    uinT32* pixline = pixdata + y * wpl;
+    const uint32_t* linedata = srcdata + (y + rect_top_) * src_wpl;
+    uint32_t* pixline = pixdata + y * wpl;
     for (int x = 0; x < rect_width_; ++x) {
       bool white_result = true;
       for (int ch = 0; ch < num_channels; ++ch) {

@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
   tesseract::LSTMTrainer trainer(
       nullptr, nullptr, nullptr, nullptr, FLAGS_model_output.c_str(),
       checkpoint_file.c_str(), FLAGS_debug_interval,
-      static_cast<inT64>(FLAGS_max_image_MB) * 1048576);
+      static_cast<int64_t>(FLAGS_max_image_MB) * 1048576);
   trainer.InitCharSet(FLAGS_traineddata.c_str());
 
   // Reading something from an existing model doesn't require many flags,
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  tesseract::LSTMTester tester(static_cast<inT64>(FLAGS_max_image_MB) *
+  tesseract::LSTMTester tester(static_cast<int64_t>(FLAGS_max_image_MB) *
                                1048576);
   tesseract::TestCallback tester_callback = nullptr;
   if (!FLAGS_eval_listfile.empty()) {

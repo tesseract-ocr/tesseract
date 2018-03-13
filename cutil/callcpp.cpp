@@ -54,10 +54,10 @@ const char *format, ...          //special message
 #ifndef GRAPHICS_DISABLED
 ScrollView *c_create_window(                   /*create a window */
                       const char *name,  /*name/title of window */
-                      inT16 xpos,        /*coords of window */
-                      inT16 ypos,        /*coords of window */
-                      inT16 xsize,       /*size of window */
-                      inT16 ysize,       /*size of window */
+                      int16_t xpos,        /*coords of window */
+                      int16_t ypos,        /*coords of window */
+                      int16_t xsize,       /*size of window */
+                      int16_t ysize,       /*size of window */
                       double xmin,       /*scrolling limits */
                       double xmax,       /*to stop users */
                       double ymin,       /*getting lost in */

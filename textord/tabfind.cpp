@@ -636,7 +636,7 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width,
   // or only below, and there are aligned objects on the opposite side, but
   // not too many unaligned objects. The maybe_(left/right)_tab_up counts
   // aligned objects above and negatively counts unaligned objects above,
-  // and is set to -MAX_INT32 if a gutter object is found above.
+  // and is set to -INT32_MAX if a gutter object is found above.
   // The other 3 maybe ints work similarly for the other sides.
   // These conditions are very strict, to minimize false positives, and really
   // only aligned tabs and outermost ragged tab blobs will qualify, so we
@@ -654,14 +654,14 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width,
   if (bbox->leader_on_left()) {
     is_left_tab = false;
     maybe_ragged_left = false;
-    maybe_left_tab_up = -MAX_INT32;
-    maybe_left_tab_down = -MAX_INT32;
+    maybe_left_tab_up = -INT32_MAX;
+    maybe_left_tab_down = -INT32_MAX;
   }
   if (bbox->leader_on_right()) {
     is_right_tab = false;
     maybe_ragged_right = false;
-    maybe_right_tab_up = -MAX_INT32;
-    maybe_right_tab_down = -MAX_INT32;
+    maybe_right_tab_up = -INT32_MAX;
+    maybe_right_tab_down = -INT32_MAX;
   }
   int alignment_tolerance = static_cast<int>(resolution_ * kAlignedFraction);
   BLOBNBOX* neighbour = NULL;
@@ -686,23 +686,23 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width,
         tprintf("Not a left tab\n");
       is_left_tab = false;
       if (n_mid_y < top_y)
-        maybe_left_tab_down = -MAX_INT32;
+        maybe_left_tab_down = -INT32_MAX;
       if (n_mid_y > bottom_y)
-        maybe_left_tab_up = -MAX_INT32;
+        maybe_left_tab_up = -INT32_MAX;
     } else if (NearlyEqual(left_x, n_left, alignment_tolerance)) {
       if (debug)
         tprintf("Maybe a left tab\n");
-      if (n_mid_y > top_y && maybe_left_tab_up > -MAX_INT32)
+      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX)
         ++maybe_left_tab_up;
-      if (n_mid_y < bottom_y && maybe_left_tab_down > -MAX_INT32)
+      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX)
         ++maybe_left_tab_down;
     } else if (n_left < left_x && n_right >= left_x) {
       // Overlaps but not aligned so negative points on a maybe.
       if (debug)
         tprintf("Maybe Not a left tab\n");
-      if (n_mid_y > top_y && maybe_left_tab_up > -MAX_INT32)
+      if (n_mid_y > top_y && maybe_left_tab_up > -INT32_MAX)
         --maybe_left_tab_up;
-      if (n_mid_y < bottom_y && maybe_left_tab_down > -MAX_INT32)
+      if (n_mid_y < bottom_y && maybe_left_tab_down > -INT32_MAX)
         --maybe_left_tab_down;
     }
     if (n_left < left_x && nbox.y_overlap(box) && n_right >= target_right) {
@@ -715,23 +715,23 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width,
         tprintf("Not a right tab\n");
       is_right_tab = false;
       if (n_mid_y < top_y)
-        maybe_right_tab_down = -MAX_INT32;
+        maybe_right_tab_down = -INT32_MAX;
       if (n_mid_y > bottom_y)
-        maybe_right_tab_up = -MAX_INT32;
+        maybe_right_tab_up = -INT32_MAX;
     } else if (NearlyEqual(right_x, n_right, alignment_tolerance)) {
       if (debug)
         tprintf("Maybe a right tab\n");
-      if (n_mid_y > top_y && maybe_right_tab_up > -MAX_INT32)
+      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX)
         ++maybe_right_tab_up;
-      if (n_mid_y < bottom_y && maybe_right_tab_down > -MAX_INT32)
+      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX)
         ++maybe_right_tab_down;
     } else if (n_right > right_x && n_left <= right_x) {
       // Overlaps but not aligned so negative points on a maybe.
       if (debug)
         tprintf("Maybe Not a right tab\n");
-      if (n_mid_y > top_y && maybe_right_tab_up > -MAX_INT32)
+      if (n_mid_y > top_y && maybe_right_tab_up > -INT32_MAX)
         --maybe_right_tab_up;
-      if (n_mid_y < bottom_y && maybe_right_tab_down > -MAX_INT32)
+      if (n_mid_y < bottom_y && maybe_right_tab_down > -INT32_MAX)
         --maybe_right_tab_down;
     }
     if (n_right > right_x && nbox.y_overlap(box) && n_left <= target_left) {
@@ -739,8 +739,8 @@ bool TabFind::TestBoxForTabs(BLOBNBOX* bbox, int min_gutter_width,
       if (debug)
         tprintf("Not a ragged right\n");
     }
-    if (maybe_left_tab_down == -MAX_INT32 && maybe_left_tab_up == -MAX_INT32 &&
-        maybe_right_tab_down == -MAX_INT32 && maybe_right_tab_up == -MAX_INT32)
+    if (maybe_left_tab_down == -INT32_MAX && maybe_left_tab_up == -INT32_MAX &&
+        maybe_right_tab_down == -INT32_MAX && maybe_right_tab_up == -INT32_MAX)
       break;
   }
   if (is_left_tab || maybe_left_tab_up > 1 || maybe_left_tab_down > 1) {

@@ -473,7 +473,7 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1,
                    2 * padding + 1);
     pixInvert(resized_mask, resized_mask);
-    pixSetMasked(grey_pix, resized_mask, MAX_UINT32);
+    pixSetMasked(grey_pix, resized_mask, UINT32_MAX);
     pixDestroy(&resized_mask);
   }
   return grey_pix;
@@ -493,9 +493,9 @@ bool PageIterator::Baseline(PageIteratorLevel level,
            ? word->bounding_box()
            : row->bounding_box();
   int left = box.left();
-  ICOORD startpt(left, static_cast<inT16>(row->base_line(left) + 0.5));
+  ICOORD startpt(left, static_cast<int16_t>(row->base_line(left) + 0.5));
   int right = box.right();
-  ICOORD endpt(right, static_cast<inT16>(row->base_line(right) + 0.5));
+  ICOORD endpt(right, static_cast<int16_t>(row->base_line(right) + 0.5));
   // Rotate to image coordinates and convert to global image coords.
   startpt.rotate(it_->block()->block->re_rotation());
   endpt.rotate(it_->block()->block->re_rotation());

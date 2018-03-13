@@ -29,7 +29,7 @@
 
 class WERD_CHOICE;
 
-typedef uinT8 BLOB_WIDTH;
+typedef uint8_t BLOB_WIDTH;
 
 struct DANGERR_INFO {
   DANGERR_INFO() :

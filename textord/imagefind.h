@@ -84,14 +84,14 @@ class ImageFind {
   // Given a point in 3-D (RGB) space, returns the squared Euclidean distance
   // of the point from the given line, defined by a pair of points in the 3-D
   // (RGB) space, line1 and line2.
-  static double ColorDistanceFromLine(const uinT8* line1, const uinT8* line2,
-                                      const uinT8* point);
+  static double ColorDistanceFromLine(const uint8_t* line1, const uint8_t* line2,
+                                      const uint8_t* point);
 
   // Returns the leptonica combined code for the given RGB triplet.
-  static uinT32 ComposeRGB(uinT32 r, uinT32 g, uinT32 b);
+  static uint32_t ComposeRGB(uint32_t r, uint32_t g, uint32_t b);
 
-  // Returns the input value clipped to a uinT8.
-  static uinT8 ClipToByte(double pixel);
+  // Returns the input value clipped to a uint8_t.
+  static uint8_t ClipToByte(double pixel);
 
   // Computes the light and dark extremes of color in the given rectangle of
   // the given pix, which is factor smaller than the coordinate system in rect.
@@ -106,7 +106,7 @@ class ImageFind {
   static void ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
                                      Pix* color_map1, Pix* color_map2,
                                      Pix* rms_map,
-                                     uinT8* color1, uinT8* color2);
+                                     uint8_t* color1, uint8_t* color2);
 
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract

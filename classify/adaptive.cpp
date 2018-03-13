@@ -185,7 +185,7 @@ ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
 }                                /* NewAdaptedTemplates */
 
 // Returns FontinfoId of the given config of the given adapted class.
-int Classify::GetFontinfoId(ADAPT_CLASS Class, uinT8 ConfigId) {
+int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
   return (ConfigIsPermanent(Class, ConfigId) ?
       PermConfigFor(Class, ConfigId)->FontinfoId :
       TempConfigFor(Class, ConfigId)->FontinfoId);
@@ -316,9 +316,9 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
   /* then read in the definitions of the permanent protos and configs */
   Class->PermProtos = NewBitVector (MAX_NUM_PROTOS);
   Class->PermConfigs = NewBitVector (MAX_NUM_CONFIGS);
-  fp->FRead(Class->PermProtos, sizeof(uinT32),
+  fp->FRead(Class->PermProtos, sizeof(uint32_t),
             WordsInVectorOfSize(MAX_NUM_PROTOS));
-  fp->FRead(Class->PermConfigs, sizeof(uinT32),
+  fp->FRead(Class->PermConfigs, sizeof(uint32_t),
             WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
   /* then read in the list of temporary protos */
@@ -391,8 +391,8 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
  */
 PERM_CONFIG ReadPermConfig(TFile *fp) {
   PERM_CONFIG Config = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
-  uinT8 NumAmbigs;
-  fp->FRead(&NumAmbigs, sizeof(uinT8), 1);
+  uint8_t NumAmbigs;
+  fp->FRead(&NumAmbigs, sizeof(NumAmbigs), 1);
   Config->Ambigs = new UNICHAR_ID[NumAmbigs + 1];
   fp->FRead(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs);
   Config->Ambigs[NumAmbigs] = -1;
@@ -420,7 +420,7 @@ TEMP_CONFIG ReadTempConfig(TFile *fp) {
   fp->FRead(Config, sizeof(TEMP_CONFIG_STRUCT), 1);
 
   Config->Protos = NewBitVector (Config->ProtoVectorSize * BITSINLONG);
-  fp->FRead(Config->Protos, sizeof(uinT32), Config->ProtoVectorSize);
+  fp->FRead(Config->Protos, sizeof(uint32_t), Config->ProtoVectorSize);
 
   return (Config);
 
@@ -449,9 +449,9 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
   fwrite ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
 
   /* then write out the definitions of the permanent protos and configs */
-  fwrite ((char *) Class->PermProtos, sizeof (uinT32),
+  fwrite ((char *) Class->PermProtos, sizeof (uint32_t),
     WordsInVectorOfSize (MAX_NUM_PROTOS), File);
-  fwrite ((char *) Class->PermConfigs, sizeof (uinT32),
+  fwrite ((char *) Class->PermConfigs, sizeof (uint32_t),
     WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
@@ -517,12 +517,12 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
  * @note History: Tue Mar 19 13:55:44 1991, DSJ, Created.
  */
 void WritePermConfig(FILE *File, PERM_CONFIG Config) {
-  uinT8 NumAmbigs = 0;
+  uint8_t NumAmbigs = 0;
 
   assert (Config != NULL);
   while (Config->Ambigs[NumAmbigs] > 0) ++NumAmbigs;
 
-  fwrite((char *) &NumAmbigs, sizeof(uinT8), 1, File);
+  fwrite((char *) &NumAmbigs, sizeof(uint8_t), 1, File);
   fwrite(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs, File);
   fwrite(&(Config->FontinfoId), sizeof(int), 1, File);
 }                                /* WritePermConfig */
@@ -544,7 +544,7 @@ void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
   assert (Config != NULL);
 
   fwrite ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
-  fwrite ((char *) Config->Protos, sizeof (uinT32),
+  fwrite ((char *) Config->Protos, sizeof (uint32_t),
     Config->ProtoVectorSize, File);
 
 }                                /* WriteTempConfig */

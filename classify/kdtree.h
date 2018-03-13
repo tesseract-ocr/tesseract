@@ -47,7 +47,7 @@ struct KDNODE {
 };
 
 struct KDTREE {
-  inT16 KeySize;                 /* number of dimensions in the tree */
+  int16_t KeySize;                 /* number of dimensions in the tree */
   KDNODE Root;                   /* Root.Left points to actual root node */
   PARAM_DESC KeyDesc[1];         /* description of each dimension */
 };
@@ -60,7 +60,7 @@ struct KDTREE {
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
 -----------------------------------------------------------------------------*/
-KDTREE *MakeKDTree(inT16 KeySize, const PARAM_DESC KeyDesc[]);
+KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
 
 void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data);
 
@@ -88,7 +88,7 @@ FLOAT32 ComputeDistance(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]);
 int QueryInSearch(KDTREE *tree);
 
 void Walk(KDTREE *tree, void_proc action, void *context,
-          KDNODE *SubTree, inT32 Level);
+          KDNODE *SubTree, int32_t Level);
 
 void InsertNodes(KDTREE *tree, KDNODE *nodes);
 

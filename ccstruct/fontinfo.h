@@ -32,27 +32,27 @@ namespace tesseract {
 class BitVector;
 
 // Simple struct to hold a font and a score. The scores come from the low-level
-// integer matcher, so they are in the uinT16 range. Fonts are an index to
+// integer matcher, so they are in the uint16_t range. Fonts are an index to
 // fontinfo_table.
 // These get copied around a lot, so best to keep them small.
 struct ScoredFont {
   ScoredFont() : fontinfo_id(-1), score(0) {}
-  ScoredFont(int font_id, uinT16 classifier_score)
+  ScoredFont(int font_id, uint16_t classifier_score)
       : fontinfo_id(font_id), score(classifier_score) {}
 
   // Index into fontinfo table, but inside the classifier, may be a shapetable
   // index.
-  inT32 fontinfo_id;
+  int32_t fontinfo_id;
   // Raw score from the low-level classifier.
-  uinT16 score;
+  uint16_t score;
 };
 
 // Struct for information about spacing between characters in a particular font.
 struct FontSpacingInfo {
-  inT16 x_gap_before;
-  inT16 x_gap_after;
+  int16_t x_gap_before;
+  int16_t x_gap_after;
   GenericVector<UNICHAR_ID> kerned_unichar_ids;
-  GenericVector<inT16> kerned_x_gaps;
+  GenericVector<int16_t> kerned_x_gaps;
 };
 
 /*
@@ -115,12 +115,12 @@ struct FontInfo {
   bool is_fraktur() const { return (properties & 16) != 0; }
 
   char* name;
-  uinT32 properties;
+  uint32_t properties;
   // The universal_id is a field reserved for the initialization process
   // to assign a unique id number to all fonts loaded for the current
   // combination of languages. This id will then be returned by
   // ResultIterator::WordFontAttributes.
-  inT32 universal_id;
+  int32_t universal_id;
   // Horizontal spacing between characters (indexed by UNICHAR_ID).
   GenericVector<FontSpacingInfo *> *spacing_vec;
 };

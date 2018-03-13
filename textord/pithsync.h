@@ -33,40 +33,40 @@ class FPCUTPT
     }
     void setup (                 //start of cut
       FPCUTPT cutpts[],          //predecessors
-      inT16 array_origin,        //start coord
+      int16_t array_origin,        //start coord
       STATS * projection,        //occupation
-      inT16 zero_count,          //official zero
-      inT16 pitch,               //proposed pitch
-      inT16 x,                   //position
-      inT16 offset);             //dist to gap
+      int16_t zero_count,          //official zero
+      int16_t pitch,               //proposed pitch
+      int16_t x,                   //position
+      int16_t offset);             //dist to gap
 
     void assign (                //evaluate cut
       FPCUTPT cutpts[],          //predecessors
-      inT16 array_origin,        //start coord
-      inT16 x,                   //position
+      int16_t array_origin,        //start coord
+      int16_t x,                   //position
       BOOL8 faking,              //faking this one
       BOOL8 mid_cut,             //doing free cut
-      inT16 offset,              //extra cost dist
+      int16_t offset,              //extra cost dist
       STATS * projection,        //occupation
       float projection_scale,    //scaling
-      inT16 zero_count,          //official zero
-      inT16 pitch,               //proposed pitch
-      inT16 pitch_error);        //allowed tolerance
+      int16_t zero_count,          //official zero
+      int16_t pitch,               //proposed pitch
+      int16_t pitch_error);        //allowed tolerance
 
     void assign_cheap (          //evaluate cut
       FPCUTPT cutpts[],          //predecessors
-      inT16 array_origin,        //start coord
-      inT16 x,                   //position
+      int16_t array_origin,        //start coord
+      int16_t x,                   //position
       BOOL8 faking,              //faking this one
       BOOL8 mid_cut,             //doing free cut
-      inT16 offset,              //extra cost dist
+      int16_t offset,              //extra cost dist
       STATS * projection,        //occupation
       float projection_scale,    //scaling
-      inT16 zero_count,          //official zero
-      inT16 pitch,               //proposed pitch
-      inT16 pitch_error);        //allowed tolerance
+      int16_t zero_count,          //official zero
+      int16_t pitch,               //proposed pitch
+      int16_t pitch_error);        //allowed tolerance
 
-    inT32 position() {  // access func
+    int32_t position() {  // access func
       return xpos;
     }
     double cost_function() {
@@ -81,23 +81,23 @@ class FPCUTPT
     FPCUTPT *previous() {
       return pred;
     }
-    inT16 cheap_cuts() const {  //no of mi cuts
+    int16_t cheap_cuts() const {  //no of mi cuts
       return mid_cuts;
     }
-    inT16 index() const {
+    int16_t index() const {
       return region_index;
     }
 
     BOOL8 faked;                 //faked split point
     BOOL8 terminal;              //successful end
-    inT16 fake_count;            //total fakes to here
+    int16_t fake_count;            //total fakes to here
 
   private:
-    inT16 region_index;          //cut serial number
-    inT16 mid_cuts;              //no of cheap cuts
-    inT32 xpos;                  //location
-    uinT32 back_balance;         //proj backwards
-    uinT32 fwd_balance;          //proj forwards
+    int16_t region_index;          //cut serial number
+    int16_t mid_cuts;              //no of cheap cuts
+    int32_t xpos;                  //location
+    uint32_t back_balance;         //proj backwards
+    uint32_t fwd_balance;          //proj forwards
     FPCUTPT *pred;               //optimal previous
     double mean_sum;             //mean so far
     double sq_sum;               //summed distsances
@@ -105,29 +105,29 @@ class FPCUTPT
 };
 double check_pitch_sync2(                          //find segmentation
                          BLOBNBOX_IT *blob_it,     //blobs to do
-                         inT16 blob_count,         //no of blobs
-                         inT16 pitch,              //pitch estimate
-                         inT16 pitch_error,        //tolerance
+                         int16_t blob_count,         //no of blobs
+                         int16_t pitch,              //pitch estimate
+                         int16_t pitch_error,        //tolerance
                          STATS *projection,        //vertical
-                         inT16 projection_left,    //edges //scale factor
-                         inT16 projection_right,
+                         int16_t projection_left,    //edges //scale factor
+                         int16_t projection_right,
                          float projection_scale,
-                         inT16 &occupation_count,  //no of occupied cells
+                         int16_t &occupation_count,  //no of occupied cells
                          FPSEGPT_LIST *seg_list,   //output list
-                         inT16 start,              //start of good range
-                         inT16 end                 //end of good range
+                         int16_t start,              //start of good range
+                         int16_t end                 //end of good range
                         );
 double check_pitch_sync3(                          //find segmentation
-                         inT16 projection_left,    //edges //to be considered 0
-                         inT16 projection_right,
-                         inT16 zero_count,
-                         inT16 pitch,              //pitch estimate
-                         inT16 pitch_error,        //tolerance
+                         int16_t projection_left,    //edges //to be considered 0
+                         int16_t projection_right,
+                         int16_t zero_count,
+                         int16_t pitch,              //pitch estimate
+                         int16_t pitch_error,        //tolerance
                          STATS *projection,        //vertical
                          float projection_scale,   //scale factor
-                         inT16 &occupation_count,  //no of occupied cells
+                         int16_t &occupation_count,  //no of occupied cells
                          FPSEGPT_LIST *seg_list,   //output list
-                         inT16 start,              //start of good range
-                         inT16 end                 //end of good range
+                         int16_t start,              //start of good range
+                         int16_t end                 //end of good range
                         );
 #endif
