@@ -120,6 +120,13 @@ if grep -q AX_CHECK_COMPILE_FLAG configure; then
   bail_out
 fi
 
+if grep -q PKG_CHECK_MODULES configure; then
+  # The generated configure is invalid because pkg-confg is unavailable.
+  rm configure
+  echo "Missing pkg-config. Check the build requirements."
+  bail_out
+fi
+
 echo ""
 echo "All done."
 echo "To build the software now, do something like:"
