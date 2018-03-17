@@ -50,8 +50,8 @@ double DotProductAVX(const double* u, const double* v, int n) {
   if (offset <= max_offset) {
     offset = 4;
     // Aligned load is reputedly faster but requires 32 byte aligned input.
-    if ((reinterpret_cast<const uintptr_t>(u) & 31) == 0 &&
-        (reinterpret_cast<const uintptr_t>(v) & 31) == 0) {
+    if ((reinterpret_cast<uintptr_t>(u) & 31) == 0 &&
+        (reinterpret_cast<uintptr_t>(v) & 31) == 0) {
       // Use aligned load.
       __m256d floats1 = _mm256_load_pd(u);
       __m256d floats2 = _mm256_load_pd(v);
