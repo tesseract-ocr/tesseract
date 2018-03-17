@@ -1,6 +1,6 @@
 ; (C) Copyright 2010, Sergey Bronnikov
 ; (C) Copyright 2010-2012, Zdenko Podobný
-; (C) Copyright 2015 Stefan Weil
+; (C) Copyright 2015-2019 Stefan Weil
 ;
 ; Licensed under the Apache License, Version 2.0 (the "License");
 ; you may not use this file except in compliance with the License.
@@ -12,10 +12,12 @@
 ; See the License for the specific language governing permissions and
 ; limitations under the License.
 
+; Links to NSIS documentation:
+; https://nsis.sourceforge.io/Docs/Modern%20UI%202/Readme.html
+
 ; TODO:
 ; * Fix PreventMultipleInstances.
 ; * Add Tesseract icon and images for installer.
-; * Add support for 64 bit Tesseract.
 
 SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 32
@@ -28,7 +30,7 @@ SetCompressorDictSize 32
 !define SRCDIR .
 !endif
 !ifndef VERSION
-!define VERSION 4.00-dev
+!define VERSION undefined
 !endif
 
 !define PRODUCT_NAME "Tesseract-OCR"
@@ -38,21 +40,36 @@ SetCompressorDictSize 32
 !define PRODUCT_WEB_SITE "https://github.com/tesseract-ocr/tesseract"
 !endif
 !define GITHUB_RAW_FILE_URL \
-  "https://raw.githubusercontent.com/tesseract-ocr/tessdata/master"
+  "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/master"
 
 !ifdef CROSSBUILD
 !addincludedir ${SRCDIR}\nsis\include
 !addplugindir ${SRCDIR}\nsis\plugins
 !endif
 
-!define PREFIX "../usr/i686-w64-mingw32"
+!ifdef W64
+!define ARCH "x86_64"
+!define SETUP "tesseract-ocr-w64-setup"
+!else
+!define ARCH "i686"
+!define SETUP "tesseract-ocr-w32-setup"
+!endif
+
+# Name of program and file
+!ifdef VERSION
+OutFile ${SETUP}-${VERSION}.exe
+!else
+OutFile ${SETUP}.exe
+!endif
+
+!define PREFIX "../usr/${ARCH}-w64-mingw32"
 !define TRAININGDIR "${PREFIX}/bin"
 
 # General Definitions
 Name "${PRODUCT_NAME}"
 Caption "${PRODUCT_NAME} ${VERSION}"
 !ifndef CROSSBUILD
-BrandingText /TRIMCENTER "(c) 2010-2015 ${PRODUCT_NAME}"
+BrandingText /TRIMCENTER "(c) 2010-2019 ${PRODUCT_NAME}"
 !endif
 
 !define REGKEY "SOFTWARE\${PRODUCT_NAME}"
@@ -61,7 +78,8 @@ BrandingText /TRIMCENTER "(c) 2010-2015 ${PRODUCT_NAME}"
 !define env_hkcu 'HKCU "Environment"'
 
 # MultiUser Symbol Definitions
-!define MULTIUSER_EXECUTIONLEVEL Admin
+# https://nsis.sourceforge.io/Docs/MultiUser/Readme.html
+!define MULTIUSER_EXECUTIONLEVEL Highest
 !define MULTIUSER_MUI
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${REGKEY}"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME MultiUserInstallMode
@@ -69,6 +87,9 @@ BrandingText /TRIMCENTER "(c) 2010-2015 ${PRODUCT_NAME}"
 !define MULTIUSER_INSTALLMODE_INSTDIR ${PRODUCT_NAME}
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_KEY "${REGKEY}"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUE "Path"
+!ifdef W64
+!define MULTIUSER_USE_PROGRAMFILES64
+!endif
 
 # MUI Symbol Definitions
 !define MUI_ABORTWARNING
@@ -79,10 +100,10 @@ BrandingText /TRIMCENTER "(c) 2010-2015 ${PRODUCT_NAME}"
 !define MUI_FINISHPAGE_LINK "View Tesseract on GitHub"
 !define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/tesseract-ocr/tesseract"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
-!define MUI_FINISHPAGE_SHOWREADME "iexplore $INSTDIR\doc\README"
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
-!define MUI_LICENSEPAGE_CHECKBOX
+; Showing the README does not work.
+;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\doc\README.md"
+;!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
+;!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME StartMenuGroup
@@ -95,23 +116,17 @@ BrandingText /TRIMCENTER "(c) 2010-2015 ${PRODUCT_NAME}"
 !include MultiUser.nsh
 !include Sections.nsh
 !include MUI2.nsh
-!ifdef REGISTRY_SETTINGS
-!include EnvVarUpdate.nsh
-!endif ; REGISTRY_SETTINGS
 !include LogicLib.nsh
 !include winmessages.nsh # include for some of the windows messages defines
 
 # Variables
 Var StartMenuGroup
-!ifdef REGISTRY_SETTINGS
-Var PathKey
-!endif ; REGISTRY_SETTINGS
 ; Define user variables
 Var OLD_KEY
 
 # Installer pages
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "${SRCDIR}\COPYING"
+!insertmacro MUI_PAGE_LICENSE "${SRCDIR}\LICENSE"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 !ifdef VERSION
   Page custom PageReinstall PageLeaveReinstall
@@ -142,57 +157,6 @@ SpaceTexts
 CRCCheck on
 InstProgressFlags smooth colored
 CRCCheck On  # Do a CRC check before installing
-!ifdef W64
-InstallDir "$PROGRAMFILES64\Tesseract-OCR"
-!else
-InstallDir "$PROGRAMFILES\Tesseract-OCR"
-!endif
-# Name of program and file
-!ifdef VERSION
-OutFile tesseract-ocr-setup-${VERSION}.exe
-!else
-OutFile tesseract-ocr-setup.exe
-!endif
-
-!ifdef REGISTRY_SETTINGS
-!macro AddToPath
-  # TODO(zdenop): Check if $INSTDIR is in path. If yes, do not append it.
-  # append bin path to user PATH environment variable
-  StrCpy $PathKey "HKLM"
-  StrCmp $MultiUser.InstallMode "AllUsers" +2
-    StrCpy $PathKey "HKCU"
-  DetailPrint "Setting PATH to $INSTDIR at $PathKey"
-  ${EnvVarUpdate} $0 "PATH" "A" "$PathKey" "$INSTDIR"
-  ; make sure windows knows about the change
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-!macroend
-
-!macro RemoveTessdataPrefix
-  ReadRegStr $R2 ${env_hklm} 'TESSDATA_PREFIX'
-  StrCmp $R2 "" Next1 0
-    DetailPrint "Removing $R2 from HKLM Environment..."
-    DeleteRegValue ${env_hklm} "TESSDATA_PREFIX"
-  Next1:
-  ReadRegStr $R2 ${env_hkcu} 'TESSDATA_PREFIX'
-  StrCmp $R2 "" Next2 0
-    DetailPrint "Removing $R2 from HKCU Environment..."
-    DeleteRegValue ${env_hkcu} "TESSDATA_PREFIX"
-  Next2:
-  # make sure windows knows about the change
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-!macroend
-
-!macro SetTESSDATA
-  !insertmacro RemoveTessdataPrefix
-  StrCpy $PathKey "HKLM"
-  StrCmp $MultiUser.InstallMode "AllUsers" +2
-    StrCpy $PathKey "HKCU"
-  DetailPrint "Setting TESSDATA_PREFIX at $PathKey"
-  ${EnvVarUpdate} $0 "TESSDATA_PREFIX" "A" "$PathKey" "$INSTDIR\"
-  # make sure windows knows about the change
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-!macroend
-!endif ; REGISTRY_SETTINGS
 
 !macro Download_Lang_Data Lang
   ; Download traineddata file.
@@ -214,7 +178,7 @@ Section -Main SEC0000
   File ${PREFIX}/bin/tesseract.exe
   File ${PREFIX}/bin/libtesseract-*.dll
 !ifdef CROSSBUILD
-  File ${SRCDIR}\dll\i686-w64-mingw32\*.dll
+  File ${SRCDIR}\dll\${ARCH}-w64-mingw32\*.dll
 !endif
   CreateDirectory "$INSTDIR\tessdata"
   SetOutPath "$INSTDIR\tessdata"
@@ -222,26 +186,22 @@ Section -Main SEC0000
   CreateDirectory "$INSTDIR\tessdata\configs"
   SetOutPath "$INSTDIR\tessdata\configs"
   File ${PREFIX}/share/tessdata/configs/*
+  CreateDirectory "$INSTDIR\tessdata\script"
   CreateDirectory "$INSTDIR\tessdata\tessconfigs"
   SetOutPath "$INSTDIR\tessdata\tessconfigs"
   File ${PREFIX}/share/tessdata/tessconfigs/*
   CreateDirectory "$INSTDIR\doc"
   SetOutPath "$INSTDIR\doc"
   File ${SRCDIR}\AUTHORS
-  File ${SRCDIR}\COPYING
-  File ${SRCDIR}\testing\eurotext.tif
-  File ${SRCDIR}\testing\phototest.tif
-  File ${SRCDIR}\testing\README
+  File ${SRCDIR}\LICENSE
+  File ${SRCDIR}\README.md
 ##  File ${SRCDIR}\ReleaseNotes
 SectionEnd
 
 Section "ScrollView" SecScrollView
   SectionIn 1
-  CreateDirectory "$INSTDIR\java"
-  SetOutPath "$INSTDIR\java"
-  File ..\java\ScrollView.jar
-  File ..\java\piccolo2d-core-3.0.jar
-  File ..\java\piccolo2d-extras-3.0.jar
+  SetOutPath "$INSTDIR\tessdata"
+  File ${PREFIX}/share/tessdata/*.jar
 SectionEnd
 
 Section "Training Tools" SecTr
@@ -254,12 +214,16 @@ SectionEnd
 !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
 Section -post SEC0001
+!ifdef W64
+  SetRegView 64
+!endif
   ;Store installation folder - we always use HKLM!
   WriteRegStr HKLM "${REGKEY}" "Path" "$INSTDIR"
   WriteRegStr HKLM "${REGKEY}" "Mode" $MultiUser.InstallMode
   WriteRegStr HKLM "${REGKEY}" "InstallDir" "$INSTDIR"
   WriteRegStr HKLM "${REGKEY}" "CurrentVersion" "${VERSION}"
   WriteRegStr HKLM "${REGKEY}" "Uninstaller" "${UNINST_EXE}"
+  ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\App Paths\tesseract.exe" "$INSTDIR\tesseract.exe"
   ;WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "Tesseract-OCR" "$INSTDIR\tesseract.exe"
   ; Register to Add/Remove program in control panel
   WriteRegStr HKLM "${UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} - open source OCR engine"
@@ -290,17 +254,6 @@ Section "Shortcuts creation" SecCS
   ;CreateShortCut "$QUICKLAUNCH\.lnk" "$INSTDIR\tesseract.exe" "" "$INSTDIR\tesseract.exe" 0
 SectionEnd
 
-!ifdef REGISTRY_SETTINGS ; disabled because of bad behaviour with long PATH
-SectionGroup "Registry settings" SecRS
-    Section /o "Add to Path" SecRS_path
-        !insertmacro AddToPath
-    SectionEnd
-    Section /o "Set TESSDATA_PREFIX variable" SecRS_tessdata
-        !insertmacro SetTESSDATA
-    SectionEnd
-SectionGroupEnd
-!endif ; REGISTRY_SETTINGS
-
 ; Language files
 SectionGroup "Language data" SecGrp_LD
     Section "English" SecLang_eng
@@ -316,6 +269,195 @@ SectionGroup "Language data" SecGrp_LD
     SectionEnd
 SectionGroupEnd
 
+; Download script files
+SectionGroup "Additional script data (download)" SecGrp_ASD
+  Section /o "Arabic script" SecLang_Arabic
+    AddSize 8880
+    !insertmacro Download_Lang_Data script/Arabic
+  SectionEnd
+
+  Section /o "Armenian script" SecLang_Armenian
+    AddSize 7510
+    !insertmacro Download_Lang_Data script/Armenian
+  SectionEnd
+
+  Section /o "Bengali script" SecLang_Bengali
+    AddSize 5450
+    !insertmacro Download_Lang_Data script/Bengali
+  SectionEnd
+
+  Section /o "Canadian Aboriginal script" SecLang_Canadian_Aboriginal
+    AddSize 6850
+    !insertmacro Download_Lang_Data script/Canadian_Aboriginal
+  SectionEnd
+
+  Section /o "Cherokee script" SecLang_Cherokee
+    AddSize 4040
+    !insertmacro Download_Lang_Data script/Cherokee
+  SectionEnd
+
+  Section /o "Cyrillic script" SecLang_Cyrillic
+    AddSize 27900
+    !insertmacro Download_Lang_Data script/Cyrillic
+  SectionEnd
+
+  Section /o "Devanagari script" SecLang_Devanagari
+    AddSize 17100
+    !insertmacro Download_Lang_Data script/Devanagari
+  SectionEnd
+
+  Section /o "Ethiopic script" SecLang_Ethiopic
+    AddSize 8650
+    !insertmacro Download_Lang_Data script/Ethiopic
+  SectionEnd
+
+  Section /o "Fraktur script" SecLang_Fraktur
+    AddSize 10400
+    !insertmacro Download_Lang_Data script/Fraktur
+  SectionEnd
+
+  Section /o "Georgian script" SecLang_Georgian
+    AddSize 6630
+    !insertmacro Download_Lang_Data script/Georgian
+  SectionEnd
+
+  Section /o "Greek script" SecLang_Greek
+    AddSize 2900
+    !insertmacro Download_Lang_Data script/Greek
+  SectionEnd
+
+  Section /o "Gujarati script" SecLang_Gujarati
+    AddSize 4780
+    !insertmacro Download_Lang_Data script/Gujarati
+  SectionEnd
+
+  Section /o "Gurmukhi script" SecLang_Gurmukhi
+    AddSize 4020
+    !insertmacro Download_Lang_Data script/Gurmukhi
+  SectionEnd
+
+  Section /o "Han Simplified script" SecLang_HanS
+    AddSize 5700
+    !insertmacro Download_Lang_Data script/HanS
+  SectionEnd
+
+  Section /o "Han Simplified vertical script" SecLang_HanS_vert
+    AddSize 5304
+    !insertmacro Download_Lang_Data script/HanS_vert
+  SectionEnd
+
+  Section /o "Han Traditional script" SecLang_HanT
+    AddSize 5200
+    !insertmacro Download_Lang_Data script/HanT
+  SectionEnd
+
+  Section /o "Han Traditional vertical script" SecLang_HanT_vert
+    AddSize 5200
+    !insertmacro Download_Lang_Data script/HanT_vert
+  SectionEnd
+
+  Section /o "Hangul script" SecLang_Hangul
+    AddSize 4620
+    !insertmacro Download_Lang_Data script/Hangul
+  SectionEnd
+
+  Section /o "Hangul vertical script" SecLang_Hangul_vert
+    AddSize 4510
+    !insertmacro Download_Lang_Data script/Hangul_vert
+  SectionEnd
+
+  Section /o "Hebrew script" SecLang_Hebrew
+    AddSize 4640
+    !insertmacro Download_Lang_Data script/Hebrew
+  SectionEnd
+
+  Section /o "Japanese script" SecLang_Japanese
+    AddSize 5610
+    !insertmacro Download_Lang_Data script/Japanese
+  SectionEnd
+
+  Section /o "Japanese vertical script" SecLang_Japanese_vert
+    AddSize 6150
+    !insertmacro Download_Lang_Data script/Japanese_vert
+  SectionEnd
+
+  Section /o "Kannada script" SecLang_Kannada
+    AddSize 6460
+    !insertmacro Download_Lang_Data script/Kannada
+  SectionEnd
+
+  Section /o "Khmer script" SecLang_Khmer
+    AddSize 4270
+    !insertmacro Download_Lang_Data script/Khmer
+  SectionEnd
+
+  Section /o "Lao script" SecLang_Laos
+    AddSize 9640
+    !insertmacro Download_Lang_Data script/Laos
+  SectionEnd
+
+  Section /o "Latin script" SecLang_Latin
+    AddSize 85200
+    !insertmacro Download_Lang_Data script/Latin
+  SectionEnd
+
+  Section /o "Malayalam script" SecLang_Malayalam
+    AddSize 8590
+    !insertmacro Download_Lang_Data script/Malayalam
+  SectionEnd
+
+  Section /o "Myanmar script" SecLang_Myanmar
+    AddSize 7480
+    !insertmacro Download_Lang_Data script/Myanmar
+  SectionEnd
+
+  Section /o "Oriya script" SecLang_Oriya
+    AddSize 5480
+    !insertmacro Download_Lang_Data script/Oriya
+  SectionEnd
+
+  Section /o "Sinhala script" SecLang_Sinhala
+    AddSize 4560
+    !insertmacro Download_Lang_Data script/Sinhala
+  SectionEnd
+
+  Section /o "Syriac script" SecLang_Syriac
+    AddSize 5530
+    !insertmacro Download_Lang_Data script/Syriac
+  SectionEnd
+
+  Section /o "Tamil script" SecLang_Tamil
+    AddSize 6760
+    !insertmacro Download_Lang_Data script/Tamil
+  SectionEnd
+
+  Section /o "Telugu script" SecLang_Telugu
+    AddSize 6180
+    !insertmacro Download_Lang_Data script/Telugu
+  SectionEnd
+
+  Section /o "Thaana script" SecLang_Thaana
+    AddSize 5770
+    !insertmacro Download_Lang_Data script/Thaana
+  SectionEnd
+
+  Section /o "Thai script" SecLang_Thai
+    AddSize 4050
+    !insertmacro Download_Lang_Data script/Thai
+  SectionEnd
+
+  Section /o "Tibetan script" SecLang_Tibetan
+    AddSize 5440
+    !insertmacro Download_Lang_Data script/Tibetan
+  SectionEnd
+
+  Section /o "Vietnamese script" SecLang_Vietnamese
+    AddSize 1590
+    !insertmacro Download_Lang_Data script/Vietnamese
+  SectionEnd
+
+SectionGroupEnd
+
 ; Download language files
 SectionGroup "Additional language data (download)" SecGrp_ALD
   Section /o "Math / equation detection module" SecLang_equ
@@ -327,531 +469,610 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
   ; https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages
 
   Section /o "Afrikaans" SecLang_afr
-    AddSize 5080
+    AddSize 2530
     !insertmacro Download_Lang_Data afr
   SectionEnd
 
-  Section /o "Albanian" SecLang_sqi
-    AddSize 6436
-    !insertmacro Download_Lang_Data sqi
-  SectionEnd
-
   Section /o "Amharic" SecLang_amh
-    AddSize 2888
+    AddSize 5220
     !insertmacro Download_Lang_Data amh
   SectionEnd
 
   Section /o "Arabic" SecLang_ara
-    AddSize 27888
+    AddSize 1370
     !insertmacro Download_Lang_Data ara
   SectionEnd
 
   Section /o "Assamese" SecLang_asm
-    AddSize 15460
+    AddSize 1950
     !insertmacro Download_Lang_Data asm
   SectionEnd
 
   Section /o "Azerbaijani" SecLang_aze
-    AddSize 6464
+    AddSize 3360
     !insertmacro Download_Lang_Data aze
   SectionEnd
 
-  Section /o "Azerbaijani (Cyrilic)" SecLang_aze_cyrl
-    AddSize 2720
+  Section /o "Azerbaijani (Cyrillic)" SecLang_aze_cyrl
+    AddSize 1850
     !insertmacro Download_Lang_Data aze_cyrl
   SectionEnd
 
-  Section /o "Basque" SecLang_eus
-    AddSize 4856
-    !insertmacro Download_Lang_Data eus
-  SectionEnd
-
   Section /o "Belarusian" SecLang_bel
-    AddSize 6664
+    AddSize 3520
     !insertmacro Download_Lang_Data bel
   SectionEnd
 
   Section /o "Bengali" SecLang_ben
-    AddSize 15192
+    AddSize 836
     !insertmacro Download_Lang_Data ben
   SectionEnd
 
   Section /o "Tibetan" SecLang_bod
-    AddSize 24648
+    AddSize 1880
     !insertmacro Download_Lang_Data bod
   SectionEnd
 
   Section /o "Bosnian" SecLang_bos
-    AddSize 5308
+    AddSize 2380
     !insertmacro Download_Lang_Data bos
   SectionEnd
 
+  Section /o "Breton" SecLang_bre
+    AddSize 6188
+    !insertmacro Download_Lang_Data bre
+  SectionEnd
+
   Section /o "Bulgarian" SecLang_bul
-    AddSize 5888
+    AddSize 1600
     !insertmacro Download_Lang_Data bul
   SectionEnd
 
   Section /o "Catalan" SecLang_cat
-    AddSize 5232
+    AddSize 1090
     !insertmacro Download_Lang_Data cat
   SectionEnd
 
   Section /o "Cebuano" SecLang_ceb
-    AddSize 1648
+    AddSize 699
     !insertmacro Download_Lang_Data ceb
   SectionEnd
 
-  Section /o "Cherokee" SecLang_chr
-    AddSize 1060
-    !insertmacro Download_Lang_Data chr
-  SectionEnd
-
-  Section /o "Chinese (Traditional)" SecLang_chi_tra
-    AddSize 55368
-    !insertmacro Download_Lang_Data chi_tra
-  SectionEnd
-
-  Section /o "Chinese (Simplified)" SecLang_chi_sim
-    AddSize 41108
-    !insertmacro Download_Lang_Data chi_sim
-  SectionEnd
-
-  Section /o "Croatian" SecLang_hrv
-    AddSize 8924
-    !insertmacro Download_Lang_Data hrv
-  SectionEnd
-
   Section /o "Czech" SecLang_ces
-    AddSize 11620
+    AddSize 3620
     !insertmacro Download_Lang_Data ces
   SectionEnd
 
+  Section /o "Chinese (Simplified)" SecLang_chi_sim
+    AddSize 2350
+    !insertmacro Download_Lang_Data chi_sim
+  SectionEnd
+
+  Section /o "Chinese (Simplified vertical)" SecLang_chi_sim_vert
+    AddSize 1840
+    !insertmacro Download_Lang_Data chi_sim_vert
+  SectionEnd
+
+  Section /o "Chinese (Traditional)" SecLang_chi_tra
+    AddSize 2260
+    !insertmacro Download_Lang_Data chi_tra
+  SectionEnd
+
+  Section /o "Chinese (Traditional vertical)" SecLang_chi_tra_vert
+    AddSize 1740
+    !insertmacro Download_Lang_Data chi_tra_vert
+  SectionEnd
+
+  Section /o "Cherokee" SecLang_chr
+    AddSize 366
+    !insertmacro Download_Lang_Data chr
+  SectionEnd
+
+  Section /o "Corsican" SecLang_cos
+    AddSize 2190
+    !insertmacro Download_Lang_Data cos
+  SectionEnd
+
   Section /o "Welsh" SecLang_cym
-    AddSize 3704
+    AddSize 2110
     !insertmacro Download_Lang_Data cym
   SectionEnd
 
   Section /o "Danish" SecLang_dan
-    AddSize 7172
+    AddSize 2460
     !insertmacro Download_Lang_Data dan
   SectionEnd
 
-  Section /o "Danish (Fraktur)" SecLang_dan_frak
-    AddSize 1588
-    !insertmacro Download_Lang_Data dan_frak
-  SectionEnd
-
-  Section /o "Dutch" SecLang_nld
-    AddSize 16704
-    !insertmacro Download_Lang_Data nld
-  SectionEnd
-
-  Section /o "English - Middle (1100-1500)" SecLang_enm
-    AddSize 2060
-    !insertmacro Download_Lang_Data enm
-  SectionEnd
-
-  Section /o "Esperanto" SecLang_epo
-    AddSize 6448
-    !insertmacro Download_Lang_Data epo
-  SectionEnd
-
-  Section /o "Estonian" SecLang_est
-    AddSize 9424
-    !insertmacro Download_Lang_Data est
-  SectionEnd
-
   Section /o "German" SecLang_deu
-    AddSize 13060
+    AddSize 1450
     !insertmacro Download_Lang_Data deu
   SectionEnd
 
-  Section /o "German (Fraktur)" SecLang_deu_frak
-    AddSize 1936
-    !insertmacro Download_Lang_Data deu_frak
+  Section /o "Divehi" SecLang_div
+    AddSize 1690
+    !insertmacro Download_Lang_Data div
   SectionEnd
 
   Section /o "Dzongkha" SecLang_dzo
-    AddSize 3236
+    AddSize 439
     !insertmacro Download_Lang_Data dzo
   SectionEnd
 
   Section /o "Greek" SecLang_ell
-    AddSize 5296
+    AddSize 1350
     !insertmacro Download_Lang_Data ell
   SectionEnd
 
-  Section /o "Greek - Ancient" SecLang_grc
-    AddSize 5064
-    !insertmacro Download_Lang_Data grc
+  Section /o "English - Middle (1100-1500)" SecLang_enm
+    AddSize 2960
+    !insertmacro Download_Lang_Data enm
+  SectionEnd
+
+  Section /o "Esperanto" SecLang_epo
+    AddSize 4510
+    !insertmacro Download_Lang_Data epo
+  SectionEnd
+
+  Section /o "Estonian" SecLang_est
+    AddSize 4250
+    !insertmacro Download_Lang_Data est
+  SectionEnd
+
+  Section /o "Basque" SecLang_eus
+    AddSize 4940
+    !insertmacro Download_Lang_Data eus
+  SectionEnd
+
+  Section /o "Faroese" SecLang_fao
+    AddSize 3280
+    !insertmacro Download_Lang_Data fao
   SectionEnd
 
   Section /o "Persian" SecLang_fas
-    AddSize 4692
+    AddSize 421
     !insertmacro Download_Lang_Data fas
   SectionEnd
 
-  Section /o "Finnish" SecLang_fin
-    AddSize 12964
+  Section /o "Filipino" SecLang_fil
+    AddSize 1760
+    !insertmacro Download_Lang_Data fil
+  SectionEnd
+
+ Section /o "Finnish" SecLang_fin
+    AddSize 7500
     !insertmacro Download_Lang_Data fin
   SectionEnd
 
-  Section /o "Frankish" SecLang_frk
-    AddSize 16072
-    !insertmacro Download_Lang_Data frk
-  SectionEnd
-
   Section /o "French" SecLang_fra
-    AddSize 36504
+    AddSize 1080
     !insertmacro Download_Lang_Data fra
   SectionEnd
 
-  Section /o "French - Middle (ca. 1400-1600)" SecLang_frm
-    AddSize 15468
+ Section /o "German Fraktur" SecLang_frk
+    AddSize 6130
+    !insertmacro Download_Lang_Data frk
+  SectionEnd
+
+ Section /o "French - Middle (ca. 1400-1600)" SecLang_frm
+    AddSize 1930
     !insertmacro Download_Lang_Data frm
   SectionEnd
 
+  Section /o "Frisian (Western)" SecLang_fry
+    AddSize 1820
+    !insertmacro Download_Lang_Data fry
+  SectionEnd
+
+  Section /o "Gaelic (Scots)" SecLang_gla
+    AddSize 2930
+    !insertmacro Download_Lang_Data gla
+  SectionEnd
+
   Section /o "Irish" SecLang_gle
-    AddSize 3404
+    AddSize 1130
     !insertmacro Download_Lang_Data gle
   SectionEnd
 
   Section /o "Galician" SecLang_glg
-    AddSize 5392
+    AddSize 2440
     !insertmacro Download_Lang_Data glg
   SectionEnd
 
+  Section /o "Greek, Ancient (-1453)" SecLang_grc
+    AddSize 2140
+    !insertmacro Download_Lang_Data grc
+  SectionEnd
+
   Section /o "Gujarati" SecLang_guj
-    AddSize 10380
+    AddSize 1350
     !insertmacro Download_Lang_Data guj
   SectionEnd
 
   Section /o "Haitian" SecLang_hat
-    AddSize 1320
+    AddSize 1890
     !insertmacro Download_Lang_Data hat
   SectionEnd
 
   Section /o "Hebrew" SecLang_heb
-    AddSize 4240
+    AddSize 939
     !insertmacro Download_Lang_Data heb
   SectionEnd
 
   Section /o "Hindi" SecLang_hin
-    AddSize 22212
+    AddSize 1070
     !insertmacro Download_Lang_Data hin
   SectionEnd
 
+  Section /o "Croatian" SecLang_hrv
+    AddSize 3910
+    !insertmacro Download_Lang_Data hrv
+  SectionEnd
+
   Section /o "Hungarian" SecLang_hun
-    AddSize 11932
+    AddSize 5050
     !insertmacro Download_Lang_Data hun
   SectionEnd
 
+  Section /o "Armenian" SecLang_hye
+    AddSize 3300
+    !insertmacro Download_Lang_Data hye
+  SectionEnd
+
   Section /o "Inuktitut" SecLang_iku
-    AddSize 972
+    AddSize 2670
     !insertmacro Download_Lang_Data iku
   SectionEnd
 
-  Section /o "Icelandic" SecLang_isl
-    AddSize 5956
-    !insertmacro Download_Lang_Data isl
-  SectionEnd
-
   Section /o "Indonesian" SecLang_ind
-    AddSize 6352
+    AddSize 1070
     !insertmacro Download_Lang_Data ind
   SectionEnd
 
+  Section /o "Icelandic" SecLang_isl
+    AddSize 2170
+    !insertmacro Download_Lang_Data isl
+  SectionEnd
+
   Section /o "Italian" SecLang_ita
-    AddSize 31980
+    AddSize 2580
     !insertmacro Download_Lang_Data ita
   SectionEnd
 
   Section /o "Italian (Old)" SecLang_ita_old
-    AddSize 13732
+    AddSize 3130
     !insertmacro Download_Lang_Data ita_old
   SectionEnd
 
   Section /o "Javanese" SecLang_jav
-    AddSize 4304
+    AddSize 2840
     !insertmacro Download_Lang_Data jav
   SectionEnd
 
   Section /o "Japanese" SecLang_jpn
-    AddSize 32304
+    AddSize 2360
     !insertmacro Download_Lang_Data jpn
   SectionEnd
 
+  Section /o "Japanese (vertical)" SecLang_jpn_vert
+    AddSize 2900
+    !insertmacro Download_Lang_Data jpn_vert
+  SectionEnd
+
   Section /o "Kannada" SecLang_kan
-    AddSize 34828
+    AddSize 3440
     !insertmacro Download_Lang_Data kan
   SectionEnd
 
   Section /o "Georgian" SecLang_kat
-    AddSize 6076
+    AddSize 2410
     !insertmacro Download_Lang_Data kat
   SectionEnd
 
   Section /o "Georgian (Old)" SecLang_kat_old
-    AddSize 644
+    AddSize 413
     !insertmacro Download_Lang_Data kat_old
   SectionEnd
 
   Section /o "Kazakh" SecLang_kaz
-    AddSize 4424
+    AddSize 4520
     !insertmacro Download_Lang_Data kaz
   SectionEnd
 
   Section /o "Central Khmer" SecLang_khm
-    AddSize 47712
+    AddSize 1380
     !insertmacro Download_Lang_Data khm
   SectionEnd
 
   Section /o "Kirghiz" SecLang_kir
-    AddSize 5376
+    AddSize 9470
     !insertmacro Download_Lang_Data kir
   SectionEnd
 
   Section /o "Korean" SecLang_kor
-    AddSize 13004
+    AddSize 1600
     !insertmacro Download_Lang_Data kor
   SectionEnd
 
-  Section /o "Kurdish" SecLang_kur
-    AddSize 1976
-    !insertmacro Download_Lang_Data kur
+  Section /o "Kurdish (Kurmanji)" SecLang_kmr
+    AddSize 3400
+    !insertmacro Download_Lang_Data kmr
   SectionEnd
 
   Section /o "Lao" SecLang_lao
-    AddSize 20628
+    AddSize 6090
     !insertmacro Download_Lang_Data lao
   SectionEnd
 
   Section /o "Latin" SecLang_lat
-    AddSize 5888
+    AddSize 3040
     !insertmacro Download_Lang_Data lat
   SectionEnd
 
   Section /o "Latvian" SecLang_lav
-    AddSize 7620
+    AddSize 2590
     !insertmacro Download_Lang_Data lav
   SectionEnd
 
   Section /o "Lithuanian" SecLang_lit
-    AddSize 8708
+    AddSize 3010
     !insertmacro Download_Lang_Data lit
   SectionEnd
 
-  Section /o "Macedonian" SecLang_mkd
-    AddSize 3748
-    !insertmacro Download_Lang_Data mkd
-  SectionEnd
-
-  Section /o "Malay" SecLang_msa
-    AddSize 6344
-    !insertmacro Download_Lang_Data msa
+  Section /o "Luxembourgish" SecLang_ltz
+    AddSize 2490
+    !insertmacro Download_Lang_Data ltz
   SectionEnd
 
   Section /o "Malayalam" SecLang_mal
-    AddSize 8584
+    AddSize 5030
     !insertmacro Download_Lang_Data mal
   SectionEnd
 
-  Section /o "Maltese" SecLang_mlt
-    AddSize 5000
-    !insertmacro Download_Lang_Data mlt
-  SectionEnd
-
   Section /o "Marathi" SecLang_mar
-    AddSize 13908
+    AddSize 2020
     !insertmacro Download_Lang_Data mar
   SectionEnd
 
+  Section /o "Macedonian" SecLang_mkd
+    AddSize 1530
+    !insertmacro Download_Lang_Data mkd
+  SectionEnd
+
+  Section /o "Maltese" SecLang_mlt
+    AddSize 2200
+    !insertmacro Download_Lang_Data mlt
+  SectionEnd
+
+  Section /o "Mongolian" SecLang_mon
+    AddSize 2040
+    !insertmacro Download_Lang_Data mon
+  SectionEnd
+
+  Section /o "Maori" SecLang_mri
+    AddSize 843
+    !insertmacro Download_Lang_Data mri
+  SectionEnd
+
+  Section /o "Malay" SecLang_msa
+    AddSize 1670
+    !insertmacro Download_Lang_Data msa
+  SectionEnd
+
   Section /o "Burmese" SecLang_mya
-    AddSize 68140
+    AddSize 4430
     !insertmacro Download_Lang_Data mya
   SectionEnd
 
   Section /o "Nepali" SecLang_nep
-    AddSize 15496
+    AddSize 979
     !insertmacro Download_Lang_Data nep
   SectionEnd
 
+  Section /o "Dutch; Flemish" SecLang_nld
+    AddSize 5770
+    !insertmacro Download_Lang_Data nld
+  SectionEnd
+
   Section /o "Norwegian" SecLang_nor
-    AddSize 8072
+    AddSize 3440
     !insertmacro Download_Lang_Data nor
   SectionEnd
 
+  Section /o "Occitan (post 1500)" SecLang_oci
+    AddSize 6030
+    !insertmacro Download_Lang_Data oci
+  SectionEnd
+
   Section /o "Oriya" SecLang_ori
-    AddSize 7716
+    AddSize 1410
     !insertmacro Download_Lang_Data ori
   SectionEnd
 
   Section /o "Panjabi / Punjabi" SecLang_pan
-    AddSize 9976
+    AddSize 4860
     !insertmacro Download_Lang_Data pan
   SectionEnd
 
   Section /o "Polish" SecLang_pol
-    AddSize 13592
+    AddSize 4540
     !insertmacro Download_Lang_Data pol
   SectionEnd
 
   Section /o "Portuguese" SecLang_por
-    AddSize 12612
+    AddSize 1890
     !insertmacro Download_Lang_Data por
   SectionEnd
 
   Section /o "Pushto / Pashto" SecLang_pus
-    AddSize 2436
+    AddSize 1690
     !insertmacro Download_Lang_Data pus
   SectionEnd
 
+  Section /o "Quechua" SecLang_que
+    AddSize 4790
+    !insertmacro Download_Lang_Data que
+  SectionEnd
+
   Section /o "Romanian" SecLang_ron
-    AddSize 7772
+    AddSize 2270
     !insertmacro Download_Lang_Data ron
   SectionEnd
 
   Section /o "Russian" SecLang_rus
-    AddSize 38472
+    AddSize 3680
     !insertmacro Download_Lang_Data rus
   SectionEnd
 
   Section /o "Sanskrit" SecLang_san
-    AddSize 22220
+    AddSize 1180
     !insertmacro Download_Lang_Data san
   SectionEnd
 
   Section /o "Sinhala / Sinhalese" SecLang_sin
-    AddSize 6636
+    AddSize 1650
     !insertmacro Download_Lang_Data sin
   SectionEnd
 
   Section /o "Slovak" SecLang_slk
-    AddSize 8916
+    AddSize 4220
     !insertmacro Download_Lang_Data slk
   SectionEnd
 
-  Section /o "Slovak (Fraktur)" SecLang_slk_frak
-    AddSize 828
-    !insertmacro Download_Lang_Data slk_frak
-  SectionEnd
-
   Section /o "Slovenian" SecLang_slv
-    AddSize 6668
+    AddSize 2860
     !insertmacro Download_Lang_Data slv
   SectionEnd
 
+  Section /o "Sindhi" SecLang_snd
+    AddSize 1620
+    !insertmacro Download_Lang_Data snd
+  SectionEnd
+
   Section /o "Spanish" SecLang_spa
-    AddSize 38276
+    AddSize 2190
     !insertmacro Download_Lang_Data spa
   SectionEnd
 
   Section /o "Spanish (Old)" SecLang_spa_old
-    AddSize 16348
+    AddSize 2760
     !insertmacro Download_Lang_Data spa_old
   SectionEnd
 
+  Section /o "Albanian" SecLang_sqi
+    AddSize 1790
+    !insertmacro Download_Lang_Data sqi
+  SectionEnd
+
   Section /o "Serbian" SecLang_srp
-    AddSize 4504
+    AddSize 2050
     !insertmacro Download_Lang_Data srp
   SectionEnd
 
   Section /o "Serbian (Latin)" SecLang_srp_latn
-    AddSize 5952
+    AddSize 3130
     !insertmacro Download_Lang_Data srp_latn
   SectionEnd
 
+  Section /o "Sundanese" SecLang_sun
+    AddSize 1310
+    !insertmacro Download_Lang_Data sun
+  SectionEnd
+
   Section /o "Swahili" SecLang_swa
-    AddSize 3772
+    AddSize 2070
     !insertmacro Download_Lang_Data swa
   SectionEnd
 
   Section /o "Swedish" SecLang_swe
-    AddSize 9240
+    AddSize 3970
     !insertmacro Download_Lang_Data swe
   SectionEnd
 
-!ifdef OLD
-  Section /o "Swedish (Fraktur)" SecLang_swe_frak
-    AddSize 999
-    !insertmacro Download_Lang_Data swe-frak
-  SectionEnd
-!endif ; OLD
-
   Section /o "Syriac" SecLang_syr
-    AddSize 2672
+    AddSize 2100
     !insertmacro Download_Lang_Data syr
   SectionEnd
 
-  Section /o "Tagalog" SecLang_tgl
-    AddSize 4020
-    !insertmacro Download_Lang_Data tgl
-  SectionEnd
-
-  Section /o "Tajik" SecLang_tgk
-    AddSize 1096
-    !insertmacro Download_Lang_Data tgk
-  SectionEnd
-
-  Section /o "Tamil" SecLang_tam
-    AddSize 5000
+ Section /o "Tamil" SecLang_tam
+    AddSize 3090
     !insertmacro Download_Lang_Data tam
   SectionEnd
 
+  Section /o "Tatar" SecLang_tat
+    AddSize 1020
+    !insertmacro Download_Lang_Data tat
+  SectionEnd
+
   Section /o "Telugu" SecLang_tel
-    AddSize 38404
+    AddSize 2640
     !insertmacro Download_Lang_Data tel
   SectionEnd
 
+  Section /o "Tajik" SecLang_tgk
+    AddSize 2480
+    !insertmacro Download_Lang_Data tgk
+  SectionEnd
+
   Section /o "Thai" SecLang_tha
-    AddSize 13248
+    AddSize 1020
     !insertmacro Download_Lang_Data tha
   SectionEnd
 
   Section /o "Tigrinya" SecLang_tir
-    AddSize 1764
+    AddSize 370
     !insertmacro Download_Lang_Data tir
   SectionEnd
 
+ Section /o "Tonga" SecLang_ton
+    AddSize 925
+    !insertmacro Download_Lang_Data ton
+  SectionEnd
+
   Section /o "Turkish" SecLang_tur
-    AddSize 13744
+    AddSize 4240
     !insertmacro Download_Lang_Data tur
   SectionEnd
 
   Section /o "Uighur" SecLang_uig
-    AddSize 1972
+    AddSize 2660
     !insertmacro Download_Lang_Data uig
   SectionEnd
 
   Section /o "Ukrainian" SecLang_ukr
-    AddSize 7856
+    AddSize 3650
     !insertmacro Download_Lang_Data ukr
   SectionEnd
 
   Section /o "Urdu" SecLang_urd
-    AddSize 4716
+    AddSize 1330
     !insertmacro Download_Lang_Data urd
   SectionEnd
 
   Section /o "Uzbek" SecLang_uzb
-    AddSize 4188
+    AddSize 6170
     !insertmacro Download_Lang_Data uzb
   SectionEnd
 
-  Section /o "Uzbek (Cyrilic)" SecLang_uzb_cyrl
-    AddSize 3264
+  Section /o "Uzbek (Cyrillic)" SecLang_uzb_cyrl
+    AddSize 1490
     !insertmacro Download_Lang_Data uzb_cyrl
   SectionEnd
 
   Section /o "Vietnamese" SecLang_vie
-    AddSize 5956
+    AddSize 519
     !insertmacro Download_Lang_Data vie
   SectionEnd
 
   Section /o "Yiddish" SecLang_yid
-    AddSize 4140
+    AddSize 533
     !insertmacro Download_Lang_Data yid
   SectionEnd
+
+  Section /o "Yoruba" SecLang_yor
+    AddSize 941
+    !insertmacro Download_Lang_Data yor
+  SectionEnd
+
 SectionGroupEnd
 
 ;--------------------------------
@@ -901,17 +1122,15 @@ SectionGroupEnd
 
 ;Section /o -un.Main UNSEC0000
 Section -un.Main UNSEC0000
+!ifdef W64
+  SetRegView 64
+!endif
   DetailPrint "Removing everything"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\*.*"
   RMDir  "$SMPROGRAMS\${PRODUCT_NAME}"
   DetailPrint "Removing registry info"
   DeleteRegKey HKLM "Software\Tesseract-OCR"
   SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-!ifdef REGISTRY_SETTINGS
-  ${un.EnvVarUpdate} $0 "PATH" "R" HKLM $INSTDIR
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-  !insertmacro RemoveTessdataPrefix
-!endif ; REGISTRY_SETTINGS
 
   # remove the Add/Remove information
   DeleteRegKey HKLM "${UNINST_KEY}"
@@ -939,6 +1158,9 @@ FunctionEnd
 !macroend
 
 Function .onInit
+!ifdef W64
+  SetRegView 64
+!endif
   Call PreventMultipleInstances
   !insertmacro MUI_LANGDLL_DISPLAY
   ;RequestExecutionLevel admin
@@ -1071,14 +1293,12 @@ Function .onInit
     Czech: !insertmacro SelectSection ${SecLang_ces}
             Goto lang_end
     Danish: !insertmacro SelectSection ${SecLang_dan}
-            !insertmacro SelectSection ${SecLang_dan_frak}
             Goto lang_end
     Dutch: !insertmacro SelectSection ${SecLang_nld}
             Goto lang_end
     Estonian: !insertmacro SelectSection ${SecLang_hrv}
             Goto lang_end
     German: !insertmacro SelectSection ${SecLang_deu}
-            !insertmacro SelectSection ${SecLang_deu_frak}
             Goto lang_end
     Greek: !insertmacro SelectSection ${SecLang_ell}
             !insertmacro SelectSection ${SecLang_grc}
@@ -1131,7 +1351,6 @@ Function .onInit
     Russian: !insertmacro SelectSection ${SecLang_rus}
             Goto lang_end
     Slovak: !insertmacro SelectSection ${SecLang_slk}
-            !insertmacro SelectSection ${SecLang_slk_frak}
             Goto lang_end
     Slovenian: !insertmacro SelectSection ${SecLang_slv}
             Goto lang_end
@@ -1143,9 +1362,6 @@ Function .onInit
     Swahili: !insertmacro SelectSection ${SecLang_swa}
             Goto lang_end
     Swedish: !insertmacro SelectSection ${SecLang_swe}
-!ifdef OLD
-            !insertmacro SelectSection ${SecLang_swe_frak}
-!endif
             Goto lang_end
     Tamil: !insertmacro SelectSection ${SecLang_tam}
             Goto lang_end
@@ -1174,7 +1390,7 @@ Function .onInstFailed
 FunctionEnd
 
 Function ShowReadme
-  Exec "iexplore.exe $INSTDIR\doc\README"
+  Exec '"wordpad" "doc\README.md"'
   ;BringToFront
 FunctionEnd
 
