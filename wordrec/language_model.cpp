@@ -953,10 +953,10 @@ float LanguageModel::ComputeNgramCost(const char *unichar,
     // unless use_only_first_uft8_step is true.
     if (unichar_ptr < unichar_end) {
       if (modified_context == NULL) {
-        int context_len = strlen(context);
+        size_t context_len = strlen(context);
         modified_context =
           new char[context_len + strlen(unichar_ptr) + step + 1];
-        strncpy(modified_context, context, context_len);
+        memcpy(modified_context, context, context_len);
         modified_context_end = modified_context + context_len;
         context_ptr = modified_context;
       }
