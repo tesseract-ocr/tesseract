@@ -69,8 +69,7 @@ SVEvent* SVEvent::copy() {
   any->command_id = command_id;
   any->counter = counter;
   any->parameter = new char[strlen(parameter) + 1];
-  strncpy(any->parameter, parameter, strlen(parameter));
-  any->parameter[strlen(parameter)] = '\0';
+  strcpy(any->parameter, parameter);
   any->type = type;
   any->x = x;
   any->y = y;
@@ -115,7 +114,7 @@ void* ScrollView::MessageReceiver(void* a) {
 
     if (cur->window != NULL) {
       cur->parameter = new char[strlen(p) + 1];
-      strncpy(cur->parameter, p, strlen(p) + 1);
+      strcpy(cur->parameter, p);
       if (strlen(p) > 0) {  // remove the last \n
         cur->parameter[strlen(p)] = '\0';
       }
@@ -743,8 +742,7 @@ char* ScrollView::ShowInputDialog(const char* msg) {
   // wait till an input event (all others are thrown away)
   ev = AwaitEvent(SVET_INPUT);
   char* p = new char[strlen(ev->parameter) + 1];
-  strncpy(p, ev->parameter, strlen(ev->parameter));
-  p[strlen(ev->parameter)] = '\0';
+  strcpy(p, ev->parameter);
   delete ev;
   return p;
 }
@@ -827,8 +825,7 @@ char* ScrollView::AddEscapeChars(const char* input) {
     lastptr = nextptr;
     nextptr = strchr(nextptr+1, '\'');
   }
-  strncpy(message+pos, lastptr, strlen(lastptr));
-  message[pos+strlen(lastptr)] = '\0';
+  strcpy(message+pos, lastptr);
   return message;
 }
 
