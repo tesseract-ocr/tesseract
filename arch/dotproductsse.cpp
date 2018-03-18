@@ -56,8 +56,8 @@ double DotProductSSE(const double* u, const double* v, int n) {
   if (offset <= max_offset) {
     offset = 2;
     // Aligned load is reputedly faster but requires 16 byte aligned input.
-    if ((reinterpret_cast<const uintptr_t>(u) & 15) == 0 &&
-        (reinterpret_cast<const uintptr_t>(v) & 15) == 0) {
+    if ((reinterpret_cast<uintptr_t>(u) & 15) == 0 &&
+        (reinterpret_cast<uintptr_t>(v) & 15) == 0) {
       // Use aligned load.
       sum = _mm_load_pd(u);
       __m128d floats2 = _mm_load_pd(v);
