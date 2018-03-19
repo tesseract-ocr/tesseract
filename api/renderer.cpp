@@ -165,7 +165,7 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "</title>\n"
       "<meta http-equiv=\"Content-Type\" content=\"text/html;"
       "charset=utf-8\" />\n"
-      "  <meta name='ocr-system' content='tesseract " TESSERACT_VERSION_STR
+      "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
               "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
       " ocr_line ocrx_word");

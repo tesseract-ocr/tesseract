@@ -340,7 +340,6 @@ install(FILES
     ccutil/unicharcompress.h
     ccutil/unicharmap.h
     ccutil/unicharset.h
-    ccutil/version.h
 
     #from lstm/makefile.am
     lstm/convolve.h
