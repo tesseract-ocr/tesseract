@@ -20,6 +20,7 @@ bool ValidateIndic::ConsumeGraphemeIfValid() {
     case CharClass::kConsonant:
       return ConsumeConsonantHeadIfValid() && ConsumeConsonantTailIfValid();
     case CharClass::kVowel:
+    case CharClass::kVedicMark:
       return ConsumeVowelIfValid();
     case CharClass::kZeroWidthJoiner:
     case CharClass::kZeroWidthNonJoiner:
