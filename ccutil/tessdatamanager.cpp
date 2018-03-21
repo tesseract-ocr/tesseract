@@ -21,6 +21,10 @@
 #pragma warning(disable:4244)  // Conversion warnings
 #endif
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
 #include "tessdatamanager.h"
 
 #include <stdio.h>
@@ -32,6 +36,17 @@
 #include "params.h"
 
 namespace tesseract {
+
+TessdataManager::TessdataManager() : reader_(nullptr), is_loaded_(false), swap_(false) {
+  SetVersionString(PACKAGE_VERSION);
+}
+
+TessdataManager::TessdataManager(FileReader reader)
+  : reader_(reader),
+    is_loaded_(false),
+    swap_(false) {
+  SetVersionString(PACKAGE_VERSION);
+}
 
 // Lazily loads from the the given filename. Won't actually read the file
 // until it needs it.
