@@ -584,7 +584,9 @@ void ColPartitionSet::AccumulateColumnWidthsAndGaps(int* total_width,
     ++*width_samples;
     if (!it.at_last()) {
       ColPartition* next_part = it.data_relative(1);
-      int gap = part->KeyWidth(part->right_key(), next_part->left_key());
+      int part_left = part->right_key();
+      int part_right = next_part->left_key();
+      int gap = part->KeyWidth(part_left, part_right);
       *total_gap += gap;
       ++*gap_samples;
     }
