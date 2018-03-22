@@ -425,21 +425,23 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
     // Note: There is no exception handling in case the server never turns up.
 
     Close();
-    stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
-                   addr_info->ai_protocol);
-
-    while (connect(stream_, addr_info->ai_addr,
-                   addr_info->ai_addrlen) < 0) {
-      std::cout << "ScrollView: Waiting for server...\n";
-#ifdef _WIN32
-      Sleep(1000);
-#else
-      sleep(1);
-#endif
-
-      Close();
+    for (;;) {
       stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
-                   addr_info->ai_protocol);
+                       addr_info->ai_protocol);
+      if (stream_ >= 0) {
+        if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) == 0) {
+          break;
+        }
+
+        Close();
+
+        std::cout << "ScrollView: Waiting for server...\n";
+#ifdef _WIN32
+        Sleep(1000);
+#else
+        sleep(1);
+#endif
+      }
     }
   }
   FreeAddrInfo(addr_info);
