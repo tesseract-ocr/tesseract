@@ -980,7 +980,8 @@ bool TessPDFRenderer::EndDocumentHandler() {
                "  /Title <%s>\n"
                ">>\n"
                "endobj\n",
-               obj_, TESSERACT_VERSION_STR, datestr, utf16_title.c_str());
+               obj_, tesseract::TessBaseAPI::Version(),
+               datestr, utf16_title.c_str());
   lept_free(datestr);
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
