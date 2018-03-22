@@ -171,14 +171,14 @@ void Textord::block_spacing_stats(
           blob_box = box_next (&blob_it);
         if (blob_box.width () < minwidth)
           minwidth = blob_box.width ();
-        gap_width = blob_box.left () - prev_blob_box.right ();
-        if (!ignore_big_gap (row, row_length, gapmap,
-                             prev_blob_box.right (), blob_box.left ())) {
+        int16_t left = prev_blob_box.right();
+        int16_t right = blob_box.left();
+        gap_width = right - left;
+        if (!ignore_big_gap(row, row_length, gapmap, left, right)) {
           all_gap_stats.add (gap_width, 1);
 
-          centre_to_centre = (blob_box.left () + blob_box.right () -
-            (prev_blob_box.left () +
-             prev_blob_box.right ())) / 2;
+          centre_to_centre = (right + blob_box.right () -
+            (prev_blob_box.left () + left)) / 2;
           //DEBUG
           centre_to_centre_stats.add (centre_to_centre, 1);
           // DEBUG
@@ -245,11 +245,11 @@ void Textord::block_spacing_stats(
             blob_box = reduced_box_next (row, &blob_it);
           else
             blob_box = box_next (&blob_it);
-          gap_width = blob_box.left () - prev_blob_box.right ();
+          int16_t left = prev_blob_box.right();
+          int16_t right = blob_box.left();
+          gap_width = right - left;
           if ((gap_width > real_space_threshold) &&
-            !ignore_big_gap (row, row_length, gapmap,
-            prev_blob_box.right (),
-          blob_box.left ())) {
+              !ignore_big_gap(row, row_length, gapmap, left, right)) {
             /*
             If tosp_use_cert_spaces is enabled, the estimate of the space gap is
             restricted to obvious spaces - those wider than half the xht or those
@@ -350,11 +350,12 @@ void Textord::row_spacing_stats(
         blob_box = reduced_box_next (row, &blob_it);
       else
         blob_box = box_next (&blob_it);
-      gap_width = blob_box.left () - prev_blob_box.right ();
-      if (ignore_big_gap (row, row_length, gapmap,
-        prev_blob_box.right (), blob_box.left ()))
+      int16_t left = prev_blob_box.right();
+      int16_t right = blob_box.left();
+      gap_width = right - left;
+      if (ignore_big_gap(row, row_length, gapmap, left, right)) {
         large_gap_count++;
-      else {
+      } else {
         if (gap_width >= real_space_threshold) {
           if (!tosp_row_use_cert_spaces ||
             (gap_width > tosp_fuzzy_space_factor2 * row->xheight) ||
@@ -728,9 +729,10 @@ BOOL8 Textord::isolated_row_stats(TO_ROW *row,
       blob_box = reduced_box_next (row, &blob_it);
     else
       blob_box = box_next (&blob_it);
-    gap_width = blob_box.left () - prev_blob_box.right ();
-    if (!ignore_big_gap (row, row_length, gapmap,
-      prev_blob_box.right (), blob_box.left ()) &&
+    int16_t left = prev_blob_box.right();
+    int16_t right = blob_box.left();
+    gap_width = right - left;
+    if (!ignore_big_gap(row, row_length, gapmap, left, right) &&
     (gap_width > crude_threshold_estimate)) {
       if ((gap_width > tosp_fuzzy_space_factor2 * row->xheight) ||
         ((gap_width > tosp_fuzzy_space_factor1 * row->xheight) &&
