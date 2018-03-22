@@ -291,7 +291,9 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
   double min_dist = MAX_FLOAT32;
   double max_dist = -MAX_FLOAT32;
   BLOBNBOX_IT blob_it(blobs_);
+#ifdef kDebugYCoord
   bool debug = false;
+#endif
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.data();
     const TBOX& box = blob->bounding_box();
@@ -302,10 +304,12 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
                     blob->baseline_position());
     double offset = direction * blob_pos;
     perp_blob_dists.push_back(offset);
+#ifdef kDebugYCoord
     if (debug) {
       tprintf("Displacement %g for blob at:", offset);
       box.print();
     }
+#endif
     UpdateRange(offset, &min_dist, &max_dist);
   }
   // Set up a histogram using disp_quant_factor_ as the bucket size.
@@ -316,12 +320,14 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
   }
   GenericVector<KDPairInc<float, int> > scaled_modes;
   dist_stats.top_n_modes(kMaxDisplacementsModes, &scaled_modes);
+#ifdef kDebugYCoord
   if (debug) {
     for (int i = 0; i < scaled_modes.size(); ++i) {
       tprintf("Top mode = %g * %d\n",
               scaled_modes[i].key * disp_quant_factor_, scaled_modes[i].data);
     }
   }
+#endif
   for (int i = 0; i < scaled_modes.size(); ++i)
     displacement_modes_.push_back(disp_quant_factor_ * scaled_modes[i].key);
 }
