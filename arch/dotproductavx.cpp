@@ -91,7 +91,7 @@ double DotProductAVX(const double* u, const double* v, int n) {
   // fool the intrinsics into thinking we are extracting the bottom int64.
   auto cast_sum = _mm256_castpd_si256(sum);
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstrict-aliasing")
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
   *(reinterpret_cast<int64_t*>(&result)) =
 #if defined(_WIN32) || defined(__i386__)
       // This is a very simple workaround that is activated
