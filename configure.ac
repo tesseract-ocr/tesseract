@@ -25,12 +25,6 @@ PACKAGE_YEAR=2018
 PACKAGE_DATE="03/12"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
-gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
-if test -n "${gitrev}" ; then
-	AC_REVISION(["${gitrev}"])
-	AC_DEFINE_UNQUOTED([GIT_REV], ["${gitrev}"], [Define to be the git revision])
-	echo "Using git revision: ${gitrev}"
-fi
 
 AC_DEFINE_UNQUOTED([PACKAGE_NAME], ["${PACKAGE_NAME}"], [Name of package])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION], ["${PACKAGE_VERSION}"], [Version number])
