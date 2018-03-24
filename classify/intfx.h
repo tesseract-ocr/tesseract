@@ -65,11 +65,4 @@ namespace tesseract {
       GenericVector<INT_FEATURE_STRUCT>* bl_features);
 }
 
-// Deprecated! Prefer tesseract::Classify::ExtractFeatures instead.
-bool ExtractIntFeat(const TBLOB& blob,
-                    bool nonlinear_norm,
-                    INT_FEATURE_ARRAY BLFeat,
-                    INT_FEATURE_ARRAY CNFeat,
-                    INT_FX_RESULT_STRUCT* Results);
-
 #endif
