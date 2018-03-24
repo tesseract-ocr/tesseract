@@ -125,7 +125,6 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
   // to measure the number of radicals and strokes, initially we use the same
   // code range for all 3 Han code positions, and fix them after.
   int han_offset = hangul_offset + kTotalJamos;
-  int max_num_strokes = -1;
   for (int u = 0; u <= unicharset.size(); ++u) {
     // We special-case allow null_id to be equal to unicharset.size() in case
     // there is no space in unicharset for it.
@@ -197,9 +196,6 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
   }
   // Now renumber Han to make all codes unique. We already added han_offset to
   // all Han. Now separate out the radical, stroke, and count codes for Han.
-  // In the uniqued Han encoding, the 1st code uses the next radical_map.size()
-  // values, the 2nd code uses the next max_num_strokes+1 values, and the 3rd
-  // code uses the rest for the max number of duplicated radical/stroke combos.
   int code_offset = 0;
   for (int i = 0; i < RecodedCharID::kMaxCodeLen; ++i) {
     int max_offset = 0;
