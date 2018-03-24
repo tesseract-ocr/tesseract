@@ -1106,68 +1106,6 @@ class Tesseract : public Wordrec {
   STRING_VAR_H(page_separator, "\f",
                "Page separator (default is form feed control character)");
 
-  // The following parameters were deprecated and removed from their original
-  // locations. The parameters are temporarily kept here to give Tesseract
-  // users a chance to updated their [lang].traineddata and config files
-  // without introducing failures during Tesseract initialization.
-  // TODO(ocr-team): remove these parameters from the code once we are
-  // reasonably sure that Tesseract users have updated their data files.
-  //
-  // BEGIN DEPRECATED PARAMETERS
-  BOOL_VAR_H(textord_tabfind_vertical_horizontal_mix, true,
-             "find horizontal lines such as headers in vertical page mode");
-  INT_VAR_H(tessedit_ok_mode, 5, "Acceptance decision algorithm");
-  BOOL_VAR_H(load_fixed_length_dawgs, true,  "Load fixed length"
-             " dawgs (e.g. for non-space delimited languages)");
-  INT_VAR_H(segment_debug, 0, "Debug the whole segmentation process");
-  BOOL_VAR_H(permute_debug, 0, "char permutation debug");
-  double_VAR_H(bestrate_pruning_factor, 2.0, "Multiplying factor of"
-               " current best rate to prune other hypotheses");
-  BOOL_VAR_H(permute_script_word, 0,
-             "Turn on word script consistency permuter");
-  BOOL_VAR_H(segment_segcost_rating, 0,
-             "incorporate segmentation cost in word rating?");
-  double_VAR_H(segment_reward_script, 0.95,
-               "Score multipler for script consistency within a word. "
-               "Being a 'reward' factor, it should be <= 1. "
-               "Smaller value implies bigger reward.");
-  BOOL_VAR_H(permute_fixed_length_dawg, 0,
-             "Turn on fixed-length phrasebook search permuter");
-  BOOL_VAR_H(permute_chartype_word, 0,
-             "Turn on character type (property) consistency permuter");
-  double_VAR_H(segment_reward_chartype, 0.97,
-               "Score multipler for char type consistency within a word. ");
-  double_VAR_H(segment_reward_ngram_best_choice, 0.99,
-               "Score multipler for ngram permuter's best choice"
-               " (only used in the Han script path).");
-  BOOL_VAR_H(ngram_permuter_activated, false,
-             "Activate character-level n-gram-based permuter");
-  BOOL_VAR_H(permute_only_top, false, "Run only the top choice permuter");
-  INT_VAR_H(language_model_fixed_length_choices_depth, 3,
-            "Depth of blob choice lists to explore"
-            " when fixed length dawgs are on");
-  BOOL_VAR_H(use_new_state_cost, FALSE,
-             "use new state cost heuristics for segmentation state evaluation");
-  double_VAR_H(heuristic_segcost_rating_base, 1.25,
-               "base factor for adding segmentation cost into word rating."
-               "It's a multiplying factor, the larger the value above 1, "
-               "the bigger the effect of segmentation cost.");
-  double_VAR_H(heuristic_weight_rating, 1,
-               "weight associated with char rating in combined cost of state");
-  double_VAR_H(heuristic_weight_width, 1000.0,
-               "weight associated with width evidence in combined cost of"
-               " state");
-  double_VAR_H(heuristic_weight_seamcut, 0,
-               "weight associated with seam cut in combined cost of state");
-  double_VAR_H(heuristic_max_char_wh_ratio, 2.0,
-               "max char width-to-height ratio allowed in segmentation");
-  BOOL_VAR_H(enable_new_segsearch, false,
-             "Enable new segmentation search path.");
-  double_VAR_H(segsearch_max_fixed_pitch_char_wh_ratio, 2.0,
-               "Maximum character width-to-height ratio for"
-               "fixed pitch fonts");
-  // END DEPRECATED PARAMETERS
-
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const STRING &fname);
   void recog_training_segmented(const STRING &fname,
