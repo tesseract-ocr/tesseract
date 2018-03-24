@@ -760,25 +760,6 @@ int TessBaseAPI::GetThresholdedImageScaleFactor() const {
   return thresholder_->GetScaleFactor();
 }
 
-/** Dump the internal binary image to a PGM file. */
-void TessBaseAPI::DumpPGM(const char* filename) {
-  if (tesseract_ == NULL)
-    return;
-  FILE *fp = fopen(filename, "wb");
-  Pix* pix = tesseract_->pix_binary();
-  int width = pixGetWidth(pix);
-  int height = pixGetHeight(pix);
-  l_uint32* data = pixGetData(pix);
-  fprintf(fp, "P5 %d %d 255\n", width, height);
-  for (int y = 0; y < height; ++y, data += pixGetWpl(pix)) {
-    for (int x = 0; x < width; ++x) {
-      uint8_t b = GET_DATA_BIT(data, x) ? 0 : 255;
-      fwrite(&b, 1, 1, fp);
-    }
-  }
-  fclose(fp);
-}
-
 /**
  * Runs page layout analysis in the mode set by SetPageSegMode.
  * May optionally be called prior to Recognize to get access to just

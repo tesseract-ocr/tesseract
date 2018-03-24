@@ -246,8 +246,6 @@ TESS_API struct Boxa*
 
 TESS_API int   TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle);
 
-TESS_API void  TESS_CALL TessBaseAPIDumpPGM(TessBaseAPI* handle, const char* filename);
-
 TESS_API TessPageIterator*
                TESS_CALL TessBaseAPIAnalyseLayout(TessBaseAPI* handle);
 
