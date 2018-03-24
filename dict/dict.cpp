@@ -85,9 +85,6 @@ Dict::Dict(CCUtil *ccutil)
                     "Default score multiplier for word matches, which may have "
                     "case issues (lower is better).",
                     getCCUtil()->params()),
-      double_MEMBER(segment_penalty_ngram_best_choice, 1.24,
-                    "Multipler to for the best choice from the ngram model.",
-                    getCCUtil()->params()),
       double_MEMBER(segment_penalty_dict_nonword, 1.25,
                     "Score multiplier for glyph fragment segmentations which "
                     "do not match a dictionary word (lower is better).",
@@ -134,9 +131,6 @@ Dict::Dict(CCUtil *ccutil)
       BOOL_MEMBER(stopper_no_acceptable_choices, false,
                   "Make AcceptableChoice() always return false. Useful"
                   " when there is a need to explore all segmentations",
-                  getCCUtil()->params()),
-      BOOL_MEMBER(save_raw_choices, false,
-                  "Deprecated- backward compatibility only",
                   getCCUtil()->params()),
       INT_MEMBER(tessedit_truncate_wordchoice_log, 10,
                  "Max words to keep in list", getCCUtil()->params()),
