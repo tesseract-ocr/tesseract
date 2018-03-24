@@ -320,12 +320,6 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     } else if (strcmp(argv[i], "--list-langs") == 0) {
       noocr = true;
       *list_langs = true;
-    } else if (strcmp(argv[i], "-psm") == 0 && i + 1 < argc) {
-      // The parameter -psm is deprecated and was replaced by --psm.
-      // It is still supported for compatibility reasons.
-      checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
-      *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
-      ++i;
     } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
       checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
