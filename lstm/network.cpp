@@ -81,9 +81,9 @@ Network::Network()
       ni_(0),
       no_(0),
       num_weights_(0),
-      forward_win_(NULL),
-      backward_win_(NULL),
-      randomizer_(NULL) {}
+      forward_win_(nullptr),
+      backward_win_(nullptr),
+      randomizer_(nullptr) {}
 Network::Network(NetworkType type, const STRING& name, int ni, int no)
     : type_(type),
       training_(TS_ENABLED),
@@ -93,9 +93,9 @@ Network::Network(NetworkType type, const STRING& name, int ni, int no)
       no_(no),
       num_weights_(0),
       name_(name),
-      forward_win_(NULL),
-      backward_win_(NULL),
-      randomizer_(NULL) {}
+      forward_win_(nullptr),
+      backward_win_(nullptr),
+      randomizer_(nullptr) {}
 
 Network::~Network() {
 }
@@ -197,13 +197,13 @@ bool Network::DeSerialize(TFile* fp) {
   return true;
 }
 
-// Reads from the given file. Returns NULL in case of error.
+// Reads from the given file. Returns nullptr in case of error.
 // Determines the type of the serialized class and calls its DeSerialize
 // on a new object of the appropriate type, which is returned.
 Network* Network::CreateFromFile(TFile* fp) {
   Network stub;
-  if (!stub.DeSerialize(fp)) return NULL;
-  Network* network = NULL;
+  if (!stub.DeSerialize(fp)) return nullptr;
+  Network* network = nullptr;
   switch (stub.type_) {
     case NT_CONVOLVE:
       network = new Convolve(stub.name_, stub.ni_, 0, 0);
@@ -246,7 +246,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new TFNetwork(stub.name_);
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
-      return NULL;
+      return nullptr;
 #endif
       break;
     // All variants of FullyConnected.
@@ -261,7 +261,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new FullyConnected(stub.name_, stub.ni_, stub.no_, stub.type_);
       break;
     default:
-      return NULL;
+      return nullptr;
   }
   network->training_ = stub.training_;
   network->needs_to_backprop_ = stub.needs_to_backprop_;
@@ -269,14 +269,14 @@ Network* Network::CreateFromFile(TFile* fp) {
   network->num_weights_ = stub.num_weights_;
   if (!network->DeSerialize(fp)) {
     delete network;
-    return NULL;
+    return nullptr;
   }
   return network;
 }
 
 // Returns a random number in [-range, range].
 double Network::Random(double range) {
-  ASSERT_HOST(randomizer_ != NULL);
+  ASSERT_HOST(randomizer_ != nullptr);
   return randomizer_->SignedRand(range);
 }
 
@@ -308,7 +308,7 @@ void Network::DisplayBackward(const NetworkIO& matrix) {
 // Creates the window if needed, otherwise clears it.
 void Network::ClearWindow(bool tess_coords, const char* window_name,
                           int width, int height, ScrollView** window) {
-  if (*window == NULL) {
+  if (*window == nullptr) {
     int min_size = MIN(width, height);
     if (min_size < kMinWinSize) {
       if (min_size < 1) min_size = 1;

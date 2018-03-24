@@ -52,7 +52,7 @@ void NetworkIO::ResizeToMap(bool int_mode, const StrideMap& stride_map,
   // If this assert fails, it most likely got here through an uninitialized
   // scratch element, ie call NetworkScratch::IO::Resizexxx() not
   // NetworkIO::Resizexxx()!!
-  ASSERT_HOST(this != NULL);
+  ASSERT_HOST(this != nullptr);
   stride_map_ = stride_map;
   int_mode_ = int_mode;
   if (int_mode_) {
@@ -503,7 +503,7 @@ int NetworkIO::BestLabel(int t, int not_this, int not_that,
       best_index = i;
     }
   }
-  if (score != NULL) *score = ProbToCertainty(best_score);
+  if (score != nullptr) *score = ProbToCertainty(best_score);
   return best_index;
 }
 
@@ -553,7 +553,7 @@ void NetworkIO::SetActivations(int t, int label, float ok_score) {
 // the winner at the given time step t.
 void NetworkIO::EnsureBestLabel(int t, int label) {
   ASSERT_HOST(!int_mode_);
-  if (BestLabel(t, NULL) != label) {
+  if (BestLabel(t, nullptr) != label) {
     // Output value needs enhancing. Third all the other elements and add the
     // remainder to best_label.
     int num_classes = NumFeatures();

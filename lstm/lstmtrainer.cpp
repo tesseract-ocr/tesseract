@@ -79,7 +79,7 @@ LSTMTrainer::LSTMTrainer()
           NewPermanentTessCallback(this, &LSTMTrainer::ReadTrainingDump)),
       checkpoint_writer_(
           NewPermanentTessCallback(this, &LSTMTrainer::SaveTrainingDump)),
-      sub_trainer_(NULL) {
+      sub_trainer_(nullptr) {
   EmptyConstructor();
   debug_interval_ = 0;
 }
@@ -95,16 +95,16 @@ LSTMTrainer::LSTMTrainer(FileReader file_reader, FileWriter file_writer,
       file_writer_(file_writer),
       checkpoint_reader_(checkpoint_reader),
       checkpoint_writer_(checkpoint_writer),
-      sub_trainer_(NULL),
+      sub_trainer_(nullptr),
       mgr_(file_reader) {
   EmptyConstructor();
-  if (file_reader_ == NULL) file_reader_ = LoadDataFromFile;
-  if (file_writer_ == NULL) file_writer_ = SaveDataToFile;
-  if (checkpoint_reader_ == NULL) {
+  if (file_reader_ == nullptr) file_reader_ = LoadDataFromFile;
+  if (file_writer_ == nullptr) file_writer_ = SaveDataToFile;
+  if (checkpoint_reader_ == nullptr) {
     checkpoint_reader_ =
         NewPermanentTessCallback(this, &LSTMTrainer::ReadTrainingDump);
   }
-  if (checkpoint_writer_ == NULL) {
+  if (checkpoint_writer_ == nullptr) {
     checkpoint_writer_ =
         NewPermanentTessCallback(this, &LSTMTrainer::SaveTrainingDump);
   }
@@ -248,16 +248,16 @@ Trainability LSTMTrainer::GridSearchDictParams(
   NetworkIO fwd_outputs, targets;
   Trainability result =
       PrepareForBackward(trainingdata, &fwd_outputs, &targets);
-  if (result == UNENCODABLE || result == HI_PRECISION_ERR || dict_ == NULL)
+  if (result == UNENCODABLE || result == HI_PRECISION_ERR || dict_ == nullptr)
     return result;
 
   // Encode/decode the truth to get the normalization.
   GenericVector<int> truth_labels, ocr_labels, xcoords;
   ASSERT_HOST(EncodeString(trainingdata->transcription(), &truth_labels));
   // NO-dict error.
-  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), NULL);
+  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), nullptr);
   base_search.Decode(fwd_outputs, 1.0, 0.0, RecodeBeamSearch::kMinCertainty,
-                     NULL);
+                     nullptr);
   base_search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
   STRING truth_text = DecodeLabels(truth_labels);
   STRING ocr_text = DecodeLabels(ocr_labels);
@@ -268,7 +268,7 @@ Trainability LSTMTrainer::GridSearchDictParams(
   for (double r = min_dict_ratio; r < max_dict_ratio; r += dict_ratio_step) {
     for (double c = min_cert_offset; c < max_cert_offset;
          c += cert_offset_step) {
-      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty, NULL);
+      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty, nullptr);
       search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
       truth_text = DecodeLabels(truth_labels);
       ocr_text = DecodeLabels(ocr_labels);
@@ -321,7 +321,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     StartSubtrainer(log_msg);
   }
   SubTrainerResult sub_trainer_result = STR_NONE;
-  if (sub_trainer_ != NULL) {
+  if (sub_trainer_ != nullptr) {
     sub_trainer_result = UpdateSubtrainer(log_msg);
     if (sub_trainer_result == STR_REPLACED) {
       // Reset the inputs, as we have overwritten *this.
@@ -336,10 +336,10 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     SaveRecognitionDump(&rec_model_data);
     log_msg->add_str_double(" New best char error = ", error_rate);
     *log_msg += UpdateErrorGraph(iteration, error_rate, rec_model_data, tester);
-    // If sub_trainer_ is not NULL, either *this beat it to a new best, or it
+    // If sub_trainer_ is not nullptr, either *this beat it to a new best, or it
     // just overwrote *this. In either case, we have finished with it.
     delete sub_trainer_;
-    sub_trainer_ = NULL;
+    sub_trainer_ = nullptr;
     stall_iteration_ = learning_iteration() + kMinStallIterations;
     if (TransitionTrainingStage(kStageTransitionThreshold)) {
       log_msg->add_str_int(" Transitioned to stage ", CurrentTrainingStage());
@@ -381,7 +381,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     // Something interesting happened only if the sub_trainer_ was trained.
     result = sub_trainer_result != STR_NONE;
   }
-  if (checkpoint_writer_ != NULL && file_writer_ != NULL &&
+  if (checkpoint_writer_ != nullptr && file_writer_ != nullptr &&
       checkpoint_name_.length() > 0) {
     // Write a current checkpoint.
     GenericVector<char> checkpoint;
@@ -468,7 +468,7 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (serialize_amount != NO_BEST_TRAINER && !best_trainer_.Serialize(fp))
     return false;
   GenericVector<char> sub_data;
-  if (sub_trainer_ != NULL && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
+  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
     return false;
   if (!sub_data.Serialize(fp)) return false;
   if (!best_error_history_.Serialize(fp)) return false;
@@ -529,7 +529,7 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (!sub_data.DeSerialize(fp)) return false;
   delete sub_trainer_;
   if (sub_data.empty()) {
-    sub_trainer_ = NULL;
+    sub_trainer_ = nullptr;
   } else {
     sub_trainer_ = new LSTMTrainer();
     if (!ReadTrainingDump(sub_data, sub_trainer_)) return false;
@@ -550,7 +550,7 @@ void LSTMTrainer::StartSubtrainer(STRING* log_msg) {
   if (!checkpoint_reader_->Run(best_trainer_, sub_trainer_)) {
     *log_msg += " Failed to revert to previous best for trial!";
     delete sub_trainer_;
-    sub_trainer_ = NULL;
+    sub_trainer_ = nullptr;
   } else {
     log_msg->add_str_int(" Trial sub_trainer_ from iteration ",
                          sub_trainer_->training_iteration());
@@ -682,7 +682,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
       // applying to the weights.
       const ImageData* trainingdata =
           copy_trainer.TrainOnLine(samples_trainer, true);
-      if (trainingdata == NULL) continue;
+      if (trainingdata == nullptr) continue;
       // We'll now use this trainer again for each layer.
       GenericVector<char> updated_trainer;
       samples_trainer->SaveTrainingDump(LIGHT, &copy_trainer, &updated_trainer);
@@ -748,7 +748,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
 bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
                                const UnicharCompress* recoder, bool simple_text,
                                int null_char, GenericVector<int>* labels) {
-  if (str.string() == NULL || str.length() <= 0) {
+  if (str.string() == nullptr || str.length() <= 0) {
     tprintf("Empty truth string!\n");
     return false;
   }
@@ -757,11 +757,11 @@ bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
   labels->truncate(0);
   if (!simple_text) labels->push_back(null_char);
   std::string cleaned = unicharset.CleanupString(str.string());
-  if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, NULL,
+  if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr,
                                &err_index)) {
     bool success = true;
     for (int i = 0; i < internal_labels.size(); ++i) {
-      if (recoder != NULL) {
+      if (recoder != nullptr) {
         // Re-encode labels via recoder.
         RecodedCharID code;
         int len = recoder->EncodeUnichar(internal_labels[i], &code);
@@ -814,7 +814,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
                      training_iteration_ + 1);
   }
 #ifndef GRAPHICS_DISABLED
-  if (debug_interval_ == 1 && debug_win_ != NULL) {
+  if (debug_interval_ == 1 && debug_win_ != nullptr) {
     delete debug_win_->AwaitEvent(SVET_CLICK);
   }
 #endif  // GRAPHICS_DISABLED
@@ -828,7 +828,7 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
 Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
                                              NetworkIO* fwd_outputs,
                                              NetworkIO* targets) {
-  if (trainingdata == NULL) {
+  if (trainingdata == nullptr) {
     tprintf("Null trainingdata.\n");
     return UNENCODABLE;
   }
@@ -1042,10 +1042,10 @@ void LSTMTrainer::SetNullChar() {
 
 // Factored sub-constructor sets up reasonable default values.
 void LSTMTrainer::EmptyConstructor() {
-  align_win_ = NULL;
-  target_win_ = NULL;
-  ctc_win_ = NULL;
-  recon_win_ = NULL;
+  align_win_ = nullptr;
+  target_win_ = nullptr;
+  ctc_win_ = nullptr;
+  recon_win_ = nullptr;
   checkpoint_iteration_ = 0;
   training_stage_ = 0;
   num_training_stages_ = 2;
@@ -1062,7 +1062,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
                                     const GenericVector<int>& truth_labels,
                                     const NetworkIO& outputs) {
   const STRING& truth_text = DecodeLabels(truth_labels);
-  if (truth_text.string() == NULL || truth_text.length() <= 0) {
+  if (truth_text.string() == nullptr || truth_text.length() <= 0) {
     tprintf("Empty truth string at decode time!\n");
     return false;
   }
@@ -1313,10 +1313,10 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
   if (error_rate > best_error_rate_
       && iteration < best_iteration_ + kErrorGraphInterval) {
     // Too soon to record a new point.
-    if (tester != NULL && !worst_model_data_.empty()) {
+    if (tester != nullptr && !worst_model_data_.empty()) {
       mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                           worst_model_data_.size());
-      return tester->Run(worst_iteration_, NULL, mgr_, CurrentTrainingStage());
+      return tester->Run(worst_iteration_, nullptr, mgr_, CurrentTrainingStage());
     } else {
       return "";
     }
@@ -1356,7 +1356,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
             old_iteration);
   } else if (error_rate > best_error_rate_) {
     // This is a new (local) maximum.
-    if (tester != NULL) {
+    if (tester != nullptr) {
       if (!best_model_data_.empty()) {
         mgr_.OverwriteEntry(TESSDATA_LSTM, &best_model_data_[0],
                             best_model_data_.size());

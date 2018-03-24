@@ -84,22 +84,22 @@ class LSTMRecognizer {
   // Returns a vector of layer ids that can be passed to other layer functions
   // to access a specific layer.
   GenericVector<STRING> EnumerateLayers() const {
-    ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     Series* series = static_cast<Series*>(network_);
     GenericVector<STRING> layers;
-    series->EnumerateLayers(NULL, &layers);
+    series->EnumerateLayers(nullptr, &layers);
     return layers;
   }
   // Returns a specific layer from its id (from EnumerateLayers).
   Network* GetLayer(const STRING& id) const {
-    ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     Series* series = static_cast<Series*>(network_);
     return series->GetLayer(&id[1]);
   }
   // Returns the learning rate of the layer from its id.
   float GetLayerLearningRate(const STRING& id) const {
-    ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       ASSERT_HOST(id.length() > 1 && id[0] == ':');
       Series* series = static_cast<Series*>(network_);
@@ -110,7 +110,7 @@ class LSTMRecognizer {
   }
   // Multiplies the all the learning rate(s) by the given factor.
   void ScaleLearningRate(double factor) {
-    ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     learning_rate_ *= factor;
     if (network_->TestFlag(NF_LAYER_SPECIFIC_LR)) {
       GenericVector<STRING> layers = EnumerateLayers();
@@ -121,7 +121,7 @@ class LSTMRecognizer {
   }
   // Multiplies the learning rate of the layer with id, by the given factor.
   void ScaleLayerLearningRate(const STRING& id, double factor) {
-    ASSERT_HOST(network_ != NULL && network_->type() == NT_SERIES);
+    ASSERT_HOST(network_ != nullptr && network_->type() == NT_SERIES);
     ASSERT_HOST(id.length() > 1 && id[0] == ':');
     Series* series = static_cast<Series*>(network_);
     series->ScaleLayerLearningRate(&id[1], factor);

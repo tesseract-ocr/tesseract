@@ -158,7 +158,7 @@ void Plumbing::EnumerateLayers(const STRING* prefix,
 Network* Plumbing::GetLayer(const char* id) const {
   char* next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) return NULL;
+  if (index < 0 || index >= stack_.size()) return nullptr;
   if (stack_[index]->IsPlumbingType()) {
     Plumbing* plumbing = static_cast<Plumbing*>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
@@ -171,13 +171,13 @@ Network* Plumbing::GetLayer(const char* id) const {
 float* Plumbing::LayerLearningRatePtr(const char* id) const {
   char* next_id;
   int index = strtol(id, &next_id, 10);
-  if (index < 0 || index >= stack_.size()) return NULL;
+  if (index < 0 || index >= stack_.size()) return nullptr;
   if (stack_[index]->IsPlumbingType()) {
     Plumbing* plumbing = static_cast<Plumbing*>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
-  if (index < 0 || index >= learning_rates_.size()) return NULL;
+  if (index < 0 || index >= learning_rates_.size()) return nullptr;
   return &learning_rates_[index];
 }
 
@@ -204,7 +204,7 @@ bool Plumbing::DeSerialize(TFile* fp) {
   if (fp->FReadEndian(&size, sizeof(size), 1) != 1) return false;
   for (int i = 0; i < size; ++i) {
     Network* network = CreateFromFile(fp);
-    if (network == NULL) return false;
+    if (network == nullptr) return false;
     AddToStack(network);
   }
   if ((network_flags_ & NF_LAYER_SPECIFIC_LR) &&

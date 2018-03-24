@@ -119,10 +119,10 @@ void Series::Forward(bool debug, const NetworkIO& input,
   // with the final network providing the real output.
   stack_[0]->Forward(debug, input, input_transpose, scratch, buffer1);
   for (int i = 1; i < stack_size; i += 2) {
-    stack_[i]->Forward(debug, *buffer1, NULL, scratch,
+    stack_[i]->Forward(debug, *buffer1, nullptr, scratch,
                        i + 1 < stack_size ? buffer2 : output);
     if (i + 1 == stack_size) return;
-    stack_[i + 1]->Forward(debug, *buffer2, NULL, scratch,
+    stack_[i + 1]->Forward(debug, *buffer2, nullptr, scratch,
                            i + 2 < stack_size ? buffer1 : output);
   }
 }
@@ -161,8 +161,8 @@ bool Series::Backward(bool debug, const NetworkIO& fwd_deltas,
 // deletes itself. The first part, up to network with index last_start, goes
 // into start, and the rest goes into end.
 void Series::SplitAt(int last_start, Series** start, Series** end) {
-  *start = NULL;
-  *end = NULL;
+  *start = nullptr;
+  *end = nullptr;
   if (last_start < 0 || last_start >= stack_.size()) {
     tprintf("Invalid split index %d must be in range [0,%d]!\n",
             last_start, stack_.size() - 1);
@@ -177,11 +177,11 @@ void Series::SplitAt(int last_start, Series** start, Series** end) {
       fc->ChangeType(NT_TANH);
     }
     master_series->AddToStack(stack_[s]);
-    stack_[s] = NULL;
+    stack_[s] = nullptr;
   }
   for (int s = last_start + 1; s < stack_.size(); ++s) {
     boosted_series->AddToStack(stack_[s]);
-    stack_[s] = NULL;
+    stack_[s] = nullptr;
   }
   *start = master_series;
   *end = boosted_series;
@@ -195,7 +195,7 @@ void Series::AppendSeries(Network* src) {
   Series* src_series = static_cast<Series*>(src);
   for (int s = 0; s < src_series->stack_.size(); ++s) {
     AddToStack(src_series->stack_[s]);
-    src_series->stack_[s] = NULL;
+    src_series->stack_[s] = nullptr;
   }
   delete src;
 }

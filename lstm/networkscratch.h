@@ -61,11 +61,11 @@ class NetworkScratch {
     }
     // Default constructor for arrays. Use one of the Resize functions
     // below to initialize and size.
-    IO() : int_mode_(false), network_io_(NULL), scratch_space_(NULL) {}
+    IO() : int_mode_(false), network_io_(nullptr), scratch_space_(nullptr) {}
 
     ~IO() {
-      if (scratch_space_ == NULL) {
-        ASSERT_HOST(network_io_ == NULL);
+      if (scratch_space_ == nullptr) {
+        ASSERT_HOST(network_io_ == nullptr);
       } else if (int_mode_) {
         scratch_space_->int_stack_.Return(network_io_);
       } else {
@@ -77,7 +77,7 @@ class NetworkScratch {
     // Same time size, given number of features.
     void Resize(const NetworkIO& src, int num_features,
                 NetworkScratch* scratch) {
-      if (scratch_space_ == NULL) {
+      if (scratch_space_ == nullptr) {
         int_mode_ = scratch->int_mode_ && src.int_mode();
         scratch_space_ = scratch;
         network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
@@ -88,7 +88,7 @@ class NetworkScratch {
     // Resizes to a specific size as a temp buffer. No batches, no y-dim.
     void Resize2d(bool int_mode, int width, int num_features,
                   NetworkScratch* scratch) {
-      if (scratch_space_ == NULL) {
+      if (scratch_space_ == nullptr) {
         int_mode_ = scratch->int_mode_ && int_mode;
         scratch_space_ = scratch;
         network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
@@ -100,7 +100,7 @@ class NetworkScratch {
     // number of features.
     void ResizeFloat(const NetworkIO& src, int num_features,
                      NetworkScratch* scratch) {
-      if (scratch_space_ == NULL) {
+      if (scratch_space_ == nullptr) {
         int_mode_ = false;
         scratch_space_ = scratch;
         network_io_ = scratch_space_->float_stack_.Borrow();
@@ -137,17 +137,17 @@ class NetworkScratch {
    public:
     // The array will have size elements in it, uninitialized.
     FloatVec(int size, NetworkScratch* scratch)
-      : vec_(NULL), scratch_space_(scratch) {
+      : vec_(nullptr), scratch_space_(scratch) {
       Init(size, scratch);
     }
     // Default constructor is for arrays. Use Init to setup.
-    FloatVec() : vec_(NULL), data_(NULL), scratch_space_(NULL) {}
+    FloatVec() : vec_(nullptr), data_(nullptr), scratch_space_(nullptr) {}
     ~FloatVec() {
-      if (scratch_space_ != NULL) scratch_space_->vec_stack_.Return(vec_);
+      if (scratch_space_ != nullptr) scratch_space_->vec_stack_.Return(vec_);
     }
 
     void Init(int size, NetworkScratch* scratch) {
-      if (scratch_space_ != NULL && vec_ != NULL)
+      if (scratch_space_ != nullptr && vec_ != nullptr)
         scratch_space_->vec_stack_.Return(vec_);
       scratch_space_ = scratch;
       vec_ = scratch_space_->vec_stack_.Borrow();
@@ -176,13 +176,13 @@ class NetworkScratch {
   class GradientStore {
    public:
     // Default constructor is for arrays. Use Init to setup.
-    GradientStore() : array_(NULL), scratch_space_(NULL) {}
+    GradientStore() : array_(nullptr), scratch_space_(nullptr) {}
     ~GradientStore() {
-      if (scratch_space_ != NULL) scratch_space_->array_stack_.Return(array_);
+      if (scratch_space_ != nullptr) scratch_space_->array_stack_.Return(array_);
     }
 
     void Init(int size1, int size2, NetworkScratch* scratch) {
-      if (scratch_space_ != NULL && array_ != NULL)
+      if (scratch_space_ != nullptr && array_ != nullptr)
         scratch_space_->array_stack_.Return(array_);
       scratch_space_ = scratch;
       array_ = scratch_space_->array_stack_.Borrow();

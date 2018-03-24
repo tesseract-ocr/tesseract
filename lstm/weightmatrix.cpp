@@ -52,7 +52,7 @@ int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam,
                                    float weight_range, TRand* randomizer) {
   int_mode_ = false;
   wf_.Resize(no, ni, 0.0);
-  if (randomizer != NULL) {
+  if (randomizer != nullptr) {
     for (int i = 0; i < no; ++i) {
       for (int j = 0; j < ni; ++j) {
         wf_[i][j] = randomizer->SignedRand(weight_range);

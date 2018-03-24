@@ -236,7 +236,7 @@ class Network {
   virtual void CountAlternators(const Network& other, double* same,
                                 double* changed) const {}
 
-  // Reads from the given file. Returns NULL in case of error.
+  // Reads from the given file. Returns nullptr in case of error.
   // Determines the type of the serialized class and calls its DeSerialize
   // on a new object of the appropriate type, which is returned.
   static Network* CreateFromFile(TFile* fp);
@@ -253,7 +253,7 @@ class Network {
   // always NumOutputs(). Note that all this detail is encapsulated away inside
   // NetworkIO, as are the internals of the scratch memory space used by the
   // network. See networkscratch.h for that.
-  // If input_transpose is not NULL, then it contains the transpose of input,
+  // If input_transpose is not nullptr, then it contains the transpose of input,
   // and the caller guarantees that it will still be valid on the next call to
   // backward. The callee is therefore at liberty to save the pointer and
   // reference it on a call to backward. This is a bit ugly, but it makes it
