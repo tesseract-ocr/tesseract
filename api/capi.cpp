@@ -419,11 +419,6 @@ TESS_API int TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseA
     return handle->GetThresholdedImageScaleFactor();
 }
 
-TESS_API void TESS_CALL TessBaseAPIDumpPGM(TessBaseAPI* handle, const char* filename)
-{
-    handle->DumpPGM(filename);
-}
-
 TESS_API TessPageIterator* TESS_CALL TessBaseAPIAnalyseLayout(TessBaseAPI* handle)
 {
     return handle->AnalyseLayout();
