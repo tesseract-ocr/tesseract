@@ -72,8 +72,6 @@ intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
 osd_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
-
-AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port
 endif
 
 EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/testing/phototest.tif
