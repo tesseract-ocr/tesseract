@@ -138,10 +138,9 @@ void Input::PreparePixInput(const StaticShape& shape, const Pix* pix,
   int height = pixGetHeight(normed_pix);
   int target_height = shape.height();
   if (target_height == 1) target_height = shape.depth();
-  if (target_height == 0) target_height = height;
-  float im_factor = static_cast<float>(target_height) / height;
-  if (im_factor != 1.0f) {
+  if (target_height != 0 && target_height != height) {
     // Get the scaled image.
+    float im_factor = static_cast<float>(target_height) / height;
     Pix* scaled_pix = pixScale(normed_pix, im_factor, im_factor);
     pixDestroy(&normed_pix);
     normed_pix = scaled_pix;
