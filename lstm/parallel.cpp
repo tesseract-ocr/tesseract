@@ -71,7 +71,7 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
 #pragma omp parallel for num_threads(stack_size)
 #endif
     for (int i = 0; i < stack_size; ++i) {
-      stack_[i]->Forward(debug, input, NULL, scratch, results[i]);
+      stack_[i]->Forward(debug, input, nullptr, scratch, results[i]);
     }
     // Now pack all the results (serially) into the output.
     int out_offset = 0;
@@ -84,7 +84,7 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
     NetworkScratch::IO result(input, scratch);
     // Source for divided replicated.
     NetworkScratch::IO source_part;
-    TransposedArray* src_transpose = NULL;
+    TransposedArray* src_transpose = nullptr;
     if (IsTraining() && type_ == NT_REPLICATED) {
       // Make a transposed copy of the input.
       input.Transpose(&transposed_input_);

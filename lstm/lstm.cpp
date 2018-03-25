@@ -103,7 +103,7 @@ LSTM::LSTM(const STRING& name, int ni, int ns, int no, bool two_dimensional,
       ns_(ns),
       nf_(0),
       is_2d_(two_dimensional),
-      softmax_(NULL),
+      softmax_(nullptr),
       input_width_(0) {
   if (two_dimensional) na_ += ns_;
   if (type_ == NT_LSTM || type_ == NT_LSTM_SUMMARY) {
@@ -128,7 +128,7 @@ StaticShape LSTM::OutputShape(const StaticShape& input_shape) const {
   StaticShape result = input_shape;
   result.set_depth(no_);
   if (type_ == NT_LSTM_SUMMARY) result.set_width(1);
-  if (softmax_ != NULL) return softmax_->OutputShape(result);
+  if (softmax_ != nullptr) return softmax_->OutputShape(result);
   return result;
 }
 
@@ -150,7 +150,7 @@ void LSTM::SetEnableTraining(TrainingState state) {
     }
     training_ = state;
   }
-  if (softmax_ != NULL) softmax_->SetEnableTraining(state);
+  if (softmax_ != nullptr) softmax_->SetEnableTraining(state);
 }
 
 // Sets up the network for training. Initializes weights using weights of
@@ -163,7 +163,7 @@ int LSTM::InitWeights(float range, TRand* randomizer) {
     num_weights_ += gate_weights_[w].InitWeightsFloat(
         ns_, na_ + 1, TestFlag(NF_ADAM), range, randomizer);
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     num_weights_ += softmax_->InitWeights(range, randomizer);
   }
   return num_weights_;
@@ -172,7 +172,7 @@ int LSTM::InitWeights(float range, TRand* randomizer) {
 // Recursively searches the network for softmaxes with old_no outputs,
 // and remaps their outputs according to code_map. See network.h for details.
 int LSTM::RemapOutputs(int old_no, const std::vector<int>& code_map) {
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     num_weights_ -= softmax_->num_weights();
     num_weights_ += softmax_->RemapOutputs(old_no, code_map);
   }
@@ -185,7 +185,7 @@ void LSTM::ConvertToInt() {
     if (w == GFS && !Is2D()) continue;
     gate_weights_[w].ConvertToInt();
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_->ConvertToInt();
   }
 }
@@ -198,7 +198,7 @@ void LSTM::DebugWeights() {
     msg.add_str_int(" Gate weights ", w);
     gate_weights_[w].Debug2D(msg.string());
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_->DebugWeights();
   }
 }
@@ -211,7 +211,7 @@ bool LSTM::Serialize(TFile* fp) const {
     if (w == GFS && !Is2D()) continue;
     if (!gate_weights_[w].Serialize(IsTraining(), fp)) return false;
   }
-  if (softmax_ != NULL && !softmax_->Serialize(fp)) return false;
+  if (softmax_ != nullptr && !softmax_->Serialize(fp)) return false;
   return true;
 }
 
@@ -252,7 +252,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
                    NetworkScratch* scratch, NetworkIO* output) {
   input_map_ = input.stride_map();
   input_width_ = input.Width();
-  if (softmax_ != NULL)
+  if (softmax_ != nullptr)
     output->ResizeFloat(input, no_);
   else if (type_ == NT_LSTM_SUMMARY)
     output->ResizeXTo1(input, no_);
@@ -286,13 +286,13 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
   // Used only if a softmax LSTM.
   NetworkScratch::FloatVec softmax_output;
   NetworkScratch::IO int_output;
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_output.Init(no_, scratch);
     ZeroVector<double>(no_, softmax_output);
     int rounded_softmax_inputs = gate_weights_[CI].RoundInputs(ns_);
     if (input.int_mode())
       int_output.Resize2d(true, 1, rounded_softmax_inputs, scratch);
-    softmax_->SetupForward(input, NULL);
+    softmax_->SetupForward(input, nullptr);
   }
   NetworkScratch::FloatVec curr_input;
   curr_input.Init(na_, scratch);
@@ -311,7 +311,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     int mod_t = Modulo(t, buf_width);      // Current timestep.
     // Setup the padded input in source.
     source_.CopyTimeStepGeneral(t, 0, ni_, input, t, 0);
-    if (softmax_ != NULL) {
+    if (softmax_ != nullptr) {
       source_.WriteTimeStepPart(t, ni_, nf_, softmax_output);
     }
     source_.WriteTimeStepPart(t, ni_ + nf_, ns_, curr_output);
@@ -393,12 +393,12 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
     }
     FuncMultiply<HFunc>(curr_state, temp_lines[GO], ns_, curr_output);
     if (IsTraining()) state_.WriteTimeStep(t, curr_state);
-    if (softmax_ != NULL) {
+    if (softmax_ != nullptr) {
       if (input.int_mode()) {
         int_output->WriteTimeStepPart(0, 0, ns_, curr_output);
-        softmax_->ForwardTimeStep(NULL, int_output->i(0), t, softmax_output);
+        softmax_->ForwardTimeStep(nullptr, int_output->i(0), t, softmax_output);
       } else {
-        softmax_->ForwardTimeStep(curr_output, NULL, t, softmax_output);
+        softmax_->ForwardTimeStep(curr_output, nullptr, t, softmax_output);
       }
       output->WriteTimeStep(t, softmax_output);
       if (type_ == NT_LSTM_SOFTMAX_ENCODED) {
@@ -480,10 +480,10 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   for (int w = 0; w < WT_COUNT; ++w) {
     gate_errors_t[w].Init(ns_, width, scratch);
   }
-  // Used only if softmax_ != NULL.
+  // Used only if softmax_ != nullptr.
   NetworkScratch::FloatVec softmax_errors;
   NetworkScratch::GradientStore softmax_errors_t;
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_errors.Init(no_, scratch);
     softmax_errors_t.Init(no_, width, scratch);
   }
@@ -529,7 +529,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
       } else {
         ZeroVector<double>(ns_, outputerr);
       }
-    } else if (softmax_ == NULL) {
+    } else if (softmax_ == nullptr) {
       fwd_deltas.ReadTimeStep(t, outputerr);
     } else {
       softmax_->BackwardTimeStep(fwd_deltas, t, softmax_errors,
@@ -656,7 +656,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
     if (w == GFS && !Is2D()) continue;
     gate_weights_[w].SumOuterTransposed(*gate_errors_t[w], *source_t, false);
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_->FinishBackward(*softmax_errors_t);
   }
   return needs_to_backprop_;
@@ -673,7 +673,7 @@ void LSTM::Update(float learning_rate, float momentum, float adam_beta,
     if (w == GFS && !Is2D()) continue;
     gate_weights_[w].Update(learning_rate, momentum, adam_beta, num_samples);
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_->Update(learning_rate, momentum, adam_beta, num_samples);
   }
 #if DEBUG_DETAIL > 3
@@ -692,7 +692,7 @@ void LSTM::CountAlternators(const Network& other, double* same,
     if (w == GFS && !Is2D()) continue;
     gate_weights_[w].CountAlternators(lstm->gate_weights_[w], same, changed);
   }
-  if (softmax_ != NULL) {
+  if (softmax_ != nullptr) {
     softmax_->CountAlternators(*lstm->softmax_, same, changed);
   }
 }

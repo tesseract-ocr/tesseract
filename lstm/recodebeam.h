@@ -97,8 +97,8 @@ struct RecodeNode {
         duplicate(false),
         certainty(0.0f),
         score(0.0f),
-        prev(NULL),
-        dawgs(NULL),
+        prev(nullptr),
+        dawgs(nullptr),
         code_hash(0) {}
   RecodeNode(int c, int uni_id, PermuterType perm, bool dawg_start,
              bool word_start, bool end, bool dup, float cert, float s,
@@ -120,14 +120,14 @@ struct RecodeNode {
   // don't want to copy the whole DawgPositionVector each time, and true
   // copying isn't necessary for this struct. It does get moved around a lot
   // though inside the heap and during heap push, hence the move semantics.
-  RecodeNode(RecodeNode& src) : dawgs(NULL) {
+  RecodeNode(RecodeNode& src) : dawgs(nullptr) {
     *this = src;
-    ASSERT_HOST(src.dawgs == NULL);
+    ASSERT_HOST(src.dawgs == nullptr);
   }
   RecodeNode& operator=(RecodeNode& src) {
     delete dawgs;
     memcpy(this, &src, sizeof(src));
-    src.dawgs = NULL;
+    src.dawgs = nullptr;
     return *this;
   }
   ~RecodeNode() { delete dawgs; }

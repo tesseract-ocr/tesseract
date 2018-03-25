@@ -244,7 +244,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.
   bool EncodeString(const STRING& str, GenericVector<int>* labels) const {
-    return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : NULL,
+    return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : nullptr,
                         SimpleTextOutput(), null_char_, labels);
   }
   // Static version operates on supplied unicharset, encoder, simple_text.
@@ -253,17 +253,17 @@ class LSTMTrainer : public LSTMRecognizer {
                            int null_char, GenericVector<int>* labels);
 
   // Performs forward-backward on the given trainingdata.
-  // Returns the sample that was used or NULL if the next sample was deemed
+  // Returns the sample that was used or nullptr if the next sample was deemed
   // unusable. samples_trainer could be this or an alternative trainer that
   // holds the training samples.
   const ImageData* TrainOnLine(LSTMTrainer* samples_trainer, bool batch) {
     int sample_index = sample_iteration();
     const ImageData* image =
         samples_trainer->training_data_.GetPageBySerial(sample_index);
-    if (image != NULL) {
+    if (image != nullptr) {
       Trainability trainable = TrainOnLine(image, batch);
       if (trainable == UNENCODABLE || trainable == NOT_BOXED) {
-        return NULL;  // Sample was unusable.
+        return nullptr;  // Sample was unusable.
       }
     } else {
       ++sample_iteration_;

@@ -65,7 +65,7 @@ class LSTM : public Network {
       spec.add_str_int("LS", ns_);
     else if (type_ == NT_LSTM_SOFTMAX_ENCODED)
       spec.add_str_int("LE", ns_);
-    if (softmax_ != NULL) spec += softmax_->spec();
+    if (softmax_ != nullptr) spec += softmax_->spec();
     return spec;
   }
 

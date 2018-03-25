@@ -38,7 +38,7 @@ namespace tesseract {
 
 FullyConnected::FullyConnected(const STRING& name, int ni, int no,
                                NetworkType type)
-  : Network(type, name, ni, no), external_source_(NULL), int_mode_(false) {
+  : Network(type, name, ni, no), external_source_(nullptr), int_mode_(false) {
 }
 
 FullyConnected::~FullyConnected() {
@@ -147,8 +147,8 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
     int thread_id = 0;
 #endif
     double* temp_line = temp_lines[thread_id];
-    const double* d_input = NULL;
-    const int8_t* i_input = NULL;
+    const double* d_input = nullptr;
+    const int8_t* i_input = nullptr;
     if (input.int_mode()) {
       i_input = input.i(t);
     } else {
@@ -184,16 +184,16 @@ void FullyConnected::SetupForward(const NetworkIO& input,
     acts_.Resize(input, no_);
     // Source_ is a transposed copy of input. It isn't needed if provided.
     external_source_ = input_transpose;
-    if (external_source_ == NULL) source_t_.ResizeNoInit(ni_, input.Width());
+    if (external_source_ == nullptr) source_t_.ResizeNoInit(ni_, input.Width());
   }
 }
 
 void FullyConnected::ForwardTimeStep(const double* d_input, const int8_t* i_input,
                                      int t, double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
-  if (IsTraining() && external_source_ == NULL && d_input != NULL)
+  if (IsTraining() && external_source_ == nullptr && d_input != nullptr)
     source_t_.WriteStrided(t, d_input);
-  if (d_input != NULL)
+  if (d_input != nullptr)
     weights_.MatrixDotVector(d_input, output_line);
   else
     weights_.MatrixDotVector(i_input, output_line);
@@ -210,7 +210,7 @@ void FullyConnected::ForwardTimeStep(const double* d_input, const int8_t* i_inpu
   } else if (type_ == NT_SOFTMAX || type_ == NT_SOFTMAX_NO_CTC) {
     SoftmaxInPlace(no_, output_line);
   } else if (type_ != NT_LINEAR) {
-    ASSERT_HOST("Invalid fully-connected type!" == NULL);
+    ASSERT_HOST("Invalid fully-connected type!" == nullptr);
   }
 }
 
@@ -240,11 +240,11 @@ bool FullyConnected::Backward(bool debug, const NetworkIO& fwd_deltas,
   for (int t = 0; t < width; ++t) {
     int thread_id = 0;
 #endif
-    double* backprop = NULL;
+    double* backprop = nullptr;
     if (needs_to_backprop_) backprop = temp_backprops[thread_id];
     double* curr_errors = errors[thread_id];
     BackwardTimeStep(fwd_deltas, t, curr_errors, errors_t.get(), backprop);
-    if (backprop != NULL) {
+    if (backprop != nullptr) {
       back_deltas->WriteTimeStep(t, backprop);
     }
   }
@@ -278,14 +278,14 @@ void FullyConnected::BackwardTimeStep(const NetworkIO& fwd_deltas, int t,
            type_ == NT_LINEAR)
     fwd_deltas.ReadTimeStep(t, curr_errors);  // fwd_deltas are the errors.
   else
-    ASSERT_HOST("Invalid fully-connected type!" == NULL);
+    ASSERT_HOST("Invalid fully-connected type!" == nullptr);
   // Generate backprop only if needed by the lower layer.
-  if (backprop != NULL) weights_.VectorDotMatrix(curr_errors, backprop);
+  if (backprop != nullptr) weights_.VectorDotMatrix(curr_errors, backprop);
   errors_t->WriteStrided(t, curr_errors);
 }
 
 void FullyConnected::FinishBackward(const TransposedArray& errors_t) {
-  if (external_source_ == NULL)
+  if (external_source_ == nullptr)
     weights_.SumOuterTransposed(errors_t, source_t_, true);
   else
     weights_.SumOuterTransposed(errors_t, *external_source_, true);

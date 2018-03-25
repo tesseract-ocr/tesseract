@@ -59,7 +59,7 @@ void Reversed::Forward(bool debug, const NetworkIO& input,
   NetworkScratch::IO rev_input(input, scratch);
   ReverseData(input, rev_input);
   NetworkScratch::IO rev_output(input, scratch);
-  stack_[0]->Forward(debug, *rev_input, NULL, scratch, rev_output);
+  stack_[0]->Forward(debug, *rev_input, nullptr, scratch, rev_output);
   ReverseData(*rev_output, output);
 }
 

@@ -47,15 +47,15 @@ bool NetworkBuilder::InitNetwork(int num_outputs, STRING network_spec,
                                  float weight_range, TRand* randomizer,
                                  Network** network) {
   NetworkBuilder builder(num_outputs);
-  Series* bottom_series = NULL;
+  Series* bottom_series = nullptr;
   StaticShape input_shape;
   if (append_index >= 0) {
     // Split the current network after the given append_index.
-    ASSERT_HOST(*network != NULL && (*network)->type() == NT_SERIES);
+    ASSERT_HOST(*network != nullptr && (*network)->type() == NT_SERIES);
     Series* series = static_cast<Series*>(*network);
-    Series* top_series = NULL;
+    Series* top_series = nullptr;
     series->SplitAt(append_index, &bottom_series, &top_series);
-    if (bottom_series == NULL || top_series == NULL) {
+    if (bottom_series == nullptr || top_series == nullptr) {
       tprintf("Yikes! Splitting current network failed!!\n");
       return false;
     }
@@ -64,11 +64,11 @@ bool NetworkBuilder::InitNetwork(int num_outputs, STRING network_spec,
   }
   char* str_ptr = &network_spec[0];
   *network = builder.BuildFromString(input_shape, &str_ptr);
-  if (*network == NULL) return false;
+  if (*network == nullptr) return false;
   (*network)->SetNetworkFlags(net_flags);
   (*network)->InitWeights(weight_range, randomizer);
   (*network)->SetupNeedsBackprop(false);
-  if (bottom_series != NULL) {
+  if (bottom_series != nullptr) {
     bottom_series->AppendSeries(*network);
     *network = bottom_series;
   }
@@ -152,16 +152,16 @@ Network* NetworkBuilder::ParseSeries(const StaticShape& input_shape,
     series->AddToStack(input_layer);
     shape = input_layer->OutputShape(shape);
   }
-  Network* network = NULL;
+  Network* network = nullptr;
   while (**str != '\0' && **str != ']' &&
-         (network = BuildFromString(shape, str)) != NULL) {
+         (network = BuildFromString(shape, str)) != nullptr) {
     shape = network->OutputShape(shape);
     series->AddToStack(network);
   }
   if (**str != ']') {
     tprintf("Missing ] at end of [Series]!\n");
     delete series;
-    return NULL;
+    return nullptr;
   }
   ++*str;
   return series;
@@ -172,9 +172,9 @@ Network* NetworkBuilder::ParseParallel(const StaticShape& input_shape,
                                        char** str) {
   Parallel* parallel = new Parallel("Parallel", NT_PARALLEL);
   ++*str;
-  Network* network = NULL;
+  Network* network = nullptr;
   while (**str != '\0' && **str != ')' &&
-         (network = BuildFromString(input_shape, str)) != NULL) {
+         (network = BuildFromString(input_shape, str)) != nullptr) {
     parallel->AddToStack(network);
   }
   if (**str != ')') {
@@ -210,7 +210,7 @@ Network* NetworkBuilder::ParseR(const StaticShape& input_shape, char** str) {
   for (int i = 0; i < replicas; ++i) {
     str_copy = *str;
     Network* network = BuildFromString(input_shape, &str_copy);
-    if (network == NULL) {
+    if (network == nullptr) {
       tprintf("Invalid replicated network!\n");
       delete parallel;
       return nullptr;

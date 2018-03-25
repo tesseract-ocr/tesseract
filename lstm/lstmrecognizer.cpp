@@ -50,7 +50,7 @@ const double kDictRatio = 2.25;
 const double kCertOffset = -0.085;
 
 LSTMRecognizer::LSTMRecognizer()
-    : network_(NULL),
+    : network_(nullptr),
       training_flags_(0),
       training_iteration_(0),
       sample_iteration_(0),
@@ -58,9 +58,9 @@ LSTMRecognizer::LSTMRecognizer()
       learning_rate_(0.0f),
       momentum_(0.0f),
       adam_beta_(0.0f),
-      dict_(NULL),
-      search_(NULL),
-      debug_win_(NULL) {}
+      dict_(nullptr),
+      search_(nullptr),
+      debug_win_(nullptr) {}
 
 LSTMRecognizer::~LSTMRecognizer() {
   delete network_;
@@ -105,7 +105,7 @@ bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
 bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   delete network_;
   network_ = Network::CreateFromFile(fp);
-  if (network_ == NULL) return false;
+  if (network_ == nullptr) return false;
   bool include_charsets = mgr == nullptr ||
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_RECODER) ||
                           !mgr->IsComponentAvailable(TESSDATA_LSTM_UNICHARSET);
@@ -174,7 +174,7 @@ bool LSTMRecognizer::LoadDictionary(const char* lang, TessdataManager* mgr) {
   tprintf("Failed to load any lstm-specific dictionaries for lang %s!!\n",
           lang);
   delete dict_;
-  dict_ = NULL;
+  dict_ = nullptr;
   return false;
 }
 
@@ -190,11 +190,11 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   if (!RecognizeLine(image_data, invert, debug, false, false, &scale_factor,
                      &inputs, &outputs))
     return;
-  if (search_ == NULL) {
+  if (search_ == nullptr) {
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
-  search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, NULL);
+  search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, nullptr);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
                                   &GetUnicharset(), words);
 }
@@ -205,7 +205,7 @@ void LSTMRecognizer::OutputStats(const NetworkIO& outputs, float* min_output,
   const int kOutputScale = INT8_MAX;
   STATS stats(0, kOutputScale + 1);
   for (int t = 0; t < outputs.Width(); ++t) {
-    int best_label = outputs.BestLabel(t, NULL);
+    int best_label = outputs.BestLabel(t, nullptr);
     if (best_label != null_char_) {
       float best_output = outputs.f(t)[best_label];
       stats.add(static_cast<int>(kOutputScale * best_output), 1);
@@ -237,7 +237,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   int min_width = network_->XScaleFactor();
   Pix* pix = Input::PrepareLSTMInputs(image_data, network_, min_width,
                                       &randomizer_, scale_factor);
-  if (pix == NULL) {
+  if (pix == nullptr) {
     tprintf("Line cannot be recognized!!\n");
     return false;
   }
@@ -253,7 +253,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
   inputs->set_int_mode(IsIntMode());
   SetRandomSeed();
   Input::PreparePixInput(network_->InputShape(), pix, &randomizer_, inputs);
-  network_->Forward(debug, *inputs, NULL, &scratch_space_, outputs);
+  network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
   // Check for auto inversion.
   float pos_min, pos_mean, pos_sd;
   OutputStats(*outputs, &pos_min, &pos_mean, &pos_sd);
@@ -265,7 +265,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     pixInvert(pix, pix);
     Input::PreparePixInput(network_->InputShape(), pix, &randomizer_,
                            &inv_inputs);
-    network_->Forward(debug, inv_inputs, NULL, &scratch_space_, &inv_outputs);
+    network_->Forward(debug, inv_inputs, nullptr, &scratch_space_, &inv_outputs);
     float inv_min, inv_mean, inv_sd;
     OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
     if (inv_min > pos_min && inv_mean > pos_mean && inv_sd < pos_sd) {
@@ -280,7 +280,7 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
       // Inverting was not an improvement, so undo and run again, so the
       // outputs match the best forward result.
       SetRandomSeed();
-      network_->Forward(debug, *inputs, NULL, &scratch_space_, outputs);
+      network_->Forward(debug, *inputs, nullptr, &scratch_space_, outputs);
     }
   }
   pixDestroy(&pix);
@@ -302,7 +302,7 @@ STRING LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
     if (labels[start] == null_char_) {
       end = start + 1;
     } else {
-      result += DecodeLabel(labels, start, &end, NULL);
+      result += DecodeLabel(labels, start, &end, nullptr);
     }
   }
   return result;
@@ -340,7 +340,7 @@ void LSTMRecognizer::DisplayLSTMOutput(const GenericVector<int>& labels,
       window->Pen(ScrollView::RED);
     } else {
       window->Pen(ScrollView::GREEN);
-      const char* str = DecodeLabel(labels, start, &end, NULL);
+      const char* str = DecodeLabel(labels, start, &end, nullptr);
       if (*str == '\\') str = "\\\\";
       xpos = xcoords[(start + end) / 2] * x_scale;
       window->Text(xpos, height, str);
@@ -412,7 +412,7 @@ void LSTMRecognizer::DebugActivationRange(const NetworkIO& outputs,
 static bool NullIsBest(const NetworkIO& output, float null_thr,
                        int null_char, int t) {
   if (output.f(t)[null_char] >= null_thr) return true;
-  if (output.BestLabel(t, null_char, null_char, NULL) != UNICHAR_SPACE)
+  if (output.BestLabel(t, null_char, null_char, nullptr) != UNICHAR_SPACE)
     return false;
   return output.f(t)[null_char] > output.f(t)[UNICHAR_SPACE];
 }
@@ -436,11 +436,11 @@ void LSTMRecognizer::LabelsFromOutputs(const NetworkIO& outputs,
 void LSTMRecognizer::LabelsViaReEncode(const NetworkIO& output,
                                        GenericVector<int>* labels,
                                        GenericVector<int>* xcoords) {
-  if (search_ == NULL) {
+  if (search_ == nullptr) {
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
-  search_->Decode(output, 1.0, 0.0, RecodeBeamSearch::kMinCertainty, NULL);
+  search_->Decode(output, 1.0, 0.0, RecodeBeamSearch::kMinCertainty, nullptr);
   search_->ExtractBestPathAsLabels(labels, xcoords);
 }
 
@@ -473,7 +473,7 @@ const char* LSTMRecognizer::DecodeLabel(const GenericVector<int>& labels,
     // Decode labels via recoder_.
     RecodedCharID code;
     if (labels[start] == null_char_) {
-      if (decoded != NULL) {
+      if (decoded != nullptr) {
         code.Set(0, null_char_);
         *decoded = recoder_.DecodeUnichar(code);
       }
@@ -492,14 +492,14 @@ const char* LSTMRecognizer::DecodeLabel(const GenericVector<int>& labels,
            code.length() == RecodedCharID::kMaxCodeLen ||
            recoder_.IsValidFirstCode(labels[index]))) {
         *end = index;
-        if (decoded != NULL) *decoded = uni_id;
+        if (decoded != nullptr) *decoded = uni_id;
         if (uni_id == UNICHAR_SPACE) return " ";
         return GetUnicharset().get_normed_unichar(uni_id);
       }
     }
     return "<Undecodable>";
   } else {
-    if (decoded != NULL) *decoded = labels[start];
+    if (decoded != nullptr) *decoded = labels[start];
     if (labels[start] == null_char_) return "<null>";
     if (labels[start] == UNICHAR_SPACE) return " ";
     return GetUnicharset().get_normed_unichar(labels[start]);

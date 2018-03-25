@@ -69,7 +69,7 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress& recoder,
       space_delimited_(true),
       is_simple_text_(simple_text),
       null_char_(null_char) {
-  if (dict_ != NULL && !dict_->IsSpaceDelimitedLang()) space_delimited_ = false;
+  if (dict_ != nullptr && !dict_->IsSpaceDelimitedLang()) space_delimited_ = false;
 }
 
 // Decodes the set of network outputs, storing the lattice internally.
@@ -102,7 +102,7 @@ void RecodeBeamSearch::ExtractBestPathAsLabels(
   labels->truncate(0);
   xcoords->truncate(0);
   GenericVector<const RecodeNode*> best_nodes;
-  ExtractBestPaths(&best_nodes, NULL);
+  ExtractBestPaths(&best_nodes, nullptr);
   // Now just run CTC on the best nodes.
   int t = 0;
   int width = best_nodes.size();
@@ -125,7 +125,7 @@ void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
     GenericVector<float>* certs, GenericVector<float>* ratings,
     GenericVector<int>* xcoords) const {
   GenericVector<const RecodeNode*> best_nodes;
-  ExtractBestPaths(&best_nodes, NULL);
+  ExtractBestPaths(&best_nodes, nullptr);
   ExtractPathAsUnicharIds(best_nodes, unichar_ids, certs, ratings, xcoords);
   if (debug) {
     DebugPath(unicharset, best_nodes);
@@ -227,27 +227,27 @@ void RecodeBeamSearch::DebugBeams(const UNICHARSET& unicharset) const {
 void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
                                     const RecodeHeap& heap) const {
   GenericVector<const RecodeNode*> unichar_bests;
-  unichar_bests.init_to_size(unicharset.size(), NULL);
-  const RecodeNode* null_best = NULL;
+  unichar_bests.init_to_size(unicharset.size(), nullptr);
+  const RecodeNode* null_best = nullptr;
   int heap_size = heap.size();
   for (int i = 0; i < heap_size; ++i) {
     const RecodeNode* node = &heap.get(i).data;
     if (node->unichar_id == INVALID_UNICHAR_ID) {
-      if (null_best == NULL || null_best->score < node->score) null_best = node;
+      if (null_best == nullptr || null_best->score < node->score) null_best = node;
     } else {
-      if (unichar_bests[node->unichar_id] == NULL ||
+      if (unichar_bests[node->unichar_id] == nullptr ||
           unichar_bests[node->unichar_id]->score < node->score) {
         unichar_bests[node->unichar_id] = node;
       }
     }
   }
   for (int u = 0; u < unichar_bests.size(); ++u) {
-    if (unichar_bests[u] != NULL) {
+    if (unichar_bests[u] != nullptr) {
       const RecodeNode& node = *unichar_bests[u];
       node.Print(null_char_, unicharset, 1);
     }
   }
-  if (null_best != NULL) {
+  if (null_best != nullptr) {
     null_best->Print(null_char_, unicharset, 1);
   }
 }
@@ -332,7 +332,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
     b_it.add_after_then_move(C_BLOB::FakeBlob(box));
   }
   // Make a fake word from the blobs.
-  WERD* word = new WERD(&blobs, leading_space, NULL);
+  WERD* word = new WERD(&blobs, leading_space, nullptr);
   // Make a WERD_RES from the word.
   WERD_RES* word_res = new WERD_RES(word);
   word_res->uch_set = unicharset;
@@ -394,7 +394,7 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
     }
   } else {
     RecodeBeam* prev = beam_[t - 1];
-    if (charset != NULL) {
+    if (charset != nullptr) {
       int beam_index = BeamIndex(true, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
@@ -462,7 +462,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
   bool use_dawgs = IsDawgFromBeamsIndex(index);
   NodeContinuation prev_cont = ContinuationFromBeamsIndex(index);
   for (int p = length - 1; p >= 0; --p, previous = previous->prev) {
-    while (previous != NULL &&
+    while (previous != nullptr &&
            (previous->duplicate || previous->code == null_char_)) {
       previous = previous->prev;
     }
@@ -501,7 +501,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
     }
   }
   const GenericVector<int>* final_codes = recoder_.GetFinalCodes(prefix);
-  if (final_codes != NULL) {
+  if (final_codes != nullptr) {
     for (int i = 0; i < final_codes->size(); ++i) {
       int code = (*final_codes)[i];
       if (top_n_flags_[code] != top_n_flag) continue;
@@ -529,7 +529,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
     }
   }
   const GenericVector<int>* next_codes = recoder_.GetNextCodes(prefix);
-  if (next_codes != NULL) {
+  if (next_codes != nullptr) {
     for (int i = 0; i < next_codes->size(); ++i) {
       int code = (*next_codes)[i];
       if (top_n_flags_[code] != top_n_flag) continue;
@@ -612,7 +612,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
   }
   // Avoid dictionary probe if score a total loss.
   float score = cert;
-  if (prev != NULL) score += prev->score;
+  if (prev != nullptr) score += prev->score;
   if (dawg_heap->size() >= kBeamWidths[0] &&
       score <= dawg_heap->PeekTop().data.score &&
       nodawg_heap->size() >= kBeamWidths[0] &&
@@ -622,11 +622,11 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
   const RecodeNode* uni_prev = prev;
   // Prev may be a partial code, null_char, or duplicate, so scan back to the
   // last valid unichar_id.
-  while (uni_prev != NULL &&
+  while (uni_prev != nullptr &&
          (uni_prev->unichar_id == INVALID_UNICHAR_ID || uni_prev->duplicate))
     uni_prev = uni_prev->prev;
   if (unichar_id == UNICHAR_SPACE) {
-    if (uni_prev != NULL && uni_prev->end_of_word) {
+    if (uni_prev != nullptr && uni_prev->end_of_word) {
       // Space is good. Push initial state, to the dawg beam and a regular
       // space to the top choice beam.
       PushInitialDawgIfBetter(code, unichar_id, uni_prev->permuter, false,
@@ -636,7 +636,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
                        nodawg_heap);
     }
     return;
-  } else if (uni_prev != NULL && uni_prev->start_of_dawg &&
+  } else if (uni_prev != nullptr && uni_prev->start_of_dawg &&
              uni_prev->unichar_id != UNICHAR_SPACE &&
              dict_->getUnicharset().IsSpaceDelimited(uni_prev->unichar_id) &&
              dict_->getUnicharset().IsSpaceDelimited(unichar_id)) {
@@ -646,11 +646,11 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
   DawgPositionVector* updated_dawgs = new DawgPositionVector;
   DawgArgs dawg_args(&initial_dawgs, updated_dawgs, NO_PERM);
   bool word_start = false;
-  if (uni_prev == NULL) {
+  if (uni_prev == nullptr) {
     // Starting from beginning of line.
     dict_->default_dawgs(&initial_dawgs, false);
     word_start = true;
-  } else if (uni_prev->dawgs != NULL) {
+  } else if (uni_prev->dawgs != nullptr) {
     // Continuing a previous dict word.
     dawg_args.active_dawgs = uni_prev->dawgs;
     word_start = uni_prev->start_of_dawg;
@@ -670,7 +670,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
       PushInitialDawgIfBetter(code, unichar_id, permuter, word_start, true,
                               cert, cont, prev, step);
       PushHeapIfBetter(kBeamWidths[0], code, unichar_id, permuter, false,
-                       word_start, true, false, cert, prev, NULL, nodawg_heap);
+                       word_start, true, false, cert, prev, nullptr, nodawg_heap);
     }
   } else {
     delete updated_dawgs;
@@ -688,7 +688,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id,
                                                RecodeBeam* step) {
   RecodeNode* best_initial_dawg = &step->best_initial_dawgs_[cont];
   float score = cert;
-  if (prev != NULL) score += prev->score;
+  if (prev != nullptr) score += prev->score;
   if (best_initial_dawg->code < 0 || score > best_initial_dawg->score) {
     DawgPositionVector* initial_dawgs = new DawgPositionVector;
     dict_->default_dawgs(initial_dawgs, false);
@@ -700,7 +700,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id,
 }
 
 // Adds a RecodeNode composed of the tuple (code, unichar_id, permuter,
-// false, false, false, false, cert, prev, NULL) to heap if there is room
+// false, false, false, false, cert, prev, nullptr) to heap if there is room
 // or if better than the current worst element if already full.
 /* static */
 void RecodeBeamSearch::PushDupOrNoDawgIfBetter(
@@ -734,7 +734,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
                                         DawgPositionVector* d,
                                         RecodeHeap* heap) {
   float score = cert;
-  if (prev != NULL) score += prev->score;
+  if (prev != nullptr) score += prev->score;
   if (heap->size() < max_size || score > heap->PeekTop().data.score) {
     uint64_t hash = ComputeCodeHash(code, dup, prev);
     RecodeNode node(code, unichar_id, permuter, dawg_start, word_start, end,
@@ -742,7 +742,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, int code, int unichar_id,
     if (UpdateHeapIfMatched(&node, heap)) return;
     RecodePair entry(score, node);
     heap->Push(&entry);
-    ASSERT_HOST(entry.data.dawgs == NULL);
+    ASSERT_HOST(entry.data.dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
   } else {
     delete d;
@@ -759,7 +759,7 @@ void RecodeBeamSearch::PushHeapIfBetter(int max_size, RecodeNode* node,
     }
     RecodePair entry(node->score, *node);
     heap->Push(&entry);
-    ASSERT_HOST(entry.data.dawgs == NULL);
+    ASSERT_HOST(entry.data.dawgs == nullptr);
     if (heap->size() > max_size) heap->Pop(&entry);
   }
 }
@@ -812,8 +812,8 @@ void RecodeBeamSearch::ExtractBestPaths(
     GenericVector<const RecodeNode*>* best_nodes,
     GenericVector<const RecodeNode*>* second_nodes) const {
   // Scan both beams to extract the best and second best paths.
-  const RecodeNode* best_node = NULL;
-  const RecodeNode* second_best_node = NULL;
+  const RecodeNode* best_node = nullptr;
+  const RecodeNode* second_best_node = nullptr;
   const RecodeBeam* last_beam = beam_[beam_size_ - 1];
   for (int c = 0; c < NC_COUNT; ++c) {
     if (c == NC_ONLY_DUP) continue;
@@ -827,27 +827,27 @@ void RecodeBeamSearch::ExtractBestPaths(
           // dawg_node may be a null_char, or duplicate, so scan back to the
           // last valid unichar_id.
           const RecodeNode* dawg_node = node;
-          while (dawg_node != NULL &&
+          while (dawg_node != nullptr &&
                  (dawg_node->unichar_id == INVALID_UNICHAR_ID ||
                   dawg_node->duplicate))
             dawg_node = dawg_node->prev;
-          if (dawg_node == NULL || (!dawg_node->end_of_word &&
+          if (dawg_node == nullptr || (!dawg_node->end_of_word &&
                                     dawg_node->unichar_id != UNICHAR_SPACE)) {
             // Dawg node is not valid.
             continue;
           }
         }
-        if (best_node == NULL || node->score > best_node->score) {
+        if (best_node == nullptr || node->score > best_node->score) {
           second_best_node = best_node;
           best_node = node;
-        } else if (second_best_node == NULL ||
+        } else if (second_best_node == nullptr ||
                    node->score > second_best_node->score) {
           second_best_node = node;
         }
       }
     }
   }
-  if (second_nodes != NULL) ExtractPath(second_best_node, second_nodes);
+  if (second_nodes != nullptr) ExtractPath(second_best_node, second_nodes);
   ExtractPath(best_node, best_nodes);
 }
 
@@ -856,7 +856,7 @@ void RecodeBeamSearch::ExtractBestPaths(
 void RecodeBeamSearch::ExtractPath(
     const RecodeNode* node, GenericVector<const RecodeNode*>* path) const {
   path->truncate(0);
-  while (node != NULL) {
+  while (node != nullptr) {
     path->push_back(node);
     node = node->prev;
   }
