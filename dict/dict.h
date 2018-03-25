@@ -587,10 +587,6 @@ class Dict {
                "Default score multiplier for word matches, which may have "
                "case issues (lower is better).");
 
-  // TODO(daria): remove this param when ngram permuter is deprecated.
-  double_VAR_H(segment_penalty_ngram_best_choice, 1.24,
-               "Multipler to for the best choice from the ngram model.");
-
   double_VAR_H(segment_penalty_dict_nonword, 1.25,
                "Score multiplier for glyph fragment segmentations which "
                "do not match a dictionary word (lower is better).");
@@ -623,8 +619,6 @@ class Dict {
   BOOL_VAR_H(stopper_no_acceptable_choices, false,
              "Make AcceptableChoice() always return false. Useful"
              " when there is a need to explore all segmentations");
-  BOOL_VAR_H(save_raw_choices, false,
-             "Deprecated- backward compatibility only");
   INT_VAR_H(tessedit_truncate_wordchoice_log, 10, "Max words to keep in list");
   STRING_VAR_H(word_to_debug, "", "Word for which stopper debug information"
                " should be printed to stdout");
