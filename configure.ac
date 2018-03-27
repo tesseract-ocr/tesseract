@@ -19,6 +19,9 @@ AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([api/tesseractmain.cpp])
 AC_PREFIX_DEFAULT([/usr/local])
 
+# Automake configuration. Do not require README file (we use README.md).
+AM_INIT_AUTOMAKE([foreign subdir-objects])
+
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2018
@@ -38,16 +41,19 @@ AC_SUBST([PACKAGE_DATE])
 
 GENERIC_LIBRARY_NAME=tesseract
 
-# Release versioning
-GENERIC_MAJOR_VERSION=4
-GENERIC_MINOR_VERSION=0
-GENERIC_MICRO_VERSION=0
+# Release versioning. Get versions from PACKAGE_VERSION.
+AX_SPLIT_VERSION
+GENERIC_MAJOR_VERSION=$AX_MAJOR_VERSION
+GENERIC_MINOR_VERSION=$AX_MINOR_VERSION
+GENERIC_MICRO_VERSION=`echo "$AX_POINT_VERSION" | $SED 's/^\([[0-9]][[0-9]]*\).*/\1/'`
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
 GENERIC_API_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 GENERIC_LIBRARY_VERSION=$GENERIC_MAJOR_VERSION:$GENERIC_MINOR_VERSION
 AC_SUBST([GENERIC_API_VERSION])
 AC_SUBST([GENERIC_MAJOR_VERSION])
+AC_SUBST([GENERIC_MINOR_VERSION])
+AC_SUBST([GENERIC_MICRO_VERSION])
 
 AC_SUBST([GENERIC_LIBRARY_VERSION])
 PACKAGE=$GENERIC_LIBRARY_NAME
@@ -58,12 +64,6 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST([GENERIC_RELEASE])
 AC_SUBST([GENERIC_VERSION])
 
-# ----------------------------------------
-# Automake configuration
-# ----------------------------------------
-
-# Do not require README file (we use README.md)
-AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
 AM_MAINTAINER_MODE
 
