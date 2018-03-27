@@ -180,6 +180,11 @@ inline int IntCastRounded(double x) {
   return x >= 0.0 ? static_cast<int>(x + 0.5) : -static_cast<int>(-x + 0.5);
 }
 
+// Return a float cast to int with rounding.
+inline int IntCastRounded(float x) {
+  return x >= 0.0f ? static_cast<int>(x + 0.5f) : -static_cast<int>(-x + 0.5f);
+}
+
 // Reverse the order of bytes in a n byte quantity for big/little-endian switch.
 inline void ReverseN(void* ptr, int num_bytes) {
   char* cptr = static_cast<char*>(ptr);
