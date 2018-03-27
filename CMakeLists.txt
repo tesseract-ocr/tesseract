@@ -40,10 +40,16 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake Targets")
 
 project(tesseract C CXX)
 
-set(VERSION_MAJOR 4)
-set(VERSION_MINOR 0)
-set(VERSION_PATCH 0)
-set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-beta.1)
+# Get version with components from VERSION file.
+file(STRINGS "VERSION" VERSION_PLAIN)
+string(REGEX REPLACE "^([^.]*)\\..*" "\\1" VERSION_MAJOR ${VERSION_PLAIN})
+string(REGEX REPLACE "^[^.]*\\.([^.]*)\\..*" "\\1" VERSION_MINOR ${VERSION_PLAIN})
+string(REGEX REPLACE "^[^.]*\\.[^.]*\\.([0-9]*).*" "\\1" VERSION_PATCH ${VERSION_PLAIN})
+
+# Provide also same macro names as autoconf (see configure.ac).
+set(GENERIC_MAJOR_VERSION ${VERSION_MAJOR})
+set(GENERIC_MINOR_VERSION ${VERSION_MINOR})
+set(GENERIC_MICRO_VERSION ${VERSION_PATCH})
 
 set(MINIMUM_LEPTONICA_VERSION 1.74)
 
@@ -114,6 +120,9 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
+configure_file(
+    ${CMAKE_SOURCE_DIR}/api/version.h.in
+    ${CMAKE_BINARY_DIR}/api/version.h @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
     ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
