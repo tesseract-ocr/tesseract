@@ -31,8 +31,9 @@ class DLLSYM BITS16
       val = 0;
     }                            // constructor
 
-    BITS16(               // constructor
-           uint16_t init);  // initial val
+    BITS16(uint16_t init) {
+      val = init;
+    }
 
     void turn_on_bit(                  // flip specified bit
                      uint8_t bit_num) {  // bit to flip 0..7

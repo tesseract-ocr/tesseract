@@ -27,7 +27,7 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libtesseract_ccutil.la
 
 libtesseract_ccutil_la_SOURCES = \
-    ambigs.cpp basedir.cpp bits16.cpp bitvector.cpp \
+    ambigs.cpp basedir.cpp bitvector.cpp \
     ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
     globaloc.cpp indexmapbidi.cpp \
