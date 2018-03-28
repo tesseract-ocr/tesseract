@@ -166,9 +166,6 @@ include_directories(wordrec)
 # LIBRARY tesseract
 ########################################
 
-string(SUBSTRING ${VERSION_MINOR} 0 1 VERSION_MINOR_0)
-string(SUBSTRING ${VERSION_MINOR} 1 1 VERSION_MINOR_1)
-
 file(GLOB tesseract_src
     arch/*.cpp
     ccmain/*.cpp
@@ -251,8 +248,8 @@ target_compile_definitions      (libtesseract
 set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 target_link_libraries           (libtesseract ${LIB_Ws2_32} ${LIB_pthread})
-set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
-set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 if (WIN32)
 set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
