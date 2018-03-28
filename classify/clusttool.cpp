@@ -38,7 +38,7 @@ using tesseract::TFile;
  * This routine reads a single integer from the specified
  * file and checks to ensure that it is between 0 and
  * MAXSAMPLESIZE.
- * @param File open text file to read sample size from
+ * @param fp open text file to read sample size from
  * @return Sample size
  * @note Globals: None
  * @note Exceptions: ILLEGALSAMPLESIZE  illegal format or range
@@ -64,7 +64,7 @@ uint16_t ReadSampleSize(TFile *fp) {
  * - ILLEGALCIRCULARSPEC
  * - ILLEGALESSENTIALSPEC
  * - ILLEGALMINMAXSPEC
- * @param File open text file to read N parameter descriptions from
+ * @param fp open text file to read N parameter descriptions from
  * @param N number of parameter descriptions to read
  * @return Pointer to an array of parameter descriptors.
  * @note Globals: None
@@ -109,7 +109,7 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
  * - ILLEGALMEANSPEC
  * - ILLEGALVARIANCESPEC
  * - ILLEGALDISTRIBUTION
- * @param File open text file to read prototype from
+ * @param fp open text file to read prototype from
  * @param N number of dimensions used in prototype
  * @return List of prototypes
  * @note Globals: None
@@ -136,7 +136,20 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   else
     Proto->Significant = FALSE;
 
-  Proto->Style = ReadProtoStyle(shape_token);
+  switch (shape_token[0]) {
+    case 's':
+      Proto->Style = spherical;
+      break;
+    case 'e':
+      Proto->Style = elliptical;
+      break;
+    case 'a':
+      Proto->Style = automatic;
+      break;
+    default:
+      tprintf("Invalid prototype style specification:%s\n", shape_token);
+      Proto->Style = elliptical;
+  }
 
   if (SampleCount < 0) DoError(ILLEGALSAMPLECOUNT, "Illegal sample count");
   Proto->NumSamples = SampleCount;
@@ -180,36 +193,12 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
 }
 
 /**
- * This routine reads an single token from the specified
- * text file and interprets it as a prototype specification.
- * @param File open text file to read prototype style from
- * @return Prototype style read from text file
- * @note Globals: None
- * @note Exceptions: ILLEGALSTYLESPEC illegal prototype style specification
- * @note History: 6/8/89, DSJ, Created.
- */
-PROTOSTYLE ReadProtoStyle(const char *shape) {
-  switch (shape[0]) {
-    case 's':
-      return spherical;
-    case 'e':
-      return elliptical;
-    case 'a':
-      return automatic;
-    default:
-      break;
-  }
-  tprintf("Invalid prototype style specification:%s\n", shape);
-  return elliptical;
-}
-
-/**
  * This routine reads N floats from the specified text file
  * and places them into Buffer.  If Buffer is NULL, a buffer
  * is created and passed back to the caller.  If EOF is
  * encountered before any floats can be read, NULL is
  * returned.
- * @param File open text file to read floats from
+ * @param fp open text file to read floats from
  * @param N number of floats to read
  * @param Buffer pointer to buffer to place floats into
  * @return Pointer to buffer holding floats or NULL if EOF

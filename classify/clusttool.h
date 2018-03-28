@@ -34,8 +34,6 @@ PARAM_DESC *ReadParamDesc(tesseract::TFile *fp, uint16_t N);
 
 PROTOTYPE *ReadPrototype(tesseract::TFile *fp, uint16_t N);
 
-PROTOSTYLE ReadProtoStyle(const char *style);
-
 FLOAT32 *ReadNFloats(tesseract::TFile *fp, uint16_t N, FLOAT32 Buffer[]);
 
 void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]);
