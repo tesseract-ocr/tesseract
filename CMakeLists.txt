@@ -124,6 +124,9 @@ configure_file(
     ${CMAKE_SOURCE_DIR}/api/version.h.in
     ${CMAKE_BINARY_DIR}/api/version.h @ONLY)
 configure_file(
+    ${CMAKE_SOURCE_DIR}/vs2010/tesseract/tesseract.rc.in
+    ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
+configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
     ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
 configure_file(
