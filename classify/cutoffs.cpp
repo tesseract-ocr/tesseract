@@ -36,14 +36,12 @@
 
 namespace tesseract {
 /**
- * Open Filename, read in all of the class-id/cutoff pairs
+ * Open file, read in all of the class-id/cutoff pairs
  * and insert them into the Cutoffs array.  Cutoffs are
  * indexed in the array by class id.  Unused entries in the
  * array are set to an arbitrarily high cutoff value.
- * @param CutoffFile name of file containing cutoff definitions
+ * @param fp file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
- * @param swap
- * @param end_offset
  * @return none
  * @note Globals: none
  * @note Exceptions: none
