@@ -235,8 +235,7 @@ namespace tesseract {
  * This routine allocates a new data structure to hold
  * a set of character normalization protos.  It then fills in
  * the data structure by reading from the specified File.
- * @param File open text file to read normalization protos from
- * @param end_offset
+ * @param fp open text file to read normalization protos from
  * Globals: none
  * @return Character normalization protos.
  * @note Exceptions: none
