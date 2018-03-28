@@ -293,10 +293,10 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * Read an adapted class description from File and return
+ * Read an adapted class description from file and return
  * a ptr to the adapted class.
  *
- * @param File  open file to read adapted class from
+ * @param fp open file to read adapted class from
  * @return Ptr to new adapted class.
  *
  * @note Globals: none
@@ -346,11 +346,11 @@ ADAPT_CLASS ReadAdaptedClass(TFile *fp) {
 /*---------------------------------------------------------------------------*/
 namespace tesseract {
 /**
- * Read a set of adapted templates from File and return
+ * Read a set of adapted templates from file and return
  * a ptr to the templates.
  *
- * @param File  open text file to read adapted templates from
- * @return Ptr to adapted templates read from File.
+ * @param fp open text file to read adapted templates from
+ * @return Ptr to adapted templates read from file.
  *
  * @note Globals: none
  * @note Exceptions: none
@@ -379,10 +379,10 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * Read a permanent configuration description from File
+ * Read a permanent configuration description from file
  * and return a ptr to it.
  *
- * @param File  open file to read permanent config from
+ * @param fp open file to read permanent config from
  * @return Ptr to new permanent configuration description.
  *
  * @note Globals: none
@@ -405,10 +405,10 @@ PERM_CONFIG ReadPermConfig(TFile *fp) {
 
 /*---------------------------------------------------------------------------*/
 /**
- * Read a temporary configuration description from File
+ * Read a temporary configuration description from file
  * and return a ptr to it.
  *
- * @param File  open file to read temporary config from
+ * @param fp open file to read temporary config from
  * @return Ptr to new temporary configuration description.
  *
  * @note Globals: none
