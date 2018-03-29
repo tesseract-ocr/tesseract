@@ -752,7 +752,7 @@ namespace tesseract {
  * This routine reads a set of integer templates from
  * File.  File must already be open and must be in the
  * correct binary format.
- * @param  File    open file to read templates from
+ * @param  fp open file to read templates from
  * @return Pointer to integer templates read from File.
  * @note Globals: none
  * @note Exceptions: none
