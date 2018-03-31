@@ -127,6 +127,9 @@ configure_file(
     ${CMAKE_SOURCE_DIR}/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
 configure_file(
+    ${CMAKE_SOURCE_DIR}/vs2010/tesseract/libtesseract.rc.in
+    ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
+configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
     ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
 configure_file(
@@ -214,6 +217,11 @@ set(tesseract_src ${tesseract_src}
 
 if (WIN32)
     if (MSVC)
+        include_directories(vs2010/tesseract)
+        set(tesseract_hdr
+            ${tesseract_hdr}
+            ${CMAKE_CURRENT_SOURCE_DIR}/vs2010/tesseract/resource.h)
+        set(tesseract_rsc ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
         set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
             PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
@@ -242,7 +250,9 @@ else()
             PROPERTIES COMPILE_FLAGS "-mavx2")
 endif()
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
+add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr}
+    ${tesseract_rsc}
+    )
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
@@ -273,12 +283,12 @@ endif()
 # EXECUTABLE tesseractmain
 ########################################
 
-set(tesseractmain_src
-    api/tesseractmain.cpp
-    vs2010/tesseract/resource.h
-    vs2010/tesseract/tesseract.rc
-)
-add_executable                  (tesseract ${tesseractmain_src})
+set(tesseractmain_src api/tesseractmain.cpp)
+if (MSVC)
+    set(tesseractmain_rsc ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
+endif()
+
+add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
 target_link_libraries           (tesseract libtesseract)
 
 ########################################
