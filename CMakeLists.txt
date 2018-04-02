@@ -154,6 +154,7 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
 
 include_directories(api)
+include_directories(${CMAKE_BINARY_DIR}/api)
 include_directories(arch)
 include_directories(ccmain)
 include_directories(ccstruct)
