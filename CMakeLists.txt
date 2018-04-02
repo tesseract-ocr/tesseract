@@ -121,8 +121,8 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/api/version.h.in
-    ${CMAKE_BINARY_DIR}/api/version.h @ONLY)
+    ${CMAKE_SOURCE_DIR}/api/tess_version.h.in
+    ${CMAKE_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)

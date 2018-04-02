@@ -479,7 +479,7 @@ fi
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([api/Makefile])
-AC_CONFIG_FILES([api/version.h])
+AC_CONFIG_FILES([api/tess_version.h])
 AC_CONFIG_FILES([arch/Makefile])
 AC_CONFIG_FILES([ccmain/Makefile])
 AC_CONFIG_FILES([opencl/Makefile])
