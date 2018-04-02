@@ -7,7 +7,8 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/viewer \
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
-    -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
+    -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
+    -I$(top_builddir)/api
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 

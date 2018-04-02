@@ -322,6 +322,7 @@ install(FILES
     api/baseapi.h
     api/capi.h
     api/renderer.h
+    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
 
     #from arch/makefile.am
     arch/dotproductavx.h

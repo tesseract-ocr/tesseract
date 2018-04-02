@@ -24,6 +24,7 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
+#include "tess_version.h"
 #include "apitypes.h"
 #include "pageiterator.h"
 #include "platform.h"
