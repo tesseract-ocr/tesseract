@@ -65,7 +65,6 @@ AC_SUBST([GENERIC_RELEASE])
 AC_SUBST([GENERIC_VERSION])
 
 AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
-AM_MAINTAINER_MODE
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
