@@ -1,4 +1,4 @@
-if MAINTAINER_MODE
+# doc/Makefile.am
 
 asciidoc=asciidoc -d manpage
 
@@ -28,5 +28,3 @@ man_MANS = \
 	$(asciidoc) -o $@ $<
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
-
-endif # MAINTAINER_MODE
