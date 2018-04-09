@@ -1,5 +1,7 @@
 # doc/Makefile.am
 
+if ASCIIDOC
+
 asciidoc=asciidoc -d manpage
 
 man_MANS = \
@@ -28,3 +30,5 @@ man_MANS = \
 	$(asciidoc) -o $@ $<
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
+
+endif
