@@ -265,6 +265,7 @@ phase_I_generate_image() {
 
         local counter=0
         for font in "${FONTS[@]}"; do
+            sleep 1
             generate_font_image "${font}" &
             let counter=counter+1
             let rem=counter%par_factor
@@ -566,4 +567,3 @@ make__traineddata() {
   tlog "Moving ${TRAINING_DIR}/${LANG_CODE}.traineddata to ${OUTPUT_DIR}"
   cp -f ${TRAINING_DIR}/${LANG_CODE}.traineddata ${destfile}
 }
-
