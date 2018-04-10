@@ -1,5 +1,7 @@
 local_settings:
     #use_shared_libs: true
+    #short_local_names: true
+    #use_cache: false
     #generator: Visual Studio 14 2015 Win64
     silent: false
     #copy_import_libs: true

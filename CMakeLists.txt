@@ -53,27 +53,6 @@ set(GENERIC_MICRO_VERSION ${VERSION_PATCH})
 
 set(MINIMUM_LEPTONICA_VERSION 1.74)
 
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
-    if (NOT Leptonica_DIR AND NOT MSVC)
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
-        link_directories(${Leptonica_LIBRARY_DIRS})
-    else()
-        find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
-    endif()
-else()
-    if (STATIC)
-        set(CPPAN_BUILD_SHARED_LIBS 0)
-    else()
-        set(CPPAN_BUILD_SHARED_LIBS 1)
-    endif()
-    add_subdirectory(.cppan)
-endif()
-
-find_package(OpenCL QUIET)
-
-option(BUILD_TRAINING_TOOLS "Build training tools" ON)
-
 ###############################################################################
 #
 # compiler and linker
@@ -104,6 +83,33 @@ if (UNIX)
 
     set(LIB_pthread pthread)
 endif()
+
+###############################################################################
+#
+# packages
+#
+###############################################################################
+
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
+    if (NOT Leptonica_DIR AND NOT MSVC)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
+        link_directories(${Leptonica_LIBRARY_DIRS})
+    else()
+        find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
+    endif()
+else()
+    if (STATIC)
+        set(CPPAN_BUILD_SHARED_LIBS 0)
+    else()
+        set(CPPAN_BUILD_SHARED_LIBS 1)
+    endif()
+    add_subdirectory(.cppan)
+endif()
+
+find_package(OpenCL QUIET)
+
+option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 
 ###############################################################################
 #
