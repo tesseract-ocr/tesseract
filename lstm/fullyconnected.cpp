@@ -147,15 +147,12 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
     int thread_id = 0;
 #endif
     double* temp_line = temp_lines[thread_id];
-    const double* d_input = nullptr;
-    const int8_t* i_input = nullptr;
     if (input.int_mode()) {
-      i_input = input.i(t);
+      ForwardTimeStep(input.i(t), t, temp_line);
     } else {
       input.ReadTimeStep(t, curr_input[thread_id]);
-      d_input = curr_input[thread_id];
+      ForwardTimeStep(curr_input[thread_id], t, temp_line);
     }
-    ForwardTimeStep(d_input, i_input, t, temp_line);
     output->WriteTimeStep(t, temp_line);
     if (IsTraining() && type_ != NT_SOFTMAX) {
       acts_.CopyTimeStepFrom(t, *output, t);
@@ -188,15 +185,7 @@ void FullyConnected::SetupForward(const NetworkIO& input,
   }
 }
 
-void FullyConnected::ForwardTimeStep(const double* d_input, const int8_t* i_input,
-                                     int t, double* output_line) {
-  // input is copied to source_ line-by-line for cache coherency.
-  if (IsTraining() && external_source_ == nullptr && d_input != nullptr)
-    source_t_.WriteStrided(t, d_input);
-  if (d_input != nullptr)
-    weights_.MatrixDotVector(d_input, output_line);
-  else
-    weights_.MatrixDotVector(i_input, output_line);
+void FullyConnected::ForwardTimeStep(int t, double* output_line) {
   if (type_ == NT_TANH) {
     FuncInplace<GFunc>(no_, output_line);
   } else if (type_ == NT_LOGISTIC) {
@@ -212,6 +201,22 @@ void FullyConnected::ForwardTimeStep(const double* d_input, const int8_t* i_inpu
   } else if (type_ != NT_LINEAR) {
     ASSERT_HOST("Invalid fully-connected type!" == nullptr);
   }
+}
+
+void FullyConnected::ForwardTimeStep(const double* d_input,
+                                     int t, double* output_line) {
+  // input is copied to source_ line-by-line for cache coherency.
+  if (IsTraining() && external_source_ == NULL)
+    source_t_.WriteStrided(t, d_input);
+  weights_.MatrixDotVector(d_input, output_line);
+  ForwardTimeStep(t, output_line);
+}
+
+void FullyConnected::ForwardTimeStep(const int8_t* i_input,
+                                     int t, double* output_line) {
+  // input is copied to source_ line-by-line for cache coherency.
+  weights_.MatrixDotVector(i_input, output_line);
+  ForwardTimeStep(t, output_line);
 }
 
 // Runs backward propagation of errors on the deltas line.

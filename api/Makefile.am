@@ -5,7 +5,7 @@ AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\"\
     -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
     -I$(top_srcdir)/classify -I$(top_srcdir)/ccmain \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/opencl
+    -I$(top_srcdir)/opencl -I$(top_builddir)/api
 
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
@@ -13,7 +13,7 @@ if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = apitypes.h baseapi.h capi.h renderer.h
+include_HEADERS = apitypes.h baseapi.h capi.h renderer.h tess_version.h
 lib_LTLIBRARIES = 
 
 noinst_LTLIBRARIES = libtesseract_api.la

@@ -31,8 +31,6 @@ namespace tesseract {
 // therefore only used during construction of the regions.
 class WorkingPartSet : public ELIST_LINK {
  public:
-  WorkingPartSet() {
-  }
   explicit WorkingPartSet(ColPartition* column)
     : column_(column), latest_part_(NULL), part_it_(&part_set_) {
   }

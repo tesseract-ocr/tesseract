@@ -65,7 +65,6 @@ AC_SUBST([GENERIC_RELEASE])
 AC_SUBST([GENERIC_VERSION])
 
 AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
-AM_MAINTAINER_MODE
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
@@ -416,6 +415,17 @@ AC_SYS_LARGEFILE
 AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
+# Check for programs needed to build documentation.
+# ----------------------------------------
+
+AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
+if $have_asciidoc; then
+  AM_CONDITIONAL([ASCIIDOC], true)
+else
+  AM_CONDITIONAL([ASCIIDOC], false)
+fi
+
+# ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
 # ----------------------------------------
 
@@ -479,7 +489,7 @@ fi
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
 AC_CONFIG_FILES([api/Makefile])
-AC_CONFIG_FILES([api/version.h])
+AC_CONFIG_FILES([api/tess_version.h])
 AC_CONFIG_FILES([arch/Makefile])
 AC_CONFIG_FILES([ccmain/Makefile])
 AC_CONFIG_FILES([opencl/Makefile])
@@ -514,6 +524,16 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
+echo ""
+
+AM_COND_IF([ASCIIDOC],
+  [
+   echo "This will also build the documentation."
+  ], [
+   echo "Documentation will not be built because asciidoc is missing."
+  ]
+)
+
 # echo "$ sudo make install LANGS=\"eng ara deu\""
 # echo "  Or:"
 # echo "$ sudo make install-langs"

@@ -192,7 +192,11 @@ parse_flags() {
 
 # Function initializes font config with a unique font cache dir.
 initialize_fontconfig() {
-    export FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      export FONT_CONFIG_CACHE=$(mktemp -d -t font_tmp.XXXXXXXXXX)
+    else
+      export FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
+    fi
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
     run_command text2image --fonts_dir=${FONTS_DIR} \
@@ -265,6 +269,7 @@ phase_I_generate_image() {
 
         local counter=0
         for font in "${FONTS[@]}"; do
+            sleep 1
             generate_font_image "${font}" &
             let counter=counter+1
             let rem=counter%par_factor
@@ -566,4 +571,3 @@ make__traineddata() {
   tlog "Moving ${TRAINING_DIR}/${LANG_CODE}.traineddata to ${OUTPUT_DIR}"
   cp -f ${TRAINING_DIR}/${LANG_CODE}.traineddata ${destfile}
 }
-

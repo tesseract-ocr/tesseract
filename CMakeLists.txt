@@ -127,8 +127,8 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/api/version.h.in
-    ${CMAKE_BINARY_DIR}/api/version.h @ONLY)
+    ${CMAKE_SOURCE_DIR}/api/tess_version.h.in
+    ${CMAKE_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
@@ -160,6 +160,7 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
 
 include_directories(api)
+include_directories(${CMAKE_BINARY_DIR}/api)
 include_directories(arch)
 include_directories(ccmain)
 include_directories(ccstruct)
@@ -328,6 +329,7 @@ install(FILES
     api/baseapi.h
     api/capi.h
     api/renderer.h
+    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
 
     #from arch/makefile.am
     arch/dotproductavx.h
