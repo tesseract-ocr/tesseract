@@ -64,12 +64,14 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 #if defined(_WIN32)
   } else if (datadir == NULL || access(datadir.string(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
+    static char drive[4];
     static char dir[128];
     static char exe[128];
     DWORD length = GetModuleFileName(NULL, exe, sizeof(exe));
     if (length > 0 && length < sizeof(exe)) {
-      _splitpath(exe, NULL, dir, NULL, NULL);
-      datadir = dir;
+      _splitpath(exe, drive, dir, NULL, NULL);
+      datadir = drive;
+      datadir += dir;
     }
 #endif /* _WIN32 */
 #if defined(TESSDATA_PREFIX)
