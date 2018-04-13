@@ -136,7 +136,6 @@ if $avx -o $avx2 -o $sse41; then
   case "${host_os}" in
     *darwin* | *-macos10*)
        if test -z "$CLANG"; then
-	 echo "MODIFYING FLAGS"
          # When using AVX, AVX2, or SSE4.1:
          # Must tell AS to use clang integrated assembler,
          # instead of the GNU based system assembler.
