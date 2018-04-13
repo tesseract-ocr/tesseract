@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   // Parse input arguments.
   if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
     printf("Usage: %s [-l lang] tessdata_dir wordlist_file"
-           " output_ambiguious_wordlist_file\n", argv[0]);
+           " output_ambiguous_wordlist_file\n", argv[0]);
     return 1;
   }
   int argv_offset = 0;
