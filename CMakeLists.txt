@@ -110,6 +110,7 @@ endif()
 find_package(OpenCL QUIET)
 
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
+option(BUILD_TESTS "Build tests" ON)
 
 ###############################################################################
 #
@@ -300,7 +301,7 @@ target_link_libraries           (tesseract libtesseract)
 
 ########################################
 
-if (EXISTS ${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt)
+if (BUILD_TESTS AND EXISTS ${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt)
     add_subdirectory(googletest)
     add_executable(tesseract_tests tests/tesseracttests.cpp)
     target_link_libraries(tesseract_tests gtest_main)
