@@ -296,10 +296,10 @@ AC_ARG_ENABLE([debug],
 AC_MSG_RESULT([$debug])
 if test x"$debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -O0 -DDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG"
 else
     AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
