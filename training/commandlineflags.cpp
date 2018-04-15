@@ -8,6 +8,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
 
 #ifndef GOOGLE_TESSERACT
@@ -156,6 +157,9 @@ void ParseCommandLineFlags(const char* usage,
     printf("USAGE: %s\n", usage);
     PrintCommandLineFlags();
     exit(0);
+  } else if (*argc > 1 && !strcmp((*argv)[1], "--version")) {
+    printf("%s\n", TessBaseAPI::Version());
+    exit(0);
   }
 
   unsigned int i = 1;
@@ -173,7 +177,7 @@ void ParseCommandLineFlags(const char* usage,
     // If this is asking for usage, print the help message and abort.
     if (!strcmp(current_arg, "help") ||
         !strcmp(current_arg, "helpshort")) {
-      tprintf("USAGE: %s\n", usage);
+      printf("USAGE: %s\n", usage);
       PrintCommandLineFlags();
       exit(0);
     }
