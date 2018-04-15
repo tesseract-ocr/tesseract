@@ -32,6 +32,10 @@
 #  endif
 #endif
 
+#if !defined(__GNUC__)
+# define __attribute__(attr) /* compiler without support for __attribute__ */
+#endif
+
 #if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
 #    define TESS_API __declspec(dllexport)
