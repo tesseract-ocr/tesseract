@@ -61,7 +61,7 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
   }
 }
 
-int Main(int argc, char** argv) {
+static int Main(int argc, char** argv) {
   UNICHARSET unicharset;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {

@@ -412,7 +412,7 @@ using tesseract::SpanUTF8NotWhitespace;
 using tesseract::SpanUTF8Whitespace;
 using tesseract::StringRenderer;
 
-int Main() {
+static int Main() {
   if (FLAGS_list_available_fonts) {
     const std::vector<std::string>& all_fonts = FontUtils::ListAvailableFonts();
     for (unsigned int i = 0; i < all_fonts.size(); ++i) {
@@ -673,5 +673,5 @@ int Main() {
 
 int main(int argc, char** argv) {
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
-  Main();
+  return Main();
 }
