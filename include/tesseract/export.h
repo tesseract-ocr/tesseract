@@ -18,6 +18,10 @@
 #ifndef TESSERACT_PLATFORM_H_
 #define TESSERACT_PLATFORM_H_
 
+#if !defined(__GNUC__)
+# define __attribute__(attr) /* compiler without support for __attribute__ */
+#endif
+
 #ifndef TESS_API
 # if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
