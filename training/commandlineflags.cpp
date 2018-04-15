@@ -7,6 +7,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include "commandlineflags.h"
 
 #ifndef GOOGLE_TESSERACT
@@ -54,7 +55,6 @@ bool StringFlagExists(const char* flag_name, const char** value) {
   *value = (p != nullptr) ? p->string() : nullptr;
   return p != nullptr;
 }
-
 
 void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
@@ -148,7 +148,6 @@ void PrintCommandLineFlags() {
     }
   }
 }
-
 
 void ParseCommandLineFlags(const char* usage,
                            int* argc, char*** argv,
