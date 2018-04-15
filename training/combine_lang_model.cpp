@@ -15,7 +15,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include "commandlineflags.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "lang_model_helpers.h"
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
@@ -38,6 +40,7 @@ BOOL_PARAM_FLAG(pass_through_recoder, false,
                 " unicharset. Otherwise, potentially a compression of it");
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
   // Check validity of input flags.

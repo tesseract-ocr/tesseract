@@ -40,6 +40,7 @@
 #include "allheaders.h"  // from leptonica
 #include "boxchar.h"
 #include "commandlineflags.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
@@ -672,6 +673,7 @@ static int Main() {
 }
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
   return Main();
 }

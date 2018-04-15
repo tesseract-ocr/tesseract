@@ -228,6 +228,8 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
  * @note History: Mon May 18 1998, Christy Russson, Revistion started.
  */
 int main (int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
+
   ParseArguments(&argc, &argv);
 
   ShapeTable* shape_table = nullptr;

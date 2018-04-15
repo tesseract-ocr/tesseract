@@ -111,6 +111,7 @@ static tesseract::ShapeClassifier* InitializeClassifier(
 // full     : Tesseract full classifier.
 //            with an input trainer.)
 int main(int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   STRING file_prefix;
   tesseract::MasterTrainer* trainer =

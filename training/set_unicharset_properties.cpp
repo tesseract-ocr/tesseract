@@ -12,11 +12,8 @@
 // object, fills it with properties about the unichars it contains and writes
 // the result back to a file.
 
-#include <stdlib.h>
-#include <string.h>
-#include <string>
-
 #include "commandlineflags.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
@@ -30,6 +27,7 @@ DECLARE_STRING_PARAM_FLAG(O);
 DECLARE_STRING_PARAM_FLAG(X);
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
   // Check validity of input flags.
