@@ -18,6 +18,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
 
@@ -65,6 +66,8 @@
 // components from tessdata/eng.traineddata.
 //
 int main(int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
+
   int i;
   tesseract::TessdataManager tm;
   if (argc == 2) {

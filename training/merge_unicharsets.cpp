@@ -17,10 +17,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "unicharset.h"
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
+
   // Print usage
   if (argc < 4) {
     printf("Usage: %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",

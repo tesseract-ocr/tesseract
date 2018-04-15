@@ -45,6 +45,8 @@ STRING_PARAM_FLAG(canonical_class2, "", "Class to show ambigs for");
 // Otherwise, if FLAGS_canonical_class1 is set, prints a table of font-wise
 // cluster distances between FLAGS_canonical_class1 and FLAGS_canonical_class2.
 int main(int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
+
   ParseArguments(&argc, &argv);
 
   STRING file_prefix;

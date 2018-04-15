@@ -18,6 +18,10 @@
 #ifndef API_CAPI_H_
 #define API_CAPI_H_
 
+#if defined(TESSERACT_API_BASEAPI_H_) && !defined(TESS_CAPI_INCLUDE_BASEAPI)
+# define TESS_CAPI_INCLUDE_BASEAPI
+#endif
+
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 #   include "baseapi.h"
 #   include "pageiterator.h"

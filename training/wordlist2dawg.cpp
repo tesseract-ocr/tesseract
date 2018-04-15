@@ -20,9 +20,8 @@
 // Given a file that contains a list of words (one word per line) this program
 // generates the corresponding squished DAWG file.
 
-#include <stdio.h>
-
 #include "classify.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "dict.h"
 #include "emalloc.h"
@@ -32,6 +31,8 @@
 #include "unicharset.h"
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
+
   if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
       (argc == 6 && strcmp(argv[1], "-r") == 0))) {
     printf("Usage: %s [-t | -r [reverse policy] ] word_list_file"

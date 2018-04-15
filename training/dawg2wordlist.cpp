@@ -17,6 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "host.h"
 #include "serialis.h"
@@ -72,6 +73,8 @@ int WriteDawgAsWordlist(const UNICHARSET &unicharset,
 }
 
 int main(int argc, char *argv[]) {
+  tesseract::CheckSharedLibraryVersion();
+
   if (argc != 4) {
     tprintf("Print all the words in a given dawg.\n");
     tprintf("Usage: %s <unicharset> <dawgfile> <wordlistfile>\n",

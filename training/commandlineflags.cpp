@@ -7,6 +7,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
 
 #ifndef GOOGLE_TESSERACT
@@ -54,7 +56,6 @@ bool StringFlagExists(const char* flag_name, const char** value) {
   *value = (p != nullptr) ? p->string() : nullptr;
   return p != nullptr;
 }
-
 
 void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
@@ -149,13 +150,15 @@ void PrintCommandLineFlags() {
   }
 }
 
-
 void ParseCommandLineFlags(const char* usage,
                            int* argc, char*** argv,
                            const bool remove_flags) {
   if (*argc == 1) {
     printf("USAGE: %s\n", usage);
     PrintCommandLineFlags();
+    exit(0);
+  } else if (*argc > 1 && !strcmp((*argv)[1], "--version")) {
+    printf("%s\n", TessBaseAPI::Version());
     exit(0);
   }
 
@@ -174,7 +177,7 @@ void ParseCommandLineFlags(const char* usage,
     // If this is asking for usage, print the help message and abort.
     if (!strcmp(current_arg, "help") ||
         !strcmp(current_arg, "helpshort")) {
-      tprintf("USAGE: %s\n", usage);
+      printf("USAGE: %s\n", usage);
       PrintCommandLineFlags();
       exit(0);
     }

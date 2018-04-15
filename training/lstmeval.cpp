@@ -36,6 +36,7 @@ INT_PARAM_FLAG(verbosity, 1,
                "Amount of diagnosting information to output (0-2).");
 
 int main(int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   if (FLAGS_model.empty()) {
     tprintf("Must provide a --model!\n");

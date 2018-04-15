@@ -24,11 +24,11 @@
 #include <cstdlib>
 #include "boxread.h"
 #include "commandlineflags.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "genericvector.h"
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
 #include "strngs.h"
-#include "tprintf.h"
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 
@@ -61,7 +61,7 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
   }
 }
 
-int Main(int argc, char** argv) {
+static int Main(int argc, char** argv) {
   UNICHARSET unicharset;
   // Load input files
   for (int arg = 1; arg < argc; ++arg) {
@@ -95,6 +95,7 @@ int Main(int argc, char** argv) {
 }  // namespace tesseract
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
   if (argc > 1) {
     tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
   }

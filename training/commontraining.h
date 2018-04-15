@@ -14,6 +14,10 @@
 #ifndef TESSERACT_TRAINING_COMMONTRAINING_H_
 #define TESSERACT_TRAINING_COMMONTRAINING_H_
 
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#include "baseapi.h"
+#endif
 #include "cluster.h"
 #include "commandlineflags.h"
 #include "featdefs.h"
@@ -62,6 +66,21 @@ typedef MERGE_CLASS_NODE* MERGE_CLASS;
 void ParseArguments(int* argc, char*** argv);
 
 namespace tesseract {
+
+// Check whether the shared tesseract library is the right one.
+// This function must be inline because otherwise it would be part of
+// the shared library, so it could not compare the versions.
+static inline void CheckSharedLibraryVersion()
+{
+#ifdef HAVE_CONFIG_H
+  if (!!strcmp(TESSERACT_VERSION_STR, TessBaseAPI::Version())) {
+    tprintf("ERROR: shared library version mismatch (was %s, expected %s\n"
+            "Did you use a wrong shared tesseract library?\n",
+            TessBaseAPI::Version(), TESSERACT_VERSION_STR);
+    exit(1);
+  }
+#endif
+}
 
 // Helper loads shape table from the given file.
 ShapeTable* LoadShapeTable(const STRING& file_prefix);

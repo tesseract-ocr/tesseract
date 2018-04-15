@@ -71,6 +71,7 @@ const int kNumPagesPerBatch = 100;
 // The program iterates over the inputs, feeding the data to the network,
 // until the error rate reaches a specified target or max_iterations is reached.
 int main(int argc, char **argv) {
+  tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   // Purify the model name in case it is based on the network string.
   if (FLAGS_model_output.empty()) {

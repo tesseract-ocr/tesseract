@@ -24,12 +24,14 @@
 #include <stdio.h>
 
 #include "baseapi.h"
+#include "commontraining.h"     // CheckSharedLibraryVersion
 #include "helpers.h"
 #include "strngs.h"
 #include "dict.h"
 #include "tesseractclass.h"
 
 int main(int argc, char** argv) {
+  tesseract::CheckSharedLibraryVersion();
 
   // Parse input arguments.
   if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {

@@ -42,13 +42,6 @@
 DECLARE_STRING_PARAM_FLAG(D);
 
 /*----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------*/
-int main (
-     int  argc,
-     char  **argv);
-
-/*----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
 
@@ -131,6 +124,8 @@ CLUSTERCONFIG  CNConfig =
 * @note History: Fri Aug 18 08:56:17 1989, DSJ, Created.
 */
 int main(int argc, char *argv[]) {
+  tesseract::CheckSharedLibraryVersion();
+
   // Set the global Config parameters before parsing the command line.
   Config = CNConfig;
 
