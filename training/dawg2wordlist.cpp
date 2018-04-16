@@ -75,10 +75,13 @@ int WriteDawgAsWordlist(const UNICHARSET &unicharset,
 int main(int argc, char *argv[]) {
   tesseract::CheckSharedLibraryVersion();
 
-  if (argc != 4) {
+  if (argc > 1 && !strcmp(argv[1], "--version")) {
+    printf("%s\n", tesseract::TessBaseAPI::Version());
+    return 0;
+  } else if (argc != 4) {
     tprintf("Print all the words in a given dawg.\n");
-    tprintf("Usage: %s <unicharset> <dawgfile> <wordlistfile>\n",
-            argv[0]);
+    tprintf("Usage: %s --version | %s <unicharset> <dawgfile> <wordlistfile>\n",
+            argv[0], argv[0]);
     return 1;
   }
   const char *unicharset_file = argv[1];

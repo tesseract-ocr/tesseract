@@ -23,11 +23,15 @@
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 
-  // Print usage
-  if (argc < 4) {
-    printf("Usage: %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
-           argv[0]);
-    exit(1);
+  if (argc > 1 && !strcmp(argv[1], "--version")) {
+    printf("%s\n", tesseract::TessBaseAPI::Version());
+    return 0;
+  } else if (argc < 4) {
+    // Print usage
+    printf("Usage: %s --version |\n"
+           "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
+           argv[0], argv[0]);
+    return 1;
   }
 
   UNICHARSET input_unicharset, result_unicharset;
