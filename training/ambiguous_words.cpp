@@ -21,8 +21,6 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include <stdio.h>
-
 #include "baseapi.h"
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "helpers.h"
@@ -34,9 +32,12 @@ int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 
   // Parse input arguments.
-  if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
-    printf("Usage: %s [-l lang] tessdata_dir wordlist_file"
-           " output_ambiguous_wordlist_file\n", argv[0]);
+  if (argc > 1 && !strcmp(argv[1], "--version")) {
+    printf("%s\n", tesseract::TessBaseAPI::Version());
+    return 0;
+  } else if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
+    printf("Usage: %s --version | %s [-l lang] tessdata_dir wordlist_file"
+           " output_ambiguous_wordlist_file\n", argv[0], argv[0]);
     return 1;
   }
   int argv_offset = 0;

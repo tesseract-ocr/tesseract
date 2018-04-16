@@ -70,7 +70,10 @@ int main(int argc, char **argv) {
 
   int i;
   tesseract::TessdataManager tm;
-  if (argc == 2) {
+  if (argc > 1 && !strcmp(argv[1], "--version")) {
+    printf("%s\n", tesseract::TessBaseAPI::Version());
+    return 0;
+  } else if (argc == 2) {
     printf("Combining tessdata files\n");
     STRING lang = argv[1];
     char* last = &argv[1][strlen(argv[1])-1];
