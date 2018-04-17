@@ -639,7 +639,7 @@ void UNICHARSET::unichar_insert(const char* const unichar_repr,
     }
     int index = 0;
     do {
-      if (index > UNICHAR_LEN) {
+      if (index >= UNICHAR_LEN) {
         fprintf(stderr, "Utf8 buffer too big, size>%d for %s\n", UNICHAR_LEN,
                 unichar_repr);
         return;
