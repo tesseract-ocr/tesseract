@@ -177,9 +177,9 @@ bool Validator::IsVirama(char32 unicode) {
 // Returns true if the given UTF-32 unicode is a vedic accent.
 /* static */
 bool Validator::IsVedicAccent(char32 unicode) {
-  return 0x1cd0 <= unicode && unicode < 0x1d00 ||
-          0xa8e0 <= unicode && unicode <= 0xa8f7 ||
-          0x951  <= unicode && unicode <= 0x954;
+  return (0x1cd0 <= unicode && unicode < 0x1d00) ||
+          (0xa8e0 <= unicode && unicode <= 0xa8f7) ||
+          (0x951  <= unicode && unicode <= 0x954);
 }
 
 // Returns true if the script is one that uses subscripts for conjuncts.
