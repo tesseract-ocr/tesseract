@@ -478,16 +478,6 @@ std::vector<std::string> FontUtils::available_fonts_;  // cache list
 bool FontUtils::IsAvailableFont(const char* input_query_desc,
                                 std::string* best_match) {
   std::string query_desc(input_query_desc);
-#if (PANGO_VERSION <= 12005)
-  // Strip commas and any ' Medium' substring in the name.
-  query_desc.erase(std::remove(query_desc.begin(), query_desc.end(), ','),
-                   query_desc.end());
-  const std::string kMediumStr = " Medium";
-  std::size_t found = query_desc.find(kMediumStr);
-  if (found != std::string::npos) {
-    query_desc.erase(found, kMediumStr.length());
-  }
-#endif
   PangoFontDescription *desc = pango_font_description_from_string(
       query_desc.c_str());
   PangoFont* selected_font = nullptr;
