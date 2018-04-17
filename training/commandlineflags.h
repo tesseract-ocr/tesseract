@@ -67,7 +67,7 @@
 namespace tesseract {
 
 // Parse commandline flags and values. Prints the usage string and exits on
-// input of --help or --helpshort.
+// input of --help or --version.
 //
 // If remove_flags is true, the argv pointer is advanced so that (*argv)[1]
 // points to the first non-flag argument, (*argv)[0] points to the same string

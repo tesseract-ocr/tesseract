@@ -170,14 +170,14 @@ void ParseCommandLineFlags(const char* usage,
       break;
     }
     // Position current_arg after startings hyphens. We treat a sequence of
-    // consecutive hyphens of any length identically.
-    while (*current_arg == '-') {
+    // one or two consecutive hyphens identically.
+    ++current_arg;
+    if (current_arg[0] == '-') {
       ++current_arg;
     }
     // If this is asking for usage, print the help message and abort.
-    if (!strcmp(current_arg, "help") ||
-        !strcmp(current_arg, "helpshort")) {
-      printf("USAGE: %s\n", usage);
+    if (!strcmp(current_arg, "help")) {
+      printf("Usage:\n  %s [OPTION ...]\n\n", usage);
       PrintCommandLineFlags();
       exit(0);
     }
