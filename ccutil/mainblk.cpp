@@ -62,7 +62,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
     /* Use tessdata prefix from the environment. */
     datadir = tessdata_prefix;
 #if defined(_WIN32)
-  } else if (datadir == NULL || access(datadir.string(), 0) != 0) {
+  } else if (datadir == NULL || _access(datadir.string(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
     char drive[_MAX_DRIVE];
     char dir[_MAX_DIR];
