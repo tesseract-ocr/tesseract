@@ -475,6 +475,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     delete core;
     delete prefix;
     delete suffix;
+    delete bb1;
     return NULL;
   }
   recog_word_recursive(core);
