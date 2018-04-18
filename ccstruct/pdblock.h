@@ -50,7 +50,7 @@ class PDBLK {
   void set_sides(ICOORDELT_LIST *left, ICOORDELT_LIST *right);
 
   /// destructor
-  ~PDBLK() { delete hand_poly; }
+  virtual ~PDBLK() { delete hand_poly; }
 
   POLY_BLOCK *poly_block() const { return hand_poly; }
   /// set the poly block
