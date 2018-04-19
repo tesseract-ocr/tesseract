@@ -95,9 +95,9 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
     BLOCK_IT b_it(block_list);
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOCK* block = b_it.data();
-      if (block->poly_block() != NULL && !block->poly_block()->IsText())
+      if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText())
         continue;  // Not a text block.
-      TBOX block_box = block->bounding_box();
+      TBOX block_box = block->pdblk.bounding_box();
       block_box.rotate(block->re_rotation());
       if (block_box.major_overlap(line_box)) {
         TBOX overlap_box = line_box.intersection(block_box);
@@ -175,7 +175,7 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
     num_rotations = 3;
   // Handle two cases automatically: 1 the box came from the block, 2 the box
   // came from a box file, and refers to the image, which the block may not.
-  if (block.bounding_box().major_overlap(*revised_box))
+  if (block.pdblk.bounding_box().major_overlap(*revised_box))
     revised_box->rotate(block.re_rotation());
   // Now revised_box always refers to the image.
   // BestPix is never colormapped, but may be of any depth.

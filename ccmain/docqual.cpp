@@ -268,7 +268,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
     WERD_RES* word;
     while ((word = page_res_it.word()) != NULL) {
       current_block = page_res_it.block();
-      block_no = current_block->block->index();
+      block_no = current_block->block->pdblk.index();
       if (current_block->char_count > 0 &&
           (current_block->rej_count * 100.0 / current_block->char_count) >
            tessedit_reject_block_percent) {
@@ -429,7 +429,7 @@ void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
 
   page_res_it.restart_page();
   while (page_res_it.word() != NULL) {
-    POLY_BLOCK* pb = page_res_it.block()->block->poly_block();
+    POLY_BLOCK* pb = page_res_it.block()->block->pdblk.poly_block();
     if (pb != NULL && !pb->IsText()) {
       page_res_it.forward();
       continue;

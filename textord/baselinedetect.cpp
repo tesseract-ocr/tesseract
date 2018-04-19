@@ -556,7 +556,7 @@ void BaselineBlock::FitBaselineSplines(bool enable_splines,
     textord->make_spline_rows(block_, gradient, show_final_rows);
   } else {
     // Make a fake spline from the existing line.
-    TBOX block_box= block_->block->bounding_box();
+    TBOX block_box= block_->block->pdblk.bounding_box();
     TO_ROW_IT row_it = block_->get_rows();
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       TO_ROW* row = row_it.data();
@@ -580,7 +580,7 @@ void BaselineBlock::DrawFinalRows(const ICOORD& page_tr) {
   if (non_text_block_) return;
   double gradient = tan(skew_angle_);
   FCOORD rotation(1.0f, 0.0f);
-  int left_edge = block_->block->bounding_box().left();
+  int left_edge = block_->block->pdblk.bounding_box().left();
   ScrollView* win = create_to_win(page_tr);
   ScrollView::Color colour = ScrollView::RED;
   TO_ROW_IT row_it = block_->get_rows();
@@ -795,7 +795,7 @@ BaselineDetect::BaselineDetect(int debug_level, const FCOORD& page_skew,
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     TO_BLOCK* to_block = it.data();
     BLOCK* block = to_block->block;
-    POLY_BLOCK* pb = block->poly_block();
+    POLY_BLOCK* pb = block->pdblk.poly_block();
     // A note about non-text blocks.
     // On output, non-text blocks are supposed to contain a single empty word
     // in each incoming text line. These mark out the polygonal bounds of the

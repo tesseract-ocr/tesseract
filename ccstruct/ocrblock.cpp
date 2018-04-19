@@ -39,13 +39,13 @@ BLOCK::BLOCK(const char *name,                //< filename
              int16_t xmin,                      //< bottom left
              int16_t ymin, int16_t xmax,          //< top right
              int16_t ymax)
-  : PDBLK (xmin, ymin, xmax, ymax),
-    filename(name),
+  : filename(name),
+    pdblk(xmin, ymin, xmax, ymax),
     re_rotation_(1.0f, 0.0f),
     classify_rotation_(1.0f, 0.0f),
     skew_(1.0f, 0.0f) {
-  ICOORDELT_IT left_it = &leftside;
-  ICOORDELT_IT right_it = &rightside;
+  ICOORDELT_IT left_it = &pdblk.leftside;
+  ICOORDELT_IT right_it = &pdblk.rightside;
 
   proportional = prop;
   right_to_left_ = false;
@@ -53,9 +53,9 @@ BLOCK::BLOCK(const char *name,                //< filename
   spacing = space;
   font_class = -1;               //not assigned
   cell_over_xheight_ = 2.0f;
-  hand_poly = NULL;
-  left_it.set_to_list (&leftside);
-  right_it.set_to_list (&rightside);
+  pdblk.hand_poly = NULL;
+  left_it.set_to_list (&pdblk.leftside);
+  right_it.set_to_list (&pdblk.rightside);
                                  //make default box
   left_it.add_to_end (new ICOORDELT (xmin, ymin));
   left_it.add_to_end (new ICOORDELT (xmin, ymax));
@@ -83,8 +83,8 @@ int decreasing_top_order(  //
  * Rotate the polygon by the given rotation and recompute the bounding_box.
  */
 void BLOCK::rotate(const FCOORD& rotation) {
-  poly_block()->rotate(rotation);
-  box = *poly_block()->bounding_box();
+  pdblk.poly_block()->rotate(rotation);
+  pdblk.box = *pdblk.poly_block()->bounding_box();
 }
 
 // Returns the bounding box including the desired combination of upper and
@@ -106,8 +106,8 @@ TBOX BLOCK::restricted_bounding_box(bool upper_dots, bool lower_dots) const {
  * Does nothing to any contained rows/words/blobs etc.
  */
 void BLOCK::reflect_polygon_in_y_axis() {
-  poly_block()->reflect_in_y_axis();
-  box = *poly_block()->bounding_box();
+  pdblk.poly_block()->reflect_in_y_axis();
+  pdblk.box = *pdblk.poly_block()->bounding_box();
 }
 
 /**
@@ -141,23 +141,23 @@ void BLOCK::compress() {  // squash it up
 
   sort_rows();
 
-  box = TBOX (box.topleft (), box.topleft ());
-  box.move_bottom_edge (ROW_SPACING);
+  pdblk.box = TBOX (pdblk.box.topleft (), pdblk.box.topleft ());
+  pdblk.box.move_bottom_edge (ROW_SPACING);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    row->move (box.botleft () - row_spacing -
+    row->move (pdblk.box.botleft () - row_spacing -
       row->bounding_box ().topleft ());
-    box += row->bounding_box ();
+    pdblk.box += row->bounding_box ();
   }
 
-  leftside.clear ();
-  icoordelt_it.set_to_list (&leftside);
-  icoordelt_it.add_to_end (new ICOORDELT (box.left (), box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (box.left (), box.top ()));
-  rightside.clear ();
-  icoordelt_it.set_to_list (&rightside);
-  icoordelt_it.add_to_end (new ICOORDELT (box.right (), box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (box.right (), box.top ()));
+  pdblk.leftside.clear ();
+  icoordelt_it.set_to_list (&pdblk.leftside);
+  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.bottom ()));
+  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.top ()));
+  pdblk.rightside.clear ();
+  icoordelt_it.set_to_list (&pdblk.rightside);
+  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.bottom ()));
+  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.top ()));
 }
 
 
@@ -183,7 +183,7 @@ void BLOCK::check_pitch() {  // check prop
 void BLOCK::compress(                  // squash it up
                      const ICOORD vec  // and move
                     ) {
-  box.move (vec);
+  pdblk.box.move (vec);
   compress();
 }
 
@@ -198,9 +198,9 @@ void BLOCK::print(            //print list of sides
                   FILE *,     //< file to print on
                   BOOL8 dump  //< print full detail
                  ) {
-  ICOORDELT_IT it = &leftside;   //iterator
+  ICOORDELT_IT it = &pdblk.leftside;   //iterator
 
-  box.print ();
+  pdblk.box.print ();
   tprintf ("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
   tprintf ("Kerning= %d\n", kerning);
   tprintf ("Spacing= %d\n", spacing);
@@ -213,7 +213,7 @@ void BLOCK::print(            //print list of sides
       tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
     tprintf ("\n");
     tprintf ("Right side coords are:\n");
-    it.set_to_list (&rightside);
+    it.set_to_list (&pdblk.rightside);
     for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
       tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
     tprintf ("\n");
@@ -230,7 +230,7 @@ BLOCK & BLOCK::operator= (       //assignment
 const BLOCK & source             //from this
 ) {
   this->ELIST_LINK::operator= (source);
-  this->PDBLK::operator= (source);
+  pdblk = source.pdblk;
   proportional = source.proportional;
   kerning = source.kerning;
   spacing = source.spacing;
@@ -337,10 +337,10 @@ void BLOCK::compute_row_margins() {
   }
 
   // If Layout analysis was not called, default to this.
-  POLY_BLOCK rect_block(bounding_box(), PT_FLOWING_TEXT);
+  POLY_BLOCK rect_block(pdblk.bounding_box(), PT_FLOWING_TEXT);
   POLY_BLOCK *pblock = &rect_block;
-  if (poly_block() != NULL) {
-    pblock = poly_block();
+  if (pdblk.poly_block() != NULL) {
+    pblock = pdblk.poly_block();
   }
 
   // Step One: Determine if there is a drop-cap.
@@ -485,7 +485,7 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->poly_block() != NULL && !block->poly_block()->IsText())
+    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText())
       continue;  // Don't touch non-text blocks.
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());

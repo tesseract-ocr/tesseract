@@ -707,7 +707,7 @@ void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST* blocks,
       }
       BLOCK* block = new BLOCK("", true, 0, 0, box.left(), box.bottom(),
                                box.right(), box.top());
-      block->set_poly_block(new POLY_BLOCK(box, type));
+      block->pdblk.set_poly_block(new POLY_BLOCK(box, type));
       TO_BLOCK* to_block = new TO_BLOCK(block);
       TO_ROW_IT row_it(to_block->get_rows());
       row_it.add_after_then_move(row);

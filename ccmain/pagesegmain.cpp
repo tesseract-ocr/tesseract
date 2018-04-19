@@ -308,7 +308,7 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
   // TODO(rays) handle new textline finding with a UNLV zone file.
   ASSERT_HOST(to_blocks->singleton());
   TO_BLOCK* to_block = to_block_it.data();
-  TBOX blkbox = to_block->block->bounding_box();
+  TBOX blkbox = to_block->block->pdblk.bounding_box();
   ColumnFinder* finder = NULL;
   int estimated_resolution = source_resolution_;
   if (source_resolution_ == kMinCredibleResolution) {

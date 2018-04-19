@@ -27,18 +27,17 @@
 class BLOCK;                     //forward decl
 
 ELISTIZEH (BLOCK)
-class BLOCK:public ELIST_LINK, public PDBLK
+class BLOCK:public ELIST_LINK
 //page block
 {
-  friend class BLOCK_RECT_IT;    //block iterator
-
+  friend class BLOCK_RECT_IT;     //block iterator
  public:
   BLOCK()
     : re_rotation_(1.0f, 0.0f),
       classify_rotation_(1.0f, 0.0f),
       skew_(1.0f, 0.0f) {
     right_to_left_ = false;
-    hand_poly = NULL;
+    pdblk.hand_poly = NULL;
   }
   BLOCK(const char *name,  //< filename
         BOOL8 prop,        //< proportional
@@ -162,7 +161,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
   }
 
   Pix* render_mask(TBOX* mask_box) {
-    return PDBLK::render_mask(re_rotation_, mask_box);
+    return pdblk.render_mask(re_rotation_, mask_box);
   }
 
   // Returns the bounding box including the desired combination of upper and
@@ -191,6 +190,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
   void print(FILE *fp, BOOL8 dump);
 
   BLOCK& operator=(const BLOCK & source);
+  PDBLK pdblk;                 //< Page Description Block
 
  private:
   BOOL8 proportional;          //< proportional
@@ -209,7 +209,7 @@ class BLOCK:public ELIST_LINK, public PDBLK
   FCOORD re_rotation_;         //< How to transform coords back to image.
   FCOORD classify_rotation_;   //< Apply this before classifying.
   FCOORD skew_;                //< Direction of true horizontal.
-  ICOORD median_size_;         //< Median size of blobs.
+  ICOORD median_size_;         //< Median size of blobs. 
 };
 
 int decreasing_top_order(const void *row1, const void *row2);

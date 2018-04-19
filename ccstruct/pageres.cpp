@@ -302,7 +302,7 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   tesseract::OcrEngineMode norm_mode_hint =
       static_cast<tesseract::OcrEngineMode>(norm_mode);
   tesseract = tess;
-  POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
+  POLY_BLOCK* pb = block != NULL ? block->pdblk.poly_block() : NULL;
   if ((norm_mode_hint != tesseract::OEM_LSTM_ONLY &&
        word->cblob_list()->empty()) ||
       (pb != NULL && !pb->IsText())) {

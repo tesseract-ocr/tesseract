@@ -524,7 +524,7 @@ void ColumnFinder::DisplayBlocks(BLOCK_LIST* blocks) {
     for (block_it.mark_cycle_pt(); !block_it.cycled_list();
          block_it.forward()) {
       BLOCK* block = block_it.data();
-      block->plot(blocks_win_, serial++,
+      block->pdblk.plot(blocks_win_, serial++,
                   textord_debug_printable ? ScrollView::BLUE
                                           : ScrollView::GREEN);
     }
@@ -1558,12 +1558,12 @@ void ColumnFinder::RotateAndReskewBlocks(bool input_is_rtl,
     block->set_right_to_left(input_is_rtl);
     // Save the skew angle in the block for baseline computations.
     block->set_skew(reskew_);
-    block->set_index(block_index++);
+    block->pdblk.set_index(block_index++);
     FCOORD blob_rotation = ComputeBlockAndClassifyRotation(block);
     // Rotate all the blobs if needed and recompute the bounding boxes.
     // Compute the block median blob width and height as we go.
-    STATS widths(0, block->bounding_box().width());
-    STATS heights(0, block->bounding_box().height());
+    STATS widths(0, block->pdblk.bounding_box().width());
+    STATS heights(0, block->pdblk.bounding_box().height());
     RotateAndExplodeBlobList(blob_rotation, &to_block->blobs,
                              &widths, &heights);
     TO_ROW_IT row_it(to_block->get_rows());
@@ -1596,7 +1596,7 @@ FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(BLOCK* block) {
   // and page headings for predominantly vertically written CJK books.
   FCOORD classify_rotation(text_rotation_);
   FCOORD block_rotation(1.0f, 0.0f);
-  if (block->poly_block()->isA() == PT_VERTICAL_TEXT) {
+  if (block->pdblk.poly_block()->isA() == PT_VERTICAL_TEXT) {
     // Vertical text needs to be 90 degrees rotated relative to the rest.
     // If the rest has a 90 degree rotation already, use the inverse, making
     // the vertical text the original way up. Otherwise use 90 degrees
@@ -1618,10 +1618,10 @@ FCOORD ColumnFinder::ComputeBlockAndClassifyRotation(BLOCK* block) {
   block->set_classify_rotation(classify_rotation);
   if (textord_debug_tabfind) {
     tprintf("Blk %d, type %d rerotation(%.2f, %.2f), char(%.2f,%.2f), box:",
-            block->index(), block->poly_block()->isA(),
+            block->pdblk.index(), block->pdblk.poly_block()->isA(),
             block->re_rotation().x(), block->re_rotation().y(),
             classify_rotation.x(), classify_rotation.y());
-    block->bounding_box().print();
+    block->pdblk.bounding_box().print();
   }
   return blob_rotation;
 }

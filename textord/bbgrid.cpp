@@ -257,11 +257,11 @@ Pix* TraceOutlineOnReducedPix(C_OUTLINE* outline, int gridsize,
 // As TraceOutlineOnReducedPix above, but on a BLOCK instead of a C_OUTLINE.
 Pix* TraceBlockOnReducedPix(BLOCK* block, int gridsize,
                             ICOORD bleft, int* left, int* bottom) {
-  const TBOX& box = block->bounding_box();
+  const TBOX& box = block->pdblk.bounding_box();
   Pix* pix = GridReducedPix(box, gridsize, bleft, left, bottom);
   int wpl = pixGetWpl(pix);
   l_uint32* data = pixGetData(pix);
-  ICOORDELT_IT it(block->poly_block()->points());
+  ICOORDELT_IT it(block->pdblk.poly_block()->points());
   for (it.mark_cycle_pt(); !it.cycled_list();) {
     ICOORD pos = *it.data();
     it.forward();

@@ -31,6 +31,7 @@ CLISTIZEH (PDBLK)
 ///page block
 class PDBLK {
   friend class BLOCK_RECT_IT;    //< block iterator
+  friend class BLOCK;            //< Page Block
 
  public:
   /// empty constructor

@@ -433,7 +433,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
        page_res_it.forward()) {
     WERD_RES* word = page_res_it.word();
     POLY_BLOCK* pb = page_res_it.block()->block != NULL
-                         ? page_res_it.block()->block->poly_block()
+                         ? page_res_it.block()->block->pdblk.poly_block()
                          : NULL;
     if (word->best_choice == NULL || word->best_choice->length() == 0 ||
         (word->best_choice->IsAllSpaces() && (pb == NULL || pb->IsText()))) {
