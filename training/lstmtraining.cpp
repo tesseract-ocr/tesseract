@@ -195,7 +195,8 @@ int main(int argc, char **argv) {
     // Train a few.
     int iteration = trainer.training_iteration();
     for (int target_iteration = iteration + kNumPagesPerBatch;
-         iteration < target_iteration;
+         iteration < target_iteration &&
+         (iteration < FLAGS_max_iterations || FLAGS_max_iterations == 0);
          iteration = trainer.training_iteration()) {
       trainer.TrainOnLine(&trainer, false);
     }
