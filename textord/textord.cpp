@@ -263,7 +263,7 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
       TO_BLOCK* to_block = it.data();
       BLOCK* block = to_block->block;
       // Create a fake poly_block in block from its bounding box.
-      block->set_poly_block(new POLY_BLOCK(block->bounding_box(),
+      block->pdblk.set_poly_block(new POLY_BLOCK(block->pdblk.bounding_box(),
                                            PT_VERTICAL_TEXT));
       // Rotate the to_block along with its contained block and blobnbox lists.
       to_block->rotate(anticlockwise90);

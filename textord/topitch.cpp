@@ -113,7 +113,7 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     block = block_it.data ();
-    POLY_BLOCK* pb = block->block->poly_block();
+    POLY_BLOCK* pb = block->block->pdblk.poly_block();
     if (pb != NULL && !pb->IsText()) continue;  // Non-text doesn't exist!
     row_it.set_to_list (block->get_rows ());
     row_index = 1;
@@ -169,7 +169,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     for (block_it.mark_cycle_pt(); !block_it.cycled_list();
          block_it.forward()) {
       block = block_it.data();
-      POLY_BLOCK* pb = block->block->poly_block();
+      POLY_BLOCK* pb = block->block->pdblk.poly_block();
       if (pb != NULL && !pb->IsText()) continue;  // Non text doesn't exist!
       row_index = 1;
       row_it.set_to_list (block->get_rows ());
@@ -311,7 +311,7 @@ void compute_block_pitch(TO_BLOCK *block,     // input list
                          BOOL8 testing_on) {  // correct orientation
    TBOX block_box;                 //bounding box
 
-  block_box = block->block->bounding_box ();
+  block_box = block->block->pdblk.bounding_box ();
   if (testing_on && textord_debug_pitch_test) {
     tprintf ("Block %d at (%d,%d)->(%d,%d)\n",
       block_index,
@@ -984,7 +984,7 @@ BOOL8 fixed_pitch_row(TO_ROW *row,       // row to do
   non_space = row->fp_nonsp;
   if (non_space > row->fixed_pitch)
     non_space = row->fixed_pitch;
-  POLY_BLOCK* pb = block != NULL ? block->poly_block() : NULL;
+  POLY_BLOCK* pb = block != NULL ? block->pdblk.poly_block() : NULL;
   if (textord_all_prop || (pb != NULL && !pb->IsText())) {
     // Set the decision to definitely proportional.
     pitch_sd = textord_words_def_prop * row->fixed_pitch;
@@ -1755,7 +1755,7 @@ void print_pitch_sd(                        //find fp cells
  **********************************************************************/
 void find_repeated_chars(TO_BLOCK *block,       // Block to search.
                          BOOL8 testing_on) {    // Debug mode.
-  POLY_BLOCK* pb = block->block->poly_block();
+  POLY_BLOCK* pb = block->block->pdblk.poly_block();
   if (pb != NULL && !pb->IsText())
     return;  // Don't find repeated chars in non-text blocks.
 

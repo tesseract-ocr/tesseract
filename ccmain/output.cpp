@@ -262,7 +262,7 @@ char determine_newline_type(                   //test line ends
     return CTRL_HARDLINE;        //it is tabbed
   word_box = word->bounding_box ();
   next_box = next_word->bounding_box ();
-  block_box = block->bounding_box ();
+  block_box = block->pdblk.bounding_box ();
                                  //gap to eol
   end_gap = block_box.right () - word_box.right ();
   end_gap -= (int32_t) block->space ();

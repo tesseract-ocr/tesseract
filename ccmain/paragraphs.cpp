@@ -2517,7 +2517,7 @@ void DetectParagraphs(int debug_level,
   }
   BLOCK *block = block_start->PageResIt()->block()->block;
   block->para_list()->clear();
-  bool is_image_block = block->poly_block() && !block->poly_block()->IsText();
+  bool is_image_block = block->pdblk.poly_block() && !block->pdblk.poly_block()->IsText();
 
   // Convert the Tesseract structures to RowInfos
   // for the paragraph detection algorithm.

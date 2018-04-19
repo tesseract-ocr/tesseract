@@ -336,10 +336,10 @@ void extract_edges(Pix* pix,  // thresholded image
   C_OUTLINE_LIST outlines;       // outlines in block
   C_OUTLINE_IT out_it = &outlines;
 
-  block_edges(pix, block, &out_it);
+  block_edges(pix, &(block->pdblk), &out_it);
   ICOORD bleft;                  // block box
   ICOORD tright;
-  block->bounding_box(bleft, tright);
+  block->pdblk.bounding_box(bleft, tright);
                                  // make blobs
   outlines_to_blobs(block, bleft, tright, &outlines);
 }

@@ -177,7 +177,7 @@ float make_single_row(ICOORD page_tr, bool allow_sub_blobs,
       block->line_size = size;
   } else if (block->blobs.empty()) {
     // Make a fake blob.
-    C_BLOB* blob = C_BLOB::FakeBlob(block->block->bounding_box());
+    C_BLOB* blob = C_BLOB::FakeBlob(block->block->pdblk.bounding_box());
     // The blobnbox owns the blob.
     BLOBNBOX* bblob = new BLOBNBOX(blob);
     blob_it.add_after_then_move(bblob);
@@ -213,7 +213,7 @@ float make_rows(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   block_it.set_to_list(port_blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     cleanup_rows_making(page_tr, block_it.data(), port_m, FCOORD(1.0f, 0.0f),
-                 block_it.data()->block->bounding_box().left(),
+                 block_it.data()->block->pdblk.bounding_box().left(),
                  !(BOOL8)textord_test_landscape);
   }
   return port_m;                 // global skew
@@ -303,7 +303,7 @@ void compute_page_skew(                        //get average gradient
   blob_count = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
-    POLY_BLOCK* pb = block_it.data()->block->poly_block();
+    POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
     if (pb != NULL && !pb->IsText())
       continue;  // Pretend non-text blocks don't exist.
     row_count += block_it.data ()->get_rows ()->length ();
@@ -326,7 +326,7 @@ void compute_page_skew(                        //get average gradient
   row_index = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
-    POLY_BLOCK* pb = block_it.data()->block->poly_block();
+    POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
     if (pb != NULL && !pb->IsText())
       continue;  // Pretend non-text blocks don't exist.
     row_it.set_to_list (block_it.data ()->get_rows ());
@@ -356,7 +356,7 @@ void compute_page_skew(                        //get average gradient
                                  //desperate
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
          block_it.forward ()) {
-      POLY_BLOCK* pb = block_it.data()->block->poly_block();
+      POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
       if (pb != NULL && !pb->IsText())
         continue;  // Pretend non-text blocks don't exist.
       row_it.set_to_list (block_it.data ()->get_rows ());
@@ -598,8 +598,8 @@ void delete_non_dropout_rows(                   //find lines
   if (row_it.length () == 0)
     return;                      //empty block
   block_box = deskew_block_coords (block, gradient);
-  xleft = block->block->bounding_box ().left ();
-  ybottom = block->block->bounding_box ().bottom ();
+  xleft = block->block->pdblk.bounding_box ().left ();
+  ybottom = block->block->pdblk.bounding_box ().bottom ();
   min_y = block_box.bottom () - 1;
   max_y = block_box.top () + 1;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -1128,8 +1128,8 @@ void adjust_row_limits(                 //tidy limits
 
   if (textord_show_expanded_rows)
     tprintf("Adjusting row limits for block(%d,%d)\n",
-            block->block->bounding_box().left(),
-            block->block->bounding_box().top());
+            block->block->pdblk.bounding_box().left(),
+            block->block->pdblk.bounding_box().top());
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     size = row->max_y () - row->min_y ();
@@ -2320,13 +2320,13 @@ void assign_blobs_to_rows(                      //find lines
   TO_ROW_IT row_it = block->get_rows ();
 
   ycoord =
-    (block->block->bounding_box ().bottom () +
-    block->block->bounding_box ().top ()) / 2.0f;
+    (block->block->pdblk.bounding_box ().bottom () +
+    block->block->pdblk.bounding_box ().top ()) / 2.0f;
   if (gradient != NULL)
     g_length = sqrt (1 + *gradient * *gradient);
 #ifndef GRAPHICS_DISABLED
   if (drawing_skew)
-    to_win->SetCursor(block->block->bounding_box ().left (), ycoord);
+    to_win->SetCursor(block->block->pdblk.bounding_box ().left (), ycoord);
 #endif
   testpt = ICOORD (textord_test_x, textord_test_y);
   blob_it.sort (blob_x_order);
@@ -2337,7 +2337,7 @@ void assign_blobs_to_rows(                      //find lines
     left_x = blob_it.data ()->bounding_box ().left ();
   }
   else {
-    left_x = block->block->bounding_box ().left ();
+    left_x = block->block->pdblk.bounding_box ().left ();
   }
   last_x = left_x;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {

@@ -240,8 +240,8 @@ int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward ()) {
     TO_BLOCK* to_block = block_it.data();
-    if (to_block->block->poly_block() &&
-        !to_block->block->poly_block()->IsText()) continue;
+    if (to_block->block->pdblk.poly_block() &&
+        !to_block->block->pdblk.poly_block()->IsText()) continue;
     BLOBNBOX_IT bbox_it;
     bbox_it.set_to_list(&to_block->blobs);
     for (bbox_it.mark_cycle_pt (); !bbox_it.cycled_list ();

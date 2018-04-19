@@ -217,7 +217,7 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->poly_block() == NULL || block->poly_block()->IsText()) {
+    if (block->pdblk.poly_block() == NULL || block->pdblk.poly_block()->IsText()) {
       extract_edges(pix, block);
     }
   }
@@ -361,7 +361,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
   // Non-text blocks must contain at least one row.
   ROW_IT row_it(block->row_list());
   if (row_it.empty()) {
-    const TBOX& box = block->bounding_box();
+    const TBOX& box = block->pdblk.bounding_box();
     float height = box.height();
     int32_t xstarts[2] = {box.left(), box.right()};
     double coeffs[3] = {0.0, 0.0, static_cast<double>(box.bottom())};
@@ -375,7 +375,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
     WERD_IT w_it(row->word_list());
     if (w_it.empty()) {
       // Make a fake blob to put in the word.
-      TBOX box = block->row_list()->singleton() ? block->bounding_box()
+      TBOX box = block->row_list()->singleton() ? block->pdblk.bounding_box()
                                                 : row->bounding_box();
       C_BLOB* blob = C_BLOB::FakeBlob(box);
       C_BLOB_LIST blobs;
@@ -412,7 +412,7 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST* blocks) {
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->poly_block() != NULL && !block->poly_block()->IsText()) {
+    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText()) {
       cleanup_nontext_block(block);
       continue;
     }
@@ -711,7 +711,7 @@ void Textord::clean_small_noise_from_words(ROW *row) {
 struct BlockGroup {
   BlockGroup() : rotation(1.0f, 0.0f), angle(0.0f), min_xheight(1.0f) {}
   explicit BlockGroup(BLOCK* block)
-      : bounding_box(block->bounding_box()),
+      : bounding_box(block->pdblk.bounding_box()),
         rotation(block->re_rotation()),
         angle(block->re_rotation().angle()),
         min_xheight(block->x_height()) {
@@ -741,7 +741,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
   BLOCK_IT bk_it(blocks);
   for (bk_it.mark_cycle_pt(); !bk_it.cycled_list(); bk_it.forward()) {
     BLOCK* block = bk_it.data();
-    if (block->poly_block() != NULL && !block->poly_block()->IsText()) {
+    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText()) {
       continue;
     }
     // Linear search of the groups to find a matching rotation.
@@ -760,7 +760,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
       groups.push_back(new BlockGroup(block));
     } else {
       groups[best_g]->blocks.push_back(block);
-      groups[best_g]->bounding_box += block->bounding_box();
+      groups[best_g]->bounding_box += block->pdblk.bounding_box();
       float x_height = block->x_height();
       if (x_height < groups[best_g]->min_xheight)
         groups[best_g]->min_xheight = x_height;

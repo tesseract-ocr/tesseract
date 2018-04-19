@@ -713,11 +713,11 @@ class TO_BLOCK:public ELIST_LINK
         }
       }
       // Rotate the block
-      ASSERT_HOST(block->poly_block() != NULL);
+      ASSERT_HOST(block->pdblk.poly_block() != NULL);
       block->rotate(rotation);
       // Update the median size statistic from the blobs list.
-      STATS widths(0, block->bounding_box().width());
-      STATS heights(0, block->bounding_box().height());
+      STATS widths(0, block->pdblk.bounding_box().width());
+      STATS heights(0, block->pdblk.bounding_box().height());
       BLOBNBOX_IT blob_it(&blobs);
       for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
         widths.add(blob_it.data()->bounding_box().width(), 1);

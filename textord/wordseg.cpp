@@ -519,7 +519,7 @@ void make_real_words(
       // For non-space delimited language like CJK, fixed pitch chop always
       // leave the entire line as one word.  We can force consistent chopping
       // with force_make_prop_words flag.
-      POLY_BLOCK* pb = block->block->poly_block();
+      POLY_BLOCK* pb = block->block->pdblk.poly_block();
       if (textord_chopper_test) {
         real_row = textord->make_blob_words (row, rotation);
       } else if (textord_force_make_prop_words ||

@@ -2396,7 +2396,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
   block_it.move_to_first();
   int num_blocks = 0;
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
-    if (!block_it.data()->poly_block()->IsText()) {
+    if (!block_it.data()->pdblk.poly_block()->IsText()) {
       continue;
     }
     ++num_blocks;
@@ -2411,7 +2411,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
   int i = 0;
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
-    if (!block_it.data()->poly_block()->IsText()) {
+    if (!block_it.data()->pdblk.poly_block()->IsText()) {
       continue;
     }
     FCOORD re_rotation = block_it.data()->re_rotation();
@@ -2751,7 +2751,7 @@ ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
   BLOCK_IT b_it(blocks);
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOCK* block = b_it.data();
-    if (!box.major_overlap(block->bounding_box()))
+    if (!box.major_overlap(block->pdblk.bounding_box()))
       continue;
     ROW_IT r_it(block->row_list());
     for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {

@@ -177,7 +177,7 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
 // Helper computes median xheight in the image.
 static double MedianXHeight(BLOCK_LIST *block_list) {
   BLOCK_IT block_it(block_list);
-  STATS xheights(0, block_it.data()->bounding_box().height());
+  STATS xheights(0, block_it.data()->pdblk.bounding_box().height());
   for (block_it.mark_cycle_pt();
        !block_it.cycled_list(); block_it.forward()) {
     ROW_IT row_it(block_it.data()->row_list());
@@ -445,7 +445,7 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list,
   BLOCK_IT b_it(block_list);
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOCK* block = b_it.data();
-    if (!box.major_overlap(block->bounding_box()))
+    if (!box.major_overlap(block->pdblk.bounding_box()))
       continue;
     ROW_IT r_it(block->row_list());
     for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {

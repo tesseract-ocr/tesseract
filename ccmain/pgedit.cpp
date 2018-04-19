@@ -321,7 +321,7 @@ void Tesseract::do_re_display(
     if (display_baselines && pr_it.row() != pr_it.prev_row())
       pr_it.row()->row->plot_baseline(image_win, ScrollView::GREEN);
     if (display_blocks && pr_it.block() != pr_it.prev_block())
-      pr_it.block()->block->plot(image_win, block_count++, ScrollView::RED);
+      pr_it.block()->block->pdblk.plot(image_win, block_count++, ScrollView::RED);
   }
   image_win->Update();
 }

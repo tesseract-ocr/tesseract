@@ -408,8 +408,8 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
     row->ascrise = 0.0f;
   }
   row->baseline.extrapolate (row->line_m (),
-    block->block->bounding_box ().left (),
-    block->block->bounding_box ().right ());
+    block->block->pdblk.bounding_box ().left (),
+    block->block->pdblk.bounding_box ().right ());
 
   if (textord_really_old_xheight) {
     old_first_xheight (row, blobcoords, lineheight,

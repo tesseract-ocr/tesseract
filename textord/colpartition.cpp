@@ -1560,9 +1560,9 @@ static TO_BLOCK* MoveBlobsToBlock(bool vertical_text, int line_spacing,
   // Move all the parts to a done list as they are no longer needed, except
   // that have have to continue to exist until the part grid is deleted.
   // Compute the median blob size as we go, as the block needs to know.
-  TBOX block_box(block->bounding_box());
+  TBOX block_box(block->pdblk.bounding_box());
   STATS sizes(0, MAX(block_box.width(), block_box.height()));
-  bool text_type = block->poly_block()->IsText();
+  bool text_type = block->pdblk.poly_block()->IsText();
   ColPartition_IT it(block_parts);
   TO_BLOCK* to_block = new TO_BLOCK(block);
   BLOBNBOX_IT blob_it(&to_block->blobs);
@@ -1610,13 +1610,13 @@ static TO_BLOCK* MoveBlobsToBlock(bool vertical_text, int line_spacing,
   }
   to_block->line_size = sizes.median();
   if (vertical_text) {
-    int block_width = block->bounding_box().width();
+    int block_width = block->pdblk.bounding_box().width();
     if (block_width < line_spacing)
       line_spacing = block_width;
     to_block->line_spacing = static_cast<float>(line_spacing);
     to_block->max_blob_size = static_cast<float>(block_width + 1);
   } else {
-    int block_height = block->bounding_box().height();
+    int block_height = block->pdblk.bounding_box().height();
     if (block_height < line_spacing)
       line_spacing = block_height;
     to_block->line_spacing = static_cast<float>(line_spacing);
@@ -1678,7 +1678,7 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
     tprintf("Making block at (%d,%d)->(%d,%d)\n",
             min_x, min_y, max_x, max_y);
   BLOCK* block = new BLOCK("", true, 0, 0, min_x, min_y, max_x, max_y);
-  block->set_poly_block(new POLY_BLOCK(&vertices, type));
+  block->pdblk.set_poly_block(new POLY_BLOCK(&vertices, type));
   return MoveBlobsToBlock(false, line_spacing, block, block_parts, used_parts);
 }
 
@@ -1704,7 +1704,7 @@ TO_BLOCK* ColPartition::MakeVerticalTextBlock(const ICOORD& bleft,
   }
   BLOCK* block = new BLOCK("", true, 0, 0, block_box.left(), block_box.bottom(),
                            block_box.right(), block_box.top());
-  block->set_poly_block(new POLY_BLOCK(block_box, type));
+  block->pdblk.set_poly_block(new POLY_BLOCK(block_box, type));
   return MoveBlobsToBlock(true, line_spacing, block, block_parts, used_parts);
 }
 

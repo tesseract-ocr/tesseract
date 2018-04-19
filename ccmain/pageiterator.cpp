@@ -357,9 +357,9 @@ bool PageIterator::Empty(PageIteratorLevel level) const {
 PolyBlockType PageIterator::BlockType() const {
   if (it_->block() == NULL || it_->block()->block == NULL)
     return PT_UNKNOWN;  // Already at the end!
-  if (it_->block()->block->poly_block() == NULL)
+  if (it_->block()->block->pdblk.poly_block() == NULL)
     return PT_FLOWING_TEXT;  // No layout analysis used - assume text.
-  return it_->block()->block->poly_block()->isA();
+  return it_->block()->block->pdblk.poly_block()->isA();
 }
 
 /** Returns the polygon outline of the current block. The returned Pta must
@@ -367,9 +367,9 @@ PolyBlockType PageIterator::BlockType() const {
 Pta* PageIterator::BlockPolygon() const {
   if (it_->block() == NULL || it_->block()->block == NULL)
     return NULL;  // Already at the end!
-  if (it_->block()->block->poly_block() == NULL)
+  if (it_->block()->block->pdblk.poly_block() == NULL)
     return NULL;  // No layout analysis used - no polygon.
-  ICOORDELT_IT it(it_->block()->block->poly_block()->points());
+  ICOORDELT_IT it(it_->block()->block->pdblk.poly_block()->points());
   Pta* pta = ptaCreate(it.length());
   int num_pts = 0;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward(), ++num_pts) {
