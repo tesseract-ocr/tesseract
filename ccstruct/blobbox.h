@@ -476,7 +476,8 @@ class BLOBNBOX:public ELIST_LINK
     right_rule_ = 0;
     left_crossing_rule_ = 0;
     right_crossing_rule_ = 0;
-    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != NULL)
+    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != NULL 
+        && cblob()->perimeter()!=0)
       area_stroke_width_ = 2.0f * area / cblob()->perimeter();
     owner_ = NULL;
     base_char_top_ = box.top();
