@@ -10,6 +10,7 @@ AC_INIT([tesseract],
         [m4_esyscmd_s([test -d .git && git describe --abbrev=4 || cat VERSION])],
         [https://github.com/tesseract-ocr/tesseract/issues],,
         [https://github.com/tesseract-ocr/tesseract/])
+: ${CXXFLAGS=""}
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
