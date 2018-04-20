@@ -314,37 +314,23 @@ if test -d $curwd/gnu/lib ; then
 fi
 
 # ----------------------------------------
-# Check Compiler Characteristics and
-# configure automake. The two appear to
-# be intimately linked...
-# ----------------------------------------
-
-AC_PROG_LIBTOOL
-
-# ----------------------------------------
 # Additional checking of compiler characteristics
 # ----------------------------------------
 
 # Check Endianness. If Big Endian, this will define WORDS_BIGENDIAN
-# See also at end of this file, where we define INTEL_BYTE_ORDER
-# or MOTOROLA_BYTE_ORDER.
 AC_C_BIGENDIAN
 
 
 # ----------------------------------------
-# Check for programs we need
+# Init libtool
 # ----------------------------------------
 
-# Check where all the following programs are and set
-# variables accordingly:
 LT_INIT
 
 
 # ----------------------------------------
 # C++ related options
 # ----------------------------------------
-
-AC_LANG_CPLUSPLUS
 
 AC_MSG_CHECKING([if compiling with clang])
 AC_COMPILE_IFELSE(
