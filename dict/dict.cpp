@@ -26,6 +26,10 @@
 #endif
 #include "tprintf.h"
 
+#ifdef WITH_HFST
+#include "hfst_word_model.h"
+#endif
+
 namespace tesseract {
 
 class Image;
@@ -64,6 +68,7 @@ Dict::Dict(CCUtil *ccutil)
       BOOL_INIT_MEMBER(load_bigram_dawg, true,
                        "Load dawg with special word "
                        "bigrams.",
+      BOOL_INIT_MEMBER(load_hfst_fsm, false, "Load hfst word model.",
                        getCCUtil()->params()),
       double_MEMBER(xheight_penalty_subscripts, 0.125,
                     "Score penalty (0.1 = 10%) added if there are subscripts "
@@ -248,6 +253,20 @@ void Dict::Load(const STRING &lang, TessdataManager *data_file) {
                                                  dawg_debug_level, data_file);
     if (unambig_dawg_) dawgs_ += unambig_dawg_;
   }
+
+#ifdef WITH_HFST
+  if (load_hfst_fsm) {
+    Dawg * hfst_model = dawg_cache_->GetHfstWordModel(
+        lang, data_file_name, TESSDATA_HFST_FSM, dawg_debug_level);
+
+    if (hfst_model) { 
+      dawgs_ += hfst_model;
+
+      dynamic_cast<hfst_word_model *> 
+          (hfst_model)->set_unichar_ids(getUnicharset());
+    }
+  }
+#endif
 
   STRING name;
   if (((STRING &)user_words_suffix).length() > 0 ||

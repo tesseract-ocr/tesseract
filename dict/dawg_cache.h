@@ -32,6 +32,14 @@ class DawgCache {
   Dawg *GetSquishedDawg(const STRING &lang, TessdataType tessdata_dawg_type,
                         int debug_level, TessdataManager *data_file);
 
+#ifdef WITH_HFST
+  Dawg *GetHfstWordModel(
+     const STRING &lang,
+     const char *data_file_name,
+     TessdataType tessdata_dawg_type,
+     int debug_level);
+#endif
+
   // If we manage the given dawg, decrement its count,
   // and possibly delete it if the count reaches zero.
   // If dawg is unknown to us, return false.
