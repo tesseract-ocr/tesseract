@@ -157,7 +157,9 @@ void ParseCommandLineFlags(const char* usage,
     printf("USAGE: %s\n", usage);
     PrintCommandLineFlags();
     exit(0);
-  } else if (*argc > 1 && !strcmp((*argv)[1], "--version")) {
+  }
+
+  if (*argc > 1 && (!strcmp((*argv)[1], "-v") || !strcmp((*argv)[1], "--version"))) {
     printf("%s\n", TessBaseAPI::Version());
     exit(0);
   }

@@ -33,12 +33,12 @@
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 
-  if (argc > 1 && !strcmp(argv[1], "--version")) {
+  if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {
     printf("%s\n", tesseract::TessBaseAPI::Version());
     return 0;
   } else if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
              (argc == 6 && strcmp(argv[1], "-r") == 0))) {
-    printf("Usage: %s --version |\n"
+    printf("Usage: %s -v | --version |\n"
            "       %s [-t | -r [reverse policy] ] word_list_file"
            " dawg_file unicharset_file\n", argv[0], argv[0]);
     return 1;
