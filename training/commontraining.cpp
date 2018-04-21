@@ -87,7 +87,7 @@ void ParseArguments(int* argc, char ***argv) {
   STRING usage;
   if (*argc) {
     usage += (*argv)[0];
-    usage += " --version | ";
+    usage += " -v | --version | ";
     usage += (*argv)[0];
   }
   usage += " [.tr files ...]";

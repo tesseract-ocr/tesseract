@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 
   int i;
   tesseract::TessdataManager tm;
-  if (argc > 1 && !strcmp(argv[1], "--version")) {
+  if (argc > 1 && (!strcmp(argv[1], "-v") || !strcmp(argv[1], "--version"))) {
     printf("%s\n", tesseract::TessBaseAPI::Version());
     return 0;
   } else if (argc == 2) {
