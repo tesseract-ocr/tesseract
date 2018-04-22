@@ -540,16 +540,6 @@ make__traineddata() {
     cp ${lang_prefix}.config ${TRAINING_DIR}
     chmod u+w ${TRAINING_DIR}/${LANG_CODE}.config
   fi
-  if [[ -r ${lang_prefix}.cube-unicharset ]]; then
-    tlog "Copying ${lang_prefix}.cube-unicharset to ${TRAINING_DIR}"
-    cp ${lang_prefix}.cube-unicharset ${TRAINING_DIR}
-    chmod u+w ${TRAINING_DIR}/${LANG_CODE}.cube-unicharset
-  fi
-  if [[ -r ${lang_prefix}.cube-word-dawg ]]; then
-    tlog "Copying ${lang_prefix}.cube-word-dawg to ${TRAINING_DIR}"
-    cp ${lang_prefix}.cube-word-dawg ${TRAINING_DIR}
-    chmod u+w ${TRAINING_DIR}/${LANG_CODE}.cube-word-dawg
-  fi
   if [[ -r ${lang_prefix}.params-model ]]; then
     tlog "Copying ${lang_prefix}.params-model to ${TRAINING_DIR}"
     cp ${lang_prefix}.params-model ${TRAINING_DIR}
