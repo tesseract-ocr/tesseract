@@ -22,7 +22,7 @@
 
 int gettimeofday(struct timeval *tp, struct timezone *tzp) {
   l_int32 sec, usec;
-  if (tp == NULL)
+  if (tp == nullptr)
     return -1;
 
   l_getCurrentTime(&sec, &usec);
