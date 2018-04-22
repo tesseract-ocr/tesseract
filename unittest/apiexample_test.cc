@@ -32,10 +32,10 @@ namespace {
 class QuickTest : public testing::Test {
  protected:
   virtual void SetUp() {
-    start_time_ = time(NULL);
+    start_time_ = time(nullptr);
   }
   virtual void TearDown() {
-    const time_t end_time = time(NULL);
+    const time_t end_time = time(nullptr);
     EXPECT_TRUE(end_time - start_time_ <=25) << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);
   }
   time_t start_time_;

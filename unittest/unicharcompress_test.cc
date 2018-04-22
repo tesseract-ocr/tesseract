@@ -135,7 +135,7 @@ class UnicharcompressTest : public ::testing::Test {
     RecodedCharID extended = code;
     int length = code.length();
     const GenericVector<int>* final_codes = compressed_.GetFinalCodes(code);
-    if (final_codes != NULL) {
+    if (final_codes != nullptr) {
       for (int i = 0; i < final_codes->size(); ++i) {
         int ending = (*final_codes)[i];
         EXPECT_GT(times_seen[ending](length), 0);
@@ -145,7 +145,7 @@ class UnicharcompressTest : public ::testing::Test {
       }
     }
     const GenericVector<int>* next_codes = compressed_.GetNextCodes(code);
-    if (next_codes != NULL) {
+    if (next_codes != nullptr) {
       for (int i = 0; i < next_codes->size(); ++i) {
         int extension = (*next_codes)[i];
         EXPECT_GT(times_seen[extension](length), 0);
