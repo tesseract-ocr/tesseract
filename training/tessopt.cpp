@@ -41,7 +41,7 @@ const char *arglist                    //string of arg chars
     tessoptind = 1;
   if (tessoptind < argc && argv[tessoptind][0] == '-') {
     arg = strchr (arglist, argv[tessoptind][1]);
-    if (arg == NULL || *arg == ':')
+    if (arg == nullptr || *arg == ':')
       return '?';                //dud option
     tessoptind++;
     tessoptarg = argv[tessoptind];
