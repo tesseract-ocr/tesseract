@@ -76,7 +76,7 @@ class PAGE_RES {                 // page result
     char_count = 0;
     rej_count = 0;
     rejected = FALSE;
-    prev_word_best_choice = NULL;
+    prev_word_best_choice = nullptr;
     blame_reasons.init_to_size(IRR_NUM_REASONS, 0);
   }
 
@@ -343,12 +343,12 @@ class WERD_RES : public ELIST_LINK {
   // characters purely based on their shape on the page, and by default produce
   // the corresponding unicode for a left-to-right context.
   const char* BestUTF8(int blob_index, bool in_rtl_context) const {
-    if (blob_index < 0 || best_choice == NULL ||
+    if (blob_index < 0 || best_choice == nullptr ||
         blob_index >= best_choice->length())
-      return NULL;
+      return nullptr;
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
     if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
-      return NULL;
+      return nullptr;
     UNICHAR_ID mirrored = uch_set->get_mirror(id);
     if (in_rtl_context && mirrored > 0 && mirrored != INVALID_UNICHAR_ID)
       id = mirrored;
@@ -357,15 +357,15 @@ class WERD_RES : public ELIST_LINK {
   // Returns the UTF-8 string for the given blob index in the raw_choice word.
   const char* RawUTF8(int blob_index) const {
     if (blob_index < 0 || blob_index >= raw_choice->length())
-      return NULL;
+      return nullptr;
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
     if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
-      return NULL;
+      return nullptr;
     return uch_set->id_to_unichar(id);
   }
 
   UNICHARSET::Direction SymbolDirection(int blob_index) const {
-    if (best_choice == NULL ||
+    if (best_choice == nullptr ||
         blob_index >= best_choice->length() ||
         blob_index < 0)
       return UNICHARSET::U_OTHER_NEUTRAL;
@@ -373,7 +373,7 @@ class WERD_RES : public ELIST_LINK {
   }
 
   bool AnyRtlCharsInWord() const {
-    if (uch_set == NULL || best_choice == NULL || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
       return false;
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
@@ -390,7 +390,7 @@ class WERD_RES : public ELIST_LINK {
   }
 
   bool AnyLtrCharsInWord() const {
-    if (uch_set == NULL || best_choice == NULL || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
       return false;
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
@@ -541,7 +541,7 @@ class WERD_RES : public ELIST_LINK {
 
   // Returns the BLOB_CHOICE corresponding to the given index in the
   // best choice word taken from the appropriate cell in the ratings MATRIX.
-  // Borrowed pointer, so do not delete. May return NULL if there is no
+  // Borrowed pointer, so do not delete. May return nullptr if there is no
   // BLOB_CHOICE matching the unichar_id at the given index.
   BLOB_CHOICE* GetBlobChoice(int index) const;
 
@@ -600,7 +600,7 @@ class WERD_RES : public ELIST_LINK {
 
   // Merges 2 adjacent blobs in the result if the permanent callback
   // class_cb returns other than INVALID_UNICHAR_ID, AND the permanent
-  // callback box_cb is NULL or returns true, setting the merged blob
+  // callback box_cb is nullptr or returns true, setting the merged blob
   // result to the class returned from class_cb.
   // Returns true if anything was merged.
   bool ConditionalBlobMerge(
@@ -634,7 +634,7 @@ class WERD_RES : public ELIST_LINK {
     WERD_RES* result = new WERD_RES(*src);
     // That didn't copy the ratings, but we want a copy if there is one to
     // begin with.
-    if (src->ratings != NULL)
+    if (src->ratings != nullptr)
       result->ratings = src->ratings->DeepCopy();
     return result;
   }
@@ -716,7 +716,7 @@ class PAGE_RES_IT {
   WERD_RES *forward() {  // Get next word.
     return internal_forward(false, false);
   }
-  // Move forward, but allow empty blocks to show as single NULL words.
+  // Move forward, but allow empty blocks to show as single nullptr words.
   WERD_RES *forward_with_empties() {
     return internal_forward(false, true);
   }

@@ -47,7 +47,7 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
                                 uint16_t mode) {
   if (tessedit_adaption_debug) {
     tprintf("Running word_adaptable() for %s rating %.4f certainty %.4f\n",
-          word->best_choice == NULL ? "" :
+          word->best_choice == nullptr ? "" :
           word->best_choice->unichar_string().string(),
           word->best_choice->rating(), word->best_choice->certainty());
   }
@@ -106,7 +106,7 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
   }
 
   if (flags.bit (CHECK_SPACES) &&
-    (strchr(word->best_choice->unichar_string().string(), ' ') != NULL)) {
+    (strchr(word->best_choice->unichar_string().string(), ' ') != nullptr)) {
     if (tessedit_adaption_debug) tprintf("word contains spaces\n");
     return FALSE;
   }

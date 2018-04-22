@@ -34,8 +34,8 @@ const int kMaxOffsetDist = 32;
 IntFeatureMap::IntFeatureMap()
   : mapping_changed_(true), compact_size_(0) {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
-    offset_plus_[dir] = NULL;
-    offset_minus_[dir] = NULL;
+    offset_plus_[dir] = nullptr;
+    offset_minus_[dir] = nullptr;
   }
 }
 
@@ -181,8 +181,8 @@ void IntFeatureMap::Clear() {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
     delete [] offset_plus_[dir];
     delete [] offset_minus_[dir];
-    offset_plus_[dir] = NULL;
-    offset_minus_[dir] = NULL;
+    offset_plus_[dir] = nullptr;
+    offset_minus_[dir] = nullptr;
   }
 }
 

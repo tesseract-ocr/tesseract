@@ -51,7 +51,7 @@ void ExtractFontName(const STRING& filename, STRING* fontname) {
     const char *basename = strrchr(filename.string(), '/');
     const char *firstdot = strchr(basename ? basename : filename.string(), '.');
     const char *lastdot  = strrchr(filename.string(), '.');
-    if (firstdot != lastdot && firstdot != NULL && lastdot != NULL) {
+    if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
       fontname->truncate_at(lastdot - firstdot);

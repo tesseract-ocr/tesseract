@@ -177,7 +177,7 @@ class FPChar {
   };
 
   FPChar(): box_(), real_body_(),
-            from_(NULL), to_(NULL), num_blobs_(0), max_gap_(0),
+            from_(nullptr), to_(nullptr), num_blobs_(0), max_gap_(0),
             final_(false), alignment_(ALIGN_UNKNOWN),
             merge_to_prev_(false), delete_flag_(false) {
   }
@@ -270,7 +270,7 @@ class FPRow {
  public:
   FPRow() : pitch_(0.0f), estimated_pitch_(0.0f),
             all_pitches_(), all_gaps_(), good_pitches_(), good_gaps_(),
-            heights_(), characters_(), real_row_(NULL) {
+            heights_(), characters_(), real_row_(nullptr) {
   }
 
   ~FPRow() { }
@@ -479,7 +479,7 @@ class FPRow {
 };
 
 void FPRow::Init(TO_ROW *row) {
-  ASSERT_HOST(row != NULL);
+  ASSERT_HOST(row != nullptr);
   ASSERT_HOST(row->xheight > 0);
   real_row_ = row;
   real_row_->pitch_decision = PITCH_CORR_PROP;  // Default decision.

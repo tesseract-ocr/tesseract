@@ -45,7 +45,7 @@ class ObjectCache {
                 cache_[i].id.string());
       } else {
         delete cache_[i].object;
-        cache_[i].object = NULL;
+        cache_[i].object = nullptr;
       }
     }
     mu_.Unlock();
@@ -53,18 +53,18 @@ class ObjectCache {
 
   // Return a pointer to the object identified by id.
   // If we haven't yet loaded the object, use loader to load it.
-  // If loader fails to load it, record a NULL entry in the cache
-  // and return NULL -- further attempts to load will fail (even
+  // If loader fails to load it, record a nullptr entry in the cache
+  // and return nullptr -- further attempts to load will fail (even
   // with a different loader) until DeleteUnusedObjects() is called.
   // We delete the given loader.
   T *Get(STRING id,
          TessResultCallback<T *> *loader) {
-    T *retval = NULL;
+    T *retval = nullptr;
     mu_.Lock();
     for (int i = 0; i < cache_.size(); i++) {
       if (id == cache_[i].id) {
         retval = cache_[i].object;
-        if (cache_[i].object != NULL) {
+        if (cache_[i].object != nullptr) {
           cache_[i].count++;
         }
         mu_.Unlock();
@@ -76,7 +76,7 @@ class ObjectCache {
     ReferenceCount &rc = cache_.back();
     rc.id = id;
     retval = rc.object = loader->Run();
-    rc.count = (retval != NULL) ? 1 : 0;
+    rc.count = (retval != nullptr) ? 1 : 0;
     mu_.Unlock();
     return retval;
   }
@@ -84,7 +84,7 @@ class ObjectCache {
   // Decrement the count for t.
   // Return whether we knew about the given pointer.
   bool Free(T *t) {
-    if (t == NULL) return false;
+    if (t == nullptr) return false;
     mu_.Lock();
     for (int i = 0; i < cache_.size(); i++) {
       if (cache_[i].object == t) {

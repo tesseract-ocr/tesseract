@@ -233,7 +233,7 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
   GenericVector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
-  if (sample == NULL) return NULL;
+  if (sample == nullptr) return nullptr;
 
   int num_features = sample->num_features();
   const INT_FEATURE_STRUCT* features = sample->features();
@@ -265,7 +265,7 @@ FEATURE_SET Classify::ExtractIntGeoFeatures(
   GenericVector<INT_FEATURE_STRUCT> bl_features;
   tesseract::TrainingSample* sample = tesseract::BlobToTrainingSample(
       blob, false, &local_fx_info, &bl_features);
-  if (sample == NULL) return NULL;
+  if (sample == nullptr) return nullptr;
 
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&IntFeatDesc);

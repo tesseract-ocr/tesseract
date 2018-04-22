@@ -76,12 +76,12 @@ long long_rand(long limit) {
  * open_file
  *
  *  Open a file for reading or writing.  If the file name parameter is
- *  NULL use stdin (or stdout) for the file.  If the file can not be
+ *  nullptr use stdin (or stdout) for the file.  If the file can not be
  *  opened then call the error routine.
  **********************************************************************/
 FILE *open_file(const char *filename, const char *mode) {
-  FILE *thisfile = NULL;
-  if ((thisfile = fopen (filename, mode)) == NULL) {
+  FILE *thisfile = nullptr;
+  if ((thisfile = fopen (filename, mode)) == nullptr) {
     tprintf ("Could not open file, %s\n", filename);
     exit (1);
   }
@@ -91,8 +91,8 @@ FILE *open_file(const char *filename, const char *mode) {
 /// Check whether the file exists
 bool exists_file(const char *filename) {
   bool exists = false;
-  FILE *f = NULL;
-  if ((f = fopen(filename, "rb")) != NULL) {
+  FILE *f = nullptr;
+  if ((f = fopen(filename, "rb")) != nullptr) {
     fclose(f);
     exists = true;
   }

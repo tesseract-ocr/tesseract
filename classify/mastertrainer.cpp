@@ -60,7 +60,7 @@ MasterTrainer::MasterTrainer(NormalizationMode norm_mode,
     charsetsize_(0),
     enable_shape_anaylsis_(shape_analysis),
     enable_replication_(replicate_samples),
-    fragments_(NULL), prev_unichar_id_(-1), debug_level_(debug_level) {
+    fragments_(nullptr), prev_unichar_id_(-1), debug_level_(debug_level) {
 }
 
 MasterTrainer::~MasterTrainer() {
@@ -122,17 +122,17 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
   int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
 
   FILE* fp = Efopen(page_name, "rb");
-  if (fp == NULL) {
+  if (fp == nullptr) {
     tprintf("Failed to open tr file: %s\n", page_name);
     return;
   }
   tr_filenames_.push_back(STRING(page_name));
-  while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+  while (fgets(buffer, sizeof(buffer), fp) != nullptr) {
     if (buffer[0] == '\n')
       continue;
 
     char* space = strchr(buffer, ' ');
-    if (space == NULL) {
+    if (space == nullptr) {
       tprintf("Bad format in tr file, reading fontname, unichar\n");
       continue;
     }
@@ -177,7 +177,7 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
     int junk_id = junk_samples_.AddSample(unichar, sample);
     if (prev_unichar_id_ >= 0) {
       CHAR_FRAGMENT* frag = CHAR_FRAGMENT::parse_from_string(unichar);
-      if (frag != NULL && frag->is_natural()) {
+      if (frag != nullptr && frag->is_natural()) {
         if (fragments_[prev_unichar_id_] == 0)
           fragments_[prev_unichar_id_] = junk_id;
         else if (fragments_[prev_unichar_id_] != junk_id)
@@ -216,7 +216,7 @@ void MasterTrainer::PostLoadCleanup() {
   if (enable_shape_anaylsis_)
     ReplaceFragmentedSamples();
   SampleIterator sample_it;
-  sample_it.Init(NULL, NULL, true, &verify_samples_);
+  sample_it.Init(nullptr, nullptr, true, &verify_samples_);
   sample_it.NormalizeSamples();
   verify_samples_.OrganizeByFontAndClass();
 
@@ -262,24 +262,24 @@ void MasterTrainer::SetupMasterShapes() {
 
     const CHAR_FRAGMENT *fragment = samples_.unicharset().get_fragment(c);
 
-    if (fragment == NULL)
-      char_shapes.AppendMasterShapes(shapes, NULL);
+    if (fragment == nullptr)
+      char_shapes.AppendMasterShapes(shapes, nullptr);
     else if (fragment->is_beginning())
-      char_shapes_begin_fragment.AppendMasterShapes(shapes, NULL);
+      char_shapes_begin_fragment.AppendMasterShapes(shapes, nullptr);
     else if (fragment->is_ending())
-      char_shapes_end_fragment.AppendMasterShapes(shapes, NULL);
+      char_shapes_end_fragment.AppendMasterShapes(shapes, nullptr);
     else
-      char_shapes.AppendMasterShapes(shapes, NULL);
+      char_shapes.AppendMasterShapes(shapes, nullptr);
   }
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes_begin_fragment);
-  char_shapes.AppendMasterShapes(char_shapes_begin_fragment, NULL);
+  char_shapes.AppendMasterShapes(char_shapes_begin_fragment, nullptr);
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes_end_fragment);
-  char_shapes.AppendMasterShapes(char_shapes_end_fragment, NULL);
+  char_shapes.AppendMasterShapes(char_shapes_end_fragment, nullptr);
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes);
-  master_shapes_.AppendMasterShapes(char_shapes, NULL);
+  master_shapes_.AppendMasterShapes(char_shapes, nullptr);
   tprintf("Master shape_table:%s\n", master_shapes_.SummaryStr().string());
 }
 
@@ -334,7 +334,7 @@ void MasterTrainer::ReplicateAndRandomizeSamplesIfRequired() {
 // Returns false on failure.
 bool MasterTrainer::LoadFontInfo(const char* filename) {
   FILE* fp = fopen(filename, "rb");
-  if (fp == NULL) {
+  if (fp == nullptr) {
     fprintf(stderr, "Failed to load font_properties from %s\n", filename);
     return false;
   }
@@ -371,9 +371,9 @@ bool MasterTrainer::LoadFontInfo(const char* filename) {
 bool MasterTrainer::LoadXHeights(const char* filename) {
   tprintf("fontinfo table is of size %d\n", fontinfo_table_.size());
   xheights_.init_to_size(fontinfo_table_.size(), -1);
-  if (filename == NULL) return true;
+  if (filename == nullptr) return true;
   FILE *f = fopen(filename, "rb");
-  if (f == NULL) {
+  if (f == nullptr) {
     fprintf(stderr, "Failed to load font xheights from %s\n", filename);
     return false;
   }
@@ -413,7 +413,7 @@ bool MasterTrainer::LoadXHeights(const char* filename) {
 // Reads spacing stats from filename and adds them to fontinfo_table.
 bool MasterTrainer::AddSpacingInfo(const char *filename) {
   FILE* fontinfo_file = fopen(filename, "rb");
-  if (fontinfo_file == NULL)
+  if (fontinfo_file == nullptr)
     return true;  // We silently ignore missing files!
   // Find the fontinfo_id.
   int fontinfo_id = GetBestMatchingFontInfoId(filename);
@@ -433,7 +433,7 @@ bool MasterTrainer::AddSpacingInfo(const char *filename) {
   ASSERT_HOST(tfscanf(fontinfo_file, "%d\n", &num_unichars) == 1);
   FontInfo *fi = &fontinfo_table_.get(fontinfo_id);
   fi->init_spacing(unicharset_.size());
-  FontSpacingInfo *spacing = NULL;
+  FontSpacingInfo *spacing = nullptr;
   for (int l = 0; l < num_unichars; ++l) {
     if (tfscanf(fontinfo_file, "%s %d %d %d",
                 uch, &x_gap_before, &x_gap_after, &num_kerned) != 4) {
@@ -482,7 +482,7 @@ int MasterTrainer::GetBestMatchingFontInfoId(const char* filename) {
   int fontinfo_id = -1;
   int best_len = 0;
   for (int f = 0; f < fontinfo_table_.size(); ++f) {
-    if (strstr(filename, fontinfo_table_.get(f).name) != NULL) {
+    if (strstr(filename, fontinfo_table_.get(f).name) != nullptr) {
       int len = strlen(fontinfo_table_.get(f).name);
       // Use the longest matching length in case a substring of a font matched.
       if (len > best_len) {
@@ -744,7 +744,7 @@ void MasterTrainer::TestClassifierVOld(bool replicate_samples,
                                        ShapeClassifier* test_classifier,
                                        ShapeClassifier* old_classifier) {
   SampleIterator sample_it;
-  sample_it.Init(NULL, NULL, replicate_samples, &samples_);
+  sample_it.Init(nullptr, nullptr, replicate_samples, &samples_);
   ErrorCounter::DebugNewErrors(test_classifier, old_classifier,
                                CT_UNICHAR_TOPN_ERR, fontinfo_table_,
                                page_images_, &sample_it);
@@ -772,7 +772,7 @@ void MasterTrainer::TestClassifierOnSamples(CountTypes error_mode,
 // 5 = list of all errors + short classifier debug output on 25 errors.
 // If replicate_samples is true, then the test is run on an extended test
 // sample including replicated and systematically perturbed samples.
-// If report_string is non-NULL, a summary of the results for each font
+// If report_string is non-nullptr, a summary of the results for each font
 // is appended to the report_string.
 double MasterTrainer::TestClassifier(CountTypes error_mode,
                                      int report_level,
@@ -781,7 +781,7 @@ double MasterTrainer::TestClassifier(CountTypes error_mode,
                                      ShapeClassifier* test_classifier,
                                      STRING* report_string) {
   SampleIterator sample_it;
-  sample_it.Init(NULL, NULL, replicate_samples, samples);
+  sample_it.Init(nullptr, nullptr, replicate_samples, samples);
   if (report_level > 0) {
     int num_samples = 0;
     for (sample_it.Begin(); !sample_it.AtEnd(); sample_it.Next())
@@ -795,7 +795,7 @@ double MasterTrainer::TestClassifier(CountTypes error_mode,
   ErrorCounter::ComputeErrorRate(test_classifier, report_level,
                                  error_mode, fontinfo_table_,
                                  page_images_, &sample_it, &unichar_error,
-                                 NULL, report_string);
+                                 nullptr, report_string);
   return unichar_error;
 }
 
@@ -832,7 +832,7 @@ float MasterTrainer::ShapeDistance(const ShapeTable& shapes, int s1, int s2) {
 // Replaces samples that are always fragmented with the corresponding
 // fragment samples.
 void MasterTrainer::ReplaceFragmentedSamples() {
-  if (fragments_ == NULL) return;
+  if (fragments_ == nullptr) return;
   // Remove samples that are replaced by fragments. Each class that was
   // always naturally fragmented should be replaced by its fragments.
   int num_samples = samples_.num_samples();
@@ -875,7 +875,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
     int junk_id = sample->class_id();
     const char* frag_utf8 = frag_set.id_to_unichar(junk_id);
     CHAR_FRAGMENT* frag = CHAR_FRAGMENT::parse_from_string(frag_utf8);
-    if (frag != NULL && frag->is_natural()) {
+    if (frag != nullptr && frag->is_natural()) {
       junk_samples_.extract_sample(s);
       samples_.AddSample(frag_set.id_to_unichar(junk_id), sample);
     }
@@ -889,7 +889,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
   // delete [] good_junk;
   // Fragments_ no longer needed?
   delete [] fragments_;
-  fragments_ = NULL;
+  fragments_ = nullptr;
 }
 
 // Runs a hierarchical agglomerative clustering to merge shapes in the given

@@ -94,8 +94,8 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   // Look for the parameter among string parameters.
   StringParam *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
-  if (sp != NULL && sp->constraint_ok(constraint)) sp->set_value(value);
-  if (*value == '\0') return (sp != NULL);
+  if (sp != nullptr && sp->constraint_ok(constraint)) sp->set_value(value);
+  if (*value == '\0') return (sp != nullptr);
 
   // Look for the parameter among int parameters.
   int intval;
@@ -107,7 +107,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   // Look for the parameter among bool parameters.
   BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
-  if (bp != NULL && bp->constraint_ok(constraint)) {
+  if (bp != nullptr && bp->constraint_ok(constraint)) {
     if (*value == 'T' || *value == 't' ||
         *value == 'Y' || *value == 'y' || *value == '1') {
       bp->set_value(true);
@@ -121,7 +121,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   double doubleval;
   DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
-  if (dp != NULL && dp->constraint_ok(constraint)) {
+  if (dp != nullptr && dp->constraint_ok(constraint)) {
 #ifdef EMBEDDED
       doubleval = strtofloat(value);
 #else
@@ -154,14 +154,14 @@ bool ParamUtils::GetParamAsString(const char *name,
   // Look for the parameter among bool parameters.
   BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
-  if (bp != NULL) {
+  if (bp != nullptr) {
     *value = BOOL8(*bp) ? "1": "0";
     return true;
   }
   // Look for the parameter among double parameters.
   DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
-  if (dp != NULL) {
+  if (dp != nullptr) {
     char buf[128];
     snprintf(buf, sizeof(buf), "%g", double(*dp));
     *value = buf;
@@ -172,7 +172,7 @@ bool ParamUtils::GetParamAsString(const char *name,
 
 void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
   int v, i;
-  int num_iterations = (member_params == NULL) ? 1 : 2;
+  int num_iterations = (member_params == nullptr) ? 1 : 2;
   for (v = 0; v < num_iterations; ++v) {
     const ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (i = 0; i < vec->int_params.size(); ++i) {
@@ -197,7 +197,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
 // Resets all parameters back to default values;
 void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
   int v, i;
-  int num_iterations = (member_params == NULL) ? 1 : 2;
+  int num_iterations = (member_params == nullptr) ? 1 : 2;
   for (v = 0; v < num_iterations; ++v) {
     ParamsVectors *vec = (v == 0) ? GlobalParams() : member_params;
     for (i = 0; i < vec->int_params.size(); ++i) {

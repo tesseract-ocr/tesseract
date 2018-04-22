@@ -19,7 +19,7 @@ class GAPMAP
            TO_BLOCK *block);
 
     ~GAPMAP () {                 //destructor
-      if (map != NULL)
+      if (map != nullptr)
         free_mem(map);
     }
 

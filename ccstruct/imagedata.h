@@ -158,11 +158,11 @@ class ImageData {
   void SetPix(Pix* pix);
   // Returns the Pix image for *this. Must be pixDestroyed after use.
   Pix* GetPix() const;
-  // Gets anything and everything with a non-NULL pointer, prescaled to a
+  // Gets anything and everything with a non-nullptr pointer, prescaled to a
   // given target_height (if 0, then the original image height), and aligned.
-  // Also returns (if not NULL) the width and height of the scaled image.
+  // Also returns (if not nullptr) the width and height of the scaled image.
   // The return value is the scaled Pix, which must be pixDestroyed after use,
-  // and scale_factor (if not NULL) is set to the scale factor that was applied
+  // and scale_factor (if not nullptr) is set to the scale factor that was applied
   // to the image to achieve the target_height.
   Pix* PreScale(int target_height, int max_height, float* scale_factor,
                 int* scaled_width, int* scaled_height,
@@ -248,14 +248,14 @@ class DocumentData {
   // number of pages. Blocks until the background load is completed.
   const ImageData* GetPage(int index);
   // Returns true if the requested page is available, and provides a pointer,
-  // which may be NULL if the document is empty. May block, even though it
+  // which may be nullptr if the document is empty. May block, even though it
   // doesn't guarantee to return true.
   bool IsPageAvailable(int index, ImageData** page);
-  // Takes ownership of the given page index. The page is made NULL in *this.
+  // Takes ownership of the given page index. The page is made nullptr in *this.
   ImageData* TakePage(int index) {
     SVAutoLock lock(&pages_mutex_);
     ImageData* page = pages_[index];
-    pages_[index] = NULL;
+    pages_[index] = nullptr;
     return page;
   }
   // Returns true if the document is currently loaded or in the process of

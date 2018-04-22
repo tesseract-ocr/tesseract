@@ -60,7 +60,7 @@ struct FontSpacingInfo {
  * serif, fraktur
  */
 struct FontInfo {
-  FontInfo() : name(NULL), properties(0), universal_id(0), spacing_vec(NULL) {}
+  FontInfo() : name(nullptr), properties(0), universal_id(0), spacing_vec(nullptr) {}
   ~FontInfo() {}
 
   // Writes to the given file. Returns false in case of error.
@@ -72,20 +72,20 @@ struct FontInfo {
   // Reserves unicharset_size spots in spacing_vec.
   void init_spacing(int unicharset_size) {
     spacing_vec = new GenericVector<FontSpacingInfo *>();
-    spacing_vec->init_to_size(unicharset_size, NULL);
+    spacing_vec->init_to_size(unicharset_size, nullptr);
   }
   // Adds the given pointer to FontSpacingInfo to spacing_vec member
   // (FontInfo class takes ownership of the pointer).
   // Note: init_spacing should be called before calling this function.
   void add_spacing(UNICHAR_ID uch_id, FontSpacingInfo *spacing_info) {
-    ASSERT_HOST(spacing_vec != NULL && spacing_vec->size() > uch_id);
+    ASSERT_HOST(spacing_vec != nullptr && spacing_vec->size() > uch_id);
     (*spacing_vec)[uch_id] = spacing_info;
   }
 
   // Returns the pointer to FontSpacingInfo for the given UNICHAR_ID.
   const FontSpacingInfo *get_spacing(UNICHAR_ID uch_id) const {
-    return (spacing_vec == NULL || spacing_vec->size() <= uch_id) ?
-        NULL : (*spacing_vec)[uch_id];
+    return (spacing_vec == nullptr || spacing_vec->size() <= uch_id) ?
+        nullptr : (*spacing_vec)[uch_id];
   }
 
   // Fills spacing with the value of the x gap expected between the two given
@@ -95,7 +95,7 @@ struct FontInfo {
                    int *spacing) const {
     const FontSpacingInfo *prev_fsi = this->get_spacing(prev_uch_id);
     const FontSpacingInfo *fsi = this->get_spacing(uch_id);
-    if (prev_fsi == NULL || fsi == NULL) return false;
+    if (prev_fsi == nullptr || fsi == nullptr) return false;
     int i = 0;
     for (; i < prev_fsi->kerned_unichar_ids.size(); ++i) {
       if (prev_fsi->kerned_unichar_ids[i] == uch_id) break;

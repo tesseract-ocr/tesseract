@@ -71,14 +71,14 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
     for (;!box_it.empty(); box_it.forward()) {
       BLOBNBOX* bblob= box_it.extract();
       if (bblob->joined_to_prev() || (one_blob && !cblob_it.empty())) {
-        if (bblob->cblob() != NULL) {
+        if (bblob->cblob() != nullptr) {
           C_OUTLINE_IT cout_it(cblob_it.data()->out_list());
           cout_it.move_to_last();
           cout_it.add_list_after(bblob->cblob()->out_list());
           delete bblob->cblob();
         }
       } else {
-        if (bblob->cblob() != NULL)
+        if (bblob->cblob() != nullptr)
           cblob_it.add_after_then_move(bblob->cblob());
       }
       delete bblob;
@@ -87,7 +87,7 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
     ROW* real_row = new ROW(row, static_cast<int16_t>(row->kern_size),
                             static_cast<int16_t>(row->space_size));
     WERD_IT word_it(real_row->word_list());
-    WERD* word = new WERD(&cblobs, 0, NULL);
+    WERD* word = new WERD(&cblobs, 0, nullptr);
     word->set_flag(W_BOL, TRUE);
     word->set_flag(W_EOL, TRUE);
     word->set_flag(W_DONT_CHOP, one_blob);
@@ -504,7 +504,7 @@ void make_real_words(
                     ) {
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
-  ROW *real_row = NULL;          //output row
+  ROW *real_row = nullptr;          //output row
   ROW_IT real_row_it = block->block->row_list ();
 
   if (row_it.empty ())
@@ -523,7 +523,7 @@ void make_real_words(
       if (textord_chopper_test) {
         real_row = textord->make_blob_words (row, rotation);
       } else if (textord_force_make_prop_words ||
-                 (pb != NULL && !pb->IsText()) ||
+                 (pb != nullptr && !pb->IsText()) ||
                  row->pitch_decision == PITCH_DEF_PROP ||
                  row->pitch_decision == PITCH_CORR_PROP) {
         real_row = textord->make_prop_words (row, rotation);
@@ -534,7 +534,7 @@ void make_real_words(
         ASSERT_HOST(FALSE);
       }
     }
-    if (real_row != NULL) {
+    if (real_row != nullptr) {
                                  //put row in block
       real_row_it.add_after_then_move (real_row);
     }
@@ -563,7 +563,7 @@ ROW *make_rep_words(                 //make a row
   WERD_IT word_it = &row->rep_words;
 
   if (word_it.empty ())
-    return NULL;
+    return nullptr;
   word_box = word_it.data ()->bounding_box ();
   for (word_it.mark_cycle_pt (); !word_it.cycled_list (); word_it.forward ())
     word_box += word_it.data ()->bounding_box ();
@@ -600,7 +600,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
   for (blobindex = 0; blobindex < blobcount; blobindex++) {
     bblob = box_it->extract();
     if (bblob->joined_to_prev()) {
-      if (bblob->cblob() != NULL) {
+      if (bblob->cblob() != nullptr) {
         cout_it.set_to_list(cblob_it.data()->out_list());
         cout_it.move_to_last();
         cout_it.add_list_after(bblob->cblob()->out_list());
@@ -608,7 +608,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
       }
     }
     else {
-      if (bblob->cblob() != NULL)
+      if (bblob->cblob() != nullptr)
         cblob_it.add_after_then_move(bblob->cblob());
     }
     delete bblob;
@@ -618,7 +618,7 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
   if (blanks < 1)
     blanks = 1;
 
-  word = new WERD(&cblobs, blanks, NULL);
+  word = new WERD(&cblobs, blanks, nullptr);
 
   if (bol)
     word->set_flag(W_BOL, TRUE);

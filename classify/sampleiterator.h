@@ -30,10 +30,10 @@ struct UnicharAndFonts;
 // all samples of all shapes needed for a classification problem.
 //
 // =====INPUTS TO Init FUNCTION=====
-// The charset_map defines a subset of the sample_set classes (with a NULL
-// shape_table, or the shape_table classes if not NULL.)
+// The charset_map defines a subset of the sample_set classes (with a nullptr
+// shape_table, or the shape_table classes if not nullptr.)
 //
-// The shape_table (if not NULL) defines the mapping from shapes to
+// The shape_table (if not nullptr) defines the mapping from shapes to
 // font_id/class_id pairs. Each shape is a list of unichar_id and font lists.
 //
 // The sample_set holds the samples and provides indexed access to samples
@@ -44,16 +44,16 @@ struct UnicharAndFonts;
 // iterations.
 //
 // =====DIFFERENT COMBINATIONS OF INPUTS=====
-// NULL shape_table:
+// nullptr shape_table:
 // Without a shape_table, everything works in UNICHAR_IDs.
 //
-// NULL shape_table, NULL charset_map:
+// nullptr shape_table, nullptr charset_map:
 // Iterations simply run over the samples in the order the samples occur in the
 // input files.
 // GetCompactClassID and GetSparseClassID both return the sample UNICHAR_ID.
 //
-// NULL shape_table, non-NULL charset_map:
-// When shape_table is NULL, the charset_map indexes unichar_ids directly,
+// nullptr shape_table, non-nullptr charset_map:
+// When shape_table is nullptr, the charset_map indexes unichar_ids directly,
 // and an iteration returns all samples of all chars in the charset_map, which
 // is a subset of the full unicharset.
 // The iteration will be in groups of the same unichar_id, in the order
@@ -61,18 +61,18 @@ struct UnicharAndFonts;
 // GetCompactClassID returns the charset_map index of a sample, and
 // GetSparseClassID returns the sample UNICHAR_ID.
 //
-// Non-NULL shape_table:
+// Non-nullptr shape_table:
 // With a shape_table, samples are grouped according to the shape_table, so
 // multiple UNICHAR_IDs and fonts may be grouped together, and everything
 // works in shape_ids.
 //
-// Non-NULL shape_table, NULL charset_map.
+// Non-nullptr shape_table, nullptr charset_map.
 // Iterations simply run over the samples in the order of shape_id.
 // GetCompactClassID and GetSparseClassID both return the shape_id.
 // (If you want the unichar_id or font_id, the sample still has them.)
 //
-// Non-NULL shape_table, non-NULL charset_map.
-// When shape_table is not NULL, the charset_map indexes and subsets shapes in
+// Non-nullptr shape_table, non-nullptr charset_map.
+// When shape_table is not nullptr, the charset_map indexes and subsets shapes in
 // the shape_table, and iterations will be in shape_table order, not
 // charset_map order.
 // GetCompactClassID returns the charset_map index of a shape, and
@@ -118,7 +118,7 @@ class SampleIterator {
   // Returns the index of the current sample in compact charset space, so
   // in a 2-class problem between x and y, the returned indices will all be
   // 0 or 1, and have nothing to do with the unichar_ids.
-  // If the charset_map_ is NULL, then this is equal to GetSparseClassID().
+  // If the charset_map_ is nullptr, then this is equal to GetSparseClassID().
   int GetCompactClassID() const;
   // Returns the index of the current sample in sparse charset space, so
   // in a 2-class problem between x and y, the returned indices will all be

@@ -39,7 +39,7 @@ void SavePixForCrash(int resolution, Pix* pix) {
   int thread_id = gettid() % kMaxNumThreadPixes;
 #endif
   pixDestroy(&global_crash_pixes[thread_id]);
-  if (pix != NULL) {
+  if (pix != nullptr) {
     Pix* clone = pixClone(pix);
     pixSetXRes(clone, resolution);
     pixSetYRes(clone, resolution);
@@ -57,7 +57,7 @@ void signal_exit(int signal_code) {
 #else
   int thread_id = gettid() % kMaxNumThreadPixes;
 #endif
-  if (global_crash_pixes[thread_id] != NULL) {
+  if (global_crash_pixes[thread_id] != nullptr) {
     fprintf(stderr, "Crash caused by image with resolution %d\n",
             pixGetYRes(global_crash_pixes[thread_id]));
     fprintf(stderr, "<Cut here>\n");
@@ -72,7 +72,7 @@ void signal_exit(int signal_code) {
 }
 
 void err_exit() {
-  ASSERT_HOST("Fatal error encountered!" == NULL);
+  ASSERT_HOST("Fatal error encountered!" == nullptr);
 }
 
 

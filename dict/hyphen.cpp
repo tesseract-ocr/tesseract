@@ -31,9 +31,9 @@ namespace tesseract {
 // clear hyphen_active_dawgs_, hyphen_constraints_ update last_word_on_line_.
 void Dict::reset_hyphen_vars(bool last_word_on_line) {
   if (!(last_word_on_line_ == true && last_word_on_line == false)) {
-    if (hyphen_word_ != NULL) {
+    if (hyphen_word_ != nullptr) {
       delete hyphen_word_;
-      hyphen_word_ = NULL;
+      hyphen_word_ = nullptr;
       hyphen_active_dawgs_.clear();
     }
   }
@@ -48,7 +48,7 @@ void Dict::reset_hyphen_vars(bool last_word_on_line) {
 // hyphen_active_dawgs_.
 void Dict::set_hyphen_word(const WERD_CHOICE &word,
                            const DawgPositionVector &active_dawgs) {
-  if (hyphen_word_ == NULL) {
+  if (hyphen_word_ == nullptr) {
     hyphen_word_ = new WERD_CHOICE(word.unicharset());
     hyphen_word_->make_bad();
   }

@@ -50,7 +50,7 @@
                                  // config under api
 #define API_CONFIG      "configs/api_config"
 
-ETEXT_DESC *global_monitor = NULL;  // progress monitor
+ETEXT_DESC *global_monitor = nullptr;  // progress monitor
 
 namespace tesseract {
 
@@ -63,13 +63,13 @@ void Tesseract::read_config_file(const char *filename,
   path += "configs/";
   path += filename;
   FILE* fp;
-  if ((fp = fopen(path.string(), "rb")) != NULL) {
+  if ((fp = fopen(path.string(), "rb")) != nullptr) {
     fclose(fp);
   } else {
     path = datadir;
     path += "tessconfigs/";
     path += filename;
-    if ((fp = fopen(path.string(), "rb")) != NULL) {
+    if ((fp = fopen(path.string(), "rb")) != nullptr) {
       fclose(fp);
     } else {
       path = filename;
@@ -98,7 +98,7 @@ bool Tesseract::init_tesseract_lang_data(
   main_setup(arg0, textbase);
 
   // Set the language data path prefix
-  lang = language != NULL ? language : "eng";
+  lang = language != nullptr ? language : "eng";
   language_data_path_prefix = datadir;
   language_data_path_prefix += lang;
   language_data_path_prefix += ".";
@@ -141,7 +141,7 @@ bool Tesseract::init_tesseract_lang_data(
 
   // Set params specified in vars_vec (done after setting params from config
   // files, so that params in vars_vec can override those from files).
-  if (vars_vec != NULL && vars_values != NULL) {
+  if (vars_vec != nullptr && vars_values != nullptr) {
     for (int i = 0; i < vars_vec->size(); ++i) {
       if (!ParamUtils::SetParam((*vars_vec)[i].string(),
                                 (*vars_values)[i].string(),
@@ -154,7 +154,7 @@ bool Tesseract::init_tesseract_lang_data(
 
   if (((STRING &)tessedit_write_params_to_file).length() > 0) {
     FILE *params_file = fopen(tessedit_write_params_to_file.string(), "wb");
-    if (params_file != NULL) {
+    if (params_file != nullptr) {
       ParamUtils::PrintParams(params_file, this->params());
       fclose(params_file);
     } else {
@@ -265,7 +265,7 @@ void Tesseract::ParseLanguageString(const char* lang_str,
     // Find the index of the end of the lang code in string start.
     int end = strlen(start);
     const char* plus = strchr(start, '+');
-    if (plus != NULL && plus - start < end)
+    if (plus != nullptr && plus - start < end)
       end = plus - start;
     STRING lang_code(start);
     lang_code.truncate_at(end);
@@ -373,7 +373,7 @@ int Tesseract::init_tesseract(const char *arg0, const char *textbase,
 // language is the language code to load.
 // oem controls which engine(s) will operate on the image
 // configs (argv) is an array of config filenames to load variables from.
-// May be NULL.
+// May be nullptr.
 // configs_size (argc) is the number of elements in configs.
 // vars_vec is an optional vector of variables to set.
 // vars_values is an optional corresponding vector of values for the variables
@@ -447,7 +447,7 @@ void Tesseract::SetupUniversalFontIds() {
 int Tesseract::init_tesseract_lm(const char *arg0, const char *textbase,
                                  const char *language, TessdataManager *mgr) {
   if (!init_tesseract_lang_data(arg0, textbase, language, OEM_TESSERACT_ONLY,
-                                NULL, 0, NULL, NULL, false, mgr))
+                                nullptr, 0, nullptr, nullptr, false, mgr))
     return -1;
   getDict().SetupForLoad(Dict::GlobalDawgCache());
   getDict().Load(lang, mgr);

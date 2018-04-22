@@ -206,8 +206,8 @@ int OtsuStats(const int* histogram, int* H_out, int* omega0_out) {
       best_omega_0 = omega_0;
     }
   }
-  if (H_out != NULL) *H_out = H;
-  if (omega0_out != NULL) *omega0_out = best_omega_0;
+  if (H_out != nullptr) *H_out = H;
+  if (omega0_out != nullptr) *omega0_out = best_omega_0;
   return best_t;
 }
 

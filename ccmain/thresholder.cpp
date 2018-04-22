@@ -30,7 +30,7 @@
 namespace tesseract {
 
 ImageThresholder::ImageThresholder()
-  : pix_(NULL),
+  : pix_(nullptr),
     image_width_(0), image_height_(0),
     pix_channels_(0), pix_wpl_(0),
     scale_(1), yres_(300), estimated_res_(300) {
@@ -48,7 +48,7 @@ void ImageThresholder::Clear() {
 
 // Return true if no image has been set.
 bool ImageThresholder::IsEmpty() const {
-  return pix_ == NULL;
+  return pix_ == nullptr;
 }
 
 // SetImage makes a copy of all the image data, so it may be deleted
@@ -146,7 +146,7 @@ void ImageThresholder::GetImageSizes(int* left, int* top,
 // immediately after, but may not go away until after the Thresholder has
 // finished with it.
 void ImageThresholder::SetImage(const Pix* pix) {
-  if (pix_ != NULL)
+  if (pix_ != nullptr)
     pixDestroy(&pix_);
   Pix* src = const_cast<Pix*>(pix);
   int depth;
@@ -166,7 +166,7 @@ void ImageThresholder::SetImage(const Pix* pix) {
   } else if (depth > 1 && depth < 8) {
     pix_ = pixConvertTo8(src, false);
   } else {
-    pix_ = pixCopy(NULL, src);
+    pix_ = pixCopy(nullptr, src);
   }
   depth = pixGetDepth(pix_);
   pix_channels_ = depth / 8;
@@ -203,9 +203,9 @@ bool ImageThresholder::ThresholdToPix(PageSegMode pageseg_mode, Pix** pix) {
 // to the extreme of a 1x1 pixel thresholds image.
 // Ideally the 8 bit threshold should be the exact threshold used to generate
 // the binary image in ThresholdToPix, but this is not a hard constraint.
-// Returns NULL if the input is binary. PixDestroy after use.
+// Returns nullptr if the input is binary. PixDestroy after use.
 Pix* ImageThresholder::GetPixRectThresholds() {
-  if (IsBinary()) return NULL;
+  if (IsBinary()) return nullptr;
   Pix* pix_grey = GetPixRectGrey();
   int width = pixGetWidth(pix_grey);
   int height = pixGetHeight(pix_grey);
@@ -238,7 +238,7 @@ Pix* ImageThresholder::GetPixRect() {
   } else {
     // Crop to the given rectangle.
     Box* box = boxCreate(rect_left_, rect_top_, rect_width_, rect_height_);
-    Pix* cropped = pixClipRectangle(pix_, box, NULL);
+    Pix* cropped = pixClipRectangle(pix_, box, nullptr);
     boxDestroy(&box);
     return cropped;
   }

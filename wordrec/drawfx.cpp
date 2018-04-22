@@ -48,8 +48,8 @@
 
 EXTERN STRING_VAR (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 
-EXTERN ScrollView* fx_win = NULL;
-EXTERN FILE *fx_debug = NULL;
+EXTERN ScrollView* fx_win = nullptr;
+EXTERN FILE *fx_debug = nullptr;
 
 /**********************************************************************
  * create_fx_win

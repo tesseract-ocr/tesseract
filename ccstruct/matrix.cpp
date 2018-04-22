@@ -72,7 +72,7 @@ MATRIX* MATRIX::ConsumeAndMakeBigger(int ind) {
       MATRIX_COORD coord(col, row);
       coord.MapForSplit(ind);
       BLOB_CHOICE_LIST* choices = get(col, row);
-      if (choices != NULL) {
+      if (choices != nullptr) {
         // Correct matrix location on each choice.
         BLOB_CHOICE_IT bc_it(choices);
         for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
@@ -98,7 +98,7 @@ MATRIX* MATRIX::DeepCopy() const {
   for (int col = 0; col < dim; ++col) {
     for (int row = col; row < dim && row < col + band_width; ++row) {
       BLOB_CHOICE_LIST* choices = get(col, row);
-      if (choices != NULL) {
+      if (choices != nullptr) {
         BLOB_CHOICE_LIST* copy_choices = new BLOB_CHOICE_LIST;
         copy_choices->deep_copy(choices, &BLOB_CHOICE::deep_copy);
         result->put(col, row, copy_choices);

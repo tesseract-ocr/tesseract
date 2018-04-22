@@ -56,7 +56,7 @@ CLISTIZEH (STRING) CLISTIZE (STRING)
 namespace tesseract {
 void Tesseract::set_done(WERD_RES *word, int16_t pass) {
   word->done = word->tess_accepted &&
-      (strchr(word->best_choice->unichar_string().string(), ' ') == NULL);
+      (strchr(word->best_choice->unichar_string().string(), ' ') == nullptr);
   bool word_is_ambig = word->best_choice->dangerous_ambig_found();
   bool word_from_dict = word->best_choice->permuter() == SYSTEM_DAWG_PERM ||
       word->best_choice->permuter() == FREQ_DAWG_PERM ||
@@ -120,7 +120,7 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
         word->reject_map.rej_word_not_tess_accepted ();
 
       if (rej_use_tess_blanks &&
-        (strchr (word->best_choice->unichar_string().string (), ' ') != NULL))
+        (strchr (word->best_choice->unichar_string().string (), ' ') != nullptr))
         word->reject_map.rej_word_contains_blanks ();
 
       WERD_CHOICE* best_choice = word->best_choice;
@@ -312,7 +312,7 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
     If there are no occurrences of the conflict set characters then the word
     is OK.
   */
-  if (strpbrk (word, conflict_set_I_l_1.string ()) == NULL)
+  if (strpbrk (word, conflict_set_I_l_1.string ()) == nullptr)
     return FALSE;
 
   /*

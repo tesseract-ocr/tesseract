@@ -115,7 +115,7 @@ class TESS_API LTRResultIterator : public PageIterator {
                                  int* font_id) const;
 
   // Return the name of the language used to recognize this word.
-  // On error, NULL.  Do not delete this pointer.
+  // On error, nullptr.  Do not delete this pointer.
   const char* WordRecognitionLanguage() const;
 
   // Return the overall directionality of this word.
@@ -138,11 +138,11 @@ class TESS_API LTRResultIterator : public PageIterator {
   const void *GetParamsTrainingBundle() const;
 
   // Returns a pointer to the string with blamer information for this word.
-  // Assumes that the word's blamer_bundle is not NULL.
+  // Assumes that the word's blamer_bundle is not nullptr.
   const char *GetBlamerDebug() const;
 
   // Returns a pointer to the string with misadaption information for this word.
-  // Assumes that the word's blamer_bundle is not NULL.
+  // Assumes that the word's blamer_bundle is not nullptr.
   const char *GetBlamerMisadaptionDebug() const;
 
   // Returns true if a truth string was recorded for the current word.

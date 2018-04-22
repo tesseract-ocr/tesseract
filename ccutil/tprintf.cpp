@@ -41,7 +41,7 @@ tprintf_internal(                       // Trace printf
 ) {
   tesseract::tprintfMutex.Lock();
   va_list args;                  // variable args
-  static FILE *debugfp = NULL;   // debug file
+  static FILE *debugfp = nullptr;   // debug file
                                  // debug window
   int32_t offset = 0;              // into message
   static char msg[MAX_MSG_LEN + 1];
@@ -57,13 +57,13 @@ tprintf_internal(                       // Trace printf
   #endif
   va_end(args);
 
-  if (debugfp == NULL && strlen(debug_file.string()) > 0) {
+  if (debugfp == nullptr && strlen(debug_file.string()) > 0) {
     debugfp = fopen(debug_file.string(), "wb");
-  } else if (debugfp != NULL && strlen(debug_file.string()) == 0) {
+  } else if (debugfp != nullptr && strlen(debug_file.string()) == 0) {
     fclose(debugfp);
-    debugfp = NULL;
+    debugfp = nullptr;
   }
-  if (debugfp != NULL)
+  if (debugfp != nullptr)
     fprintf(debugfp, "%s", msg);
   else
     fprintf(stderr, "%s", msg);

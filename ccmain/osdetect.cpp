@@ -156,7 +156,7 @@ void OSResults::accumulate(const OSResults& osr) {
 void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
                             TO_BLOCK_LIST *to_blocks) {
   Pix *pix = tess->pix_binary();
-  ASSERT_HOST(pix != NULL);
+  ASSERT_HOST(pix != nullptr);
   int vertical_x = 0;
   int vertical_y = 1;
   tesseract::TabVector_LIST v_lines;
@@ -172,9 +172,9 @@ void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
 
   tesseract::LineFinder::FindAndRemoveLines(resolution, false, pix,
                                             &vertical_x, &vertical_y,
-                                            NULL, &v_lines, &h_lines);
+                                            nullptr, &v_lines, &h_lines);
   Pix* im_pix = tesseract::ImageFind::FindImages(pix, nullptr);
-  if (im_pix != NULL) {
+  if (im_pix != nullptr) {
     pixSubtract(pix, pix, im_pix);
     pixDestroy(&im_pix);
   }
@@ -193,10 +193,10 @@ int orientation_and_script_detection(STRING& filename,
   TBOX page_box;
 
   lastdot = strrchr (name.string (), '.');
-  if (lastdot != NULL)
+  if (lastdot != nullptr)
     name[lastdot-name.string()] = '\0';
 
-  ASSERT_HOST(tess->pix_binary() != NULL)
+  ASSERT_HOST(tess->pix_binary() != nullptr)
   int width = pixGetWidth(tess->pix_binary());
   int height = pixGetHeight(tess->pix_binary());
 
@@ -261,7 +261,7 @@ int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
       filtered_it.add_to_end(bbox);
     }
   }
-  return os_detect_blobs(NULL, &filtered_list, osr, tess);
+  return os_detect_blobs(nullptr, &filtered_list, osr, tess);
 }
 
 // Detect orientation and script from a list of blobs.
@@ -274,7 +274,7 @@ int os_detect_blobs(const GenericVector<int>* allowed_scripts,
                     BLOBNBOX_CLIST* blob_list, OSResults* osr,
                     tesseract::Tesseract* tess) {
   OSResults osr_;
-  if (osr == NULL)
+  if (osr == nullptr)
     osr = &osr_;
 
   osr->unicharset = &tess->unicharset;
@@ -347,10 +347,10 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
       x_origin = i == 1 ? box.left() : box.right();
     }
     TBLOB* rotated_blob = new TBLOB(*tblob);
-    rotated_blob->Normalize(NULL, &current_rotation, NULL,
+    rotated_blob->Normalize(nullptr, &current_rotation, nullptr,
                             x_origin, y_origin, scaling, scaling,
                             0.0f, static_cast<float>(kBlnBaselineOffset),
-                            false, NULL);
+                            false, nullptr);
     tess->AdaptiveClassifier(rotated_blob, ratings + i);
     delete rotated_blob;
     current_rotation.rotate(rotation90);
@@ -380,11 +380,11 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
   for (int i = 0; i < 4; ++i) {
     BLOB_CHOICE_IT choice_it(scores + i);
     if (!choice_it.empty()) {
-      BLOB_CHOICE* choice = NULL;
-      if (allowed_scripts_ != NULL && !allowed_scripts_->empty()) {
+      BLOB_CHOICE* choice = nullptr;
+      if (allowed_scripts_ != nullptr && !allowed_scripts_->empty()) {
         // Find the top choice in an allowed script.
         for (choice_it.mark_cycle_pt(); !choice_it.cycled_list() &&
-             choice == NULL; choice_it.forward()) {
+             choice == nullptr; choice_it.forward()) {
           int choice_script = choice_it.data()->script_id();
           int s = 0;
           for (s = 0; s < allowed_scripts_->size(); ++s) {
@@ -397,7 +397,7 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
       } else {
         choice = choice_it.data();
       }
-      if (choice != NULL) {
+      if (choice != nullptr) {
         // The certainty score ranges between [-20,0]. This is converted here to
         // [0,1], with 1 indicating best match.
         blob_o_score[i] = 1 + 0.05 * choice->certainty();
@@ -482,7 +482,7 @@ void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
          choice_it.forward()) {
       BLOB_CHOICE* choice = choice_it.data();
       int id = choice->script_id();
-      if (allowed_scripts_ != NULL && !allowed_scripts_->empty()) {
+      if (allowed_scripts_ != nullptr && !allowed_scripts_->empty()) {
         // Check that the choice is in an allowed script.
         int s = 0;
         for (s = 0; s < allowed_scripts_->size(); ++s) {

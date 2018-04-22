@@ -152,7 +152,7 @@ WERD* WERD::ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob) {
  * ORIGINALLY, REJECT CBLOBS WERE EXCLUDED, however, this led to bugs when the
  * words on the row were re-sorted. The original words were built with reject
  * blobs included. The FUZZY SPACE flags were set accordingly. If ALL the
- * blobs in a word are rejected the BB for the word is NULL, causing the sort
+ * blobs in a word are rejected the BB for the word is nullptr, causing the sort
  * to screw up, leading to the erroneous possibility of the first word in a
  * row being marked as FUZZY space.
  */
@@ -404,7 +404,7 @@ int word_comparator(const void *word1p, const void *word2p) {
  * all_blobs list, which correspond to the blobs in this werd object. The
  * blobs used to construct the new word are consumed and removed from the
  * input all_blobs list.
- * Returns NULL if the word couldn't be constructed.
+ * Returns nullptr if the word couldn't be constructed.
  * Returns original blobs for which no matches were found in the output list
  * orphan_blobs (appends).
  */
@@ -490,7 +490,7 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
   }
 
   // New blobs are ready. Create a new werd object with these.
-  WERD* new_werd = NULL;
+  WERD* new_werd = nullptr;
   if (!new_werd_blobs.empty()) {
     new_werd = new WERD(&new_werd_blobs, this);
   } else {
@@ -539,7 +539,7 @@ void WERD::GetNoiseOutlines(GenericVector<C_OUTLINE*>* outlines) {
 
 // Adds the selected outlines to the indcated real blobs, and puts the rest
 // back in rej_cblobs where they came from. Where the target_blobs entry is
-// NULL, a run of wanted outlines is put into a single new blob.
+// nullptr, a run of wanted outlines is put into a single new blob.
 // Ownership of the outlines is transferred back to the word. (Hence
 // GenericVector and not PointerVector.)
 // Returns true if any new blob was added to the start of the word, which
@@ -550,15 +550,15 @@ bool WERD::AddSelectedOutlines(const GenericVector<bool>& wanted,
                                const GenericVector<C_OUTLINE*>& outlines,
                                bool* make_next_word_fuzzy) {
   bool outline_added_to_start = false;
-  if (make_next_word_fuzzy != NULL) *make_next_word_fuzzy = false;
+  if (make_next_word_fuzzy != nullptr) *make_next_word_fuzzy = false;
   C_BLOB_IT rej_it(&rej_cblobs);
   for (int i = 0; i < outlines.size(); ++i) {
     C_OUTLINE* outline = outlines[i];
-    if (outline == NULL) continue;  // Already used it.
+    if (outline == nullptr) continue;  // Already used it.
     if (wanted[i]) {
       C_BLOB* target_blob = target_blobs[i];
       TBOX noise_box = outline->bounding_box();
-      if (target_blob == NULL) {
+      if (target_blob == nullptr) {
         target_blob = new C_BLOB(outline);
         // Need to find the insertion point.
         C_BLOB_IT blob_it(&cblobs);
@@ -577,12 +577,12 @@ bool WERD::AddSelectedOutlines(const GenericVector<bool>& wanted,
         }
         if (blob_it.cycled_list()) {
           blob_it.add_to_end(target_blob);
-          if (make_next_word_fuzzy != NULL) *make_next_word_fuzzy = true;
+          if (make_next_word_fuzzy != nullptr) *make_next_word_fuzzy = true;
         }
         // Add all consecutive wanted, but null-blob outlines to same blob.
         C_OUTLINE_IT ol_it(target_blob->out_list());
         while (i + 1 < outlines.size() && wanted[i + 1] &&
-               target_blobs[i + 1] == NULL) {
+               target_blobs[i + 1] == nullptr) {
           ++i;
           ol_it.add_to_end(outlines[i]);
         }

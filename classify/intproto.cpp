@@ -176,9 +176,9 @@ int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id);
 -----------------------------------------------------------------------------*/
 
 /* global display lists used to display proto and feature match information*/
-ScrollView *IntMatchWindow = NULL;
-ScrollView *FeatureDisplayWindow = NULL;
-ScrollView *ProtoDisplayWindow = NULL;
+ScrollView *IntMatchWindow = nullptr;
+ScrollView *FeatureDisplayWindow = nullptr;
+ScrollView *ProtoDisplayWindow = nullptr;
 
 /*-----------------------------------------------------------------------------
         Variables
@@ -465,7 +465,7 @@ uint8_t CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
  * @note History: Thu Mar 21 15:40:19 1991, DSJ, Created.
  */
 void UpdateMatchDisplay() {
-  if (IntMatchWindow != NULL)
+  if (IntMatchWindow != nullptr)
     IntMatchWindow->Update();
 }                                /* ClearMatchDisplay */
 #endif
@@ -522,13 +522,13 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   P = ProtoForProtoId(Class, ProtoId);
 
   Param = Proto->A * 128;
-  P->A = TruncateParam(Param, -128, 127, NULL);
+  P->A = TruncateParam(Param, -128, 127, nullptr);
 
   Param = -Proto->B * 256;
-  P->B = TruncateParam(Param, 0, 255, NULL);
+  P->B = TruncateParam(Param, 0, 255, nullptr);
 
   Param = Proto->C * 128;
-  P->C = TruncateParam(Param, -128, 127, NULL);
+  P->C = TruncateParam(Param, -128, 127, nullptr);
 
   Param = Proto->Angle * 256;
   if (Param < 0 || Param >= 256)
@@ -538,7 +538,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
 
   /* round proto length to nearest integer number of pico-features */
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
-  Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255, NULL);
+  Class->ProtoLengths[ProtoId] = TruncateParam(Param, 1, 255, nullptr);
   if (classify_learning_debug_level >= 2)
     cprintf("Converted ffeat to (A=%d,B=%d,C=%d,L=%d)",
             P->A, P->B, P->C, Class->ProtoLengths[ProtoId]);
@@ -691,7 +691,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
     memset(Class->ProtoLengths, 0,
            MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
   } else {
-    Class->ProtoLengths = NULL;
+    Class->ProtoLengths = nullptr;
   }
   memset(Class->ConfigLengths, 0, sizeof(Class->ConfigLengths));
 
@@ -706,7 +706,7 @@ void free_int_class(INT_CLASS int_class) {
   for (i = 0; i < int_class->NumProtoSets; i++) {
     Efree (int_class->ProtoSets[i]);
   }
-  if (int_class->ProtoLengths != NULL) {
+  if (int_class->ProtoLengths != nullptr) {
     Efree (int_class->ProtoLengths);
   }
   Efree(int_class);
@@ -729,7 +729,7 @@ INT_TEMPLATES NewIntTemplates() {
   T->NumClassPruners = 0;
 
   for (i = 0; i < MAX_NUM_CLASSES; i++)
-    ClassForClassId (T, i) = NULL;
+    ClassForClassId (T, i) = nullptr;
 
   return (T);
 }                                /* NewIntTemplates */
@@ -912,7 +912,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     }
 
     /* then read in the proto lengths */
-    Lengths = NULL;
+    Lengths = nullptr;
     if (MaxNumIntProtosIn (Class) > 0) {
       Lengths = (uint8_t *)Emalloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class));
       if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
@@ -954,7 +954,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   }
 
   if (version_id < 2) {
-    /* add an empty NULL class with class id 0 */
+    /* add an empty nullptr class with class id 0 */
     assert(UnusedClassIdIn (Templates, 0));
     ClassForClassId (Templates, 0) = NewIntClass (1, 1);
     ClassForClassId (Templates, 0)->font_set_id = -1;
@@ -962,12 +962,12 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     /* make sure the classes are contiguous */
     for (i = 0; i < MAX_NUM_CLASSES; i++) {
       if (i < Templates->NumClasses) {
-        if (ClassForClassId (Templates, i) == NULL) {
+        if (ClassForClassId (Templates, i) == nullptr) {
           fprintf(stderr, "Non-contiguous class ids in inttemp\n");
           exit(1);
         }
       } else {
-        if (ClassForClassId (Templates, i) != NULL) {
+        if (ClassForClassId (Templates, i) != nullptr) {
           fprintf(stderr, "Class id %d exceeds NumClassesIn (Templates) %d\n",
                   i, Templates->NumClasses);
           exit(1);
@@ -1338,7 +1338,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
     ev_type = ev->type;
     if (ev_type == SVET_POPUP) {
       if (ev->command_id == IDA_SHAPE_INDEX) {
-        if (shape_table_ != NULL) {
+        if (shape_table_ != nullptr) {
           *shape_id = atoi(ev->parameter);
           *adaptive_on = false;
           *pretrained_on = true;
@@ -1368,7 +1368,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
             *adaptive_on = true;
             *pretrained_on = true;
           }
-          if (ev->command_id == IDA_ADAPTIVE || shape_table_ == NULL) {
+          if (ev->command_id == IDA_ADAPTIVE || shape_table_ == nullptr) {
             *shape_id = -1;
             return unichar_id;
           }
@@ -1695,7 +1695,7 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   FLOAT32 X, Y, Dx, Dy, Length;
 
   window->Pen(color);
-  assert(Feature != NULL);
+  assert(Feature != nullptr);
   assert(color != 0);
 
   X = Feature->X;
@@ -1741,7 +1741,7 @@ void RenderIntProto(ScrollView *window,
   int Bucket;
 
   assert(ProtoId >= 0);
-  assert(Class != NULL);
+  assert(Class != nullptr);
   assert(ProtoId < Class->NumProtos);
   assert(color != 0);
   window->Pen(color);
@@ -1815,7 +1815,7 @@ int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id) {
  * initialized.
  */
 void InitIntMatchWindowIfReqd() {
-  if (IntMatchWindow == NULL) {
+  if (IntMatchWindow == nullptr) {
     IntMatchWindow = CreateFeatureSpaceWindow("IntMatchWindow", 50, 200);
     SVMenuNode* popup_menu = new SVMenuNode();
 
@@ -1836,7 +1836,7 @@ void InitIntMatchWindowIfReqd() {
  * initialized.
  */
 void InitProtoDisplayWindowIfReqd() {
-  if (ProtoDisplayWindow == NULL) {
+  if (ProtoDisplayWindow == nullptr) {
     ProtoDisplayWindow = CreateFeatureSpaceWindow("ProtoDisplayWindow",
                                                   550, 200);
  }
@@ -1847,7 +1847,7 @@ void InitProtoDisplayWindowIfReqd() {
  * initialized.
  */
 void InitFeatureDisplayWindowIfReqd() {
-  if (FeatureDisplayWindow == NULL) {
+  if (FeatureDisplayWindow == nullptr) {
     FeatureDisplayWindow = CreateFeatureSpaceWindow("FeatureDisplayWindow",
                                                     50, 700);
   }

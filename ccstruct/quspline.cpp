@@ -136,8 +136,8 @@ int degree                       //fit required
 QSPLINE::QSPLINE(  //constructor
                  const QSPLINE &src) {
   segments = 0;
-  xcoords = NULL;
-  quadratics = NULL;
+  xcoords = nullptr;
+  quadratics = nullptr;
   *this = src;
 }
 
@@ -150,13 +150,13 @@ QSPLINE::QSPLINE(  //constructor
 
 QSPLINE::~QSPLINE (              //constructor
 ) {
-  if (xcoords != NULL) {
+  if (xcoords != nullptr) {
     free_mem(xcoords);
-    xcoords = NULL;
+    xcoords = nullptr;
   }
-  if (quadratics != NULL) {
+  if (quadratics != nullptr) {
     free_mem(quadratics);
-    quadratics = NULL;
+    quadratics = nullptr;
   }
 }
 
@@ -169,9 +169,9 @@ QSPLINE::~QSPLINE (              //constructor
 
 QSPLINE & QSPLINE::operator= (   //assignment
 const QSPLINE & source) {
-  if (xcoords != NULL)
+  if (xcoords != nullptr)
     free_mem(xcoords);
-  if (quadratics != NULL)
+  if (quadratics != nullptr)
     free_mem(quadratics);
 
   segments = source.segments;
@@ -387,7 +387,7 @@ void QSPLINE::plot(                //draw it
 #endif
 
 void QSPLINE::plot(Pix *pix) const {
-  if (pix == NULL) {
+  if (pix == nullptr) {
     return;
   }
 

@@ -350,7 +350,7 @@ class ShapeTable {
   // Appends the master shapes from other to this.
   // Used to create a clean ShapeTable from a merged one, or to create a
   // copy of a ShapeTable.
-  // If not NULL, shape_map is set to map other shape_ids to this's shape_ids.
+  // If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
   void AppendMasterShapes(const ShapeTable& other,
                           GenericVector<int>* shape_map);
   // Returns the number of master shapes remaining after merging.

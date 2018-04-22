@@ -44,7 +44,7 @@
  **********************************************************************/
 namespace tesseract {
 void Tesseract::recog_word(WERD_RES *word) {
-  if (wordrec_skip_no_truth_words && (word->blamer_bundle == NULL ||
+  if (wordrec_skip_no_truth_words && (word->blamer_bundle == nullptr ||
       word->blamer_bundle->incorrect_result_reason() == IRR_NO_TRUTH)) {
     if (classify_debug_level) tprintf("No truth for word - skipping\n");
     word->tess_failed = true;
@@ -64,7 +64,7 @@ void Tesseract::recog_word(WERD_RES *word) {
   // segmentation states.
   if (!word->StatesAllValid()) {
     tprintf("Not all words have valid states relative to ratings matrix!!");
-    word->DebugWordChoices(true, NULL);
+    word->DebugWordChoices(true, nullptr);
     ASSERT_HOST(word->StatesAllValid());
   }
   if (tessedit_override_permuter) {
@@ -88,8 +88,8 @@ void Tesseract::recog_word(WERD_RES *word) {
     }
   }
   // Factored out from control.cpp
-  ASSERT_HOST((word->best_choice == NULL) == (word->raw_choice == NULL));
-  if (word->best_choice == NULL || word->best_choice->length() == 0 ||
+  ASSERT_HOST((word->best_choice == nullptr) == (word->raw_choice == nullptr));
+  if (word->best_choice == nullptr || word->best_choice->length() == 0 ||
       static_cast<int>(strspn(word->best_choice->unichar_string().string(),
                               " ")) == word->best_choice->length()) {
     word->tess_failed = true;
@@ -156,8 +156,8 @@ void Tesseract::split_and_recog_word(WERD_RES *word) {
   }
   ASSERT_HOST(split_index > 0);
 
-  WERD_RES *word2 = NULL;
-  BlamerBundle *orig_bb = NULL;
+  WERD_RES *word2 = nullptr;
+  BlamerBundle *orig_bb = nullptr;
   split_word(word, split_index, &word2, &orig_bb);
 
   // Recognize the first part of the word.
@@ -187,7 +187,7 @@ void Tesseract::split_word(WERD_RES *word,
 
   // Save a copy of the blamer bundle so we can try to reconstruct it below.
   BlamerBundle *orig_bb =
-      word->blamer_bundle ? new BlamerBundle(*word->blamer_bundle) : NULL;
+      word->blamer_bundle ? new BlamerBundle(*word->blamer_bundle) : nullptr;
 
   WERD_RES *word2 = new WERD_RES(*word);
 
@@ -200,9 +200,9 @@ void Tesseract::split_word(WERD_RES *word,
     chopped2->blobs.push_back(chopped->blobs[i]);
   }
   chopped->blobs.truncate(split_pt);
-  word->chopped_word = NULL;
+  word->chopped_word = nullptr;
   delete word2->chopped_word;
-  word2->chopped_word = NULL;
+  word2->chopped_word = nullptr;
 
   const UNICHARSET &unicharset = *word->uch_set;
   word->ClearResults();
@@ -213,7 +213,7 @@ void Tesseract::split_word(WERD_RES *word,
   word2->SetupBasicsFromChoppedWord(unicharset);
 
   // Try to adjust the blamer bundle.
-  if (orig_bb != NULL) {
+  if (orig_bb != nullptr) {
     // TODO(rays) Looks like a leak to me.
     // orig_bb should take, rather than copy.
     word->blamer_bundle = new BlamerBundle();
@@ -314,7 +314,7 @@ void Tesseract::join_words(WERD_RES *word,
 
   // Restore the pointer to original blamer bundle and combine blamer
   // information recorded in the splits.
-  if (orig_bb != NULL) {
+  if (orig_bb != nullptr) {
     orig_bb->JoinBlames(*word->blamer_bundle, *word2->blamer_bundle,
                         wordrec_debug_blamer);
     delete word->blamer_bundle;

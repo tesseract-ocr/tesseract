@@ -191,7 +191,7 @@ class Wordrec : public Classify {
                    const UNICHARSET &unicharset, BlamerBundle *blamer_bundle);
 
   // Calls fill_lattice_ member function
-  // (assumes that fill_lattice_ is not NULL).
+  // (assumes that fill_lattice_ is not nullptr).
   void CallFillLattice(const MATRIX &ratings,
                        const WERD_CHOICE_LIST &best_choices,
                        const UNICHARSET &unicharset,
@@ -266,7 +266,7 @@ class Wordrec : public Classify {
   // on the classifications already recorded in chunks_record.ratings.
   //
   // Note: this function assumes that word_res, best_choice_bundle arguments
-  // are not NULL.
+  // are not nullptr.
   void SegSearch(WERD_RES* word_res,
                  BestChoiceBundle* best_choice_bundle,
                  BlamerBundle* blamer_bundle);

@@ -69,7 +69,7 @@ bool TrainingSampleSet::FontClassInfo::DeSerialize(bool swap, FILE* fp) {
 
 TrainingSampleSet::TrainingSampleSet(const FontInfoTable& font_table)
   : num_raw_samples_(0), unicharset_size_(0),
-    font_class_array_(NULL), fontinfo_table_(font_table) {
+    font_class_array_(nullptr), fontinfo_table_(font_table) {
 }
 
 TrainingSampleSet::~TrainingSampleSet() {
@@ -81,7 +81,7 @@ bool TrainingSampleSet::Serialize(FILE* fp) const {
   if (!samples_.Serialize(fp)) return false;
   if (!unicharset_.save_to_file(fp)) return false;
   if (!font_id_map_.Serialize(fp)) return false;
-  int8_t not_null = font_class_array_ != NULL;
+  int8_t not_null = font_class_array_ != nullptr;
   if (fwrite(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {
     if (!font_class_array_->SerializeClasses(fp)) return false;
@@ -97,7 +97,7 @@ bool TrainingSampleSet::DeSerialize(bool swap, FILE* fp) {
   if (!unicharset_.load_from_file(fp)) return false;
   if (!font_id_map_.DeSerialize(swap, fp)) return false;
   delete font_class_array_;
-  font_class_array_ = NULL;
+  font_class_array_ = nullptr;
   int8_t not_null;
   if (fread(&not_null, sizeof(not_null), 1, fp) != 1) return false;
   if (not_null) {
@@ -155,7 +155,7 @@ void TrainingSampleSet::AddSample(int unichar_id, TrainingSample* sample) {
 // OrganizeByFontAndClass must have been already called.
 int TrainingSampleSet::NumClassSamples(int font_id, int class_id,
                                        bool randomize) const {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   if (font_id < 0 || class_id < 0 ||
       font_id >= font_id_map_.SparseSize() || class_id >= unicharset_size_) {
     // There are no samples because the font or class doesn't exist.
@@ -179,9 +179,9 @@ const TrainingSample* TrainingSampleSet::GetSample(int index) const {
 // OrganizeByFontAndClass must have been already called.
 const TrainingSample* TrainingSampleSet::GetSample(int font_id, int class_id,
                                                    int index) const {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0) return NULL;
+  if (font_index < 0) return nullptr;
   int sample_index = (*font_class_array_)(font_index, class_id).samples[index];
   return samples_[sample_index];
 }
@@ -190,9 +190,9 @@ const TrainingSample* TrainingSampleSet::GetSample(int font_id, int class_id,
 // OrganizeByFontAndClass must have been already called.
 TrainingSample* TrainingSampleSet::MutableSample(int font_id, int class_id,
                                                  int index) {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0) return NULL;
+  if (font_index < 0) return nullptr;
   int sample_index = (*font_class_array_)(font_index, class_id).samples[index];
   return samples_[sample_index];
 }
@@ -296,7 +296,7 @@ float TrainingSampleSet::UnicharDistance(const UnicharAndFonts& uf1,
 float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1,
                                          int font_id2, int class_id2,
                                          const IntFeatureMap& feature_map) {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index1 = font_id_map_.SparseToCompact(font_id1);
   int font_index2 = font_id_map_.SparseToCompact(font_id2);
   if (font_index1 < 0 || font_index2 < 0)
@@ -416,7 +416,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1,
                                          bool thorough) const {
   int result = 0;
   const TrainingSample* sample2 = GetCanonicalSample(font_id2, class_id2);
-  if (sample2 == NULL)
+  if (sample2 == nullptr)
     return 0;  // There are no canonical features.
   const GenericVector<int>& canonical2 = GetCanonicalFeatures(font_id2,
                                                               class_id2);
@@ -451,7 +451,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1,
 // OrganizeByFontAndClass must have been already called.
 int TrainingSampleSet::GlobalSampleIndex(int font_id, int class_id,
                                          int index) const {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
   if (font_index < 0) return -1;
   return (*font_class_array_)(font_index, class_id).samples[index];
@@ -461,18 +461,18 @@ int TrainingSampleSet::GlobalSampleIndex(int font_id, int class_id,
 // ComputeCanonicalSamples must have been called first.
 const TrainingSample* TrainingSampleSet::GetCanonicalSample(
     int font_id, int class_id) const {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
-  if (font_index < 0) return NULL;
+  if (font_index < 0) return nullptr;
   int sample_index = (*font_class_array_)(font_index,
                                           class_id).canonical_sample;
-  return sample_index >= 0 ? samples_[sample_index] : NULL;
+  return sample_index >= 0 ? samples_[sample_index] : nullptr;
 }
 
 // Gets the max distance for the given canonical sample.
 // ComputeCanonicalSamples must have been called first.
 float TrainingSampleSet::GetCanonicalDist(int font_id, int class_id) const {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
   if (font_index < 0) return 0.0f;
   if ((*font_class_array_)(font_index, class_id).canonical_sample >= 0)
@@ -504,7 +504,7 @@ void TrainingSampleSet::DeleteDeadSamples() {
 // Callback function returns true if the given sample is to be deleted, due
 // to having a negative classid.
 bool TrainingSampleSet::DeleteableSample(const TrainingSample* sample) {
-  return sample == NULL || sample->class_id() < 0;
+  return sample == nullptr || sample->class_id() < 0;
 }
 
 // Construct an array to access the samples by font,class pair.
@@ -514,7 +514,7 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
   SetupFontIdMap();
   int compact_font_size = font_id_map_.CompactSize();
   // Get a 2-d array of generic vectors.
-  if (font_class_array_ != NULL)
+  if (font_class_array_ != nullptr)
     delete font_class_array_;
   FontClassInfo empty;
   font_class_array_ = new GENERIC_2D_ARRAY<FontClassInfo>(
@@ -568,7 +568,7 @@ void TrainingSampleSet::SetupFontIdMap() {
 // OrganizeByFontAndClass must have been already called.
 void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
                                                 bool debug) {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   IntFeatureDist f_table;
   if (debug) tprintf("feature table size %d\n", map.sparse_size());
   f_table.Init(&map);
@@ -663,7 +663,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
 // in a predictable and repeatable way.
 // Use after OrganizeByFontAndClass().
 void TrainingSampleSet::ReplicateAndRandomizeSamples() {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_size = font_id_map_.CompactSize();
   for (int font_index = 0; font_index < font_size; ++font_index) {
     for (int c = 0; c < unicharset_size_; ++c) {
@@ -692,7 +692,7 @@ void TrainingSampleSet::ReplicateAndRandomizeSamples() {
 // TODO(rays) see note on ReliablySeparable and try restricting the
 // canonical features to those that truly represent all samples.
 void TrainingSampleSet::ComputeCanonicalFeatures() {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_size = font_id_map_.CompactSize();
   for (int font_index = 0; font_index < font_size; ++font_index) {
     int font_id = font_id_map_.CompactToSparse(font_index);
@@ -710,7 +710,7 @@ void TrainingSampleSet::ComputeCanonicalFeatures() {
 // Computes the combined set of features used by all the samples of each
 // font/class combination. Use after ReplicateAndRandomizeSamples.
 void TrainingSampleSet::ComputeCloudFeatures(int feature_space_size) {
-  ASSERT_HOST(font_class_array_ != NULL);
+  ASSERT_HOST(font_class_array_ != nullptr);
   int font_size = font_id_map_.CompactSize();
   for (int font_index = 0; font_index < font_size; ++font_index) {
     int font_id = font_id_map_.CompactToSparse(font_index);

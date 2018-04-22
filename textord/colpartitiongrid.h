@@ -70,14 +70,14 @@ class ColPartitionGrid : public BBGrid<ColPartition,
 
   // Finds all the ColPartitions in the grid that overlap with the given
   // box and returns them SortByBoxLeft(ed) and uniqued in the given list.
-  // Any partition equal to not_this (may be NULL) is excluded.
+  // Any partition equal to not_this (may be nullptr) is excluded.
   void FindOverlappingPartitions(const TBOX& box, const ColPartition* not_this,
                                  ColPartition_CLIST* parts);
 
   // Finds and returns the best candidate ColPartition to merge with part,
   // selected from the candidates list, based on the minimum increase in
   // pairwise overlap among all the partitions overlapped by the combined box.
-  // If overlap_increase is not NULL then it returns the increase in overlap
+  // If overlap_increase is not nullptr then it returns the increase in overlap
   // that would result from the merge.
   // See colpartitiongrid.cpp for a diagram.
   ColPartition* BestMergeCandidate(
@@ -132,7 +132,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // Makes a single ColPartitionSet consisting of a single ColPartition that
   // represents the total horizontal extent of the significant content on the
   // page. Used for the single column setting in place of automatic detection.
-  // Returns NULL if the page is empty of significant content.
+  // Returns nullptr if the page is empty of significant content.
   ColPartitionSet* MakeSingleColumnSet(WidthCallback* cb);
 
   // Mark the BLOBNBOXes in each partition as being owned by that partition.

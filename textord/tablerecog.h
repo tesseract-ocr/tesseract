@@ -282,7 +282,7 @@ class TableRecognizer {
   // Given a guess location, the RecognizeTable function will try to find a
   // structured grid in the area. On success, it will return a new
   // StructuredTable (and assumes you will delete it). Otherwise,
-  // NULL is returned.
+  // nullptr is returned.
   //
   // Keep in mind, this may "overgrow" or "undergrow" the size of guess.
   // Ideally, there is a either a one-to-one correspondence between

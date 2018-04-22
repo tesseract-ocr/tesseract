@@ -66,7 +66,7 @@ static const int kMaxNumChunks = 64;
 void preserve_outline(EDGEPT *start) {
   EDGEPT *srcpt;
 
-  if (start == NULL)
+  if (start == nullptr)
     return;
   srcpt = start;
   do {
@@ -82,7 +82,7 @@ void preserve_outline(EDGEPT *start) {
 void preserve_outline_tree(TESSLINE *srcline) {
   TESSLINE *outline;
 
-  for (outline = srcline; outline != NULL; outline = outline->next) {
+  for (outline = srcline; outline != nullptr; outline = outline->next) {
     preserve_outline (outline->loop);
   }
 }
@@ -97,8 +97,8 @@ EDGEPT *restore_outline(EDGEPT *start) {
   EDGEPT *srcpt;
   EDGEPT *real_start;
 
-  if (start == NULL)
-    return NULL;
+  if (start == nullptr)
+    return nullptr;
   srcpt = start;
   do {
     if (srcpt->flags[1] == 2)
@@ -122,18 +122,18 @@ EDGEPT *restore_outline(EDGEPT *start) {
 void restore_outline_tree(TESSLINE *srcline) {
   TESSLINE *outline;
 
-  for (outline = srcline; outline != NULL; outline = outline->next) {
+  for (outline = srcline; outline != nullptr; outline = outline->next) {
     outline->loop = restore_outline (outline->loop);
     outline->start = outline->loop->pos;
   }
 }
 
 // Helper runs all the checks on a seam to make sure it is valid.
-// Returns the seam if OK, otherwise deletes the seam and returns NULL.
+// Returns the seam if OK, otherwise deletes the seam and returns nullptr.
 static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
                        TBLOB* blob, TBLOB* other_blob,
                        const GenericVector<SEAM*>& seams, SEAM* seam) {
-  if (seam == NULL || blob->outlines == NULL || other_blob->outlines == NULL ||
+  if (seam == nullptr || blob->outlines == nullptr || other_blob->outlines == nullptr ||
       total_containment(blob, other_blob) || check_blob(other_blob) ||
       !seam->ContainedByBlob(*blob) || !seam->ContainedByBlob(*other_blob) ||
       any_shared_split_points(seams, seam) ||
@@ -142,7 +142,7 @@ static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
     if (seam) {
       seam->UndoSeam(blob, other_blob);
       delete seam;
-      seam = NULL;
+      seam = nullptr;
 #ifndef GRAPHICS_DISABLED
       if (debug_level) {
         if (debug_level >2)
@@ -153,7 +153,7 @@ static SEAM* CheckSeam(int debug_level, int32_t blob_number, TWERD* word,
     } else {
       delete other_blob;
     }
-    return NULL;
+    return nullptr;
   }
   return seam;
 }
@@ -175,17 +175,17 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
   // Insert it into the word.
   word->blobs.insert(other_blob, blob_number + 1);
 
-  SEAM *seam = NULL;
+  SEAM *seam = nullptr;
   if (prioritize_division) {
     TPOINT location;
     if (divisible_blob(blob, italic_blob, &location)) {
       seam = new SEAM(0.0f, location);
     }
   }
-  if (seam == NULL)
+  if (seam == nullptr)
     seam = pick_good_seam(blob);
   if (chop_debug) {
-    if (seam != NULL)
+    if (seam != nullptr)
       seam->Print("Good seam picked=");
     else
       tprintf("\n** no seam picked *** \n");
@@ -196,7 +196,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
 
   seam = CheckSeam(chop_debug, blob_number, word, blob, other_blob,
                    seams, seam);
-  if (seam == NULL) {
+  if (seam == nullptr) {
     if (repair_unchopped_blobs)
       restore_outline_tree(blob->outlines);
     if (allow_blob_division && !prioritize_division) {
@@ -212,7 +212,7 @@ SEAM *Wordrec::attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
       }
     }
   }
-  if (seam != NULL) {
+  if (seam != nullptr) {
     // Make sure this seam doesn't get chopped again.
     seam->Finalize();
   }
@@ -241,8 +241,8 @@ SEAM *Wordrec::chop_overlapping_blob(const GenericVector<TBOX>& boxes,
     botright.y = blob->bounding_box().bottom();
 
     TPOINT original_topleft, original_botright;
-    word_res->denorm.DenormTransform(NULL, topleft, &original_topleft);
-    word_res->denorm.DenormTransform(NULL, botright, &original_botright);
+    word_res->denorm.DenormTransform(nullptr, topleft, &original_topleft);
+    word_res->denorm.DenormTransform(nullptr, botright, &original_botright);
 
     TBOX original_box = TBOX(original_topleft.x, original_botright.y,
                              original_botright.x, original_topleft.y);
@@ -261,13 +261,13 @@ SEAM *Wordrec::chop_overlapping_blob(const GenericVector<TBOX>& boxes,
         (!almost_equal_box && num_overlap > 1)) {
       SEAM *seam = attempt_blob_chop(word, blob, *blob_number,
                                      italic_blob, word_res->seam_array);
-      if (seam != NULL)
+      if (seam != nullptr)
         return seam;
     }
   }
 
   *blob_number = -1;
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace tesseract
@@ -298,15 +298,15 @@ int check_blob(TBLOB *blob) {
   TESSLINE *outline;
   EDGEPT *edgept;
 
-  for (outline = blob->outlines; outline != NULL; outline = outline->next) {
+  for (outline = blob->outlines; outline != nullptr; outline = outline->next) {
     edgept = outline->loop;
     do {
-      if (edgept == NULL)
+      if (edgept == nullptr)
         break;
       edgept = edgept->next;
     }
     while (edgept != outline->loop);
-    if (edgept == NULL)
+    if (edgept == nullptr)
       return 1;
   }
   return 0;
@@ -333,7 +333,7 @@ SEAM* Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE*>& blob_choices,
                                 WERD_RES* word,
                                 int* blob_number) {
   float rating_ceiling = MAX_FLOAT32;
-  SEAM *seam = NULL;
+  SEAM *seam = nullptr;
   do {
     *blob_number = select_blob_to_split_from_fixpt(fixpt);
     if (chop_debug) tprintf("blob_number from fixpt = %d\n", *blob_number);
@@ -346,15 +346,15 @@ SEAM* Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE*>& blob_choices,
     }
     if (chop_debug) tprintf("blob_number = %d\n", *blob_number);
     if (*blob_number == -1)
-      return NULL;
+      return nullptr;
 
     // TODO(rays) it may eventually help to allow italic_blob to be true,
     seam = chop_numbered_blob(word->chopped_word, *blob_number, italic_blob,
                               word->seam_array);
-    if (seam != NULL)
+    if (seam != nullptr)
       return seam;  // Success!
-    if (blob_choices[*blob_number] == NULL)
-      return NULL;
+    if (blob_choices[*blob_number] == nullptr)
+      return nullptr;
     if (!split_point_from_dict) {
       // We chopped the worst rated blob, try something else next time.
       rating_ceiling = blob_choices[*blob_number]->rating();
@@ -377,7 +377,7 @@ SEAM* Wordrec::chop_one_blob(const GenericVector<TBOX>& boxes,
   if (prioritize_division) {
     return chop_overlapping_blob(boxes, true, word_res, blob_number);
   } else {
-    return improve_one_blob(blob_choices, NULL, false, true, word_res,
+    return improve_one_blob(blob_choices, nullptr, false, true, word_res,
                             blob_number);
   }
 }
@@ -392,10 +392,10 @@ SEAM* Wordrec::chop_one_blob(const GenericVector<TBOX>& boxes,
  */
 void Wordrec::chop_word_main(WERD_RES *word) {
   int num_blobs = word->chopped_word->NumBlobs();
-  if (word->ratings == NULL) {
+  if (word->ratings == nullptr) {
     word->ratings = new MATRIX(num_blobs, wordrec_max_join_chunks);
   }
-  if (word->ratings->get(0, 0) == NULL) {
+  if (word->ratings->get(0, 0) == nullptr) {
     // Run initial classification.
     for (int b = 0; b < num_blobs; ++b) {
       BLOB_CHOICE_LIST* choices = classify_piece(word->seam_array, b, b,
@@ -409,7 +409,7 @@ void Wordrec::chop_word_main(WERD_RES *word) {
       for (int row = col; row < word->ratings->dimension() &&
            row < col + word->ratings->bandwidth(); ++row) {
         BLOB_CHOICE_LIST* choices = word->ratings->get(col, row);
-        if (choices != NULL) {
+        if (choices != nullptr) {
           BLOB_CHOICE_IT bc_it(choices);
           for (bc_it.mark_cycle_pt(); !bc_it.cycled_list(); bc_it.forward()) {
             bc_it.data()->set_matrix_cell(col, row);
@@ -423,7 +423,7 @@ void Wordrec::chop_word_main(WERD_RES *word) {
   BestChoiceBundle best_choice_bundle(word->ratings->dimension());
   SegSearch(word, &best_choice_bundle, word->blamer_bundle);
 
-  if (word->best_choice == NULL) {
+  if (word->best_choice == nullptr) {
     // SegSearch found no valid paths, so just use the leading diagonal.
     word->FakeWordFromRatings(TOP_CHOICE_PERM);
   }
@@ -435,7 +435,7 @@ void Wordrec::chop_word_main(WERD_RES *word) {
     getDict().reset_hyphen_vars(true);
   }
 
-  if (word->blamer_bundle != NULL && this->fill_lattice_ != NULL) {
+  if (word->blamer_bundle != nullptr && this->fill_lattice_ != nullptr) {
     CallFillLattice(*word->ratings, word->best_choices,
                     *word->uch_set, word->blamer_bundle);
   }
@@ -467,8 +467,8 @@ void Wordrec::improve_by_chopping(float rating_cert_scale,
     int num_blobs = word->ratings->dimension();
     for (int i = 0; i < num_blobs; ++i) {
       BLOB_CHOICE_LIST* choices = word->ratings->get(i, i);
-      if (choices == NULL || choices->empty()) {
-        blob_choices.push_back(NULL);
+      if (choices == nullptr || choices->empty()) {
+        blob_choices.push_back(nullptr);
       } else {
         BLOB_CHOICE_IT bc_it(choices);
         blob_choices.push_back(bc_it.data());
@@ -476,7 +476,7 @@ void Wordrec::improve_by_chopping(float rating_cert_scale,
     }
     SEAM* seam = improve_one_blob(blob_choices, &best_choice_bundle->fixpt,
                                   false, false, word, &blob_number);
-    if (seam == NULL) break;
+    if (seam == nullptr) break;
     // A chop has been made. We have to correct all the data structures to
     // take into account the extra bottom-level blob.
     // Put the seam into the seam_array and correct everything else on the
@@ -518,10 +518,10 @@ void Wordrec::improve_by_chopping(float rating_cert_scale,
   // top choice and is a dictionary word (i.e. language model could not have
   // helped). Otherwise blame the tradeoff between the classifier and
   // the old language model (permuters).
-  if (word->blamer_bundle != NULL &&
+  if (word->blamer_bundle != nullptr &&
       word->blamer_bundle->incorrect_result_reason() == IRR_CORRECT &&
       !word->blamer_bundle->ChoiceIsCorrect(word->best_choice)) {
-    bool valid_permuter = word->best_choice != NULL &&
+    bool valid_permuter = word->best_choice != nullptr &&
         Dict::valid_word_permuter(word->best_choice->permuter(), false);
     word->blamer_bundle->BlameClassifierOrLangModel(word,
                                                     getDict().getUnicharset(),
@@ -546,7 +546,7 @@ int Wordrec::select_blob_to_split(
   int worst_index = -1;
   float worst_near_fragment = -MAX_FLOAT32;
   int worst_index_near_fragment = -1;
-  const CHAR_FRAGMENT **fragments = NULL;
+  const CHAR_FRAGMENT **fragments = nullptr;
 
   if (chop_debug) {
     if (rating_ceiling < MAX_FLOAT32)
@@ -557,27 +557,27 @@ int Wordrec::select_blob_to_split(
 
   if (split_next_to_fragment && blob_choices.size() > 0) {
     fragments = new const CHAR_FRAGMENT *[blob_choices.length()];
-    if (blob_choices[0] != NULL) {
+    if (blob_choices[0] != nullptr) {
       fragments[0] = getDict().getUnicharset().get_fragment(
           blob_choices[0]->unichar_id());
     } else {
-      fragments[0] = NULL;
+      fragments[0] = nullptr;
     }
   }
 
   for (x = 0; x < blob_choices.size(); ++x) {
-    if (blob_choices[x] == NULL) {
+    if (blob_choices[x] == nullptr) {
       delete[] fragments;
       return x;
     } else {
       blob_choice = blob_choices[x];
       // Populate fragments for the following position.
       if (split_next_to_fragment && x+1 < blob_choices.size()) {
-        if (blob_choices[x + 1] != NULL) {
+        if (blob_choices[x + 1] != nullptr) {
           fragments[x + 1] = getDict().getUnicharset().get_fragment(
               blob_choices[x + 1]->unichar_id());
         } else {
-          fragments[x + 1] = NULL;
+          fragments[x + 1] = nullptr;
         }
       }
       if (blob_choice->rating() < rating_ceiling &&
@@ -591,9 +591,9 @@ int Wordrec::select_blob_to_split(
           // Update worst_near_fragment and worst_index_near_fragment.
           bool expand_following_fragment =
             (x + 1 < blob_choices.size() &&
-             fragments[x+1] != NULL && !fragments[x+1]->is_beginning());
+             fragments[x+1] != nullptr && !fragments[x+1]->is_beginning());
           bool expand_preceding_fragment =
-            (x > 0 && fragments[x-1] != NULL && !fragments[x-1]->is_ending());
+            (x > 0 && fragments[x-1] != nullptr && !fragments[x-1]->is_ending());
           if ((expand_following_fragment || expand_preceding_fragment) &&
               blob_choice->rating() > worst_near_fragment) {
             worst_index_near_fragment = x;

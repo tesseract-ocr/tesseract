@@ -97,7 +97,7 @@ class AssociateUtils {
   // information in the (col, row) entry of the ratings matrix is not used).
   //
   // Note: the function assumes that word_res, stats and
-  // associate_cost pointers are not NULL.
+  // associate_cost pointers are not nullptr.
   static void ComputeStats(int col, int row,
                            const AssociateStats *parent_stats,
                            int parent_path_length,

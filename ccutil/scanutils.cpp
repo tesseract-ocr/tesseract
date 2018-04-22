@@ -279,7 +279,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
     ST_MATCH,         // Main state of %[ sequence
     ST_MATCH_RANGE,   // After - in a %[ sequence
   } state = ST_NORMAL;
-  char *sarg = NULL;    // %s %c or %[ string argument
+  char *sarg = nullptr;    // %s %c or %[ string argument
   enum Bail bail = BAIL_NONE;
   int converted = 0;    // Successful conversions
   unsigned long matchmap[((1 << CHAR_BIT)+(CHAR_BIT * sizeof(long) - 1)) /

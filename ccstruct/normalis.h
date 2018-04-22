@@ -95,19 +95,19 @@ class DENORM {
   // and later the character normalization.
 
   // Arguments:
-  // block: if not NULL, then this is the first transformation, and
+  // block: if not nullptr, then this is the first transformation, and
   //        block->re_rotation() needs to be used after the Denorm
   //        transformation to get back to the image coords.
-  // rotation: if not NULL, apply this rotation after translation to the
+  // rotation: if not nullptr, apply this rotation after translation to the
   //           origin and scaling. (Usually a classify rotation.)
-  // predecessor: if not NULL, then predecessor has been applied to the
+  // predecessor: if not nullptr, then predecessor has been applied to the
   //              input space and needs to be undone to complete the inverse.
   // The above pointers are not owned by this DENORM and are assumed to live
   // longer than this denorm, except rotation, which is deep copied on input.
   //
   // x_origin: The x origin which will be mapped to final_xshift in the result.
   // y_origin: The y origin which will be mapped to final_yshift in the result.
-  //           Added to result of row->baseline(x) if not NULL.
+  //           Added to result of row->baseline(x) if not nullptr.
   //
   // x_scale: scale factor for the x-coordinate.
   // y_scale: scale factor for the y-coordinate. Ignored if segs is given.
@@ -120,23 +120,23 @@ class DENORM {
   //
   // In theory, any of the commonly used normalizations can be setup here:
   // * Traditional baseline normalization on a word:
-  // SetupNormalization(block, NULL, NULL,
+  // SetupNormalization(block, nullptr, nullptr,
   //                    box.x_middle(), baseline,
   //                    kBlnXHeight / x_height, kBlnXHeight / x_height,
   //                    0, kBlnBaselineOffset);
   // * "Numeric mode" baseline normalization on a word, in which the blobs
   //   are positioned with the bottom as the baseline is achieved by making
   //   a separate DENORM for each blob.
-  // SetupNormalization(block, NULL, NULL,
+  // SetupNormalization(block, nullptr, nullptr,
   //                    box.x_middle(), box.bottom(),
   //                    kBlnXHeight / x_height, kBlnXHeight / x_height,
   //                    0, kBlnBaselineOffset);
   // * Anisotropic character normalization used by IntFx.
-  // SetupNormalization(NULL, NULL, denorm,
+  // SetupNormalization(nullptr, nullptr, denorm,
   //                    centroid_x, centroid_y,
   //                    51.2 / ry, 51.2 / rx, 128, 128);
   // * Normalize blob height to x-height (current OSD):
-  // SetupNormalization(NULL, &rotation, NULL,
+  // SetupNormalization(nullptr, &rotation, nullptr,
   //                    box.rotational_x_middle(rotation),
   //                    box.rotational_y_middle(rotation),
   //                    kBlnXHeight / box.rotational_height(rotation),
@@ -145,7 +145,7 @@ class DENORM {
   // * Secondary normalization for classification rotation (current):
   // FCOORD rotation = block->classify_rotation();
   // float target_height = kBlnXHeight / CCStruct::kXHeightCapRatio;
-  // SetupNormalization(NULL, &rotation, denorm,
+  // SetupNormalization(nullptr, &rotation, denorm,
   //                    box.rotational_x_middle(rotation),
   //                    box.rotational_y_middle(rotation),
   //                    target_height / box.rotational_height(rotation),
@@ -157,7 +157,7 @@ class DENORM {
   // Scales height and width independently so that modal height and pitch
   // fill the cell respectively.
   // float cap_height = x_height / CCStruct::kXHeightCapRatio;
-  // SetupNormalization(block, NULL, NULL,
+  // SetupNormalization(block, nullptr, nullptr,
   //                    box.x_middle(), cap_height / 2.0f,
   //                    kBlnCellHeight / fixed_pitch,
   //                    kBlnCellHeight / cap_height,
@@ -167,7 +167,7 @@ class DENORM {
   // cell, no further scaling and a simple rotation (or nothing) about the
   // cell center.
   // FCOORD rotation = block->classify_rotation();
-  // SetupNormalization(NULL, &rotation, denorm,
+  // SetupNormalization(nullptr, &rotation, denorm,
   //                    fixed_pitch_cell_center,
   //                    0.0f,
   //                    1.0f,
@@ -206,7 +206,7 @@ class DENORM {
   void LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const;
   // Transforms the given coords forward to normalized space using the
   // full transformation sequence defined by the block rotation, the
-  // predecessors, deepest first, and finally this. If first_norm is not NULL,
+  // predecessors, deepest first, and finally this. If first_norm is not nullptr,
   // then the first and deepest transformation used is first_norm, ending
   // with this, and the block rotation will not be applied.
   void NormTransform(const DENORM* first_norm, const TPOINT& pt,
@@ -220,7 +220,7 @@ class DENORM {
   // Transforms the given coords all the way back to source image space using
   // the full transformation sequence defined by this and its predecessors
   // recursively, shallowest first, and finally any block re_rotation.
-  // If last_denorm is not NULL, then the last transformation used will
+  // If last_denorm is not nullptr, then the last transformation used will
   // be last_denorm, and the block re_rotation will never be executed.
   void DenormTransform(const DENORM* last_denorm, const TPOINT& pt,
                        TPOINT* original) const;
@@ -258,7 +258,7 @@ class DENORM {
     inverse_ = value;
   }
   const DENORM* RootDenorm() const {
-    if (predecessor_ != NULL)
+    if (predecessor_ != nullptr)
       return predecessor_->RootDenorm();
     return this;
   }

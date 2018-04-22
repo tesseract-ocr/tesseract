@@ -87,17 +87,17 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
   set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
   for (int i = 0; i < other->size(); ++i) {
     GenericVector<FontSpacingInfo*>* spacing_vec = other->get(i).spacing_vec;
-    if (spacing_vec != NULL) {
+    if (spacing_vec != nullptr) {
       int target_index = get_index(other->get(i));
       if (target_index < 0) {
         // Bit copy the FontInfo and steal all the pointers.
         push_back(other->get(i));
-        other->get(i).name = NULL;
+        other->get(i).name = nullptr;
       } else {
         delete [] get(target_index).spacing_vec;
         get(target_index).spacing_vec = other->get(i).spacing_vec;
       }
-      other->get(i).spacing_vec = NULL;
+      other->get(i).spacing_vec = nullptr;
     }
   }
 }
@@ -110,8 +110,8 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo>* target) {
   for (int i = 0; i < size(); ++i) {
     // Bit copy the FontInfo and steal all the pointers.
     target->push_back(get(i));
-    get(i).name = NULL;
-    get(i).spacing_vec = NULL;
+    get(i).name = nullptr;
+    get(i).spacing_vec = nullptr;
   }
 }
 
@@ -137,7 +137,7 @@ bool CompareFontSet(const FontSet& fs1, const FontSet& fs2) {
 
 // Callbacks for GenericVector.
 void FontInfoDeleteCallback(FontInfo f) {
-  if (f.spacing_vec != NULL) {
+  if (f.spacing_vec != nullptr) {
     f.spacing_vec->delete_data_pointers();
     delete f.spacing_vec;
   }
@@ -184,7 +184,7 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
       delete fs;
       return false;
     }
-    if (kern_size < 0) {  // indication of a NULL entry in fi->spacing_vec
+    if (kern_size < 0) {  // indication of a nullptr entry in fi->spacing_vec
       delete fs;
       continue;
     }
@@ -199,13 +199,13 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
 }
 
 bool write_spacing_info(FILE* f, const FontInfo& fi) {
-  int32_t vec_size = (fi.spacing_vec == NULL) ? 0 : fi.spacing_vec->size();
+  int32_t vec_size = (fi.spacing_vec == nullptr) ? 0 : fi.spacing_vec->size();
   if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
   int16_t x_gap_invalid = -1;
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = fi.spacing_vec->get(i);
-    int32_t kern_size = (fs == NULL) ? -1 : fs->kerned_x_gaps.size();
-    if (fs == NULL) {
+    int32_t kern_size = (fs == nullptr) ? -1 : fs->kerned_x_gaps.size();
+    if (fs == nullptr) {
       // Valid to have the identical fwrites. Writing invalid x-gaps.
       if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
           fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||

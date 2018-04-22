@@ -47,12 +47,12 @@ void block_edges(Pix *t_pix,           // thresholded image
   int wpl = pixGetWpl(t_pix);
                                  // lines in progress
   CRACKEDGE **ptrline = new CRACKEDGE*[width + 1];
-  CRACKEDGE *free_cracks = NULL;
+  CRACKEDGE *free_cracks = nullptr;
 
   block->bounding_box(bleft, tright);  // block box
   int block_width = tright.x() - bleft.x();
   for (int x = block_width; x >= 0; x--)
-    ptrline[x] = NULL;           //  no lines in progress
+    ptrline[x] = nullptr;           //  no lines in progress
 
   uint8_t* bwline = new uint8_t[width];
 
@@ -100,7 +100,7 @@ void make_margins(                         //get a line
   int16_t xext;                    //of segment
   int xindex;                    //index to pixel
 
-  if (block->poly_block () != NULL) {
+  if (block->poly_block () != nullptr) {
     lines = new PB_LINE_IT (block->poly_block ());
     const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
         lines->get_line(y));
@@ -159,12 +159,12 @@ void line_edges(int16_t x,                         // coord of line start
 
   xmax = x + xext;               // max allowable coord
   prevcolour = uppercolour;      // forced plain margin
-  current = NULL;                // nothing yet
+  current = nullptr;                // nothing yet
 
                                  // do each pixel
   for (; pos.x < xmax; pos.x++, prevline++) {
     colour = *bwpos++;           // current pixel
-    if (*prevline != NULL) {
+    if (*prevline != nullptr) {
                                  // changed above
                                  // change colour
       uppercolour = FLIP_COLOUR(uppercolour);
@@ -172,19 +172,19 @@ void line_edges(int16_t x,                         // coord of line start
         if (colour == uppercolour) {
                                  // finish a line
           join_edges(current, *prevline, free_cracks, outline_it);
-          current = NULL;        // no edge now
+          current = nullptr;        // no edge now
         } else {
                                  // new horiz edge
           current = h_edge(uppercolour - colour, *prevline, &pos);
         }
-        *prevline = NULL;        // no change this time
+        *prevline = nullptr;        // no change this time
       } else {
         if (colour == uppercolour)
           *prevline = v_edge(colour - prevcolour, *prevline, &pos);
                                  // 8 vs 4 connection
         else if (colour == WHITE_PIX) {
           join_edges(current, *prevline, free_cracks, outline_it);
-          current = h_edge(uppercolour - colour, NULL, &pos);
+          current = h_edge(uppercolour - colour, nullptr, &pos);
           *prevline = v_edge(colour - prevcolour, current, &pos);
         } else {
           newcurrent = h_edge(uppercolour - colour, *prevline, &pos);
@@ -201,19 +201,19 @@ void line_edges(int16_t x,                         // coord of line start
       if (colour != uppercolour)
         current = h_edge(uppercolour - colour, current, &pos);
       else
-        current = NULL;          // no edge now
+        current = nullptr;          // no edge now
     }
   }
-  if (current != NULL) {
+  if (current != nullptr) {
                                  // out of block
-    if (*prevline != NULL) {     // got one to join to?
+    if (*prevline != nullptr) {     // got one to join to?
       join_edges(current, *prevline, free_cracks, outline_it);
-      *prevline = NULL;          // tidy now
+      *prevline = nullptr;          // tidy now
     } else {
                                  // fake vertical
       *prevline = v_edge(FLIP_COLOUR(prevcolour)-prevcolour, current, &pos);
     }
-  } else if (*prevline != NULL) {
+  } else if (*prevline != nullptr) {
                                  //continue fake
     *prevline = v_edge(FLIP_COLOUR(prevcolour)-prevcolour, *prevline, &pos);
   }
@@ -231,7 +231,7 @@ CRACKEDGE *h_edge(int sign,                       // sign of edge
                   CrackPos* pos) {
   CRACKEDGE *newpt;              // return value
 
-  if (*pos->free_cracks != NULL) {
+  if (*pos->free_cracks != nullptr) {
     newpt = *pos->free_cracks;
     *pos->free_cracks = newpt->next;  // get one fast
   } else {
@@ -250,7 +250,7 @@ CRACKEDGE *h_edge(int sign,                       // sign of edge
     newpt->stepdir = 2;
   }
 
-  if (join == NULL) {
+  if (join == nullptr) {
     newpt->next = newpt;         // ptrs to other ends
     newpt->prev = newpt;
   } else {
@@ -282,7 +282,7 @@ CRACKEDGE *v_edge(int sign,                       // sign of edge
                   CrackPos* pos) {
   CRACKEDGE *newpt;              // return value
 
-  if (*pos->free_cracks != NULL) {
+  if (*pos->free_cracks != nullptr) {
     newpt = *pos->free_cracks;
     *pos->free_cracks = newpt->next;  // get one fast
   } else {
@@ -301,7 +301,7 @@ CRACKEDGE *v_edge(int sign,                       // sign of edge
     newpt->stepdir = 1;
   }
 
-  if (join == NULL) {
+  if (join == nullptr) {
     newpt->next = newpt;         //ptrs to other ends
     newpt->prev = newpt;
   } else {
@@ -366,7 +366,7 @@ void free_crackedges(CRACKEDGE *start) {
   CRACKEDGE *current;            // current edge to free
   CRACKEDGE *next;               // next one to free
 
-  for (current = start; current != NULL; current = next) {
+  for (current = start; current != nullptr; current = next) {
     next = current->next;
     delete current;              // delete them all
   }

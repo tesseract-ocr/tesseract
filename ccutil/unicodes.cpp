@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "unicodes.h"
-#include "host.h"  // for NULL
+#include "host.h"  // for nullptr
 
 namespace tesseract {
 
@@ -42,7 +42,7 @@ const char *kHyphenLikeUTF8[] = {
   "\uFE58",  // small em dash
   "\uFE63",  // small hyphen-minus
   "\uFF0D",  // fullwidth hyphen-minus
-  NULL,      // end of our list
+  nullptr,      // end of our list
 };
 
 const char *kApostropheLikeUTF8[] = {
@@ -51,7 +51,7 @@ const char *kApostropheLikeUTF8[] = {
   "\u2018",  // opening single quote
   "\u2019",  // closing single quote
   "\u2032",  // mathematical prime mark
-  NULL,      // end of our list.
+  nullptr,      // end of our list.
 };
 
 }  // namespace

@@ -52,8 +52,8 @@ void AddAdaptedClass(ADAPT_TEMPLATES Templates,
                      CLASS_ID ClassId) {
   INT_CLASS IntClass;
 
-  assert (Templates != NULL);
-  assert (Class != NULL);
+  assert (Templates != nullptr);
+  assert (Class != nullptr);
   assert (LegalClassId (ClassId));
   assert (UnusedClassIdIn (Templates->Templates, ClassId));
   assert (Class->NumPermConfigs == 0);
@@ -61,7 +61,7 @@ void AddAdaptedClass(ADAPT_TEMPLATES Templates,
   IntClass = NewIntClass (1, 1);
   AddIntClass (Templates->Templates, ClassId, IntClass);
 
-  assert (Templates->Class[ClassId] == NULL);
+  assert (Templates->Class[ClassId] == nullptr);
   Templates->Class[ClassId] = Class;
 
 }                                /* AddAdaptedClass */
@@ -79,7 +79,7 @@ void AddAdaptedClass(ADAPT_TEMPLATES Templates,
  * @note History: Thu Mar 14 13:34:23 1991, DSJ, Created.
  */
 void FreeTempConfig(TEMP_CONFIG Config) {
-  assert (Config != NULL);
+  assert (Config != nullptr);
   FreeBitVector (Config->Protos);
   free(Config);
 }                                /* FreeTempConfig */
@@ -92,7 +92,7 @@ void FreeTempProto(void *arg) {
 }
 
 void FreePermConfig(PERM_CONFIG Config) {
-  assert(Config != NULL);
+  assert(Config != nullptr);
   delete [] Config->Ambigs;
   free(Config);
 }
@@ -123,7 +123,7 @@ ADAPT_CLASS NewAdaptedClass() {
   zero_all_bits (Class->PermConfigs, WordsInVectorOfSize (MAX_NUM_CONFIGS));
 
   for (i = 0; i < MAX_NUM_CONFIGS; i++)
-    TempConfigFor (Class, i) = NULL;
+    TempConfigFor (Class, i) = nullptr;
 
   return (Class);
 
@@ -136,10 +136,10 @@ void free_adapted_class(ADAPT_CLASS adapt_class) {
 
   for (i = 0; i < MAX_NUM_CONFIGS; i++) {
     if (ConfigIsPermanent (adapt_class, i)
-      && PermConfigFor (adapt_class, i) != NULL)
+      && PermConfigFor (adapt_class, i) != nullptr)
       FreePermConfig (PermConfigFor (adapt_class, i));
     else if (!ConfigIsPermanent (adapt_class, i)
-      && TempConfigFor (adapt_class, i) != NULL)
+      && TempConfigFor (adapt_class, i) != nullptr)
       FreeTempConfig (TempConfigFor (adapt_class, i));
   }
   FreeBitVector (adapt_class->PermProtos);
@@ -174,7 +174,7 @@ ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
 
   /* Insert an empty class for each unichar id in unicharset */
   for (i = 0; i < MAX_NUM_CLASSES; i++) {
-    Templates->Class[i] = NULL;
+    Templates->Class[i] = nullptr;
     if (InitFromUnicharset && i < unicharset.size()) {
       AddAdaptedClass(Templates, NewAdaptedClass(), i);
     }
@@ -196,7 +196,7 @@ int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
 /*----------------------------------------------------------------------------*/
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
 
-  if (templates != NULL) {
+  if (templates != nullptr) {
     int i;
     for (i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
@@ -519,7 +519,7 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 void WritePermConfig(FILE *File, PERM_CONFIG Config) {
   uint8_t NumAmbigs = 0;
 
-  assert (Config != NULL);
+  assert (Config != nullptr);
   while (Config->Ambigs[NumAmbigs] > 0) ++NumAmbigs;
 
   fwrite((char *) &NumAmbigs, sizeof(uint8_t), 1, File);
@@ -541,7 +541,7 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
  * @note History: Tue Mar 19 14:00:28 1991, DSJ, Created.
  */
 void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
-  assert (Config != NULL);
+  assert (Config != nullptr);
 
   fwrite ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
   fwrite ((char *) Config->Protos, sizeof (uint32_t),

@@ -74,7 +74,7 @@ class UnicityTable {
   /// Clear the table, calling the callback function if any.
   /// All the owned Callbacks are also deleted.
   /// If you don't want the Callbacks to be deleted, before calling clear, set
-  /// the callback to NULL.
+  /// the callback to nullptr.
   void clear();
 
   /// This method clear the current object, then, does a shallow copy of

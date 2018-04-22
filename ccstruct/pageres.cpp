@@ -110,7 +110,7 @@ BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK *the_block) {
 ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
   WERD_IT word_it(the_row->word_list());
   WERD_RES_IT word_res_it(&word_res_list);
-  WERD_RES *combo = NULL;        // current combination of fuzzies
+  WERD_RES *combo = nullptr;        // current combination of fuzzies
   WERD *copy_word;
 
   char_count = 0;
@@ -126,7 +126,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
     WERD_RES* word_res = new WERD_RES(word_it.data());
     word_res->x_height = the_row->x_height();
     if (add_next_word) {
-      ASSERT_HOST(combo != NULL);
+      ASSERT_HOST(combo != nullptr);
       // We are adding this word to the combination.
       word_res->part_of_combo = TRUE;
       combo->copy_on(word_res);
@@ -158,7 +158,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
       add_next_word = next_word->flag(W_FUZZY_NON);
     }
     if (add_next_word) {
-      if (combo == NULL) {
+      if (combo == nullptr) {
         copy_word = new WERD;
         *copy_word = *(word_it.data());  // deep copy
         combo = new WERD_RES(copy_word);
@@ -168,7 +168,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
       }
       word_res->part_of_combo = TRUE;
     } else {
-      combo = NULL;
+      combo = nullptr;
     }
     word_res_it.add_to_end(word_res);
   }
@@ -184,16 +184,16 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
   } else {
     word = source.word;          // pt to same word
   }
-  if (source.bln_boxes != NULL)
+  if (source.bln_boxes != nullptr)
     bln_boxes = new tesseract::BoxWord(*source.bln_boxes);
-  if (source.chopped_word != NULL)
+  if (source.chopped_word != nullptr)
     chopped_word = new TWERD(*source.chopped_word);
-  if (source.rebuild_word != NULL)
+  if (source.rebuild_word != nullptr)
     rebuild_word = new TWERD(*source.rebuild_word);
   // TODO(rays) Do we ever need to copy the seam_array?
   blob_row = source.blob_row;
   denorm = source.denorm;
-  if (source.box_word != NULL)
+  if (source.box_word != nullptr)
     box_word = new tesseract::BoxWord(*source.box_word);
   best_state = source.best_state;
   correct_text = source.correct_text;
@@ -213,24 +213,24 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
     wc_dest_it.move_to_first();
     best_choice = wc_dest_it.data();
   } else {
-    best_choice = NULL;
+    best_choice = nullptr;
   }
 
-  if (source.raw_choice != NULL) {
+  if (source.raw_choice != nullptr) {
     raw_choice = new WERD_CHOICE(*source.raw_choice);
   } else {
-    raw_choice = NULL;
+    raw_choice = nullptr;
   }
-  if (source.ep_choice != NULL) {
+  if (source.ep_choice != nullptr) {
     ep_choice = new WERD_CHOICE(*source.ep_choice);
   } else {
-    ep_choice = NULL;
+    ep_choice = nullptr;
   }
   reject_map = source.reject_map;
   combination = source.combination;
   part_of_combo = source.part_of_combo;
   CopySimpleFields(source);
-  if (source.blamer_bundle != NULL) {
+  if (source.blamer_bundle != nullptr) {
     blamer_bundle =  new BlamerBundle(*(source.blamer_bundle));
   }
   return *this;
@@ -269,7 +269,7 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
 void WERD_RES::InitForRetryRecognition(const WERD_RES& source) {
   word = source.word;
   CopySimpleFields(source);
-  if (source.blamer_bundle != NULL) {
+  if (source.blamer_bundle != nullptr) {
     blamer_bundle = new BlamerBundle();
     blamer_bundle->CopyTruth(*source.blamer_bundle);
   }
@@ -302,10 +302,10 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   tesseract::OcrEngineMode norm_mode_hint =
       static_cast<tesseract::OcrEngineMode>(norm_mode);
   tesseract = tess;
-  POLY_BLOCK* pb = block != NULL ? block->pdblk.poly_block() : NULL;
+  POLY_BLOCK* pb = block != nullptr ? block->pdblk.poly_block() : nullptr;
   if ((norm_mode_hint != tesseract::OEM_LSTM_ONLY &&
        word->cblob_list()->empty()) ||
-      (pb != NULL && !pb->IsText())) {
+      (pb != nullptr && !pb->IsText())) {
     // Empty words occur when all the blobs have been moved to the rej_blobs
     // list, which seems to occur frequently in junk.
     SetupFake(unicharset_in);
@@ -315,7 +315,7 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   ClearResults();
   SetupWordScript(unicharset_in);
   chopped_word = TWERD::PolygonalCopy(allow_detailed_fx, word);
-  float word_xheight = use_body_size && row != NULL && row->body_size() > 0.0f
+  float word_xheight = use_body_size && row != nullptr && row->body_size() > 0.0f
                      ? row->body_size() : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
                             word_xheight, baseline_shift, numeric_mode,
@@ -383,7 +383,7 @@ void WERD_RES::SetupWordScript(const UNICHARSET& uch) {
 
 // Sets up the blamer_bundle if it is not null, using the initialized denorm.
 void WERD_RES::SetupBlamerBundle() {
-  if (blamer_bundle != NULL) {
+  if (blamer_bundle != nullptr) {
     blamer_bundle->SetupNormTruthWord(denorm);
   }
 }
@@ -411,11 +411,11 @@ void WERD_RES::InsertSeam(int blob_number, SEAM* seam) {
   // Insert the seam into the SEAMS array.
   seam->PrepareToInsertSeam(seam_array, chopped_word->blobs, blob_number, true);
   seam_array.insert(seam, blob_number);
-  if (ratings != NULL) {
+  if (ratings != nullptr) {
     // Expand the ratings matrix.
     ratings = ratings->ConsumeAndMakeBigger(blob_number);
     // Fix all the segmentation states.
-    if (raw_choice != NULL)
+    if (raw_choice != nullptr)
       raw_choice->UpdateStateForSplit(blob_number);
     WERD_CHOICE_IT wc_it(&best_choices);
     for (wc_it.mark_cycle_pt(); !wc_it.cycled_list(); wc_it.forward()) {
@@ -471,9 +471,9 @@ bool WERD_RES::StatesAllValid() {
 // the word_to_debug.
 void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
   if (debug ||
-      (word_to_debug != NULL && *word_to_debug != '\0' && best_choice != NULL &&
+      (word_to_debug != nullptr && *word_to_debug != '\0' && best_choice != nullptr &&
        best_choice->unichar_string() == STRING(word_to_debug))) {
-    if (raw_choice != NULL)
+    if (raw_choice != nullptr)
       raw_choice->print("\nBest Raw Choice");
 
     WERD_CHOICE_IT it(&best_choices);
@@ -491,7 +491,7 @@ void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
 void WERD_RES::DebugTopChoice(const char* msg) const {
   tprintf("Best choice: accepted=%d, adaptable=%d, done=%d : ",
           tess_accepted, tess_would_adapt, done);
-  if (best_choice == NULL)
+  if (best_choice == nullptr)
     tprintf("<Null choice>\n");
   else
     best_choice->print(msg);
@@ -503,7 +503,7 @@ void WERD_RES::DebugTopChoice(const char* msg) const {
 // re-ranker, in place of this heuristic that is based on the previous
 // adjustment factor.
 void WERD_RES::FilterWordChoices(int debug_level) {
-  if (best_choice == NULL || best_choices.singleton())
+  if (best_choice == nullptr || best_choices.singleton())
     return;
 
   if (debug_level >= 2)
@@ -594,7 +594,7 @@ void WERD_RES::ComputeAdaptionThresholds(float certainty_scale,
 // Saves a copy of the word_choice if it has the best unadjusted rating.
 // Returns true if the word_choice was the new best.
 bool WERD_RES::LogNewRawChoice(WERD_CHOICE* word_choice) {
-  if (raw_choice == NULL || word_choice->rating() < raw_choice->rating()) {
+  if (raw_choice == nullptr || word_choice->rating() < raw_choice->rating()) {
     delete raw_choice;
     raw_choice = new WERD_CHOICE(*word_choice);
     raw_choice->set_permuter(TOP_CHOICE_PERM);
@@ -611,7 +611,7 @@ bool WERD_RES::LogNewRawChoice(WERD_CHOICE* word_choice) {
 // Returns true if the word_choice is still a valid pointer.
 bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
                                   WERD_CHOICE* word_choice) {
-  if (best_choice != NULL) {
+  if (best_choice != nullptr) {
     // Throw out obviously bad choices to save some work.
     // TODO(rays) Get rid of this! This piece of code produces different
     // results according to the order in which words are found, which is an
@@ -626,7 +626,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
         max_certainty_delta) {
       if (debug) {
         STRING bad_string;
-        word_choice->string_and_lengths(&bad_string, NULL);
+        word_choice->string_and_lengths(&bad_string, nullptr);
         tprintf("Discarding choice \"%s\" with an overly low certainty"
                 " %.3f vs best choice certainty %.3f (Threshold: %.3f)\n",
                 bad_string.string(), word_choice->certainty(),
@@ -702,7 +702,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
 template<class T> static void MovePointerData(T** dest, T**src) {
   delete *dest;
   *dest = *src;
-  *src = NULL;
+  *src = nullptr;
 }
 
 // Prints a brief list of all the best choices.
@@ -737,10 +737,10 @@ int WERD_RES::GetBlobsGap(int blob_index) {
 
 // Returns the BLOB_CHOICE corresponding to the given index in the
 // best choice word taken from the appropriate cell in the ratings MATRIX.
-// Borrowed pointer, so do not delete. May return NULL if there is no
+// Borrowed pointer, so do not delete. May return nullptr if there is no
 // BLOB_CHOICE matching the unichar_id at the given index.
 BLOB_CHOICE* WERD_RES::GetBlobChoice(int index) const {
-  if (index < 0 || index >= best_choice->length()) return NULL;
+  if (index < 0 || index >= best_choice->length()) return nullptr;
   BLOB_CHOICE_LIST* choices = GetBlobChoices(index);
   return FindMatchingChoice(best_choice->unichar_id(index), choices);
 }
@@ -767,7 +767,7 @@ void WERD_RES::ConsumeWordResults(WERD_RES* word) {
   correct_text.move(&word->correct_text);
   blob_widths.move(&word->blob_widths);
   blob_gaps.move(&word->blob_gaps);
-  if (ratings != NULL) ratings->delete_matrix_pointers();
+  if (ratings != nullptr) ratings->delete_matrix_pointers();
   MovePointerData(&ratings, &word->ratings);
   best_choice = word->best_choice;
   MovePointerData(&raw_choice, &word->raw_choice);
@@ -775,8 +775,8 @@ void WERD_RES::ConsumeWordResults(WERD_RES* word) {
   WERD_CHOICE_IT wc_it(&best_choices);
   wc_it.add_list_after(&word->best_choices);
   reject_map = word->reject_map;
-  if (word->blamer_bundle != NULL) {
-    assert(blamer_bundle != NULL);
+  if (word->blamer_bundle != nullptr) {
+    assert(blamer_bundle != nullptr);
     blamer_bundle->CopyResults(*(word->blamer_bundle));
   }
   CopySimpleFields(*word);
@@ -798,8 +798,8 @@ void WERD_RES::ReplaceBestChoice(WERD_CHOICE* choice) {
 // Builds the rebuild_word and sets the best_state from the chopped_word and
 // the best_choice->state.
 void WERD_RES::RebuildBestState() {
-  ASSERT_HOST(best_choice != NULL);
-  if (rebuild_word != NULL)
+  ASSERT_HOST(best_choice != nullptr);
+  if (rebuild_word != nullptr)
     delete rebuild_word;
   rebuild_word = new TWERD;
   if (seam_array.empty())
@@ -826,7 +826,7 @@ void WERD_RES::RebuildBestState() {
 // Copies the chopped_word to the rebuild_word, faking a best_state as well.
 // Also sets up the output box_word.
 void WERD_RES::CloneChoppedToRebuild() {
-  if (rebuild_word != NULL)
+  if (rebuild_word != nullptr)
     delete rebuild_word;
   rebuild_word = new TWERD(*chopped_word);
   SetupBoxWord();
@@ -841,7 +841,7 @@ void WERD_RES::CloneChoppedToRebuild() {
 
 // Sets/replaces the box_word with one made from the rebuild_word.
 void WERD_RES::SetupBoxWord() {
-  if (box_word != NULL)
+  if (box_word != nullptr)
     delete box_word;
   rebuild_word->ComputeBoundingBoxes();
   box_word = tesseract::BoxWord::CopyFromNormalized(rebuild_word);
@@ -871,7 +871,7 @@ void WERD_RES::SetAllScriptPositions(tesseract::ScriptPos position) {
 // The number of blobs in the box_word must match blob_count.
 void WERD_RES::FakeClassifyWord(int blob_count, BLOB_CHOICE** choices) {
   // Setup the WERD_RES.
-  ASSERT_HOST(box_word != NULL);
+  ASSERT_HOST(box_word != nullptr);
   ASSERT_HOST(blob_count == box_word->length());
   ClearWordChoices();
   ClearRatings();
@@ -899,7 +899,7 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
     float rating = INT32_MAX;
     float certainty = -INT32_MAX;
     BLOB_CHOICE_LIST* choices = ratings->get(b, b);
-    if (choices != NULL && !choices->empty()) {
+    if (choices != nullptr && !choices->empty()) {
       BLOB_CHOICE_IT bc_it(choices);
       BLOB_CHOICE* choice = bc_it.data();
       unichar_id = choice->unichar_id();
@@ -917,7 +917,7 @@ void WERD_RES::FakeWordFromRatings(PermuterType permuter) {
 // Copies the best_choice strings to the correct_text for adaption/training.
 void WERD_RES::BestChoiceToCorrectText() {
   correct_text.clear();
-  ASSERT_HOST(best_choice != NULL);
+  ASSERT_HOST(best_choice != nullptr);
   for (int i = 0; i < best_choice->length(); ++i) {
     UNICHAR_ID choice_id = best_choice->unichar_id(i);
     const char* blob_choice = uch_set->id_to_unichar(choice_id);
@@ -927,19 +927,19 @@ void WERD_RES::BestChoiceToCorrectText() {
 
 // Merges 2 adjacent blobs in the result if the permanent callback
 // class_cb returns other than INVALID_UNICHAR_ID, AND the permanent
-// callback box_cb is NULL or returns true, setting the merged blob
+// callback box_cb is nullptr or returns true, setting the merged blob
 // result to the class returned from class_cb.
 // Returns true if anything was merged.
 bool WERD_RES::ConditionalBlobMerge(
     TessResultCallback2<UNICHAR_ID, UNICHAR_ID, UNICHAR_ID>* class_cb,
     TessResultCallback2<bool, const TBOX&, const TBOX&>* box_cb) {
-  ASSERT_HOST(best_choice->length() == 0 || ratings != NULL);
+  ASSERT_HOST(best_choice->length() == 0 || ratings != nullptr);
   bool modified = false;
   for (int i = 0; i + 1 < best_choice->length(); ++i) {
     UNICHAR_ID new_id = class_cb->Run(best_choice->unichar_id(i),
                                       best_choice->unichar_id(i+1));
     if (new_id != INVALID_UNICHAR_ID &&
-        (box_cb == NULL || box_cb->Run(box_word->BlobBox(i),
+        (box_cb == nullptr || box_cb->Run(box_word->BlobBox(i),
                                        box_word->BlobBox(i + 1)))) {
       // Raw choice should not be fixed.
       best_choice->set_unichar_id(new_id, i);
@@ -950,7 +950,7 @@ bool WERD_RES::ConditionalBlobMerge(
         ratings->IncreaseBandSize(coord.row + 1 - coord.col);
       }
       BLOB_CHOICE_LIST* blob_choices = GetBlobChoices(i);
-      if (FindMatchingChoice(new_id, blob_choices) == NULL) {
+      if (FindMatchingChoice(new_id, blob_choices) == nullptr) {
         // Insert a fake result.
         BLOB_CHOICE* blob_choice = new BLOB_CHOICE;
         blob_choice->set_unichar_id(new_id);
@@ -1017,7 +1017,7 @@ void WERD_RES::fix_quotes() {
 
   ConditionalBlobMerge(
       NewPermanentTessCallback(this, &WERD_RES::BothQuotes),
-      NULL);
+      nullptr);
 }
 
 // Callback helper for fix_hyphens returns UNICHAR_ID of - if both
@@ -1061,7 +1061,7 @@ UNICHAR_ID WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
 // Change pairs of tess failures to a single one
 void WERD_RES::merge_tess_fails() {
   if (ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothSpaces), NULL)) {
+      NewPermanentTessCallback(this, &WERD_RES::BothSpaces), nullptr)) {
     int len = best_choice->length();
     ASSERT_HOST(reject_map.length() == len);
     ASSERT_HOST(box_word->length() == len);
@@ -1075,7 +1075,7 @@ bool WERD_RES::PiecesAllNatural(int start, int count) const {
   for (int index = start; index < start + count - 1; ++index) {
     if (index >= 0 && index < seam_array.size()) {
       SEAM* seam = seam_array[index];
-      if (seam != NULL && seam->HasAnySplits()) return false;
+      if (seam != nullptr && seam->HasAnySplits()) return false;
     }
   }
   return true;
@@ -1098,9 +1098,9 @@ void WERD_RES::InitNonPointers() {
   bold = FALSE;
   // The fontinfos and tesseract count as non-pointers as they point to
   // data owned elsewhere.
-  fontinfo = NULL;
-  fontinfo2 = NULL;
-  tesseract = NULL;
+  fontinfo = nullptr;
+  fontinfo2 = nullptr;
+  tesseract = nullptr;
   fontinfo_id_count = 0;
   fontinfo_id2_count = 0;
   x_height = 0.0;
@@ -1115,52 +1115,52 @@ void WERD_RES::InitNonPointers() {
 }
 
 void WERD_RES::InitPointers() {
-  word = NULL;
-  bln_boxes = NULL;
-  blob_row = NULL;
-  uch_set = NULL;
-  chopped_word = NULL;
-  rebuild_word = NULL;
-  box_word = NULL;
-  ratings = NULL;
-  best_choice = NULL;
-  raw_choice = NULL;
-  ep_choice = NULL;
-  blamer_bundle = NULL;
+  word = nullptr;
+  bln_boxes = nullptr;
+  blob_row = nullptr;
+  uch_set = nullptr;
+  chopped_word = nullptr;
+  rebuild_word = nullptr;
+  box_word = nullptr;
+  ratings = nullptr;
+  best_choice = nullptr;
+  raw_choice = nullptr;
+  ep_choice = nullptr;
+  blamer_bundle = nullptr;
 }
 
 void WERD_RES::Clear() {
-  if (word != NULL && combination) {
+  if (word != nullptr && combination) {
     delete word;
   }
-  word = NULL;
+  word = nullptr;
   delete blamer_bundle;
-  blamer_bundle = NULL;
+  blamer_bundle = nullptr;
   ClearResults();
 }
 
 void WERD_RES::ClearResults() {
   done = false;
-  fontinfo = NULL;
-  fontinfo2 = NULL;
+  fontinfo = nullptr;
+  fontinfo2 = nullptr;
   fontinfo_id_count = 0;
   fontinfo_id2_count = 0;
-  if (bln_boxes != NULL) {
+  if (bln_boxes != nullptr) {
     delete bln_boxes;
-    bln_boxes = NULL;
+    bln_boxes = nullptr;
   }
-  blob_row = NULL;
-  if (chopped_word != NULL) {
+  blob_row = nullptr;
+  if (chopped_word != nullptr) {
     delete chopped_word;
-    chopped_word = NULL;
+    chopped_word = nullptr;
   }
-  if (rebuild_word != NULL) {
+  if (rebuild_word != nullptr) {
     delete rebuild_word;
-    rebuild_word = NULL;
+    rebuild_word = nullptr;
   }
-  if (box_word != NULL) {
+  if (box_word != nullptr) {
     delete box_word;
-    box_word = NULL;
+    box_word = nullptr;
   }
   best_state.clear();
   correct_text.clear();
@@ -1170,25 +1170,25 @@ void WERD_RES::ClearResults() {
   blob_gaps.clear();
   ClearRatings();
   ClearWordChoices();
-  if (blamer_bundle != NULL) blamer_bundle->ClearResults();
+  if (blamer_bundle != nullptr) blamer_bundle->ClearResults();
 }
 void WERD_RES::ClearWordChoices() {
-  best_choice = NULL;
-  if (raw_choice != NULL) {
+  best_choice = nullptr;
+  if (raw_choice != nullptr) {
     delete raw_choice;
-    raw_choice = NULL;
+    raw_choice = nullptr;
   }
   best_choices.clear();
-  if (ep_choice != NULL) {
+  if (ep_choice != nullptr) {
     delete ep_choice;
-    ep_choice = NULL;
+    ep_choice = nullptr;
   }
 }
 void WERD_RES::ClearRatings() {
-  if (ratings != NULL) {
+  if (ratings != nullptr) {
     ratings->delete_matrix_pointers();
     delete ratings;
-    ratings = NULL;
+    ratings = nullptr;
   }
 }
 
@@ -1201,23 +1201,23 @@ bool PAGE_RES_IT::operator ==(const PAGE_RES_IT &other) const {
 
 int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
   ASSERT_HOST(page_res == other.page_res);
-  if (other.block_res == NULL) {
+  if (other.block_res == nullptr) {
     // other points to the end of the page.
-    if (block_res == NULL)
+    if (block_res == nullptr)
       return 0;
     return -1;
   }
-  if (block_res == NULL) {
+  if (block_res == nullptr) {
     return 1; // we point to the end of the page.
   }
   if (block_res == other.block_res) {
-    if (other.row_res == NULL || row_res == NULL) {
+    if (other.row_res == nullptr || row_res == nullptr) {
       // this should only happen if we hit an image block.
       return 0;
     }
     if (row_res == other.row_res) {
       // we point to the same block and row.
-      ASSERT_HOST(other.word_res != NULL && word_res != NULL);
+      ASSERT_HOST(other.word_res != nullptr && word_res != nullptr);
       if (word_res == other.word_res) {
         // we point to the same word!
         return 0;
@@ -1232,7 +1232,7 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
           return 1;
         }
       }
-      ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == NULL);
+      ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == nullptr);
     }
 
     // we both point to the same block, but different rows.
@@ -1245,7 +1245,7 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
         return 1;
       }
     }
-    ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == NULL);
+    ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == nullptr);
   }
 
   // We point to different blocks.
@@ -1259,7 +1259,7 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
     }
   }
   // Shouldn't happen...
-  ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == NULL);
+  ASSERT_HOST("Error: Incomparable PAGE_RES_ITs" == nullptr);
   return 0;
 }
 
@@ -1308,7 +1308,7 @@ static void ComputeBlobEnds(const WERD_RES& word, C_BLOB_LIST* next_word_blobs,
     // This blob_box is crap, so for now we are only looking for the
     // boundaries between them.
     int blob_end = INT32_MAX;
-    if (!blob_it.at_first() || next_word_blobs != NULL) {
+    if (!blob_it.at_first() || next_word_blobs != nullptr) {
       if (blob_it.at_first())
         blob_it.set_to_list(next_word_blobs);
       blob_end = (blob_box.right() + blob_it.data()->bounding_box().left()) / 2;
@@ -1370,7 +1370,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
     // Compute blob boundaries.
     GenericVector<int> blob_ends;
     C_BLOB_LIST* next_word_blobs =
-        w + 1 < words->size() ? (*words)[w + 1]->word->cblob_list() : NULL;
+        w + 1 < words->size() ? (*words)[w + 1]->word->cblob_list() : nullptr;
     ComputeBlobEnds(*word_w, next_word_blobs, &blob_ends);
     // Delete the fake blobs on the current word.
     word_w->word->cblob_list()->clear();
@@ -1433,7 +1433,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
       w_it.add_before_stay_put(word_w->word);
       word_w->combination = false;
     }
-    (*words)[w] = NULL;  // We are taking ownership.
+    (*words)[w] = nullptr;  // We are taking ownership.
     wr_it.add_before_stay_put(word_w);
   }
   // We have taken ownership of the words.
@@ -1470,7 +1470,7 @@ void PAGE_RES_IT::DeleteCurrentWord() {
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
     if (wr_it.data() == word_res) {
-      word_res = NULL;
+      word_res = nullptr;
       break;
     }
   }
@@ -1511,15 +1511,15 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
 WERD_RES *PAGE_RES_IT::start_page(bool empty_ok) {
   block_res_it.set_to_list(&page_res->block_res_list);
   block_res_it.mark_cycle_pt();
-  prev_block_res = NULL;
-  prev_row_res = NULL;
-  prev_word_res = NULL;
-  block_res = NULL;
-  row_res = NULL;
-  word_res = NULL;
-  next_block_res = NULL;
-  next_row_res = NULL;
-  next_word_res = NULL;
+  prev_block_res = nullptr;
+  prev_row_res = nullptr;
+  prev_word_res = nullptr;
+  block_res = nullptr;
+  row_res = nullptr;
+  word_res = nullptr;
+  next_block_res = nullptr;
+  next_row_res = nullptr;
+  next_word_res = nullptr;
   internal_forward(true, empty_ok);
   return internal_forward(false, empty_ok);
 }
@@ -1563,14 +1563,14 @@ void PAGE_RES_IT::ResetWordIterator() {
  *
  * Find the next word on the page. If empty_ok is true, then non-text blocks
  * and text blocks with no text are visited as if they contain a single
- * imaginary word in a single imaginary row. (word() and row() both return NULL
- * in such a block and the return value is NULL.)
+ * imaginary word in a single imaginary row. (word() and row() both return nullptr
+ * in such a block and the return value is nullptr.)
  * If empty_ok is false, the old behaviour is maintained. Each real word
  * is visited and empty and non-text blocks and rows are skipped.
  * new_block is used to initialize the iterators for a new block.
  * The iterator maintains pointers to block, row and word for the previous,
  * current and next words.  These are correct, regardless of block/row
- * boundaries. NULL values denote start and end of the page.
+ * boundaries. nullptr values denote start and end of the page.
  *************************************************************************/
 
 WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
@@ -1582,9 +1582,9 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
   block_res = next_block_res;
   row_res = next_row_res;
   word_res = next_word_res;
-  next_block_res = NULL;
-  next_row_res = NULL;
-  next_word_res = NULL;
+  next_block_res = nullptr;
+  next_row_res = nullptr;
+  next_word_res = nullptr;
 
   while (!block_res_it.cycled_list()) {
     if (new_block) {
@@ -1623,9 +1623,9 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
   }
   foundword:
   // Update prev_word_best_choice pointer.
-  if (page_res != NULL && page_res->prev_word_best_choice != NULL) {
+  if (page_res != nullptr && page_res->prev_word_best_choice != nullptr) {
     *page_res->prev_word_best_choice =
-      (new_block || prev_word_res == NULL) ? NULL : prev_word_res->best_choice;
+      (new_block || prev_word_res == nullptr) ? nullptr : prev_word_res->best_choice;
   }
   return word_res;
 }
@@ -1637,7 +1637,7 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
  *************************************************************************/
 WERD_RES *PAGE_RES_IT::restart_row() {
   ROW_RES *row = this->row();
-  if (!row) return NULL;
+  if (!row) return nullptr;
   for (restart_page(); this->row() != row; forward()) {
     // pass
   }
@@ -1652,7 +1652,7 @@ WERD_RES *PAGE_RES_IT::restart_row() {
 
 WERD_RES *PAGE_RES_IT::forward_paragraph() {
   while (block_res == next_block_res &&
-         (next_row_res != NULL && next_row_res->row != NULL &&
+         (next_row_res != nullptr && next_row_res->row != nullptr &&
           row_res->row->para() == next_row_res->row->para())) {
     internal_forward(false, true);
   }

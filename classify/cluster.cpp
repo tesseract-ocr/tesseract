@@ -407,7 +407,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   Clusterer->NumChar = 0;
 
   // init fields which will not be used initially
-  Clusterer->Root = NULL;
+  Clusterer->Root = nullptr;
   Clusterer->ProtoList = NIL_LIST;
 
   // maintain a copy of param descriptors in the clusterer data structure
@@ -430,7 +430,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   // Initialize cache of histogram buckets to minimize recomputing them.
   for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
     for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-      Clusterer->bucket_cache[d][c] = NULL;
+      Clusterer->bucket_cache[d][c] = nullptr;
   }
 
   return Clusterer;
@@ -458,7 +458,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
   int i;
 
   // see if the samples have already been clustered - if so trap an error
-  if (Clusterer->Root != NULL)
+  if (Clusterer->Root != nullptr)
     DoError (ALREADYCLUSTERED,
       "Can't add samples after they have been clustered");
 
@@ -469,8 +469,8 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
   Sample->Clustered = FALSE;
   Sample->Prototype = FALSE;
   Sample->SampleCount = 1;
-  Sample->Left = NULL;
-  Sample->Right = NULL;
+  Sample->Left = nullptr;
+  Sample->Right = nullptr;
   Sample->CharID = CharID;
 
   for (i = 0; i < Clusterer->SampleSize; i++)
@@ -511,7 +511,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
  */
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   //only create cluster tree if samples have never been clustered before
-  if (Clusterer->Root == NULL)
+  if (Clusterer->Root == nullptr)
     CreateClusterTree(Clusterer);
 
   //deallocate the old prototype list if one exists
@@ -525,7 +525,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   LIST proto_list = Clusterer->ProtoList;
   iterate(proto_list) {
     PROTOTYPE *proto = reinterpret_cast<PROTOTYPE *>(first_node(proto_list));
-    proto->Cluster = NULL;
+    proto->Cluster = nullptr;
   }
   return Clusterer->ProtoList;
 }                                // ClusterSamples
@@ -535,7 +535,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * specified data structure.  It will not, however, free
  * the memory used by the prototype list.  The pointers to
  * the clusters for each prototype in the list will be set
- * to NULL to indicate that the cluster data structures no
+ * to nullptr to indicate that the cluster data structures no
  * longer exist.  Any sample lists that have been obtained
  * via calls to GetSamples are no longer valid.
  * @param Clusterer pointer to data structure to be freed
@@ -544,16 +544,16 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * @note History: 6/6/89, DSJ, Created.
  */
 void FreeClusterer(CLUSTERER *Clusterer) {
-  if (Clusterer != NULL) {
+  if (Clusterer != nullptr) {
     free(Clusterer->ParamDesc);
-    if (Clusterer->KDTree != NULL)
+    if (Clusterer->KDTree != nullptr)
       FreeKDTree (Clusterer->KDTree);
-    if (Clusterer->Root != NULL)
+    if (Clusterer->Root != nullptr)
       FreeCluster (Clusterer->Root);
     // Free up all used buckets structures.
     for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
       for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-        if (Clusterer->bucket_cache[d][c] != NULL)
+        if (Clusterer->bucket_cache[d][c] != nullptr)
           FreeBuckets(Clusterer->bucket_cache[d][c]);
     }
 
@@ -588,7 +588,7 @@ void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   PROTOTYPE *Prototype = (PROTOTYPE *) arg;
 
   // unmark the corresponding cluster (if there is one
-  if (Prototype->Cluster != NULL)
+  if (Prototype->Cluster != nullptr)
     Prototype->Cluster->Prototype = FALSE;
 
   // deallocate the prototype statistics and then the prototype itself
@@ -609,11 +609,11 @@ void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
  * a leaf it is returned.  Otherwise, the right subcluster
  * is pushed on the list and we continue the search in the
  * left subcluster.  This continues until a leaf is found.
- * If all samples have been found, NULL is returned.
+ * If all samples have been found, nullptr is returned.
  * InitSampleSearch() must be called
  * before NextSample() to initialize the search.
  * @param SearchState ptr to list containing clusters to be searched
- * @return  Pointer to the next leaf cluster (sample) or NULL.
+ * @return  Pointer to the next leaf cluster (sample) or nullptr.
  * @note Exceptions:  None
  * @note History: 6/16/89, DSJ, Created.
  */
@@ -621,11 +621,11 @@ CLUSTER *NextSample(LIST *SearchState) {
   CLUSTER *Cluster;
 
   if (*SearchState == NIL_LIST)
-    return (NULL);
+    return (nullptr);
   Cluster = (CLUSTER *) first_node (*SearchState);
   *SearchState = pop (*SearchState);
   while (TRUE) {
-    if (Cluster->Left == NULL)
+    if (Cluster->Left == nullptr)
       return (Cluster);
     *SearchState = push (*SearchState, Cluster->Right);
     Cluster = Cluster->Left;
@@ -725,7 +725,7 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
       PotentialCluster->Neighbor =
         FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
                             &HeapEntry.key);
-      if (PotentialCluster->Neighbor != NULL) {
+      if (PotentialCluster->Neighbor != nullptr) {
         context.heap->Push(&HeapEntry);
       }
     }
@@ -737,7 +737,7 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
       PotentialCluster->Neighbor =
           FindNearestNeighbor(context.tree, PotentialCluster->Cluster,
                               &HeapEntry.key);
-      if (PotentialCluster->Neighbor != NULL) {
+      if (PotentialCluster->Neighbor != nullptr) {
         context.heap->Push(&HeapEntry);
       }
     }
@@ -748,7 +748,7 @@ void CreateClusterTree(CLUSTERER *Clusterer) {
 
   // free up the memory used by the K-D tree, heap, and temp clusters
   FreeKDTree(context.tree);
-  Clusterer->KDTree = NULL;
+  Clusterer->KDTree = nullptr;
   delete context.heap;
   free(context.candidates);
 }                                // CreateClusterTree
@@ -772,7 +772,7 @@ void MakePotentialClusters(ClusteringContext *context,
       FindNearestNeighbor(context->tree,
                           context->candidates[next].Cluster,
                           &HeapEntry.key);
-  if (context->candidates[next].Neighbor != NULL) {
+  if (context->candidates[next].Neighbor != nullptr) {
     context->heap->Push(&HeapEntry);
     context->next++;
   }
@@ -783,13 +783,13 @@ void MakePotentialClusters(ClusteringContext *context,
  * neighbor of the specified cluster.  It actually uses the
  * kd routines to find the 2 nearest neighbors since one of them
  * will be the original cluster.  A pointer to the nearest
- * neighbor is returned, if it can be found, otherwise NULL is
+ * neighbor is returned, if it can be found, otherwise nullptr is
  * returned.  The distance between the 2 nodes is placed
  * in the specified variable.
  * @param Tree    kd-tree to search in for nearest neighbor
  * @param Cluster cluster whose nearest neighbor is to be found
  * @param Distance  ptr to variable to report distance found
- * @return  Pointer to the nearest neighbor of Cluster, or NULL
+ * @return  Pointer to the nearest neighbor of Cluster, or nullptr
  * @note Exceptions: none
  * @note History: 5/29/89, DSJ, Created.
  *  7/13/89, DSJ, Removed visibility of kd-tree node data struct
@@ -811,7 +811,7 @@ FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, FLOAT32 * Distance)
 
   // search for the nearest neighbor that is not the cluster itself
   *Distance = MAXDISTANCE;
-  BestNeighbor = NULL;
+  BestNeighbor = nullptr;
   for (i = 0; i < NumberOfNeighbors; i++) {
     if ((Dist[i] < *Distance) && (Neighbor[i] != Cluster)) {
       *Distance = Dist[i];
@@ -928,7 +928,7 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
 
   // use a stack to keep track of clusters waiting to be processed
   // initially the only cluster on the stack is the root cluster
-  if (Clusterer->Root != NULL)
+  if (Clusterer->Root != nullptr)
     ClusterStack = push (NIL_LIST, Clusterer->Root);
 
   // loop until we have analyzed all clusters which are potential prototypes
@@ -939,7 +939,7 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
     Cluster = (CLUSTER *) first_node (ClusterStack);
     ClusterStack = pop (ClusterStack);
     Prototype = MakePrototype(Clusterer, Config, Cluster);
-    if (Prototype != NULL) {
+    if (Prototype != nullptr) {
       Clusterer->ProtoList = push (Clusterer->ProtoList, Prototype);
     }
     else {
@@ -956,13 +956,13 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * cluster to perform a statistical analysis, then a prototype
  * is generated but labelled as insignificant.  If the
  * dimensions of the cluster are not independent, no prototype
- * is generated and NULL is returned.  If a prototype can be
+ * is generated and nullptr is returned.  If a prototype can be
  * found that matches the desired distribution then a pointer
- * to it is returned, otherwise NULL is returned.
+ * to it is returned, otherwise nullptr is returned.
  * @param Clusterer data structure holding cluster tree
  * @param Config  parameters used to control prototype generation
  * @param Cluster cluster to be made into a prototype
- * @return  Pointer to new prototype or NULL
+ * @return  Pointer to new prototype or nullptr
  * @note Exceptions:  None
  * @note History: 6/19/89, DSJ, Created.
  */
@@ -975,7 +975,7 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
 
   // filter out clusters which contain samples from the same character
   if (MultipleCharSamples (Clusterer, Cluster, Config->MaxIllegal))
-    return NULL;
+    return nullptr;
 
   // compute the covariance matrix and ranges for the cluster
   Statistics =
@@ -987,7 +987,7 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
   Proto = MakeDegenerateProto(
       Clusterer->SampleSize, Cluster, Statistics, Config->ProtoStyle,
       (int32_t) (Config->MinSamples * Clusterer->NumChar));
-  if (Proto != NULL) {
+  if (Proto != nullptr) {
     FreeStatistics(Statistics);
     return Proto;
   }
@@ -995,12 +995,12 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
   if (!Independent(Clusterer->ParamDesc, Clusterer->SampleSize,
                    Statistics->CoVariance, Config->Independence)) {
     FreeStatistics(Statistics);
-    return NULL;
+    return nullptr;
   }
 
   if (HOTELLING && Config->ProtoStyle == elliptical) {
     Proto = TestEllipticalProto(Clusterer, Config, Cluster, Statistics);
-    if (Proto != NULL) {
+    if (Proto != nullptr) {
       FreeStatistics(Statistics);
       return Proto;
     }
@@ -1024,10 +1024,10 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
       break;
     case automatic:
       Proto = MakeSphericalProto(Clusterer, Cluster, Statistics, Buckets);
-      if (Proto != NULL)
+      if (Proto != nullptr)
         break;
       Proto = MakeEllipticalProto(Clusterer, Cluster, Statistics, Buckets);
-      if (Proto != NULL)
+      if (Proto != nullptr)
         break;
       Proto = MakeMixedProto(Clusterer, Cluster, Statistics, Buckets,
                              Config->Confidence);
@@ -1047,14 +1047,14 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
  * also degenerate if it does not have at least MinSamples
  * samples in it.
  *
- * If the cluster is not degenerate, NULL is returned.
+ * If the cluster is not degenerate, nullptr is returned.
  *
  * @param N   number of dimensions
  * @param Cluster   cluster being analyzed
  * @param Statistics  statistical info about cluster
  * @param Style   type of prototype to be generated
  * @param MinSamples  minimum number of samples in a cluster
- * @return  Pointer to degenerate prototype or NULL.
+ * @return  Pointer to degenerate prototype or nullptr.
  * @note Exceptions:  None
  * @note History: 6/20/89, DSJ, Created.
  *    7/12/89, DSJ, Changed name and added check for 0 stddev.
@@ -1066,7 +1066,7 @@ PROTOTYPE *MakeDegenerateProto(  //this was MinSample
                                STATISTICS *Statistics,
                                PROTOSTYLE Style,
                                int32_t MinSamples) {
-  PROTOTYPE *Proto = NULL;
+  PROTOTYPE *Proto = nullptr;
 
   if (MinSamples < MINSAMPLESNEEDED)
     MinSamples = MINSAMPLESNEEDED;
@@ -1094,13 +1094,13 @@ PROTOTYPE *MakeDegenerateProto(  //this was MinSample
  * there is a statistically significant difference between
  * the sub-clusters that would be made if the cluster were to
  * be split. If not, then a new prototype is formed and
- * returned to the caller. If there is, then NULL is returned
+ * returned to the caller. If there is, then nullptr is returned
  * to the caller.
  * @param Clusterer data struct containing samples being clustered
  * @param Config provides the magic number of samples that make a good cluster
  * @param Cluster   cluster to be made into an elliptical prototype
  * @param Statistics  statistical info about cluster
- * @return Pointer to new elliptical prototype or NULL.
+ * @return Pointer to new elliptical prototype or nullptr.
  */
 PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
                                CLUSTERCONFIG *Config,
@@ -1117,11 +1117,11 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   int N = Clusterer->SampleSize;
   CLUSTER* Left = Cluster->Left;
   CLUSTER* Right = Cluster->Right;
-  if (Left == NULL || Right == NULL)
-    return NULL;
+  if (Left == nullptr || Right == nullptr)
+    return nullptr;
   int TotalDims = Left->SampleCount + Right->SampleCount;
   if (TotalDims < N + 1 || TotalDims < 2)
-    return NULL;
+    return nullptr;
   const int kMatrixSize = N * N * sizeof(FLOAT32);
   FLOAT32 *Covariance = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
   FLOAT32 *Inverse = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
@@ -1193,19 +1193,19 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   if (F < FTarget) {
     return NewEllipticalProto (Clusterer->SampleSize, Cluster, Statistics);
   }
-  return NULL;
+  return nullptr;
 }
 
 /**
  * This routine tests the specified cluster to see if it can
  * be approximated by a spherical normal distribution.  If it
  * can be, then a new prototype is formed and returned to the
- * caller.  If it can't be, then NULL is returned to the caller.
+ * caller.  If it can't be, then nullptr is returned to the caller.
  * @param Clusterer data struct containing samples being clustered
  * @param Cluster   cluster to be made into a spherical prototype
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
- * @return  Pointer to new spherical prototype or NULL.
+ * @return  Pointer to new spherical prototype or nullptr.
  * @note Exceptions:  None
  * @note History: 6/1/89, DSJ, Created.
  */
@@ -1213,7 +1213,7 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
                               CLUSTER *Cluster,
                               STATISTICS *Statistics,
                               BUCKETS *Buckets) {
-  PROTOTYPE *Proto = NULL;
+  PROTOTYPE *Proto = nullptr;
   int i;
 
   // check that each dimension is a normal distribution
@@ -1237,12 +1237,12 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
  * This routine tests the specified cluster to see if it can
  * be approximated by an elliptical normal distribution.  If it
  * can be, then a new prototype is formed and returned to the
- * caller.  If it can't be, then NULL is returned to the caller.
+ * caller.  If it can't be, then nullptr is returned to the caller.
  * @param Clusterer data struct containing samples being clustered
  * @param Cluster   cluster to be made into an elliptical prototype
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
- * @return  Pointer to new elliptical prototype or NULL.
+ * @return  Pointer to new elliptical prototype or nullptr.
  * @note Exceptions:  None
  * @note History: 6/12/89, DSJ, Created.
  */
@@ -1250,7 +1250,7 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
                                CLUSTER *Cluster,
                                STATISTICS *Statistics,
                                BUCKETS *Buckets) {
-  PROTOTYPE *Proto = NULL;
+  PROTOTYPE *Proto = nullptr;
   int i;
 
   // check that each dimension is a normal distribution
@@ -1278,13 +1278,13 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
  * in order: normal, random, uniform.  If each dimension can
  * be represented by one of these distributions,
  * then a new prototype is formed and returned to the
- * caller.  If it can't be, then NULL is returned to the caller.
+ * caller.  If it can't be, then nullptr is returned to the caller.
  * @param Clusterer data struct containing samples being clustered
  * @param Cluster   cluster to be made into a prototype
  * @param Statistics  statistical info about cluster
  * @param NormalBuckets histogram struct used to analyze distribution
  * @param Confidence  confidence level for alternate distributions
- * @return  Pointer to new mixed prototype or NULL.
+ * @return  Pointer to new mixed prototype or nullptr.
  * @note Exceptions:  None
  * @note History: 6/12/89, DSJ, Created.
  */
@@ -1295,8 +1295,8 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           FLOAT64 Confidence) {
   PROTOTYPE *Proto;
   int i;
-  BUCKETS *UniformBuckets = NULL;
-  BUCKETS *RandomBuckets = NULL;
+  BUCKETS *UniformBuckets = nullptr;
+  BUCKETS *RandomBuckets = nullptr;
 
   // create a mixed proto to work on - initially assume all dimensions normal*/
   Proto = NewMixedProto (Clusterer->SampleSize, Cluster, Statistics);
@@ -1312,7 +1312,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
     if (DistributionOK (NormalBuckets))
       continue;
 
-    if (RandomBuckets == NULL)
+    if (RandomBuckets == nullptr)
       RandomBuckets =
         GetBuckets(Clusterer, D_random, Cluster->SampleCount, Confidence);
     MakeDimRandom (i, Proto, &(Clusterer->ParamDesc[i]));
@@ -1321,7 +1321,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
     if (DistributionOK (RandomBuckets))
       continue;
 
-    if (UniformBuckets == NULL)
+    if (UniformBuckets == nullptr)
       UniformBuckets =
         GetBuckets(Clusterer, uniform, Cluster->SampleCount, Confidence);
     MakeDimUniform(i, Proto, Statistics);
@@ -1334,7 +1334,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
   // if any dimension failed to match a distribution, discard the proto
   if (i < Clusterer->SampleSize) {
     FreePrototype(Proto);
-    Proto = NULL;
+    Proto = nullptr;
   }
   return (Proto);
 }                                // MakeMixedProto
@@ -1438,7 +1438,7 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   }
   // find each sample in the cluster and merge it into the statistics
   InitSampleSearch(SearchState, Cluster);
-  while ((Sample = NextSample (&SearchState)) != NULL) {
+  while ((Sample = NextSample (&SearchState)) != nullptr) {
     for (i = 0; i < N; i++) {
       Distance[i] = Sample->Mean[i] - Cluster->Mean[i];
       if (ParamDesc[i].Circular) {
@@ -1606,7 +1606,7 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
-  Proto->Distrib = NULL;
+  Proto->Distrib = nullptr;
 
   Proto->Significant = TRUE;
   Proto->Merged = FALSE;
@@ -1695,7 +1695,7 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
       clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS];
 
   // If a matching bucket structure is not found, make one and save it.
-  if (Buckets == NULL) {
+  if (Buckets == nullptr) {
     Buckets = MakeBuckets(Distribution, SampleCount, Confidence);
     clusterer->bucket_cache[Distribution][NumberOfBuckets - MINBUCKETS] =
         Buckets;
@@ -1888,7 +1888,7 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
   OldChiSquared = (CHISTRUCT *) first_node (search (ChiWith[DegreesOfFreedom],
     &SearchKey, AlphaMatch));
 
-  if (OldChiSquared == NULL) {
+  if (OldChiSquared == nullptr) {
     OldChiSquared = NewChiStruct (DegreesOfFreedom, Alpha);
     OldChiSquared->ChiSquared = Solve (ChiArea, OldChiSquared,
       (FLOAT64) DegreesOfFreedom,
@@ -2005,7 +2005,7 @@ void FillBuckets(BUCKETS *Buckets,
 
     InitSampleSearch(SearchState, Cluster);
     i = 0;
-    while ((Sample = NextSample (&SearchState)) != NULL) {
+    while ((Sample = NextSample (&SearchState)) != nullptr) {
       if (Sample->Mean[Dim] > Mean)
         BucketID = Buckets->NumberOfBuckets - 1;
       else if (Sample->Mean[Dim] < Mean)
@@ -2021,7 +2021,7 @@ void FillBuckets(BUCKETS *Buckets,
   else {
     // search for all samples in the cluster and add to histogram buckets
     InitSampleSearch(SearchState, Cluster);
-    while ((Sample = NextSample (&SearchState)) != NULL) {
+    while ((Sample = NextSample (&SearchState)) != nullptr) {
       switch (Buckets->Distribution) {
         case normal:
           BucketID = NormalBucket (ParamDesc, Sample->Mean[Dim],
@@ -2181,7 +2181,7 @@ void FreeBuckets(BUCKETS *buckets) {
  * @note History: 6/6/89, DSJ, Created.
  */
 void FreeCluster(CLUSTER *Cluster) {
-  if (Cluster != NULL) {
+  if (Cluster != nullptr) {
     FreeCluster (Cluster->Left);
     FreeCluster (Cluster->Right);
     free(Cluster);
@@ -2466,7 +2466,7 @@ MultipleCharSamples (CLUSTERER * Clusterer,
 CLUSTER * Cluster, FLOAT32 MaxIllegal)
 #define ILLEGAL_CHAR    2
 {
-  static BOOL8 *CharFlags = NULL;
+  static BOOL8 *CharFlags = nullptr;
   static int32_t NumFlags = 0;
   int i;
   LIST SearchState;
@@ -2491,7 +2491,7 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
 
   // find each sample in the cluster and check if we have seen it before
   InitSampleSearch(SearchState, Cluster);
-  while ((Sample = NextSample (&SearchState)) != NULL) {
+  while ((Sample = NextSample (&SearchState)) != nullptr) {
     CharID = Sample->CharID;
     if (CharFlags[CharID] == FALSE) {
       CharFlags[CharID] = TRUE;

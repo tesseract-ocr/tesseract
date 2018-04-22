@@ -44,16 +44,16 @@ class ImageFind {
  public:
   // Finds image regions within the BINARY source pix (page image) and returns
   // the image regions as a mask image.
-  // The returned pix may be NULL, meaning no images found.
-  // If not NULL, it must be PixDestroyed by the caller.
+  // The returned pix may be nullptr, meaning no images found.
+  // If not nullptr, it must be PixDestroyed by the caller.
   // If textord_tabfind_show_images, debug images are appended to pixa_debug.
   static Pix* FindImages(Pix* pix, DebugPixa* pixa_debug);
 
   // Generates a Boxa, Pixa pair from the input binary (image mask) pix,
   // analgous to pixConnComp, except that connected components which are nearly
   // rectangular are replaced with solid rectangles.
-  // The returned boxa, pixa may be NULL, meaning no images found.
-  // If not NULL, they must be destroyed by the caller.
+  // The returned boxa, pixa may be nullptr, meaning no images found.
+  // If not nullptr, they must be destroyed by the caller.
   // Resolution of pix should match the source image (Tesseract::pix_binary_)
   // so the output coordinate systems match.
   static void ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,

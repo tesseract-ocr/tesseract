@@ -59,7 +59,7 @@ void restore_underlined_blobs(                 //get chop points
     u_line = under_it.extract ();
     blob_box = u_line->bounding_box ();
     row = most_overlapping_row (block->get_rows (), u_line);
-    if (row == NULL)
+    if (row == nullptr)
       return;  // Don't crash if there is no row.
     find_underlined_blobs (u_line, &row->baseline, row->xheight,
       row->xheight * textord_underline_offset,
@@ -77,23 +77,23 @@ void restore_underlined_blobs(                 //get chop points
           ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
         }
         chop_coord = cell_it.data ()->y ();
-        split_to_blob(NULL, chop_coord, textord_fp_chop_error + 0.5,
+        split_to_blob(nullptr, chop_coord, textord_fp_chop_error + 0.5,
                       &left_coutlines, &right_coutlines);
         if (!left_coutlines.empty()) {
           row->insert_blob(new BLOBNBOX(new C_BLOB(&left_coutlines)));
         }
-        u_line = NULL;           //no more blobs to add
+        u_line = nullptr;           //no more blobs to add
       }
       delete cell_it.extract();
     }
     if (!right_coutlines.empty ()) {
-      split_to_blob(NULL, blob_box.right(), textord_fp_chop_error + 0.5,
+      split_to_blob(nullptr, blob_box.right(), textord_fp_chop_error + 0.5,
                     &left_coutlines, &right_coutlines);
       if (!left_coutlines.empty())
         ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
     }
-    if (u_line != NULL) {
-      if (u_line->cblob() != NULL)
+    if (u_line != nullptr) {
+      if (u_line->cblob() != nullptr)
         delete u_line->cblob();
       delete u_line;
     }
@@ -125,10 +125,10 @@ TO_ROW *most_overlapping_row(                    //find best row
   float overlap;                 //of blob & row
   float bestover;                //best overlap
 
-  best_row = NULL;
+  best_row = nullptr;
   bestover = (float) -INT32_MAX;
   if (row_it.empty ())
-    return NULL;
+    return nullptr;
   row = row_it.data ();
   row_it.mark_cycle_pt ();
   while (row->baseline.y (x) + row->descdrop > blob->bounding_box ().top ()
@@ -187,7 +187,7 @@ void find_underlined_blobs(                            //get chop points
   STATS lower_proj (blob_box.left (), blob_box.right () + 1);
   C_OUTLINE_IT out_it;           //outlines of blob
 
-  ASSERT_HOST (u_line->cblob () != NULL);
+  ASSERT_HOST (u_line->cblob () != nullptr);
 
   out_it.set_to_list (u_line->cblob ()->out_list ());
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {

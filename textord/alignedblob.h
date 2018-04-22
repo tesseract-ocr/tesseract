@@ -95,7 +95,7 @@ class AlignedBlob : public BlobGrid {
   // search parameters are determined by the AlignedBlobParams.
   // vertical_x and y are updated with an estimate of the real
   // vertical direction. (skew finding.)
-  // Returns NULL if no decent vector can be found.
+  // Returns nullptr if no decent vector can be found.
   TabVector* FindVerticalAlignment(AlignedBlobParams align_params,
                                    BLOBNBOX* bbox,
                                    int* vertical_x, int* vertical_y);
@@ -112,8 +112,8 @@ class AlignedBlob : public BlobGrid {
   // Search vertically for a blob that is aligned with the input bbox.
   // The search parameters are determined by AlignedBlobParams.
   // top_to_bottom tells whether to search down or up.
-  // The return value is NULL if nothing was found in the search box
-  // or if a blob was found in the gutter. On a NULL return, end_y
+  // The return value is nullptr if nothing was found in the search box
+  // or if a blob was found in the gutter. On a nullptr return, end_y
   // is set to the edge of the search box or the leading edge of the
   // gutter blob if one was found.
   BLOBNBOX* FindAlignedBlob(const AlignedBlobParams& p,

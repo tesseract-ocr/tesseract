@@ -706,10 +706,10 @@ void BaselineBlock::RefineLineSpacing(const GenericVector<double>& positions) {
     double spacing_plus = line_spacing_ / (1.0 + 1.0 / index_range);
     // Try the hypotheses that there might be index_range +/- 1 line spaces.
     errors[1] = FitLineSpacingModel(positions, spacing_plus,
-                                    &spacings[1], &offsets[1], NULL);
+                                    &spacings[1], &offsets[1], nullptr);
     double spacing_minus = line_spacing_ / (1.0 - 1.0 / index_range);
     errors[2] = FitLineSpacingModel(positions, spacing_minus,
-                                    &spacings[2], &offsets[2], NULL);
+                                    &spacings[2], &offsets[2], nullptr);
     for (int i = 1; i <= 2; ++i) {
       if (errors[i] < errors[0]) {
         spacings[0] = spacings[i];
@@ -740,7 +740,7 @@ double BaselineBlock::FitLineSpacingModel(
   if (m_in == 0.0f || positions.size() < 2) {
     *m_out = m_in;
     *c_out = 0.0;
-    if (index_delta != NULL) *index_delta = 0;
+    if (index_delta != nullptr) *index_delta = 0;
     return 0.0;
   }
   GenericVector<double> offsets;
@@ -776,7 +776,7 @@ double BaselineBlock::FitLineSpacingModel(
             *c_out, llsq.c(*m_out));
   }
   // Index_delta is the number of hypothesized line gaps present.
-  if (index_delta != NULL)
+  if (index_delta != nullptr)
     *index_delta = max_index - min_index;
   // Use the regression model's intercept to compute the error, as it may be
   // a full line-spacing in disagreement with the median.
@@ -802,7 +802,7 @@ BaselineDetect::BaselineDetect(int debug_level, const FCOORD& page_skew,
     // block. Ideally no baselines should be required, but currently
     // make_words crashes if a baseline and xheight are not provided, so we
     // include non-text blocks here, but flag them for special treatment.
-    bool non_text = pb != NULL && !pb->IsText();
+    bool non_text = pb != nullptr && !pb->IsText();
     blocks_.push_back(new BaselineBlock(debug_level_, non_text, to_block));
   }
 }

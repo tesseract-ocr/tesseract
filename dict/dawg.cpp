@@ -73,7 +73,7 @@ bool Dawg::word_in_dawg(const WERD_CHOICE &word) const {
 int Dawg::check_for_words(const char *filename,
                           const UNICHARSET &unicharset,
                           bool enable_wildcard) const {
-  if (filename == NULL) return 0;
+  if (filename == nullptr) return 0;
 
   FILE       *word_file;
   char       string [CHARS_PER_LINE];
@@ -82,7 +82,7 @@ int Dawg::check_for_words(const char *filename,
 
   word_file = open_file (filename, "r");
 
-  while (fgets (string, CHARS_PER_LINE, word_file) != NULL) {
+  while (fgets (string, CHARS_PER_LINE, word_file) != nullptr) {
     chomp_string(string);  // remove newline
     WERD_CHOICE word(string, unicharset);
     if (word.length() > 0 &&
@@ -110,7 +110,7 @@ void Dawg::iterate_words(const UNICHARSET &unicharset,
 
 void CallWithUTF8(TessCallback1<const char *> *cb, const WERD_CHOICE *wc) {
   STRING s;
-  wc->string_and_lengths(&s, NULL);
+  wc->string_and_lengths(&s, nullptr);
   cb->Run(s.string());
 }
 

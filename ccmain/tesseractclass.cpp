@@ -509,23 +509,23 @@ Tesseract::Tesseract()
                     "Page separator (default is form feed control character)",
                     this->params()),
 
-      backup_config_file_(NULL),
-      pix_binary_(NULL),
-      pix_grey_(NULL),
-      pix_original_(NULL),
-      pix_thresholds_(NULL),
+      backup_config_file_(nullptr),
+      pix_binary_(nullptr),
+      pix_grey_(nullptr),
+      pix_original_(nullptr),
+      pix_thresholds_(nullptr),
       source_resolution_(0),
       textord_(this),
       right_to_left_(false),
-      scaled_color_(NULL),
+      scaled_color_(nullptr),
       scaled_factor_(-1),
       deskew_(1.0f, 0.0f),
       reskew_(1.0f, 0.0f),
       most_recently_used_(this),
       font_table_size_(0),
-      equ_detect_(NULL),
+      equ_detect_(nullptr),
 #ifndef ANDROID_BUILD
-      lstm_recognizer_(NULL),
+      lstm_recognizer_(nullptr),
 #endif
       train_line_page_num_(0) {
 }
@@ -537,7 +537,7 @@ Tesseract::~Tesseract() {
   sub_langs_.delete_data_pointers();
 #ifndef ANDROID_BUILD
   delete lstm_recognizer_;
-  lstm_recognizer_ = NULL;
+  lstm_recognizer_ = nullptr;
 #endif
 }
 

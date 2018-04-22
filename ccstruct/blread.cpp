@@ -48,7 +48,7 @@ bool read_unlv_file(                    //print list of sides
   BLOCK_IT block_it = blocks;    //block iterator
 
   name += UNLV_EXT;              //add extension
-  if ((pdfp = fopen (name.string (), "rb")) == NULL) {
+  if ((pdfp = fopen (name.string (), "rb")) == nullptr) {
     return false;                //didn't read one
   } else {
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {

@@ -70,7 +70,7 @@ void BlamerBundle::SetWordTruth(const UNICHARSET& unicharset,
   // Encode the string as UNICHAR_IDs.
   GenericVector<UNICHAR_ID> encoding;
   GenericVector<char> lengths;
-  unicharset.encode_string(truth_str, false, &encoding, &lengths, NULL);
+  unicharset.encode_string(truth_str, false, &encoding, &lengths, nullptr);
   int total_length = 0;
   for (int i = 0; i < encoding.size(); total_length += lengths[i++]) {
     STRING uch(truth_str + total_length);
@@ -109,7 +109,7 @@ void BlamerBundle::SetRejectedTruth() {
 
 // Returns true if the provided word_choice is correct.
 bool BlamerBundle::ChoiceIsCorrect(const WERD_CHOICE* word_choice) const {
-  if (word_choice == NULL) return false;
+  if (word_choice == nullptr) return false;
   const UNICHARSET* uni_set = word_choice->unicharset();
   STRING normed_choice_str;
   for (int i = 0; i < word_choice->length(); ++i) {
@@ -128,10 +128,10 @@ void BlamerBundle::FillDebugString(const STRING &msg,
     (*debug) += this->truth_text_[i];
   }
   if (!this->truth_has_char_boxes_) (*debug) += " (no char boxes)";
-  if (choice != NULL) {
+  if (choice != nullptr) {
     (*debug) += " Choice ";
     STRING choice_str;
-    choice->string_and_lengths(&choice_str, NULL);
+    choice->string_and_lengths(&choice_str, nullptr);
     (*debug) += choice_str;
   }
   if (msg.length() > 0) {
@@ -155,8 +155,8 @@ void BlamerBundle::SetupNormTruthWord(const DENORM& denorm) {
     topleft.y = box.top();
     botright.x = box.right();
     botright.y = box.bottom();
-    denorm.NormTransform(NULL, topleft, &norm_topleft);
-    denorm.NormTransform(NULL, botright, &norm_botright);
+    denorm.NormTransform(nullptr, topleft, &norm_topleft);
+    denorm.NormTransform(nullptr, botright, &norm_botright);
     TBOX norm_box(norm_topleft.x, norm_botright.y,
                   norm_botright.x, norm_topleft.y);
     norm_truth_word_.InsertBox(b, norm_box);
@@ -216,8 +216,8 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug,
     debug_str += "Truth split not found";
     debug_str += truth_has_char_boxes_ ?
         "\n" : " (no truth char boxes)\n";
-    bundle1->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, NULL, debug);
-    bundle2->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, NULL, debug);
+    bundle1->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, nullptr, debug);
+    bundle2->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, nullptr, debug);
   }
 }
 
@@ -247,7 +247,7 @@ void BlamerBundle::JoinBlames(const BlamerBundle& bundle1,
   }
   incorrect_result_reason_ = irr;
   if (irr != IRR_CORRECT && irr != IRR_NO_TRUTH) {
-    SetBlame(irr, debug_str, NULL, debug);
+    SetBlame(irr, debug_str, nullptr, debug);
   }
 }
 
@@ -291,13 +291,13 @@ void BlamerBundle::BlameClassifier(const UNICHARSET& unicharset,
         STRING debug_str = "unichar ";
         debug_str += truth_str;
         debug_str += " not found in classification list";
-        SetBlame(IRR_CLASSIFIER, debug_str, NULL, debug);
+        SetBlame(IRR_CLASSIFIER, debug_str, nullptr, debug);
       } else if (incorrect_adapted) {
         STRING debug_str = "better rating for adapted ";
         debug_str += unicharset.id_to_unichar(incorrect_adapted_id);
         debug_str += " than for correct ";
         debug_str += truth_str;
-        SetBlame(IRR_ADAPTION, debug_str, NULL, debug);
+        SetBlame(IRR_ADAPTION, debug_str, nullptr, debug);
       }
       break;
     }
@@ -375,7 +375,7 @@ void BlamerBundle::BlameClassifierOrLangModel(
     for (int i = 0; i < word->best_choice->length(); ++i) {
       BLOB_CHOICE_IT blob_choice_it(word->GetBlobChoices(i));
       ASSERT_HOST(!blob_choice_it.empty());
-      BLOB_CHOICE *first_choice = NULL;
+      BLOB_CHOICE *first_choice = nullptr;
       for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
            blob_choice_it.forward()) {  // find first non-fragment choice
         if (!(unicharset.get_fragment(blob_choice_it.data()->unichar_id()))) {
@@ -383,7 +383,7 @@ void BlamerBundle::BlameClassifierOrLangModel(
           break;
         }
       }
-      ASSERT_HOST(first_choice != NULL);
+      ASSERT_HOST(first_choice != nullptr);
       if (first_choice->unichar_id() != word->best_choice->unichar_id(i)) {
         best_choice_is_dict_and_top_choice_ = false;
         break;
@@ -446,12 +446,12 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
       correct_segmentation_cols_.length() != norm_truth_word_.length()) {
     debug_str.add_str_int("Blamer failed to find correct segmentation"
                           " (tolerance=", norm_box_tolerance_);
-    if (blob_index >= num_blobs) debug_str += " blob == NULL";
+    if (blob_index >= num_blobs) debug_str += " blob == nullptr";
     debug_str += ")\n";
     debug_str.add_str_int(" path length ", correct_segmentation_cols_.length());
     debug_str.add_str_int(" vs. truth ", norm_truth_word_.length());
     debug_str += "\n";
-    SetBlame(IRR_UNKNOWN, debug_str, NULL, debug);
+    SetBlame(IRR_UNKNOWN, debug_str, nullptr, debug);
     correct_segmentation_cols_.clear();
     correct_segmentation_rows_.clear();
   }
@@ -545,7 +545,7 @@ void BlamerBundle::FinishSegSearch(const WERD_CHOICE *best_choice,
 // If the bundle is null or still does not indicate the correct result,
 // fix it and use some backup reason for the blame.
 void BlamerBundle::LastChanceBlame(bool debug, WERD_RES* word) {
-  if (word->blamer_bundle == NULL) {
+  if (word->blamer_bundle == nullptr) {
     word->blamer_bundle = new BlamerBundle();
     word->blamer_bundle->SetBlame(IRR_PAGE_LAYOUT, "LastChanceBlame",
                                   word->best_choice, debug);

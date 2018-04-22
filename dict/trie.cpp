@@ -177,7 +177,7 @@ void Trie::add_word_ending(EDGE_RECORD *edge_ptr,
 bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
                             const GenericVector<bool> *repetitions) {
   if (word.length() <= 0) return false;  // can't add empty words
-  if (repetitions != NULL) ASSERT_HOST(repetitions->size() == word.length());
+  if (repetitions != nullptr) ASSERT_HOST(repetitions->size() == word.length());
   // Make sure the word does not contain invalid unchar ids.
   for (int i = 0; i < word.length(); ++i) {
     if (word.unichar_id(i) < 0 ||
@@ -200,7 +200,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
   UNICHAR_ID unichar_id;
   for (i = 0; i < word.length() - 1; ++i) {
     unichar_id = word.unichar_id(i);
-    marker_flag = (repetitions != NULL) ? (*repetitions)[i] : false;
+    marker_flag = (repetitions != nullptr) ? (*repetitions)[i] : false;
     if (debug_level_ > 1) tprintf("Adding letter %d\n", unichar_id);
     if (still_finding_chars) {
       found = edge_char_of(last_node, NO_EDGE, FORWARD_EDGE, word_end,
@@ -247,7 +247,7 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
   }
   the_next_node = 0;
   unichar_id = word.unichar_id(i);
-  marker_flag = (repetitions != NULL) ? (*repetitions)[i] : false;
+  marker_flag = (repetitions != nullptr) ? (*repetitions)[i] : false;
   if (debug_level_ > 1) tprintf("Adding letter %d\n", unichar_id);
   if (still_finding_chars &&
       edge_char_of(last_node, NO_EDGE, FORWARD_EDGE, false,
@@ -302,9 +302,9 @@ bool Trie::read_word_list(const char *filename,
   int  word_count = 0;
 
   word_file = fopen(filename, "rb");
-  if (word_file == NULL) return false;
+  if (word_file == nullptr) return false;
 
-  while (fgets(line_str, sizeof(line_str), word_file) != NULL) {
+  while (fgets(line_str, sizeof(line_str), word_file) != nullptr) {
     chomp_string(line_str);  // remove newline
     STRING word_str(line_str);
     ++word_count;
@@ -407,14 +407,14 @@ bool Trie::read_pattern_list(const char *filename,
   }
 
   FILE *pattern_file = fopen(filename, "rb");
-  if (pattern_file == NULL) {
+  if (pattern_file == nullptr) {
     tprintf("Error opening pattern file %s\n", filename);
     return false;
   }
 
   int pattern_count = 0;
   char string[CHARS_PER_LINE];
-  while (fgets(string, CHARS_PER_LINE, pattern_file) != NULL) {
+  while (fgets(string, CHARS_PER_LINE, pattern_file) != nullptr) {
     chomp_string(string);  // remove newline
     // Parse the pattern and construct a unichar id vector.
     // Record the number of repetitions of each unichar in the parallel vector.
@@ -483,7 +483,7 @@ bool Trie::read_pattern_list(const char *filename,
 
 void Trie::remove_edge_linkage(NODE_REF node1, NODE_REF node2, int direction,
                                bool word_end, UNICHAR_ID unichar_id) {
-  EDGE_RECORD *edge_ptr = NULL;
+  EDGE_RECORD *edge_ptr = nullptr;
   EDGE_INDEX edge_index = 0;
   ASSERT_HOST(edge_char_of(node1, node2, direction, word_end,
                            unichar_id, &edge_ptr, &edge_index));
@@ -579,7 +579,7 @@ bool Trie::eliminate_redundant_edges(NODE_REF node,
   NODE_REF next_node2 = next_node_from_edge_rec(edge2);
   TRIE_NODE_RECORD *next_node2_ptr = nodes_[next_node2];
   // Translate all edges going to/from next_node2 to go to/from next_node1.
-  EDGE_RECORD *edge_ptr = NULL;
+  EDGE_RECORD *edge_ptr = nullptr;
   EDGE_INDEX edge_index;
   int i;
   // The backward link in node to next_node2 will be zeroed out by the caller.

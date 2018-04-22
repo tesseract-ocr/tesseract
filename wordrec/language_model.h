@@ -127,7 +127,7 @@ class LanguageModel {
   inline float ComputeConsistencyAdjustment(
       const LanguageModelDawgInfo *dawg_info,
       const LMConsistencyInfo &consistency_info) {
-    if (dawg_info != NULL) {
+    if (dawg_info != nullptr) {
       return ComputeAdjustment(consistency_info.NumInconsistentCase(),
                                language_model_penalty_case) +
           (consistency_info.inconsistent_script ?
@@ -192,7 +192,7 @@ class LanguageModel {
   // updates changed accordingly.
   //
   // Note: The function assumes that b, top_choice_flags and changed
-  // are not NULL.
+  // are not nullptr.
   void GenerateTopChoiceInfo(ViterbiStateEntry *new_vse,
                              const ViterbiStateEntry *parent_vse,
                              LanguageModelState *lms);
@@ -209,7 +209,7 @@ class LanguageModel {
 
   // Computes p(unichar | parent context) and records it in ngram_cost.
   // If b.unichar_id() is an unlikely continuation of the parent context
-  // sets found_small_prob to true and returns NULL.
+  // sets found_small_prob to true and returns nullptr.
   // Otherwise creates a new LanguageModelNgramInfo entry containing the
   // updated context (that includes b.unichar_id() at the end) and returns it.
   //
@@ -258,7 +258,7 @@ class LanguageModel {
   // Constructs a WERD_CHOICE by tracing parent pointers starting with
   // the given LanguageModelStateEntry. Returns the constructed word.
   // Updates best_char_choices, certainties and state if they are not
-  // NULL (best_char_choices and certainties are assumed to have the
+  // nullptr (best_char_choices and certainties are assumed to have the
   // length equal to lmse->length).
   // The caller is responsible for freeing memory associated with the
   // returned WERD_CHOICE.
@@ -276,8 +276,8 @@ class LanguageModel {
                                     AssociateStats *associate_stats) {
     AssociateUtils::ComputeStats(
         col, row,
-        (parent_vse != NULL) ? &(parent_vse->associate_stats) : NULL,
-        (parent_vse != NULL) ? parent_vse->length : 0,
+        (parent_vse != nullptr) ? &(parent_vse->associate_stats) : nullptr,
+        (parent_vse != nullptr) ? parent_vse->length : 0,
         fixed_pitch_, max_char_wh_ratio,
         word_res, language_model_debug_level > 2, associate_stats);
   }
@@ -290,7 +290,7 @@ class LanguageModel {
   // so paths with non-empty dawg_info are considered prunable.
   inline bool PrunablePath(const ViterbiStateEntry &vse) {
     if (vse.top_choice_flags) return false;
-    if (vse.dawg_info != NULL &&
+    if (vse.dawg_info != nullptr &&
         (vse.dawg_info->permuter == SYSTEM_DAWG_PERM ||
          vse.dawg_info->permuter == USER_DAWG_PERM ||
          vse.dawg_info->permuter == FREQ_DAWG_PERM)) return false;
@@ -299,8 +299,8 @@ class LanguageModel {
 
   // Returns true if the given ViterbiStateEntry represents an acceptable path.
   inline bool AcceptablePath(const ViterbiStateEntry &vse) {
-    return (vse.dawg_info != NULL || vse.Consistent() ||
-            (vse.ngram_info != NULL && !vse.ngram_info->pruned));
+    return (vse.dawg_info != nullptr || vse.Consistent() ||
+            (vse.ngram_info != nullptr && !vse.ngram_info->pruned));
   }
 
  public:

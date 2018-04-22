@@ -46,12 +46,12 @@ const char *format, ...          // special message
   char msg[MAX_MSG];
   char *msgptr = msg;
 
-  if (caller != NULL)
+  if (caller != nullptr)
                                  //name of caller
     msgptr += sprintf (msgptr, "%s:", caller);
                                  //actual message
   msgptr += sprintf (msgptr, "Error:%s", message);
-  if (format != NULL) {
+  if (format != nullptr) {
     msgptr += sprintf (msgptr, ":");
     va_start(args, format);  //variable list
     #ifdef _WIN32
@@ -74,7 +74,7 @@ const char *format, ...          // special message
   // %s is needed here so msg is printed correctly!
   fprintf(stderr, "%s", msg);
 
-  int* p = NULL;
+  int* p = nullptr;
   switch (action) {
     case DBG:
     case TESSLOG:
@@ -86,6 +86,6 @@ const char *format, ...          // special message
       if (!*p)
         abort();
     default:
-      BADERRACTION.error ("error", ABORT, NULL);
+      BADERRACTION.error ("error", ABORT, nullptr);
   }
 }

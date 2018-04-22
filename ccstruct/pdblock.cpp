@@ -44,7 +44,7 @@ int16_t ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
 
-  hand_poly = NULL;
+  hand_poly = nullptr;
   left_it.set_to_list (&leftside);
   right_it.set_to_list (&rightside);
                                  //make default box
@@ -130,7 +130,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
   TBOX rotated_box(box);
   rotated_box.rotate(rerotation);
   Pix* pix = pixCreate(rotated_box.width(), rotated_box.height(), 1);
-  if (hand_poly != NULL) {
+  if (hand_poly != nullptr) {
     // We are going to rotate, so get a deep copy of the points and
     // make a new POLY_BLOCK with it.
     ICOORDELT_LIST polygon;
@@ -153,7 +153,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
           // Set the run of pixels to 1.
           pixRasterop(pix, start - rotated_box.left(),
                       rotated_box.height() - 1 - (y - rotated_box.bottom()),
-                      xext, 1, PIX_SET, NULL, 0, 0);
+                      xext, 1, PIX_SET, nullptr, 0, 0);
         }
       }
     }
@@ -161,9 +161,9 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
   } else {
     // Just fill the whole block as there is only a bounding box.
     pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(),
-                PIX_SET, NULL, 0, 0);
+                PIX_SET, nullptr, 0, 0);
   }
-  if (mask_box != NULL) *mask_box = rotated_box;
+  if (mask_box != nullptr) *mask_box = rotated_box;
   return pix;
 }
 
@@ -189,7 +189,7 @@ void PDBLK::plot(                //draw outline
   window->Pen(colour);
   window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
-  if (hand_poly != NULL) {
+  if (hand_poly != nullptr) {
     hand_poly->plot(window, serial);
   } else if (!leftside.empty ()) {
     startpt = *(it.data ());     //bottom left corner

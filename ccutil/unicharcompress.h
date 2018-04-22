@@ -178,13 +178,13 @@ class UnicharCompress {
   // which may be empty.
   const GenericVector<int>* GetNextCodes(const RecodedCharID& code) const {
     auto it = next_codes_.find(code);
-    return it == next_codes_.end() ? NULL : it->second;
+    return it == next_codes_.end() ? nullptr : it->second;
   }
   // Returns a list of valid final codes for a given prefix code, which may
   // be empty.
   const GenericVector<int>* GetFinalCodes(const RecodedCharID& code) const {
     auto it = final_codes_.find(code);
-    return it == final_codes_.end() ? NULL : it->second;
+    return it == final_codes_.end() ? nullptr : it->second;
   }
 
   // Writes to the given file. Returns false in case of error.

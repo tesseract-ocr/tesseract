@@ -130,7 +130,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     return nullptr;
   }
   Proto = (PROTOTYPE *)Emalloc(sizeof(PROTOTYPE));
-  Proto->Cluster = NULL;
+  Proto->Cluster = nullptr;
   if (sig_token[0] == 's')
     Proto->Significant = TRUE;
   else
@@ -154,23 +154,23 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   if (SampleCount < 0) DoError(ILLEGALSAMPLECOUNT, "Illegal sample count");
   Proto->NumSamples = SampleCount;
 
-  Proto->Mean = ReadNFloats(fp, N, NULL);
-  if (Proto->Mean == NULL) DoError(ILLEGALMEANSPEC, "Illegal prototype mean");
+  Proto->Mean = ReadNFloats(fp, N, nullptr);
+  if (Proto->Mean == nullptr) DoError(ILLEGALMEANSPEC, "Illegal prototype mean");
 
   switch (Proto->Style) {
     case spherical:
-      if (ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) == NULL)
+      if (ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) == nullptr)
         DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
       Proto->Magnitude.Spherical =
           1.0 / sqrt((double)(2.0 * PI * Proto->Variance.Spherical));
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, (float)N);
       Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
-      Proto->Distrib = NULL;
+      Proto->Distrib = nullptr;
       break;
     case elliptical:
-      Proto->Variance.Elliptical = ReadNFloats(fp, N, NULL);
-      if (Proto->Variance.Elliptical == NULL)
+      Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
+      if (Proto->Variance.Elliptical == nullptr)
         DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
       Proto->Magnitude.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
       Proto->Weight.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
@@ -182,7 +182,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
       Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
-      Proto->Distrib = NULL;
+      Proto->Distrib = nullptr;
       break;
     default:
       Efree(Proto);
@@ -194,14 +194,14 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
 
 /**
  * This routine reads N floats from the specified text file
- * and places them into Buffer.  If Buffer is NULL, a buffer
+ * and places them into Buffer.  If Buffer is nullptr, a buffer
  * is created and passed back to the caller.  If EOF is
- * encountered before any floats can be read, NULL is
+ * encountered before any floats can be read, nullptr is
  * returned.
  * @param fp open text file to read floats from
  * @param N number of floats to read
  * @param Buffer pointer to buffer to place floats into
- * @return Pointer to buffer holding floats or NULL if EOF
+ * @return Pointer to buffer holding floats or nullptr if EOF
  * @note Globals: None
  * @note Exceptions: ILLEGALFLOAT
  * @note History: 6/6/89, DSJ, Created.
@@ -215,7 +215,7 @@ FLOAT32 *ReadNFloats(TFile *fp, uint16_t N, FLOAT32 Buffer[]) {
   }
   bool needs_free = false;
 
-  if (Buffer == NULL) {
+  if (Buffer == nullptr) {
     Buffer = static_cast<FLOAT32 *>(Emalloc(N * sizeof(FLOAT32)));
     needs_free = true;
   }

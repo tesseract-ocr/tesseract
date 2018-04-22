@@ -102,7 +102,7 @@ typedef struct {
 } SAMPLELIST;
 
 // low level cluster tree analysis routines.
-#define InitSampleSearch(S,C) (((C)==NULL)?(S=NIL_LIST):(S=push(NIL_LIST,(C))))
+#define InitSampleSearch(S,C) (((C)==nullptr)?(S=NIL_LIST):(S=push(NIL_LIST,(C))))
 
 /*--------------------------------------------------------------------------
         Public Function Prototypes

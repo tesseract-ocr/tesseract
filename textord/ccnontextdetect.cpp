@@ -64,7 +64,7 @@ CCNonTextDetect::CCNonTextDetect(int gridsize,
   : BlobGrid(gridsize, bleft, tright),
     max_noise_count_(static_cast<int>(kMaxSmallNeighboursPerPix *
                                       gridsize * gridsize)),
-    noise_density_(NULL) {
+    noise_density_(nullptr) {
   // TODO(rays) break max_noise_count_ out into an area-proportional
   // value, as now plus an additive constant for the number of text blobs
   // in the 3x3 neighbourhood - maybe 9.
@@ -108,7 +108,7 @@ Pix* CCNonTextDetect::ComputeNonTextMask(bool debug, Pix* photo_map,
   if (debug) {
     pixWrite("junknoisemask.png", pix, IFF_PNG);
   }
-  ScrollView* win = NULL;
+  ScrollView* win = nullptr;
   #ifndef GRAPHICS_DISABLED
   if (debug) {
     win = MakeWindow(0, 400, "Photo Mask Blobs");
@@ -242,7 +242,7 @@ static TBOX AttemptBoxExpansion(const TBOX& box, const IntGrid& noise_density,
 // WARNING: The blobs list blobs may be in the *this grid, but they are
 // not removed. If any deleted blobs might be in *this, then this must be
 // Clear()ed immediately after MarkAndDeleteNonTextBlobs is called.
-// If the win is not NULL, deleted blobs are drawn on it in red, and kept
+// If the win is not nullptr, deleted blobs are drawn on it in red, and kept
 // blobs are drawn on it in ok_color.
 void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
                                                 int max_blob_overlaps,
@@ -261,7 +261,7 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
             !BlobOverlapsTooMuch(blob, max_blob_overlaps))) {
       blob->ClearNeighbours();
       #ifndef GRAPHICS_DISABLED
-      if (win != NULL)
+      if (win != nullptr)
         blob->plot(win, ok_color, ok_color);
       #endif  // GRAPHICS_DISABLED
     } else {
@@ -282,10 +282,10 @@ void CCNonTextDetect::MarkAndDeleteNonTextBlobs(BLOBNBOX_LIST* blobs,
         }
         // All overlapped cells are non-zero, so just mark the rectangle.
         pixRasterop(nontext_mask, box.left(), imageheight - box.top(),
-                    box.width(), box.height(), PIX_SET, NULL, 0, 0);
+                    box.width(), box.height(), PIX_SET, nullptr, 0, 0);
       }
       #ifndef GRAPHICS_DISABLED
-      if (win != NULL)
+      if (win != nullptr)
         blob->plot(win, ScrollView::RED, ScrollView::RED);
       #endif  // GRAPHICS_DISABLED
       // It is safe to delete the cblob now, as it isn't used by the grid
@@ -311,7 +311,7 @@ bool CCNonTextDetect::BlobOverlapsTooMuch(BLOBNBOX* blob, int max_overlaps) {
   BLOBNBOX* neighbour;
   int overlap_count = 0;
   while (overlap_count <= max_overlaps &&
-         (neighbour = rsearch.NextRectSearch()) != NULL) {
+         (neighbour = rsearch.NextRectSearch()) != nullptr) {
     if (box.major_overlap(neighbour->bounding_box())) {
       ++overlap_count;
       if (overlap_count > max_overlaps)

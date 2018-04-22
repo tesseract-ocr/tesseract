@@ -113,7 +113,7 @@ class TESS_API TessBaseAPI {
    * device is deemed faster than serial code, then
    * "device" is populated with the cl_device_id
    * and returns sizeof(cl_device_id)
-   * otherwise *device=NULL and returns 0.
+   * otherwise *device=nullptr and returns 0.
    */
   static size_t getOpenCLDevice(void **device);
 
@@ -198,7 +198,7 @@ class TESS_API TessBaseAPI {
    *
    * The datapath must be the name of the parent directory of tessdata and
    * must end in / . Any name after the last / will be stripped.
-   * The language is (usually) an ISO 639-3 string or NULL will default to eng.
+   * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
    * It is entirely safe (and eventually will be efficient too) to call
    * Init multiple times on the same instance to change language, or just
    * to reset the classifier.
@@ -229,10 +229,10 @@ class TESS_API TessBaseAPI {
            const GenericVector<STRING> *vars_values,
            bool set_only_non_debug_params);
   int Init(const char* datapath, const char* language, OcrEngineMode oem) {
-    return Init(datapath, language, oem, NULL, 0, NULL, NULL, false);
+    return Init(datapath, language, oem, nullptr, 0, nullptr, nullptr, false);
   }
   int Init(const char* datapath, const char* language) {
-    return Init(datapath, language, OEM_DEFAULT, NULL, 0, NULL, NULL, false);
+    return Init(datapath, language, OEM_DEFAULT, nullptr, 0, nullptr, nullptr, false);
   }
   // In-memory version reads the traineddata file directly from the given
   // data[data_size] array, and/or reads data via a FileReader.
@@ -399,9 +399,9 @@ class TESS_API TessBaseAPI {
    * Can be called before or after Recognize.
    * If raw_image is true, then extract from the original image instead of the
    * thresholded image and pad by raw_padding pixels.
-   * If blockids is not NULL, the block-id of each line is also returned as an
+   * If blockids is not nullptr, the block-id of each line is also returned as an
    * array of one element per line. delete [] after use.
-   * If paraids is not NULL, the paragraph-id of each line within its block is
+   * If paraids is not nullptr, the paragraph-id of each line within its block is
    * also returned as an array of one element per line. delete [] after use.
    */
   Boxa* GetTextlines(const bool raw_image, const int raw_padding,
@@ -410,7 +410,7 @@ class TESS_API TessBaseAPI {
      Helper method to extract from the thresholded image. (most common usage)
   */
   Boxa* GetTextlines(Pixa** pixa, int** blockids) {
-    return GetTextlines(false, 0, pixa, blockids, NULL);
+    return GetTextlines(false, 0, pixa, blockids, nullptr);
   }
 
   /**
@@ -418,7 +418,7 @@ class TESS_API TessBaseAPI {
    * pair, in reading order. Enables downstream handling of non-rectangular
    * regions.
    * Can be called before or after Recognize.
-   * If blockids is not NULL, the block-id of each line is also returned as an
+   * If blockids is not nullptr, the block-id of each line is also returned as an
    * array of one element per line. delete [] after use.
    */
   Boxa* GetStrips(Pixa** pixa, int** blockids);
@@ -444,9 +444,9 @@ class TESS_API TessBaseAPI {
    * Get the given level kind of components (block, textline, word etc.) as a
    * leptonica-style Boxa, Pixa pair, in reading order.
    * Can be called before or after Recognize.
-   * If blockids is not NULL, the block-id of each component is also returned
+   * If blockids is not nullptr, the block-id of each component is also returned
    * as an array of one element per component. delete [] after use.
-   * If blockids is not NULL, the paragraph-id of each component with its block
+   * If blockids is not nullptr, the paragraph-id of each component with its block
    * is also returned as an array of one element per component. delete [] after
    * use.
    * If raw_image is true, then portions of the original image are extracted
@@ -461,7 +461,7 @@ class TESS_API TessBaseAPI {
   Boxa* GetComponentImages(const PageIteratorLevel level,
                            const bool text_only,
                            Pixa** pixa, int** blockids) {
-    return GetComponentImages(level, text_only, false, 0, pixa, blockids, NULL);
+    return GetComponentImages(level, text_only, false, 0, pixa, blockids, nullptr);
   }
 
   /**
@@ -480,7 +480,7 @@ class TESS_API TessBaseAPI {
    * with a line recognizer. Use if you want to use AnalyseLayout to find the
    * textlines, and then want to process textline fragments with an external
    * line recognizer.
-   * Returns NULL on error or an empty page.
+   * Returns nullptr on error or an empty page.
    * The returned iterator must be deleted after use.
    * WARNING! This class points to data held within the TessBaseAPI class, and
    * therefore can only be used while the TessBaseAPI class still exists and
@@ -512,7 +512,7 @@ class TESS_API TessBaseAPI {
    * filename can point to a single image, a multi-page TIFF,
    * or a plain text list of image filenames.
    *
-   * retry_config is useful for debugging. If not NULL, you can fall
+   * retry_config is useful for debugging. If not nullptr, you can fall
    * back to an alternate configuration if a page fails for some
    * reason.
    *
@@ -717,7 +717,7 @@ class TESS_API TessBaseAPI {
 
   /**
    * This method returns the row to which a box of specified dimensions would
-   * belong. If no good match is found, it returns NULL.
+   * belong. If no good match is found, it returns nullptr.
    */
   static ROW* FindRowForBox(BLOCK_LIST* blocks, int left, int top,
                             int right, int bottom);
@@ -787,7 +787,7 @@ class TESS_API TessBaseAPI {
   TESS_LOCAL bool InternalSetImage();
 
   /**
-   * Run the thresholder to make the thresholded image. If pix is not NULL,
+   * Run the thresholder to make the thresholded image. If pix is not nullptr,
    * the source is thresholded to pix instead of the internal IMAGE.
    */
   TESS_LOCAL virtual bool Threshold(Pix** pix);

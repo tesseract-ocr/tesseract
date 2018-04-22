@@ -107,12 +107,12 @@ class ErrorCounter {
   //   scaled_error output, and setting the is_error flag in the samples.
   // * The fontinfo_table is used to get string font names for the debug
   //   output, and also to count font attributes errors.
-  // * The page_images vector may contain a Pix* (which may be NULL) for each
+  // * The page_images vector may contain a Pix* (which may be nullptr) for each
   //   page index assigned to the samples.
   // * The it provides encapsulated iteration over some sample set.
   // * The outputs unichar_error, scaled_error and totals_report are all
   //   optional.
-  // * If not NULL, unichar error gets the top1 unichar error rate.
+  // * If not nullptr, unichar error gets the top1 unichar error rate.
   // * Scaled_error gets the error chosen by boosting_mode weighted by the
   //   weights on the samples.
   // * Fonts_report gets a string summarizing the error rates for each font in
@@ -181,8 +181,8 @@ class ErrorCounter {
   // error rate to return.
   // The fontinfo_table from MasterTrainer provides the names of fonts.
   // The it determines the current subset of the training samples.
-  // If not NULL, the top-choice unichar error rate is saved in unichar_error.
-  // If not NULL, the report string is saved in fonts_report.
+  // If not nullptr, the top-choice unichar error rate is saved in unichar_error.
+  // If not nullptr, the report string is saved in fonts_report.
   // (Ignoring report_level).
   double ReportErrors(int report_level, CountTypes boosting_mode,
                       const FontInfoTable& fontinfo_table,

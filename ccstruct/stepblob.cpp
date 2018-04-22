@@ -208,7 +208,7 @@ void C_BLOB::ConstructBlobsFromOutlines(bool good_blob,
     // Set inverse flag and reverse if needed.
     blob->CheckInverseFlagAndDirection();
     // Put on appropriate list.
-    if (!blob_is_good && bad_blobs_it != NULL)
+    if (!blob_is_good && bad_blobs_it != nullptr)
       bad_blobs_it->add_after_then_move(blob);
     else
       good_blobs_it->add_after_then_move(blob);
@@ -395,7 +395,7 @@ static void ComputeEdgeOffsetsOutlineList(int threshold, Pix* pix,
   C_OUTLINE_IT it(list);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE* outline = it.data();
-    if (pix != NULL && pixGetDepth(pix) == 8)
+    if (pix != nullptr && pixGetDepth(pix) == 8)
       outline->ComputeEdgeOffsets(threshold, pix);
     else
       outline->ComputeBinaryOffsets();
@@ -405,7 +405,7 @@ static void ComputeEdgeOffsetsOutlineList(int threshold, Pix* pix,
 }
 
 // Adds sub-pixel resolution EdgeOffsets for the outlines using greyscale
-// if the supplied pix is 8-bit or the binary edges if NULL.
+// if the supplied pix is 8-bit or the binary edges if nullptr.
 void C_BLOB::ComputeEdgeOffsets(int threshold, Pix* pix) {
   ComputeEdgeOffsetsOutlineList(threshold, pix, &outlines);
 }

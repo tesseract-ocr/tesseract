@@ -75,10 +75,10 @@ typedef TPOINT VECTOR;           // structure for coordinates.
 
 struct EDGEPT {
   EDGEPT()
-  : next(NULL), prev(NULL), src_outline(NULL), start_step(0), step_count(0) {
+  : next(nullptr), prev(nullptr), src_outline(nullptr), start_step(0), step_count(0) {
     memset(flags, 0, EDGEPTFLAGS * sizeof(flags[0]));
   }
-  EDGEPT(const EDGEPT& src) : next(NULL), prev(NULL) {
+  EDGEPT(const EDGEPT& src) : next(nullptr), prev(nullptr) {
     CopyFrom(src);
   }
   EDGEPT& operator=(const EDGEPT& src) {
@@ -169,7 +169,7 @@ struct EDGEPT {
   EDGEPT* next;                  // anticlockwise element
   EDGEPT* prev;                  // clockwise element
   C_OUTLINE* src_outline;        // Outline it came from.
-  // The following fields are not used if src_outline is NULL.
+  // The following fields are not used if src_outline is nullptr.
   int start_step;                // Location of pos in src_outline.
   int step_count;                // Number of steps used (may wrap around).
 };
@@ -178,8 +178,8 @@ struct EDGEPT {
 CLISTIZEH(EDGEPT)
 
 struct TESSLINE {
-  TESSLINE() : is_hole(false), loop(NULL), next(NULL) {}
-  TESSLINE(const TESSLINE& src) : loop(NULL), next(NULL) {
+  TESSLINE() : is_hole(false), loop(nullptr), next(nullptr) {}
+  TESSLINE(const TESSLINE& src) : loop(nullptr), next(nullptr) {
     CopyFrom(src);
   }
   ~TESSLINE() {
@@ -259,8 +259,8 @@ struct TESSLINE {
 };                               // Outline structure.
 
 struct TBLOB {
-  TBLOB() : outlines(NULL) {}
-  TBLOB(const TBLOB& src) : outlines(NULL) {
+  TBLOB() : outlines(nullptr) {}
+  TBLOB(const TBLOB& src) : outlines(nullptr) {
     CopyFrom(src);
   }
   ~TBLOB() {
@@ -279,7 +279,7 @@ struct TBLOB {
   static TBLOB* ShallowCopy(const TBLOB& src);
   // Normalizes the blob for classification only if needed.
   // (Normally this means a non-zero classify rotation.)
-  // If no Normalization is needed, then NULL is returned, and the input blob
+  // If no Normalization is needed, then nullptr is returned, and the input blob
   // can be used directly. Otherwise a new TBLOB is returned which must be
   // deleted after use.
   TBLOB* ClassifyNormalizeIfNeeded() const;
@@ -314,7 +314,7 @@ struct TBLOB {
 
   // Returns true if the given line segment crosses any outline of this blob.
   bool SegmentCrossesOutline(const TPOINT& pt1, const TPOINT& pt2) const {
-    for (const TESSLINE* outline = outlines; outline != NULL;
+    for (const TESSLINE* outline = outlines; outline != nullptr;
          outline = outline->next) {
       if (outline->SegmentCrosses(pt1, pt2)) return true;
     }
@@ -322,7 +322,7 @@ struct TBLOB {
   }
   // Returns true if the point is contained within any of the outline boxes.
   bool Contains(const TPOINT& pt) const {
-    for (const TESSLINE* outline = outlines; outline != NULL;
+    for (const TESSLINE* outline = outlines; outline != nullptr;
          outline = outline->next) {
       if (outline->Contains(pt)) return true;
     }
@@ -348,7 +348,7 @@ struct TBLOB {
 
   int BBArea() const {
     int total_area = 0;
-    for (TESSLINE* outline = outlines; outline != NULL; outline = outline->next)
+    for (TESSLINE* outline = outlines; outline != nullptr; outline = outline->next)
       total_area += outline->BBArea();
     return total_area;
   }

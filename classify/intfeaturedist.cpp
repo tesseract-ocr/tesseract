@@ -24,8 +24,8 @@ namespace tesseract {
 
 IntFeatureDist::IntFeatureDist()
   : size_(0), total_feature_weight_(0.0),
-    feature_map_(NULL), features_(NULL),
-    features_delta_one_(NULL), features_delta_two_(NULL) {
+    feature_map_(nullptr), features_(nullptr),
+    features_delta_one_(nullptr), features_delta_two_(nullptr) {
 }
 
 IntFeatureDist::~IntFeatureDist() {
@@ -149,11 +149,11 @@ double IntFeatureDist::DebugFeatureDistance(
 // Clear all data.
 void IntFeatureDist::Clear() {
   delete [] features_;
-  features_ = NULL;
+  features_ = nullptr;
   delete [] features_delta_one_;
-  features_delta_one_ = NULL;
+  features_delta_one_ = nullptr;
   delete [] features_delta_two_;
-  features_delta_two_ = NULL;
+  features_delta_two_ = nullptr;
 }
 
 }  // namespace tesseract

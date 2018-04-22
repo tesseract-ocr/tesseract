@@ -58,7 +58,7 @@ void FPCUTPT::setup(                     //constructor
     half_pitch = 0;
   lead_flag = 1 << half_pitch;
 
-  pred = NULL;
+  pred = nullptr;
   mean_sum = 0;
   sq_sum = offset * offset;
   cost = sq_sum;
@@ -138,7 +138,7 @@ void FPCUTPT::assign(                         //constructor
 
   xpos = x;
   cost = MAX_FLOAT32;
-  pred = NULL;
+  pred = nullptr;
   faked = faking;
   terminal = FALSE;
   region_index = 0;
@@ -245,7 +245,7 @@ void FPCUTPT::assign_cheap(                         //constructor
 
   xpos = x;
   cost = MAX_FLOAT32;
-  pred = NULL;
+  pred = nullptr;
   faked = faking;
   terminal = FALSE;
   region_index = 0;
@@ -373,7 +373,7 @@ double check_pitch_sync2(                          //find segmentation
 
   this_it = *blob_it;
   best_cost = MAX_FLOAT32;
-  best_end = NULL;
+  best_end = nullptr;
   this_box = box_next (&this_it);//first box
   next_box = box_next (&this_it);//second box
   blob_index = 1;
@@ -469,7 +469,7 @@ double check_pitch_sync2(                          //find segmentation
     seg_it.add_before_then_move (segpt);
     best_end = best_end->previous ();
   }
-  while (best_end != NULL);
+  while (best_end != nullptr);
   seg_it.move_to_last ();
   mean_sum = seg_it.data ()->sum ();
   mean_sum = mean_sum * mean_sum / best_count;
@@ -554,7 +554,7 @@ double check_pitch_sync3(                          //find segmentation
     cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, offset);
 
   best_cost = MAX_FLOAT32;
-  best_end = NULL;
+  best_end = nullptr;
   for (offset = -pitch_error, minindex = 0; offset < pitch_error;
     offset++, minindex++)
   mins[minindex] = projection->local_min (x + offset);
@@ -682,7 +682,7 @@ double check_pitch_sync3(                          //find segmentation
     seg_it.add_before_then_move (segpt);
     best_end = best_end->previous ();
   }
-  while (best_end != NULL);
+  while (best_end != nullptr);
   seg_it.move_to_last ();
   mean_sum = seg_it.data ()->sum ();
   mean_sum = mean_sum * mean_sum / best_count;

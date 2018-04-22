@@ -159,9 +159,9 @@ Classify::Classify()
                     this->params()),
       double_MEMBER(speckle_rating_penalty, 10.0,
                     "Penalty to add to worst rating for noise", this->params()),
-      shape_table_(NULL),
+      shape_table_(nullptr),
       dict_(this),
-      static_classifier_(NULL) {
+      static_classifier_(nullptr) {
   fontinfo_table_.set_compare_callback(
       NewPermanentTessCallback(CompareFontInfo));
   fontinfo_table_.set_clear_callback(
@@ -170,20 +170,20 @@ Classify::Classify()
       NewPermanentTessCallback(CompareFontSet));
   fontset_table_.set_clear_callback(
       NewPermanentTessCallback(FontSetDeleteCallback));
-  AdaptedTemplates = NULL;
-  BackupAdaptedTemplates = NULL;
-  PreTrainedTemplates = NULL;
-  AllProtosOn = NULL;
-  AllConfigsOn = NULL;
-  AllConfigsOff = NULL;
-  TempProtoMask = NULL;
-  NormProtos = NULL;
+  AdaptedTemplates = nullptr;
+  BackupAdaptedTemplates = nullptr;
+  PreTrainedTemplates = nullptr;
+  AllProtosOn = nullptr;
+  AllConfigsOn = nullptr;
+  AllConfigsOff = nullptr;
+  TempProtoMask = nullptr;
+  NormProtos = nullptr;
 
   NumAdaptationsFailed = 0;
 
-  learn_debug_win_ = NULL;
-  learn_fragmented_word_debug_win_ = NULL;
-  learn_fragments_debug_win_ = NULL;
+  learn_debug_win_ = nullptr;
+  learn_fragmented_word_debug_win_ = nullptr;
+  learn_fragments_debug_win_ = nullptr;
 }
 
 Classify::~Classify() {

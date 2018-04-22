@@ -47,8 +47,8 @@ void (*zapper) (ELIST2_LINK *)) {
 
   if (!empty ()) {
     ptr = last->next;            //set to first
-    last->next = NULL;           //break circle
-    last = NULL;                 //set list empty
+    last->next = nullptr;           //break circle
+    last = nullptr;                 //set list empty
     while (ptr) {
       next = ptr->next;
       zapper(ptr);
@@ -77,7 +77,7 @@ void ELIST2::assign_to_sublist(                            //to this list
     "Destination list must be empty before extracting a sublist";
 
   if (!empty ())
-    LIST_NOT_EMPTY.error ("ELIST2.assign_to_sublist", ABORT, NULL);
+    LIST_NOT_EMPTY.error ("ELIST2.assign_to_sublist", ABORT, nullptr);
 
   last = start_it->extract_sublist (end_it);
 }
@@ -146,8 +146,8 @@ const void *, const void *)) {
 void ELIST2::add_sorted(int comparator(const void*, const void*),
                         ELIST2_LINK* new_link) {
   // Check for adding at the end.
-  if (last == NULL || comparator(&last, &new_link) < 0) {
-    if (last == NULL) {
+  if (last == nullptr || comparator(&last, &new_link) < 0) {
+    if (last == nullptr) {
       new_link->next = new_link;
       new_link->prev = new_link;
     } else {
@@ -187,10 +187,10 @@ void ELIST2::add_sorted(int comparator(const void*, const void*),
 ELIST2_LINK *ELIST2_ITERATOR::forward() {
   #ifndef NDEBUG
   if (!list)
-    NO_LIST.error ("ELIST2_ITERATOR::forward", ABORT, NULL);
+    NO_LIST.error ("ELIST2_ITERATOR::forward", ABORT, nullptr);
   #endif
   if (list->empty ())
-    return NULL;
+    return nullptr;
 
   if (current) {                 //not removed so
                                  //set previous
@@ -207,7 +207,7 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
 
 #ifndef NDEBUG
   if (!current)
-    NULL_DATA.error ("ELIST2_ITERATOR::forward", ABORT, NULL);
+    NULL_DATA.error ("ELIST2_ITERATOR::forward", ABORT, nullptr);
 #endif
 
   next = current->next;
@@ -231,10 +231,10 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
 ELIST2_LINK *ELIST2_ITERATOR::backward() {
   #ifndef NDEBUG
   if (!list)
-    NO_LIST.error ("ELIST2_ITERATOR::backward", ABORT, NULL);
+    NO_LIST.error ("ELIST2_ITERATOR::backward", ABORT, nullptr);
   #endif
   if (list->empty ())
-    return NULL;
+    return nullptr;
 
   if (current) {                 //not removed so
                                  //set previous
@@ -250,7 +250,7 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
 
   #ifndef NDEBUG
   if (!current)
-    NULL_DATA.error ("ELIST2_ITERATOR::backward", ABORT, NULL);
+    NULL_DATA.error ("ELIST2_ITERATOR::backward", ABORT, nullptr);
   if (!prev)
     NULL_PREV.error ("ELIST2_ITERATOR::backward", ABORT,
       "This is: %p  Current is: %p", this, current);
@@ -273,9 +273,9 @@ ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
 
   #ifndef NDEBUG
   if (!list)
-    NO_LIST.error ("ELIST2_ITERATOR::data_relative", ABORT, NULL);
+    NO_LIST.error ("ELIST2_ITERATOR::data_relative", ABORT, nullptr);
   if (list->empty ())
-    EMPTY_LIST.error ("ELIST2_ITERATOR::data_relative", ABORT, NULL);
+    EMPTY_LIST.error ("ELIST2_ITERATOR::data_relative", ABORT, nullptr);
   #endif
 
   if (offset < 0)
@@ -285,7 +285,7 @@ ELIST2_LINK *ELIST2_ITERATOR::data_relative(                //get data + or - ..
 
   #ifndef NDEBUG
   if (!ptr)
-    NULL_DATA.error ("ELIST2_ITERATOR::data_relative", ABORT, NULL);
+    NULL_DATA.error ("ELIST2_ITERATOR::data_relative", ABORT, nullptr);
   #endif
 
   return ptr;
@@ -310,9 +310,9 @@ void ELIST2_ITERATOR::exchange(                              //positions of 2 li
 
   #ifndef NDEBUG
   if (!list)
-    NO_LIST.error ("ELIST2_ITERATOR::exchange", ABORT, NULL);
+    NO_LIST.error ("ELIST2_ITERATOR::exchange", ABORT, nullptr);
   if (!other_it)
-    BAD_PARAMETER.error ("ELIST2_ITERATOR::exchange", ABORT, "other_it NULL");
+    BAD_PARAMETER.error ("ELIST2_ITERATOR::exchange", ABORT, "other_it nullptr");
   if (!(other_it->list))
     NO_LIST.error ("ELIST2_ITERATOR::exchange", ABORT, "other_it");
   #endif
@@ -327,7 +327,7 @@ void ELIST2_ITERATOR::exchange(                              //positions of 2 li
   /* Error if either current element is deleted */
 
   if (!current || !other_it->current)
-    DONT_EXCHANGE_DELETED.error ("ELIST2_ITERATOR.exchange", ABORT, NULL);
+    DONT_EXCHANGE_DELETED.error ("ELIST2_ITERATOR.exchange", ABORT, nullptr);
 
   /* Now handle the 4 cases: doubleton list; non-doubleton adjacent elements
   (other before this); non-doubleton adjacent elements (this before other);
@@ -426,17 +426,17 @@ ELIST2_LINK *ELIST2_ITERATOR::extract_sublist(                              //fr
   #ifndef NDEBUG
   if (!other_it)
     BAD_PARAMETER.error ("ELIST2_ITERATOR::extract_sublist", ABORT,
-      "other_it NULL");
+      "other_it nullptr");
   if (!list)
-    NO_LIST.error ("ELIST2_ITERATOR::extract_sublist", ABORT, NULL);
+    NO_LIST.error ("ELIST2_ITERATOR::extract_sublist", ABORT, nullptr);
   if (list != other_it->list)
-    BAD_EXTRACTION_PTS.error ("ELIST2_ITERATOR.extract_sublist", ABORT, NULL);
+    BAD_EXTRACTION_PTS.error ("ELIST2_ITERATOR.extract_sublist", ABORT, nullptr);
   if (list->empty ())
-    EMPTY_LIST.error ("ELIST2_ITERATOR::extract_sublist", ABORT, NULL);
+    EMPTY_LIST.error ("ELIST2_ITERATOR::extract_sublist", ABORT, nullptr);
 
   if (!current || !other_it->current)
     DONT_EXTRACT_DELETED.error ("ELIST2_ITERATOR.extract_sublist", ABORT,
-      NULL);
+      nullptr);
   #endif
 
   ex_current_was_last = other_it->ex_current_was_last = FALSE;
@@ -446,7 +446,7 @@ ELIST2_LINK *ELIST2_ITERATOR::extract_sublist(                              //fr
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
     if (temp_it.cycled_list())   // can't find end pt
-      BAD_SUBLIST.error ("ELIST2_ITERATOR.extract_sublist", ABORT, NULL);
+      BAD_SUBLIST.error ("ELIST2_ITERATOR.extract_sublist", ABORT, nullptr);
 
     if (temp_it.at_last ()) {
       list->last = prev;
@@ -472,15 +472,15 @@ ELIST2_LINK *ELIST2_ITERATOR::extract_sublist(                              //fr
 
                                  //sublist = whole list
   if (prev == other_it->current) {
-    list->last = NULL;
-    prev = current = next = NULL;
-    other_it->prev = other_it->current = other_it->next = NULL;
+    list->last = nullptr;
+    prev = current = next = nullptr;
+    other_it->prev = other_it->current = other_it->next = nullptr;
   }
   else {
     prev->next = other_it->next;
     other_it->next->prev = prev;
 
-    current = other_it->current = NULL;
+    current = other_it->current = nullptr;
     next = other_it->next;
     other_it->prev = prev;
   }

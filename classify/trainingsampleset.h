@@ -164,7 +164,7 @@ class TrainingSampleSet {
   // Gets ownership of the sample with the given index, removing it from this.
   TrainingSample* extract_sample(int index) {
     TrainingSample* sample = samples_[index];
-    samples_[index] = NULL;
+    samples_[index] = nullptr;
     return sample;
   }
 

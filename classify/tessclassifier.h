@@ -32,7 +32,7 @@ class TrainingSample;
 // Tesseract implementation of a ShapeClassifier.
 // Due to limitations in the content of TrainingSample, this currently
 // only works for the static classifier and only works if the ShapeTable
-// in classify is not NULL.
+// in classify is not nullptr.
 class TessClassifier : public ShapeClassifier {
  public:
   TessClassifier(bool pruner_only, tesseract::Classify* classify)
@@ -47,7 +47,7 @@ class TessClassifier : public ShapeClassifier {
   // Provides access to the ShapeTable that this classifier works with.
   virtual const ShapeTable* GetShapeTable() const;
   // Provides access to the UNICHARSET that this classifier works with.
-  // Only needs to be overridden if GetShapeTable() can return NULL.
+  // Only needs to be overridden if GetShapeTable() can return nullptr.
   virtual const UNICHARSET& GetUnicharset() const;
 
   // Displays classification as the given shape_id. Creates as many windows

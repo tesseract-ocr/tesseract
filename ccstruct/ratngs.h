@@ -180,11 +180,11 @@ class BLOB_CHOICE: public ELIST_LINK
       tprintf("r%.2f c%.2f x[%g,%g]: %d %s",
               rating_, certainty_,
               min_xheight_, max_xheight_, unichar_id_,
-              (unicharset == NULL) ? "" :
+              (unicharset == nullptr) ? "" :
               unicharset->debug_str(unichar_id_).string());
     }
     void print_full() const {
-      print(NULL);
+      print(nullptr);
       tprintf(" script=%d, font1=%d, font2=%d, yshift=%g, classifier=%d\n",
               script_id_, fontinfo_id_, fontinfo_id2_, yshift_, classifier_);
     }
@@ -231,7 +231,7 @@ class BLOB_CHOICE: public ELIST_LINK
 ELISTIZEH(BLOB_CHOICE)
 
 // Return the BLOB_CHOICE in bc_list matching a given unichar_id,
-// or NULL if there is no match.
+// or nullptr if there is no match.
 BLOB_CHOICE *FindMatchingChoice(UNICHAR_ID char_id, BLOB_CHOICE_LIST *bc_list);
 
 // Permuter codes used in WERD_CHOICEs.
@@ -410,10 +410,10 @@ class WERD_CHOICE : public ELIST_LINK {
       state_ = new int[reserved];
       certainties_ = new float[reserved];
     } else {
-      unichar_ids_ = NULL;
-      script_pos_ = NULL;
-      state_ = NULL;
-      certainties_ = NULL;
+      unichar_ids_ = nullptr;
+      script_pos_ = nullptr;
+      state_ = nullptr;
+      certainties_ = nullptr;
     }
     length_ = 0;
     adjust_factor_ = 1.0f;
@@ -428,8 +428,8 @@ class WERD_CHOICE : public ELIST_LINK {
 
   /// Helper function to build a WERD_CHOICE from the given string,
   /// fragment lengths, rating, certainty and permuter.
-  /// The function assumes that src_string is not NULL.
-  /// src_lengths argument could be NULL, in which case the unichars
+  /// The function assumes that src_string is not nullptr.
+  /// src_lengths argument could be nullptr, in which case the unichars
   /// in src_string are assumed to all be of length 1.
   void init(const char *src_string, const char *src_lengths,
             float src_rating, float src_certainty,

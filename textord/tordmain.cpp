@@ -60,7 +60,7 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   int height = box.height();
   Box* blob_pix_box = boxCreate(box.left(), pix_height - box.top(),
                                 width, height);
-  Pix* pix_blob = pixClipRectangle(pix, blob_pix_box, NULL);
+  Pix* pix_blob = pixClipRectangle(pix, blob_pix_box, nullptr);
   boxDestroy(&blob_pix_box);
   Pix* dist_pix = pixDistanceFunction(pix_blob, 4, 8, L_BOUNDARY_BG);
   pixDestroy(&pix_blob);
@@ -217,7 +217,7 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->pdblk.poly_block() == NULL || block->pdblk.poly_block()->IsText()) {
+    if (block->pdblk.poly_block() == nullptr || block->pdblk.poly_block()->IsText()) {
       extract_edges(pix, block);
     }
   }
@@ -240,7 +240,7 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
   TO_BLOCK *block;                        // created block
 
   #ifndef GRAPHICS_DISABLED
-  if (to_win != NULL)
+  if (to_win != nullptr)
     to_win->Clear();
   #endif  // GRAPHICS_DISABLED
 
@@ -262,12 +262,12 @@ void Textord::filter_blobs(ICOORD page_tr,         // top right
 
     #ifndef GRAPHICS_DISABLED
     if (textord_show_blobs && testing_on) {
-      if (to_win == NULL)
+      if (to_win == nullptr)
         create_to_win(page_tr);
       block->plot_graded_blobs(to_win);
     }
     if (textord_show_boxes && testing_on) {
-      if (to_win == NULL)
+      if (to_win == nullptr)
         create_to_win(page_tr);
       plot_box_list(to_win, &block->noise_blobs, ScrollView::WHITE);
       plot_box_list(to_win, &block->small_blobs, ScrollView::WHITE);
@@ -381,7 +381,7 @@ void Textord::cleanup_nontext_block(BLOCK* block) {
       C_BLOB_LIST blobs;
       C_BLOB_IT blob_it(&blobs);
       blob_it.add_after_then_move(blob);
-      WERD* word = new WERD(&blobs, 0, NULL);
+      WERD* word = new WERD(&blobs, 0, nullptr);
       w_it.add_after_then_move(word);
     }
     // Each word must contain a fake blob.
@@ -412,7 +412,7 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST* blocks) {
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText()) {
+    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText()) {
       cleanup_nontext_block(block);
       continue;
     }
@@ -741,7 +741,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
   BLOCK_IT bk_it(blocks);
   for (bk_it.mark_cycle_pt(); !bk_it.cycled_list(); bk_it.forward()) {
     BLOCK* block = bk_it.data();
-    if (block->pdblk.poly_block() != NULL && !block->pdblk.poly_block()->IsText()) {
+    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText()) {
       continue;
     }
     // Linear search of the groups to find a matching rotation.
@@ -815,11 +815,11 @@ void Textord::TransferDiacriticsToWords(BLOBNBOX_LIST* diacritic_blobs,
     // scripts eg Kannada/Telugu habitually put diacritics below words, and
     // others eg Thai/Vietnamese/Latin put most diacritics above words, try
     // for both if there isn't much in it.
-    WordWithBox* best_above_word = NULL;
-    WordWithBox* best_below_word = NULL;
+    WordWithBox* best_above_word = nullptr;
+    WordWithBox* best_below_word = nullptr;
     int best_above_distance = 0;
     int best_below_distance = 0;
-    for (WordWithBox* word = ws.NextRectSearch(); word != NULL;
+    for (WordWithBox* word = ws.NextRectSearch(); word != nullptr;
          word = ws.NextRectSearch()) {
       if (word->word()->flag(W_REP_CHAR)) continue;
       TBOX word_box = word->true_bounding_box();
@@ -838,23 +838,23 @@ void Textord::TransferDiacriticsToWords(BLOBNBOX_LIST* diacritic_blobs,
         y_distance += x_distance;
       }
       if (word_box.y_middle() > blob_box.y_middle() &&
-          (best_above_word == NULL || y_distance < best_above_distance)) {
+          (best_above_word == nullptr || y_distance < best_above_distance)) {
         best_above_word = word;
         best_above_distance = y_distance;
       }
       if (word_box.y_middle() <= blob_box.y_middle() &&
-          (best_below_word == NULL || y_distance < best_below_distance)) {
+          (best_below_word == nullptr || y_distance < best_below_distance)) {
         best_below_word = word;
         best_below_distance = y_distance;
       }
     }
     bool above_good =
-        best_above_word != NULL &&
-        (best_below_word == NULL ||
+        best_above_word != nullptr &&
+        (best_below_word == nullptr ||
          best_above_distance < best_below_distance + blob_box.height());
     bool below_good =
-        best_below_word != NULL && best_below_word != best_above_word &&
-        (best_above_word == NULL ||
+        best_below_word != nullptr && best_below_word != best_above_word &&
+        (best_above_word == nullptr ||
          best_below_distance < best_above_distance + blob_box.height());
     if (below_good) {
       C_BLOB* copied_blob = C_BLOB::deep_copy(blobnbox->cblob());

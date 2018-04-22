@@ -135,7 +135,7 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
         last_char_certainty <= unlikely_threshold) {
       ScriptPos rpos;
       YOutlierPieces(word, last_word_char, super_y_bottom, sub_y_top,
-                     NULL, NULL, &rpos, &num_remainder_trailing);
+                     nullptr, nullptr, &rpos, &num_remainder_trailing);
       if (num_trailing > 0 && rpos != sp_trailing) num_remainder_trailing = 0;
       if (num_remainder_trailing > 0 &&
           last_char_certainty < trailing_certainty) {
@@ -150,7 +150,7 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
         first_char_certainty <= unlikely_threshold) {
       ScriptPos lpos;
       YOutlierPieces(word, num_leading, super_y_bottom, sub_y_top,
-                     &lpos, &num_remainder_leading, NULL, NULL);
+                     &lpos, &num_remainder_leading, nullptr, nullptr);
       if (num_leading > 0 && lpos != sp_leading) num_remainder_leading = 0;
       if (num_remainder_leading > 0 &&
           first_char_certainty < leading_certainty) {
@@ -392,11 +392,11 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
 
   // Chop apart the word into up to three pieces.
 
-  BlamerBundle *bb0 = NULL;
-  BlamerBundle *bb1 = NULL;
-  WERD_RES *prefix = NULL;
-  WERD_RES *core = NULL;
-  WERD_RES *suffix = NULL;
+  BlamerBundle *bb0 = nullptr;
+  BlamerBundle *bb1 = nullptr;
+  WERD_RES *prefix = nullptr;
+  WERD_RES *core = nullptr;
+  WERD_RES *suffix = nullptr;
   if (num_chopped_leading > 0) {
     prefix = new WERD_RES(*word);
     split_word(prefix, num_chopped_leading, &core, &bb0);
@@ -463,11 +463,11 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
   bool good_prefix = !prefix || BelievableSuperscript(
       superscript_debug >= 1, *prefix,
       superscript_bettered_certainty * leading_certainty,
-      retry_rebuild_leading, NULL);
+      retry_rebuild_leading, nullptr);
   bool good_suffix = !suffix || BelievableSuperscript(
       superscript_debug >= 1, *suffix,
       superscript_bettered_certainty * trailing_certainty,
-      NULL, retry_rebuild_trailing);
+      nullptr, retry_rebuild_trailing);
 
   *is_good = good_prefix && good_suffix;
   if (!*is_good && !*retry_rebuild_leading && !*retry_rebuild_trailing) {
@@ -476,7 +476,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     delete prefix;
     delete suffix;
     delete bb1;
-    return NULL;
+    return nullptr;
   }
   recog_word_recursive(core);
 
@@ -489,7 +489,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     prefix->SetAllScriptPositions(leading_pos);
     join_words(prefix, core, bb0);
     core = prefix;
-    prefix = NULL;
+    prefix = nullptr;
   }
 
   if (superscript_debug >= 1) {

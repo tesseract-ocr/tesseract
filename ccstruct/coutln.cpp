@@ -50,13 +50,13 @@ ICOORD C_OUTLINE::step_coords[4] = {
 
 C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
                      int16_t length)
-    : box(bot_left, top_right), start(startpt->pos), offsets(NULL) {
+    : box(bot_left, top_right), start(startpt->pos), offsets(nullptr) {
   int16_t stepindex;               //index to step
   CRACKEDGE *edgept;             //current point
 
   stepcount = length;            //no of steps
   if (length == 0) {
-    steps = NULL;
+    steps = nullptr;
     return;
   }
                                  //get memory
@@ -81,7 +81,7 @@ C_OUTLINE::C_OUTLINE (
                                  //steps to copy
 ICOORD startpt, DIR128 * new_steps,
 int16_t length                     //length of loop
-):start (startpt), offsets(NULL) {
+):start (startpt), offsets(nullptr) {
   int8_t dirdiff;                  //direction difference
   DIR128 prevdir;                //previous direction
   DIR128 dir;                    //current direction
@@ -138,7 +138,7 @@ int16_t length                     //length of loop
  * @param rotation rotate to coord
  */
 
-C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(NULL) {
+C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(nullptr) {
   TBOX new_box;                   //easy bounding
   int16_t stepindex;               //index to step
   int16_t dirdiff;                 //direction change
@@ -152,7 +152,7 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(NULL) {
 
   stepcount = srcline->stepcount * 2;
   if (stepcount == 0) {
-    steps = NULL;
+    steps = nullptr;
     box = srcline->box;
     box.rotate(rotation);
     return;
@@ -897,10 +897,10 @@ void C_OUTLINE::render(int left, int top, Pix* pix) const {
     ICOORD next_step = step(stepindex);
     if (next_step.y() < 0) {
       pixRasterop(pix, 0, top - pos.y(), pos.x() - left, 1,
-                  PIX_NOT(PIX_DST), NULL, 0, 0);
+                  PIX_NOT(PIX_DST), nullptr, 0, 0);
     } else if (next_step.y() > 0) {
       pixRasterop(pix, 0, top - pos.y() - 1, pos.x() - left, 1,
-                  PIX_NOT(PIX_DST), NULL, 0, 0);
+                  PIX_NOT(PIX_DST), nullptr, 0, 0);
     }
     pos += next_step;
   }
@@ -1010,7 +1010,7 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
 C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   box = source.box;
   start = source.start;
-  if (steps != NULL)
+  if (steps != nullptr)
     free_mem(steps);
   stepcount = source.stepcount;
   steps = (uint8_t *) alloc_mem (step_mem());
@@ -1019,11 +1019,11 @@ C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
     children.clear ();
   children.deep_copy(&source.children, &deep_copy);
   delete [] offsets;
-  if (source.offsets != NULL) {
+  if (source.offsets != nullptr) {
     offsets = new EdgeOffset[stepcount];
     memcpy(offsets, source.offsets, stepcount * sizeof(*offsets));
   } else {
-    offsets = NULL;
+    offsets = nullptr;
   }
   return *this;
 }

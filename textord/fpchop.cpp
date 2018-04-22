@@ -76,7 +76,7 @@ ROW *fixed_pitch_words(                 //find lines
   ICOORDELT_IT cell_it = &row->char_cells;
 
 #ifndef GRAPHICS_DISABLED
-  if (textord_show_page_cuts && to_win != NULL) {
+  if (textord_show_page_cuts && to_win != nullptr) {
     plot_row_cells (to_win, ScrollView::RED, row, 0, &row->char_cells);
   }
 #endif
@@ -89,7 +89,7 @@ ROW *fixed_pitch_words(                 //find lines
   else
     rep_left = rep_it.data ()->bounding_box ().left ();
   if (box_it.empty ())
-    return NULL;                 //empty row
+    return nullptr;                 //empty row
   xstarts[0] = box_it.data ()->bounding_box ().left ();
   if (rep_left < xstarts[0]) {
     xstarts[0] = rep_left;
@@ -99,11 +99,11 @@ ROW *fixed_pitch_words(                 //find lines
     tprintf ("Leftmost blob is at (%d,%d)\n",
       box_it.data ()->bounding_box ().left (),
       box_it.data ()->bounding_box ().bottom ());
-    return NULL;
+    return nullptr;
   }
   ASSERT_HOST (!cell_it.empty () && !row->char_cells.singleton ());
   prev_chop_coord = cell_it.data ()->x ();
-  word = NULL;
+  word = nullptr;
   while (rep_left < cell_it.data ()->x ()) {
     word = add_repeated_word (&rep_it, rep_left, prev_chop_coord,
       blanks, row->fixed_pitch, &word_it);
@@ -122,13 +122,13 @@ ROW *fixed_pitch_words(                 //find lines
         &left_coutlines,
         &right_coutlines);
       box_it.forward ();
-      while (!box_it.empty() && box_it.data()->cblob() == NULL) {
+      while (!box_it.empty() && box_it.data()->cblob() == nullptr) {
         delete box_it.extract();
         box_it.forward();
       }
     }
     if (!right_coutlines.empty() && left_coutlines.empty())
-      split_to_blob (NULL, chop_coord,
+      split_to_blob (nullptr, chop_coord,
         textord_fp_chop_error + 0.5f,
         &left_coutlines,
         &right_coutlines);
@@ -150,9 +150,9 @@ ROW *fixed_pitch_words(                 //find lines
           new_blanks = 0;
       }
       if (!cblob_it.empty()) {
-        if (blanks < 1 && word != NULL && !word->flag (W_REP_CHAR))
+        if (blanks < 1 && word != nullptr && !word->flag (W_REP_CHAR))
           blanks = 1;
-        word = new WERD (&cblobs, blanks, NULL);
+        word = new WERD (&cblobs, blanks, nullptr);
         cblob_it.set_to_list (&cblobs);
         word->set_flag (W_DONT_CHOP, TRUE);
         word_it.add_after_then_move (word);
@@ -173,13 +173,13 @@ ROW *fixed_pitch_words(                 //find lines
       prev_chop_coord = chop_coord;
   }
   if (!cblob_it.empty()) {
-    word = new WERD(&cblobs, blanks, NULL);
+    word = new WERD(&cblobs, blanks, nullptr);
     word->set_flag (W_DONT_CHOP, TRUE);
     word_it.add_after_then_move (word);
     if (bol)
       word->set_flag (W_BOL, TRUE);
   }
-  ASSERT_HOST (word != NULL);
+  ASSERT_HOST (word != nullptr);
   while (!rep_it.empty ()) {
     add_repeated_word (&rep_it, rep_left, prev_chop_coord,
       blanks, row->fixed_pitch, &word_it);
@@ -248,12 +248,12 @@ void split_to_blob(                                 //split the blob
                    C_OUTLINE_LIST *right_coutlines) {
   C_BLOB *real_cblob;            //cblob to chop
 
-  if (blob != NULL) {
+  if (blob != nullptr) {
     real_cblob = blob->cblob();
   } else {
-    real_cblob = NULL;
+    real_cblob = nullptr;
   }
-  if (!right_coutlines->empty() || real_cblob != NULL)
+  if (!right_coutlines->empty() || real_cblob != nullptr)
     fixed_chop_cblob(real_cblob,
                      chop_coord,
                      pitch_error,
@@ -298,7 +298,7 @@ void fixed_chop_cblob(                                //split the blob
     }
     right_it.add_list_before (&new_outlines);
   }
-  if (blob != NULL) {
+  if (blob != nullptr) {
     blob_it.set_to_list (blob->out_list ());
     for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
       blob_it.forward ())
@@ -586,7 +586,7 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG(                     //record fragment
       for (; i < end_index + len; ++i)
         steps[i - start_index] = outline->step_dir(i - len);
   }
-  other_end = NULL;
+  other_end = nullptr;
   delete close();
 }
 
@@ -598,7 +598,7 @@ C_OUTLINE_FRAG::C_OUTLINE_FRAG(                       //record fragment
   other_end = head;
   start = head->start;
   end = head->end;
-  steps = NULL;
+  steps = nullptr;
   stepcount = 0;
 }
 
@@ -668,10 +668,10 @@ void close_chopped_cfragments(                             //chop the outline
     top_frag = frag_it.extract();
     if (top_frag->other_end != bottom_frag) {
       outline = join_chopped_fragments(bottom_frag, top_frag);
-      ASSERT_HOST(outline == NULL);
+      ASSERT_HOST(outline == nullptr);
     } else {
       outline = join_chopped_fragments(bottom_frag, top_frag);
-      if (outline != NULL) {
+      if (outline != nullptr) {
         olchild_it.set_to_list(outline->child());
         for (child_it.mark_cycle_pt(); !child_it.cycled_list();
              child_it.forward()) {
@@ -727,7 +727,7 @@ C_OUTLINE *join_chopped_fragments(                         //join pieces
   bottom->other_end->other_end = top->other_end;
   delete bottom;
   delete top;
-  return NULL;
+  return nullptr;
 }
 
 /**********************************************************************
@@ -792,7 +792,7 @@ C_OUTLINE *C_OUTLINE_FRAG::close() {  //join pieces
 
   new_stepcount = stepcount + fake_count;
   if (new_stepcount > C_OUTLINE::kMaxOutlineLength)
-    return NULL;  // Can't join them
+    return nullptr;  // Can't join them
   new_steps = new DIR128[new_stepcount];
   memmove(new_steps, steps, stepcount);
   memset (new_steps + stepcount, fake_step.get_dir(), fake_count);
@@ -812,7 +812,7 @@ C_OUTLINE *C_OUTLINE_FRAG::close() {  //join pieces
 C_OUTLINE_FRAG & C_OUTLINE_FRAG::operator= (
 const C_OUTLINE_FRAG & src       //fragment to copy
 ) {
-  if (steps != NULL)
+  if (steps != nullptr)
     delete [] steps;
 
   stepcount = src.stepcount;

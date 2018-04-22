@@ -112,7 +112,7 @@ static float MakeRowFromBlobs(float line_size,
                               BLOBNBOX_IT* blob_it, TO_ROW_IT* row_it) {
   blob_it->sort(blob_x_order);
   blob_it->move_to_first();
-  TO_ROW* row = NULL;
+  TO_ROW* row = nullptr;
   float total_size = 0.0f;
   int blob_count = 0;
   // Add all the blobs to a single TO_ROW.
@@ -120,7 +120,7 @@ static float MakeRowFromBlobs(float line_size,
     BLOBNBOX* blob = blob_it->extract();
     int top = blob->bounding_box().top();
     int bottom = blob->bounding_box().bottom();
-    if (row == NULL) {
+    if (row == nullptr) {
       row = new TO_ROW(blob, top, bottom, line_size);
       row_it->add_before_then_move(row);
     } else {
@@ -236,12 +236,12 @@ void make_initial_textrows(                  //find lines
   ScrollView::Color colour;                 //of row
 
   if (textord_show_initial_rows && testing_on) {
-    if (to_win == NULL)
+    if (to_win == nullptr)
       create_to_win(page_tr);
   }
 #endif
                                  //guess skew
-  assign_blobs_to_rows (block, NULL, 0, TRUE, TRUE, textord_show_initial_rows && testing_on);
+  assign_blobs_to_rows (block, nullptr, 0, TRUE, TRUE, textord_show_initial_rows && testing_on);
   row_it.move_to_first ();
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     fit_lms_line (row_it.data ());
@@ -304,7 +304,7 @@ void compute_page_skew(                        //get average gradient
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
     POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
-    if (pb != NULL && !pb->IsText())
+    if (pb != nullptr && !pb->IsText())
       continue;  // Pretend non-text blocks don't exist.
     row_count += block_it.data ()->get_rows ()->length ();
     //count up rows
@@ -320,14 +320,14 @@ void compute_page_skew(                        //get average gradient
   gradients = (float *) alloc_mem (blob_count * sizeof (float));
   //get mem
   errors = (float *) alloc_mem (blob_count * sizeof (float));
-  if (gradients == NULL || errors == NULL)
-    MEMORY_OUT.error ("compute_page_skew", ABORT, NULL);
+  if (gradients == nullptr || errors == nullptr)
+    MEMORY_OUT.error ("compute_page_skew", ABORT, nullptr);
 
   row_index = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
        block_it.forward ()) {
     POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
-    if (pb != NULL && !pb->IsText())
+    if (pb != nullptr && !pb->IsText())
       continue;  // Pretend non-text blocks don't exist.
     row_it.set_to_list (block_it.data ()->get_rows ());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
@@ -357,7 +357,7 @@ void compute_page_skew(                        //get average gradient
     for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
          block_it.forward ()) {
       POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
-      if (pb != NULL && !pb->IsText())
+      if (pb != nullptr && !pb->IsText())
         continue;  // Pretend non-text blocks don't exist.
       row_it.set_to_list (block_it.data ()->get_rows ());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
@@ -491,13 +491,13 @@ void vigorous_noise_removal(TO_BLOCK* block) {
     }
     float xheight = hstats.median();
     // Delete small objects.
-    BLOBNBOX* prev = NULL;
+    BLOBNBOX* prev = nullptr;
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOBNBOX* blob = b_it.data();
       const TBOX& box = blob->bounding_box();
       if (box.height() < kNoiseSize * xheight) {
         // Small so delete unless it looks like an i dot.
-        if (prev != NULL) {
+        if (prev != nullptr) {
           if (dot_of_i(blob, prev, row))
             continue;  // Looks OK.
         }
@@ -535,7 +535,7 @@ void cleanup_rows_making(                   //find lines
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_parallel_rows && testing_on) {
-    if (to_win == NULL)
+    if (to_win == nullptr)
       create_to_win(page_tr);
   }
 #endif
@@ -614,8 +614,8 @@ void delete_non_dropout_rows(                   //find lines
     return;                      //empty block
   deltas = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
   occupation = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
-  if (deltas == NULL || occupation == NULL)
-    MEMORY_OUT.error ("compute_line_spacing", ABORT, NULL);
+  if (deltas == nullptr || occupation == nullptr)
+    MEMORY_OUT.error ("compute_line_spacing", ABORT, nullptr);
 
   compute_line_occupation(block, gradient, min_y, max_y, occupation, deltas);
   compute_occupation_threshold ((int32_t)
@@ -978,7 +978,7 @@ void expand_rows(                   //find lines
 
 #ifndef GRAPHICS_DISABLED
   if (textord_show_expanded_rows && testing_on) {
-    if (to_win == NULL)
+    if (to_win == nullptr)
       create_to_win(page_tr);
   }
 #endif
@@ -1167,14 +1167,14 @@ void compute_row_stats(                  //find lines
   TO_ROW **rows;                 //for choose nth
 
   rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
-  if (rows == NULL)
-    MEMORY_OUT.error ("compute_row_stats", ABORT, NULL);
+  if (rows == nullptr)
+    MEMORY_OUT.error ("compute_row_stats", ABORT, nullptr);
   rowcount = 0;
-  prev_row = NULL;
+  prev_row = nullptr;
   row_it.move_to_last ();        //start at bottom
   do {
     row = row_it.data ();
-    if (prev_row != NULL) {
+    if (prev_row != nullptr) {
       rows[rowcount++] = prev_row;
       prev_row->spacing = row->intercept () - prev_row->intercept ();
       if (testing_on)
@@ -1819,7 +1819,7 @@ void separate_underlines(TO_BLOCK *block,  // block to do
       blob = blob_it.data();
       blob_box = blob->bounding_box();
       if (blob_box.width() > block->line_size * textord_underline_width) {
-        ASSERT_HOST(blob->cblob() != NULL);
+        ASSERT_HOST(blob->cblob() != nullptr);
         rotated_blob = crotate_cblob (blob->cblob(),
           blob_rotation);
         if (test_underline(
@@ -1918,7 +1918,7 @@ void pre_associate_blobs(                  //make rough chars
     }
 #ifndef GRAPHICS_DISABLED
     if (testing_on && textord_show_final_blobs) {
-      if (to_win == NULL)
+      if (to_win == nullptr)
         create_to_win(page_tr);
       to_win->Pen(colour);
       for (blob_it.mark_cycle_pt (); !blob_it.cycled_list ();
@@ -2314,7 +2314,7 @@ void assign_blobs_to_rows(                      //find lines
   ICOORD testpt;                 //testing only
   BLOBNBOX *blob;                //current blob
   TO_ROW *row;                   //current row
-  TO_ROW *dest_row = NULL;       //row to put blob in
+  TO_ROW *dest_row = nullptr;       //row to put blob in
                                  //iterators
   BLOBNBOX_IT blob_it = &block->blobs;
   TO_ROW_IT row_it = block->get_rows ();
@@ -2322,7 +2322,7 @@ void assign_blobs_to_rows(                      //find lines
   ycoord =
     (block->block->pdblk.bounding_box ().bottom () +
     block->block->pdblk.bounding_box ().top ()) / 2.0f;
-  if (gradient != NULL)
+  if (gradient != nullptr)
     g_length = sqrt (1 + *gradient * *gradient);
 #ifndef GRAPHICS_DISABLED
   if (drawing_skew)
@@ -2342,7 +2342,7 @@ void assign_blobs_to_rows(                      //find lines
   last_x = left_x;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
-    if (gradient != NULL) {
+    if (gradient != nullptr) {
       block_skew = (1 - 1 / g_length) * blob->bounding_box ().bottom ()
         + *gradient / g_length * blob->bounding_box ().left ();
     }
@@ -2662,7 +2662,7 @@ void mark_repeated_chars(TO_ROW *row) {
       BLOBNBOX* bblob = box_it.data();
       int repeat_length = 1;
       if (bblob->flow() == BTFT_LEADER &&
-          !bblob->joined_to_prev() && bblob->cblob() != NULL) {
+          !bblob->joined_to_prev() && bblob->cblob() != nullptr) {
         BLOBNBOX_IT test_it(box_it);
         for (test_it.forward(); !test_it.at_first();) {
           bblob = test_it.data();
@@ -2670,7 +2670,7 @@ void mark_repeated_chars(TO_ROW *row) {
             break;
           test_it.forward();
           bblob = test_it.data();
-          if (bblob->joined_to_prev() || bblob->cblob() == NULL) {
+          if (bblob->joined_to_prev() || bblob->cblob() == nullptr) {
             repeat_length = 0;
             break;
           }

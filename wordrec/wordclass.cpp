@@ -65,7 +65,7 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
   // If a blob with the same bounding box as one of the truth character
   // bounding boxes is not classified as the corresponding truth character
   // blame character classifier for incorrect answer.
-  if (blamer_bundle != NULL) {
+  if (blamer_bundle != nullptr) {
     blamer_bundle->BlameClassifier(getDict().getUnicharset(),
                                    blob->bounding_box(),
                                    *choices,

@@ -25,7 +25,7 @@ namespace tesseract {
 
 TFile::TFile()
     : offset_(0),
-      data_(NULL),
+      data_(nullptr),
       data_is_owned_(false),
       is_writing_(false),
       swap_(false) {}
@@ -43,7 +43,7 @@ bool TFile::Open(const STRING& filename, FileReader reader) {
   offset_ = 0;
   is_writing_ = false;
   swap_ = false;
-  if (reader == NULL)
+  if (reader == nullptr)
     return LoadDataFromFile(filename, data_);
   else
     return (*reader)(filename, data_);
@@ -95,7 +95,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
     if ((*data_)[offset_ - 1] == '\n') break;
   }
   if (size < buffer_size) buffer[size] = '\0';
-  return size > 0 ? buffer : NULL;
+  return size > 0 ? buffer : nullptr;
 }
 
 int TFile::FReadEndian(void* buffer, int size, int count) {
@@ -115,7 +115,7 @@ int TFile::FRead(void* buffer, int size, int count) {
   if (required_size <= 0) return 0;
   if (data_->size() - offset_ < required_size)
     required_size = data_->size() - offset_;
-  if (required_size > 0 && buffer != NULL)
+  if (required_size > 0 && buffer != nullptr)
     memcpy(buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
   return required_size / size;
@@ -128,7 +128,7 @@ void TFile::Rewind() {
 
 void TFile::OpenWrite(GenericVector<char>* data) {
   offset_ = 0;
-  if (data != NULL) {
+  if (data != nullptr) {
     if (data_is_owned_) delete data_;
     data_ = data;
     data_is_owned_ = false;
@@ -143,7 +143,7 @@ void TFile::OpenWrite(GenericVector<char>* data) {
 
 bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
   ASSERT_HOST(is_writing_);
-  if (writer == NULL)
+  if (writer == nullptr)
     return SaveDataToFile(*data_, filename);
   else
     return (*writer)(*data_, filename);

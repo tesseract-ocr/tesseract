@@ -76,11 +76,11 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
                          block_res_it.data()->block);
           word_res = word_res_it_from.forward();
           word_index++;
-          if (monitor != NULL) {
+          if (monitor != nullptr) {
             monitor->ocr_alive = TRUE;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
-                (monitor->cancel != NULL &&
+                (monitor->cancel != nullptr &&
                  (*monitor->cancel)(monitor->cancel_this, stats_.dict_words)))
             return;
           }
@@ -94,11 +94,11 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
             debug_fix_space_level.set_value(10);
           word_res_it_to.forward();
           word_index++;
-          if (monitor != NULL) {
+          if (monitor != nullptr) {
             monitor->ocr_alive = TRUE;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
-                (monitor->cancel != NULL &&
+                (monitor->cancel != nullptr &&
                  (*monitor->cancel)(monitor->cancel_this, stats_.dict_words)))
             return;
           }
@@ -199,13 +199,13 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
   WERD_RES *word;
   // Since we are not using PAGE_RES to iterate over words, we need to update
   // prev_word_best_choice_ before calling classify_word_pass2().
-  prev_word_best_choice_ = NULL;
+  prev_word_best_choice_ = nullptr;
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
-    if ((!word->part_of_combo) && (word->box_word == NULL)) {
+    if ((!word->part_of_combo) && (word->box_word == nullptr)) {
       WordData word_data(block, row, word);
       SetupWordPassN(2, &word_data);
-      classify_word_and_language(2, NULL, &word_data);
+      classify_word_and_language(2, nullptr, &word_data);
     }
     prev_word_best_choice_ = word->best_choice;
   }
@@ -513,7 +513,7 @@ BOOL8 Tesseract::fixspace_thinks_word_done(WERD_RES *word) {
       (word->tess_accepted ||
        (fixsp_done_mode == 2 && word->reject_map.reject_count() == 0) ||
        fixsp_done_mode == 3) &&
-      (strchr(word->best_choice->unichar_string().string(), ' ') == NULL) &&
+      (strchr(word->best_choice->unichar_string().string(), ' ') == nullptr) &&
       ((word->best_choice->permuter() == SYSTEM_DAWG_PERM) ||
        (word->best_choice->permuter() == FREQ_DAWG_PERM) ||
        (word->best_choice->permuter() == USER_DAWG_PERM) ||
@@ -688,7 +688,7 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res,
   float small_limit = kBlnXHeight * fixsp_small_outlines_size;
   float non_noise_limit = kBlnXHeight * 0.8;
 
-  if (word_res->rebuild_word == NULL)
+  if (word_res->rebuild_word == nullptr)
     return -1;  // Can't handle cube words.
 
   // Normalised.
@@ -763,7 +763,7 @@ float Tesseract::blob_noise_score(TBLOB *blob) {
   int16_t max_dimension;
   int16_t largest_outline_dimension = 0;
 
-  for (TESSLINE* ol = blob->outlines; ol != NULL; ol= ol->next) {
+  for (TESSLINE* ol = blob->outlines; ol != nullptr; ol= ol->next) {
     outline_count++;
     box = ol->bounding_box();
     if (box.height() > box.width()) {
@@ -836,7 +836,7 @@ int16_t Tesseract::fp_eval_word_spacing(WERD_RES_LIST &word_res_list) {
 
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     word = word_it.data();
-    if (word->rebuild_word == NULL)
+    if (word->rebuild_word == nullptr)
       continue;  // Can't handle cube words.
     if (word->done ||
         word->tess_accepted ||

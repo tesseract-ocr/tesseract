@@ -86,11 +86,11 @@ SVEvent* SVEvent::copy() {
 /// It is run from a different thread and synchronizes via SVSync.
 void* ScrollView::MessageReceiver(void* a) {
   int counter_event_id = 0;  // ongoing counter
-  char* message = NULL;
+  char* message = nullptr;
   // Wait until a new message appears in the input stream_.
   do {
     message = ScrollView::GetStream()->Receive();
-  } while (message == NULL);
+  } while (message == nullptr);
 
 // This is the main loop which iterates until the server is dead (strlen = -1).
 // It basically parses for 3 different messagetypes and then distributes the
@@ -112,7 +112,7 @@ void* ScrollView::MessageReceiver(void* a) {
     svmap_mu->Lock();
     cur->window = svmap[window_id];
 
-    if (cur->window != NULL) {
+    if (cur->window != nullptr) {
       cur->parameter = new char[strlen(p) + 1];
       strcpy(cur->parameter, p);
       if (strlen(p) > 0) {  // remove the last \n
@@ -167,7 +167,7 @@ void* ScrollView::MessageReceiver(void* a) {
       waiting_for_events_mu->Unlock();
       // Signal the corresponding semaphore twice (for both copies).
       ScrollView* sv = svmap[window_id];
-      if (sv != NULL) {
+      if (sv != nullptr) {
         sv->Signal();
         sv->Signal();
       }
@@ -179,9 +179,9 @@ void* ScrollView::MessageReceiver(void* a) {
     // Wait until a new message appears in the input stream_.
     do {
       message = ScrollView::GetStream()->Receive();
-    } while (message == NULL);
+    } while (message == nullptr);
   }
-  return 0;
+  return nullptr;
 }
 
 // Table to implement the color index values in the old system.
@@ -242,7 +242,7 @@ int table_colors[ScrollView::GREEN_YELLOW+1][4]= {
 * Scrollview implementation.
 *******************************************************************************/
 
-SVNetwork* ScrollView::stream_ = NULL;
+SVNetwork* ScrollView::stream_ = nullptr;
 int ScrollView::nr_created_windows_ = 0;
 int ScrollView::image_index_ = 0;
 
@@ -274,19 +274,19 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
                             bool y_axis_reversed, const char* server_name) {
   // If this is the first ScrollView Window which gets created, there is no
   // network connection yet and we have to set it up in a different thread.
-  if (stream_ == NULL) {
+  if (stream_ == nullptr) {
     nr_created_windows_ = 0;
     stream_ = new SVNetwork(server_name, kSvPort);
     waiting_for_events_mu = new SVMutex();
     svmap_mu = new SVMutex();
     SendRawMessage(
         "svmain = luajava.bindClass('com.google.scrollview.ScrollView')\n");
-    SVSync::StartThread(MessageReceiver, NULL);
+    SVSync::StartThread(MessageReceiver, nullptr);
   }
 
   // Set up the variables on the clientside.
   nr_created_windows_++;
-  event_handler_ = NULL;
+  event_handler_ = nullptr;
   event_handler_ended_ = false;
   y_axis_is_reversed_ = y_axis_reversed;
   y_size_ = y_canvas_size;
@@ -301,7 +301,7 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
   svmap_mu->Unlock();
 
   for (int i = 0; i < SVET_COUNT; i++) {
-    event_table_[i] = NULL;
+    event_table_[i] = nullptr;
   }
 
   mutex_ = new SVMutex();
@@ -327,14 +327,14 @@ void* ScrollView::StartEventHandler(void* a) {
   do {
     stream_->Flush();
     sv->semaphore_->Wait();
-    new_event = NULL;
+    new_event = nullptr;
     int serial = -1;
     int k = -1;
     sv->mutex_->Lock();
     // Check every table entry if he is is valid and not already processed.
 
     for (int i = 0; i < SVET_COUNT; i++) {
-      if (sv->event_table_[i] != NULL &&
+      if (sv->event_table_[i] != nullptr &&
           (serial < 0 || sv->event_table_[i]->counter < serial)) {
         new_event = sv->event_table_[i];
         serial = sv->event_table_[i]->counter;
@@ -342,27 +342,27 @@ void* ScrollView::StartEventHandler(void* a) {
       }
     }
     // If we didn't find anything we had an old alarm and just sleep again.
-    if (new_event != NULL) {
-      sv->event_table_[k] = NULL;
+    if (new_event != nullptr) {
+      sv->event_table_[k] = nullptr;
       sv->mutex_->Unlock();
-      if (sv->event_handler_ != NULL) { sv->event_handler_->Notify(new_event); }
+      if (sv->event_handler_ != nullptr) { sv->event_handler_->Notify(new_event); }
       if (new_event->type == SVET_DESTROY) {
         // Signal the destructor that it is safe to terminate.
         sv->event_handler_ended_ = true;
-        sv = NULL;
+        sv = nullptr;
       }
       delete new_event;  // Delete the pointer after it has been processed.
     } else { sv->mutex_->Unlock(); }
   // The thread should run as long as its associated window is alive.
-  } while (sv != NULL);
-  return 0;
+  } while (sv != nullptr);
+  return nullptr;
 }
 #endif  // GRAPHICS_DISABLED
 
 ScrollView::~ScrollView() {
   #ifndef GRAPHICS_DISABLED
   svmap_mu->Lock();
-  if (svmap[window_id_] != NULL) {
+  if (svmap[window_id_] != nullptr) {
     svmap_mu->Unlock();
     // So the event handling thread can quit.
     SendMsg("destroy()");
@@ -370,10 +370,10 @@ ScrollView::~ScrollView() {
     SVEvent* sve = AwaitEvent(SVET_DESTROY);
     delete sve;
     svmap_mu->Lock();
-    svmap[window_id_] = NULL;
+    svmap[window_id_] = nullptr;
     svmap_mu->Unlock();
     // The event handler thread for this window *must* receive the
-    // destroy event and set its pointer to this to NULL before we allow
+    // destroy event and set its pointer to this to nullptr before we allow
     // the destructor to exit.
     while (!event_handler_ended_)
       Update();
@@ -431,9 +431,9 @@ void ScrollView::SetEvent(SVEvent* svevent) {
 // Place both events into the queue.
   mutex_->Lock();
   // Delete the old objects..
-  if (event_table_[specific->type] != NULL) {
+  if (event_table_[specific->type] != nullptr) {
     delete event_table_[specific->type]; }
-  if (event_table_[SVET_ANY] != NULL) {
+  if (event_table_[SVET_ANY] != nullptr) {
     delete event_table_[SVET_ANY]; }
   // ...and put the new ones in the table.
   event_table_[specific->type] = specific;
@@ -668,7 +668,7 @@ void ScrollView::Image(const char* image, int x_pos, int y_pos) {
 // Add new checkboxmenuentry to menubar.
 void ScrollView::MenuItem(const char* parent, const char* name,
                           int cmdEvent, bool flag) {
-  if (parent == NULL) { parent = ""; }
+  if (parent == nullptr) { parent = ""; }
   if (flag) { SendMsg("addMenuBarItem('%s','%s',%d,true)",
                       parent, name, cmdEvent);
   } else { SendMsg("addMenuBarItem('%s','%s',%d,false)",
@@ -677,26 +677,26 @@ void ScrollView::MenuItem(const char* parent, const char* name,
 
 // Add new menuentry to menubar.
 void ScrollView::MenuItem(const char* parent, const char* name, int cmdEvent) {
-  if (parent == NULL) { parent = ""; }
+  if (parent == nullptr) { parent = ""; }
   SendMsg("addMenuBarItem('%s','%s',%d)", parent, name, cmdEvent);
 }
 
 // Add new submenu to menubar.
 void ScrollView::MenuItem(const char* parent, const char* name) {
-  if (parent == NULL) { parent = ""; }
+  if (parent == nullptr) { parent = ""; }
   SendMsg("addMenuBarItem('%s','%s')", parent, name);
 }
 
 // Add new submenu to popupmenu.
 void ScrollView::PopupItem(const char* parent, const char* name) {
-  if (parent == NULL) { parent = ""; }
+  if (parent == nullptr) { parent = ""; }
   SendMsg("addPopupMenuItem('%s','%s')", parent, name);
 }
 
 // Add new submenuentry to popupmenu.
 void ScrollView::PopupItem(const char* parent, const char* name,
                            int cmdEvent, const char* value, const char* desc) {
-  if (parent == NULL) { parent = ""; }
+  if (parent == nullptr) { parent = ""; }
   char* esc = AddEscapeChars(value);
   char* esc2 = AddEscapeChars(desc);
   SendMsg("addPopupMenuItem('%s','%s',%d,'%s','%s')", parent, name,
@@ -715,7 +715,7 @@ void ScrollView::Update() {
   svmap_mu->Lock();
   for (std::map<int, ScrollView*>::iterator iter = svmap.begin();
       iter != svmap.end(); ++iter) {
-    if (iter->second != NULL)
+    if (iter->second != nullptr)
       iter->second->UpdateWindow();
   }
   svmap_mu->Unlock();
@@ -817,7 +817,7 @@ char* ScrollView::AddEscapeChars(const char* input) {
   const char* lastptr = input;
   char* message = new char[kMaxMsgSize];
   int pos = 0;
-  while (nextptr != NULL) {
+  while (nextptr != nullptr) {
     strncpy(message+pos, lastptr, nextptr-lastptr);
     pos += nextptr - lastptr;
     message[pos] = '\\';

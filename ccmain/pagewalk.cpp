@@ -31,7 +31,7 @@ void Tesseract::process_selected_words(
     PAGE_RES* page_res, // blocks to check
     TBOX & selection_box,
     BOOL8(tesseract::Tesseract::*word_processor)(PAGE_RES_IT* pr_it)) {
-  for (PAGE_RES_IT page_res_it(page_res); page_res_it.word() != NULL;
+  for (PAGE_RES_IT page_res_it(page_res); page_res_it.word() != nullptr;
        page_res_it.forward()) {
     WERD* word = page_res_it.word()->word;
     if (word->bounding_box().overlap(selection_box)) {

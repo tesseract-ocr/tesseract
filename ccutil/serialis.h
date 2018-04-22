@@ -54,7 +54,7 @@ class TFile {
   ~TFile();
 
   // All the Open methods load the whole file into memory for reading.
-  // Opens a file with a supplied reader, or NULL to use the default.
+  // Opens a file with a supplied reader, or nullptr to use the default.
   // Note that mixed read/write is not supported.
   bool Open(const STRING& filename, FileReader reader);
   // From an existing memory buffer.
@@ -64,7 +64,7 @@ class TFile {
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
   void set_swap(bool value) { swap_ = value; }
 
-  // Reads a line like fgets. Returns NULL on EOF, otherwise buffer.
+  // Reads a line like fgets. Returns nullptr on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if
   // the line is longer. Does nothing if buffer_size <= 0.
   // To use fscanf use FGets and sscanf.
@@ -79,8 +79,8 @@ class TFile {
   // Only allowed while reading!
   void Rewind();
 
-  // Open for writing. Either supply a non-NULL data with OpenWrite before
-  // calling FWrite, (no close required), or supply a NULL data to OpenWrite
+  // Open for writing. Either supply a non-nullptr data with OpenWrite before
+  // calling FWrite, (no close required), or supply a nullptr data to OpenWrite
   // and call CloseWrite to write to a file after the FWrites.
   void OpenWrite(GenericVector<char>* data);
   bool CloseWrite(const STRING& filename, FileWriter writer);

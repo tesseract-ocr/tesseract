@@ -31,7 +31,7 @@ class TBOX;
 const int kBoxReadBufSize = 1024;
 
 // Open the boxfile based on the given image filename.
-// Returns NULL if the box file cannot be opened.
+// Returns nullptr if the box file cannot be opened.
 FILE* OpenBoxFile(const STRING& fname);
 
 // Reads all boxes from the given filename.
@@ -39,7 +39,7 @@ FILE* OpenBoxFile(const STRING& fname);
 // Skips blanks if skip_blanks is true.
 // The UTF-8 label of the box is put in texts, and the full box definition as
 // a string is put in box_texts, with the corresponding page number in pages.
-// Each of the output vectors is optional (may be NULL).
+// Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
                   GenericVector<TBOX>* boxes,

@@ -114,7 +114,7 @@ void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
     UNICHAR_ID choice_unichar_id = choices_it.data()->unichar_id();
     const CHAR_FRAGMENT *frag = unicharset.get_fragment(choice_unichar_id);
 
-    if (frag != NULL && frag->get_pos() == fragment_pos &&
+    if (frag != nullptr && frag->get_pos() == fragment_pos &&
         frag->get_total() == num_frag_parts) {
       // Recover the unichar_id of the unichar that this fragment is
       // a part of
@@ -147,7 +147,7 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
   }
 
   BLOB_CHOICE_LIST *merged_choice = ratings->get(row, column);
-  if (merged_choice == NULL)
+  if (merged_choice == nullptr)
     merged_choice = new BLOB_CHOICE_LIST;
 
   bool end_of_list = false;
@@ -290,7 +290,7 @@ void Wordrec::get_fragment_lists(int16_t current_frag, int16_t current_row,
 
   for (int16_t x = current_row; x < num_blobs; x++) {
     BLOB_CHOICE_LIST *choices = ratings->get(current_row, x);
-    if (choices == NULL)
+    if (choices == nullptr)
       continue;
 
     fill_filtered_fragment_list(choices, current_frag, num_frag_parts,
@@ -324,14 +324,14 @@ void Wordrec::merge_fragments(MATRIX *ratings, int16_t num_blobs) {
   for (int16_t x = 0; x < num_blobs; x++) {
     for (int16_t y = x; y < num_blobs; y++) {
       BLOB_CHOICE_LIST *choices = ratings->get(x, y);
-      if (choices != NULL) {
+      if (choices != nullptr) {
         BLOB_CHOICE_IT choices_it(choices);
         for (choices_it.mark_cycle_pt(); !choices_it.cycled_list();
              choices_it.forward()) {
           UNICHAR_ID choice_unichar_id = choices_it.data()->unichar_id();
           const CHAR_FRAGMENT *frag =
               unicharset.get_fragment(choice_unichar_id);
-          if (frag != NULL)
+          if (frag != nullptr)
             delete choices_it.extract();
         }
       }

@@ -45,8 +45,8 @@ namespace tesseract {
  * @brief CCUtil::main_setup - set location of tessdata and name of image
  *
  * @param argv0 - paths to the directory with language files and config files.
- * An actual value of argv0 is used if not NULL, otherwise TESSDATA_PREFIX is
- * used if not NULL, next try to use compiled in -DTESSDATA_PREFIX. If previous
+ * An actual value of argv0 is used if not nullptr, otherwise TESSDATA_PREFIX is
+ * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If previous
  * is not successful - use current directory.
  * @param basename - name of image
  */
@@ -55,22 +55,22 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 
   char *tessdata_prefix = getenv("TESSDATA_PREFIX");
 
-  if (argv0 != NULL && *argv0 != '\0') {
+  if (argv0 != nullptr && *argv0 != '\0') {
     /* Use tessdata prefix from the command line. */
     datadir = argv0;
   } else if (tessdata_prefix) {
     /* Use tessdata prefix from the environment. */
     datadir = tessdata_prefix;
 #if defined(_WIN32)
-  } else if (datadir == NULL || _access(datadir.string(), 0) != 0) {
+  } else if (datadir == nullptr || _access(datadir.string(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
     char drive[_MAX_DRIVE];
     char dir[_MAX_DIR];
     char path[_MAX_PATH];
-    DWORD length = GetModuleFileName(NULL, path, sizeof(path));
+    DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
       errno_t result = _splitpath_s(path, drive, sizeof(drive),
-                                    dir, sizeof(dir), NULL, 0, NULL, 0);
+                                    dir, sizeof(dir), nullptr, 0, nullptr, 0);
       if (result == ERANGE) {
         tprintf("Error: Path too long: %s\n", path);
       }

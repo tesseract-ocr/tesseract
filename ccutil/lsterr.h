@@ -30,15 +30,15 @@ const ERRCODE SERIALISE_LINKS = "Attempted to (de)serialise a link element";
 #ifndef NDEBUG
 
 const ERRCODE NO_LIST = "Iterator not set to a list";
-const ERRCODE NULL_OBJECT = "List found this = NULL!";
-const ERRCODE NULL_DATA = "List would have returned a NULL data pointer";
-const ERRCODE NULL_CURRENT = "List current position is NULL";
-const ERRCODE NULL_NEXT = "Next element on the list is NULL";
-const ERRCODE NULL_PREV = "Previous element on the list is NULL";
+const ERRCODE NULL_OBJECT = "List found this = nullptr!";
+const ERRCODE NULL_DATA = "List would have returned a nullptr data pointer";
+const ERRCODE NULL_CURRENT = "List current position is nullptr";
+const ERRCODE NULL_NEXT = "Next element on the list is nullptr";
+const ERRCODE NULL_PREV = "Previous element on the list is nullptr";
 const ERRCODE EMPTY_LIST = "List is empty";
 const ERRCODE BAD_PARAMETER = "List parameter error";
 const ERRCODE STILL_LINKED =
-    "Attempting to add an element with non NULL links, to a list";
+    "Attempting to add an element with non nullptr links, to a list";
 
 #endif  // !NDEBUG
 #endif  // TESSERACT_CCUTIL_LSTERR_H_

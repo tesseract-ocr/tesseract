@@ -66,7 +66,7 @@ BoxWord* BoxWord::CopyFromNormalized(TWERD* tessword) {
   for (int b = 0; b < boxword->length_; ++b) {
     TBLOB* tblob = tessword->blobs[b];
     TBOX blob_box;
-    for (TESSLINE* outline = tblob->outlines; outline != NULL;
+    for (TESSLINE* outline = tblob->outlines; outline != nullptr;
          outline = outline->next) {
       EDGEPT* edgept = outline->loop;
       // Iterate over the edges.
@@ -74,7 +74,7 @@ BoxWord* BoxWord::CopyFromNormalized(TWERD* tessword) {
         if (!edgept->IsHidden() || !edgept->prev->IsHidden()) {
           ICOORD pos(edgept->pos.x, edgept->pos.y);
           TPOINT denormed;
-          tblob->denorm().DenormTransform(NULL, edgept->pos, &denormed);
+          tblob->denorm().DenormTransform(nullptr, edgept->pos, &denormed);
           pos.set_x(denormed.x);
           pos.set_y(denormed.y);
           TBOX pt_box(pos, pos);
@@ -103,7 +103,7 @@ void BoxWord::ClipToOriginalWord(const BLOCK* block, WERD* original_word) {
     C_BLOB_IT b_it(original_word->cblob_list());
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       TBOX blob_box = b_it.data()->bounding_box();
-      if (block != NULL)
+      if (block != nullptr)
         blob_box.rotate(block->re_rotation());
       if (blob_box.major_overlap(box)) {
         original_box += blob_box;
@@ -122,7 +122,7 @@ void BoxWord::ClipToOriginalWord(const BLOCK* block, WERD* original_word) {
         box.set_bottom(original_box.bottom());
     }
     original_box = original_word->bounding_box();
-    if (block != NULL)
+    if (block != nullptr)
       original_box.rotate(block->re_rotation());
     boxes_[i] = box.intersection(original_box);
   }

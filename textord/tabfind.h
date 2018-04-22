@@ -117,7 +117,7 @@ class TabFind : public AlignedBlob {
   /**
    * Return the TabVector that corresponds to the right edge for the given
    * box. If there is a TabVector to the right that vertically overlaps it,
-   * then return it, otherwise return NULL. Note that Right and Left refer
+   * then return it, otherwise return nullptr. Note that Right and Left refer
    * to the position of the TabVector, not its type, ie RightTabForBox
    * returns the nearest TabVector to the right of the box, regardless of
    * its type.
@@ -279,7 +279,7 @@ class TabFind : public AlignedBlob {
   // the size of the search.
   // vertical_x and y are updated with an estimate of the real
   // vertical direction. (skew finding.)
-  // Returns NULL if no decent tabstop can be found.
+  // Returns nullptr if no decent tabstop can be found.
   TabVector* FindTabVector(int search_size_multiple, int min_gutter_width,
                            TabAlignment alignment,
                            BLOBNBOX* bbox,

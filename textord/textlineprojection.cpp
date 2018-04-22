@@ -43,7 +43,7 @@ const int kMaxTabStopOverrun = 6;
 namespace tesseract {
 
 TextlineProjection::TextlineProjection(int resolution)
-  : x_origin_(0), y_origin_(0), pix_(NULL) {
+  : x_origin_(0), y_origin_(0), pix_(nullptr) {
   // The projection map should be about 100 ppi, whatever the input.
   scale_factor_ = IntCastRounded(resolution / 100.0);
   if (scale_factor_ < 1) scale_factor_ = 1;
@@ -86,7 +86,7 @@ void TextlineProjection::PlotGradedBlobs(BLOBNBOX_LIST* blobs,
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* blob = it.data();
     const TBOX& box = blob->bounding_box();
-    bool bad_box = BoxOutOfHTextline(box, NULL, false);
+    bool bad_box = BoxOutOfHTextline(box, nullptr, false);
     if (blob->UniquelyVertical())
       win->Pen(ScrollView::YELLOW);
     else
@@ -110,7 +110,7 @@ void TextlineProjection::MoveNonTextlineBlobs(
     const TBOX& box = blob->bounding_box();
     bool debug = AlignedBlob::WithinTestRegion(2, box.left(),
                                                box.bottom());
-    if (BoxOutOfHTextline(box, NULL, debug) && !blob->UniquelyVertical()) {
+    if (BoxOutOfHTextline(box, nullptr, debug) && !blob->UniquelyVertical()) {
       blob->ClearNeighbours();
       small_it.add_to_end(it.extract());
     }
@@ -236,10 +236,10 @@ int TextlineProjection::DistanceOfBoxFromBox(const TBOX& from_box,
   // (in the perpendicular direction), so we don't need to calculate the
   // perpendicular_gap.
   if (start_pt.x != end_pt.x || start_pt.y != end_pt.y) {
-    if (denorm != NULL) {
+    if (denorm != nullptr) {
       // Denormalize the start and end.
-      denorm->DenormTransform(NULL, start_pt, &start_pt);
-      denorm->DenormTransform(NULL, end_pt, &end_pt);
+      denorm->DenormTransform(nullptr, start_pt, &start_pt);
+      denorm->DenormTransform(nullptr, end_pt, &end_pt);
     }
     if (abs(start_pt.y - end_pt.y) >= abs(start_pt.x - end_pt.x)) {
       perpendicular_gap = VerticalDistance(debug, start_pt.x, start_pt.y,
@@ -341,7 +341,7 @@ bool TextlineProjection::BoxOutOfHTextline(const TBOX& box,
                                           bool debug) const {
   int grad1 = 0;
   int grad2 = 0;
-  EvaluateBoxInternal(box, denorm, debug, &grad1, &grad2, NULL, NULL);
+  EvaluateBoxInternal(box, denorm, debug, &grad1, &grad2, nullptr, nullptr);
   int worst_result = MIN(grad1, grad2);
   int total_result = grad1 + grad2;
   if (total_result >= 6) return false;  // Strongly in textline.
@@ -410,7 +410,7 @@ int TextlineProjection::EvaluateColPartition(const ColPartition& part,
 // several layers of helpers below.
 int TextlineProjection::EvaluateBox(const TBOX& box, const DENORM* denorm,
                                     bool debug) const {
-  return EvaluateBoxInternal(box, denorm, debug, NULL, NULL, NULL, NULL);
+  return EvaluateBoxInternal(box, denorm, debug, nullptr, nullptr, nullptr, nullptr);
 }
 
 // Internal version of EvaluateBox returns the unclipped gradients as well
@@ -440,11 +440,11 @@ int TextlineProjection::EvaluateBoxInternal(const TBOX& box,
   }
   int result = MAX(top_clipped, bottom_clipped) -
       MAX(left_clipped, right_clipped);
-  if (hgrad1 != NULL && hgrad2 != NULL) {
+  if (hgrad1 != nullptr && hgrad2 != nullptr) {
     *hgrad1 = top_gradient;
     *hgrad2 = bottom_gradient;
   }
-  if (vgrad1 != NULL && vgrad2 != NULL) {
+  if (vgrad1 != nullptr && vgrad2 != nullptr) {
     *vgrad1 = left_gradient;
     *vgrad2 = right_gradient;
   }
@@ -509,7 +509,7 @@ int TextlineProjection::BestMeanGradientInColumn(const DENORM* denorm, int16_t x
 // image by offset pixels. For simplicity, it is assumed that the vector is
 // either nearly horizontal or nearly vertical. It works on skewed textlines!
 // The end points are in external coordinates, and will be denormalized with
-// the denorm if not NULL before further conversion to pix coordinates.
+// the denorm if not nullptr before further conversion to pix coordinates.
 // After all the conversions, the offset is added to the direction
 // perpendicular to the line direction. The offset is thus in projection image
 // coordinates, which allows the caller to get a guaranteed displacement
@@ -576,10 +576,10 @@ static TBOX BoundsWithinBox(Pix* pix, const TBOX& box) {
   int im_height = pixGetHeight(pix);
   Box* input_box = boxCreate(box.left(), im_height - box.top(),
                              box.width(), box.height());
-  Box* output_box = NULL;
-  pixClipBoxToForeground(pix, input_box, NULL, &output_box);
+  Box* output_box = nullptr;
+  pixClipBoxToForeground(pix, input_box, nullptr, &output_box);
   TBOX result_box;
-  if (output_box != NULL) {
+  if (output_box != nullptr) {
     l_int32 x, y, width, height;
     boxGetGeometry(output_box, &x, &y, &width, &height);
     result_box.set_left(x);
@@ -694,30 +694,30 @@ bool TextlineProjection::PadBlobBox(BLOBNBOX* blob, TBOX* bbox) {
     // If the text appears to be very well spaced, pad the other direction by a
     // single pixel in the projection profile space to help join diacritics to
     // the textline.
-    if ((blob->neighbour(BND_ABOVE) == NULL ||
+    if ((blob->neighbour(BND_ABOVE) == nullptr ||
         bbox->y_gap(blob->neighbour(BND_ABOVE)->bounding_box()) > pad_limit) &&
-        (blob->neighbour(BND_BELOW) == NULL ||
+        (blob->neighbour(BND_BELOW) == nullptr ||
         bbox->y_gap(blob->neighbour(BND_BELOW)->bounding_box()) > pad_limit)) {
       ypad = scale_factor_;
     }
   } else if (blob->UniquelyVertical()) {
     ypad = bbox->width() * kOrientedPadFactor;
-    if ((blob->neighbour(BND_LEFT) == NULL ||
+    if ((blob->neighbour(BND_LEFT) == nullptr ||
         bbox->x_gap(blob->neighbour(BND_LEFT)->bounding_box()) > pad_limit) &&
-        (blob->neighbour(BND_RIGHT) == NULL ||
+        (blob->neighbour(BND_RIGHT) == nullptr ||
         bbox->x_gap(blob->neighbour(BND_RIGHT)->bounding_box()) > pad_limit)) {
       xpad = scale_factor_;
     }
   } else {
-    if ((blob->neighbour(BND_ABOVE) != NULL &&
+    if ((blob->neighbour(BND_ABOVE) != nullptr &&
          blob->neighbour(BND_ABOVE)->neighbour(BND_BELOW) == blob) ||
-        (blob->neighbour(BND_BELOW) != NULL &&
+        (blob->neighbour(BND_BELOW) != nullptr &&
             blob->neighbour(BND_BELOW)->neighbour(BND_ABOVE) == blob)) {
       ypad = bbox->width() * kDefaultPadFactor;
     }
-    if ((blob->neighbour(BND_RIGHT) != NULL &&
+    if ((blob->neighbour(BND_RIGHT) != nullptr &&
          blob->neighbour(BND_RIGHT)->neighbour(BND_LEFT) == blob) ||
-        (blob->neighbour(BND_LEFT) != NULL &&
+        (blob->neighbour(BND_LEFT) != nullptr &&
             blob->neighbour(BND_LEFT)->neighbour(BND_RIGHT) == blob)) {
       xpad = bbox->height() * kDefaultPadFactor;
       padding_horizontally = true;
@@ -736,13 +736,13 @@ bool TextlineProjection::PadBlobBox(BLOBNBOX* blob, TBOX* bbox) {
   return padding_horizontally;
 }
 
-// Helper denormalizes the TPOINT with the denorm if not NULL, then
+// Helper denormalizes the TPOINT with the denorm if not nullptr, then
 // converts to pix_ coordinates.
 void TextlineProjection::TransformToPixCoords(const DENORM* denorm,
                                               TPOINT* pt) const {
-  if (denorm != NULL) {
+  if (denorm != nullptr) {
     // Denormalize the point.
-    denorm->DenormTransform(NULL, *pt, pt);
+    denorm->DenormTransform(nullptr, *pt, pt);
   }
   pt->x = ImageXToProjectionX(pt->x);
   pt->y = ImageYToProjectionY(pt->y);

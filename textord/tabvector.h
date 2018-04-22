@@ -373,11 +373,11 @@ class TabVector : public ELIST2_LINK {
   bool Fit(ICOORD vertical, bool force_parallel);
 
   // Return the partner of this TabVector if the vector qualifies as
-  // being a vertical text line, otherwise NULL.
+  // being a vertical text line, otherwise nullptr.
   TabVector* VerticalTextlinePartner();
 
   // Return the matching tabvector if there is exactly one partner, or
-  // NULL otherwise.  This can be used after matching is done, eg. by
+  // nullptr otherwise.  This can be used after matching is done, eg. by
   // VerticalTextlinePartner(), without checking if the line is vertical.
   TabVector* GetSinglePartner();
 
@@ -388,7 +388,7 @@ class TabVector : public ELIST2_LINK {
             TabAlignment alignment, BLOBNBOX_CLIST* boxes);
 
   // Delete this, but first, repoint all the partners to point to
-  // replacement. If replacement is NULL, then partner relationships
+  // replacement. If replacement is nullptr, then partner relationships
   // are removed.
   void Delete(TabVector* replacement);
 

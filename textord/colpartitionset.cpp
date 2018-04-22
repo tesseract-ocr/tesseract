@@ -66,11 +66,11 @@ ColPartition* ColPartitionSet::GetColumnByIndex(int index) {
   it.mark_cycle_pt();
   for (int i = 0; i < index && !it.cycled_list(); ++i, it.forward());
   if (it.cycled_list())
-    return NULL;
+    return nullptr;
   return it.data();
 }
 
-// Return the ColPartition that contains the given coords, if any, else NULL.
+// Return the ColPartition that contains the given coords, if any, else nullptr.
 ColPartition* ColPartitionSet::ColumnContaining(int x, int y) {
   ColPartition_IT it(&parts_);
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
@@ -78,7 +78,7 @@ ColPartition* ColPartitionSet::ColumnContaining(int x, int y) {
     if (part->ColumnContains(x, y))
       return part;
   }
-  return NULL;
+  return nullptr;
 }
 
 // Extract all the parts from the list, relinquishing ownership.
@@ -98,7 +98,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
   // to improve this.
   for (int i = 0; i < set_size; ++i) {
     ColPartitionSet* column_set = src_sets->get(i);
-    if (column_set == NULL)
+    if (column_set == nullptr)
       continue;
     // Iterate over the parts in this and column_set, adding bigger or
     // new parts in column_set to this.
@@ -251,7 +251,7 @@ bool ColPartitionSet::CompatibleColumns(bool debug, ColPartitionSet* other,
     int right = part->bounding_box().right();
     ColPartition* left_col = ColumnContaining(left, y);
     ColPartition* right_col = ColumnContaining(right, y);
-    if (right_col == NULL || left_col == NULL) {
+    if (right_col == nullptr || left_col == nullptr) {
       if (debug) {
         tprintf("CompatibleColumns false due to partition edge outside\n");
         part->Print();
@@ -323,7 +323,7 @@ int ColPartitionSet::UnmatchedWidth(ColPartitionSet* part_set) {
       // is outside.
       int x = (box.left() + box.right()) / 2;
       ColPartition* col = ColumnContaining(x, y);
-      if (col == NULL)
+      if (col == nullptr)
         total_width += box.width();
     }
   }
@@ -366,7 +366,7 @@ ColPartitionSet* ColPartitionSet::Copy(bool good_only) {
       dest_it.add_after_then_move(part->ShallowCopy());
   }
   if (dest_it.empty())
-    return NULL;
+    return nullptr;
   return new ColPartitionSet(&copy_parts);
 }
 
@@ -517,14 +517,14 @@ void ColPartitionSet::ChangeWorkColumns(const ICOORD& bleft,
   // one  whenever we keep a column, or at the end.
   BLOCK_LIST completed_blocks;
   TO_BLOCK_LIST to_blocks;
-  WorkingPartSet* first_new_set = NULL;
-  WorkingPartSet* working_set = NULL;
+  WorkingPartSet* first_new_set = nullptr;
+  WorkingPartSet* working_set = nullptr;
   ColPartition_IT col_it(&parts_);
   for (col_it.mark_cycle_pt(); !col_it.cycled_list(); col_it.forward()) {
     ColPartition* column = col_it.data();
     // Any existing column to the left of column is completed.
     while (!src_it.empty() &&
-           ((working_set = src_it.data())->column() == NULL ||
+           ((working_set = src_it.data())->column() == nullptr ||
             working_set->column()->right_key() <= column->left_key())) {
       src_it.extract();
       working_set->ExtractCompletedBlocks(bleft, tright, resolution,
@@ -534,20 +534,20 @@ void ColPartitionSet::ChangeWorkColumns(const ICOORD& bleft,
       src_it.forward();
     }
     // Make a new between-column WorkingSet for before the current column.
-    working_set = new WorkingPartSet(NULL);
+    working_set = new WorkingPartSet(nullptr);
     dest_it.add_after_then_move(working_set);
-    if (first_new_set == NULL)
+    if (first_new_set == nullptr)
       first_new_set = working_set;
     // A matching column gets to stay, and first_new_set gets all the
     // completed_sets.
-    working_set = src_it.empty() ? NULL : src_it.data();
-    if (working_set != NULL &&
+    working_set = src_it.empty() ? nullptr : src_it.data();
+    if (working_set != nullptr &&
         working_set->column()->MatchingColumns(*column)) {
       working_set->set_column(column);
       dest_it.add_after_then_move(src_it.extract());
       src_it.forward();
       first_new_set->InsertCompletedBlocks(&completed_blocks, &to_blocks);
-      first_new_set = NULL;
+      first_new_set = nullptr;
     } else {
       // Just make a new working set for the current column.
       working_set = new WorkingPartSet(column);
@@ -564,9 +564,9 @@ void ColPartitionSet::ChangeWorkColumns(const ICOORD& bleft,
     src_it.forward();
   }
   // Make a new between-column WorkingSet for after the last column.
-  working_set = new WorkingPartSet(NULL);
+  working_set = new WorkingPartSet(nullptr);
   dest_it.add_after_then_move(working_set);
-  if (first_new_set == NULL)
+  if (first_new_set == nullptr)
     first_new_set = working_set;
   // The first_new_set now gets any accumulated completed_parts/blocks.
   first_new_set->InsertCompletedBlocks(&completed_blocks, &to_blocks);

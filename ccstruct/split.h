@@ -35,7 +35,7 @@
               T y p e s
 ----------------------------------------------------------------------*/
 struct SPLIT {
-  SPLIT() : point1(NULL), point2(NULL) {}
+  SPLIT() : point1(nullptr), point2(nullptr) {}
   SPLIT(EDGEPT* pt1, EDGEPT* pt2) : point1(pt1), point2(pt2) {}
 
   // Returns the bounding box of all the points in the split.

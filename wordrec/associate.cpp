@@ -44,7 +44,7 @@ void AssociateUtils::ComputeStats(int col, int row,
                                   AssociateStats *stats) {
   stats->Clear();
 
-  ASSERT_HOST(word_res != NULL);
+  ASSERT_HOST(word_res != nullptr);
   if (word_res->blob_widths.empty()) {
     return;
   }
@@ -55,7 +55,7 @@ void AssociateUtils::ComputeStats(int col, int row,
   float normalizing_height = kBlnXHeight;
   ROW* blob_row = word_res->blob_row;
   // TODO(rays/daria) Can unicharset.script_has_xheight be useful here?
-  if (fixed_pitch && blob_row != NULL) {
+  if (fixed_pitch && blob_row != nullptr) {
     // For fixed pitch language like CJK, we use the full text height
     // as the normalizing factor so we are not dependent on xheight
     // calculation.
@@ -126,7 +126,7 @@ void AssociateUtils::ComputeStats(int col, int row,
     // the means and variances are computed for the path so far (not
     // considering characters to the right of the last character on the path).
     stats->full_wh_ratio = wh_ratio + right_gap;
-    if (parent_stats != NULL) {
+    if (parent_stats != nullptr) {
       stats->full_wh_ratio_total =
         (parent_stats->full_wh_ratio_total + stats->full_wh_ratio);
       float mean =

@@ -228,7 +228,7 @@ class TESS_API PageIterator {
    * Returns the polygon outline of the current block. The returned Pta must
    * be ptaDestroy-ed after use. Note that the returned Pta lists the vertices
    * of the polygon, and the last edge is the line segment between the last
-   * point and the first point. NULL will be returned if the iterator is
+   * point and the first point. nullptr will be returned if the iterator is
    * at the end of the document or layout analysis was not used.
    */
   Pta* BlockPolygon() const;
@@ -310,7 +310,7 @@ class TESS_API PageIterator {
                      bool *is_crown,
                      int *first_line_indent) const;
 
-  // If the current WERD_RES (it_->word()) is not NULL, sets the BlamerBundle
+  // If the current WERD_RES (it_->word()) is not nullptr, sets the BlamerBundle
   // of the current word to the given pointer (takes ownership of the pointer)
   // and returns true.
   // Can only be used when iterating on the word level.
@@ -334,7 +334,7 @@ class TESS_API PageIterator {
   PAGE_RES_IT* it_;
   /**
    * The current input WERD being iterated. If there is an output from OCR,
-   * then word_ is NULL. Owned by the API
+   * then word_ is nullptr. Owned by the API
    */
   WERD* word_;
   /** The length of the current word_. */
@@ -342,7 +342,7 @@ class TESS_API PageIterator {
   /** The current blob index within the word. */
   int blob_index_;
   /**
-   * Iterator to the blobs within the word. If NULL, then we are iterating
+   * Iterator to the blobs within the word. If nullptr, then we are iterating
    * OCR results in the box_word.
    * Owned by this ResultIterator.
    */

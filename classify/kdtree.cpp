@@ -153,7 +153,7 @@ KDTreeSearch::~KDTreeSearch() {
 void KDTreeSearch::Search(int *result_count,
                           FLOAT32 *distances,
                           void **results) {
-  if (tree_->Root.Left == NULL) {
+  if (tree_->Root.Left == nullptr) {
     *result_count = 0;
   } else {
     for (int i = 0; i < tree_->KeySize; i++) {
@@ -196,8 +196,8 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
     }
   }
   KDTree->KeySize = KeySize;
-  KDTree->Root.Left = NULL;
-  KDTree->Root.Right = NULL;
+  KDTree->Root.Left = nullptr;
+  KDTree->Root.Right = nullptr;
   return KDTree;
 }
 
@@ -222,7 +222,7 @@ void KDStore(KDTREE *Tree, FLOAT32 *Key, void *Data) {
   PtrToNode = &(Tree->Root.Left);
   Node = *PtrToNode;
   Level = NextLevel(Tree, -1);
-  while (Node != NULL) {
+  while (Node != nullptr) {
     if (Key[Level] < Node->BranchPoint) {
       PtrToNode = &(Node->Left);
       if (Key[Level] > Node->LeftBranch)
@@ -271,7 +271,7 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
   Level = NextLevel(Tree, -1);
 
   /* search tree for node to be deleted */
-  while ((Current != NULL) && (!NodeFound (Current, Key, Data))) {
+  while ((Current != nullptr) && (!NodeFound (Current, Key, Data))) {
     Father = Current;
     if (Key[Level] < Current->BranchPoint)
       Current = Current->Left;
@@ -281,12 +281,12 @@ KDDelete (KDTREE * Tree, FLOAT32 Key[], void *Data) {
     Level = NextLevel(Tree, Level);
   }
 
-  if (Current != NULL) {         /* if node to be deleted was found */
+  if (Current != nullptr) {         /* if node to be deleted was found */
     if (Current == Father->Left) {
-      Father->Left = NULL;
+      Father->Left = nullptr;
       Father->LeftBranch = Tree->KeyDesc[Level].Min;
     } else {
-      Father->Right = NULL;
+      Father->Right = nullptr;
       Father->RightBranch = Tree->KeyDesc[Level].Max;
     }
 
@@ -327,7 +327,7 @@ void KDNearestNeighborSearch(
 /*---------------------------------------------------------------------------*/
 /** Walk a given Tree with action. */
 void KDWalk(KDTREE *Tree, void_proc action, void *context) {
-  if (Tree->Root.Left != NULL)
+  if (Tree->Root.Left != nullptr)
     Walk(Tree, action, context, Tree->Root.Left, NextLevel(Tree, -1));
 }
 
@@ -378,8 +378,8 @@ KDNODE *MakeKDNode(KDTREE *tree, FLOAT32 Key[], void *Data, int Index) {
   NewNode->BranchPoint = Key[Index];
   NewNode->LeftBranch = tree->KeyDesc[Index].Min;
   NewNode->RightBranch = tree->KeyDesc[Index].Max;
-  NewNode->Left = NULL;
-  NewNode->Right = NULL;
+  NewNode->Left = nullptr;
+  NewNode->Right = nullptr;
 
   return NewNode;
 }                                /* MakeKDNode */
@@ -406,26 +406,26 @@ void KDTreeSearch::SearchRec(int level, KDNODE *sub_tree) {
                   sub_tree->Data);
 
   if (query_point_[level] < sub_tree->BranchPoint) {
-    if (sub_tree->Left != NULL) {
+    if (sub_tree->Left != nullptr) {
       FLOAT32 tmp = sb_max_[level];
       sb_max_[level] = sub_tree->LeftBranch;
       SearchRec(NextLevel(tree_, level), sub_tree->Left);
       sb_max_[level] = tmp;
     }
-    if (sub_tree->Right != NULL) {
+    if (sub_tree->Right != nullptr) {
       FLOAT32 tmp = sb_min_[level];
       sb_min_[level] = sub_tree->RightBranch;
       SearchRec(NextLevel(tree_, level), sub_tree->Right);
       sb_min_[level] = tmp;
     }
   } else {
-    if (sub_tree->Right != NULL) {
+    if (sub_tree->Right != nullptr) {
       FLOAT32 tmp = sb_min_[level];
       sb_min_[level] = sub_tree->RightBranch;
       SearchRec(NextLevel(tree_, level), sub_tree->Right);
       sb_min_[level] = tmp;
     }
-    if (sub_tree->Left != NULL) {
+    if (sub_tree->Left != nullptr) {
       FLOAT32 tmp = sb_max_[level];
       sb_max_[level] = sub_tree->LeftBranch;
       SearchRec(NextLevel(tree_, level), sub_tree->Left);
@@ -530,15 +530,15 @@ bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
 void Walk(KDTREE *tree, void_proc action, void *context,
           KDNODE *sub_tree, int32_t level) {
   (*action)(context, sub_tree->Data, level);
-  if (sub_tree->Left != NULL)
+  if (sub_tree->Left != nullptr)
     Walk(tree, action, context, sub_tree->Left, NextLevel(tree, level));
-  if (sub_tree->Right != NULL)
+  if (sub_tree->Right != nullptr)
     Walk(tree, action, context, sub_tree->Right, NextLevel(tree, level));
 }
 
 /** Given a subtree nodes, insert all of its elements into tree. */
 void InsertNodes(KDTREE *tree, KDNODE *nodes) {
-  if (nodes == NULL)
+  if (nodes == nullptr)
     return;
 
   KDStore(tree, nodes->Key, nodes->Data);
@@ -548,7 +548,7 @@ void InsertNodes(KDTREE *tree, KDNODE *nodes) {
 
 /** Free all of the nodes of a sub tree. */
 void FreeSubTree(KDNODE *sub_tree) {
-  if (sub_tree != NULL) {
+  if (sub_tree != nullptr) {
     FreeSubTree(sub_tree->Left);
     FreeSubTree(sub_tree->Right);
     free(sub_tree);

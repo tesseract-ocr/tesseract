@@ -161,7 +161,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
   for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
-    CharDesc->FeatureSets[i] = NULL;
+    CharDesc->FeatureSets[i] = nullptr;
 
   return (CharDesc);
 

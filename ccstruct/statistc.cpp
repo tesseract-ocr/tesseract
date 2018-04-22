@@ -51,7 +51,7 @@ STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
 STATS::STATS() {
   rangemax_ = 0;
   rangemin_ = 0;
-  buckets_ = NULL;
+  buckets_ = nullptr;
 }
 
 /**********************************************************************
@@ -80,7 +80,7 @@ bool STATS::set_range(int32_t min_bucket_value, int32_t max_bucket_value_plus_1)
  **********************************************************************/
 void STATS::clear() {  // clear out buckets
   total_count_ = 0;
-  if (buckets_ != NULL)
+  if (buckets_ != nullptr)
     memset(buckets_, 0, (rangemax_ - rangemin_) * sizeof(buckets_[0]));
 }
 
@@ -97,7 +97,7 @@ STATS::~STATS() { delete[] buckets_; }
  * Add a set of samples to (or delete from) a pile.
  **********************************************************************/
 void STATS::add(int32_t value, int32_t count) {
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return;
   }
   value = ClipToRange(value, rangemin_, rangemax_ - 1);
@@ -111,7 +111,7 @@ void STATS::add(int32_t value, int32_t count) {
  * Find the mode of a stats class.
  **********************************************************************/
 int32_t STATS::mode() const {  // get mode of samples
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return rangemin_;
   }
   int32_t max = buckets_[0];           // max cell count
@@ -131,7 +131,7 @@ int32_t STATS::mode() const {  // get mode of samples
  * Find the mean of a stats class.
  **********************************************************************/
 double STATS::mean() const {  //get mean of samples
-  if (buckets_ == NULL || total_count_ <= 0) {
+  if (buckets_ == nullptr || total_count_ <= 0) {
     return static_cast<double>(rangemin_);
   }
   int64_t sum = 0;
@@ -147,7 +147,7 @@ double STATS::mean() const {  //get mean of samples
  * Find the standard deviation of a stats class.
  **********************************************************************/
 double STATS::sd() const {  //standard deviation
-  if (buckets_ == NULL || total_count_ <= 0) {
+  if (buckets_ == nullptr || total_count_ <= 0) {
     return 0.0;
   }
   int64_t sum = 0;
@@ -170,7 +170,7 @@ double STATS::sd() const {  //standard deviation
  * has a value less than the return value.
  **********************************************************************/
 double STATS::ile(double frac) const {
-  if (buckets_ == NULL || total_count_ == 0) {
+  if (buckets_ == nullptr || total_count_ == 0) {
     return static_cast<double>(rangemin_);
   }
 #if 0
@@ -202,7 +202,7 @@ double STATS::ile(double frac) const {
  * Find REAL minimum bucket - ile(0.0) isn't necessarily correct
  **********************************************************************/
 int32_t STATS::min_bucket() const {  // Find min
-  if (buckets_ == NULL || total_count_ == 0) {
+  if (buckets_ == nullptr || total_count_ == 0) {
     return rangemin_;
   }
   int32_t min = 0;
@@ -217,7 +217,7 @@ int32_t STATS::min_bucket() const {  // Find min
  **********************************************************************/
 
 int32_t STATS::max_bucket() const {  // Find max
-  if (buckets_ == NULL || total_count_ == 0) {
+  if (buckets_ == nullptr || total_count_ == 0) {
     return rangemin_;
   }
   int32_t max;
@@ -235,7 +235,7 @@ int32_t STATS::max_bucket() const {  // Find max
  * between 6 and 13 = 9.5
  **********************************************************************/
 double STATS::median() const {  //get median
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return static_cast<double>(rangemin_);
   }
   double median = ile(0.5);
@@ -258,7 +258,7 @@ double STATS::median() const {  //get median
  * Return TRUE if this point is a local min.
  **********************************************************************/
 bool STATS::local_min(int32_t x) const {
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return false;
   }
   x = ClipToRange(x, rangemin_, rangemax_ - 1) - rangemin_;
@@ -285,7 +285,7 @@ bool STATS::local_min(int32_t x) const {
  * centre.
  **********************************************************************/
 void STATS::smooth(int32_t factor) {
-  if (buckets_ == NULL || factor < 2) {
+  if (buckets_ == nullptr || factor < 2) {
     return;
   }
   STATS result(rangemin_, rangemax_);
@@ -332,11 +332,11 @@ int32_t STATS::cluster(float lower,         // thresholds
   float min_dist;                // from best_cluster
   int32_t cluster_count;           // no of clusters
 
-  if (buckets_ == NULL || max_clusters < 1)
+  if (buckets_ == nullptr || max_clusters < 1)
     return 0;
   centres = new float[max_clusters + 1];
   for (cluster_count = 1; cluster_count <= max_clusters
-       && clusters[cluster_count].buckets_ != NULL
+       && clusters[cluster_count].buckets_ != nullptr
        && clusters[cluster_count].total_count_ > 0;
        cluster_count++) {
     centres[cluster_count] =
@@ -530,7 +530,7 @@ int STATS::top_n_modes(int max_modes,
  * Prints a summary and table of the histogram.
  **********************************************************************/
 void STATS::print() const {
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return;
   }
   int32_t min = min_bucket() - rangemin_;
@@ -556,7 +556,7 @@ void STATS::print() const {
  * Print a summary of the stats.
  **********************************************************************/
 void STATS::print_summary() const {
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return;
   }
   int32_t min = min_bucket();
@@ -586,7 +586,7 @@ void STATS::plot(ScrollView* window,  // to draw in
                  float xscale,        // one x unit
                  float yscale,        // one y unit
                  ScrollView::Color colour) const {   // colour to draw in
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return;
   }
   window->Pen(colour);
@@ -613,7 +613,7 @@ void STATS::plotline(ScrollView* window,  // to draw in
                      float xscale,        // one x unit
                      float yscale,        // one y unit
                      ScrollView::Color colour) const {  // colour to draw in
-  if (buckets_ == NULL) {
+  if (buckets_ == nullptr) {
     return;
   }
   window->Pen(colour);

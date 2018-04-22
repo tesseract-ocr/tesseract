@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
     Clusterer =
       SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
     if (Clusterer == nullptr) {  // To avoid a SIGSEGV
-      fprintf(stderr, "Error: NULL clusterer!\n");
+      fprintf(stderr, "Error: nullptr clusterer!\n");
       return 1;
     }
     float SavedMinSamples = Config.MinSamples;

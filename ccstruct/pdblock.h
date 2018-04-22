@@ -36,7 +36,7 @@ class PDBLK {
  public:
   /// empty constructor
   PDBLK() {
-    hand_poly = NULL;
+    hand_poly = nullptr;
     index_ = 0;
   }
   /// simple constructor
@@ -76,7 +76,7 @@ class PDBLK {
 
   // Returns a binary Pix mask with a 1 pixel for every pixel within the
   // block. Rotates the coordinate system by rerotation prior to rendering.
-  // If not NULL, mask_box is filled with the position box of the returned
+  // If not nullptr, mask_box is filled with the position box of the returned
   // mask image.
   Pix *render_mask(const FCOORD &rerotation, TBOX *mask_box);
 

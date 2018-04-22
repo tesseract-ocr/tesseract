@@ -40,7 +40,7 @@ namespace tesseract {
 // bounding box that makes it easy to find words to put diacritics.
 class WordWithBox {
  public:
-  WordWithBox() : word_(NULL) {}
+  WordWithBox() : word_(nullptr) {}
   explicit WordWithBox(WERD *word)
       : word_(word), bounding_box_(word->bounding_box()) {
     int height = bounding_box_.height();

@@ -46,7 +46,7 @@ namespace tesseract {
 void Wordrec::program_editup(const char *textbase,
                              TessdataManager *init_classifier,
                              TessdataManager *init_dict) {
-  if (textbase != NULL) imagefile = textbase;
+  if (textbase != nullptr) imagefile = textbase;
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
   if (init_dict) {
@@ -138,7 +138,7 @@ int Wordrec::dict_word(const WERD_CHOICE &word) {
 BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
   // Rotate the blob for classification if necessary.
   TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
-  if (rotated_blob == NULL) {
+  if (rotated_blob == nullptr) {
     rotated_blob = tessblob;
   }
   BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result

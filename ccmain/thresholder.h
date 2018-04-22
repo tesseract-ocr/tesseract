@@ -126,7 +126,7 @@ class TESS_API ImageThresholder {
   // to the extreme of a 1x1 pixel thresholds image.
   // Ideally the 8 bit threshold should be the exact threshold used to generate
   // the binary image in ThresholdToPix, but this is not a hard constraint.
-  // Returns NULL if the input is binary. PixDestroy after use.
+  // Returns nullptr if the input is binary. PixDestroy after use.
   virtual Pix* GetPixRectThresholds();
 
   /// Get a clone/copy of the source image rectangle.

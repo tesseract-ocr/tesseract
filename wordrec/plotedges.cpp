@@ -40,7 +40,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-ScrollView *edge_window = NULL;
+ScrollView *edge_window = nullptr;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -53,7 +53,7 @@ ScrollView *edge_window = NULL;
 void display_edgepts(LIST outlines) {
   void *window;
   /* Set up window */
-  if (edge_window == NULL) {
+  if (edge_window == nullptr) {
     edge_window = c_create_window ("Edges", 750, 150,
       400, 128, -400.0, 400.0, 0.0, 256.0);
   }
@@ -79,7 +79,7 @@ void draw_blob_edges(TBLOB *blob) {
   LIST edge_list = NIL_LIST;
 
   if (wordrec_display_splits) {
-    for (ol = blob->outlines; ol != NULL; ol = ol->next)
+    for (ol = blob->outlines; ol != nullptr; ol = ol->next)
       push_on (edge_list, ol->loop);
     display_edgepts(edge_list);
     destroy(edge_list);

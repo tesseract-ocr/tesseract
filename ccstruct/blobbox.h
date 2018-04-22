@@ -186,7 +186,7 @@ class BLOBNBOX:public ELIST_LINK
 
     // Returns true if the blob is noise and has no owner.
     bool DeletableNoise() const {
-      return owner() == NULL && region_type() == BRT_NOISE;
+      return owner() == nullptr && region_type() == BRT_NOISE;
     }
 
     // Returns true, and sets vert_possible/horz_possible if the blob has some
@@ -453,7 +453,7 @@ class BLOBNBOX:public ELIST_LINK
   // Initializes the bulk of the members to default values for use at
   // construction time.
   void ConstructionInit() {
-    cblob_ptr = NULL;
+    cblob_ptr = nullptr;
     owns_cblob_ = false;
     area = 0;
     area_stroke_width_ = 0.0f;
@@ -476,15 +476,15 @@ class BLOBNBOX:public ELIST_LINK
     right_rule_ = 0;
     left_crossing_rule_ = 0;
     right_crossing_rule_ = 0;
-    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != NULL 
+    if (area_stroke_width_ == 0.0f && area > 0 && cblob() != nullptr 
         && cblob()->perimeter()!=0)
       area_stroke_width_ = 2.0f * area / cblob()->perimeter();
-    owner_ = NULL;
+    owner_ = nullptr;
     base_char_top_ = box.top();
     base_char_bottom_ = box.bottom();
     baseline_y_ = box.bottom();
     line_crossings_ = 0;
-    base_char_blob_ = NULL;
+    base_char_blob_ = nullptr;
     horz_possible_ = false;
     vert_possible_ = false;
     leader_on_left_ = false;
@@ -494,7 +494,7 @@ class BLOBNBOX:public ELIST_LINK
 
   void ClearNeighbours() {
     for (int n = 0; n < BND_COUNT; ++n) {
-      neighbours_[n] = NULL;
+      neighbours_[n] = nullptr;
       good_stroke_neighbours_[n] = false;
     }
   }
@@ -706,15 +706,15 @@ class TO_BLOCK:public ELIST_LINK
     // median size statistic from the blobs list.
     void rotate(const FCOORD& rotation) {
       BLOBNBOX_LIST* blobnbox_list[] = {&blobs, &underlines, &noise_blobs,
-                                        &small_blobs, &large_blobs, NULL};
-      for (BLOBNBOX_LIST** list = blobnbox_list; *list != NULL; ++list) {
+                                        &small_blobs, &large_blobs, nullptr};
+      for (BLOBNBOX_LIST** list = blobnbox_list; *list != nullptr; ++list) {
         BLOBNBOX_IT it(*list);
         for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
           it.data()->rotate(rotation);
         }
       }
       // Rotate the block
-      ASSERT_HOST(block->pdblk.poly_block() != NULL);
+      ASSERT_HOST(block->pdblk.poly_block() != nullptr);
       block->rotate(rotation);
       // Update the median size statistic from the blobs list.
       STATS widths(0, block->pdblk.bounding_box().width());
@@ -752,7 +752,7 @@ class TO_BLOCK:public ELIST_LINK
 
     // Computes and stores the edge offsets on each blob for use in feature
     // extraction, using greyscale if the supplied grey and thresholds pixes
-    // are 8-bit or otherwise (if NULL or not 8 bit) the original binary
+    // are 8-bit or otherwise (if nullptr or not 8 bit) the original binary
     // edge step outlines.
     // Thresholds must either be the same size as grey or an integer down-scale
     // of grey.

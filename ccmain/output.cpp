@@ -74,8 +74,8 @@ void Tesseract::output_pass(  //Tess output pass //send to api
   WERD *nextword;                //next word
 
   page_res_it.restart_page ();
-  block_of_last_word = NULL;
-  while (page_res_it.word () != NULL) {
+  block_of_last_word = nullptr;
+  while (page_res_it.word () != nullptr) {
     check_debug_pt (page_res_it.word (), 120);
 
     if (target_word_box) {
@@ -95,16 +95,16 @@ void Tesseract::output_pass(  //Tess output pass //send to api
 
     force_eol = (tessedit_write_block_separators &&
       (page_res_it.block () != page_res_it.next_block ())) ||
-      (page_res_it.next_word () == NULL);
+      (page_res_it.next_word () == nullptr);
 
-    if (page_res_it.next_word () != NULL)
+    if (page_res_it.next_word () != nullptr)
       nextword = page_res_it.next_word ()->word;
     else
-      nextword = NULL;
-    if (page_res_it.next_block () != NULL)
+      nextword = nullptr;
+    if (page_res_it.next_block () != nullptr)
       nextblock = page_res_it.next_block ()->block;
     else
-      nextblock = NULL;
+      nextblock = nullptr;
                                  //regardless of tilde crunching
     write_results(page_res_it,
                   determine_newline_type(page_res_it.word()->word,
@@ -256,7 +256,7 @@ char determine_newline_type(                   //test line ends
 
   if (!word->flag (W_EOL))
     return FALSE;                //not end of line
-  if (next_word == NULL || next_block == NULL || block != next_block)
+  if (next_word == nullptr || next_block == nullptr || block != next_block)
     return CTRL_NEWLINE;
   if (next_word->space () > 0)
     return CTRL_HARDLINE;        //it is tabbed

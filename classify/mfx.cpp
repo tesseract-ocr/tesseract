@@ -75,7 +75,7 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
   LIST RemainingOutlines;
   MFOUTLINE Outline;
 
-  if (Blob != NULL) {
+  if (Blob != nullptr) {
     Outlines = ConvertBlob(Blob);
 
     RemainingOutlines = Outlines;
@@ -153,7 +153,7 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
     Current = NextExtremity (Last);
     if (!PointAt(Current)->Hidden) {
       NewFeature = ExtractMicroFeature (Last, Current);
-      if (NewFeature != NULL)
+      if (NewFeature != nullptr)
         MicroFeatures = push (MicroFeatures, NewFeature);
     }
     Last = Current;
@@ -169,11 +169,11 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
  * A new micro-feature is allocated, filled with the feature
  * parameters, and returned.  The routine assumes that
  * Start and End are not the same point.  If they are the
- * same point, NULL is returned, a warning message is
+ * same point, nullptr is returned, a warning message is
  * printed, and the current outline is dumped to stdout.
  * @param Start starting point of micro-feature
  * @param End ending point of micro-feature
- * @return New micro-feature or NULL if the feature was rejected.
+ * @return New micro-feature or nullptr if the feature was rejected.
  * @note Globals: none
  * @note Exceptions: none
  * @note History:

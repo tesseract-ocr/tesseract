@@ -35,7 +35,7 @@ CCUtilMutex::CCUtilMutex() {
 #ifdef _WIN32
   mutex_ = CreateMutex(0, FALSE, 0);
 #else
-  pthread_mutex_init(&mutex_, NULL);
+  pthread_mutex_init(&mutex_, nullptr);
 #endif
 }
 

@@ -233,7 +233,7 @@ class MasterTrainer {
   // 5 = list of all errors + short classifier debug output on 25 errors.
   // If replicate_samples is true, then the test is run on an extended test
   // sample including replicated and systematically perturbed samples.
-  // If report_string is non-NULL, a summary of the results for each font
+  // If report_string is non-nullptr, a summary of the results for each font
   // is appended to the report_string.
   double TestClassifier(CountTypes error_mode,
                         int report_level,

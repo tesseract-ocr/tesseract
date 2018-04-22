@@ -52,7 +52,7 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   FLOAT32 XScale, YScale;
 
   FeatureSet = NewFeatureSet (MAX_OUTLINE_FEATURES);
-  if (Blob == NULL)
+  if (Blob == nullptr)
     return (FeatureSet);
 
   Outlines = ConvertBlob (Blob);

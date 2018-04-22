@@ -59,12 +59,12 @@ int ShapeClassifier::UnicharClassifySample(
 int ShapeClassifier::ClassifySample(const TrainingSample& sample, Pix* page_pix,
                            int debug, int keep_this,
                            GenericVector<ShapeRating>* results) {
-  ASSERT_HOST("Must implement ClassifySample!" == NULL);
+  ASSERT_HOST("Must implement ClassifySample!" == nullptr);
   return 0;
 }
 
 // Returns the shape that contains unichar_id that has the best result.
-// If result is not NULL, it is set with the shape_id and rating.
+// If result is not nullptr, it is set with the shape_id and rating.
 // Does not need to be overridden if ClassifySample respects the keep_this
 // rule.
 int ShapeClassifier::BestShapeForUnichar(const TrainingSample& sample,
@@ -75,7 +75,7 @@ int ShapeClassifier::BestShapeForUnichar(const TrainingSample& sample,
   int num_results = ClassifySample(sample, page_pix, 0, unichar_id, &results);
   for (int r = 0; r < num_results; ++r) {
     if (shapes->GetShape(results[r].shape_id).ContainsUnichar(unichar_id)) {
-      if (result != NULL)
+      if (result != nullptr)
         *result = results[r];
       return results[r].shape_id;
     }
@@ -84,7 +84,7 @@ int ShapeClassifier::BestShapeForUnichar(const TrainingSample& sample,
 }
 
 // Provides access to the UNICHARSET that this classifier works with.
-// Only needs to be overridden if GetShapeTable() can return NULL.
+// Only needs to be overridden if GetShapeTable() can return nullptr.
 const UNICHARSET& ShapeClassifier::GetUnicharset() const {
   return GetShapeTable()->unicharset();
 }
@@ -98,8 +98,8 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
                                    Pix* page_pix,
                                    UNICHAR_ID unichar_id) {
 #ifndef GRAPHICS_DISABLED
-  static ScrollView* terminator = NULL;
-  if (terminator == NULL) {
+  static ScrollView* terminator = nullptr;
+  if (terminator == nullptr) {
     terminator = new ScrollView("XIT", 0, 0, 50, 50, 50, 50, true);
   }
   ScrollView* debug_win = CreateFeatureSpaceWindow("ClassifierDebug", 0, 0);

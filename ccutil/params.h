@@ -83,7 +83,7 @@ class ParamUtils {
     for (i = 0; i < member_vec.size(); ++i) {
       if (strcmp(member_vec[i]->name_str(), name) == 0) return member_vec[i];
     }
-    return NULL;
+    return nullptr;
   }
   // Removes the given pointer to the param from the given vector.
   template<class T>
@@ -130,7 +130,7 @@ class Param {
  protected:
   Param(const char *name, const char *comment, bool init) :
     name_(name), info_(comment), init_(init) {
-    debug_ = (strstr(name, "debug") != NULL) || (strstr(name, "display"));
+    debug_ = (strstr(name, "debug") != nullptr) || (strstr(name, "display"));
   }
 
   const char *name_;      // name of this parameter
