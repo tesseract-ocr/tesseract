@@ -206,7 +206,7 @@ void FullyConnected::ForwardTimeStep(int t, double* output_line) {
 void FullyConnected::ForwardTimeStep(const double* d_input,
                                      int t, double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
-  if (IsTraining() && external_source_ == NULL)
+  if (IsTraining() && external_source_ == nullptr)
     source_t_.WriteStrided(t, d_input);
   weights_.MatrixDotVector(d_input, output_line);
   ForwardTimeStep(t, output_line);
