@@ -216,7 +216,7 @@ generate_font_image() {
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
     common_args+=" --leading=${LEADING}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
-    common_args+=" --outputbase=${outbase} --max_pages=3"
+    common_args+=" --outputbase=${outbase} --max_pages=0"
 
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.

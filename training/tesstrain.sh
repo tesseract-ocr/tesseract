@@ -63,6 +63,8 @@ phase_UP_generate_unicharset
 if ((LINEDATA)); then
   phase_E_extract_features "lstm.train" 8 "lstmf"
   make__lstmdata
+  tlog "\nCreated starter traineddata for language '${LANG_CODE}'\n"
+  tlog "\nRun lstmtraining to do the LSTM training for language '${LANG_CODE}'\n"
 else
   phase_D_generate_dawg
   phase_E_extract_features "box.train" 8 "tr"
@@ -73,6 +75,7 @@ else
   phase_M_cluster_microfeatures
   phase_B_generate_ambiguities
   make__traineddata
+  tlog "\nCompleted training for language '${LANG_CODE}'\n"
 fi
 
-tlog "\nCompleted training for language '${LANG_CODE}'\n"
+
