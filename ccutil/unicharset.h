@@ -292,10 +292,8 @@ class UNICHARSET {
   // Delete CHAR_FRAGMENTs stored in properties of unichars array.
   void delete_pointers_in_unichars() {
     for (int i = 0; i < size_used; ++i) {
-      if (unichars[i].properties.fragment != nullptr) {
-        delete unichars[i].properties.fragment;
-        unichars[i].properties.fragment = nullptr;
-      }
+      delete unichars[i].properties.fragment;
+      unichars[i].properties.fragment = nullptr;
     }
   }
 

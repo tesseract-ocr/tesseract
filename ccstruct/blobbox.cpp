@@ -927,8 +927,7 @@ static void clear_blobnboxes(BLOBNBOX_LIST* boxes) {
   // have to delete them explicitly.
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     BLOBNBOX* box = it.data();
-    if (box->cblob() != nullptr)
-      delete box->cblob();
+    delete box->cblob();
   }
 }
 

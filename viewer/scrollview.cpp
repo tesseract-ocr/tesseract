@@ -431,10 +431,8 @@ void ScrollView::SetEvent(SVEvent* svevent) {
 // Place both events into the queue.
   mutex_->Lock();
   // Delete the old objects..
-  if (event_table_[specific->type] != nullptr) {
-    delete event_table_[specific->type]; }
-  if (event_table_[SVET_ANY] != nullptr) {
-    delete event_table_[SVET_ANY]; }
+  delete event_table_[specific->type];
+  delete event_table_[SVET_ANY];
   // ...and put the new ones in the table.
   event_table_[specific->type] = specific;
   event_table_[SVET_ANY] = any;

@@ -46,9 +46,7 @@ class PixelHistogram {
   }
 
   void Clear() {
-    if (hist_) {
-      delete[] hist_;
-    }
+    delete[] hist_;
     length_ = 0;
   }
 

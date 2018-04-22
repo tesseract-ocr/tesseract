@@ -31,8 +31,7 @@ class C_OUTLINE_FRAG:public ELIST_LINK
       stepcount = 0;
     }
     ~C_OUTLINE_FRAG () {
-      if (steps != nullptr)
-        delete [] steps;
+      delete [] steps;
     }
                                  //start coord
     C_OUTLINE_FRAG(ICOORD start_pt,

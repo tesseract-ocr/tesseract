@@ -499,10 +499,8 @@ void Classify::EndAdaptiveClassifier() {
   }
   delete shape_table_;
   shape_table_ = nullptr;
-  if (static_classifier_ != nullptr) {
-    delete static_classifier_;
-    static_classifier_ = nullptr;
-  }
+  delete static_classifier_;
+  static_classifier_ = nullptr;
 }                                /* EndAdaptiveClassifier */
 
 

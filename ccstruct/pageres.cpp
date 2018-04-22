@@ -799,8 +799,7 @@ void WERD_RES::ReplaceBestChoice(WERD_CHOICE* choice) {
 // the best_choice->state.
 void WERD_RES::RebuildBestState() {
   ASSERT_HOST(best_choice != nullptr);
-  if (rebuild_word != nullptr)
-    delete rebuild_word;
+  delete rebuild_word;
   rebuild_word = new TWERD;
   if (seam_array.empty())
     start_seam_list(chopped_word, &seam_array);
@@ -826,8 +825,7 @@ void WERD_RES::RebuildBestState() {
 // Copies the chopped_word to the rebuild_word, faking a best_state as well.
 // Also sets up the output box_word.
 void WERD_RES::CloneChoppedToRebuild() {
-  if (rebuild_word != nullptr)
-    delete rebuild_word;
+  delete rebuild_word;
   rebuild_word = new TWERD(*chopped_word);
   SetupBoxWord();
   int word_len = box_word->length();
@@ -841,8 +839,7 @@ void WERD_RES::CloneChoppedToRebuild() {
 
 // Sets/replaces the box_word with one made from the rebuild_word.
 void WERD_RES::SetupBoxWord() {
-  if (box_word != nullptr)
-    delete box_word;
+  delete box_word;
   rebuild_word->ComputeBoundingBoxes();
   box_word = tesseract::BoxWord::CopyFromNormalized(rebuild_word);
   box_word->ClipToOriginalWord(denorm.block(), word);
@@ -1130,7 +1127,7 @@ void WERD_RES::InitPointers() {
 }
 
 void WERD_RES::Clear() {
-  if (word != nullptr && combination) {
+  if (combination) {
     delete word;
   }
   word = nullptr;
@@ -1145,23 +1142,15 @@ void WERD_RES::ClearResults() {
   fontinfo2 = nullptr;
   fontinfo_id_count = 0;
   fontinfo_id2_count = 0;
-  if (bln_boxes != nullptr) {
-    delete bln_boxes;
-    bln_boxes = nullptr;
-  }
+  delete bln_boxes;
+  bln_boxes = nullptr;
   blob_row = nullptr;
-  if (chopped_word != nullptr) {
-    delete chopped_word;
-    chopped_word = nullptr;
-  }
-  if (rebuild_word != nullptr) {
-    delete rebuild_word;
-    rebuild_word = nullptr;
-  }
-  if (box_word != nullptr) {
-    delete box_word;
-    box_word = nullptr;
-  }
+  delete chopped_word;
+  chopped_word = nullptr;
+  delete rebuild_word;
+  rebuild_word = nullptr;
+  delete box_word;
+  box_word = nullptr;
   best_state.clear();
   correct_text.clear();
   seam_array.delete_data_pointers();
@@ -1174,15 +1163,11 @@ void WERD_RES::ClearResults() {
 }
 void WERD_RES::ClearWordChoices() {
   best_choice = nullptr;
-  if (raw_choice != nullptr) {
-    delete raw_choice;
-    raw_choice = nullptr;
-  }
+  delete raw_choice;
+  raw_choice = nullptr;
   best_choices.clear();
-  if (ep_choice != nullptr) {
-    delete ep_choice;
-    ep_choice = nullptr;
-  }
+  delete ep_choice;
+  ep_choice = nullptr;
 }
 void WERD_RES::ClearRatings() {
   if (ratings != nullptr) {

@@ -864,22 +864,17 @@ void GenericVector<T>::clear() {
     size_used_ = 0;
     size_reserved_ = 0;
   }
-  if (clear_cb_ != nullptr) {
-    delete clear_cb_;
-    clear_cb_ = nullptr;
-  }
-  if (compare_cb_ != nullptr) {
-    delete compare_cb_;
-    compare_cb_ = nullptr;
-  }
+  delete clear_cb_;
+  clear_cb_ = nullptr;
+  delete compare_cb_;
+  compare_cb_ = nullptr;
 }
 
 template <typename T>
 void GenericVector<T>::delete_data_pointers() {
-  for (int i = 0; i < size_used_; ++i)
-    if (data_[i]) {
-      delete data_[i];
-    }
+  for (int i = 0; i < size_used_; ++i) {
+    delete data_[i];
+  }
 }
 
 

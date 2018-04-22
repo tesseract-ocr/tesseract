@@ -150,8 +150,7 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split,
     }
 
     if (my_priority < chop_good_split) {
-      if (seam)
-        delete seam;
+      delete seam;
       return;                    /* Made good answer */
     }
 

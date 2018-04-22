@@ -514,8 +514,7 @@ void TrainingSampleSet::OrganizeByFontAndClass() {
   SetupFontIdMap();
   int compact_font_size = font_id_map_.CompactSize();
   // Get a 2-d array of generic vectors.
-  if (font_class_array_ != nullptr)
-    delete font_class_array_;
+  delete font_class_array_;
   FontClassInfo empty;
   font_class_array_ = new GENERIC_2D_ARRAY<FontClassInfo>(
       compact_font_size, unicharset_size_, empty);

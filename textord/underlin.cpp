@@ -93,8 +93,7 @@ void restore_underlined_blobs(                 //get chop points
         ru_it.add_after_then_move(new BLOBNBOX(new C_BLOB(&left_coutlines)));
     }
     if (u_line != nullptr) {
-      if (u_line->cblob() != nullptr)
-        delete u_line->cblob();
+      delete u_line->cblob();
       delete u_line;
     }
   }
