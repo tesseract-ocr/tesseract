@@ -76,8 +76,7 @@ TabFind::TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
 }
 
 TabFind::~TabFind() {
-  if (width_cb_ != nullptr)
-    delete width_cb_;
+  delete width_cb_;
 }
 
 ///////////////// PUBLIC functions (mostly used by TabVector). //////////////

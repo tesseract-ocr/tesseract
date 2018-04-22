@@ -438,8 +438,7 @@ BBGrid<BBC, BBC_CLIST, BBC_C_IT>::BBGrid(
 
 template<class BBC, class BBC_CLIST, class BBC_C_IT>
 BBGrid<BBC, BBC_CLIST, BBC_C_IT>::~BBGrid() {
-  if (grid_ != nullptr)
-    delete [] grid_;
+  delete [] grid_;
 }
 
 // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
@@ -449,8 +448,7 @@ void BBGrid<BBC, BBC_CLIST, BBC_C_IT>::Init(int gridsize,
                                             const ICOORD& bleft,
                                             const ICOORD& tright) {
   GridBase::Init(gridsize, bleft, tright);
-  if (grid_ != nullptr)
-    delete [] grid_;
+  delete [] grid_;
   grid_ = new BBC_CLIST[gridbuckets_];
 }
 

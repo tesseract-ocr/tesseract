@@ -2300,10 +2300,8 @@ void TessBaseAPI::ClearResults() {
   if (tesseract_ != nullptr) {
     tesseract_->Clear();
   }
-  if (page_res_ != nullptr) {
-    delete page_res_;
-    page_res_ = nullptr;
-  }
+  delete page_res_;
+  page_res_ = nullptr;
   recognition_done_ = false;
   if (block_list_ == nullptr)
     block_list_ = new BLOCK_LIST;

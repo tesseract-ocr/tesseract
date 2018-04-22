@@ -541,18 +541,12 @@ void DENORM::Print() const {
 
 // Free allocated memory and clear pointers.
 void DENORM::Clear() {
-  if (x_map_ != nullptr) {
-    delete x_map_;
-    x_map_ = nullptr;
-  }
-  if (y_map_ != nullptr) {
-    delete y_map_;
-    y_map_ = nullptr;
-  }
-  if (rotation_ != nullptr) {
-    delete rotation_;
-    rotation_ = nullptr;
-  }
+  delete x_map_;
+  x_map_ = nullptr;
+  delete y_map_;
+  y_map_ = nullptr;
+  delete rotation_;
+  rotation_ = nullptr;
 }
 
 // Setup default values.

@@ -97,11 +97,8 @@ ColumnFinder::ColumnFinder(int gridsize,
 
 ColumnFinder::~ColumnFinder() {
   column_sets_.delete_data_pointers();
-  if (best_columns_ != nullptr) {
-    delete [] best_columns_;
-  }
-  if (stroke_width_ != nullptr)
-    delete stroke_width_;
+  delete [] best_columns_;
+  delete stroke_width_;
   delete input_blobs_win_;
   pixDestroy(&nontext_map_);
   while (denorm_ != nullptr) {
@@ -147,8 +144,7 @@ void ColumnFinder::SetupAndFilterNoise(PageSegMode pageseg_mode,
                                        Pix* photo_mask_pix,
                                        TO_BLOCK* input_block) {
   part_grid_.Init(gridsize(), bleft(), tright());
-  if (stroke_width_ != nullptr)
-    delete stroke_width_;
+  delete stroke_width_;
   stroke_width_ = new StrokeWidth(gridsize(), bleft(), tright());
   min_gutter_width_ = static_cast<int>(kMinGutterWidthGrid * gridsize());
   input_block->ReSetAndReFilterBlobs();

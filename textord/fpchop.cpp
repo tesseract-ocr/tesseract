@@ -812,8 +812,7 @@ C_OUTLINE *C_OUTLINE_FRAG::close() {  //join pieces
 C_OUTLINE_FRAG & C_OUTLINE_FRAG::operator= (
 const C_OUTLINE_FRAG & src       //fragment to copy
 ) {
-  if (steps != nullptr)
-    delete [] steps;
+  delete [] steps;
 
   stepcount = src.stepcount;
   steps = new DIR128[stepcount];

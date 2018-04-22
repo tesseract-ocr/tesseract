@@ -790,9 +790,7 @@ void EquationDetect::ComputeCPsSuperBBox() {
   ColPartitionGridSearch gsearch(part_grid_);
   ColPartition *part = nullptr;
   gsearch.StartFullSearch();
-  if (cps_super_bbox_) {
-    delete cps_super_bbox_;
-  }
+  delete cps_super_bbox_;
   cps_super_bbox_ = new TBOX();
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     (*cps_super_bbox_) += part->bounding_box();

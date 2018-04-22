@@ -27,8 +27,7 @@ nodes(nullptr) {
 }
 
 UNICHARMAP::~UNICHARMAP() {
-  if (nodes != nullptr)
-    delete[] nodes;
+  delete[] nodes;
 }
 
 // Search the given unichar representation in the tree, using length characters
@@ -116,11 +115,8 @@ int UNICHARMAP::minmatch(const char* const unichar_repr) const {
 }
 
 void UNICHARMAP::clear() {
-  if (nodes != nullptr)
-  {
-    delete[] nodes;
-    nodes = nullptr;
-  }
+  delete[] nodes;
+  nodes = nullptr;
 }
 
 UNICHARMAP::UNICHARMAP_NODE::UNICHARMAP_NODE() :
@@ -130,7 +126,5 @@ id(-1) {
 
 // Recursively delete the children
 UNICHARMAP::UNICHARMAP_NODE::~UNICHARMAP_NODE() {
-  if (children != nullptr) {
-    delete[] children;
-  }
+  delete[] children;
 }

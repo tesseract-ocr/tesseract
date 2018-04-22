@@ -73,16 +73,14 @@ IntGrid::IntGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright)
 }
 
 IntGrid::~IntGrid() {
-  if (grid_ != nullptr)
-    delete [] grid_;
+  delete [] grid_;
 }
 
 // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
 // and bleft, tright are the bounding box of everything to go in it.
 void IntGrid::Init(int gridsize, const ICOORD& bleft, const ICOORD& tright) {
   GridBase::Init(gridsize, bleft, tright);
-  if (grid_ != nullptr)
-    delete [] grid_;
+  delete [] grid_;
   grid_ = new int[gridbuckets_];
   Clear();
 }
