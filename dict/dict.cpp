@@ -614,8 +614,6 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   // the line is recognized.
   if (hyphen_word_) return;
 
-  char filename[CHARS_PER_LINE];
-  FILE *doc_word_file;
   int stringlen = best_choice.length();
 
   if (valid_word(best_choice) || stringlen < 2)
@@ -653,9 +651,9 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   }
 
   if (save_doc_words) {
-    strcpy(filename, getCCUtil()->imagefile.string());
-    strcat(filename, ".doc");
-    doc_word_file = open_file (filename, "a");
+    STRING filename(getCCUtil()->imagefile);
+    filename += ".doc";
+    FILE *doc_word_file = open_file (filename.string(), "a");
     fprintf(doc_word_file, "%s\n",
             best_choice.debug_string().string());
     fclose(doc_word_file);
