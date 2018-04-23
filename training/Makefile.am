@@ -1,4 +1,3 @@
-AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS += \
     -DPANGO_ENABLE_ENGINE \
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
