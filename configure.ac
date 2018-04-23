@@ -135,8 +135,8 @@ fi
 if $avx -o $avx2 -o $sse41; then
   case "${host_os}" in
     *darwin* | *-macos10*)
-       if test -z "$CLANG"; then
-         # When using AVX, AVX2, or SSE4.1:
+       if test g++ = "$CXX"; then
+         # When using AVX, AVX2, or SSE4.1 with g++:
          # Must tell AS to use clang integrated assembler,
          # instead of the GNU based system assembler.
          CXXFLAGS="$CXXFLAGS -Wa,-q"
