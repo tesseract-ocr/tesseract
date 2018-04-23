@@ -169,10 +169,6 @@ class DLLSYM ELIST2_ITERATOR
                                ELIST2_ITERATOR *other_it);  //to other current
 
   public:
-    ELIST2_ITERATOR() {  //constructor
-      list = nullptr;
-    }                            //unassigned list
-
     ELIST2_ITERATOR(  //constructor
                     ELIST2 *list_to_iterate);
 
@@ -253,6 +249,9 @@ class DLLSYM ELIST2_ITERATOR
       int comparator (           //comparison routine
       const void *, const void *));
 
+  private:
+    // Don't use the following constructor.
+    ELIST2_ITERATOR();
 };
 
 /***********************************************************************
@@ -922,13 +921,11 @@ ELIST2IZEH_C.
                                                                                \
   class DLLSYM CLASSNAME##_IT : public ELIST2_ITERATOR {                       \
    public:                                                                     \
-    CLASSNAME##_IT() : ELIST2_ITERATOR() {}                                    \
-                                                                               \
     CLASSNAME##_IT(CLASSNAME##_LIST *list) : ELIST2_ITERATOR(list) {}          \
                                                                                \
     CLASSNAME *data() { return (CLASSNAME *)ELIST2_ITERATOR::data(); }         \
                                                                                \
-    CLASSNAME *data_relative(int8_t offset) {                                    \
+    CLASSNAME *data_relative(int8_t offset) {                                  \
       return (CLASSNAME *)ELIST2_ITERATOR::data_relative(offset);              \
     }                                                                          \
                                                                                \
@@ -945,6 +942,8 @@ ELIST2IZEH_C.
     CLASSNAME *move_to_last() {                                                \
       return (CLASSNAME *)ELIST2_ITERATOR::move_to_last();                     \
     }                                                                          \
+   private:                                                                    \
+    CLASSNAME##_IT();                                                          \
   };
 
 #define ELIST2IZEH(CLASSNAME) \

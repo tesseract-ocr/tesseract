@@ -67,9 +67,9 @@ TabFind::TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
                  int resolution)
   : AlignedBlob(gridsize, bleft, tright),
     resolution_(resolution),
+    v_it_(&vectors_),
     image_origin_(0, tright.y() - 1) {
   width_cb_ = nullptr;
-  v_it_.set_to_list(&vectors_);
   v_it_.add_list_after(vlines);
   SetVerticalSkewAndParellelize(vertical_x, vertical_y);
   width_cb_ = NewPermanentTessCallback(this, &TabFind::CommonWidth);
