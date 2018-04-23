@@ -1006,6 +1006,7 @@ class UNICHARSET {
   // The substitutions clean up text that should exists for rendering of
   // synthetic data, but not in the recognition set.
   static const char* kCleanupMaps[][2];
+  static const char* null_script;
 
   UNICHAR_SLOT* unichars;
   UNICHARMAP ids;
@@ -1014,7 +1015,6 @@ class UNICHARSET {
   char** script_table;
   int script_table_size_used;
   int script_table_size_reserved;
-  const char* null_script;
   // True if the unichars have their tops/bottoms set.
   bool top_bottom_set_;
   // True if the unicharset has significant upper/lower case chars.
