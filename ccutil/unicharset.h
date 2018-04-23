@@ -1006,7 +1006,7 @@ class UNICHARSET {
   // The substitutions clean up text that should exists for rendering of
   // synthetic data, but not in the recognition set.
   static const char* kCleanupMaps[][2];
-  static const char* null_script;
+  static TESS_API const char* null_script;
 
   UNICHAR_SLOT* unichars;
   UNICHARMAP ids;
