@@ -83,6 +83,8 @@ const char* UNICHARSET::kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT] = {
     "|Broken|0|1"
 };
 
+const char* UNICHARSET::null_script = "NULL";
+
 UNICHARSET::UNICHAR_PROPERTIES::UNICHAR_PROPERTIES() {
   Init();
 }
@@ -175,8 +177,7 @@ UNICHARSET::UNICHARSET() :
     size_used(0),
     size_reserved(0),
     script_table(nullptr),
-    script_table_size_used(0),
-    null_script("NULL") {
+    script_table_size_used(0) {
   clear();
   for (int i = 0; i < SPECIAL_UNICHAR_CODES_COUNT; ++i) {
     unichar_insert(kSpecialUnicharCodes[i]);
@@ -803,7 +804,7 @@ bool UNICHARSET::load_via_fgets(
     unsigned int properties;
     char script[64];
 
-    strcpy(script, null_script);
+    strncpy(script, null_script, sizeof(script));
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
