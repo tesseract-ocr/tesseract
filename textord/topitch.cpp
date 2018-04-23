@@ -77,7 +77,6 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
                          BOOL8 testing_on) {          // correct orientation
   TO_BLOCK_IT block_it;          //iterator
   TO_BLOCK *block;               //current block;
-  TO_ROW_IT row_it;              //row iterator
   TO_ROW *row;                   //current row
   int block_index;               //block number
   int row_index;                 //row number
@@ -115,7 +114,8 @@ void compute_fixed_pitch(ICOORD page_tr,              // top right
     block = block_it.data ();
     POLY_BLOCK* pb = block->block->pdblk.poly_block();
     if (pb != nullptr && !pb->IsText()) continue;  // Non-text doesn't exist!
-    row_it.set_to_list (block->get_rows ());
+    // row iterator
+    TO_ROW_IT row_it(block->get_rows());
     row_index = 1;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
@@ -152,7 +152,6 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
   int row_index;                 //number of row
   int maxwidth;                  //max pitch
   TO_BLOCK_IT block_it = blocks; //block iterator
-  TO_ROW_IT row_it;
   TO_BLOCK *block;               //current block
   TO_ROW *row;                   //current row
   float sp_sd;                   //space deviation
@@ -172,7 +171,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
       POLY_BLOCK* pb = block->block->pdblk.poly_block();
       if (pb != nullptr && !pb->IsText()) continue;  // Non text doesn't exist!
       row_index = 1;
-      row_it.set_to_list (block->get_rows ());
+      TO_ROW_IT row_it(block->get_rows());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
       row_it.forward ()) {
         row = row_it.data ();
@@ -406,7 +405,6 @@ BOOL8 try_doc_fixed(                             //determine pitch
                                  //iterator
   TO_BLOCK_IT block_it = port_blocks;
   TO_BLOCK *block;               //current block;
-  TO_ROW_IT row_it;              //row iterator
   TO_ROW *row;                   //current row
   int16_t projection_left;         //edges
   int16_t projection_right;
@@ -430,7 +428,8 @@ BOOL8 try_doc_fixed(                             //determine pitch
     || !textord_blockndoc_fixed)
     return FALSE;
   shift_factor = gradient / (gradient * gradient + 1);
-  row_it.set_to_list (block_it.data ()->get_rows ());
+  // row iterator
+  TO_ROW_IT row_it(block_it.data ()->get_rows());
   master_x = row_it.data ()->projection_left;
   master_y = row_it.data ()->baseline.y (master_x);
   projection_left = INT16_MAX;
@@ -1762,7 +1761,6 @@ void find_repeated_chars(TO_BLOCK *block,       // Block to search.
   TO_ROW *row;
   BLOBNBOX_IT box_it;
   BLOBNBOX_IT search_it;         // forward search
-  WERD_IT word_it;               // new words
   WERD *word;                    // new word
   TBOX word_box;                 // for plotting
   int blobcount, repeated_set;
@@ -1777,7 +1775,8 @@ void find_repeated_chars(TO_BLOCK *block,       // Block to search.
       mark_repeated_chars(row);
     }
     if (row->num_repeated_sets() == 0) continue;  // nothing to do for this row
-    word_it.set_to_list(&row->rep_words);
+    // new words
+    WERD_IT word_it(&row->rep_words);
     do {
       if (box_it.data()->repeated_set() != 0 &&
           !box_it.data()->joined_to_prev()) {

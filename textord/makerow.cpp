@@ -297,7 +297,6 @@ void compute_page_skew(                        //get average gradient
   int32_t row_index;               //of total
   TO_ROW *row;                   //current row
   TO_BLOCK_IT block_it = blocks; //iterator
-  TO_ROW_IT row_it;
 
   row_count = 0;
   blob_count = 0;
@@ -308,7 +307,7 @@ void compute_page_skew(                        //get average gradient
       continue;  // Pretend non-text blocks don't exist.
     row_count += block_it.data ()->get_rows ()->length ();
     //count up rows
-    row_it.set_to_list (block_it.data ()->get_rows ());
+    TO_ROW_IT row_it(block_it.data()->get_rows());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
       blob_count += row_it.data ()->blob_list ()->length ();
   }
@@ -329,7 +328,7 @@ void compute_page_skew(                        //get average gradient
     POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
     if (pb != nullptr && !pb->IsText())
       continue;  // Pretend non-text blocks don't exist.
-    row_it.set_to_list (block_it.data ()->get_rows ());
+    TO_ROW_IT row_it(block_it.data ()->get_rows());
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       blob_count = row->blob_list ()->length ();
@@ -359,7 +358,7 @@ void compute_page_skew(                        //get average gradient
       POLY_BLOCK* pb = block_it.data()->block->pdblk.poly_block();
       if (pb != nullptr && !pb->IsText())
         continue;  // Pretend non-text blocks don't exist.
-      row_it.set_to_list (block_it.data ()->get_rows ());
+      TO_ROW_IT row_it(block_it.data()->get_rows());
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
            row_it.forward ()) {
         row = row_it.data ();

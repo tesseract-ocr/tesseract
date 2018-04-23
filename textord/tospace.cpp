@@ -45,7 +45,6 @@ void Textord::to_spacing(
                          ) {
   TO_BLOCK_IT block_it;          //iterator
   TO_BLOCK *block;               //current block;
-  TO_ROW_IT row_it;              //row iterator
   TO_ROW *row;                   //current row
   int block_index;               //block number
   int row_index;                 //row number
@@ -77,7 +76,8 @@ void Textord::to_spacing(
         (float) block_space_gap_width / block_non_space_gap_width < 3.0) {
       block_non_space_gap_width = (int16_t) floor (block_space_gap_width / 3.0);
     }
-    row_it.set_to_list (block->get_rows ());
+    // row iterator
+    TO_ROW_IT row_it(block->get_rows());
     row_index = 1;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
@@ -123,7 +123,6 @@ void Textord::block_spacing_stats(
     int16_t &block_space_gap_width,     // resulting estimate
     int16_t &block_non_space_gap_width  // resulting estimate
                                   ) {
-  TO_ROW_IT row_it;              // row iterator
   TO_ROW *row;                   // current row
   BLOBNBOX_IT blob_it;           // iterator
 
@@ -142,7 +141,8 @@ void Textord::block_spacing_stats(
   int32_t end_of_row;
   int32_t row_length;
 
-  row_it.set_to_list (block->get_rows ());
+  // row iterator
+  TO_ROW_IT row_it(block->get_rows());
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     if (!row->blob_list ()->empty () &&
@@ -909,9 +909,7 @@ ROW *Textord::make_prop_words(
   C_BLOB_LIST cblobs;
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
-  WERD_IT word_it;               // new words
   WERD *word;                    // new word
-  WERD_IT rep_char_it;           // repeated char words
   int32_t next_rep_char_word_right = INT32_MAX;
   float repetition_spacing;      // gap between repetitions
   int32_t xstarts[2];              // row ends
@@ -929,7 +927,8 @@ ROW *Textord::make_prop_words(
   int16_t next_within_xht_gap = INT16_MAX;
   int16_t word_count = 0;
 
-  rep_char_it.set_to_list (&(row->rep_words));
+  // repeated char words
+  WERD_IT rep_char_it(&(row->rep_words));
   if (!rep_char_it.empty ()) {
     next_rep_char_word_right =
       rep_char_it.data ()->bounding_box ().right ();
@@ -938,7 +937,8 @@ ROW *Textord::make_prop_words(
   prev_x = -INT16_MAX;
   cblob_it.set_to_list (&cblobs);
   box_it.set_to_list (row->blob_list ());
-  word_it.set_to_list (&words);
+  // new words
+  WERD_IT word_it(&words);
   bol = TRUE;
   prev_blanks = 0;
   prev_fuzzy_sp = FALSE;
@@ -1192,7 +1192,6 @@ ROW *Textord::make_blob_words(
   C_BLOB_LIST cblobs;
   C_BLOB_IT cblob_it = &cblobs;
   WERD_LIST words;
-  WERD_IT word_it;               // new words
   WERD *word;                    // new word
   BLOBNBOX *bblob;               // current blob
   TBOX blob_box;                 // bounding box
@@ -1201,7 +1200,8 @@ ROW *Textord::make_blob_words(
 
   cblob_it.set_to_list(&cblobs);
   box_it.set_to_list(row->blob_list());
-  word_it.set_to_list(&words);
+  // new words
+  WERD_IT word_it(&words);
   bol = TRUE;
   if (!box_it.empty()) {
 

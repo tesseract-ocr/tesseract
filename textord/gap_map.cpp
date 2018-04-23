@@ -35,7 +35,6 @@ EXTERN double_VAR (gapmap_big_gaps, 1.75, "xht multiplier");
 GAPMAP::GAPMAP(                 //Constructor
                TO_BLOCK *block  //block
               ) {
-  TO_ROW_IT row_it;              //row iterator
   TO_ROW *row;                   //current row
   BLOBNBOX_IT blob_it;           //iterator
   TBOX blob_box;
@@ -48,7 +47,6 @@ GAPMAP::GAPMAP(                 //Constructor
   int16_t max_quantum;
   int16_t i;
 
-  row_it.set_to_list (block->get_rows ());
   /*
     Find left and right extremes and bucket size
   */
@@ -57,6 +55,9 @@ GAPMAP::GAPMAP(                 //Constructor
   max_right = -INT16_MAX;
   total_rows = 0;
   any_tabs = FALSE;
+
+  // row iterator
+  TO_ROW_IT row_it(block->get_rows());
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     if (!row->blob_list ()->empty ()) {
