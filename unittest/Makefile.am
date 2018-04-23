@@ -1,5 +1,3 @@
-AUTOMAKE_OPTIONS = subdir-objects
-
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
