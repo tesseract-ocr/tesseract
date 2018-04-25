@@ -308,7 +308,7 @@ if (BUILD_TESTS AND EXISTS ${PROJECT_SOURCE_DIR}/googletest/CMakeLists.txt)
 endif()
 
 if (BUILD_TRAINING_TOOLS)
-add_subdirectory(training)
+add_subdirectory(src/training)
 endif()
 
 get_target_property(tesseract_NAME libtesseract NAME)

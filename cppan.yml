@@ -172,7 +172,7 @@ projects:
     tessopt:
         type: lib
         static_only: true
-        files: training/tessopt.*
+        files: src/training/tessopt.*
         include_directories: training
         dependencies: libtesseract
 
@@ -180,104 +180,104 @@ projects:
         type: lib
         static_only: true
         files:
-            - training/commandlineflags.cpp
-            - training/commandlineflags.h
-            - training/commontraining.cpp
-            - training/commontraining.h
+            - src/training/commandlineflags.cpp
+            - src/training/commandlineflags.h
+            - src/training/commontraining.cpp
+            - src/training/commontraining.h
         include_directories: training
         dependencies:
             - tessopt
 
     ambiguous_words:
-        files: training/ambiguous_words.cpp
+        files: src/training/ambiguous_words.cpp
         dependencies:
             - libtesseract
 
     classifier_tester:
-        files: training/classifier_tester.cpp
+        files: src/training/classifier_tester.cpp
         dependencies: common_training
 
     combine_lang_model:
-        files: training/combine_lang_model.cpp
+        files: src/training/combine_lang_model.cpp
         dependencies: unicharset_training
 
     combine_tessdata:
-        files: training/combine_tessdata.cpp
+        files: src/training/combine_tessdata.cpp
         dependencies: libtesseract
 
     cntraining:
-        files: training/cntraining.cpp
+        files: src/training/cntraining.cpp
         dependencies: common_training
 
     dawg2wordlist:
-        files: training/dawg2wordlist.cpp
+        files: src/training/dawg2wordlist.cpp
         dependencies: libtesseract
 
     mftraining:
         files:
-            - training/mftraining.cpp
-            - training/mergenf.*
+            - src/training/mftraining.cpp
+            - src/training/mergenf.*
         dependencies: common_training
 
     shapeclustering:
-        files: training/shapeclustering.cpp
+        files: src/training/shapeclustering.cpp
         dependencies: common_training
 
     unicharset_extractor:
-        files: training/unicharset_extractor.cpp
+        files: src/training/unicharset_extractor.cpp
         dependencies: unicharset_training
 
     wordlist2dawg:
-        files: training/wordlist2dawg.cpp
+        files: src/training/wordlist2dawg.cpp
         dependencies: libtesseract
 
     unicharset_training:
         type: lib
         static_only: true
         files:
-            - training/fileio.*
-            - training/icuerrorcode.h
-            - training/lang_model_helpers.*
-            - training/lstmtester.*
-            - training/normstrngs.*
-            - training/unicharset_training_utils.*
-            - training/validat.*
+            - src/training/fileio.*
+            - src/training/icuerrorcode.h
+            - src/training/lang_model_helpers.*
+            - src/training/lstmtester.*
+            - src/training/normstrngs.*
+            - src/training/unicharset_training_utils.*
+            - src/training/validat.*
         include_directories: training
         dependencies:
             - common_training
             - pvt.cppan.demo.unicode.icu.i18n
 
     lstmeval:
-        files: training/lstmeval.cpp
+        files: src/training/lstmeval.cpp
         dependencies: unicharset_training
 
     lstmtraining:
-        files: training/lstmtraining.cpp
+        files: src/training/lstmtraining.cpp
         dependencies: unicharset_training
 
     set_unicharset_properties:
-        files: training/set_unicharset_properties.cpp
+        files: src/training/set_unicharset_properties.cpp
         dependencies: unicharset_training
 
     text2image:
         files:
-            - training/text2image.cpp
-            - training/boxchar.cpp
-            - training/boxchar.h
-            - training/degradeimage.cpp
-            - training/degradeimage.h
-            - training/ligature_table.cpp
-            - training/ligature_table.h
-            - training/normstrngs.cpp
-            - training/normstrngs.h
-            - training/pango_font_info.cpp
-            - training/pango_font_info.h
-            - training/stringrenderer.cpp
-            - training/stringrenderer.h
-            - training/tlog.cpp
-            - training/tlog.h
-            - training/util.h
-            - training/icuerrorcode.h
+            - src/training/text2image.cpp
+            - src/training/boxchar.cpp
+            - src/training/boxchar.h
+            - src/training/degradeimage.cpp
+            - src/training/degradeimage.h
+            - src/training/ligature_table.cpp
+            - src/training/ligature_table.h
+            - src/training/normstrngs.cpp
+            - src/training/normstrngs.h
+            - src/training/pango_font_info.cpp
+            - src/training/pango_font_info.h
+            - src/training/stringrenderer.cpp
+            - src/training/stringrenderer.h
+            - src/training/tlog.cpp
+            - src/training/tlog.h
+            - src/training/util.h
+            - src/training/icuerrorcode.h
 
         dependencies:
             - unicharset_training
