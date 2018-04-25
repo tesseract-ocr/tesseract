@@ -132,10 +132,10 @@ configure_file(
     ${CMAKE_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
-    ${CMAKE_BINARY_DIR}/src/vs2010/tesseract/tesseract.rc @ONLY)
+    ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
-    ${CMAKE_BINARY_DIR}/src/vs2010/tesseract/libtesseract.rc @ONLY)
+    ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
     ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
