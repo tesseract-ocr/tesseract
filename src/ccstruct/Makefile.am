@@ -1,7 +1,8 @@
 AM_CPPFLAGS += \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil \
-    -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/opencl
+    -I$(top_srcdir)/src/ccutil \
+    -I$(top_srcdir)/src/cutil \
+    -I$(top_srcdir)/src/viewer \
+    -I$(top_srcdir)/src/opencl
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
     
 if VISIBILITY

@@ -1,13 +1,19 @@
 AM_CPPFLAGS += \
     -DPANGO_ENABLE_ENGINE \
-    -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/ccstruct \
-    -I$(top_srcdir)/lstm -I$(top_srcdir)/arch \
-    -I$(top_srcdir)/viewer \
-    -I$(top_srcdir)/textord -I$(top_srcdir)/dict \
-    -I$(top_srcdir)/classify -I$(top_srcdir)/display \
-    -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil \
-    -I$(top_builddir)/api
+    -I$(top_builddir)/src/api \
+    -I$(top_srcdir)/src/api \
+    -I$(top_srcdir)/src/ccmain \
+    -I$(top_srcdir)/src/ccutil \
+    -I$(top_srcdir)/src/ccstruct \
+    -I$(top_srcdir)/src/lstm \
+    -I$(top_srcdir)/src/arch \
+    -I$(top_srcdir)/src/viewer \
+    -I$(top_srcdir)/src/textord \
+    -I$(top_srcdir)/src/dict \
+    -I$(top_srcdir)/src/classify \
+    -I$(top_srcdir)/src/display \
+    -I$(top_srcdir)/src/wordrec \
+    -I$(top_srcdir)/src/cutil
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 

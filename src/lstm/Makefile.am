@@ -1,7 +1,12 @@
 AM_CPPFLAGS += \
-    -I$(top_srcdir)/ccutil -I$(top_srcdir)/cutil -I$(top_srcdir)/ccstruct \
-    -I$(top_srcdir)/arch -I$(top_srcdir)/viewer -I$(top_srcdir)/classify \
-    -I$(top_srcdir)/dict -I$(top_srcdir)/lstm
+    -I$(top_srcdir)/src/ccutil \
+    -I$(top_srcdir)/src/cutil \
+    -I$(top_srcdir)/src/ccstruct \
+    -I$(top_srcdir)/src/arch \
+    -I$(top_srcdir)/src/viewer \
+    -I$(top_srcdir)/src/classify \
+    -I$(top_srcdir)/src/dict \
+    -I$(top_srcdir)/src/lstm
 
 SUBDIRS =
 AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
