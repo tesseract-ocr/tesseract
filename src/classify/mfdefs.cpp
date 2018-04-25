@@ -46,5 +46,5 @@ MICROFEATURE NewMicroFeature() {
  * @note History: 7/27/89, DSJ, Created.
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
-  destroy_nodes(MicroFeatures, Efree); 
+  destroy_nodes(MicroFeatures, Efree);
 }                                /* FreeMicroFeatures */

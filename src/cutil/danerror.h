@@ -30,6 +30,6 @@ typedef void (*VOID_PROC) ();
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void DoError(int Error, const char *Message); 
+void DoError(int Error, const char *Message);
 
 #endif

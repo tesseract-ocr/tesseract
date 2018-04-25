@@ -46,7 +46,7 @@ class SVMenuNode {
 
   // Create a "normal" menu node which is associated with a command event.
   void AddChild(const char* txt, int command_event);
-  
+
   // Create a flag menu node.
   void AddChild(const char* txt, int command_event, int tv);
 

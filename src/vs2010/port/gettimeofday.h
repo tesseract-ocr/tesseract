@@ -24,7 +24,7 @@
 #include          <winsock.h>    // timeval is defined in here.
 #endif
 
-typedef struct  timezone tz; 
+typedef struct  timezone tz;
 
 int gettimeofday(struct timeval * tp, struct timezone * tzp);
 

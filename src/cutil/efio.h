@@ -28,5 +28,5 @@
 /**----------------------------------------------------------------------------
           Public Function Prototype
 ----------------------------------------------------------------------------**/
-FILE *Efopen(const char *Name, const char *Mode); 
+FILE *Efopen(const char *Name, const char *Mode);
 #endif

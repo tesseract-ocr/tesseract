@@ -2,8 +2,8 @@
 // All Rights Reserved.
 // Author: renn
 //
-// Contains file io functions (mainly for file parsing), that might not be 
-// available, on embedded devices, or that have an incomplete implementation 
+// Contains file io functions (mainly for file parsing), that might not be
+// available, on embedded devices, or that have an incomplete implementation
 // there.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,7 +53,7 @@ int fscanf(FILE* stream, const char *format, ...);
 // Note that scientific loating-point notation is not supported.
 int vfscanf(FILE* stream, const char *format, va_list ap);
 
-// Create a file at the specified path. See the creat manpage for more 
+// Create a file at the specified path. See the creat manpage for more
 // information, as this function attempts to mimic its behavior.
 int creat(const char *pathname, mode_t mode);
 
