@@ -771,4 +771,3 @@ void LineFinder::GetLineBoxes(bool horizontal_lines,
 }
 
 }  // namespace tesseract.
-

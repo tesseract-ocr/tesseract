@@ -259,4 +259,3 @@ const UnicharAndFonts* SampleIterator::GetShapeEntry() const {
 }
 
 }  // namespace tesseract.
-

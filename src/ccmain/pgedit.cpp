@@ -998,6 +998,3 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
 #endif  // GRAPHICS_DISABLED
 
 }  // namespace tesseract
-
-
-

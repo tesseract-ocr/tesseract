@@ -57,4 +57,3 @@ class SVCheckboxMenuItem extends SVAbstractMenuItem {
     return Boolean.toString(bvalue);
   }
 }
-

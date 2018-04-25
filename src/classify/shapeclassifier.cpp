@@ -229,8 +229,3 @@ void ShapeClassifier::FilterDuplicateUnichars(
 }
 
 }  // namespace tesseract.
-
-
-
-
-

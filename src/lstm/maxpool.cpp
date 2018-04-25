@@ -83,4 +83,3 @@ bool Maxpool::Backward(bool debug, const NetworkIO& fwd_deltas,
 
 
 }  // namespace tesseract.
-

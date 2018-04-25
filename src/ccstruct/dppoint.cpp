@@ -95,4 +95,3 @@ void DPPoint::UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
 }
 
 }  // namespace tesseract.
-

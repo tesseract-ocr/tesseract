@@ -57,5 +57,3 @@ do
 done <"$pages"
 testing/unlv/accsum "$accfiles" >"testing/reports/$setname.characc"
 testing/unlv/wordaccsum "$wafiles" >"testing/reports/$setname.wordacc"
-
-

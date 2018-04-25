@@ -70,5 +70,3 @@ void Tesseract::PrerecAllWordsPar(const GenericVector<WordData>& words) {
 }
 
 }  // namespace tesseract.
-
-

@@ -584,4 +584,3 @@ void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice,
     }
   }
 }
-

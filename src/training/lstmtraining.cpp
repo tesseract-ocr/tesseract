@@ -210,5 +210,3 @@ int main(int argc, char **argv) {
   tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
   return 0;
 } /* main */
-
-

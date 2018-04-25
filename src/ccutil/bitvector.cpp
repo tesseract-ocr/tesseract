@@ -265,5 +265,3 @@ void BitVector::Alloc(int length) {
 
 
 }  // namespace tesseract.
-
-

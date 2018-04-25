@@ -34,4 +34,3 @@ libtesseract_main_la_SOURCES = \
     tessbox.cpp tessedit.cpp tesseractclass.cpp tessvars.cpp \
     tfacepp.cpp thresholder.cpp \
     werdit.cpp
-

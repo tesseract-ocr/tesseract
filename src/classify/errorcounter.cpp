@@ -500,8 +500,3 @@ void ErrorCounter::Counts::operator+=(const Counts& other) {
 
 
 }  // namespace tesseract.
-
-
-
-
-

@@ -485,4 +485,3 @@ Network* NetworkBuilder::ParseOutput(const StaticShape& input_shape,
 }
 
 }  // namespace tesseract.
-

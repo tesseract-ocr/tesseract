@@ -247,4 +247,3 @@ int IndexMapBiDi::MapFeatures(const GenericVector<int>& sparse,
 }
 
 }  // namespace tesseract.
-

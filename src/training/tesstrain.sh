@@ -77,5 +77,3 @@ else
   make__traineddata
   tlog "\nCompleted training for language '${LANG_CODE}'\n"
 fi
-
-

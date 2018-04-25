@@ -86,4 +86,3 @@ class ParamsModel {
 }  // namespace tesseract
 
 #endif  // TESSERACT_WORDREC_PARAMS_MODEL_H_
-
