@@ -237,4 +237,3 @@ void MakeBoxFileStr(const char* unichar_str, const TBOX& box, int page_num,
   box_str->add_str_int(" ", box.top());
   box_str->add_str_int(" ", page_num);
 }
-

@@ -215,4 +215,3 @@ void LMPainPoints::RemapForSplit(int index) {
 }
 
 }  //  namespace tesseract
-

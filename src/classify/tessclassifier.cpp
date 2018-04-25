@@ -83,5 +83,3 @@ int TessClassifier::DisplayClassifyAs(
 }
 
 }  // namespace tesseract
-
-

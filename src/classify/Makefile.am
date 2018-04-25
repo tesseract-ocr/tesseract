@@ -35,5 +35,3 @@ libtesseract_classify_la_SOURCES = \
     ocrfeatures.cpp outfeat.cpp picofeat.cpp protos.cpp \
     sampleiterator.cpp shapeclassifier.cpp shapetable.cpp \
     tessclassifier.cpp trainingsample.cpp trainingsampleset.cpp 
-
-

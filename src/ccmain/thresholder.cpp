@@ -330,4 +330,3 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
 }
 
 }  // namespace tesseract.
-

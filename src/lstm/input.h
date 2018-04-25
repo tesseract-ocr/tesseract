@@ -102,4 +102,3 @@ class Input : public Network {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_LSTM_INPUT_H_
-

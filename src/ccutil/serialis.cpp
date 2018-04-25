@@ -163,4 +163,3 @@ int TFile::FWrite(const void* buffer, int size, int count) {
 
 
 }  // namespace tesseract.
-

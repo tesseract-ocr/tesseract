@@ -160,5 +160,3 @@ class DetLineFit {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_CCSTRUCT_DETLINEFIT_H_
-
-

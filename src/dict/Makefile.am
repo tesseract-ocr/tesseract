@@ -16,5 +16,3 @@ libtesseract_dict_la_SOURCES = \
     context.cpp \
     dawg.cpp dawg_cache.cpp dict.cpp hyphen.cpp \
     permdawg.cpp stopper.cpp trie.cpp
-
-

@@ -142,4 +142,3 @@ class Plumbing : public Network {
 }  // namespace tesseract.
 
 #endif  // TESSERACT_LSTM_PLUMBING_H_
-

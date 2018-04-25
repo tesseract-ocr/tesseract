@@ -1366,4 +1366,3 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
 
 
 }  // namespace tesseract.
-

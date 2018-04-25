@@ -207,4 +207,3 @@ void SetPropertiesForInputFile(const std::string& script_dir,
 }
 
 }  // namespace tesseract
-

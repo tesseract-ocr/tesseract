@@ -418,4 +418,3 @@ void plot_row_cells(                       //draw words
 }
 
 #endif  // GRAPHICS_DISABLED
-

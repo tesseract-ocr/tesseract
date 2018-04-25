@@ -244,4 +244,3 @@ void Plumbing::CountAlternators(const Network& other, double* same,
 }
 
 }  // namespace tesseract.
-

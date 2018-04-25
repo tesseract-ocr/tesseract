@@ -67,4 +67,3 @@ class Maxpool : public Reconfig {
 
 
 #endif  // TESSERACT_LSTM_MAXPOOL_H_
-

@@ -32,4 +32,3 @@ libtesseract_avx_la_SOURCES = dotproductavx.cpp
 libtesseract_avx2_la_SOURCES = intsimdmatrixavx2.cpp
 
 libtesseract_sse_la_SOURCES = dotproductsse.cpp intsimdmatrixsse.cpp
-

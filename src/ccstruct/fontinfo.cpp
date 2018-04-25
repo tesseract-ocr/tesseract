@@ -244,4 +244,3 @@ bool write_set(FILE* f, const FontSet& fs) {
 }
 
 }  // namespace tesseract.
-

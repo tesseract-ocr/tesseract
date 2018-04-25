@@ -529,4 +529,3 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
 }
 
 }  // namespace tesseract.
-
