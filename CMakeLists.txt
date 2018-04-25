@@ -229,7 +229,7 @@ if (WIN32)
         set(tesseract_hdr
             ${tesseract_hdr}
             ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
-        set(tesseract_rsc ${CMAKE_BINARY_DIR}/src/vs2010/tesseract/libtesseract.rc)
+        set(tesseract_rsc ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
         set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
             PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
