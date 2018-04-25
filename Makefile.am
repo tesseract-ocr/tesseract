@@ -2,15 +2,15 @@
 ACLOCAL_AMFLAGS = -I m4
 
 if ENABLE_TRAINING
-TRAINING_SUBDIR = training
+TRAINING_SUBDIR = src/training
 training: all
-	@$(MAKE) -C training
+	@$(MAKE) -C src/training
 training-install: training
-	@$(MAKE) -C training install
+	@$(MAKE) -C src/training install
 training-uninstall:
-	@$(MAKE) -C training uninstall
+	@$(MAKE) -C src/training uninstall
 clean-local:
-	@$(MAKE) -C training clean
+	@$(MAKE) -C src/training clean
 else
 training:
 	@echo "Need to reconfigure project, so there are no errors"
@@ -18,8 +18,9 @@ endif
 
 .PHONY: doc install-langs ScrollView.jar install-jars training
 
-SUBDIRS = arch ccutil viewer cutil opencl ccstruct dict classify wordrec textord lstm
-SUBDIRS += ccmain api . tessdata doc unittest
+SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
+SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
+SUBDIRS += src/ccmain src/api . tessdata doc unittest
 
 EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \

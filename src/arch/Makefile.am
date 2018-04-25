@@ -1,4 +1,4 @@
-AM_CPPFLAGS += -I$(top_srcdir)/ccstruct -I$(top_srcdir)/ccutil -I$(top_srcdir)/viewer
+AM_CPPFLAGS += -I$(top_srcdir)/src/ccstruct -I$(top_srcdir)/src/ccutil -I$(top_srcdir)/src/viewer
 
 SUBDIRS =
 AM_CXXFLAGS =
