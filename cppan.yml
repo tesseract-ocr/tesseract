@@ -35,59 +35,59 @@ projects:
         type: lib
         export_all_symbols: true
         files:
-          - api/.*\.cpp
-          - arch/.*\.cpp
-          - ccmain/.*\.cpp
-          - ccstruct/.*\.cpp
-          - ccutil/.*\.cpp
-          - classify/.*\.cpp
-          - cutil/.*\.cpp
-          - dict/.*\.cpp
-          - lstm/.*\.cpp
-          - opencl/.*\.cpp
-          - textord/.*\.cpp
-          - viewer/.*\.cpp
-          - wordrec/.*\.cpp
+          - src/api/.*\.cpp
+          - src/arch/.*\.cpp
+          - src/ccmain/.*\.cpp
+          - src/ccstruct/.*\.cpp
+          - src/ccutil/.*\.cpp
+          - src/classify/.*\.cpp
+          - src/cutil/.*\.cpp
+          - src/dict/.*\.cpp
+          - src/lstm/.*\.cpp
+          - src/opencl/.*\.cpp
+          - src/textord/.*\.cpp
+          - src/viewer/.*\.cpp
+          - src/wordrec/.*\.cpp
 
-          - api/.*\.h
-          - arch/.*\.h
-          - ccmain/.*\.h
-          - ccstruct/.*\.h
-          - ccutil/.*\.h
-          - classify/.*\.h
-          - cutil/.*\.h
-          - dict/.*\.h
-          - lstm/.*\.h
-          - opencl/.*\.h
-          - textord/.*\.h
-          - viewer/.*\.h
-          - wordrec/.*\.h
+          - src/api/.*\.h
+          - src/arch/.*\.h
+          - src/ccmain/.*\.h
+          - src/ccstruct/.*\.h
+          - src/ccutil/.*\.h
+          - src/classify/.*\.h
+          - src/cutil/.*\.h
+          - src/dict/.*\.h
+          - src/lstm/.*\.h
+          - src/opencl/.*\.h
+          - src/textord/.*\.h
+          - src/viewer/.*\.h
+          - src/wordrec/.*\.h
 
-          - vs2010/port/.*
+          - src/vs2010/port/.*
 
         exclude_from_build:
-          - api/tesseractmain.cpp
-          - viewer/svpaint.cpp
+          - src/api/tesseractmain.cpp
+          - src/viewer/svpaint.cpp
 
         include_directories:
           public:
           #private:
-            - arch
-            - classify
-            - cutil
-            - ccutil
-            - dict
-            - lstm
-            - opencl
-            - textord
-            - vs2010/port
-            - viewer
-            - wordrec
+            - src/arch
+            - src/classify
+            - src/cutil
+            - src/ccutil
+            - src/dict
+            - src/lstm
+            - src/opencl
+            - src/textord
+            - src/vs2010/port
+            - src/viewer
+            - src/wordrec
           #public:
-            - api
-            - ccmain
-            - ccstruct
-            - ccutil
+            - src/api
+            - src/ccmain
+            - src/ccstruct
+            - src/ccutil
 
         check_function_exists:
           - getline
@@ -125,23 +125,26 @@ projects:
             file_write_once(${BDIR}/config_auto.h "")
 
         post_sources: |
+            configure_file(
+                ${SDIR}/src/api/tess_version.h.in
+                ${BDIR}/tess_version.h @ONLY)
             if (WIN32)
                 if (MSVC)
                     set_source_files_properties(
-                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
+                        ${SDIR}/src/arch/dotproductsse.cpp
                         PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
                     set_source_files_properties(
-                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixsse.cpp
+                        ${SDIR}/src/arch/intsimdmatrixsse.cpp
                         PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
                     set_source_files_properties(
-                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
+                        ${SDIR}/src/arch/dotproductavx.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX")
                     set_source_files_properties(
-                        ${CMAKE_CURRENT_SOURCE_DIR}/arch/intsimdmatrixavx2.cpp
+                        ${SDIR}/src/arch/intsimdmatrixavx2.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX2")
                 endif()
             else()
-                remove_src_dir(vs2010/port/*)
+                remove_src_dir(src/vs2010/port/*)
             endif()
 
         options:
@@ -162,7 +165,7 @@ projects:
             pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tesseract:
-        files: api/tesseractmain.cpp
+        files: src/api/tesseractmain.cpp
         dependencies:
             - libtesseract
 
