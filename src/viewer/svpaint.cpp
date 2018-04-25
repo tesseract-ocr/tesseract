@@ -84,7 +84,7 @@ SVMenuNode* SVPaint::BuildMenuBar() {
   // Create some submenus and add them to the root.
   SVMenuNode* click = root->AddChild("Clicking");
   SVMenuNode* drag = root->AddChild("Dragging");
-  
+
   // Put some nodes into the submenus.
   click->AddChild("Point to Point Drawing",  // Caption.
                   1);                       // command_id.
@@ -109,8 +109,8 @@ void SVPaint::PopupHandler(const SVEvent* sv_event) {
 // In our case, we change either the click_mode_ (commands 1-3)
 // or the drag_mode_ (commands 4-6).
 void SVPaint::MenuBarHandler(const SVEvent* sv_event) {
-  if ((sv_event->command_id > 0) && (sv_event->command_id < 4)) { 
-  click_mode_ = sv_event->command_id;	
+  if ((sv_event->command_id > 0) && (sv_event->command_id < 4)) {
+  click_mode_ = sv_event->command_id;
   has_start_point_ = false;
   } else { drag_mode_ = sv_event->command_id; }
 }
@@ -123,7 +123,7 @@ void SVPaint::ClickHandler(const SVEvent* sv_event) {
   case 1: //Point to Point
     if (has_start_point_) { window_->DrawTo(sv_event->x, sv_event->y);
     } else {
-        has_start_point_ = true; 
+        has_start_point_ = true;
         window_->SetCursor(sv_event->x, sv_event->y);
     }
     break;
@@ -147,7 +147,7 @@ void SVPaint::SelectionHandler(const SVEvent* sv_event) {
   switch (drag_mode_) {
   //FIXME inversed x_size, y_size
     case 4: //Line
-      window_->Line(sv_event->x, sv_event->y, 
+      window_->Line(sv_event->x, sv_event->y,
                     sv_event->x - sv_event->x_size,
                     sv_event->y - sv_event->y_size);
       break;
@@ -167,7 +167,7 @@ void SVPaint::SelectionHandler(const SVEvent* sv_event) {
 // The event handling function from ScrollView which we have to overwrite.
 // We handle CLICK, SELECTION, MENU and POPUP and throw away all other events.
 void SVPaint::Notify(const SVEvent* sv_event) {
-  if (sv_event->type == SVET_CLICK) { ClickHandler(sv_event); }  
+  if (sv_event->type == SVET_CLICK) { ClickHandler(sv_event); }
   else if (sv_event->type == SVET_SELECTION) { SelectionHandler(sv_event); }
   else if (sv_event->type == SVET_MENU) { MenuBarHandler(sv_event); }
   else if (sv_event->type == SVET_POPUP) { PopupHandler(sv_event); }
@@ -182,7 +182,7 @@ SVPaint::SVPaint(const char *server_name) {
                             500, 500,                   // window size
   		                    500, 500,                   // canvas size
                             false,      // whether the Y axis is inversed.
-                                        // this is included due to legacy 
+                                        // this is included due to legacy
                                         // reasons for tesseract and enables
                                         // us to have (0,0) as the LOWER left
                                         // of the coordinate system.
@@ -197,7 +197,7 @@ SVPaint::SVPaint(const char *server_name) {
   // this is a menu bar.
   SVMenuNode* popup_menu = BuildPopupMenu();
   popup_menu->BuildMenu(window_,false);
-	
+
   SVMenuNode* bar_menu = BuildMenuBar();
   bar_menu->BuildMenu(window_,true);
 

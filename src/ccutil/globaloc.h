@@ -29,11 +29,11 @@ void SavePixForCrash(int resolution, Pix* pix);
 
 void signal_exit(int signal_code);
 
-void err_exit(); 
+void err_exit();
 
-void set_global_loc_code(int loc_code); 
+void set_global_loc_code(int loc_code);
 
-void set_global_subloc_code(int loc_code); 
+void set_global_subloc_code(int loc_code);
 
-void set_global_subsubloc_code(int loc_code); 
+void set_global_subsubloc_code(int loc_code);
 #endif
