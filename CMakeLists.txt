@@ -129,7 +129,7 @@ set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/inclu
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/src/api/tess_version.h.in
-    ${CMAKE_BINARY_DIR}/src/api/tess_version.h @ONLY)
+    ${CMAKE_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
     ${CMAKE_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
     ${CMAKE_BINARY_DIR}/src/vs2010/tesseract/tesseract.rc @ONLY)
