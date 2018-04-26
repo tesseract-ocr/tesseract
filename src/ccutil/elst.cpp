@@ -210,11 +210,13 @@ ELIST_LINK *ELIST_ITERATOR::forward() {
       cycle_pt = next;
     current = next;
   }
+#ifndef NDEBUG
+  if (!current)
+    NULL_DATA.error ("ELIST_ITERATOR::forward", ABORT, nullptr);
+#endif
   next = current->next;
 
   #ifndef NDEBUG
-  if (!current)
-    NULL_DATA.error ("ELIST_ITERATOR::forward", ABORT, nullptr);
   if (!next)
     NULL_NEXT.error ("ELIST_ITERATOR::forward", ABORT,
                      "This is: %p  Current is: %p", this, current);
