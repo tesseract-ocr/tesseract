@@ -371,9 +371,8 @@ public class ScrollView {
     intPattern = Pattern.compile("[0-9-][0-9]*");
     floatPattern = Pattern.compile("[0-9-][0-9]*\\.[0-9]*");
 
-    try {
-      // Open a socket to listen on.
-      ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+    // Open a socket to listen on.
+    try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
       System.out.println("Socket started on port " + SERVER_PORT);
 
       // Wait (blocking) for an incoming connection
