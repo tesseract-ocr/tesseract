@@ -90,7 +90,8 @@ Pix* CairoARGB32ToPixFormat(cairo_surface_t *surface) {
 
 StringRenderer::StringRenderer(const std::string& font_desc, int page_width,
                                int page_height)
-    : page_width_(page_width),
+    : font_(font_desc),
+      page_width_(page_width),
       page_height_(page_height),
       h_margin_(50),
       v_margin_(50),
@@ -118,7 +119,6 @@ StringRenderer::StringRenderer(const std::string& font_desc, int page_width,
       total_chars_(0),
       font_index_(0),
       last_offset_(0) {
-  set_font(font_desc);
   set_resolution(kDefaultOutputResolution);
 }
 
