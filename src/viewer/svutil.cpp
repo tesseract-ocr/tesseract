@@ -279,6 +279,8 @@ void SVNetwork::Close() {
 #else
   close(stream_);
 #endif
+  // Mark stream_ as invalid.
+  stream_ = -1;
 }
 
 
@@ -448,6 +450,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
 }
 
 SVNetwork::~SVNetwork() {
+  Close();
   delete[] msg_buffer_in_;
 }
 
