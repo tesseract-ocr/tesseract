@@ -34,40 +34,40 @@ class Plumbing : public Network {
   virtual ~Plumbing();
 
   // Returns the required shape input to the network.
-  virtual StaticShape InputShape() const { return stack_[0]->InputShape(); }
-  virtual STRING spec() const {
+  StaticShape InputShape() const override { return stack_[0]->InputShape(); }
+  STRING spec() const override {
     return "Sub-classes of Plumbing must implement spec()!";
   }
 
   // Returns true if the given type is derived from Plumbing, and thus contains
   // multiple sub-networks that can have their own learning rate.
-  virtual bool IsPlumbingType() const { return true; }
+  bool IsPlumbingType() const override { return true; }
 
   // Suspends/Enables training by setting the training_ flag. Serialize and
   // DeSerialize only operate on the run-time data if state is false.
-  virtual void SetEnableTraining(TrainingState state);
+  void SetEnableTraining(TrainingState state) override;
 
   // Sets flags that control the action of the network. See NetworkFlags enum
   // for bit values.
-  virtual void SetNetworkFlags(uint32_t flags);
+  void SetNetworkFlags(uint32_t flags) override;
 
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
   // Note that randomizer is a borrowed pointer that should outlive the network
   // and should not be deleted by any of the networks.
   // Returns the number of weights initialized.
-  virtual int InitWeights(float range, TRand* randomizer);
+  int InitWeights(float range, TRand* randomizer) override;
   // Recursively searches the network for softmaxes with old_no outputs,
   // and remaps their outputs according to code_map. See network.h for details.
   int RemapOutputs(int old_no, const std::vector<int>& code_map) override;
 
   // Converts a float network to an int network.
-  virtual void ConvertToInt();
+  void ConvertToInt() override;
 
   // Provides a pointer to a TRand for any networks that care to use it.
   // Note that randomizer is a borrowed pointer that should outlive the network
   // and should not be deleted by any of the networks.
-  virtual void SetRandomizer(TRand* randomizer);
+  void SetRandomizer(TRand* randomizer) override;
 
   // Adds the given network to the stack.
   virtual void AddToStack(Network* network);
@@ -75,7 +75,7 @@ class Plumbing : public Network {
   // Sets needs_to_backprop_ to needs_backprop and returns true if
   // needs_backprop || any weights in this network so the next layer forward
   // can be told to produce backprop for this layer if needed.
-  virtual bool SetupNeedsBackprop(bool needs_backprop);
+  bool SetupNeedsBackprop(bool needs_backprop) override;
 
   // Returns an integer reduction factor that the network applies to the
   // time sequence. Assumes that any 2-d is already eliminated. Used for
@@ -83,14 +83,14 @@ class Plumbing : public Network {
   // WARNING: if GlobalMinimax is used to vary the scale, this will return
   // the last used scale factor. Call it before any forward, and it will return
   // the minimum scale factor of the paths through the GlobalMinimax.
-  virtual int XScaleFactor() const;
+  int XScaleFactor() const override;
 
   // Provides the (minimum) x scale factor to the network (of interest only to
   // input units) so they can determine how to scale bounding boxes.
-  virtual void CacheXScaleFactor(int factor);
+  void CacheXScaleFactor(int factor) override;
 
   // Provides debug output on the weights.
-  virtual void DebugWeights();
+  void DebugWeights() override;
 
   // Returns the current stack.
   const PointerVector<Network>& stack() const {
@@ -117,9 +117,9 @@ class Plumbing : public Network {
   float* LayerLearningRatePtr(const char* id) const;
 
   // Writes to the given file. Returns false in case of error.
-  virtual bool Serialize(TFile* fp) const;
+  bool Serialize(TFile* fp) const override;
   // Reads from the given file. Returns false in case of error.
-  virtual bool DeSerialize(TFile* fp);
+  bool DeSerialize(TFile* fp) override;
 
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
@@ -128,8 +128,8 @@ class Plumbing : public Network {
   // Sums the products of weight updates in *this and other, splitting into
   // positive (same direction) in *same and negative (different direction) in
   // *changed.
-  virtual void CountAlternators(const Network& other, double* same,
-                                double* changed) const;
+  void CountAlternators(const Network& other, double* same,
+                        double* changed) const override;
 
  protected:
   // The networks.
