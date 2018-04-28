@@ -35,6 +35,7 @@ projects:
         type: lib
         export_all_symbols: true
         files:
+          - src/api/tess_version.h.in
           - src/api/.*\.cpp
           - src/arch/.*\.cpp
           - src/ccmain/.*\.cpp
