@@ -39,7 +39,7 @@ enum ClassifierName {
   CN_COUNT
 };
 
-const char* names[] = {"pruner", "full", nullptr};
+static const char* names[] = {"pruner", "full"};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
     const char* classifer_name, const UNICHARSET& unicharset,
@@ -83,9 +83,6 @@ static tesseract::ShapeClassifier* InitializeClassifier(
     shape_classifier = new tesseract::TessClassifier(true, classify);
   } else if (classifier == CN_FULL) {
     shape_classifier = new tesseract::TessClassifier(false, classify);
-  } else {
-    fprintf(stderr, "%s tester not yet implemented\n", classifer_name);
-    return nullptr;
   }
   tprintf("Testing classifier %s:\n", classifer_name);
   return shape_classifier;
