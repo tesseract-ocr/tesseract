@@ -43,11 +43,11 @@ namespace tesseract {
 class LMPainPoints;
 struct FontInfo;
 
-#if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(ANDROID)
+#if defined(ANDROID)
 static inline double log2(double n) {
   return log(n) / log(2.0);
 }
-#endif  // _MSC_VER
+#endif // ANDROID
 
 const float LanguageModel::kMaxAvgNgramCost = 25.0f;
 
