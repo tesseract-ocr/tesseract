@@ -17,10 +17,6 @@
  *
  **********************************************************************/
 
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#endif
-
 #include <string.h>
 #include <ctype.h>
 #ifdef __UNIX__

@@ -25,10 +25,7 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#pragma warning(disable:4800)  // int/bool warnings
-#endif
+
 #include "trie.h"
 
 #include "callcpp.h"
