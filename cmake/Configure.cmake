@@ -88,7 +88,6 @@ set(include_files_list
     stdbool.h
     stdint.h
     stdlib.h
-    strings.h
     string.h
     sys/ipc.h
     sys/shm.h
