@@ -31,7 +31,7 @@ class Input : public Network {
   Input(const STRING& name, const StaticShape& shape);
   virtual ~Input();
 
-  virtual STRING spec() const {
+  STRING spec() const override {
     STRING spec;
     spec.add_str_int("", shape_.batch());
     spec.add_str_int(",", shape_.height());
@@ -41,17 +41,17 @@ class Input : public Network {
   }
 
   // Returns the required shape input to the network.
-  virtual StaticShape InputShape() const { return shape_; }
+  StaticShape InputShape() const override { return shape_; }
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  virtual StaticShape OutputShape(const StaticShape& input_shape) const {
+  StaticShape OutputShape(const StaticShape& input_shape) const override {
     return shape_;
   }
   // Writes to the given file. Returns false in case of error.
   // Should be overridden by subclasses, but called by their Serialize.
-  virtual bool Serialize(TFile* fp) const;
+  bool Serialize(TFile* fp) const override;
   // Reads from the given file. Returns false in case of error.
-  virtual bool DeSerialize(TFile* fp);
+  bool DeSerialize(TFile* fp) override;
 
   // Returns an integer reduction factor that the network applies to the
   // time sequence. Assumes that any 2-d is already eliminated. Used for
@@ -59,23 +59,23 @@ class Input : public Network {
   // WARNING: if GlobalMinimax is used to vary the scale, this will return
   // the last used scale factor. Call it before any forward, and it will return
   // the minimum scale factor of the paths through the GlobalMinimax.
-  virtual int XScaleFactor() const;
+  int XScaleFactor() const override;
 
   // Provides the (minimum) x scale factor to the network (of interest only to
   // input units) so they can determine how to scale bounding boxes.
-  virtual void CacheXScaleFactor(int factor);
+  void CacheXScaleFactor(int factor) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  virtual void Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output);
+  void Forward(bool debug, const NetworkIO& input,
+               const TransposedArray* input_transpose,
+               NetworkScratch* scratch, NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas);
+  bool Backward(bool debug, const NetworkIO& fwd_deltas,
+                NetworkScratch* scratch,
+                NetworkIO* back_deltas) override;
   // Creates and returns a Pix of appropriate size for the network from the
   // image_data. If non-null, *image_scale returns the image scale factor used.
   // Returns nullptr on error.

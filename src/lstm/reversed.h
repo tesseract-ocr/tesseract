@@ -32,9 +32,9 @@ class Reversed : public Plumbing {
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  virtual StaticShape OutputShape(const StaticShape& input_shape) const;
+  StaticShape OutputShape(const StaticShape& input_shape) const override;
 
-  virtual STRING spec() const {
+  STRING spec() const override {
     STRING spec(type_ == NT_XREVERSED ? "Rx"
                                       : (type_ == NT_YREVERSED ? "Ry" : "Txy"));
     // For most simple cases, we will output Rx<net> or Ry<net> where <net> is
@@ -69,15 +69,15 @@ class Reversed : public Plumbing {
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  virtual void Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output);
+  void Forward(bool debug, const NetworkIO& input,
+               const TransposedArray* input_transpose,
+               NetworkScratch* scratch, NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas);
+  bool Backward(bool debug, const NetworkIO& fwd_deltas,
+                NetworkScratch* scratch,
+                NetworkIO* back_deltas) override;
 
  private:
   // Copies src to *dest with the reversal according to type_.

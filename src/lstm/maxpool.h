@@ -32,7 +32,7 @@ class Maxpool : public Reconfig {
   virtual ~Maxpool();
 
   // Accessors.
-  virtual STRING spec() const {
+  STRING spec() const override {
     STRING spec;
     spec.add_str_int("Mp", y_scale_);
     spec.add_str_int(",", x_scale_);
@@ -40,19 +40,19 @@ class Maxpool : public Reconfig {
   }
 
   // Reads from the given file. Returns false in case of error.
-  virtual bool DeSerialize(TFile* fp);
+  bool DeSerialize(TFile* fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  virtual void Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output);
+  void Forward(bool debug, const NetworkIO& input,
+               const TransposedArray* input_transpose,
+               NetworkScratch* scratch, NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas);
+  bool Backward(bool debug, const NetworkIO& fwd_deltas,
+                NetworkScratch* scratch,
+                NetworkIO* back_deltas) override;
 
  private:
   // Memory of which input was the max.
