@@ -20,7 +20,7 @@ endif
 
 SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
-SUBDIRS += src/ccmain src/api . tessdata doc unittest
+SUBDIRS += src/ccmain src/api . tessdata doc test/unittest examples
 
 EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \

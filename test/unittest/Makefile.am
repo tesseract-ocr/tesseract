@@ -5,8 +5,10 @@ TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (must be directly below top source directory).
 TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/testing
+TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
+AM_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 AM_CPPFLAGS += -I$(top_builddir)/src/api
@@ -26,9 +28,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la
-libgtest_la_SOURCES = ../googletest/googletest/src/gtest-all.cc
+libgtest_la_SOURCES = ../../googletest/googletest/src/gtest-all.cc
 libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread 
-libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
+libgtest_main_la_SOURCES = ../../googletest/googletest/src/gtest_main.cc
 ## libgtest_main_la_LIBADD = libgtest.la
 
 # Build unittests
@@ -72,12 +74,3 @@ matrix_test_LDADD += -lws2_32
 osd_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
 endif
-
-EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/testing/phototest.tif
-EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/testing/phototest.txt
-
-$(abs_top_builddir)/testing/phototest.tif:
-	ln -s $(top_srcdir)/testing/phototest.tif $(top_builddir)/testing/phototest.tif
-
-$(abs_top_builddir)/testing/phototest.txt:
-	ln -s $(top_srcdir)/testing/phototest.txt $(top_builddir)/testing/phototest.txt

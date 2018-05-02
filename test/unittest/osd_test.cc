@@ -62,55 +62,55 @@ class TestClass : public testing::Test {
   INSTANTIATE_TEST_CASE_P( TessdataEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values(TESTING_DIR "/phototest.tif",
-                                          TESTING_DIR "/eurotext.tif",
+                        ::testing::Values(TESTDATA_DIR "/phototest.png",
+                                          TESTDATA_DIR "/eurotext.png",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR)));
                         
   INSTANTIATE_TEST_CASE_P( TessdataBestEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values(TESTING_DIR "/phototest.tif",
-                                          TESTING_DIR "/eurotext.tif",
+                        ::testing::Values(TESTDATA_DIR "/phototest.png",
+                                          TESTDATA_DIR "/eurotext.png",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR "_best")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastEngEuroHebrew, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values(TESTING_DIR "/phototest.tif",
-                                          TESTING_DIR "/eurotext.tif",
+                        ::testing::Values(TESTDATA_DIR "/phototest.png",
+                                          TESTDATA_DIR "/eurotext.png",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated90, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(90),
-                        ::testing::Values(TESTING_DIR "/phototest-rotated-R.png"),
+                        ::testing::Values(TESTDATA_DIR "/phototest-rotated-R.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated180, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(180),
-                        ::testing::Values(TESTING_DIR "/phototest-rotated-180.png"),
+                        ::testing::Values(TESTDATA_DIR "/phototest-rotated-180.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastRotated270, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(270),
-                        ::testing::Values(TESTING_DIR "/phototest-rotated-L.png"),
+                        ::testing::Values(TESTDATA_DIR "/phototest-rotated-L.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastDevaRotated270, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(270),
-                        ::testing::Values(TESTING_DIR "/devatest-rotated-270.png"),
+                        ::testing::Values(TESTDATA_DIR "/devatest-rotated-270.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
   INSTANTIATE_TEST_CASE_P( TessdataFastDeva, OSDTest, 
                         ::testing::Combine(
                         ::testing::Values(0),
-                        ::testing::Values(TESTING_DIR "/devatest.png"),
+                        ::testing::Values(TESTDATA_DIR "/devatest.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
                         
 }  // namespace
