@@ -120,6 +120,7 @@ StringRenderer::StringRenderer(const std::string& font_desc, int page_width,
       font_index_(0),
       last_offset_(0) {
   set_resolution(kDefaultOutputResolution);
+  set_font(font_desc);
 }
 
 bool StringRenderer::set_font(const std::string& desc) {
