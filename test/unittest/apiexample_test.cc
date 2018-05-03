@@ -54,7 +54,7 @@ class QuickTest : public testing::Test {
     ASSERT_TRUE(image != nullptr) << "Failed to read test image.";
     api->SetImage(image);
     outText = api->GetUTF8Text();
-    EXPECT_EQ(gtText,outText) << "Phototest.tif OCR does not match ground truth for " << ::testing::PrintToString(lang);
+    EXPECT_EQ(gtText,outText) << "Phototest.png OCR does not match ground truth for " << ::testing::PrintToString(lang);
     api->End();
     delete [] outText;
     pixDestroy(&image);
@@ -65,8 +65,8 @@ class QuickTest : public testing::Test {
   };
   
   TEST_P(MatchGroundTruth, FastPhototestOCR) {
-    OCRTester(TESTING_DIR "/phototest.tif",
-              TESTING_DIR "/phototest.txt",
+    OCRTester(TESTDATA_DIR "/phototest.png",
+              TESTDATA_DIR "/phototest.txt",
               TESSDATA_DIR "_fast", GetParam());
   }
   
@@ -77,8 +77,8 @@ class QuickTest : public testing::Test {
   };
   
   TEST_F(EuroText, FastOCR) {
-    OCRTester(TESTING_DIR "/eurotext.tif",
-              TESTING_DIR "/eurotext.txt",
+    OCRTester(TESTDATA_DIR "/eurotext.png",
+              TESTDATA_DIR "/eurotext.txt",
               TESSDATA_DIR "_fast", "script/Latin");
   }
   
