@@ -39,14 +39,14 @@ class TFNetwork : public Network {
   virtual ~TFNetwork();
 
   // Returns the required shape input to the network.
-  virtual StaticShape InputShape() const { return input_shape_; }
+  StaticShape InputShape() const override { return input_shape_; }
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  virtual StaticShape OutputShape(const StaticShape& input_shape) const {
+  StaticShape OutputShape(const StaticShape& input_shape) const override {
     return output_shape_;
   }
 
-  virtual STRING spec() const { return spec_.c_str(); }
+  STRING spec() const override { return spec_.c_str(); }
 
   // Deserializes *this from a serialized TFNetwork proto. Returns 0 if failed,
   // otherwise the global step of the serialized graph.
@@ -57,16 +57,16 @@ class TFNetwork : public Network {
 
   // Writes to the given file. Returns false in case of error.
   // Should be overridden by subclasses, but called by their Serialize.
-  virtual bool Serialize(TFile* fp) const;
+  bool Serialize(TFile* fp) const override;
   // Reads from the given file. Returns false in case of error.
   // Should be overridden by subclasses, but NOT called by their DeSerialize.
-  virtual bool DeSerialize(TFile* fp);
+  bool DeSerialize(TFile* fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  virtual void Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output);
+  void Forward(bool debug, const NetworkIO& input,
+               const TransposedArray* input_transpose,
+               NetworkScratch* scratch, NetworkIO* output) override;
 
  private:
   int InitFromProto();

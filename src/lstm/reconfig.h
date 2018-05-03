@@ -37,9 +37,9 @@ class Reconfig : public Network {
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
-  virtual StaticShape OutputShape(const StaticShape& input_shape) const;
+  StaticShape OutputShape(const StaticShape& input_shape) const override;
 
-  virtual STRING spec() const {
+  STRING spec() const override {
     STRING spec;
     spec.add_str_int("S", y_scale_);
     spec.add_str_int(",", x_scale_);
@@ -52,24 +52,24 @@ class Reconfig : public Network {
   // WARNING: if GlobalMinimax is used to vary the scale, this will return
   // the last used scale factor. Call it before any forward, and it will return
   // the minimum scale factor of the paths through the GlobalMinimax.
-  virtual int XScaleFactor() const;
+  int XScaleFactor() const override;
 
   // Writes to the given file. Returns false in case of error.
-  virtual bool Serialize(TFile* fp) const;
+  bool Serialize(TFile* fp) const override;
   // Reads from the given file. Returns false in case of error.
-  virtual bool DeSerialize(TFile* fp);
+  bool DeSerialize(TFile* fp) override;
 
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
-  virtual void Forward(bool debug, const NetworkIO& input,
-                       const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output);
+  void Forward(bool debug, const NetworkIO& input,
+               const TransposedArray* input_transpose,
+               NetworkScratch* scratch, NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
-  virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas);
+  bool Backward(bool debug, const NetworkIO& fwd_deltas,
+                NetworkScratch* scratch,
+                NetworkIO* back_deltas) override;
 
  protected:
   // Non-serialized data used to store parameters between forward and back.
