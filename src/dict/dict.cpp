@@ -21,9 +21,6 @@
 #include "dict.h"
 #include "unicodes.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#endif
 #include "tprintf.h"
 
 namespace tesseract {

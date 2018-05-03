@@ -17,10 +17,6 @@
  *
  **********************************************************************/
 
-#ifdef _MSC_VER
-#pragma warning(disable:4244)  // Conversion warnings
-#endif
-
 #include "mfoutline.h"
 #include "tessbox.h"
 #include "tesseractclass.h"
