@@ -42,14 +42,12 @@ Input::~Input() {
 
 // Writes to the given file. Returns false in case of error.
 bool Input::Serialize(TFile* fp) const {
-  if (!Network::Serialize(fp)) return false;
-  if (fp->FWrite(&shape_, sizeof(shape_), 1) != 1) return false;
-  return true;
+  return Network::Serialize(fp) && shape_.Serialize(fp);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Input::DeSerialize(TFile* fp) {
-  return fp->FReadEndian(&shape_, sizeof(shape_), 1) == 1;
+  return shape_.DeSerialize(fp);
 }
 
 // Returns an integer reduction factor that the network applies to the
