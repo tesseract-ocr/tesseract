@@ -25,6 +25,7 @@
 #ifndef TESSERACT_CCUTIL_HELPERS_H_
 #define TESSERACT_CCUTIL_HELPERS_H_
 
+#include <cassert>
 #include <stdio.h>
 #include <string.h>
 #include <functional>
@@ -187,6 +188,7 @@ inline int IntCastRounded(float x) {
 
 // Reverse the order of bytes in a n byte quantity for big/little-endian switch.
 inline void ReverseN(void* ptr, int num_bytes) {
+  assert(num_bytes == 1 || num_bytes == 2 || num_bytes == 4 || num_bytes == 8);
   char* cptr = static_cast<char*>(ptr);
   int halfsize = num_bytes / 2;
   for (int i = 0; i < halfsize; ++i) {

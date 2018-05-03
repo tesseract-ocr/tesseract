@@ -59,18 +59,40 @@ class StaticShape {
             height_, width_, depth_, loss_type_);
   }
 
+  bool DeSerialize(TFile *fp) {
+    int32_t tmp;
+    bool result =
+      fp->FReadEndian(&batch_, sizeof(batch_), 1) == 1 &&
+      fp->FReadEndian(&height_, sizeof(height_), 1) == 1 &&
+      fp->FReadEndian(&width_, sizeof(width_), 1) == 1 &&
+      fp->FReadEndian(&depth_, sizeof(depth_), 1) == 1 &&
+      fp->FReadEndian(&tmp, sizeof(tmp), 1) == 1;
+    loss_type_ = static_cast<LossType>(tmp);
+    return result;
+  }
+
+  bool Serialize(TFile *fp) const {
+    int32_t tmp = loss_type_;
+    return
+      fp->FWrite(&batch_, sizeof(batch_), 1) == 1 &&
+      fp->FWrite(&height_, sizeof(height_), 1) == 1 &&
+      fp->FWrite(&width_, sizeof(width_), 1) == 1 &&
+      fp->FWrite(&depth_, sizeof(depth_), 1) == 1 &&
+      fp->FWrite(&tmp, sizeof(tmp), 1) == 1;
+  }
+
  private:
   // Size of the 4-D tensor input/output to a network. A value of zero is
   // allowed for all except depth_ and means to be determined at runtime, and
   // regarded as variable.
   // Number of elements in a batch, or number of frames in a video stream.
-  int batch_;
+  int32_t batch_;
   // Height of the image.
-  int height_;
+  int32_t height_;
   // Width of the image.
-  int width_;
+  int32_t width_;
   // Depth of the image. (Number of "nodes").
-  int depth_;
+  int32_t depth_;
   // How to train/interpret the output.
   LossType loss_type_;
 };
