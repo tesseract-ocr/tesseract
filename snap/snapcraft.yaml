@@ -19,7 +19,6 @@ parts:
     source: .
     plugin: autotools
     build-packages:
-      - autoconf-archive
       - pkg-config
       - libpng12-dev
       - libjpeg8-dev

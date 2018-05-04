@@ -10,7 +10,6 @@ You need Leptonica 1.74.2 (minimum) for Tesseract 4.0x.
 
 Known dependencies for training tools (excluding leptonica):
  * compiler with c++11 support
- * autoconf-archive
  * automake
  * pkg-config
  * pango-devel
