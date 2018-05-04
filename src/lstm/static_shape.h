@@ -60,7 +60,7 @@ class StaticShape {
   }
 
   bool DeSerialize(TFile *fp) {
-    int32_t tmp;
+    int32_t tmp = LT_NONE;
     bool result =
       fp->FReadEndian(&batch_, sizeof(batch_), 1) == 1 &&
       fp->FReadEndian(&height_, sizeof(height_), 1) == 1 &&
