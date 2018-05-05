@@ -1,3 +1,4 @@
+///////////////////////////////////////////////////////////////////////
 // File:        osd_test.cc
 // Description: OSD Tests for Tesseract.
 // Author:      ShreeDevi Kumar
@@ -17,7 +18,7 @@
 
 // expects clones of tessdata, tessdata_fast and tessdata_best repos
 
-#include "log.h"
+//#include "log.h"
 #include "include_gunit.h"
 #include "baseapi.h"
 #include "leptonica/allheaders.h"
@@ -31,7 +32,7 @@ class TestClass : public testing::Test {
   };
   
   void OSDTester( int expected_deg, const char* imgname, const char* tessdatadir) {
-    log.info() << tessdatadir << " for image: " << imgname << std::endl;
+    //log.info() << tessdatadir << " for image: " << imgname << std::endl;
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
     ASSERT_FALSE(api->Init(tessdatadir, "osd")) << "Could not initialize tesseract.";
     Pix *image = pixRead(imgname);
