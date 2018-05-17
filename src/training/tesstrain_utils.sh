@@ -522,6 +522,14 @@ make__lstmdata() {
     --puncs "${lang_prefix}.punc" \
     --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
     "${pass_through}" "${lang_is_rtl}"
+  for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
+    tlog "Moving ${f} to ${OUTPUT_DIR}"
+    mv "${f}" "${OUTPUT_DIR}"
+  done
+  for f in "${TRAINING_DIR}/${LANG_CODE}".*.tif; do
+    tlog "Moving ${f} to ${OUTPUT_DIR}"
+    mv "${f}" "${OUTPUT_DIR}"
+  done
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
     mv "${f}" "${OUTPUT_DIR}"
