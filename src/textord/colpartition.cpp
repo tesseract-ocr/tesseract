@@ -164,6 +164,8 @@ ColPartition* ColPartition::MakeLinePartition(BlobRegionType blob_type,
   part->median_bottom_ = bottom;
   part->median_top_ = top;
   part->median_size_ = top - bottom;
+  part->median_left_ = left;
+  part->median_right_ = right;
   part->median_width_ = right - left;
   part->left_key_ = part->BoxLeftKey();
   part->right_key_ = part->BoxRightKey();
