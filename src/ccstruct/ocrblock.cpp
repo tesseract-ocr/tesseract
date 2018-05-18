@@ -39,8 +39,8 @@ BLOCK::BLOCK(const char *name,                //< filename
              int16_t xmin,                      //< bottom left
              int16_t ymin, int16_t xmax,          //< top right
              int16_t ymax)
-  : filename(name),
-    pdblk(xmin, ymin, xmax, ymax),
+  : pdblk(xmin, ymin, xmax, ymax),
+    filename(name),
     re_rotation_(1.0f, 0.0f),
     classify_rotation_(1.0f, 0.0f),
     skew_(1.0f, 0.0f) {
