@@ -27,8 +27,8 @@
 #include "params.h"
 #include "classify.h"
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 /*----------------------------------------------------------------------------
               Public Code

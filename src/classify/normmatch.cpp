@@ -20,8 +20,8 @@
 ----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include "classify.h"
 #include "clusttool.h"

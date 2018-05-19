@@ -20,7 +20,7 @@
 #ifndef           OCRROW_H
 #define           OCRROW_H
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "quspline.h"
 #include "werd.h"

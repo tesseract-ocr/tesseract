@@ -23,7 +23,7 @@
 
 #include "tessdatamanager.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "helpers.h"
 #include "serialis.h"

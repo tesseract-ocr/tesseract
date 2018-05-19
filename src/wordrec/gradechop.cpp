@@ -29,7 +29,7 @@
 #include "wordrec.h"
 #include "chop.h"
 #include "ndminx.h"
-#include <math.h>
+#include <cmath>
 
 /*----------------------------------------------------------------------
               M a c r o s

@@ -19,11 +19,11 @@
 ///////////////////////////////////////////////////////////////////////
 
 
-#include <stdio.h>
+#include <cstdio>
 #ifdef __UNIX__
 #include <assert.h>
 #endif
-#include <math.h>
+#include <cmath>
 
 #include "associate.h"
 #include "normalis.h"

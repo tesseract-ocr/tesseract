@@ -11,7 +11,7 @@
 #ifndef TESSERACT_OPENCL_OPENCLWRAPPER_H_
 #define TESSERACT_OPENCL_OPENCLWRAPPER_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include "allheaders.h"
 #include "pix.h"
 #include "tprintf.h"

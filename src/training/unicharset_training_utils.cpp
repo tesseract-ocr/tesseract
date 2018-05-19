@@ -19,8 +19,8 @@
 
 #include "unicharset_training_utils.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 

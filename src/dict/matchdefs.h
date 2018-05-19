@@ -22,7 +22,7 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "host.h"
-#include <stdio.h>
+#include <cstdio>
 #include "unichar.h"
 
 /* define the maximum number of classes defined for any matcher

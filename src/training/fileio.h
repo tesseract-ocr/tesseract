@@ -17,7 +17,7 @@
 #ifndef TESSERACT_TRAINING_FILEIO_H_
 #define TESSERACT_TRAINING_FILEIO_H_
 
-#include <stddef.h>
+#include <cstddef>
 #include <cstdio>
 #include <string>
 

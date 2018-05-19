@@ -30,10 +30,10 @@
 #include "config_auto.h"
 #endif
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #ifdef _WIN32
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

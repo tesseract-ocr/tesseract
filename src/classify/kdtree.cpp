@@ -24,8 +24,8 @@
 #include "kdtree.h"
 #include "const.h"
 #include "emalloc.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #define Magnitude(X)    ((X) < 0 ? -(X) : (X))
 #define NodeFound(N,K,D)  (( (N)->Key == (K) ) && ( (N)->Data == (D) ))

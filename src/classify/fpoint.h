@@ -22,8 +22,8 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "host.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 /* define data structure to hold 2D points or vectors using floating point */
 typedef struct

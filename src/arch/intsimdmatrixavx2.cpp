@@ -20,7 +20,7 @@
 
 #ifdef __AVX2__
 #include <immintrin.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <vector>
 

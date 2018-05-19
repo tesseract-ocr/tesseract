@@ -20,7 +20,7 @@
 ----------------------------------------------------------------------------*/
 #include "cutoffs.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "classify.h"
 #include "efio.h"

@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_SORTHELPER_H_
 #define TESSERACT_CCUTIL_SORTHELPER_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "genericvector.h"
 
 // Generic class to provide functions based on a <value,count> pair.

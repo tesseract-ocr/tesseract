@@ -19,9 +19,9 @@
 #ifndef TESSERACT_CCUTIL_SCANUTILS_H_
 #define TESSERACT_CCUTIL_SCANUTILS_H_
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstddef>
+#include <cstdio>
 #include <sys/stat.h>
 
 /**

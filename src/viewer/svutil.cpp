@@ -20,7 +20,7 @@
 // SVUtil contains the SVSync and SVNetwork classes, which are used for
 // thread/process creation & synchronization and network connection.
 
-#include <stdio.h>
+#include <cstdio>
 #ifdef _WIN32
 #include <windows.h>
 struct addrinfo {
@@ -37,8 +37,8 @@ struct addrinfo {
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <sys/select.h>
 #include <sys/socket.h>
 #ifdef __linux__

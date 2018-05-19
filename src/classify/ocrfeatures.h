@@ -23,7 +23,7 @@
 ----------------------------------------------------------------------------**/
 #include "blobs.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 class DENORM;
 struct INT_FX_RESULT_STRUCT;

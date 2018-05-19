@@ -28,7 +28,7 @@
 #ifndef GRAPHICS_DISABLED
 #include "scrollview.h"
 #include "svmnode.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 
 // The current color values we use, initially white (== ScrollView::WHITE).

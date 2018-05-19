@@ -20,7 +20,7 @@
 #ifndef           TESSVARS_H
 #define           TESSVARS_H
 
-#include <stdio.h>
+#include <cstdio>
 
 
 extern FILE *debug_fp;    // write debug stuff here

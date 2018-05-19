@@ -27,7 +27,7 @@
 
 #include "baselinedetect.h"
 
-#include <math.h>
+#include <cmath>
 #include "allheaders.h"
 #include "blobbox.h"
 #include "detlinefit.h"

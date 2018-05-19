@@ -29,7 +29,7 @@
 #ifndef TESSERACT_CCSTRUCT_MATRIX_H_
 #define TESSERACT_CCSTRUCT_MATRIX_H_
 
-#include <math.h>
+#include <cmath>
 #include "kdpair.h"
 #include "points.h"
 #include "serialis.h"

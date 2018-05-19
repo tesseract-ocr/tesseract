@@ -24,7 +24,7 @@
 #include "matrix.h"
 #include "tprintf.h"
 #include "danerror.h"
-#include <math.h>
+#include <cmath>
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
 #define FTABLE_X 10  // Size of FTable.

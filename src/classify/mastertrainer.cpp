@@ -25,8 +25,8 @@
 #endif
 
 #include "mastertrainer.h"
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 #include "allheaders.h"
 #include "boxread.h"
 #include "classify.h"

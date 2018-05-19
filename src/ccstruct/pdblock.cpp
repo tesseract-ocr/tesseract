@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "pdblock.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <memory>  // std::unique_ptr
 #include "allheaders.h"
 #include "blckerr.h"

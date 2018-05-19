@@ -27,9 +27,9 @@
 #undef __STRICT_ANSI__
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #ifndef _MSC_VER
 #include <sys/param.h>
 #endif

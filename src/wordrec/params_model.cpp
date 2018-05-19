@@ -20,8 +20,8 @@
 #include "params_model.h"
 
 #include <ctype.h>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #include "bitvector.h"
 #include "tprintf.h"

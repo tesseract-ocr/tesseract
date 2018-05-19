@@ -36,7 +36,7 @@
 #include "helpers.h"
 #include "classify.h"
 #include "shapetable.h"
-#include <math.h>
+#include <cmath>
 
 using tesseract::ScoredFont;
 using tesseract::UnicharRating;

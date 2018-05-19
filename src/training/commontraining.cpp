@@ -14,7 +14,7 @@
 #include "commontraining.h"
 
 #include <assert.h>
-#include <math.h>
+#include <cmath>
 
 #include "allheaders.h"
 #include "ccutil.h"

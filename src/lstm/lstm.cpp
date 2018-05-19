@@ -21,8 +21,8 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #if !defined(__GNUC__) && defined(_MSC_VER)
 #include <intrin.h>     // _BitScanReverse

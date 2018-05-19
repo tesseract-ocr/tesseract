@@ -22,7 +22,7 @@
 #endif
 
 #include "tablefind.h"
-#include <math.h>
+#include <cmath>
 
 #include "allheaders.h"
 

@@ -18,7 +18,7 @@
 
 #include "reversed.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "networkscratch.h"
 

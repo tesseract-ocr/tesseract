@@ -24,7 +24,7 @@
 #include "mfdefs.h"
 #include "mfx.h"
 
-#include <math.h>
+#include <cmath>
 
 /*----------------------------------------------------------------------------
         Global Data Definitions and Declarations

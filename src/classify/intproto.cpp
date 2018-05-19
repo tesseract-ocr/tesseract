@@ -19,9 +19,9 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <stdio.h>
-#include <assert.h>
+#include <cmath>
+#include <cstdio>
+#include <cassert>
 #ifdef __UNIX__
 #include <unistd.h>
 #endif

@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include <math.h>
+#include <cmath>
 
 #include "blamer.h"
 #include "errcode.h"

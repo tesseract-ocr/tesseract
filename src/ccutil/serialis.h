@@ -20,9 +20,9 @@
 #ifndef SERIALIS_H
 #define SERIALIS_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 #include "host.h"
 
 template <typename T> class GenericVector;

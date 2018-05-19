@@ -36,9 +36,9 @@ Import original HP distribution
 /*----------------------------------------------------------------------
                      I n c l u d e s
 ----------------------------------------------------------------------*/
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 #include "host.h"
 #include "tprintf.h"

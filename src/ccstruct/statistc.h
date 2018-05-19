@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCSTRUCT_STATISTC_H_
 #define TESSERACT_CCSTRUCT_STATISTC_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include "host.h"
 #include "kdpair.h"
 #include "scrollview.h"

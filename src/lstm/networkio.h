@@ -19,8 +19,8 @@
 #ifndef TESSERACT_LSTM_NETWORKIO_H_
 #define TESSERACT_LSTM_NETWORKIO_H_
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <vector>
 
 #include "genericvector.h"

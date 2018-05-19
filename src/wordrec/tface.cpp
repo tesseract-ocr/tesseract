@@ -28,7 +28,7 @@
 #include "featdefs.h"
 #include "params_model.h"
 
-#include <math.h>
+#include <cmath>
 #ifdef __UNIX__
 #include <unistd.h>
 #endif

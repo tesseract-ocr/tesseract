@@ -20,7 +20,7 @@
 #define TESSERACT_CLASSIFY_CLUSTTOOL_H_
 
 //--------------------------Include Files---------------------------------------
-#include <stdio.h>
+#include <cstdio>
 #include "cluster.h"
 #include "host.h"
 #include "serialis.h"

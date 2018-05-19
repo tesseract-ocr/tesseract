@@ -23,7 +23,7 @@
 
 #include "strokewidth.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "blobbox.h"
 #include "colpartition.h"

@@ -29,9 +29,9 @@
 #include "intproto.h"
 #include "params.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 /*-------------------once in subfeat---------------------------------*/
 double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");

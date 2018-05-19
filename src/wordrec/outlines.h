@@ -28,7 +28,7 @@
 #include "blobs.h"
 #include "chop.h"
 
-#include <math.h>
+#include <cmath>
 
 /*----------------------------------------------------------------------
               C o n s t a n t s

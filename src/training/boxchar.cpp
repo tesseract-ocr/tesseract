@@ -22,7 +22,7 @@
 
 #include "boxchar.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <algorithm>
 #include <vector>
 

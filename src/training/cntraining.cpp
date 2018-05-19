@@ -32,8 +32,8 @@
 #include "clusttool.h"
 #include "cluster.h"
 #include <string.h>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include "unichar.h"
 #include "commontraining.h"
 

@@ -42,7 +42,7 @@ Import original HP distribution
 #include "tprintf.h"
 #include "callcpp.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define RESET_COUNT 2000
 

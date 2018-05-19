@@ -23,7 +23,7 @@
 #include <unistd.h>
 #endif
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstdio>
 #include <string>
 

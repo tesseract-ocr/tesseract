@@ -20,8 +20,8 @@
 // Implementation for non-avx archs.
 
 #include "dotproductavx.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 namespace tesseract {
 double DotProductAVX(const double* u, const double* v, int n) {
@@ -33,7 +33,7 @@ double DotProductAVX(const double* u, const double* v, int n) {
 #else  // !defined(__AVX__)
 // Implementation for avx capable archs.
 #include <immintrin.h>
-#include <stdint.h>
+#include <cstdint>
 #include "dotproductavx.h"
 #include "host.h"
 

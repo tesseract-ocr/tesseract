@@ -20,7 +20,7 @@
 #ifndef ELST2_H
 #define ELST2_H
 
-#include <stdio.h>
+#include <cstdio>
 #include "host.h"
 #include "serialis.h"
 #include "lsterr.h"

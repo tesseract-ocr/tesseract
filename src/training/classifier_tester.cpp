@@ -16,7 +16,7 @@
 //            but doesn't have to be the same as the training data.
 //  Author:   Ray Smith
 
-#include <stdio.h>
+#include <cstdio>
 #ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
 #endif  // GOOGLE_TESSERACT

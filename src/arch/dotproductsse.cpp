@@ -20,8 +20,8 @@
 // This code can't compile with "-msse4.1", so use dummy stubs.
 
 #include "dotproductsse.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 namespace tesseract {
 double DotProductSSE(const double* u, const double* v, int n) {
@@ -39,7 +39,7 @@ int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
 
 #include <emmintrin.h>
 #include <smmintrin.h>
-#include <stdint.h>
+#include <cstdint>
 #include "dotproductsse.h"
 #include "host.h"
 

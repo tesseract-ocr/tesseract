@@ -23,13 +23,13 @@
 #include "config_auto.h"
 #endif
 
-#include <ctype.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <string.h>
-#include <limits.h>
-#include <stdio.h>
+#include <cctype>
+#include <cmath>
+#include <cstdarg>
+#include <cstddef>
+#include <cstring>
+#include <climits>
+#include <cstdio>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

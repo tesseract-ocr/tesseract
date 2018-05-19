@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "host.h"
 #include "elst2.h"
 

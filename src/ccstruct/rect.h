@@ -20,7 +20,7 @@
 #ifndef           RECT_H
 #define           RECT_H
 
-#include <math.h>
+#include <cmath>
 #include "points.h"
 #include "ndminx.h"
 #include "scrollview.h"

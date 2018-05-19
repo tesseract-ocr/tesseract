@@ -34,7 +34,7 @@
 // TODO(rays) Move ScrollView into the tesseract namespace.
 #ifndef OCR_SCROLLVIEW_H__
 
-#include <stdio.h>
+#include <cstdio>
 
 class ScrollView;
 class SVNetwork;

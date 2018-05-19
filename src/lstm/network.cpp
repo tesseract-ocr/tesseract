@@ -23,7 +23,7 @@
 
 #include "network.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // This base class needs to know about all its sub-classes because of the
 // factory deserializing method: CreateFromFile.
