@@ -20,16 +20,16 @@
 ----------------------------------------------------------------------------*/
 #include "const.h"
 #include "fpoint.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
 
 FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
-  double xd = XDelta(A, B);
-  double yd = YDelta(A, B);
+  const double xd = XDelta(A, B);
+  const double yd = YDelta(A, B);
   return sqrt(static_cast<double>(xd * xd + yd * yd));
 }
 

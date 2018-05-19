@@ -31,9 +31,9 @@ namespace tesseract {
 int TessClassifier::UnicharClassifySample(
     const TrainingSample& sample, Pix* page_pix, int debug,
     UNICHAR_ID keep_this, GenericVector<UnicharRating>* results) {
-  int old_matcher_level = classify_->matcher_debug_level;
-  int old_matcher_flags = classify_->matcher_debug_flags;
-  int old_classify_level = classify_->classify_debug_level;
+  const int old_matcher_level = classify_->matcher_debug_level;
+  const int old_matcher_flags = classify_->matcher_debug_flags;
+  const int old_classify_level = classify_->classify_debug_level;
   if (debug) {
     // Explicitly set values of various control parameters to generate debug
     // output if required, restoring the old values after classifying.

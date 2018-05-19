@@ -25,9 +25,9 @@
 #include "classify.h"
 
 #ifdef __UNIX__
-#include <assert.h>
+#include <cassert>
 #endif
-#include <stdio.h>
+#include <cstdio>
 
 using tesseract::TFile;
 
@@ -110,7 +110,6 @@ void FreePermConfig(PERM_CONFIG Config) {
  */
 ADAPT_CLASS NewAdaptedClass() {
   ADAPT_CLASS Class;
-  int i;
 
   Class = (ADAPT_CLASS) Emalloc (sizeof (ADAPT_CLASS_STRUCT));
   Class->NumPermConfigs = 0;
@@ -122,7 +121,7 @@ ADAPT_CLASS NewAdaptedClass() {
   zero_all_bits (Class->PermProtos, WordsInVectorOfSize (MAX_NUM_PROTOS));
   zero_all_bits (Class->PermConfigs, WordsInVectorOfSize (MAX_NUM_CONFIGS));
 
-  for (i = 0; i < MAX_NUM_CONFIGS; i++)
+  for (int i = 0; i < MAX_NUM_CONFIGS; i++)
     TempConfigFor (Class, i) = nullptr;
 
   return (Class);
@@ -132,9 +131,7 @@ ADAPT_CLASS NewAdaptedClass() {
 
 /*-------------------------------------------------------------------------*/
 void free_adapted_class(ADAPT_CLASS adapt_class) {
-  int i;
-
-  for (i = 0; i < MAX_NUM_CONFIGS; i++) {
+  for (int i = 0; i < MAX_NUM_CONFIGS; i++) {
     if (ConfigIsPermanent (adapt_class, i)
       && PermConfigFor (adapt_class, i) != nullptr)
       FreePermConfig (PermConfigFor (adapt_class, i));
@@ -164,7 +161,6 @@ namespace tesseract {
  */
 ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
   ADAPT_TEMPLATES Templates;
-  int i;
 
   Templates = (ADAPT_TEMPLATES) Emalloc (sizeof (ADAPT_TEMPLATES_STRUCT));
 
@@ -173,7 +169,7 @@ ADAPT_TEMPLATES Classify::NewAdaptedTemplates(bool InitFromUnicharset) {
   Templates->NumNonEmptyClasses = 0;
 
   /* Insert an empty class for each unichar id in unicharset */
-  for (i = 0; i < MAX_NUM_CLASSES; i++) {
+  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
     Templates->Class[i] = nullptr;
     if (InitFromUnicharset && i < unicharset.size()) {
       AddAdaptedClass(Templates, NewAdaptedClass(), i);
@@ -197,8 +193,7 @@ int Classify::GetFontinfoId(ADAPT_CLASS Class, uint8_t ConfigId) {
 void free_adapted_templates(ADAPT_TEMPLATES templates) {
 
   if (templates != nullptr) {
-    int i;
-    for (i = 0; i < (templates->Templates)->NumClasses; i++)
+    for (int i = 0; i < (templates->Templates)->NumClasses; i++)
       free_adapted_class (templates->Class[i]);
     free_int_templates (templates->Templates);
     Efree(templates);
@@ -264,7 +259,6 @@ namespace tesseract {
  * @note History: Wed Mar 20 13:35:29 1991, DSJ, Created.
  */
 void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
-  int i;
   INT_CLASS IClass;
   ADAPT_CLASS AClass;
 
@@ -274,7 +268,7 @@ void Classify::PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   fprintf (File, "   Id  NC NPC  NP NPP\n");
   fprintf (File, "------------------------\n");
 
-  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
+  for (int i = 0; i < (Templates->Templates)->NumClasses; i++) {
     IClass = Templates->Templates->Class[i];
     AClass = Templates->Class[i];
     if (!IsEmptyAdaptedClass (AClass)) {
@@ -357,7 +351,6 @@ namespace tesseract {
  * @note History: Mon Mar 18 15:18:10 1991, DSJ, Created.
  */
 ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
-  int i;
   ADAPT_TEMPLATES Templates;
 
   /* first read the high level adaptive template struct */
@@ -368,7 +361,7 @@ ADAPT_TEMPLATES Classify::ReadAdaptedTemplates(TFile *fp) {
   Templates->Templates = ReadIntTemplates(fp);
 
   /* then read in the adaptive info for each class */
-  for (i = 0; i < (Templates->Templates)->NumClasses; i++) {
+  for (int i = 0; i < (Templates->Templates)->NumClasses; i++) {
     Templates->Class[i] = ReadAdaptedClass(fp);
   }
   return (Templates);

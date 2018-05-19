@@ -426,7 +426,7 @@ int TrainingSampleSet::ReliablySeparable(int font_id1, int class_id1,
 
   // Find a canonical2 feature that is not in cloud1.
   for (int f = 0; f < canonical2.size(); ++f) {
-    int feature = canonical2[f];
+    const int feature = canonical2[f];
     if (cloud1[feature])
       continue;
     // Gather the near neighbours of f.
@@ -464,7 +464,7 @@ const TrainingSample* TrainingSampleSet::GetCanonicalSample(
   ASSERT_HOST(font_class_array_ != nullptr);
   int font_index = font_id_map_.SparseToCompact(font_id);
   if (font_index < 0) return nullptr;
-  int sample_index = (*font_class_array_)(font_index,
+  const int sample_index = (*font_class_array_)(font_index,
                                           class_id).canonical_sample;
   return sample_index >= 0 ? samples_[sample_index] : nullptr;
 }
@@ -549,7 +549,7 @@ void TrainingSampleSet::SetupFontIdMap() {
   // Number of samples for each font_id.
   GenericVector<int> font_counts;
   for (int s = 0; s < samples_.size(); ++s) {
-    int font_id = samples_[s]->font_id();
+    const int font_id = samples_[s]->font_id();
     while (font_id >= font_counts.size())
       font_counts.push_back(0);
     ++font_counts[font_id];
@@ -692,9 +692,9 @@ void TrainingSampleSet::ReplicateAndRandomizeSamples() {
 // canonical features to those that truly represent all samples.
 void TrainingSampleSet::ComputeCanonicalFeatures() {
   ASSERT_HOST(font_class_array_ != nullptr);
-  int font_size = font_id_map_.CompactSize();
+  const int font_size = font_id_map_.CompactSize();
   for (int font_index = 0; font_index < font_size; ++font_index) {
-    int font_id = font_id_map_.CompactToSparse(font_index);
+    const int font_id = font_id_map_.CompactToSparse(font_index);
     for (int c = 0; c < unicharset_size_; ++c) {
       int num_samples = NumClassSamples(font_id, c, false);
       if (num_samples == 0)
@@ -732,7 +732,7 @@ void TrainingSampleSet::ComputeCloudFeatures(int feature_space_size) {
 // Adds all fonts of the given class to the shape.
 void TrainingSampleSet::AddAllFontsForClass(int class_id, Shape* shape) const {
   for (int f = 0; f < font_id_map_.CompactSize(); ++f) {
-    int font_id = font_id_map_.CompactToSparse(f);
+    const int font_id = font_id_map_.CompactToSparse(f);
     shape->AddToShape(class_id, font_id);
   }
 }

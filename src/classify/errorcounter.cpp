@@ -41,7 +41,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
     const FontInfoTable& fontinfo_table,
     const GenericVector<Pix*>& page_images, SampleIterator* it,
     double* unichar_error,  double* scaled_error, STRING* fonts_report) {
-  int fontsize = it->sample_set()->NumFonts();
+  const int fontsize = it->sample_set()->NumFonts();
   ErrorCounter counter(classifier->GetUnicharset(), fontsize);
   GenericVector<UnicharRating> results;
 
@@ -83,7 +83,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
     }
     ++total_samples;
   }
-  double total_time = 1.0 * (clock() - start) / CLOCKS_PER_SEC;
+  const double total_time = 1.0 * (clock() - start) / CLOCKS_PER_SEC;
   // Create the appropriate error report.
   unscaled_error = counter.ReportErrors(report_level, boosting_mode,
                                         fontinfo_table,
@@ -303,9 +303,9 @@ bool ErrorCounter::AccumulateJunk(bool debug,
                                   TrainingSample* sample) {
   // For junk we accept no answer, or an explicit shape answer matching the
   // class id of the sample.
-  int num_results = results.size();
-  int font_id = sample->font_id();
-  int unichar_id = sample->class_id();
+  const int num_results = results.size();
+  const int font_id = sample->font_id();
+  const int unichar_id = sample->class_id();
   int percent = 0;
   if (num_results > 0)
     percent = IntCastRounded(results[0].rating * 100);
@@ -446,7 +446,7 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
                            "FontAttr=%.4g%%, Multi=%.4g%%, "
                            "Answers=%.3g, Rank=%.3g, "
                            "OKjunk=%.4g%%, Badjunk=%.4g%%";
-  int max_str_len = strlen(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
+  const size_t max_str_len = strlen(format_str) + kMaxExtraLength * (CT_SIZE - 1) + 1;
   char* formatted_str = new char[max_str_len];
   snprintf(formatted_str, max_str_len, format_str,
            rates[CT_UNICHAR_TOP1_ERR] * 100.0,
@@ -475,9 +475,9 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
 // Computes the error rates and returns in rates which is an array of size
 // CT_SIZE. Returns false if there is no data, leaving rates unchanged.
 bool ErrorCounter::ComputeRates(const Counts& counts, double rates[CT_SIZE]) {
-  int ok_samples = counts.n[CT_UNICHAR_TOP_OK] + counts.n[CT_UNICHAR_TOP1_ERR] +
+  const int ok_samples = counts.n[CT_UNICHAR_TOP_OK] + counts.n[CT_UNICHAR_TOP1_ERR] +
       counts.n[CT_REJECT];
-  int junk_samples = counts.n[CT_REJECTED_JUNK] + counts.n[CT_ACCEPTED_JUNK];
+  const int junk_samples = counts.n[CT_REJECTED_JUNK] + counts.n[CT_ACCEPTED_JUNK];
   // Compute rates for normal chars.
   double denominator = static_cast<double>(MAX(ok_samples, 1));
   for (int ct = 0; ct <= CT_RANK; ++ct)

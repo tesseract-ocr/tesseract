@@ -20,7 +20,7 @@
 
 #include "trainingsample.h"
 
-#include <math.h>
+#include <cmath>
 #include "allheaders.h"
 #include "helpers.h"
 #include "intfeaturemap.h"
@@ -163,7 +163,7 @@ TrainingSample* TrainingSample::RandomizedCopy(int index) const {
   TrainingSample* sample = Copy();
   if (index >= 0 && index < kSampleRandomSize) {
     ++index;  // Remove the first combination.
-    int yshift = kYShiftValues[index / kSampleScaleSize];
+    const int yshift = kYShiftValues[index / kSampleScaleSize];
     double scaling = kScaleValues[index % kSampleScaleSize];
     for (int i = 0; i < num_features_; ++i) {
       double result = (features_[i].X - kRandomizingCenter) * scaling;
