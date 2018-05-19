@@ -46,7 +46,7 @@ struct CHAR_FRAGMENT_INFO {
 
 namespace tesseract {
 
-typedef GenericVector<Dawg *> DawgVector;
+using DawgVector = GenericVector<Dawg *>;
 
 //
 // Constants

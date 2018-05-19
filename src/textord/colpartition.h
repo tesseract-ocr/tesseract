@@ -925,9 +925,9 @@ class ColPartition : public ELIST2_LINK {
 };
 
 // Typedef it now in case it becomes a class later.
-typedef GridSearch<ColPartition,
+using ColPartitionGridSearch = GridSearch<ColPartition,
                    ColPartition_CLIST,
-                   ColPartition_C_IT> ColPartitionGridSearch;
+                   ColPartition_C_IT> ;
 
 }  // namespace tesseract.
 

@@ -129,7 +129,7 @@ struct list_rec
   struct list_rec *node;
   struct list_rec *next;
 };
-typedef list_rec *LIST;
+using LIST = list_rec *;
 
 /*----------------------------------------------------------------------
                   M a c r o s

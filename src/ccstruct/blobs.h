@@ -71,7 +71,7 @@ struct TPOINT {
   int16_t x;                       // absolute x coord.
   int16_t y;                       // absolute y coord.
 };
-typedef TPOINT VECTOR;           // structure for coordinates.
+using VECTOR = TPOINT;           // structure for coordinates.
 
 struct EDGEPT {
   EDGEPT()

@@ -32,19 +32,19 @@
 #define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
 
 /** a CLASS_ID is the ascii character to be associated with a class */
-typedef UNICHAR_ID CLASS_ID;
+using CLASS_ID = UNICHAR_ID;
 #define NO_CLASS      (0)
 
 /** a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
-typedef int16_t PROTO_ID;
+using PROTO_ID = int16_t;
 #define NO_PROTO  (-1)
 
 /** FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number
   of features in a character description. */
-typedef uint8_t FEATURE_ID;
+using FEATURE_ID = uint8_t;
 #define NO_FEATURE      255
 #define NOISE_FEATURE   254
 #define MISSING_PROTO   254
@@ -53,13 +53,13 @@ typedef uint8_t FEATURE_ID;
 
 /** a RATING is the match rating returned by a classifier.
   Higher is better. */
-typedef FLOAT32 RATING;
+using RATING = FLOAT32;
 
 /** a CERTAINTY is an indication of the degree of confidence of the
   classifier.  Higher is better.  0 means the match is as good as the
   mean of the matches seen in training.  -1 means the match was one
   standard deviation worse than the training matches, etc. */
-typedef FLOAT32 CERTAINTY;
+using CERTAINTY = FLOAT32;
 
 /** define a data structure to hold a single match result */
 typedef struct

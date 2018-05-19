@@ -164,8 +164,8 @@ struct TEMPCLUSTER {
   CLUSTER *Neighbor;
 };
 
-typedef tesseract::KDPairInc<float, TEMPCLUSTER*> ClusterPair;
-typedef tesseract::GenericHeap<ClusterPair> ClusterHeap;
+using ClusterPair = tesseract::KDPairInc<float, TEMPCLUSTER*>;
+using ClusterHeap = tesseract::GenericHeap<ClusterPair>;
 
 struct STATISTICS {
   FLOAT32 AvgVariance;

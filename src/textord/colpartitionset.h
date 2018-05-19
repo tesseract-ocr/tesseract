@@ -31,7 +31,7 @@ namespace tesseract {
 class WorkingPartSet_LIST;
 class ColSegment_LIST;
 class ColPartitionSet;
-typedef GenericVector<ColPartitionSet*> PartSetVector;
+using PartSetVector = GenericVector<ColPartitionSet*>;
 
 // ColPartitionSet is a class that holds a list of ColPartitions.
 // Its main use is in holding a candidate partitioning of the width of the

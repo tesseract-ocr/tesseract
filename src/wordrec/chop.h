@@ -38,7 +38,7 @@
 ---------------------------------------------------------------------*/
 #define MAX_NUM_POINTS 50
 // The PointPair elements do NOT own the EDGEPTs.
-typedef tesseract::KDPairInc<float, EDGEPT*> PointPair;
-typedef tesseract::GenericHeap<PointPair> PointHeap;
+using PointPair = tesseract::KDPairInc<float, EDGEPT*>;
+using PointHeap = tesseract::GenericHeap<PointPair>;
 
 #endif

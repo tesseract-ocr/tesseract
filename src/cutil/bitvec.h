@@ -25,7 +25,7 @@
 -----------------------------------------------------------------------------*/
 // TODO(rays) Rename BITSINLONG to BITSINuint32_t, and use sizeof.
 #define BITSINLONG      32       /**< no of bits in a long */
-typedef uint32_t *BIT_VECTOR;
+using BIT_VECTOR = uint32_t *;
 
 /*-----------------------------------------------------------------------------
           Public Function Prototypes

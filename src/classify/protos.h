@@ -37,7 +37,7 @@
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-typedef BIT_VECTOR *CONFIGS;
+using CONFIGS = BIT_VECTOR *;
 
 typedef struct
 {
@@ -49,7 +49,7 @@ typedef struct
   FLOAT32 Angle;
   FLOAT32 Length;
 } PROTO_STRUCT;
-typedef PROTO_STRUCT *PROTO;
+using PROTO = PROTO_STRUCT *;
 
 struct CLASS_STRUCT {
   CLASS_STRUCT()
@@ -64,8 +64,8 @@ struct CLASS_STRUCT {
   CONFIGS Configurations;
   UnicityTableEqEq<int> font_set;
 };
-typedef CLASS_STRUCT *CLASS_TYPE;
-typedef CLASS_STRUCT *CLASSES;
+using CLASS_TYPE = CLASS_STRUCT *;
+using CLASSES = CLASS_STRUCT *;
 
 /*----------------------------------------------------------------------
               C o n s t a n t s

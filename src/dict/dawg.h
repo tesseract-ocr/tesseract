@@ -50,11 +50,11 @@
 ----------------------------------------------------------------------*/
 class UNICHARSET;
 
-typedef uint64_t EDGE_RECORD;
-typedef EDGE_RECORD *EDGE_ARRAY;
-typedef int64_t EDGE_REF;
-typedef int64_t NODE_REF;
-typedef EDGE_REF *NODE_MAP;
+using EDGE_RECORD = uint64_t;
+using EDGE_ARRAY = EDGE_RECORD *;
+using EDGE_REF = int64_t;
+using NODE_REF = int64_t;
+using NODE_MAP = EDGE_REF *;
 
 namespace tesseract {
 
@@ -65,9 +65,9 @@ struct NodeChild {
   NodeChild(): unichar_id(INVALID_UNICHAR_ID), edge_ref(NO_EDGE) {}
 };
 
-typedef GenericVector<NodeChild> NodeChildVector;
-typedef GenericVector<int> SuccessorList;
-typedef GenericVector<SuccessorList *> SuccessorListsVector;
+using NodeChildVector = GenericVector<NodeChild>;
+using SuccessorList = GenericVector<int>;
+using SuccessorListsVector = GenericVector<SuccessorList *>;
 
 enum DawgType {
   DAWG_TYPE_PUNCTUATION,

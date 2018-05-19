@@ -58,26 +58,26 @@ struct FEATURE_DESC_STRUCT {
   const char *ShortName;           // short name for feature
   const PARAM_DESC *ParamDesc;     // array - one per param
 };
-typedef FEATURE_DESC_STRUCT *FEATURE_DESC;
+using FEATURE_DESC = FEATURE_DESC_STRUCT *;
 
 struct FEATURE_STRUCT {
   const FEATURE_DESC_STRUCT *Type;  // points to description of feature type
   FLOAT32 Params[1];                // variable size array - params for feature
 };
-typedef FEATURE_STRUCT *FEATURE;
+using FEATURE = FEATURE_STRUCT *;
 
 struct FEATURE_SET_STRUCT {
   uint16_t NumFeatures;            // number of features in set
   uint16_t MaxNumFeatures;         // maximum size of feature set
   FEATURE Features[1];           // variable size array of features
 };
-typedef FEATURE_SET_STRUCT *FEATURE_SET;
+using FEATURE_SET = FEATURE_SET_STRUCT *;
 
 // A generic character description as a char pointer. In reality, it will be
 // a pointer to some data structure. Paired feature extractors/matchers need
 // to agree on the data structure to be used, however, the high level
 // classifier does not need to know the details of this data structure.
-typedef char *CHAR_FEATURES;
+using CHAR_FEATURES = char *;
 
 /*----------------------------------------------------------------------
     Macros for defining the parameters of a new features

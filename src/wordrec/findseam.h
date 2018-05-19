@@ -35,10 +35,10 @@
 #include "chop.h"
 
 // The SeamPair elements own their SEAMs and delete them upon destruction.
-typedef tesseract::KDPtrPairInc<float, SEAM> SeamPair;
-typedef tesseract::GenericHeap<SeamPair> SeamQueue;
+using SeamPair = tesseract::KDPtrPairInc<float, SEAM>;
+using SeamQueue = tesseract::GenericHeap<SeamPair>;
 
-typedef tesseract::KDPtrPairDec<float, SEAM> SeamDecPair;
-typedef tesseract::GenericHeap<SeamDecPair> SeamPile;
+using SeamDecPair = tesseract::KDPtrPairDec<float, SEAM>;
+using SeamPile = tesseract::GenericHeap<SeamDecPair>;
 
 #endif

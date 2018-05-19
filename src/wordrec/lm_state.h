@@ -34,7 +34,7 @@
 namespace tesseract {
 
 /// Used for expressing various language model flags.
-typedef unsigned char LanguageModelFlagsType;
+using LanguageModelFlagsType = unsigned char;
 
 /// The following structs are used for storing the state of the language model
 /// in the segmentation search graph. In this graph the nodes are BLOB_CHOICEs

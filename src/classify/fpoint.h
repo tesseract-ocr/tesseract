@@ -30,7 +30,7 @@ typedef struct
 {
   FLOAT32 x, y;
 } FPOINT;
-typedef FPOINT FVECTOR;
+using FVECTOR = FPOINT;
 
 /**----------------------------------------------------------------------------
             Macros

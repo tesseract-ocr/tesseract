@@ -57,7 +57,7 @@ typedef struct
   int   NumMerged[MAX_NUM_PROTOS];
   CLASS_TYPE Class;
 }MERGE_CLASS_NODE;
-typedef MERGE_CLASS_NODE* MERGE_CLASS;
+using MERGE_CLASS = MERGE_CLASS_NODE*;
 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ struct Pix;
 
 namespace tesseract {
 
-typedef TessResultCallback1<bool, int> WidthCallback;
+using WidthCallback = TessResultCallback1<bool, int>;
 
 struct AlignedBlobParams;
 class ColPartitionGrid;

@@ -119,7 +119,7 @@ struct ParamsTrainingHypothesis {
 };
 
 // A list of hypotheses explored during one run of segmentation search.
-typedef GenericVector<ParamsTrainingHypothesis> ParamsTrainingHypothesisList;
+using ParamsTrainingHypothesisList = GenericVector<ParamsTrainingHypothesis>;
 
 // A bundle that accumulates all of the hypothesis lists explored during all
 // of the runs of segmentation search on a word (e.g. a list of hypotheses

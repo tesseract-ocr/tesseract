@@ -62,8 +62,8 @@ class WordWithBox {
 
 // Make it usable by BBGrid.
 CLISTIZEH(WordWithBox)
-typedef BBGrid<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT> WordGrid;
-typedef GridSearch<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT> WordSearch;
+using WordGrid = BBGrid<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT>;
+using WordSearch = GridSearch<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT>;
 
 class Textord {
  public:

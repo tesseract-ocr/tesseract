@@ -628,6 +628,6 @@ struct MATRIX_COORD {
 };
 
 // The MatrixCoordPair contains a MATRIX_COORD and its priority.
-typedef tesseract::KDPairInc<float, MATRIX_COORD> MatrixCoordPair;
+using MatrixCoordPair = tesseract::KDPairInc<float, MATRIX_COORD>;
 
 #endif  // TESSERACT_CCSTRUCT_MATRIX_H_
