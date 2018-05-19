@@ -115,11 +115,11 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
                                         const FEATURE_DEFS_STRUCT& feature_defs,
                                         bool verification) {
   char buffer[2048];
-  int int_feature_type = ShortNameToFeatureType(feature_defs, kIntFeatureType);
-  int micro_feature_type = ShortNameToFeatureType(feature_defs,
+  const int int_feature_type = ShortNameToFeatureType(feature_defs, kIntFeatureType);
+  const int micro_feature_type = ShortNameToFeatureType(feature_defs,
                                                   kMicroFeatureType);
-  int cn_feature_type = ShortNameToFeatureType(feature_defs, kCNFeatureType);
-  int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
+  const int cn_feature_type = ShortNameToFeatureType(feature_defs, kCNFeatureType);
+  const int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
 
   FILE* fp = Efopen(page_name, "rb");
   if (fp == nullptr) {
@@ -174,7 +174,7 @@ void MasterTrainer::AddSample(bool verification, const char* unichar,
     if (flat_shapes_.FindShape(prev_unichar_id_, sample->font_id()) < 0)
       flat_shapes_.AddShape(prev_unichar_id_, sample->font_id());
   } else {
-    int junk_id = junk_samples_.AddSample(unichar, sample);
+    const int junk_id = junk_samples_.AddSample(unichar, sample);
     if (prev_unichar_id_ >= 0) {
       CHAR_FRAGMENT* frag = CHAR_FRAGMENT::parse_from_string(unichar);
       if (frag != nullptr && frag->is_natural()) {
@@ -247,7 +247,7 @@ void MasterTrainer::PreTrainingSetup() {
 // together until they get to a leaf node classifier.
 void MasterTrainer::SetupMasterShapes() {
   tprintf("Building master shape table\n");
-  int num_fonts = samples_.NumFonts();
+  const int num_fonts = samples_.NumFonts();
 
   ShapeTable char_shapes_begin_fragment(samples_.unicharset());
   ShapeTable char_shapes_end_fragment(samples_.unicharset());
