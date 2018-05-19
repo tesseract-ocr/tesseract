@@ -196,7 +196,7 @@ void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
                              uint8_t *FeatureEvidence,
                              int32_t ConfigCount);
 
-void HeapSort (int n, register int ra[], register int rb[]);
+void HeapSort (int n, int ra[], int rb[]);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

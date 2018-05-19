@@ -1232,7 +1232,7 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
  * @note History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
  */
 void
-HeapSort (int n, register int ra[], register int rb[]) {
+HeapSort (int n, int ra[], int rb[]) {
   int i, rra, rrb;
   int l, j, ir;
 

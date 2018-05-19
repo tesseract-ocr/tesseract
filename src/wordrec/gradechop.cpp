@@ -48,7 +48,7 @@ namespace tesseract {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
+PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   PRIORITY grade;
   float split_length;
 
@@ -71,7 +71,7 @@ PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_sharpness(register SPLIT *split) {
+PRIORITY Wordrec::grade_sharpness(SPLIT *split) {
   PRIORITY grade;
 
   grade = point_priority (split->point1) + point_priority (split->point2);

@@ -89,7 +89,7 @@ QSPLINE * spline,                /*approximating spline */
 float ydiffs[]                   /*output */
 );
 int choose_partition (           //select partition
-register float diff,             /*diff from spline */
+float diff,             /*diff from spline */
 float partdiffs[],               /*diff on all parts */
 int lastpart,                    /*last assigned partition */
 float jumplimit,                 /*new part threshold */

@@ -83,7 +83,7 @@ FLOAT32 SubfeatureEvidence (
    PROTO       Proto);
 
 double EvidenceOf (
-  register double   Similarity);
+   double   Similarity);
 
 BOOL8 DummyFastMatch (
      FEATURE	Feature,

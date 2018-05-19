@@ -144,7 +144,7 @@ static float ScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS& results) {
   return results.match[index].rating;
 }
 
-void InitMatcherRatings(register FLOAT32 *Rating);
+void InitMatcherRatings(FLOAT32 *Rating);
 
 int MakeTempProtoPerm(void *item1, void *item2);
 
