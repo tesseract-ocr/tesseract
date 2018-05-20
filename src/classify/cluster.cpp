@@ -254,7 +254,7 @@ PARAM_DESC ParamDesc[],
 int32_t n1,
 int32_t n2,
 FLOAT32 m[],
-FLOAT32 m1[], register FLOAT32 m2[]);
+FLOAT32 m1[], FLOAT32 m2[]);
 
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
