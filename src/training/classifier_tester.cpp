@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
   trainer->ReplicateAndRandomizeSamplesIfRequired();
 
   trainer->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR,
-                                   std::max(3, FLAGS_debug_level), false,
+                                   std::max(3, static_cast<int>(FLAGS_debug_level)), false,
                                    shape_classifier, nullptr);
   delete shape_classifier;
   delete api;
