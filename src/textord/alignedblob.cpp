@@ -24,6 +24,8 @@
 #include "alignedblob.h"
 #include "ndminx.h"
 
+#include <algorithm>
+
 INT_VAR(textord_debug_tabfind, 0, "Debug tab finding");
 INT_VAR(textord_debug_bugs, 0, "Turn on output related to bugs in tab finding");
 INT_VAR(textord_testregion_left, -1, "Left edge of debug reporting rectangle");
@@ -123,8 +125,8 @@ AlignedBlobParams::AlignedBlobParams(int vertical_x, int vertical_y,
     min_points(1),
     min_length(kVLineMinLength) {
   // Compute threshold for left and right alignment.
-  l_align_tolerance = MAX(kVLineAlignment, width);
-  r_align_tolerance = MAX(kVLineAlignment, width);
+  l_align_tolerance = std::max(kVLineAlignment, width);
+  r_align_tolerance = std::max(kVLineAlignment, width);
 
   // Fit the vertical vector into an ICOORD, which is 16 bit.
   set_vertical(vertical_x, vertical_y);
@@ -394,8 +396,8 @@ BLOBNBOX* AlignedBlob::FindAlignedBlob(const AlignedBlobParams& p,
     *end_y = start_y + p.max_v_gap;
   }
   // Expand the box by an additional skew tolerance
-  int xmin = MIN(x_start, x2) - skew_tolerance;
-  int xmax = MAX(x_start, x2) + skew_tolerance;
+  int xmin = std::min(x_start, x2) - skew_tolerance;
+  int xmax = std::max(x_start, x2) + skew_tolerance;
   // Now add direction-specific tolerances.
   if (p.right_tab) {
     xmax += p.min_gutter;

@@ -21,6 +21,7 @@
 #include <limits.h>
 #endif
 
+#include <algorithm>
 #include <float.h>
 #include <limits>
 
@@ -336,11 +337,11 @@ void EquationDetect::IdentifyBlobsToSkip(ColPartition* part) {
       const bool xoverlap = blob_box.major_x_overlap(nextblob_box),
           yoverlap = blob_box.y_overlap(nextblob_box);
       const float widthR = static_cast<float>(
-          MIN(nextblob_box.width(), blob_box.width())) /
-          MAX(nextblob_box.width(), blob_box.width());
+          std::min(nextblob_box.width(), blob_box.width())) /
+          std::max(nextblob_box.width(), blob_box.width());
       const float heightR = static_cast<float>(
-          MIN(nextblob_box.height(), blob_box.height())) /
-          MAX(nextblob_box.height(), blob_box.height());
+          std::min(nextblob_box.height(), blob_box.height())) /
+          std::max(nextblob_box.height(), blob_box.height());
 
       if (xoverlap && yoverlap && widthR > kWidthR && heightR > kHeightR) {
         // Found one, set nextblob type and recompute blob_box.
@@ -882,7 +883,7 @@ int EquationDetect::EstimateTextPartLineSpacing() {
       if (current_box.major_x_overlap(prev_box) &&
           !current_box.y_overlap(prev_box)) {
         int gap = current_box.y_gap(prev_box);
-        if (gap < MIN(current_box.height(), prev_box.height())) {
+        if (gap < std::min(current_box.height(), prev_box.height())) {
           // The gap should be smaller than the height of the bounding boxes.
           ygaps.push_back(gap);
         }
@@ -955,7 +956,7 @@ bool EquationDetect::IsInline(const bool search_bottom,
   while ((neighbor = search.NextVerticalSearch(search_bottom)) != nullptr) {
     const TBOX& neighbor_box(neighbor->bounding_box());
     if (part_box.y_gap(neighbor_box) > kYGapRatioTh *
-        MIN(part_box.height(), neighbor_box.height())) {
+             std::min(part_box.height(), neighbor_box.height())) {
       // Finished searching.
       break;
     }
@@ -971,8 +972,8 @@ bool EquationDetect::IsInline(const bool search_bottom,
     if (part_box.x_overlap(neighbor_box) &&  // Location feature.
         part_box.y_gap(neighbor_box) <= kYGapTh &&  // Line spacing.
         // Geo feature.
-        static_cast<float>(MIN(part_box.height(), neighbor_box.height())) /
-        MAX(part_box.height(), neighbor_box.height()) > kHeightRatioTh) {
+        static_cast<float>(std::min(part_box.height(), neighbor_box.height())) /
+        std::max(part_box.height(), neighbor_box.height()) > kHeightRatioTh) {
       return true;
     }
   }

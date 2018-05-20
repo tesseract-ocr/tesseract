@@ -29,6 +29,8 @@
 #include "pageres.h"
 #include "tprintf.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Scale factor to make certainty more comparable to Tesseract.
@@ -279,13 +281,13 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
       word->tess_would_adapt = false;
       word->done = true;
       word->tesseract = this;
-      float word_certainty = MIN(word->space_certainty,
+      float word_certainty = std::min(word->space_certainty,
                                  word->best_choice->certainty());
       word_certainty *= kCertaintyScale;
       if (getDict().stopper_debug_level >= 1) {
         tprintf("Best choice certainty=%g, space=%g, scaled=%g, final=%g\n",
                 word->best_choice->certainty(), word->space_certainty,
-                MIN(word->space_certainty, word->best_choice->certainty()) *
+                std::min(word->space_certainty, word->best_choice->certainty()) *
                     kCertaintyScale,
                 word_certainty);
         word->best_choice->print();

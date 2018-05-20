@@ -23,6 +23,8 @@
 #include "colpartition.h"
 #include "normalis.h"
 
+#include <algorithm>
+
 // Padding factor to use on definitely oriented blobs
 const int kOrientedPadFactor = 8;
 // Padding factor to use on not definitely oriented blobs.
@@ -210,19 +212,19 @@ int TextlineProjection::DistanceOfBoxFromBox(const TBOX& from_box,
     end_pt.x = start_pt.x;
     if (from_box.top() - to_box.top() >= to_box.bottom() - from_box.bottom()) {
       start_pt.y = from_box.top();
-      end_pt.y = MIN(to_box.top(), start_pt.y);
+      end_pt.y = std::min(to_box.top(), start_pt.y);
     } else {
       start_pt.y = from_box.bottom();
-      end_pt.y = MAX(to_box.bottom(), start_pt.y);
+      end_pt.y = std::max(to_box.bottom(), start_pt.y);
     }
   } else {
     parallel_gap = from_box.y_gap(to_box) + from_box.height();
     if (from_box.right() - to_box.right() >= to_box.left() - from_box.left()) {
       start_pt.x = from_box.right();
-      end_pt.x = MIN(to_box.right(), start_pt.x);
+      end_pt.x = std::min(to_box.right(), start_pt.x);
     } else {
       start_pt.x = from_box.left();
-      end_pt.x = MAX(to_box.left(), start_pt.x);
+      end_pt.x = std::max(to_box.left(), start_pt.x);
     }
     start_pt.y = (from_box.bottom() + from_box.top()) / 2;
     end_pt.y = start_pt.y;
@@ -342,7 +344,7 @@ bool TextlineProjection::BoxOutOfHTextline(const TBOX& box,
   int grad1 = 0;
   int grad2 = 0;
   EvaluateBoxInternal(box, denorm, debug, &grad1, &grad2, nullptr, nullptr);
-  int worst_result = MIN(grad1, grad2);
+  int worst_result = std::min(grad1, grad2);
   int total_result = grad1 + grad2;
   if (total_result >= 6) return false;  // Strongly in textline.
   // Medium strength: if either gradient is negative, it is likely outside
@@ -429,17 +431,17 @@ int TextlineProjection::EvaluateBoxInternal(const TBOX& box,
   int right_gradient = -BestMeanGradientInColumn(denorm, box.right(),
                                                  box.bottom(), box.top(),
                                                  false);
-  int top_clipped = MAX(top_gradient, 0);
-  int bottom_clipped = MAX(bottom_gradient, 0);
-  int left_clipped = MAX(left_gradient, 0);
-  int right_clipped = MAX(right_gradient, 0);
+  int top_clipped = std::max(top_gradient, 0);
+  int bottom_clipped = std::max(bottom_gradient, 0);
+  int left_clipped = std::max(left_gradient, 0);
+  int right_clipped = std::max(right_gradient, 0);
   if (debug) {
     tprintf("Gradients: top = %d, bottom = %d, left= %d, right= %d for box:",
             top_gradient, bottom_gradient, left_gradient, right_gradient);
     box.print();
   }
-  int result = MAX(top_clipped, bottom_clipped) -
-      MAX(left_clipped, right_clipped);
+  int result = std::max(top_clipped, bottom_clipped) -
+          std::max(left_clipped, right_clipped);
   if (hgrad1 != nullptr && hgrad2 != nullptr) {
     *hgrad1 = top_gradient;
     *hgrad2 = bottom_gradient;

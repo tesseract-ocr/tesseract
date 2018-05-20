@@ -47,6 +47,8 @@
 #include "structures.h"
 #include "werd.h"
 
+#include <algorithm>
+
 using tesseract::CCStruct;
 
 // A Vector representing the "vertical" direction when measuring the
@@ -587,10 +589,10 @@ static void SegmentLLSQ(const FCOORD& pt1, const FCOORD& pt2,
                         LLSQ* accumulator) {
   FCOORD step(pt2);
   step -= pt1;
-  int xstart = IntCastRounded(MIN(pt1.x(), pt2.x()));
-  int xend = IntCastRounded(MAX(pt1.x(), pt2.x()));
-  int ystart = IntCastRounded(MIN(pt1.y(), pt2.y()));
-  int yend = IntCastRounded(MAX(pt1.y(), pt2.y()));
+  int xstart = IntCastRounded(std::min(pt1.x(), pt2.x()));
+  int xend = IntCastRounded(std::max(pt1.x(), pt2.x()));
+  int ystart = IntCastRounded(std::min(pt1.y(), pt2.y()));
+  int yend = IntCastRounded(std::max(pt1.y(), pt2.y()));
   if (xstart == xend && ystart == yend) return;  // Nothing to do.
   double weight = step.length() / (xend - xstart + yend - ystart);
   // Compute and save the y-position at the middle of each x-step.
@@ -616,14 +618,14 @@ static void SegmentCoords(const FCOORD& pt1, const FCOORD& pt2,
                           GenericVector<GenericVector<int> >* y_coords) {
   FCOORD step(pt2);
   step -= pt1;
-  int start = ClipToRange(IntCastRounded(MIN(pt1.x(), pt2.x())), 0, x_limit);
-  int end = ClipToRange(IntCastRounded(MAX(pt1.x(), pt2.x())), 0, x_limit);
+  int start = ClipToRange(IntCastRounded(std::min(pt1.x(), pt2.x())), 0, x_limit);
+  int end = ClipToRange(IntCastRounded(std::max(pt1.x(), pt2.x())), 0, x_limit);
   for (int x = start; x < end; ++x) {
     int y = IntCastRounded(pt1.y() + step.y() * (x + 0.5 - pt1.x()) / step.x());
     (*y_coords)[x].push_back(y);
   }
-  start = ClipToRange(IntCastRounded(MIN(pt1.y(), pt2.y())), 0, y_limit);
-  end = ClipToRange(IntCastRounded(MAX(pt1.y(), pt2.y())), 0, y_limit);
+  start = ClipToRange(IntCastRounded(std::min(pt1.y(), pt2.y())), 0, y_limit);
+  end = ClipToRange(IntCastRounded(std::max(pt1.y(), pt2.y())), 0, y_limit);
   for (int y = start; y < end; ++y) {
     int x = IntCastRounded(pt1.x() + step.x() * (y + 0.5 - pt1.y()) / step.y());
     (*x_coords)[y].push_back(x);
@@ -636,24 +638,24 @@ static void SegmentCoords(const FCOORD& pt1, const FCOORD& pt2,
 static void SegmentBBox(const FCOORD& pt1, const FCOORD& pt2, TBOX* bbox) {
   FCOORD step(pt2);
   step -= pt1;
-  int x1 = IntCastRounded(MIN(pt1.x(), pt2.x()));
-  int x2 = IntCastRounded(MAX(pt1.x(), pt2.x()));
+  int x1 = IntCastRounded(std::min(pt1.x(), pt2.x()));
+  int x2 = IntCastRounded(std::max(pt1.x(), pt2.x()));
   if (x2 > x1) {
     int y1 = IntCastRounded(pt1.y() + step.y() * (x1 + 0.5 - pt1.x()) /
                             step.x());
     int y2 = IntCastRounded(pt1.y() + step.y() * (x2 - 0.5 - pt1.x()) /
                             step.x());
-    TBOX point(x1, MIN(y1, y2), x2, MAX(y1, y2));
+    TBOX point(x1, std::min(y1, y2), x2, std::max(y1, y2));
     *bbox += point;
   }
-  int y1 = IntCastRounded(MIN(pt1.y(), pt2.y()));
-  int y2 = IntCastRounded(MAX(pt1.y(), pt2.y()));
+  int y1 = IntCastRounded(std::min(pt1.y(), pt2.y()));
+  int y2 = IntCastRounded(std::max(pt1.y(), pt2.y()));
   if (y2 > y1) {
     int x1 = IntCastRounded(pt1.x() + step.x() * (y1 + 0.5 - pt1.y()) /
                             step.y());
     int x2 = IntCastRounded(pt1.x() + step.x() * (y2 - 0.5 - pt1.y()) /
                             step.y());
-    TBOX point(MIN(x1, x2), y1, MAX(x1, x2), y2);
+    TBOX point(std::min(x1, x2), y1, std::max(x1, x2), y2);
     *bbox += point;
   }
 }
@@ -956,7 +958,7 @@ bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location) {
       int min_prod2, max_prod2;
       outline2->MinMaxCrossProduct(vertical, &min_prod2, &max_prod2);
       int mid_gap = abs(mid_prod2 - mid_prod1);
-      int overlap = MIN(max_prod1, max_prod2) - MAX(min_prod1, min_prod2);
+      int overlap = std::min(max_prod1, max_prod2) - std::max(min_prod1, min_prod2);
       if (mid_gap - overlap / 4 > max_gap) {
         max_gap = mid_gap - overlap / 4;
         *location = mid_pt1;

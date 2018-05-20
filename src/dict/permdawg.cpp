@@ -34,6 +34,7 @@
 #include "tprintf.h"
 #include "params.h"
 
+#include <algorithm>
 #include <ctype.h>
 #include "dict.h"
 
@@ -376,7 +377,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
         prev_char_frag_info->rating + curr_rating;
       char_frag_info->num_fragments = prev_char_frag_info->num_fragments + 1;
       char_frag_info->certainty =
-        MIN(curr_certainty, prev_char_frag_info->certainty);
+              std::min(curr_certainty, prev_char_frag_info->certainty);
     } else {
       if (this_fragment->is_beginning()) {
         if (debug) tprintf("Record fragment beginning\n");

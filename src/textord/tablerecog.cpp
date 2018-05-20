@@ -26,6 +26,8 @@
 
 #include "tablerecog.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // The amount of space required between the ColPartitions in 2 columns
@@ -284,7 +286,7 @@ double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
   if (current_area == 0) {
     return 1.0;
   }
-  return MIN(1.0, area_covered / current_area);
+  return std::min(1.0, area_covered / current_area);
 }
 
 void StructuredTable::Display(ScrollView* window, ScrollView::Color color) {
@@ -419,8 +421,8 @@ void StructuredTable::FindWhitespacedRows() {
       continue;
 
     ASSERT_HOST(text->bounding_box().bottom() < text->bounding_box().top());
-    min_bottom = MIN(min_bottom, text->bounding_box().bottom());
-    max_top = MAX(max_top, text->bounding_box().top());
+    min_bottom = std::min(min_bottom, static_cast<int>(text->bounding_box().bottom()));
+    max_top = std::max(max_top, static_cast<int>(text->bounding_box().top()));
 
     // Ignore "tall" text partitions, as these are usually false positive
     // vertical text or multiple lines pulled together.
@@ -474,13 +476,13 @@ void StructuredTable::CalculateMargins() {
 // boundaries and updates the margin.
 void StructuredTable::UpdateMargins(ColPartitionGrid* grid) {
   int below = FindVerticalMargin(grid, bounding_box_.bottom(), true);
-  space_below_ = MIN(space_below_, below);
+  space_below_ = std::min(space_below_, below);
   int above = FindVerticalMargin(grid, bounding_box_.top(), false);
-  space_above_ = MIN(space_above_, above);
+  space_above_ = std::min(space_above_, above);
   int left = FindHorizontalMargin(grid, bounding_box_.left(), true);
-  space_left_ = MIN(space_left_, left);
+  space_left_ = std::min(space_left_, left);
   int right = FindHorizontalMargin(grid, bounding_box_.right(), false);
-  space_right_ = MIN(space_right_, right);
+  space_right_ = std::min(space_right_, right);
 }
 int StructuredTable::FindVerticalMargin(ColPartitionGrid* grid, int border,
                                         bool decrease) const {
@@ -933,7 +935,7 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
                table->row_height(0) < max_row_height)) {
             best_box.set_bottom(bottom);
             best_below = table->space_below();
-            best_cols = MAX(table->column_count(), best_cols);
+            best_cols = std::max(table->column_count(), best_cols);
             found_good_border = true;
           }
         }
@@ -980,7 +982,7 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
                table->row_height(last_row) < max_row_height)) {
             best_box.set_top(top);
             best_above = table->space_above();
-            best_cols = MAX(table->column_count(), best_cols);
+            best_cols = std::max(table->column_count(), best_cols);
             found_good_border = true;
           }
         }
@@ -1031,11 +1033,11 @@ int TableRecognizer::NextHorizontalSplit(int left, int right, int y,
 
     const TBOX& text_box = text->bounding_box();
     if (top_to_bottom && (last_y >= y || last_y <= text_box.top())) {
-      last_y = MIN(last_y, text_box.bottom());
+      last_y = std::min(last_y, static_cast<int>(text_box.bottom()));
       continue;
     }
     if (!top_to_bottom && (last_y <= y || last_y >= text_box.bottom())) {
-      last_y = MAX(last_y, text_box.top());
+      last_y = std::max(last_y, static_cast<int>(text_box.top()));
       continue;
     }
 

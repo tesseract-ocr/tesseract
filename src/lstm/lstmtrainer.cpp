@@ -1279,7 +1279,7 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   int index = training_iteration_ % kRollingBufferSize_;
   error_buffers_[type][index] = new_error;
   // Compute the mean error.
-  int mean_count = MIN(training_iteration_ + 1, error_buffers_[type].size());
+  int mean_count = std::min(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
   for (int i = 0; i < mean_count; ++i) buffer_sum += error_buffers_[type][i];
   double mean = buffer_sum / mean_count;

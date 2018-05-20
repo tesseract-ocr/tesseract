@@ -21,11 +21,12 @@
 #define _USE_MATH_DEFINES
 #endif  // _MSC_VER
 
-#include          <stdlib.h>
-#include          "helpers.h"
-#include          "ndminx.h"
-#include          "serialis.h"
-#include          "points.h"
+#include <algorithm>
+#include <stdlib.h>
+#include "helpers.h"
+#include "ndminx.h"
+#include "serialis.h"
+#include "points.h"
 
 ELISTIZE (ICOORDELT)           //turn to list
 bool FCOORD::normalise() {  //Convert to unit vec
@@ -43,7 +44,7 @@ bool FCOORD::normalise() {  //Convert to unit vec
 void ICOORD::set_with_shrink(int x, int y) {
   // Fit the vector into an ICOORD, which is 16 bit.
   int factor = 1;
-  int max_extent = MAX(abs(x), abs(y));
+  int max_extent = std::max(abs(x), abs(y));
   if (max_extent > INT16_MAX)
     factor = max_extent / INT16_MAX + 1;
   xcoord = x / factor;

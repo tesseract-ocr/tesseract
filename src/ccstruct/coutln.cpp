@@ -17,6 +17,7 @@
  *
  **********************************************************************/
 
+#include <algorithm>
 #include <string.h>
 #ifdef __UNIX__
 #include <assert.h>
@@ -750,7 +751,7 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
     if (pt1.y == pt2.y && abs(gradient.y()) * 2 >= abs(gradient.x())) {
       // Horizontal step. diff_sign == 1 indicates black above.
       int diff_sign = (pt1.x > pt2.x) == negative ? 1 : -1;
-      int x = MIN(pt1.x, pt2.x);
+      int x = std::min(pt1.x, pt2.x);
       int y = height - pt1.y;
       int best_sum = 0;
       int best_y = y;
@@ -773,7 +774,7 @@ void C_OUTLINE::ComputeEdgeOffsets(int threshold, Pix* pix) {
       // Vertical step. diff_sign == 1 indicates black on the left.
       int diff_sign = (pt1.y > pt2.y) == negative ? 1 : -1;
       int x = pt1.x;
-      int y = height - MAX(pt1.y, pt2.y);
+      int y = height - std::max(pt1.y, pt2.y);
       const l_uint32* line = pixGetData(pix) + y * wpl;
       int best_sum = 0;
       int best_x = x;

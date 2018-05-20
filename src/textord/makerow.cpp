@@ -41,6 +41,8 @@
 #include "config_auto.h"
 #endif
 
+#include <algorithm>
+
 BOOL_VAR(textord_heavy_nr, FALSE, "Vigorously remove noise");
 BOOL_VAR(textord_show_initial_rows, FALSE, "Display row accumulation");
 BOOL_VAR(textord_show_parallel_rows, FALSE, "Display page correlated rows");
@@ -391,8 +393,8 @@ static bool dot_of_i(BLOBNBOX* dot, BLOBNBOX* i, TO_ROW* row) {
   const TBOX& dotbox = dot->bounding_box();
 
   // Must overlap horizontally by enough and be high enough.
-  int overlap = MIN(dotbox.right(), ibox.right()) -
-                MAX(dotbox.left(), ibox.left());
+  int overlap = std::min(dotbox.right(), ibox.right()) -
+          std::max(dotbox.left(), ibox.left());
   if (ibox.height() <= 2 * dotbox.height() ||
       (overlap * 2 < ibox.width() && overlap < dotbox.width()))
     return false;
@@ -405,7 +407,7 @@ static bool dot_of_i(BLOBNBOX* dot, BLOBNBOX* i, TO_ROW* row) {
   // So search the outline for a piece of large height close to the edges
   // of the dot.
   const double kHeightFraction = 0.6;
-  double target_height = MIN(dotbox.bottom(), ibox.top());
+  double target_height = std::min(dotbox.bottom(), ibox.top());
   target_height -= row->line_m()*dotbox.left() + row->line_c();
   target_height *= kHeightFraction;
   int left_min = dotbox.left() - dotbox.width();

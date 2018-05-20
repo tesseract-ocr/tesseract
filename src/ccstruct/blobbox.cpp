@@ -28,6 +28,8 @@
 #include "helpers.h"
 #include "normalis.h"
 
+#include <algorithm>
+
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN
 
@@ -194,14 +196,14 @@ void BLOBNBOX::NeighbourGaps(int gaps[BND_COUNT]) const {
 // and avoid reporting the other gap as a ridiculously large number
 void BLOBNBOX::MinMaxGapsClipped(int* h_min, int* h_max,
                                  int* v_min, int* v_max) const {
-  int max_dimension = MAX(box.width(), box.height());
+  int max_dimension = std::max(box.width(), box.height());
   int gaps[BND_COUNT];
   NeighbourGaps(gaps);
-  *h_min = MIN(gaps[BND_LEFT], gaps[BND_RIGHT]);
-  *h_max = MAX(gaps[BND_LEFT], gaps[BND_RIGHT]);
+  *h_min = std::min(gaps[BND_LEFT], gaps[BND_RIGHT]);
+  *h_max = std::max(gaps[BND_LEFT], gaps[BND_RIGHT]);
   if (*h_max > max_dimension && *h_min < max_dimension) *h_max = *h_min;
-  *v_min = MIN(gaps[BND_ABOVE], gaps[BND_BELOW]);
-  *v_max = MAX(gaps[BND_ABOVE], gaps[BND_BELOW]);
+  *v_min = std::min(gaps[BND_ABOVE], gaps[BND_BELOW]);
+  *v_max = std::max(gaps[BND_ABOVE], gaps[BND_BELOW]);
   if (*v_max > max_dimension && *v_min < max_dimension) *v_max = *v_min;
 }
 

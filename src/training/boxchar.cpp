@@ -185,15 +185,15 @@ void BoxChar::InsertSpaces(bool rtl_rules, bool vertical_rules,
       Box* prev = (*boxes)[i - 1]->box_;
       Box* next = (*boxes)[i + 1]->box_;
       ASSERT_HOST(prev != nullptr && next != nullptr);
-      int top = MIN(prev->y, next->y);
-      int bottom = MAX(prev->y + prev->h, next->y + next->h);
+      int top = std::min(prev->y, next->y);
+      int bottom = std::max(prev->y + prev->h, next->y + next->h);
       int left = prev->x + prev->w;
       int right = next->x;
       if (vertical_rules) {
         top = prev->y + prev->h;
         bottom = next->y;
-        left = MIN(prev->x, next->x);
-        right = MAX(prev->x + prev->w, next->x + next->w);
+        left = std::min(prev->x, next->x);
+        right = std::max(prev->x + prev->w, next->x + next->w);
       } else if (rtl_rules) {
         // With RTL we have to account for BiDi.
         // Right becomes the min left of all prior boxes back to the first

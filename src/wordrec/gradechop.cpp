@@ -29,6 +29,7 @@
 #include "wordrec.h"
 #include "chop.h"
 #include "ndminx.h"
+#include <algorithm>
 #include <cmath>
 
 /*----------------------------------------------------------------------
@@ -60,7 +61,7 @@ PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   else
     grade = sqrt (split_length) * chop_split_dist_knob;
 
-  return (MAX (0.0, grade));
+  return (std::max(0.0f, grade));
 }
 
 

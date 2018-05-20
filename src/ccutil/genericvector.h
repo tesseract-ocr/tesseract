@@ -20,6 +20,7 @@
 #ifndef TESSERACT_CCUTIL_GENERICVECTOR_H_
 #define TESSERACT_CCUTIL_GENERICVECTOR_H_
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -298,7 +299,7 @@ class GenericVector {
 
   T dot_product(const GenericVector<T>& other) const {
     T result = static_cast<T>(0);
-    for (int i = MIN(size_used_, other.size_used_) - 1; i >= 0; --i)
+    for (int i = std::min(size_used_, other.size_used_) - 1; i >= 0; --i)
       result += data_[i] * other.data_[i];
     return result;
   }

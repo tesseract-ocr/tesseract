@@ -19,6 +19,7 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cassert>
@@ -409,7 +410,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
   Length = Proto->Length;
 
   X = Proto->X + X_SHIFT;
-  Pad = MAX (fabs (cos (Angle)) * (Length / 2.0 +
+  Pad = std::max(fabs (cos (Angle)) * (Length / 2.0 +
                                    classify_pp_end_pad *
                                    GetPicoFeatureLength ()),
              fabs (sin (Angle)) * (classify_pp_side_pad *
@@ -418,7 +419,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
   FillPPLinearBits(ProtoSet->ProtoPruner[PRUNER_X], Index, X, Pad, debug);
 
   Y = Proto->Y + Y_SHIFT;
-  Pad = MAX (fabs (sin (Angle)) * (Length / 2.0 +
+  Pad = std::max(fabs (sin (Angle)) * (Length / 2.0 +
                                    classify_pp_end_pad *
                                    GetPicoFeatureLength ()),
              fabs (cos (Angle)) * (classify_pp_side_pad *
