@@ -187,7 +187,7 @@ class BLOCK:public ELIST_LINK
   void compress(const ICOORD vec);
 
   /// dump whole table
-  void print(FILE *fp, BOOL8 dump);
+  void print(FILE* fp, bool dump);
 
   BLOCK& operator=(const BLOCK & source);
   PDBLK pdblk;                 //< Page Description Block

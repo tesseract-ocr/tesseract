@@ -209,14 +209,14 @@ float make_rows(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward())
   make_initial_textrows(page_tr, block_it.data(), FCOORD(1.0f, 0.0f),
-      !(BOOL8) textord_test_landscape);
+      !textord_test_landscape);
                                  // compute globally
   compute_page_skew(port_blocks, port_m, port_err);
   block_it.set_to_list(port_blocks);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     cleanup_rows_making(page_tr, block_it.data(), port_m, FCOORD(1.0f, 0.0f),
                  block_it.data()->block->pdblk.bounding_box().left(),
-                 !(BOOL8)textord_test_landscape);
+                 !textord_test_landscape);
   }
   return port_m;                 // global skew
 }
@@ -1144,7 +1144,7 @@ void adjust_row_limits(                 //tidy limits
                    tesseract::CCStruct::kAscenderFraction);
     ymin = -size * tesseract::CCStruct::kDescenderFraction;
     row->set_limits (row->intercept () + ymin, row->intercept () + ymax);
-    row->merged = FALSE;
+    row->merged = false;
   }
 }
 

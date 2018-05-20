@@ -54,7 +54,7 @@ GAPMAP::GAPMAP(                 //Constructor
   min_left = INT16_MAX;
   max_right = -INT16_MAX;
   total_rows = 0;
-  any_tabs = FALSE;
+  any_tabs = false;
 
   // row iterator
   TO_ROW_IT row_it(block->get_rows());
@@ -143,7 +143,7 @@ GAPMAP::GAPMAP(                 //Constructor
         map[i] = 0;              //prevent isolated quantum
       }
       else
-        any_tabs = TRUE;
+        any_tabs = true;
     }
   }
   if (gapmap_debug && any_tabs)

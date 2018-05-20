@@ -154,14 +154,14 @@ class REJ
 
     bool rejected();  //Is char rejected?
 
-    BOOL8 accepted() {  //Is char accepted?
+    bool accepted() {  //Is char accepted?
       return !rejected ();
     }
 
                                  //potential rej?
                                  bool accept_if_good_quality();
 
-    BOOL8 recoverable() {
+    bool recoverable() {
       return (rejected () && !perm_rejected ());
     }
 
@@ -240,9 +240,9 @@ class REJMAP
 
     void full_print(FILE *fp);
 
-    BOOL8 recoverable_rejects();  //Any non perm rejs?
+    bool recoverable_rejects();  //Any non perm rejs?
 
-    BOOL8 quality_recoverable_rejects();
+    bool quality_recoverable_rejects();
     //Any potential rejs?
 
     void rej_word_small_xht();  //Reject whole word

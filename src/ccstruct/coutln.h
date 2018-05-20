@@ -93,13 +93,13 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
       delete [] offsets;
     }
 
-    BOOL8 flag(                               //test flag
+    bool flag(                               //test flag
                C_OUTLINE_FLAGS mask) const {  //flag to test
       return flags.bit(mask);
     }
     void set_flag(                       //set flag value
-                  C_OUTLINE_FLAGS mask,  //flag to test
-                  BOOL8 value) {         //value to set
+            C_OUTLINE_FLAGS mask,  //flag to test
+            bool value) {         //value to set
       flags.set_bit(mask, value);
     }
 

@@ -304,7 +304,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
                 prev_word_rejected &&
                 page_res_it.prev_row() == page_res_it.row() &&
                 word->word->space() == 1)
-              word->reject_spaces = TRUE;
+              word->reject_spaces = true;
             word->reject_map.rej_word_block_rej();
           }
           prev_word_rejected = rej_word;
@@ -375,7 +375,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
                     prev_word_rejected &&
                     page_res_it.prev_row() == page_res_it.row() &&
                     word->word->space () == 1)
-                  word->reject_spaces = TRUE;
+                  word->reject_spaces = true;
                 word->reject_map.rej_word_row_rej();
               }
               prev_word_rejected = rej_word;
@@ -411,7 +411,7 @@ void reject_whole_page(PAGE_RES_IT &page_res_it) {
     page_res_it.forward ();
   }
                                  //whole page is rejected
-  page_res_it.page_res->rejected = TRUE;
+  page_res_it.page_res->rejected = true;
 }
 
 namespace tesseract {
@@ -501,8 +501,8 @@ void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
 }
 
 
-BOOL8 Tesseract::terrible_word_crunch(WERD_RES *word,
-                                      GARBAGE_LEVEL garbage_level) {
+bool Tesseract::terrible_word_crunch(WERD_RES* word,
+                                     GARBAGE_LEVEL garbage_level) {
   float rating_per_ch;
   int adjusted_len;
   int crunch_mode = 0;
@@ -533,15 +533,15 @@ BOOL8 Tesseract::terrible_word_crunch(WERD_RES *word,
       tprintf ("Terrible_word_crunch (%d) on \"%s\"\n",
         crunch_mode, word->best_choice->unichar_string().string());
     }
-    return TRUE;
+    return true;
   }
   else
-    return FALSE;
+    return false;
 }
 
-BOOL8 Tesseract::potential_word_crunch(WERD_RES *word,
-                                       GARBAGE_LEVEL garbage_level,
-                                       BOOL8 ok_dict_word) {
+bool Tesseract::potential_word_crunch(WERD_RES* word,
+                                      GARBAGE_LEVEL garbage_level,
+                                      bool ok_dict_word) {
   float rating_per_ch;
   int adjusted_len;
   const char *str = word->best_choice->unichar_string().string();
@@ -975,7 +975,7 @@ int16_t Tesseract::failure_count(WERD_RES *word) {
 }
 
 
-BOOL8 Tesseract::noise_outlines(TWERD *word) {
+bool Tesseract::noise_outlines(TWERD* word) {
   TBOX box;                       // BB of outline
   int16_t outline_count = 0;
   int16_t small_outline_count = 0;

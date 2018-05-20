@@ -302,7 +302,7 @@ SVMenuNode *Tesseract::build_menu_new() {
  *  Redisplay page
  */
 void Tesseract::do_re_display(
-    BOOL8 (tesseract::Tesseract::*word_painter)(PAGE_RES_IT* pr_it)) {
+        bool (tesseract::Tesseract::* word_painter)(PAGE_RES_IT* pr_it)) {
   int block_count = 1;
 
   image_win->Clear();
@@ -710,7 +710,7 @@ void show_point(PAGE_RES* page_res, float x, float y) {
 #endif  // GRAPHICS_DISABLED
 namespace tesseract {
 #ifndef GRAPHICS_DISABLED
-BOOL8 Tesseract:: word_blank_and_set_display(PAGE_RES_IT* pr_it) {
+bool Tesseract::word_blank_and_set_display(PAGE_RES_IT* pr_it) {
   pr_it->word()->word->bounding_box().plot(image_win, ScrollView::BLACK,
                                            ScrollView::BLACK);
   return word_set_display(pr_it);
@@ -722,7 +722,7 @@ BOOL8 Tesseract:: word_blank_and_set_display(PAGE_RES_IT* pr_it) {
  *
  * Normalize word and display in word window
  */
-BOOL8 Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
+bool Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
   WERD_RES* word_res = pr_it->word();
   if (word_res->chopped_word == nullptr) {
     // Setup word normalization parameters.
@@ -744,7 +744,7 @@ BOOL8 Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
     color = WERD::NextColor(color);
   }
   bln_word_window_handle()->Update();
-  return TRUE;
+  return true;
 }
 
 
@@ -754,7 +754,7 @@ BOOL8 Tesseract::word_bln_display(PAGE_RES_IT* pr_it) {
  *
  *  Display a word according to its display modes
  */
-BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
+bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
   WERD_RES* word_res = pr_it->word();
   WERD* word = word_res->word;
   TBOX word_bb;                   // word bounding box
@@ -906,7 +906,7 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
      (ScrollView::Color)((int32_t) editor_image_word_bb_color),
      (ScrollView::Color)((int32_t)
       editor_image_word_bb_color));
-  return TRUE;
+  return true;
 }
 #endif  // GRAPHICS_DISABLED
 
@@ -915,10 +915,10 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
  *
  * Dump members to the debug window
  */
-BOOL8 Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
+bool Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
   if (pr_it->block()->block != nullptr) {
     tprintf("\nBlock data...\n");
-    pr_it->block()->block->print(nullptr, FALSE);
+    pr_it->block()->block->print(nullptr, false);
   }
   tprintf("\nRow data...\n");
   pr_it->row()->row->print(nullptr);
@@ -930,7 +930,7 @@ BOOL8 Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
     tprintf("Current blamer debug: %s\n",
             word_res->blamer_bundle->debug().string());
   }
-  return TRUE;
+  return true;
 }
 
 #ifndef GRAPHICS_DISABLED
@@ -939,7 +939,7 @@ BOOL8 Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
  *
  * Display word according to current display mode settings
  */
-BOOL8 Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
+bool Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
   WERD* word = pr_it->word()->word;
   word->set_display_flag(DF_BOX, word_display_mode.bit(DF_BOX));
   word->set_display_flag(DF_TEXT, word_display_mode.bit(DF_TEXT));

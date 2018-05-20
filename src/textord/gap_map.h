@@ -34,7 +34,7 @@ class GAPMAP
     int16_t bucket_size;           // half an x ht
     int16_t *map;                  //empty counts
     int16_t map_max;               //map[0..max_map]       defind
-    BOOL8 any_tabs;
+    bool any_tabs;
 };
 
 /*-----------------------------*/

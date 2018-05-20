@@ -466,9 +466,9 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
       nullptr);
   #endif
 
-  ex_current_was_last = other_it->ex_current_was_last = FALSE;
-  ex_current_was_cycle_pt = FALSE;
-  other_it->ex_current_was_cycle_pt = FALSE;
+  ex_current_was_last = other_it->ex_current_was_last = false;
+  ex_current_was_cycle_pt = false;
+  other_it->ex_current_was_cycle_pt = false;
 
   temp_it.mark_cycle_pt ();
   do {                           //walk sublist
@@ -477,14 +477,14 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
 
     if (temp_it.at_last ()) {
       list->last = prev;
-      ex_current_was_last = other_it->ex_current_was_last = TRUE;
+      ex_current_was_last = other_it->ex_current_was_last = true;
     }
 
     if (temp_it.current == cycle_pt)
-      ex_current_was_cycle_pt = TRUE;
+      ex_current_was_cycle_pt = true;
 
     if (temp_it.current == other_it->cycle_pt)
-      other_it->ex_current_was_cycle_pt = TRUE;
+      other_it->ex_current_was_cycle_pt = true;
 
     temp_it.forward ();
   }

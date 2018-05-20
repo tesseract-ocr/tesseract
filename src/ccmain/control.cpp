@@ -80,7 +80,7 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
  *
  * @param pr_it the page results iterator
  */
-BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
+bool Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
   int16_t char_qual;
   int16_t good_char_qual;
 
@@ -101,7 +101,7 @@ BOOL8 Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
             word_blob_quality(word_res, pr_it->row()->row),
             word_outline_errs(word_res), char_qual, good_char_qual);
   }
-  return TRUE;
+  return true;
 }
 
 // Helper function to check for a target word and handle it appropriately.

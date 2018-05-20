@@ -37,9 +37,9 @@
 #endif
 
 namespace tesseract {
-BOOL8 Tesseract::word_adaptable(  //should we adapt?
-                                WERD_RES *word,
-                                uint16_t mode) {
+bool Tesseract::word_adaptable(  //should we adapt?
+        WERD_RES* word,
+        uint16_t mode) {
   if (tessedit_adaption_debug) {
     tprintf("Running word_adaptable() for %s rating %.4f certainty %.4f\n",
           word->best_choice == nullptr ? "" :
@@ -65,7 +65,7 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
   */
   if (mode == 0) {
     if (tessedit_adaption_debug) tprintf("adaption disabled\n");
-    return FALSE;
+    return false;
   }
 
   if (flags.bit (ADAPTABLE_WERD)) {
@@ -83,7 +83,7 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
   }
 
   if (!status) {                  // If not set then
-    return FALSE;                // ignore other checks
+    return false;                // ignore other checks
   }
 
   if (flags.bit (CHECK_DAWGS) &&
@@ -92,24 +92,24 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
     (word->best_choice->permuter () != USER_DAWG_PERM) &&
     (word->best_choice->permuter () != NUMBER_PERM)) {
     if (tessedit_adaption_debug) tprintf("word not in dawgs\n");
-    return FALSE;
+    return false;
   }
 
   if (flags.bit (CHECK_ONE_ELL_CONFLICT) && one_ell_conflict (word, false)) {
     if (tessedit_adaption_debug) tprintf("word has ell conflict\n");
-    return FALSE;
+    return false;
   }
 
   if (flags.bit (CHECK_SPACES) &&
     (strchr(word->best_choice->unichar_string().string(), ' ') != nullptr)) {
     if (tessedit_adaption_debug) tprintf("word contains spaces\n");
-    return FALSE;
+    return false;
   }
 
   if (flags.bit (CHECK_AMBIG_WERD) &&
       word->best_choice->dangerous_ambig_found()) {
     if (tessedit_adaption_debug) tprintf("word is ambiguous\n");
-    return FALSE;
+    return false;
   }
 
   if (tessedit_adaption_debug) {

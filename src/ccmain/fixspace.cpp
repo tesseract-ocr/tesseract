@@ -184,8 +184,8 @@ void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list) {
     src_wd = src_it.data();
     if (!src_wd->combination) {
       new_wd = WERD_RES::deep_copy(src_wd);
-      new_wd->combination = FALSE;
-      new_wd->part_of_combo = FALSE;
+      new_wd->combination = false;
+      new_wd->part_of_combo = false;
       new_it.add_after_then_move(new_wd);
     }
   }
@@ -417,7 +417,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               combo = new WERD_RES(copy_word);
               combo->combination = TRUE;
               combo->x_height = prev_word->x_height;
-              prev_word->part_of_combo = TRUE;
+              prev_word->part_of_combo = true;
               prev_word_it.add_before_then_move(combo);
             }
             combo->word->set_flag(W_EOL, word->word->flag(W_EOL));
@@ -429,7 +429,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
             } else {
               // Copy current wd to combo
               combo->copy_on(word);
-              word->part_of_combo = TRUE;
+              word->part_of_combo = true;
             }
             combo->done = FALSE;
             combo->ClearResults();
@@ -583,9 +583,9 @@ void Tesseract::fix_noisy_space_list(WERD_RES_LIST &best_perm, ROW *row,
   old_word_res = best_perm_it.data();
   // Even deep_copy doesn't copy the underlying WERD unless its combination
   // flag is true!.
-  old_word_res->combination = TRUE;   // Kludge to force deep copy
+  old_word_res->combination = true;   // Kludge to force deep copy
   current_perm_it.add_to_end(WERD_RES::deep_copy(old_word_res));
-  old_word_res->combination = FALSE;  // Undo kludge
+  old_word_res->combination = false;  // Undo kludge
 
   break_noisiest_blob_word(current_perm);
 
@@ -671,7 +671,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   }
 
   WERD_RES* new_word_res = new WERD_RES(new_word);
-  new_word_res->combination = TRUE;
+  new_word_res->combination = true;
   worst_word_it.add_before_then_move(new_word_res);
 
   word_res->ClearResults();

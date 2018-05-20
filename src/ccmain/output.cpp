@@ -412,9 +412,9 @@ int16_t Tesseract::count_alphanums(const WERD_CHOICE &word) {
 }
 
 
-BOOL8 Tesseract::acceptable_number_string(const char *s,
-                                          const char *lengths) {
-  BOOL8 prev_digit = FALSE;
+bool Tesseract::acceptable_number_string(const char* s,
+                                         const char* lengths) {
+  bool prev_digit = false;
 
   if (*lengths == 1 && *s == '(')
     s++;
@@ -425,21 +425,21 @@ BOOL8 Tesseract::acceptable_number_string(const char *s,
 
   for (; *s != '\0'; s += *(lengths++)) {
     if (unicharset.get_isdigit(s, *lengths))
-      prev_digit = TRUE;
+      prev_digit = true;
     else if (prev_digit &&
              (*lengths == 1 && ((*s == '.') || (*s == ',') || (*s == '-'))))
-      prev_digit = FALSE;
+      prev_digit = false;
     else if (prev_digit && *lengths == 1 &&
              (*(s + *lengths) == '\0') && ((*s == '%') || (*s == ')')))
-      return TRUE;
+      return true;
     else if (prev_digit &&
              *lengths == 1 && (*s == '%') &&
              (*(lengths + 1) == 1 && *(s + *lengths) == ')') &&
              (*(s + *lengths + *(lengths + 1)) == '\0'))
-      return TRUE;
+      return true;
     else
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 }  // namespace tesseract

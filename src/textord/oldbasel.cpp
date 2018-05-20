@@ -280,7 +280,7 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
   mindescheight = -lineheight * MIN_DESC_FRACTION;
   for (rowindex = 0; rowindex < rowcount; rowindex++) {
     row = rows[rowindex];        /*do each row */
-    row->all_caps = FALSE;
+    row->all_caps = false;
     if (row->ascrise / row->xheight < MIN_ASC_FRACTION) {
     /*no ascenders */
       if (row->xheight >= lineheight * (1 - MAXHEIGHTVARIANCE)
@@ -295,14 +295,14 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
         row->ascrise = row->xheight - lineheight;
                                  /*set to average */
         row->xheight = lineheight;
-        row->all_caps = TRUE;
+        row->all_caps = true;
       }
       else {
         row->ascrise = (fullheight - lineheight) * row->xheight
           / fullheight;
                                  /*scale it */
         row->xheight -= row->ascrise;
-        row->all_caps = TRUE;
+        row->all_caps = true;
       }
       if (row->ascrise < minascheight)
         row->ascrise =

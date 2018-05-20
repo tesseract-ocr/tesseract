@@ -501,17 +501,17 @@ int16_t Tesseract::alpha_count(const char *word,
 }
 
 
-BOOL8 Tesseract::word_contains_non_1_digit(const char *word,
-                                           const char *word_lengths) {
+bool Tesseract::word_contains_non_1_digit(const char* word,
+                                          const char* word_lengths) {
   int16_t i;
   int16_t offset;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isdigit (word + offset, word_lengths[i]) &&
         (word_lengths[i] != 1 || word[offset] != '1'))
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /*************************************************************************

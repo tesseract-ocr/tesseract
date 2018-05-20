@@ -290,25 +290,21 @@ int16_t REJMAP::accept_count() {  //How many accepted?
 }
 
 
-BOOL8 REJMAP::recoverable_rejects() {  //Any non perm rejs?
-  int i;
-
-  for (i = 0; i < len; i++) {
+bool REJMAP::recoverable_rejects() {  //Any non perm rejs?
+  for (int i = 0; i < len; i++) {
     if (ptr[i].recoverable ())
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 
-BOOL8 REJMAP::quality_recoverable_rejects() {  //Any potential rejs?
-  int i;
-
-  for (i = 0; i < len; i++) {
+bool REJMAP::quality_recoverable_rejects() {  //Any potential rejs?
+  for (int i = 0; i < len; i++) {
     if (ptr[i].accept_if_good_quality ())
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 

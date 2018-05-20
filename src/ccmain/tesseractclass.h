@@ -453,7 +453,7 @@ class Tesseract : public Wordrec {
   bool TestNewNormalization(int original_misfits, float baseline_shift,
                             float new_x_ht, WERD_RES *word, BLOCK* block,
                             ROW *row);
-  BOOL8 recog_interactive(PAGE_RES_IT* pr_it);
+  bool recog_interactive(PAGE_RES_IT* pr_it);
 
   // Set fonts of this word.
   void set_word_fonts(WERD_RES *word);
@@ -497,8 +497,8 @@ class Tesseract : public Wordrec {
   );
   void set_unlv_suspects(WERD_RES *word);
   UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
-  BOOL8 acceptable_number_string(const char *s,
-                                 const char *lengths);
+  bool acceptable_number_string(const char* s,
+                                const char* lengths);
   int16_t count_alphanums(const WERD_CHOICE &word);
   int16_t count_alphas(const WERD_CHOICE &word);
   //// tessedit.h ////////////////////////////////////////////////////////
@@ -577,13 +577,13 @@ class Tesseract : public Wordrec {
   );
   void debug_word(PAGE_RES* page_res, const TBOX &selection_box);
   void do_re_display(
-      BOOL8 (tesseract::Tesseract::*word_painter)(PAGE_RES_IT* pr_it));
-  BOOL8 word_display(PAGE_RES_IT* pr_it);
-  BOOL8 word_bln_display(PAGE_RES_IT* pr_it);
-  BOOL8 word_blank_and_set_display(PAGE_RES_IT* pr_its);
-  BOOL8 word_set_display(PAGE_RES_IT* pr_it);
+          bool (tesseract::Tesseract::* word_painter)(PAGE_RES_IT* pr_it));
+  bool word_display(PAGE_RES_IT* pr_it);
+  bool word_bln_display(PAGE_RES_IT* pr_it);
+  bool word_blank_and_set_display(PAGE_RES_IT* pr_its);
+  bool word_set_display(PAGE_RES_IT* pr_it);
   // #ifndef GRAPHICS_DISABLED
-  BOOL8 word_dumper(PAGE_RES_IT* pr_it);
+  bool word_dumper(PAGE_RES_IT* pr_it);
   // #endif  // GRAPHICS_DISABLED
   void blob_feature_display(PAGE_RES* page_res, const TBOX& selection_box);
   //// reject.h //////////////////////////////////////////////////////////
@@ -596,8 +596,8 @@ class Tesseract : public Wordrec {
                               const char *word_lengths);
   int16_t alpha_count(const char *word,
                     const char *word_lengths);
-  BOOL8 word_contains_non_1_digit(const char *word,
-                                  const char *word_lengths);
+  bool word_contains_non_1_digit(const char* word,
+                                 const char* word_lengths);
   void dont_allow_1Il(WERD_RES *word);
   int16_t count_alphanums(  //how many alphanums
                         WERD_RES *word);
@@ -618,9 +618,9 @@ class Tesseract : public Wordrec {
   void reject_edge_blobs(WERD_RES *word);
   void reject_mostly_rejects(WERD_RES *word);
   //// adaptions.h ///////////////////////////////////////////////////////
-  BOOL8 word_adaptable(  //should we adapt?
-                       WERD_RES *word,
-                       uint16_t mode);
+  bool word_adaptable(  //should we adapt?
+          WERD_RES* word,
+          uint16_t mode);
 
   //// tfacepp.cpp ///////////////////////////////////////////////////////
   void recog_word_recursive(WERD_RES* word);
@@ -653,9 +653,9 @@ class Tesseract : public Wordrec {
   void break_noisiest_blob_word(WERD_RES_LIST &words);
   //// docqual.cpp ////////////////////////////////////////////////////////
   GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word);
-  BOOL8 potential_word_crunch(WERD_RES *word,
-                              GARBAGE_LEVEL garbage_level,
-                              BOOL8 ok_dict_word);
+  bool potential_word_crunch(WERD_RES* word,
+                             GARBAGE_LEVEL garbage_level,
+                             bool ok_dict_word);
   void tilde_crunch(PAGE_RES_IT &page_res_it);
   void unrej_good_quality_words(  //unreject potential
                                 PAGE_RES_IT &page_res_it);
@@ -672,17 +672,17 @@ class Tesseract : public Wordrec {
   void unrej_good_chs(WERD_RES *word, ROW *row);
   int16_t count_outline_errs(char c, int16_t outline_count);
   int16_t word_outline_errs(WERD_RES *word);
-  BOOL8 terrible_word_crunch(WERD_RES *word, GARBAGE_LEVEL garbage_level);
+  bool terrible_word_crunch(WERD_RES* word, GARBAGE_LEVEL garbage_level);
   CRUNCH_MODE word_deletable(WERD_RES *word, int16_t &delete_mode);
   int16_t failure_count(WERD_RES *word);
-  BOOL8 noise_outlines(TWERD *word);
+  bool noise_outlines(TWERD* word);
   //// pagewalk.cpp ///////////////////////////////////////////////////////
   void
-  process_selected_words (
-      PAGE_RES* page_res, // blocks to check
-      //function to call
-      TBOX & selection_box,
-      BOOL8 (tesseract::Tesseract::*word_processor)(PAGE_RES_IT* pr_it));
+  process_selected_words(
+          PAGE_RES* page_res, // blocks to check
+          //function to call
+          TBOX& selection_box,
+          bool (tesseract::Tesseract::* word_processor)(PAGE_RES_IT* pr_it));
   //// tessbox.cpp ///////////////////////////////////////////////////////
   void tess_add_doc_word(                          //test acceptability
                          WERD_CHOICE *word_choice  //after context
