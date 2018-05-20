@@ -29,6 +29,8 @@
 #include "unicharset.h"
 #include "unicity_table.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Helper function to get the index of the first result with the required
@@ -340,7 +342,7 @@ int ShapeTable::AddShape(int unichar_id, int font_id) {
   Shape* shape = new Shape;
   shape->AddToShape(unichar_id, font_id);
   shape_table_.push_back(shape);
-  num_fonts_ = MAX(num_fonts_, font_id + 1);
+  num_fonts_ = std::max(num_fonts_, font_id + 1);
   return index;
 }
 
@@ -371,7 +373,7 @@ void ShapeTable::DeleteShape(int shape_id) {
 void ShapeTable::AddToShape(int shape_id, int unichar_id, int font_id) {
   Shape& shape = *shape_table_[shape_id];
   shape.AddToShape(unichar_id, font_id);
-  num_fonts_ = MAX(num_fonts_, font_id + 1);
+  num_fonts_ = std::max(num_fonts_, font_id + 1);
 }
 
 // Adds the given shape to the existing shape with the given index.

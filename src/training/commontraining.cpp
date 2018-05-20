@@ -13,6 +13,7 @@
 
 #include "commontraining.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <cmath>
 
@@ -97,13 +98,13 @@ void ParseArguments(int* argc, char ***argv) {
   tessoptind = 1;
   // Set some global values based on the flags.
   Config.MinSamples =
-      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
+          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_min_samples_fraction)));
   Config.MaxIllegal =
-      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_max_illegal)));
+          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_max_illegal)));
   Config.Independence =
-      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_independence)));
+          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_independence)));
   Config.Confidence =
-      MAX(0.0, MIN(1.0, double(FLAGS_clusterconfig_confidence)));
+          std::max(0.0, std::min(1.0, double(FLAGS_clusterconfig_confidence)));
   // Set additional parameters from config file if specified.
   if (!FLAGS_configfile.empty()) {
     tesseract::ParamUtils::ReadParamsFile(

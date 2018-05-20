@@ -24,6 +24,8 @@
 #include "helpers.h"
 #include "ndminx.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Fast lookup table to get the first least significant set bit in a byte.
@@ -225,26 +227,26 @@ int BitVector::NumSetBits() const {
 // Logical in-place operations on whole bit vectors. Tries to do something
 // sensible if they aren't the same size, but they should be really.
 void BitVector::operator|=(const BitVector& other) {
-  int length = MIN(WordLength(), other.WordLength());
+  int length = std::min(WordLength(), other.WordLength());
   for (int w = 0; w < length; ++w)
     array_[w] |= other.array_[w];
 }
 void BitVector::operator&=(const BitVector& other) {
-  int length = MIN(WordLength(), other.WordLength());
+  int length = std::min(WordLength(), other.WordLength());
   for (int w = 0; w < length; ++w)
     array_[w] &= other.array_[w];
   for (int w = WordLength() - 1; w >= length; --w)
     array_[w] = 0;
 }
 void BitVector::operator^=(const BitVector& other) {
-  int length = MIN(WordLength(), other.WordLength());
+  int length = std::min(WordLength(), other.WordLength());
   for (int w = 0; w < length; ++w)
     array_[w] ^= other.array_[w];
 }
 // Set subtraction *this = v1 - v2.
 void BitVector::SetSubtract(const BitVector& v1, const BitVector& v2) {
   Alloc(v1.size());
-  int length = MIN(v1.WordLength(), v2.WordLength());
+  int length = std::min(v1.WordLength(), v2.WordLength());
   for (int w = 0; w < length; ++w)
     array_[w] = v1.array_[w] ^ (v1.array_[w] & v2.array_[w]);
   for (int w = WordLength() - 1; w >= length; --w)

@@ -29,6 +29,8 @@
 #include "linefind.h"
 #include "ndminx.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Multiple of box size to search for initial gaps.
@@ -164,7 +166,7 @@ int TabFind::GutterWidth(int bottom_y, int top_y, const TabVector& v,
   bool right_to_left = v.IsLeftTab();
   int bottom_x = v.XAtY(bottom_y);
   int top_x = v.XAtY(top_y);
-  int start_x = right_to_left ? MAX(top_x, bottom_x) : MIN(top_x, bottom_x);
+  int start_x = right_to_left ? std::max(top_x, bottom_x) : std::min(top_x, bottom_x);
   BlobGridSearch sidesearch(this);
   sidesearch.StartSideSearch(start_x, bottom_y, top_y);
   int min_gap = max_gutter_width;
@@ -490,8 +492,8 @@ void TabFind::TidyBlobs(TO_BLOCK* block) {
 void TabFind::SetupTabSearch(int x, int y, int* min_key, int* max_key) {
   int key1 = TabVector::SortKey(vertical_skew_, x, (y + tright_.y()) / 2);
   int key2 = TabVector::SortKey(vertical_skew_, x, (y + bleft_.y()) / 2);
-  *min_key = MIN(key1, key2);
-  *max_key = MAX(key1, key2);
+  *min_key = std::min(key1, key2);
+  *max_key = std::max(key1, key2);
 }
 
 ScrollView* TabFind::DisplayTabVectors(ScrollView* tab_win) {
@@ -893,7 +895,7 @@ TabVector* TabFind::FindTabVector(int search_size_multiple,
                                   TabAlignment alignment,
                                   BLOBNBOX* bbox,
                                   int* vertical_x, int* vertical_y) {
-  int height = MAX(bbox->bounding_box().height(), gridsize());
+  int height = std::max(static_cast<int>(bbox->bounding_box().height()), gridsize());
   AlignedBlobParams align_params(*vertical_x, *vertical_y,
                                  height,
                                  search_size_multiple, min_gutter_width,
@@ -1130,14 +1132,14 @@ BLOBNBOX* TabFind::AdjacentBlob(const BLOBNBOX* bbox,
     const TBOX& nbox = neighbour->bounding_box();
     int n_top_y = nbox.top();
     int n_bottom_y = nbox.bottom();
-    int v_overlap = MIN(n_top_y, top_y) - MAX(n_bottom_y, bottom_y);
+    int v_overlap = std::min(n_top_y, top_y) - std::max(n_bottom_y, bottom_y);
     int height = top_y - bottom_y;
     int n_height = n_top_y - n_bottom_y;
-    if (v_overlap > min_overlap_fraction * MIN(height, n_height) &&
+    if (v_overlap > min_overlap_fraction * std::min(height, n_height) &&
         (min_overlap_fraction == 0.0 || !DifferentSizes(height, n_height))) {
       int n_left = nbox.left();
       int n_right = nbox.right();
-      int h_gap = MAX(n_left, left) - MIN(n_right, right);
+      int h_gap = std::max(n_left, left) - std::min(n_right, right);
       int n_mid_x = (n_left + n_right) / 2;
       if (look_left == (n_mid_x < mid_x) && n_mid_x != mid_x) {
         if (h_gap > gap_limit) {

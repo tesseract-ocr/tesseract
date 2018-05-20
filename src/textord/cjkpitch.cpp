@@ -23,6 +23,8 @@
 #include "topitch.h"
 #include "tovars.h"
 
+#include <algorithm>
+
 BOOL_VAR(textord_space_size_is_variable, FALSE,
          "If true, word delimiter spaces are assumed to have "
          "variable width, even though characters have fixed pitch.");
@@ -399,8 +401,8 @@ class FPRow {
 
  private:
   static float x_overlap_fraction(const TBOX& box1, const TBOX& box2) {
-    if (MIN(box1.width(), box2.width()) == 0) return 0.0;
-    return -box1.x_gap(box2) / (float)MIN(box1.width(), box2.width());
+    if (std::min(box1.width(), box2.width()) == 0) return 0.0;
+    return -box1.x_gap(box2) / (float)std::min(box1.width(), box2.width());
   }
 
   static bool mostly_overlap(const TBOX& box1, const TBOX& box2) {
@@ -408,7 +410,7 @@ class FPRow {
   }
 
   static bool significant_overlap(const TBOX& box1, const TBOX& box2) {
-    if (MIN(box1.width(), box2.width()) == 0) return false;
+    if (std::min(box1.width(), box2.width()) == 0) return false;
     int overlap = -box1.x_gap(box2);
     return overlap > 1 || x_overlap_fraction(box1, box2) > 0.1;
   }
@@ -521,7 +523,7 @@ void FPRow::OutputEstimations() {
   // are skinny. Use pitch_ - height_ instead if it's smaller, but
   // positive.
   real_row_->kern_size = real_row_->pr_nonsp =
-      MIN(good_gaps_.ile(0.125), MAX(pitch_ - height_, 0));
+          std::min(good_gaps_.ile(0.125), std::max(pitch_ - height_, 0.0f));
   real_row_->body_size = pitch_ - real_row_->kern_size;
 
   if (good_pitches_.size() < all_pitches_.size() * kFixedPitchThreshold) {
@@ -546,12 +548,12 @@ void FPRow::OutputEstimations() {
 
   // Don't consider a quarter space as a real space, because it's used
   // for line justification in traditional Japanese books.
-  real_row_->max_nonspace = MAX(pitch_ * 0.25 + good_gaps_.minimum(),
+  real_row_->max_nonspace = std::max(pitch_ * 0.25 + good_gaps_.minimum(),
                                 (double)good_gaps_.ile(0.875));
 
   int space_threshold =
-      MIN((real_row_->max_nonspace + real_row_->min_space) / 2,
-          real_row_->xheight);
+          std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
+                   static_cast<int>(real_row_->xheight));
 
   // Make max_nonspace larger than any intra-character gap so that
   // make_prop_words() won't break a row at the middle of a character.
@@ -561,8 +563,8 @@ void FPRow::OutputEstimations() {
     }
   }
   real_row_->space_threshold =
-      MIN((real_row_->max_nonspace + real_row_->min_space) / 2,
-          real_row_->xheight);
+          std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
+                   static_cast<int>(real_row_->xheight));
   real_row_->used_dm_model = false;
 
   // Setup char_cells.
@@ -616,7 +618,7 @@ void FPRow::EstimatePitch(bool pass1) {
   for (int i = 1; i < num_chars(); i++) {
     cx1 = center_x(i);
     int32_t pitch = cx1 - cx0;
-    int32_t gap = MAX(0, real_body(i - 1).x_gap(real_body(i)));
+    int32_t gap = std::max(0, real_body(i - 1).x_gap(real_body(i)));
 
     heights_.Add(box(i).height());
     // Ignore if the pitch is too close.  But don't ignore wide pitch

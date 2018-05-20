@@ -16,6 +16,7 @@
 //            but doesn't have to be the same as the training data.
 //  Author:   Ray Smith
 
+#include <algorithm>
 #include <cstdio>
 #ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
@@ -128,7 +129,7 @@ int main(int argc, char **argv) {
   trainer->ReplicateAndRandomizeSamplesIfRequired();
 
   trainer->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR,
-                                   MAX(3, FLAGS_debug_level), false,
+                                   std::max(3, FLAGS_debug_level), false,
                                    shape_classifier, nullptr);
   delete shape_classifier;
   delete api;

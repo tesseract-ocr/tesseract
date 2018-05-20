@@ -215,16 +215,16 @@ class DLLSYM TBOX  {  // bounding box
     // overlap horizontally then the return value is negative, indicating
     // the amount of the overlap.
     int x_gap(const TBOX& box) const {
-      return MAX(bot_left.x(), box.bot_left.x()) -
-             MIN(top_right.x(), box.top_right.x());
+      return std::max(bot_left.x(), box.bot_left.x()) -
+              std::min(top_right.x(), box.top_right.x());
     }
 
     // Return the vertical gap between the boxes. If the boxes
     // overlap vertically then the return value is negative, indicating
     // the amount of the overlap.
     int y_gap(const TBOX& box) const {
-      return MAX(bot_left.y(), box.bot_left.y()) -
-             MIN(top_right.y(), box.top_right.y());
+      return std::max(bot_left.y(), box.bot_left.y()) -
+              std::min(top_right.y(), box.top_right.y());
     }
 
     // Do boxes overlap on x axis by more than
@@ -357,15 +357,15 @@ inline bool TBOX::overlap(  // do boxes overlap
 
 inline bool TBOX::major_overlap(  // Do boxes overlap more that half.
                                 const TBOX &box) const {
-  int overlap = MIN(box.top_right.x(), top_right.x());
-  overlap -= MAX(box.bot_left.x(), bot_left.x());
+  int overlap = std::min(box.top_right.x(), top_right.x());
+  overlap -= std::max(box.bot_left.x(), bot_left.x());
   overlap += overlap;
-  if (overlap < MIN(box.width(), width()))
+  if (overlap < std::min(box.width(), width()))
     return false;
-  overlap = MIN(box.top_right.y(), top_right.y());
-  overlap -= MAX(box.bot_left.y(), bot_left.y());
+  overlap = std::min(box.top_right.y(), top_right.y());
+  overlap -= std::max(box.bot_left.y(), bot_left.y());
   overlap += overlap;
-  if (overlap < MIN(box.height(), height()))
+  if (overlap < std::min(box.height(), height()))
     return false;
   return true;
 }
@@ -445,8 +445,8 @@ inline bool TBOX::major_y_overlap(const TBOX &box) const {
  **********************************************************************/
 
 inline double TBOX::x_overlap_fraction(const TBOX& other) const {
-  int low = MAX(left(), other.left());
-  int high = MIN(right(), other.right());
+  int low = std::max(left(), other.left());
+  int high = std::min(right(), other.right());
   int width = right() - left();
   if (width == 0) {
     int x = left();
@@ -455,7 +455,7 @@ inline double TBOX::x_overlap_fraction(const TBOX& other) const {
     else
       return 0.0;
   } else {
-    return MAX(0, static_cast<double>(high - low) / width);
+    return std::max(0.0, static_cast<double>(high - low) / width);
   }
 }
 
@@ -467,8 +467,8 @@ inline double TBOX::x_overlap_fraction(const TBOX& other) const {
  **********************************************************************/
 
 inline double TBOX::y_overlap_fraction(const TBOX& other) const {
-  int low = MAX(bottom(), other.bottom());
-  int high = MIN(top(), other.top());
+  int low = std::max(bottom(), other.bottom());
+  int high = std::min(top(), other.top());
   int height = top() - bottom();
   if (height == 0) {
     int y = bottom();
@@ -477,7 +477,7 @@ inline double TBOX::y_overlap_fraction(const TBOX& other) const {
     else
       return 0.0;
   } else {
-    return MAX(0, static_cast<double>(high - low) / height);
+    return std::max(0.0, static_cast<double>(high - low) / height);
   }
 }
 

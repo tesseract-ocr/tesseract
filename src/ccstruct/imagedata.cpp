@@ -234,7 +234,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   input_width = pixGetWidth(src_pix);
   input_height = pixGetHeight(src_pix);
   if (target_height == 0) {
-    target_height = MIN(input_height, max_height);
+    target_height = std::min(input_height, max_height);
   }
   float im_factor = static_cast<float>(target_height) / input_height;
   if (scaled_width != nullptr)

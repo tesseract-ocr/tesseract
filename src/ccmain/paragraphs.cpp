@@ -17,6 +17,7 @@
  *
  **********************************************************************/
 
+#include <algorithm>
 #include <ctype.h>
 #include <memory>  // std::unique_ptr
 
@@ -2415,7 +2416,7 @@ void InitializeRowInfo(bool after_recognition,
     info->pix_ldistance = row->lmargin();
     info->pix_rdistance = row->rmargin();
     info->average_interword_space =
-        row->space() > 0 ? row->space() : MAX(row->x_height(), 1);
+        row->space() > 0 ? row->space() : std::max(static_cast<int>(row->x_height()), 1);
     info->pix_xheight = row->x_height();
     info->has_leaders = false;
     info->has_drop_cap = row->has_drop_cap();

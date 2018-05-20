@@ -27,6 +27,7 @@
 
 #include "baselinedetect.h"
 
+#include <algorithm>
 #include <cmath>
 #include "allheaders.h"
 #include "blobbox.h"
@@ -107,8 +108,8 @@ double BaselineRow::BaselineAngle() const {
 // between this and other.
 double BaselineRow::SpaceBetween(const BaselineRow& other) const {
   // Find the x-centre of overlap of the lines.
-  float x = (MAX(bounding_box_.left(), other.bounding_box_.left()) +
-      MIN(bounding_box_.right(), other.bounding_box_.right())) / 2.0f;
+  float x = (std::max(bounding_box_.left(), other.bounding_box_.left()) +
+          std::min(bounding_box_.right(), other.bounding_box_.right())) / 2.0f;
   // Find the vertical centre between them.
   float y = (StraightYAtX(x) + other.StraightYAtX(x)) / 2.0f;
   // Find the perpendicular distance of (x,y) from each line.
@@ -506,7 +507,7 @@ void BaselineBlock::ParallelizeBaselines(double default_block_skew) {
 void BaselineBlock::SetupBlockParameters() const {
   if (line_spacing_ > 0.0) {
     // Where was block_line_spacing set before?
-    float min_spacing = MIN(block_->line_spacing, line_spacing_);
+    float min_spacing = std::min(block_->line_spacing, static_cast<float>(line_spacing_));
     if (min_spacing < block_->line_size)
       block_->line_size = min_spacing;
     block_->line_spacing = line_spacing_;

@@ -38,6 +38,8 @@
 #include "params.h"
 #include "workingpartset.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // When assigning columns, the max number of misfit grid rows/ColPartitionSets
@@ -1106,8 +1108,8 @@ void ColumnFinder::GridMergePartitions() {
         if (neighbour_box.right() < part->left_margin() &&
             part_box.left() > neighbour->right_margin())
           continue;  // Neighbour is too far to the left.
-        int h_gap = MAX(part_box.left(), neighbour_box.left()) -
-                    MIN(part_box.right(), neighbour_box.right());
+        int h_gap = std::max(part_box.left(), neighbour_box.left()) -
+                std::min(part_box.right(), neighbour_box.right());
         if (h_gap < mean_column_gap_ * kHorizontalGapMergeFraction ||
             part_box.width() < mean_column_gap_ ||
             neighbour_box.width() < mean_column_gap_) {
@@ -1199,8 +1201,8 @@ void ColumnFinder::InsertRemainingNoise(TO_BLOCK* block) {
 
 // Helper makes a box from a horizontal line.
 static TBOX BoxFromHLine(const TabVector* hline) {
-  int top = MAX(hline->startpt().y(), hline->endpt().y());
-  int bottom = MIN(hline->startpt().y(), hline->endpt().y());
+  int top = std::max(hline->startpt().y(), hline->endpt().y());
+  int bottom = std::min(hline->startpt().y(), hline->endpt().y());
   top += hline->mean_width();
   if (top == bottom) {
     if (bottom > 0)
@@ -1285,8 +1287,8 @@ void ColumnFinder::GridInsertVLinePartitions() {
     TabVector* vline = vline_it.data();
     if (!vline->IsSeparator())
       continue;
-    int left = MIN(vline->startpt().x(), vline->endpt().x());
-    int right = MAX(vline->startpt().x(), vline->endpt().x());
+    int left = std::min(vline->startpt().x(), vline->endpt().x());
+    int right = std::max(vline->startpt().x(), vline->endpt().x());
     right += vline->mean_width();
     if (left == right) {
       if (left > 0)

@@ -23,6 +23,7 @@
 #include "config_auto.h"
 #endif
 
+#include <algorithm>
 #include <string.h>
 #include <cmath>
 #ifdef __UNIX__
@@ -783,7 +784,7 @@ static void EvaluateWordSpan(const PointerVector<WERD_RES>& words,
       *bad = true;
     } else {
       *rating += choice->rating();
-      *certainty = MIN(*certainty, choice->certainty());
+      *certainty = std::min(*certainty, choice->certainty());
       if (!Dict::valid_word_permuter(choice->permuter(), false))
         *valid_permuter = false;
     }
@@ -818,7 +819,7 @@ static int SelectBestWords(double rating_ratio,
       int n_right = -INT32_MAX;
       int next_n_left = INT32_MAX;
       WordGap(*new_words, n, &n_right, &next_n_left);
-      if (MAX(b_right, n_right) < MIN(next_b_left, next_n_left)) {
+      if (std::max(b_right, n_right) < std::min(next_b_left, next_n_left)) {
         // The word breaks overlap. [start_b,b] and [start_n, n] match.
         break;
       }

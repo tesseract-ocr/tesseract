@@ -23,6 +23,8 @@
 #include "pageres.h"
 #include "unicharcompress.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Clipping value for certainty inside Tesseract. Reflects the minimum value
@@ -185,7 +187,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     // Create a WERD_RES for the output word.
     WERD_RES* word_res = InitializeWord(
         leading_space, line_box, word_start, word_end,
-        MIN(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
+        std::min(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
     for (int i = word_start; i < word_end; ++i) {
       BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);

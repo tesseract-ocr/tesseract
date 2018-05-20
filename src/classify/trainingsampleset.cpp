@@ -25,6 +25,8 @@
 #include "trainingsample.h"
 #include "unicity_table.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 const int kTestChar = -1;  // 37;
@@ -270,7 +272,7 @@ float TrainingSampleSet::UnicharDistance(const UnicharAndFonts& uf1,
     // the smaller set so as to ensure that all the pairs are different.
     int increment = kPrime1 != num_fonts2 ? kPrime1 : kPrime2;
     int index = 0;
-    int num_samples = MAX(num_fonts1, num_fonts2);
+    int num_samples = std::max(num_fonts1, num_fonts2);
     for (int i = 0; i < num_samples; ++i, index += increment) {
       int f1 = uf1.font_ids[i % num_fonts1];
       int f2 = uf2.font_ids[index % num_fonts2];
@@ -668,7 +670,7 @@ void TrainingSampleSet::ReplicateAndRandomizeSamples() {
     for (int c = 0; c < unicharset_size_; ++c) {
       FontClassInfo& fcinfo = (*font_class_array_)(font_index, c);
       int sample_count = fcinfo.samples.size();
-      int min_samples = 2 * MAX(kSampleRandomSize, sample_count);
+      int min_samples = 2 * std::max(kSampleRandomSize, sample_count);
       if (sample_count > 0 && sample_count < min_samples) {
         int base_count = sample_count;
         for (int base_index = 0; sample_count < min_samples; ++sample_count) {

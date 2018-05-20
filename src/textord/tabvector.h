@@ -27,6 +27,8 @@
 #include "rect.h"
 #include "bbgrid.h"
 
+#include <algorithm>
+
 class BLOBNBOX;
 class ScrollView;
 
@@ -197,16 +199,16 @@ class TabVector : public ELIST2_LINK {
 
   // Compute the vertical overlap with the other TabVector.
   int VOverlap(const TabVector& other) const {
-    return MIN(other.endpt_.y(), endpt_.y()) -
-           MAX(other.startpt_.y(), startpt_.y());
+    return std::min(other.endpt_.y(), endpt_.y()) -
+            std::max(other.startpt_.y(), startpt_.y());
   }
   // Compute the vertical overlap with the given y bounds.
   int VOverlap(int top_y, int bottom_y) const {
-    return MIN(top_y, endpt_.y()) - MAX(bottom_y, startpt_.y());
+    return std::min(top_y, static_cast<int>(endpt_.y())) - std::max(bottom_y, static_cast<int>(startpt_.y()));
   }
   // Compute the extended vertical overlap with the given y bounds.
   int ExtendedOverlap(int top_y, int bottom_y) const {
-    return MIN(top_y, extended_ymax_) - MAX(bottom_y, extended_ymin_);
+    return std::min(top_y, extended_ymax_) - std::max(bottom_y, extended_ymin_);
   }
 
   // Return true if this is a left tab stop, either aligned, or ragged.

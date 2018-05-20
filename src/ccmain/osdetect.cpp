@@ -33,6 +33,8 @@
 #include "tesseractclass.h"
 #include "textord.h"
 
+#include <algorithm>
+
 const int kMinCharactersToTry = 50;
 const int kMaxCharactersToTry = 5 * kMinCharactersToTry;
 
@@ -282,7 +284,7 @@ int os_detect_blobs(const GenericVector<int>* allowed_scripts,
   ScriptDetector s(allowed_scripts, osr, tess);
 
   BLOBNBOX_C_IT filtered_it(blob_list);
-  int real_max = MIN(filtered_it.length(), kMaxCharactersToTry);
+  int real_max = std::min(filtered_it.length(), kMaxCharactersToTry);
   // tprintf("Total blobs found = %d\n", blobs_total);
   // tprintf("Number of blobs post-filtering = %d\n", filtered_it.length());
   // tprintf("Number of blobs to try = %d\n", real_max);

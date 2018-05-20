@@ -12,6 +12,7 @@
 // limitations under the License.
 //
 ///////////////////////////////////////////////////////////////////////
+#include <algorithm>
 #include <ctime>
 
 #include "errorcounter.h"
@@ -479,11 +480,11 @@ bool ErrorCounter::ComputeRates(const Counts& counts, double rates[CT_SIZE]) {
       counts.n[CT_REJECT];
   const int junk_samples = counts.n[CT_REJECTED_JUNK] + counts.n[CT_ACCEPTED_JUNK];
   // Compute rates for normal chars.
-  double denominator = static_cast<double>(MAX(ok_samples, 1));
+  double denominator = static_cast<double>(std::max(ok_samples, 1));
   for (int ct = 0; ct <= CT_RANK; ++ct)
     rates[ct] = counts.n[ct] / denominator;
   // Compute rates for junk.
-  denominator = static_cast<double>(MAX(junk_samples, 1));
+  denominator = static_cast<double>(std::max(junk_samples, 1));
   for (int ct = CT_REJECTED_JUNK; ct <= CT_ACCEPTED_JUNK; ++ct)
     rates[ct] = counts.n[ct] / denominator;
   return ok_samples != 0 || junk_samples != 0;

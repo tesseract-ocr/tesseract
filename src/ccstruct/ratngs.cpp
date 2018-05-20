@@ -24,6 +24,7 @@
 
 #include "ratngs.h"
 
+#include <algorithm>
 #include <string>
 #include "blobs.h"
 #include "callcpp.h"
@@ -142,10 +143,10 @@ bool BLOB_CHOICE::PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
   }
   double this_range = max_xheight() - min_xheight();
   double other_range = other.max_xheight() - other.min_xheight();
-  double denominator = ClipToRange(MIN(this_range, other_range),
+  double denominator = ClipToRange(std::min(this_range, other_range),
                                    1.0, kMaxOverlapDenominator * x_height);
-  double overlap = MIN(max_xheight(), other.max_xheight()) -
-                   MAX(min_xheight(), other.min_xheight());
+  double overlap = std::min(max_xheight(), other.max_xheight()) -
+          std::max(min_xheight(), other.min_xheight());
   overlap /= denominator;
   if (debug) {
     tprintf("PosAndSize for %d v %d: bl diff = %g, ranges %g, %g / %g ->%g\n",

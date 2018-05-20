@@ -693,8 +693,8 @@ std::string FontUtils::BestFonts(
     std::vector<bool> ch_flags;
     int raw_score = 0;
     int ok_chars = FontScore(ch_map, font_names[i], &raw_score, &ch_flags);
-    most_ok_chars = MAX(ok_chars, most_ok_chars);
-    best_raw_score = MAX(raw_score, best_raw_score);
+    most_ok_chars = std::max(ok_chars, most_ok_chars);
+    best_raw_score = std::max(raw_score, best_raw_score);
 
     font_flags.push_back(ch_flags);
     font_scores.push_back(ok_chars);

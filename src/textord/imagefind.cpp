@@ -31,6 +31,8 @@
 
 #include "allheaders.h"
 
+#include <algorithm>
+
 INT_VAR(textord_tabfind_show_images, false, "Show image blobs");
 
 namespace tesseract {
@@ -420,12 +422,12 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   // background.
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  int left_pad = MAX(rect.left() - 2 * factor, 0) / factor;
+  int left_pad = std::max(rect.left() - 2 * factor, 0) / factor;
   int top_pad = (rect.top() + 2 * factor + (factor - 1)) / factor;
-  top_pad = MIN(height, top_pad);
+  top_pad = std::min(height, top_pad);
   int right_pad = (rect.right() + 2 * factor + (factor - 1)) / factor;
-  right_pad = MIN(width, right_pad);
-  int bottom_pad = MAX(rect.bottom() - 2 * factor, 0) / factor;
+  right_pad = std::min(width, right_pad);
+  int bottom_pad = std::max(rect.bottom() - 2 * factor, 0) / factor;
   int width_pad = right_pad - left_pad;
   int height_pad = top_pad - bottom_pad;
   if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4)
@@ -581,13 +583,13 @@ bool ImageFind::BlankImageInBetween(const TBOX& box1, const TBOX& box2,
   if (box1.x_gap(box2) >= box1.y_gap(box2)) {
     if (box1.x_gap(box2) <= 0)
       return true;
-    search_box.set_left(MIN(box1.right(), box2.right()));
-    search_box.set_right(MAX(box1.left(), box2.left()));
+    search_box.set_left(std::min(box1.right(), box2.right()));
+    search_box.set_right(std::max(box1.left(), box2.left()));
   } else {
     if (box1.y_gap(box2) <= 0)
       return true;
-    search_box.set_top(MAX(box1.bottom(), box2.bottom()));
-    search_box.set_bottom(MIN(box1.top(), box2.top()));
+    search_box.set_top(std::max(box1.bottom(), box2.bottom()));
+    search_box.set_bottom(std::min(box1.top(), box2.top()));
   }
   return CountPixelsInRotatedBox(search_box, im_box, rotation, pix) == 0;
 }
@@ -1070,8 +1072,8 @@ static bool ExpandImageIntoParts(const TBOX& max_image_box,
         DeletePartition(part);
         continue;
       }
-      int x_dist = MAX(0, box.x_gap(im_part_box));
-      int y_dist = MAX(0, box.y_gap(im_part_box));
+      int x_dist = std::max(0, box.x_gap(im_part_box));
+      int y_dist = std::max(0, box.y_gap(im_part_box));
       int dist = x_dist * x_dist + y_dist * y_dist;
       if (dist > box.area() || dist > im_part_box.area())
         continue;  // Not close enough.
