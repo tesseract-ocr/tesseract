@@ -108,12 +108,12 @@ class REJ
       flags2.turn_on_bit (rej_flag - 16);
   }
 
-  BOOL8 rej_before_nn_accept();
-  BOOL8 rej_between_nn_and_mm();
-  BOOL8 rej_between_mm_and_quality_accept();
-  BOOL8 rej_between_quality_and_minimal_rej_accept();
-  BOOL8 rej_before_mm_accept();
-  BOOL8 rej_before_quality_accept();
+  bool rej_before_nn_accept();
+  bool rej_between_nn_and_mm();
+  bool rej_between_mm_and_quality_accept();
+  bool rej_between_quality_and_minimal_rej_accept();
+  bool rej_before_mm_accept();
+  bool rej_before_quality_accept();
 
   public:
     REJ() {  //constructor
@@ -132,7 +132,7 @@ class REJ
       return *this;
     }
 
-    BOOL8 flag(REJ_FLAGS rej_flag) {
+    bool flag(REJ_FLAGS rej_flag) {
       if (rej_flag < 16)
         return flags1.bit (rej_flag);
       else
@@ -150,16 +150,16 @@ class REJ
         return MAP_ACCEPT;
     }
 
-    BOOL8 perm_rejected();  //Is char perm reject?
+    bool perm_rejected();  //Is char perm reject?
 
-    BOOL8 rejected();  //Is char rejected?
+    bool rejected();  //Is char rejected?
 
     BOOL8 accepted() {  //Is char accepted?
       return !rejected ();
     }
 
                                  //potential rej?
-    BOOL8 accept_if_good_quality();
+                                 bool accept_if_good_quality();
 
     BOOL8 recoverable() {
       return (rejected () && !perm_rejected ());

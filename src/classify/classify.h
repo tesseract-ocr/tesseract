@@ -109,7 +109,7 @@ class Classify : public CCStruct {
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
   /* normmatch.cpp ************************************************************/
   FLOAT32 ComputeNormMatch(CLASS_ID ClassId,
-                           const FEATURE_STRUCT& feature, BOOL8 DebugMatch);
+                           const FEATURE_STRUCT& feature, bool DebugMatch);
   void FreeNormProtos();
   NORM_PROTOS* ReadNormProtos(TFile* fp);
   /* protos.cpp ***************************************************************/

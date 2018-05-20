@@ -234,8 +234,8 @@ void Textord::find_components(Pix* pix, BLOCK_LIST *blocks,
  **********************************************************************/
 
 void Textord::filter_blobs(ICOORD page_tr,         // top right
-                           TO_BLOCK_LIST *blocks,  // output list
-                           BOOL8 testing_on) {     // for plotting
+                           TO_BLOCK_LIST* blocks,  // output list
+                           bool testing_on) {     // for plotting
   TO_BLOCK_IT block_it = blocks;          // destination iterator
   TO_BLOCK *block;                        // created block
 
@@ -458,10 +458,10 @@ void Textord::cleanup_blocks(bool clean_noise, BLOCK_LIST* blocks) {
  * Move blobs of words from rows of garbage into the reject blobs list.
  **********************************************************************/
 
-BOOL8 Textord::clean_noise_from_row(          //remove empties
-                                    ROW *row  //row to clean
-                                   ) {
-  BOOL8 testing_on;
+bool Textord::clean_noise_from_row(          //remove empties
+        ROW* row  //row to clean
+) {
+  bool testing_on;
   TBOX blob_box;                  //bounding box
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
@@ -477,12 +477,9 @@ BOOL8 Textord::clean_noise_from_row(          //remove empties
   C_BLOB_IT blob_it;             //blob iterator
   C_OUTLINE_IT out_it;           //outline iterator
 
-  if (textord_test_y > row->base_line (textord_test_x)
-    && textord_show_blobs
-    && textord_test_y < row->base_line (textord_test_x) + row->x_height ())
-    testing_on = TRUE;
-  else
-    testing_on = FALSE;
+  testing_on = textord_test_y > row->base_line (textord_test_x)
+               && textord_show_blobs
+               && textord_test_y < row->base_line (textord_test_x) + row->x_height ();
   dot_count = 0;
   norm_count = 0;
   super_norm_count = 0;

@@ -64,7 +64,7 @@ class TESS_API STRING
     // As DeSerialize, but only seeks past the data - hence a static method.
     static bool SkipDeSerialize(tesseract::TFile* fp);
 
-    BOOL8 contains(const char c) const;
+    bool contains(const char c) const;
     int32_t length() const;
     int32_t size() const { return length(); }
     // Workaround to avoid g++ -Wsign-compare warnings.
@@ -92,9 +92,9 @@ class TESS_API STRING
     void split(const char c, GenericVector<STRING> *splited);
     void truncate_at(int32_t index);
 
-    BOOL8 operator== (const STRING & string) const;
-    BOOL8 operator!= (const STRING & string) const;
-    BOOL8 operator!= (const char *string) const;
+    bool operator== (const STRING & string) const;
+    bool operator!= (const STRING & string) const;
+    bool operator!= (const char *string) const;
 
     STRING & operator= (const char *string);
     STRING & operator= (const STRING & string);

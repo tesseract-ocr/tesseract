@@ -674,7 +674,7 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
       (stats_.doc_good_char_quality /
        static_cast<float>(stats_.good_char_count)) : 0.0);
   }
-  BOOL8 good_quality_doc =
+  bool good_quality_doc =
     ((page_res->rej_count / static_cast<float>(page_res->char_count)) <=
      quality_rej_pc) &&
     (stats_.doc_blob_quality / static_cast<float>(page_res->char_count) >=
@@ -1792,20 +1792,20 @@ ACCEPTABLE_WERD_TYPE Tesseract::acceptable_word_string(
   return word_type;
 }
 
-BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
-  BOOL8 show_map_detail = FALSE;
+bool Tesseract::check_debug_pt(WERD_RES* word, int location) {
+  bool show_map_detail = false;
   int16_t i;
 
   if (!test_pt)
-    return FALSE;
+    return false;
 
   tessedit_rejection_debug.set_value (FALSE);
   debug_x_ht_level.set_value(0);
 
-  if (word->word->bounding_box ().contains (FCOORD (test_pt_x, test_pt_y))) {
+  if (word->word->bounding_box().contains(FCOORD (test_pt_x, test_pt_y))) {
     if (location < 0)
-      return TRUE;               // For breakpoint use
-    tessedit_rejection_debug.set_value (TRUE);
+      return true;               // For breakpoint use
+    tessedit_rejection_debug.set_value(TRUE);
     debug_x_ht_level.set_value(2);
     tprintf ("\n\nTESTWD::");
     switch (location) {
@@ -1827,7 +1827,7 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
         break;
       case 50:
         tprintf ("classify_word_pass2 - END");
-        show_map_detail = TRUE;
+        show_map_detail = true;
         break;
       case 60:
         tprintf ("fixspace");
@@ -1849,7 +1849,7 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
         break;
       case 120:
         tprintf ("Write results pass");
-        show_map_detail = TRUE;
+        show_map_detail = true;
         break;
     }
     if (word->best_choice != nullptr) {
@@ -1868,9 +1868,9 @@ BOOL8 Tesseract::check_debug_pt(WERD_RES *word, int location) {
     }
     tprintf ("Tess Accepted: %s\n", word->tess_accepted ? "TRUE" : "FALSE");
     tprintf ("Done flag: %s\n\n", word->done ? "TRUE" : "FALSE");
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }
 

@@ -95,12 +95,12 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
 
     BOOL8 flag(                               //test flag
                C_OUTLINE_FLAGS mask) const {  //flag to test
-      return flags.bit (mask);
+      return flags.bit(mask);
     }
     void set_flag(                       //set flag value
                   C_OUTLINE_FLAGS mask,  //flag to test
                   BOOL8 value) {         //value to set
-      flags.set_bit (mask, value);
+      flags.set_bit(mask, value);
     }
 
     C_OUTLINE_LIST *child() {  //get child list
@@ -200,9 +200,9 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     int32_t count_transitions(                   //count maxima
                             int32_t threshold);  //size threshold
 
-    BOOL8 operator< (            //containment test
+    bool operator< (            //containment test
       const C_OUTLINE & other) const;
-    BOOL8 operator> (            //containment test
+    bool operator> (            //containment test
       C_OUTLINE & other) const
     {
       return other < *this;      //use the < to do it

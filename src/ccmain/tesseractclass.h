@@ -459,7 +459,7 @@ class Tesseract : public Wordrec {
   void set_word_fonts(WERD_RES *word);
   void font_recognition_pass(PAGE_RES* page_res);
   void dictionary_correction_pass(PAGE_RES* page_res);
-  BOOL8 check_debug_pt(WERD_RES *word, int location);
+  bool check_debug_pt(WERD_RES* word, int location);
 
   //// superscript.cpp ////////////////////////////////////////////////////
   bool SubAndSuperscriptFix(WERD_RES *word_res);
@@ -491,10 +491,10 @@ class Tesseract : public Wordrec {
   //// output.h //////////////////////////////////////////////////////////
 
   void output_pass(PAGE_RES_IT &page_res_it, const TBOX *target_word_box);
-  void write_results(PAGE_RES_IT &page_res_it,  // full info
+  void write_results(PAGE_RES_IT& page_res_it,  // full info
                      char newline_type,         // type of newline
-                     BOOL8 force_eol            // override tilde crunch?
-                    );
+                     bool force_eol            // override tilde crunch?
+  );
   void set_unlv_suspects(WERD_RES *word);
   UNICHAR_ID get_rep_char(WERD_RES *word);  // what char is repeated?
   BOOL8 acceptable_number_string(const char *s,
@@ -571,10 +571,10 @@ class Tesseract : public Wordrec {
   #endif  // GRAPHICS_DISABLED
   void process_image_event( // action in image win
                            const SVEvent &event);
-  BOOL8 process_cmd_win_event(                 // UI command semantics
-                              int32_t cmd_event,  // which menu item?
-                              char *new_value   // any prompt data
-                             );
+  bool process_cmd_win_event(                 // UI command semantics
+          int32_t cmd_event,  // which menu item?
+          char* new_value   // any prompt data
+  );
   void debug_word(PAGE_RES* page_res, const TBOX &selection_box);
   void do_re_display(
       BOOL8 (tesseract::Tesseract::*word_painter)(PAGE_RES_IT* pr_it));
@@ -589,7 +589,7 @@ class Tesseract : public Wordrec {
   //// reject.h //////////////////////////////////////////////////////////
   // make rej map for word
   void make_reject_map(WERD_RES *word, ROW *row, int16_t pass);
-  BOOL8 one_ell_conflict(WERD_RES *word_res, BOOL8 update_map);
+  bool one_ell_conflict(WERD_RES* word_res, bool update_map);
   int16_t first_alphanum_index(const char *word,
                              const char *word_lengths);
   int16_t first_alphanum_offset(const char *word,
@@ -602,9 +602,9 @@ class Tesseract : public Wordrec {
   int16_t count_alphanums(  //how many alphanums
                         WERD_RES *word);
   void flip_0O(WERD_RES *word);
-  BOOL8 non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id);
-  BOOL8 non_O_upper(const UNICHARSET& ch_set, UNICHAR_ID unichar_id);
-  BOOL8 repeated_nonalphanum_wd(WERD_RES *word, ROW *row);
+  bool non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id);
+  bool non_O_upper(const UNICHARSET& ch_set, UNICHAR_ID unichar_id);
+  bool repeated_nonalphanum_wd(WERD_RES* word, ROW* row);
   void nn_match_word(  //Match a word
                      WERD_RES *word,
                      ROW *row);
@@ -634,7 +634,7 @@ class Tesseract : public Wordrec {
                   WERD_RES *word2,
                   BlamerBundle *orig_bb) const;
   //// fixspace.cpp ///////////////////////////////////////////////////////
-  BOOL8 digit_or_numeric_punct(WERD_RES *word, int char_position);
+  bool digit_or_numeric_punct(WERD_RES *word, int char_position);
   int16_t eval_word_spacing(WERD_RES_LIST &word_res_list);
   void match_current_words(WERD_RES_LIST &words, ROW *row, BLOCK* block);
   int16_t fp_eval_word_spacing(WERD_RES_LIST &word_res_list);
@@ -646,8 +646,8 @@ class Tesseract : public Wordrec {
                         int32_t word_count,     //count of words in doc
                         PAGE_RES *page_res);
   void dump_words(WERD_RES_LIST &perm, int16_t score,
-                  int16_t mode, BOOL8 improved);
-  BOOL8 fixspace_thinks_word_done(WERD_RES *word);
+                  int16_t mode, bool improved);
+  bool fixspace_thinks_word_done(WERD_RES *word);
   int16_t worst_noise_blob(WERD_RES *word_res, float *worst_noise_score);
   float blob_noise_score(TBLOB *blob);
   void break_noisiest_blob_word(WERD_RES_LIST &words);
@@ -661,9 +661,9 @@ class Tesseract : public Wordrec {
                                 PAGE_RES_IT &page_res_it);
   void doc_and_block_rejection(  //reject big chunks
                                PAGE_RES_IT &page_res_it,
-                               BOOL8 good_quality_doc);
+                               bool good_quality_doc);
   void quality_based_rejection(PAGE_RES_IT &page_res_it,
-                               BOOL8 good_quality_doc);
+                               bool good_quality_doc);
   void convert_bad_unlv_chs(WERD_RES *word_res);
   void tilde_delete(PAGE_RES_IT &page_res_it);
   int16_t word_blob_quality(WERD_RES *word, ROW *row);

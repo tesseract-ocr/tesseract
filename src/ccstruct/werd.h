@@ -126,7 +126,7 @@ class WERD : public ELIST2_LINK {
     void set_text(const char *new_text) { correct = new_text; }
 
     BOOL8 flag(WERD_FLAGS mask) const { return flags.bit(mask); }
-    void set_flag(WERD_FLAGS mask, BOOL8 value) { flags.set_bit(mask, value); }
+    void set_flag(WERD_FLAGS mask, bool value) { flags.set_bit(mask, value); }
 
     BOOL8 display_flag(uint8_t flag) const { return disp_flags.bit(flag); }
     void set_display_flag(uint8_t flag, BOOL8 value) {

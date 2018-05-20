@@ -390,12 +390,12 @@ void pgeditor_show_point( // display coords
  */
 
 namespace tesseract {
-BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
-                                       int32_t cmd_event,  // which menu item?
-                                       char *new_value   // any prompt data
-                                      ) {
+bool Tesseract::process_cmd_win_event(                 // UI command semantics
+        int32_t cmd_event,  // which menu item?
+        char* new_value   // any prompt data
+) {
   char msg[160];
-  BOOL8 exit = FALSE;
+  bool exit = false;
 
   color_mode = CM_RAINBOW;
 
@@ -535,7 +535,7 @@ BOOL8 Tesseract::process_cmd_win_event(                 // UI command semantics
       do_re_display(&tesseract::Tesseract::word_display);
       break;
     case QUIT_CMD_EVENT:
-      exit = TRUE;
+      exit = true;
       ScrollView::Exit();
       break;
 
@@ -759,7 +759,7 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
   WERD* word = word_res->word;
   TBOX word_bb;                   // word bounding box
   int word_height;               // ht of word BB
-  BOOL8 displayed_something = FALSE;
+  bool displayed_something = false;
   float shift;                   // from bot left
   C_BLOB_IT c_it;                // cblob iterator
 
@@ -833,13 +833,13 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
     c_it.set_to_list(word->cblob_list());
     for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward())
       c_it.data()->bounding_box().plot(image_win);
-    displayed_something = TRUE;
+    displayed_something = true;
   }
 
                                  // display edge steps
   if (word->display_flag(DF_EDGE_STEP)) {     // edgesteps available
     word->plot(image_win);      // rainbow colors
-    displayed_something = TRUE;
+    displayed_something = true;
   }
 
                                  // display poly approx
@@ -848,7 +848,7 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
     TWERD* tword = TWERD::PolygonalCopy(poly_allow_detailed_fx, word);
     tword->plot(image_win);
     delete tword;
-    displayed_something = TRUE;
+    displayed_something = true;
   }
 
   // Display correct text and blamer information.
@@ -898,7 +898,7 @@ BOOL8 Tesseract::word_display(PAGE_RES_IT* pr_it) {
                       blame.string());
     }
 
-    displayed_something = TRUE;
+    displayed_something = true;
   }
 
   if (!displayed_something)      // display BBox anyway

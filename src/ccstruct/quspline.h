@@ -67,9 +67,9 @@ class QSPLINE
 
     void move(              // reposition spline
               ICOORD vec);  // by vector
-    BOOL8 overlap(                   //test overlap
-                  QSPLINE *spline2,  //2 cannot be smaller
-                  double fraction);  //by more than this
+    bool overlap(                   //test overlap
+            QSPLINE* spline2,  //2 cannot be smaller
+            double fraction);  //by more than this
     void extrapolate(                  //linear extrapolation
                      double gradient,  //gradient to use
                      int left,         //new left edge

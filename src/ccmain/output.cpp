@@ -65,7 +65,7 @@ void Tesseract::output_pass(  //Tess output pass //send to api
                             PAGE_RES_IT &page_res_it,
                             const TBOX *target_word_box) {
   BLOCK_RES *block_of_last_word;
-  BOOL8 force_eol;               //During output
+  bool force_eol;               //During output
   BLOCK *nextblock;              //block of next word
   WERD *nextword;                //next word
 
@@ -123,13 +123,13 @@ void Tesseract::output_pass(  //Tess output pass //send to api
  *   inset list    - a list of bounding boxes of reject insets - indexed by the
  *                   reject strings in the epchoice text.
  *************************************************************************/
-void Tesseract::write_results(PAGE_RES_IT &page_res_it,
+void Tesseract::write_results(PAGE_RES_IT& page_res_it,
                               char newline_type,  // type of newline
-                              BOOL8 force_eol) {  // override tilde crunch?
+                              bool force_eol) {  // override tilde crunch?
   WERD_RES *word = page_res_it.word();
   const UNICHARSET &uchset = *word->uch_set;
   int i;
-  BOOL8 need_reject = FALSE;
+  bool need_reject = false;
   UNICHAR_ID space = uchset.unichar_to_id(" ");
 
   if ((word->unlv_crunch_mode != CR_NONE ||
@@ -147,7 +147,7 @@ void Tesseract::write_results(PAGE_RES_IT &page_res_it,
           !word->word->flag (W_FUZZY_SP)) {
         stats_.last_char_was_tilde = false;
       }
-      need_reject = TRUE;
+      need_reject = true;
     }
     if ((need_reject && !stats_.last_char_was_tilde) ||
         (force_eol && stats_.write_results_empty_block)) {

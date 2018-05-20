@@ -132,10 +132,10 @@ void make_words(tesseract::Textord *textord,
  */
 
 void set_row_spaces(                  //find space sizes
-                    TO_BLOCK *block,  //block to do
-                    FCOORD rotation,  //for drawing
-                    BOOL8 testing_on  //correct orientation
-                   ) {
+        TO_BLOCK* block,  //block to do
+        FCOORD rotation,  //for drawing
+        bool testing_on  //correct orientation
+) {
   TO_ROW *row;                   //current row
   TO_ROW_IT row_it = block->get_rows ();
 
@@ -176,14 +176,14 @@ void set_row_spaces(                  //find space sizes
  */
 
 int32_t row_words(                  //compute space size
-                TO_BLOCK *block,  //block it came from
-                TO_ROW *row,      //row to operate on
-                int32_t maxwidth,   //max expected space size
-                FCOORD rotation,  //for drawing
-                BOOL8 testing_on  //for debug
-               ) {
-  BOOL8 testing_row;             //contains testpt
-  BOOL8 prev_valid;              //if decent size
+        TO_BLOCK* block,  //block it came from
+        TO_ROW* row,      //row to operate on
+        int32_t maxwidth,   //max expected space size
+        FCOORD rotation,  //for drawing
+        bool testing_on  //for debug
+) {
+  bool testing_row;             //contains testpt
+  bool prev_valid;              //if decent size
   int32_t prev_x;                //end of prev blob
   int32_t cluster_count;         //no of clusters
   int32_t gap_index;             //which cluster
@@ -203,14 +203,14 @@ int32_t row_words(                  //compute space size
     (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
-  prev_valid = FALSE;
+  prev_valid = false;
   prev_x = -INT32_MAX;
-  testing_row = FALSE;
+  testing_row = false;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
     blob_box = blob->bounding_box ();
     if (blob_box.contains (testpt))
-      testing_row = TRUE;
+      testing_row = true;
     gap_stats.add (blob_box.width (), 1);
   }
   gap_stats.clear ();
@@ -343,15 +343,15 @@ int32_t row_words(                  //compute space size
  */
 
 int32_t row_words2(                  //compute space size
-                 TO_BLOCK *block,  //block it came from
-                 TO_ROW *row,      //row to operate on
-                 int32_t maxwidth,   //max expected space size
-                 FCOORD rotation,  //for drawing
-                 BOOL8 testing_on  //for debug
-                ) {
-  BOOL8 testing_row;             //contains testpt
-  BOOL8 prev_valid;              //if decent size
-  BOOL8 this_valid;              //current blob big enough
+        TO_BLOCK* block,  //block it came from
+        TO_ROW* row,      //row to operate on
+        int32_t maxwidth,   //max expected space size
+        FCOORD rotation,  //for drawing
+        bool testing_on  //for debug
+) {
+  bool testing_row;             //contains testpt
+  bool prev_valid;              //if decent size
+  bool this_valid;              //current blob big enough
   int32_t prev_x;                  //end of prev blob
   int32_t min_width;               //min interesting width
   int32_t valid_count;             //good gaps
@@ -377,9 +377,9 @@ int32_t row_words2(                  //compute space size
     (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
-  prev_valid = FALSE;
+  prev_valid = false;
   prev_x = -INT16_MAX;
-  testing_row = FALSE;
+  testing_row = false;
                                  //min blob size
   min_width = (int32_t) block->pr_space;
   total_count = 0;
@@ -587,7 +587,7 @@ ROW *make_rep_words(                 //make a row
 
 WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
                      int32_t blobcount,      //no of blobs to use
-                     BOOL8 bol,            //start of line
+                     bool bol,            //start of line
                      uint8_t blanks          //no of blanks
                     ) {
   C_OUTLINE_IT cout_it;
@@ -621,9 +621,9 @@ WERD *make_real_word(BLOBNBOX_IT *box_it,  //iterator
   word = new WERD(&cblobs, blanks, nullptr);
 
   if (bol)
-    word->set_flag(W_BOL, TRUE);
+    word->set_flag(W_BOL, true);
   if (box_it->at_first())
-    word->set_flag(W_EOL, TRUE);  // at end of line
+    word->set_flag(W_EOL, true);  // at end of line
 
   return word;
 }

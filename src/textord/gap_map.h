@@ -23,9 +23,9 @@ class GAPMAP
         free_mem(map);
     }
 
-    BOOL8 table_gap(               //Is gap a table?
-                    int16_t left,    //From here
-                    int16_t right);  //To here
+    bool table_gap(               //Is gap a table?
+            int16_t left,    //From here
+            int16_t right);  //To here
 
   private:
     int16_t total_rows;            //in block

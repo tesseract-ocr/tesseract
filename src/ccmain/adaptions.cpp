@@ -95,7 +95,7 @@ BOOL8 Tesseract::word_adaptable(  //should we adapt?
     return FALSE;
   }
 
-  if (flags.bit (CHECK_ONE_ELL_CONFLICT) && one_ell_conflict (word, FALSE)) {
+  if (flags.bit (CHECK_ONE_ELL_CONFLICT) && one_ell_conflict (word, false)) {
     if (tessedit_adaption_debug) tprintf("word has ell conflict\n");
     return FALSE;
   }

@@ -21,7 +21,7 @@
 #include          "rejctmap.h"
 #include          "params.h"
 
-BOOL8 REJ::perm_rejected() {  //Is char perm reject?
+bool REJ::perm_rejected() {  //Is char perm reject?
   return (flag (R_TESS_FAILURE) ||
     flag (R_SMALL_XHT) ||
     flag (R_EDGE_CHAR) ||
@@ -32,47 +32,47 @@ BOOL8 REJ::perm_rejected() {  //Is char perm reject?
 }
 
 
-BOOL8 REJ::rej_before_nn_accept() {
+bool REJ::rej_before_nn_accept() {
   return flag (R_POOR_MATCH) ||
     flag (R_NOT_TESS_ACCEPTED) ||
     flag (R_CONTAINS_BLANKS) || flag (R_BAD_PERMUTER);
 }
 
 
-BOOL8 REJ::rej_between_nn_and_mm() {
+bool REJ::rej_between_nn_and_mm() {
   return flag (R_HYPHEN) ||
     flag (R_DUBIOUS) ||
     flag (R_NO_ALPHANUMS) || flag (R_MOSTLY_REJ) || flag (R_XHT_FIXUP);
 }
 
 
-BOOL8 REJ::rej_between_mm_and_quality_accept() {
+bool REJ::rej_between_mm_and_quality_accept() {
   return flag (R_BAD_QUALITY);
 }
 
 
-BOOL8 REJ::rej_between_quality_and_minimal_rej_accept() {
+bool REJ::rej_between_quality_and_minimal_rej_accept() {
   return flag (R_DOC_REJ) ||
     flag (R_BLOCK_REJ) || flag (R_ROW_REJ) || flag (R_UNLV_REJ);
 }
 
 
-BOOL8 REJ::rej_before_mm_accept() {
+bool REJ::rej_before_mm_accept() {
   return rej_between_nn_and_mm () ||
     (rej_before_nn_accept () &&
     !flag (R_NN_ACCEPT) && !flag (R_HYPHEN_ACCEPT));
 }
 
 
-BOOL8 REJ::rej_before_quality_accept() {
+bool REJ::rej_before_quality_accept() {
   return rej_between_mm_and_quality_accept () ||
     (!flag (R_MM_ACCEPT) && rej_before_mm_accept ());
 }
 
 
-BOOL8 REJ::rejected() {  //Is char rejected?
+bool REJ::rejected() {  //Is char rejected?
   if (flag (R_MINIMAL_REJ_ACCEPT))
-    return FALSE;
+    return false;
   else
     return (perm_rejected () ||
       rej_between_quality_and_minimal_rej_accept () ||
@@ -80,7 +80,7 @@ BOOL8 REJ::rejected() {  //Is char rejected?
 }
 
 
-BOOL8 REJ::accept_if_good_quality() {  //potential rej?
+bool REJ::accept_if_good_quality() {  //potential rej?
   return (rejected () &&
     !perm_rejected () &&
     flag (R_BAD_PERMUTER) &&

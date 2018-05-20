@@ -50,12 +50,12 @@ static void horizontal_coutline_projection(C_OUTLINE *outline,
  * Return TRUE if it is.
  */
 
-BOOL8 test_underline(                   //look for underlines
-                     BOOL8 testing_on,  //< drawing blob
-                     C_BLOB *blob,      //< blob to test
-                     int16_t baseline,    //< coords of baseline
-                     int16_t xheight      //< height of line
-                    ) {
+bool test_underline(                   //look for underlines
+        bool testing_on,  //< drawing blob
+        C_BLOB* blob,      //< blob to test
+        int16_t baseline,    //< coords of baseline
+        int16_t xheight      //< height of line
+) {
   int16_t occ;
   int16_t blob_width;              //width of blob
   TBOX blob_box;                  //bounding box
@@ -106,11 +106,10 @@ BOOL8 test_underline(                   //look for underlines
   }
   if (desc_occ > x_occ + x_occ
     && desc_occ > blob_width * textord_underline_threshold)
-    return TRUE;                 //real underline
-  if (asc_occ > x_occ + x_occ
-    && asc_occ > blob_width * textord_underline_threshold)
-    return TRUE;                 //overline
-  return FALSE;                  //neither
+    return true;                 //real underline
+  return asc_occ > x_occ + x_occ &&
+         asc_occ > blob_width * textord_underline_threshold;                 //overline
+  //neither
 }
 
 

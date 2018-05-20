@@ -95,13 +95,13 @@ void fixed_split_coutline(                        //chop the outline
                           C_OUTLINE_IT *left_it,  //left half of chop
                           C_OUTLINE_IT *right_it  //right half of chop
                          );
-BOOL8 fixed_chop_coutline(                                  //chop the outline
-                          C_OUTLINE *srcline,               //source outline
-                          int16_t chop_coord,                 //place to chop
-                          float pitch_error,                //allowed deviation
-                          C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
-                          C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
-                         );
+bool fixed_chop_coutline(                                  //chop the outline
+        C_OUTLINE* srcline,               //source outline
+        int16_t chop_coord,                 //place to chop
+        float pitch_error,                //allowed deviation
+        C_OUTLINE_FRAG_LIST* left_frags,  //left half of chop
+        C_OUTLINE_FRAG_LIST* right_frags  //right half of chop
+);
 void save_chop_cfragment(                            //chop the outline
                          int16_t head_index,           //head of fragment
                          ICOORD head_pos,            //head of fragment

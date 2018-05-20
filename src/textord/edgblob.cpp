@@ -184,7 +184,7 @@ int32_t OL_BUCKETS::count_children(                     // recursive count
                                  C_OUTLINE *outline,  // parent outline
                                  int32_t max_count      // max output
                                 ) {
-  BOOL8 parent_box;              // could it be boxy
+  bool parent_box;              // could it be boxy
   int16_t xmin, xmax;              // coord limits
   int16_t ymin, ymax;
   int16_t xindex, yindex;          // current bucket
@@ -207,7 +207,7 @@ int32_t OL_BUCKETS::count_children(                     // recursive count
   grandchild_count = 0;
   parent_area = 0;
   max_parent_area = 0;
-  parent_box = TRUE;
+  parent_box = true;
   for (yindex = ymin; yindex <= ymax; yindex++) {
     for (xindex = xmin; xindex <= xmax; xindex++) {
       child_it.set_to_list(&buckets[yindex * bxdim + xindex]);
@@ -239,7 +239,7 @@ int32_t OL_BUCKETS::count_children(                     // recursive count
               parent_area = -parent_area;
             max_parent_area = outline->bounding_box().area() * edges_boxarea;
             if (parent_area < max_parent_area)
-              parent_box = FALSE;
+              parent_box = false;
           }
           if (parent_box &&
               (!edges_children_fix ||
@@ -249,7 +249,7 @@ int32_t OL_BUCKETS::count_children(                     // recursive count
               child_area = -child_area;
             if (edges_children_fix) {
               if (parent_area - child_area < max_parent_area) {
-                parent_box = FALSE;
+                parent_box = false;
                 continue;
               }
               if (grandchild_count > 0) {
@@ -399,7 +399,7 @@ void empty_buckets(                     // find blobs
                    BLOCK *block,        // block to scan
                    OL_BUCKETS *buckets  // output buckets
                   ) {
-  BOOL8 good_blob;               // healthy blob
+  bool good_blob;               // healthy blob
   C_OUTLINE_LIST outlines;       // outlines in block
                                  // iterator
   C_OUTLINE_IT out_it = &outlines;
@@ -437,11 +437,11 @@ void empty_buckets(                     // find blobs
  * illegal and return FALSE.
  */
 
-BOOL8 capture_children(                       // find children
-                       OL_BUCKETS *buckets,   // bucket sort clanss
-                       C_BLOB_IT *reject_it,  // dead grandchildren
-                       C_OUTLINE_IT *blob_it  // output outlines
-                      ) {
+bool capture_children(                       // find children
+        OL_BUCKETS* buckets,   // bucket sort clanss
+        C_BLOB_IT* reject_it,  // dead grandchildren
+        C_OUTLINE_IT* blob_it  // output outlines
+) {
   C_OUTLINE *outline;            // master outline
   int32_t child_count;             // no of children
 
@@ -454,9 +454,9 @@ BOOL8 capture_children(                       // find children
     child_count = buckets->count_children(outline,
                                            edges_children_count_limit);
   if (child_count > edges_children_count_limit)
-    return FALSE;
+    return false;
 
   if (child_count > 0)
     buckets->extract_children(outline, blob_it);
-  return TRUE;
+  return true;
 }
