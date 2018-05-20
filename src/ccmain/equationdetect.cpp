@@ -164,8 +164,8 @@ void EquationDetect::IdentifySpecialText(
 
   // Normalize the blob. Set the origin to the place we want to be the
   // bottom-middle, and scaling is to make the height the x-height.
-  float scaling = static_cast<float>(kBlnXHeight) / box.height();
-  float x_orig = (box.left() + box.right()) / 2.0f, y_orig = box.bottom();
+  const float scaling = static_cast<float>(kBlnXHeight) / box.height();
+  const float x_orig = (box.left() + box.right()) / 2.0f, y_orig = box.bottom();
   TBLOB* normed_blob = new TBLOB(*tblob);
   normed_blob->Normalize(nullptr, nullptr, nullptr, x_orig, y_orig, scaling, scaling,
                          0.0f, static_cast<float>(kBlnBaselineOffset),
@@ -188,13 +188,13 @@ void EquationDetect::IdentifySpecialText(
     equ_choice = choice_it.data();
   }
 
-  float lang_score = lang_choice ? lang_choice->certainty() : -FLT_MAX;
-  float equ_score = equ_choice ? equ_choice->certainty() : -FLT_MAX;
+  const float lang_score = lang_choice ? lang_choice->certainty() : -FLT_MAX;
+  const float equ_score = equ_choice ? equ_choice->certainty() : -FLT_MAX;
 
   const float kConfScoreTh = -5.0f, kConfDiffTh = 1.8;
   // The scores here are negative, so the max/min == fabs(min/max).
   // float ratio = fmax(lang_score, equ_score) / fmin(lang_score, equ_score);
-  float diff = fabs(lang_score - equ_score);
+  const float diff = fabs(lang_score - equ_score);
   BlobSpecialTextType type = BSTT_NONE;
 
   // Classification.
@@ -222,7 +222,7 @@ void EquationDetect::IdentifySpecialText(
 
 BlobSpecialTextType EquationDetect::EstimateTypeForUnichar(
     const UNICHARSET& unicharset, const UNICHAR_ID id) const {
-  STRING s = unicharset.id_to_unichar(id);
+  const STRING s = unicharset.id_to_unichar(id);
   if (unicharset.get_isalpha(id)) {
     return BSTT_NONE;
   }
@@ -260,8 +260,8 @@ void EquationDetect::IdentifySpecialText() {
   equ_tesseract_.tess_bn_matching.set_value(0);
 
   // Set the multiplier to zero for lang_tesseract_ to improve the accuracy.
-  int classify_class_pruner = lang_tesseract_->classify_class_pruner_multiplier;
-  int classify_integer_matcher =
+  const int classify_class_pruner = lang_tesseract_->classify_class_pruner_multiplier;
+  const int classify_integer_matcher =
       lang_tesseract_->classify_integer_matcher_multiplier;
   lang_tesseract_->classify_class_pruner_multiplier.set_value(0);
   lang_tesseract_->classify_integer_matcher_multiplier.set_value(0);
@@ -284,7 +284,7 @@ void EquationDetect::IdentifySpecialText() {
       }
     }
     blob_heights.sort();
-    int height_th =  blob_heights[blob_heights.size() / 2] / 3 * 2;
+    const int height_th =  blob_heights[blob_heights.size() / 2] / 3 * 2;
     for (bbox_it.mark_cycle_pt (); !bbox_it.cycled_list();
          bbox_it.forward()) {
       if (bbox_it.data()->special_text_type() != BSTT_SKIP) {
@@ -332,12 +332,12 @@ void EquationDetect::IdentifyBlobsToSkip(ColPartition* part) {
         break;
       }
       const float kWidthR = 0.4, kHeightR = 0.3;
-      bool xoverlap = blob_box.major_x_overlap(nextblob_box),
+      const bool xoverlap = blob_box.major_x_overlap(nextblob_box),
           yoverlap = blob_box.y_overlap(nextblob_box);
-      float widthR = static_cast<float>(
+      const float widthR = static_cast<float>(
           MIN(nextblob_box.width(), blob_box.width())) /
           MAX(nextblob_box.width(), blob_box.width());
-      float heightR = static_cast<float>(
+      const float heightR = static_cast<float>(
           MIN(nextblob_box.height(), blob_box.height())) /
           MAX(nextblob_box.height(), blob_box.height());
 
@@ -486,7 +486,7 @@ void EquationDetect::SearchByOverlap(
     const TBOX& part_box(part->bounding_box());
     bool merge = false;
 
-    float x_overlap_fraction = part_box.x_overlap_fraction(seed_box),
+    const float x_overlap_fraction = part_box.x_overlap_fraction(seed_box),
         y_overlap_fraction = part_box.y_overlap_fraction(seed_box);
 
     // If part is large overlapped with seed, then set merge to true.
@@ -550,7 +550,7 @@ void EquationDetect::IdentifySeedParts() {
       continue;
     }
     part->ComputeSpecialBlobsDensity();
-    bool blobs_check = CheckSeedBlobsCount(part);
+    const bool blobs_check = CheckSeedBlobsCount(part);
     const int kTextBlobsTh = 20;
 
     if (CheckSeedDensity(kMathDigitDensityTh1, kMathDigitDensityTh2, part) &&
@@ -609,7 +609,7 @@ void EquationDetect::IdentifySeedParts() {
 
 float EquationDetect::ComputeForegroundDensity(const TBOX& tbox) {
   Pix *pix_bi = lang_tesseract_->pix_binary();
-  int pix_height = pixGetHeight(pix_bi);
+  const int pix_height = pixGetHeight(pix_bi);
   Box* box = boxCreate(tbox.left(), pix_height - tbox.top(),
                        tbox.width(), tbox.height());
   Pix *pix_sub = pixClipRectangle(pix_bi, box, nullptr);
@@ -630,7 +630,7 @@ bool EquationDetect::CheckSeedFgDensity(const float density_th,
   SplitCPHorLite(part, &sub_boxes);
   float parts_passed = 0.0;
   for (int i = 0; i < sub_boxes.size(); ++i) {
-    float density = ComputeForegroundDensity(sub_boxes[i]);
+    const float density = ComputeForegroundDensity(sub_boxes[i]);
     if (density < density_th) {
       parts_passed++;
     }
@@ -673,7 +673,7 @@ void EquationDetect::SplitCPHor(ColPartition* part,
           box.left() - previous_right > kThreshold) {
         // We have a split position. Split the partition in two pieces.
         // Insert the left piece in the grid and keep processing the right.
-        int mid_x = (box.left() + previous_right) / 2;
+        const int mid_x = (box.left() + previous_right) / 2;
         ColPartition* left_part = right_part;
         right_part = left_part->SplitAt(mid_x);
 
@@ -761,7 +761,8 @@ int EquationDetect::CountAlignment(
     return 0;
   }
   const int kDistTh = static_cast<int>(roundf(0.03 * resolution_));
-  int pos = sorted_vec.binary_search(val), count = 0;
+  const int pos = sorted_vec.binary_search(val);
+  int count = 0;
 
   // Search left side.
   int index = pos;
@@ -781,7 +782,7 @@ int EquationDetect::CountAlignment(
 void EquationDetect::IdentifyInlineParts() {
   ComputeCPsSuperBBox();
   IdentifyInlinePartsHorizontal();
-  int textparts_linespacing = EstimateTextPartLineSpacing();
+  const int textparts_linespacing = EstimateTextPartLineSpacing();
   IdentifyInlinePartsVertical(true, textparts_linespacing);
   IdentifyInlinePartsVertical(false, textparts_linespacing);
 }
@@ -807,11 +808,11 @@ void EquationDetect::IdentifyInlinePartsHorizontal() {
   ColPartitionGridSearch search(part_grid_);
   search.SetUniqueMode(true);
   // The center x coordinate of the cp_super_bbox_.
-  int cps_cx = cps_super_bbox_->left() + cps_super_bbox_->width() / 2;
+  const int cps_cx = cps_super_bbox_->left() + cps_super_bbox_->width() / 2;
   for (int i = 0; i < cp_seeds_.size(); ++i) {
     ColPartition* part = cp_seeds_[i];
     const TBOX& part_box(part->bounding_box());
-    int left_margin = part_box.left() - cps_super_bbox_->left(),
+    const int left_margin = part_box.left() - cps_super_bbox_->left(),
         right_margin = cps_super_bbox_->right() - part_box.right();
     bool right_to_left;
     if (left_margin + kMarginDiffTh < right_margin &&
@@ -985,7 +986,7 @@ bool EquationDetect::CheckSeedBlobsCount(ColPartition* part) {
   const int kSeedMathBlobsCount = 2;
   const int kSeedMathDigitBlobsCount = 5;
 
-  int blobs = part->boxes_count(),
+  const int blobs = part->boxes_count(),
       math_blobs = part->SpecialBlobsCount(BSTT_MATH),
       digit_blobs = part->SpecialBlobsCount(BSTT_DIGIT);
   if (blobs < kSeedBlobsCountTh || math_blobs <= kSeedMathBlobsCount ||
@@ -1056,8 +1057,8 @@ EquationDetect::IndentType EquationDetect::IsIndented(ColPartition* part) {
     }
 
     if (part_box.y_gap(neighbor_box) < kYGapTh) {
-      int left_gap = part_box.left() - neighbor_box.left();
-      int right_gap = neighbor_box.right() - part_box.right();
+      const int left_gap = part_box.left() - neighbor_box.left();
+      const int right_gap = neighbor_box.right() - part_box.right();
       if (left_gap > kXGapTh) {
         left_indented = true;
       }
@@ -1132,7 +1133,7 @@ void EquationDetect::ExpandSeedHorizontal(
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX& seed_box(seed->bounding_box());
-  int x = search_left ? seed_box.left() : seed_box.right();
+  const int x = search_left ? seed_box.left() : seed_box.right();
   search.StartSideSearch(x, seed_box.bottom(), seed_box.top());
   search.SetUniqueMode(true);
 
@@ -1189,7 +1190,7 @@ void EquationDetect::ExpandSeedVertical(
 
   ColPartitionGridSearch search(part_grid_);
   const TBOX& seed_box(seed->bounding_box());
-  int y = search_bottom ? seed_box.bottom() : seed_box.top();
+  const int y = search_bottom ? seed_box.bottom() : seed_box.top();
   search.StartVerticalSearch(
       cps_super_bbox_->left(), cps_super_bbox_->right(), y);
   search.SetUniqueMode(true);
