@@ -30,6 +30,7 @@
 #include <cstring>
 #include <climits>
 #include <cstdio>
+#include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -50,7 +51,7 @@ enum Ranks {
   RANK_INT  = 0,
   RANK_LONG = 1,
   RANK_LONGLONG = 2,
-  RANK_PTR      = INT_MAX // Special value used for pointers
+  RANK_PTR      = std::numeric_limits<int>::max() // Special value used for pointers
 };
 
 const enum Ranks kMinRank = RANK_CHAR;

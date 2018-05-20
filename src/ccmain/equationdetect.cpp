@@ -22,6 +22,7 @@
 #endif
 
 #include <float.h>
+#include <limits>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -1198,7 +1199,7 @@ void EquationDetect::ExpandSeedVertical(
   // Search iteratively.
   ColPartition *part = nullptr;
   GenericVector<ColPartition*> parts;
-  int skipped_min_top = INT_MAX, skipped_max_bottom = -1;
+  int skipped_min_top = std::numeric_limits<int>::max(), skipped_max_bottom = -1;
   while ((part = search.NextVerticalSearch(search_bottom)) != nullptr) {
     if (part == seed) {
       continue;
@@ -1361,9 +1362,9 @@ bool EquationDetect::IsMathBlockSatellite(
   const TBOX& part_box(part->bounding_box());
   // Find the top/bottom nearest neighbor of part.
   ColPartition *neighbors[2];
-  int y_gaps[2] = {INT_MAX, INT_MAX};
+  int y_gaps[2] = {std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
   // The horizontal boundary of the neighbors.
-  int neighbors_left = INT_MAX, neighbors_right = 0;
+  int neighbors_left = std::numeric_limits<int>::max(), neighbors_right = 0;
   for (int i = 0; i < 2; ++i) {
     neighbors[i] = SearchNNVertical(i != 0, part);
     if (neighbors[i]) {
@@ -1380,7 +1381,7 @@ bool EquationDetect::IsMathBlockSatellite(
   if (neighbors[0] == neighbors[1]) {
     // This happens when part is inside neighbor.
     neighbors[1] = nullptr;
-    y_gaps[1] = INT_MAX;
+    y_gaps[1] = std::numeric_limits<int>::max();
   }
 
   // Check if part is within [neighbors_left, neighbors_right].
@@ -1419,7 +1420,7 @@ ColPartition* EquationDetect::SearchNNVertical(
   const TBOX& part_box(part->bounding_box());
   int y = search_bottom ? part_box.bottom() : part_box.top();
   search.StartVerticalSearch(part_box.left(), part_box.right(), y);
-  int min_y_gap = INT_MAX;
+  int min_y_gap = std::numeric_limits<int>::max();
   while ((neighbor = search.NextVerticalSearch(search_bottom)) != nullptr) {
     if (neighbor == part || !IsTextOrEquationType(neighbor->type())) {
       continue;
