@@ -68,7 +68,7 @@ using WordSearch = GridSearch<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT>;
 class Textord {
  public:
   explicit Textord(CCStruct* ccstruct);
-  ~Textord();
+  ~Textord() = default;
 
   // Make the textlines and words inside each block.
   // binary_pix is mandatory and is the binarized input after line removal.

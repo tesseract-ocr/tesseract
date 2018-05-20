@@ -29,8 +29,7 @@ class FPSEGPT_LIST;
 class FPCUTPT
 {
   public:
-    FPCUTPT() {  //empty
-    }
+    FPCUTPT() = default;
     void setup (                 //start of cut
       FPCUTPT cutpts[],          //predecessors
       int16_t array_origin,        //start coord

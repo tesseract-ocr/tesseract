@@ -31,7 +31,7 @@ class Plumbing : public Network {
  public:
   // ni_ and no_ will be set by AddToStack.
   explicit Plumbing(const STRING& name);
-  virtual ~Plumbing();
+  virtual ~Plumbing() = default;
 
   // Returns the required shape input to the network.
   StaticShape InputShape() const override { return stack_[0]->InputShape(); }

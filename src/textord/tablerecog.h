@@ -72,7 +72,7 @@ namespace tesseract {
 class StructuredTable {
  public:
   StructuredTable();
-  ~StructuredTable();
+  ~StructuredTable() = default;
 
   // Initialization code. Must be called after the constructor.
   void Init();

@@ -2066,8 +2066,6 @@ ColSegment::ColSegment()
       num_text_cells_(0),
       type_(COL_UNKNOWN) {
 }
-ColSegment::~ColSegment() {
-}
 
 // Provides a color for BBGrid to draw the rectangle.
 ScrollView::Color  ColSegment::BoxColor() const {

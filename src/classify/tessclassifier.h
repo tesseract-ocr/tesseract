@@ -37,7 +37,7 @@ class TessClassifier : public ShapeClassifier {
  public:
   TessClassifier(bool pruner_only, tesseract::Classify* classify)
     : pruner_only_(pruner_only), classify_(classify) {}
-  virtual ~TessClassifier() {}
+  virtual ~TessClassifier() = default;
 
   // Classifies the given [training] sample, writing to results.
   // See ShapeClassifier for a full description.

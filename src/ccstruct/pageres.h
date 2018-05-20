@@ -86,8 +86,7 @@ class PAGE_RES {                 // page result
            BLOCK_LIST *block_list,   // real blocks
            WERD_CHOICE **prev_word_best_choice_ptr);
 
-  ~PAGE_RES () {               // destructor
-  }
+  ~PAGE_RES () = default;
 };
 
 /*************************************************************************
@@ -109,13 +108,11 @@ class BLOCK_RES:public ELIST_LINK {
 
   ROW_RES_LIST row_res_list;
 
-  BLOCK_RES() {
-  }                            // empty constructor
+  BLOCK_RES() = default;
 
   BLOCK_RES(bool merge_similar_words, BLOCK *the_block);  // real block
 
-  ~BLOCK_RES () {              // destructor
-  }
+  ~BLOCK_RES () = default;
 };
 
 /*************************************************************************
@@ -130,13 +127,11 @@ class ROW_RES:public ELIST_LINK {
   int32_t whole_word_rej_count;  // rejs in total rej wds
   WERD_RES_LIST word_res_list;
 
-  ROW_RES() {
-  }                            // empty constructor
+  ROW_RES() = default;
 
   ROW_RES(bool merge_similar_words, ROW *the_row);  // real row
 
-  ~ROW_RES() {                // destructor
-  }
+  ~ROW_RES() = default;
 };
 
 /*************************************************************************
@@ -660,8 +655,7 @@ class PAGE_RES_IT {
  public:
   PAGE_RES * page_res;         // page being iterated
 
-  PAGE_RES_IT() {
-  }                            // empty contructor
+  PAGE_RES_IT() = default;
 
   PAGE_RES_IT(PAGE_RES *the_page_res) {    // page result
     page_res = the_page_res;

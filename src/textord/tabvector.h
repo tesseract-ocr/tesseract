@@ -70,11 +70,10 @@ ELISTIZEH(TabConstraint)
 // by implicit reference counting via the elements of the list.
 class TabConstraint : public ELIST_LINK {
  public:
-  TabConstraint() {
-    // This empty constructor is here only so that the class can be ELISTIZED.
-    // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
-    // and eliminate CLASSNAME##_copier.
-  }
+  // This empty constructor is here only so that the class can be ELISTIZED.
+  // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
+  // and eliminate CLASSNAME##_copier.
+  TabConstraint() = default;
 
   // Create a constraint for the top or bottom of this TabVector.
   static void CreateConstraint(TabVector* vector, bool is_top);
@@ -112,11 +111,10 @@ class TabConstraint : public ELIST_LINK {
 // that represents a tab stop or a rule line.
 class TabVector : public ELIST2_LINK {
  public:
-  TabVector() {
-    // TODO(rays) fix this in elst.h line 1076, where it should use the
-    // copy constructor instead of operator=.
-  }
-  ~TabVector();
+  // TODO(rays) fix this in elst.h line 1076, where it should use the
+  // copy constructor instead of operator=.
+  TabVector() = default;
+  ~TabVector() = default;
 
   // Public factory to build a TabVector from a list of boxes.
   // The TabVector will be of the given alignment type.

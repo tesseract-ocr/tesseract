@@ -42,7 +42,7 @@ struct UnicharRating;
 // Interface base class for classifiers that produce ShapeRating results.
 class ShapeClassifier {
  public:
-  virtual ~ShapeClassifier() {}
+  virtual ~ShapeClassifier() = default;
 
   // Classifies the given [training] sample, writing to results.
   // If page_pix is not nullptr, the overriding function may call

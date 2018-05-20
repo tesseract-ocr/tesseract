@@ -30,8 +30,7 @@ ELISTIZEH(C_BLOB)
 class C_BLOB:public ELIST_LINK
 {
   public:
-    C_BLOB() {
-    }
+    C_BLOB() = default;
     explicit C_BLOB(C_OUTLINE_LIST *outline_list);
     // Simpler constructor to build a blob from a single outline that has
     // already been fully initialized.

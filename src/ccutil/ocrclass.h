@@ -34,7 +34,7 @@
 #else
 #include          <sys/time.h>
 #endif
-#include          <time.h>
+#include          <ctime>
 #include          "host.h"
 
 /*Maximum lengths of various strings*/

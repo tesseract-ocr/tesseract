@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <assert.h>
+#include <cassert>
 #include "unichar.h"
 #include "host.h"
 #include "unicharmap.h"

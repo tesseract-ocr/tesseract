@@ -23,12 +23,6 @@
 
 namespace tesseract {
 
-EquationDetectBase::EquationDetectBase() {
-}
-
-EquationDetectBase::~EquationDetectBase() {
-}
-
 void EquationDetectBase::RenderSpecialText(Pix* pix,
                                            BLOBNBOX* blob) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);

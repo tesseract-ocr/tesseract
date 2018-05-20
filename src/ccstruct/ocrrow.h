@@ -33,8 +33,7 @@ class ROW:public ELIST_LINK
 {
   friend void tweak_row_baseline(ROW *, double, double);
   public:
-    ROW() {
-    }                            //empty constructor
+    ROW() = default;
     ROW(                    //constructor
         int32_t spline_size,  //no of segments
         int32_t *xstarts,     //segment boundaries

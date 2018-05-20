@@ -27,8 +27,6 @@ namespace tesseract {
 Reversed::Reversed(const STRING& name, NetworkType type) : Plumbing(name) {
   type_ = type;
 }
-Reversed::~Reversed() {
-}
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).

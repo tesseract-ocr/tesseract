@@ -33,7 +33,7 @@ namespace tesseract {
 class Reconfig : public Network {
  public:
   Reconfig(const STRING& name, int ni, int x_scale, int y_scale);
-  virtual ~Reconfig();
+  virtual ~Reconfig() = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

@@ -51,7 +51,7 @@ class CCUtilMutex {
 class CCUtil {
  public:
   CCUtil();
-  virtual ~CCUtil();
+  virtual ~CCUtil() = default;
 
  public:
   // Read the arguments and set up the data path.

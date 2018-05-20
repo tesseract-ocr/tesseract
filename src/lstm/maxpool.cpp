@@ -27,9 +27,6 @@ Maxpool::Maxpool(const STRING& name, int ni, int x_scale, int y_scale)
   no_ = ni;
 }
 
-Maxpool::~Maxpool() {
-}
-
 // Reads from the given file. Returns false in case of error.
 bool Maxpool::DeSerialize(TFile* fp) {
   bool result = Reconfig::DeSerialize(fp);

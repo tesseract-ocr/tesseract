@@ -26,9 +26,6 @@ Plumbing::Plumbing(const STRING& name)
   : Network(NT_PARALLEL, name, 0, 0) {
 }
 
-Plumbing::~Plumbing() {
-}
-
 // Suspends/Enables training by setting the training_ flag. Serialize and
 // DeSerialize only operate on the run-time data if state is false.
 void Plumbing::SetEnableTraining(TrainingState state) {

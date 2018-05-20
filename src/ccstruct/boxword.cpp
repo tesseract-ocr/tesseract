@@ -37,9 +37,6 @@ BoxWord::BoxWord(const BoxWord& src) {
   CopyFrom(src);
 }
 
-BoxWord::~BoxWord() {
-}
-
 BoxWord& BoxWord::operator=(const BoxWord& src) {
   CopyFrom(src);
   return *this;

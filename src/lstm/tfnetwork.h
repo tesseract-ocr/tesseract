@@ -36,7 +36,7 @@ namespace tesseract {
 class TFNetwork : public Network {
  public:
   explicit TFNetwork(const STRING& name);
-  virtual ~TFNetwork();
+  virtual ~TFNetwork() = default;
 
   // Returns the required shape input to the network.
   StaticShape InputShape() const override { return input_shape_; }

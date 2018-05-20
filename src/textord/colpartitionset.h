@@ -39,12 +39,11 @@ using PartSetVector = GenericVector<ColPartitionSet*>;
 // ColPartitionSets are used in building the column layout of a page.
 class ColPartitionSet : public ELIST_LINK {
  public:
-  ColPartitionSet() {
-  }
+  ColPartitionSet() = default;
   explicit ColPartitionSet(ColPartition_LIST* partitions);
   explicit ColPartitionSet(ColPartition* partition);
 
-  ~ColPartitionSet();
+  ~ColPartitionSet() = default;
 
   // Simple accessors.
   const TBOX& bounding_box() const {

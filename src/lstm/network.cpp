@@ -97,8 +97,6 @@ Network::Network(NetworkType type, const STRING& name, int ni, int no)
       backward_win_(nullptr),
       randomizer_(nullptr) {}
 
-Network::~Network() {
-}
 
 // Suspends/Enables/Permanently disables training by setting the training_
 // flag. Serialize and DeSerialize only operate on the run-time data if state

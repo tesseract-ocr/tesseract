@@ -37,9 +37,6 @@ LTRResultIterator::LTRResultIterator(PAGE_RES* page_res, Tesseract* tesseract,
     paragraph_separator_("\n") {
 }
 
-LTRResultIterator::~LTRResultIterator() {
-}
-
 // Returns the null terminated UTF-8 encoded text string for the current
 // object at the given level. Use delete [] to free after use.
 char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {

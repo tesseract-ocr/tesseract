@@ -48,8 +48,7 @@ class BLOCK:public ELIST_LINK
         int16_t xmax,        //< top right
         int16_t ymax);
 
-  ~BLOCK () {
-  }
+  ~BLOCK () = default;
 
   /**
    * set space size etc.

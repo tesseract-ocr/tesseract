@@ -46,9 +46,6 @@ ColPartitionSet::ColPartitionSet(ColPartition* part) {
   ComputeCoverage();
 }
 
-ColPartitionSet::~ColPartitionSet() {
-}
-
 // Returns the number of columns of good width.
 int ColPartitionSet::GoodColumnCount() const {
   int num_good_cols = 0;

@@ -28,7 +28,7 @@ namespace tesseract {
 class FullyConnected : public Network {
  public:
   FullyConnected(const STRING& name, int ni, int no, NetworkType type);
-  virtual ~FullyConnected();
+  virtual ~FullyConnected() = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

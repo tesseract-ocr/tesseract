@@ -56,7 +56,7 @@ namespace tesseract {
 class DetLineFit {
  public:
   DetLineFit();
-  ~DetLineFit();
+  ~DetLineFit() = default;
 
   // Delete all Added points.
   void Clear();

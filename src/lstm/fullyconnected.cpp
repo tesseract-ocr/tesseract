@@ -41,9 +41,6 @@ FullyConnected::FullyConnected(const STRING& name, int ni, int no,
   : Network(type, name, ni, no), external_source_(nullptr), int_mode_(false) {
 }
 
-FullyConnected::~FullyConnected() {
-}
-
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
 StaticShape FullyConnected::OutputShape(const StaticShape& input_shape) const {

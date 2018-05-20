@@ -111,7 +111,7 @@ class ParamUtils {
 // Definition of various parameter types.
 class Param {
  public:
-  ~Param() {}
+  ~Param() = default;
 
   const char *name_str() const { return name_; }
   const char *info_str() const { return info_; }

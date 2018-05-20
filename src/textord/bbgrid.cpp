@@ -27,14 +27,8 @@ namespace tesseract {
 ///////////////////////////////////////////////////////////////////////
 // BBGrid IMPLEMENTATION.
 ///////////////////////////////////////////////////////////////////////
-GridBase::GridBase() {
-}
-
 GridBase::GridBase(int gridsize, const ICOORD& bleft, const ICOORD& tright) {
   Init(gridsize, bleft, tright);
-}
-
-GridBase::~GridBase() {
 }
 
 // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
