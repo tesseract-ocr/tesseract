@@ -21,7 +21,7 @@
 #ifndef TESSERACT_CCSTRUCT_BLAMER_H_
 #define TESSERACT_CCSTRUCT_BLAMER_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include "boxword.h"
 #include "genericvector.h"
 #include "matrix.h"

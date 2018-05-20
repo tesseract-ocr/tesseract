@@ -34,6 +34,8 @@
 #include "coutln.h"
 #include "tprintf.h"
 
+#include <algorithm>
+
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -51,8 +53,8 @@ BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 // Returns the bounding box of all the points in the split.
 TBOX SPLIT::bounding_box() const {
   return TBOX(
-      MIN(point1->pos.x, point2->pos.x), MIN(point1->pos.y, point2->pos.y),
-      MAX(point1->pos.x, point2->pos.x), MAX(point1->pos.y, point2->pos.y));
+      std::min(point1->pos.x, point2->pos.x), std::min(point1->pos.y, point2->pos.y),
+      std::max(point1->pos.x, point2->pos.x), std::max(point1->pos.y, point2->pos.y));
 }
 
 // Hides the SPLIT so the outlines appear not to be cut by it.
@@ -91,15 +93,15 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
                           double width_change_knob) const {
   TBOX box1 = Box12();
   TBOX box2 = Box21();
-  int min_left = MIN(box1.left(), box2.left());
-  int max_right = MAX(box1.right(), box2.right());
+  int min_left = std::min(box1.left(), box2.left());
+  int max_right = std::max(box1.right(), box2.right());
   if (xmin < min_left && xmax > max_right) return kBadPriority;
 
   float grade = 0.0f;
   // grade_overlap.
   int width1 = box1.width();
   int width2 = box2.width();
-  int min_width = MIN(width1, width2);
+  int min_width = std::min(width1, width2);
   int overlap = -box1.x_gap(box2);
   if (overlap == min_width) {
     grade += 100.0f;  // Total overlap.
@@ -109,10 +111,10 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
   }
   // grade_center_of_blob.
   if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
-    grade += MIN(kCenterGradeCap, center_knob * abs(width1 - width2));
+    grade += std::min(static_cast<double>(kCenterGradeCap), center_knob * abs(width1 - width2));
   }
   // grade_width_change.
-  float width_change_grade = 20 - (max_right - min_left - MAX(width1, width2));
+  float width_change_grade = 20 - (max_right - min_left - std::max(width1, width2));
   if (width_change_grade > 0.0f)
     grade += width_change_grade * width_change_knob;
   return grade;

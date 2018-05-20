@@ -27,7 +27,7 @@
           I n c l u d e s
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 
 #include "chopper.h"
 

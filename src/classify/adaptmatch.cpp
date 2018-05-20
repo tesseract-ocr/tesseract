@@ -55,10 +55,11 @@
 #include "unicharset.h"
 #include "werd.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #ifdef __UNIX__
 #include <assert.h>
 #endif
@@ -144,7 +145,7 @@ static float ScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS& results) {
   return results.match[index].rating;
 }
 
-void InitMatcherRatings(register FLOAT32 *Rating);
+void InitMatcherRatings(FLOAT32 *Rating);
 
 int MakeTempProtoPerm(void *item1, void *item2);
 
@@ -1370,7 +1371,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   // Compute the char_norm_array from the saved cn_feature.
   FEATURE norm_feature = sample.GetCNFeature();
   uint8_t* char_norm_array = new uint8_t[unicharset.size()];
-  int num_pruner_classes = MAX(unicharset.size(),
+  int num_pruner_classes = std::max(unicharset.size(),
                                PreTrainedTemplates->NumClasses);
   uint8_t* pruner_norm_array = new uint8_t[num_pruner_classes];
   adapt_results->BlobLength =
@@ -1491,7 +1492,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     // whether adapted or static.
     // TODO(rays) find some way of automatically tuning these constants.
     if (Certainty > best_certainty) {
-      best_certainty = MIN(Certainty, classify_adapted_pruning_threshold);
+      best_certainty = std::min(Certainty, static_cast<float>(classify_adapted_pruning_threshold));
     } else if (adapted &&
                Certainty / classify_adapted_pruning_factor < best_certainty) {
       continue;  // Don't accept bad adapted results.

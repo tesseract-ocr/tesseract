@@ -21,7 +21,7 @@
 
 #ifndef GOOGLE_TESSERACT
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "tprintf.h"
 #include "params.h"
 

@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include "genericvector.h"
 #include "strngs.h"
 

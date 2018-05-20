@@ -24,6 +24,8 @@
 #include "pageres.h"
 #include "tesseractclass.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 PageIterator::PageIterator(PAGE_RES* page_res, Tesseract* tesseract, int scale,
@@ -421,9 +423,9 @@ Pix* PageIterator::GetBinaryImage(PageIteratorLevel level) const {
     int mask_x = left - mask_box.left();
     int mask_y = top - (tesseract_->ImageHeight() - mask_box.top());
     // AND the mask and pix, putting the result in pix.
-    pixRasterop(pix, MAX(0, -mask_x), MAX(0, -mask_y), pixGetWidth(pix),
-                pixGetHeight(pix), PIX_SRC & PIX_DST, mask, MAX(0, mask_x),
-                MAX(0, mask_y));
+    pixRasterop(pix, std::max(0, -mask_x), std::max(0, -mask_y), pixGetWidth(pix),
+                pixGetHeight(pix), PIX_SRC & PIX_DST, mask, std::max(0, mask_x),
+                std::max(0, mask_y));
     pixDestroy(&mask);
   }
   return pix;
@@ -450,10 +452,10 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     return GetBinaryImage(level);
 
   // Expand the box.
-  *left = MAX(*left - padding, 0);
-  *top = MAX(*top - padding, 0);
-  right = MIN(right + padding, rect_width_);
-  bottom = MIN(bottom + padding, rect_height_);
+  *left = std::max(*left - padding, 0);
+  *top = std::max(*top - padding, 0);
+  right = std::min(right + padding, rect_width_);
+  bottom = std::min(bottom + padding, rect_height_);
   Box* box = boxCreate(*left, *top, right - *left, bottom - *top);
   Pix* grey_pix = pixClipRectangle(original_img, box, nullptr);
   boxDestroy(&box);
@@ -467,8 +469,8 @@ Pix* PageIterator::GetImage(PageIteratorLevel level, int padding,
     int width = pixGetWidth(grey_pix);
     int height = pixGetHeight(grey_pix);
     Pix* resized_mask = pixCreate(width, height, 1);
-    pixRasterop(resized_mask, MAX(0, -mask_x), MAX(0, -mask_y), width, height,
-                PIX_SRC, mask, MAX(0, mask_x), MAX(0, mask_y));
+    pixRasterop(resized_mask, std::max(0, -mask_x), std::max(0, -mask_y), width, height,
+                PIX_SRC, mask, std::max(0, mask_x), std::max(0, mask_y));
     pixDestroy(&mask);
     pixDilateBrick(resized_mask, resized_mask, 2 * padding + 1,
                    2 * padding + 1);

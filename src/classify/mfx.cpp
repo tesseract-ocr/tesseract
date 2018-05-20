@@ -26,7 +26,7 @@
 #include "normalis.h"
 #include "params.h"
 
-#include <math.h>
+#include <cmath>
 
 /*----------------------------------------------------------------------------
           Variables

@@ -130,7 +130,7 @@ class Validator {
     kWhitespace = ' ',
     kCombiner = 'c',  // Combiners other than virama.
   };
-  typedef std::pair<CharClass, char32> IndicPair;
+  using IndicPair = std::pair<CharClass, char32>;
 
   Validator(ViramaScript script, bool report_errors)
       : script_(script),

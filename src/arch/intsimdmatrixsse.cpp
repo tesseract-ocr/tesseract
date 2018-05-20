@@ -18,7 +18,7 @@
 
 #include "intsimdmatrixsse.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include "dotproductsse.h"
 

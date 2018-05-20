@@ -23,7 +23,7 @@
 ----------------------------------------------------------------------------*/
 #include "oldlist.h"
 #include "intproto.h"
-#include <stdio.h>
+#include <cstdio>
 
 typedef struct
 {

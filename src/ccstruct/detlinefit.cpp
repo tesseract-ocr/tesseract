@@ -22,6 +22,8 @@
 #include "ndminx.h"
 #include "tprintf.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // The number of points to consider at each end.
@@ -77,14 +79,14 @@ double DetLineFit::Fit(int skip_first, int skip_last,
   ICOORD* starts[kNumEndPoints];
   if (skip_first >= pt_count) skip_first = pt_count - 1;
   int start_count = 0;
-  int end_i = MIN(skip_first + kNumEndPoints, pt_count);
+  int end_i = std::min(skip_first + kNumEndPoints, pt_count);
   for (int i = skip_first; i < end_i; ++i) {
     starts[start_count++] = &pts_[i].pt;
   }
   ICOORD* ends[kNumEndPoints];
   if (skip_last >= pt_count) skip_last = pt_count - 1;
   int end_count = 0;
-  end_i = MAX(0, pt_count - kNumEndPoints - skip_last);
+  end_i = std::max(0, pt_count - kNumEndPoints - skip_last);
   for (int i = pt_count - 1 - skip_last; i >= end_i; --i) {
     ends[end_count++] = &pts_[i].pt;
   }

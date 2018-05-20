@@ -36,6 +36,8 @@
 #include "config_auto.h"
 #endif
 
+#include <algorithm>
+
 #define MAXSPACING      128      /*max expected spacing in pix */
 
 namespace tesseract {
@@ -224,7 +226,7 @@ void Textord::block_spacing_stats(
         (row->pitch_decision == PITCH_DEF_PROP) ||
       (row->pitch_decision == PITCH_CORR_PROP))) {
         real_space_threshold =
-          MAX (tosp_init_guess_kn_mult * block_non_space_gap_width,
+                std::max (tosp_init_guess_kn_mult * block_non_space_gap_width,
           tosp_init_guess_xht_mult * row->xheight);
         blob_it.set_to_list (row->blob_list ());
         blob_it.mark_cycle_pt ();
@@ -278,8 +280,8 @@ void Textord::block_spacing_stats(
       block_space_gap_width = -1;//No est. space width
     else
       block_space_gap_width =
-        MAX ((int16_t) floor (space_gap_stats.median ()),
-        3 * block_non_space_gap_width);
+              std::max(static_cast<int16_t>(floor(space_gap_stats.median())),
+                       static_cast<int16_t>(3 * block_non_space_gap_width));
   }
 }
 
@@ -433,13 +435,13 @@ void Textord::row_spacing_stats(
                 row_idx, row->kern_size, row->space_threshold, row->space_size);
       row->space_threshold =
         (int32_t) (tosp_table_kn_sp_ratio * row->kern_size);
-      row->space_size = MAX (row->space_threshold + 1, row->xheight);
+      row->space_size = std::max(row->space_threshold + 1.0f, row->xheight);
     }
   }
   else if (tosp_sanity_method == 1) {
     sane_space = row->space_size;
     /* NEVER let space size get too close to kern size */
-    if ((row->space_size < tosp_min_sane_kn_sp * MAX (row->kern_size, 2.5))
+    if ((row->space_size < tosp_min_sane_kn_sp * std::max(row->kern_size, 2.5f))
       || ((row->space_size - row->kern_size) <
     (tosp_silly_kn_sp_gap * row->xheight))) {
       if (good_block_space_estimate &&
@@ -447,8 +449,8 @@ void Textord::row_spacing_stats(
         sane_space = block_space_gap_width;
       else
         sane_space =
-          MAX (tosp_min_sane_kn_sp * MAX (row->kern_size, 2.5),
-          row->xheight / 2);
+                std::max(static_cast<float>(tosp_min_sane_kn_sp) * std::max(row->kern_size, 2.5f),
+          row->xheight / 2.0f);
       if (tosp_debug_level > 5)
         tprintf("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f -> %3.2f.\n",
                 block_idx, row_idx, row->kern_size, row->space_threshold,
@@ -460,7 +462,7 @@ void Textord::row_spacing_stats(
     }
     /* NEVER let threshold get VERY far away from kern */
     sane_threshold = int32_t (floor (tosp_max_sane_kn_thresh *
-      MAX (row->kern_size, 2.5)));
+                                             std::max(row->kern_size, 2.5f)));
     if (row->space_threshold > sane_threshold) {
       if (tosp_debug_level > 5)
         tprintf("B:%d R:%d -- DON'T BELIEVE THRESH %3.2f %d %3.2f->%d.\n",
@@ -472,7 +474,7 @@ void Textord::row_spacing_stats(
     }
     /* Beware of tables - there may be NO spaces */
     if (suspected_table) {
-      sane_space = MAX (tosp_table_kn_sp_ratio * row->kern_size,
+      sane_space = std::max(tosp_table_kn_sp_ratio * row->kern_size,
         tosp_table_xht_sp_ratio * row->xheight);
       sane_threshold = int32_t (floor ((sane_space + row->kern_size) / 2));
 
@@ -485,7 +487,7 @@ void Textord::row_spacing_stats(
             row->space_threshold, row->space_size);
                                  //the minimum sane value
         row->space_threshold = (int32_t) sane_space;
-        row->space_size = MAX (row->space_threshold + 1, row->xheight);
+        row->space_size = std::max(row->space_threshold + 1.0f, row->xheight);
       }
     }
   }
@@ -502,7 +504,7 @@ void Textord::row_spacing_stats(
   else {
     /* Any gap greater than 0.6 x-ht is bound to be a space (isn't it:-) */
     row->min_space =
-      MIN (int32_t (ceil (tosp_fuzzy_space_factor * row->xheight)),
+            std::min(int32_t (ceil (tosp_fuzzy_space_factor * row->xheight)),
       int32_t (row->space_size));
     if (row->min_space <= row->space_threshold)
       // Don't be silly
@@ -540,7 +542,7 @@ void Textord::row_spacing_stats(
 
   if ((tosp_fuzzy_sp_fraction > 0) &&
     (row->space_size > row->space_threshold))
-    row->min_space = MAX (row->min_space,
+    row->min_space = std::max(row->min_space,
       (int32_t) ceil (row->space_threshold +
       tosp_fuzzy_sp_fraction *
       (row->space_size -
@@ -555,7 +557,7 @@ void Textord::row_spacing_stats(
 
   if ((tosp_table_fuzzy_kn_sp_ratio > 0) &&
     (suspected_table || tosp_fuzzy_limit_all))
-    row->min_space = MAX (row->min_space,
+    row->min_space = std::max(row->min_space,
       (int32_t) ceil (tosp_table_fuzzy_kn_sp_ratio *
       row->kern_size));
 
@@ -659,7 +661,7 @@ void Textord::old_to_method(
   // space_threshold
   if (tosp_old_to_constrain_sp_kn && tosp_sanity_method == 1 &&
       ((row->space_size <
-        tosp_min_sane_kn_sp * MAX (row->kern_size, 2.5)) ||
+        tosp_min_sane_kn_sp * std::max(row->kern_size, 2.5f)) ||
        ((row->space_size - row->kern_size) <
         tosp_silly_kn_sp_gap * row->xheight))) {
     if (row->kern_size > 2.5)
@@ -696,7 +698,7 @@ BOOL8 Textord::isolated_row_stats(TO_ROW *row,
   int32_t row_length;
 
   kern_estimate = all_gap_stats->median ();
-  crude_threshold_estimate = MAX (tosp_init_guess_kn_mult * kern_estimate,
+  crude_threshold_estimate = std::max(tosp_init_guess_kn_mult * kern_estimate,
     tosp_init_guess_xht_mult * row->xheight);
   small_gaps_count = stats_count_under (all_gap_stats,
     (int16_t)
@@ -1501,7 +1503,7 @@ BOOL8 Textord::make_a_word_break(
       if ((prev_blob_box.width () > 0) &&
         (next_blob_box.width () > 0) &&
         (current_gap >=
-        tosp_kern_gap_factor1 * MAX (prev_gap, next_gap)) &&
+        tosp_kern_gap_factor1 * std::max(prev_gap, next_gap)) &&
         wide_blob (row, prev_blob_box) &&
       wide_blob (row, next_blob_box)) {
 
@@ -1526,7 +1528,7 @@ BOOL8 Textord::make_a_word_break(
                  next_blob_box.width() > 0 &&
                  current_gap > 5 &&  // Rule 9 handles small gap, big ratio.
                  current_gap >=
-                   tosp_kern_gap_factor2 * MAX(prev_gap, next_gap) &&
+                   tosp_kern_gap_factor2 * std::max(prev_gap, next_gap) &&
                  !(narrow_blob(row, prev_blob_box) ||
                    suspected_punct_blob(row, prev_blob_box)) &&
                  !(narrow_blob(row, next_blob_box) ||
@@ -1542,7 +1544,7 @@ BOOL8 Textord::make_a_word_break(
       else if ((tosp_kern_gap_factor3 > 0) &&
                (prev_blob_box.width () > 0) &&
                (next_blob_box.width () > 0) &&
-               (current_gap >= tosp_kern_gap_factor3 * MAX (prev_gap, next_gap)) &&
+               (current_gap >= tosp_kern_gap_factor3 * std::max(prev_gap, next_gap)) &&
                (!tosp_rule_9_test_punct ||
                 (!suspected_punct_blob (row, prev_blob_box) &&
                  !suspected_punct_blob (row, next_blob_box)))) {
@@ -1798,7 +1800,7 @@ TBOX Textord::reduced_box_next(
     else if (blob->joined_to_prev ()) {
       reduced_box +=
         reduced_box_for_blob(blob, row, &new_left_above_xht);
-      left_above_xht = MIN (left_above_xht, new_left_above_xht);
+      left_above_xht = std::min(left_above_xht, new_left_above_xht);
     }
   }
                                  //until next real blob

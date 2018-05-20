@@ -351,8 +351,8 @@ class Wordrec : public Classify {
                            SEAM ** seam, TBLOB * blob);
 
   // gradechop.cpp
-  PRIORITY grade_split_length(register SPLIT *split);
-  PRIORITY grade_sharpness(register SPLIT *split);
+  PRIORITY grade_split_length(SPLIT *split);
+  PRIORITY grade_sharpness(SPLIT *split);
 
   // outlines.cpp
   bool near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1,

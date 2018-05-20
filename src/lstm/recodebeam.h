@@ -169,8 +169,8 @@ struct RecodeNode {
   uint64_t code_hash;
 };
 
-typedef KDPairInc<double, RecodeNode> RecodePair;
-typedef GenericHeap<RecodePair> RecodeHeap;
+using RecodePair = KDPairInc<double, RecodeNode>;
+using RecodeHeap = GenericHeap<RecodePair>;
 
 // Class that holds the entire beam search for recognition of a text line.
 class RecodeBeamSearch {
@@ -262,7 +262,7 @@ class RecodeBeamSearch {
     // all of the step.
     RecodeNode best_initial_dawgs_[NC_COUNT];
   };
-  typedef KDPairInc<float, int> TopPair;
+  using TopPair = KDPairInc<float, int>;
 
   // Generates debug output of the content of a single beam position.
   void DebugBeamPos(const UNICHARSET& unicharset, const RecodeHeap& heap) const;

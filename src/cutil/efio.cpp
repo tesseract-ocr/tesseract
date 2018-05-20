@@ -20,8 +20,8 @@
 ----------------------------------------------------------------------------*/
 #include "efio.h"
 #include "danerror.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #define MAXERRORMESSAGE   256
 

@@ -21,8 +21,8 @@
 // tesseract from the ui.
 #ifdef _WIN32
 #else
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #endif
 
 #include <map>

@@ -22,8 +22,8 @@
 #include "danerror.h"
 #include "emalloc.h"
 #include "scanutils.h"
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 using tesseract::TFile;
 

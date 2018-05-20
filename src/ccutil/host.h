@@ -31,9 +31,9 @@
 #include <cstdint>    // int32_t, ...
 
 // definitions of portable data types (numbers and characters)
-typedef float FLOAT32;
-typedef double FLOAT64;
-typedef unsigned char BOOL8;
+using FLOAT32 = float;
+using FLOAT64 = double;
+using BOOL8 = unsigned char;
 
 #if defined(_WIN32)
 

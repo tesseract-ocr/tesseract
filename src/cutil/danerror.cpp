@@ -26,7 +26,7 @@
 #include "assert.h"
 #endif
 
-#include <stdio.h>
+#include <cstdio>
 
 /**
  * This routine prints the specified error message to stderr.

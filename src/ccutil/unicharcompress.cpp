@@ -44,9 +44,9 @@ static int RadicalPreHash(const std::vector<int>& rs) {
 }
 
 // A hash map to convert unicodes to radical encoding.
-typedef std::unordered_map<int, std::unique_ptr<std::vector<int>>> RSMap;
+using RSMap = std::unordered_map<int, std::unique_ptr<std::vector<int>>>;
 // A hash map to count occurrences of each radical encoding.
-typedef std::unordered_map<int, int> RSCounts;
+using RSCounts = std::unordered_map<int, int>;
 
 static bool DecodeRadicalLine(STRING* radical_data_line, RSMap* radical_map) {
   if (radical_data_line->length() == 0 || (*radical_data_line)[0] == '#')

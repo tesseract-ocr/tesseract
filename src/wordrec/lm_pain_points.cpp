@@ -29,6 +29,8 @@
 #include "matrix.h"
 #include "pageres.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 const float LMPainPoints::kDefaultPainPointPriorityAdjustment = 2.0f;
@@ -49,7 +51,7 @@ void LMPainPoints::GenerateInitial(WERD_RES *word_res) {
   MATRIX *ratings = word_res->ratings;
   AssociateStats associate_stats;
   for (int col = 0; col < ratings->dimension(); ++col) {
-    int row_end = MIN(ratings->dimension(), col + ratings->bandwidth() + 1);
+    int row_end = std::min(ratings->dimension(), col + ratings->bandwidth() + 1);
     for (int row = col + 1; row < row_end; ++row) {
       MATRIX_COORD coord(col, row);
       if (coord.Valid(*ratings) &&

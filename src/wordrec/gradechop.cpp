@@ -29,7 +29,8 @@
 #include "wordrec.h"
 #include "chop.h"
 #include "ndminx.h"
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -48,7 +49,7 @@ namespace tesseract {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
+PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   PRIORITY grade;
   float split_length;
 
@@ -60,7 +61,7 @@ PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
   else
     grade = sqrt (split_length) * chop_split_dist_knob;
 
-  return (MAX (0.0, grade));
+  return (std::max(0.0f, grade));
 }
 
 
@@ -71,7 +72,7 @@ PRIORITY Wordrec::grade_split_length(register SPLIT *split) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_sharpness(register SPLIT *split) {
+PRIORITY Wordrec::grade_sharpness(SPLIT *split) {
   PRIORITY grade;
 
   grade = point_priority (split->point1) + point_priority (split->point2);

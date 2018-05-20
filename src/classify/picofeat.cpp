@@ -29,8 +29,8 @@
 #include "params.h"
 #include "trainingsample.h"
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 /*---------------------------------------------------------------------------
           Variables

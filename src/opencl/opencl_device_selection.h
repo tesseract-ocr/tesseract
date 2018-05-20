@@ -17,9 +17,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 #ifdef __APPLE__
 #include <OpenCL/cl.h>

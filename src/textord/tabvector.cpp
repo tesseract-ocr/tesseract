@@ -28,6 +28,8 @@
 #include "detlinefit.h"
 #include "statistc.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Multiple of height used as a gutter for evaluation search.
@@ -153,8 +155,8 @@ void TabConstraint::GetConstraints(TabConstraint_LIST* constraints,
       tprintf("Constraint is [%d,%d]", constraint->y_min_, constraint->y_max_);
       constraint->vector_->Print(" for");
     }
-    *y_min = MAX(*y_min, constraint->y_min_);
-    *y_max = MIN(*y_max, constraint->y_max_);
+    *y_min = std::max(*y_min, constraint->y_min_);
+    *y_max = std::min(*y_max, constraint->y_max_);
   }
 }
 
@@ -418,8 +420,8 @@ bool TabVector::SimilarTo(const ICOORD& vertical,
        sort_key_ < other.sort_key_) ? this : &other;
     int top_y = mover->endpt_.y();
     int bottom_y = mover->startpt_.y();
-    int left = MIN(mover->XAtY(top_y), mover->XAtY(bottom_y));
-    int right = MAX(mover->XAtY(top_y), mover->XAtY(bottom_y));
+    int left = std::min(mover->XAtY(top_y), mover->XAtY(bottom_y));
+    int right = std::max(mover->XAtY(top_y), mover->XAtY(bottom_y));
     int shift = abs(sort_key_ - other.sort_key_) / v_scale;
     if (IsRightTab()) {
       right += shift;
@@ -442,7 +444,7 @@ bool TabVector::SimilarTo(const ICOORD& vertical,
         right_at_box += shift;
       else
         left_at_box -= shift;
-      if (MIN(right_at_box, box.right()) > MAX(left_at_box, box.left()))
+      if (std::min(right_at_box, static_cast<int>(box.right())) > std::max(left_at_box, static_cast<int>(box.left())))
         return false;
     }
     return true;  // Nothing found.
@@ -452,8 +454,8 @@ bool TabVector::SimilarTo(const ICOORD& vertical,
 
 // Eat the other TabVector into this and delete it.
 void TabVector::MergeWith(const ICOORD& vertical, TabVector* other) {
-  extended_ymin_ = MIN(extended_ymin_, other->extended_ymin_);
-  extended_ymax_ = MAX(extended_ymax_, other->extended_ymax_);
+  extended_ymin_ = std::min(extended_ymin_, other->extended_ymin_);
+  extended_ymax_ = std::max(extended_ymax_, other->extended_ymax_);
   if (other->IsRagged()) {
     alignment_ = other->alignment_;
   }
@@ -653,11 +655,11 @@ void TabVector::Evaluate(const ICOORD& vertical, TabFind* finder) {
         int vertical_gap = box.bottom() - prev_good_box->top();
         double size1 = sqrt(static_cast<double>(prev_good_box->area()));
         double size2 = sqrt(static_cast<double>(box.area()));
-        if (vertical_gap < kMaxFillinMultiple * MIN(size1, size2))
+        if (vertical_gap < kMaxFillinMultiple * std::min(size1, size2))
           good_length += vertical_gap;
         if (debug) {
           tprintf("Box and prev good, gap=%d, target %g, goodlength=%d\n",
-                  vertical_gap, kMaxFillinMultiple * MIN(size1, size2),
+                  vertical_gap, kMaxFillinMultiple * std::min(size1, size2),
                   good_length);
         }
       } else {

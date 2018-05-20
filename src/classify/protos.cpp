@@ -35,8 +35,8 @@
 #include "classify.h"
 #include "params.h"
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16

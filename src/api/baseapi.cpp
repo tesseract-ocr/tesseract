@@ -42,6 +42,7 @@
 #include <unistd.h>
 #endif  // _WIN32
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -2122,7 +2123,7 @@ bool TessBaseAPI::GetTextDirection(int* out_offset, float* out_slope) {
   // Shift the baseline down so it passes through the nearest bottom-corner
   // of the textline's bounding box. This is the difference between the y
   // at the lowest (max) edge of the box and the actual box bottom.
-  *out_offset += bottom - MAX(left_y, right_y);
+  *out_offset += bottom - std::max(left_y, right_y);
   // Switch back to bottom-up tesseract coordinates. Requires negation of
   // the slope and height - offset for the offset.
   *out_slope = -*out_slope;

@@ -19,7 +19,7 @@
 #ifndef TESSERACT_LSTM_NETWORK_H_
 #define TESSERACT_LSTM_NETWORK_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 
 #include "genericvector.h"

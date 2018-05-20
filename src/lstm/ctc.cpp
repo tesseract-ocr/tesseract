@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 #include "ctc.h"
 
+#include <algorithm>
 #include <memory>
 
 #include "genericvector.h"
@@ -252,7 +253,7 @@ float CTC::CalculateBiasFraction() {
     // false positives, because they don't affect CTC at all.
   }
   if (total_labels == 0) return 0.0f;
-  return exp(MAX(true_pos - false_pos, 1) * log(kMinProb_) / total_labels);
+  return exp(std::max(true_pos - false_pos, 1) * log(kMinProb_) / total_labels);
 }
 
 // Given ln(x) and ln(y), returns ln(x + y), using:
@@ -398,7 +399,7 @@ void CTC::NormalizeProbs(GENERIC_2D_ARRAY<float>* probs) {
     total += increment;
     for (int c = 0; c < num_classes; ++c) {
       float prob = probs_t[c] / total;
-      probs_t[c] = MAX(prob, kMinProb_);
+      probs_t[c] = std::max(prob, kMinProb_);
     }
   }
 }

@@ -23,7 +23,8 @@
 
 #include "strokewidth.h"
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 
 #include "blobbox.h"
 #include "colpartition.h"
@@ -895,8 +896,8 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders,
   // being larger than a multiple of the min dimension of the line
   // and the larger dimension being smaller than a fraction of the max
   // dimension of the line.
-  int line_trap_max = MAX(width, height) / kLineTrapLongest;
-  int line_trap_min = MIN(width, height) * kLineTrapShortest;
+  int line_trap_max = std::max(width, height) / kLineTrapLongest;
+  int line_trap_min = std::min(width, height) * kLineTrapShortest;
   int line_trap_count = 0;
 
   int min_good_overlap = (dir == BND_LEFT || dir == BND_RIGHT)
@@ -951,14 +952,14 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders,
     // width accepted by the morphological line detector.
     int n_width = nbox.width();
     int n_height = nbox.height();
-    if (MIN(n_width, n_height) > line_trap_min &&
-        MAX(n_width, n_height) < line_trap_max)
+    if (std::min(n_width, n_height) > line_trap_min &&
+            std::max(n_width, n_height) < line_trap_max)
       ++line_trap_count;
     // Heavily joined text, such as Arabic may have very different sizes when
     // looking at the maxes, but the heights may be almost identical, so check
     // for a difference in height if looking sideways or width vertically.
-    if (TabFind::VeryDifferentSizes(MAX(n_width, n_height),
-                                    MAX(width, height)) &&
+    if (TabFind::VeryDifferentSizes(std::max(n_width, n_height),
+                                    std::max(width, height)) &&
         (((dir == BND_LEFT || dir ==BND_RIGHT) &&
             TabFind::DifferentSizes(n_height, height)) ||
          ((dir == BND_BELOW || dir ==BND_ABOVE) &&
@@ -975,7 +976,7 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders,
     int perp_overlap;
     int gap;
     if (dir == BND_LEFT || dir == BND_RIGHT) {
-      overlap = MIN(nbox.top(), top) - MAX(nbox.bottom(), bottom);
+      overlap = std::min(static_cast<int>(nbox.top()), top) - std::max(static_cast<int>(nbox.bottom()), bottom);
       if (overlap == nbox.height() && nbox.width() > nbox.height())
         perp_overlap = nbox.width();
       else
@@ -987,7 +988,7 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders,
       }
       gap -= n_width;
     } else {
-      overlap = MIN(nbox.right(), right) - MAX(nbox.left(), left);
+      overlap = std::min(static_cast<int>(nbox.right()), right) - std::max(static_cast<int>(nbox.left()), left);
       if (overlap == nbox.width() && nbox.height() > nbox.width())
         perp_overlap = nbox.height();
       else
@@ -1966,8 +1967,8 @@ ScrollView* StrokeWidth::DisplayGoodBlobs(const char* window_name,
 static void DrawDiacriticJoiner(const BLOBNBOX* blob, ScrollView* window) {
 #ifndef GRAPHICS_DISABLED
   const TBOX& blob_box(blob->bounding_box());
-  int top = MAX(blob_box.top(), blob->base_char_top());
-  int bottom = MIN(blob_box.bottom(), blob->base_char_bottom());
+  int top = std::max(static_cast<int>(blob_box.top()), blob->base_char_top());
+  int bottom = std::min(static_cast<int>(blob_box.bottom()), blob->base_char_bottom());
   int x = (blob_box.left() + blob_box.right()) / 2;
   window->Line(x, top, x, bottom);
 #endif  // GRAPHICS_DISABLED

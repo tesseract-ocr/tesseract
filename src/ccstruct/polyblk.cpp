@@ -19,8 +19,8 @@
 
 #include "polyblk.h"
 #include <ctype.h>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <memory>  // std::unique_ptr
 #include "elst.h"
 

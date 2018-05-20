@@ -30,6 +30,8 @@
 #include "tabfind.h"        // For WidthCallback.
 #include "tabvector.h"      // For BLOBNBOX_CLIST.
 
+#include <algorithm>
+
 namespace tesseract {
 
 // Number of colors in the color1, color2 arrays.
@@ -373,20 +375,20 @@ class ColPartition : public ELIST2_LINK {
   // Returns the vertical overlap (by median) of this and other.
   // WARNING! Only makes sense on horizontal partitions!
   int VCoreOverlap(const ColPartition& other) const {
-    return MIN(median_top_, other.median_top_) -
-           MAX(median_bottom_, other.median_bottom_);
+    return std::min(median_top_, other.median_top_) -
+            std::max(median_bottom_, other.median_bottom_);
   }
   // Returns the horizontal overlap (by median) of this and other.
   // WARNING! Only makes sense on vertical partitions!
   int HCoreOverlap(const ColPartition& other) const {
-    return MIN(median_right_, other.median_right_) -
-           MAX(median_left_, other.median_left_);
+    return std::min(median_right_, other.median_right_) -
+            std::max(median_left_, other.median_left_);
   }
   // Returns true if this and other overlap significantly vertically.
   // WARNING! Only makes sense on horizontal partitions!
   bool VSignificantCoreOverlap(const ColPartition& other) const {
     int overlap = VCoreOverlap(other);
-    int height = MIN(median_top_ - median_bottom_,
+    int height = std::min(median_top_ - median_bottom_,
                      other.median_top_ - other.median_bottom_);
     return overlap * 3 > height;
   }
@@ -925,9 +927,9 @@ class ColPartition : public ELIST2_LINK {
 };
 
 // Typedef it now in case it becomes a class later.
-typedef GridSearch<ColPartition,
+using ColPartitionGridSearch = GridSearch<ColPartition,
                    ColPartition_CLIST,
-                   ColPartition_C_IT> ColPartitionGridSearch;
+                   ColPartition_C_IT> ;
 
 }  // namespace tesseract.
 

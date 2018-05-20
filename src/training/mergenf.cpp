@@ -29,9 +29,10 @@
 #include "intproto.h"
 #include "params.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 /*-------------------once in subfeat---------------------------------*/
 double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");
@@ -183,7 +184,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
       (FLOAT32) NumMerged[Pid], 1.0, &MergedProto);
     OldMatch = CompareProtos(Proto, &MergedProto);
     NewMatch = CompareProtos(&NewProto, &MergedProto);
-    Match = MIN(OldMatch, NewMatch);
+    Match = std::min(OldMatch, NewMatch);
     if (Match > BestMatch) {
       BestProto = Pid;
       BestMatch = Match;
@@ -324,11 +325,11 @@ void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
   CosOfAngle = fabs(cos(Angle));
   SinOfAngle = fabs(sin(Angle));
 
-  Pad = MAX (CosOfAngle * Length, SinOfAngle * OrthogonalPad);
+  Pad = std::max(CosOfAngle * Length, SinOfAngle * OrthogonalPad);
   BoundingBox->MinX = Proto->X - Pad;
   BoundingBox->MaxX = Proto->X + Pad;
 
-  Pad = MAX(SinOfAngle * Length, CosOfAngle * OrthogonalPad);
+  Pad = std::max(SinOfAngle * Length, CosOfAngle * OrthogonalPad);
   BoundingBox->MinY = Proto->Y - Pad;
   BoundingBox->MaxY = Proto->Y + Pad;
 

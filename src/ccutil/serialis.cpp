@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "serialis.h"
-#include <stdio.h>
+#include <cstdio>
 #include "genericvector.h"
 
 namespace tesseract {

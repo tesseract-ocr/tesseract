@@ -24,7 +24,7 @@
 
 #if ON_APPLE
 #include <mach/mach_time.h>
-#include <stdio.h>
+#include <cstdio>
 #endif
 
 #define CALLOC LEPT_CALLOC

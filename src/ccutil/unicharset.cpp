@@ -19,9 +19,10 @@
 
 #include "unicharset.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#include <algorithm>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 
 #include "params.h"
 #include "serialis.h"
@@ -482,9 +483,9 @@ void UNICHARSET::AppendOtherUnicharset(const UNICHARSET& src) {
 // Returns true if the acceptable ranges of the tops of the characters do
 // not overlap, making their x-height calculations distinct.
 bool UNICHARSET::SizesDistinct(UNICHAR_ID id1, UNICHAR_ID id2) const {
-  int overlap = MIN(unichars[id1].properties.max_top,
+  int overlap = std::min(unichars[id1].properties.max_top,
                     unichars[id2].properties.max_top) -
-                MAX(unichars[id1].properties.min_top,
+          std::max(unichars[id1].properties.min_top,
                     unichars[id2].properties.min_top);
   return overlap <= 0;
 }

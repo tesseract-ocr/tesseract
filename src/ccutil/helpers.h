@@ -26,8 +26,8 @@
 #define TESSERACT_CCUTIL_HELPERS_H_
 
 #include <cassert>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <functional>
 #include <string>
 

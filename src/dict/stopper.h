@@ -29,7 +29,7 @@
 
 class WERD_CHOICE;
 
-typedef uint8_t BLOB_WIDTH;
+using BLOB_WIDTH = uint8_t;
 
 struct DANGERR_INFO {
   DANGERR_INFO() :
@@ -44,7 +44,7 @@ struct DANGERR_INFO {
   UNICHAR_ID leftmost;   // in the replacement, what's the leftmost character?
 };
 
-typedef GenericVector<DANGERR_INFO> DANGERR;
+using DANGERR = GenericVector<DANGERR_INFO>;
 
 
 #endif

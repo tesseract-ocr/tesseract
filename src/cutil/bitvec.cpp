@@ -21,7 +21,7 @@
 -----------------------------------------------------------------------------*/
 #include "bitvec.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "emalloc.h"
 #include "tprintf.h"

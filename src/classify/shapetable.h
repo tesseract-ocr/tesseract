@@ -153,7 +153,7 @@ struct ShapeQueueEntry {
   // Which level in the tree did this come from?
   int level;
 };
-typedef GenericHeap<ShapeQueueEntry> ShapeQueue;
+using ShapeQueue = GenericHeap<ShapeQueueEntry>;
 
 // Simple struct to hold a set of fonts associated with a single unichar-id.
 // A vector of UnicharAndFonts makes a shape.

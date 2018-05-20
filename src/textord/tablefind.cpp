@@ -22,7 +22,8 @@
 #endif
 
 #include "tablefind.h"
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 
 #include "allheaders.h"
 
@@ -473,7 +474,7 @@ void TableFinder::SplitAndInsertFragmentedTextPartition(ColPartition* part) {
       }
 
       // The right side of the previous blobs.
-      previous_right = MAX(previous_right, box.right());
+      previous_right = std::max(previous_right, static_cast<int>(box.right()));
     }
   }
   // When a split is not found, the right part is minimized
@@ -597,12 +598,12 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
     ColPartition* right_column = columns->ColumnContaining(box.right(), y);
     // set distance from left column as space to the left
     if (left_column) {
-      int left_space = MAX(0, box.left() - left_column->LeftAtY(y));
+      int left_space = std::max(0, box.left() - left_column->LeftAtY(y));
       part->set_space_to_left(left_space);
     }
     // set distance from right column as space to the right
     if (right_column) {
-      int right_space = MAX(0, right_column->RightAtY(y) - box.right());
+      int right_space = std::max(0, right_column->RightAtY(y) - box.right());
       part->set_space_to_right(right_space);
     }
 
@@ -617,7 +618,7 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
           neighbor->type() == PT_HEADING_IMAGE) {
         int right = neighbor->bounding_box().right();
         if (right < box.left()) {
-          int space = MIN(box.left() - right, part->space_to_left());
+          int space = std::min(box.left() - right, part->space_to_left());
           part->set_space_to_left(space);
         }
       }
@@ -630,7 +631,7 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
           neighbor->type() == PT_HEADING_IMAGE) {
         int left = neighbor->bounding_box().left();
         if (left > box.right()) {
-          int space = MIN(left - box.right(), part->space_to_right());
+          int space = std::min(left - box.right(), part->space_to_right());
           part->set_space_to_right(space);
         }
       }
@@ -638,8 +639,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
 
     ColPartition* upper_part = part->SingletonPartner(true);
     if (upper_part) {
-      int space = MAX(0, upper_part->bounding_box().bottom() -
-                         part->bounding_box().bottom());
+      int space = std::max(0, static_cast<int>(upper_part->bounding_box().bottom() -
+                         part->bounding_box().bottom()));
       part->set_space_above(space);
     } else {
       // TODO(nbeato): What constitutes a good value?
@@ -650,8 +651,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
 
     ColPartition* lower_part = part->SingletonPartner(false);
     if (lower_part) {
-      int space = MAX(0, part->bounding_box().bottom() -
-                         lower_part->bounding_box().bottom());
+      int space = std::max(0, static_cast<int>(part->bounding_box().bottom() -
+                         lower_part->bounding_box().bottom()));
       part->set_space_below(space);
     } else {
       // TODO(nbeato): What constitutes a good value?
@@ -665,8 +666,8 @@ void TableFinder::SetPartitionSpacings(ColPartitionGrid* grid,
 // Set spacing and closest neighbors above and below a given colpartition.
 void TableFinder::SetVerticalSpacing(ColPartition* part) {
   TBOX box = part->bounding_box();
-  int top_range = MIN(box.top() + kMaxVerticalSpacing, tright().y());
-  int bottom_range = MAX(box.bottom() - kMaxVerticalSpacing, bleft().y());
+  int top_range = std::min(box.top() + kMaxVerticalSpacing, static_cast<int>(tright().y()));
+  int bottom_range = std::max(box.bottom() - kMaxVerticalSpacing, static_cast<int>(bleft().y()));
   box.set_top(top_range);
   box.set_bottom(bottom_range);
 
@@ -895,7 +896,7 @@ bool TableFinder::HasWideOrNoInterWordGap(ColPartition* part) const {
         // with diacritics (accents) or broken alphabet symbols (characters).
         // Merge boxes together by taking max of right sides.
         if (-gap < part->median_size() * kMaxBlobOverlapFactor) {
-          previous_x1 = MAX(previous_x1, current_x1);
+          previous_x1 = std::max(previous_x1, current_x1);
           continue;
         }
         // Extreme case, blobs overlap significantly in the same partition...
@@ -1024,14 +1025,14 @@ void TableFinder::FilterParagraphEndings() {
     if (left_to_right_language_) {
       // Left to right languages, use mid - left to figure out the distance
       // the middle is from the left margin.
-      int left = MIN(part->bounding_box().left(),
+      int left = std::min(part->bounding_box().left(),
                      upper_part->bounding_box().left());
       current_spacing = mid - left;
       upper_spacing = upper_mid - left;
     } else {
       // Right to left languages, use right - mid to figure out the distance
       // the middle is from the right margin.
-      int right = MAX(part->bounding_box().right(),
+      int right = std::max(part->bounding_box().right(),
                       upper_part->bounding_box().right());
       current_spacing = right - mid;
       upper_spacing = right - upper_mid;
@@ -1210,8 +1211,8 @@ void TableFinder::GridMergeColumnBlocks() {
     do {
       TBOX box = seg->bounding_box();
       // slightly expand the search region vertically
-      int top_range = MIN(box.top() + margin, tright().y());
-      int bottom_range = MAX(box.bottom() - margin, bleft().y());
+      int top_range = std::min(box.top() + margin, static_cast<int>(tright().y()));
+      int bottom_range = std::max(box.bottom() - margin, static_cast<int>(bleft().y()));
       box.set_top(top_range);
       box.set_bottom(bottom_range);
       neighbor_found = false;
@@ -1748,7 +1749,7 @@ void TableFinder::DeleteSingleColumnTables() {
         int xstart = pblob->bounding_box().left();
         int xend = pblob->bounding_box().right();
 
-        xstart = MAX(xstart, next_position_to_write);
+        xstart = std::max(xstart, next_position_to_write);
         for (int i = xstart; i < xend; i++)
           table_xprojection[i - bleft().x()]++;
         next_position_to_write = xend;

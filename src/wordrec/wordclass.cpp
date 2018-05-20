@@ -25,8 +25,8 @@
 /*----------------------------------------------------------------------
           I N C L U D E S
 ----------------------------------------------------------------------*/
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 #include "associate.h"
 #include "render.h"

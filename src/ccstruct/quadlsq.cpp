@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include "quadlsq.h"
 #include "tprintf.h"
 

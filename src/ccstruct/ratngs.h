@@ -637,7 +637,7 @@ class WERD_CHOICE : public ELIST_LINK {
 
 // Make WERD_CHOICE listable.
 ELISTIZEH(WERD_CHOICE)
-typedef GenericVector<BLOB_CHOICE_LIST *> BLOB_CHOICE_LIST_VECTOR;
+using BLOB_CHOICE_LIST_VECTOR = GenericVector<BLOB_CHOICE_LIST *>;
 
 // Utilities for comparing WERD_CHOICEs
 

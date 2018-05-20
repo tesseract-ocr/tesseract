@@ -26,7 +26,7 @@
 #include "mfoutline.h"
 #include "ocrfeatures.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 /*----------------------------------------------------------------------------
               Public Code

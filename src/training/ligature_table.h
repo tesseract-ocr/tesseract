@@ -33,7 +33,7 @@ namespace tesseract {
 class PangoFontInfo;  // defined in pango_font_info.h
 
 // Map to substitute strings for ligatures.
-typedef std::unordered_map<std::string, std::string, StringHash> LigHash;
+using LigHash = std::unordered_map<std::string, std::string, StringHash>;
 
 class LigatureTable {
  public:

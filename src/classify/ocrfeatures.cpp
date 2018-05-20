@@ -24,8 +24,8 @@
 #include "danerror.h"
 #include "scanutils.h"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 /*----------------------------------------------------------------------------
               Public Code

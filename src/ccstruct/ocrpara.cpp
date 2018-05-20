@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "ocrpara.h"
 #include "host.h"  // For NearlyEqual()

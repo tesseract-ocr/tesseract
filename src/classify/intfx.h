@@ -24,7 +24,7 @@
 #include "blobs.h"
 #include "intproto.h"
 #include "normalis.h"
-#include <math.h>
+#include <cmath>
 
 class DENORM;
 

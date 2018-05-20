@@ -120,7 +120,7 @@ class DetLineFit {
   // Type holds the distance of each point from the fitted line and the point
   // itself. Use of double allows integer distances from ICOORDs to be stored
   // exactly, and also the floating point results from ConstrainedFit.
-  typedef KDPairInc<double, ICOORD> DistPointPair;
+  using DistPointPair = KDPairInc<double, ICOORD>;
 
   // Computes and returns the squared evaluation metric for a line fit.
   double EvaluateLineFit();

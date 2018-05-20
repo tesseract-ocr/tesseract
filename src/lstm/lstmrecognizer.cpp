@@ -386,10 +386,10 @@ void LSTMRecognizer::DebugActivationRange(const NetworkIO& outputs,
   tprintf("%s=%d On [%d, %d), scores=", label, best_choice, x_start, x_end);
   double max_score = 0.0;
   double mean_score = 0.0;
-  int width = x_end - x_start;
+  const int width = x_end - x_start;
   for (int x = x_start; x < x_end; ++x) {
     const float* line = outputs.f(x);
-    double score = line[best_choice] * 100.0;
+    const double score = line[best_choice] * 100.0;
     if (score > max_score) max_score = score;
     mean_score += score / width;
     int best_c = 0;
@@ -452,10 +452,10 @@ void LSTMRecognizer::LabelsViaSimpleText(const NetworkIO& output,
                                          GenericVector<int>* xcoords) {
   labels->truncate(0);
   xcoords->truncate(0);
-  int width = output.Width();
+  const int width = output.Width();
   for (int t = 0; t < width; ++t) {
     float score = 0.0f;
-    int label = output.BestLabel(t, &score);
+    const int label = output.BestLabel(t, &score);
     if (label != null_char_) {
       labels->push_back(label);
       xcoords->push_back(t);

@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "ocrblock.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <memory>  // std::unique_ptr
 #include "blckerr.h"
 #include "stepblob.h"

@@ -20,7 +20,7 @@
 #ifndef           NORMALIS_H
 #define           NORMALIS_H
 
-#include <stdio.h>
+#include <cstdio>
 #include "genericvector.h"
 #include "host.h"
 

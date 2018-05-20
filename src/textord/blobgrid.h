@@ -28,7 +28,7 @@ CLISTIZEH(BLOBNBOX)
 
 namespace tesseract {
 
-typedef GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> BlobGridSearch;
+using BlobGridSearch = GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>;
 
 class BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
  public:

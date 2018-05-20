@@ -16,10 +16,10 @@
  ** limitations under the License.
  ******************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
+#include <cmath>
 
 #include "stopper.h"
 #include "ambigs.h"

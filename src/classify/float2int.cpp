@@ -99,7 +99,6 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  */
 void Classify::ComputeIntFeatures(FEATURE_SET Features,
                                   INT_FEATURE_ARRAY IntFeatures) {
-  int Fid;
   FEATURE Feature;
   FLOAT32 YShift;
 
@@ -108,7 +107,7 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features,
   else
     YShift = Y_SHIFT;
 
-  for (Fid = 0; Fid < Features->NumFeatures; Fid++) {
+  for (int Fid = 0; Fid < Features->NumFeatures; Fid++) {
     Feature = Features->Features[Fid];
 
     IntFeatures[Fid].X =

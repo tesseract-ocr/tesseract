@@ -20,8 +20,8 @@
 ----------------------------------------------------------------------------*/
 #include "normmatch.h"
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include "classify.h"
 #include "clusttool.h"
@@ -46,7 +46,7 @@ struct NORM_PROTOS
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
-double NormEvidenceOf(register double NormAdj);
+double NormEvidenceOf(double NormAdj);
 
 void PrintNormMatch(FILE *File,
                     int NumParams,
@@ -181,7 +181,7 @@ void Classify::FreeNormProtos() {
  * normalization adjustment.  The equation that represents the transform is:
  *       1 / (1 + (NormAdj / midpoint) ^ curl)
  */
-double NormEvidenceOf(register double NormAdj) {
+double NormEvidenceOf(double NormAdj) {
   NormAdj /= classify_norm_adj_midpoint;
 
   if (classify_norm_adj_curl == 3)

@@ -27,7 +27,7 @@
 #ifndef TESSERACT_CCUTIL_QRSEQUENCE_H_
 #define TESSERACT_CCUTIL_QRSEQUENCE_H_
 
-#include <math.h>
+#include <cmath>
 
 class QRSequenceGenerator {
  public:

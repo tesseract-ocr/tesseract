@@ -467,7 +467,7 @@ int main(int argc, char** argv) {
 
   api.SetOutputName(outputbase);
 
-  int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
+  const int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
                              argc - arg_i, &vars_vec, &vars_values, false);
 
   SetVariablesFromCLArgs(&api, argc, argv);
@@ -508,7 +508,7 @@ int main(int argc, char** argv) {
     tesseract::TextlineOrder order;
     float deskew_angle;
 
-    tesseract::PageIterator* it = api.AnalyseLayout();
+    const tesseract::PageIterator* it = api.AnalyseLayout();
     if (it) {
       it->Orientation(&orientation, &direction, &order, &deskew_angle);
       tprintf(

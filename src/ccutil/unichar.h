@@ -32,7 +32,7 @@
 
 // TODO(rays) Move these to the tesseract namespace.
 // A UNICHAR_ID is the unique id of a unichar.
-typedef int UNICHAR_ID;
+using UNICHAR_ID = int;
 
 // A variable to indicate an invalid or uninitialized unichar id.
 static const int INVALID_UNICHAR_ID = -1;
@@ -49,7 +49,7 @@ enum StrongScriptDirection {
 
 namespace tesseract {
 
-typedef signed int char32;
+using char32 = signed int;
 
 // The UNICHAR class holds a single classification result. This may be
 // a single Unicode character (stored as between 1 and 4 utf8 bytes) or
@@ -106,7 +106,7 @@ class UNICHAR {
   //     tprintf("Char = %s\n", buf);
   //   }
   class const_iterator {
-    typedef const_iterator CI;
+    using CI = const_iterator ;
 
    public:
     // Step to the next UTF8 character.

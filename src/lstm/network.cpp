@@ -23,7 +23,7 @@
 
 #include "network.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 // This base class needs to know about all its sub-classes because of the
 // factory deserializing method: CreateFromFile.
@@ -309,7 +309,7 @@ void Network::DisplayBackward(const NetworkIO& matrix) {
 void Network::ClearWindow(bool tess_coords, const char* window_name,
                           int width, int height, ScrollView** window) {
   if (*window == nullptr) {
-    int min_size = MIN(width, height);
+    int min_size = std::min(width, height);
     if (min_size < kMinWinSize) {
       if (min_size < 1) min_size = 1;
       width = width * kMinWinSize / min_size;

@@ -24,7 +24,7 @@
 #include "matrix.h"
 #include "tprintf.h"
 #include "danerror.h"
-#include <math.h>
+#include <cmath>
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
 #define FTABLE_X 10  // Size of FTable.
@@ -164,8 +164,8 @@ struct TEMPCLUSTER {
   CLUSTER *Neighbor;
 };
 
-typedef tesseract::KDPairInc<float, TEMPCLUSTER*> ClusterPair;
-typedef tesseract::GenericHeap<ClusterPair> ClusterHeap;
+using ClusterPair = tesseract::KDPairInc<float, TEMPCLUSTER*>;
+using ClusterHeap = tesseract::GenericHeap<ClusterPair>;
 
 struct STATISTICS {
   FLOAT32 AvgVariance;
@@ -250,11 +250,11 @@ CLUSTER *FindNearestNeighbor(KDTREE *Tree,
 CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster);
 
 int32_t MergeClusters (int16_t N,
-register PARAM_DESC ParamDesc[],
-register int32_t n1,
-register int32_t n2,
-register FLOAT32 m[],
-register FLOAT32 m1[], register FLOAT32 m2[]);
+PARAM_DESC ParamDesc[],
+int32_t n1,
+int32_t n2,
+FLOAT32 m[],
+FLOAT32 m1[], register FLOAT32 m2[]);
 
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 

@@ -20,7 +20,7 @@
 #ifndef CLST_H
 #define CLST_H
 
-#include <stdio.h>
+#include <cstdio>
 #include "host.h"
 #include "serialis.h"
 #include "lsterr.h"

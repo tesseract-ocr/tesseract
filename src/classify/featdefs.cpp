@@ -23,8 +23,8 @@
 #include "danerror.h"
 #include "scanutils.h"
 
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 
 /** define errors triggered by this module */
 #define ILLEGAL_NUM_SETS  3001

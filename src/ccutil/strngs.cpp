@@ -110,7 +110,7 @@ STRING::STRING() {
 STRING::STRING(const STRING& str) {
   str.FixHeader();
   const STRING_HEADER* str_header  = str.GetHeader();
-  int   str_used  = str_header->used_;
+  const int str_used  = str_header->used_;
   char *this_cstr = AllocData(str_used, str_used);
   memcpy(this_cstr, str.GetCStr(), str_used);
   assert(InvariantOk());
@@ -121,7 +121,7 @@ STRING::STRING(const char* cstr) {
     // Empty STRINGs contain just the "\0".
     memcpy(AllocData(1, kMinCapacity), "", 1);
   } else {
-    int len = strlen(cstr) + 1;
+    const int len = strlen(cstr) + 1;
     char* this_cstr = AllocData(len, len);
     memcpy(this_cstr, cstr, len);
   }
@@ -285,7 +285,7 @@ char& STRING::operator[](int32_t index) const {
 
 void STRING::split(const char c, GenericVector<STRING> *splited) {
   int start_index = 0;
-  int len = length();
+  const int len = length();
   for (int i = 0; i < len; i++) {
     if ((*this)[i] == c) {
       if (i != start_index) {
@@ -307,8 +307,8 @@ BOOL8 STRING::operator==(const STRING& str) const {
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
   const STRING_HEADER* this_header = GetHeader();
-  int this_used = this_header->used_;
-  int str_used  = str_header->used_;
+  const int this_used = this_header->used_;
+  const int str_used  = str_header->used_;
 
   return (this_used == str_used)
           && (memcmp(GetCStr(), str.GetCStr(), this_used) == 0);
@@ -319,8 +319,8 @@ BOOL8 STRING::operator!=(const STRING& str) const {
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
   const STRING_HEADER* this_header = GetHeader();
-  int this_used = this_header->used_;
-  int str_used  = str_header->used_;
+  const int this_used = this_header->used_;
+  const int str_used  = str_header->used_;
 
   return (this_used != str_used)
          || (memcmp(GetCStr(), str.GetCStr(), this_used) != 0);
@@ -333,7 +333,7 @@ BOOL8 STRING::operator!=(const char* cstr) const {
   if (cstr == nullptr)
     return this_header->used_ > 1;  // either '\0' or nullptr
   else {
-    int32_t length = strlen(cstr) + 1;
+    const int32_t length = strlen(cstr) + 1;
     return (this_header->used_ != length)
             || (memcmp(GetCStr(), cstr, length) != 0);
   }
@@ -342,7 +342,7 @@ BOOL8 STRING::operator!=(const char* cstr) const {
 STRING& STRING::operator=(const STRING& str) {
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
-  int   str_used = str_header->used_;
+  const int str_used = str_header->used_;
 
   GetHeader()->used_ = 0;  // clear since ensure doesn't need to copy data
   char* this_cstr = ensure_cstr(str_used);
@@ -360,8 +360,8 @@ STRING & STRING::operator+=(const STRING& str) {
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
   const char* str_cstr = str.GetCStr();
-  int  str_used  = str_header->used_;
-  int  this_used = GetHeader()->used_;
+  const int  str_used  = str_header->used_;
+  const int  this_used = GetHeader()->used_;
   char* this_cstr = ensure_cstr(this_used + str_used);
 
   STRING_HEADER* this_header = GetHeader();  // after ensure for realloc
@@ -401,7 +401,7 @@ void STRING::add_str_double(const char* str, double number) {
 STRING & STRING::operator=(const char* cstr) {
   STRING_HEADER* this_header = GetHeader();
   if (cstr) {
-    int len = strlen(cstr) + 1;
+    const int len = strlen(cstr) + 1;
 
     this_header->used_ = 0;  // don't bother copying data if need to realloc
     char* this_cstr = ensure_cstr(len);
@@ -445,10 +445,10 @@ STRING STRING::operator+(const char ch) const {
   STRING result;
   FixHeader();
   const STRING_HEADER* this_header = GetHeader();
-  int this_used = this_header->used_;
+  const int this_used = this_header->used_;
   char* result_cstr = result.ensure_cstr(this_used + 1);
   STRING_HEADER* result_header = result.GetHeader();
-  int result_used = result_header->used_;
+  const int result_used = result_header->used_;
 
   // copies '\0' but we'll overwrite that
   memcpy(result_cstr, GetCStr(), this_used);
@@ -466,8 +466,8 @@ STRING&  STRING::operator+=(const char *str) {
     return *this;
 
   FixHeader();
-  int len = strlen(str) + 1;
-  int this_used = GetHeader()->used_;
+  const int len = strlen(str) + 1;
+  const int this_used = GetHeader()->used_;
   char* this_cstr = ensure_cstr(this_used + len);
   STRING_HEADER* this_header = GetHeader();  // after ensure for realloc
 

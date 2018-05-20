@@ -26,6 +26,8 @@
 #include "lm_pain_points.h"
 #include "ratngs.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 void Wordrec::DoSegSearch(WERD_RES* word_res) {
@@ -186,7 +188,7 @@ void Wordrec::UpdateSegSearchNodes(
   for (int col = starting_col; col < ratings->dimension(); ++col) {
     if (!(*pending)[col].WorkToDo()) continue;
     int first_row = col;
-    int last_row = MIN(ratings->dimension() - 1,
+    int last_row = std::min(ratings->dimension() - 1,
                        col + ratings->bandwidth() - 1);
     if ((*pending)[col].SingleRow() >= 0) {
       first_row = last_row = (*pending)[col].SingleRow();

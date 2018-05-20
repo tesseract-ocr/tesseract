@@ -31,7 +31,7 @@
 
 namespace tesseract {
 
-typedef GenericVector<UNICHAR_ID> UnicharIdVector;
+using UnicharIdVector = GenericVector<UNICHAR_ID>;
 
 static const int kUnigramAmbigsBufferSize = 1000;
 static const char kAmbigNgramSeparator[] = { ' ', '\0' };
@@ -138,7 +138,7 @@ ELISTIZEH(AmbigSpec)
 
 // AMBIG_TABLE[i] stores a set of ambiguities whose
 // wrong ngram starts with unichar id i.
-typedef GenericVector<AmbigSpec_LIST *> UnicharAmbigsVector;
+using UnicharAmbigsVector = GenericVector<AmbigSpec_LIST *>;
 
 class UnicharAmbigs {
  public:

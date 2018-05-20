@@ -52,16 +52,16 @@ void IntFeatureDist::Set(const GenericVector<int>& indexed_features,
                           int canonical_count, bool value) {
   total_feature_weight_ = canonical_count;
   for (int i = 0; i < indexed_features.size(); ++i) {
-    int f = indexed_features[i];
+    const int f = indexed_features[i];
     features_[f] = value;
     for (int dir = -kNumOffsetMaps; dir <= kNumOffsetMaps; ++dir) {
       if (dir == 0) continue;
-      int mapped_f = feature_map_->OffsetFeature(f, dir);
+      const int mapped_f = feature_map_->OffsetFeature(f, dir);
       if (mapped_f >= 0) {
         features_delta_one_[mapped_f] = value;
         for (int dir2 = -kNumOffsetMaps; dir2 <= kNumOffsetMaps; ++dir2) {
           if (dir2 == 0) continue;
-          int mapped_f2 = feature_map_->OffsetFeature(mapped_f, dir2);
+          const int mapped_f2 = feature_map_->OffsetFeature(mapped_f, dir2);
           if (mapped_f2 >= 0)
             features_delta_two_[mapped_f2] = value;
         }
@@ -74,12 +74,12 @@ void IntFeatureDist::Set(const GenericVector<int>& indexed_features,
 // Set feature vector.
 double IntFeatureDist::FeatureDistance(
     const GenericVector<int>& features) const {
-  int num_test_features = features.size();
-  double denominator = total_feature_weight_ + num_test_features;
+  const int num_test_features = features.size();
+  const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;
   for (int i = 0; i < num_test_features; ++i) {
-    int index = features[i];
-    double weight = 1.0;
+    const int index = features[i];
+    const double weight = 1.0;
     if (features_[index]) {
       // A perfect match.
       misses -= 2.0 * weight;
@@ -97,12 +97,12 @@ double IntFeatureDist::FeatureDistance(
 // Set feature vector.
 double IntFeatureDist::DebugFeatureDistance(
     const GenericVector<int>& features) const {
-  int num_test_features = features.size();
-  double denominator = total_feature_weight_ + num_test_features;
+  const int num_test_features = features.size();
+  const double denominator = total_feature_weight_ + num_test_features;
   double misses = denominator;
   for (int i = 0; i < num_test_features; ++i) {
-    int index = features[i];
-    double weight = 1.0;
+    const int index = features[i];
+    const double weight = 1.0;
     INT_FEATURE_STRUCT f = feature_map_->InverseMapFeature(features[i]);
     tprintf("Testing feature weight %g:", weight);
     f.print();

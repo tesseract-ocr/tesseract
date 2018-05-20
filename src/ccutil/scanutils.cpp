@@ -23,13 +23,14 @@
 #include "config_auto.h"
 #endif
 
-#include <ctype.h>
-#include <math.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <string.h>
-#include <limits.h>
-#include <stdio.h>
+#include <cctype>
+#include <cmath>
+#include <cstdarg>
+#include <cstddef>
+#include <cstring>
+#include <climits>
+#include <cstdio>
+#include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -50,7 +51,7 @@ enum Ranks {
   RANK_INT  = 0,
   RANK_LONG = 1,
   RANK_LONGLONG = 2,
-  RANK_PTR      = INT_MAX // Special value used for pointers
+  RANK_PTR      = std::numeric_limits<int>::max() // Special value used for pointers
 };
 
 const enum Ranks kMinRank = RANK_CHAR;

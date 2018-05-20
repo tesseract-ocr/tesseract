@@ -24,8 +24,10 @@
 #include "kdtree.h"
 #include "const.h"
 #include "emalloc.h"
-#include <stdio.h>
-#include <math.h>
+
+#include <algorithm>
+#include <cstdio>
+#include <cmath>
 
 #define Magnitude(X)    ((X) < 0 ? -(X) : (X))
 #define NodeFound(N,K,D)  (( (N)->Key == (K) ) && ( (N)->Data == (D) ))
@@ -456,7 +458,7 @@ FLOAT32 DistanceSquared(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]) {
     if (dim->Circular) {
       dimension_distance = Magnitude(dimension_distance);
       FLOAT32 wrap_distance = dim->Max - dim->Min - dimension_distance;
-      dimension_distance = MIN(dimension_distance, wrap_distance);
+      dimension_distance = std::min(dimension_distance, wrap_distance);
     }
 
     total_distance += dimension_distance * dimension_distance;
@@ -500,7 +502,7 @@ bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
         wrap_distance = *query + dim->Max - dim->Min - *upper;
       else if (*query > *upper)
         wrap_distance = *lower - (*query - (dim->Max - dim->Min));
-      dimension_distance = MIN(dimension_distance, wrap_distance);
+      dimension_distance = std::min(dimension_distance, wrap_distance);
     }
 
     total_distance += dimension_distance * dimension_distance;

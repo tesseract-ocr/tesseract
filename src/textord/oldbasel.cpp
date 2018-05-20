@@ -18,19 +18,21 @@
  **********************************************************************/
 
 #include "ccstruct.h"
-#include          "statistc.h"
-#include          "quadlsq.h"
-#include          "detlinefit.h"
-#include          "makerow.h"
-#include          "drawtord.h"
-#include          "oldbasel.h"
-#include          "textord.h"
-#include          "tprintf.h"
+#include "statistc.h"
+#include "quadlsq.h"
+#include "detlinefit.h"
+#include "makerow.h"
+#include "drawtord.h"
+#include "oldbasel.h"
+#include "textord.h"
+#include "tprintf.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include <algorithm>
 
 #define EXTERN
 
@@ -204,7 +206,7 @@ void Textord::correlate_neighbours(TO_BLOCK *block,  // block rows are in.
     if (row->xheight < 0)        /*linear failed */
                                  /*make do */
         row->xheight = -row->xheight;
-    biggest = MAX (biggest, row->xheight);
+    biggest = std::max(biggest, row->xheight);
   }
 }
 
@@ -955,7 +957,7 @@ float ydiffs[]                   /*output */
 
 int
 choose_partition (               //select partition
-register float diff,             /*diff from spline */
+float diff,             /*diff from spline */
 float partdiffs[],               /*diff on all parts */
 int lastpart,                    /*last assigned partition */
 float jumplimit,                 /*new part threshold */
@@ -1624,8 +1626,8 @@ void pick_x_height(TO_ROW * row,                    //row to do
       if (modelist[x] && modelist[y] &&
           heightstat->pile_count (modelist[x]) > mode_threshold &&
           (!textord_ocropus_mode ||
-           MIN(rights[modelist[x]], rights[modelist[y]]) >
-           MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
+                  std::min(rights[modelist[x]], rights[modelist[y]]) >
+                   std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
         ratio = (float) modelist[y] / (float) modelist[x];
         if (1.2 < ratio && ratio < 1.8) {
           /* Two modes found */
@@ -1638,8 +1640,8 @@ void pick_x_height(TO_ROW * row,                    //row to do
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] == best_x_height + 1 &&
                   (!textord_ocropus_mode ||
-                    MIN(rights[modelist[x]], rights[modelist[y]]) >
-                    MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
+                          std::min(rights[modelist[x]], rights[modelist[y]]) >
+                            std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
                 ratio = (float) modelist[y] / (float) modelist[z];
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */
@@ -1665,8 +1667,8 @@ void pick_x_height(TO_ROW * row,                    //row to do
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] > best_asc &&
                   (!textord_ocropus_mode ||
-                    MIN(rights[modelist[x]], rights[modelist[y]]) >
-                    MAX(lefts[modelist[x]], lefts[modelist[y]]))) {
+                          std::min(rights[modelist[x]], rights[modelist[y]]) >
+                            std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
                 ratio = (float) modelist[z] / (float) best_x_height;
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */

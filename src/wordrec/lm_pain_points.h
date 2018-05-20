@@ -31,7 +31,7 @@
 namespace tesseract {
 
 // Heap of pain points used for determining where to chop/join.
-typedef GenericHeap<MatrixCoordPair> PainPointHeap;
+using PainPointHeap = GenericHeap<MatrixCoordPair>;
 
 // Types of pain points (ordered in the decreasing level of importance).
 enum LMPainPointsType {

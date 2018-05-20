@@ -25,7 +25,7 @@
 #ifndef VECFUNCS_H
 #define VECFUNCS_H
 
-#include <math.h>
+#include <cmath>
 
 struct EDGEPT;
 

@@ -176,7 +176,7 @@ struct KDPtrPairDec : public KDPtrPair<Key, Data> {
 };
 
 // Specialization for a pair of ints in increasing order.
-typedef KDPairInc<int, int> IntKDPair;
+using IntKDPair = KDPairInc<int, int>;
 
 // Vector of IntKDPair.
 class KDVector : public GenericVector<IntKDPair> {

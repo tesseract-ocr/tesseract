@@ -43,14 +43,14 @@ struct CHAR_DESC_STRUCT {
   uint32_t NumFeatureSets;
   FEATURE_SET FeatureSets[NUM_FEATURE_TYPES];
 };
-typedef CHAR_DESC_STRUCT *CHAR_DESC;
+using CHAR_DESC = CHAR_DESC_STRUCT *;
 
 struct FEATURE_DEFS_STRUCT {
   int32_t NumFeatureTypes;
   const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
   int FeatureEnabled[NUM_FEATURE_TYPES];
 };
-typedef FEATURE_DEFS_STRUCT *FEATURE_DEFS;
+using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 
 /*----------------------------------------------------------------------
     Generic functions for manipulating character descriptions

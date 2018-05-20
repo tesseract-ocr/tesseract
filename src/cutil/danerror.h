@@ -24,7 +24,7 @@
 #define NOERROR       0
 #define DO_NOTHING      0
 
-typedef int TRAPERROR;
+using TRAPERROR = int;
 typedef void (*VOID_PROC) ();
 
 /**----------------------------------------------------------------------------

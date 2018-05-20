@@ -25,6 +25,8 @@
 #include "colpartitionset.h"
 #include "imagefind.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 BOOL_VAR(textord_tabfind_show_color_fit, false, "Show stroke widths");
@@ -201,7 +203,7 @@ static bool OKMergeCandidate(const ColPartition* part,
   // Candidates must be within a reasonable distance.
   if (candidate->IsVerticalType() || part->IsVerticalType()) {
     int h_dist = -part->HCoreOverlap(*candidate);
-    if (h_dist >= MAX(part_box.width(), c_box.width()) / 2) {
+    if (h_dist >= std::max(part_box.width(), c_box.width()) / 2) {
       if (debug)
         tprintf("Too far away: h_dist = %d\n", h_dist);
       return false;
@@ -209,7 +211,7 @@ static bool OKMergeCandidate(const ColPartition* part,
   } else {
     // Coarse filter by vertical distance between partitions.
     int v_dist = -part->VCoreOverlap(*candidate);
-    if (v_dist >= MAX(part_box.height(), c_box.height()) / 2) {
+    if (v_dist >= std::max(part_box.height(), c_box.height()) / 2) {
       if (debug)
         tprintf("Too far away: v_dist = %d\n", v_dist);
       return false;
@@ -1412,8 +1414,8 @@ bool ColPartitionGrid::SmoothRegionType(Pix* nontext_map,
   }
   BlobRegionType best_type = BRT_UNKNOWN;
   int best_dist = INT32_MAX;
-  int max_dist = MIN(part_box.width(), part_box.height());
-  max_dist = MAX(max_dist * kMaxNeighbourDistFactor, gridsize() * 2);
+  int max_dist = std::min(part_box.width(), part_box.height());
+  max_dist = std::max(max_dist * kMaxNeighbourDistFactor, gridsize() * 2);
   // Search with the pad truncated on each side of the box in turn.
   bool any_image = false;
   bool all_image = true;
@@ -1477,8 +1479,8 @@ static void ComputeSearchBoxAndScaling(BlobNeighbourDir direction,
   *search_box = part_box;
   // Generate a pad value based on the min dimension of part_box, but at least
   // min_padding and then scaled by kMaxPadFactor.
-  int padding = MIN(part_box.height(), part_box.width());
-  padding = MAX(padding, min_padding);
+  int padding = std::min(part_box.height(), part_box.width());
+  padding = std::max(padding, min_padding);
   padding *= kMaxPadFactor;
   search_box->pad(padding, padding);
   // Truncate the box in the appropriate direction and make the distance
@@ -1635,8 +1637,8 @@ void ColPartitionGrid::AccumulatePartDistances(const ColPartition& base_part,
       continue;  // Text not visible the other side of image.
     if (BLOBNBOX::IsLineType(n_type))
       continue;  // Don't use horizontal lines as neighbours.
-    int x_gap = MAX(part_box.x_gap(nbox), 0);
-    int y_gap = MAX(part_box.y_gap(nbox), 0);
+    int x_gap = std::max(part_box.x_gap(nbox), 0);
+    int y_gap = std::max(part_box.y_gap(nbox), 0);
     int n_dist = x_gap * dist_scaling.x() + y_gap* dist_scaling.y();
     if (debug) {
       tprintf("Part has x-gap=%d, y=%d, dist=%d at:",
@@ -1644,7 +1646,7 @@ void ColPartitionGrid::AccumulatePartDistances(const ColPartition& base_part,
       nbox.print();
     }
     // Truncate the number of boxes, so text doesn't get too much advantage.
-    int n_boxes = MIN(neighbour->boxes_count(), kSmoothDecisionMargin);
+    int n_boxes = std::min(neighbour->boxes_count(), kSmoothDecisionMargin);
     BlobTextFlowType n_flow = neighbour->flow();
     GenericVector<int>* count_vector = nullptr;
     if (n_flow == BTFT_STRONG_CHAIN) {
@@ -1730,9 +1732,9 @@ int ColPartitionGrid::FindMargin(int x, bool right_to_left, int x_limit,
     // Must overlap by enough, based on the min of the heights, so
     // large partitions can't smash through small ones.
     TBOX box = part->bounding_box();
-    int min_overlap = MIN(height, box.height());
+    int min_overlap = std::min(height, static_cast<int>(box.height()));
     min_overlap = static_cast<int>(min_overlap * kMarginOverlapFraction + 0.5);
-    int y_overlap = MIN(y_top, box.top()) - MAX(y_bottom, box.bottom());
+    int y_overlap = std::min(y_top, static_cast<int>(box.top())) - std::max(y_bottom, static_cast<int>(box.bottom()));
     if (y_overlap < min_overlap)
       continue;
     // Must be going the right way.

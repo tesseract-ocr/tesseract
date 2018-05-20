@@ -34,7 +34,7 @@
 #include "const.h"
 #include "wordrec.h"
 
-#include <math.h>
+#include <cmath>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

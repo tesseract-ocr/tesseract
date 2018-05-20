@@ -17,11 +17,12 @@
  *
  **********************************************************************/
 
-#include          <string.h>
-#include          <ctype.h>
-#include          "params.h"
-#include          "float2int.h"
-#include          "tesseractclass.h"
+#include <algorithm>
+#include <string.h>
+#include <ctype.h>
+#include "params.h"
+#include "float2int.h"
+#include "tesseractclass.h"
 
 namespace tesseract {
 
@@ -123,7 +124,7 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
         // Chars with a wild top range would mess up the result so ignore them.
         if (max_top - min_top > kMaxCharTopRange)
           continue;
-        int misfit_dist = MAX((min_top - x_ht_acceptance_tolerance) - top,
+        int misfit_dist = std::max((min_top - x_ht_acceptance_tolerance) - top,
                             top - (max_top + x_ht_acceptance_tolerance));
         int height = top - kBlnBaselineOffset;
         if (debug_x_ht_level >= 2) {

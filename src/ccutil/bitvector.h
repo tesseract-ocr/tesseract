@@ -22,8 +22,8 @@
 #ifndef TESSERACT_CCUTIL_BITVECTOR_H_
 #define TESSERACT_CCUTIL_BITVECTOR_H_
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 #include "host.h"
 
 namespace tesseract {

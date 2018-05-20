@@ -29,7 +29,7 @@
 */
 
 #include <ctype.h>
-#include <math.h>
+#include <cmath>
 #include "errcode.h"
 #include "drawtord.h"
 #include "blkocc.h"

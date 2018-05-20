@@ -1243,7 +1243,7 @@ double LSTMTrainer::ComputeCharError(const GenericVector<int>& truth_str,
 // Computes word recall error rate using a very simple bag of words algorithm.
 // NOTE that this is destructive on both input strings.
 double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
-  typedef std::unordered_map<std::string, int, std::hash<std::string> > StrMap;
+  using StrMap = std::unordered_map<std::string, int, std::hash<std::string>>;
   GenericVector<STRING> truth_words, ocr_words;
   truth_str->split(' ', &truth_words);
   if (truth_words.empty()) return 0.0;
@@ -1279,7 +1279,7 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   int index = training_iteration_ % kRollingBufferSize_;
   error_buffers_[type][index] = new_error;
   // Compute the mean error.
-  int mean_count = MIN(training_iteration_ + 1, error_buffers_[type].size());
+  int mean_count = std::min(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
   for (int i = 0; i < mean_count; ++i) buffer_sum += error_buffers_[type][i];
   double mean = buffer_sum / mean_count;

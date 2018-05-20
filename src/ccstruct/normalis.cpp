@@ -19,7 +19,7 @@
 
 #include "normalis.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "allheaders.h"
 #include "blobs.h"

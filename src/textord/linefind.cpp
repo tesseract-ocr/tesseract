@@ -31,6 +31,8 @@
 
 #include "allheaders.h"
 
+#include <algorithm>
+
 namespace tesseract {
 
 /// Denominator of resolution makes max pixel width to allow thin lines.
@@ -152,13 +154,13 @@ static int CountPixelsAdjacentToLine(int line_width, Box* line_box,
   boxGetGeometry(line_box, &x, &y, &box_width, &box_height);
   if (box_width > box_height) {
     // horizontal line.
-    int bottom = MIN(pixGetHeight(nonline_pix), y + box_height + line_width);
-    y = MAX(0, y - line_width);
+    int bottom = std::min(pixGetHeight(nonline_pix), y + box_height + line_width);
+    y = std::max(0, y - line_width);
     box_height = bottom - y;
   } else {
     // Vertical line.
-    int right = MIN(pixGetWidth(nonline_pix), x + box_width + line_width);
-    x = MAX(0, x - line_width);
+    int right = std::min(pixGetWidth(nonline_pix), x + box_width + line_width);
+    x = std::max(0, x - line_width);
     box_width = right - x;
   }
   Box* box = boxCreate(x, y, box_width, box_height);

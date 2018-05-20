@@ -20,8 +20,8 @@
 #ifndef TESSERACT_TRAINING_UTIL_H_
 #define TESSERACT_TRAINING_UTIL_H_
 
-#include <stddef.h>
-#include <stdlib.h>
+#include <cstddef>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
