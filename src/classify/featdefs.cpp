@@ -216,7 +216,7 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
       for (int i = 0; i < CharDesc->FeatureSets[Type]->NumFeatures; i++) {
         FEATURE feat = CharDesc->FeatureSets[Type]->Features[i];
         for (int p = 0; p < feat->Type->NumParams; p++) {
-          if (isnan(feat->Params[p]) || isinf(feat->Params[p]))
+          if (std::isnan(feat->Params[p]) || std::isinf(feat->Params[p]))
             well_formed = false;
           else
             anything_written = true;
