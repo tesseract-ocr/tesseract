@@ -134,7 +134,7 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
     if (tfscanf(File, "%f", &(Feature->Params[i])) != 1)
       DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
 #ifndef _WIN32
-    assert (!isnan(Feature->Params[i]));
+    assert (!std::isnan(Feature->Params[i]));
 #endif
   }
   return (Feature);
@@ -181,7 +181,7 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
-    assert(!isnan(Feature->Params[i]));
+    assert(!std::isnan(Feature->Params[i]));
 #endif
     str->add_str_double(" ", Feature->Params[i]);
   }

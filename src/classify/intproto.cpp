@@ -399,7 +399,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
 
   Angle = Proto->Angle;
 #ifndef _WIN32
-  assert(!isnan(Angle));
+  assert(!std::isnan(Angle));
 #endif
 
   FillPPCircularBits (ProtoSet->ProtoPruner[PRUNER_ANGLE], Index,
