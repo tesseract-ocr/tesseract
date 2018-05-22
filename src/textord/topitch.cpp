@@ -37,6 +37,8 @@
 #include "config_auto.h"
 #endif
 
+#include <memory>
+
 #define EXTERN
 
 EXTERN BOOL_VAR (textord_all_prop, FALSE, "All doc is proportial text");
@@ -1275,7 +1277,6 @@ float tune_row_pitch2(                             //find fp cells
   int16_t end;                     //of good range
   int32_t best_count;              //lowest sum
   float best_sd;                 //best result
-  STATS *sum_proj;               //summed projection
 
   best_sp_sd = initial_pitch;
 
@@ -1283,7 +1284,7 @@ float tune_row_pitch2(                             //find fp cells
   if (textord_disable_pitch_test || best_pitch <= textord_pitch_range) {
     return initial_pitch;
   }
-  sum_proj = new STATS[textord_pitch_range * 2 + 1];
+  std::unique_ptr<STATS[]> sum_proj(new STATS[textord_pitch_range * 2 + 1]); //summed projection
 
   for (pitch_delta = -textord_pitch_range; pitch_delta <= textord_pitch_range;
     pitch_delta++)
@@ -1355,8 +1356,6 @@ float tune_row_pitch2(                             //find fp cells
                    projection_right,
                    space_size,
                    initial_pitch);
-
-  delete[]sum_proj;
 
   return best_sd;
 }

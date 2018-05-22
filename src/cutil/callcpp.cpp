@@ -36,6 +36,8 @@
 #include          "host.h"
 #include "unichar.h"
 
+#include <memory>
+
 void
 cprintf (                        //Trace printf
 const char *format, ...          //special message
@@ -109,16 +111,14 @@ void c_clear_window(  /*move pen */
 
 
 char window_wait(ScrollView* win) {
-  SVEvent* ev;
   // Wait till an input or click event (all others are thrown away)
   char ret = '\0';
   SVEventType ev_type = SVET_ANY;
   do {
-    ev = win->AwaitEvent(SVET_ANY);
+    std::unique_ptr<SVEvent> ev(win->AwaitEvent(SVET_ANY));
     ev_type = ev->type;
     if (ev_type == SVET_INPUT)
       ret = ev->parameter[0];
-    delete ev;
   } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
   return ret;
 }

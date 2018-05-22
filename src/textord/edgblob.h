@@ -26,6 +26,8 @@
 #include          "coutln.h"
 #include          "crakedge.h"
 
+#include <memory>
+
 #define BUCKETSIZE      16
 
 class OL_BUCKETS
@@ -35,9 +37,8 @@ class OL_BUCKETS
                ICOORD bleft,  //corners
                ICOORD tright);
 
-    ~OL_BUCKETS () {             //cleanup
-      delete[]buckets;
-    }
+    ~OL_BUCKETS () = default;
+
     C_OUTLINE_LIST *operator () (//array access
       int16_t x,                   //image coords
       int16_t y);
@@ -64,7 +65,7 @@ class OL_BUCKETS
                           C_OUTLINE_IT *it);   //destination iterator
 
   private:
-    C_OUTLINE_LIST * buckets;    //array of buckets
+    std::unique_ptr<C_OUTLINE_LIST[]> buckets;    //array of buckets
     int16_t bxdim;                 //size of array
     int16_t bydim;
     ICOORD bl;                   //corners
