@@ -40,7 +40,7 @@ class BoxWord {
  public:
   BoxWord();
   explicit BoxWord(const BoxWord& src);
-  ~BoxWord();
+  ~BoxWord() = default;
 
   BoxWord& operator=(const BoxWord& src);
 

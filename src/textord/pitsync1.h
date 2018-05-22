@@ -32,8 +32,7 @@ class FPSEGPT_LIST;
 class FPSEGPT:public ELIST_LINK
 {
   public:
-    FPSEGPT() {  //empty
-    }
+    FPSEGPT() = default;
     FPSEGPT(           //constructor
             int16_t x);  //position
     FPSEGPT(                           //constructor

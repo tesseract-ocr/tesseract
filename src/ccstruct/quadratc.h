@@ -25,8 +25,7 @@
 class QUAD_COEFFS
 {
   public:
-    QUAD_COEFFS() {
-    }                            //empty constructor
+    QUAD_COEFFS() = default;
     QUAD_COEFFS(             //constructor
                 double xsq,  //coefficients
                 float x,

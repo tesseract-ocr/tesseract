@@ -106,7 +106,7 @@ class Network {
  public:
   Network();
   Network(NetworkType type, const STRING& name, int ni, int no);
-  virtual ~Network();
+  virtual ~Network() = default;
 
   // Accessors.
   NetworkType type() const {

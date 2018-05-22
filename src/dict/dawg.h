@@ -129,7 +129,7 @@ class Dawg {
   inline const STRING &lang() const { return lang_; }
   inline PermuterType permuter() const { return perm_; }
 
-  virtual ~Dawg() {}
+  virtual ~Dawg() = default;
 
   /// Returns true if the given word is in the Dawg.
   bool word_in_dawg(const WERD_CHOICE &word) const;

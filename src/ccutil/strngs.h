@@ -49,7 +49,7 @@ class TESS_API STRING
     STRING(const STRING &string);
     STRING(const char *string);
     STRING(const char *data, int length);
-    ~STRING ();
+    ~STRING();
 
     // Writes to the given file. Returns false in case of error.
     bool Serialize(FILE* fp) const;

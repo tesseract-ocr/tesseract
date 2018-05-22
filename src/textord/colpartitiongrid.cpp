@@ -66,15 +66,10 @@ const double kMaxPartitionSpacing = 1.75;
 // decision in GridSmoothNeighbour.
 const int kSmoothDecisionMargin = 4;
 
-ColPartitionGrid::ColPartitionGrid() {
-}
 ColPartitionGrid::ColPartitionGrid(int gridsize,
                                    const ICOORD& bleft, const ICOORD& tright)
   : BBGrid<ColPartition, ColPartition_CLIST, ColPartition_C_IT>(gridsize,
                                                                 bleft, tright) {
-}
-
-ColPartitionGrid::~ColPartitionGrid() {
 }
 
 // Handles a click event in a display window.

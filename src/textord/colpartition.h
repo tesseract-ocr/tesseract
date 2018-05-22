@@ -68,11 +68,11 @@ CLISTIZEH(ColPartition)
  */
 class ColPartition : public ELIST2_LINK {
  public:
-  ColPartition() {
-    // This empty constructor is here only so that the class can be ELISTIZED.
-    // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
-    // and eliminate CLASSNAME##_copier.
-  }
+  // This empty constructor is here only so that the class can be ELISTIZED.
+  // TODO(rays) change deep_copy in elst.h line 955 to take a callback copier
+  // and eliminate CLASSNAME##_copier.
+  ColPartition() = default;
+
   /**
    * @param blob_type is the blob_region_type_ of the blobs in this partition.
    * @param vertical is the direction of logical vertical on the possibly skewed image.

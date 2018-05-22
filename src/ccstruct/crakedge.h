@@ -25,7 +25,7 @@
 
 class CRACKEDGE {
  public:
-  CRACKEDGE() {}
+  CRACKEDGE() = default;
 
   ICOORD pos;                  /*position of crack */
   int8_t stepx;                  //edge step

@@ -52,7 +52,7 @@ class REGION_OCC:public ELIST_LINK
     float max_x;                 //Highest x in region
     int16_t region_type;           //Type of crossing
 
-    REGION_OCC() {}  // constructor used
+    REGION_OCC() = default;  // constructor used
     // only in COPIER etc
     REGION_OCC(  //constructor
                float min,
@@ -133,8 +133,7 @@ class BAND
     int16_t min;                   //nominal min
     int16_t min_min;               //lower min
 
-    BAND() {
-    }                            // constructor
+    BAND() = default; // constructor
 
     void set(                      // initialise a band
              int16_t new_max_max,    // upper max

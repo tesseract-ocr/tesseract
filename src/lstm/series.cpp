@@ -30,9 +30,6 @@ Series::Series(const STRING& name) : Plumbing(name) {
   type_ = NT_SERIES;
 }
 
-Series::~Series() {
-}
-
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
 StaticShape Series::OutputShape(const StaticShape& input_shape) const {

@@ -27,8 +27,7 @@ class SORTED_FLOAT:public ELIST_LINK
   friend class SORTED_FLOATS;
 
   public:
-    SORTED_FLOAT() {
-    }                            //empty constructor
+    SORTED_FLOAT() = default;
     SORTED_FLOAT(              //create one
                  float value,  //value of entry
                  int32_t key) {  //reference

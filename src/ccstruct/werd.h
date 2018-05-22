@@ -59,7 +59,7 @@ class ROW;                       //forward decl
 
 class WERD : public ELIST2_LINK {
   public:
-    WERD() {}
+    WERD() = default;
     // WERD constructed with:
     //   blob_list - blobs of the word (we take this list's contents)
     //   blanks - number of blanks before the word
@@ -75,8 +75,7 @@ class WERD : public ELIST2_LINK {
     // W_BOL and W_EOL flags are set according to the given values.
     WERD* ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob);
 
-    ~WERD() {
-    }
+    ~WERD() = default;
 
     // assignment
     WERD & operator= (const WERD &source);

@@ -808,9 +808,6 @@ BaselineDetect::BaselineDetect(int debug_level, const FCOORD& page_skew,
   }
 }
 
-BaselineDetect::~BaselineDetect() {
-}
-
 // Finds the initial baselines for each TO_ROW in each TO_BLOCK, gathers
 // block-wise and page-wise data to smooth small blocks/rows, and applies
 // smoothing based on block/page-level skew and block-level linespacing.

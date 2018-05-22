@@ -93,7 +93,7 @@ class IntegerMatcher {
   // Center of Similarity Curve.
   static const float kSimilarityCenter;
 
-  IntegerMatcher() : classify_debug_level_(0) {}
+  IntegerMatcher() : classify_debug_level_(nullptr) {}
 
   void Init(tesseract::IntParam *classify_debug_level);
 

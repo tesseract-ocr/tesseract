@@ -45,8 +45,7 @@ class ICOORD
       ycoord = yin;
     }
     ///destructor
-    ~ICOORD () {
-    }
+    ~ICOORD () = default;
 
     ///access function
     int16_t x() const {
@@ -163,8 +162,7 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
 {
   public:
     ///empty constructor
-    ICOORDELT() {  
-    }
+    ICOORDELT() = default;
     ///constructor from ICOORD
     ICOORDELT (ICOORD icoord):ICOORD (icoord) {
     }
@@ -190,8 +188,7 @@ class DLLSYM FCOORD
 {
   public:
     ///empty constructor
-    FCOORD() {
-    }
+    FCOORD() = default;
     ///constructor
     ///@param xvalue x value
     ///@param yvalue y value

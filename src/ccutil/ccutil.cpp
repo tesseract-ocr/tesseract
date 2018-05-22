@@ -27,10 +27,6 @@ CCUtil::CCUtil() :
               " whether to adapt to a character", &params_) {
 }
 
-CCUtil::~CCUtil() {
-}
-
-
 CCUtilMutex::CCUtilMutex() {
 #ifdef _WIN32
   mutex_ = CreateMutex(0, FALSE, 0);

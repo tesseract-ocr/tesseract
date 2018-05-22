@@ -34,10 +34,10 @@ class ColPartitionGrid : public BBGrid<ColPartition,
                                        ColPartition_CLIST,
                                        ColPartition_C_IT> {
  public:
-  ColPartitionGrid();
+  ColPartitionGrid() = default;
   ColPartitionGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
 
-  virtual ~ColPartitionGrid();
+  virtual ~ColPartitionGrid() = default;
 
   // Handles a click event in a display window.
   void HandleClick(int x, int y);

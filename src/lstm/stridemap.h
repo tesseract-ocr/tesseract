@@ -18,7 +18,7 @@
 #ifndef TESSERACT_LSTM_STRIDEMAP_H_
 #define TESSERACT_LSTM_STRIDEMAP_H_
 
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include "tprintf.h"
 

@@ -32,8 +32,6 @@ namespace tesseract {
 
 TFNetwork::TFNetwork(const STRING& name) : Network(NT_TENSORFLOW, name, 0, 0) {}
 
-TFNetwork::~TFNetwork() {}
-
 int TFNetwork::InitFromProtoStr(const string& proto_str) {
   if (!model_proto_.ParseFromString(proto_str)) return 0;
   return InitFromProto();

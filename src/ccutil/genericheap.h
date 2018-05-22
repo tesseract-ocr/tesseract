@@ -57,7 +57,7 @@ namespace tesseract {
 template <typename Pair>
 class GenericHeap {
  public:
-  GenericHeap() {}
+  GenericHeap() = default;
   // The initial size is only a GenericVector::reserve. It is not enforced as
   // the size limit of the heap. Caller must implement their own enforcement.
   explicit GenericHeap(int initial_size) {

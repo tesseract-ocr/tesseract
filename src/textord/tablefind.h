@@ -46,7 +46,7 @@ CLISTIZEH(ColSegment)
 class ColSegment : public ELIST_LINK {
  public:
   ColSegment();
-  ~ColSegment();
+  ~ColSegment() = default;
 
   // Simple accessors and mutators
   const TBOX& bounding_box() const {

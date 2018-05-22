@@ -116,8 +116,7 @@ class REJ
   BOOL8 rej_before_quality_accept();
 
   public:
-    REJ() {  //constructor
-    }
+    REJ() = default;
 
     REJ(  //classwise copy
         const REJ &source) {

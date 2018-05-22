@@ -153,7 +153,7 @@ class ErrorCounter {
   // Constructor is private. Only anticipated use of ErrorCounter is via
   // the static ComputeErrorRate.
   ErrorCounter(const UNICHARSET& unicharset, int fontsize);
-  ~ErrorCounter();
+  ~ErrorCounter() = default;
 
   // Accumulates the errors from the classifier results on a single sample.
   // Returns true if debug is true and a CT_UNICHAR_TOPN_ERR error occurred.

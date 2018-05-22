@@ -71,7 +71,7 @@ class BLOB_CHOICE: public ELIST_LINK
                 float yshift,           // the larger of y shift (top or bottom)
                 BlobChoiceClassifier c);   // adapted match or other
     BLOB_CHOICE(const BLOB_CHOICE &other);
-    ~BLOB_CHOICE() {}
+    ~BLOB_CHOICE() = default;
 
     UNICHAR_ID unichar_id() const {
       return unichar_id_;
