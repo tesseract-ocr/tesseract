@@ -30,6 +30,8 @@
 #include "findseam.h"
 #include "callcpp.h"
 
+#include <memory>
+
 class WERD_RES;
 
 namespace tesseract {
@@ -179,7 +181,7 @@ class Wordrec : public Classify {
 
   // methods from wordrec/*.cpp ***********************************************
   Wordrec();
-  virtual ~Wordrec();
+  virtual ~Wordrec() = default;
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
@@ -404,7 +406,7 @@ class Wordrec : public Classify {
 
   // Member variables.
 
-  LanguageModel *language_model_;
+  std::unique_ptr<LanguageModel> language_model_;
   PRIORITY pass2_ok_split;
   // Stores the best choice for the previous word in the paragraph.
   // This variable is modified by PAGE_RES_IT when iterating over

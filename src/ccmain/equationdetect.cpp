@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <float.h>
 #include <limits>
+#include <memory>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -168,13 +169,12 @@ void EquationDetect::IdentifySpecialText(
   // bottom-middle, and scaling is to make the height the x-height.
   const float scaling = static_cast<float>(kBlnXHeight) / box.height();
   const float x_orig = (box.left() + box.right()) / 2.0f, y_orig = box.bottom();
-  TBLOB* normed_blob = new TBLOB(*tblob);
+  std::unique_ptr<TBLOB> normed_blob(new TBLOB(*tblob));
   normed_blob->Normalize(nullptr, nullptr, nullptr, x_orig, y_orig, scaling, scaling,
                          0.0f, static_cast<float>(kBlnBaselineOffset),
                          false, nullptr);
-  equ_tesseract_.AdaptiveClassifier(normed_blob, &ratings_equ);
-  lang_tesseract_->AdaptiveClassifier(normed_blob, &ratings_lang);
-  delete normed_blob;
+  equ_tesseract_.AdaptiveClassifier(normed_blob.get(), &ratings_equ);
+  lang_tesseract_->AdaptiveClassifier(normed_blob.get(), &ratings_lang);
   delete tblob;
 
   // Get the best choice from ratings_lang and rating_equ. As the choice in the
