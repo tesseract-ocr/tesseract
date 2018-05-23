@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           STDERR_H
-#define           STDERR_H
+#ifndef STDERR_H
+#define STDERR_H
 
-#include          "errcode.h"
+#include "errcode.h"
 
 const ERRCODE MEMORY_OUT = "Out of memory";
 #endif

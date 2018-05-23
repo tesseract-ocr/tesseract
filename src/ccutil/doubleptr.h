@@ -78,9 +78,7 @@ class DoublePtr {
     }
   }
   // Returns the pointer to the other end of the double pointer.
-  DoublePtr* OtherEnd() const {
-    return other_end_;
-  }
+  DoublePtr* OtherEnd() const { return other_end_; }
 
  private:
   // Pointer to the other end of the link. It is always true that either

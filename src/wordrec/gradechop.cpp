@@ -26,11 +26,11 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "gradechop.h"
-#include "wordrec.h"
-#include "chop.h"
-#include "ndminx.h"
 #include <algorithm>
 #include <cmath>
+#include "chop.h"
+#include "ndminx.h"
+#include "wordrec.h"
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -49,7 +49,8 @@ namespace tesseract {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_split_length(SPLIT *split) {
+PRIORITY
+Wordrec::grade_split_length(SPLIT* split) {
   PRIORITY grade;
   float split_length;
 
@@ -59,11 +60,10 @@ PRIORITY Wordrec::grade_split_length(SPLIT *split) {
   if (split_length <= 0)
     grade = 0;
   else
-    grade = sqrt (split_length) * chop_split_dist_knob;
+    grade = sqrt(split_length) * chop_split_dist_knob;
 
   return (std::max(0.0f, grade));
 }
-
 
 /**********************************************************************
  * grade_sharpness
@@ -72,20 +72,20 @@ PRIORITY Wordrec::grade_split_length(SPLIT *split) {
  *   0    =  "perfect"
  *   100  =  "no way jay"
  **********************************************************************/
-PRIORITY Wordrec::grade_sharpness(SPLIT *split) {
+PRIORITY
+Wordrec::grade_sharpness(SPLIT* split) {
   PRIORITY grade;
 
-  grade = point_priority (split->point1) + point_priority (split->point2);
+  grade = point_priority(split->point1) + point_priority(split->point2);
 
   if (grade < -360.0)
     grade = 0;
   else
     grade += 360.0;
 
-  grade *= chop_sharpness_knob;       /* Values 0 to -360 */
+  grade *= chop_sharpness_knob; /* Values 0 to -360 */
 
   return (grade);
 }
-
 
 }  // namespace tesseract

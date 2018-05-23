@@ -123,19 +123,18 @@
 /*----------------------------------------------------------------------
                   T y p e s
 ----------------------------------------------------------------------*/
-#define NIL_LIST  (LIST) 0
-struct list_rec
-{
-  struct list_rec *node;
-  struct list_rec *next;
+#define NIL_LIST (LIST)0
+struct list_rec {
+  struct list_rec* node;
+  struct list_rec* next;
 };
-using LIST = list_rec *;
+using LIST = list_rec*;
 
 /*----------------------------------------------------------------------
                   M a c r o s
 ----------------------------------------------------------------------*/
 /* Predefinitions */
-#define list_rest(l)  ((l) ? (l)->next : NIL_LIST)
+#define list_rest(l) ((l) ? (l)->next : NIL_LIST)
 #define first_node(l) ((l) ? (l)->node : NIL_LIST)
 
 /**********************************************************************
@@ -146,8 +145,7 @@ using LIST = list_rec *;
  *
  **********************************************************************/
 
-#define copy_first(l1,l2)  \
-(l2=push(l2, first_node(l1)))
+#define copy_first(l1, l2) (l2 = push(l2, first_node(l1)))
 
 /**********************************************************************
  *  i t e r a t e
@@ -156,8 +154,7 @@ using LIST = list_rec *;
  *  minus the head.  Continue until the list is NIL_LIST.
  **********************************************************************/
 
-#define iterate(l)             \
-for (; (l) != NIL_LIST; (l) = list_rest (l))
+#define iterate(l) for (; (l) != NIL_LIST; (l) = list_rest(l))
 
 /**********************************************************************
  *  i t e r a t e   l i s t
@@ -167,8 +164,7 @@ for (; (l) != NIL_LIST; (l) = list_rest (l))
  *  except that it does not lose the original list.
  **********************************************************************/
 
-#define iterate_list(x,l)  \
-for ((x)=(l); (x)!=0; (x)=list_rest(x))
+#define iterate_list(x, l) for ((x) = (l); (x) != 0; (x) = list_rest(x))
 
 /**********************************************************************
  * j o i n   o n
@@ -177,8 +173,7 @@ for ((x)=(l); (x)!=0; (x)=list_rest(x))
  * parameter is modified.
  **********************************************************************/
 
-#define JOIN_ON(list1,list2)    \
-((list1) = join ((list1), (list2)))
+#define JOIN_ON(list1, list2) ((list1) = join((list1), (list2)))
 
 /**********************************************************************
  * p o p   o f f
@@ -187,8 +182,7 @@ for ((x)=(l); (x)!=0; (x)=list_rest(x))
  * parameter is modified.
  **********************************************************************/
 
-#define pop_off(list)    \
-((list) = pop (list))
+#define pop_off(list) ((list) = pop(list))
 
 /**********************************************************************
  * p u s h   o n
@@ -197,8 +191,7 @@ for ((x)=(l); (x)!=0; (x)=list_rest(x))
  * parameter is modified.
  **********************************************************************/
 
-#define push_on(list,thing)    \
-((list) = push (list, (LIST) (thing)))
+#define push_on(list, thing) ((list) = push(list, (LIST)(thing)))
 
 /**********************************************************************
  *  s e c o n d
@@ -208,8 +201,7 @@ for ((x)=(l); (x)!=0; (x)=list_rest(x))
  *  #define second_node(l)    first_node (list_rest (l))
  **********************************************************************/
 
-#define second_node(l)              \
-first_node (list_rest (l))
+#define second_node(l) first_node(list_rest(l))
 
 /**********************************************************************
  *  s e t   r e s t
@@ -219,8 +211,7 @@ first_node (list_rest (l))
  *  #define set_rest(l,node)        l->next = node;
  **********************************************************************/
 
-#define set_rest(l,cell)\
-((l)->next = (cell))
+#define set_rest(l, cell) ((l)->next = (cell))
 
 /**********************************************************************
  *  t h i r d
@@ -230,48 +221,47 @@ first_node (list_rest (l))
  *  #define third(l)     first_node (list_rest (list_rest (l)))
  **********************************************************************/
 
-#define third(l)               \
-first_node (list_rest (list_rest (l)))
+#define third(l) first_node(list_rest(list_rest(l)))
 
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
 int count(LIST var_list);
 
-LIST delete_d(LIST list, void *key, int_compare is_equal);
+LIST delete_d(LIST list, void* key, int_compare is_equal);
 
-LIST delete_d(LIST list, void *key,
+LIST delete_d(LIST list, void* key,
               TessResultCallback2<int, void*, void*>* is_equal);
 
 LIST destroy(LIST list);
 
 void destroy_nodes(LIST list, void_dest destructor);
 
-void insert(LIST list, void *node);
+void insert(LIST list, void* node);
 
-int is_same(void *item1, void *item2);
+int is_same(void* item1, void* item2);
 
 LIST join(LIST list1, LIST list2);
 
 LIST last(LIST var_list);
 
-void *nth_cell(LIST var_list, int item_num);
+void* nth_cell(LIST var_list, int item_num);
 
 LIST pop(LIST list);
 
-LIST push(LIST list, void *element);
+LIST push(LIST list, void* element);
 
-LIST push_last(LIST list, void *item);
+LIST push_last(LIST list, void* item);
 
 LIST reverse(LIST list);
 
 LIST reverse_d(LIST list);
 
-LIST s_adjoin(LIST var_list, void *variable, int_compare compare);
+LIST s_adjoin(LIST var_list, void* variable, int_compare compare);
 
-LIST search(LIST list, void *key, int_compare is_equal);
+LIST search(LIST list, void* key, int_compare is_equal);
 
-LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>*);
+LIST search(LIST list, void* key, TessResultCallback2<int, void*, void*>*);
 
 /*
 #if defined(__STDC__) || defined(__cplusplus)

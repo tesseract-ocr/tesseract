@@ -20,15 +20,15 @@
 #define TESSERACT_WORDREC_WORDREC_H_
 
 #include "associate.h"
+#include "callcpp.h"
 #include "classify.h"
 #include "dict.h"
-#include "language_model.h"
-#include "ratngs.h"
-#include "matrix.h"
-#include "gradechop.h"
-#include "seam.h"
 #include "findseam.h"
-#include "callcpp.h"
+#include "gradechop.h"
+#include "language_model.h"
+#include "matrix.h"
+#include "ratngs.h"
+#include "seam.h"
 
 class WERD_RES;
 
@@ -43,27 +43,21 @@ namespace tesseract {
 class SegSearchPending {
  public:
   SegSearchPending()
-    : classified_row_(-1),
-      revisit_whole_column_(false),
-      column_classified_(false) {}
+      : classified_row_(-1),
+        revisit_whole_column_(false),
+        column_classified_(false) {}
 
   // Marks the whole column as just classified. Used to start a search on
   // a newly initialized ratings matrix.
-  void SetColumnClassified() {
-    column_classified_ = true;
-  }
+  void SetColumnClassified() { column_classified_ = true; }
   // Marks the matrix entry at the given row as just classified.
   // Used after classifying a new matrix cell.
   // Additional to, not overriding a previous RevisitWholeColumn.
-  void SetBlobClassified(int row) {
-    classified_row_ = row;
-  }
+  void SetBlobClassified(int row) { classified_row_ = row; }
   // Marks the whole column as needing work, but not just classified.
   // Used when the parent vse list is updated.
   // Additional to, not overriding a previous SetBlobClassified.
-  void RevisitWholeColumn() {
-    revisit_whole_column_ = true;
-  }
+  void RevisitWholeColumn() { revisit_whole_column_ = true; }
 
   // Clears *this to indicate no work to do.
   void Clear() {
@@ -102,23 +96,20 @@ class SegSearchPending {
   bool column_classified_;
 };
 
-
 /* ccmain/tstruct.cpp *********************************************************/
-class FRAGMENT:public ELIST_LINK
-{
-  public:
-    FRAGMENT() {  //constructor
-    }
-    FRAGMENT(EDGEPT *head_pt,   //start
-             EDGEPT *tail_pt);  //end
+class FRAGMENT : public ELIST_LINK {
+ public:
+  FRAGMENT() {  // constructor
+  }
+  FRAGMENT(EDGEPT* head_pt,   // start
+           EDGEPT* tail_pt);  // end
 
-    ICOORD head;                 //coords of start
-    ICOORD tail;                 //coords of end
-    EDGEPT *headpt;              //start point
-    EDGEPT *tailpt;              //end point
+  ICOORD head;     // coords of start
+  ICOORD tail;     // coords of end
+  EDGEPT* headpt;  // start point
+  EDGEPT* tailpt;  // end point
 };
 ELISTIZEH(FRAGMENT)
-
 
 class Wordrec : public Classify {
  public:
@@ -149,7 +140,8 @@ class Wordrec : public Classify {
   double_VAR_H(chop_split_dist_knob, 0.5, "Split length adjustment");
   double_VAR_H(chop_overlap_knob, 0.9, "Split overlap adjustment");
   double_VAR_H(chop_center_knob, 0.15, "Split center adjustment");
-  INT_VAR_H(chop_centered_maxwidth, 90, "Width of (smaller) chopped blobs "
+  INT_VAR_H(chop_centered_maxwidth, 90,
+            "Width of (smaller) chopped blobs "
             "above which we don't care that a chop is not near the center.");
   double_VAR_H(chop_sharpness_knob, 0.06, "Split sharpness adjustment");
   double_VAR_H(chop_width_change_knob, 5.0, "Width change adjustment");
@@ -183,37 +175,35 @@ class Wordrec : public Classify {
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.
-  void SaveAltChoices(const LIST &best_choices, WERD_RES *word);
+  void SaveAltChoices(const LIST& best_choices, WERD_RES* word);
 
   // Fills character choice lattice in the given BlamerBundle
   // using the given ratings matrix and best choice list.
-  void FillLattice(const MATRIX &ratings, const WERD_CHOICE_LIST &best_choices,
-                   const UNICHARSET &unicharset, BlamerBundle *blamer_bundle);
+  void FillLattice(const MATRIX& ratings, const WERD_CHOICE_LIST& best_choices,
+                   const UNICHARSET& unicharset, BlamerBundle* blamer_bundle);
 
   // Calls fill_lattice_ member function
   // (assumes that fill_lattice_ is not nullptr).
-  void CallFillLattice(const MATRIX &ratings,
-                       const WERD_CHOICE_LIST &best_choices,
-                       const UNICHARSET &unicharset,
-                       BlamerBundle *blamer_bundle) {
+  void CallFillLattice(const MATRIX& ratings,
+                       const WERD_CHOICE_LIST& best_choices,
+                       const UNICHARSET& unicharset,
+                       BlamerBundle* blamer_bundle) {
     (this->*fill_lattice_)(ratings, best_choices, unicharset, blamer_bundle);
   }
 
   // tface.cpp
-  void program_editup(const char *textbase, TessdataManager *init_classifier,
-                      TessdataManager *init_dict);
-  void cc_recog(WERD_RES *word);
+  void program_editup(const char* textbase, TessdataManager* init_classifier,
+                      TessdataManager* init_dict);
+  void cc_recog(WERD_RES* word);
   void program_editdown(int32_t elasped_time);
   void set_pass1();
   void set_pass2();
   int end_recog();
-  BLOB_CHOICE_LIST *call_matcher(TBLOB* blob);
-  int dict_word(const WERD_CHOICE &word);
+  BLOB_CHOICE_LIST* call_matcher(TBLOB* blob);
+  int dict_word(const WERD_CHOICE& word);
   // wordclass.cpp
-  BLOB_CHOICE_LIST *classify_blob(TBLOB *blob,
-                                  const char *string,
-                                  C_COL color,
-                                  BlamerBundle *blamer_bundle);
+  BLOB_CHOICE_LIST* classify_blob(TBLOB* blob, const char* string, C_COL color,
+                                  BlamerBundle* blamer_bundle);
 
   // segsearch.cpp
   // SegSearch works on the lower diagonal matrix of BLOB_CHOICE_LISTs.
@@ -267,8 +257,7 @@ class Wordrec : public Classify {
   //
   // Note: this function assumes that word_res, best_choice_bundle arguments
   // are not nullptr.
-  void SegSearch(WERD_RES* word_res,
-                 BestChoiceBundle* best_choice_bundle,
+  void SegSearch(WERD_RES* word_res, BestChoiceBundle* best_choice_bundle,
                  BlamerBundle* blamer_bundle);
 
   // Setup and run just the initial segsearch on an established matrix,
@@ -284,91 +273,75 @@ class Wordrec : public Classify {
   void DoSegSearch(WERD_RES* word_res);
 
   // chop.cpp
-  PRIORITY point_priority(EDGEPT *point);
-  void add_point_to_list(PointHeap* point_heap, EDGEPT *point);
+  PRIORITY point_priority(EDGEPT* point);
+  void add_point_to_list(PointHeap* point_heap, EDGEPT* point);
   // Returns true if the edgept supplied as input is an inside angle.  This
   // is determined by the angular change of the vectors from point to point.
-  bool is_inside_angle(EDGEPT *pt);
-  int angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3);
-  EDGEPT *pick_close_point(EDGEPT *critical_point,
-                           EDGEPT *vertical_point,
-                           int *best_dist);
-  void prioritize_points(TESSLINE *outline, PointHeap* points);
-  void new_min_point(EDGEPT *local_min, PointHeap* points);
-  void new_max_point(EDGEPT *local_max, PointHeap* points);
-  void vertical_projection_point(EDGEPT *split_point, EDGEPT *target_point,
-                                 EDGEPT** best_point,
-                                 EDGEPT_CLIST *new_points);
+  bool is_inside_angle(EDGEPT* pt);
+  int angle_change(EDGEPT* point1, EDGEPT* point2, EDGEPT* point3);
+  EDGEPT* pick_close_point(EDGEPT* critical_point, EDGEPT* vertical_point,
+                           int* best_dist);
+  void prioritize_points(TESSLINE* outline, PointHeap* points);
+  void new_min_point(EDGEPT* local_min, PointHeap* points);
+  void new_max_point(EDGEPT* local_max, PointHeap* points);
+  void vertical_projection_point(EDGEPT* split_point, EDGEPT* target_point,
+                                 EDGEPT** best_point, EDGEPT_CLIST* new_points);
 
   // chopper.cpp
-  SEAM *attempt_blob_chop(TWERD *word, TBLOB *blob, int32_t blob_number,
+  SEAM* attempt_blob_chop(TWERD* word, TBLOB* blob, int32_t blob_number,
                           bool italic_blob, const GenericVector<SEAM*>& seams);
-  SEAM *chop_numbered_blob(TWERD *word, int32_t blob_number,
-                           bool italic_blob, const GenericVector<SEAM*>& seams);
-  SEAM *chop_overlapping_blob(const GenericVector<TBOX>& boxes,
-                              bool italic_blob,
-                              WERD_RES *word_res, int *blob_number);
-  SEAM *improve_one_blob(const GenericVector<BLOB_CHOICE*> &blob_choices,
-                         DANGERR *fixpt,
-                         bool split_next_to_fragment,
-                         bool italic_blob,
-                         WERD_RES *word,
-                         int *blob_number);
-  SEAM *chop_one_blob(const GenericVector<TBOX> &boxes,
-                      const GenericVector<BLOB_CHOICE*> &blob_choices,
-                      WERD_RES *word_res,
-                      int *blob_number);
-  void chop_word_main(WERD_RES *word);
-  void improve_by_chopping(float rating_cert_scale,
-                           WERD_RES *word,
-                           BestChoiceBundle *best_choice_bundle,
-                           BlamerBundle *blamer_bundle,
-                           LMPainPoints *pain_points,
+  SEAM* chop_numbered_blob(TWERD* word, int32_t blob_number, bool italic_blob,
+                           const GenericVector<SEAM*>& seams);
+  SEAM* chop_overlapping_blob(const GenericVector<TBOX>& boxes,
+                              bool italic_blob, WERD_RES* word_res,
+                              int* blob_number);
+  SEAM* improve_one_blob(const GenericVector<BLOB_CHOICE*>& blob_choices,
+                         DANGERR* fixpt, bool split_next_to_fragment,
+                         bool italic_blob, WERD_RES* word, int* blob_number);
+  SEAM* chop_one_blob(const GenericVector<TBOX>& boxes,
+                      const GenericVector<BLOB_CHOICE*>& blob_choices,
+                      WERD_RES* word_res, int* blob_number);
+  void chop_word_main(WERD_RES* word);
+  void improve_by_chopping(float rating_cert_scale, WERD_RES* word,
+                           BestChoiceBundle* best_choice_bundle,
+                           BlamerBundle* blamer_bundle,
+                           LMPainPoints* pain_points,
                            GenericVector<SegSearchPending>* pending);
-  int select_blob_to_split(const GenericVector<BLOB_CHOICE*> &blob_choices,
-                           float rating_ceiling,
-                           bool split_next_to_fragment);
-  int select_blob_to_split_from_fixpt(DANGERR *fixpt);
+  int select_blob_to_split(const GenericVector<BLOB_CHOICE*>& blob_choices,
+                           float rating_ceiling, bool split_next_to_fragment);
+  int select_blob_to_split_from_fixpt(DANGERR* fixpt);
 
   // findseam.cpp
-  void add_seam_to_queue(float new_priority, SEAM *new_seam, SeamQueue* seams);
-  void choose_best_seam(SeamQueue *seam_queue, const SPLIT *split,
-                        PRIORITY priority, SEAM **seam_result, TBLOB *blob,
-                        SeamPile *seam_pile);
-  void combine_seam(const SeamPile& seam_pile,
-                    const SEAM* seam, SeamQueue* seam_queue);
-  SEAM *pick_good_seam(TBLOB *blob);
-  void try_point_pairs (EDGEPT * points[MAX_NUM_POINTS],
-                        int16_t num_points,
-                        SeamQueue* seam_queue,
-                        SeamPile* seam_pile,
-                        SEAM ** seam, TBLOB * blob);
-  void try_vertical_splits(EDGEPT * points[MAX_NUM_POINTS],
-                           int16_t num_points,
-                           EDGEPT_CLIST *new_points,
-                           SeamQueue* seam_queue,
-                           SeamPile* seam_pile,
-                           SEAM ** seam, TBLOB * blob);
+  void add_seam_to_queue(float new_priority, SEAM* new_seam, SeamQueue* seams);
+  void choose_best_seam(SeamQueue* seam_queue, const SPLIT* split,
+                        PRIORITY priority, SEAM** seam_result, TBLOB* blob,
+                        SeamPile* seam_pile);
+  void combine_seam(const SeamPile& seam_pile, const SEAM* seam,
+                    SeamQueue* seam_queue);
+  SEAM* pick_good_seam(TBLOB* blob);
+  void try_point_pairs(EDGEPT* points[MAX_NUM_POINTS], int16_t num_points,
+                       SeamQueue* seam_queue, SeamPile* seam_pile, SEAM** seam,
+                       TBLOB* blob);
+  void try_vertical_splits(EDGEPT* points[MAX_NUM_POINTS], int16_t num_points,
+                           EDGEPT_CLIST* new_points, SeamQueue* seam_queue,
+                           SeamPile* seam_pile, SEAM** seam, TBLOB* blob);
 
   // gradechop.cpp
-  PRIORITY grade_split_length(SPLIT *split);
-  PRIORITY grade_sharpness(SPLIT *split);
+  PRIORITY grade_split_length(SPLIT* split);
+  PRIORITY grade_sharpness(SPLIT* split);
 
   // outlines.cpp
-  bool near_point(EDGEPT *point, EDGEPT *line_pt_0, EDGEPT *line_pt_1,
-                  EDGEPT **near_pt);
+  bool near_point(EDGEPT* point, EDGEPT* line_pt_0, EDGEPT* line_pt_1,
+                  EDGEPT** near_pt);
 
   // pieces.cpp
-  virtual BLOB_CHOICE_LIST *classify_piece(const GenericVector<SEAM*>& seams,
-                                           int16_t start,
-                                           int16_t end,
-                                           const char* description,
-                                           TWERD *word,
-                                           BlamerBundle *blamer_bundle);
+  virtual BLOB_CHOICE_LIST* classify_piece(const GenericVector<SEAM*>& seams,
+                                           int16_t start, int16_t end,
+                                           const char* description, TWERD* word,
+                                           BlamerBundle* blamer_bundle);
   // Try to merge fragments in the ratings matrix and put the result in
   // the corresponding row and column
-  void merge_fragments(MATRIX *ratings,
-                       int16_t num_blobs);
+  void merge_fragments(MATRIX* ratings, int16_t num_blobs);
   // Recursively go through the ratings matrix to find lists of fragments
   // to be merged in the function merge_and_put_fragment_lists.
   // current_frag is the position of the piece we are looking for.
@@ -377,52 +350,46 @@ class Wordrec : public Classify {
   // to append the results to the matrix. num_frag_parts is the total
   // number of pieces we are looking for and num_blobs is the size of the
   // ratings matrix.
-  void get_fragment_lists(int16_t current_frag,
-                          int16_t current_row,
-                          int16_t start,
-                          int16_t num_frag_parts,
-                          int16_t num_blobs,
-                          MATRIX *ratings,
-                          BLOB_CHOICE_LIST *choice_lists);
+  void get_fragment_lists(int16_t current_frag, int16_t current_row,
+                          int16_t start, int16_t num_frag_parts,
+                          int16_t num_blobs, MATRIX* ratings,
+                          BLOB_CHOICE_LIST* choice_lists);
   // Merge the fragment lists in choice_lists and append it to the
   // ratings matrix
-  void merge_and_put_fragment_lists(int16_t row,
-                                    int16_t column,
+  void merge_and_put_fragment_lists(int16_t row, int16_t column,
                                     int16_t num_frag_parts,
-                                    BLOB_CHOICE_LIST *choice_lists,
-                                    MATRIX *ratings);
+                                    BLOB_CHOICE_LIST* choice_lists,
+                                    MATRIX* ratings);
   // Filter the fragment list so that the filtered_choices only contain
   // fragments that are in the correct position. choices is the list
   // that we are going to filter. fragment_pos is the position in the
   // fragment that we are looking for and num_frag_parts is the the
   // total number of pieces. The result will be appended to
   // filtered_choices.
-  void fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
-                                   int fragment_pos,
+  void fill_filtered_fragment_list(BLOB_CHOICE_LIST* choices, int fragment_pos,
                                    int num_frag_parts,
-                                   BLOB_CHOICE_LIST *filtered_choices);
+                                   BLOB_CHOICE_LIST* filtered_choices);
 
   // Member variables.
 
-  LanguageModel *language_model_;
+  LanguageModel* language_model_;
   PRIORITY pass2_ok_split;
   // Stores the best choice for the previous word in the paragraph.
   // This variable is modified by PAGE_RES_IT when iterating over
   // words to OCR on the page.
-  WERD_CHOICE *prev_word_best_choice_;
+  WERD_CHOICE* prev_word_best_choice_;
   // Sums of blame reasons computed by the blamer.
   GenericVector<int> blame_reasons_;
   // Function used to fill char choice lattices.
-  void (Wordrec::*fill_lattice_)(const MATRIX &ratings,
-                                 const WERD_CHOICE_LIST &best_choices,
-                                 const UNICHARSET &unicharset,
-                                 BlamerBundle *blamer_bundle);
+  void (Wordrec::*fill_lattice_)(const MATRIX& ratings,
+                                 const WERD_CHOICE_LIST& best_choices,
+                                 const UNICHARSET& unicharset,
+                                 BlamerBundle* blamer_bundle);
 
  protected:
   inline bool SegSearchDone(int num_futile_classifications) {
     return (language_model_->AcceptableChoiceFound() ||
-            num_futile_classifications >=
-            segsearch_max_futile_classifications);
+            num_futile_classifications >= segsearch_max_futile_classifications);
   }
 
   // Updates the language model state recorded for the child entries specified
@@ -450,24 +417,20 @@ class Wordrec : public Classify {
   // best_choice_bundle: a collection of variables that should be updated
   // if a new best choice is found
   //
-  void UpdateSegSearchNodes(
-      float rating_cert_scale,
-      int starting_col,
-      GenericVector<SegSearchPending>* pending,
-      WERD_RES *word_res,
-      LMPainPoints *pain_points,
-      BestChoiceBundle *best_choice_bundle,
-      BlamerBundle *blamer_bundle);
+  void UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
+                            GenericVector<SegSearchPending>* pending,
+                            WERD_RES* word_res, LMPainPoints* pain_points,
+                            BestChoiceBundle* best_choice_bundle,
+                            BlamerBundle* blamer_bundle);
 
   // Process the given pain point: classify the corresponding blob, enqueue
   // new pain points to join the newly classified blob with its neighbors.
   void ProcessSegSearchPainPoint(float pain_point_priority,
-                                 const MATRIX_COORD &pain_point,
+                                 const MATRIX_COORD& pain_point,
                                  const char* pain_point_type,
                                  GenericVector<SegSearchPending>* pending,
-                                 WERD_RES *word_res,
-                                 LMPainPoints *pain_points,
-                                 BlamerBundle *blamer_bundle);
+                                 WERD_RES* word_res, LMPainPoints* pain_points,
+                                 BlamerBundle* blamer_bundle);
   // Resets enough of the results so that the Viterbi search is re-run.
   // Needed when the n-gram model is enabled, as the multi-length comparison
   // implementation will re-value existing paths to worse values.
@@ -478,12 +441,10 @@ class Wordrec : public Classify {
   // Add pain points for classifying blobs on the correct segmentation path
   // (so that we can evaluate correct segmentation path and discover the reason
   // for incorrect result).
-  void InitBlamerForSegSearch(WERD_RES *word_res,
-                              LMPainPoints *pain_points,
-                              BlamerBundle *blamer_bundle,
-                              STRING *blamer_debug);
+  void InitBlamerForSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
+                              BlamerBundle* blamer_bundle,
+                              STRING* blamer_debug);
 };
-
 
 }  // namespace tesseract
 

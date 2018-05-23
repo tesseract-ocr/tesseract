@@ -34,17 +34,14 @@ const int kSloppyTolerance = 4;
 // Final tolerance in pixels added to the computed xheight range.
 const float kFinalPixelTolerance = 0.125f;
 
-DENORM::DENORM() {
-  Init();
-}
+DENORM::DENORM() { Init(); }
 
-DENORM::DENORM(const DENORM &src) {
+DENORM::DENORM(const DENORM& src) {
   rotation_ = nullptr;
   *this = src;
 }
 
-
-DENORM & DENORM::operator=(const DENORM & src) {
+DENORM& DENORM::operator=(const DENORM& src) {
   Clear();
   inverse_ = src.inverse_;
   predecessor_ = src.predecessor_;
@@ -63,9 +60,7 @@ DENORM & DENORM::operator=(const DENORM & src) {
   return *this;
 }
 
-DENORM::~DENORM() {
-  Clear();
-}
+DENORM::~DENORM() { Clear(); }
 
 // Initializes the denorm for a transformation. For details see the large
 // comment in normalis.h.
@@ -92,11 +87,9 @@ DENORM::~DENORM() {
 //
 // final_xshift: The x component of the final translation.
 // final_yshift: The y component of the final translation.
-void DENORM::SetupNormalization(const BLOCK* block,
-                                const FCOORD* rotation,
-                                const DENORM* predecessor,
-                                float x_origin, float y_origin,
-                                float x_scale, float y_scale,
+void DENORM::SetupNormalization(const BLOCK* block, const FCOORD* rotation,
+                                const DENORM* predecessor, float x_origin,
+                                float y_origin, float x_scale, float y_scale,
                                 float final_xshift, float final_yshift) {
   Clear();
   block_ = block;
@@ -153,9 +146,8 @@ void DENORM::SetupNormalization(const BLOCK* block,
 // pre-initialized to be the same size as box. Each element will contain the
 // minimum of x and y run-length as shown above.
 static void ComputeRunlengthImage(
-    const TBOX& box,
-    const GenericVector<GenericVector<int> >& x_coords,
-    const GenericVector<GenericVector<int> >& y_coords,
+    const TBOX& box, const GenericVector<GenericVector<int>>& x_coords,
+    const GenericVector<GenericVector<int>>& y_coords,
     GENERIC_2D_ARRAY<int>* minruns) {
   int width = box.width();
   int height = box.height();
@@ -187,15 +179,13 @@ static void ComputeRunlengthImage(
       int x_edge = ClipToRange(x_coords[iy][i], 0, width);
       int gap = x_edge - x;
       while (x < x_edge) {
-        if (gap < (*minruns)(x, iy))
-          (*minruns)(x, iy) = gap;
+        if (gap < (*minruns)(x, iy)) (*minruns)(x, iy) = gap;
         ++x;
       }
     }
     int gap = width - x;
     while (x < width) {
-      if (gap < (*minruns)(x, iy))
-        (*minruns)(x, iy) = gap;
+      if (gap < (*minruns)(x, iy)) (*minruns)(x, iy) = gap;
       ++x;
     }
   }
@@ -264,11 +254,11 @@ static void ComputeEdgeDensityProfiles(const TBOX& box,
 // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
 // The second-level vectors must all be sorted in ascending order.
 // See comments on the helper functions above for more details.
-void DENORM::SetupNonLinear(
-    const DENORM* predecessor, const TBOX& box, float target_width,
-    float target_height, float final_xshift, float final_yshift,
-    const GenericVector<GenericVector<int> >& x_coords,
-    const GenericVector<GenericVector<int> >& y_coords) {
+void DENORM::SetupNonLinear(const DENORM* predecessor, const TBOX& box,
+                            float target_width, float target_height,
+                            float final_xshift, float final_yshift,
+                            const GenericVector<GenericVector<int>>& x_coords,
+                            const GenericVector<GenericVector<int>>& y_coords) {
   Clear();
   predecessor_ = predecessor;
   // x_map_ and y_map_ store a mapping from input x and y coordinate to output
@@ -312,15 +302,14 @@ void DENORM::LocalNormTransform(const TPOINT& pt, TPOINT* transformed) const {
 void DENORM::LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const {
   FCOORD translated(pt.x() - x_origin_, pt.y() - y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
-    int x = ClipToRange(IntCastRounded(translated.x()), 0, x_map_->size()-1);
+    int x = ClipToRange(IntCastRounded(translated.x()), 0, x_map_->size() - 1);
     translated.set_x((*x_map_)[x]);
-    int y = ClipToRange(IntCastRounded(translated.y()), 0, y_map_->size()-1);
+    int y = ClipToRange(IntCastRounded(translated.y()), 0, y_map_->size() - 1);
     translated.set_y((*y_map_)[y]);
   } else {
     translated.set_x(translated.x() * x_scale_);
     translated.set_y(translated.y() * y_scale_);
-    if (rotation_ != nullptr)
-      translated.rotate(*rotation_);
+    if (rotation_ != nullptr) translated.rotate(*rotation_);
   }
   transformed->set_x(translated.x() + final_xshift_);
   transformed->set_y(translated.y() + final_yshift_);
@@ -412,10 +401,8 @@ void DENORM::LocalNormBlob(TBLOB* blob) const {
   TBOX blob_box = blob->bounding_box();
   ICOORD translation(-IntCastRounded(x_origin_), -IntCastRounded(y_origin_));
   blob->Move(translation);
-  if (y_scale_ != 1.0f)
-    blob->Scale(y_scale_);
-  if (rotation_ != nullptr)
-    blob->Rotate(*rotation_);
+  if (y_scale_ != 1.0f) blob->Scale(y_scale_);
+  if (rotation_ != nullptr) blob->Rotate(*rotation_);
   translation.set_x(IntCastRounded(final_xshift_));
   translation.set_y(IntCastRounded(final_yshift_));
   blob->Move(translation);
@@ -426,15 +413,14 @@ void DENORM::LocalNormBlob(TBLOB* blob) const {
 // initial crude x-height estimate (such as word size) and this denoting the
 // transformation that was used.
 void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
-                          const TBOX& bbox,
-                          float* min_xht, float* max_xht, float* yshift) const {
+                          const TBOX& bbox, float* min_xht, float* max_xht,
+                          float* yshift) const {
   // Default return -- accept anything.
   *yshift = 0.0f;
   *min_xht = 0.0f;
   *max_xht = MAX_FLOAT32;
 
-  if (!unicharset.top_bottom_useful())
-    return;
+  if (!unicharset.top_bottom_useful()) return;
 
   // Clip the top and bottom to the limit of normalized feature space.
   int top = ClipToRange<int>(bbox.top(), 0, kBlnCellHeight - 1);
@@ -447,8 +433,8 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
     tolerance = y_scale() * kSloppyTolerance;
 
   int min_bottom, max_bottom, min_top, max_top;
-  unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom,
-                            &min_top, &max_top);
+  unicharset.get_top_bottom(unichar_id, &min_bottom, &max_bottom, &min_top,
+                            &max_top);
 
   // Calculate the scale factor we'll use to get to image y-pixels
   double midx = (bbox.left() + bbox.right()) / 2.0;
@@ -504,14 +490,13 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
 // Prints the content of the DENORM for debug purposes.
 void DENORM::Print() const {
   if (pix_ != nullptr) {
-    tprintf("Pix dimensions %d x %d x %d\n",
-            pixGetWidth(pix_), pixGetHeight(pix_), pixGetDepth(pix_));
+    tprintf("Pix dimensions %d x %d x %d\n", pixGetWidth(pix_),
+            pixGetHeight(pix_), pixGetDepth(pix_));
   }
-  if (inverse_)
-    tprintf("Inverse\n");
+  if (inverse_) tprintf("Inverse\n");
   if (block_ && block_->re_rotation().x() != 1.0f) {
-    tprintf("Block rotation %g, %g\n",
-            block_->re_rotation().x(), block_->re_rotation().y());
+    tprintf("Block rotation %g, %g\n", block_->re_rotation().x(),
+            block_->re_rotation().y());
   }
   tprintf("Input Origin = (%g, %g)\n", x_origin_, y_origin_);
   if (x_map_ != nullptr && y_map_ != nullptr) {
@@ -535,7 +520,6 @@ void DENORM::Print() const {
     predecessor_->Print();
   }
 }
-
 
 // ============== Private Code ======================
 

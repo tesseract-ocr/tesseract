@@ -26,9 +26,9 @@
 namespace tesseract {
 
 Convolve::Convolve(const STRING& name, int ni, int half_x, int half_y)
-  : Network(NT_CONVOLVE, name, ni, ni * (2*half_x + 1) * (2*half_y + 1)),
-    half_x_(half_x), half_y_(half_y) {
-}
+    : Network(NT_CONVOLVE, name, ni, ni * (2 * half_x + 1) * (2 * half_y + 1)),
+      half_x_(half_x),
+      half_y_(half_y) {}
 
 // Writes to the given file. Returns false in case of error.
 bool Convolve::Serialize(TFile* fp) const {
@@ -42,7 +42,7 @@ bool Convolve::Serialize(TFile* fp) const {
 bool Convolve::DeSerialize(TFile* fp) {
   if (fp->FReadEndian(&half_x_, sizeof(half_x_), 1) != 1) return false;
   if (fp->FReadEndian(&half_y_, sizeof(half_y_), 1) != 1) return false;
-  no_ = ni_ * (2*half_x_ + 1) * (2*half_y_ + 1);
+  no_ = ni_ * (2 * half_x_ + 1) * (2 * half_y_ + 1);
   return true;
 }
 
@@ -83,8 +83,7 @@ void Convolve::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Convolve::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+                        NetworkScratch* scratch, NetworkIO* back_deltas) {
   back_deltas->Resize(fwd_deltas, ni_);
   NetworkScratch::IO delta_sum;
   delta_sum.ResizeFloat(fwd_deltas, ni_, scratch);

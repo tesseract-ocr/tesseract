@@ -43,9 +43,7 @@ class NetworkScratch {
   // This saves memory by having separate int-specific and float-specific
   // stacks. If the network representation is float, then all NetworkIOs go
   // to the float stack.
-  void set_int_mode(bool int_mode) {
-    int_mode_ = int_mode;
-  }
+  void set_int_mode(bool int_mode) { int_mode_ = int_mode; }
 
   // Class that acts like a NetworkIO (by having an implicit cast operator),
   // yet actually holds a pointer to NetworkIOs in the source NetworkScratch,
@@ -54,8 +52,8 @@ class NetworkScratch {
    public:
     // The NetworkIO should be sized after construction.
     IO(const NetworkIO& src, NetworkScratch* scratch)
-      : int_mode_(scratch->int_mode_ && src.int_mode()),
-        scratch_space_(scratch) {
+        : int_mode_(scratch->int_mode_ && src.int_mode()),
+          scratch_space_(scratch) {
       network_io_ = int_mode_ ? scratch_space_->int_stack_.Borrow()
                               : scratch_space_->float_stack_.Borrow();
     }
@@ -110,15 +108,9 @@ class NetworkScratch {
 
     // Returns a ref to a NetworkIO that enables *this to be treated as if
     // it were just a NetworkIO*.
-    NetworkIO& operator*() {
-      return *network_io_;
-    }
-    NetworkIO* operator->() {
-      return network_io_;
-    }
-    operator NetworkIO*() {
-      return network_io_;
-    }
+    NetworkIO& operator*() { return *network_io_; }
+    NetworkIO* operator->() { return network_io_; }
+    operator NetworkIO*() { return network_io_; }
 
    private:
     // True if this is from the always-float stack, otherwise the default stack.
@@ -137,7 +129,7 @@ class NetworkScratch {
    public:
     // The array will have size elements in it, uninitialized.
     FloatVec(int size, NetworkScratch* scratch)
-      : vec_(nullptr), scratch_space_(scratch) {
+        : vec_(nullptr), scratch_space_(scratch) {
       Init(size, scratch);
     }
     // Default constructor is for arrays. Use Init to setup.
@@ -178,7 +170,8 @@ class NetworkScratch {
     // Default constructor is for arrays. Use Init to setup.
     GradientStore() : array_(nullptr), scratch_space_(nullptr) {}
     ~GradientStore() {
-      if (scratch_space_ != nullptr) scratch_space_->array_stack_.Return(array_);
+      if (scratch_space_ != nullptr)
+        scratch_space_->array_stack_.Return(array_);
     }
 
     void Init(int size1, int size2, NetworkScratch* scratch) {
@@ -204,10 +197,10 @@ class NetworkScratch {
   // Class that does the work of holding a stack of objects, a stack pointer
   // and a vector of in-use flags, so objects can be returned out of order.
   // It is safe to attempt to Borrow/Return in multiple threads.
-  template<typename T> class Stack {
+  template <typename T>
+  class Stack {
    public:
-    Stack() : stack_top_(0) {
-    }
+    Stack() : stack_top_(0) {}
 
     // Lends out the next free item, creating one if none available, sets
     // the used flags and increments the stack top.
@@ -248,7 +241,7 @@ class NetworkScratch {
   // deleted until the NetworkScratch is deleted.
   Stack<NetworkIO> int_stack_;
   Stack<NetworkIO> float_stack_;
-  Stack<GenericVector<double> > vec_stack_;
+  Stack<GenericVector<double>> vec_stack_;
   Stack<TransposedArray> array_stack_;
 };
 

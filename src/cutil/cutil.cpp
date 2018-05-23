@@ -39,8 +39,8 @@ Import original HP distribution
  **/
 
 #include "cutil.h"
-#include "tprintf.h"
 #include "callcpp.h"
+#include "tprintf.h"
 
 #include <cstdlib>
 
@@ -58,8 +58,8 @@ long long_rand(long limit) {
   static long seed;
 
   long num;
-  num = (long) rand () << 16;
-  num |= rand () & 0xffff;
+  num = (long)rand() << 16;
+  num |= rand() & 0xffff;
   seed ^= num;
   long result = num % limit;
   while (result < 0) {
@@ -67,10 +67,9 @@ long long_rand(long limit) {
   }
   return result;
 #else
-  return (long)((double)limit * rand()/(RAND_MAX + 1.0));
+  return (long)((double)limit * rand() / (RAND_MAX + 1.0));
 #endif
 }
-
 
 /**********************************************************************
  * open_file
@@ -79,19 +78,19 @@ long long_rand(long limit) {
  *  nullptr use stdin (or stdout) for the file.  If the file can not be
  *  opened then call the error routine.
  **********************************************************************/
-FILE *open_file(const char *filename, const char *mode) {
-  FILE *thisfile = nullptr;
-  if ((thisfile = fopen (filename, mode)) == nullptr) {
-    tprintf ("Could not open file, %s\n", filename);
-    exit (1);
+FILE* open_file(const char* filename, const char* mode) {
+  FILE* thisfile = nullptr;
+  if ((thisfile = fopen(filename, mode)) == nullptr) {
+    tprintf("Could not open file, %s\n", filename);
+    exit(1);
   }
   return (thisfile);
 }
 
 /// Check whether the file exists
-bool exists_file(const char *filename) {
+bool exists_file(const char* filename) {
   bool exists = false;
-  FILE *f = nullptr;
+  FILE* f = nullptr;
   if ((f = fopen(filename, "rb")) != nullptr) {
     fclose(f);
     exists = true;

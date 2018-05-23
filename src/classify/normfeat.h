@@ -15,25 +15,30 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   NORMFEAT_H
-#define   NORMFEAT_H
+#ifndef NORMFEAT_H
+#define NORMFEAT_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "ocrfeatures.h"
 
-#define LENGTH_COMPRESSION  (10.0)
+#define LENGTH_COMPRESSION (10.0)
 
 typedef enum {
-  CharNormY, CharNormLength, CharNormRx, CharNormRy
+  CharNormY,
+  CharNormLength,
+  CharNormRx,
+  CharNormRy
 } NORM_PARAM_NAME;
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-FLOAT32 ActualOutlineLength(FEATURE Feature);
+FLOAT32
+ActualOutlineLength(FEATURE Feature);
 
-FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info);
+FEATURE_SET
+ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info);
 
 #endif

@@ -38,9 +38,9 @@ void WorkingPartSet::AddPartition(ColPartition* part) {
     part_it_.move_to_last();
   } else if (latest_part_->SingletonPartner(false) != part) {
     // Reposition the iterator to the correct partner, or at the end.
-    for (part_it_.move_to_first(); !part_it_.at_last() &&
-         part_it_.data() != partner;
-         part_it_.forward());
+    for (part_it_.move_to_first();
+         !part_it_.at_last() && part_it_.data() != partner; part_it_.forward())
+      ;
   }
   part_it_.add_after_then_move(part);
   latest_part_ = part;
@@ -121,8 +121,8 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
       }
     } while (!part_it_.empty() && next_part != nullptr);
     if (!text_block) {
-      TO_BLOCK* to_block = ColPartition::MakeBlock(bleft, tright,
-                                                   &block_parts, used_parts);
+      TO_BLOCK* to_block =
+          ColPartition::MakeBlock(bleft, tright, &block_parts, used_parts);
       if (to_block != nullptr) {
         TO_BLOCK_IT to_block_it(&to_blocks_);
         to_block_it.add_to_end(to_block);
@@ -132,8 +132,8 @@ void WorkingPartSet::MakeBlocks(const ICOORD& bleft, const ICOORD& tright,
     } else {
       // Further sub-divide text blocks where linespacing changes.
       ColPartition::LineSpacingBlocks(bleft, tright, resolution, &block_parts,
-                                      used_parts,
-                                      &completed_blocks_, &to_blocks_);
+                                      used_parts, &completed_blocks_,
+                                      &to_blocks_);
     }
   }
   part_it_.set_to_list(&part_set_);

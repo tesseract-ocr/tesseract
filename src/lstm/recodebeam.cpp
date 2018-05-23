@@ -71,7 +71,8 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress& recoder,
       space_delimited_(true),
       is_simple_text_(simple_text),
       null_char_(null_char) {
-  if (dict_ != nullptr && !dict_->IsSpaceDelimitedLang()) space_delimited_ = false;
+  if (dict_ != nullptr && !dict_->IsSpaceDelimitedLang())
+    space_delimited_ = false;
 }
 
 // Decodes the set of network outputs, storing the lattice internally.
@@ -185,9 +186,10 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     bool leading_space =
         word_start > 0 && unichar_ids[word_start - 1] == UNICHAR_SPACE;
     // Create a WERD_RES for the output word.
-    WERD_RES* word_res = InitializeWord(
-        leading_space, line_box, word_start, word_end,
-        std::min(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
+    WERD_RES* word_res =
+        InitializeWord(leading_space, line_box, word_start, word_end,
+                       std::min(space_cert, prev_space_cert), unicharset,
+                       xcoords, scale_factor);
     for (int i = word_start; i < word_end; ++i) {
       BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);
@@ -235,7 +237,8 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
   for (int i = 0; i < heap_size; ++i) {
     const RecodeNode* node = &heap.get(i).data;
     if (node->unichar_id == INVALID_UNICHAR_ID) {
-      if (null_best == nullptr || null_best->score < node->score) null_best = node;
+      if (null_best == nullptr || null_best->score < node->score)
+        null_best = node;
     } else {
       if (unichar_bests[node->unichar_id] == nullptr ||
           unichar_bests[node->unichar_id]->score < node->score) {
@@ -672,7 +675,8 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
       PushInitialDawgIfBetter(code, unichar_id, permuter, word_start, true,
                               cert, cont, prev, step);
       PushHeapIfBetter(kBeamWidths[0], code, unichar_id, permuter, false,
-                       word_start, true, false, cert, prev, nullptr, nodawg_heap);
+                       word_start, true, false, cert, prev, nullptr,
+                       nodawg_heap);
     }
   } else {
     delete updated_dawgs;
@@ -833,8 +837,9 @@ void RecodeBeamSearch::ExtractBestPaths(
                  (dawg_node->unichar_id == INVALID_UNICHAR_ID ||
                   dawg_node->duplicate))
             dawg_node = dawg_node->prev;
-          if (dawg_node == nullptr || (!dawg_node->end_of_word &&
-                                    dawg_node->unichar_id != UNICHAR_SPACE)) {
+          if (dawg_node == nullptr ||
+              (!dawg_node->end_of_word &&
+               dawg_node->unichar_id != UNICHAR_SPACE)) {
             // Dawg node is not valid.
             continue;
           }

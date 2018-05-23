@@ -17,14 +17,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "equationdetectbase.h"
 #include "allheaders.h"
 #include "blobbox.h"
-#include "equationdetectbase.h"
 
 namespace tesseract {
 
-void EquationDetectBase::RenderSpecialText(Pix* pix,
-                                           BLOBNBOX* blob) {
+void EquationDetectBase::RenderSpecialText(Pix* pix, BLOBNBOX* blob) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);
   const TBOX& tbox = blob->bounding_box();
   int height = pixGetHeight(pix);
@@ -32,8 +31,8 @@ void EquationDetectBase::RenderSpecialText(Pix* pix,
 
   // Coordinate translation: tesseract use left bottom as the original, while
   // leptonica uses left top as the original.
-  Box *box = boxCreate(tbox.left(), height - tbox.top(),
-                         tbox.width(), tbox.height());
+  Box* box =
+      boxCreate(tbox.left(), height - tbox.top(), tbox.width(), tbox.height());
   switch (blob->special_text_type()) {
     case BSTT_MATH:  // Red box.
       pixRenderBoxArb(pix, box, box_width, 255, 0, 0);

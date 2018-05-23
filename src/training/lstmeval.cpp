@@ -35,7 +35,7 @@ INT_PARAM_FLAG(max_image_MB, 2000, "Max memory to use for images.");
 INT_PARAM_FLAG(verbosity, 1,
                "Amount of diagnosting information to output (0-2).");
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   if (FLAGS_model.empty()) {

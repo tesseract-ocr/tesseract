@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 #if !defined(__GNUC__) && defined(_MSC_VER)
-#include <intrin.h>     // _BitScanReverse
+#include <intrin.h>  // _BitScanReverse
 #endif
 
 #include "fullyconnected.h"
@@ -38,16 +38,11 @@
 #define PARALLEL_IF_OPENMP(__num_threads)                                  \
   PRAGMA(omp parallel if (__num_threads > 1) num_threads(__num_threads)) { \
     PRAGMA(omp sections nowait) {                                          \
-      PRAGMA(omp section) {
-#define SECTION_IF_OPENMP \
-        } \
-    PRAGMA(omp section) \
-        {
-
-#define END_PARALLEL_IF_OPENMP \
-        } \
-      }  /* end of sections */ \
-    }  /* end of parallel section */
+      PRAGMA(omp section){#define SECTION_IF_OPENMP} PRAGMA(omp section) { \
+#define END_PARALLEL_IF_OPENMP                                     \
+      }                                                                    \
+    } /* end of sections */                                                \
+  }   /* end of parallel section */
 
 // Define the portable PRAGMA macro.
 #ifdef _MSC_VER  // Different _Pragma
@@ -62,7 +57,6 @@
 #define END_PARALLEL_IF_OPENMP
 #endif  // _OPENMP
 
-
 namespace tesseract {
 
 // Max absolute value of state_. It is reasonably high to enable the state
@@ -72,8 +66,7 @@ const double kStateClip = 100.0;
 const double kErrClip = 1.0f;
 
 // Calculate ceil(log2(n)).
-static inline uint32_t ceil_log2(uint32_t n)
-{
+static inline uint32_t ceil_log2(uint32_t n) {
   // l2 = (unsigned)log2(n).
 #if defined(__GNUC__)
   // Use fast inline assembler code for gcc or clang.
@@ -88,8 +81,8 @@ static inline uint32_t ceil_log2(uint32_t n)
   uint32_t val = n;
   uint32_t l2 = 0;
   while (val > 1) {
-      val >>= 1;
-      l2++;
+    val >>= 1;
+    l2++;
   }
 #endif
   // Round up if n is not a power of 2.
@@ -308,7 +301,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
       if (!dim_index.AddOffset(-1, FD_HEIGHT)) valid_2d = false;
     }
     // Index of the 2-D revolving buffers (outputs, states).
-    int mod_t = Modulo(t, buf_width);      // Current timestep.
+    int mod_t = Modulo(t, buf_width);  // Current timestep.
     // Setup the padded input in source.
     source_.CopyTimeStepGeneral(t, 0, ni_, input, t, 0);
     if (softmax_ != nullptr) {
@@ -439,8 +432,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
-                    NetworkScratch* scratch,
-                    NetworkIO* back_deltas) {
+                    NetworkScratch* scratch, NetworkIO* back_deltas) {
   if (debug) DisplayBackward(fwd_deltas);
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), input_map_, ni_);
   // ======Scratch space.======
@@ -472,8 +464,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   }
   // Parallel-generated sourceerr from each of the gates.
   NetworkScratch::FloatVec sourceerr_temps[WT_COUNT];
-  for (int w = 0; w < WT_COUNT; ++w)
-    sourceerr_temps[w].Init(na_, scratch);
+  for (int w = 0; w < WT_COUNT; ++w) sourceerr_temps[w].Init(na_, scratch);
   int width = input_width_;
   // Transposed gate errors stored over all timesteps for sum outer.
   NetworkScratch::GradientStore gate_errors_t[WT_COUNT];
@@ -515,7 +506,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
       }
     }
     // Index of the 2-D revolving buffers (sourceerr, stateerr).
-    int mod_t = Modulo(t, buf_width);      // Current timestep.
+    int mod_t = Modulo(t, buf_width);  // Current timestep.
     // Zero the state in the major direction only at the end of every row.
     if (at_last_x) {
       ZeroVector<double>(na_, curr_sourceerr);
@@ -762,6 +753,5 @@ void LSTM::ResizeForward(const NetworkIO& input) {
     }
   }
 }
-
 
 }  // namespace tesseract.

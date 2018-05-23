@@ -38,8 +38,7 @@ bool MATRIX::Classified(int col, int row, int wildcard_id) const {
   BLOB_CHOICE_IT b_it(get(col, row));
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOB_CHOICE* choice = b_it.data();
-    if (choice->IsClassified())
-      return true;
+    if (choice->IsClassified()) return true;
   }
   return false;
 }
@@ -109,19 +108,19 @@ MATRIX* MATRIX::DeepCopy() const {
 }
 
 // Print the best guesses out of the match rating matrix.
-void MATRIX::print(const UNICHARSET &unicharset) const {
+void MATRIX::print(const UNICHARSET& unicharset) const {
   tprintf("Ratings Matrix (top 3 choices)\n");
   int dim = dimension();
   int band_width = bandwidth();
   int row, col;
   for (col = 0; col < dim; ++col) {
     for (row = col; row < dim && row < col + band_width; ++row) {
-      BLOB_CHOICE_LIST *rating = this->get(col, row);
+      BLOB_CHOICE_LIST* rating = this->get(col, row);
       if (rating == NOT_CLASSIFIED) continue;
       BLOB_CHOICE_IT b_it(rating);
       tprintf("col=%d row=%d ", col, row);
       for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-        tprintf("%s rat=%g cert=%g " ,
+        tprintf("%s rat=%g cert=%g ",
                 unicharset.id_to_unichar(b_it.data()->unichar_id()),
                 b_it.data()->rating(), b_it.data()->certainty());
       }
@@ -139,13 +138,12 @@ void MATRIX::print(const UNICHARSET &unicharset) const {
         tprintf(" \t");
         continue;
       }
-      BLOB_CHOICE_LIST *rating = this->get(col, row);
+      BLOB_CHOICE_LIST* rating = this->get(col, row);
       if (rating != NOT_CLASSIFIED) {
         BLOB_CHOICE_IT b_it(rating);
         int counter = 0;
         for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
-          tprintf("%s ",
-                  unicharset.id_to_unichar(b_it.data()->unichar_id()));
+          tprintf("%s ", unicharset.id_to_unichar(b_it.data()->unichar_id()));
           ++counter;
           if (counter == 3) break;
         }

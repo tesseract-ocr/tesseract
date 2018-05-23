@@ -38,8 +38,10 @@ class ParamsModel {
   };
 
   ParamsModel() : pass_(PTRAIN_PASS1) {}
-  ParamsModel(const char *lang, const GenericVector<float> &weights) :
-    lang_(lang), pass_(PTRAIN_PASS1) { weights_vec_[pass_] = weights; }
+  ParamsModel(const char* lang, const GenericVector<float>& weights)
+      : lang_(lang), pass_(PTRAIN_PASS1) {
+    weights_vec_[pass_] = weights;
+  }
   inline bool Initialized() {
     return weights_vec_[pass_].size() == PTRAIN_NUM_FEATURE_TYPES;
   }
@@ -50,29 +52,27 @@ class ParamsModel {
     for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) weights_vec_[p].clear();
   }
   // Copies the weights of the given params model.
-  void Copy(const ParamsModel &other_model);
+  void Copy(const ParamsModel& other_model);
   // Applies params model weights to the given features.
   // Assumes that features is an array of size PTRAIN_NUM_FEATURE_TYPES.
   float ComputeCost(const float features[]) const;
-  bool Equivalent(const ParamsModel &that) const;
+  bool Equivalent(const ParamsModel& that) const;
 
   // Returns true on success.
-  bool SaveToFile(const char *full_path) const;
+  bool SaveToFile(const char* full_path) const;
 
   // Returns true on success.
-  bool LoadFromFile(const char *lang, const char *full_path);
-  bool LoadFromFp(const char *lang, TFile *fp);
+  bool LoadFromFile(const char* lang, const char* full_path);
+  bool LoadFromFp(const char* lang, TFile* fp);
 
-  const GenericVector<float>& weights() const {
-    return weights_vec_[pass_];
-  }
+  const GenericVector<float>& weights() const { return weights_vec_[pass_]; }
   const GenericVector<float>& weights_for_pass(PassEnum pass) const {
     return weights_vec_[pass];
   }
   void SetPass(PassEnum pass) { pass_ = pass; }
 
  private:
-  bool ParseLine(char *line, char **key, float *val);
+  bool ParseLine(char* line, char** key, float* val);
 
   STRING lang_;
   // Set to the current pass type and used to determine which set of weights

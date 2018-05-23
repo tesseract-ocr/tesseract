@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "unicharset.h"
 
 int main(int argc, char** argv) {
@@ -28,9 +28,10 @@ int main(int argc, char** argv) {
     return 0;
   } else if (argc < 4) {
     // Print usage
-    printf("Usage: %s -v | --version |\n"
-           "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
-           argv[0], argv[0]);
+    printf(
+        "Usage: %s -v | --version |\n"
+        "       %s unicharset-in-1 ... unicharset-in-n unicharset-out\n",
+        argv[0], argv[0]);
     return 1;
   }
 

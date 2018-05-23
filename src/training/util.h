@@ -39,8 +39,8 @@ struct StringHash {
     return hash_code;
   }
 };
-#else  // COMPILER_MSVC
-struct StringHash : public stdext::hash_compare <std::string> {
+#else   // COMPILER_MSVC
+struct StringHash : public stdext::hash_compare<std::string> {
   size_t operator()(const std::string& s) const {
     size_t hash_code = 0;
     const char* str = s.c_str();
@@ -59,7 +59,8 @@ struct StringHash : public stdext::hash_compare <std::string> {
 #include "base/heap-checker.h"
 #define DISABLE_HEAP_LEAK_CHECK HeapLeakChecker::Disabler disabler
 #else
-#define DISABLE_HEAP_LEAK_CHECK {}
+#define DISABLE_HEAP_LEAK_CHECK \
+  {}
 #endif
 
 #endif  // TESSERACT_TRAINING_UTIL_H_

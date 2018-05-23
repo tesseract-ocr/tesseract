@@ -116,7 +116,7 @@ int count(LIST var_list) {
  *  key, and return a non-zero value when they match.  If the value
  *  nullptr is supplied for is_equal, the is_key routine will be used.
  **********************************************************************/
-LIST delete_d(LIST list, void *key, int_compare is_equal) {
+LIST delete_d(LIST list, void* key, int_compare is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
@@ -142,8 +142,8 @@ LIST delete_d(LIST list, void *key, int_compare is_equal) {
   return (result);
 }
 
-LIST delete_d(LIST list, void *key,
-              TessResultCallback2<int, void *, void *> *is_equal) {
+LIST delete_d(LIST list, void* key,
+              TessResultCallback2<int, void*, void*>* is_equal) {
   LIST result = NIL_LIST;
   LIST last_one = NIL_LIST;
 
@@ -203,7 +203,7 @@ void destroy_nodes(LIST list, void_dest destructor) {
  *  Create a list element and rearange the pointers so that the first
  *  element in the list is the second aurgment.
  **********************************************************************/
-void insert(LIST list, void *node) {
+void insert(LIST list, void* node) {
   LIST element;
 
   if (list != NIL_LIST) {
@@ -222,8 +222,8 @@ void insert(LIST list, void *node) {
  *  Compare the list node with the key value return TRUE (non-zero)
  *  if they are equivalent strings.  (Return FALSE if not)
  **********************************************************************/
-int is_same(void *item1, void *item2) {
-  return strcmp((char *)item1, (char *)item2) == 0 ? 1 : 0;
+int is_same(void* item1, void* item2) {
+  return strcmp((char*)item1, (char*)item2) == 0 ? 1 : 0;
 }
 
 /**********************************************************************
@@ -254,7 +254,7 @@ LIST last(LIST var_list) {
  *
  *  Return nth list cell in the list.
  **********************************************************************/
-void *nth_cell(LIST var_list, int item_num) {
+void* nth_cell(LIST var_list, int item_num) {
   int x = 0;
   iterate(var_list) {
     if (x++ == item_num) return (var_list);
@@ -285,7 +285,7 @@ LIST pop(LIST list) {
  *  Create a list element.  Push the second parameter (the node) onto
  *  the first parameter (the list). Return the new list to the caller.
  **********************************************************************/
-LIST push(LIST list, void *element) {
+LIST push(LIST list, void* element) {
   LIST t;
 
   t = new_cell();
@@ -299,7 +299,7 @@ LIST push(LIST list, void *element) {
  *
  *  Create a list element. Add the element onto the end of the list.
  **********************************************************************/
-LIST push_last(LIST list, void *item) {
+LIST push_last(LIST list, void* item) {
   LIST t;
 
   if (list != NIL_LIST) {
@@ -341,7 +341,7 @@ LIST reverse_d(LIST list) {
  *  Adjoin an element to an assorted list.  The original list is
  *  modified.  Returns the modified list.
  **********************************************************************/
-LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
+LIST s_adjoin(LIST var_list, void* variable, int_compare compare) {
   LIST l;
   int result;
 
@@ -368,15 +368,15 @@ LIST s_adjoin(LIST var_list, void *variable, int_compare compare) {
  *  the third parameter to this routine.   If the value nullptr is supplied
  *  for is_equal, the is_key routine will be used.
  **********************************************************************/
-LIST search(LIST list, void *key, int_compare is_equal) {
+LIST search(LIST list, void* key, int_compare is_equal) {
   if (is_equal == nullptr) is_equal = is_same;
 
   iterate(list) if ((*is_equal)(first_node(list), key)) return (list);
   return (NIL_LIST);
 }
 
-LIST search(LIST list, void *key,
-            TessResultCallback2<int, void *, void *> *is_equal) {
+LIST search(LIST list, void* key,
+            TessResultCallback2<int, void*, void*>* is_equal) {
   iterate(list) if ((*is_equal).Run(first_node(list), key)) return (list);
   return (NIL_LIST);
 }

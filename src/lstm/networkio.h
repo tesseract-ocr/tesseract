@@ -104,13 +104,9 @@ class NetworkIO {
   void Print(int num) const;
 
   // Returns the timestep width.
-  int Width() const {
-    return int_mode_ ? i_.dim1() : f_.dim1();
-  }
+  int Width() const { return int_mode_ ? i_.dim1() : f_.dim1(); }
   // Returns the number of features.
-  int NumFeatures() const {
-    return int_mode_ ? i_.dim2() : f_.dim2();
-  }
+  int NumFeatures() const { return int_mode_ ? i_.dim2() : f_.dim2(); }
   // Accessor to a timestep of the float matrix.
   float* f(int t) {
     ASSERT_HOST(!int_mode_);
@@ -124,18 +120,10 @@ class NetworkIO {
     ASSERT_HOST(int_mode_);
     return i_[t];
   }
-  bool int_mode() const {
-    return int_mode_;
-  }
-  void set_int_mode(bool is_quantized) {
-    int_mode_ = is_quantized;
-  }
-  const StrideMap& stride_map() const {
-    return stride_map_;
-  }
-  void set_stride_map(const StrideMap& map) {
-    stride_map_ = map;
-  }
+  bool int_mode() const { return int_mode_; }
+  void set_int_mode(bool is_quantized) { int_mode_ = is_quantized; }
+  const StrideMap& stride_map() const { return stride_map_; }
+  void set_stride_map(const StrideMap& map) { stride_map_ = map; }
   const GENERIC_2D_ARRAY<float>& float_array() const { return f_; }
   GENERIC_2D_ARRAY<float>* mutable_float_array() { return &f_; }
 

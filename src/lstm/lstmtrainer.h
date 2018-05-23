@@ -92,9 +92,9 @@ class LSTMTrainer : public LSTMRecognizer {
   // Callbacks may be null, in which case defaults are used.
   LSTMTrainer(FileReader file_reader, FileWriter file_writer,
               CheckPointReader checkpoint_reader,
-              CheckPointWriter checkpoint_writer,
-              const char* model_base, const char* checkpoint_name,
-              int debug_interval, int64_t max_memory);
+              CheckPointWriter checkpoint_writer, const char* model_base,
+              const char* checkpoint_name, int debug_interval,
+              int64_t max_memory);
   virtual ~LSTMTrainer();
 
   // Tries to deserialize a trainer from the given file and silently returns
@@ -133,19 +133,11 @@ class LSTMTrainer : public LSTMRecognizer {
   void InitIterations();
 
   // Accessors.
-  double ActivationError() const {
-    return error_rates_[ET_DELTA];
-  }
+  double ActivationError() const { return error_rates_[ET_DELTA]; }
   double CharError() const { return error_rates_[ET_CHAR_ERROR]; }
-  const double* error_rates() const {
-    return error_rates_;
-  }
-  double best_error_rate() const {
-    return best_error_rate_;
-  }
-  int best_iteration() const {
-    return best_iteration_;
-  }
+  const double* error_rates() const { return error_rates_; }
+  double best_error_rate() const { return best_error_rate_; }
+  int best_iteration() const { return best_iteration_; }
   int learning_iteration() const { return learning_iteration_; }
   int improvement_steps() const { return improvement_steps_; }
   void set_perfect_delay(int delay) { perfect_delay_ = delay; }
@@ -162,9 +154,7 @@ class LSTMTrainer : public LSTMRecognizer {
                          [(training_iteration() + kRollingBufferSize_ - 1) %
                           kRollingBufferSize_];
   }
-  const DocumentCache& training_data() const {
-    return training_data_;
-  }
+  const DocumentCache& training_data() const { return training_data_; }
   DocumentCache* mutable_training_data() { return &training_data_; }
 
   // If the training sample is usable, grid searches for the optimal
@@ -244,8 +234,9 @@ class LSTMTrainer : public LSTMRecognizer {
   // Converts the string to integer class labels, with appropriate null_char_s
   // in between if not in SimpleTextOutput mode. Returns false on failure.
   bool EncodeString(const STRING& str, GenericVector<int>* labels) const {
-    return EncodeString(str, GetUnicharset(), IsRecoding() ? &recoder_ : nullptr,
-                        SimpleTextOutput(), null_char_, labels);
+    return EncodeString(str, GetUnicharset(),
+                        IsRecoding() ? &recoder_ : nullptr, SimpleTextOutput(),
+                        null_char_, labels);
   }
   // Static version operates on supplied unicharset, encoder, simple_text.
   static bool EncodeString(const STRING& str, const UNICHARSET& unicharset,
@@ -335,8 +326,7 @@ class LSTMTrainer : public LSTMRecognizer {
   // as an image in the given window, and the corresponding labels at the
   // corresponding x_starts.
   // Returns false if the truth string is empty.
-  bool DebugLSTMTraining(const NetworkIO& inputs,
-                         const ImageData& trainingdata,
+  bool DebugLSTMTraining(const NetworkIO& inputs, const ImageData& trainingdata,
                          const NetworkIO& fwd_outputs,
                          const GenericVector<int>& truth_labels,
                          const NetworkIO& outputs);
@@ -478,7 +468,7 @@ class LSTMTrainer : public LSTMRecognizer {
   static const int kRollingBufferSize_ = 1000;
   GenericVector<double> error_buffers_[ET_COUNT];
   // Rounded mean percent trailing training errors in the buffers.
-  double error_rates_[ET_COUNT];    // RMS training error.
+  double error_rates_[ET_COUNT];  // RMS training error.
   // Traineddata file with optional dawgs + UNICHARSET and recoder.
   TessdataManager mgr_;
 };

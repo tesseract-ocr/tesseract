@@ -21,7 +21,7 @@
 #include "degradeimage.h"
 
 #include <cstdlib>
-#include "allheaders.h"   // from leptonica
+#include "allheaders.h"  // from leptonica
 #include "genericvector.h"
 #include "helpers.h"  // For TRand.
 #include "rect.h"
@@ -116,9 +116,8 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
       radians_clockwise = randomizer->SignedRand(kRotationRange);
     }
 
-    input = pixRotate(pix, radians_clockwise,
-                      L_ROTATE_AREA_MAP, L_BRING_IN_WHITE,
-                      0, 0);
+    input = pixRotate(pix, radians_clockwise, L_ROTATE_AREA_MAP,
+                      L_BRING_IN_WHITE, 0, 0);
     // Rotate the boxes to match.
     *rotation = radians_clockwise;
     pixDestroy(&pix);
@@ -142,8 +141,7 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   // For light and 0 exposure, there is no dilation, so compensate for the
   // convolution with a big darkening bias which is undone for lighter
   // exposures.
-  if (exposure <= 0)
-    erosion_offset = -3 * kExposureFactor;
+  if (exposure <= 0) erosion_offset = -3 * kExposureFactor;
   // Add in a general offset of the greyscales for the exposure level so
   // a threshold of 128 gives a reasonable binary result.
   erosion_offset -= exposure * kExposureFactor;
@@ -155,14 +153,12 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
     for (int x = 0; x < width; ++x) {
       int pixel = GET_DATA_BYTE(data, x);
       if (randomizer != nullptr)
-        pixel += randomizer->IntRand() % (kSaltnPepper*2 + 1) - kSaltnPepper;
+        pixel += randomizer->IntRand() % (kSaltnPepper * 2 + 1) - kSaltnPepper;
       if (height + width > kMinRampSize)
-        pixel -= (2*x + y) * 32 / (height + width);
+        pixel -= (2 * x + y) * 32 / (height + width);
       pixel += erosion_offset;
-      if (pixel < 0)
-        pixel = 0;
-      if (pixel > 255)
-        pixel = 255;
+      if (pixel < 0) pixel = 0;
+      if (pixel > 255) pixel = 255;
       SET_DATA_BYTE(data, x, pixel);
     }
     data += input->wpl;

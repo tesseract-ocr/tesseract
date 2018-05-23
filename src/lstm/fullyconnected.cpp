@@ -38,8 +38,9 @@ namespace tesseract {
 
 FullyConnected::FullyConnected(const STRING& name, int ni, int no,
                                NetworkType type)
-  : Network(type, name, ni, no), external_source_(nullptr), int_mode_(false) {
-}
+    : Network(type, name, ni, no),
+      external_source_(nullptr),
+      int_mode_(false) {}
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
@@ -66,8 +67,7 @@ void FullyConnected::SetEnableTraining(TrainingState state) {
     // Temp disable only from enabled.
     if (training_ == TS_ENABLED) training_ = state;
   } else {
-    if (state == TS_ENABLED && training_ != TS_ENABLED)
-      weights_.InitBackward();
+    if (state == TS_ENABLED && training_ != TS_ENABLED) weights_.InitBackward();
     training_ = state;
   }
 }
@@ -93,14 +93,10 @@ int FullyConnected::RemapOutputs(int old_no, const std::vector<int>& code_map) {
 }
 
 // Converts a float network to an int network.
-void FullyConnected::ConvertToInt() {
-  weights_.ConvertToInt();
-}
+void FullyConnected::ConvertToInt() { weights_.ConvertToInt(); }
 
 // Provides debug output on the weights.
-void FullyConnected::DebugWeights() {
-  weights_.Debug2D(name_.string());
-}
+void FullyConnected::DebugWeights() { weights_.Debug2D(name_.string()); }
 
 // Writes to the given file. Returns false in case of error.
 bool FullyConnected::Serialize(TFile* fp) const {
@@ -200,8 +196,8 @@ void FullyConnected::ForwardTimeStep(int t, double* output_line) {
   }
 }
 
-void FullyConnected::ForwardTimeStep(const double* d_input,
-                                     int t, double* output_line) {
+void FullyConnected::ForwardTimeStep(const double* d_input, int t,
+                                     double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   if (IsTraining() && external_source_ == nullptr)
     source_t_.WriteStrided(t, d_input);
@@ -209,8 +205,8 @@ void FullyConnected::ForwardTimeStep(const double* d_input,
   ForwardTimeStep(t, output_line);
 }
 
-void FullyConnected::ForwardTimeStep(const int8_t* i_input,
-                                     int t, double* output_line) {
+void FullyConnected::ForwardTimeStep(const int8_t* i_input, int t,
+                                     double* output_line) {
   // input is copied to source_ line-by-line for cache coherency.
   weights_.MatrixDotVector(i_input, output_line);
   ForwardTimeStep(t, output_line);
@@ -219,8 +215,7 @@ void FullyConnected::ForwardTimeStep(const int8_t* i_input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool FullyConnected::Backward(bool debug, const NetworkIO& fwd_deltas,
-                              NetworkScratch* scratch,
-                              NetworkIO* back_deltas) {
+                              NetworkScratch* scratch, NetworkIO* back_deltas) {
   if (debug) DisplayBackward(fwd_deltas);
   back_deltas->Resize(fwd_deltas, ni_);
   GenericVector<NetworkScratch::FloatVec> errors;

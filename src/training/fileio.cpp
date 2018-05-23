@@ -23,8 +23,8 @@
 #include <unistd.h>
 #endif
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 
 #include "fileio.h"
@@ -39,8 +39,7 @@ FILE* File::Open(const std::string& filename, const std::string& mode) {
   return fopen(filename.c_str(), mode.c_str());
 }
 
-FILE* File::OpenOrDie(const std::string& filename,
-                      const std::string& mode) {
+FILE* File::OpenOrDie(const std::string& filename, const std::string& mode) {
   FILE* stream = fopen(filename.c_str(), mode.c_str());
   if (stream == nullptr) {
     tprintf("Unable to open '%s' in mode '%s'\n", filename.c_str(),
@@ -78,7 +77,8 @@ bool File::ReadFileToString(const std::string& filename, std::string* out) {
   return in.CloseFile();
 }
 
-std::string File::JoinPath(const std::string& prefix, const std::string& suffix) {
+std::string File::JoinPath(const std::string& prefix,
+                           const std::string& suffix) {
   return (prefix.empty() || prefix[prefix.size() - 1] == '/')
              ? prefix + suffix
              : prefix + "/" + suffix;
@@ -95,22 +95,22 @@ bool File::Delete(const char* pathname) {
 
 #ifdef _WIN32
 bool File::DeleteMatchingFiles(const char* pattern) {
- WIN32_FIND_DATA data;
- BOOL result = TRUE;
- HANDLE handle = FindFirstFile(pattern, &data);
- bool all_deleted = true;
- if (handle != INVALID_HANDLE_VALUE) {
-   for (; result; result = FindNextFile(handle, &data)) {
+  WIN32_FIND_DATA data;
+  BOOL result = TRUE;
+  HANDLE handle = FindFirstFile(pattern, &data);
+  bool all_deleted = true;
+  if (handle != INVALID_HANDLE_VALUE) {
+    for (; result; result = FindNextFile(handle, &data)) {
       all_deleted &= File::Delete(data.cFileName);
-   }
-   FindClose(handle);
- }
- return all_deleted;
+    }
+    FindClose(handle);
+  }
+  return all_deleted;
 }
 #else
 bool File::DeleteMatchingFiles(const char* pattern) {
   glob_t pglob;
-  char **paths;
+  char** paths;
   bool all_deleted = true;
   if (glob(pattern, 0, nullptr, &pglob) == 0) {
     for (paths = pglob.gl_pathv; *paths != nullptr; paths++) {
@@ -125,18 +125,16 @@ bool File::DeleteMatchingFiles(const char* pattern) {
 ///////////////////////////////////////////////////////////////////////////////
 // InputBuffer::
 ///////////////////////////////////////////////////////////////////////////////
-InputBuffer::InputBuffer(FILE* stream)
-  : stream_(stream) {
-    fseek(stream_, 0, SEEK_END);
-    filesize_ = ftell(stream_);
-    fseek(stream_, 0, SEEK_SET);
+InputBuffer::InputBuffer(FILE* stream) : stream_(stream) {
+  fseek(stream_, 0, SEEK_END);
+  filesize_ = ftell(stream_);
+  fseek(stream_, 0, SEEK_SET);
 }
 
-InputBuffer::InputBuffer(FILE* stream, size_t)
-  : stream_(stream) {
-    fseek(stream_, 0, SEEK_END);
-    filesize_ = ftell(stream_);
-    fseek(stream_, 0, SEEK_SET);
+InputBuffer::InputBuffer(FILE* stream, size_t) : stream_(stream) {
+  fseek(stream_, 0, SEEK_END);
+  filesize_ = ftell(stream_);
+  fseek(stream_, 0, SEEK_SET);
 }
 
 InputBuffer::~InputBuffer() {
@@ -169,13 +167,9 @@ bool InputBuffer::CloseFile() {
 // OutputBuffer::
 ///////////////////////////////////////////////////////////////////////////////
 
-OutputBuffer::OutputBuffer(FILE* stream)
-  : stream_(stream) {
-}
+OutputBuffer::OutputBuffer(FILE* stream) : stream_(stream) {}
 
-OutputBuffer::OutputBuffer(FILE* stream, size_t)
-  : stream_(stream) {
-}
+OutputBuffer::OutputBuffer(FILE* stream, size_t) : stream_(stream) {}
 
 OutputBuffer::~OutputBuffer() {
   if (stream_ != nullptr) {

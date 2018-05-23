@@ -21,7 +21,7 @@
 // generates the corresponding squished DAWG file.
 
 #include "classify.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "dawg.h"
 #include "dict.h"
 #include "emalloc.h"
@@ -37,13 +37,15 @@ int main(int argc, char** argv) {
     printf("%s\n", tesseract::TessBaseAPI::Version());
     return 0;
   } else if (!(argc == 4 || (argc == 5 && strcmp(argv[1], "-t") == 0) ||
-             (argc == 6 && strcmp(argv[1], "-r") == 0))) {
-    printf("Usage: %s -v | --version |\n"
-           "       %s [-t | -r [reverse policy] ] word_list_file"
-           " dawg_file unicharset_file\n", argv[0], argv[0]);
+               (argc == 6 && strcmp(argv[1], "-r") == 0))) {
+    printf(
+        "Usage: %s -v | --version |\n"
+        "       %s [-t | -r [reverse policy] ] word_list_file"
+        " dawg_file unicharset_file\n",
+        argv[0], argv[0]);
     return 1;
   }
-  tesseract::Classify *classify = new tesseract::Classify();
+  tesseract::Classify* classify = new tesseract::Classify();
   int argv_index = 0;
   if (argc == 5) ++argv_index;
   tesseract::Trie::RTLReversePolicy reverse_policy =
@@ -66,12 +68,12 @@ int main(int argc, char** argv) {
     delete classify;
     return 1;
   }
-  const UNICHARSET &unicharset = classify->getDict().getUnicharset();
+  const UNICHARSET& unicharset = classify->getDict().getUnicharset();
   if (argc == 4 || argc == 6) {
     tesseract::Trie trie(
         // the first 3 arguments are not used in this case
-        tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-        unicharset.size(), classify->getDict().dawg_debug_level);
+        tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM, unicharset.size(),
+        classify->getDict().dawg_debug_level);
     tprintf("Reading word list from '%s'\n", wordlist_filename);
     if (!trie.read_and_add_word_list(wordlist_filename, unicharset,
                                      reverse_policy)) {
@@ -79,7 +81,7 @@ int main(int argc, char** argv) {
       exit(1);
     }
     tprintf("Reducing Trie to SquishedDawg\n");
-    tesseract::SquishedDawg *dawg = trie.trie_to_dawg();
+    tesseract::SquishedDawg* dawg = trie.trie_to_dawg();
     if (dawg != nullptr && dawg->NumEdges() > 0) {
       tprintf("Writing squished DAWG to '%s'\n", dawg_filename);
       dawg->write_squished_dawg(dawg_filename);
@@ -89,11 +91,11 @@ int main(int argc, char** argv) {
     delete dawg;
   } else if (argc == 5) {
     tprintf("Loading dawg DAWG from '%s'\n", dawg_filename);
-    tesseract::SquishedDawg words(
-        dawg_filename,
-        // these 3 arguments are not used in this case
-        tesseract::DAWG_TYPE_WORD, "", SYSTEM_DAWG_PERM,
-        classify->getDict().dawg_debug_level);
+    tesseract::SquishedDawg words(dawg_filename,
+                                  // these 3 arguments are not used in this case
+                                  tesseract::DAWG_TYPE_WORD, "",
+                                  SYSTEM_DAWG_PERM,
+                                  classify->getDict().dawg_debug_level);
     tprintf("Checking word list from '%s'\n", wordlist_filename);
     words.check_for_words(wordlist_filename, unicharset, true);
   } else {  // should never get here

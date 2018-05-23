@@ -19,8 +19,8 @@
 #ifndef TESSERACT_LSTM_NETWORK_H_
 #define TESSERACT_LSTM_NETWORK_H_
 
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
 
 #include "genericvector.h"
 #include "helpers.h"
@@ -95,7 +95,7 @@ enum TrainingState {
   TS_ENABLED,       // Enabled for backprop and to write a training dump.
                     // Re-enable from ANY disabled state.
   TS_TEMP_DISABLE,  // Temporarily disabled to write a recognition dump.
-  // Valid only for SetEnableTraining.
+                    // Valid only for SetEnableTraining.
   TS_RE_ENABLE,  // Re-Enable from TS_TEMP_DISABLE, but not TS_DISABLED.
 };
 
@@ -109,20 +109,12 @@ class Network {
   virtual ~Network() = default;
 
   // Accessors.
-  NetworkType type() const {
-    return type_;
-  }
+  NetworkType type() const { return type_; }
   bool IsTraining() const { return training_ == TS_ENABLED; }
-  bool needs_to_backprop() const {
-    return needs_to_backprop_;
-  }
+  bool needs_to_backprop() const { return needs_to_backprop_; }
   int num_weights() const { return num_weights_; }
-  int NumInputs() const {
-    return ni_;
-  }
-  int NumOutputs() const {
-    return no_;
-  }
+  int NumInputs() const { return ni_; }
+  int NumOutputs() const { return no_; }
   // Returns the required shape input to the network.
   virtual StaticShape InputShape() const {
     StaticShape result;
@@ -135,12 +127,8 @@ class Network {
     result.set_depth(no_);
     return result;
   }
-  const STRING& name() const {
-    return name_;
-  }
-  virtual STRING spec() const {
-    return "?";
-  }
+  const STRING& name() const { return name_; }
+  virtual STRING spec() const { return "?"; }
   bool TestFlag(NetworkFlags flag) const {
     return (network_flags_ & flag) != 0;
   }
@@ -206,9 +194,7 @@ class Network {
   // WARNING: if GlobalMinimax is used to vary the scale, this will return
   // the last used scale factor. Call it before any forward, and it will return
   // the minimum scale factor of the paths through the GlobalMinimax.
-  virtual int XScaleFactor() const {
-    return 1;
-  }
+  virtual int XScaleFactor() const { return 1; }
 
   // Provides the (minimum) x scale factor to the network (of interest only to
   // input units) so they can determine how to scale bounding boxes.
@@ -271,8 +257,7 @@ class Network {
   // propagating further backwards. Thus most complete networks will always
   // return false from Backward!
   virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+                        NetworkScratch* scratch, NetworkIO* back_deltas) {
     tprintf("Must override Network::Backward for type %d\n", type_);
     return false;
   }
@@ -284,8 +269,8 @@ class Network {
   void DisplayBackward(const NetworkIO& matrix);
 
   // Creates the window if needed, otherwise clears it.
-  static void ClearWindow(bool tess_coords, const char* window_name,
-                          int width, int height, ScrollView** window);
+  static void ClearWindow(bool tess_coords, const char* window_name, int width,
+                          int height, ScrollView** window);
 
   // Displays the pix in the given window. and returns the height of the pix.
   // The pix is pixDestroyed.
@@ -296,14 +281,14 @@ class Network {
   double Random(double range);
 
  protected:
-  NetworkType type_;          // Type of the derived network class.
-  TrainingState training_;    // Are we currently training?
-  bool needs_to_backprop_;    // This network needs to output back_deltas.
-  int32_t network_flags_;     // Behavior control flags in NetworkFlags.
-  int32_t ni_;                // Number of input values.
-  int32_t no_;                // Number of output values.
-  int32_t num_weights_;       // Number of weights in this and sub-network.
-  STRING name_;               // A unique name for this layer.
+  NetworkType type_;        // Type of the derived network class.
+  TrainingState training_;  // Are we currently training?
+  bool needs_to_backprop_;  // This network needs to output back_deltas.
+  int32_t network_flags_;   // Behavior control flags in NetworkFlags.
+  int32_t ni_;              // Number of input values.
+  int32_t no_;              // Number of output values.
+  int32_t num_weights_;     // Number of weights in this and sub-network.
+  STRING name_;             // A unique name for this layer.
 
   // NOT-serialized debug data.
   ScrollView* forward_win_;   // Recognition debug display window.
@@ -313,7 +298,6 @@ class Network {
   // Static serialized name/type_ mapping. Keep in sync with NetworkType.
   static char const* const kTypeNames[NT_COUNT];
 };
-
 
 }  // namespace tesseract.
 

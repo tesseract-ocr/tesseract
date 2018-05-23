@@ -43,7 +43,7 @@ enum LMPainPointsType {
   LM_PPTYPE_NUM
 };
 
-static const char * const LMPainPointsTypeName[] = {
+static const char* const LMPainPointsTypeName[] = {
     "LM_PPTYPE_BLAMER",
     "LM_PPTYPE_AMBIGS",
     "LM_PPTYPE_PATH",
@@ -52,7 +52,6 @@ static const char * const LMPainPointsTypeName[] = {
 
 class LMPainPoints {
  public:
-
   static const float kDefaultPainPointPriorityAdjustment;
   // If there is a significant drop in character ngram probability or a
   // dangerous ambiguity make the thresholds on what blob combinations
@@ -63,9 +62,12 @@ class LMPainPoints {
     return LMPainPointsTypeName[type];
   }
 
-  LMPainPoints(int max, float rat, bool fp, const Dict *d, int deb) :
-    max_heap_size_(max), max_char_wh_ratio_(rat), fixed_pitch_(fp),
-    dict_(d), debug_level_(deb) {}
+  LMPainPoints(int max, float rat, bool fp, const Dict* d, int deb)
+      : max_heap_size_(max),
+        max_char_wh_ratio_(rat),
+        fixed_pitch_(fp),
+        dict_(d),
+        debug_level_(deb) {}
   ~LMPainPoints() {}
 
   // Returns true if the heap of pain points of pp_type is not empty().
@@ -76,7 +78,7 @@ class LMPainPoints {
   // Dequeues the next pain point from the pain points queue and copies
   // its contents and priority to *pp and *priority.
   // Returns LM_PPTYPE_NUM if pain points queue is empty, otherwise the type.
-  LMPainPointsType Deque(MATRIX_COORD *pp, float *priority);
+  LMPainPointsType Deque(MATRIX_COORD* pp, float* priority);
 
   // Clears pain points heap.
   void Clear() {
@@ -85,19 +87,19 @@ class LMPainPoints {
 
   // For each cell, generate a "pain point" if the cell is not classified
   // and has a left or right neighbor that was classified.
-  void GenerateInitial(WERD_RES *word_res);
+  void GenerateInitial(WERD_RES* word_res);
 
   // Generate pain points from the given path.
-  void GenerateFromPath(float rating_cert_scale, ViterbiStateEntry *vse,
-                        WERD_RES *word_res);
+  void GenerateFromPath(float rating_cert_scale, ViterbiStateEntry* vse,
+                        WERD_RES* word_res);
 
   // Generate pain points from dangerous ambiguities in best choice.
-  void GenerateFromAmbigs(const DANGERR &fixpt, ViterbiStateEntry *vse,
-                          WERD_RES *word_res);
+  void GenerateFromAmbigs(const DANGERR& fixpt, ViterbiStateEntry* vse,
+                          WERD_RES* word_res);
 
   // Generate a pain point for the blamer.
-  bool GenerateForBlamer(double max_char_wh_ratio, WERD_RES *word_res,
-                         int col, int row) {
+  bool GenerateForBlamer(double max_char_wh_ratio, WERD_RES* word_res, int col,
+                         int row) {
     return GeneratePainPoint(col, row, LM_PPTYPE_BLAMER, 0.0, false,
                              max_char_wh_ratio, word_res);
   }
@@ -109,8 +111,7 @@ class LMPainPoints {
   // AssociateStats::gap_sum is used.
   bool GeneratePainPoint(int col, int row, LMPainPointsType pp_type,
                          float special_priority, bool ok_to_extend,
-                         float max_char_wh_ratio,
-                         WERD_RES *word_res);
+                         float max_char_wh_ratio, WERD_RES* word_res);
 
   // Adjusts the pain point coordinates to cope with expansion of the ratings
   // matrix due to a split of the blob with the given index.
@@ -128,7 +129,7 @@ class LMPainPoints {
   // Set to true if fixed pitch should be assumed.
   bool fixed_pitch_;
   // Cached pointer to dictionary.
-  const Dict *dict_;
+  const Dict* dict_;
   // Debug level for print statements.
   int debug_level_;
 };

@@ -55,18 +55,10 @@ class LSTMRecognizer {
   LSTMRecognizer();
   ~LSTMRecognizer();
 
-  int NumOutputs() const {
-    return network_->NumOutputs();
-  }
-  int training_iteration() const {
-    return training_iteration_;
-  }
-  int sample_iteration() const {
-    return sample_iteration_;
-  }
-  double learning_rate() const {
-    return learning_rate_;
-  }
+  int NumOutputs() const { return network_->NumOutputs(); }
+  int training_iteration() const { return training_iteration_; }
+  int sample_iteration() const { return sample_iteration_; }
+  double learning_rate() const { return learning_rate_; }
   LossType OutputLossType() const {
     if (network_ == nullptr) return LT_NONE;
     StaticShape shape;
@@ -144,13 +136,9 @@ class LSTMRecognizer {
   // Sets the sample iteration to the given value. The sample_iteration_
   // determines the seed for the random number generator. The training
   // iteration is incremented only by a successful training iteration.
-  void SetIteration(int iteration) {
-    sample_iteration_ = iteration;
-  }
+  void SetIteration(int iteration) { sample_iteration_ = iteration; }
   // Accessors for textline image normalization.
-  int NumInputs() const {
-    return network_->NumInputs();
-  }
+  int NumInputs() const { return network_->NumInputs(); }
   int null_char() const { return null_char_; }
 
   // Loads a model from mgr, including the dictionary only if lang is not null.
@@ -187,8 +175,8 @@ class LSTMRecognizer {
                      PointerVector<WERD_RES>* words);
 
   // Helper computes min and mean best results in the output.
-  void OutputStats(const NetworkIO& outputs,
-                   float* min_output, float* mean_output, float* sd);
+  void OutputStats(const NetworkIO& outputs, float* min_output,
+                   float* mean_output, float* sd);
   // Recognizes the image_data, returning the labels,
   // scores, and corresponding pairs of start, end x-coords in coords.
   // Returned in scale_factor is the reduction factor
@@ -208,11 +196,9 @@ class LSTMRecognizer {
 
   // Displays the forward results in a window with the characters and
   // boundaries as determined by the labels and label_coords.
-  void DisplayForward(const NetworkIO& inputs,
-                      const GenericVector<int>& labels,
+  void DisplayForward(const NetworkIO& inputs, const GenericVector<int>& labels,
                       const GenericVector<int>& label_coords,
-                      const char* window_name,
-                      ScrollView** window);
+                      const char* window_name, ScrollView** window);
   // Converts the network output to a sequence of labels. Outputs labels, scores
   // and start xcoords of each char, and each null_char_, with an additional
   // final xcoord for the end of the output.
@@ -231,8 +217,8 @@ class LSTMRecognizer {
   // Displays the labels and cuts at the corresponding xcoords.
   // Size of labels should match xcoords.
   void DisplayLSTMOutput(const GenericVector<int>& labels,
-                         const GenericVector<int>& xcoords,
-                         int height, ScrollView* window);
+                         const GenericVector<int>& xcoords, int height,
+                         ScrollView* window);
 
   // Prints debug output detailing the activation path that is implied by the
   // xcoords.
@@ -252,8 +238,7 @@ class LSTMRecognizer {
   // Converts the network output to a sequence of labels, with scores, using
   // the simple character model (each position is a char, and the null_char_ is
   // mainly intended for tail padding.)
-  void LabelsViaSimpleText(const NetworkIO& output,
-                           GenericVector<int>* labels,
+  void LabelsViaSimpleText(const NetworkIO& output, GenericVector<int>* labels,
                            GenericVector<int>* xcoords);
 
   // Returns a string corresponding to the label starting at start. Sets *end

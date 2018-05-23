@@ -8,8 +8,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
+#include "baseapi.h"  // TessBaseAPI::Version
 
 #ifndef GOOGLE_TESSERACT
 
@@ -18,7 +18,7 @@ bool IntFlagExists(const char* flag_name, int32_t* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
-  IntParam *p = ParamUtils::FindParam<IntParam>(
+  IntParam* p = ParamUtils::FindParam<IntParam>(
       full_flag_name.string(), GlobalParams()->int_params, empty);
   if (p == nullptr) return false;
   *value = (int32_t)(*p);
@@ -29,7 +29,7 @@ bool DoubleFlagExists(const char* flag_name, double* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<DoubleParam*> empty;
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
+  DoubleParam* p = ParamUtils::FindParam<DoubleParam>(
       full_flag_name.string(), GlobalParams()->double_params, empty);
   if (p == nullptr) return false;
   *value = static_cast<double>(*p);
@@ -40,7 +40,7 @@ bool BoolFlagExists(const char* flag_name, bool* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<BoolParam*> empty;
-  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+  BoolParam* p = ParamUtils::FindParam<BoolParam>(
       full_flag_name.string(), GlobalParams()->bool_params, empty);
   if (p == nullptr) return false;
   *value = (BOOL8)(*p);
@@ -51,7 +51,7 @@ bool StringFlagExists(const char* flag_name, const char** value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<StringParam*> empty;
-  StringParam *p = ParamUtils::FindParam<StringParam>(
+  StringParam* p = ParamUtils::FindParam<StringParam>(
       full_flag_name.string(), GlobalParams()->string_params, empty);
   *value = (p != nullptr) ? p->string() : nullptr;
   return p != nullptr;
@@ -61,7 +61,7 @@ void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
-  IntParam *p = ParamUtils::FindParam<IntParam>(
+  IntParam* p = ParamUtils::FindParam<IntParam>(
       full_flag_name.string(), GlobalParams()->int_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
@@ -71,7 +71,7 @@ void SetDoubleFlagValue(const char* flag_name, const double new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<DoubleParam*> empty;
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
+  DoubleParam* p = ParamUtils::FindParam<DoubleParam>(
       full_flag_name.string(), GlobalParams()->double_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
@@ -81,7 +81,7 @@ void SetBoolFlagValue(const char* flag_name, const bool new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<BoolParam*> empty;
-  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+  BoolParam* p = ParamUtils::FindParam<BoolParam>(
       full_flag_name.string(), GlobalParams()->bool_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(new_val);
@@ -91,7 +91,7 @@ void SetStringFlagValue(const char* flag_name, const char* new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<StringParam*> empty;
-  StringParam *p = ParamUtils::FindParam<StringParam>(
+  StringParam* p = ParamUtils::FindParam<StringParam>(
       full_flag_name.string(), GlobalParams()->string_params, empty);
   ASSERT_HOST(p != nullptr);
   p->set_value(STRING(new_val));
@@ -113,8 +113,8 @@ void PrintCommandLineFlags() {
   const char* kFlagNamePrefix = "FLAGS_";
   const int kFlagNamePrefixLen = strlen(kFlagNamePrefix);
   for (int i = 0; i < GlobalParams()->int_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->int_params[i]->name_str(),
-                 kFlagNamePrefix, kFlagNamePrefixLen)) {
+    if (!strncmp(GlobalParams()->int_params[i]->name_str(), kFlagNamePrefix,
+                 kFlagNamePrefixLen)) {
       printf("  --%s  %s  (type:int default:%d)\n",
              GlobalParams()->int_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->int_params[i]->info_str(),
@@ -122,8 +122,8 @@ void PrintCommandLineFlags() {
     }
   }
   for (int i = 0; i < GlobalParams()->double_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->double_params[i]->name_str(),
-                 kFlagNamePrefix, kFlagNamePrefixLen)) {
+    if (!strncmp(GlobalParams()->double_params[i]->name_str(), kFlagNamePrefix,
+                 kFlagNamePrefixLen)) {
       printf("  --%s  %s  (type:double default:%g)\n",
              GlobalParams()->double_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->double_params[i]->info_str(),
@@ -131,8 +131,8 @@ void PrintCommandLineFlags() {
     }
   }
   for (int i = 0; i < GlobalParams()->bool_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->bool_params[i]->name_str(),
-                 kFlagNamePrefix, kFlagNamePrefixLen)) {
+    if (!strncmp(GlobalParams()->bool_params[i]->name_str(), kFlagNamePrefix,
+                 kFlagNamePrefixLen)) {
       printf("  --%s  %s  (type:bool default:%s)\n",
              GlobalParams()->bool_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->bool_params[i]->info_str(),
@@ -140,8 +140,8 @@ void PrintCommandLineFlags() {
     }
   }
   for (int i = 0; i < GlobalParams()->string_params.size(); ++i) {
-    if (!strncmp(GlobalParams()->string_params[i]->name_str(),
-                 kFlagNamePrefix, kFlagNamePrefixLen)) {
+    if (!strncmp(GlobalParams()->string_params[i]->name_str(), kFlagNamePrefix,
+                 kFlagNamePrefixLen)) {
       printf("  --%s  %s  (type:string default:%s)\n",
              GlobalParams()->string_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->string_params[i]->info_str(),
@@ -150,8 +150,7 @@ void PrintCommandLineFlags() {
   }
 }
 
-void ParseCommandLineFlags(const char* usage,
-                           int* argc, char*** argv,
+void ParseCommandLineFlags(const char* usage, int* argc, char*** argv,
                            const bool remove_flags) {
   if (*argc == 1) {
     printf("USAGE: %s\n", usage);
@@ -159,7 +158,8 @@ void ParseCommandLineFlags(const char* usage,
     exit(0);
   }
 
-  if (*argc > 1 && (!strcmp((*argv)[1], "-v") || !strcmp((*argv)[1], "--version"))) {
+  if (*argc > 1 &&
+      (!strcmp((*argv)[1], "-v") || !strcmp((*argv)[1], "--version"))) {
     printf("%s\n", TessBaseAPI::Version());
     exit(0);
   }
@@ -213,8 +213,8 @@ void ParseCommandLineFlags(const char* usage,
           exit(1);
         }
         if (!SafeAtoi(rhs, &int_val)) {
-          tprintf("ERROR: Could not parse int from %s in flag %s\n",
-                  rhs, (*argv)[i]);
+          tprintf("ERROR: Could not parse int from %s in flag %s\n", rhs,
+                  (*argv)[i]);
           exit(1);
         }
       } else {
@@ -245,8 +245,8 @@ void ParseCommandLineFlags(const char* usage,
           exit(1);
         }
         if (!SafeAtod(rhs, &double_val)) {
-          tprintf("ERROR: Could not parse double from %s in flag %s\n",
-                  rhs, (*argv)[i]);
+          tprintf("ERROR: Could not parse double from %s in flag %s\n", rhs,
+                  (*argv)[i]);
           exit(1);
         }
       } else {
@@ -329,8 +329,7 @@ void ParseCommandLineFlags(const char* usage,
 #include "base/init_google.h"
 
 namespace tesseract {
-void ParseCommandLineFlags(const char* usage,
-                           int* argc, char*** argv,
+void ParseCommandLineFlags(const char* usage, int* argc, char*** argv,
                            const bool remove_flags) {
   InitGoogle(usage, argc, argv, remove_flags);
 }

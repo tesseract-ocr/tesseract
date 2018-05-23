@@ -41,8 +41,8 @@ static const float kFixedPitchThreshold = 0.35;
 // rank statistics for a small collection of float values.
 class SimpleStats {
  public:
-  SimpleStats(): finalized_(false), values_() { }
-  ~SimpleStats() { }
+  SimpleStats() : finalized_(false), values_() {}
+  ~SimpleStats() {}
 
   void Clear() {
     values_.clear();
@@ -67,13 +67,10 @@ class SimpleStats {
     int index = static_cast<int>((values_.size() - 1) * frac);
     float reminder = (values_.size() - 1) * frac - index;
 
-    return values_[index] * (1.0 - reminder) +
-        values_[index + 1] * reminder;
+    return values_[index] * (1.0 - reminder) + values_[index + 1] * reminder;
   }
 
-  float median() {
-    return ile(0.5);
-  }
+  float median() { return ile(0.5); }
 
   float maximum() {
     if (!finalized_) Finish();
@@ -87,9 +84,7 @@ class SimpleStats {
     return values_[0];
   }
 
-  int size() const {
-    return values_.size();
-  }
+  int size() const { return values_.size(); }
 
  private:
   static int float_compare(const void* a, const void* b) {
@@ -112,17 +107,15 @@ class LocalCorrelation {
     int vote;
   };
 
-  LocalCorrelation(): finalized_(false) { }
-  ~LocalCorrelation() { }
+  LocalCorrelation() : finalized_(false) {}
+  ~LocalCorrelation() {}
 
   void Finish() {
     values_.sort(float_pair_compare);
     finalized_ = true;
   }
 
-  void Clear() {
-    finalized_ = false;
-  }
+  void Clear() { finalized_ = false; }
 
   void Add(float x, float y, int v) {
     struct float_pair value;
@@ -174,18 +167,22 @@ class LocalCorrelation {
 // consist of multiple blobs (BLOBNBOX's).
 class FPChar {
  public:
-  enum Alignment {
-    ALIGN_UNKNOWN, ALIGN_GOOD, ALIGN_BAD
-  };
+  enum Alignment { ALIGN_UNKNOWN, ALIGN_GOOD, ALIGN_BAD };
 
-  FPChar(): box_(), real_body_(),
-            from_(nullptr), to_(nullptr), num_blobs_(0), max_gap_(0),
-            final_(false), alignment_(ALIGN_UNKNOWN),
-            merge_to_prev_(false), delete_flag_(false) {
-  }
+  FPChar()
+      : box_(),
+        real_body_(),
+        from_(nullptr),
+        to_(nullptr),
+        num_blobs_(0),
+        max_gap_(0),
+        final_(false),
+        alignment_(ALIGN_UNKNOWN),
+        merge_to_prev_(false),
+        delete_flag_(false) {}
 
   // Initialize from blob.
-  void Init(BLOBNBOX *blob) {
+  void Init(BLOBNBOX* blob) {
     box_ = blob->bounding_box();
     real_body_ = box_;
     from_ = to_ = blob;
@@ -194,7 +191,7 @@ class FPChar {
 
   // Merge this character with "next". The "next" character should
   // consist of succeeding blobs on the same row.
-  void Merge(const FPChar &next) {
+  void Merge(const FPChar& next) {
     int gap = real_body_.x_gap(next.real_body_);
     if (gap > max_gap_) max_gap_ = gap;
 
@@ -205,60 +202,40 @@ class FPChar {
   }
 
   // Accessors.
-  const TBOX &box() const { return box_; }
-  void set_box(const TBOX &box) {
-    box_ = box;
-  }
-  const TBOX &real_body() const { return real_body_; }
+  const TBOX& box() const { return box_; }
+  void set_box(const TBOX& box) { box_ = box; }
+  const TBOX& real_body() const { return real_body_; }
 
   bool is_final() const { return final_; }
-  void set_final(bool flag) {
-    final_ = flag;
-  }
+  void set_final(bool flag) { final_ = flag; }
 
-  const Alignment& alignment() const {
-    return alignment_;
-  }
-  void set_alignment(Alignment alignment) {
-    alignment_ = alignment;
-  }
+  const Alignment& alignment() const { return alignment_; }
+  void set_alignment(Alignment alignment) { alignment_ = alignment; }
 
-  bool merge_to_prev() const {
-    return merge_to_prev_;
-  }
-  void set_merge_to_prev(bool flag) {
-    merge_to_prev_ = flag;
-  }
+  bool merge_to_prev() const { return merge_to_prev_; }
+  void set_merge_to_prev(bool flag) { merge_to_prev_ = flag; }
 
-  bool delete_flag() const {
-    return delete_flag_;
-  }
-  void set_delete_flag(bool flag) {
-    delete_flag_ = flag;
-  }
+  bool delete_flag() const { return delete_flag_; }
+  void set_delete_flag(bool flag) { delete_flag_ = flag; }
 
-  int max_gap() const {
-    return max_gap_;
-  }
+  int max_gap() const { return max_gap_; }
 
-  int num_blobs() const {
-    return num_blobs_;
-  }
+  int num_blobs() const { return num_blobs_; }
 
  private:
   TBOX box_;  // Rectangle region considered to be occupied by this
   // character.  It could be bigger than the bounding box.
   TBOX real_body_;  // Real bounding box of this character.
-  BLOBNBOX *from_;  // The first blob of this character.
-  BLOBNBOX *to_;  // The last blob of this character.
-  int num_blobs_;  // Number of blobs that belong to this character.
-  int max_gap_;  // Maximum x gap between the blobs.
+  BLOBNBOX* from_;  // The first blob of this character.
+  BLOBNBOX* to_;    // The last blob of this character.
+  int num_blobs_;   // Number of blobs that belong to this character.
+  int max_gap_;     // Maximum x gap between the blobs.
 
   bool final_;  // True if alignment/fragmentation decision for this
   // character is finalized.
 
   Alignment alignment_;  // Alignment status.
-  bool merge_to_prev_;  // True if this is a fragmented blob that
+  bool merge_to_prev_;   // True if this is a fragmented blob that
   // needs to be merged to the previous
   // character.
 
@@ -270,15 +247,21 @@ class FPChar {
 // FPChar's.
 class FPRow {
  public:
-  FPRow() : pitch_(0.0f), estimated_pitch_(0.0f),
-            all_pitches_(), all_gaps_(), good_pitches_(), good_gaps_(),
-            heights_(), characters_(), real_row_(nullptr) {
-  }
+  FPRow()
+      : pitch_(0.0f),
+        estimated_pitch_(0.0f),
+        all_pitches_(),
+        all_gaps_(),
+        good_pitches_(),
+        good_gaps_(),
+        heights_(),
+        characters_(),
+        real_row_(nullptr) {}
 
-  ~FPRow() { }
+  ~FPRow() {}
 
   // Initialize from TD_ROW.
-  void Init(TO_ROW *row);
+  void Init(TO_ROW* row);
 
   // Estimate character pitch of this row, based on current alignment
   // status of underlying FPChar's.  The argument pass1 can be set to
@@ -311,53 +294,31 @@ class FPRow {
 
   void DebugOutputResult(int row_index);
 
-  int good_pitches() {
-    return good_pitches_.size();
-  }
+  int good_pitches() { return good_pitches_.size(); }
 
-  int good_gaps() {
-    return good_gaps_.size();
-  }
+  int good_gaps() { return good_gaps_.size(); }
 
-  float pitch() {
-    return pitch_;
-  }
+  float pitch() { return pitch_; }
 
-  float estimated_pitch() {
-    return estimated_pitch_;
-  }
+  float estimated_pitch() { return estimated_pitch_; }
 
-  void set_estimated_pitch(float v) {
-    estimated_pitch_ = v;
-  }
+  void set_estimated_pitch(float v) { estimated_pitch_ = v; }
 
-  float height() {
-    return height_;
-  }
+  float height() { return height_; }
 
   float height_pitch_ratio() {
     if (good_pitches_.size() < 2) return -1.0;
     return height_ / good_pitches_.median();
   }
 
-  float gap() {
-    return gap_;
-  }
+  float gap() { return gap_; }
 
-  int num_chars() {
-    return characters_.size();
-  }
-  FPChar *character(int i) {
-    return &characters_[i];
-  }
+  int num_chars() { return characters_.size(); }
+  FPChar* character(int i) { return &characters_[i]; }
 
-  const TBOX &box(int i) {
-    return characters_[i].box();
-  }
+  const TBOX& box(int i) { return characters_[i].box(); }
 
-  const TBOX &real_body(int i) {
-    return characters_[i].real_body();
-  }
+  const TBOX& real_body(int i) { return characters_[i].real_body(); }
 
   bool is_box_modified(int i) {
     return !(characters_[i].box() == characters_[i].real_body());
@@ -367,33 +328,23 @@ class FPRow {
     return (characters_[i].box().left() + characters_[i].box().right()) / 2.0;
   }
 
-  bool is_final(int i) {
-    return characters_[i].is_final();
-  }
+  bool is_final(int i) { return characters_[i].is_final(); }
 
-  void finalize(int i) {
-    characters_[i].set_final(true);
-  }
+  void finalize(int i) { characters_[i].set_final(true); }
 
   bool is_good(int i) {
     return characters_[i].alignment() == FPChar::ALIGN_GOOD;
   }
 
-  bool is_bad(int i) {
-    return characters_[i].alignment() == FPChar::ALIGN_BAD;
-  }
+  bool is_bad(int i) { return characters_[i].alignment() == FPChar::ALIGN_BAD; }
 
   bool is_unknown(int i) {
     return characters_[i].alignment() == FPChar::ALIGN_UNKNOWN;
   }
 
-  void mark_good(int i) {
-    characters_[i].set_alignment(FPChar::ALIGN_GOOD);
-  }
+  void mark_good(int i) { characters_[i].set_alignment(FPChar::ALIGN_GOOD); }
 
-  void mark_bad(int i) {
-    characters_[i].set_alignment(FPChar::ALIGN_BAD);
-  }
+  void mark_bad(int i) { characters_[i].set_alignment(FPChar::ALIGN_BAD); }
 
   void clear_alignment(int i) {
     characters_[i].set_alignment(FPChar::ALIGN_UNKNOWN);
@@ -425,7 +376,8 @@ class FPRow {
     if (box1.width() >= pitch * (1.0 + kFPTolerance) ||
         box2.width() >= pitch * (1.0 + kFPTolerance) ||
         box1.height() >= pitch * (1.0 + kFPTolerance) ||
-        box2.height() >= pitch * (1.0 + kFPTolerance)) return false;
+        box2.height() >= pitch * (1.0 + kFPTolerance))
+      return false;
 
     const float real_pitch = box_pitch(box1, box2);
     if (fabs(real_pitch - pitch) < pitch * kFPTolerance) return true;
@@ -441,7 +393,7 @@ class FPRow {
     return false;
   }
 
-  static bool is_interesting_blob(const BLOBNBOX *blob) {
+  static bool is_interesting_blob(const BLOBNBOX* blob) {
     return !blob->joined_to_prev() && blob->flow() != BTFT_LEADER;
   }
 
@@ -457,11 +409,11 @@ class FPRow {
     characters_.truncate(index);
   }
 
-  float pitch_;  // Character pitch.
+  float pitch_;            // Character pitch.
   float estimated_pitch_;  // equal to pitch_ if pitch_ is considered
   // to be good enough.
   float height_;  // Character height.
-  float gap_;  // Minimum gap between characters.
+  float gap_;     // Minimum gap between characters.
 
   // Pitches between any two successive characters.
   SimpleStats all_pitches_;
@@ -477,10 +429,10 @@ class FPRow {
   SimpleStats heights_;
 
   GenericVector<FPChar> characters_;
-  TO_ROW *real_row_;  // Underlying TD_ROW for this row.
+  TO_ROW* real_row_;  // Underlying TD_ROW for this row.
 };
 
-void FPRow::Init(TO_ROW *row) {
+void FPRow::Init(TO_ROW* row) {
   ASSERT_HOST(row != nullptr);
   ASSERT_HOST(row->xheight > 0);
   real_row_ = row;
@@ -523,7 +475,7 @@ void FPRow::OutputEstimations() {
   // are skinny. Use pitch_ - height_ instead if it's smaller, but
   // positive.
   real_row_->kern_size = real_row_->pr_nonsp =
-          std::min(good_gaps_.ile(0.125), std::max(pitch_ - height_, 0.0f));
+      std::min(good_gaps_.ile(0.125), std::max(pitch_ - height_, 0.0f));
   real_row_->body_size = pitch_ - real_row_->kern_size;
 
   if (good_pitches_.size() < all_pitches_.size() * kFixedPitchThreshold) {
@@ -549,11 +501,11 @@ void FPRow::OutputEstimations() {
   // Don't consider a quarter space as a real space, because it's used
   // for line justification in traditional Japanese books.
   real_row_->max_nonspace = std::max(pitch_ * 0.25 + good_gaps_.minimum(),
-                                (double)good_gaps_.ile(0.875));
+                                     (double)good_gaps_.ile(0.875));
 
   int space_threshold =
-          std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
-                   static_cast<int>(real_row_->xheight));
+      std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
+               static_cast<int>(real_row_->xheight));
 
   // Make max_nonspace larger than any intra-character gap so that
   // make_prop_words() won't break a row at the middle of a character.
@@ -563,13 +515,13 @@ void FPRow::OutputEstimations() {
     }
   }
   real_row_->space_threshold =
-          std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
-                   static_cast<int>(real_row_->xheight));
+      std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
+               static_cast<int>(real_row_->xheight));
   real_row_->used_dm_model = false;
 
   // Setup char_cells.
   ICOORDELT_IT cell_it = &real_row_->char_cells;
-  ICOORDELT *cell = new ICOORDELT(real_body(0).left(), 0);
+  ICOORDELT* cell = new ICOORDELT(real_body(0).left(), 0);
   cell_it.add_after_then_move(cell);
 
   int right = real_body(0).right();
@@ -633,9 +585,8 @@ void FPRow::EstimatePitch(bool pass1) {
         // character may have a good pitch only between its successor.
         // So we collect only pitch values between two good
         // characters. and within tolerance in pass2.
-        if (pass1 || (prev_was_good &&
-                      fabs(estimated_pitch_ - pitch) <
-                          kFPTolerance * estimated_pitch_)) {
+        if (pass1 || (prev_was_good && fabs(estimated_pitch_ - pitch) <
+                                           kFPTolerance * estimated_pitch_)) {
           good_pitches_.Add(pitch);
           if (!is_box_modified(i - 1) && !is_box_modified(i)) {
             good_gaps_.Add(gap);
@@ -674,16 +625,16 @@ void FPRow::EstimatePitch(bool pass1) {
 
 void FPRow::DebugOutputResult(int row_index) {
   if (num_chars() > 0) {
-    tprintf("Row %d: pitch_decision=%d, fixed_pitch=%f, max_nonspace=%d, "
-            "space_size=%f, space_threshold=%d, xheight=%f\n",
-            row_index, (int)(real_row_->pitch_decision),
-            real_row_->fixed_pitch, real_row_->max_nonspace,
-            real_row_->space_size, real_row_->space_threshold,
-            real_row_->xheight);
+    tprintf(
+        "Row %d: pitch_decision=%d, fixed_pitch=%f, max_nonspace=%d, "
+        "space_size=%f, space_threshold=%d, xheight=%f\n",
+        row_index, (int)(real_row_->pitch_decision), real_row_->fixed_pitch,
+        real_row_->max_nonspace, real_row_->space_size,
+        real_row_->space_threshold, real_row_->xheight);
 
     for (int i = 0; i < num_chars(); i++) {
-      tprintf("Char %d: is_final=%d is_good=%d num_blobs=%d: ",
-              i, is_final(i), is_good(i), character(i)->num_blobs());
+      tprintf("Char %d: is_final=%d is_good=%d num_blobs=%d: ", i, is_final(i),
+              is_good(i), character(i)->num_blobs());
       box(i).print();
     }
   }
@@ -694,21 +645,22 @@ void FPRow::Pass1Analyze() {
 
   if (estimated_pitch_ > 0.0f) {
     for (int i = 2; i < num_chars(); i++) {
-      if (is_good_pitch(estimated_pitch_, box(i - 2), box(i-1)) &&
+      if (is_good_pitch(estimated_pitch_, box(i - 2), box(i - 1)) &&
           is_good_pitch(estimated_pitch_, box(i - 1), box(i))) {
         mark_good(i - 1);
       }
     }
   } else {
     for (int i = 2; i < num_chars(); i++) {
-      if (is_good_pitch(box_pitch(box(i-2), box(i-1)), box(i - 1), box(i))) {
+      if (is_good_pitch(box_pitch(box(i - 2), box(i - 1)), box(i - 1),
+                        box(i))) {
         mark_good(i - 1);
       }
     }
   }
   character(0)->set_alignment(character(1)->alignment());
-  character(num_chars() - 1)->set_alignment(
-      character(num_chars() - 2)->alignment());
+  character(num_chars() - 1)
+      ->set_alignment(character(num_chars() - 2)->alignment());
 }
 
 bool FPRow::Pass2Analyze() {
@@ -728,7 +680,7 @@ bool FPRow::Pass2Analyze() {
       // body including this character based on the character. Skip
       // whitespace if necessary.
       bool skipped_whitespaces = false;
-      float c1 = center_x(i + 1)  - 1.5 * estimated_pitch_;
+      float c1 = center_x(i + 1) - 1.5 * estimated_pitch_;
       while (c1 > box(i).right()) {
         skipped_whitespaces = true;
         c1 -= estimated_pitch_;
@@ -741,7 +693,7 @@ bool FPRow::Pass2Analyze() {
       TBOX merged;
       while (j >= 0 && !is_final(j) && mostly_overlap(ibody, box(j)) &&
              merged.bounding_union(box(j)).height() <
-             estimated_pitch_ * (1 + kFPTolerance)) {
+                 estimated_pitch_ * (1 + kFPTolerance)) {
         merged += box(j);
         j--;
       }
@@ -791,7 +743,7 @@ bool FPRow::Pass2Analyze() {
       TBOX merged;
       while (j < num_chars() && !is_final(j) && mostly_overlap(ibody, box(j)) &&
              merged.bounding_union(box(j)).height() <
-             estimated_pitch_ * (1 + kFPTolerance)) {
+                 estimated_pitch_ * (1 + kFPTolerance)) {
         merged += box(j);
         j++;
       }
@@ -838,7 +790,7 @@ void FPRow::MergeFragments() {
       character(last_char)->Merge(*character(j));
       character(j)->set_delete_flag(true);
       clear_alignment(last_char);
-      character(j-1)->set_merge_to_prev(false);
+      character(j - 1)->set_merge_to_prev(false);
     } else {
       last_char = j;
     }
@@ -907,17 +859,19 @@ void FPRow::FinalizeLargeChars() {
         bad_pitch = true;
       }
     }
-    if (good_pitch && !bad_pitch) mark_good(i);
-    else if (!good_pitch && bad_pitch) mark_bad(i);
+    if (good_pitch && !bad_pitch)
+      mark_good(i);
+    else if (!good_pitch && bad_pitch)
+      mark_bad(i);
   }
 }
 
 class FPAnalyzer {
  public:
-  FPAnalyzer(): page_tr_(), rows_() { }
-  ~FPAnalyzer() { }
+  FPAnalyzer() : page_tr_(), rows_() {}
+  ~FPAnalyzer() {}
 
-  void Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks);
+  void Init(ICOORD page_tr, TO_BLOCK_LIST* port_blocks);
 
   void Pass1Analyze() {
     for (int i = 0; i < rows_.size(); i++) rows_[i].Pass1Analyze();
@@ -929,8 +883,8 @@ class FPAnalyzer {
   void EstimatePitch(bool pass1);
 
   bool maybe_fixed_pitch() {
-    if (rows_.empty() ||
-        rows_.size() <= num_bad_rows_ + num_tall_rows_ + 1) return false;
+    if (rows_.empty() || rows_.size() <= num_bad_rows_ + num_tall_rows_ + 1)
+      return false;
     return true;
   }
 
@@ -962,9 +916,7 @@ class FPAnalyzer {
     for (int i = 0; i < rows_.size(); i++) rows_[i].DebugOutputResult(i);
   }
 
-  int num_rows() {
-    return rows_.size();
-  }
+  int num_rows() { return rows_.size(); }
 
   // Returns the upper limit for pass2 loop iteration.
   int max_iteration() {
@@ -982,15 +934,14 @@ class FPAnalyzer {
   int max_chars_per_row_;
 };
 
-void FPAnalyzer::Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
+void FPAnalyzer::Init(ICOORD page_tr, TO_BLOCK_LIST* port_blocks) {
   page_tr_ = page_tr;
 
   TO_BLOCK_IT block_it;
-  block_it.set_to_list (port_blocks);
+  block_it.set_to_list(port_blocks);
 
-  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
-       block_it.forward()) {
-    TO_BLOCK *block = block_it.data();
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    TO_BLOCK* block = block_it.data();
     if (!block->get_rows()->empty()) {
       ASSERT_HOST(block->xheight > 0);
       find_repeated_chars(block, FALSE);
@@ -999,8 +950,7 @@ void FPAnalyzer::Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
 
   num_empty_rows_ = 0;
   max_chars_per_row_ = 0;
-  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
-       block_it.forward()) {
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     TO_ROW_IT row_it = block_it.data()->get_rows();
     for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
       FPRow row;
@@ -1037,9 +987,8 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
       // from this row.
       rows_[i].set_estimated_pitch(rows_[i].pitch());
     } else if (rows_[i].num_chars() > 1) {
-      float estimated_pitch =
-          pitch_height_stats.EstimateYFor(rows_[i].height() + rows_[i].gap(),
-                                          0.1);
+      float estimated_pitch = pitch_height_stats.EstimateYFor(
+          rows_[i].height() + rows_[i].gap(), 0.1);
       // CJK characters are more likely to be fragmented than poorly
       // chopped. So trust the page-level estimation of character
       // pitch only if it's larger than row-level estimation or
@@ -1056,8 +1005,7 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
 
 }  // namespace
 
-void compute_fixed_pitch_cjk(ICOORD page_tr,
-                             TO_BLOCK_LIST *port_blocks) {
+void compute_fixed_pitch_cjk(ICOORD page_tr, TO_BLOCK_LIST* port_blocks) {
   FPAnalyzer analyzer;
   analyzer.Init(page_tr, port_blocks);
   if (analyzer.num_rows() == 0) return;

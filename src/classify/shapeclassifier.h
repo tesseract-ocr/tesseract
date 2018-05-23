@@ -25,14 +25,16 @@
 
 #include "unichar.h"
 
-template <typename T> class GenericVector;
+template <typename T>
+class GenericVector;
 struct Pix;
 class ScrollView;
 class UNICHARSET;
 
 namespace tesseract {
 
-template <typename T> class PointerVector;
+template <typename T>
+class PointerVector;
 struct ShapeRating;
 class ShapeTable;
 class TrainingSample;
@@ -96,13 +98,12 @@ class ShapeClassifier {
   virtual void DebugDisplay(const TrainingSample& sample, Pix* page_pix,
                             UNICHAR_ID unichar_id);
 
-
   // Displays classification as the given unichar_id. Creates as many windows
   // as it feels fit, using index as a guide for placement. Adds any created
   // windows to the windows output and returns a new index that may be used
   // by any subsequent classifiers. Caller waits for the user to view and
   // then destroys the windows by clearing the vector.
-  virtual int DisplayClassifyAs(const TrainingSample& sample,  Pix* page_pix,
+  virtual int DisplayClassifyAs(const TrainingSample& sample, Pix* page_pix,
                                 UNICHAR_ID unichar_id, int index,
                                 PointerVector<ScrollView>* windows);
 

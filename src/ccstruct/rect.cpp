@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include          "rect.h"
+#include "rect.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -32,23 +32,20 @@
 TBOX::TBOX(            // constructor
     const ICOORD pt1,  // one corner
     const ICOORD pt2   // the other corner
-    ) {
-  if (pt1.x () <= pt2.x ()) {
-    if (pt1.y () <= pt2.y ()) {
+) {
+  if (pt1.x() <= pt2.x()) {
+    if (pt1.y() <= pt2.y()) {
       bot_left = pt1;
       top_right = pt2;
+    } else {
+      bot_left = ICOORD(pt1.x(), pt2.y());
+      top_right = ICOORD(pt2.x(), pt1.y());
     }
-    else {
-      bot_left = ICOORD (pt1.x (), pt2.y ());
-      top_right = ICOORD (pt2.x (), pt1.y ());
-    }
-  }
-  else {
-    if (pt1.y () <= pt2.y ()) {
-      bot_left = ICOORD (pt2.x (), pt1.y ());
-      top_right = ICOORD (pt1.x (), pt2.y ());
-    }
-    else {
+  } else {
+    if (pt1.y() <= pt2.y()) {
+      bot_left = ICOORD(pt2.x(), pt1.y());
+      top_right = ICOORD(pt1.x(), pt2.y());
+    } else {
       bot_left = pt2;
       top_right = pt1;
     }
@@ -61,10 +58,9 @@ TBOX::TBOX(            // constructor
  *        order.
  **********************************************************************/
 
-TBOX::TBOX(                    //constructor
+TBOX::TBOX(  // constructor
     int16_t left, int16_t bottom, int16_t right, int16_t top)
-    : bot_left(left, bottom), top_right(right, top) {
-}
+    : bot_left(left, bottom), top_right(right, top) {}
 
 // rotate_large constructs the containing bounding box of all 4
 // corners after rotating them. It therefore guarantees that all
@@ -84,75 +80,72 @@ void TBOX::rotate_large(const FCOORD& vec) {
  *
  **********************************************************************/
 
-TBOX TBOX::intersection(  //shared area box
-                      const TBOX &box) const {
+TBOX TBOX::intersection(  // shared area box
+    const TBOX& box) const {
   int16_t left;
   int16_t bottom;
   int16_t right;
   int16_t top;
-  if (overlap (box)) {
-    if (box.bot_left.x () > bot_left.x ())
-      left = box.bot_left.x ();
+  if (overlap(box)) {
+    if (box.bot_left.x() > bot_left.x())
+      left = box.bot_left.x();
     else
-      left = bot_left.x ();
+      left = bot_left.x();
 
-    if (box.top_right.x () < top_right.x ())
-      right = box.top_right.x ();
+    if (box.top_right.x() < top_right.x())
+      right = box.top_right.x();
     else
-      right = top_right.x ();
+      right = top_right.x();
 
-    if (box.bot_left.y () > bot_left.y ())
-      bottom = box.bot_left.y ();
+    if (box.bot_left.y() > bot_left.y())
+      bottom = box.bot_left.y();
     else
-      bottom = bot_left.y ();
+      bottom = bot_left.y();
 
-    if (box.top_right.y () < top_right.y ())
-      top = box.top_right.y ();
+    if (box.top_right.y() < top_right.y())
+      top = box.top_right.y();
     else
-      top = top_right.y ();
-  }
-  else {
+      top = top_right.y();
+  } else {
     left = INT16_MAX;
     bottom = INT16_MAX;
     top = -INT16_MAX;
     right = -INT16_MAX;
   }
-  return TBOX (left, bottom, right, top);
+  return TBOX(left, bottom, right, top);
 }
-
 
 /**********************************************************************
  * TBOX::bounding_union()  Build the smallest box containing both boxes
  *
  **********************************************************************/
 
-TBOX TBOX::bounding_union(  //box enclosing both
-                        const TBOX &box) const {
-  ICOORD bl;                     //bottom left
-  ICOORD tr;                     //top right
+TBOX TBOX::bounding_union(  // box enclosing both
+    const TBOX& box) const {
+  ICOORD bl;  // bottom left
+  ICOORD tr;  // top right
 
-  if (box.bot_left.x () < bot_left.x ())
-    bl.set_x (box.bot_left.x ());
+  if (box.bot_left.x() < bot_left.x())
+    bl.set_x(box.bot_left.x());
   else
-    bl.set_x (bot_left.x ());
+    bl.set_x(bot_left.x());
 
-  if (box.top_right.x () > top_right.x ())
-    tr.set_x (box.top_right.x ());
+  if (box.top_right.x() > top_right.x())
+    tr.set_x(box.top_right.x());
   else
-    tr.set_x (top_right.x ());
+    tr.set_x(top_right.x());
 
-  if (box.bot_left.y () < bot_left.y ())
-    bl.set_y (box.bot_left.y ());
+  if (box.bot_left.y() < bot_left.y())
+    bl.set_y(box.bot_left.y());
   else
-    bl.set_y (bot_left.y ());
+    bl.set_y(bot_left.y());
 
-  if (box.top_right.y () > top_right.y ())
-    tr.set_y (box.top_right.y ());
+  if (box.top_right.y() > top_right.y())
+    tr.set_y(box.top_right.y());
   else
-    tr.set_y (top_right.y ());
-  return TBOX (bl, tr);
+    tr.set_y(top_right.y());
+  return TBOX(bl, tr);
 }
-
 
 /**********************************************************************
  * TBOX::plot()  Paint a box using specified settings
@@ -160,11 +153,11 @@ TBOX TBOX::bounding_union(  //box enclosing both
  **********************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void TBOX::plot(                      //paint box
-               ScrollView* fd,       //where to paint
-               ScrollView::Color fill_colour,   //colour for inside
-               ScrollView::Color border_colour  //colour for border
-              ) const {
+void TBOX::plot(                     // paint box
+    ScrollView* fd,                  // where to paint
+    ScrollView::Color fill_colour,   // colour for inside
+    ScrollView::Color border_colour  // colour for border
+    ) const {
   fd->Brush(fill_colour);
   fd->Pen(border_colour);
   plot(fd);
@@ -172,7 +165,7 @@ void TBOX::plot(                      //paint box
 #endif
 
 // Appends the bounding box as (%d,%d)->(%d,%d) to a STRING.
-void TBOX::print_to_str(STRING *str) const {
+void TBOX::print_to_str(STRING* str) const {
   // "(%d,%d)->(%d,%d)", left(), bottom(), right(), top()
   str->add_str_int("(", left());
   str->add_str_int(",", bottom());
@@ -201,25 +194,21 @@ bool TBOX::DeSerialize(bool swap, FILE* fp) {
  * Extend one box to include the other  (In place union)
  **********************************************************************/
 
-DLLSYM TBOX &
-operator+= (                     //bounding bounding bx
-TBOX & op1,                       //operands
-const TBOX & op2) {
-  if (op2.bot_left.x () < op1.bot_left.x ())
-    op1.bot_left.set_x (op2.bot_left.x ());
+DLLSYM TBOX& operator+=(  // bounding bounding bx
+    TBOX& op1,            // operands
+    const TBOX& op2) {
+  if (op2.bot_left.x() < op1.bot_left.x()) op1.bot_left.set_x(op2.bot_left.x());
 
-  if (op2.top_right.x () > op1.top_right.x ())
-    op1.top_right.set_x (op2.top_right.x ());
+  if (op2.top_right.x() > op1.top_right.x())
+    op1.top_right.set_x(op2.top_right.x());
 
-  if (op2.bot_left.y () < op1.bot_left.y ())
-    op1.bot_left.set_y (op2.bot_left.y ());
+  if (op2.bot_left.y() < op1.bot_left.y()) op1.bot_left.set_y(op2.bot_left.y());
 
-  if (op2.top_right.y () > op1.top_right.y ())
-    op1.top_right.set_y (op2.top_right.y ());
+  if (op2.top_right.y() > op1.top_right.y())
+    op1.top_right.set_y(op2.top_right.y());
 
   return op1;
 }
-
 
 /**********************************************************************
  * operator&=
@@ -228,34 +217,33 @@ const TBOX & op2) {
  **********************************************************************/
 
 TBOX& operator&=(TBOX& op1, const TBOX& op2) {
-  if (op1.overlap (op2)) {
-    if (op2.bot_left.x () > op1.bot_left.x ())
-      op1.bot_left.set_x (op2.bot_left.x ());
+  if (op1.overlap(op2)) {
+    if (op2.bot_left.x() > op1.bot_left.x())
+      op1.bot_left.set_x(op2.bot_left.x());
 
-    if (op2.top_right.x () < op1.top_right.x ())
-      op1.top_right.set_x (op2.top_right.x ());
+    if (op2.top_right.x() < op1.top_right.x())
+      op1.top_right.set_x(op2.top_right.x());
 
-    if (op2.bot_left.y () > op1.bot_left.y ())
-      op1.bot_left.set_y (op2.bot_left.y ());
+    if (op2.bot_left.y() > op1.bot_left.y())
+      op1.bot_left.set_y(op2.bot_left.y());
 
-    if (op2.top_right.y () < op1.top_right.y ())
-      op1.top_right.set_y (op2.top_right.y ());
-  }
-  else {
-    op1.bot_left.set_x (INT16_MAX);
-    op1.bot_left.set_y (INT16_MAX);
-    op1.top_right.set_x (-INT16_MAX);
-    op1.top_right.set_y (-INT16_MAX);
+    if (op2.top_right.y() < op1.top_right.y())
+      op1.top_right.set_y(op2.top_right.y());
+  } else {
+    op1.bot_left.set_x(INT16_MAX);
+    op1.bot_left.set_y(INT16_MAX);
+    op1.top_right.set_x(-INT16_MAX);
+    op1.top_right.set_y(-INT16_MAX);
   }
   return op1;
 }
 
-bool TBOX::x_almost_equal(const TBOX &box, int tolerance) const {
+bool TBOX::x_almost_equal(const TBOX& box, int tolerance) const {
   return (abs(left() - box.left()) <= tolerance &&
-           abs(right() - box.right()) <= tolerance);
+          abs(right() - box.right()) <= tolerance);
 }
 
-bool TBOX::almost_equal(const TBOX &box, int tolerance) const {
+bool TBOX::almost_equal(const TBOX& box, int tolerance) const {
   return (abs(left() - box.left()) <= tolerance &&
           abs(right() - box.right()) <= tolerance &&
           abs(top() - box.top()) <= tolerance &&

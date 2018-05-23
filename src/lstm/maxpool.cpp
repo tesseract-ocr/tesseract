@@ -22,7 +22,7 @@
 namespace tesseract {
 
 Maxpool::Maxpool(const STRING& name, int ni, int x_scale, int y_scale)
-  : Reconfig(name, ni, x_scale, y_scale) {
+    : Reconfig(name, ni, x_scale, y_scale) {
   type_ = NT_MAXPOOL;
   no_ = ni;
 }
@@ -71,12 +71,10 @@ void Maxpool::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Maxpool::Backward(bool debug, const NetworkIO& fwd_deltas,
-                       NetworkScratch* scratch,
-                       NetworkIO* back_deltas) {
+                       NetworkScratch* scratch, NetworkIO* back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
   back_deltas->MaxpoolBackward(fwd_deltas, maxes_);
   return true;
 }
-
 
 }  // namespace tesseract.

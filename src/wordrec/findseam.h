@@ -29,10 +29,10 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "seam.h"
+#include "chop.h"
 #include "genericheap.h"
 #include "kdpair.h"
-#include "chop.h"
+#include "seam.h"
 
 // The SeamPair elements own their SEAMs and delete them upon destruction.
 using SeamPair = tesseract::KDPtrPairInc<float, SEAM>;

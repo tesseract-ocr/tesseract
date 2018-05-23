@@ -25,14 +25,14 @@
 #ifndef PLOTEDGES_H
 #define PLOTEDGES_H
 
+#include "blobs.h"
 #include "callcpp.h"
 #include "oldlist.h"
-#include "blobs.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern ScrollView *edge_window;        /* Window for edges */
+extern ScrollView* edge_window; /* Window for edges */
 
 /*----------------------------------------------------------------------
             Macros
@@ -42,11 +42,10 @@ extern ScrollView *edge_window;        /* Window for edges */
  *
  * Refresh the display of the edge window.
  **********************************************************************/
-#define update_edge_window()             \
-if (wordrec_display_splits) {                  \
-	c_make_current (edge_window);      \
-}                                      \
-
+#define update_edge_window()     \
+  if (wordrec_display_splits) {  \
+    c_make_current(edge_window); \
+  }
 
 /**********************************************************************
  * edge_window_wait
@@ -54,16 +53,16 @@ if (wordrec_display_splits) {                  \
  * Wait for someone to click in the edges window.
  **********************************************************************/
 
-#define edge_window_wait()  \
-if (wordrec_display_splits) window_wait (edge_window)
+#define edge_window_wait() \
+  if (wordrec_display_splits) window_wait(edge_window)
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ---------------------------------------------------------------------*/
 void display_edgepts(LIST outlines);
 
-void draw_blob_edges(TBLOB *blob);
+void draw_blob_edges(TBLOB* blob);
 
-void mark_outline(EDGEPT *edgept);
+void mark_outline(EDGEPT* edgept);
 
 #endif

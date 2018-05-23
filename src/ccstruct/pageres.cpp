@@ -21,18 +21,21 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include          <stdlib.h>
+#include <stdlib.h>
 #ifdef __UNIX__
-#include          <assert.h>
+#include <assert.h>
 #endif
-#include          "blamer.h"
-#include          "pageres.h"
-#include          "blobs.h"
+#include "blamer.h"
+#include "blobs.h"
+#include "pageres.h"
 
-ELISTIZE (BLOCK_RES)
-CLISTIZE (BLOCK_RES) ELISTIZE (ROW_RES) ELISTIZE (WERD_RES)
+ELISTIZE(BLOCK_RES)
+CLISTIZE(BLOCK_RES)
+ELISTIZE(ROW_RES)
+ELISTIZE(WERD_RES)
 
-// Gain factor for computing thresholds that determine the ambiguity of a word.
+// Gain factor for computing thresholds that determine the ambiguity of a
+// word.
 static const double kStopperAmbiguityThresholdGain = 8.0;
 // Constant offset for computing thresholds that determine the ambiguity of a
 // word.
@@ -52,7 +55,7 @@ const double kMaxWordGapRatio = 2.0;
 // TODO(rays) This is horrible. Replace with an enhance params training model.
 static double StopperAmbigThreshold(double f1, double f2) {
   return (f2 - f1) * kStopperAmbiguityThresholdGain -
-      kStopperAmbiguityThresholdOffset;
+         kStopperAmbiguityThresholdOffset;
 }
 
 /*************************************************************************
@@ -60,17 +63,14 @@ static double StopperAmbigThreshold(double f1, double f2) {
  *
  * Constructor for page results
  *************************************************************************/
-PAGE_RES::PAGE_RES(
-    bool merge_similar_words,
-    BLOCK_LIST *the_block_list,
-    WERD_CHOICE **prev_word_best_choice_ptr) {
+PAGE_RES::PAGE_RES(bool merge_similar_words, BLOCK_LIST* the_block_list,
+                   WERD_CHOICE** prev_word_best_choice_ptr) {
   Init();
   BLOCK_IT block_it(the_block_list);
   BLOCK_RES_IT block_res_it(&block_res_list);
-  for (block_it.mark_cycle_pt();
-       !block_it.cycled_list(); block_it.forward()) {
-    block_res_it.add_to_end(new BLOCK_RES(merge_similar_words,
-                                          block_it.data()));
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
+    block_res_it.add_to_end(
+        new BLOCK_RES(merge_similar_words, block_it.data()));
   }
   prev_word_best_choice = prev_word_best_choice_ptr;
 }
@@ -81,13 +81,13 @@ PAGE_RES::PAGE_RES(
  * Constructor for BLOCK results
  *************************************************************************/
 
-BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK *the_block) {
-  ROW_IT row_it (the_block->row_list ());
+BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK* the_block) {
+  ROW_IT row_it(the_block->row_list());
   ROW_RES_IT row_res_it(&row_res_list);
 
   char_count = 0;
   rej_count = 0;
-  font_class = -1;               //not assigned
+  font_class = -1;  // not assigned
   x_height = -1.0;
   font_assigned = false;
   bold = false;
@@ -107,11 +107,11 @@ BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK *the_block) {
  * Constructor for ROW results
  *************************************************************************/
 
-ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
+ROW_RES::ROW_RES(bool merge_similar_words, ROW* the_row) {
   WERD_IT word_it(the_row->word_list());
   WERD_RES_IT word_res_it(&word_res_list);
-  WERD_RES *combo = nullptr;        // current combination of fuzzies
-  WERD *copy_word;
+  WERD_RES* combo = nullptr;  // current combination of fuzzies
+  WERD* copy_word;
 
   char_count = 0;
   rej_count = 0;
@@ -120,8 +120,8 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
   row = the_row;
   bool add_next_word = false;
   TBOX union_box;
-  float line_height = the_row->x_height() + the_row->ascenders() -
-      the_row->descenders();
+  float line_height =
+      the_row->x_height() + the_row->ascenders() - the_row->descenders();
   for (word_it.mark_cycle_pt(); !word_it.cycled_list(); word_it.forward()) {
     WERD_RES* word_res = new WERD_RES(word_it.data());
     word_res->x_height = the_row->x_height();
@@ -133,7 +133,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
     } else if (merge_similar_words) {
       union_box = word_res->word->bounding_box();
       add_next_word = !word_res->word->flag(W_REP_CHAR) &&
-          union_box.height() <= line_height * kMaxWordSizeRatio;
+                      union_box.height() <= line_height * kMaxWordSizeRatio;
       word_res->odd_size = !add_next_word;
     }
     WERD* next_word = word_it.data_relative(1);
@@ -174,15 +174,14 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
   }
 }
 
-
-WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
+WERD_RES& WERD_RES::operator=(const WERD_RES& source) {
   this->ELIST_LINK::operator=(source);
   Clear();
   if (source.combination) {
     word = new WERD;
-    *word = *(source.word);      // deep copy
+    *word = *(source.word);  // deep copy
   } else {
-    word = source.word;          // pt to same word
+    word = source.word;  // pt to same word
   }
   if (source.bln_boxes != nullptr)
     bln_boxes = new tesseract::BoxWord(*source.bln_boxes);
@@ -206,7 +205,7 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
   WERD_CHOICE_IT wc_it(const_cast<WERD_CHOICE_LIST*>(&source.best_choices));
   WERD_CHOICE_IT wc_dest_it(&best_choices);
   for (wc_it.mark_cycle_pt(); !wc_it.cycled_list(); wc_it.forward()) {
-    const WERD_CHOICE *choice = wc_it.data();
+    const WERD_CHOICE* choice = wc_it.data();
     wc_dest_it.add_after_then_move(new WERD_CHOICE(*choice));
   }
   if (!wc_dest_it.empty()) {
@@ -231,7 +230,7 @@ WERD_RES& WERD_RES::operator=(const WERD_RES & source) {
   part_of_combo = source.part_of_combo;
   CopySimpleFields(source);
   if (source.blamer_bundle != nullptr) {
-    blamer_bundle =  new BlamerBundle(*(source.blamer_bundle));
+    blamer_bundle = new BlamerBundle(*(source.blamer_bundle));
   }
   return *this;
 }
@@ -293,12 +292,10 @@ void WERD_RES::InitForRetryRecognition(const WERD_RES& source) {
 // Returns false if the word is empty and sets up fake results.
 bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
                                    tesseract::Tesseract* tess, Pix* pix,
-                                   int norm_mode,
-                                   const TBOX* norm_box,
-                                   bool numeric_mode,
-                                   bool use_body_size,
-                                   bool allow_detailed_fx,
-                                   ROW *row, const BLOCK* block) {
+                                   int norm_mode, const TBOX* norm_box,
+                                   bool numeric_mode, bool use_body_size,
+                                   bool allow_detailed_fx, ROW* row,
+                                   const BLOCK* block) {
   tesseract::OcrEngineMode norm_mode_hint =
       static_cast<tesseract::OcrEngineMode>(norm_mode);
   tesseract = tess;
@@ -315,8 +312,10 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
   ClearResults();
   SetupWordScript(unicharset_in);
   chopped_word = TWERD::PolygonalCopy(allow_detailed_fx, word);
-  float word_xheight = use_body_size && row != nullptr && row->body_size() > 0.0f
-                     ? row->body_size() : x_height;
+  float word_xheight =
+      use_body_size && row != nullptr && row->body_size() > 0.0f
+          ? row->body_size()
+          : x_height;
   chopped_word->BLNormalize(block, row, pix, word->flag(W_INVERSE),
                             word_xheight, baseline_shift, numeric_mode,
                             norm_mode_hint, norm_box, &denorm);
@@ -332,7 +331,7 @@ bool WERD_RES::SetupForRecognition(const UNICHARSET& unicharset_in,
 // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
 // accumulators from a made chopped word.  We presume the fields are already
 // empty.
-void WERD_RES::SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in) {
+void WERD_RES::SetupBasicsFromChoppedWord(const UNICHARSET& unicharset_in) {
   bln_boxes = tesseract::BoxWord::CopyFromNormalized(chopped_word);
   start_seam_list(chopped_word, &seam_array);
   SetupBlobWidthsAndGaps();
@@ -361,7 +360,7 @@ void WERD_RES::SetupFake(const UNICHARSET& unicharset_in) {
       fake_choices[blob_id++] = new BLOB_CHOICE;
     }
     FakeClassifyWord(blob_count, fake_choices);
-    delete [] fake_choices;
+    delete[] fake_choices;
   } else {
     WERD_CHOICE* word = new WERD_CHOICE(&unicharset_in);
     word->make_bad();
@@ -394,12 +393,12 @@ void WERD_RES::SetupBlobWidthsAndGaps() {
   blob_gaps.truncate(0);
   int num_blobs = chopped_word->NumBlobs();
   for (int b = 0; b < num_blobs; ++b) {
-    TBLOB *blob = chopped_word->blobs[b];
+    TBLOB* blob = chopped_word->blobs[b];
     TBOX box = blob->bounding_box();
     blob_widths.push_back(box.width());
     if (b + 1 < num_blobs) {
-      blob_gaps.push_back(
-          chopped_word->blobs[b + 1]->bounding_box().left() - box.right());
+      blob_gaps.push_back(chopped_word->blobs[b + 1]->bounding_box().left() -
+                          box.right());
     }
   }
 }
@@ -415,8 +414,7 @@ void WERD_RES::InsertSeam(int blob_number, SEAM* seam) {
     // Expand the ratings matrix.
     ratings = ratings->ConsumeAndMakeBigger(blob_number);
     // Fix all the segmentation states.
-    if (raw_choice != nullptr)
-      raw_choice->UpdateStateForSplit(blob_number);
+    if (raw_choice != nullptr) raw_choice->UpdateStateForSplit(blob_number);
     WERD_CHOICE_IT wc_it(&best_choices);
     for (wc_it.mark_cycle_pt(); !wc_it.cycled_list(); wc_it.forward()) {
       WERD_CHOICE* choice = wc_it.data();
@@ -433,8 +431,7 @@ bool WERD_RES::AlternativeChoiceAdjustmentsWorseThan(float threshold) const {
   WERD_CHOICE_IT wc_it(const_cast<WERD_CHOICE_LIST*>(&best_choices));
   for (wc_it.forward(); !wc_it.at_first(); wc_it.forward()) {
     WERD_CHOICE* choice = wc_it.data();
-    if (choice->adjust_factor() <= threshold)
-      return false;
+    if (choice->adjust_factor() <= threshold) return false;
   }
   return true;
 }
@@ -470,11 +467,10 @@ bool WERD_RES::StatesAllValid() {
 // Prints a list of words found if debug is true or the word result matches
 // the word_to_debug.
 void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
-  if (debug ||
-      (word_to_debug != nullptr && *word_to_debug != '\0' && best_choice != nullptr &&
-       best_choice->unichar_string() == STRING(word_to_debug))) {
-    if (raw_choice != nullptr)
-      raw_choice->print("\nBest Raw Choice");
+  if (debug || (word_to_debug != nullptr && *word_to_debug != '\0' &&
+                best_choice != nullptr &&
+                best_choice->unichar_string() == STRING(word_to_debug))) {
+    if (raw_choice != nullptr) raw_choice->print("\nBest Raw Choice");
 
     WERD_CHOICE_IT it(&best_choices);
     int index = 0;
@@ -489,8 +485,8 @@ void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
 
 // Prints the top choice along with the accepted/done flags.
 void WERD_RES::DebugTopChoice(const char* msg) const {
-  tprintf("Best choice: accepted=%d, adaptable=%d, done=%d : ",
-          tess_accepted, tess_would_adapt, done);
+  tprintf("Best choice: accepted=%d, adaptable=%d, done=%d : ", tess_accepted,
+          tess_would_adapt, done);
   if (best_choice == nullptr)
     tprintf("<Null choice>\n");
   else
@@ -503,11 +499,9 @@ void WERD_RES::DebugTopChoice(const char* msg) const {
 // re-ranker, in place of this heuristic that is based on the previous
 // adjustment factor.
 void WERD_RES::FilterWordChoices(int debug_level) {
-  if (best_choice == nullptr || best_choices.singleton())
-    return;
+  if (best_choice == nullptr || best_choices.singleton()) return;
 
-  if (debug_level >= 2)
-    best_choice->print("\nFiltering against best choice");
+  if (debug_level >= 2) best_choice->print("\nFiltering against best choice");
   WERD_CHOICE_IT it(&best_choices);
   int index = 0;
   for (it.forward(); !it.at_first(); it.forward(), ++index) {
@@ -551,8 +545,7 @@ void WERD_RES::FilterWordChoices(int debug_level) {
 }
 
 void WERD_RES::ComputeAdaptionThresholds(float certainty_scale,
-                                         float min_rating,
-                                         float max_rating,
+                                         float min_rating, float max_rating,
                                          float rating_margin,
                                          float* thresholds) {
   int chunk = 0;
@@ -569,8 +562,7 @@ void WERD_RES::ComputeAdaptionThresholds(float certainty_scale,
         ++raw_blob;
         end_raw_chunk += raw_choice->state(raw_blob);
       }
-      if (best_choice->unichar_id(i) !=
-          raw_choice->unichar_id(raw_blob)) {
+      if (best_choice->unichar_id(i) != raw_choice->unichar_id(raw_blob)) {
         avg_rating += raw_choice->certainty(raw_blob);
         ++num_error_chunks;
       }
@@ -584,10 +576,8 @@ void WERD_RES::ComputeAdaptionThresholds(float certainty_scale,
       *thresholds = max_rating;
     }
 
-    if (*thresholds > max_rating)
-      *thresholds = max_rating;
-    if (*thresholds < min_rating)
-      *thresholds = min_rating;
+    if (*thresholds > max_rating) *thresholds = max_rating;
+    if (*thresholds < min_rating) *thresholds = min_rating;
   }
 }
 
@@ -617,9 +607,8 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
     // results according to the order in which words are found, which is an
     // undesirable behavior. It would be better to keep all the choices and
     // prune them later when more information is available.
-    float max_certainty_delta =
-        StopperAmbigThreshold(best_choice->adjust_factor(),
-                              word_choice->adjust_factor());
+    float max_certainty_delta = StopperAmbigThreshold(
+        best_choice->adjust_factor(), word_choice->adjust_factor());
     if (max_certainty_delta > -kStopperAmbiguityThresholdOffset)
       max_certainty_delta = -kStopperAmbiguityThresholdOffset;
     if (word_choice->certainty() - best_choice->certainty() <
@@ -627,11 +616,12 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
       if (debug) {
         STRING bad_string;
         word_choice->string_and_lengths(&bad_string, nullptr);
-        tprintf("Discarding choice \"%s\" with an overly low certainty"
-                " %.3f vs best choice certainty %.3f (Threshold: %.3f)\n",
-                bad_string.string(), word_choice->certainty(),
-                best_choice->certainty(),
-                max_certainty_delta + best_choice->certainty());
+        tprintf(
+            "Discarding choice \"%s\" with an overly low certainty"
+            " %.3f vs best choice certainty %.3f (Threshold: %.3f)\n",
+            bad_string.string(), word_choice->certainty(),
+            best_choice->certainty(),
+            max_certainty_delta + best_choice->certainty());
       }
       delete word_choice;
       return false;
@@ -670,8 +660,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
         }
       } else {
         ++num_choices;
-        if (num_choices > max_num_choices)
-          delete it.extract();
+        if (num_choices > max_num_choices) delete it.extract();
       }
       it.forward();
     } while (!it.at_first());
@@ -679,8 +668,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
   if (!inserted && num_choices < max_num_choices) {
     it.add_to_end(word_choice);
     inserted = true;
-    if (num_choices == 0)
-      best_choice = word_choice;  // This is the new best.
+    if (num_choices == 0) best_choice = word_choice;  // This is the new best.
   }
   if (debug) {
     if (inserted)
@@ -696,10 +684,10 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
   return true;
 }
 
-
 // Simple helper moves the ownership of the pointer data from src to dest,
 // first deleting anything in dest, and nulling out src afterwards.
-template<class T> static void MovePointerData(T** dest, T**src) {
+template <class T>
+static void MovePointerData(T** dest, T** src) {
   delete *dest;
   *dest = *src;
   *src = nullptr;
@@ -723,15 +711,13 @@ int WERD_RES::GetBlobsWidth(int start_blob, int last_blob) {
   int result = 0;
   for (int b = start_blob; b <= last_blob; ++b) {
     result += blob_widths[b];
-    if (b < last_blob)
-      result += blob_gaps[b];
+    if (b < last_blob) result += blob_gaps[b];
   }
   return result;
 }
 // Returns the width of a gap between the specified blob and the next one.
 int WERD_RES::GetBlobsGap(int blob_index) {
-  if (blob_index < 0 || blob_index >= blob_gaps.size())
-    return 0;
+  if (blob_index < 0 || blob_index >= blob_gaps.size()) return 0;
   return blob_gaps[blob_index];
 }
 
@@ -801,8 +787,7 @@ void WERD_RES::RebuildBestState() {
   ASSERT_HOST(best_choice != nullptr);
   delete rebuild_word;
   rebuild_word = new TWERD;
-  if (seam_array.empty())
-    start_seam_list(chopped_word, &seam_array);
+  if (seam_array.empty()) start_seam_list(chopped_word, &seam_array);
   best_state.truncate(0);
   int start = 0;
   for (int i = 0; i < best_choice->length(); ++i) {
@@ -934,10 +919,10 @@ bool WERD_RES::ConditionalBlobMerge(
   bool modified = false;
   for (int i = 0; i + 1 < best_choice->length(); ++i) {
     UNICHAR_ID new_id = class_cb->Run(best_choice->unichar_id(i),
-                                      best_choice->unichar_id(i+1));
+                                      best_choice->unichar_id(i + 1));
     if (new_id != INVALID_UNICHAR_ID &&
-        (box_cb == nullptr || box_cb->Run(box_word->BlobBox(i),
-                                       box_word->BlobBox(i + 1)))) {
+        (box_cb == nullptr ||
+         box_cb->Run(box_word->BlobBox(i), box_word->BlobBox(i + 1)))) {
       // Raw choice should not be fixed.
       best_choice->set_unichar_id(new_id, i);
       modified = true;
@@ -982,24 +967,21 @@ void WERD_RES::MergeAdjacentBlobs(int index) {
 // Return true if the next character in the string (given the UTF8 length in
 // bytes) is a quote character.
 static int is_simple_quote(const char* signed_str, int length) {
-  const unsigned char* str =
-      reinterpret_cast<const unsigned char*>(signed_str);
+  const unsigned char* str = reinterpret_cast<const unsigned char*>(signed_str);
   // Standard 1 byte quotes.
   return (length == 1 && (*str == '\'' || *str == '`')) ||
-      // UTF-8 3 bytes curved quotes.
-      (length == 3 && ((*str == 0xe2 &&
-                        *(str + 1) == 0x80 &&
-                        *(str + 2) == 0x98) ||
-                       (*str == 0xe2 &&
-                        *(str + 1) == 0x80 &&
-                        *(str + 2) == 0x99)));
+         // UTF-8 3 bytes curved quotes.
+         (length == 3 &&
+          ((*str == 0xe2 && *(str + 1) == 0x80 && *(str + 2) == 0x98) ||
+           (*str == 0xe2 && *(str + 1) == 0x80 && *(str + 2) == 0x99)));
 }
 
 // Callback helper for fix_quotes returns a double quote if both
 // arguments are quote, otherwise INVALID_UNICHAR_ID.
-UNICHAR_ID WERD_RES::BothQuotes(UNICHAR_ID id1, UNICHAR_ID id2) {
-  const char *ch = uch_set->id_to_unichar(id1);
-  const char *next_ch = uch_set->id_to_unichar(id2);
+UNICHAR_ID
+WERD_RES::BothQuotes(UNICHAR_ID id1, UNICHAR_ID id2) {
+  const char* ch = uch_set->id_to_unichar(id1);
+  const char* next_ch = uch_set->id_to_unichar(id2);
   if (is_simple_quote(ch, strlen(ch)) &&
       is_simple_quote(next_ch, strlen(next_ch)))
     return uch_set->unichar_to_id("\"");
@@ -1012,18 +994,18 @@ void WERD_RES::fix_quotes() {
       !uch_set->get_enabled(uch_set->unichar_to_id("\"")))
     return;  // Don't create it if it is disallowed.
 
-  ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothQuotes),
-      nullptr);
+  ConditionalBlobMerge(NewPermanentTessCallback(this, &WERD_RES::BothQuotes),
+                       nullptr);
 }
 
 // Callback helper for fix_hyphens returns UNICHAR_ID of - if both
 // arguments are hyphen, otherwise INVALID_UNICHAR_ID.
-UNICHAR_ID WERD_RES::BothHyphens(UNICHAR_ID id1, UNICHAR_ID id2) {
-  const char *ch = uch_set->id_to_unichar(id1);
-  const char *next_ch = uch_set->id_to_unichar(id2);
-  if (strlen(ch) == 1 && strlen(next_ch) == 1 &&
-      (*ch == '-' || *ch == '~') && (*next_ch == '-' || *next_ch == '~'))
+UNICHAR_ID
+WERD_RES::BothHyphens(UNICHAR_ID id1, UNICHAR_ID id2) {
+  const char* ch = uch_set->id_to_unichar(id1);
+  const char* next_ch = uch_set->id_to_unichar(id2);
+  if (strlen(ch) == 1 && strlen(next_ch) == 1 && (*ch == '-' || *ch == '~') &&
+      (*next_ch == '-' || *next_ch == '~'))
     return uch_set->unichar_to_id("-");
   return INVALID_UNICHAR_ID;
 }
@@ -1048,7 +1030,8 @@ void WERD_RES::fix_hyphens() {
 
 // Callback helper for merge_tess_fails returns a space if both
 // arguments are space, otherwise INVALID_UNICHAR_ID.
-UNICHAR_ID WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
+UNICHAR_ID
+WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
   if (id1 == id2 && id1 == uch_set->unichar_to_id(" "))
     return id1;
   else
@@ -1058,7 +1041,7 @@ UNICHAR_ID WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
 // Change pairs of tess failures to a single one
 void WERD_RES::merge_tess_fails() {
   if (ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothSpaces), nullptr)) {
+          NewPermanentTessCallback(this, &WERD_RES::BothSpaces), nullptr)) {
     int len = best_choice->length();
     ASSERT_HOST(reject_map.length() == len);
     ASSERT_HOST(box_word->length() == len);
@@ -1078,10 +1061,7 @@ bool WERD_RES::PiecesAllNatural(int start, int count) const {
   return true;
 }
 
-
-WERD_RES::~WERD_RES () {
-  Clear();
-}
+WERD_RES::~WERD_RES() { Clear(); }
 
 void WERD_RES::InitNonPointers() {
   tess_failed = false;
@@ -1177,23 +1157,20 @@ void WERD_RES::ClearRatings() {
   }
 }
 
-
-bool PAGE_RES_IT::operator ==(const PAGE_RES_IT &other) const {
-  return word_res == other.word_res &&
-      row_res == other.row_res &&
-      block_res == other.block_res;
+bool PAGE_RES_IT::operator==(const PAGE_RES_IT& other) const {
+  return word_res == other.word_res && row_res == other.row_res &&
+         block_res == other.block_res;
 }
 
-int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
+int PAGE_RES_IT::cmp(const PAGE_RES_IT& other) const {
   ASSERT_HOST(page_res == other.page_res);
   if (other.block_res == nullptr) {
     // other points to the end of the page.
-    if (block_res == nullptr)
-      return 0;
+    if (block_res == nullptr) return 0;
     return -1;
   }
   if (block_res == nullptr) {
-    return 1; // we point to the end of the page.
+    return 1;  // we point to the end of the page.
   }
   if (block_res == other.block_res) {
     if (other.row_res == nullptr || row_res == nullptr) {
@@ -1235,8 +1212,8 @@ int PAGE_RES_IT::cmp(const PAGE_RES_IT &other) const {
 
   // We point to different blocks.
   BLOCK_RES_IT block_res_it(&page_res->block_res_list);
-  for (block_res_it.mark_cycle_pt();
-       !block_res_it.cycled_list(); block_res_it.forward()) {
+  for (block_res_it.mark_cycle_pt(); !block_res_it.cycled_list();
+       block_res_it.forward()) {
     if (block_res_it.data() == block_res) {
       return -1;
     } else if (block_res_it.data() == other.block_res) {
@@ -1262,8 +1239,7 @@ WERD_RES* PAGE_RES_IT::InsertSimpleCloneWord(const WERD_RES& clone_res,
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
     WERD_RES* word = wr_it.data();
-    if (word == word_res)
-      break;
+    if (word == word_res) break;
   }
   ASSERT_HOST(!wr_it.cycled_list());
   wr_it.add_before_then_move(new_res);
@@ -1294,8 +1270,7 @@ static void ComputeBlobEnds(const WERD_RES& word, C_BLOB_LIST* next_word_blobs,
     // boundaries between them.
     int blob_end = INT32_MAX;
     if (!blob_it.at_first() || next_word_blobs != nullptr) {
-      if (blob_it.at_first())
-        blob_it.set_to_list(next_word_blobs);
+      if (blob_it.at_first()) blob_it.set_to_list(next_word_blobs);
       blob_end = (blob_box.right() + blob_it.data()->bounding_box().left()) / 2;
     }
     blob_ends->push_back(blob_end);
@@ -1330,8 +1305,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   if (!input_word->combination) {
     for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
       WERD* word = w_it.data();
-      if (word == input_word->word)
-        break;
+      if (word == input_word->word) break;
     }
     // w_it is now set to the input_word's word.
     ASSERT_HOST(!w_it.cycled_list());
@@ -1340,8 +1314,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   WERD_RES_IT wr_it(&row()->word_res_list);
   for (wr_it.mark_cycle_pt(); !wr_it.cycled_list(); wr_it.forward()) {
     WERD_RES* word = wr_it.data();
-    if (word == input_word)
-      break;
+    if (word == input_word) break;
   }
   ASSERT_HOST(!wr_it.cycled_list());
   // Since we only have an estimate of the bounds between blobs, use the blob
@@ -1383,8 +1356,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
       // to clip.
       if (i > 0 && blob_box.left() < blob_ends[i - 1])
         blob_box.set_left(blob_ends[i - 1]);
-      if (blob_box.right() > end_x)
-        blob_box.set_right(end_x);
+      if (blob_box.right() > end_x) blob_box.set_right(end_x);
       box_word->InsertBox(i, blob_box);
     }
     // Fix empty boxes. If a very joined blob sits over multiple characters,
@@ -1426,8 +1398,7 @@ void PAGE_RES_IT::ReplaceCurrentWord(
   // Delete the current word, which has been replaced. We could just call
   // DeleteCurrentWord, but that would iterate both lists again, and we know
   // we are already in the right place.
-  if (!input_word->combination)
-    delete w_it.extract();
+  if (!input_word->combination) delete w_it.extract();
   delete wr_it.extract();
   ResetWordIterator();
 }
@@ -1493,7 +1464,7 @@ void PAGE_RES_IT::MakeCurrentWordFuzzy() {
  * Set things up at the start of the page
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::start_page(bool empty_ok) {
+WERD_RES* PAGE_RES_IT::start_page(bool empty_ok) {
   block_res_it.set_to_list(&page_res->block_res_list);
   block_res_it.mark_cycle_pt();
   prev_block_res = nullptr;
@@ -1548,17 +1519,16 @@ void PAGE_RES_IT::ResetWordIterator() {
  *
  * Find the next word on the page. If empty_ok is true, then non-text blocks
  * and text blocks with no text are visited as if they contain a single
- * imaginary word in a single imaginary row. (word() and row() both return nullptr
- * in such a block and the return value is nullptr.)
- * If empty_ok is false, the old behaviour is maintained. Each real word
- * is visited and empty and non-text blocks and rows are skipped.
- * new_block is used to initialize the iterators for a new block.
- * The iterator maintains pointers to block, row and word for the previous,
- * current and next words.  These are correct, regardless of block/row
- * boundaries. nullptr values denote start and end of the page.
+ * imaginary word in a single imaginary row. (word() and row() both return
+ *nullptr in such a block and the return value is nullptr.) If empty_ok is
+ *false, the old behaviour is maintained. Each real word is visited and empty
+ *and non-text blocks and rows are skipped. new_block is used to initialize the
+ *iterators for a new block. The iterator maintains pointers to block, row and
+ *word for the previous, current and next words.  These are correct, regardless
+ *of block/row boundaries. nullptr values denote start and end of the page.
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
+WERD_RES* PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
   bool new_row = false;
 
   prev_block_res = block_res;
@@ -1606,11 +1576,12 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
     block_res_it.forward();
     new_block = true;
   }
-  foundword:
+foundword:
   // Update prev_word_best_choice pointer.
   if (page_res != nullptr && page_res->prev_word_best_choice != nullptr) {
-    *page_res->prev_word_best_choice =
-      (new_block || prev_word_res == nullptr) ? nullptr : prev_word_res->best_choice;
+    *page_res->prev_word_best_choice = (new_block || prev_word_res == nullptr)
+                                           ? nullptr
+                                           : prev_word_res->best_choice;
   }
   return word_res;
 }
@@ -1620,8 +1591,8 @@ WERD_RES *PAGE_RES_IT::internal_forward(bool new_block, bool empty_ok) {
  *
  * Move to the beginning (leftmost word) of the current row.
  *************************************************************************/
-WERD_RES *PAGE_RES_IT::restart_row() {
-  ROW_RES *row = this->row();
+WERD_RES* PAGE_RES_IT::restart_row() {
+  ROW_RES* row = this->row();
   if (!row) return nullptr;
   for (restart_page(); this->row() != row; forward()) {
     // pass
@@ -1635,7 +1606,7 @@ WERD_RES *PAGE_RES_IT::restart_row() {
  * Move to the beginning of the next paragraph, allowing empty blocks.
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::forward_paragraph() {
+WERD_RES* PAGE_RES_IT::forward_paragraph() {
   while (block_res == next_block_res &&
          (next_row_res != nullptr && next_row_res->row != nullptr &&
           row_res->row->para() == next_row_res->row->para())) {
@@ -1650,7 +1621,7 @@ WERD_RES *PAGE_RES_IT::forward_paragraph() {
  * Move to the beginning of the next block, allowing empty blocks.
  *************************************************************************/
 
-WERD_RES *PAGE_RES_IT::forward_block() {
+WERD_RES* PAGE_RES_IT::forward_block() {
   while (block_res == next_block_res) {
     internal_forward(false, true);
   }
@@ -1661,12 +1632,12 @@ void PAGE_RES_IT::rej_stat_word() {
   int16_t chars_in_word;
   int16_t rejects_in_word = 0;
 
-  chars_in_word = word_res->reject_map.length ();
+  chars_in_word = word_res->reject_map.length();
   page_res->char_count += chars_in_word;
   block_res->char_count += chars_in_word;
   row_res->char_count += chars_in_word;
 
-  rejects_in_word = word_res->reject_map.reject_count ();
+  rejects_in_word = word_res->reject_map.reject_count();
 
   page_res->rej_count += rejects_in_word;
   block_res->rej_count += rejects_in_word;

@@ -55,21 +55,21 @@ enum SVEventType {
   SVET_MENU,       // A command selected through the menubar.
   SVET_ANY,        // Any of the above.
 
-  SVET_COUNT       // Array sizing.
+  SVET_COUNT  // Array sizing.
 };
 
 struct SVEvent {
-  ~SVEvent() { delete [] parameter; }
+  ~SVEvent() { delete[] parameter; }
   SVEvent* copy();
   SVEventType type;    // What kind of event.
   ScrollView* window;  // Window event relates to.
   int x;               // Coords of click or selection.
   int y;
-  int x_size;          // Size of selection.
+  int x_size;  // Size of selection.
   int y_size;
-  int command_id;      // The ID of the possibly associated event (e.g. MENU)
-  char* parameter;     // Any string that might have been passed as argument.
-  int counter;         // Used to detect which kind of event to process next.
+  int command_id;   // The ID of the possibly associated event (e.g. MENU)
+  char* parameter;  // Any string that might have been passed as argument.
+  int counter;      // Used to detect which kind of event to process next.
 
   SVEvent() {
     window = nullptr;
@@ -84,12 +84,12 @@ struct SVEvent {
 // class as SVEventHandler to a ScrollView Window, the SVEventHandler will be
 // called whenever an appropriate event occurs.
 class SVEventHandler {
-  public:
-    virtual ~SVEventHandler() {}
+ public:
+  virtual ~SVEventHandler() {}
 
-// Gets called by the SV Window. Does nothing on default, overwrite this
-// to implement the desired behaviour
-    virtual void Notify(const SVEvent* sve) { (void)sve; }
+  // Gets called by the SV Window. Does nothing on default, overwrite this
+  // to implement the desired behaviour
+  virtual void Notify(const SVEvent* sve) { (void)sve; }
 };
 
 // The ScrollView class provides the expernal API to the scrollviewer process.
@@ -101,7 +101,7 @@ class SVEventHandler {
 
 class ScrollView {
  public:
-// Color enum for pens and brushes.
+  // Color enum for pens and brushes.
   enum Color {
     NONE,
     BLACK,
@@ -152,232 +152,232 @@ class ScrollView {
     VIOLET,
     WHEAT,
     GREEN_YELLOW  // Make sure this one is last.
-};
+  };
 
   ~ScrollView();
 
 #ifndef GRAPHICS_DISABLED
 
-// Create a window. The pixel size of the window may be 0,0, in which case
-// a default size is selected based on the size of your canvas.
-// The canvas may not be 0,0 in size!
+  // Create a window. The pixel size of the window may be 0,0, in which case
+  // a default size is selected based on the size of your canvas.
+  // The canvas may not be 0,0 in size!
   ScrollView(const char* name, int x_pos, int y_pos, int x_size, int y_size,
              int x_canvas_size, int y_canvas_size);
-// With a flag whether the x axis is reversed.
+  // With a flag whether the x axis is reversed.
   ScrollView(const char* name, int x_pos, int y_pos, int x_size, int y_size,
              int x_canvas_size, int y_canvas_size, bool y_axis_reversed);
-// Connect to a server other than localhost.
+  // Connect to a server other than localhost.
   ScrollView(const char* name, int x_pos, int y_pos, int x_size, int y_size,
              int x_canvas_size, int y_canvas_size, bool y_axis_reversed,
              const char* server_name);
-/*******************************************************************************
-* Event handling
-* To register as listener, the class has to derive from the SVEventHandler
-* class, which consists of a notifyMe(SVEvent*) function that should be
-* overwritten to process the event the way you want.
-*******************************************************************************/
+  /*******************************************************************************
+   * Event handling
+   * To register as listener, the class has to derive from the SVEventHandler
+   * class, which consists of a notifyMe(SVEvent*) function that should be
+   * overwritten to process the event the way you want.
+   *******************************************************************************/
 
-// Add an Event Listener to this ScrollView Window.
+  // Add an Event Listener to this ScrollView Window.
   void AddEventHandler(SVEventHandler* listener);
 
-// Block until an event of the given type is received.
+  // Block until an event of the given type is received.
   SVEvent* AwaitEvent(SVEventType type);
 
-// Block until any event on any window is received.
+  // Block until any event on any window is received.
   SVEvent* AwaitEventAnyWindow();
 
-/*******************************************************************************
-* Getters and Setters
-*******************************************************************************/
+  /*******************************************************************************
+   * Getters and Setters
+   *******************************************************************************/
 
-// Returns the title of the window.
+  // Returns the title of the window.
   const char* GetName() { return window_name_; }
 
-// Returns the unique ID of the window.
+  // Returns the unique ID of the window.
   int GetId() { return window_id_; }
 
-/*******************************************************************************
-* API functions for LUA calls
-* the implementations for these can be found in svapi.cc
-* (keep in mind that the window is actually created through the ScrollView
-* constructor, so this is not listed here)
-*******************************************************************************/
+  /*******************************************************************************
+   * API functions for LUA calls
+   * the implementations for these can be found in svapi.cc
+   * (keep in mind that the window is actually created through the ScrollView
+   * constructor, so this is not listed here)
+   *******************************************************************************/
 
-// Draw a Pix on (x,y).
+  // Draw a Pix on (x,y).
   void Image(struct Pix* image, int x_pos, int y_pos);
 
-// Flush buffers and update display.
+  // Flush buffers and update display.
   static void Update();
 
-// Exit the program.
+  // Exit the program.
   static void Exit();
 
-// Update the contents of a specific window.
+  // Update the contents of a specific window.
   void UpdateWindow();
 
-// Erase all content from the window, but do not destroy it.
+  // Erase all content from the window, but do not destroy it.
   void Clear();
 
-// Set pen color with an enum.
+  // Set pen color with an enum.
   void Pen(Color color);
 
-// Set pen color to RGB (0-255).
+  // Set pen color to RGB (0-255).
   void Pen(int red, int green, int blue);
 
-// Set pen color to RGBA (0-255).
+  // Set pen color to RGBA (0-255).
   void Pen(int red, int green, int blue, int alpha);
 
-// Set brush color with an enum.
+  // Set brush color with an enum.
   void Brush(Color color);
 
-// Set brush color to RGB (0-255).
+  // Set brush color to RGB (0-255).
   void Brush(int red, int green, int blue);
 
-// Set brush color to RGBA (0-255).
+  // Set brush color to RGBA (0-255).
   void Brush(int red, int green, int blue, int alpha);
 
-// Set attributes for future text, like font name (e.g.
-// "Times New Roman"), font size etc..
-// Note: The underlined flag is currently not supported
-  void TextAttributes(const char* font, int pixel_size,
-                      bool bold, bool italic, bool underlined);
+  // Set attributes for future text, like font name (e.g.
+  // "Times New Roman"), font size etc..
+  // Note: The underlined flag is currently not supported
+  void TextAttributes(const char* font, int pixel_size, bool bold, bool italic,
+                      bool underlined);
 
-// Draw line from (x1,y1) to (x2,y2) with the current pencolor.
+  // Draw line from (x1,y1) to (x2,y2) with the current pencolor.
   void Line(int x1, int y1, int x2, int y2);
 
-// Set the stroke width of the pen.
+  // Set the stroke width of the pen.
   void Stroke(float width);
 
-// Draw a rectangle given upper left corner and lower right corner.
-// The current pencolor is used as outline, the brushcolor to fill the shape.
+  // Draw a rectangle given upper left corner and lower right corner.
+  // The current pencolor is used as outline, the brushcolor to fill the shape.
   void Rectangle(int x1, int y1, int x2, int y2);
 
-// Draw an ellipse centered on (x,y).
-// The current pencolor is used as outline, the brushcolor to fill the shape.
+  // Draw an ellipse centered on (x,y).
+  // The current pencolor is used as outline, the brushcolor to fill the shape.
   void Ellipse(int x, int y, int width, int height);
 
-// Draw text with the current pencolor
+  // Draw text with the current pencolor
   void Text(int x, int y, const char* mystring);
 
-// Draw an image from a local filename. This should be faster than createImage.
-// WARNING: This only works on a local machine. This also only works image
-// types supported by java (like bmp,jpeg,gif,png) since the image is opened by
-// the server.
+  // Draw an image from a local filename. This should be faster than
+  // createImage. WARNING: This only works on a local machine. This also only
+  // works image types supported by java (like bmp,jpeg,gif,png) since the image
+  // is opened by the server.
   void Image(const char* image, int x_pos, int y_pos);
 
-// Set the current position to draw from (x,y). In conjunction with...
+  // Set the current position to draw from (x,y). In conjunction with...
   void SetCursor(int x, int y);
 
-// ...this function, which draws a line from the current to (x,y) and then
-// sets the new position to the new (x,y), this can be used to easily draw
-// polygons using vertices
+  // ...this function, which draws a line from the current to (x,y) and then
+  // sets the new position to the new (x,y), this can be used to easily draw
+  // polygons using vertices
   void DrawTo(int x, int y);
 
-// Set the SVWindow visible/invisible.
+  // Set the SVWindow visible/invisible.
   void SetVisible(bool visible);
 
-// Set the SVWindow always on top or not always on top.
+  // Set the SVWindow always on top or not always on top.
   void AlwaysOnTop(bool b);
 
-// Shows a modal dialog with "msg" as question and returns 'y' or 'n'.
+  // Shows a modal dialog with "msg" as question and returns 'y' or 'n'.
   int ShowYesNoDialog(const char* msg);
 
-// Shows a modal dialog with "msg" as question and returns a char* string.
-// Constraint: As return, only words (e.g. no whitespaces etc.) are allowed.
+  // Shows a modal dialog with "msg" as question and returns a char* string.
+  // Constraint: As return, only words (e.g. no whitespaces etc.) are allowed.
   char* ShowInputDialog(const char* msg);
 
-// Adds a messagebox to the SVWindow. This way, it can show the messages...
+  // Adds a messagebox to the SVWindow. This way, it can show the messages...
   void AddMessageBox();
 
-// ...which can be added by this command.
-// This is intended as an "debug" output window.
+  // ...which can be added by this command.
+  // This is intended as an "debug" output window.
   void AddMessage(const char* format, ...);
 
-// Zoom the window to the rectangle given upper left corner and
-// lower right corner.
+  // Zoom the window to the rectangle given upper left corner and
+  // lower right corner.
   void ZoomToRectangle(int x1, int y1, int x2, int y2);
 
-// Custom messages (manipulating java code directly) can be send through this.
-// Send a message to the server and attach the Id of the corresponding window.
-// Note: This should only be called if you are know what you are doing, since
-// you are fiddling with the Java objects on the server directly. Calling
-// this just for fun will likely break your application!
-// It is public so you can actually take use of the LUA functionalities, but
-// be careful!
+  // Custom messages (manipulating java code directly) can be send through this.
+  // Send a message to the server and attach the Id of the corresponding window.
+  // Note: This should only be called if you are know what you are doing, since
+  // you are fiddling with the Java objects on the server directly. Calling
+  // this just for fun will likely break your application!
+  // It is public so you can actually take use of the LUA functionalities, but
+  // be careful!
   void SendMsg(const char* msg, ...);
 
-// Custom messages (manipulating java code directly) can be send through this.
-// Send a message to the server without adding the
-// window id. Used for global events like Exit().
-// Note: This should only be called if you are know what you are doing, since
-// you are fiddling with the Java objects on the server directly. Calling
-// this just for fun will likely break your application!
-// It is public so you can actually take use of the LUA functionalities, but
-// be careful!
+  // Custom messages (manipulating java code directly) can be send through this.
+  // Send a message to the server without adding the
+  // window id. Used for global events like Exit().
+  // Note: This should only be called if you are know what you are doing, since
+  // you are fiddling with the Java objects on the server directly. Calling
+  // this just for fun will likely break your application!
+  // It is public so you can actually take use of the LUA functionalities, but
+  // be careful!
   static void SendRawMessage(const char* msg);
 
-/*******************************************************************************
-* Add new menu entries to parent. If parent is "", the entry gets added to the
-* main menubar (toplevel).
-*******************************************************************************/
-// This adds a new submenu to the menubar.
+  /*******************************************************************************
+   * Add new menu entries to parent. If parent is "", the entry gets added to
+   *the main menubar (toplevel).
+   *******************************************************************************/
+  // This adds a new submenu to the menubar.
   void MenuItem(const char* parent, const char* name);
 
-// This adds a new (normal) menu entry with an associated eventID, which should
-// be unique among menubar eventIDs.
+  // This adds a new (normal) menu entry with an associated eventID, which
+  // should be unique among menubar eventIDs.
   void MenuItem(const char* parent, const char* name, int cmdEvent);
 
   // This adds a new checkbox entry, which might initially be flagged.
-  void MenuItem(const char* parent, const char* name,
-                int cmdEvent, bool flagged);
+  void MenuItem(const char* parent, const char* name, int cmdEvent,
+                bool flagged);
 
-// This adds a new popup submenu to the popup menu. If parent is "", the entry
-// gets added at "toplevel" popupmenu.
+  // This adds a new popup submenu to the popup menu. If parent is "", the entry
+  // gets added at "toplevel" popupmenu.
   void PopupItem(const char* parent, const char* name);
 
-// This adds a new popup entry with the associated eventID, which should be
-// unique among popup eventIDs.
-// If value and desc are given, on a click the server will ask you to modify
-// the value and return the new value.
-  void PopupItem(const char* parent, const char* name,
-                 int cmdEvent, const char* value, const char* desc);
+  // This adds a new popup entry with the associated eventID, which should be
+  // unique among popup eventIDs.
+  // If value and desc are given, on a click the server will ask you to modify
+  // the value and return the new value.
+  void PopupItem(const char* parent, const char* name, int cmdEvent,
+                 const char* value, const char* desc);
 
-// Returns the correct Y coordinate for a window, depending on whether it might
-// have to be flipped (by ySize).
+  // Returns the correct Y coordinate for a window, depending on whether it
+  // might have to be flipped (by ySize).
   int TranslateYCoordinate(int y);
 
  private:
-// Transfers a binary Image.
+  // Transfers a binary Image.
   void TransferBinaryImage(struct Pix* image);
-// Transfers a gray scale Image.
+  // Transfers a gray scale Image.
   void TransferGrayImage(struct Pix* image);
-// Transfers a 32-Bit Image.
+  // Transfers a 32-Bit Image.
   void Transfer32bppImage(struct Pix* image);
 
-// Sets up ScrollView, depending on the variables from the constructor.
+  // Sets up ScrollView, depending on the variables from the constructor.
   void Initialize(const char* name, int x_pos, int y_pos, int x_size,
                   int y_size, int x_canvas_size, int y_canvas_size,
                   bool y_axis_reversed, const char* server_name);
 
-// Send the current buffered polygon (if any) and clear it.
+  // Send the current buffered polygon (if any) and clear it.
   void SendPolygon();
 
-// Start the message receiving thread.
+  // Start the message receiving thread.
   static void* MessageReceiver(void* a);
 
-// Place an event into the event_table (synchronized).
+  // Place an event into the event_table (synchronized).
   void SetEvent(SVEvent* svevent);
 
-// Wake up the semaphore.
+  // Wake up the semaphore.
   void Signal();
 
-// Returns the unique, shared network stream.
+  // Returns the unique, shared network stream.
   static SVNetwork* GetStream() { return stream_; }
 
-// Starts a new event handler. Called whenever a new window is created.
+  // Starts a new event handler. Called whenever a new window is created.
   static void* StartEventHandler(void* sv);
 
-// Escapes the ' character with a \, so it can be processed by LUA.
+  // Escapes the ' character with a \, so it can be processed by LUA.
   char* AddEscapeChars(const char* input);
 
   // The event handler for this window.

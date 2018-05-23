@@ -24,28 +24,28 @@
  * structure alignment up to 8.
  **********************************************************************/
 
-#ifndef            CCUTIL_OCRCLASS_H_
-#define            CCUTIL_OCRCLASS_H_
+#ifndef CCUTIL_OCRCLASS_H_
+#define CCUTIL_OCRCLASS_H_
 
 #ifndef __GNUC__
 #ifdef _WIN32
-#include          "gettimeofday.h"
+#include "gettimeofday.h"
 #endif
 #else
-#include          <sys/time.h>
+#include <sys/time.h>
 #endif
-#include          <ctime>
-#include          "host.h"
+#include <ctime>
+#include "host.h"
 
 /*Maximum lengths of various strings*/
-#define MAX_FONT_NAME   34       /*name of font */
-#define MAX_OCR_NAME    32       /*name of engine */
-#define MAX_OCR_VERSION   17     /*version code of engine */
+#define MAX_FONT_NAME 34   /*name of font */
+#define MAX_OCR_NAME 32    /*name of engine */
+#define MAX_OCR_VERSION 17 /*version code of engine */
 
 /*pitch set definitions are identical to RTF*/
-#define PITCH_DEF     0          /*default */
-#define PITCH_FIXED     1        /*fixed pitch */
-#define PITCH_VAR     2          /*variable pitch */
+#define PITCH_DEF 0   /*default */
+#define PITCH_FIXED 1 /*fixed pitch */
+#define PITCH_VAR 2   /*variable pitch */
 
 /**********************************************************************
  * EANYCODE_CHAR
@@ -71,26 +71,26 @@
  * version.
  **********************************************************************/
 
-typedef struct {                  /*single character */
-// It should be noted that the format for char_code for version 2.0 and beyond
-// is UTF8 which means that ASCII characters will come out as one structure but
-// other characters will be returned in two or more instances of this structure
-// with a single byte of the  UTF8 code in each, but each will have the same
-// bounding box. Programs which want to handle languagues with different
-// characters sets will need to handle extended characters appropriately, but
-// *all* code needs to be prepared to receive UTF8 coded characters for
-// characters such as bullet and fancy quotes.
-  uint16_t char_code;              /*character itself */
-  int16_t left;                    /*of char (-1) */
-  int16_t right;                   /*of char (-1) */
-  int16_t top;                     /*of char (-1) */
-  int16_t bottom;                  /*of char (-1) */
-  int16_t font_index;              /*what font (0) */
-  uint8_t confidence;              /*0=perfect, 100=reject (0/100) */
-  uint8_t point_size;              /*of char, 72=i inch, (10) */
-  int8_t blanks;                   /*no of spaces before this char (1) */
-  uint8_t formatting;              /*char formatting (0) */
-} EANYCODE_CHAR;                 /*single character */
+typedef struct { /*single character */
+  // It should be noted that the format for char_code for version 2.0 and beyond
+  // is UTF8 which means that ASCII characters will come out as one structure
+  // but other characters will be returned in two or more instances of this
+  // structure with a single byte of the  UTF8 code in each, but each will have
+  // the same bounding box. Programs which want to handle languagues with
+  // different characters sets will need to handle extended characters
+  // appropriately, but *all* code needs to be prepared to receive UTF8 coded
+  // characters for characters such as bullet and fancy quotes.
+  uint16_t char_code; /*character itself */
+  int16_t left;       /*of char (-1) */
+  int16_t right;      /*of char (-1) */
+  int16_t top;        /*of char (-1) */
+  int16_t bottom;     /*of char (-1) */
+  int16_t font_index; /*what font (0) */
+  uint8_t confidence; /*0=perfect, 100=reject (0/100) */
+  uint8_t point_size; /*of char, 72=i inch, (10) */
+  int8_t blanks;      /*no of spaces before this char (1) */
+  uint8_t formatting; /*char formatting (0) */
+} EANYCODE_CHAR;      /*single character */
 
 /**********************************************************************
  * ETEXT_DESC
@@ -112,16 +112,16 @@ typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 typedef bool (*PROGRESS_FUNC)(int progress, int left, int right, int top,
                               int bottom);
 
-class ETEXT_DESC {             // output header
+class ETEXT_DESC {  // output header
  public:
   int16_t count;     /// chars in this buffer(0)
   int16_t progress;  /// percent complete increasing (0-100)
   /** Progress monitor covers word recognition and it does not cover layout
-  * analysis.
-  * See Ray comment in https://github.com/tesseract-ocr/tesseract/pull/27 */
-  int8_t more_to_come;                /// true if not last
-  volatile int8_t ocr_alive;          /// ocr sets to 1, HP 0
-  int8_t err_code;                    /// for errcode use
+   * analysis.
+   * See Ray comment in https://github.com/tesseract-ocr/tesseract/pull/27 */
+  int8_t more_to_come;              /// true if not last
+  volatile int8_t ocr_alive;        /// ocr sets to 1, HP 0
+  int8_t err_code;                  /// for errcode use
   CANCEL_FUNC cancel;               /// returns true to cancel
   PROGRESS_FUNC progress_callback;  /// called whenever progress increases
   void* cancel_this;                /// this or other data for cancel
@@ -147,7 +147,7 @@ class ETEXT_DESC {             // output header
     gettimeofday(&end_time, nullptr);
     int32_t deadline_secs = deadline_msecs / 1000;
     end_time.tv_sec += deadline_secs;
-    end_time.tv_usec += (deadline_msecs -  deadline_secs * 1000) * 1000;
+    end_time.tv_usec += (deadline_msecs - deadline_secs * 1000) * 1000;
     if (end_time.tv_usec > 1000000) {
       end_time.tv_usec -= 1000000;
       ++end_time.tv_sec;
@@ -159,8 +159,8 @@ class ETEXT_DESC {             // output header
     if (end_time.tv_sec == 0 && end_time.tv_usec == 0) return false;
     struct timeval now;
     gettimeofday(&now, nullptr);
-    return (now.tv_sec > end_time.tv_sec || (now.tv_sec == end_time.tv_sec &&
-                                             now.tv_usec > end_time.tv_usec));
+    return (now.tv_sec > end_time.tv_sec ||
+            (now.tv_sec == end_time.tv_sec && now.tv_usec > end_time.tv_usec));
   }
 };
 

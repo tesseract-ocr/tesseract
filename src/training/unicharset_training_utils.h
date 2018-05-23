@@ -41,7 +41,8 @@ inline void SetupBasicProperties(bool report_errors, UNICHARSET* unicharset) {
 // Helper sets the properties from universal script unicharsets, if found.
 void SetScriptProperties(const std::string& script_dir, UNICHARSET* unicharset);
 // Helper gets the combined x-heights string.
-std::string GetXheightString(const std::string& script_dir, const UNICHARSET& unicharset);
+std::string GetXheightString(const std::string& script_dir,
+                             const UNICHARSET& unicharset);
 
 // Helper to set the properties for an input unicharset file, writes to the
 // output file. If an appropriate script unicharset can be found in the

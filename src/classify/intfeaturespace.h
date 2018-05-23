@@ -64,7 +64,7 @@ class IntFeatureSpace {
   // Range is [0, Size()-1]. Inverse of PositionFromIndex member.
   int Index(const INT_FEATURE_STRUCT& f) const {
     return (XBucket(f.X) * y_buckets_ + YBucket(f.Y)) * theta_buckets_ +
-        ThetaBucket(f.Theta);
+           ThetaBucket(f.Theta);
   }
   // Bulk calls to Index. Maps the given array of features to a vector of
   // int32_t indices in the same order as the input.

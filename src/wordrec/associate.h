@@ -59,7 +59,7 @@ struct AssociateStats {
                                    // the blob on the right
   bool bad_fixed_pitch_wh_ratio;   // true if the blobs has width-to-hight
                                    // ratio > kMaxFixedPitchCharAspectRatio
-  int gap_sum;  // sum of gaps within the blob
+  int gap_sum;                     // sum of gaps within the blob
 };
 
 // Utility functions for scoring segmentation paths according to their
@@ -78,11 +78,11 @@ class AssociateUtils {
   // Rating *= rating_scale * Results->BlobLength
   // Certainty *= -(getDict().certainty_scale)
   static inline float ComputeOutlineLength(float rating_cert_scale,
-                                           const BLOB_CHOICE &b) {
+                                           const BLOB_CHOICE& b) {
     return rating_cert_scale * b.rating() / b.certainty();
   }
-  static inline float ComputeRating(float rating_cert_scale,
-                                    float cert, int width) {
+  static inline float ComputeRating(float rating_cert_scale, float cert,
+                                    int width) {
     return static_cast<float>(width) * cert / rating_cert_scale;
   }
 
@@ -98,14 +98,10 @@ class AssociateUtils {
   //
   // Note: the function assumes that word_res, stats and
   // associate_cost pointers are not nullptr.
-  static void ComputeStats(int col, int row,
-                           const AssociateStats *parent_stats,
-                           int parent_path_length,
-                           bool fixed_pitch,
-                           float max_char_wh_ratio,
-                           WERD_RES *word_res,
-                           bool debug,
-                           AssociateStats *stats);
+  static void ComputeStats(int col, int row, const AssociateStats* parent_stats,
+                           int parent_path_length, bool fixed_pitch,
+                           float max_char_wh_ratio, WERD_RES* word_res,
+                           bool debug, AssociateStats* stats);
 
   // Returns the width cost for fixed-pitch text.
   static float FixedPitchWidthCost(float norm_width, float right_gap,

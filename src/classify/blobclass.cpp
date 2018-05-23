@@ -48,9 +48,9 @@ void ExtractFontName(const STRING& filename, STRING* fontname) {
   if (*fontname == kUnknownFontName) {
     // filename is expected to be of the form [lang].[fontname].exp[num]
     // The [lang], [fontname] and [num] fields should not have '.' characters.
-    const char *basename = strrchr(filename.string(), '/');
-    const char *firstdot = strchr(basename ? basename : filename.string(), '.');
-    const char *lastdot  = strrchr(filename.string(), '.');
+    const char* basename = strrchr(filename.string(), '/');
+    const char* firstdot = strchr(basename ? basename : filename.string(), '.');
+    const char* lastdot = strrchr(filename.string(), '.');
     if (firstdot != lastdot && firstdot != nullptr && lastdot != nullptr) {
       ++firstdot;
       *fontname = firstdot;
@@ -90,7 +90,7 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
     tprintf("Blob learned was invalid!\n");
   }
   FreeCharDescription(CharDesc);
-}                                // LearnBlob
+}  // LearnBlob
 
 // Writes stored training data to a .tr file based on the given filename.
 // Returns false on error.

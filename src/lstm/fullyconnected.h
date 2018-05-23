@@ -57,9 +57,7 @@ class FullyConnected : public Network {
 
   // Changes the type to the given type. Used to commute a softmax to a
   // non-output type for adding on other networks.
-  void ChangeType(NetworkType type) {
-    type_ = type;
-  }
+  void ChangeType(NetworkType type) { type_ = type; }
 
   // Suspends/Enables training by setting the training_ flag. Serialize and
   // DeSerialize only operate on the run-time data if state is false.
@@ -130,7 +128,5 @@ class FullyConnected : public Network {
 };
 
 }  // namespace tesseract.
-
-
 
 #endif  // TESSERACT_LSTM_FULLYCONNECTED_H_

@@ -34,18 +34,13 @@ STRING_PARAM_FLAG(lang, "eng", "Language to test");
 STRING_PARAM_FLAG(tessdata_dir, "", "Directory of traineddata files");
 DECLARE_INT_PARAM_FLAG(debug_level);
 
-enum ClassifierName {
-  CN_PRUNER,
-  CN_FULL,
-  CN_COUNT
-};
+enum ClassifierName { CN_PRUNER, CN_FULL, CN_COUNT };
 
 static const char* names[] = {"pruner", "full"};
 
 static tesseract::ShapeClassifier* InitializeClassifier(
-    const char* classifer_name, const UNICHARSET& unicharset,
-    int argc, char **argv,
-    tesseract::TessBaseAPI** api) {
+    const char* classifer_name, const UNICHARSET& unicharset, int argc,
+    char** argv, tesseract::TessBaseAPI** api) {
   // Decode the classifier string.
   ClassifierName classifier = CN_COUNT;
   for (int c = 0; c < CN_COUNT; ++c) {
@@ -64,10 +59,9 @@ static tesseract::ShapeClassifier* InitializeClassifier(
   tesseract::OcrEngineMode engine_mode = tesseract::OEM_TESSERACT_ONLY;
   tesseract::Tesseract* tesseract = nullptr;
   tesseract::Classify* classify = nullptr;
-  if (
-      classifier == CN_PRUNER || classifier == CN_FULL) {
+  if (classifier == CN_PRUNER || classifier == CN_FULL) {
     if ((*api)->Init(FLAGS_tessdata_dir.c_str(), FLAGS_lang.c_str(),
-                 engine_mode) < 0) {
+                     engine_mode) < 0) {
       fprintf(stderr, "Tesseract initialization failed!\n");
       return nullptr;
     }
@@ -108,7 +102,7 @@ static tesseract::ShapeClassifier* InitializeClassifier(
 // pruner   : Tesseract class pruner only.
 // full     : Tesseract full classifier.
 //            with an input trainer.)
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   STRING file_prefix;
@@ -128,9 +122,10 @@ int main(int argc, char **argv) {
   // We want to test with replicated samples too.
   trainer->ReplicateAndRandomizeSamplesIfRequired();
 
-  trainer->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR,
-                                   std::max(3, static_cast<int>(FLAGS_debug_level)), false,
-                                   shape_classifier, nullptr);
+  trainer->TestClassifierOnSamples(
+      tesseract::CT_UNICHAR_TOP1_ERR,
+      std::max(3, static_cast<int>(FLAGS_debug_level)), false, shape_classifier,
+      nullptr);
   delete shape_classifier;
   delete api;
   delete trainer;

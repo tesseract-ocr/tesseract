@@ -13,18 +13,22 @@
 #include "ccutil.h"
 
 namespace tesseract {
-CCUtil::CCUtil() :
-  params_(),
+CCUtil::CCUtil()
+    : params_(),
 #ifdef _WIN32
-  STRING_INIT_MEMBER(tessedit_module_name, WINDLLNAME,
-                     "Module colocated with tessdata dir", &params_),
+      STRING_INIT_MEMBER(tessedit_module_name, WINDLLNAME,
+                         "Module colocated with tessdata dir", &params_),
 #endif
-  INT_INIT_MEMBER(ambigs_debug_level, 0, "Debug level for unichar ambiguities",
+      INT_INIT_MEMBER(ambigs_debug_level, 0,
+                      "Debug level for unichar ambiguities", &params_),
+      BOOL_MEMBER(use_definite_ambigs_for_classifier, 0,
+                  "Use definite"
+                  " ambiguities when running character classifier",
                   &params_),
-  BOOL_MEMBER(use_definite_ambigs_for_classifier, 0, "Use definite"
-              " ambiguities when running character classifier", &params_),
-  BOOL_MEMBER(use_ambigs_for_adaption, 0, "Use ambigs for deciding"
-              " whether to adapt to a character", &params_) {
+      BOOL_MEMBER(use_ambigs_for_adaption, 0,
+                  "Use ambigs for deciding"
+                  " whether to adapt to a character",
+                  &params_) {
 }
 
 CCUtilMutex::CCUtilMutex() {
@@ -52,4 +56,4 @@ void CCUtilMutex::Unlock() {
 }
 
 CCUtilMutex tprintfMutex;  // should remain global
-} // namespace tesseract
+}  // namespace tesseract

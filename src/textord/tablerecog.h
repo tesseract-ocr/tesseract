@@ -122,8 +122,8 @@ class StructuredTable {
   int CountFilledCells();
   int CountFilledCellsInRow(int row);
   int CountFilledCellsInColumn(int column);
-  int CountFilledCells(int row_start, int row_end,
-                       int column_start, int column_end);
+  int CountFilledCells(int row_start, int row_end, int column_start,
+                       int column_end);
 
   // Makes sure that at least one cell in a row has substantial area filled.
   // This can filter out large whitespace caused by growing tables too far
@@ -234,8 +234,8 @@ class StructuredTable {
   ////////
 
   // Input data, used as read only data to make decisions.
-  ColPartitionGrid* text_grid_;    // Text ColPartitions
-  ColPartitionGrid* line_grid_;    // Line ColPartitions
+  ColPartitionGrid* text_grid_;  // Text ColPartitions
+  ColPartitionGrid* line_grid_;  // Line ColPartitions
   // Table structure.
   // bounding box is a convenient external representation.
   // cell_x_ and cell_y_ indicate the grid lines.
@@ -364,8 +364,8 @@ class TableRecognizer {
   static bool IsWeakTableRow(StructuredTable* table, int row);
 
   // Input data, used as read only data to make decisions.
-  ColPartitionGrid* text_grid_;    // Text ColPartitions
-  ColPartitionGrid* line_grid_;    // Line ColPartitions
+  ColPartitionGrid* text_grid_;  // Text ColPartitions
+  ColPartitionGrid* line_grid_;  // Line ColPartitions
   // Table constraints, a "good" table must satisfy these.
   int min_height_;
   int min_width_;
@@ -375,4 +375,4 @@ class TableRecognizer {
 
 }  // namespace tesseract
 
-#endif  /* TABLERECOG_H_ */
+#endif /* TABLERECOG_H_ */

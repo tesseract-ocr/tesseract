@@ -20,7 +20,7 @@
 #ifndef CJKPITCH_H_
 #define CJKPITCH_H_
 
-#include          "blobbox.h"
+#include "blobbox.h"
 
 // Function to test "fixed-pitchness" of the input text and estimating
 // character pitch parameters for it, based on CJK fixed-pitch layout
@@ -66,6 +66,6 @@
 // fixed_pitch_words() and the rows need to be processed with
 // make_prop_words() even if they are fixed pitched.
 void compute_fixed_pitch_cjk(ICOORD page_tr,               // top right
-                             TO_BLOCK_LIST *port_blocks);  // input list
+                             TO_BLOCK_LIST* port_blocks);  // input list
 
 #endif  // CJKPITCH_H_

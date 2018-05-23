@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        fixspace.h  (Formerly fixspace.h)
  * Description: Implements a pass over the page res, exploring the alternative
- *					spacing possibilities, trying to use context to improve the
-          word spacing
+ *					spacing possibilities, trying to use
+context to improve the word spacing
 * Author:		Phil Cheatle
 * Created:		Thu Oct 21 11:38:43 BST 1993
 *
@@ -19,13 +19,13 @@
 *
 **********************************************************************/
 
-#ifndef           FIXSPACE_H
-#define           FIXSPACE_H
+#ifndef FIXSPACE_H
+#define FIXSPACE_H
 
-#include          "pageres.h"
-#include          "params.h"
+#include "pageres.h"
+#include "params.h"
 
-void initialise_search(WERD_RES_LIST &src_list, WERD_RES_LIST &new_list);
-void transform_to_next_perm(WERD_RES_LIST &words);
-void fixspace_dbg(WERD_RES *word);
+void initialise_search(WERD_RES_LIST& src_list, WERD_RES_LIST& new_list);
+void transform_to_next_perm(WERD_RES_LIST& words);
+void fixspace_dbg(WERD_RES* word);
 #endif

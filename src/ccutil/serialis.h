@@ -20,12 +20,13 @@
 #ifndef SERIALIS_H
 #define SERIALIS_H
 
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cstdio>
 #include "host.h"
 
-template <typename T> class GenericVector;
+template <typename T>
+class GenericVector;
 class STRING;
 
 /***********************************************************************
@@ -34,7 +35,7 @@ class STRING;
 Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 ***********************************************************************/
 
-#define QUOTE_IT( parm ) #parm
+#define QUOTE_IT(parm) #parm
 
 namespace tesseract {
 

@@ -52,13 +52,11 @@ bool IndexMap::Serialize(FILE* fp) const {
 bool IndexMap::DeSerialize(bool swap, FILE* fp) {
   int32_t sparse_size;
   if (fread(&sparse_size, sizeof(sparse_size), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&sparse_size, sizeof(sparse_size));
+  if (swap) ReverseN(&sparse_size, sizeof(sparse_size));
   sparse_size_ = sparse_size;
   if (!compact_map_.DeSerialize(swap, fp)) return false;
   return true;
 }
-
 
 // Top-level init function in a single call to initialize a map to select
 // a single contiguous subrange [start, end) of the sparse space to be mapped
@@ -67,8 +65,7 @@ bool IndexMap::DeSerialize(bool swap, FILE* fp) {
 // No need to call Setup after this.
 void IndexMapBiDi::InitAndSetupRange(int sparse_size, int start, int end) {
   Init(sparse_size, false);
-  for (int i = start; i < end; ++i)
-    SetMap(i, true);
+  for (int i = start; i < end; ++i) SetMap(i, true);
   Setup();
 }
 
@@ -79,8 +76,7 @@ void IndexMapBiDi::InitAndSetupRange(int sparse_size, int start, int end) {
 void IndexMapBiDi::Init(int size, bool all_mapped) {
   sparse_map_.init_to_size(size, -1);
   if (all_mapped) {
-    for (int i = 0; i < size; ++i)
-      sparse_map_[i] = i;
+    for (int i = 0; i < size; ++i) sparse_map_[i] = i;
   }
 }
 
@@ -156,15 +152,13 @@ void IndexMapBiDi::CompleteMerges() {
   for (int i = 0; i < sparse_map_.size(); ++i) {
     int compact_index = MasterCompactIndex(sparse_map_[i]);
     sparse_map_[i] = compact_index;
-    if (compact_index >= compact_size)
-      compact_size = compact_index + 1;
+    if (compact_index >= compact_size) compact_size = compact_index + 1;
   }
   // Re-generate the compact_map leaving holes for unused indices.
   compact_map_.init_to_size(compact_size, -1);
   for (int i = 0; i < sparse_map_.size(); ++i) {
     if (sparse_map_[i] >= 0) {
-      if (compact_map_[sparse_map_[i]] == -1)
-        compact_map_[sparse_map_[i]] = i;
+      if (compact_map_[sparse_map_[i]] == -1) compact_map_[sparse_map_[i]] = i;
     }
   }
   // Compact the compact_map, leaving tmp_compact_map saying where each

@@ -20,20 +20,23 @@
 #ifndef TESSERACT_CCSTRUCT_OCRPARA_H_
 #define TESSERACT_CCSTRUCT_OCRPARA_H_
 
-#include "publictypes.h"
 #include "elst.h"
+#include "publictypes.h"
 #include "strngs.h"
 
 class ParagraphModel;
 
 struct PARA : public ELIST_LINK {
  public:
-  PARA() : model(nullptr), is_list_item(false),
-           is_very_first_or_continuation(false), has_drop_cap(false) {}
+  PARA()
+      : model(nullptr),
+        is_list_item(false),
+        is_very_first_or_continuation(false),
+        has_drop_cap(false) {}
 
   // We do not own the model, we just reference it.
   // model may be nullptr if there is not a good model for this paragraph.
-  const ParagraphModel *model;
+  const ParagraphModel* model;
 
   bool is_list_item;
 
@@ -113,11 +116,8 @@ ELISTIZEH(PARA)
 // +--------------------------------+
 class ParagraphModel {
  public:
-  ParagraphModel(tesseract::ParagraphJustification justification,
-                 int margin,
-                 int first_indent,
-                 int body_indent,
-                 int tolerance)
+  ParagraphModel(tesseract::ParagraphJustification justification, int margin,
+                 int first_indent, int body_indent, int tolerance)
       : justification_(justification),
         margin_(margin),
         first_indent_(first_indent),
@@ -125,8 +125,7 @@ class ParagraphModel {
         tolerance_(tolerance) {
     // Make one of {first_indent, body_indent} is 0.
     int added_margin = first_indent;
-    if (body_indent < added_margin)
-      added_margin = body_indent;
+    if (body_indent < added_margin) added_margin = body_indent;
     margin_ += added_margin;
     first_indent_ -= added_margin;
     body_indent_ -= added_margin;
@@ -134,10 +133,10 @@ class ParagraphModel {
 
   ParagraphModel()
       : justification_(tesseract::JUSTIFICATION_UNKNOWN),
-         margin_(0),
-         first_indent_(0),
-         body_indent_(0),
-         tolerance_(0) { }
+        margin_(0),
+        first_indent_(0),
+        body_indent_(0),
+        tolerance_(0) {}
 
   // ValidFirstLine() and ValidBodyLine() take arguments describing a text line
   // in a block of text which we are trying to model:
@@ -171,12 +170,12 @@ class ParagraphModel {
   bool is_flush() const {
     return (justification_ == tesseract::JUSTIFICATION_LEFT ||
             justification_ == tesseract::JUSTIFICATION_RIGHT) &&
-        abs(first_indent_ - body_indent_) <= tolerance_;
+           abs(first_indent_ - body_indent_) <= tolerance_;
   }
 
   // Return whether this model is likely to agree with the other model on most
   // paragraphs they are marked.
-  bool Comparable(const ParagraphModel &other) const;
+  bool Comparable(const ParagraphModel& other) const;
 
   STRING ToString() const;
 

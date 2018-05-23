@@ -113,15 +113,9 @@ class KDPtrPair {
   }
 
   // Accessors.
-  const Key& key() const {
-    return key_;
-  }
-  void set_key(const Key& new_key) {
-    key_ = new_key;
-  }
-  const Data* data() const {
-    return data_;
-  }
+  const Key& key() const { return key_; }
+  void set_key(const Key& new_key) { key_ = new_key; }
+  const Data* data() const { return data_; }
   // Sets the data pointer, taking ownership of the data.
   void set_data(Data* new_data) {
     delete data_;
@@ -148,9 +142,7 @@ struct KDPtrPairInc : public KDPtrPair<Key, Data> {
   KDPtrPairInc() : KDPtrPair<Key, Data>() {}
   KDPtrPairInc(Key k, Data* d) : KDPtrPair<Key, Data>(k, d) {}
   KDPtrPairInc(KDPtrPairInc& src) : KDPtrPair<Key, Data>(src) {}
-  void operator=(KDPtrPairInc& src) {
-    KDPtrPair<Key, Data>::operator=(src);
-  }
+  void operator=(KDPtrPairInc& src) { KDPtrPair<Key, Data>::operator=(src); }
   // Operator< facilitates sorting in increasing order.
   int operator<(const KDPtrPairInc<Key, Data>& other) const {
     return this->key() < other.key();
@@ -165,9 +157,7 @@ struct KDPtrPairDec : public KDPtrPair<Key, Data> {
   KDPtrPairDec() : KDPtrPair<Key, Data>() {}
   KDPtrPairDec(Key k, Data* d) : KDPtrPair<Key, Data>(k, d) {}
   KDPtrPairDec(KDPtrPairDec& src) : KDPtrPair<Key, Data>(src) {}
-  void operator=(KDPtrPairDec& src) {
-    KDPtrPair<Key, Data>::operator=(src);
-  }
+  void operator=(KDPtrPairDec& src) { KDPtrPair<Key, Data>::operator=(src); }
   // Operator< facilitates sorting in decreasing order by using operator> on
   // the key values.
   int operator<(const KDPtrPairDec<Key, Data>& other) const {

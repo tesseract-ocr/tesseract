@@ -17,15 +17,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef           PGEDIT_H
-#define           PGEDIT_H
+#ifndef PGEDIT_H
+#define PGEDIT_H
 
-#include          "ocrblock.h"
-#include          "ocrrow.h"
-#include          "werd.h"
-#include          "rect.h"
-#include          "params.h"
-#include          "tesseractclass.h"
+#include "ocrblock.h"
+#include "ocrrow.h"
+#include "params.h"
+#include "rect.h"
+#include "tesseractclass.h"
+#include "werd.h"
 
 class ScrollView;
 class SVMenuNode;
@@ -34,54 +34,49 @@ struct SVEvent;
 // A small event handler class to process incoming events to
 // this window.
 class PGEventHandler : public SVEventHandler {
-  public:
-   PGEventHandler(tesseract::Tesseract* tess) : tess_(tess) {
-   }
-   void Notify(const SVEvent* sve);
-  private:
-    tesseract::Tesseract* tess_;
+ public:
+  PGEventHandler(tesseract::Tesseract* tess) : tess_(tess) {}
+  void Notify(const SVEvent* sve);
+
+ private:
+  tesseract::Tesseract* tess_;
 };
 
-extern BLOCK_LIST *current_block_list;
-extern STRING_VAR_H (editor_image_win_name, "EditorImage",
-"Editor image window name");
-extern INT_VAR_H (editor_image_xpos, 590, "Editor image X Pos");
-extern INT_VAR_H (editor_image_ypos, 10, "Editor image Y Pos");
-extern INT_VAR_H (editor_image_height, 680, "Editor image height");
-extern INT_VAR_H (editor_image_width, 655, "Editor image width");
-extern INT_VAR_H (editor_image_word_bb_color, BLUE,
-"Word bounding box colour");
-extern INT_VAR_H (editor_image_blob_bb_color, YELLOW,
-"Blob bounding box colour");
-extern INT_VAR_H (editor_image_text_color, WHITE, "Correct text colour");
-extern STRING_VAR_H (editor_dbwin_name, "EditorDBWin",
-"Editor debug window name");
-extern INT_VAR_H (editor_dbwin_xpos, 50, "Editor debug window X Pos");
-extern INT_VAR_H (editor_dbwin_ypos, 500, "Editor debug window Y Pos");
-extern INT_VAR_H (editor_dbwin_height, 24, "Editor debug window height");
-extern INT_VAR_H (editor_dbwin_width, 80, "Editor debug window width");
-extern STRING_VAR_H (editor_word_name, "BlnWords",
-"BL normalised word window");
-extern INT_VAR_H (editor_word_xpos, 60, "Word window X Pos");
-extern INT_VAR_H (editor_word_ypos, 510, "Word window Y Pos");
-extern INT_VAR_H (editor_word_height, 240, "Word window height");
-extern INT_VAR_H (editor_word_width, 655, "Word window width");
-extern double_VAR_H (editor_smd_scale_factor, 1.0, "Scaling for smd image");
+extern BLOCK_LIST* current_block_list;
+extern STRING_VAR_H(editor_image_win_name, "EditorImage",
+                    "Editor image window name");
+extern INT_VAR_H(editor_image_xpos, 590, "Editor image X Pos");
+extern INT_VAR_H(editor_image_ypos, 10, "Editor image Y Pos");
+extern INT_VAR_H(editor_image_height, 680, "Editor image height");
+extern INT_VAR_H(editor_image_width, 655, "Editor image width");
+extern INT_VAR_H(editor_image_word_bb_color, BLUE, "Word bounding box colour");
+extern INT_VAR_H(editor_image_blob_bb_color, YELLOW,
+                 "Blob bounding box colour");
+extern INT_VAR_H(editor_image_text_color, WHITE, "Correct text colour");
+extern STRING_VAR_H(editor_dbwin_name, "EditorDBWin",
+                    "Editor debug window name");
+extern INT_VAR_H(editor_dbwin_xpos, 50, "Editor debug window X Pos");
+extern INT_VAR_H(editor_dbwin_ypos, 500, "Editor debug window Y Pos");
+extern INT_VAR_H(editor_dbwin_height, 24, "Editor debug window height");
+extern INT_VAR_H(editor_dbwin_width, 80, "Editor debug window width");
+extern STRING_VAR_H(editor_word_name, "BlnWords", "BL normalised word window");
+extern INT_VAR_H(editor_word_xpos, 60, "Word window X Pos");
+extern INT_VAR_H(editor_word_ypos, 510, "Word window Y Pos");
+extern INT_VAR_H(editor_word_height, 240, "Word window height");
+extern INT_VAR_H(editor_word_width, 655, "Word window width");
+extern double_VAR_H(editor_smd_scale_factor, 1.0, "Scaling for smd image");
 
-ScrollView* bln_word_window_handle();  //return handle
+ScrollView* bln_word_window_handle();  // return handle
 void build_image_window(int width, int height);
-void display_bln_lines(ScrollView window,
-                       ScrollView::Color colour,
-                       float scale_factor,
-                       float y_offset,
-                       float minx,
+void display_bln_lines(ScrollView window, ScrollView::Color colour,
+                       float scale_factor, float y_offset, float minx,
                        float maxx);
-                                 //function to call
-void pgeditor_msg(  //message display
-                  const char *msg);
-void pgeditor_show_point(  //display coords
-                         SVEvent *event);
-                                 //put bln word in       box
+// function to call
+void pgeditor_msg(  // message display
+    const char* msg);
+void pgeditor_show_point(  // display coords
+    SVEvent* event);
+// put bln word in       box
 void show_point(PAGE_RES* page_res, float x, float y);
 
 #endif

@@ -26,32 +26,31 @@
 #include <cstdio>
 
 #include "helpers.h"
+#include "params.h"
 #include "serialis.h"
 #include "strngs.h"
 #include "tprintf.h"
-#include "params.h"
 
 namespace tesseract {
 
-TessdataManager::TessdataManager() : reader_(nullptr), is_loaded_(false), swap_(false) {
+TessdataManager::TessdataManager()
+    : reader_(nullptr), is_loaded_(false), swap_(false) {
   SetVersionString(PACKAGE_VERSION);
 }
 
 TessdataManager::TessdataManager(FileReader reader)
-  : reader_(reader),
-    is_loaded_(false),
-    swap_(false) {
+    : reader_(reader), is_loaded_(false), swap_(false) {
   SetVersionString(PACKAGE_VERSION);
 }
 
 // Lazily loads from the the given filename. Won't actually read the file
 // until it needs it.
-void TessdataManager::LoadFileLater(const char *data_file_name) {
+void TessdataManager::LoadFileLater(const char* data_file_name) {
   Clear();
   data_file_name_ = data_file_name;
 }
 
-bool TessdataManager::Init(const char *data_file_name) {
+bool TessdataManager::Init(const char* data_file_name) {
   GenericVector<char> data;
   if (reader_ == nullptr) {
     if (!LoadDataFromFile(data_file_name, &data)) return false;
@@ -62,7 +61,7 @@ bool TessdataManager::Init(const char *data_file_name) {
 }
 
 // Loads from the given memory buffer as if a file.
-bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
+bool TessdataManager::LoadMemBuffer(const char* name, const char* data,
                                     int size) {
   Clear();
   data_file_name_ = name;
@@ -97,7 +96,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
 }
 
 // Overwrites a single entry of the given type.
-void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
+void TessdataManager::OverwriteEntry(TessdataType type, const char* data,
                                      int size) {
   is_loaded_ = true;
   entries_[type].resize_no_init(size);
@@ -105,7 +104,7 @@ void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
 }
 
 // Saves to the given filename.
-bool TessdataManager::SaveFile(const STRING &filename,
+bool TessdataManager::SaveFile(const STRING& filename,
                                FileWriter writer) const {
   ASSERT_HOST(is_loaded_);
   GenericVector<char> data;
@@ -117,7 +116,7 @@ bool TessdataManager::SaveFile(const STRING &filename,
 }
 
 // Serializes to the given vector.
-void TessdataManager::Serialize(GenericVector<char> *data) const {
+void TessdataManager::Serialize(GenericVector<char>* data) const {
   ASSERT_HOST(is_loaded_);
   // Compute the offset_table and total size.
   int64_t offset_table[TESSDATA_NUM_ENTRIES];
@@ -166,15 +165,15 @@ void TessdataManager::Directory() const {
 
 // Opens the given TFile pointer to the given component type.
 // Returns false in case of failure.
-bool TessdataManager::GetComponent(TessdataType type, TFile *fp) {
+bool TessdataManager::GetComponent(TessdataType type, TFile* fp) {
   if (!is_loaded_ && !Init(data_file_name_.string())) return false;
-  const TessdataManager *const_this = this;
+  const TessdataManager* const_this = this;
   return const_this->GetComponent(type, fp);
 }
 
 // As non-const version except it can't load the component if not already
 // loaded.
-bool TessdataManager::GetComponent(TessdataType type, TFile *fp) const {
+bool TessdataManager::GetComponent(TessdataType type, TFile* fp) const {
   ASSERT_HOST(is_loaded_);
   if (entries_[type].empty()) return false;
   fp->Open(&entries_[type][0], entries_[type].size());
@@ -189,21 +188,20 @@ std::string TessdataManager::VersionString() const {
 }
 
 // Sets the version string to the given v_str.
-void TessdataManager::SetVersionString(const std::string &v_str) {
+void TessdataManager::SetVersionString(const std::string& v_str) {
   entries_[TESSDATA_VERSION].resize_no_init(v_str.size());
   memcpy(&entries_[TESSDATA_VERSION][0], v_str.data(), v_str.size());
 }
 
-bool TessdataManager::CombineDataFiles(
-    const char *language_data_path_prefix,
-    const char *output_filename) {
+bool TessdataManager::CombineDataFiles(const char* language_data_path_prefix,
+                                       const char* output_filename) {
   // Load individual tessdata components from files.
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     TessdataType type;
     ASSERT_HOST(TessdataTypeFromFileSuffix(kTessdataFileSuffixes[i], &type));
     STRING filename = language_data_path_prefix;
     filename += kTessdataFileSuffixes[i];
-    FILE *fp = fopen(filename.string(), "rb");
+    FILE* fp = fopen(filename.string(), "rb");
     if (fp != nullptr) {
       fclose(fp);
       if (!LoadDataFromFile(filename, &entries_[type])) {
@@ -225,10 +223,9 @@ bool TessdataManager::CombineDataFiles(
   return SaveFile(output_filename, nullptr);
 }
 
-bool TessdataManager::OverwriteComponents(
-    const char *new_traineddata_filename,
-    char **component_filenames,
-    int num_new_components) {
+bool TessdataManager::OverwriteComponents(const char* new_traineddata_filename,
+                                          char** component_filenames,
+                                          int num_new_components) {
   // Open the files with the new components.
   for (int i = 0; i < num_new_components; ++i) {
     TessdataType type;
@@ -244,7 +241,7 @@ bool TessdataManager::OverwriteComponents(
   return SaveFile(new_traineddata_filename, nullptr);
 }
 
-bool TessdataManager::ExtractToFile(const char *filename) {
+bool TessdataManager::ExtractToFile(const char* filename) {
   TessdataType type = TESSDATA_NUM_ENTRIES;
   ASSERT_HOST(
       tesseract::TessdataManager::TessdataTypeFromFileName(filename, &type));
@@ -252,23 +249,25 @@ bool TessdataManager::ExtractToFile(const char *filename) {
   return SaveDataToFile(entries_[type], filename);
 }
 
-bool TessdataManager::TessdataTypeFromFileSuffix(const char *suffix,
-                                                 TessdataType *type) {
+bool TessdataManager::TessdataTypeFromFileSuffix(const char* suffix,
+                                                 TessdataType* type) {
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     if (strcmp(kTessdataFileSuffixes[i], suffix) == 0) {
       *type = static_cast<TessdataType>(i);
       return true;
     }
   }
-  tprintf("TessdataManager can't determine which tessdata"
-         " component is represented by %s\n", suffix);
+  tprintf(
+      "TessdataManager can't determine which tessdata"
+      " component is represented by %s\n",
+      suffix);
   return false;
 }
 
-bool TessdataManager::TessdataTypeFromFileName(const char *filename,
-                                               TessdataType *type) {
+bool TessdataManager::TessdataTypeFromFileName(const char* filename,
+                                               TessdataType* type) {
   // Get the file suffix (extension)
-  const char *suffix = strrchr(filename, '.');
+  const char* suffix = strrchr(filename, '.');
   if (suffix == nullptr || *(++suffix) == '\0') return false;
   return TessdataTypeFromFileSuffix(suffix, type);
 }

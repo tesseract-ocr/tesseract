@@ -15,8 +15,8 @@
 #define TESSERACT_TRAINING_COMMONTRAINING_H_
 
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
 #include "baseapi.h"
+#include "config_auto.h"
 #endif
 #include "cluster.h"
 #include "commandlineflags.h"
@@ -28,7 +28,7 @@ namespace tesseract {
 class Classify;
 class MasterTrainer;
 class ShapeTable;
-}
+}  // namespace tesseract
 
 //////////////////////////////////////////////////////////////////////////////
 // Globals ///////////////////////////////////////////////////////////////////
@@ -42,23 +42,19 @@ extern CLUSTERCONFIG Config;
 //////////////////////////////////////////////////////////////////////////////
 // Structs ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-typedef struct
-{
-  char  *Label;
-  int   SampleCount;
-  int   font_sample_count;
-  LIST  List;
-}
-LABELEDLISTNODE, *LABELEDLIST;
-
-typedef struct
-{
+typedef struct {
   char* Label;
-  int   NumMerged[MAX_NUM_PROTOS];
-  CLASS_TYPE Class;
-}MERGE_CLASS_NODE;
-using MERGE_CLASS = MERGE_CLASS_NODE*;
+  int SampleCount;
+  int font_sample_count;
+  LIST List;
+} LABELEDLISTNODE, *LABELEDLIST;
 
+typedef struct {
+  char* Label;
+  int NumMerged[MAX_NUM_PROTOS];
+  CLASS_TYPE Class;
+} MERGE_CLASS_NODE;
+using MERGE_CLASS = MERGE_CLASS_NODE*;
 
 //////////////////////////////////////////////////////////////////////////////
 // Functions /////////////////////////////////////////////////////////////////
@@ -70,13 +66,13 @@ namespace tesseract {
 // Check whether the shared tesseract library is the right one.
 // This function must be inline because otherwise it would be part of
 // the shared library, so it could not compare the versions.
-static inline void CheckSharedLibraryVersion()
-{
+static inline void CheckSharedLibraryVersion() {
 #ifdef HAVE_CONFIG_H
   if (!!strcmp(TESSERACT_VERSION_STR, TessBaseAPI::Version())) {
-    tprintf("ERROR: shared library version mismatch (was %s, expected %s\n"
-            "Did you use a wrong shared tesseract library?\n",
-            TessBaseAPI::Version(), TESSERACT_VERSION_STR);
+    tprintf(
+        "ERROR: shared library version mismatch (was %s, expected %s\n"
+        "Did you use a wrong shared tesseract library?\n",
+        TessBaseAPI::Version(), TESSERACT_VERSION_STR);
     exit(1);
   }
 #endif
@@ -100,90 +96,65 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table);
 // Computes canonical and cloud features.
 // If shape_table is not nullptr, but failed to load, make a fake flat one,
 // as shape clustering was not run.
-MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
-                                bool replication,
-                                ShapeTable** shape_table,
+MasterTrainer* LoadTrainingData(int argc, const char* const* argv,
+                                bool replication, ShapeTable** shape_table,
                                 STRING* file_prefix);
 }  // namespace tesseract.
 
-const char *GetNextFilename(int argc, const char* const * argv);
+const char* GetNextFilename(int argc, const char* const* argv);
 
-LABELEDLIST FindList(
-    LIST        List,
-    char        *Label);
+LABELEDLIST
+FindList(LIST List, char* Label);
 
-LABELEDLIST NewLabeledList(
-    const char  *Label);
+LABELEDLIST
+NewLabeledList(const char* Label);
 
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
-                         const char *feature_name, int max_samples,
-                         UNICHARSET* unicharset,
-                         FILE* file, LIST* training_samples);
+                         const char* feature_name, int max_samples,
+                         UNICHARSET* unicharset, FILE* file,
+                         LIST* training_samples);
 
-void WriteTrainingSamples(
-    const FEATURE_DEFS_STRUCT &FeatureDefs,
-    char *Directory,
-    LIST CharList,
-    const char  *program_feature_type);
+void WriteTrainingSamples(const FEATURE_DEFS_STRUCT& FeatureDefs,
+                          char* Directory, LIST CharList,
+                          const char* program_feature_type);
 
-void FreeTrainingSamples(
-    LIST        CharList);
+void FreeTrainingSamples(LIST CharList);
 
-void FreeLabeledList(
-    LABELEDLIST LabeledList);
+void FreeLabeledList(LABELEDLIST LabeledList);
 
-void FreeLabeledClassList(
-    LIST        ClassListList);
+void FreeLabeledClassList(LIST ClassListList);
 
-CLUSTERER *SetUpForClustering(
-    const FEATURE_DEFS_STRUCT &FeatureDefs,
-    LABELEDLIST CharSample,
-    const char  *program_feature_type);
+CLUSTERER* SetUpForClustering(const FEATURE_DEFS_STRUCT& FeatureDefs,
+                              LABELEDLIST CharSample,
+                              const char* program_feature_type);
 
-LIST RemoveInsignificantProtos(
-    LIST        ProtoList,
-    BOOL8       KeepSigProtos,
-    BOOL8       KeepInsigProtos,
-    int         N);
+LIST RemoveInsignificantProtos(LIST ProtoList, BOOL8 KeepSigProtos,
+                               BOOL8 KeepInsigProtos, int N);
 
-void CleanUpUnusedData(
-    LIST        ProtoList);
+void CleanUpUnusedData(LIST ProtoList);
 
-void MergeInsignificantProtos(
-    LIST        ProtoList,
-    const char  *label,
-    CLUSTERER   *Clusterer,
-    CLUSTERCONFIG *Config);
+void MergeInsignificantProtos(LIST ProtoList, const char* label,
+                              CLUSTERER* Clusterer, CLUSTERCONFIG* Config);
 
-MERGE_CLASS FindClass(
-    LIST        List,
-    const char        *Label);
+MERGE_CLASS
+FindClass(LIST List, const char* Label);
 
-MERGE_CLASS NewLabeledClass(
-    const char        *Label);
+MERGE_CLASS
+NewLabeledClass(const char* Label);
 
-void FreeTrainingSamples(
-    LIST        CharList);
+void FreeTrainingSamples(LIST CharList);
 
 CLASS_STRUCT* SetUpForFloat2Int(const UNICHARSET& unicharset,
                                 LIST LabeledClassList);
 
-void Normalize(
-    float       *Values);
+void Normalize(float* Values);
 
-void FreeNormProtoList(
-    LIST        CharList);
+void FreeNormProtoList(LIST CharList);
 
-void AddToNormProtosList(
-    LIST*       NormProtoList,
-    LIST        ProtoList,
-    char        *CharName);
+void AddToNormProtosList(LIST* NormProtoList, LIST ProtoList, char* CharName);
 
-int NumberOfProtos(
-    LIST        ProtoList,
-    BOOL8       CountSigProtos,
-    BOOL8       CountInsigProtos);
-
+int NumberOfProtos(LIST ProtoList, BOOL8 CountSigProtos,
+                   BOOL8 CountInsigProtos);
 
 void allocNormProtos();
 #endif  // TESSERACT_TRAINING_COMMONTRAINING_H_

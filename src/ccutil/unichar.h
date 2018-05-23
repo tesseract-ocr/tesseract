@@ -57,9 +57,7 @@ using char32 = signed int;
 // such as fi, ffl etc. These are also stored as utf8.
 class UNICHAR {
  public:
-  UNICHAR() {
-    memset(chars, 0, UNICHAR_LEN);
-  }
+  UNICHAR() { memset(chars, 0, UNICHAR_LEN); }
 
   // Construct from a utf8 string. If len<0 then the string is null terminated.
   // If the string is too long to fit in the UNICHAR then it takes only what
@@ -77,13 +75,11 @@ class UNICHAR {
   // Get the length of the UTF8 string.
   int utf8_len() const {
     int len = chars[UNICHAR_LEN - 1];
-    return len >=0 && len < UNICHAR_LEN ? len : UNICHAR_LEN;
+    return len >= 0 && len < UNICHAR_LEN ? len : UNICHAR_LEN;
   }
 
   // Get a UTF8 string, but NOT nullptr terminated.
-  const char* utf8() const {
-    return chars;
-  }
+  const char* utf8() const { return chars; }
 
   // Get a terminated UTF8 string: Must delete[] it after use.
   char* utf8_str() const;
@@ -106,13 +102,13 @@ class UNICHAR {
   //     tprintf("Char = %s\n", buf);
   //   }
   class const_iterator {
-    using CI = const_iterator ;
+    using CI = const_iterator;
 
    public:
     // Step to the next UTF8 character.
     // If the current position is at an illegal UTF8 character, then print an
-    // error message and step by one byte. If the current position is at a nullptr
-    // value, don't step past it.
+    // error message and step by one byte. If the current position is at a
+    // nullptr value, don't step past it.
     const_iterator& operator++();
 
     // Return the UCS-4 value at the current position.

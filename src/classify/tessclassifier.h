@@ -36,7 +36,7 @@ class TrainingSample;
 class TessClassifier : public ShapeClassifier {
  public:
   TessClassifier(bool pruner_only, tesseract::Classify* classify)
-    : pruner_only_(pruner_only), classify_(classify) {}
+      : pruner_only_(pruner_only), classify_(classify) {}
   virtual ~TessClassifier() = default;
 
   // Classifies the given [training] sample, writing to results.
@@ -67,11 +67,6 @@ class TessClassifier : public ShapeClassifier {
   tesseract::Classify* classify_;
 };
 
-
 }  // namespace tesseract
-
-
-
-
 
 #endif /* THIRD_PARTY_TESSERACT_CLASSIFY_TESSCLASSIFIER_H_ */

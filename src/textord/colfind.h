@@ -63,20 +63,14 @@ class ColumnFinder : public TabFind {
   // textlines.
   ColumnFinder(int gridsize, const ICOORD& bleft, const ICOORD& tright,
                int resolution, bool cjk_script, double aligned_gap_fraction,
-               TabVector_LIST* vlines, TabVector_LIST* hlines,
-               int vertical_x, int vertical_y);
+               TabVector_LIST* vlines, TabVector_LIST* hlines, int vertical_x,
+               int vertical_y);
   virtual ~ColumnFinder();
 
   // Accessors for testing
-  const DENORM* denorm() const {
-    return denorm_;
-  }
-  const TextlineProjection* projection() const {
-    return &projection_;
-  }
-  void set_cjk_script(bool is_cjk) {
-    cjk_script_ = is_cjk;
-  }
+  const DENORM* denorm() const { return denorm_; }
+  const TextlineProjection* projection() const { return &projection_; }
+  void set_cjk_script(bool is_cjk) { cjk_script_ = is_cjk; }
 
   // ======================================================================
   // The main function of ColumnFinder is broken into pieces to facilitate
@@ -122,8 +116,8 @@ class ColumnFinder : public TabFind {
   // horizontal but whose text appears vertically aligned because the image is
   // not the right way up.
   // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
-  bool IsVerticallyAlignedText(double find_vertical_text_ratio,
-                               TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
+  bool IsVerticallyAlignedText(double find_vertical_text_ratio, TO_BLOCK* block,
+                               BLOBNBOX_CLIST* osd_blobs);
 
   // Rotates the blobs and the TabVectors so that the gross writing direction
   // (text lines) are horizontal and lines are read down the page.
@@ -211,16 +205,16 @@ class ColumnFinder : public TabFind {
   void ShrinkRangeToLongestRun(int** column_set_costs,
                                const int* assigned_costs,
                                const bool* any_columns_possible,
-                               int column_set_id,
-                               int* best_start, int* best_end);
+                               int column_set_id, int* best_start,
+                               int* best_end);
   // Moves start in the direction of step, up to, but not including end while
   // the only incompatible regions are no more than kMaxIncompatibleColumnCount
   // in size, and the compatible regions beyond are bigger.
   void ExtendRangePastSmallGaps(int** column_set_costs,
                                 const int* assigned_costs,
                                 const bool* any_columns_possible,
-                                int column_set_id,
-                                int step, int end, int* start);
+                                int column_set_id, int step, int end,
+                                int* start);
   // Assigns the given column_set_id to the part_sets_ in the given range.
   void AssignColumnToRange(int column_set_id, int start, int end,
                            int** column_set_costs, int* assigned_costs);

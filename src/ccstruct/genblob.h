@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           GENBLOB_H
-#define           GENBLOB_H
+#ifndef GENBLOB_H
+#define GENBLOB_H
 
 // Sort function to sort blobs by ascending left edge.
-int c_blob_comparator(const void *blob1p,  // ptr to ptr to blob1
-                      const void *blob2p);
+int c_blob_comparator(const void* blob1p,  // ptr to ptr to blob1
+                      const void* blob2p);
 
 #endif

@@ -25,8 +25,8 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "emalloc.h"
-#include "danerror.h"
 #include <cstdlib>
+#include "danerror.h"
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -43,43 +43,39 @@
  * - #NOTENOUGHMEMORY  unable to allocate Size bytes
  * - #ILLEGALMALLOCREQUEST negative or zero request size
  * @note History: 4/3/89, DSJ, Created.
-*/
-void *Emalloc(int Size) {
-  void *Buffer;
+ */
+void* Emalloc(int Size) {
+  void* Buffer;
 
-  if (Size <= 0)
-    DoError (ILLEGALMALLOCREQUEST, "Illegal malloc request size");
-  Buffer = (void *) malloc (Size);
+  if (Size <= 0) DoError(ILLEGALMALLOCREQUEST, "Illegal malloc request size");
+  Buffer = (void*)malloc(Size);
   if (Buffer == nullptr) {
-    DoError (NOTENOUGHMEMORY, "Not enough memory");
+    DoError(NOTENOUGHMEMORY, "Not enough memory");
     return (nullptr);
-  }
-  else
+  } else
     return (Buffer);
 
-}                                /* Emalloc */
-
+} /* Emalloc */
 
 /*---------------------------------------------------------------------------*/
-void *Erealloc(void *ptr, int size) {
-  void *Buffer;
+void* Erealloc(void* ptr, int size) {
+  void* Buffer;
 
   if (size < 0 || (size == 0 && ptr == nullptr))
-    DoError (ILLEGALMALLOCREQUEST, "Illegal realloc request size");
+    DoError(ILLEGALMALLOCREQUEST, "Illegal realloc request size");
 
-  Buffer = (void *) realloc (ptr, size);
+  Buffer = (void*)realloc(ptr, size);
   if (Buffer == nullptr && size != 0)
-    DoError (NOTENOUGHMEMORY, "Not enough memory");
+    DoError(NOTENOUGHMEMORY, "Not enough memory");
   return (Buffer);
 
-}                                /* Erealloc */
-
+} /* Erealloc */
 
 /*---------------------------------------------------------------------------*/
-void Efree(void *ptr) { 
+void Efree(void* ptr) {
   if (ptr == nullptr)
-    DoError (ILLEGALMALLOCREQUEST, "Attempted to free nullptr ptr");
+    DoError(ILLEGALMALLOCREQUEST, "Attempted to free nullptr ptr");
 
-  free(ptr); 
+  free(ptr);
 
-}                                /* Efree */
+} /* Efree */

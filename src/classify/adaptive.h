@@ -21,46 +21,40 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "oldlist.h"
-#include "intproto.h"
 #include <cstdio>
+#include "intproto.h"
+#include "oldlist.h"
 
-typedef struct
-{
+typedef struct {
   uint16_t ProtoId;
   uint16_t dummy;
   PROTO_STRUCT Proto;
 }
 
-
 TEMP_PROTO_STRUCT;
-typedef TEMP_PROTO_STRUCT *TEMP_PROTO;
+typedef TEMP_PROTO_STRUCT* TEMP_PROTO;
 
-typedef struct
-{
+typedef struct {
   uint8_t NumTimesSeen;
   uint8_t ProtoVectorSize;
   PROTO_ID MaxProtoId;
   BIT_VECTOR Protos;
   int FontinfoId;  // font information inferred from pre-trained templates
 } TEMP_CONFIG_STRUCT;
-typedef TEMP_CONFIG_STRUCT *TEMP_CONFIG;
+typedef TEMP_CONFIG_STRUCT* TEMP_CONFIG;
 
-typedef struct
-{
-  UNICHAR_ID *Ambigs;
+typedef struct {
+  UNICHAR_ID* Ambigs;
   int FontinfoId;  // font information inferred from pre-trained templates
 } PERM_CONFIG_STRUCT;
-typedef PERM_CONFIG_STRUCT *PERM_CONFIG;
+typedef PERM_CONFIG_STRUCT* PERM_CONFIG;
 
-typedef union
-{
+typedef union {
   TEMP_CONFIG Temp;
   PERM_CONFIG Perm;
 } ADAPTED_CONFIG;
 
-typedef struct
-{
+typedef struct {
   uint8_t NumPermConfigs;
   uint8_t MaxNumTimesSeen;  // maximum number of times any TEMP_CONFIG was seen
   uint8_t dummy[2];         // (cut at matcher_min_examples_for_prototyping)
@@ -69,72 +63,73 @@ typedef struct
   LIST TempProtos;
   ADAPTED_CONFIG Config[MAX_NUM_CONFIGS];
 } ADAPT_CLASS_STRUCT;
-typedef ADAPT_CLASS_STRUCT *ADAPT_CLASS;
+typedef ADAPT_CLASS_STRUCT* ADAPT_CLASS;
 
-typedef struct
-{
+typedef struct {
   INT_TEMPLATES Templates;
   int NumNonEmptyClasses;
   uint8_t NumPermClasses;
   uint8_t dummy[3];
   ADAPT_CLASS Class[MAX_NUM_CLASSES];
 } ADAPT_TEMPLATES_STRUCT;
-typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;
+typedef ADAPT_TEMPLATES_STRUCT* ADAPT_TEMPLATES;
 
 /*----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------*/
 #define NumNonEmptyClassesIn(Template) ((Template)->NumNonEmptyClasses)
 
-#define IsEmptyAdaptedClass(Class) ((Class)->NumPermConfigs == 0 &&      \
-(Class)->TempProtos == NIL_LIST)
+#define IsEmptyAdaptedClass(Class) \
+  ((Class)->NumPermConfigs == 0 && (Class)->TempProtos == NIL_LIST)
 
-#define ConfigIsPermanent(Class,ConfigId)		\
-(test_bit ((Class)->PermConfigs, ConfigId))
+#define ConfigIsPermanent(Class, ConfigId) \
+  (test_bit((Class)->PermConfigs, ConfigId))
 
-#define MakeConfigPermanent(Class,ConfigId)	\
-(SET_BIT ((Class)->PermConfigs, ConfigId))
+#define MakeConfigPermanent(Class, ConfigId) \
+  (SET_BIT((Class)->PermConfigs, ConfigId))
 
-#define MakeProtoPermanent(Class,ProtoId)	\
-(SET_BIT ((Class)->PermProtos, ProtoId))
+#define MakeProtoPermanent(Class, ProtoId) \
+  (SET_BIT((Class)->PermProtos, ProtoId))
 
-#define TempConfigFor(Class,ConfigId)	\
-((Class)->Config[ConfigId].Temp)
+#define TempConfigFor(Class, ConfigId) ((Class)->Config[ConfigId].Temp)
 
-#define PermConfigFor(Class,ConfigId)	\
-((Class)->Config[ConfigId].Perm)
+#define PermConfigFor(Class, ConfigId) ((Class)->Config[ConfigId].Perm)
 
-#define IncreaseConfidence(TempConfig)	\
-((TempConfig)->NumTimesSeen++)
+#define IncreaseConfidence(TempConfig) ((TempConfig)->NumTimesSeen++)
 
-void AddAdaptedClass(ADAPT_TEMPLATES Templates,
-                    ADAPT_CLASS Class,
-                    CLASS_ID ClassId);
+void AddAdaptedClass(ADAPT_TEMPLATES Templates, ADAPT_CLASS Class,
+                     CLASS_ID ClassId);
 
-void FreeTempProto(void *arg);
+void FreeTempProto(void* arg);
 
 void FreeTempConfig(TEMP_CONFIG Config);
 
-ADAPT_CLASS NewAdaptedClass();
+ADAPT_CLASS
+NewAdaptedClass();
 
 void free_adapted_class(ADAPT_CLASS adapt_class);
 
 void free_adapted_templates(ADAPT_TEMPLATES templates);
 
-TEMP_CONFIG NewTempConfig(int MaxProtoId, int FontinfoId);
+TEMP_CONFIG
+NewTempConfig(int MaxProtoId, int FontinfoId);
 
-TEMP_PROTO NewTempProto();
+TEMP_PROTO
+NewTempProto();
 
-ADAPT_CLASS ReadAdaptedClass(tesseract::TFile *File);
+ADAPT_CLASS
+ReadAdaptedClass(tesseract::TFile* File);
 
-PERM_CONFIG ReadPermConfig(tesseract::TFile *File);
+PERM_CONFIG
+ReadPermConfig(tesseract::TFile* File);
 
-TEMP_CONFIG ReadTempConfig(tesseract::TFile *File);
+TEMP_CONFIG
+ReadTempConfig(tesseract::TFile* File);
 
-void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs);
+void WriteAdaptedClass(FILE* File, ADAPT_CLASS Class, int NumConfigs);
 
-void WritePermConfig(FILE *File, PERM_CONFIG Config);
+void WritePermConfig(FILE* File, PERM_CONFIG Config);
 
-void WriteTempConfig(FILE *File, TEMP_CONFIG Config);
+void WriteTempConfig(FILE* File, TEMP_CONFIG Config);
 
 #endif

@@ -28,7 +28,7 @@
 
 namespace tesseract {
 
-static const char * const XHeightConsistencyEnumName[] = {
+static const char* const XHeightConsistencyEnumName[] = {
     "XH_GOOD",
     "XH_SUBNORMAL",
     "XH_INCONSISTENT",
@@ -36,7 +36,7 @@ static const char * const XHeightConsistencyEnumName[] = {
 
 // Struct for keeping track of the consistency of the path.
 struct LMConsistencyInfo {
-  enum ChartypeEnum { CT_NONE, CT_ALPHA, CT_DIGIT, CT_OTHER};
+  enum ChartypeEnum { CT_NONE, CT_ALPHA, CT_DIGIT, CT_OTHER };
 
   // How much do characters have to be shifted away from normal parameters
   // before we say they're not normal?
@@ -81,36 +81,30 @@ struct LMConsistencyInfo {
       *this = *parent_info;
     }
   }
-  inline int NumInconsistentPunc() const {
-    return invalid_punc ? num_punc : 0;
-  }
+  inline int NumInconsistentPunc() const { return invalid_punc ? num_punc : 0; }
   inline int NumInconsistentCase() const {
     return (num_non_first_upper > num_lower) ? num_lower : num_non_first_upper;
   }
   inline int NumInconsistentChartype() const {
     return (NumInconsistentPunc() + num_other +
-        ((num_alphas > num_digits) ? num_digits : num_alphas));
+            ((num_alphas > num_digits) ? num_digits : num_alphas));
   }
   inline bool Consistent() const {
     return (NumInconsistentPunc() == 0 && NumInconsistentCase() == 0 &&
             NumInconsistentChartype() == 0 && !inconsistent_script &&
             !inconsistent_font && !InconsistentXHeight());
   }
-  inline int  NumInconsistentSpaces() const {
-    return num_inconsistent_spaces;
-  }
+  inline int NumInconsistentSpaces() const { return num_inconsistent_spaces; }
   inline int InconsistentXHeight() const {
     return xht_decision == XH_INCONSISTENT;
   }
-  void ComputeXheightConsistency(const BLOB_CHOICE *b, bool is_punc);
+  void ComputeXheightConsistency(const BLOB_CHOICE* b, bool is_punc);
   float BodyMinXHeight() const {
-    if (InconsistentXHeight())
-      return 0.0f;
+    if (InconsistentXHeight()) return 0.0f;
     return xht_lo[kNORM];
   }
   float BodyMaxXHeight() const {
-    if (InconsistentXHeight())
-      return static_cast<float>(INT16_MAX);
+    if (InconsistentXHeight()) return static_cast<float>(INT16_MAX);
     return xht_hi[kNORM];
   }
 

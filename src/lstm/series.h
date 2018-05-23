@@ -36,8 +36,7 @@ class Series : public Plumbing {
 
   STRING spec() const override {
     STRING spec("[");
-    for (int i = 0; i < stack_.size(); ++i)
-      spec += stack_[i]->spec();
+    for (int i = 0; i < stack_.size(); ++i) spec += stack_[i]->spec();
     spec += "]";
     return spec;
   }

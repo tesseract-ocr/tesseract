@@ -20,8 +20,8 @@
 #ifndef TESSERACT_TEXTORD_STROKEWIDTH_H_
 #define TESSERACT_TEXTORD_STROKEWIDTH_H_
 
-#include "blobbox.h"        // BlobNeighourDir.
-#include "blobgrid.h"         // Base class.
+#include "blobbox.h"   // BlobNeighourDir.
+#include "blobgrid.h"  // Base class.
 #include "colpartitiongrid.h"
 #include "textlineprojection.h"
 
@@ -36,10 +36,7 @@ class TabFind;
 class TextlineProjection;
 
 // Misc enums to clarify bool arguments for direction-controlling args.
-enum LeftOrRight {
-  LR_LEFT,
-  LR_RIGHT
-};
+enum LeftOrRight { LR_LEFT, LR_RIGHT };
 
 // Return value from FindInitialPartitions indicates detection of severe
 // skew or noise.
@@ -89,16 +86,14 @@ class StrokeWidth : public BlobGrid {
   // direction are returned for use in orientation and script detection.
   // find_vertical_text_ratio should be textord_tabfind_vertical_text_ratio.
   bool TestVerticalTextDirection(double find_vertical_text_ratio,
-                                 TO_BLOCK* block,
-                                 BLOBNBOX_CLIST* osd_blobs);
+                                 TO_BLOCK* block, BLOBNBOX_CLIST* osd_blobs);
 
   // Corrects the data structures for the given rotation.
   void CorrectForRotation(const FCOORD& rerotation,
                           ColPartitionGrid* part_grid);
 
   // Finds leader partitions and inserts them into the give grid.
-  void FindLeaderPartitions(TO_BLOCK* block,
-                            ColPartitionGrid* part_grid);
+  void FindLeaderPartitions(TO_BLOCK* block, ColPartitionGrid* part_grid);
 
   // Finds and marks noise those blobs that look like bits of vertical lines
   // that would otherwise screw up layout analysis.
@@ -162,9 +157,8 @@ class StrokeWidth : public BlobGrid {
   // Return them in the list of blobs and expand the bbox to be the union
   // of all the boxes. not_this is excluded from the search, as are blobs
   // that cause the merged box to exceed max_size in either dimension.
-  void AccumulateOverlaps(const BLOBNBOX* not_this, bool debug,
-                          int max_size, int max_dist,
-                          TBOX* bbox, BLOBNBOX_CLIST* blobs);
+  void AccumulateOverlaps(const BLOBNBOX* not_this, bool debug, int max_size,
+                          int max_dist, TBOX* bbox, BLOBNBOX_CLIST* blobs);
 
   // For each blob in this grid, Finds the textline direction to be horizontal
   // or vertical according to distance to neighbours and 1st and 2nd order
@@ -269,11 +263,10 @@ class StrokeWidth : public BlobGrid {
   // Any blobs on the large_blobs list of block that are still unowned by a
   // ColPartition, are probably drop-cap or vertically touching so the blobs
   // are removed to the big_parts list and treated separately.
-  void RemoveLargeUnusedBlobs(TO_BLOCK* block,
-                              ColPartitionGrid* part_grid,
+  void RemoveLargeUnusedBlobs(TO_BLOCK* block, ColPartitionGrid* part_grid,
                               ColPartition_LIST* big_parts);
 
-    // All remaining unused blobs are put in individual ColPartitions.
+  // All remaining unused blobs are put in individual ColPartitions.
   void PartitionRemainingBlobs(PageSegMode pageseg_mode,
                                ColPartitionGrid* part_grid);
 
@@ -326,8 +319,8 @@ class StrokeWidth : public BlobGrid {
   ScrollView* DisplayGoodBlobs(const char* window_name, int x, int y);
 
   // Displays blobs colored according to whether or not they are diacritics.
-  ScrollView* DisplayDiacritics(const char* window_name,
-                                int x, int y, TO_BLOCK* block);
+  ScrollView* DisplayDiacritics(const char* window_name, int x, int y,
+                                TO_BLOCK* block);
 
  private:
   // Image map of photo/noise areas on the page. Borrowed pointer (not owned.)

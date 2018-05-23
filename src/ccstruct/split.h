@@ -100,8 +100,8 @@ struct SPLIT {
   // Removes the split that was put between these two points.
   void UnsplitOutlines() const;
 
-  EDGEPT *point1;
-  EDGEPT *point2;
+  EDGEPT* point1;
+  EDGEPT* point2;
 };
 
 /*----------------------------------------------------------------------
@@ -113,8 +113,8 @@ extern BOOL_VAR_H(wordrec_display_splits, 0, "Display splits");
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev);
+EDGEPT* make_edgept(int x, int y, EDGEPT* next, EDGEPT* prev);
 
-void remove_edgept(EDGEPT *point);
+void remove_edgept(EDGEPT* point);
 
 #endif

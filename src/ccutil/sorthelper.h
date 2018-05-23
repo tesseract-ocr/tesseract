@@ -36,7 +36,8 @@ template <typename T>
 class SortHelper {
  public:
   // Simple pair class to hold the values and counts.
-  template<typename PairT> struct SortPair {
+  template <typename PairT>
+  struct SortPair {
     PairT value;
     int count;
   };
@@ -56,9 +57,7 @@ class SortHelper {
   }
 
   // Constructor takes a hint of the array size, but it need not be accurate.
-  explicit SortHelper(int sizehint) {
-    counts_.reserve(sizehint);
-  }
+  explicit SortHelper(int sizehint) { counts_.reserve(sizehint); }
 
   // Add a value that may be a duplicate of an existing value.
   // Uses a linear search.
@@ -82,27 +81,25 @@ class SortHelper {
     for (int i = 0; i < counts_.size(); ++i) {
       if (counts_[i].count > best_count) {
         best_count = counts_[i].count;
-        if (max_value != nullptr)
-          *max_value = counts_[i].value;
+        if (max_value != nullptr) *max_value = counts_[i].value;
       }
     }
     return best_count;
   }
 
   // Returns the data array sorted by decreasing frequency.
-  const GenericVector<SortPair<T> >& SortByCount() {
+  const GenericVector<SortPair<T>>& SortByCount() {
     counts_.sort(&SortPairsByCount);
     return counts_;
   }
   // Returns the data array sorted by decreasing value.
-  const GenericVector<SortPair<T> >& SortByValue() {
+  const GenericVector<SortPair<T>>& SortByValue() {
     counts_.sort(&SortPairsByValue);
     return counts_;
   }
 
  private:
-  GenericVector<SortPair<T> > counts_;
+  GenericVector<SortPair<T>> counts_;
 };
-
 
 #endif  // TESSERACT_CCUTIL_SORTHELPER_H_.

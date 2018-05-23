@@ -47,7 +47,6 @@ static float sin_table[INT_CHAR_NORM_RANGE];
 // Guards write access to AtanTable so we don't create it more than once.
 tesseract::CCUtilMutex atan_table_mutex;
 
-
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
@@ -67,7 +66,8 @@ void InitIntegerFX() {
 
 // Returns a vector representing the direction of a feature with the given
 // theta direction in an INT_FEATURE_STRUCT.
-FCOORD FeatureDirection(uint8_t theta) {
+FCOORD
+FeatureDirection(uint8_t theta) {
   return FCOORD(cos_table[theta], sin_table[theta]);
 }
 
@@ -82,8 +82,8 @@ TrainingSample* BlobToTrainingSample(
     const TBLOB& blob, bool nonlinear_norm, INT_FX_RESULT_STRUCT* fx_info,
     GenericVector<INT_FEATURE_STRUCT>* bl_features) {
   GenericVector<INT_FEATURE_STRUCT> cn_features;
-  Classify::ExtractFeatures(blob, nonlinear_norm, bl_features,
-                            &cn_features, fx_info, nullptr);
+  Classify::ExtractFeatures(blob, nonlinear_norm, bl_features, &cn_features,
+                            fx_info, nullptr);
   // TODO(rays) Use blob->PreciseBoundingBox() instead.
   TBOX box = blob.bounding_box();
   TrainingSample* sample = nullptr;
@@ -145,31 +145,29 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
     fx_info->Ymean = IntCastRounded(center.y());
   }
   // Setup the denorm for Baseline normalization.
-  bl_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(), center.x(), 128.0f,
-                                1.0f, 1.0f, 128.0f, 128.0f);
+  bl_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(), center.x(),
+                                128.0f, 1.0f, 1.0f, 128.0f, 128.0f);
   // Setup the denorm for character normalization.
   if (nonlinear_norm) {
-    GenericVector<GenericVector<int> > x_coords;
-    GenericVector<GenericVector<int> > y_coords;
+    GenericVector<GenericVector<int>> x_coords;
+    GenericVector<GenericVector<int>> y_coords;
     TBOX box;
     blob.GetPreciseBoundingBox(&box);
     box.pad(1, 1);
     blob.GetEdgeCoords(box, &x_coords, &y_coords);
-    cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX,
-                              0.0f, 0.0f, x_coords, y_coords);
+    cn_denorm->SetupNonLinear(&blob.denorm(), box, UINT8_MAX, UINT8_MAX, 0.0f,
+                              0.0f, x_coords, y_coords);
   } else {
-    cn_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(),
-                                  center.x(), center.y(),
-                                  51.2f / second_moments.x(),
-                                  51.2f / second_moments.y(),
-                                  128.0f, 128.0f);
+    cn_denorm->SetupNormalization(nullptr, nullptr, &blob.denorm(), center.x(),
+                                  center.y(), 51.2f / second_moments.x(),
+                                  51.2f / second_moments.y(), 128.0f, 128.0f);
   }
 }
 
 // Helper normalizes the direction, assuming that it is at the given
 // unnormed_pos, using the given denorm, starting at the root_denorm.
 uint8_t NormalizeDirection(uint8_t dir, const FCOORD& unnormed_pos,
-                         const DENORM& denorm, const DENORM* root_denorm) {
+                           const DENORM& denorm, const DENORM* root_denorm) {
   // Convert direction to a vector.
   FCOORD unnormed_end;
   unnormed_end.from_direction(dir);
@@ -216,10 +214,8 @@ static FCOORD MeanDirectionVector(const LLSQ& point_diffs, const LLSQ& dirs,
       FCOORD fit_vector2 = !fit_vector;
       // The fit_vector is 180 degrees ambiguous, so resolve the ambiguity by
       // insisting that the scalar product with the feature_dir should be +ve.
-      if (fit_vector % feature_dir < 0.0)
-        fit_vector = -fit_vector;
-      if (fit_vector2 % feature_dir < 0.0)
-        fit_vector2 = -fit_vector2;
+      if (fit_vector % feature_dir < 0.0) fit_vector = -fit_vector;
+      if (fit_vector2 % feature_dir < 0.0) fit_vector2 = -fit_vector2;
       // Even though fit_vector2 has a higher mean squared error, it might be
       // a better fit, so use it if the dot product with feature_dir is bigger.
       if (fit_vector2 % feature_dir > fit_vector % feature_dir)
@@ -272,9 +268,8 @@ static int ComputeFeatures(const FCOORD& start_pt, const FCOORD& end_pt,
 // with the least variance.
 static int GatherPoints(const C_OUTLINE* outline, double feature_length,
                         const DENORM& denorm, const DENORM* root_denorm,
-                        int start_index, int end_index,
-                        ICOORD* pos, FCOORD* pos_normed,
-                        LLSQ* points, LLSQ* dirs) {
+                        int start_index, int end_index, ICOORD* pos,
+                        FCOORD* pos_normed, LLSQ* points, LLSQ* dirs) {
   int step_length = outline->pathlength();
   ICOORD step = outline->step(start_index % step_length);
   // Prev_normed is the start point of this collection and will be set on the
@@ -327,8 +322,8 @@ static int GatherPoints(const C_OUTLINE* outline, double feature_length,
 // If force_poly is true, the features will be extracted from the polygonal
 // approximation even if more accurate data is available.
 static void ExtractFeaturesFromRun(
-    const EDGEPT* startpt, const EDGEPT* lastpt,
-    const DENORM& denorm, double feature_length, bool force_poly,
+    const EDGEPT* startpt, const EDGEPT* lastpt, const DENORM& denorm,
+    double feature_length, bool force_poly,
     GenericVector<INT_FEATURE_STRUCT>* features) {
   const EDGEPT* endpt = lastpt->next;
   const C_OUTLINE* outline = startpt->src_outline;
@@ -346,8 +341,7 @@ static void ExtractFeaturesFromRun(
     // may be beyond the bounds of the outline steps/ due to wrap-around, to
     // so we use % step_length everywhere, except for start_index.
     int end_index = lastpt->start_step + lastpt->step_count;
-    if (end_index <= start_index)
-      end_index += step_length;
+    if (end_index <= start_index) end_index += step_length;
     LLSQ prev_points;
     LLSQ prev_dirs;
     FCOORD prev_normed_pos = outline->sub_pixel_pos_at_index(pos, start_index);
@@ -355,9 +349,9 @@ static void ExtractFeaturesFromRun(
     LLSQ points;
     LLSQ dirs;
     FCOORD normed_pos;
-    int index = GatherPoints(outline, feature_length, denorm, root_denorm,
-                             start_index, end_index, &pos, &normed_pos,
-                             &points, &dirs);
+    int index =
+        GatherPoints(outline, feature_length, denorm, root_denorm, start_index,
+                     end_index, &pos, &normed_pos, &points, &dirs);
     while (index <= end_index) {
       // At each iteration we nominally have 3 accumulated sets of points and
       // dirs: prev_points/dirs, points/dirs, next_points/dirs and sum them
@@ -367,9 +361,9 @@ static void ExtractFeaturesFromRun(
       LLSQ next_points;
       LLSQ next_dirs;
       FCOORD next_normed_pos;
-      index = GatherPoints(outline, feature_length, denorm, root_denorm,
-                           index, end_index, &pos, &next_normed_pos,
-                           &next_points, &next_dirs);
+      index = GatherPoints(outline, feature_length, denorm, root_denorm, index,
+                           end_index, &pos, &next_normed_pos, &next_points,
+                           &next_dirs);
       LLSQ sum_points(prev_points);
       // TODO(rays) find out why it is better to use just dirs and next_dirs
       // in sum_dirs, instead of using prev_dirs as well.
@@ -387,8 +381,8 @@ static void ExtractFeaturesFromRun(
         // The segment to which we fit features is the line passing through
         // fit_pt in direction of fit_vector that starts nearest to
         // prev_normed_pos and ends nearest to normed_pos.
-        FCOORD start_pos = prev_normed_pos.nearest_pt_on_line(fit_pt,
-                                                              fit_vector);
+        FCOORD start_pos =
+            prev_normed_pos.nearest_pt_on_line(fit_pt, fit_vector);
         FCOORD end_pos = normed_pos.nearest_pt_on_line(fit_pt, fit_vector);
         // Possible correction to match the adjacent polygon segment.
         if (total_features == 0 && startpt != endpt) {
@@ -399,8 +393,8 @@ static void ExtractFeaturesFromRun(
           FCOORD poly_pos(endpt->pos.x, endpt->pos.y);
           denorm.LocalNormTransform(poly_pos, &end_pos);
         }
-        int num_features = ComputeFeatures(start_pos, end_pos, feature_length,
-                                           features);
+        int num_features =
+            ComputeFeatures(start_pos, end_pos, feature_length, features);
         if (num_features > 0) {
           // We made some features so shuffle the accumulators.
           prev_points = points;
@@ -442,17 +436,15 @@ static void ExtractFeaturesFromRun(
 // number of cn features generated for each outline in the blob (in order).
 // Thus after the first outline, there were (*outline_cn_counts)[0] features,
 // after the second outline, there were (*outline_cn_counts)[1] features etc.
-void Classify::ExtractFeatures(const TBLOB& blob,
-                               bool nonlinear_norm,
+void Classify::ExtractFeatures(const TBLOB& blob, bool nonlinear_norm,
                                GenericVector<INT_FEATURE_STRUCT>* bl_features,
                                GenericVector<INT_FEATURE_STRUCT>* cn_features,
                                INT_FX_RESULT_STRUCT* results,
                                GenericVector<int>* outline_cn_counts) {
   DENORM bl_denorm, cn_denorm;
-  tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm,
-                                        &bl_denorm, &cn_denorm, results);
-  if (outline_cn_counts != nullptr)
-    outline_cn_counts->truncate(0);
+  tesseract::Classify::SetupBLCNDenorms(blob, nonlinear_norm, &bl_denorm,
+                                        &cn_denorm, results);
+  if (outline_cn_counts != nullptr) outline_cn_counts->truncate(0);
   // Iterate the outlines.
   for (TESSLINE* ol = blob.outlines; ol != nullptr; ol = ol->next) {
     // Iterate the polygon.

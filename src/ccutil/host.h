@@ -56,15 +56,16 @@ using BOOL8 = unsigned char;
 
 // Defines
 #ifndef TRUE
-#define TRUE            1
+#define TRUE 1
 #endif
 
 #ifndef FALSE
-#define FALSE           0
+#define FALSE 0
 #endif
 
 // Return true if x is within tolerance of y
-template<class T> bool NearlyEqual(T x, T y, T tolerance) {
+template <class T>
+bool NearlyEqual(T x, T y, T tolerance) {
   T diff = x - y;
   return diff <= tolerance && -diff <= tolerance;
 }

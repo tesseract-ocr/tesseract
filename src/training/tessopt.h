@@ -20,15 +20,15 @@
 #ifndef TESSERACT_TRAINING_TESSOPT_H_
 #define TESSERACT_TRAINING_TESSOPT_H_
 
-#include          "host.h"
+#include "host.h"
 
 extern int tessoptind;
-extern char *tessoptarg;
+extern char* tessoptarg;
 
-int tessopt (                     //parse args
-int32_t argc,                      //arg count
-char *argv[],                    //args
-const char *arglist                    //string of arg chars
+int tessopt(             // parse args
+    int32_t argc,        // arg count
+    char* argv[],        // args
+    const char* arglist  // string of arg chars
 );
 
 #endif  // TESSERACT_TRAINING_TESSOPT_H_

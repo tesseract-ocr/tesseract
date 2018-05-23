@@ -60,33 +60,21 @@ class GenericHeap {
   GenericHeap() = default;
   // The initial size is only a GenericVector::reserve. It is not enforced as
   // the size limit of the heap. Caller must implement their own enforcement.
-  explicit GenericHeap(int initial_size) {
-    heap_.reserve(initial_size);
-  }
+  explicit GenericHeap(int initial_size) { heap_.reserve(initial_size); }
 
   // Simple accessors.
-  bool empty() const {
-    return heap_.empty();
-  }
-  int size() const {
-    return heap_.size();
-  }
-  int size_reserved() const {
-    return heap_.size_reserved();
-  }
+  bool empty() const { return heap_.empty(); }
+  int size() const { return heap_.size(); }
+  int size_reserved() const { return heap_.size_reserved(); }
   void clear() {
     // Clear truncates to 0 to keep the number reserved in tact.
     heap_.truncate(0);
   }
   // Provides access to the underlying vector.
   // Caution! any changes that modify the keys will invalidate the heap!
-  GenericVector<Pair>* heap() {
-    return &heap_;
-  }
+  GenericVector<Pair>* heap() { return &heap_; }
   // Provides read-only access to an element of the underlying vector.
-  const Pair& get(int index) const {
-    return heap_[index];
-  }
+  const Pair& get(int index) const { return heap_[index]; }
 
   // Add entry to the heap, keeping the smallest item at the top, by operator<.
   // Note that *entry is used as the source of operator=, but it is non-const
@@ -105,9 +93,7 @@ class GenericHeap {
   }
 
   // Get the value of the top (smallest, defined by operator< ) element.
-  const Pair& PeekTop() const {
-    return heap_[0];
-  }
+  const Pair& PeekTop() const { return heap_[0]; }
   // Get the value of the worst (largest, defined by operator< ) element.
   const Pair& PeekWorst() const { return heap_[IndexOfWorst()]; }
 
@@ -117,10 +103,8 @@ class GenericHeap {
   // Time = O(log n).
   bool Pop(Pair* entry) {
     int new_size = heap_.size() - 1;
-    if (new_size < 0)
-      return false;  // Already empty.
-    if (entry != nullptr)
-      *entry = heap_[0];
+    if (new_size < 0) return false;  // Already empty.
+    if (entry != nullptr) *entry = heap_[0];
     if (new_size > 0) {
       // Sift the hole at the start of the heap_ downwards to match the last
       // element.
@@ -141,8 +125,7 @@ class GenericHeap {
     int worst_index = IndexOfWorst();
     if (worst_index < 0) return false;  // It cannot be empty!
     // Extract the worst element from the heap, leaving a hole at worst_index.
-    if (entry != nullptr)
-      *entry = heap_[worst_index];
+    if (entry != nullptr) *entry = heap_[worst_index];
     int heap_size = heap_.size() - 1;
     if (heap_size > 0) {
       // Sift the hole upwards to match the last element of the heap_
@@ -207,8 +190,7 @@ class GenericHeap {
     int heap_size = heap_.size();
     int child;
     while ((child = LeftChild(hole_index)) < heap_size) {
-      if (child + 1 < heap_size && heap_[child + 1] < heap_[child])
-        ++child;
+      if (child + 1 < heap_size && heap_[child + 1] < heap_[child]) ++child;
       if (heap_[child] < pair) {
         heap_[hole_index] = heap_[child];
         hole_index = child;
@@ -221,12 +203,8 @@ class GenericHeap {
 
   // Functions to navigate the tree. Unlike the original implementation, we
   // store the root at index 0.
-  int ParentNode(int index) const {
-    return (index + 1) / 2 - 1;
-  }
-  int LeftChild(int index) const {
-    return index * 2 + 1;
-  }
+  int ParentNode(int index) const { return (index + 1) / 2 - 1; }
+  int LeftChild(int index) const { return index * 2 + 1; }
 
  private:
   GenericVector<Pair> heap_;

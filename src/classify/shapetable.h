@@ -40,16 +40,24 @@ class ShapeTable;
 // rating, and a list of appropriate fonts.
 struct UnicharRating {
   UnicharRating()
-    : unichar_id(0), rating(0.0f), adapted(false), config(0),
-      feature_misses(0) {}
+      : unichar_id(0),
+        rating(0.0f),
+        adapted(false),
+        config(0),
+        feature_misses(0) {}
   UnicharRating(int u, float r)
-    : unichar_id(u), rating(r), adapted(false), config(0), feature_misses(0) {}
+      : unichar_id(u),
+        rating(r),
+        adapted(false),
+        config(0),
+        feature_misses(0) {}
 
   // Print debug info.
   void Print() const {
-    tprintf("Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%d,"
-            " %d fonts\n", unichar_id, rating, adapted, config, feature_misses,
-            fonts.size());
+    tprintf(
+        "Unichar-id=%d, rating=%g, adapted=%d, config=%d, misses=%d,"
+        " %d fonts\n",
+        unichar_id, rating, adapted, config, feature_misses, fonts.size());
   }
 
   // Sort function to sort ratings appropriately by descending rating.
@@ -92,11 +100,19 @@ struct UnicharRating {
 // ShapeTable and a rating.
 struct ShapeRating {
   ShapeRating()
-    : shape_id(0), rating(0.0f), raw(0.0f), font(0.0f),
-      joined(false), broken(false) {}
+      : shape_id(0),
+        rating(0.0f),
+        raw(0.0f),
+        font(0.0f),
+        joined(false),
+        broken(false) {}
   ShapeRating(int s, float r)
-    : shape_id(s), rating(r), raw(1.0f), font(0.0f),
-      joined(false), broken(false) {}
+      : shape_id(s),
+        rating(r),
+        raw(1.0f),
+        font(0.0f),
+        joined(false),
+        broken(false) {}
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
@@ -138,13 +154,12 @@ struct ShapeRating {
 struct ShapeQueueEntry {
   ShapeQueueEntry() : result(ShapeRating(0, 0.0f)), level(0) {}
   ShapeQueueEntry(const ShapeRating& rating, int level0)
-    : result(rating), level(level0) {}
+      : result(rating), level(level0) {}
 
   // Sort by decreasing rating and decreasing level for equal rating.
   bool operator<(const ShapeQueueEntry& other) const {
     if (result.rating > other.result.rating) return true;
-    if (result.rating == other.result.rating)
-      return level > other.level;
+    if (result.rating == other.result.rating) return level > other.level;
     return false;
   }
 
@@ -158,8 +173,7 @@ using ShapeQueue = GenericHeap<ShapeQueueEntry>;
 // Simple struct to hold a set of fonts associated with a single unichar-id.
 // A vector of UnicharAndFonts makes a shape.
 struct UnicharAndFonts {
-  UnicharAndFonts() : unichar_id(0) {
-  }
+  UnicharAndFonts() : unichar_id(0) {}
   UnicharAndFonts(int uni_id, int font_id) : unichar_id(uni_id) {
     font_ids.push_back(font_id);
   }
@@ -191,15 +205,9 @@ class Shape {
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(TFile* fp);
 
-  int destination_index() const {
-    return destination_index_;
-  }
-  void set_destination_index(int index) {
-    destination_index_ = index;
-  }
-  int size() const {
-    return unichars_.size();
-  }
+  int destination_index() const { return destination_index_; }
+  void set_destination_index(int index) { destination_index_ = index; }
+  int size() const { return unichars_.size(); }
   // Returns a UnicharAndFonts entry for the given index, which must be
   // in the range [0, size()).
   const UnicharAndFonts& operator[](int index) const {
@@ -272,12 +280,8 @@ class ShapeTable {
   bool DeSerialize(TFile* fp);
 
   // Accessors.
-  int NumShapes() const {
-    return shape_table_.size();
-  }
-  const UNICHARSET& unicharset() const {
-    return *unicharset_;
-  }
+  int NumShapes() const { return shape_table_.size(); }
+  const UNICHARSET& unicharset() const { return *unicharset_; }
   // Returns the number of fonts used in this ShapeTable, computing it if
   // necessary.
   int NumFonts() const;
@@ -313,16 +317,12 @@ class ShapeTable {
   // the unichar_id is returned.
   int FindShape(int unichar_id, int font_id) const;
   // Returns the first unichar_id and font_id in the given shape.
-  void GetFirstUnicharAndFont(int shape_id,
-                              int* unichar_id, int* font_id) const;
+  void GetFirstUnicharAndFont(int shape_id, int* unichar_id,
+                              int* font_id) const;
 
   // Accessors for the Shape with the given shape_id.
-  const Shape& GetShape(int shape_id) const {
-    return *shape_table_[shape_id];
-  }
-  Shape* MutableShape(int shape_id) {
-    return shape_table_[shape_id];
-  }
+  const Shape& GetShape(int shape_id) const { return *shape_table_[shape_id]; }
+  Shape* MutableShape(int shape_id) { return shape_table_[shape_id]; }
 
   // Expands all the classes/fonts in the shape individually to build
   // a ShapeTable.
@@ -350,7 +350,8 @@ class ShapeTable {
   // Appends the master shapes from other to this.
   // Used to create a clean ShapeTable from a merged one, or to create a
   // copy of a ShapeTable.
-  // If not nullptr, shape_map is set to map other shape_ids to this's shape_ids.
+  // If not nullptr, shape_map is set to map other shape_ids to this's
+  // shape_ids.
   void AppendMasterShapes(const ShapeTable& other,
                           GenericVector<int>* shape_map);
   // Returns the number of master shapes remaining after merging.

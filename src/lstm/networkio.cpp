@@ -64,8 +64,8 @@ void NetworkIO::ResizeToMap(bool int_mode, const StrideMap& stride_map,
 }
 
 // Shrinks image size by x_scale,y_scale, and use given number of features.
-void NetworkIO::ResizeScaled(const NetworkIO& src,
-                             int x_scale, int y_scale, int num_features) {
+void NetworkIO::ResizeScaled(const NetworkIO& src, int x_scale, int y_scale,
+                             int num_features) {
   StrideMap stride_map = src.stride_map_;
   stride_map.ScaleXY(x_scale, y_scale);
   ResizeToMap(src.int_mode_, stride_map, num_features);
@@ -281,7 +281,7 @@ void NetworkIO::SetPixel(int t, int f, int pixel, float black, float contrast) {
   float float_pixel = (pixel - black) / contrast - 1.0f;
   if (int_mode_) {
     i_[t][f] = ClipToRange<int>(IntCastRounded((INT8_MAX + 1) * float_pixel),
-                           -INT8_MAX, INT8_MAX);
+                                -INT8_MAX, INT8_MAX);
   } else {
     f_[t][f] = float_pixel;
   }
@@ -315,8 +315,10 @@ Pix* NetworkIO::ToPix() const {
         int green = red, blue = red;
         if (feature_factor == 3) {
           // With 3 features assume RGB color.
-          green = ClipToRange<int>(features[y * feature_factor + 1] + 128, 0, 255);
-          blue = ClipToRange<int>(features[y * feature_factor + 2] + 128, 0, 255);
+          green =
+              ClipToRange<int>(features[y * feature_factor + 1] + 128, 0, 255);
+          blue =
+              ClipToRange<int>(features[y * feature_factor + 2] + 128, 0, 255);
         } else if (num_features > 3) {
           // More than 3 features use false yellow/blue color, assuming a signed
           // input in the range [-1,1].
@@ -329,23 +331,26 @@ Pix* NetworkIO::ToPix() const {
             green = red = 0;
           }
         }
-        pixSetPixel(pix, im_x, im_y, (red << L_RED_SHIFT) |
-                                         (green << L_GREEN_SHIFT) |
-                                         (blue << L_BLUE_SHIFT));
+        pixSetPixel(pix, im_x, im_y,
+                    (red << L_RED_SHIFT) | (green << L_GREEN_SHIFT) |
+                        (blue << L_BLUE_SHIFT));
       }
     } else {
       const float* features = f_[t];
       for (int y = 0; y < num_features; ++y, im_y += im_height) {
         float pixel = features[y * feature_factor];
         // 1 or 2 features use greyscale.
-        int red = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+        int red =
+            ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
         int green = red, blue = red;
         if (feature_factor == 3) {
           // With 3 features assume RGB color.
           pixel = features[y * feature_factor + 1];
-          green = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+          green =
+              ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
           pixel = features[y * feature_factor + 2];
-          blue = ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
+          blue =
+              ClipToRange<int>(IntCastRounded((pixel + 1.0f) * 127.5f), 0, 255);
         } else if (num_features > 3) {
           // More than 3 features use false yellow/blue color, assuming a signed
           // input in the range [-1,1].
@@ -358,9 +363,9 @@ Pix* NetworkIO::ToPix() const {
             green = red = 0;
           }
         }
-        pixSetPixel(pix, im_x, im_y, (red << L_RED_SHIFT) |
-                                         (green << L_GREEN_SHIFT) |
-                                         (blue << L_BLUE_SHIFT));
+        pixSetPixel(pix, im_x, im_y,
+                    (red << L_RED_SHIFT) | (green << L_GREEN_SHIFT) |
+                        (blue << L_BLUE_SHIFT));
       }
     }
   } while (index.Increment());
@@ -544,8 +549,7 @@ void NetworkIO::SetActivations(int t, int label, float ok_score) {
   int num_classes = NumFeatures();
   float bad_score = (1.0f - ok_score) / (num_classes - 1);
   float* targets = f_[t];
-  for (int i = 0; i < num_classes; ++i)
-    targets[i] = bad_score;
+  for (int i = 0; i < num_classes; ++i) targets[i] = bad_score;
   targets[label] = ok_score;
 }
 
@@ -658,8 +662,8 @@ void NetworkIO::WriteTimeStepPart(int t, int offset, int num_features,
   if (int_mode_) {
     int8_t* line = i_[t] + offset;
     for (int i = 0; i < num_features; ++i) {
-      line[i] = ClipToRange<int>(IntCastRounded(input[i] * INT8_MAX),
-                                 -INT8_MAX, INT8_MAX);
+      line[i] = ClipToRange<int>(IntCastRounded(input[i] * INT8_MAX), -INT8_MAX,
+                                 INT8_MAX);
     }
   } else {
     float* line = f_[t] + offset;
@@ -977,8 +981,7 @@ void NetworkIO::ClipVector(int t, float range) {
   ASSERT_HOST(!int_mode_);
   float* v = f_[t];
   int dim = f_.dim2();
-  for (int i = 0; i < dim; ++i)
-    v[i] = ClipToRange<float>(v[i], -range, range);
+  for (int i = 0; i < dim; ++i) v[i] = ClipToRange<float>(v[i], -range, range);
 }
 
 // Returns the padding required for the given number of features in order

@@ -14,7 +14,7 @@
 #ifndef TESSERACT_TEXTORD_TEXTLINEPROJECTION_H_
 #define TESSERACT_TEXTORD_TEXTLINEPROJECTION_H_
 
-#include "blobgrid.h"      // For BlobGrid
+#include "blobgrid.h"  // For BlobGrid
 
 class DENORM;
 struct Pix;
@@ -44,8 +44,8 @@ class TextlineProjection {
   // The rotation is a multiple of 90 degrees, ie no deskew yet.
   // The blobs have had their left and right rules set to also limit
   // the range of projection.
-  void ConstructProjection(TO_BLOCK* input_block,
-                           const FCOORD& rotation, Pix* nontext_map);
+  void ConstructProjection(TO_BLOCK* input_block, const FCOORD& rotation,
+                           Pix* nontext_map);
 
   // Display the blobs in the window colored according to textline quality.
   void PlotGradedBlobs(BLOBNBOX_LIST* blobs, ScrollView* win);
@@ -76,8 +76,8 @@ class TextlineProjection {
   // The projection uses original image coords, so denorm is used to get
   // back to the image coords from box/part space.
   int DistanceOfBoxFromBox(const TBOX& from_box, const TBOX& to_box,
-                           bool horizontal_textline,
-                           const DENORM* denorm, bool debug) const;
+                           bool horizontal_textline, const DENORM* denorm,
+                           bool debug) const;
 
   // Compute the distance between (x, y1) and (x, y2) using the rule that
   // a decrease in textline density is weighted more heavily than an increase.
@@ -95,7 +95,7 @@ class TextlineProjection {
   // Such blobs are potentially diacritics (even if large in Thai) and should
   // be kept away from initial textline finding.
   bool BoxOutOfHTextline(const TBOX& box, const DENORM* denorm,
-                        bool debug) const;
+                         bool debug) const;
 
   // Evaluates the textlineiness of a ColPartition. Uses EvaluateBox below,
   // but uses the median top/bottom for horizontal and median left/right for
@@ -128,8 +128,8 @@ class TextlineProjection {
   // as the result of EvaluateBox.
   // hgrad1 and hgrad2 are the gradients for the horizontal textline.
   int EvaluateBoxInternal(const TBOX& box, const DENORM* denorm, bool debug,
-                          int* hgrad1, int* hgrad2,
-                          int* vgrad1, int* vgrad2) const;
+                          int* hgrad1, int* hgrad2, int* vgrad1,
+                          int* vgrad2) const;
 
   // Helper returns the mean gradient value for the horizontal row at the given
   // y, (in the external coordinates) by subtracting the mean of the transformed
@@ -158,8 +158,8 @@ class TextlineProjection {
   // perpendicular to the line direction. The offset is thus in projection image
   // coordinates, which allows the caller to get a guaranteed displacement
   // between pixels used to calculate gradients.
-  int MeanPixelsInLineSegment(const DENORM* denorm, int offset,
-                              TPOINT start_pt, TPOINT end_pt) const;
+  int MeanPixelsInLineSegment(const DENORM* denorm, int offset, TPOINT start_pt,
+                              TPOINT end_pt) const;
 
   // Helper function to add 1 to a rectangle in source image coords to the
   // internal projection pix_.

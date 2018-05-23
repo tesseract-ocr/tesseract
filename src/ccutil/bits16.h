@@ -17,46 +17,41 @@
  *
  **********************************************************************/
 
-#ifndef           BITS16_H
-#define           BITS16_H
+#ifndef BITS16_H
+#define BITS16_H
 
 #include "host.h"
 
-class DLLSYM BITS16
-{
-  public:
-    uint16_t val;
+class DLLSYM BITS16 {
+ public:
+  uint16_t val;
 
-    BITS16() {
-      val = 0;
-    }                            // constructor
+  BITS16() { val = 0; }  // constructor
 
-    BITS16(uint16_t init) {
-      val = init;
-    }
+  BITS16(uint16_t init) { val = init; }
 
-    void turn_on_bit(                  // flip specified bit
-                     uint8_t bit_num) {  // bit to flip 0..7
+  void turn_on_bit(       // flip specified bit
+      uint8_t bit_num) {  // bit to flip 0..7
+    val = val | 01 << bit_num;
+  }
+
+  void turn_off_bit(      // flip specified bit
+      uint8_t bit_num) {  // bit to flip 0..7
+    val = val & ~(01 << bit_num);
+  }
+
+  void set_bit(         // flip specified bit
+      uint8_t bit_num,  // bit to flip 0..7
+      bool value) {     // value to flip to
+    if (value)
       val = val | 01 << bit_num;
-    }
-
-    void turn_off_bit(                  // flip specified bit
-                      uint8_t bit_num) {  // bit to flip 0..7
+    else
       val = val & ~(01 << bit_num);
-    }
+  }
 
-    void set_bit(                // flip specified bit
-            uint8_t bit_num,  // bit to flip 0..7
-            bool value) {  // value to flip to
-      if (value)
-        val = val | 01 << bit_num;
-      else
-        val = val & ~(01 << bit_num);
-    }
-
-    bool bit(                        // access bit
-              uint8_t bit_num) const {  // bit to access
-      return (val >> bit_num) & 01;
-    }
+  bool bit(                     // access bit
+      uint8_t bit_num) const {  // bit to access
+    return (val >> bit_num) & 01;
+  }
 };
 #endif

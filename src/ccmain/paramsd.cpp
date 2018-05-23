@@ -21,8 +21,8 @@
 // tesseract from the ui.
 #ifdef _WIN32
 #else
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #endif
 
 #include <map>
@@ -35,13 +35,11 @@
 #ifndef GRAPHICS_DISABLED
 #include "paramsd.h"
 
-
 #include "params.h"
 #include "scrollview.h"
 #include "svmnode.h"
 
-
-#define VARDIR        "configs/" /*parameters files */
+#define VARDIR "configs/" /*parameters files */
 #define MAX_ITEMS_IN_SUBMENU 30
 
 // The following variables should remain static globals, since they
@@ -88,20 +86,17 @@ ParamContent::ParamContent(tesseract::DoubleParam* it) {
 }
 
 // Gets a VC object identified by its ID.
-ParamContent* ParamContent::GetParamContentById(int id) {
-  return vcMap[id];
-}
+ParamContent* ParamContent::GetParamContentById(int id) { return vcMap[id]; }
 
 // Copy the first N words from the source string to the target string.
 // Words are delimited by "_".
-void ParamsEditor::GetFirstWords(
-                     const char *s,  // source string
-                     int n,          // number of words
-                     char *t         // target string
-                    ) {
+void ParamsEditor::GetFirstWords(const char* s,  // source string
+                                 int n,          // number of words
+                                 char* t         // target string
+) {
   int full_length = strlen(s);
-  int reqd_len = 0;              // No. of chars requird
-  const char *next_word = s;
+  int reqd_len = 0;  // No. of chars requird
+  const char* next_word = s;
 
   while ((n > 0) && reqd_len < full_length) {
     reqd_len += strcspn(next_word, "_") + 1;
@@ -109,30 +104,40 @@ void ParamsEditor::GetFirstWords(
     n--;
   }
   strncpy(t, s, reqd_len);
-  t[reqd_len] = '\0';            // ensure null terminal
+  t[reqd_len] = '\0';  // ensure null terminal
 }
 
 // Getter for the name.
 const char* ParamContent::GetName() const {
-  if (param_type_ == VT_INTEGER) { return iIt->name_str(); }
-  else if (param_type_ == VT_BOOLEAN) { return bIt->name_str(); }
-  else if (param_type_ == VT_DOUBLE) { return dIt->name_str(); }
-  else if (param_type_ == VT_STRING) { return sIt->name_str(); }
-  else
+  if (param_type_ == VT_INTEGER) {
+    return iIt->name_str();
+  } else if (param_type_ == VT_BOOLEAN) {
+    return bIt->name_str();
+  } else if (param_type_ == VT_DOUBLE) {
+    return dIt->name_str();
+  } else if (param_type_ == VT_STRING) {
+    return sIt->name_str();
+  } else
     return "ERROR: ParamContent::GetName()";
 }
 
 // Getter for the description.
 const char* ParamContent::GetDescription() const {
-  if (param_type_ == VT_INTEGER) { return iIt->info_str(); }
-  else if (param_type_ == VT_BOOLEAN) { return bIt->info_str(); }
-  else if (param_type_ == VT_DOUBLE) { return dIt->info_str(); }
-  else if (param_type_ == VT_STRING) { return sIt->info_str(); }
-  else return nullptr;
+  if (param_type_ == VT_INTEGER) {
+    return iIt->info_str();
+  } else if (param_type_ == VT_BOOLEAN) {
+    return bIt->info_str();
+  } else if (param_type_ == VT_DOUBLE) {
+    return dIt->info_str();
+  } else if (param_type_ == VT_STRING) {
+    return sIt->info_str();
+  } else
+    return nullptr;
 }
 
 // Getter for the value.
-STRING ParamContent::GetValue() const {
+STRING
+ParamContent::GetValue() const {
   STRING result;
   if (param_type_ == VT_INTEGER) {
     result.add_str_int("", *iIt);
@@ -152,8 +157,8 @@ STRING ParamContent::GetValue() const {
 
 // Setter for the value.
 void ParamContent::SetValue(const char* val) {
-// TODO (wanke) Test if the values actually are properly converted.
-// (Quickly visible impacts?)
+  // TODO (wanke) Test if the values actually are properly converted.
+  // (Quickly visible impacts?)
   changed_ = true;
   if (param_type_ == VT_INTEGER) {
     iIt->set_value(atoi(val));
@@ -169,8 +174,7 @@ void ParamContent::SetValue(const char* val) {
 // Gets the up to the first 3 prefixes from s (split by _).
 // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
 void ParamsEditor::GetPrefixes(const char* s, STRING* level_one,
-                               STRING* level_two,
-                               STRING* level_three) {
+                               STRING* level_two, STRING* level_three) {
   char* p = new char[1024];
   GetFirstWords(s, 1, p);
   *level_one = p;
@@ -191,7 +195,7 @@ int ParamContent::Compare(const void* v1, const void* v2) {
 // Find all editable parameters used within tesseract and create a
 // SVMenuNode tree from it.
 // TODO (wanke): This is actually sort of hackish.
-SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
+SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract* tess) {
   SVMenuNode* mr = new SVMenuNode();
   ParamContent_LIST vclist;
   ParamContent_IT vc_it(&vclist);
@@ -203,7 +207,7 @@ SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
   int v, i;
   int num_iterations = (tess->params() == nullptr) ? 1 : 2;
   for (v = 0; v < num_iterations; ++v) {
-    tesseract::ParamsVectors *vec = (v == 0) ? GlobalParams() : tess->params();
+    tesseract::ParamsVectors* vec = (v == 0) ? GlobalParams() : tess->params();
     for (i = 0; i < vec->int_params.size(); ++i) {
       vc_it.add_after_then_move(new ParamContent(vec->int_params[i]));
     }
@@ -251,12 +255,12 @@ SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
       SVMenuNode* sv = mr->AddChild(tag.string());
       if ((amount[tag.string()] <= MAX_ITEMS_IN_SUBMENU) ||
           (amount[tag2.string()] <= 1)) {
-        sv->AddChild(vc->GetName(), vc->GetId(),
-                     vc->GetValue().string(), vc->GetDescription());
+        sv->AddChild(vc->GetName(), vc->GetId(), vc->GetValue().string(),
+                     vc->GetDescription());
       } else {  // Make subsubmenus.
         SVMenuNode* sv2 = sv->AddChild(tag2.string());
-        sv2->AddChild(vc->GetName(), vc->GetId(),
-                      vc->GetValue().string(), vc->GetDescription());
+        sv2->AddChild(vc->GetName(), vc->GetId(), vc->GetValue().string(),
+                      vc->GetDescription());
       }
     }
   }
@@ -272,11 +276,10 @@ void ParamsEditor::Notify(const SVEvent* sve) {
     } else if (sve->command_id == writeCommands[1]) {
       WriteParams(param, true);
     } else {
-      ParamContent* vc = ParamContent::GetParamContentById(
-          sve->command_id);
+      ParamContent* vc = ParamContent::GetParamContentById(sve->command_id);
       vc->SetValue(param);
-      sv_window_->AddMessage("Setting %s to %s",
-                             vc->GetName(), vc->GetValue().string());
+      sv_window_->AddMessage("Setting %s to %s", vc->GetName(),
+                             vc->GetValue().string());
     }
   }
 }
@@ -284,8 +287,7 @@ void ParamsEditor::Notify(const SVEvent* sve) {
 // Integrate the parameters editor as popupmenu into the existing scrollview
 // window (usually the pg editor). If sv == null, create a new empty
 // empty window and attach the parameters editor to that window (ugly).
-ParamsEditor::ParamsEditor(tesseract::Tesseract* tess,
-                                 ScrollView* sv) {
+ParamsEditor::ParamsEditor(tesseract::Tesseract* tess, ScrollView* sv) {
   if (sv == nullptr) {
     const char* name = "ParamEditorMAIN";
     sv = new ScrollView(name, 1, 1, 200, 200, 300, 200);
@@ -293,47 +295,48 @@ ParamsEditor::ParamsEditor(tesseract::Tesseract* tess,
 
   sv_window_ = sv;
 
-  //Only one event handler per window.
-  //sv->AddEventHandler((SVEventHandler*) this);
+  // Only one event handler per window.
+  // sv->AddEventHandler((SVEventHandler*) this);
 
   SVMenuNode* svMenuRoot = BuildListOfAllLeaves(tess);
 
   STRING paramfile;
   paramfile = tess->datadir;
-  paramfile += VARDIR;             // parameters dir
-  paramfile += "edited";           // actual name
+  paramfile += VARDIR;    // parameters dir
+  paramfile += "edited";  // actual name
 
-  SVMenuNode* std_menu = svMenuRoot->AddChild ("Build Config File");
+  SVMenuNode* std_menu = svMenuRoot->AddChild("Build Config File");
 
-  writeCommands[0] = nrParams+1;
-  std_menu->AddChild("All Parameters", writeCommands[0],
+  writeCommands[0] = nrParams + 1;
+  std_menu->AddChild("All Parameters", writeCommands[0], paramfile.string(),
+                     "Config file name?");
+
+  writeCommands[1] = nrParams + 2;
+  std_menu->AddChild("changed_ Parameters Only", writeCommands[1],
                      paramfile.string(), "Config file name?");
-
-  writeCommands[1] = nrParams+2;
-  std_menu->AddChild ("changed_ Parameters Only", writeCommands[1],
-                      paramfile.string(), "Config file name?");
 
   svMenuRoot->BuildMenu(sv, false);
 }
 
-
 // Write all (changed_) parameters to a config file.
-void ParamsEditor::WriteParams(char *filename,
-                               bool changes_only) {
-  FILE *fp;                      // input file
+void ParamsEditor::WriteParams(char* filename, bool changes_only) {
+  FILE* fp;  // input file
   char msg_str[255];
-                                 // if file exists
-  if ((fp = fopen (filename, "rb")) != nullptr) {
+  // if file exists
+  if ((fp = fopen(filename, "rb")) != nullptr) {
     fclose(fp);
-    sprintf (msg_str, "Overwrite file " "%s" "? (Y/N)", filename);
+    sprintf(msg_str,
+            "Overwrite file "
+            "%s"
+            "? (Y/N)",
+            filename);
     int a = sv_window_->ShowYesNoDialog(msg_str);
     if (a == 'n') {
       return;
     }  // don't write
   }
 
-
-  fp = fopen (filename, "wb");  // can we write to it?
+  fp = fopen(filename, "wb");  // can we write to it?
   if (fp == nullptr) {
     sv_window_->AddMessage(
         "Can't write to file "
@@ -344,12 +347,11 @@ void ParamsEditor::WriteParams(char *filename,
   }
 
   for (std::map<int, ParamContent*>::iterator iter = vcMap.begin();
-                                          iter != vcMap.end();
-                                          ++iter) {
+       iter != vcMap.end(); ++iter) {
     ParamContent* cur = iter->second;
     if (!changes_only || cur->HasChanged()) {
-      fprintf(fp, "%-25s   %-12s   # %s\n",
-              cur->GetName(), cur->GetValue().string(), cur->GetDescription());
+      fprintf(fp, "%-25s   %-12s   # %s\n", cur->GetName(),
+              cur->GetValue().string(), cur->GetDescription());
     }
   }
   fclose(fp);

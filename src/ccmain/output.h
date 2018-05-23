@@ -17,17 +17,17 @@
  *
  **********************************************************************/
 
-#ifndef           OUTPUT_H
-#define           OUTPUT_H
+#ifndef OUTPUT_H
+#define OUTPUT_H
 
-#include          "params.h"
+#include "params.h"
 //#include                                      "epapconv.h"
-#include          "pageres.h"
+#include "pageres.h"
 
 /** test line ends */
-char determine_newline_type(WERD *word,        ///< word to do
-                            BLOCK *block,      ///< current block
-                            WERD *next_word,   ///< next word
-                            BLOCK *next_block  ///< block of next word
-                           );
+char determine_newline_type(WERD* word,        ///< word to do
+                            BLOCK* block,      ///< current block
+                            WERD* next_word,   ///< next word
+                            BLOCK* next_block  ///< block of next word
+);
 #endif

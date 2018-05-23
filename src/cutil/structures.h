@@ -28,8 +28,8 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "oldlist.h"
 #include "danerror.h"
+#include "oldlist.h"
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -42,18 +42,10 @@
  * for each new data type.
  **********************************************************************/
 
-#define makestructure(newfunc, old, type)                \
-type *newfunc()                                                                  \
-{                                                                            \
-	return new type; \
-}                                                                            \
-																									\
-																									\
-																									\
-void old(type* deadelement)                                                       \
-{                                                                            \
-	delete deadelement; \
-}                                                                            \
+#define makestructure(newfunc, old, type) \
+  type* newfunc() { return new type; }    \
+                                          \
+  void old(type* deadelement) { delete deadelement; }
 
 /*----------------------------------------------------------------------
               F u n c t i o n s

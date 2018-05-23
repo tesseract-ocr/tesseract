@@ -93,9 +93,7 @@ class Plumbing : public Network {
   void DebugWeights() override;
 
   // Returns the current stack.
-  const PointerVector<Network>& stack() const {
-    return stack_;
-  }
+  const PointerVector<Network>& stack() const { return stack_; }
   // Returns a set of strings representing the layer-ids of all layers below.
   void EnumerateLayers(const STRING* prefix,
                        GenericVector<STRING>* layers) const;

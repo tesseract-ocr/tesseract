@@ -52,27 +52,31 @@ class GENERIC_2D_ARRAY {
   // member will be routed to the base class implementation. Subclasses can
   // either pass the memory in, or allocate after by calling Resize().
   GENERIC_2D_ARRAY(int dim1, int dim2, const T& empty, T* array)
-    : empty_(empty), dim1_(dim1), dim2_(dim2), array_(array)  {
+      : empty_(empty), dim1_(dim1), dim2_(dim2), array_(array) {
     size_allocated_ = dim1 * dim2;
   }
   // Original constructor for a full rectangular matrix DOES allocate memory
   // and initialize it to empty.
   GENERIC_2D_ARRAY(int dim1, int dim2, const T& empty)
-    : empty_(empty), dim1_(dim1), dim2_(dim2)  {
+      : empty_(empty), dim1_(dim1), dim2_(dim2) {
     int new_size = dim1 * dim2;
     array_ = new T[new_size];
     size_allocated_ = new_size;
-    for (int i = 0; i < size_allocated_; ++i)
-      array_[i] = empty_;
+    for (int i = 0; i < size_allocated_; ++i) array_[i] = empty_;
   }
   // Default constructor for array allocation. Use Resize to set the size.
   GENERIC_2D_ARRAY()
-    : array_(nullptr), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
-      size_allocated_(0) {
-  }
+      : array_(nullptr),
+        empty_(static_cast<T>(0)),
+        dim1_(0),
+        dim2_(0),
+        size_allocated_(0) {}
   GENERIC_2D_ARRAY(const GENERIC_2D_ARRAY<T>& src)
-    : array_(nullptr), empty_(static_cast<T>(0)), dim1_(0), dim2_(0),
-      size_allocated_(0) {
+      : array_(nullptr),
+        empty_(static_cast<T>(0)),
+        dim1_(0),
+        dim2_(0),
+        size_allocated_(0) {
     *this = src;
   }
   virtual ~GENERIC_2D_ARRAY() { delete[] array_; }
@@ -89,7 +93,7 @@ class GENERIC_2D_ARRAY {
   void ResizeNoInit(int size1, int size2, int pad = 0) {
     int new_size = size1 * size2 + pad;
     if (new_size > size_allocated_) {
-      delete [] array_;
+      delete[] array_;
       array_ = new T[new_size];
       size_allocated_ = new_size;
     }
@@ -133,8 +137,7 @@ class GENERIC_2D_ARRAY {
   // Sets all the elements of the array to the empty value.
   void Clear() {
     int total_size = num_elements();
-    for (int i = 0; i < total_size; ++i)
-      array_[i] = empty_;
+    for (int i = 0; i < total_size; ++i) array_[i] = empty_;
   }
 
   // Writes to the given file. Returns false in case of error.
@@ -164,8 +167,7 @@ class GENERIC_2D_ARRAY {
     int size = num_elements();
     if (fread(array_, sizeof(*array_), size, fp) != size) return false;
     if (swap) {
-      for (int i = 0; i < size; ++i)
-        ReverseN(&array_[i], sizeof(array_[i]));
+      for (int i = 0; i < size; ++i) ReverseN(&array_[i], sizeof(array_[i]));
     }
     return true;
   }
@@ -225,12 +227,8 @@ class GENERIC_2D_ARRAY {
   }
 
   // Get the item at a specified location from the matrix.
-  T get(ICOORD pos) const {
-    return array_[this->index(pos.x(), pos.y())];
-  }
-  T get(int column, int row) const {
-    return array_[this->index(column, row)];
-  }
+  T get(ICOORD pos) const { return array_[this->index(pos.x(), pos.y())]; }
+  T get(int column, int row) const { return array_[this->index(column, row)]; }
   // Return a reference to the element at the specified location.
   const T& operator()(int column, int row) const {
     return array_[this->index(column, row)];
@@ -240,9 +238,7 @@ class GENERIC_2D_ARRAY {
   }
   // Allow access using array[column][row]. NOTE that the indices are
   // in the same left-to-right order as the () indexing.
-  T* operator[](int column) {
-    return &array_[this->index(column, 0)];
-  }
+  T* operator[](int column) { return &array_[this->index(column, 0)]; }
   const T* operator[](int column) const {
     return &array_[this->index(column, 0)];
   }
@@ -306,8 +302,7 @@ class GENERIC_2D_ARRAY {
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
       const T& value = array_[i];
-      if (value < rangemin || rangemax < value)
-        return false;
+      if (value < rangemin || rangemax < value) return false;
     }
     return true;
   }
@@ -456,8 +451,7 @@ class GENERIC_2D_ARRAY {
     int size = num_elements();
     for (int i = 0; i < size; ++i) {
       T matrix_cell = array_[i];
-      if (matrix_cell != empty_)
-        delete matrix_cell;
+      if (matrix_cell != empty_) delete matrix_cell;
     }
   }
 
@@ -520,8 +514,7 @@ class BandTriMatrix : public GENERIC_2D_ARRAY<T> {
   // Initialize all the elements of the array to empty instead of assuming
   // that a default constructor can be used.
   BandTriMatrix(int dim1, int dim2, const T& empty)
-    : GENERIC_2D_ARRAY<T>(dim1, dim2, empty)  {
-  }
+      : GENERIC_2D_ARRAY<T>(dim1, dim2, empty) {}
   // The default destructor will do.
 
   // Provide the dimensions of this matrix.
@@ -553,8 +546,8 @@ class BandTriMatrix : public GENERIC_2D_ARRAY<T> {
         if (col < this->dim1_ && j < this->dim2_) {
           new_array[new_index] = this->get(col, col + j);
         } else if (col >= this->dim1_ && j < array2->dim2_) {
-          new_array[new_index] = array2->get(col - this->dim1_,
-                                             col - this->dim1_ + j);
+          new_array[new_index] =
+              array2->get(col - this->dim1_, col - this->dim1_ + j);
           array2->put(col - this->dim1_, col - this->dim1_ + j, nullptr);
         } else {
           new_array[new_index] = this->empty_;
@@ -568,10 +561,11 @@ class BandTriMatrix : public GENERIC_2D_ARRAY<T> {
   }
 };
 
-class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST *> {
+class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST*> {
  public:
   MATRIX(int dimension, int bandwidth)
-    : BandTriMatrix<BLOB_CHOICE_LIST *>(dimension, bandwidth, NOT_CLASSIFIED) {}
+      : BandTriMatrix<BLOB_CHOICE_LIST*>(dimension, bandwidth, NOT_CLASSIFIED) {
+  }
 
   // Returns true if there are any real classification results.
   bool Classified(int col, int row, int wildcard_id) const;
@@ -593,22 +587,22 @@ class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST *> {
   MATRIX* DeepCopy() const;
 
   // Print a shortened version of the contents of the matrix.
-  void print(const UNICHARSET &unicharset) const;
+  void print(const UNICHARSET& unicharset) const;
 };
 
 struct MATRIX_COORD {
-  static void Delete(void *arg) {
-    MATRIX_COORD *c = static_cast<MATRIX_COORD *>(arg);
+  static void Delete(void* arg) {
+    MATRIX_COORD* c = static_cast<MATRIX_COORD*>(arg);
     delete c;
   }
   // Default constructor required by GenericHeap.
   MATRIX_COORD() : col(0), row(0) {}
-  MATRIX_COORD(int c, int r): col(c), row(r) {}
+  MATRIX_COORD(int c, int r) : col(c), row(r) {}
   ~MATRIX_COORD() {}
 
-  bool Valid(const MATRIX &m) const {
-    return 0 <= col && col < m.dimension() &&
-           col <= row && row < col + m.bandwidth() && row < m.dimension();
+  bool Valid(const MATRIX& m) const {
+    return 0 <= col && col < m.dimension() && col <= row &&
+           row < col + m.bandwidth() && row < m.dimension();
   }
 
   // Remaps the col,row pair to split the blob at the given (ind,ind) diagonal

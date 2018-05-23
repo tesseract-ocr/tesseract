@@ -45,18 +45,16 @@ void ParamsModel::Print() {
   }
 }
 
-void ParamsModel::Copy(const ParamsModel &other_model) {
+void ParamsModel::Copy(const ParamsModel& other_model) {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    weights_vec_[p] = other_model.weights_for_pass(
-        static_cast<PassEnum>(p));
+    weights_vec_[p] = other_model.weights_for_pass(static_cast<PassEnum>(p));
   }
 }
 
 // Given a (modifiable) line, parse out a key / value pair.
 // Return true on success.
-bool ParamsModel::ParseLine(char *line, char** key, float *val) {
-  if (line[0] == '#')
-    return false;
+bool ParamsModel::ParseLine(char* line, char** key, float* val) {
+  if (line[0] == '#') return false;
   int end_of_key = 0;
   while (line[end_of_key] && !isspace(line[end_of_key])) end_of_key++;
   if (!line[end_of_key]) {
@@ -65,8 +63,7 @@ bool ParamsModel::ParseLine(char *line, char** key, float *val) {
   }
   line[end_of_key++] = 0;
   *key = line;
-  if (sscanf(line + end_of_key, " %f", val) != 1)
-    return false;
+  if (sscanf(line + end_of_key, " %f", val) != 1) return false;
   return true;
 }
 
@@ -80,11 +77,11 @@ float ParamsModel::ComputeCost(const float features[]) const {
   for (int f = 0; f < PTRAIN_NUM_FEATURE_TYPES; ++f) {
     unnorm_score += weights_vec_[pass_][f] * features[f];
   }
-  return ClipToRange(-unnorm_score / kScoreScaleFactor,
-                     kMinFinalCost, kMaxFinalCost);
+  return ClipToRange(-unnorm_score / kScoreScaleFactor, kMinFinalCost,
+                     kMaxFinalCost);
 }
 
-bool ParamsModel::Equivalent(const ParamsModel &that) const {
+bool ParamsModel::Equivalent(const ParamsModel& that) const {
   float epsilon = 0.0001;
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
     if (weights_vec_[p].size() != that.weights_vec_[p].size()) return false;
@@ -97,9 +94,7 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
   return true;
 }
 
-bool ParamsModel::LoadFromFile(
-    const char *lang,
-    const char *full_path) {
+bool ParamsModel::LoadFromFile(const char* lang, const char* full_path) {
   TFile fp;
   if (!fp.Open(full_path, nullptr)) {
     tprintf("Error opening file %s\n", full_path);
@@ -108,21 +103,20 @@ bool ParamsModel::LoadFromFile(
   return LoadFromFp(lang, &fp);
 }
 
-bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
+bool ParamsModel::LoadFromFp(const char* lang, TFile* fp) {
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
   BitVector present;
   present.Init(PTRAIN_NUM_FEATURE_TYPES);
   lang_ = lang;
   // Load weights for passes with adaption on.
-  GenericVector<float> &weights = weights_vec_[pass_];
+  GenericVector<float>& weights = weights_vec_[pass_];
   weights.init_to_size(PTRAIN_NUM_FEATURE_TYPES, 0.0);
 
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
-    char *key = nullptr;
+    char* key = nullptr;
     float value;
-    if (!ParseLine(line, &key, &value))
-      continue;
+    if (!ParseLine(line, &key, &value)) continue;
     int idx = ParamsTrainingFeatureByName(key);
     if (idx < 0) {
       tprintf("ParamsModel::Unknown parameter %s\n", key);
@@ -146,21 +140,21 @@ bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
   return complete;
 }
 
-bool ParamsModel::SaveToFile(const char *full_path) const {
-  const GenericVector<float> &weights = weights_vec_[pass_];
+bool ParamsModel::SaveToFile(const char* full_path) const {
+  const GenericVector<float>& weights = weights_vec_[pass_];
   if (weights.size() != PTRAIN_NUM_FEATURE_TYPES) {
     tprintf("Refusing to save ParamsModel that has not been initialized.\n");
     return false;
   }
-  FILE *fp = fopen(full_path, "wb");
+  FILE* fp = fopen(full_path, "wb");
   if (!fp) {
     tprintf("Could not open %s for writing.\n", full_path);
     return false;
   }
   bool all_good = true;
   for (int i = 0; i < weights.size(); i++) {
-    if (fprintf(fp, "%s %f\n", kParamsTrainingFeatureTypeName[i], weights[i])
-        < 0) {
+    if (fprintf(fp, "%s %f\n", kParamsTrainingFeatureTypeName[i], weights[i]) <
+        0) {
       all_good = false;
     }
   }

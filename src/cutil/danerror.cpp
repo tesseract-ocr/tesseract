@@ -18,10 +18,10 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "host.h"
 #include "danerror.h"
-#include "tprintf.h"
 #include "globaloc.h"
+#include "host.h"
+#include "tprintf.h"
 #ifdef __UNIX__
 #include "assert.h"
 #endif
@@ -39,10 +39,10 @@
  * @return None - this routine does not return.
  * @note History: 4/3/89, DSJ, Created.
  */
-void DoError(int Error, const char *Message) {
+void DoError(int Error, const char* Message) {
   if (Message != nullptr) {
     tprintf("\nError: %s!\n", Message);
   }
 
   err_exit();
-}                                /* DoError */
+} /* DoError */

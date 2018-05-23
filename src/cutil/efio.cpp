@@ -19,11 +19,11 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "efio.h"
-#include "danerror.h"
 #include <cstdio>
 #include <cstring>
+#include "danerror.h"
 
-#define MAXERRORMESSAGE   256
+#define MAXERRORMESSAGE 256
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -40,16 +40,15 @@
  * @note Exceptions: #FOPENERROR unable to open specified file
  * @note History: 5/21/89, DSJ, Created.
  */
-FILE *Efopen(const char *Name, const char *Mode) {
-  FILE *File;
+FILE* Efopen(const char* Name, const char* Mode) {
+  FILE* File;
   char ErrorMessage[MAXERRORMESSAGE];
 
-  File = fopen (Name, Mode);
+  File = fopen(Name, Mode);
   if (File == nullptr) {
-    sprintf (ErrorMessage, "Unable to open %s", Name);
-    DoError(FOPENERROR, ErrorMessage); 
+    sprintf(ErrorMessage, "Unable to open %s", Name);
+    DoError(FOPENERROR, ErrorMessage);
     return (nullptr);
-  }
-  else
+  } else
     return (File);
-}                                /* Efopen */
+} /* Efopen */

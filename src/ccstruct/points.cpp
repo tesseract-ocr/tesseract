@@ -21,16 +21,16 @@
 #define _USE_MATH_DEFINES
 #endif  // _MSC_VER
 
-#include <algorithm>
+#include "points.h"
 #include <stdlib.h>
+#include <algorithm>
 #include "helpers.h"
 #include "ndminx.h"
 #include "serialis.h"
-#include "points.h"
 
-ELISTIZE (ICOORDELT)           //turn to list
-bool FCOORD::normalise() {  //Convert to unit vec
-  float len = length ();
+ELISTIZE(ICOORDELT)         // turn to list
+bool FCOORD::normalise() {  // Convert to unit vec
+  float len = length();
 
   if (len < 0.0000000001) {
     return false;
@@ -45,8 +45,7 @@ void ICOORD::set_with_shrink(int x, int y) {
   // Fit the vector into an ICOORD, which is 16 bit.
   int factor = 1;
   int max_extent = std::max(abs(x), abs(y));
-  if (max_extent > INT16_MAX)
-    factor = max_extent / INT16_MAX + 1;
+  if (max_extent > INT16_MAX) factor = max_extent / INT16_MAX + 1;
   xcoord = x / factor;
   ycoord = y / factor;
 }
@@ -84,8 +83,8 @@ bool ICOORD::DeSerialize(bool swap, FILE* fp) {
 // and then add minor to the accumulator. When the accumulator >= major
 // subtract major and step a minor step.
 
-void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
-                          int* major, int* minor) const {
+void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step, int* major,
+                          int* minor) const {
   int abs_x = abs(xcoord);
   int abs_y = abs(ycoord);
   if (abs_x >= abs_y) {
@@ -109,9 +108,7 @@ void ICOORD::setup_render(ICOORD* major_step, ICOORD* minor_step,
 
 // Returns the standard feature direction corresponding to this.
 // See binary_angle_plus_pi below for a description of the direction.
-uint8_t FCOORD::to_direction() const {
-  return binary_angle_plus_pi(angle());
-}
+uint8_t FCOORD::to_direction() const { return binary_angle_plus_pi(angle()); }
 // Sets this with a unit vector in the given standard feature direction.
 void FCOORD::from_direction(uint8_t direction) {
   double radians = angle_from_direction(direction);
@@ -134,8 +131,9 @@ double FCOORD::angle_from_direction(uint8_t direction) {
 // Returns the point on the given line nearest to this, ie the point such
 // that the vector point->this is perpendicular to the line.
 // The line is defined as a line_point and a dir_vector for its direction.
-FCOORD FCOORD::nearest_pt_on_line(const FCOORD& line_point,
-                                  const FCOORD& dir_vector) const {
+FCOORD
+FCOORD::nearest_pt_on_line(const FCOORD& line_point,
+                           const FCOORD& dir_vector) const {
   FCOORD point_vector(*this - line_point);
   // The dot product (%) is |dir_vector||point_vector|cos theta, so dividing by
   // the square of the length of dir_vector gives us the fraction of dir_vector

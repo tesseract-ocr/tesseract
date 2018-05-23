@@ -43,7 +43,7 @@ const float kWorstDictCertainty = -25.0f;
 // serialized DocumentData based on output_basename.
 void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
                                     const STRING& output_basename,
-                                    BLOCK_LIST *block_list) {
+                                    BLOCK_LIST* block_list) {
   STRING lstmf_name = output_basename + ".lstmf";
   DocumentData images(lstmf_name);
   if (applybox_page > 0) {
@@ -56,8 +56,8 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   GenericVector<TBOX> boxes;
   GenericVector<STRING> texts;
   // Get the boxes for this page, if there are any.
-  if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr,
-                    nullptr) ||
+  if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts,
+                    nullptr, nullptr) ||
       boxes.empty()) {
     tprintf("Failed to read boxes from %s\n", input_imagename.string());
     return;
@@ -74,7 +74,7 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
 // appends them to the given training_data.
 void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
                                const GenericVector<STRING>& texts,
-                               BLOCK_LIST *block_list,
+                               BLOCK_LIST* block_list,
                                DocumentData* training_data) {
   int box_count = boxes.size();
   // Process all the text lines in this page, as defined by the boxes.
@@ -97,7 +97,8 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
     BLOCK_IT b_it(block_list);
     for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
       BLOCK* block = b_it.data();
-      if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
+      if (block->pdblk.poly_block() != nullptr &&
+          !block->pdblk.poly_block()->IsText())
         continue;  // Not a text block.
       TBOX block_box = block->pdblk.bounding_box();
       block_box.rotate(block->re_rotation());
@@ -113,11 +114,10 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
     if (best_block == nullptr) {
       tprintf("No block overlapping textline: %s\n", line_str.string());
     } else {
-      imagedata = GetLineData(line_box, boxes, texts, start_box, end_box,
-                              *best_block);
+      imagedata =
+          GetLineData(line_box, boxes, texts, start_box, end_box, *best_block);
     }
-    if (imagedata != nullptr)
-      training_data->AddPageToDocument(imagedata);
+    if (imagedata != nullptr) training_data->AddPageToDocument(imagedata);
     // Don't let \t, which marks newlines in the box file, get into the line
     // content, as that makes the line unusable in training.
     while (end_box < texts.size() && texts[end_box] == "\t") ++end_box;
@@ -133,8 +133,8 @@ ImageData* Tesseract::GetLineData(const TBOX& line_box,
                                   int start_box, int end_box,
                                   const BLOCK& block) {
   TBOX revised_box;
-  ImageData* image_data = GetRectImage(line_box, block, kImagePadding,
-                                       &revised_box);
+  ImageData* image_data =
+      GetRectImage(line_box, block, kImagePadding, &revised_box);
   if (image_data == nullptr) return nullptr;
   image_data->set_page_number(applybox_page);
   // Copy the boxes and shift them so they are relative to the image.
@@ -211,8 +211,7 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
     // Rotated the clipped revised box back to internal coordinates.
     FCOORD rotation(block.re_rotation().x(), -block.re_rotation().y());
     revised_box->rotate(rotation);
-    if (num_rotations != 2)
-      vertical_text = true;
+    if (num_rotations != 2) vertical_text = true;
   }
   return new ImageData(vertical_text, box_pix);
 }
@@ -220,7 +219,7 @@ ImageData* Tesseract::GetRectImage(const TBOX& box, const BLOCK& block,
 #ifndef ANDROID_BUILD
 // Recognizes a word or group of words, converting to WERD_RES in *words.
 // Analogous to classify_word_pass1, but can handle a group of words as well.
-void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
+void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW* row, WERD_RES* word,
                                   PointerVector<WERD_RES>* words) {
   TBOX word_box = word->word->bounding_box();
   // Get the word image - no frills.
@@ -281,15 +280,16 @@ void Tesseract::SearchWords(PointerVector<WERD_RES>* words) {
       word->tess_would_adapt = false;
       word->done = true;
       word->tesseract = this;
-      float word_certainty = std::min(word->space_certainty,
-                                 word->best_choice->certainty());
+      float word_certainty =
+          std::min(word->space_certainty, word->best_choice->certainty());
       word_certainty *= kCertaintyScale;
       if (getDict().stopper_debug_level >= 1) {
-        tprintf("Best choice certainty=%g, space=%g, scaled=%g, final=%g\n",
-                word->best_choice->certainty(), word->space_certainty,
-                std::min(word->space_certainty, word->best_choice->certainty()) *
-                    kCertaintyScale,
-                word_certainty);
+        tprintf(
+            "Best choice certainty=%g, space=%g, scaled=%g, final=%g\n",
+            word->best_choice->certainty(), word->space_certainty,
+            std::min(word->space_certainty, word->best_choice->certainty()) *
+                kCertaintyScale,
+            word_certainty);
         word->best_choice->print();
       }
       word->best_choice->set_certainty(word_certainty);

@@ -37,8 +37,8 @@
 #include <dirent.h>
 #include <libgen.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #endif  // _WIN32
 
@@ -53,30 +53,30 @@
 
 #include "baseapi.h"
 #include "blobclass.h"
-#include "resultiterator.h"
-#include "mutableiterator.h"
-#include "thresholder.h"
-#include "tesseractclass.h"
-#include "pageres.h"
-#include "paragraphs.h"
-#include "tessvars.h"
 #include "control.h"
 #include "dict.h"
-#include "pgedit.h"
-#include "paramsd.h"
-#include "output.h"
-#include "globaloc.h"
-#include "globals.h"
 #include "edgblob.h"
 #include "equationdetect.h"
-#include "tessbox.h"
+#include "globaloc.h"
+#include "globals.h"
 #include "makerow.h"
-#include "otsuthr.h"
-#include "osdetect.h"
-#include "params.h"
-#include "renderer.h"
-#include "strngs.h"
+#include "mutableiterator.h"
 #include "openclwrapper.h"
+#include "osdetect.h"
+#include "otsuthr.h"
+#include "output.h"
+#include "pageres.h"
+#include "paragraphs.h"
+#include "params.h"
+#include "paramsd.h"
+#include "pgedit.h"
+#include "renderer.h"
+#include "resultiterator.h"
+#include "strngs.h"
+#include "tessbox.h"
+#include "tesseractclass.h"
+#include "tessvars.h"
+#include "thresholder.h"
 
 BOOL_VAR(stream_filelist, FALSE, "Stream a filelist from stdin");
 
@@ -103,43 +103,42 @@ const char* kOldVarsFile = "failed_vars.txt";
 const int kMaxIntSize = 22;
 
 /* Add all available languages recursively.
-*/
-static void addAvailableLanguages(const STRING &datadir, const STRING &base,
-                                  GenericVector<STRING>* langs)
-{
+ */
+static void addAvailableLanguages(const STRING& datadir, const STRING& base,
+                                  GenericVector<STRING>* langs) {
   const STRING base2 = (base.string()[0] == '\0') ? base : base + "/";
   const size_t extlen = sizeof(kTrainedDataSuffix);
 #ifdef _WIN32
-    WIN32_FIND_DATA data;
-    HANDLE handle = FindFirstFile((datadir + base2 + "*").string(), &data);
-    if (handle != INVALID_HANDLE_VALUE) {
-      BOOL result = TRUE;
-      for (; result;) {
-        char *name = data.cFileName;
-        // Skip '.', '..', and hidden files
-        if (name[0] != '.') {
-          if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ==
-              FILE_ATTRIBUTE_DIRECTORY) {
-            addAvailableLanguages(datadir, base2 + name, langs);
-          } else {
-            size_t len = strlen(name);
-            if (len > extlen && name[len - extlen] == '.' &&
-                strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
-              name[len - extlen] = '\0';
-              langs->push_back(base2 + name);
-            }
+  WIN32_FIND_DATA data;
+  HANDLE handle = FindFirstFile((datadir + base2 + "*").string(), &data);
+  if (handle != INVALID_HANDLE_VALUE) {
+    BOOL result = TRUE;
+    for (; result;) {
+      char* name = data.cFileName;
+      // Skip '.', '..', and hidden files
+      if (name[0] != '.') {
+        if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ==
+            FILE_ATTRIBUTE_DIRECTORY) {
+          addAvailableLanguages(datadir, base2 + name, langs);
+        } else {
+          size_t len = strlen(name);
+          if (len > extlen && name[len - extlen] == '.' &&
+              strcmp(&name[len - extlen + 1], kTrainedDataSuffix) == 0) {
+            name[len - extlen] = '\0';
+            langs->push_back(base2 + name);
           }
         }
-        result = FindNextFile(handle, &data);
       }
-      FindClose(handle);
+      result = FindNextFile(handle, &data);
     }
+    FindClose(handle);
+  }
 #else  // _WIN32
   DIR* dir = opendir((datadir + base).string());
   if (dir != nullptr) {
-    dirent *de;
+    dirent* de;
     while ((de = readdir(dir))) {
-      char *name = de->d_name;
+      char* name = de->d_name;
       // Skip '.', '..', and hidden files
       if (name[0] != '.') {
         struct stat st;
@@ -166,9 +165,9 @@ TessBaseAPI::TessBaseAPI()
       osd_tesseract_(nullptr),
       equ_detect_(nullptr),
       reader_(nullptr),
-      // Thresholder is initialized to nullptr here, but will be set before use by:
-      // A constructor of a derived API,  SetThresholder(), or
-      // created implicitly when used in InternalSetImage.
+      // Thresholder is initialized to nullptr here, but will be set before use
+      // by: A constructor of a derived API,  SetThresholder(), or created
+      // implicitly when used in InternalSetImage.
       thresholder_(nullptr),
       paragraph_models_(nullptr),
       block_list_(nullptr),
@@ -187,16 +186,12 @@ TessBaseAPI::TessBaseAPI()
       image_width_(0),
       image_height_(0) {}
 
-TessBaseAPI::~TessBaseAPI() {
-  End();
-}
+TessBaseAPI::~TessBaseAPI() { End(); }
 
 /**
  * Returns the version identifier as a static string. Do not delete.
  */
-const char* TessBaseAPI::Version() {
-  return PACKAGE_VERSION;
-}
+const char* TessBaseAPI::Version() { return PACKAGE_VERSION; }
 
 /**
  * If compiled with OpenCL AND an available OpenCL
@@ -210,7 +205,7 @@ const char* TessBaseAPI::Version() {
 #include "opencl_device_selection.h"
 #endif
 #endif
-size_t TessBaseAPI::getOpenCLDevice(void **data) {
+size_t TessBaseAPI::getOpenCLDevice(void** data) {
 #ifdef USE_OPENCL
 #if USE_DEVICE_SELECTION
   ds_device device = OpenclDevice::getDeviceSelection();
@@ -276,30 +271,30 @@ bool TessBaseAPI::SetDebugVariable(const char* name, const char* value) {
                               tesseract_->params());
 }
 
-bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
-  IntParam *p = ParamUtils::FindParam<IntParam>(
+bool TessBaseAPI::GetIntVariable(const char* name, int* value) const {
+  IntParam* p = ParamUtils::FindParam<IntParam>(
       name, GlobalParams()->int_params, tesseract_->params()->int_params);
   if (p == nullptr) return false;
   *value = (int32_t)(*p);
   return true;
 }
 
-bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
-  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+bool TessBaseAPI::GetBoolVariable(const char* name, bool* value) const {
+  BoolParam* p = ParamUtils::FindParam<BoolParam>(
       name, GlobalParams()->bool_params, tesseract_->params()->bool_params);
   if (p == nullptr) return false;
   *value = (BOOL8)(*p);
   return true;
 }
 
-const char *TessBaseAPI::GetStringVariable(const char *name) const {
-  StringParam *p = ParamUtils::FindParam<StringParam>(
+const char* TessBaseAPI::GetStringVariable(const char* name) const {
+  StringParam* p = ParamUtils::FindParam<StringParam>(
       name, GlobalParams()->string_params, tesseract_->params()->string_params);
   return (p != nullptr) ? p->string() : nullptr;
 }
 
-bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
+bool TessBaseAPI::GetDoubleVariable(const char* name, double* value) const {
+  DoubleParam* p = ParamUtils::FindParam<DoubleParam>(
       name, GlobalParams()->double_params, tesseract_->params()->double_params);
   if (p == nullptr) return false;
   *value = (double)(*p);
@@ -307,12 +302,12 @@ bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
 }
 
 /** Get value of named variable as a string, if it exists. */
-bool TessBaseAPI::GetVariableAsString(const char *name, STRING *val) {
+bool TessBaseAPI::GetVariableAsString(const char* name, STRING* val) {
   return ParamUtils::GetParamAsString(name, tesseract_->params(), val);
 }
 
 /** Print Tesseract parameters to the given file. */
-void TessBaseAPI::PrintVariables(FILE *fp) const {
+void TessBaseAPI::PrintVariables(FILE* fp) const {
   ParamUtils::PrintParams(fp, tesseract_->params());
 }
 
@@ -325,9 +320,9 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
  * @return: 0 on success and -1 on initialization failure.
  */
 int TessBaseAPI::Init(const char* datapath, const char* language,
-                      OcrEngineMode oem, char **configs, int configs_size,
-                      const GenericVector<STRING> *vars_vec,
-                      const GenericVector<STRING> *vars_values,
+                      OcrEngineMode oem, char** configs, int configs_size,
+                      const GenericVector<STRING>* vars_vec,
+                      const GenericVector<STRING>* vars_values,
                       bool set_only_non_debug_params) {
   return Init(datapath, 0, language, oem, configs, configs_size, vars_vec,
               vars_values, set_only_non_debug_params, nullptr);
@@ -388,7 +383,7 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     *datapath_ = datapath;
   if ((strcmp(datapath_->string(), "") == 0) &&
       (strcmp(tesseract_->datadir.string(), "") != 0))
-     *datapath_ = tesseract_->datadir;
+    *datapath_ = tesseract_->datadir;
 
   if (language_ == nullptr)
     language_ = new STRING(language);
@@ -414,8 +409,9 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
  * The returned string should NOT be deleted.
  */
 const char* TessBaseAPI::GetInitLanguagesAsString() const {
-  return (language_ == nullptr || language_->string() == nullptr) ?
-      "" : language_->string();
+  return (language_ == nullptr || language_->string() == nullptr)
+             ? ""
+             : language_->string();
 }
 
 /**
@@ -491,17 +487,15 @@ void TessBaseAPI::ReadDebugConfigFile(const char* filename) {
  * ReadConfigFile or SetVariable("tessedit_pageseg_mode", mode as string).
  */
 void TessBaseAPI::SetPageSegMode(PageSegMode mode) {
-  if (tesseract_ == nullptr)
-    tesseract_ = new Tesseract;
+  if (tesseract_ == nullptr) tesseract_ = new Tesseract;
   tesseract_->tessedit_pageseg_mode.set_value(mode);
 }
 
 /** Return the current page segmentation mode. */
 PageSegMode TessBaseAPI::GetPageSegMode() const {
-  if (tesseract_ == nullptr)
-    return PSM_SINGLE_BLOCK;
+  if (tesseract_ == nullptr) return PSM_SINGLE_BLOCK;
   return static_cast<PageSegMode>(
-    static_cast<int>(tesseract_->tessedit_pageseg_mode));
+      static_cast<int>(tesseract_->tessedit_pageseg_mode));
 }
 
 /**
@@ -518,10 +512,8 @@ PageSegMode TessBaseAPI::GetPageSegMode() const {
  * as UTF8 and must be freed with the delete [] operator.
  */
 char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
-                                 int bytes_per_pixel,
-                                 int bytes_per_line,
-                                 int left, int top,
-                                 int width, int height) {
+                                 int bytes_per_pixel, int bytes_per_line,
+                                 int left, int top, int width, int height) {
   if (tesseract_ == nullptr || width < kMinRectSize || height < kMinRectSize)
     return nullptr;  // Nothing worth doing.
 
@@ -540,8 +532,7 @@ char* TessBaseAPI::TesseractRect(const unsigned char* imagedata,
  * adaptive data.
  */
 void TessBaseAPI::ClearAdaptiveClassifier() {
-  if (tesseract_ == nullptr)
-    return;
+  if (tesseract_ == nullptr) return;
   tesseract_->ResetAdaptiveClassifier();
   tesseract_->ResetDocumentDictionary();
 }
@@ -553,12 +544,12 @@ void TessBaseAPI::ClearAdaptiveClassifier() {
  * full image, so it may be followed immediately by a GetUTF8Text, and it
  * will automatically perform recognition.
  */
-void TessBaseAPI::SetImage(const unsigned char* imagedata,
-                           int width, int height,
-                           int bytes_per_pixel, int bytes_per_line) {
+void TessBaseAPI::SetImage(const unsigned char* imagedata, int width,
+                           int height, int bytes_per_pixel,
+                           int bytes_per_line) {
   if (InternalSetImage()) {
-    thresholder_->SetImage(imagedata, width, height,
-                           bytes_per_pixel, bytes_per_line);
+    thresholder_->SetImage(imagedata, width, height, bytes_per_pixel,
+                           bytes_per_line);
     SetInputImage(thresholder_->GetPixRect());
   }
 }
@@ -591,8 +582,7 @@ void TessBaseAPI::SetImage(Pix* pix) {
  * can be recognized with the same image.
  */
 void TessBaseAPI::SetRectangle(int left, int top, int width, int height) {
-  if (thresholder_ == nullptr)
-    return;
+  if (thresholder_ == nullptr) return;
   thresholder_->SetRectangle(left, top, width, height);
   ClearResults();
 }
@@ -629,8 +619,8 @@ Boxa* TessBaseAPI::GetRegions(Pixa** pixa) {
  */
 Boxa* TessBaseAPI::GetTextlines(const bool raw_image, const int raw_padding,
                                 Pixa** pixa, int** blockids, int** paraids) {
-  return GetComponentImages(RIL_TEXTLINE, true, raw_image, raw_padding,
-                            pixa, blockids, paraids);
+  return GetComponentImages(RIL_TEXTLINE, true, raw_image, raw_padding, pixa,
+                            blockids, paraids);
 }
 
 /**
@@ -672,16 +662,13 @@ Boxa* TessBaseAPI::GetConnectedComponents(Pixa** pixa) {
  * as an array of one element per component. delete [] after use.
  * If text_only is true, then only text components are returned.
  */
-Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
-                                      bool text_only, bool raw_image,
-                                      const int raw_padding,
+Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level, bool text_only,
+                                      bool raw_image, const int raw_padding,
                                       Pixa** pixa, int** blockids,
                                       int** paraids) {
   PageIterator* page_it = GetIterator();
-  if (page_it == nullptr)
-    page_it = AnalyseLayout();
-  if (page_it == nullptr)
-    return nullptr;  // Failed.
+  if (page_it == nullptr) page_it = AnalyseLayout();
+  if (page_it == nullptr) return nullptr;  // Failed.
 
   // Count the components to get a size for the arrays.
   int component_count = 0;
@@ -690,37 +677,32 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
   TessResultCallback<bool>* get_bbox = nullptr;
   if (raw_image) {
     // Get bounding box in original raw image with padding.
-    get_bbox = NewPermanentTessCallback(page_it, &PageIterator::BoundingBox,
-                                        level, raw_padding,
-                                        &left, &top, &right, &bottom);
+    get_bbox =
+        NewPermanentTessCallback(page_it, &PageIterator::BoundingBox, level,
+                                 raw_padding, &left, &top, &right, &bottom);
   } else {
     // Get bounding box from binarized imaged. Note that this could be
     // differently scaled from the original image.
-    get_bbox = NewPermanentTessCallback(page_it,
-                                        &PageIterator::BoundingBoxInternal,
-                                        level, &left, &top, &right, &bottom);
+    get_bbox =
+        NewPermanentTessCallback(page_it, &PageIterator::BoundingBoxInternal,
+                                 level, &left, &top, &right, &bottom);
   }
   do {
-    if (get_bbox->Run() &&
-        (!text_only || PTIsTextType(page_it->BlockType())))
+    if (get_bbox->Run() && (!text_only || PTIsTextType(page_it->BlockType())))
       ++component_count;
   } while (page_it->Next(level));
 
   Boxa* boxa = boxaCreate(component_count);
-  if (pixa != nullptr)
-    *pixa = pixaCreate(component_count);
-  if (blockids != nullptr)
-    *blockids = new int[component_count];
-  if (paraids != nullptr)
-    *paraids = new int[component_count];
+  if (pixa != nullptr) *pixa = pixaCreate(component_count);
+  if (blockids != nullptr) *blockids = new int[component_count];
+  if (paraids != nullptr) *paraids = new int[component_count];
 
   int blockid = 0;
   int paraid = 0;
   int component_index = 0;
   page_it->Begin();
   do {
-    if (get_bbox->Run() &&
-        (!text_only || PTIsTextType(page_it->BlockType()))) {
+    if (get_bbox->Run() && (!text_only || PTIsTextType(page_it->BlockType()))) {
       Box* lbox = boxCreate(left, top, right - left, bottom - top);
       boxaAddBox(boxa, lbox, L_INSERT);
       if (pixa != nullptr) {
@@ -736,8 +718,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
       }
       if (paraids != nullptr) {
         (*paraids)[component_index] = paraid;
-        if (page_it->IsAtFinalElement(RIL_PARA, level))
-          ++paraid;
+        if (page_it->IsAtFinalElement(RIL_PARA, level)) ++paraid;
       }
       if (blockids != nullptr) {
         (*blockids)[component_index] = blockid;
@@ -780,14 +761,13 @@ PageIterator* TessBaseAPI::AnalyseLayout() { return AnalyseLayout(false); }
 
 PageIterator* TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
   if (FindLines() == 0) {
-    if (block_list_->empty())
-      return nullptr;  // The page was empty.
+    if (block_list_->empty()) return nullptr;  // The page was empty.
     page_res_ = new PAGE_RES(merge_similar_words, block_list_, nullptr);
     DetectParagraphs(false);
-    return new PageIterator(
-        page_res_, tesseract_, thresholder_->GetScaleFactor(),
-        thresholder_->GetScaledYResolution(),
-        rect_left_, rect_top_, rect_width_, rect_height_);
+    return new PageIterator(page_res_, tesseract_,
+                            thresholder_->GetScaleFactor(),
+                            thresholder_->GetScaledYResolution(), rect_left_,
+                            rect_top_, rect_width_, rect_height_);
   }
   return nullptr;
 }
@@ -797,15 +777,13 @@ PageIterator* TessBaseAPI::AnalyseLayout(bool merge_similar_words) {
  * internal structures.
  */
 int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
-  if (tesseract_ == nullptr)
-    return -1;
-  if (FindLines() != 0)
-    return -1;
+  if (tesseract_ == nullptr) return -1;
+  if (FindLines() != 0) return -1;
   delete page_res_;
   if (block_list_->empty()) {
-    page_res_ = new PAGE_RES(false, block_list_,
-                             &tesseract_->prev_word_best_choice_);
-    return 0; // Empty page.
+    page_res_ =
+        new PAGE_RES(false, block_list_, &tesseract_->prev_word_best_choice_);
+    return 0;  // Empty page.
   }
 
   tesseract_->SetBlackAndWhitelist();
@@ -815,8 +793,8 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
   } else if (tesseract_->tessedit_resegment_from_boxes) {
     page_res_ = tesseract_->ApplyBoxes(*input_file_, false, block_list_);
   } else {
-    page_res_ = new PAGE_RES(tesseract_->AnyLSTMLang(),
-                             block_list_, &tesseract_->prev_word_best_choice_);
+    page_res_ = new PAGE_RES(tesseract_->AnyLSTMLang(), block_list_,
+                             &tesseract_->prev_word_best_choice_);
   }
   if (page_res_ == nullptr) {
     return -1;
@@ -833,20 +811,20 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
 
   if (truth_cb_ != nullptr) {
     tesseract_->wordrec_run_blamer.set_value(true);
-    PageIterator *page_it = new PageIterator(
-            page_res_, tesseract_, thresholder_->GetScaleFactor(),
-            thresholder_->GetScaledYResolution(),
-            rect_left_, rect_top_, rect_width_, rect_height_);
-    truth_cb_->Run(tesseract_->getDict().getUnicharset(),
-                   image_height_, page_it, this->tesseract()->pix_grey());
+    PageIterator* page_it =
+        new PageIterator(page_res_, tesseract_, thresholder_->GetScaleFactor(),
+                         thresholder_->GetScaledYResolution(), rect_left_,
+                         rect_top_, rect_width_, rect_height_);
+    truth_cb_->Run(tesseract_->getDict().getUnicharset(), image_height_,
+                   page_it, this->tesseract()->pix_grey());
     delete page_it;
   }
 
   int result = 0;
   if (tesseract_->interactive_display_mode) {
-    #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
     tesseract_->pgeditor_main(rect_width_, rect_height_, page_res_);
-    #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
     // The page_res is invalid after an interactive session, so cleanup
     // in a way that lets us continue to the next page without crashing.
     delete page_res_;
@@ -857,10 +835,10 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     ExtractFontName(*output_file_, &fontname);
     tesseract_->ApplyBoxTraining(fontname, page_res_);
   } else if (tesseract_->tessedit_ambigs_training) {
-    FILE *training_output_file = tesseract_->init_recog_training(*input_file_);
+    FILE* training_output_file = tesseract_->init_recog_training(*input_file_);
     // OCR the page segmented into words by tesseract.
-    tesseract_->recog_training_segmented(
-        *input_file_, page_res_, monitor, training_output_file);
+    tesseract_->recog_training_segmented(*input_file_, page_res_, monitor,
+                                         training_output_file);
     fclose(training_output_file);
   } else {
     // Now run the main recognition.
@@ -878,28 +856,25 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
 
 /** Tests the chopper by exhaustively running chop_one_blob. */
 int TessBaseAPI::RecognizeForChopTest(ETEXT_DESC* monitor) {
-  if (tesseract_ == nullptr)
-    return -1;
+  if (tesseract_ == nullptr) return -1;
   if (thresholder_ == nullptr || thresholder_->IsEmpty()) {
     tprintf("Please call SetImage before attempting recognition.\n");
     return -1;
   }
-  if (page_res_ != nullptr)
-    ClearResults();
-  if (FindLines() != 0)
-    return -1;
+  if (page_res_ != nullptr) ClearResults();
+  if (FindLines() != 0) return -1;
   // Additional conditions under which chopper test cannot be run
   if (tesseract_->interactive_display_mode) return -1;
 
   recognition_done_ = true;
 
-  page_res_ = new PAGE_RES(false, block_list_,
-                           &(tesseract_->prev_word_best_choice_));
+  page_res_ =
+      new PAGE_RES(false, block_list_, &(tesseract_->prev_word_best_choice_));
 
   PAGE_RES_IT page_res_it(page_res_);
 
   while (page_res_it.word() != nullptr) {
-    WERD_RES *word_res = page_res_it.word();
+    WERD_RES* word_res = page_res_it.word();
     GenericVector<TBOX> boxes;
     tesseract_->MaximallyChopWord(boxes, page_res_it.block()->block,
                                   page_res_it.row()->row, word_res);
@@ -913,15 +888,12 @@ void TessBaseAPI::SetInputImage(Pix* pix) { tesseract_->set_pix_original(pix); }
 
 Pix* TessBaseAPI::GetInputImage() { return tesseract_->pix_original(); }
 
-const char * TessBaseAPI::GetInputName() {
-  if (input_file_)
-    return input_file_->c_str();
+const char* TessBaseAPI::GetInputName() {
+  if (input_file_) return input_file_->c_str();
   return nullptr;
 }
 
-const char *  TessBaseAPI::GetDatapath() {
-  return tesseract_->datadir.c_str();
-}
+const char* TessBaseAPI::GetDatapath() { return tesseract_->datadir.c_str(); }
 
 int TessBaseAPI::GetSourceYResolution() {
   return thresholder_->GetSourceYResolution();
@@ -931,8 +903,7 @@ int TessBaseAPI::GetSourceYResolution() {
 // Seems convoluted, but is the easiest way I know of to meet multiple
 // goals. Support streaming from stdin, and also work on platforms
 // lacking fmemopen.
-bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
-                                       STRING *buf,
+bool TessBaseAPI::ProcessPagesFileList(FILE* flist, STRING* buf,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer,
@@ -968,14 +939,14 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
       snprintf(pagename, sizeof(pagename), "%s", lines[page].c_str());
     }
     chomp_string(pagename);
-    Pix *pix = pixRead(pagename);
+    Pix* pix = pixRead(pagename);
     if (pix == nullptr) {
       tprintf("Image file %s cannot be read!\n", pagename);
       return false;
     }
     tprintf("Page %d : %s\n", page, pagename);
-    bool r = ProcessPage(pix, page, pagename, retry_config,
-                         timeout_millisec, renderer);
+    bool r = ProcessPage(pix, page, pagename, retry_config, timeout_millisec,
+                         renderer);
     pixDestroy(&pix);
     if (!r) return false;
     if (tessedit_page_number >= 0) break;
@@ -989,20 +960,18 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
   return true;
 }
 
-bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
-                                            size_t size,
+bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8* data, size_t size,
                                             const char* filename,
                                             const char* retry_config,
                                             int timeout_millisec,
                                             TessResultRenderer* renderer,
                                             int tessedit_page_number) {
 #ifndef ANDROID_BUILD
-  Pix *pix = nullptr;
+  Pix* pix = nullptr;
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
-  for (; ; ++page) {
-    if (tessedit_page_number >= 0)
-      page = tessedit_page_number;
+  for (;; ++page) {
+    if (tessedit_page_number >= 0) page = tessedit_page_number;
     pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
                  : pixReadFromMultipageTiff(filename, &offset);
     if (pix == nullptr) break;
@@ -1010,8 +979,8 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
     char page_str[kMaxIntSize];
     snprintf(page_str, kMaxIntSize - 1, "%d", page);
     SetVariable("applybox_page", page_str);
-    bool r = ProcessPage(pix, page, filename, retry_config,
-                           timeout_millisec, renderer);
+    bool r = ProcessPage(pix, page, filename, retry_config, timeout_millisec,
+                         renderer);
     pixDestroy(&pix);
     if (!r) return false;
     if (tessedit_page_number >= 0) break;
@@ -1065,27 +1034,25 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   if (stream_filelist) {
-    return ProcessPagesFileList(stdin, nullptr, retry_config,
-                                timeout_millisec, renderer,
-                                tesseract_->tessedit_page_number);
+    return ProcessPagesFileList(stdin, nullptr, retry_config, timeout_millisec,
+                                renderer, tesseract_->tessedit_page_number);
   }
 
   // At this point we are officially in autodection territory.
   // That means any data in stdin must be buffered, to make it
   // seekable.
   std::string buf;
-  const l_uint8 *data = nullptr;
+  const l_uint8* data = nullptr;
   if (stdInput) {
     buf.assign((std::istreambuf_iterator<char>(std::cin)),
                (std::istreambuf_iterator<char>()));
-    data = reinterpret_cast<const l_uint8 *>(buf.data());
+    data = reinterpret_cast<const l_uint8*>(buf.data());
   }
 
   // Here is our autodetection
   int format;
-  int r = (stdInput) ?
-      findFileFormatBuffer(data, &format) :
-      findFileFormat(filename, &format);
+  int r = (stdInput) ? findFileFormatBuffer(data, &format)
+                     : findFileFormat(filename, &format);
 
   // Maybe we have a filelist
   if (r != 0 || format == IFF_UNKNOWN) {
@@ -1098,9 +1065,8 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                     std::istreambuf_iterator<char>());
       s = u.c_str();
     }
-    return ProcessPagesFileList(nullptr, &s, retry_config,
-                                timeout_millisec, renderer,
-                                tesseract_->tessedit_page_number);
+    return ProcessPagesFileList(nullptr, &s, retry_config, timeout_millisec,
+                                renderer, tesseract_->tessedit_page_number);
   }
 
   // Maybe we have a TIFF which is potentially multipage
@@ -1110,7 +1076,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                format == IFF_TIFF_ZIP);
 
   // Fail early if we can, before producing any output
-  Pix *pix = nullptr;
+  Pix* pix = nullptr;
   if (!tiff) {
     pix = (stdInput) ? pixReadMem(data, buf.size()) : pixRead(filename);
     if (pix == nullptr) {
@@ -1125,12 +1091,11 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   // Produce output
-  r = (tiff) ?
-      ProcessPagesMultipageTiff(data, buf.size(), filename, retry_config,
-                                timeout_millisec, renderer,
-                                tesseract_->tessedit_page_number) :
-      ProcessPage(pix, 0, filename, retry_config,
-                  timeout_millisec, renderer);
+  r = (tiff) ? ProcessPagesMultipageTiff(
+                   data, buf.size(), filename, retry_config, timeout_millisec,
+                   renderer, tesseract_->tessedit_page_number)
+             : ProcessPage(pix, 0, filename, retry_config, timeout_millisec,
+                           renderer);
 
   // Clean up memory as needed
   pixDestroy(&pix);
@@ -1209,12 +1174,11 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
  * Recognize. The returned iterator must be deleted after use.
  */
 LTRResultIterator* TessBaseAPI::GetLTRIterator() {
-  if (tesseract_ == nullptr || page_res_ == nullptr)
-    return nullptr;
-  return new LTRResultIterator(
-      page_res_, tesseract_,
-      thresholder_->GetScaleFactor(), thresholder_->GetScaledYResolution(),
-      rect_left_, rect_top_, rect_width_, rect_height_);
+  if (tesseract_ == nullptr || page_res_ == nullptr) return nullptr;
+  return new LTRResultIterator(page_res_, tesseract_,
+                               thresholder_->GetScaleFactor(),
+                               thresholder_->GetScaledYResolution(), rect_left_,
+                               rect_top_, rect_width_, rect_height_);
 }
 
 /**
@@ -1226,12 +1190,11 @@ LTRResultIterator* TessBaseAPI::GetLTRIterator() {
  * DetectOS, or anything else that changes the internal PAGE_RES.
  */
 ResultIterator* TessBaseAPI::GetIterator() {
-  if (tesseract_ == nullptr || page_res_ == nullptr)
-    return nullptr;
-  return ResultIterator::StartOfParagraph(LTRResultIterator(
-      page_res_, tesseract_,
-      thresholder_->GetScaleFactor(), thresholder_->GetScaledYResolution(),
-      rect_left_, rect_top_, rect_width_, rect_height_));
+  if (tesseract_ == nullptr || page_res_ == nullptr) return nullptr;
+  return ResultIterator::StartOfParagraph(
+      LTRResultIterator(page_res_, tesseract_, thresholder_->GetScaleFactor(),
+                        thresholder_->GetScaledYResolution(), rect_left_,
+                        rect_top_, rect_width_, rect_height_));
 }
 
 /**
@@ -1243,21 +1206,19 @@ ResultIterator* TessBaseAPI::GetIterator() {
  * DetectOS, or anything else that changes the internal PAGE_RES.
  */
 MutableIterator* TessBaseAPI::GetMutableIterator() {
-  if (tesseract_ == nullptr || page_res_ == nullptr)
-    return nullptr;
+  if (tesseract_ == nullptr || page_res_ == nullptr) return nullptr;
   return new MutableIterator(page_res_, tesseract_,
                              thresholder_->GetScaleFactor(),
-                             thresholder_->GetScaledYResolution(),
-                             rect_left_, rect_top_, rect_width_, rect_height_);
+                             thresholder_->GetScaledYResolution(), rect_left_,
+                             rect_top_, rect_width_, rect_height_);
 }
 
 /** Make a text string from the internal data structures. */
 char* TessBaseAPI::GetUTF8Text() {
-  if (tesseract_ == nullptr ||
-      (!recognition_done_ && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (!recognition_done_ && Recognize(nullptr) < 0))
     return nullptr;
   STRING text("");
-  ResultIterator *it = GetIterator();
+  ResultIterator* it = GetIterator();
   do {
     if (it->Empty(RIL_PARA)) continue;
     const std::unique_ptr<const char[]> para_text(it->GetUTF8Text(RIL_PARA));
@@ -1272,7 +1233,7 @@ char* TessBaseAPI::GetUTF8Text() {
 /**
  * Gets the block orientation at the current iterator position.
  */
-static tesseract::Orientation GetBlockTextOrientation(const PageIterator *it) {
+static tesseract::Orientation GetBlockTextOrientation(const PageIterator* it) {
   tesseract::Orientation orientation;
   tesseract::WritingDirection writing_direction;
   tesseract::TextlineOrder textline_order;
@@ -1290,9 +1251,8 @@ static tesseract::Orientation GetBlockTextOrientation(const PageIterator *it) {
  * method currently only inserts a 'textangle' property to indicate the rotation
  * direction and does not add any baseline information to the hocr string.
  */
-static void AddBaselineCoordsTohOCR(const PageIterator *it,
-                                    PageIteratorLevel level,
-                                    STRING* hocr_str) {
+static void AddBaselineCoordsTohOCR(const PageIterator* it,
+                                    PageIteratorLevel level, STRING* hocr_str) {
   tesseract::Orientation orientation = GetBlockTextOrientation(it);
   if (orientation != ORIENTATION_PAGE_UP) {
     hocr_str->add_str_int("; textangle ", 360 - orientation * 90);
@@ -1304,8 +1264,7 @@ static void AddBaselineCoordsTohOCR(const PageIterator *it,
 
   // Try to get the baseline coordinates at this level.
   int x1, y1, x2, y2;
-  if (!it->Baseline(level, &x1, &y1, &x2, &y2))
-    return;
+  if (!it->Baseline(level, &x1, &y1, &x2, &y2)) return;
   // Following the description of this field of the hOCR spec, we convert the
   // baseline coordinates so that "the bottom left of the bounding box is the
   // origin".
@@ -1413,21 +1372,20 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 
   STRING hocr_str("");
 
-  if (input_file_ == nullptr)
-      SetInputName(nullptr);
+  if (input_file_ == nullptr) SetInputName(nullptr);
 
 #ifdef _WIN32
   // convert input name from ANSI encoding to utf-8
   int str16_len =
       MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
-  wchar_t *uni16_str = new WCHAR[str16_len];
+  wchar_t* uni16_str = new WCHAR[str16_len];
   str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
                                   uni16_str, str16_len);
-  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0,
-                                     nullptr, nullptr);
-  char *utf8_str = new char[utf8_len];
-  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
-                      utf8_len, nullptr, nullptr);
+  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr,
+                                     0, nullptr, nullptr);
+  char* utf8_str = new char[utf8_len];
+  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str, utf8_len,
+                      nullptr, nullptr);
   *input_file_ = utf8_str;
   delete[] uni16_str;
   delete[] utf8_str;
@@ -1448,7 +1406,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   hocr_str.add_str_int("; ppageno ", page_number);
   hocr_str += "'>\n";
 
-  ResultIterator *res_it = GetIterator();
+  ResultIterator* res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -1489,11 +1447,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    const char *font_name;
+    const char* font_name;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-    font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
-                                           &monospace, &serif, &smallcaps,
-                                           &pointsize, &font_id);
+    font_name =
+        res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                   &serif, &smallcaps, &pointsize, &font_id);
     hocr_str.add_str_int(" title='bbox ", left);
     hocr_str.add_str_int(" ", top);
     hocr_str.add_str_int(" ", right);
@@ -1561,7 +1519,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   }
   hocr_str += "  </div>\n";
 
-  char *ret = new char[hocr_str.length() + 1];
+  char* ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());
   delete res_it;
   return ret;
@@ -1691,8 +1649,8 @@ const int kBytesPer64BitNumber = 20;
  * space plus the newline and the maximum length of a UNICHAR.
  * Test against this on each iteration for safety.
  */
-const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
-    UNICHAR_LEN;
+const int kMaxBytesPerLine =
+    kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 + UNICHAR_LEN;
 
 /**
  * The recognized text is returned as a char* which is coded
@@ -1701,13 +1659,12 @@ const int kMaxBytesPerLine = kNumbersPerBlob * (kBytesPer64BitNumber + 1) + 1 +
  * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetBoxText(int page_number) {
-  if (tesseract_ == nullptr ||
-      (!recognition_done_ && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (!recognition_done_ && Recognize(nullptr) < 0))
     return nullptr;
   int blob_count;
   int utf8_length = TextLength(&blob_count);
-  int total_length = blob_count * kBytesPerBoxFileLine + utf8_length +
-      kMaxBytesPerLine;
+  int total_length =
+      blob_count * kBytesPerBoxFileLine + utf8_length + kMaxBytesPerLine;
   char* result = new char[total_length];
   result[0] = '\0';
   int output_length = 0;
@@ -1720,16 +1677,14 @@ char* TessBaseAPI::GetBoxText(int page_number) {
       // Tesseract uses space for recognition failure. Fix to a reject
       // character, kTesseractReject so we don't create illegal box files.
       for (int i = 0; text[i] != '\0'; ++i) {
-        if (text[i] == ' ')
-          text[i] = kTesseractReject;
+        if (text[i] == ' ') text[i] = kTesseractReject;
       }
       snprintf(result + output_length, total_length - output_length,
                "%s %d %d %d %d %d\n", text.get(), left, image_height_ - bottom,
                right, image_height_ - top, page_number);
       output_length += strlen(result + output_length);
       // Just in case...
-      if (output_length + kMaxBytesPerLine > total_length)
-        break;
+      if (output_length + kMaxBytesPerLine > total_length) break;
     }
   } while (it->Next(RIL_SYMBOL));
   delete it;
@@ -1741,13 +1696,11 @@ char* TessBaseAPI::GetBoxText(int page_number) {
  * Maps characters out of the latin set into the latin set.
  * TODO(rays) incorporate this translation into unicharset.
  */
-const int kUniChs[] = {
-  0x20ac, 0x201c, 0x201d, 0x2018, 0x2019, 0x2022, 0x2014, 0
-};
+const int kUniChs[] = {0x20ac, 0x201c, 0x201d, 0x2018,
+                       0x2019, 0x2022, 0x2014, 0};
 /** Latin chars corresponding to the unicode chars above. */
-const int kLatinChs[] = {
-  0x00a2, 0x0022, 0x0022, 0x0027, 0x0027, 0x00b7, 0x002d, 0
-};
+const int kLatinChs[] = {0x00a2, 0x0022, 0x0022, 0x0027,
+                         0x0027, 0x00b7, 0x002d, 0};
 
 /**
  * The recognized text is returned as a char* which is coded
@@ -1755,32 +1708,28 @@ const int kLatinChs[] = {
  * Returned string must be freed with the delete [] operator.
  */
 char* TessBaseAPI::GetUNLVText() {
-  if (tesseract_ == nullptr ||
-      (!recognition_done_ && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (!recognition_done_ && Recognize(nullptr) < 0))
     return nullptr;
   bool tilde_crunch_written = false;
   bool last_char_was_newline = true;
   bool last_char_was_tilde = false;
 
   int total_length = TextLength(nullptr);
-  PAGE_RES_IT   page_res_it(page_res_);
+  PAGE_RES_IT page_res_it(page_res_);
   char* result = new char[total_length];
   char* ptr = result;
-  for (page_res_it.restart_page(); page_res_it.word () != nullptr;
+  for (page_res_it.restart_page(); page_res_it.word() != nullptr;
        page_res_it.forward()) {
-    WERD_RES *word = page_res_it.word();
+    WERD_RES* word = page_res_it.word();
     // Process the current word.
     if (word->unlv_crunch_mode != CR_NONE) {
       if (word->unlv_crunch_mode != CR_DELETE &&
           (!tilde_crunch_written ||
            (word->unlv_crunch_mode == CR_KEEP_SPACE &&
-            word->word->space() > 0 &&
-            !word->word->flag(W_FUZZY_NON) &&
+            word->word->space() > 0 && !word->word->flag(W_FUZZY_NON) &&
             !word->word->flag(W_FUZZY_SP)))) {
-        if (!word->word->flag(W_BOL) &&
-            word->word->space() > 0 &&
-            !word->word->flag(W_FUZZY_NON) &&
-            !word->word->flag(W_FUZZY_SP)) {
+        if (!word->word->flag(W_BOL) && word->word->space() > 0 &&
+            !word->word->flag(W_FUZZY_NON) && !word->word->flag(W_FUZZY_SP)) {
           /* Write a space to separate from preceding good text */
           *ptr++ = ' ';
           last_char_was_tilde = false;
@@ -1803,8 +1752,8 @@ char* TessBaseAPI::GetUNLVText() {
       int i = 0;
       int offset = 0;
 
-      if (last_char_was_tilde &&
-          word->word->space() == 0 && wordstr[offset] == ' ') {
+      if (last_char_was_tilde && word->word->space() == 0 &&
+          wordstr[offset] == ' ') {
         // Prevent adjacent tilde across words - we know that adjacent tildes
         // within words have been removed.
         // Skip the first character.
@@ -1816,13 +1765,11 @@ char* TessBaseAPI::GetUNLVText() {
         else
           last_char_was_newline = false;
         for (; i < length; offset += lengths[i++]) {
-          if (wordstr[offset] == ' ' ||
-              wordstr[offset] == kTesseractReject) {
+          if (wordstr[offset] == ' ' || wordstr[offset] == kTesseractReject) {
             *ptr++ = kUNLVReject;
             last_char_was_tilde = true;
           } else {
-            if (word->reject_map[i].rejected())
-              *ptr++ = kUNLVSuspect;
+            if (word->reject_map[i].rejected()) *ptr++ = kUNLVSuspect;
             UNICHAR ch(wordstr + offset, lengths[i]);
             int uni_ch = ch.first_uni();
             for (int j = 0; kUniChs[j] != 0; ++j) {
@@ -1928,30 +1875,29 @@ int TessBaseAPI::MeanTextConf() {
   int* conf = AllWordConfidences();
   if (!conf) return 0;
   int sum = 0;
-  int *pt = conf;
+  int* pt = conf;
   while (*pt >= 0) sum += *pt++;
   if (pt != conf) sum /= pt - conf;
-  delete [] conf;
+  delete[] conf;
   return sum;
 }
 
 /** Returns an array of all word confidences, terminated by -1. */
 int* TessBaseAPI::AllWordConfidences() {
-  if (tesseract_ == nullptr ||
-      (!recognition_done_ && Recognize(nullptr) < 0))
+  if (tesseract_ == nullptr || (!recognition_done_ && Recognize(nullptr) < 0))
     return nullptr;
   int n_word = 0;
   PAGE_RES_IT res_it(page_res_);
   for (res_it.restart_page(); res_it.word() != nullptr; res_it.forward())
     n_word++;
 
-  int* conf = new int[n_word+1];
+  int* conf = new int[n_word + 1];
   n_word = 0;
   for (res_it.restart_page(); res_it.word() != nullptr; res_it.forward()) {
-    WERD_RES *word = res_it.word();
+    WERD_RES* word = res_it.word();
     WERD_CHOICE* choice = word->best_choice;
     int w_conf = static_cast<int>(100 + 5 * choice->certainty());
-                 // This is the eq for converting Tesseract confidence to 1..100
+    // This is the eq for converting Tesseract confidence to 1..100
     if (w_conf < 0) w_conf = 0;
     if (w_conf > 100) w_conf = 100;
     conf[n_word++] = w_conf;
@@ -1993,11 +1939,9 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
     int w = 0;
     int t = 0;
     for (t = 0; text[t] != '\0'; ++t) {
-      if (text[t] == '\n' || text[t] == ' ')
-        continue;
+      if (text[t] == '\n' || text[t] == ' ') continue;
       while (wordstr[w] == ' ') ++w;
-      if (text[t] != wordstr[w])
-        break;
+      if (text[t] != wordstr[w]) break;
       ++w;
     }
     if (text[t] != '\0' || wordstr[w] != '\0') {
@@ -2033,8 +1977,7 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
  * any Recognize or Get* operation.
  */
 void TessBaseAPI::Clear() {
-  if (thresholder_ != nullptr)
-    thresholder_->Clear();
+  if (thresholder_ != nullptr) thresholder_->Clear();
   ClearResults();
   if (tesseract_ != nullptr) SetInputImage(nullptr);
 }
@@ -2088,14 +2031,13 @@ void TessBaseAPI::ClearPersistentCache() {
  * Check whether a word is valid according to Tesseract's language model
  * returns 0 if the word is invalid, non-zero if valid
  */
-int TessBaseAPI::IsValidWord(const char *word) {
+int TessBaseAPI::IsValidWord(const char* word) {
   return tesseract_->getDict().valid_word(word);
 }
 // Returns true if utf8_character is defined in the UniCharset.
-bool TessBaseAPI::IsValidCharacter(const char *utf8_character) {
-    return tesseract_->unicharset.contains_unichar(utf8_character);
+bool TessBaseAPI::IsValidCharacter(const char* utf8_character) {
+  return tesseract_->unicharset.contains_unichar(utf8_character);
 }
-
 
 // TODO(rays) Obsolete this function and replace with a more aptly named
 // function that returns image coordinates rather than tesseract coordinates.
@@ -2170,8 +2112,7 @@ bool TessBaseAPI::InternalSetImage() {
     tprintf("Please call Init before attempting to set an image.\n");
     return false;
   }
-  if (thresholder_ == nullptr)
-    thresholder_ = new ImageThresholder;
+  if (thresholder_ == nullptr) thresholder_ = new ImageThresholder;
   ClearResults();
   return true;
 }
@@ -2184,8 +2125,7 @@ bool TessBaseAPI::InternalSetImage() {
  */
 bool TessBaseAPI::Threshold(Pix** pix) {
   ASSERT_HOST(pix != nullptr);
-  if (*pix != nullptr)
-    pixDestroy(pix);
+  if (*pix != nullptr) pixDestroy(pix);
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int y_res = thresholder_->GetScaledYResolution();
   if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
@@ -2195,13 +2135,11 @@ bool TessBaseAPI::Threshold(Pix** pix) {
             kMinCredibleResolution);
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
-  PageSegMode pageseg_mode =
-      static_cast<PageSegMode>(
-          static_cast<int>(tesseract_->tessedit_pageseg_mode));
+  PageSegMode pageseg_mode = static_cast<PageSegMode>(
+      static_cast<int>(tesseract_->tessedit_pageseg_mode));
   if (!thresholder_->ThresholdToPix(pageseg_mode, pix)) return false;
-  thresholder_->GetImageSizes(&rect_left_, &rect_top_,
-                              &rect_width_, &rect_height_,
-                              &image_width_, &image_height_);
+  thresholder_->GetImageSizes(&rect_left_, &rect_top_, &rect_width_,
+                              &rect_height_, &image_width_, &image_height_);
   if (!thresholder_->IsBinary()) {
     tesseract_->set_pix_thresholds(thresholder_->GetPixRectThresholds());
     tesseract_->set_pix_grey(thresholder_->GetPixRectGrey());
@@ -2213,9 +2151,9 @@ bool TessBaseAPI::Threshold(Pix** pix) {
   // estimated resolution, rather than the image resolution, which may be
   // fabricated, but we will use the image resolution, if there is one, to
   // report output point sizes.
-  int estimated_res = ClipToRange(thresholder_->GetScaledEstimatedResolution(),
-                                  kMinCredibleResolution,
-                                  kMaxCredibleResolution);
+  int estimated_res =
+      ClipToRange(thresholder_->GetScaledEstimatedResolution(),
+                  kMinCredibleResolution, kMaxCredibleResolution);
   if (estimated_res != thresholder_->GetScaledEstimatedResolution()) {
     tprintf("Estimated resolution %d out of range! Corrected to %d\n",
             thresholder_->GetScaledEstimatedResolution(), estimated_res);
@@ -2231,8 +2169,7 @@ int TessBaseAPI::FindLines() {
     tprintf("Please call SetImage before attempting recognition.\n");
     return -1;
   }
-  if (recognition_done_)
-    ClearResults();
+  if (recognition_done_) ClearResults();
   if (!block_list_->empty()) {
     return 0;
   }
@@ -2268,20 +2205,21 @@ int TessBaseAPI::FindLines() {
       osd_tesseract_ = new Tesseract;
       TessdataManager mgr(reader_);
       if (datapath_ == nullptr) {
-        tprintf("Warning: Auto orientation and script detection requested,"
-                " but data path is undefined\n");
+        tprintf(
+            "Warning: Auto orientation and script detection requested,"
+            " but data path is undefined\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;
-      } else if (osd_tesseract_->init_tesseract(datapath_->string(), nullptr,
-                                                "osd", OEM_TESSERACT_ONLY,
-                                                nullptr, 0, nullptr, nullptr,
-                                                false, &mgr) == 0) {
+      } else if (osd_tesseract_->init_tesseract(
+                     datapath_->string(), nullptr, "osd", OEM_TESSERACT_ONLY,
+                     nullptr, 0, nullptr, nullptr, false, &mgr) == 0) {
         osd_tess = osd_tesseract_;
         osd_tesseract_->set_source_resolution(
             thresholder_->GetSourceYResolution());
       } else {
-        tprintf("Warning: Auto orientation and script detection requested,"
-                " but osd language failed to load\n");
+        tprintf(
+            "Warning: Auto orientation and script detection requested,"
+            " but osd language failed to load\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;
       }
@@ -2324,28 +2262,25 @@ void TessBaseAPI::ClearResults() {
  * Also return the number of recognized blobs in blob_count.
  */
 int TessBaseAPI::TextLength(int* blob_count) {
-  if (tesseract_ == nullptr || page_res_ == nullptr)
-    return 0;
+  if (tesseract_ == nullptr || page_res_ == nullptr) return 0;
 
-  PAGE_RES_IT   page_res_it(page_res_);
+  PAGE_RES_IT page_res_it(page_res_);
   int total_length = 2;
   int total_blobs = 0;
   // Iterate over the data structures to extract the recognition result.
-  for (page_res_it.restart_page(); page_res_it.word () != nullptr;
+  for (page_res_it.restart_page(); page_res_it.word() != nullptr;
        page_res_it.forward()) {
-    WERD_RES *word = page_res_it.word();
+    WERD_RES* word = page_res_it.word();
     WERD_CHOICE* choice = word->best_choice;
     if (choice != nullptr) {
       total_blobs += choice->length() + 2;
       total_length += choice->unichar_string().length() + 2;
       for (int i = 0; i < word->reject_map.length(); ++i) {
-        if (word->reject_map[i].rejected())
-          ++total_length;
+        if (word->reject_map[i].rejected()) ++total_length;
       }
     }
   }
-  if (blob_count != nullptr)
-    *blob_count = total_blobs;
+  if (blob_count != nullptr) *blob_count = total_blobs;
   return total_length;
 }
 
@@ -2354,15 +2289,13 @@ int TessBaseAPI::TextLength(int* blob_count) {
  * Returns true if the image was processed successfully.
  */
 bool TessBaseAPI::DetectOS(OSResults* osr) {
-  if (tesseract_ == nullptr)
-    return false;
+  if (tesseract_ == nullptr) return false;
   ClearResults();
   if (tesseract_->pix_binary() == nullptr &&
       !Threshold(tesseract_->mutable_pix_binary())) {
     return false;
   }
-  if (input_file_ == nullptr)
-    input_file_ = new STRING(kInputFile);
+  if (input_file_ == nullptr) input_file_ = new STRING(kInputFile);
   return orientation_and_script_detection(*input_file_, osr, tesseract_) > 0;
 }
 
@@ -2386,9 +2319,9 @@ void TessBaseAPI::set_min_orientation_margin(double margin) {
  */
 void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
                                            bool** vertical_writing) {
-  delete[] *block_orientation;
+  delete[] * block_orientation;
   *block_orientation = nullptr;
-  delete[] *vertical_writing;
+  delete[] * vertical_writing;
   *vertical_writing = nullptr;
   BLOCK_IT block_it(block_list_);
 
@@ -2408,8 +2341,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
   *vertical_writing = new bool[num_blocks];
   block_it.move_to_first();
   int i = 0;
-  for (block_it.mark_cycle_pt(); !block_it.cycled_list();
-       block_it.forward()) {
+  for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     if (!block_it.data()->pdblk.poly_block()->IsText()) {
       continue;
     }
@@ -2417,7 +2349,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
     float re_theta = re_rotation.angle();
     FCOORD classify_rotation = block_it.data()->classify_rotation();
     float classify_theta = classify_rotation.angle();
-    double rot_theta = - (re_theta - classify_theta) * 2.0 / PI;
+    double rot_theta = -(re_theta - classify_theta) * 2.0 / PI;
     if (rot_theta < 0) rot_theta += 4;
     int num_rotations = static_cast<int>(rot_theta + 0.5);
     (*block_orientation)[i] = num_rotations;
@@ -2444,29 +2376,18 @@ BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
  * This is to keep BLOCK_LIST pointer opaque
  * and let go of including the other headers.
  */
-void TessBaseAPI::DeleteBlockList(BLOCK_LIST *block_list) {
-  delete block_list;
-}
+void TessBaseAPI::DeleteBlockList(BLOCK_LIST* block_list) { delete block_list; }
 
-
-ROW *TessBaseAPI::MakeTessOCRRow(float baseline,
-                                 float xheight,
-                                 float descender,
+ROW* TessBaseAPI::MakeTessOCRRow(float baseline, float xheight, float descender,
                                  float ascender) {
   int32_t xstarts[] = {-32000};
   double quad_coeffs[] = {0, 0, baseline};
-  return new ROW(1,
-                 xstarts,
-                 quad_coeffs,
-                 xheight,
-                 ascender - (baseline + xheight),
-                 descender - baseline,
-                 0,
-                 0);
+  return new ROW(1, xstarts, quad_coeffs, xheight,
+                 ascender - (baseline + xheight), descender - baseline, 0, 0);
 }
 
 /** Creates a TBLOB* from the whole pix. */
-TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
+TBLOB* TessBaseAPI::MakeTBLOB(Pix* pix) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
   BLOCK block("a character", TRUE, 0, 0, 0, 0, width, height);
@@ -2475,17 +2396,14 @@ TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
   extract_edges(pix, &block);
 
   // Merge all C_BLOBs
-  C_BLOB_LIST *list = block.blob_list();
+  C_BLOB_LIST* list = block.blob_list();
   C_BLOB_IT c_blob_it(list);
-  if (c_blob_it.empty())
-    return nullptr;
+  if (c_blob_it.empty()) return nullptr;
   // Move all the outlines to the first blob.
   C_OUTLINE_IT ol_it(c_blob_it.data()->out_list());
-  for (c_blob_it.forward();
-       !c_blob_it.at_first();
-       c_blob_it.forward()) {
-      C_BLOB *c_blob = c_blob_it.data();
-      ol_it.add_list_after(c_blob->out_list());
+  for (c_blob_it.forward(); !c_blob_it.at_first(); c_blob_it.forward()) {
+    C_BLOB* c_blob = c_blob_it.data();
+    ol_it.add_list_after(c_blob->out_list());
   }
   // Convert the first blob to the output TBLOB.
   return TBLOB::PolygonalCopy(false, c_blob_it.data());
@@ -2496,26 +2414,26 @@ TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
  * for normalization. The denorm is an optional parameter in which the
  * normalization-antidote is returned.
  */
-void TessBaseAPI::NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode) {
+void TessBaseAPI::NormalizeTBLOB(TBLOB* tblob, ROW* row, bool numeric_mode) {
   TBOX box = tblob->bounding_box();
   float x_center = (box.left() + box.right()) / 2.0f;
   float baseline = row->base_line(x_center);
   float scale = kBlnXHeight / row->x_height();
   tblob->Normalize(nullptr, nullptr, nullptr, x_center, baseline, scale, scale,
-                   0.0f, static_cast<float>(kBlnBaselineOffset), false, nullptr);
+                   0.0f, static_cast<float>(kBlnBaselineOffset), false,
+                   nullptr);
 }
 
 /**
  * Return a TBLOB * from the whole pix.
  * To be freed later with delete.
  */
-TBLOB *make_tesseract_blob(float baseline, float xheight,
-                           float descender, float ascender,
-                           bool numeric_mode, Pix* pix) {
-  TBLOB *tblob = TessBaseAPI::MakeTBLOB(pix);
+TBLOB* make_tesseract_blob(float baseline, float xheight, float descender,
+                           float ascender, bool numeric_mode, Pix* pix) {
+  TBLOB* tblob = TessBaseAPI::MakeTBLOB(pix);
 
   // Normalize TBLOB
-  ROW *row =
+  ROW* row =
       TessBaseAPI::MakeTessOCRRow(baseline, xheight, descender, ascender);
   TessBaseAPI::NormalizeTBLOB(tblob, row, numeric_mode);
   delete row;
@@ -2527,19 +2445,15 @@ TBLOB *make_tesseract_blob(float baseline, float xheight,
  * The image must be preloaded into pix_binary_ and be just an image
  * of a single character.
  */
-void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
-                                   int length,
-                                   float baseline,
-                                   float xheight,
-                                   float descender,
-                                   float ascender) {
+void TessBaseAPI::AdaptToCharacter(const char* unichar_repr, int length,
+                                   float baseline, float xheight,
+                                   float descender, float ascender) {
   UNICHAR_ID id = tesseract_->unicharset.unichar_to_id(unichar_repr, length);
-  TBLOB *blob = make_tesseract_blob(baseline, xheight, descender, ascender,
+  TBLOB* blob = make_tesseract_blob(baseline, xheight, descender, ascender,
                                     tesseract_->classify_bln_numeric_mode,
                                     tesseract_->pix_binary());
   float threshold;
   float best_rating = -100;
-
 
   // Classify to get a raw choice.
   BLOB_CHOICE_LIST choices;
@@ -2561,10 +2475,9 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
   delete blob;
 }
 
-
 PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
-  PAGE_RES *page_res = new PAGE_RES(false, block_list,
-                                    &(tesseract_->prev_word_best_choice_));
+  PAGE_RES* page_res =
+      new PAGE_RES(false, block_list, &(tesseract_->prev_word_best_choice_));
   tesseract_->recog_all_words(page_res, nullptr, nullptr, nullptr, 1);
   return page_res;
 }
@@ -2572,8 +2485,8 @@ PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
 PAGE_RES* TessBaseAPI::RecognitionPass2(BLOCK_LIST* block_list,
                                         PAGE_RES* pass1_result) {
   if (!pass1_result)
-    pass1_result = new PAGE_RES(false, block_list,
-                                &(tesseract_->prev_word_best_choice_));
+    pass1_result =
+        new PAGE_RES(false, block_list, &(tesseract_->prev_word_best_choice_));
   tesseract_->recog_all_words(pass1_result, nullptr, nullptr, nullptr, 2);
   return pass1_result;
 }
@@ -2583,9 +2496,9 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
   GetIntVariable("paragraph_debug_level", &debug_level);
   if (paragraph_models_ == nullptr)
     paragraph_models_ = new GenericVector<ParagraphModel*>;
-  MutableIterator *result_it = GetMutableIterator();
+  MutableIterator* result_it = GetMutableIterator();
   do {  // Detect paragraphs for this block
-    GenericVector<ParagraphModel *> models;
+    GenericVector<ParagraphModel*> models;
     ::tesseract::DetectParagraphs(debug_level, after_text_recognition,
                                   result_it, &models);
     *paragraph_models_ += models;
@@ -2594,12 +2507,12 @@ void TessBaseAPI::DetectParagraphs(bool after_text_recognition) {
 }
 
 struct TESS_CHAR : ELIST_LINK {
-  char *unicode_repr;
+  char* unicode_repr;
   int length;  // of unicode_repr
   float cost;
   TBOX box;
 
-  TESS_CHAR(float _cost, const char *repr, int len = -1) : cost(_cost) {
+  TESS_CHAR(float _cost, const char* repr, int len = -1) : cost(_cost) {
     length = (len == -1 ? strlen(repr) : len);
     unicode_repr = new char[length + 1];
     strncpy(unicode_repr, repr, length);
@@ -2607,19 +2520,16 @@ struct TESS_CHAR : ELIST_LINK {
 
   TESS_CHAR() {  // Satisfies ELISTIZE.
   }
-  ~TESS_CHAR() {
-    delete [] unicode_repr;
-  }
+  ~TESS_CHAR() { delete[] unicode_repr; }
 };
 
 ELISTIZEH(TESS_CHAR)
 ELISTIZE(TESS_CHAR)
 
 static void add_space(TESS_CHAR_IT* it) {
-  TESS_CHAR *t = new TESS_CHAR(0, " ");
+  TESS_CHAR* t = new TESS_CHAR(0, " ");
   it->add_after_then_move(t);
 }
-
 
 static float rating_to_cost(float rating) {
   rating = 100 + rating;
@@ -2634,25 +2544,23 @@ static float rating_to_cost(float rating) {
  * Extract the OCR results, costs (penalty points for uncertainty),
  * and the bounding boxes of the characters.
  */
-static void extract_result(TESS_CHAR_IT* out,
-                           PAGE_RES* page_res) {
+static void extract_result(TESS_CHAR_IT* out, PAGE_RES* page_res) {
   PAGE_RES_IT page_res_it(page_res);
   int word_count = 0;
   while (page_res_it.word() != nullptr) {
-    WERD_RES *word = page_res_it.word();
-    const char *str = word->best_choice->unichar_string().string();
-    const char *len = word->best_choice->unichar_lengths().string();
+    WERD_RES* word = page_res_it.word();
+    const char* str = word->best_choice->unichar_string().string();
+    const char* len = word->best_choice->unichar_lengths().string();
     TBOX real_rect = word->word->bounding_box();
 
-    if (word_count)
-      add_space(out);
+    if (word_count) add_space(out);
     int n = strlen(len);
     for (int i = 0; i < n; i++) {
-      TESS_CHAR *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
-                                    str, *len);
+      TESS_CHAR* tc =
+          new TESS_CHAR(rating_to_cost(word->best_choice->rating()), str, *len);
       tc->box = real_rect.intersection(word->box_word->BlobBox(i));
       out->add_after_then_move(tc);
-       str += *len;
+      str += *len;
       len++;
     }
     page_res_it.forward();
@@ -2664,13 +2572,9 @@ static void extract_result(TESS_CHAR_IT* out,
  * Extract the OCR results, costs (penalty points for uncertainty),
  * and the bounding boxes of the characters.
  */
-int TessBaseAPI::TesseractExtractResult(char** text,
-                                        int** lengths,
-                                        float** costs,
-                                        int** x0,
-                                        int** y0,
-                                        int** x1,
-                                        int** y1,
+int TessBaseAPI::TesseractExtractResult(char** text, int** lengths,
+                                        float** costs, int** x0, int** y0,
+                                        int** x1, int** y1,
                                         PAGE_RES* page_res) {
   TESS_CHAR_LIST tess_chars;
   TESS_CHAR_IT tess_chars_it(&tess_chars);
@@ -2685,10 +2589,9 @@ int TessBaseAPI::TesseractExtractResult(char** text,
   *x1 = new int[n];
   *y1 = new int[n];
   int i = 0;
-  for (tess_chars_it.mark_cycle_pt();
-       !tess_chars_it.cycled_list();
+  for (tess_chars_it.mark_cycle_pt(); !tess_chars_it.cycled_list();
        tess_chars_it.forward(), i++) {
-    TESS_CHAR *tc = tess_chars_it.data();
+    TESS_CHAR* tc = tess_chars_it.data();
     text_len += (*lengths)[i] = tc->length;
     (*costs)[i] = tc->cost;
     (*x0)[i] = tc->box.left();
@@ -2696,13 +2599,12 @@ int TessBaseAPI::TesseractExtractResult(char** text,
     (*x1)[i] = tc->box.right();
     (*y1)[i] = tc->box.top();
   }
-  char *p = *text = new char[text_len];
+  char* p = *text = new char[text_len];
 
   tess_chars_it.move_to_first();
-  for (tess_chars_it.mark_cycle_pt();
-        !tess_chars_it.cycled_list();
+  for (tess_chars_it.mark_cycle_pt(); !tess_chars_it.cycled_list();
        tess_chars_it.forward()) {
-    TESS_CHAR *tc = tess_chars_it.data();
+    TESS_CHAR* tc = tess_chars_it.data();
     strncpy(p, tc->unicode_repr, tc->length);
     p += tc->length;
   }
@@ -2724,8 +2626,8 @@ void TessBaseAPI::GetFeaturesForBlob(TBLOB* blob,
   GenericVector<INT_FEATURE_STRUCT> bl_features;
   GenericVector<INT_FEATURE_STRUCT> cn_features;
   INT_FX_RESULT_STRUCT fx_info;
-  tesseract_->ExtractFeatures(*blob, false, &bl_features,
-                              &cn_features, &fx_info, &outline_counts);
+  tesseract_->ExtractFeatures(*blob, false, &bl_features, &cn_features,
+                              &fx_info, &outline_counts);
   if (cn_features.empty() || cn_features.size() > MAX_NUM_INT_FEATURES) {
     *num_features = 0;
     return;  // Feature extraction failed.
@@ -2736,32 +2638,28 @@ void TessBaseAPI::GetFeaturesForBlob(TBLOB* blob,
   if (feature_outline_index != nullptr) {
     int f = 0;
     for (int i = 0; i < outline_counts.size(); ++i) {
-      while (f < outline_counts[i])
-        feature_outline_index[f++] = i;
+      while (f < outline_counts[i]) feature_outline_index[f++] = i;
     }
   }
 }
 
 // This method returns the row to which a box of specified dimensions would
 // belong. If no good match is found, it returns nullptr.
-ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
-                                int left, int top, int right, int bottom) {
+ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks, int left, int top,
+                                int right, int bottom) {
   TBOX box(left, bottom, right, top);
   BLOCK_IT b_it(blocks);
   for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
     BLOCK* block = b_it.data();
-    if (!box.major_overlap(block->pdblk.bounding_box()))
-      continue;
+    if (!box.major_overlap(block->pdblk.bounding_box())) continue;
     ROW_IT r_it(block->row_list());
     for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
       ROW* row = r_it.data();
-      if (!box.major_overlap(row->bounding_box()))
-        continue;
+      if (!box.major_overlap(row->bounding_box())) continue;
       WERD_IT w_it(row->word_list());
       for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
         WERD* word = w_it.data();
-        if (box.major_overlap(word->bounding_box()))
-          return row;
+        if (box.major_overlap(word->bounding_box())) return row;
       }
     }
   }
@@ -2769,10 +2667,8 @@ ROW* TessBaseAPI::FindRowForBox(BLOCK_LIST* blocks,
 }
 
 /** Method to run adaptive classifier on a blob. */
-void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob,
-                                        int num_max_matches,
-                                        int* unichar_ids,
-                                        float* ratings,
+void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob, int num_max_matches,
+                                        int* unichar_ids, float* ratings,
                                         int* num_matches_returned) {
   BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
   tesseract_->AdaptiveClassifier(blob, choices);
@@ -2797,7 +2693,7 @@ const char* TessBaseAPI::GetUnichar(int unichar_id) {
 }
 
 /** Return the pointer to the i-th dawg loaded into tesseract_ object. */
-const Dawg *TessBaseAPI::GetDawg(int i) const {
+const Dawg* TessBaseAPI::GetDawg(int i) const {
   if (tesseract_ == nullptr || i >= NumDawgs()) return nullptr;
   return tesseract_->getDict().GetDawg(i);
 }
@@ -2808,17 +2704,29 @@ int TessBaseAPI::NumDawgs() const {
 }
 
 /** Escape a char string - remove <>&"' with HTML codes. */
-STRING HOcrEscape(const char* text) {
+STRING
+HOcrEscape(const char* text) {
   STRING ret;
-  const char *ptr;
+  const char* ptr;
   for (ptr = text; *ptr; ptr++) {
     switch (*ptr) {
-      case '<': ret += "&lt;"; break;
-      case '>': ret += "&gt;"; break;
-      case '&': ret += "&amp;"; break;
-      case '"': ret += "&quot;"; break;
-      case '\'': ret += "&#39;"; break;
-      default: ret += *ptr;
+      case '<':
+        ret += "&lt;";
+        break;
+      case '>':
+        ret += "&gt;";
+        break;
+      case '&':
+        ret += "&amp;";
+        break;
+      case '"':
+        ret += "&quot;";
+        break;
+      case '\'':
+        ret += "&#39;";
+        break;
+      default:
+        ret += *ptr;
     }
   }
   return ret;

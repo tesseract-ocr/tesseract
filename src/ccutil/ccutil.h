@@ -21,8 +21,8 @@
 
 #include "ambigs.h"
 #include "errcode.h"
-#include "strngs.h"
 #include "params.h"
+#include "strngs.h"
 #include "unicharset.h"
 
 #ifndef _WIN32
@@ -39,6 +39,7 @@ class CCUtilMutex {
   void Lock();
 
   void Unlock();
+
  private:
 #ifdef _WIN32
   HANDLE mutex_;
@@ -47,7 +48,6 @@ class CCUtilMutex {
 #endif
 };
 
-
 class CCUtil {
  public:
   CCUtil();
@@ -55,11 +55,10 @@ class CCUtil {
 
  public:
   // Read the arguments and set up the data path.
-  void main_setup(
-                  const char *argv0,        // program name
-                  const char *basename      // name of image
-                 );
-  ParamsVectors *params() { return &params_; }
+  void main_setup(const char* argv0,    // program name
+                  const char* basename  // name of image
+  );
+  ParamsVectors* params() { return &params_; }
 
   STRING datadir;        // dir for data files
   STRING imagebasename;  // name of image
@@ -74,13 +73,13 @@ class CCUtil {
   ParamsVectors params_;
 
  public:
-  // Member parameters.
-  // These have to be declared and initialized after params_ member, since
-  // params_ should be initialized before parameters are added to it.
-  #ifdef _WIN32
+// Member parameters.
+// These have to be declared and initialized after params_ member, since
+// params_ should be initialized before parameters are added to it.
+#ifdef _WIN32
   STRING_VAR_H(tessedit_module_name, WINDLLNAME,
                "Module colocated with tessdata dir");
-  #endif
+#endif
   INT_VAR_H(ambigs_debug_level, 0, "Debug level for unichar ambiguities");
   BOOL_VAR_H(use_definite_ambigs_for_classifier, 0,
              "Use definite ambiguities when running character classifier");

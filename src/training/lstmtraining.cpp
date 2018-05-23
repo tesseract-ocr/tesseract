@@ -45,12 +45,13 @@ STRING_PARAM_FLAG(train_listfile, "",
 STRING_PARAM_FLAG(eval_listfile, "",
                   "File listing eval files in lstmf training format.");
 BOOL_PARAM_FLAG(stop_training, false,
-               "Just convert the training model to a runtime model.");
+                "Just convert the training model to a runtime model.");
 BOOL_PARAM_FLAG(convert_to_int, false,
                 "Convert the recognition model to an integer model.");
 BOOL_PARAM_FLAG(sequential_training, false,
                 "Use the training files sequentially instead of round-robin.");
-INT_PARAM_FLAG(append_index, -1, "Index in continue_from Network at which to"
+INT_PARAM_FLAG(append_index, -1,
+               "Index in continue_from Network at which to"
                " attach the new network defined by net_spec");
 BOOL_PARAM_FLAG(debug_network, false,
                 "Get info on distribution of weight values");
@@ -70,7 +71,7 @@ const int kNumPagesPerBatch = 100;
 // were previously created using tesseract with the lstm.train config file.
 // The program iterates over the inputs, feeding the data to the network,
 // until the error rate reaches a specified target or max_iterations is reached.
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
   // Purify the model name in case it is based on the network string.
@@ -84,10 +85,8 @@ int main(int argc, char **argv) {
   }
   STRING model_output = FLAGS_model_output.c_str();
   for (int i = 0; i < model_output.length(); ++i) {
-    if (model_output[i] == '[' || model_output[i] == ']')
-      model_output[i] = '-';
-    if (model_output[i] == '(' || model_output[i] == ')')
-      model_output[i] = '_';
+    if (model_output[i] == '[' || model_output[i] == ']') model_output[i] = '-';
+    if (model_output[i] == '(' || model_output[i] == ')') model_output[i] = '_';
   }
   // Setup the trainer.
   STRING checkpoint_file = FLAGS_model_output.c_str();

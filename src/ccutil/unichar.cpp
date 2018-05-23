@@ -34,26 +34,22 @@ UNICHAR::UNICHAR(const char* utf8_str, int len) {
   int total_len = 0;
   int step = 0;
   if (len < 0) {
-    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len);
+    for (len = 0; len < UNICHAR_LEN && utf8_str[len] != 0; ++len)
+      ;
   }
   for (total_len = 0; total_len < len; total_len += step) {
     step = utf8_step(utf8_str + total_len);
-    if (total_len + step > UNICHAR_LEN)
-      break;  // Too long.
-    if (step == 0)
-      break;  // Illegal first byte.
+    if (total_len + step > UNICHAR_LEN) break;  // Too long.
+    if (step == 0) break;                       // Illegal first byte.
     int i;
     for (i = 1; i < step; ++i)
-      if ((utf8_str[total_len + i] & 0xc0) != 0x80)
-        break;
-    if (i < step)
-      break;  // Illegal surrogate
+      if ((utf8_str[total_len + i] & 0xc0) != 0x80) break;
+    if (i < step) break;  // Illegal surrogate
   }
   memcpy(chars, utf8_str, total_len);
   if (total_len < UNICHAR_LEN) {
     chars[UNICHAR_LEN - 1] = total_len;
-    while (total_len < UNICHAR_LEN - 1)
-      chars[total_len++] = 0;
+    while (total_len < UNICHAR_LEN - 1) chars[total_len++] = 0;
   }
 }
 
@@ -97,27 +93,25 @@ UNICHAR::UNICHAR(int unicode) {
 
 // Get the first character as UCS-4.
 int UNICHAR::first_uni() const {
-  static const int utf8_offsets[5] = {
-    0, 0, 0x3080, 0xE2080, 0x3C82080
-  };
+  static const int utf8_offsets[5] = {0, 0, 0x3080, 0xE2080, 0x3C82080};
   int uni = 0;
   int len = utf8_step(chars);
   const char* src = chars;
 
   switch (len) {
-  default:
-    break;
-  case 4:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-  case 3:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-  case 2:
-    uni += static_cast<unsigned char>(*src++);
-    uni <<= 6;
-  case 1:
-    uni += static_cast<unsigned char>(*src++);
+    default:
+      break;
+    case 4:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+    case 3:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+    case 2:
+      uni += static_cast<unsigned char>(*src++);
+      uni <<= 6;
+    case 1:
+      uni += static_cast<unsigned char>(*src++);
   }
   uni -= utf8_offsets[len];
   return uni;
@@ -135,15 +129,17 @@ char* UNICHAR::utf8_str() const {
 // Get the number of bytes in the first character of the given utf8 string.
 int UNICHAR::utf8_step(const char* utf8_str) {
   static const char utf8_bytes[256] = {
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0
-  };
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+      2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+      4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0};
 
   return utf8_bytes[static_cast<unsigned char>(*utf8_str)];
 }
@@ -195,9 +191,7 @@ int UNICHAR::const_iterator::utf8_len() const {
   return len;
 }
 
-bool UNICHAR::const_iterator::is_legal() const {
-  return utf8_step(it_) > 0;
-}
+bool UNICHAR::const_iterator::is_legal() const { return utf8_step(it_) > 0; }
 
 UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {
   return UNICHAR::const_iterator(utf8_str);

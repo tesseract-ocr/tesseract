@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include          "memry.h"
-#include          <stdlib.h>
+#include "memry.h"
+#include <stdlib.h>
 
 // With improvements in OS memory allocators, internal memory management
 // is no longer required, so all these functions now map to their malloc
@@ -27,19 +27,13 @@
 // TODO(rays) further cleanup by redirecting calls to new and creating proper
 // constructors.
 
-char *alloc_string(int32_t count) {
+char* alloc_string(int32_t count) {
   // Round up the amount allocated to a multiple of 4
   return static_cast<char*>(malloc((count + 3) & ~3));
 }
 
-void free_string(char *string) {
-  free(string);
-}
+void free_string(char* string) { free(string); }
 
-void *alloc_mem(int32_t count) {
-  return malloc(static_cast<size_t>(count));
-}
+void* alloc_mem(int32_t count) { return malloc(static_cast<size_t>(count)); }
 
-void free_mem(void *oldchunk) {
-  free(oldchunk);
-}
+void free_mem(void* oldchunk) { free(oldchunk); }

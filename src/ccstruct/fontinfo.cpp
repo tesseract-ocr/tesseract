@@ -42,8 +42,7 @@ FontInfoTable::FontInfoTable() {
   set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
 }
 
-FontInfoTable::~FontInfoTable() {
-}
+FontInfoTable::~FontInfoTable() {}
 
 // Writes to the given file. Returns false in case of error.
 bool FontInfoTable::Serialize(FILE* fp) const {
@@ -62,8 +61,7 @@ bool FontInfoTable::SetContainsFontProperties(
     int font_id, const GenericVector<ScoredFont>& font_set) const {
   uint32_t properties = get(font_id).properties;
   for (int f = 0; f < font_set.size(); ++f) {
-    if (get(font_set[f].fontinfo_id).properties == properties)
-      return true;
+    if (get(font_set[f].fontinfo_id).properties == properties) return true;
   }
   return false;
 }
@@ -75,8 +73,7 @@ bool FontInfoTable::SetContainsMultipleFontProperties(
   int first_font = font_set[0].fontinfo_id;
   uint32_t properties = get(first_font).properties;
   for (int f = 1; f < font_set.size(); ++f) {
-    if (get(font_set[f].fontinfo_id).properties != properties)
-      return true;
+    if (get(font_set[f].fontinfo_id).properties != properties) return true;
   }
   return false;
 }
@@ -94,7 +91,7 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
         push_back(other->get(i));
         other->get(i).name = nullptr;
       } else {
-        delete [] get(target_index).spacing_vec;
+        delete[] get(target_index).spacing_vec;
         get(target_index).spacing_vec = other->get(i).spacing_vec;
       }
       other->get(i).spacing_vec = nullptr;
@@ -115,7 +112,6 @@ void FontInfoTable::MoveTo(UnicityTable<FontInfo>* target) {
   }
 }
 
-
 // Compare FontInfo structures.
 bool CompareFontInfo(const FontInfo& fi1, const FontInfo& fi2) {
   // The font properties are required to be the same for two font with the same
@@ -126,11 +122,9 @@ bool CompareFontInfo(const FontInfo& fi1, const FontInfo& fi2) {
 }
 // Compare FontSet structures.
 bool CompareFontSet(const FontSet& fs1, const FontSet& fs2) {
-  if (fs1.size != fs2.size)
-    return false;
+  if (fs1.size != fs2.size) return false;
   for (int i = 0; i < fs1.size; ++i) {
-    if (fs1.configs[i] != fs2.configs[i])
-      return false;
+    if (fs1.configs[i] != fs2.configs[i]) return false;
   }
   return true;
 }
@@ -143,9 +137,7 @@ void FontInfoDeleteCallback(FontInfo f) {
   }
   delete[] f.name;
 }
-void FontSetDeleteCallback(FontSet fs) {
-  delete[] fs.configs;
-}
+void FontSetDeleteCallback(FontSet fs) { delete[] fs.configs; }
 
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
@@ -177,7 +169,7 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
   if (vec_size == 0) return true;
   fi->init_spacing(vec_size);
   for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = new FontSpacingInfo();
+    FontSpacingInfo* fs = new FontSpacingInfo();
     if (f->FReadEndian(&fs->x_gap_before, sizeof(fs->x_gap_before), 1) != 1 ||
         f->FReadEndian(&fs->x_gap_after, sizeof(fs->x_gap_after), 1) != 1 ||
         f->FReadEndian(&kern_size, sizeof(kern_size), 1) != 1) {
@@ -200,10 +192,10 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
 
 bool write_spacing_info(FILE* f, const FontInfo& fi) {
   int32_t vec_size = (fi.spacing_vec == nullptr) ? 0 : fi.spacing_vec->size();
-  if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
+  if (fwrite(&vec_size, sizeof(vec_size), 1, f) != 1) return false;
   int16_t x_gap_invalid = -1;
   for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = fi.spacing_vec->get(i);
+    FontSpacingInfo* fs = fi.spacing_vec->get(i);
     int32_t kern_size = (fs == nullptr) ? -1 : fs->kerned_x_gaps.size();
     if (fs == nullptr) {
       // Valid to have the identical fwrites. Writing invalid x-gaps.

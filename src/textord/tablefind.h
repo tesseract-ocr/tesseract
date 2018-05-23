@@ -27,13 +27,7 @@
 namespace tesseract {
 
 // Possible types for a column segment.
-enum ColSegType {
-  COL_UNKNOWN,
-  COL_TEXT,
-  COL_TABLE,
-  COL_MIXED,
-  COL_COUNT
-};
+enum ColSegType { COL_UNKNOWN, COL_TEXT, COL_TABLE, COL_MIXED, COL_COUNT };
 
 class ColPartitionSet;
 
@@ -49,76 +43,51 @@ class ColSegment : public ELIST_LINK {
   ~ColSegment() = default;
 
   // Simple accessors and mutators
-  const TBOX& bounding_box() const {
-    return bounding_box_;
-  }
+  const TBOX& bounding_box() const { return bounding_box_; }
 
-  void set_top(int y) {
-    bounding_box_.set_top(y);
-  }
+  void set_top(int y) { bounding_box_.set_top(y); }
 
-  void set_bottom(int y) {
-    bounding_box_.set_bottom(y);
-  }
+  void set_bottom(int y) { bounding_box_.set_bottom(y); }
 
-  void set_left(int x) {
-    bounding_box_.set_left(x);
-  }
+  void set_left(int x) { bounding_box_.set_left(x); }
 
-  void set_right(int x) {
-    bounding_box_.set_right(x);
-  }
+  void set_right(int x) { bounding_box_.set_right(x); }
 
-  void set_bounding_box(const TBOX& other) {
-    bounding_box_ = other;
-  }
+  void set_bounding_box(const TBOX& other) { bounding_box_ = other; }
 
-  int get_num_table_cells() const {
-    return num_table_cells_;
-  }
+  int get_num_table_cells() const { return num_table_cells_; }
 
   // set the number of table colpartitions covered by the bounding_box_
-  void set_num_table_cells(int n) {
-    num_table_cells_ = n;
-  }
+  void set_num_table_cells(int n) { num_table_cells_ = n; }
 
-  int get_num_text_cells() const {
-    return num_text_cells_;
-  }
+  int get_num_text_cells() const { return num_text_cells_; }
 
   // set the number of text colpartitions covered by the bounding_box_
-  void set_num_text_cells(int n) {
-    num_text_cells_ = n;
-  }
+  void set_num_text_cells(int n) { num_text_cells_ = n; }
 
-  ColSegType type() const {
-    return type_;
-  }
+  ColSegType type() const { return type_; }
 
   // set the type of the block based on the ratio of table to text
   // colpartitions covered by it.
   void set_type();
 
   // Provides a color for BBGrid to draw the rectangle.
-  ScrollView::Color  BoxColor() const;
+  ScrollView::Color BoxColor() const;
 
   // Insert a rectangle into bounding_box_
   void InsertBox(const TBOX& other);
 
  private:
-  TBOX bounding_box_;                    // bounding box
+  TBOX bounding_box_;  // bounding box
   int num_table_cells_;
   int num_text_cells_;
   ColSegType type_;
 };
 
 // Typedef BBGrid of ColSegments
-using ColSegmentGrid = BBGrid<ColSegment,
-               ColSegment_CLIST,
-               ColSegment_C_IT>;
-using ColSegmentGridSearch = GridSearch<ColSegment,
-                   ColSegment_CLIST,
-                   ColSegment_C_IT>;
+using ColSegmentGrid = BBGrid<ColSegment, ColSegment_CLIST, ColSegment_C_IT>;
+using ColSegmentGridSearch =
+    GridSearch<ColSegment, ColSegment_CLIST, ColSegment_C_IT>;
 
 // TableFinder is a utility class to find a set of tables given a set of
 // ColPartitions and Columns. The TableFinder will mark candidate ColPartitions
@@ -135,9 +104,7 @@ class TableFinder {
   ~TableFinder();
 
   // Set the resolution of the connected components in ppi.
-  void set_resolution(int resolution) {
-    resolution_ = resolution;
-  }
+  void set_resolution(int resolution) { resolution_ = resolution; }
   // Change the reading order. Initially it is left to right.
   void set_left_to_right_language(bool order);
 
@@ -154,10 +121,8 @@ class TableFinder {
   // tables. The columns and width callbacks are used to merge tables.
   // The reskew argument is only used to write the tables to the out.png
   // if that feature is enabled.
-  void LocateTables(ColPartitionGrid* grid,
-                    ColPartitionSet** columns,
-                    WidthCallback* width_cb,
-                    const FCOORD& reskew);
+  void LocateTables(ColPartitionGrid* grid, ColPartitionSet** columns,
+                    WidthCallback* width_cb, const FCOORD& reskew);
 
  protected:
   // Access for the grid dimensions.
@@ -279,14 +244,14 @@ class TableFinder {
 
   // Get Column segments from best_columns_
   void GetColumnBlocks(ColPartitionSet** columns,
-                       ColSegment_LIST *col_segments);
+                       ColSegment_LIST* col_segments);
 
   // Group Column segments into consecutive single column regions.
-  void GroupColumnBlocks(ColSegment_LIST *current_segments,
-                        ColSegment_LIST *col_segments);
+  void GroupColumnBlocks(ColSegment_LIST* current_segments,
+                         ColSegment_LIST* col_segments);
 
   // Check if two boxes are consecutive within the same column
-  bool ConsecutiveBoxes(const TBOX &b1, const TBOX &b2);
+  bool ConsecutiveBoxes(const TBOX& b1, const TBOX& b2);
 
   // Set the ratio of candidate table partitions in each column
   void SetColumnsType(ColSegment_LIST* col_segments);
@@ -304,7 +269,7 @@ class TableFinder {
   // Differs from paper by just looking at marked table partitions
   // instead of similarity metric.
   // Modified section 4.1 of paper.
-  void GetTableColumns(ColSegment_LIST *table_columns);
+  void GetTableColumns(ColSegment_LIST* table_columns);
 
   // Finds regions within a column that potentially contain a table.
   // Ie, the table columns from GetTableColumns are turned into boxes
@@ -312,16 +277,15 @@ class TableFinder {
   // earlier functions) in the x direction and the min/max extent of
   // overlapping table columns in the y direction.
   // Section 4.2 of paper.
-  void GetTableRegions(ColSegment_LIST *table_columns,
-                       ColSegment_LIST *table_regions);
-
+  void GetTableRegions(ColSegment_LIST* table_columns,
+                       ColSegment_LIST* table_regions);
 
   //////// Functions to "patch up" found tables
   ////////
 
   // Merge table regions corresponding to tables spanning multiple columns
   void GridMergeTableRegions();
-  bool BelongToOneTable(const TBOX &box1, const TBOX &box2);
+  bool BelongToOneTable(const TBOX& box1, const TBOX& box2);
 
   // Adjust table boundaries by building a tight bounding box around all
   // ColPartitions contained in it.
@@ -336,8 +300,7 @@ class TableFinder {
   // Grow a table by increasing the size of the box to include
   // partitions with significant overlap with the table.
   void GrowTableToIncludePartials(const TBOX& table_box,
-                                  const TBOX& search_range,
-                                  TBOX* result_box);
+                                  const TBOX& search_range, TBOX* result_box);
   // Grow a table by expanding to the extents of significantly
   // overlapping lines.
   void GrowTableToIncludeLines(const TBOX& table_box, const TBOX& search_range,
@@ -372,7 +335,7 @@ class TableFinder {
 
   // Displays Colpartitions marked as table row. Overlays them on top of
   // part_grid_.
-  void DisplayColSegments(ScrollView* win, ColSegment_LIST *cols,
+  void DisplayColSegments(ScrollView* win, ColSegment_LIST* cols,
                           ScrollView::Color color);
 
   // Displays the colpartitions using a new coloring on an existing window.
@@ -383,8 +346,7 @@ class TableFinder {
                             ScrollView::Color table_color);
   void DisplayColPartitions(ScrollView* win, ColPartitionGrid* grid,
                             ScrollView::Color default_color);
-  void DisplayColPartitionConnections(ScrollView* win,
-                                      ColPartitionGrid* grid,
+  void DisplayColPartitionConnections(ScrollView* win, ColPartitionGrid* grid,
                                       ScrollView::Color default_color);
   void DisplayColSegmentGrid(ScrollView* win, ColSegmentGrid* grid,
                              ScrollView::Color color);
@@ -392,8 +354,7 @@ class TableFinder {
   // Merge all colpartitions in table regions to make them a single
   // colpartition and revert types of isolated table cells not
   // assigned to any table to their original types.
-  void MakeTableBlocks(ColPartitionGrid* grid,
-                       ColPartitionSet** columns,
+  void MakeTableBlocks(ColPartitionGrid* grid, ColPartitionSet** columns,
                        WidthCallback* width_cb);
 
   /////////////////////////////////////////////////

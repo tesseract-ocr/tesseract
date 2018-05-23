@@ -54,7 +54,8 @@ bool WriteFile(const std::string& output_dir, const std::string& lang,
 
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const std::string& filename, FileReader reader) {
+STRING
+ReadFile(const std::string& filename, FileReader reader) {
   if (filename.empty()) return STRING();
   GenericVector<char> data;
   bool read_result;
@@ -68,9 +69,9 @@ STRING ReadFile(const std::string& filename, FileReader reader) {
 }
 
 // Helper writes the unicharset to file and to the traineddata.
-bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
-                     const std::string& lang, FileWriter writer,
-                     TessdataManager* traineddata) {
+bool WriteUnicharset(const UNICHARSET& unicharset,
+                     const std::string& output_dir, const std::string& lang,
+                     FileWriter writer, TessdataManager* traineddata) {
   GenericVector<char> unicharset_data;
   TFile fp;
   fp.OpenWrite(&unicharset_data);
@@ -182,9 +183,11 @@ static bool WriteDawgs(const GenericVector<STRING>& words,
 
 // The main function for combine_lang_model.cpp.
 // Returns EXIT_SUCCESS or EXIT_FAILURE for error.
-int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
-                     const std::string& version_str, const std::string& output_dir,
-                     const std::string& lang, bool pass_through_recoder,
+int CombineLangModel(const UNICHARSET& unicharset,
+                     const std::string& script_dir,
+                     const std::string& version_str,
+                     const std::string& output_dir, const std::string& lang,
+                     bool pass_through_recoder,
                      const GenericVector<STRING>& words,
                      const GenericVector<STRING>& puncs,
                      const GenericVector<STRING>& numbers, bool lang_is_rtl,
@@ -203,7 +206,8 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
     tprintf("Config file is optional, continuing...\n");
   }
   // If there is a config file, read it and add to traineddata.
-  std::string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
+  std::string config_filename =
+      script_dir + "/" + lang + "/" + lang + ".config";
   STRING config_file = ReadFile(config_filename, reader);
   if (config_file.length() > 0) {
     traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0],

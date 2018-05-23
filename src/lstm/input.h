@@ -68,14 +68,13 @@ class Input : public Network {
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
   void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+               const TransposedArray* input_transpose, NetworkScratch* scratch,
+               NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
   bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+                NetworkScratch* scratch, NetworkIO* back_deltas) override;
   // Creates and returns a Pix of appropriate size for the network from the
   // image_data. If non-null, *image_scale returns the image scale factor used.
   // Returns nullptr on error.

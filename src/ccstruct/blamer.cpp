@@ -38,26 +38,19 @@ const char kBlameNoTruthSplit[] = "no_tr_spl";
 const char kBlameNoTruth[] = "no_tr";
 const char kBlameUnknown[] = "unkn";
 
-const char * const kIncorrectResultReasonNames[] = {
-    kBlameCorrect,
-    kBlameClassifier,
-    kBlameChopper,
-    kBlameClassLMTradeoff,
-    kBlamePageLayout,
-    kBlameSegsearchHeur,
-    kBlameSegsearchPP,
-    kBlameClassOldLMTradeoff,
-    kBlameAdaption,
-    kBlameNoTruthSplit,
-    kBlameNoTruth,
-    kBlameUnknown
-};
+const char* const kIncorrectResultReasonNames[] = {
+    kBlameCorrect,     kBlameClassifier,
+    kBlameChopper,     kBlameClassLMTradeoff,
+    kBlamePageLayout,  kBlameSegsearchHeur,
+    kBlameSegsearchPP, kBlameClassOldLMTradeoff,
+    kBlameAdaption,    kBlameNoTruthSplit,
+    kBlameNoTruth,     kBlameUnknown};
 
-const char *BlamerBundle::IncorrectReasonName(IncorrectResultReason irr) {
+const char* BlamerBundle::IncorrectReasonName(IncorrectResultReason irr) {
   return kIncorrectResultReasonNames[irr];
 }
 
-const char *BlamerBundle::IncorrectReason() const {
+const char* BlamerBundle::IncorrectReason() const {
   return kIncorrectResultReasonNames[incorrect_result_reason_];
 }
 
@@ -120,9 +113,8 @@ bool BlamerBundle::ChoiceIsCorrect(const WERD_CHOICE* word_choice) const {
   return truth_str == normed_choice_str;
 }
 
-void BlamerBundle::FillDebugString(const STRING &msg,
-                                   const WERD_CHOICE *choice,
-                                   STRING *debug) {
+void BlamerBundle::FillDebugString(const STRING& msg, const WERD_CHOICE* choice,
+                                   STRING* debug) {
   (*debug) += "Truth ";
   for (int i = 0; i < this->truth_text_.length(); ++i) {
     (*debug) += this->truth_text_[i];
@@ -150,15 +142,15 @@ void BlamerBundle::SetupNormTruthWord(const DENORM& denorm) {
   TPOINT norm_topleft;
   TPOINT norm_botright;
   for (int b = 0; b < truth_word_.length(); ++b) {
-    const TBOX &box = truth_word_.BlobBox(b);
+    const TBOX& box = truth_word_.BlobBox(b);
     topleft.x = box.left();
     topleft.y = box.top();
     botright.x = box.right();
     botright.y = box.bottom();
     denorm.NormTransform(nullptr, topleft, &norm_topleft);
     denorm.NormTransform(nullptr, botright, &norm_botright);
-    TBOX norm_box(norm_topleft.x, norm_botright.y,
-                  norm_botright.x, norm_topleft.y);
+    TBOX norm_box(norm_topleft.x, norm_botright.y, norm_botright.x,
+                  norm_topleft.y);
     norm_truth_word_.InsertBox(b, norm_box);
   }
 }
@@ -173,8 +165,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug,
   // Find truth boxes that correspond to the split in the blobs.
   int b;
   int begin2_truth_index = -1;
-  if (incorrect_result_reason_ != IRR_NO_TRUTH &&
-      truth_has_char_boxes_) {
+  if (incorrect_result_reason_ != IRR_NO_TRUTH && truth_has_char_boxes_) {
     debug_str = "Looking for truth split at";
     debug_str.add_str_int(" end1_x ", word1_right);
     debug_str.add_str_int(" begin2_x ", word2_left);
@@ -184,9 +175,9 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug,
       for (b = 1; b < norm_truth_word_.length(); ++b) {
         norm_truth_word_.BlobBox(b).print_to_str(&debug_str);
         if ((abs(word1_right - norm_truth_word_.BlobBox(b - 1).right()) <
-            norm_box_tolerance_) &&
+             norm_box_tolerance_) &&
             (abs(word2_left - norm_truth_word_.BlobBox(b).left()) <
-            norm_box_tolerance_)) {
+             norm_box_tolerance_)) {
           begin2_truth_index = b;
           debug_str += "Split found";
           break;
@@ -202,7 +193,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug,
     bundle1->norm_box_tolerance_ = norm_box_tolerance_;
     bundle2->truth_has_char_boxes_ = true;
     bundle2->norm_box_tolerance_ = norm_box_tolerance_;
-    BlamerBundle *curr_bb = bundle1;
+    BlamerBundle* curr_bb = bundle1;
     for (b = 0; b < norm_truth_word_.length(); ++b) {
       if (b == begin2_truth_index) curr_bb = bundle2;
       curr_bb->norm_truth_word_.InsertBox(b, norm_truth_word_.BlobBox(b));
@@ -214,8 +205,7 @@ void BlamerBundle::SplitBundle(int word1_right, int word2_left, bool debug,
     bundle2->incorrect_result_reason_ = IRR_NO_TRUTH;
   } else {
     debug_str += "Truth split not found";
-    debug_str += truth_has_char_boxes_ ?
-        "\n" : " (no truth char boxes)\n";
+    debug_str += truth_has_char_boxes_ ? "\n" : " (no truth char boxes)\n";
     bundle1->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, nullptr, debug);
     bundle2->SetBlame(IRR_NO_TRUTH_SPLIT, debug_str, nullptr, debug);
   }
@@ -258,28 +248,27 @@ void BlamerBundle::BlameClassifier(const UNICHARSET& unicharset,
                                    const TBOX& blob_box,
                                    const BLOB_CHOICE_LIST& choices,
                                    bool debug) {
-  if (!truth_has_char_boxes_ ||
-      incorrect_result_reason_ != IRR_CORRECT)
+  if (!truth_has_char_boxes_ || incorrect_result_reason_ != IRR_CORRECT)
     return;  // Nothing to do here.
 
   for (int b = 0; b < norm_truth_word_.length(); ++b) {
-    const TBOX &truth_box = norm_truth_word_.BlobBox(b);
+    const TBOX& truth_box = norm_truth_word_.BlobBox(b);
     // Note that we are more strict on the bounding box boundaries here
     // than in other places (chopper, segmentation search), since we do
     // not have the ability to check the previous and next bounding box.
-    if (blob_box.x_almost_equal(truth_box, norm_box_tolerance_/2)) {
+    if (blob_box.x_almost_equal(truth_box, norm_box_tolerance_ / 2)) {
       bool found = false;
       bool incorrect_adapted = false;
       UNICHAR_ID incorrect_adapted_id = INVALID_UNICHAR_ID;
-      const char *truth_str = truth_text_[b].string();
+      const char* truth_str = truth_text_[b].string();
       // We promise not to modify the list or its contents, using a
       // const BLOB_CHOICE* below.
       BLOB_CHOICE_IT choices_it(const_cast<BLOB_CHOICE_LIST*>(&choices));
       for (choices_it.mark_cycle_pt(); !choices_it.cycled_list();
-          choices_it.forward()) {
+           choices_it.forward()) {
         const BLOB_CHOICE* choice = choices_it.data();
-        if (strcmp(truth_str, unicharset.get_normed_unichar(
-            choice->unichar_id())) == 0) {
+        if (strcmp(truth_str,
+                   unicharset.get_normed_unichar(choice->unichar_id())) == 0) {
           found = true;
           break;
         } else if (choice->IsAdapted()) {
@@ -320,7 +309,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
   int16_t truth_x = -1;
   while (box_index < truth_word_.length() && blob_index < num_blobs) {
     truth_x = norm_truth_word_.BlobBox(box_index).right();
-    TBLOB * curr_blob = word->chopped_word->blobs[blob_index];
+    TBLOB* curr_blob = word->chopped_word->blobs[blob_index];
     if (curr_blob->bounding_box().right() < truth_x - norm_box_tolerance_) {
       ++blob_index;
       continue;  // encountered an extra chop, keep looking
@@ -338,7 +327,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
       debug_str.add_str_int("Detected missing chop (tolerance=",
                             norm_box_tolerance_);
       debug_str += ") at Bounding Box=";
-      TBLOB * curr_blob = word->chopped_word->blobs[blob_index];
+      TBLOB* curr_blob = word->chopped_word->blobs[blob_index];
       curr_blob->bounding_box().print_to_str(&debug_str);
       debug_str.add_str_int("\nNo chop for truth at x=", truth_x);
     } else {
@@ -348,7 +337,7 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
     }
     debug_str += "\nMaximally chopped word boxes:\n";
     for (blob_index = 0; blob_index < num_blobs; ++blob_index) {
-      TBLOB * curr_blob = word->chopped_word->blobs[blob_index];
+      TBLOB* curr_blob = word->chopped_word->blobs[blob_index];
       curr_blob->bounding_box().print_to_str(&debug_str);
       debug_str += '\n';
     }
@@ -366,16 +355,16 @@ void BlamerBundle::SetChopperBlame(const WERD_RES* word, bool debug) {
 // Blames the classifier if best_choice is classifier's top choice and is a
 // dictionary word (i.e. language model could not have helped).
 // Otherwise, blames the language model (formerly permuter word adjustment).
-void BlamerBundle::BlameClassifierOrLangModel(
-    const WERD_RES* word,
-    const UNICHARSET& unicharset, bool valid_permuter, bool debug) {
+void BlamerBundle::BlameClassifierOrLangModel(const WERD_RES* word,
+                                              const UNICHARSET& unicharset,
+                                              bool valid_permuter, bool debug) {
   if (valid_permuter) {
     // Find out whether best choice is a top choice.
     best_choice_is_dict_and_top_choice_ = true;
     for (int i = 0; i < word->best_choice->length(); ++i) {
       BLOB_CHOICE_IT blob_choice_it(word->GetBlobChoices(i));
       ASSERT_HOST(!blob_choice_it.empty());
-      BLOB_CHOICE *first_choice = nullptr;
+      BLOB_CHOICE* first_choice = nullptr;
       for (blob_choice_it.mark_cycle_pt(); !blob_choice_it.cycled_list();
            blob_choice_it.forward()) {  // find first non-fragment choice
         if (!(unicharset.get_fragment(blob_choice_it.data()->unichar_id()))) {
@@ -399,7 +388,7 @@ void BlamerBundle::BlameClassifierOrLangModel(
     debug_str = "Classifier/Old LM tradeoff is to blame";
   }
   SetBlame(best_choice_is_dict_and_top_choice_ ? IRR_CLASSIFIER
-                                              : IRR_CLASS_OLD_LM_TRADEOFF,
+                                               : IRR_CLASS_OLD_LM_TRADEOFF,
            debug_str, word->best_choice, debug);
 }
 
@@ -417,8 +406,8 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
   if (num_blobs == 0) return;  // No blobs to play with.
   int blob_index = 0;
   int16_t next_box_x = word->blobs[blob_index]->bounding_box().right();
-  for (int truth_idx = 0; blob_index < num_blobs &&
-       truth_idx < norm_truth_word_.length();
+  for (int truth_idx = 0;
+       blob_index < num_blobs && truth_idx < norm_truth_word_.length();
        ++blob_index) {
     ++next_box_col;
     int16_t curr_box_x = next_box_x;
@@ -434,18 +423,20 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
                (blob_index + 1 >= num_blobs ||  // next box can't be included
                 next_box_x > truth_x + norm_box_tolerance_)) {
       correct_segmentation_cols_.push_back(curr_box_col);
-      correct_segmentation_rows_.push_back(next_box_col-1);
+      correct_segmentation_rows_.push_back(next_box_col - 1);
       ++truth_idx;
       debug_str.add_str_int("col=", curr_box_col);
-      debug_str.add_str_int(" row=", next_box_col-1);
+      debug_str.add_str_int(" row=", next_box_col - 1);
       debug_str += "\n";
       curr_box_col = next_box_col;
     }
   }
   if (blob_index < num_blobs ||  // trailing blobs
       correct_segmentation_cols_.length() != norm_truth_word_.length()) {
-    debug_str.add_str_int("Blamer failed to find correct segmentation"
-                          " (tolerance=", norm_box_tolerance_);
+    debug_str.add_str_int(
+        "Blamer failed to find correct segmentation"
+        " (tolerance=",
+        norm_box_tolerance_);
     if (blob_index >= num_blobs) debug_str += " blob == nullptr";
     debug_str += ")\n";
     debug_str.add_str_int(" path length ", correct_segmentation_cols_.length());
@@ -458,11 +449,10 @@ void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
 }
 
 // Returns true if a guided segmentation search is needed.
-bool BlamerBundle::GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const {
+bool BlamerBundle::GuidedSegsearchNeeded(const WERD_CHOICE* best_choice) const {
   return incorrect_result_reason_ == IRR_CORRECT &&
-      !segsearch_is_looking_for_blame_ &&
-      truth_has_char_boxes_ &&
-      !ChoiceIsCorrect(best_choice);
+         !segsearch_is_looking_for_blame_ && truth_has_char_boxes_ &&
+         !ChoiceIsCorrect(best_choice);
 }
 
 // Setup ready to guide the segmentation search to the correct segmentation.
@@ -470,9 +460,9 @@ bool BlamerBundle::GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const {
 // It calls into LMPainPoints::GenerateForBlamer by pre-binding the
 // WERD_RES, and the LMPainPoints itself.
 // pp_cb must be a permanent callback, and should be deleted by the caller.
-void BlamerBundle::InitForSegSearch(const WERD_CHOICE *best_choice,
+void BlamerBundle::InitForSegSearch(const WERD_CHOICE* best_choice,
                                     MATRIX* ratings, UNICHAR_ID wildcard_id,
-                                    bool debug, STRING *debug_str,
+                                    bool debug, STRING* debug_str,
                                     TessResultCallback2<bool, int, int>* cb) {
   segsearch_is_looking_for_blame_ = true;
   if (debug) {
@@ -486,8 +476,7 @@ void BlamerBundle::InitForSegSearch(const WERD_CHOICE *best_choice,
     debug_str->add_str_int(" row=", correct_segmentation_rows_[idx]);
     *debug_str += "\n";
     if (!ratings->Classified(correct_segmentation_cols_[idx],
-                             correct_segmentation_rows_[idx],
-                             wildcard_id) &&
+                             correct_segmentation_rows_[idx], wildcard_id) &&
         !cb->Run(correct_segmentation_cols_[idx],
                  correct_segmentation_rows_[idx])) {
       segsearch_is_looking_for_blame_ = false;
@@ -503,8 +492,8 @@ bool BlamerBundle::GuidedSegsearchStillGoing() const {
 }
 
 // The segmentation search has ended. Sets the blame appropriately.
-void BlamerBundle::FinishSegSearch(const WERD_CHOICE *best_choice,
-                                   bool debug, STRING *debug_str) {
+void BlamerBundle::FinishSegSearch(const WERD_CHOICE* best_choice, bool debug,
+                                   STRING* debug_str) {
   // If we are still looking for blame (i.e. best_choice is incorrect, but a
   // path representing the correct segmentation could be constructed), we can
   // blame segmentation search pain point prioritization if the rating of the
@@ -523,13 +512,11 @@ void BlamerBundle::FinishSegSearch(const WERD_CHOICE *best_choice,
       *debug_str += " with permuter ";
       *debug_str += best_choice->permuter_name();
       SetBlame(IRR_CLASSIFIER, *debug_str, best_choice, debug);
-    } else if (best_correctly_segmented_rating_ <
-        best_choice->rating()) {
+    } else if (best_correctly_segmented_rating_ < best_choice->rating()) {
       *debug_str += "Correct segmentation state was not explored";
       SetBlame(IRR_SEGSEARCH_PP, *debug_str, best_choice, debug);
     } else {
-      if (best_correctly_segmented_rating_ >=
-          WERD_CHOICE::kBadRating) {
+      if (best_correctly_segmented_rating_ >= WERD_CHOICE::kBadRating) {
         *debug_str += "Correct segmentation paths were pruned by LM\n";
       } else {
         debug_str->add_str_double("Best correct segmentation rating ",
@@ -571,11 +558,11 @@ void BlamerBundle::LastChanceBlame(bool debug, WERD_RES* word) {
 
 // Sets the misadaption debug if this word is incorrect, as this word is
 // being adapted to.
-void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice,
+void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE* best_choice,
                                        bool debug) {
   if (incorrect_result_reason_ != IRR_NO_TRUTH &&
       !ChoiceIsCorrect(best_choice)) {
-    misadaption_debug_ ="misadapt to word (";
+    misadaption_debug_ = "misadapt to word (";
     misadaption_debug_ += best_choice->permuter_name();
     misadaption_debug_ += "): ";
     FillDebugString("", best_choice, &misadaption_debug_);

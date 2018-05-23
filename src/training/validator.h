@@ -126,7 +126,7 @@ class Validator {
     kNukta = 'N',               // Occurs only immediately after consonants.
     kRobat = 'R',               // Khmer only.
     kOther = 'O',               // (digits, measures, non-Indic, etc)
-    // Additional classes used only by ValidateGrapheme.
+                   // Additional classes used only by ValidateGrapheme.
     kWhitespace = ' ',
     kCombiner = 'c',  // Combiners other than virama.
   };

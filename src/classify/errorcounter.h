@@ -21,7 +21,8 @@
 #include "statistc.h"
 
 struct Pix;
-template <typename T> class UnicityTable;
+template <typename T>
+class UnicityTable;
 
 namespace tesseract {
 
@@ -67,26 +68,26 @@ struct UnicharRating;
 //
 // Keep in sync with the ReportString function.
 enum CountTypes {
-  CT_UNICHAR_TOP_OK,     // Top shape contains correct unichar id.
+  CT_UNICHAR_TOP_OK,  // Top shape contains correct unichar id.
   // The rank of the results in TOP1, TOP2, TOPN is determined by a gap of
   // kRatingEpsilon from the first result in each group. The real top choice
   // is measured using TOPTOP.
-  CT_UNICHAR_TOP1_ERR,   // Top shape does not contain correct unichar id.
-  CT_UNICHAR_TOP2_ERR,   // Top 2 shapes don't contain correct unichar id.
-  CT_UNICHAR_TOPN_ERR,   // No output shape contains correct unichar id.
-  CT_UNICHAR_TOPTOP_ERR,   // Very top choice not correct.
-  CT_OK_MULTI_UNICHAR,   // Top shape id has correct unichar id, and others.
-  CT_OK_JOINED,          // Top shape id is correct but marked joined.
-  CT_OK_BROKEN,          // Top shape id is correct but marked broken.
-  CT_REJECT,             // Classifier hates this.
-  CT_FONT_ATTR_ERR,      // Top unichar OK, but font attributes incorrect.
-  CT_OK_MULTI_FONT,      // CT_FONT_ATTR_OK but there are multiple font attrs.
-  CT_NUM_RESULTS,        // Number of answers produced.
-  CT_RANK,               // Rank of correct answer.
-  CT_REJECTED_JUNK,      // Junk that was correctly rejected.
-  CT_ACCEPTED_JUNK,      // Junk that was incorrectly classified otherwise.
+  CT_UNICHAR_TOP1_ERR,    // Top shape does not contain correct unichar id.
+  CT_UNICHAR_TOP2_ERR,    // Top 2 shapes don't contain correct unichar id.
+  CT_UNICHAR_TOPN_ERR,    // No output shape contains correct unichar id.
+  CT_UNICHAR_TOPTOP_ERR,  // Very top choice not correct.
+  CT_OK_MULTI_UNICHAR,    // Top shape id has correct unichar id, and others.
+  CT_OK_JOINED,           // Top shape id is correct but marked joined.
+  CT_OK_BROKEN,           // Top shape id is correct but marked broken.
+  CT_REJECT,              // Classifier hates this.
+  CT_FONT_ATTR_ERR,       // Top unichar OK, but font attributes incorrect.
+  CT_OK_MULTI_FONT,       // CT_FONT_ATTR_OK but there are multiple font attrs.
+  CT_NUM_RESULTS,         // Number of answers produced.
+  CT_RANK,                // Rank of correct answer.
+  CT_REJECTED_JUNK,       // Junk that was correctly rejected.
+  CT_ACCEPTED_JUNK,       // Junk that was incorrectly classified otherwise.
 
-  CT_SIZE                // Number of types for array sizing.
+  CT_SIZE  // Number of types for array sizing.
 };
 
 // Class to encapsulate all the functionality and sub-structures required
@@ -119,14 +120,12 @@ class ErrorCounter {
   //   both human-readable form and as a tab-separated list of error counts.
   //   The human-readable form is all before the first tab.
   // * The return value is the un-weighted version of the scaled_error.
-  static double ComputeErrorRate(ShapeClassifier* classifier,
-                                 int report_level, CountTypes boosting_mode,
+  static double ComputeErrorRate(ShapeClassifier* classifier, int report_level,
+                                 CountTypes boosting_mode,
                                  const FontInfoTable& fontinfo_table,
                                  const GenericVector<Pix*>& page_images,
-                                 SampleIterator* it,
-                                 double* unichar_error,
-                                 double* scaled_error,
-                                 STRING* fonts_report);
+                                 SampleIterator* it, double* unichar_error,
+                                 double* scaled_error, STRING* fonts_report);
   // Tests a pair of classifiers, debugging errors of the new against the old.
   // See errorcounter.h for description of arguments.
   // Iterates over the samples, calling the classifiers in normal/silent mode.
@@ -181,13 +180,12 @@ class ErrorCounter {
   // error rate to return.
   // The fontinfo_table from MasterTrainer provides the names of fonts.
   // The it determines the current subset of the training samples.
-  // If not nullptr, the top-choice unichar error rate is saved in unichar_error.
-  // If not nullptr, the report string is saved in fonts_report.
+  // If not nullptr, the top-choice unichar error rate is saved in
+  // unichar_error. If not nullptr, the report string is saved in fonts_report.
   // (Ignoring report_level).
   double ReportErrors(int report_level, CountTypes boosting_mode,
                       const FontInfoTable& fontinfo_table,
-                      const SampleIterator& it,
-                      double* unichar_error,
+                      const SampleIterator& it, double* unichar_error,
                       STRING* fonts_report);
 
   // Sets the report string to a combined human and machine-readable report
@@ -200,7 +198,6 @@ class ErrorCounter {
   // Computes the error rates and returns in rates which is an array of size
   // CT_SIZE. Returns false if there is no data, leaving rates unchanged.
   static bool ComputeRates(const Counts& counts, double rates[CT_SIZE]);
-
 
   // Total scaled error used by boosting algorithms.
   double scaled_error_;

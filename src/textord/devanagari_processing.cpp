@@ -49,9 +49,7 @@ ShiroRekhaSplitter::ShiroRekhaSplitter() {
   ocr_split_strategy_ = NO_SPLIT;
 }
 
-ShiroRekhaSplitter::~ShiroRekhaSplitter() {
-  Clear();
-}
+ShiroRekhaSplitter::~ShiroRekhaSplitter() { Clear(); }
 
 void ShiroRekhaSplitter::Clear() {
   pixDestroy(&orig_pix_);
@@ -78,8 +76,8 @@ void ShiroRekhaSplitter::set_orig_pix(Pix* pix) {
 // page segmentation. This mode uses the flag
 // pageseg_devanagari_split_strategy to determine the splitting strategy.
 bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
-  SplitStrategy split_strategy = split_for_pageseg ? pageseg_split_strategy_ :
-      ocr_split_strategy_;
+  SplitStrategy split_strategy =
+      split_for_pageseg ? pageseg_split_strategy_ : ocr_split_strategy_;
   if (split_strategy == NO_SPLIT) {
     return false;  // Nothing to do.
   }
@@ -143,11 +141,11 @@ bool ShiroRekhaSplitter::Split(bool split_for_pageseg, DebugPixa* pixa_debug) {
     // larger graphemes.
     if (xheight == kUnspecifiedXheight ||
         (box->w > xheight / 3 && box->h > xheight / 2)) {
-      SplitWordShiroRekha(split_strategy, word_pix, xheight,
-                          box->x, box->y, regions_to_clear);
+      SplitWordShiroRekha(split_strategy, word_pix, xheight, box->x, box->y,
+                          regions_to_clear);
     } else if (devanagari_split_debuglevel > 0) {
-      tprintf("CC dropped from splitting: %d,%d (%d, %d)\n",
-              box->x, box->y, box->w, box->h);
+      tprintf("CC dropped from splitting: %d,%d (%d, %d)\n", box->x, box->y,
+              box->w, box->h);
     }
     pixDestroy(&word_pix);
   }
@@ -179,10 +177,8 @@ int ShiroRekhaSplitter::GetXheightForCC(Box* cc_bbox) {
     return global_xheight_;
   }
   // Compute the box coordinates in Tesseract's coordinate system.
-  TBOX bbox(cc_bbox->x,
-            pixGetHeight(orig_pix_) - cc_bbox->y - cc_bbox->h - 1,
-            cc_bbox->x + cc_bbox->w,
-            pixGetHeight(orig_pix_) - cc_bbox->y - 1);
+  TBOX bbox(cc_bbox->x, pixGetHeight(orig_pix_) - cc_bbox->y - cc_bbox->h - 1,
+            cc_bbox->x + cc_bbox->w, pixGetHeight(orig_pix_) - cc_bbox->y - 1);
   // Iterate over all blocks.
   BLOCK_IT block_it(segmentation_block_list_);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
@@ -202,8 +198,7 @@ int ShiroRekhaSplitter::GetXheightForCC(Box* cc_bbox) {
       // row. In that case, return the xheight for this row.
       float box_middle = 0.5 * (bbox.left() + bbox.right());
       int baseline = static_cast<int>(row->base_line(box_middle) + 0.5);
-      TBOX test_box(box_middle - row->x_height() / 2,
-                    baseline,
+      TBOX test_box(box_middle - row->x_height() / 2, baseline,
                     box_middle + row->x_height() / 2,
                     static_cast<int>(baseline + row->x_height()));
       // Compute overlap. If it is is a major overlap, this is the right row.
@@ -233,10 +228,8 @@ int ShiroRekhaSplitter::GetXheightForCC(Box* cc_bbox) {
 // conservative multiplier on approximate stroke width is used (which may lead
 // to over-splitting).
 void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
-                                             Pix* pix,
-                                             int xheight,
-                                             int word_left,
-                                             int word_top,
+                                             Pix* pix, int xheight,
+                                             int word_left, int word_top,
                                              Boxa* regions_to_clear) {
   if (split_strategy == NO_SPLIT) {
     return;
@@ -273,8 +266,8 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
 
   // Clear the ascender and descender regions of the word.
   // Obtain a vertical projection histogram for the resulting image.
-  Box* box_to_clear = boxCreate(0, shirorekha_top - stroke_width / 3,
-                                width, 5 * stroke_width / 3);
+  Box* box_to_clear = boxCreate(0, shirorekha_top - stroke_width / 3, width,
+                                5 * stroke_width / 3);
   Pix* word_in_xheight = pixCopy(nullptr, pix);
   pixClearInRect(word_in_xheight, box_to_clear);
   // Also clear any pixels which are below shirorekha_bottom + some leeway.
@@ -313,8 +306,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
   while (i < width) {
     if (!vert_hist.hist()[i]) {
       int j = 0;
-      while (i + j < width && !vert_hist.hist()[i+j])
-        ++j;
+      while (i + j < width && !vert_hist.hist()[i + j]) ++j;
       if (j >= stroke_width / 2 && cur_component_width >= stroke_width / 2) {
         // Perform a shiro-rekha split. The intervening region lies from i to
         // i+j-1.
@@ -329,8 +321,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
           Box* box_to_clear =
               boxCreate(word_left + split_left,
                         word_top + shirorekha_top - stroke_width / 3,
-                        split_width,
-                        5 * stroke_width / 3);
+                        split_width, 5 * stroke_width / 3);
           if (box_to_clear) {
             boxaAddBox(regions_to_clear, box_to_clear, L_CLONE);
             // Mark this in the debug image if needed.
@@ -364,10 +355,10 @@ void ShiroRekhaSplitter::RefreshSegmentationWithNewBlobs(
   }
 
   C_BLOB_LIST not_found_blobs;
-  RefreshWordBlobsFromNewBlobs(segmentation_block_list_,
-                               new_blobs,
-                               ((devanagari_split_debugimage && debug_image_) ?
-                                &not_found_blobs : nullptr));
+  RefreshWordBlobsFromNewBlobs(
+      segmentation_block_list_, new_blobs,
+      ((devanagari_split_debugimage && debug_image_) ? &not_found_blobs
+                                                     : nullptr));
 
   if (devanagari_split_debuglevel > 0) {
     tprintf("After refreshing blobs:\n");
@@ -440,8 +431,7 @@ void ShiroRekhaSplitter::GetShiroRekhaYExtents(Pix* word_pix,
   int thresh = (topline_onpixel_count * 70) / 100;
   int ulimit = topline_ylevel;
   int llimit = topline_ylevel;
-  while (ulimit > 0 && hist_horiz.hist()[ulimit] >= thresh)
-    --ulimit;
+  while (ulimit > 0 && hist_horiz.hist()[ulimit] >= thresh) --ulimit;
   while (llimit < pixGetHeight(word_pix) && hist_horiz.hist()[llimit] >= thresh)
     ++llimit;
 
@@ -473,14 +463,12 @@ void PixelHistogram::ConstructVerticalCountHist(Pix* pix) {
   hist_ = new int[width];
   length_ = width;
   int wpl = pixGetWpl(pix);
-  l_uint32 *data = pixGetData(pix);
-  for (int i = 0; i < width; ++i)
-    hist_[i] = 0;
+  l_uint32* data = pixGetData(pix);
+  for (int i = 0; i < width; ++i) hist_[i] = 0;
   for (int i = 0; i < height; ++i) {
-    l_uint32 *line = data + i * wpl;
+    l_uint32* line = data + i * wpl;
     for (int j = 0; j < width; ++j)
-      if (GET_DATA_BIT(line, j))
-        ++(hist_[j]);
+      if (GET_DATA_BIT(line, j)) ++(hist_[j]);
   }
 }
 

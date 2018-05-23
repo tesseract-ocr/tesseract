@@ -42,24 +42,21 @@ FILE* OpenBoxFile(const STRING& fname);
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages);
+                  GenericVector<TBOX>* boxes, GenericVector<STRING>* texts,
+                  GenericVector<STRING>* box_texts, GenericVector<int>* pages);
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 // continue_on_failure allows reading to continue even if an invalid box is
 // encountered and will return true if it succeeds in reading some boxes.
 // It otherwise gives up and returns false on encountering an invalid box.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
-                  bool continue_on_failure,
-                  GenericVector<TBOX>* boxes,
+                  bool continue_on_failure, GenericVector<TBOX>* boxes,
                   GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages);
+                  GenericVector<STRING>* box_texts, GenericVector<int>* pages);
 
 // Returns the box file name corresponding to the given image_filename.
-STRING BoxFileName(const STRING& image_filename);
+STRING
+BoxFileName(const STRING& image_filename);
 
 // ReadNextBox factors out the code to interpret a line of a box
 // file so that applybox and unicharset_extractor interpret the same way.
@@ -69,12 +66,12 @@ STRING BoxFileName(const STRING& image_filename);
 // for valid utf-8 and allows space or tab between fields.
 // utf8_str is set with the unichar string, and bounding box with the box.
 // If there are page numbers in the file, it reads them all.
-bool ReadNextBox(int *line_number, FILE* box_file,
-                 STRING* utf8_str, TBOX* bounding_box);
+bool ReadNextBox(int* line_number, FILE* box_file, STRING* utf8_str,
+                 TBOX* bounding_box);
 // As ReadNextBox above, but get a specific page number. (0-based)
 // Use -1 to read any page number. Files without page number all
 // read as if they are page 0.
-bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
+bool ReadNextBox(int target_page, int* line_number, FILE* box_file,
                  STRING* utf8_str, TBOX* bounding_box);
 
 // Parses the given box file string into a page_number, utf8_str, and

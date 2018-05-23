@@ -18,8 +18,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "detlinefit.h"
-#include "statistc.h"
 #include "ndminx.h"
+#include "statistc.h"
 #include "tprintf.h"
 
 #include <algorithm>
@@ -38,8 +38,7 @@ const int kMinPointsForErrorCount = 16;
 // mis-fitted points, which will get square-rooted for true distance.
 const int kMaxRealDistance = 2.0;
 
-DetLineFit::DetLineFit() : square_length_(0.0) {
-}
+DetLineFit::DetLineFit() : square_length_(0.0) {}
 
 // Delete all Added points.
 void DetLineFit::Clear() {
@@ -48,9 +47,7 @@ void DetLineFit::Clear() {
 }
 
 // Add a new point. Takes a copy - the pt doesn't need to stay in scope.
-void DetLineFit::Add(const ICOORD& pt) {
-  pts_.push_back(PointWidth(pt, 0));
-}
+void DetLineFit::Add(const ICOORD& pt) { pts_.push_back(PointWidth(pt, 0)); }
 // Associates a half-width with the given point if a point overlaps the
 // previous point by more than half the width, and its distance is further
 // than the previous point, then the more distant point is ignored in the
@@ -62,8 +59,8 @@ void DetLineFit::Add(const ICOORD& pt, int halfwidth) {
 // Fits a line to the points, ignoring the skip_first initial points and the
 // skip_last final points, returning the fitted line as a pair of points,
 // and the upper quartile error.
-double DetLineFit::Fit(int skip_first, int skip_last,
-                       ICOORD* pt1, ICOORD* pt2) {
+double DetLineFit::Fit(int skip_first, int skip_last, ICOORD* pt1,
+                       ICOORD* pt2) {
   // Do something sensible with no points.
   if (pts_.empty()) {
     pt1->set_x(0);
@@ -127,9 +124,9 @@ double DetLineFit::Fit(int skip_first, int skip_last,
 // [min_dist, max_dist]. Returns the resulting error metric using the same
 // reduced set of points.
 // *Makes use of floating point arithmetic*
-double DetLineFit::ConstrainedFit(const FCOORD& direction,
-                                  double min_dist, double max_dist,
-                                  bool debug, ICOORD* line_pt) {
+double DetLineFit::ConstrainedFit(const FCOORD& direction, double min_dist,
+                                  double max_dist, bool debug,
+                                  ICOORD* line_pt) {
   ComputeConstrainedDistances(direction, min_dist, max_dist);
   // Do something sensible with no points or computed distances.
   if (pts_.empty() || distances_.empty()) {
@@ -141,8 +138,8 @@ double DetLineFit::ConstrainedFit(const FCOORD& direction,
   *line_pt = distances_[median_index].data;
   if (debug) {
     tprintf("Constrained fit to dir %g, %g = %d, %d :%d distances:\n",
-            direction.x(), direction.y(),
-            line_pt->x(), line_pt->y(), distances_.size());
+            direction.x(), direction.y(), line_pt->x(), line_pt->y(),
+            distances_.size());
     for (int i = 0; i < distances_.size(); ++i) {
       tprintf("%d: %d, %d -> %g\n", i, distances_[i].data.x(),
               distances_[i].data.y(), distances_[i].key);
@@ -191,8 +188,8 @@ double DetLineFit::ConstrainedFit(double m, float* c) {
   double cos = 1.0 / sqrt(1.0 + m * m);
   FCOORD direction(cos, m * cos);
   ICOORD line_pt;
-  double error = ConstrainedFit(direction, -MAX_FLOAT32, MAX_FLOAT32, false,
-                                &line_pt);
+  double error =
+      ConstrainedFit(direction, -MAX_FLOAT32, MAX_FLOAT32, false, &line_pt);
   *c = line_pt.y() - line_pt.x() * m;
   return error;
 }
@@ -235,8 +232,7 @@ int DetLineFit::NumberOfMisfittedPoints(double threshold) const {
   int num_dists = distances_.size();
   // Get the absolute values of the errors.
   for (int i = 0; i < num_dists; ++i) {
-    if (distances_[i].key > threshold)
-      ++num_misfits;
+    if (distances_[i].key > threshold) ++num_misfits;
   }
   return num_misfits;
 }

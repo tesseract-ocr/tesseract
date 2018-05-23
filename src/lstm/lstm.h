@@ -19,8 +19,8 @@
 #ifndef TESSERACT_LSTM_LSTM_H_
 #define TESSERACT_LSTM_LSTM_H_
 
-#include "network.h"
 #include "fullyconnected.h"
+#include "network.h"
 
 namespace tesseract {
 
@@ -116,9 +116,7 @@ class LSTM : public Network {
   void PrintDW();
 
   // Returns true of this is a 2-d lstm.
-  bool Is2D() const {
-    return is_2d_;
-  }
+  bool Is2D() const { return is_2d_; }
 
  private:
   // Resizes forward data to cope with an input image of the given width.
@@ -157,6 +155,5 @@ class LSTM : public Network {
 };
 
 }  // namespace tesseract.
-
 
 #endif  // TESSERACT_LSTM_LSTM_H_

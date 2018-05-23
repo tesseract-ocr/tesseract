@@ -41,8 +41,7 @@
 ----------------------------------------------------------------------
 */
 
-typedef struct
-{
+typedef struct {
   long num_samples;
   float sum_of_samples;
   float sum_of_squares;
@@ -89,8 +88,7 @@ typedef struct
  * Return the number of samples in a measurement.
  **********************************************************************/
 
-#define number_of_samples(m)  \
-((m).num_samples)
+#define number_of_samples(m) ((m).num_samples)
 
 /**********************************************************************
  * standard_deviation
@@ -98,8 +96,7 @@ typedef struct
  * Return the standard deviation of the measurement.
  **********************************************************************/
 
-#define standard_deviation(m)                                \
-((float) sqrt (VARIANCE (m)))
+#define standard_deviation(m) ((float)sqrt(VARIANCE(m)))
 
 /**********************************************************************
  * variance

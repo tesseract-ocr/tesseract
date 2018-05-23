@@ -18,14 +18,15 @@
 
 #include "ccstruct.h"
 
-namespace tesseract  {
+namespace tesseract {
 
 // APPROXIMATIONS of the fractions of the character cell taken by
 // the descenders, ascenders, and x-height.
 const double CCStruct::kDescenderFraction = 0.25;
 const double CCStruct::kXHeightFraction = 0.5;
 const double CCStruct::kAscenderFraction = 0.25;
-const double CCStruct::kXHeightCapRatio = CCStruct::kXHeightFraction /
+const double CCStruct::kXHeightCapRatio =
+    CCStruct::kXHeightFraction /
     (CCStruct::kXHeightFraction + CCStruct::kAscenderFraction);
 
-}
+}  // namespace tesseract

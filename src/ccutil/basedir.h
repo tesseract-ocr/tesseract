@@ -17,15 +17,15 @@
  *
  **********************************************************************/
 
-#ifndef           BASEDIR_H
-#define           BASEDIR_H
+#ifndef BASEDIR_H
+#define BASEDIR_H
 
-#include          "platform.h"
-#include          "strngs.h"
+#include "platform.h"
+#include "strngs.h"
 
 // Returns the given code_path truncated to the last slash.
 // Useful for getting to the directory of argv[0], but does not search
 // any paths.
-TESS_API void truncate_path(const char *code_path, STRING* trunc_path);
+TESS_API void truncate_path(const char* code_path, STRING* trunc_path);
 
 #endif

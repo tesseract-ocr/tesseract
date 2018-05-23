@@ -17,21 +17,21 @@
  *
  **********************************************************************/
 
-#include          "fileerr.h"
+#include "fileerr.h"
 #ifdef __UNIX__
-#include          <unistd.h>
-#include          <signal.h>
+#include <signal.h>
+#include <unistd.h>
 #else
-#include          <io.h>
+#include <io.h>
 #endif
-#include          <stdlib.h>
-#include          "ccutil.h"
+#include <stdlib.h>
+#include "ccutil.h"
 
-#define VARDIR        "configs/" /**< variables files */
+#define VARDIR "configs/" /**< variables files */
 #define EXTERN
 
 const ERRCODE NO_PATH =
-"Warning:explicit path for executable will not be used for configs";
+    "Warning:explicit path for executable will not be used for configs";
 static const ERRCODE USAGE = "Usage";
 
 namespace tesseract {
@@ -46,14 +46,14 @@ namespace tesseract {
  *
  * @param argv0 - paths to the directory with language files and config files.
  * An actual value of argv0 is used if not nullptr, otherwise TESSDATA_PREFIX is
- * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If previous
- * is not successful - use current directory.
+ * used if not nullptr, next try to use compiled in -DTESSDATA_PREFIX. If
+ * previous is not successful - use current directory.
  * @param basename - name of image
  */
-void CCUtil::main_setup(const char *argv0, const char *basename) {
-  imagebasename = basename;      /**< name of image */
+void CCUtil::main_setup(const char* argv0, const char* basename) {
+  imagebasename = basename; /**< name of image */
 
-  char *tessdata_prefix = getenv("TESSDATA_PREFIX");
+  char* tessdata_prefix = getenv("TESSDATA_PREFIX");
 
   if (argv0 != nullptr && *argv0 != '\0') {
     /* Use tessdata prefix from the command line. */
@@ -69,8 +69,8 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
     char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
-      errno_t result = _splitpath_s(path, drive, sizeof(drive),
-                                    dir, sizeof(dir), nullptr, 0, nullptr, 0);
+      errno_t result = _splitpath_s(path, drive, sizeof(drive), dir,
+                                    sizeof(dir), nullptr, 0, nullptr, 0);
       if (result == ERANGE) {
         tprintf("Error: Path too long: %s\n", path);
       }
@@ -97,7 +97,7 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
   }
 
   // check for missing directory separator
-  const char *lastchar = datadir.string();
+  const char* lastchar = datadir.string();
   lastchar += datadir.length() - 1;
   if ((strcmp(lastchar, "/") != 0) && (strcmp(lastchar, "\\") != 0))
     datadir += "/";

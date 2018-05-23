@@ -15,27 +15,26 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   EMALLOC_H
-#define   EMALLOC_H
+#ifndef EMALLOC_H
+#define EMALLOC_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "host.h"
 #include "callcpp.h"
+#include "host.h"
 
-#define NOTENOUGHMEMORY   2000
-#define ILLEGALMALLOCREQUEST  2001
+#define NOTENOUGHMEMORY 2000
+#define ILLEGALMALLOCREQUEST 2001
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-void *Emalloc(int Size);
+void* Emalloc(int Size);
 
-void *Erealloc(void *ptr, int size);
+void* Erealloc(void* ptr, int size);
 
-void Efree(void *ptr);
-
+void Efree(void* ptr);
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

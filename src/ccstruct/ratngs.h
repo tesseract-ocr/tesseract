@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef           RATNGS_H
-#define           RATNGS_H
+#ifndef RATNGS_H
+#define RATNGS_H
 
 #include <assert.h>
 
@@ -45,173 +45,130 @@ enum BlobChoiceClassifier {
   BCC_FAKE,                // From some other process.
 };
 
-class BLOB_CHOICE: public ELIST_LINK
-{
-  public:
-    BLOB_CHOICE() {
-      unichar_id_ = UNICHAR_SPACE;
-      fontinfo_id_ = -1;
-      fontinfo_id2_ = -1;
-      rating_ = 10.0;
-      certainty_ = -1.0;
-      script_id_ = -1;
-      xgap_before_ = 0;
-      xgap_after_ = 0;
-      min_xheight_ = 0.0f;
-      max_xheight_ = 0.0f;
-      yshift_ = 0.0f;
-      classifier_ = BCC_FAKE;
-    }
-    BLOB_CHOICE(UNICHAR_ID src_unichar_id,  // character id
-                float src_rating,          // rating
-                float src_cert,            // certainty
-                int script_id,             // script
-                float min_xheight,         // min xheight in image pixel units
-                float max_xheight,         // max xheight allowed by this char
-                float yshift,           // the larger of y shift (top or bottom)
-                BlobChoiceClassifier c);   // adapted match or other
-    BLOB_CHOICE(const BLOB_CHOICE &other);
-    ~BLOB_CHOICE() = default;
+class BLOB_CHOICE : public ELIST_LINK {
+ public:
+  BLOB_CHOICE() {
+    unichar_id_ = UNICHAR_SPACE;
+    fontinfo_id_ = -1;
+    fontinfo_id2_ = -1;
+    rating_ = 10.0;
+    certainty_ = -1.0;
+    script_id_ = -1;
+    xgap_before_ = 0;
+    xgap_after_ = 0;
+    min_xheight_ = 0.0f;
+    max_xheight_ = 0.0f;
+    yshift_ = 0.0f;
+    classifier_ = BCC_FAKE;
+  }
+  BLOB_CHOICE(UNICHAR_ID src_unichar_id,  // character id
+              float src_rating,           // rating
+              float src_cert,             // certainty
+              int script_id,              // script
+              float min_xheight,          // min xheight in image pixel units
+              float max_xheight,          // max xheight allowed by this char
+              float yshift,             // the larger of y shift (top or bottom)
+              BlobChoiceClassifier c);  // adapted match or other
+  BLOB_CHOICE(const BLOB_CHOICE& other);
+  ~BLOB_CHOICE() = default;
 
-    UNICHAR_ID unichar_id() const {
-      return unichar_id_;
-    }
-    float rating() const {
-      return rating_;
-    }
-    float certainty() const {
-      return certainty_;
-    }
-    int16_t fontinfo_id() const {
-      return fontinfo_id_;
-    }
-    int16_t fontinfo_id2() const {
-      return fontinfo_id2_;
-    }
-    const GenericVector<tesseract::ScoredFont>& fonts() const {
-      return fonts_;
-    }
-    void set_fonts(const GenericVector<tesseract::ScoredFont>& fonts) {
-      fonts_ = fonts;
-      int score1 = 0, score2 = 0;
-      fontinfo_id_ = -1;
-      fontinfo_id2_ = -1;
-      for (int f = 0; f < fonts_.size(); ++f) {
-        if (fonts_[f].score > score1) {
-          score2 = score1;
-          fontinfo_id2_ = fontinfo_id_;
-          score1 = fonts_[f].score;
-          fontinfo_id_ = fonts_[f].fontinfo_id;
-        } else if (fonts_[f].score > score2) {
-          score2 = fonts_[f].score;
-          fontinfo_id2_ = fonts_[f].fontinfo_id;
-        }
+  UNICHAR_ID unichar_id() const { return unichar_id_; }
+  float rating() const { return rating_; }
+  float certainty() const { return certainty_; }
+  int16_t fontinfo_id() const { return fontinfo_id_; }
+  int16_t fontinfo_id2() const { return fontinfo_id2_; }
+  const GenericVector<tesseract::ScoredFont>& fonts() const { return fonts_; }
+  void set_fonts(const GenericVector<tesseract::ScoredFont>& fonts) {
+    fonts_ = fonts;
+    int score1 = 0, score2 = 0;
+    fontinfo_id_ = -1;
+    fontinfo_id2_ = -1;
+    for (int f = 0; f < fonts_.size(); ++f) {
+      if (fonts_[f].score > score1) {
+        score2 = score1;
+        fontinfo_id2_ = fontinfo_id_;
+        score1 = fonts_[f].score;
+        fontinfo_id_ = fonts_[f].fontinfo_id;
+      } else if (fonts_[f].score > score2) {
+        score2 = fonts_[f].score;
+        fontinfo_id2_ = fonts_[f].fontinfo_id;
       }
     }
-    int script_id() const {
-      return script_id_;
-    }
-    const MATRIX_COORD& matrix_cell() {
-      return matrix_cell_;
-    }
-    int16_t xgap_before() const {
-      return xgap_before_;
-    }
-    int16_t xgap_after() const {
-      return xgap_after_;
-    }
-    float min_xheight() const {
-      return min_xheight_;
-    }
-    float max_xheight() const {
-      return max_xheight_;
-    }
-    float yshift() const {
-      return yshift_;
-    }
-    BlobChoiceClassifier classifier() const {
-      return classifier_;
-    }
-    bool IsAdapted() const {
-      return classifier_ == BCC_ADAPTED_CLASSIFIER;
-    }
-    bool IsClassified() const {
-      return classifier_ == BCC_STATIC_CLASSIFIER ||
-             classifier_ == BCC_ADAPTED_CLASSIFIER ||
-             classifier_ == BCC_SPECKLE_CLASSIFIER;
-    }
+  }
+  int script_id() const { return script_id_; }
+  const MATRIX_COORD& matrix_cell() { return matrix_cell_; }
+  int16_t xgap_before() const { return xgap_before_; }
+  int16_t xgap_after() const { return xgap_after_; }
+  float min_xheight() const { return min_xheight_; }
+  float max_xheight() const { return max_xheight_; }
+  float yshift() const { return yshift_; }
+  BlobChoiceClassifier classifier() const { return classifier_; }
+  bool IsAdapted() const { return classifier_ == BCC_ADAPTED_CLASSIFIER; }
+  bool IsClassified() const {
+    return classifier_ == BCC_STATIC_CLASSIFIER ||
+           classifier_ == BCC_ADAPTED_CLASSIFIER ||
+           classifier_ == BCC_SPECKLE_CLASSIFIER;
+  }
 
-    void set_unichar_id(UNICHAR_ID newunichar_id) {
-      unichar_id_ = newunichar_id;
-    }
-    void set_rating(float newrat) {
-      rating_ = newrat;
-    }
-    void set_certainty(float newrat) {
-      certainty_ = newrat;
-    }
-    void set_script(int newscript_id) {
-      script_id_ = newscript_id;
-    }
-    void set_matrix_cell(int col, int row) {
-      matrix_cell_.col = col;
-      matrix_cell_.row = row;
-    }
-    void set_xgap_before(int16_t gap) {
-      xgap_before_ = gap;
-    }
-    void set_xgap_after(int16_t gap) {
-      xgap_after_ = gap;
-    }
-    void set_classifier(BlobChoiceClassifier classifier) {
-      classifier_ = classifier;
-    }
-    static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
-      BLOB_CHOICE* choice = new BLOB_CHOICE;
-      *choice = *src;
-      return choice;
-    }
-    // Returns true if *this and other agree on the baseline and x-height
-    // to within some tolerance based on a given estimate of the x-height.
-    bool PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
-                         bool debug) const;
+  void set_unichar_id(UNICHAR_ID newunichar_id) { unichar_id_ = newunichar_id; }
+  void set_rating(float newrat) { rating_ = newrat; }
+  void set_certainty(float newrat) { certainty_ = newrat; }
+  void set_script(int newscript_id) { script_id_ = newscript_id; }
+  void set_matrix_cell(int col, int row) {
+    matrix_cell_.col = col;
+    matrix_cell_.row = row;
+  }
+  void set_xgap_before(int16_t gap) { xgap_before_ = gap; }
+  void set_xgap_after(int16_t gap) { xgap_after_ = gap; }
+  void set_classifier(BlobChoiceClassifier classifier) {
+    classifier_ = classifier;
+  }
+  static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
+    BLOB_CHOICE* choice = new BLOB_CHOICE;
+    *choice = *src;
+    return choice;
+  }
+  // Returns true if *this and other agree on the baseline and x-height
+  // to within some tolerance based on a given estimate of the x-height.
+  bool PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
+                       bool debug) const;
 
-    void print(const UNICHARSET *unicharset) const {
-      tprintf("r%.2f c%.2f x[%g,%g]: %d %s",
-              rating_, certainty_,
-              min_xheight_, max_xheight_, unichar_id_,
-              (unicharset == nullptr) ? "" :
-              unicharset->debug_str(unichar_id_).string());
-    }
-    void print_full() const {
-      print(nullptr);
-      tprintf(" script=%d, font1=%d, font2=%d, yshift=%g, classifier=%d\n",
-              script_id_, fontinfo_id_, fontinfo_id2_, yshift_, classifier_);
-    }
-    // Sort function for sorting BLOB_CHOICEs in increasing order of rating.
-    static int SortByRating(const void *p1, const void *p2) {
-      const BLOB_CHOICE *bc1 = *static_cast<const BLOB_CHOICE *const *>(p1);
-      const BLOB_CHOICE *bc2 = *static_cast<const BLOB_CHOICE *const *>(p2);
-      return (bc1->rating_ < bc2->rating_) ? -1 : 1;
-    }
+  void print(const UNICHARSET* unicharset) const {
+    tprintf("r%.2f c%.2f x[%g,%g]: %d %s", rating_, certainty_, min_xheight_,
+            max_xheight_, unichar_id_,
+            (unicharset == nullptr)
+                ? ""
+                : unicharset->debug_str(unichar_id_).string());
+  }
+  void print_full() const {
+    print(nullptr);
+    tprintf(" script=%d, font1=%d, font2=%d, yshift=%g, classifier=%d\n",
+            script_id_, fontinfo_id_, fontinfo_id2_, yshift_, classifier_);
+  }
+  // Sort function for sorting BLOB_CHOICEs in increasing order of rating.
+  static int SortByRating(const void* p1, const void* p2) {
+    const BLOB_CHOICE* bc1 = *static_cast<const BLOB_CHOICE* const*>(p1);
+    const BLOB_CHOICE* bc2 = *static_cast<const BLOB_CHOICE* const*>(p2);
+    return (bc1->rating_ < bc2->rating_) ? -1 : 1;
+  }
 
  private:
-  UNICHAR_ID unichar_id_;          // unichar id
+  UNICHAR_ID unichar_id_;  // unichar id
   // Fonts and scores. Allowed to be empty.
   GenericVector<tesseract::ScoredFont> fonts_;
-  int16_t fontinfo_id_;              // char font information
-  int16_t fontinfo_id2_;             // 2nd choice font information
+  int16_t fontinfo_id_;   // char font information
+  int16_t fontinfo_id2_;  // 2nd choice font information
   // Rating is the classifier distance weighted by the length of the outline
   // in the blob. In terms of probability, classifier distance is -klog p such
   // that the resulting distance is in the range [0, 1] and then
   // rating = w (-k log p) where w is the weight for the length of the outline.
   // Sums of ratings may be compared meaningfully for words of different
   // segmentation.
-  float rating_;                  // size related
+  float rating_;  // size related
   // Certainty is a number in [-20, 0] indicating the classifier certainty
   // of the choice. In terms of probability, certainty = 20 (k log p) where
   // k is defined as above to normalize -klog p to the range [0, 1].
-  float certainty_;               // absolute
+  float certainty_;  // absolute
   int script_id_;
   // Holds the position of this choice in the ratings matrix.
   // Used to location position in the matrix during path backtracking.
@@ -232,7 +189,7 @@ ELISTIZEH(BLOB_CHOICE)
 
 // Return the BLOB_CHOICE in bc_list matching a given unichar_id,
 // or nullptr if there is no match.
-BLOB_CHOICE *FindMatchingChoice(UNICHAR_ID char_id, BLOB_CHOICE_LIST *bc_list);
+BLOB_CHOICE* FindMatchingChoice(UNICHAR_ID char_id, BLOB_CHOICE_LIST* bc_list);
 
 // Permuter codes used in WERD_CHOICEs.
 enum PermuterType {
@@ -255,94 +212,64 @@ enum PermuterType {
 
 namespace tesseract {
 // ScriptPos tells whether a character is subscript, superscript or normal.
-enum ScriptPos {
-  SP_NORMAL,
-  SP_SUBSCRIPT,
-  SP_SUPERSCRIPT,
-  SP_DROPCAP
-};
+enum ScriptPos { SP_NORMAL, SP_SUBSCRIPT, SP_SUPERSCRIPT, SP_DROPCAP };
 
-const char *ScriptPosToString(tesseract::ScriptPos script_pos);
+const char* ScriptPosToString(tesseract::ScriptPos script_pos);
 
 }  // namespace tesseract.
 
 class WERD_CHOICE : public ELIST_LINK {
  public:
   static const float kBadRating;
-  static const char *permuter_name(uint8_t permuter);
+  static const char* permuter_name(uint8_t permuter);
 
-  WERD_CHOICE(const UNICHARSET *unicharset)
-    : unicharset_(unicharset) { this->init(8); }
-  WERD_CHOICE(const UNICHARSET *unicharset, int reserved)
-    : unicharset_(unicharset) { this->init(reserved); }
-  WERD_CHOICE(const char *src_string,
-              const char *src_lengths,
-              float src_rating,
-              float src_certainty,
-              uint8_t src_permuter,
-              const UNICHARSET &unicharset)
-    : unicharset_(&unicharset) {
-    this->init(src_string, src_lengths, src_rating,
-               src_certainty, src_permuter);
+  WERD_CHOICE(const UNICHARSET* unicharset) : unicharset_(unicharset) {
+    this->init(8);
   }
-  WERD_CHOICE(const char *src_string, const UNICHARSET &unicharset);
-  WERD_CHOICE(const WERD_CHOICE &word)
+  WERD_CHOICE(const UNICHARSET* unicharset, int reserved)
+      : unicharset_(unicharset) {
+    this->init(reserved);
+  }
+  WERD_CHOICE(const char* src_string, const char* src_lengths, float src_rating,
+              float src_certainty, uint8_t src_permuter,
+              const UNICHARSET& unicharset)
+      : unicharset_(&unicharset) {
+    this->init(src_string, src_lengths, src_rating, src_certainty,
+               src_permuter);
+  }
+  WERD_CHOICE(const char* src_string, const UNICHARSET& unicharset);
+  WERD_CHOICE(const WERD_CHOICE& word)
       : ELIST_LINK(word), unicharset_(word.unicharset_) {
     this->init(word.length());
     this->operator=(word);
   }
   ~WERD_CHOICE();
 
-  const UNICHARSET *unicharset() const {
-    return unicharset_;
-  }
-  inline int length() const {
-    return length_;
-  }
-  float adjust_factor() const {
-    return adjust_factor_;
-  }
-  void set_adjust_factor(float factor) {
-    adjust_factor_ = factor;
-  }
-  inline const UNICHAR_ID *unichar_ids() const {
-    return unichar_ids_;
-  }
+  const UNICHARSET* unicharset() const { return unicharset_; }
+  inline int length() const { return length_; }
+  float adjust_factor() const { return adjust_factor_; }
+  void set_adjust_factor(float factor) { adjust_factor_ = factor; }
+  inline const UNICHAR_ID* unichar_ids() const { return unichar_ids_; }
   inline UNICHAR_ID unichar_id(int index) const {
     assert(index < length_);
     return unichar_ids_[index];
   }
-  inline int state(int index) const {
-    return state_[index];
-  }
+  inline int state(int index) const { return state_[index]; }
   tesseract::ScriptPos BlobPosition(int index) const {
-    if (index < 0 || index >= length_)
-      return tesseract::SP_NORMAL;
+    if (index < 0 || index >= length_) return tesseract::SP_NORMAL;
     return script_pos_[index];
   }
-  inline float rating() const {
-    return rating_;
-  }
-  inline float certainty() const {
-    return certainty_;
-  }
-  inline float certainty(int index) const {
-    return certainties_[index];
-  }
-  inline float min_x_height() const {
-    return min_x_height_;
-  }
-  inline float max_x_height() const {
-    return max_x_height_;
-  }
+  inline float rating() const { return rating_; }
+  inline float certainty() const { return certainty_; }
+  inline float certainty(int index) const { return certainties_[index]; }
+  inline float min_x_height() const { return min_x_height_; }
+  inline float max_x_height() const { return max_x_height_; }
   inline void set_x_heights(float min_height, float max_height) {
     min_x_height_ = min_height;
     max_x_height_ = max_height;
   }
-  inline uint8_t permuter() const {
-    return permuter_;
-  }
-  const char *permuter_name() const;
+  inline uint8_t permuter() const { return permuter_; }
+  const char* permuter_name() const;
   // Returns the BLOB_CHOICE_LIST corresponding to the given index in the word,
   // taken from the appropriate cell in the ratings MATRIX.
   // Borrowed pointer, so do not delete.
@@ -356,21 +283,13 @@ class WERD_CHOICE : public ELIST_LINK {
     assert(index < length_);
     unichar_ids_[index] = unichar_id;
   }
-  bool dangerous_ambig_found() const {
-    return dangerous_ambig_found_;
-  }
+  bool dangerous_ambig_found() const { return dangerous_ambig_found_; }
   void set_dangerous_ambig_found_(bool value) {
     dangerous_ambig_found_ = value;
   }
-  inline void set_rating(float new_val) {
-    rating_ = new_val;
-  }
-  inline void set_certainty(float new_val) {
-    certainty_ = new_val;
-  }
-  inline void set_permuter(uint8_t perm) {
-    permuter_ = perm;
-  }
+  inline void set_rating(float new_val) { rating_ = new_val; }
+  inline void set_certainty(float new_val) { certainty_ = new_val; }
+  inline void set_permuter(uint8_t perm) { permuter_ = perm; }
   // Note: this function should only be used if all the fields
   // are populated manually with set_* functions (rather than
   // (copy)constructors and append_* functions).
@@ -386,10 +305,9 @@ class WERD_CHOICE : public ELIST_LINK {
           reserved_, unichar_ids_);
       script_pos_ = GenericVector<tesseract::ScriptPos>::double_the_size_memcpy(
           reserved_, script_pos_);
-      state_ = GenericVector<int>::double_the_size_memcpy(
-          reserved_, state_);
-      certainties_ = GenericVector<float>::double_the_size_memcpy(
-          reserved_, certainties_);
+      state_ = GenericVector<int>::double_the_size_memcpy(reserved_, state_);
+      certainties_ =
+          GenericVector<float>::double_the_size_memcpy(reserved_, certainties_);
       reserved_ *= 2;
     } else {
       unichar_ids_ = new UNICHAR_ID[1];
@@ -431,9 +349,8 @@ class WERD_CHOICE : public ELIST_LINK {
   /// The function assumes that src_string is not nullptr.
   /// src_lengths argument could be nullptr, in which case the unichars
   /// in src_string are assumed to all be of length 1.
-  void init(const char *src_string, const char *src_lengths,
-            float src_rating, float src_certainty,
-            uint8_t src_permuter);
+  void init(const char* src_string, const char* src_lengths, float src_rating,
+            float src_certainty, uint8_t src_permuter);
 
   /// Set the fields in this choice to be default (bad) values.
   inline void make_bad() {
@@ -445,17 +362,17 @@ class WERD_CHOICE : public ELIST_LINK {
   /// This function assumes that there is enough space reserved
   /// in the WERD_CHOICE for adding another unichar.
   /// This is an efficient alternative to append_unichar_id().
-  inline void append_unichar_id_space_allocated(
-      UNICHAR_ID unichar_id, int blob_count,
-      float rating, float certainty) {
+  inline void append_unichar_id_space_allocated(UNICHAR_ID unichar_id,
+                                                int blob_count, float rating,
+                                                float certainty) {
     assert(reserved_ > length_);
     length_++;
-    this->set_unichar_id(unichar_id, blob_count,
-                         rating, certainty, length_-1);
+    this->set_unichar_id(unichar_id, blob_count, rating, certainty,
+                         length_ - 1);
   }
 
-  void append_unichar_id(UNICHAR_ID unichar_id, int blob_count,
-                         float rating, float certainty);
+  void append_unichar_id(UNICHAR_ID unichar_id, int blob_count, float rating,
+                         float certainty);
 
   inline void set_unichar_id(UNICHAR_ID unichar_id, int blob_count,
                              float rating, float certainty, int index) {
@@ -486,18 +403,18 @@ class WERD_CHOICE : public ELIST_LINK {
   // Returns the half-open interval of unichar_id indices [start, end) which
   // enclose the core portion of this word -- the part after stripping
   // punctuation from the left and right.
-  void punct_stripped(int *start_core, int *end_core) const;
+  void punct_stripped(int* start_core, int* end_core) const;
 
   // Returns the indices [start, end) containing the core of the word, stripped
   // of any superscript digits on either side. (i.e., the non-footnote part
   // of the word). There is no guarantee that the output range is non-empty.
-  void GetNonSuperscriptSpan(int *start, int *end) const;
+  void GetNonSuperscriptSpan(int* start, int* end) const;
 
   // Return a copy of this WERD_CHOICE with the choices [start, end).
   // The result is useful only for checking against a dictionary.
   WERD_CHOICE shallow_copy(int start, int end) const;
 
-  void string_and_lengths(STRING *word_str, STRING *word_lengths_str) const;
+  void string_and_lengths(STRING* word_str, STRING* word_lengths_str) const;
   const STRING debug_string() const {
     STRING word_str;
     for (int i = 0; i < length_; ++i) {
@@ -528,20 +445,18 @@ class WERD_CHOICE : public ELIST_LINK {
     return unichars_in_script_order_ = in_script_order;
   }
 
-  bool unichars_in_script_order() const {
-    return unichars_in_script_order_;
-  }
+  bool unichars_in_script_order() const { return unichars_in_script_order_; }
 
   // Returns a UTF-8 string equivalent to the current choice
   // of UNICHAR IDs.
-  const STRING &unichar_string() const {
+  const STRING& unichar_string() const {
     this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_string_;
   }
 
   // Returns the lengths, one byte each, representing the number of bytes
   // required in the unichar_string for each UNICHAR_ID.
-  const STRING &unichar_lengths() const {
+  const STRING& unichar_lengths() const {
     this->string_and_lengths(&unichar_string_, &unichar_lengths_);
     return unichar_lengths_;
   }
@@ -574,21 +489,21 @@ class WERD_CHOICE : public ELIST_LINK {
   int TotalOfStates() const;
 
   void print() const { this->print(""); }
-  void print(const char *msg) const;
+  void print(const char* msg) const;
   // Prints the segmentation state with an introductory message.
-  void print_state(const char *msg) const;
+  void print_state(const char* msg) const;
 
   // Displays the segmentation state of *this (if not the same as the last
   // one displayed) and waits for a click in the window.
   void DisplaySegmentation(TWERD* word);
 
-  WERD_CHOICE& operator+= (     // concatanate
-    const WERD_CHOICE & second);// second on first
+  WERD_CHOICE& operator+=(         // concatanate
+      const WERD_CHOICE& second);  // second on first
 
-  WERD_CHOICE& operator= (const WERD_CHOICE& source);
+  WERD_CHOICE& operator=(const WERD_CHOICE& source);
 
  private:
-  const UNICHARSET *unicharset_;
+  const UNICHARSET* unicharset_;
   // TODO(rays) Perhaps replace the multiple arrays with an array of structs?
   // unichar_ids_ is an array of classifier "results" that make up a word.
   // For each unichar_ids_[i], script_pos_[i] has the sub/super/normal position
@@ -604,22 +519,22 @@ class WERD_CHOICE : public ELIST_LINK {
   // been moved to a lower level, augmenting the ratings matrix with the
   // combined fragments, and allowing the language-model/segmentation-search
   // to deal with only the combined unichar_ids.
-  UNICHAR_ID *unichar_ids_;  // unichar ids that represent the text of the word
+  UNICHAR_ID* unichar_ids_;  // unichar ids that represent the text of the word
   tesseract::ScriptPos* script_pos_;  // Normal/Sub/Superscript of each unichar.
-  int* state_;               // Number of blobs in each unichar.
-  float* certainties_;       // Certainty of each unichar.
-  int reserved_;             // size of the above arrays
-  int length_;               // word length
+  int* state_;                        // Number of blobs in each unichar.
+  float* certainties_;                // Certainty of each unichar.
+  int reserved_;                      // size of the above arrays
+  int length_;                        // word length
   // Factor that was used to adjust the rating.
   float adjust_factor_;
   // Rating is the sum of the ratings of the individual blobs in the word.
-  float rating_;             // size related
+  float rating_;  // size related
   // certainty is the min (worst) certainty of the individual blobs in the word.
-  float certainty_;          // absolute
+  float certainty_;  // absolute
   // xheight computed from the result, or 0 if inconsistent.
   float min_x_height_;
   float max_x_height_;
-  uint8_t permuter_;           // permuter code
+  uint8_t permuter_;  // permuter code
 
   // Normally, the ratings_ matrix represents the recognition results in order
   // from left-to-right.  However, some engines (say Cube) may return
@@ -637,19 +552,19 @@ class WERD_CHOICE : public ELIST_LINK {
 
 // Make WERD_CHOICE listable.
 ELISTIZEH(WERD_CHOICE)
-using BLOB_CHOICE_LIST_VECTOR = GenericVector<BLOB_CHOICE_LIST *>;
+using BLOB_CHOICE_LIST_VECTOR = GenericVector<BLOB_CHOICE_LIST*>;
 
 // Utilities for comparing WERD_CHOICEs
 
-bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE &word1,
-                                       const WERD_CHOICE &word2);
+bool EqualIgnoringCaseAndTerminalPunct(const WERD_CHOICE& word1,
+                                       const WERD_CHOICE& word2);
 
 // Utilities for debug printing.
 void print_ratings_list(
-    const char *msg,                      // intro message
-    BLOB_CHOICE_LIST *ratings,            // list of results
-    const UNICHARSET &current_unicharset  // unicharset that can be used
+    const char* msg,                      // intro message
+    BLOB_CHOICE_LIST* ratings,            // list of results
+    const UNICHARSET& current_unicharset  // unicharset that can be used
                                           // for id-to-unichar conversion
-    );
+);
 
 #endif

@@ -17,18 +17,18 @@
  *
  **********************************************************************/
 
-#ifndef           REJECT_H
-#define           REJECT_H
+#ifndef REJECT_H
+#define REJECT_H
 
-#include          "params.h"
-#include          "pageres.h"
+#include "pageres.h"
+#include "params.h"
 
-void reject_blanks(WERD_RES *word);
-void reject_poor_matches(WERD_RES *word);
+void reject_blanks(WERD_RES* word);
+void reject_poor_matches(WERD_RES* word);
 float compute_reject_threshold(WERD_CHOICE* word);
 bool word_contains_non_1_digit(const char* word, const char* word_lengths);
-void dont_allow_1Il(WERD_RES *word);
-void flip_hyphens(WERD_RES *word);
-void flip_0O(WERD_RES *word);
+void dont_allow_1Il(WERD_RES* word);
+void flip_hyphens(WERD_RES* word);
+void flip_0O(WERD_RES* word);
 bool non_0_digit(const char* str, int length);
 #endif

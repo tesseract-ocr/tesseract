@@ -26,8 +26,8 @@
 // menu bars.
 
 #include <string.h>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #include "svmnode.h"
 
@@ -51,8 +51,7 @@ SVMenuNode::SVMenuNode() {
   is_check_box_entry_ = false;
 }
 
-SVMenuNode::~SVMenuNode() {
-}
+SVMenuNode::~SVMenuNode() {}
 
 // Create a new sub menu node with just a caption.  This is used to create
 // nodes which act as parent nodes to other nodes (e.g. submenus).
@@ -64,14 +63,15 @@ SVMenuNode* SVMenuNode::AddChild(const char* txt) {
 
 // Create a "normal" menu node which is associated with a command event.
 void SVMenuNode::AddChild(const char* txt, int command_event) {
-  this->AddChild(new SVMenuNode(command_event, txt, false, false, nullptr, nullptr));
+  this->AddChild(
+      new SVMenuNode(command_event, txt, false, false, nullptr, nullptr));
 }
 
 // Create a menu node with an associated value (which might be changed
 // through the gui).
-void SVMenuNode::AddChild(const char* txt, int command_event,
-                          const char* val) {
-  this->AddChild(new SVMenuNode(command_event, txt, false, false, val, nullptr));
+void SVMenuNode::AddChild(const char* txt, int command_event, const char* val) {
+  this->AddChild(
+      new SVMenuNode(command_event, txt, false, false, val, nullptr));
 }
 
 // Create a menu node with an associated value and description_.
@@ -82,15 +82,15 @@ void SVMenuNode::AddChild(const char* txt, int command_event, const char* val,
 
 // Create a flag menu node.
 void SVMenuNode::AddChild(const char* txt, int command_event, int tv) {
-  this->AddChild(new SVMenuNode(command_event, txt, tv, true, nullptr, nullptr));
+  this->AddChild(
+      new SVMenuNode(command_event, txt, tv, true, nullptr, nullptr));
 }
 
 // Convenience function called from the different constructors to initialize
 // the different values of the menu node.
-SVMenuNode::SVMenuNode(int command_event, const char* txt,
-                       int tv, bool check_box_entry, const char* val,
-                       const char* desc)
-  : text_(txt), value_(val), description_(desc) {
+SVMenuNode::SVMenuNode(int command_event, const char* txt, int tv,
+                       bool check_box_entry, const char* val, const char* desc)
+    : text_(txt), value_(val), description_(desc) {
   cmd_event_ = command_event;
 
   child_ = nullptr;
@@ -108,7 +108,9 @@ void SVMenuNode::AddChild(SVMenuNode* svmn) {
     child_ = svmn;
   } else {
     SVMenuNode* cur = child_;
-    while (cur->next_ != nullptr) { cur = cur->next_; }
+    while (cur->next_ != nullptr) {
+      cur = cur->next_;
+    }
     cur->next_ = svmn;
   }
 }
@@ -124,20 +126,23 @@ void SVMenuNode::BuildMenu(ScrollView* sv, bool menu_bar) {
       sv->MenuItem(parent_->text_.string(), text_.string(), cmd_event_,
                    toggle_value_);
     } else {
-      sv->MenuItem(parent_->text_.string(), text_.string(), cmd_event_); }
+      sv->MenuItem(parent_->text_.string(), text_.string(), cmd_event_);
+    }
   } else if ((parent_ != nullptr) && (!menu_bar)) {
     if (description_.length() > 0) {
       sv->PopupItem(parent_->text_.string(), text_.string(), cmd_event_,
                     value_.string(), description_.string());
-      } else {
+    } else {
       sv->PopupItem(parent_->text_.string(), text_.string());
     }
   }
   if (child_ != nullptr) {
-    child_->BuildMenu(sv, menu_bar); delete child_;
+    child_->BuildMenu(sv, menu_bar);
+    delete child_;
   }
   if (next_ != nullptr) {
-    next_->BuildMenu(sv, menu_bar); delete next_;
+    next_->BuildMenu(sv, menu_bar);
+    delete next_;
   }
 }
 

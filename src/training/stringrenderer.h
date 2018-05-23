@@ -34,9 +34,9 @@
 #include <vector>
 
 #include "host.h"
-#include "pango_font_info.h"
 #include "pango/pango-layout.h"
 #include "pango/pangocairo.h"
+#include "pango_font_info.h"
 
 struct Boxa;
 struct Pix;
@@ -66,13 +66,9 @@ class StringRenderer {
   bool set_font(const std::string& desc);
   // Char spacing is in PIXELS!!!!.
   void set_char_spacing(int char_spacing) { char_spacing_ = char_spacing; }
-  void set_leading(int leading) {
-    leading_ = leading;
-  }
+  void set_leading(int leading) { leading_ = leading; }
   void set_resolution(const int resolution);
-  void set_vertical_text(bool vertical_text) {
-    vertical_text_ = vertical_text;
-  }
+  void set_vertical_text(bool vertical_text) { vertical_text_ = vertical_text; }
   void set_gravity_hint_strong(bool gravity_hint_strong) {
     gravity_hint_strong_ = gravity_hint_strong;
   }
@@ -93,42 +89,26 @@ class StringRenderer {
     free(features_);
     features_ = strdup(features);
   }
-  void set_page(int page) {
-    page_ = page;
-  }
-  void set_box_padding(int val) {
-    box_padding_ = val;
-  }
-  void set_drop_uncovered_chars(bool val) {
-    drop_uncovered_chars_ = val;
-  }
+  void set_page(int page) { page_ = page; }
+  void set_box_padding(int val) { box_padding_ = val; }
+  void set_drop_uncovered_chars(bool val) { drop_uncovered_chars_ = val; }
   void set_strip_unrenderable_words(bool val) {
     strip_unrenderable_words_ = val;
   }
-  void set_output_word_boxes(bool val) {
-    output_word_boxes_ = val;
-  }
+  void set_output_word_boxes(bool val) { output_word_boxes_ = val; }
   // Before rendering the string, replace latin characters with their optional
   // ligatured forms (such as "fi", "ffi" etc.) if the font_ covers those
   // unicodes.
-  void set_add_ligatures(bool add_ligatures) {
-    add_ligatures_ = add_ligatures;
-  }
+  void set_add_ligatures(bool add_ligatures) { add_ligatures_ = add_ligatures; }
   // Set the rgb value of the text ink. Values range in [0, 1.0]
   void set_pen_color(double r, double g, double b) {
     pen_color_[0] = r;
     pen_color_[1] = g;
     pen_color_[2] = b;
   }
-  void set_h_margin(const int h_margin) {
-    h_margin_ = h_margin;
-  }
-  void set_v_margin(const int v_margin) {
-    v_margin_ = v_margin;
-  }
-  const PangoFontInfo& font() const {
-    return font_;
-  }
+  void set_h_margin(const int h_margin) { h_margin_ = h_margin; }
+  void set_v_margin(const int v_margin) { v_margin_ = v_margin; }
+  const PangoFontInfo& font() const { return font_; }
   int h_margin() const { return h_margin_; }
   int v_margin() const { return v_margin_; }
 
@@ -210,9 +190,9 @@ class StringRenderer {
 
   // Objects cached for subsequent calls to RenderAllFontsToImage()
   std::unordered_map<char32, int64_t> char_map_;  // Time-saving char histogram.
-  int total_chars_;   // Number in the string to be rendered.
+  int total_chars_;          // Number in the string to be rendered.
   unsigned int font_index_;  // Index of next font to use in font list.
-  int last_offset_;   // Offset returned from last successful rendering
+  int last_offset_;          // Offset returned from last successful rendering
 
  private:
   StringRenderer(const StringRenderer&);

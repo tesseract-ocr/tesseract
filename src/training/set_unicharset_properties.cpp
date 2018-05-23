@@ -13,7 +13,7 @@
 // the result back to a file.
 
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 

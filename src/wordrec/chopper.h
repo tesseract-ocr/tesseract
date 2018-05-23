@@ -31,18 +31,17 @@
 #include "seam.h"
 #include "stopper.h"
 
+void preserve_outline(EDGEPT* start);
 
-void preserve_outline(EDGEPT *start);
+void preserve_outline_tree(TESSLINE* srcline);
 
-void preserve_outline_tree(TESSLINE *srcline);
+EDGEPT* restore_outline(EDGEPT* start);
 
-EDGEPT *restore_outline(EDGEPT *start);
+void restore_outline_tree(TESSLINE* srcline);
 
-void restore_outline_tree(TESSLINE *srcline);
+int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM* seam);
 
-int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM *seam);
+int check_blob(TBLOB* blob);
 
-int check_blob(TBLOB *blob);
-
-int16_t total_containment(TBLOB *blob1, TBLOB *blob2);
+int16_t total_containment(TBLOB* blob1, TBLOB* blob2);
 #endif

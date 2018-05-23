@@ -17,46 +17,44 @@
  *
  **********************************************************************/
 
-#ifndef           QUADRATC_H
-#define           QUADRATC_H
+#ifndef QUADRATC_H
+#define QUADRATC_H
 
-#include          "points.h"
+#include "points.h"
 
-class QUAD_COEFFS
-{
-  public:
-    QUAD_COEFFS() = default;
-    QUAD_COEFFS(             //constructor
-                double xsq,  //coefficients
-                float x,
-                float constant) {
-      a = xsq;
-      b = x;
-      c = constant;
-    }
+class QUAD_COEFFS {
+ public:
+  QUAD_COEFFS() = default;
+  QUAD_COEFFS(     // constructor
+      double xsq,  // coefficients
+      float x, float constant) {
+    a = xsq;
+    b = x;
+    c = constant;
+  }
 
-    float y(                  //evaluate
-            float x) const {  //at x
-      return (float) ((a * x + b) * x + c);
-    }
+  float y(              // evaluate
+      float x) const {  // at x
+    return (float)((a * x + b) * x + c);
+  }
 
-    void move(               // reposition word
-              ICOORD vec) {  // by vector
-      /************************************************************
-        y - q = a (x - p)^2 + b (x - p) + c
-        y - q = ax^2 - 2apx + ap^2 + bx - bp + c
-          y = ax^2 + (b - 2ap)x + (c - bp + ap^2 + q)
-      ************************************************************/
-      int16_t p = vec.x ();
-      int16_t q = vec.y ();
+  void move(         // reposition word
+      ICOORD vec) {  // by vector
+    /************************************************************
+      y - q = a (x - p)^2 + b (x - p) + c
+      y - q = ax^2 - 2apx + ap^2 + bx - bp + c
+        y = ax^2 + (b - 2ap)x + (c - bp + ap^2 + q)
+    ************************************************************/
+    int16_t p = vec.x();
+    int16_t q = vec.y();
 
-      c = (float) (c - b * p + a * p * p + q);
-      b = (float) (b - 2 * a * p);
-    }
+    c = (float)(c - b * p + a * p * p + q);
+    b = (float)(b - 2 * a * p);
+  }
 
-    double a;                    //x squared
-    float b;                     //x
-    float c;                     //constant
-  private:
+  double a;  // x squared
+  float b;   // x
+  float c;   // constant
+ private:
 };
 #endif

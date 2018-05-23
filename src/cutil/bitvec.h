@@ -15,8 +15,8 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   BITVEC_H
-#define   BITVEC_H
+#ifndef BITVEC_H
+#define BITVEC_H
 
 #include "host.h"
 
@@ -24,8 +24,8 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 // TODO(rays) Rename BITSINLONG to BITSINuint32_t, and use sizeof.
-#define BITSINLONG      32       /**< no of bits in a long */
-using BIT_VECTOR = uint32_t *;
+#define BITSINLONG 32 /**< no of bits in a long */
+using BIT_VECTOR = uint32_t*;
 
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
@@ -54,22 +54,26 @@ using BIT_VECTOR = uint32_t *;
       dest[index] = source[index]; /*copy all bits*/ \
   }
 
-#define SET_BIT(array,bit) (array[bit/BITSINLONG]|=1<<(bit&(BITSINLONG-1)))
+#define SET_BIT(array, bit) \
+  (array[bit / BITSINLONG] |= 1 << (bit & (BITSINLONG - 1)))
 
-#define reset_bit(array,bit) (array[bit/BITSINLONG]&=~(1<<(bit&(BITSINLONG-1))))
+#define reset_bit(array, bit) \
+  (array[bit / BITSINLONG] &= ~(1 << (bit & (BITSINLONG - 1))))
 
-#define test_bit(array,bit) (array[bit/BITSINLONG] & (1<<(bit&(BITSINLONG-1))))
+#define test_bit(array, bit) \
+  (array[bit / BITSINLONG] & (1 << (bit & (BITSINLONG - 1))))
 
-#define WordsInVectorOfSize(NumBits) \
-(((NumBits) + BITSINLONG - 1) / BITSINLONG)
+#define WordsInVectorOfSize(NumBits) (((NumBits) + BITSINLONG - 1) / BITSINLONG)
 
 /*--------------------------------------------------------------------------
         Public Function Prototypes
 --------------------------------------------------------------------------*/
-BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
+BIT_VECTOR
+ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
 
 void FreeBitVector(BIT_VECTOR BitVector);
 
-BIT_VECTOR NewBitVector(int NumBits);
+BIT_VECTOR
+NewBitVector(int NumBits);
 
 #endif

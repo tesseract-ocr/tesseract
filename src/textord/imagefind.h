@@ -68,23 +68,23 @@ class ImageFind {
   // On return, the rectangle is defined by x_start, y_start, x_end and y_end.
   // Note: the algorithm is iterative, allowing it to slice off pixels from
   // one edge, allowing it to then slice off more pixels from another edge.
-  static bool pixNearlyRectangular(Pix* pix,
-                                   double min_fraction, double max_fraction,
-                                   double max_skew_gradient,
-                                   int* x_start, int* y_start,
-                                   int* x_end, int* y_end);
+  static bool pixNearlyRectangular(Pix* pix, double min_fraction,
+                                   double max_fraction,
+                                   double max_skew_gradient, int* x_start,
+                                   int* y_start, int* x_end, int* y_end);
 
   // Given an input pix, and a bounding rectangle, the sides of the rectangle
   // are shrunk inwards until they bound any black pixels found within the
   // original rectangle. Returns false if the rectangle contains no black
   // pixels at all.
-  static bool BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
-                               int* x_end, int* y_end);
+  static bool BoundsWithinRect(Pix* pix, int* x_start, int* y_start, int* x_end,
+                               int* y_end);
 
   // Given a point in 3-D (RGB) space, returns the squared Euclidean distance
   // of the point from the given line, defined by a pair of points in the 3-D
   // (RGB) space, line1 and line2.
-  static double ColorDistanceFromLine(const uint8_t* line1, const uint8_t* line2,
+  static double ColorDistanceFromLine(const uint8_t* line1,
+                                      const uint8_t* line2,
                                       const uint8_t* point);
 
   // Returns the leptonica combined code for the given RGB triplet.
@@ -105,8 +105,8 @@ class ImageFind {
   // color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
   static void ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
                                      Pix* color_map1, Pix* color_map2,
-                                     Pix* rms_map,
-                                     uint8_t* color1, uint8_t* color2);
+                                     Pix* rms_map, uint8_t* color1,
+                                     uint8_t* color2);
 
   // Returns true if there are no black pixels in between the boxes.
   // The im_box must represent the bounding box of the pix in tesseract
@@ -124,7 +124,6 @@ class ImageFind {
   // rotations, before mapping them onto the pix.
   static int CountPixelsInRotatedBox(TBOX box, const TBOX& im_box,
                                      const FCOORD& rotation, Pix* pix);
-
 
   // Locates all the image partitions in the part_grid, that were found by a
   // previous call to FindImagePartitions, marks them in the image_mask,

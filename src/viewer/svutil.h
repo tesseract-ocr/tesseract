@@ -32,8 +32,8 @@
 #define snprintf _snprintf
 #endif
 #else
-#include "platform.h"
 #include <windows.h>
+#include "platform.h"
 #endif
 #else
 #include <pthread.h>
@@ -43,18 +43,18 @@
 #include <string>
 
 #ifndef MAX
-#define MAX(a, b)  ((a > b) ? a : b)
+#define MAX(a, b) ((a > b) ? a : b)
 #endif
 
 #ifndef MIN
-#define MIN(a, b)  ((a < b) ? a : b)
+#define MIN(a, b) ((a < b) ? a : b)
 #endif
 
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
  public:
   /// Create new thread.
-  static void StartThread(void *(*func)(void*), void* arg);
+  static void StartThread(void* (*func)(void*), void* arg);
   /// Signals a thread to exit.
   static void ExitThread();
   /// Starts a new process.
@@ -71,11 +71,12 @@ class SVSemaphore {
   void Signal();
   /// Wait on a semaphore.
   void Wait();
+
  private:
 #ifdef _WIN32
   HANDLE semaphore_;
 #elif defined(__APPLE__)
-  sem_t *semaphore_;
+  sem_t* semaphore_;
 #else
   sem_t semaphore_;
 #endif
@@ -91,6 +92,7 @@ class SVMutex {
   void Lock();
   /// Unlocks on a mutex.
   void Unlock();
+
  private:
 #ifdef _WIN32
   HANDLE mutex_;

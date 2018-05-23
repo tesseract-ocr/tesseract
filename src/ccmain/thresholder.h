@@ -67,18 +67,12 @@ class TESS_API ImageThresholder {
                              int* imagewidth, int* imageheight);
 
   /// Return true if the source image is color.
-  bool IsColor() const {
-    return pix_channels_ >= 3;
-  }
+  bool IsColor() const { return pix_channels_ >= 3; }
 
   /// Returns true if the source image is binary.
-  bool IsBinary() const {
-    return pix_channels_ == 0;
-  }
+  bool IsBinary() const { return pix_channels_ == 0; }
 
-  int GetScaleFactor() const {
-    return scale_;
-  }
+  int GetScaleFactor() const { return scale_; }
 
   // Set the resolution of the source image in pixels per inch.
   // This should be called right after SetImage(), and will let us return
@@ -87,25 +81,17 @@ class TESS_API ImageThresholder {
     yres_ = ppi;
     estimated_res_ = ppi;
   }
-  int GetSourceYResolution() const {
-    return yres_;
-  }
-  int GetScaledYResolution() const {
-    return scale_ * yres_;
-  }
+  int GetSourceYResolution() const { return yres_; }
+  int GetScaledYResolution() const { return scale_ * yres_; }
   // Set the resolution of the source image in pixels per inch, as estimated
   // by the thresholder from the text size found during thresholding.
   // This value will be used to set internal size thresholds during recognition
   // and will not influence the output "point size." The default value is
   // the same as the source resolution. (yres_)
-  void SetEstimatedResolution(int ppi) {
-    estimated_res_ = ppi;
-  }
+  void SetEstimatedResolution(int ppi) { estimated_res_ = ppi; }
   // Returns the estimated resolution, including any active scaling.
   // This value will be used to set internal size thresholds during recognition.
-  int GetScaledEstimatedResolution() const {
-    return scale_ * estimated_res_;
-  }
+  int GetScaledEstimatedResolution() const { return scale_ * estimated_res_; }
 
   /// Pix vs raw, which to use? Pix is the preferred input for efficiency,
   /// since raw buffers are copied.
@@ -151,8 +137,8 @@ class TESS_API ImageThresholder {
 
   /// Return true if we are processing the full image.
   bool IsFullImage() const {
-    return rect_left_ == 0 && rect_top_ == 0 &&
-           rect_width_ == image_width_ && rect_height_ == image_height_;
+    return rect_left_ == 0 && rect_top_ == 0 && rect_width_ == image_width_ &&
+           rect_height_ == image_height_;
   }
 
   // Otsu thresholds the rectangle, taking the rectangle from *this.
@@ -162,27 +148,26 @@ class TESS_API ImageThresholder {
   /// from the class, using thresholds/hi_values to the output pix.
   /// NOTE that num_channels is the size of the thresholds and hi_values
   // arrays and also the bytes per pixel in src_pix.
-  void ThresholdRectToPix(Pix* src_pix, int num_channels,
-                          const int* thresholds, const int* hi_values,
-                          Pix** pix) const;
+  void ThresholdRectToPix(Pix* src_pix, int num_channels, const int* thresholds,
+                          const int* hi_values, Pix** pix) const;
 
  protected:
   /// Clone or other copy of the source Pix.
   /// The pix will always be PixDestroy()ed on destruction of the class.
-  Pix*                 pix_;
+  Pix* pix_;
 
-  int                  image_width_;    //< Width of source pix_.
-  int                  image_height_;   //< Height of source pix_.
-  int                  pix_channels_;   //< Number of 8-bit channels in pix_.
-  int                  pix_wpl_;        //< Words per line of pix_.
+  int image_width_;   //< Width of source pix_.
+  int image_height_;  //< Height of source pix_.
+  int pix_channels_;  //< Number of 8-bit channels in pix_.
+  int pix_wpl_;       //< Words per line of pix_.
   // Limits of image rectangle to be processed.
-  int                  scale_;          //< Scale factor from original image.
-  int                  yres_;           //< y pixels/inch in source image.
-  int                  estimated_res_;  //< Resolution estimate from text size.
-  int                  rect_left_;
-  int                  rect_top_;
-  int                  rect_width_;
-  int                  rect_height_;
+  int scale_;          //< Scale factor from original image.
+  int yres_;           //< y pixels/inch in source image.
+  int estimated_res_;  //< Resolution estimate from text size.
+  int rect_left_;
+  int rect_top_;
+  int rect_width_;
+  int rect_height_;
 };
 
 }  // namespace tesseract.

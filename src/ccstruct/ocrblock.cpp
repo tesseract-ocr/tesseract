@@ -24,26 +24,27 @@
 #include "stepblob.h"
 #include "tprintf.h"
 
-#define BLOCK_LABEL_HEIGHT  150  //char height of block id
+#define BLOCK_LABEL_HEIGHT 150  // char height of block id
 
-ELISTIZE (BLOCK)
+ELISTIZE(BLOCK)
 /**
  * BLOCK::BLOCK
  *
  * Constructor for a simple rectangular block.
  */
-BLOCK::BLOCK(const char *name,                //< filename
-             BOOL8 prop,                      //< proportional
-             int16_t kern,                      //< kerning
-             int16_t space,                     //< spacing
-             int16_t xmin,                      //< bottom left
-             int16_t ymin, int16_t xmax,          //< top right
+BLOCK::BLOCK(const char* name,  //< filename
+             BOOL8 prop,        //< proportional
+             int16_t kern,      //< kerning
+             int16_t space,     //< spacing
+             int16_t xmin,      //< bottom left
+             int16_t ymin,
+             int16_t xmax,  //< top right
              int16_t ymax)
-  : pdblk(xmin, ymin, xmax, ymax),
-    filename(name),
-    re_rotation_(1.0f, 0.0f),
-    classify_rotation_(1.0f, 0.0f),
-    skew_(1.0f, 0.0f) {
+    : pdblk(xmin, ymin, xmax, ymax),
+      filename(name),
+      re_rotation_(1.0f, 0.0f),
+      classify_rotation_(1.0f, 0.0f),
+      skew_(1.0f, 0.0f) {
   ICOORDELT_IT left_it = &pdblk.leftside;
   ICOORDELT_IT right_it = &pdblk.rightside;
 
@@ -51,16 +52,16 @@ BLOCK::BLOCK(const char *name,                //< filename
   right_to_left_ = false;
   kerning = kern;
   spacing = space;
-  font_class = -1;               //not assigned
+  font_class = -1;  // not assigned
   cell_over_xheight_ = 2.0f;
   pdblk.hand_poly = nullptr;
-  left_it.set_to_list (&pdblk.leftside);
-  right_it.set_to_list (&pdblk.rightside);
-                                 //make default box
-  left_it.add_to_end (new ICOORDELT (xmin, ymin));
-  left_it.add_to_end (new ICOORDELT (xmin, ymax));
-  right_it.add_to_end (new ICOORDELT (xmax, ymin));
-  right_it.add_to_end (new ICOORDELT (xmax, ymax));
+  left_it.set_to_list(&pdblk.leftside);
+  right_it.set_to_list(&pdblk.rightside);
+  // make default box
+  left_it.add_to_end(new ICOORDELT(xmin, ymin));
+  left_it.add_to_end(new ICOORDELT(xmin, ymax));
+  right_it.add_to_end(new ICOORDELT(xmax, ymin));
+  right_it.add_to_end(new ICOORDELT(xmax, ymax));
 }
 
 /**
@@ -70,12 +71,10 @@ BLOCK::BLOCK(const char *name,                //< filename
  */
 
 int decreasing_top_order(  //
-                         const void *row1,
-                         const void *row2) {
-  return (*(ROW **) row2)->bounding_box ().top () -
-    (*(ROW **) row1)->bounding_box ().top ();
+    const void* row1, const void* row2) {
+  return (*(ROW**)row2)->bounding_box().top() -
+         (*(ROW**)row1)->bounding_box().top();
 }
-
 
 /**
  * BLOCK::rotate
@@ -119,9 +118,8 @@ void BLOCK::reflect_polygon_in_y_axis() {
 void BLOCK::sort_rows() {  // order on "top"
   ROW_IT row_it(&rows);
 
-  row_it.sort (decreasing_top_order);
+  row_it.sort(decreasing_top_order);
 }
-
 
 /**
  * BLOCK::compress
@@ -131,35 +129,34 @@ void BLOCK::sort_rows() {  // order on "top"
  */
 
 void BLOCK::compress() {  // squash it up
-  #define           ROW_SPACING 5
+#define ROW_SPACING 5
 
   ROW_IT row_it(&rows);
-  ROW *row;
-  ICOORD row_spacing (0, ROW_SPACING);
+  ROW* row;
+  ICOORD row_spacing(0, ROW_SPACING);
 
   ICOORDELT_IT icoordelt_it;
 
   sort_rows();
 
-  pdblk.box = TBOX (pdblk.box.topleft (), pdblk.box.topleft ());
-  pdblk.box.move_bottom_edge (ROW_SPACING);
-  for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    row = row_it.data ();
-    row->move (pdblk.box.botleft () - row_spacing -
-      row->bounding_box ().topleft ());
-    pdblk.box += row->bounding_box ();
+  pdblk.box = TBOX(pdblk.box.topleft(), pdblk.box.topleft());
+  pdblk.box.move_bottom_edge(ROW_SPACING);
+  for (row_it.mark_cycle_pt(); !row_it.cycled_list(); row_it.forward()) {
+    row = row_it.data();
+    row->move(pdblk.box.botleft() - row_spacing -
+              row->bounding_box().topleft());
+    pdblk.box += row->bounding_box();
   }
 
-  pdblk.leftside.clear ();
-  icoordelt_it.set_to_list (&pdblk.leftside);
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.left (), pdblk.box.top ()));
-  pdblk.rightside.clear ();
-  icoordelt_it.set_to_list (&pdblk.rightside);
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.bottom ()));
-  icoordelt_it.add_to_end (new ICOORDELT (pdblk.box.right (), pdblk.box.top ()));
+  pdblk.leftside.clear();
+  icoordelt_it.set_to_list(&pdblk.leftside);
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.left(), pdblk.box.bottom()));
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.left(), pdblk.box.top()));
+  pdblk.rightside.clear();
+  icoordelt_it.set_to_list(&pdblk.rightside);
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.right(), pdblk.box.bottom()));
+  icoordelt_it.add_to_end(new ICOORDELT(pdblk.box.right(), pdblk.box.top()));
 }
-
 
 /**
  * BLOCK::check_pitch
@@ -173,20 +170,18 @@ void BLOCK::check_pitch() {  // check prop
   pitch = -1;
 }
 
-
 /**
  * BLOCK::compress
  *
  * Compress and move in a single operation.
  */
 
-void BLOCK::compress(                  // squash it up
-                     const ICOORD vec  // and move
-                    ) {
-  pdblk.box.move (vec);
+void BLOCK::compress(  // squash it up
+    const ICOORD vec   // and move
+) {
+  pdblk.box.move(vec);
   compress();
 }
-
 
 /**
  * BLOCK::print
@@ -194,29 +189,29 @@ void BLOCK::compress(                  // squash it up
  * Print the info on a block
  */
 
-void BLOCK::print(            //print list of sides
-        FILE*,     //< file to print on
-        bool dump  //< print full detail
+void BLOCK::print(  // print list of sides
+    FILE*,          //< file to print on
+    bool dump       //< print full detail
 ) {
-  ICOORDELT_IT it = &pdblk.leftside;   //iterator
+  ICOORDELT_IT it = &pdblk.leftside;  // iterator
 
-  pdblk.box.print ();
-  tprintf ("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
-  tprintf ("Kerning= %d\n", kerning);
-  tprintf ("Spacing= %d\n", spacing);
-  tprintf ("Fixed_pitch=%d\n", pitch);
-  tprintf ("Filename= %s\n", filename.string ());
+  pdblk.box.print();
+  tprintf("Proportional= %s\n", proportional ? "TRUE" : "FALSE");
+  tprintf("Kerning= %d\n", kerning);
+  tprintf("Spacing= %d\n", spacing);
+  tprintf("Fixed_pitch=%d\n", pitch);
+  tprintf("Filename= %s\n", filename.string());
 
   if (dump) {
-    tprintf ("Left side coords are:\n");
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
-    tprintf ("Right side coords are:\n");
-    it.set_to_list (&pdblk.rightside);
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-      tprintf ("(%d,%d) ", it.data ()->x (), it.data ()->y ());
-    tprintf ("\n");
+    tprintf("Left side coords are:\n");
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+      tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    tprintf("\n");
+    tprintf("Right side coords are:\n");
+    it.set_to_list(&pdblk.rightside);
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward())
+      tprintf("(%d,%d) ", it.data()->x(), it.data()->y());
+    tprintf("\n");
   }
 }
 
@@ -226,17 +221,16 @@ void BLOCK::print(            //print list of sides
  * Assignment - duplicate the block structure, but with an EMPTY row list.
  */
 
-BLOCK & BLOCK::operator= (       //assignment
-const BLOCK & source             //from this
+BLOCK& BLOCK::operator=(  // assignment
+    const BLOCK& source   // from this
 ) {
-  this->ELIST_LINK::operator= (source);
+  this->ELIST_LINK::operator=(source);
   pdblk = source.pdblk;
   proportional = source.proportional;
   kerning = source.kerning;
   spacing = source.spacing;
-  filename = source.filename;    //STRINGs assign ok
-  if (!rows.empty ())
-    rows.clear ();
+  filename = source.filename;  // STRINGs assign ok
+  if (!rows.empty()) rows.clear();
   re_rotation_ = source.re_rotation_;
   classify_rotation_ = source.classify_rotation_;
   skew_ = source.skew_;
@@ -253,11 +247,10 @@ const BLOCK & source             //from this
 //   margin - return value, the distance from x,y to the left margin of the
 //       block containing it.
 // If all segments were to the right of x, we return false and 0.
-bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+bool LeftMargin(ICOORDELT_LIST* segments, int x, int* margin) {
   bool found = false;
   *margin = 0;
-  if (segments->empty())
-    return found;
+  if (segments->empty()) return found;
   ICOORDELT_IT seg_it(segments);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     int cur_margin = x - seg_it.data()->x();
@@ -283,11 +276,10 @@ bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
 //   margin - return value, the distance from x,y to the right margin of the
 //       block containing it.
 // If all segments were to the left of x, we return false and 0.
-bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+bool RightMargin(ICOORDELT_LIST* segments, int x, int* margin) {
   bool found = false;
   *margin = 0;
-  if (segments->empty())
-    return found;
+  if (segments->empty()) return found;
   ICOORDELT_IT seg_it(segments);
   for (seg_it.mark_cycle_pt(); !seg_it.cycled_list(); seg_it.forward()) {
     int cur_margin = seg_it.data()->x() + seg_it.data()->y() - x;
@@ -338,7 +330,7 @@ void BLOCK::compute_row_margins() {
 
   // If Layout analysis was not called, default to this.
   POLY_BLOCK rect_block(pdblk.bounding_box(), PT_FLOWING_TEXT);
-  POLY_BLOCK *pblock = &rect_block;
+  POLY_BLOCK* pblock = &rect_block;
   if (pdblk.poly_block() != nullptr) {
     pblock = pdblk.poly_block();
   }
@@ -346,12 +338,12 @@ void BLOCK::compute_row_margins() {
   // Step One: Determine if there is a drop-cap.
   //           TODO(eger): Fix up drop cap code for RTL languages.
   ROW_IT r_it(row_list());
-  ROW *first_row = r_it.data();
-  ROW *second_row = r_it.data_relative(1);
+  ROW* first_row = r_it.data();
+  ROW* second_row = r_it.data_relative(1);
 
   // initialize the bottom of a fictitious drop cap far above the first line.
-  int drop_cap_bottom = first_row->bounding_box().top() +
-                        first_row->bounding_box().height();
+  int drop_cap_bottom =
+      first_row->bounding_box().top() + first_row->bounding_box().height();
   int drop_cap_right = first_row->bounding_box().left();
   int mid_second_line = second_row->bounding_box().top() -
                         second_row->bounding_box().height() / 2;
@@ -364,10 +356,8 @@ void BLOCK::compute_row_margins() {
       if (bbox.bottom() <= mid_second_line) {
         // we found a real drop cap
         first_row->set_has_drop_cap(true);
-        if (drop_cap_bottom >  bbox.bottom())
-          drop_cap_bottom = bbox.bottom();
-        if (drop_cap_right < bbox.right())
-          drop_cap_right = bbox.right();
+        if (drop_cap_bottom > bbox.bottom()) drop_cap_bottom = bbox.bottom();
+        if (drop_cap_right < bbox.right()) drop_cap_right = bbox.right();
       }
     }
   }
@@ -377,7 +367,7 @@ void BLOCK::compute_row_margins() {
   PB_LINE_IT lines(pblock);
   r_it.set_to_list(row_list());
   for (r_it.mark_cycle_pt(); !r_it.cycled_list(); r_it.forward()) {
-    ROW *row = r_it.data();
+    ROW* row = r_it.data();
     TBOX row_box = row->bounding_box();
     int left_y = row->base_line(row_box.left()) + row->x_height();
     int left_margin;
@@ -387,10 +377,8 @@ void BLOCK::compute_row_margins() {
 
     if (row_box.top() >= drop_cap_bottom) {
       int drop_cap_distance = row_box.left() - row->space() - drop_cap_right;
-      if (drop_cap_distance < 0)
-        drop_cap_distance = 0;
-      if (drop_cap_distance < left_margin)
-        left_margin = drop_cap_distance;
+      if (drop_cap_distance < 0) drop_cap_distance = 0;
+      if (drop_cap_distance < left_margin) left_margin = drop_cap_distance;
     }
 
     int right_y = row->base_line(row_box.right()) + row->x_height();
@@ -485,7 +473,8 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt(); !block_it.cycled_list(); block_it.forward()) {
     BLOCK* block = block_it.data();
-    if (block->pdblk.poly_block() != nullptr && !block->pdblk.poly_block()->IsText())
+    if (block->pdblk.poly_block() != nullptr &&
+        !block->pdblk.poly_block()->IsText())
       continue;  // Don't touch non-text blocks.
     // Iterate over all rows in the block.
     ROW_IT row_it(block->row_list());
@@ -497,8 +486,8 @@ void RefreshWordBlobsFromNewBlobs(BLOCK_LIST* block_list,
       WERD_IT new_words_it(&new_words);
       for (werd_it.mark_cycle_pt(); !werd_it.cycled_list(); werd_it.forward()) {
         WERD* werd = werd_it.extract();
-        WERD* new_werd = werd->ConstructWerdWithNewBlobs(new_blobs,
-                                                         not_found_blobs);
+        WERD* new_werd =
+            werd->ConstructWerdWithNewBlobs(new_blobs, not_found_blobs);
         if (new_werd) {
           // Insert this new werd into the actual row's werd-list. Remove the
           // existing one.

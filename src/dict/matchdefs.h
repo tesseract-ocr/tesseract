@@ -15,41 +15,41 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MATCHDEFS_H
-#define   MATCHDEFS_H
+#ifndef MATCHDEFS_H
+#define MATCHDEFS_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "host.h"
 #include <cstdio>
+#include "host.h"
 #include "unichar.h"
 
 /* define the maximum number of classes defined for any matcher
   and the maximum class id for any matcher. This must be changed
   if more different classes need to be classified */
-#define MAX_NUM_CLASSES   INT16_MAX
-#define MAX_CLASS_ID    (MAX_NUM_CLASSES - 1)
+#define MAX_NUM_CLASSES INT16_MAX
+#define MAX_CLASS_ID (MAX_NUM_CLASSES - 1)
 
 /** a CLASS_ID is the ascii character to be associated with a class */
 using CLASS_ID = UNICHAR_ID;
-#define NO_CLASS      (0)
+#define NO_CLASS (0)
 
 /** a PROTO_ID is the index of a prototype within it's class.  Valid proto
   id's are 0 to N-1 where N is the number of prototypes that make up the
   class. */
 using PROTO_ID = int16_t;
-#define NO_PROTO  (-1)
+#define NO_PROTO (-1)
 
 /** FEATURE_ID is the index of a feature within a character description
   The feature id ranges from 0 to N-1 where N is the number
   of features in a character description. */
 using FEATURE_ID = uint8_t;
-#define NO_FEATURE      255
-#define NOISE_FEATURE   254
-#define MISSING_PROTO   254
-#define MAX_NUM_FEAT    40
-#define MAX_FEATURE_ID    250
+#define NO_FEATURE 255
+#define NOISE_FEATURE 254
+#define MISSING_PROTO 254
+#define MAX_NUM_FEAT 40
+#define MAX_FEATURE_ID 250
 
 /** a RATING is the match rating returned by a classifier.
   Higher is better. */
@@ -62,13 +62,11 @@ using RATING = FLOAT32;
 using CERTAINTY = FLOAT32;
 
 /** define a data structure to hold a single match result */
-typedef struct
-{
+typedef struct {
   CLASS_ID Class;
   RATING Rating;
   CERTAINTY Certainty;
 }
-
 
 MATCH_RESULT;
 
@@ -91,19 +89,17 @@ typedef MATCH_RESULT SORTED_CLASSES[MAX_CLASS_ID + 1];
 #define IsValidProto(Pid) ((Pid) >= 0)
 
 #if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
+#define _ARGS(s) s
 #else
-# define _ARGS(s) ()
+#define _ARGS(s) ()
 #endif
 
 /* matchdefs.c */
-int CompareMatchResults
-_ARGS ((MATCH_RESULT * Result1, MATCH_RESULT * Result2));
+int CompareMatchResults _ARGS((MATCH_RESULT * Result1, MATCH_RESULT* Result2));
 
-void PrintMatchResult _ARGS ((FILE * File, MATCH_RESULT * MatchResult));
+void PrintMatchResult _ARGS((FILE * File, MATCH_RESULT* MatchResult));
 
-void PrintMatchResults
-_ARGS ((FILE * File, int N, MATCH_RESULT MatchResults[]));
+void PrintMatchResults _ARGS((FILE * File, int N, MATCH_RESULT MatchResults[]));
 
 #undef _ARGS
 

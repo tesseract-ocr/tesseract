@@ -97,7 +97,6 @@ Network::Network(NetworkType type, const STRING& name, int ni, int no)
       backward_win_(nullptr),
       randomizer_(nullptr) {}
 
-
 // Suspends/Enables/Permanently disables training by setting the training_
 // flag. Serialize and DeSerialize only operate on the run-time data if state
 // is TS_DISABLED or TS_TEMP_DISABLE. Specifying TS_TEMP_DISABLE will
@@ -121,9 +120,7 @@ void Network::SetEnableTraining(TrainingState state) {
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
-void Network::SetNetworkFlags(uint32_t flags) {
-  network_flags_ = flags;
-}
+void Network::SetNetworkFlags(uint32_t flags) { network_flags_ = flags; }
 
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
@@ -135,9 +132,7 @@ int Network::InitWeights(float range, TRand* randomizer) {
 // Provides a pointer to a TRand for any networks that care to use it.
 // Note that randomizer is a borrowed pointer that should outlive the network
 // and should not be deleted by any of the networks.
-void Network::SetRandomizer(TRand* randomizer) {
-  randomizer_ = randomizer;
-}
+void Network::SetRandomizer(TRand* randomizer) { randomizer_ = randomizer; }
 
 // Sets needs_to_backprop_ to needs_backprop and returns true if
 // needs_backprop || any weights in this network so the next layer forward
@@ -283,8 +278,8 @@ double Network::Random(double range) {
 void Network::DisplayForward(const NetworkIO& matrix) {
 #ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* image = matrix.ToPix();
-  ClearWindow(false, name_.string(), pixGetWidth(image),
-              pixGetHeight(image), &forward_win_);
+  ClearWindow(false, name_.string(), pixGetWidth(image), pixGetHeight(image),
+              &forward_win_);
   DisplayImage(image, forward_win_);
   forward_win_->Update();
 #endif  // GRAPHICS_DISABLED
@@ -304,8 +299,8 @@ void Network::DisplayBackward(const NetworkIO& matrix) {
 
 #ifndef GRAPHICS_DISABLED
 // Creates the window if needed, otherwise clears it.
-void Network::ClearWindow(bool tess_coords, const char* window_name,
-                          int width, int height, ScrollView** window) {
+void Network::ClearWindow(bool tess_coords, const char* window_name, int width,
+                          int height, ScrollView** window) {
   if (*window == nullptr) {
     int min_size = std::min(width, height);
     if (min_size < kMinWinSize) {

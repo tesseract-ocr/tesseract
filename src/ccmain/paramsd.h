@@ -31,12 +31,7 @@
 class SVMenuNode;
 
 // A list of all possible parameter types used.
-enum ParamType {
-  VT_INTEGER,
-  VT_BOOLEAN,
-  VT_STRING,
-  VT_DOUBLE
-};
+enum ParamType { VT_INTEGER, VT_BOOLEAN, VT_STRING, VT_DOUBLE };
 
 // A rather hackish helper structure which can take any kind of parameter input
 // (defined by ParamType) and do a couple of common operations on them, like
@@ -57,7 +52,6 @@ class ParamContent : public ELIST_LINK {
   explicit ParamContent(tesseract::IntParam* it);
   explicit ParamContent(tesseract::BoolParam* it);
   explicit ParamContent(tesseract::DoubleParam* it);
-
 
   // Getters and Setters.
   void SetValue(const char* val);
@@ -100,18 +94,18 @@ class ParamsEditor : public SVEventHandler {
  private:
   // Gets the up to the first 3 prefixes from s (split by _).
   // For example, tesseract_foo_bar will be split into tesseract,foo and bar.
-  void GetPrefixes(const char* s, STRING* level_one,
-                   STRING* level_two, STRING* level_three);
+  void GetPrefixes(const char* s, STRING* level_one, STRING* level_two,
+                   STRING* level_three);
 
   // Gets the first n words (split by _) and puts them in t.
   // For example, tesseract_foo_bar with N=2 will yield tesseract_foo_.
-  void GetFirstWords(const char *s,  // source string
+  void GetFirstWords(const char* s,  // source string
                      int n,          // number of words
-                     char *t);       // target string
+                     char* t);       // target string
 
   // Find all editable parameters used within tesseract and create a
   // SVMenuNode tree from it.
-  SVMenuNode *BuildListOfAllLeaves(tesseract::Tesseract *tess);
+  SVMenuNode* BuildListOfAllLeaves(tesseract::Tesseract* tess);
 
   // Write all (changed_) parameters to a config file.
   void WriteParams(char* filename, bool changes_only);

@@ -15,8 +15,8 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   PICOFEAT_H
-#define   PICOFEAT_H
+#ifndef PICOFEAT_H
+#define PICOFEAT_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
@@ -33,16 +33,14 @@ enum IntParams {
 
 // Enum for the order/type of params in GeoFeatDesc.
 enum GeoParams {
-  GeoBottom,   // Bounding box bottom in baseline space (0-255).
-  GeoTop,      // Bounding box top in baseline space (0-255).
-  GeoWidth,    // Bounding box width in baseline space (0-255).
+  GeoBottom,  // Bounding box bottom in baseline space (0-255).
+  GeoTop,     // Bounding box top in baseline space (0-255).
+  GeoWidth,   // Bounding box width in baseline space (0-255).
 
-  GeoCount     // Number of geo features.
+  GeoCount  // Number of geo features.
 };
 
-typedef enum
-{ PicoFeatY, PicoFeatDir, PicoFeatX }
-PICO_FEAT_PARAM_NAME;
+typedef enum { PicoFeatY, PicoFeatDir, PicoFeatX } PICO_FEAT_PARAM_NAME;
 
 #define MAX_PICO_FEATURES (1000)
 
@@ -52,11 +50,10 @@ PICO_FEAT_PARAM_NAME;
 
 extern double_VAR_H(classify_pico_feature_length, 0.05, "Pico Feature Length");
 
-
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/
-#define GetPicoFeatureLength()  (PicoFeatureLength)
+#define GetPicoFeatureLength() (PicoFeatureLength)
 
 /**----------------------------------------------------------------------------
         Global Data Definitions and Declarations

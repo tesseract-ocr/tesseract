@@ -26,7 +26,6 @@
 // UNICHAR_ID.
 class UNICHARMAP {
  public:
-
   // Create an empty UNICHARMAP
   UNICHARMAP();
 
@@ -55,11 +54,9 @@ class UNICHARMAP {
   void clear();
 
  private:
-
   // The UNICHARMAP is represented as a tree whose nodes are of type
   // UNICHARMAP_NODE.
   struct UNICHARMAP_NODE {
-
     UNICHARMAP_NODE();
     ~UNICHARMAP_NODE();
 

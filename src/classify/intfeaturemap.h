@@ -21,8 +21,8 @@
 #ifndef TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 #define TESSERACT_CLASSIFY_INTFEATUREMAP_H_
 
-#include "intfeaturespace.h"
 #include "indexmapbidi.h"
+#include "intfeaturespace.h"
 #include "intproto.h"
 
 namespace tesseract {
@@ -51,18 +51,10 @@ class IntFeatureMap {
   ~IntFeatureMap();
 
   // Accessors.
-  int sparse_size() const {
-    return feature_space_.Size();
-  }
-  int compact_size() const {
-    return compact_size_;
-  }
-  const IntFeatureSpace& feature_space() const {
-    return feature_space_;
-  }
-  const IndexMapBiDi& feature_map() const {
-    return feature_map_;
-  }
+  int sparse_size() const { return feature_space_.Size(); }
+  int compact_size() const { return compact_size_; }
+  const IntFeatureSpace& feature_space() const { return feature_space_; }
+  const IndexMapBiDi& feature_map() const { return feature_map_; }
 
   // Pseudo-accessors.
   int IndexFeature(const INT_FEATURE_STRUCT& f) const;

@@ -53,8 +53,8 @@ const double kMarginFactor = 1.1;
 const double kMaxRowSize = 2.5;
 // Number of filled columns required to form a strong table row.
 // For small tables, this is an absolute number.
-const double kGoodRowNumberOfColumnsSmall[] = { 2, 2, 2, 2, 2, 3, 3 };
-const int kGoodRowNumberOfColumnsSmallSize = 
+const double kGoodRowNumberOfColumnsSmall[] = {2, 2, 2, 2, 2, 3, 3};
+const int kGoodRowNumberOfColumnsSmallSize =
     sizeof(kGoodRowNumberOfColumnsSmall) / sizeof(double) - 1;
 // For large tables, it is a relative number
 const double kGoodRowNumberOfColumnsLarge = 0.7;
@@ -76,11 +76,9 @@ StructuredTable::StructuredTable()
       space_right_(0),
       median_cell_height_(0),
       median_cell_width_(0),
-      max_text_height_(INT32_MAX) {
-}
+      max_text_height_(INT32_MAX) {}
 
-void StructuredTable::Init() {
-}
+void StructuredTable::Init() {}
 
 void StructuredTable::set_text_grid(ColPartitionGrid* text_grid) {
   text_grid_ = text_grid;
@@ -91,30 +89,18 @@ void StructuredTable::set_line_grid(ColPartitionGrid* line_grid) {
 void StructuredTable::set_max_text_height(int height) {
   max_text_height_ = height;
 }
-bool StructuredTable::is_lined() const {
-  return is_lined_;
-}
+bool StructuredTable::is_lined() const { return is_lined_; }
 int StructuredTable::row_count() const {
   return cell_y_.length() == 0 ? 0 : cell_y_.length() - 1;
 }
 int StructuredTable::column_count() const {
   return cell_x_.length() == 0 ? 0 : cell_x_.length() - 1;
 }
-int StructuredTable::cell_count() const {
-  return row_count() * column_count();
-}
-void StructuredTable::set_bounding_box(const TBOX& box) {
-  bounding_box_ = box;
-}
-const TBOX& StructuredTable::bounding_box() const {
-  return bounding_box_;
-}
-int StructuredTable::median_cell_height() {
-  return median_cell_height_;
-}
-int StructuredTable::median_cell_width() {
-  return median_cell_width_;
-}
+int StructuredTable::cell_count() const { return row_count() * column_count(); }
+void StructuredTable::set_bounding_box(const TBOX& box) { bounding_box_ = box; }
+const TBOX& StructuredTable::bounding_box() const { return bounding_box_; }
+int StructuredTable::median_cell_height() { return median_cell_height_; }
+int StructuredTable::median_cell_width() { return median_cell_width_; }
 int StructuredTable::row_height(int row) const {
   ASSERT_HOST(0 <= row && row < row_count());
   return cell_y_[row + 1] - cell_y_[row];
@@ -123,12 +109,8 @@ int StructuredTable::column_width(int column) const {
   ASSERT_HOST(0 <= column && column < column_count());
   return cell_x_[column + 1] - cell_x_[column];
 }
-int StructuredTable::space_above() const {
-  return space_above_;
-}
-int StructuredTable::space_below() const {
-  return space_below_;
-}
+int StructuredTable::space_above() const { return space_above_; }
+int StructuredTable::space_below() const { return space_below_; }
 
 // At this point, we know that the lines are contained
 // by the box (by FindLinesBoundingBox).
@@ -148,17 +130,14 @@ bool StructuredTable::FindLinedStructure() {
   ColPartition* line = nullptr;
 
   while ((line = box_search.NextRectSearch()) != nullptr) {
-    if (line->IsHorizontalLine())
-      cell_y_.push_back(line->MidY());
-    if (line->IsVerticalLine())
-      cell_x_.push_back(line->MidX());
+    if (line->IsHorizontalLine()) cell_y_.push_back(line->MidY());
+    if (line->IsVerticalLine()) cell_x_.push_back(line->MidX());
   }
 
   // HasSignificantLines should guarantee cells.
   // Because that code is a different class, just gracefully
   // return false. This could be an assert.
-  if (cell_x_.length() < 3 || cell_y_.length() < 3)
-    return false;
+  if (cell_x_.length() < 3 || cell_y_.length() < 3) return false;
 
   cell_x_.sort();
   cell_y_.sort();
@@ -211,11 +190,9 @@ bool StructuredTable::FindWhitespacedStructure() {
 bool StructuredTable::DoesPartitionFit(const ColPartition& part) const {
   const TBOX& box = part.bounding_box();
   for (int i = 0; i < cell_x_.length(); ++i)
-    if (box.left() < cell_x_[i] && cell_x_[i] < box.right())
-      return false;
+    if (box.left() < cell_x_[i] && cell_x_[i] < box.right()) return false;
   for (int i = 0; i < cell_y_.length(); ++i)
-    if (box.bottom() < cell_y_[i] && cell_y_[i] < box.top())
-      return false;
+    if (box.bottom() < cell_y_[i] && cell_y_[i] < box.top()) return false;
   return true;
 }
 
@@ -230,7 +207,7 @@ int StructuredTable::CountFilledCellsInColumn(int column) {
   return CountFilledCells(0, row_count() - 1, column, column);
 }
 int StructuredTable::CountFilledCells(int row_start, int row_end,
-                            int column_start, int column_end) {
+                                      int column_start, int column_end) {
   ASSERT_HOST(0 <= row_start && row_start <= row_end && row_end < row_count());
   ASSERT_HOST(0 <= column_start && column_start <= column_end &&
               column_end < column_count());
@@ -242,8 +219,7 @@ int StructuredTable::CountFilledCells(int row_start, int row_end,
     for (int col = column_start; col <= column_end; ++col) {
       cell_box.set_left(cell_x_[col]);
       cell_box.set_right(cell_x_[col + 1]);
-      if (CountPartitions(cell_box) > 0)
-        ++cell_count;
+      if (CountPartitions(cell_box) > 0) ++cell_count;
     }
   }
   return cell_count;
@@ -255,8 +231,7 @@ int StructuredTable::CountFilledCells(int row_start, int row_end,
 bool StructuredTable::VerifyRowFilled(int row) {
   for (int i = 0; i < column_count(); ++i) {
     double area_filled = CalculateCellFilledPercentage(row, i);
-    if (area_filled >= kMinFilledArea)
-      return true;
+    if (area_filled >= kMinFilledArea) return true;
   }
   return false;
 }
@@ -266,8 +241,8 @@ bool StructuredTable::VerifyRowFilled(int row) {
 double StructuredTable::CalculateCellFilledPercentage(int row, int column) {
   ASSERT_HOST(0 <= row && row <= row_count());
   ASSERT_HOST(0 <= column && column <= column_count());
-  const TBOX kCellBox(cell_x_[column], cell_y_[row],
-                      cell_x_[column + 1], cell_y_[row + 1]);
+  const TBOX kCellBox(cell_x_[column], cell_y_[row], cell_x_[column + 1],
+                      cell_y_[row + 1]);
   ASSERT_HOST(!kCellBox.null_box());
 
   ColPartitionGridSearch gsearch(text_grid_);
@@ -293,12 +268,12 @@ void StructuredTable::Display(ScrollView* window, ScrollView::Color color) {
   window->Rectangle(bounding_box_.left(), bounding_box_.bottom(),
                     bounding_box_.right(), bounding_box_.top());
   for (int i = 0; i < cell_x_.length(); i++) {
-    window->Line(cell_x_[i], bounding_box_.bottom(),
-                 cell_x_[i], bounding_box_.top());
+    window->Line(cell_x_[i], bounding_box_.bottom(), cell_x_[i],
+                 bounding_box_.top());
   }
   for (int i = 0; i < cell_y_.length(); i++) {
-    window->Line(bounding_box_.left(), cell_y_[i],
-                 bounding_box_.right(), cell_y_[i]);
+    window->Line(bounding_box_.left(), cell_y_[i], bounding_box_.right(),
+                 cell_y_[i]);
   }
   window->UpdateWindow();
 #endif
@@ -323,12 +298,10 @@ bool StructuredTable::VerifyLinedTableCells() {
   // Function only called when lines exist.
   ASSERT_HOST(cell_y_.length() >= 2 && cell_x_.length() >= 2);
   for (int i = 0; i < cell_y_.length(); ++i) {
-    if (CountHorizontalIntersections(cell_y_[i]) > 0)
-      return false;
+    if (CountHorizontalIntersections(cell_y_[i]) > 0) return false;
   }
   for (int i = 0; i < cell_x_.length(); ++i) {
-    if (CountVerticalIntersections(cell_x_[i]) > 0)
-      return false;
+    if (CountVerticalIntersections(cell_x_[i]) > 0) return false;
   }
   return true;
 }
@@ -364,18 +337,16 @@ void StructuredTable::FindWhitespacedColumns() {
   gsearch.StartRectSearch(bounding_box_);
   ColPartition* text = nullptr;
   while ((text = gsearch.NextRectSearch()) != nullptr) {
-    if (!text->IsTextType())
-      continue;
+    if (!text->IsTextType()) continue;
 
     ASSERT_HOST(text->bounding_box().left() < text->bounding_box().right());
-    int spacing = static_cast<int>(text->median_width() *
-                                   kHorizontalSpacing / 2.0 + 0.5);
+    int spacing =
+        static_cast<int>(text->median_width() * kHorizontalSpacing / 2.0 + 0.5);
     left_sides.push_back(text->bounding_box().left() - spacing);
     right_sides.push_back(text->bounding_box().right() + spacing);
   }
   // It causes disaster below, so avoid it!
-  if (left_sides.length() == 0 || right_sides.length() == 0)
-    return;
+  if (left_sides.length() == 0 || right_sides.length() == 0) return;
 
   // Since data may be inserted in grid order, we sort the left/right sides.
   left_sides.sort();
@@ -414,34 +385,31 @@ void StructuredTable::FindWhitespacedRows() {
   gsearch.StartRectSearch(bounding_box_);
   ColPartition* text = nullptr;
   while ((text = gsearch.NextRectSearch()) != nullptr) {
-    if (!text->IsTextType())
-      continue;
+    if (!text->IsTextType()) continue;
 
     ASSERT_HOST(text->bounding_box().bottom() < text->bounding_box().top());
-    min_bottom = std::min(min_bottom, static_cast<int>(text->bounding_box().bottom()));
+    min_bottom =
+        std::min(min_bottom, static_cast<int>(text->bounding_box().bottom()));
     max_top = std::max(max_top, static_cast<int>(text->bounding_box().top()));
 
     // Ignore "tall" text partitions, as these are usually false positive
     // vertical text or multiple lines pulled together.
-    if (text->bounding_box().height() > max_text_height_)
-      continue;
+    if (text->bounding_box().height() > max_text_height_) continue;
 
-    int spacing = static_cast<int>(text->bounding_box().height() *
-                                   kVerticalSpacing / 2.0 + 0.5);
+    int spacing = static_cast<int>(
+        text->bounding_box().height() * kVerticalSpacing / 2.0 + 0.5);
     int bottom = text->bounding_box().bottom() - spacing;
     int top = text->bounding_box().top() + spacing;
     // For horizontal text, the factor can be negative. This should
     // probably cause a warning or failure. I haven't actually checked if
     // it happens.
-    if (bottom >= top)
-      continue;
+    if (bottom >= top) continue;
 
     bottom_sides.push_back(bottom);
     top_sides.push_back(top);
   }
   // It causes disaster below, so avoid it!
-  if (bottom_sides.length() == 0 || top_sides.length() == 0)
-    return;
+  if (bottom_sides.length() == 0 || top_sides.length() == 0) return;
 
   // Since data may be inserted in grid order, we sort the bottom/top sides.
   bottom_sides.sort();
@@ -489,12 +457,10 @@ int StructuredTable::FindVerticalMargin(ColPartitionGrid* grid, int border,
                               border);
   ColPartition* part = nullptr;
   while ((part = gsearch.NextVerticalSearch(decrease)) != nullptr) {
-    if (!part->IsTextType() && !part->IsHorizontalLine())
-      continue;
+    if (!part->IsTextType() && !part->IsHorizontalLine()) continue;
     int distance = decrease ? border - part->bounding_box().top()
                             : part->bounding_box().bottom() - border;
-    if (distance >= 0)
-      return distance;
+    if (distance >= 0) return distance;
   }
   return INT32_MAX;
 }
@@ -505,12 +471,10 @@ int StructuredTable::FindHorizontalMargin(ColPartitionGrid* grid, int border,
   gsearch.StartSideSearch(border, bounding_box_.bottom(), bounding_box_.top());
   ColPartition* part = nullptr;
   while ((part = gsearch.NextSideSearch(decrease)) != nullptr) {
-    if (!part->IsTextType() && !part->IsVerticalLine())
-      continue;
+    if (!part->IsTextType() && !part->IsVerticalLine()) continue;
     int distance = decrease ? border - part->bounding_box().right()
                             : part->bounding_box().left() - border;
-    if (distance >= 0)
-      return distance;
+    if (distance >= 0) return distance;
   }
   return INT32_MAX;
 }
@@ -546,14 +510,11 @@ void StructuredTable::AbsorbNearbyLines() {
   gsearch.StartVerticalSearch(bounding_box_.left(), bounding_box_.right(),
                               bounding_box_.top());
   while ((line = gsearch.NextVerticalSearch(false)) != nullptr) {
-    if (!line->IsHorizontalLine())
-      break;
+    if (!line->IsHorizontalLine()) break;
     TBOX text_search(bounding_box_.left(), bounding_box_.top() + 1,
                      bounding_box_.right(), line->MidY());
-    if (text_search.height() > median_cell_height_ * 2)
-      break;
-    if (CountPartitions(text_search) > 0)
-      break;
+    if (text_search.height() > median_cell_height_ * 2) break;
+    if (CountPartitions(text_search) > 0) break;
     bounding_box_.set_top(line->MidY());
   }
   // As above, is the closest line below good?
@@ -561,19 +522,15 @@ void StructuredTable::AbsorbNearbyLines() {
   gsearch.StartVerticalSearch(bounding_box_.left(), bounding_box_.right(),
                               bounding_box_.bottom());
   while ((line = gsearch.NextVerticalSearch(true)) != nullptr) {
-    if (!line->IsHorizontalLine())
-      break;
-    TBOX text_search(bounding_box_.left(), line->MidY(),
-                     bounding_box_.right(), bounding_box_.bottom() - 1);
-    if (text_search.height() > median_cell_height_ * 2)
-      break;
-    if (CountPartitions(text_search) > 0)
-      break;
+    if (!line->IsHorizontalLine()) break;
+    TBOX text_search(bounding_box_.left(), line->MidY(), bounding_box_.right(),
+                     bounding_box_.bottom() - 1);
+    if (text_search.height() > median_cell_height_ * 2) break;
+    if (CountPartitions(text_search) > 0) break;
     bounding_box_.set_bottom(line->MidY());
   }
   // TODO(nbeato): vertical lines
 }
-
 
 // This function will find all "0 valleys" (of any length) given two
 // arrays. The arrays are the mins and maxes of partitions (either
@@ -595,8 +552,7 @@ void StructuredTable::FindCellSplitLocations(const GenericVector<int>& min_list,
                                              GenericVector<int>* locations) {
   locations->clear();
   ASSERT_HOST(min_list.length() == max_list.length());
-  if (min_list.length() == 0)
-    return;
+  if (min_list.length() == 0) return;
   ASSERT_HOST(min_list.get(0) < max_list.get(0));
   ASSERT_HOST(min_list.get(min_list.length() - 1) <
               max_list.get(max_list.length() - 1));
@@ -613,8 +569,7 @@ void StructuredTable::FindCellSplitLocations(const GenericVector<int>& min_list,
     // Increase the hill count.
     if (min_list[min_index] < max_list[max_index]) {
       ++stacked_partitions;
-      if (last_cross_position != INT32_MAX &&
-          stacked_partitions > max_merged) {
+      if (last_cross_position != INT32_MAX && stacked_partitions > max_merged) {
         int mid = (last_cross_position + min_list[min_index]) / 2;
         locations->push_back(mid);
         last_cross_position = INT32_MAX;
@@ -648,11 +603,9 @@ int StructuredTable::CountVerticalIntersections(int x) {
   gsearch.StartRectSearch(vertical_box);
   ColPartition* text = nullptr;
   while ((text = gsearch.NextRectSearch()) != nullptr) {
-    if (!text->IsTextType())
-      continue;
+    if (!text->IsTextType()) continue;
     const TBOX& box = text->bounding_box();
-    if (box.left() < x && x < box.right())
-      ++count;
+    if (box.left() < x && x < box.right()) ++count;
   }
   return count;
 }
@@ -672,12 +625,10 @@ int StructuredTable::CountHorizontalIntersections(int y) {
   gsearch.StartRectSearch(horizontal_box);
   ColPartition* text = nullptr;
   while ((text = gsearch.NextRectSearch()) != nullptr) {
-    if (!text->IsTextType())
-      continue;
+    if (!text->IsTextType()) continue;
 
     const TBOX& box = text->bounding_box();
-    if (box.bottom() < y && y < box.top())
-      ++count;
+    if (box.bottom() < y && y < box.top()) ++count;
   }
   return count;
 }
@@ -692,8 +643,7 @@ int StructuredTable::CountPartitions(const TBOX& box) {
   int count = 0;
   ColPartition* text = nullptr;
   while ((text = gsearch.NextRectSearch()) != nullptr) {
-    if (text->IsTextType())
-      ++count;
+    if (text->IsTextType()) ++count;
   }
   return count;
 }
@@ -707,14 +657,11 @@ TableRecognizer::TableRecognizer()
       line_grid_(nullptr),
       min_height_(0),
       min_width_(0),
-      max_text_height_(INT32_MAX) {
-}
+      max_text_height_(INT32_MAX) {}
 
-TableRecognizer::~TableRecognizer() {
-}
+TableRecognizer::~TableRecognizer() {}
 
-void TableRecognizer::Init() {
-}
+void TableRecognizer::Init() {}
 
 void TableRecognizer::set_text_grid(ColPartitionGrid* text_grid) {
   text_grid_ = text_grid;
@@ -722,12 +669,8 @@ void TableRecognizer::set_text_grid(ColPartitionGrid* text_grid) {
 void TableRecognizer::set_line_grid(ColPartitionGrid* line_grid) {
   line_grid_ = line_grid;
 }
-void TableRecognizer::set_min_height(int height) {
-  min_height_ = height;
-}
-void TableRecognizer::set_min_width(int width) {
-  min_width_ = width;
-}
+void TableRecognizer::set_min_height(int height) { min_height_ = height; }
+void TableRecognizer::set_min_width(int width) { min_width_ = width; }
 void TableRecognizer::set_max_text_height(int height) {
   max_text_height_ = height;
 }
@@ -741,14 +684,12 @@ StructuredTable* TableRecognizer::RecognizeTable(const TBOX& guess) {
 
   // Try to solve this simple case, a table with *both*
   // vertical and horizontal lines.
-  if (RecognizeLinedTable(guess, table))
-    return table;
+  if (RecognizeLinedTable(guess, table)) return table;
 
   // Fallback to whitespace if that failed.
   // TODO(nbeato): Break this apart to take advantage of horizontal
   // lines or vertical lines when present.
-  if (RecognizeWhitespacedTable(guess, table))
-    return table;
+  if (RecognizeWhitespacedTable(guess, table)) return table;
 
   // No table found...
   delete table;
@@ -757,11 +698,9 @@ StructuredTable* TableRecognizer::RecognizeTable(const TBOX& guess) {
 
 bool TableRecognizer::RecognizeLinedTable(const TBOX& guess_box,
                                           StructuredTable* table) {
-  if (!HasSignificantLines(guess_box))
-    return false;
+  if (!HasSignificantLines(guess_box)) return false;
   TBOX line_bound = guess_box;
-  if (!FindLinesBoundingBox(&line_bound))
-    return false;
+  if (!FindLinesBoundingBox(&line_bound)) return false;
   table->set_bounding_box(line_bound);
   return table->FindLinedStructure();
 }
@@ -781,10 +720,8 @@ bool TableRecognizer::HasSignificantLines(const TBOX& guess) {
   int horizontal_count = 0;
 
   while ((line = box_search.NextRectSearch()) != nullptr) {
-    if (line->IsHorizontalLine())
-      ++horizontal_count;
-    if (line->IsVerticalLine())
-      ++vertical_count;
+    if (line->IsHorizontalLine()) ++horizontal_count;
+    if (line->IsVerticalLine()) ++vertical_count;
   }
 
   return vertical_count >= kLinedTableMinVerticalLines &&
@@ -814,8 +751,7 @@ bool TableRecognizer::HasSignificantLines(const TBOX& guess) {
 bool TableRecognizer::FindLinesBoundingBox(TBOX* bounding_box) {
   // The first iteration will tell us if there are lines
   // present and shrink the box to a minimal iterative size.
-  if (!FindLinesBoundingBoxIteration(bounding_box))
-    return false;
+  if (!FindLinesBoundingBoxIteration(bounding_box)) return false;
 
   // Keep growing until the area of the table stabilizes.
   // The box can only get bigger, increasing area.
@@ -938,18 +874,16 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
         }
         previous_below = table->space_below();
       } else {
-       --chances;
+        --chances;
       }
     }
-    if (chances <= 0)
-      break;
+    if (chances <= 0) break;
 
     last_bottom = bottom;
     bottom = NextHorizontalSplit(guess_box.left(), guess_box.right(),
                                  last_bottom, true);
   }
-  if (!found_good_border)
-    return false;
+  if (!found_good_border) return false;
 
   // TODO(nbeato) comments: follow modified code above... put it in a function!
   found_good_border = false;
@@ -985,24 +919,21 @@ bool TableRecognizer::RecognizeWhitespacedTable(const TBOX& guess_box,
         }
         previous_above = table->space_above();
       } else {
-       --chances;
+        --chances;
       }
     }
-    if (chances <= 0)
-      break;
+    if (chances <= 0) break;
 
     last_top = top;
-    top = NextHorizontalSplit(guess_box.left(), guess_box.right(),
-                              last_top, false);
+    top = NextHorizontalSplit(guess_box.left(), guess_box.right(), last_top,
+                              false);
   }
 
-  if (!found_good_border)
-    return false;
+  if (!found_good_border) return false;
 
   // If we get here, this shouldn't happen. It can be an assert, but
   // I haven't tested it enough to make it crash things.
-  if (best_box.null_box())
-    return false;
+  if (best_box.null_box()) return false;
 
   // Given the best locations, fit the box to those locations.
   table->set_bounding_box(best_box);
@@ -1023,10 +954,8 @@ int TableRecognizer::NextHorizontalSplit(int left, int right, int y,
   ColPartition* text = nullptr;
   int last_y = y;
   while ((text = gsearch.NextVerticalSearch(top_to_bottom)) != nullptr) {
-    if (!text->IsTextType() || !text->IsHorizontalType())
-      continue;
-    if (text->bounding_box().height() > max_text_height_)
-      continue;
+    if (!text->IsTextType() || !text->IsHorizontalType()) continue;
+    if (text->bounding_box().height() > max_text_height_) continue;
 
     const TBOX& text_box = text->bounding_box();
     if (top_to_bottom && (last_y >= y || last_y <= text_box.top())) {
@@ -1050,8 +979,7 @@ int TableRecognizer::NextHorizontalSplit(int left, int right, int y,
 // sometimes (like a phantom row is introduced). There's something going
 // on in the cell_y_ data member before this is called... not certain.
 bool TableRecognizer::IsWeakTableRow(StructuredTable* table, int row) {
-  if (!table->VerifyRowFilled(row))
-    return false;
+  if (!table->VerifyRowFilled(row)) return false;
 
   double threshold = 0.0;
   if (table->column_count() > kGoodRowNumberOfColumnsSmallSize)

@@ -49,7 +49,7 @@ const int case_state_table[6][4] = {
      5, -1, 2, -1},
 };
 
-int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) const {
+int Dict::case_ok(const WERD_CHOICE& word, const UNICHARSET& unicharset) const {
   int state = 0;
   int x;
   for (x = 0; x < word.length(); ++x) {
@@ -64,19 +64,19 @@ int Dict::case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) const {
       state = case_state_table[state][0];
     if (state == -1) return false;
   }
-  return state != 5; // single lower is bad
+  return state != 5;  // single lower is bad
 }
 
-bool Dict::absolute_garbage(const WERD_CHOICE &word,
-                            const UNICHARSET &unicharset) {
+bool Dict::absolute_garbage(const WERD_CHOICE& word,
+                            const UNICHARSET& unicharset) {
   if (word.length() < kMinAbsoluteGarbageWordLength) return false;
   int num_alphanum = 0;
   for (int x = 0; x < word.length(); ++x) {
     num_alphanum += (unicharset.get_isalpha(word.unichar_id(x)) ||
                      unicharset.get_isdigit(word.unichar_id(x)));
   }
-  return (static_cast<float>(num_alphanum) /
-          static_cast<float>(word.length()) < kMinAbsoluteGarbageAlphanumFrac);
+  return (static_cast<float>(num_alphanum) / static_cast<float>(word.length()) <
+          kMinAbsoluteGarbageAlphanumFrac);
 }
 
 }  // namespace tesseract

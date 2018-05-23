@@ -24,13 +24,13 @@
 #include "config_auto.h"
 #endif
 
-#include "shapeclassifier.h"
 #include "genericvector.h"
 #include "scrollview.h"
+#include "shapeclassifier.h"
 #include "shapetable.h"
 #include "svmnode.h"
-#include "trainingsample.h"
 #include "tprintf.h"
+#include "trainingsample.h"
 
 namespace tesseract {
 
@@ -42,8 +42,8 @@ int ShapeClassifier::UnicharClassifySample(
     UNICHAR_ID keep_this, GenericVector<UnicharRating>* results) {
   results->truncate(0);
   GenericVector<ShapeRating> shape_results;
-  int num_shape_results = ClassifySample(sample, page_pix, debug, keep_this,
-                                         &shape_results);
+  int num_shape_results =
+      ClassifySample(sample, page_pix, debug, keep_this, &shape_results);
   const ShapeTable* shapes = GetShapeTable();
   GenericVector<int> unichar_map;
   unichar_map.init_to_size(shapes->unicharset().size(), -1);
@@ -57,8 +57,8 @@ int ShapeClassifier::UnicharClassifySample(
 // See shapeclassifier.h for a full description.
 // Default implementation aborts.
 int ShapeClassifier::ClassifySample(const TrainingSample& sample, Pix* page_pix,
-                           int debug, int keep_this,
-                           GenericVector<ShapeRating>* results) {
+                                    int debug, int keep_this,
+                                    GenericVector<ShapeRating>* results) {
   ASSERT_HOST("Must implement ClassifySample!" == nullptr);
   return 0;
 }
@@ -75,8 +75,7 @@ int ShapeClassifier::BestShapeForUnichar(const TrainingSample& sample,
   int num_results = ClassifySample(sample, page_pix, 0, unichar_id, &results);
   for (int r = 0; r < num_results; ++r) {
     if (shapes->GetShape(results[r].shape_id).ContainsUnichar(unichar_id)) {
-      if (result != nullptr)
-        *result = results[r];
+      if (result != nullptr) *result = results[r];
       return results[r].shape_id;
     }
   }
@@ -94,8 +93,7 @@ const UNICHARSET& ShapeClassifier::GetUnicharset() const {
 // the user has finished with debugging the sample.
 // Probably doesn't need to be overridden if the subclass provides
 // DisplayClassifyAs.
-void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
-                                   Pix* page_pix,
+void ShapeClassifier::DebugDisplay(const TrainingSample& sample, Pix* page_pix,
                                    UNICHAR_ID unichar_id) {
 #ifndef GRAPHICS_DISABLED
   static ScrollView* terminator = nullptr;
@@ -122,8 +120,8 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
   do {
     PointerVector<ScrollView> windows;
     if (unichar_id >= 0) {
-      tprintf("Debugging class %d = %s\n",
-              unichar_id, unicharset.id_to_unichar(unichar_id));
+      tprintf("Debugging class %d = %s\n", unichar_id,
+              unicharset.id_to_unichar(unichar_id));
       UnicharClassifySample(sample, page_pix, 1, unichar_id, &results);
       DisplayClassifyAs(sample, page_pix, unichar_id, 1, &windows);
     } else {
@@ -131,8 +129,8 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
       UnicharClassifySample(sample, page_pix, 1, -1, &results);
     }
     if (unichar_id >= 0) {
-      tprintf("Debugged class %d = %s\n",
-              unichar_id, unicharset.id_to_unichar(unichar_id));
+      tprintf("Debugged class %d = %s\n", unichar_id,
+              unicharset.id_to_unichar(unichar_id));
     }
     tprintf("Right-click in ClassifierDebug window to choose debug class,");
     tprintf(" Left-click or close window to quit...\n");
@@ -149,8 +147,8 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
         }
       }
       delete ev;
-    } while (unichar_id == old_unichar_id &&
-             ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
+    } while (unichar_id == old_unichar_id && ev_type != SVET_CLICK &&
+             ev_type != SVET_DESTROY);
   } while (ev_type != SVET_CLICK && ev_type != SVET_DESTROY);
   delete debug_win;
 #endif  // GRAPHICS_DISABLED
@@ -161,10 +159,10 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
 // windows to the windows output and returns a new index that may be used
 // by any subsequent classifiers. Caller waits for the user to view and
 // then destroys the windows by clearing the vector.
-int ShapeClassifier::DisplayClassifyAs(
-    const TrainingSample& sample, Pix* page_pix,
-    UNICHAR_ID unichar_id, int index,
-    PointerVector<ScrollView>* windows) {
+int ShapeClassifier::DisplayClassifyAs(const TrainingSample& sample,
+                                       Pix* page_pix, UNICHAR_ID unichar_id,
+                                       int index,
+                                       PointerVector<ScrollView>* windows) {
   // Does nothing in the default implementation.
   return index;
 }
@@ -190,10 +188,8 @@ void ShapeClassifier::PrintResults(
   tprintf("%s\n", context);
   for (int i = 0; i < results.size(); ++i) {
     tprintf("%g:", results[i].rating);
-    if (results[i].joined)
-      tprintf("[J]");
-    if (results[i].broken)
-      tprintf("[B]");
+    if (results[i].joined) tprintf("[J]");
+    if (results[i].broken) tprintf("[B]");
     tprintf(" %s\n", GetShapeTable()->DebugStr(results[i].shape_id).string());
   }
 }
@@ -217,8 +213,7 @@ void ShapeClassifier::FilterDuplicateUnichars(
           if (shape_s.ContainsUnichar(unichar_id))
             break;  // We found unichar_id.
         }
-        if (s == r)
-          break;  // We didn't find unichar_id.
+        if (s == r) break;  // We didn't find unichar_id.
       }
       if (c == shape_r.size())
         continue;  // We found all the unichar ids in previous answers.

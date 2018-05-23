@@ -53,9 +53,7 @@ class BitVector {
   void Init(int length);
 
   // Returns the number of bits that are accessible in the vector.
-  int size() const {
-    return bit_size_;
-  }
+  int size() const { return bit_size_; }
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;
@@ -69,12 +67,8 @@ class BitVector {
   // Accessors to set/reset/get bits.
   // The range of index is [0, size()-1].
   // There is debug-only bounds checking.
-  void SetBit(int index) {
-    array_[WordIndex(index)] |= BitMask(index);
-  }
-  void ResetBit(int index) {
-    array_[WordIndex(index)] &= ~BitMask(index);
-  }
+  void SetBit(int index) { array_[WordIndex(index)] |= BitMask(index); }
+  void ResetBit(int index) { array_[WordIndex(index)] &= ~BitMask(index); }
   void SetValue(int index, bool value) {
     if (value)
       SetBit(index);
@@ -114,18 +108,12 @@ class BitVector {
     return index / kBitFactor;
   }
   // Returns a mask to select the appropriate bit for the given index.
-  uint32_t BitMask(int index) const {
-    return 1 << (index & (kBitFactor - 1));
-  }
+  uint32_t BitMask(int index) const { return 1 << (index & (kBitFactor - 1)); }
   // Returns the number of array elements needed to represent the current
   // bit_size_.
-  int WordLength() const {
-    return (bit_size_ + kBitFactor - 1) / kBitFactor;
-  }
+  int WordLength() const { return (bit_size_ + kBitFactor - 1) / kBitFactor; }
   // Returns the number of bytes consumed by the array_.
-  int ByteLength() const {
-    return WordLength() * sizeof(*array_);
-  }
+  int ByteLength() const { return WordLength() * sizeof(*array_); }
 
   // Number of bits in this BitVector.
   int32_t bit_size_;

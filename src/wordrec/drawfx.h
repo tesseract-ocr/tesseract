@@ -17,16 +17,16 @@
  *
  **********************************************************************/
 
-#ifndef           DRAWFX_H
-#define           DRAWFX_H
+#ifndef DRAWFX_H
+#define DRAWFX_H
 
-#include          "params.h"
-#include	  "scrollview.h"
+#include "params.h"
+#include "scrollview.h"
 
-extern STRING_VAR_H (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
+extern STRING_VAR_H(fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 extern ScrollView* fx_win;
-extern FILE *fx_debug;
-void create_fx_win();  //make features win
-void clear_fx_win();  //make features win
-void create_fxdebug_win();  //make gradients win
+extern FILE* fx_debug;
+void create_fx_win();       // make features win
+void clear_fx_win();        // make features win
+void create_fxdebug_win();  // make gradients win
 #endif

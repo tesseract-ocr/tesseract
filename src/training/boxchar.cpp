@@ -22,8 +22,8 @@
 
 #include "boxchar.h"
 
-#include <cstddef>
 #include <algorithm>
+#include <cstddef>
 #include <vector>
 
 #include "fileio.h"

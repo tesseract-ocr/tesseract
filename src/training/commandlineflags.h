@@ -22,45 +22,33 @@
 #ifndef GOOGLE_TESSERACT
 
 #include <cstdlib>
-#include "tprintf.h"
 #include "params.h"
+#include "tprintf.h"
 
-#define INT_PARAM_FLAG(name, val, comment)      \
-  INT_VAR(FLAGS_##name, val, comment)
-#define DECLARE_INT_PARAM_FLAG(name)            \
-  extern INT_VAR_H(FLAGS_##name, 0, "")
-#define DOUBLE_PARAM_FLAG(name, val, comment)   \
+#define INT_PARAM_FLAG(name, val, comment) INT_VAR(FLAGS_##name, val, comment)
+#define DECLARE_INT_PARAM_FLAG(name) extern INT_VAR_H(FLAGS_##name, 0, "")
+#define DOUBLE_PARAM_FLAG(name, val, comment) \
   double_VAR(FLAGS_##name, val, comment)
-#define DECLARE_DOUBLE_PARAM_FLAG(name)         \
+#define DECLARE_DOUBLE_PARAM_FLAG(name) \
   extern double_VAR_H(FLAGS_##name, "", "")
-#define BOOL_PARAM_FLAG(name, val, comment)     \
-  BOOL_VAR(FLAGS_##name, val, comment)
-#define DECLARE_BOOL_PARAM_FLAG(name)           \
-  extern BOOL_VAR_H(FLAGS_##name, 0, "")
-#define STRING_PARAM_FLAG(name, val, comment)   \
+#define BOOL_PARAM_FLAG(name, val, comment) BOOL_VAR(FLAGS_##name, val, comment)
+#define DECLARE_BOOL_PARAM_FLAG(name) extern BOOL_VAR_H(FLAGS_##name, 0, "")
+#define STRING_PARAM_FLAG(name, val, comment) \
   STRING_VAR(FLAGS_##name, val, comment)
-#define DECLARE_STRING_PARAM_FLAG(name)         \
+#define DECLARE_STRING_PARAM_FLAG(name) \
   extern STRING_VAR_H(FLAGS_##name, "", "")
 
 #else
 
 #include "base/commandlineflags.h"
-#define INT_PARAM_FLAG(name, val, comment) \
-  DEFINE_int32(name, val, comment)
-#define DECLARE_INT_PARAM_FLAG(name) \
-  DECLARE_int32(name)
-#define DOUBLE_PARAM_FLAG(name, val, comment) \
-  DEFINE_double(name, val, comment)
-#define DECLARE_DOUBLE_PARAM_FLAG(name) \
-  DECLARE_double(name)
-#define BOOL_PARAM_FLAG(name, val, comment) \
-  DEFINE_bool(name, val, comment)
-#define DECLARE_BOOL_PARAM_FLAG(name) \
-  DECLARE_bool(name)
-#define STRING_PARAM_FLAG(name, val, comment) \
-  DEFINE_string(name, val, comment)
-#define DECLARE_STRING_PARAM_FLAG(name) \
-  DECLARE_string(name)
+#define INT_PARAM_FLAG(name, val, comment) DEFINE_int32(name, val, comment)
+#define DECLARE_INT_PARAM_FLAG(name) DECLARE_int32(name)
+#define DOUBLE_PARAM_FLAG(name, val, comment) DEFINE_double(name, val, comment)
+#define DECLARE_DOUBLE_PARAM_FLAG(name) DECLARE_double(name)
+#define BOOL_PARAM_FLAG(name, val, comment) DEFINE_bool(name, val, comment)
+#define DECLARE_BOOL_PARAM_FLAG(name) DECLARE_bool(name)
+#define STRING_PARAM_FLAG(name, val, comment) DEFINE_string(name, val, comment)
+#define DECLARE_STRING_PARAM_FLAG(name) DECLARE_string(name)
 
 #endif
 
@@ -75,9 +63,9 @@ namespace tesseract {
 // eg. If the input *argv is
 // { "program", "--foo=4", "--bar=true", "file1", "file2" } with *argc = 5, the
 // output *argv is { "program", "file1", "file2" } with *argc = 3
-void ParseCommandLineFlags(const char* usage, int* argc,
-                           char*** argv, const bool remove_flags);
+void ParseCommandLineFlags(const char* usage, int* argc, char*** argv,
+                           const bool remove_flags);
 
-}
+}  // namespace tesseract
 
 #endif  // TESSERACT_TRAINING_COMMANDLINEFLAGS_H_

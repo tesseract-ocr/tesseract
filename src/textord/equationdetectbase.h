@@ -20,6 +20,8 @@
 #ifndef TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
 #define TESSERACT_TEXTORD_EQUATIONDETECTBASE_H_
 
+#include "blobbox.h"
+
 class BLOBNBOX_LIST;
 class TO_BLOCK;
 struct Pix;

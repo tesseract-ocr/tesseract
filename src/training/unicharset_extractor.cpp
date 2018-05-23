@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include "boxread.h"
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "genericvector.h"
 #include "lang_model_helpers.h"
 #include "normstrngs.h"
@@ -50,8 +50,7 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
                                      /*report_errors*/ true,
                                      strings[i].string(), &normalized)) {
       for (const std::string& normed : normalized) {
-
-       // normed is a UTF-8 encoded string
+        // normed is a UTF-8 encoded string
         if (normed.empty() || IsUTF8Whitespace(normed.c_str())) continue;
         unicharset->unichar_insert(normed.c_str());
       }
@@ -68,9 +67,12 @@ static int Main(int argc, char** argv) {
     STRING file_data = tesseract::ReadFile(argv[arg], /*reader*/ nullptr);
     if (file_data.length() == 0) continue;
     GenericVector<STRING> texts;
-    if (ReadMemBoxes(-1, /*skip_blanks*/ true, &file_data[0],
-                     /*continue_on_failure*/ false, /*boxes*/ nullptr,
-                     &texts, /*box_texts*/ nullptr, /*pages*/ nullptr)) {
+    if (ReadMemBoxes(-1,
+                     /*skip_blanks*/ true, &file_data[0],
+                     /*continue_on_failure*/ false,
+                     /*boxes*/ nullptr, &texts,
+                     /*box_texts*/ nullptr,
+                     /*pages*/ nullptr)) {
       tprintf("Extracting unicharset from box file %s\n", argv[arg]);
     } else {
       tprintf("Extracting unicharset from plain text file %s\n", argv[arg]);
@@ -79,8 +81,8 @@ static int Main(int argc, char** argv) {
     }
     AddStringsToUnicharset(texts, FLAGS_norm_mode, &unicharset);
   }
-  SetupBasicProperties(/*report_errors*/ true, /*decompose*/ false,
-                       &unicharset);
+  SetupBasicProperties(
+      /*report_errors*/ true, /*decompose*/ false, &unicharset);
   // Write unicharset file.
   if (unicharset.save_to_file(FLAGS_output_unicharset.c_str())) {
     tprintf("Wrote unicharset file %s\n", FLAGS_output_unicharset.c_str());

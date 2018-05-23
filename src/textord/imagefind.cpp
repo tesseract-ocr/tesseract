@@ -22,12 +22,12 @@
 #include "config_auto.h"
 #endif
 
-#include "imagefind.h"
 #include "colpartitiongrid.h"
+#include "imagefind.h"
 #include "linlsq.h"
 #include "ndminx.h"
-#include "statistc.h"
 #include "params.h"
+#include "statistc.h"
 
 #include "allheaders.h"
 
@@ -68,7 +68,7 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
 
   // Reduce by factor 2.
-  Pix *pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
+  Pix* pixr = pixReduceRankBinaryCascade(pix, 1, 0, 0, 0);
   if (textord_tabfind_show_images && pixa_debug != nullptr)
     pixa_debug->AddPix(pixr, "CascadeReduced");
 
@@ -96,19 +96,18 @@ Pix* ImageFind::FindImages(Pix* pix, DebugPixa* pixa_debug) {
     pixaDestroy(&pixadb);
   }
   pixDestroy(&pixr);
-  if (!ht_found && pixht2 != nullptr)
-    pixDestroy(&pixht2);
+  if (!ht_found && pixht2 != nullptr) pixDestroy(&pixht2);
   if (pixht2 == nullptr)
     return pixCreate(pixGetWidth(pix), pixGetHeight(pix), 1);
 
   // Expand back up again.
-  Pix *pixht = pixExpandReplicate(pixht2, 2);
+  Pix* pixht = pixExpandReplicate(pixht2, 2);
   if (textord_tabfind_show_images && pixa_debug != nullptr)
     pixa_debug->AddPix(pixht, "HalftoneReplicated");
   pixDestroy(&pixht2);
 
   // Fill to capture pixels near the mask edges that were missed
-  Pix *pixt = pixSeedfillBinary(nullptr, pixht, pix, 8);
+  Pix* pixt = pixSeedfillBinary(nullptr, pixht, pix, 8);
   pixOr(pixht, pixht, pixt);
   pixDestroy(&pixt);
 
@@ -173,8 +172,7 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
     if (textord_tabfind_show_images && pixa_debug != nullptr)
       pixa_debug->AddPix(img_pix, "A component");
     if (pixNearlyRectangular(img_pix, kMinRectangularFraction,
-                             kMaxRectangularFraction,
-                             kMaxRectangularGradient,
+                             kMaxRectangularFraction, kMaxRectangularGradient,
                              &x_start, &y_start, &x_end, &y_end)) {
       Pix* simple_pix = pixCreate(x_end - x_start, y_end - y_start, 1);
       pixSetAll(simple_pix);
@@ -185,8 +183,8 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
       // Fix the box to match the new pix.
       l_int32 x, y, width, height;
       boxaGetBoxGeometry(*boxa, i, &x, &y, &width, &height);
-      Box* simple_box = boxCreate(x + x_start, y + y_start,
-                                  x_end - x_start, y_end - y_start);
+      Box* simple_box =
+          boxCreate(x + x_start, y + y_start, x_end - x_start, y_end - y_start);
       boxaReplaceBox(*boxa, i, simple_box);
     }
     pixDestroy(&img_pix);
@@ -201,28 +199,25 @@ void ImageFind::ConnCompAndRectangularize(Pix* pix, DebugPixa* pixa_debug,
 // a row with pix_count > max_count then
 // true is returned, and *y_start = the first y with pix_count >= min_count.
 static bool HScanForEdge(uint32_t* data, int wpl, int x_start, int x_end,
-                         int min_count, int mid_width, int max_count,
-                         int y_end, int y_step, int* y_start) {
+                         int min_count, int mid_width, int max_count, int y_end,
+                         int y_step, int* y_start) {
   int mid_rows = 0;
   for (int y = *y_start; y != y_end; y += y_step) {
-    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a subset.
+    // Need pixCountPixelsInRow(pix, y, &pix_count, nullptr) to count in a
+    // subset.
     int pix_count = 0;
     uint32_t* line = data + wpl * y;
     for (int x = x_start; x < x_end; ++x) {
-      if (GET_DATA_BIT(line, x))
-        ++pix_count;
+      if (GET_DATA_BIT(line, x)) ++pix_count;
     }
-    if (mid_rows == 0 && pix_count < min_count)
-      continue;      // In the min phase.
+    if (mid_rows == 0 && pix_count < min_count) continue;  // In the min phase.
     if (mid_rows == 0)
       *y_start = y;  // Save the y_start where we came out of the min phase.
-    if (pix_count > max_count)
-      return true;   // Found the pattern.
+    if (pix_count > max_count) return true;  // Found the pattern.
     ++mid_rows;
-    if (mid_rows > mid_width)
-      break;         // Middle too big.
+    if (mid_rows > mid_width) break;  // Middle too big.
   }
-  return false;      // Never found max_count.
+  return false;  // Never found max_count.
 }
 
 // Scans vertically on y=[y_start,y_end), starting with x=*x_start,
@@ -233,27 +228,23 @@ static bool HScanForEdge(uint32_t* data, int wpl, int x_start, int x_end,
 // a column with pix_count > max_count then
 // true is returned, and *x_start = the first x with pix_count >= min_count.
 static bool VScanForEdge(uint32_t* data, int wpl, int y_start, int y_end,
-                         int min_count, int mid_width, int max_count,
-                         int x_end, int x_step, int* x_start) {
+                         int min_count, int mid_width, int max_count, int x_end,
+                         int x_step, int* x_start) {
   int mid_cols = 0;
   for (int x = *x_start; x != x_end; x += x_step) {
     int pix_count = 0;
     uint32_t* line = data + y_start * wpl;
     for (int y = y_start; y < y_end; ++y, line += wpl) {
-      if (GET_DATA_BIT(line, x))
-        ++pix_count;
+      if (GET_DATA_BIT(line, x)) ++pix_count;
     }
-    if (mid_cols == 0 && pix_count < min_count)
-      continue;      // In the min phase.
+    if (mid_cols == 0 && pix_count < min_count) continue;  // In the min phase.
     if (mid_cols == 0)
       *x_start = x;  // Save the place where we came out of the min phase.
-    if (pix_count > max_count)
-      return true;   // found the pattern.
+    if (pix_count > max_count) return true;  // found the pattern.
     ++mid_cols;
-    if (mid_cols > mid_width)
-      break;         // Middle too big.
+    if (mid_cols > mid_width) break;  // Middle too big.
   }
-  return false;      // Never found max_count.
+  return false;  // Never found max_count.
 }
 
 // Returns true if there is a rectangle in the source pix, such that all
@@ -265,11 +256,10 @@ static bool VScanForEdge(uint32_t* data, int wpl, int y_start, int y_end,
 // On return, the rectangle is defined by x_start, y_start, x_end and y_end.
 // Note: the algorithm is iterative, allowing it to slice off pixels from
 // one edge, allowing it to then slice off more pixels from another edge.
-bool ImageFind::pixNearlyRectangular(Pix* pix,
-                                     double min_fraction, double max_fraction,
-                                     double max_skew_gradient,
-                                     int* x_start, int* y_start,
-                                     int* x_end, int* y_end) {
+bool ImageFind::pixNearlyRectangular(Pix* pix, double min_fraction,
+                                     double max_fraction,
+                                     double max_skew_gradient, int* x_start,
+                                     int* y_start, int* x_end, int* y_end) {
   ASSERT_HOST(pix != nullptr);
   *x_start = 0;
   *x_end = pixGetWidth(pix);
@@ -291,13 +281,15 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
     int max_count = static_cast<int>(width * max_fraction);
     int edge_width = static_cast<int>(width * max_skew_gradient);
     if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width,
-                     max_count, *y_end, 1, y_start) && !top_done) {
+                     max_count, *y_end, 1, y_start) &&
+        !top_done) {
       top_done = true;
       any_cut = true;
     }
     --(*y_end);
     if (HScanForEdge(data, wpl, *x_start, *x_end, min_count, edge_width,
-                     max_count, *y_start, -1, y_end) && !bottom_done) {
+                     max_count, *y_start, -1, y_end) &&
+        !bottom_done) {
       bottom_done = true;
       any_cut = true;
     }
@@ -309,13 +301,15 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
     max_count = static_cast<int>(height * max_fraction);
     edge_width = static_cast<int>(height * max_skew_gradient);
     if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width,
-                     max_count, *x_end, 1, x_start) && !left_done) {
+                     max_count, *x_end, 1, x_start) &&
+        !left_done) {
       left_done = true;
       any_cut = true;
     }
     --(*x_end);
     if (VScanForEdge(data, wpl, *y_start, *y_end, min_count, edge_width,
-                     max_count, *x_start, -1, x_end) && !right_done) {
+                     max_count, *x_start, -1, x_end) &&
+        !right_done) {
       right_done = true;
       any_cut = true;
     }
@@ -333,8 +327,8 @@ bool ImageFind::pixNearlyRectangular(Pix* pix,
 // pixels at all.
 bool ImageFind::BoundsWithinRect(Pix* pix, int* x_start, int* y_start,
                                  int* x_end, int* y_end) {
-  Box* input_box = boxCreate(*x_start, *y_start, *x_end - *x_start,
-                             *y_end - *y_start);
+  Box* input_box =
+      boxCreate(*x_start, *y_start, *x_end - *x_start, *y_end - *y_start);
   Box* output_box = nullptr;
   pixClipBoxToForeground(pix, input_box, nullptr, &output_box);
   bool result = output_box != nullptr;
@@ -366,12 +360,12 @@ double ImageFind::ColorDistanceFromLine(const uint8_t* line1,
   line_vector[L_ALPHA_CHANNEL] = 0;
   // Now the cross product in 3d.
   int cross[kRGBRMSColors];
-  cross[COLOR_RED] = line_vector[COLOR_GREEN] * point_vector[COLOR_BLUE]
-                   - line_vector[COLOR_BLUE] * point_vector[COLOR_GREEN];
-  cross[COLOR_GREEN] = line_vector[COLOR_BLUE] * point_vector[COLOR_RED]
-                   - line_vector[COLOR_RED] * point_vector[COLOR_BLUE];
-  cross[COLOR_BLUE] = line_vector[COLOR_RED] * point_vector[COLOR_GREEN]
-                   - line_vector[COLOR_GREEN] * point_vector[COLOR_RED];
+  cross[COLOR_RED] = line_vector[COLOR_GREEN] * point_vector[COLOR_BLUE] -
+                     line_vector[COLOR_BLUE] * point_vector[COLOR_GREEN];
+  cross[COLOR_GREEN] = line_vector[COLOR_BLUE] * point_vector[COLOR_RED] -
+                       line_vector[COLOR_RED] * point_vector[COLOR_BLUE];
+  cross[COLOR_BLUE] = line_vector[COLOR_RED] * point_vector[COLOR_GREEN] -
+                      line_vector[COLOR_GREEN] * point_vector[COLOR_RED];
   cross[L_ALPHA_CHANNEL] = 0;
   // Now the sums of the squares.
   double cross_sq = 0.0;
@@ -385,7 +379,6 @@ double ImageFind::ColorDistanceFromLine(const uint8_t* line1,
   }
   return cross_sq / line_sq;  // This is the squared distance.
 }
-
 
 // Returns the leptonica combined code for the given RGB triplet.
 uint32_t ImageFind::ComposeRGB(uint32_t r, uint32_t g, uint32_t b) {
@@ -415,8 +408,8 @@ uint8_t ImageFind::ClipToByte(double pixel) {
 // color_map1, color_map2 and rms_map are assumed to be the same scale as pix.
 void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
                                        Pix* color_map1, Pix* color_map2,
-                                       Pix* rms_map,
-                                       uint8_t* color1, uint8_t* color2) {
+                                       Pix* rms_map, uint8_t* color1,
+                                       uint8_t* color2) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32);
   // Pad the rectangle outwards by 2 (scaled) pixels if possible to get more
   // background.
@@ -430,11 +423,10 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
   int bottom_pad = std::max(rect.bottom() - 2 * factor, 0) / factor;
   int width_pad = right_pad - left_pad;
   int height_pad = top_pad - bottom_pad;
-  if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4)
-    return;
+  if (width_pad < 1 || height_pad < 1 || width_pad + height_pad < 4) return;
   // Now crop the pix to the rectangle.
-  Box* scaled_box = boxCreate(left_pad, height - top_pad,
-                              width_pad, height_pad);
+  Box* scaled_box =
+      boxCreate(left_pad, height - top_pad, width_pad, height_pad);
   Pix* scaled = pixClipRectangle(pix, scaled_box, nullptr);
 
   // Compute stats over the whole image.
@@ -519,14 +511,12 @@ void ImageFind::ComputeRectangleColors(const TBOX& rect, Pix* pix, int factor,
     memcpy(color2, color1, 4);
   }
   if (color_map1 != nullptr) {
-    pixSetInRectArbitrary(color_map1, scaled_box,
-                          ComposeRGB(color1[COLOR_RED],
-                              color1[COLOR_GREEN],
-                              color1[COLOR_BLUE]));
-    pixSetInRectArbitrary(color_map2, scaled_box,
-                          ComposeRGB(color2[COLOR_RED],
-                              color2[COLOR_GREEN],
-                              color2[COLOR_BLUE]));
+    pixSetInRectArbitrary(
+        color_map1, scaled_box,
+        ComposeRGB(color1[COLOR_RED], color1[COLOR_GREEN], color1[COLOR_BLUE]));
+    pixSetInRectArbitrary(
+        color_map2, scaled_box,
+        ComposeRGB(color2[COLOR_RED], color2[COLOR_GREEN], color2[COLOR_BLUE]));
     pixSetInRectArbitrary(rms_map, scaled_box, color1[L_ALPHA_CHANNEL]);
   }
   pixDestroy(&scaled);
@@ -581,13 +571,11 @@ bool ImageFind::BlankImageInBetween(const TBOX& box1, const TBOX& box2,
   TBOX search_box(box1);
   search_box += box2;
   if (box1.x_gap(box2) >= box1.y_gap(box2)) {
-    if (box1.x_gap(box2) <= 0)
-      return true;
+    if (box1.x_gap(box2) <= 0) return true;
     search_box.set_left(std::min(box1.right(), box2.right()));
     search_box.set_right(std::max(box1.left(), box2.left()));
   } else {
-    if (box1.y_gap(box2) <= 0)
-      return true;
+    if (box1.y_gap(box2) <= 0) return true;
     search_box.set_top(std::max(box1.bottom(), box2.bottom()));
     search_box.set_bottom(std::min(box1.top(), box2.top()));
   }
@@ -600,14 +588,13 @@ int ImageFind::CountPixelsInRotatedBox(TBOX box, const TBOX& im_box,
                                        const FCOORD& rotation, Pix* pix) {
   // Intersect it with the image box.
   box &= im_box;  // This is in-place box intersection.
-  if (box.null_box())
-    return 0;
+  if (box.null_box()) return 0;
   box.rotate(rotation);
   TBOX rotated_im_box(im_box);
   rotated_im_box.rotate(rotation);
   Pix* rect_pix = pixCreate(box.width(), box.height(), 1);
-  pixRasterop(rect_pix, 0, 0, box.width(), box.height(),
-              PIX_SRC, pix, box.left() - rotated_im_box.left(),
+  pixRasterop(rect_pix, 0, 0, box.width(), box.height(), PIX_SRC, pix,
+              box.left() - rotated_im_box.left(),
               rotated_im_box.top() - box.top());
   l_int32 result;
   pixCountPixels(rect_pix, &result, nullptr);
@@ -681,56 +668,48 @@ static void CutChunkFromParts(const TBOX& box, const TBOX& im_box,
       if (box.top() < part_box.top()) {
         TBOX slice(part_box);
         slice.set_bottom(box.top());
-        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation,
-                                               pix) > 0) {
+        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) >
+            0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
-          part_it.add_before_stay_put(
-              ColPartition::FakePartition(slice, PT_UNKNOWN, BRT_POLYIMAGE,
-                                          BTFT_NONTEXT));
+          part_it.add_before_stay_put(ColPartition::FakePartition(
+              slice, PT_UNKNOWN, BRT_POLYIMAGE, BTFT_NONTEXT));
         }
       }
       // Left of box.
       if (box.left() > part_box.left()) {
         TBOX slice(part_box);
         slice.set_right(box.left());
-        if (box.top() < part_box.top())
-          slice.set_top(box.top());
-        if (box.bottom() > part_box.bottom())
-          slice.set_bottom(box.bottom());
-        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation,
-                                               pix) > 0) {
+        if (box.top() < part_box.top()) slice.set_top(box.top());
+        if (box.bottom() > part_box.bottom()) slice.set_bottom(box.bottom());
+        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) >
+            0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
-          part_it.add_before_stay_put(
-              ColPartition::FakePartition(slice, PT_UNKNOWN, BRT_POLYIMAGE,
-                                          BTFT_NONTEXT));
+          part_it.add_before_stay_put(ColPartition::FakePartition(
+              slice, PT_UNKNOWN, BRT_POLYIMAGE, BTFT_NONTEXT));
         }
       }
       // Right of box.
       if (box.right() < part_box.right()) {
         TBOX slice(part_box);
         slice.set_left(box.right());
-        if (box.top() < part_box.top())
-          slice.set_top(box.top());
-        if (box.bottom() > part_box.bottom())
-          slice.set_bottom(box.bottom());
-        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation,
-                                               pix) > 0) {
+        if (box.top() < part_box.top()) slice.set_top(box.top());
+        if (box.bottom() > part_box.bottom()) slice.set_bottom(box.bottom());
+        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) >
+            0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
-          part_it.add_before_stay_put(
-              ColPartition::FakePartition(slice, PT_UNKNOWN, BRT_POLYIMAGE,
-                                          BTFT_NONTEXT));
+          part_it.add_before_stay_put(ColPartition::FakePartition(
+              slice, PT_UNKNOWN, BRT_POLYIMAGE, BTFT_NONTEXT));
         }
       }
       // Below box.
       if (box.bottom() > part_box.bottom()) {
         TBOX slice(part_box);
         slice.set_top(box.bottom());
-        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation,
-                                               pix) > 0) {
+        if (ImageFind::CountPixelsInRotatedBox(slice, im_box, rerotation, pix) >
+            0) {
           AttemptToShrinkBox(rotation, rerotation, im_box, pix, &slice);
-          part_it.add_before_stay_put(
-              ColPartition::FakePartition(slice, PT_UNKNOWN, BRT_POLYIMAGE,
-                                          BTFT_NONTEXT));
+          part_it.add_before_stay_put(ColPartition::FakePartition(
+              slice, PT_UNKNOWN, BRT_POLYIMAGE, BTFT_NONTEXT));
         }
       }
       part->DeleteBoxes();
@@ -752,9 +731,8 @@ static void DivideImageIntoParts(const TBOX& im_box, const FCOORD& rotation,
                                  ColPartitionGridSearch* rectsearch,
                                  ColPartition_LIST* part_list) {
   // Add the full im_box partition to the list to begin with.
-  ColPartition* pix_part = ColPartition::FakePartition(im_box, PT_UNKNOWN,
-                                                       BRT_RECTIMAGE,
-                                                       BTFT_NONTEXT);
+  ColPartition* pix_part = ColPartition::FakePartition(
+      im_box, PT_UNKNOWN, BRT_RECTIMAGE, BTFT_NONTEXT);
   ColPartition_IT part_it(part_list);
   part_it.add_after_then_move(pix_part);
 
@@ -778,12 +756,12 @@ static void DivideImageIntoParts(const TBOX& im_box, const FCOORD& rotation,
       if (black_area * 2 < part_box.area() || !im_box.contains(part_box)) {
         // Eat a piece out of the image.
         // Pad it so that pieces eaten out look decent.
-        int padding = part->blob_type() == BRT_VERT_TEXT
-                    ? part_box.width() : part_box.height();
+        int padding = part->blob_type() == BRT_VERT_TEXT ? part_box.width()
+                                                         : part_box.height();
         part_box.set_top(part_box.top() + padding / 2);
         part_box.set_bottom(part_box.bottom() - padding / 2);
-        CutChunkFromParts(part_box, im_box, rotation, rerotation,
-                          pix, part_list);
+        CutChunkFromParts(part_box, im_box, rotation, rerotation, pix,
+                          part_list);
       } else {
         // Strong overlap with the black area, so call it text on image.
         part->set_flow(BTFT_TEXT_ON_IMAGE);
@@ -941,24 +919,24 @@ static int ExpandImageTop(const TBOX& box, int top_limit,
 // in the expanded box, and
 // returning the increase in area resulting from the expansion.
 static int ExpandImageDir(BlobNeighbourDir dir, const TBOX& im_box,
-                          const TBOX& limit_box,
-                          ColPartitionGrid* part_grid, TBOX* expanded_box) {
+                          const TBOX& limit_box, ColPartitionGrid* part_grid,
+                          TBOX* expanded_box) {
   *expanded_box = im_box;
   switch (dir) {
     case BND_LEFT:
-      expanded_box->set_left(ExpandImageLeft(im_box, limit_box.left(),
-                                             part_grid));
+      expanded_box->set_left(
+          ExpandImageLeft(im_box, limit_box.left(), part_grid));
       break;
     case BND_RIGHT:
-      expanded_box->set_right(ExpandImageRight(im_box, limit_box.right(),
-                                               part_grid));
+      expanded_box->set_right(
+          ExpandImageRight(im_box, limit_box.right(), part_grid));
       break;
     case BND_ABOVE:
       expanded_box->set_top(ExpandImageTop(im_box, limit_box.top(), part_grid));
       break;
     case BND_BELOW:
-      expanded_box->set_bottom(ExpandImageBottom(im_box, limit_box.bottom(),
-                                                 part_grid));
+      expanded_box->set_bottom(
+          ExpandImageBottom(im_box, limit_box.bottom(), part_grid));
       break;
     default:
       return 0;
@@ -1095,8 +1073,7 @@ static bool ExpandImageIntoParts(const TBOX& max_image_box,
     }
     im_part_box += box;
     *part_ptr = ColPartition::FakePartition(im_part_box, PT_UNKNOWN,
-                                            BRT_RECTIMAGE,
-                                            BTFT_NONTEXT);
+                                            BRT_RECTIMAGE, BTFT_NONTEXT);
     DeletePartition(image_part);
     part_grid->RemoveBBox(best_part);
     DeletePartition(best_part);
@@ -1112,8 +1089,7 @@ static int IntersectArea(const TBOX& box, ColPartition_LIST* part_list) {
   int intersect_area = 0;
   ColPartition_IT part_it(part_list);
   // Iterate the parts and subtract intersecting area.
-  for (part_it.mark_cycle_pt(); !part_it.cycled_list();
-       part_it.forward()) {
+  for (part_it.mark_cycle_pt(); !part_it.cycled_list(); part_it.forward()) {
     ColPartition* image_part = part_it.data();
     TBOX intersect = box.intersection(image_part->bounding_box());
     intersect_area += intersect.area();
@@ -1148,8 +1124,7 @@ static bool TestWeakIntersectedPart(const TBOX& im_box,
 // (basically anything that is not BRT_STRONG_CHAIN or better) from both the
 // part_grid and the big_parts list that are contained within im_box and
 // overlapped enough by the possibly polygonal image.
-static void EliminateWeakParts(const TBOX& im_box,
-                               ColPartitionGrid* part_grid,
+static void EliminateWeakParts(const TBOX& im_box, ColPartitionGrid* part_grid,
                                ColPartition_LIST* big_parts,
                                ColPartition_LIST* part_list) {
   ColPartitionGridSearch rectsearch(part_grid);
@@ -1192,8 +1167,7 @@ static bool ScanForOverlappingText(ColPartitionGrid* part_grid, TBOX* box) {
   ColPartition* part;
   bool any_text_in_padded_rect = false;
   while ((part = rectsearch.NextRectSearch()) != nullptr) {
-    if (part->flow() == BTFT_CHAIN ||
-        part->flow() == BTFT_STRONG_CHAIN) {
+    if (part->flow() == BTFT_CHAIN || part->flow() == BTFT_STRONG_CHAIN) {
       // Text intersects the box.
       any_text_in_padded_rect = true;
       const TBOX& part_box = part->bounding_box();
@@ -1202,8 +1176,7 @@ static bool ScanForOverlappingText(ColPartitionGrid* part_grid, TBOX* box) {
       }
     }
   }
-  if (!any_text_in_padded_rect)
-    *box = padded_box;
+  if (!any_text_in_padded_rect) *box = padded_box;
   return false;
 }
 
@@ -1215,8 +1188,7 @@ static void MarkAndDeleteImageParts(const FCOORD& rerotate,
                                     ColPartitionGrid* part_grid,
                                     ColPartition_LIST* image_parts,
                                     Pix* image_pix) {
-  if (image_pix == nullptr)
-    return;
+  if (image_pix == nullptr) return;
   int imageheight = pixGetHeight(image_pix);
   ColPartition_IT part_it(image_parts);
   for (; !part_it.empty(); part_it.forward()) {
@@ -1230,8 +1202,8 @@ static void MarkAndDeleteImageParts(const FCOORD& rerotate,
       part_box.rotate(rerotate);
       int left = part_box.left();
       int top = part_box.top();
-      pixRasterop(image_pix, left, imageheight - top,
-                  part_box.width(), part_box.height(), PIX_SET, nullptr, 0, 0);
+      pixRasterop(image_pix, left, imageheight - top, part_box.width(),
+                  part_box.height(), PIX_SET, nullptr, 0, 0);
     }
     DeletePartition(part);
   }
@@ -1255,7 +1227,7 @@ void ImageFind::TransferImagePartsToImageMask(const FCOORD& rerotation,
   ColPartition* part;
   while ((part = gsearch.NextFullSearch()) != nullptr) {
     BlobRegionType type = part->blob_type();
-    if (type  == BRT_NOISE || type == BRT_RECTIMAGE || type == BRT_POLYIMAGE) {
+    if (type == BRT_NOISE || type == BRT_RECTIMAGE || type == BRT_POLYIMAGE) {
       part_it.add_after_then_move(part);
       gsearch.RemoveBBox();
     }
@@ -1313,13 +1285,13 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
     l_int32 x, y, width, height;
     boxaGetBoxGeometry(boxa, i, &x, &y, &width, &height);
     Pix* pix = pixaGetPix(pixa, i, L_CLONE);
-    TBOX im_box(x, imageheight -y - height, x + width, imageheight - y);
+    TBOX im_box(x, imageheight - y - height, x + width, imageheight - y);
     im_box.rotate(rotation);  // Now matches all partitions and blobs.
     ColPartitionGridSearch rectsearch(part_grid);
     rectsearch.SetUniqueMode(true);
     ColPartition_LIST part_list;
-    DivideImageIntoParts(im_box, rotation, rerotation, pix,
-                         &rectsearch, &part_list);
+    DivideImageIntoParts(im_box, rotation, rerotation, pix, &rectsearch,
+                         &part_list);
     if (textord_tabfind_show_images && pixa_debug != nullptr) {
       pixa_debug->AddPix(pix, "ImageComponent");
       tprintf("Component has %d parts\n", part_list.length());
@@ -1334,7 +1306,8 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
         ColPartition* part = part_it.extract();
         TBOX text_box(im_box);
         MaximalImageBoundingBox(part_grid, &text_box);
-        while (ExpandImageIntoParts(text_box, &rectsearch, part_grid, &part));
+        while (ExpandImageIntoParts(text_box, &rectsearch, part_grid, &part))
+          ;
         part_it.set_to_list(&part_list);
         part_it.add_after_then_move(part);
         im_box = part->bounding_box();
@@ -1361,6 +1334,5 @@ void ImageFind::FindImagePartitions(Pix* image_pix, const FCOORD& rotation,
     part_grid->DisplayBoxes(images_win_);
   }
 }
-
 
 }  // namespace tesseract.

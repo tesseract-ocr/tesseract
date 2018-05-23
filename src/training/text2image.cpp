@@ -28,9 +28,9 @@
  *
  **********************************************************************/
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <algorithm>
 #include <iostream>
 #include <map>
 #include <string>
@@ -40,7 +40,7 @@
 #include "allheaders.h"  // from leptonica
 #include "boxchar.h"
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "degradeimage.h"
 #include "errcode.h"
 #include "fileio.h"
@@ -122,8 +122,7 @@ BOOL_PARAM_FLAG(strip_unrenderable_words, true,
 // Font name.
 STRING_PARAM_FLAG(font, "Arial", "Font description name to use");
 
-BOOL_PARAM_FLAG(ligatures, false,
-                "Rebuild and render ligatures");
+BOOL_PARAM_FLAG(ligatures, false, "Rebuild and render ligatures");
 
 BOOL_PARAM_FLAG(find_fonts, false,
                 "Search for all fonts that can render the text");
@@ -137,7 +136,8 @@ DOUBLE_PARAM_FLAG(min_coverage, 1.0,
 
 BOOL_PARAM_FLAG(list_available_fonts, false, "List available fonts and quit.");
 
-BOOL_PARAM_FLAG(render_ngrams, false, "Put each space-separated entity from the"
+BOOL_PARAM_FLAG(render_ngrams, false,
+                "Put each space-separated entity from the"
                 " input file into one bounding box. The ngrams in the input"
                 " file will be randomly permuted before rendering (so that"
                 " there is sufficient variety of characters on each line).");
@@ -165,8 +165,9 @@ BOOL_PARAM_FLAG(output_individual_glyph_images, false,
                 "If true also outputs individual character images");
 INT_PARAM_FLAG(glyph_resized_size, 0,
                "Each glyph is square with this side length in pixels");
-INT_PARAM_FLAG(glyph_num_border_pixels_to_pad, 0,
-               "Final_size=glyph_resized_size+2*glyph_num_border_pixels_to_pad");
+INT_PARAM_FLAG(
+    glyph_num_border_pixels_to_pad, 0,
+    "Final_size=glyph_resized_size+2*glyph_num_border_pixels_to_pad");
 
 namespace tesseract {
 
@@ -186,7 +187,8 @@ static bool IsWhitespaceBox(const BoxChar* boxchar) {
 }
 
 static std::string StringReplace(const std::string& in,
-                                 const std::string& oldsub, const std::string& newsub) {
+                                 const std::string& oldsub,
+                                 const std::string& newsub) {
   std::string out;
   size_t start_pos = 0, pos;
   while ((pos = in.find(oldsub, start_pos)) != std::string::npos) {
@@ -208,9 +210,8 @@ static std::string StringReplace(const std::string& in,
 // with "T", such that "AT" has spacing of -5, the entry/line for unichar "A"
 // in .fontinfo file will be:
 // A 0 -1 T -5 V -7
-void ExtractFontProperties(const std::string &utf8_text,
-                           StringRenderer *render,
-                           const std::string &output_base) {
+void ExtractFontProperties(const std::string& utf8_text, StringRenderer* render,
+                           const std::string& output_base) {
   std::map<std::string, SpacingProperties> spacing_map;
   std::map<std::string, SpacingProperties>::iterator spacing_map_it0;
   std::map<std::string, SpacingProperties>::iterator spacing_map_it1;
@@ -221,7 +222,7 @@ void ExtractFontProperties(const std::string &utf8_text,
   while (offset < len) {
     offset +=
         render->RenderToImage(text + offset, strlen(text + offset), nullptr);
-    const std::vector<BoxChar*> &boxes = render->GetBoxes();
+    const std::vector<BoxChar*>& boxes = render->GetBoxes();
 
     // If the page break split a bigram, correct the offset so we try the bigram
     // on the next iteration.
@@ -238,7 +239,7 @@ void ExtractFontProperties(const std::string &utf8_text,
     for (size_t b = 0; b < boxes.size(); b += 2) {
       while (b < boxes.size() && IsWhitespaceBox(boxes[b])) ++b;
       if (b + 1 >= boxes.size()) break;
-      const std::string &ch0 = boxes[b]->ch();
+      const std::string& ch0 = boxes[b]->ch();
       // We encountered a ligature. This happens in at least two scenarios:
       // One is when the rendered bigram forms a grapheme cluster (eg. the
       // second character in the bigram is a combining vowel), in which case we
@@ -251,11 +252,11 @@ void ExtractFontProperties(const std::string &utf8_text,
       // The most frequent of all is a single character "word" made by the CJK
       // segmenter.
       // Safeguard against these cases here by just skipping the bigram.
-      if (IsWhitespaceBox(boxes[b+1])) {
+      if (IsWhitespaceBox(boxes[b + 1])) {
         continue;
       }
-      int xgap = (boxes[b+1]->box()->x -
-                  (boxes[b]->box()->x + boxes[b]->box()->w));
+      int xgap =
+          (boxes[b + 1]->box()->x - (boxes[b]->box()->x + boxes[b]->box()->w));
       spacing_map_it0 = spacing_map.find(ch0);
       int ok_count = 0;
       if (spacing_map_it0 == spacing_map.end() &&
@@ -265,13 +266,13 @@ void ExtractFontProperties(const std::string &utf8_text,
         spacing_map_it0 = spacing_map.find(ch0);
         ++ok_count;
       }
-      const std::string &ch1 = boxes[b+1]->ch();
+      const std::string& ch1 = boxes[b + 1]->ch();
       tlog(3, "%s%s\n", ch0.c_str(), ch1.c_str());
       spacing_map_it1 = spacing_map.find(ch1);
       if (spacing_map_it1 == spacing_map.end() &&
           render->font().GetSpacingProperties(ch1, &x_bearing, &x_advance)) {
         spacing_map[ch1] = SpacingProperties(
-            x_bearing, x_advance - x_bearing - boxes[b+1]->box()->w);
+            x_bearing, x_advance - x_bearing - boxes[b + 1]->box()->w);
         spacing_map_it1 = spacing_map.find(ch1);
         ++ok_count;
       }
@@ -290,8 +291,7 @@ void ExtractFontProperties(const std::string &utf8_text,
   std::map<std::string, SpacingProperties>::const_iterator spacing_map_it;
   for (spacing_map_it = spacing_map.begin();
        spacing_map_it != spacing_map.end(); ++spacing_map_it) {
-    snprintf(buf, kBufSize,
-             "%s %d %d %d", spacing_map_it->first.c_str(),
+    snprintf(buf, kBufSize, "%s %d %d %d", spacing_map_it->first.c_str(),
              spacing_map_it->second.x_gap_before,
              spacing_map_it->second.x_gap_after,
              static_cast<int>(spacing_map_it->second.kerned_x_gaps.size()));
@@ -299,8 +299,8 @@ void ExtractFontProperties(const std::string &utf8_text,
     std::map<std::string, int>::const_iterator kern_it;
     for (kern_it = spacing_map_it->second.kerned_x_gaps.begin();
          kern_it != spacing_map_it->second.kerned_x_gaps.end(); ++kern_it) {
-      snprintf(buf, kBufSize,
-               " %s %d", kern_it->first.c_str(), kern_it->second);
+      snprintf(buf, kBufSize, " %s %d", kern_it->first.c_str(),
+               kern_it->second);
       output_string.append(buf);
     }
     output_string.append("\n");
@@ -308,8 +308,7 @@ void ExtractFontProperties(const std::string &utf8_text,
   File::WriteStringToFileOrDie(output_string, output_base + ".fontinfo");
 }
 
-bool MakeIndividualGlyphs(Pix* pix,
-                          const std::vector<BoxChar*>& vbox,
+bool MakeIndividualGlyphs(Pix* pix, const std::vector<BoxChar*>& vbox,
                           const int input_tiff_page) {
   // If checks fail, return false without exiting text2image
   if (!pix) {
@@ -337,18 +336,21 @@ bool MakeIndividualGlyphs(Pix* pix,
     const int w = b->w;
     const int h = b->h;
     // Check present tiff page (for multipage tiff)
-    if (y < y_previous-pixGetHeight(pix)/10) {
+    if (y < y_previous - pixGetHeight(pix) / 10) {
       tprintf("ERROR: Wrap-around encountered, at i=%d\n", i);
       current_tiff_page++;
     }
-    if (current_tiff_page < input_tiff_page) continue;
-    else if (current_tiff_page > input_tiff_page) break;
+    if (current_tiff_page < input_tiff_page)
+      continue;
+    else if (current_tiff_page > input_tiff_page)
+      break;
     // Check box validity
-    if (x < 0 || y < 0 ||
-        (x+w-1) >= pixGetWidth(pix) ||
-        (y+h-1) >= pixGetHeight(pix)) {
-      tprintf("ERROR: MakeIndividualGlyphs(): Index out of range, at i=%d"
-              " (x=%d, y=%d, w=%d, h=%d\n)", i, x, y, w, h);
+    if (x < 0 || y < 0 || (x + w - 1) >= pixGetWidth(pix) ||
+        (y + h - 1) >= pixGetHeight(pix)) {
+      tprintf(
+          "ERROR: MakeIndividualGlyphs(): Index out of range, at i=%d"
+          " (x=%d, y=%d, w=%d, h=%d\n)",
+          i, x, y, w, h);
       continue;
     } else if (w < FLAGS_glyph_num_border_pixels_to_pad &&
                h < FLAGS_glyph_num_border_pixels_to_pad) {
@@ -362,17 +364,15 @@ bool MakeIndividualGlyphs(Pix* pix,
       continue;
     }
     // Resize to square
-    Pix* pix_glyph_sq = pixScaleToSize(pix_glyph,
-                                       FLAGS_glyph_resized_size,
+    Pix* pix_glyph_sq = pixScaleToSize(pix_glyph, FLAGS_glyph_resized_size,
                                        FLAGS_glyph_resized_size);
     if (!pix_glyph_sq) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to resize, at i=%d\n", i);
       continue;
     }
     // Zero-pad
-    Pix* pix_glyph_sq_pad = pixAddBorder(pix_glyph_sq,
-                                         FLAGS_glyph_num_border_pixels_to_pad,
-                                         0);
+    Pix* pix_glyph_sq_pad =
+        pixAddBorder(pix_glyph_sq, FLAGS_glyph_num_border_pixels_to_pad, 0);
     if (!pix_glyph_sq_pad) {
       tprintf("ERROR: MakeIndividualGlyphs(): Failed to zero-pad, at i=%d\n",
               i);
@@ -384,8 +384,10 @@ bool MakeIndividualGlyphs(Pix* pix,
     snprintf(filename, 1024, "%s_%d.jpg", FLAGS_outputbase.c_str(),
              glyph_count++);
     if (pixWriteJpeg(filename, pix_glyph_sq_pad_8, 100, 0)) {
-      tprintf("ERROR: MakeIndividualGlyphs(): Failed to write JPEG to %s,"
-              " at i=%d\n", filename, i);
+      tprintf(
+          "ERROR: MakeIndividualGlyphs(): Failed to write JPEG to %s,"
+          " at i=%d\n",
+          filename, i);
       continue;
     }
 
@@ -450,8 +452,7 @@ static int Main() {
     }
   }
 
-  if (FLAGS_render_ngrams)
-    FLAGS_output_word_boxes = true;
+  if (FLAGS_render_ngrams) FLAGS_output_word_boxes = true;
 
   char font_desc_name[1024];
   snprintf(font_desc_name, 1024, "%s %d", FLAGS_font.c_str(),
@@ -527,10 +528,10 @@ static int Main() {
     // If we are rendering ngrams that will be OCRed later, shuffle them so that
     // tesseract does not have difficulties finding correct baseline, word
     // spaces, etc.
-    const char *str8 = src_utf8.c_str();
+    const char* str8 = src_utf8.c_str();
     int len = src_utf8.length();
     int step;
-    std::vector<std::pair<int, int> > offsets;
+    std::vector<std::pair<int, int>> offsets;
     int offset = SpanUTF8Whitespace(str8);
     while (offset < len) {
       step = SpanUTF8NotWhitespace(str8 + offset);
@@ -542,7 +543,7 @@ static int Main() {
       std::random_shuffle(offsets.begin(), offsets.end());
 
     for (size_t i = 0, line = 1; i < offsets.size(); ++i) {
-      const char *curr_pos = str8 + offsets[i].first;
+      const char* curr_pos = str8 + offsets[i].first;
       int ngram_len = offsets[i].second;
       // Skip words that contain characters not in found in unicharset.
       std::string cleaned = UNICHARSET::CleanupString(curr_pos, ngram_len);
@@ -590,10 +591,9 @@ static int Main() {
       tlog(1, "Starting page %d\n", im);
       Pix* pix = nullptr;
       if (FLAGS_find_fonts) {
-        offset += render.RenderAllFontsToImage(FLAGS_min_coverage,
-                                               to_render_utf8 + offset,
-                                               strlen(to_render_utf8 + offset),
-                                               &font_used, &pix);
+        offset += render.RenderAllFontsToImage(
+            FLAGS_min_coverage, to_render_utf8 + offset,
+            strlen(to_render_utf8 + offset), &font_used, &pix);
       } else {
         offset += render.RenderToImage(to_render_utf8 + offset,
                                        strlen(to_render_utf8 + offset), &pix);
@@ -622,8 +622,8 @@ static int Main() {
         char tiff_name[1024];
         if (FLAGS_find_fonts) {
           if (FLAGS_render_per_font) {
-            std::string fontname_for_file = tesseract::StringReplace(
-                font_used, " ", "_");
+            std::string fontname_for_file =
+                tesseract::StringReplace(font_used, " ", "_");
             snprintf(tiff_name, 1024, "%s.%s.tif", FLAGS_outputbase.c_str(),
                      fontname_for_file.c_str());
             pixWriteTiff(tiff_name, binary, IFF_TIFF_G4, "w");

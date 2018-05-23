@@ -24,9 +24,9 @@
 
 #include "baselinedetect.h"
 #include "drawtord.h"
-#include "textord.h"
 #include "makerow.h"
 #include "pageres.h"
+#include "textord.h"
 #include "tordmain.h"
 #include "wordseg.h"
 
@@ -260,8 +260,8 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
       TO_BLOCK* to_block = it.data();
       BLOCK* block = to_block->block;
       // Create a fake poly_block in block from its bounding box.
-      block->pdblk.set_poly_block(new POLY_BLOCK(block->pdblk.bounding_box(),
-                                           PT_VERTICAL_TEXT));
+      block->pdblk.set_poly_block(
+          new POLY_BLOCK(block->pdblk.bounding_box(), PT_VERTICAL_TEXT));
       // Rotate the to_block along with its contained block and blobnbox lists.
       to_block->rotate(anticlockwise90);
       // Set the block's rotation values to obey the convention followed in
@@ -280,13 +280,12 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
     gradient = make_rows(page_tr_, to_blocks);
   } else if (!PSM_SPARSE(pageseg_mode)) {
     // RAW_LINE, SINGLE_LINE, SINGLE_WORD and SINGLE_CHAR all need a single row.
-    gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE,
-                               to_block, to_blocks);
+    gradient = make_single_row(page_tr_, pageseg_mode != PSM_RAW_LINE, to_block,
+                               to_blocks);
   } else {
     gradient = 0.0f;
   }
-  BaselineDetect baseline_detector(textord_baseline_debug,
-                                   reskew, to_blocks);
+  BaselineDetect baseline_detector(textord_baseline_debug, reskew, to_blocks);
   baseline_detector.ComputeStraightBaselines(use_box_bottoms);
   baseline_detector.ComputeBaselineSplinesAndXheights(
       page_tr_, pageseg_mode != PSM_RAW_LINE, textord_heavy_nr,
@@ -300,8 +299,8 @@ void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
     // single word, and in SINGLE_CHAR mode, all the outlines
     // go in a single blob.
     TO_BLOCK* to_block = to_block_it.data();
-    make_single_word(pageseg_mode == PSM_SINGLE_CHAR,
-                     to_block->get_rows(), to_block->block->row_list());
+    make_single_word(pageseg_mode == PSM_SINGLE_CHAR, to_block->get_rows(),
+                     to_block->block->row_list());
   }
   // Remove empties.
   cleanup_blocks(PSM_WORD_FIND_ENABLED(pageseg_mode), blocks);
@@ -345,8 +344,7 @@ void Textord::CleanupSingleRowResult(PageSegMode pageseg_mode,
   }
   // Now eliminate any word not in the best row.
   for (it.restart_page(); it.word() != nullptr; it.forward()) {
-    if (it.row() != best_row)
-      it.DeleteCurrentWord();
+    if (it.row() != best_row) it.DeleteCurrentWord();
   }
 }
 

@@ -41,9 +41,7 @@ class BaselineRow {
  public:
   BaselineRow(double line_size, TO_ROW* to_row);
 
-  const TBOX& bounding_box() const {
-    return bounding_box_;
-  }
+  const TBOX& bounding_box() const { return bounding_box_; }
   // Sets the TO_ROW with the output straight line.
   void SetupOldLineParameters(TO_ROW* row) const;
 
@@ -91,8 +89,7 @@ class BaselineRow {
   // or the old fit is marked bad and the new fit has sufficient points, as
   // well as being within the max_baseline_error_.
   void FitConstrainedIfBetter(int debug, const FCOORD& direction,
-                              double cheat_allowance,
-                              double target_offset);
+                              double cheat_allowance, double target_offset);
   // Returns the perpendicular distance of the point from the straight
   // baseline.
   double PerpDistanceFromBaseline(const FCOORD& pt) const;
@@ -130,12 +127,8 @@ class BaselineBlock {
  public:
   BaselineBlock(int debug_level, bool non_text, TO_BLOCK* block);
 
-  TO_BLOCK* block() const {
-    return block_;
-  }
-  double skew_angle() const {
-    return skew_angle_;
-  }
+  TO_BLOCK* block() const { return block_; }
+  double skew_angle() const { return skew_angle_; }
 
   // Computes and returns the absolute error of the given perp_disp from the
   // given linespacing model.
@@ -212,7 +205,6 @@ class BaselineBlock {
                              double m_in, double* m_out, double* c_out,
                              int* index_delta);
 
-
   // The block to which this class adds extra information used during baseline
   // calculation.
   TO_BLOCK* block_;
@@ -257,8 +249,7 @@ class BaselineDetect {
   // NOTE that ComputeStraightBaselines must have been called first as this
   // sets up data in the TO_ROWs upon which this function depends.
   void ComputeBaselineSplinesAndXheights(const ICOORD& page_tr,
-                                         bool enable_splines,
-                                         bool remove_noise,
+                                         bool enable_splines, bool remove_noise,
                                          bool show_final_rows,
                                          Textord* textord);
 

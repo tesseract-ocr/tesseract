@@ -30,8 +30,8 @@
 #include "config_auto.h"
 #endif
 
-#include "split.h"
 #include "coutln.h"
+#include "split.h"
 #include "tprintf.h"
 
 #include <algorithm>
@@ -52,9 +52,10 @@ BOOL_VAR(wordrec_display_splits, 0, "Display splits");
 
 // Returns the bounding box of all the points in the split.
 TBOX SPLIT::bounding_box() const {
-  return TBOX(
-      std::min(point1->pos.x, point2->pos.x), std::min(point1->pos.y, point2->pos.y),
-      std::max(point1->pos.x, point2->pos.x), std::max(point1->pos.y, point2->pos.y));
+  return TBOX(std::min(point1->pos.x, point2->pos.x),
+              std::min(point1->pos.y, point2->pos.y),
+              std::max(point1->pos.x, point2->pos.x),
+              std::max(point1->pos.y, point2->pos.y));
 }
 
 // Hides the SPLIT so the outlines appear not to be cut by it.
@@ -111,10 +112,12 @@ float SPLIT::FullPriority(int xmin, int xmax, double overlap_knob,
   }
   // grade_center_of_blob.
   if (width1 <= centered_maxwidth || width2 <= centered_maxwidth) {
-    grade += std::min(static_cast<double>(kCenterGradeCap), center_knob * abs(width1 - width2));
+    grade += std::min(static_cast<double>(kCenterGradeCap),
+                      center_knob * abs(width1 - width2));
   }
   // grade_width_change.
-  float width_change_grade = 20 - (max_right - min_left - std::max(width1, width2));
+  float width_change_grade =
+      20 - (max_right - min_left - std::max(width1, width2));
   if (width_change_grade > 0.0f)
     grade += width_change_grade * width_change_knob;
   return grade;
@@ -146,8 +149,8 @@ bool SPLIT::IsLittleChunk(int min_points, int min_area) const {
  *
  * Create an EDGEPT and hook it into an existing list of edge points.
  **********************************************************************/
-EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
-  EDGEPT *this_edgept;
+EDGEPT* make_edgept(int x, int y, EDGEPT* next, EDGEPT* prev) {
+  EDGEPT* this_edgept;
   /* Create point */
   this_edgept = new EDGEPT;
   this_edgept->pos.x = x;
@@ -207,9 +210,9 @@ EDGEPT *make_edgept(int x, int y, EDGEPT *next, EDGEPT *prev) {
  *
  * Remove a given EDGEPT from its list and delete it.
  **********************************************************************/
-void remove_edgept(EDGEPT *point) {
-  EDGEPT *prev = point->prev;
-  EDGEPT *next = point->next;
+void remove_edgept(EDGEPT* point) {
+  EDGEPT* prev = point->prev;
+  EDGEPT* next = point->next;
   // Add point's steps onto prev's steps if they are from the same outline.
   if (prev->src_outline == point->src_outline && prev->src_outline != nullptr) {
     prev->step_count += point->step_count;

@@ -16,8 +16,8 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#ifndef           PAGERES_H
-#define           PAGERES_H
+#ifndef PAGERES_H
+#define PAGERES_H
 
 #include "blamer.h"
 #include "blobs.h"
@@ -36,26 +36,24 @@
 namespace tesseract {
 struct FontInfo;
 class Tesseract;
-}
+}  // namespace tesseract
 using tesseract::FontInfo;
 
 /* Forward declarations */
 
 class BLOCK_RES;
 
-ELISTIZEH (BLOCK_RES) CLISTIZEH (BLOCK_RES)
-class
-ROW_RES;
+ELISTIZEH(BLOCK_RES) CLISTIZEH(BLOCK_RES) class ROW_RES;
 
-ELISTIZEH (ROW_RES)
+ELISTIZEH(ROW_RES)
 class WERD_RES;
 
-ELISTIZEH (WERD_RES)
+ELISTIZEH(WERD_RES)
 
 /*************************************************************************
  * PAGE_RES - Page results
  *************************************************************************/
-class PAGE_RES {                 // page result
+class PAGE_RES {  // page result
  public:
   int32_t char_count;
   int32_t rej_count;
@@ -63,7 +61,7 @@ class PAGE_RES {                 // page result
   bool rejected;
   // Updated every time PAGE_RES_IT iterating on this PAGE_RES moves to
   // the next word. This pointer is not owned by PAGE_RES class.
-  WERD_CHOICE **prev_word_best_choice;
+  WERD_CHOICE** prev_word_best_choice;
   // Sums of blame reasons computed by the blamer.
   GenericVector<int> blame_reasons;
   // Debug information about all the misadaptions on this page.
@@ -83,45 +81,45 @@ class PAGE_RES {                 // page result
   PAGE_RES() { Init(); }  // empty constructor
 
   PAGE_RES(bool merge_similar_words,
-           BLOCK_LIST *block_list,   // real blocks
-           WERD_CHOICE **prev_word_best_choice_ptr);
+           BLOCK_LIST* block_list,  // real blocks
+           WERD_CHOICE** prev_word_best_choice_ptr);
 
-  ~PAGE_RES () = default;
+  ~PAGE_RES() = default;
 };
 
 /*************************************************************************
  * BLOCK_RES - Block results
  *************************************************************************/
 
-class BLOCK_RES:public ELIST_LINK {
+class BLOCK_RES : public ELIST_LINK {
  public:
-  BLOCK * block;               // real block
-  int32_t char_count;            // chars in block
-  int32_t rej_count;             // rejected chars
-  int16_t font_class;            //
+  BLOCK* block;        // real block
+  int32_t char_count;  // chars in block
+  int32_t rej_count;   // rejected chars
+  int16_t font_class;  //
   int16_t row_count;
   float x_height;
-  bool font_assigned;         // block already
+  bool font_assigned;  // block already
   //      processed
-  bool bold;                  // all bold
-  bool italic;                // all italic
+  bool bold;    // all bold
+  bool italic;  // all italic
 
   ROW_RES_LIST row_res_list;
 
   BLOCK_RES() = default;
 
-  BLOCK_RES(bool merge_similar_words, BLOCK *the_block);  // real block
+  BLOCK_RES(bool merge_similar_words, BLOCK* the_block);  // real block
 
-  ~BLOCK_RES () = default;
+  ~BLOCK_RES() = default;
 };
 
 /*************************************************************************
  * ROW_RES - Row results
  *************************************************************************/
 
-class ROW_RES:public ELIST_LINK {
+class ROW_RES : public ELIST_LINK {
  public:
-  ROW * row;                   // real row
+  ROW* row;                      // real row
   int32_t char_count;            // chars in block
   int32_t rej_count;             // rejected chars
   int32_t whole_word_rej_count;  // rejs in total rej wds
@@ -129,7 +127,7 @@ class ROW_RES:public ELIST_LINK {
 
   ROW_RES() = default;
 
-  ROW_RES(bool merge_similar_words, ROW *the_row);  // real row
+  ROW_RES(bool merge_similar_words, ROW* the_row);  // real row
 
   ~ROW_RES() = default;
 };
@@ -137,13 +135,7 @@ class ROW_RES:public ELIST_LINK {
 /*************************************************************************
  * WERD_RES - Word results
  *************************************************************************/
-enum CRUNCH_MODE
-{
-  CR_NONE,
-  CR_KEEP_SPACE,
-  CR_LOOSE_SPACE,
-  CR_DELETE
-};
+enum CRUNCH_MODE { CR_NONE, CR_KEEP_SPACE, CR_LOOSE_SPACE, CR_DELETE };
 
 // WERD_RES is a collection of publicly accessible members that gathers
 // information about a word result.
@@ -167,7 +159,7 @@ class WERD_RES : public ELIST_LINK {
   // The word is the input C_BLOBs in the rotated pixel space.
   // word is NOT owned by the WERD_RES unless combination is true.
   // All the other word pointers ARE owned by the WERD_RES.
-  WERD* word;                     // Input C_BLOB word.
+  WERD* word;  // Input C_BLOB word.
 
   // -------------SETUP BY SetupFor*Recognition---READONLY-INPUT------------
 
@@ -182,7 +174,7 @@ class WERD_RES : public ELIST_LINK {
   // The denorm provides the transformation to get back to the rotated image
   // coords from the chopped_word/rebuild_word BLN coords, but each blob also
   // has its own denorm.
-  DENORM denorm;                  // For use on chopped_word.
+  DENORM denorm;  // For use on chopped_word.
   // Unicharset used by the classifier output in best_choice and raw_choice.
   const UNICHARSET* uch_set;  // For converting back to utf8.
 
@@ -193,7 +185,7 @@ class WERD_RES : public ELIST_LINK {
   // The chopped_word is also in BLN space, and represents the fully chopped
   // character fragments that make up the word.
   // The length of chopped_word matches length of seam_array + 1 (if set).
-  TWERD* chopped_word;            // BLN chopped fragments output.
+  TWERD* chopped_word;  // BLN chopped fragments output.
   // Vector of SEAM* holding chopping points matching chopped_word.
   GenericVector<SEAM*> seam_array;
   // Widths of blobs in chopped_word.
@@ -207,22 +199,22 @@ class WERD_RES : public ELIST_LINK {
   // in chopped_word. The state_ members of best_choice, raw_choice and
   // best_choices all correspond to this ratings matrix and allow extraction
   // of the blob choices for any given WERD_CHOICE.
-  MATRIX* ratings;                // Owned pointer.
+  MATRIX* ratings;  // Owned pointer.
   // Pointer to the first WERD_CHOICE in best_choices. This is the result that
   // will be output from Tesseract. Note that this is now a borrowed pointer
   // and should NOT be deleted.
-  WERD_CHOICE* best_choice;       // Borrowed pointer.
+  WERD_CHOICE* best_choice;  // Borrowed pointer.
   // The best raw_choice found during segmentation search. Differs from the
   // best_choice by being the best result according to just the character
   // classifier, not taking any language model information into account.
   // Unlike best_choice, the pointer IS owned by this WERD_RES.
-  WERD_CHOICE* raw_choice;        // Owned pointer.
+  WERD_CHOICE* raw_choice;  // Owned pointer.
   // Alternative results found during chopping/segmentation search stages.
   // Note that being an ELIST, best_choices owns the WERD_CHOICEs.
   WERD_CHOICE_LIST best_choices;
 
   // Truth bounding boxes, text and incorrect choice reason.
-  BlamerBundle *blamer_bundle;
+  BlamerBundle* blamer_bundle;
 
   // --------------OUTPUT FROM RECOGNITION-------------------------------
   // --------------Not all fields are necessarily set.-------------------
@@ -236,13 +228,13 @@ class WERD_RES : public ELIST_LINK {
 
   // The rebuild_word is also in BLN space, but represents the final best
   // segmentation of the word. Its length is therefore the same as box_word.
-  TWERD* rebuild_word;            // BLN best segmented word.
+  TWERD* rebuild_word;  // BLN best segmented word.
   // The box_word is in the original image coordinate space. It is the
   // bounding boxes of the rebuild_word, after denormalization.
   // The length of box_word matches rebuild_word, best_state (if set) and
   // correct_text (if set), as well as best_choice and represents the
   // number of classified units in the output.
-  tesseract::BoxWord* box_word;   // Denormalized output boxes.
+  tesseract::BoxWord* box_word;  // Denormalized output boxes.
   // The best_state stores the relationship between chopped_word and
   // rebuild_word. Each blob[i] in rebuild_word is composed of best_state[i]
   // adjacent blobs in chopped_word. The seams in seam_array are hidden
@@ -262,8 +254,8 @@ class WERD_RES : public ELIST_LINK {
 
   // Less-well documented members.
   // TODO(rays) Add more documentation here.
-  WERD_CHOICE *ep_choice;      // ep text TODO(rays) delete this.
-  REJMAP reject_map;           // best_choice rejects
+  WERD_CHOICE* ep_choice;  // ep text TODO(rays) delete this.
+  REJMAP reject_map;       // best_choice rejects
   bool tess_failed;
   /*
     If tess_failed is TRUE, one of the following tests failed when Tess
@@ -272,24 +264,24 @@ class WERD_RES : public ELIST_LINK {
     - The best_choice string contained ALL blanks;
     - The best_choice string was zero length
   */
-  bool tess_accepted;          // Tess thinks its ok?
-  bool tess_would_adapt;       // Tess would adapt?
-  bool done;                   // ready for output?
-  bool small_caps;              // word appears to be small caps
-  bool odd_size;                // word is bigger than line or leader dots.
+  bool tess_accepted;     // Tess thinks its ok?
+  bool tess_would_adapt;  // Tess would adapt?
+  bool done;              // ready for output?
+  bool small_caps;        // word appears to be small caps
+  bool odd_size;          // word is bigger than line or leader dots.
   int8_t italic;
   int8_t bold;
   // The fontinfos are pointers to data owned by the classifier.
   const FontInfo* fontinfo;
   const FontInfo* fontinfo2;
-  int8_t fontinfo_id_count;       // number of votes
-  int8_t fontinfo_id2_count;      // number of votes
+  int8_t fontinfo_id_count;   // number of votes
+  int8_t fontinfo_id2_count;  // number of votes
   bool guessed_x_ht;
   bool guessed_caps_ht;
   CRUNCH_MODE unlv_crunch_mode;
-  float x_height;              // post match estimate
-  float caps_height;           // post match estimate
-  float baseline_shift;        // post match estimate.
+  float x_height;        // post match estimate
+  float caps_height;     // post match estimate
+  float baseline_shift;  // post match estimate.
   // Certainty score for the spaces either side of this word (LSTM mode).
   // MIN this value with the actual word certainty.
   float space_certainty;
@@ -310,15 +302,15 @@ class WERD_RES : public ELIST_LINK {
     Combination words are FOLLOWED by the sequence of part_of_combo words
     which they combine.
   */
-  bool combination;           //of two fuzzy gap wds
-  bool part_of_combo;         //part of a combo
-  bool reject_spaces;         //Reject spacing?
+  bool combination;    // of two fuzzy gap wds
+  bool part_of_combo;  // part of a combo
+  bool reject_spaces;  // Reject spacing?
 
   WERD_RES() {
     InitNonPointers();
     InitPointers();
   }
-  WERD_RES(WERD *the_word) {
+  WERD_RES(WERD* the_word) {
     InitNonPointers();
     InitPointers();
     word = the_word;
@@ -327,7 +319,7 @@ class WERD_RES : public ELIST_LINK {
   // To get that use deep_copy below.
   WERD_RES(const WERD_RES& source) : ELIST_LINK(source) {
     InitPointers();
-    *this = source;            // see operator=
+    *this = source;  // see operator=
   }
 
   ~WERD_RES();
@@ -351,8 +343,7 @@ class WERD_RES : public ELIST_LINK {
   }
   // Returns the UTF-8 string for the given blob index in the raw_choice word.
   const char* RawUTF8(int blob_index) const {
-    if (blob_index < 0 || blob_index >= raw_choice->length())
-      return nullptr;
+    if (blob_index < 0 || blob_index >= raw_choice->length()) return nullptr;
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
     if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
       return nullptr;
@@ -360,22 +351,21 @@ class WERD_RES : public ELIST_LINK {
   }
 
   UNICHARSET::Direction SymbolDirection(int blob_index) const {
-    if (best_choice == nullptr ||
-        blob_index >= best_choice->length() ||
+    if (best_choice == nullptr || blob_index >= best_choice->length() ||
         blob_index < 0)
       return UNICHARSET::U_OTHER_NEUTRAL;
     return uch_set->get_direction(best_choice->unichar_id(blob_index));
   }
 
   bool AnyRtlCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1)
       return false;
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
       if (unichar_id < 0 || unichar_id >= uch_set->size())
         continue;  // Ignore illegal chars.
-      UNICHARSET::Direction dir =
-          uch_set->get_direction(unichar_id);
+      UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
       if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
           dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
           dir == UNICHARSET::U_ARABIC_NUMBER)
@@ -385,15 +375,15 @@ class WERD_RES : public ELIST_LINK {
   }
 
   bool AnyLtrCharsInWord() const {
-    if (uch_set == nullptr || best_choice == nullptr || best_choice->length() < 1)
+    if (uch_set == nullptr || best_choice == nullptr ||
+        best_choice->length() < 1)
       return false;
     for (int id = 0; id < best_choice->length(); id++) {
       int unichar_id = best_choice->unichar_id(id);
       if (unichar_id < 0 || unichar_id >= uch_set->size())
         continue;  // Ignore illegal chars.
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_LEFT_TO_RIGHT)
-        return true;
+      if (dir == UNICHARSET::U_LEFT_TO_RIGHT) return true;
     }
     return false;
   }
@@ -414,7 +404,7 @@ class WERD_RES : public ELIST_LINK {
 
   // Deep copies everything except the ratings MATRIX.
   // To get that use deep_copy below.
-  WERD_RES& operator=(const WERD_RES& source);  //from this
+  WERD_RES& operator=(const WERD_RES& source);  // from this
 
   void CopySimpleFields(const WERD_RES& source);
 
@@ -441,15 +431,15 @@ class WERD_RES : public ELIST_LINK {
   // Returns false if the word is empty and sets up fake results.
   bool SetupForRecognition(const UNICHARSET& unicharset_in,
                            tesseract::Tesseract* tesseract, Pix* pix,
-                           int norm_mode,
-                           const TBOX* norm_box, bool numeric_mode,
-                           bool use_body_size, bool allow_detailed_fx,
-                           ROW *row, const BLOCK* block);
+                           int norm_mode, const TBOX* norm_box,
+                           bool numeric_mode, bool use_body_size,
+                           bool allow_detailed_fx, ROW* row,
+                           const BLOCK* block);
 
   // Set up the seam array, bln_boxes, best_choice, and raw_choice to empty
   // accumulators from a made chopped word.  We presume the fields are already
   // empty.
-  void SetupBasicsFromChoppedWord(const UNICHARSET &unicharset_in);
+  void SetupBasicsFromChoppedWord(const UNICHARSET& unicharset_in);
 
   // Sets up the members used in recognition for an empty recognition result:
   // bln_boxes, chopped_word, seam_array, denorm, best_choice, raw_choice.
@@ -507,10 +497,8 @@ class WERD_RES : public ELIST_LINK {
   // min_rating limits how tight to make a template.
   // max_rating limits how loose to make a template.
   // rating_margin denotes the amount of margin to put in template.
-  void ComputeAdaptionThresholds(float certainty_scale,
-                                 float min_rating,
-                                 float max_rating,
-                                 float rating_margin,
+  void ComputeAdaptionThresholds(float certainty_scale, float min_rating,
+                                 float max_rating, float rating_margin,
                                  float* thresholds);
 
   // Saves a copy of the word_choice if it has the best unadjusted rating.
@@ -629,14 +617,13 @@ class WERD_RES : public ELIST_LINK {
     WERD_RES* result = new WERD_RES(*src);
     // That didn't copy the ratings, but we want a copy if there is one to
     // begin with.
-    if (src->ratings != nullptr)
-      result->ratings = src->ratings->DeepCopy();
+    if (src->ratings != nullptr) result->ratings = src->ratings->DeepCopy();
     return result;
   }
 
   // Copy blobs from word_res onto this word (eliminating spaces between).
   // Since this may be called bidirectionally OR both the BOL and EOL flags.
-  void copy_on(WERD_RES *word_res) {  //from this word
+  void copy_on(WERD_RES* word_res) {  // from this word
     word->set_flag(W_BOL, word->flag(W_BOL) || word_res->word->flag(W_BOL));
     word->set_flag(W_EOL, word->flag(W_EOL) || word_res->word->flag(W_EOL));
     word->copy_on(word_res->word);
@@ -653,36 +640,36 @@ class WERD_RES : public ELIST_LINK {
 
 class PAGE_RES_IT {
  public:
-  PAGE_RES * page_res;         // page being iterated
+  PAGE_RES* page_res;  // page being iterated
 
   PAGE_RES_IT() = default;
 
-  PAGE_RES_IT(PAGE_RES *the_page_res) {    // page result
+  PAGE_RES_IT(PAGE_RES* the_page_res) {  // page result
     page_res = the_page_res;
     restart_page();  // ready to scan
   }
 
   // Do two PAGE_RES_ITs point at the same word?
   // This is much cheaper than cmp().
-  bool operator ==(const PAGE_RES_IT &other) const;
+  bool operator==(const PAGE_RES_IT& other) const;
 
-  bool operator !=(const PAGE_RES_IT &other) const {return !(*this == other); }
+  bool operator!=(const PAGE_RES_IT& other) const { return !(*this == other); }
 
   // Given another PAGE_RES_IT to the same page,
   //  this before other:     -1
   //  this equal to other:    0
   //  this later than other:  1
-  int cmp(const PAGE_RES_IT &other) const;
+  int cmp(const PAGE_RES_IT& other) const;
 
-  WERD_RES *restart_page() {
+  WERD_RES* restart_page() {
     return start_page(false);  // Skip empty blocks.
   }
-  WERD_RES *restart_page_with_empties() {
+  WERD_RES* restart_page_with_empties() {
     return start_page(true);  // Allow empty blocks.
   }
-  WERD_RES *start_page(bool empty_ok);
+  WERD_RES* start_page(bool empty_ok);
 
-  WERD_RES *restart_row();
+  WERD_RES* restart_row();
 
   // ============ Methods that mutate the underling structures ===========
   // Note that these methods will potentially invalidate other PAGE_RES_ITs
@@ -707,63 +694,61 @@ class PAGE_RES_IT {
   // corresponding part of combo if required.
   void MakeCurrentWordFuzzy();
 
-  WERD_RES *forward() {  // Get next word.
+  WERD_RES* forward() {  // Get next word.
     return internal_forward(false, false);
   }
   // Move forward, but allow empty blocks to show as single nullptr words.
-  WERD_RES *forward_with_empties() {
-    return internal_forward(false, true);
-  }
+  WERD_RES* forward_with_empties() { return internal_forward(false, true); }
 
-  WERD_RES *forward_paragraph();  // get first word in next non-empty paragraph
-  WERD_RES *forward_block();  // get first word in next non-empty block
+  WERD_RES* forward_paragraph();  // get first word in next non-empty paragraph
+  WERD_RES* forward_block();      // get first word in next non-empty block
 
-  WERD_RES *prev_word() const {  // previous word
+  WERD_RES* prev_word() const {  // previous word
     return prev_word_res;
   }
-  ROW_RES *prev_row() const {  // row of prev word
+  ROW_RES* prev_row() const {  // row of prev word
     return prev_row_res;
   }
-  BLOCK_RES *prev_block() const {  // block of prev word
+  BLOCK_RES* prev_block() const {  // block of prev word
     return prev_block_res;
   }
-  WERD_RES *word() const {  // current word
+  WERD_RES* word() const {  // current word
     return word_res;
   }
-  ROW_RES *row() const {  // row of current word
+  ROW_RES* row() const {  // row of current word
     return row_res;
   }
-  BLOCK_RES *block() const {  // block of cur. word
+  BLOCK_RES* block() const {  // block of cur. word
     return block_res;
   }
-  WERD_RES *next_word() const {  // next word
+  WERD_RES* next_word() const {  // next word
     return next_word_res;
   }
-  ROW_RES *next_row() const {  // row of next word
+  ROW_RES* next_row() const {  // row of next word
     return next_row_res;
   }
-  BLOCK_RES *next_block() const {  // block of next word
+  BLOCK_RES* next_block() const {  // block of next word
     return next_block_res;
   }
   void rej_stat_word();  // for page/block/row
   void ResetWordIterator();
 
  private:
-  WERD_RES *internal_forward(bool new_block, bool empty_ok);
+  WERD_RES* internal_forward(bool new_block, bool empty_ok);
 
-  WERD_RES * prev_word_res;    // previous word
-  ROW_RES *prev_row_res;       // row of prev word
-  BLOCK_RES *prev_block_res;   // block of prev word
+  WERD_RES* prev_word_res;    // previous word
+  ROW_RES* prev_row_res;      // row of prev word
+  BLOCK_RES* prev_block_res;  // block of prev word
 
-  WERD_RES *word_res;          // current word
-  ROW_RES *row_res;            // row of current word
-  BLOCK_RES *block_res;        // block of cur. word
+  WERD_RES* word_res;    // current word
+  ROW_RES* row_res;      // row of current word
+  BLOCK_RES* block_res;  // block of cur. word
 
-  WERD_RES *next_word_res;     // next word
-  ROW_RES *next_row_res;       // row of next word
-  BLOCK_RES *next_block_res;   // block of next word
+  WERD_RES* next_word_res;    // next word
+  ROW_RES* next_row_res;      // row of next word
+  BLOCK_RES* next_block_res;  // block of next word
 
-  BLOCK_RES_IT block_res_it;   // iterators
+  BLOCK_RES_IT block_res_it;  // iterators
   ROW_RES_IT row_res_it;
   WERD_RES_IT word_res_it;
 };

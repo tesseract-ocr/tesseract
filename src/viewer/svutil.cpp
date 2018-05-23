@@ -37,10 +37,10 @@ struct addrinfo {
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
-#include <cstdlib>
-#include <cstring>
 #include <sys/select.h>
 #include <sys/socket.h>
+#include <cstdlib>
+#include <cstring>
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
@@ -88,7 +88,7 @@ void SVSync::StartThread(void* (*func)(void*), void* arg) {
 #ifdef _WIN32
   LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE)func;
   DWORD threadid;
-  HANDLE newthread = CreateThread(nullptr,        // default security attributes
+  HANDLE newthread = CreateThread(nullptr,     // default security attributes
                                   0,           // use default stack size
                                   f,           // thread function
                                   arg,         // argument to thread function
@@ -127,13 +127,13 @@ void SVSync::StartProcess(const char* executable, const char* args) {
   STARTUPINFO start_info;
   PROCESS_INFORMATION proc_info;
   GetStartupInfo(&start_info);
-  if (!CreateProcess(nullptr, const_cast<char*>(proc.c_str()), nullptr, nullptr, FALSE,
-                CREATE_NO_WINDOW | DETACHED_PROCESS, nullptr, nullptr,
-                &start_info, &proc_info))
+  if (!CreateProcess(nullptr, const_cast<char*>(proc.c_str()), nullptr, nullptr,
+                     FALSE, CREATE_NO_WINDOW | DETACHED_PROCESS, nullptr,
+                     nullptr, &start_info, &proc_info))
     return;
 #else
   int pid = fork();
-  if (pid != 0) {   // The father process returns
+  if (pid != 0) {  // The father process returns
   } else {
 #ifdef __linux__
     // Make sure the java process terminates on exit, since its
@@ -177,7 +177,7 @@ SVSemaphore::SVSemaphore() {
   char name[50];
   snprintf(name, sizeof(name), "%ld", random());
   sem_unlink(name);
-  semaphore_ = sem_open(name, O_CREAT , S_IWUSR, 0);
+  semaphore_ = sem_open(name, O_CREAT, S_IWUSR, 0);
   if (semaphore_ == SEM_FAILED) {
     perror("sem_open");
   }
@@ -228,14 +228,19 @@ void SVNetwork::Flush() {
 char* SVNetwork::Receive() {
   char* result = nullptr;
 #if defined(_WIN32) || defined(__CYGWIN__)
-  if (has_content) { result = strtok (nullptr, "\n"); }
+  if (has_content) {
+    result = strtok(nullptr, "\n");
+  }
 #else
-  if (buffer_ptr_ != nullptr) { result = strtok_r(nullptr, "\n", &buffer_ptr_); }
+  if (buffer_ptr_ != nullptr) {
+    result = strtok_r(nullptr, "\n", &buffer_ptr_);
+  }
 #endif
 
   // This means there is something left in the buffer and we return it.
-  if (result != nullptr) { return result;
-  // Otherwise, we read from the stream_.
+  if (result != nullptr) {
+    return result;
+    // Otherwise, we read from the stream_.
   } else {
     buffer_ptr_ = nullptr;
     has_content = false;
@@ -251,16 +256,20 @@ char* SVNetwork::Receive() {
     FD_ZERO(&readfds);
     FD_SET(stream_, &readfds);
 
-    int i = select(stream_+1, &readfds, nullptr, nullptr, &tv);
+    int i = select(stream_ + 1, &readfds, nullptr, nullptr, &tv);
 
     // The stream_ died.
-    if (i == 0) { return nullptr; }
+    if (i == 0) {
+      return nullptr;
+    }
 
     // Read the message buffer.
     i = recv(stream_, msg_buffer_in_, kMaxMsgSize, 0);
 
     // Server quit (0) or error (-1).
-    if (i <= 0) { return nullptr; }
+    if (i <= 0) {
+      return nullptr;
+    }
     msg_buffer_in_[i] = '\0';
     has_content = true;
 #ifdef _WIN32
@@ -283,7 +292,6 @@ void SVNetwork::Close() {
   stream_ = -1;
 }
 
-
 // The program to invoke to start ScrollView
 static const char* ScrollViewProg() {
 #ifdef _WIN32
@@ -293,7 +301,6 @@ static const char* ScrollViewProg() {
 #endif
   return prog;
 }
-
 
 // The arguments to the program to invoke to start ScrollView
 static std::string ScrollViewCommand(std::string scrollview_path) {
@@ -311,44 +318,42 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
       "-Xms1024m -Xmx2048m -jar %s/ScrollView.jar"
       " & wait\"";
 #endif
-  int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
+  int cmdlen = strlen(cmd_template) + 4 * strlen(scrollview_path.c_str()) + 1;
   char* cmd = new char[cmdlen];
   const char* sv_path = scrollview_path.c_str();
   snprintf(cmd, cmdlen, cmd_template, sv_path, sv_path, sv_path, sv_path);
   std::string command(cmd);
-  delete [] cmd;
+  delete[] cmd;
   return command;
 }
 
-
 // Platform-independent freeaddrinfo()
 static void FreeAddrInfo(struct addrinfo* addr_info) {
-  #if defined(__linux__)
+#if defined(__linux__)
   freeaddrinfo(addr_info);
-  #else
+#else
   delete addr_info->ai_addr;
   delete addr_info;
-  #endif
+#endif
 }
-
 
 // Non-linux version of getaddrinfo()
 #if !defined(__linux__)
 static int GetAddrInfoNonLinux(const char* hostname, int port,
                                struct addrinfo** addr_info) {
-// Get the host data depending on the OS.
+  // Get the host data depending on the OS.
   struct sockaddr_in* address;
   *addr_info = new struct addrinfo;
   memset(*addr_info, 0, sizeof(struct addrinfo));
   address = new struct sockaddr_in;
   memset(address, 0, sizeof(struct sockaddr_in));
 
-  (*addr_info)->ai_addr = (struct sockaddr*) address;
+  (*addr_info)->ai_addr = (struct sockaddr*)address;
   (*addr_info)->ai_addrlen = sizeof(struct sockaddr);
   (*addr_info)->ai_family = AF_INET;
   (*addr_info)->ai_socktype = SOCK_STREAM;
 
-  struct hostent *name;
+  struct hostent* name;
 #ifdef _WIN32
   WSADATA wsaData;
   WSAStartup(MAKEWORD(1, 1), &wsaData);
@@ -365,13 +370,12 @@ static int GetAddrInfoNonLinux(const char* hostname, int port,
 
   // Fill in the appropriate variables to be able to connect to the server.
   address->sin_family = name->h_addrtype;
-  memcpy((char *) &address->sin_addr.s_addr,
-         name->h_addr_list[0], name->h_length);
+  memcpy((char*)&address->sin_addr.s_addr, name->h_addr_list[0],
+         name->h_length);
   address->sin_port = htons(port);
   return 0;
 }
 #endif
-
 
 // Platform independent version of getaddrinfo()
 //   Given a hostname:port, produce an addrinfo struct
@@ -386,7 +390,6 @@ static int GetAddrInfo(const char* hostname, int port,
 #endif
 }
 
-
 // Set up a connection to a ScrollView on hostname:port.
 SVNetwork::SVNetwork(const char* hostname, int port) {
   msg_buffer_in_ = new char[kMaxMsgSize + 1];
@@ -395,7 +398,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   has_content = false;
   buffer_ptr_ = nullptr;
 
-  struct addrinfo *addr_info = nullptr;
+  struct addrinfo* addr_info = nullptr;
 
   if (GetAddrInfo(hostname, port, &addr_info) != 0) {
     std::cerr << "Error resolving name for ScrollView host "
@@ -419,7 +422,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       scrollview_path = ".";
 #endif
     }
-    const char *prog = ScrollViewProg();
+    const char* prog = ScrollViewProg();
     std::string command = ScrollViewCommand(scrollview_path);
     SVSync::StartProcess(prog, command.c_str());
 

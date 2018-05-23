@@ -34,7 +34,7 @@ class CCStruct : public CUtil {
   static const double kXHeightFraction;    // = 0.5;
   static const double kAscenderFraction;   // = 0.25;
   // Derived value giving the x-height as a fraction of cap-height.
-  static const double kXHeightCapRatio;    // = XHeight/(XHeight + Ascender).
+  static const double kXHeightCapRatio;  // = XHeight/(XHeight + Ascender).
 };
 
 class Tesseract;

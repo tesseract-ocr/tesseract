@@ -40,11 +40,9 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-ScrollView *blob_window = nullptr;
+ScrollView* blob_window = nullptr;
 
-C_COL color_list[] = {
-  Red, Cyan, Yellow, Blue, Green, White
-};
+C_COL color_list[] = {Red, Cyan, Yellow, Blue, Green, White};
 
 BOOL_VAR(wordrec_display_all_blobs, 0, "Display Blobs");
 
@@ -61,13 +59,12 @@ BOOL_VAR(wordrec_blob_pause, 0, "Blob pause");
  *
  * Macro to display blob in a window.
  **********************************************************************/
-void display_blob(TBLOB *blob, C_COL color) {
+void display_blob(TBLOB* blob, C_COL color) {
   /* Size of drawable */
   if (blob_window == nullptr) {
-    blob_window = c_create_window ("Blobs", 520, 10,
-      500, 256, -1000.0, 1000.0, 0.0, 256.0);
-  }
-  else {
+    blob_window = c_create_window("Blobs", 520, 10, 500, 256, -1000.0, 1000.0,
+                                  0.0, 256.0);
+  } else {
     c_clear_window(blob_window);
   }
 
@@ -80,14 +77,12 @@ void display_blob(TBLOB *blob, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_blob(void *window, TBLOB *blob, C_COL color) {
+void render_blob(void* window, TBLOB* blob, C_COL color) {
   /* No outline */
-  if (!blob)
-    return;
+  if (!blob) return;
 
-  render_outline (window, blob->outlines, color);
+  render_outline(window, blob->outlines, color);
 }
-
 
 /**********************************************************************
  * render_edgepts
@@ -95,13 +90,12 @@ void render_blob(void *window, TBLOB *blob, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
-  if (!edgept)
-    return;
+void render_edgepts(void* window, EDGEPT* edgept, C_COL color) {
+  if (!edgept) return;
 
   float x = edgept->pos.x;
   float y = edgept->pos.y;
-  EDGEPT *this_edge = edgept;
+  EDGEPT* this_edge = edgept;
 
   c_line_color_index(window, color);
   c_move(window, x, y);
@@ -110,10 +104,8 @@ void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
     x = this_edge->pos.x;
     y = this_edge->pos.y;
     c_draw(window, x, y);
-  }
-  while (edgept != this_edge);
+  } while (edgept != this_edge);
 }
-
 
 /**********************************************************************
  * render_outline
@@ -121,17 +113,13 @@ void render_edgepts(void *window, EDGEPT *edgept, C_COL color) {
  * Create a list of line segments that represent the expanded outline
  * that was supplied as input.
  **********************************************************************/
-void render_outline(void *window,
-                    TESSLINE *outline,
-                    C_COL color) {
+void render_outline(void* window, TESSLINE* outline, C_COL color) {
   /* No outline */
-  if (!outline)
-    return;
+  if (!outline) return;
   /* Draw Compact outline */
-  if (outline->loop)
-    render_edgepts (window, outline->loop, color);
+  if (outline->loop) render_edgepts(window, outline->loop, color);
   /* Add on next outlines */
-  render_outline (window, outline->next, color);
+  render_outline(window, outline->next, color);
 }
 
 #endif  // GRAPHICS_DISABLED

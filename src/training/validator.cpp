@@ -1,9 +1,9 @@
 #include "validator.h"
 
 #include <algorithm>
+#include <iterator>
 #include <unordered_map>
 #include <vector>
-#include <iterator>
 
 #include "icuerrorcode.h"
 #include "unicode/uchar.h"    // From libicu
@@ -178,8 +178,8 @@ bool Validator::IsVirama(char32 unicode) {
 /* static */
 bool Validator::IsVedicAccent(char32 unicode) {
   return (0x1cd0 <= unicode && unicode < 0x1d00) ||
-          (0xa8e0 <= unicode && unicode <= 0xa8f7) ||
-          (0x951  <= unicode && unicode <= 0x954);
+         (0xa8e0 <= unicode && unicode <= 0xa8f7) ||
+         (0x951 <= unicode && unicode <= 0x954);
 }
 
 // Returns true if the script is one that uses subscripts for conjuncts.

@@ -17,24 +17,20 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include "unichar.h"
-#include "host.h"
 #include "unicharmap.h"
+#include <cassert>
+#include "host.h"
+#include "unichar.h"
 
-UNICHARMAP::UNICHARMAP() :
-nodes(nullptr) {
-}
+UNICHARMAP::UNICHARMAP() : nodes(nullptr) {}
 
-UNICHARMAP::~UNICHARMAP() {
-  delete[] nodes;
-}
+UNICHARMAP::~UNICHARMAP() { delete[] nodes; }
 
 // Search the given unichar representation in the tree, using length characters
 // from it maximum. Each character in the string is interpreted as an index in
 // an array of nodes.
-UNICHAR_ID UNICHARMAP::unichar_to_id(const char* const unichar_repr,
-                                     int length) const {
+UNICHAR_ID
+UNICHARMAP::unichar_to_id(const char* const unichar_repr, int length) const {
   UNICHARMAP_NODE* current_nodes = nodes;
 
   assert(*unichar_repr != '\0');
@@ -63,13 +59,13 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
     if (*current_nodes_pointer == nullptr)
       *current_nodes_pointer = new UNICHARMAP_NODE[256];
     if (current_char[1] == '\0') {
-      (*current_nodes_pointer)
-          [static_cast<unsigned char>(*current_char)].id = id;
+      (*current_nodes_pointer)[static_cast<unsigned char>(*current_char)].id =
+          id;
       return;
     }
     current_nodes_pointer =
-        &((*current_nodes_pointer)
-          [static_cast<unsigned char>(*current_char)].children);
+        &((*current_nodes_pointer)[static_cast<unsigned char>(*current_char)]
+              .children);
     ++current_char;
   } while (true);
 }
@@ -78,8 +74,7 @@ void UNICHARMAP::insert(const char* const unichar_repr, UNICHAR_ID id) {
 // from it maximum. Each character in the string is interpreted as an index in
 // an array of nodes. Stop once the tree does not have anymore nodes or once we
 // found the right unichar_repr.
-bool UNICHARMAP::contains(const char* const unichar_repr,
-                          int length) const {
+bool UNICHARMAP::contains(const char* const unichar_repr, int length) const {
   if (unichar_repr == nullptr || *unichar_repr == '\0') return false;
   if (length <= 0 || length > UNICHAR_LEN) return false;
   int index = 0;
@@ -119,12 +114,7 @@ void UNICHARMAP::clear() {
   nodes = nullptr;
 }
 
-UNICHARMAP::UNICHARMAP_NODE::UNICHARMAP_NODE() :
-children(nullptr),
-id(-1) {
-}
+UNICHARMAP::UNICHARMAP_NODE::UNICHARMAP_NODE() : children(nullptr), id(-1) {}
 
 // Recursively delete the children
-UNICHARMAP::UNICHARMAP_NODE::~UNICHARMAP_NODE() {
-  delete[] children;
-}
+UNICHARMAP::UNICHARMAP_NODE::~UNICHARMAP_NODE() { delete[] children; }

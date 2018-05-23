@@ -59,26 +59,24 @@ class StaticShape {
             height_, width_, depth_, loss_type_);
   }
 
-  bool DeSerialize(TFile *fp) {
+  bool DeSerialize(TFile* fp) {
     int32_t tmp = LT_NONE;
-    bool result =
-      fp->FReadEndian(&batch_, sizeof(batch_), 1) == 1 &&
-      fp->FReadEndian(&height_, sizeof(height_), 1) == 1 &&
-      fp->FReadEndian(&width_, sizeof(width_), 1) == 1 &&
-      fp->FReadEndian(&depth_, sizeof(depth_), 1) == 1 &&
-      fp->FReadEndian(&tmp, sizeof(tmp), 1) == 1;
+    bool result = fp->FReadEndian(&batch_, sizeof(batch_), 1) == 1 &&
+                  fp->FReadEndian(&height_, sizeof(height_), 1) == 1 &&
+                  fp->FReadEndian(&width_, sizeof(width_), 1) == 1 &&
+                  fp->FReadEndian(&depth_, sizeof(depth_), 1) == 1 &&
+                  fp->FReadEndian(&tmp, sizeof(tmp), 1) == 1;
     loss_type_ = static_cast<LossType>(tmp);
     return result;
   }
 
-  bool Serialize(TFile *fp) const {
+  bool Serialize(TFile* fp) const {
     int32_t tmp = loss_type_;
-    return
-      fp->FWrite(&batch_, sizeof(batch_), 1) == 1 &&
-      fp->FWrite(&height_, sizeof(height_), 1) == 1 &&
-      fp->FWrite(&width_, sizeof(width_), 1) == 1 &&
-      fp->FWrite(&depth_, sizeof(depth_), 1) == 1 &&
-      fp->FWrite(&tmp, sizeof(tmp), 1) == 1;
+    return fp->FWrite(&batch_, sizeof(batch_), 1) == 1 &&
+           fp->FWrite(&height_, sizeof(height_), 1) == 1 &&
+           fp->FWrite(&width_, sizeof(width_), 1) == 1 &&
+           fp->FWrite(&depth_, sizeof(depth_), 1) == 1 &&
+           fp->FWrite(&tmp, sizeof(tmp), 1) == 1;
   }
 
  private:

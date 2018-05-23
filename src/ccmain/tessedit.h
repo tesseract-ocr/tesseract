@@ -17,13 +17,13 @@
  *
  **********************************************************************/
 
-#ifndef           TESSEDIT_H
-#define           TESSEDIT_H
+#ifndef TESSEDIT_H
+#define TESSEDIT_H
 
-#include          "blobs.h"
-#include          "pgedit.h"
+#include "blobs.h"
+#include "pgedit.h"
 
-                                 //progress monitor
-extern ETEXT_DESC *global_monitor;
+// progress monitor
+extern ETEXT_DESC* global_monitor;
 
 #endif

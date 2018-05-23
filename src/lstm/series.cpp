@@ -26,9 +26,7 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Series::Series(const STRING& name) : Plumbing(name) {
-  type_ = NT_SERIES;
-}
+Series::Series(const STRING& name) : Plumbing(name) { type_ = NT_SERIES; }
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
@@ -49,8 +47,8 @@ int Series::InitWeights(float range, TRand* randomizer) {
   tprintf("Num outputs,weights in Series:\n");
   for (int i = 0; i < stack_.size(); ++i) {
     int weights = stack_[i]->InitWeights(range, randomizer);
-    tprintf("  %s:%d, %d\n",
-            stack_[i]->spec().string(), stack_[i]->NumOutputs(), weights);
+    tprintf("  %s:%d, %d\n", stack_[i]->spec().string(),
+            stack_[i]->NumOutputs(), weights);
     num_weights_ += weights;
   }
   tprintf("Total weights = %d\n", num_weights_);
@@ -91,8 +89,7 @@ bool Series::SetupNeedsBackprop(bool needs_backprop) {
 // the minimum scale factor of the paths through the GlobalMinimax.
 int Series::XScaleFactor() const {
   int factor = 1;
-  for (int i = 0; i < stack_.size(); ++i)
-      factor *= stack_[i]->XScaleFactor();
+  for (int i = 0; i < stack_.size(); ++i) factor *= stack_[i]->XScaleFactor();
   return factor;
 }
 
@@ -127,8 +124,7 @@ void Series::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Series::Backward(bool debug, const NetworkIO& fwd_deltas,
-                      NetworkScratch* scratch,
-                      NetworkIO* back_deltas) {
+                      NetworkScratch* scratch, NetworkIO* back_deltas) {
   if (!IsTraining()) return false;
   int stack_size = stack_.size();
   ASSERT_HOST(stack_size > 1);
@@ -161,8 +157,8 @@ void Series::SplitAt(int last_start, Series** start, Series** end) {
   *start = nullptr;
   *end = nullptr;
   if (last_start < 0 || last_start >= stack_.size()) {
-    tprintf("Invalid split index %d must be in range [0,%d]!\n",
-            last_start, stack_.size() - 1);
+    tprintf("Invalid split index %d must be in range [0,%d]!\n", last_start,
+            stack_.size() - 1);
     return;
   }
   Series* master_series = new Series("MasterSeries");
@@ -196,6 +192,5 @@ void Series::AppendSeries(Network* src) {
   }
   delete src;
 }
-
 
 }  // namespace tesseract.

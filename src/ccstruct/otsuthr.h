@@ -42,9 +42,8 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
 // single channel. Each channel is always one byte per pixel.
 // Histogram is always a kHistogramSize(256) element array to count
 // occurrences of each pixel value.
-void HistogramRect(Pix* src_pix, int channel,
-                   int left, int top, int width, int height,
-                   int* histogram);
+void HistogramRect(Pix* src_pix, int channel, int left, int top, int width,
+                   int height, int* histogram);
 
 // Computes the Otsu threshold(s) for the given histogram.
 // Also returns H = total count in histogram, and

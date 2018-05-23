@@ -30,17 +30,16 @@
 ----------------------------------------------------------------------*/
 #include "bitvec.h"
 #include "cutil.h"
+#include "params.h"
 #include "unichar.h"
 #include "unicity_table.h"
-#include "params.h"
 
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-using CONFIGS = BIT_VECTOR *;
+using CONFIGS = BIT_VECTOR*;
 
-typedef struct
-{
+typedef struct {
   FLOAT32 A;
   FLOAT32 B;
   FLOAT32 C;
@@ -49,13 +48,16 @@ typedef struct
   FLOAT32 Angle;
   FLOAT32 Length;
 } PROTO_STRUCT;
-using PROTO = PROTO_STRUCT *;
+using PROTO = PROTO_STRUCT*;
 
 struct CLASS_STRUCT {
   CLASS_STRUCT()
-    : NumProtos(0), MaxNumProtos(0), Prototypes(nullptr),
-      NumConfigs(0), MaxNumConfigs(0), Configurations(nullptr) {
-  }
+      : NumProtos(0),
+        MaxNumProtos(0),
+        Prototypes(nullptr),
+        NumConfigs(0),
+        MaxNumConfigs(0),
+        Configurations(nullptr) {}
   int16_t NumProtos;
   int16_t MaxNumProtos;
   PROTO Prototypes;
@@ -64,15 +66,15 @@ struct CLASS_STRUCT {
   CONFIGS Configurations;
   UnicityTableEqEq<int> font_set;
 };
-using CLASS_TYPE = CLASS_STRUCT *;
-using CLASSES = CLASS_STRUCT *;
+using CLASS_TYPE = CLASS_STRUCT*;
+using CLASSES = CLASS_STRUCT*;
 
 /*----------------------------------------------------------------------
               C o n s t a n t s
 ----------------------------------------------------------------------*/
-#define NUMBER_OF_CLASSES  MAX_NUM_CLASSES
-#define Y_OFFSET           -40.0
-#define FEATURE_SCALE      100.0
+#define NUMBER_OF_CLASSES MAX_NUM_CLASSES
+#define Y_OFFSET -40.0
+#define FEATURE_SCALE 100.0
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
@@ -90,8 +92,7 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * Set a single proto bit in the specified configuration.
  */
 
-#define AddProtoToConfig(Pid,Config)	\
-(SET_BIT (Config, Pid))
+#define AddProtoToConfig(Pid, Config) (SET_BIT(Config, Pid))
 
 /**
  * RemoveProtoFromConfig
@@ -99,8 +100,7 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * Clear a single proto bit in the specified configuration.
  */
 
-#define RemoveProtoFromConfig(Pid,Config)	\
-(reset_bit (Config, Pid))
+#define RemoveProtoFromConfig(Pid, Config) (reset_bit(Config, Pid))
 
 /**
  * ClassOfChar
@@ -108,10 +108,8 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * Return the class of a particular ASCII character value.
  */
 
-#define ClassOfChar(Char)            \
-((TrainingData [Char].NumProtos) ? \
-	(& TrainingData [Char])         : \
-	NO_CLASS)
+#define ClassOfChar(Char) \
+  ((TrainingData[Char].NumProtos) ? (&TrainingData[Char]) : NO_CLASS)
 
 /**
  * ProtoIn
@@ -120,8 +118,7 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * pointer to it (type PROTO).
  */
 
-#define ProtoIn(Class,Pid)  \
-(& (Class)->Prototypes [Pid])
+#define ProtoIn(Class, Pid) (&(Class)->Prototypes[Pid])
 
 /**
  * PrintProto
@@ -130,13 +127,9 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * type 'PROTO'.
  */
 
-#define PrintProto(Proto)                      \
-(tprintf("X=%4.2f, Y=%4.2f, Length=%4.2f, Angle=%4.2f",    \
-         Proto->X,                \
-         Proto->Y,                \
-         Proto->Length,                \
-         Proto->Angle))                \
-
+#define PrintProto(Proto)                                                     \
+  (tprintf("X=%4.2f, Y=%4.2f, Length=%4.2f, Angle=%4.2f", Proto->X, Proto->Y, \
+           Proto->Length, Proto->Angle))
 
 /**
  * PrintProtoLine
@@ -145,11 +138,8 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
  * type 'PROTO'.
  */
 
-#define PrintProtoLine(Proto)             \
-(cprintf ("A=%4.2f, B=%4.2f, C=%4.2f",   \
-			Proto->A,           \
-			Proto->B,           \
-			Proto->C))           \
+#define PrintProtoLine(Proto) \
+  (cprintf("A=%4.2f, B=%4.2f, C=%4.2f", Proto->A, Proto->B, Proto->C))
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -158,9 +148,11 @@ int AddConfigToClass(CLASS_TYPE Class);
 
 int AddProtoToClass(CLASS_TYPE Class);
 
-FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config);
+FLOAT32
+ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config);
 
-FLOAT32 ClassProtoLength(CLASS_TYPE Class);
+FLOAT32
+ClassProtoLength(CLASS_TYPE Class);
 
 void CopyProto(PROTO Src, PROTO Dest);
 
@@ -172,7 +164,8 @@ void FreeClassFields(CLASS_TYPE Class);
 
 void InitPrototypes();
 
-CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
+CLASS_TYPE
+NewClass(int NumProtos, int NumConfigs);
 
 void PrintProtos(CLASS_TYPE Class);
 

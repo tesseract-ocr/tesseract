@@ -66,13 +66,13 @@ struct AlignedBlobParams {
   int max_v_gap;           // Max vertical gap to be tolerated.
   int min_gutter;          // Minimum gutter between columns.
   // Tolerances allowed on horizontal alignment of aligned edges.
-  int l_align_tolerance;   // Left edges.
-  int r_align_tolerance;   // Right edges.
+  int l_align_tolerance;  // Left edges.
+  int r_align_tolerance;  // Right edges.
   // Conditions for accepting a line.
-  int min_points;          // Minimum number of points to be OK.
-  int min_length;          // Min length of completed line.
+  int min_points;  // Minimum number of points to be OK.
+  int min_length;  // Min length of completed line.
 
-  ICOORD vertical;         // Current estimate of logical vertical.
+  ICOORD vertical;  // Current estimate of logical vertical.
 };
 
 // The AlignedBlob class contains code to find vertically aligned blobs.
@@ -97,17 +97,16 @@ class AlignedBlob : public BlobGrid {
   // vertical direction. (skew finding.)
   // Returns nullptr if no decent vector can be found.
   TabVector* FindVerticalAlignment(AlignedBlobParams align_params,
-                                   BLOBNBOX* bbox,
-                                   int* vertical_x, int* vertical_y);
+                                   BLOBNBOX* bbox, int* vertical_x,
+                                   int* vertical_y);
 
  private:
   // Find a set of blobs that are aligned in the given vertical
   // direction with the given blob. Returns a list of aligned
   // blobs and the number in the list.
   // For other parameters see FindAlignedBlob below.
-  int AlignTabs(const AlignedBlobParams& params,
-                bool top_to_bottom, BLOBNBOX* bbox,
-                BLOBNBOX_CLIST* good_points, int* end_y);
+  int AlignTabs(const AlignedBlobParams& params, bool top_to_bottom,
+                BLOBNBOX* bbox, BLOBNBOX_CLIST* good_points, int* end_y);
 
   // Search vertically for a blob that is aligned with the input bbox.
   // The search parameters are determined by AlignedBlobParams.
@@ -116,9 +115,8 @@ class AlignedBlob : public BlobGrid {
   // or if a blob was found in the gutter. On a nullptr return, end_y
   // is set to the edge of the search box or the leading edge of the
   // gutter blob if one was found.
-  BLOBNBOX* FindAlignedBlob(const AlignedBlobParams& p,
-                            bool top_to_bottom, BLOBNBOX* bbox,
-                            int x_start, int* end_y);
+  BLOBNBOX* FindAlignedBlob(const AlignedBlobParams& p, bool top_to_bottom,
+                            BLOBNBOX* bbox, int x_start, int* end_y);
 };
 
 }  // namespace tesseract.

@@ -38,8 +38,7 @@ PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box) {
     WERD* word = word_res->word;
     if (word->bounding_box().overlap(selection_box)) {
       C_BLOB_IT blob_it(word->cblob_list());
-      for (blob_it.mark_cycle_pt();
-           !blob_it.cycled_list(); blob_it.forward()) {
+      for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
         C_BLOB* blob = blob_it.data();
         if (blob->bounding_box().overlap(selection_box)) {
           new_blob_it.add_after_then_move(C_BLOB::deep_copy(blob));

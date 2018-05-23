@@ -86,7 +86,7 @@ enum TessdataType {
  * kTessdataFileSuffixes[i] indicates the file suffix for
  * tessdata of type i (from TessdataType enum).
  */
-static const char *const kTessdataFileSuffixes[] = {
+static const char* const kTessdataFileSuffixes[] = {
     kLangConfigFileSuffix,        // 0
     kUnicharsetFileSuffix,        // 1
     kAmbigsFileSuffix,            // 2
@@ -122,7 +122,6 @@ static const char *const kTessdataFileSuffixes[] = {
  */
 static const int kMaxNumTessdataEntries = 1000;
 
-
 class TessdataManager {
  public:
   TessdataManager();
@@ -135,22 +134,22 @@ class TessdataManager {
 
   // Lazily loads from the the given filename. Won't actually read the file
   // until it needs it.
-  void LoadFileLater(const char *data_file_name);
+  void LoadFileLater(const char* data_file_name);
   /**
    * Opens and reads the given data file right now.
    * @return true on success.
    */
-  bool Init(const char *data_file_name);
+  bool Init(const char* data_file_name);
   // Loads from the given memory buffer as if a file, remembering name as some
   // arbitrary source id for caching.
-  bool LoadMemBuffer(const char *name, const char *data, int size);
+  bool LoadMemBuffer(const char* name, const char* data, int size);
   // Overwrites a single entry of the given type.
-  void OverwriteEntry(TessdataType type, const char *data, int size);
+  void OverwriteEntry(TessdataType type, const char* data, int size);
 
   // Saves to the given filename.
-  bool SaveFile(const STRING &filename, FileWriter writer) const;
+  bool SaveFile(const STRING& filename, FileWriter writer) const;
   // Serializes to the given vector.
-  void Serialize(GenericVector<char> *data) const;
+  void Serialize(GenericVector<char>* data) const;
   // Resets to the initial state, keeping the reader.
   void Clear();
 
@@ -163,15 +162,15 @@ class TessdataManager {
   }
   // Opens the given TFile pointer to the given component type.
   // Returns false in case of failure.
-  bool GetComponent(TessdataType type, TFile *fp);
+  bool GetComponent(TessdataType type, TFile* fp);
   // As non-const version except it can't load the component if not already
   // loaded.
-  bool GetComponent(TessdataType type, TFile *fp) const;
+  bool GetComponent(TessdataType type, TFile* fp) const;
 
   // Returns the current version string.
   std::string VersionString() const;
   // Sets the version string to the given v_str.
-  void SetVersionString(const std::string &v_str);
+  void SetVersionString(const std::string& v_str);
 
   // Returns true if the base Tesseract components are present.
   bool IsBaseAvailable() const {
@@ -183,24 +182,23 @@ class TessdataManager {
   bool IsLSTMAvailable() const { return !entries_[TESSDATA_LSTM].empty(); }
 
   // Return the name of the underlying data file.
-  const STRING &GetDataFileName() const { return data_file_name_; }
+  const STRING& GetDataFileName() const { return data_file_name_; }
 
   /**
    * Reads all the standard tesseract config and data files for a language
    * at the given path and bundles them up into one binary data file.
    * Returns true if the combined traineddata file was successfully written.
    */
-  bool CombineDataFiles(const char *language_data_path_prefix,
-                        const char *output_filename);
+  bool CombineDataFiles(const char* language_data_path_prefix,
+                        const char* output_filename);
 
   /**
    * Gets the individual components from the data_file_ with which the class was
    * initialized. Overwrites the components specified by component_filenames.
    * Writes the updated traineddata file to new_traineddata_filename.
    */
-  bool OverwriteComponents(const char *new_traineddata_filename,
-                            char **component_filenames,
-                            int num_new_components);
+  bool OverwriteComponents(const char* new_traineddata_filename,
+                           char** component_filenames, int num_new_components);
 
   /**
    * Extracts tessdata component implied by the name of the input file from
@@ -212,7 +210,7 @@ class TessdataManager {
    * @return true if the component was successfully extracted, false if the
    * component was not present in the traineddata loaded into TessdataManager.
    */
-  bool ExtractToFile(const char *filename);
+  bool ExtractToFile(const char* filename);
 
   /**
    * Fills type with TessdataType of the tessdata component represented by the
@@ -220,15 +218,15 @@ class TessdataManager {
    * @return true if the tessdata component type could be determined
    * from the given file name.
    */
-  static bool TessdataTypeFromFileSuffix(const char *suffix,
-                                         TessdataType *type);
+  static bool TessdataTypeFromFileSuffix(const char* suffix,
+                                         TessdataType* type);
 
   /**
    * Tries to determine tessdata component file suffix from filename,
    * returns true on success.
    */
-  static bool TessdataTypeFromFileName(const char *filename,
-                                       TessdataType *type);
+  static bool TessdataTypeFromFileName(const char* filename,
+                                       TessdataType* type);
 
  private:
   // Name of file it came from.

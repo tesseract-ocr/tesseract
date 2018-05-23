@@ -64,14 +64,13 @@ class Parallel : public Plumbing {
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
   void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+               const TransposedArray* input_transpose, NetworkScratch* scratch,
+               NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
   bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+                NetworkScratch* scratch, NetworkIO* back_deltas) override;
 
  private:
   // If *this is a NT_REPLICATED, then it feeds a replicated network with

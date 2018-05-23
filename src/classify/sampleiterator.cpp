@@ -25,18 +25,16 @@ namespace tesseract {
 // ================== SampleIterator Implementation =================
 
 SampleIterator::SampleIterator()
-  : charset_map_(nullptr),
-    shape_table_(nullptr),
-    sample_set_(nullptr),
-    randomize_(false),
-    owned_shape_table_(nullptr) {
+    : charset_map_(nullptr),
+      shape_table_(nullptr),
+      sample_set_(nullptr),
+      randomize_(false),
+      owned_shape_table_(nullptr) {
   num_shapes_ = 0;
   Begin();
 }
 
-SampleIterator::~SampleIterator() {
-  Clear();
-}
+SampleIterator::~SampleIterator() { Clear(); }
 
 void SampleIterator::Clear() {
   delete owned_shape_table_;
@@ -45,8 +43,7 @@ void SampleIterator::Clear() {
 
 // See class comment for arguments.
 void SampleIterator::Init(const IndexMapBiDi* charset_map,
-                          const ShapeTable* shape_table,
-                          bool randomize,
+                          const ShapeTable* shape_table, bool randomize,
                           TrainingSampleSet* sample_set) {
   Clear();
   charset_map_ = charset_map;
@@ -74,8 +71,8 @@ void SampleIterator::Init(const IndexMapBiDi* charset_map,
   if (shape_table_ != nullptr) {
     num_shapes_ = shape_table_->NumShapes();
   } else {
-    num_shapes_ = randomize ? sample_set_->num_samples()
-                            : sample_set_->num_raw_samples();
+    num_shapes_ =
+        randomize ? sample_set_->num_samples() : sample_set_->num_raw_samples();
   }
   Begin();
 }
@@ -96,9 +93,7 @@ void SampleIterator::Begin() {
   Next();
 }
 
-bool SampleIterator::AtEnd() const {
-  return shape_index_ >= num_shapes_;
-}
+bool SampleIterator::AtEnd() const { return shape_index_ >= num_shapes_; }
 
 const TrainingSample& SampleIterator::GetSample() const {
   if (shape_table_ != nullptr) {
@@ -141,7 +136,7 @@ int SampleIterator::GlobalSampleIndex() const {
 // If the charset_map_ is nullptr, then this is equal to GetSparseClassID().
 int SampleIterator::GetCompactClassID() const {
   return charset_map_ != nullptr ? charset_map_->SparseToCompact(shape_index_)
-                              : GetSparseClassID();
+                                 : GetSparseClassID();
 }
 // Returns the index of the current sample in sparse charset space, so
 // in a 2-class problem between x and y, the returned indices will all be
@@ -157,8 +152,7 @@ void SampleIterator::Next() {
   if (shape_table_ != nullptr) {
     // Next sample in this class/font combination.
     ++sample_index_;
-    if (sample_index_ < num_samples_)
-      return;
+    if (sample_index_ < num_samples_) return;
     // Next font in this class in this shape.
     sample_index_ = 0;
     do {
@@ -172,11 +166,9 @@ void SampleIterator::Next() {
           shape_char_index_ = 0;
           do {
             ++shape_index_;
-          } while (shape_index_ < num_shapes_ &&
-                   charset_map_ != nullptr &&
+          } while (shape_index_ < num_shapes_ && charset_map_ != nullptr &&
                    charset_map_->SparseToCompact(shape_index_) < 0);
-          if (shape_index_ >= num_shapes_)
-            return;  // The end.
+          if (shape_index_ >= num_shapes_) return;  // The end.
           num_shape_chars_ = shape_table_->GetShape(shape_index_).size();
         }
       }
@@ -195,15 +187,15 @@ void SampleIterator::Next() {
 // Returns the size of the compact charset space.
 int SampleIterator::CompactCharsetSize() const {
   return charset_map_ != nullptr ? charset_map_->CompactSize()
-                              : SparseCharsetSize();
+                                 : SparseCharsetSize();
 }
 
 // Returns the size of the sparse charset space.
 int SampleIterator::SparseCharsetSize() const {
   return charset_map_ != nullptr
-      ? charset_map_->SparseSize()
-      : (shape_table_ != nullptr ? shape_table_->NumShapes()
-                              : sample_set_->charsetsize());
+             ? charset_map_->SparseSize()
+             : (shape_table_ != nullptr ? shape_table_->NumShapes()
+                                        : sample_set_->charsetsize());
 }
 
 // Apply the supplied feature_space/feature_map transform to all samples

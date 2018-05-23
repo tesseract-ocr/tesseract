@@ -54,13 +54,9 @@ class IndexMap {
     return compact_map_[compact_index];
   }
   // The size of the sparse space.
-  virtual int SparseSize() const {
-    return sparse_size_;
-  }
+  virtual int SparseSize() const { return sparse_size_; }
   // The size of the compact space.
-  int CompactSize() const {
-    return compact_map_.size();
-  }
+  int CompactSize() const { return compact_map_.size(); }
 
   // Copy from the input.
   void CopyFrom(const IndexMap& src);
@@ -139,9 +135,7 @@ class IndexMapBiDi : public IndexMap {
     return sparse_map_[sparse_index];
   }
   // The size of the sparse space.
-  virtual int SparseSize() const {
-    return sparse_map_.size();
-  }
+  virtual int SparseSize() const { return sparse_map_.size(); }
 
   // Copy from the input.
   void CopyFrom(const IndexMapBiDi& src);

@@ -49,9 +49,9 @@ bool LSTMTester::LoadAllEvalData(const GenericVector<STRING>& filenames) {
 
 // Runs an evaluation asynchronously on the stored data and returns a string
 // describing the results of the previous test.
-STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
-                                const TessdataManager& model_mgr,
-                                int training_stage) {
+STRING
+LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
+                         const TessdataManager& model_mgr, int training_stage) {
   STRING result;
   if (total_pages_ == 0) {
     result.add_str_int("No test data at iteration", iteration);
@@ -79,9 +79,10 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
 
 // Runs an evaluation synchronously on the stored data and returns a string
 // describing the results.
-STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
-                               const TessdataManager& model_mgr,
-                               int training_stage, int verbosity) {
+STRING
+LSTMTester::RunEvalSync(int iteration, const double* training_errors,
+                        const TessdataManager& model_mgr, int training_stage,
+                        int verbosity) {
   LSTMTrainer trainer;
   trainer.InitCharSet(model_mgr);
   TFile fp;

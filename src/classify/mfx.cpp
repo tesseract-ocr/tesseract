@@ -18,11 +18,11 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "mfdefs.h"
-#include "mfoutline.h"
-#include "clusttool.h"           //NEEDED
+#include "clusttool.h"  //NEEDED
 #include "const.h"
 #include "intfx.h"
+#include "mfdefs.h"
+#include "mfoutline.h"
 #include "normalis.h"
 #include "params.h"
 
@@ -42,17 +42,19 @@ double_VAR(classify_max_slope, 2.414213562,
           Macros
 ----------------------------------------------------------------------------*/
 /* miscellaneous macros */
-#define NormalizeAngle(A)       ( (((A)<0)?((A)+2*PI):(A)) / (2*PI) )
+#define NormalizeAngle(A) ((((A) < 0) ? ((A) + 2 * PI) : (A)) / (2 * PI))
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End);
+FLOAT32
+ComputeOrientation(MFEDGEPT* Start, MFEDGEPT* End);
 
-MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
-                                     MICROFEATURES MicroFeatures);
+MICROFEATURES
+ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatures);
 
-MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
+MICROFEATURE
+ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
 
 /*----------------------------------------------------------------------------
             Public Code
@@ -69,7 +71,8 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
  * @note Exceptions: none
  * @note History: 7/21/89, DSJ, Created.
  */
-MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
+MICROFEATURES
+BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
   MICROFEATURES MicroFeatures = NIL_LIST;
   LIST Outlines;
   LIST RemainingOutlines;
@@ -80,13 +83,13 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first_node (RemainingOutlines);
+      Outline = (MFOUTLINE)first_node(RemainingOutlines);
       CharNormalizeOutline(Outline, cn_denorm);
     }
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first_node(RemainingOutlines);
+      Outline = (MFOUTLINE)first_node(RemainingOutlines);
       FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
       MarkDirectionChanges(Outline);
       MicroFeatures = ConvertToMicroFeatures(Outline, MicroFeatures);
@@ -94,8 +97,7 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
     FreeOutlines(Outlines);
   }
   return MicroFeatures;
-}                                /* BlobMicroFeatures */
-
+} /* BlobMicroFeatures */
 
 /*---------------------------------------------------------------------------
             Private Code
@@ -117,16 +119,16 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
  * @note Exceptions: none
  * @note History: 7/27/89, DSJ, Created.
  */
-FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
+FLOAT32
+ComputeOrientation(MFEDGEPT* Start, MFEDGEPT* End) {
   FLOAT32 Orientation;
 
-  Orientation = NormalizeAngle (AngleFrom (Start->Point, End->Point));
+  Orientation = NormalizeAngle(AngleFrom(Start->Point, End->Point));
 
   /* ensure that round-off errors do not put circular param out of range */
-  if ((Orientation < 0) || (Orientation >= 1))
-    Orientation = 0;
+  if ((Orientation < 0) || (Orientation >= 1)) Orientation = 0;
   return (Orientation);
-}                                /* ComputeOrientation */
+} /* ComputeOrientation */
 
 /**
  * Convert Outline to MicroFeatures
@@ -137,31 +139,29 @@ FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
  * @note Exceptions: none
  * @note History: 7/26/89, DSJ, Created.
  */
-MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
-                                     MICROFEATURES MicroFeatures) {
+MICROFEATURES
+ConvertToMicroFeatures(MFOUTLINE Outline, MICROFEATURES MicroFeatures) {
   MFOUTLINE Current;
   MFOUTLINE Last;
   MFOUTLINE First;
   MICROFEATURE NewFeature;
 
-  if (DegenerateOutline (Outline))
-    return (MicroFeatures);
+  if (DegenerateOutline(Outline)) return (MicroFeatures);
 
-  First = NextExtremity (Outline);
+  First = NextExtremity(Outline);
   Last = First;
   do {
-    Current = NextExtremity (Last);
+    Current = NextExtremity(Last);
     if (!PointAt(Current)->Hidden) {
-      NewFeature = ExtractMicroFeature (Last, Current);
+      NewFeature = ExtractMicroFeature(Last, Current);
       if (NewFeature != nullptr)
-        MicroFeatures = push (MicroFeatures, NewFeature);
+        MicroFeatures = push(MicroFeatures, NewFeature);
     }
     Last = Current;
-  }
-  while (Last != First);
+  } while (Last != First);
 
   return (MicroFeatures);
-}                                /* ConvertToMicroFeatures */
+} /* ConvertToMicroFeatures */
 
 /**
  * This routine computes the feature parameters which describe
@@ -180,20 +180,21 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
  * - 7/26/89, DSJ, Created.
  * - 11/17/89, DSJ, Added handling for Start and End same point.
  */
-MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
+MICROFEATURE
+ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MICROFEATURE NewFeature;
   MFEDGEPT *P1, *P2;
 
   P1 = PointAt(Start);
   P2 = PointAt(End);
 
-  NewFeature = NewMicroFeature ();
+  NewFeature = NewMicroFeature();
   NewFeature[XPOSITION] = AverageOf(P1->Point.x, P2->Point.x);
   NewFeature[YPOSITION] = AverageOf(P1->Point.y, P2->Point.y);
   NewFeature[MFLENGTH] = DistanceBetween(P1->Point, P2->Point);
   NewFeature[ORIENTATION] = NormalizedAngleFrom(&P1->Point, &P2->Point, 1.0);
-  NewFeature[FIRSTBULGE] = 0.0f;  // deprecated
+  NewFeature[FIRSTBULGE] = 0.0f;   // deprecated
   NewFeature[SECONDBULGE] = 0.0f;  // deprecated
 
   return NewFeature;
-}                                /* ExtractMicroFeature */
+} /* ExtractMicroFeature */

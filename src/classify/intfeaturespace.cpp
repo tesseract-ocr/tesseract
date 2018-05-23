@@ -23,10 +23,10 @@
 namespace tesseract {
 
 IntFeatureSpace::IntFeatureSpace()
-  : x_buckets_(0), y_buckets_(0), theta_buckets_(0) {
-}
+    : x_buckets_(0), y_buckets_(0), theta_buckets_(0) {}
 
-void IntFeatureSpace::Init(uint8_t xbuckets, uint8_t ybuckets, uint8_t thetabuckets) {
+void IntFeatureSpace::Init(uint8_t xbuckets, uint8_t ybuckets,
+                           uint8_t thetabuckets) {
   x_buckets_ = xbuckets;
   y_buckets_ = ybuckets;
   theta_buckets_ = thetabuckets;
@@ -35,12 +35,9 @@ void IntFeatureSpace::Init(uint8_t xbuckets, uint8_t ybuckets, uint8_t thetabuck
 // Serializes the feature space definition to the given file.
 // Returns false on error.
 bool IntFeatureSpace::Serialize(FILE* fp) const {
-  if (fwrite(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1)
-    return false;
-  if (fwrite(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1)
-    return false;
-  if (fwrite(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1)
-    return false;
+  if (fwrite(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1) return false;
+  if (fwrite(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1) return false;
+  if (fwrite(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1) return false;
   return true;
 }
 
@@ -48,18 +45,16 @@ bool IntFeatureSpace::Serialize(FILE* fp) const {
 // If swap is true, the data is big/little-endian swapped.
 // Returns false on error.
 bool IntFeatureSpace::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1)
-    return false;
-  if (fread(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1)
-    return false;
-  if (fread(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1)
-    return false;
+  if (fread(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1) return false;
+  if (fread(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1) return false;
+  if (fread(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1) return false;
   return true;
 }
 
 // Returns an INT_FEATURE_STRUCT corresponding to the given index.
 // This is the inverse of the Index member.
-INT_FEATURE_STRUCT IntFeatureSpace::PositionFromIndex(int index) const {
+INT_FEATURE_STRUCT
+IntFeatureSpace::PositionFromIndex(int index) const {
   return PositionFromBuckets(index / (y_buckets_ * theta_buckets_),
                              index / theta_buckets_ % y_buckets_,
                              index % theta_buckets_);
@@ -101,8 +96,8 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
     return -1;
   }
   feature = PositionFromIndex(index);
-  tprintf("Click at (%d, %d) ->(%d, %d), ->(%d, %d)\n",
-          x, y, feature.X, feature.Y, x - feature.X, y - feature.Y);
+  tprintf("Click at (%d, %d) ->(%d, %d), ->(%d, %d)\n", x, y, feature.X,
+          feature.Y, x - feature.X, y - feature.Y);
   // Get the relative position of x,y from the rounded feature.
   x -= feature.X;
   y -= feature.Y;
@@ -123,9 +118,8 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
 }
 
 // Returns an INT_FEATURE_STRUCT corresponding to the given bucket coords.
-INT_FEATURE_STRUCT IntFeatureSpace::PositionFromBuckets(int x,
-                                                        int y,
-                                                        int theta) const {
+INT_FEATURE_STRUCT
+IntFeatureSpace::PositionFromBuckets(int x, int y, int theta) const {
   INT_FEATURE_STRUCT pos(
       (x * kIntFeatureExtent + kIntFeatureExtent / 2) / x_buckets_,
       (y * kIntFeatureExtent + kIntFeatureExtent / 2) / y_buckets_,

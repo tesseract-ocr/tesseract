@@ -17,7 +17,7 @@
 // limitations under the License.
 
 #include "commandlineflags.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "lang_model_helpers.h"
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
   return tesseract::CombineLangModel(
       unicharset, FLAGS_script_dir.c_str(), FLAGS_version_str.c_str(),
       FLAGS_output_dir.c_str(), FLAGS_lang.c_str(), FLAGS_pass_through_recoder,
-      words, puncs, numbers, FLAGS_lang_is_rtl, /*reader*/ nullptr,
+      words, puncs, numbers, FLAGS_lang_is_rtl,
+      /*reader*/ nullptr,
       /*writer*/ nullptr);
 }

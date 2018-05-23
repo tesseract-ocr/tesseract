@@ -18,16 +18,16 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include <stdarg.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <string.h>
-#include <map>
-#include <utility>
 #include <algorithm>
-#include <vector>
-#include <string>
-#include <cstring>
 #include <climits>
+#include <cstring>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -55,7 +55,8 @@ static std::map<int, ScrollView*> svmap;
 static SVMutex* svmap_mu;
 // A map of all semaphores waiting for a specific event on a specific window.
 static std::map<std::pair<ScrollView*, SVEventType>,
-                std::pair<SVSemaphore*, SVEvent*> > waiting_for_events;
+                std::pair<SVSemaphore*, SVEvent*>>
+    waiting_for_events;
 static SVMutex* waiting_for_events_mu;
 
 SVEvent* SVEvent::copy() {
@@ -86,9 +87,9 @@ void* ScrollView::MessageReceiver(void* a) {
     message = ScrollView::GetStream()->Receive();
   } while (message == nullptr);
 
-// This is the main loop which iterates until the server is dead (strlen = -1).
-// It basically parses for 3 different messagetypes and then distributes the
-// events accordingly.
+  // This is the main loop which iterates until the server is dead (strlen =
+  // -1). It basically parses for 3 different messagetypes and then distributes
+  // the events accordingly.
   while (1) {
     // The new event we create.
     SVEvent* cur = new SVEvent;
@@ -132,18 +133,19 @@ void* ScrollView::MessageReceiver(void* a) {
       counter_event_id += 2;
 
       // In case of an SVET_EXIT event, quit the whole application.
-      if (ev_type == SVET_EXIT) { ScrollView::Exit(); }
+      if (ev_type == SVET_EXIT) {
+        ScrollView::Exit();
+      }
 
       // Place two copies of it in the table for the window.
       cur->window->SetEvent(cur);
 
       // Check if any of the threads currently waiting want it.
-      std::pair<ScrollView*, SVEventType> awaiting_list(cur->window,
-                                                        cur->type);
+      std::pair<ScrollView*, SVEventType> awaiting_list(cur->window, cur->type);
       std::pair<ScrollView*, SVEventType> awaiting_list_any(cur->window,
                                                             SVET_ANY);
-      std::pair<ScrollView*, SVEventType> awaiting_list_any_window((ScrollView*)0,
-                                                            SVET_ANY);
+      std::pair<ScrollView*, SVEventType> awaiting_list_any_window(
+          (ScrollView*)0, SVET_ANY);
       waiting_for_events_mu->Lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
         waiting_for_events[awaiting_list].second = cur;
@@ -179,62 +181,61 @@ void* ScrollView::MessageReceiver(void* a) {
 }
 
 // Table to implement the color index values in the old system.
-int table_colors[ScrollView::GREEN_YELLOW+1][4]= {
-  {0, 0, 0, 0},        // NONE (transparent)
-  {0, 0, 0, 255},        // BLACK.
-  {255, 255, 255, 255},  // WHITE.
-  {255, 0, 0, 255},      // RED.
-  {255, 255, 0, 255},    // YELLOW.
-  {0, 255, 0, 255},      // GREEN.
-  {0, 255, 255, 255},    // CYAN.
-  {0, 0, 255, 255},      // BLUE.
-  {255, 0, 255, 255},    // MAGENTA.
-  {0, 128, 255, 255},    // AQUAMARINE.
-  {0, 0, 64, 255},       // DARK_SLATE_BLUE.
-  {128, 128, 255, 255},  // LIGHT_BLUE.
-  {64, 64, 255, 255},    // MEDIUM_BLUE.
-  {0, 0, 32, 255},       // MIDNIGHT_BLUE.
-  {0, 0, 128, 255},      // NAVY_BLUE.
-  {192, 192, 255, 255},  // SKY_BLUE.
-  {64, 64, 128, 255},    // SLATE_BLUE.
-  {32, 32, 64, 255},     // STEEL_BLUE.
-  {255, 128, 128, 255},  // CORAL.
-  {128, 64, 0, 255},     // BROWN.
-  {128, 128, 0, 255},    // SANDY_BROWN.
-  {192, 192, 0, 255},    // GOLD.
-  {192, 192, 128, 255},  // GOLDENROD.
-  {0, 64, 0, 255},       // DARK_GREEN.
-  {32, 64, 0, 255},      // DARK_OLIVE_GREEN.
-  {64, 128, 0, 255},     // FOREST_GREEN.
-  {128, 255, 0, 255},    // LIME_GREEN.
-  {192, 255, 192, 255},  // PALE_GREEN.
-  {192, 255, 0, 255},    // YELLOW_GREEN.
-  {192, 192, 192, 255},  // LIGHT_GREY.
-  {64, 64, 128, 255},    // DARK_SLATE_GREY.
-  {64, 64, 64, 255},     // DIM_GREY.
-  {128, 128, 128, 255},  // GREY.
-  {64, 192, 0, 255},     // KHAKI.
-  {255, 0, 192, 255},    // MAROON.
-  {255, 128, 0, 255},    // ORANGE.
-  {255, 128, 64, 255},   // ORCHID.
-  {255, 192, 192, 255},  // PINK.
-  {128, 0, 128, 255},    // PLUM.
-  {255, 0, 64, 255},     // INDIAN_RED.
-  {255, 64, 0, 255},     // ORANGE_RED.
-  {255, 0, 192, 255},    // VIOLET_RED.
-  {255, 192, 128, 255},  // SALMON.
-  {128, 128, 0, 255},    // TAN.
-  {0, 255, 255, 255},    // TURQUOISE.
-  {0, 128, 128, 255},    // DARK_TURQUOISE.
-  {192, 0, 255, 255},    // VIOLET.
-  {128, 128, 0, 255},    // WHEAT.
-  {128, 255, 0, 255}     // GREEN_YELLOW
+int table_colors[ScrollView::GREEN_YELLOW + 1][4] = {
+    {0, 0, 0, 0},          // NONE (transparent)
+    {0, 0, 0, 255},        // BLACK.
+    {255, 255, 255, 255},  // WHITE.
+    {255, 0, 0, 255},      // RED.
+    {255, 255, 0, 255},    // YELLOW.
+    {0, 255, 0, 255},      // GREEN.
+    {0, 255, 255, 255},    // CYAN.
+    {0, 0, 255, 255},      // BLUE.
+    {255, 0, 255, 255},    // MAGENTA.
+    {0, 128, 255, 255},    // AQUAMARINE.
+    {0, 0, 64, 255},       // DARK_SLATE_BLUE.
+    {128, 128, 255, 255},  // LIGHT_BLUE.
+    {64, 64, 255, 255},    // MEDIUM_BLUE.
+    {0, 0, 32, 255},       // MIDNIGHT_BLUE.
+    {0, 0, 128, 255},      // NAVY_BLUE.
+    {192, 192, 255, 255},  // SKY_BLUE.
+    {64, 64, 128, 255},    // SLATE_BLUE.
+    {32, 32, 64, 255},     // STEEL_BLUE.
+    {255, 128, 128, 255},  // CORAL.
+    {128, 64, 0, 255},     // BROWN.
+    {128, 128, 0, 255},    // SANDY_BROWN.
+    {192, 192, 0, 255},    // GOLD.
+    {192, 192, 128, 255},  // GOLDENROD.
+    {0, 64, 0, 255},       // DARK_GREEN.
+    {32, 64, 0, 255},      // DARK_OLIVE_GREEN.
+    {64, 128, 0, 255},     // FOREST_GREEN.
+    {128, 255, 0, 255},    // LIME_GREEN.
+    {192, 255, 192, 255},  // PALE_GREEN.
+    {192, 255, 0, 255},    // YELLOW_GREEN.
+    {192, 192, 192, 255},  // LIGHT_GREY.
+    {64, 64, 128, 255},    // DARK_SLATE_GREY.
+    {64, 64, 64, 255},     // DIM_GREY.
+    {128, 128, 128, 255},  // GREY.
+    {64, 192, 0, 255},     // KHAKI.
+    {255, 0, 192, 255},    // MAROON.
+    {255, 128, 0, 255},    // ORANGE.
+    {255, 128, 64, 255},   // ORCHID.
+    {255, 192, 192, 255},  // PINK.
+    {128, 0, 128, 255},    // PLUM.
+    {255, 0, 64, 255},     // INDIAN_RED.
+    {255, 64, 0, 255},     // ORANGE_RED.
+    {255, 0, 192, 255},    // VIOLET_RED.
+    {255, 192, 128, 255},  // SALMON.
+    {128, 128, 0, 255},    // TAN.
+    {0, 255, 255, 255},    // TURQUOISE.
+    {0, 128, 128, 255},    // DARK_TURQUOISE.
+    {192, 0, 255, 255},    // VIOLET.
+    {128, 128, 0, 255},    // WHEAT.
+    {128, 255, 0, 255}     // GREEN_YELLOW
 };
 
-
 /*******************************************************************************
-* Scrollview implementation.
-*******************************************************************************/
+ * Scrollview implementation.
+ *******************************************************************************/
 
 SVNetwork* ScrollView::stream_ = nullptr;
 int ScrollView::nr_created_windows_ = 0;
@@ -245,7 +246,8 @@ ScrollView::ScrollView(const char* name, int x_pos, int y_pos, int x_size,
                        int y_size, int x_canvas_size, int y_canvas_size,
                        bool y_axis_reversed, const char* server_name) {
   Initialize(name, x_pos, y_pos, x_size, y_size, x_canvas_size, y_canvas_size,
-             y_axis_reversed, server_name);}
+             y_axis_reversed, server_name);
+}
 
 /// Calls Initialize with default argument for server_name_.
 ScrollView::ScrollView(const char* name, int x_pos, int y_pos, int x_size,
@@ -306,8 +308,8 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
   snprintf(message, sizeof(message),
            "w%u = luajava.newInstance('com.google.scrollview.ui"
            ".SVWindow','%s',%u,%u,%u,%u,%u,%u,%u)\n",
-           window_id_, window_name_, window_id_,
-           x_pos, y_pos, x_size, y_size, x_canvas_size, y_canvas_size);
+           window_id_, window_name_, window_id_, x_pos, y_pos, x_size, y_size,
+           x_canvas_size, y_canvas_size);
   SendRawMessage(message);
 
   SVSync::StartThread(StartEventHandler, this);
@@ -339,22 +341,26 @@ void* ScrollView::StartEventHandler(void* a) {
     if (new_event != nullptr) {
       sv->event_table_[k] = nullptr;
       sv->mutex_->Unlock();
-      if (sv->event_handler_ != nullptr) { sv->event_handler_->Notify(new_event); }
+      if (sv->event_handler_ != nullptr) {
+        sv->event_handler_->Notify(new_event);
+      }
       if (new_event->type == SVET_DESTROY) {
         // Signal the destructor that it is safe to terminate.
         sv->event_handler_ended_ = true;
         sv = nullptr;
       }
       delete new_event;  // Delete the pointer after it has been processed.
-    } else { sv->mutex_->Unlock(); }
-  // The thread should run as long as its associated window is alive.
+    } else {
+      sv->mutex_->Unlock();
+    }
+    // The thread should run as long as its associated window is alive.
   } while (sv != nullptr);
   return nullptr;
 }
 #endif  // GRAPHICS_DISABLED
 
 ScrollView::~ScrollView() {
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   svmap_mu->Lock();
   if (svmap[window_id_] != nullptr) {
     svmap_mu->Unlock();
@@ -369,8 +375,7 @@ ScrollView::~ScrollView() {
     // The event handler thread for this window *must* receive the
     // destroy event and set its pointer to this to nullptr before we allow
     // the destructor to exit.
-    while (!event_handler_ended_)
-      Update();
+    while (!event_handler_ended_) Update();
   } else {
     svmap_mu->Unlock();
   }
@@ -380,14 +385,13 @@ ScrollView::~ScrollView() {
   for (int i = 0; i < SVET_COUNT; i++) {
     delete event_table_[i];
   }
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 }
 
 #ifndef GRAPHICS_DISABLED
 /// Send a message to the server, attaching the window id.
 void ScrollView::SendMsg(const char* format, ...) {
-  if (!points_->empty)
-    SendPolygon();
+  if (!points_->empty) SendPolygon();
   va_list args;
   char message[kMaxMsgSize];
 
@@ -403,26 +407,22 @@ void ScrollView::SendMsg(const char* format, ...) {
 
 /// Send a message to the server without a
 /// window id. Used for global events like exit().
-void ScrollView::SendRawMessage(const char* msg) {
-  stream_->Send(msg);
-}
+void ScrollView::SendRawMessage(const char* msg) { stream_->Send(msg); }
 
 /// Add an Event Listener to this ScrollView Window
 void ScrollView::AddEventHandler(SVEventHandler* listener) {
   event_handler_ = listener;
 }
 
-void ScrollView::Signal() {
-  semaphore_->Signal();
-}
+void ScrollView::Signal() { semaphore_->Signal(); }
 
 void ScrollView::SetEvent(SVEvent* svevent) {
-// Copy event
+  // Copy event
   SVEvent* any = svevent->copy();
   SVEvent* specific = svevent->copy();
   any->counter = specific->counter + 1;
 
-// Place both events into the queue.
+  // Place both events into the queue.
   mutex_->Lock();
   // Delete the old objects..
   delete event_table_[specific->type];
@@ -433,7 +433,6 @@ void ScrollView::SetEvent(SVEvent* svevent) {
   mutex_->Unlock();
 }
 
-
 /// Block until an event of the given type is received.
 /// Note: The calling function is responsible for deleting the returned
 /// SVEvent afterwards!
@@ -442,7 +441,7 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
   SVSemaphore* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea(this, type);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*>(sem, (SVEvent*)0);
   waiting_for_events_mu->Unlock();
   // Wait on it, but first flush.
   stream_->Flush();
@@ -463,7 +462,7 @@ SVEvent* ScrollView::AwaitEventAnyWindow() {
   SVSemaphore* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea((ScrollView*)0, SVET_ANY);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*>(sem, (SVEvent*)0);
   waiting_for_events_mu->Unlock();
   // Wait on it.
   stream_->Flush();
@@ -485,8 +484,7 @@ void ScrollView::SendPolygon() {
     // last setCursor has any effect.
     if (length == 2) {
       // An isolated line!
-      SendMsg("drawLine(%d,%d,%d,%d)",
-              points_->xcoords[0], points_->ycoords[0],
+      SendMsg("drawLine(%d,%d,%d,%d)", points_->xcoords[0], points_->ycoords[0],
               points_->xcoords[1], points_->ycoords[1]);
     } else if (length > 2) {
       // A polyline.
@@ -494,8 +492,8 @@ void ScrollView::SendPolygon() {
       char coordpair[kMaxIntPairSize];
       std::string decimal_coords;
       for (int i = 0; i < length; ++i) {
-        snprintf(coordpair, kMaxIntPairSize, "%d,%d,",
-                 points_->xcoords[i], points_->ycoords[i]);
+        snprintf(coordpair, kMaxIntPairSize, "%d,%d,", points_->xcoords[i],
+                 points_->ycoords[i]);
         decimal_coords += coordpair;
       }
       decimal_coords += '\n';
@@ -507,10 +505,9 @@ void ScrollView::SendPolygon() {
   }
 }
 
-
 /*******************************************************************************
-* LUA "API" functions.
-*******************************************************************************/
+ * LUA "API" functions.
+ *******************************************************************************/
 
 // Sets the position from which to draw to (x,y).
 void ScrollView::SetCursor(int x, int y) {
@@ -532,7 +529,7 @@ void ScrollView::Line(int x1, int y1, int x2, int y2) {
     // We are already at x1, y1, so just draw to x2, y2.
     DrawTo(x2, y2);
   } else if (!points_->xcoords.empty() && x2 == points_->xcoords.back() &&
-      TranslateYCoordinate(y2) == points_->ycoords.back()) {
+             TranslateYCoordinate(y2) == points_->ycoords.back()) {
     // We are already at x2, y2, so just draw to x1, y1.
     DrawTo(x1, y1);
   } else {
@@ -544,14 +541,20 @@ void ScrollView::Line(int x1, int y1, int x2, int y2) {
 
 // Set the visibility of the window.
 void ScrollView::SetVisible(bool visible) {
-  if (visible) { SendMsg("setVisible(true)");
-  } else { SendMsg("setVisible(false)"); }
+  if (visible) {
+    SendMsg("setVisible(true)");
+  } else {
+    SendMsg("setVisible(false)");
+  }
 }
 
 // Set the alwaysOnTop flag.
 void ScrollView::AlwaysOnTop(bool b) {
-  if (b) { SendMsg("setAlwaysOnTop(true)");
-  } else { SendMsg("setAlwaysOnTop(false)"); }
+  if (b) {
+    SendMsg("setAlwaysOnTop(true)");
+  } else {
+    SendMsg("setAlwaysOnTop(false)");
+  }
 }
 
 // Adds a message entry to the message box.
@@ -572,9 +575,7 @@ void ScrollView::AddMessage(const char* format, ...) {
 }
 
 // Set a messagebox.
-void ScrollView::AddMessageBox() {
-  SendMsg("addMessageBox()");
-}
+void ScrollView::AddMessageBox() { SendMsg("addMessageBox()"); }
 
 // Exit the client completely (and notify the server of it).
 void ScrollView::Exit() {
@@ -583,29 +584,24 @@ void ScrollView::Exit() {
 }
 
 // Clear the canvas.
-void ScrollView::Clear() {
-  SendMsg("clear()");
-}
+void ScrollView::Clear() { SendMsg("clear()"); }
 
 // Set the stroke width.
-void ScrollView::Stroke(float width) {
-  SendMsg("setStrokeWidth(%f)", width);
-}
+void ScrollView::Stroke(float width) { SendMsg("setStrokeWidth(%f)", width); }
 
 // Draw a rectangle using the current pen color.
 // The rectangle is filled with the current brush color.
 void ScrollView::Rectangle(int x1, int y1, int x2, int y2) {
-  if (x1 == x2 && y1 == y2)
-    return;  // Scrollviewer locks up.
-  SendMsg("drawRectangle(%d,%d,%d,%d)",
-    x1, TranslateYCoordinate(y1), x2, TranslateYCoordinate(y2));
+  if (x1 == x2 && y1 == y2) return;  // Scrollviewer locks up.
+  SendMsg("drawRectangle(%d,%d,%d,%d)", x1, TranslateYCoordinate(y1), x2,
+          TranslateYCoordinate(y2));
 }
 
 // Draw an ellipse using the current pen color.
 // The ellipse is filled with the current brush color.
 void ScrollView::Ellipse(int x1, int y1, int width, int height) {
-  SendMsg("drawEllipse(%d,%d,%u,%u)",
-    x1, TranslateYCoordinate(y1), width, height);
+  SendMsg("drawEllipse(%d,%d,%u,%u)", x1, TranslateYCoordinate(y1), width,
+          height);
 }
 
 // Set the pen color to the given RGB values.
@@ -629,20 +625,28 @@ void ScrollView::Brush(int red, int green, int blue, int alpha) {
 }
 
 // Set the attributes for future Text(..) calls.
-void ScrollView::TextAttributes(const char* font, int pixel_size,
-                                bool bold, bool italic, bool underlined) {
+void ScrollView::TextAttributes(const char* font, int pixel_size, bool bold,
+                                bool italic, bool underlined) {
   const char* b;
   const char* i;
   const char* u;
 
-  if (bold) { b = "true";
-  } else { b = "false"; }
-  if (italic) { i = "true";
-  } else { i = "false"; }
-  if (underlined) { u = "true";
-  } else { u = "false"; }
-  SendMsg("textAttributes('%s',%u,%s,%s,%s)", font, pixel_size,
-    b, i, u);
+  if (bold) {
+    b = "true";
+  } else {
+    b = "false";
+  }
+  if (italic) {
+    i = "true";
+  } else {
+    i = "false";
+  }
+  if (underlined) {
+    u = "true";
+  } else {
+    u = "false";
+  }
+  SendMsg("textAttributes('%s',%u,%s,%s,%s)", font, pixel_size, b, i, u);
 }
 
 // Draw text at the given coordinates.
@@ -653,77 +657,82 @@ void ScrollView::Text(int x, int y, const char* mystring) {
 // Open and draw an image given a name at (x,y).
 void ScrollView::Image(const char* image, int x_pos, int y_pos) {
   SendMsg("openImage('%s')", image);
-  SendMsg("drawImage('%s',%d,%d)",
-                image, x_pos, TranslateYCoordinate(y_pos));
+  SendMsg("drawImage('%s',%d,%d)", image, x_pos, TranslateYCoordinate(y_pos));
 }
 
 // Add new checkboxmenuentry to menubar.
-void ScrollView::MenuItem(const char* parent, const char* name,
-                          int cmdEvent, bool flag) {
-  if (parent == nullptr) { parent = ""; }
-  if (flag) { SendMsg("addMenuBarItem('%s','%s',%d,true)",
-                      parent, name, cmdEvent);
-  } else { SendMsg("addMenuBarItem('%s','%s',%d,false)",
-                   parent, name, cmdEvent); }
+void ScrollView::MenuItem(const char* parent, const char* name, int cmdEvent,
+                          bool flag) {
+  if (parent == nullptr) {
+    parent = "";
+  }
+  if (flag) {
+    SendMsg("addMenuBarItem('%s','%s',%d,true)", parent, name, cmdEvent);
+  } else {
+    SendMsg("addMenuBarItem('%s','%s',%d,false)", parent, name, cmdEvent);
+  }
 }
 
 // Add new menuentry to menubar.
 void ScrollView::MenuItem(const char* parent, const char* name, int cmdEvent) {
-  if (parent == nullptr) { parent = ""; }
+  if (parent == nullptr) {
+    parent = "";
+  }
   SendMsg("addMenuBarItem('%s','%s',%d)", parent, name, cmdEvent);
 }
 
 // Add new submenu to menubar.
 void ScrollView::MenuItem(const char* parent, const char* name) {
-  if (parent == nullptr) { parent = ""; }
+  if (parent == nullptr) {
+    parent = "";
+  }
   SendMsg("addMenuBarItem('%s','%s')", parent, name);
 }
 
 // Add new submenu to popupmenu.
 void ScrollView::PopupItem(const char* parent, const char* name) {
-  if (parent == nullptr) { parent = ""; }
+  if (parent == nullptr) {
+    parent = "";
+  }
   SendMsg("addPopupMenuItem('%s','%s')", parent, name);
 }
 
 // Add new submenuentry to popupmenu.
-void ScrollView::PopupItem(const char* parent, const char* name,
-                           int cmdEvent, const char* value, const char* desc) {
-  if (parent == nullptr) { parent = ""; }
+void ScrollView::PopupItem(const char* parent, const char* name, int cmdEvent,
+                           const char* value, const char* desc) {
+  if (parent == nullptr) {
+    parent = "";
+  }
   char* esc = AddEscapeChars(value);
   char* esc2 = AddEscapeChars(desc);
-  SendMsg("addPopupMenuItem('%s','%s',%d,'%s','%s')", parent, name,
-          cmdEvent, esc, esc2);
+  SendMsg("addPopupMenuItem('%s','%s',%d,'%s','%s')", parent, name, cmdEvent,
+          esc, esc2);
   delete[] esc;
   delete[] esc2;
 }
 
 // Send an update message for a single window.
-void ScrollView::UpdateWindow() {
-  SendMsg("update()");
-}
+void ScrollView::UpdateWindow() { SendMsg("update()"); }
 
 // Note: this is an update to all windows
 void ScrollView::Update() {
   svmap_mu->Lock();
   for (std::map<int, ScrollView*>::iterator iter = svmap.begin();
-      iter != svmap.end(); ++iter) {
-    if (iter->second != nullptr)
-      iter->second->UpdateWindow();
+       iter != svmap.end(); ++iter) {
+    if (iter->second != nullptr) iter->second->UpdateWindow();
   }
   svmap_mu->Unlock();
 }
 
 // Set the pen color, using an enum value (e.g. ScrollView::ORANGE)
 void ScrollView::Pen(Color color) {
-  Pen(table_colors[color][0], table_colors[color][1],
-      table_colors[color][2], table_colors[color][3]);
+  Pen(table_colors[color][0], table_colors[color][1], table_colors[color][2],
+      table_colors[color][3]);
 }
 
 // Set the brush color, using an enum value (e.g. ScrollView::ORANGE)
 void ScrollView::Brush(Color color) {
-  Brush(table_colors[color][0],
-        table_colors[color][1],
-        table_colors[color][2],
+  Brush(table_colors[color][0], table_colors[color][1], table_colors[color][2],
         table_colors[color][3]);
 }
 
@@ -755,8 +764,8 @@ int ScrollView::ShowYesNoDialog(const char* msg) {
 void ScrollView::ZoomToRectangle(int x1, int y1, int x2, int y2) {
   y1 = TranslateYCoordinate(y1);
   y2 = TranslateYCoordinate(y2);
-  SendMsg("zoomRectangle(%d,%d,%d,%d)",
-          std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+  SendMsg("zoomRectangle(%d,%d,%d,%d)", std::min(x1, x2), std::min(y1, y2),
+          std::max(x1, x2), std::max(y1, y2));
 }
 
 // Send an image of type Pix.
@@ -769,14 +778,11 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
   SendMsg("readImage(%d,%d,%d)", x_pos, y_pos, base64_len);
   // Base64 encode the data.
   const char kBase64Table[64] = {
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-    'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-    'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-    'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-    'w', 'x', 'y', 'z', '0', '1', '2', '3',
-    '4', '5', '6', '7', '8', '9', '+', '/',
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+      'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/',
   };
   char* base64 = new char[base64_len + 1];
   memset(base64, '=', base64_len);
@@ -795,10 +801,9 @@ void ScrollView::Image(struct Pix* image, int x_pos, int y_pos) {
       remainder = 0;
     }
   }
-  if (bits_left > 0)
-    base64[code_len++] = kBase64Table[remainder & 63];
+  if (bits_left > 0) base64[code_len++] = kBase64Table[remainder & 63];
   SendRawMessage(base64);
-  delete [] base64;
+  delete[] base64;
   lept_free(data);
 }
 
@@ -810,21 +815,24 @@ char* ScrollView::AddEscapeChars(const char* input) {
   char* message = new char[kMaxMsgSize];
   int pos = 0;
   while (nextptr != nullptr) {
-    strncpy(message+pos, lastptr, nextptr-lastptr);
+    strncpy(message + pos, lastptr, nextptr - lastptr);
     pos += nextptr - lastptr;
     message[pos] = '\\';
     pos += 1;
     lastptr = nextptr;
-    nextptr = strchr(nextptr+1, '\'');
+    nextptr = strchr(nextptr + 1, '\'');
   }
-  strcpy(message+pos, lastptr);
+  strcpy(message + pos, lastptr);
   return message;
 }
 
 // Inverse the Y axis if the coordinates are actually inversed.
 int ScrollView::TranslateYCoordinate(int y) {
-  if (!y_axis_is_reversed_) { return y;
-  } else { return y_size_ - y; }
+  if (!y_axis_is_reversed_) {
+    return y;
+  } else {
+    return y_size_ - y;
+  }
 }
 
 #endif  // GRAPHICS_DISABLED

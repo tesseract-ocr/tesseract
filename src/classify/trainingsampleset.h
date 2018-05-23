@@ -52,24 +52,12 @@ class TrainingSampleSet {
   bool DeSerialize(bool swap, FILE* fp);
 
   // Accessors
-  int num_samples() const {
-    return samples_.size();
-  }
-  int num_raw_samples() const {
-    return num_raw_samples_;
-  }
-  int NumFonts() const {
-    return font_id_map_.SparseSize();
-  }
-  const UNICHARSET& unicharset() const {
-    return unicharset_;
-  }
-  int charsetsize() const {
-    return unicharset_size_;
-  }
-  const FontInfoTable& fontinfo_table() const {
-    return fontinfo_table_;
-  }
+  int num_samples() const { return samples_.size(); }
+  int num_raw_samples() const { return num_raw_samples_; }
+  int NumFonts() const { return font_id_map_.SparseSize(); }
+  const UNICHARSET& unicharset() const { return unicharset_; }
+  int charsetsize() const { return unicharset_size_; }
+  const FontInfoTable& fontinfo_table() const { return fontinfo_table_; }
 
   // Loads an initial unicharset, or sets one up if the file cannot be read.
   void LoadUnicharset(const char* filename);
@@ -121,13 +109,12 @@ class TrainingSampleSet {
   // Returns the distance between the given pair of font/class pairs.
   // Finds in cache or computes and caches.
   // OrganizeByFontAndClass must have been already called.
-  float ClusterDistance(int font_id1, int class_id1,
-                        int font_id2, int class_id2,
-                        const IntFeatureMap& feature_map);
+  float ClusterDistance(int font_id1, int class_id1, int font_id2,
+                        int class_id2, const IntFeatureMap& feature_map);
 
   // Computes the distance between the given pair of font/class pairs.
-  float ComputeClusterDistance(int font_id1, int class_id1,
-                               int font_id2, int class_id2,
+  float ComputeClusterDistance(int font_id1, int class_id1, int font_id2,
+                               int class_id2,
                                const IntFeatureMap& feature_map) const;
 
   // Returns the number of canonical features of font/class 2 for which
@@ -140,11 +127,9 @@ class TrainingSampleSet {
   // to include only those for which this assumption is true.
   // ComputeCanonicalFeatures and ComputeCloudFeatures must have been called
   // first, or the results will be nonsense.
-  int ReliablySeparable(int font_id1, int class_id1,
-                        int font_id2, int class_id2,
-                        const IntFeatureMap& feature_map,
+  int ReliablySeparable(int font_id1, int class_id1, int font_id2,
+                        int class_id2, const IntFeatureMap& feature_map,
                         bool thorough) const;
-
 
   // Returns the total index of the requested sample.
   // OrganizeByFontAndClass must have been already called.
@@ -158,9 +143,7 @@ class TrainingSampleSet {
   float GetCanonicalDist(int font_id, int class_id) const;
 
   // Returns a mutable pointer to the sample with the given index.
-  TrainingSample* mutable_sample(int index) {
-    return samples_[index];
-  }
+  TrainingSample* mutable_sample(int index) { return samples_[index]; }
   // Gets ownership of the sample with the given index, removing it from this.
   TrainingSample* extract_sample(int index) {
     TrainingSample* sample = samples_[index];
@@ -284,6 +267,5 @@ class TrainingSampleSet {
 };
 
 }  // namespace tesseract.
-
 
 #endif  // TRAININGSAMPLESETSET_H_

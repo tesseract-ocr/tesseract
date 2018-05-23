@@ -29,8 +29,8 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "seam.h"
 #include "ndminx.h"
+#include "seam.h"
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -43,8 +43,7 @@
  * value of its goodness.
  **********************************************************************/
 
-#define partial_split_priority(split)  \
-(grade_split_length   (split) +      \
-	grade_sharpness      (split))       \
+#define partial_split_priority(split) \
+  (grade_split_length(split) + grade_sharpness(split))
 
 #endif

@@ -72,9 +72,7 @@ class DetLineFit {
 
   // Fits a line to the points, returning the fitted line as a pair of
   // points, and the upper quartile error.
-  double Fit(ICOORD* pt1, ICOORD* pt2) {
-    return Fit(0, 0, pt1, pt2);
-  }
+  double Fit(ICOORD* pt1, ICOORD* pt2) { return Fit(0, 0, pt1, pt2); }
   // Fits a line to the points, ignoring the skip_first initial points and the
   // skip_last final points, returning the fitted line as a pair of points,
   // and the upper quartile error.
@@ -86,9 +84,8 @@ class DetLineFit {
   // [min_dist, max_dist]. Returns the resulting error metric using the same
   // reduced set of points.
   // *Makes use of floating point arithmetic*
-  double ConstrainedFit(const FCOORD& direction,
-                        double min_dist, double max_dist,
-                        bool debug, ICOORD* line_pt);
+  double ConstrainedFit(const FCOORD& direction, double min_dist,
+                        double max_dist, bool debug, ICOORD* line_pt);
 
   // Returns true if there were enough points at the last call to Fit or
   // ConstrainedFit for the fitted points to be used on a badly fitted line.
@@ -112,7 +109,7 @@ class DetLineFit {
   struct PointWidth {
     PointWidth() : pt(ICOORD(0, 0)), halfwidth(0) {}
     PointWidth(const ICOORD& pt0, int halfwidth0)
-      : pt(pt0), halfwidth(halfwidth0) {}
+        : pt(pt0), halfwidth(halfwidth0) {}
 
     ICOORD pt;
     int halfwidth;
@@ -141,8 +138,8 @@ class DetLineFit {
   // Computes all the cross product distances of the points perpendicular to
   // the given direction, ignoring distances outside of the give distance range,
   // storing the actual (signed) cross products in distances_.
-  void ComputeConstrainedDistances(const FCOORD& direction,
-                                   double min_dist, double max_dist);
+  void ComputeConstrainedDistances(const FCOORD& direction, double min_dist,
+                                   double max_dist);
 
   // Stores all the source points in the order they were given and their
   // halfwidths, if any.

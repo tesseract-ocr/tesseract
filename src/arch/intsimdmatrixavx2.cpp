@@ -20,8 +20,8 @@
 
 #ifdef __AVX2__
 #include <immintrin.h>
-#include <cstdint>
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
 namespace tesseract {

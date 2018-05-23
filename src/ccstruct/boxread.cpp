@@ -48,10 +48,8 @@ FILE* OpenBoxFile(const STRING& fname) {
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
 bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
-                  GenericVector<TBOX>* boxes,
-                  GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages) {
+                  GenericVector<TBOX>* boxes, GenericVector<STRING>* texts,
+                  GenericVector<STRING>* box_texts, GenericVector<int>* pages) {
   GenericVector<char> box_data;
   if (!tesseract::LoadDataFromFile(BoxFileName(filename), &box_data))
     return false;
@@ -64,11 +62,9 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
 
 // Reads all boxes from the string. Otherwise, as ReadAllBoxes.
 bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
-                  bool continue_on_failure,
-                  GenericVector<TBOX>* boxes,
+                  bool continue_on_failure, GenericVector<TBOX>* boxes,
                   GenericVector<STRING>* texts,
-                  GenericVector<STRING>* box_texts,
-                  GenericVector<int>* pages) {
+                  GenericVector<STRING>* box_texts, GenericVector<int>* pages) {
   STRING box_str(box_data);
   GenericVector<STRING> lines;
   box_str.split('\n', &lines);
@@ -100,9 +96,10 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
 }
 
 // Returns the box file name corresponding to the given image_filename.
-STRING BoxFileName(const STRING& image_filename) {
+STRING
+BoxFileName(const STRING& image_filename) {
   STRING box_filename = image_filename;
-  const char *lastdot = strrchr(box_filename.string(), '.');
+  const char* lastdot = strrchr(box_filename.string(), '.');
   if (lastdot != nullptr)
     box_filename.truncate_at(lastdot - box_filename.string());
 
@@ -121,25 +118,25 @@ STRING BoxFileName(const STRING& image_filename) {
 // for valid utf-8 and allows space or tab between fields.
 // utf8_str is set with the unichar string, and bounding box with the box.
 // If there are page numbers in the file, it reads them all.
-bool ReadNextBox(int *line_number, FILE* box_file,
-                 STRING* utf8_str, TBOX* bounding_box) {
+bool ReadNextBox(int* line_number, FILE* box_file, STRING* utf8_str,
+                 TBOX* bounding_box) {
   return ReadNextBox(-1, line_number, box_file, utf8_str, bounding_box);
 }
 
 // As ReadNextBox above, but get a specific page number. (0-based)
 // Use -1 to read any page number. Files without page number all
 // read as if they are page 0.
-bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
+bool ReadNextBox(int target_page, int* line_number, FILE* box_file,
                  STRING* utf8_str, TBOX* bounding_box) {
   int page = 0;
-  char buff[kBoxReadBufSize];   // boxfile read buffer
-  char *buffptr = buff;
+  char buff[kBoxReadBufSize];  // boxfile read buffer
+  char* buffptr = buff;
 
   while (fgets(buff, sizeof(buff) - 1, box_file)) {
     (*line_number)++;
 
     buffptr = buff;
-    const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+    const unsigned char* ubuf = reinterpret_cast<const unsigned char*>(buffptr);
     if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
       buffptr += 3;  // Skip unicode file designation.
     // Check for blank lines in box file
@@ -152,7 +149,7 @@ bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
         continue;
       }
       if (target_page >= 0 && target_page != page)
-        continue;  // Not on the appropriate page.
+        continue;   // Not on the appropriate page.
       return true;  // Successfully read a box.
     }
   }
@@ -170,19 +167,18 @@ bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
 // See applyybox.cpp for more information.
 bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
                      STRING* utf8_str, TBOX* bounding_box) {
-  *bounding_box = TBOX();       // Initialize it to empty.
+  *bounding_box = TBOX();  // Initialize it to empty.
   *utf8_str = "";
   char uch[kBoxReadBufSize];
-  const char *buffptr = boxfile_str;
+  const char* buffptr = boxfile_str;
   // Read the unichar without messing up on Tibetan.
   // According to issue 253 the utf-8 surrogates 85 and A0 are treated
   // as whitespace by sscanf, so it is more reliable to just find
   // ascii space and tab.
   int uch_len = 0;
   // Skip unicode file designation, if present.
-  const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
-  if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
-      buffptr += 3;
+  const unsigned char* ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+  if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf) buffptr += 3;
   // Allow a single blank as the UTF-8 string. Check for empty string and
   // then blindly eat the first character.
   if (*buffptr == '\0') return false;
@@ -194,8 +190,8 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   if (*buffptr != '\0') ++buffptr;
   int x_min, y_min, x_max, y_max;
   *page_number = 0;
-  int count = sscanf(buffptr, "%d %d %d %d %d",
-                 &x_min, &y_min, &x_max, &y_max, page_number);
+  int count = sscanf(buffptr, "%d %d %d %d %d", &x_min, &y_min, &x_max, &y_max,
+                     page_number);
   if (count != 5 && count != 4) {
     tprintf("Bad box coordinates in boxfile string! %s\n", ubuf);
     return false;
@@ -214,8 +210,8 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
     tesseract::UNICHAR ch(uch + used, uch_len - used);
     int new_used = ch.utf8_len();
     if (new_used == 0) {
-      tprintf("Bad UTF-8 str %s starts with 0x%02x at col %d\n",
-              uch + used, uch[used], used + 1);
+      tprintf("Bad UTF-8 str %s starts with 0x%02x at col %d\n", uch + used,
+              uch[used], used + 1);
       return false;
     }
     used += new_used;

@@ -22,9 +22,9 @@
 namespace tesseract {
 
 Reconfig::Reconfig(const STRING& name, int ni, int x_scale, int y_scale)
-  : Network(NT_RECONFIG, name, ni, ni * x_scale * y_scale),
-    x_scale_(x_scale), y_scale_(y_scale) {
-}
+    : Network(NT_RECONFIG, name, ni, ni * x_scale * y_scale),
+      x_scale_(x_scale),
+      y_scale_(y_scale) {}
 
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
@@ -43,9 +43,7 @@ StaticShape Reconfig::OutputShape(const StaticShape& input_shape) const {
 // WARNING: if GlobalMinimax is used to vary the scale, this will return
 // the last used scale factor. Call it before any forward, and it will return
 // the minimum scale factor of the paths through the GlobalMinimax.
-int Reconfig::XScaleFactor() const {
-  return x_scale_;
-}
+int Reconfig::XScaleFactor() const { return x_scale_; }
 
 // Writes to the given file. Returns false in case of error.
 bool Reconfig::Serialize(TFile* fp) const {
@@ -92,8 +90,7 @@ void Reconfig::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Reconfig::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+                        NetworkScratch* scratch, NetworkIO* back_deltas) {
   back_deltas->ResizeToMap(fwd_deltas.int_mode(), back_map_, ni_);
   StrideMap::Index src_index(fwd_deltas.stride_map());
   do {
@@ -115,6 +112,5 @@ bool Reconfig::Backward(bool debug, const NetworkIO& fwd_deltas,
   } while (src_index.Increment());
   return needs_to_backprop_;
 }
-
 
 }  // namespace tesseract.

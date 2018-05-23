@@ -21,8 +21,8 @@
 #include "config_auto.h"
 #endif
 
-#include "lstmtrainer.h"
 #include <string>
+#include "lstmtrainer.h"
 
 #include "allheaders.h"
 #include "boxread.h"
@@ -183,8 +183,8 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
     return false;
   }
   network_str_ += network_spec;
-  tprintf("Built network:%s from request %s\n",
-          network_->spec().string(), network_spec.string());
+  tprintf("Built network:%s from request %s\n", network_->spec().string(),
+          network_spec.string());
   tprintf(
       "Training parameters:\n  Debug interval = %d,"
       " weights = %g, learning rate = %g, momentum=%g\n",
@@ -255,7 +255,8 @@ Trainability LSTMTrainer::GridSearchDictParams(
   GenericVector<int> truth_labels, ocr_labels, xcoords;
   ASSERT_HOST(EncodeString(trainingdata->transcription(), &truth_labels));
   // NO-dict error.
-  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(), nullptr);
+  RecodeBeamSearch base_search(recoder_, null_char_, SimpleTextOutput(),
+                               nullptr);
   base_search.Decode(fwd_outputs, 1.0, 0.0, RecodeBeamSearch::kMinCertainty,
                      nullptr);
   base_search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
@@ -268,7 +269,8 @@ Trainability LSTMTrainer::GridSearchDictParams(
   for (double r = min_dict_ratio; r < max_dict_ratio; r += dict_ratio_step) {
     for (double c = min_cert_offset; c < max_cert_offset;
          c += cert_offset_step) {
-      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty, nullptr);
+      search.Decode(fwd_outputs, r, c, RecodeBeamSearch::kMinCertainty,
+                    nullptr);
       search.ExtractBestPathAsLabels(&ocr_labels, &xcoords);
       truth_text = DecodeLabels(truth_labels);
       ocr_text = DecodeLabels(ocr_labels);
@@ -290,9 +292,7 @@ Trainability LSTMTrainer::GridSearchDictParams(
 }
 
 // Provides output on the distribution of weight values.
-void LSTMTrainer::DebugNetwork() {
-  network_->DebugWeights();
-}
+void LSTMTrainer::DebugNetwork() { network_->DebugWeights(); }
 
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for training. Returns false if nothing was
@@ -468,7 +468,8 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (serialize_amount != NO_BEST_TRAINER && !best_trainer_.Serialize(fp))
     return false;
   GenericVector<char> sub_data;
-  if (sub_trainer_ != nullptr && !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
+  if (sub_trainer_ != nullptr &&
+      !SaveTrainingDump(LIGHT, sub_trainer_, &sub_data))
     return false;
   if (!sub_data.Serialize(fp)) return false;
   if (!best_error_history_.Serialize(fp)) return false;
@@ -801,8 +802,8 @@ Trainability LSTMTrainer::TrainOnLine(const ImageData* trainingdata,
   if (trainable == UNENCODABLE || trainable == NOT_BOXED) {
     return trainable;  // Sample was unusable.
   }
-  bool debug = debug_interval_ > 0 &&
-      training_iteration() % debug_interval_ == 0;
+  bool debug =
+      debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
   // Run backprop on the output.
   NetworkIO bp_deltas;
   if (network_->IsTraining() &&
@@ -833,8 +834,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     return UNENCODABLE;
   }
   // Ensure repeatability of random elements even across checkpoints.
-  bool debug = debug_interval_ > 0 &&
-      training_iteration() % debug_interval_ == 0;
+  bool debug =
+      debug_interval_ > 0 && training_iteration() % debug_interval_ == 0;
   GenericVector<int> truth_labels;
   if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
     tprintf("Can't encode transcription: '%s' in language '%s'\n",
@@ -967,7 +968,8 @@ void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
 
 // Returns a suitable filename for a training dump, based on the model_base_,
 // the iteration and the error rates.
-STRING LSTMTrainer::DumpFilename() const {
+STRING
+LSTMTrainer::DumpFilename() const {
   STRING filename;
   filename.add_str_double(model_base_.string(), best_error_rate_);
   filename.add_str_int("_", best_iteration_);
@@ -1072,8 +1074,8 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
     GenericVector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
-    tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
-            training_iteration(), text.string());
+    tprintf("Iteration %d: ALIGNED TRUTH : %s\n", training_iteration(),
+            text.string());
     if (debug_interval_ > 0 && training_iteration() % debug_interval_ == 0) {
       tprintf("TRAINING activation path for truth string %s\n",
               truth_text.string());
@@ -1206,8 +1208,7 @@ double LSTMTrainer::ComputeWinnerError(const NetworkIO& deltas) {
       float abs_delta = fabs(class_errs[c]);
       // TODO(rays) Filtering cases where the delta is very large to cut out
       // GT errors doesn't work. Find a better way or get better truth.
-      if (0.5 <= abs_delta)
-        ++num_errors;
+      if (0.5 <= abs_delta) ++num_errors;
     }
   }
   return static_cast<double>(num_errors) / width;
@@ -1279,7 +1280,8 @@ void LSTMTrainer::UpdateErrorBuffer(double new_error, ErrorTypes type) {
   int index = training_iteration_ % kRollingBufferSize_;
   error_buffers_[type][index] = new_error;
   // Compute the mean error.
-  int mean_count = std::min(training_iteration_ + 1, error_buffers_[type].size());
+  int mean_count =
+      std::min(training_iteration_ + 1, error_buffers_[type].size());
   double buffer_sum = 0.0;
   for (int i = 0; i < mean_count; ++i) buffer_sum += error_buffers_[type][i];
   double mean = buffer_sum / mean_count;
@@ -1307,16 +1309,18 @@ void LSTMTrainer::RollErrorBuffers() {
 // error rates, and record of progress.
 // Tester is an externally supplied callback function that tests on some
 // data set with a given model and records the error rates in a graph.
-STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
-                                     const GenericVector<char>& model_data,
-                                     TestCallback tester) {
-  if (error_rate > best_error_rate_
-      && iteration < best_iteration_ + kErrorGraphInterval) {
+STRING
+LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
+                              const GenericVector<char>& model_data,
+                              TestCallback tester) {
+  if (error_rate > best_error_rate_ &&
+      iteration < best_iteration_ + kErrorGraphInterval) {
     // Too soon to record a new point.
     if (tester != nullptr && !worst_model_data_.empty()) {
       mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                           worst_model_data_.size());
-      return tester->Run(worst_iteration_, nullptr, mgr_, CurrentTrainingStage());
+      return tester->Run(worst_iteration_, nullptr, mgr_,
+                         CurrentTrainingStage());
     } else {
       return "";
     }
@@ -1369,8 +1373,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
         result = tester->Run(worst_iteration_, worst_error_rates_, mgr_,
                              CurrentTrainingStage());
       }
-      if (result.length() > 0)
-        best_model_data_.truncate(0);
+      if (result.length() > 0) best_model_data_.truncate(0);
       worst_model_data_ = model_data;
     }
   }

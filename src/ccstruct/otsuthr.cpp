@@ -24,7 +24,6 @@
 #include "helpers.h"
 #include "openclwrapper.h"
 
-
 namespace tesseract {
 
 // Computes the Otsu threshold(s) for the given image rectangle, making one
@@ -66,14 +65,14 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
     for (int ch = 0; ch < num_channels; ++ch) {
       (*thresholds)[ch] = -1;
       (*hi_values)[ch] = -1;
-      int *histogram = &histogramAllChannels[kHistogramSize * ch];
+      int* histogram = &histogramAllChannels[kHistogramSize * ch];
       int H;
       int best_omega_0;
       int best_t = OtsuStats(histogram, &H, &best_omega_0);
       if (best_omega_0 == 0 || best_omega_0 == H) {
-         // This channel is empty.
-         continue;
-       }
+        // This channel is empty.
+        continue;
+      }
       // To be a convincing foreground we must have a small fraction of H
       // or to be a convincing background we must have a large fraction of H.
       // In between we assume this channel contains no thresholding information.
@@ -107,9 +106,9 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
       int best_omega_0;
       int best_t = OtsuStats(histogram, &H, &best_omega_0);
       if (best_omega_0 == 0 || best_omega_0 == H) {
-         // This channel is empty.
-         continue;
-       }
+        // This channel is empty.
+        continue;
+      }
       // To be a convincing foreground we must have a small fraction of H
       // or to be a convincing background we must have a large fraction of H.
       // In between we assume this channel contains no thresholding information.
@@ -148,9 +147,8 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
 // single channel. Each channel is always one byte per pixel.
 // Histogram is always a kHistogramSize(256) element array to count
 // occurrences of each pixel value.
-void HistogramRect(Pix* src_pix, int channel,
-                   int left, int top, int width, int height,
-                   int* histogram) {
+void HistogramRect(Pix* src_pix, int channel, int left, int top, int width,
+                   int height, int* histogram) {
   PERF_COUNT_START("HistogramRect")
   int num_channels = pixGetDepth(src_pix) / 8;
   channel = ClipToRange(channel, 0, num_channels - 1);
@@ -191,11 +189,9 @@ int OtsuStats(const int* histogram, int* H_out, int* omega0_out) {
   for (int t = 0; t < kHistogramSize - 1; ++t) {
     omega_0 += histogram[t];
     mu_t += t * static_cast<double>(histogram[t]);
-    if (omega_0 == 0)
-      continue;
+    if (omega_0 == 0) continue;
     omega_1 = H - omega_0;
-    if (omega_1 == 0)
-      break;
+    if (omega_1 == 0) break;
     mu_0 = mu_t / omega_0;
     mu_1 = (mu_T - mu_t) / omega_1;
     double sig_sq_B = mu_1 - mu_0;

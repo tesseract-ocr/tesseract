@@ -27,31 +27,31 @@
 namespace tesseract {
 
 struct DawgLoader {
-  DawgLoader(const STRING &lang, TessdataType tessdata_dawg_type,
-             int dawg_debug_level, TessdataManager *data_file)
+  DawgLoader(const STRING& lang, TessdataType tessdata_dawg_type,
+             int dawg_debug_level, TessdataManager* data_file)
       : lang_(lang),
         data_file_(data_file),
         tessdata_dawg_type_(tessdata_dawg_type),
         dawg_debug_level_(dawg_debug_level) {}
 
-  Dawg *Load();
+  Dawg* Load();
 
   STRING lang_;
-  TessdataManager *data_file_;
+  TessdataManager* data_file_;
   TessdataType tessdata_dawg_type_;
   int dawg_debug_level_;
 };
 
-Dawg *DawgCache::GetSquishedDawg(const STRING &lang,
+Dawg* DawgCache::GetSquishedDawg(const STRING& lang,
                                  TessdataType tessdata_dawg_type,
-                                 int debug_level, TessdataManager *data_file) {
+                                 int debug_level, TessdataManager* data_file) {
   STRING data_id = data_file->GetDataFileName();
   data_id += kTessdataFileSuffixes[tessdata_dawg_type];
   DawgLoader loader(lang, tessdata_dawg_type, debug_level, data_file);
   return dawgs_.Get(data_id, NewTessCallback(&loader, &DawgLoader::Load));
 }
 
-Dawg *DawgLoader::Load() {
+Dawg* DawgLoader::Load() {
   TFile fp;
   if (!data_file_->GetComponent(tessdata_dawg_type_, &fp)) return nullptr;
   DawgType dawg_type;
@@ -87,7 +87,7 @@ Dawg *DawgLoader::Load() {
     default:
       return nullptr;
   }
-  SquishedDawg *retval =
+  SquishedDawg* retval =
       new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
   if (retval->Load(&fp)) return retval;
   delete retval;

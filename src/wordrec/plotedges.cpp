@@ -40,7 +40,7 @@
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-ScrollView *edge_window = nullptr;
+ScrollView* edge_window = nullptr;
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -51,49 +51,46 @@ ScrollView *edge_window = nullptr;
  * Macro to display edge points in a window.
  **********************************************************************/
 void display_edgepts(LIST outlines) {
-  void *window;
+  void* window;
   /* Set up window */
   if (edge_window == nullptr) {
-    edge_window = c_create_window ("Edges", 750, 150,
-      400, 128, -400.0, 400.0, 0.0, 256.0);
-  }
-  else {
+    edge_window =
+        c_create_window("Edges", 750, 150, 400, 128, -400.0, 400.0, 0.0, 256.0);
+  } else {
     c_clear_window(edge_window);
   }
   /* Render the outlines */
   window = edge_window;
   /* Reclaim old memory */
   iterate(outlines) {
-    render_edgepts (window, (EDGEPT *) first_node (outlines), White);
+    render_edgepts(window, (EDGEPT*)first_node(outlines), White);
   }
 }
-
 
 /**********************************************************************
  * draw_blob_edges
  *
  * Display the edges of this blob in the edges window.
  **********************************************************************/
-void draw_blob_edges(TBLOB *blob) {
-  TESSLINE *ol;
+void draw_blob_edges(TBLOB* blob) {
+  TESSLINE* ol;
   LIST edge_list = NIL_LIST;
 
   if (wordrec_display_splits) {
     for (ol = blob->outlines; ol != nullptr; ol = ol->next)
-      push_on (edge_list, ol->loop);
+      push_on(edge_list, ol->loop);
     display_edgepts(edge_list);
     destroy(edge_list);
   }
 }
-
 
 /**********************************************************************
  * mark_outline
  *
  * Make a mark on the edges window at a particular location.
  **********************************************************************/
-void mark_outline(EDGEPT *edgept) {  /* Start of point list */
-  void *window = edge_window;
+void mark_outline(EDGEPT* edgept) { /* Start of point list */
+  void* window = edge_window;
   float x = edgept->pos.x;
   float y = edgept->pos.y;
 

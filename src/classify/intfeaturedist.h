@@ -49,8 +49,8 @@ class IntFeatureDist {
   // Setup the map for the given indexed_features that have been indexed by
   // feature_map. After use, use Set(..., false) to reset to the initial state
   // as this is faster than calling Init for sparse spaces.
-  void Set(const GenericVector<int>& indexed_features,
-           int canonical_count, bool value);
+  void Set(const GenericVector<int>& indexed_features, int canonical_count,
+           bool value);
 
   // Compute the distance between the given feature vector and the last
   // Set feature vector.

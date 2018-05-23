@@ -43,18 +43,15 @@ class LigatureTable {
   // Convert the utf8 string so that ligaturizable sequences, such as "fi" get
   // replaced by the (utf8 code for) appropriate ligature characters. Only do so
   // if the corresponding ligature character is renderable in the current font.
-  std::string AddLigatures(const std::string& str, const PangoFontInfo* font) const;
+  std::string AddLigatures(const std::string& str,
+                           const PangoFontInfo* font) const;
   // Remove all ligatures.
   std::string RemoveLigatures(const std::string& str) const;
   // Remove only custom ligatures (eg. "ct") encoded in the private-use-area.
   std::string RemoveCustomLigatures(const std::string& str) const;
 
-  const LigHash& norm_to_lig_table() const {
-    return norm_to_lig_table_;
-  }
-  const LigHash& lig_to_norm_table() const {
-    return lig_to_norm_table_;
-  }
+  const LigHash& norm_to_lig_table() const { return norm_to_lig_table_; }
+  const LigHash& lig_to_norm_table() const { return lig_to_norm_table_; }
 
  protected:
   LigatureTable();

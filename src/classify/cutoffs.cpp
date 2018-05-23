@@ -32,7 +32,7 @@
 
 #define REALLY_QUOTE_IT(x) QUOTE_IT(x)
 
-#define MAX_CUTOFF      1000
+#define MAX_CUTOFF 1000
 
 namespace tesseract {
 /**
@@ -57,8 +57,7 @@ void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
       tprintf("Error during read of shapetable pffmtable!\n");
     }
   }
-  for (int i = 0; i < MAX_NUM_CLASSES; i++)
-    Cutoffs[i] = MAX_CUTOFF;
+  for (int i = 0; i < MAX_NUM_CLASSES; i++) Cutoffs[i] = MAX_CUTOFF;
 
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];

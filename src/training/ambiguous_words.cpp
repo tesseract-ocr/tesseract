@@ -22,10 +22,10 @@
 //
 
 #include "baseapi.h"
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
+#include "dict.h"
 #include "helpers.h"
 #include "strngs.h"
-#include "dict.h"
 #include "tesseractclass.h"
 
 int main(int argc, char** argv) {
@@ -36,8 +36,10 @@ int main(int argc, char** argv) {
     printf("%s\n", tesseract::TessBaseAPI::Version());
     return 0;
   } else if (argc != 4 && (argc != 6 || strcmp(argv[1], "-l") != 0)) {
-    printf("Usage: %s -v | --version | %s [-l lang] tessdata_dir wordlist_file"
-           " output_ambiguous_wordlist_file\n", argv[0], argv[0]);
+    printf(
+        "Usage: %s -v | --version | %s [-l lang] tessdata_dir wordlist_file"
+        " output_ambiguous_wordlist_file\n",
+        argv[0], argv[0]);
     return 1;
   }
   int argv_offset = 0;
@@ -48,9 +50,9 @@ int main(int argc, char** argv) {
   } else {
     lang = "eng";
   }
-  const char *tessdata_dir = argv[++argv_offset];
-  const char *input_file_str = argv[++argv_offset];
-  const char *output_file_str = argv[++argv_offset];
+  const char* tessdata_dir = argv[++argv_offset];
+  const char* input_file_str = argv[++argv_offset];
+  const char* output_file_str = argv[++argv_offset];
 
   // Initialize Tesseract.
   tesseract::TessBaseAPI api;
@@ -60,8 +62,8 @@ int main(int argc, char** argv) {
   vars_values.push_back(output_file_str);
   api.Init(tessdata_dir, lang.string(), tesseract::OEM_TESSERACT_ONLY, nullptr,
            0, &vars_vec, &vars_values, false);
-  tesseract::Dict &dict = api.tesseract()->getDict();
-  FILE *input_file = fopen(input_file_str, "rb");
+  tesseract::Dict& dict = api.tesseract()->getDict();
+  FILE* input_file = fopen(input_file_str, "rb");
   if (input_file == nullptr) {
     tprintf("Failed to open input wordlist file %s\n", input_file_str);
     exit(1);

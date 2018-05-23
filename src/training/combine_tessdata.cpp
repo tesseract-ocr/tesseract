@@ -18,7 +18,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "commontraining.h"     // CheckSharedLibraryVersion
+#include "commontraining.h"  // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
 
@@ -65,7 +65,7 @@
 // This will create  /home/$USER/temp/eng.* files with individual tessdata
 // components from tessdata/eng.traineddata.
 //
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 
   int i;
@@ -76,19 +76,17 @@ int main(int argc, char **argv) {
   } else if (argc == 2) {
     printf("Combining tessdata files\n");
     STRING lang = argv[1];
-    char* last = &argv[1][strlen(argv[1])-1];
-    if (*last != '.')
-      lang += '.';
+    char* last = &argv[1][strlen(argv[1]) - 1];
+    if (*last != '.') lang += '.';
     STRING output_file = lang;
     output_file += kTrainedDataSuffix;
     if (!tm.CombineDataFiles(lang.string(), output_file.string())) {
-      printf("Error combining tessdata files into %s\n",
-             output_file.string());
+      printf("Error combining tessdata files into %s\n", output_file.string());
     } else {
       printf("Output %s created successfully.\n", output_file.string());
     }
-  } else if (argc >= 4 && (strcmp(argv[1], "-e") == 0 ||
-                           strcmp(argv[1], "-u") == 0)) {
+  } else if (argc >= 4 &&
+             (strcmp(argv[1], "-e") == 0 || strcmp(argv[1], "-u") == 0)) {
     // Initialize TessdataManager with the data in the given traineddata file.
     if (!tm.Init(argv[2])) {
       tprintf("Failed to read %s\n", argv[2]);
@@ -100,16 +98,17 @@ int main(int argc, char **argv) {
         if (tm.ExtractToFile(argv[i])) {
           printf("Wrote %s\n", argv[i]);
         } else {
-          printf("Not extracting %s, since this component"
-                 " is not present\n", argv[i]);
+          printf(
+              "Not extracting %s, since this component"
+              " is not present\n",
+              argv[i]);
         }
       }
     } else {  // extract all the components
       for (i = 0; i < tesseract::TESSDATA_NUM_ENTRIES; ++i) {
         STRING filename = argv[3];
-        char* last = &argv[3][strlen(argv[3])-1];
-        if (*last != '.')
-          filename += '.';
+        char* last = &argv[3][strlen(argv[3]) - 1];
+        if (*last != '.') filename += '.';
         filename += tesseract::kTessdataFileSuffixes[i];
         if (tm.ExtractToFile(filename.string())) {
           printf("Wrote %s\n", filename.string());
@@ -118,7 +117,7 @@ int main(int argc, char **argv) {
     }
   } else if (argc >= 4 && strcmp(argv[1], "-o") == 0) {
     // Rename the current traineddata file to a temporary name.
-    const char *new_traineddata_filename = argv[2];
+    const char* new_traineddata_filename = argv[2];
     STRING traineddata_filename = new_traineddata_filename;
     traineddata_filename += ".__tmp__";
     if (rename(new_traineddata_filename, traineddata_filename.string()) != 0) {
@@ -131,7 +130,7 @@ int main(int argc, char **argv) {
     tm.Init(traineddata_filename.string());
 
     // Write the updated traineddata file.
-    tm.OverwriteComponents(new_traineddata_filename, argv+3, argc-3);
+    tm.OverwriteComponents(new_traineddata_filename, argv + 3, argc - 3);
   } else if (argc == 3 && strcmp(argv[1], "-c") == 0) {
     if (!tm.Init(argv[2])) {
       tprintf("Failed to read %s\n", argv[2]);
@@ -161,20 +160,26 @@ int main(int argc, char **argv) {
     // Initialize TessdataManager with the data in the given traineddata file.
     tm.Init(argv[2]);
   } else {
-    printf("Usage for combining tessdata components:\n"
-           "  %s language_data_path_prefix\n"
-           "  (e.g. %s tessdata/eng.)\n\n", argv[0], argv[0]);
-    printf("Usage for extracting tessdata components:\n"
-           "  %s -e traineddata_file [output_component_file...]\n"
-           "  (e.g. %s -e eng.traineddata eng.unicharset)\n\n",
-           argv[0], argv[0]);
-    printf("Usage for overwriting tessdata components:\n"
-           "  %s -o traineddata_file [input_component_file...]\n"
-           "  (e.g. %s -o eng.traineddata eng.unicharset)\n\n",
-           argv[0], argv[0]);
-    printf("Usage for unpacking all tessdata components:\n"
-           "  %s -u traineddata_file output_path_prefix\n"
-           "  (e.g. %s -u eng.traineddata tmp/eng.)\n", argv[0], argv[0]);
+    printf(
+        "Usage for combining tessdata components:\n"
+        "  %s language_data_path_prefix\n"
+        "  (e.g. %s tessdata/eng.)\n\n",
+        argv[0], argv[0]);
+    printf(
+        "Usage for extracting tessdata components:\n"
+        "  %s -e traineddata_file [output_component_file...]\n"
+        "  (e.g. %s -e eng.traineddata eng.unicharset)\n\n",
+        argv[0], argv[0]);
+    printf(
+        "Usage for overwriting tessdata components:\n"
+        "  %s -o traineddata_file [input_component_file...]\n"
+        "  (e.g. %s -o eng.traineddata eng.unicharset)\n\n",
+        argv[0], argv[0]);
+    printf(
+        "Usage for unpacking all tessdata components:\n"
+        "  %s -u traineddata_file output_path_prefix\n"
+        "  (e.g. %s -u eng.traineddata tmp/eng.)\n",
+        argv[0], argv[0]);
     printf(
         "Usage for listing directory of components:\n"
         "  %s -d traineddata_file\n",

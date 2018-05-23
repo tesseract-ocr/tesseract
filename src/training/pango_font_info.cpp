@@ -27,24 +27,24 @@
 #undef __STRICT_ANSI__
 #endif
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #ifndef _MSC_VER
 #include <sys/param.h>
 #endif
 #include <algorithm>
 
-#include "pango_font_info.h"
 #include "commandlineflags.h"
 #include "fileio.h"
 #include "normstrngs.h"
-#include "tlog.h"
-#include "unichar.h"
-#include "util.h"
 #include "pango/pango.h"
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
+#include "pango_font_info.h"
+#include "tlog.h"
+#include "unichar.h"
+#include "util.h"
 
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
@@ -139,7 +139,8 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
            "<config></config>\n"
            "</fontconfig>",
            fonts_dir.c_str(), cache_dir_.c_str());
-  std::string fonts_conf_file = File::JoinPath(cache_dir_.c_str(), "fonts.conf");
+  std::string fonts_conf_file =
+      File::JoinPath(cache_dir_.c_str(), "fonts.conf");
   File::WriteStringToFileOrDie(fonts_conf_template, fonts_conf_file);
 #ifdef _WIN32
   std::string env("FONTCONFIG_PATH=");
@@ -160,15 +161,14 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
   pango_cairo_font_map_set_default(nullptr);
 }
 
-static void ListFontFamilies(PangoFontFamily*** families,
-                             int* n_families) {
+static void ListFontFamilies(PangoFontFamily*** families, int* n_families) {
   PangoFontInfo::SoftInitFontConfig();
   PangoFontMap* font_map = pango_cairo_font_map_get_default();
   DISABLE_HEAP_LEAK_CHECK;
   pango_font_map_list_families(font_map, families, n_families);
 }
 
-bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
+bool PangoFontInfo::ParseFontDescription(const PangoFontDescription* desc) {
   Clear();
   const char* family = pango_font_description_get_family(desc);
   if (!family) {
@@ -191,7 +191,7 @@ bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
 }
 
 bool PangoFontInfo::ParseFontDescriptionName(const std::string& name) {
-  PangoFontDescription *desc = pango_font_description_from_string(name.c_str());
+  PangoFontDescription* desc = pango_font_description_from_string(name.c_str());
   bool success = ParseFontDescription(desc);
   pango_font_description_free(desc);
   return success;
@@ -215,14 +215,13 @@ PangoFont* PangoFontInfo::ToPangoFont() const {
   return font;
 }
 
-bool PangoFontInfo::CoversUTF8Text(const char* utf8_text, int byte_length) const {
+bool PangoFontInfo::CoversUTF8Text(const char* utf8_text,
+                                   int byte_length) const {
   PangoFont* font = ToPangoFont();
   PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
   for (UNICHAR::const_iterator it = UNICHAR::begin(utf8_text, byte_length);
-       it != UNICHAR::end(utf8_text, byte_length);
-       ++it) {
-    if (IsWhitespace(*it) || pango_is_zero_width(*it))
-      continue;
+       it != UNICHAR::end(utf8_text, byte_length); ++it) {
+    if (IsWhitespace(*it) || pango_is_zero_width(*it)) continue;
     if (pango_coverage_get(coverage, *it) != PANGO_COVERAGE_EXACT) {
       char tmp[5];
       int len = it.get_utf8(tmp);
@@ -311,13 +310,13 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
   // Handle multi-unicode strings by reporting the left-most position of the
   // x-bearing, and right-most position of the x-advance if the string were to
   // be rendered.
-  const UNICHAR::const_iterator it_begin = UNICHAR::begin(utf8_char.c_str(),
-                                                          utf8_char.length());
-  const UNICHAR::const_iterator it_end = UNICHAR::end(utf8_char.c_str(),
-                                                      utf8_char.length());
+  const UNICHAR::const_iterator it_begin =
+      UNICHAR::begin(utf8_char.c_str(), utf8_char.length());
+  const UNICHAR::const_iterator it_end =
+      UNICHAR::end(utf8_char.c_str(), utf8_char.length());
   for (UNICHAR::const_iterator it = it_begin; it != it_end; ++it) {
-    PangoGlyph glyph_index = pango_fc_font_get_glyph(
-        reinterpret_cast<PangoFcFont*>(font), *it);
+    PangoGlyph glyph_index =
+        pango_fc_font_get_glyph(reinterpret_cast<PangoFcFont*>(font), *it);
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
       g_object_unref(font);
@@ -371,14 +370,14 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   if (desc_) {
     pango_layout_set_font_description(layout, desc_);
   } else {
-    PangoFontDescription *desc = pango_font_description_from_string(
-        DescriptionName().c_str());
+    PangoFontDescription* desc =
+        pango_font_description_from_string(DescriptionName().c_str());
     pango_layout_set_font_description(layout, desc);
     pango_font_description_free(desc);
   }
   pango_layout_set_text(layout, utf8_word, len);
   PangoLayoutIter* run_iter = nullptr;
-  { // Fontconfig caches some information here that is not freed before exit.
+  {  // Fontconfig caches some information here that is not freed before exit.
     DISABLE_HEAP_LEAK_CHECK;
     run_iter = pango_layout_get_iter(layout);
   }
@@ -411,8 +410,8 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
 
     PangoGlyphItemIter cluster_iter;
     gboolean have_cluster;
-    for (have_cluster = pango_glyph_item_iter_init_start(&cluster_iter,
-                                                         run, utf8_word);
+    for (have_cluster =
+             pango_glyph_item_iter_init_start(&cluster_iter, run, utf8_word);
          have_cluster && !bad_glyph;
          have_cluster = pango_glyph_item_iter_next_cluster(&cluster_iter)) {
       const int start_byte_index = cluster_iter.start_index;
@@ -428,12 +427,12 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
       }
       if (TLOG_IS_ON(2)) {
         printf("start_byte=%d end_byte=%d start_glyph=%d end_glyph=%d ",
-               start_byte_index, end_byte_index,
-               start_glyph_index, end_glyph_index);
+               start_byte_index, end_byte_index, start_glyph_index,
+               end_glyph_index);
       }
       for (int i = start_glyph_index,
                step = (end_glyph_index > start_glyph_index) ? 1 : -1;
-           !bad_glyph && i != end_glyph_index; i+= step) {
+           !bad_glyph && i != end_glyph_index; i += step) {
         const bool unknown_glyph =
             (cluster_iter.glyph_item->glyphs->glyphs[i].glyph &
              PANGO_GLYPH_UNKNOWN_FLAG);
@@ -449,8 +448,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
       if (TLOG_IS_ON(2)) {
         printf("  '%s'\n", cluster_text.c_str());
       }
-      if (bad_glyph)
-        tlog(1, "Found illegal glyph!\n");
+      if (bad_glyph) tlog(1, "Found illegal glyph!\n");
     }
   } while (!bad_glyph && pango_layout_iter_next_run(run_iter));
 
@@ -460,7 +458,6 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   if (bad_glyph && graphemes) graphemes->clear();
   return !bad_glyph;
 }
-
 
 // ------------------------ FontUtils ------------------------------------
 std::vector<std::string> FontUtils::available_fonts_;  // cache list
@@ -478,8 +475,8 @@ std::vector<std::string> FontUtils::available_fonts_;  // cache list
 bool FontUtils::IsAvailableFont(const char* input_query_desc,
                                 std::string* best_match) {
   std::string query_desc(input_query_desc);
-  PangoFontDescription *desc = pango_font_description_from_string(
-      query_desc.c_str());
+  PangoFontDescription* desc =
+      pango_font_description_from_string(query_desc.c_str());
   PangoFont* selected_font = nullptr;
   {
     PangoFontInfo::SoftInitFontConfig();
@@ -528,8 +525,7 @@ static bool ShouldIgnoreFontFamilyName(const char* query) {
                                               nullptr};
   const char** list = kIgnoredFamilyNames;
   for (; *list != nullptr; ++list) {
-    if (!strcmp(*list, query))
-      return true;
+    if (!strcmp(*list, query)) return true;
   }
   return false;
 }
@@ -583,7 +579,6 @@ const std::vector<std::string>& FontUtils::ListAvailableFonts() {
   return available_fonts_;
 }
 
-
 static void CharCoverageMapToBitmap(PangoCoverage* coverage,
                                     std::vector<bool>* unichar_bitmap) {
   const int kMinUnicodeValue = 33;
@@ -592,8 +587,8 @@ static void CharCoverageMapToBitmap(PangoCoverage* coverage,
   // Mark off characters that the font can render.
   for (int i = kMinUnicodeValue; i <= kMaxUnicodeValue; ++i) {
     if (IsInterchangeValid(i)) {
-      (*unichar_bitmap)[i]
-          = (pango_coverage_get(coverage, i) == PANGO_COVERAGE_EXACT);
+      (*unichar_bitmap)[i] =
+          (pango_coverage_get(coverage, i) == PANGO_COVERAGE_EXACT);
     }
   }
 }
@@ -616,8 +611,8 @@ void FontUtils::GetAllRenderableCharacters(const std::string& font_name,
 }
 
 /* static */
-void FontUtils::GetAllRenderableCharacters(const std::vector<std::string>& fonts,
-                                           std::vector<bool>* unichar_bitmap) {
+void FontUtils::GetAllRenderableCharacters(
+    const std::vector<std::string>& fonts, std::vector<bool>* unichar_bitmap) {
   // Form the union of coverage maps from the fonts
   PangoCoverage* all_coverage = pango_coverage_new();
   tlog(1, "Processing %u fonts\n", static_cast<unsigned>(fonts.size()));
@@ -633,7 +628,6 @@ void FontUtils::GetAllRenderableCharacters(const std::vector<std::string>& fonts
   CharCoverageMapToBitmap(all_coverage, unichar_bitmap);
   pango_coverage_unref(all_coverage);
 }
-
 
 // Utilities written to be backward compatible with StringRender
 
@@ -656,9 +650,9 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t>& ch_map,
   int ok_chars = 0;
   for (std::unordered_map<char32, int64_t>::const_iterator it = ch_map.begin();
        it != ch_map.end(); ++it) {
-    bool covered = (IsWhitespace(it->first) ||
-                    (pango_coverage_get(coverage, it->first)
-                     == PANGO_COVERAGE_EXACT));
+    bool covered =
+        (IsWhitespace(it->first) ||
+         (pango_coverage_get(coverage, it->first) == PANGO_COVERAGE_EXACT));
     if (covered) {
       ++(*raw_score);
       ok_chars += it->second;
@@ -672,18 +666,17 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t>& ch_map,
   return ok_chars;
 }
 
-
 /* static */
 std::string FontUtils::BestFonts(
     const std::unordered_map<char32, int64_t>& ch_map,
-    std::vector<std::pair<const char*, std::vector<bool> > >* fonts) {
+    std::vector<std::pair<const char*, std::vector<bool>>>* fonts) {
   const double kMinOKFraction = 0.99;
   // Weighted fraction of characters that must be renderable in a font to make
   // it OK even if the raw count is not good.
   const double kMinWeightedFraction = 0.99995;
 
   fonts->clear();
-  std::vector<std::vector<bool> > font_flags;
+  std::vector<std::vector<bool>> font_flags;
   std::vector<int> font_scores;
   std::vector<int> raw_scores;
   int most_ok_chars = 0;
@@ -720,17 +713,15 @@ std::string FontUtils::BestFonts(
     if ((score >= least_good_enough && raw_score >= least_raw_enough) ||
         score >= override_enough) {
       fonts->push_back(std::make_pair(font_names[i].c_str(), font_flags[i]));
-      tlog(1, "OK font %s = %.4f%%, raw = %d = %.2f%%\n",
-           font_names[i].c_str(),
-           100.0 * score / most_ok_chars,
-           raw_score, 100.0 * raw_score / best_raw_score);
+      tlog(1, "OK font %s = %.4f%%, raw = %d = %.2f%%\n", font_names[i].c_str(),
+           100.0 * score / most_ok_chars, raw_score,
+           100.0 * raw_score / best_raw_score);
       font_list += font_names[i];
       font_list += "\n";
     } else if (score >= least_good_enough || raw_score >= least_raw_enough) {
       tlog(1, "Runner-up font %s = %.4f%%, raw = %d = %.2f%%\n",
-           font_names[i].c_str(),
-           100.0 * score / most_ok_chars,
-           raw_score, 100.0 * raw_score / best_raw_score);
+           font_names[i].c_str(), 100.0 * score / most_ok_chars, raw_score,
+           100.0 * raw_score / best_raw_score);
     }
   }
   return font_list;
@@ -738,7 +729,8 @@ std::string FontUtils::BestFonts(
 
 /* static */
 bool FontUtils::SelectFont(const char* utf8_word, const int utf8_len,
-                           std::string* font_name, std::vector<std::string>* graphemes) {
+                           std::string* font_name,
+                           std::vector<std::string>* graphemes) {
   return SelectFont(utf8_word, utf8_len, ListAvailableFonts(), font_name,
                     graphemes);
 }
@@ -746,7 +738,8 @@ bool FontUtils::SelectFont(const char* utf8_word, const int utf8_len,
 /* static */
 bool FontUtils::SelectFont(const char* utf8_word, const int utf8_len,
                            const std::vector<std::string>& all_fonts,
-                           std::string* font_name, std::vector<std::string>* graphemes) {
+                           std::string* font_name,
+                           std::vector<std::string>* graphemes) {
   if (font_name) font_name->clear();
   if (graphemes) graphemes->clear();
   for (unsigned i = 0; i < all_fonts.size(); ++i) {

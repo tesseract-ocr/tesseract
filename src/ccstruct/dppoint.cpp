@@ -30,11 +30,9 @@ namespace tesseract {
 DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
                         CostFunc cost_func, int size, DPPoint* points) {
   if (size <= 0 || max_step < min_step || min_step >= size)
-    return nullptr;  // Degenerate, but not necessarily an error.
+    return nullptr;           // Degenerate, but not necessarily an error.
   ASSERT_HOST(min_step > 0);  // Infinite loop possible if this is not true.
-  if (debug)
-    tprintf("min = %d, max=%d\n",
-            min_step, max_step);
+  if (debug) tprintf("min = %d, max=%d\n", min_step, max_step);
   // Evaluate the total cost at each point.
   for (int i = 0; i < size; ++i) {
     for (int offset = min_step; offset <= max_step; ++offset) {
@@ -46,8 +44,8 @@ DPPoint* DPPoint::Solve(int min_step, int max_step, bool debug,
     }
     points[i].total_cost_ += points[i].local_cost_;
     if (debug) {
-      tprintf("At point %d, local cost=%d, total_cost=%d, steps=%d\n",
-              i, points[i].local_cost_, points[i].total_cost_,
+      tprintf("At point %d, local cost=%d, total_cost=%d, steps=%d\n", i,
+              points[i].local_cost_, points[i].total_cost_,
               points[i].total_steps_);
     }
   }

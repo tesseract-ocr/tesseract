@@ -35,16 +35,13 @@ ELISTIZE(TrainingSample)
 const int kRandomizingCenter = 128;
 
 // Randomizing factors.
-const int TrainingSample::kYShiftValues[kSampleYShiftSize] = {
-    6, 3, -3, -6, 0
-};
-const double TrainingSample::kScaleValues[kSampleScaleSize] = {
-    1.0625, 0.9375, 1.0
-};
+const int TrainingSample::kYShiftValues[kSampleYShiftSize] = {6, 3, -3, -6, 0};
+const double TrainingSample::kScaleValues[kSampleScaleSize] = {1.0625, 0.9375,
+                                                               1.0};
 
 TrainingSample::~TrainingSample() {
-  delete [] features_;
-  delete [] micro_features_;
+  delete[] features_;
+  delete[] micro_features_;
 }
 
 // WARNING! Serialize/DeSerialize do not save/restore the "cache" data
@@ -61,15 +58,15 @@ bool TrainingSample::Serialize(FILE* fp) const {
     return false;
   if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
     return false;
-  if (static_cast<int>(fwrite(features_, sizeof(*features_), num_features_, fp))
-      != num_features_)
+  if (static_cast<int>(fwrite(features_, sizeof(*features_), num_features_,
+                              fp)) != num_features_)
     return false;
   if (static_cast<int>(fwrite(micro_features_, sizeof(*micro_features_),
-                              num_micro_features_,
-                              fp)) != num_micro_features_)
+                              num_micro_features_, fp)) != num_micro_features_)
     return false;
   if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
-      kNumCNParams) return false;
+      kNumCNParams)
+    return false;
   if (fwrite(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount)
     return false;
   return true;
@@ -102,19 +99,19 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
     ReverseN(&num_micro_features_, sizeof(num_micro_features_));
     ReverseN(&outline_length_, sizeof(outline_length_));
   }
-  delete [] features_;
+  delete[] features_;
   features_ = new INT_FEATURE_STRUCT[num_features_];
-  if (static_cast<int>(fread(features_, sizeof(*features_), num_features_, fp))
-      != num_features_)
+  if (static_cast<int>(fread(features_, sizeof(*features_), num_features_,
+                             fp)) != num_features_)
     return false;
-  delete [] micro_features_;
+  delete[] micro_features_;
   micro_features_ = new MicroFeature[num_micro_features_];
   if (static_cast<int>(fread(micro_features_, sizeof(*micro_features_),
-                             num_micro_features_,
-                             fp)) != num_micro_features_)
+                             num_micro_features_, fp)) != num_micro_features_)
     return false;
   if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
-            kNumCNParams) return false;
+      kNumCNParams)
+    return false;
   if (fread(geo_feature_, sizeof(*geo_feature_), GeoCount, fp) != GeoCount)
     return false;
   return true;
@@ -122,10 +119,8 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
 
 // Saves the given features into a TrainingSample.
 TrainingSample* TrainingSample::CopyFromFeatures(
-    const INT_FX_RESULT_STRUCT& fx_info,
-    const TBOX& bounding_box,
-    const INT_FEATURE_STRUCT* features,
-    int num_features) {
+    const INT_FX_RESULT_STRUCT& fx_info, const TBOX& bounding_box,
+    const INT_FEATURE_STRUCT* features, int num_features) {
   TrainingSample* sample = new TrainingSample;
   sample->num_features_ = num_features;
   sample->features_ = new INT_FEATURE_STRUCT[num_features];
@@ -151,8 +146,7 @@ TrainingSample* TrainingSample::CopyFromFeatures(
 // Returns the cn_feature as a FEATURE_STRUCT* needed by cntraining.
 FEATURE_STRUCT* TrainingSample::GetCNFeature() const {
   FEATURE feature = NewFeature(&CharNormDesc);
-  for (int i = 0; i < kNumCNParams; ++i)
-    feature->Params[i] = cn_feature_[i];
+  for (int i = 0; i < kNumCNParams; ++i) feature->Params[i] = cn_feature_[i];
   return feature;
 }
 
@@ -201,17 +195,14 @@ TrainingSample* TrainingSample::Copy() const {
 }
 
 // Extracts the needed information from the CHAR_DESC_STRUCT.
-void TrainingSample::ExtractCharDesc(int int_feature_type,
-                                     int micro_type,
-                                     int cn_type,
-                                     int geo_type,
+void TrainingSample::ExtractCharDesc(int int_feature_type, int micro_type,
+                                     int cn_type, int geo_type,
                                      CHAR_DESC_STRUCT* char_desc) {
   // Extract the INT features.
   delete[] features_;
   FEATURE_SET_STRUCT* char_features = char_desc->FeatureSets[int_feature_type];
   if (char_features == nullptr) {
-    tprintf("Error: no features to train on of type %s\n",
-            kIntFeatureType);
+    tprintf("Error: no features to train on of type %s\n", kIntFeatureType);
     num_features_ = 0;
     features_ = nullptr;
   } else {
@@ -231,8 +222,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   delete[] micro_features_;
   char_features = char_desc->FeatureSets[micro_type];
   if (char_features == nullptr) {
-    tprintf("Error: no features to train on of type %s\n",
-            kMicroFeatureType);
+    tprintf("Error: no features to train on of type %s\n", kMicroFeatureType);
     num_micro_features_ = 0;
     micro_features_ = nullptr;
   } else {
@@ -302,8 +292,7 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
     for (int i = 0; i <= 5; ++i) {
       int x = static_cast<int>(start_x + dx * i);
       int y = static_cast<int>(start_y + dy * i);
-      if (x >= 0 && x < 256 && y >= 0 && y < 256)
-        pixSetPixel(pix, x, y, 1);
+      if (x >= 0 && x < 256 && y >= 0 && y < 256) pixSetPixel(pix, x, y, 1);
     }
   }
   if (unicharset != nullptr)
@@ -314,11 +303,11 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
 // Displays the features in the given window with the given color.
 void TrainingSample::DisplayFeatures(ScrollView::Color color,
                                      ScrollView* window) const {
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   for (int f = 0; f < num_features_; ++f) {
     RenderIntFeature(window, &features_[f], color);
   }
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 }
 
 // Returns a pix of the original sample image. The pix is padded all round
@@ -326,8 +315,7 @@ void TrainingSample::DisplayFeatures(ScrollView::Color color,
 // The returned Pix must be pixDestroyed after use.
 // If the input page_pix is nullptr, nullptr is returned.
 Pix* TrainingSample::GetSamplePix(int padding, Pix* page_pix) const {
-  if (page_pix == nullptr)
-    return nullptr;
+  if (page_pix == nullptr) return nullptr;
   int page_width = pixGetWidth(page_pix);
   int page_height = pixGetHeight(page_pix);
   TBOX padded_box = bounding_box();

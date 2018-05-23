@@ -28,33 +28,34 @@
 #include "config_auto.h"
 #endif
 
-#define BLOCK_LABEL_HEIGHT  150  //char height of block id
+#define BLOCK_LABEL_HEIGHT 150  // char height of block id
 
-CLISTIZE (PDBLK)
+CLISTIZE(PDBLK)
 /**********************************************************************
  * PDBLK::PDBLK
  *
  * Constructor for a simple rectangular block.
  **********************************************************************/
-PDBLK::PDBLK (                   //rectangular block
-int16_t xmin,                      //bottom left
-int16_t ymin, int16_t xmax,          //top right
-int16_t ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
-                                 //boundaries
+PDBLK::PDBLK(      // rectangular block
+    int16_t xmin,  // bottom left
+    int16_t ymin,
+    int16_t xmax,  // top right
+    int16_t ymax)
+    : box(ICOORD(xmin, ymin), ICOORD(xmax, ymax)) {
+  // boundaries
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
 
   hand_poly = nullptr;
-  left_it.set_to_list (&leftside);
-  right_it.set_to_list (&rightside);
-                                 //make default box
-  left_it.add_to_end (new ICOORDELT (xmin, ymin));
-  left_it.add_to_end (new ICOORDELT (xmin, ymax));
-  right_it.add_to_end (new ICOORDELT (xmax, ymin));
-  right_it.add_to_end (new ICOORDELT (xmax, ymax));
+  left_it.set_to_list(&leftside);
+  right_it.set_to_list(&rightside);
+  // make default box
+  left_it.add_to_end(new ICOORDELT(xmin, ymin));
+  left_it.add_to_end(new ICOORDELT(xmin, ymax));
+  right_it.add_to_end(new ICOORDELT(xmax, ymin));
+  right_it.add_to_end(new ICOORDELT(xmax, ymax));
   index_ = 0;
 }
-
 
 /**********************************************************************
  * PDBLK::set_sides
@@ -62,11 +63,11 @@ int16_t ymax):    box (ICOORD (xmin, ymin), ICOORD (xmax, ymax)) {
  * Sets left and right vertex lists
  **********************************************************************/
 
-void PDBLK::set_sides(                       //set vertex lists
-                      ICOORDELT_LIST *left,  //left vertices
-                      ICOORDELT_LIST *right  //right vertices
-                     ) {
-                                 //boundaries
+void PDBLK::set_sides(     // set vertex lists
+    ICOORDELT_LIST* left,  // left vertices
+    ICOORDELT_LIST* right  // right vertices
+) {
+  // boundaries
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
 
@@ -84,23 +85,22 @@ void PDBLK::set_sides(                       //set vertex lists
  * Return TRUE if the given point is within the block.
  **********************************************************************/
 
-bool PDBLK::contains(           //test containment
-        ICOORD pt  //point to test
+bool PDBLK::contains(  // test containment
+    ICOORD pt          // point to test
 ) {
-  BLOCK_RECT_IT it = this;       //rectangle iterator
-  ICOORD bleft, tright;          //corners of rectangle
+  BLOCK_RECT_IT it = this;  // rectangle iterator
+  ICOORD bleft, tright;     // corners of rectangle
 
   for (it.start_block(); !it.cycled_rects(); it.forward()) {
-                                 //get rectangle
-    it.bounding_box (bleft, tright);
-                                 //inside rect
-    if (pt.x() >= bleft.x() && pt.x() <= tright.x()
-      && pt.y() >= bleft.y() && pt.y() <= tright.y())
-      return true;               //is inside
+    // get rectangle
+    it.bounding_box(bleft, tright);
+    // inside rect
+    if (pt.x() >= bleft.x() && pt.x() <= tright.x() && pt.y() >= bleft.y() &&
+        pt.y() <= tright.y())
+      return true;  // is inside
   }
-  return false;                  //not inside
+  return false;  // not inside
 }
-
 
 /**********************************************************************
  * PDBLK::move
@@ -108,20 +108,18 @@ bool PDBLK::contains(           //test containment
  * Reposition block
  **********************************************************************/
 
-void PDBLK::move(                  // reposition block
-                 const ICOORD vec  // by vector
-                ) {
+void PDBLK::move(     // reposition block
+    const ICOORD vec  // by vector
+) {
   ICOORDELT_IT it(&leftside);
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-    *(it.data ()) += vec;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) *(it.data()) += vec;
 
-  it.set_to_list (&rightside);
+  it.set_to_list(&rightside);
 
-  for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ())
-    *(it.data ()) += vec;
+  for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) *(it.data()) += vec;
 
-  box.move (vec);
+  box.move(vec);
 }
 
 // Returns a binary Pix mask with a 1 pixel for every pixel within the
@@ -139,7 +137,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     image_block.rotate(rerotation);
     // Block outline is a polygon, so use a PB_LINE_IT to get the
     // rasterized interior. (Runs of interior pixels on a line.)
-    PB_LINE_IT *lines = new PB_LINE_IT(&image_block);
+    PB_LINE_IT* lines = new PB_LINE_IT(&image_block);
     for (int y = box.bottom(); y < box.top(); ++y) {
       const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
           lines->get_line(y));
@@ -160,13 +158,12 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     delete lines;
   } else {
     // Just fill the whole block as there is only a bounding box.
-    pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(),
-                PIX_SET, nullptr, 0, 0);
+    pixRasterop(pix, 0, 0, rotated_box.width(), rotated_box.height(), PIX_SET,
+                nullptr, 0, 0);
   }
   if (mask_box != nullptr) *mask_box = rotated_box;
   return pix;
 }
-
 
 /**********************************************************************
  * PDBLK::plot
@@ -175,56 +172,55 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
  **********************************************************************/
 
 #ifndef GRAPHICS_DISABLED
-void PDBLK::plot(                //draw outline
-                 ScrollView* window,  //window to draw in
-                 int32_t serial,   //serial number
-                 ScrollView::Color colour   //colour to draw in
-                ) {
-  ICOORD startpt;                //start of outline
-  ICOORD endpt;                  //end of outline
-  ICOORD prevpt;                 //previous point
-  ICOORDELT_IT it = &leftside;   //iterator
+void PDBLK::plot(             // draw outline
+    ScrollView* window,       // window to draw in
+    int32_t serial,           // serial number
+    ScrollView::Color colour  // colour to draw in
+) {
+  ICOORD startpt;               // start of outline
+  ICOORD endpt;                 // end of outline
+  ICOORD prevpt;                // previous point
+  ICOORDELT_IT it = &leftside;  // iterator
 
-                                 //set the colour
+  // set the colour
   window->Pen(colour);
   window->TextAttributes("Times", BLOCK_LABEL_HEIGHT, false, false, false);
 
   if (hand_poly != nullptr) {
     hand_poly->plot(window, serial);
-  } else if (!leftside.empty ()) {
-    startpt = *(it.data ());     //bottom left corner
+  } else if (!leftside.empty()) {
+    startpt = *(it.data());  // bottom left corner
     //              tprintf("Block %d bottom left is (%d,%d)\n",
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
-    #if defined(__UNIX__) || defined(MINGW)
+#if defined(__UNIX__) || defined(MINGW)
     snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, serial);
-    #else
-    ultoa (serial, temp_buff, 10);
-    #endif
-    window->Text(startpt.x (), startpt.y (), temp_buff);
+#else
+    ultoa(serial, temp_buff, 10);
+#endif
+    window->Text(startpt.x(), startpt.y(), temp_buff);
 
-    window->SetCursor(startpt.x (), startpt.y ());
+    window->SetCursor(startpt.x(), startpt.y());
     do {
-      prevpt = *(it.data ());    //previous point
-      it.forward ();             //move to next point
-                                 //draw round corner
-    window->DrawTo(prevpt.x (), it.data ()->y ());
-    window->DrawTo(it.data ()->x (), it.data ()->y ());
-    }
-    while (!it.at_last ());      //until end of list
-    endpt = *(it.data ());       //end point
+      prevpt = *(it.data());  // previous point
+      it.forward();           // move to next point
+                              // draw round corner
+      window->DrawTo(prevpt.x(), it.data()->y());
+      window->DrawTo(it.data()->x(), it.data()->y());
+    } while (!it.at_last());  // until end of list
+    endpt = *(it.data());     // end point
 
-                                 //other side of boundary
-    window->SetCursor(startpt.x (), startpt.y ());
-    it.set_to_list (&rightside);
+    // other side of boundary
+    window->SetCursor(startpt.x(), startpt.y());
+    it.set_to_list(&rightside);
     prevpt = startpt;
-    for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
-                                 //draw round corner
-    window->DrawTo(prevpt.x (), it.data ()->y ());
-    window->DrawTo(it.data ()->x (), it.data ()->y ());
-      prevpt = *(it.data ());    //previous point
+    for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
+      // draw round corner
+      window->DrawTo(prevpt.x(), it.data()->y());
+      window->DrawTo(it.data()->x(), it.data()->y());
+      prevpt = *(it.data());  // previous point
     }
-                                 //close boundary
+    // close boundary
     window->DrawTo(endpt.x(), endpt.y());
   }
 }
@@ -236,20 +232,17 @@ void PDBLK::plot(                //draw outline
  * Assignment - duplicate the block structure, but with an EMPTY row list.
  **********************************************************************/
 
-PDBLK & PDBLK::operator= (       //assignment
-const PDBLK & source             //from this
+PDBLK& PDBLK::operator=(  // assignment
+    const PDBLK& source   // from this
 ) {
   //      this->ELIST_LINK::operator=(source);
-  if (!leftside.empty ())
-    leftside.clear ();
-  if (!rightside.empty ())
-    rightside.clear ();
+  if (!leftside.empty()) leftside.clear();
+  if (!rightside.empty()) rightside.clear();
   leftside.deep_copy(&source.leftside, &ICOORDELT::deep_copy);
   rightside.deep_copy(&source.rightside, &ICOORDELT::deep_copy);
   box = source.box;
   return *this;
 }
-
 
 /**********************************************************************
  * BLOCK_RECT_IT::BLOCK_RECT_IT
@@ -257,17 +250,17 @@ const PDBLK & source             //from this
  * Construct a block rectangle iterator.
  **********************************************************************/
 
-BLOCK_RECT_IT::BLOCK_RECT_IT (
-//iterate rectangles
-PDBLK * blkptr                   //from block
-):left_it (&blkptr->leftside), right_it (&blkptr->rightside) {
-  block = blkptr;                //remember block
-                                 //non empty list
-  if (!blkptr->leftside.empty ()) {
-    start_block();  //ready for iteration
+BLOCK_RECT_IT::BLOCK_RECT_IT(
+    // iterate rectangles
+    PDBLK* blkptr  // from block
+    )
+    : left_it(&blkptr->leftside), right_it(&blkptr->rightside) {
+  block = blkptr;  // remember block
+                   // non empty list
+  if (!blkptr->leftside.empty()) {
+    start_block();  // ready for iteration
   }
 }
-
 
 /**********************************************************************
  * BLOCK_RECT_IT::set_to_block
@@ -275,16 +268,14 @@ PDBLK * blkptr                   //from block
  * Start a new block.
  **********************************************************************/
 
-void BLOCK_RECT_IT::set_to_block(                  //start (new) block
-                                 PDBLK *blkptr) {  //block to start
-  block = blkptr;                //remember block
-                                 //set iterators
-  left_it.set_to_list (&blkptr->leftside);
-  right_it.set_to_list (&blkptr->rightside);
-  if (!blkptr->leftside.empty ())
-    start_block();  //ready for iteration
+void BLOCK_RECT_IT::set_to_block(  // start (new) block
+    PDBLK* blkptr) {               // block to start
+  block = blkptr;                  // remember block
+                                   // set iterators
+  left_it.set_to_list(&blkptr->leftside);
+  right_it.set_to_list(&blkptr->rightside);
+  if (!blkptr->leftside.empty()) start_block();  // ready for iteration
 }
-
 
 /**********************************************************************
  * BLOCK_RECT_IT::start_block
@@ -292,18 +283,17 @@ void BLOCK_RECT_IT::set_to_block(                  //start (new) block
  * Restart a block.
  **********************************************************************/
 
-void BLOCK_RECT_IT::start_block() {  //start (new) block
-  left_it.move_to_first ();
-  right_it.move_to_first ();
-  left_it.mark_cycle_pt ();
-  right_it.mark_cycle_pt ();
-  ymin = left_it.data ()->y ();  //bottom of first box
-  ymax = left_it.data_relative (1)->y ();
-  if (right_it.data_relative (1)->y () < ymax)
-                                 //smallest step
-    ymax = right_it.data_relative (1)->y ();
+void BLOCK_RECT_IT::start_block() {  // start (new) block
+  left_it.move_to_first();
+  right_it.move_to_first();
+  left_it.mark_cycle_pt();
+  right_it.mark_cycle_pt();
+  ymin = left_it.data()->y();  // bottom of first box
+  ymax = left_it.data_relative(1)->y();
+  if (right_it.data_relative(1)->y() < ymax)
+    // smallest step
+    ymax = right_it.data_relative(1)->y();
 }
-
 
 /**********************************************************************
  * BLOCK_RECT_IT::forward
@@ -311,30 +301,27 @@ void BLOCK_RECT_IT::start_block() {  //start (new) block
  * Move to the next rectangle in the block.
  **********************************************************************/
 
-void BLOCK_RECT_IT::forward() {  //next rectangle
-  if (!left_it.empty ()) {       //non-empty list
-    if (left_it.data_relative (1)->y () == ymax)
-      left_it.forward ();        //move to meet top
-    if (right_it.data_relative (1)->y () == ymax)
-      right_it.forward ();
-                                 //last is special
-    if (left_it.at_last () || right_it.at_last ()) {
-      left_it.move_to_first ();  //restart
-      right_it.move_to_first ();
-                                 //now at bottom
-      ymin = left_it.data ()->y ();
+void BLOCK_RECT_IT::forward() {  // next rectangle
+  if (!left_it.empty()) {        // non-empty list
+    if (left_it.data_relative(1)->y() == ymax)
+      left_it.forward();  // move to meet top
+    if (right_it.data_relative(1)->y() == ymax) right_it.forward();
+    // last is special
+    if (left_it.at_last() || right_it.at_last()) {
+      left_it.move_to_first();  // restart
+      right_it.move_to_first();
+      // now at bottom
+      ymin = left_it.data()->y();
+    } else {
+      ymin = ymax;  // new bottom
     }
-    else {
-      ymin = ymax;               //new bottom
-    }
-                                 //next point
-    ymax = left_it.data_relative (1)->y ();
-    if (right_it.data_relative (1)->y () < ymax)
-                                 //least step forward
-      ymax = right_it.data_relative (1)->y ();
+    // next point
+    ymax = left_it.data_relative(1)->y();
+    if (right_it.data_relative(1)->y() < ymax)
+      // least step forward
+      ymax = right_it.data_relative(1)->y();
   }
 }
-
 
 /**********************************************************************
  * BLOCK_LINE_IT::get_line
@@ -342,38 +329,38 @@ void BLOCK_RECT_IT::forward() {  //next rectangle
  * Get the the start and width of a line in the block.
  **********************************************************************/
 
-int16_t BLOCK_LINE_IT::get_line(             //get a line
-                              int16_t y,     //line to get
-                              int16_t &xext  //output extent
-                             ) {
-  ICOORD bleft;                  //bounding box
-  ICOORD tright;                 //of block & rect
+int16_t BLOCK_LINE_IT::get_line(  // get a line
+    int16_t y,                    // line to get
+    int16_t& xext                 // output extent
+) {
+  ICOORD bleft;   // bounding box
+  ICOORD tright;  // of block & rect
 
-                                 //get block box
-  block->bounding_box (bleft, tright);
-  if (y < bleft.y () || y >= tright.y ()) {
+  // get block box
+  block->bounding_box(bleft, tright);
+  if (y < bleft.y() || y >= tright.y()) {
     //              block->print(stderr,FALSE);
-    BADBLOCKLINE.error ("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
+    BADBLOCKLINE.error("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
   }
 
-                                 //get rectangle box
-  rect_it.bounding_box (bleft, tright);
-                                 //inside rectangle
-  if (y >= bleft.y () && y < tright.y ()) {
-                                 //width of line
-    xext = tright.x () - bleft.x ();
-    return bleft.x ();           //start of line
+  // get rectangle box
+  rect_it.bounding_box(bleft, tright);
+  // inside rectangle
+  if (y >= bleft.y() && y < tright.y()) {
+    // width of line
+    xext = tright.x() - bleft.x();
+    return bleft.x();  // start of line
   }
-  for (rect_it.start_block (); !rect_it.cycled_rects (); rect_it.forward ()) {
-                                 //get rectangle box
-    rect_it.bounding_box (bleft, tright);
-                                 //inside rectangle
-    if (y >= bleft.y () && y < tright.y ()) {
-                                 //width of line
-      xext = tright.x () - bleft.x ();
-      return bleft.x ();         //start of line
+  for (rect_it.start_block(); !rect_it.cycled_rects(); rect_it.forward()) {
+    // get rectangle box
+    rect_it.bounding_box(bleft, tright);
+    // inside rectangle
+    if (y >= bleft.y() && y < tright.y()) {
+      // width of line
+      xext = tright.x() - bleft.x();
+      return bleft.x();  // start of line
     }
   }
-  LOSTBLOCKLINE.error ("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
-  return 0;                      //dummy to stop warning
+  LOSTBLOCKLINE.error("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
+  return 0;  // dummy to stop warning
 }

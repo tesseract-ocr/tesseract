@@ -265,7 +265,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     pixInvert(pix, pix);
     Input::PreparePixInput(network_->InputShape(), pix, &randomizer_,
                            &inv_inputs);
-    network_->Forward(debug, inv_inputs, nullptr, &scratch_space_, &inv_outputs);
+    network_->Forward(debug, inv_inputs, nullptr, &scratch_space_,
+                      &inv_outputs);
     float inv_min, inv_mean, inv_sd;
     OutputStats(inv_outputs, &inv_min, &inv_mean, &inv_sd);
     if (inv_min > pos_min && inv_mean > pos_mean && inv_sd < pos_sd) {
@@ -295,7 +296,8 @@ bool LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
 
 // Converts an array of labels to utf-8, whether or not the labels are
 // augmented with character boundaries.
-STRING LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
+STRING
+LSTMRecognizer::DecodeLabels(const GenericVector<int>& labels) {
   STRING result;
   int end = 1;
   for (int start = 0; start < labels.size(); start = end) {
@@ -409,8 +411,8 @@ void LSTMRecognizer::DebugActivationRange(const NetworkIO& outputs,
 // Helper returns true if the null_char is the winner at t, and it beats the
 // null_threshold, or the next choice is space, in which case we will use the
 // null anyway.
-static bool NullIsBest(const NetworkIO& output, float null_thr,
-                       int null_char, int t) {
+static bool NullIsBest(const NetworkIO& output, float null_thr, int null_char,
+                       int t) {
   if (output.f(t)[null_char] >= null_thr) return true;
   if (output.BestLabel(t, null_char, null_char, nullptr) != UNICHAR_SPACE)
     return false;

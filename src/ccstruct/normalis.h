@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef           NORMALIS_H
-#define           NORMALIS_H
+#ifndef NORMALIS_H
+#define NORMALIS_H
 
 #include <cstdio>
 #include "genericvector.h"
@@ -29,7 +29,7 @@ const int kBlnXHeight = 128;        // x-height for baseline normalization.
 const int kBlnBaselineOffset = 64;  // offset for baseline normalization.
 
 struct Pix;
-class ROW;                          // Forward decl
+class ROW;  // Forward decl
 class BLOCK;
 class FCOORD;
 struct TBLOB;
@@ -54,7 +54,7 @@ class DENORM {
   DENORM();
 
   // Copying a DENORM is allowed.
-  DENORM(const DENORM &);
+  DENORM(const DENORM&);
   DENORM& operator=(const DENORM&);
   ~DENORM();
 
@@ -173,11 +173,9 @@ class DENORM {
   //                    1.0f,
   //                    1.0f,
   //                    0, 0);
-  void SetupNormalization(const BLOCK* block,
-                          const FCOORD* rotation,
-                          const DENORM* predecessor,
-                          float x_origin, float y_origin,
-                          float x_scale, float y_scale,
+  void SetupNormalization(const BLOCK* block, const FCOORD* rotation,
+                          const DENORM* predecessor, float x_origin,
+                          float y_origin, float x_scale, float y_scale,
                           float final_xshift, float final_yshift);
 
   // Sets up the DENORM to execute a non-linear transformation based on
@@ -197,8 +195,8 @@ class DENORM {
   void SetupNonLinear(const DENORM* predecessor, const TBOX& box,
                       float target_width, float target_height,
                       float final_xshift, float final_yshift,
-                      const GenericVector<GenericVector<int> >& x_coords,
-                      const GenericVector<GenericVector<int> >& y_coords);
+                      const GenericVector<GenericVector<int>>& x_coords,
+                      const GenericVector<GenericVector<int>>& y_coords);
 
   // Transforms the given coords one step forward to normalized space, without
   // using any block rotation or predecessor.
@@ -206,9 +204,9 @@ class DENORM {
   void LocalNormTransform(const FCOORD& pt, FCOORD* transformed) const;
   // Transforms the given coords forward to normalized space using the
   // full transformation sequence defined by the block rotation, the
-  // predecessors, deepest first, and finally this. If first_norm is not nullptr,
-  // then the first and deepest transformation used is first_norm, ending
-  // with this, and the block rotation will not be applied.
+  // predecessors, deepest first, and finally this. If first_norm is not
+  // nullptr, then the first and deepest transformation used is first_norm,
+  // ending with this, and the block rotation will not be applied.
   void NormTransform(const DENORM* first_norm, const TPOINT& pt,
                      TPOINT* transformed) const;
   void NormTransform(const DENORM* first_norm, const FCOORD& pt,
@@ -237,47 +235,26 @@ class DENORM {
   // size) and this denoting the transformation that was used.
   // Also returns the amount the character must have shifted up or down.
   void XHeightRange(int unichar_id, const UNICHARSET& unicharset,
-                    const TBOX& bbox,
-                    float* min_xht,
-                    float* max_xht,
+                    const TBOX& bbox, float* min_xht, float* max_xht,
                     float* yshift) const;
 
   // Prints the content of the DENORM for debug purposes.
   void Print() const;
 
-  Pix* pix() const {
-    return pix_;
-  }
-  void set_pix(Pix* pix) {
-    pix_ = pix;
-  }
-  bool inverse() const {
-    return inverse_;
-  }
-  void set_inverse(bool value) {
-    inverse_ = value;
-  }
+  Pix* pix() const { return pix_; }
+  void set_pix(Pix* pix) { pix_ = pix; }
+  bool inverse() const { return inverse_; }
+  void set_inverse(bool value) { inverse_ = value; }
   const DENORM* RootDenorm() const {
-    if (predecessor_ != nullptr)
-      return predecessor_->RootDenorm();
+    if (predecessor_ != nullptr) return predecessor_->RootDenorm();
     return this;
   }
-  const DENORM* predecessor() const {
-    return predecessor_;
-  }
+  const DENORM* predecessor() const { return predecessor_; }
   // Accessors - perhaps should not be needed.
-  float x_scale() const {
-    return x_scale_;
-  }
-  float y_scale() const {
-    return y_scale_;
-  }
-  const BLOCK* block() const {
-    return block_;
-  }
-  void set_block(const BLOCK* block) {
-    block_ = block;
-  }
+  float x_scale() const { return x_scale_; }
+  float y_scale() const { return y_scale_; }
+  const BLOCK* block() const { return block_; }
+  void set_block(const BLOCK* block) { block_ = block; }
 
  private:
   // Free allocated memory and clear pointers.

@@ -46,8 +46,8 @@ void Dict::reset_hyphen_vars(bool last_word_on_line) {
 
 // Update hyphen_word_, and copy the given DawgPositionVectors into
 // hyphen_active_dawgs_.
-void Dict::set_hyphen_word(const WERD_CHOICE &word,
-                           const DawgPositionVector &active_dawgs) {
+void Dict::set_hyphen_word(const WERD_CHOICE& word,
+                           const DawgPositionVector& active_dawgs) {
   if (hyphen_word_ == nullptr) {
     hyphen_word_ = new WERD_CHOICE(word.unicharset());
     hyphen_word_->make_bad();

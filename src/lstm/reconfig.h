@@ -19,7 +19,6 @@
 #ifndef TESSERACT_LSTM_RECONFIG_H_
 #define TESSERACT_LSTM_RECONFIG_H_
 
-
 #include "genericvector.h"
 #include "matrix.h"
 #include "network.h"
@@ -62,14 +61,13 @@ class Reconfig : public Network {
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
   void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+               const TransposedArray* input_transpose, NetworkScratch* scratch,
+               NetworkIO* output) override;
 
   // Runs backward propagation of errors on the deltas line.
   // See Network for a detailed discussion of the arguments.
   bool Backward(bool debug, const NetworkIO& fwd_deltas,
-                NetworkScratch* scratch,
-                NetworkIO* back_deltas) override;
+                NetworkScratch* scratch, NetworkIO* back_deltas) override;
 
  protected:
   // Non-serialized data used to store parameters between forward and back.
@@ -80,6 +78,5 @@ class Reconfig : public Network {
 };
 
 }  // namespace tesseract.
-
 
 #endif  // TESSERACT_LSTM_SUBSAMPLE_H_

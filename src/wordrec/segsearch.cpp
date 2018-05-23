@@ -21,9 +21,9 @@
 
 #include "associate.h"
 #include "language_model.h"
+#include "lm_pain_points.h"
 #include "matrix.h"
 #include "params.h"
-#include "lm_pain_points.h"
 #include "ratngs.h"
 
 #include <algorithm>
@@ -39,10 +39,9 @@ void Wordrec::DoSegSearch(WERD_RES* word_res) {
 void Wordrec::SegSearch(WERD_RES* word_res,
                         BestChoiceBundle* best_choice_bundle,
                         BlamerBundle* blamer_bundle) {
-  LMPainPoints pain_points(segsearch_max_pain_points,
-                           segsearch_max_char_wh_ratio,
-                           assume_fixed_pitch_char_segment,
-                           &getDict(), segsearch_debug_level);
+  LMPainPoints pain_points(
+      segsearch_max_pain_points, segsearch_max_char_wh_ratio,
+      assume_fixed_pitch_char_segment, &getDict(), segsearch_debug_level);
   // Compute scaling factor that will help us recover blob outline length
   // from classifier rating and certainty for the blob.
   float rating_cert_scale = -1.0 * getDict().certainty_scale / rating_scale;
@@ -69,17 +68,17 @@ void Wordrec::SegSearch(WERD_RES* word_res,
   int num_futile_classifications = 0;
   STRING blamer_debug;
   while (wordrec_enable_assoc &&
-      (!SegSearchDone(num_futile_classifications) ||
+         (!SegSearchDone(num_futile_classifications) ||
           (blamer_bundle != nullptr &&
-              blamer_bundle->GuidedSegsearchStillGoing()))) {
+           blamer_bundle->GuidedSegsearchStillGoing()))) {
     // Get the next valid "pain point".
     bool found_nothing = true;
     LMPainPointsType pp_type;
     while ((pp_type = pain_points.Deque(&pain_point, &pain_point_priority)) !=
-        LM_PPTYPE_NUM) {
+           LM_PPTYPE_NUM) {
       if (!pain_point.Valid(*word_res->ratings)) {
-        word_res->ratings->IncreaseBandSize(
-            pain_point.row - pain_point.col + 1);
+        word_res->ratings->IncreaseBandSize(pain_point.row - pain_point.col +
+                                            1);
       }
       if (pain_point.Valid(*word_res->ratings) &&
           !word_res->ratings->Classified(pain_point.col, pain_point.row,
@@ -96,9 +95,8 @@ void Wordrec::SegSearch(WERD_RES* word_res,
                               LMPainPoints::PainPointDescription(pp_type),
                               &pending, word_res, &pain_points, blamer_bundle);
 
-    UpdateSegSearchNodes(rating_cert_scale, pain_point.col, &pending,
-                         word_res, &pain_points, best_choice_bundle,
-                         blamer_bundle);
+    UpdateSegSearchNodes(rating_cert_scale, pain_point.col, &pending, word_res,
+                         &pain_points, best_choice_bundle, blamer_bundle);
     if (!best_choice_bundle->updated) ++num_futile_classifications;
 
     if (segsearch_debug_level > 0) {
@@ -109,16 +107,15 @@ void Wordrec::SegSearch(WERD_RES* word_res,
 
     // See if it's time to terminate SegSearch or time for starting a guided
     // search for the true path to find the blame for the incorrect best_choice.
-    if (SegSearchDone(num_futile_classifications) &&
-        blamer_bundle != nullptr &&
+    if (SegSearchDone(num_futile_classifications) && blamer_bundle != nullptr &&
         blamer_bundle->GuidedSegsearchNeeded(word_res->best_choice)) {
       InitBlamerForSegSearch(word_res, &pain_points, blamer_bundle,
                              &blamer_debug);
     }
   }  // end while loop exploring alternative paths
   if (blamer_bundle != nullptr) {
-    blamer_bundle->FinishSegSearch(word_res->best_choice,
-                                   wordrec_debug_blamer, &blamer_debug);
+    blamer_bundle->FinishSegSearch(word_res->best_choice, wordrec_debug_blamer,
+                                   &blamer_debug);
   }
 
   if (segsearch_debug_level > 0) {
@@ -170,26 +167,24 @@ void Wordrec::InitialSegSearch(WERD_RES* word_res, LMPainPoints* pain_points,
 
   // Search the ratings matrix for the initial best path.
   (*pending)[0].SetColumnClassified();
-  UpdateSegSearchNodes(rating_cert_scale, 0, pending, word_res,
-                       pain_points, best_choice_bundle, blamer_bundle);
+  UpdateSegSearchNodes(rating_cert_scale, 0, pending, word_res, pain_points,
+                       best_choice_bundle, blamer_bundle);
 }
 
-void Wordrec::UpdateSegSearchNodes(
-    float rating_cert_scale,
-    int starting_col,
-    GenericVector<SegSearchPending>* pending,
-    WERD_RES *word_res,
-    LMPainPoints *pain_points,
-    BestChoiceBundle *best_choice_bundle,
-    BlamerBundle *blamer_bundle) {
-  MATRIX *ratings = word_res->ratings;
+void Wordrec::UpdateSegSearchNodes(float rating_cert_scale, int starting_col,
+                                   GenericVector<SegSearchPending>* pending,
+                                   WERD_RES* word_res,
+                                   LMPainPoints* pain_points,
+                                   BestChoiceBundle* best_choice_bundle,
+                                   BlamerBundle* blamer_bundle) {
+  MATRIX* ratings = word_res->ratings;
   ASSERT_HOST(ratings->dimension() == pending->size());
   ASSERT_HOST(ratings->dimension() == best_choice_bundle->beam.size());
   for (int col = starting_col; col < ratings->dimension(); ++col) {
     if (!(*pending)[col].WorkToDo()) continue;
     int first_row = col;
-    int last_row = std::min(ratings->dimension() - 1,
-                       col + ratings->bandwidth() - 1);
+    int last_row =
+        std::min(ratings->dimension() - 1, col + ratings->bandwidth() - 1);
     if ((*pending)[col].SingleRow() >= 0) {
       first_row = last_row = (*pending)[col].SingleRow();
     }
@@ -201,8 +196,8 @@ void Wordrec::UpdateSegSearchNodes(
     // Iterate over the pending list for this column.
     for (int row = first_row; row <= last_row; ++row) {
       // Update language model state of this child+parent pair.
-      BLOB_CHOICE_LIST *current_node = ratings->get(col, row);
-      LanguageModelState *parent_node =
+      BLOB_CHOICE_LIST* current_node = ratings->get(col, row);
+      LanguageModelState* parent_node =
           col == 0 ? nullptr : best_choice_bundle->beam[col - 1];
       if (current_node != nullptr &&
           language_model_->UpdateState((*pending)[col].IsRowJustClassified(row),
@@ -217,8 +212,8 @@ void Wordrec::UpdateSegSearchNodes(
           tprintf("Added child col=%d to pending\n", row + 1);
         }
       }  // end if UpdateState.
-    }  // end for row.
-  }  // end for col.
+    }    // end for row.
+  }      // end for col.
   if (best_choice_bundle->best_vse != nullptr) {
     ASSERT_HOST(word_res->StatesAllValid());
     if (best_choice_bundle->best_vse->updated) {
@@ -234,8 +229,8 @@ void Wordrec::UpdateSegSearchNodes(
   // all pendings.
   for (int col = 0; col < pending->size(); ++col) {
     (*pending)[col].Clear();
-    ViterbiStateEntry_IT
-        vse_it(&best_choice_bundle->beam[col]->viterbi_state_entries);
+    ViterbiStateEntry_IT vse_it(
+        &best_choice_bundle->beam[col]->viterbi_state_entries);
     for (vse_it.mark_cycle_pt(); !vse_it.cycled_list(); vse_it.forward()) {
       vse_it.data()->updated = false;
     }
@@ -243,28 +238,26 @@ void Wordrec::UpdateSegSearchNodes(
 }
 
 void Wordrec::ProcessSegSearchPainPoint(
-    float pain_point_priority,
-    const MATRIX_COORD &pain_point, const char* pain_point_type,
-    GenericVector<SegSearchPending>* pending, WERD_RES *word_res,
-    LMPainPoints *pain_points, BlamerBundle *blamer_bundle) {
+    float pain_point_priority, const MATRIX_COORD& pain_point,
+    const char* pain_point_type, GenericVector<SegSearchPending>* pending,
+    WERD_RES* word_res, LMPainPoints* pain_points,
+    BlamerBundle* blamer_bundle) {
   if (segsearch_debug_level > 0) {
     tprintf("Classifying pain point %s priority=%.4f, col=%d, row=%d\n",
-            pain_point_type, pain_point_priority,
-            pain_point.col, pain_point.row);
+            pain_point_type, pain_point_priority, pain_point.col,
+            pain_point.row);
   }
   ASSERT_HOST(pain_points != nullptr);
-  MATRIX *ratings = word_res->ratings;
+  MATRIX* ratings = word_res->ratings;
   // Classify blob [pain_point.col pain_point.row]
   if (!pain_point.Valid(*ratings)) {
     ratings->IncreaseBandSize(pain_point.row + 1 - pain_point.col);
   }
   ASSERT_HOST(pain_point.Valid(*ratings));
-  BLOB_CHOICE_LIST *classified = classify_piece(word_res->seam_array,
-                                                pain_point.col, pain_point.row,
-                                                pain_point_type,
-                                                word_res->chopped_word,
-                                                blamer_bundle);
-  BLOB_CHOICE_LIST *lst = ratings->get(pain_point.col, pain_point.row);
+  BLOB_CHOICE_LIST* classified =
+      classify_piece(word_res->seam_array, pain_point.col, pain_point.row,
+                     pain_point_type, word_res->chopped_word, blamer_bundle);
+  BLOB_CHOICE_LIST* lst = ratings->get(pain_point.col, pain_point.row);
   if (lst == nullptr) {
     ratings->put(pain_point.col, pain_point.row, classified);
   } else {
@@ -289,14 +282,14 @@ void Wordrec::ProcessSegSearchPainPoint(
   // with its left and right neighbors.
   if (classified != nullptr && !classified->empty()) {
     if (pain_point.col > 0) {
-      pain_points->GeneratePainPoint(
-          pain_point.col - 1, pain_point.row, LM_PPTYPE_SHAPE, 0.0,
-          true, segsearch_max_char_wh_ratio, word_res);
+      pain_points->GeneratePainPoint(pain_point.col - 1, pain_point.row,
+                                     LM_PPTYPE_SHAPE, 0.0, true,
+                                     segsearch_max_char_wh_ratio, word_res);
     }
     if (pain_point.row + 1 < ratings->dimension()) {
-      pain_points->GeneratePainPoint(
-          pain_point.col, pain_point.row + 1, LM_PPTYPE_SHAPE, 0.0,
-          true, segsearch_max_char_wh_ratio, word_res);
+      pain_points->GeneratePainPoint(pain_point.col, pain_point.row + 1,
+                                     LM_PPTYPE_SHAPE, 0.0, true,
+                                     segsearch_max_char_wh_ratio, word_res);
     }
   }
   (*pending)[pain_point.col].SetBlobClassified(pain_point.row);
@@ -318,14 +311,13 @@ void Wordrec::ResetNGramSearch(WERD_RES* word_res,
   best_choice_bundle->best_vse = nullptr;
   // Clear out all existing pendings and add a new one for the first column.
   (*pending)[0].SetColumnClassified();
-  for (int i = 1; i < pending->size(); ++i)
-    (*pending)[i].Clear();
+  for (int i = 1; i < pending->size(); ++i) (*pending)[i].Clear();
 }
 
-void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res,
-                                     LMPainPoints *pain_points,
-                                     BlamerBundle *blamer_bundle,
-                                     STRING *blamer_debug) {
+void Wordrec::InitBlamerForSegSearch(WERD_RES* word_res,
+                                     LMPainPoints* pain_points,
+                                     BlamerBundle* blamer_bundle,
+                                     STRING* blamer_debug) {
   pain_points->Clear();  // Clear pain points heap.
   TessResultCallback2<bool, int, int>* pp_cb = NewPermanentTessCallback(
       pain_points, &LMPainPoints::GenerateForBlamer,

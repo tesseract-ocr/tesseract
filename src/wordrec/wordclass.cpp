@@ -29,8 +29,8 @@
 #include <cstdio>
 
 #include "associate.h"
-#include "render.h"
 #include "callcpp.h"
+#include "render.h"
 #include "wordrec.h"
 
 // Include automatically generated configuration file if running autoconf.
@@ -53,12 +53,11 @@ namespace tesseract {
  * @param string The string to display in ScrollView
  * @param color The colour to use when displayed with ScrollView
  */
-BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
-                                         const char *string, C_COL color,
-                                         BlamerBundle *blamer_bundle) {
+BLOB_CHOICE_LIST* Wordrec::classify_blob(TBLOB* blob, const char* string,
+                                         C_COL color,
+                                         BlamerBundle* blamer_bundle) {
 #ifndef GRAPHICS_DISABLED
-  if (wordrec_display_all_blobs)
-    display_blob(blob, color);
+  if (wordrec_display_all_blobs) display_blob(blob, color);
 #endif
   // TODO(rays) collapse with call_matcher and move all to wordrec.cpp.
   BLOB_CHOICE_LIST* choices = call_matcher(blob);
@@ -67,19 +66,17 @@ BLOB_CHOICE_LIST *Wordrec::classify_blob(TBLOB *blob,
   // blame character classifier for incorrect answer.
   if (blamer_bundle != nullptr) {
     blamer_bundle->BlameClassifier(getDict().getUnicharset(),
-                                   blob->bounding_box(),
-                                   *choices,
+                                   blob->bounding_box(), *choices,
                                    wordrec_debug_blamer);
   }
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   if (classify_debug_level && string)
     print_ratings_list(string, choices, getDict().getUnicharset());
 
-  if (wordrec_blob_pause)
-    window_wait(blob_window);
+  if (wordrec_blob_pause) window_wait(blob_window);
 #endif
 
   return choices;
 }
 
-}  // namespace tesseract;
+}  // namespace tesseract

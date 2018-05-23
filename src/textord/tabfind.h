@@ -21,9 +21,9 @@
 #define TESSERACT_TEXTORD_TABFIND_H_
 
 #include "alignedblob.h"
-#include "tesscallback.h"
-#include "tabvector.h"
 #include "linefind.h"
+#include "tabvector.h"
+#include "tesscallback.h"
 
 class BLOBNBOX;
 class BLOBNBOX_LIST;
@@ -65,8 +65,7 @@ class TabFind : public AlignedBlob {
    * while the grid that provides the tab stops(this) has to be derived from
    * TabFind.
    */
-  void InsertBlobsToGrid(bool h_spread, bool v_spread,
-                         BLOBNBOX_LIST* blobs,
+  void InsertBlobsToGrid(bool h_spread, bool v_spread, BLOBNBOX_LIST* blobs,
                          BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>* grid);
 
   /**
@@ -97,9 +96,8 @@ class TabFind : public AlignedBlob {
   /**
    * Find the gutter width and distance to inner neighbour for the given blob.
    */
-  void GutterWidthAndNeighbourGap(int tab_x, int mean_height,
-                                  int max_gutter, bool left,
-                                  BLOBNBOX* bbox, int* gutter_width,
+  void GutterWidthAndNeighbourGap(int tab_x, int mean_height, int max_gutter,
+                                  bool left, BLOBNBOX* bbox, int* gutter_width,
                                   int* neighbour_gap);
 
   /**
@@ -155,27 +153,19 @@ class TabFind : public AlignedBlob {
   /**
    * Return a callback for testing CommonWidth.
    */
-  WidthCallback* WidthCB() {
-    return width_cb_;
-  }
+  WidthCallback* WidthCB() { return width_cb_; }
 
   /**
    * Return the coords at which to draw the image backdrop.
    */
-  const ICOORD& image_origin() const {
-    return image_origin_;
-  }
+  const ICOORD& image_origin() const { return image_origin_; }
 
  protected:
   /**
   // Accessors
    */
-  TabVector_LIST* vectors() {
-    return &vectors_;
-  }
-  TabVector_LIST* dead_vectors() {
-    return &dead_vectors_;
-  }
+  TabVector_LIST* vectors() { return &vectors_; }
+  TabVector_LIST* dead_vectors() { return &dead_vectors_; }
 
   /**
    * Top-level function to find TabVectors in an input page block.
@@ -184,16 +174,16 @@ class TabFind : public AlignedBlob {
    * tabfind_aligned_gap_fraction should be the value of parameter
    * textord_tabfind_aligned_gap_fraction
    */
-  bool FindTabVectors(TabVector_LIST* hlines,
-                      BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
-                      int min_gutter_width, double tabfind_aligned_gap_fraction,
-                      ColPartitionGrid* part_grid,
-                      FCOORD* deskew, FCOORD* reskew);
+  bool FindTabVectors(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
+                      TO_BLOCK* block, int min_gutter_width,
+                      double tabfind_aligned_gap_fraction,
+                      ColPartitionGrid* part_grid, FCOORD* deskew,
+                      FCOORD* reskew);
 
   // Top-level function to not find TabVectors in an input page block,
   // but setup for single column mode.
-  void DontFindTabVectors(BLOBNBOX_LIST* image_blobs,
-                          TO_BLOCK* block, FCOORD* deskew, FCOORD* reskew);
+  void DontFindTabVectors(BLOBNBOX_LIST* image_blobs, TO_BLOCK* block,
+                          FCOORD* deskew, FCOORD* reskew);
 
   // Cleans up the lists of blobs in the block ready for use by TabFind.
   // Large blobs that look like text are moved to the main blobs list.
@@ -268,10 +258,8 @@ class TabFind : public AlignedBlob {
   // and estimates the logical vertical direction.
   void FindAllTabVectors(int min_gutter_width);
   // Helper for FindAllTabVectors finds the vectors of a particular type.
-  int FindTabVectors(int search_size_multiple,
-                     TabAlignment alignment,
-                     int min_gutter_width,
-                     TabVector_LIST* vectors,
+  int FindTabVectors(int search_size_multiple, TabAlignment alignment,
+                     int min_gutter_width, TabVector_LIST* vectors,
                      int* vertical_x, int* vertical_y);
   // Finds a vector corresponding to a tabstop running through the
   // given box of the given alignment type.
@@ -281,8 +269,7 @@ class TabFind : public AlignedBlob {
   // vertical direction. (skew finding.)
   // Returns nullptr if no decent tabstop can be found.
   TabVector* FindTabVector(int search_size_multiple, int min_gutter_width,
-                           TabAlignment alignment,
-                           BLOBNBOX* bbox,
+                           TabAlignment alignment, BLOBNBOX* bbox,
                            int* vertical_x, int* vertical_y);
 
   // Set the vertical_skew_ member from the given vector and refit
@@ -298,8 +285,7 @@ class TabFind : public AlignedBlob {
   // Trace textlines from one side to the other of each tab vector, saving
   // the most frequent column widths found in a list so that a given width
   // can be tested for being a common width with a simple callback function.
-  void ComputeColumnWidths(ScrollView* tab_win,
-                           ColPartitionGrid* part_grid);
+  void ComputeColumnWidths(ScrollView* tab_win, ColPartitionGrid* part_grid);
 
   // Finds column width and:
   //   if col_widths is not null (pass1):
@@ -328,9 +314,8 @@ class TabFind : public AlignedBlob {
   // the [top_y, bottom_y] range.
   // If ignore_images is true, then blobs with aligned_text() < 0 are treated
   // as if they do not exist.
-  BLOBNBOX* AdjacentBlob(const BLOBNBOX* bbox,
-                         bool look_left, bool ignore_images,
-                         double min_overlap_fraction,
+  BLOBNBOX* AdjacentBlob(const BLOBNBOX* bbox, bool look_left,
+                         bool ignore_images, double min_overlap_fraction,
                          int gap_limit, int top_y, int bottom_y);
 
   // Add a bi-directional partner relationship between the left
@@ -364,13 +349,13 @@ class TabFind : public AlignedBlob {
   void ApplyTabConstraints();
 
  protected:
-  ICOORD vertical_skew_;          //< Estimate of true vertical in this image.
-  int resolution_;                //< Of source image in pixels per inch.
+  ICOORD vertical_skew_;  //< Estimate of true vertical in this image.
+  int resolution_;        //< Of source image in pixels per inch.
  private:
-  ICOORD image_origin_;           //< Top-left of image in deskewed coords
-  TabVector_LIST vectors_;        //< List of rule line and tabstops.
-  TabVector_IT v_it_;             //< Iterator for searching vectors_.
-  TabVector_LIST dead_vectors_;   //< Separators and unpartnered tab vectors.
+  ICOORD image_origin_;          //< Top-left of image in deskewed coords
+  TabVector_LIST vectors_;       //< List of rule line and tabstops.
+  TabVector_IT v_it_;            //< Iterator for searching vectors_.
+  TabVector_LIST dead_vectors_;  //< Separators and unpartnered tab vectors.
   // List of commonly occurring width ranges with x=min and y=max.
   ICOORDELT_LIST column_widths_;  //< List of commonly occurring width ranges.
   /** Callback to test an int for being a common width. */

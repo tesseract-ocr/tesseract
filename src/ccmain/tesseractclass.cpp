@@ -541,18 +541,14 @@ Tesseract::~Tesseract() {
 #endif
 }
 
-Dict& Tesseract::getDict()
-{
-    if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang())
-    {
-        if (lstm_recognizer_ && lstm_recognizer_->GetDict())
-        {
-            return *const_cast<Dict*>(lstm_recognizer_->GetDict());
-        }
+Dict& Tesseract::getDict() {
+  if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang()) {
+    if (lstm_recognizer_ && lstm_recognizer_->GetDict()) {
+      return *const_cast<Dict*>(lstm_recognizer_->GetDict());
     }
-    return Classify::getDict();
   }
-
+  return Classify::getDict();
+}
 
 void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
@@ -565,8 +561,7 @@ void Tesseract::Clear() {
   reskew_ = FCOORD(1.0f, 0.0f);
   splitter_.Clear();
   scaled_factor_ = -1;
-  for (int i = 0; i < sub_langs_.size(); ++i)
-    sub_langs_[i]->Clear();
+  for (int i = 0; i < sub_langs_.size(); ++i) sub_langs_[i]->Clear();
 }
 
 void Tesseract::SetEquationDetect(EquationDetect* detector) {
@@ -610,11 +605,11 @@ void Tesseract::PrepareForPageseg() {
   // Find the max splitter strategy over all langs.
   ShiroRekhaSplitter::SplitStrategy max_pageseg_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
-      static_cast<int32_t>(pageseg_devanagari_split_strategy));
+          static_cast<int32_t>(pageseg_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
     ShiroRekhaSplitter::SplitStrategy pageseg_strategy =
-        static_cast<ShiroRekhaSplitter::SplitStrategy>(
-        static_cast<int32_t>(sub_langs_[i]->pageseg_devanagari_split_strategy));
+        static_cast<ShiroRekhaSplitter::SplitStrategy>(static_cast<int32_t>(
+            sub_langs_[i]->pageseg_devanagari_split_strategy));
     if (pageseg_strategy > max_pageseg_strategy)
       max_pageseg_strategy = pageseg_strategy;
     pixDestroy(&sub_langs_[i]->pix_binary_);
@@ -636,18 +631,17 @@ void Tesseract::PrepareForPageseg() {
 // Note that this method resets pix_binary_ to the original binarized image,
 // which may be different from the image actually used for OCR depending on the
 // value of devanagari_ocr_split_strategy.
-void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
-                                  Tesseract* osd_tess, OSResults* osr) {
+void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list, Tesseract* osd_tess,
+                                  OSResults* osr) {
   // Find the max splitter strategy over all langs.
   ShiroRekhaSplitter::SplitStrategy max_ocr_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
-      static_cast<int32_t>(ocr_devanagari_split_strategy));
+          static_cast<int32_t>(ocr_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
     ShiroRekhaSplitter::SplitStrategy ocr_strategy =
         static_cast<ShiroRekhaSplitter::SplitStrategy>(
-        static_cast<int32_t>(sub_langs_[i]->ocr_devanagari_split_strategy));
-    if (ocr_strategy > max_ocr_strategy)
-      max_ocr_strategy = ocr_strategy;
+            static_cast<int32_t>(sub_langs_[i]->ocr_devanagari_split_strategy));
+    if (ocr_strategy > max_ocr_strategy) max_ocr_strategy = ocr_strategy;
   }
   // Utilize the segmentation information available.
   splitter_.set_segmentation_block_list(block_list);
@@ -664,8 +658,8 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
   if (splitter_.HasDifferentSplitStrategies()) {
     BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_),
                 pixGetHeight(pix_binary_));
-    Pix* pix_for_ocr = split_for_ocr ? splitter_.splitted_image() :
-        splitter_.orig_pix();
+    Pix* pix_for_ocr =
+        split_for_ocr ? splitter_.splitted_image() : splitter_.orig_pix();
     extract_edges(pix_for_ocr, &block);
     splitter_.RefreshSegmentationWithNewBlobs(block.blob_list());
   }

@@ -35,7 +35,8 @@ class File {
 
   // Try to open the file 'filename' and to write 'str' in it.
   // Stop the program if it fails.
-  static void WriteStringToFileOrDie(const std::string& str, const std::string& filename);
+  static void WriteStringToFileOrDie(const std::string& str,
+                                     const std::string& filename);
 
   // Return true if the file 'filename' is readable.
   static bool Readable(const std::string& filename);
@@ -45,7 +46,8 @@ class File {
   // Helper methods
 
   // Concatenate file paths removing any extra intervening '/' symbols.
-  static std::string JoinPath(const std::string& prefix, const std::string& suffix);
+  static std::string JoinPath(const std::string& prefix,
+                              const std::string& suffix);
   // Delete a filename or all filenames matching a glob pattern.
   static bool Delete(const char* pathname);
   static bool DeleteMatchingFiles(const char* pattern);
@@ -71,7 +73,7 @@ class InputBuffer {
 
  private:
   FILE* stream_;
-  int   filesize_;
+  int filesize_;
 };
 
 // A class to manipulate Files for writing.

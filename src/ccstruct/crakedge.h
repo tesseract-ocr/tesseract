@@ -1,6 +1,6 @@
 /**********************************************************************
- * File:						crakedge.h      (Formerly: crkedge.h)
- * Description: Sturctures for the Crack following edge detector.
+ * File:						crakedge.h (Formerly:
+ *crkedge.h) Description: Sturctures for the Crack following edge detector.
  * Author:					Ray Smith
  * Created:					Fri Mar 22 16:06:38 GMT 1991
  *
@@ -17,21 +17,21 @@
  *
  **********************************************************************/
 
-#ifndef           CRAKEDGE_H
-#define           CRAKEDGE_H
+#ifndef CRAKEDGE_H
+#define CRAKEDGE_H
 
-#include          "points.h"
-#include          "mod128.h"
+#include "mod128.h"
+#include "points.h"
 
 class CRACKEDGE {
  public:
   CRACKEDGE() = default;
 
-  ICOORD pos;                  /*position of crack */
-  int8_t stepx;                  //edge step
+  ICOORD pos;    /*position of crack */
+  int8_t stepx;  // edge step
   int8_t stepy;
-  int8_t stepdir;                //chaincode
-  CRACKEDGE *prev;             /*previous point */
-  CRACKEDGE *next;             /*next point */
+  int8_t stepdir;  // chaincode
+  CRACKEDGE* prev; /*previous point */
+  CRACKEDGE* next; /*next point */
 };
 #endif

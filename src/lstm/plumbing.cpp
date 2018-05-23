@@ -22,24 +22,20 @@
 namespace tesseract {
 
 // ni_ and no_ will be set by AddToStack.
-Plumbing::Plumbing(const STRING& name)
-  : Network(NT_PARALLEL, name, 0, 0) {
-}
+Plumbing::Plumbing(const STRING& name) : Network(NT_PARALLEL, name, 0, 0) {}
 
 // Suspends/Enables training by setting the training_ flag. Serialize and
 // DeSerialize only operate on the run-time data if state is false.
 void Plumbing::SetEnableTraining(TrainingState state) {
   Network::SetEnableTraining(state);
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetEnableTraining(state);
+  for (int i = 0; i < stack_.size(); ++i) stack_[i]->SetEnableTraining(state);
 }
 
 // Sets flags that control the action of the network. See NetworkFlags enum
 // for bit values.
 void Plumbing::SetNetworkFlags(uint32_t flags) {
   Network::SetNetworkFlags(flags);
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetNetworkFlags(flags);
+  for (int i = 0; i < stack_.size(); ++i) stack_[i]->SetNetworkFlags(flags);
 }
 
 // Sets up the network for training. Initializes weights using weights of
@@ -66,16 +62,14 @@ int Plumbing::RemapOutputs(int old_no, const std::vector<int>& code_map) {
 
 // Converts a float network to an int network.
 void Plumbing::ConvertToInt() {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->ConvertToInt();
+  for (int i = 0; i < stack_.size(); ++i) stack_[i]->ConvertToInt();
 }
 
 // Provides a pointer to a TRand for any networks that care to use it.
 // Note that randomizer is a borrowed pointer that should outlive the network
 // and should not be deleted by any of the networks.
 void Plumbing::SetRandomizer(TRand* randomizer) {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->SetRandomizer(randomizer);
+  for (int i = 0; i < stack_.size(); ++i) stack_[i]->SetRandomizer(randomizer);
 }
 
 // Adds the given network to the stack.
@@ -117,9 +111,7 @@ bool Plumbing::SetupNeedsBackprop(bool needs_backprop) {
 // WARNING: if GlobalMinimax is used to vary the scale, this will return
 // the last used scale factor. Call it before any forward, and it will return
 // the minimum scale factor of the paths through the GlobalMinimax.
-int Plumbing::XScaleFactor() const {
-  return stack_[0]->XScaleFactor();
-}
+int Plumbing::XScaleFactor() const { return stack_[0]->XScaleFactor(); }
 
 // Provides the (minimum) x scale factor to the network (of interest only to
 // input units) so they can determine how to scale bounding boxes.
@@ -131,8 +123,7 @@ void Plumbing::CacheXScaleFactor(int factor) {
 
 // Provides debug output on the weights.
 void Plumbing::DebugWeights() {
-  for (int i = 0; i < stack_.size(); ++i)
-    stack_[i]->DebugWeights();
+  for (int i = 0; i < stack_.size(); ++i) stack_[i]->DebugWeights();
 }
 
 // Returns a set of strings representing the layer-ids of all layers below.

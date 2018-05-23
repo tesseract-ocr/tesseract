@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           FILEERR_H
-#define           FILEERR_H
+#ifndef FILEERR_H
+#define FILEERR_H
 
-#include          "errcode.h"
+#include "errcode.h"
 
 const ERRCODE CANTOPENFILE = "Can't open file";
 const ERRCODE CANTCREATEFILE = "Can't create file";

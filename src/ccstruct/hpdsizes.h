@@ -7,11 +7,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef           HPDSIZES_H
-#define           HPDSIZES_H
+#ifndef HPDSIZES_H
+#define HPDSIZES_H
 
-#define NUM_TEXT_ATTR   10
-#define NUM_BLOCK_ATTR   7
+#define NUM_TEXT_ATTR 10
+#define NUM_BLOCK_ATTR 7
 #define MAXLENGTH 128
-#define NUM_BACKGROUNDS   8
+#define NUM_BACKGROUNDS 8
 #endif

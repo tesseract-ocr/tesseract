@@ -57,8 +57,11 @@ LigatureTable* LigatureTable::Get() {
   return instance_.get();
 }
 
-LigatureTable::LigatureTable() : min_lig_length_(0), max_lig_length_(0),
-                                 min_norm_length_(0), max_norm_length_(0) {}
+LigatureTable::LigatureTable()
+    : min_lig_length_(0),
+      max_lig_length_(0),
+      min_norm_length_(0),
+      max_norm_length_(0) {}
 
 void LigatureTable::Init() {
   if (norm_to_lig_table_.empty()) {
@@ -75,8 +78,7 @@ void LigatureTable::Init() {
       normed8_result.toUTF8String(normed8);
       // The icu::Normalizer maps the "LONG S T" ligature to "st". Correct that
       // here manually so that AddLigatures() will work as desired.
-      if (lig8 == "\uFB05")
-        normed8 = "ſt";
+      if (lig8 == "\uFB05") normed8 = "ſt";
       int lig_length = lig8.length();
       int norm_length = normed8.size();
       if (normed8 != lig8 && lig_length > 1 && norm_length > 1) {
@@ -84,12 +86,10 @@ void LigatureTable::Init() {
         lig_to_norm_table_[lig8] = normed8;
         if (min_lig_length_ == 0 || lig_length < min_lig_length_)
           min_lig_length_ = lig_length;
-        if (lig_length > max_lig_length_)
-          max_lig_length_ = lig_length;
+        if (lig_length > max_lig_length_) max_lig_length_ = lig_length;
         if (min_norm_length_ == 0 || norm_length < min_norm_length_)
           min_norm_length_ = norm_length;
-        if (norm_length > max_norm_length_)
-          max_norm_length_ = norm_length;
+        if (norm_length > max_norm_length_) max_norm_length_ = norm_length;
       }
     }
     // Add custom extra ligatures.
@@ -99,8 +99,7 @@ void LigatureTable::Init() {
       int norm_length = strlen(UNICHARSET::kCustomLigatures[i][0]);
       if (min_norm_length_ == 0 || norm_length < min_norm_length_)
         min_norm_length_ = norm_length;
-      if (norm_length > max_norm_length_)
-        max_norm_length_ = norm_length;
+      if (norm_length > max_norm_length_) max_norm_length_ = norm_length;
 
       lig_to_norm_table_[UNICHARSET::kCustomLigatures[i][1]] =
           UNICHARSET::kCustomLigatures[i][0];

@@ -87,8 +87,8 @@ class PangoFontInfo {
   // font. Returns false if the glyph for the character could not be found in
   // the font.
   // Ref: http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-3.html
-  bool GetSpacingProperties(const std::string& utf8_char,
-                            int* x_bearing, int* x_advance) const;
+  bool GetSpacingProperties(const std::string& utf8_char, int* x_bearing,
+                            int* x_advance) const;
 
   // If not already initialized, initializes FontConfig by setting its
   // environment variable and creating a fonts.conf file that points to the
@@ -102,15 +102,13 @@ class PangoFontInfo {
   // Accessors
   std::string DescriptionName() const;
   // Font Family name eg. "Arial"
-  const std::string& family_name() const    { return family_name_; }
+  const std::string& family_name() const { return family_name_; }
   // Size in points (1/72"), rounded to the nearest integer.
   int font_size() const { return font_size_; }
   FontTypeEnum font_type() const { return font_type_; }
 
   int resolution() const { return resolution_; }
-  void set_resolution(const int resolution) {
-    resolution_ = resolution;
-  }
+  void set_resolution(const int resolution) { resolution_ = resolution; }
 
  private:
   friend class FontUtils;
@@ -165,21 +163,24 @@ class FontUtils {
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
-                         std::string* font_name, std::vector<std::string>* graphemes);
+                         std::string* font_name,
+                         std::vector<std::string>* graphemes);
 
   // Picks font among all_fonts that covers and can render the given word,
   // and returns the font description name and the decomposition of the word to
   // graphemes. Returns false if no suitable font was found.
   static bool SelectFont(const char* utf8_word, const int utf8_len,
                          const std::vector<std::string>& all_fonts,
-                         std::string* font_name, std::vector<std::string>* graphemes);
+                         std::string* font_name,
+                         std::vector<std::string>* graphemes);
 
   // Returns a bitmask where the value of true at index 'n' implies that unicode
   // value 'n' is renderable by at least one available font.
   static void GetAllRenderableCharacters(std::vector<bool>* unichar_bitmap);
   // Variant of the above function that inspects only the provided font names.
-  static void GetAllRenderableCharacters(const std::vector<std::string>& font_names,
-                                         std::vector<bool>* unichar_bitmap);
+  static void GetAllRenderableCharacters(
+      const std::vector<std::string>& font_names,
+      std::vector<bool>* unichar_bitmap);
   static void GetAllRenderableCharacters(const std::string& font_name,
                                          std::vector<bool>* unichar_bitmap);
 
@@ -194,7 +195,7 @@ class FontUtils {
   // The return string is a list of the acceptable fonts that were used.
   static std::string BestFonts(
       const std::unordered_map<char32, int64_t>& ch_map,
-      std::vector<std::pair<const char*, std::vector<bool> > >* font_flag);
+      std::vector<std::pair<const char*, std::vector<bool>>>* font_flag);
 
   // FontScore returns the weighted renderability score of the given
   // hash map character table in the given font. The unweighted score

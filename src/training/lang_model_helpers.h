@@ -34,12 +34,13 @@ bool WriteFile(const std::string& output_dir, const std::string& lang,
                FileWriter writer);
 // Helper reads a file with optional reader and returns a STRING.
 // On failure emits a warning message and returns and empty STRING.
-STRING ReadFile(const std::string& filename, FileReader reader);
+STRING
+ReadFile(const std::string& filename, FileReader reader);
 
 // Helper writes the unicharset to file and to the traineddata.
-bool WriteUnicharset(const UNICHARSET& unicharset, const std::string& output_dir,
-                     const std::string& lang, FileWriter writer,
-                     TessdataManager* traineddata);
+bool WriteUnicharset(const UNICHARSET& unicharset,
+                     const std::string& output_dir, const std::string& lang,
+                     FileWriter writer, TessdataManager* traineddata);
 // Helper creates the recoder from the unicharset and writes it to the
 // traineddata, with a human-readable form to file at:
 // <output_dir>/<lang>/<lang>.charset_size=<num> for some num being the size
@@ -71,9 +72,11 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
 // puncs must be non-empty.
 // lang_is_rtl indicates that the language is generally written from right
 // to left (eg Arabic/Hebrew).
-int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir,
-                     const std::string& version_str, const std::string& output_dir,
-                     const std::string& lang, bool pass_through_recoder,
+int CombineLangModel(const UNICHARSET& unicharset,
+                     const std::string& script_dir,
+                     const std::string& version_str,
+                     const std::string& output_dir, const std::string& lang,
+                     bool pass_through_recoder,
                      const GenericVector<STRING>& words,
                      const GenericVector<STRING>& puncs,
                      const GenericVector<STRING>& numbers, bool lang_is_rtl,

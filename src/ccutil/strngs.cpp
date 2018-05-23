@@ -52,7 +52,7 @@ const int kMaxDoubleSize = 16;
 const int kMinCapacity = 16;
 
 char* STRING::AllocData(int used, int capacity) {
-  data_ = (STRING_HEADER *)alloc_string(capacity + sizeof(STRING_HEADER));
+  data_ = (STRING_HEADER*)alloc_string(capacity + sizeof(STRING_HEADER));
 
   // header is the metadata for this memory block
   STRING_HEADER* header = GetHeader();
@@ -61,16 +61,14 @@ char* STRING::AllocData(int used, int capacity) {
   return GetCStr();
 }
 
-void STRING::DiscardData() {
-  free_string((char *)data_);
-}
+void STRING::DiscardData() { free_string((char*)data_); }
 
-// This is a private method; ensure FixHeader is called (or used_ is well defined)
-// beforehand
+// This is a private method; ensure FixHeader is called (or used_ is well
+// defined) beforehand
 char* STRING::ensure_cstr(int32_t min_capacity) {
   STRING_HEADER* orig_header = GetHeader();
   if (min_capacity <= orig_header->capacity_)
-    return ((char *)this->data_) + sizeof(STRING_HEADER);
+    return ((char*)this->data_) + sizeof(STRING_HEADER);
 
   // if we are going to grow bigger, than double our existing
   // size, but if that still is not big enough then keep the
@@ -90,17 +88,15 @@ char* STRING::ensure_cstr(int32_t min_capacity) {
   data_ = new_header;
 
   assert(InvariantOk());
-  return ((char *)data_) + sizeof(STRING_HEADER);
+  return ((char*)data_) + sizeof(STRING_HEADER);
 }
 
 // This is const, but is modifying a mutable field
 // this way it can be used on const or non-const instances.
 void STRING::FixHeader() const {
   const STRING_HEADER* header = GetHeader();
-  if (header->used_ < 0)
-    header->used_ = strlen(GetCStr()) + 1;
+  if (header->used_ < 0) header->used_ = strlen(GetCStr()) + 1;
 }
-
 
 STRING::STRING() {
   // Empty STRINGs contain just the "\0".
@@ -109,9 +105,9 @@ STRING::STRING() {
 
 STRING::STRING(const STRING& str) {
   str.FixHeader();
-  const STRING_HEADER* str_header  = str.GetHeader();
-  const int str_used  = str_header->used_;
-  char *this_cstr = AllocData(str_used, str_used);
+  const STRING_HEADER* str_header = str.GetHeader();
+  const int str_used = str_header->used_;
+  char* this_cstr = AllocData(str_used, str_used);
   memcpy(this_cstr, str.GetCStr(), str_used);
   assert(InvariantOk());
 }
@@ -128,7 +124,7 @@ STRING::STRING(const char* cstr) {
   assert(InvariantOk());
 }
 
-STRING::STRING(const char *data, int length) {
+STRING::STRING(const char* data, int length) {
   if (data == nullptr) {
     // Empty STRINGs contain just the "\0".
     memcpy(AllocData(1, kMinCapacity), "", 1);
@@ -139,9 +135,7 @@ STRING::STRING(const char *data, int length) {
   }
 }
 
-STRING::~STRING() {
-  DiscardData();
-}
+STRING::~STRING() { DiscardData(); }
 
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
@@ -163,8 +157,7 @@ bool STRING::Serialize(TFile* fp) const {
 bool STRING::DeSerialize(bool swap, FILE* fp) {
   int32_t len;
   if (fread(&len, sizeof(len), 1, fp) != 1) return false;
-  if (swap)
-    ReverseN(&len, sizeof(len));
+  if (swap) ReverseN(&len, sizeof(len));
   truncate_at(len);
   if (static_cast<int>(fread(GetCStr(), 1, len, fp)) != len) return false;
   return true;
@@ -187,7 +180,7 @@ bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
 }
 
 bool STRING::contains(const char c) const {
-  return (c != '\0') && (strchr (GetCStr(), c) != nullptr);
+  return (c != '\0') && (strchr(GetCStr(), c) != nullptr);
 }
 
 int32_t STRING::length() const {
@@ -197,8 +190,7 @@ int32_t STRING::length() const {
 
 const char* STRING::string() const {
   const STRING_HEADER* header = GetHeader();
-  if (header->used_ == 0)
-    return nullptr;
+  if (header->used_ == 0) return nullptr;
 
   // mark header length unreliable because tesseract might
   // cast away the const and mutate the string directly.
@@ -206,9 +198,7 @@ const char* STRING::string() const {
   return GetCStr();
 }
 
-const char* STRING::c_str() const {
-  return string();
-}
+const char* STRING::c_str() const { return string(); }
 
 /******
  * The STRING_IS_PROTECTED interface adds additional support to migrate
@@ -218,24 +208,20 @@ const char* STRING::c_str() const {
  * Also makes the [] operator return a const so it is immutable
  */
 #if STRING_IS_PROTECTED
-const char& STRING::operator[](int32_t index) const {
-  return GetCStr()[index];
-}
+const char& STRING::operator[](int32_t index) const { return GetCStr()[index]; }
 
 void STRING::insert_range(int32_t index, const char* str, int len) {
   // if index is outside current range, then also grow size of string
   // to accmodate the requested range.
   STRING_HEADER* this_header = GetHeader();
   int used = this_header->used_;
-  if (index > used)
-    used = index;
+  if (index > used) used = index;
 
   char* this_cstr = ensure_cstr(used + len + 1);
   if (index < used) {
     // move existing string from index to '\0' inclusive.
-    memmove(this_cstr + index + len,
-           this_cstr + index,
-           this_header->used_ - index);
+    memmove(this_cstr + index + len, this_cstr + index,
+            this_header->used_ - index);
   } else if (len > 0) {
     // We are going to overwrite previous null terminator, so write the new one.
     this_cstr[this_header->used_ + len - 1] = '\0';
@@ -243,8 +229,7 @@ void STRING::insert_range(int32_t index, const char* str, int len) {
     // If the old header did not have the terminator,
     // then we need to account for it now that we've added it.
     // Otherwise it was already accounted for; we just moved it.
-    if (this_header->used_ == 0)
-      ++this_header->used_;
+    if (this_header->used_ == 0) ++this_header->used_;
   }
 
   // Write new string to index.
@@ -259,7 +244,7 @@ void STRING::erase_range(int32_t index, int len) {
   char* this_cstr = GetCStr();
   STRING_HEADER* this_header = GetHeader();
 
-  memcpy(this_cstr+index, this_cstr+index+len,
+  memcpy(this_cstr + index, this_cstr + index + len,
          this_header->used_ - index - len);
   this_header->used_ -= len;
   assert(InvariantOk());
@@ -279,11 +264,11 @@ char& STRING::operator[](int32_t index) const {
   // Code is casting away this const and mutating the string,
   // so mark used_ as -1 to flag it unreliable.
   GetHeader()->used_ = -1;
-  return ((char *)GetCStr())[index];
+  return ((char*)GetCStr())[index];
 }
 #endif
 
-void STRING::split(const char c, GenericVector<STRING> *splited) {
+void STRING::split(const char c, GenericVector<STRING>* splited) {
   int start_index = 0;
   const int len = length();
   for (int i = 0; i < len; i++) {
@@ -308,10 +293,10 @@ bool STRING::operator==(const STRING& str) const {
   const STRING_HEADER* str_header = str.GetHeader();
   const STRING_HEADER* this_header = GetHeader();
   const int this_used = this_header->used_;
-  const int str_used  = str_header->used_;
+  const int str_used = str_header->used_;
 
-  return (this_used == str_used)
-          && (memcmp(GetCStr(), str.GetCStr(), this_used) == 0);
+  return (this_used == str_used) &&
+         (memcmp(GetCStr(), str.GetCStr(), this_used) == 0);
 }
 
 bool STRING::operator!=(const STRING& str) const {
@@ -320,10 +305,10 @@ bool STRING::operator!=(const STRING& str) const {
   const STRING_HEADER* str_header = str.GetHeader();
   const STRING_HEADER* this_header = GetHeader();
   const int this_used = this_header->used_;
-  const int str_used  = str_header->used_;
+  const int str_used = str_header->used_;
 
-  return (this_used != str_used)
-         || (memcmp(GetCStr(), str.GetCStr(), this_used) != 0);
+  return (this_used != str_used) ||
+         (memcmp(GetCStr(), str.GetCStr(), this_used) != 0);
 }
 
 bool STRING::operator!=(const char* cstr) const {
@@ -334,8 +319,8 @@ bool STRING::operator!=(const char* cstr) const {
     return this_header->used_ > 1;  // either '\0' or nullptr
   else {
     const int32_t length = strlen(cstr) + 1;
-    return (this_header->used_ != length)
-            || (memcmp(GetCStr(), cstr, length) != 0);
+    return (this_header->used_ != length) ||
+           (memcmp(GetCStr(), cstr, length) != 0);
   }
 }
 
@@ -355,13 +340,13 @@ STRING& STRING::operator=(const STRING& str) {
   return *this;
 }
 
-STRING & STRING::operator+=(const STRING& str) {
+STRING& STRING::operator+=(const STRING& str) {
   FixHeader();
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
   const char* str_cstr = str.GetCStr();
-  const int  str_used  = str_header->used_;
-  const int  this_used = GetHeader()->used_;
+  const int str_used = str_header->used_;
+  const int this_used = GetHeader()->used_;
   char* this_cstr = ensure_cstr(this_used + str_used);
 
   STRING_HEADER* this_header = GetHeader();  // after ensure for realloc
@@ -379,8 +364,7 @@ STRING & STRING::operator+=(const STRING& str) {
 }
 
 void STRING::add_str_int(const char* str, int number) {
-  if (str != nullptr)
-    *this += str;
+  if (str != nullptr) *this += str;
   // Allow space for the maximum possible length of int64_t.
   char num_buffer[kMaxIntSize];
   snprintf(num_buffer, kMaxIntSize - 1, "%d", number);
@@ -389,8 +373,7 @@ void STRING::add_str_int(const char* str, int number) {
 }
 // Appends the given string and double (as a %.8g) to this.
 void STRING::add_str_double(const char* str, double number) {
-  if (str != nullptr)
-    *this += str;
+  if (str != nullptr) *this += str;
   // Allow space for the maximum possible length of %8g.
   char num_buffer[kMaxDoubleSize];
   snprintf(num_buffer, kMaxDoubleSize - 1, "%.8g", number);
@@ -398,7 +381,7 @@ void STRING::add_str_double(const char* str, double number) {
   *this += num_buffer;
 }
 
-STRING & STRING::operator=(const char* cstr) {
+STRING& STRING::operator=(const char* cstr) {
   STRING_HEADER* this_header = GetHeader();
   if (cstr) {
     const int len = strlen(cstr) + 1;
@@ -419,7 +402,7 @@ STRING & STRING::operator=(const char* cstr) {
   return *this;
 }
 
-void STRING::assign(const char *cstr, int len) {
+void STRING::assign(const char* cstr, int len) {
   STRING_HEADER* this_header = GetHeader();
   this_header->used_ = 0;  // don't bother copying data if need to realloc
   char* this_cstr = ensure_cstr(len + 1);  // +1 for '\0'
@@ -432,7 +415,8 @@ void STRING::assign(const char *cstr, int len) {
   assert(InvariantOk());
 }
 
-STRING STRING::operator+(const STRING& str) const {
+STRING
+STRING::operator+(const STRING& str) const {
   STRING result(*this);
   result += str;
 
@@ -440,8 +424,8 @@ STRING STRING::operator+(const STRING& str) const {
   return result;
 }
 
-
-STRING STRING::operator+(const char ch) const {
+STRING
+STRING::operator+(const char ch) const {
   STRING result;
   FixHeader();
   const STRING_HEADER* this_header = GetHeader();
@@ -452,7 +436,7 @@ STRING STRING::operator+(const char ch) const {
 
   // copies '\0' but we'll overwrite that
   memcpy(result_cstr, GetCStr(), this_used);
-  result_cstr[result_used] = ch;      // overwrite old '\0'
+  result_cstr[result_used] = ch;        // overwrite old '\0'
   result_cstr[result_used + 1] = '\0';  // append on '\0'
   ++result_header->used_;
 
@@ -460,8 +444,7 @@ STRING STRING::operator+(const char ch) const {
   return result;
 }
 
-
-STRING&  STRING::operator+=(const char *str) {
+STRING& STRING::operator+=(const char* str) {
   if (!str || !*str)  // empty string has no effect
     return *this;
 
@@ -485,21 +468,18 @@ STRING&  STRING::operator+=(const char *str) {
   return *this;
 }
 
-
 STRING& STRING::operator+=(const char ch) {
-  if (ch == '\0')
-    return *this;
+  if (ch == '\0') return *this;
 
   FixHeader();
-  int   this_used = GetHeader()->used_;
+  int this_used = GetHeader()->used_;
   char* this_cstr = ensure_cstr(this_used + 1);
   STRING_HEADER* this_header = GetHeader();
 
-  if (this_used > 0)
-    --this_used; // undo old empty null if there was one
+  if (this_used > 0) --this_used;  // undo old empty null if there was one
 
-  this_cstr[this_used++] = ch;   // append ch to end
-  this_cstr[this_used++] = '\0'; // append '\0' after ch
+  this_cstr[this_used++] = ch;    // append ch to end
+  this_cstr[this_used++] = '\0';  // append '\0' after ch
   this_header->used_ = this_used;
 
   assert(InvariantOk());

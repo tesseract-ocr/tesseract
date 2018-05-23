@@ -30,8 +30,8 @@
 #include "config_auto.h"
 #endif
 
-#include <cstring>
 #include <cstdio>
+#include <cstring>
 #define _USE_MATH_DEFINES
 #include <cmath>
 #ifdef _WIN32
@@ -81,11 +81,11 @@ DECLARE_STRING_PARAM_FLAG(test_ch);
 -----------------------------------------------------------------------------*/
 #ifndef GRAPHICS_DISABLED
 static void DisplayProtoList(const char* ch, LIST protolist) {
-  void* window = c_create_window("Char samples", 50, 200,
-                                 520, 520, -130.0, 130.0, -130.0, 130.0);
+  void* window = c_create_window("Char samples", 50, 200, 520, 520, -130.0,
+                                 130.0, -130.0, 130.0);
   LIST proto = protolist;
   iterate(proto) {
-    PROTOTYPE* prototype = reinterpret_cast<PROTOTYPE *>(first_node(proto));
+    PROTOTYPE* prototype = reinterpret_cast<PROTOTYPE*>(first_node(proto));
     if (prototype->Significant)
       c_line_color_index(window, Green);
     else if (prototype->NumSamples == 0)
@@ -102,11 +102,11 @@ static void DisplayProtoList(const char* ch, LIST protolist) {
     c_move(window, (x - dx) * 256, (y - dy) * 256);
     c_draw(window, (x + dx) * 256, (y + dy) * 256);
     if (prototype->Significant)
-      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n",
-              x, y, dx, dy, prototype->NumSamples);
+      tprintf("Green proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy,
+              prototype->NumSamples);
     else if (prototype->NumSamples > 0 && !prototype->Merged)
-      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n",
-              x, y, dx, dy, prototype->NumSamples);
+      tprintf("Red proto at (%g,%g)+(%g,%g) %d samples\n", x, y, dx, dy,
+              prototype->NumSamples);
   }
   c_make_current(window);
 }
@@ -115,14 +115,11 @@ static void DisplayProtoList(const char* ch, LIST protolist) {
 // Helper to run clustering on a single config.
 // Mostly copied from the old mftraining, but with renamed variables.
 static LIST ClusterOneConfig(int shape_id, const char* class_label,
-                             LIST mf_classes,
-                             const ShapeTable& shape_table,
+                             LIST mf_classes, const ShapeTable& shape_table,
                              MasterTrainer* trainer) {
   int num_samples;
-  CLUSTERER  *clusterer = trainer->SetupForClustering(shape_table,
-                                                      feature_defs,
-                                                      shape_id,
-                                                      &num_samples);
+  CLUSTERER* clusterer = trainer->SetupForClustering(shape_table, feature_defs,
+                                                     shape_id, &num_samples);
   Config.MagicSamples = num_samples;
   LIST proto_list = ClusterSamples(clusterer, &Config);
   CleanUpUnusedData(proto_list);
@@ -130,14 +127,13 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
   // Merge protos where reasonable to make more of them significant by
   // representing almost all samples of the class/font.
   MergeInsignificantProtos(proto_list, class_label, clusterer, &Config);
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   if (strcmp(FLAGS_test_ch.c_str(), class_label) == 0)
     DisplayProtoList(FLAGS_test_ch.c_str(), proto_list);
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
   // Delete the protos that will not be used in the inttemp output file.
-  proto_list = RemoveInsignificantProtos(proto_list, true,
-                                         false,
-                                         clusterer->SampleSize);
+  proto_list =
+      RemoveInsignificantProtos(proto_list, true, false, clusterer->SampleSize);
   FreeClusterer(clusterer);
   MERGE_CLASS merge_class = FindClass(mf_classes, class_label);
   if (merge_class == nullptr) {
@@ -163,8 +159,7 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
       // Merge with the similar proto.
       ComputeMergedProto(ProtoIn(merge_class->Class, p_id), &dummy_proto,
                          static_cast<FLOAT32>(merge_class->NumMerged[p_id]),
-                         1.0,
-                         ProtoIn(merge_class->Class, p_id));
+                         1.0, ProtoIn(merge_class->Class, p_id));
       merge_class->NumMerged[p_id]++;
     }
     AddProtoToConfig(p_id, merge_class->Class->Configurations[config_id]);
@@ -227,7 +222,7 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
  * @note History:  Fri Aug 18 08:56:17 1989, DSJ, Created.
  * @note History: Mon May 18 1998, Christy Russson, Revistion started.
  */
-int main (int argc, char **argv) {
+int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
 
   ParseArguments(&argc, &argv);
@@ -235,10 +230,8 @@ int main (int argc, char **argv) {
   ShapeTable* shape_table = nullptr;
   STRING file_prefix;
   // Load the training data.
-  MasterTrainer* trainer = tesseract::LoadTrainingData(argc, argv,
-                                                       false,
-                                                       &shape_table,
-                                                       &file_prefix);
+  MasterTrainer* trainer = tesseract::LoadTrainingData(
+      argc, argv, false, &shape_table, &file_prefix);
   if (trainer == nullptr) return 1;  // Failed.
 
   // Setup an index mapping from the shapes in the shape table to the classes
@@ -282,8 +275,8 @@ int main (int argc, char **argv) {
       shape_table->GetFirstUnicharAndFont(s, &unichar_id, &font_id);
     }
     const char* class_label = unicharset->id_to_unichar(unichar_id);
-    mf_classes = ClusterOneConfig(s, class_label, mf_classes, *shape_table,
-                                  trainer);
+    mf_classes =
+        ClusterOneConfig(s, class_label, mf_classes, *shape_table, trainer);
   }
   STRING inttemp_file = file_prefix;
   inttemp_file += "inttemp";
@@ -291,14 +284,13 @@ int main (int argc, char **argv) {
   pffmtable_file += "pffmtable";
   CLASS_STRUCT* float_classes = SetUpForFloat2Int(*unicharset, mf_classes);
   // Now write the inttemp and pffmtable.
-  trainer->WriteInttempAndPFFMTable(trainer->unicharset(), *unicharset,
-                                    *shape_table, float_classes,
-                                    inttemp_file.string(),
-                                    pffmtable_file.string());
+  trainer->WriteInttempAndPFFMTable(
+      trainer->unicharset(), *unicharset, *shape_table, float_classes,
+      inttemp_file.string(), pffmtable_file.string());
   for (int c = 0; c < unicharset->size(); ++c) {
     FreeClassFields(&float_classes[c]);
   }
-  delete [] float_classes;
+  delete[] float_classes;
   FreeLabeledClassList(mf_classes);
   delete trainer;
   delete shape_table;
@@ -306,7 +298,8 @@ int main (int argc, char **argv) {
   if (!FLAGS_test_ch.empty()) {
     // If we are displaying debug window(s), wait for the user to look at them.
     printf("Hit return to exit...\n");
-    while (getchar() != '\n');
+    while (getchar() != '\n')
+      ;
   }
   return 0;
-}  /* main */
+} /* main */

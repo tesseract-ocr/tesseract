@@ -20,12 +20,12 @@
 #ifndef TESSERACT_CCSTRUCT_LINLSQ_H_
 #define TESSERACT_CCSTRUCT_LINLSQ_H_
 
-#include "points.h"
 #include "params.h"
+#include "points.h"
 
 class LLSQ {
  public:
-  LLSQ() {  // constructor
+  LLSQ() {    // constructor
     clear();  // set to zeros
   }
   void clear();  // initialize
@@ -42,17 +42,17 @@ class LLSQ {
     return static_cast<int>(total_weight + 0.5);
   }
 
-  double m() const;  // get gradient
-  double c(double m) const;            // get constant
-  double rms(double m, double c) const;            // get error
-  double pearson() const;  // get correlation coefficient.
+  double m() const;                      // get gradient
+  double c(double m) const;              // get constant
+  double rms(double m, double c) const;  // get error
+  double pearson() const;                // get correlation coefficient.
 
   // Returns the x,y means as an FCOORD.
   FCOORD mean_point() const;
 
   // Returns the average sum of squared perpendicular error from a line
   // through mean_point() in the direction dir.
-  double rms_orth(const FCOORD &dir) const;
+  double rms_orth(const FCOORD& dir) const;
 
   // Returns the direction of the fitted line as a unit vector, using the
   // least mean squared perpendicular distance. The line runs through the
@@ -90,14 +90,13 @@ class LLSQ {
   }
 
  private:
-  double total_weight;         // no of elements or sum of weights.
-  double sigx;                 // sum of x
-  double sigy;                 // sum of y
-  double sigxx;                // sum x squared
-  double sigxy;                // sum of xy
-  double sigyy;                // sum y squared
+  double total_weight;  // no of elements or sum of weights.
+  double sigx;          // sum of x
+  double sigy;          // sum of y
+  double sigxx;         // sum x squared
+  double sigxy;         // sum of xy
+  double sigyy;         // sum y squared
 };
-
 
 // Returns the median value of the vector, given that the values are
 // circular, with the given modulus. Values may be signed or unsigned,
@@ -108,7 +107,8 @@ class LLSQ {
 // the wrap-around point.
 // Cannot be a member of GenericVector, as it makes heavy used of LLSQ.
 // T must be an integer or float/double type.
-template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
+template <typename T>
+T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
   LLSQ stats;
   T halfrange = static_cast<T>(modulus / 2);
   int num_elements = v->size();
@@ -129,6 +129,5 @@ template<typename T> T MedianOfCircularValues(T modulus, GenericVector<T>* v) {
   }
   return (*v)[median_index];
 }
-
 
 #endif  // TESSERACT_CCSTRUCT_LINLSQ_H_

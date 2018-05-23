@@ -103,15 +103,14 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   int width = pixGetWidth(pix_binary_);
   int height = pixGetHeight(pix_binary_);
   // Get page segmentation mode.
-  PageSegMode pageseg_mode = static_cast<PageSegMode>(
-      static_cast<int>(tessedit_pageseg_mode));
+  PageSegMode pageseg_mode =
+      static_cast<PageSegMode>(static_cast<int>(tessedit_pageseg_mode));
   // If a UNLV zone file can be found, use that instead of segmentation.
-  if (!PSM_COL_FIND_ENABLED(pageseg_mode) &&
-      input_file != nullptr && input_file->length() > 0) {
+  if (!PSM_COL_FIND_ENABLED(pageseg_mode) && input_file != nullptr &&
+      input_file->length() > 0) {
     STRING name = *input_file;
     const char* lastdot = strrchr(name.string(), '.');
-    if (lastdot != nullptr)
-      name[lastdot - name.string()] = '\0';
+    if (lastdot != nullptr) name[lastdot - name.string()] = '\0';
     read_unlv_file(name, width, height, blocks);
   }
   if (blocks->empty()) {
@@ -139,8 +138,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     auto_page_seg_ret_val = AutoPageSeg(
         pageseg_mode, blocks, &to_blocks,
         enable_noise_removal ? &diacritic_blobs : nullptr, osd_tess, osr);
-    if (pageseg_mode == PSM_OSD_ONLY)
-      return auto_page_seg_ret_val;
+    if (pageseg_mode == PSM_OSD_ONLY) return auto_page_seg_ret_val;
     // To create blobs from the image region bounds uncomment this line:
     //  to_blocks.clear();  // Uncomment to go back to the old mode.
   } else {
@@ -160,8 +158,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
   }
 
   if (blocks->empty()) {
-    if (textord_debug_tabfind)
-      tprintf("Empty page\n");
+    if (textord_debug_tabfind) tprintf("Empty page\n");
     return 0;  // AutoPageSeg found an empty page.
   }
   bool splitting =
@@ -227,8 +224,7 @@ int Tesseract::AutoPageSeg(PageSegMode pageseg_mode, BLOCK_LIST* blocks,
                                 to_block, photomask_pix, pix_thresholds_,
                                 pix_grey_, &pixa_debug_, &found_blocks,
                                 diacritic_blobs, to_blocks);
-    if (result >= 0)
-      finder->GetDeskewVectors(&deskew_, &reskew_);
+    if (result >= 0) finder->GetDeskewVectors(&deskew_, &reskew_);
     delete finder;
   }
   pixDestroy(&photomask_pix);
@@ -259,10 +255,10 @@ static void AddAllScriptsConverted(const UNICHARSET& sid_set,
  * Sets up auto page segmentation, determines the orientation, and corrects it.
  * Somewhat arbitrary chunk of functionality, factored out of AutoPageSeg to
  * facilitate testing.
- * photo_mask_pix is a pointer to a nullptr pointer that will be filled on return
- * with the leptonica photo mask, which must be pixDestroyed by the caller.
- * to_blocks is an empty list that will be filled with (usually a single)
- * block that is used during layout analysis. This ugly API is required
+ * photo_mask_pix is a pointer to a nullptr pointer that will be filled on
+ * return with the leptonica photo mask, which must be pixDestroyed by the
+ * caller. to_blocks is an empty list that will be filled with (usually a
+ * single) block that is used during layout analysis. This ugly API is required
  * because of the possibility of a unlv zone file.
  * TODO(rays) clean this up.
  * See AutoPageSeg for other arguments.
@@ -283,10 +279,9 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     pixa_debug_.AddPix(pix_binary_, "PageSegInput");
   }
   // Leptonica is used to find the rule/separator lines in the input.
-  LineFinder::FindAndRemoveLines(source_resolution_,
-                                 textord_tabfind_show_vlines, pix_binary_,
-                                 &vertical_x, &vertical_y, music_mask_pix,
-                                 &v_lines, &h_lines);
+  LineFinder::FindAndRemoveLines(
+      source_resolution_, textord_tabfind_show_vlines, pix_binary_, &vertical_x,
+      &vertical_y, music_mask_pix, &v_lines, &h_lines);
   if (tessedit_dump_pageseg_images) {
     pixa_debug_.AddPix(pix_binary_, "NoLines");
   }
@@ -340,11 +335,11 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
                          pageseg_mode == PSM_SINGLE_BLOCK_VERT_TEXT;
     if (!vertical_text && textord_tabfind_vertical_text &&
         PSM_ORIENTATION_ENABLED(pageseg_mode)) {
-      vertical_text =
-          finder->IsVerticallyAlignedText(textord_tabfind_vertical_text_ratio,
-                                          to_block, &osd_blobs);
+      vertical_text = finder->IsVerticallyAlignedText(
+          textord_tabfind_vertical_text_ratio, to_block, &osd_blobs);
     }
-    if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != nullptr && osr != nullptr) {
+    if (PSM_OSD_ENABLED(pageseg_mode) && osd_tess != nullptr &&
+        osr != nullptr) {
       GenericVector<int> osd_scripts;
       if (osd_tess != this) {
         // We are running osd as part of layout analysis, so constrain the
@@ -373,11 +368,11 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
       const char* best_script_str =
           osd_tess->unicharset.get_script_from_script_id(best_script_id);
       bool cjk = best_script_id == osd_tess->unicharset.han_sid() ||
-          best_script_id == osd_tess->unicharset.hiragana_sid() ||
-          best_script_id == osd_tess->unicharset.katakana_sid() ||
-          strcmp("Japanese", best_script_str) == 0 ||
-          strcmp("Korean", best_script_str) == 0 ||
-          strcmp("Hangul", best_script_str) == 0;
+                 best_script_id == osd_tess->unicharset.hiragana_sid() ||
+                 best_script_id == osd_tess->unicharset.katakana_sid() ||
+                 strcmp("Japanese", best_script_str) == 0 ||
+                 strcmp("Korean", best_script_str) == 0 ||
+                 strcmp("Hangul", best_script_str) == 0;
       if (cjk) {
         finder->set_cjk_script(true);
       }
@@ -385,8 +380,10 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
         // The margin is weak.
         if (!cjk && !vertical_text && osd_orientation == 2) {
           // upside down latin text is improbable with such a weak margin.
-          tprintf("OSD: Weak margin (%.2f), horiz textlines, not CJK: "
-                  "Don't rotate.\n", osd_margin);
+          tprintf(
+              "OSD: Weak margin (%.2f), horiz textlines, not CJK: "
+              "Don't rotate.\n",
+              osd_margin);
           osd_orientation = 0;
         } else {
           tprintf(

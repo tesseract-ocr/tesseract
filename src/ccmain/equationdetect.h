@@ -42,8 +42,7 @@ class ColPartitionSet;
 
 class EquationDetect : public EquationDetectBase {
  public:
-  EquationDetect(const char* equ_datapath,
-                 const char* equ_language);
+  EquationDetect(const char* equ_datapath, const char* equ_language);
   ~EquationDetect();
 
   enum IndentType {
@@ -76,11 +75,11 @@ class EquationDetect : public EquationDetectBase {
   // Identify the special text type for one blob, and update its field. When
   // height_th is set (> 0), we will label the blob as BSTT_NONE if its height
   // is less than height_th.
-  void IdentifySpecialText(BLOBNBOX *blob, const int height_th);
+  void IdentifySpecialText(BLOBNBOX* blob, const int height_th);
 
   // Estimate the type for one unichar.
-  BlobSpecialTextType EstimateTypeForUnichar(
-      const UNICHARSET& unicharset, const UNICHAR_ID id) const;
+  BlobSpecialTextType EstimateTypeForUnichar(const UNICHARSET& unicharset,
+                                             const UNICHAR_ID id) const;
 
   // Compute special text type for each blobs in part_grid_.
   void IdentifySpecialText();
@@ -120,15 +119,12 @@ class EquationDetect : public EquationDetectBase {
   // 1. If its left is aligned with any coordinates in indented_texts_left,
   // which we assume have been sorted.
   // 2. If its foreground density is over foreground_density_th.
-  bool CheckForSeed2(
-      const GenericVector<int>& indented_texts_left,
-      const float foreground_density_th,
-      ColPartition* part);
+  bool CheckForSeed2(const GenericVector<int>& indented_texts_left,
+                     const float foreground_density_th, ColPartition* part);
 
   // Count the number of values in sorted_vec that is close to val, used to
   // check if a partition is aligned with text partitions.
-  int CountAlignment(
-      const GenericVector<int>& sorted_vec, const int val) const;
+  int CountAlignment(const GenericVector<int>& sorted_vec, const int val) const;
 
   // Check for a seed candidate using the foreground pixel density. And we
   // return true if the density is below a certain threshold, because characters
@@ -175,8 +171,7 @@ class EquationDetect : public EquationDetectBase {
 
   // Check if part is an inline equation zone. This should be called after we
   // identified the seed regions.
-  bool IsInline(const bool search_bottom,
-                const int textPartsLineSpacing,
+  bool IsInline(const bool search_bottom, const int textPartsLineSpacing,
                 ColPartition* part);
 
   // For a given seed partition, we search the part_grid_ and see if there is
@@ -188,16 +183,13 @@ class EquationDetect : public EquationDetectBase {
   // horizontally/vertically, find all parititions that can be
   // merged with seed, remove them from part_grid_, and put them  into
   // parts_to_merge.
-  void ExpandSeedHorizontal(const bool search_left,
-                            ColPartition* seed,
+  void ExpandSeedHorizontal(const bool search_left, ColPartition* seed,
                             GenericVector<ColPartition*>* parts_to_merge);
-  void ExpandSeedVertical(const bool search_bottom,
-                          ColPartition* seed,
+  void ExpandSeedVertical(const bool search_bottom, ColPartition* seed,
                           GenericVector<ColPartition*>* parts_to_merge);
 
   // Check if a part_box is the small neighbor of seed_box.
-  bool IsNearSmallNeighbor(const TBOX& seed_box,
-                           const TBOX& part_box) const;
+  bool IsNearSmallNeighbor(const TBOX& seed_box, const TBOX& part_box) const;
 
   // Perform the density check for part, which we assume is nearing a seed
   // partition. It returns true if the check passed.
@@ -215,8 +207,8 @@ class EquationDetect : public EquationDetectBase {
 
   // Check if part is the satellite of one/two math blocks. If it is, we return
   // true, and save the blocks into math_blocks.
-  bool IsMathBlockSatellite(
-      ColPartition* part, GenericVector<ColPartition*>* math_blocks);
+  bool IsMathBlockSatellite(ColPartition* part,
+                            GenericVector<ColPartition*>* math_blocks);
 
   // Search the nearest neighbor of part in one vertical direction as defined in
   // search_bottom. It returns the neighbor found that major x overlap with it,
@@ -226,7 +218,7 @@ class EquationDetect : public EquationDetectBase {
 
   // Check if the neighbor with vertical distance of y_gap is a near and math
   // block partition.
-  bool IsNearMathNeighbor(const int y_gap, const ColPartition *neighbor) const;
+  bool IsNearMathNeighbor(const int y_gap, const ColPartition* neighbor) const;
 
   // Generate the tiff file name for output/debug file.
   void GetOutputTiffName(const char* name, STRING* image_name) const;

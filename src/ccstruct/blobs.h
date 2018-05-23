@@ -45,12 +45,12 @@ class WERD;
 /*----------------------------------------------------------------------
               T y p e s
 ----------------------------------------------------------------------*/
-#define EDGEPTFLAGS     4        /*concavity,length etc. */
+#define EDGEPTFLAGS 4 /*concavity,length etc. */
 
 struct TPOINT {
-  TPOINT(): x(0), y(0) {}
+  TPOINT() : x(0), y(0) {}
   TPOINT(int16_t vx, int16_t vy) : x(vx), y(vy) {}
-  TPOINT(const ICOORD &ic) : x(ic.x()), y(ic.y()) {}
+  TPOINT(const ICOORD& ic) : x(ic.x()), y(ic.y()) {}
 
   void operator+=(const TPOINT& other) {
     x += other.x;
@@ -68,19 +68,21 @@ struct TPOINT {
   static bool IsCrossed(const TPOINT& a0, const TPOINT& a1, const TPOINT& b0,
                         const TPOINT& b1);
 
-  int16_t x;                       // absolute x coord.
-  int16_t y;                       // absolute y coord.
+  int16_t x;  // absolute x coord.
+  int16_t y;  // absolute y coord.
 };
-using VECTOR = TPOINT;           // structure for coordinates.
+using VECTOR = TPOINT;  // structure for coordinates.
 
 struct EDGEPT {
   EDGEPT()
-  : next(nullptr), prev(nullptr), src_outline(nullptr), start_step(0), step_count(0) {
+      : next(nullptr),
+        prev(nullptr),
+        src_outline(nullptr),
+        start_step(0),
+        step_count(0) {
     memset(flags, 0, EDGEPTFLAGS * sizeof(flags[0]));
   }
-  EDGEPT(const EDGEPT& src) : next(nullptr), prev(nullptr) {
-    CopyFrom(src);
-  }
+  EDGEPT(const EDGEPT& src) : next(nullptr), prev(nullptr) { CopyFrom(src); }
   EDGEPT& operator=(const EDGEPT& src) {
     CopyFrom(src);
     return *this;
@@ -144,34 +146,24 @@ struct EDGEPT {
   }
 
   // Accessors to hide or reveal a cut edge from feature extractors.
-  void Hide() {
-    flags[0] = true;
-  }
-  void Reveal() {
-    flags[0] = false;
-  }
-  bool IsHidden() const {
-    return flags[0] != 0;
-  }
-  void MarkChop() {
-    flags[2] = true;
-  }
-  bool IsChopPt() const {
-    return flags[2] != 0;
-  }
+  void Hide() { flags[0] = true; }
+  void Reveal() { flags[0] = false; }
+  bool IsHidden() const { return flags[0] != 0; }
+  void MarkChop() { flags[2] = true; }
+  bool IsChopPt() const { return flags[2] != 0; }
 
-  TPOINT pos;                    // position
-  VECTOR vec;                    // vector to next point
+  TPOINT pos;  // position
+  VECTOR vec;  // vector to next point
   // TODO(rays) Remove flags and replace with
   // is_hidden, runlength, dir, and fixed. The only use
   // of the flags other than is_hidden is in polyaprx.cpp.
-  char flags[EDGEPTFLAGS];       // concavity, length etc
-  EDGEPT* next;                  // anticlockwise element
-  EDGEPT* prev;                  // clockwise element
-  C_OUTLINE* src_outline;        // Outline it came from.
+  char flags[EDGEPTFLAGS];  // concavity, length etc
+  EDGEPT* next;             // anticlockwise element
+  EDGEPT* prev;             // clockwise element
+  C_OUTLINE* src_outline;   // Outline it came from.
   // The following fields are not used if src_outline is nullptr.
-  int start_step;                // Location of pos in src_outline.
-  int step_count;                // Number of steps used (may wrap around).
+  int start_step;  // Location of pos in src_outline.
+  int step_count;  // Number of steps used (may wrap around).
 };
 
 // For use in chop and findseam to keep a list of which EDGEPTs were inserted.
@@ -182,9 +174,7 @@ struct TESSLINE {
   TESSLINE(const TESSLINE& src) : loop(nullptr), next(nullptr) {
     CopyFrom(src);
   }
-  ~TESSLINE() {
-    Clear();
-  }
+  ~TESSLINE() { Clear(); }
   TESSLINE& operator=(const TESSLINE& src) {
     CopyFrom(src);
     return *this;
@@ -232,40 +222,35 @@ struct TESSLINE {
   }
   // Returns true if the point is contained within the outline box.
   bool Contains(const TPOINT& pt) const {
-    return topleft.x <= pt.x && pt.x <= botright.x &&
-           botright.y <= pt.y && pt.y <= topleft.y;
+    return topleft.x <= pt.x && pt.x <= botright.x && botright.y <= pt.y &&
+           pt.y <= topleft.y;
   }
 
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   void plot(ScrollView* window, ScrollView::Color color,
             ScrollView::Color child_color);
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 
   // Returns the first outline point that has a different src_outline to its
   // predecessor, or, if all the same, the lowest indexed point.
   EDGEPT* FindBestStartPt() const;
 
-
   int BBArea() const {
     return (botright.x - topleft.x) * (topleft.y - botright.y);
   }
 
-  TPOINT topleft;                // Top left of loop.
-  TPOINT botright;               // Bottom right of loop.
-  TPOINT start;                  // Start of loop.
-  bool is_hole;                  // True if this is a hole/child outline.
-  EDGEPT *loop;                  // Edgeloop.
-  TESSLINE *next;                // Next outline in blob.
-};                               // Outline structure.
+  TPOINT topleft;   // Top left of loop.
+  TPOINT botright;  // Bottom right of loop.
+  TPOINT start;     // Start of loop.
+  bool is_hole;     // True if this is a hole/child outline.
+  EDGEPT* loop;     // Edgeloop.
+  TESSLINE* next;   // Next outline in blob.
+};                  // Outline structure.
 
 struct TBLOB {
   TBLOB() : outlines(nullptr) {}
-  TBLOB(const TBLOB& src) : outlines(nullptr) {
-    CopyFrom(src);
-  }
-  ~TBLOB() {
-    Clear();
-  }
+  TBLOB(const TBLOB& src) : outlines(nullptr) { CopyFrom(src); }
+  ~TBLOB() { Clear(); }
   TBLOB& operator=(const TBLOB& src) {
     CopyFrom(src);
     return *this;
@@ -291,13 +276,10 @@ struct TBLOB {
   // Sets up the built-in DENORM and normalizes the blob in-place.
   // For parameters see DENORM::SetupNormalization, plus the inverse flag for
   // this blob and the Pix for the full image.
-  void Normalize(const BLOCK* block,
-                 const FCOORD* rotation,
-                 const DENORM* predecessor,
-                 float x_origin, float y_origin,
-                 float x_scale, float y_scale,
-                 float final_xshift, float final_yshift,
-                 bool inverse, Pix* pix);
+  void Normalize(const BLOCK* block, const FCOORD* rotation,
+                 const DENORM* predecessor, float x_origin, float y_origin,
+                 float x_scale, float y_scale, float final_xshift,
+                 float final_yshift, bool inverse, Pix* pix);
   // Rotates by the given rotation in place.
   void Rotate(const FCOORD rotation);
   // Moves by the given vec in place.
@@ -337,18 +319,17 @@ struct TBLOB {
   // increasing x.
   void CorrectBlobOrder(TBLOB* next);
 
-  const DENORM& denorm() const {
-    return denorm_;
-  }
+  const DENORM& denorm() const { return denorm_; }
 
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   void plot(ScrollView* window, ScrollView::Color color,
             ScrollView::Color child_color);
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 
   int BBArea() const {
     int total_area = 0;
-    for (TESSLINE* outline = outlines; outline != nullptr; outline = outline->next)
+    for (TESSLINE* outline = outlines; outline != nullptr;
+         outline = outline->next)
       total_area += outline->BBArea();
     return total_area;
   }
@@ -371,10 +352,10 @@ struct TBLOB {
   // Eg x_coords[0] is a collection of the x-coords of edges at y=bottom.
   // Eg x_coords[1] is a collection of the x-coords of edges at y=bottom + 1.
   void GetEdgeCoords(const TBOX& box,
-                     GenericVector<GenericVector<int> >* x_coords,
-                     GenericVector<GenericVector<int> >* y_coords) const;
+                     GenericVector<GenericVector<int>>* x_coords,
+                     GenericVector<GenericVector<int>>* y_coords) const;
 
-  TESSLINE *outlines;            // List of outlines in blob.
+  TESSLINE* outlines;  // List of outlines in blob.
 
  private:  // TODO(rays) Someday the data members will be private too.
   // For all the edge steps in all the outlines, or polygonal approximation
@@ -382,24 +363,19 @@ struct TBLOB {
   // llsq and/or the x_coords/y_coords. Both are used in different kinds of
   // normalization.
   // For a description of x_coords, y_coords, see GetEdgeCoords above.
-  void CollectEdges(const TBOX& box,
-                    TBOX* bounding_box, LLSQ* llsq,
-                    GenericVector<GenericVector<int> >* x_coords,
-                    GenericVector<GenericVector<int> >* y_coords) const;
+  void CollectEdges(const TBOX& box, TBOX* bounding_box, LLSQ* llsq,
+                    GenericVector<GenericVector<int>>* x_coords,
+                    GenericVector<GenericVector<int>>* y_coords) const;
 
  private:
   // DENORM indicating the transformations that this blob has undergone so far.
   DENORM denorm_;
-};                               // Blob structure.
+};  // Blob structure.
 
 struct TWERD {
   TWERD() : latin_script(false) {}
-  TWERD(const TWERD& src) {
-    CopyFrom(src);
-  }
-  ~TWERD() {
-    Clear();
-  }
+  TWERD(const TWERD& src) { CopyFrom(src); }
+  ~TWERD() { Clear(); }
   TWERD& operator=(const TWERD& src) {
     CopyFrom(src);
     return *this;
@@ -411,8 +387,7 @@ struct TWERD {
   // DENORMs in the blobs.
   void BLNormalize(const BLOCK* block, const ROW* row, Pix* pix, bool inverse,
                    float x_height, float baseline_shift, bool numeric_mode,
-                   tesseract::OcrEngineMode hint,
-                   const TBOX* norm_box,
+                   tesseract::OcrEngineMode hint, const TBOX* norm_box,
                    DENORM* word_denorm);
   // Copies the data and the blobs, but leaves next untouched.
   void CopyFrom(const TWERD& src);
@@ -422,9 +397,7 @@ struct TWERD {
   void ComputeBoundingBoxes();
 
   // Returns the number of blobs in the word.
-  int NumBlobs() const {
-    return blobs.size();
-  }
+  int NumBlobs() const { return blobs.size(); }
   TBOX bounding_box() const;
 
   // Merges the blobs from start to end, not including end, and deletes
@@ -433,17 +406,17 @@ struct TWERD {
 
   void plot(ScrollView* window);
 
-  GenericVector<TBLOB*> blobs;   // Blobs in word.
-  bool latin_script;             // This word is in a latin-based script.
+  GenericVector<TBLOB*> blobs;  // Blobs in word.
+  bool latin_script;            // This word is in a latin-based script.
 };
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 // TODO(rays) Make divisible_blob and divide_blobs members of TBLOB.
-bool divisible_blob(TBLOB *blob, bool italic_blob, TPOINT* location);
+bool divisible_blob(TBLOB* blob, bool italic_blob, TPOINT* location);
 
-void divide_blobs(TBLOB *blob, TBLOB *other_blob, bool italic_blob,
+void divide_blobs(TBLOB* blob, TBLOB* other_blob, bool italic_blob,
                   const TPOINT& location);
 
 #endif

@@ -46,15 +46,9 @@ class ColPartitionSet : public ELIST_LINK {
   ~ColPartitionSet() = default;
 
   // Simple accessors.
-  const TBOX& bounding_box() const {
-    return bounding_box_;
-  }
-  bool Empty() const {
-    return parts_.empty();
-  }
-  int ColumnCount() const {
-    return parts_.length();
-  }
+  const TBOX& bounding_box() const { return bounding_box_; }
+  bool Empty() const { return parts_.empty(); }
+  int ColumnCount() const { return parts_.length(); }
 
   // Returns the number of columns of good width.
   int GoodColumnCount() const;
@@ -62,11 +56,12 @@ class ColPartitionSet : public ELIST_LINK {
   // Return an element of the parts_ list from its index.
   ColPartition* GetColumnByIndex(int index);
 
-  // Return the ColPartition that contains the given coords, if any, else nullptr.
+  // Return the ColPartition that contains the given coords, if any, else
+  // nullptr.
   ColPartition* ColumnContaining(int x, int y);
 
   // Return the bounding boxes of columns at the given y-range
-  void GetColumnBoxes(int y_bottom, int y_top, ColSegment_LIST *segments);
+  void GetColumnBoxes(int y_bottom, int y_top, ColSegment_LIST* segments);
 
   // Extract all the parts from the list, relinquishing ownership.
   void RelinquishParts();
@@ -105,11 +100,10 @@ class ColPartitionSet : public ELIST_LINK {
   // represent the gaps in between columns, with 0 being left of the leftmost.
   // resolution refers to the ppi resolution of the image. It may be 0 if only
   // the first_col and last_col are required.
-  ColumnSpanningType SpanningType(int resolution,
-                                  int left, int right, int height, int y,
-                                  int left_margin, int right_margin,
-                                  int* first_col, int* last_col,
-                                  int* first_spanned_col);
+  ColumnSpanningType SpanningType(int resolution, int left, int right,
+                                  int height, int y, int left_margin,
+                                  int right_margin, int* first_col,
+                                  int* last_col, int* first_spanned_col);
 
   // The column_set has changed. Close down all in-progress WorkingPartSets in
   // columns that do not match and start new ones for the new columns in this.

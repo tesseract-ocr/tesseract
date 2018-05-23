@@ -216,11 +216,10 @@ void SEAM::BreakPieces(const GenericVector<SEAM*>& seams,
 void SEAM::JoinPieces(const GenericVector<SEAM*>& seams,
                       const GenericVector<TBLOB*>& blobs, int first, int last) {
   TESSLINE* outline = blobs[first]->outlines;
-  if (!outline)
-    return;
+  if (!outline) return;
 
   for (int x = first; x < last; ++x) {
-    SEAM *seam = seams[x];
+    SEAM* seam = seams[x];
     if (x - seam->widthn_ >= first && x + seam->widthp_ < last) seam->Hide();
     while (outline->next) outline = outline->next;
     outline->next = blobs[x + 1]->outlines;
@@ -250,9 +249,9 @@ float SEAM::FullPriority(int xmin, int xmax, double overlap_knob,
     splits_[s].SplitOutline();
   }
   float full_priority =
-      priority_ +
-      splits_[0].FullPriority(xmin, xmax, overlap_knob, centered_maxwidth,
-                              center_knob, width_change_knob);
+      priority_ + splits_[0].FullPriority(xmin, xmax, overlap_knob,
+                                          centered_maxwidth, center_knob,
+                                          width_change_knob);
   for (int s = num_splits_ - 1; s >= 1; --s) {
     splits_[s].UnsplitOutlines();
   }

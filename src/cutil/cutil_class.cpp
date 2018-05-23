@@ -18,6 +18,4 @@
 
 #include "cutil_class.h"
 
-namespace tesseract {
-
-}  // namespace tesseract
+namespace tesseract {}  // namespace tesseract

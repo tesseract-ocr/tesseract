@@ -21,18 +21,17 @@
 #include "chop.h"
 #include "chopper.h"
 #include "danerror.h"
+#include "featdefs.h"
 #include "globals.h"
 #include "gradechop.h"
 #include "pageres.h"
-#include "wordrec.h"
-#include "featdefs.h"
 #include "params_model.h"
+#include "wordrec.h"
 
 #include <cmath>
 #ifdef __UNIX__
 #include <unistd.h>
 #endif
-
 
 namespace tesseract {
 
@@ -43,9 +42,9 @@ namespace tesseract {
  * init_permute determines whether to initialize the permute functions
  * and Dawg models.
  */
-void Wordrec::program_editup(const char *textbase,
-                             TessdataManager *init_classifier,
-                             TessdataManager *init_dict) {
+void Wordrec::program_editup(const char* textbase,
+                             TessdataManager* init_classifier,
+                             TessdataManager* init_dict) {
   if (textbase != nullptr) imagefile = textbase;
   InitFeatureDefs(&feature_defs_);
   InitAdaptiveClassifier(init_classifier);
@@ -63,11 +62,10 @@ void Wordrec::program_editup(const char *textbase,
  * Cleanup and exit the recog program.
  */
 int Wordrec::end_recog() {
-  program_editdown (0);
+  program_editdown(0);
 
   return (0);
 }
-
 
 /**
  * @name program_editdown
@@ -80,7 +78,6 @@ void Wordrec::program_editdown(int32_t elasped_time) {
   getDict().End();
 }
 
-
 /**
  * @name set_pass1
  *
@@ -91,7 +88,6 @@ void Wordrec::set_pass1() {
   language_model_->getParamsModel().SetPass(ParamsModel::PTRAIN_PASS1);
   SettupPass1();
 }
-
 
 /**
  * @name set_pass2
@@ -104,13 +100,12 @@ void Wordrec::set_pass2() {
   SettupPass2();
 }
 
-
 /**
  * @name cc_recog
  *
  * Recognize a word.
  */
-void Wordrec::cc_recog(WERD_RES *word) {
+void Wordrec::cc_recog(WERD_RES* word) {
   getDict().reset_hyphen_vars(word->word->flag(W_EOL));
   chop_word_main(word);
   word->DebugWordChoices(getDict().stopper_debug_level >= 1,
@@ -118,14 +113,13 @@ void Wordrec::cc_recog(WERD_RES *word) {
   ASSERT_HOST(word->StatesAllValid());
 }
 
-
 /**
  * @name dict_word()
  *
  * Test the dictionaries, returning NO_PERM (0) if not found, or one
  * of the PermuterType values if found, according to the dictionary.
  */
-int Wordrec::dict_word(const WERD_CHOICE &word) {
+int Wordrec::dict_word(const WERD_CHOICE& word) {
   return getDict().valid_word(word);
 }
 
@@ -135,19 +129,18 @@ int Wordrec::dict_word(const WERD_CHOICE &word) {
  * Called from Tess with a blob in tess form.
  * The blob may need rotating to the correct orientation for classification.
  */
-BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
+BLOB_CHOICE_LIST* Wordrec::call_matcher(TBLOB* tessblob) {
   // Rotate the blob for classification if necessary.
   TBLOB* rotated_blob = tessblob->ClassifyNormalizeIfNeeded();
   if (rotated_blob == nullptr) {
     rotated_blob = tessblob;
   }
-  BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
+  BLOB_CHOICE_LIST* ratings = new BLOB_CHOICE_LIST();  // matcher result
   AdaptiveClassifier(rotated_blob, ratings);
   if (rotated_blob != tessblob) {
     delete rotated_blob;
   }
   return ratings;
 }
-
 
 }  // namespace tesseract

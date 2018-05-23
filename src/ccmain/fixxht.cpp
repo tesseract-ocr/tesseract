@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#include <algorithm>
-#include <string.h>
 #include <ctype.h>
-#include "params.h"
+#include <string.h>
+#include <algorithm>
 #include "float2int.h"
+#include "params.h"
 #include "tesseractclass.h"
 
 namespace tesseract {
@@ -67,7 +67,7 @@ namespace tesseract {
 const int kMaxCharTopRange = 48;
 
 // Returns the number of misfit blob tops in this word.
-int Tesseract::CountMisfitTops(WERD_RES *word_res) {
+int Tesseract::CountMisfitTops(WERD_RES* word_res) {
   int bad_blobs = 0;
   int num_blobs = word_res->rebuild_word->NumBlobs();
   for (int blob_id = 0; blob_id < num_blobs; ++blob_id) {
@@ -75,22 +75,18 @@ int Tesseract::CountMisfitTops(WERD_RES *word_res) {
     UNICHAR_ID class_id = word_res->best_choice->unichar_id(blob_id);
     if (unicharset.get_isalpha(class_id) || unicharset.get_isdigit(class_id)) {
       int top = blob->bounding_box().top();
-      if (top >= INT_FEAT_RANGE)
-        top = INT_FEAT_RANGE - 1;
+      if (top >= INT_FEAT_RANGE) top = INT_FEAT_RANGE - 1;
       int min_bottom, max_bottom, min_top, max_top;
-      unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom,
-                                &min_top, &max_top);
-      if (max_top - min_top > kMaxCharTopRange)
-        continue;
-      bool bad =  top < min_top - x_ht_acceptance_tolerance ||
-                  top > max_top + x_ht_acceptance_tolerance;
-      if (bad)
-        ++bad_blobs;
+      unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom, &min_top,
+                                &max_top);
+      if (max_top - min_top > kMaxCharTopRange) continue;
+      bool bad = top < min_top - x_ht_acceptance_tolerance ||
+                 top > max_top + x_ht_acceptance_tolerance;
+      if (bad) ++bad_blobs;
       if (debug_x_ht_level >= 1) {
         tprintf("Class %s is %s with top %d vs limits of %d->%d, +/-%d\n",
-                unicharset.id_to_unichar(class_id),
-                bad ? "Misfit" : "OK", top, min_top, max_top,
-                static_cast<int>(x_ht_acceptance_tolerance));
+                unicharset.id_to_unichar(class_id), bad ? "Misfit" : "OK", top,
+                min_top, max_top, static_cast<int>(x_ht_acceptance_tolerance));
       }
     }
   }
@@ -99,7 +95,7 @@ int Tesseract::CountMisfitTops(WERD_RES *word_res) {
 
 // Returns a new x-height maximally compatible with the result in word_res.
 // See comment above for overall algorithm.
-float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
+float Tesseract::ComputeCompatibleXheight(WERD_RES* word_res,
                                           float* baseline_shift) {
   STATS top_stats(0, UINT8_MAX);
   STATS shift_stats(-UINT8_MAX, UINT8_MAX);
@@ -115,37 +111,33 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
           unicharset.get_isdigit(class_id)) {
         int top = blob->bounding_box().top() + bottom_shift;
         // Clip the top to the limit of normalized feature space.
-        if (top >= INT_FEAT_RANGE)
-          top = INT_FEAT_RANGE - 1;
+        if (top >= INT_FEAT_RANGE) top = INT_FEAT_RANGE - 1;
         int bottom = blob->bounding_box().bottom() + bottom_shift;
         int min_bottom, max_bottom, min_top, max_top;
-        unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom,
-                                  &min_top, &max_top);
+        unicharset.get_top_bottom(class_id, &min_bottom, &max_bottom, &min_top,
+                                  &max_top);
         // Chars with a wild top range would mess up the result so ignore them.
-        if (max_top - min_top > kMaxCharTopRange)
-          continue;
+        if (max_top - min_top > kMaxCharTopRange) continue;
         int misfit_dist = std::max((min_top - x_ht_acceptance_tolerance) - top,
-                            top - (max_top + x_ht_acceptance_tolerance));
+                                   top - (max_top + x_ht_acceptance_tolerance));
         int height = top - kBlnBaselineOffset;
         if (debug_x_ht_level >= 2) {
           tprintf("Class %s: height=%d, bottom=%d,%d top=%d,%d, actual=%d,%d: ",
-                  unicharset.id_to_unichar(class_id),
-                  height, min_bottom, max_bottom, min_top, max_top,
-                  bottom, top);
+                  unicharset.id_to_unichar(class_id), height, min_bottom,
+                  max_bottom, min_top, max_top, bottom, top);
         }
         // Use only chars that fit in the expected bottom range, and where
         // the range of tops is sensibly near the xheight.
         if (min_bottom <= bottom + x_ht_acceptance_tolerance &&
             bottom - x_ht_acceptance_tolerance <= max_bottom &&
             min_top > kBlnBaselineOffset &&
-            max_top - kBlnBaselineOffset >= kBlnXHeight &&
-            misfit_dist > 0) {
+            max_top - kBlnBaselineOffset >= kBlnXHeight && misfit_dist > 0) {
           // Compute the x-height position using proportionality between the
           // actual height and expected height.
-          int min_xht = DivRounded(height * kBlnXHeight,
-                                   max_top - kBlnBaselineOffset);
-          int max_xht = DivRounded(height * kBlnXHeight,
-                                   min_top - kBlnBaselineOffset);
+          int min_xht =
+              DivRounded(height * kBlnXHeight, max_top - kBlnBaselineOffset);
+          int max_xht =
+              DivRounded(height * kBlnXHeight, min_top - kBlnBaselineOffset);
           if (debug_x_ht_level >= 2) {
             tprintf(" xht range min=%d, max=%d\n", min_xht, max_xht);
           }
@@ -166,8 +158,7 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
           // of the actual bottom from the expected bottom, spread over the
           // range of its acceptance.
           int misfit_weight = abs(min_shift);
-          if (max_shift > min_shift)
-            misfit_weight /= max_shift - min_shift;
+          if (max_shift > min_shift) misfit_weight /= max_shift - min_shift;
           for (int y = min_shift; y <= max_shift; ++y)
             shift_stats.add(y, misfit_weight);
         } else {
@@ -202,8 +193,8 @@ float Tesseract::ComputeCompatibleXheight(WERD_RES *word_res,
   float new_xht = top_stats.median();
   if (debug_x_ht_level >= 2) {
     tprintf("Median xht=%f\n", new_xht);
-    tprintf("Mode20:A: New x-height = %f (norm), %f (orig)\n",
-            new_xht, new_xht / word_res->denorm.y_scale());
+    tprintf("Mode20:A: New x-height = %f (norm), %f (orig)\n", new_xht,
+            new_xht / word_res->denorm.y_scale());
   }
   // The xheight must change by at least x_ht_min_change to be used.
   if (fabs(new_xht - kBlnXHeight) >= x_ht_min_change)

@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include "mfoutline.h"
 #include "tessbox.h"
+#include "mfoutline.h"
 #include "tesseractclass.h"
 
 #define EXTERN
@@ -32,7 +32,7 @@
  */
 
 namespace tesseract {
-void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
+void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES* word) {
   int saved_enable_assoc = 0;
   int saved_chop_enable = 0;
 
@@ -47,8 +47,7 @@ void Tesseract::tess_segment_pass_n(int pass_n, WERD_RES *word) {
   else
     set_pass2();
   recog_word(word);
-  if (word->best_choice == nullptr)
-    word->SetupFake(*word->uch_set);
+  if (word->best_choice == nullptr) word->SetupFake(*word->uch_set);
   if (word->word->flag(W_DONT_CHOP)) {
     wordrec_enable_assoc.set_value(saved_enable_assoc);
     chop_enable.set_value(saved_chop_enable);
@@ -66,13 +65,12 @@ bool Tesseract::tess_acceptable_word(WERD_RES* word) {
   return getDict().AcceptableResult(word);
 }
 
-
 /**
  * @name tess_add_doc_word
  *
  * Add the given word to the document dictionary
  */
-void Tesseract::tess_add_doc_word(WERD_CHOICE *word_choice) {
+void Tesseract::tess_add_doc_word(WERD_CHOICE* word_choice) {
   getDict().add_document_word(*word_choice);
 }
 }  // namespace tesseract

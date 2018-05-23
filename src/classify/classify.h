@@ -29,8 +29,8 @@
 #include "intfx.h"
 #include "intmatcher.h"
 #include "normalis.h"
-#include "ratngs.h"
 #include "ocrfeatures.h"
+#include "ratngs.h"
 #include "unicity_table.h"
 
 class ScrollView;
@@ -62,13 +62,9 @@ class Classify : public CCStruct {
  public:
   Classify();
   virtual ~Classify();
-  virtual Dict& getDict() {
-    return dict_;
-  }
+  virtual Dict& getDict() { return dict_; }
 
-  const ShapeTable* shape_table() const {
-    return shape_table_;
-  }
+  const ShapeTable* shape_table() const { return shape_table_; }
 
   // Takes ownership of the given classifier, and uses it for future calls
   // to CharNormClassifier.
@@ -76,10 +72,10 @@ class Classify : public CCStruct {
 
   // Adds a noise classification result that is a bit worse than the worst
   // current result, or the worst possible result if no current results.
-  void AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices);
+  void AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST* choices);
 
   // Returns true if the blob is small enough to be a large speckle.
-  bool LargeSpeckle(const TBLOB &blob);
+  bool LargeSpeckle(const TBLOB& blob);
 
   /* adaptive.cpp ************************************************************/
   ADAPT_TEMPLATES NewAdaptedTemplates(bool InitFromUnicharset);
@@ -104,12 +100,12 @@ class Classify : public CCStruct {
                    const uint16_t* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
   void ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs);
-  void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
-  void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
+  void PrintAdaptedTemplates(FILE* File, ADAPT_TEMPLATES Templates);
+  void WriteAdaptedTemplates(FILE* File, ADAPT_TEMPLATES Templates);
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
   /* normmatch.cpp ************************************************************/
-  FLOAT32 ComputeNormMatch(CLASS_ID ClassId,
-                           const FEATURE_STRUCT& feature, bool DebugMatch);
+  FLOAT32 ComputeNormMatch(CLASS_ID ClassId, const FEATURE_STRUCT& feature,
+                           bool DebugMatch);
   void FreeNormProtos();
   NORM_PROTOS* ReadNormProtos(TFile* fp);
   /* protos.cpp ***************************************************************/
@@ -138,26 +134,16 @@ class Classify : public CCStruct {
                    CharSegmentationType segmentation, const char* correct_text,
                    WERD_RES* word);
   void InitAdaptiveClassifier(TessdataManager* mgr);
-  void InitAdaptedClass(TBLOB *Blob,
-                        CLASS_ID ClassId,
-                        int FontinfoId,
-                        ADAPT_CLASS Class,
-                        ADAPT_TEMPLATES Templates);
+  void InitAdaptedClass(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
+                        ADAPT_CLASS Class, ADAPT_TEMPLATES Templates);
   void AmbigClassifier(const GenericVector<INT_FEATURE_STRUCT>& int_features,
-                       const INT_FX_RESULT_STRUCT& fx_info,
-                       const TBLOB *blob,
-                       INT_TEMPLATES templates,
-                       ADAPT_CLASS *classes,
-                       UNICHAR_ID *ambiguities,
-                       ADAPT_RESULTS *results);
-  void MasterMatcher(INT_TEMPLATES templates,
-                     int16_t num_features,
+                       const INT_FX_RESULT_STRUCT& fx_info, const TBLOB* blob,
+                       INT_TEMPLATES templates, ADAPT_CLASS* classes,
+                       UNICHAR_ID* ambiguities, ADAPT_RESULTS* results);
+  void MasterMatcher(INT_TEMPLATES templates, int16_t num_features,
                      const INT_FEATURE_STRUCT* features,
-                     const uint8_t* norm_factors,
-                     ADAPT_CLASS* classes,
-                     int debug,
-                     int matcher_multiplier,
-                     const TBOX& blob_box,
+                     const uint8_t* norm_factors, ADAPT_CLASS* classes,
+                     int debug, int matcher_multiplier, const TBOX& blob_box,
                      const GenericVector<CP_RESULT_STRUCT>& results,
                      ADAPT_RESULTS* final_results);
   // Converts configs to fonts, and if the result is not adapted, and a
@@ -165,12 +151,9 @@ class Classify : public CCStruct {
   // unichar_ids represented, before applying a set of corrections to the
   // distance rating in int_result, (see ComputeCorrectedRating.)
   // The results are added to the final_results output.
-  void ExpandShapesAndApplyCorrections(ADAPT_CLASS* classes,
-                                       bool debug,
-                                       int class_id,
-                                       int bottom, int top,
-                                       float cp_rating,
-                                       int blob_length,
+  void ExpandShapesAndApplyCorrections(ADAPT_CLASS* classes, bool debug,
+                                       int class_id, int bottom, int top,
+                                       float cp_rating, int blob_length,
                                        int matcher_multiplier,
                                        const uint8_t* cn_factors,
                                        UnicharRating* int_result,
@@ -180,48 +163,38 @@ class Classify : public CCStruct {
   // for non-alnums being vertical misfits. Returns the corrected distance.
   double ComputeCorrectedRating(bool debug, int unichar_id, double cp_rating,
                                 double im_rating, int feature_misses,
-                                int bottom, int top,
-                                int blob_length, int matcher_multiplier,
+                                int bottom, int top, int blob_length,
+                                int matcher_multiplier,
                                 const uint8_t* cn_factors);
   void ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
-                               ADAPT_RESULTS *Results,
-                               BLOB_CHOICE_LIST *Choices);
-  void AddNewResult(const UnicharRating& new_result, ADAPT_RESULTS *results);
-  int GetAdaptiveFeatures(TBLOB *Blob,
-                          INT_FEATURE_ARRAY IntFeatures,
-                          FEATURE_SET *FloatFeatures);
+                               ADAPT_RESULTS* Results,
+                               BLOB_CHOICE_LIST* Choices);
+  void AddNewResult(const UnicharRating& new_result, ADAPT_RESULTS* results);
+  int GetAdaptiveFeatures(TBLOB* Blob, INT_FEATURE_ARRAY IntFeatures,
+                          FEATURE_SET* FloatFeatures);
 
 #ifndef GRAPHICS_DISABLED
-  void DebugAdaptiveClassifier(TBLOB *Blob,
-                               ADAPT_RESULTS *Results);
+  void DebugAdaptiveClassifier(TBLOB* Blob, ADAPT_RESULTS* Results);
 #endif
-  PROTO_ID MakeNewTempProtos(FEATURE_SET Features,
-                             int NumBadFeat,
-                             FEATURE_ID BadFeat[],
-                             INT_CLASS IClass,
-                             ADAPT_CLASS Class,
-                             BIT_VECTOR TempProtoMask);
-  int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
-                             CLASS_ID ClassId,
-                             int FontinfoId,
-                             int NumFeatures,
+  PROTO_ID MakeNewTempProtos(FEATURE_SET Features, int NumBadFeat,
+                             FEATURE_ID BadFeat[], INT_CLASS IClass,
+                             ADAPT_CLASS Class, BIT_VECTOR TempProtoMask);
+  int MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates, CLASS_ID ClassId,
+                             int FontinfoId, int NumFeatures,
                              INT_FEATURE_ARRAY Features,
                              FEATURE_SET FloatFeatures);
-  void MakePermanent(ADAPT_TEMPLATES Templates,
-                     CLASS_ID ClassId,
-                     int ConfigId,
-                     TBLOB *Blob);
+  void MakePermanent(ADAPT_TEMPLATES Templates, CLASS_ID ClassId, int ConfigId,
+                     TBLOB* Blob);
   void PrintAdaptiveMatchResults(const ADAPT_RESULTS& results);
-  void RemoveExtraPuncs(ADAPT_RESULTS *Results);
-  void RemoveBadMatches(ADAPT_RESULTS *Results);
+  void RemoveExtraPuncs(ADAPT_RESULTS* Results);
+  void RemoveBadMatches(ADAPT_RESULTS* Results);
   void SetAdaptiveThreshold(FLOAT32 Threshold);
-  void ShowBestMatchFor(int shape_id,
-                        const INT_FEATURE_STRUCT* features,
+  void ShowBestMatchFor(int shape_id, const INT_FEATURE_STRUCT* features,
                         int num_features);
   // Returns a string for the classifier class_id: either the corresponding
   // unicharset debug_str or the shape_table_ debug str.
-  STRING ClassIDToDebugStr(const INT_TEMPLATES_STRUCT* templates,
-                           int class_id, int config_id) const;
+  STRING ClassIDToDebugStr(const INT_TEMPLATES_STRUCT* templates, int class_id,
+                           int config_id) const;
   // Converts a classifier class_id index with a config ID to:
   // shape_table_ present: a shape_table_ index OR
   // No shape_table_: a font ID.
@@ -237,21 +210,20 @@ class Classify : public CCStruct {
   // Converts a shape_table_ index to a classifier class_id index (not a
   // unichar-id!). Uses a search, so not fast.
   int ShapeIDToClassID(int shape_id) const;
-  UNICHAR_ID *BaselineClassifier(
-      TBLOB *Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
-      const INT_FX_RESULT_STRUCT& fx_info,
-      ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results);
-  int CharNormClassifier(TBLOB *blob,
-                         const TrainingSample& sample,
-                         ADAPT_RESULTS *adapt_results);
+  UNICHAR_ID* BaselineClassifier(
+      TBLOB* Blob, const GenericVector<INT_FEATURE_STRUCT>& int_features,
+      const INT_FX_RESULT_STRUCT& fx_info, ADAPT_TEMPLATES Templates,
+      ADAPT_RESULTS* Results);
+  int CharNormClassifier(TBLOB* blob, const TrainingSample& sample,
+                         ADAPT_RESULTS* adapt_results);
 
   // As CharNormClassifier, but operates on a TrainingSample and outputs to
   // a GenericVector of ShapeRating without conversion to classes.
   int CharNormTrainingSample(bool pruner_only, int keep_this,
                              const TrainingSample& sample,
                              GenericVector<UnicharRating>* results);
-  UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
-  void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
+  UNICHAR_ID* GetAmbiguities(TBLOB* Blob, CLASS_ID CorrectClass);
+  void DoAdaptiveMatch(TBLOB* Blob, ADAPT_RESULTS* Results);
   void AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
                    FLOAT32 Threshold, ADAPT_TEMPLATES adaptive_templates);
   void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
@@ -259,34 +231,32 @@ class Classify : public CCStruct {
   void EndAdaptiveClassifier();
   void SettupPass1();
   void SettupPass2();
-  void AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices);
-  void ClassifyAsNoise(ADAPT_RESULTS *Results);
+  void AdaptiveClassifier(TBLOB* Blob, BLOB_CHOICE_LIST* Choices);
+  void ClassifyAsNoise(ADAPT_RESULTS* Results);
   void ResetAdaptiveClassifierInternal();
   void SwitchAdaptiveClassifier();
   void StartBackupAdaptiveClassifier();
 
   int GetCharNormFeature(const INT_FX_RESULT_STRUCT& fx_info,
-                         INT_TEMPLATES templates,
-                         uint8_t* pruner_norm_array,
+                         INT_TEMPLATES templates, uint8_t* pruner_norm_array,
                          uint8_t* char_norm_array);
   // Computes the char_norm_array for the unicharset and, if not nullptr, the
   // pruner_array as appropriate according to the existence of the shape_table.
   // The norm_feature is deleted as it is almost certainly no longer needed.
   void ComputeCharNormArrays(FEATURE_STRUCT* norm_feature,
                              INT_TEMPLATES_STRUCT* templates,
-                             uint8_t* char_norm_array,
-                             uint8_t* pruner_array);
+                             uint8_t* char_norm_array, uint8_t* pruner_array);
 
-  bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG &config);
-  void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB *Blob);
+  bool TempConfigReliable(CLASS_ID class_id, const TEMP_CONFIG& config);
+  void UpdateAmbigsGroup(CLASS_ID class_id, TBLOB* Blob);
 
   bool AdaptiveClassifierIsFull() const { return NumAdaptationsFailed > 0; }
   bool AdaptiveClassifierIsEmpty() const {
     return AdaptedTemplates->NumPermClasses == 0;
   }
-  bool LooksLikeGarbage(TBLOB *blob);
-  void RefreshDebugWindow(ScrollView **win, const char *msg,
-                          int y_offset, const TBOX &wbox);
+  bool LooksLikeGarbage(TBLOB* blob);
+  void RefreshDebugWindow(ScrollView** win, const char* msg, int y_offset,
+                          const TBOX& wbox);
   // intfx.cpp
   // Computes the DENORMS for bl(baseline) and cn(character) normalization
   // during feature extraction. The input denorm describes the current state
@@ -322,8 +292,7 @@ class Classify : public CCStruct {
   // number of cn features generated for each outline in the blob (in order).
   // Thus after the first outline, there were (*outline_cn_counts)[0] features,
   // after the second outline, there were (*outline_cn_counts)[1] features etc.
-  static void ExtractFeatures(const TBLOB& blob,
-                              bool nonlinear_norm,
+  static void ExtractFeatures(const TBLOB& blob, bool nonlinear_norm,
                               GenericVector<INT_FEATURE_STRUCT>* bl_features,
                               GenericVector<INT_FEATURE_STRUCT>* cn_features,
                               INT_FX_RESULT_STRUCT* results,
@@ -335,27 +304,23 @@ class Classify : public CCStruct {
   void ComputeIntFeatures(FEATURE_SET Features, INT_FEATURE_ARRAY IntFeatures);
   /* intproto.cpp *************************************************************/
   INT_TEMPLATES ReadIntTemplates(TFile* fp);
-  void WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
+  void WriteIntTemplates(FILE* File, INT_TEMPLATES Templates,
                          const UNICHARSET& target_unicharset);
-  CLASS_ID GetClassToDebug(const char *Prompt, bool* adaptive_on,
+  CLASS_ID GetClassToDebug(const char* Prompt, bool* adaptive_on,
                            bool* pretrained_on, int* shape_id);
   void ShowMatchDisplay();
   /* font detection ***********************************************************/
-  UnicityTable<FontInfo>& get_fontinfo_table() {
-    return fontinfo_table_;
-  }
+  UnicityTable<FontInfo>& get_fontinfo_table() { return fontinfo_table_; }
   const UnicityTable<FontInfo>& get_fontinfo_table() const {
     return fontinfo_table_;
   }
-  UnicityTable<FontSet>& get_fontset_table() {
-    return fontset_table_;
-  }
+  UnicityTable<FontSet>& get_fontset_table() { return fontset_table_; }
   /* mfoutline.cpp ***********************************************************/
-  void NormalizeOutlines(LIST Outlines, FLOAT32 *XScale, FLOAT32 *YScale);
+  void NormalizeOutlines(LIST Outlines, FLOAT32* XScale, FLOAT32* YScale);
   /* outfeat.cpp ***********************************************************/
-  FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob);
+  FEATURE_SET ExtractOutlineFeatures(TBLOB* Blob);
   /* picofeat.cpp ***********************************************************/
-  FEATURE_SET ExtractPicoFeatures(TBLOB *Blob);
+  FEATURE_SET ExtractPicoFeatures(TBLOB* Blob);
   FEATURE_SET ExtractIntCNFeatures(const TBLOB& blob,
                                    const INT_FX_RESULT_STRUCT& fx_info);
   FEATURE_SET ExtractIntGeoFeatures(const TBLOB& blob,
@@ -392,7 +357,7 @@ class Classify : public CCStruct {
   /* control knobs used to control normalization of outlines */
   INT_VAR_H(classify_norm_method, character, "Normalization Method   ...");
   double_VAR_H(classify_char_norm_range, 0.2,
-             "Character Normalization Range ...");
+               "Character Normalization Range ...");
   double_VAR_H(classify_min_norm_scale_x, 0.0, "Min char x-norm scale ...");
   double_VAR_H(classify_max_norm_scale_x, 0.325, "Max char x-norm scale ...");
   double_VAR_H(classify_min_norm_scale_y, 0.0, "Min char y-norm scale ...");
@@ -482,7 +447,7 @@ class Classify : public CCStruct {
   BIT_VECTOR TempProtoMask;
   bool EnableLearning;
   /* normmatch.cpp */
-  NORM_PROTOS *NormProtos;
+  NORM_PROTOS* NormProtos;
   /* font detection ***********************************************************/
   UnicityTable<FontInfo> fontinfo_table_;
   // Without shape training, each class_id, config pair represents a single

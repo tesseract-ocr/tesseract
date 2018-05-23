@@ -15,15 +15,15 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   OUTFEAT_H
-#define   OUTFEAT_H
+#ifndef OUTFEAT_H
+#define OUTFEAT_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "ocrfeatures.h"
 #include "fpoint.h"
 #include "mfoutline.h"
+#include "ocrfeatures.h"
 
 typedef enum {
   OutlineFeatX,
@@ -32,14 +32,12 @@ typedef enum {
   OutlineFeatDir
 } OUTLINE_FEAT_PARAM_NAME;
 
-#define MAX_OUTLINE_FEATURES  (100)
+#define MAX_OUTLINE_FEATURES (100)
 
 /*---------------------------------------------------------------------------
           Privat Function Prototypes
 ----------------------------------------------------------------------------*/
-void AddOutlineFeatureToSet(FPOINT *Start,
-                            FPOINT *End,
-                            FEATURE_SET FeatureSet);
+void AddOutlineFeatureToSet(FPOINT* Start, FPOINT* End, FEATURE_SET FeatureSet);
 
 void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet);
 

@@ -19,15 +19,15 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "featdefs.h"
-#include "emalloc.h"
 #include "danerror.h"
+#include "emalloc.h"
 #include "scanutils.h"
 
-#include <cstring>
 #include <cstdio>
+#include <cstring>
 
 /** define errors triggered by this module */
-#define ILLEGAL_NUM_SETS  3001
+#define ILLEGAL_NUM_SETS 3001
 
 #define PICO_FEATURE_LENGTH 0.05
 
@@ -40,81 +40,58 @@ const char* kIntFeatureType = "if";
 const char* kGeoFeatureType = "tb";
 
 // Define all of the parameters for the MicroFeature type.
-StartParamDesc(MicroFeatureParams)
-DefineParam(0, 0, -0.5, 0.5)
-DefineParam(0, 0, -0.25, 0.75)
-DefineParam(0, 1, 0.0, 1.0)
-DefineParam(1, 0, 0.0, 1.0)
-DefineParam (0, 1, -0.5, 0.5)
-DefineParam (0, 1, -0.5, 0.5)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(MicroFeatureDesc, 5, 1, kMicroFeatureType, MicroFeatureParams)
+StartParamDesc(MicroFeatureParams) DefineParam(0, 0, -0.5, 0.5)
+    DefineParam(0, 0, -0.25, 0.75) DefineParam(0, 1, 0.0, 1.0)
+        DefineParam(1, 0, 0.0, 1.0) DefineParam(0, 1, -0.5, 0.5)
+            DefineParam(0, 1, -0.5, 0.5) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(MicroFeatureDesc, 5, 1, kMicroFeatureType, MicroFeatureParams)
 
-// Define all of the parameters for the NormFeat type.
-StartParamDesc (CharNormParams)
-DefineParam(0, 0, -0.25, 0.75)
-DefineParam(0, 1, 0.0, 1.0)
-DefineParam(0, 0, 0.0, 1.0)
-DefineParam(0, 0, 0.0, 1.0)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(CharNormDesc, 4, 0, kCNFeatureType, CharNormParams)
+    // Define all of the parameters for the NormFeat type.
+    StartParamDesc(CharNormParams) DefineParam(0, 0, -0.25, 0.75)
+        DefineParam(0, 1, 0.0, 1.0) DefineParam(0, 0, 0.0, 1.0)
+            DefineParam(0, 0, 0.0, 1.0) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(CharNormDesc, 4, 0, kCNFeatureType, CharNormParams)
 
-// Define all of the parameters for the IntFeature type
-StartParamDesc(IntFeatParams)
-DefineParam(0, 0, 0.0, 255.0)
-DefineParam(0, 0, 0.0, 255.0)
-DefineParam(1, 0, 0.0, 255.0)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(IntFeatDesc, 2, 1, kIntFeatureType, IntFeatParams)
+    // Define all of the parameters for the IntFeature type
+    StartParamDesc(IntFeatParams) DefineParam(0, 0, 0.0, 255.0)
+        DefineParam(0, 0, 0.0, 255.0) DefineParam(1, 0, 0.0, 255.0) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(IntFeatDesc, 2, 1, kIntFeatureType, IntFeatParams)
 
-// Define all of the parameters for the GeoFeature type
-StartParamDesc(GeoFeatParams)
-DefineParam(0, 0, 0.0, 255.0)
-DefineParam(0, 0, 0.0, 255.0)
-DefineParam(0, 0, 0.0, 255.0)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(GeoFeatDesc, 3, 0, kGeoFeatureType, GeoFeatParams)
+    // Define all of the parameters for the GeoFeature type
+    StartParamDesc(GeoFeatParams) DefineParam(0, 0, 0.0, 255.0)
+        DefineParam(0, 0, 0.0, 255.0) DefineParam(0, 0, 0.0, 255.0) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(GeoFeatDesc, 3, 0, kGeoFeatureType, GeoFeatParams)
 
-// Other features used for training the adaptive classifier, but not used
-// during normal training, therefore not in the DescDefs array.
+    // Other features used for training the adaptive classifier, but not used
+    // during normal training, therefore not in the DescDefs array.
 
-// Define all of the parameters for the PicoFeature type
-// define knob that can be used to adjust pico-feature length.
-FLOAT32 PicoFeatureLength = PICO_FEATURE_LENGTH;
-StartParamDesc(PicoFeatParams)
-DefineParam(0, 0, -0.25, 0.75)
-DefineParam(1, 0, 0.0, 1.0)
-DefineParam(0, 0, -0.5, 0.5)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(PicoFeatDesc, 2, 1, "pf", PicoFeatParams)
+    // Define all of the parameters for the PicoFeature type
+    // define knob that can be used to adjust pico-feature length.
+    FLOAT32 PicoFeatureLength = PICO_FEATURE_LENGTH;
+StartParamDesc(PicoFeatParams) DefineParam(0, 0, -0.25, 0.75)
+    DefineParam(1, 0, 0.0, 1.0) DefineParam(0, 0, -0.5, 0.5) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(PicoFeatDesc, 2, 1, "pf", PicoFeatParams)
 
-// Define all of the parameters for the OutlineFeature type.
-StartParamDesc(OutlineFeatParams)
-DefineParam(0, 0, -0.5, 0.5)
-DefineParam(0, 0, -0.25, 0.75)
-DefineParam(0, 0, 0.0, 1.0)
-DefineParam(1, 0, 0.0, 1.0)
-EndParamDesc
-// Now define the feature type itself (see features.h for parameters).
-DefineFeature(OutlineFeatDesc, 3, 1, "of", OutlineFeatParams)
+    // Define all of the parameters for the OutlineFeature type.
+    StartParamDesc(OutlineFeatParams) DefineParam(0, 0, -0.5, 0.5)
+        DefineParam(0, 0, -0.25, 0.75) DefineParam(0, 0, 0.0, 1.0)
+            DefineParam(1, 0, 0.0, 1.0) EndParamDesc
+    // Now define the feature type itself (see features.h for parameters).
+    DefineFeature(OutlineFeatDesc, 3, 1, "of", OutlineFeatParams)
 
-// MUST be kept in-sync with ExtractorDefs in fxdefs.cpp.
-static const FEATURE_DESC_STRUCT *DescDefs[NUM_FEATURE_TYPES] = {
-  &MicroFeatureDesc,
-  &CharNormDesc,
-  &IntFeatDesc,
-  &GeoFeatDesc
-};
+    // MUST be kept in-sync with ExtractorDefs in fxdefs.cpp.
+    static const FEATURE_DESC_STRUCT* DescDefs[NUM_FEATURE_TYPES] = {
+        &MicroFeatureDesc, &CharNormDesc, &IntFeatDesc, &GeoFeatDesc};
 
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
-void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
+void InitFeatureDefs(FEATURE_DEFS_STRUCT* featuredefs) {
   featuredefs->NumFeatureTypes = NUM_FEATURE_TYPES;
   for (int i = 0; i < NUM_FEATURE_TYPES; ++i) {
     featuredefs->FeatureDesc[i] = DescDefs[i];
@@ -128,7 +105,7 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  *
  * @param CharDesc character description to be deallocated
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @note Exceptions: none
@@ -137,27 +114,27 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
 void FreeCharDescription(CHAR_DESC CharDesc) {
   if (CharDesc) {
     for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
-      FreeFeatureSet (CharDesc->FeatureSets[i]);
+      FreeFeatureSet(CharDesc->FeatureSets[i]);
     Efree(CharDesc);
   }
-}                                /* FreeCharDescription */
-
+} /* FreeCharDescription */
 
 /*---------------------------------------------------------------------------*/
 /**
  * Allocate a new character description, initialize its
  * feature sets to be empty, and return it.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @return New character description structure.
  * @note Exceptions: none
  * @note History: Wed May 23 15:27:10 1990, DSJ, Created.
  */
-CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
+CHAR_DESC
+NewCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs) {
   CHAR_DESC CharDesc;
-  CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
+  CharDesc = (CHAR_DESC)Emalloc(sizeof(CHAR_DESC_STRUCT));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
   for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)
@@ -165,8 +142,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
 
   return (CharDesc);
 
-}                                /* NewCharDescription */
-
+} /* NewCharDescription */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -191,8 +167,7 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
   int NumSetsToWrite = 0;
 
   for (size_t Type = 0; Type < CharDesc->NumFeatureSets; Type++)
-    if (CharDesc->FeatureSets[Type])
-      NumSetsToWrite++;
+    if (CharDesc->FeatureSets[Type]) NumSetsToWrite++;
 
   str->add_str_int(" ", NumSetsToWrite);
   *str += "\n";
@@ -203,11 +178,11 @@ void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
       WriteFeatureSet(CharDesc->FeatureSets[Type], str);
     }
   }
-}                                /* WriteCharDescription */
+} /* WriteCharDescription */
 
 // Return whether all of the fields of the given feature set
 // are well defined (not inf or nan).
-bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
+bool ValidCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc) {
   bool anything_written = false;
   bool well_formed = true;
@@ -227,7 +202,7 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
     }
   }
   return anything_written && well_formed;
-}                                /* ValidCharDescription */
+} /* ValidCharDescription */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -241,38 +216,37 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
              ...
    @endverbatim
  *
- * Globals: 
+ * Globals:
  * - none
- * 
+ *
  * @param FeatureDefs    definitions of feature types/extractors
  * @param File open text file to read character description from
  * @return Character description read from File.
- * @note Exceptions: 
+ * @note Exceptions:
  * - ILLEGAL_NUM_SETS
  * @note History: Wed May 23 17:32:48 1990, DSJ, Created.
  */
-CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                              FILE *File) {
+CHAR_DESC
+ReadCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs, FILE* File) {
   int NumSetsToRead;
   char ShortName[FEAT_NAME_SIZE];
   CHAR_DESC CharDesc;
   int Type;
 
-  if (tfscanf(File, "%d", &NumSetsToRead) != 1 ||
-    NumSetsToRead < 0 || NumSetsToRead > FeatureDefs.NumFeatureTypes)
-    DoError (ILLEGAL_NUM_SETS, "Illegal number of feature sets");
+  if (tfscanf(File, "%d", &NumSetsToRead) != 1 || NumSetsToRead < 0 ||
+      NumSetsToRead > FeatureDefs.NumFeatureTypes)
+    DoError(ILLEGAL_NUM_SETS, "Illegal number of feature sets");
 
   CharDesc = NewCharDescription(FeatureDefs);
   for (; NumSetsToRead > 0; NumSetsToRead--) {
     tfscanf(File, "%s", ShortName);
     Type = ShortNameToFeatureType(FeatureDefs, ShortName);
     CharDesc->FeatureSets[Type] =
-      ReadFeatureSet (File, FeatureDefs.FeatureDesc[Type]);
+        ReadFeatureSet(File, FeatureDefs.FeatureDesc[Type]);
   }
   return (CharDesc);
 
-}                                // ReadCharDescription
-
+}  // ReadCharDescription
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -290,14 +264,14 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * - ILLEGAL_SHORT_NAME
  * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */
-uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
-                                const char *ShortName) {
+uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT& FeatureDefs,
+                                const char* ShortName) {
   int i;
 
   for (i = 0; i < FeatureDefs.NumFeatureTypes; i++)
-    if (!strcmp ((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
+    if (!strcmp((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
       return static_cast<uint32_t>(i);
-  DoError (ILLEGAL_SHORT_NAME, "Illegal short name for a feature");
+  DoError(ILLEGAL_SHORT_NAME, "Illegal short name for a feature");
   return 0;
 
-}                                // ShortNameToFeatureType
+}  // ShortNameToFeatureType

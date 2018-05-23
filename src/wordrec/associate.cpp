@@ -18,7 +18,6 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-
 #include <cstdio>
 #ifdef __UNIX__
 #include <assert.h>
@@ -35,13 +34,10 @@ const float AssociateUtils::kMaxFixedPitchCharAspectRatio = 2.0f;
 const float AssociateUtils::kMinGap = 0.03f;
 
 void AssociateUtils::ComputeStats(int col, int row,
-                                  const AssociateStats *parent_stats,
-                                  int parent_path_length,
-                                  bool fixed_pitch,
-                                  float max_char_wh_ratio,
-                                  WERD_RES *word_res,
-                                  bool debug,
-                                  AssociateStats *stats) {
+                                  const AssociateStats* parent_stats,
+                                  int parent_path_length, bool fixed_pitch,
+                                  float max_char_wh_ratio, WERD_RES* word_res,
+                                  bool debug, AssociateStats* stats) {
   stats->Clear();
 
   ASSERT_HOST(word_res != nullptr);
@@ -49,8 +45,8 @@ void AssociateUtils::ComputeStats(int col, int row,
     return;
   }
   if (debug) {
-    tprintf("AssociateUtils::ComputeStats() for col=%d, row=%d%s\n",
-            col, row, fixed_pitch ? " (fixed pitch)" : "");
+    tprintf("AssociateUtils::ComputeStats() for col=%d, row=%d%s\n", col, row,
+            fixed_pitch ? " (fixed pitch)" : "");
   }
   float normalizing_height = kBlnXHeight;
   ROW* blob_row = word_res->blob_row;
@@ -63,7 +59,7 @@ void AssociateUtils::ComputeStats(int col, int row,
       normalizing_height = word_res->denorm.y_scale() * blob_row->body_size();
     } else {
       normalizing_height = word_res->denorm.y_scale() *
-          (blob_row->x_height() + blob_row->ascenders());
+                           (blob_row->x_height() + blob_row->ascenders());
     }
     if (debug) {
       tprintf("normalizing height = %g (scale %g xheight %g ascenders %g)\n",
@@ -84,8 +80,8 @@ void AssociateUtils::ComputeStats(int col, int row,
   }
   if (stats->gap_sum == 0) stats->gap_sum = negative_gap_sum;
   if (debug) {
-    tprintf("wh_ratio=%g (max_char_wh_ratio=%g) gap_sum=%d %s\n",
-            wh_ratio, max_char_wh_ratio, stats->gap_sum,
+    tprintf("wh_ratio=%g (max_char_wh_ratio=%g) gap_sum=%d %s\n", wh_ratio,
+            max_char_wh_ratio, stats->gap_sum,
             stats->bad_shape ? "bad_shape" : "");
   }
   // Compute shape_cost (for fixed pitch mode).
@@ -97,7 +93,7 @@ void AssociateUtils::ComputeStats(int col, int row,
     // no cutting through ink at the blob boundaries.
     if (col > 0) {
       float left_gap = word_res->GetBlobsGap(col - 1) / normalizing_height;
-      SEAM *left_seam = word_res->seam_array[col - 1];
+      SEAM* left_seam = word_res->seam_array[col - 1];
       if ((!end_row && left_gap < kMinGap) || left_seam->priority() > 0.0f) {
         stats->bad_shape = true;
       }
@@ -109,7 +105,7 @@ void AssociateUtils::ComputeStats(int col, int row,
     float right_gap = 0.0f;
     if (!end_row) {
       right_gap = word_res->GetBlobsGap(row) / normalizing_height;
-      SEAM *right_seam = word_res->seam_array[row];
+      SEAM* right_seam = word_res->seam_array[row];
       if (right_gap < kMinGap || right_seam->priority() > 0.0f) {
         stats->bad_shape = true;
         if (right_gap < kMinGap) stats->bad_fixed_pitch_right_gap = true;
@@ -128,11 +124,11 @@ void AssociateUtils::ComputeStats(int col, int row,
     stats->full_wh_ratio = wh_ratio + right_gap;
     if (parent_stats != nullptr) {
       stats->full_wh_ratio_total =
-        (parent_stats->full_wh_ratio_total + stats->full_wh_ratio);
-      float mean =
-        stats->full_wh_ratio_total / static_cast<float>(parent_path_length+1);
+          (parent_stats->full_wh_ratio_total + stats->full_wh_ratio);
+      float mean = stats->full_wh_ratio_total /
+                   static_cast<float>(parent_path_length + 1);
       stats->full_wh_ratio_var =
-        parent_stats->full_wh_ratio_var + pow(mean-stats->full_wh_ratio, 2);
+          parent_stats->full_wh_ratio_var + pow(mean - stats->full_wh_ratio, 2);
     } else {
       stats->full_wh_ratio_total = stats->full_wh_ratio;
     }
@@ -143,7 +139,7 @@ void AssociateUtils::ComputeStats(int col, int row,
     }
 
     stats->shape_cost =
-      FixedPitchWidthCost(wh_ratio, right_gap, end_row, max_char_wh_ratio);
+        FixedPitchWidthCost(wh_ratio, right_gap, end_row, max_char_wh_ratio);
 
     // For some reason Tesseract prefers to treat the whole CJ words
     // as one blob when the initial segmentation is particularly bad.
@@ -156,8 +152,7 @@ void AssociateUtils::ComputeStats(int col, int row,
   }
 }
 
-float AssociateUtils::FixedPitchWidthCost(float norm_width,
-                                          float right_gap,
+float AssociateUtils::FixedPitchWidthCost(float norm_width, float right_gap,
                                           bool end_pos,
                                           float max_char_wh_ratio) {
   float cost = 0.0f;
@@ -165,7 +160,7 @@ float AssociateUtils::FixedPitchWidthCost(float norm_width,
   if (norm_width > kMaxFixedPitchCharAspectRatio)
     cost += norm_width * norm_width;  // extra penalty for merging CJK chars
   // Penalize skinny blobs, except for punctuation in the last position.
-  if (norm_width+right_gap < 0.5f && !end_pos) {
+  if (norm_width + right_gap < 0.5f && !end_pos) {
     cost += 1.0f - (norm_width + right_gap);
   }
   return cost;

@@ -20,8 +20,8 @@
 ----------------------------------------------------------------------------*/
 #include "normfeat.h"
 
-#include "intfx.h"
 #include "featdefs.h"
+#include "intfx.h"
 #include "mfoutline.h"
 
 /*----------------------------------------------------------------------------
@@ -29,7 +29,8 @@
 ----------------------------------------------------------------------------*/
 
 /** Return the length of the outline in baseline normalized form. */
-FLOAT32 ActualOutlineLength(FEATURE Feature) {
+FLOAT32
+ActualOutlineLength(FEATURE Feature) {
   return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
 }
 
@@ -58,7 +59,8 @@ FLOAT32 ActualOutlineLength(FEATURE Feature) {
  *     the x center of the grapheme's bounding box.
  *     - English: [0.011, 0.31]
  */
-FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
+FEATURE_SET
+ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
   FEATURE_SET feature_set = NewFeatureSet(1);
   FEATURE feature = NewFeature(&CharNormDesc);
 
@@ -72,4 +74,4 @@ FEATURE_SET ExtractCharNormFeatures(const INT_FX_RESULT_STRUCT& fx_info) {
   AddFeature(feature_set, feature);
 
   return feature_set;
-}                                /* ExtractCharNormFeatures */
+} /* ExtractCharNormFeatures */

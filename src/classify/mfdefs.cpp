@@ -19,8 +19,8 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
-#include "emalloc.h"
 #include <cmath>
+#include "emalloc.h"
 
 /*----------------------------------------------------------------------------
               Public Code
@@ -32,10 +32,10 @@
  * @return New MICROFEATURE
  * @note History: 7/27/89, DSJ, Created.
  */
-MICROFEATURE NewMicroFeature() {
-  return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
-}                                /* NewMicroFeature */
-
+MICROFEATURE
+NewMicroFeature() {
+  return ((MICROFEATURE)Emalloc(sizeof(MFBLOCK)));
+} /* NewMicroFeature */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -47,4 +47,4 @@ MICROFEATURE NewMicroFeature() {
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, Efree);
-}                                /* FreeMicroFeatures */
+} /* FreeMicroFeatures */

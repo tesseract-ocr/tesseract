@@ -42,14 +42,12 @@ const int kMaxReadAhead = 8;
 
 namespace tesseract {
 
-WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {
-}
+WordFeature::WordFeature() : x_(0), y_(0), dir_(0) {}
 
 WordFeature::WordFeature(const FCOORD& fcoord, uint8_t dir)
-  : x_(IntCastRounded(fcoord.x())),
-    y_(ClipToRange<int>(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
-    dir_(dir) {
-}
+    : x_(IntCastRounded(fcoord.x())),
+      y_(ClipToRange<int>(IntCastRounded(fcoord.y()), 0, UINT8_MAX)),
+      dir_(dir) {}
 
 // Computes the maximum x and y value in the features.
 void WordFeature::ComputeSize(const GenericVector<WordFeature>& features,
@@ -74,7 +72,7 @@ void WordFeature::Draw(const GenericVector<WordFeature>& features,
     window->SetCursor(IntCastRounded(pos.x() - dir.x()),
                       IntCastRounded(pos.y() - dir.y()));
     window->DrawTo(IntCastRounded(pos.x() + dir.x()),
-                      IntCastRounded(pos.y() + dir.y()));
+                   IntCastRounded(pos.y() + dir.y()));
   }
 #endif
 }
@@ -119,15 +117,13 @@ int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
   return x_diff;
 }
 
-ImageData::ImageData() : page_number_(-1), vertical_text_(false) {
-}
+ImageData::ImageData() : page_number_(-1), vertical_text_(false) {}
 // Takes ownership of the pix and destroys it.
 ImageData::ImageData(bool vertical, Pix* pix)
-  : page_number_(0), vertical_text_(vertical) {
+    : page_number_(0), vertical_text_(vertical) {
   SetPix(pix);
 }
-ImageData::~ImageData() {
-}
+ImageData::~ImageData() {}
 
 // Builds and returns an ImageData from the basic data. Note that imagedata,
 // truth_text, and box_text are all the actual file data, NOT filenames.
@@ -209,14 +205,10 @@ bool ImageData::SkipDeSerialize(TFile* fp) {
 }
 
 // Saves the given Pix as a PNG-encoded string and destroys it.
-void ImageData::SetPix(Pix* pix) {
-  SetPixInternal(pix, &image_data_);
-}
+void ImageData::SetPix(Pix* pix) { SetPixInternal(pix, &image_data_); }
 
 // Returns the Pix image for *this. Must be pixDestroyed after use.
-Pix* ImageData::GetPix() const {
-  return GetPixInternal(image_data_);
-}
+Pix* ImageData::GetPix() const { return GetPixInternal(image_data_); }
 
 // Gets anything and everything with a non-nullptr pointer, prescaled to a
 // given target_height (if 0, then the original image height), and aligned.
@@ -239,8 +231,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   float im_factor = static_cast<float>(target_height) / input_height;
   if (scaled_width != nullptr)
     *scaled_width = IntCastRounded(im_factor * input_width);
-  if (scaled_height != nullptr)
-    *scaled_height = target_height;
+  if (scaled_height != nullptr) *scaled_height = target_height;
   // Get the scaled image.
   Pix* pix = pixScale(src_pix, im_factor, im_factor);
   if (pix == nullptr) {
@@ -268,9 +259,7 @@ Pix* ImageData::PreScale(int target_height, int max_height, float* scale_factor,
   return pix;
 }
 
-int ImageData::MemoryUsed() const {
-  return image_data_.size();
-}
+int ImageData::MemoryUsed() const { return image_data_.size(); }
 
 // Draws the data in a new window.
 void ImageData::Display() const {
@@ -281,10 +270,9 @@ void ImageData::Display() const {
   if (pix == nullptr) return;
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  ScrollView* win = new ScrollView("Imagedata", 100, 100,
-                                   2 * (width + 2 * kTextSize),
-                                   2 * (height + 4 * kTextSize),
-                                   width + 10, height + 3 * kTextSize, true);
+  ScrollView* win = new ScrollView(
+      "Imagedata", 100, 100, 2 * (width + 2 * kTextSize),
+      2 * (height + 4 * kTextSize), width + 10, height + 3 * kTextSize, true);
   win->Image(pix, 0, height - 1);
   pixDestroy(&pix);
   // Draw the boxes.
@@ -353,14 +341,15 @@ bool ImageData::AddBoxes(const char* box_text) {
     GenericVector<TBOX> boxes;
     GenericVector<STRING> texts;
     GenericVector<int> box_pages;
-    if (ReadMemBoxes(page_number_, /*skip_blanks*/ false, box_text,
+    if (ReadMemBoxes(page_number_,
+                     /*skip_blanks*/ false, box_text,
                      /*continue_on_failure*/ true, &boxes, &texts, nullptr,
                      &box_pages)) {
       AddBoxes(boxes, texts, box_pages);
       return true;
     } else {
-      tprintf("Error: No boxes for page %d from image %s!\n",
-              page_number_, imagefilename_.string());
+      tprintf("Error: No boxes for page %d from image %s!\n", page_number_,
+              imagefilename_.string());
     }
   }
   return false;
@@ -453,8 +442,8 @@ const ImageData* DocumentData::GetPage(int index) {
     bool needs_loading = pages_offset_ != index;
     pages_mutex_.Unlock();
     if (needs_loading) LoadPageInBackground(index);
-    // We can't directly load the page, or the background load will delete it
-    // while the caller is using it, so give it a chance to work.
+      // We can't directly load the page, or the background load will delete it
+      // while the caller is using it, so give it a chance to work.
 #if defined(__MINGW32__)
     sleep(1);
 #else
@@ -603,8 +592,7 @@ bool DocumentCache::AddToCache(DocumentData* data) {
 // Finds and returns a document by name.
 DocumentData* DocumentCache::FindDocument(const STRING& document_name) const {
   for (int i = 0; i < documents_.size(); ++i) {
-    if (documents_[i]->document_name() == document_name)
-      return documents_[i];
+    if (documents_[i]->document_name() == document_name) return documents_[i];
   }
   return nullptr;
 }

@@ -31,17 +31,14 @@ namespace tesseract {
 
 const int kMaxOffsetDist = 32;
 
-IntFeatureMap::IntFeatureMap()
-  : mapping_changed_(true), compact_size_(0) {
+IntFeatureMap::IntFeatureMap() : mapping_changed_(true), compact_size_(0) {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
     offset_plus_[dir] = nullptr;
     offset_minus_[dir] = nullptr;
   }
 }
 
-IntFeatureMap::~IntFeatureMap() {
-  Clear();
-}
+IntFeatureMap::~IntFeatureMap() { Clear(); }
 
 // Pseudo-accessors.
 int IntFeatureMap::IndexFeature(const INT_FEATURE_STRUCT& f) const {
@@ -53,10 +50,12 @@ int IntFeatureMap::MapFeature(const INT_FEATURE_STRUCT& f) const {
 int IntFeatureMap::MapIndexFeature(int index_feature) const {
   return feature_map_.SparseToCompact(index_feature);
 }
-INT_FEATURE_STRUCT IntFeatureMap::InverseIndexFeature(int index_feature) const {
+INT_FEATURE_STRUCT
+IntFeatureMap::InverseIndexFeature(int index_feature) const {
   return feature_space_.PositionFromIndex(index_feature);
 }
-INT_FEATURE_STRUCT IntFeatureMap::InverseMapFeature(int map_feature) const {
+INT_FEATURE_STRUCT
+IntFeatureMap::InverseMapFeature(int map_feature) const {
   int index = feature_map_.CompactToSparse(map_feature);
   return feature_space_.PositionFromIndex(index);
 }
@@ -79,12 +78,11 @@ void IntFeatureMap::Init(const IntFeatureSpace& feature_space) {
   compact_size_ = feature_map_.CompactSize();
   // Initialize look-up tables if needed.
   FCOORD dir = FeatureDirection(0);
-  if (dir.x() == 0.0f && dir.y() == 0.0f)
-    InitIntegerFX();
+  if (dir.x() == 0.0f && dir.y() == 0.0f) InitIntegerFX();
   // Compute look-up tables to generate offset features.
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
-    delete [] offset_plus_[dir];
-    delete [] offset_minus_[dir];
+    delete[] offset_plus_[dir];
+    delete[] offset_minus_[dir];
     offset_plus_[dir] = new int[sparse_size];
     offset_minus_[dir] = new int[sparse_size];
   }
@@ -121,7 +119,6 @@ int IntFeatureMap::OffsetFeature(int index_feature, int dir) const {
     return -1;
 }
 
-
 //#define EXPERIMENT_ON
 #ifdef EXPERIMENT_ON  // This code is commented out as SampleIterator and
 // TrainingSample are not reviewed/checked in yet, but these functions are a
@@ -137,8 +134,7 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator* it) {
     const TrainingSample& sample = it->GetSample();
     GenericVector<int> features;
     feature_space_.IndexAndSortFeatures(sample.features(),
-                                        sample.num_features(),
-                                        &features);
+                                        sample.num_features(), &features);
     int num_features = features.size();
     for (int f = 0; f < num_features; ++f)
       feature_map_.SetMap(features[f], true);
@@ -148,8 +144,8 @@ int IntFeatureMap::FindNZFeatureMapping(SampleIterator* it) {
   compact_size_ = feature_map_.CompactSize();
   mapping_changed_ = true;
   FinalizeMapping(it);
-  tprintf("%d non-zero features found in %d samples\n",
-          compact_size_, total_samples);
+  tprintf("%d non-zero features found in %d samples\n", compact_size_,
+          total_samples);
   return compact_size_;
 }
 #endif
@@ -179,8 +175,8 @@ void IntFeatureMap::DebugMapFeatures(
 
 void IntFeatureMap::Clear() {
   for (int dir = 0; dir < kNumOffsetMaps; ++dir) {
-    delete [] offset_plus_[dir];
-    delete [] offset_minus_[dir];
+    delete[] offset_plus_[dir];
+    delete[] offset_minus_[dir];
     offset_plus_[dir] = nullptr;
     offset_minus_[dir] = nullptr;
   }

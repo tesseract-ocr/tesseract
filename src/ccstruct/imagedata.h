@@ -20,7 +20,6 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
-
 #include "genericvector.h"
 #include "normalis.h"
 #include "rect.h"
@@ -121,39 +120,17 @@ class ImageData {
   static bool SkipDeSerialize(tesseract::TFile* fp);
 
   // Other accessors.
-  const STRING& imagefilename() const {
-    return imagefilename_;
-  }
-  void set_imagefilename(const STRING& name) {
-    imagefilename_ = name;
-  }
-  int page_number() const {
-    return page_number_;
-  }
-  void set_page_number(int num) {
-    page_number_ = num;
-  }
-  const GenericVector<char>& image_data() const {
-    return image_data_;
-  }
-  const STRING& language() const {
-    return language_;
-  }
-  void set_language(const STRING& lang) {
-    language_ = lang;
-  }
-  const STRING& transcription() const {
-    return transcription_;
-  }
-  const GenericVector<TBOX>& boxes() const {
-    return boxes_;
-  }
-  const GenericVector<STRING>& box_texts() const {
-    return box_texts_;
-  }
-  const STRING& box_text(int index) const {
-    return box_texts_[index];
-  }
+  const STRING& imagefilename() const { return imagefilename_; }
+  void set_imagefilename(const STRING& name) { imagefilename_ = name; }
+  int page_number() const { return page_number_; }
+  void set_page_number(int num) { page_number_ = num; }
+  const GenericVector<char>& image_data() const { return image_data_; }
+  const STRING& language() const { return language_; }
+  void set_language(const STRING& lang) { language_ = lang; }
+  const STRING& transcription() const { return transcription_; }
+  const GenericVector<TBOX>& boxes() const { return boxes_; }
+  const GenericVector<STRING>& box_texts() const { return box_texts_; }
+  const STRING& box_text(int index) const { return box_texts_[index]; }
   // Saves the given Pix as a PNG-encoded string and destroys it.
   void SetPix(Pix* pix);
   // Returns the Pix image for *this. Must be pixDestroyed after use.
@@ -162,8 +139,8 @@ class ImageData {
   // given target_height (if 0, then the original image height), and aligned.
   // Also returns (if not nullptr) the width and height of the scaled image.
   // The return value is the scaled Pix, which must be pixDestroyed after use,
-  // and scale_factor (if not nullptr) is set to the scale factor that was applied
-  // to the image to achieve the target_height.
+  // and scale_factor (if not nullptr) is set to the scale factor that was
+  // applied to the image to achieve the target_height.
   Pix* PreScale(int target_height, int max_height, float* scale_factor,
                 int* scaled_width, int* scaled_height,
                 GenericVector<TBOX>* boxes) const;
@@ -190,7 +167,7 @@ class ImageData {
 
  private:
   STRING imagefilename_;             // File to read image from.
-  int32_t page_number_;                // Page number if multi-page tif or -1.
+  int32_t page_number_;              // Page number if multi-page tif or -1.
   GenericVector<char> image_data_;   // PNG file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.
@@ -339,9 +316,7 @@ class DocumentCache {
       return GetPageRoundRobin(serial);
   }
 
-  const PointerVector<DocumentData>& documents() const {
-    return documents_;
-  }
+  const PointerVector<DocumentData>& documents() const { return documents_; }
   // Returns the total number of pages in an epoch. For CS_ROUND_ROBIN cache
   // strategy, could take a long time.
   int TotalPages();
@@ -372,6 +347,5 @@ class DocumentCache {
 };
 
 }  // namespace tesseract
-
 
 #endif  // TESSERACT_IMAGE_IMAGEDATA_H_

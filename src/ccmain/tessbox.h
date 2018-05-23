@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           TESSBOX_H
-#define           TESSBOX_H
+#ifndef TESSBOX_H
+#define TESSBOX_H
 
-#include          "ratngs.h"
+#include "ratngs.h"
 #include "tesseractclass.h"
 
 // TODO(ocr-team): Delete this along with other empty header files.

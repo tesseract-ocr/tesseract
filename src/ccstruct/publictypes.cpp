@@ -21,20 +21,20 @@
 
 /** String name for each block type. Keep in sync with PolyBlockType. */
 const char* kPolyBlockNames[] = {
-  "Unknown",
-  "Flowing Text",
-  "Heading Text",
-  "Pullout Text",
-  "Equation",
-  "Inline Equation",
-  "Table",
-  "Vertical Text",
-  "Caption Text",
-  "Flowing Image",
-  "Heading Image",
-  "Pullout Image",
-  "Horizontal Line",
-  "Vertical Line",
-  "Noise",
-  ""  // End marker for testing that sizes match.
+    "Unknown",
+    "Flowing Text",
+    "Heading Text",
+    "Pullout Text",
+    "Equation",
+    "Inline Equation",
+    "Table",
+    "Vertical Text",
+    "Caption Text",
+    "Flowing Image",
+    "Heading Image",
+    "Pullout Image",
+    "Horizontal Line",
+    "Vertical Line",
+    "Noise",
+    ""  // End marker for testing that sizes match.
 };

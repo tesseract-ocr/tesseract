@@ -30,9 +30,8 @@ class TabFind;
 
 // ColPartitionGrid is a BBGrid of ColPartition.
 // It collects functions that work on the grid.
-class ColPartitionGrid : public BBGrid<ColPartition,
-                                       ColPartition_CLIST,
-                                       ColPartition_C_IT> {
+class ColPartitionGrid
+    : public BBGrid<ColPartition, ColPartition_CLIST, ColPartition_C_IT> {
  public:
   ColPartitionGrid() = default;
   ColPartitionGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
@@ -82,8 +81,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // See colpartitiongrid.cpp for a diagram.
   ColPartition* BestMergeCandidate(
       const ColPartition* part, ColPartition_CLIST* candidates, bool debug,
-      TessResultCallback2<bool, const ColPartition*,
-                          const ColPartition*>* confirm_cb,
+      TessResultCallback2<bool, const ColPartition*, const ColPartition*>*
+          confirm_cb,
       int* overlap_increase);
 
   // Split partitions where it reduces overlap between their bounding boxes.
@@ -146,8 +145,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
 
   // The boxes within the partitions have changed (by deskew) so recompute
   // the bounds of all the partitions and reinsert them into the grid.
-  void RecomputeBounds(int gridsize, const ICOORD& bleft,
-                       const ICOORD& tright, const ICOORD& vertical);
+  void RecomputeBounds(int gridsize, const ICOORD& bleft, const ICOORD& tright,
+                       const ICOORD& vertical);
 
   // Improves the margins of the ColPartitions in the grid by calling
   // FindPartitionMargins on each.
@@ -205,10 +204,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // nontext_map, which is used to prevent the spread of text neighbourhoods
   // into images.
   // Returns true if the partition was changed.
-  bool SmoothRegionType(Pix* nontext_map,
-                        const TBOX& im_box,
-                        const FCOORD& rerotation,
-                        bool debug,
+  bool SmoothRegionType(Pix* nontext_map, const TBOX& im_box,
+                        const FCOORD& rerotation, bool debug,
                         ColPartition* part);
   // Executes the search for SmoothRegionType in a single direction.
   // Creates a bounding box that is padded in all directions except direction,
@@ -217,10 +214,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // and the distance of the collection. If there are any pixels in the
   // nontext_map, then the decision is biased towards image.
   BlobRegionType SmoothInOneDirection(BlobNeighbourDir direction,
-                                      Pix* nontext_map,
-                                      const TBOX& im_box,
-                                      const FCOORD& rerotation,
-                                      bool debug,
+                                      Pix* nontext_map, const TBOX& im_box,
+                                      const FCOORD& rerotation, bool debug,
                                       const ColPartition& part,
                                       int* best_distance);
   // Counts the partitions in the given search_box by appending the gap
@@ -230,12 +225,9 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // dists must be an array of GenericVectors of size NPT_COUNT.
   void AccumulatePartDistances(const ColPartition& base_part,
                                const ICOORD& dist_scaling,
-                               const TBOX& search_box,
-                               Pix* nontext_map,
-                               const TBOX& im_box,
-                               const FCOORD& rerotation,
-                               bool debug,
-                               GenericVector<int>* dists);
+                               const TBOX& search_box, Pix* nontext_map,
+                               const TBOX& im_box, const FCOORD& rerotation,
+                               bool debug, GenericVector<int>* dists);
 
   // Improves the margins of the ColPartition by searching for
   // neighbours that vertically overlap significantly.
@@ -244,8 +236,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // Starting at x, and going in the specified direction, up to x_limit, finds
   // the margin for the given y range by searching sideways,
   // and ignoring not_this.
-  int FindMargin(int x, bool right_to_left, int x_limit,
-                 int y_bottom, int y_top, const ColPartition* not_this);
+  int FindMargin(int x, bool right_to_left, int x_limit, int y_bottom,
+                 int y_top, const ColPartition* not_this);
 };
 
 }  // namespace tesseract.

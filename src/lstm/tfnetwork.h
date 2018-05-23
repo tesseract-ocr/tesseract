@@ -65,8 +65,8 @@ class TFNetwork : public Network {
   // Runs forward propagation of activations on the input line.
   // See Network for a detailed discussion of the arguments.
   void Forward(bool debug, const NetworkIO& input,
-               const TransposedArray* input_transpose,
-               NetworkScratch* scratch, NetworkIO* output) override;
+               const TransposedArray* input_transpose, NetworkScratch* scratch,
+               NetworkIO* output) override;
 
  private:
   int InitFromProto();

@@ -17,14 +17,14 @@
  *
  **********************************************************************/
 
-#include          <signal.h>
+#include <signal.h>
 #ifdef __linux__
-#include          <sys/syscall.h>   // For SYS_gettid.
-#include          <unistd.h>        // For syscall itself.
+#include <sys/syscall.h>  // For SYS_gettid.
+#include <unistd.h>       // For syscall itself.
 #endif
-#include          "allheaders.h"
-#include          "errcode.h"
-#include          "tprintf.h"
+#include "allheaders.h"
+#include "errcode.h"
+#include "tprintf.h"
 
 // Size of thread-id array of pixes to keep in case of crash.
 const int kMaxNumThreadPixes = 32768;
@@ -71,24 +71,16 @@ void signal_exit(int signal_code) {
 #endif
 }
 
-void err_exit() {
-  ASSERT_HOST("Fatal error encountered!" == nullptr);
-}
-
+void err_exit() { ASSERT_HOST("Fatal error encountered!" == nullptr); }
 
 void set_global_loc_code(int loc_code) {
   // global_loc_code = loc_code;
-
 }
-
 
 void set_global_subloc_code(int loc_code) {
   // global_subloc_code = loc_code;
-
 }
-
 
 void set_global_subsubloc_code(int loc_code) {
   // global_subsubloc_code = loc_code;
-
 }

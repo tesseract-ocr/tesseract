@@ -53,13 +53,20 @@ static const int kSampleRandomSize = kSampleYShiftSize * kSampleScaleSize - 2;
 class TrainingSample : public ELIST_LINK {
  public:
   TrainingSample()
-    : class_id_(INVALID_UNICHAR_ID), font_id_(0), page_num_(0),
-      num_features_(0), num_micro_features_(0), outline_length_(0),
-      features_(nullptr), micro_features_(nullptr), weight_(1.0),
-      max_dist_(0.0), sample_index_(0),
-      features_are_indexed_(false), features_are_mapped_(false),
-      is_error_(false) {
-  }
+      : class_id_(INVALID_UNICHAR_ID),
+        font_id_(0),
+        page_num_(0),
+        num_features_(0),
+        num_micro_features_(0),
+        outline_length_(0),
+        features_(nullptr),
+        micro_features_(nullptr),
+        weight_(1.0),
+        max_dist_(0.0),
+        sample_index_(0),
+        features_are_indexed_(false),
+        features_are_mapped_(false),
+        is_error_(false) {}
   ~TrainingSample();
 
   // Saves the given features into a TrainingSample. The features are copied,
@@ -90,9 +97,8 @@ class TrainingSample : public ELIST_LINK {
   bool DeSerialize(bool swap, FILE* fp);
 
   // Extracts the needed information from the CHAR_DESC_STRUCT.
-  void ExtractCharDesc(int feature_type, int micro_type,
-                       int cn_type, int geo_type,
-                       CHAR_DESC_STRUCT* char_desc);
+  void ExtractCharDesc(int feature_type, int micro_type, int cn_type,
+                       int geo_type, CHAR_DESC_STRUCT* char_desc);
 
   // Sets the mapped_features_ from the features_ using the provided
   // feature_space to the indexed versions of the features.
@@ -113,72 +119,28 @@ class TrainingSample : public ELIST_LINK {
   Pix* GetSamplePix(int padding, Pix* page_pix) const;
 
   // Accessors.
-  UNICHAR_ID class_id() const {
-    return class_id_;
-  }
-  void set_class_id(int id) {
-    class_id_ = id;
-  }
-  int font_id() const {
-    return font_id_;
-  }
-  void set_font_id(int id) {
-    font_id_ = id;
-  }
-  int page_num() const {
-    return page_num_;
-  }
-  void set_page_num(int page) {
-    page_num_ = page;
-  }
-  const TBOX& bounding_box() const {
-    return bounding_box_;
-  }
-  void set_bounding_box(const TBOX& box) {
-    bounding_box_ = box;
-  }
-  int num_features() const {
-    return num_features_;
-  }
-  const INT_FEATURE_STRUCT* features() const {
-    return features_;
-  }
-  int num_micro_features() const {
-    return num_micro_features_;
-  }
-  const MicroFeature* micro_features() const {
-    return micro_features_;
-  }
-  int outline_length() const {
-    return outline_length_;
-  }
-  float cn_feature(int index) const {
-    return cn_feature_[index];
-  }
-  int geo_feature(int index) const {
-    return geo_feature_[index];
-  }
-  double weight() const {
-    return weight_;
-  }
-  void set_weight(double value) {
-    weight_ = value;
-  }
-  double max_dist() const {
-    return max_dist_;
-  }
-  void set_max_dist(double value) {
-    max_dist_ = value;
-  }
-  int sample_index() const {
-    return sample_index_;
-  }
-  void set_sample_index(int value) {
-    sample_index_ = value;
-  }
-  bool features_are_mapped() const {
-    return features_are_mapped_;
-  }
+  UNICHAR_ID class_id() const { return class_id_; }
+  void set_class_id(int id) { class_id_ = id; }
+  int font_id() const { return font_id_; }
+  void set_font_id(int id) { font_id_ = id; }
+  int page_num() const { return page_num_; }
+  void set_page_num(int page) { page_num_ = page; }
+  const TBOX& bounding_box() const { return bounding_box_; }
+  void set_bounding_box(const TBOX& box) { bounding_box_ = box; }
+  int num_features() const { return num_features_; }
+  const INT_FEATURE_STRUCT* features() const { return features_; }
+  int num_micro_features() const { return num_micro_features_; }
+  const MicroFeature* micro_features() const { return micro_features_; }
+  int outline_length() const { return outline_length_; }
+  float cn_feature(int index) const { return cn_feature_[index]; }
+  int geo_feature(int index) const { return geo_feature_[index]; }
+  double weight() const { return weight_; }
+  void set_weight(double value) { weight_ = value; }
+  double max_dist() const { return max_dist_; }
+  void set_max_dist(double value) { max_dist_ = value; }
+  int sample_index() const { return sample_index_; }
+  void set_sample_index(int value) { sample_index_ = value; }
+  bool features_are_mapped() const { return features_are_mapped_; }
   const GenericVector<int>& mapped_features() const {
     ASSERT_HOST(features_are_mapped_);
     return mapped_features_;
@@ -187,12 +149,8 @@ class TrainingSample : public ELIST_LINK {
     ASSERT_HOST(features_are_indexed_);
     return mapped_features_;
   }
-  bool is_error() const {
-    return is_error_;
-  }
-  void set_is_error(bool value) {
-    is_error_ = value;
-  }
+  bool is_error() const { return is_error_; }
+  void set_is_error(bool value) { is_error_ = value; }
 
  private:
   // Unichar id that this sample represents. There obviously must be a

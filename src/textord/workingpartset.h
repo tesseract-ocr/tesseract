@@ -32,16 +32,11 @@ namespace tesseract {
 class WorkingPartSet : public ELIST_LINK {
  public:
   explicit WorkingPartSet(ColPartition* column)
-    : column_(column), latest_part_(nullptr), part_it_(&part_set_) {
-  }
+      : column_(column), latest_part_(nullptr), part_it_(&part_set_) {}
 
   // Simple accessors.
-  ColPartition* column() const {
-    return column_;
-  }
-  void set_column(ColPartition* col) {
-    column_ = col;
-  }
+  ColPartition* column() const { return column_; }
+  void set_column(ColPartition* col) { column_ = col; }
 
   // Add the partition to this WorkingPartSet. Partitions are generally
   // stored in the order in which they are received, but if the partition

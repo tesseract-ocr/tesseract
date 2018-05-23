@@ -22,91 +22,81 @@
 #include "config_auto.h"
 #endif
 
-#include          "errcode.h"
+#include "errcode.h"
 #ifdef __UNIX__
-#include          <assert.h>
+#include <assert.h>
 #include <stdarg.h>
 #endif
-#include          <time.h>
-#include          "memry.h"
-#include          "scrollview.h"
-#include          "params.h"
-#include          "callcpp.h"
-#include          "tprintf.h"
-#include          "host.h"
+#include <time.h>
+#include "callcpp.h"
+#include "host.h"
+#include "memry.h"
+#include "params.h"
+#include "scrollview.h"
+#include "tprintf.h"
 #include "unichar.h"
 
-void
-cprintf (                        //Trace printf
-const char *format, ...          //special message
+void cprintf(  // Trace printf
+    const char* format,
+    ...  // special message
 ) {
-  va_list args;                  //variable args
+  va_list args;  // variable args
   char msg[1000];
 
-  va_start(args, format);  //variable list
-  vsprintf(msg, format, args);  //Format into msg
+  va_start(args, format);       // variable list
+  vsprintf(msg, format, args);  // Format into msg
   va_end(args);
 
-  tprintf ("%s", msg);
+  tprintf("%s", msg);
 }
-
 
 #ifndef GRAPHICS_DISABLED
-ScrollView *c_create_window(                   /*create a window */
-                      const char *name,  /*name/title of window */
-                      int16_t xpos,        /*coords of window */
-                      int16_t ypos,        /*coords of window */
-                      int16_t xsize,       /*size of window */
-                      int16_t ysize,       /*size of window */
-                      double xmin,       /*scrolling limits */
-                      double xmax,       /*to stop users */
-                      double ymin,       /*getting lost in */
-                      double ymax        /*empty space */
-                     ) {
-   return new ScrollView(name, xpos, ypos, xsize, ysize, xmax - xmin, ymax - ymin, true);
+ScrollView* c_create_window(                  /*create a window */
+                            const char* name, /*name/title of window */
+                            int16_t xpos,     /*coords of window */
+                            int16_t ypos,     /*coords of window */
+                            int16_t xsize,    /*size of window */
+                            int16_t ysize,    /*size of window */
+                            double xmin,      /*scrolling limits */
+                            double xmax,      /*to stop users */
+                            double ymin,      /*getting lost in */
+                            double ymax       /*empty space */
+) {
+  return new ScrollView(name, xpos, ypos, xsize, ysize, xmax - xmin,
+                        ymax - ymin, true);
 }
 
-
-void c_line_color_index(  /*set color */
-                        void *win,
-                        C_COL index) {
- // The colors are the same as the SV ones except that SV has COLOR:NONE --> offset of 1
- ScrollView* window = (ScrollView*) win;
- window->Pen((ScrollView::Color) (index + 1));
+void c_line_color_index(/*set color */
+                        void* win, C_COL index) {
+  // The colors are the same as the SV ones except that SV has COLOR:NONE -->
+  // offset of 1
+  ScrollView* window = (ScrollView*)win;
+  window->Pen((ScrollView::Color)(index + 1));
 }
 
-
-void c_move(  /*move pen */
-            void *win,
-            double x,
-            double y) {
-  ScrollView* window = (ScrollView*) win;
-  window->SetCursor((int) x, (int) y);
+void c_move(/*move pen */
+            void* win, double x, double y) {
+  ScrollView* window = (ScrollView*)win;
+  window->SetCursor((int)x, (int)y);
 }
 
-
-void c_draw(  /*move pen */
-            void *win,
-            double x,
-            double y) {
-  ScrollView* window = (ScrollView*) win;
-  window->DrawTo((int) x, (int) y);
+void c_draw(/*move pen */
+            void* win, double x, double y) {
+  ScrollView* window = (ScrollView*)win;
+  window->DrawTo((int)x, (int)y);
 }
 
-
-void c_make_current(  /*move pen */
-                    void *win) {
-  ScrollView* window = (ScrollView*) win;
+void c_make_current(/*move pen */
+                    void* win) {
+  ScrollView* window = (ScrollView*)win;
   window->Update();
 }
 
-
-void c_clear_window(  /*move pen */
-                    void *win) {
-  ScrollView* window = (ScrollView*) win;
+void c_clear_window(/*move pen */
+                    void* win) {
+  ScrollView* window = (ScrollView*)win;
   window->Clear();
 }
-
 
 char window_wait(ScrollView* win) {
   SVEvent* ev;
@@ -116,17 +106,16 @@ char window_wait(ScrollView* win) {
   do {
     ev = win->AwaitEvent(SVET_ANY);
     ev_type = ev->type;
-    if (ev_type == SVET_INPUT)
-      ret = ev->parameter[0];
+    if (ev_type == SVET_INPUT) ret = ev->parameter[0];
     delete ev;
   } while (ev_type != SVET_INPUT && ev_type != SVET_CLICK);
   return ret;
 }
 #endif
 
-void reverse32(void *ptr) {
+void reverse32(void* ptr) {
   char tmp;
-  char *cptr = (char *) ptr;
+  char* cptr = (char*)ptr;
 
   tmp = *cptr;
   *cptr = *(cptr + 3);
@@ -136,10 +125,9 @@ void reverse32(void *ptr) {
   *(cptr + 2) = tmp;
 }
 
-
-void reverse16(void *ptr) {
+void reverse16(void* ptr) {
   char tmp;
-  char *cptr = (char *) ptr;
+  char* cptr = (char*)ptr;
 
   tmp = *cptr;
   *cptr = *(cptr + 1);

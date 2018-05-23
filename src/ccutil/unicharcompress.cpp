@@ -318,8 +318,8 @@ bool UnicharCompress::DeSerialize(TFile* fp) {
 // will encode a single index to a UTF8-string, but Chinese, Japanese, Korean
 // and the Indic scripts will contain a many-to-many mapping.
 // See the class comment above for details.
-STRING UnicharCompress::GetEncodingAsString(
-    const UNICHARSET& unicharset) const {
+STRING
+UnicharCompress::GetEncodingAsString(const UNICHARSET& unicharset) const {
   STRING encoding;
   for (int c = 0; c < encoder_.size(); ++c) {
     const RecodedCharID& code = encoder_[c];

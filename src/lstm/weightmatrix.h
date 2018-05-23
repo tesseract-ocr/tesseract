@@ -95,9 +95,7 @@ class WeightMatrix {
   }
 
   // Accessors.
-  bool is_int_mode() const {
-    return int_mode_;
-  }
+  bool is_int_mode() const { return int_mode_; }
   int NumOutputs() const { return int_mode_ ? wi_.dim1() : wf_.dim1(); }
   // Provides one set of weights. Only used by peep weight maxpool.
   const double* GetWeights(int index) const { return wf_[index]; }

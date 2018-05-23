@@ -94,13 +94,13 @@ static void PrintVersionInfo() {
         }
       }
     }
-    }
+  }
 #endif
-    if (SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
-    if (SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
-    if (SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
-    if (SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
-    if (SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
+  if (SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
+  if (SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
+  if (SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
+  if (SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
+  if (SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
 }
 
 static void PrintHelpForPSM() {
@@ -143,7 +143,8 @@ static void PrintHelpExtra(const char* program) {
       "  %s --help | --help-extra | --help-psm | --help-oem | --version\n"
       "  %s --list-langs [--tessdata-dir PATH]\n"
       "  %s --print-parameters [options...] [configfile...]\n"
-      "  %s imagename|imagelist|stdin outputbase|stdout [options...] [configfile...]\n"
+      "  %s imagename|imagelist|stdin outputbase|stdout [options...] "
+      "[configfile...]\n"
       "\n"
       "OCR options:\n"
       "  --tessdata-dir PATH   Specify the location of tessdata path.\n"
@@ -156,8 +157,7 @@ static void PrintHelpExtra(const char* program) {
       "  --oem NUM             Specify OCR Engine mode.\n"
       "NOTE: These options must occur before any configfile.\n"
       "\n",
-      program, program, program, program
-  );
+      program, program, program, program);
 
   PrintHelpForPSM();
   printf("\n");
@@ -172,8 +172,7 @@ static void PrintHelpExtra(const char* program) {
       "  --help-oem            Show OCR Engine modes.\n"
       "  -v, --version         Show version information.\n"
       "  --list-langs          List available languages for tesseract engine.\n"
-      "  --print-parameters    Print tesseract parameters.\n"
-  );
+      "  --print-parameters    Print tesseract parameters.\n");
 }
 
 static void PrintHelpMessage(const char* program) {
@@ -191,9 +190,9 @@ static void PrintHelpMessage(const char* program) {
       "  --help                Show this help message.\n"
       "  --help-extra          Show extra help for advanced users.\n"
       "  --version             Show version information.\n"
-      "  --list-langs          List available languages for tesseract engine.\n",
-      program, program, program
-  );
+      "  --list-langs          List available languages for tesseract "
+      "engine.\n",
+      program, program, program);
 }
 
 static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
@@ -258,7 +257,8 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
 
 static void checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
-    printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
+    printf("Invalid %s value, please enter a number between 0-%d\n", mode,
+           count - 1);
     exit(0);
   }
 }
@@ -266,9 +266,8 @@ static void checkArgValues(int arg, const char* mode, int count) {
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 static void ParseArgs(const int argc, char** argv, const char** lang,
                       const char** image, const char** outputbase,
-                      const char** datapath,
-                      bool* list_langs, bool* print_parameters,
-                      GenericVector<STRING>* vars_vec,
+                      const char** datapath, bool* list_langs,
+                      bool* print_parameters, GenericVector<STRING>* vars_vec,
                       GenericVector<STRING>* vars_values, int* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
@@ -321,7 +320,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       noocr = true;
       *list_langs = true;
     } else if (strcmp(argv[i], "--psm") == 0 && i + 1 < argc) {
-      checkArgValues(atoi(argv[i+1]), "PSM", tesseract::PSM_COUNT);
+      checkArgValues(atoi(argv[i + 1]), "PSM", tesseract::PSM_COUNT);
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
@@ -467,8 +466,9 @@ int main(int argc, char** argv) {
 
   api.SetOutputName(outputbase);
 
-  const int init_failed = api.Init(datapath, lang, enginemode, &(argv[arg_i]),
-                             argc - arg_i, &vars_vec, &vars_values, false);
+  const int init_failed =
+      api.Init(datapath, lang, enginemode, &(argv[arg_i]), argc - arg_i,
+               &vars_vec, &vars_values, false);
 
   SetVariablesFromCLArgs(&api, argc, argv);
 
@@ -483,11 +483,11 @@ int main(int argc, char** argv) {
   }
 
   if (print_parameters) {
-     FILE* fout = stdout;
-     fprintf(stdout, "Tesseract parameters:\n");
-     api.PrintVariables(fout);
-     api.End();
-     return EXIT_SUCCESS;
+    FILE* fout = stdout;
+    fprintf(stdout, "Tesseract parameters:\n");
+    api.PrintVariables(fout);
+    api.End();
+    return EXIT_SUCCESS;
   }
 
   FixPageSegMode(&api, pagesegmode);

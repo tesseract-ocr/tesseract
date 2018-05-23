@@ -79,13 +79,9 @@ class BoxWord {
   // The callback is deleted on completion.
   void ProcessMatchedBlobs(const TWERD& other, TessCallback1<int>* cb) const;
 
-  const TBOX& bounding_box() const {
-    return bbox_;
-  }
+  const TBOX& bounding_box() const { return bbox_; }
   int length() const { return length_; }
-  const TBOX& BlobBox(int index) const {
-    return boxes_[index];
-  }
+  const TBOX& BlobBox(int index) const { return boxes_[index]; }
 
  private:
   void ComputeBoundingBox();

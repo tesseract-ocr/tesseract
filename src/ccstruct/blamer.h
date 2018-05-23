@@ -86,11 +86,14 @@ enum IncorrectResultReason {
 
 // Blamer-related information to determine the source of errors.
 struct BlamerBundle {
-  static const char *IncorrectReasonName(IncorrectResultReason irr);
-  BlamerBundle() : truth_has_char_boxes_(false),
-      incorrect_result_reason_(IRR_CORRECT),
-      lattice_data_(nullptr) { ClearResults(); }
-  BlamerBundle(const BlamerBundle &other) {
+  static const char* IncorrectReasonName(IncorrectResultReason irr);
+  BlamerBundle()
+      : truth_has_char_boxes_(false),
+        incorrect_result_reason_(IRR_CORRECT),
+        lattice_data_(nullptr) {
+    ClearResults();
+  }
+  BlamerBundle(const BlamerBundle& other) {
     this->CopyTruth(other);
     this->CopyResults(other);
   }
@@ -99,8 +102,7 @@ struct BlamerBundle {
   // Accessors.
   STRING TruthString() const {
     STRING truth_str;
-    for (int i = 0; i < truth_text_.length(); ++i)
-      truth_str += truth_text_[i];
+    for (int i = 0; i < truth_text_.length(); ++i) truth_str += truth_text_[i];
     return truth_str;
   }
   IncorrectResultReason incorrect_result_reason() const {
@@ -113,12 +115,8 @@ struct BlamerBundle {
   bool HasDebugInfo() const {
     return debug_.length() > 0 || misadaption_debug_.length() > 0;
   }
-  const STRING& debug() const {
-    return debug_;
-  }
-  const STRING& misadaption_debug() const {
-    return misadaption_debug_;
-  }
+  const STRING& debug() const { return debug_; }
+  const STRING& misadaption_debug() const { return misadaption_debug_; }
   void UpdateBestRating(float rating) {
     if (rating < best_correctly_segmented_rating_)
       best_correctly_segmented_rating_ = rating;
@@ -130,20 +128,18 @@ struct BlamerBundle {
   // in the correct segmentation path at the given index.
   bool MatrixPositionCorrect(int index, const MATRIX_COORD& coord) {
     return correct_segmentation_cols_[index] == coord.col &&
-        correct_segmentation_rows_[index] == coord.row;
+           correct_segmentation_rows_[index] == coord.row;
   }
   void set_best_choice_is_dict_and_top_choice(bool value) {
     best_choice_is_dict_and_top_choice_ = value;
   }
-  const char* lattice_data() const {
-    return lattice_data_;
-  }
+  const char* lattice_data() const { return lattice_data_; }
   int lattice_size() const {
     return lattice_size_;  // size of lattice_data in bytes
   }
   void set_lattice_data(const char* data, int size) {
     lattice_size_ = size;
-    delete [] lattice_data_;
+    delete[] lattice_data_;
     lattice_data_ = new char[lattice_size_];
     memcpy(lattice_data_, data, lattice_size_);
   }
@@ -157,12 +153,12 @@ struct BlamerBundle {
 
   // Functions to setup the blamer.
   // Whole word string, whole word bounding box.
-  void SetWordTruth(const UNICHARSET& unicharset,
-                    const char* truth_str, const TBOX& word_box);
+  void SetWordTruth(const UNICHARSET& unicharset, const char* truth_str,
+                    const TBOX& word_box);
   // Single "character" string, "character" bounding box.
   // May be called multiple times to indicate the characters in a word.
-  void SetSymbolTruth(const UNICHARSET& unicharset,
-                      const char* char_str, const TBOX& char_box);
+  void SetSymbolTruth(const UNICHARSET& unicharset, const char* char_str,
+                      const TBOX& char_box);
   // Marks that there is something wrong with the truth text, like it contains
   // reject characters.
   void SetRejectedTruth();
@@ -184,14 +180,14 @@ struct BlamerBundle {
     lattice_data_ = nullptr;
     lattice_size_ = 0;
   }
-  void CopyTruth(const BlamerBundle &other) {
+  void CopyTruth(const BlamerBundle& other) {
     truth_has_char_boxes_ = other.truth_has_char_boxes_;
     truth_word_ = other.truth_word_;
     truth_text_ = other.truth_text_;
     incorrect_result_reason_ =
         (other.NoTruth() ? other.incorrect_result_reason_ : IRR_CORRECT);
   }
-  void CopyResults(const BlamerBundle &other) {
+  void CopyResults(const BlamerBundle& other) {
     norm_truth_word_ = other.norm_truth_word_;
     norm_box_tolerance_ = other.norm_box_tolerance_;
     incorrect_result_reason_ = other.incorrect_result_reason_;
@@ -209,11 +205,11 @@ struct BlamerBundle {
       lattice_data_ = nullptr;
     }
   }
-  const char *IncorrectReason() const;
+  const char* IncorrectReason() const;
 
   // Appends choice and truth details to the given debug string.
-  void FillDebugString(const STRING &msg, const WERD_CHOICE *choice,
-                       STRING *debug);
+  void FillDebugString(const STRING& msg, const WERD_CHOICE* choice,
+                       STRING* debug);
 
   // Sets up the norm_truth_word from truth_word using the given DENORM.
   void SetupNormTruthWord(const DENORM& denorm);
@@ -230,11 +226,8 @@ struct BlamerBundle {
   // If a blob with the same bounding box as one of the truth character
   // bounding boxes is not classified as the corresponding truth character
   // blames character classifier for incorrect answer.
-  void BlameClassifier(const UNICHARSET& unicharset,
-                       const TBOX& blob_box,
-                       const BLOB_CHOICE_LIST& choices,
-                       bool debug);
-
+  void BlameClassifier(const UNICHARSET& unicharset, const TBOX& blob_box,
+                       const BLOB_CHOICE_LIST& choices, bool debug);
 
   // Checks whether chops were made at all the character bounding box
   // boundaries in word->truth_word. If not - blames the chopper for an
@@ -245,28 +238,27 @@ struct BlamerBundle {
   // Blames the classifier if best_choice is classifier's top choice and is a
   // dictionary word (i.e. language model could not have helped).
   // Otherwise, blames the language model (formerly permuter word adjustment).
-  void BlameClassifierOrLangModel(
-      const WERD_RES* word,
-      const UNICHARSET& unicharset, bool valid_permuter, bool debug);
+  void BlameClassifierOrLangModel(const WERD_RES* word,
+                                  const UNICHARSET& unicharset,
+                                  bool valid_permuter, bool debug);
   // Sets up the correct_segmentation_* to mark the correct bounding boxes.
   void SetupCorrectSegmentation(const TWERD* word, bool debug);
 
   // Returns true if a guided segmentation search is needed.
-  bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
+  bool GuidedSegsearchNeeded(const WERD_CHOICE* best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
   // The callback pp_cb is used to avoid a cyclic dependency.
   // It calls into LMPainPoints::GenerateForBlamer by pre-binding the
   // WERD_RES, and the LMPainPoints itself.
   // pp_cb must be a permanent callback, and should be deleted by the caller.
-  void InitForSegSearch(const WERD_CHOICE *best_choice,
-                        MATRIX* ratings, UNICHAR_ID wildcard_id,
-                        bool debug, STRING *debug_str,
+  void InitForSegSearch(const WERD_CHOICE* best_choice, MATRIX* ratings,
+                        UNICHAR_ID wildcard_id, bool debug, STRING* debug_str,
                         TessResultCallback2<bool, int, int>* pp_cb);
   // Returns true if the guided segsearch is in progress.
   bool GuidedSegsearchStillGoing() const;
   // The segmentation search has ended. Sets the blame appropriately.
-  void FinishSegSearch(const WERD_CHOICE *best_choice,
-                       bool debug, STRING *debug_str);
+  void FinishSegSearch(const WERD_CHOICE* best_choice, bool debug,
+                       STRING* debug_str);
 
   // If the bundle is null or still does not indicate the correct result,
   // fix it and use some backup reason for the blame.
@@ -274,11 +266,11 @@ struct BlamerBundle {
 
   // Sets the misadaption debug if this word is incorrect, as this word is
   // being adapted to.
-  void SetMisAdaptionDebug(const WERD_CHOICE *best_choice, bool debug);
+  void SetMisAdaptionDebug(const WERD_CHOICE* best_choice, bool debug);
 
  private:
-  void SetBlame(IncorrectResultReason irr, const STRING &msg,
-                const WERD_CHOICE *choice, bool debug) {
+  void SetBlame(IncorrectResultReason irr, const STRING& msg,
+                const WERD_CHOICE* choice, bool debug) {
     incorrect_result_reason_ = irr;
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
@@ -320,11 +312,10 @@ struct BlamerBundle {
   // classifier's top choice.
   bool best_choice_is_dict_and_top_choice_;
   // Serialized segmentation search lattice.
-  char *lattice_data_;
+  char* lattice_data_;
   int lattice_size_;  // size of lattice_data in bytes
   // Information about hypotheses (paths) explored by the segmentation search.
   tesseract::ParamsTrainingBundle params_training_bundle_;
 };
-
 
 #endif  // TESSERACT_CCSTRUCT_BLAMER_H_

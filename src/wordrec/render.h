@@ -25,15 +25,15 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "host.h"
-#include "callcpp.h"
 #include "blobs.h"
+#include "callcpp.h"
+#include "host.h"
 
 /*----------------------------------------------------------------------
               V a r i a b l e s
 ----------------------------------------------------------------------*/
-extern ScrollView *blob_window;        /* Window for blobs */
-extern C_COL color_list[];       /* Colors for outlines */
+extern ScrollView* blob_window; /* Window for blobs */
+extern C_COL color_list[];      /* Colors for outlines */
 
 extern BOOL_VAR_H(wordrec_display_all_blobs, 0, "Display Blobs");
 
@@ -46,14 +46,12 @@ extern BOOL_VAR_H(wordrec_blob_pause, 0, "Blob pause");
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
-void display_blob(TBLOB *blob, C_COL color);
+void display_blob(TBLOB* blob, C_COL color);
 
-void render_blob(void *window, TBLOB *blob, C_COL color);
+void render_blob(void* window, TBLOB* blob, C_COL color);
 
-void render_edgepts(void *window, EDGEPT *edgept, C_COL color);
+void render_edgepts(void* window, EDGEPT* edgept, C_COL color);
 
-void render_outline(void *window,
-                    TESSLINE *outline,
-                    C_COL color);
+void render_outline(void* window, TESSLINE* outline, C_COL color);
 
 #endif

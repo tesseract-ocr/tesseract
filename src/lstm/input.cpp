@@ -43,22 +43,16 @@ bool Input::Serialize(TFile* fp) const {
 }
 
 // Reads from the given file. Returns false in case of error.
-bool Input::DeSerialize(TFile* fp) {
-  return shape_.DeSerialize(fp);
-}
+bool Input::DeSerialize(TFile* fp) { return shape_.DeSerialize(fp); }
 
 // Returns an integer reduction factor that the network applies to the
 // time sequence. Assumes that any 2-d is already eliminated. Used for
 // scaling bounding boxes of truth data.
-int Input::XScaleFactor() const {
-  return 1;
-}
+int Input::XScaleFactor() const { return 1; }
 
 // Provides the (minimum) x scale factor to the network (of interest only to
 // input units) so they can determine how to scale bounding boxes.
-void Input::CacheXScaleFactor(int factor) {
-  cached_x_scale_ = factor;
-}
+void Input::CacheXScaleFactor(int factor) { cached_x_scale_ = factor; }
 
 // Runs forward propagation of activations on the input line.
 // See Network for a detailed discussion of the arguments.
@@ -71,8 +65,7 @@ void Input::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Input::Backward(bool debug, const NetworkIO& fwd_deltas,
-                     NetworkScratch* scratch,
-                     NetworkIO* back_deltas) {
+                     NetworkScratch* scratch, NetworkIO* back_deltas) {
   tprintf("Input::Backward should not be called!!\n");
   return false;
 }

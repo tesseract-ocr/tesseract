@@ -19,10 +19,10 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "float2int.h"
-#include "normmatch.h"
-#include "mfoutline.h"
 #include "classify.h"
 #include "helpers.h"
+#include "mfoutline.h"
+#include "normmatch.h"
 #include "picofeat.h"
 
 #define MAX_INT_CHAR_NORM (INT_CHAR_NORM_RANGE - 1)
@@ -37,7 +37,7 @@ namespace tesseract {
  * For each class in the unicharset, clears the corresponding
  * entry in char_norm_array.  char_norm_array is indexed by unichar_id.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param char_norm_array array to be cleared
@@ -47,17 +47,16 @@ namespace tesseract {
  */
 void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
   memset(char_norm_array, 0, sizeof(*char_norm_array) * unicharset.size());
-}                                /* ClearCharNormArray */
-
+} /* ClearCharNormArray */
 
 /*---------------------------------------------------------------------------*/
-/** 
+/**
  * For each class in unicharset, computes the match between
  * norm_feature and the normalization protos for that class.
  * Converts this number to the range from 0 - 255 and stores it
  * into char_norm_array.  CharNormArray is indexed by unichar_id.
  *
- * Globals: 
+ * Globals:
  * - PreTrainedTemplates current set of built-in templates
  *
  * @param norm_feature character normalization feature
@@ -70,8 +69,8 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
                                        uint8_t* char_norm_array) {
   for (int i = 0; i < unicharset.size(); i++) {
     if (i < PreTrainedTemplates->NumClasses) {
-      int norm_adjust = static_cast<int>(INT_CHAR_NORM_RANGE *
-        ComputeNormMatch(i, norm_feature, false));
+      int norm_adjust = static_cast<int>(
+          INT_CHAR_NORM_RANGE * ComputeNormMatch(i, norm_feature, false));
       char_norm_array[i] = ClipToRange(norm_adjust, 0, MAX_INT_CHAR_NORM);
     } else {
       // Classes with no templates (eg. ambigs & ligatures) default
@@ -79,8 +78,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
       char_norm_array[i] = MAX_INT_CHAR_NORM;
     }
   }
-}                                /* ComputeIntCharNormArray */
-
+} /* ComputeIntCharNormArray */
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -88,7 +86,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  * in Features into integer format and saves it into
  * IntFeatures.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @param Features floating point pico-features to be converted
@@ -118,5 +116,5 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features,
                                            ANGLE_SHIFT, INT_FEAT_RANGE);
     IntFeatures[Fid].CP_misses = 0;
   }
-}                                /* ComputeIntFeatures */
+} /* ComputeIntFeatures */
 }  // namespace tesseract

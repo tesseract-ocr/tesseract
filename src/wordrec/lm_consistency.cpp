@@ -26,8 +26,8 @@
 
 namespace tesseract {
 
-void LMConsistencyInfo::ComputeXheightConsistency(
-    const BLOB_CHOICE *b, bool is_punc) {
+void LMConsistencyInfo::ComputeXheightConsistency(const BLOB_CHOICE* b,
+                                                  bool is_punc) {
   if (xht_decision == XH_INCONSISTENT)
     return;  // It isn't going to get any better.
 
@@ -54,9 +54,8 @@ void LMConsistencyInfo::ComputeXheightConsistency(
   //  if (parent_vse == nullptr && sp == LanguageModelConsistencyInfo::kNORM) {
   //  small_xht = 0;
   // }
-  IntersectRange(b->min_xheight(), b->max_xheight(),
-                 &(xht_lo[xht_sp]), &(xht_hi[xht_sp]));
-
+  IntersectRange(b->min_xheight(), b->max_xheight(), &(xht_lo[xht_sp]),
+                 &(xht_hi[xht_sp]));
 
   // Compute xheight inconsistency kinds.
   if (parent_null) {

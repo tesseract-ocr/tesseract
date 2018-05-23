@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           BLCKERR_H
-#define           BLCKERR_H
+#ifndef BLCKERR_H
+#define BLCKERR_H
 
-#include          "errcode.h"
+#include "errcode.h"
 
 const ERRCODE BADBLOCKLINE = "Y coordinate in block out of bounds";
 const ERRCODE LOSTBLOCKLINE = "Can't find rectangle for line";

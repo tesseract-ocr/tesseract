@@ -18,16 +18,17 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "const.h"
 #include "fpoint.h"
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include "const.h"
 
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
 
-FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
+FLOAT32
+DistanceBetween(FPOINT A, FPOINT B) {
   const double xd = XDelta(A, B);
   const double yd = YDelta(A, B);
   return sqrt(static_cast<double>(xd * xd + yd * yd));
@@ -45,17 +46,14 @@ FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
  * @note Exceptions: none
  * @note History: Wed Mar 28 14:27:25 1990, DSJ, Created.
  */
-FLOAT32 NormalizedAngleFrom(FPOINT *Point1,
-                            FPOINT *Point2,
-                            FLOAT32 FullScale) {
+FLOAT32
+NormalizedAngleFrom(FPOINT* Point1, FPOINT* Point2, FLOAT32 FullScale) {
   FLOAT32 Angle;
   FLOAT32 NumRadsInCircle = 2.0 * PI;
 
-  Angle = AngleFrom (*Point1, *Point2);
-  if (Angle < 0.0)
-    Angle += NumRadsInCircle;
+  Angle = AngleFrom(*Point1, *Point2);
+  if (Angle < 0.0) Angle += NumRadsInCircle;
   Angle *= FullScale / NumRadsInCircle;
-  if (Angle < 0.0 || Angle >= FullScale)
-    Angle = 0.0;
+  if (Angle < 0.0 || Angle >= FullScale) Angle = 0.0;
   return (Angle);
 }

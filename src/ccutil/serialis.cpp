@@ -31,8 +31,7 @@ TFile::TFile()
       swap_(false) {}
 
 TFile::~TFile() {
-  if (data_is_owned_)
-    delete data_;
+  if (data_is_owned_) delete data_;
 }
 
 bool TFile::Open(const STRING& filename, FileReader reader) {
@@ -70,11 +69,9 @@ bool TFile::Open(FILE* fp, int64_t end_offset) {
     return false;
   }
   if (end_offset < 0) {
-    if (fseek(fp, 0, SEEK_END))
-      return false;
+    if (fseek(fp, 0, SEEK_END)) return false;
     end_offset = ftell(fp);
-    if (fseek(fp, current_pos, SEEK_SET))
-      return false;
+    if (fseek(fp, current_pos, SEEK_SET)) return false;
   }
   int size = end_offset - current_pos;
   is_writing_ = false;
@@ -156,10 +153,8 @@ int TFile::FWrite(const void* buffer, int size, int count) {
   const char* buf = static_cast<const char*>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
-  for (int i = 0; i < total; ++i)
-    data_->push_back(buf[i]);
+  for (int i = 0; i < total; ++i) data_->push_back(buf[i]);
   return count;
 }
-
 
 }  // namespace tesseract.

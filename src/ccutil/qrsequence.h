@@ -41,8 +41,7 @@ class QRSequenceGenerator {
   int GetVal() {
     const int kInvalidVal = -1;
     const int kMaxNaturalNumberValue = 1 << num_bits_;
-    if (next_num_ >= kMaxNaturalNumberValue)
-      return kInvalidVal;
+    if (next_num_ >= kMaxNaturalNumberValue) return kInvalidVal;
     int n = next_num_;
 
     while (next_num_ < kMaxNaturalNumberValue) {
@@ -58,7 +57,7 @@ class QRSequenceGenerator {
   int GetBinaryReversedInteger(int in_val) const {
     int bit_pos = num_bits_;
     int out_val = 0;
-    while(bit_pos--) {
+    while (bit_pos--) {
       // Set the value of the last bit.
       out_val |= (in_val & 0x1);
       if (bit_pos > 0) {

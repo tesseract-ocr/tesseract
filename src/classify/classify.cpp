@@ -21,6 +21,7 @@
 #include "config_auto.h"
 #endif
 
+#include <string.h>
 #include "classify.h"
 #include "fontinfo.h"
 #include "intproto.h"
@@ -29,7 +30,6 @@
 #include "shapeclassifier.h"
 #include "shapetable.h"
 #include "unicity_table.h"
-#include <string.h>
 
 namespace tesseract {
 Classify::Classify()
@@ -78,8 +78,8 @@ Classify::Classify()
                   "Non-linear stroke-density normalization", this->params()),
       INT_MEMBER(matcher_debug_level, 0, "Matcher Debug Level", this->params()),
       INT_MEMBER(matcher_debug_flags, 0, "Matcher Debug Flags", this->params()),
-      INT_MEMBER(classify_learning_debug_level, 0, "Learning Debug Level: ",
-                 this->params()),
+      INT_MEMBER(classify_learning_debug_level, 0,
+                 "Learning Debug Level: ", this->params()),
       double_MEMBER(matcher_good_threshold, 0.125, "Good Match (0-1)",
                     this->params()),
       double_MEMBER(matcher_reliable_adaptive_result, 0.0, "Great Match (0-1)",
@@ -166,8 +166,7 @@ Classify::Classify()
       NewPermanentTessCallback(CompareFontInfo));
   fontinfo_table_.set_clear_callback(
       NewPermanentTessCallback(FontInfoDeleteCallback));
-  fontset_table_.set_compare_callback(
-      NewPermanentTessCallback(CompareFontSet));
+  fontset_table_.set_compare_callback(NewPermanentTessCallback(CompareFontSet));
   fontset_table_.set_clear_callback(
       NewPermanentTessCallback(FontSetDeleteCallback));
   AdaptedTemplates = nullptr;
@@ -193,7 +192,6 @@ Classify::~Classify() {
   delete learn_fragments_debug_win_;
 }
 
-
 // Takes ownership of the given classifier, and uses it for future calls
 // to CharNormClassifier.
 void Classify::SetStaticClassifier(ShapeClassifier* static_classifier) {
@@ -204,8 +202,8 @@ void Classify::SetStaticClassifier(ShapeClassifier* static_classifier) {
 // Moved from speckle.cpp
 // Adds a noise classification result that is a bit worse than the worst
 // current result, or the worst possible result if no current results.
-void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices) {
-    BLOB_CHOICE_IT bc_it(choices);
+void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST* choices) {
+  BLOB_CHOICE_IT bc_it(choices);
   // If there is no classifier result, we will use the worst possible certainty
   // and corresponding rating.
   float certainty = -getDict().certainty_scale;
@@ -217,21 +215,20 @@ void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices) {
     rating = worst_choice->rating() + speckle_rating_penalty;
     // Compute the rating to correspond to the certainty. (Used to be kept
     // the same, but that messes up the language model search.)
-    certainty = -rating * getDict().certainty_scale /
-        (rating_scale * blob_length);
+    certainty =
+        -rating * getDict().certainty_scale / (rating_scale * blob_length);
   }
-  BLOB_CHOICE* blob_choice = new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty,
-                                             -1, 0.0f, MAX_FLOAT32, 0,
-                                             BCC_SPECKLE_CLASSIFIER);
+  BLOB_CHOICE* blob_choice =
+      new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty, -1, 0.0f, MAX_FLOAT32,
+                      0, BCC_SPECKLE_CLASSIFIER);
   bc_it.add_to_end(blob_choice);
 }
 
 // Returns true if the blob is small enough to be a large speckle.
-bool Classify::LargeSpeckle(const TBLOB &blob) {
+bool Classify::LargeSpeckle(const TBLOB& blob) {
   double speckle_size = kBlnXHeight * speckle_large_max_size;
   TBOX bbox = blob.bounding_box();
   return bbox.width() < speckle_size && bbox.height() < speckle_size;
 }
-
 
 }  // namespace tesseract

@@ -41,8 +41,8 @@ class BoxChar {
 
   // Accessors.
   const std::string& ch() const { return ch_; }
-  const Box* box() const   { return box_; }
-  const int& page() const  { return page_; }
+  const Box* box() const { return box_; }
+  const int& page() const { return page_; }
   void set_rtl_index(int index) { rtl_index_ = index; }
   const int& rtl_index() const { return rtl_index_; }
 
@@ -52,7 +52,7 @@ class BoxChar {
   void set_page(int page) { page_ = page; }
 
   std::string* mutable_ch() { return &ch_; }
-  Box* mutable_box()   { return box_; }
+  Box* mutable_box() { return box_; }
 
   // Sort function for sorting by left edge of box. Note that this will not
   // work properly until after InsertNewlines and InsertSpaces.
@@ -93,11 +93,8 @@ class BoxChar {
 
   // Rotate the vector of boxes between start and end by the given rotation.
   // The rotation is in radians clockwise about the given center.
-  static void RotateBoxes(float rotation,
-                          int xcenter,
-                          int ycenter,
-                          int start_box,
-                          int end_box,
+  static void RotateBoxes(float rotation, int xcenter, int ycenter,
+                          int start_box, int end_box,
                           std::vector<BoxChar*>* boxes);
 
   // Create a tesseract box file from the vector of boxes. The image height

@@ -26,10 +26,9 @@
 #define GLOBALS_H
 
 #include "const.h"
-#include "unicharset.h"
 #include "strngs.h"
+#include "unicharset.h"
 
 #include <cstdio>
-
 
 #endif

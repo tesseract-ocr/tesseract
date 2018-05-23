@@ -17,11 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           TESSVARS_H
-#define           TESSVARS_H
+#ifndef TESSVARS_H
+#define TESSVARS_H
 
 #include <cstdio>
 
-
-extern FILE *debug_fp;    // write debug stuff here
+extern FILE* debug_fp;  // write debug stuff here
 #endif

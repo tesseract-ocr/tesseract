@@ -40,23 +40,21 @@
  *
  *  Show if the line is going in the positive or negative X direction.
  **********************************************************************/
-int direction(EDGEPT *point) {
-  int dir;                       /** direction to return **/
-  EDGEPT *prev;                  /** prev point **/
-  EDGEPT *next;                  /** next point **/
+int direction(EDGEPT* point) {
+  int dir;      /** direction to return **/
+  EDGEPT* prev; /** prev point **/
+  EDGEPT* next; /** next point **/
 
   dir = 0;
   prev = point->prev;
   next = point->next;
 
-  if (((prev->pos.x <= point->pos.x) &&
-    (point->pos.x < next->pos.x)) ||
-    ((prev->pos.x < point->pos.x) && (point->pos.x <= next->pos.x)))
+  if (((prev->pos.x <= point->pos.x) && (point->pos.x < next->pos.x)) ||
+      ((prev->pos.x < point->pos.x) && (point->pos.x <= next->pos.x)))
     dir = 1;
 
-  if (((prev->pos.x >= point->pos.x) &&
-    (point->pos.x > next->pos.x)) ||
-    ((prev->pos.x > point->pos.x) && (point->pos.x >= next->pos.x)))
+  if (((prev->pos.x >= point->pos.x) && (point->pos.x > next->pos.x)) ||
+      ((prev->pos.x > point->pos.x) && (point->pos.x >= next->pos.x)))
     dir = -1;
 
   return dir;

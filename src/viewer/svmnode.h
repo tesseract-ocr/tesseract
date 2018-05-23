@@ -55,19 +55,19 @@ class SVMenuNode {
   void AddChild(const char* txt, int command_event, const char* val);
 
   // Create a menu node with an associated value and description_.
-  void AddChild(const char* txt, int command_event,
-                const char* val, const char* desc);
+  void AddChild(const char* txt, int command_event, const char* val,
+                const char* desc);
 
   // Build a menu structure for the server and send the necessary messages.
   // Should be called on the root node. If menu_bar is true, a menu_bar menu
   // is built (e.g. on top of the window), if it is false a popup menu is
   // built which gets shown by right clicking on the window.
-  void BuildMenu(ScrollView *sv, bool menu_bar = true);
+  void BuildMenu(ScrollView* sv, bool menu_bar = true);
 
  private:
   // Constructor holding the actual node data.
-  SVMenuNode(int command_event, const char* txt, int tv,
-              bool check_box_entry, const char* val, const char* desc);
+  SVMenuNode(int command_event, const char* txt, int tv, bool check_box_entry,
+             const char* val, const char* desc);
 
   // Adds a new menu node to the current node.
   void AddChild(SVMenuNode* svmn);

@@ -27,14 +27,14 @@
 ----------------------------------------------------------------------------**/
 #include "classify.h"
 #include "cluster.h"
-#include "intfx.h"
 #include "elst.h"
 #include "errorcounter.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "indexmapbidi.h"
-#include "intfeaturespace.h"
 #include "intfeaturemap.h"
+#include "intfeaturespace.h"
+#include "intfx.h"
 #include "intmatcher.h"
 #include "params.h"
 #include "shapetable.h"
@@ -50,7 +50,7 @@ class ShapeClassifier;
 struct ShapeDist {
   ShapeDist() : shape1(0), shape2(0), distance(0.0f) {}
   ShapeDist(int s1, int s2, float dist)
-    : shape1(s1), shape2(s2), distance(dist) {}
+      : shape1(s1), shape2(s2), distance(dist) {}
 
   // Sort operator to sort in ascending order of distance.
   bool operator<(const ShapeDist& other) const {
@@ -147,7 +147,7 @@ class MasterTrainer {
 
   // Reads spacing stats from filename and adds them to fontinfo_table.
   // Returns false on failure.
-  bool AddSpacingInfo(const char *filename);
+  bool AddSpacingInfo(const char* filename);
 
   // Returns the font id corresponding to the given font name.
   // Returns -1 if the font cannot be found.
@@ -159,9 +159,7 @@ class MasterTrainer {
 
   // Returns the filename of the tr file corresponding to the command-line
   // argument with the given index.
-  const STRING& GetTRFileName(int index) const {
-    return tr_filenames_[index];
-  }
+  const STRING& GetTRFileName(int index) const { return tr_filenames_[index]; }
 
   // Sets up a flat shapetable with one shape per class/font combination.
   void SetupFlatShapeTable(ShapeTable* shape_table);
@@ -183,20 +181,14 @@ class MasterTrainer {
                                 const char* inttemp_file,
                                 const char* pffmtable_file);
 
-  const UNICHARSET& unicharset() const {
-    return samples_.unicharset();
-  }
-  TrainingSampleSet* GetSamples() {
-    return &samples_;
-  }
-  const ShapeTable& master_shapes() const {
-    return master_shapes_;
-  }
+  const UNICHARSET& unicharset() const { return samples_.unicharset(); }
+  TrainingSampleSet* GetSamples() { return &samples_; }
+  const ShapeTable& master_shapes() const { return master_shapes_; }
 
   // Generates debug output relating to the canonical distance between the
   // two given UTF8 grapheme strings.
   void DebugCanonical(const char* unichar_str1, const char* unichar_str2);
-  #ifndef GRAPHICS_DISABLED
+#ifndef GRAPHICS_DISABLED
   // Debugging for cloud/canonical features.
   // Displays a Features window containing:
   // If unichar_str2 is in the unicharset, and canonical_font is non-negative,
@@ -209,7 +201,7 @@ class MasterTrainer {
   // will display the samples that have that feature in a separate window.
   void DisplaySamples(const char* unichar_str1, int cloud_font,
                       const char* unichar_str2, int canonical_font);
-  #endif  // GRAPHICS_DISABLED
+#endif  // GRAPHICS_DISABLED
 
   void TestClassifierVOld(bool replicate_samples,
                           ShapeClassifier* test_classifier,
@@ -217,8 +209,7 @@ class MasterTrainer {
 
   // Tests the given test_classifier on the internal samples.
   // See TestClassifier for details.
-  void TestClassifierOnSamples(CountTypes error_mode,
-                               int report_level,
+  void TestClassifierOnSamples(CountTypes error_mode, int report_level,
                                bool replicate_samples,
                                ShapeClassifier* test_classifier,
                                STRING* report_string);
@@ -235,10 +226,8 @@ class MasterTrainer {
   // sample including replicated and systematically perturbed samples.
   // If report_string is non-nullptr, a summary of the results for each font
   // is appended to the report_string.
-  double TestClassifier(CountTypes error_mode,
-                        int report_level,
-                        bool replicate_samples,
-                        TrainingSampleSet* samples,
+  double TestClassifier(CountTypes error_mode, int report_level,
+                        bool replicate_samples, TrainingSampleSet* samples,
                         ShapeClassifier* test_classifier,
                         STRING* report_string);
 
@@ -257,8 +246,8 @@ class MasterTrainer {
   // * End with at least min_shapes left in shape_table,
   // * No shape shall have more than max_shape_unichars in it,
   // * Don't merge shapes where the distance between them exceeds max_dist.
-  void ClusterShapes(int min_shapes, int max_shape_unichars,
-                     float max_dist, ShapeTable* shape_table);
+  void ClusterShapes(int min_shapes, int max_shape_unichars, float max_dist,
+                     ShapeTable* shape_table);
 
  private:
   NormalizationMode norm_mode_;

@@ -108,8 +108,7 @@ void Parallel::Forward(bool debug, const NetworkIO& input,
 // Runs backward propagation of errors on the deltas line.
 // See NetworkCpp for a detailed discussion of the arguments.
 bool Parallel::Backward(bool debug, const NetworkIO& fwd_deltas,
-                        NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
+                        NetworkScratch* scratch, NetworkIO* back_deltas) {
   // If this parallel is a replicator of convolvers, or holds a 1-d LSTM pair,
   // or a 2-d LSTM quad, do debug locally, and don't pass the flag on.
   if (debug && type_ != NT_PARALLEL) {
