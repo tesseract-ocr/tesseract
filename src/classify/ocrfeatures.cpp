@@ -40,14 +40,14 @@
  * @return  TRUE if feature added to set, FALSE if set is already full.
  * @note History: Tue May 22 17:22:23 1990, DSJ, Created.
  */
-BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
+bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
     FreeFeature(Feature);
-    return FALSE;
+    return false;
   }
 
   FeatureSet->Features[FeatureSet->NumFeatures++] = Feature;
-  return TRUE;
+  return true;
 }                                /* AddFeature */
 
 /**

@@ -308,8 +308,8 @@ PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics);
 
 PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster);
 
-BOOL8 Independent (PARAM_DESC ParamDesc[],
-int16_t N, FLOAT32 * CoVariance, FLOAT32 Independence);
+bool Independent(PARAM_DESC* ParamDesc,
+                 int16_t N, FLOAT32* CoVariance, FLOAT32 Independence);
 
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
@@ -347,7 +347,7 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
                      FLOAT32 Mean,
                      FLOAT32 StdDev);
 
-BOOL8 DistributionOK(BUCKETS *Buckets);
+bool DistributionOK(BUCKETS* Buckets);
 
 void FreeStatistics(STATISTICS *Statistics);
 
@@ -378,9 +378,9 @@ FLOAT64 Solve(SOLVEFUNC Function,
 
 FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x);
 
-BOOL8 MultipleCharSamples(CLUSTERER *Clusterer,
-                          CLUSTER *Cluster,
-                          FLOAT32 MaxIllegal);
+bool MultipleCharSamples(CLUSTERER* Clusterer,
+                         CLUSTER* Cluster,
+                         FLOAT32 MaxIllegal);
 
 double InvertMatrix(const float* input, int size, float* inv);
 
@@ -1637,9 +1637,9 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
  * @note Exceptions:  None
  * @note History: 6/4/89, DSJ, Created.
  */
-BOOL8
-Independent (PARAM_DESC ParamDesc[],
-int16_t N, FLOAT32 * CoVariance, FLOAT32 Independence) {
+bool
+Independent(PARAM_DESC* ParamDesc,
+            int16_t N, FLOAT32* CoVariance, FLOAT32 Independence) {
   int i, j;
   FLOAT32 *VARii;                // points to ith on-diagonal element
   FLOAT32 *VARjj;                // points to jth on-diagonal element
@@ -1662,10 +1662,10 @@ int16_t N, FLOAT32 * CoVariance, FLOAT32 Independence) {
         CorrelationCoeff =
           sqrt (sqrt (*CoVariance * *CoVariance / (*VARii * *VARjj)));
       if (CorrelationCoeff > Independence)
-        return (FALSE);
+        return false;
     }
   }
-  return (TRUE);
+  return true;
 }                                // Independent
 
 /**
@@ -1746,7 +1746,7 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   FLOAT64 LastProbDensity;
   FLOAT64 ProbDensity;
   uint16_t CurrentBucket;
-  BOOL8 Symmetrical;
+  bool Symmetrical;
 
   // allocate memory needed for data structure
   Buckets = static_cast<BUCKETS *>(Emalloc(sizeof(BUCKETS)));
@@ -1766,7 +1766,7 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   }
 
   // all currently defined distributions are symmetrical
-  Symmetrical = TRUE;
+  Symmetrical = true;
   Buckets->ChiSquared = ComputeChiSquared(
       DegreesOfFreedom(Distribution, Buckets->NumberOfBuckets), Confidence);
 
@@ -2122,7 +2122,7 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
  * @note Exceptions: None
  * @note History: 6/5/89, DSJ, Created.
  */
-BOOL8 DistributionOK(BUCKETS *Buckets) {
+bool DistributionOK(BUCKETS* Buckets) {
   FLOAT32 FrequencyDifference;
   FLOAT32 TotalDifference;
   int i;
@@ -2137,9 +2137,9 @@ BOOL8 DistributionOK(BUCKETS *Buckets) {
 
   // test to see if the difference is more than expected
   if (TotalDifference > Buckets->ChiSquared)
-    return FALSE;
+    return false;
   else
-    return TRUE;
+    return true;
 }                                // DistributionOK
 
 /**
@@ -2461,9 +2461,9 @@ FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
  * 2/22/90, DSJ, Added MaxIllegal control rather than always
  * splitting illegal clusters.
  */
-BOOL8
-MultipleCharSamples (CLUSTERER * Clusterer,
-CLUSTER * Cluster, FLOAT32 MaxIllegal)
+bool
+MultipleCharSamples(CLUSTERER* Clusterer,
+                    CLUSTER* Cluster, FLOAT32 MaxIllegal)
 #define ILLEGAL_CHAR    2
 {
   static BOOL8 *CharFlags = nullptr;
@@ -2505,11 +2505,11 @@ CLUSTER * Cluster, FLOAT32 MaxIllegal)
       PercentIllegal = (FLOAT32) NumIllegalInCluster / NumCharInCluster;
       if (PercentIllegal > MaxIllegal) {
         destroy(SearchState);
-        return (TRUE);
+        return true;
       }
     }
   }
-  return (FALSE);
+  return false;
 
 }                                // MultipleCharSamples
 

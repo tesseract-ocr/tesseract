@@ -639,9 +639,9 @@ class TO_ROW: public ELIST2_LINK
     }
 
                                  // true when dead
-    BOOL8 merged;
-    BOOL8 all_caps;              // had no ascenders
-    BOOL8 used_dm_model;         // in guessing pitch
+    bool merged;
+    bool all_caps;              // had no ascenders
+    bool used_dm_model;         // in guessing pitch
     int16_t projection_left;       // start of projection
     int16_t projection_right;      // start of projection
     PITCH_TYPE pitch_decision;   // how strong is decision

@@ -375,9 +375,9 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @note History: 6/12/89, DSJ, Created.
 */
 
-void WriteProtoList(FILE *File, uint16_t N, PARAM_DESC ParamDesc[],
-                    LIST ProtoList, BOOL8 WriteSigProtos,
-                    BOOL8 WriteInsigProtos) {
+void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
+                    LIST ProtoList, bool WriteSigProtos,
+                    bool WriteInsigProtos) {
   PROTOTYPE *Proto;
 
   /* write file header */

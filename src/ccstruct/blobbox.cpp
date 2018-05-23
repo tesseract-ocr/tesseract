@@ -820,8 +820,8 @@ void TO_ROW::compute_vertical_projection() {  //project whole row
  * Zero out all scalar members.
  **********************************************************************/
 void TO_ROW::clear() {
-  all_caps = 0;
-  used_dm_model = 0;
+  all_caps = false;
+  used_dm_model = false;
   projection_left = 0;
   projection_right = 0;
   pitch_decision = PITCH_DUNNO;

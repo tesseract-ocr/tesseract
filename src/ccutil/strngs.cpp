@@ -186,7 +186,7 @@ bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
   return fp->FRead(nullptr, 1, len) == len;
 }
 
-BOOL8 STRING::contains(const char c) const {
+bool STRING::contains(const char c) const {
   return (c != '\0') && (strchr (GetCStr(), c) != nullptr);
 }
 
@@ -302,7 +302,7 @@ void STRING::split(const char c, GenericVector<STRING> *splited) {
   }
 }
 
-BOOL8 STRING::operator==(const STRING& str) const {
+bool STRING::operator==(const STRING& str) const {
   FixHeader();
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
@@ -314,7 +314,7 @@ BOOL8 STRING::operator==(const STRING& str) const {
           && (memcmp(GetCStr(), str.GetCStr(), this_used) == 0);
 }
 
-BOOL8 STRING::operator!=(const STRING& str) const {
+bool STRING::operator!=(const STRING& str) const {
   FixHeader();
   str.FixHeader();
   const STRING_HEADER* str_header = str.GetHeader();
@@ -326,7 +326,7 @@ BOOL8 STRING::operator!=(const STRING& str) const {
          || (memcmp(GetCStr(), str.GetCStr(), this_used) != 0);
 }
 
-BOOL8 STRING::operator!=(const char* cstr) const {
+bool STRING::operator!=(const char* cstr) const {
   FixHeader();
   const STRING_HEADER* this_header = GetHeader();
 

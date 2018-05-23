@@ -69,7 +69,7 @@ class PDBLK {
   void set_index(int value) { index_ = value; }
 
   /// is pt inside block
-  BOOL8 contains(ICOORD pt);
+  bool contains(ICOORD pt);
 
   /// reposition block
   void move(const ICOORD vec);  // by vector
@@ -118,8 +118,8 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     void forward();
 
     ///test end
-    BOOL8 cycled_rects() {
-      return left_it.cycled_list () && right_it.cycled_list ();
+    bool cycled_rects() {
+      return left_it.cycled_list() && right_it.cycled_list();
     }
 
     ///current rectangle

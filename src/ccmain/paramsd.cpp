@@ -154,7 +154,7 @@ STRING ParamContent::GetValue() const {
 void ParamContent::SetValue(const char* val) {
 // TODO (wanke) Test if the values actually are properly converted.
 // (Quickly visible impacts?)
-  changed_ = TRUE;
+  changed_ = true;
   if (param_type_ == VT_INTEGER) {
     iIt->set_value(atoi(val));
   } else if (param_type_ == VT_BOOLEAN) {

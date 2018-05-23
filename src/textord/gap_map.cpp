@@ -54,7 +54,7 @@ GAPMAP::GAPMAP(                 //Constructor
   min_left = INT16_MAX;
   max_right = -INT16_MAX;
   total_rows = 0;
-  any_tabs = FALSE;
+  any_tabs = false;
 
   // row iterator
   TO_ROW_IT row_it(block->get_rows());
@@ -143,7 +143,7 @@ GAPMAP::GAPMAP(                 //Constructor
         map[i] = 0;              //prevent isolated quantum
       }
       else
-        any_tabs = TRUE;
+        any_tabs = true;
     }
   }
   if (gapmap_debug && any_tabs)
@@ -157,17 +157,17 @@ GAPMAP::GAPMAP(                 //Constructor
  * block have a wide gap?
  *************************************************************************/
 
-BOOL8 GAPMAP::table_gap(             //Is gap a table?
-                        int16_t left,  //From here
-                        int16_t right  //To here
-                       ) {
+bool GAPMAP::table_gap(             //Is gap a table?
+        int16_t left,  //From here
+        int16_t right  //To here
+) {
   int16_t min_quantum;
   int16_t max_quantum;
   int16_t i;
-  BOOL8 tab_found = FALSE;
+  bool tab_found = false;
 
   if (!any_tabs)
-    return FALSE;
+    return false;
 
   min_quantum = (left - min_left) / bucket_size;
   max_quantum = (right - min_left) / bucket_size;
@@ -178,6 +178,6 @@ BOOL8 GAPMAP::table_gap(             //Is gap a table?
   if (max_quantum > map_max) max_quantum = map_max;
   for (i = min_quantum; (!tab_found && (i <= max_quantum)); i++)
     if (map[i] > total_rows / 2)
-      tab_found = TRUE;
+      tab_found = true;
   return tab_found;
 }

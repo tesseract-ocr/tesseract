@@ -46,15 +46,15 @@ class DLLSYM BITS16
     }
 
     void set_bit(                // flip specified bit
-                 uint8_t bit_num,  // bit to flip 0..7
-                 BOOL8 value) {  // value to flip to
+            uint8_t bit_num,  // bit to flip 0..7
+            bool value) {  // value to flip to
       if (value)
         val = val | 01 << bit_num;
       else
         val = val & ~(01 << bit_num);
     }
 
-    BOOL8 bit(                        // access bit
+    bool bit(                        // access bit
               uint8_t bit_num) const {  // bit to access
       return (val >> bit_num) & 01;
     }

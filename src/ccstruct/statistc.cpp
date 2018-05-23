@@ -320,7 +320,7 @@ int32_t STATS::cluster(float lower,         // thresholds
                      float multiple,      // distance threshold
                      int32_t max_clusters,  // max no to make
                      STATS *clusters) {   // array of clusters
-  BOOL8 new_cluster;             // added one
+  bool new_cluster;             // added one
   float *centres;                // cluster centres
   int32_t entry;                   // bucket index
   int32_t cluster;                 // cluster index
@@ -369,7 +369,7 @@ int32_t STATS::cluster(float lower,         // thresholds
     clusters[0].set_range(rangemin_, rangemax_);
   }
   do {
-    new_cluster = FALSE;
+    new_cluster = false;
     new_mode = 0;
     for (entry = 0; entry < rangemax_ - rangemin_; entry++) {
       count = buckets_[entry] - clusters[0].buckets_[entry];
@@ -401,7 +401,7 @@ int32_t STATS::cluster(float lower,         // thresholds
                                  // need new and room
     if (new_mode > 0 && cluster_count < max_clusters) {
       cluster_count++;
-      new_cluster = TRUE;
+      new_cluster = true;
       if (!clusters[cluster_count].set_range(rangemin_, rangemax_)) {
         delete [] centres;
         return 0;

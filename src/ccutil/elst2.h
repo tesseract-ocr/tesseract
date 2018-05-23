@@ -156,13 +156,13 @@ class DLLSYM ELIST2_ITERATOR
   ELIST2_LINK *prev;             //prev element
   ELIST2_LINK *current;          //current element
   ELIST2_LINK *next;             //next element
-  BOOL8 ex_current_was_last;     //current extracted
+  bool ex_current_was_last;     //current extracted
   //was end of list
-  BOOL8 ex_current_was_cycle_pt; //current extracted
+  bool ex_current_was_cycle_pt; //current extracted
   //was cycle point
   ELIST2_LINK *cycle_pt;         //point we are cycling
   //the list to.
-  BOOL8 started_cycling;         //Have we moved off
+  bool started_cycling;         //Have we moved off
   //the start?
 
   ELIST2_LINK *extract_sublist(                             //from this current...
@@ -219,7 +219,7 @@ class DLLSYM ELIST2_ITERATOR
 
     void mark_cycle_pt();  //remember current
 
-    BOOL8 empty() {  //is list empty?
+    bool empty() {  //is list empty?
     #ifndef NDEBUG
       if (!list)
         NO_LIST.error ("ELIST2_ITERATOR::empty", ABORT, nullptr);
@@ -227,15 +227,15 @@ class DLLSYM ELIST2_ITERATOR
       return list->empty ();
     }
 
-    BOOL8 current_extracted() {  //current extracted?
+    bool current_extracted() {  //current extracted?
       return !current;
     }
 
-    BOOL8 at_first();  //Current is first?
+    bool at_first();  //Current is first?
 
-    BOOL8 at_last();  //Current is last?
+    bool at_last();  //Current is last?
 
-    BOOL8 cycled_list();  //Completed a cycle?
+    bool cycled_list();  //Completed a cycle?
 
     void add_to_end(             // add at end &
         ELIST2_LINK *new_link);  // don't move
@@ -274,9 +274,9 @@ inline void ELIST2_ITERATOR::set_to_list(  //change list
   current = list->First ();
   next = current ? current->next : nullptr;
   cycle_pt = nullptr;               //await explicit set
-  started_cycling = FALSE;
-  ex_current_was_last = FALSE;
-  ex_current_was_cycle_pt = FALSE;
+  started_cycling = false;
+  ex_current_was_last = false;
+  ex_current_was_cycle_pt = false;
 }
 
 /***********************************************************************
@@ -361,7 +361,7 @@ inline void ELIST2_ITERATOR::add_after_stay_put(  // element to add
     new_element->prev = new_element;
     list->last = new_element;
     prev = next = new_element;
-    ex_current_was_last = FALSE;
+    ex_current_was_last = false;
     current = nullptr;
   }
   else {
@@ -381,7 +381,7 @@ inline void ELIST2_ITERATOR::add_after_stay_put(  // element to add
       prev->next = new_element;
       if (ex_current_was_last) {
         list->last = new_element;
-        ex_current_was_last = FALSE;
+        ex_current_was_last = false;
       }
     }
     next = new_element;
@@ -458,7 +458,7 @@ inline void ELIST2_ITERATOR::add_before_stay_put(  // element to add
     new_element->prev = new_element;
     list->last = new_element;
     prev = next = new_element;
-    ex_current_was_last = TRUE;
+    ex_current_was_last = true;
     current = nullptr;
   }
   else {
@@ -503,7 +503,7 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
       list->last = list_to_add->last;
       prev = list->last;
       next = list->First ();
-      ex_current_was_last = TRUE;
+      ex_current_was_last = true;
       current = nullptr;
     }
     else {
@@ -521,7 +521,7 @@ inline void ELIST2_ITERATOR::add_list_after(ELIST2 *list_to_add) {
         prev->next->prev = prev;
         if (ex_current_was_last) {
           list->last = list_to_add->last;
-          ex_current_was_last = FALSE;
+          ex_current_was_last = false;
         }
         list_to_add->last->next = next;
         next->prev = list_to_add->last;
@@ -555,7 +555,7 @@ inline void ELIST2_ITERATOR::add_list_before(ELIST2 *list_to_add) {
       prev = list->last;
       current = list->First ();
       next = current->next;
-      ex_current_was_last = FALSE;
+      ex_current_was_last = false;
     }
     else {
       prev->next = list_to_add->First ();
@@ -610,13 +610,13 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
 
     if (current == list->last) {
       list->last = prev;
-      ex_current_was_last = TRUE;
+      ex_current_was_last = true;
     } else {
-      ex_current_was_last = FALSE;
+      ex_current_was_last = false;
     }
   }
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
-  ex_current_was_cycle_pt = (current == cycle_pt) ? TRUE : FALSE;
+  ex_current_was_cycle_pt = (current == cycle_pt) ? true : false;
   extracted_link = current;
   extracted_link->next = nullptr;   //for safety
   extracted_link->prev = nullptr;   //for safety
@@ -693,7 +693,7 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST2_ITERATOR::at_first() {
+inline bool ELIST2_ITERATOR::at_first() {
   #ifndef NDEBUG
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::at_first", ABORT, nullptr);
@@ -712,7 +712,7 @@ inline BOOL8 ELIST2_ITERATOR::at_first() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST2_ITERATOR::at_last() {
+inline bool ELIST2_ITERATOR::at_last() {
   #ifndef NDEBUG
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::at_last", ABORT, nullptr);
@@ -731,7 +731,7 @@ inline BOOL8 ELIST2_ITERATOR::at_last() {
  *
  **********************************************************************/
 
-inline BOOL8 ELIST2_ITERATOR::cycled_list() {
+inline bool ELIST2_ITERATOR::cycled_list() {
   #ifndef NDEBUG
   if (!list)
     NO_LIST.error ("ELIST2_ITERATOR::cycled_list", ABORT, nullptr);

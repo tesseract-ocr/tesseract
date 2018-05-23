@@ -136,7 +136,7 @@ void DoFill(FILL_SPEC *FillSpec,
             uint32_t ClassCount,
             uint32_t WordIndex);
 
-BOOL8 FillerDone(TABLE_FILLER *Filler);
+bool FillerDone(TABLE_FILLER* Filler);
 
 void FillPPCircularBits(uint32_t
                         ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
@@ -1221,15 +1221,12 @@ void DoFill(FILL_SPEC *FillSpec,
  * @note Exceptions: none
  * @note History: Tue Feb 19 10:08:05 1991, DSJ, Created.
  */
-BOOL8 FillerDone(TABLE_FILLER *Filler) {
+bool FillerDone(TABLE_FILLER* Filler) {
   FILL_SWITCH *Next;
 
   Next = &(Filler->Switch[Filler->NextSwitch]);
 
-  if (Filler->X > Next->X && Next->Type == LastSwitch)
-    return (TRUE);
-  else
-    return (FALSE);
+  return Filler->X > Next->X && Next->Type == LastSwitch;
 
 }                                /* FillerDone */
 

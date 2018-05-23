@@ -82,8 +82,8 @@ namespace tesseract {
  * Top level function to make baselines the old way.
  **********************************************************************/
 
-void Textord::make_old_baselines(TO_BLOCK *block,   // block to do
-                                 BOOL8 testing_on,  // correct orientation
+void Textord::make_old_baselines(TO_BLOCK* block,   // block to do
+                                 bool testing_on,  // correct orientation
                                  float gradient) {
   QSPLINE *prev_baseline;        // baseline of previous row
   TO_ROW *row;                   // current row
@@ -280,7 +280,7 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
   mindescheight = -lineheight * MIN_DESC_FRACTION;
   for (rowindex = 0; rowindex < rowcount; rowindex++) {
     row = rows[rowindex];        /*do each row */
-    row->all_caps = FALSE;
+    row->all_caps = false;
     if (row->ascrise / row->xheight < MIN_ASC_FRACTION) {
     /*no ascenders */
       if (row->xheight >= lineheight * (1 - MAXHEIGHTVARIANCE)
@@ -295,14 +295,14 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
         row->ascrise = row->xheight - lineheight;
                                  /*set to average */
         row->xheight = lineheight;
-        row->all_caps = TRUE;
+        row->all_caps = true;
       }
       else {
         row->ascrise = (fullheight - lineheight) * row->xheight
           / fullheight;
                                  /*scale it */
         row->xheight -= row->ascrise;
-        row->all_caps = TRUE;
+        row->all_caps = true;
       }
       if (row->ascrise < minascheight)
         row->ascrise =
@@ -332,7 +332,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
                              int degree,       // required approximation
                              QSPLINE *spline) {  // starting spline
   int partcount;                 /*no of partitions of */
-  BOOL8 holed_line = FALSE;      //lost too many blobs
+  bool holed_line = false;      //lost too many blobs
   int bestpart;                  /*biggest partition */
   char *partids;                 /*partition no of each blob */
   int partsizes[MAXPARTS];       /*no in each partition */
@@ -441,12 +441,12 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
  **********************************************************************/
 
 int get_blob_coords(                    //get boxes
-                    TO_ROW *row,        //row to use
-                    int32_t lineheight,   //block level
-                    TBOX *blobcoords,    //ouput boxes
-                    BOOL8 &holed_line,  //lost a lot of blobs
-                    int &outcount       //no of real blobs
-                   ) {
+        TO_ROW* row,        //row to use
+        int32_t lineheight,   //block level
+        TBOX* blobcoords,    //ouput boxes
+        bool& holed_line,  //lost a lot of blobs
+        int& outcount       //no of real blobs
+) {
                                  //blobs
   BLOBNBOX_IT blob_it = row->blob_list ();
   int blobindex;                 /*no along text line */
@@ -800,8 +800,8 @@ int partsizes[],                 /*no in each partition */
 int biggestpart,                 //major partition
 float jumplimit                  /*allowed delta change */
 ) {
-  BOOL8 found_one;               //found a bestpart blob
-  BOOL8 close_one;               //found was close enough
+  bool found_one;               //found a bestpart blob
+  bool close_one;               //found was close enough
   int blobindex;                 /*no along text line */
   int prevpart;                  //previous iteration
   int runlength;                 //no in this part
@@ -833,14 +833,14 @@ float jumplimit                  /*allowed delta change */
         c = stats.get_c ();
         if (textord_oldbl_debug)
           tprintf ("Fitted line y=%g x + %g\n", m, c);
-        found_one = FALSE;
-        close_one = FALSE;
+        found_one = false;
+        close_one = false;
         for (test_blob = 1; !found_one
           && (startx - test_blob >= 0
         || blobindex + test_blob <= blobcount); test_blob++) {
           if (startx - test_blob >= 0
           && partids[startx - test_blob] == biggestpart) {
-            found_one = TRUE;
+            found_one = true;
             coord = FCOORD ((blobcoords[startx - test_blob].left ()
               + blobcoords[startx -
               test_blob].right ()) /
@@ -853,11 +853,11 @@ float jumplimit                  /*allowed delta change */
                 ("Diff of common blob to suspect part=%g at (%g,%g)\n",
                 diff, coord.x (), coord.y ());
             if (diff < jumplimit && -diff < jumplimit)
-              close_one = TRUE;
+              close_one = true;
           }
           if (blobindex + test_blob <= blobcount
           && partids[blobindex + test_blob - 1] == biggestpart) {
-            found_one = TRUE;
+            found_one = true;
             coord =
               FCOORD ((blobcoords[blobindex + test_blob - 1].
               left () + blobcoords[blobindex + test_blob -
@@ -870,7 +870,7 @@ float jumplimit                  /*allowed delta change */
                 ("Diff of common blob to suspect part=%g at (%g,%g)\n",
                 diff, coord.x (), coord.y ());
             if (diff < jumplimit && -diff < jumplimit)
-              close_one = TRUE;
+              close_one = true;
           }
         }
         if (close_one) {
@@ -1183,22 +1183,22 @@ int xstarts[]                    //result
  * Return TRUE if any were done.
  **********************************************************************/
 
-BOOL8
-split_stepped_spline (           //make xstarts
-QSPLINE * baseline,              //current shot
-float jumplimit,                 //max step fuction
-int xcoords[],                   /*points to work on */
-int xstarts[],                   //result
-int &segments                    //no of segments
+bool
+split_stepped_spline(           //make xstarts
+        QSPLINE* baseline,              //current shot
+        float jumplimit,                 //max step fuction
+        int* xcoords,                   /*points to work on */
+        int* xstarts,                   //result
+        int& segments                    //no of segments
 ) {
-  BOOL8 doneany;                 //return value
+  bool doneany;                 //return value
   int segment;                   /*partition no */
   int startindex, centreindex, endindex;
   float leftcoord, rightcoord;
   int leftindex, rightindex;
   float step;                    //spline step
 
-  doneany = FALSE;
+  doneany = false;
   startindex = 0;
   for (segment = 1; segment < segments - 1; segment++) {
     step = baseline->step ((xstarts[segment - 1] + xstarts[segment]) / 2.0,
@@ -1266,7 +1266,7 @@ int &segments                    //no of segments
           xcoords[leftindex]) / 2,
           (xcoords[rightindex - 1] +
           xcoords[rightindex]) / 2, segments);
-        doneany = TRUE;
+        doneany = true;
       }
       else if (textord_debug_baselines) {
         tprintf

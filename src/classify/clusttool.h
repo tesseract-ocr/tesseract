@@ -44,9 +44,9 @@ void WriteNFloats (FILE * File, uint16_t N, FLOAT32 Array[]);
 
 void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle);
 
-void WriteProtoList(FILE *File, uint16_t N, PARAM_DESC ParamDesc[],
-                    LIST ProtoList, BOOL8 WriteSigProtos,
-                    BOOL8 WriteInsigProtos);
+void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
+                    LIST ProtoList, bool WriteSigProtos,
+                    bool WriteInsigProtos);
 
 //--------------Global Data Definitions and Declarations---------------------
 // define errors that can be trapped
