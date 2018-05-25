@@ -42,7 +42,7 @@ static const float kFixedPitchThreshold = 0.35;
 class SimpleStats {
  public:
   SimpleStats(): finalized_(false), values_() { }
-  ~SimpleStats() { }
+  ~SimpleStats() = default;
 
   void Clear() {
     values_.clear();
@@ -113,7 +113,7 @@ class LocalCorrelation {
   };
 
   LocalCorrelation(): finalized_(false) { }
-  ~LocalCorrelation() { }
+  ~LocalCorrelation() = default;
 
   void Finish() {
     values_.sort(float_pair_compare);
@@ -275,7 +275,7 @@ class FPRow {
             heights_(), characters_(), real_row_(nullptr) {
   }
 
-  ~FPRow() { }
+  ~FPRow() = default;
 
   // Initialize from TD_ROW.
   void Init(TO_ROW *row);
@@ -915,7 +915,7 @@ void FPRow::FinalizeLargeChars() {
 class FPAnalyzer {
  public:
   FPAnalyzer(): page_tr_(), rows_() { }
-  ~FPAnalyzer() { }
+  ~FPAnalyzer() = default;
 
   void Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks);
 

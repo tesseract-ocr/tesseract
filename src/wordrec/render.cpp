@@ -26,7 +26,7 @@
 #include "blobs.h"
 
 #ifdef __UNIX__
-#include <assert.h>
+#include <cassert>
 #endif
 #include <cmath>
 

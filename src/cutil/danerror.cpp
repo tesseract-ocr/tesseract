@@ -23,7 +23,7 @@
 #include "tprintf.h"
 #include "globaloc.h"
 #ifdef __UNIX__
-#include "assert.h"
+#include <cassert>
 #endif
 
 #include <cstdio>

@@ -29,7 +29,7 @@ namespace tesseract {
 class Maxpool : public Reconfig {
  public:
   Maxpool(const STRING& name, int ni, int x_scale, int y_scale);
-  virtual ~Maxpool() = default;
+  ~Maxpool() override = default;
 
   // Accessors.
   STRING spec() const override {

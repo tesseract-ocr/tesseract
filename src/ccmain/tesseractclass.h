@@ -164,7 +164,7 @@ typedef void (Tesseract::*WordRecognizer)(const WordData& word_data,
 class Tesseract : public Wordrec {
  public:
   Tesseract();
-  ~Tesseract();
+  ~Tesseract() override;
 
   // Return appropriate dictionary 
   Dict& getDict() override;

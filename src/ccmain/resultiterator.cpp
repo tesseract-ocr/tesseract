@@ -257,7 +257,7 @@ void ResultIterator::CalculateTextlineOrder(
     const GenericVector<StrongScriptDirection> &word_dirs,
     GenericVectorEqEq<int> *reading_order) {
   reading_order->truncate(0);
-  if (word_dirs.size() == 0) return;
+  if (word_dirs.empty()) return;
 
   // Take all of the runs of minor direction words and insert them
   // in reverse order.
@@ -341,7 +341,7 @@ void ResultIterator::MoveToLogicalStartOfWord() {
   }
   GenericVector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  if (blob_order.size() == 0 || blob_order[0] == 0) return;
+  if (blob_order.empty() || blob_order[0] == 0) return;
   BeginWord(blob_order[0]);
 }
 
@@ -349,14 +349,14 @@ bool ResultIterator::IsAtFinalSymbolOfWord() const {
   if (!it_->word()) return true;
   GenericVector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  return blob_order.size() == 0 || blob_order.back() == blob_index_;
+  return blob_order.empty() || blob_order.back() == blob_index_;
 }
 
 bool ResultIterator::IsAtFirstSymbolOfWord() const {
   if (!it_->word()) return true;
   GenericVector<int> blob_order;
   CalculateBlobOrder(&blob_order);
-  return blob_order.size() == 0 || blob_order[0] == blob_index_;
+  return blob_order.empty() || blob_order[0] == blob_index_;
 }
 
 void ResultIterator::AppendSuffixMarks(STRING *text) const {

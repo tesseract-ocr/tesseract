@@ -61,7 +61,7 @@ enum CharSegmentationType {
 class Classify : public CCStruct {
  public:
   Classify();
-  virtual ~Classify();
+  ~Classify() override;
   virtual Dict& getDict() {
     return dict_;
   }

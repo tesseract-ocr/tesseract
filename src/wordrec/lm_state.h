@@ -195,7 +195,7 @@ struct LanguageModelState {
      viterbi_state_entries_prunable_length(0),
     viterbi_state_entries_prunable_max_cost(MAX_FLOAT32),
     viterbi_state_entries_length(0) {}
-  ~LanguageModelState() {}
+  ~LanguageModelState() = default;
 
   /// Clears the viterbi search state back to its initial conditions.
   void Clear();
@@ -219,7 +219,7 @@ struct BestChoiceBundle {
     for (int i = 0; i < matrix_dimension; ++i)
       beam.push_back(new LanguageModelState);
   }
-  ~BestChoiceBundle() {}
+  ~BestChoiceBundle() = default;
 
   /// Flag to indicate whether anything was changed.
   bool updated;

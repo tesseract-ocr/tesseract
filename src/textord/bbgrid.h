@@ -99,7 +99,7 @@ class IntGrid : public GridBase {
  public:
   IntGrid();
   IntGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~IntGrid();
+  ~IntGrid() override;
 
   // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
   // and bleft, tright are the bounding box of everything to go in it.
@@ -162,7 +162,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class BBGrid
  public:
   BBGrid();
   BBGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~BBGrid();
+  ~BBGrid() override;
 
   // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
   // and bleft, tright are the bounding box of everything to go in it.

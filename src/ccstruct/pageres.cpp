@@ -21,9 +21,9 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include          <stdlib.h>
+#include          <cstdlib>
 #ifdef __UNIX__
-#include          <assert.h>
+#include          <cassert>
 #endif
 #include          "blamer.h"
 #include          "pageres.h"

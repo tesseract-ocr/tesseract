@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_PLATFORM_H_
 #define TESSERACT_CCUTIL_PLATFORM_H_
 
-#include <string.h>
+#include <cstring>
 
 #define DLLSYM
 #ifdef _WIN32
@@ -41,7 +41,7 @@
 #endif /* defined(_MSC_VER) */
 #else
 #define __UNIX__
-#include <limits.h>
+#include <climits>
 #ifndef PATH_MAX
 #define MAX_PATH 4096
 #else

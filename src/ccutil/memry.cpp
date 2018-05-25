@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include          "memry.h"
-#include          <stdlib.h>
+#include          <cstdlib>
 
 // With improvements in OS memory allocators, internal memory management
 // is no longer required, so all these functions now map to their malloc

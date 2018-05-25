@@ -49,7 +49,7 @@ class LSTM : public Network {
   // backwards in time does become impossible.
   LSTM(const STRING& name, int num_inputs, int num_states, int num_outputs,
        bool two_dimensional, NetworkType type);
-  virtual ~LSTM();
+  ~LSTM() override;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

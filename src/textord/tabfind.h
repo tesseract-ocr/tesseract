@@ -55,7 +55,7 @@ class TabFind : public AlignedBlob {
   TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
           TabVector_LIST* vlines, int vertical_x, int vertical_y,
           int resolution);
-  virtual ~TabFind();
+  ~TabFind() override;
 
   /**
    * Insert a list of blobs into the given grid (not necessarily this).

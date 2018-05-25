@@ -21,7 +21,7 @@
 #define CALLCPP_H
 
 #ifndef __UNIX__
-#include <assert.h>
+#include <cassert>
 #endif
 #include "host.h"
 #include "params.h"

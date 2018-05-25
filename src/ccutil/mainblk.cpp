@@ -20,11 +20,11 @@
 #include          "fileerr.h"
 #ifdef __UNIX__
 #include          <unistd.h>
-#include          <signal.h>
+#include          <csignal>
 #else
 #include          <io.h>
 #endif
-#include          <stdlib.h>
+#include          <cstdlib>
 #include          "ccutil.h"
 
 #define VARDIR        "configs/" /**< variables files */

@@ -20,7 +20,7 @@
 #ifndef           IPOINTS_H
 #define           IPOINTS_H
 
-#include          <math.h>
+#include          <cmath>
 
 /**********************************************************************
  * operator!

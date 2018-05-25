@@ -66,7 +66,7 @@ class LMPainPoints {
   LMPainPoints(int max, float rat, bool fp, const Dict *d, int deb) :
     max_heap_size_(max), max_char_wh_ratio_(rat), fixed_pitch_(fp),
     dict_(d), debug_level_(deb) {}
-  ~LMPainPoints() {}
+  ~LMPainPoints() = default;
 
   // Returns true if the heap of pain points of pp_type is not empty().
   inline bool HasPainPoints(LMPainPointsType pp_type) const {
@@ -80,7 +80,10 @@ class LMPainPoints {
 
   // Clears pain points heap.
   void Clear() {
-    for (int h = 0; h < LM_PPTYPE_NUM; ++h) pain_points_heaps_[h].clear();
+    for(auto pain_point_heap : pain_points_heaps_)
+    {
+      pain_point_heap.clear();
+    }
   }
 
   // For each cell, generate a "pain point" if the cell is not classified

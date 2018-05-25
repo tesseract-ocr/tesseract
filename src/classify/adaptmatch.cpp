@@ -23,7 +23,7 @@
 #include "config_auto.h"
 #endif
 
-#include <ctype.h>
+#include <cctype>
 #include "shapeclassifier.h"
 #include "ambigs.h"
 #include "blobclass.h"
@@ -61,7 +61,7 @@
 #include <cstdlib>
 #include <cmath>
 #ifdef __UNIX__
-#include <assert.h>
+#include <cassert>
 #endif
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
@@ -564,9 +564,7 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
   set_all_bits(AllConfigsOn, WordsInVectorOfSize(MAX_NUM_CONFIGS));
   zero_all_bits(AllConfigsOff, WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
-  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
-     BaselineCutoffs[i] = 0;
-  }
+  std::fill(std::begin(BaselineCutoffs), std::end(BaselineCutoffs), 0);
 
   if (classify_use_pre_adapted_templates) {
     TFile fp;

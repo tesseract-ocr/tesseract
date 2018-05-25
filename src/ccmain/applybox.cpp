@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 #ifdef __UNIX__
-#include <assert.h>
-#include <errno.h>
+#include <cassert>
+#include <cerrno>
 #endif
 #include "allheaders.h"
 #include "boxread.h"

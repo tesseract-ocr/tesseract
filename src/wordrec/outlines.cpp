@@ -32,7 +32,7 @@
 #include "wordrec.h"
 
 #ifdef __UNIX__
-#include <assert.h>
+#include <cassert>
 #endif
 
 namespace tesseract {

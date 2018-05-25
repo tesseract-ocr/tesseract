@@ -19,7 +19,7 @@
 
 #include "params_model.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 

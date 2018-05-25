@@ -28,7 +28,7 @@ namespace tesseract {
 class CUtil : public CCUtil {
  public:
   CUtil() = default;
-  ~CUtil() = default;
+  ~CUtil() override = default;
   void read_variables(const char *filename, bool global_only);
 };
 

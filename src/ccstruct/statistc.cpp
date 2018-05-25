@@ -23,9 +23,9 @@
 #endif
 
 #include          "statistc.h"
-#include          <string.h>
-#include          <math.h>
-#include          <stdlib.h>
+#include          <cstring>
+#include          <cmath>
+#include          <cstdlib>
 #include          "helpers.h"
 #include          "scrollview.h"
 #include          "tprintf.h"

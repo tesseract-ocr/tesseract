@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "polyblk.h"
-#include <ctype.h>
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <memory>  // std::unique_ptr

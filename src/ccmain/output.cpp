@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 #ifdef __UNIX__
 #include          <assert.h>
 #include          <unistd.h>

@@ -660,8 +660,8 @@ void close_chopped_cfragments(                             //chop the outline
     bottom_frag = frag_it.extract();
     frag_it.forward();
     top_frag = frag_it.data();  // look at next
-    if ((bottom_frag->steps == 0 && top_frag->steps == 0)
-    || (bottom_frag->steps != 0 && top_frag->steps != 0)) {
+    if ((bottom_frag->steps == nullptr && top_frag->steps == nullptr)
+    || (bottom_frag->steps != nullptr && top_frag->steps != nullptr)) {
       if (frag_it.data_relative(1)->ycoord == top_frag->ycoord)
         frag_it.forward();
     }
@@ -707,7 +707,7 @@ C_OUTLINE *join_chopped_fragments(                         //join pieces
   C_OUTLINE *outline;            //closed loop
 
   if (bottom->other_end == top) {
-    if (bottom->steps == 0)
+    if (bottom->steps == nullptr)
       outline = top->close ();   //turn to outline
     else
       outline = bottom->close ();
@@ -715,12 +715,12 @@ C_OUTLINE *join_chopped_fragments(                         //join pieces
     delete bottom;
     return outline;
   }
-  if (bottom->steps == 0) {
-    ASSERT_HOST (top->steps != 0);
+  if (bottom->steps == nullptr) {
+    ASSERT_HOST (top->steps != nullptr);
     join_segments (bottom->other_end, top);
   }
   else {
-    ASSERT_HOST (top->steps == 0);
+    ASSERT_HOST (top->steps == nullptr);
     join_segments (top->other_end, bottom);
   }
   top->other_end->other_end = bottom->other_end;

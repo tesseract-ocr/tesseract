@@ -18,9 +18,9 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
-#include <stdarg.h>
-#include <limits.h>
-#include <string.h>
+#include <cstdarg>
+#include <climits>
+#include <cstring>
 #include <map>
 #include <utility>
 #include <algorithm>
@@ -89,7 +89,7 @@ void* ScrollView::MessageReceiver(void* a) {
 // This is the main loop which iterates until the server is dead (strlen = -1).
 // It basically parses for 3 different messagetypes and then distributes the
 // events accordingly.
-  while (1) {
+  while (true) {
     // The new event we create.
     SVEvent* cur = new SVEvent;
     // The ID of the corresponding window.
@@ -142,7 +142,7 @@ void* ScrollView::MessageReceiver(void* a) {
                                                         cur->type);
       std::pair<ScrollView*, SVEventType> awaiting_list_any(cur->window,
                                                             SVET_ANY);
-      std::pair<ScrollView*, SVEventType> awaiting_list_any_window((ScrollView*)0,
+      std::pair<ScrollView*, SVEventType> awaiting_list_any_window((ScrollView*)nullptr,
                                                             SVET_ANY);
       waiting_for_events_mu->Lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
@@ -442,7 +442,7 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
   SVSemaphore* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea(this, type);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
   waiting_for_events_mu->Unlock();
   // Wait on it, but first flush.
   stream_->Flush();
@@ -461,9 +461,9 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
 SVEvent* ScrollView::AwaitEventAnyWindow() {
   // Initialize the waiting semaphore.
   SVSemaphore* sem = new SVSemaphore();
-  std::pair<ScrollView*, SVEventType> ea((ScrollView*)0, SVET_ANY);
+  std::pair<ScrollView*, SVEventType> ea((ScrollView*)nullptr, SVET_ANY);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
   waiting_for_events_mu->Unlock();
   // Wait on it.
   stream_->Flush();

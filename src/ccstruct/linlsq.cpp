@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <math.h>
+#include          <cstdio>
+#include          <cmath>
 #include          "errcode.h"
 #include          "linlsq.h"
 

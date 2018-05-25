@@ -18,8 +18,8 @@
  **********************************************************************/
 
 #include <algorithm>
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 #include "params.h"
 #include "float2int.h"
 #include "tesseractclass.h"

@@ -35,7 +35,7 @@
 #include "params.h"
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
 #include "dict.h"
 
 /*----------------------------------------------------------------------

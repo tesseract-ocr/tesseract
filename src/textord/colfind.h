@@ -65,7 +65,7 @@ class ColumnFinder : public TabFind {
                int resolution, bool cjk_script, double aligned_gap_fraction,
                TabVector_LIST* vlines, TabVector_LIST* hlines,
                int vertical_x, int vertical_y);
-  virtual ~ColumnFinder();
+  ~ColumnFinder() override;
 
   // Accessors for testing
   const DENORM* denorm() const {

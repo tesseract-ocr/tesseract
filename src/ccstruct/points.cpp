@@ -22,7 +22,7 @@
 #endif  // _MSC_VER
 
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 #include "helpers.h"
 #include "ndminx.h"
 #include "serialis.h"

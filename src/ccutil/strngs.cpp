@@ -19,7 +19,7 @@
 
 #include "strngs.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include "genericvector.h"
 #include "helpers.h"

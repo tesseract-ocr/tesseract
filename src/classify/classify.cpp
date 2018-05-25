@@ -29,7 +29,8 @@
 #include "shapeclassifier.h"
 #include "shapetable.h"
 #include "unicity_table.h"
-#include <string.h>
+
+#include <cstring>
 
 namespace tesseract {
 Classify::Classify()

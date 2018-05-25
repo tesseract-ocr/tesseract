@@ -36,7 +36,7 @@
 #else
 #include <dirent.h>
 #include <libgen.h>
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -1329,7 +1329,7 @@ static void AddBaselineCoordsTohOCR(const PageIterator *it,
   hocr_str->add_str_double(" ", round(p0 * 1000.0) / 1000.0);
 }
 
-static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
+static void AddIdTohOCR(STRING* hocr_str, const std::string& base, int num1,
                         int num2) {
   const size_t BUFSIZE = 64;
   char id_buffer[BUFSIZE];
@@ -2605,8 +2605,7 @@ struct TESS_CHAR : ELIST_LINK {
     strncpy(unicode_repr, repr, length);
   }
 
-  TESS_CHAR() {  // Satisfies ELISTIZE.
-  }
+  TESS_CHAR() = default;  // Satisfies ELISTIZE.
   ~TESS_CHAR() {
     delete [] unicode_repr;
   }

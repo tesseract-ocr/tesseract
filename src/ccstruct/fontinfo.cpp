@@ -42,8 +42,7 @@ FontInfoTable::FontInfoTable() {
   set_clear_callback(NewPermanentTessCallback(FontInfoDeleteCallback));
 }
 
-FontInfoTable::~FontInfoTable() {
-}
+FontInfoTable::~FontInfoTable() = default;
 
 // Writes to the given file. Returns false in case of error.
 bool FontInfoTable::Serialize(FILE* fp) const {
