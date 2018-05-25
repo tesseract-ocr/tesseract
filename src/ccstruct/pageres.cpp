@@ -89,9 +89,9 @@ BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK *the_block) {
   rej_count = 0;
   font_class = -1;               //not assigned
   x_height = -1.0;
-  font_assigned = FALSE;
-  bold = FALSE;
-  italic = FALSE;
+  font_assigned = false;
+  bold = false;
+  italic = false;
   row_count = 0;
 
   block = the_block;
@@ -1084,10 +1084,10 @@ WERD_RES::~WERD_RES () {
 }
 
 void WERD_RES::InitNonPointers() {
-  tess_failed = FALSE;
-  tess_accepted = FALSE;
-  tess_would_adapt = FALSE;
-  done = FALSE;
+  tess_failed = false;
+  tess_accepted = false;
+  tess_would_adapt = false;
+  done = false;
   unlv_crunch_mode = CR_NONE;
   small_caps = false;
   odd_size = false;
@@ -1104,11 +1104,11 @@ void WERD_RES::InitNonPointers() {
   caps_height = 0.0;
   baseline_shift = 0.0f;
   space_certainty = 0.0f;
-  guessed_x_ht = TRUE;
-  guessed_caps_ht = TRUE;
-  combination = FALSE;
-  part_of_combo = FALSE;
-  reject_spaces = FALSE;
+  guessed_x_ht = true;
+  guessed_caps_ht = true;
+  combination = false;
+  part_of_combo = false;
+  reject_spaces = false;
 }
 
 void WERD_RES::InitPointers() {

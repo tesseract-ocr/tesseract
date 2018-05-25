@@ -165,9 +165,6 @@ CLISTIZE(TabVector)
 
 // The constructor is private. See the bottom of the file...
 
-TabVector::~TabVector() {
-}
-
 
 // Public factory to build a TabVector from a list of boxes.
 // The TabVector will be of the given alignment type.

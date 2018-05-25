@@ -29,8 +29,7 @@ class FPSEGPT_LIST;
 class FPCUTPT
 {
   public:
-    FPCUTPT() {  //empty
-    }
+    FPCUTPT() = default;
     void setup (                 //start of cut
       FPCUTPT cutpts[],          //predecessors
       int16_t array_origin,        //start coord
@@ -40,18 +39,18 @@ class FPCUTPT
       int16_t x,                   //position
       int16_t offset);             //dist to gap
 
-    void assign (                //evaluate cut
-      FPCUTPT cutpts[],          //predecessors
-      int16_t array_origin,        //start coord
-      int16_t x,                   //position
-      BOOL8 faking,              //faking this one
-      BOOL8 mid_cut,             //doing free cut
-      int16_t offset,              //extra cost dist
-      STATS * projection,        //occupation
-      float projection_scale,    //scaling
-      int16_t zero_count,          //official zero
-      int16_t pitch,               //proposed pitch
-      int16_t pitch_error);        //allowed tolerance
+    void assign(                //evaluate cut
+            FPCUTPT cutpts[],          //predecessors
+            int16_t array_origin,        //start coord
+            int16_t x,                   //position
+            bool faking,              //faking this one
+            bool mid_cut,             //doing free cut
+            int16_t offset,              //extra cost dist
+            STATS* projection,        //occupation
+            float projection_scale,    //scaling
+            int16_t zero_count,          //official zero
+            int16_t pitch,               //proposed pitch
+            int16_t pitch_error);        //allowed tolerance
 
     void assign_cheap (          //evaluate cut
       FPCUTPT cutpts[],          //predecessors
@@ -88,8 +87,8 @@ class FPCUTPT
       return region_index;
     }
 
-    BOOL8 faked;                 //faked split point
-    BOOL8 terminal;              //successful end
+    bool faked;                 //faked split point
+    bool terminal;              //successful end
     int16_t fake_count;            //total fakes to here
 
   private:

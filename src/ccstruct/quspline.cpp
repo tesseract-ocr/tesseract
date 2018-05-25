@@ -277,22 +277,15 @@ void QSPLINE::move(            // reposition spline
  * than the bounds of this.
  **********************************************************************/
 
-BOOL8 QSPLINE::overlap(                   //test overlap
-                       QSPLINE *spline2,  //2 cannot be smaller
-                       double fraction    //by more than this
-                      ) {
-  int leftlimit;                 /*common left limit */
-  int rightlimit;                /*common right limit */
-
-  leftlimit = xcoords[1];
-  rightlimit = xcoords[segments - 1];
+bool QSPLINE::overlap(                   //test overlap
+        QSPLINE* spline2,  //2 cannot be smaller
+        double fraction    //by more than this
+) {
+  int leftlimit = xcoords[1];             /*common left limit */
+  int rightlimit = xcoords[segments - 1]; /*common right limit */
                                  /*or too non-overlap */
-  if (spline2->segments < 3 || spline2->xcoords[1] > leftlimit + fraction * (rightlimit - leftlimit)
-    || spline2->xcoords[spline2->segments - 1] < rightlimit
-    - fraction * (rightlimit - leftlimit))
-    return FALSE;
-  else
-    return TRUE;
+  return !(spline2->segments < 3 || spline2->xcoords[1] > leftlimit + fraction * (rightlimit - leftlimit) ||
+           spline2->xcoords[spline2->segments - 1] < rightlimit - fraction * (rightlimit - leftlimit));
 }
 
 

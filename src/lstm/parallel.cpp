@@ -32,9 +32,6 @@ Parallel::Parallel(const STRING& name, NetworkType type) : Plumbing(name) {
   type_ = type;
 }
 
-Parallel::~Parallel() {
-}
-
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
 StaticShape Parallel::OutputShape(const StaticShape& input_shape) const {

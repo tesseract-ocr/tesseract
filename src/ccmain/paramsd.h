@@ -52,8 +52,7 @@ class ParamContent : public ELIST_LINK {
   static ParamContent* GetParamContentById(int id);
 
   // Constructors for the various ParamTypes.
-  ParamContent() {
-  }
+  ParamContent() = default;
   explicit ParamContent(tesseract::StringParam* it);
   explicit ParamContent(tesseract::IntParam* it);
   explicit ParamContent(tesseract::BoolParam* it);

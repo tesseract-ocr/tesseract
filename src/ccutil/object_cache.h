@@ -34,7 +34,7 @@ namespace tesseract {
 template<typename T>
 class ObjectCache {
  public:
-  ObjectCache() {}
+  ObjectCache() = default;
   ~ObjectCache() {
     mu_.Lock();
     for (int i = 0; i < cache_.size(); i++) {

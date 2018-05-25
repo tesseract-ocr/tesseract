@@ -29,8 +29,7 @@
 class DLLSYM DIR128
 {
   public:
-    DIR128() {
-    }                            //empty constructor
+    DIR128() = default;
 
     DIR128(                //constructor
            int16_t value) {  //value to assign

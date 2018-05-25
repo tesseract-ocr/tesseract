@@ -114,7 +114,7 @@ class UnicharIdArrayUtils {
 class AmbigSpec : public ELIST_LINK {
  public:
   AmbigSpec();
-  ~AmbigSpec() {}
+  ~AmbigSpec() = default;
 
   // Comparator function for sorting AmbigSpec_LISTs. The lists will
   // be sorted by their wrong_ngram arrays. Example of wrong_ngram vectors
@@ -142,7 +142,7 @@ using UnicharAmbigsVector = GenericVector<AmbigSpec_LIST *>;
 
 class UnicharAmbigs {
  public:
-  UnicharAmbigs() {}
+  UnicharAmbigs() = default;
   ~UnicharAmbigs() {
     replace_ambigs_.delete_data_pointers();
     dang_ambigs_.delete_data_pointers();

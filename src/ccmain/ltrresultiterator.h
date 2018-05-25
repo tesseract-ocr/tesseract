@@ -62,7 +62,8 @@ class TESS_API LTRResultIterator : public PageIterator {
                     int scale, int scaled_yres,
                     int rect_left, int rect_top,
                     int rect_width, int rect_height);
-  virtual ~LTRResultIterator();
+
+  virtual ~LTRResultIterator() = default;
 
   // LTRResultIterators may be copied! This makes it possible to iterate over
   // all the objects at a lower level, while maintaining an iterator to

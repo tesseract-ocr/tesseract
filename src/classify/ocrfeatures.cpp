@@ -40,14 +40,14 @@
  * @return  TRUE if feature added to set, FALSE if set is already full.
  * @note History: Tue May 22 17:22:23 1990, DSJ, Created.
  */
-BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
+bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
     FreeFeature(Feature);
-    return FALSE;
+    return false;
   }
 
   FeatureSet->Features[FeatureSet->NumFeatures++] = Feature;
-  return TRUE;
+  return true;
 }                                /* AddFeature */
 
 /**
@@ -134,7 +134,7 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
     if (tfscanf(File, "%f", &(Feature->Params[i])) != 1)
       DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
 #ifndef _WIN32
-    assert (!isnan(Feature->Params[i]));
+    assert (!std::isnan(Feature->Params[i]));
 #endif
   }
   return (Feature);
@@ -181,7 +181,7 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
-    assert(!isnan(Feature->Params[i]));
+    assert(!std::isnan(Feature->Params[i]));
 #endif
     str->add_str_double(" ", Feature->Params[i]);
   }

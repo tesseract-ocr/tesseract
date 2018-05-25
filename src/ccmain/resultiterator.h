@@ -43,7 +43,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * ResultIterator is copy constructible!
    * The default copy constructor works just fine for us.
    */
-  virtual ~ResultIterator() {}
+  virtual ~ResultIterator() = default;
 
   // ============= Moving around within the page ============.
   /**

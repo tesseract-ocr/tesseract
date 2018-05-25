@@ -63,7 +63,7 @@ void FPCUTPT::setup(                     //constructor
   sq_sum = offset * offset;
   cost = sq_sum;
   faked = FALSE;
-  terminal = FALSE;
+  terminal = false;
   fake_count = 0;
   xpos = x;
   region_index = 0;
@@ -96,18 +96,18 @@ void FPCUTPT::setup(                     //constructor
  **********************************************************************/
 
 void FPCUTPT::assign(                         //constructor
-                     FPCUTPT *cutpts,         //predecessors
-                     int16_t array_origin,      //start coord
-                     int16_t x,                 //position
-                     BOOL8 faking,            //faking this one
-                     BOOL8 mid_cut,           //cheap cut.
-                     int16_t offset,            //dist to gap
-                     STATS *projection,       //vertical occupation
-                     float projection_scale,  //scaling
-                     int16_t zero_count,        //official zero
-                     int16_t pitch,             //proposed pitch
-                     int16_t pitch_error        //allowed tolerance
-                    ) {
+        FPCUTPT* cutpts,         //predecessors
+        int16_t array_origin,      //start coord
+        int16_t x,                 //position
+        bool faking,            //faking this one
+        bool mid_cut,           //cheap cut.
+        int16_t offset,            //dist to gap
+        STATS* projection,       //vertical occupation
+        float projection_scale,  //scaling
+        int16_t zero_count,        //official zero
+        int16_t pitch,             //proposed pitch
+        int16_t pitch_error        //allowed tolerance
+) {
   int index;                     //test index
   int balance_index;             //for balance factor
   int16_t balance_count;           //ding factor
@@ -140,7 +140,7 @@ void FPCUTPT::assign(                         //constructor
   cost = MAX_FLOAT32;
   pred = nullptr;
   faked = faking;
-  terminal = FALSE;
+  terminal = false;
   region_index = 0;
   fake_count = INT16_MAX;
   for (index = x - pitch - pitch_error; index <= x - pitch + pitch_error;
@@ -247,7 +247,7 @@ void FPCUTPT::assign_cheap(                         //constructor
   cost = MAX_FLOAT32;
   pred = nullptr;
   faked = faking;
-  terminal = FALSE;
+  terminal = false;
   region_index = 0;
   fake_count = INT16_MAX;
   index = x - pitch;
@@ -309,8 +309,8 @@ double check_pitch_sync2(                          //find segmentation
                          int16_t start,              //start of good range
                          int16_t end                 //end of good range
                         ) {
-  BOOL8 faking;                  //illegal cut pt
-  BOOL8 mid_cut;                 //cheap cut pt.
+  bool faking;                  //illegal cut pt
+  bool mid_cut;                 //cheap cut pt.
   int16_t x;                       //current coord
   int16_t blob_index;              //blob number
   int16_t left_edge;               //of word
@@ -383,8 +383,8 @@ double check_pitch_sync2(                          //find segmentation
       next_box = box_next (&this_it);
       blob_index++;
     }
-    faking = FALSE;
-    mid_cut = FALSE;
+    faking = false;
+    mid_cut = false;
     if (x <= this_box.left ())
       offset = 0;
     else if (x <= this_box.left () + pitch_error)
@@ -400,11 +400,11 @@ double check_pitch_sync2(                          //find segmentation
       offset = this_box.right () - x;
     else if (x - this_box.left () > pitch * pitsync_joined_edge
     && this_box.right () - x > pitch * pitsync_joined_edge) {
-      mid_cut = TRUE;
+      mid_cut = true;
       offset = 0;
     }
     else {
-      faking = TRUE;
+      faking = true;
       offset = projection->pile_count (x);
     }
     cutpts[x - array_origin].assign (cutpts, array_origin, x,
@@ -420,10 +420,10 @@ double check_pitch_sync2(                          //find segmentation
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
     cutpts[x - array_origin].assign (cutpts, array_origin, x,
-      FALSE, FALSE, offset, projection,
+      false, false, offset, projection,
       projection_scale, zero_count, pitch,
       pitch_error);
-    cutpts[x - array_origin].terminal = TRUE;
+    cutpts[x - array_origin].terminal = true;
     if (cutpts[x - array_origin].index () +
     cutpts[x - array_origin].fake_count <= best_count + best_fake) {
       if (cutpts[x - array_origin].fake_count < best_fake
@@ -505,8 +505,8 @@ double check_pitch_sync3(                          //find segmentation
                          int16_t start,              //start of good range
                          int16_t end                 //end of good range
                         ) {
-  BOOL8 faking;                  //illegal cut pt
-  BOOL8 mid_cut;                 //cheap cut pt.
+  bool faking;                  //illegal cut pt
+  bool mid_cut;                 //cheap cut pt.
   int16_t left_edge;               //of word
   int16_t right_edge;              //of word
   int16_t x;                       //current coord
@@ -570,8 +570,8 @@ double check_pitch_sync3(                          //find segmentation
     minindex++;
     if (minindex > pitch_error * 2)
       minindex = 0;
-    faking = FALSE;
-    mid_cut = FALSE;
+    faking = false;
+    mid_cut = false;
     offset = 0;
     if (projection->pile_count (x) <= zero_count) {
       prev_zero = x;
@@ -599,14 +599,14 @@ double check_pitch_sync3(                          //find segmentation
       }
       if (offset > pitch_error) {
         offset = projection->pile_count (x);
-        faking = TRUE;
+        faking = true;
       }
       else {
         projection_offset =
           (int16_t) (projection->pile_count (x) / projection_scale);
         if (projection_offset > offset)
           offset = projection_offset;
-        mid_cut = TRUE;
+        mid_cut = true;
       }
     }
     if ((start == 0 && end == 0)
@@ -635,10 +635,10 @@ double check_pitch_sync3(                          //find segmentation
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
     cutpts[x - array_origin].assign (cutpts, array_origin, x,
-      FALSE, FALSE, offset, projection,
+      false, false, offset, projection,
       projection_scale, zero_count, pitch,
       pitch_error);
-    cutpts[x - array_origin].terminal = TRUE;
+    cutpts[x - array_origin].terminal = true;
     if (cutpts[x - array_origin].index () +
     cutpts[x - array_origin].fake_count <= best_count + best_fake) {
       if (cutpts[x - array_origin].fake_count < best_fake

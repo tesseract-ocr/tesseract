@@ -45,8 +45,7 @@ class ICOORD
       ycoord = yin;
     }
     ///destructor
-    ~ICOORD () {
-    }
+    ~ICOORD () = default;
 
     ///access function
     int16_t x() const {
@@ -99,11 +98,11 @@ class ICOORD
     }
 
     ///test equality
-    BOOL8 operator== (const ICOORD & other) const {
+    bool operator== (const ICOORD & other) const {
       return xcoord == other.xcoord && ycoord == other.ycoord;
     }
     ///test inequality
-    BOOL8 operator!= (const ICOORD & other) const {
+    bool operator!= (const ICOORD & other) const {
       return xcoord != other.xcoord || ycoord != other.ycoord;
     }
     ///rotate 90 deg anti
@@ -163,8 +162,7 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
 {
   public:
     ///empty constructor
-    ICOORDELT() {  
-    }
+    ICOORDELT() = default;
     ///constructor from ICOORD
     ICOORDELT (ICOORD icoord):ICOORD (icoord) {
     }
@@ -190,8 +188,7 @@ class DLLSYM FCOORD
 {
   public:
     ///empty constructor
-    FCOORD() {
-    }
+    FCOORD() = default;
     ///constructor
     ///@param xvalue x value
     ///@param yvalue y value
@@ -273,11 +270,11 @@ class DLLSYM FCOORD
     bool normalise();
 
     ///test equality
-    BOOL8 operator== (const FCOORD & other) {
+    bool operator== (const FCOORD & other) {
       return xcoord == other.xcoord && ycoord == other.ycoord;
     }
     ///test inequality
-    BOOL8 operator!= (const FCOORD & other) {
+    bool operator!= (const FCOORD & other) {
       return xcoord != other.xcoord || ycoord != other.ycoord;
     }
     ///rotate 90 deg anti

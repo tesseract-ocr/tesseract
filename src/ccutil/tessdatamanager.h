@@ -128,7 +128,7 @@ class TessdataManager {
   TessdataManager();
   explicit TessdataManager(FileReader reader);
 
-  ~TessdataManager() {}
+  ~TessdataManager() = default;
 
   bool swap() const { return swap_; }
   bool is_loaded() const { return is_loaded_; }

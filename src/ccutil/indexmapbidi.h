@@ -41,7 +41,7 @@ class IndexMapBiDi;
 // It must be initialized by copying from an IndexMapBiDi or by DeSerialize.
 class IndexMap {
  public:
-  virtual ~IndexMap() {}
+  virtual ~IndexMap() = default;
 
   // SparseToCompact takes a sparse index to an index in the compact space.
   // Uses a binary search to find the result. For faster speed use

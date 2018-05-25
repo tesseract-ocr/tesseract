@@ -60,7 +60,7 @@ class PAGE_RES {                 // page result
   int32_t char_count;
   int32_t rej_count;
   BLOCK_RES_LIST block_res_list;
-  BOOL8 rejected;
+  bool rejected;
   // Updated every time PAGE_RES_IT iterating on this PAGE_RES moves to
   // the next word. This pointer is not owned by PAGE_RES class.
   WERD_CHOICE **prev_word_best_choice;
@@ -75,7 +75,7 @@ class PAGE_RES {                 // page result
   inline void Init() {
     char_count = 0;
     rej_count = 0;
-    rejected = FALSE;
+    rejected = false;
     prev_word_best_choice = nullptr;
     blame_reasons.init_to_size(IRR_NUM_REASONS, 0);
   }
@@ -86,8 +86,7 @@ class PAGE_RES {                 // page result
            BLOCK_LIST *block_list,   // real blocks
            WERD_CHOICE **prev_word_best_choice_ptr);
 
-  ~PAGE_RES () {               // destructor
-  }
+  ~PAGE_RES () = default;
 };
 
 /*************************************************************************
@@ -102,20 +101,18 @@ class BLOCK_RES:public ELIST_LINK {
   int16_t font_class;            //
   int16_t row_count;
   float x_height;
-  BOOL8 font_assigned;         // block already
+  bool font_assigned;         // block already
   //      processed
-  BOOL8 bold;                  // all bold
-  BOOL8 italic;                // all italic
+  bool bold;                  // all bold
+  bool italic;                // all italic
 
   ROW_RES_LIST row_res_list;
 
-  BLOCK_RES() {
-  }                            // empty constructor
+  BLOCK_RES() = default;
 
   BLOCK_RES(bool merge_similar_words, BLOCK *the_block);  // real block
 
-  ~BLOCK_RES () {              // destructor
-  }
+  ~BLOCK_RES () = default;
 };
 
 /*************************************************************************
@@ -130,13 +127,11 @@ class ROW_RES:public ELIST_LINK {
   int32_t whole_word_rej_count;  // rejs in total rej wds
   WERD_RES_LIST word_res_list;
 
-  ROW_RES() {
-  }                            // empty constructor
+  ROW_RES() = default;
 
   ROW_RES(bool merge_similar_words, ROW *the_row);  // real row
 
-  ~ROW_RES() {                // destructor
-  }
+  ~ROW_RES() = default;
 };
 
 /*************************************************************************
@@ -269,7 +264,7 @@ class WERD_RES : public ELIST_LINK {
   // TODO(rays) Add more documentation here.
   WERD_CHOICE *ep_choice;      // ep text TODO(rays) delete this.
   REJMAP reject_map;           // best_choice rejects
-  BOOL8 tess_failed;
+  bool tess_failed;
   /*
     If tess_failed is TRUE, one of the following tests failed when Tess
     returned:
@@ -277,9 +272,9 @@ class WERD_RES : public ELIST_LINK {
     - The best_choice string contained ALL blanks;
     - The best_choice string was zero length
   */
-  BOOL8 tess_accepted;          // Tess thinks its ok?
-  BOOL8 tess_would_adapt;       // Tess would adapt?
-  BOOL8 done;                   // ready for output?
+  bool tess_accepted;          // Tess thinks its ok?
+  bool tess_would_adapt;       // Tess would adapt?
+  bool done;                   // ready for output?
   bool small_caps;              // word appears to be small caps
   bool odd_size;                // word is bigger than line or leader dots.
   int8_t italic;
@@ -289,8 +284,8 @@ class WERD_RES : public ELIST_LINK {
   const FontInfo* fontinfo2;
   int8_t fontinfo_id_count;       // number of votes
   int8_t fontinfo_id2_count;      // number of votes
-  BOOL8 guessed_x_ht;
-  BOOL8 guessed_caps_ht;
+  bool guessed_x_ht;
+  bool guessed_caps_ht;
   CRUNCH_MODE unlv_crunch_mode;
   float x_height;              // post match estimate
   float caps_height;           // post match estimate
@@ -315,9 +310,9 @@ class WERD_RES : public ELIST_LINK {
     Combination words are FOLLOWED by the sequence of part_of_combo words
     which they combine.
   */
-  BOOL8 combination;           //of two fuzzy gap wds
-  BOOL8 part_of_combo;         //part of a combo
-  BOOL8 reject_spaces;         //Reject spacing?
+  bool combination;           //of two fuzzy gap wds
+  bool part_of_combo;         //part of a combo
+  bool reject_spaces;         //Reject spacing?
 
   WERD_RES() {
     InitNonPointers();
@@ -660,8 +655,7 @@ class PAGE_RES_IT {
  public:
   PAGE_RES * page_res;         // page being iterated
 
-  PAGE_RES_IT() {
-  }                            // empty contructor
+  PAGE_RES_IT() = default;
 
   PAGE_RES_IT(PAGE_RES *the_page_res) {    // page result
     page_res = the_page_res;

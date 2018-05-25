@@ -52,7 +52,7 @@ ROW *fixed_pitch_words(                 //find lines
                        TO_ROW *row,     //row to do
                        FCOORD rotation  //for drawing
                       ) {
-  BOOL8 bol;                     //start of line
+  bool bol;                     //start of line
   uint8_t blanks;                  //in front of word
   uint8_t new_blanks;              //blanks in empty cell
   int16_t chop_coord;              //chop boundary
@@ -82,7 +82,7 @@ ROW *fixed_pitch_words(                 //find lines
 #endif
 
   prev_x = -INT16_MAX;
-  bol = TRUE;
+  bol = true;
   blanks = 0;
   if (rep_it.empty ())
     rep_left = INT16_MAX;
@@ -158,7 +158,7 @@ ROW *fixed_pitch_words(                 //find lines
         word_it.add_after_then_move (word);
         if (bol) {
           word->set_flag (W_BOL, TRUE);
-          bol = FALSE;
+          bol = false;
         }
         blanks = new_blanks;
       }
@@ -398,14 +398,14 @@ void fixed_split_coutline(                        //chop the outline
  * If the coutline lies too heavily to one side to chop, FALSE is returned.
  **********************************************************************/
 
-BOOL8 fixed_chop_coutline(                                  //chop the outline
-                          C_OUTLINE *srcline,               //source outline
-                          int16_t chop_coord,                 //place to chop
-                          float pitch_error,                //allowed deviation
-                          C_OUTLINE_FRAG_LIST *left_frags,  //left half of chop
-                          C_OUTLINE_FRAG_LIST *right_frags  //right half of chop
-                         ) {
-  BOOL8 first_frag;              //fragment
+bool fixed_chop_coutline(                                  //chop the outline
+        C_OUTLINE* srcline,               //source outline
+        int16_t chop_coord,                 //place to chop
+        float pitch_error,                //allowed deviation
+        C_OUTLINE_FRAG_LIST* left_frags,  //left half of chop
+        C_OUTLINE_FRAG_LIST* right_frags  //right half of chop
+) {
+  bool first_frag;              //fragment
   int16_t left_edge;               //of outline
   int16_t startindex;              //in first fragment
   int32_t length;                  //of outline
@@ -432,10 +432,10 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
     pos += srcline->step (stepindex);
   }
   if (left_edge >= chop_coord - pitch_error)
-    return FALSE;                //not worth it
+    return false;                //not worth it
 
   startindex = tail_index;
-  first_frag = TRUE;
+  first_frag = true;
   head_index = tail_index;
   head_pos = tail_pos;
   do {
@@ -448,7 +448,7 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
     while (tail_pos.x () != chop_coord && tail_index != startindex);
     if (tail_index == startindex) {
       if (first_frag)
-        return FALSE;            //doesn't cross line
+        return false;            //doesn't cross line
       else
         break;
     }
@@ -466,7 +466,7 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
     else {
       first_index = tail_index;
       first_pos = tail_pos;
-      first_frag = FALSE;
+      first_frag = false;
     }
     while (srcline->step (tail_index).x () == 0) {
       tail_pos += srcline->step (tail_index);
@@ -510,7 +510,7 @@ BOOL8 fixed_chop_coutline(                                  //chop the outline
                       first_pos,
                       srcline,
                       left_frags);
-  return TRUE;                   //did some chopping
+  return true;                   //did some chopping
 }
 
 /**********************************************************************

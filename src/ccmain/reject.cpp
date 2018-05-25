@@ -57,7 +57,7 @@ void Tesseract::set_done(WERD_RES *word, int16_t pass) {
       word->best_choice->permuter() == FREQ_DAWG_PERM ||
       word->best_choice->permuter() == USER_DAWG_PERM;
   if (word->done && (pass == 1) && (!word_from_dict || word_is_ambig) &&
-      one_ell_conflict(word, FALSE)) {
+      one_ell_conflict(word, false)) {
     if (tessedit_rejection_debug) tprintf("one_ell_conflict detected\n");
     word->done = FALSE;
   }
@@ -104,7 +104,7 @@ void Tesseract::make_reject_map(WERD_RES *word, ROW *row, int16_t pass) {
     if (kBlnXHeight / word->denorm.y_scale() <= min_sane_x_ht_pixels) {
       word->reject_map.rej_word_small_xht();
     } else {
-      one_ell_conflict(word, TRUE);
+      one_ell_conflict(word, true);
       /*
         Originally the code here just used the done flag. Now I have duplicated
         and unpacked the conditions for setting the done flag so that each
@@ -284,7 +284,7 @@ void Tesseract::reject_edge_blobs(WERD_RES *word) {
  * Identify words where there is a potential I/l/1 error.
  * - A bundle of contextual heuristics!
  **********************************************************************/
-BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
+bool Tesseract::one_ell_conflict(WERD_RES* word_res, bool update_map) {
   const char *word;
   const char *lengths;
   int16_t word_len;                //its length
@@ -292,30 +292,30 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   int16_t first_alphanum_offset_;
   int16_t i;
   int16_t offset;
-  BOOL8 non_conflict_set_char;   //non conf set a/n?
-  BOOL8 conflict = FALSE;
-  BOOL8 allow_1s;
+  bool non_conflict_set_char;   //non conf set a/n?
+  bool conflict = false;
+  bool allow_1s;
   ACCEPTABLE_WERD_TYPE word_type;
-  BOOL8 dict_perm_type;
-  BOOL8 dict_word_ok;
+  bool dict_perm_type;
+  bool dict_word_ok;
   int dict_word_type;
 
   word = word_res->best_choice->unichar_string().string ();
   lengths = word_res->best_choice->unichar_lengths().string();
-  word_len = strlen (lengths);
+  word_len = strlen(lengths);
   /*
     If there are no occurrences of the conflict set characters then the word
     is OK.
   */
-  if (strpbrk (word, conflict_set_I_l_1.string ()) == nullptr)
-    return FALSE;
+  if (strpbrk(word, conflict_set_I_l_1.string ()) == nullptr)
+    return false;
 
   /*
     There is a conflict if there are NO other (confirmed) alphanumerics apart
     from those in the conflict set.
   */
 
-  for (i = 0, offset = 0, non_conflict_set_char = FALSE;
+  for (i = 0, offset = 0, non_conflict_set_char = false;
        (i < word_len) && !non_conflict_set_char; offset += lengths[i++])
     non_conflict_set_char =
         (word_res->uch_set->get_isalpha(word + offset, lengths[i]) ||
@@ -324,7 +324,7 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
   if (!non_conflict_set_char) {
     if (update_map)
       reject_I_1_L(word_res);
-    return TRUE;
+    return true;
   }
 
   /*
@@ -355,11 +355,11 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
         if (update_map)
           word_res->reject_map[first_alphanum_index_].
             setrej_1Il_conflict();
-        return TRUE;
+        return true;
       }
       else {
         word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'I';
-        return FALSE;
+        return false;
       }
     }
 
@@ -371,14 +371,14 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
         if (update_map)
           word_res->reject_map[first_alphanum_index_].
             setrej_1Il_conflict();
-        return TRUE;
+        return true;
       }
       else {
         word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'l';
-        return FALSE;
+        return false;
       }
     }
-    return FALSE;
+    return false;
   }
 
   /*
@@ -398,7 +398,7 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
       word[first_alphanum_offset_] == 'l') {
     word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'I';
     if (safe_dict_word(word_res) > 0)
-      return FALSE;
+      return false;
     else
       word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'l';
   }
@@ -406,7 +406,7 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
            word[first_alphanum_offset_] == 'I') {
     word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'l';
     if (safe_dict_word(word_res) > 0)
-      return FALSE;
+      return false;
     else
       word_res->best_choice->unichar_string()[first_alphanum_offset_] = 'I';
   }
@@ -421,14 +421,14 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
       (word_res->best_choice->permuter () == NUMBER_PERM);
 
     int16_t offset;
-    conflict = FALSE;
+    conflict = false;
     for (i = 0, offset = 0; word[offset] != '\0';
          offset += word_res->best_choice->unichar_lengths()[i++]) {
       if ((!allow_1s || (word[offset] != '1')) &&
       STRING (conflict_set_I_l_1).contains (word[offset])) {
         if (update_map)
           word_res->reject_map[i].setrej_1Il_conflict ();
-        conflict = TRUE;
+        conflict = true;
       }
     }
     return conflict;
@@ -445,18 +445,18 @@ BOOL8 Tesseract::one_ell_conflict(WERD_RES *word_res, BOOL8 update_map) {
       if (update_map)
         word_res->reject_map[first_alphanum_index_].
             setrej_1Il_conflict ();
-      return TRUE;
+      return true;
     }
     else
-      return FALSE;
+      return false;
   }
   else if (word_type == AC_UPPER_CASE) {
-    return FALSE;
+    return false;
   }
   else {
     if (update_map)
       reject_I_1_L(word_res);
-    return TRUE;
+    return true;
   }
 }
 
@@ -501,17 +501,17 @@ int16_t Tesseract::alpha_count(const char *word,
 }
 
 
-BOOL8 Tesseract::word_contains_non_1_digit(const char *word,
-                                           const char *word_lengths) {
+bool Tesseract::word_contains_non_1_digit(const char* word,
+                                          const char* word_lengths) {
   int16_t i;
   int16_t offset;
 
   for (i = 0, offset = 0; word[offset] != '\0'; offset += word_lengths[i++]) {
     if (unicharset.get_isdigit (word + offset, word_lengths[i]) &&
         (word_lengths[i] != 1 || word[offset] != '1'))
-      return TRUE;
+      return true;
   }
-  return FALSE;
+  return false;
 }
 
 /*************************************************************************
@@ -524,13 +524,13 @@ void Tesseract::dont_allow_1Il(WERD_RES *word) {
   int word_len = word->reject_map.length();
   const char *s = word->best_choice->unichar_string().string();
   const char *lengths = word->best_choice->unichar_lengths().string();
-  BOOL8 accepted_1Il = FALSE;
+  bool accepted_1Il = false;
 
   for (i = 0, offset = 0; i < word_len;
        offset += word->best_choice->unichar_lengths()[i++]) {
     if (word->reject_map[i].accepted()) {
       if (STRING(conflict_set_I_l_1).contains(s[offset])) {
-        accepted_1Il = TRUE;
+        accepted_1Il = true;
       } else {
         if (word->uch_set->get_isalpha(s + offset, lengths[i]) ||
             word->uch_set->get_isdigit(s + offset, lengths[i]))
@@ -574,29 +574,29 @@ void Tesseract::reject_mostly_rejects(WERD_RES *word) {
 }
 
 
-BOOL8 Tesseract::repeated_nonalphanum_wd(WERD_RES *word, ROW *row) {
+bool Tesseract::repeated_nonalphanum_wd(WERD_RES* word, ROW* row) {
   int16_t char_quality;
   int16_t accepted_char_quality;
 
   if (word->best_choice->unichar_lengths().length() <= 1)
-    return FALSE;
+    return false;
 
   if (!STRING(ok_repeated_ch_non_alphanum_wds).
     contains(word->best_choice->unichar_string()[0]))
-    return FALSE;
+    return false;
 
   UNICHAR_ID uch_id = word->best_choice->unichar_id(0);
   for (int i = 1; i < word->best_choice->length(); ++i) {
-    if (word->best_choice->unichar_id(i) != uch_id) return FALSE;
+    if (word->best_choice->unichar_id(i) != uch_id) return false;
   }
 
   word_char_quality(word, row, &char_quality, &accepted_char_quality);
 
   if ((word->best_choice->unichar_lengths().length () == char_quality) &&
     (char_quality == accepted_char_quality))
-    return TRUE;
+    return true;
   else
-    return FALSE;
+    return false;
 }
 
 int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
@@ -777,11 +777,11 @@ void Tesseract::flip_0O(WERD_RES *word_res) {
   }
 }
 
-BOOL8 Tesseract::non_O_upper(const UNICHARSET& ch_set, UNICHAR_ID unichar_id) {
+bool Tesseract::non_O_upper(const UNICHARSET& ch_set, UNICHAR_ID unichar_id) {
   return ch_set.get_isupper(unichar_id) && !ch_set.eq(unichar_id, "O");
 }
 
-BOOL8 Tesseract::non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id) {
+bool Tesseract::non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id) {
   return ch_set.get_isdigit(unichar_id) && !ch_set.eq(unichar_id, "0");
 }
 }  // namespace tesseract

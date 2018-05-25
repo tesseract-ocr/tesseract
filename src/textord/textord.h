@@ -68,7 +68,7 @@ using WordSearch = GridSearch<WordWithBox, WordWithBox_CLIST, WordWithBox_C_IT>;
 class Textord {
  public:
   explicit Textord(CCStruct* ccstruct);
-  ~Textord();
+  ~Textord() = default;
 
   // Make the textlines and words inside each block.
   // binary_pix is mandatory and is the binarized input after line removal.
@@ -109,7 +109,7 @@ class Textord {
                        );
   // tordmain.cpp ///////////////////////////////////////////
   void find_components(Pix* pix, BLOCK_LIST *blocks, TO_BLOCK_LIST *to_blocks);
-  void filter_blobs(ICOORD page_tr, TO_BLOCK_LIST *blocks, BOOL8 testing_on);
+  void filter_blobs(ICOORD page_tr, TO_BLOCK_LIST* blocks, bool testing_on);
 
  private:
   // For underlying memory management and other utilities.
@@ -135,13 +135,13 @@ class Textord {
                            const FCOORD& rotation,
                            float gradient,       // global skew
                            int block_line_size);
-  void make_spline_rows(TO_BLOCK *block,   // block to do
+  void make_spline_rows(TO_BLOCK* block,   // block to do
                         float gradient,    // gradient to fit
-                        BOOL8 testing_on);
+                        bool testing_on);
  private:
   //// oldbasel.cpp ////////////////////////////////////////
-  void make_old_baselines(TO_BLOCK *block,   // block to do
-                          BOOL8 testing_on,  // correct orientation
+  void make_old_baselines(TO_BLOCK* block,   // block to do
+                          bool testing_on,  // correct orientation
                           float gradient);
   void correlate_lines(TO_BLOCK *block, float gradient);
   void correlate_neighbours(TO_BLOCK *block,  // block rows are in.
@@ -156,14 +156,14 @@ class Textord {
                       QSPLINE *spline);  // starting spline
   // tospace.cpp ///////////////////////////////////////////
   //DEBUG USE ONLY
-  void block_spacing_stats(TO_BLOCK *block,
-                           GAPMAP *gapmap,
-                           BOOL8 &old_text_ord_proportional,
-                           //resulting estimate
-                           int16_t &block_space_gap_width,
-                           //resulting estimate
-                           int16_t &block_non_space_gap_width
-                           );
+  void block_spacing_stats(TO_BLOCK* block,
+                           GAPMAP* gapmap,
+                           bool& old_text_ord_proportional,
+          //resulting estimate
+                           int16_t& block_space_gap_width,
+          //resulting estimate
+                           int16_t& block_non_space_gap_width
+  );
   void row_spacing_stats(TO_ROW *row,
                          GAPMAP *gapmap,
                          int16_t block_idx,
@@ -181,30 +181,30 @@ class Textord {
                      //estimate for block
                      int16_t block_non_space_gap_width
                      );
-  BOOL8 isolated_row_stats(TO_ROW *row,
-                           GAPMAP *gapmap,
-                           STATS *all_gap_stats,
-                           BOOL8 suspected_table,
-                           int16_t block_idx,
-                           int16_t row_idx);
+  bool isolated_row_stats(TO_ROW* row,
+                          GAPMAP* gapmap,
+                          STATS* all_gap_stats,
+                          bool suspected_table,
+                          int16_t block_idx,
+                          int16_t row_idx);
   int16_t stats_count_under(STATS *stats, int16_t threshold);
   void improve_row_threshold(TO_ROW *row, STATS *all_gap_stats);
-  BOOL8 make_a_word_break(TO_ROW *row,   // row being made
-                          TBOX blob_box, // for next_blob // how many blanks?
-                          int16_t prev_gap,
-                          TBOX prev_blob_box,
-                          int16_t real_current_gap,
-                          int16_t within_xht_current_gap,
-                          TBOX next_blob_box,
-                          int16_t next_gap,
-                          uint8_t &blanks,
-                          BOOL8 &fuzzy_sp,
-                          BOOL8 &fuzzy_non,
-                          BOOL8& prev_gap_was_a_space,
-                          BOOL8& break_at_next_gap);
-  BOOL8 narrow_blob(TO_ROW *row, TBOX blob_box);
-  BOOL8 wide_blob(TO_ROW *row, TBOX blob_box);
-  BOOL8 suspected_punct_blob(TO_ROW *row, TBOX box);
+  bool make_a_word_break(TO_ROW* row,   // row being made
+                         TBOX blob_box, // for next_blob // how many blanks?
+                         int16_t prev_gap,
+                         TBOX prev_blob_box,
+                         int16_t real_current_gap,
+                         int16_t within_xht_current_gap,
+                         TBOX next_blob_box,
+                         int16_t next_gap,
+                         uint8_t& blanks,
+                         bool& fuzzy_sp,
+                         bool& fuzzy_non,
+                         bool& prev_gap_was_a_space,
+                         bool& break_at_next_gap);
+  bool narrow_blob(TO_ROW* row, TBOX blob_box);
+  bool wide_blob(TO_ROW* row, TBOX blob_box);
+  bool suspected_punct_blob(TO_ROW* row, TBOX box);
   void peek_at_next_gap(TO_ROW *row,
                         BLOBNBOX_IT box_it,
                         TBOX &next_blob_box,
@@ -218,11 +218,11 @@ class Textord {
                 int16_t next_blob_width,
                 int16_t next_gap);
   float find_mean_blob_spacing(WERD *word);
-  BOOL8 ignore_big_gap(TO_ROW *row,
-                       int32_t row_length,
-                       GAPMAP *gapmap,
-                       int16_t left,
-                       int16_t right);
+  bool ignore_big_gap(TO_ROW* row,
+                      int32_t row_length,
+                      GAPMAP* gapmap,
+                      int16_t left,
+                      int16_t right);
   //get bounding box
   TBOX reduced_box_next(TO_ROW *row,     //current row
                         BLOBNBOX_IT *it  //iterator to blobds
@@ -239,7 +239,7 @@ class Textord {
   // WERDs contain a fake blob.
   void cleanup_nontext_block(BLOCK* block);
   void cleanup_blocks(bool clean_noise, BLOCK_LIST *blocks);
-  BOOL8 clean_noise_from_row(ROW *row);
+  bool clean_noise_from_row(ROW* row);
   void clean_noise_from_words(ROW *row);
   // Remove outlines that are a tiny fraction in either width or height
   // of the word height.

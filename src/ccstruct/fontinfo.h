@@ -61,7 +61,7 @@ struct FontSpacingInfo {
  */
 struct FontInfo {
   FontInfo() : name(nullptr), properties(0), universal_id(0), spacing_vec(nullptr) {}
-  ~FontInfo() {}
+  ~FontInfo() = default;
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(FILE* fp) const;

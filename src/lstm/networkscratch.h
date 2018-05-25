@@ -36,7 +36,7 @@ namespace tesseract {
 class NetworkScratch {
  public:
   NetworkScratch() : int_mode_(false) {}
-  ~NetworkScratch() {}
+  ~NetworkScratch() = default;
 
   // Sets the network representation. If the representation is integer, then
   // default (integer) NetworkIOs are separated from the always-float variety.

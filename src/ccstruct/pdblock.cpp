@@ -70,12 +70,12 @@ void PDBLK::set_sides(                       //set vertex lists
   ICOORDELT_IT left_it = &leftside;
   ICOORDELT_IT right_it = &rightside;
 
-  leftside.clear ();
-  left_it.move_to_first ();
-  left_it.add_list_before (left);
-  rightside.clear ();
-  right_it.move_to_first ();
-  right_it.add_list_before (right);
+  leftside.clear();
+  left_it.move_to_first();
+  left_it.add_list_before(left);
+  rightside.clear();
+  right_it.move_to_first();
+  right_it.add_list_before(right);
 }
 
 /**********************************************************************
@@ -84,21 +84,21 @@ void PDBLK::set_sides(                       //set vertex lists
  * Return TRUE if the given point is within the block.
  **********************************************************************/
 
-BOOL8 PDBLK::contains(           //test containment
-                      ICOORD pt  //point to test
-                     ) {
+bool PDBLK::contains(           //test containment
+        ICOORD pt  //point to test
+) {
   BLOCK_RECT_IT it = this;       //rectangle iterator
   ICOORD bleft, tright;          //corners of rectangle
 
-  for (it.start_block (); !it.cycled_rects (); it.forward ()) {
+  for (it.start_block(); !it.cycled_rects(); it.forward()) {
                                  //get rectangle
     it.bounding_box (bleft, tright);
                                  //inside rect
-    if (pt.x () >= bleft.x () && pt.x () <= tright.x ()
-      && pt.y () >= bleft.y () && pt.y () <= tright.y ())
-      return TRUE;               //is inside
+    if (pt.x() >= bleft.x() && pt.x() <= tright.x()
+      && pt.y() >= bleft.y() && pt.y() <= tright.y())
+      return true;               //is inside
   }
-  return FALSE;                  //not inside
+  return false;                  //not inside
 }
 
 

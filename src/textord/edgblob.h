@@ -88,9 +88,9 @@ void empty_buckets(                     //find blobs
                    BLOCK *block,        //block to scan
                    OL_BUCKETS *buckets  //output buckets
                   );
-BOOL8 capture_children(                       //find children
-                       OL_BUCKETS *buckets,   //bucket sort clanss
-                       C_BLOB_IT *reject_it,  //dead grandchildren
-                       C_OUTLINE_IT *blob_it  //output outlines
-                      );
+bool capture_children(                       //find children
+        OL_BUCKETS* buckets,   //bucket sort clanss
+        C_BLOB_IT* reject_it,  //dead grandchildren
+        C_OUTLINE_IT* blob_it  //output outlines
+);
 #endif

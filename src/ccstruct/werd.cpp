@@ -76,8 +76,8 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
   if (start_it.empty())
     return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
-    BOOL8 reject_blob = FALSE;
-    BOOL8 blob_inverted;
+    bool reject_blob = false;
+    bool blob_inverted;
 
     c_outline_it.set_to_list(start_it.data()->out_list());
     blob_inverted = c_outline_it.data()->flag(COUT_INVERSE);

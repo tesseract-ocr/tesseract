@@ -32,7 +32,7 @@ namespace tesseract {
 // of simple or smart-pointer data using a separate key. Similar to STL pair.
 template <typename Key, typename Data>
 struct KDPair {
-  KDPair() {}
+  KDPair() = default;
   KDPair(Key k, Data d) : data(d), key(k) {}
 
   int operator==(const KDPair<Key, Data>& other) const {
@@ -49,7 +49,7 @@ struct KDPair {
 // and recasting of data pointers for use with DoublePtr.
 template <typename Key, typename Data>
 struct KDPairInc : public KDPair<Key, Data> {
-  KDPairInc() {}
+  KDPairInc() = default;
   KDPairInc(Key k, Data d) : KDPair<Key, Data>(k, d) {}
   // Operator< facilitates sorting in increasing order.
   int operator<(const KDPairInc<Key, Data>& other) const {
@@ -65,7 +65,7 @@ struct KDPairInc : public KDPair<Key, Data> {
 // and recasting of data pointers for use with DoublePtr.
 template <typename Key, typename Data>
 struct KDPairDec : public KDPair<Key, Data> {
-  KDPairDec() {}
+  KDPairDec() = default;
   KDPairDec(Key k, Data d) : KDPair<Key, Data>(k, d) {}
   // Operator< facilitates sorting in decreasing order by using operator> on
   // the key values.

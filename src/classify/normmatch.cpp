@@ -87,7 +87,7 @@ namespace tesseract {
  */
 FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
                                    const FEATURE_STRUCT& feature,
-                                   BOOL8 DebugMatch) {
+                                   bool DebugMatch) {
   LIST Protos;
   FLOAT32 BestMatch;
   FLOAT32 Match;

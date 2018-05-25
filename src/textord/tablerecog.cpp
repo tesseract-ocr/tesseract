@@ -79,9 +79,6 @@ StructuredTable::StructuredTable()
       max_text_height_(INT32_MAX) {
 }
 
-StructuredTable::~StructuredTable() {
-}
-
 void StructuredTable::Init() {
 }
 

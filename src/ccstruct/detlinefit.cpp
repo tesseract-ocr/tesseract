@@ -41,9 +41,6 @@ const int kMaxRealDistance = 2.0;
 DetLineFit::DetLineFit() : square_length_(0.0) {
 }
 
-DetLineFit::~DetLineFit() {
-}
-
 // Delete all Added points.
 void DetLineFit::Clear() {
   pts_.clear();

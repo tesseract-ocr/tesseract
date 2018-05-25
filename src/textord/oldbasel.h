@@ -42,12 +42,12 @@ extern double_VAR_H (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
 extern double_VAR_H (textord_oldbl_jumplimit, 0.15,
 "X fraction for new partition");
 int get_blob_coords(                    //get boxes
-                    TO_ROW *row,        //row to use
-                    int32_t lineheight,   //block level
-                    TBOX *blobcoords,    //ouput boxes
-                    BOOL8 &holed_line,  //lost a lot of blobs
-                    int &outcount       //no of real blobs
-                   );
+        TO_ROW* row,        //row to use
+        int32_t lineheight,   //block level
+        TBOX* blobcoords,    //ouput boxes
+        bool& holed_line,  //lost a lot of blobs
+        int& outcount       //no of real blobs
+);
 void make_first_baseline (       //initial approximation
 TBOX blobcoords[],                /*blob bounding boxes */
 int blobcount,                   /*no of blobcoords */
@@ -113,12 +113,12 @@ int ycoords[],                   /*points to work on */
 int degree, int pointcount,      /*no of points */
 int xstarts[]                    //result
 );
-BOOL8 split_stepped_spline (     //make xstarts
-QSPLINE * baseline,              //current shot
-float jumplimit,                 //max step fuction
-int xcoords[],                   /*points to work on */
-int xstarts[],                   //result
-int &segments                    //no of segments
+bool split_stepped_spline(     //make xstarts
+        QSPLINE* baseline,              //current shot
+        float jumplimit,                 //max step fuction
+        int* xcoords,                   /*points to work on */
+        int* xstarts,                   //result
+        int& segments                    //no of segments
 );
 void insert_spline_point (       //get descenders
 int xstarts[],                   //starts to shuffle

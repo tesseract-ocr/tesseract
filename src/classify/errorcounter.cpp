@@ -163,8 +163,6 @@ ErrorCounter::ErrorCounter(const UNICHARSET& unicharset, int fontsize)
   font_counts_.init_to_size(fontsize, empty_counts);
   multi_unichar_counts_.init_to_size(unicharset.size(), 0);
 }
-ErrorCounter::~ErrorCounter() {
-}
 
 // Accumulates the errors from the classifier results on a single sample.
 // Returns true if debug is true and a CT_UNICHAR_TOPN_ERR error occurred.

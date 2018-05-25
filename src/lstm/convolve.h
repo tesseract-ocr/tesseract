@@ -35,7 +35,7 @@ class Convolve : public Network {
   // The area of convolution is 2*half_x + 1 by 2*half_y + 1, forcing it to
   // always be odd, so the center is the current pixel.
   Convolve(const STRING& name, int ni, int half_x, int half_y);
-  virtual ~Convolve();
+  virtual ~Convolve() = default;
 
   STRING spec() const override {
     STRING spec;

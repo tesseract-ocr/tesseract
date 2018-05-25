@@ -37,9 +37,6 @@ Input::Input(const STRING& name, const StaticShape& shape)
   if (shape.height() == 1) ni_ = shape.depth();
 }
 
-Input::~Input() {
-}
-
 // Writes to the given file. Returns false in case of error.
 bool Input::Serialize(TFile* fp) const {
   return Network::Serialize(fp) && shape_.Serialize(fp);

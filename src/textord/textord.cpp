@@ -226,9 +226,6 @@ Textord::Textord(CCStruct* ccstruct)
       double_MEMBER(textord_blshift_xfraction, 9.99,
                     "Min size of baseline shift", ccstruct_->params()) {}
 
-Textord::~Textord() {
-}
-
 // Make the textlines and words inside each block.
 void Textord::TextordPage(PageSegMode pageseg_mode, const FCOORD& reskew,
                           int width, int height, Pix* binary_pix,

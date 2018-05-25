@@ -104,7 +104,7 @@ const FEATURE_DESC_STRUCT Name = {				\
 /*----------------------------------------------------------------------
         Generic routines that work for all feature types
 ----------------------------------------------------------------------*/
-BOOL8 AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);
+bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature);
 
 void FreeFeature(FEATURE Feature);
 

@@ -30,9 +30,6 @@ Convolve::Convolve(const STRING& name, int ni, int half_x, int half_y)
     half_x_(half_x), half_y_(half_y) {
 }
 
-Convolve::~Convolve() {
-}
-
 // Writes to the given file. Returns false in case of error.
 bool Convolve::Serialize(TFile* fp) const {
   if (!Network::Serialize(fp)) return false;

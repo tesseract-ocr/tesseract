@@ -26,9 +26,6 @@ Reconfig::Reconfig(const STRING& name, int ni, int x_scale, int y_scale)
     x_scale_(x_scale), y_scale_(y_scale) {
 }
 
-Reconfig::~Reconfig() {
-}
-
 // Returns the shape output from the network given an input shape (which may
 // be partially unknown ie zero).
 StaticShape Reconfig::OutputShape(const StaticShape& input_shape) const {

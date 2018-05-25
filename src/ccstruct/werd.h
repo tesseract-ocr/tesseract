@@ -59,7 +59,7 @@ class ROW;                       //forward decl
 
 class WERD : public ELIST2_LINK {
   public:
-    WERD() {}
+    WERD() = default;
     // WERD constructed with:
     //   blob_list - blobs of the word (we take this list's contents)
     //   blanks - number of blanks before the word
@@ -75,8 +75,7 @@ class WERD : public ELIST2_LINK {
     // W_BOL and W_EOL flags are set according to the given values.
     WERD* ConstructFromSingleBlob(bool bol, bool eol, C_BLOB* blob);
 
-    ~WERD() {
-    }
+    ~WERD() = default;
 
     // assignment
     WERD & operator= (const WERD &source);
@@ -125,11 +124,11 @@ class WERD : public ELIST2_LINK {
     const char *text() const { return correct.string(); }
     void set_text(const char *new_text) { correct = new_text; }
 
-    BOOL8 flag(WERD_FLAGS mask) const { return flags.bit(mask); }
-    void set_flag(WERD_FLAGS mask, BOOL8 value) { flags.set_bit(mask, value); }
+    bool flag(WERD_FLAGS mask) const { return flags.bit(mask); }
+    void set_flag(WERD_FLAGS mask, bool value) { flags.set_bit(mask, value); }
 
-    BOOL8 display_flag(uint8_t flag) const { return disp_flags.bit(flag); }
-    void set_display_flag(uint8_t flag, BOOL8 value) {
+    bool display_flag(uint8_t flag) const { return disp_flags.bit(flag); }
+    void set_display_flag(uint8_t flag, bool value) {
       disp_flags.set_bit(flag, value);
     }
 

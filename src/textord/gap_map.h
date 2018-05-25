@@ -23,9 +23,9 @@ class GAPMAP
         free_mem(map);
     }
 
-    BOOL8 table_gap(               //Is gap a table?
-                    int16_t left,    //From here
-                    int16_t right);  //To here
+    bool table_gap(               //Is gap a table?
+            int16_t left,    //From here
+            int16_t right);  //To here
 
   private:
     int16_t total_rows;            //in block
@@ -34,7 +34,7 @@ class GAPMAP
     int16_t bucket_size;           // half an x ht
     int16_t *map;                  //empty counts
     int16_t map_max;               //map[0..max_map]       defind
-    BOOL8 any_tabs;
+    bool any_tabs;
 };
 
 /*-----------------------------*/
