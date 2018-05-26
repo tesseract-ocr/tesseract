@@ -71,7 +71,7 @@ ICOORD tright):         bl(bleft), tr(tright) {
   bxdim =(tright.x() - bleft.x()) / BUCKETSIZE + 1;
   bydim =(tright.y() - bleft.y()) / BUCKETSIZE + 1;
                                  // make array
-  buckets = new C_OUTLINE_LIST[bxdim * bydim];
+  buckets.reset(new C_OUTLINE_LIST[bxdim * bydim]);
   index = 0;
 }
 

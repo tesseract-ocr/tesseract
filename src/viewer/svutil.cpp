@@ -50,6 +50,7 @@ struct addrinfo {
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <string>
 
 // Include automatically generated configuration file if running autoconf.
@@ -147,7 +148,7 @@ void SVSync::StartProcess(const char* executable, const char* args) {
         ++argc;
       }
     }
-    char** argv = new char*[argc + 2];
+    std::unique_ptr<char*[]> argv(new char*[argc + 2]);
     argv[0] = strdup(executable);
     argv[1] = mutable_args;
     argc = 2;
@@ -162,10 +163,9 @@ void SVSync::StartProcess(const char* executable, const char* args) {
       }
     }
     argv[argc] = nullptr;
-    execvp(executable, argv);
+    execvp(executable, argv.get());
     free(argv[0]);
     free(argv[1]);
-    delete[] argv;
   }
 #endif
 }
@@ -311,12 +311,11 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
       "-Xms1024m -Xmx2048m -jar %s/ScrollView.jar"
       " & wait\"";
 #endif
-  int cmdlen = strlen(cmd_template) + 4*strlen(scrollview_path.c_str()) + 1;
-  char* cmd = new char[cmdlen];
+  size_t cmdlen = strlen(cmd_template) + 4 * strlen(scrollview_path.c_str()) + 1;
+  std::unique_ptr<char[]> cmd(new char[cmdlen]);
   const char* sv_path = scrollview_path.c_str();
-  snprintf(cmd, cmdlen, cmd_template, sv_path, sv_path, sv_path, sv_path);
-  std::string command(cmd);
-  delete [] cmd;
+  snprintf(cmd.get(), cmdlen, cmd_template, sv_path, sv_path, sv_path, sv_path);
+  std::string command(cmd.get());
   return command;
 }
 

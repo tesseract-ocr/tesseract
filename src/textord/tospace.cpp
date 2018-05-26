@@ -37,6 +37,7 @@
 #endif
 
 #include <algorithm>
+#include <memory>
 
 #define MAXSPACING      128      /*max expected spacing in pix */
 
@@ -62,9 +63,9 @@ void Textord::to_spacing(
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
   block_it.forward ()) {
     block = block_it.data ();
-    gapmap = new GAPMAP (block);
+    std::unique_ptr<GAPMAP> gapmap(new GAPMAP (block)); //map of big vert gaps in blk
     block_spacing_stats(block,
-                        gapmap,
+                        gapmap.get(),
                         old_text_ord_proportional,
                         block_space_gap_width,
                         block_non_space_gap_width);
@@ -89,7 +90,7 @@ void Textord::to_spacing(
           tprintf ("Block %d Row %d: Now Proportional\n",
             block_index, row_index);
         row_spacing_stats(row,
-                          gapmap,
+                          gapmap.get(),
                           block_index,
                           row_index,
                           block_space_gap_width,
@@ -108,7 +109,6 @@ void Textord::to_spacing(
 #endif
       row_index++;
     }
-    delete gapmap;
     block_index++;
   }
 }

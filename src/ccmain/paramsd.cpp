@@ -26,6 +26,7 @@
 #endif
 
 #include <map>
+#include <memory>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -171,14 +172,13 @@ void ParamContent::SetValue(const char* val) {
 void ParamsEditor::GetPrefixes(const char* s, STRING* level_one,
                                STRING* level_two,
                                STRING* level_three) {
-  char* p = new char[1024];
-  GetFirstWords(s, 1, p);
-  *level_one = p;
-  GetFirstWords(s, 2, p);
-  *level_two = p;
-  GetFirstWords(s, 3, p);
-  *level_three = p;
-  delete[] p;
+  std::unique_ptr<char[]> p(new char[1024]);
+  GetFirstWords(s, 1, p.get());
+  *level_one = p.get();
+  GetFirstWords(s, 2, p.get());
+  *level_two = p.get();
+  GetFirstWords(s, 3, p.get());
+  *level_three = p.get();
 }
 
 // Compare two VC objects by their name.

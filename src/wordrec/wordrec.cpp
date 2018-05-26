@@ -115,13 +115,9 @@ Wordrec::Wordrec() :
               " and segmentation search",
               params()) {
   prev_word_best_choice_ = nullptr;
-  language_model_ = new LanguageModel(&get_fontinfo_table(),
-                                      &(getDict()));
+  language_model_.reset(new LanguageModel(&get_fontinfo_table(),
+                                      &(getDict())));
   fill_lattice_ = nullptr;
-}
-
-Wordrec::~Wordrec() {
-  delete language_model_;
 }
 
 }  // namespace tesseract

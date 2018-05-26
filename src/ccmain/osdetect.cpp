@@ -34,6 +34,7 @@
 #include "textord.h"
 
 #include <algorithm>
+#include <memory>
 
 const int kMinCharactersToTry = 50;
 const int kMaxCharactersToTry = 5 * kMinCharactersToTry;
@@ -348,13 +349,12 @@ bool os_detect_blob(BLOBNBOX* bbox, OrientationDetector* o,
       scaling = static_cast<float>(kBlnXHeight) / box.width();
       x_origin = i == 1 ? box.left() : box.right();
     }
-    TBLOB* rotated_blob = new TBLOB(*tblob);
+    std::unique_ptr<TBLOB> rotated_blob(new TBLOB(*tblob));
     rotated_blob->Normalize(nullptr, &current_rotation, nullptr,
                             x_origin, y_origin, scaling, scaling,
                             0.0f, static_cast<float>(kBlnBaselineOffset),
                             false, nullptr);
-    tess->AdaptiveClassifier(rotated_blob, ratings + i);
-    delete rotated_blob;
+    tess->AdaptiveClassifier(rotated_blob.get(), ratings + i);
     current_rotation.rotate(rotation90);
   }
   delete tblob;

@@ -36,6 +36,8 @@
 #include "tesscallback.h"
 #include "tprintf.h"
 
+#include <memory>
+
 /*----------------------------------------------------------------------
               F u n c t i o n s   f o r   D a w g
 ----------------------------------------------------------------------*/
@@ -112,11 +114,10 @@ void CallWithUTF8(TessCallback1<const char *> *cb, const WERD_CHOICE *wc) {
 
 void Dawg::iterate_words(const UNICHARSET &unicharset,
                          TessCallback1<const char *> *cb) const {
-  TessCallback1<const WERD_CHOICE *> *shim =
-      NewPermanentTessCallback(CallWithUTF8, cb);
+  std::unique_ptr<TessCallback1<const WERD_CHOICE *>> shim(
+      NewPermanentTessCallback(CallWithUTF8, cb));
   WERD_CHOICE word(&unicharset);
-  iterate_words_rec(word, 0, shim);
-  delete shim;
+  iterate_words_rec(word, 0, shim.get());
 }
 
 void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far,
