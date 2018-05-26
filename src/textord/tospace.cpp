@@ -56,7 +56,6 @@ void Textord::to_spacing(
   //estimated width of non space gaps for whole block
   int16_t block_non_space_gap_width;
   bool old_text_ord_proportional;//old fixed/prop result
-  GAPMAP *gapmap = nullptr;          //map of big vert gaps in blk
 
   block_it.set_to_list (blocks);
   block_index = 1;
