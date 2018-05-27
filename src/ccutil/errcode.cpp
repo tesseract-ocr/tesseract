@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <stdlib.h>
-#include          <stdarg.h>
-#include          <string.h>
+#include          <cstdio>
+#include          <cstdlib>
+#include          <cstdarg>
+#include          <cstring>
 #ifdef __UNIX__
 #include          <signal.h>
 #endif

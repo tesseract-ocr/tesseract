@@ -22,8 +22,8 @@
 #include "config_auto.h"
 #endif
 
-#include          <stdio.h>
-#include          <stdarg.h>
+#include          <cstdio>
+#include          <cstdarg>
 #include          "ccutil.h"
 #include          "params.h"
 #include          "strngs.h"

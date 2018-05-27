@@ -20,7 +20,7 @@
 #ifndef           MEMRY_H
 #define           MEMRY_H
 
-#include          <stddef.h>
+#include          <cstddef>
 #include          "host.h"
 
 // allocate string

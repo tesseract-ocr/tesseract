@@ -19,7 +19,7 @@
 *
 **********************************************************************/
 
-#include <ctype.h>
+#include <cctype>
 #include "reject.h"
 #include "statistc.h"
 #include "control.h"

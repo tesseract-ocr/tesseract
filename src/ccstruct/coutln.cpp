@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #ifdef __UNIX__
 #include <assert.h>
 #endif

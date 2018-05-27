@@ -20,8 +20,8 @@
 #ifndef           POINTS_H
 #define           POINTS_H
 
-#include          <stdio.h>
-#include          <math.h>
+#include          <cstdio>
+#include          <cmath>
 #include          "elst.h"
 
 class FCOORD;

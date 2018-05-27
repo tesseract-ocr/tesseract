@@ -109,8 +109,7 @@ class SegSearchPending {
 class FRAGMENT:public ELIST_LINK
 {
   public:
-    FRAGMENT() {  //constructor
-    }
+    FRAGMENT() = default;
     FRAGMENT(EDGEPT *head_pt,   //start
              EDGEPT *tail_pt);  //end
 

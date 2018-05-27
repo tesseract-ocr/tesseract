@@ -28,14 +28,14 @@ struct TessCallbackUtils_ {
 
 class TessClosure {
  public:
-  virtual ~TessClosure() { }
+  virtual ~TessClosure() = default;
   virtual void Run() = 0;
 };
 
 template <class R>
 class TessResultCallback {
  public:
-  virtual ~TessResultCallback() { }
+  virtual ~TessResultCallback() = default;
   virtual R Run() = 0;
 };
 
@@ -88,7 +88,7 @@ class _ConstTessMemberResultCallback_0_0<del, void, T>
       member_(member) {
   }
 
-  virtual void Run() {
+  void Run() override{
     if (!del) {
       (object_->*member_)();
     } else {
@@ -169,7 +169,7 @@ class _TessMemberResultCallback_0_0<del, void, T>
       member_(member) {
   }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)();
     } else {
@@ -246,7 +246,7 @@ class _TessFunctionResultCallback_0_0<del, void>
     : function_(function) {
   }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)();
     } else {
@@ -1665,14 +1665,14 @@ NewPermanentTessCallback(R (*function)(P1,P2,P3,P4,P5,P6), typename Identity<P1>
 template <class A1>
 class TessCallback1 {
  public:
-  virtual ~TessCallback1() { }
+  virtual ~TessCallback1() = default;
   virtual void Run(A1) = 0;
 };
 
 template <class R, class A1>
 class TessResultCallback1 {
  public:
-  virtual ~TessResultCallback1() { }
+  virtual ~TessResultCallback1() = default;
   virtual R Run(A1) = 0;
 };
 
@@ -1680,42 +1680,42 @@ class TessResultCallback1 {
 template <class A1,class A2>
 class TessCallback2 {
  public:
-  virtual ~TessCallback2() { }
+  virtual ~TessCallback2() = default;
   virtual void Run(A1,A2) = 0;
 };
 
 template <class R, class A1,class A2>
 class TessResultCallback2 {
  public:
-  virtual ~TessResultCallback2() { }
+  virtual ~TessResultCallback2() = default;
   virtual R Run(A1,A2) = 0;
 };
 
 template <class A1,class A2,class A3>
 class TessCallback3 {
  public:
-  virtual ~TessCallback3() { }
+  virtual ~TessCallback3() = default;
   virtual void Run(A1,A2,A3) = 0;
 };
 
 template <class R, class A1,class A2,class A3>
 class TessResultCallback3 {
  public:
-  virtual ~TessResultCallback3() { }
+  virtual ~TessResultCallback3() = default;
   virtual R Run(A1,A2,A3) = 0;
 };
 
 template <class A1,class A2,class A3,class A4>
 class TessCallback4 {
  public:
-  virtual ~TessCallback4() { }
+  virtual ~TessCallback4() = default;
   virtual void Run(A1,A2,A3,A4) = 0;
 };
 
 template <class R, class A1,class A2,class A3,class A4>
 class TessResultCallback4 {
  public:
-  virtual ~TessResultCallback4() { }
+  virtual ~TessResultCallback4() = default;
   virtual R Run(A1,A2,A3,A4) = 0;
 };
 
@@ -8124,14 +8124,14 @@ NewPermanentTessCallback(R (*function)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4), typename 
 template <class A1,class A2,class A3,class A4,class A5>
 class TessCallback5 {
  public:
-  virtual ~TessCallback5() { }
+  virtual ~TessCallback5() = default;
   virtual void Run(A1,A2,A3,A4,A5) = 0;
 };
 
 template <class R, class A1,class A2,class A3,class A4,class A5>
 class TessResultCallback5 {
  public:
-  virtual ~TessResultCallback5() { }
+  virtual ~TessResultCallback5() = default;
   virtual R Run(A1,A2,A3,A4,A5) = 0;
 };
 

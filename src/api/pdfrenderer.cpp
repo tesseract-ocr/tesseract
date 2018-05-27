@@ -20,10 +20,11 @@
 #include "config_auto.h"
 #endif
 
+#include <cmath>
 #include <memory>  // std::unique_ptr
+
 #include "allheaders.h"
 #include "baseapi.h"
-#include "math.h"
 #include "renderer.h"
 #include "strngs.h"
 #include "tprintf.h"

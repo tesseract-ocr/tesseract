@@ -17,9 +17,9 @@
  *
  **********************************************************************/
 
-#include          <stdlib.h>
+#include          <cstdlib>
 #ifdef __UNIX__
-#include          <assert.h>
+#include          <cassert>
 #endif
 #include          "scanutils.h"
 #include          "fileerr.h"

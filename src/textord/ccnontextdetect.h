@@ -31,7 +31,7 @@ namespace tesseract {
 class CCNonTextDetect : public BlobGrid {
  public:
   CCNonTextDetect(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~CCNonTextDetect();
+  ~CCNonTextDetect() override;
 
   // Creates and returns a Pix with the same resolution as the original
   // in which 1 (black) pixels represent likely non text (photo, line drawing)

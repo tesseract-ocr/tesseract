@@ -18,9 +18,9 @@
  **********************************************************************/
 
 #ifdef __UNIX__
-#include          <assert.h>
+#include          <cassert>
 #endif
-#include          <math.h>
+#include          <cmath>
 #include          "memry.h"
 #include          "makerow.h"
 #include          "pitsync1.h"

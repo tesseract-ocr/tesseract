@@ -21,7 +21,7 @@
 #define TESSERACT_CCUTIL_UNICHAR_H_
 
 #include <memory.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <vector>
 #include "platform.h"

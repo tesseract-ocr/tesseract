@@ -602,8 +602,9 @@ void ColPartition::ComputeSpecialBlobsDensity() {
     special_blobs_densities_[type]++;
   }
 
-  for (int type = 0; type < BSTT_COUNT; ++type) {
-    special_blobs_densities_[type] /= boxes_.length();
+  for(auto& density : special_blobs_densities_)
+  {
+    density /= boxes_.length();
   }
 }
 

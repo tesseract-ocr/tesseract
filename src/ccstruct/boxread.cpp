@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "boxread.h"
-#include <string.h>
+#include <cstring>
 
 #include "fileerr.h"
 #include "rect.h"

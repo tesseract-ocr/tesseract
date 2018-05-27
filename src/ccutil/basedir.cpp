@@ -18,7 +18,7 @@
 
 #include          "basedir.h"
 
-#include          <stdlib.h>
+#include          <cstdlib>
 
 // Assuming that code_path is the name of some file in a desired directory,
 // returns the given code_path stripped back to the last slash, leaving

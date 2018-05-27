@@ -19,7 +19,7 @@
 
 #include "otsuthr.h"
 
-#include <string.h>
+#include <cstring>
 #include "allheaders.h"
 #include "helpers.h"
 #include "openclwrapper.h"

@@ -24,14 +24,14 @@
 #endif
 
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <cmath>
 #ifdef __UNIX__
-#include <assert.h>
+#include <cassert>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #endif
-#include <ctype.h>
+#include <cctype>
 #include "callcpp.h"
 #include "control.h"
 #include "docqual.h"

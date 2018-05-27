@@ -20,7 +20,7 @@
 #ifndef           RATNGS_H
 #define           RATNGS_H
 
-#include <assert.h>
+#include <cassert>
 
 #include "clst.h"
 #include "elst.h"

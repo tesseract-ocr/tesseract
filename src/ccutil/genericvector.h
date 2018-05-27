@@ -657,9 +657,9 @@ template <typename T>
 void GenericVector<T>::init(int size) {
   size_used_ = 0;
   size_reserved_ = 0;
-  data_ = 0;
-  clear_cb_ = 0;
-  compare_cb_ = 0;
+  data_ = nullptr;
+  clear_cb_ = nullptr;
+  compare_cb_ = nullptr;
   reserve(size);
 }
 

@@ -29,7 +29,7 @@ class Input : public Network {
  public:
   Input(const STRING& name, int ni, int no);
   Input(const STRING& name, const StaticShape& shape);
-  virtual ~Input() = default;
+  ~Input() override = default;
 
   STRING spec() const override {
     STRING spec;

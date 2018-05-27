@@ -126,8 +126,7 @@ ImageData::ImageData(bool vertical, Pix* pix)
   : page_number_(0), vertical_text_(vertical) {
   SetPix(pix);
 }
-ImageData::~ImageData() {
-}
+ImageData::~ImageData() = default;
 
 // Builds and returns an ImageData from the basic data. Note that imagedata,
 // truth_text, and box_text are all the actual file data, NOT filenames.
@@ -566,7 +565,7 @@ bool DocumentData::ReCachePages() {
 // A collection of DocumentData that knows roughly how much memory it is using.
 DocumentCache::DocumentCache(int64_t max_memory)
     : num_pages_per_doc_(0), max_memory_(max_memory) {}
-DocumentCache::~DocumentCache() {}
+DocumentCache::~DocumentCache() = default;
 
 // Adds all the documents in the list of filenames, counting memory.
 // The reader is used to read the files.

@@ -57,7 +57,7 @@ class MinK {
   ~MinK();
 
   struct Element {
-    Element() {}
+    Element() = default;
     Element(const Key& k, const Value& v) : key(k), value(v) {}
 
     Key key;

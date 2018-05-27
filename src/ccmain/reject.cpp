@@ -19,12 +19,12 @@
 
 #include          "tessvars.h"
 #ifdef __UNIX__
-#include          <assert.h>
-#include          <errno.h>
+#include          <cassert>
+#include          <cerrno>
 #endif
 #include          "scanutils.h"
-#include          <ctype.h>
-#include          <string.h>
+#include          <cctype>
+#include          <cstring>
 #include          "genericvector.h"
 #include          "reject.h"
 #include          "control.h"

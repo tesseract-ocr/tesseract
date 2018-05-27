@@ -141,7 +141,7 @@ void ErrorCounter::DebugNewErrors(
         ++total_new_errors;
         new_classifier->UnicharClassifySample(*mutable_sample, page_pix, 1,
                                               correct_id, &results);
-        if (results.size() > 0 && error_samples > 0) {
+        if (!results.empty() && error_samples > 0) {
           new_classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
           --error_samples;
         }

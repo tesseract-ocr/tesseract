@@ -306,7 +306,7 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1,
   FontClassInfo& fc_info = (*font_class_array_)(font_index1, class_id1);
   if (font_id1 == font_id2) {
     // Special case cache for speed.
-    if (fc_info.unichar_distance_cache.size() == 0)
+    if (fc_info.unichar_distance_cache.empty())
       fc_info.unichar_distance_cache.init_to_size(unicharset_size_, -1.0f);
     if (fc_info.unichar_distance_cache[class_id2] < 0) {
       // Distance has to be calculated.
@@ -316,14 +316,14 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1,
       fc_info.unichar_distance_cache[class_id2] = result;
       // Copy to the symmetric cache entry.
       FontClassInfo& fc_info2 = (*font_class_array_)(font_index2, class_id2);
-      if (fc_info2.unichar_distance_cache.size() == 0)
+      if (fc_info2.unichar_distance_cache.empty())
         fc_info2.unichar_distance_cache.init_to_size(unicharset_size_, -1.0f);
       fc_info2.unichar_distance_cache[class_id1] = result;
     }
     return fc_info.unichar_distance_cache[class_id2];
   } else if (class_id1 == class_id2) {
     // Another special-case cache for equal class-id.
-    if (fc_info.font_distance_cache.size() == 0)
+    if (fc_info.font_distance_cache.empty())
       fc_info.font_distance_cache.init_to_size(font_id_map_.CompactSize(),
                                                -1.0f);
     if (fc_info.font_distance_cache[font_index2] < 0) {
@@ -334,7 +334,7 @@ float TrainingSampleSet::ClusterDistance(int font_id1, int class_id1,
       fc_info.font_distance_cache[font_index2] = result;
       // Copy to the symmetric cache entry.
       FontClassInfo& fc_info2 = (*font_class_array_)(font_index2, class_id2);
-      if (fc_info2.font_distance_cache.size() == 0)
+      if (fc_info2.font_distance_cache.empty())
         fc_info2.font_distance_cache.init_to_size(font_id_map_.CompactSize(),
                                                   -1.0f);
       fc_info2.font_distance_cache[font_index1] = result;
@@ -583,7 +583,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
     for (int c = 0; c < unicharset_size_; ++c) {
       int samples_found = 0;
       FontClassInfo& fcinfo = (*font_class_array_)(font_index, c);
-      if (fcinfo.samples.size() == 0 ||
+      if (fcinfo.samples.empty() ||
           (kTestChar >= 0 && c != kTestChar)) {
         fcinfo.canonical_sample = -1;
         fcinfo.canonical_dist = 0.0f;

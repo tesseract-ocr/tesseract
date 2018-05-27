@@ -66,8 +66,8 @@ Import original HP distribution
 typedef void (*void_proc) (...);
 typedef void *(*void_star_proc) _ARGS ((...));
 
-typedef int (*int_void) (void);
-typedef void (*void_void) (void);
+typedef int (*int_void) ();
+typedef void (*void_void) ();
 typedef int (*int_compare) (void *, void *);
 typedef void (*void_dest) (void *);
 

@@ -75,8 +75,7 @@ struct LineHypothesis {
   LineHypothesis() : ty(LT_UNKNOWN), model(nullptr) {}
   LineHypothesis(LineType line_type, const ParagraphModel *m)
       : ty(line_type), model(m) {}
-  LineHypothesis(const LineHypothesis &other)
-      : ty(other.ty), model(other.model) {}
+  LineHypothesis(const LineHypothesis &other) = default;
 
   bool operator==(const LineHypothesis &other) const {
     return ty == other.ty && model == other.model;

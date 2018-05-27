@@ -19,10 +19,10 @@
  **********************************************************************/
 
 #ifdef __UNIX__
-#include          <assert.h>
+#include          <cassert>
 #endif
-#include          <ctype.h>
-#include          <string.h>
+#include          <cctype>
+#include          <cstring>
 #include          "tessbox.h"
 #include          "tessvars.h"
 #include          "memry.h"

@@ -24,10 +24,10 @@
 
 #include          "errcode.h"
 #ifdef __UNIX__
-#include          <assert.h>
-#include <stdarg.h>
+#include          <cassert>
+#include <cstdarg>
 #endif
-#include          <time.h>
+#include          <ctime>
 #include          "memry.h"
 #include          "scrollview.h"
 #include          "params.h"

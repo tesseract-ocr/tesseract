@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#include <float.h>
+#include <cfloat>
 
 #include "openclwrapper.h"
 #include "oclkernels.h"

@@ -710,8 +710,7 @@ TableRecognizer::TableRecognizer()
       max_text_height_(INT32_MAX) {
 }
 
-TableRecognizer::~TableRecognizer() {
-}
+TableRecognizer::~TableRecognizer() = default;
 
 void TableRecognizer::Init() {
 }

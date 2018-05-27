@@ -17,9 +17,9 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
+#include          <cstdio>
 #ifdef __UNIX__
-#include          <assert.h>
+#include          <cassert>
 #endif
 #define FASTEDGELENGTH    256
 #include          "polyaprx.h"
