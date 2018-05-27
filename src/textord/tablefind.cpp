@@ -551,7 +551,7 @@ void TableFinder::GroupColumnBlocks(ColSegment_LIST* new_blocks,
       TBOX dest_box = dest_seg->bounding_box();
       if (ConsecutiveBoxes(src_box, dest_box)) {
         // If matching block is found, insert the current block into it
-        // and delete the soure block
+        // and delete the source block.
         dest_seg->InsertBox(src_box);
         match_found = true;
         delete src_it.extract();

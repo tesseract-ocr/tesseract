@@ -136,10 +136,10 @@ class EquationDetect : public EquationDetectBase {
   bool CheckSeedFgDensity(const float density_th, ColPartition* part);
 
   // A light version of SplitCPHor: instead of really doing the part split, we
-  // simply compute the union bounding box of each splitted part.
+  // simply compute the union bounding box of each split part.
   void SplitCPHorLite(ColPartition* part, GenericVector<TBOX>* splitted_boxes);
 
-  // Split the part (horizontally), and save the splitted result into
+  // Split the part (horizontally), and save the split result into
   // parts_splitted. Note that it is caller's responsibility to release the
   // memory owns by parts_splitted. On the other hand, the part is unchanged
   // during this process and still owns the blobs, so do NOT call DeleteBoxes
@@ -159,7 +159,7 @@ class EquationDetect : public EquationDetectBase {
   // Identify inline partitions from cp_seeds_, and re-label them.
   void IdentifyInlineParts();
 
-  // Comute the super bounding box for all colpartitions inside part_grid_.
+  // Compute the super bounding box for all colpartitions inside part_grid_.
   void ComputeCPsSuperBBox();
 
   // Identify inline partitions from cp_seeds_ using the horizontal search.
@@ -244,7 +244,7 @@ class EquationDetect : public EquationDetectBase {
   // ColPartition object.
   void PrintSpecialBlobsDensity(const ColPartition* part) const;
 
-  // The tesseract engine intialized from equation training data.
+  // The tesseract engine initialized from equation training data.
   Tesseract equ_tesseract_;
 
   // The tesseract engine used for OCR. This pointer is passed in by the caller,

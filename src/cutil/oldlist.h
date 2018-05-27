@@ -65,7 +65,7 @@
  * sort              - Use quick sort to construct a new list.
  * transform         - Creates a new list by transforming each of the nodes.
  *
- * TRANFORMS:             (Note: These functions all modify the input list.)
+ * TRANSFORMS:             (Note: These functions all modify the input list.)
  * ----------
  * join              - Concatenates list 1 and list 2.
  * delete_d          - Removes the requested elements from the list.

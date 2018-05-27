@@ -178,7 +178,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
       getUnicharAmbigs().replace_ambigs() : getUnicharAmbigs().dang_ambigs();
     if (!replace) {
       // Initialize ambig_blob_choices with lists containing a single
-      // unichar id for the correspoding position in best_choice.
+      // unichar id for the corresponding position in best_choice.
       // best_choice consisting from only the original letters will
       // have a rating of 0.0.
       for (i = 0; i < best_choice->length(); ++i) {

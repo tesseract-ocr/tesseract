@@ -59,7 +59,7 @@ PRIORITY Wordrec::point_priority(EDGEPT *point) {
 /**
  * @name add_point_to_list
  *
- * Add an edge point to a POINT_GROUP containg a list of other points.
+ * Add an edge point to a POINT_GROUP containing a list of other points.
  */
 void Wordrec::add_point_to_list(PointHeap* point_heap, EDGEPT *point) {
   if (point_heap->size() < MAX_NUM_POINTS - 2) {

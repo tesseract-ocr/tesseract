@@ -364,7 +364,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   pango_context_set_font_map(context, font_map);
   PangoLayout* layout;
   {
-    // Pango is not relasing the cached layout.
+    // Pango is not releasing the cached layout.
     DISABLE_HEAP_LEAK_CHECK;
     layout = pango_layout_new(context);
   }

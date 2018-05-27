@@ -91,7 +91,7 @@ void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index,
 /**
  * Attempt to split off any high (or low) bits at the ends of the word with poor
  * certainty and recognize them separately.  If the certainty gets much better
- * and other sanity checks pass, acccept.
+ * and other sanity checks pass, accept.
  *
  * This superscript fix is meant to be called in the second pass of recognition
  * when we have tried once and already have a preliminary answer for word.

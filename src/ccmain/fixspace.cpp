@@ -226,7 +226,7 @@ void Tesseract::match_current_words(WERD_RES_LIST &words, ROW *row,
  * The solution is to NOT COUNT the score of any word which has a digit at one
  * end and a "1Il" as the character the other side of the space.
  *
- * Conversly, any character next to a "1" within a word is counted as a positive
+ * Conversely, any character next to a "1" within a word is counted as a positive
  * score. Thus "561 63" would score 4 (3 chars in a numeric word plus 1 side of
  * the "1" joined).  "56163" would score 7 - all chars in a numeric word + 2
  * sides of a "1" joined.

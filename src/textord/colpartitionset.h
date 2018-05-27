@@ -101,7 +101,7 @@ class ColPartitionSet : public ELIST_LINK {
   // by the given coords(left,right,y), with the given margins.
   // Also return the first and last column index touched by the coords and
   // the leftmost spanned column.
-  // Column indices are 2n + 1 for real colums (0 based) and even values
+  // Column indices are 2n + 1 for real columns (0 based) and even values
   // represent the gaps in between columns, with 0 being left of the leftmost.
   // resolution refers to the ppi resolution of the image. It may be 0 if only
   // the first_col and last_col are required.

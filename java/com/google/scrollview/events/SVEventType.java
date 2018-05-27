@@ -20,7 +20,7 @@ package com.google.scrollview.events;
 public enum SVEventType {
   SVET_DESTROY, // Window has been destroyed by user.
   SVET_EXIT, // User has destroyed the last window by clicking on the 'X'
-  SVET_CLICK, // Any button pressed thats not a popup trigger. 
+  SVET_CLICK, // Any button pressed that is not a popup trigger.
   SVET_SELECTION, // Left button selection.
   SVET_INPUT, // Any kind of input
   SVET_MOUSE, // The mouse has moved with a button pressed.

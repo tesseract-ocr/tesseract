@@ -239,7 +239,7 @@ TabVector* AlignedBlob::FindVerticalAlignment(AlignedBlobParams align_params,
   box = it.data()->bounding_box();
   int start_x = align_params.right_tab ? box.right() : box.left();
   int start_y = box.bottom();
-  // Acceptable tab vectors must have a mininum number of points,
+  // Acceptable tab vectors must have a minimum number of points,
   // have a minimum acceptable length, and have a minimum gradient.
   // The gradient corresponds to the skew angle.
   // Ragged tabs don't need to satisfy the gradient condition, as they

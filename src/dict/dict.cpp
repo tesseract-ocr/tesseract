@@ -688,7 +688,7 @@ void Dict::adjust_word(WERD_CHOICE *word,
         // leave the factor alone - all good!
         break;
     }
-    // TODO(eger): if nonword is true, but there is a "core" thats' a dict
+    // TODO(eger): if nonword is true, but there is a "core" that is a dict
     // word, negate nonword status.
   } else {
     if (debug) {
@@ -753,7 +753,7 @@ int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
   init_active_dawgs(&(active_dawgs[0]), false);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   int last_index = word_ptr->length() - 1;
-  // Call leter_is_okay for each letter in the word.
+  // Call letter_is_okay for each letter in the word.
   for (int i = hyphen_base_size(); i <= last_index; ++i) {
     if (!((this->*letter_is_okay_)(&dawg_args, word_ptr->unichar_id(i),
                                    i == last_index))) break;

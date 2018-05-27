@@ -306,7 +306,7 @@ class FPRow {
   // merged with others any more.
   void FinalizeLargeChars();
 
-  // Ouput pitch estimation results to attributes of TD_ROW.
+  // Output pitch estimation results to attributes of TD_ROW.
   void OutputEstimations();
 
   void DebugOutputResult(int row_index);
@@ -528,7 +528,7 @@ void FPRow::OutputEstimations() {
 
   if (good_pitches_.size() < all_pitches_.size() * kFixedPitchThreshold) {
     // If more than half of the characters of a line don't fit to the
-    // fixed pitch model, consider the line to be propotional. 50%
+    // fixed pitch model, consider the line to be proportional. 50%
     // seems to be a good threshold in practice as well.
     // Anyway we store estimated values (fixed_pitch, kern_size, etc.) in
     // real_row_ as a partial estimation result and try to use them in the

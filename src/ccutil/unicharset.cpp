@@ -138,7 +138,7 @@ void UNICHARSET::UNICHAR_PROPERTIES::SetRangesEmpty() {
 }
 
 // Returns true if any of the top/bottom/width/bearing/advance ranges/stats
-// is emtpy.
+// is empty.
 bool UNICHARSET::UNICHAR_PROPERTIES::AnyRangeEmpty() const {
   return width == 0.0f || advance == 0.0f;
 }

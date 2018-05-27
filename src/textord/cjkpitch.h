@@ -57,7 +57,7 @@
 // the final decision about fixed-pitchness of each row and compute
 // pitch and spacing parameters.
 //
-// (If a row is considered to be propotional, pitch_decision for the
+// (If a row is considered to be proportional, pitch_decision for the
 // row is set to PITCH_CORR_PROP and the later phase
 // (i.e. Textord::to_spacing()) should determine its spacing
 // parameters)

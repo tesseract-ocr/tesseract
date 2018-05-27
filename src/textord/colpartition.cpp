@@ -647,7 +647,7 @@ ColPartition* ColPartition::SingletonPartner(bool upper) {
 // Merge with the other partition and delete it.
 void ColPartition::Absorb(ColPartition* other, WidthCallback* cb) {
   // The result has to either own all of the blobs or none of them.
-  // Verify the flag is consisent.
+  // Verify the flag is consistent.
   ASSERT_HOST(owns_blobs() == other->owns_blobs());
   // TODO(nbeato): check owns_blobs better. Right now owns_blobs
   // should always be true when this is called. So there is no issues.

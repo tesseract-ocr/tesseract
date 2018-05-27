@@ -1330,7 +1330,7 @@ bool Textord::make_a_word_break(
                                  //Default as old TO
     space = current_gap > row->space_threshold;
 
-    /* Set defaults for the word break incase we find one.  Currently there are
+    /* Set defaults for the word break in case we find one.  Currently there are
     no fuzzy spaces. Depending on the reliability of the different heuristics
     we may need to set PARTICULAR spaces to fuzzy or not. The values will ONLY
     be used if the function returns TRUE - ie the word is to be broken.

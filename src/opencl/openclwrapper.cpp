@@ -998,7 +998,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
         }
     }
 
-    // Release all resouces and memory
+    // Release all resources and memory
     for ( i = 0; i < numDevices; i++ )
     {
       free(binaries[i]);

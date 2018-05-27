@@ -2437,7 +2437,7 @@ FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
 /**
  * This routine looks at all samples in the specified cluster.
  * It computes a running estimate of the percentage of the
- * charaters which have more than 1 sample in the cluster.
+ * characters which have more than 1 sample in the cluster.
  * When this percentage exceeds MaxIllegal, TRUE is returned.
  * Otherwise FALSE is returned.  The CharID
  * fields must contain integers which identify the training

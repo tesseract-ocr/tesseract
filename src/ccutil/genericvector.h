@@ -343,7 +343,7 @@ class GenericVector {
   // Init the object, allocating size memory.
   void init(int size);
 
-  // We are assuming that the object generally placed in thie
+  // We are assuming that the object generally placed in the
   // vector are small enough that for efficiency it makes sense
   // to start with a larger initial size.
   static const int kDefaultVectorSize = 4;

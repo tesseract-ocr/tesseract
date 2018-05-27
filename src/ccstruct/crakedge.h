@@ -1,6 +1,6 @@
 /**********************************************************************
  * File:						crakedge.h      (Formerly: crkedge.h)
- * Description: Sturctures for the Crack following edge detector.
+ * Description: Structures for the Crack following edge detector.
  * Author:					Ray Smith
  * Created:					Fri Mar 22 16:06:38 GMT 1991
  *

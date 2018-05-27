@@ -1005,7 +1005,7 @@ set_lang_specific_parameters() {
           test -z "$FONTS" && FONTS=( "${RUSSIAN_FONTS[@]}" ) ;;
 
     # Special code for performing Cyrillic language-id that is trained on
-    # Russian, Serbian, Ukranian, Belarusian, Macedonian, Tajik and Mongolian
+    # Russian, Serbian, Ukrainian, Belarusian, Macedonian, Tajik and Mongolian
     # text with the list of Russian fonts.
     cyr_lid )
           TEXT_CORPUS=${FLAGS_webtext_prefix}/cyr_lid.corpus.txt

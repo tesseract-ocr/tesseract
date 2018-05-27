@@ -279,7 +279,7 @@ void fixed_chop_cblob(                                //split the blob
                      ) {
   C_OUTLINE *old_right;          //already there
   C_OUTLINE_LIST new_outlines;   //new right ones
-                                 //ouput iterator
+                                 //output iterator
   C_OUTLINE_IT left_it = left_outlines;
                                  //in/out iterator
   C_OUTLINE_IT right_it = right_outlines;
