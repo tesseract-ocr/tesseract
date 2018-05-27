@@ -50,7 +50,7 @@ Import original HP distribution
  * long_rand
  *
  *  Return a long random number whose value is less than limit.  Do this
- *  by calling the standard cheepo random number generator and reseting
+ *  by calling the standard cheepo random number generator and resetting
  *  it pretty often.
  **********************************************************************/
 long long_rand(long limit) {

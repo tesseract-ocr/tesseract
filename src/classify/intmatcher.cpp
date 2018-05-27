@@ -718,7 +718,7 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
 }
 
 /**
- * Print debugging information for Configuations
+ * Print debugging information for Configurations
  * @return none
  * @note Exceptions: none
  * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
@@ -741,7 +741,7 @@ void IMDebugConfiguration(int FeatureNum,
 }
 
 /**
- * Print debugging information for Configuations
+ * Print debugging information for Configurations
  * @return none
  * @note Exceptions: none
  * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
@@ -914,7 +914,7 @@ int IntegerMatcher::UpdateTablesForFeature(
 }
 
 /**
- * Print debugging information for Configuations
+ * Print debugging information for Configurations
  * @return none
  * @note Exceptions: none
  * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.

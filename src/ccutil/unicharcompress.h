@@ -113,7 +113,7 @@ class RecodedCharID {
 // 2 (Indic): Instead of thousands of codes with one for each grapheme, re-code
 //            as the unicode sequence (but coded in a more compact space).
 // 3 (the rest): Eliminate multi-path problems with ligatures and fold confusing
-//               and not significantly distinct shapes (quotes) togther, ie
+//               and not significantly distinct shapes (quotes) together, ie
 //               represent the fi ligature as the f-i pair, and fold u+2019 and
 //               friends all onto ascii single '
 // 4 The null character and mapping to target activations:

@@ -1029,7 +1029,7 @@ EquationDetect::IndentType EquationDetect::IsIndented(ColPartition* part) {
   const int kYGapTh = static_cast<int>(roundf(0.5 * resolution_));
 
   // Here we use a simple approximation algorithm: from the center of part, We
-  // perform the radius search, and check if we can find a neighboring parition
+  // perform the radius search, and check if we can find a neighboring partition
   // that locates on the top/bottom left of part.
   search.StartRadSearch((part_box.left() + part_box.right()) / 2,
       (part_box.top() + part_box.bottom()) / 2, kRadiusTh);

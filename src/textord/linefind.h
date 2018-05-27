@@ -136,7 +136,7 @@ class LineFinder {
                            Pixa* pixa_display);
 
   // Returns a list of boxes corresponding to the candidate line segments. Sets
-  // the line_crossings member of the boxes so we can later determin the number
+  // the line_crossings member of the boxes so we can later determine the number
   // of intersections touched by a full line.
   static void GetLineBoxes(bool horizontal_lines,
                            Pix* pix_lines, Pix* pix_intersections,

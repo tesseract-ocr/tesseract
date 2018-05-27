@@ -44,7 +44,7 @@ extern double_VAR_H (textord_oldbl_jumplimit, 0.15,
 int get_blob_coords(                    //get boxes
         TO_ROW* row,        //row to use
         int32_t lineheight,   //block level
-        TBOX* blobcoords,    //ouput boxes
+        TBOX* blobcoords,    //output boxes
         bool& holed_line,  //lost a lot of blobs
         int& outcount       //no of real blobs
 );
@@ -115,7 +115,7 @@ int xstarts[]                    //result
 );
 bool split_stepped_spline(     //make xstarts
         QSPLINE* baseline,              //current shot
-        float jumplimit,                 //max step fuction
+        float jumplimit,                 //max step function
         int* xcoords,                   /*points to work on */
         int* xstarts,                   //result
         int& segments                    //no of segments

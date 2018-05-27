@@ -123,7 +123,7 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   // Store the horizontal and vertical width in the blob, keeping both
   // widths if there is enough information, otherwse only the one with
   // the most samples.
-  // If there are insufficent samples, store zero, rather than using
+  // If there are insufficient samples, store zero, rather than using
   // 2*area/perimeter, as the numbers that gives do not match the numbers
   // from the distance method.
   if (h_stats.get_total() >= (width + height) / 4) {

@@ -1656,7 +1656,7 @@ EXTRA_PACKAGES         =
 # Note: Only use a user-defined header if you know what you are doing! The
 # following commands have a special meaning inside the header: $title,
 # $datetime, $date, $doxygenversion, $projectname, $projectnumber,
-# $projectbrief, $projectlogo. Doxygen will replace $title with the empy string,
+# $projectbrief, $projectlogo. Doxygen will replace $title with the empty string,
 # for the replacement values of the other commands the user is referred to
 # HTML_HEADER.
 # This tag requires that the tag GENERATE_LATEX is set to YES.

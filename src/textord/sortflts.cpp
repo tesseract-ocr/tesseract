@@ -23,7 +23,7 @@ ELISTIZE (SORTED_FLOAT)
 /**
  * @name SORTED_FLOATS::add
  *
- * Add a new entry to the sorted lsit of floats.
+ * Add a new entry to the sorted list of floats.
  */
 void SORTED_FLOATS::add(  //add new entry
                         float value,
@@ -47,7 +47,7 @@ void SORTED_FLOATS::add(  //add new entry
 /**
  * @name SORTED_FLOATS::remove
  *
- * Remove an entry from the sorted lsit of floats.
+ * Remove an entry from the sorted list of floats.
  */
 
 void SORTED_FLOATS::remove(  //remove the entry

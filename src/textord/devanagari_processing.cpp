@@ -307,7 +307,7 @@ void ShiroRekhaSplitter::SplitWordShiroRekha(SplitStrategy split_strategy,
       vert_hist.hist()[i] = 1;
   }
   // In order to split the line at any point, we make sure that the width of the
-  // gap is atleast half the stroke width.
+  // gap is at least half the stroke width.
   int i = 0;
   int cur_component_width = 0;
   while (i < width) {

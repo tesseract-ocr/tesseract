@@ -913,7 +913,7 @@ class UNICHARSET {
     // Sets all ranges to empty. Used before expanding with font-based data.
     void SetRangesEmpty();
     // Returns true if any of the top/bottom/width/bearing/advance ranges/stats
-    // is emtpy.
+    // is empty.
     bool AnyRangeEmpty() const;
     // Expands the ranges with the ranges from the src properties.
     void ExpandRangesFrom(const UNICHAR_PROPERTIES& src);

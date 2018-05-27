@@ -334,7 +334,7 @@ Tesseract::Tesseract()
       double_MEMBER(fixsp_small_outlines_size, 0.28, "Small if lt xht x this",
                     this->params()),
       BOOL_MEMBER(tessedit_prefer_joined_punct, false,
-                  "Reward punctation joins", this->params()),
+                  "Reward punctuation joins", this->params()),
       INT_MEMBER(fixsp_done_mode, 1, "What constitues done for spacing",
                  this->params()),
       INT_MEMBER(debug_fix_space_level, 0, "Contextual fixspace debug",
@@ -621,7 +621,7 @@ void Tesseract::PrepareForPageseg() {
     sub_langs_[i]->pix_binary_ = pixClone(pix_binary());
   }
   // Perform shiro-rekha (top-line) splitting and replace the current image by
-  // the newly splitted image.
+  // the newly split image.
   splitter_.set_orig_pix(pix_binary());
   splitter_.set_pageseg_split_strategy(max_pageseg_strategy);
   if (splitter_.Split(true, &pixa_debug_)) {

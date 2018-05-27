@@ -67,7 +67,7 @@ The implementation of lists is very careful about space and speed overheads.
 This is why many embedded lists are provided. The same concerns mean that
 in-line type coercion is done, rather than use virtual functions.  This is
 cumbersome in that each data type to be listed requires its own iterator and
-list class - though macros can gererate these.  It also prevents heterogeneous
+list class - though macros can generate these.  It also prevents heterogeneous
 lists.
 **********************************************************************/
 

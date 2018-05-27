@@ -340,7 +340,7 @@ class Dict {
    * For word_index > 0 the corresponding state (active_dawgs and punc position)
    * can be obtained from dawg_args->updated_dawgs passed to
    * def_letter_is_okay for word_index-1.
-   * Note: the function assumes that active_dawgs, nd updated_dawgs
+   * Note: the function assumes that active_dawgs, and updated_dawgs
    * member variables of dawg_args are not nullptr.
    *
    * Output:
@@ -532,7 +532,7 @@ class Dict {
   Trie *pending_words_;
   /// The following pointers are only cached for convenience.
   /// The dawgs will be deleted when dawgs_ vector is destroyed.
-  // bigram_dawg_ points to a dawg of two-word bigrams which always supercede if
+  // bigram_dawg_ points to a dawg of two-word bigrams which always supersede if
   // any of them are present on the best choices list for a word pair.
   // the bigrams are stored as space-separated words where:
   // (1) leading and trailing punctuation has been removed from each word and

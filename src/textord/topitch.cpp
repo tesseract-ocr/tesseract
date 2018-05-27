@@ -841,7 +841,7 @@ bool find_row_pitch(                    //find lines
         int32_t row_index,    //number of row
         bool testing_on    //correct orientation
 ) {
-  bool used_dm_model;           //looks lik dot matrix
+  bool used_dm_model;           //looks like dot matrix
   float min_space;               //estimate threshold
   float non_space;               //gap size
   float gap_iqr;                 //interquartile range

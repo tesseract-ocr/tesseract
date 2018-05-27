@@ -128,7 +128,7 @@ class ImageFind {
 
   // Locates all the image partitions in the part_grid, that were found by a
   // previous call to FindImagePartitions, marks them in the image_mask,
-  // removes them from the grid, and deletes them. This makes it possble to
+  // removes them from the grid, and deletes them. This makes it possible to
   // call FindImagePartitions again to produce less broken-up and less
   // overlapping image partitions.
   // rerotation specifies how to rotate the partition coords to match

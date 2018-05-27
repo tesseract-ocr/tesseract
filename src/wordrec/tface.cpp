@@ -72,7 +72,7 @@ int Wordrec::end_recog() {
 /**
  * @name program_editdown
  *
- * This function holds any nessessary post processing for the Wise Owl
+ * This function holds any necessary post processing for the Wise Owl
  * program.
  */
 void Wordrec::program_editdown(int32_t elasped_time) {

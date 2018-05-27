@@ -5,7 +5,7 @@
  * Author:       Ray Smith
  * TODO(rays) Separate from ratings matrix, which it also contains:
  *
- * Descrition:   Ratings matrix class (specialization of banded matrix).
+ * Description:  Ratings matrix class (specialization of banded matrix).
  *               Segmentation search matrix of lists of BLOB_CHOICE.
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 16 13:22:06 1990

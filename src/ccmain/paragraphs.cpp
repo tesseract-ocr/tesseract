@@ -1641,7 +1641,7 @@ bool FirstWordWouldHaveFit(const RowScratchRegisters &before,
 
 // Return whether the first word on the after line can fit in the space at
 // the end of the before line (not knowing which way the text goes) in a left
-// or right alignemnt.
+// or right alignment.
 bool FirstWordWouldHaveFit(const RowScratchRegisters &before,
                            const RowScratchRegisters &after) {
   if (before.ri_->num_words == 0 || after.ri_->num_words == 0)

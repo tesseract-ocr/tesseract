@@ -285,7 +285,7 @@ class Dawg {
   void init(int unicharset_size);
 
   /// Matches all of the words that are represented by this string.
-  /// If wilcard is set to something other than INVALID_UNICHAR_ID,
+  /// If wildcard is set to something other than INVALID_UNICHAR_ID,
   /// the *'s in this string are interpreted as wildcards.
   /// WERD_CHOICE param is not passed by const so that wildcard searches
   /// can modify it and work without having to copy WERD_CHOICEs.

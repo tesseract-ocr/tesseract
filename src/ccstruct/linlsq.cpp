@@ -152,7 +152,7 @@ double LLSQ::rms(double m,  double c) const {          // get error
  **********************************************************************/
 
 double LLSQ::pearson() const {  // get correlation
-  double r = 0.0;                  // Correlation is 0 if insufficent data.
+  double r = 0.0;                  // Correlation is 0 if insufficient data.
 
   double covar = covariance();
   if (covar != 0.0) {

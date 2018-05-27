@@ -254,7 +254,7 @@ public class SVWindow extends JFrame {
     layer = canvas.getLayer();
     canvas.setBackground(Color.BLACK);
 
-    // Disable anitaliasing to make the lines more visible.
+    // Disable antialiasing to make the lines more visible.
     canvas.setDefaultRenderQuality(PPaintContext.LOW_QUALITY_RENDERING);
 
     setLayout(new BorderLayout());
