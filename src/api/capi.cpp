@@ -833,7 +833,7 @@ TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor )
     return monitor->cancel_this;
 }
 
-TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc2 progressFunc )
+TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc progressFunc )
 {
     monitor->progress_callback2 = progressFunc;
 }
