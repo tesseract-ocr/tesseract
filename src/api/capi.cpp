@@ -807,3 +807,43 @@ TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* 
 {
     return handle->Confidence();
 }
+
+TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate()
+{
+    return new ETEXT_DESC();
+}
+
+TESS_API void TESS_CALL TessMonitorcDelete( ETEXT_DESC* monitor )
+{
+    delete monitor;
+}
+
+TESS_API void TESS_CALL TessMonitorSetCancelFunc( ETEXT_DESC* monitor, TessCancelFunc cancelFunc )
+{
+    monitor->cancel = cancelFunc;
+}
+
+TESS_API void TESS_CALL TessMonitorSetCancelThis( ETEXT_DESC* monitor, void* cancelThis )
+{
+    monitor->cancel_this = cancelThis;
+}
+
+TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor )
+{
+    return monitor->cancel_this;
+}
+
+TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc2 progressFunc )
+{
+    monitor->progress_callback2 = progressFunc;
+}
+
+TESS_API int TESS_CALL TessMonitorGetProgress( ETEXT_DESC* monitor )
+{
+    return monitor->progress;
+}
+
+TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs( ETEXT_DESC* monitor, int deadline )
+{
+    monitor->set_deadline_msecs( deadline );
+}

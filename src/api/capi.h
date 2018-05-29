@@ -24,6 +24,7 @@
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
 #   include "baseapi.h"
+#   include "ocrclass.h"
 #   include "pageiterator.h"
 #   include "resultiterator.h"
 #   include "renderer.h"
@@ -103,6 +104,10 @@ typedef enum TessWritingDirection  { WRITING_DIRECTION_LEFT_TO_RIGHT, WRITING_DI
 typedef enum TessTextlineOrder     { TEXTLINE_ORDER_LEFT_TO_RIGHT, TEXTLINE_ORDER_RIGHT_TO_LEFT, TEXTLINE_ORDER_TOP_TO_BOTTOM } TessTextlineOrder;
 typedef struct ETEXT_DESC ETEXT_DESC;
 #endif
+
+typedef bool (*TessCancelFunc)(void* cancel_this, int words);
+typedef bool (*TessProgressFunc)(ETEXT_DESC* ths, int left, int right, int top,
+                                 int bottom);
 
 struct Pix;
 struct Boxa;
@@ -391,6 +396,17 @@ TESS_API void  TESS_CALL TessChoiceIteratorDelete(TessChoiceIterator* handle);
 TESS_API BOOL  TESS_CALL TessChoiceIteratorNext(TessChoiceIterator* handle);
 TESS_API const char* TESS_CALL TessChoiceIteratorGetUTF8Text(const TessChoiceIterator* handle);
 TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* handle);
+
+/* Progress monitor */
+
+TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate();
+TESS_API void TESS_CALL TessMonitorcDelete( ETEXT_DESC* monitor );
+TESS_API void TESS_CALL TessMonitorSetCancelFunc( ETEXT_DESC* monitor, TessCancelFunc cancelFunc );
+TESS_API void TESS_CALL TessMonitorSetCancelThis( ETEXT_DESC* monitor, void* cancelThis );
+TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor );
+TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc progressFunc );
+TESS_API int TESS_CALL TessMonitorGetProgress( ETEXT_DESC* monitor );
+TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs( ETEXT_DESC* monitor, int deadline );
 
 #ifdef __cplusplus
 }
