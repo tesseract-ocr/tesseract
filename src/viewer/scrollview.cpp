@@ -18,6 +18,8 @@
 ///////////////////////////////////////////////////////////////////////
 //
 
+#define NOMINMAX
+
 #include <stdarg.h>
 #include <limits.h>
 #include <string.h>
