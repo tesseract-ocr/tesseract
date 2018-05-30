@@ -174,8 +174,9 @@ private:
                                     int bottom)
   {
     if ( ths->progress_callback ) {
-      (*(ths->progress_callback))(ths->progress, left, right, top, bottom);
+      return (*(ths->progress_callback))(ths->progress, left, right, top, bottom);
     }
+    return true;
   }
 
 };
