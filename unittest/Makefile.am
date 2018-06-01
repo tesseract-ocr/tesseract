@@ -52,6 +52,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 
 check_PROGRAMS = \
   apiexample_test \
+  progress_test \
   intsimdmatrix_test \
   matrix_test \
   osd_test \
@@ -65,6 +66,10 @@ TESTS = $(check_PROGRAMS)
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+progress_test_SOURCES = progress_test.cc
+progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
+progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
