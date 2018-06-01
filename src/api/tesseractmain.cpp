@@ -349,11 +349,6 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
 
   *arg_i = i;
 
-  if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
-    *list_langs = true;
-    noocr = true;
-  }
-
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
     exit(1);
