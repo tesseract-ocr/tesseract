@@ -813,7 +813,7 @@ TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate()
     return new ETEXT_DESC();
 }
 
-TESS_API void TESS_CALL TessMonitorcDelete( ETEXT_DESC* monitor )
+TESS_API void TESS_CALL TessMonitorDelete( ETEXT_DESC* monitor )
 {
     delete monitor;
 }

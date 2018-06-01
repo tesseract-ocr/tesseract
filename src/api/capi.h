@@ -400,7 +400,7 @@ TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* 
 /* Progress monitor */
 
 TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate();
-TESS_API void TESS_CALL TessMonitorcDelete( ETEXT_DESC* monitor );
+TESS_API void TESS_CALL TessMonitorDelete( ETEXT_DESC* monitor );
 TESS_API void TESS_CALL TessMonitorSetCancelFunc( ETEXT_DESC* monitor, TessCancelFunc cancelFunc );
 TESS_API void TESS_CALL TessMonitorSetCancelThis( ETEXT_DESC* monitor, void* cancelThis );
 TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor );
