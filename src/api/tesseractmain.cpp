@@ -272,35 +272,28 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
                       GenericVector<STRING>* vars_values, int* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
-  if (argc == 2) {
-    if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
-      PrintHelpMessage(argv[0]);
-      exit(EXIT_SUCCESS);
-    }
-    if (strcmp(argv[1], "--help-extra") == 0) {
-      PrintHelpExtra(argv[0]);
-      exit(EXIT_SUCCESS);
-    }
-    if ((strcmp(argv[1], "--help-psm") == 0)) {
-      PrintHelpForPSM();
-      exit(EXIT_SUCCESS);
-    }
-    if ((strcmp(argv[1], "--help-oem") == 0)) {
-      PrintHelpForOEM();
-      exit(EXIT_SUCCESS);
-    }
-    if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
-      PrintVersionInfo();
-      exit(EXIT_SUCCESS);
-    }
-  }
-
   bool noocr = false;
   int i;
   for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
     if (*image != nullptr && *outputbase == nullptr) {
       // outputbase follows image, don't allow options at that position.
       *outputbase = argv[i];
+    } else if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
+      PrintHelpMessage(argv[0]);
+      noocr = true;
+    } else if (strcmp(argv[i], "--help-extra") == 0) {
+      PrintHelpExtra(argv[0]);
+      noocr = true;
+    } else if ((strcmp(argv[i], "--help-psm") == 0)) {
+      PrintHelpForPSM();
+      noocr = true;
+    } else if ((strcmp(argv[i], "--help-oem") == 0)) {
+      PrintHelpForOEM();
+      noocr = true;
+    } else if ((strcmp(argv[i], "-v") == 0) ||
+               (strcmp(argv[i], "--version") == 0)) {
+      PrintVersionInfo();
+      noocr = true;
     } else if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
       *lang = argv[i + 1];
       ++i;
@@ -442,6 +435,9 @@ int main(int argc, char** argv) {
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
             &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
             &enginemode);
+
+  if (image == nullptr && !list_langs)
+    return EXIT_SUCCESS;
 
   bool banner = false;
   if (outputbase != nullptr && strcmp(outputbase, "-") &&
