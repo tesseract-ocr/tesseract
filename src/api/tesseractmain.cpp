@@ -301,9 +301,12 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
   }
 
   bool noocr = false;
-  int i = 1;
-  while (i < argc && (*outputbase == nullptr || argv[i][0] == '-')) {
-    if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
+  int i;
+  for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
+    if (*image != nullptr && *outputbase == nullptr) {
+      // outputbase follows image, don't allow options at that position.
+      *outputbase = argv[i];
+    } else if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
       *lang = argv[i + 1];
       ++i;
     } else if (strcmp(argv[i], "--tessdata-dir") == 0 && i + 1 < argc) {
@@ -337,14 +340,11 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
-    } else if (*outputbase == nullptr) {
-      *outputbase = argv[i];
     } else {
       // Unexpected argument.
       fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
       exit(1);
     }
-    ++i;
   }
 
   *arg_i = i;
