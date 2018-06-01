@@ -272,11 +272,6 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
                       GenericVector<STRING>* vars_values, int* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
-  if (argc == 1) {
-    PrintHelpMessage(argv[0]);
-    exit(0);
-  }
-
   if (argc == 2) {
     if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
       PrintHelpMessage(argv[0]);
