@@ -339,16 +339,15 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       *image = argv[i];
     } else if (*outputbase == nullptr) {
       *outputbase = argv[i];
+    } else {
+      // Unexpected argument.
+      fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
+      exit(1);
     }
     ++i;
   }
 
   *arg_i = i;
-
-  if (argc == 2 && strcmp(argv[1], "--list-langs") == 0) {
-    *list_langs = true;
-    noocr = true;
-  }
 
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
