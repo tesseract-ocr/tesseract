@@ -339,6 +339,10 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       *image = argv[i];
     } else if (*outputbase == nullptr) {
       *outputbase = argv[i];
+    } else {
+      // Unexpected argument.
+      fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
+      exit(1);
     }
     ++i;
   }
