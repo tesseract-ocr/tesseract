@@ -206,7 +206,7 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
       char* p = strchr(opt1, '=');
       if (!p) {
         fprintf(stderr, "Missing = in configvar assignment\n");
-        exit(1);
+        exit(EXIT_FAILURE);
       }
       *p = 0;
       strncpy(opt2, strchr(argv[i + 1], '=') + 1, 255);
@@ -259,7 +259,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
 static void checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
     printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 }
 
@@ -275,23 +275,23 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
   if (argc == 2) {
     if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
       PrintHelpMessage(argv[0]);
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
     if (strcmp(argv[1], "--help-extra") == 0) {
       PrintHelpExtra(argv[0]);
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
     if ((strcmp(argv[1], "--help-psm") == 0)) {
       PrintHelpForPSM();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
     if ((strcmp(argv[1], "--help-oem") == 0)) {
       PrintHelpForOEM();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
     if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
       PrintVersionInfo();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
   }
 
@@ -338,7 +338,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     } else {
       // Unexpected argument.
       fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
-      exit(1);
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -346,7 +346,7 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
 
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
