@@ -25,19 +25,34 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 
 # Build googletest:
-check_LTLIBRARIES = libgtest.la libgtest_main.la
+check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
 libgtest_la_SOURCES = ../googletest/googletest/src/gtest-all.cc
 libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread 
 libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
 ## libgtest_main_la_LIBADD = libgtest.la
 
+GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
+                 -I$(top_srcdir)/googletest/googlemock \
+                 -I$(top_srcdir)/googletest/googletest/include \
+                 -I$(top_srcdir)/googletest/googletest
+
+libgmock_la_SOURCES = ../googletest/googlemock/src/gmock-all.cc
+libgmock_la_CPPFLAGS = $(GMOCK_INCLUDES) \
+                       -pthread
+libgmock_main_la_SOURCES = ../googletest/googlemock/src/gmock_main.cc
+libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
+                            -pthread
+
 # Build unittests
 GTEST_LIBS =  libgtest.la libgtest_main.la
+GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(top_builddir)/src/api/libtesseract.la
-AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include  
+AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
+                 -isystem $(top_srcdir)/googletest/googlemock/include
 
 check_PROGRAMS = \
   apiexample_test \
+  progress_test \
   intsimdmatrix_test \
   matrix_test \
   osd_test \
@@ -51,6 +66,10 @@ TESTS = $(check_PROGRAMS)
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+progress_test_SOURCES = progress_test.cc
+progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
+progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)

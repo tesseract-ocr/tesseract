@@ -224,15 +224,15 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       monitor->ocr_alive = TRUE;
       if (pass_n == 1) {
         monitor->progress = 70 * w / words->size();
-        if (monitor->progress_callback != nullptr) {
+        if (monitor->progress_callback2 != nullptr) {
           TBOX box = pr_it->word()->word->bounding_box();
-          (*monitor->progress_callback)(monitor->progress, box.left(),
+          (*monitor->progress_callback2)(monitor, box.left(),
                                         box.right(), box.top(), box.bottom());
         }
       } else {
         monitor->progress = 70 + 30 * w / words->size();
-        if (monitor->progress_callback != nullptr) {
-          (*monitor->progress_callback)(monitor->progress, 0, 0, 0, 0);
+        if (monitor->progress_callback2 != nullptr) {
+          (*monitor->progress_callback2)(monitor, 0, 0, 0, 0);
         }
       }
       if (monitor->deadline_exceeded() ||

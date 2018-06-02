@@ -108,9 +108,13 @@ typedef struct {                  /*single character */
  * If the cancel function is not null then it is called with the number of
  * user words found. If it returns true then operation is cancelled.
  **********************************************************************/
+class ETEXT_DESC;
+
 typedef bool (*CANCEL_FUNC)(void* cancel_this, int words);
 typedef bool (*PROGRESS_FUNC)(int progress, int left, int right, int top,
                               int bottom);
+typedef bool (*PROGRESS_FUNC2)(ETEXT_DESC* ths, int left, int right, int top,
+                               int bottom);
 
 class ETEXT_DESC {             // output header
  public:
@@ -124,6 +128,7 @@ class ETEXT_DESC {             // output header
   int8_t err_code;                    /// for errcode use
   CANCEL_FUNC cancel;               /// returns true to cancel
   PROGRESS_FUNC progress_callback;  /// called whenever progress increases
+  PROGRESS_FUNC2 progress_callback2;/// monitor-aware progress callback
   void* cancel_this;                /// this or other data for cancel
   struct timeval end_time;          /// Time to stop. Expected to be set only
                                     /// by call to set_deadline_msecs().
@@ -137,6 +142,7 @@ class ETEXT_DESC {             // output header
         err_code(0),
         cancel(nullptr),
         progress_callback(nullptr),
+        progress_callback2( &default_progress_func ),
         cancel_this(nullptr) {
     end_time.tv_sec = 0;
     end_time.tv_usec = 0;
@@ -162,6 +168,17 @@ class ETEXT_DESC {             // output header
     return (now.tv_sec > end_time.tv_sec || (now.tv_sec == end_time.tv_sec &&
                                              now.tv_usec > end_time.tv_usec));
   }
+
+private:
+  static bool default_progress_func(ETEXT_DESC* ths, int left, int right, int top,
+                                    int bottom)
+  {
+    if ( ths->progress_callback ) {
+      return (*(ths->progress_callback))(ths->progress, left, right, top, bottom);
+    }
+    return true;
+  }
+
 };
 
 #endif  // CCUTIL_OCRCLASS_H_
