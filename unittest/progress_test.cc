@@ -97,7 +97,7 @@ class QuickTest : public testing::Test {
     ClassicMockProgressSink progressSink;
 
     int currentProgress = -1;
-    EXPECT_CALL( progressSink, classicProgress(AllOf(Gt(currentProgress),Le(100))) )
+    EXPECT_CALL( progressSink, classicProgress(AllOf(Gt<int&>(currentProgress),Le(100))) )
           .Times(AtLeast(5))
           .WillRepeatedly( DoAll(SaveArg<0>(&currentProgress),
                            Return(false) ));
@@ -133,7 +133,7 @@ class QuickTest : public testing::Test {
     int currentProgress = -1;
     EXPECT_CALL( progressSink, classicProgress(_) )
           .Times(0);
-    EXPECT_CALL( progressSink, progress(AllOf(Gt(currentProgress),Le(100))) )
+    EXPECT_CALL( progressSink, progress(AllOf(Gt<int&>(currentProgress),Le(100))) )
           .Times(AtLeast(5))
           .WillRepeatedly( DoAll(SaveArg<0>(&currentProgress),
                            Return(false) ));
