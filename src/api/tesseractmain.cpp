@@ -206,7 +206,7 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
       char* p = strchr(opt1, '=');
       if (!p) {
         fprintf(stderr, "Missing = in configvar assignment\n");
-        exit(1);
+        exit(EXIT_FAILURE);
       }
       *p = 0;
       strncpy(opt2, strchr(argv[i + 1], '=') + 1, 255);
@@ -259,7 +259,7 @@ static void FixPageSegMode(tesseract::TessBaseAPI* api,
 static void checkArgValues(int arg, const char* mode, int count) {
   if (arg >= count || arg < 0) {
     printf("Invalid %s value, please enter a number between 0-%d\n", mode, count - 1);
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 }
 
@@ -272,38 +272,29 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
                       GenericVector<STRING>* vars_values, int* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
-  if (argc == 1) {
-    PrintHelpMessage(argv[0]);
-    exit(0);
-  }
-
-  if (argc == 2) {
-    if ((strcmp(argv[1], "-h") == 0) || (strcmp(argv[1], "--help") == 0)) {
-      PrintHelpMessage(argv[0]);
-      exit(0);
-    }
-    if (strcmp(argv[1], "--help-extra") == 0) {
-      PrintHelpExtra(argv[0]);
-      exit(0);
-    }
-    if ((strcmp(argv[1], "--help-psm") == 0)) {
-      PrintHelpForPSM();
-      exit(0);
-    }
-    if ((strcmp(argv[1], "--help-oem") == 0)) {
-      PrintHelpForOEM();
-      exit(0);
-    }
-    if ((strcmp(argv[1], "-v") == 0) || (strcmp(argv[1], "--version") == 0)) {
-      PrintVersionInfo();
-      exit(0);
-    }
-  }
-
   bool noocr = false;
-  int i = 1;
-  while (i < argc && (*outputbase == nullptr || argv[i][0] == '-')) {
-    if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
+  int i;
+  for (i = 1; i < argc && (*outputbase == nullptr || argv[i][0] == '-'); i++) {
+    if (*image != nullptr && *outputbase == nullptr) {
+      // outputbase follows image, don't allow options at that position.
+      *outputbase = argv[i];
+    } else if ((strcmp(argv[i], "-h") == 0) || (strcmp(argv[i], "--help") == 0)) {
+      PrintHelpMessage(argv[0]);
+      noocr = true;
+    } else if (strcmp(argv[i], "--help-extra") == 0) {
+      PrintHelpExtra(argv[0]);
+      noocr = true;
+    } else if ((strcmp(argv[i], "--help-psm") == 0)) {
+      PrintHelpForPSM();
+      noocr = true;
+    } else if ((strcmp(argv[i], "--help-oem") == 0)) {
+      PrintHelpForOEM();
+      noocr = true;
+    } else if ((strcmp(argv[i], "-v") == 0) ||
+               (strcmp(argv[i], "--version") == 0)) {
+      PrintVersionInfo();
+      noocr = true;
+    } else if (strcmp(argv[i], "-l") == 0 && i + 1 < argc) {
       *lang = argv[i + 1];
       ++i;
     } else if (strcmp(argv[i], "--tessdata-dir") == 0 && i + 1 < argc) {
@@ -337,21 +328,18 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       ++i;
     } else if (*image == nullptr) {
       *image = argv[i];
-    } else if (*outputbase == nullptr) {
-      *outputbase = argv[i];
     } else {
       // Unexpected argument.
       fprintf(stderr, "Error, unknown command line argument '%s'\n", argv[i]);
-      exit(1);
+      exit(EXIT_FAILURE);
     }
-    ++i;
   }
 
   *arg_i = i;
 
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -447,6 +435,9 @@ int main(int argc, char** argv) {
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
             &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
             &enginemode);
+
+  if (image == nullptr && !list_langs)
+    return EXIT_SUCCESS;
 
   bool banner = false;
   if (outputbase != nullptr && strcmp(outputbase, "-") &&
