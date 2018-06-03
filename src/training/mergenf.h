@@ -85,9 +85,7 @@ FLOAT32 SubfeatureEvidence (
 double EvidenceOf (
    double   Similarity);
 
-BOOL8 DummyFastMatch (
-     FEATURE	Feature,
-     PROTO	Proto);
+bool DummyFastMatch(FEATURE Feature, PROTO Proto);
 
 void ComputePaddedBoundingBox (
      PROTO	Proto,
@@ -95,9 +93,6 @@ void ComputePaddedBoundingBox (
 	 FLOAT32	OrthogonalPad,
      FRECT	*BoundingBox);
 
-BOOL8 PointInside (
-     FRECT	*Rectangle,
-     FLOAT32	X,
-	 FLOAT32	Y);
+bool PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32 Y);
 
 #endif  // TESSERACT_TRAINING_MERGENF_H_

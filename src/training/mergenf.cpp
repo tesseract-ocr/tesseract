@@ -259,7 +259,7 @@ double EvidenceOf (double Similarity) {
 }
 
 /**
- * This routine returns TRUE if Feature would be matched
+ * This routine returns true if Feature would be matched
  * by a fast match table built from Proto.
  *
  * @param Feature   feature to be "fast matched" to proto
@@ -269,13 +269,10 @@ double EvidenceOf (double Similarity) {
  * - training_tangent_bbox_pad    bounding box pad tangent to proto
  * - training_orthogonal_bbox_pad bounding box pad orthogonal to proto
  *
- * @return TRUE if feature could match Proto.
+ * @return true if feature could match Proto.
  * @note Exceptions: none
- * @note History: Wed Nov 14 17:19:58 1990, DSJ, Created.
  */
-BOOL8 DummyFastMatch (
-     FEATURE  Feature,
-     PROTO  Proto)
+bool DummyFastMatch(FEATURE Feature, PROTO Proto)
 {
   FRECT   BoundingBox;
   FLOAT32 MaxAngleError;
@@ -287,7 +284,7 @@ BOOL8 DummyFastMatch (
     AngleError = 1.0 - AngleError;
 
   if (AngleError > MaxAngleError)
-    return (FALSE);
+    return false;
 
   ComputePaddedBoundingBox (Proto,
     training_tangent_bbox_pad * GetPicoFeatureLength (),
@@ -336,19 +333,16 @@ void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
 } /* ComputePaddedBoundingBox */
 
 /**
- * Return TRUE if point (X,Y) is inside of Rectangle.
+ * Return true if point (X,Y) is inside of Rectangle.
  *
  * Globals: none
  *
- * @return TRUE if point (X,Y) is inside of Rectangle.
+ * @return true if point (X,Y) is inside of Rectangle.
  * @note Exceptions: none
- * @note History: Wed Nov 14 17:26:35 1990, DSJ, Created.
  */
-BOOL8 PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32  Y) {
-  if (X < Rectangle->MinX) return (FALSE);
-  if (X > Rectangle->MaxX) return (FALSE);
-  if (Y < Rectangle->MinY) return (FALSE);
-  if (Y > Rectangle->MaxY) return (FALSE);
-  return (TRUE);
-
+bool PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32 Y) {
+  return (X >= Rectangle->MinX) &&
+         (X <= Rectangle->MaxX) &&
+         (Y >= Rectangle->MinY) &&
+         (Y <= Rectangle->MaxY);
 } /* PointInside */
