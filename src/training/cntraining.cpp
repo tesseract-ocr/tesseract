@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
     Config.MagicSamples = CharSample->SampleCount;
     while (Config.MinSamples > 0.001) {
       ProtoList = ClusterSamples(Clusterer, &Config);
-      if (NumberOfProtos(ProtoList, 1, 0) > 0) {
+      if (NumberOfProtos(ProtoList, true, false) > 0) {
         break;
       } else {
         Config.MinSamples *= 0.95;
@@ -232,8 +232,8 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
               " (%d significant protos"
               ", %d insignificant protos)\n",
               LabeledProto->Label, N,
-              NumberOfProtos(LabeledProto->List, 1, 0),
-              NumberOfProtos(LabeledProto->List, 0, 1));
+              NumberOfProtos(LabeledProto->List, true, false),
+              NumberOfProtos(LabeledProto->List, false, true));
       exit(1);
     }
     fprintf(File, "\n%s %d\n", LabeledProto->Label, N);

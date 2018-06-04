@@ -595,8 +595,8 @@ void CleanUpUnusedData(
 /*------------------------------------------------------------------------*/
 LIST RemoveInsignificantProtos(
     LIST ProtoList,
-    BOOL8 KeepSigProtos,
-    BOOL8 KeepInsigProtos,
+    bool KeepSigProtos,
+    bool KeepInsigProtos,
     int N)
 
 {
@@ -823,8 +823,8 @@ void AddToNormProtosList(
 }
 
 /*---------------------------------------------------------------------------*/
-int NumberOfProtos(LIST ProtoList, BOOL8 CountSigProtos,
-                   BOOL8 CountInsigProtos) {
+int NumberOfProtos(LIST ProtoList, bool CountSigProtos,
+                   bool CountInsigProtos) {
   int N = 0;
   PROTOTYPE* Proto;
 
