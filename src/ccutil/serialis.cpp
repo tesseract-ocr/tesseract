@@ -98,7 +98,7 @@ char* TFile::FGets(char* buffer, int buffer_size) {
   return size > 0 ? buffer : nullptr;
 }
 
-int TFile::FReadEndian(void* buffer, int size, int count) {
+int TFile::FReadEndian(void* buffer, size_t size, int count) {
   int num_read = FRead(buffer, size, count);
   if (swap_) {
     char* char_buffer = static_cast<char*>(buffer);
@@ -109,12 +109,20 @@ int TFile::FReadEndian(void* buffer, int size, int count) {
   return num_read;
 }
 
-int TFile::FRead(void* buffer, int size, int count) {
+int TFile::FRead(void* buffer, size_t size, int count) {
   ASSERT_HOST(!is_writing_);
-  int required_size = size * count;
-  if (required_size <= 0) return 0;
-  if (data_->size() - offset_ < required_size)
+  ASSERT_HOST(size > 0);
+  ASSERT_HOST(count > 0);
+  size_t required_size;
+  if (SIZE_MAX / size <= count) {
+    // Avoid integer overflow.
     required_size = data_->size() - offset_;
+  } else {
+    required_size = size * count;
+    if (data_->size() - offset_ < required_size) {
+      required_size = data_->size() - offset_;
+    }
+  }
   if (required_size > 0 && buffer != nullptr)
     memcpy(buffer, &(*data_)[offset_], required_size);
   offset_ += required_size;
@@ -149,14 +157,16 @@ bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
     return (*writer)(*data_, filename);
 }
 
-int TFile::FWrite(const void* buffer, int size, int count) {
+int TFile::FWrite(const void* buffer, size_t size, int count) {
   ASSERT_HOST(is_writing_);
-  int total = size * count;
-  if (total <= 0) return 0;
+  ASSERT_HOST(size > 0);
+  ASSERT_HOST(count > 0);
+  ASSERT_HOST(SIZE_MAX / size > count);
+  size_t total = size * count;
   const char* buf = static_cast<const char*>(buffer);
   // This isn't very efficient, but memory is so fast compared to disk
   // that it is relatively unimportant, and very simple.
-  for (int i = 0; i < total; ++i)
+  for (size_t i = 0; i < total; ++i)
     data_->push_back(buf[i]);
   return count;
 }
