@@ -112,7 +112,7 @@ int TFile::FReadEndian(void* buffer, size_t size, int count) {
 int TFile::FRead(void* buffer, size_t size, int count) {
   ASSERT_HOST(!is_writing_);
   ASSERT_HOST(size > 0);
-  ASSERT_HOST(count > 0);
+  ASSERT_HOST(count >= 0);
   size_t required_size;
   if (SIZE_MAX / size <= count) {
     // Avoid integer overflow.
@@ -160,7 +160,7 @@ bool TFile::CloseWrite(const STRING& filename, FileWriter writer) {
 int TFile::FWrite(const void* buffer, size_t size, int count) {
   ASSERT_HOST(is_writing_);
   ASSERT_HOST(size > 0);
-  ASSERT_HOST(count > 0);
+  ASSERT_HOST(count >= 0);
   ASSERT_HOST(SIZE_MAX / size > count);
   size_t total = size * count;
   const char* buf = static_cast<const char*>(buffer);
