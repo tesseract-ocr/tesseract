@@ -142,8 +142,8 @@ CLUSTERER *SetUpForClustering(
 
 LIST RemoveInsignificantProtos(
     LIST        ProtoList,
-    BOOL8       KeepSigProtos,
-    BOOL8       KeepInsigProtos,
+    bool        KeepSigProtos,
+    bool        KeepInsigProtos,
     int         N);
 
 void CleanUpUnusedData(
@@ -181,8 +181,8 @@ void AddToNormProtosList(
 
 int NumberOfProtos(
     LIST        ProtoList,
-    BOOL8       CountSigProtos,
-    BOOL8       CountInsigProtos);
+    bool        CountSigProtos,
+    bool        CountInsigProtos);
 
 
 void allocNormProtos();
