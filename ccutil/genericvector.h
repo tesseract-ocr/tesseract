@@ -365,6 +365,8 @@ inline bool LoadDataFromFile(const STRING& filename,
     size_t size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     if (size > 0) {
+      // reserve an extra byte in case caller wants to append a '\0' character
+      data->reserve(size + 1);
       data->resize_no_init(size);
       result = fread(&(*data)[0], 1, size, fp) == size;
     }
