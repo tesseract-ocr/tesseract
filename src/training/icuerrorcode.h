@@ -52,7 +52,7 @@ class IcuErrorCode : public icu::ErrorCode {
 
  protected:
   virtual void handleFailure() const {
-    tprintf("ICU ERROR: %s", errorName());
+    tprintf("ICU ERROR: %s\n", errorName());
     exit(errorCode);
   }
 
