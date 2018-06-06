@@ -375,6 +375,8 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
     fseek(fp, 0, SEEK_SET);
     // Trying to open a directory on Linux sets size to LONG_MAX. Catch it here.
     if (size > 0 && size < LONG_MAX) {
+      // reserve an extra byte in case caller wants to append a '\0' character
+      data->reserve(size + 1);
       data->resize_no_init(size);
       result = static_cast<long>(fread(&(*data)[0], 1, size, fp)) == size;
     }
