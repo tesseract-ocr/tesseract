@@ -3,8 +3,8 @@
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
 
 # Absolute path of directory 'testing' with test images and ground truth texts
-# (must be directly below top source directory).
-TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/testing
+# (using submodule test).
+TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
 
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
@@ -92,11 +92,11 @@ osd_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
 endif
 
-EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/testing/phototest.tif
-EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/testing/phototest.txt
+EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/test/testing/phototest.tif
+EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/test/testing/phototest.txt
 
-$(abs_top_builddir)/testing/phototest.tif:
-	ln -s $(top_srcdir)/testing/phototest.tif $(top_builddir)/testing/phototest.tif
+$(abs_top_builddir)/test/testing/phototest.tif:
+	ln -s $(top_srcdir)/test/testing/phototest.tif $(top_builddir)/test/testing/phototest.tif
 
-$(abs_top_builddir)/testing/phototest.txt:
-	ln -s $(top_srcdir)/testing/phototest.txt $(top_builddir)/testing/phototest.txt
+$(abs_top_builddir)/test/testing/phototest.txt:
+	ln -s $(top_srcdir)/test/testing/phototest.txt $(top_builddir)/test/testing/phototest.txt

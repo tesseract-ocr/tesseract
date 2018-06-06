@@ -1,0 +1,1 @@
+unlvtests/ocreval/bin/ocrevalutf8 toolname [option1] [option2] [option...] ground.txt ocr.txt
