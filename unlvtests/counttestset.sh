@@ -20,22 +20,18 @@ then
   echo "Usage:$0 pagesfile"
   exit 1
 fi
-if [ ! -d api ]
+if [ ! -d src/api ]
 then
   echo "Run $0 from the tesseract-ocr root directory!"
   exit 1
 fi
-if [ ! -r testing/unlv/accuracy ]
-then
-  echo "Please download the UNLV accuracy tools (and build) to testing/unlv"
-  exit 1
-fi
+
 pages=$1
 
 imdir=${pages%/pages}
 setname=${imdir##*/}
-resdir=testing/results/$setname
-mkdir -p testing/reports
+resdir=unlvtests/results/$setname
+mkdir -p unlvtests/reports
 echo "Counting on set $setname in directory $imdir to $resdir"
 accfiles=""
 wafiles=""
@@ -47,13 +43,17 @@ do
   else
      srcdir="$imdir"
   fi
-#  echo "$srcdir/$page.tif"
+echo "$srcdir/$page.tif"
   # Count character errors.
-  testing/unlv/accuracy "$srcdir/$page.txt" "$resdir/$page.txt" "$resdir/$page.acc"
-  accfiles="$accfiles $resdir/$page.acc"
+  unlvtests/ocreval/bin/ocrevalutf8  unlvtests/ocreval/bin/accuracy "$srcdir/$page.txt" "$resdir/$page.unlv" "$resdir/$page.acc"
+   accfiles="$accfiles $resdir/$page.acc"
   # Count word errors.
-  testing/unlv/wordacc "$srcdir/$page.txt" "$resdir/$page.txt" "$resdir/$page.wa"
+    unlvtests/ocreval/bin/ocrevalutf8  unlvtests/ocreval/bin/wordacc "$srcdir/$page.txt" "$resdir/$page.unlv" "$resdir/$page.wa"
   wafiles="$wafiles $resdir/$page.wa"
 done <"$pages"
-testing/unlv/accsum "$accfiles" >"testing/reports/$setname.characc"
-testing/unlv/wordaccsum "$wafiles" >"testing/reports/$setname.wordacc"
+
+echo "$accfiles"
+echo "$wafiles"
+
+  unlvtests/ocreval/bin/accsum "$accfiles" >"unlvtests/reports/$setname.characc"
+  unlvtests/ocreval/bin/ocrevalutf8 unlvtests/ocreval/bin/wordaccsum "$wafiles" >"unlvtests/reports/$setname.wordacc"

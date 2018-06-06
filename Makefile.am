@@ -24,7 +24,7 @@ SUBDIRS += src/ccmain src/api . tessdata doc unittest
 
 EXTRA_DIST = README.md\
 	aclocal.m4 config configure.ac autogen.sh contrib \
-	tesseract.pc.in $(TRAINING_SUBDIR) java doc testing
+	tesseract.pc.in $(TRAINING_SUBDIR) java doc unlvtests
 
 DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
 
