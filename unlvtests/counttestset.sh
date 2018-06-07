@@ -55,5 +55,5 @@ done <"$pages"
 echo "$accfiles"
 echo "$wafiles"
 
-  unlvtests/ocreval/bin/accsum "$accfiles" >"unlvtests/reports/$setname.characc"
-  unlvtests/ocreval/bin/ocrevalutf8 unlvtests/ocreval/bin/wordaccsum "$wafiles" >"unlvtests/reports/$setname.wordacc"
+  unlvtests/ocreval/bin/accsum $accfiles >"unlvtests/reports/$setname.characc"
+  unlvtests/ocreval/bin/ocrevalutf8 unlvtests/ocreval/bin/wordaccsum $wafiles >"unlvtests/reports/$setname.wordacc"

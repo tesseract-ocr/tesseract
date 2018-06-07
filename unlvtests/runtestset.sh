@@ -64,7 +64,7 @@ do
      srcdir="$imdir"
   fi
 #  echo "$srcdir/$page.tif"
-  $tess "$srcdir/$page.tif" "$resdir/$page" --tessdata-dir ../tessdata_fast --oem 1 -l eng --psm 6 $config 2>&1 |grep -v "OCR Engine"
+  $tess "$srcdir/$page.tif" "$resdir/$page" --tessdata-dir ../tessdata_fast --oem 1 -l eng --psm 6 $config 2>&1 |grep -v "OCR Engine" |grep -v "Page 1"
   if [ -r times.txt ]
   then
     read t <times.txt
