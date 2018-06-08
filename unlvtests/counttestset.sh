@@ -43,17 +43,17 @@ do
   else
      srcdir="$imdir"
   fi
-echo "$srcdir/$page.tif"
+#echo "$srcdir/$page.tif"
   # Count character errors.
-  unlvtests/ocreval/bin/ocrevalutf8  unlvtests/ocreval/bin/accuracy "$srcdir/$page.txt" "$resdir/$page.unlv" "$resdir/$page.acc"
-   accfiles="$accfiles $resdir/$page.acc"
+  ocrevalutf8  accuracy "$srcdir/$page.txt" "$resdir/$page.unlv" > "$resdir/$page.acc"
+  accfiles="$accfiles $resdir/$page.acc"
   # Count word errors.
-    unlvtests/ocreval/bin/ocrevalutf8  unlvtests/ocreval/bin/wordacc "$srcdir/$page.txt" "$resdir/$page.unlv" "$resdir/$page.wa"
+  ocrevalutf8  wordacc "$srcdir/$page.txt" "$resdir/$page.unlv" > "$resdir/$page.wa"
   wafiles="$wafiles $resdir/$page.wa"
 done <"$pages"
 
-echo "$accfiles"
-echo "$wafiles"
+#echo "$accfiles"
+#echo "$wafiles"
 
-  unlvtests/ocreval/bin/accsum $accfiles >"unlvtests/reports/$setname.characc"
-  unlvtests/ocreval/bin/ocrevalutf8 unlvtests/ocreval/bin/wordaccsum $wafiles >"unlvtests/reports/$setname.wordacc"
+accsum $accfiles >"unlvtests/results/$setname.characc"
+wordaccsum $wafiles >"unlvtests/results/$setname.wordacc"

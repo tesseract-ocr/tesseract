@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -ne 1 ] && [ $# -ne 2 ]
+if  [ $# -ne 3 ] && [ $# -ne 4 ]
 then
-  echo "Usage:$0 pagesfile [-zoning]"
+  echo "Usage:$0 pagesfile tessdata-dir lang [-zoning]"
   exit 1
 fi
 if [ ! -d src/api ]
@@ -36,13 +36,15 @@ then
   fi
 else
   tess="time -f %U -o times.txt src/api/tesseract"
-  export TESSDATA_PREFIX=$PWD/
+  #tess="time -f %U -o times.txt tesseract"
 fi
 
+tessdata=$2
+lang=$3
 pages=$1
 imdir=${pages%/pages}
 setname=${imdir##*/}
-if [ $# -eq 2 ] && [ "$2" = "-zoning" ]
+if [ $# -eq 4 ] && [ "$4" = "-zoning" ]
 then
   config=unlv.auto
   resdir=unlvtests/results/zoning.$setname
@@ -52,7 +54,7 @@ else
 fi
 echo -e "Testing on set $setname in directory $imdir to $resdir\n"
 mkdir -p "$resdir"
-rm -f "unlvtests/reports/$setname.times"
+rm -f "unlvtests/results/$setname.times"
 while read page dir
 do
   # A pages file may be a list of files with subdirs or maybe just
@@ -64,11 +66,11 @@ do
      srcdir="$imdir"
   fi
 #  echo "$srcdir/$page.tif"
-  $tess "$srcdir/$page.tif" "$resdir/$page" --tessdata-dir ../tessdata_fast --oem 1 -l eng --psm 6 $config 2>&1 |grep -v "OCR Engine" |grep -v "Page 1"
+  $tess "$srcdir/$page.tif" "$resdir/$page" --tessdata-dir $tessdata --oem 1 -l $lang --psm 6 $config 2>&1 |grep -v "OCR Engine" |grep -v "Page 1"
   if [ -r times.txt ]
   then
     read t <times.txt
-    echo "$page $t" >>"unlvtests/reports/$setname.times"
+    echo "$page $t" >>"unlvtests/results/$setname.times"
     echo -e "\033M$page $t"
     if [ "$t" = "Command terminated by signal 2" ]
     then
