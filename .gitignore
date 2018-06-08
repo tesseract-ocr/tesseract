@@ -107,3 +107,10 @@ kernel*.bin
 /unittest/matrix_test
 /unittest/osd_test
 /unittest/tesseracttests
+
+# ocreval tool and generated files from unlvtests
+/unlvtests/ocreval*
+/unlvtests/results*
+/unlvtests/reports/*.characc
+/unlvtests/reports/*.times
+/unlvtests/reports/*.wordacc
