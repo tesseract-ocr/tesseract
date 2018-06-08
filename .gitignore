@@ -13,12 +13,6 @@
 *.res
 *.ipch
 *.manifest
-/src/vs2010/DLL_Debug/*
-/src/vs2010/DLL_Release/*
-/src/vs2010/LIB_Debug/*
-/src/vs2010/LIB_Release/*
-/src/vs2010/LIB_OpenCL_Release/*
-/src/vs2010/LIB_OpenCL_Debug/*
 
 # Linux
 # ignore local configuration
