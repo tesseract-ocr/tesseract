@@ -472,8 +472,10 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
 
             case 's':               // String
             {
-              char *sp;
-              sp = sarg = va_arg(ap, char *);
+              if (!(flags & FL_SPLAT)) {
+                sarg = va_arg(ap, char *);
+              }
+              char *sp = sarg;
               while (width--) {
                 q = fgetc(stream);
                 if (isspace(static_cast<unsigned char>(q)) || q <= 0) {
@@ -488,7 +490,6 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
               } else if (!(flags & FL_SPLAT)) {
                 *sp = '\0'; // Terminate output
                 converted++;
-              } else {
               }
             }
             break;
