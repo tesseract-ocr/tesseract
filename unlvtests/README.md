@@ -2,7 +2,7 @@
 
 The scripts in this directory make it possible to duplicate the tests
 published in the Fourth Annual Test of OCR Accuracy.
-See http://www.isri.unlv.edu/downloads/AT-1995.pdf
+See http://www.expervision.com/wp-content/uploads/2012/12/1995.The_Fourth_Annual_Test_of_OCR_Accuracy.pdf
 but first you have to get the tools and data used by  UNLV:
 
 ### Step 1: to download the images go to
