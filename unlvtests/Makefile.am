@@ -1,12 +1,12 @@
 
-EXTRA_DIST = README.md \
-    counttestset.sh \
-    reorgdata.sh \
-    runalltests.sh \
-    runtestset.sh \
-    reports/1995.bus.3B.sum \
-    reports/1995.doe3.3B.sum \
-    reports/1995.mag.3B.sum \
-    reports/1995.news.3B.sum \
-    reports/2.03.summary \
-    reports/2.04.summary
+EXTRA_DIST = README.md
+EXTRA_DIST += counttestset.sh
+EXTRA_DIST += reorgdata.sh
+EXTRA_DIST += runalltests.sh
+EXTRA_DIST += runtestset.sh
+EXTRA_DIST += reports/1995.bus.3B.sum
+EXTRA_DIST += reports/1995.doe3.3B.sum
+EXTRA_DIST += reports/1995.mag.3B.sum
+EXTRA_DIST += reports/1995.news.3B.sum
+EXTRA_DIST += reports/2.03.summary
+EXTRA_DIST += reports/2.04.summary
