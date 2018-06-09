@@ -56,7 +56,7 @@ do
     then
       ocrevalutf8  wordacc "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.wa"
     else
-      cp /home/ubuntu/ISRI-OCRtk/stopwords/spa.stopwords.txt "$resdir/spa.stopwords"
+      cp ~/ISRI-OCRtk/stopwords/spa.stopwords.txt "$resdir/spa.stopwords"
       ocrevalutf8   wordacc -S"$resdir/spa.stopwords" "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.wa"
   fi
   wafiles="$wafiles $resdir/$page.wa"
