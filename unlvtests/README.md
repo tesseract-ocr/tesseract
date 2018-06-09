@@ -40,10 +40,12 @@ wget -O spa.stopwords.txt https://raw.githubusercontent.com/stopwords-iso/stopwo
 ```
 Edit ~/ISRI-OCRtk/stopwords/spa.stopwords.txt
 wordacc uses a space delimited stopwords file, not line delimited.
+s/\n/ /g
 
-Edit *~/ISRI-OCRtk/spn.3B/pages*
-delete the line containing the following imagename as it crashes tesseract.
-7733_005.3B.tif
+Edit ~/ISRI-OCRtk/spn.3B/pages
+Delete the line containing the following imagename as it [crashes tesseract](https://github.com/tesseract-ocr/tesseract/issues/1647#issuecomment-395954717).
+
+7733_005.3B 3
 
 ### Step 3: Download the modified ISRI toolkit, make and install the tools :
 These will be installed in /usr/local/bin.
