@@ -96,7 +96,9 @@ EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/test/testing/phototest.
 EXTRA_apiexample_test_DEPENDENCIES += $(abs_top_builddir)/test/testing/phototest.txt
 
 $(abs_top_builddir)/test/testing/phototest.tif:
-	ln -s $(top_srcdir)/test/testing/phototest.tif $(top_builddir)/test/testing/phototest.tif
+	mkdir -p $(top_builddir)/test/testing
+	ln -s $(TESTING_DIR)/phototest.tif $(top_builddir)/test/testing/phototest.tif
 
 $(abs_top_builddir)/test/testing/phototest.txt:
-	ln -s $(top_srcdir)/test/testing/phototest.txt $(top_builddir)/test/testing/phototest.txt
+	mkdir -p $(top_builddir)/test/testing
+	ln -s $(TESTING_DIR)/phototest.txt $(top_builddir)/test/testing/phototest.txt
