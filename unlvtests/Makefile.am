@@ -10,3 +10,4 @@ EXTRA_DIST += reports/1995.mag.3B.sum
 EXTRA_DIST += reports/1995.news.3B.sum
 EXTRA_DIST += reports/2.03.summary
 EXTRA_DIST += reports/2.04.summary
+EXTRA_DIST += reports/4_fast_spa.summary
