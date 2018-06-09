@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -ne 2 ]
+if [ $# -ne 4 ]
 then
-   echo "Usage:$0 unlv-data-dir version-id"
+   echo "Usage:$0 unlv-data-dir version-id tessdata-dir lang "
    exit 1
 fi
 if [ ! -d src/api ]
@@ -30,7 +30,8 @@ then
   echo "Please build tesseract before running $0"
   exit 1
 fi
-
+tessdata=$3
+lang=$4
 
 #deltapc new old calculates the %change from old to new
 deltapc() {
@@ -60,8 +61,20 @@ then
     bindir="./"
 fi
 rdir=unlvtests/reports
-#testsets="bus.3B doe3.3B mag.3B news.3B"
-testsets="bus.3B"
+
+if [ "$lang" = "eng" ]
+then
+    testsets="bus.3B doe3.3B mag.3B news.3B"
+    #testsets="bus.3B"
+else
+    if [ "$lang" = "spa" ]
+    then
+        testsets="spn.3B"
+    else
+        echo "Language has to be eng or spa"
+        exit 1
+    fi
+fi
 
 totalerrs=0
 totalwerrs=0
@@ -74,7 +87,7 @@ do
     if [ -r "$imdir/$set/pages" ]
     then
 	# Run tesseract on all the pages.
-	$bindir/runtestset.sh "$imdir/$set/pages"
+	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" "$lang"
 	# Count the errors on all the pages.
 	$bindir/counttestset.sh "$imdir/$set/pages"
 	# Get the old character word and nonstop word errors.
@@ -82,30 +95,30 @@ do
 	oldwerrs=$(cut -f6 "unlvtests/reports/1995.$set.sum")
 	oldnswerrs=$(cut -f9 "unlvtests/reports/1995.$set.sum")
 	# Get the new character word and nonstop word errors and accuracy.
-	cherrs=$(head -4 "unlvtests/reports/$set.characc" |tail -1 |cut -c1-9 |
+	cherrs=$(head -4 "unlvtests/results/$set.characc" |tail -1 |cut -c1-9 |
 	    tr -d '[:blank:]')
-	chacc=$(head -5 "unlvtests/reports/$set.characc" |tail -1 |cut -c1-9 |
+	chacc=$(head -5 "unlvtests/results/$set.characc" |tail -1 |cut -c1-9 |
 	    tr -d '[:blank:]')
-	wderrs=$(head -4 "unlvtests/reports/$set.wordacc" |tail -1 |cut -c1-9 |
+	wderrs=$(head -4 "unlvtests/results/$set.wordacc" |tail -1 |cut -c1-9 |
 	    tr -d '[:blank:]')
-	wdacc=$(head -5 "unlvtests/reports/$set.wordacc" |tail -1 |cut -c1-9 |
+	wdacc=$(head -5 "unlvtests/results/$set.wordacc" |tail -1 |cut -c1-9 |
 	    tr -d '[:blank:]')
-	nswderrs=$(grep Total "unlvtests/reports/$set.wordacc" |head -2 |tail -1 |
+	nswderrs=$(grep Total "unlvtests/results/$set.wordacc" |head -2 |tail -1 |
 	    cut -c10-17 |tr -d '[:blank:]')
-	nswdacc=$(grep Total "unlvtests/reports/$set.wordacc" |head -2 |tail -1 |
+	nswdacc=$(grep Total "unlvtests/results/$set.wordacc" |head -2 |tail -1 |
 	    cut -c19-26 |tr -d '[:blank:]')
 	# Compute the percent change.
 	chdelta=$(deltapc "$cherrs" "$olderrs")
 	wdelta=$(deltapc "$wderrs" "$oldwerrs")
 	nswdelta=$(deltapc "$nswderrs" "$oldnswerrs")
 	sumfile=$rdir/$vid.$set.sum
-        if [ -r "unlvtests/reports/$set.times" ]
+        if [ -r "unlvtests/results/$set.times" ]
         then
-          total_time=$(timesum "unlvtests/reports/$set.times")
-          if [ -r "unlvtests/reports/prev/$set.times" ]
+          total_time=$(timesum "unlvtests/results/$set.times")
+          if [ -r "unlvtests/results/prev/$set.times" ]
           then
-            paste "unlvtests/reports/prev/$set.times" "unlvtests/reports/$set.times" |
-              awk '{ printf("%s %.2f\n", $1, $4-$2); }' |sort -k2n >"unlvtests/reports/$set.timedelta"
+            paste "unlvtests/results/prev/$set.times" "unlvtests/results/$set.times" |
+              awk '{ printf("%s %.2f\n", $1, $4-$2); }' |sort -k2n >"unlvtests/results/$set.timedelta"
           fi
 	else
           total_time='0.0'
@@ -129,3 +142,6 @@ tfile=$rdir/$vid.total.sum
 echo "$vid	Total	$totalerrs	-	$chdelta%	$totalwerrs\
 	-	$wdelta%	$totalnswerrs	-	$nswdelta%" >"$tfile"
 cat $rdir/1995.*.sum "$rdir/$vid".*.sum >"$rdir/$vid".summary
+
+mv "$rdir/$vid".*.sum unlvtests/results/
+cat "$rdir/$vid".summary
