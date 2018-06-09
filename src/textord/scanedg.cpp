@@ -50,6 +50,8 @@ void block_edges(Pix *t_pix,           // thresholded image
   CRACKEDGE *free_cracks = nullptr;
 
   block->bounding_box(bleft, tright);  // block box
+  ASSERT_HOST(tright.x() <= width);
+  ASSERT_HOST(tright.y() <= height);
   int block_width = tright.x() - bleft.x();
   for (int x = block_width; x >= 0; x--)
     ptrline[x] = nullptr;           //  no lines in progress
