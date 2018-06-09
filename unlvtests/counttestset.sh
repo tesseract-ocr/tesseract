@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
-  echo "Usage:$0 pagesfile"
+  echo "Usage:$0 pagesfile langcode"
   exit 1
 fi
 if [ ! -d src/api ]
@@ -27,6 +27,7 @@ then
 fi
 
 pages=$1
+langcode=$2
 
 imdir=${pages%/pages}
 setname=${imdir##*/}
@@ -45,15 +46,22 @@ do
   fi
 #echo "$srcdir/$page.tif"
   # Count character errors.
-  ocrevalutf8  accuracy "$srcdir/$page.txt" "$resdir/$page.unlv" > "$resdir/$page.acc"
+  iconv -f  ISO8859-1 -t UTF-8 "$resdir/$page.unlv" >"$resdir/$page.text"
+  iconv -f  ISO8859-1 -t UTF-8 "$srcdir/$page.txt" >"$srcdir/$page.text"
+  ocrevalutf8  accuracy "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.acc"
   accfiles="$accfiles $resdir/$page.acc"
   # Count word errors.
-  ocrevalutf8  wordacc "$srcdir/$page.txt" "$resdir/$page.unlv" > "$resdir/$page.wa"
+  #langcode should be either eng or spa
+  if [ "$langcode" = "eng" ]
+    then
+      ocrevalutf8  wordacc "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.wa"
+    else
+      cp ~/ISRI-OCRtk/stopwords/spa.stopwords.txt "$resdir/spa.stopwords"
+      ocrevalutf8   wordacc -S"$resdir/spa.stopwords" "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.wa"
+  fi
   wafiles="$wafiles $resdir/$page.wa"
 done <"$pages"
 
-#echo "$accfiles"
-#echo "$wafiles"
-
 accsum $accfiles >"unlvtests/results/$setname.characc"
 wordaccsum $wafiles >"unlvtests/results/$setname.wordacc"
+

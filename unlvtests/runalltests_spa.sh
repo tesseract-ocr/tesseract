@@ -1,8 +1,10 @@
 #!/bin/bash
-# File:        runalltests.sh
-# Description: Script to run a set of UNLV test sets for English.
-# Author:      Ray Smith
-# Created:     Thu Jun 14 08:21:01 PDT 2007
+##############################################################################
+# File:        runalltests_spa.sh
+# Description: Script to run a set of UNLV test sets for Spanish.
+#                      based on runalltests.sh by Ray Smith
+# Author:      Shree Devi Kumar
+# Created:     June 09, 2018
 #
 # (C) Copyright 2007, Google Inc.
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +16,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+##############################################################################
 if [ $# -ne 3 ]
 then
    echo "Usage:$0 unlv-data-dir version-id tessdata-dir"
@@ -31,13 +33,7 @@ then
   exit 1
 fi
 tessdata=$3
-
-#deltapc new old calculates the %change from old to new
-deltapc() {
-awk ' BEGIN {
-printf("%.2f", 100.0*('"$1"'-'"$2"')/'"$2"');
-}'
-}
+lang=$4
 
 #timesum computes the total cpu time
 timesum() {
@@ -61,27 +57,19 @@ then
 fi
 rdir=unlvtests/reports
 
-testsets="bus.3B doe3.3B mag.3B news.3B"
-#testsets="bus.3B"
+testsets="spn.3B"
 
 totalerrs=0
 totalwerrs=0
 totalnswerrs=0
-totalolderrs=0
-totaloldwerrs=0
-totaloldnswerrs=0
 for set in $testsets
 do
     if [ -r "$imdir/$set/pages" ]
     then
 	# Run tesseract on all the pages.
-	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" "eng"
+	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" "spa"
 	# Count the errors on all the pages.
-	$bindir/counttestset.sh "$imdir/$set/pages"
-	# Get the old character word and nonstop word errors.
-	olderrs=$(cut -f3 "unlvtests/reports/1995.$set.sum")
-	oldwerrs=$(cut -f6 "unlvtests/reports/1995.$set.sum")
-	oldnswerrs=$(cut -f9 "unlvtests/reports/1995.$set.sum")
+	$bindir/counttestset.sh "$imdir/$set/pages" "spa"
 	# Get the new character word and nonstop word errors and accuracy.
 	cherrs=$(head -4 "unlvtests/results/$set.characc" |tail -1 |cut -c1-9 |
 	    tr -d '[:blank:]')
@@ -95,11 +83,8 @@ do
 	    cut -c10-17 |tr -d '[:blank:]')
 	nswdacc=$(grep Total "unlvtests/results/$set.wordacc" |head -2 |tail -1 |
 	    cut -c19-26 |tr -d '[:blank:]')
-	# Compute the percent change.
-	chdelta=$(deltapc "$cherrs" "$olderrs")
-	wdelta=$(deltapc "$wderrs" "$oldwerrs")
-	nswdelta=$(deltapc "$nswderrs" "$oldnswerrs")
-	sumfile=$rdir/$vid.$set.sum
+
+sumfile=$rdir/$vid.$set.sum
         if [ -r "unlvtests/results/$set.times" ]
         then
           total_time=$(timesum "unlvtests/results/$set.times")
@@ -111,25 +96,14 @@ do
 	else
           total_time='0.0'
         fi
-        echo "$vid	$set	$cherrs	$chacc	$chdelta%	$wderrs	$wdacc\
-	$wdelta%	$nswderrs	$nswdacc	$nswdelta%	${total_time}s" >"$sumfile"
-	# Sum totals over all the testsets.
-	let totalerrs=totalerrs+cherrs
-	let totalwerrs=totalwerrs+wderrs
-	let totalnswerrs=totalnswerrs+nswderrs
-	let totalolderrs=totalolderrs+olderrs
-	let totaloldwerrs=totaloldwerrs+oldwerrs
-	let totaloldnswerrs=totaloldnswerrs+oldnswerrs
+        echo "RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy\
+	NonStopWordErrors	Accuracy	TimeTaken">"$sumfile"
+        echo "$vid	$set	$cherrs		$chacc		$wderrs		$wdacc\
+		$nswderrs			$nswdacc		${total_time}s" >>"$sumfile"
     fi
 done
-# Compute grand total percent change.
-chdelta=$(deltapc $totalerrs $totalolderrs)
-wdelta=$(deltapc $totalwerrs $totaloldwerrs)
-nswdelta=$(deltapc $totalnswerrs $totaloldnswerrs)
-tfile=$rdir/$vid.total.sum
-echo "$vid	Total	$totalerrs	-	$chdelta%	$totalwerrs\
-	-	$wdelta%	$totalnswerrs	-	$nswdelta%" >"$tfile"
-cat $rdir/1995.*.sum "$rdir/$vid".*.sum >"$rdir/$vid".summary
+
+cat "$rdir/$vid".*.sum >"$rdir/$vid".summary
 
 mv "$rdir/$vid".*.sum unlvtests/results/
 cat "$rdir/$vid".summary

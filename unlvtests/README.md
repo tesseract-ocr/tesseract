@@ -34,12 +34,18 @@ tar xzvf ~/isri-downloads/doe3.3B.tar.gz
 tar xzvf ~/isri-downloads/mag.3B.tar.gz
 tar xzvf ~/isri-downloads/news.3B.tar.gz
 tar xzvf ~/isri-downloads/spn.3B.tar.gz
+mkdir -p stopwords
+cd stopwords
+wget -O spa.stopwords.txt https://raw.githubusercontent.com/stopwords-iso/stopwords-es/master/stopwords-es.txt
 ```
+Edit ~/ISRI-OCRtk/stopwords/spa.stopwords.txt
+wordacc uses a space delimited stopwords file, not line delimited.
+s/\n/ /g
 
-Edit *~/ISRI-OCRtk/spn.3B/pages*
-delete the line containing the following imagename as it crashes tesseract.
+Edit ~/ISRI-OCRtk/spn.3B/pages
+Delete the line containing the following imagename as it [crashes tesseract](https://github.com/tesseract-ocr/tesseract/issues/1647#issuecomment-395954717).
 
-7733_005.3B.tif
+7733_005.3B 3
 
 ### Step 3: Download the modified ISRI toolkit, make and install the tools :
 These will be installed in /usr/local/bin.
@@ -52,10 +58,10 @@ sudo make install
 
 ### Step 4: cd back to your main tesseract-ocr dir and Build tesseract.
 
-### Step 5: run unlvtests/runalltests.sh with the root ISRI data dir, testname, tessdata-dir and language:
+### Step 5: run unlvtests/runalltests.sh with the root ISRI data dir, testname, tessdata-dir:
 
 ```
-unlvtests/runalltests.sh ~/ISRI-OCRtk 4_fast_eng ../tessdata_fast eng
+unlvtests/runalltests.sh ~/ISRI-OCRtk 4_fast_eng ../tessdata_fast
 ```
 and go to the gym, have lunch etc. It takes a while to run.
 
@@ -66,5 +72,23 @@ report and comparison with the 1995 results.
 ### Step 7: run the test for Spanish.
 
 ```
-unlvtests/runalltests.sh ~/ISRI-OCRtk 4_fast_spa ../tessdata_fast spa
+unlvtests/runalltests_spa.sh ~/ISRI-OCRtk 4_fast_spa ../tessdata_fast
 ```
+
+#### Notes from Nick White regarding wordacc
+
+If you just want to remove all lines which have 100% recognition,
+you can add a 'awk' command like this:
+
+ocrevalutf8 wordacc ground.txt ocr.txt | awk '$3 != 100 {print $0}'  
+results.txt
+
+or if you've already got a results file you want to change, you can do this:
+
+awk '$3 != 100 {print $0}'  results.txt  newresults.txt
+
+If you only want the last sections where things are broken down by
+word, you can add a sed commend, like this:
+
+ocrevalutf8 wordacc ground.txt ocr.txt | sed '/^   Count   Missed %Right   $/,$ 
+!d' | awk '$3 != 100 {print $0}'  results.txt
