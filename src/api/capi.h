@@ -30,6 +30,7 @@
 #   include "renderer.h"
 #else
 #   include "platform.h"
+#   include <stdbool.h>
 #   include <stdio.h>
 #endif
 
