@@ -45,9 +45,10 @@ do
      srcdir="$imdir"
   fi
 #echo "$srcdir/$page.tif"
-  # Count character errors.
-  iconv -f  ISO8859-1 -t UTF-8 "$resdir/$page.unlv" >"$resdir/$page.text"
+  # Convert groundtruth and recognized text to UTF-8 to correctly treat accented letters.
   iconv -f  ISO8859-1 -t UTF-8 "$srcdir/$page.txt" >"$srcdir/$page.text"
+  iconv -f  ISO8859-1 -t UTF-8 "$resdir/$page.unlv" >"$resdir/$page.text"
+  # Count character errors.
   ocrevalutf8  accuracy "$srcdir/$page.text" "$resdir/$page.text" > "$resdir/$page.acc"
   accfiles="$accfiles $resdir/$page.acc"
   # Count word errors.
