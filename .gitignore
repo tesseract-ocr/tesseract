@@ -64,6 +64,8 @@ build/*
 /bin
 */.deps/*
 */.libs/*
+*/*/.deps/*
+*/*/.libs/*
 *.lo
 *.la
 *.o
@@ -102,9 +104,7 @@ kernel*.bin
 /unittest/osd_test
 /unittest/tesseracttests
 
-# ocreval tool and generated files from unlvtests
-/unlvtests/ocreval*
+# generated files from unlvtests
+times.txt
 /unlvtests/results*
-/unlvtests/reports/*.characc
-/unlvtests/reports/*.times
-/unlvtests/reports/*.wordacc
+
