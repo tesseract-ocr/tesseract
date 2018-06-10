@@ -77,7 +77,7 @@ do
 	# Run tesseract on all the pages.
 	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" "eng"
 	# Count the errors on all the pages.
-	$bindir/counttestset.sh "$imdir/$set/pages"
+	$bindir/counttestset.sh "$imdir/$set/pages" "eng"
 	# Get the old character word and nonstop word errors.
 	olderrs=$(cut -f3 "unlvtests/reports/1995.$set.sum")
 	oldwerrs=$(cut -f6 "unlvtests/reports/1995.$set.sum")
