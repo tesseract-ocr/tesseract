@@ -8,9 +8,11 @@ AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
-include_HEADERS = dotproductavx.h dotproductsse.h intsimdmatrix.h intsimdmatrixavx2.h intsimdmatrixsse.h simddetect.h
+include_HEADERS = intsimdmatrix.h
 
-noinst_HEADERS =
+noinst_HEADERS = dotproductavx.h dotproductsse.h
+noinst_HEADERS += intsimdmatrixavx2.h intsimdmatrixsse.h
+noinst_HEADERS += simddetect.h
 
 noinst_LTLIBRARIES = libtesseract_avx.la libtesseract_avx2.la libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_arch.la
