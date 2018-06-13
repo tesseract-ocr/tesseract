@@ -166,13 +166,13 @@ const char* LTRResultIterator::WordFontAttributes(bool* is_bold,
                                                   bool* is_smallcaps,
                                                   int* pointsize,
                                                   int* font_id) const {
+  if (it_->word() == nullptr) return nullptr;  // Already at the end!
   float row_height = it_->row()->row->x_height() +
       it_->row()->row->ascenders() - it_->row()->row->descenders();
   // Convert from pixels to printers points.
   *pointsize = scaled_yres_ > 0
       ? static_cast<int>(row_height * kPointsPerInch / scaled_yres_ + 0.5)
       : 0;
-  if (it_->word() == nullptr) return nullptr;  // Already at the end!
   if (it_->word()->fontinfo == nullptr) {
     *font_id = -1;
     return nullptr;  // No font information.
