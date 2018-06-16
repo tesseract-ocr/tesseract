@@ -56,6 +56,7 @@ check_PROGRAMS = \
   intsimdmatrix_test \
   matrix_test \
   osd_test \
+  loadlang_test \
   tesseracttests 
 
 
@@ -80,6 +81,9 @@ matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
+loadlang_test_SOURCES = loadlang_test.cc
+loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
@@ -89,6 +93,7 @@ apiexample_test_LDADD += -lws2_32
 intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
 osd_test_LDADD += -lws2_32
+loadlang_test_LDADD += -lws2_32
 tesseracttests_LDADD  += -lws2_32
 endif
 
