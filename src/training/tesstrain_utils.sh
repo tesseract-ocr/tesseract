@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# modified version - see http://wiki.wareya.moe/Tesseract
-#
 # This script defines functions that are used by tesstrain.sh
 # For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
@@ -147,17 +145,6 @@ parse_flags() {
             --training_text)
                 parse_value "TRAINING_TEXT" "${ARGV[$j]}"
                 i=$j ;;
-            --textlist)
-                fn=0
-                TEXTS=""
-                while test $j -lt ${#ARGV[@]}; do
-                    test -z "${ARGV[$j]}" && break
-                    test $(echo ${ARGV[$j]} | cut -c -2) = "--" && break
-                    TEXTS[$fn]="${ARGV[$j]}"
-                    fn=$((fn+1))
-                    j=$((j+1))
-                done
-                i=$((j-1)) ;;
             --wordlist)
                 parse_value "WORDLIST_FILE" ${ARGV[$j]}
                 i=$j ;;
@@ -227,10 +214,10 @@ generate_font_image() {
 
     local common_args="--fontconfig_tmpdir=${FONT_CONFIG_CACHE}"
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
-    common_args+=" --leading=${LEADING} --xsize 2560"
+    common_args+=" --leading=${LEADING}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
-if [[ ${#TEXTS[@]} -eq 0 ]]; then
     common_args+=" --outputbase=${outbase} --max_pages=0"
+
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
     for vfont in "${VERTICAL_FONTS[@]}"; do
@@ -239,28 +226,10 @@ if [[ ${#TEXTS[@]} -eq 0 ]]; then
         break
       fi
     done
+
     run_command text2image ${common_args} --font="${font}" \
         --text=${TRAINING_TEXT} ${TEXT2IMAGE_EXTRA_ARGS}
     check_file_readable ${outbase}.box ${outbase}.tif
-    else
-        for ((i = 0; i < ${#TEXTS[@]}; i++))
-        do
-            outbase=${TRAINING_DIR}/${LANG_CODE}.${i}.${fontname}.exp${EXPOSURE}
-            local base_args="${common_args} --outputbase=${outbase} --max_pages=0"
-            # add --writing_mode=vertical-upright to common_args if the font is
-            # specified to be rendered vertically.
-            for vfont in "${VERTICAL_FONTS[@]}"; do
-              if [[ "${font}" == "${vfont}" ]]; then
-                base_args+=" --writing_mode=vertical-upright "
-                break
-              fi
-            done
-            run_command text2image ${base_args} --font="${font}" \
-                --text=${TEXTS[$i]} ${TEXT2IMAGE_EXTRA_ARGS}
-            check_file_readable ${outbase}.box ${outbase}.tif
-        done
-    fi
-
 
     if ((EXTRACT_FONT_PROPERTIES)) &&
         [[ -r ${TRAIN_NGRAMS_FILE} ]]; then
@@ -311,18 +280,9 @@ phase_I_generate_image() {
         wait
         # Check that each process was successful.
         for font in "${FONTS[@]}"; do
-            if [[ ${#TEXTS[@]} -eq 0 ]]; then
-                local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
-                local outbase=${TRAINING_DIR}/${LANG_CODE}.${fontname}.exp${EXPOSURE}
-                check_file_readable ${outbase}.box ${outbase}.tif
-            else
-                for ((i = 0; i < ${#TEXTS[@]}; i++))
-                do
-                    local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
-                    local outbase=${TRAINING_DIR}/${LANG_CODE}.${i}.${fontname}.exp${EXPOSURE}
-                    check_file_readable ${outbase}.box ${outbase}.tif
-                done
-            fi
+            local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
+            local outbase=${TRAINING_DIR}/${LANG_CODE}.${fontname}.exp${EXPOSURE}
+            check_file_readable ${outbase}.box ${outbase}.tif
         done
     done
 }

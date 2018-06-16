@@ -14,8 +14,6 @@
 # Tesseract.  For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
-# modified version - see http://wiki.wareya.moe/Tesseract
-#
 # USAGE:
 #
 # tesstrain.sh
@@ -34,8 +32,6 @@
 #    --training_text TEXTFILE   # Text to render and use for training.
 #    --wordlist WORDFILE        # Word list for the language ordered by
 #                               # decreasing frequency.
-#    --textlist TEXTS           # A list of filenames for text to render.
-#                               # Works like fontlist. Overrides training_text.  
 #
 # OPTIONAL flag to specify location of existing traineddata files, required
 # during feature extraction. If unspecified will use TESSDATA_PREFIX defined in
