@@ -131,8 +131,6 @@ if $sse41; then
     AM_CONDITIONAL([SSE41_OPT], true)
 fi
 
-includedir="${includedir}/tesseract"
-
 AC_ARG_WITH([extra-includes],
             [AS_HELP_STRING([--with-extra-includes=DIR],
                        [Define an additional directory for include files])],

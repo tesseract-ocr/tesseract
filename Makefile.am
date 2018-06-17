@@ -29,7 +29,7 @@ EXTRA_DIST = README.md\
 DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
 
 uninstall-hook:
-	rm -rf $(DESTDIR)$(includedir)
+	rm -rf $(DESTDIR)$(pkgincludedir)
 
 dist-hook:
 # Need to remove .svn directories from directories

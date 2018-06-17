@@ -19,7 +19,7 @@ if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = apitypes.h baseapi.h capi.h renderer.h tess_version.h
+pkginclude_HEADERS = apitypes.h baseapi.h capi.h renderer.h tess_version.h
 lib_LTLIBRARIES = 
 
 noinst_LTLIBRARIES = libtesseract_api.la

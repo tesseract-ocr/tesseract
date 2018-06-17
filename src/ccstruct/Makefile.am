@@ -10,7 +10,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = publictypes.h
+pkginclude_HEADERS = publictypes.h
 noinst_HEADERS = \
     blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
     debugpixa.h detlinefit.h dppoint.h fontinfo.h genblob.h hpdsizes.h \
