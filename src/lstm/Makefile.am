@@ -20,7 +20,7 @@ AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
-include_HEADERS = \
+pkginclude_HEADERS = \
         convolve.h ctc.h fullyconnected.h functions.h input.h \
         lstm.h lstmrecognizer.h lstmtrainer.h maxpool.h \
         networkbuilder.h network.h networkio.h networkscratch.h \

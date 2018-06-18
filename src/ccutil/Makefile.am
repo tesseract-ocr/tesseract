@@ -11,7 +11,7 @@ AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
-include_HEADERS = \
+pkginclude_HEADERS = \
 	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
 	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
 	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h

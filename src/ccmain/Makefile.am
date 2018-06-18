@@ -19,7 +19,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-include_HEADERS = \
+pkginclude_HEADERS = \
     thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h \
     osdetect.h
 noinst_HEADERS = \

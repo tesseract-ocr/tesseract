@@ -8,7 +8,7 @@ AM_CXXFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
-include_HEADERS = intsimdmatrix.h
+pkginclude_HEADERS = intsimdmatrix.h
 
 noinst_HEADERS = dotproductavx.h dotproductsse.h
 noinst_HEADERS += intsimdmatrixavx2.h intsimdmatrixsse.h
