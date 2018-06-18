@@ -15,7 +15,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "include_gunit.h"
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include <time.h>
 
 namespace {

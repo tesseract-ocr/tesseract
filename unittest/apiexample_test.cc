@@ -18,7 +18,7 @@
 
 //#include "log.h"
 #include "include_gunit.h"
-#include "baseapi.h"
+#include "tesseract/baseapi.h"
 #include "leptonica/allheaders.h"
 #include <iostream>
 #include <string>
@@ -69,17 +69,39 @@ class QuickTest : public testing::Test {
               TESTING_DIR "/phototest.txt",
               TESSDATA_DIR "_fast", GetParam());
   }
-  
-  INSTANTIATE_TEST_CASE_P( EngLatinDevaArabLang, MatchGroundTruth, 
-                        ::testing::Values("eng", "script/Latin", "script/Devanagari", "script/Arabic") );
 
+  TEST_P(MatchGroundTruth, BestPhototestOCR) {
+    OCRTester(TESTING_DIR "/phototest.tif",
+              TESTING_DIR "/phototest.txt",
+              TESSDATA_DIR "_best", GetParam());
+  }
+ 
+  TEST_P(MatchGroundTruth, TessPhototestOCR) {
+    OCRTester(TESTING_DIR "/phototest.tif",
+              TESTING_DIR "/phototest.txt",
+              TESSDATA_DIR , GetParam());
+  }
+ 
+  INSTANTIATE_TEST_CASE_P( Eng, MatchGroundTruth, 
+                        ::testing::Values("eng") );
+  INSTANTIATE_TEST_CASE_P( Latin, MatchGroundTruth, 
+                        ::testing::Values("script/Latin") );
+  INSTANTIATE_TEST_CASE_P( Deva, MatchGroundTruth, 
+                        ::testing::Values("script/Devanagari") );
+  INSTANTIATE_TEST_CASE_P( Arab, MatchGroundTruth, 
+                        ::testing::Values("script/Arabic") );
+  
   class EuroText : public QuickTest {
   };
   
-  TEST_F(EuroText, FastOCR) {
+  TEST_F(EuroText, FastLatinOCR) {
     OCRTester(TESTING_DIR "/eurotext.tif",
               TESTING_DIR "/eurotext.txt",
               TESSDATA_DIR "_fast", "script/Latin");
   }
+
+  // script/Latin for eurotext.tif does not match groundtruth 
+  // for tessdata & tessdata_best
+  // so do not test these here.
   
 }  // namespace
