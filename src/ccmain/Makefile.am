@@ -20,11 +20,11 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 pkginclude_HEADERS = \
-    thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h \
-    osdetect.h
+    thresholder.h ltrresultiterator.h pageiterator.h resultiterator.h
+
 noinst_HEADERS = \
     control.h docqual.h equationdetect.h fixspace.h mutableiterator.h \
-    output.h paragraphs.h paragraphs_internal.h paramsd.h pgedit.h \
+    output.h paragraphs.h paragraphs_internal.h osdetect.h paramsd.h pgedit.h \
     reject.h tessbox.h tessedit.h tesseractclass.h tessvars.h werdit.h
 
 noinst_LTLIBRARIES = libtesseract_main.la

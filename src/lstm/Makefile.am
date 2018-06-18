@@ -21,13 +21,15 @@ AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
 pkginclude_HEADERS = \
-        convolve.h ctc.h fullyconnected.h functions.h input.h \
-        lstm.h lstmrecognizer.h lstmtrainer.h maxpool.h \
-        networkbuilder.h network.h networkio.h networkscratch.h \
-        parallel.h plumbing.h recodebeam.h reconfig.h reversed.h \
-        series.h static_shape.h stridemap.h tfnetwork.h weightmatrix.h
+        network.h networkio.h networkscratch.h \
+        static_shape.h stridemap.h weightmatrix.h
 
-noinst_HEADERS = 
+noinst_HEADERS = convolve.h ctc.h
+noinst_HEADERS += fullyconnected.h functions.h input.h
+noinst_HEADERS += lstm.h lstmrecognizer.h lstmtrainer.h maxpool.h
+noinst_HEADERS += networkbuilder.h
+noinst_HEADERS += parallel.h plumbing.h recodebeam.h reconfig.h reversed.h
+noinst_HEADERS += series.h tfnetwork.h
 
 noinst_LTLIBRARIES = libtesseract_lstm.la
 
