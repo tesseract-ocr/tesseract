@@ -103,6 +103,8 @@ kernel*.bin
 /unittest/matrix_test
 /unittest/osd_test
 /unittest/tesseracttests
+/unittest/progress_test
+/unittest/loadlang_test
 
 # generated files from unlvtests
 times.txt
