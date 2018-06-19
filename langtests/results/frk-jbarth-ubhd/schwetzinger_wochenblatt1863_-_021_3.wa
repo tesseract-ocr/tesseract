@@ -1,0 +1,72 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      23   Words
+       3   Misrecognized
+   86.96%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       2        0   100.00        3
+       2        0   100.00        4
+       2        0   100.00        5
+       1        0   100.00        6
+       1        0   100.00        7
+       1        1     0.00        9
+      11        1    90.91    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        2
+       1        0   100.00        3
+       6        1    83.33        6
+       1        0   100.00        7
+       1        1     0.00        8
+       1        0   100.00        9
+       1        0   100.00       12
+      12        2    83.33    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      12        2    83.33        1
+      12        2    83.33    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      23        3    86.96        1
+      22        5    77.27        2
+      21        6    71.43        3
+      20        7    65.00        4
+      19        8    57.89        5
+      18        9    50.00        6
+      17       10    41.18        7
+      16       10    37.50        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   den
+       1        0   100.00   der
+       1        1     0.00   derselben
+       1        0   100.00   deshalb
+       1        0   100.00   einem
+       1        0   100.00   einer
+       1        0   100.00   etwa
+       1        0   100.00   ganzen
+       1        0   100.00   in
+       1        0   100.00   nahm
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   70
+       1        0   100.00   aufbewahrten
+       1        0   100.00   diener
+       1        0   100.00   hervor
+       1        0   100.00   kaufen
+       1        1     0.00   kessel
+       1        0   100.00   kupfernen
+       1        0   100.00   laden-
+       1        0   100.00   pfd
+       1        0   100.00   pulver
+       1        0   100.00   vorrath
+       1        1     0.00   wünschte

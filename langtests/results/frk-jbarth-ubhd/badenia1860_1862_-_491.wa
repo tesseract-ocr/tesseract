@@ -1,0 +1,73 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      26   Words
+       2   Misrecognized
+   92.31%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       4        0   100.00        2
+       5        0   100.00        3
+       2        1    50.00        4
+       2        0   100.00        5
+       1        0   100.00        6
+       1        0   100.00        7
+      15        1    93.33    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        4
+       1        0   100.00        5
+       1        0   100.00        6
+       3        0   100.00        8
+       3        0   100.00        9
+       2        0   100.00       10
+      11        1    90.91    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      11        1    90.91        1
+      11        1    90.91    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      26        2    92.31        1
+      25        3    88.00        2
+      24        4    83.33        3
+      23        5    78.26        4
+      22        6    72.73        5
+      21        7    66.67        6
+      20        7    65.00        7
+      19        7    63.16        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   an
+       1        0   100.00   der
+       1        0   100.00   die
+       1        0   100.00   ein
+       1        0   100.00   er
+       1        0   100.00   ganz
+       1        0   100.00   genug
+       1        0   100.00   hatte
+       1        0   100.00   im
+       1        0   100.00   mittel
+       1        1     0.00   noch
+       1        0   100.00   um
+       1        0   100.00   war
+       1        0   100.00   welchen
+       1        0   100.00   zur
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   bedeutende
+       1        0   100.00   damaligen
+       1        0   100.00   gewendet
+       1        0   100.00   gleichwohl
+       1        1     0.00   her-
+       1        0   100.00   karlsburg
+       1        0   100.00   markgraf
+       1        0   100.00   prachtbau
+       1        0   100.00   sinne
+       1        0   100.00   summen
+       1        0   100.00   völligen

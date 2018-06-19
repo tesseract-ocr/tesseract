@@ -1,0 +1,66 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      25   Words
+      12   Misrecognized
+   52.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       8        2    75.00        3
+       2        1    50.00        6
+      12        3    75.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        2     0.00        4
+       3        3     0.00        5
+       4        3    25.00        6
+       3        0   100.00        7
+       1        1     0.00        9
+      13        9    30.77    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      11        7    36.36        1
+       1        1     0.00        2
+      12        8    33.33    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      25       12    52.00        1
+      24       17    29.17        2
+      23       20    13.04        3
+      22       21     4.55        4
+      21       21     0.00        5
+      20       20     0.00        6
+      19       19     0.00        7
+      18       18     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        1     0.00   besten
+       1        0   100.00   das
+       2        0   100.00   der
+       1        0   100.00   die
+       1        0   100.00   es
+       1        0   100.00   ihm
+       2        2     0.00   sie
+       1        0   100.00   und
+       1        0   100.00   wieder
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   brachte
+       1        1     0.00   else
+       1        1     0.00   essen
+       1        1     0.00   ilse
+       1        1     0.00   jugend
+       1        0   100.00   jürgen
+       1        0   100.00   kellner
+       1        0   100.00   lachend
+       1        1     0.00   schmeckte
+       2        2     0.00   schob
+       1        1     0.00   stücke
+       1        1     0.00   zurück

@@ -1,0 +1,72 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      25   Words
+      12   Misrecognized
+   52.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       7        3    57.14        3
+       2        1    50.00        4
+       2        2     0.00        6
+      13        6    53.85    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        5
+       2        0   100.00        6
+       1        1     0.00        7
+       1        1     0.00        8
+       2        1    50.00        9
+       1        1     0.00       10
+       2        1    50.00       11
+       1        0   100.00       12
+       1        1     0.00       13
+      12        6    50.00    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      12        6    50.00        1
+      12        6    50.00    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      25       12    52.00        1
+      24       16    33.33        2
+      23       18    21.74        3
+      22       20     9.09        4
+      21       21     0.00        5
+      20       20     0.00        6
+      19       19     0.00        7
+      18       18     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        1     0.00   allein
+       1        0   100.00   das
+       1        1     0.00   dem
+       1        1     0.00   die
+       1        1     0.00   dieser
+       1        0   100.00   eine
+       1        0   100.00   hat
+       1        0   100.00   im
+       1        0   100.00   in
+       1        0   100.00   mit
+       1        1     0.00   sind
+       2        1    50.00   und
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   aehnlichkeit
+       1        0   100.00   bleibt
+       1        1     0.00   engpässe
+       1        1     0.00   felsen-
+       1        0   100.00   große
+       1        1     0.00   hirschsprunge
+       1        1     0.00   höllenthal
+       1        0   100.00   stelle
+       1        0   100.00   thalbette
+       1        1     0.00   unmalerisch
+       1        0   100.00   waldpartien
+       1        1     0.00   zerrissen

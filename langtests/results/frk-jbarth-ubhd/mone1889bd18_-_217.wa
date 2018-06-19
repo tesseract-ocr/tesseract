@@ -1,0 +1,71 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      27   Words
+       6   Misrecognized
+   77.78%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       5        0   100.00        2
+       3        1    66.67        3
+       6        2    66.67        4
+       2        0   100.00        7
+      16        3    81.25    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        4
+       1        1     0.00        6
+       4        1    75.00        7
+       1        0   100.00        8
+       2        1    50.00        9
+       1        0   100.00       11
+       1        0   100.00       14
+      11        3    72.73    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      11        3    72.73        1
+      11        3    72.73    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      27        6    77.78        1
+      26       10    61.54        2
+      25       13    48.00        3
+      24       16    33.33        4
+      23       19    17.39        5
+      22       21     4.55        6
+      21       21     0.00        7
+      20       20     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   aber
+       1        0   100.00   der
+       1        0   100.00   er
+       1        0   100.00   hier
+       1        0   100.00   im
+       3        0   100.00   in
+       1        1     0.00   ist
+       1        1     0.00   sein
+       1        1     0.00   sich
+       1        0   100.00   von
+       1        0   100.00   welches
+       1        0   100.00   weshalb
+       1        0   100.00   wird
+       1        0   100.00   zwar
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   befindet
+       1        0   100.00   durlach
+       1        0   100.00   geboren
+       1        0   100.00   genannt
+       1        0   100.00   gondelsheim
+       1        1     0.00   karlsruhe
+       1        0   100.00   kraichgau
+       1        1     0.00   lotsch
+       1        1     0.00   stammte
+       1        0   100.00   stephanskirche
+       1        0   100.00   werk

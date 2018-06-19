@@ -1,0 +1,63 @@
+UNLV-ISRI OCR Accuracy Report Version 5.1
+-----------------------------------------
+     154   Characters
+       2   Errors
+   98.70%  Accuracy
+
+       0   Reject Characters
+       0   Suspect Markers
+       0   False Marks
+    0.00%  Characters Marked
+   98.70%  Accuracy After Correction
+
+     Ins    Subst      Del   Errors
+       0        0        0        0   Marked
+       0        2        0        2   Unmarked
+       0        2        0        2   Total
+
+   Count   Missed   %Right
+      23        0   100.00   ASCII Spacing Characters
+       2        0   100.00   ASCII Special Symbols
+      11        0   100.00   ASCII Uppercase Letters
+     116        2    98.28   ASCII Lowercase Letters
+       2        0   100.00   Latin1 Lowercase Letters
+     154        2    98.70   Total
+
+  Errors   Marked   Correct-Generated
+       2        0   {s}-{ſ}
+
+   Count   Missed   %Right
+       3        0   100.00   {<\n>}
+      20        0   100.00   { }
+       2        0   100.00   {.}
+       1        0   100.00   {A}
+       1        0   100.00   {B}
+       1        0   100.00   {E}
+       1        0   100.00   {H}
+       1        0   100.00   {I}
+       2        0   100.00   {L}
+       1        0   100.00   {N}
+       2        0   100.00   {S}
+       1        0   100.00   {V}
+       5        0   100.00   {a}
+       2        0   100.00   {b}
+       3        0   100.00   {c}
+       8        0   100.00   {d}
+      22        0   100.00   {e}
+       1        0   100.00   {f}
+       2        0   100.00   {g}
+       5        0   100.00   {h}
+       9        0   100.00   {i}
+       4        0   100.00   {k}
+       3        0   100.00   {l}
+       4        0   100.00   {m}
+      13        0   100.00   {n}
+       3        0   100.00   {o}
+       9        0   100.00   {r}
+       3        2    33.33   {s}
+       9        0   100.00   {t}
+       5        0   100.00   {u}
+       2        0   100.00   {w}
+       1        0   100.00   {x}
+       3        0   100.00   {z}
+       2        0   100.00   {ä}

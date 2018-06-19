@@ -1,0 +1,2 @@
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWordErrors	Accuracy	TimeTaken
+4_best_frk	frk-jbarth-ubhd	232		93.11%		139		73.27%		91			65.13		96.47s

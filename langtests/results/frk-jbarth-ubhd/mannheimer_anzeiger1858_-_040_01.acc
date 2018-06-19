@@ -1,0 +1,69 @@
+UNLV-ISRI OCR Accuracy Report Version 5.1
+-----------------------------------------
+     179   Characters
+      14   Errors
+   92.18%  Accuracy
+
+       0   Reject Characters
+       0   Suspect Markers
+       0   False Marks
+    0.00%  Characters Marked
+   92.18%  Accuracy After Correction
+
+     Ins    Subst      Del   Errors
+       0        0        0        0   Marked
+       3       11        0       14   Unmarked
+       3       11        0       14   Total
+
+   Count   Missed   %Right
+      25        1    96.00   ASCII Spacing Characters
+       4        0   100.00   ASCII Special Symbols
+       9        0   100.00   ASCII Uppercase Letters
+     139       13    90.65   ASCII Lowercase Letters
+       2        0   100.00   Latin1 Lowercase Letters
+     179       14    92.18   Total
+
+  Errors   Marked   Correct-Generated
+       6        0   {s}-{ſ}
+       4        0   {ss}-{ſſ}
+       2        0   {ch}-{}
+       1        0   {<\n>}-{}
+       1        0   {e}-{c}
+
+   Count   Missed   %Right
+       4        1    75.00   {<\n>}
+      21        0   100.00   { }
+       1        0   100.00   {!}
+       1        0   100.00   {*}
+       1        0   100.00   {-}
+       1        0   100.00   {.}
+       2        0   100.00   {D}
+       1        0   100.00   {G}
+       1        0   100.00   {H}
+       1        0   100.00   {I}
+       1        0   100.00   {K}
+       1        0   100.00   {O}
+       1        0   100.00   {V}
+       1        0   100.00   {W}
+       7        0   100.00   {a}
+       1        0   100.00   {b}
+       5        1    80.00   {c}
+       4        0   100.00   {d}
+      27        1    96.30   {e}
+       5        0   100.00   {g}
+      13        1    92.31   {h}
+      10        0   100.00   {i}
+       6        0   100.00   {l}
+       6        0   100.00   {m}
+      14        0   100.00   {n}
+       2        0   100.00   {o}
+      10        0   100.00   {r}
+      11       10     9.09   {s}
+       6        0   100.00   {t}
+       6        0   100.00   {u}
+       1        0   100.00   {v}
+       2        0   100.00   {w}
+       1        0   100.00   {y}
+       2        0   100.00   {z}
+       1        0   100.00   {ä}
+       1        0   100.00   {ö}

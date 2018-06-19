@@ -1,0 +1,71 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      25   Words
+       8   Misrecognized
+   68.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       6        1    83.33        3
+       5        2    60.00        4
+       1        0   100.00        5
+      12        3    75.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        1    50.00        1
+       1        0   100.00        2
+       1        0   100.00        3
+       2        1    50.00        4
+       1        1     0.00        5
+       1        0   100.00        6
+       1        0   100.00        7
+       1        0   100.00        8
+       2        1    50.00       10
+       1        1     0.00       16
+      13        5    61.54    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+       9        3    66.67        1
+       2        0   100.00        2
+      11        3    72.73    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      25        8    68.00        1
+      24       13    45.83        2
+      23       14    39.13        3
+      22       15    31.82        4
+      21       16    23.81        5
+      20       16    20.00        6
+      19       16    15.79        7
+      18       16    11.11        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   aber
+       2        2     0.00   auch
+       1        1     0.00   auf
+       1        0   100.00   bis
+       1        0   100.00   das
+       1        0   100.00   eine
+       1        0   100.00   gegen
+       1        0   100.00   hier
+       1        0   100.00   kam
+       1        0   100.00   man
+       1        0   100.00   von
+
+Non-stopwords
+   Count   Missed   %Right   
+       2        1    50.00   4
+       1        0   100.00   50
+       1        1     0.00   ausgleichsgebühr
+       1        0   100.00   entgegen
+       1        0   100.00   für
+       1        0   100.00   gleiche
+       1        1     0.00   magdeburg-
+       2        1    50.00   mark
+       1        1     0.00   meist
+       1        0   100.00   trifft
+       1        0   100.00   wochenende

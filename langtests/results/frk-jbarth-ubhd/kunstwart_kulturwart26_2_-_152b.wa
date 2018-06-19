@@ -1,0 +1,84 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      41   Words
+      16   Misrecognized
+   60.98%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        2
+      11        4    63.64        3
+       5        1    80.00        4
+       2        0   100.00        5
+       3        2    33.33        6
+      22        8    63.64    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        5
+       3        1    66.67        6
+       5        3    40.00        7
+       1        0   100.00        9
+       3        1    66.67       10
+       2        1    50.00       11
+       2        1    50.00       13
+       1        1     0.00       18
+      19        8    57.89    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      17        6    64.71        1
+       1        1     0.00        2
+      18        7    61.11    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      41       16    60.98        1
+      40       25    37.50        2
+      39       31    20.51        3
+      38       35     7.89        4
+      37       37     0.00        5
+      36       36     0.00        6
+      35       35     0.00        7
+      34       34     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   als
+       1        0   100.00   auch
+       2        1    50.00   der
+       4        0   100.00   die
+       1        1     0.00   dieser
+       1        0   100.00   doch
+       1        0   100.00   durch
+       1        0   100.00   eine
+       2        2     0.00   ist
+       1        0   100.00   keine
+       1        1     0.00   sehr
+       1        1     0.00   selbst
+       1        1     0.00   so
+       1        0   100.00   und
+       1        0   100.00   welche
+       1        1     0.00   wie
+       1        0   100.00   wohl
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        1     0.00   abwesenheit
+       1        0   100.00   beengt
+       1        0   100.00   beurteilung
+       1        0   100.00   denkbar
+       1        0   100.00   derartiger
+       1        0   100.00   farbe
+       1        1     0.00   farbei
+       1        0   100.00   größer
+       1        0   100.00   göttlicher
+       1        1     0.00   kirchliche
+       2        2     0.00   malerei
+       1        1     0.00   meier-graefes
+       1        1     0.00   neoimpressionismus
+       1        0   100.00   rechtfertigte
+       1        1     0.00   schöner
+       1        0   100.00   tradition
+       1        0   100.00   wirkung
+       1        0   100.00   worte
