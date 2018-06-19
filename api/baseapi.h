@@ -20,8 +20,8 @@
 #ifndef TESSERACT_API_BASEAPI_H__
 #define TESSERACT_API_BASEAPI_H__
 
-#define TESSERACT_VERSION_STR "3.05.01"
-#define TESSERACT_VERSION 0x030501
+#define TESSERACT_VERSION_STR "3.05.02"
+#define TESSERACT_VERSION 0x030502
 #define MAKE_VERSION(major, minor, patch) (((major) << 16) | ((minor) << 8) | \
                                             (patch))
 

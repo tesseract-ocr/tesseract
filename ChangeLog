@@ -1,3 +1,9 @@
+2018-06-19 - V3.05.02
+  * Fixed linking with Leptonica
+  * Fix build for Mingw-w64
+  * Fix Training error "Couldn't find a matching blob"
+  * Fix unterminated string
+
 2017-06-01 - V3.05.01
   * Fixed several build issues
   * Fixed C-API

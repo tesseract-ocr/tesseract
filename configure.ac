@@ -6,7 +6,7 @@
 # Initialization
 # ----------------------------------------
 AC_PREREQ([2.59])
-AC_INIT([tesseract], [3.05.01], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_INIT([tesseract], [3.05.02], [https://github.com/tesseract-ocr/tesseract/issues])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
@@ -18,8 +18,8 @@ AC_PREFIX_DEFAULT([/usr/local])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2017
-PACKAGE_DATE="06/01"
+PACKAGE_YEAR=2018
+PACKAGE_DATE="06/19"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
@@ -44,7 +44,7 @@ GENERIC_LIBRARY_NAME=tesseract
 # Release versioning
 GENERIC_MAJOR_VERSION=3
 GENERIC_MINOR_VERSION=5
-GENERIC_MICRO_VERSION=1
+GENERIC_MICRO_VERSION=2
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
 GENERIC_API_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
