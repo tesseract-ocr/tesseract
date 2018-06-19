@@ -20,7 +20,7 @@
 
 //#include "log.h"
 #include "include_gunit.h"
-#include "tesseract/baseapi.h"
+#include "baseapi.h"
 #include "leptonica/allheaders.h"
 #include <iostream>
 #include <string>
