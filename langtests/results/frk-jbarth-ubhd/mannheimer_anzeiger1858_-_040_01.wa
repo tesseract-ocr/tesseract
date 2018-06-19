@@ -1,0 +1,72 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      23   Words
+       7   Misrecognized
+   69.57%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        1
+       2        0   100.00        2
+       4        0   100.00        3
+       1        1     0.00        4
+       1        0   100.00        5
+       9        1    88.89    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        1
+       1        0   100.00        4
+       1        0   100.00        6
+       2        1    50.00        7
+       1        1     0.00        9
+       2        1    50.00       10
+       3        1    66.67       11
+       1        1     0.00       12
+       1        0   100.00       13
+       1        1     0.00       14
+      14        6    57.14    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      14        6    57.14        1
+      14        6    57.14    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      23        7    69.57        1
+      22       12    45.45        2
+      21       14    33.33        3
+      20       15    25.00        4
+      19       16    15.79        5
+      18       16    11.11        6
+      17       16     5.88        7
+      16       16     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   dem
+       2        0   100.00   die
+       1        0   100.00   im
+       1        0   100.00   in
+       1        1     0.00   sich
+       1        0   100.00   v
+       1        0   100.00   wurde
+       1        0   100.00   zum
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   *
+       1        1     0.00   allerhöchst
+       1        0   100.00   doziren
+       1        0   100.00   ehemaligen
+       1        0   100.00   genehmigung
+       1        0   100.00   haynau
+       1        1     0.00   kurhessen
+       1        0   100.00   obergerichts-
+       1        1     0.00   raschesten
+       1        0   100.00   rath
+       1        1     0.00   unangenehmsten
+       1        1     0.00   verhältnisse
+       1        1     0.00   wechsel
+       1        0   100.00   wiederholen

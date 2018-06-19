@@ -1,0 +1,67 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      23   Words
+       2   Misrecognized
+   91.30%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       3        0   100.00        2
+       6        0   100.00        3
+       1        0   100.00        7
+      10        0   100.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        3
+       3        0   100.00        5
+       1        0   100.00        6
+       2        1    50.00        7
+       2        0   100.00        8
+       2        1    50.00        9
+       1        0   100.00       11
+       1        0   100.00       15
+      13        2    84.62    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      13        2    84.62        1
+      13        2    84.62    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      23        2    91.30        1
+      22        3    86.36        2
+      21        4    80.95        3
+      20        5    75.00        4
+      19        6    68.42        5
+      18        7    61.11        6
+      17        8    52.94        7
+      16        9    43.75        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   an
+       1        0   100.00   das
+       2        0   100.00   der
+       1        0   100.00   dritten
+       2        0   100.00   im
+       1        0   100.00   mir
+       1        0   100.00   mit
+       1        0   100.00   und
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   antike
+       1        0   100.00   bot
+       1        0   100.00   bände
+       1        0   100.00   eichenholzregal
+       1        0   100.00   gewandte
+       1        1     0.00   hubersche
+       1        0   100.00   laden
+       1        0   100.00   lexikon
+       1        1     0.00   neueste
+       1        0   100.00   neunzehn
+       1        0   100.00   schnitzwerk
+       1        0   100.00   stile
+       1        0   100.00   verkäufer

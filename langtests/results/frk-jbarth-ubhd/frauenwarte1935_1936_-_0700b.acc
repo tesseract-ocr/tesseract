@@ -1,0 +1,63 @@
+UNLV-ISRI OCR Accuracy Report Version 5.1
+-----------------------------------------
+     129   Characters
+      10   Errors
+   92.25%  Accuracy
+
+       0   Reject Characters
+       0   Suspect Markers
+       0   False Marks
+    0.00%  Characters Marked
+   92.25%  Accuracy After Correction
+
+     Ins    Subst      Del   Errors
+       0        0        0        0   Marked
+       4        5        1       10   Unmarked
+       4        5        1       10   Total
+
+   Count   Missed   %Right
+      20        0   100.00   ASCII Spacing Characters
+       4        0   100.00   ASCII Special Symbols
+       7        0   100.00   ASCII Uppercase Letters
+      96        9    90.62   ASCII Lowercase Letters
+       2        0   100.00   Latin1 Lowercase Letters
+     129        9    93.02   Total
+
+  Errors   Marked   Correct-Generated
+       4        0   {s}-{ſ}
+       2        0   {ch}-{}
+       1        0   {c}-{}
+       1        0   {h}-{)}
+       1        0   {h}-{}
+       1        0   {}-{=}
+
+   Count   Missed   %Right
+       3        0   100.00   {<\n>}
+      17        0   100.00   { }
+       1        0   100.00   {,}
+       2        0   100.00   {-}
+       1        0   100.00   {.}
+       1        0   100.00   {A}
+       1        0   100.00   {K}
+       3        0   100.00   {S}
+       1        0   100.00   {T}
+       1        0   100.00   {W}
+       7        0   100.00   {a}
+       2        0   100.00   {b}
+       4        2    50.00   {c}
+       4        0   100.00   {d}
+      16        0   100.00   {e}
+       3        0   100.00   {g}
+       5        3    40.00   {h}
+       6        0   100.00   {i}
+       2        0   100.00   {k}
+       3        0   100.00   {l}
+       2        0   100.00   {m}
+      18        0   100.00   {n}
+       3        0   100.00   {o}
+       6        0   100.00   {r}
+       4        4     0.00   {s}
+       3        0   100.00   {t}
+       7        0   100.00   {u}
+       1        0   100.00   {w}
+       2        0   100.00   {ä}

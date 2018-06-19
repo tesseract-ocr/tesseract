@@ -1,0 +1,2 @@
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_fast_Fraktur	frk-jbarth-ubhd	316		90.61%		152		70.77%		96			63.22		93.44s

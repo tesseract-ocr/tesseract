@@ -1,0 +1,70 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      26   Words
+       6   Misrecognized
+   76.92%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        1    50.00        2
+       4        0   100.00        3
+       1        0   100.00        4
+       1        0   100.00        6
+       8        1    87.50    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       5        2    60.00        4
+       3        0   100.00        5
+       4        1    75.00        6
+       3        1    66.67        7
+       1        0   100.00        8
+       2        1    50.00       10
+      18        5    72.22    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      16        3    81.25        1
+       1        1     0.00        2
+      17        4    76.47    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      26        6    76.92        1
+      25        9    64.00        2
+      24       12    50.00        3
+      23       14    39.13        4
+      22       16    27.27        5
+      21       17    19.05        6
+      20       18    10.00        7
+      19       19     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   den
+       2        0   100.00   die
+       1        0   100.00   geht
+       1        0   100.00   in
+       1        0   100.00   sieben
+       1        1     0.00   so
+       1        0   100.00   tag
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   andre
+       1        0   100.00   blauen
+       1        0   100.00   büchlein
+       1        0   100.00   drauff
+       1        0   100.00   duht
+       1        0   100.00   feltt
+       1        0   100.00   gemahlt
+       1        0   100.00   gollt
+       1        1     0.00   himlischen
+       1        0   100.00   item
+       1        0   100.00   mitt
+       1        0   100.00   nachtlenge
+       1        0   100.00   ründung
+       2        2     0.00   undt
+       1        1     0.00   weisset
+       1        1     0.00   zechen
+       1        0   100.00   zwelff

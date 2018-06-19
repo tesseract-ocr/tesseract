@@ -1,0 +1,77 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      30   Words
+      15   Misrecognized
+   50.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        1    50.00        1
+       1        0   100.00        2
+       8        1    87.50        3
+       1        1     0.00        4
+       1        1     0.00        7
+      13        4    69.23    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        1    50.00        1
+       2        2     0.00        2
+       2        1    50.00        3
+       1        1     0.00        4
+       1        1     0.00        5
+       1        0   100.00        7
+       3        1    66.67        8
+       1        1     0.00        9
+       1        1     0.00       10
+       2        1    50.00       11
+       1        1     0.00       14
+      17       11    35.29    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      15        9    40.00        1
+       1        1     0.00        2
+      16       10    37.50    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      30       15    50.00        1
+      29       18    37.93        2
+      28       20    28.57        3
+      27       21    22.22        4
+      26       22    15.38        5
+      25       23     8.00        6
+      24       23     4.17        7
+      23       23     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   am
+       2        0   100.00   auf
+       1        0   100.00   den
+       1        0   100.00   der
+       2        0   100.00   die
+       1        1     0.00   endlich
+       2        1    50.00   m
+       1        1     0.00   sich
+       2        1    50.00   und
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   0
+       1        1     0.00   6
+       1        0   100.00   883
+       1        1     0.00   885
+       1        0   100.00   angegebenen
+       1        1     0.00   balingen
+       1        0   100.00   beziehen
+       1        1     0.00   bitz
+       1        1     0.00   erdfläche
+       1        1     0.00   geognostischen
+       1        0   100.00   horizont
+       1        1     0.00   kirchthurm
+       2        2     0.00   oa
+       1        1     0.00   spaichingen
+       1        1     0.00   stets
+       1        0   100.00   ziffern

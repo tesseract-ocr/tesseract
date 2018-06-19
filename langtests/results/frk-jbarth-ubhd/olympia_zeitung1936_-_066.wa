@@ -1,0 +1,70 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      26   Words
+       5   Misrecognized
+   80.77%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       6        0   100.00        2
+       6        0   100.00        3
+       4        1    75.00        4
+       3        0   100.00        5
+       1        1     0.00        6
+      20        2    90.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        4
+       1        0   100.00        5
+       1        0   100.00        6
+       1        1     0.00        7
+       1        1     0.00        8
+       1        0   100.00       14
+       6        3    50.00    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+       6        3    50.00        1
+       6        3    50.00    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      26        5    80.77        1
+      25        8    68.00        2
+      24       11    54.17        3
+      23       12    47.83        4
+      22       13    40.91        5
+      21       14    33.33        6
+      20       15    25.00        7
+      19       16    15.79        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   das
+       1        0   100.00   den
+       1        0   100.00   der
+       1        1     0.00   diesen
+       1        0   100.00   es
+       1        0   100.00   hat
+       2        0   100.00   in
+       1        0   100.00   nie
+       1        0   100.00   noch
+       1        0   100.00   rund
+       1        1     0.00   sind
+       1        0   100.00   so
+       1        0   100.00   tagen
+       1        0   100.00   um
+       2        0   100.00   viele
+       1        0   100.00   wie
+       1        0   100.00   wohl
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        1     0.00   besucher
+       1        1     0.00   fast
+       1        1     0.00   gesehen
+       1        0   100.00   mitte
+       1        0   100.00   reichsehrenmal
+       1        0   100.00   sockel

@@ -1,0 +1,61 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      20   Words
+       9   Misrecognized
+   55.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        2
+       9        2    77.78        3
+       1        0   100.00        6
+      11        3    72.73    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        2
+       2        0   100.00        3
+       2        2     0.00        4
+       1        1     0.00        5
+       3        2    33.33        6
+       9        6    33.33    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+       9        6    33.33        1
+       9        6    33.33    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      20        9    55.00        1
+      19       14    26.32        2
+      18       15    16.67        3
+      17       16     5.88        4
+      16       16     0.00        5
+      15       15     0.00        6
+      14       14     0.00        7
+      13       13     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       2        0   100.00   der
+       1        0   100.00   die
+       1        1     0.00   ich
+       1        0   100.00   kleine
+       2        1    50.00   mir
+       1        1     0.00   so
+       1        0   100.00   und
+       1        0   100.00   von
+       1        0   100.00   was
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        1     0.00   blumen
+       1        1     0.00   dù
+       1        1     0.00   froide
+       1        1     0.00   git?
+       1        0   100.00   kle
+       1        1     0.00   singe
+       1        1     0.00   sint
+       1        0   100.00   tumber
+       1        0   100.00   zit

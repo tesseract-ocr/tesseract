@@ -1,0 +1,75 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      28   Words
+       7   Misrecognized
+   75.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       1        0   100.00        1
+       2        1    50.00        2
+       5        1    80.00        3
+       5        1    80.00        4
+      13        3    76.92    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        3
+       2        0   100.00        4
+       1        0   100.00        5
+       3        1    66.67        6
+       3        0   100.00        7
+       1        1     0.00        8
+       2        2     0.00        9
+       1        0   100.00       11
+      15        4    73.33    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      15        4    73.33        1
+      15        4    73.33    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      28        7    75.00        1
+      27       11    59.26        2
+      26       15    42.31        3
+      25       18    28.00        4
+      24       21    12.50        5
+      23       22     4.35        6
+      22       22     0.00        7
+      21       21     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   als
+       1        0   100.00   bei
+       1        0   100.00   dann
+       1        0   100.00   das
+       1        0   100.00   die
+       1        0   100.00   eine
+       1        0   100.00   g
+       1        1     0.00   sich
+       1        1     0.00   sie
+       1        1     0.00   so
+       1        0   100.00   viel
+       1        0   100.00   wenn
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   adj
+       1        1     0.00   aufgelöst
+       1        0   100.00   bezeichnung
+       1        0   100.00   enthält
+       1        0   100.00   er-
+       1        0   100.00   erklärt
+       1        1     0.00   gesättigt
+       1        0   100.00   halten
+       1        0   100.00   heißt
+       1        0   100.00   hütt
+       1        0   100.00   salz
+       1        1     0.00   salzsole
+       1        0   100.00   vermag
+       1        1     0.00   wasser
+       1        0   100.00   ähnlich

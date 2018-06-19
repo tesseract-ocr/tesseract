@@ -1,0 +1,78 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      30   Words
+      10   Misrecognized
+   66.67%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        1
+       1        0   100.00        2
+       6        1    83.33        3
+       2        0   100.00        4
+       2        1    50.00        5
+       1        0   100.00        6
+       1        1     0.00        8
+      14        4    71.43    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        3
+       2        1    50.00        4
+       3        1    66.67        5
+       2        1    50.00        6
+       1        0   100.00        7
+       4        2    50.00        8
+       1        0   100.00        9
+       1        1     0.00       12
+      16        6    62.50    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      16        6    62.50        1
+      16        6    62.50    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      30       10    66.67        1
+      29       16    44.83        2
+      28       22    21.43        3
+      27       25     7.41        4
+      26       26     0.00        5
+      25       25     0.00        6
+      24       24     0.00        7
+      23       23     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   aber
+       1        0   100.00   an
+       1        0   100.00   auch
+       1        0   100.00   aus
+       3        0   100.00   der
+       1        0   100.00   des
+       1        1     0.00   erste
+       1        1     0.00   i
+       1        1     0.00   ich
+       1        0   100.00   nicht
+       1        1     0.00   sechsten
+       1        0   100.00   worden
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   adlers
+       1        0   100.00   bey
+       1        0   100.00   bige
+       1        1     0.00   brust
+       1        1     0.00   chischen
+       1        0   100.00   dafür
+       1        0   100.00   daß
+       1        0   100.00   erkläret
+       1        0   100.00   halte
+       1        1     0.00   heisen
+       1        0   100.00   leopold
+       1        0   100.00   leopoldus
+       1        0   100.00   medaille
+       1        1     0.00   sel-
+       1        1     0.00   versehen
+       1        1     0.00   wappenschild

@@ -1,0 +1,82 @@
+UNLV-ISRI OCR Accuracy Report Version 5.1
+-----------------------------------------
+     182   Characters
+      56   Errors
+   69.23%  Accuracy
+
+       0   Reject Characters
+       0   Suspect Markers
+       0   False Marks
+    0.00%  Characters Marked
+   69.23%  Accuracy After Correction
+
+     Ins    Subst      Del   Errors
+       0        0        0        0   Marked
+       6       47        3       56   Unmarked
+       6       47        3       56   Total
+
+   Count   Missed   %Right
+      28        2    92.86   ASCII Spacing Characters
+       8        5    37.50   ASCII Special Symbols
+       8        3    62.50   ASCII Digits
+      12        6    50.00   ASCII Uppercase Letters
+     125       37    70.40   ASCII Lowercase Letters
+       1        0   100.00   Latin1 Lowercase Letters
+     182       53    70.88   Total
+
+  Errors   Marked   Correct-Generated
+      16        0   {Spaichingen 885,}-{AOT ET S.81,9)1}
+      11        0   {und endlich}-{| 100) FeO}
+       7        0   {alingen}-{UNTEN}
+       5        0   {Bitz,}-{9113)}
+       4        0   {OA.}-{DINE}
+       4        0   {s}-{ſ}
+       3        0   {OA.}-{SE}
+       1        0   {;}-{}
+       1        0   {f}-{ſ}
+       1        0   {h}-{<}
+       1        0   {s}-{8}
+       1        0   {}-{1}
+       1        0   {}-{<}
+
+   Count   Missed   %Right
+       3        0   100.00   {<\n>}
+      25        2    92.00   { }
+       1        0   100.00   {(}
+       3        2    33.33   {,}
+       3        2    33.33   {.}
+       1        0   100.00   {0}
+       1        0   100.00   {3}
+       1        1     0.00   {5}
+       1        0   100.00   {6}
+       4        2    50.00   {8}
+       1        1     0.00   {;}
+       2        2     0.00   {A}
+       2        1    50.00   {B}
+       1        0   100.00   {D}
+       1        0   100.00   {E}
+       1        0   100.00   {H}
+       1        0   100.00   {K}
+       2        2     0.00   {O}
+       1        1     0.00   {S}
+       1        0   100.00   {Z}
+       6        2    66.67   {a}
+       2        0   100.00   {b}
+       6        2    66.67   {c}
+       7        2    71.43   {d}
+      19        3    84.21   {e}
+       5        1    80.00   {f}
+       6        2    66.67   {g}
+       8        3    62.50   {h}
+      13        5    61.54   {i}
+       3        2    33.33   {l}
+       4        0   100.00   {m}
+      16        6    62.50   {n}
+       4        0   100.00   {o}
+       1        1     0.00   {p}
+       6        0   100.00   {r}
+       5        5     0.00   {s}
+       6        1    83.33   {t}
+       5        1    80.00   {u}
+       3        1    66.67   {z}
+       1        0   100.00   {ä}

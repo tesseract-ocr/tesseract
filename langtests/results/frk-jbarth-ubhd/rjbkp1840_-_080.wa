@@ -1,0 +1,71 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      27   Words
+       4   Misrecognized
+   85.19%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       3        0   100.00        2
+      10        0   100.00        3
+       1        0   100.00        4
+       1        1     0.00        7
+      15        1    93.33    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       1        0   100.00        4
+       2        0   100.00        5
+       2        1    50.00        6
+       2        0   100.00        7
+       1        0   100.00        9
+       1        1     0.00       10
+       1        1     0.00       13
+      12        3    75.00    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      12        3    75.00        1
+      12        3    75.00    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      27        4    85.19        1
+      26        7    73.08        2
+      25       10    60.00        3
+      24       13    45.83        4
+      23       14    39.13        5
+      22       15    31.82        6
+      21       16    23.81        7
+      20       17    15.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   als
+       2        0   100.00   am
+       1        0   100.00   aus
+       1        0   100.00   bis
+       1        0   100.00   das
+       1        0   100.00   dem
+       2        0   100.00   ein
+       1        0   100.00   nach
+       2        0   100.00   und
+       1        1     0.00   unserer
+       1        0   100.00   wir
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   14
+       1        0   100.00   16
+       1        0   100.00   begann
+       1        0   100.00   dauerte
+       1        0   100.00   kamen
+       1        0   100.00   land-
+       1        0   100.00   mailand
+       1        1     0.00   platz-
+       1        1     0.00   platzregen
+       1        0   100.00   rückfahrt
+       1        1     0.00   schrecklicher
+       1        0   100.00   ward

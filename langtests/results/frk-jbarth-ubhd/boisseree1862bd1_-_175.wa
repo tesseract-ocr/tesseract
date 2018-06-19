@@ -1,0 +1,72 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      27   Words
+       6   Misrecognized
+   77.78%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       8        0   100.00        3
+       1        0   100.00        4
+       2        0   100.00        6
+      13        0   100.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        3
+       1        0   100.00        4
+       2        1    50.00        6
+       4        1    75.00        7
+       1        1     0.00        8
+       1        1     0.00       10
+       1        1     0.00       11
+       1        0   100.00       14
+       1        1     0.00       19
+      14        6    57.14    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      14        6    57.14        1
+      14        6    57.14    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      27        6    77.78        1
+      26       10    61.54        2
+      25       12    52.00        3
+      24       14    41.67        4
+      23       14    39.13        5
+      22       14    36.36        6
+      21       14    33.33        7
+      20       14    30.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   als
+       1        0   100.00   da
+       3        0   100.00   die
+       1        0   100.00   jahren
+       1        0   100.00   mehr
+       1        0   100.00   nun
+       2        0   100.00   und
+       1        0   100.00   von
+       1        0   100.00   werden
+       1        0   100.00   zu
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        0   100.00   300
+       1        0   100.00   archive
+       1        0   100.00   dichter
+       1        1     0.00   durchsucht
+       1        1     0.00   frühsten
+       1        0   100.00   für
+       1        1     0.00   geschichtsschreiber
+       1        0   100.00   gezogen
+       1        0   100.00   gleichzeitigen
+       1        0   100.00   mathe-
+       1        1     0.00   matiker
+       1        1     0.00   müssen
+       1        1     0.00   philosophen
+       1        0   100.00   rath

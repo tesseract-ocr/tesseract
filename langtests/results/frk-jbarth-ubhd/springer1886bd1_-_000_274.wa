@@ -1,0 +1,74 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      26   Words
+       5   Misrecognized
+   80.77%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       6        1    83.33        3
+       2        0   100.00        4
+       3        0   100.00        5
+       1        0   100.00        6
+       1        1     0.00        7
+       1        1     0.00        9
+      14        3    78.57    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        4
+       2        0   100.00        5
+       2        0   100.00        6
+       1        0   100.00        7
+       1        0   100.00        8
+       2        1    50.00        9
+       1        0   100.00       11
+       1        1     0.00       15
+      12        2    83.33    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      12        2    83.33        1
+      12        2    83.33    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      26        5    80.77        1
+      25       10    60.00        2
+      24       13    45.83        3
+      23       16    30.43        4
+      22       17    22.73        5
+      21       17    19.05        6
+      20       17    15.00        7
+      19       17    10.53        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        0   100.00   aber
+       1        0   100.00   allein
+       1        0   100.00   auch
+       1        0   100.00   auf
+       1        1     0.00   derselben
+       1        0   100.00   einem
+       1        0   100.00   einer
+       1        1     0.00   ist
+       1        0   100.00   nicht
+       1        0   100.00   sie
+       1        1     0.00   sondern
+       2        0   100.00   und
+       1        0   100.00   zur
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        1     0.00   battistas
+       1        0   100.00   beruht
+       1        0   100.00   empfunden
+       1        0   100.00   feurig
+       1        0   100.00   kenntniß
+       1        0   100.00   leon
+       1        0   100.00   liebe
+       1        0   100.00   natur
+       1        1     0.00   staunenswerthen
+       1        0   100.00   unmittelbar
+       1        0   100.00   wahr
+       1        0   100.00   überaus

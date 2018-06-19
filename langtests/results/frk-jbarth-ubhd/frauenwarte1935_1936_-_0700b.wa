@@ -1,0 +1,65 @@
+UNLV-ISRI OCR Word Accuracy Report Version 5.1
+----------------------------------------------
+      20   Words
+       8   Misrecognized
+   60.00%  Accuracy
+
+Stopwords
+   Count   Missed   %Right   Length
+       2        0   100.00        2
+       3        0   100.00        3
+       5        4    20.00        4
+      10        4    60.00    Total
+
+Non-stopwords
+   Count   Missed   %Right   Length
+       1        1     0.00        1
+       1        0   100.00        4
+       2        0   100.00        6
+       1        1     0.00        7
+       1        1     0.00        8
+       2        0   100.00        9
+       1        1     0.00       11
+       1        0   100.00       13
+      10        4    60.00    Total
+
+Distinct Non-stopwords
+   Count   Missed   %Right   Occurs
+      10        4    60.00        1
+      10        4    60.00    Total
+
+Phrases
+   Count   Missed   %Right   Length
+      20        8    60.00        1
+      19       13    31.58        2
+      18       15    16.67        3
+      17       16     5.88        4
+      16       16     0.00        5
+      15       15     0.00        6
+      14       14     0.00        7
+      13       13     0.00        8
+
+Stopwords
+   Count   Missed   %Right   
+       1        1     0.00   also
+       1        1     0.00   auch
+       1        1     0.00   noch
+       1        1     0.00   sich
+       2        0   100.00   sie
+       1        0   100.00   so
+       1        0   100.00   um
+       1        0   100.00   und
+       1        0   100.00   wenn
+
+Non-stopwords
+   Count   Missed   %Right   
+       1        1     0.00   -
+       1        0   100.00   anerkennungen
+       1        1     0.00   begeisterte
+       1        0   100.00   dankbarer
+       1        0   100.00   grämen
+       1        0   100.00   kundinnen
+       1        0   100.00   lauten
+       1        1     0.00   tausende
+       1        0   100.00   war-
+       1        1     0.00   ähnlich
