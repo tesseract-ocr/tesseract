@@ -12,15 +12,16 @@ AM_CPPFLAGS += -DTESS_EXPORTS
 endif
 
 pkginclude_HEADERS = \
-	basedir.h errcode.h fileerr.h genericvector.h helpers.h host.h memry.h \
-	ndminx.h params.h ocrclass.h platform.h serialis.h strngs.h \
-	tesscallback.h unichar.h unicharcompress.h unicharmap.h unicharset.h
+    errcode.h genericvector.h helpers.h host.h memry.h \
+    ndminx.h ocrclass.h platform.h serialis.h strngs.h \
+    tesscallback.h unichar.h
 
 noinst_HEADERS = \
-    ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
-    elst.h genericheap.h globaloc.h indexmapbidi.h kdpair.h lsterr.h \
-    nwmain.h object_cache.h qrsequence.h sorthelper.h stderr.h \
-    scanutils.h tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
+    ambigs.h basedir.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
+    elst.h fileerr.h genericheap.h globaloc.h indexmapbidi.h kdpair.h lsterr.h \
+    nwmain.h object_cache.h params.h qrsequence.h sorthelper.h stderr.h \
+    scanutils.h tessdatamanager.h tprintf.h \
+    unicharcompress.h unicharmap.h unicharset.h unicity_table.h unicodes.h \
     universalambigs.h
 
 noinst_LTLIBRARIES = libtesseract_ccutil.la
