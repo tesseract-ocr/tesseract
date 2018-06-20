@@ -21,6 +21,7 @@
 
 #include <assert.h>
 
+#include "errcode.h"
 #include "genericvector.h"
 #include "helpers.h"
 #include "serialis.h"

@@ -25,6 +25,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "errcode.h"
 #include "icuerrorcode.h"
 #include "unichar.h"
 #include "unicode/normalizer2.h"  // From libicu

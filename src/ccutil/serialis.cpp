@@ -19,6 +19,7 @@
 
 #include "serialis.h"
 #include <cstdio>
+#include "errcode.h"
 #include "genericvector.h"
 
 namespace tesseract {

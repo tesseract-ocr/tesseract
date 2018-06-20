@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <string>
 
+#include "errcode.h"
 #include "fileio.h"
 #include "tprintf.h"
 

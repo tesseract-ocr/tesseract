@@ -25,6 +25,7 @@
 
 #include <cstdio>
 
+#include "errcode.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"

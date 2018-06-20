@@ -45,8 +45,9 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #include          <assert.h>
 #endif
 #include <memory>
-#include          "bits16.h"
-#include                   "params.h"
+#include "bits16.h"
+#include "errcode.h"
+#include "params.h"
 
 enum REJ_FLAGS {
   /* Reject modes which are NEVER overridden */
