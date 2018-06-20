@@ -55,7 +55,7 @@ class QuickTest : public testing::Test {
           return instance->classicProgress( progress );
         };
         monitor.cancel = []( void* ths, int words ) -> bool {
-          ((ClassicMockProgressSink*)ths)->cancel( words );
+          return ((ClassicMockProgressSink*)ths)->cancel(words);
         };
         monitor.cancel_this = this;
         instance = this;
