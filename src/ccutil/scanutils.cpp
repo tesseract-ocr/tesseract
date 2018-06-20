@@ -475,20 +475,22 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
               if (!(flags & FL_SPLAT)) {
                 sarg = va_arg(ap, char *);
               }
-              char *sp = sarg;
+              unsigned length = 0;
               while (width--) {
                 q = fgetc(stream);
                 if (isspace(static_cast<unsigned char>(q)) || q <= 0) {
                   ungetc(q, stream);
                   break;
                 }
-                if (!(flags & FL_SPLAT)) *sp = q;
-                sp++;
+                if (!(flags & FL_SPLAT)) {
+                  sarg[length] = q;
+                }
+                length++;
               }
-              if (sarg == sp) {
+              if (length == 0) {
                 bail = BAIL_EOF;
               } else if (!(flags & FL_SPLAT)) {
-                *sp = '\0'; // Terminate output
+                sarg[length] = '\0'; // Terminate output
                 converted++;
               }
             }
