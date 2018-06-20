@@ -578,8 +578,12 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
   INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes,
                                                              shape_set);
   FILE* fp = fopen(inttemp_file, "wb");
-  classify->WriteIntTemplates(fp, int_templates, shape_set);
-  fclose(fp);
+  if (fp == nullptr) {
+    tprintf("Error, failed to open file \"%s\"\n", inttemp_file);
+  } else {
+    classify->WriteIntTemplates(fp, int_templates, shape_set);
+    fclose(fp);
+  }
   // Now write pffmtable. This is complicated by the fact that the adaptive
   // classifier still wants one indexed by unichar-id, but the static
   // classifier needs one indexed by its shape class id.
@@ -612,15 +616,19 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
     shapetable_cutoffs.push_back(max_length);
   }
   fp = fopen(pffmtable_file, "wb");
-  shapetable_cutoffs.Serialize(fp);
-  for (int c = 0; c < unicharset.size(); ++c) {
-    const char *unichar = unicharset.id_to_unichar(c);
-    if (strcmp(unichar, " ") == 0) {
-      unichar = "NULL";
+  if (fp == nullptr) {
+    tprintf("Error, failed to open file \"%s\"\n", pffmtable_file);
+  } else {
+    shapetable_cutoffs.Serialize(fp);
+    for (int c = 0; c < unicharset.size(); ++c) {
+      const char *unichar = unicharset.id_to_unichar(c);
+      if (strcmp(unichar, " ") == 0) {
+        unichar = "NULL";
+      }
+      fprintf(fp, "%s %d\n", unichar, unichar_cutoffs[c]);
     }
-    fprintf(fp, "%s %d\n", unichar, unichar_cutoffs[c]);
+    fclose(fp);
   }
-  fclose(fp);
   free_int_templates(int_templates);
   delete classify;
 }

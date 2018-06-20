@@ -1195,8 +1195,12 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
   if (failed && retry_config != nullptr && retry_config[0] != '\0') {
     // Save current config variables before switching modes.
     FILE* fp = fopen(kOldVarsFile, "wb");
-    PrintVariables(fp);
-    fclose(fp);
+    if (fp == nullptr) {
+      tprintf("Error, failed to open file \"%s\"\n", kOldVarsFile);
+    } else {
+      PrintVariables(fp);
+      fclose(fp);
+    }
     // Switch to alternate mode for retry.
     ReadConfigFile(retry_config);
     SetImage(pix);
