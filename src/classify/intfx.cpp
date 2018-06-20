@@ -354,7 +354,7 @@ static void ExtractFeaturesFromRun(
     denorm.NormTransform(root_denorm, prev_normed_pos, &prev_normed_pos);
     LLSQ points;
     LLSQ dirs;
-    FCOORD normed_pos;
+    FCOORD normed_pos(0.0f, 0.0f);
     int index = GatherPoints(outline, feature_length, denorm, root_denorm,
                              start_index, end_index, &pos, &normed_pos,
                              &points, &dirs);
@@ -366,7 +366,7 @@ static void ExtractFeaturesFromRun(
       // accumulators.
       LLSQ next_points;
       LLSQ next_dirs;
-      FCOORD next_normed_pos;
+      FCOORD next_normed_pos(0.0f, 0.0f);
       index = GatherPoints(outline, feature_length, denorm, root_denorm,
                            index, end_index, &pos, &next_normed_pos,
                            &next_points, &next_dirs);
