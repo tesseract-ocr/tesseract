@@ -19,11 +19,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 
-#include <cstdio>
-#ifdef __UNIX__
-#include <assert.h>
-#endif
 #include <cmath>
+#include <cstdio>
 
 #include "associate.h"
 #include "normalis.h"

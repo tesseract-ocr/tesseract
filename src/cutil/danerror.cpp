@@ -22,9 +22,6 @@
 #include "danerror.h"
 #include "tprintf.h"
 #include "globaloc.h"
-#ifdef __UNIX__
-#include "assert.h"
-#endif
 
 #include <cstdio>
 

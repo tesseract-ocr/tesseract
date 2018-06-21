@@ -1,9 +1,9 @@
 /**********************************************************************
  * File:        adaptions.cpp  (Formerly adaptions.c)
  * Description: Functions used to adapt to blobs already confidently
- *					identified
- * Author:		Chris Newton
- * Created:		Thu Oct  7 10:17:28 BST 1993
+ *              identified
+ * Author:      Chris Newton
+ * Created:     Thu Oct  7 10:17:28 BST 1993
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +18,15 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          <ctype.h>
-#include          <string.h>
-#include          "tessbox.h"
-#include          "tessvars.h"
-#include          "memry.h"
-#include          "reject.h"
-#include          "control.h"
-#include          "stopper.h"
-#include          "tesseractclass.h"
+#include <ctype.h>
+#include <string.h>
+#include "tessbox.h"
+#include "tessvars.h"
+#include "memry.h"
+#include "reject.h"
+#include "control.h"
+#include "stopper.h"
+#include "tesseractclass.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

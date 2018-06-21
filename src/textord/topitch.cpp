@@ -17,20 +17,17 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          "stderr.h"
-#include          "blobbox.h"
-#include          "statistc.h"
-#include          "drawtord.h"
-#include          "makerow.h"
-#include          "pitsync1.h"
-#include          "pithsync.h"
-#include          "tovars.h"
-#include          "wordseg.h"
-#include          "topitch.h"
-#include          "helpers.h"
+#include "stderr.h"
+#include "blobbox.h"
+#include "statistc.h"
+#include "drawtord.h"
+#include "makerow.h"
+#include "pitsync1.h"
+#include "pithsync.h"
+#include "tovars.h"
+#include "wordseg.h"
+#include "topitch.h"
+#include "helpers.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

@@ -27,11 +27,10 @@
 #include <string.h>
 #include <cmath>
 #ifdef __UNIX__
-#include <assert.h>
 #include <unistd.h>
-#include <errno.h>
 #endif
 #include <ctype.h>
+#include <errno.h>
 #include "callcpp.h"
 #include "control.h"
 #include "docqual.h"

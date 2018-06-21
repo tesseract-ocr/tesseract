@@ -17,14 +17,11 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
+#include <stdio.h>
 #define FASTEDGELENGTH    256
-#include          "polyaprx.h"
-#include          "params.h"
-#include          "tprintf.h"
+#include "polyaprx.h"
+#include "params.h"
+#include "tprintf.h"
 
 #define EXTERN
 

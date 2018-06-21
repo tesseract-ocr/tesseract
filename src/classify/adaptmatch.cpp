@@ -55,13 +55,11 @@
 #include "werd.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
-#ifdef __UNIX__
-#include <assert.h>
-#endif
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 

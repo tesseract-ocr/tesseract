@@ -17,10 +17,7 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          "underlin.h"
+#include "underlin.h"
 
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN

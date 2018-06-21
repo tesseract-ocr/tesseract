@@ -18,11 +18,8 @@
  **********************************************************************/
 
 #include <ctype.h>
-#include <string.h>
-#ifdef __UNIX__
-#include <assert.h>
 #include <errno.h>
-#endif
+#include <string.h>
 #include "allheaders.h"
 #include "boxread.h"
 #include "chopper.h"

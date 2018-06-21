@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        callcpp.h
  * Description: extern C interface calling C++ from C.
- * Author:		Ray Smith
- * Created:		Sun Feb 04 20:39:23 MST 1996
+ * Author:      Ray Smith
+ * Created:     Sun Feb 04 20:39:23 MST 1996
  *
  * (C) Copyright 1996, Hewlett-Packard Co.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +20,6 @@
 #ifndef CALLCPP_H
 #define CALLCPP_H
 
-#ifndef __UNIX__
-#include <assert.h>
-#endif
 #include "host.h"
 #include "params.h"
 #include "unichar.h"
