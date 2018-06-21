@@ -29,7 +29,6 @@
 #include "helpers.h"
 #include "intmatcher.h"
 #include "linlsq.h"
-#include "ndminx.h"
 #include "normalis.h"
 #include "statistc.h"
 #include "trainingsample.h"

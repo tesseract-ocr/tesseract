@@ -13,7 +13,7 @@ endif
 
 pkginclude_HEADERS = \
     genericvector.h helpers.h host.h memry.h \
-    ndminx.h ocrclass.h platform.h serialis.h strngs.h \
+    ocrclass.h platform.h serialis.h strngs.h \
     tesscallback.h unichar.h
 
 noinst_HEADERS = \

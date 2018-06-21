@@ -23,7 +23,6 @@
 #endif
 
 #include "colpartitionset.h"
-#include "ndminx.h"
 #include "workingpartset.h"
 #include "tablefind.h"
 

@@ -23,7 +23,6 @@
 
 #include "bbgrid.h"
 #include "blobbox.h"       // For BlobRegionType.
-#include "ndminx.h"
 #include "ocrblock.h"
 #include "rect.h"           // For TBOX.
 #include "scrollview.h"

@@ -42,7 +42,6 @@
 #include "intfx.h"
 #include "intproto.h"
 #include "mfoutline.h"
-#include "ndminx.h"
 #include "normfeat.h"
 #include "normmatch.h"
 #include "outfeat.h"

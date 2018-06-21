@@ -36,7 +36,6 @@
 #include "helpers.h"
 #include "intproto.h"
 #include "mfoutline.h"
-#include "ndminx.h"
 #include "picofeat.h"
 #include "points.h"
 #include "shapetable.h"

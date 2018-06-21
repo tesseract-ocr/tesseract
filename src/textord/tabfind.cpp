@@ -27,7 +27,6 @@
 #include "colpartitiongrid.h"
 #include "detlinefit.h"
 #include "linefind.h"
-#include "ndminx.h"
 
 #include <algorithm>
 

@@ -29,7 +29,6 @@
 #include "cutil.h"
 #include "dawg.h"
 #include "globals.h"
-#include "ndminx.h"
 #include "stopper.h"
 #include "tprintf.h"
 #include "params.h"

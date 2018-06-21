@@ -22,7 +22,6 @@
 #include "bitvector.h"
 #include <string.h>
 #include "helpers.h"
-#include "ndminx.h"
 
 #include <algorithm>
 

@@ -24,7 +24,6 @@
 #include <algorithm>
 #include <stdlib.h>
 #include "helpers.h"
-#include "ndminx.h"
 #include "serialis.h"
 #include "points.h"
 

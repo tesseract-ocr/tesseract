@@ -28,7 +28,6 @@
 
 #include "fileio.h"
 #include "genericvector.h"
-#include "ndminx.h"
 #include "normstrngs.h"
 #include "tprintf.h"
 #include "unicharset.h"
