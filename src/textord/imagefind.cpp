@@ -25,7 +25,6 @@
 #include "imagefind.h"
 #include "colpartitiongrid.h"
 #include "linlsq.h"
-#include "ndminx.h"
 #include "statistc.h"
 #include "params.h"
 

@@ -19,7 +19,6 @@
 
 #include "detlinefit.h"
 #include "statistc.h"
-#include "ndminx.h"
 #include "tprintf.h"
 
 #include <algorithm>

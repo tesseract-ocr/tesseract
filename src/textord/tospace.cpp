@@ -26,7 +26,6 @@
  **********************************************************************/
 
 #include "drawtord.h"
-#include "ndminx.h"
 #include "statistc.h"
 #include "textord.h"
 #include "tovars.h"

@@ -22,7 +22,6 @@
 #endif
 
 #include "alignedblob.h"
-#include "ndminx.h"
 
 #include <algorithm>
 

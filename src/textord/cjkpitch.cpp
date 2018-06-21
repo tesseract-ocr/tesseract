@@ -19,7 +19,6 @@
 ///////////////////////////////////////////////////////////////////////
 #include "cjkpitch.h"
 #include "genericvector.h"
-#include "ndminx.h"
 #include "topitch.h"
 #include "tovars.h"
 

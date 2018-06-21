@@ -22,7 +22,6 @@
 
 #include <cmath>
 #include "points.h"
-#include "ndminx.h"
 #include "scrollview.h"
 #include "strngs.h"
 #include "tprintf.h"

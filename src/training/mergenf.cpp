@@ -22,7 +22,6 @@
 #include "cluster.h"
 #include "oldlist.h"
 #include "protos.h"
-#include "ndminx.h"
 #include "ocrfeatures.h"
 #include "const.h"
 #include "featdefs.h"

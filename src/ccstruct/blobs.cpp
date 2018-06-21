@@ -38,7 +38,6 @@
 #include "emalloc.h"
 #include "helpers.h"
 #include "linlsq.h"
-#include "ndminx.h"
 #include "normalis.h"
 #include "ocrblock.h"
 #include "ocrrow.h"

@@ -30,7 +30,6 @@
 #include "intfeaturespace.h"
 #include "mastertrainer.h"
 #include "mf.h"
-#include "ndminx.h"
 #include "oldlist.h"
 #include "params.h"
 #include "shapetable.h"

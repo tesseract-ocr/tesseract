@@ -28,7 +28,6 @@
 #include "gradechop.h"
 #include "wordrec.h"
 #include "chop.h"
-#include "ndminx.h"
 #include <algorithm>
 #include <cmath>
 

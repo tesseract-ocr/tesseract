@@ -25,7 +25,6 @@
 #include "lstmrecognizer.h"
 #include "recodebeam.h"
 #endif
-#include "ndminx.h"
 #include "pageres.h"
 #include "tprintf.h"
 

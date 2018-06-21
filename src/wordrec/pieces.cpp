@@ -29,7 +29,6 @@
 #include "blobs.h"
 #include "helpers.h"
 #include "matrix.h"
-#include "ndminx.h"
 #include "ratngs.h"
 #include "seam.h"
 #include "wordrec.h"

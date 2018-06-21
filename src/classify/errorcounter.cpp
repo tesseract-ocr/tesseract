@@ -18,7 +18,6 @@
 #include "errorcounter.h"
 
 #include "fontinfo.h"
-#include "ndminx.h"
 #include "sampleiterator.h"
 #include "shapeclassifier.h"
 #include "shapetable.h"
