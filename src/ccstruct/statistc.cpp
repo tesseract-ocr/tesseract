@@ -22,13 +22,14 @@
 #include "config_auto.h"
 #endif
 
-#include          "statistc.h"
-#include          <string.h>
-#include          <math.h>
-#include          <stdlib.h>
-#include          "helpers.h"
-#include          "scrollview.h"
-#include          "tprintf.h"
+#include "statistc.h"
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+#include "errcode.h"
+#include "helpers.h"
+#include "scrollview.h"
+#include "tprintf.h"
 
 using tesseract::KDPairInc;
 

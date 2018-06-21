@@ -21,6 +21,7 @@
 #ifndef TESSERACT_CCSTRUCT_FONTINFO_H_
 #define TESSERACT_CCSTRUCT_FONTINFO_H_
 
+#include "errcode.h"
 #include "genericvector.h"
 #include "host.h"
 #include "unichar.h"

@@ -26,7 +26,6 @@
 #include <cstdlib>
 
 #include "tesscallback.h"
-#include "errcode.h"
 #include "helpers.h"
 #include "ndminx.h"
 #include "serialis.h"
@@ -708,7 +707,7 @@ void GenericVector<T>::init_to_size(int size, T t) {
 // Return the object from an index.
 template <typename T>
 T &GenericVector<T>::get(int index) const {
-  ASSERT_HOST(index >= 0 && index < size_used_);
+  assert(index >= 0 && index < size_used_);
   return data_[index];
 }
 
@@ -720,20 +719,20 @@ T &GenericVector<T>::operator[](int index) const {
 
 template <typename T>
 T &GenericVector<T>::back() const {
-  ASSERT_HOST(size_used_ > 0);
+  assert(size_used_ > 0);
   return data_[size_used_ - 1];
 }
 // Returns the last object and removes it.
 template <typename T>
 T GenericVector<T>::pop_back() {
-  ASSERT_HOST(size_used_ > 0);
+  assert(size_used_ > 0);
   return data_[--size_used_];
 }
 
 // Return the object from an index.
 template <typename T>
 void GenericVector<T>::set(T t, int index) {
-  ASSERT_HOST(index >= 0 && index < size_used_);
+  assert(index >= 0 && index < size_used_);
   data_[index] = t;
 }
 
@@ -742,7 +741,7 @@ void GenericVector<T>::set(T t, int index) {
 // at the specified index.
 template <typename T>
 void GenericVector<T>::insert(T t, int index) {
-  ASSERT_HOST(index >= 0 && index <= size_used_);
+  assert(index >= 0 && index <= size_used_);
   if (size_reserved_ == size_used_)
     double_the_size();
   for (int i = size_used_; i > index; --i) {
@@ -756,7 +755,7 @@ void GenericVector<T>::insert(T t, int index) {
 // shifts the remaining elements to the left.
 template <typename T>
 void GenericVector<T>::remove(int index) {
-  ASSERT_HOST(index >= 0 && index < size_used_);
+  assert(index >= 0 && index < size_used_);
   for (int i = index; i < size_used_ - 1; ++i) {
     data_[i] = data_[i+1];
   }
@@ -773,7 +772,7 @@ T GenericVector<T>::contains_index(int index) const {
 template <typename T>
 int GenericVector<T>::get_index(T object) const {
   for (int i = 0; i < size_used_; ++i) {
-    ASSERT_HOST(compare_cb_ != nullptr);
+    assert(compare_cb_ != nullptr);
     if (compare_cb_->Run(object, data_[i]))
       return i;
   }

@@ -10,6 +10,7 @@
 
 #include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
+#include "errcode.h"
 
 #ifndef GOOGLE_TESSERACT
 

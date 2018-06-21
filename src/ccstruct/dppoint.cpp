@@ -18,6 +18,7 @@
  **********************************************************************/
 
 #include "dppoint.h"
+#include "errcode.h"
 #include "tprintf.h"
 
 namespace tesseract {
