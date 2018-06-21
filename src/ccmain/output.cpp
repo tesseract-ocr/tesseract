@@ -17,12 +17,11 @@
  *
  **********************************************************************/
 
-#include <string.h>
 #include <ctype.h>
+#include <errno.h>
+#include <string.h>
 #ifdef __UNIX__
-#include          <assert.h>
-#include          <unistd.h>
-#include          <errno.h>
+#include <unistd.h>
 #endif
 #include "helpers.h"
 #include "tessvars.h"

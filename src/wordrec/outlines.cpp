@@ -31,10 +31,6 @@
 #include "outlines.h"
 #include "wordrec.h"
 
-#ifdef __UNIX__
-#include <assert.h>
-#endif
-
 namespace tesseract {
 /*----------------------------------------------------------------------
               F u n c t i o n s

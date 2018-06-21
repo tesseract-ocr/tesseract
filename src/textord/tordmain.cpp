@@ -21,9 +21,6 @@
 #include "config_auto.h"
 #endif
 
-#ifdef __UNIX__
-#include <assert.h>
-#endif
 #include "stderr.h"
 #include "globaloc.h"
 #include "blread.h"

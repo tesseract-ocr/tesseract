@@ -31,7 +31,6 @@
 
 #include "chopper.h"
 
-#include "assert.h"
 #include "associate.h"
 #include "blobs.h"
 #include "callcpp.h"

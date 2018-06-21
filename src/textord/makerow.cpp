@@ -17,24 +17,21 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          "stderr.h"
-#include          "blobbox.h"
-#include          "ccstruct.h"
-#include          "detlinefit.h"
-#include          "statistc.h"
-#include          "drawtord.h"
-#include          "blkocc.h"
-#include          "sortflts.h"
-#include          "oldbasel.h"
-#include          "textord.h"
-#include          "tordmain.h"
-#include          "underlin.h"
-#include          "makerow.h"
-#include          "tprintf.h"
-#include          "tovars.h"
+#include "stderr.h"
+#include "blobbox.h"
+#include "ccstruct.h"
+#include "detlinefit.h"
+#include "statistc.h"
+#include "drawtord.h"
+#include "blkocc.h"
+#include "sortflts.h"
+#include "oldbasel.h"
+#include "textord.h"
+#include "tordmain.h"
+#include "underlin.h"
+#include "makerow.h"
+#include "tprintf.h"
+#include "tovars.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

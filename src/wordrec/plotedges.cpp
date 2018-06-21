@@ -22,9 +22,6 @@
  ** limitations under the License.
  *
  *********************************************************************************/
-#ifdef __UNIX__
-#include <assert.h>
-#endif
 
 #include "plotedges.h"
 #include "render.h"

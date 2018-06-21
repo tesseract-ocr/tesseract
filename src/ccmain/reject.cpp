@@ -17,21 +17,18 @@
  *
  **********************************************************************/
 
-#include          "tessvars.h"
-#ifdef __UNIX__
-#include          <assert.h>
-#include          <errno.h>
-#endif
-#include          "scanutils.h"
-#include          <ctype.h>
-#include          <string.h>
-#include          "genericvector.h"
-#include          "reject.h"
-#include          "control.h"
-#include          "docqual.h"
-#include          "globaloc.h"  // For err_exit.
-#include          "globals.h"
-#include          "helpers.h"
+#include "tessvars.h"
+#include "scanutils.h"
+#include <ctype.h>
+#include <errno.h>
+#include <string.h>
+#include "genericvector.h"
+#include "reject.h"
+#include "control.h"
+#include "docqual.h"
+#include "globaloc.h"  // For err_exit.
+#include "globals.h"
+#include "helpers.h"
 
 #include "tesseractclass.h"
 

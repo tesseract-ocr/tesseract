@@ -41,9 +41,6 @@ OF THIS IMPLIED TEMPORAL ORDERING OF THE FLAGS!!!!
 #ifndef           REJCTMAP_H
 #define           REJCTMAP_H
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
 #include <memory>
 #include "bits16.h"
 #include "errcode.h"

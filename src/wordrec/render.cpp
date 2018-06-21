@@ -25,9 +25,6 @@
 #include "render.h"
 #include "blobs.h"
 
-#ifdef __UNIX__
-#include <assert.h>
-#endif
 #include <cmath>
 
 #include "vecfuncs.h"

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        pitsync1.cpp  (Formerly pitsync.c)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
- * Author:		Ray Smith
- * Created:		Thu Nov 19 11:48:05 GMT 1992
+ * Author:      Ray Smith
+ * Created:     Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,9 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          <math.h>
-#include          "memry.h"
-#include          "pitsync1.h"
+#include <math.h>
+#include "memry.h"
+#include "pitsync1.h"
 
 ELISTIZE (FPSEGPT) CLISTIZE (FPSEGPT_LIST)
 #define EXTERN

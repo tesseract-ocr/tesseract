@@ -17,16 +17,13 @@
  *
  **********************************************************************/
 
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          <math.h>
-#include          "memry.h"
-#include          "makerow.h"
-#include          "pitsync1.h"
-#include          "topitch.h"
-#include          "pithsync.h"
-#include          "tprintf.h"
+#include <math.h>
+#include "memry.h"
+#include "makerow.h"
+#include "pitsync1.h"
+#include "topitch.h"
+#include "pithsync.h"
+#include "tprintf.h"
 
 #define PROJECTION_MARGIN 10     //arbitrary
 

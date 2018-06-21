@@ -21,13 +21,12 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#include          <stdlib.h>
-#ifdef __UNIX__
-#include          <assert.h>
-#endif
-#include          "blamer.h"
-#include          "pageres.h"
-#include          "blobs.h"
+
+#include <stdlib.h>
+#include <cassert>
+#include "blamer.h"
+#include "pageres.h"
+#include "blobs.h"
 
 ELISTIZE (BLOCK_RES)
 CLISTIZE (BLOCK_RES) ELISTIZE (ROW_RES) ELISTIZE (WERD_RES)

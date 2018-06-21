@@ -20,7 +20,6 @@
 
 #include "normstrngs.h"
 
-#include <assert.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
