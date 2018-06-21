@@ -24,7 +24,7 @@
 #endif
 
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <cmath>
 #ifdef __UNIX__
 #include <unistd.h>

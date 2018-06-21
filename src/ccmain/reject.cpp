@@ -21,7 +21,7 @@
 #include "scanutils.h"
 #include <ctype.h>
 #include <errno.h>
-#include <string.h>
+#include <cstring>
 #include "genericvector.h"
 #include "reject.h"
 #include "control.h"

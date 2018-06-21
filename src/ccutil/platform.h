@@ -20,8 +20,6 @@
 #ifndef TESSERACT_CCUTIL_PLATFORM_H_
 #define TESSERACT_CCUTIL_PLATFORM_H_
 
-#include <string.h>
-
 #define DLLSYM
 #ifdef _WIN32
 #ifndef NOMINMAX

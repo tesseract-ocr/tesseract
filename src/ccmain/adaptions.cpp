@@ -19,7 +19,7 @@
  **********************************************************************/
 
 #include <ctype.h>
-#include <string.h>
+#include <cstring>
 #include "tessbox.h"
 #include "tessvars.h"
 #include "memry.h"

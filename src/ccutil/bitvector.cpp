@@ -20,7 +20,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "bitvector.h"
-#include <string.h>
+#include <cstring>
 #include "helpers.h"
 
 #include <algorithm>

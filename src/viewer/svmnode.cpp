@@ -25,7 +25,7 @@
 // A SVMenuNode can both be used in the context_ of popup menus as well as
 // menu bars.
 
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <cstring>
 

@@ -31,7 +31,7 @@
 #include "ocrfeatures.h"
 #include "clusttool.h"
 #include "cluster.h"
-#include <string.h>
+#include <cstring>
 #include <cstdio>
 #include <cmath>
 #include "unichar.h"

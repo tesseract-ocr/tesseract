@@ -17,14 +17,14 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <string.h>
-#include          <stdlib.h>
+#include <stdio.h>
+#include <cstring>
+#include <stdlib.h>
 
-#include          "genericvector.h"
-#include          "scanutils.h"
-#include          "tprintf.h"
-#include          "params.h"
+#include "genericvector.h"
+#include "scanutils.h"
+#include "tprintf.h"
+#include "params.h"
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'

@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 #include "params.h"
 #include "float2int.h"

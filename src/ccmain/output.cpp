@@ -19,7 +19,7 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <string.h>
+#include <cstring>
 #ifdef __UNIX__
 #include <unistd.h>
 #endif

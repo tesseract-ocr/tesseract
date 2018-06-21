@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <string.h>
+#include <cstring>
 
 #include "params_training_featdef.h"
 
