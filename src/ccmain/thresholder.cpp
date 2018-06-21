@@ -21,7 +21,7 @@
 
 #include "thresholder.h"
 
-#include <string.h>
+#include <cstring>
 
 #include "otsuthr.h"
 

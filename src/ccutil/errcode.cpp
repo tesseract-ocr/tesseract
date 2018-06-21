@@ -17,15 +17,15 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <stdlib.h>
-#include          <stdarg.h>
-#include          <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <cstring>
 #ifdef __UNIX__
-#include          <signal.h>
+#include <signal.h>
 #endif
-#include          "tprintf.h"
-#include          "errcode.h"
+#include "tprintf.h"
+#include "errcode.h"
 
 const ERRCODE BADERRACTION = "Illegal error action";
 #define MAX_MSG       1024

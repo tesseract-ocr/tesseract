@@ -19,7 +19,7 @@
 #include "config_auto.h"
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <memory>  // std::unique_ptr
 #include "baseapi.h"
 #include "genericvector.h"

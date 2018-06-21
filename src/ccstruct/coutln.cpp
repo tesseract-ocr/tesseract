@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 
 #include "coutln.h"
 

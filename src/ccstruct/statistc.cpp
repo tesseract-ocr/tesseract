@@ -23,7 +23,7 @@
 #endif
 
 #include "statistc.h"
-#include <string.h>
+#include <cstring>
 #include <math.h>
 #include <stdlib.h>
 #include "errcode.h"

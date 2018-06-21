@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 #include <limits.h>
-#include <string.h>
+#include <cstring>
 #include <map>
 #include <utility>
 #include <algorithm>

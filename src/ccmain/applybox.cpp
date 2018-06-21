@@ -19,7 +19,7 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <string.h>
+#include <cstring>
 #include "allheaders.h"
 #include "boxread.h"
 #include "chopper.h"
