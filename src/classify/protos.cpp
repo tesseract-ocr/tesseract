@@ -30,7 +30,6 @@
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
-#include "scanutils.h"
 #include "globals.h"
 #include "classify.h"
 #include "params.h"

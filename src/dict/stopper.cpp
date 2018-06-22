@@ -33,7 +33,6 @@
 #include "pageres.h"
 #include "params.h"
 #include "ratngs.h"
-#include "scanutils.h"
 #include "unichar.h"
 
 /*----------------------------------------------------------------------------

@@ -18,7 +18,6 @@
  **********************************************************************/
 
 #include "tessvars.h"
-#include "scanutils.h"
 #include <ctype.h>
 #include <errno.h>
 #include <cstring>

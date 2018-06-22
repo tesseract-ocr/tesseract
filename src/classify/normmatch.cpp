@@ -31,7 +31,6 @@
 #include "globals.h"
 #include "helpers.h"
 #include "normfeat.h"
-#include "scanutils.h"
 #include "unicharset.h"
 #include "params.h"
 
