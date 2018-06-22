@@ -21,7 +21,6 @@
 #include "const.h"
 #include "danerror.h"
 #include "emalloc.h"
-#include "scanutils.h"
 #include <cstdio>
 #include <cmath>
 

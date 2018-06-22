@@ -22,7 +22,6 @@
 #include <stdlib.h>
 
 #include "genericvector.h"
-#include "scanutils.h"
 #include "tprintf.h"
 #include "params.h"
 

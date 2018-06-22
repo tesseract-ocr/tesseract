@@ -26,7 +26,6 @@
 #include "efio.h"
 #include "globals.h"
 #include "helpers.h"
-#include "scanutils.h"
 #include "serialis.h"
 #include "unichar.h"
 
