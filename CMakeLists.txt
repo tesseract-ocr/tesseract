@@ -358,7 +358,6 @@ install(FILES
     src/ccutil/genericvector.h
     src/ccutil/helpers.h
     src/ccutil/host.h
-    src/ccutil/memry.h
     src/ccutil/params.h
     src/ccutil/ocrclass.h
     src/ccutil/platform.h
