@@ -17,17 +17,24 @@
  *
  **********************************************************************/
 
-#ifndef           COUTLN_H
-#define           COUTLN_H
+#ifndef COUTLN_H
+#define COUTLN_H
 
-#include          "crakedge.h"
-#include          "mod128.h"
-#include          "bits16.h"
-#include          "rect.h"
-#include          "blckerr.h"
-#include          "scrollview.h"
+#include <cstdint>      // for int16_t, int32_t
+#include "bits16.h"     // for BITS16
+#include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "ipoints.h"    // for operator+=
+#include "memry.h"      // for free_mem
+#include "mod128.h"     // for DIR128, DIRBITS
+#include "platform.h"   // for DLLSYM
+#include "points.h"     // for ICOORD, FCOORD
+#include "rect.h"       // for TBOX
+#include "scrollview.h" // for ScrollView, ScrollView::Color
 
+class CRACKEDGE;
+class C_OUTLINE;
 class DENORM;
+struct Pix;
 
 #define INTERSECTING    INT16_MAX//no winding number
 

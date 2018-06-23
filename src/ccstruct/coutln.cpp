@@ -17,14 +17,20 @@
  *
  **********************************************************************/
 
-#include <algorithm>
-#include <cstring>
-
 #include "coutln.h"
-
-#include "allheaders.h"
-#include "blobs.h"
-#include "normalis.h"
+#include <algorithm>      // for max, min
+#include <cmath>          // for abs
+#include <cstdlib>        // for abs
+#include <cstring>        // for memset, memcpy, memmove
+#include "allheaders.h"   // for pixSetPixel, pixGetData, pixRasterop, pixGe...
+#include "arrayaccess.h"  // for GET_DATA_BYTE
+#include "blobs.h"        // for TPOINT
+#include "crakedge.h"     // for CRACKEDGE
+#include "environ.h"      // for l_uint32
+#include "errcode.h"      // for ASSERT_HOST
+#include "helpers.h"      // for ClipToRange, IntCastRounded, Modulo
+#include "normalis.h"     // for DENORM
+#include "pix.h"          // for Pix (ptr only), PIX_DST, PIX_NOT
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

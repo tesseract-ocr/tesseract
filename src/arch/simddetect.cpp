@@ -16,7 +16,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "simddetect.h"
-#include "tprintf.h"
 
 #undef X86_BUILD
 #if defined(__x86_64__) || defined(__i386__) || defined(_WIN32)

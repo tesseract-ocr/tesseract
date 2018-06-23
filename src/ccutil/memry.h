@@ -17,11 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           MEMRY_H
-#define           MEMRY_H
+#ifndef MEMRY_H
+#define MEMRY_H
 
-#include          <stddef.h>
-#include          "host.h"
+#include <cstdint>
 
 // allocate string
 extern char *alloc_string(int32_t count);

@@ -22,18 +22,12 @@
 #include "config_auto.h"
 #endif
 
-#include "errcode.h"
-#include <stdarg.h>
-#include <time.h>
-#include "memry.h"
-#include "scrollview.h"
-#include "params.h"
 #include "callcpp.h"
-#include "tprintf.h"
-#include "host.h"
-#include "unichar.h"
-
-#include <memory>
+#include <cstdarg>      // for va_end, va_list, va_start
+#include <cstdio>       // for vsprintf
+#include <memory>       // for unique_ptr
+#include "scrollview.h" // for ScrollView, SVEvent, SVET_ANY, SVET_INPUT
+#include "tprintf.h"    // for tprintf
 
 void
 cprintf (                        //Trace printf

@@ -21,11 +21,13 @@
 #ifndef TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 #define TESSERACT_CCMAIN_LTR_RESULT_ITERATOR_H_
 
-#include "platform.h"
-#include "pageiterator.h"
-#include "unichar.h"
+#include "pageiterator.h"  // for PageIterator
+#include "platform.h"      // for TESS_API
+#include "publictypes.h"   // for PageIteratorLevel
+#include "unichar.h"       // for StrongScriptDirection
 
 class BLOB_CHOICE_IT;
+class PAGE_RES;
 class WERD_RES;
 
 namespace tesseract {

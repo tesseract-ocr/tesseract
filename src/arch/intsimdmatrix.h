@@ -21,8 +21,9 @@
 
 #include <cstdint>
 #include <vector>
-#include "genericvector.h"
-#include "matrix.h"
+
+template <class T> class GENERIC_2D_ARRAY;
+template <typename T> class GenericVector;
 
 namespace tesseract {
 

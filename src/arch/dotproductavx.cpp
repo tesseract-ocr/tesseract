@@ -35,7 +35,6 @@ double DotProductAVX(const double* u, const double* v, int n) {
 #include <immintrin.h>
 #include <cstdint>
 #include "dotproductavx.h"
-#include "host.h"
 
 namespace tesseract {
 

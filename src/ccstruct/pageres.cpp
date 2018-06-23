@@ -22,11 +22,26 @@
  *
  **********************************************************************/
 
-#include <stdlib.h>
-#include <cassert>
-#include "blamer.h"
 #include "pageres.h"
-#include "blobs.h"
+#include <cassert>         // for assert
+#include <cstdint>         // for INT32_MAX
+#include <cstring>         // for strlen
+#include "blamer.h"        // for BlamerBundle
+#include "blobs.h"         // for TWERD, TBLOB
+#include "boxword.h"       // for BoxWord
+#include "errcode.h"       // for ASSERT_HOST
+#include "host.h"          // for TRUE, FALSE
+#include "ocrblock.h"      // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
+#include "ocrrow.h"        // for ROW, ROW_IT
+#include "pdblock.h"       // for PDBLK
+#include "polyblk.h"       // for POLY_BLOCK
+#include "publictypes.h"   // for OcrEngineMode, OEM_LSTM_ONLY
+#include "seam.h"          // for SEAM, start_seam_list
+#include "stepblob.h"      // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
+#include "tesscallback.h"  // for NewPermanentTessCallback, TessResultCallback2
+#include "tprintf.h"       // for tprintf
+
+struct Pix;
 
 ELISTIZE (BLOCK_RES)
 CLISTIZE (BLOCK_RES) ELISTIZE (ROW_RES) ELISTIZE (WERD_RES)

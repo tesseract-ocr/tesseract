@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCSTRUCT_DPPOINT_H_
 #define TESSERACT_CCSTRUCT_DPPOINT_H_
 
-#include "host.h"
+#include <cstdint>
 
 namespace tesseract {
 

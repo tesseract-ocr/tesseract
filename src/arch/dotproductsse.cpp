@@ -41,7 +41,6 @@ int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
 #include <smmintrin.h>
 #include <cstdint>
 #include "dotproductsse.h"
-#include "host.h"
 
 namespace tesseract {
 

@@ -19,8 +19,6 @@
 #ifndef TESSERACT_ARCH_DOTPRODUCTSSE_H_
 #define TESSERACT_ARCH_DOTPRODUCTSSE_H_
 
-#include "host.h"
-
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
