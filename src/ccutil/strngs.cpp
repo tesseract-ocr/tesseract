@@ -18,14 +18,12 @@
  **********************************************************************/
 
 #include "strngs.h"
-
-#include <cassert>
-
-#include "errcode.h"
-#include "genericvector.h"
-#include "helpers.h"
-#include "serialis.h"
-#include "tprintf.h"
+#include <cassert>          // for assert
+#include "errcode.h"        // for ASSERT_HOST
+#include "genericvector.h"  // for GenericVector
+#include "helpers.h"        // for ReverseN
+#include "memry.h"          // for alloc_string, free_string
+#include "serialis.h"       // for TFile
 
 using tesseract::TFile;
 

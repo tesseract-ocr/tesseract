@@ -17,13 +17,22 @@
  *
  **********************************************************************/
 
-#include <stdio.h>
-#define FASTEDGELENGTH    256
 #include "polyaprx.h"
-#include "params.h"
-#include "tprintf.h"
+#include <cstdint>             // for INT16_MAX, int8_t
+#include "blobs.h"             // for EDGEPT, TPOINT, VECTOR, TESSLINE
+#include "coutln.h"            // for C_OUTLINE
+#include "errcode.h"           // for ASSERT_HOST
+#include "host.h"              // for FALSE, TRUE
+#include "ipoints.h"           // for operator+=, operator*=
+#include "mod128.h"            // for DIR128
+#include "params.h"            // for BoolParam, BOOL_VAR
+#include "points.h"            // for ICOORD
+#include "rect.h"              // for TBOX
+#include "tprintf.h"           // for tprintf
+#include "vecfuncs.h"          // for LENGTH, point_diff, CROSS
 
 #define EXTERN
+#define FASTEDGELENGTH    256
 
 EXTERN BOOL_VAR(poly_debug, FALSE, "Debug old poly");
 EXTERN BOOL_VAR(poly_wide_objects_better, TRUE,

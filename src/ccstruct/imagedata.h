@@ -20,16 +20,18 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
+#include "genericvector.h"      // for GenericVector, PointerVector, FileReader
+#include "points.h"             // for FCOORD
+#include "strngs.h"             // for STRING
+#include "svutil.h"             // for SVAutoLock, SVMutex
 
-#include "genericvector.h"
-#include "normalis.h"
-#include "rect.h"
-#include "strngs.h"
-#include "svutil.h"
-
+class ScrollView;
+class TBOX;
 struct Pix;
 
 namespace tesseract {
+
+class TFile;
 
 // Amount of padding to apply in output pixels in feature mode.
 const int kFeaturePadding = 2;
@@ -118,7 +120,7 @@ class ImageData {
   // Reads from the given file. Returns false in case of error.
   bool DeSerialize(TFile* fp);
   // As DeSerialize, but only seeks past the data - hence a static method.
-  static bool SkipDeSerialize(tesseract::TFile* fp);
+  static bool SkipDeSerialize(TFile* fp);
 
   // Other accessors.
   const STRING& imagefilename() const {

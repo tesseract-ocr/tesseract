@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        ipoints.h  (Formerly icoords.h)
  * Description: Inline functions for coords.h.
- * Author:					Ray Smith
- * Created:					Fri Jun 21 15:14:21 BST 1991
+ * Author:      Ray Smith
+ * Created:     Fri Jun 21 15:14:21 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           IPOINTS_H
-#define           IPOINTS_H
+#ifndef IPOINTS_H
+#define IPOINTS_H
 
-#include          <math.h>
+#include <cmath>
+#include "points.h"     // ICOORD
 
 /**********************************************************************
  * operator!

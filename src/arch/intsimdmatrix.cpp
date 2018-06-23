@@ -17,9 +17,11 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "intsimdmatrix.h"
-#include "intsimdmatrixavx2.h"
-#include "intsimdmatrixsse.h"
-#include "simddetect.h"
+#include "genericvector.h"      // for GenericVector
+#include "intsimdmatrixavx2.h"  // for IntSimdMatrixAVX2
+#include "intsimdmatrixsse.h"   // for IntSimdMatrixSSE
+#include "matrix.h"             // for GENERIC_2D_ARRAY
+#include "simddetect.h"         // for SIMDDetect
 
 namespace tesseract {
 

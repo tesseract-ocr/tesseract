@@ -19,10 +19,15 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "blamer.h"
-#include "blobs.h"
-#include "matrix.h"
-#include "normalis.h"
-#include "pageres.h"
+#include <math.h>          // for abs
+#include <stdlib.h>        // for abs
+#include "blobs.h"         // for TPOINT, TWERD, TBLOB
+#include "errcode.h"       // for ASSERT_HOST
+#include "matrix.h"        // for MATRIX
+#include "normalis.h"      // for DENORM
+#include "pageres.h"       // for WERD_RES
+#include "tesscallback.h"  // for TessResultCallback2
+#include "unicharset.h"    // for UNICHARSET
 
 // Names for each value of IncorrectResultReason enum. Keep in sync.
 const char kBlameCorrect[] = "corr";

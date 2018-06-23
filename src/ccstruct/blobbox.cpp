@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        blobbox.cpp  (Formerly blobnbox.c)
  * Description: Code for the textord blob class.
- * Author:          Ray Smith
- * Created:         Thu Jul 30 09:08:51 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,12 +23,17 @@
 #endif
 
 #include "blobbox.h"
-#include "allheaders.h"
-#include "blobs.h"
-#include "helpers.h"
-#include "normalis.h"
+#include <stdint.h>      // for INT32_MAX, INT16_MAX
+#include <algorithm>     // for max, min
+#include "allheaders.h"  // for pixGetHeight, pixGetPixel
+#include "blobs.h"       // for TPOINT
+#include "coutln.h"      // for C_OUTLINE_IT, C_OUTLINE, C_OUTLINE_LIST
+#include "environ.h"     // for l_uint32
+#include "helpers.h"     // for UpdateRange, IntCastRounded
+#include "host.h"        // for NearlyEqual, TRUE
+#include "ipoints.h"     // for operator+=, ICOORD::rotate
 
-#include <algorithm>
+struct Pix;
 
 #define PROJECTION_MARGIN 10     //arbitrary
 #define EXTERN
