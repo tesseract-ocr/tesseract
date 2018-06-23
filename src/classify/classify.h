@@ -21,7 +21,6 @@
 
 #include "adaptive.h"
 #include "ccstruct.h"
-#include "classify.h"
 #include "dict.h"
 #include "featdefs.h"
 #include "fontinfo.h"
