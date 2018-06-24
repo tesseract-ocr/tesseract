@@ -20,16 +20,12 @@
 #ifndef TESSERACT_CCMAIN_EQUATIONDETECT_H_
 #define TESSERACT_CCMAIN_EQUATIONDETECT_H_
 
-#include "blobbox.h"
-#include "equationdetectbase.h"
-#include "genericvector.h"
-#include "tesseractclass.h"
-#include "unichar.h"
+#include "blobbox.h"             // for BLOBNBOX (ptr only), BlobSpecialText...
+#include "equationdetectbase.h"  // for EquationDetectBase
+#include "genericvector.h"       // for GenericVector
+#include "tesseractclass.h"      // for Tesseract
+#include "unichar.h"             // for UNICHAR_ID
 
-class BLOBNBOX;
-class BLOB_CHOICE;
-class BLOB_CHOICE_LIST;
-class TO_BLOCK_LIST;
 class TBOX;
 class UNICHARSET;
 

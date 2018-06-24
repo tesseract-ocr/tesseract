@@ -29,11 +29,16 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "clst.h"
-#include "normalis.h"
-#include "publictypes.h"
-#include "rect.h"
-#include "vecfuncs.h"
+#include <cstdint>             // for int16_t
+#include <cstring>             // for memcpy, memset
+#include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
+#include "genericvector.h"     // for GenericVector
+#include "normalis.h"          // for DENORM
+#include "points.h"            // for FCOORD, ICOORD
+#include "publictypes.h"       // for OcrEngineMode
+#include "rect.h"              // for TBOX
+#include "scrollview.h"        // for ScrollView, ScrollView::Color
+#include "vecfuncs.h"          // for CROSS
 
 class BLOCK;
 class C_BLOB;
@@ -41,6 +46,8 @@ class C_OUTLINE;
 class LLSQ;
 class ROW;
 class WERD;
+
+struct Pix;
 
 /*----------------------------------------------------------------------
               T y p e s

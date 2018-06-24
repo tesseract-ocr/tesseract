@@ -17,25 +17,23 @@
  *
  **********************************************************************/
 
-#ifndef           NORMALIS_H
-#define           NORMALIS_H
-
-#include <cstdio>
-#include "genericvector.h"
-#include "host.h"
+#ifndef NORMALIS_H
+#define NORMALIS_H
 
 const int kBlnCellHeight = 256;     // Full-height for baseline normalization.
 const int kBlnXHeight = 128;        // x-height for baseline normalization.
 const int kBlnBaselineOffset = 64;  // offset for baseline normalization.
 
-struct Pix;
-class ROW;                          // Forward decl
 class BLOCK;
 class FCOORD;
-struct TBLOB;
 class TBOX;
-struct TPOINT;
 class UNICHARSET;
+
+struct Pix;
+struct TBLOB;
+struct TPOINT;
+
+template <typename T> class GenericVector;
 
 namespace tesseract {
 
@@ -314,4 +312,5 @@ class DENORM {
   float final_xshift_;
   float final_yshift_;
 };
+
 #endif

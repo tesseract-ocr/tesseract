@@ -17,10 +17,11 @@
  *
  **********************************************************************/
 
-#include <stdlib.h>
-#include "scanutils.h"
-#include "fileerr.h"
 #include "blread.h"
+#include <cstdio>       // for fclose, fopen, FILE
+#include "host.h"       // for TRUE
+#include "ocrblock.h"   // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
+#include "scanutils.h"  // for tfscanf
 
 #define UNLV_EXT  ".uzn"  // unlv zone file
 

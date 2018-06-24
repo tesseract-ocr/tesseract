@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        linlsq.h  (Formerly llsq.h)
  * Description: Linear Least squares fitting code.
- * Author:		Ray Smith
- * Created:		Thu Sep 12 08:44:51 BST 1991
+ * Author:      Ray Smith
+ * Created:     Thu Sep 12 08:44:51 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,10 @@
 #ifndef TESSERACT_CCSTRUCT_LINLSQ_H_
 #define TESSERACT_CCSTRUCT_LINLSQ_H_
 
-#include "points.h"
-#include "params.h"
+#include <cstdint>      // for int32_t
+#include "points.h"     // for FCOORD
+
+template <typename T> class GenericVector;
 
 class LLSQ {
  public:

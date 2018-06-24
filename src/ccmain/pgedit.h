@@ -17,19 +17,18 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#ifndef           PGEDIT_H
-#define           PGEDIT_H
+#ifndef PGEDIT_H
+#define PGEDIT_H
 
-#include          "ocrblock.h"
-#include          "ocrrow.h"
-#include          "werd.h"
-#include          "rect.h"
-#include          "params.h"
-#include          "tesseractclass.h"
+#include "params.h"      // for INT_VAR_H, IntParam, STRING_VAR_H, StringParam
+#include "scrollview.h"  // for SVEvent (ptr only), SVEventHandler, ScrollView
 
-class ScrollView;
-class SVMenuNode;
-struct SVEvent;
+class BLOCK_LIST;
+class PAGE_RES;
+
+namespace tesseract {
+  class Tesseract;
+}
 
 // A small event handler class to process incoming events to
 // this window.

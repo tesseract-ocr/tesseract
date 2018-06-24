@@ -70,7 +70,6 @@
 #include "globals.h"
 #include "edgblob.h"
 #include "equationdetect.h"
-#include "tessbox.h"
 #include "makerow.h"
 #include "otsuthr.h"
 #include "osdetect.h"

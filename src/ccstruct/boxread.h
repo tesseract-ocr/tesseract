@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        boxread.h
  * Description: Read data from a box file.
- * Author:	Ray Smith
- * Created:	Fri Aug 24 17:47:23 PDT 2007
+ * Author:      Ray Smith
+ * Created:     Fri Aug 24 17:47:23 PDT 2007
  *
  * (C) Copyright 2007, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +20,13 @@
 #ifndef TESSERACT_CCUTIL_BOXREAD_H_
 #define TESSERACT_CCUTIL_BOXREAD_H_
 
-#include <cstdio>
-#include "genericvector.h"
-#include "strngs.h"
+#include <cstdio>    // for FILE
+#include "strngs.h"  // for STRING
 
-class STRING;
 class TBOX;
+
+template <typename T> class GenericVector;
+template <typename T> class GenericVector;
 
 // Size of buffer used to read a line from a box file.
 const int kBoxReadBufSize = 1024;

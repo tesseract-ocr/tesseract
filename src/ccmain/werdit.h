@@ -17,10 +17,12 @@
  *
  **********************************************************************/
 
-#ifndef           WERDIT_H
-#define           WERDIT_H
+#ifndef WERDIT_H
+#define WERDIT_H
 
-#include          "pageres.h"
+#include "rect.h"  // for TBOX
+class PAGE_RES;
+class PAGE_RES_IT;
 
 PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box);
 

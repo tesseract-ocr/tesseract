@@ -20,7 +20,6 @@
 
 #include <ctype.h>
 #include <cstring>
-#include "tessbox.h"
 #include "tessvars.h"
 #include "memry.h"
 #include "reject.h"

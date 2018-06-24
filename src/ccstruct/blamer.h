@@ -21,14 +21,25 @@
 #ifndef TESSERACT_CCSTRUCT_BLAMER_H_
 #define TESSERACT_CCSTRUCT_BLAMER_H_
 
-#include <cstdio>
-#include "boxword.h"
-#include "genericvector.h"
-#include "matrix.h"
-#include "params_training_featdef.h"
-#include "ratngs.h"
-#include "strngs.h"
-#include "tesscallback.h"
+#include <cstdint>                    // for int16_t
+#include <cstring>                    // for memcpy
+#include "boxword.h"                  // for BoxWord
+#include "genericvector.h"            // for GenericVector
+#include "matrix.h"                   // for MATRIX_COORD, MATRIX (ptr only)
+#include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
+#include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
+#include "rect.h"                     // for TBOX
+#include "strngs.h"                   // for STRING
+#include "tprintf.h"                  // for tprintf
+#include "unichar.h"                  // for UNICHAR_ID
+
+class DENORM;
+class UNICHARSET;
+class WERD_RES;
+
+struct TWERD;
+
+template <class R, class A1, class A2> class TessResultCallback2;
 
 static const int16_t kBlamerBoxTolerance = 5;
 

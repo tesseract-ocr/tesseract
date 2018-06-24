@@ -20,6 +20,7 @@
 #include "include_gunit.h"
 #include "intsimdmatrixavx2.h"
 #include "intsimdmatrixsse.h"
+#include "matrix.h"
 #include "simddetect.h"
 #include "tprintf.h"
 

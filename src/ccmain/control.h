@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        control.h  (Formerly control.h)
  * Description: Module-independent matcher controller.
- * Author:		Ray Smith
- * Created:		Thu Apr 23 11:09:58 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 11:09:58 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,14 +22,8 @@
  * Module-independent matcher controller.
  */
 
-#ifndef           CONTROL_H
-#define           CONTROL_H
-
-#include          "params.h"
-#include          "ocrblock.h"
-#include          "ratngs.h"
-#include          "statistc.h"
-#include          "pageres.h"
+#ifndef CONTROL_H
+#define CONTROL_H
 
 enum ACCEPTABLE_WERD_TYPE
 {
