@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        werdit.cpp  (Formerly wordit.c)
  * Description: An iterator for passing over all the words in a document.
- * Author:		Ray Smith
- * Created:		Mon Apr 27 08:51:22 BST 1992
+ * Author:      Ray Smith
+ * Created:     Mon Apr 27 08:51:22 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,10 @@
  **********************************************************************/
 
 #include "werdit.h"
+#include "errcode.h"   // for ASSERT_HOST
+#include "pageres.h"   // for PAGE_RES_IT, PAGE_RES (ptr only), WERD_RES
+#include "stepblob.h"  // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
+#include "werd.h"      // for WERD
 
 /**********************************************************************
  * make_pseudo_word

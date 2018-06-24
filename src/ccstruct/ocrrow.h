@@ -17,14 +17,18 @@
  *
  **********************************************************************/
 
-#ifndef           OCRROW_H
-#define           OCRROW_H
+#ifndef OCRROW_H
+#define OCRROW_H
 
-#include <cstdio>
+#include <cstdint>      // for int16_t, int32_t
+#include <cstdio>       // for FILE
+#include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "quspline.h"   // for QSPLINE
+#include "rect.h"       // for TBOX
+#include "scrollview.h" // for ScrollView, ScrollView::Color
+#include "werd.h"       // for WERD_LIST
 
-#include "quspline.h"
-#include "werd.h"
-
+class ICOORD;
 class TO_ROW;
 
 struct PARA;

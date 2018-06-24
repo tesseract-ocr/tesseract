@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        blread.h  (Formerly pdread.h)
  * Description: Friend function of BLOCK to read the uscan pd file.
- * Author:		Ray Smith
- * Created:		Mon Mar 18 14:39:00 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Mon Mar 18 14:39:00 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,13 @@
  *
  **********************************************************************/
 
-#ifndef           BLREAD_H
-#define           BLREAD_H
+#ifndef BLREAD_H
+#define BLREAD_H
 
-#include          "params.h"
-#include          "ocrblock.h"
+#include <cstdint>      // for int32_t
+#include "strngs.h"     // for STRING
+
+class BLOCK_LIST;
 
 bool read_unlv_file(                    //print list of sides
                      STRING name,        //basename of file
@@ -30,4 +32,5 @@ bool read_unlv_file(                    //print list of sides
                      BLOCK_LIST *blocks  //output list
                     );
 void FullPageBlock(int width, int height, BLOCK_LIST *blocks);
+
 #endif

@@ -20,14 +20,15 @@
 #ifndef TESSERACT_CCMAIN_PARAGRAPHS_H_
 #define TESSERACT_CCMAIN_PARAGRAPHS_H_
 
-#include "rect.h"
-#include "ocrpara.h"
-#include "genericvector.h"
-#include "strngs.h"
+#include "rect.h"    // for TBOX
+#include "strngs.h"  // for STRING
 
+class PARA_LIST;
+class ParagraphModel;
 
-class WERD;
-class UNICHARSET;
+struct PARA;
+
+template <typename T> class GenericVector;
 
 namespace tesseract {
 

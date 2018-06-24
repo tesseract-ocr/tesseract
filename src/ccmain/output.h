@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        output.h  (Formerly output.h)
  * Description: Output pass
- * Author:		Phil Cheatle
- * Created:		Thu Aug  4 10:56:08 BST 1994
+ * Author:      Phil Cheatle
+ * Created:     Thu Aug  4 10:56:08 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           OUTPUT_H
-#define           OUTPUT_H
+#ifndef OUTPUT_H
+#define OUTPUT_H
 
-#include          "params.h"
-//#include                                      "epapconv.h"
-#include          "pageres.h"
+class BLOCK;
+class WERD;
 
 /** test line ends */
 char determine_newline_type(WERD *word,        ///< word to do
@@ -30,4 +29,5 @@ char determine_newline_type(WERD *word,        ///< word to do
                             WERD *next_word,   ///< next word
                             BLOCK *next_block  ///< block of next word
                            );
+
 #endif

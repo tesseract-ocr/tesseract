@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    adaptmatch.c
+ ** Filename:    adaptmatch.cpp
  ** Purpose:     High level adaptive matcher.
  ** Author:      Dan Johnson
  ** History:     Mon Mar 11 10:00:10 1991, DSJ, Created.
@@ -23,43 +23,56 @@
 #include "config_auto.h"
 #endif
 
-#include <ctype.h>
-#include "shapeclassifier.h"
-#include "ambigs.h"
-#include "blobclass.h"
-#include "blobs.h"
-#include "callcpp.h"
-#include "classify.h"
-#include "const.h"
-#include "dict.h"
-#include "efio.h"
-#include "emalloc.h"
-#include "featdefs.h"
-#include "float2int.h"
-#include "genericvector.h"
-#include "globals.h"
-#include "helpers.h"
-#include "intfx.h"
-#include "intproto.h"
-#include "mfoutline.h"
-#include "normfeat.h"
-#include "normmatch.h"
-#include "outfeat.h"
-#include "pageres.h"
-#include "params.h"
-#include "picofeat.h"
-#include "shapetable.h"
-#include "tessclassifier.h"
-#include "trainingsample.h"
-#include "unicharset.h"
-#include "werd.h"
-
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
+#include <algorithm>            // for max, min
+#include <cassert>              // for assert
+#include <cmath>                // for fabs
+#include <cstdint>              // for INT32_MAX, UINT8_MAX
+#include <cstdio>               // for fflush, fclose, fopen, stdout, FILE
+#include <cstdlib>              // for malloc
+#include <cstring>              // for strstr, memset, strcmp
+#include "adaptive.h"           // for ADAPT_CLASS, free_adapted_templates
+#include "ambigs.h"             // for UnicharIdVector, UnicharAmbigs
+#include "bitvec.h"             // for FreeBitVector, NewBitVector, BIT_VECTOR
+#include "blobs.h"              // for TBLOB, TWERD
+#include "callcpp.h"            // for cprintf, window_wait
+#include "classify.h"           // for Classify, CST_FRAGMENT, CST_WHOLE
+#include "dict.h"               // for Dict
+#include "errcode.h"            // for ASSERT_HOST
+#include "featdefs.h"           // for CharNormDesc
+#include "float2int.h"          // for BASELINE_Y_SHIFT
+#include "fontinfo.h"           // for ScoredFont, FontSet
+#include "genericvector.h"      // for GenericVector
+#include "helpers.h"            // for IntCastRounded, ClipToRange
+#include "host.h"               // for FLOAT32, FALSE, MAX_FLOAT32, TRUE
+#include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
+#include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
+#include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
+#include "matchdefs.h"          // for CLASS_ID, FEATURE_ID, PROTO_ID, NO_PROTO
+#include "mfoutline.h"          // for baseline, character, MF_SCALE_FACTOR
+#include "normalis.h"           // for DENORM, kBlnBaselineOffset, kBlnXHeight
+#include "normfeat.h"           // for ActualOutlineLength, CharNormLength
+#include "ocrfeatures.h"        // for FEATURE_STRUCT, FreeFeatureSet, FEATURE
+#include "oldlist.h"            // for push, delete_d
+#include "outfeat.h"            // for OutlineFeatDir, OutlineFeatLength
+#include "pageres.h"            // for WERD_RES
+#include "params.h"             // for IntParam, BoolParam, DoubleParam, Str...
+#include "picofeat.h"           // for PicoFeatDir, PicoFeatX, PicoFeatY
+#include "protos.h"             // for PROTO_STRUCT, FillABC, PROTO
+#include "ratngs.h"             // for BLOB_CHOICE_IT, BLOB_CHOICE_LIST, BLO...
+#include "rect.h"               // for TBOX
+#include "scrollview.h"         // for ScrollView, ScrollView::BROWN, Scroll...
+#include "seam.h"               // for SEAM
+#include "serialis.h"           // for TFile
+#include "shapeclassifier.h"    // for ShapeClassifier
+#include "shapetable.h"         // for UnicharRating, ShapeTable, Shape, Uni...
+#include "strngs.h"             // for STRING
+#include "tessclassifier.h"     // for TessClassifier
+#include "tessdatamanager.h"    // for TessdataManager, TESSDATA_INTTEMP
+#include "tprintf.h"            // for tprintf
+#include "trainingsample.h"     // for TrainingSample
+#include "unichar.h"            // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include "unicharset.h"         // for UNICHARSET, CHAR_FRAGMENT, UNICHAR_SPACE
+#include "unicity_table.h"      // for UnicityTable
 
 #define ADAPT_TEMPLATE_SUFFIX ".a"
 

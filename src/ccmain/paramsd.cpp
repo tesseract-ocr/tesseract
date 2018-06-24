@@ -19,14 +19,6 @@
 //
 // The parameters editor is used to edit all the parameters used within
 // tesseract from the ui.
-#ifdef _WIN32
-#else
-#include <cstdlib>
-#include <cstdio>
-#endif
-
-#include <map>
-#include <memory>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -34,13 +26,19 @@
 #endif
 
 #ifndef GRAPHICS_DISABLED
+
 #include "paramsd.h"
-
-
-#include "params.h"
-#include "scrollview.h"
-#include "svmnode.h"
-
+#include <cstdio>            // for fclose, fopen, fprintf, sprintf, FILE
+#include <cstdlib>           // for atoi, strtod
+#include <cstring>           // for strcmp, strcspn, strlen, strncpy
+#include <map>               // for map, _Rb_tree_iterator, map<>::iterator
+#include <memory>            // for unique_ptr
+#include <utility>           // for pair
+#include "genericvector.h"   // for GenericVector
+#include "params.h"          // for ParamsVectors, StringParam, BoolParam
+#include "scrollview.h"      // for SVEvent, ScrollView, SVET_POPUP
+#include "svmnode.h"         // for SVMenuNode
+#include "tesseractclass.h"  // for Tesseract
 
 #define VARDIR        "configs/" /*parameters files */
 #define MAX_ITEMS_IN_SUBMENU 30
@@ -354,4 +352,4 @@ void ParamsEditor::WriteParams(char *filename,
   }
   fclose(fp);
 }
-#endif
+#endif // GRAPHICS_DISABLED

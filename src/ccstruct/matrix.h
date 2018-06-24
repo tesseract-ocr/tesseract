@@ -26,18 +26,23 @@
  ** limitations under the License.
  *
  *********************************************************************************/
+
 #ifndef TESSERACT_CCSTRUCT_MATRIX_H_
 #define TESSERACT_CCSTRUCT_MATRIX_H_
 
-#include <algorithm>
-#include <cmath>
-#include "kdpair.h"
-#include "points.h"
-#include "serialis.h"
-#include "unicharset.h"
+#include <algorithm>    // for max, min
+#include <cmath>        // for sqrt, fabs, isfinite
+#include <cstdint>      // for int32_t
+#include <cstdio>       // for fread, fwrite, FILE
+#include <cstring>      // for memcpy
+#include "errcode.h"    // for ASSERT_HOST
+#include "helpers.h"    // for ReverseN, ClipToRange
+#include "kdpair.h"     // for KDPairInc
+#include "points.h"     // for ICOORD
+#include "serialis.h"   // for TFile
 
-class BLOB_CHOICE;
 class BLOB_CHOICE_LIST;
+class UNICHARSET;
 
 #define NOT_CLASSIFIED static_cast<BLOB_CHOICE_LIST*>(0)
 

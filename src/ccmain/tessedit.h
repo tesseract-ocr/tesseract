@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tessedit.h  (Formerly tessedit.h)
  * Description: Main program for merge of tess and editor.
- * Author:		Ray Smith
- * Created:		Tue Jan 07 15:21:46 GMT 1992
+ * Author:      Ray Smith
+ * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,10 @@
  *
  **********************************************************************/
 
-#ifndef           TESSEDIT_H
-#define           TESSEDIT_H
+#ifndef TESSEDIT_H
+#define TESSEDIT_H
 
-#include          "blobs.h"
-#include          "pgedit.h"
+class ETEXT_DESC;
 
                                  //progress monitor
 extern ETEXT_DESC *global_monitor;

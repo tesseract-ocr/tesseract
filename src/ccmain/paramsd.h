@@ -24,11 +24,19 @@
 
 #ifndef GRAPHICS_DISABLED
 
-#include "elst.h"
-#include "params.h"
-#include "tesseractclass.h"
+#include "elst.h"        // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "scrollview.h"  // for ScrollView (ptr only), SVEvent (ptr only)
+#include "strngs.h"      // for STRING
 
 class SVMenuNode;
+
+namespace tesseract {
+  class BoolParam;
+  class DoubleParam;
+  class IntParam;
+  class StringParam;
+  class Tesseract;
+}
 
 // A list of all possible parameter types used.
 enum ParamType {
