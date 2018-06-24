@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tessbox.cpp  (Formerly tessbox.c)
  * Description: Black boxed Tess for developing a resaljet.
- * Author:					Ray Smith
- * Created:					Thu Apr 23 11:03:36 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 11:03:36 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
  **********************************************************************/
 
 #include "mfoutline.h"
-#include "tessbox.h"
 #include "tesseractclass.h"
 
 #define EXTERN

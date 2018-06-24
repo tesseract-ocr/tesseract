@@ -25,7 +25,7 @@ pkginclude_HEADERS = \
 noinst_HEADERS = \
     control.h docqual.h equationdetect.h fixspace.h mutableiterator.h \
     output.h paragraphs.h paragraphs_internal.h osdetect.h paramsd.h pgedit.h \
-    reject.h tessbox.h tessedit.h tesseractclass.h tessvars.h werdit.h
+    reject.h tessedit.h tesseractclass.h tessvars.h werdit.h
 
 noinst_LTLIBRARIES = libtesseract_main.la
 

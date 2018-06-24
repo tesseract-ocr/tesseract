@@ -43,7 +43,6 @@
 #include "pgedit.h"
 #include "reject.h"
 #include "sorthelper.h"
-#include "tessbox.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
 #include "werdit.h"
