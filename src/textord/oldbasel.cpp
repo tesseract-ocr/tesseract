@@ -17,6 +17,7 @@
  *
  **********************************************************************/
 
+#include <vector>       // for std::vector
 #include "ccstruct.h"
 #include "statistc.h"
 #include "quadlsq.h"
@@ -121,7 +122,6 @@ void Textord::make_old_baselines(TO_BLOCK* block,   // block to do
  **********************************************************************/
 
 void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
-  TO_ROW **rows;                 //array of ptrs
   int rowcount;                  /*no of rows to do */
   int rowindex;                  /*no of row */
                                  // iterator
@@ -133,17 +133,18 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
     block->xheight = block->line_size;
     return;                      /*none to do */
   }
-  rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
+  // array of ptrs
+  std::vector <TO_ROW *> rows(rowcount);
   rowindex = 0;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
                                  //make array
     rows[rowindex++] = row_it.data ();
 
                                  /*try to fix bad lines */
-  correlate_neighbours(block, rows, rowcount);
+  correlate_neighbours(block, &rows[0], rowcount);
 
   if (textord_really_old_xheight || textord_old_xheight) {
-    block->xheight = (float) correlate_with_stats(rows, rowcount, block);
+    block->xheight = (float) correlate_with_stats(&rows[0], rowcount, block);
     if (block->xheight <= 0)
       block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
     if (block->xheight < textord_min_xheight)
@@ -151,8 +152,6 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
   } else {
     compute_block_xheight(block, gradient);
   }
-
-  free_mem(rows);
 }
 
 
@@ -334,28 +333,28 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
   int partcount;                 /*no of partitions of */
   bool holed_line = false;      //lost too many blobs
   int bestpart;                  /*biggest partition */
-  char *partids;                 /*partition no of each blob */
   int partsizes[MAXPARTS];       /*no in each partition */
   int lineheight;                /*guessed x-height */
   float jumplimit;               /*allowed delta change */
-  int *xcoords;                  /*useful sample points */
-  int *ycoords;                  /*useful sample points */
-  TBOX *blobcoords;               /*edges of blob rectangles */
   int blobcount;                 /*no of blobs on line */
-  float *ydiffs;                 /*diffs from 1st approx */
   int pointcount;                /*no of coords */
   int xstarts[SPLINESIZE + 1];   //segment boundaries
   int segments;                  //no of segments
 
                                  //no of blobs in row
   blobcount = row->blob_list ()->length ();
-  partids = (char *) alloc_mem (blobcount * sizeof (char));
-  xcoords = (int *) alloc_mem (blobcount * sizeof (int));
-  ycoords = (int *) alloc_mem (blobcount * sizeof (int));
-  blobcoords = (TBOX *) alloc_mem (blobcount * sizeof (TBOX));
-  ydiffs = (float *) alloc_mem (blobcount * sizeof (float));
+  // partition no of each blob
+  std::vector<char> partids(blobcount);
+  // useful sample points
+  std::vector<int> xcoords(blobcount);
+  // useful sample points
+  std::vector<int> ycoords(blobcount);
+  // edges of blob rectangles
+  std::vector<TBOX> blobcoords(blobcount);
+  // diffs from 1st approx
+  std::vector<float> ydiffs(blobcount);
 
-  lineheight = get_blob_coords (row, (int) block->line_size, blobcoords,
+  lineheight = get_blob_coords(row, (int)block->line_size, &blobcoords[0],
     holed_line, blobcount);
                                  /*limit for line change */
   jumplimit = lineheight * textord_oldbl_jumplimit;
@@ -368,40 +367,34 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
       block->line_size, lineheight, jumplimit);
   }
   if (holed_line)
-    make_holed_baseline (blobcoords, blobcount, spline, &row->baseline,
+    make_holed_baseline(&blobcoords[0], blobcount, spline, &row->baseline,
       row->line_m ());
   else
-    make_first_baseline (blobcoords, blobcount,
-      xcoords, ycoords, spline, &row->baseline, jumplimit);
+    make_first_baseline(&blobcoords[0], blobcount,
+      &xcoords[0], &ycoords[0], spline, &row->baseline, jumplimit);
 #ifndef GRAPHICS_DISABLED
   if (textord_show_final_rows)
     row->baseline.plot (to_win, ScrollView::GOLDENROD);
 #endif
   if (blobcount > 1) {
-    bestpart = partition_line (blobcoords, blobcount,
-      &partcount, partids, partsizes,
-      &row->baseline, jumplimit, ydiffs);
-    pointcount = partition_coords (blobcoords, blobcount,
-      partids, bestpart, xcoords, ycoords);
-    segments = segment_spline (blobcoords, blobcount,
-      xcoords, ycoords,
-      degree, pointcount, xstarts);
+    bestpart = partition_line(&blobcoords[0], blobcount,
+      &partcount, &partids[0], partsizes,
+      &row->baseline, jumplimit, &ydiffs[0]);
+    pointcount = partition_coords(&blobcoords[0], blobcount,
+      &partids[0], bestpart, &xcoords[0], &ycoords[0]);
+    segments = segment_spline(&blobcoords[0], blobcount,
+      &xcoords[0], &ycoords[0], degree, pointcount, xstarts);
     if (!holed_line) {
       do {
-        row->baseline = QSPLINE (xstarts, segments,
-          xcoords, ycoords, pointcount, degree);
+        row->baseline = QSPLINE(xstarts, segments,
+          &xcoords[0], &ycoords[0], pointcount, degree);
       }
       while (textord_oldbl_split_splines
         && split_stepped_spline (&row->baseline, jumplimit / 2,
-        xcoords, xstarts, segments));
+        &xcoords[0], xstarts, segments));
     }
-    find_lesser_parts(row,
-                      blobcoords,
-                      blobcount,
-                      partids,
-                      partsizes,
-                      partcount,
-                      bestpart);
+    find_lesser_parts(row, &blobcoords[0], blobcount,
+                      &partids[0], partsizes, partcount, bestpart);
 
   }
   else {
@@ -414,20 +407,15 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
     block->block->pdblk.bounding_box ().right ());
 
   if (textord_really_old_xheight) {
-    old_first_xheight (row, blobcoords, lineheight,
+    old_first_xheight (row, &blobcoords[0], lineheight,
       blobcount, &row->baseline, jumplimit);
   } else if (textord_old_xheight) {
-    make_first_xheight (row, blobcoords, lineheight, (int) block->line_size,
+    make_first_xheight (row, &blobcoords[0], lineheight, (int)block->line_size,
                         blobcount, &row->baseline, jumplimit);
   } else {
     compute_row_xheight(row, block->block->classify_rotation(),
                         row->line_m(), block->line_size);
   }
-  free_mem(partids);
-  free_mem(xcoords);
-  free_mem(ycoords);
-  free_mem(blobcoords);
-  free_mem(ydiffs);
 }
 
 }  // namespace tesseract.

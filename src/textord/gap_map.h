@@ -7,10 +7,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef           GAP_MAP_H
-#define           GAP_MAP_H
 
-#include          "blobbox.h"
+#ifndef GAP_MAP_H
+#define GAP_MAP_H
+
+#include "blobbox.h"
 
 class GAPMAP
 {
@@ -19,8 +20,7 @@ class GAPMAP
            TO_BLOCK *block);
 
     ~GAPMAP () {                 //destructor
-      if (map != nullptr)
-        free_mem(map);
+      delete[] map;
     }
 
     bool table_gap(               //Is gap a table?
@@ -45,4 +45,5 @@ extern BOOL_VAR_H (gapmap_use_ends, FALSE,
 extern BOOL_VAR_H (gapmap_no_isolated_quanta, FALSE,
 "Ensure gaps not less than 2quanta wide");
 extern double_VAR_H (gapmap_big_gaps, 1.75, "xht multiplier");
+
 #endif

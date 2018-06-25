@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
- * Author:    Ray Smith
- * Created:   Mon Sep 21 14:34:48 BST 1992
+ * Author:      Ray Smith
+ * Created:     Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include "stderr.h"
+#include <vector>       // for std::vector
 #include "blobbox.h"
 #include "ccstruct.h"
 #include "detlinefit.h"
@@ -288,12 +288,10 @@ void compute_page_skew(                        //get average gradient
                        float &page_m,          //average gradient
                        float &page_err         //average error
                       ) {
-  int32_t row_count;               //total rows
-  int32_t blob_count;              //total_blobs
-  int32_t row_err;                 //integer error
-  float *gradients;              //of rows
-  float *errors;                 //of rows
-  int32_t row_index;               //of total
+  int32_t row_count;             //total rows
+  int32_t blob_count;            //total_blobs
+  int32_t row_err;               //integer error
+  int32_t row_index;             //of total
   TO_ROW *row;                   //current row
   TO_BLOCK_IT block_it = blocks; //iterator
 
@@ -315,11 +313,10 @@ void compute_page_skew(                        //get average gradient
     page_err = 0.0f;
     return;
   }
-  gradients = (float *) alloc_mem (blob_count * sizeof (float));
-  //get mem
-  errors = (float *) alloc_mem (blob_count * sizeof (float));
-  if (gradients == nullptr || errors == nullptr)
-    MEMORY_OUT.error ("compute_page_skew", ABORT, nullptr);
+  // of rows
+  std::vector<float> gradients(blob_count);
+  // of rows
+  std::vector<float> errors(blob_count);
 
   row_index = 0;
   for (block_it.mark_cycle_pt (); !block_it.cycled_list ();
@@ -369,13 +366,11 @@ void compute_page_skew(                        //get average gradient
   }
   row_count = row_index;
   row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
-    gradients, row_count);
+    &gradients[0], row_count);
   page_m = gradients[row_index];
   row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
-    errors, row_count);
+    &errors[0], row_count);
   page_err = errors[row_index];
-  free_mem(gradients);
-  free_mem(errors);
 }
 
 const double kNoiseSize = 0.5;  // Fraction of xheight.
@@ -580,8 +575,6 @@ void delete_non_dropout_rows(                   //find lines
         bool testing_on   //correct orientation
 ) {
   TBOX block_box;                 //deskewed block
-  int32_t *deltas;                 //change in occupation
-  int32_t *occupation;             //of pixel coords
   int32_t max_y;                   //in block
   int32_t min_y;
   int32_t line_index;              //of scan line
@@ -610,12 +603,12 @@ void delete_non_dropout_rows(                   //find lines
   line_count = max_y - min_y + 1;
   if (line_count <= 0)
     return;                      //empty block
-  deltas = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
-  occupation = (int32_t *) alloc_mem (line_count * sizeof (int32_t));
-  if (deltas == nullptr || occupation == nullptr)
-    MEMORY_OUT.error ("compute_line_spacing", ABORT, nullptr);
+  // change in occupation
+  std::vector<int32_t> deltas(line_count);
+  // of pixel coords
+  std::vector<int32_t> occupation(line_count);
 
-  compute_line_occupation(block, gradient, min_y, max_y, occupation, deltas);
+  compute_line_occupation(block, gradient, min_y, max_y, &occupation[0], &deltas[0]);
   compute_occupation_threshold ((int32_t)
     ceil (block->line_spacing *
     (tesseract::CCStruct::kDescenderFraction +
@@ -623,13 +616,13 @@ void delete_non_dropout_rows(                   //find lines
     (int32_t) ceil (block->line_spacing *
     (tesseract::CCStruct::kXHeightFraction +
     tesseract::CCStruct::kAscenderFraction)),
-    max_y - min_y + 1, occupation, deltas);
+    max_y - min_y + 1, &occupation[0], &deltas[0]);
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
-    draw_occupation(xleft, ybottom, min_y, max_y, occupation, deltas);
+    draw_occupation(xleft, ybottom, min_y, max_y, &occupation[0], &deltas[0]);
   }
 #endif
-  compute_dropout_distances(occupation, deltas, line_count);
+  compute_dropout_distances(&occupation[0], &deltas[0], line_count);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
     line_index = (int32_t) floor (row->intercept ());
@@ -648,9 +641,6 @@ void delete_non_dropout_rows(                   //find lines
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     blob_it.add_list_after (row_it.data ()->blob_list ());
   }
-
-  free_mem(deltas);
-  free_mem(occupation);
 }
 
 
@@ -779,10 +769,10 @@ TBOX deskew_block_coords(                  //block box
 void compute_line_occupation(                    //project blobs
                              TO_BLOCK *block,    //block to do
                              float gradient,     //global skew
-                             int32_t min_y,        //min coord in block
-                             int32_t max_y,        //in block
+                             int32_t min_y,      //min coord in block
+                             int32_t max_y,      //in block
                              int32_t *occupation,  //output projection
-                             int32_t *deltas       //derivative
+                             int32_t *deltas     //derivative
                             ) {
   int32_t line_count;              //maxy-miny+1
   int32_t line_index;              //of scan line
@@ -1162,11 +1152,8 @@ void compute_row_stats(                  //find lines
   TO_ROW_IT row_it = block->get_rows ();
                                  //number of rows
   int16_t rowcount = row_it.length ();
-  TO_ROW **rows;                 //for choose nth
-
-  rows = (TO_ROW **) alloc_mem (rowcount * sizeof (TO_ROW *));
-  if (rows == nullptr)
-    MEMORY_OUT.error ("compute_row_stats", ABORT, nullptr);
+  // for choose nth
+  std::vector<TO_ROW*> rows(rowcount);
   rowcount = 0;
   prev_row = nullptr;
   row_it.move_to_last ();        //start at bottom
@@ -1190,13 +1177,13 @@ void compute_row_stats(                  //find lines
     tprintf ("Blob based spacing=(%g,%g), offset=%g",
       block->line_size, block->line_spacing, block->baseline_offset);
   if (rowcount > 0) {
-    row_index = choose_nth_item (rowcount * 3 / 4, rows, rowcount,
+    row_index = choose_nth_item(rowcount * 3 / 4, &rows[0], rowcount,
       sizeof (TO_ROW *), row_spacing_order);
     iqr = rows[row_index]->spacing;
-    row_index = choose_nth_item (rowcount / 4, rows, rowcount,
+    row_index = choose_nth_item(rowcount / 4, &rows[0], rowcount,
       sizeof (TO_ROW *), row_spacing_order);
     iqr -= rows[row_index]->spacing;
-    row_index = choose_nth_item (rowcount / 2, rows, rowcount,
+    row_index = choose_nth_item(rowcount / 2, &rows[0], rowcount,
       sizeof (TO_ROW *), row_spacing_order);
     block->key_row = rows[row_index];
     if (testing_on)
@@ -1232,7 +1219,6 @@ void compute_row_stats(                  //find lines
   if (testing_on)
     tprintf ("\nEstimate line size=%g, spacing=%g, offset=%g\n",
       block->line_size, block->line_spacing, block->baseline_offset);
-  free_mem(rows);
 }
 
 
@@ -2070,26 +2056,25 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
  */
 void make_baseline_spline(TO_ROW *row,     //row to fit
                           TO_BLOCK *block) {
-  int32_t *xstarts;                // spline boundaries
   double *coeffs;                // quadratic coeffs
-  int32_t segments;                // no of segments
+  int32_t segments;              // no of segments
 
-  xstarts =
-    (int32_t *) alloc_mem((row->blob_list()->length() + 1) * sizeof(int32_t));
+  // spline boundaries
+  int32_t *xstarts = new int32_t[row->blob_list()->length() + 1];
   if (segment_baseline(row, block, segments, xstarts)
   && !textord_straight_baselines && !textord_parallel_baselines) {
     coeffs = linear_spline_baseline(row, block, segments, xstarts);
   } else {
     xstarts[1] = xstarts[segments];
     segments = 1;
-    coeffs = (double *) alloc_mem (3 * sizeof (double));
+    coeffs = new double[3];
     coeffs[0] = 0;
     coeffs[1] = row->line_m ();
     coeffs[2] = row->line_c ();
   }
   row->baseline = QSPLINE (segments, xstarts, coeffs);
-  free_mem(coeffs);
-  free_mem(xstarts);
+  delete[] coeffs;
+  delete[] xstarts;
 }
 
 
@@ -2203,22 +2188,21 @@ double *
 linear_spline_baseline (         //split baseline
 TO_ROW * row,                    //row to fit
 TO_BLOCK * block,                //block it came from
-int32_t & segments,                //no fo segments
-int32_t xstarts[]                  //coords of segments
+int32_t & segments,              //no fo segments
+int32_t xstarts[]                //coords of segments
 ) {
   int blobcount;                 //no of blobs
   int blobindex;                 //current blob
   int index1, index2;            //blob numbers
   int blobs_per_segment;         //blobs in each
-  TBOX box;                       //blob box
-  TBOX new_box;                   //new_it box
+  TBOX box;                      //blob box
+  TBOX new_box;                  //new_it box
                                  //blobs
   BLOBNBOX_IT blob_it = row->blob_list ();
   BLOBNBOX_IT new_it = blob_it;  //front end
   float b, c;                    //fitted curve
   tesseract::DetLineFit lms;
-  double *coeffs;                //quadratic coeffs
-  int32_t segment;                 //current segment
+  int32_t segment;               //current segment
 
   box = box_next_pre_chopped (&blob_it);
   xstarts[0] = box.left ();
@@ -2231,7 +2215,8 @@ int32_t xstarts[]                  //coords of segments
   if (segments < 1)
     segments = 1;
   blobs_per_segment = blobcount / segments;
-  coeffs = (double *) alloc_mem (segments * 3 * sizeof (double));
+  // quadratic coeffs
+  double *coeffs = new double[segments * 3];
   if (textord_oldbl_debug)
     tprintf
       ("Linear splining baseline of %d blobs at (%d,%d), into %d segments of %d blobs\n",

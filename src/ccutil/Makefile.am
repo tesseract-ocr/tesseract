@@ -19,8 +19,8 @@ pkginclude_HEADERS = \
 noinst_HEADERS = \
     ambigs.h basedir.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
     elst.h errcode.h fileerr.h genericheap.h globaloc.h \
-    indexmapbidi.h kdpair.h lsterr.h memry.h \
-    nwmain.h object_cache.h params.h qrsequence.h sorthelper.h stderr.h \
+    indexmapbidi.h kdpair.h lsterr.h \
+    nwmain.h object_cache.h params.h qrsequence.h sorthelper.h \
     scanutils.h tessdatamanager.h tprintf.h \
     unicharcompress.h unicharmap.h unicharset.h unicity_table.h unicodes.h \
     universalambigs.h
@@ -32,7 +32,7 @@ libtesseract_ccutil_la_SOURCES = \
     ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
     globaloc.cpp indexmapbidi.cpp \
-    mainblk.cpp memry.cpp \
+    mainblk.cpp \
     serialis.cpp strngs.cpp scanutils.cpp \
     tessdatamanager.cpp tprintf.cpp \
     unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \

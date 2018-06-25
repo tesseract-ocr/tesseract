@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tordmain.cpp  (Formerly textordp.c)
  * Description: C++ top level textord code.
- * Author:                  Ray Smith
- * Created:                 Tue Jul 28 17:12:33 BST 1992
+ * Author:      Ray Smith
+ * Created:     Tue Jul 28 17:12:33 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@
 #include "config_auto.h"
 #endif
 
-#include "stderr.h"
 #include "globaloc.h"
 #include "blread.h"
 #include "blobbox.h"
@@ -459,16 +458,16 @@ bool Textord::clean_noise_from_row(          //remove empties
         ROW* row  //row to clean
 ) {
   bool testing_on;
-  TBOX blob_box;                  //bounding box
+  TBOX blob_box;                 //bounding box
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  int32_t blob_size;               //biggest size
-  int32_t trans_count = 0;         //no of transitions
-  int32_t trans_threshold;         //noise tolerance
-  int32_t dot_count;               //small objects
-  int32_t norm_count;              //normal objects
-  int32_t super_norm_count;        //real char-like
+  int32_t blob_size;             //biggest size
+  int32_t trans_count = 0;       //no of transitions
+  int32_t trans_threshold;       //noise tolerance
+  int32_t dot_count;             //small objects
+  int32_t norm_count;            //normal objects
+  int32_t super_norm_count;      //real char-like
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -559,19 +558,18 @@ bool Textord::clean_noise_from_row(          //remove empties
 void Textord::clean_noise_from_words(          //remove empties
                                      ROW *row  //row to clean
                                     ) {
-  TBOX blob_box;                  //bounding box
-  int8_t *word_dud;                //was it chucked
+  TBOX blob_box;                 //bounding box
   C_BLOB *blob;                  //current blob
   C_OUTLINE *outline;            //current outline
   WERD *word;                    //current word
-  int32_t blob_size;               //biggest size
-  int32_t trans_count;             //no of transitions
-  int32_t trans_threshold;         //noise tolerance
-  int32_t dot_count;               //small objects
-  int32_t norm_count;              //normal objects
-  int32_t dud_words;               //number discarded
-  int32_t ok_words;                //number remaining
-  int32_t word_index;              //current word
+  int32_t blob_size;             //biggest size
+  int32_t trans_count;           //no of transitions
+  int32_t trans_threshold;       //noise tolerance
+  int32_t dot_count;             //small objects
+  int32_t norm_count;            //normal objects
+  int32_t dud_words;             //number discarded
+  int32_t ok_words;              //number remaining
+  int32_t word_index;            //current word
                                  //words of row
   WERD_IT word_it = row->word_list ();
   C_BLOB_IT blob_it;             //blob iterator
@@ -580,7 +578,8 @@ void Textord::clean_noise_from_words(          //remove empties
   ok_words = word_it.length ();
   if (ok_words == 0 || textord_no_rejects)
     return;
-  word_dud = (int8_t *) alloc_mem (ok_words * sizeof (int8_t));
+  // was it chucked
+  std::vector<int8_t> word_dud(ok_words);
   dud_words = 0;
   ok_words = 0;
   word_index = 0;
@@ -664,7 +663,6 @@ void Textord::clean_noise_from_words(          //remove empties
     }
     word_index++;
   }
-  free_mem(word_dud);
 }
 
 // Remove outlines that are a tiny fraction in either width or height
@@ -885,8 +883,6 @@ void tweak_row_baseline(ROW *row,
   int32_t blob_count;              //no of blobs
   int32_t src_index;               //source segment
   int32_t dest_index;              //destination segment
-  int32_t *xstarts;                //spline segments
-  double *coeffs;                //spline coeffs
   float ydiff;                   //baseline error
   float x_centre;                //centre of blob
                                  //words of row
@@ -901,12 +897,10 @@ void tweak_row_baseline(ROW *row,
   }
   if (blob_count == 0)
     return;
-  xstarts =
-    (int32_t *) alloc_mem ((blob_count + row->baseline.segments + 1) *
-    sizeof (int32_t));
-  coeffs =
-    (double *) alloc_mem ((blob_count + row->baseline.segments) * 3 *
-    sizeof (double));
+  // spline segments
+  std::vector<int32_t> xstarts(blob_count + row->baseline.segments + 1);
+  // spline coeffs
+  std::vector<double> coeffs((blob_count + row->baseline.segments) * 3);
 
   src_index = 0;
   dest_index = 0;
@@ -978,7 +972,5 @@ void tweak_row_baseline(ROW *row,
     xstarts[dest_index] = row->baseline.xcoords[src_index];
   }
                                  //turn to spline
-  row->baseline = QSPLINE (dest_index, xstarts, coeffs);
-  free_mem(xstarts);
-  free_mem(coeffs);
+  row->baseline = QSPLINE(dest_index, &xstarts[0], &coeffs[0]);
 }
