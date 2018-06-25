@@ -7,8 +7,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include          "statistc.h"
-#include          "gap_map.h"
+
+#include "statistc.h"
+#include "gap_map.h"
 
 #define EXTERN
 EXTERN BOOL_VAR (gapmap_debug, FALSE, "Say which blocks have tables");
@@ -79,7 +80,7 @@ GAPMAP::GAPMAP(                 //Constructor
   }
   bucket_size = (int16_t) floor (xht_stats.median () + 0.5) / 2;
   map_max = (max_right - min_left) / bucket_size;
-  map = (int16_t *) alloc_mem ((map_max + 1) * sizeof (int16_t));
+  map = new int16_t[map_max + 1];
   for (i = 0; i <= map_max; i++)
     map[i] = 0;
 
