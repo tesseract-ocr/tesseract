@@ -21,7 +21,6 @@
 #include <ctype.h>
 #include <cstring>
 #include "tessvars.h"
-#include "memry.h"
 #include "reject.h"
 #include "control.h"
 #include "stopper.h"
