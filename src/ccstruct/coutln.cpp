@@ -64,8 +64,7 @@ C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
     return;
   }
                                  //get memory
-  steps = (uint8_t *) alloc_mem (step_mem());
-  memset(steps, 0, step_mem());
+  steps = (uint8_t *)calloc(step_mem(), 1);
   edgept = startpt;
 
   for (stepindex = 0; stepindex < length; stepindex++) {
@@ -98,8 +97,7 @@ int16_t length                     //length of loop
   pos = startpt;
   stepcount = length;            // No. of steps.
   ASSERT_HOST(length >= 0);
-  steps = static_cast<uint8_t*>(alloc_mem(step_mem()));  // Get memory.
-  memset(steps, 0, step_mem());
+  steps = static_cast<uint8_t*>(calloc(step_mem(), 1));  // Get memory.
 
   lastdir = new_steps[length - 1];
   prevdir = lastdir;
@@ -162,8 +160,7 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(nullptr) {
     return;
   }
                                  //get memory
-  steps = (uint8_t *) alloc_mem (step_mem());
-  memset(steps, 0, step_mem());
+  steps = (uint8_t *)calloc(step_mem(), 1);
 
   for (int iteration = 0; iteration < 2; ++iteration) {
     DIR128 round1 = iteration == 0 ? 32 : 0;
@@ -1014,10 +1011,9 @@ void C_OUTLINE::plot_normed(const DENORM& denorm, ScrollView::Color colour,
 C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   box = source.box;
   start = source.start;
-  if (steps != nullptr)
-    free_mem(steps);
+  free(steps);
   stepcount = source.stepcount;
-  steps = (uint8_t *) alloc_mem (step_mem());
+  steps = (uint8_t *)malloc(step_mem());
   memmove (steps, source.steps, step_mem());
   if (!children.empty ())
     children.clear ();

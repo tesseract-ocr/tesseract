@@ -24,7 +24,6 @@
 #include "bits16.h"     // for BITS16
 #include "elst.h"       // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "ipoints.h"    // for operator+=
-#include "memry.h"      // for free_mem
 #include "mod128.h"     // for DIR128, DIRBITS
 #include "platform.h"   // for DLLSYM
 #include "points.h"     // for ICOORD, FCOORD
@@ -92,9 +91,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     static void FakeOutline(const TBOX& box, C_OUTLINE_LIST* outlines);
 
     ~C_OUTLINE () {              //destructor
-      if (steps != nullptr)
-        free_mem(steps);
-      steps = nullptr;
+      free(steps);
       delete [] offsets;
     }
 
@@ -286,9 +283,9 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
 
     TBOX box;                    // bounding box
     ICOORD start;                // start coord
-    int16_t stepcount;             // no of steps
+    int16_t stepcount;           // no of steps
     BITS16 flags;                // flags about outline
-    uint8_t *steps;                // step array
+    uint8_t *steps;              // step array
     EdgeOffset* offsets;         // Higher precision edge.
     C_OUTLINE_LIST children;     // child elements
     static ICOORD step_coords[4];
