@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
- * Author:    Ray Smith
- * Created:   Mon Sep 21 14:34:48 BST 1992
+ * Author:      Ray Smith
+ * Created:     Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
  **********************************************************************/
 
 #include <vector>       // for std::vector
-#include "stderr.h"
 #include "blobbox.h"
 #include "ccstruct.h"
 #include "detlinefit.h"
