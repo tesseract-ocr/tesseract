@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        pithsync.cpp  (Formerly pitsync2.c)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
- * Author:		Ray Smith
- * Created:		Thu Nov 19 11:48:05 GMT 1992
+ * Author:      Ray Smith
+ * Created:     Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include <math.h>
-#include "memry.h"
+#include <vector>       // for std::vector
 #include "makerow.h"
 #include "pitsync1.h"
 #include "topitch.h"
@@ -320,7 +320,6 @@ double check_pitch_sync2(                          //find segmentation
   TBOX this_box;                  //bounding box
   TBOX next_box;                  //box of next blob
   FPSEGPT *segpt;                //segment point
-  FPCUTPT *cutpts;               //array of points
   double best_cost;              //best path
   double mean_sum;               //computes result
   FPCUTPT *best_end;             //end of best path
@@ -359,14 +358,16 @@ double check_pitch_sync2(                          //find segmentation
       projection_scale, occupation_count, seg_list,
       start, end);
   array_origin = left_edge - pitch;
-  cutpts = (FPCUTPT *) alloc_mem ((right_edge - left_edge + pitch * 2 + 1)
-    * sizeof (FPCUTPT));
+  // array of points
+  std::vector<FPCUTPT> cutpts(right_edge - left_edge + pitch * 2 + 1);
   for (x = array_origin; x < left_edge; x++)
                                  //free cuts
-    cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, 0);
+    cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,
+      zero_count, pitch, x, 0);
   for (offset = 0; offset <= pitch_error; offset++, x++)
                                  //not quite free
-    cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, offset);
+    cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,
+      zero_count, pitch, x, offset);
 
   this_it = *blob_it;
   best_cost = MAX_FLOAT32;
@@ -404,7 +405,7 @@ double check_pitch_sync2(                          //find segmentation
       faking = true;
       offset = projection->pile_count (x);
     }
-    cutpts[x - array_origin].assign (cutpts, array_origin, x,
+    cutpts[x - array_origin].assign (&cutpts[0], array_origin, x,
       faking, mid_cut, offset, projection,
       projection_scale, zero_count, pitch,
       pitch_error);
@@ -416,7 +417,7 @@ double check_pitch_sync2(                          //find segmentation
   best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
-    cutpts[x - array_origin].assign (cutpts, array_origin, x,
+    cutpts[x - array_origin].assign (&cutpts[0], array_origin, x,
       false, false, offset, projection,
       projection_scale, zero_count, pitch,
       pitch_error);
@@ -473,7 +474,6 @@ double check_pitch_sync2(                          //find segmentation
   if (seg_it.data ()->squares () - mean_sum < 0)
     tprintf ("Impossible sqsum=%g, mean=%g, total=%d\n",
       seg_it.data ()->squares (), seg_it.data ()->sum (), best_count);
-  free_mem(cutpts);
   //      tprintf("blob_count=%d, pitch=%d, sync=%g, occ=%d\n",
   //              blob_count,pitch,seg_it.data()->squares()-mean_sum,
   //              occupation_count);
@@ -502,29 +502,27 @@ double check_pitch_sync3(                          //find segmentation
                          int16_t start,              //start of good range
                          int16_t end                 //end of good range
                         ) {
-  bool faking;                  //illegal cut pt
-  bool mid_cut;                 //cheap cut pt.
-  int16_t left_edge;               //of word
-  int16_t right_edge;              //of word
-  int16_t x;                       //current coord
-  int16_t array_origin;            //x coord of array
-  int16_t offset;                  //dist to legal area
-  int16_t projection_offset;       //from scaled projection
-  int16_t prev_zero;               //previous zero dist
-  int16_t next_zero;               //next zero dist
-  int16_t zero_offset;             //scan window
-  int16_t best_left_x = 0;         //for equals
-  int16_t best_right_x = 0;        //right edge
+  bool faking;                   //illegal cut pt
+  bool mid_cut;                  //cheap cut pt.
+  int16_t left_edge;             //of word
+  int16_t right_edge;            //of word
+  int16_t x;                     //current coord
+  int16_t array_origin;          //x coord of array
+  int16_t offset;                //dist to legal area
+  int16_t projection_offset;     //from scaled projection
+  int16_t prev_zero;             //previous zero dist
+  int16_t next_zero;             //next zero dist
+  int16_t zero_offset;           //scan window
+  int16_t best_left_x = 0;       //for equals
+  int16_t best_right_x = 0;      //right edge
   FPSEGPT *segpt;                //segment point
-  FPCUTPT *cutpts;               //array of points
-  BOOL8 *mins;                   //local min results
   int minindex;                  //next input position
   int test_index;                //index to mins
   double best_cost;              //best path
   double mean_sum;               //computes result
   FPCUTPT *best_end;             //end of best path
-  int16_t best_fake;               //best fake level
-  int16_t best_count;              //no of cuts
+  int16_t best_fake;             //best fake level
+  int16_t best_count;            //no of cuts
   FPSEGPT_IT seg_it = seg_list;  //output iterator
 
   end = (end - start) % pitch;
@@ -539,16 +537,19 @@ double check_pitch_sync3(                          //find segmentation
   for (right_edge = projection_right; projection->pile_count (right_edge) == 0
     && right_edge > left_edge; right_edge--);
   array_origin = left_edge - pitch;
-  cutpts = (FPCUTPT *) alloc_mem ((right_edge - left_edge + pitch * 2 + 1)
-    * sizeof (FPCUTPT));
-  mins = (BOOL8 *) alloc_mem ((pitch_error * 2 + 1) * sizeof (BOOL8));
+  // array of points
+  std::vector<FPCUTPT> cutpts(right_edge - left_edge + pitch * 2 + 1);
+  // local min results
+  std::vector<BOOL8> mins(pitch_error * 2 + 1);
   for (x = array_origin; x < left_edge; x++)
                                  //free cuts
-    cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, 0);
+    cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,
+      zero_count, pitch, x, 0);
   prev_zero = left_edge - 1;
   for (offset = 0; offset <= pitch_error; offset++, x++)
                                  //not quite free
-    cutpts[x - array_origin].setup (cutpts, array_origin, projection, zero_count, pitch, x, offset);
+    cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,
+      zero_count, pitch, x, offset);
 
   best_cost = MAX_FLOAT32;
   best_end = nullptr;
@@ -609,12 +610,12 @@ double check_pitch_sync3(                          //find segmentation
     if ((start == 0 && end == 0)
       || !textord_fast_pitch_test
       || (x - projection_left - start) % pitch <= end)
-      cutpts[x - array_origin].assign (cutpts, array_origin, x,
+      cutpts[x - array_origin].assign(&cutpts[0], array_origin, x,
         faking, mid_cut, offset, projection,
         projection_scale, zero_count, pitch,
         pitch_error);
     else
-      cutpts[x - array_origin].assign_cheap (cutpts, array_origin, x,
+      cutpts[x - array_origin].assign_cheap(&cutpts[0], array_origin, x,
         faking, mid_cut, offset,
         projection, projection_scale,
         zero_count, pitch,
@@ -631,7 +632,7 @@ double check_pitch_sync3(                          //find segmentation
   best_count = INT16_MAX;
   while (x < right_edge + pitch) {
     offset = x < right_edge ? right_edge - x : 0;
-    cutpts[x - array_origin].assign (cutpts, array_origin, x,
+    cutpts[x - array_origin].assign(&cutpts[0], array_origin, x,
       false, false, offset, projection,
       projection_scale, zero_count, pitch,
       pitch_error);
@@ -686,7 +687,5 @@ double check_pitch_sync3(                          //find segmentation
   if (seg_it.data ()->squares () - mean_sum < 0)
     tprintf ("Impossible sqsum=%g, mean=%g, total=%d\n",
       seg_it.data ()->squares (), seg_it.data ()->sum (), best_count);
-  free_mem(mins);
-  free_mem(cutpts);
   return seg_it.data ()->squares () - mean_sum;
 }
