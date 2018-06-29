@@ -96,6 +96,10 @@ public class ScrollView {
              !socket.isOutputShutdown() &&
              socket.isConnected() && socket.isBound()) {
         inputLine = receiveMessage();
+        if (inputLine == null) {
+          // End of stream reached.
+          break;
+        }
         nrInputLines++;
         if (debugViewNetworkTraffic) {
           System.out.println("(c->S," + nrInputLines + ")" + inputLine);
