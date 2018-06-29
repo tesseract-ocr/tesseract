@@ -380,7 +380,7 @@ public class ScrollView {
       System.out.println("Client connected");
 
       // Setup the streams
-      out = new PrintStream(socket.getOutputStream(), true);
+      out = new PrintStream(socket.getOutputStream(), true, "UTF-8");
       in =
           new BufferedReader(new InputStreamReader(socket.getInputStream(),
               "UTF8"));
