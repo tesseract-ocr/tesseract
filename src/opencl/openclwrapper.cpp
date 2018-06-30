@@ -544,7 +544,7 @@ static ds_status writeProfileToFile(ds_profile *profile,
         } break;
         default:
           status = DS_UNKNOWN_DEVICE_TYPE;
-          break;
+          continue;
       };
 
       fwrite(DS_TAG_SCORE, sizeof(char), strlen(DS_TAG_SCORE), profileFile);
