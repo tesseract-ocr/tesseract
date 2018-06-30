@@ -1365,7 +1365,7 @@ static cl_int pixDilateCL(l_int32 hsize, l_int32 vsize, l_int32 wpl,
   SEL *sel;
   size_t globalThreads[2];
   cl_mem pixtemp;
-  cl_int status;
+  cl_int status = 0;
   int gsize;
   size_t localThreads[2];
   char isEven;
