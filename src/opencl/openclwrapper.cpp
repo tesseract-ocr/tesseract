@@ -24,7 +24,6 @@
 
 #if ON_APPLE
 #include <mach/mach_time.h>
-#include <cstdio>
 #endif
 
 #ifdef USE_OPENCL
@@ -34,6 +33,7 @@
 
 #include "errcode.h"                    // for ASSERT_HOST
 #include "opencl_device_selection.h"
+
 GPUEnv OpenclDevice::gpuEnv;
 
 bool OpenclDevice::deviceIsSelected = false;
@@ -915,7 +915,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     size_t *binarySizes;
     cl_uint numDevices;
     cl_device_id *mpArryDevsID;
-    char **binaries, *str = nullptr;
+    char *str = nullptr;
 
     clStatus = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES,
                                 sizeof(numDevices), &numDevices, nullptr);
@@ -940,10 +940,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     CHECK_OPENCL( clStatus, "clGetProgramInfo" );
 
     /* copy over all of the generated binaries. */
-    binaries = (char**) malloc( sizeof(char *) * numDevices );
-    if (binaries == nullptr) {
-      return 0;
-    }
+    std::vector<char*> binaries(numDevices);
 
     for ( i = 0; i < numDevices; i++ )
     {
@@ -961,7 +958,8 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     }
 
     clStatus = clGetProgramInfo(program, CL_PROGRAM_BINARIES,
-                                sizeof(char *) * numDevices, binaries, nullptr);
+                                sizeof(char *) * numDevices,
+                                &binaries[0], nullptr);
     CHECK_OPENCL(clStatus,"clGetProgramInfo");
 
     /* dump out each binary into its own separate file. */
@@ -994,11 +992,7 @@ int OpenclDevice::GeneratBinFromKernelSource( cl_program program, const char * c
     for ( i = 0; i < numDevices; i++ )
     {
       free(binaries[i]);
-      binaries[i] = nullptr;
     }
-
-    free(binaries);
-    binaries = nullptr;
 
     free(binarySizes);
     binarySizes = nullptr;
