@@ -657,7 +657,7 @@ static cl_mem allocateZeroCopyBuffer(const KernelEnv &rEnv, l_uint32 *hostbuffer
   return membuffer;
 }
 
-static Pix *mapOutputCLBuffer(KernelEnv rEnv, cl_mem clbuffer, Pix *pixd,
+static Pix *mapOutputCLBuffer(const KernelEnv &rEnv, cl_mem clbuffer, Pix *pixd,
                               Pix *pixs, int elements, cl_mem_flags flags,
                               bool memcopy = false, bool sync = true) {
   PROCNAME("mapOutputCLBuffer");
