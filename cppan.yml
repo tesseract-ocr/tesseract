@@ -1,5 +1,7 @@
 local_settings:
     #use_shared_libs: true
+    #short_local_names: true
+    #use_cache: false
     #generator: Visual Studio 14 2015 Win64
     silent: false
     #copy_import_libs: true
@@ -21,64 +23,72 @@ root_project: pvt.cppan.demo.google.tesseract
 common_settings:
     c++: 11
 
+    options:
+        any:
+            compiler_options:
+                msvc:
+                    private:
+                        - /openmp
+
 projects:
     libtesseract:
         type: lib
         export_all_symbols: true
         files:
-          - api/.*\.cpp
-          - arch/.*\.cpp
-          - ccmain/.*\.cpp
-          - ccstruct/.*\.cpp
-          - ccutil/.*\.cpp
-          - classify/.*\.cpp
-          - cutil/.*\.cpp
-          - dict/.*\.cpp
-          - lstm/.*\.cpp
-          - opencl/.*\.cpp
-          - textord/.*\.cpp
-          - viewer/.*\.cpp
-          - wordrec/.*\.cpp
+          - src/api/tess_version.h.in
+          - src/api/.*\.cpp
+          - src/arch/.*\.cpp
+          - src/ccmain/.*\.cpp
+          - src/ccstruct/.*\.cpp
+          - src/ccutil/.*\.cpp
+          - src/classify/.*\.cpp
+          - src/cutil/.*\.cpp
+          - src/dict/.*\.cpp
+          - src/lstm/.*\.cpp
+          - src/opencl/.*\.cpp
+          - src/textord/.*\.cpp
+          - src/viewer/.*\.cpp
+          - src/wordrec/.*\.cpp
 
-          - api/.*\.h
-          - arch/.*\.h
-          - ccmain/.*\.h
-          - ccstruct/.*\.h
-          - ccutil/.*\.h
-          - classify/.*\.h
-          - cutil/.*\.h
-          - dict/.*\.h
-          - lstm/.*\.h
-          - opencl/.*\.h
-          - textord/.*\.h
-          - viewer/.*\.h
-          - wordrec/.*\.h
+          - src/api/.*\.h
+          - src/arch/.*\.h
+          - src/ccmain/.*\.h
+          - src/ccstruct/.*\.h
+          - src/ccutil/.*\.h
+          - src/classify/.*\.h
+          - src/cutil/.*\.h
+          - src/dict/.*\.h
+          - src/lstm/.*\.h
+          - src/opencl/.*\.h
+          - src/textord/.*\.h
+          - src/viewer/.*\.h
+          - src/wordrec/.*\.h
 
-          - vs2010/port/.*
+          - src/vs2010/port/.*
 
         exclude_from_build:
-          - api/tesseractmain.cpp
-          - viewer/svpaint.cpp
+          - src/api/tesseractmain.cpp
+          - src/viewer/svpaint.cpp
 
         include_directories:
           public:
           #private:
-            - arch
-            - classify
-            - cutil
-            - ccutil
-            - dict
-            - lstm
-            - opencl
-            - textord
-            - vs2010/port
-            - viewer
-            - wordrec
+            - src/arch
+            - src/classify
+            - src/cutil
+            - src/ccutil
+            - src/dict
+            - src/lstm
+            - src/opencl
+            - src/textord
+            - src/vs2010/port
+            - src/viewer
+            - src/wordrec
           #public:
-            - api
-            - ccmain
-            - ccstruct
-            - ccutil
+            - src/api
+            - src/ccmain
+            - src/ccstruct
+            - src/ccutil
 
         check_function_exists:
           - getline
@@ -95,7 +105,6 @@ projects:
           - stdbool.h
           - stdint.h
           - stdlib.h
-          - strings.h
           - string.h
           - sys/ipc.h
           - sys/shm.h
@@ -116,17 +125,26 @@ projects:
             file_write_once(${BDIR}/config_auto.h "")
 
         post_sources: |
+            configure_file(
+                ${SDIR}/src/api/tess_version.h.in
+                ${BDIR}/tess_version.h @ONLY)
             if (WIN32)
-                set_source_files_properties(
-                    ${SDIR}/arch/dotproductsse.cpp
-                    PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
                 if (MSVC)
                     set_source_files_properties(
-                        ${SDIR}/arch/dotproductavx.cpp
+                        ${SDIR}/src/arch/dotproductsse.cpp
+                        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                    set_source_files_properties(
+                        ${SDIR}/src/arch/intsimdmatrixsse.cpp
+                        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+                    set_source_files_properties(
+                        ${SDIR}/src/arch/dotproductavx.cpp
                         PROPERTIES COMPILE_FLAGS "/arch:AVX")
+                    set_source_files_properties(
+                        ${SDIR}/src/arch/intsimdmatrixavx2.cpp
+                        PROPERTIES COMPILE_FLAGS "/arch:AVX2")
                 endif()
             else()
-                remove_src_dir(vs2010/port/*)
+                remove_src_dir(src/vs2010/port/*)
             endif()
 
         options:
@@ -135,7 +153,6 @@ projects:
                     public:
                       - HAVE_CONFIG_H
                       - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
-                      - USE_STD_NAMESPACE=1
                       - WINDLLNAME="tesseract"
             shared:
                 definitions:
@@ -148,14 +165,14 @@ projects:
             pvt.cppan.demo.danbloomberg.leptonica: 1
 
     tesseract:
-        files: api/tesseractmain.cpp
+        files: src/api/tesseractmain.cpp
         dependencies:
             - libtesseract
 
     tessopt:
         type: lib
         static_only: true
-        files: training/tessopt.*
+        files: src/training/tessopt.*
         include_directories: training
         dependencies: libtesseract
 
@@ -163,119 +180,105 @@ projects:
         type: lib
         static_only: true
         files:
-            - training/commandlineflags.cpp
-            - training/commandlineflags.h
-            - training/commontraining.cpp
-            - training/commontraining.h
+            - src/training/commandlineflags.cpp
+            - src/training/commandlineflags.h
+            - src/training/commontraining.cpp
+            - src/training/commontraining.h
         include_directories: training
         dependencies:
             - tessopt
 
     ambiguous_words:
-        files: training/ambiguous_words.cpp
+        files: src/training/ambiguous_words.cpp
         dependencies:
             - libtesseract
 
     classifier_tester:
-        files: training/classifier_tester.cpp
+        files: src/training/classifier_tester.cpp
         dependencies: common_training
 
     combine_lang_model:
-        files: training/combine_lang_model.cpp
+        files: src/training/combine_lang_model.cpp
         dependencies: unicharset_training
 
     combine_tessdata:
-        files: training/combine_tessdata.cpp
+        files: src/training/combine_tessdata.cpp
         dependencies: libtesseract
 
     cntraining:
-        files: training/cntraining.cpp
+        files: src/training/cntraining.cpp
         dependencies: common_training
 
     dawg2wordlist:
-        files: training/dawg2wordlist.cpp
+        files: src/training/dawg2wordlist.cpp
         dependencies: libtesseract
 
     mftraining:
         files:
-            - training/mftraining.cpp
-            - training/mergenf.*
+            - src/training/mftraining.cpp
+            - src/training/mergenf.*
         dependencies: common_training
 
     shapeclustering:
-        files: training/shapeclustering.cpp
+        files: src/training/shapeclustering.cpp
         dependencies: common_training
 
     unicharset_extractor:
-        files: training/unicharset_extractor.cpp
+        files: src/training/unicharset_extractor.cpp
         dependencies: unicharset_training
 
     wordlist2dawg:
-        files: training/wordlist2dawg.cpp
+        files: src/training/wordlist2dawg.cpp
         dependencies: libtesseract
 
     unicharset_training:
         type: lib
         static_only: true
         files:
-            - training/fileio.*
-            - training/icuerrorcode.h
-            - training/lang_model_helpers.*
-            - training/lstmtester.*
-            - training/normstrngs.*
-            - training/unicharset_training_utils.*
-            - training/validat.*
+            - src/training/fileio.*
+            - src/training/icuerrorcode.h
+            - src/training/lang_model_helpers.*
+            - src/training/lstmtester.*
+            - src/training/normstrngs.*
+            - src/training/unicharset_training_utils.*
+            - src/training/validat.*
         include_directories: training
         dependencies:
             - common_training
             - pvt.cppan.demo.unicode.icu.i18n
 
     lstmeval:
-        files: training/lstmeval.cpp
+        files: src/training/lstmeval.cpp
         dependencies: unicharset_training
 
     lstmtraining:
-        files: training/lstmtraining.cpp
+        files: src/training/lstmtraining.cpp
         dependencies: unicharset_training
 
     set_unicharset_properties:
-        files: training/set_unicharset_properties.cpp
+        files: src/training/set_unicharset_properties.cpp
         dependencies: unicharset_training
 
     text2image:
         files:
-            - training/text2image.cpp
-            - training/boxchar.cpp
-            - training/boxchar.h
-            - training/degradeimage.cpp
-            - training/degradeimage.h
-            - training/ligature_table.cpp
-            - training/ligature_table.h
-            - training/normstrngs.cpp
-            - training/normstrngs.h
-            - training/pango_font_info.cpp
-            - training/pango_font_info.h
-            - training/stringrenderer.cpp
-            - training/stringrenderer.h
-            - training/tlog.cpp
-            - training/tlog.h
-            - training/util.h
-            - training/icuerrorcode.h
+            - src/training/text2image.cpp
+            - src/training/boxchar.cpp
+            - src/training/boxchar.h
+            - src/training/degradeimage.cpp
+            - src/training/degradeimage.h
+            - src/training/ligature_table.cpp
+            - src/training/ligature_table.h
+            - src/training/normstrngs.cpp
+            - src/training/normstrngs.h
+            - src/training/pango_font_info.cpp
+            - src/training/pango_font_info.h
+            - src/training/stringrenderer.cpp
+            - src/training/stringrenderer.h
+            - src/training/tlog.cpp
+            - src/training/tlog.h
+            - src/training/util.h
+            - src/training/icuerrorcode.h
 
         dependencies:
             - unicharset_training
             - pvt.cppan.demo.gnome.pango.pangocairo: 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-

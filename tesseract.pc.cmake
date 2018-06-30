@@ -9,4 +9,4 @@ URL: https://github.com/tesseract-ocr/tesseract
 Version: @tesseract_VERSION@
 Libs: -L${libdir} -l@tesseract_OUTPUT_NAME@
 Libs.private:
-Cflags: -I${includedir} -I${includedir}/tesseract
+Cflags: -I${includedir}

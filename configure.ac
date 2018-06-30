@@ -5,29 +5,29 @@
 # ----------------------------------------
 # Initialization
 # ----------------------------------------
-AC_PREREQ([2.59])
-AC_INIT([tesseract], [4.00.00dev], [https://github.com/tesseract-ocr/tesseract/issues])
+AC_PREREQ([2.63])
+AC_INIT([tesseract],
+        [m4_esyscmd_s([test -d .git && git describe --abbrev=4 || cat VERSION])],
+        [https://github.com/tesseract-ocr/tesseract/issues],,
+        [https://github.com/tesseract-ocr/tesseract/])
 AC_PROG_CXX([g++ clang++])
 AC_LANG([C++])
 AC_LANG_COMPILER_REQUIRE
 CXXFLAGS=${CXXFLAGS:-""}
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([config])
-AC_CONFIG_SRCDIR([api/tesseractmain.cpp])
+AC_CONFIG_SRCDIR([src/api/tesseractmain.cpp])
 AC_PREFIX_DEFAULT([/usr/local])
+
+# Automake configuration. Do not require README file (we use README.md).
+AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
-PACKAGE_YEAR=2016
-PACKAGE_DATE="11/11"
+PACKAGE_YEAR=2018
+PACKAGE_DATE="03/12"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
-gitrev="`git --git-dir=${abs_top_srcdir}/.git --work-tree=${abs_top_srcdir} describe --always --tags`"
-if test -n "${gitrev}" ; then
-	AC_REVISION(["${gitrev}"])
-	AC_DEFINE_UNQUOTED([GIT_REV], ["${gitrev}"], [Define to be the git revision])
-	echo "Using git revision: ${gitrev}"
-fi
 
 AC_DEFINE_UNQUOTED([PACKAGE_NAME], ["${PACKAGE_NAME}"], [Name of package])
 AC_DEFINE_UNQUOTED([PACKAGE_VERSION], ["${PACKAGE_VERSION}"], [Version number])
@@ -41,16 +41,19 @@ AC_SUBST([PACKAGE_DATE])
 
 GENERIC_LIBRARY_NAME=tesseract
 
-# Release versioning
-GENERIC_MAJOR_VERSION=4
-GENERIC_MINOR_VERSION=0
-GENERIC_MICRO_VERSION=0
+# Release versioning. Get versions from PACKAGE_VERSION.
+AX_SPLIT_VERSION
+GENERIC_MAJOR_VERSION=$(echo "$AX_MAJOR_VERSION" | $SED 's/^[[^0-9]]*//')
+GENERIC_MINOR_VERSION=$AX_MINOR_VERSION
+GENERIC_MICRO_VERSION=`echo "$AX_POINT_VERSION" | $SED 's/^\([[0-9]][[0-9]]*\).*/\1/'`
 
 # API version (often = GENERIC_MAJOR_VERSION.GENERIC_MINOR_VERSION)
 GENERIC_API_VERSION=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 GENERIC_LIBRARY_VERSION=$GENERIC_MAJOR_VERSION:$GENERIC_MINOR_VERSION
 AC_SUBST([GENERIC_API_VERSION])
 AC_SUBST([GENERIC_MAJOR_VERSION])
+AC_SUBST([GENERIC_MINOR_VERSION])
+AC_SUBST([GENERIC_MICRO_VERSION])
 
 AC_SUBST([GENERIC_LIBRARY_VERSION])
 PACKAGE=$GENERIC_LIBRARY_NAME
@@ -61,14 +64,7 @@ GENERIC_RELEASE=$GENERIC_MAJOR_VERSION.$GENERIC_MINOR_VERSION
 AC_SUBST([GENERIC_RELEASE])
 AC_SUBST([GENERIC_VERSION])
 
-# ----------------------------------------
-# Automake configuration
-# ----------------------------------------
-
-# Do not require README file (we use README.md)
-AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
-AM_MAINTAINER_MODE
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
@@ -134,8 +130,6 @@ AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false])
 if $sse41; then
     AM_CONDITIONAL([SSE41_OPT], true)
 fi
-
-includedir="${includedir}/tesseract"
 
 AC_ARG_WITH([extra-includes],
             [AS_HELP_STRING([--with-extra-includes=DIR],
@@ -276,7 +270,7 @@ AC_ARG_ENABLE([tessdata-prefix],
 AC_MSG_RESULT([$tessdata_prefix])
 AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 
-# Check whether enable debuging
+# Check whether to enable debugging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
     [AS_HELP_STRING([--enable-debug],
@@ -286,10 +280,10 @@ AC_ARG_ENABLE([debug],
 AC_MSG_RESULT([$debug])
 if test x"$debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -O0 -DDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG"
 else
     AM_CXXFLAGS="$AM_CXXFLAGS -O2 -DNDEBUG"
-    AM_CPPFLAGS="$AM_CPPFLAGS -O2 -DNDEBUG"
+    AM_CPPFLAGS="$AM_CPPFLAGS -DNDEBUG"
 fi
 
 #localedir='${prefix}/share/locale'
@@ -304,37 +298,23 @@ if test -d $curwd/gnu/lib ; then
 fi
 
 # ----------------------------------------
-# Check Compiler Characteristics and
-# configure automake. The two appear to
-# be intimately linked...
-# ----------------------------------------
-
-AC_PROG_LIBTOOL
-
-# ----------------------------------------
 # Additional checking of compiler characteristics
 # ----------------------------------------
 
 # Check Endianness. If Big Endian, this will define WORDS_BIGENDIAN
-# See also at end of this file, where we define INTEL_BYTE_ORDER
-# or MOTOROLA_BYTE_ORDER.
 AC_C_BIGENDIAN
 
 
 # ----------------------------------------
-# Check for programs we need
+# Init libtool
 # ----------------------------------------
 
-# Check where all the following programs are and set
-# variables accordingly:
 LT_INIT
 
 
 # ----------------------------------------
 # C++ related options
 # ----------------------------------------
-
-AC_LANG_CPLUSPLUS
 
 AC_MSG_CHECKING([if compiling with clang])
 AC_COMPILE_IFELSE(
@@ -419,6 +399,17 @@ AC_SYS_LARGEFILE
 AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
+# Check for programs needed to build documentation.
+# ----------------------------------------
+
+AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
+if $have_asciidoc; then
+  AM_CONDITIONAL([ASCIIDOC], true)
+else
+  AM_CONDITIONAL([ASCIIDOC], false)
+fi
+
+# ----------------------------------------
 # Checks for typedefs, structures, and compiler characteristics.
 # ----------------------------------------
 
@@ -441,12 +432,13 @@ fi
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
 # Check location of icu headers
-PKG_CHECK_MODULES([ICU_UC], [icu-uc], [have_icu_uc=true], [have_icu_uc=false])
-PKG_CHECK_MODULES([ICU_I18N], [icu-i18n], [have_icu_i18n=true], [have_icu_i18n=false])
+PKG_CHECK_MODULES([ICU_UC], [icu-uc >= 52.1], [have_icu_uc=true], [have_icu_uc=false])
+PKG_CHECK_MODULES([ICU_I18N], [icu-i18n >= 52.1], [have_icu_i18n=true], [have_icu_i18n=false])
 if !($have_icu_uc && $have_icu_i18n); then
   AC_CHECK_HEADERS([unicode/uchar.h], [have_icu=true], [have_icu=false])
   if !($have_icu); then
-        AC_MSG_WARN([Training tools WILL NOT be built because of missing icu library.])
+        AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
+        AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libicu-devel package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
   else
@@ -455,9 +447,10 @@ if !($have_icu_uc && $have_icu_i18n); then
 fi
 
 # Check location of pango headers
-PKG_CHECK_MODULES([pango], [pango], [have_pango=true], [have_pango=false])
+PKG_CHECK_MODULES([pango], [pango >= 1.22.0], [have_pango=true], [have_pango=false])
 if !($have_pango); then
-        AC_MSG_WARN([Training tools WILL NOT be built because of missing pango library.])
+        AC_MSG_WARN([pango 1.22.0 or higher is required, but was not found.])
+        AC_MSG_WARN([Training tools WILL NOT be built.])
         AC_MSG_WARN([Try to install libpango1.0-dev package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
 else
@@ -481,23 +474,24 @@ fi
 
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
-AC_CONFIG_FILES([api/Makefile])
-AC_CONFIG_FILES([arch/Makefile])
-AC_CONFIG_FILES([ccmain/Makefile])
-AC_CONFIG_FILES([opencl/Makefile])
-AC_CONFIG_FILES([ccstruct/Makefile])
-AC_CONFIG_FILES([ccutil/Makefile])
-AC_CONFIG_FILES([classify/Makefile])
-AC_CONFIG_FILES([cutil/Makefile])
-AC_CONFIG_FILES([dict/Makefile])
-AC_CONFIG_FILES([lstm/Makefile])
-AC_CONFIG_FILES([textord/Makefile])
-AC_CONFIG_FILES([viewer/Makefile])
-AC_CONFIG_FILES([wordrec/Makefile])
+AC_CONFIG_FILES([src/api/Makefile])
+AC_CONFIG_FILES([src/api/tess_version.h])
+AC_CONFIG_FILES([src/arch/Makefile])
+AC_CONFIG_FILES([src/ccmain/Makefile])
+AC_CONFIG_FILES([src/opencl/Makefile])
+AC_CONFIG_FILES([src/ccstruct/Makefile])
+AC_CONFIG_FILES([src/ccutil/Makefile])
+AC_CONFIG_FILES([src/classify/Makefile])
+AC_CONFIG_FILES([src/cutil/Makefile])
+AC_CONFIG_FILES([src/dict/Makefile])
+AC_CONFIG_FILES([src/lstm/Makefile])
+AC_CONFIG_FILES([src/textord/Makefile])
+AC_CONFIG_FILES([src/viewer/Makefile])
+AC_CONFIG_FILES([src/wordrec/Makefile])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])
-AC_CONFIG_FILES([testing/Makefile])
+AC_CONFIG_FILES([unlvtests/Makefile])
 AC_CONFIG_FILES([unittest/Makefile])
 AC_CONFIG_FILES([java/Makefile])
 AC_CONFIG_FILES([java/com/Makefile])
@@ -506,7 +500,7 @@ AC_CONFIG_FILES([java/com/google/scrollview/Makefile])
 AC_CONFIG_FILES([java/com/google/scrollview/events/Makefile])
 AC_CONFIG_FILES([java/com/google/scrollview/ui/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
-AM_COND_IF([ENABLE_TRAINING], [AC_CONFIG_FILES(training/Makefile)])
+AM_COND_IF([ENABLE_TRAINING], [AC_CONFIG_FILES(src/training/Makefile)])
 AC_OUTPUT
 
 # Final message
@@ -516,6 +510,16 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
+echo ""
+
+AM_COND_IF([ASCIIDOC],
+  [
+   echo "This will also build the documentation."
+  ], [
+   echo "Documentation will not be built because asciidoc is missing."
+  ]
+)
+
 # echo "$ sudo make install LANGS=\"eng ara deu\""
 # echo "  Or:"
 # echo "$ sudo make install-langs"

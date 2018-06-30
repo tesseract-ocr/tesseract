@@ -1,9 +1,14 @@
-image: Visual Studio 2017
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      vs_ver: 14 2015
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      vs_ver: 15 2017
 
 platform:
   - Win32
   - Win64
-
+  
 cache:
   - c:/Users/appveyor/.cppan/storage
 
@@ -15,8 +20,8 @@ install:
   - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
 
 before_build:
-  - if %platform%==Win32 set generator=Visual Studio 15 2017
-  - if %platform%==Win64 set generator=Visual Studio 15 2017 Win64
+  - if %platform%==Win32 set generator=Visual Studio %vs_ver%
+  - if %platform%==Win64 set generator=Visual Studio %vs_ver% Win64
   - if %platform%==Win32 set vcplatform=Win32
   - if %platform%==Win64 set vcplatform=x64
 

@@ -204,10 +204,20 @@ public class SVWindow extends JFrame {
     super(name);
 
     // Provide defaults for sizes.
-    if (sizeX == 0) sizeX = canvasSizeX;
-    if (sizeY == 0) sizeY = canvasSizeY;
-    if (canvasSizeX == 0) canvasSizeX = sizeX;
-    if (canvasSizeY == 0) canvasSizeY = sizeY;
+    if (sizeX <= 0) sizeX = canvasSizeX;
+    if (sizeY <= 0) sizeY = canvasSizeY;
+    if (canvasSizeX <= 0) canvasSizeX = sizeX;
+    if (canvasSizeY <= 0) canvasSizeY = sizeY;
+
+    // Avoid later division by zero.
+    if (sizeX <= 0) {
+      sizeX = 1;
+      canvasSizeX = sizeX;
+    }
+    if (sizeY <= 0) {
+      sizeY = 1;
+      canvasSizeY = sizeY;
+    }
 
     // Initialize variables
     nrWindows++;
@@ -244,7 +254,7 @@ public class SVWindow extends JFrame {
     layer = canvas.getLayer();
     canvas.setBackground(Color.BLACK);
 
-    // Disable anitaliasing to make the lines more visible.
+    // Disable antialiasing to make the lines more visible.
     canvas.setDefaultRenderQuality(PPaintContext.LOW_QUALITY_RENDERING);
 
     setLayout(new BorderLayout());

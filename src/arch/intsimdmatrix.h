@@ -1,0 +1,136 @@
+///////////////////////////////////////////////////////////////////////
+// File:        intsimdmatrix.h
+// Description: Base class for 8-bit int SIMD matrix multipliers.
+// Author:      Ray Smith
+// Created:     Tue Aug 15 07:37:20 PST 2017
+//
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+///////////////////////////////////////////////////////////////////////
+
+#ifndef TESSERACT_ARCH_INTSIMDMATRIX_H_
+#define TESSERACT_ARCH_INTSIMDMATRIX_H_
+
+#include <cstdint>
+#include <vector>
+
+template <class T> class GENERIC_2D_ARRAY;
+template <typename T> class GenericVector;
+
+namespace tesseract {
+
+// Base class for a SIMD function to multiply a matrix by a vector, with sources
+// of 8-bit signed integer, and result in a double, after appropriate scaling.
+// Assumes a specific method of multiplication that can be applied to any size
+// and number of SIMD registers as follows:
+// int32_t results are computed with num_outputs_per_register_ in each of
+// max_output_registers_ result registers, repeatedly until it would make too
+// many results, then the number of registers is halved, and so-on down to a
+// single result register. The last calculation only outputs the required number
+// of results instead of writing beyond the bounds. Eg: matrix has 75 outputs,
+//  num_outputs_per_register_ = 4, and max_output_registers_ = 8,
+// Step 1: 8x4=32 results are computed,
+// Step 2: 8x4=32 again, total 64,
+// Step 3: 2x4=8 (since 8x4 is too many, so is 4x4), total 72,
+// Step 4: 1x3, total 75.
+// Each step above is computed using a PartialFunc, which runs over the input
+// vector once. The input is read one registerful of num_inputs_per_register_
+// at a time (presumably 4x num_outputs_per_register_ since they are int8_t)
+// so the inputs MUST BE PADDED to a multiple of num_inputs_per_register_.
+// Since it is slow (on Intel at least) to horizontally add in a register,
+// provision is made to process num_inputs_per_group_ inputs at a time, with
+// the group being replicated num_input_groups_ times and multiplied by a
+// num_inputs_per_group_ by num_input_groups_ rectangle of the weights matrix.
+// This is most convenient if num_inputs_per_group_ is 4, and the product
+// sign-extends and sums 8x8=16 bit results to 32 bits, adding 4 adjacent
+// results in the process, but it doesn't have to be implemented that way.
+// The weights are re-ordered by Init() to be used sequentially by the above
+// algorithm, followed by the biases, so they can be added at the end.
+// The base class computes the base C++ implementation.
+// NOTE that, although the subclasses execute on different SIMD hardware, no
+// virtual methods are needed, as the constructor sets up everything that
+// is required to allow the base class implementation to do all the work.
+class IntSimdMatrix {
+ public:
+  // Constructor should set the data members to indicate the sizes.
+  // NOTE: Base constructor public only for test purposes.
+  IntSimdMatrix()
+      : num_outputs_per_register_(1),
+        max_output_registers_(1),
+        num_inputs_per_register_(1),
+        num_inputs_per_group_(1),
+        num_input_groups_(1) {}
+
+  // Factory makes and returns an IntSimdMatrix (sub)class of the best
+  // available type for the current architecture.
+  static IntSimdMatrix* GetFastestMultiplier();
+
+  // Computes a reshaped copy of the weight matrix w. If there are no
+  // partial_funcs_, it does nothing.
+  void Init(const GENERIC_2D_ARRAY<int8_t>& w);
+
+  // Rounds the size up to a multiple of the input register size (in int8_t).
+  int RoundInputs(int size) const {
+    return Roundup(size, num_inputs_per_register_);
+  }
+  // Rounds the size up to a multiple of the output register size (in int32_t).
+  int RoundOutputs(int size) const {
+    return Roundup(size, num_outputs_per_register_);
+  }
+
+  // Computes matrix.vector v = Wu.
+  // u is of size W.dim2() - 1 and the output v is of size W.dim1().
+  // u is imagined to have an extra element at the end with value 1, to
+  // implement the bias, but it doesn't actually have it.
+  // Computes the base C++ implementation, if there are no partial_funcs_.
+  // NOTE: The size of the input vector (u) must be padded using
+  // RoundInputs above.
+  // The input will be over-read to the extent of the padding. There are no
+  // alignment requirements.
+  void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
+                       const GenericVector<double>& scales, const int8_t* u,
+                       double* v) const;
+
+ protected:
+  // Function to compute part of a matrix.vector multiplication. The weights
+  // are in a very specific order (see above) in w, which is multiplied by
+  // u of length num_in, to produce output v after scaling the integer results
+  // by the corresponding member of scales.
+  // The amount of w and scales consumed is fixed and not available to the
+  // caller. The number of outputs written to v will be at most num_out.
+  typedef void (*PartialFunc)(const int8_t* w, const double* scales,
+                              const int8_t* u, int num_in, int num_out,
+                              double* v);
+
+  // Rounds the input up to a multiple of the given factor.
+  static int Roundup(int input, int factor) {
+    return (input + factor - 1) / factor * factor;
+  }
+
+  // Number of 32 bit outputs held in each register.
+  int num_outputs_per_register_;
+  // Maximum number of registers that we will use to hold outputs.
+  int max_output_registers_;
+  // Number of 8 bit inputs in the inputs register.
+  int num_inputs_per_register_;
+  // Number of inputs in each weight group.
+  int num_inputs_per_group_;
+  // Number of groups of inputs to be broadcast.
+  int num_input_groups_;
+  // The weights matrix reorganized in whatever way suits this instance.
+  std::vector<int8_t> shaped_w_;
+  // A series of functions to compute a partial result.
+  std::vector<PartialFunc> partial_funcs_;
+};
+
+}  // namespace tesseract
+
+#endif  // TESSERACT_ARCH_INTSIMDMATRIX_H_
