@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tessvars.h  (Formerly tessvars.h)
  * Description: Variables and other globals for tessedit.
- * Author:		Ray Smith
- * Created:		Mon Apr 13 13:13:23 BST 1992
+ * Author:      Ray Smith
+ * Created:     Mon Apr 13 13:13:23 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           TESSVARS_H
-#define           TESSVARS_H
+#ifndef TESSVARS_H
+#define TESSVARS_H
 
 #include <cstdio>
 
-
 extern FILE *debug_fp;    // write debug stuff here
+
 #endif

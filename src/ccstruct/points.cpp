@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        points.cpp  (Formerly coords.c)
  * Description: Member functions for coordinate classes.
- * Author:					Ray Smith
- * Created:					Fri Mar 15 08:58:17 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Fri Mar 15 08:58:17 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

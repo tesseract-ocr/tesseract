@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        polyaprx.h  (Formerly polygon.h)
  * Description: Code for polygonal approximation from old edgeprog.
- * Author:		Ray Smith
- * Created:		Thu Nov 25 11:42:04 GMT 1993
+ * Author:      Ray Smith
+ * Created:     Thu Nov 25 11:42:04 GMT 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           POLYAPRX_H
-#define           POLYAPRX_H
+#ifndef POLYAPRX_H
+#define POLYAPRX_H
 
-#include          "blobs.h"
-#include          "coutln.h"
+#include "blobs.h"
+#include "coutln.h"
 
 // convert a chain-coded input to the old OUTLINE approximation
 TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline);

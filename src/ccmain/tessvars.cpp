@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tessvars.cpp  (Formerly tessvars.c)
  * Description: Variables and other globals for tessedit.
- * Author:		Ray Smith
- * Created:		Mon Apr 13 13:13:23 BST 1992
+ * Author:      Ray Smith
+ * Created:     Mon Apr 13 13:13:23 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        quadlsq.cpp  (Formerly qlsq.c)
  * Description: Code for least squares approximation of quadratics.
- * Author:		Ray Smith
- * Created:		Wed Oct  6 15:14:23 BST 1993
+ * Author:      Ray Smith
+ * Created:     Wed Oct  6 15:14:23 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
