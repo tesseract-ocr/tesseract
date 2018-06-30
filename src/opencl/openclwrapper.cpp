@@ -29,6 +29,10 @@
 
 #ifdef USE_OPENCL
 
+#include <cstdio>
+#include <vector>
+
+#include "errcode.h"                    // for ASSERT_HOST
 #include "opencl_device_selection.h"
 GPUEnv OpenclDevice::gpuEnv;
 
@@ -758,14 +762,16 @@ int OpenclDevice::ReleaseOpenclRunEnv()
 #endif
     return 1;
 }
+
 inline int OpenclDevice::AddKernelConfig( int kCount, const char *kName )
 {
-    if ( kCount < 1 )
-        fprintf(stderr,"Error: ( KCount < 1 ) AddKernelConfig\n" );
+    ASSERT_HOST(kCount > 0);
+    ASSERT_HOST(strlen(kName) < sizeof(gpuEnv.mArrykernelNames[kCount-1]));
     strcpy( gpuEnv.mArrykernelNames[kCount-1], kName );
     gpuEnv.mnKernelCount++;
     return 0;
 }
+
 int OpenclDevice::RegistOpenclKernel()
 {
     if ( !gpuEnv.mnIsUserCreated )
