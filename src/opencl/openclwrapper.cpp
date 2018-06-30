@@ -295,14 +295,17 @@ static ds_status readProFile(const char* fileName, char** content,
     status = DS_FILE_ERROR;
   } else {
     fseek(input, 0L, SEEK_END);
-    size_t size = ftell(input);
+    long pos = ftell(input);
     rewind(input);
-    char* binary = new char[size];
-    if (fread(binary, sizeof(char), size, input) != size) {
-      status = DS_FILE_ERROR;
-    } else {
-      *contentSize = size;
-      *content = binary;
+    if (pos > 0) {
+      size_t size = pos;
+      char *binary = new char[size];
+      if (fread(binary, sizeof(char), size, input) != size) {
+        status = DS_FILE_ERROR;
+      } else {
+        *contentSize = size;
+        *content = binary;
+      }
     }
     fclose(input);
   }
