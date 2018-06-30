@@ -2445,7 +2445,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
 
 /** Find lines from the image making the BLOCK_LIST. */
 BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
-  FindLines();
+  ASSERT_HOST(FindLines() == 0);
   BLOCK_LIST* result = block_list_;
   block_list_ = nullptr;
   return result;
