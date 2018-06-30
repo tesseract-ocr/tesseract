@@ -2512,13 +2512,13 @@ static ds_status evaluateScoreForDevice(ds_device *device, void *inputData) {
          device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
   GPUEnv *env = nullptr;
   if (device->type == DS_DEVICE_OPENCL_DEVICE) {
-    env = new GPUEnv;
+    env = &OpenclDevice::gpuEnv;
+    memset(env, 0, sizeof(*env));
     // printf("[DS] populating tmp GPUEnv from device\n");
     populateGPUEnvFromDevice(env, device->oclDeviceID);
     env->mnFileCount = 0;  // argc;
     env->mnKernelCount = 0UL;
     // printf("[DS] compiling kernels for tmp GPUEnv\n");
-    OpenclDevice::gpuEnv = *env;
     OpenclDevice::CompileKernelFile(env, "");
   }
 
