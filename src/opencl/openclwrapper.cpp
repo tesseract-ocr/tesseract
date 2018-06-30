@@ -27,9 +27,6 @@
 #include <cstdio>
 #endif
 
-#define CALLOC LEPT_CALLOC
-#define FREE LEPT_FREE
-
 #ifdef USE_OPENCL
 
 #include "opencl_device_selection.h"
@@ -286,8 +283,6 @@ static const char *findString(const char *contentStart, const char *contentEnd,
 
 static ds_status readProFile(const char *fileName, char **content,
                              size_t *contentSize) {
-  size_t size = 0;
-
   *contentSize = 0;
   *content = nullptr;
 
@@ -297,13 +292,9 @@ static ds_status readProFile(const char *fileName, char **content,
   }
 
   fseek(input, 0L, SEEK_END);
-  size = ftell(input);
+  size_t size = ftell(input);
   rewind(input);
-  char *binary = (char *)malloc(size);
-  if (binary == nullptr) {
-    fclose(input);
-    return DS_FILE_ERROR;
-  }
+  char *binary = new char[size];
   fread(binary, sizeof(char), size, input);
   fclose(input);
 
@@ -320,8 +311,7 @@ static ds_status readProfileFromFile(ds_profile *profile,
                                      ds_score_deserializer deserializer,
                                      const char *file) {
   ds_status status = DS_SUCCESS;
-  char *contentStart = nullptr;
-  const char *contentEnd = nullptr;
+  char *contentStart;
   size_t contentSize;
 
   if (profile == nullptr) return DS_INVALID_PROFILE;
@@ -332,7 +322,7 @@ static ds_status readProfileFromFile(ds_profile *profile,
     const char *dataStart;
     const char *dataEnd;
 
-    contentEnd = contentStart + contentSize;
+    const char *contentEnd = contentStart + contentSize;
     currentPosition = contentStart;
 
     // parse the version string
@@ -485,7 +475,7 @@ static ds_status readProfileFromFile(ds_profile *profile,
     }
   }
 cleanup:
-  free(contentStart);
+  delete[] contentStart;
   return status;
 }
 
