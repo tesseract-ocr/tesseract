@@ -647,7 +647,7 @@ int OpenclDevice::SetKernelEnv( KernelEnv *envInfo )
     return 1;
 }
 
-static cl_mem allocateZeroCopyBuffer(KernelEnv rEnv, l_uint32 *hostbuffer,
+static cl_mem allocateZeroCopyBuffer(const KernelEnv &rEnv, l_uint32 *hostbuffer,
                                      size_t nElements, cl_mem_flags flags,
                                      cl_int *pStatus) {
   cl_mem membuffer =
