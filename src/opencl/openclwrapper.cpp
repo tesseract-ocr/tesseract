@@ -2302,29 +2302,26 @@ static double thresholdRectToPixMicroBench(GPUEnv *env,
                                            ds_device_type type) {
   double time;
 #if ON_WINDOWS
-    LARGE_INTEGER freq, time_funct_start, time_funct_end;
-    QueryPerformanceFrequency(&freq);
+  LARGE_INTEGER freq, time_funct_start, time_funct_end;
+  QueryPerformanceFrequency(&freq);
 #elif ON_APPLE
-    mach_timebase_info_data_t info = {0, 0};
-    mach_timebase_info(&info);
-    long long start, stop;
+  mach_timebase_info_data_t info = {0, 0};
+  mach_timebase_info(&info);
+  long long start, stop;
 #else
-    timespec time_funct_start, time_funct_end;
+  timespec time_funct_start, time_funct_end;
 #endif
 
     // input data
     unsigned char pixelHi = (unsigned char)255;
-    int* thresholds = new int[4];
-    thresholds[0] = pixelHi/2;
-    thresholds[1] = pixelHi/2;
-    thresholds[2] = pixelHi/2;
-    thresholds[3] = pixelHi/2;
-    int *hi_values = new int[4];
-    thresholds[0] = pixelHi;
-    thresholds[1] = pixelHi;
-    thresholds[2] = pixelHi;
-    thresholds[3] = pixelHi;
-    //Pix* pix = pixCreate(width, height, 1);
+    int thresholds[4] = {
+      pixelHi,
+      pixelHi,
+      pixelHi,
+      pixelHi
+    };
+
+//Pix* pix = pixCreate(width, height, 1);
     int top = 0;
     int left = 0;
     int bytes_per_line = input.width*input.numChannels;
@@ -2340,6 +2337,7 @@ static double thresholdRectToPixMicroBench(GPUEnv *env,
 #endif
 
         OpenclDevice::gpuEnv = *env;
+        int hi_values[4];
         int retVal = OpenclDevice::ThresholdRectToPixOCL(
             input.imageData, input.numChannels, bytes_per_line, thresholds,
             hi_values, &input.pix, input.height, input.width, top, left);
@@ -2372,6 +2370,7 @@ static double thresholdRectToPixMicroBench(GPUEnv *env,
 #else
         clock_gettime( CLOCK_MONOTONIC, &time_funct_start );
 #endif
+        int hi_values[4] = {};
         ThresholdRectToPix_Native( input.imageData, input.numChannels, bytes_per_line,
             thresholds, hi_values, &input.pix );
 
@@ -2387,9 +2386,6 @@ static double thresholdRectToPixMicroBench(GPUEnv *env,
 #endif
     }
 
-    // cleanup
-    delete[] thresholds;
-    delete[] hi_values;
     return time;
 }
 
