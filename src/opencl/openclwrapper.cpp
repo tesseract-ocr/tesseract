@@ -1456,7 +1456,7 @@ static cl_int pixErodeCL(l_int32 hsize, l_int32 vsize, l_uint32 wpl,
   size_t globalThreads[2];
   size_t localThreads[2];
   cl_mem pixtemp;
-  cl_int status;
+  cl_int status = 0;
   int gsize;
   char isAsymmetric = (MORPH_BC == ASYMMETRIC_MORPH_BC);
   l_uint32 rwmask, lwmask;
