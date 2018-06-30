@@ -302,6 +302,7 @@ static ds_status readProFile(const char* fileName, char** content,
       char *binary = new char[size];
       if (fread(binary, sizeof(char), size, input) != size) {
         status = DS_FILE_ERROR;
+        delete[] binary;
       } else {
         *contentSize = size;
         *content = binary;
