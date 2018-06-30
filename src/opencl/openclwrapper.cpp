@@ -289,22 +289,24 @@ static ds_status readProFile(const char *fileName, char **content,
                              size_t *contentSize) {
   *contentSize = 0;
   *content = nullptr;
-
+  ds_status status = DS_SUCCESS;
   FILE *input = fopen(fileName, "rb");
   if (input == nullptr) {
-    return DS_FILE_ERROR;
+    status = DS_FILE_ERROR;
+  } else {
+    fseek(input, 0L, SEEK_END);
+    size_t size = ftell(input);
+    rewind(input);
+    char *binary = new char[size];
+    if (fread(binary, sizeof(char), size, input) != size) {
+      status = DS_FILE_ERROR;
+    } else {
+      *contentSize = size;
+      *content = binary;
+    }
+    fclose(input);
   }
-
-  fseek(input, 0L, SEEK_END);
-  size_t size = ftell(input);
-  rewind(input);
-  char *binary = new char[size];
-  fread(binary, sizeof(char), size, input);
-  fclose(input);
-
-  *contentSize = size;
-  *content = binary;
-  return DS_SUCCESS;
+  return status;
 }
 
 typedef ds_status (*ds_score_deserializer)(ds_device *device,
