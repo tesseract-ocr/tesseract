@@ -606,6 +606,8 @@ public class SVWindow extends JFrame {
    * Shows a dialog presenting "Yes" and "No" as answers and returns either a
    * "y" or "n" to the client.
    *
+   * Closing the dialog without answering is handled like "No".
+   *
    * @param msg The text that is displayed in the dialog.
    */
   public void showYesNoDialog(String msg) {
@@ -613,13 +615,9 @@ public class SVWindow extends JFrame {
     int res =
         JOptionPane.showOptionDialog(this, msg, "", JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE, null, null, null);
-    SVEvent e = null;
 
-    if (res == 0) {
-      e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0, "y");
-    } else if (res == 1) {
-      e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0, "n");
-    }
+    SVEvent e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0,
+                            res == 0 ? "y" : "n");
     ScrollView.addMessage(e);
   }
 
