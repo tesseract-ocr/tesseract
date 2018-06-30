@@ -1013,7 +1013,6 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
     size_t source_size[1];
     int b_error, binary_status, binaryExisted, idx;
     cl_uint numDevices;
-    cl_device_id *mpArryDevsID;
     FILE *fd, *fd1;
     const char* filename = "kernel.cl";
     //fprintf(stderr, "[OD] CompileKernelFile ... \n");
@@ -1036,10 +1035,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
                                   sizeof(numDevices), &numDevices, nullptr);
       CHECK_OPENCL(clStatus, "clGetContextInfo");
 
-      mpArryDevsID = (cl_device_id *)malloc(sizeof(cl_device_id) * numDevices);
-      if (mpArryDevsID == nullptr) {
-        return 0;
-        }
+      std::vector<cl_device_id> mpArryDevsID(numDevices);
 //PERF_COUNT_SUB("get numDevices")
         b_error = 0;
         length = 0;
@@ -1062,18 +1058,16 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
         // grab the handles to all of the devices in the context.
         clStatus = clGetContextInfo(gpuInfo->mpContext, CL_CONTEXT_DEVICES,
                                     sizeof(cl_device_id) * numDevices,
-                                    mpArryDevsID, nullptr);
+                                    &mpArryDevsID[0], nullptr);
         CHECK_OPENCL( clStatus, "clGetContextInfo" );
 //PERF_COUNT_SUB("get devices")
         //fprintf(stderr, "[OD] Create kernel from binary\n");
         const uint8_t *c_binary = &binary[0];
         gpuInfo->mpArryPrograms[idx] = clCreateProgramWithBinary( gpuInfo->mpContext,numDevices,
-                                           mpArryDevsID, &length, &c_binary,
+                                           &mpArryDevsID[0], &length, &c_binary,
                                            &binary_status, &clStatus );
         CHECK_OPENCL( clStatus, "clCreateProgramWithBinary" );
 //PERF_COUNT_SUB("clCreateProgramWithBinary")
-        free( mpArryDevsID );
-        mpArryDevsID = nullptr;
         // PERF_COUNT_SUB("binaryExisted")
     }
     else
