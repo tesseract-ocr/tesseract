@@ -1005,6 +1005,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
     size_t length = pos;
     b_error |= fseek(fd, 0, SEEK_SET) < 0;
     if (b_error) {
+      fclose(fd);
       return 0;
     }
 
