@@ -1008,7 +1008,7 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
 //PERF_COUNT_START("CompileKernelFile")
     cl_int clStatus = 0;
     size_t length;
-    char *buildLog = nullptr, *binary;
+    char *buildLog = nullptr;
     const char *source;
     size_t source_size[1];
     int b_error, binary_status, binaryExisted, idx;
@@ -1051,15 +1051,10 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
             return 0;
         }
 
-        binary = (char*) malloc( length + 2 );
-        if ( !binary )
-        {
-            return 0;
-        }
+        std::vector<uint8_t> binary(length + 2);
 
-        memset( binary, 0, length + 2 );
-        b_error |= fread( binary, 1, length, fd ) != length;
-
+        memset(&binary[0], 0, length + 2);
+        b_error |= fread(&binary[0], 1, length, fd) != length;
 
         fclose( fd );
 //PERF_COUNT_SUB("read file")
@@ -1071,12 +1066,12 @@ int OpenclDevice::CompileKernelFile( GPUEnv *gpuInfo, const char *buildOption )
         CHECK_OPENCL( clStatus, "clGetContextInfo" );
 //PERF_COUNT_SUB("get devices")
         //fprintf(stderr, "[OD] Create kernel from binary\n");
+        const uint8_t *c_binary = &binary[0];
         gpuInfo->mpArryPrograms[idx] = clCreateProgramWithBinary( gpuInfo->mpContext,numDevices,
-                                           mpArryDevsID, &length, (const unsigned char**) &binary,
+                                           mpArryDevsID, &length, &c_binary,
                                            &binary_status, &clStatus );
         CHECK_OPENCL( clStatus, "clCreateProgramWithBinary" );
 //PERF_COUNT_SUB("clCreateProgramWithBinary")
-        free( binary );
         free( mpArryDevsID );
         mpArryDevsID = nullptr;
         // PERF_COUNT_SUB("binaryExisted")
