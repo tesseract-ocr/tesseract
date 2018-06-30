@@ -2617,7 +2617,11 @@ struct TESS_CHAR : ELIST_LINK {
     strncpy(unicode_repr, repr, length);
   }
 
-  TESS_CHAR() {  // Satisfies ELISTIZE.
+  TESS_CHAR()
+    : unicode_repr(nullptr),
+      length(0),
+      cost(0.0f)
+  {  // Satisfies ELISTIZE.
   }
   ~TESS_CHAR() {
     delete [] unicode_repr;
