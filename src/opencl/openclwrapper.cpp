@@ -447,10 +447,6 @@ static ds_status readProfileFromFile(ds_profile *profile,
                         driverVersionLength) == 0) {
               deviceScoreStart =
                   findString(dataStart, contentEnd, DS_TAG_SCORE);
-              if (deviceNameStart == nullptr) {
-                status = DS_PROFILE_FILE_ERROR;
-                goto cleanup;
-              }
               deviceScoreStart += strlen(DS_TAG_SCORE);
               deviceScoreEnd =
                   findString(deviceScoreStart, contentEnd, DS_TAG_SCORE_END);
