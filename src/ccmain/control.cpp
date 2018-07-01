@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
- * Author:          Ray Smith
- * Created:         Thu Apr 23 11:09:58 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 11:09:58 BST 1992
  * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -577,9 +577,6 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
               WERD_CHOICE *p1 = overrides_word1[i];
               WERD_CHOICE *p2 = overrides_word2[i];
               bigrams_list += p1->unichar_string() + " " + p2->unichar_string();
-              if (i == kMaxChoicesToPrint) {
-                bigrams_list += " ...";
-              }
             }
             choices_description = "There were many choices: {";
             choices_description += bigrams_list;
