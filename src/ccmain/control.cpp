@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
- * Author:          Ray Smith
- * Created:         Thu Apr 23 11:09:58 BST 1992
+ * Author:      Ray Smith
+ * Created:     Thu Apr 23 11:09:58 BST 1992
  * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -577,9 +577,6 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
               WERD_CHOICE *p1 = overrides_word1[i];
               WERD_CHOICE *p2 = overrides_word2[i];
               bigrams_list += p1->unichar_string() + " " + p2->unichar_string();
-              if (i == kMaxChoicesToPrint) {
-                bigrams_list += " ...";
-              }
             }
             choices_description = "There were many choices: {";
             choices_description += bigrams_list;
@@ -1213,6 +1210,7 @@ float Tesseract::ClassifyBlobPlusOutlines(
     C_BLOB* blob, STRING* best_str) {
   C_OUTLINE_IT ol_it;
   C_OUTLINE* first_to_keep = nullptr;
+  C_BLOB* local_blob = nullptr;
   if (blob != nullptr) {
     // Add the required outlines to the blob.
     ol_it.set_to_list(blob->out_list());
@@ -1222,7 +1220,8 @@ float Tesseract::ClassifyBlobPlusOutlines(
     if (ok_outlines[i]) {
       // This outline is to be added.
       if (blob == nullptr) {
-        blob = new C_BLOB(outlines[i]);
+        local_blob = new C_BLOB(outlines[i]);
+        blob = local_blob;
         ol_it.set_to_list(blob->out_list());
       } else {
         ol_it.add_before_stay_put(outlines[i]);
@@ -1235,7 +1234,7 @@ float Tesseract::ClassifyBlobPlusOutlines(
   if (first_to_keep == nullptr) {
     // We created blob. Empty its outlines and delete it.
     for (; !ol_it.empty(); ol_it.forward()) ol_it.extract();
-    delete blob;
+    delete local_blob;
     cert = -c2;
   } else {
     // Remove the outlines that we put in.

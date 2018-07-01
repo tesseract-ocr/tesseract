@@ -295,14 +295,18 @@ static ds_status readProFile(const char* fileName, char** content,
     status = DS_FILE_ERROR;
   } else {
     fseek(input, 0L, SEEK_END);
-    size_t size = ftell(input);
+    long pos = ftell(input);
     rewind(input);
-    char* binary = new char[size];
-    if (fread(binary, sizeof(char), size, input) != size) {
-      status = DS_FILE_ERROR;
-    } else {
-      *contentSize = size;
-      *content = binary;
+    if (pos > 0) {
+      size_t size = pos;
+      char *binary = new char[size];
+      if (fread(binary, sizeof(char), size, input) != size) {
+        status = DS_FILE_ERROR;
+        delete[] binary;
+      } else {
+        *contentSize = size;
+        *content = binary;
+      }
     }
     fclose(input);
   }
@@ -664,7 +668,6 @@ static cl_mem allocateZeroCopyBuffer(const KernelEnv& rEnv,
 static Pix* mapOutputCLBuffer(const KernelEnv& rEnv, cl_mem clbuffer, Pix* pixd,
                               Pix* pixs, int elements, cl_mem_flags flags,
                               bool memcopy = false, bool sync = true) {
-  PROCNAME("mapOutputCLBuffer");
   if (!pixd) {
     if (memcopy) {
       if ((pixd = pixCreateTemplate(pixs)) == nullptr)
@@ -888,35 +891,33 @@ int OpenclDevice::WriteBinaryToFile(const char* fileName, const char* birary,
 
   return 1;
 }
+
 int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
                                              const char* clFileName) {
   unsigned int i = 0;
   cl_int clStatus;
-  size_t* binarySizes;
   cl_uint numDevices;
-  cl_device_id* mpArryDevsID;
   char* str = nullptr;
 
   clStatus = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES,
                               sizeof(numDevices), &numDevices, nullptr);
   CHECK_OPENCL(clStatus, "clGetProgramInfo");
 
-  mpArryDevsID = (cl_device_id*)malloc(sizeof(cl_device_id) * numDevices);
-  if (mpArryDevsID == nullptr) {
-    return 0;
-  }
+  std::vector<cl_device_id> mpArryDevsID(numDevices);
+
   /* grab the handles to all of the devices in the program. */
   clStatus = clGetProgramInfo(program, CL_PROGRAM_DEVICES,
-                              sizeof(cl_device_id) * numDevices, mpArryDevsID,
+                              sizeof(cl_device_id) * numDevices,
+                              &mpArryDevsID[0],
                               nullptr);
   CHECK_OPENCL(clStatus, "clGetProgramInfo");
 
   /* figure out the sizes of each of the binaries. */
-  binarySizes = (size_t*)malloc(sizeof(size_t) * numDevices);
+  std::vector<size_t> binarySizes(numDevices);
 
   clStatus =
       clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES,
-                       sizeof(size_t) * numDevices, binarySizes, nullptr);
+                       sizeof(size_t) * numDevices, &binarySizes[0], nullptr);
   CHECK_OPENCL(clStatus, "clGetProgramInfo");
 
   /* copy over all of the generated binaries. */
@@ -966,23 +967,15 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
     free(binaries[i]);
   }
 
-  free(binarySizes);
-  binarySizes = nullptr;
-
-  free(mpArryDevsID);
-  mpArryDevsID = nullptr;
-
   return 1;
 }
 
 int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
   // PERF_COUNT_START("CompileKernelFile")
   cl_int clStatus = 0;
-  size_t length;
-  char* buildLog = nullptr;
   const char* source;
   size_t source_size[1];
-  int b_error, binary_status, binaryExisted, idx;
+  int binary_status, binaryExisted, idx;
   cl_uint numDevices;
   FILE *fd, *fd1;
   const char* filename = "kernel.cl";
@@ -1007,12 +1000,13 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
 
     std::vector<cl_device_id> mpArryDevsID(numDevices);
     // PERF_COUNT_SUB("get numDevices")
-    b_error = 0;
-    length = 0;
-    b_error |= fseek(fd, 0, SEEK_END) < 0;
-    b_error |= (length = ftell(fd)) <= 0;
+    bool b_error = fseek(fd, 0, SEEK_END) < 0;
+    long pos = ftell(fd);
+    b_error |= (pos <= 0);
+    size_t length = pos;
     b_error |= fseek(fd, 0, SEEK_SET) < 0;
     if (b_error) {
+      fclose(fd);
       return 0;
     }
 
@@ -1069,6 +1063,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
   PERF_COUNT_END
   if (clStatus != CL_SUCCESS) {
     printf("BuildProgram error!\n");
+    size_t length;
     if (!gpuInfo->mnIsUserCreated) {
       clStatus = clGetProgramBuildInfo(
           gpuInfo->mpArryPrograms[idx], gpuInfo->mpArryDevsID[0],
@@ -1082,18 +1077,15 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
       printf("opencl create build log fail\n");
       return 0;
     }
-    buildLog = (char*)malloc(length);
-    if (buildLog == (char*)nullptr) {
-      return 0;
-    }
+    std::vector<char> buildLog(length);
     if (!gpuInfo->mnIsUserCreated) {
       clStatus = clGetProgramBuildInfo(
           gpuInfo->mpArryPrograms[idx], gpuInfo->mpArryDevsID[0],
-          CL_PROGRAM_BUILD_LOG, length, buildLog, &length);
+          CL_PROGRAM_BUILD_LOG, length, &buildLog[0], &length);
     } else {
       clStatus = clGetProgramBuildInfo(gpuInfo->mpArryPrograms[idx],
                                        gpuInfo->mpDevID, CL_PROGRAM_BUILD_LOG,
-                                       length, buildLog, &length);
+                                       length, &buildLog[0], &length);
     }
     if (clStatus != CL_SUCCESS) {
       printf("opencl program build info fail\n");
@@ -1102,11 +1094,10 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
 
     fd1 = fopen("kernel-build.log", "w+");
     if (fd1 != nullptr) {
-      fwrite(buildLog, sizeof(char), length, fd1);
+      fwrite(&buildLog[0], sizeof(char), length, fd1);
       fclose(fd1);
     }
 
-    free(buildLog);
     // PERF_COUNT_SUB("build error log")
     return 0;
   }
@@ -1668,7 +1659,7 @@ void OpenclDevice::pixGetLinesCL(Pix* pixd, Pix* pixs, Pix** pix_vline,
  *  histogramAllChannels is laid out as all channel 0, then all channel 1...
  *  only supports 1 or 4 channels (bytes_per_pixel)
  ************************************************************************/
-int OpenclDevice::HistogramRectOCL(unsigned char* imageData,
+int OpenclDevice::HistogramRectOCL(void* imageData,
                                    int bytes_per_pixel, int bytes_per_line,
                                    int left,  // always 0
                                    int top,   // always 0
@@ -2162,8 +2153,8 @@ static double histogramRectMicroBench(GPUEnv* env,
   timespec time_funct_start, time_funct_end;
 #endif
 
-  int left = 0;
-  int top = 0;
+  const int left = 0;
+  const int top = 0;
   int kHistogramSize = 256;
   int bytes_per_line = input.width * input.numChannels;
   int* histogramAllChannels = new int[kHistogramSize * input.numChannels];
@@ -2179,7 +2170,7 @@ static double histogramRectMicroBench(GPUEnv* env,
 
     OpenclDevice::gpuEnv = *env;
     int retVal = OpenclDevice::HistogramRectOCL(
-        input.imageData, input.numChannels, bytes_per_line, top, left,
+        input.imageData, input.numChannels, bytes_per_line, left, top,
         input.width, input.height, kHistogramSize, histogramAllChannels);
 
 #if ON_WINDOWS
