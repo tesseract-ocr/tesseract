@@ -1659,7 +1659,7 @@ void OpenclDevice::pixGetLinesCL(Pix* pixd, Pix* pixs, Pix** pix_vline,
  *  histogramAllChannels is laid out as all channel 0, then all channel 1...
  *  only supports 1 or 4 channels (bytes_per_pixel)
  ************************************************************************/
-int OpenclDevice::HistogramRectOCL(unsigned char* imageData,
+int OpenclDevice::HistogramRectOCL(void* imageData,
                                    int bytes_per_pixel, int bytes_per_line,
                                    int left,  // always 0
                                    int top,   // always 0
@@ -2153,8 +2153,8 @@ static double histogramRectMicroBench(GPUEnv* env,
   timespec time_funct_start, time_funct_end;
 #endif
 
-  int left = 0;
-  int top = 0;
+  const int left = 0;
+  const int top = 0;
   int kHistogramSize = 256;
   int bytes_per_line = input.width * input.numChannels;
   int* histogramAllChannels = new int[kHistogramSize * input.numChannels];
@@ -2170,7 +2170,7 @@ static double histogramRectMicroBench(GPUEnv* env,
 
     OpenclDevice::gpuEnv = *env;
     int retVal = OpenclDevice::HistogramRectOCL(
-        input.imageData, input.numChannels, bytes_per_line, top, left,
+        input.imageData, input.numChannels, bytes_per_line, left, top,
         input.width, input.height, kHistogramSize, histogramAllChannels);
 
 #if ON_WINDOWS

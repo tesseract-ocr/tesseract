@@ -275,7 +275,7 @@ class OpenclDevice {
   inline static int AddKernelConfig(int kCount, const char* kName);
 
   /* for binarization */
-  static int HistogramRectOCL(unsigned char* imagedata, int bytes_per_pixel,
+  static int HistogramRectOCL(void* imagedata, int bytes_per_pixel,
                               int bytes_per_line, int left, int top, int width,
                               int height, int kHistogramSize,
                               int* histogramAllChannels);
