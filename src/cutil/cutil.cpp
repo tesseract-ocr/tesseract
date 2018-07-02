@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:         cutil.cpp
  * Description:  General utility functions
@@ -21,21 +21,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
-Revision 1.1  2007/02/02 23:39:07  theraysmith
-Fixed portability issues
-
-Revision 1.1.1.1  2004/02/20 19:39:06  slumos
-Import original HP distribution
-
- * Revision 1.3  90/03/06  15:39:10  15:39:10  marks (Mark Seaman)
- * Look for correct file of <malloc.h> or <stdlib.h>
- *
- * Revision 1.2  90/01/15  13:02:13  13:02:13  marks (Mark Seaman)
- * Added memory allocator (*allocate) and (*deallocate)
- *
- * Revision 1.1  89/10/09  14:58:29  14:58:29  marks (Mark Seaman)
- * Initial revision
+ ******************************************************************************
  **/
 
 #include "cutil.h"
@@ -45,32 +31,6 @@ Import original HP distribution
 #include <cstdlib>
 
 #define RESET_COUNT 2000
-
-/**********************************************************************
- * long_rand
- *
- *  Return a long random number whose value is less than limit.  Do this
- *  by calling the standard cheepo random number generator and resetting
- *  it pretty often.
- **********************************************************************/
-long long_rand(long limit) {
-#if RAND_MAX < 0x1000000
-  static long seed;
-
-  long num;
-  num = (long) rand () << 16;
-  num |= rand () & 0xffff;
-  seed ^= num;
-  long result = num % limit;
-  while (result < 0) {
-    result += limit;
-  }
-  return result;
-#else
-  return (long)((double)limit * rand()/(RAND_MAX + 1.0));
-#endif
-}
-
 
 /**********************************************************************
  * open_file
