@@ -110,7 +110,7 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
     return (1.0 - NormEvidenceOf (Match));
   }
 
-  BestMatch = MAX_FLOAT32;
+  BestMatch = FLT_MAX;
   Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {

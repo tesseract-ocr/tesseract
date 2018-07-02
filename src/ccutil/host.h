@@ -48,11 +48,6 @@ using BOOL8 = unsigned char;
 
 #endif /* _WIN32 */
 
-#define MAX_FLOAT32 std::numeric_limits<float>::max()
-
-// Minimum positive value ie 1e-37ish.
-#define MIN_FLOAT32 std::numeric_limits<float>::min()
-
 // Defines
 #ifndef TRUE
 #define TRUE            1

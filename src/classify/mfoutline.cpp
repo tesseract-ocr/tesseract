@@ -406,11 +406,11 @@ void ComputeDirection(MFEDGEPT *Start,
   Delta.y = Finish->Point.y - Start->Point.y;
   if (Delta.x == 0)
   if (Delta.y < 0) {
-    Start->Slope = -MAX_FLOAT32;
+    Start->Slope = -FLT_MAX;
     Start->Direction = south;
   }
   else {
-    Start->Slope = MAX_FLOAT32;
+    Start->Slope = FLT_MAX;
     Start->Direction = north;
   }
   else {

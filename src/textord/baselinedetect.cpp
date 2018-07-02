@@ -28,6 +28,7 @@
 #include "baselinedetect.h"
 
 #include <algorithm>
+#include <cfloat>      // for FLT_MAX
 #include <cmath>
 #include "allheaders.h"
 #include "blobbox.h"
@@ -289,8 +290,8 @@ void BaselineRow::SetupBlobDisplacements(const FCOORD& direction) {
   GenericVector<double> perp_blob_dists;
   displacement_modes_.truncate(0);
   // Gather the skew-corrected position of every blob.
-  double min_dist = MAX_FLOAT32;
-  double max_dist = -MAX_FLOAT32;
+  double min_dist = FLT_MAX;
+  double max_dist = -FLT_MAX;
   BLOBNBOX_IT blob_it(blobs_);
 #ifdef kDebugYCoord
   bool debug = false;

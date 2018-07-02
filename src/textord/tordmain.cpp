@@ -21,6 +21,7 @@
 #include "config_auto.h"
 #endif
 
+#include <cfloat>      // for FLT_MAX
 #include "globaloc.h"
 #include "blread.h"
 #include "blobbox.h"
@@ -739,7 +740,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
     // Linear search of the groups to find a matching rotation.
     float block_angle = block->re_rotation().angle();
     int best_g = 0;
-    float best_angle_diff = MAX_FLOAT32;
+    float best_angle_diff = FLT_MAX;
     for (int g = 0; g < groups.size(); ++g) {
       double angle_diff = fabs(block_angle - groups[g]->angle);
       if (angle_diff > M_PI) angle_diff = fabs(angle_diff - 2.0 * M_PI);

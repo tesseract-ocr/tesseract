@@ -43,7 +43,7 @@
 #include "fontinfo.h"           // for ScoredFont, FontSet
 #include "genericvector.h"      // for GenericVector
 #include "helpers.h"            // for IntCastRounded, ClipToRange
-#include "host.h"               // for FLOAT32, FALSE, MAX_FLOAT32, TRUE
+#include "host.h"               // for FLOAT32, FALSE, TRUE
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -1474,7 +1474,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
       max_matches = MAX_MATCHES;
   }
 
-  float best_certainty = -MAX_FLOAT32;
+  float best_certainty = -FLT_MAX;
   for (int i = 0; i < Results->match.size(); i++) {
     const UnicharRating& result = Results->match[i];
     bool adapted = result.adapted;

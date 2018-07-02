@@ -26,6 +26,7 @@
 #include "emalloc.h"
 
 #include <algorithm>
+#include <cfloat>      // for FLT_MAX
 #include <cstdio>
 #include <cmath>
 
@@ -35,8 +36,8 @@
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-#define MINSEARCH -MAX_FLOAT32
-#define MAXSEARCH MAX_FLOAT32
+#define MINSEARCH -FLT_MAX
+#define MAXSEARCH FLT_MAX
 
 // Helper function to find the next essential dimension in a cycle.
 static int NextLevel(KDTREE *tree, int level) {
@@ -497,7 +498,7 @@ bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
 
     /* if this dimension is circular - check wraparound distance */
     if (dim->Circular) {
-      FLOAT32 wrap_distance = MAX_FLOAT32;
+      FLOAT32 wrap_distance = FLT_MAX;
       if (*query < *lower)
         wrap_distance = *query + dim->Max - dim->Min - *upper;
       else if (*query > *upper)

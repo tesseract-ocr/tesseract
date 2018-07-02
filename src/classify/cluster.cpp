@@ -24,6 +24,7 @@
 #include "matrix.h"
 #include "tprintf.h"
 #include "danerror.h"
+#include <cfloat>      // for FLT_MAX
 #include <cmath>
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
@@ -797,7 +798,7 @@ void MakePotentialClusters(ClusteringContext *context,
 CLUSTER *
 FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, FLOAT32 * Distance)
 #define MAXNEIGHBORS  2
-#define MAXDISTANCE   MAX_FLOAT32
+#define MAXDISTANCE   FLT_MAX
 {
   CLUSTER *Neighbor[MAXNEIGHBORS];
   FLOAT32 Dist[MAXNEIGHBORS];
@@ -2364,8 +2365,8 @@ void *FunctionParams, double InitialGuess, double Accuracy)
 
   x = InitialGuess;
   Delta = INITIALDELTA;
-  LastPosX = MAX_FLOAT32;
-  LastNegX = -MAX_FLOAT32;
+  LastPosX = FLT_MAX;
+  LastNegX = -FLT_MAX;
   f = (*Function) ((CHISTRUCT *) FunctionParams, x);
   while (Abs (LastPosX - LastNegX) > Accuracy) {
     // keep track of outer bounds of current estimate

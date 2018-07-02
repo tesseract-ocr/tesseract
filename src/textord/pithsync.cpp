@@ -18,6 +18,7 @@
  **********************************************************************/
 
 #include <math.h>
+#include <cfloat>       // for FLT_MAX
 #include <vector>       // for std::vector
 #include "makerow.h"
 #include "pitsync1.h"
@@ -134,7 +135,7 @@ void FPCUTPT::assign(                         //constructor
     fwd_balance |= lead_flag;
 
   xpos = x;
-  cost = MAX_FLOAT32;
+  cost = FLT_MAX;
   pred = nullptr;
   faked = faking;
   terminal = false;
@@ -241,7 +242,7 @@ void FPCUTPT::assign_cheap(                         //constructor
     fwd_balance |= lead_flag;
 
   xpos = x;
-  cost = MAX_FLOAT32;
+  cost = FLT_MAX;
   pred = nullptr;
   faked = faking;
   terminal = false;
@@ -370,7 +371,7 @@ double check_pitch_sync2(                          //find segmentation
       zero_count, pitch, x, offset);
 
   this_it = *blob_it;
-  best_cost = MAX_FLOAT32;
+  best_cost = FLT_MAX;
   best_end = nullptr;
   this_box = box_next (&this_it);//first box
   next_box = box_next (&this_it);//second box
@@ -551,7 +552,7 @@ double check_pitch_sync3(                          //find segmentation
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,
       zero_count, pitch, x, offset);
 
-  best_cost = MAX_FLOAT32;
+  best_cost = FLT_MAX;
   best_end = nullptr;
   for (offset = -pitch_error, minindex = 0; offset < pitch_error;
     offset++, minindex++)
