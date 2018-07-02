@@ -19,6 +19,7 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "kdtree.h"
+#include "cutil.h"      // for void_proc
 #include "emalloc.h"
 
 #include <algorithm>

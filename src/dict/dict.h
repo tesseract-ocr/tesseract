@@ -32,6 +32,7 @@
 class MATRIX;
 class WERD_RES;
 
+#define CHARS_PER_LINE 500
 #define MAX_WERD_LENGTH        (int64_t) 128
 #define NO_RATING               -1
 

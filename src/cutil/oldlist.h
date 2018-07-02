@@ -117,7 +117,7 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "cutil.h"
+#include "cutil.h"              // for int_compare, void_dest, ...
 #include "tesscallback.h"
 
 /*----------------------------------------------------------------------

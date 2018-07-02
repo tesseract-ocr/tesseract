@@ -274,6 +274,6 @@ void PrintProtos(CLASS_TYPE Class) {
     PrintProto (ProtoIn (Class, Pid));
     cprintf ("\t");
     PrintProtoLine (ProtoIn (Class, Pid));
-    new_line();
+    tprintf("\n");
   }
 }
