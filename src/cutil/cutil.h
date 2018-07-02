@@ -85,13 +85,5 @@ typedef void (*void_dest) (void *);
 #define print_string(str)  \
   printf ("%s\n", str)
 
-/*----------------------------------------------------------------------
-                     F u n c t i o n s
-----------------------------------------------------------------------*/
-
-FILE *open_file(const char *filename, const char *mode);
-
-bool exists_file(const char *filename);
-
 #include "cutil_class.h"
 #endif
