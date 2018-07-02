@@ -776,7 +776,7 @@ void Normalize (
   float Intercept;
   float Normalizer;
 
-  Slope      = tan (Values [2] * 2 * PI);
+  Slope      = tan(Values [2] * 2 * M_PI);
   Intercept  = Values [1] - Slope * Values [0];
   Normalizer = 1 / sqrt (Slope * Slope + 1.0);
 

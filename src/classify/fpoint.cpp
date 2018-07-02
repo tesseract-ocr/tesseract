@@ -45,7 +45,7 @@ float DistanceBetween(FPOINT A, FPOINT B) {
  * @note History: Wed Mar 28 14:27:25 1990, DSJ, Created.
  */
 float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
-  float NumRadsInCircle = 2.0 * PI;
+  float NumRadsInCircle = 2.0 * M_PI;
 
   float Angle = AngleFrom (*Point1, *Point2);
   if (Angle < 0.0)

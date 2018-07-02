@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:        protos.cpp  (Formerly protos.c)
  * Description:
@@ -21,7 +21,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
@@ -196,7 +196,7 @@ void CopyProto(PROTO Src, PROTO Dest) {
 void FillABC(PROTO Proto) {
   float Slope, Intercept, Normalizer;
 
-  Slope = tan (Proto->Angle * 2.0 * PI);
+  Slope = tan(Proto->Angle * 2.0 * M_PI);
   Intercept = Proto->Y - Slope * Proto->X;
   Normalizer = 1.0 / sqrt (Slope * Slope + 1.0);
   Proto->A = Slope * Normalizer;

@@ -405,7 +405,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                       Angle + ANGLE_SHIFT, classify_pp_angle_pad / 360.0,
                       debug);
 
-  Angle *= 2.0 * PI;
+  Angle *= 2.0 * M_PI;
   Length = Proto->Length;
 
   X = Proto->X + X_SHIFT;
@@ -1570,7 +1570,7 @@ void InitTableFiller (float EndPad, float SidePad,
 
     if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
-      Angle *= 2.0 * PI;
+      Angle *= 2.0 * M_PI;
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
@@ -1620,7 +1620,7 @@ void InitTableFiller (float EndPad, float SidePad,
       Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     } else {
       /* falling diagonal proto */
-      Angle *= 2.0 * PI;
+      Angle *= 2.0 * M_PI;
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
@@ -1700,8 +1700,8 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   Length = GetPicoFeatureLength() * 0.7 * INT_CHAR_NORM_RANGE;
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * PI - PI);
-  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * PI - PI);
+  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
+  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
 
   window->SetCursor(X, Y);
   window->DrawTo(X + Dx, Y + Dy);
@@ -1767,8 +1767,8 @@ void RenderIntProto(ScrollView *window,
   Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE;
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * PI - PI);
-  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * PI - PI);
+  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
+  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
 
   window->SetCursor(X - Dx, Y - Dy);
   window->DrawTo(X + Dx, Y + Dy);

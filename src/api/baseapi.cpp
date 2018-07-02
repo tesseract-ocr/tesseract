@@ -2429,7 +2429,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
     float re_theta = re_rotation.angle();
     FCOORD classify_rotation = block_it.data()->classify_rotation();
     float classify_theta = classify_rotation.angle();
-    double rot_theta = - (re_theta - classify_theta) * 2.0 / PI;
+    double rot_theta = - (re_theta - classify_theta) * 2.0 / M_PI;
     if (rot_theta < 0) rot_theta += 4;
     int num_rotations = static_cast<int>(rot_theta + 0.5);
     (*block_orientation)[i] = num_rotations;

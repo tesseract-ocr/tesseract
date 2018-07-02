@@ -17,7 +17,7 @@
  ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
- ******************************************************************************/
+ *****************************************************************************/
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
@@ -25,7 +25,6 @@
 #include "allheaders.h"
 #include "ccutil.h"
 #include "classify.h"
-#include "const.h"
 #include "helpers.h"
 #include "intmatcher.h"
 #include "linlsq.h"
@@ -56,8 +55,8 @@ void InitIntegerFX() {
   atan_table_mutex.Lock();
   if (!atan_table_init) {
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
-      cos_table[i] = cos(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
-      sin_table[i] = sin(i * 2 * PI / INT_CHAR_NORM_RANGE + PI);
+      cos_table[i] = cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
+      sin_table[i] = sin(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
     }
     atan_table_init = true;
   }

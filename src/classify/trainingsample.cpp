@@ -297,8 +297,8 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
   for (int f = 0; f < num_features_; ++f) {
     int start_x = features_[f].X;
     int start_y = kIntFeatureExtent - features_[f].Y;
-    double dx = cos((features_[f].Theta / 256.0) * 2.0 * PI - PI);
-    double dy = -sin((features_[f].Theta / 256.0) * 2.0 * PI - PI);
+    double dx = cos((features_[f].Theta / 256.0) * 2.0 * M_PI - M_PI);
+    double dy = -sin((features_[f].Theta / 256.0) * 2.0 * M_PI - M_PI);
     for (int i = 0; i <= 5; ++i) {
       int x = static_cast<int>(start_x + dx * i);
       int y = static_cast<int>(start_y + dy * i);
