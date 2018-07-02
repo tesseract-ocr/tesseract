@@ -49,7 +49,7 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   LIST RemainingOutlines;
   MFOUTLINE Outline;
   FEATURE_SET FeatureSet;
-  FLOAT32 XScale, YScale;
+  float XScale, YScale;
 
   FeatureSet = NewFeatureSet (MAX_OUTLINE_FEATURES);
   if (Blob == nullptr)
@@ -163,10 +163,10 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   int i;
   FEATURE Feature;
-  FLOAT32 Length;
-  FLOAT32 TotalX = 0.0;
-  FLOAT32 TotalWeight = 0.0;
-  FLOAT32 Origin;
+  float Length;
+  float TotalX = 0.0;
+  float TotalWeight = 0.0;
+  float Origin;
 
   if (FeatureSet->NumFeatures <= 0)
     return;

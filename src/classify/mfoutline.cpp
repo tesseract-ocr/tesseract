@@ -119,8 +119,8 @@ LIST ConvertOutlines(TESSLINE *outline,
  * @note History: 7/21/89, DSJ, Created.
  */
 void FindDirectionChanges(MFOUTLINE Outline,
-                          FLOAT32 MinSlope,
-                          FLOAT32 MaxSlope) {
+                          float MinSlope,
+                          float MaxSlope) {
   MFEDGEPT *Current;
   MFEDGEPT *Last;
   MFOUTLINE EdgePoint;
@@ -262,7 +262,7 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  * @note History: 8/2/89, DSJ, Created.
  */
 void NormalizeOutline(MFOUTLINE Outline,
-                      FLOAT32 XOrigin) {
+                      float XOrigin) {
   if (Outline == NIL_LIST)
     return;
 
@@ -298,8 +298,8 @@ namespace tesseract {
  * @note History: Fri Dec 14 08:14:55 1990, DSJ, Created.
  */
 void Classify::NormalizeOutlines(LIST Outlines,
-                                 FLOAT32 *XScale,
-                                 FLOAT32 *YScale) {
+                                 float *XScale,
+                                 float *YScale) {
   MFOUTLINE Outline;
 
   switch (classify_norm_method) {
@@ -398,8 +398,8 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
  */
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,
-                      FLOAT32 MinSlope,
-                      FLOAT32 MaxSlope) {
+                      float MinSlope,
+                      float MaxSlope) {
   FVECTOR Delta;
 
   Delta.x = Finish->Point.x - Start->Point.x;

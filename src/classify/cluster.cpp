@@ -169,10 +169,10 @@ using ClusterPair = tesseract::KDPairInc<float, TEMPCLUSTER*>;
 using ClusterHeap = tesseract::GenericHeap<ClusterPair>;
 
 struct STATISTICS {
-  FLOAT32 AvgVariance;
-  FLOAT32 *CoVariance;
-  FLOAT32 *Min;                  // largest negative distance from the mean
-  FLOAT32 *Max;                  // largest positive distance from the mean
+  float AvgVariance;
+  float *CoVariance;
+  float *Min;                  // largest negative distance from the mean
+  float *Max;                  // largest positive distance from the mean
 };
 
 struct BUCKETS {
@@ -183,7 +183,7 @@ struct BUCKETS {
   uint16_t NumberOfBuckets;         // number of cells in histogram
   uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
   uint32_t *Count;                  // frequency of occurrence histogram
-  FLOAT32 *ExpectedCount;           // expected histogram
+  float *ExpectedCount;             // expected histogram
 };
 
 struct CHISTRUCT{
@@ -246,7 +246,7 @@ void MakePotentialClusters(ClusteringContext *context, CLUSTER *Cluster,
 
 CLUSTER *FindNearestNeighbor(KDTREE *Tree,
                              CLUSTER *Cluster,
-                             FLOAT32 *Distance);
+                             float *Distance);
 
 CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster);
 
@@ -254,8 +254,8 @@ int32_t MergeClusters (int16_t N,
 PARAM_DESC ParamDesc[],
 int32_t n1,
 int32_t n2,
-FLOAT32 m[],
-FLOAT32 m1[], FLOAT32 m2[]);
+float m[],
+float m1[], float m2[]);
 
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
@@ -310,7 +310,7 @@ PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics);
 PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster);
 
 bool Independent(PARAM_DESC* ParamDesc,
-                 int16_t N, FLOAT32* CoVariance, FLOAT32 Independence);
+                 int16_t N, float* CoVariance, float Independence);
 
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
@@ -335,18 +335,18 @@ void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
                  uint16_t Dim,
                  PARAM_DESC *ParamDesc,
-                 FLOAT32 Mean,
-                 FLOAT32 StdDev);
+                 float Mean,
+                 float StdDev);
 
 uint16_t NormalBucket(PARAM_DESC *ParamDesc,
-                    FLOAT32 x,
-                    FLOAT32 Mean,
-                    FLOAT32 StdDev);
+                    float x,
+                    float Mean,
+                    float StdDev);
 
 uint16_t UniformBucket(PARAM_DESC *ParamDesc,
-                     FLOAT32 x,
-                     FLOAT32 Mean,
-                     FLOAT32 StdDev);
+                     float x,
+                     float Mean,
+                     float StdDev);
 
 bool DistributionOK(BUCKETS* Buckets);
 
@@ -381,7 +381,7 @@ double ChiArea(CHISTRUCT *ChiParams, double x);
 
 bool MultipleCharSamples(CLUSTERER* Clusterer,
                          CLUSTER* Cluster,
-                         FLOAT32 MaxIllegal);
+                         float MaxIllegal);
 
 double InvertMatrix(const float* input, int size, float* inv);
 
@@ -453,7 +453,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  *    ClusterSamples has been called
  * @note History: 5/29/89, DSJ, Created.
  */
-SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
+SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
                    int32_t CharID) {
   SAMPLE *Sample;
   int i;
@@ -466,7 +466,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
   // allocate the new sample and initialize it
   Sample = (SAMPLE *) Emalloc (sizeof (SAMPLE) +
     (Clusterer->SampleSize -
-    1) * sizeof (FLOAT32));
+    1) * sizeof (float));
   Sample->Clustered = FALSE;
   Sample->Prototype = FALSE;
   Sample->SampleCount = 1;
@@ -642,7 +642,7 @@ CLUSTER *NextSample(LIST *SearchState) {
  * @note Exceptions: none
  * @note History: 7/6/89, DSJ, Created.
  */
-FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension) {
+float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
   return (Proto->Mean[Dimension]);
 }                                // Mean
 
@@ -655,17 +655,17 @@ FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension) {
  * @note Exceptions: none
  * @note History: 7/6/89, DSJ, Created.
  */
-FLOAT32 StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
+float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
     case spherical:
-      return ((FLOAT32) sqrt ((double) Proto->Variance.Spherical));
+      return ((float) sqrt ((double) Proto->Variance.Spherical));
     case elliptical:
-      return ((FLOAT32)
+      return ((float)
         sqrt ((double) Proto->Variance.Elliptical[Dimension]));
     case mixed:
       switch (Proto->Distrib[Dimension]) {
         case normal:
-          return ((FLOAT32)
+          return ((float)
             sqrt ((double) Proto->Variance.Elliptical[Dimension]));
         case uniform:
         case D_random:
@@ -796,12 +796,12 @@ void MakePotentialClusters(ClusteringContext *context,
  *  7/13/89, DSJ, Removed visibility of kd-tree node data struct
  */
 CLUSTER *
-FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, FLOAT32 * Distance)
+FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, float * Distance)
 #define MAXNEIGHBORS  2
 #define MAXDISTANCE   FLT_MAX
 {
   CLUSTER *Neighbor[MAXNEIGHBORS];
-  FLOAT32 Dist[MAXNEIGHBORS];
+  float Dist[MAXNEIGHBORS];
   int NumberOfNeighbors;
   int32_t i;
   CLUSTER *BestNeighbor;
@@ -839,7 +839,7 @@ CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
 
   // allocate the new cluster and initialize it
   Cluster = (CLUSTER *) Emalloc(
-      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(FLOAT32));
+      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float));
   Cluster->Clustered = FALSE;
   Cluster->Prototype = FALSE;
   Cluster->Left = TempCluster->Cluster;
@@ -882,8 +882,8 @@ int32_t MergeClusters(int16_t N,
                     PARAM_DESC ParamDesc[],
                     int32_t n1,
                     int32_t n2,
-                    FLOAT32 m[],
-                    FLOAT32 m1[], FLOAT32 m2[]) {
+                    float m[],
+                    float m1[], float m2[]) {
   int32_t i, n;
 
   n = n1 + n2;
@@ -1123,10 +1123,10 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   int TotalDims = Left->SampleCount + Right->SampleCount;
   if (TotalDims < N + 1 || TotalDims < 2)
     return nullptr;
-  const int kMatrixSize = N * N * sizeof(FLOAT32);
-  FLOAT32 *Covariance = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32 *Inverse = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32 *Delta = static_cast<FLOAT32 *>(Emalloc(N * sizeof(FLOAT32)));
+  const int kMatrixSize = N * N * sizeof(float);
+  float *Covariance = static_cast<float *>(Emalloc(kMatrixSize));
+  float *Inverse = static_cast<float *>(Emalloc(kMatrixSize));
+  float *Delta = static_cast<float *>(Emalloc(N * sizeof(float)));
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
     int row_offset = i * N;
@@ -1413,20 +1413,20 @@ STATISTICS *
 ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   STATISTICS *Statistics;
   int i, j;
-  FLOAT32 *CoVariance;
-  FLOAT32 *Distance;
+  float *CoVariance;
+  float *Distance;
   LIST SearchState;
   SAMPLE *Sample;
   uint32_t SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
   Statistics = (STATISTICS *) Emalloc (sizeof (STATISTICS));
-  Statistics->CoVariance = (FLOAT32 *) Emalloc (N * N * sizeof (FLOAT32));
-  Statistics->Min = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Statistics->Max = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Statistics->CoVariance = (float *) Emalloc (N * N * sizeof (float));
+  Statistics->Min = (float *) Emalloc (N * sizeof (float));
+  Statistics->Max = (float *) Emalloc (N * sizeof (float));
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Distance = (float *) Emalloc (N * sizeof (float));
 
   // initialize the statistics
   Statistics->AvgVariance = 1.0;
@@ -1534,13 +1534,13 @@ PROTOTYPE *NewEllipticalProto(int16_t N,
                               CLUSTER *Cluster,
                               STATISTICS *Statistics) {
   PROTOTYPE *Proto;
-  FLOAT32 *CoVariance;
+  float *CoVariance;
   int i;
 
   Proto = NewSimpleProto (N, Cluster);
-  Proto->Variance.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Magnitude.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Weight.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto->Variance.Elliptical = (float *) Emalloc (N * sizeof (float));
+  Proto->Magnitude.Elliptical = (float *) Emalloc (N * sizeof (float));
+  Proto->Weight.Elliptical = (float *) Emalloc (N * sizeof (float));
 
   CoVariance = Statistics->CoVariance;
   Proto->TotalMagnitude = 1.0;
@@ -1603,7 +1603,7 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   int i;
 
   Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
-  Proto->Mean = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto->Mean = (float *) Emalloc (N * sizeof (float));
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
@@ -1640,11 +1640,11 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
  */
 bool
 Independent(PARAM_DESC* ParamDesc,
-            int16_t N, FLOAT32* CoVariance, FLOAT32 Independence) {
+            int16_t N, float* CoVariance, float Independence) {
   int i, j;
-  FLOAT32 *VARii;                // points to ith on-diagonal element
-  FLOAT32 *VARjj;                // points to jth on-diagonal element
-  FLOAT32 CorrelationCoeff;
+  float *VARii;                // points to ith on-diagonal element
+  float *VARjj;                // points to jth on-diagonal element
+  float CorrelationCoeff;
 
   VARii = CoVariance;
   for (i = 0; i < N; i++, VARii += N + 1) {
@@ -1756,8 +1756,8 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   Buckets->Confidence = Confidence;
   Buckets->Count =
       static_cast<uint32_t *>(Emalloc(Buckets->NumberOfBuckets * sizeof(uint32_t)));
-  Buckets->ExpectedCount = static_cast<FLOAT32 *>(
-      Emalloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
+  Buckets->ExpectedCount = static_cast<float *>(
+      Emalloc(Buckets->NumberOfBuckets * sizeof(float)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
@@ -1796,12 +1796,12 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
       }
       Buckets->Bucket[i] = CurrentBucket;
       Buckets->ExpectedCount[CurrentBucket] +=
-        (FLOAT32) (ProbabilityDelta * SampleCount);
+        (float) (ProbabilityDelta * SampleCount);
       LastProbDensity = ProbDensity;
     }
     // place any leftover probability into the last bucket
     Buckets->ExpectedCount[CurrentBucket] +=
-      (FLOAT32) ((0.5 - Probability) * SampleCount);
+      (float) ((0.5 - Probability) * SampleCount);
 
     // copy upper half of distribution to lower half
     for (i = 0, j = BUCKETTABLESIZE - 1; i < j; i++, j--)
@@ -1832,15 +1832,15 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
  */
 uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
   uint8_t Last, Next;
-  FLOAT32 Slope;
+  float Slope;
 
   if (SampleCount < kCountTable[0])
     return kBucketsTable[0];
 
   for (Last = 0, Next = 1; Next < LOOKUPTABLESIZE; Last++, Next++) {
     if (SampleCount <= kCountTable[Next]) {
-      Slope = (FLOAT32) (kBucketsTable[Next] - kBucketsTable[Last]) /
-          (FLOAT32) (kCountTable[Next] - kCountTable[Last]);
+      Slope = (float) (kBucketsTable[Next] - kBucketsTable[Last]) /
+          (float) (kCountTable[Next] - kCountTable[Last]);
       return ((uint16_t) (kBucketsTable[Last] +
           Slope * (SampleCount - kCountTable[Last])));
     }
@@ -1986,8 +1986,8 @@ void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
                  uint16_t Dim,
                  PARAM_DESC *ParamDesc,
-                 FLOAT32 Mean,
-                 FLOAT32 StdDev) {
+                 float Mean,
+                 float StdDev) {
   uint16_t BucketID;
   int i;
   LIST SearchState;
@@ -2055,10 +2055,10 @@ void FillBuckets(BUCKETS *Buckets,
  * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t NormalBucket(PARAM_DESC *ParamDesc,
-                    FLOAT32 x,
-                    FLOAT32 Mean,
-                    FLOAT32 StdDev) {
-  FLOAT32 X;
+                      float x,
+                      float Mean,
+                      float StdDev) {
+  float X;
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
@@ -2090,10 +2090,10 @@ uint16_t NormalBucket(PARAM_DESC *ParamDesc,
  * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t UniformBucket(PARAM_DESC *ParamDesc,
-                     FLOAT32 x,
-                     FLOAT32 Mean,
-                     FLOAT32 StdDev) {
-  FLOAT32 X;
+                       float x,
+                       float Mean,
+                       float StdDev) {
+  float X;
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
@@ -2124,8 +2124,8 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
  * @note History: 6/5/89, DSJ, Created.
  */
 bool DistributionOK(BUCKETS* Buckets) {
-  FLOAT32 FrequencyDifference;
-  FLOAT32 TotalDifference;
+  float FrequencyDifference;
+  float TotalDifference;
   int i;
 
   // compute how well the histogram matches the expected histogram
@@ -2464,7 +2464,7 @@ double ChiArea(CHISTRUCT *ChiParams, double x) {
  */
 bool
 MultipleCharSamples(CLUSTERER* Clusterer,
-                    CLUSTER* Cluster, FLOAT32 MaxIllegal)
+                    CLUSTER* Cluster, float MaxIllegal)
 #define ILLEGAL_CHAR    2
 {
   static BOOL8 *CharFlags = nullptr;
@@ -2475,7 +2475,7 @@ MultipleCharSamples(CLUSTERER* Clusterer,
   int32_t CharID;
   int32_t NumCharInCluster;
   int32_t NumIllegalInCluster;
-  FLOAT32 PercentIllegal;
+  float PercentIllegal;
 
   // initial estimate assumes that no illegal chars exist in the cluster
   NumCharInCluster = Cluster->SampleCount;
@@ -2503,7 +2503,7 @@ MultipleCharSamples(CLUSTERER* Clusterer,
         CharFlags[CharID] = ILLEGAL_CHAR;
       }
       NumCharInCluster--;
-      PercentIllegal = (FLOAT32) NumIllegalInCluster / NumCharInCluster;
+      PercentIllegal = (float) NumIllegalInCluster / NumCharInCluster;
       if (PercentIllegal > MaxIllegal) {
         destroy(SearchState);
         return true;

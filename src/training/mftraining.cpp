@@ -1,17 +1,11 @@
 /******************************************************************************
-**  Filename:  mftraining.c
-**  Purpose:  Separates training pages into files for each character.
-**        Strips from files only the features and there parameters of
-        the feature type mf.
-**  Author:    Dan Johnson
-**  Revisment:  Christy Russon
-**  Environment: HPUX 6.5
-**  Library:     HPUX 6.5
-**  History:     Fri Aug 18 08:53:50 1989, DSJ, Created.
-**         5/25/90, DSJ, Adapted to multiple feature types.
-**        Tuesday, May 17, 1998 Changes made to make feature specific and
-**        simplify structures. First step in simplifying training process.
-**
+ ** Filename:   mftraining.c
+ ** Purpose:    Separates training pages into files for each character.
+ **             Strips from files only the features and there parameters of
+ **             the feature type mf.
+ ** Author:     Dan Johnson
+ ** Revisment:  Christy Russon
+ **
  **  (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
@@ -161,7 +155,7 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
       MakeNewFromOld(&dummy_proto, prototype);
       // Merge with the similar proto.
       ComputeMergedProto(ProtoIn(merge_class->Class, p_id), &dummy_proto,
-                         static_cast<FLOAT32>(merge_class->NumMerged[p_id]),
+                         static_cast<float>(merge_class->NumMerged[p_id]),
                          1.0,
                          ProtoIn(merge_class->Class, p_id));
       merge_class->NumMerged[p_id]++;

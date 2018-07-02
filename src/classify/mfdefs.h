@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    mfdefs.h
- **	Purpose:     Definition of micro-features
- **	Author:      Dan Johnson
- **	History:     Mon Jan 22 08:42:13 1990, DSJ, Created.
+ ** Filename:    mfdefs.h
+ ** Purpose:     Definition of micro-features
+ ** Author:      Dan Johnson
+ ** History:     Mon Jan 22 08:42:13 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -29,8 +29,8 @@ typedef LIST MICROFEATURES;
 
 /* definition of structure of micro-features */
 #define MFSIZE        6
-typedef FLOAT32 MFBLOCK[MFSIZE];
-typedef FLOAT32 *MICROFEATURE;
+typedef float MFBLOCK[MFSIZE];
+typedef float *MICROFEATURE;
 
 /* definitions of individual micro-feature parameters */
 #define XPOSITION     0

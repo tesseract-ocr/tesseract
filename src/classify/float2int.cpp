@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:    float2int.c
- **	Purpose:     Routines for converting float features to int features
- **	Author:      Dan Johnson
- **	History:     Wed Mar 13 07:47:48 1991, DSJ, Created.
+ ** Filename:    float2int.cpp
+ ** Purpose:     Routines for converting float features to int features
+ ** Author:      Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -99,8 +98,7 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  */
 void Classify::ComputeIntFeatures(FEATURE_SET Features,
                                   INT_FEATURE_ARRAY IntFeatures) {
-  FEATURE Feature;
-  FLOAT32 YShift;
+  float YShift;
 
   if (classify_norm_method == baseline)
     YShift = BASELINE_Y_SHIFT;
@@ -108,7 +106,7 @@ void Classify::ComputeIntFeatures(FEATURE_SET Features,
     YShift = Y_SHIFT;
 
   for (int Fid = 0; Fid < Features->NumFeatures; Fid++) {
-    Feature = Features->Features[Fid];
+    FEATURE Feature = Features->Features[Fid];
 
     IntFeatures[Fid].X =
         Bucket8For(Feature->Params[PicoFeatX], X_SHIFT, INT_FEAT_RANGE);

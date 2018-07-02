@@ -69,7 +69,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   LIST RemainingOutlines;
   MFOUTLINE Outline;
   FEATURE_SET FeatureSet;
-  FLOAT32 XScale, YScale;
+  float XScale, YScale;
 
   FeatureSet = NewFeatureSet(MAX_PICO_FEATURES);
   Outlines = ConvertBlob(Blob);
@@ -110,8 +110,8 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
                               FPOINT *End,
                               FEATURE_SET FeatureSet) {
   FEATURE Feature;
-  FLOAT32 Angle;
-  FLOAT32 Length;
+  float Angle;
+  float Length;
   int NumFeatures;
   FPOINT Center;
   FPOINT Delta;
@@ -204,7 +204,7 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
 void NormalizePicoX(FEATURE_SET FeatureSet) {
   int i;
   FEATURE Feature;
-  FLOAT32 Origin = 0.0;
+  float Origin = 0.0;
 
   for (i = 0; i < FeatureSet->NumFeatures; i++) {
     Feature = FeatureSet->Features[i];
