@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:         cutil.h
  * Description:  General utility functions
@@ -21,14 +21,8 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
-Revision 1.1  2007/02/02 23:39:07  theraysmith
-Fixed portability issues
-
-Revision 1.1.1.1  2004/02/20 19:39:06  slumos
-Import original HP distribution
-
-*/
+ ******************************************************************************
+ */
 
 #ifndef CUTILH
 #define CUTILH
@@ -62,7 +56,6 @@ Import original HP distribution
 # define _ARGS(s) ()
 #endif
 
-//typedef int (*int_proc)               (void);
 typedef void (*void_proc) (...);
 typedef void *(*void_star_proc) _ARGS ((...));
 
@@ -95,21 +88,10 @@ typedef void (*void_dest) (void *);
 /*----------------------------------------------------------------------
                      F u n c t i o n s
 ----------------------------------------------------------------------*/
-long long_rand(long limit);
 
 FILE *open_file(const char *filename, const char *mode);
 
 bool exists_file(const char *filename);
 
-/* util.c
-long long_rand
-  _ARGS ((long limit));
-
-FILE *open_file
-   _ARGS((char *filename,
-    char *mode));
-
-#undef _ARGS
-*/
 #include "cutil_class.h"
 #endif
