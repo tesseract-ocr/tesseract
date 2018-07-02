@@ -21,7 +21,6 @@
 #include "classify.h"
 #include "cluster.h"
 #include "clusttool.h"
-#include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"

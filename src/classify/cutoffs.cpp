@@ -23,7 +23,6 @@
 #include <cstdio>
 
 #include "classify.h"
-#include "efio.h"
 #include "globals.h"
 #include "helpers.h"
 #include "serialis.h"

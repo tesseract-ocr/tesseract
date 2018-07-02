@@ -21,7 +21,6 @@
 #include "picofeat.h"
 
 #include "classify.h"
-#include "efio.h"
 #include "featdefs.h"
 #include "fpoint.h"
 #include "mfoutline.h"
