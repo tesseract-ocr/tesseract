@@ -128,7 +128,4 @@ float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension);
 int32_t MergeClusters(int16_t N, PARAM_DESC ParamDesc[], int32_t n1, int32_t n2,
                       float m[], float m1[], float m2[]);
 
-//--------------Global Data Definitions and Declarations---------------------------
-// define errors that can be trapped
-#define ALREADYCLUSTERED  4000
 #endif

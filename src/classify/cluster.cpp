@@ -24,7 +24,6 @@
 #include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"
-#include "danerror.h"
 #include <cfloat>      // for FLT_MAX
 #include <cmath>
 
@@ -450,9 +449,6 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  * @param CharID  unique ident. of char that sample came from
  *
  * @return    Pointer to the new sample data structure
- * @note Exceptions:  ALREADYCLUSTERED  MakeSample can't be called after
- *    ClusterSamples has been called
- * @note History: 5/29/89, DSJ, Created.
  */
 SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
                    int32_t CharID) {
@@ -460,9 +456,8 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
   int i;
 
   // see if the samples have already been clustered - if so trap an error
-  if (Clusterer->Root != nullptr)
-    DoError (ALREADYCLUSTERED,
-      "Can't add samples after they have been clustered");
+  // Can't add samples after they have been clustered.
+  ASSERT_HOST(Clusterer->Root == nullptr);
 
   // allocate the new sample and initialize it
   Sample = (SAMPLE *) Emalloc (sizeof (SAMPLE) +

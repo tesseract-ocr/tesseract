@@ -28,6 +28,7 @@
 #endif
 
 #include "classify.h"
+#include "callcpp.h"       // for cprintf
 #include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"

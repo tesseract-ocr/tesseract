@@ -17,7 +17,6 @@
 
 //--------------------------Include Files----------------------------------
 #include "clusttool.h"
-#include "danerror.h"
 #include "emalloc.h"
 #include <cstdio>
 #include <cmath>
@@ -38,34 +37,26 @@ using tesseract::TFile;
  * @param fp open text file to read sample size from
  * @return Sample size
  * @note Globals: None
- * @note Exceptions: ILLEGALSAMPLESIZE  illegal format or range
- * @note History: 6/6/89, DSJ, Created.
  */
 uint16_t ReadSampleSize(TFile *fp) {
   int SampleSize = 0;
 
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
-  if (fp->FGets(line, kMaxLineSize) == nullptr ||
-      sscanf(line, "%d", &SampleSize) != 1 || (SampleSize < 0) ||
-      (SampleSize > MAXSAMPLESIZE))
-    DoError (ILLEGALSAMPLESIZE, "Illegal sample size");
-  return (SampleSize);
+  ASSERT_HOST(fp->FGets(line, kMaxLineSize) != nullptr);
+  ASSERT_HOST(sscanf(line, "%d", &SampleSize) == 1);
+  ASSERT_HOST(SampleSize >= 0 && SampleSize <= MAXSAMPLESIZE);
+  return SampleSize;
 }
 
 /**
  * This routine reads textual descriptions of sets of parameters
  * which describe the characteristics of feature dimensions.
  *
- * Exceptions:
- * - ILLEGALCIRCULARSPEC
- * - ILLEGALESSENTIALSPEC
- * - ILLEGALMINMAXSPEC
  * @param fp open text file to read N parameter descriptions from
  * @param N number of parameter descriptions to read
  * @return Pointer to an array of parameter descriptors.
  * @note Globals: None
- * @note History: 6/6/89, DSJ, Created.
  */
 PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
@@ -75,11 +66,11 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
-    if (fp->FGets(line, kMaxLineSize) == nullptr ||
-        sscanf(line, "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
-               linear_token, essential_token, &ParamDesc[i].Min,
-               &ParamDesc[i].Max) != 4)
-      DoError(ILLEGALCIRCULARSPEC, "Illegal Parameter specification");
+    ASSERT_HOST(fp->FGets(line, kMaxLineSize) != nullptr);
+    ASSERT_HOST(sscanf(line,
+                "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
+                linear_token, essential_token, &ParamDesc[i].Min,
+                &ParamDesc[i].Max) == 4);
     if (linear_token[0] == 'c')
       ParamDesc[i].Circular = TRUE;
     else
@@ -100,17 +91,10 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
  * This routine reads a textual description of a prototype from
  * the specified file.
  *
- * Exceptions:
- * - ILLEGALSIGNIFICANCESPEC
- * - ILLEGALSAMPLECOUNT
- * - ILLEGALMEANSPEC
- * - ILLEGALVARIANCESPEC
- * - ILLEGALDISTRIBUTION
  * @param fp open text file to read prototype from
  * @param N number of dimensions used in prototype
  * @return List of prototypes
  * @note Globals: None
- * @note History: 6/6/89, DSJ, Created.
  */
 PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   char sig_token[TOKENSIZE], shape_token[TOKENSIZE];
@@ -148,16 +132,15 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Style = elliptical;
   }
 
-  if (SampleCount < 0) DoError(ILLEGALSAMPLECOUNT, "Illegal sample count");
+  ASSERT_HOST(SampleCount >= 0);
   Proto->NumSamples = SampleCount;
 
   Proto->Mean = ReadNFloats(fp, N, nullptr);
-  if (Proto->Mean == nullptr) DoError(ILLEGALMEANSPEC, "Illegal prototype mean");
+  ASSERT_HOST(Proto->Mean != nullptr);
 
   switch (Proto->Style) {
     case spherical:
-      if (ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) == nullptr)
-        DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
+      ASSERT_HOST(ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) != nullptr);
       Proto->Magnitude.Spherical =
           1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
       Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, (float)N);
@@ -167,8 +150,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       break;
     case elliptical:
       Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
-      if (Proto->Variance.Elliptical == nullptr)
-        DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
+      ASSERT_HOST(Proto->Variance.Elliptical != nullptr);
       Proto->Magnitude.Elliptical = (float *)Emalloc(N * sizeof(float));
       Proto->Weight.Elliptical = (float *)Emalloc(N * sizeof(float));
       Proto->TotalMagnitude = 1.0;
@@ -200,8 +182,6 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
  * @param Buffer pointer to buffer to place floats into
  * @return Pointer to buffer holding floats or nullptr if EOF
  * @note Globals: None
- * @note Exceptions: ILLEGALFLOAT
- * @note History: 6/6/89, DSJ, Created.
  */
 float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
   const int kMaxLineSize = 1024;

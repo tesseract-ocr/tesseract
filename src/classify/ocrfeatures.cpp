@@ -21,7 +21,6 @@
 #include "ocrfeatures.h"
 #include "emalloc.h"
 #include "callcpp.h"
-#include "danerror.h"
 #include "scanutils.h"
 
 #include <cassert>
@@ -121,9 +120,6 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @param File open text file to read feature from
  * @param FeatureDesc specifies type of feature to read from File
  * @return New #FEATURE read from File.
- * @note Exceptions: #ILLEGAL_FEATURE_PARAM if text file doesn't match expected
- * format
- * @note History: Wed May 23 08:53:16 1990, DSJ, Created.
  */
 FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
@@ -131,14 +127,13 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   Feature = NewFeature (FeatureDesc);
   for (i = 0; i < Feature->Type->NumParams; i++) {
-    if (tfscanf(File, "%f", &(Feature->Params[i])) != 1)
-      DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
+    ASSERT_HOST(tfscanf(File, "%f", &(Feature->Params[i])) == 1);
 #ifndef _WIN32
     assert (!std::isnan(Feature->Params[i]));
 #endif
   }
-  return (Feature);
-}                                /* ReadFeature */
+  return Feature;
+}
 
 /**
  * Create a new feature set of the specified type and read in
@@ -149,22 +144,18 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @param File open text file to read new feature set from
  * @param FeatureDesc specifies type of feature to read from File
  * @return New feature set read from File.
- * @note History: Wed May 23 09:17:31 1990, DSJ, Created.
  */
 FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
-  FEATURE_SET FeatureSet;
   int NumFeatures;
-  int i;
+  ASSERT_HOST(tfscanf(File, "%d", &NumFeatures) == 1);
+  ASSERT_HOST(NumFeatures >= 0);
 
-  if (tfscanf(File, "%d", &NumFeatures) != 1 || NumFeatures < 0)
-    DoError(ILLEGAL_NUM_FEATURES, "Illegal number of features in set");
-
-  FeatureSet = NewFeatureSet(NumFeatures);
-  for (i = 0; i < NumFeatures; i++)
+  FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
+  for (int i = 0; i < NumFeatures; i++)
     AddFeature(FeatureSet, ReadFeature (File, FeatureDesc));
 
-  return (FeatureSet);
-}                                /* ReadFeatureSet */
+  return FeatureSet;
+}
 
 /**
  * Appends a textual representation of Feature to str.

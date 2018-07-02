@@ -30,9 +30,6 @@ extern const char* kCNFeatureType;
 extern const char* kIntFeatureType;
 extern const char* kGeoFeatureType;
 
-/* define error traps which can be triggered by this module.*/
-#define ILLEGAL_SHORT_NAME  2000
-
 /* A character is described by multiple sets of extracted features.  Each
   set contains a number of features of a particular type, for example, a
   set of bays, or a set of closures, or a set of microfeatures.  Each

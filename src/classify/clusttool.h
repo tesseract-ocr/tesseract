@@ -47,18 +47,4 @@ void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
                     LIST ProtoList, bool WriteSigProtos,
                     bool WriteInsigProtos);
 
-//--------------Global Data Definitions and Declarations---------------------
-// define errors that can be trapped
-#define ILLEGALSAMPLESIZE 5000
-#define ILLEGALCIRCULARSPEC 5001
-#define ILLEGALMINMAXSPEC 5002
-#define ILLEGALSIGNIFICANCESPEC 5003
-#define ILLEGALSTYLESPEC  5004
-#define ILLEGALSAMPLECOUNT  5005
-#define ILLEGALMEANSPEC 5006
-#define ILLEGALVARIANCESPEC 5007
-#define ILLEGALDISTRIBUTION 5008
-#define ILLEGALFLOAT  5009
-#define ILLEGALESSENTIALSPEC  5013
-
 #endif  // TESSERACT_CLASSIFY_CLUSTTOOL_H_
