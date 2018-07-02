@@ -463,12 +463,12 @@ int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
 
 int Dict::UniformCertainties(const WERD_CHOICE& word) {
   float Certainty;
-  float WorstCertainty = MAX_FLOAT32;
+  float WorstCertainty = FLT_MAX;
   float CertaintyThreshold;
   double TotalCertainty;
   double TotalCertaintySquared;
   double Variance;
-  FLOAT32 Mean, StdDev;
+  float Mean, StdDev;
   int word_length = word.length();
 
   if (word_length < 3)

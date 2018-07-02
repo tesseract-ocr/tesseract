@@ -22,6 +22,7 @@
 #include "tprintf.h"
 
 #include <algorithm>
+#include <cfloat>      // for FLT_MAX
 
 namespace tesseract {
 
@@ -190,8 +191,7 @@ double DetLineFit::ConstrainedFit(double m, float* c) {
   double cos = 1.0 / sqrt(1.0 + m * m);
   FCOORD direction(cos, m * cos);
   ICOORD line_pt;
-  double error = ConstrainedFit(direction, -MAX_FLOAT32, MAX_FLOAT32, false,
-                                &line_pt);
+  double error = ConstrainedFit(direction, -FLT_MAX, FLT_MAX, false, &line_pt);
   *c = line_pt.y() - line_pt.x() * m;
   return error;
 }

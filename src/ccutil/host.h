@@ -31,7 +31,6 @@
 #include <cstdint>    // int32_t, ...
 
 // definitions of portable data types (numbers and characters)
-using FLOAT32 = float;
 using BOOL8 = unsigned char;
 
 #if defined(_WIN32)
@@ -47,11 +46,6 @@ using BOOL8 = unsigned char;
 #endif
 
 #endif /* _WIN32 */
-
-#define MAX_FLOAT32 std::numeric_limits<float>::max()
-
-// Minimum positive value ie 1e-37ish.
-#define MIN_FLOAT32 std::numeric_limits<float>::min()
 
 // Defines
 #ifndef TRUE

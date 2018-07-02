@@ -507,7 +507,7 @@ class Dict {
   /** Same as above, but for ambiguities with replace flag set. */
   UnicharAmbigs *replace_ambigs_table_;
   /** Additional certainty padding allowed before a word is rejected. */
-  FLOAT32 reject_offset_;
+  float reject_offset_;
   // Cached UNICHAR_IDs:
   UNICHAR_ID wildcard_unichar_id_;    // kDictWildcard.
   UNICHAR_ID apostrophe_unichar_id_;  // kApostropheSymbol.

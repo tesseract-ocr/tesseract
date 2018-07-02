@@ -43,7 +43,7 @@
 #include "fontinfo.h"           // for ScoredFont, FontSet
 #include "genericvector.h"      // for GenericVector
 #include "helpers.h"            // for IntCastRounded, ClipToRange
-#include "host.h"               // for FLOAT32, FALSE, MAX_FLOAT32, TRUE
+#include "host.h"               // for FALSE, TRUE
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -95,7 +95,7 @@ struct ADAPT_RESULTS {
   bool HasNonfragment;
   UNICHAR_ID best_unichar_id;
   int best_match_index;
-  FLOAT32 best_rating;
+  float best_rating;
   GenericVector<UnicharRating> match;
   GenericVector<CP_RESULT_STRUCT> CPResults;
 
@@ -155,11 +155,11 @@ static float ScoredUnichar(UNICHAR_ID id, const ADAPT_RESULTS& results) {
   return results.match[index].rating;
 }
 
-void InitMatcherRatings(FLOAT32 *Rating);
+void InitMatcherRatings(float *Rating);
 
 int MakeTempProtoPerm(void *item1, void *item2);
 
-void SetAdaptiveThreshold(FLOAT32 Threshold);
+void SetAdaptiveThreshold(float Threshold);
 
 
 /*-----------------------------------------------------------------------------
@@ -879,7 +879,7 @@ bool Classify::AdaptableWord(WERD_RES* word) {
  * @note History: Thu Mar 14 09:36:03 1991, DSJ, Created.
  */
 void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
-                           FLOAT32 Threshold,
+                           float Threshold,
                            ADAPT_TEMPLATES adaptive_templates) {
   int NumFeatures;
   INT_FEATURE_ARRAY IntFeatures;
@@ -1456,8 +1456,8 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
                                        ADAPT_RESULTS *Results,
                                        BLOB_CHOICE_LIST *Choices) {
   assert(Choices != nullptr);
-  FLOAT32 Rating;
-  FLOAT32 Certainty;
+  float Rating;
+  float Certainty;
   BLOB_CHOICE_IT temp_it;
   bool contains_nonfrag = false;
   temp_it.set_to_list(Choices);
@@ -1474,7 +1474,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
       max_matches = MAX_MATCHES;
   }
 
-  float best_certainty = -MAX_FLOAT32;
+  float best_certainty = -FLT_MAX;
   for (int i = 0; i < Results->match.size(); i++) {
     const UnicharRating& result = Results->match[i];
     bool adapted = result.adapted;
@@ -1893,9 +1893,9 @@ PROTO_ID Classify::MakeNewTempProtos(FEATURE_SET Features,
   TEMP_PROTO TempProto;
   PROTO Proto;
   FEATURE F1, F2;
-  FLOAT32 X1, X2, Y1, Y2;
-  FLOAT32 A1, A2, AngleDelta;
-  FLOAT32 SegmentLength;
+  float X1, X2, Y1, Y2;
+  float A1, A2, AngleDelta;
+  float SegmentLength;
   PROTO_ID Pid;
 
   for (ProtoStart = BadFeat, LastBad = ProtoStart + NumBadFeat;
@@ -2093,7 +2093,7 @@ void Classify::PrintAdaptiveMatchResults(const ADAPT_RESULTS& results) {
  */
 void Classify::RemoveBadMatches(ADAPT_RESULTS *Results) {
   int Next, NextGood;
-  FLOAT32 BadMatchThreshold;
+  float BadMatchThreshold;
   static const char* romans = "i v x I V X";
   BadMatchThreshold = Results->best_rating - matcher_bad_match_pad;
 
@@ -2204,7 +2204,7 @@ void Classify::RemoveExtraPuncs(ADAPT_RESULTS *Results) {
  * @note Exceptions: none
  * @note History: Tue Apr  9 08:33:13 1991, DSJ, Created.
  */
-void Classify::SetAdaptiveThreshold(FLOAT32 Threshold) {
+void Classify::SetAdaptiveThreshold(float Threshold) {
   Threshold = (Threshold == matcher_good_threshold) ? 0.9: (1.0 - Threshold);
   classify_adapt_proto_threshold.set_value(
       ClipToRange<int>(255 * Threshold, 0, 255));

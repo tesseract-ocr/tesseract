@@ -87,7 +87,7 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
 
   Feature = (FEATURE)malloc(sizeof(FEATURE_STRUCT) +
-                            (FeatureDesc->NumParams - 1) * sizeof(FLOAT32));
+                            (FeatureDesc->NumParams - 1) * sizeof(float));
   Feature->Type = FeatureDesc;
   return (Feature);
 

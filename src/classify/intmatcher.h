@@ -45,7 +45,7 @@ struct UnicharRating;
 struct CP_RESULT_STRUCT {
   CP_RESULT_STRUCT() : Rating(0.0f), Class(0) {}
 
-  FLOAT32 Rating;
+  float Rating;
   CLASS_ID Class;
 };
 

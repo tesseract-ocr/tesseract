@@ -1,11 +1,8 @@
 /******************************************************************************
- **      Filename:    intmatcher.c
- **      Purpose:     Generic high level classification routines.
- **      Author:      Robert Moss
- **      History:     Wed Feb 13 17:35:28 MST 1991, RWM, Created.
- **                   Mon Mar 11 16:33:02 MST 1991, RWM, Modified to add
- **                        support for adaptive matching.
- **      (c) Copyright Hewlett-Packard Company, 1988.
+ ** Filename:    intmatcher.cpp
+ ** Purpose:     Generic high level classification routines.
+ ** Author:      Robert Moss
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -927,7 +924,7 @@ void IntegerMatcher::DebugFeatureProtoError(
     const ScratchEvidence& tables,
     int16_t NumFeatures,
     int Debug) {
-  FLOAT32 ProtoConfigs[MAX_NUM_CONFIGS];
+  float ProtoConfigs[MAX_NUM_CONFIGS];
   int ConfigNum;
   uint32_t ConfigWord;
   int ProtoSetIndex;
@@ -946,8 +943,7 @@ void IntegerMatcher::DebugFeatureProtoError(
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
       cprintf(
           " %5.1f",
-          100.0 * (1.0 -
-          (FLOAT32) tables.sum_feature_evidence_[ConfigNum]
+          100.0 * (1.0 - (float)tables.sum_feature_evidence_[ConfigNum]
           / NumFeatures / 256.0));
     }
     cprintf("\n\n\n");

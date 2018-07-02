@@ -47,7 +47,7 @@ double_VAR(classify_max_slope, 2.414213562,
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End);
+float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End);
 
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
                                      MICROFEATURES MicroFeatures);
@@ -117,10 +117,8 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
  * @note Exceptions: none
  * @note History: 7/27/89, DSJ, Created.
  */
-FLOAT32 ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
-  FLOAT32 Orientation;
-
-  Orientation = NormalizeAngle (AngleFrom (Start->Point, End->Point));
+float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
+  float Orientation = NormalizeAngle(AngleFrom(Start->Point, End->Point));
 
   /* ensure that round-off errors do not put circular param out of range */
   if ((Orientation < 0) || (Orientation >= 1))

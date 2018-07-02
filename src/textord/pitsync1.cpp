@@ -17,7 +17,8 @@
  *
  **********************************************************************/
 
-#include <math.h>
+#include <cfloat>      // for FLT_MAX
+#include <cmath>
 #include "pitsync1.h"
 
 ELISTIZE (FPSEGPT) CLISTIZE (FPSEGPT_LIST)
@@ -99,7 +100,7 @@ FPSEGPT_LIST * prev_list         //previous segment
   double factor;                 //cost function
   FPSEGPT_IT pred_it = prev_list;//for previuos segment
 
-  cost = MAX_FLOAT32;
+  cost = FLT_MAX;
   pred = nullptr;
   faked = faking;
   terminal = FALSE;
@@ -218,7 +219,7 @@ double check_pitch_sync(                        //find segmentation
   lattice_it.add_before_then_move (segpts);
   min_index = 0;
   region_index = 1;
-  best_cost = MAX_FLOAT32;
+  best_cost = FLT_MAX;
   best_end = nullptr;
   min_it = *blob_it;
   min_box = box_next (&min_it);  //first box
@@ -379,7 +380,7 @@ void make_illegal_segment(                          //find segmentation
                                  //previous points
   FPSEGPT_IT prevpt_it = prev_list;
 
-  best_cost = MAX_FLOAT32;
+  best_cost = FLT_MAX;
   for (prevpt_it.mark_cycle_pt (); !prevpt_it.cycled_list ();
   prevpt_it.forward ()) {
     prevpt = prevpt_it.data ();

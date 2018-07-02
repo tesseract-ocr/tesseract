@@ -479,7 +479,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               const char* program_feature_type) {
   uint16_t N;
   int i, j;
-  FLOAT32* Sample = nullptr;
+  float* Sample = nullptr;
   CLUSTERER *Clusterer;
   int32_t CharID;
   LIST FeatureList = nullptr;
@@ -495,7 +495,7 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
   iterate(FeatureList) {
     FeatureSet = (FEATURE_SET) first_node(FeatureList);
     for (i = 0; i < FeatureSet->MaxNumFeatures; i++) {
-      if (Sample == nullptr) Sample = (FLOAT32*)Emalloc(N * sizeof(FLOAT32));
+      if (Sample == nullptr) Sample = (float*)Emalloc(N * sizeof(float));
       for (j = 0; j < N; j++)
         Sample[j] = FeatureSet->Features[i]->Params[j];
       MakeSample (Clusterer, Sample, CharID);
@@ -518,16 +518,16 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
     Prototype = (PROTOTYPE *) first_node (pProtoList);
     if (Prototype->Significant || Prototype->Merged)
       continue;
-    FLOAT32 best_dist = 0.125;
+    float best_dist = 0.125;
     PROTOTYPE* best_match = nullptr;
     // Find the nearest alive prototype.
     LIST list_it = ProtoList;
     iterate(list_it) {
       PROTOTYPE* test_p = (PROTOTYPE *) first_node (list_it);
       if (test_p != Prototype && !test_p->Merged) {
-        FLOAT32 dist = ComputeDistance(Clusterer->SampleSize,
-                                       Clusterer->ParamDesc,
-                                       Prototype->Mean, test_p->Mean);
+        float dist = ComputeDistance(Clusterer->SampleSize,
+                                     Clusterer->ParamDesc,
+                                     Prototype->Mean, test_p->Mean);
         if (dist < best_dist) {
           best_match = test_p;
           best_dist = dist;
@@ -613,7 +613,7 @@ LIST RemoveInsignificantProtos(
     {
       NewProto = (PROTOTYPE *)Emalloc(sizeof(PROTOTYPE));
 
-      NewProto->Mean = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+      NewProto->Mean = (float *)Emalloc(N * sizeof(float));
       NewProto->Significant = Proto->Significant;
       NewProto->Style = Proto->Style;
       NewProto->NumSamples = Proto->NumSamples;
@@ -623,7 +623,7 @@ LIST RemoveInsignificantProtos(
       for (i=0; i < N; i++)
         NewProto->Mean[i] = Proto->Mean[i];
       if (Proto->Variance.Elliptical != nullptr) {
-        NewProto->Variance.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+        NewProto->Variance.Elliptical = (float *)Emalloc(N * sizeof(float));
         for (i=0; i < N; i++)
           NewProto->Variance.Elliptical[i] = Proto->Variance.Elliptical[i];
       }
@@ -631,7 +631,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Variance.Elliptical = nullptr;
       //---------------------------------------------
       if (Proto->Magnitude.Elliptical != nullptr) {
-        NewProto->Magnitude.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+        NewProto->Magnitude.Elliptical = (float *)Emalloc(N * sizeof(float));
         for (i=0; i < N; i++)
           NewProto->Magnitude.Elliptical[i] = Proto->Magnitude.Elliptical[i];
       }
@@ -639,7 +639,7 @@ LIST RemoveInsignificantProtos(
         NewProto->Magnitude.Elliptical = nullptr;
       //------------------------------------------------
       if (Proto->Weight.Elliptical != nullptr) {
-        NewProto->Weight.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+        NewProto->Weight.Elliptical = (float *)Emalloc(N * sizeof(float));
         for (i=0; i < N; i++)
           NewProto->Weight.Elliptical[i] = Proto->Weight.Elliptical[i];
       }

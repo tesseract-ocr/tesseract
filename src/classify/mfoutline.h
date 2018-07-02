@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    mfoutline.h
- **	Purpose:     Interface spec for fx outline structures
- **	Author:      Dan Johnson
- **	History:     Thu May 17 08:55:32 1990, DSJ, Created.
+ ** Filename:    mfoutline.h
+ ** Purpose:     Interface spec for fx outline structures
+ ** Author:      Dan Johnson
+ ** History:     Thu May 17 08:55:32 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -15,8 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MFOUTLINE_H
-#define   MFOUTLINE_H
+
+#ifndef MFOUTLINE_H
+#define MFOUTLINE_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
@@ -38,7 +39,7 @@ typedef enum {
 
 typedef struct {
   FPOINT Point;
-  FLOAT32 Slope;
+  float Slope;
   unsigned Padding:20;
   BOOL8 Hidden:TRUE;
   BOOL8 ExtremityMark:TRUE;
@@ -85,11 +86,11 @@ LIST ConvertOutlines(TESSLINE *Outline,
                      LIST ConvertedOutlines,
                      OUTLINETYPE OutlineType);
 
-void FilterEdgeNoise(MFOUTLINE Outline, FLOAT32 NoiseSegmentLength);
+void FilterEdgeNoise(MFOUTLINE Outline, float NoiseSegmentLength);
 
 void FindDirectionChanges(MFOUTLINE Outline,
-                          FLOAT32 MinSlope,
-                          FLOAT32 MaxSlope);
+                          float MinSlope,
+                          float MaxSlope);
 
 void FreeMFOutline(void *agr);  //MFOUTLINE                             Outline);
 
@@ -102,7 +103,7 @@ MFEDGEPT *NewEdgePoint();
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint);
 
 void NormalizeOutline(MFOUTLINE Outline,
-                      FLOAT32 XOrigin);
+                      float XOrigin);
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes
@@ -116,8 +117,8 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm);
 
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,
-                      FLOAT32 MinSlope,
-                      FLOAT32 MaxSlope);
+                      float MinSlope,
+                      float MaxSlope);
 
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint);
 

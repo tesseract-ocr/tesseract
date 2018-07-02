@@ -1,8 +1,7 @@
 /******************************************************************************
- ** Filename:    featdefs.c
+ ** Filename:    featdefs.cpp
  ** Purpose:     Definitions of currently defined feature types.
  ** Author:      Dan Johnson
- ** History:     Mon May 21 10:26:21 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +83,7 @@ DefineFeature(GeoFeatDesc, 3, 0, kGeoFeatureType, GeoFeatParams)
 
 // Define all of the parameters for the PicoFeature type
 // define knob that can be used to adjust pico-feature length.
-FLOAT32 PicoFeatureLength = PICO_FEATURE_LENGTH;
+float PicoFeatureLength = PICO_FEATURE_LENGTH;
 StartParamDesc(PicoFeatParams)
 DefineParam(0, 0, -0.25, 0.75)
 DefineParam(1, 0, 0.0, 1.0)

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        edgblob.cpp (Formerly edgeloop.c)
  * Description: Functions to clean up an outline before approximation.
- * Author:		Ray Smith
- * Created:		Tue Mar 26 16:56:25 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Tue Mar 26 16:56:25 GMT 1991
  *
  *(C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0(the "License");
@@ -180,23 +180,23 @@ int32_t OL_BUCKETS::outline_complexity(
  * Find number of descendants of this outline.
  */
 // TODO(rays) Merge with outline_complexity.
-int32_t OL_BUCKETS::count_children(                     // recursive count
+int32_t OL_BUCKETS::count_children(                   // recursive count
                                  C_OUTLINE *outline,  // parent outline
-                                 int32_t max_count      // max output
+                                 int32_t max_count    // max output
                                 ) {
   bool parent_box;              // could it be boxy
-  int16_t xmin, xmax;              // coord limits
+  int16_t xmin, xmax;           // coord limits
   int16_t ymin, ymax;
-  int16_t xindex, yindex;          // current bucket
-  C_OUTLINE *child;              // current child
-  int32_t child_count;             // no of children
-  int32_t grandchild_count;        // no of grandchildren
-  int32_t parent_area;             // potential box
-  FLOAT32 max_parent_area;       // potential box
-  int32_t child_area;              // current child
-  int32_t child_length;            // current child
+  int16_t xindex, yindex;       // current bucket
+  C_OUTLINE *child;             // current child
+  int32_t child_count;          // no of children
+  int32_t grandchild_count;     // no of grandchildren
+  int32_t parent_area;          // potential box
+  float max_parent_area;        // potential box
+  int32_t child_area;           // current child
+  int32_t child_length;         // current child
   TBOX olbox;
-  C_OUTLINE_IT child_it;         // search iterator
+  C_OUTLINE_IT child_it;        // search iterator
 
   olbox = outline->bounding_box();
   xmin =(olbox.left() - bl.x()) / BUCKETSIZE;

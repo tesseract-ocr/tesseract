@@ -84,13 +84,13 @@ namespace tesseract {
  * @note Exceptions: none
  * @note History: Wed Dec 19 16:56:12 1990, DSJ, Created.
  */
-FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
-                                   const FEATURE_STRUCT& feature,
-                                   bool DebugMatch) {
+float Classify::ComputeNormMatch(CLASS_ID ClassId,
+                                 const FEATURE_STRUCT& feature,
+                                 bool DebugMatch) {
   LIST Protos;
-  FLOAT32 BestMatch;
-  FLOAT32 Match;
-  FLOAT32 Delta;
+  float BestMatch;
+  float Match;
+  float Delta;
   PROTOTYPE *Proto;
   int ProtoId;
 
@@ -110,7 +110,7 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
     return (1.0 - NormEvidenceOf (Match));
   }
 
-  BestMatch = MAX_FLOAT32;
+  BestMatch = FLT_MAX;
   Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {
@@ -210,8 +210,8 @@ void PrintNormMatch(FILE *File,
                     PROTOTYPE *Proto,
                     FEATURE Feature) {
   int i;
-  FLOAT32 ParamMatch;
-  FLOAT32 TotalMatch;
+  float ParamMatch;
+  float TotalMatch;
 
   for (i = 0, TotalMatch = 0.0; i < NumParams; i++) {
     ParamMatch = (Feature->Params[i] - Mean(Proto, i)) /

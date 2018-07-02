@@ -193,7 +193,7 @@ ELISTIZEH(ViterbiStateEntry)
 struct LanguageModelState {
   LanguageModelState() :
      viterbi_state_entries_prunable_length(0),
-    viterbi_state_entries_prunable_max_cost(MAX_FLOAT32),
+    viterbi_state_entries_prunable_max_cost(FLT_MAX),
     viterbi_state_entries_length(0) {}
   ~LanguageModelState() {}
 

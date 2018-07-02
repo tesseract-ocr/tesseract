@@ -2,7 +2,6 @@
  ** Filename: clustertool.c
  ** Purpose:  Misc. tools for use with the clustering routines
  ** Author:   Dan Johnson
- ** History:  6/6/89, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,8 +170,8 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
       if (Proto->Variance.Elliptical == nullptr)
         DoError(ILLEGALVARIANCESPEC, "Illegal prototype variance");
-      Proto->Magnitude.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
-      Proto->Weight.Elliptical = (FLOAT32 *)Emalloc(N * sizeof(FLOAT32));
+      Proto->Magnitude.Elliptical = (float *)Emalloc(N * sizeof(float));
+      Proto->Weight.Elliptical = (float *)Emalloc(N * sizeof(float));
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
         Proto->Magnitude.Elliptical[i] =
@@ -205,7 +204,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
  * @note Exceptions: ILLEGALFLOAT
  * @note History: 6/6/89, DSJ, Created.
  */
-FLOAT32 *ReadNFloats(TFile *fp, uint16_t N, FLOAT32 Buffer[]) {
+float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
   const int kMaxLineSize = 1024;
   char line[kMaxLineSize];
   if (fp->FGets(line, kMaxLineSize) == nullptr) {
@@ -215,7 +214,7 @@ FLOAT32 *ReadNFloats(TFile *fp, uint16_t N, FLOAT32 Buffer[]) {
   bool needs_free = false;
 
   if (Buffer == nullptr) {
-    Buffer = static_cast<FLOAT32 *>(Emalloc(N * sizeof(FLOAT32)));
+    Buffer = static_cast<float *>(Emalloc(N * sizeof(float)));
     needs_free = true;
   }
 
@@ -323,7 +322,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
  * @note Exceptions: None
  * @note History: 6/6/89, DSJ, Created.
  */
-void WriteNFloats(FILE * File, uint16_t N, FLOAT32 Array[]) {
+void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
   for (int i = 0; i < N; i++)
     fprintf(File, " %9.6f", Array[i]);
   fprintf(File, "\n");
