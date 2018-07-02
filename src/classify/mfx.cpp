@@ -14,14 +14,13 @@
  ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
- ******************************************************************************/
+ *****************************************************************************/
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "mfdefs.h"
 #include "mfoutline.h"
 #include "clusttool.h"           //NEEDED
-#include "const.h"
 #include "intfx.h"
 #include "normalis.h"
 #include "params.h"
@@ -42,7 +41,7 @@ double_VAR(classify_max_slope, 2.414213562,
           Macros
 ----------------------------------------------------------------------------*/
 /* miscellaneous macros */
-#define NormalizeAngle(A)       ( (((A)<0)?((A)+2*PI):(A)) / (2*PI) )
+#define NormalizeAngle(A) ((((A) < 0) ? ((A) + 2 * M_PI) : (A)) / (2 * M_PI))
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes

@@ -107,8 +107,8 @@ int IntFeatureSpace::XYToFeatureIndex(int x, int y) const {
   x -= feature.X;
   y -= feature.Y;
   if (x != 0 || y != 0) {
-    double angle = atan2(static_cast<double>(y), static_cast<double>(x)) + PI;
-    angle *= kIntFeatureExtent / (2.0 * PI);
+    double angle = atan2(static_cast<double>(y), static_cast<double>(x)) + M_PI;
+    angle *= kIntFeatureExtent / (2.0 * M_PI);
     feature.Theta = static_cast<uint8_t>(angle + 0.5);
     index = Index(feature);
     if (index < 0) {

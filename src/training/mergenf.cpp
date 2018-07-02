@@ -2,7 +2,6 @@
 **  Filename:    MergeNF.c
 **  Purpose:     Program for merging similar nano-feature protos
 **  Author:      Dan Johnson
-**  History:     Wed Nov 21 09:55:23 1990, DSJ, Created.
 **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,8 +58,6 @@ double_VAR(training_angle_pad, 45.0, "Angle pad ...");
  * Globals: none
  *
  * @return Worst possible result when matching p1 to p2.
- * @note Exceptions: none
- * @note History: Mon Nov 26 08:27:53 1990, DSJ, Created.
  */
 float CompareProtos(PROTO p1, PROTO p2) {
   FEATURE Feature;
@@ -78,7 +75,7 @@ float CompareProtos(PROTO p1, PROTO p2) {
   Feature->Params[PicoFeatDir] = p1->Angle;
 
   /* convert angle to radians */
-  Angle = p1->Angle * 2.0 * PI;
+  Angle = p1->Angle * 2.0 * M_PI;
 
   /* find distance from center of p1 to 1/2 picofeat from end */
   Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
@@ -307,13 +304,11 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  * Globals: none
  *
  * @return none (results are returned in BoundingBox)
- * @note Exceptions: none
- * @note History: Wed Nov 14 14:55:30 1990, DSJ, Created.
  */
 void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
                                float OrthogonalPad, FRECT *BoundingBox) {
   float Length     = Proto->Length / 2.0 + TangentPad;
-  float Angle      = Proto->Angle * 2.0 * PI;
+  float Angle      = Proto->Angle * 2.0 * M_PI;
   float CosOfAngle = fabs(cos(Angle));
   float SinOfAngle = fabs(sin(Angle));
 

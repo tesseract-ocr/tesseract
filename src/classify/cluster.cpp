@@ -1509,7 +1509,7 @@ PROTOTYPE *NewSphericalProto(uint16_t N,
     Proto->Variance.Spherical = MINVARIANCE;
 
   Proto->Magnitude.Spherical =
-    1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Spherical));
+    1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
   Proto->TotalMagnitude = (float)pow((double)Proto->Magnitude.Spherical,
                                      (double) N);
   Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
@@ -1550,7 +1550,7 @@ PROTOTYPE *NewEllipticalProto(int16_t N,
       Proto->Variance.Elliptical[i] = MINVARIANCE;
 
     Proto->Magnitude.Elliptical[i] =
-      1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Elliptical[i]));
+      1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
     Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
