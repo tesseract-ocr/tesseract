@@ -465,9 +465,9 @@ int Dict::UniformCertainties(const WERD_CHOICE& word) {
   float Certainty;
   float WorstCertainty = MAX_FLOAT32;
   float CertaintyThreshold;
-  FLOAT64 TotalCertainty;
-  FLOAT64 TotalCertaintySquared;
-  FLOAT64 Variance;
+  double TotalCertainty;
+  double TotalCertaintySquared;
+  double Variance;
   FLOAT32 Mean, StdDev;
   int word_length = word.length();
 

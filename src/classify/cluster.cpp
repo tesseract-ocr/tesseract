@@ -175,20 +175,20 @@ struct STATISTICS {
 };
 
 struct BUCKETS {
-  DISTRIBUTION Distribution;     // distribution being tested for
-  uint32_t SampleCount;            // # of samples in histogram
-  FLOAT64 Confidence;            // confidence level of test
-  FLOAT64 ChiSquared;            // test threshold
-  uint16_t NumberOfBuckets;        // number of cells in histogram
-  uint16_t Bucket[BUCKETTABLESIZE];// mapping to histogram buckets
-  uint32_t *Count;                 // frequency of occurrence histogram
-  FLOAT32 *ExpectedCount;        // expected histogram
+  DISTRIBUTION Distribution;        // distribution being tested for
+  uint32_t SampleCount;             // # of samples in histogram
+  double Confidence;                // confidence level of test
+  double ChiSquared;                // test threshold
+  uint16_t NumberOfBuckets;         // number of cells in histogram
+  uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
+  uint32_t *Count;                  // frequency of occurrence histogram
+  FLOAT32 *ExpectedCount;           // expected histogram
 };
 
 struct CHISTRUCT{
   uint16_t DegreesOfFreedom;
-  FLOAT64 Alpha;
-  FLOAT64 ChiSquared;
+  double Alpha;
+  double ChiSquared;
 };
 
 // For use with KDWalk / MakePotentialClusters
@@ -199,8 +199,8 @@ struct ClusteringContext {
   int32_t next;  // next candidate to be used
 };
 
-typedef FLOAT64 (*DENSITYFUNC) (int32_t);
-typedef FLOAT64 (*SOLVEFUNC) (CHISTRUCT *, double);
+typedef double (*DENSITYFUNC) (int32_t);
+typedef double (*SOLVEFUNC) (CHISTRUCT *, double);
 
 #define Odd(N) ((N)%2)
 #define Mirror(N,R) ((R) - (N) - 1)
@@ -215,12 +215,12 @@ typedef FLOAT64 (*SOLVEFUNC) (CHISTRUCT *, double);
   deviations and x=BUCKETTABLESIZE is mapped to
   +NORMALEXTENT standard deviations. */
 #define SqrtOf2Pi     2.506628275
-static const FLOAT64 kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
-static const FLOAT64 kNormalVariance =
+static const double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
+static const double kNormalVariance =
     (BUCKETTABLESIZE * BUCKETTABLESIZE) / (4.0 * NORMALEXTENT * NORMALEXTENT);
-static const FLOAT64 kNormalMagnitude =
+static const double kNormalMagnitude =
     (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
-static const FLOAT64 kNormalMean = BUCKETTABLESIZE / 2;
+static const double kNormalMean = BUCKETTABLESIZE / 2;
 
 /** define lookup tables used to compute the number of histogram buckets
   that should be used for a given number of samples. */
@@ -287,7 +287,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           CLUSTER *Cluster,
                           STATISTICS *Statistics,
                           BUCKETS *NormalBuckets,
-                          FLOAT64 Confidence);
+                          double Confidence);
 
 void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc);
 
@@ -314,21 +314,21 @@ bool Independent(PARAM_DESC* ParamDesc,
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
                     uint32_t SampleCount,
-                    FLOAT64 Confidence);
+                    double Confidence);
 
 BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
                      uint32_t SampleCount,
-                     FLOAT64 Confidence);
+                     double Confidence);
 
 uint16_t OptimumNumberOfBuckets(uint32_t SampleCount);
 
-FLOAT64 ComputeChiSquared(uint16_t DegreesOfFreedom, FLOAT64 Alpha);
+double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha);
 
-FLOAT64 NormalDensity(int32_t x);
+double NormalDensity(int32_t x);
 
-FLOAT64 UniformDensity(int32_t x);
+double UniformDensity(int32_t x);
 
-FLOAT64 Integral(FLOAT64 f1, FLOAT64 f2, FLOAT64 Dx);
+double Integral(double f1, double f2, double Dx);
 
 void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
@@ -369,14 +369,14 @@ void InitBuckets(BUCKETS *Buckets);
 int AlphaMatch(void *arg1,   // CHISTRUCT *ChiStruct,
                void *arg2);  // CHISTRUCT *SearchKey);
 
-CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha);
+CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha);
 
-FLOAT64 Solve(SOLVEFUNC Function,
-              void *FunctionParams,
-              FLOAT64 InitialGuess,
-              FLOAT64 Accuracy);
+double Solve(SOLVEFUNC Function,
+             void *FunctionParams,
+             double InitialGuess,
+             double Accuracy);
 
-FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x);
+double ChiArea(CHISTRUCT *ChiParams, double x);
 
 bool MultipleCharSamples(CLUSTERER* Clusterer,
                          CLUSTER* Cluster,
@@ -1223,7 +1223,7 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((FLOAT64) (Statistics->AvgVariance)));
+      sqrt ((double) (Statistics->AvgVariance)));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1260,7 +1260,7 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((FLOAT64) Statistics->
+      sqrt ((double) Statistics->
       CoVariance[i * (Clusterer->SampleSize + 1)]));
     if (!DistributionOK (Buckets))
       break;
@@ -1292,7 +1292,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           CLUSTER *Cluster,
                           STATISTICS *Statistics,
                           BUCKETS *NormalBuckets,
-                          FLOAT64 Confidence) {
+                          double Confidence) {
   PROTOTYPE *Proto;
   int i;
   BUCKETS *UniformBuckets = nullptr;
@@ -1308,7 +1308,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
 
     FillBuckets (NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Proto->Mean[i],
-      sqrt ((FLOAT64) Proto->Variance.Elliptical[i]));
+      sqrt ((double) Proto->Variance.Elliptical[i]));
     if (DistributionOK (NormalBuckets))
       continue;
 
@@ -1688,7 +1688,7 @@ Independent(PARAM_DESC* ParamDesc,
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
                     uint32_t SampleCount,
-                    FLOAT64 Confidence) {
+                    double Confidence) {
   // Get an old bucket structure with the same number of buckets.
   uint16_t NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   BUCKETS *Buckets =
@@ -1734,17 +1734,17 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
  */
 BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
                      uint32_t SampleCount,
-                     FLOAT64 Confidence) {
+                     double Confidence) {
   const DENSITYFUNC DensityFunction[] =
     { NormalDensity, UniformDensity, UniformDensity };
   int i, j;
   BUCKETS *Buckets;
-  FLOAT64 BucketProbability;
-  FLOAT64 NextBucketBoundary;
-  FLOAT64 Probability;
-  FLOAT64 ProbabilityDelta;
-  FLOAT64 LastProbDensity;
-  FLOAT64 ProbDensity;
+  double BucketProbability;
+  double NextBucketBoundary;
+  double Probability;
+  double ProbabilityDelta;
+  double LastProbDensity;
+  double ProbDensity;
   uint16_t CurrentBucket;
   bool Symmetrical;
 
@@ -1772,7 +1772,7 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
 
   if (Symmetrical) {
     // allocate buckets so that all have approx. equal probability
-    BucketProbability = 1.0 / (FLOAT64) (Buckets->NumberOfBuckets);
+    BucketProbability = 1.0 / (double) (Buckets->NumberOfBuckets);
 
     // distribution is symmetric so fill in upper half then copy
     CurrentBucket = Buckets->NumberOfBuckets / 2;
@@ -1865,8 +1865,8 @@ uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
  * @note Exceptions: none
  * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64
-ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
+double
+ComputeChiSquared (uint16_t DegreesOfFreedom, double Alpha)
 #define CHIACCURACY     0.01
 #define MINALPHA  (1e-200)
 {
@@ -1891,8 +1891,8 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
   if (OldChiSquared == nullptr) {
     OldChiSquared = NewChiStruct (DegreesOfFreedom, Alpha);
     OldChiSquared->ChiSquared = Solve (ChiArea, OldChiSquared,
-      (FLOAT64) DegreesOfFreedom,
-      (FLOAT64) CHIACCURACY);
+      (double) DegreesOfFreedom,
+      (double) CHIACCURACY);
     ChiWith[DegreesOfFreedom] = push (ChiWith[DegreesOfFreedom],
       OldChiSquared);
   }
@@ -1920,8 +1920,8 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
  * @note Exceptions: None
  * @note History: 6/4/89, DSJ, Created.
  */
-FLOAT64 NormalDensity(int32_t x) {
-  FLOAT64 Distance;
+double NormalDensity(int32_t x) {
+  double Distance;
 
   Distance = x - kNormalMean;
   return kNormalMagnitude * exp(-0.5 * Distance * Distance / kNormalVariance);
@@ -1936,13 +1936,13 @@ FLOAT64 NormalDensity(int32_t x) {
  * @note Exceptions: None
  * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64 UniformDensity(int32_t x) {
-  static FLOAT64 UniformDistributionDensity = (FLOAT64) 1.0 / BUCKETTABLESIZE;
+double UniformDensity(int32_t x) {
+  static double UniformDistributionDensity = (double) 1.0 / BUCKETTABLESIZE;
 
   if ((x >= 0.0) && (x <= BUCKETTABLESIZE))
     return UniformDistributionDensity;
   else
-    return (FLOAT64) 0.0;
+    return (double) 0.0;
 }                                // UniformDensity
 
 /**
@@ -1955,7 +1955,7 @@ FLOAT64 UniformDensity(int32_t x) {
  * @note Exceptions: None
  * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64 Integral(FLOAT64 f1, FLOAT64 f2, FLOAT64 Dx) {
+double Integral(double f1, double f2, double Dx) {
   return (f1 + f2) * Dx / 2.0;
 }                                // Integral
 
@@ -2072,7 +2072,7 @@ uint16_t NormalBucket(PARAM_DESC *ParamDesc,
     return 0;
   if (X > BUCKETTABLESIZE - 1)
     return ((uint16_t) (BUCKETTABLESIZE - 1));
-  return (uint16_t) floor((FLOAT64) X);
+  return (uint16_t) floor((double) X);
 }                                // NormalBucket
 
 /**
@@ -2107,7 +2107,7 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
     return 0;
   if (X > BUCKETTABLESIZE - 1)
     return (uint16_t) (BUCKETTABLESIZE - 1);
-  return (uint16_t) floor((FLOAT64) X);
+  return (uint16_t) floor((double) X);
 }                                // UniformBucket
 
 /**
@@ -2259,10 +2259,10 @@ int ListEntryMatch(void *arg1,    //ListNode
  */
 void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
   int i;
-  FLOAT64 AdjustFactor;
+  double AdjustFactor;
 
-  AdjustFactor = (((FLOAT64) NewSampleCount) /
-    ((FLOAT64) Buckets->SampleCount));
+  AdjustFactor = (((double) NewSampleCount) /
+    ((double) Buckets->SampleCount));
 
   for (i = 0; i < Buckets->NumberOfBuckets; i++) {
     Buckets->ExpectedCount[i] *= AdjustFactor;
@@ -2323,7 +2323,7 @@ int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct
  * @note Exceptions: none
  * @note History: Fri Aug  4 11:04:59 1989, DSJ, Created.
  */
-CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha) {
+CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;
 
   NewChiStruct = (CHISTRUCT *) Emalloc (sizeof (CHISTRUCT));
@@ -2348,19 +2348,19 @@ CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha) {
  * @note Exceptions: none
  * @note History: Fri Aug  4 11:08:59 1989, DSJ, Created.
  */
-FLOAT64
+double
 Solve (SOLVEFUNC Function,
-void *FunctionParams, FLOAT64 InitialGuess, FLOAT64 Accuracy)
+void *FunctionParams, double InitialGuess, double Accuracy)
 #define INITIALDELTA    0.1
 #define  DELTARATIO     0.1
 {
-  FLOAT64 x;
-  FLOAT64 f;
-  FLOAT64 Slope;
-  FLOAT64 Delta;
-  FLOAT64 NewDelta;
-  FLOAT64 xDelta;
-  FLOAT64 LastPosX, LastNegX;
+  double x;
+  double f;
+  double Slope;
+  double Delta;
+  double NewDelta;
+  double xDelta;
+  double LastPosX, LastNegX;
 
   x = InitialGuess;
   Delta = INITIALDELTA;
@@ -2415,11 +2415,11 @@ void *FunctionParams, FLOAT64 InitialGuess, FLOAT64 Accuracy)
  * @note Exceptions: none
  * @note History: Fri Aug  4 12:48:41 1989, DSJ, Created.
  */
-FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
+double ChiArea(CHISTRUCT *ChiParams, double x) {
   int i, N;
-  FLOAT64 SeriesTotal;
-  FLOAT64 Denominator;
-  FLOAT64 PowerOfx;
+  double SeriesTotal;
+  double Denominator;
+  double PowerOfx;
 
   N = ChiParams->DegreesOfFreedom / 2 - 1;
   SeriesTotal = 1;
