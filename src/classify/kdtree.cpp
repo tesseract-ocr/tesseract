@@ -168,7 +168,7 @@ void KDTreeSearch::Search(int *result_count,
     for (int j = 0; j < count; j++) {
       // Pre-cast to float64 as key is a template type and we have no control
       // over its actual type.
-      distances[j] = (FLOAT32)sqrt((FLOAT64)results_.elements()[j].key);
+      distances[j] = (FLOAT32)sqrt((double)results_.elements()[j].key);
       results[j] = results_.elements()[j].value;
     }
   }
@@ -478,8 +478,8 @@ FLOAT32 ComputeDistance(int k, PARAM_DESC *dim, FLOAT32 p1[], FLOAT32 p2[]) {
 bool KDTreeSearch::BoxIntersectsSearch(FLOAT32 *lower, FLOAT32 *upper) {
   FLOAT32 *query = query_point_;
   // Compute the sum in higher precision.
-  FLOAT64 total_distance = 0.0;
-  FLOAT64 radius_squared =
+  double total_distance = 0.0;
+  double radius_squared =
       results_.max_insertable_key() * results_.max_insertable_key();
   PARAM_DESC *dim = tree_->KeyDesc;
 

@@ -51,7 +51,7 @@ typedef struct {                 // parameters to control clustering
   FLOAT32 MaxIllegal;            // max percentage of samples in a cluster which have
   // more than 1 feature in that cluster
   FLOAT32 Independence;          // desired independence between dimensions
-  FLOAT64 Confidence;            // desired confidence in prototypes created
+  double Confidence;             // desired confidence in prototypes created
   int MagicSamples;              // Ideal number of samples in a cluster.
 } CLUSTERCONFIG;
 

@@ -32,7 +32,6 @@
 
 // definitions of portable data types (numbers and characters)
 using FLOAT32 = float;
-using FLOAT64 = double;
 using BOOL8 = unsigned char;
 
 #if defined(_WIN32)
