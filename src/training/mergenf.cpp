@@ -17,7 +17,6 @@
 ******************************************************************************/
 #include "mergenf.h"
 #include "host.h"
-#include "efio.h"
 #include "clusttool.h"
 #include "cluster.h"
 #include "oldlist.h"

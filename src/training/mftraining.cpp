@@ -39,7 +39,6 @@
 #include "clusttool.h"
 #include "commontraining.h"
 #include "danerror.h"
-#include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"

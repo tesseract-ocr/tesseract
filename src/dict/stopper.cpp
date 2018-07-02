@@ -27,7 +27,6 @@
 #include "const.h"
 #include "danerror.h"
 #include "dict.h"
-#include "efio.h"
 #include "helpers.h"
 #include "matchdefs.h"
 #include "pageres.h"

@@ -30,7 +30,6 @@
 #include "allheaders.h"
 #include "boxread.h"
 #include "classify.h"
-#include "efio.h"
 #include "errorcounter.h"
 #include "featdefs.h"
 #include "sampleiterator.h"
@@ -121,7 +120,7 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
   const int cn_feature_type = ShortNameToFeatureType(feature_defs, kCNFeatureType);
   const int geo_feature_type = ShortNameToFeatureType(feature_defs, kGeoFeatureType);
 
-  FILE* fp = Efopen(page_name, "rb");
+  FILE* fp = fopen(page_name, "rb");
   if (fp == nullptr) {
     tprintf("Failed to open tr file: %s\n", page_name);
     return;

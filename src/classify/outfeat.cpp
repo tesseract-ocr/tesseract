@@ -21,7 +21,6 @@
 #include "outfeat.h"
 
 #include "classify.h"
-#include "efio.h"
 #include "featdefs.h"
 #include "mfoutline.h"
 #include "ocrfeatures.h"
