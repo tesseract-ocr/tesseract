@@ -340,7 +340,7 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @param WriteInsigProtos TRUE to write out insignificants
  * @note Globals: None
  * @return None
- /
+ */
 
 void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
                     LIST ProtoList, bool WriteSigProtos,
