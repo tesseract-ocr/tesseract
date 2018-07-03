@@ -13,6 +13,53 @@
 
 #include "commontraining.h"
 
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include <algorithm>
+#include <cmath>
+
+#include "params.h"
+#include "tessopt.h"
+#include "tprintf.h"
+
+
+INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
+INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
+STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
+STRING_PARAM_FLAG(D, "", "Directory to write output files to");
+STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
+STRING_PARAM_FLAG(X, "", "File listing font xheights");
+STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
+STRING_PARAM_FLAG(O, "", "File to write unicharset to");
+STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
+STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
+
+
+/**
+ * This routine parses the command line arguments that were
+ * passed to the program and ses them to set relevant
+ * training-related global parameters
+ *
+ * Globals:
+ * - Config  current clustering parameters
+ * @param argc number of command line arguments to parse
+ * @param argv command line arguments
+ * @return none
+ * @note Exceptions: Illegal options terminate the program.
+ */
+void ParseArguments(int* argc, char ***argv) {
+  STRING usage;
+  if (*argc) {
+    usage += (*argv)[0];
+    usage += " -v | --version | ";
+    usage += (*argv)[0];
+  }
+  usage += " [.tr files ...]";
+  tesseract::ParseCommandLineFlags(usage.c_str(), argc, argv, true);
+}
+
+#else
+
 #include <algorithm>
 #include <cmath>
 
@@ -835,3 +882,5 @@ int NumberOfProtos(LIST ProtoList, bool CountSigProtos,
   }
   return(N);
 }
+
+#endif  // def DISABLED_LEGACY_ENGINE

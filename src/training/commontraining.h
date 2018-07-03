@@ -18,6 +18,38 @@
 #include "config_auto.h"
 #include "baseapi.h"
 #endif
+
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include "tprintf.h"
+#include "commandlineflags.h"
+
+
+void ParseArguments(int* argc, char*** argv);
+
+
+namespace tesseract {
+
+// Check whether the shared tesseract library is the right one.
+// This function must be inline because otherwise it would be part of
+// the shared library, so it could not compare the versions.
+static inline void CheckSharedLibraryVersion()
+{
+#ifdef HAVE_CONFIG_H
+  if (!!strcmp(TESSERACT_VERSION_STR, TessBaseAPI::Version())) {
+    tprintf("ERROR: shared library version mismatch (was %s, expected %s\n"
+            "Did you use a wrong shared tesseract library?\n",
+            TessBaseAPI::Version(), TESSERACT_VERSION_STR);
+    exit(1);
+  }
+#endif
+}
+
+}  // namespace tesseract
+
+
+#else
+
 #include "cluster.h"
 #include "commandlineflags.h"
 #include "featdefs.h"
@@ -186,4 +218,7 @@ int NumberOfProtos(
 
 
 void allocNormProtos();
+
+#endif  // def DISABLED_LEGACY_ENGINE
+
 #endif  // TESSERACT_TRAINING_COMMONTRAINING_H_

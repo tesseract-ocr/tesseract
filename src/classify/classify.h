@@ -19,6 +19,49 @@
 #ifndef TESSERACT_CLASSIFY_CLASSIFY_H_
 #define TESSERACT_CLASSIFY_CLASSIFY_H_
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include "ccstruct.h"
+#include "dict.h"
+
+namespace tesseract {
+
+class Classify : public CCStruct {
+ public:
+  Classify();
+  virtual ~Classify();
+  virtual Dict& getDict() {
+    return dict_;
+  }
+
+  // Member variables.
+
+  INT_VAR_H(classify_debug_level, 0, "Classify debug level");
+
+  BOOL_VAR_H(classify_bln_numeric_mode, 0,
+             "Assume the input is numbers [0-9].");
+
+  double_VAR_H(classify_max_rating_ratio, 1.5,
+               "Veto ratio between classifier ratings");
+
+  double_VAR_H(classify_max_certainty_margin, 5.5,
+               "Veto difference between classifier certainties");
+
+ private:
+  Dict dict_;
+};
+
+}  // namespace tesseract
+
+
+#else  // DISABLED_LEGACY_ENGINE not defined
+
 #include "adaptive.h"
 #include "ccstruct.h"
 #include "dict.h"
@@ -536,5 +579,7 @@ class Classify : public CCStruct {
   ScrollView* learn_fragments_debug_win_;
 };
 }  // namespace tesseract
+
+#endif  // DISABLED_LEGACY_ENGINE
 
 #endif  // TESSERACT_CLASSIFY_CLASSIFY_H_

@@ -24,10 +24,12 @@
 #include <cstdio>
 
 #include "classify.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "efio.h"
 #include "featdefs.h"
 #include "mf.h"
 #include "normfeat.h"
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 static const char kUnknownFontName[] = "UnknownFont";
 
@@ -59,7 +61,11 @@ void ExtractFontName(const STRING& filename, STRING* fontname) {
   }
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 /*---------------------------------------------------------------------------*/
+
+#ifndef DISABLED_LEGACY_ENGINE
 // Extracts features from the given blob and saves them in the tr_file_data_
 // member variable.
 // fontname:  Name of font that this blob was printed in.
@@ -91,6 +97,7 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
   }
   FreeCharDescription(CharDesc);
 }                                // LearnBlob
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // Writes stored training data to a .tr file based on the given filename.
 // Returns false on error.
@@ -104,5 +111,7 @@ bool Classify::WriteTRFile(const STRING& filename) {
   tr_file_data_.truncate_at(0);
   return result;
 }
+
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 }  // namespace tesseract.

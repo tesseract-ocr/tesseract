@@ -503,8 +503,10 @@ class TESS_API TessBaseAPI {
    * Recognize() or TesseractRect(). (Recognize is called implicitly if needed.)
    */
 
+  #ifndef DISABLED_LEGACY_ENGINE
   /** Variant on Recognize used for testing chopper. */
   int RecognizeForChopTest(ETEXT_DESC* monitor);
+  #endif
 
   /**
    * Turns images into symbolic text.
@@ -644,6 +646,7 @@ class TESS_API TessBaseAPI {
    */
   int* AllWordConfidences();
 
+#ifndef DISABLED_LEGACY_ENGINE
   /**
    * Applies the given word to the adaptive classifier if possible.
    * The word must be SPACE-DELIMITED UTF-8 - l i k e t h i s , so it can
@@ -655,6 +658,7 @@ class TESS_API TessBaseAPI {
    * Returns false if adaption was not possible for some reason.
    */
   bool AdaptToWordStr(PageSegMode mode, const char* wordstr);
+#endif  //  ndef DISABLED_LEGACY_ENGINE
 
   /**
    * Free up recognition results and any stored image data, without actually
@@ -702,14 +706,48 @@ class TESS_API TessBaseAPI {
    */
   void SetProbabilityInContextFunc(ProbabilityInContextFunc f);
 
-  /** Sets Wordrec::fill_lattice_ function to point to the given function. */
-  void SetFillLatticeFunc(FillLatticeFunc f);
-
   /**
    * Estimates the Orientation And Script of the image.
    * @return true if the image was processed successfully.
    */
   bool DetectOS(OSResults*);
+
+  /**
+   * Return text orientation of each block as determined by an earlier run
+   * of layout analysis.
+   */
+  void GetBlockTextOrientations(int** block_orientation,
+                                bool** vertical_writing);
+
+
+  #ifndef DISABLED_LEGACY_ENGINE
+
+  /** Sets Wordrec::fill_lattice_ function to point to the given function. */
+  void SetFillLatticeFunc(FillLatticeFunc f);
+
+  /** Find lines from the image making the BLOCK_LIST. */
+  BLOCK_LIST* FindLinesCreateBlockList();
+
+  /**
+   * Delete a block list.
+   * This is to keep BLOCK_LIST pointer opaque
+   * and let go of including the other headers.
+   */
+  static void DeleteBlockList(BLOCK_LIST* block_list);
+
+  /** Returns a ROW object created from the input row specification. */
+  static ROW *MakeTessOCRRow(float baseline, float xheight,
+                             float descender, float ascender);
+
+  /** Returns a TBLOB corresponding to the entire input image. */
+  static TBLOB *MakeTBLOB(Pix *pix);
+
+  /**
+   * This method baseline normalizes a TBLOB in-place. The input row is used
+   * for normalization. The denorm is an optional parameter in which the
+   * normalization-antidote is returned.
+   */
+  static void NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode);
 
   /** This method returns the features associated with the input image. */
   void GetFeaturesForBlob(TBLOB* blob, INT_FEATURE_STRUCT* int_features,
@@ -731,6 +769,7 @@ class TESS_API TessBaseAPI {
                              int* unichar_ids,
                              float* ratings,
                              int* num_matches_returned);
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
   /** This method returns the string form of the specified unichar. */
   const char* GetUnichar(int unichar_id);
@@ -741,20 +780,6 @@ class TESS_API TessBaseAPI {
   /** Return the number of dawgs loaded into tesseract_ object. */
   int NumDawgs() const;
 
-  /** Returns a ROW object created from the input row specification. */
-  static ROW *MakeTessOCRRow(float baseline, float xheight,
-                             float descender, float ascender);
-
-  /** Returns a TBLOB corresponding to the entire input image. */
-  static TBLOB *MakeTBLOB(Pix *pix);
-
-  /**
-   * This method baseline normalizes a TBLOB in-place. The input row is used
-   * for normalization. The denorm is an optional parameter in which the
-   * normalization-antidote is returned.
-   */
-  static void NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode);
-
   Tesseract* tesseract() const { return tesseract_; }
 
   OcrEngineMode oem() const { return last_oem_requested_; }
@@ -762,23 +787,6 @@ class TESS_API TessBaseAPI {
   void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
 
   void set_min_orientation_margin(double margin);
-
-  /**
-   * Return text orientation of each block as determined by an earlier run
-   * of layout analysis.
-   */
-  void GetBlockTextOrientations(int** block_orientation,
-                                bool** vertical_writing);
-
-  /** Find lines from the image making the BLOCK_LIST. */
-  BLOCK_LIST* FindLinesCreateBlockList();
-
-  /**
-   * Delete a block list.
-   * This is to keep BLOCK_LIST pointer opaque
-   * and let go of including the other headers.
-   */
-  static void DeleteBlockList(BLOCK_LIST* block_list);
  /* @} */
 
  protected:
@@ -816,6 +824,11 @@ class TESS_API TessBaseAPI {
    */
   TESS_LOCAL int TextLength(int* blob_count);
 
+  //// paragraphs.cpp ////////////////////////////////////////////////////
+  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
+
+  #ifndef DISABLED_LEGACY_ENGINE
+
   /** @defgroup ocropusAddOns ocropus add-ons */
   /* @{ */
 
@@ -832,11 +845,9 @@ class TESS_API TessBaseAPI {
 
   /** Recognize text doing one pass only, using settings for a given pass. */
   TESS_LOCAL PAGE_RES* RecognitionPass1(BLOCK_LIST* block_list);
+
   TESS_LOCAL PAGE_RES* RecognitionPass2(BLOCK_LIST* block_list,
                                         PAGE_RES* pass1_result);
-
-  //// paragraphs.cpp ////////////////////////////////////////////////////
-  TESS_LOCAL void DetectParagraphs(bool after_text_recognition);
 
   /**
    * Extract the OCR results, costs (penalty points for uncertainty),
@@ -853,7 +864,7 @@ class TESS_API TessBaseAPI {
 
   TESS_LOCAL const PAGE_RES* GetPageRes() const { return page_res_; }
   /* @} */
-
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
  protected:
   Tesseract*        tesseract_;       ///< The underlying data object.

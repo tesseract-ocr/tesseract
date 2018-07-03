@@ -36,6 +36,9 @@
 #include "params.h"
 #include "textord.h"
 #include "wordrec.h"
+#ifdef DISABLED_LEGACY_ENGINE
+#include "pageres.h" 
+#endif
 
 class BLOB_CHOICE_LIST_CLIST;
 class BLOCK_LIST;

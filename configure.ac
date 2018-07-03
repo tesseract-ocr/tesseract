@@ -161,6 +161,20 @@ if test "$enable_graphics" = "no"; then
   AM_CONDITIONAL([GRAPHICS_DISABLED], true)
 fi
 
+AC_MSG_CHECKING([--enable-legacy argument])
+AC_ARG_ENABLE([legacy],
+  [
+    AS_HELP_STRING([--enable-legacy],[enable the legacy OCR engine])
+    AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine])
+  ],
+  [enable_legacy=$enableval],
+  [enable_legacy="yes"])
+AC_MSG_RESULT([$enable_legacy])
+if test "$enable_legacy" = "no"; then
+  AC_DEFINE([DISABLED_LEGACY_ENGINE], [], [Disable the legacy OCR engine])
+fi
+AM_CONDITIONAL([DISABLED_LEGACY_ENGINE], test "$enable_legacy" = "no")
+
 # check whether to build embedded version
 AC_MSG_CHECKING([--enable-embedded argument])
 AC_ARG_ENABLE([embedded],

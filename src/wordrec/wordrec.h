@@ -19,6 +19,55 @@
 #ifndef TESSERACT_WORDREC_WORDREC_H_
 #define TESSERACT_WORDREC_WORDREC_H_
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include "classify.h"
+#include "dict.h"
+#include "ratngs.h"
+#include "matrix.h"
+#include "callcpp.h"
+
+#include <memory>
+
+class WERD_RES;
+
+namespace tesseract {
+
+/* ccmain/tstruct.cpp */
+
+class Wordrec : public Classify {
+ public:
+  // config parameters
+
+  BOOL_VAR_H(wordrec_debug_blamer, false, "Print blamer debug messages");
+
+  BOOL_VAR_H(wordrec_run_blamer, false, "Try to set the blame for errors");
+
+  // methods
+  Wordrec();
+  virtual ~Wordrec() = default;
+
+  // tface.cpp
+  void program_editup(const char *textbase, TessdataManager *init_classifier,
+                      TessdataManager *init_dict);
+  void program_editdown(int32_t elasped_time);
+  int end_recog();
+  int dict_word(const WERD_CHOICE &word);
+
+  // Member variables
+  WERD_CHOICE *prev_word_best_choice_;
+};
+
+}  // namespace tesseract
+
+#else  // DISABLED_LEGACY_ENGINE not defined
+
 #include "associate.h"
 #include "classify.h"
 #include "dict.h"
@@ -486,7 +535,8 @@ class Wordrec : public Classify {
                               STRING *blamer_debug);
 };
 
-
 }  // namespace tesseract
+
+#endif  // DISABLED_LEGACY_ENGINE
 
 #endif  // TESSERACT_WORDREC_WORDREC_H_

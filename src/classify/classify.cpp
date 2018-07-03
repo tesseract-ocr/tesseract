@@ -16,12 +16,37 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
 #include "classify.h"
+
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include <string.h>
+
+namespace tesseract {
+
+Classify::Classify()
+    : 
+      INT_MEMBER(classify_debug_level, 0, "Classify debug level",
+                 this->params()),
+
+      BOOL_MEMBER(classify_bln_numeric_mode, 0,
+"Assume the input is numbers [0-9].", this->params()),
+
+      double_MEMBER(classify_max_rating_ratio, 1.5,
+                    "Veto ratio between classifier ratings", this->params()),
+
+      double_MEMBER(classify_max_certainty_margin, 5.5,
+                    "Veto difference between classifier certainties",
+                    this->params()),
+
+      dict_(this) {}
+
+Classify::~Classify() {}
+
+}  // namespace tesseract
+
+#else  // DISABLED_LEGACY_ENGINE not defined
+
 #include "fontinfo.h"
 #include "intproto.h"
 #include "mfoutline.h"
@@ -233,5 +258,6 @@ bool Classify::LargeSpeckle(const TBLOB &blob) {
   return bbox.width() < speckle_size && bbox.height() < speckle_size;
 }
 
-
 }  // namespace tesseract
+
+#endif  // def DISABLED_LEGACY_ENGINE

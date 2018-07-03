@@ -569,6 +569,8 @@ void Tesseract::Clear() {
     sub_langs_[i]->Clear();
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 void Tesseract::SetEquationDetect(EquationDetect* detector) {
   equ_detect_ = detector;
   equ_detect_->SetLangTesseract(this);
@@ -581,6 +583,8 @@ void Tesseract::ResetAdaptiveClassifier() {
     sub_langs_[i]->ResetAdaptiveClassifierInternal();
   }
 }
+
+#endif  //ndef DISABLED_LEGACY_ENGINE
 
 // Clear the document dictionary for this and all subclassifiers.
 void Tesseract::ResetDocumentDictionary() {
