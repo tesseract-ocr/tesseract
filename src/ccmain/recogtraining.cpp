@@ -21,7 +21,6 @@
 
 #include "boxread.h"
 #include "control.h"
-#include "cutil.h"
 #include "host.h"
 #include "ratngs.h"
 #include "reject.h"
@@ -45,7 +44,11 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
   const char *lastdot = strrchr(output_fname.string(), '.');
   if (lastdot != nullptr) output_fname[lastdot - output_fname.string()] = '\0';
   output_fname += ".txt";
-  FILE *output_file = open_file(output_fname.string(), "a+");
+  FILE *output_file = fopen(output_fname.string(), "a+");
+  if (output_file == nullptr) {
+    tprintf("Error: Could not open file %s\n", output_fname.string());
+    ASSERT_HOST(output_file);
+  }
   return output_file;
 }
 
@@ -85,7 +88,11 @@ void Tesseract::recog_training_segmented(const STRING &fname,
   if (lastdot != nullptr) box_fname[lastdot - box_fname.string()] = '\0';
   box_fname += ".box";
   // ReadNextBox() will close box_file
-  FILE *box_file = open_file(box_fname.string(), "r");
+  FILE *box_file = fopen(box_fname.string(), "r");
+  if (box_file == nullptr) {
+    tprintf("Error: Could not open file %s\n", box_fname.string());
+    ASSERT_HOST(box_file);
+  }
 
   PAGE_RES_IT page_res_it;
   page_res_it.page_res = page_res;
