@@ -29,7 +29,6 @@
 #include "control.h"
 #include "reject.h"
 #include "pageres.h"
-#include "nwmain.h"
 #include "pgedit.h"
 #include "tprintf.h"
 #include "tessedit.h"
