@@ -27,63 +27,9 @@
 #ifndef CUTILH
 #define CUTILH
 
-/*----------------------------------------------------------------------
-                     I n c l u d e s
-----------------------------------------------------------------------*/
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
+typedef void (*void_proc)(...);
 
-#include "host.h"
-#include "tprintf.h"
+typedef int (*int_compare)(void*, void*);
+typedef void (*void_dest)(void*);
 
-/*----------------------------------------------------------------------
-                      T y p e s
-----------------------------------------------------------------------*/
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#define CHARS_PER_LINE 500
-
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif
-
-typedef void (*void_proc) (...);
-typedef void *(*void_star_proc) _ARGS ((...));
-
-typedef int (*int_void) (void);
-typedef void (*void_void) (void);
-typedef int (*int_compare) (void *, void *);
-typedef void (*void_dest) (void *);
-
-/*----------------------------------------------------------------------
-                     M a c r o s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * new_line
- *
- * Print a new line character on stdout.
- **********************************************************************/
-
-#define new_line()  \
-  tprintf("\n")
-
-/**********************************************************************
- * print_string
- *
- * Print a string on stdout.
- **********************************************************************/
-
-#define print_string(str)  \
-  printf ("%s\n", str)
-
-#include "cutil_class.h"
 #endif

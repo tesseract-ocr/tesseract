@@ -26,7 +26,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
-#include "cutil.h"
 #include "dawg.h"
 #include "globals.h"
 #include "stopper.h"

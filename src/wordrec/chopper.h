@@ -26,7 +26,6 @@
 #ifndef CHOPPER_H
 #define CHOPPER_H
 
-#include "cutil.h"
 #include "matrix.h"
 #include "seam.h"
 #include "stopper.h"

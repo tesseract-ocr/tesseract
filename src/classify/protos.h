@@ -30,7 +30,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "bitvec.h"
-#include "cutil.h"
 #include "params.h"
 #include "unichar.h"
 #include "unicity_table.h"
