@@ -31,7 +31,6 @@
 #include "outlines.h"
 #include "callcpp.h"
 #include "plotedges.h"
-#include "const.h"
 #include "wordrec.h"
 
 #include <cmath>

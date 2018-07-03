@@ -15,7 +15,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#include "const.h"
+
 #include "cluster.h"
 #include "emalloc.h"
 #include "genericheap.h"

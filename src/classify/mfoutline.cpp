@@ -22,7 +22,6 @@
 #include "emalloc.h"
 #include "mfoutline.h"
 #include "blobs.h"
-#include "const.h"
 #include "mfx.h"
 #include "params.h"
 #include "classify.h"

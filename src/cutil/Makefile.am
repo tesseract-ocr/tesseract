@@ -8,7 +8,7 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    bitvec.h callcpp.h const.h cutil.h cutil_class.h danerror.h \
+    bitvec.h callcpp.h cutil.h cutil_class.h danerror.h \
     emalloc.h globals.h \
     oldlist.h structures.h
 

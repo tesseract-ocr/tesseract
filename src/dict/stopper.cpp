@@ -24,7 +24,6 @@
 #include "stopper.h"
 #include "ambigs.h"
 #include "ccutil.h"
-#include "const.h"
 #include "danerror.h"
 #include "dict.h"
 #include "helpers.h"

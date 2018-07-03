@@ -20,7 +20,6 @@
 #define TESSERACT_CUTIL_CUTIL_CLASS_H_
 
 #include "ccutil.h"
-#include "const.h"
 #include "strngs.h"
 
 namespace tesseract {
