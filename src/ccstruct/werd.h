@@ -1,8 +1,8 @@
 /**********************************************************************
- * File:	word.h
+ * File:        werd.h
  * Description: Code for the WERD class.
- * Author:	Ray Smith
- * Created:	Tue Oct 08 14:32:12 BST 1991
+ * Author:      Ray Smith
+ * Created:     Tue Oct 08 14:32:12 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,14 @@
  *
  **********************************************************************/
 
-#ifndef           WERD_H
-#define           WERD_H
+#ifndef WERD_H
+#define WERD_H
 
-#include          "params.h"
-#include          "bits16.h"
-#include          "elst2.h"
-#include          "strngs.h"
-#include          "blckerr.h"
-#include          "stepblob.h"
+#include "params.h"
+#include "bits16.h"
+#include "elst2.h"
+#include "strngs.h"
+#include "stepblob.h"
 
 enum WERD_FLAGS
 {

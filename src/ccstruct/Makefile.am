@@ -12,7 +12,8 @@ endif
 
 pkginclude_HEADERS = publictypes.h
 noinst_HEADERS = \
-    blamer.h blckerr.h blobbox.h blobs.h blread.h boxread.h boxword.h ccstruct.h coutln.h crakedge.h \
+    blamer.h blobbox.h blobs.h blread.h boxread.h boxword.h \
+    ccstruct.h coutln.h crakedge.h \
     debugpixa.h detlinefit.h dppoint.h fontinfo.h genblob.h \
     imagedata.h \
     ipoints.h \

@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        ocrblock.cpp  (Formerly block.c)
  * Description: BLOCK member functions and iterator functions.
- * Author:		Ray Smith
- * Created:		Fri Mar 15 09:41:28 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Fri Mar 15 09:41:28 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,6 @@
 #include "ocrblock.h"
 #include <cstdlib>
 #include <memory>  // std::unique_ptr
-#include "blckerr.h"
 #include "stepblob.h"
 #include "tprintf.h"
 
