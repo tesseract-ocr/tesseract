@@ -278,7 +278,7 @@ enum OcrEngineMode {
                                 // command-line configs, or if not specified
                                 // in any of the above should be set to the
                                 // default OEM_TESSERACT_ONLY.
-  OEM_COUNT			// Number of OEMs
+  OEM_COUNT                     // Number of OEMs
 };
 
 }  // namespace tesseract.

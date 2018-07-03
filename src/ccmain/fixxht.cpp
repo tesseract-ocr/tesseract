@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        fixxht.cpp  (Formerly fixxht.c)
  * Description: Improve x_ht and look out for case inconsistencies
- * Author:		Phil Cheatle
- * Created:		Thu Aug  5 14:11:08 BST 1993
+ * Author:      Phil Cheatle
+ * Created:     Thu Aug  5 14:11:08 BST 1993
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

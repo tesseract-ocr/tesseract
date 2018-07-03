@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        linlsq.cpp  (Formerly llsq.c)
  * Description: Linear Least squares fitting code.
- * Author:		Ray Smith
- * Created:		Thu Sep 12 08:44:51 BST 1991
+ * Author:      Ray Smith
+ * Created:     Thu Sep 12 08:44:51 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,10 @@
  *
  **********************************************************************/
 
-#include          <stdio.h>
-#include          <math.h>
-#include          "errcode.h"
-#include          "linlsq.h"
+#include <stdio.h>
+#include <math.h>
+#include "errcode.h"
+#include "linlsq.h"
 
 const ERRCODE EMPTY_LLSQ = "Can't delete from an empty LLSQ";
 

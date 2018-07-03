@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    adaptive.h
- **	Purpose:     Interface to adaptive matcher.
- **	Author:      Dan Johnson
- **	History:     Fri Mar  8 10:00:49 1991, DSJ, Created.
+ ** Filename:   adaptive.h
+ ** Purpose:    Interface to adaptive matcher.
+ ** Author:     Dan Johnson
+ ** History:    Fri Mar  8 10:00:49 1991, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -89,22 +89,22 @@ typedef ADAPT_TEMPLATES_STRUCT *ADAPT_TEMPLATES;
 #define IsEmptyAdaptedClass(Class) ((Class)->NumPermConfigs == 0 &&      \
 (Class)->TempProtos == NIL_LIST)
 
-#define ConfigIsPermanent(Class,ConfigId)		\
+#define ConfigIsPermanent(Class,ConfigId) \
 (test_bit ((Class)->PermConfigs, ConfigId))
 
-#define MakeConfigPermanent(Class,ConfigId)	\
+#define MakeConfigPermanent(Class,ConfigId) \
 (SET_BIT ((Class)->PermConfigs, ConfigId))
 
-#define MakeProtoPermanent(Class,ProtoId)	\
+#define MakeProtoPermanent(Class,ProtoId) \
 (SET_BIT ((Class)->PermProtos, ProtoId))
 
-#define TempConfigFor(Class,ConfigId)	\
+#define TempConfigFor(Class,ConfigId) \
 ((Class)->Config[ConfigId].Temp)
 
-#define PermConfigFor(Class,ConfigId)	\
+#define PermConfigFor(Class,ConfigId) \
 ((Class)->Config[ConfigId].Perm)
 
-#define IncreaseConfidence(TempConfig)	\
+#define IncreaseConfidence(TempConfig) \
 ((TempConfig)->NumTimesSeen++)
 
 void AddAdaptedClass(ADAPT_TEMPLATES Templates,

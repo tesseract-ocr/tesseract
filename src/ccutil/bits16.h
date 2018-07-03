@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        bits16.h  (Formerly bits8.h)
  * Description: Code for 8 bit field class.
- * Author:					Phil Cheatle
- * Created:					Thu Oct 17 10:10:05 BST 1991
+ * Author:      Phil Cheatle
+ * Created:     Thu Oct 17 10:10:05 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#ifndef           BITS16_H
-#define           BITS16_H
+#ifndef BITS16_H
+#define BITS16_H
 
 #include "host.h"
 

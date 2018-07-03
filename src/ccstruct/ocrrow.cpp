@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        ocrrow.cpp  (Formerly row.c)
  * Description: Code for the ROW class.
- * Author:					Ray Smith
- * Created:					Tue Oct 08 15:58:04 BST 1991
+ * Author:      Ray Smith
+ * Created:     Tue Oct 08 15:58:04 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include          "ocrrow.h"
-#include          "blobbox.h"
+#include "ocrrow.h"
+#include "blobbox.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
