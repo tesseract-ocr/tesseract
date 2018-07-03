@@ -209,10 +209,6 @@ KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
  * @param Tree    K-D tree in which data is to be stored
  * @param Key    ptr to key by which data can be retrieved
  * @param Data    ptr to data to be stored in the tree
- *
- * @note Exceptions: none
- * @note History:  3/10/89, DSJ, Created.
- *      7/13/89, DSJ, Changed return to void.
  */
 void KDStore(KDTREE *Tree, float *Key, void *Data) {
   int Level;
@@ -253,11 +249,6 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
  * @param Tree K-D tree to delete node from
  * @param Key key of node to be deleted
  * @param Data data contents of node to be deleted
- *
- * @note Exceptions: none
- *
- * @note History:  3/13/89, DSJ, Created.
- *                7/13/89, DSJ, Specify node indirectly by key and data.
  */
 void
 KDDelete (KDTREE * Tree, float Key[], void *Data) {
@@ -311,10 +302,6 @@ KDDelete (KDTREE * Tree, float Key[], void *Data) {
  * @param DBuffer ptr to QuerySize buffer to hold distances
  *          from nearest neighbor to query point
  * @param NumberOfResults [out] Number of nearest neighbors actually found
- * @note Exceptions: none
- * @note History:
- * - 3/10/89, DSJ, Created.
- * - 7/13/89, DSJ, Return contents of node instead of node itself.
  */
 void KDNearestNeighborSearch(
     KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
@@ -342,8 +329,6 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
  * untouched.
  * @param Tree  tree data structure to be released
  * @return none
- * @note Exceptions: none
- * @note History: 5/26/89, DSJ, Created.
  */
 void FreeKDTree(KDTREE *Tree) {
   FreeSubTree(Tree->Root.Left);
@@ -365,8 +350,6 @@ void FreeKDTree(KDTREE *Tree) {
  * @param Data  ptr to data to be stored in new node
  * @param Index  index of Key to branch on
  * @return pointer to new K-D tree node
- * @note Exceptions: None
- * @note History: 3/11/89, DSJ, Created.
  */
 KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
   KDNODE *NewNode;

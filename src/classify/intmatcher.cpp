@@ -466,8 +466,6 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
  * param Result Class rating & configuration: (0.0 -> 1.0), 0=bad, 1=good
  * param Debug Debugger flag: 1=debugger on
  * @return none
- * @note Exceptions: none
- * @note History: Tue Feb 19 16:36:23 MST 1991, RWM, Created.
  */
 void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ProtoMask,
@@ -547,8 +545,6 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
  * param AdaptProtoThreshold Threshold for good protos
  * param Debug Debugger flag: 1=debugger on
  * @return Number of good protos in ProtoArray.
- * @note Exceptions: none
- * @note History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
  */
 int IntegerMatcher::FindGoodProtos(
     INT_CLASS ClassTemplate,
@@ -618,7 +614,6 @@ int IntegerMatcher::FindGoodProtos(
  * @param AdaptFeatureThreshold Threshold for bad features
  * @param Debug Debugger flag: 1=debugger on
  * @return Number of bad features in FeatureArray.
- * @note History: Tue Mar 12 17:09:26 MST 1991, RWM, Created
  */
 int IntegerMatcher::FindBadFeatures(
     INT_CLASS ClassTemplate,
@@ -717,8 +712,6 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
 /**
  * Print debugging information for Configurations
  * @return none
- * @note Exceptions: none
- * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
 void IMDebugConfiguration(int FeatureNum,
                           uint16_t ActualProtoNum,
@@ -740,8 +733,6 @@ void IMDebugConfiguration(int FeatureNum,
 /**
  * Print debugging information for Configurations
  * @return none
- * @note Exceptions: none
- * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
 void IMDebugConfigurationSum(int FeatureNum,
                              uint8_t *FeatureEvidence,
@@ -913,8 +904,6 @@ int IntegerMatcher::UpdateTablesForFeature(
 /**
  * Print debugging information for Configurations
  * @return none
- * @note Exceptions: none
- * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
 #ifndef GRAPHICS_DISABLED
 void IntegerMatcher::DebugFeatureProtoError(
@@ -1174,8 +1163,6 @@ void ScratchEvidence::NormalizeSums(
  * Find the best match for the current class and update the Result
  * with the configuration and match rating.
  * @return The best normalized sum of evidences
- * @note Exceptions: none
- * @note History: Wed Feb 27 14:12:28 MST 1991, RWM, Created.
  */
 int IntegerMatcher::FindBestMatch(
     INT_CLASS class_template,
@@ -1224,8 +1211,6 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
  * @param ra     Key array [1..n]
  * @param rb     Index array [1..n]
  * @return none
- * @note Exceptions: none
- * @note History: Tue Feb 19 10:24:24 MST 1991, RWM, Created.
  */
 void
 HeapSort (int n, int ra[], int rb[]) {

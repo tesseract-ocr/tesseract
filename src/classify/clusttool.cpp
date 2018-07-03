@@ -219,8 +219,6 @@ float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
  * @param ParamDesc array of param descriptors to write
  * @return None
  * @note Globals: None
- * @note Exceptions: None
- * @note History: 6/6/89, DSJ, Created.
  */
 void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
   int i;
@@ -248,8 +246,6 @@ void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
  * @param Proto prototype to write out
  * @return None
  * @note Globals: None
- * @note Exceptions: None
- * @note History: 6/12/89, DSJ, Created.
  */
 void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   int i;
@@ -298,8 +294,6 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
  * @param Array array of floats to write
  * @return None
  * @note Globals: None
- * @note Exceptions: None
- * @note History: 6/6/89, DSJ, Created.
  */
 void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
   for (int i = 0; i < N; i++)
@@ -315,8 +309,6 @@ void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
  * @param ProtoStyle prototype style to write
  * @return None
  * @note Globals: None
- * @note Exceptions: None
- * @note History: 6/8/89, DSJ, Created.
  */
 void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
@@ -348,9 +340,7 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @param WriteInsigProtos TRUE to write out insignificants
  * @note Globals: None
  * @return None
- * @note Exceptions: None
- * @note History: 6/12/89, DSJ, Created.
-*/
+ /
 
 void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
                     LIST ProtoList, bool WriteSigProtos,

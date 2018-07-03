@@ -41,8 +41,6 @@
  * @param NewNumBits new size of bit vector
  *
  * @return New expanded bit vector.
- * @note Exceptions: none
- * @note History: Fri Nov 16 10:11:16 1990, DSJ, Created.
  */
 BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
   return ((BIT_VECTOR) Erealloc(Vector,
@@ -63,8 +61,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  *
  * @param BitVector bit vector to be freed
  *
- * @note Exceptions: none
- * @note History: Tue Oct 23 16:46:09 1990, DSJ, Created.
  */
   if (BitVector) {
     Efree(BitVector);
@@ -83,8 +79,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * @param NumBits number of bits in new bit vector
  *
  * @return New bit vector.
- * @note Exceptions: none
- * @note History: Tue Oct 23 16:51:27 1990, DSJ, Created.
  */
 BIT_VECTOR NewBitVector(int NumBits) {
   return ((BIT_VECTOR) Emalloc(sizeof(uint32_t) *

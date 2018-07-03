@@ -114,8 +114,6 @@ LIST ConvertOutlines(TESSLINE *outline,
  * @param MinSlope  controls "snapping" of segments to horizontal
  * @param MaxSlope  controls "snapping" of segments to vertical
  * @return none
- * @note Exceptions: none
- * @note History: 7/21/89, DSJ, Created.
  */
 void FindDirectionChanges(MFOUTLINE Outline,
                           float MinSlope,
@@ -148,8 +146,6 @@ void FindDirectionChanges(MFOUTLINE Outline,
  * a micro-feature outline.
  * @param arg   micro-feature outline to be freed
  * @return none
- * @note Exceptions: none
- * @note History: 7/27/89, DSJ, Created.
  */
 void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
   MFOUTLINE Start;
@@ -172,8 +168,6 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
  * of outlines.
  * @param Outlines  list of mf-outlines to be freed
  * @return none
- * @note Exceptions: none
- * @note History: Thu Dec 13 16:14:50 1990, DSJ, Created.
  */
 void FreeOutlines(LIST Outlines) {
   destroy_nodes(Outlines, FreeMFOutline);
@@ -192,8 +186,6 @@ void FreeOutlines(LIST Outlines) {
  * @param Outline   micro-feature outline to analyze
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 6/29/90, DSJ, Created.
  */
 void MarkDirectionChanges(MFOUTLINE Outline) {
   MFOUTLINE Current;
@@ -231,8 +223,6 @@ MFEDGEPT *NewEdgePoint() {
  * @param EdgePoint start search from this point
  * @return Next extremity in the outline after EdgePoint.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 7/26/89, DSJ, Created.
  */
 MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
   EdgePoint = NextPointAfter(EdgePoint);
@@ -257,8 +247,6 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  * @param XOrigin   x-origin of text
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 8/2/89, DSJ, Created.
  */
 void NormalizeOutline(MFOUTLINE Outline,
                       float XOrigin) {
@@ -293,8 +281,6 @@ namespace tesseract {
  * @param XScale    x-direction scale factor used by routine
  * @param YScale    y-direction scale factor used by routine
  * @return none (Outlines are changed and XScale and YScale are updated)
- * @note Exceptions: none
- * @note History: Fri Dec 14 08:14:55 1990, DSJ, Created.
  */
 void Classify::NormalizeOutlines(LIST Outlines,
                                  float *XScale,
@@ -330,8 +316,6 @@ void Classify::NormalizeOutlines(LIST Outlines,
  * @param Direction new direction to assign to segment
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri May  4 10:42:04 1990, DSJ, Created.
  */
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
@@ -351,8 +335,6 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
  * @param cn_denorm
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Dec 14 10:27:11 1990, DSJ, Created.
  */
 void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
   MFOUTLINE First, Current;
@@ -392,8 +374,6 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
  * @param MaxSlope  slope above which lines are vertical
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 7/25/89, DSJ, Created.
  */
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,
@@ -457,8 +437,6 @@ void ComputeDirection(MFEDGEPT *Start,
  * @param EdgePoint start search from this point
  * @return Point of next direction change in micro-feature outline.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 7/25/89, DSJ, Created.
  */
 MFOUTLINE NextDirectionChange(MFOUTLINE EdgePoint) {
   DIRECTION InitialDirection;

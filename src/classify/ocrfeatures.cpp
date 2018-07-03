@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    features.c
+ ** Filename:    ocrfeatures.cpp
  ** Purpose:     Generic definition of a feature.
  ** Author:      Dan Johnson
  ** History:     Mon May 21 10:49:04 1990, DSJ, Created.
@@ -37,7 +37,6 @@
  * @param FeatureSet set of features to add Feature to
  * @param Feature feature to be added to FeatureSet
  * @return  TRUE if feature added to set, FALSE if set is already full.
- * @note History: Tue May 22 17:22:23 1990, DSJ, Created.
  */
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
@@ -53,7 +52,6 @@ bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
  * Release the memory consumed by the specified feature.
  * @param Feature feature to be deallocated.
  * @return none
- * @note History: Mon May 21 13:33:27 1990, DSJ, Created.
  */
 void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
 
@@ -63,7 +61,6 @@ void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
  * features contained in the set.
  * @param FeatureSet  set of features to be freed
  * @return none
- * @note History: Mon May 21 13:59:46 1990, DSJ, Created.
  */
 void FreeFeatureSet(FEATURE_SET FeatureSet) {
   int i;
@@ -80,7 +77,6 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
  * type.
  * @param FeatureDesc description of feature to be created.
  * @return New #FEATURE.
- * @note History: Mon May 21 14:06:42 1990, DSJ, Created.
  */
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
@@ -97,7 +93,6 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
  * hold the specified number of features.
  * @param NumFeatures maximum # of features to be put in feature set
  * @return New #FEATURE_SET.
- * @note History: Mon May 21 14:22:40 1990, DSJ, Created.
  */
 FEATURE_SET NewFeatureSet(int NumFeatures) {
   FEATURE_SET FeatureSet;
@@ -167,7 +162,6 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @param Feature feature to write out to str
  * @param str string to write Feature to
  * @return none
- * @note History: Wed May 23 09:28:18 1990, DSJ, Created.
  */
 void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
@@ -187,7 +181,6 @@ void WriteFeature(FEATURE Feature, STRING* str) {
  * @param FeatureSet feature set to write to File
  * @param str string to write Feature to
  * @return none
- * @note History: Wed May 23 10:06:03 1990, DSJ, Created.
  */
 void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
   if (FeatureSet) {
@@ -212,7 +205,6 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
  * @param File open text file to write FeatureDesc to
  * @param FeatureDesc feature descriptor to write to File
  * @return none
- * @note History: Fri May 25 15:27:18 1990, DSJ, Created.
  */
 void WriteOldParamDesc(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   int i;

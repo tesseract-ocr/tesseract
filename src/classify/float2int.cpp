@@ -40,9 +40,6 @@ namespace tesseract {
  * - none
  *
  * @param char_norm_array array to be cleared
- *
- * @note Exceptions: none
- * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
 void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
   memset(char_norm_array, 0, sizeof(*char_norm_array) * unicharset.size());
@@ -61,9 +58,6 @@ void Classify::ClearCharNormArray(uint8_t* char_norm_array) {
  *
  * @param norm_feature character normalization feature
  * @param[out] char_norm_array place to put results of size unicharset.size()
- *
- * @note Exceptions: none
- * @note History: Wed Feb 20 11:20:54 1991, DSJ, Created.
  */
 void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
                                        uint8_t* char_norm_array) {
@@ -92,9 +86,6 @@ void Classify::ComputeIntCharNormArray(const FEATURE_STRUCT& norm_feature,
  *
  * @param Features floating point pico-features to be converted
  * @param[out] IntFeatures array to put converted features into
- *
- * @note Exceptions: none
- * @note History: Wed Feb 20 10:58:45 1991, DSJ, Created.
  */
 void Classify::ComputeIntFeatures(FEATURE_SET Features,
                                   INT_FEATURE_ARRAY IntFeatures) {
