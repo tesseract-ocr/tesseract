@@ -79,7 +79,6 @@ DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
  * @return none
- * @note Exceptions: Illegal options terminate the program.
  */
 void ParseArguments(int* argc, char ***argv) {
   STRING usage;
@@ -280,8 +279,6 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
  * Globals:
  * - tessoptind defined by tessopt sys call
  * @return Next command line argument or nullptr.
- * @note Exceptions: none
- * @note History: Fri Aug 18 09:34:12 1989, DSJ, Created.
  */
 const char *GetNextFilename(int argc, const char* const * argv) {
   if (tessoptind < argc)
@@ -299,8 +296,6 @@ const char *GetNextFilename(int argc, const char* const * argv) {
  * @param Label label to search for
  * @return Labeled list with the specified label or nullptr.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Aug 18 15:57:41 1989, DSJ, Created.
  */
 LABELEDLIST FindList(LIST List, char* Label) {
   LABELEDLIST LabeledList;
@@ -322,8 +317,6 @@ LABELEDLIST FindList(LIST List, char* Label) {
  * @param Label label for new list
  * @return New, empty labeled list.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Aug 18 16:08:46 1989, DSJ, Created.
  */
 LABELEDLIST NewLabeledList(const char* Label) {
   LABELEDLIST LabeledList;
@@ -354,11 +347,6 @@ LABELEDLIST NewLabeledList(const char* Label) {
  * @param training_samples
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History:
- * - Fri Aug 18 13:11:39 1989, DSJ, Created.
- * - Tue May 17 1998 simplifications to structure, illiminated
- *   font, and feature specification levels of structure.
  */
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
                          const char *feature_name, int max_samples,
@@ -421,8 +409,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
  * @param CharList list of all fonts in document
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Aug 18 17:44:27 1989, DSJ, Created.
  */
 void FreeTrainingSamples(LIST CharList) {
   LABELEDLIST char_sample;
@@ -450,8 +436,6 @@ void FreeTrainingSamples(LIST CharList) {
  * @param LabeledList labeled list to be freed
  * @note Globals: none
  * @return none
- * @note Exceptions: none
- * @note History: Fri Aug 18 17:52:45 1989, DSJ, Created.
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
@@ -470,8 +454,6 @@ void FreeLabeledList(LABELEDLIST LabeledList) {
  * given character.
  * @return Pointer to new clusterer data structure.
  * @note Globals: None
- * @note Exceptions: None
- * @note History: 8/16/89, DSJ, Created.
  */
 CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               LABELEDLIST char_sample,
@@ -687,8 +669,6 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
  * @param ClassList list of all fonts in document
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Aug 18 17:44:27 1989, DSJ, Created.
  */
 void FreeLabeledClassList(LIST ClassList) {
   MERGE_CLASS MergeClass;

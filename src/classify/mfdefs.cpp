@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    mfdefs.c
+ ** Filename:    mfdefs.cpp
  ** Purpose:     Basic routines for manipulating micro-features
  ** Author:      Dan Johnson
  ** History:     Mon Jan 22 08:48:58 1990, DSJ, Created.
@@ -30,7 +30,6 @@
  * This routine allocates and returns a new micro-feature
  * data structure.
  * @return New MICROFEATURE
- * @note History: 7/27/89, DSJ, Created.
  */
 MICROFEATURE NewMicroFeature() {
   return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
@@ -43,7 +42,6 @@ MICROFEATURE NewMicroFeature() {
  * a list of micro-features.
  * @param MicroFeatures list of micro-features to be freed
  * @return  none
- * @note History: 7/27/89, DSJ, Created.
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, Efree);

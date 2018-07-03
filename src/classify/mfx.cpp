@@ -65,8 +65,6 @@ MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End);
  * @param Blob blob to extract micro-features from
  * @param cn_denorm control parameter to feature extractor
  * @return List of micro-features extracted from the blob.
- * @note Exceptions: none
- * @note History: 7/21/89, DSJ, Created.
  */
 MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
   MICROFEATURES MicroFeatures = NIL_LIST;
@@ -113,8 +111,6 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
  * @param End             ending edge point of micro-feature
  * @note Globals: none
  * @return Orientation parameter for the specified micro-feature.
- * @note Exceptions: none
- * @note History: 7/27/89, DSJ, Created.
  */
 float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
   float Orientation = NormalizeAngle(AngleFrom(Start->Point, End->Point));
@@ -131,8 +127,6 @@ float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
  * @param MicroFeatures   list of micro-features to add to
  * @return List of micro-features with new features added to front.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 7/26/89, DSJ, Created.
  */
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
                                      MICROFEATURES MicroFeatures) {
@@ -172,10 +166,6 @@ MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
  * @param End ending point of micro-feature
  * @return New micro-feature or nullptr if the feature was rejected.
  * @note Globals: none
- * @note Exceptions: none
- * @note History:
- * - 7/26/89, DSJ, Created.
- * - 11/17/89, DSJ, Added handling for Start and End same point.
  */
 MICROFEATURE ExtractMicroFeature(MFOUTLINE Start, MFOUTLINE End) {
   MICROFEATURE NewFeature;

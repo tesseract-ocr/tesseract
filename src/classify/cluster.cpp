@@ -2,7 +2,6 @@
  ** Filename: cluster.c
  ** Purpose:  Routines for clustering points in N-D space
  ** Author:   Dan Johnson
- ** History:  5/29/89, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -392,9 +391,7 @@ double InvertMatrix(const float* input, int size, float* inv);
  *
  * @param SampleSize  number of dimensions in feature space
  * @param ParamDesc description of each dimension
- * @return  pointer to the new clusterer data structure
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
+ * @return pointer to the new clusterer data structure
  */
 CLUSTERER *
 MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
@@ -503,8 +500,6 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
  * @param Config  parameters which control clustering process
  *
  * @return Pointer to a list of prototypes
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
  */
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   //only create cluster tree if samples have never been clustered before
@@ -537,8 +532,6 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * via calls to GetSamples are no longer valid.
  * @param Clusterer pointer to data structure to be freed
  * @return None
- * @note Exceptions:  None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
@@ -564,8 +557,6 @@ void FreeClusterer(CLUSTERER *Clusterer) {
  * pointed to by the prototypes are not freed.
  * @param ProtoList pointer to list of prototypes to be freed
  * @return None
- * @note Exceptions:  None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeProtoList(LIST *ProtoList) {
   destroy_nodes(*ProtoList, FreePrototype);
@@ -578,8 +569,6 @@ void FreeProtoList(LIST *ProtoList) {
  * deallocated by this routine.
  * @param arg prototype data structure to be deallocated
  * @return None
- * @note Exceptions: None
- * @note History: 5/30/89, DSJ, Created.
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   PROTOTYPE *Prototype = (PROTOTYPE *) arg;
@@ -611,8 +600,6 @@ void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
  * before NextSample() to initialize the search.
  * @param SearchState ptr to list containing clusters to be searched
  * @return  Pointer to the next leaf cluster (sample) or nullptr.
- * @note Exceptions:  None
- * @note History: 6/16/89, DSJ, Created.
  */
 CLUSTER *NextSample(LIST *SearchState) {
   CLUSTER *Cluster;
@@ -635,8 +622,6 @@ CLUSTER *NextSample(LIST *SearchState) {
  * @param Proto prototype to return mean of
  * @param Dimension dimension whose mean is to be returned
  * @return  Mean of Prototype in Dimension
- * @note Exceptions: none
- * @note History: 7/6/89, DSJ, Created.
  */
 float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
   return (Proto->Mean[Dimension]);
@@ -648,8 +633,6 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
  * @param Proto   prototype to return standard deviation of
  * @param Dimension dimension whose stddev is to be returned
  * @return  Standard deviation of Prototype in Dimension
- * @note Exceptions: none
- * @note History: 7/6/89, DSJ, Created.
  */
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
@@ -689,8 +672,6 @@ float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
  * all of the samples.
  * @param Clusterer data structure holdings samples to be clustered
  * @return  None (the Clusterer data structure is changed)
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
  */
 void CreateClusterTree(CLUSTERER *Clusterer) {
   ClusteringContext context;
@@ -787,9 +768,6 @@ void MakePotentialClusters(ClusteringContext *context,
  * @param Cluster cluster whose nearest neighbor is to be found
  * @param Distance  ptr to variable to report distance found
  * @return  Pointer to the nearest neighbor of Cluster, or nullptr
- * @note Exceptions: none
- * @note History: 5/29/89, DSJ, Created.
- *  7/13/89, DSJ, Removed visibility of kd-tree node data struct
  */
 CLUSTER *
 FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, float * Distance)
@@ -826,9 +804,6 @@ FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, float * Distance)
  * @param Clusterer current clustering environment
  * @param TempCluster potential cluster to make permanent
  * @return Pointer to the new permanent cluster
- * @note Exceptions:  none
- * @note History: 5/29/89, DSJ, Created.
- *    7/13/89, DSJ, Removed visibility of kd-tree node data struct
  */
 CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
   CLUSTER *Cluster;
@@ -871,8 +846,6 @@ CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
  * @param m array to hold mean of new cluster
  * @param m1, m2  arrays containing means of old clusters
  * @return  The number of samples in the new cluster.
- * @note Exceptions:  None
- * @note History: 5/31/89, DSJ, Created.
  */
 int32_t MergeClusters(int16_t N,
                     PARAM_DESC ParamDesc[],
@@ -915,8 +888,6 @@ int32_t MergeClusters(int16_t N,
  * @param Clusterer data structure holding cluster tree
  * @param Config    parameters used to control prototype generation
  * @return  None
- * @note Exceptions:  None
- * @note History: 5/30/89, DSJ, Created.
  */
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   LIST ClusterStack = NIL_LIST;
@@ -960,8 +931,6 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * @param Config  parameters used to control prototype generation
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new prototype or nullptr
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
                          CLUSTERCONFIG *Config,
@@ -1052,10 +1021,6 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
  * @param Style   type of prototype to be generated
  * @param MinSamples  minimum number of samples in a cluster
  * @return  Pointer to degenerate prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
- *    7/12/89, DSJ, Changed name and added check for 0 stddev.
- *    8/8/89, DSJ, Removed check for 0 stddev (handled elsewhere).
  */
 PROTOTYPE *MakeDegenerateProto(  //this was MinSample
                                uint16_t N,
@@ -1203,8 +1168,6 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
  * @return  Pointer to new spherical prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/1/89, DSJ, Created.
  */
 PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
                               CLUSTER *Cluster,
@@ -1240,8 +1203,6 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
  * @return  Pointer to new elliptical prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/12/89, DSJ, Created.
  */
 PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
                                CLUSTER *Cluster,
@@ -1282,8 +1243,6 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
  * @param NormalBuckets histogram struct used to analyze distribution
  * @param Confidence  confidence level for alternate distributions
  * @return  Pointer to new mixed prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/12/89, DSJ, Created.
  */
 PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           CLUSTER *Cluster,
@@ -1343,8 +1302,6 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
  * @param Proto prototype whose dimension is to be altered
  * @param ParamDesc description of specified dimension
  * @return  None
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
  */
 void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
   Proto->Distrib[i] = D_random;
@@ -1367,8 +1324,6 @@ void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
  * @param Proto   prototype whose dimension is to be altered
  * @param Statistics  statistical info about prototype
  * @return  None
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
  */
 void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
   Proto->Distrib[i] = uniform;
@@ -1402,8 +1357,6 @@ void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
  * @param ParamDesc array of dimension descriptions
  * @param Cluster cluster whose stats are to be computed
  * @return  Pointer to new data structure containing statistics
- * @note Exceptions:  None
- * @note History: 6/2/89, DSJ, Created.
  */
 STATISTICS *
 ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
@@ -1490,8 +1443,6 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
  * @param Cluster cluster to be made into a spherical prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new spherical prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewSphericalProto(uint16_t N,
                              CLUSTER *Cluster,
@@ -1523,8 +1474,6 @@ PROTOTYPE *NewSphericalProto(uint16_t N,
  * @param Cluster cluster to be made into an elliptical prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new elliptical prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewEllipticalProto(int16_t N,
                               CLUSTER *Cluster,
@@ -1567,8 +1516,6 @@ PROTOTYPE *NewEllipticalProto(int16_t N,
  * @param Cluster cluster to be made into a mixed prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new mixed prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   PROTOTYPE *Proto;
@@ -1591,8 +1538,6 @@ PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
  * @param N number of dimensions
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new simple prototype
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   PROTOTYPE *Proto;
@@ -1631,8 +1576,6 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
  * @param CoVariance  ptr to a covariance matrix
  * @param Independence  max off-diagonal correlation coefficient
  * @return  TRUE if dimensions are independent, FALSE otherwise
- * @note Exceptions:  None
- * @note History: 6/4/89, DSJ, Created.
  */
 bool
 Independent(PARAM_DESC* ParamDesc,
@@ -1679,8 +1622,6 @@ Independent(PARAM_DESC* ParamDesc,
  * @param SampleCount number of samples that are available
  * @param Confidence  probability of a Type I error
  * @return  Bucket data structure
- * @note Exceptions: none
- * @note History: Thu Aug  3 12:58:10 1989, DSJ, Created.
  */
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
@@ -1726,8 +1667,6 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
  * @param SampleCount number of samples that are available
  * @param Confidence  probability of a Type I error
  * @return Pointer to new histogram data structure
- * @note Exceptions:  None
- * @note History: 6/4/89, DSJ, Created.
  */
 BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
                      uint32_t SampleCount,
@@ -1823,8 +1762,6 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
  * equally valid for other alpha's, which may not be true.
  * @param SampleCount number of samples to be tested
  * @return Optimum number of histogram buckets
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
   uint8_t Last, Next;
@@ -1859,8 +1796,6 @@ uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
  * @param DegreesOfFreedom  determines shape of distribution
  * @param Alpha probability of right tail
  * @return Desired chi-squared value
- * @note Exceptions: none
- * @note History: 6/5/89, DSJ, Created.
  */
 double
 ComputeChiSquared (uint16_t DegreesOfFreedom, double Alpha)
@@ -1911,11 +1846,8 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, double Alpha)
  * @note Globals:
  *    kNormalMean mean of a discrete normal distribution
  *    kNormalVariance variance of a discrete normal distribution
- *    kNormalMagnitude  magnitude of a discrete normal
- *distribution
+ *    kNormalMagnitude  magnitude of a discrete normal distribution
  * @return  The value of the normal distribution at x.
- * @note Exceptions: None
- * @note History: 6/4/89, DSJ, Created.
  */
 double NormalDensity(int32_t x) {
   double Distance;
@@ -1930,8 +1862,6 @@ double NormalDensity(int32_t x) {
  * range of the distribution is from 0 to BUCKETTABLESIZE.
  * @param x number to compute the uniform probability density for
  * @return The value of the uniform distribution at x.
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 double UniformDensity(int32_t x) {
   static double UniformDistributionDensity = (double) 1.0 / BUCKETTABLESIZE;
@@ -1949,8 +1879,6 @@ double UniformDensity(int32_t x) {
  * @param f2  value of function at x2
  * @param Dx  x2 - x1 (should always be positive)
  * @return Approximation of the integral of the function from x1 to x2.
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 double Integral(double f1, double f2, double Dx) {
   return (f1 + f2) * Dx / 2.0;
@@ -1975,8 +1903,6 @@ double Integral(double f1, double f2, double Dx) {
  * @param Mean  "mean" of the distribution
  * @param StdDev  "standard deviation" of the distribution
  * @return None (the Buckets data structure is filled in)
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
@@ -2047,8 +1973,6 @@ void FillBuckets(BUCKETS *Buckets,
  * @param Mean  mean of normal distribution
  * @param StdDev  standard deviation of normal distribution
  * @return Bucket number into which x falls
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t NormalBucket(PARAM_DESC *ParamDesc,
                       float x,
@@ -2082,8 +2006,6 @@ uint16_t NormalBucket(PARAM_DESC *ParamDesc,
  * @param Mean  center of range of uniform distribution
  * @param StdDev  1/2 the range of the uniform distribution
  * @return Bucket number into which x falls
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t UniformBucket(PARAM_DESC *ParamDesc,
                        float x,
@@ -2116,8 +2038,6 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
  * returned.
  * @param Buckets   histogram data to perform chi-square test on
  * @return TRUE if samples match distribution, FALSE otherwise
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 bool DistributionOK(BUCKETS* Buckets) {
   float FrequencyDifference;
@@ -2144,8 +2064,6 @@ bool DistributionOK(BUCKETS* Buckets) {
  * data structure.
  * @param Statistics  pointer to data structure to be freed
  * @return None
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 void FreeStatistics(STATISTICS *Statistics) {
   free(Statistics->CoVariance);
@@ -2173,9 +2091,6 @@ void FreeBuckets(BUCKETS *buckets) {
  * @param Cluster pointer to cluster to be freed
  *
  * @return None
- *
- * @note Exceptions: None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeCluster(CLUSTER *Cluster) {
   if (Cluster != nullptr) {
@@ -2196,8 +2111,6 @@ void FreeCluster(CLUSTER *Cluster) {
  * @param Distribution    distribution being tested for
  * @param HistogramBuckets  number of buckets in chi-square test
  * @return The number of degrees of freedom for a chi-square test
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:04:18 1989, DSJ, Created.
  */
 uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets) {
   static uint8_t DegreeOffsets[] = { 3, 3, 1 };
@@ -2218,8 +2131,6 @@ uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets) 
  * @param arg1 current histogram being tested for a match
  * @param arg2 match key
  * @return TRUE if arg1 matches arg2
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
  */
 int NumBucketsMatch(void *arg1,    // BUCKETS *Histogram,
                     void *arg2) {  // uint16_t *DesiredNumberOfBuckets)
@@ -2235,8 +2146,6 @@ int NumBucketsMatch(void *arg1,    // BUCKETS *Histogram,
  * whose contents match Key.  It is called by the list
  * delete_d routine.
  * @return TRUE if ListNode matches Key
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:23:58 1989, DSJ, Created.
  */
 int ListEntryMatch(void *arg1,    //ListNode
                    void *arg2) {  //Key
@@ -2251,8 +2160,6 @@ int ListEntryMatch(void *arg1,    //ListNode
  * @param Buckets histogram data structure to adjust
  * @param NewSampleCount  new sample count to adjust to
  * @return none
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:31:14 1989, DSJ, Created.
  */
 void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
   int i;
@@ -2274,8 +2181,6 @@ void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
  * to zero.
  * @param Buckets histogram data structure to init
  * @return none
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:31:14 1989, DSJ, Created.
  */
 void InitBuckets(BUCKETS *Buckets) {
   int i;
@@ -2297,8 +2202,6 @@ void InitBuckets(BUCKETS *Buckets) {
  * @param arg1 chi-squared struct being tested for a match
  * @param arg2 chi-squared struct that is the search key
  * @return TRUE if ChiStruct's Alpha matches SearchKey's Alpha
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
  */
 int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct,
                void *arg2) {  //CHISTRUCT                             *SearchKey)
@@ -2317,8 +2220,6 @@ int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct
  * @param DegreesOfFreedom  degrees of freedom for new chi value
  * @param Alpha     confidence level for new chi value
  * @return none
- * @note Exceptions: none
- * @note History: Fri Aug  4 11:04:59 1989, DSJ, Created.
  */
 CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;
@@ -2342,8 +2243,6 @@ CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
  * @param InitialGuess  point to start solution search at
  * @param Accuracy  maximum allowed error
  * @return Solution of function ( x for which f(x) = 0 ).
- * @note Exceptions: none
- * @note History: Fri Aug  4 11:08:59 1989, DSJ, Created.
  */
 double
 Solve (SOLVEFUNC Function,
@@ -2409,8 +2308,6 @@ void *FunctionParams, double InitialGuess, double Accuracy)
  * @param ChiParams contains degrees of freedom and alpha
  * @param x   value of chi-squared to evaluate
  * @return Error between actual and desired area under the chi curve.
- * @note Exceptions: none
- * @note History: Fri Aug  4 12:48:41 1989, DSJ, Created.
  */
 double ChiArea(CHISTRUCT *ChiParams, double x) {
   int i, N;
@@ -2453,10 +2350,6 @@ double ChiArea(CHISTRUCT *ChiParams, double x) {
  * @param MaxIllegal  max percentage of samples allowed to have
  *        more than 1 feature in the cluster
  * @return TRUE if the cluster should be split, FALSE otherwise.
- * @note Exceptions: none
- * @note History: Wed Aug 30 11:13:05 1989, DSJ, Created.
- * 2/22/90, DSJ, Added MaxIllegal control rather than always
- * splitting illegal clusters.
  */
 bool
 MultipleCharSamples(CLUSTERER* Clusterer,

@@ -79,8 +79,6 @@ namespace tesseract {
  * #NormProtos character normalization prototypes
  *
  * @return Best match rating for Feature against protos of ClassId.
- * @note Exceptions: none
- * @note History: Wed Dec 19 16:56:12 1990, DSJ, Created.
  */
 float Classify::ComputeNormMatch(CLASS_ID ClassId,
                                  const FEATURE_STRUCT& feature,
@@ -200,8 +198,6 @@ double NormEvidenceOf(double NormAdj) {
  * @param Feature[] array of feature parameters
  * Globals: none
  * @return  none
- * @note Exceptions: none
- * @note History: Wed Jan  2 09:49:35 1991, DSJ, Created.
  */
 void PrintNormMatch(FILE *File,
                     int NumParams,
@@ -235,8 +231,6 @@ namespace tesseract {
  * @param fp open text file to read normalization protos from
  * Globals: none
  * @return Character normalization protos.
- * @note Exceptions: none
- * @note History: Wed Dec 19 16:38:49 1990, DSJ, Created.
  */
 NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   NORM_PROTOS *NormProtos;

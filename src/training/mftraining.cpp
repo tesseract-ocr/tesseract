@@ -208,10 +208,7 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
  * the OCR engine.
  * @param  argc  number of command line arguments
  * @param  argv  array of command line arguments
- * @return none
- * @note Exceptions: none
- * @note History:  Fri Aug 18 08:56:17 1989, DSJ, Created.
- * @note History: Mon May 18 1998, Christy Russson, Revistion started.
+ * @return 0 if no error occurred
  */
 int main (int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();

@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    fpoint.c
+ ** Filename:    fpoint.cpp
  ** Purpose:     Abstract data type for a 2D point (floating point coords)
  ** Author:      Dan Johnson
  **
@@ -40,8 +40,6 @@ float DistanceBetween(FPOINT A, FPOINT B) {
  * @param FullScale value to associate with 2*pi
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Wed Mar 28 14:27:25 1990, DSJ, Created.
  */
 float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
   float NumRadsInCircle = 2.0 * M_PI;

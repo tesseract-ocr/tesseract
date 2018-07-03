@@ -109,8 +109,6 @@ CLUSTERCONFIG  CNConfig =
 * @param argv  array of command line arguments
 * @return none
 * @note Globals: none
-* @note Exceptions: none
-* @note History: Fri Aug 18 08:56:17 1989, DSJ, Created.
 */
 int main(int argc, char *argv[]) {
   tesseract::CheckSharedLibraryVersion();
@@ -204,8 +202,6 @@ int main(int argc, char *argv[]) {
 * @param LabeledProtoList List of labeled protos
 * @param feature_desc Description of the features
 * @return none
-* @note Exceptions: none
-* @note History: Fri Aug 18 16:17:06 1989, DSJ, Created.
 */
 static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
                             const FEATURE_DESC_STRUCT *feature_desc) {

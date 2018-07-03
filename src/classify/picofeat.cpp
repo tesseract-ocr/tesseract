@@ -60,8 +60,6 @@ namespace tesseract {
  * - classify_norm_method normalization method currently specified
  * @param Blob blob to extract pico-features from
  * @return Pico-features for Blob.
- * @note Exceptions: none
- * @note History: 9/4/90, DSJ, Created.
  */
 FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   LIST Outlines;
@@ -102,8 +100,6 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
  * @param End ending point of pico-feature
  * @param FeatureSet set to add pico-feature to
  * @return none (results are placed in FeatureSet)
- * @note Exceptions: none
- * @note History: Tue Apr 30 15:44:34 1991, DSJ, Created.
  */
 void ConvertSegmentToPicoFeat(FPOINT *Start,
                               FPOINT *End,
@@ -156,8 +152,6 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
  * @param Outline outline to extract micro-features from
  * @param FeatureSet set of features to add pico-features to
  * @return none (results are returned in FeatureSet)
- * @note Exceptions: none
- * @note History: 4/30/91, DSJ, Adapted from ConvertToPicoFeatures().
  */
 void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE Next;
@@ -197,8 +191,6 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  * @param FeatureSet pico-features to be normalized
  * @return none (FeatureSet is changed)
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Sep  4 16:50:08 1990, DSJ, Created.
  */
 void NormalizePicoX(FEATURE_SET FeatureSet) {
   int i;
@@ -223,8 +215,6 @@ namespace tesseract {
  * @param blob blob to extract features from
  * @param fx_info
  * @return Integer character-normalized features for blob.
- * @note Exceptions: none
- * @note History: 8/8/2011, rays, Created.
  */
 FEATURE_SET Classify::ExtractIntCNFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {
@@ -255,8 +245,6 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
  * @param blob blob to extract features from
  * @param fx_info
  * @return Geometric (top/bottom/width) features for blob.
- * @note Exceptions: none
- * @note History: 8/8/2011, rays, Created.
  */
 FEATURE_SET Classify::ExtractIntGeoFeatures(
     const TBLOB& blob, const INT_FX_RESULT_STRUCT& fx_info) {

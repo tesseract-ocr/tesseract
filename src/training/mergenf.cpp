@@ -121,8 +121,6 @@ float CompareProtos(PROTO p1, PROTO p2) {
  * Globals: none
  *
  * @return none (results are returned in MergedProto)
- * @note Exceptions: none
- * @note History: Mon Nov 26 08:15:08 1990, DSJ, Created.
  */
 void ComputeMergedProto (PROTO  p1,
                          PROTO  p2,
@@ -155,8 +153,6 @@ void ComputeMergedProto (PROTO  p1,
  * Globals: none
  *
  * @return Id of closest proto in Class or NO_PROTO.
- * @note Exceptions: none
- * @note History: Sat Nov 24 11:42:58 1990, DSJ, Created.
  */
 int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
                              PROTOTYPE  *Prototype) {
@@ -195,9 +191,6 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
  * @param Old old proto to be converted
  *
  *  Globals: none
- *
- * Exceptions: none
- * History: Mon Nov 26 09:45:39 1990, DSJ, Created.
  */
 void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
   New->X = CenterX(Old->Mean);
@@ -264,7 +257,6 @@ double EvidenceOf (double Similarity) {
  * - training_orthogonal_bbox_pad bounding box pad orthogonal to proto
  *
  * @return true if feature could match Proto.
- * @note Exceptions: none
  */
 bool DummyFastMatch(FEATURE Feature, PROTO Proto)
 {
@@ -327,7 +319,6 @@ void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
  * Globals: none
  *
  * @return true if point (X,Y) is inside of Rectangle.
- * @note Exceptions: none
  */
 bool PointInside(FRECT *Rectangle, float X, float Y) {
   return (X >= Rectangle->MinX) &&
