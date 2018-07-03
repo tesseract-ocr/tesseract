@@ -36,7 +36,6 @@
 #include "stopper.h"
 #include "intmatcher.h"
 #include "chop.h"
-#include "danerror.h"
 #include "globals.h"
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"

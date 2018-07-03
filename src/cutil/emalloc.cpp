@@ -1,14 +1,7 @@
 /**************************************************************************
- * Filename:
-              emalloc.c
-**       Purpose:
-              Routines for trapping memory allocation errors.
-**       Author:
-              Dan Johnson
-              HP-UX 6.2
-              HP-UX 6.2
-**       History:
-              4/3/89, DSJ, Created.
+ * Filename:    emalloc.cpp
+ * Purpose:     Routines for trapping memory allocation errors.
+ * Author:      Dan Johnson
 **
 **  (c) Copyright Hewlett-Packard Company, 1988.
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,16 +14,11 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 ******************************************************************************/
-/*----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------*/
-#include "emalloc.h"
-#include "danerror.h"
-#include <cstdlib>
 
-/*----------------------------------------------------------------------------
-              Public Code
-----------------------------------------------------------------------------*/
+#include "emalloc.h"
+#include <cstdlib>
+#include "errcode.h"    // for ASSERT_HOST
+
 /**
  * This routine attempts to allocate the specified number of
  * bytes.  If the memory can be allocated, a pointer to the
@@ -39,47 +27,22 @@
  * an error is trapped.
  * @param Size number of bytes of memory to be allocated
  * @return Pointer to allocated memory.
- * @note Exceptions:
- * - #NOTENOUGHMEMORY  unable to allocate Size bytes
- * - #ILLEGALMALLOCREQUEST negative or zero request size
- * @note History: 4/3/89, DSJ, Created.
-*/
+ */
 void *Emalloc(int Size) {
-  void *Buffer;
+  ASSERT_HOST(Size > 0);
+  void* Buffer = malloc(Size);
+  ASSERT_HOST(Buffer != nullptr);
+  return Buffer;
+}
 
-  if (Size <= 0)
-    DoError (ILLEGALMALLOCREQUEST, "Illegal malloc request size");
-  Buffer = (void *) malloc (Size);
-  if (Buffer == nullptr) {
-    DoError (NOTENOUGHMEMORY, "Not enough memory");
-    return (nullptr);
-  }
-  else
-    return (Buffer);
-
-}                                /* Emalloc */
-
-
-/*---------------------------------------------------------------------------*/
 void *Erealloc(void *ptr, int size) {
-  void *Buffer;
+  ASSERT_HOST(size > 0 || (size == 0 && ptr != nullptr));
+  void* Buffer = realloc(ptr, size);
+  ASSERT_HOST(Buffer != nullptr || size == 0);
+  return Buffer;
+}
 
-  if (size < 0 || (size == 0 && ptr == nullptr))
-    DoError (ILLEGALMALLOCREQUEST, "Illegal realloc request size");
-
-  Buffer = (void *) realloc (ptr, size);
-  if (Buffer == nullptr && size != 0)
-    DoError (NOTENOUGHMEMORY, "Not enough memory");
-  return (Buffer);
-
-}                                /* Erealloc */
-
-
-/*---------------------------------------------------------------------------*/
 void Efree(void *ptr) { 
-  if (ptr == nullptr)
-    DoError (ILLEGALMALLOCREQUEST, "Attempted to free nullptr ptr");
-
+  ASSERT_HOST(ptr != nullptr);
   free(ptr); 
-
-}                                /* Efree */
+}

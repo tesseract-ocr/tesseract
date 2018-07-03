@@ -33,10 +33,6 @@ struct INT_FX_RESULT_STRUCT;
 #undef Max
 #define FEAT_NAME_SIZE 80
 
-// define trap errors which can be caused by this module
-#define ILLEGAL_FEATURE_PARAM 1000
-#define ILLEGAL_NUM_FEATURES 1001
-
 // A character is described by multiple sets of extracted features.  Each
 // set contains a number of features of a particular type, for example, a
 // set of bays, or a set of closures, or a set of microfeatures.  Each

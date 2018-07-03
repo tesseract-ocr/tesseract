@@ -19,14 +19,10 @@
 -----------------------------------------------------------------------------*/
 #include "featdefs.h"
 #include "emalloc.h"
-#include "danerror.h"
 #include "scanutils.h"
 
 #include <cstring>
 #include <cstdio>
-
-/** define errors triggered by this module */
-#define ILLEGAL_NUM_SETS  3001
 
 #define PICO_FEATURE_LENGTH 0.05
 
@@ -129,9 +125,6 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  *
  * Globals: 
  * - none
- *
- * @note Exceptions: none
- * @note History: Wed May 23 13:52:19 1990, DSJ, Created.
  */
 void FreeCharDescription(CHAR_DESC CharDesc) {
   if (CharDesc) {
@@ -151,8 +144,6 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  * - none
  *
  * @return New character description structure.
- * @note Exceptions: none
- * @note History: Wed May 23 15:27:10 1990, DSJ, Created.
  */
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
@@ -163,9 +154,7 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
     CharDesc->FeatureSets[i] = nullptr;
 
   return (CharDesc);
-
 }                                /* NewCharDescription */
-
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -181,9 +170,6 @@ CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
  * @param FeatureDefs    definitions of feature types/extractors
  * @param str            string to append CharDesc to
  * @param CharDesc       character description to write to File
- *
- * @note Exceptions: none
- * @note History: Wed May 23 17:21:18 1990, DSJ, Created.
  */
 void WriteCharDescription(const FEATURE_DEFS_STRUCT& FeatureDefs,
                           CHAR_DESC CharDesc, STRING* str) {
@@ -246,9 +232,6 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * @param FeatureDefs    definitions of feature types/extractors
  * @param File open text file to read character description from
  * @return Character description read from File.
- * @note Exceptions: 
- * - ILLEGAL_NUM_SETS
- * @note History: Wed May 23 17:32:48 1990, DSJ, Created.
  */
 CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
                               FILE *File) {
@@ -257,9 +240,9 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
   CHAR_DESC CharDesc;
   int Type;
 
-  if (tfscanf(File, "%d", &NumSetsToRead) != 1 ||
-    NumSetsToRead < 0 || NumSetsToRead > FeatureDefs.NumFeatureTypes)
-    DoError (ILLEGAL_NUM_SETS, "Illegal number of feature sets");
+  ASSERT_HOST(tfscanf(File, "%d", &NumSetsToRead) == 1);
+  ASSERT_HOST(NumSetsToRead >= 0);
+  ASSERT_HOST(NumSetsToRead <= FeatureDefs.NumFeatureTypes);
 
   CharDesc = NewCharDescription(FeatureDefs);
   for (; NumSetsToRead > 0; NumSetsToRead--) {
@@ -268,10 +251,8 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
     CharDesc->FeatureSets[Type] =
       ReadFeatureSet (File, FeatureDefs.FeatureDesc[Type]);
   }
-  return (CharDesc);
-
-}                                // ReadCharDescription
-
+  return CharDesc;
+}
 
 /*---------------------------------------------------------------------------*/
 /**
@@ -285,18 +266,12 @@ CHAR_DESC ReadCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
  * @param FeatureDefs    definitions of feature types/extractors
  * @param ShortName short name of a feature type
  * @return Feature type which corresponds to ShortName.
- * @note Exceptions:
- * - ILLEGAL_SHORT_NAME
- * @note History: Wed May 23 15:36:05 1990, DSJ, Created.
  */
 uint32_t ShortNameToFeatureType(const FEATURE_DEFS_STRUCT &FeatureDefs,
                                 const char *ShortName) {
-  int i;
-
-  for (i = 0; i < FeatureDefs.NumFeatureTypes; i++)
+  for (int i = 0; i < FeatureDefs.NumFeatureTypes; i++)
     if (!strcmp ((FeatureDefs.FeatureDesc[i]->ShortName), ShortName))
       return static_cast<uint32_t>(i);
-  DoError (ILLEGAL_SHORT_NAME, "Illegal short name for a feature");
+  ASSERT_HOST(!"Illegal short name for a feature");
   return 0;
-
-}                                // ShortNameToFeatureType
+}
