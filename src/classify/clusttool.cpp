@@ -17,7 +17,6 @@
 
 //--------------------------Include Files----------------------------------
 #include "clusttool.h"
-#include "const.h"
 #include "danerror.h"
 #include "emalloc.h"
 #include <cstdio>

@@ -19,7 +19,6 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "kdtree.h"
-#include "const.h"
 #include "emalloc.h"
 
 #include <algorithm>

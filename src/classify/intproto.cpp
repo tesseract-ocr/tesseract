@@ -28,7 +28,6 @@
 #endif
 
 #include "classify.h"
-#include "const.h"
 #include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"

@@ -26,7 +26,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "protos.h"
-#include "const.h"
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"

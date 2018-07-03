@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:        globals.h  (Formerly globals.h)
  * Description:  Global Variables for Wise Owl
@@ -21,15 +21,13 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "const.h"
 #include "unicharset.h"
 #include "strngs.h"
 
 #include <cstdio>
-
 
 #endif

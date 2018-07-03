@@ -21,7 +21,6 @@
 #include "oldlist.h"
 #include "protos.h"
 #include "ocrfeatures.h"
-#include "const.h"
 #include "featdefs.h"
 #include "intproto.h"
 #include "params.h"

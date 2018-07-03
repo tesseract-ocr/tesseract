@@ -34,7 +34,6 @@
 #include "associate.h"
 #include "blobs.h"
 #include "callcpp.h"
-#include "const.h"
 #include "findseam.h"
 #include "globals.h"
 #include "render.h"
