@@ -299,10 +299,12 @@ TESS_API char** TESS_CALL TessBaseAPIGetAvailableLanguagesAsVector(const TessBas
     return arr;
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
 TESS_API int TESS_CALL TessBaseAPIInitLangMod(TessBaseAPI* handle, const char* datapath, const char* language)
 {
     return handle->InitLangMod(datapath, language);
 }
+#endif
 
 TESS_API void TESS_CALL TessBaseAPIInitForAnalysePage(TessBaseAPI* handle)
 {
@@ -336,10 +338,12 @@ TESS_API char* TESS_CALL TessBaseAPIRect(TessBaseAPI* handle, const unsigned cha
     return handle->TesseractRect(imagedata, bytes_per_pixel, bytes_per_line, left, top, width, height);
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
 TESS_API void TESS_CALL TessBaseAPIClearAdaptiveClassifier(TessBaseAPI* handle)
 {
     handle->ClearAdaptiveClassifier();
 }
+#endif
 
 TESS_API void TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned char* imagedata, int width, int height,
                                                   int bytes_per_pixel, int bytes_per_line)
@@ -543,6 +547,8 @@ TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* resu
     return FALSE; // Unsafe ABI, return FALSE always
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
                                                             int* orient_deg, float* orient_conf, const char** script_name, float* script_conf)
 {
@@ -550,8 +556,6 @@ TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
     success = handle->DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf);
     return (BOOL)success;
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
 
 TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
                                                             int* num_features, int* FeatureOutlineIndex)
