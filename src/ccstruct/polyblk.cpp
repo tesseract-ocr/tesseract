@@ -1,8 +1,6 @@
 /**********************************************************************
  * File:        polyblk.cpp  (Formerly poly_block.c)
  * Description: Polygonal blocks
- * Author:          Sheelagh Lloyd?
- * Created:
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,14 +43,14 @@ POLY_BLOCK::POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType t) {
 }
 
 // Initialize from box coordinates.
-POLY_BLOCK::POLY_BLOCK(const TBOX& box, PolyBlockType t) {
+POLY_BLOCK::POLY_BLOCK(const TBOX& tbox, PolyBlockType t) {
   vertices.clear();
   ICOORDELT_IT v = &vertices;
   v.move_to_first();
-  v.add_to_end(new ICOORDELT(box.left(), box.top()));
-  v.add_to_end(new ICOORDELT(box.left(), box.bottom()));
-  v.add_to_end(new ICOORDELT(box.right(), box.bottom()));
-  v.add_to_end(new ICOORDELT(box.right(), box.top()));
+  v.add_to_end(new ICOORDELT(tbox.left(), tbox.top()));
+  v.add_to_end(new ICOORDELT(tbox.left(), tbox.bottom()));
+  v.add_to_end(new ICOORDELT(tbox.right(), tbox.bottom()));
+  v.add_to_end(new ICOORDELT(tbox.right(), tbox.top()));
   compute_bb();
   type = t;
 }
