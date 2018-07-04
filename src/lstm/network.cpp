@@ -244,7 +244,6 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new TFNetwork(stub.name_);
 #else
       tprintf("TensorFlow not compiled in! -DINCLUDE_TENSORFLOW\n");
-      return nullptr;
 #endif
       break;
     // All variants of FullyConnected.
@@ -259,15 +258,16 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new FullyConnected(stub.name_, stub.ni_, stub.no_, stub.type_);
       break;
     default:
-      return nullptr;
   }
-  network->training_ = stub.training_;
-  network->needs_to_backprop_ = stub.needs_to_backprop_;
-  network->network_flags_ = stub.network_flags_;
-  network->num_weights_ = stub.num_weights_;
-  if (!network->DeSerialize(fp)) {
-    delete network;
-    return nullptr;
+  if (network) {
+    network->training_ = stub.training_;
+    network->needs_to_backprop_ = stub.needs_to_backprop_;
+    network->network_flags_ = stub.network_flags_;
+    network->num_weights_ = stub.num_weights_;
+    if (!network->DeSerialize(fp)) {
+      delete network;
+      network =‌ nullptr;
+    }
   }
   return network;
 }
