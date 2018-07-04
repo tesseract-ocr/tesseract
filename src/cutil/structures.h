@@ -1,14 +1,9 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        structures.h  (Formerly structures.h)
- * Description:  Allocate all the different types of structures.
- * Author:       Mark Seaman, OCR Technology
- * Created:      Wed May 30 10:12:12 1990
- * Modified:     Tue May 21 11:07:47 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
+ * File:        structures.h
+ * Description: Allocate all the different types of structures.
+ * Author:      Mark Seaman, OCR Technology
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +24,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "oldlist.h"
-#include "danerror.h"
 
 /*----------------------------------------------------------------------
               M a c r o s
@@ -42,18 +36,10 @@
  * for each new data type.
  **********************************************************************/
 
-#define makestructure(newfunc, old, type)                \
-type *newfunc()                                                                  \
-{                                                                            \
-	return new type; \
-}                                                                            \
-																									\
-																									\
-																									\
-void old(type* deadelement)                                                       \
-{                                                                            \
-	delete deadelement; \
-}                                                                            \
+#define makestructure(newfunc, old, type) \
+  type* newfunc() { return new type; }    \
+                                          \
+  void old(type* deadelement) { delete deadelement; }
 
 /*----------------------------------------------------------------------
               F u n c t i o n s

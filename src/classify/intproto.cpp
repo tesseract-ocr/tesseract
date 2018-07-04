@@ -28,7 +28,7 @@
 #endif
 
 #include "classify.h"
-#include "const.h"
+#include "callcpp.h"       // for cprintf
 #include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"
@@ -125,9 +125,9 @@ FILL_SPEC;
 /*---------------------------------------------------------------------------
             Private Function Prototypes
 ----------------------------------------------------------------------------*/
-FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets);
+float BucketStart(int Bucket, float Offset, int NumBuckets);
 
-FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets);
+float BucketEnd(int Bucket, float Offset, int NumBuckets);
 
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
@@ -139,23 +139,23 @@ bool FillerDone(TABLE_FILLER* Filler);
 
 void FillPPCircularBits(uint32_t
                         ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
-                        int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug);
+                        int Bit, float Center, float Spread, bool debug);
 
 void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
-                      int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug);
+                      int Bit, float Center, float Spread, bool debug);
 
 void GetCPPadsForLevel(int Level,
-                       FLOAT32 *EndPad,
-                       FLOAT32 *SidePad,
-                       FLOAT32 *AnglePad);
+                       float *EndPad,
+                       float *SidePad,
+                       float *AnglePad);
 
-ScrollView::Color GetMatchColorFor(FLOAT32 Evidence);
+ScrollView::Color GetMatchColorFor(float Evidence);
 
 void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill);
 
-void InitTableFiller(FLOAT32 EndPad,
-                     FLOAT32 SidePad,
-                     FLOAT32 AnglePad,
+void InitTableFiller(float EndPad,
+                     float SidePad,
+                     float AnglePad,
                      PROTO Proto,
                      TABLE_FILLER *Filler);
 
@@ -169,7 +169,7 @@ void RenderIntProto(ScrollView *window,
                     ScrollView::Color color);
 #endif  // GRAPHICS_DISABLED
 
-int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id);
+int TruncateParam(float Param, int Min, int Max, char *Id);
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
@@ -231,9 +231,6 @@ INT_FEATURE_STRUCT::INT_FEATURE_STRUCT(int x, int y, int theta)
  * @param Class   class data structure to add to templates
  *
  * Globals: none
- *
- * @note Exceptions: none
- * @note History: Mon Feb 11 11:52:08 1991, DSJ, Created.
  */
 void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
   int Pruner;
@@ -264,8 +261,6 @@ void AddIntClass(INT_TEMPLATES Templates, CLASS_ID ClassId, INT_CLASS Class) {
  * Globals: none
  *
  * @return Index of next free config.
- * @note Exceptions: none
- * @note History: Mon Feb 11 14:44:40 1991, DSJ, Created.
  */
 int AddIntConfig(INT_CLASS Class) {
   int Index;
@@ -287,8 +282,6 @@ int AddIntConfig(INT_CLASS Class) {
  * Globals: none
  *
  * @return Proto index of new proto.
- * @note Exceptions: none
- * @note History: Mon Feb 11 13:26:41 1991, DSJ, Created.
  */
 int AddIntProto(INT_CLASS Class) {
   int Index;
@@ -336,8 +329,6 @@ int AddIntProto(INT_CLASS Class) {
  * @param ClassId   class id corresponding to Proto
  * @param Templates set of templates containing class pruner
  * @return none
- * @note Exceptions: none
- * @note History: Wed Feb 13 08:49:54 1991, DSJ, Created.
  */
 void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
                             INT_TEMPLATES Templates)
@@ -348,7 +339,7 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
   uint32_t ClassCount;
   uint32_t WordIndex;
   int Level;
-  FLOAT32 EndPad, SidePad, AnglePad;
+  float EndPad, SidePad, AnglePad;
   TABLE_FILLER TableFiller;
   FILL_SPEC FillSpec;
 
@@ -378,13 +369,11 @@ void AddProtoToClassPruner (PROTO Proto, CLASS_ID ClassId,
  * @param debug debug flag
  * @note Globals: none
  * @return none
- * @note Exceptions: none
- * @note History: Fri Feb  8 13:07:19 1991, DSJ, Created.
  */
 void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                            INT_CLASS Class, bool debug) {
-  FLOAT32 Angle, X, Y, Length;
-  FLOAT32 Pad;
+  float Angle, X, Y, Length;
+  float Pad;
   int Index;
   PROTO_SET ProtoSet;
 
@@ -405,7 +394,7 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
                       Angle + ANGLE_SHIFT, classify_pp_angle_pad / 360.0,
                       debug);
 
-  Angle *= 2.0 * PI;
+  Angle *= 2.0 * M_PI;
   Length = Proto->Length;
 
   X = Proto->X + X_SHIFT;
@@ -432,11 +421,11 @@ void AddProtoToProtoPruner(PROTO Proto, int ProtoId,
  * notionally (param + offset) * num_buckets, but clipped and casted to the
  * appropriate type.
  */
-uint8_t Bucket8For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint8_t Bucket8For(float param, float offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
   return static_cast<uint8_t>(ClipToRange<int>(bucket, 0, num_buckets - 1));
 }
-uint16_t Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint16_t Bucket16For(float param, float offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
   return static_cast<uint16_t>(ClipToRange<int>(bucket, 0, num_buckets - 1));
 }
@@ -446,7 +435,7 @@ uint16_t Bucket16For(FLOAT32 param, FLOAT32 offset, int num_buckets) {
  * notionally (param + offset) * num_buckets, but modded and casted to the
  * appropriate type.
  */
-uint8_t CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
+uint8_t CircBucketFor(float param, float offset, int num_buckets) {
   int bucket = IntCastRounded(MapParam(param, offset, num_buckets));
   return static_cast<uint8_t>(Modulo(bucket, num_buckets));
 }                                /* CircBucketFor */
@@ -461,8 +450,6 @@ uint8_t CircBucketFor(FLOAT32 param, FLOAT32 offset, int num_buckets) {
  * - FeatureShapes display list for features
  * - ProtoShapes display list for protos
  * @return none
- * @note Exceptions: none
- * @note History: Thu Mar 21 15:40:19 1991, DSJ, Created.
  */
 void UpdateMatchDisplay() {
   if (IntMatchWindow != nullptr)
@@ -481,8 +468,6 @@ void UpdateMatchDisplay() {
  * @param Class   class to add new config to
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Mon Feb 11 14:57:31 1991, DSJ, Created.
  */
 void ConvertConfig(BIT_VECTOR Config, int ConfigId, INT_CLASS Class) {
   int ProtoId;
@@ -510,12 +495,10 @@ namespace tesseract {
  * @param Class integer class to add converted proto to
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Feb  8 11:22:43 1991, DSJ, Created.
  */
 void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   INT_PROTO P;
-  FLOAT32 Param;
+  float Param;
 
   assert(ProtoId < Class->NumProtos);
 
@@ -551,8 +534,6 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
  * @param target_unicharset the UNICHARSET to use
  * @return New set of training templates in integer format.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Feb  7 14:40:42 1991, DSJ, Created.
  */
 INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
                                            const UNICHARSET&
@@ -617,10 +598,8 @@ INT_TEMPLATES Classify::CreateIntTemplates(CLASSES FloatProtos,
  * @param Feature   pico-feature to be displayed
  * @param Evidence  best evidence for this feature (0-1)
  * @return none
- * @note Exceptions: none
- * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, FLOAT32 Evidence) {
+void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, float Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntFeature(IntMatchWindow, Feature, color);
   if (FeatureDisplayWindow) {
@@ -638,10 +617,8 @@ void DisplayIntFeature(const INT_FEATURE_STRUCT *Feature, FLOAT32 Evidence) {
  * @param ProtoId   id of proto in Class to be displayed
  * @param Evidence  total evidence for proto (0-1)
  * @return none
- * @note Exceptions: none
- * @note History: Thu Mar 21 14:45:04 1991, DSJ, Created.
  */
-void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
+void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, float Evidence) {
   ScrollView::Color color = GetMatchColorFor(Evidence);
   RenderIntProto(IntMatchWindow, Class, ProtoId, color);
   if (ProtoDisplayWindow) {
@@ -658,8 +635,6 @@ void DisplayIntProto(INT_CLASS Class, PROTO_ID ProtoId, FLOAT32 Evidence) {
  * @param MaxNumConfigs number of configs to allocate space for
  * @return New class created.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Feb  8 10:51:23 1991, DSJ, Created.
  */
 INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   INT_CLASS Class;
@@ -717,8 +692,6 @@ void free_int_class(INT_CLASS int_class) {
  * initialized to hold 0 classes.
  * @return The integer templates created.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Fri Feb  8 08:38:51 1991, DSJ, Created.
  */
 INT_TEMPLATES NewIntTemplates() {
   INT_TEMPLATES T;
@@ -755,8 +728,6 @@ namespace tesseract {
  * @param  fp open file to read templates from
  * @return Pointer to integer templates read from File.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
  */
 INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   int i, j, w, x, y, z;
@@ -1002,8 +973,6 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
  * - FeatureShapes display list containing feature matches
  * - ProtoShapes display list containing proto matches
  * @return none
- * @note Exceptions: none
- * @note History: Thu Mar 21 15:47:33 1991, DSJ, Created.
  */
 void Classify::ShowMatchDisplay() {
   InitIntMatchWindowIfReqd();
@@ -1061,8 +1030,6 @@ void ClearFeatureSpaceWindow(NORM_METHOD norm_method, ScrollView* window) {
  * @param target_unicharset the UNICHARSET to use
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Wed Feb 27 11:48:46 1991, DSJ, Created.
  */
 void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
                                  const UNICHARSET& target_unicharset) {
@@ -1139,11 +1106,9 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
  * @param NumBuckets  total number of buckets
  * @return Param value corresponding to start position of Bucket.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Feb 14 13:24:33 1991, DSJ, Created.
  */
-FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
-  return (((FLOAT32) Bucket / NumBuckets) - Offset);
+float BucketStart(int Bucket, float Offset, int NumBuckets) {
+  return (((float) Bucket / NumBuckets) - Offset);
 
 }                                /* BucketStart */
 
@@ -1157,11 +1122,9 @@ FLOAT32 BucketStart(int Bucket, FLOAT32 Offset, int NumBuckets) {
  * @param NumBuckets  total number of buckets
  * @return Param value corresponding to end position of Bucket.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Feb 14 13:24:33 1991, DSJ, Created.
  */
-FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
-  return (((FLOAT32) (Bucket + 1) / NumBuckets) - Offset);
+float BucketEnd(int Bucket, float Offset, int NumBuckets) {
+  return (((float) (Bucket + 1) / NumBuckets) - Offset);
 }                                /* BucketEnd */
 
 /**
@@ -1175,8 +1138,6 @@ FLOAT32 BucketEnd(int Bucket, FLOAT32 Offset, int NumBuckets) {
  * @param WordIndex indicates which word to change
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Feb 19 11:11:29 1991, DSJ, Created.
  */
 void DoFill(FILL_SPEC *FillSpec,
             CLASS_PRUNER_STRUCT* Pruner,
@@ -1217,8 +1178,6 @@ void DoFill(FILL_SPEC *FillSpec,
  * @param Filler    table filler to check if done
  * @return TRUE if no more lines to fill, FALSE otherwise.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Feb 19 10:08:05 1991, DSJ, Created.
  */
 bool FillerDone(TABLE_FILLER* Filler) {
   FILL_SWITCH *Next;
@@ -1243,11 +1202,9 @@ bool FillerDone(TABLE_FILLER* Filler) {
  * @param debug debug flag
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
  */
 void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
-                        int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
+                        int Bit, float Center, float Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
   if (Spread > 0.5)
@@ -1286,11 +1243,9 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
  * @param debug debug flag
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Oct 16 09:26:54 1990, DSJ, Created.
  */
 void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
-                      int Bit, FLOAT32 Center, FLOAT32 Spread, bool debug) {
+                      int Bit, float Center, float Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
   FirstBucket = (int) floor ((Center - Spread) * NUM_PP_BUCKETS);
@@ -1320,8 +1275,6 @@ namespace tesseract {
  * @param shape_id
  * @return Character entered in the debug window.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Mar 21 16:55:13 1991, DSJ, Created.
  */
 CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
                                    bool* pretrained_on, int* shape_id) {
@@ -1400,13 +1353,11 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
  * @param AnglePad  place to put angle pad for Level
  * @return none (results are returned in EndPad, SidePad, and AnglePad.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Feb 14 08:26:49 1991, DSJ, Created.
  */
 void GetCPPadsForLevel(int Level,
-                       FLOAT32 *EndPad,
-                       FLOAT32 *SidePad,
-                       FLOAT32 *AnglePad) {
+                       float *EndPad,
+                       float *SidePad,
+                       float *AnglePad) {
   switch (Level) {
     case 0:
       *EndPad = classify_cp_end_pad_loose * GetPicoFeatureLength ();
@@ -1441,10 +1392,8 @@ void GetCPPadsForLevel(int Level,
  * @param Evidence  evidence value to return color for
  * @return Color which corresponds to specified Evidence value.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Mar 21 15:24:52 1991, DSJ, Created.
  */
-ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
+ScrollView::Color GetMatchColorFor(float Evidence) {
   assert (Evidence >= 0.0);
   assert (Evidence <= 1.0);
 
@@ -1467,8 +1416,6 @@ ScrollView::Color GetMatchColorFor(FLOAT32 Evidence) {
  * @param Fill    place to put spec for next fill
  * @return none (results are returned in Fill)
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Tue Feb 19 10:17:42 1991, DSJ, Created.
  */
 void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
   FILL_SWITCH *Next;
@@ -1519,20 +1466,18 @@ void GetNextFill(TABLE_FILLER *Filler, FILL_SPEC *Fill) {
  *
  * @return none (results are returned in Filler)
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Feb 14 09:27:05 1991, DSJ, Created.
  */
-void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
-                      FLOAT32 AnglePad, PROTO Proto, TABLE_FILLER * Filler)
+void InitTableFiller (float EndPad, float SidePad,
+                      float AnglePad, PROTO Proto, TABLE_FILLER * Filler)
 #define XS          X_SHIFT
 #define YS          Y_SHIFT
 #define AS          ANGLE_SHIFT
 #define NB          NUM_CP_BUCKETS
 {
-  FLOAT32 Angle;
-  FLOAT32 X, Y, HalfLength;
-  FLOAT32 Cos, Sin;
-  FLOAT32 XAdjust, YAdjust;
+  float Angle;
+  float X, Y, HalfLength;
+  float Cos, Sin;
+  float XAdjust, YAdjust;
   FPOINT Start, Switch1, Switch2, End;
   int S1 = 0;
   int S2 = 1;
@@ -1570,7 +1515,7 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
 
     if ((Angle > 0.0 && Angle < 0.25) || (Angle > 0.5 && Angle < 0.75)) {
       /* rising diagonal proto */
-      Angle *= 2.0 * PI;
+      Angle *= 2.0 * M_PI;
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
@@ -1620,7 +1565,7 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
       Filler->Switch[2].X = Bucket8For(End.x, XS, NB);
     } else {
       /* falling diagonal proto */
-      Angle *= 2.0 * PI;
+      Angle *= 2.0 * M_PI;
       Cos = fabs(cos(Angle));
       Sin = fabs(sin(Angle));
 
@@ -1684,12 +1629,10 @@ void InitTableFiller (FLOAT32 EndPad, FLOAT32 SidePad,
  * @param color color to use for feature rendering
  * @return New shape list with rendering of Feature added.
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Thu Mar 21 14:57:41 1991, DSJ, Created.
  */
 void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
                       ScrollView::Color color) {
-  FLOAT32 X, Y, Dx, Dy, Length;
+  float X, Y, Dx, Dy, Length;
 
   window->Pen(color);
   assert(Feature != nullptr);
@@ -1700,8 +1643,8 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
   Length = GetPicoFeatureLength() * 0.7 * INT_CHAR_NORM_RANGE;
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * PI - PI);
-  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * PI - PI);
+  Dx = (Length / 2.0) * cos((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
+  Dy = (Length / 2.0) * sin((Feature->Theta / 256.0) * 2.0 * M_PI - M_PI);
 
   window->SetCursor(X, Y);
   window->DrawTo(X + Dx, Y + Dy);
@@ -1720,8 +1663,6 @@ void RenderIntFeature(ScrollView *window, const INT_FEATURE_STRUCT* Feature,
  * Globals: none
  *
  * @return New shape list with a rendering of one proto added.
- * @note Exceptions: none
- * @note History: Thu Mar 21 10:21:09 1991, DSJ, Created.
  */
 void RenderIntProto(ScrollView *window,
                     INT_CLASS Class,
@@ -1731,9 +1672,9 @@ void RenderIntProto(ScrollView *window,
   INT_PROTO Proto;
   int ProtoSetIndex;
   int ProtoWordIndex;
-  FLOAT32 Length;
+  float Length;
   int Xmin, Xmax, Ymin, Ymax;
-  FLOAT32 X, Y, Dx, Dy;
+  float X, Y, Dx, Dy;
   uint32_t ProtoMask;
   int Bucket;
 
@@ -1767,8 +1708,8 @@ void RenderIntProto(ScrollView *window,
   Y = (Ymin + Ymax + 1) / 2.0 * PROTO_PRUNER_SCALE;
   // The -PI has no significant effect here, but the value of Theta is computed
   // using BinaryAnglePlusPi in intfx.cpp.
-  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * PI - PI);
-  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * PI - PI);
+  Dx = (Length / 2.0) * cos((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
+  Dy = (Length / 2.0) * sin((Proto->Angle / 256.0) * 2.0 * M_PI - M_PI);
 
   window->SetCursor(X - Dx, Y - Dy);
   window->DrawTo(X + Dx, Y + Dy);
@@ -1787,10 +1728,8 @@ void RenderIntProto(ScrollView *window,
  * Globals: none
  *
  * @return Truncated parameter.
- * @note Exceptions: none
- * @note History: Fri Feb  8 11:54:28 1991, DSJ, Created.
  */
-int TruncateParam(FLOAT32 Param, int Min, int Max, char *Id) {
+int TruncateParam(float Param, int Min, int Max, char *Id) {
   if (Param < Min) {
     if (Id)
       cprintf("Warning: Param %s truncated from %f to %d!\n",

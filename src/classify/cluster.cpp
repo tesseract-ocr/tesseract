@@ -2,7 +2,6 @@
  ** Filename: cluster.c
  ** Purpose:  Routines for clustering points in N-D space
  ** Author:   Dan Johnson
- ** History:  5/29/89, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +13,17 @@
  ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
- ******************************************************************************/
-#include "const.h"
+ *****************************************************************************/
+
 #include "cluster.h"
+#include "cutil.h"     // for void_proc
 #include "emalloc.h"
 #include "genericheap.h"
 #include "helpers.h"
 #include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"
-#include "danerror.h"
+#include <cfloat>      // for FLT_MAX
 #include <cmath>
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
@@ -168,27 +168,27 @@ using ClusterPair = tesseract::KDPairInc<float, TEMPCLUSTER*>;
 using ClusterHeap = tesseract::GenericHeap<ClusterPair>;
 
 struct STATISTICS {
-  FLOAT32 AvgVariance;
-  FLOAT32 *CoVariance;
-  FLOAT32 *Min;                  // largest negative distance from the mean
-  FLOAT32 *Max;                  // largest positive distance from the mean
+  float AvgVariance;
+  float *CoVariance;
+  float *Min;                  // largest negative distance from the mean
+  float *Max;                  // largest positive distance from the mean
 };
 
 struct BUCKETS {
-  DISTRIBUTION Distribution;     // distribution being tested for
-  uint32_t SampleCount;            // # of samples in histogram
-  FLOAT64 Confidence;            // confidence level of test
-  FLOAT64 ChiSquared;            // test threshold
-  uint16_t NumberOfBuckets;        // number of cells in histogram
-  uint16_t Bucket[BUCKETTABLESIZE];// mapping to histogram buckets
-  uint32_t *Count;                 // frequency of occurrence histogram
-  FLOAT32 *ExpectedCount;        // expected histogram
+  DISTRIBUTION Distribution;        // distribution being tested for
+  uint32_t SampleCount;             // # of samples in histogram
+  double Confidence;                // confidence level of test
+  double ChiSquared;                // test threshold
+  uint16_t NumberOfBuckets;         // number of cells in histogram
+  uint16_t Bucket[BUCKETTABLESIZE]; // mapping to histogram buckets
+  uint32_t *Count;                  // frequency of occurrence histogram
+  float *ExpectedCount;             // expected histogram
 };
 
 struct CHISTRUCT{
   uint16_t DegreesOfFreedom;
-  FLOAT64 Alpha;
-  FLOAT64 ChiSquared;
+  double Alpha;
+  double ChiSquared;
 };
 
 // For use with KDWalk / MakePotentialClusters
@@ -199,8 +199,8 @@ struct ClusteringContext {
   int32_t next;  // next candidate to be used
 };
 
-typedef FLOAT64 (*DENSITYFUNC) (int32_t);
-typedef FLOAT64 (*SOLVEFUNC) (CHISTRUCT *, double);
+typedef double (*DENSITYFUNC) (int32_t);
+typedef double (*SOLVEFUNC) (CHISTRUCT *, double);
 
 #define Odd(N) ((N)%2)
 #define Mirror(N,R) ((R) - (N) - 1)
@@ -215,12 +215,12 @@ typedef FLOAT64 (*SOLVEFUNC) (CHISTRUCT *, double);
   deviations and x=BUCKETTABLESIZE is mapped to
   +NORMALEXTENT standard deviations. */
 #define SqrtOf2Pi     2.506628275
-static const FLOAT64 kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
-static const FLOAT64 kNormalVariance =
+static const double kNormalStdDev = BUCKETTABLESIZE / (2.0 * NORMALEXTENT);
+static const double kNormalVariance =
     (BUCKETTABLESIZE * BUCKETTABLESIZE) / (4.0 * NORMALEXTENT * NORMALEXTENT);
-static const FLOAT64 kNormalMagnitude =
+static const double kNormalMagnitude =
     (2.0 * NORMALEXTENT) / (SqrtOf2Pi * BUCKETTABLESIZE);
-static const FLOAT64 kNormalMean = BUCKETTABLESIZE / 2;
+static const double kNormalMean = BUCKETTABLESIZE / 2;
 
 /** define lookup tables used to compute the number of histogram buckets
   that should be used for a given number of samples. */
@@ -245,7 +245,7 @@ void MakePotentialClusters(ClusteringContext *context, CLUSTER *Cluster,
 
 CLUSTER *FindNearestNeighbor(KDTREE *Tree,
                              CLUSTER *Cluster,
-                             FLOAT32 *Distance);
+                             float *Distance);
 
 CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster);
 
@@ -253,8 +253,8 @@ int32_t MergeClusters (int16_t N,
 PARAM_DESC ParamDesc[],
 int32_t n1,
 int32_t n2,
-FLOAT32 m[],
-FLOAT32 m1[], FLOAT32 m2[]);
+float m[],
+float m1[], float m2[]);
 
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
@@ -287,7 +287,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           CLUSTER *Cluster,
                           STATISTICS *Statistics,
                           BUCKETS *NormalBuckets,
-                          FLOAT64 Confidence);
+                          double Confidence);
 
 void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc);
 
@@ -309,43 +309,43 @@ PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics);
 PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster);
 
 bool Independent(PARAM_DESC* ParamDesc,
-                 int16_t N, FLOAT32* CoVariance, FLOAT32 Independence);
+                 int16_t N, float* CoVariance, float Independence);
 
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
                     uint32_t SampleCount,
-                    FLOAT64 Confidence);
+                    double Confidence);
 
 BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
                      uint32_t SampleCount,
-                     FLOAT64 Confidence);
+                     double Confidence);
 
 uint16_t OptimumNumberOfBuckets(uint32_t SampleCount);
 
-FLOAT64 ComputeChiSquared(uint16_t DegreesOfFreedom, FLOAT64 Alpha);
+double ComputeChiSquared(uint16_t DegreesOfFreedom, double Alpha);
 
-FLOAT64 NormalDensity(int32_t x);
+double NormalDensity(int32_t x);
 
-FLOAT64 UniformDensity(int32_t x);
+double UniformDensity(int32_t x);
 
-FLOAT64 Integral(FLOAT64 f1, FLOAT64 f2, FLOAT64 Dx);
+double Integral(double f1, double f2, double Dx);
 
 void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
                  uint16_t Dim,
                  PARAM_DESC *ParamDesc,
-                 FLOAT32 Mean,
-                 FLOAT32 StdDev);
+                 float Mean,
+                 float StdDev);
 
 uint16_t NormalBucket(PARAM_DESC *ParamDesc,
-                    FLOAT32 x,
-                    FLOAT32 Mean,
-                    FLOAT32 StdDev);
+                    float x,
+                    float Mean,
+                    float StdDev);
 
 uint16_t UniformBucket(PARAM_DESC *ParamDesc,
-                     FLOAT32 x,
-                     FLOAT32 Mean,
-                     FLOAT32 StdDev);
+                     float x,
+                     float Mean,
+                     float StdDev);
 
 bool DistributionOK(BUCKETS* Buckets);
 
@@ -369,18 +369,18 @@ void InitBuckets(BUCKETS *Buckets);
 int AlphaMatch(void *arg1,   // CHISTRUCT *ChiStruct,
                void *arg2);  // CHISTRUCT *SearchKey);
 
-CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha);
+CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha);
 
-FLOAT64 Solve(SOLVEFUNC Function,
-              void *FunctionParams,
-              FLOAT64 InitialGuess,
-              FLOAT64 Accuracy);
+double Solve(SOLVEFUNC Function,
+             void *FunctionParams,
+             double InitialGuess,
+             double Accuracy);
 
-FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x);
+double ChiArea(CHISTRUCT *ChiParams, double x);
 
 bool MultipleCharSamples(CLUSTERER* Clusterer,
                          CLUSTER* Cluster,
-                         FLOAT32 MaxIllegal);
+                         float MaxIllegal);
 
 double InvertMatrix(const float* input, int size, float* inv);
 
@@ -391,9 +391,7 @@ double InvertMatrix(const float* input, int size, float* inv);
  *
  * @param SampleSize  number of dimensions in feature space
  * @param ParamDesc description of each dimension
- * @return  pointer to the new clusterer data structure
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
+ * @return pointer to the new clusterer data structure
  */
 CLUSTERER *
 MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
@@ -448,24 +446,20 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
  * @param CharID  unique ident. of char that sample came from
  *
  * @return    Pointer to the new sample data structure
- * @note Exceptions:  ALREADYCLUSTERED  MakeSample can't be called after
- *    ClusterSamples has been called
- * @note History: 5/29/89, DSJ, Created.
  */
-SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
+SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
                    int32_t CharID) {
   SAMPLE *Sample;
   int i;
 
   // see if the samples have already been clustered - if so trap an error
-  if (Clusterer->Root != nullptr)
-    DoError (ALREADYCLUSTERED,
-      "Can't add samples after they have been clustered");
+  // Can't add samples after they have been clustered.
+  ASSERT_HOST(Clusterer->Root == nullptr);
 
   // allocate the new sample and initialize it
   Sample = (SAMPLE *) Emalloc (sizeof (SAMPLE) +
     (Clusterer->SampleSize -
-    1) * sizeof (FLOAT32));
+    1) * sizeof (float));
   Sample->Clustered = FALSE;
   Sample->Prototype = FALSE;
   Sample->SampleCount = 1;
@@ -506,8 +500,6 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature,
  * @param Config  parameters which control clustering process
  *
  * @return Pointer to a list of prototypes
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
  */
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   //only create cluster tree if samples have never been clustered before
@@ -540,8 +532,6 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * via calls to GetSamples are no longer valid.
  * @param Clusterer pointer to data structure to be freed
  * @return None
- * @note Exceptions:  None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeClusterer(CLUSTERER *Clusterer) {
   if (Clusterer != nullptr) {
@@ -567,8 +557,6 @@ void FreeClusterer(CLUSTERER *Clusterer) {
  * pointed to by the prototypes are not freed.
  * @param ProtoList pointer to list of prototypes to be freed
  * @return None
- * @note Exceptions:  None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeProtoList(LIST *ProtoList) {
   destroy_nodes(*ProtoList, FreePrototype);
@@ -581,8 +569,6 @@ void FreeProtoList(LIST *ProtoList) {
  * deallocated by this routine.
  * @param arg prototype data structure to be deallocated
  * @return None
- * @note Exceptions: None
- * @note History: 5/30/89, DSJ, Created.
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
   PROTOTYPE *Prototype = (PROTOTYPE *) arg;
@@ -614,8 +600,6 @@ void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
  * before NextSample() to initialize the search.
  * @param SearchState ptr to list containing clusters to be searched
  * @return  Pointer to the next leaf cluster (sample) or nullptr.
- * @note Exceptions:  None
- * @note History: 6/16/89, DSJ, Created.
  */
 CLUSTER *NextSample(LIST *SearchState) {
   CLUSTER *Cluster;
@@ -638,10 +622,8 @@ CLUSTER *NextSample(LIST *SearchState) {
  * @param Proto prototype to return mean of
  * @param Dimension dimension whose mean is to be returned
  * @return  Mean of Prototype in Dimension
- * @note Exceptions: none
- * @note History: 7/6/89, DSJ, Created.
  */
-FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension) {
+float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
   return (Proto->Mean[Dimension]);
 }                                // Mean
 
@@ -651,20 +633,18 @@ FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension) {
  * @param Proto   prototype to return standard deviation of
  * @param Dimension dimension whose stddev is to be returned
  * @return  Standard deviation of Prototype in Dimension
- * @note Exceptions: none
- * @note History: 7/6/89, DSJ, Created.
  */
-FLOAT32 StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
+float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
     case spherical:
-      return ((FLOAT32) sqrt ((double) Proto->Variance.Spherical));
+      return ((float) sqrt ((double) Proto->Variance.Spherical));
     case elliptical:
-      return ((FLOAT32)
+      return ((float)
         sqrt ((double) Proto->Variance.Elliptical[Dimension]));
     case mixed:
       switch (Proto->Distrib[Dimension]) {
         case normal:
-          return ((FLOAT32)
+          return ((float)
             sqrt ((double) Proto->Variance.Elliptical[Dimension]));
         case uniform:
         case D_random:
@@ -692,8 +672,6 @@ FLOAT32 StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
  * all of the samples.
  * @param Clusterer data structure holdings samples to be clustered
  * @return  None (the Clusterer data structure is changed)
- * @note Exceptions:  None
- * @note History: 5/29/89, DSJ, Created.
  */
 void CreateClusterTree(CLUSTERER *Clusterer) {
   ClusteringContext context;
@@ -790,17 +768,14 @@ void MakePotentialClusters(ClusteringContext *context,
  * @param Cluster cluster whose nearest neighbor is to be found
  * @param Distance  ptr to variable to report distance found
  * @return  Pointer to the nearest neighbor of Cluster, or nullptr
- * @note Exceptions: none
- * @note History: 5/29/89, DSJ, Created.
- *  7/13/89, DSJ, Removed visibility of kd-tree node data struct
  */
 CLUSTER *
-FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, FLOAT32 * Distance)
+FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, float * Distance)
 #define MAXNEIGHBORS  2
-#define MAXDISTANCE   MAX_FLOAT32
+#define MAXDISTANCE   FLT_MAX
 {
   CLUSTER *Neighbor[MAXNEIGHBORS];
-  FLOAT32 Dist[MAXNEIGHBORS];
+  float Dist[MAXNEIGHBORS];
   int NumberOfNeighbors;
   int32_t i;
   CLUSTER *BestNeighbor;
@@ -829,16 +804,13 @@ FindNearestNeighbor(KDTREE * Tree, CLUSTER * Cluster, FLOAT32 * Distance)
  * @param Clusterer current clustering environment
  * @param TempCluster potential cluster to make permanent
  * @return Pointer to the new permanent cluster
- * @note Exceptions:  none
- * @note History: 5/29/89, DSJ, Created.
- *    7/13/89, DSJ, Removed visibility of kd-tree node data struct
  */
 CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
   CLUSTER *Cluster;
 
   // allocate the new cluster and initialize it
   Cluster = (CLUSTER *) Emalloc(
-      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(FLOAT32));
+      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float));
   Cluster->Clustered = FALSE;
   Cluster->Prototype = FALSE;
   Cluster->Left = TempCluster->Cluster;
@@ -874,15 +846,13 @@ CLUSTER *MakeNewCluster(CLUSTERER *Clusterer, TEMPCLUSTER *TempCluster) {
  * @param m array to hold mean of new cluster
  * @param m1, m2  arrays containing means of old clusters
  * @return  The number of samples in the new cluster.
- * @note Exceptions:  None
- * @note History: 5/31/89, DSJ, Created.
  */
 int32_t MergeClusters(int16_t N,
                     PARAM_DESC ParamDesc[],
                     int32_t n1,
                     int32_t n2,
-                    FLOAT32 m[],
-                    FLOAT32 m1[], FLOAT32 m2[]) {
+                    float m[],
+                    float m1[], float m2[]) {
   int32_t i, n;
 
   n = n1 + n2;
@@ -918,8 +888,6 @@ int32_t MergeClusters(int16_t N,
  * @param Clusterer data structure holding cluster tree
  * @param Config    parameters used to control prototype generation
  * @return  None
- * @note Exceptions:  None
- * @note History: 5/30/89, DSJ, Created.
  */
 void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   LIST ClusterStack = NIL_LIST;
@@ -963,8 +931,6 @@ void ComputePrototypes(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
  * @param Config  parameters used to control prototype generation
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new prototype or nullptr
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
                          CLUSTERCONFIG *Config,
@@ -1055,10 +1021,6 @@ PROTOTYPE *MakePrototype(CLUSTERER *Clusterer,
  * @param Style   type of prototype to be generated
  * @param MinSamples  minimum number of samples in a cluster
  * @return  Pointer to degenerate prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
- *    7/12/89, DSJ, Changed name and added check for 0 stddev.
- *    8/8/89, DSJ, Removed check for 0 stddev (handled elsewhere).
  */
 PROTOTYPE *MakeDegenerateProto(  //this was MinSample
                                uint16_t N,
@@ -1122,10 +1084,10 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   int TotalDims = Left->SampleCount + Right->SampleCount;
   if (TotalDims < N + 1 || TotalDims < 2)
     return nullptr;
-  const int kMatrixSize = N * N * sizeof(FLOAT32);
-  FLOAT32 *Covariance = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32 *Inverse = static_cast<FLOAT32 *>(Emalloc(kMatrixSize));
-  FLOAT32 *Delta = static_cast<FLOAT32 *>(Emalloc(N * sizeof(FLOAT32)));
+  const int kMatrixSize = N * N * sizeof(float);
+  float *Covariance = static_cast<float *>(Emalloc(kMatrixSize));
+  float *Inverse = static_cast<float *>(Emalloc(kMatrixSize));
+  float *Delta = static_cast<float *>(Emalloc(N * sizeof(float)));
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
     int row_offset = i * N;
@@ -1206,8 +1168,6 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
  * @return  Pointer to new spherical prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/1/89, DSJ, Created.
  */
 PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
                               CLUSTER *Cluster,
@@ -1223,7 +1183,7 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((FLOAT64) (Statistics->AvgVariance)));
+      sqrt ((double) (Statistics->AvgVariance)));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1243,8 +1203,6 @@ PROTOTYPE *MakeSphericalProto(CLUSTERER *Clusterer,
  * @param Statistics  statistical info about cluster
  * @param Buckets   histogram struct used to analyze distribution
  * @return  Pointer to new elliptical prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/12/89, DSJ, Created.
  */
 PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
                                CLUSTER *Cluster,
@@ -1260,7 +1218,7 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((FLOAT64) Statistics->
+      sqrt ((double) Statistics->
       CoVariance[i * (Clusterer->SampleSize + 1)]));
     if (!DistributionOK (Buckets))
       break;
@@ -1285,14 +1243,12 @@ PROTOTYPE *MakeEllipticalProto(CLUSTERER *Clusterer,
  * @param NormalBuckets histogram struct used to analyze distribution
  * @param Confidence  confidence level for alternate distributions
  * @return  Pointer to new mixed prototype or nullptr.
- * @note Exceptions:  None
- * @note History: 6/12/89, DSJ, Created.
  */
 PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
                           CLUSTER *Cluster,
                           STATISTICS *Statistics,
                           BUCKETS *NormalBuckets,
-                          FLOAT64 Confidence) {
+                          double Confidence) {
   PROTOTYPE *Proto;
   int i;
   BUCKETS *UniformBuckets = nullptr;
@@ -1308,7 +1264,7 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
 
     FillBuckets (NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Proto->Mean[i],
-      sqrt ((FLOAT64) Proto->Variance.Elliptical[i]));
+      sqrt ((double) Proto->Variance.Elliptical[i]));
     if (DistributionOK (NormalBuckets))
       continue;
 
@@ -1346,8 +1302,6 @@ PROTOTYPE *MakeMixedProto(CLUSTERER *Clusterer,
  * @param Proto prototype whose dimension is to be altered
  * @param ParamDesc description of specified dimension
  * @return  None
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
  */
 void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
   Proto->Distrib[i] = D_random;
@@ -1370,8 +1324,6 @@ void MakeDimRandom(uint16_t i, PROTOTYPE *Proto, PARAM_DESC *ParamDesc) {
  * @param Proto   prototype whose dimension is to be altered
  * @param Statistics  statistical info about prototype
  * @return  None
- * @note Exceptions:  None
- * @note History: 6/20/89, DSJ, Created.
  */
 void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
   Proto->Distrib[i] = uniform;
@@ -1405,27 +1357,25 @@ void MakeDimUniform(uint16_t i, PROTOTYPE *Proto, STATISTICS *Statistics) {
  * @param ParamDesc array of dimension descriptions
  * @param Cluster cluster whose stats are to be computed
  * @return  Pointer to new data structure containing statistics
- * @note Exceptions:  None
- * @note History: 6/2/89, DSJ, Created.
  */
 STATISTICS *
 ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   STATISTICS *Statistics;
   int i, j;
-  FLOAT32 *CoVariance;
-  FLOAT32 *Distance;
+  float *CoVariance;
+  float *Distance;
   LIST SearchState;
   SAMPLE *Sample;
   uint32_t SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
   Statistics = (STATISTICS *) Emalloc (sizeof (STATISTICS));
-  Statistics->CoVariance = (FLOAT32 *) Emalloc (N * N * sizeof (FLOAT32));
-  Statistics->Min = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Statistics->Max = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Statistics->CoVariance = (float *) Emalloc (N * N * sizeof (float));
+  Statistics->Min = (float *) Emalloc (N * sizeof (float));
+  Statistics->Max = (float *) Emalloc (N * sizeof (float));
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Distance = (float *) Emalloc (N * sizeof (float));
 
   // initialize the statistics
   Statistics->AvgVariance = 1.0;
@@ -1493,8 +1443,6 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
  * @param Cluster cluster to be made into a spherical prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new spherical prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewSphericalProto(uint16_t N,
                              CLUSTER *Cluster,
@@ -1508,7 +1456,7 @@ PROTOTYPE *NewSphericalProto(uint16_t N,
     Proto->Variance.Spherical = MINVARIANCE;
 
   Proto->Magnitude.Spherical =
-    1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Spherical));
+    1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
   Proto->TotalMagnitude = (float)pow((double)Proto->Magnitude.Spherical,
                                      (double) N);
   Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
@@ -1526,20 +1474,18 @@ PROTOTYPE *NewSphericalProto(uint16_t N,
  * @param Cluster cluster to be made into an elliptical prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new elliptical prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewEllipticalProto(int16_t N,
                               CLUSTER *Cluster,
                               STATISTICS *Statistics) {
   PROTOTYPE *Proto;
-  FLOAT32 *CoVariance;
+  float *CoVariance;
   int i;
 
   Proto = NewSimpleProto (N, Cluster);
-  Proto->Variance.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Magnitude.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
-  Proto->Weight.Elliptical = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto->Variance.Elliptical = (float *) Emalloc (N * sizeof (float));
+  Proto->Magnitude.Elliptical = (float *) Emalloc (N * sizeof (float));
+  Proto->Weight.Elliptical = (float *) Emalloc (N * sizeof (float));
 
   CoVariance = Statistics->CoVariance;
   Proto->TotalMagnitude = 1.0;
@@ -1549,7 +1495,7 @@ PROTOTYPE *NewEllipticalProto(int16_t N,
       Proto->Variance.Elliptical[i] = MINVARIANCE;
 
     Proto->Magnitude.Elliptical[i] =
-      1.0 / sqrt ((double) (2.0 * PI * Proto->Variance.Elliptical[i]));
+      1.0 / sqrt(2.0 * M_PI * Proto->Variance.Elliptical[i]);
     Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
@@ -1570,8 +1516,6 @@ PROTOTYPE *NewEllipticalProto(int16_t N,
  * @param Cluster cluster to be made into a mixed prototype
  * @param Statistics  statistical info about samples in cluster
  * @return  Pointer to a new mixed prototype data structure
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
   PROTOTYPE *Proto;
@@ -1594,15 +1538,13 @@ PROTOTYPE *NewMixedProto(int16_t N, CLUSTER *Cluster, STATISTICS *Statistics) {
  * @param N number of dimensions
  * @param Cluster cluster to be made into a prototype
  * @return  Pointer to new simple prototype
- * @note Exceptions:  None
- * @note History: 6/19/89, DSJ, Created.
  */
 PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   PROTOTYPE *Proto;
   int i;
 
   Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
-  Proto->Mean = (FLOAT32 *) Emalloc (N * sizeof (FLOAT32));
+  Proto->Mean = (float *) Emalloc (N * sizeof (float));
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
@@ -1634,16 +1576,14 @@ PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
  * @param CoVariance  ptr to a covariance matrix
  * @param Independence  max off-diagonal correlation coefficient
  * @return  TRUE if dimensions are independent, FALSE otherwise
- * @note Exceptions:  None
- * @note History: 6/4/89, DSJ, Created.
  */
 bool
 Independent(PARAM_DESC* ParamDesc,
-            int16_t N, FLOAT32* CoVariance, FLOAT32 Independence) {
+            int16_t N, float* CoVariance, float Independence) {
   int i, j;
-  FLOAT32 *VARii;                // points to ith on-diagonal element
-  FLOAT32 *VARjj;                // points to jth on-diagonal element
-  FLOAT32 CorrelationCoeff;
+  float *VARii;                // points to ith on-diagonal element
+  float *VARjj;                // points to jth on-diagonal element
+  float CorrelationCoeff;
 
   VARii = CoVariance;
   for (i = 0; i < N; i++, VARii += N + 1) {
@@ -1682,13 +1622,11 @@ Independent(PARAM_DESC* ParamDesc,
  * @param SampleCount number of samples that are available
  * @param Confidence  probability of a Type I error
  * @return  Bucket data structure
- * @note Exceptions: none
- * @note History: Thu Aug  3 12:58:10 1989, DSJ, Created.
  */
 BUCKETS *GetBuckets(CLUSTERER* clusterer,
                     DISTRIBUTION Distribution,
                     uint32_t SampleCount,
-                    FLOAT64 Confidence) {
+                    double Confidence) {
   // Get an old bucket structure with the same number of buckets.
   uint16_t NumberOfBuckets = OptimumNumberOfBuckets(SampleCount);
   BUCKETS *Buckets =
@@ -1729,22 +1667,20 @@ BUCKETS *GetBuckets(CLUSTERER* clusterer,
  * @param SampleCount number of samples that are available
  * @param Confidence  probability of a Type I error
  * @return Pointer to new histogram data structure
- * @note Exceptions:  None
- * @note History: 6/4/89, DSJ, Created.
  */
 BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
                      uint32_t SampleCount,
-                     FLOAT64 Confidence) {
+                     double Confidence) {
   const DENSITYFUNC DensityFunction[] =
     { NormalDensity, UniformDensity, UniformDensity };
   int i, j;
   BUCKETS *Buckets;
-  FLOAT64 BucketProbability;
-  FLOAT64 NextBucketBoundary;
-  FLOAT64 Probability;
-  FLOAT64 ProbabilityDelta;
-  FLOAT64 LastProbDensity;
-  FLOAT64 ProbDensity;
+  double BucketProbability;
+  double NextBucketBoundary;
+  double Probability;
+  double ProbabilityDelta;
+  double LastProbDensity;
+  double ProbDensity;
   uint16_t CurrentBucket;
   bool Symmetrical;
 
@@ -1755,8 +1691,8 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
   Buckets->Confidence = Confidence;
   Buckets->Count =
       static_cast<uint32_t *>(Emalloc(Buckets->NumberOfBuckets * sizeof(uint32_t)));
-  Buckets->ExpectedCount = static_cast<FLOAT32 *>(
-      Emalloc(Buckets->NumberOfBuckets * sizeof(FLOAT32)));
+  Buckets->ExpectedCount = static_cast<float *>(
+      Emalloc(Buckets->NumberOfBuckets * sizeof(float)));
 
   // initialize simple fields
   Buckets->Distribution = Distribution;
@@ -1772,7 +1708,7 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
 
   if (Symmetrical) {
     // allocate buckets so that all have approx. equal probability
-    BucketProbability = 1.0 / (FLOAT64) (Buckets->NumberOfBuckets);
+    BucketProbability = 1.0 / (double) (Buckets->NumberOfBuckets);
 
     // distribution is symmetric so fill in upper half then copy
     CurrentBucket = Buckets->NumberOfBuckets / 2;
@@ -1795,12 +1731,12 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
       }
       Buckets->Bucket[i] = CurrentBucket;
       Buckets->ExpectedCount[CurrentBucket] +=
-        (FLOAT32) (ProbabilityDelta * SampleCount);
+        (float) (ProbabilityDelta * SampleCount);
       LastProbDensity = ProbDensity;
     }
     // place any leftover probability into the last bucket
     Buckets->ExpectedCount[CurrentBucket] +=
-      (FLOAT32) ((0.5 - Probability) * SampleCount);
+      (float) ((0.5 - Probability) * SampleCount);
 
     // copy upper half of distribution to lower half
     for (i = 0, j = BUCKETTABLESIZE - 1; i < j; i++, j--)
@@ -1826,20 +1762,18 @@ BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
  * equally valid for other alpha's, which may not be true.
  * @param SampleCount number of samples to be tested
  * @return Optimum number of histogram buckets
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
   uint8_t Last, Next;
-  FLOAT32 Slope;
+  float Slope;
 
   if (SampleCount < kCountTable[0])
     return kBucketsTable[0];
 
   for (Last = 0, Next = 1; Next < LOOKUPTABLESIZE; Last++, Next++) {
     if (SampleCount <= kCountTable[Next]) {
-      Slope = (FLOAT32) (kBucketsTable[Next] - kBucketsTable[Last]) /
-          (FLOAT32) (kCountTable[Next] - kCountTable[Last]);
+      Slope = (float) (kBucketsTable[Next] - kBucketsTable[Last]) /
+          (float) (kCountTable[Next] - kCountTable[Last]);
       return ((uint16_t) (kBucketsTable[Last] +
           Slope * (SampleCount - kCountTable[Last])));
     }
@@ -1862,11 +1796,9 @@ uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
  * @param DegreesOfFreedom  determines shape of distribution
  * @param Alpha probability of right tail
  * @return Desired chi-squared value
- * @note Exceptions: none
- * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64
-ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
+double
+ComputeChiSquared (uint16_t DegreesOfFreedom, double Alpha)
 #define CHIACCURACY     0.01
 #define MINALPHA  (1e-200)
 {
@@ -1891,8 +1823,8 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
   if (OldChiSquared == nullptr) {
     OldChiSquared = NewChiStruct (DegreesOfFreedom, Alpha);
     OldChiSquared->ChiSquared = Solve (ChiArea, OldChiSquared,
-      (FLOAT64) DegreesOfFreedom,
-      (FLOAT64) CHIACCURACY);
+      (double) DegreesOfFreedom,
+      (double) CHIACCURACY);
     ChiWith[DegreesOfFreedom] = push (ChiWith[DegreesOfFreedom],
       OldChiSquared);
   }
@@ -1914,14 +1846,11 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, FLOAT64 Alpha)
  * @note Globals:
  *    kNormalMean mean of a discrete normal distribution
  *    kNormalVariance variance of a discrete normal distribution
- *    kNormalMagnitude  magnitude of a discrete normal
- *distribution
+ *    kNormalMagnitude  magnitude of a discrete normal distribution
  * @return  The value of the normal distribution at x.
- * @note Exceptions: None
- * @note History: 6/4/89, DSJ, Created.
  */
-FLOAT64 NormalDensity(int32_t x) {
-  FLOAT64 Distance;
+double NormalDensity(int32_t x) {
+  double Distance;
 
   Distance = x - kNormalMean;
   return kNormalMagnitude * exp(-0.5 * Distance * Distance / kNormalVariance);
@@ -1933,16 +1862,14 @@ FLOAT64 NormalDensity(int32_t x) {
  * range of the distribution is from 0 to BUCKETTABLESIZE.
  * @param x number to compute the uniform probability density for
  * @return The value of the uniform distribution at x.
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64 UniformDensity(int32_t x) {
-  static FLOAT64 UniformDistributionDensity = (FLOAT64) 1.0 / BUCKETTABLESIZE;
+double UniformDensity(int32_t x) {
+  static double UniformDistributionDensity = (double) 1.0 / BUCKETTABLESIZE;
 
   if ((x >= 0.0) && (x <= BUCKETTABLESIZE))
     return UniformDistributionDensity;
   else
-    return (FLOAT64) 0.0;
+    return (double) 0.0;
 }                                // UniformDensity
 
 /**
@@ -1952,10 +1879,8 @@ FLOAT64 UniformDensity(int32_t x) {
  * @param f2  value of function at x2
  * @param Dx  x2 - x1 (should always be positive)
  * @return Approximation of the integral of the function from x1 to x2.
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
-FLOAT64 Integral(FLOAT64 f1, FLOAT64 f2, FLOAT64 Dx) {
+double Integral(double f1, double f2, double Dx) {
   return (f1 + f2) * Dx / 2.0;
 }                                // Integral
 
@@ -1978,15 +1903,13 @@ FLOAT64 Integral(FLOAT64 f1, FLOAT64 f2, FLOAT64 Dx) {
  * @param Mean  "mean" of the distribution
  * @param StdDev  "standard deviation" of the distribution
  * @return None (the Buckets data structure is filled in)
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 void FillBuckets(BUCKETS *Buckets,
                  CLUSTER *Cluster,
                  uint16_t Dim,
                  PARAM_DESC *ParamDesc,
-                 FLOAT32 Mean,
-                 FLOAT32 StdDev) {
+                 float Mean,
+                 float StdDev) {
   uint16_t BucketID;
   int i;
   LIST SearchState;
@@ -2050,14 +1973,12 @@ void FillBuckets(BUCKETS *Buckets,
  * @param Mean  mean of normal distribution
  * @param StdDev  standard deviation of normal distribution
  * @return Bucket number into which x falls
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t NormalBucket(PARAM_DESC *ParamDesc,
-                    FLOAT32 x,
-                    FLOAT32 Mean,
-                    FLOAT32 StdDev) {
-  FLOAT32 X;
+                      float x,
+                      float Mean,
+                      float StdDev) {
+  float X;
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
@@ -2072,7 +1993,7 @@ uint16_t NormalBucket(PARAM_DESC *ParamDesc,
     return 0;
   if (X > BUCKETTABLESIZE - 1)
     return ((uint16_t) (BUCKETTABLESIZE - 1));
-  return (uint16_t) floor((FLOAT64) X);
+  return (uint16_t) floor((double) X);
 }                                // NormalBucket
 
 /**
@@ -2085,14 +2006,12 @@ uint16_t NormalBucket(PARAM_DESC *ParamDesc,
  * @param Mean  center of range of uniform distribution
  * @param StdDev  1/2 the range of the uniform distribution
  * @return Bucket number into which x falls
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 uint16_t UniformBucket(PARAM_DESC *ParamDesc,
-                     FLOAT32 x,
-                     FLOAT32 Mean,
-                     FLOAT32 StdDev) {
-  FLOAT32 X;
+                       float x,
+                       float Mean,
+                       float StdDev) {
+  float X;
 
   // wraparound circular parameters if necessary
   if (ParamDesc->Circular) {
@@ -2107,7 +2026,7 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
     return 0;
   if (X > BUCKETTABLESIZE - 1)
     return (uint16_t) (BUCKETTABLESIZE - 1);
-  return (uint16_t) floor((FLOAT64) X);
+  return (uint16_t) floor((double) X);
 }                                // UniformBucket
 
 /**
@@ -2119,12 +2038,10 @@ uint16_t UniformBucket(PARAM_DESC *ParamDesc,
  * returned.
  * @param Buckets   histogram data to perform chi-square test on
  * @return TRUE if samples match distribution, FALSE otherwise
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 bool DistributionOK(BUCKETS* Buckets) {
-  FLOAT32 FrequencyDifference;
-  FLOAT32 TotalDifference;
+  float FrequencyDifference;
+  float TotalDifference;
   int i;
 
   // compute how well the histogram matches the expected histogram
@@ -2147,8 +2064,6 @@ bool DistributionOK(BUCKETS* Buckets) {
  * data structure.
  * @param Statistics  pointer to data structure to be freed
  * @return None
- * @note Exceptions: None
- * @note History: 6/5/89, DSJ, Created.
  */
 void FreeStatistics(STATISTICS *Statistics) {
   free(Statistics->CoVariance);
@@ -2176,9 +2091,6 @@ void FreeBuckets(BUCKETS *buckets) {
  * @param Cluster pointer to cluster to be freed
  *
  * @return None
- *
- * @note Exceptions: None
- * @note History: 6/6/89, DSJ, Created.
  */
 void FreeCluster(CLUSTER *Cluster) {
   if (Cluster != nullptr) {
@@ -2199,8 +2111,6 @@ void FreeCluster(CLUSTER *Cluster) {
  * @param Distribution    distribution being tested for
  * @param HistogramBuckets  number of buckets in chi-square test
  * @return The number of degrees of freedom for a chi-square test
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:04:18 1989, DSJ, Created.
  */
 uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets) {
   static uint8_t DegreeOffsets[] = { 3, 3, 1 };
@@ -2221,8 +2131,6 @@ uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBuckets) 
  * @param arg1 current histogram being tested for a match
  * @param arg2 match key
  * @return TRUE if arg1 matches arg2
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
  */
 int NumBucketsMatch(void *arg1,    // BUCKETS *Histogram,
                     void *arg2) {  // uint16_t *DesiredNumberOfBuckets)
@@ -2238,8 +2146,6 @@ int NumBucketsMatch(void *arg1,    // BUCKETS *Histogram,
  * whose contents match Key.  It is called by the list
  * delete_d routine.
  * @return TRUE if ListNode matches Key
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:23:58 1989, DSJ, Created.
  */
 int ListEntryMatch(void *arg1,    //ListNode
                    void *arg2) {  //Key
@@ -2254,15 +2160,13 @@ int ListEntryMatch(void *arg1,    //ListNode
  * @param Buckets histogram data structure to adjust
  * @param NewSampleCount  new sample count to adjust to
  * @return none
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:31:14 1989, DSJ, Created.
  */
 void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
   int i;
-  FLOAT64 AdjustFactor;
+  double AdjustFactor;
 
-  AdjustFactor = (((FLOAT64) NewSampleCount) /
-    ((FLOAT64) Buckets->SampleCount));
+  AdjustFactor = (((double) NewSampleCount) /
+    ((double) Buckets->SampleCount));
 
   for (i = 0; i < Buckets->NumberOfBuckets; i++) {
     Buckets->ExpectedCount[i] *= AdjustFactor;
@@ -2277,8 +2181,6 @@ void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
  * to zero.
  * @param Buckets histogram data structure to init
  * @return none
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:31:14 1989, DSJ, Created.
  */
 void InitBuckets(BUCKETS *Buckets) {
   int i;
@@ -2300,8 +2202,6 @@ void InitBuckets(BUCKETS *Buckets) {
  * @param arg1 chi-squared struct being tested for a match
  * @param arg2 chi-squared struct that is the search key
  * @return TRUE if ChiStruct's Alpha matches SearchKey's Alpha
- * @note Exceptions: none
- * @note History: Thu Aug  3 14:17:33 1989, DSJ, Created.
  */
 int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct,
                void *arg2) {  //CHISTRUCT                             *SearchKey)
@@ -2320,10 +2220,8 @@ int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct
  * @param DegreesOfFreedom  degrees of freedom for new chi value
  * @param Alpha     confidence level for new chi value
  * @return none
- * @note Exceptions: none
- * @note History: Fri Aug  4 11:04:59 1989, DSJ, Created.
  */
-CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha) {
+CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;
 
   NewChiStruct = (CHISTRUCT *) Emalloc (sizeof (CHISTRUCT));
@@ -2345,27 +2243,25 @@ CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, FLOAT64 Alpha) {
  * @param InitialGuess  point to start solution search at
  * @param Accuracy  maximum allowed error
  * @return Solution of function ( x for which f(x) = 0 ).
- * @note Exceptions: none
- * @note History: Fri Aug  4 11:08:59 1989, DSJ, Created.
  */
-FLOAT64
+double
 Solve (SOLVEFUNC Function,
-void *FunctionParams, FLOAT64 InitialGuess, FLOAT64 Accuracy)
+void *FunctionParams, double InitialGuess, double Accuracy)
 #define INITIALDELTA    0.1
 #define  DELTARATIO     0.1
 {
-  FLOAT64 x;
-  FLOAT64 f;
-  FLOAT64 Slope;
-  FLOAT64 Delta;
-  FLOAT64 NewDelta;
-  FLOAT64 xDelta;
-  FLOAT64 LastPosX, LastNegX;
+  double x;
+  double f;
+  double Slope;
+  double Delta;
+  double NewDelta;
+  double xDelta;
+  double LastPosX, LastNegX;
 
   x = InitialGuess;
   Delta = INITIALDELTA;
-  LastPosX = MAX_FLOAT32;
-  LastNegX = -MAX_FLOAT32;
+  LastPosX = FLT_MAX;
+  LastNegX = -FLT_MAX;
   f = (*Function) ((CHISTRUCT *) FunctionParams, x);
   while (Abs (LastPosX - LastNegX) > Accuracy) {
     // keep track of outer bounds of current estimate
@@ -2412,14 +2308,12 @@ void *FunctionParams, FLOAT64 InitialGuess, FLOAT64 Accuracy)
  * @param ChiParams contains degrees of freedom and alpha
  * @param x   value of chi-squared to evaluate
  * @return Error between actual and desired area under the chi curve.
- * @note Exceptions: none
- * @note History: Fri Aug  4 12:48:41 1989, DSJ, Created.
  */
-FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
+double ChiArea(CHISTRUCT *ChiParams, double x) {
   int i, N;
-  FLOAT64 SeriesTotal;
-  FLOAT64 Denominator;
-  FLOAT64 PowerOfx;
+  double SeriesTotal;
+  double Denominator;
+  double PowerOfx;
 
   N = ChiParams->DegreesOfFreedom / 2 - 1;
   SeriesTotal = 1;
@@ -2456,14 +2350,10 @@ FLOAT64 ChiArea(CHISTRUCT *ChiParams, FLOAT64 x) {
  * @param MaxIllegal  max percentage of samples allowed to have
  *        more than 1 feature in the cluster
  * @return TRUE if the cluster should be split, FALSE otherwise.
- * @note Exceptions: none
- * @note History: Wed Aug 30 11:13:05 1989, DSJ, Created.
- * 2/22/90, DSJ, Added MaxIllegal control rather than always
- * splitting illegal clusters.
  */
 bool
 MultipleCharSamples(CLUSTERER* Clusterer,
-                    CLUSTER* Cluster, FLOAT32 MaxIllegal)
+                    CLUSTER* Cluster, float MaxIllegal)
 #define ILLEGAL_CHAR    2
 {
   static BOOL8 *CharFlags = nullptr;
@@ -2474,7 +2364,7 @@ MultipleCharSamples(CLUSTERER* Clusterer,
   int32_t CharID;
   int32_t NumCharInCluster;
   int32_t NumIllegalInCluster;
-  FLOAT32 PercentIllegal;
+  float PercentIllegal;
 
   // initial estimate assumes that no illegal chars exist in the cluster
   NumCharInCluster = Cluster->SampleCount;
@@ -2502,7 +2392,7 @@ MultipleCharSamples(CLUSTERER* Clusterer,
         CharFlags[CharID] = ILLEGAL_CHAR;
       }
       NumCharInCluster--;
-      PercentIllegal = (FLOAT32) NumIllegalInCluster / NumCharInCluster;
+      PercentIllegal = (float) NumIllegalInCluster / NumCharInCluster;
       if (PercentIllegal > MaxIllegal) {
         destroy(SearchState);
         return true;

@@ -1,10 +1,10 @@
 /******************************************************************************
- **	Filename:    matchdefs.h
- **	Purpose:     Generic interface definitions for feature matchers.
- **	Author:      Dan Johnson
- **	History:     Fri Jan 19 09:21:25 1990, DSJ, Created.
+ ** Filename:    matchdefs.h
+ ** Purpose:     Generic interface definitions for feature matchers.
+ ** Author:      Dan Johnson
+ ** History:     Fri Jan 19 09:21:25 1990, DSJ, Created.
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -15,8 +15,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MATCHDEFS_H
-#define   MATCHDEFS_H
+
+#ifndef MATCHDEFS_H
+#define MATCHDEFS_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
@@ -53,13 +54,13 @@ using FEATURE_ID = uint8_t;
 
 /** a RATING is the match rating returned by a classifier.
   Higher is better. */
-using RATING = FLOAT32;
+using RATING = float;
 
 /** a CERTAINTY is an indication of the degree of confidence of the
   classifier.  Higher is better.  0 means the match is as good as the
   mean of the matches seen in training.  -1 means the match was one
   standard deviation worse than the training matches, etc. */
-using CERTAINTY = FLOAT32;
+using CERTAINTY = float;
 
 /** define a data structure to hold a single match result */
 typedef struct

@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:        chop.cpp  (Formerly chop.c)
  * Description:
@@ -21,7 +21,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------
               I n c l u d e s
@@ -31,7 +31,6 @@
 #include "outlines.h"
 #include "callcpp.h"
 #include "plotedges.h"
-#include "const.h"
 #include "wordrec.h"
 
 #include <cmath>
@@ -102,7 +101,7 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   if ((int) length == 0)
     return (0);
   angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
-                                      length) / PI * 180.0 + 0.5));
+                                      length) / M_PI * 180.0 + 0.5));
 
   /* Use dot product */
   if (SCALAR (vector1, vector2) < 0)

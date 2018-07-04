@@ -21,7 +21,6 @@
 #include "outfeat.h"
 
 #include "classify.h"
-#include "efio.h"
 #include "featdefs.h"
 #include "mfoutline.h"
 #include "ocrfeatures.h"
@@ -39,17 +38,13 @@ namespace tesseract {
  * @param Blob blob to extract pico-features from
  * @return Outline-features for Blob.
  * @note Globals: none
- * @note Exceptions: none
- * @note History:
- * - 11/13/90, DSJ, Created.
- * - 05/24/91, DSJ, Updated for either char or baseline normalize.
  */
 FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   LIST Outlines;
   LIST RemainingOutlines;
   MFOUTLINE Outline;
   FEATURE_SET FeatureSet;
-  FLOAT32 XScale, YScale;
+  float XScale, YScale;
 
   FeatureSet = NewFeatureSet (MAX_OUTLINE_FEATURES);
   if (Blob == nullptr)
@@ -87,8 +82,6 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
  * @param FeatureSet set to add outline-feature to
  * @return none (results are placed in FeatureSet)
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 11/13/90, DSJ, Created.
  */
 void AddOutlineFeatureToSet(FPOINT *Start,
                             FPOINT *End,
@@ -114,10 +107,6 @@ void AddOutlineFeatureToSet(FPOINT *Start,
  * @param FeatureSet set of features to add outline-features to
  * @return none (results are returned in FeatureSet)
  * @note Globals: none
- * @note Exceptions: none
- * @note History:
- * - 11/13/90, DSJ, Created.
- * - 5/24/91, DSJ, Added hidden edge capability.
  */
 void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE Next;
@@ -157,16 +146,14 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  * @param FeatureSet outline-features to be normalized
  * @return none (FeatureSet is changed)
  * @note Globals: none
- * @note Exceptions: none
- * @note History: 11/13/90, DSJ, Created.
  */
 void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   int i;
   FEATURE Feature;
-  FLOAT32 Length;
-  FLOAT32 TotalX = 0.0;
-  FLOAT32 TotalWeight = 0.0;
-  FLOAT32 Origin;
+  float Length;
+  float TotalX = 0.0;
+  float TotalWeight = 0.0;
+  float Origin;
 
   if (FeatureSet->NumFeatures <= 0)
     return;

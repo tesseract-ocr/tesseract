@@ -29,7 +29,7 @@
 ----------------------------------------------------------------------------*/
 
 /** Return the length of the outline in baseline normalized form. */
-FLOAT32 ActualOutlineLength(FEATURE Feature) {
+float ActualOutlineLength(FEATURE Feature) {
   return (Feature->Params[CharNormLength] * LENGTH_COMPRESSION);
 }
 

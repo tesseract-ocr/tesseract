@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:	cluster.h
- **	Purpose:	Definition of feature space clustering routines
- **	Author:		Dan Johnson
- **	History:	5/29/89, DSJ, Created.
+ ** Filename:   cluster.h
+ ** Purpose:    Definition of feature space clustering routines
+ ** Author:     Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -14,9 +13,10 @@
  ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
- ******************************************************************************/
-#ifndef   CLUSTER_H
-#define   CLUSTER_H
+ *****************************************************************************/
+
+#ifndef CLUSTER_H
+#define CLUSTER_H
 
 #include "kdtree.h"
 #include "oldlist.h"
@@ -30,13 +30,13 @@ struct BUCKETS;
           Types
 ----------------------------------------------------------------------*/
 typedef struct sample {
-  unsigned Clustered:1;          // TRUE if included in a higher cluster
-  unsigned Prototype:1;          // TRUE if cluster represented by a proto
-  unsigned SampleCount:30;       // number of samples in this cluster
-  struct sample *Left;           // ptr to left sub-cluster
-  struct sample *Right;          // ptr to right sub-cluster
-  int32_t CharID;                  // identifier of char sample came from
-  FLOAT32 Mean[1];               // mean of cluster - SampleSize floats
+  unsigned Clustered:1;         // TRUE if included in a higher cluster
+  unsigned Prototype:1;         // TRUE if cluster represented by a proto
+  unsigned SampleCount:30;      // number of samples in this cluster
+  struct sample *Left;          // ptr to left sub-cluster
+  struct sample *Right;         // ptr to right sub-cluster
+  int32_t CharID;               // identifier of char sample came from
+  float Mean[1];                // mean of cluster - SampleSize floats
 } CLUSTER;
 
 typedef CLUSTER SAMPLE;          // can refer to as either sample or cluster
@@ -45,14 +45,14 @@ typedef enum {
   spherical, elliptical, mixed, automatic
 } PROTOSTYLE;
 
-typedef struct {                 // parameters to control clustering
-  PROTOSTYLE ProtoStyle;         // specifies types of protos to be made
-  FLOAT32 MinSamples;            // min # of samples per proto - % of total
-  FLOAT32 MaxIllegal;            // max percentage of samples in a cluster which have
-  // more than 1 feature in that cluster
-  FLOAT32 Independence;          // desired independence between dimensions
-  FLOAT64 Confidence;            // desired confidence in prototypes created
-  int MagicSamples;              // Ideal number of samples in a cluster.
+typedef struct {                // parameters to control clustering
+  PROTOSTYLE ProtoStyle;        // specifies types of protos to be made
+  float MinSamples;             // min # of samples per proto - % of total
+  float MaxIllegal;             // max percentage of samples in a cluster which
+                                // have more than 1 feature in that cluster
+  float Independence;           // desired independence between dimensions
+  double Confidence;            // desired confidence in prototypes created
+  int MagicSamples;             // Ideal number of samples in a cluster.
 } CLUSTERCONFIG;
 
 typedef enum {
@@ -60,8 +60,8 @@ typedef enum {
 } DISTRIBUTION;
 
 typedef union {
-  FLOAT32 Spherical;
-  FLOAT32 *Elliptical;
+  float Spherical;
+  float *Elliptical;
 } FLOATUNION;
 
 typedef struct {
@@ -75,29 +75,29 @@ typedef struct {
   unsigned NumSamples:28;        // number of samples in the cluster
   CLUSTER *Cluster;              // ptr to cluster which made prototype
   DISTRIBUTION *Distrib;         // different distribution for each dimension
-  FLOAT32 *Mean;                 // prototype mean
-  FLOAT32 TotalMagnitude;        // total magnitude over all dimensions
-  FLOAT32 LogMagnitude;          // log base e of TotalMagnitude
+  float *Mean;                   // prototype mean
+  float TotalMagnitude;          // total magnitude over all dimensions
+  float LogMagnitude;            // log base e of TotalMagnitude
   FLOATUNION Variance;           // prototype variance
   FLOATUNION Magnitude;          // magnitude of density function
   FLOATUNION Weight;             // weight of density function
 } PROTOTYPE;
 
 typedef struct {
-  int16_t SampleSize;              // number of parameters per sample
+  int16_t SampleSize;            // number of parameters per sample
   PARAM_DESC *ParamDesc;         // description of each parameter
-  int32_t NumberOfSamples;         // total number of samples being clustered
+  int32_t NumberOfSamples;       // total number of samples being clustered
   KDTREE *KDTree;                // for optimal nearest neighbor searching
   CLUSTER *Root;                 // ptr to root cluster of cluster tree
   LIST ProtoList;                // list of prototypes
-  int32_t NumChar;                 // # of characters represented by samples
+  int32_t NumChar;               // # of characters represented by samples
   // cache of reusable histograms by distribution type and number of buckets.
   BUCKETS* bucket_cache[DISTRIBUTION_COUNT][MAXBUCKETS + 1 - MINBUCKETS];
 } CLUSTERER;
 
 typedef struct {
-  int32_t NumSamples;              // number of samples in list
-  int32_t MaxNumSamples;           // maximum size of list
+  int32_t NumSamples;            // number of samples in list
+  int32_t MaxNumSamples;         // maximum size of list
   SAMPLE *Sample[1];             // array of ptrs to sample data structures
 } SAMPLELIST;
 
@@ -109,7 +109,7 @@ typedef struct {
 --------------------------------------------------------------------------*/
 CLUSTERER *MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]);
 
-SAMPLE *MakeSample(CLUSTERER * Clusterer, const FLOAT32* Feature, int32_t CharID);
+SAMPLE *MakeSample(CLUSTERER* Clusterer, const float* Feature, int32_t CharID);
 
 LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config);
 
@@ -121,14 +121,11 @@ void FreePrototype(void *arg);  // PROTOTYPE *Prototype);
 
 CLUSTER *NextSample(LIST *SearchState);
 
-FLOAT32 Mean(PROTOTYPE *Proto, uint16_t Dimension);
+float Mean(PROTOTYPE *Proto, uint16_t Dimension);
 
-FLOAT32 StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension);
+float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension);
 
 int32_t MergeClusters(int16_t N, PARAM_DESC ParamDesc[], int32_t n1, int32_t n2,
-                    FLOAT32 m[], FLOAT32 m1[], FLOAT32 m2[]);
+                      float m[], float m1[], float m2[]);
 
-//--------------Global Data Definitions and Declarations---------------------------
-// define errors that can be trapped
-#define ALREADYCLUSTERED  4000
 #endif

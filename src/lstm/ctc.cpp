@@ -18,6 +18,7 @@
 #include "ctc.h"
 
 #include <algorithm>
+#include <cfloat>      // for FLT_MAX
 #include <memory>
 
 #include "genericvector.h"
@@ -269,7 +270,7 @@ static double LogSumExp(double ln_x, double ln_y) {
 
 // Runs the forward CTC pass, filling in log_probs.
 void CTC::Forward(GENERIC_2D_ARRAY<double>* log_probs) const {
-  log_probs->Resize(num_timesteps_, num_labels_, -MAX_FLOAT32);
+  log_probs->Resize(num_timesteps_, num_labels_, -FLT_MAX);
   log_probs->put(0, 0, log(outputs_(0, labels_[0])));
   if (labels_[0] == null_char_)
     log_probs->put(0, 1, log(outputs_(0, labels_[1])));
@@ -297,7 +298,7 @@ void CTC::Forward(GENERIC_2D_ARRAY<double>* log_probs) const {
 
 // Runs the backward CTC pass, filling in log_probs.
 void CTC::Backward(GENERIC_2D_ARRAY<double>* log_probs) const {
-  log_probs->Resize(num_timesteps_, num_labels_, -MAX_FLOAT32);
+  log_probs->Resize(num_timesteps_, num_labels_, -FLT_MAX);
   log_probs->put(num_timesteps_ - 1, num_labels_ - 1, 0.0);
   if (labels_[num_labels_ - 1] == null_char_)
     log_probs->put(num_timesteps_ - 1, num_labels_ - 2, 0.0);
@@ -332,7 +333,7 @@ void CTC::NormalizeSequence(GENERIC_2D_ARRAY<double>* probs) const {
     for (int t = 0; t < num_timesteps_; ++t) {
       // Separate impossible path from unlikely probs.
       double prob = probs->get(t, u);
-      if (prob > -MAX_FLOAT32)
+      if (prob > -FLT_MAX)
         prob = ClippedExp(prob - max_logprob);
       else
         prob = 0.0;

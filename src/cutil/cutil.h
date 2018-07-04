@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:         cutil.h
  * Description:  General utility functions
@@ -21,95 +21,15 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- ********************************************************************************
-Revision 1.1  2007/02/02 23:39:07  theraysmith
-Fixed portability issues
-
-Revision 1.1.1.1  2004/02/20 19:39:06  slumos
-Import original HP distribution
-
-*/
+ ******************************************************************************
+ */
 
 #ifndef CUTILH
 #define CUTILH
 
-/*----------------------------------------------------------------------
-                     I n c l u d e s
-----------------------------------------------------------------------*/
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
+typedef void (*void_proc)(...);
 
-#include "host.h"
-#include "tprintf.h"
+typedef int (*int_compare)(void*, void*);
+typedef void (*void_dest)(void*);
 
-/*----------------------------------------------------------------------
-                      T y p e s
-----------------------------------------------------------------------*/
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#define CHARS_PER_LINE 500
-
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif
-
-//typedef int (*int_proc)               (void);
-typedef void (*void_proc) (...);
-typedef void *(*void_star_proc) _ARGS ((...));
-
-typedef int (*int_void) (void);
-typedef void (*void_void) (void);
-typedef int (*int_compare) (void *, void *);
-typedef void (*void_dest) (void *);
-
-/*----------------------------------------------------------------------
-                     M a c r o s
-----------------------------------------------------------------------*/
-/**********************************************************************
- * new_line
- *
- * Print a new line character on stdout.
- **********************************************************************/
-
-#define new_line()  \
-  tprintf("\n")
-
-/**********************************************************************
- * print_string
- *
- * Print a string on stdout.
- **********************************************************************/
-
-#define print_string(str)  \
-  printf ("%s\n", str)
-
-/*----------------------------------------------------------------------
-                     F u n c t i o n s
-----------------------------------------------------------------------*/
-long long_rand(long limit);
-
-FILE *open_file(const char *filename, const char *mode);
-
-bool exists_file(const char *filename);
-
-/* util.c
-long long_rand
-  _ARGS ((long limit));
-
-FILE *open_file
-   _ARGS((char *filename,
-    char *mode));
-
-#undef _ARGS
-*/
-#include "cutil_class.h"
 #endif

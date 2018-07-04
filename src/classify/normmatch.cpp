@@ -25,8 +25,6 @@
 
 #include "classify.h"
 #include "clusttool.h"
-#include "const.h"
-#include "efio.h"
 #include "emalloc.h"
 #include "globals.h"
 #include "helpers.h"
@@ -81,16 +79,14 @@ namespace tesseract {
  * #NormProtos character normalization prototypes
  *
  * @return Best match rating for Feature against protos of ClassId.
- * @note Exceptions: none
- * @note History: Wed Dec 19 16:56:12 1990, DSJ, Created.
  */
-FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
-                                   const FEATURE_STRUCT& feature,
-                                   bool DebugMatch) {
+float Classify::ComputeNormMatch(CLASS_ID ClassId,
+                                 const FEATURE_STRUCT& feature,
+                                 bool DebugMatch) {
   LIST Protos;
-  FLOAT32 BestMatch;
-  FLOAT32 Match;
-  FLOAT32 Delta;
+  float BestMatch;
+  float Match;
+  float Delta;
   PROTOTYPE *Proto;
   int ProtoId;
 
@@ -110,7 +106,7 @@ FLOAT32 Classify::ComputeNormMatch(CLASS_ID ClassId,
     return (1.0 - NormEvidenceOf (Match));
   }
 
-  BestMatch = MAX_FLOAT32;
+  BestMatch = FLT_MAX;
   Protos = NormProtos->Protos[ClassId];
 
   if (DebugMatch) {
@@ -202,16 +198,14 @@ double NormEvidenceOf(double NormAdj) {
  * @param Feature[] array of feature parameters
  * Globals: none
  * @return  none
- * @note Exceptions: none
- * @note History: Wed Jan  2 09:49:35 1991, DSJ, Created.
  */
 void PrintNormMatch(FILE *File,
                     int NumParams,
                     PROTOTYPE *Proto,
                     FEATURE Feature) {
   int i;
-  FLOAT32 ParamMatch;
-  FLOAT32 TotalMatch;
+  float ParamMatch;
+  float TotalMatch;
 
   for (i = 0, TotalMatch = 0.0; i < NumParams; i++) {
     ParamMatch = (Feature->Params[i] - Mean(Proto, i)) /
@@ -237,8 +231,6 @@ namespace tesseract {
  * @param fp open text file to read normalization protos from
  * Globals: none
  * @return Character normalization protos.
- * @note Exceptions: none
- * @note History: Wed Dec 19 16:38:49 1990, DSJ, Created.
  */
 NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   NORM_PROTOS *NormProtos;

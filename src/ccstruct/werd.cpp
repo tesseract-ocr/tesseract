@@ -17,7 +17,6 @@
  *
  **********************************************************************/
 
-#include "blckerr.h"
 #include "helpers.h"
 #include "linlsq.h"
 #include "werd.h"

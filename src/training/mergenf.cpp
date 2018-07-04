@@ -2,7 +2,6 @@
 **  Filename:    MergeNF.c
 **  Purpose:     Program for merging similar nano-feature protos
 **  Author:      Dan Johnson
-**  History:     Wed Nov 21 09:55:23 1990, DSJ, Created.
 **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +16,11 @@
 ******************************************************************************/
 #include "mergenf.h"
 #include "host.h"
-#include "efio.h"
 #include "clusttool.h"
 #include "cluster.h"
 #include "oldlist.h"
 #include "protos.h"
 #include "ocrfeatures.h"
-#include "const.h"
 #include "featdefs.h"
 #include "intproto.h"
 #include "params.h"
@@ -60,14 +57,12 @@ double_VAR(training_angle_pad, 45.0, "Angle pad ...");
  * Globals: none
  *
  * @return Worst possible result when matching p1 to p2.
- * @note Exceptions: none
- * @note History: Mon Nov 26 08:27:53 1990, DSJ, Created.
  */
-FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
+float CompareProtos(PROTO p1, PROTO p2) {
   FEATURE Feature;
-  FLOAT32 WorstEvidence = WORST_EVIDENCE;
-  FLOAT32 Evidence;
-  FLOAT32 Angle, Length;
+  float WorstEvidence = WORST_EVIDENCE;
+  float Evidence;
+  float Angle, Length;
 
   /* if p1 and p2 are not close in length, don't let them match */
   Length = fabs (p1->Length - p2->Length);
@@ -79,7 +74,7 @@ FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
   Feature->Params[PicoFeatDir] = p1->Angle;
 
   /* convert angle to radians */
-  Angle = p1->Angle * 2.0 * PI;
+  Angle = p1->Angle * 2.0 * M_PI;
 
   /* find distance from center of p1 to 1/2 picofeat from end */
   Length = p1->Length / 2.0 - GetPicoFeatureLength () / 2.0;
@@ -126,15 +121,13 @@ FLOAT32 CompareProtos(PROTO p1, PROTO p2) {
  * Globals: none
  *
  * @return none (results are returned in MergedProto)
- * @note Exceptions: none
- * @note History: Mon Nov 26 08:15:08 1990, DSJ, Created.
  */
 void ComputeMergedProto (PROTO  p1,
                          PROTO  p2,
-                         FLOAT32  w1,
-                         FLOAT32  w2,
+                         float  w1,
+                         float  w2,
                          PROTO  MergedProto) {
-  FLOAT32 TotalWeight;
+  float TotalWeight;
 
   TotalWeight = w1 + w2;
   w1 /= TotalWeight;
@@ -160,18 +153,16 @@ void ComputeMergedProto (PROTO  p1,
  * Globals: none
  *
  * @return Id of closest proto in Class or NO_PROTO.
- * @note Exceptions: none
- * @note History: Sat Nov 24 11:42:58 1990, DSJ, Created.
  */
 int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
                              PROTOTYPE  *Prototype) {
   PROTO_STRUCT  NewProto;
   PROTO_STRUCT  MergedProto;
   int   Pid;
-  PROTO   Proto;
+  PROTO Proto;
   int   BestProto;
-  FLOAT32 BestMatch;
-  FLOAT32 Match, OldMatch, NewMatch;
+  float BestMatch;
+  float Match, OldMatch, NewMatch;
 
   MakeNewFromOld (&NewProto, Prototype);
 
@@ -180,7 +171,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     Proto  = ProtoIn(Class, Pid);
     ComputeMergedProto(Proto, &NewProto,
-      (FLOAT32) NumMerged[Pid], 1.0, &MergedProto);
+      (float) NumMerged[Pid], 1.0, &MergedProto);
     OldMatch = CompareProtos(Proto, &MergedProto);
     NewMatch = CompareProtos(&NewProto, &MergedProto);
     Match = std::min(OldMatch, NewMatch);
@@ -200,9 +191,6 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
  * @param Old old proto to be converted
  *
  *  Globals: none
- *
- * Exceptions: none
- * History: Mon Nov 26 09:45:39 1990, DSJ, Created.
  */
 void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
   New->X = CenterX(Old->Mean);
@@ -219,7 +207,7 @@ void MakeNewFromOld(PROTO New, PROTOTYPE *Old) {
  *
  * Compare a feature to a prototype. Print the result.
  */
-FLOAT32 SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
+float SubfeatureEvidence(FEATURE Feature, PROTO Proto) {
   float       Distance;
   float       Dangle;
 
@@ -269,13 +257,12 @@ double EvidenceOf (double Similarity) {
  * - training_orthogonal_bbox_pad bounding box pad orthogonal to proto
  *
  * @return true if feature could match Proto.
- * @note Exceptions: none
  */
 bool DummyFastMatch(FEATURE Feature, PROTO Proto)
 {
-  FRECT   BoundingBox;
-  FLOAT32 MaxAngleError;
-  FLOAT32 AngleError;
+  FRECT BoundingBox;
+  float MaxAngleError;
+  float AngleError;
 
   MaxAngleError = training_angle_pad / 360.0;
   AngleError = fabs (Proto->Angle - Feature->Params[PicoFeatDir]);
@@ -308,20 +295,15 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  * Globals: none
  *
  * @return none (results are returned in BoundingBox)
- * @note Exceptions: none
- * @note History: Wed Nov 14 14:55:30 1990, DSJ, Created.
  */
-void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
-                               FLOAT32  OrthogonalPad, FRECT  *BoundingBox) {
-  FLOAT32 Pad, Length, Angle;
-  FLOAT32 CosOfAngle, SinOfAngle;
+void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
+                               float OrthogonalPad, FRECT *BoundingBox) {
+  float Length     = Proto->Length / 2.0 + TangentPad;
+  float Angle      = Proto->Angle * 2.0 * M_PI;
+  float CosOfAngle = fabs(cos(Angle));
+  float SinOfAngle = fabs(sin(Angle));
 
-  Length     = Proto->Length / 2.0 + TangentPad;
-  Angle      = Proto->Angle * 2.0 * PI;
-  CosOfAngle = fabs(cos(Angle));
-  SinOfAngle = fabs(sin(Angle));
-
-  Pad = std::max(CosOfAngle * Length, SinOfAngle * OrthogonalPad);
+  float Pad = std::max(CosOfAngle * Length, SinOfAngle * OrthogonalPad);
   BoundingBox->MinX = Proto->X - Pad;
   BoundingBox->MaxX = Proto->X + Pad;
 
@@ -337,9 +319,8 @@ void ComputePaddedBoundingBox (PROTO  Proto, FLOAT32  TangentPad,
  * Globals: none
  *
  * @return true if point (X,Y) is inside of Rectangle.
- * @note Exceptions: none
  */
-bool PointInside(FRECT *Rectangle, FLOAT32 X, FLOAT32 Y) {
+bool PointInside(FRECT *Rectangle, float X, float Y) {
   return (X >= Rectangle->MinX) &&
          (X <= Rectangle->MaxX) &&
          (Y >= Rectangle->MinY) &&

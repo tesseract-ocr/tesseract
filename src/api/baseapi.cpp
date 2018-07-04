@@ -2026,38 +2026,38 @@ bool TessBaseAPI::AdaptToWordStr(PageSegMode mode, const char* wordstr) {
     WERD_RES* word_res = it.word();
     if (word_res != nullptr) {
       word_res->word->set_text(wordstr);
+      // Check to see if text matches wordstr.
+      int w = 0;
+      int t;
+      for (t = 0; text[t] != '\0'; ++t) {
+        if (text[t] == '\n' || text[t] == ' ')
+          continue;
+        while (wordstr[w] == ' ') ++w;
+        if (text[t] != wordstr[w])
+          break;
+        ++w;
+      }
+      if (text[t] != '\0' || wordstr[w] != '\0') {
+        // No match.
+        delete page_res_;
+        GenericVector<TBOX> boxes;
+        page_res_ = tesseract_->SetupApplyBoxes(boxes, block_list_);
+        tesseract_->ReSegmentByClassification(page_res_);
+        tesseract_->TidyUp(page_res_);
+        PAGE_RES_IT pr_it(page_res_);
+        if (pr_it.word() == nullptr)
+          success = false;
+        else
+          word_res = pr_it.word();
+      } else {
+        word_res->BestChoiceToCorrectText();
+      }
+      if (success) {
+        tesseract_->EnableLearning = true;
+        tesseract_->LearnWord(nullptr, word_res);
+      }
     } else {
       success = false;
-    }
-    // Check to see if text matches wordstr.
-    int w = 0;
-    int t = 0;
-    for (t = 0; text[t] != '\0'; ++t) {
-      if (text[t] == '\n' || text[t] == ' ')
-        continue;
-      while (wordstr[w] == ' ') ++w;
-      if (text[t] != wordstr[w])
-        break;
-      ++w;
-    }
-    if (text[t] != '\0' || wordstr[w] != '\0') {
-      // No match.
-      delete page_res_;
-      GenericVector<TBOX> boxes;
-      page_res_ = tesseract_->SetupApplyBoxes(boxes, block_list_);
-      tesseract_->ReSegmentByClassification(page_res_);
-      tesseract_->TidyUp(page_res_);
-      PAGE_RES_IT pr_it(page_res_);
-      if (pr_it.word() == nullptr)
-        success = false;
-      else
-        word_res = pr_it.word();
-    } else {
-      word_res->BestChoiceToCorrectText();
-    }
-    if (success) {
-      tesseract_->EnableLearning = true;
-      tesseract_->LearnWord(nullptr, word_res);
     }
   } else {
     success = false;
@@ -2468,7 +2468,7 @@ void TessBaseAPI::GetBlockTextOrientations(int** block_orientation,
     float re_theta = re_rotation.angle();
     FCOORD classify_rotation = block_it.data()->classify_rotation();
     float classify_theta = classify_rotation.angle();
-    double rot_theta = - (re_theta - classify_theta) * 2.0 / PI;
+    double rot_theta = - (re_theta - classify_theta) * 2.0 / M_PI;
     if (rot_theta < 0) rot_theta += 4;
     int num_rotations = static_cast<int>(rot_theta + 0.5);
     (*block_orientation)[i] = num_rotations;
@@ -2537,7 +2537,7 @@ STRING HOcrEscape(const char* text) {
 
 /** Find lines from the image making the BLOCK_LIST. */
 BLOCK_LIST* TessBaseAPI::FindLinesCreateBlockList() {
-  FindLines();
+  ASSERT_HOST(FindLines() == 0);
   BLOCK_LIST* result = block_list_;
   block_list_ = nullptr;
   return result;
@@ -2694,7 +2694,11 @@ struct TESS_CHAR : ELIST_LINK {
     strncpy(unicode_repr, repr, length);
   }
 
-  TESS_CHAR() {  // Satisfies ELISTIZE.
+  TESS_CHAR()
+    : unicode_repr(nullptr),
+      length(0),
+      cost(0.0f)
+  {  // Satisfies ELISTIZE.
   }
   ~TESS_CHAR() {
     delete [] unicode_repr;

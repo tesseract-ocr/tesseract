@@ -1,8 +1,8 @@
 /**********************************************************************
- * File:        pdblock.cpp  (Formerly pdblk.c)
+ * File:        pdblock.cpp
  * Description: PDBLK member functions and iterator functions.
- * Author:					Ray Smith
- * Created:					Fri Mar 15 09:41:28 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Fri Mar 15 09:41:28 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@
 #include <cstdlib>
 #include <memory>  // std::unique_ptr
 #include "allheaders.h"
-#include "blckerr.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -29,6 +28,9 @@
 #endif
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
+
+const ERRCODE BADBLOCKLINE = "Y coordinate in block out of bounds";
+const ERRCODE LOSTBLOCKLINE = "Can't find rectangle for line";
 
 CLISTIZE (PDBLK)
 /**********************************************************************

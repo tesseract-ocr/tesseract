@@ -650,7 +650,11 @@ void Dict::add_document_word(const WERD_CHOICE &best_choice) {
   if (save_doc_words) {
     STRING filename(getCCUtil()->imagefile);
     filename += ".doc";
-    FILE *doc_word_file = open_file (filename.string(), "a");
+    FILE *doc_word_file = fopen(filename.string(), "a");
+    if (doc_word_file == nullptr) {
+      tprintf("Error: Could not open file %s\n", filename.string());
+      ASSERT_HOST(doc_word_file);
+    }
     fprintf(doc_word_file, "%s\n",
             best_choice.debug_string().string());
     fclose(doc_word_file);

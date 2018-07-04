@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        stepblob.h  (Formerly cblob.h)
  * Description: Code for C_BLOB class.
- * Author:		Ray Smith
- * Created:		Tue Oct 08 10:41:13 BST 1991
+ * Author:      Ray Smith
+ * Created:     Tue Oct 08 10:41:13 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,11 @@
  *
  **********************************************************************/
 
-#ifndef           STEPBLOB_H
-#define           STEPBLOB_H
+#ifndef STEPBLOB_H
+#define STEPBLOB_H
 
-#include          "coutln.h"
-#include          "rect.h"
+#include "coutln.h"
+#include "rect.h"
 
 class C_BLOB;
 struct Pix;

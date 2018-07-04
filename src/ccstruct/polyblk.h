@@ -1,8 +1,6 @@
 /**********************************************************************
  * File:        polyblk.h  (Formerly poly_block.h)
  * Description: Polygonal blocks
- * Author:					Sheelagh Lloyd?
- * Created:
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +14,9 @@
  ** limitations under the License.
  *
  **********************************************************************/
-#ifndef           POLYBLK_H
-#define           POLYBLK_H
+
+#ifndef POLYBLK_H
+#define POLYBLK_H
 
 #include "publictypes.h"
 #include "elst.h"

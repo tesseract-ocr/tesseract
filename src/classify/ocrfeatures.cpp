@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename:    features.c
+ ** Filename:    ocrfeatures.cpp
  ** Purpose:     Generic definition of a feature.
  ** Author:      Dan Johnson
  ** History:     Mon May 21 10:49:04 1990, DSJ, Created.
@@ -21,7 +21,6 @@
 #include "ocrfeatures.h"
 #include "emalloc.h"
 #include "callcpp.h"
-#include "danerror.h"
 #include "scanutils.h"
 
 #include <cassert>
@@ -38,7 +37,6 @@
  * @param FeatureSet set of features to add Feature to
  * @param Feature feature to be added to FeatureSet
  * @return  TRUE if feature added to set, FALSE if set is already full.
- * @note History: Tue May 22 17:22:23 1990, DSJ, Created.
  */
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
@@ -54,7 +52,6 @@ bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
  * Release the memory consumed by the specified feature.
  * @param Feature feature to be deallocated.
  * @return none
- * @note History: Mon May 21 13:33:27 1990, DSJ, Created.
  */
 void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
 
@@ -64,7 +61,6 @@ void FreeFeature(FEATURE Feature) { free(Feature); } /* FreeFeature */
  * features contained in the set.
  * @param FeatureSet  set of features to be freed
  * @return none
- * @note History: Mon May 21 13:59:46 1990, DSJ, Created.
  */
 void FreeFeatureSet(FEATURE_SET FeatureSet) {
   int i;
@@ -81,13 +77,12 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
  * type.
  * @param FeatureDesc description of feature to be created.
  * @return New #FEATURE.
- * @note History: Mon May 21 14:06:42 1990, DSJ, Created.
  */
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
 
   Feature = (FEATURE)malloc(sizeof(FEATURE_STRUCT) +
-                            (FeatureDesc->NumParams - 1) * sizeof(FLOAT32));
+                            (FeatureDesc->NumParams - 1) * sizeof(float));
   Feature->Type = FeatureDesc;
   return (Feature);
 
@@ -98,7 +93,6 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
  * hold the specified number of features.
  * @param NumFeatures maximum # of features to be put in feature set
  * @return New #FEATURE_SET.
- * @note History: Mon May 21 14:22:40 1990, DSJ, Created.
  */
 FEATURE_SET NewFeatureSet(int NumFeatures) {
   FEATURE_SET FeatureSet;
@@ -121,9 +115,6 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @param File open text file to read feature from
  * @param FeatureDesc specifies type of feature to read from File
  * @return New #FEATURE read from File.
- * @note Exceptions: #ILLEGAL_FEATURE_PARAM if text file doesn't match expected
- * format
- * @note History: Wed May 23 08:53:16 1990, DSJ, Created.
  */
 FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
@@ -131,14 +122,13 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   Feature = NewFeature (FeatureDesc);
   for (i = 0; i < Feature->Type->NumParams; i++) {
-    if (tfscanf(File, "%f", &(Feature->Params[i])) != 1)
-      DoError (ILLEGAL_FEATURE_PARAM, "Illegal feature parameter spec");
+    ASSERT_HOST(tfscanf(File, "%f", &(Feature->Params[i])) == 1);
 #ifndef _WIN32
     assert (!std::isnan(Feature->Params[i]));
 #endif
   }
-  return (Feature);
-}                                /* ReadFeature */
+  return Feature;
+}
 
 /**
  * Create a new feature set of the specified type and read in
@@ -149,22 +139,18 @@ FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @param File open text file to read new feature set from
  * @param FeatureDesc specifies type of feature to read from File
  * @return New feature set read from File.
- * @note History: Wed May 23 09:17:31 1990, DSJ, Created.
  */
 FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
-  FEATURE_SET FeatureSet;
   int NumFeatures;
-  int i;
+  ASSERT_HOST(tfscanf(File, "%d", &NumFeatures) == 1);
+  ASSERT_HOST(NumFeatures >= 0);
 
-  if (tfscanf(File, "%d", &NumFeatures) != 1 || NumFeatures < 0)
-    DoError(ILLEGAL_NUM_FEATURES, "Illegal number of features in set");
-
-  FeatureSet = NewFeatureSet(NumFeatures);
-  for (i = 0; i < NumFeatures; i++)
+  FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
+  for (int i = 0; i < NumFeatures; i++)
     AddFeature(FeatureSet, ReadFeature (File, FeatureDesc));
 
-  return (FeatureSet);
-}                                /* ReadFeatureSet */
+  return FeatureSet;
+}
 
 /**
  * Appends a textual representation of Feature to str.
@@ -176,7 +162,6 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @param Feature feature to write out to str
  * @param str string to write Feature to
  * @return none
- * @note History: Wed May 23 09:28:18 1990, DSJ, Created.
  */
 void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
@@ -196,7 +181,6 @@ void WriteFeature(FEATURE Feature, STRING* str) {
  * @param FeatureSet feature set to write to File
  * @param str string to write Feature to
  * @return none
- * @note History: Wed May 23 10:06:03 1990, DSJ, Created.
  */
 void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
   if (FeatureSet) {
@@ -221,7 +205,6 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
  * @param File open text file to write FeatureDesc to
  * @param FeatureDesc feature descriptor to write to File
  * @return none
- * @note History: Fri May 25 15:27:18 1990, DSJ, Created.
  */
 void WriteOldParamDesc(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   int i;

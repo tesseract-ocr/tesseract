@@ -150,8 +150,8 @@ class Classify : public CCStruct {
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
   /* normmatch.cpp ************************************************************/
-  FLOAT32 ComputeNormMatch(CLASS_ID ClassId,
-                           const FEATURE_STRUCT& feature, bool DebugMatch);
+  float ComputeNormMatch(CLASS_ID ClassId,
+                         const FEATURE_STRUCT& feature, bool DebugMatch);
   void FreeNormProtos();
   NORM_PROTOS* ReadNormProtos(TFile* fp);
   /* protos.cpp ***************************************************************/
@@ -256,7 +256,7 @@ class Classify : public CCStruct {
   void PrintAdaptiveMatchResults(const ADAPT_RESULTS& results);
   void RemoveExtraPuncs(ADAPT_RESULTS *Results);
   void RemoveBadMatches(ADAPT_RESULTS *Results);
-  void SetAdaptiveThreshold(FLOAT32 Threshold);
+  void SetAdaptiveThreshold(float Threshold);
   void ShowBestMatchFor(int shape_id,
                         const INT_FEATURE_STRUCT* features,
                         int num_features);
@@ -295,7 +295,7 @@ class Classify : public CCStruct {
   UNICHAR_ID *GetAmbiguities(TBLOB *Blob, CLASS_ID CorrectClass);
   void DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results);
   void AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
-                   FLOAT32 Threshold, ADAPT_TEMPLATES adaptive_templates);
+                   float Threshold, ADAPT_TEMPLATES adaptive_templates);
   void DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class);
   bool AdaptableWord(WERD_RES* word);
   void EndAdaptiveClassifier();
@@ -393,7 +393,7 @@ class Classify : public CCStruct {
     return fontset_table_;
   }
   /* mfoutline.cpp ***********************************************************/
-  void NormalizeOutlines(LIST Outlines, FLOAT32 *XScale, FLOAT32 *YScale);
+  void NormalizeOutlines(LIST Outlines, float *XScale, float *YScale);
   /* outfeat.cpp ***********************************************************/
   FEATURE_SET ExtractOutlineFeatures(TBLOB *Blob);
   /* picofeat.cpp ***********************************************************/

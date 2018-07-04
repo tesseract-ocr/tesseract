@@ -21,14 +21,7 @@
 ** See the License for the specific language governing permissions and
 ** limitations under the License.
 #
-################################################################################
-
-* Revision 1.13  90/03/06  15:37:54  15:37:54  marks (Mark Seaman)
-* Look for correct file of <malloc.h> or <stdlib.h>
-*
-* Revision 1.12  90/02/26  17:37:36  17:37:36  marks (Mark Seaman)
-* Added pop_off and join_on
-*
+###############################################################################
 
   This file contains a set of general purpose list manipulation routines.
   These routines can be used in a wide variety of ways to provide several
@@ -84,6 +77,8 @@
 ******************************************************************************/
 #include "oldlist.h"
 #include <cstdio>
+#include <cstring>      // for strcmp
+#include "errcode.h"    // for ASSERT_HOST
 #include "structures.h"
 
 /*----------------------------------------------------------------------

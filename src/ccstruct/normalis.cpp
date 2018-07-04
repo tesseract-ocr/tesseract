@@ -19,6 +19,7 @@
 
 #include "normalis.h"
 
+#include <cfloat>        // for FLT_MAX
 #include <cstdlib>
 
 #include "allheaders.h"
@@ -431,7 +432,7 @@ void DENORM::XHeightRange(int unichar_id, const UNICHARSET& unicharset,
   // Default return -- accept anything.
   *yshift = 0.0f;
   *min_xht = 0.0f;
-  *max_xht = MAX_FLOAT32;
+  *max_xht = FLT_MAX;
 
   if (!unicharset.top_bottom_useful())
     return;

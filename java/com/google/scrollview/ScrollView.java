@@ -96,6 +96,10 @@ public class ScrollView {
              !socket.isOutputShutdown() &&
              socket.isConnected() && socket.isBound()) {
         inputLine = receiveMessage();
+        if (inputLine == null) {
+          // End of stream reached.
+          break;
+        }
         nrInputLines++;
         if (debugViewNetworkTraffic) {
           System.out.println("(c->S," + nrInputLines + ")" + inputLine);
@@ -380,7 +384,7 @@ public class ScrollView {
       System.out.println("Client connected");
 
       // Setup the streams
-      out = new PrintStream(socket.getOutputStream(), true);
+      out = new PrintStream(socket.getOutputStream(), true, "UTF-8");
       in =
           new BufferedReader(new InputStreamReader(socket.getInputStream(),
               "UTF8"));

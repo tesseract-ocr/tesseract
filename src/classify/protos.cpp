@@ -1,5 +1,5 @@
 /* -*-C-*-
- ********************************************************************************
+ ******************************************************************************
  *
  * File:        protos.cpp  (Formerly protos.c)
  * Description:
@@ -21,12 +21,11 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *
- *********************************************************************************/
+ *****************************************************************************/
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "protos.h"
-#include "const.h"
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
@@ -137,9 +136,9 @@ int AddProtoToClass(CLASS_TYPE Class) {
  * @param Class The class to add to
  * @param Config FIXME
  */
-FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
+float ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
   int16_t Pid;
-  FLOAT32 TotalLength = 0;
+  float TotalLength = 0;
 
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     if (test_bit (Config, Pid)) {
@@ -158,9 +157,9 @@ FLOAT32 ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
  * 
  * @param Class The class to use
  */
-FLOAT32 ClassProtoLength(CLASS_TYPE Class) {
+float ClassProtoLength(CLASS_TYPE Class) {
   int16_t Pid;
-  FLOAT32 TotalLength = 0;
+  float TotalLength = 0;
 
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     TotalLength += (ProtoIn (Class, Pid))->Length;
@@ -194,9 +193,9 @@ void CopyProto(PROTO Src, PROTO Dest) {
  * Fill in Protos A, B, C fields based on the X, Y, Angle fields.
  **********************************************************************/
 void FillABC(PROTO Proto) {
-  FLOAT32 Slope, Intercept, Normalizer;
+  float Slope, Intercept, Normalizer;
 
-  Slope = tan (Proto->Angle * 2.0 * PI);
+  Slope = tan(Proto->Angle * 2.0 * M_PI);
   Intercept = Proto->Y - Slope * Proto->X;
   Normalizer = 1.0 / sqrt (Slope * Slope + 1.0);
   Proto->A = Slope * Normalizer;
@@ -275,6 +274,6 @@ void PrintProtos(CLASS_TYPE Class) {
     PrintProto (ProtoIn (Class, Pid));
     cprintf ("\t");
     PrintProtoLine (ProtoIn (Class, Pid));
-    new_line();
+    tprintf("\n");
   }
 }

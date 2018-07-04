@@ -25,7 +25,6 @@
 
 #include "classify.h"
 #ifndef DISABLED_LEGACY_ENGINE
-#include "efio.h"
 #include "featdefs.h"
 #include "mf.h"
 #include "normfeat.h"
@@ -101,12 +100,15 @@ void Classify::LearnBlob(const STRING& fontname, TBLOB* blob,
 // Writes stored training data to a .tr file based on the given filename.
 // Returns false on error.
 bool Classify::WriteTRFile(const STRING& filename) {
+  bool result = false;
   STRING tr_filename = filename + ".tr";
-  FILE* fp = Efopen(tr_filename.string(), "wb");
-  const size_t len = tr_file_data_.length();
-  const bool result =
-      fwrite(&tr_file_data_[0], sizeof(tr_file_data_[0]), len, fp) == len;
-  fclose(fp);
+  FILE* fp = fopen(tr_filename.string(), "wb");
+  if (fp) {
+    const size_t len = tr_file_data_.length();
+    result =
+        fwrite(&tr_file_data_[0], sizeof(tr_file_data_[0]), len, fp) == len;
+    fclose(fp);
+  }
   tr_file_data_.truncate_at(0);
   return result;
 }

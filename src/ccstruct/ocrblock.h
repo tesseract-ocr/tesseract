@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        ocrblock.h  (Formerly block.h)
  * Description: Page block class definition.
- * Author:		Ray Smith
- * Created:		Thu Mar 14 17:32:01 GMT 1991
+ * Author:      Ray Smith
+ * Created:     Thu Mar 14 17:32:01 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,12 @@
  *
  **********************************************************************/
 
-#ifndef           OCRBLOCK_H
-#define           OCRBLOCK_H
+#ifndef OCRBLOCK_H
+#define OCRBLOCK_H
 
-#include          "ocrpara.h"
-#include          "ocrrow.h"
-#include          "pdblock.h"
+#include "ocrpara.h"
+#include "ocrrow.h"
+#include "pdblock.h"
 
 class BLOCK;                     //forward decl
 
@@ -208,7 +208,7 @@ class BLOCK:public ELIST_LINK
   FCOORD re_rotation_;         //< How to transform coords back to image.
   FCOORD classify_rotation_;   //< Apply this before classifying.
   FCOORD skew_;                //< Direction of true horizontal.
-  ICOORD median_size_;         //< Median size of blobs. 
+  ICOORD median_size_;         //< Median size of blobs.
 };
 
 int decreasing_top_order(const void *row1, const void *row2);

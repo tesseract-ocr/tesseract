@@ -24,10 +24,7 @@
 #include "stopper.h"
 #include "ambigs.h"
 #include "ccutil.h"
-#include "const.h"
-#include "danerror.h"
 #include "dict.h"
-#include "efio.h"
 #include "helpers.h"
 #include "matchdefs.h"
 #include "pageres.h"
@@ -463,12 +460,12 @@ int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
 
 int Dict::UniformCertainties(const WERD_CHOICE& word) {
   float Certainty;
-  float WorstCertainty = MAX_FLOAT32;
+  float WorstCertainty = FLT_MAX;
   float CertaintyThreshold;
-  FLOAT64 TotalCertainty;
-  FLOAT64 TotalCertaintySquared;
-  FLOAT64 Variance;
-  FLOAT32 Mean, StdDev;
+  double TotalCertainty;
+  double TotalCertaintySquared;
+  double Variance;
+  float Mean, StdDev;
   int word_length = word.length();
 
   if (word_length < 3)

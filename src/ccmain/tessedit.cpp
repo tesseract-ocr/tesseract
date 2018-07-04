@@ -29,7 +29,6 @@
 #include "control.h"
 #include "reject.h"
 #include "pageres.h"
-#include "nwmain.h"
 #include "pgedit.h"
 #include "tprintf.h"
 #include "tessedit.h"
@@ -38,8 +37,6 @@
 #include "intmatcher.h"
 #include "chop.h"
 #endif
-#include "efio.h"
-#include "danerror.h"
 #include "globals.h"
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"

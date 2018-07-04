@@ -1,17 +1,11 @@
 /******************************************************************************
-**  Filename:  mftraining.c
-**  Purpose:  Separates training pages into files for each character.
-**        Strips from files only the features and there parameters of
-        the feature type mf.
-**  Author:    Dan Johnson
-**  Revisment:  Christy Russon
-**  Environment: HPUX 6.5
-**  Library:     HPUX 6.5
-**  History:     Fri Aug 18 08:53:50 1989, DSJ, Created.
-**         5/25/90, DSJ, Adapted to multiple feature types.
-**        Tuesday, May 17, 1998 Changes made to make feature specific and
-**        simplify structures. First step in simplifying training process.
-**
+ ** Filename:   mftraining.c
+ ** Purpose:    Separates training pages into files for each character.
+ **             Strips from files only the features and there parameters of
+ **             the feature type mf.
+ ** Author:     Dan Johnson
+ ** Revisment:  Christy Russon
+ **
  **  (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
@@ -34,18 +28,11 @@
 #include <cstdio>
 #define _USE_MATH_DEFINES
 #include <cmath>
-#ifdef _WIN32
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#endif
 
 #include "classify.h"
 #include "cluster.h"
 #include "clusttool.h"
 #include "commontraining.h"
-#include "danerror.h"
-#include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
@@ -161,7 +148,7 @@ static LIST ClusterOneConfig(int shape_id, const char* class_label,
       MakeNewFromOld(&dummy_proto, prototype);
       // Merge with the similar proto.
       ComputeMergedProto(ProtoIn(merge_class->Class, p_id), &dummy_proto,
-                         static_cast<FLOAT32>(merge_class->NumMerged[p_id]),
+                         static_cast<float>(merge_class->NumMerged[p_id]),
                          1.0,
                          ProtoIn(merge_class->Class, p_id));
       merge_class->NumMerged[p_id]++;
@@ -221,10 +208,7 @@ static void SetupConfigMap(ShapeTable* shape_table, IndexMapBiDi* config_map) {
  * the OCR engine.
  * @param  argc  number of command line arguments
  * @param  argv  array of command line arguments
- * @return none
- * @note Exceptions: none
- * @note History:  Fri Aug 18 08:56:17 1989, DSJ, Created.
- * @note History: Mon May 18 1998, Christy Russson, Revistion started.
+ * @return 0 if no error occurred
  */
 int main (int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();

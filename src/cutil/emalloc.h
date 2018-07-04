@@ -18,27 +18,10 @@
 #ifndef   EMALLOC_H
 #define   EMALLOC_H
 
-/**----------------------------------------------------------------------------
-          Include Files and Type Defines
-----------------------------------------------------------------------------**/
-#include "host.h"
-#include "callcpp.h"
-
-#define NOTENOUGHMEMORY   2000
-#define ILLEGALMALLOCREQUEST  2001
-
-/**----------------------------------------------------------------------------
-          Public Function Prototypes
-----------------------------------------------------------------------------**/
 void *Emalloc(int Size);
 
 void *Erealloc(void *ptr, int size);
 
 void Efree(void *ptr);
-
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
 
 #endif

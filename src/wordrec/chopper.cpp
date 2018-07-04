@@ -34,7 +34,6 @@
 #include "associate.h"
 #include "blobs.h"
 #include "callcpp.h"
-#include "const.h"
 #include "findseam.h"
 #include "globals.h"
 #include "render.h"
@@ -331,7 +330,7 @@ SEAM* Wordrec::improve_one_blob(const GenericVector<BLOB_CHOICE*>& blob_choices,
                                 bool italic_blob,
                                 WERD_RES* word,
                                 int* blob_number) {
-  float rating_ceiling = MAX_FLOAT32;
+  float rating_ceiling = FLT_MAX;
   SEAM *seam = nullptr;
   do {
     *blob_number = select_blob_to_split_from_fixpt(fixpt);
@@ -541,14 +540,14 @@ int Wordrec::select_blob_to_split(
     float rating_ceiling, bool split_next_to_fragment) {
   BLOB_CHOICE *blob_choice;
   int x;
-  float worst = -MAX_FLOAT32;
+  float worst = -FLT_MAX;
   int worst_index = -1;
-  float worst_near_fragment = -MAX_FLOAT32;
+  float worst_near_fragment = -FLT_MAX;
   int worst_index_near_fragment = -1;
   const CHAR_FRAGMENT **fragments = nullptr;
 
   if (chop_debug) {
-    if (rating_ceiling < MAX_FLOAT32)
+    if (rating_ceiling < FLT_MAX)
       tprintf("rating_ceiling = %8.4f\n", rating_ceiling);
     else
       tprintf("rating_ceiling = No Limit\n");

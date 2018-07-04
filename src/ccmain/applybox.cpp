@@ -321,11 +321,10 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
 /// miss metric gets the blob.
 static double BoxMissMetric(const TBOX& box1, const TBOX& box2) {
   const int overlap_area = box1.intersection(box2).area();
-  double miss_metric = box1.area()- overlap_area;
-  miss_metric /= box1.area();
-  miss_metric *= box2.area() - overlap_area;
-  miss_metric /= box2.area();
-  return miss_metric;
+  const int a = box1.area();
+  const int b = box2.area();
+  ASSERT_HOST(a != 0 && b != 0);
+  return 1.0 * (a - overlap_area) * (b - overlap_area) / a / b;
 }
 
 #ifndef DISABLED_LEGACY_ENGINE

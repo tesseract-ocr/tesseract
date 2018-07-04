@@ -24,7 +24,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "oldlist.h"
-#include "efio.h"
 #include "emalloc.h"
 #include "featdefs.h"
 #include "tessopt.h"
@@ -110,8 +109,6 @@ CLUSTERCONFIG  CNConfig =
 * @param argv  array of command line arguments
 * @return none
 * @note Globals: none
-* @note Exceptions: none
-* @note History: Fri Aug 18 08:56:17 1989, DSJ, Created.
 */
 int main(int argc, char *argv[]) {
   tesseract::CheckSharedLibraryVersion();
@@ -120,7 +117,6 @@ int main(int argc, char *argv[]) {
   Config = CNConfig;
 
   const char  *PageName;
-  FILE  *TrainingPage;
   LIST  CharList = NIL_LIST;
   CLUSTERER *Clusterer = nullptr;
   LIST    ProtoList = NIL_LIST;
@@ -134,11 +130,14 @@ int main(int argc, char *argv[]) {
   int num_fonts = 0;
   while ((PageName = GetNextFilename(argc, argv)) != nullptr) {
     printf("Reading %s ...\n", PageName);
-    TrainingPage = Efopen(PageName, "rb");
-    ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE, 100, nullptr,
-                        TrainingPage, &CharList);
-    fclose(TrainingPage);
-    ++num_fonts;
+    FILE *TrainingPage = fopen(PageName, "rb");
+    ASSERT_HOST(TrainingPage);
+    if (TrainingPage) {
+      ReadTrainingSamples(FeatureDefs, PROGRAM_FEATURE_TYPE, 100, nullptr,
+                          TrainingPage, &CharList);
+      fclose(TrainingPage);
+      ++num_fonts;
+    }
   }
   printf("Clustering ...\n");
   // To allow an individual font to form a separate cluster,
@@ -203,8 +202,6 @@ int main(int argc, char *argv[]) {
 * @param LabeledProtoList List of labeled protos
 * @param feature_desc Description of the features
 * @return none
-* @note Exceptions: none
-* @note History: Fri Aug 18 16:17:06 1989, DSJ, Created.
 */
 static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
                             const FEATURE_DESC_STRUCT *feature_desc) {
@@ -220,7 +217,8 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
   }
   Filename += "normproto";
   printf ("\nWriting %s ...", Filename.string());
-  File = Efopen (Filename.string(), "wb");
+  File = fopen(Filename.string(), "wb");
+  ASSERT_HOST(File);
   fprintf(File, "%0d\n", feature_desc->NumParams);
   WriteParamDesc(File, feature_desc->NumParams, feature_desc->ParamDesc);
   iterate(LabeledProtoList)

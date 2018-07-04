@@ -26,7 +26,6 @@
 #define TRIE_H
 
 #include "dawg.h"
-#include "cutil.h"
 #include "genericvector.h"
 
 class UNICHARSET;

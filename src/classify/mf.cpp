@@ -39,8 +39,6 @@
  * @param Blob  blob to extract micro-features from
  * @param cn_denorm  control parameter to feature extractor.
  * @return Micro-features for Blob.
- * @note Exceptions: none
- * @note History: Wed May 23 18:06:38 1990, DSJ, Created.
  */
 FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
   int NumFeatures;

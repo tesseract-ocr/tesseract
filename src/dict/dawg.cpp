@@ -28,7 +28,6 @@
 
 #include "dawg.h"
 
-#include "cutil.h"
 #include "dict.h"
 #include "emalloc.h"
 #include "helpers.h"
@@ -78,7 +77,11 @@ int Dawg::check_for_words(const char *filename,
   int misses = 0;
   UNICHAR_ID wildcard = unicharset.unichar_to_id(kWildcard);
 
-  word_file = open_file (filename, "r");
+  word_file = fopen(filename, "r");
+  if (word_file == nullptr) {
+    tprintf("Error: Could not open file %s\n", filename);
+    ASSERT_HOST(word_file);
+  }
 
   while (fgets (string, CHARS_PER_LINE, word_file) != nullptr) {
     chomp_string(string);  // remove newline

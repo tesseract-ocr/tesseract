@@ -1,8 +1,7 @@
 /******************************************************************************
- ** Filename:    fpoint.c
+ ** Filename:    fpoint.cpp
  ** Purpose:     Abstract data type for a 2D point (floating point coords)
  ** Author:      Dan Johnson
- ** History:     Thu Apr 12 10:44:15 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,6 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "const.h"
 #include "fpoint.h"
 #include <cstdio>
 #include <cmath>
@@ -27,7 +25,7 @@
               Public Code
 ----------------------------------------------------------------------------*/
 
-FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
+float DistanceBetween(FPOINT A, FPOINT B) {
   const double xd = XDelta(A, B);
   const double yd = YDelta(A, B);
   return sqrt(static_cast<double>(xd * xd + yd * yd));
@@ -42,16 +40,11 @@ FLOAT32 DistanceBetween(FPOINT A, FPOINT B) {
  * @param FullScale value to associate with 2*pi
  * @return none
  * @note Globals: none
- * @note Exceptions: none
- * @note History: Wed Mar 28 14:27:25 1990, DSJ, Created.
  */
-FLOAT32 NormalizedAngleFrom(FPOINT *Point1,
-                            FPOINT *Point2,
-                            FLOAT32 FullScale) {
-  FLOAT32 Angle;
-  FLOAT32 NumRadsInCircle = 2.0 * PI;
+float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
+  float NumRadsInCircle = 2.0 * M_PI;
 
-  Angle = AngleFrom (*Point1, *Point2);
+  float Angle = AngleFrom (*Point1, *Point2);
   if (Angle < 0.0)
     Angle += NumRadsInCircle;
   Angle *= FullScale / NumRadsInCircle;
