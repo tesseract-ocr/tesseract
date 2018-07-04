@@ -583,9 +583,11 @@ int main(int argc, char** argv) {
 
   if (!renderers.empty()) {
     if (banner) PrintBanner();
+  #ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       fprintf(stderr, "%s",osd_warning.c_str());
     }
+  #endif
     bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
