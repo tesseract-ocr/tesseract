@@ -37,74 +37,25 @@
  * ITERATION:
  * -----------------
  * iterate           - Macro to create a for loop to visit each cell.
- * iterate_list      - Macro to visit each cell using a local variable.
- * for_each          - Applies a function to each node.
  *
  * LIST CELL COUNTS:
  * -----------------
  * count             - Returns the number of list cells in the list.
- * second_node       - Returns the second node.
- * third             - Returns the third node.
- * fourth            - Returns the fourth node.
- * fifth             - Returns the fifth node.
  * last              - Returns the last list cell.
- * pair              - Creates a list of two elements.
- *
- * COPYING:
- * -----------------
- * copy_first        - Pushes the first element from list 1 onto list 2.
- * copy              - Create a copy of a list.
- * concat            - Creates a new list that is a copy of both input lists.
- * delete_n          - Creates a new list without the chosen elements.
- * reverse           - Creates a backwards copy of the input list.
- * sort              - Use quick sort to construct a new list.
- * transform         - Creates a new list by transforming each of the nodes.
  *
  * TRANSFORMS:             (Note: These functions all modify the input list.)
  * ----------
- * join              - Concatenates list 1 and list 2.
  * delete_d          - Removes the requested elements from the list.
- * transform_d       - Modifies the list by applying a function to each node.
- * insert            - Add a new element into this spot in a list. (not
- *NIL_LIST) push_last         - Add a new element onto the end of a list.
- * reverse_d         - Reverse a list and destroy the old one.
- *
- * ASSOCIATED LISTS:
- * -----------------
- * adelete           - Remove a particular entry from an associated list.
- * assoc             - Find an entry in an associated list that matches a key.
- * match             - Return the data element of an a-list entry.
- *
- * DISPLAY:
- * -----------------
- * print_cell        - Print a hex dump of a list cell.
- * show              - Displays a string and a list (using lprint).
+ * push_last         - Add a new element onto the end of a list.
  *
  * SETS:
  * -----
- * adjoin            - Add a new element to list if it does not exist already.
- * intersection      - Create a new list that is the set intersection.
- * set_union         - Create a new list that is the set intersection.
- * set_difference    - Create a new list that is the set difference.
- * s_adjoin          - Add an element to a sort list if it is not there.
- * s_intersection    - Set intersection on a sorted list. Modifies old list.
- * s_union           - Set intersection on a sorted list. Modifies old list.
  * search            - Return the pointer to the list cell whose node matches.
- *
- * COMPARISONS:
- * -----------------
- * is_same           - Compares each node to the key.
- * is_not_same       - Compares each node to the key.
- * is_key            - Compares first of each node to the key.
- * is_not_key        - Compares first of each node to the key.
  *
  * CELL OPERATIONS:
  * -----------------
- * new_cell          - Obtain a new list cell from the free list. Allocate.
- * free_cell         - Return a list cell to the free list.
  * destroy           - Return all list cells in a list.
  * destroy_nodes     - Apply a function to each list cell and destroy the list.
- * set_node          - Assign the node field in a list cell.
  * set_rest          - Assign the next field in a list cell.
  *
  ***********************************************************************/
@@ -113,7 +64,6 @@
 #define LIST_H
 
 #include "cutil.h"              // for int_compare, void_dest, ...
-#include "tesscallback.h"
 
 /*----------------------------------------------------------------------
                   T y p e s
@@ -136,17 +86,6 @@ using LIST = list_rec *;
 #define first_node(l) ((l) ? (l)->node : NIL_LIST)
 
 /**********************************************************************
- *  c o p y   f i r s t
- *
- *  Do the appropriate kind a push operation to copy the first node from
- *  one list to another.
- *
- **********************************************************************/
-
-#define copy_first(l1,l2)  \
-(l2=push(l2, first_node(l1)))
-
-/**********************************************************************
  *  i t e r a t e
  *
  *  Visit each node in the list.  Replace the old list with the list
@@ -155,37 +94,6 @@ using LIST = list_rec *;
 
 #define iterate(l)             \
 for (; (l) != NIL_LIST; (l) = list_rest (l))
-
-/**********************************************************************
- *  i t e r a t e   l i s t
- *
- *  Visit each node in the list (l).  Use a local variable (x) to iterate
- *  through all of the list cells.  This macro is identical to iterate
- *  except that it does not lose the original list.
- **********************************************************************/
-
-#define iterate_list(x,l)  \
-for ((x)=(l); (x)!=0; (x)=list_rest(x))
-
-/**********************************************************************
- * j o i n   o n
- *
- * Add another list onto the tail of this one.  The list given as an input
- * parameter is modified.
- **********************************************************************/
-
-#define JOIN_ON(list1,list2)    \
-((list1) = join ((list1), (list2)))
-
-/**********************************************************************
- * p o p   o f f
- *
- * Add a cell onto the front of a list.  The list given as an input
- * parameter is modified.
- **********************************************************************/
-
-#define pop_off(list)    \
-((list) = pop (list))
 
 /**********************************************************************
  * p u s h   o n
@@ -198,17 +106,6 @@ for ((x)=(l); (x)!=0; (x)=list_rest(x))
 ((list) = push (list, (LIST) (thing)))
 
 /**********************************************************************
- *  s e c o n d
- *
- *  Return the contents of the second list element.
- *
- *  #define second_node(l)    first_node (list_rest (l))
- **********************************************************************/
-
-#define second_node(l)              \
-first_node (list_rest (l))
-
-/**********************************************************************
  *  s e t   r e s t
  *
  *  Change the "next" field of a list element to point to a desired place.
@@ -219,17 +116,6 @@ first_node (list_rest (l))
 #define set_rest(l,cell)\
 ((l)->next = (cell))
 
-/**********************************************************************
- *  t h i r d
- *
- *  Return the contents of the third list element.
- *
- *  #define third(l)     first_node (list_rest (list_rest (l)))
- **********************************************************************/
-
-#define third(l)               \
-first_node (list_rest (list_rest (l)))
-
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
@@ -237,22 +123,11 @@ int count(LIST var_list);
 
 LIST delete_d(LIST list, void *key, int_compare is_equal);
 
-LIST delete_d(LIST list, void *key,
-              TessResultCallback2<int, void*, void*>* is_equal);
-
 LIST destroy(LIST list);
 
 void destroy_nodes(LIST list, void_dest destructor);
 
-void insert(LIST list, void *node);
-
-int is_same(void *item1, void *item2);
-
-LIST join(LIST list1, LIST list2);
-
 LIST last(LIST var_list);
-
-void *nth_cell(LIST var_list, int item_num);
 
 LIST pop(LIST list);
 
@@ -260,14 +135,6 @@ LIST push(LIST list, void *element);
 
 LIST push_last(LIST list, void *item);
 
-LIST reverse(LIST list);
-
-LIST reverse_d(LIST list);
-
-LIST s_adjoin(LIST var_list, void *variable, int_compare compare);
-
 LIST search(LIST list, void *key, int_compare is_equal);
-
-LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>*);
 
 #endif
