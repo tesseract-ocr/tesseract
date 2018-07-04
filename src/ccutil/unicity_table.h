@@ -106,7 +106,7 @@ class UnicityTableEqEq : public UnicityTable<T> {
 
 template <typename T>
 UnicityTable<T>::UnicityTable() :
-  compare_cb_(0) {
+  compare_cb_(nullptr) {
 }
 
 

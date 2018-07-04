@@ -144,7 +144,7 @@ void* ScrollView::MessageReceiver(void* a) {
                                                         cur->type);
       std::pair<ScrollView*, SVEventType> awaiting_list_any(cur->window,
                                                             SVET_ANY);
-      std::pair<ScrollView*, SVEventType> awaiting_list_any_window((ScrollView*)0,
+      std::pair<ScrollView*, SVEventType> awaiting_list_any_window((ScrollView*)nullptr,
                                                             SVET_ANY);
       waiting_for_events_mu->Lock();
       if (waiting_for_events.count(awaiting_list) > 0) {
@@ -444,7 +444,7 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
   SVSemaphore* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea(this, type);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
   waiting_for_events_mu->Unlock();
   // Wait on it, but first flush.
   stream_->Flush();
@@ -463,9 +463,9 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
 SVEvent* ScrollView::AwaitEventAnyWindow() {
   // Initialize the waiting semaphore.
   SVSemaphore* sem = new SVSemaphore();
-  std::pair<ScrollView*, SVEventType> ea((ScrollView*)0, SVET_ANY);
+  std::pair<ScrollView*, SVEventType> ea((ScrollView*)nullptr, SVET_ANY);
   waiting_for_events_mu->Lock();
-  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)0);
+  waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
   waiting_for_events_mu->Unlock();
   // Wait on it.
   stream_->Flush();
