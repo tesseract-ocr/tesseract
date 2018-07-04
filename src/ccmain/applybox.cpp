@@ -22,7 +22,9 @@
 #include <cstring>
 #include "allheaders.h"
 #include "boxread.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "chopper.h"
+#endif
 #include "pageres.h"
 #include "unichar.h"
 #include "unicharset.h"
@@ -72,6 +74,7 @@ const double kMaxXHeightDeviationFraction = 0.125;
 
 namespace tesseract {
 
+#ifndef DISABLED_LEGACY_ENGINE
 static void clear_any_old_text(BLOCK_LIST *block_list) {
   BLOCK_IT block_it(block_list);
   for (block_it.mark_cycle_pt();
@@ -166,6 +169,7 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
   TidyUp(page_res);
   return page_res;
 }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // Helper computes median xheight in the image.
 static double MedianXHeight(BLOCK_LIST *block_list) {
@@ -204,6 +208,8 @@ void Tesseract::PreenXHeights(BLOCK_LIST *block_list) {
     }
   }
 }
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 /// Builds a PAGE_RES from the block_list in the way required for ApplyBoxes:
 /// All fuzzy spaces are removed, and all the words are maximally chopped.
@@ -300,6 +306,8 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
   word_res->FakeClassifyWord(blob_choices.size(), &blob_choices[0]);
 }
 
+#endif  // ndef DISABLED_LEGACY_ENGINE
+
 /// Helper to compute the dispute resolution metric.
 /// Disputed blob resolution. The aim is to give the blob to the most
 /// appropriate boxfile box. Most of the time it is obvious, but if
@@ -318,6 +326,8 @@ static double BoxMissMetric(const TBOX& box1, const TBOX& box2) {
   ASSERT_HOST(a != 0 && b != 0);
   return 1.0 * (a - overlap_area) * (b - overlap_area) / a / b;
 }
+
+#ifndef DISABLED_LEGACY_ENGINE
 
 /// Gather consecutive blobs that match the given box into the best_state
 /// and corresponding correct_text.
@@ -522,6 +532,8 @@ void Tesseract::ReSegmentByClassification(PAGE_RES* page_res) {
   }
 }
 
+#endif  // ndef DISABLED_LEGACY_ENGINE
+
 /// Converts the space-delimited string of utf8 text to a vector of UNICHAR_ID.
 /// @return false if an invalid UNICHAR_ID is encountered.
 bool Tesseract::ConvertStringToUnichars(const char* utf8,
@@ -541,6 +553,9 @@ bool Tesseract::ConvertStringToUnichars(const char* utf8,
   }
   return true;
 }
+
+#ifndef DISABLED_LEGACY_ENGINE
+
 
 /// Resegments the word to achieve the target_text from the classifier.
 /// Returns false if the re-segmentation fails.
@@ -752,6 +767,8 @@ void Tesseract::TidyUp(PAGE_RES* page_res) {
   }
 }
 
+#endif  // ndef DISABLED_LEGACY_ENGINE
+
 /** Logs a bad box by line in the box file and box coords.*/
 void Tesseract::ReportFailedBox(int boxfile_lineno, TBOX box,
                                 const char *box_ch, const char *err_msg) {
@@ -783,6 +800,9 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
   }
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
+
 /// Calls #LearnWord to extract features for labelled blobs within each word.
 /// Features are stored in an internal buffer.
 void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
@@ -796,5 +816,6 @@ void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
   tprintf("Generated training data for %d words\n", word_count);
 }
 
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 }  // namespace tesseract

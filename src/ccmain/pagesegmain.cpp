@@ -326,6 +326,8 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
 
     finder->SetupAndFilterNoise(pageseg_mode, *photo_mask_pix, to_block);
 
+#ifndef DISABLED_LEGACY_ENGINE
+
     if (equ_detect_) {
       equ_detect_->LabelSpecialText(to_block);
     }
@@ -398,6 +400,8 @@ ColumnFinder* Tesseract::SetupPageSegAndDetectOrientation(
     }
     osd_blobs.shallow_clear();
     finder->CorrectOrientation(to_block, vertical_text, osd_orientation);
+
+#endif  // ndef DISABLED_LEGACY_ENGINE
   }
 
   return finder;

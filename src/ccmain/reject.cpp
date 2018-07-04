@@ -17,6 +17,26 @@
  *
  **********************************************************************/
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
+
+#ifdef DISABLED_LEGACY_ENGINE
+
+#include "tesseractclass.h"
+
+namespace tesseract {
+
+int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
+  const WERD_CHOICE &word = *werd_res->best_choice;
+  int dict_word_type = werd_res->tesseract->dict_word(word);
+  return dict_word_type == DOC_DAWG_PERM ? 0 : dict_word_type;
+}
+}  // namespace tesseract
+
+#else
+
 #include "tessvars.h"
 #include <ctype.h>
 #include <errno.h>
@@ -31,10 +51,6 @@
 
 #include "tesseractclass.h"
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
 
 CLISTIZEH (STRING) CLISTIZE (STRING)
 
@@ -781,3 +797,5 @@ bool Tesseract::non_0_digit(const UNICHARSET& ch_set, UNICHAR_ID unichar_id) {
   return ch_set.get_isdigit(unichar_id) && !ch_set.eq(unichar_id, "0");
 }
 }  // namespace tesseract
+
+#endif  // def DISABLED_LEGACY_ENGINE

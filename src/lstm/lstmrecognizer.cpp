@@ -36,7 +36,6 @@
 #include "ratngs.h"
 #include "recodebeam.h"
 #include "scrollview.h"
-#include "shapetable.h"
 #include "statistc.h"
 #include "tprintf.h"
 

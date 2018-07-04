@@ -606,10 +606,12 @@ void Tesseract::process_image_event( // action in image win
           break;                 // ignore up event
 
         case RECOG_WERDS:
+        #ifndef DISABLED_LEGACY_ENGINE
           image_win->AddMessage("Recogging selected words");
           this->process_selected_words(current_page_res,
                                        selection_box,
                                        &Tesseract::recog_interactive);
+        #endif  // ndef DISABLED_LEGACY_ENGINE
           break;
         case RECOG_PSEUDO:
           image_win->AddMessage("Recogging selected blobs");
@@ -635,7 +637,9 @@ void Tesseract::process_image_event( // action in image win
  * Process the whole image, but load word_config_ for the selected word(s).
  */
 void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
+#ifndef DISABLED_LEGACY_ENGINE
   ResetAdaptiveClassifier();
+#endif
   recog_all_words(page_res, nullptr, &selection_box, word_config_.string(), 0);
 }
 }  // namespace tesseract
@@ -951,10 +955,12 @@ bool Tesseract::word_set_display(PAGE_RES_IT* pr_it) {
   return word_display(pr_it);
 }
 
+
 // page_res is non-const because the iterator doesn't know if you are going
 // to change the items it points to! Really a const here though.
 void Tesseract::blob_feature_display(PAGE_RES* page_res,
                                      const TBOX& selection_box) {
+#ifndef DISABLED_LEGACY_ENGINE
   PAGE_RES_IT* it = make_pseudo_word(page_res, selection_box);
   if (it != nullptr) {
     WERD_RES* word_res = it->word();
@@ -988,6 +994,7 @@ void Tesseract::blob_feature_display(PAGE_RES* page_res,
     it->DeleteCurrentWord();
     delete it;
   }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 
