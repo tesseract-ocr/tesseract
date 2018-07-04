@@ -28,7 +28,7 @@ class DLLSYM POLY_BLOCK {
  public:
   POLY_BLOCK() = default;
   // Initialize from box coordinates.
-  POLY_BLOCK(const TBOX& box, PolyBlockType type);
+  POLY_BLOCK(const TBOX& tbox, PolyBlockType type);
   POLY_BLOCK(ICOORDELT_LIST *points, PolyBlockType type);
   ~POLY_BLOCK () = default;
 

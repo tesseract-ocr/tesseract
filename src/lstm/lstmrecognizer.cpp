@@ -408,6 +408,7 @@ void LSTMRecognizer::DebugActivationRange(const NetworkIO& outputs,
 // Helper returns true if the null_char is the winner at t, and it beats the
 // null_threshold, or the next choice is space, in which case we will use the
 // null anyway.
+#if 0 // TODO: unused, remove if still unused after 2020.
 static bool NullIsBest(const NetworkIO& output, float null_thr,
                        int null_char, int t) {
   if (output.f(t)[null_char] >= null_thr) return true;
@@ -415,6 +416,7 @@ static bool NullIsBest(const NetworkIO& output, float null_thr,
     return false;
   return output.f(t)[null_char] > output.f(t)[UNICHAR_SPACE];
 }
+#endif
 
 // Converts the network output to a sequence of labels. Outputs labels, scores
 // and start xcoords of each char, and each null_char_, with an additional
