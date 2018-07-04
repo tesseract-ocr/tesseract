@@ -15,6 +15,10 @@ AM_CPPFLAGS += -DLOCALEDIR=\"$(localedir)\" \
 
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
 
+if DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+
 if VISIBILITY
 AM_CPPFLAGS += -fvisibility=hidden -fvisibility-inlines-hidden
 endif

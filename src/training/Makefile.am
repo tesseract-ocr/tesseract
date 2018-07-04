@@ -16,6 +16,10 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
+if DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+
 # TODO: training programs can not be linked to shared library created 
 # with -fvisibility 
 if VISIBILITY

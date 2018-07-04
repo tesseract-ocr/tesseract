@@ -170,9 +170,6 @@ AC_ARG_ENABLE([legacy],
   [enable_legacy=$enableval],
   [enable_legacy="yes"])
 AC_MSG_RESULT([$enable_legacy])
-if test "$enable_legacy" = "no"; then
-  AC_DEFINE([DISABLED_LEGACY_ENGINE], [], [Disable the legacy OCR engine])
-fi
 AM_CONDITIONAL([DISABLED_LEGACY_ENGINE], test "$enable_legacy" = "no")
 
 # check whether to build embedded version
