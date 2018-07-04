@@ -775,7 +775,7 @@ int OpenclDevice::RegistOpenclKernel() {
   gpuEnv.mnFileCount = 0;  // argc;
   gpuEnv.mnKernelCount = 0UL;
 
-  AddKernelConfig(1, (const char*)"oclAverageSub1");
+  AddKernelConfig(1, "oclAverageSub1");
   return 0;
 }
 
@@ -846,14 +846,13 @@ int OpenclDevice::BinaryGenerated(const char* clFileName, FILE** fhandle) {
   unsigned int i = 0;
   cl_int clStatus;
   int status = 0;
-  char* str = nullptr;
   FILE* fd = nullptr;
   char fileName[256] = {0}, cl_name[128] = {0};
   char deviceName[1024];
   clStatus = clGetDeviceInfo(gpuEnv.mpArryDevsID[i], CL_DEVICE_NAME,
                              sizeof(deviceName), deviceName, nullptr);
   CHECK_OPENCL(clStatus, "clGetDeviceInfo");
-  str = (char*)strstr(clFileName, (char*)".cl");
+  const char* str = strstr(clFileName, ".cl");
   memcpy(cl_name, clFileName, str - clFileName);
   cl_name[str - clFileName] = '\0';
   sprintf(fileName, "%s-%s.bin", cl_name, deviceName);
@@ -897,7 +896,6 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
   unsigned int i = 0;
   cl_int clStatus;
   cl_uint numDevices;
-  char* str = nullptr;
 
   clStatus = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES,
                               sizeof(numDevices), &numDevices, nullptr);
@@ -949,7 +947,7 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
                                  sizeof(deviceName), deviceName, nullptr);
       CHECK_OPENCL(clStatus, "clGetDeviceInfo");
 
-      str = (char*)strstr(clFileName, (char*)".cl");
+      const char* str = strstr(clFileName, ".cl");
       memcpy(cl_name, clFileName, str - clFileName);
       cl_name[str - clFileName] = '\0';
       sprintf(fileName, "%s-%s.bin", cl_name, deviceName);

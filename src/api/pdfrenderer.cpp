@@ -196,7 +196,7 @@ void TessPDFRenderer::AppendPDFObjectDIY(size_t objectsize) {
 
 void TessPDFRenderer::AppendPDFObject(const char *data) {
   AppendPDFObjectDIY(strlen(data));
-  AppendString((const char *)data);
+  AppendString(data);
 }
 
 // Helper function to prevent us from accidentally writing

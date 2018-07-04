@@ -364,8 +364,7 @@ static int GetAddrInfoNonLinux(const char* hostname, int port,
 
   // Fill in the appropriate variables to be able to connect to the server.
   address->sin_family = name->h_addrtype;
-  memcpy((char *) &address->sin_addr.s_addr,
-         name->h_addr_list[0], name->h_length);
+  memcpy(&address->sin_addr.s_addr, name->h_addr_list[0], name->h_length);
   address->sin_port = htons(port);
   return 0;
 }

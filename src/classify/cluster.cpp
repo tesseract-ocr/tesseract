@@ -472,7 +472,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
 
   // add the sample to the KD tree - keep track of the total # of samples
   Clusterer->NumberOfSamples++;
-  KDStore (Clusterer->KDTree, Sample->Mean, (char *) Sample);
+  KDStore(Clusterer->KDTree, Sample->Mean, Sample);
   if (CharID >= Clusterer->NumChar)
     Clusterer->NumChar = CharID + 1;
 
