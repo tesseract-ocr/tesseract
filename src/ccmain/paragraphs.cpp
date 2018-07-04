@@ -324,7 +324,7 @@ int UnicodeSpanSkipper::SkipRomans(int pos) {
   const char *kRomans = "ivxlmdIVXLMD";
   while (pos < wordlen_) {
     int ch = UnicodeFor(u_, word_, pos);
-    if (ch >= 0xF0 || strchr(kRomans, ch) == 0) break;
+    if (ch >= 0xF0 || strchr(kRomans, ch) == nullptr) break;
     pos++;
   }
   return pos;

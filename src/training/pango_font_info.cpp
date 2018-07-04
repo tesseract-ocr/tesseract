@@ -554,7 +554,7 @@ const std::vector<std::string>& FontUtils::ListAvailableFonts() {
   }
 #endif
 
-  PangoFontFamily** families = 0;
+  PangoFontFamily** families = nullptr;
   int n_families = 0;
   ListFontFamilies(&families, &n_families);
   for (int i = 0; i < n_families; ++i) {
