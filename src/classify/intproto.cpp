@@ -1071,14 +1071,13 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
 
     /* then write out the proto lengths */
     if (MaxNumIntProtosIn (Class) > 0) {
-      fwrite ((char *) (Class->ProtoLengths), sizeof (uint8_t),
-              MaxNumIntProtosIn (Class), File);
+      fwrite(Class->ProtoLengths, sizeof(uint8_t),
+             MaxNumIntProtosIn(Class), File);
     }
 
     /* then write out the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++)
-      fwrite ((char *) Class->ProtoSets[j],
-              sizeof (PROTO_SET_STRUCT), 1, File);
+      fwrite(Class->ProtoSets[j], sizeof(PROTO_SET_STRUCT), 1, File);
 
     /* then write the fonts info */
     fwrite(&Class->font_set_id, sizeof(int), 1, File);

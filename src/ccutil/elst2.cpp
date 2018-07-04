@@ -127,7 +127,7 @@ const void *, const void *)) {
   }
 
   /* Sort the pointer array */
-  qsort ((char *) base, count, sizeof (*base), comparator);
+  qsort(base, count, sizeof(*base), comparator);
 
   /* Rebuild the list from the sorted pointers */
   current = base;

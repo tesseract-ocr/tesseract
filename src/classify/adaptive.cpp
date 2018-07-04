@@ -415,25 +415,25 @@ void WriteAdaptedClass(FILE *File, ADAPT_CLASS Class, int NumConfigs) {
   int i;
 
   /* first write high level adapted class structure */
-  fwrite ((char *) Class, sizeof (ADAPT_CLASS_STRUCT), 1, File);
+  fwrite(Class, sizeof(ADAPT_CLASS_STRUCT), 1, File);
 
   /* then write out the definitions of the permanent protos and configs */
-  fwrite ((char *) Class->PermProtos, sizeof (uint32_t),
-    WordsInVectorOfSize (MAX_NUM_PROTOS), File);
-  fwrite ((char *) Class->PermConfigs, sizeof (uint32_t),
-    WordsInVectorOfSize (MAX_NUM_CONFIGS), File);
+  fwrite(Class->PermProtos, sizeof(uint32_t),
+    WordsInVectorOfSize(MAX_NUM_PROTOS), File);
+  fwrite(Class->PermConfigs, sizeof(uint32_t),
+    WordsInVectorOfSize(MAX_NUM_CONFIGS), File);
 
   /* then write out the list of temporary protos */
   NumTempProtos = count (Class->TempProtos);
-  fwrite ((char *) &NumTempProtos, sizeof (int), 1, File);
+  fwrite(&NumTempProtos, sizeof(int), 1, File);
   TempProtos = Class->TempProtos;
   iterate (TempProtos) {
     void* proto = first_node(TempProtos);
-    fwrite ((char *) proto, sizeof (TEMP_PROTO_STRUCT), 1, File);
+    fwrite(proto, sizeof(TEMP_PROTO_STRUCT), 1, File);
   }
 
   /* then write out the adapted configs */
-  fwrite ((char *) &NumConfigs, sizeof (int), 1, File);
+  fwrite(&NumConfigs, sizeof(int), 1, File);
   for (i = 0; i < NumConfigs; i++)
     if (test_bit (Class->PermConfigs, i))
       WritePermConfig (File, Class->Config[i].Perm);
@@ -457,7 +457,7 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
   int i;
 
   /* first write the high level adaptive template struct */
-  fwrite ((char *) Templates, sizeof (ADAPT_TEMPLATES_STRUCT), 1, File);
+  fwrite(Templates, sizeof(ADAPT_TEMPLATES_STRUCT), 1, File);
 
   /* then write out the basic integer templates */
   WriteIntTemplates (File, Templates->Templates, unicharset);
@@ -487,7 +487,7 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
   assert (Config != nullptr);
   while (Config->Ambigs[NumAmbigs] > 0) ++NumAmbigs;
 
-  fwrite((char *) &NumAmbigs, sizeof(uint8_t), 1, File);
+  fwrite(&NumAmbigs, sizeof(uint8_t), 1, File);
   fwrite(Config->Ambigs, sizeof(UNICHAR_ID), NumAmbigs, File);
   fwrite(&(Config->FontinfoId), sizeof(int), 1, File);
 }                                /* WritePermConfig */
@@ -506,8 +506,7 @@ void WritePermConfig(FILE *File, PERM_CONFIG Config) {
 void WriteTempConfig(FILE *File, TEMP_CONFIG Config) {
   assert (Config != nullptr);
 
-  fwrite ((char *) Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
-  fwrite ((char *) Config->Protos, sizeof (uint32_t),
-    Config->ProtoVectorSize, File);
+  fwrite(Config, sizeof (TEMP_CONFIG_STRUCT), 1, File);
+  fwrite(Config->Protos, sizeof (uint32_t), Config->ProtoVectorSize, File);
 
 }                                /* WriteTempConfig */
