@@ -50,10 +50,9 @@ void NetworkIO::Resize2d(bool int_mode, int width, int num_features) {
 // Resizes to a specific stride_map.
 void NetworkIO::ResizeToMap(bool int_mode, const StrideMap& stride_map,
                             int num_features) {
-  // If this assert fails, it most likely got here through an uninitialized
-  // scratch element, ie call NetworkScratch::IO::Resizexxx() not
-  // NetworkIO::Resizexxx()!!
-  ASSERT_HOST(this != nullptr);
+  // If this method crashes with this == nullptr,
+  // it most likely got here through an uninitialized scratch element,
+  // ie call NetworkScratch::IO::Resizexxx() not NetworkIO::Resizexxx()!!
   stride_map_ = stride_map;
   int_mode_ = int_mode;
   if (int_mode_) {
