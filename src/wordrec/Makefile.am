@@ -6,6 +6,10 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/dict \
     -I$(top_srcdir)/src/viewer
 
+if DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
+
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
