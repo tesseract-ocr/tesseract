@@ -1127,7 +1127,7 @@ void LanguageModel::FillConsistencyInfo(
     }
     if (!word_res->blob_widths.empty()) {  // if we have widths/gaps info
       bool expected_gap_found = false;
-      float expected_gap;
+      float expected_gap = 0.0f;
       int temp_gap;
       if (fontinfo_id >= 0) {  // found a common font
         ASSERT_HOST(fontinfo_id < fontinfo_table_->size());
@@ -1140,7 +1140,6 @@ void LanguageModel::FillConsistencyInfo(
         consistency_info->inconsistent_font = true;
         // Get an average of the expected gaps in each font
         int num_addends = 0;
-        expected_gap = 0;
         int temp_fid;
         for (int i = 0; i < 4; ++i) {
           if (i == 0) {
@@ -1159,9 +1158,9 @@ void LanguageModel::FillConsistencyInfo(
             num_addends++;
           }
         }
-        expected_gap_found = (num_addends > 0);
         if (num_addends > 0) {
           expected_gap /= static_cast<float>(num_addends);
+          expected_gap_found = true;
         }
       }
       if (expected_gap_found) {
