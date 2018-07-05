@@ -2304,7 +2304,6 @@ static double thresholdRectToPixMicroBench(GPUEnv* env,
     stop = mach_absolute_time();
     if (retVal == 0) {
       time = ((stop - start) * (double)info.numer / info.denom) / 1.0E9;
-      ;
     } else {
       time = FLT_MAX;
     }
