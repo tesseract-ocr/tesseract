@@ -50,6 +50,7 @@ struct addrinfo {
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -301,19 +302,23 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // this unnecessary.
   // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef _WIN32
-  const char* cmd_template = "-Djava.library.path=%s -jar %s/ScrollView.jar";
+  const char cmd_template[] = "-Djava.library.path=%s -jar %s/ScrollView.jar";
 
 #else
-  const char* cmd_template =
+  const char cmd_template[] =
       "-c \"trap 'kill %%1' 0 1 2 ; java "
       "-Xms1024m -Xmx2048m -jar %s/ScrollView.jar"
       " & wait\"";
 #endif
-  size_t cmdlen = strlen(cmd_template) + 4 * strlen(scrollview_path.c_str()) + 1;
-  std::unique_ptr<char[]> cmd(new char[cmdlen]);
+  size_t cmdlen = sizeof(cmd_template) + 2 * scrollview_path.size() + 1;
+  std::vector<char> cmd(cmdlen);
   const char* sv_path = scrollview_path.c_str();
-  snprintf(cmd.get(), cmdlen, cmd_template, sv_path, sv_path, sv_path, sv_path);
-  std::string command(cmd.get());
+#ifdef _WIN32
+  snprintf(&cmd[0], cmdlen, cmd_template, sv_path, sv_path);
+#else
+  snprintf(&cmd[0], cmdlen, cmd_template, sv_path);
+#endif
+  std::string command(&cmd[0]);
   return command;
 }
 
