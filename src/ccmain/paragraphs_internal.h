@@ -291,11 +291,6 @@ bool FirstWordWouldHaveFit(const RowScratchRegisters &before,
 bool RowsFitModel(const GenericVector<RowScratchRegisters> *rows,
                   int start, int end, const ParagraphModel *model);
 
-// Do the text and geometry of two rows support a paragraph break between them?
-bool LikelyParagraphStart(const RowScratchRegisters &before,
-                          const RowScratchRegisters &after,
-                          tesseract::ParagraphJustification j);
-
 // Given a set of row_owners pointing to PARAs or nullptr (no paragraph known),
 // normalize each row_owner to point to an actual PARA, and output the
 // paragraphs in order onto paragraphs.

@@ -56,6 +56,11 @@ const ParagraphModel *kCrownLeft
 const ParagraphModel *kCrownRight
     = reinterpret_cast<ParagraphModel *>(0xDEAD888F);
 
+// Do the text and geometry of two rows support a paragraph break between them?
+static bool LikelyParagraphStart(const RowScratchRegisters &before,
+                                 const RowScratchRegisters &after,
+                                 tesseract::ParagraphJustification j);
+
 // Given the width of a typical space between words, what is the threshold
 // by which by which we think left and right alignments for paragraphs
 // can vary and still be aligned.
@@ -128,7 +133,7 @@ static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
   }
 }
 
-STRING RtlEmbed(const STRING &word, bool rtlify) {
+static STRING RtlEmbed(const STRING &word, bool rtlify) {
   if (rtlify)
     return STRING(kRLE) + word + STRING(kPDF);
   return word;
@@ -200,34 +205,34 @@ static void PrintRowRange(const GenericVector<RowScratchRegisters> &rows,
 
 // ============= Brain Dead Language Model (ASCII Version) ===================
 
-bool IsLatinLetter(int ch) {
+static bool IsLatinLetter(int ch) {
   return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
 
-bool IsDigitLike(int ch) {
+static bool IsDigitLike(int ch) {
   return ch == 'o' || ch == 'O' || ch == 'l' || ch == 'I';
 }
 
-bool IsOpeningPunct(int ch) {
+static bool IsOpeningPunct(int ch) {
   return strchr("'\"({[", ch) != nullptr;
 }
 
-bool IsTerminalPunct(int ch) {
+static bool IsTerminalPunct(int ch) {
   return strchr(":'\".?!]})", ch) != nullptr;
 }
 
 // Return a pointer after consuming as much text as qualifies as roman numeral.
-const char *SkipChars(const char *str, const char *toskip) {
+static const char *SkipChars(const char *str, const char *toskip) {
   while (*str != '\0' && strchr(toskip, *str)) { str++; }
   return str;
 }
 
-const char *SkipChars(const char *str, bool (*skip)(int)) {
+static const char *SkipChars(const char *str, bool (*skip)(int)) {
   while (*str != '\0' && skip(*str)) { str++; }
   return str;
 }
 
-const char *SkipOne(const char *str, const char *toskip) {
+static const char *SkipOne(const char *str, const char *toskip) {
   if (*str != '\0' && strchr(toskip, *str)) return str + 1;
   return str;
 }
@@ -235,7 +240,7 @@ const char *SkipOne(const char *str, const char *toskip) {
 // Return whether it is very likely that this is a numeral marker that could
 // start a list item.  Some examples include:
 //   A   I   iii.   VI   (2)   3.5.   [C-4]
-bool LikelyListNumeral(const STRING &word) {
+static bool LikelyListNumeral(const STRING &word) {
   const char *kRomans = "ivxlmdIVXLMD";
   const char *kDigits = "012345789";
   const char *kOpen = "[{(";
@@ -269,7 +274,7 @@ bool LikelyListNumeral(const STRING &word) {
   return *pos == '\0';
 }
 
-bool LikelyListMark(const STRING &word) {
+static bool LikelyListMark(const STRING &word) {
   const char *kListMarks = "0Oo*.,+.";
   return word.size() == 1 && strchr(kListMarks, word[0]) != nullptr;
 }
@@ -335,7 +340,7 @@ int UnicodeSpanSkipper::SkipAlpha(int pos) {
   return pos;
 }
 
-bool LikelyListMarkUnicode(int ch) {
+static bool LikelyListMarkUnicode(int ch) {
   if (ch < 0x80) {
     STRING single_ch;
     single_ch += ch;
@@ -364,7 +369,7 @@ bool LikelyListMarkUnicode(int ch) {
 // Return whether it is very likely that this is a numeral marker that could
 // start a list item.  Some examples include:
 //   A   I   iii.   VI   (2)   3.5.   [C-4]
-bool UniLikelyListItem(const UNICHARSET *u, const WERD_CHOICE *werd) {
+static bool UniLikelyListItem(const UNICHARSET *u, const WERD_CHOICE *werd) {
   if (werd->length() == 1 && LikelyListMarkUnicode(UnicodeFor(u, werd, 0)))
     return true;
 
@@ -672,7 +677,7 @@ class SimpleClusterer {
 };
 
 // Return the index of the cluster closest to value.
-int ClosestCluster(const GenericVector<Cluster> &clusters, int value) {
+static int ClosestCluster(const GenericVector<Cluster> &clusters, int value) {
   int best_index = 0;
   for (int i = 0; i < clusters.size(); i++) {
     if (abs(value - clusters[i].center) <
@@ -698,11 +703,10 @@ void SimpleClusterer::GetClusters(GenericVector<Cluster> *clusters) {
 
 // Calculate left- and right-indent tab stop values seen in
 // rows[row_start, row_end) given a tolerance of tolerance.
-void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
-                       int row_start, int row_end,
-                       int tolerance,
-                       GenericVector<Cluster> *left_tabs,
-                       GenericVector<Cluster> *right_tabs) {
+static void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
+                              int row_start, int row_end, int tolerance,
+                              GenericVector<Cluster> *left_tabs,
+                              GenericVector<Cluster> *right_tabs) {
   if (!AcceptableRowArgs(0, 1, __func__, rows, row_start, row_end))
     return;
   // First pass: toss all left and right indents into clusterers.
@@ -814,11 +818,10 @@ void CalculateTabStops(GenericVector<RowScratchRegisters> *rows,
 //   Case 2b: Fully Justified.  (eop_threshold > 0)
 //     We mark a line as short (end of paragraph) if the offside indent
 //     is greater than eop_threshold.
-void MarkRowsWithModel(GenericVector<RowScratchRegisters> *rows,
-                       int row_start, int row_end,
-                       const ParagraphModel *model,
-                       bool ltr,
-                       int eop_threshold) {
+static void MarkRowsWithModel(GenericVector<RowScratchRegisters> *rows,
+                              int row_start, int row_end,
+                              const ParagraphModel *model,
+                              bool ltr, int eop_threshold) {
   if (!AcceptableRowArgs(0, 0, __func__, rows, row_start, row_end))
     return;
   for (int row = row_start; row < row_end; row++) {
@@ -992,7 +995,7 @@ struct GeometricClassifierState {
 //       [script direction: first indent, body indent]
 //   (A1) LtR: 2,0  RtL: 0,0   (B1) LtR: 0,0  RtL: 2,0
 //   (A2) LtR: 2,0  RtL: CrR   (B2) LtR: CrL  RtL: 2,0
-void GeometricClassifyThreeTabStopTextBlock(
+static void GeometricClassifyThreeTabStopTextBlock(
     int debug_level,
     GeometricClassifierState &s,
     ParagraphTheory *theory) {
@@ -1084,10 +1087,10 @@ void GeometricClassifyThreeTabStopTextBlock(
 // have capital letters to go on (e.g. Hebrew, Arabic, Hindi, Chinese),
 // it's worth guessing that (A1b) is the correct interpretation if there are
 // far more "full" lines than "short" lines.
-void GeometricClassify(int debug_level,
-                       GenericVector<RowScratchRegisters> *rows,
-                       int row_start, int row_end,
-                       ParagraphTheory *theory) {
+static void GeometricClassify(int debug_level,
+                              GenericVector<RowScratchRegisters> *rows,
+                              int row_start, int row_end,
+                              ParagraphTheory *theory) {
   if (!AcceptableRowArgs(debug_level, 4, __func__, rows, row_start, row_end))
     return;
   if (debug_level > 1) {
@@ -1462,8 +1465,8 @@ void ParagraphModelSmearer::Smear() {
 
 // Find out what ParagraphModels are actually used, and discard any
 // that are not.
-void DiscardUnusedModels(const GenericVector<RowScratchRegisters> &rows,
-                         ParagraphTheory *theory) {
+static void DiscardUnusedModels(const GenericVector<RowScratchRegisters> &rows,
+                                ParagraphTheory *theory) {
   SetOfModels used_models;
   for (int i = 0; i < rows.size(); i++) {
     rows[i].StrongHypotheses(&used_models);
@@ -1495,9 +1498,8 @@ void DiscardUnusedModels(const GenericVector<RowScratchRegisters> &rows,
 //   Comb backwards through the row scratch registers, and turn any
 //   sequences of body lines of equivalent type abutted against the beginning
 //   or a body or start line of a different type into a crown paragraph.
-void DowngradeWeakestToCrowns(int debug_level,
-                              ParagraphTheory *theory,
-                              GenericVector<RowScratchRegisters> *rows) {
+static void DowngradeWeakestToCrowns(int debug_level, ParagraphTheory *theory,
+                                     GenericVector<RowScratchRegisters> *rows) {
   int start;
   for (int end = rows->size(); end > 0; end = start) {
     // Search back for a body line of a unique type.
@@ -1668,8 +1670,8 @@ bool FirstWordWouldHaveFit(const RowScratchRegisters &before,
   return after.ri_->rword_box.width() < available_space;
 }
 
-bool TextSupportsBreak(const RowScratchRegisters &before,
-                       const RowScratchRegisters &after) {
+static bool TextSupportsBreak(const RowScratchRegisters &before,
+                              const RowScratchRegisters &after) {
   if (before.ri_->ltr) {
     return before.ri_->rword_likely_ends_idea &&
            after.ri_->lword_likely_starts_idea;
@@ -1679,16 +1681,9 @@ bool TextSupportsBreak(const RowScratchRegisters &before,
   }
 }
 
-bool LikelyParagraphStart(const RowScratchRegisters &before,
-                          const RowScratchRegisters &after) {
-  return before.ri_->num_words == 0 ||
-      (FirstWordWouldHaveFit(before, after) &&
-       TextSupportsBreak(before, after));
-}
-
-bool LikelyParagraphStart(const RowScratchRegisters &before,
-                          const RowScratchRegisters &after,
-                          tesseract::ParagraphJustification j) {
+static bool LikelyParagraphStart(const RowScratchRegisters &before,
+                                 const RowScratchRegisters &after,
+                                 tesseract::ParagraphJustification j) {
   return before.ri_->num_words == 0 ||
       (FirstWordWouldHaveFit(before, after, j) &&
        TextSupportsBreak(before, after));
@@ -1699,7 +1694,7 @@ bool LikelyParagraphStart(const RowScratchRegisters &before,
 // If we can't produce a unique model justification_ = JUSTIFICATION_UNKNOWN.
 // If the rows given could be a consistent start to a paragraph, set *consistent
 // true.
-ParagraphModel InternalParagraphModelByOutline(
+static ParagraphModel InternalParagraphModelByOutline(
     const GenericVector<RowScratchRegisters> *rows,
     int start, int end, int tolerance, bool *consistent) {
   int ltr_line_count = 0;
@@ -1800,7 +1795,7 @@ ParagraphModel InternalParagraphModelByOutline(
 // would fit them as a single paragraph.   If nothing fits,
 // justification_ = JUSTIFICATION_UNKNOWN and print the paragraph to debug
 // output if we're debugging.
-ParagraphModel ParagraphModelByOutline(
+static ParagraphModel ParagraphModelByOutline(
     int debug_level,
     const GenericVector<RowScratchRegisters> *rows,
     int start, int end, int tolerance) {
@@ -1837,8 +1832,8 @@ bool RowsFitModel(const GenericVector<RowScratchRegisters> *rows,
 // We only take the very strongest signals, as we don't want to get
 // confused and marking up centered text, poetry, or source code as
 // clearly part of a typical paragraph.
-void MarkStrongEvidence(GenericVector<RowScratchRegisters> *rows,
-                        int row_start, int row_end) {
+static void MarkStrongEvidence(GenericVector<RowScratchRegisters> *rows,
+                               int row_start, int row_end) {
   // Record patently obvious body text.
   for (int i = row_start + 1; i < row_end; i++) {
     const RowScratchRegisters &prev = (*rows)[i - 1];
@@ -1907,11 +1902,11 @@ void MarkStrongEvidence(GenericVector<RowScratchRegisters> *rows,
 // Look for sequences of a start line followed by some body lines in
 // rows[row_start, row_end) and create ParagraphModels for them if
 // they seem coherent.
-void ModelStrongEvidence(int debug_level,
-                         GenericVector<RowScratchRegisters> *rows,
-                         int row_start, int row_end,
-                         bool allow_flush_models,
-                         ParagraphTheory *theory) {
+static void ModelStrongEvidence(int debug_level,
+                                GenericVector<RowScratchRegisters> *rows,
+                                int row_start, int row_end,
+                                bool allow_flush_models,
+                                ParagraphTheory *theory) {
   if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end))
     return;
 
@@ -2002,10 +1997,10 @@ void ModelStrongEvidence(int debug_level,
 //       clues.
 //   (3) Form models for any sequence of start + continuation lines.
 //   (4) Smear the paragraph models to cover surrounding text.
-void StrongEvidenceClassify(int debug_level,
-                            GenericVector<RowScratchRegisters> *rows,
-                            int row_start, int row_end,
-                            ParagraphTheory *theory) {
+static void StrongEvidenceClassify(int debug_level,
+                                   GenericVector<RowScratchRegisters> *rows,
+                                   int row_start, int row_end,
+                                   ParagraphTheory *theory) {
   if (!AcceptableRowArgs(debug_level, 2, __func__, rows, row_start, row_end))
     return;
 
@@ -2032,9 +2027,9 @@ void StrongEvidenceClassify(int debug_level,
   smearer.Smear();
 }
 
-void SeparateSimpleLeaderLines(GenericVector<RowScratchRegisters> *rows,
-                               int row_start, int row_end,
-                               ParagraphTheory *theory) {
+static void SeparateSimpleLeaderLines(GenericVector<RowScratchRegisters> *rows,
+                                      int row_start, int row_end,
+                                      ParagraphTheory *theory) {
   for (int i = row_start + 1; i < row_end - 1; i++) {
     if ((*rows)[i - 1].ri_->has_leaders &&
         (*rows)[i].ri_->has_leaders &&
@@ -2048,7 +2043,7 @@ void SeparateSimpleLeaderLines(GenericVector<RowScratchRegisters> *rows,
 
 // Collect sequences of unique hypotheses in row registers and create proper
 // paragraphs for them, referencing the paragraphs in row_owners.
-void ConvertHypothesizedModelRunsToParagraphs(
+static void ConvertHypothesizedModelRunsToParagraphs(
     int debug_level,
     const GenericVector<RowScratchRegisters> &rows,
     GenericVector<PARA *> *row_owners,
@@ -2147,7 +2142,8 @@ struct Interval {
 //   (1) If a line is surrounded by lines of unknown type, it's weak.
 //   (2) If two lines in a row are start lines for a given paragraph type, but
 //       after that the same paragraph type does not continue, they're weak.
-bool RowIsStranded(const GenericVector<RowScratchRegisters> &rows, int row) {
+static bool RowIsStranded(const GenericVector<RowScratchRegisters> &rows,
+                          int row) {
   SetOfModels row_models;
   rows[row].StrongHypotheses(&row_models);
 
@@ -2189,9 +2185,9 @@ bool RowIsStranded(const GenericVector<RowScratchRegisters> &rows, int row) {
 // + Crown paragraphs not immediately followed by a strongly modeled line.
 // + Single line paragraphs surrounded by text that doesn't match the
 //   model.
-void LeftoverSegments(const GenericVector<RowScratchRegisters> &rows,
-                      GenericVector<Interval> *to_fix,
-                      int row_start, int row_end) {
+static void LeftoverSegments(const GenericVector<RowScratchRegisters> &rows,
+                             GenericVector<Interval> *to_fix,
+                             int row_start, int row_end) {
   to_fix->clear();
   for (int i = row_start; i < row_end; i++) {
     bool needs_fixing = false;
@@ -2367,8 +2363,8 @@ void DetectParagraphs(int debug_level,
 
 // ============ Code interfacing with the rest of Tesseract ==================
 
-void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
-                                          RowInfo *info) {
+static void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
+                                                 RowInfo *info) {
   // Set up text, lword_text, and rword_text (mostly for debug printing).
   STRING fake_text;
   PageIterator pit(static_cast<const PageIterator&>(it));
@@ -2419,9 +2415,8 @@ void InitializeTextAndBoxesPreRecognition(const MutableIterator &it,
 
 // Given a Tesseract Iterator pointing to a text line, fill in the paragraph
 // detector RowInfo with all relevant information from the row.
-void InitializeRowInfo(bool after_recognition,
-                       const MutableIterator &it,
-                       RowInfo *info) {
+static void InitializeRowInfo(bool after_recognition,
+                              const MutableIterator &it, RowInfo *info) {
   if (it.PageResIt()->row() != nullptr) {
     ROW *row = it.PageResIt()->row()->row;
     info->pix_ldistance = row->lmargin();

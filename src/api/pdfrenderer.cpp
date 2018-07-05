@@ -202,7 +202,7 @@ void TessPDFRenderer::AppendPDFObject(const char *data) {
 // Helper function to prevent us from accidentally writing
 // scientific notation to an HOCR or PDF file. Besides, three
 // decimal points are all you really need.
-double prec(double x) {
+static double prec(double x) {
   double kPrecision = 1000.0;
   double a = round(x * kPrecision) / kPrecision;
   if (a == -0)
@@ -210,7 +210,7 @@ double prec(double x) {
   return a;
 }
 
-long dist2(int x1, int y1, int x2, int y2) {
+static long dist2(int x1, int y1, int x2, int y2) {
   return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
 }
 
@@ -222,10 +222,10 @@ long dist2(int x1, int y1, int x2, int y2) {
 // left-to-right no matter what the reading order is. We need the
 // word baseline in reading order, so we do that conversion here. Returns
 // the word's baseline origin and length.
-void GetWordBaseline(int writing_direction, int ppi, int height,
-                     int word_x1, int word_y1, int word_x2, int word_y2,
-                     int line_x1, int line_y1, int line_x2, int line_y2,
-                     double *x0, double *y0, double *length) {
+static void GetWordBaseline(int writing_direction, int ppi, int height,
+                            int word_x1, int word_y1, int word_x2, int word_y2,
+                            int line_x1, int line_y1, int line_x2, int line_y2,
+                            double *x0, double *y0, double *length) {
   if (writing_direction == WRITING_DIRECTION_RIGHT_TO_LEFT) {
     Swap(&word_x1, &word_x2);
     Swap(&word_y1, &word_y2);
@@ -264,9 +264,9 @@ void GetWordBaseline(int writing_direction, int ppi, int height,
 //                           RTL
 // [ x' ] = [ a b ][ x ] = [-1 0 ] [ cos sin ][ x ]
 // [ y' ]   [ c d ][ y ]   [ 0 1 ] [-sin cos ][ y ]
-void AffineMatrix(int writing_direction,
-                  int line_x1, int line_y1, int line_x2, int line_y2,
-                  double *a, double *b, double *c, double *d) {
+static void AffineMatrix(int writing_direction,
+                         int line_x1, int line_y1, int line_x2, int line_y2,
+                         double *a, double *b, double *c, double *d) {
   double theta = atan2(static_cast<double>(line_y1 - line_y2),
                        static_cast<double>(line_x2 - line_x1));
   *a = cos(theta);

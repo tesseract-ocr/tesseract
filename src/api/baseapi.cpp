@@ -2622,9 +2622,9 @@ void TessBaseAPI::NormalizeTBLOB(TBLOB *tblob, ROW *row, bool numeric_mode) {
  * Return a TBLOB * from the whole pix.
  * To be freed later with delete.
  */
-TBLOB *make_tesseract_blob(float baseline, float xheight,
-                           float descender, float ascender,
-                           bool numeric_mode, Pix* pix) {
+static TBLOB *make_tesseract_blob(float baseline, float xheight,
+                                  float descender, float ascender,
+                                  bool numeric_mode, Pix* pix) {
   TBLOB *tblob = TessBaseAPI::MakeTBLOB(pix);
 
   // Normalize TBLOB

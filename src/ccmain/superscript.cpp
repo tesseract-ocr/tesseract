@@ -43,10 +43,11 @@ namespace tesseract {
  * or superscript letter based only on y position.  Also do this for the
  * right side.
  */
-void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index,
-                    int super_y_bottom, int sub_y_top,
-                    ScriptPos *leading_pos, int *num_leading_outliers,
-                    ScriptPos *trailing_pos, int *num_trailing_outliers) {
+static void YOutlierPieces(WERD_RES *word, int rebuilt_blob_index,
+                           int super_y_bottom, int sub_y_top,
+                           ScriptPos *leading_pos, int *num_leading_outliers,
+                           ScriptPos *trailing_pos,
+                           int *num_trailing_outliers) {
   ScriptPos sp_unused1, sp_unused2;
   int unused1, unused2;
   if (!leading_pos) leading_pos = &sp_unused1;

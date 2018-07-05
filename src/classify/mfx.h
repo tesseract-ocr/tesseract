@@ -2,7 +2,6 @@
  ** Filename: mfx.h
  ** Purpose:  Definition of micro-feature extraction routines
  ** Author:   Dan Johnson
- ** History:  5/29/89, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +14,19 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MFX_H
-#define   MFX_H
+
+#ifndef MFX_H
+#define MFX_H
 
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "mfdefs.h"
 #include "params.h"
+
+class DENORM;
+struct TBLOB;
+
 /*----------------------------------------------------------------------------
           Variables
 ----------------------------------------------------------------------------**/

@@ -123,8 +123,8 @@ void Validator::MoveResultsToDest(GraphemeNormMode g_mode,
   }
 }
 
-bool CmpPairSecond(const std::pair<int, int>& p1,
-                   const std::pair<int, int>& p2) {
+static bool CmpPairSecond(const std::pair<int, int>& p1,
+                          const std::pair<int, int>& p2) {
   return p1.second < p2.second;
 }
 

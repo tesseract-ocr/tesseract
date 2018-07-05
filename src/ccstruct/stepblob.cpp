@@ -359,7 +359,8 @@ void C_BLOB::move(                  // reposition blob
 }
 
 // Static helper for C_BLOB::rotate to allow recursion of child outlines.
-void RotateOutlineList(const FCOORD& rotation, C_OUTLINE_LIST* outlines) {
+static void RotateOutlineList(const FCOORD& rotation,
+                              C_OUTLINE_LIST* outlines) {
   C_OUTLINE_LIST new_outlines;
   C_OUTLINE_IT src_it(outlines);
   C_OUTLINE_IT dest_it(&new_outlines);

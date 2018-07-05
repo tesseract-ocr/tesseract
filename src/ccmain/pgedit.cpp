@@ -203,12 +203,9 @@ void build_image_window(int width, int height) {
  *  Display normalized baseline, x-height, ascender limit and descender limit
  */
 
-void display_bln_lines(ScrollView* window,
-                       ScrollView::Color colour,
-                       float scale_factor,
-                       float y_offset,
-                       float minx,
-                       float maxx) {
+static void display_bln_lines(ScrollView* window, ScrollView::Color colour,
+                              float scale_factor, float y_offset,
+                              float minx, float maxx) {
   window->Pen(colour);
   window->Line(minx, y_offset + scale_factor * DESC_HEIGHT,
                maxx, y_offset + scale_factor * DESC_HEIGHT);

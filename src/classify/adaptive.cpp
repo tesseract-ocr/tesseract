@@ -87,7 +87,7 @@ void FreeTempProto(void *arg) {
   free(proto);
 }
 
-void FreePermConfig(PERM_CONFIG Config) {
+static void FreePermConfig(PERM_CONFIG Config) {
   assert(Config != nullptr);
   delete [] Config->Ambigs;
   free(Config);
@@ -475,7 +475,7 @@ void Classify::WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates) {
 /**
  * This routine writes a binary representation of a
  * permanent configuration to File.
- * 
+ *
  * @param File  open file to write Config to
  * @param Config  permanent config to write to File
  *

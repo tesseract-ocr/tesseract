@@ -25,8 +25,8 @@
 #include "trie.h"
 #include "unicharset.h"
 
-tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
-                                  const char *filename) {
+static tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
+                                         const char *filename) {
   const int kDictDebugLevel = 1;
   tesseract::TFile dawg_file;
   if (!dawg_file.Open(filename, nullptr)) {
@@ -54,9 +54,9 @@ class WordOutputter {
 };
 
 // returns 0 if successful.
-int WriteDawgAsWordlist(const UNICHARSET &unicharset,
-                        const tesseract::Dawg *dawg,
-                        const char *outfile_name) {
+static int WriteDawgAsWordlist(const UNICHARSET &unicharset,
+                               const tesseract::Dawg *dawg,
+                               const char *outfile_name) {
   FILE *out = fopen(outfile_name, "wb");
   if (out == nullptr) {
     tprintf("Could not open %s for writing.\n", outfile_name);

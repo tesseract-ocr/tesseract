@@ -2,7 +2,6 @@
  **      Filename:       mfx.c
  **      Purpose:        Micro feature extraction routines
  **      Author:         Dan Johnson
- **      History:        7/21/89, DSJ, Created.
  **
  **      (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +17,7 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+#include "mfx.h"
 #include "mfdefs.h"
 #include "mfoutline.h"
 #include "clusttool.h"           //NEEDED
@@ -92,7 +92,6 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
   }
   return MicroFeatures;
 }                                /* BlobMicroFeatures */
-
 
 /*---------------------------------------------------------------------------
             Private Code

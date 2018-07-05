@@ -674,8 +674,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
 }                                /* NewIntClass */
 
-
-void free_int_class(INT_CLASS int_class) {
+static void free_int_class(INT_CLASS int_class) {
   int i;
 
   for (i = 0; i < int_class->NumProtoSets; i++) {

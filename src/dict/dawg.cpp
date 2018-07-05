@@ -109,7 +109,8 @@ void Dawg::iterate_words(const UNICHARSET &unicharset,
   iterate_words_rec(word, 0, cb);
 }
 
-void CallWithUTF8(TessCallback1<const char *> *cb, const WERD_CHOICE *wc) {
+static void CallWithUTF8(TessCallback1<const char *> *cb,
+                         const WERD_CHOICE *wc) {
   STRING s;
   wc->string_and_lengths(&s, nullptr);
   cb->Run(s.string());
