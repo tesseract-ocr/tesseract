@@ -258,6 +258,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new FullyConnected(stub.name_, stub.ni_, stub.no_, stub.type_);
       break;
     default:
+      ;
   }
   if (network) {
     network->training_ = stub.training_;
@@ -266,7 +267,7 @@ Network* Network::CreateFromFile(TFile* fp) {
     network->num_weights_ = stub.num_weights_;
     if (!network->DeSerialize(fp)) {
       delete network;
-      network =‌ nullptr;
+      network = nullptr;
     }
   }
   return network;
