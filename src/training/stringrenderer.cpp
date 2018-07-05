@@ -47,7 +47,6 @@ static const int kDefaultOutputResolution = 300;
 // recommendation in http://unicode.org/reports/tr14/ to avoid line-breaks at
 // hyphens and other non-alpha characters.
 static const char* kWordJoinerUTF8 = "\u2060";
-static const char32 kWordJoiner = 0x2060;
 
 static bool IsCombiner(int ch) {
   const int char_type = u_charType(ch);
