@@ -417,6 +417,8 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
   }
 
+  char* parameter;
+
   switch (cmd_event) {
     case NULL_CMD_EVENT:
       break;
@@ -432,7 +434,9 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
       break;
     case DEBUG_WERD_CMD_EVENT:
       mode = DEBUG_WERD_CMD_EVENT;
-      word_config_ = image_win->ShowInputDialog("Config File Name");
+      parameter = image_win->ShowInputDialog("Config File Name");
+      word_config_ = parameter;
+      delete[] parameter;
       break;
     case BOUNDING_BOX_CMD_EVENT:
       if (new_value[0] == 'T')
@@ -762,7 +766,6 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
   int word_height;               // ht of word BB
   bool displayed_something = false;
   float shift;                   // from bot left
-  C_BLOB_IT c_it;                // cblob iterator
 
   if (color_mode != CM_RAINBOW && word_res->box_word != nullptr) {
     BoxWord* box_word = word_res->box_word;
@@ -831,7 +834,8 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     ScrollView::Color c = (ScrollView::Color)
        ((int32_t) editor_image_blob_bb_color);
     image_win->Pen(c);
-    c_it.set_to_list(word->cblob_list());
+    // cblob iterator
+    C_BLOB_IT c_it(word->cblob_list());
     for (c_it.mark_cycle_pt(); !c_it.cycled_list(); c_it.forward())
       c_it.data()->bounding_box().plot(image_win);
     displayed_something = true;

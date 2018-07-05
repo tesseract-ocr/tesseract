@@ -575,9 +575,9 @@ bool LanguageModel::AddViterbiStateEntry(
     else
       tprintf("\n");
   }
+  ASSERT_HOST(curr_state != nullptr);
   // Check whether the list is full.
-  if (curr_state != nullptr &&
-      curr_state->viterbi_state_entries_length >=
+  if (curr_state->viterbi_state_entries_length >=
           language_model_viterbi_list_max_size) {
     if (language_model_debug_level > 1) {
       tprintf("AddViterbiStateEntry: viterbi list is full!\n");
