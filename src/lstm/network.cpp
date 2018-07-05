@@ -258,7 +258,7 @@ Network* Network::CreateFromFile(TFile* fp) {
       network = new FullyConnected(stub.name_, stub.ni_, stub.no_, stub.type_);
       break;
     default:
-      ;
+      break;
   }
   if (network) {
     network->training_ = stub.training_;
