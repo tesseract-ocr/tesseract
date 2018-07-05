@@ -15,7 +15,7 @@
 #ifndef GOOGLE_TESSERACT
 
 namespace tesseract {
-bool IntFlagExists(const char* flag_name, int32_t* value) {
+static bool IntFlagExists(const char* flag_name, int32_t* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
@@ -26,7 +26,7 @@ bool IntFlagExists(const char* flag_name, int32_t* value) {
   return true;
 }
 
-bool DoubleFlagExists(const char* flag_name, double* value) {
+static bool DoubleFlagExists(const char* flag_name, double* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<DoubleParam*> empty;
@@ -37,7 +37,7 @@ bool DoubleFlagExists(const char* flag_name, double* value) {
   return true;
 }
 
-bool BoolFlagExists(const char* flag_name, bool* value) {
+static bool BoolFlagExists(const char* flag_name, bool* value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<BoolParam*> empty;
@@ -48,7 +48,7 @@ bool BoolFlagExists(const char* flag_name, bool* value) {
   return true;
 }
 
-bool StringFlagExists(const char* flag_name, const char** value) {
+static bool StringFlagExists(const char* flag_name, const char** value) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<StringParam*> empty;
@@ -58,7 +58,7 @@ bool StringFlagExists(const char* flag_name, const char** value) {
   return p != nullptr;
 }
 
-void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
+static void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<IntParam*> empty;
@@ -68,7 +68,7 @@ void SetIntFlagValue(const char* flag_name, const int32_t new_val) {
   p->set_value(new_val);
 }
 
-void SetDoubleFlagValue(const char* flag_name, const double new_val) {
+static void SetDoubleFlagValue(const char* flag_name, const double new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<DoubleParam*> empty;
@@ -78,7 +78,7 @@ void SetDoubleFlagValue(const char* flag_name, const double new_val) {
   p->set_value(new_val);
 }
 
-void SetBoolFlagValue(const char* flag_name, const bool new_val) {
+static void SetBoolFlagValue(const char* flag_name, const bool new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<BoolParam*> empty;
@@ -88,7 +88,7 @@ void SetBoolFlagValue(const char* flag_name, const bool new_val) {
   p->set_value(new_val);
 }
 
-void SetStringFlagValue(const char* flag_name, const char* new_val) {
+static void SetStringFlagValue(const char* flag_name, const char* new_val) {
   STRING full_flag_name("FLAGS_");
   full_flag_name += flag_name;
   GenericVector<StringParam*> empty;
@@ -98,19 +98,19 @@ void SetStringFlagValue(const char* flag_name, const char* new_val) {
   p->set_value(STRING(new_val));
 }
 
-bool SafeAtoi(const char* str, int* val) {
+static bool SafeAtoi(const char* str, int* val) {
   char* endptr = nullptr;
   *val = strtol(str, &endptr, 10);
   return endptr != nullptr && *endptr == '\0';
 }
 
-bool SafeAtod(const char* str, double* val) {
+static bool SafeAtod(const char* str, double* val) {
   char* endptr = nullptr;
   *val = strtod(str, &endptr);
   return endptr != nullptr && *endptr == '\0';
 }
 
-void PrintCommandLineFlags() {
+static void PrintCommandLineFlags() {
   const char* kFlagNamePrefix = "FLAGS_";
   const int kFlagNamePrefixLen = strlen(kFlagNamePrefix);
   for (int i = 0; i < GlobalParams()->int_params.size(); ++i) {

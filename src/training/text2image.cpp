@@ -208,9 +208,9 @@ static std::string StringReplace(const std::string& in,
 // with "T", such that "AT" has spacing of -5, the entry/line for unichar "A"
 // in .fontinfo file will be:
 // A 0 -1 T -5 V -7
-void ExtractFontProperties(const std::string &utf8_text,
-                           StringRenderer *render,
-                           const std::string &output_base) {
+static void ExtractFontProperties(const std::string &utf8_text,
+                                  StringRenderer *render,
+                                  const std::string &output_base) {
   std::map<std::string, SpacingProperties> spacing_map;
   std::map<std::string, SpacingProperties>::iterator spacing_map_it0;
   std::map<std::string, SpacingProperties>::iterator spacing_map_it1;
@@ -308,9 +308,8 @@ void ExtractFontProperties(const std::string &utf8_text,
   File::WriteStringToFileOrDie(output_string, output_base + ".fontinfo");
 }
 
-bool MakeIndividualGlyphs(Pix* pix,
-                          const std::vector<BoxChar*>& vbox,
-                          const int input_tiff_page) {
+static bool MakeIndividualGlyphs(Pix* pix, const std::vector<BoxChar*>& vbox,
+                                 const int input_tiff_page) {
   // If checks fail, return false without exiting text2image
   if (!pix) {
     tprintf("ERROR: MakeIndividualGlyphs(): Input Pix* is nullptr\n");

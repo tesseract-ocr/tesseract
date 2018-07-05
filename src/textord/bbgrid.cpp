@@ -201,8 +201,8 @@ Pix* IntGrid::ThresholdToPix(int threshold) const {
 }
 
 // Make a Pix of the correct scaled size for the TraceOutline functions.
-Pix* GridReducedPix(const TBOX& box, int gridsize,
-                    ICOORD bleft, int* left, int* bottom) {
+static Pix* GridReducedPix(const TBOX& box, int gridsize,
+                           ICOORD bleft, int* left, int* bottom) {
   // Compute grid bounds of the outline and pad all round by 1.
   int grid_left = (box.left() - bleft.x()) / gridsize - 1;
   int grid_bottom = (box.bottom() - bleft.y()) / gridsize - 1;

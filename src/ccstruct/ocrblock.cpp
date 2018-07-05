@@ -252,7 +252,7 @@ const BLOCK & source             //from this
 //   margin - return value, the distance from x,y to the left margin of the
 //       block containing it.
 // If all segments were to the right of x, we return false and 0.
-bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+static bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
   bool found = false;
   *margin = 0;
   if (segments->empty())
@@ -282,7 +282,7 @@ bool LeftMargin(ICOORDELT_LIST *segments, int x, int *margin) {
 //   margin - return value, the distance from x,y to the right margin of the
 //       block containing it.
 // If all segments were to the left of x, we return false and 0.
-bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
+static bool RightMargin(ICOORDELT_LIST *segments, int x, int *margin) {
   bool found = false;
   *margin = 0;
   if (segments->empty())

@@ -103,7 +103,7 @@ static inline int DigitValue(int ch, int base) {
 }
 
 // IO (re-)implementations -----------------------------------------------------
-uintmax_t streamtoumax(FILE* s, int base) {
+static uintmax_t streamtoumax(FILE* s, int base) {
   int minus = 0;
   uintmax_t v = 0;
   int d, c = 0;
@@ -144,7 +144,7 @@ uintmax_t streamtoumax(FILE* s, int base) {
   return minus ? -v : v;
 }
 
-double streamtofloat(FILE* s) {
+static double streamtofloat(FILE* s) {
   int minus = 0;
   int v = 0;
   int d, c = 0;
@@ -187,39 +187,6 @@ double streamtofloat(FILE* s) {
     f *= pow(10.0, static_cast<double>(exponent));
   }
   ungetc(c, s);
-
-  return minus ? -f : f;
-}
-
-double strtofloat(const char* s) {
-  int minus = 0;
-  int v = 0;
-  int d;
-  int k = 1;
-  int w = 0;
-
-  while(*s && isspace(static_cast<unsigned char>(*s))) s++;
-
-  // Single optional + or -
-  if (*s == '-' || *s == '+') {
-    minus = (*s == '-');
-    s++;
-  }
-
-  // Actual number parsing
-  for (; *s && (d = DigitValue(*s, 10)) >= 0; s++)
-    v = v*10 + d;
-  if (*s == '.') {
-    for (++s; *s && (d = DigitValue(*s, 10)) >= 0; s++) {
-      w = w*10 + d;
-      k *= 10;
-    }
-  }
-  if (*s == 'e' || *s == 'E')
-    tprintf("WARNING: Scientific Notation not supported!");
-
-  double f  = static_cast<double>(v)
-            + static_cast<double>(w) / static_cast<double>(k);
 
   return minus ? -f : f;
 }

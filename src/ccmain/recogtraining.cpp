@@ -53,7 +53,7 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 }
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
-bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
+static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
   while (page_res_it->block() != nullptr && page_res_it->word() == nullptr)
     page_res_it->forward();
 

@@ -166,8 +166,9 @@ void Classify::SetupBLCNDenorms(const TBLOB& blob, bool nonlinear_norm,
 
 // Helper normalizes the direction, assuming that it is at the given
 // unnormed_pos, using the given denorm, starting at the root_denorm.
-uint8_t NormalizeDirection(uint8_t dir, const FCOORD& unnormed_pos,
-                         const DENORM& denorm, const DENORM* root_denorm) {
+static uint8_t NormalizeDirection(uint8_t dir, const FCOORD& unnormed_pos,
+                                  const DENORM& denorm,
+                                  const DENORM* root_denorm) {
   // Convert direction to a vector.
   FCOORD unnormed_end;
   unnormed_end.from_direction(dir);

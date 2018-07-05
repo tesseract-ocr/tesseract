@@ -191,37 +191,3 @@ void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str) {
     }
   }
 }                                /* WriteFeatureSet */
-
-/**
- * Write a textual representation of FeatureDesc to File
- * in the old format (i.e. the format used by the clusterer).
- *
- * This format is:
- * @verbatim
- *  Number of Params
- *  Description of Param 1
- *  ...
- * @endverbatim
- * @param File open text file to write FeatureDesc to
- * @param FeatureDesc feature descriptor to write to File
- * @return none
- */
-void WriteOldParamDesc(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
-  int i;
-
-  fprintf (File, "%d\n", FeatureDesc->NumParams);
-  for (i = 0; i < FeatureDesc->NumParams; i++) {
-    if (FeatureDesc->ParamDesc[i].Circular)
-      fprintf (File, "circular ");
-    else
-      fprintf (File, "linear   ");
-
-    if (FeatureDesc->ParamDesc[i].NonEssential)
-      fprintf (File, "non-essential  ");
-    else
-      fprintf (File, "essential      ");
-
-    fprintf (File, "%f  %f\n",
-      FeatureDesc->ParamDesc[i].Min, FeatureDesc->ParamDesc[i].Max);
-  }
-}                                /* WriteOldParamDesc */

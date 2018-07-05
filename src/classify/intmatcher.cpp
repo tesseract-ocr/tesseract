@@ -713,11 +713,9 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
  * Print debugging information for Configurations
  * @return none
  */
-void IMDebugConfiguration(int FeatureNum,
-                          uint16_t ActualProtoNum,
-                          uint8_t Evidence,
-                          BIT_VECTOR ConfigMask,
-                          uint32_t ConfigWord) {
+static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
+                                 uint8_t Evidence, BIT_VECTOR ConfigMask,
+                                 uint32_t ConfigWord) {
   cprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
     FeatureNum, (int) ActualProtoNum, (int) Evidence);
   while (ConfigWord) {
@@ -734,9 +732,8 @@ void IMDebugConfiguration(int FeatureNum,
  * Print debugging information for Configurations
  * @return none
  */
-void IMDebugConfigurationSum(int FeatureNum,
-                             uint8_t *FeatureEvidence,
-                             int32_t ConfigCount) {
+static void IMDebugConfigurationSum(int FeatureNum, uint8_t *FeatureEvidence,
+                                    int32_t ConfigCount) {
   cprintf("F=%3d, C=", FeatureNum);
   for (int ConfigNum = 0; ConfigNum < ConfigCount; ConfigNum++) {
     cprintf("%4d", FeatureEvidence[ConfigNum]);

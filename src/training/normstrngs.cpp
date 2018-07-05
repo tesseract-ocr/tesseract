@@ -35,7 +35,7 @@
 
 namespace tesseract {
 
-bool is_hyphen_punc(const char32 ch) {
+static bool is_hyphen_punc(const char32 ch) {
   static const int kNumHyphenPuncUnicodes = 13;
   static const char32 kHyphenPuncUnicodes[kNumHyphenPuncUnicodes] = {
       '-',    0x2010, 0x2011, 0x2012,
@@ -53,7 +53,7 @@ bool is_hyphen_punc(const char32 ch) {
   return false;
 }
 
-bool is_single_quote(const char32 ch) {
+static bool is_single_quote(const char32 ch) {
   static const int kNumSingleQuoteUnicodes = 8;
   static const char32 kSingleQuoteUnicodes[kNumSingleQuoteUnicodes] = {
       '\'', '`',
@@ -71,7 +71,7 @@ bool is_single_quote(const char32 ch) {
   return false;
 }
 
-bool is_double_quote(const char32 ch) {
+static bool is_double_quote(const char32 ch) {
   static const int kNumDoubleQuoteUnicodes = 8;
   static const char32 kDoubleQuoteUnicodes[kNumDoubleQuoteUnicodes] = {
       '"',

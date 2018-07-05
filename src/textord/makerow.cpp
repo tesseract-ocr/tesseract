@@ -133,7 +133,8 @@ static float MakeRowFromBlobs(float line_size,
 
 // Helper to make a row using the children of a single blob.
 // Returns the mean size of the blobs created.
-float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob, TO_ROW_IT* row_it) {
+static float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob,
+                                 TO_ROW_IT* row_it) {
   // The blobs made from the children will go in the small_blobs list.
   BLOBNBOX_IT bb_it(&block->small_blobs);
   C_OUTLINE_IT ol_it(blob->out_list());

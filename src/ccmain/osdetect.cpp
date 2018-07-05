@@ -156,8 +156,9 @@ void OSResults::accumulate(const OSResults& osr) {
 
 // Detect and erase horizontal/vertical lines and picture regions from the
 // image, so that non-text blobs are removed from consideration.
-void remove_nontext_regions(tesseract::Tesseract *tess, BLOCK_LIST *blocks,
-                            TO_BLOCK_LIST *to_blocks) {
+static void remove_nontext_regions(tesseract::Tesseract *tess,
+                                   BLOCK_LIST *blocks,
+                                   TO_BLOCK_LIST *to_blocks) {
   Pix *pix = tess->pix_binary();
   ASSERT_HOST(pix != nullptr);
   int vertical_x = 0;

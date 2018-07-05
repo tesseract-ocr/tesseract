@@ -42,23 +42,6 @@
 #define CTRL_NEWLINE      '\012' //newline
 #define CTRL_HARDLINE   '\015'   //cr
 
-/**********************************************************************
- * pixels_to_pts
- *
- * Convert an integer number of pixels to the nearest integer
- * number of points.
- **********************************************************************/
-
-int32_t pixels_to_pts(               //convert coords
-                    int32_t pixels,
-                    int32_t pix_res  //resolution
-                   ) {
-  float pts;                     //converted value
-
-  pts = pixels * 72.0 / pix_res;
-  return (int32_t) (pts + 0.5);    //round it
-}
-
 namespace tesseract {
 void Tesseract::output_pass(  //Tess output pass //send to api
                             PAGE_RES_IT &page_res_it,
