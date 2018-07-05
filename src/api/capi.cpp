@@ -542,11 +542,6 @@ TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* hand
     handle->SetProbabilityInContextFunc(f);
 }
 
-TESS_API BOOL TESS_CALL TessBaseAPIDetectOS(TessBaseAPI* handle, OSResults* results)
-{
-    return FALSE; // Unsafe ABI, return FALSE always
-}
-
 #ifndef DISABLED_LEGACY_ENGINE
 
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
