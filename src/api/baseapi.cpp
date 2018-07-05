@@ -456,7 +456,7 @@ void TessBaseAPI::GetAvailableLanguagesAsVector(
   }
 }
 
-//TODO(amit): Adapt to lstm 
+//TODO(amit): Adapt to lstm
 #ifndef DISABLED_LEGACY_ENGINE
 /**
  * Init only the lang model component of Tesseract. The only functions
@@ -833,8 +833,8 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
     page_res_ = tesseract_->ApplyBoxes(*input_file_, true, block_list_);
   } else if (tesseract_->tessedit_resegment_from_boxes) {
     page_res_ = tesseract_->ApplyBoxes(*input_file_, false, block_list_);
-  } else 
-#endif  // ndef DISABLED_LEGACY_ENGINE 
+  } else
+#endif  // ndef DISABLED_LEGACY_ENGINE
   {
     page_res_ = new PAGE_RES(tesseract_->AnyLSTMLang(),
                              block_list_, &tesseract_->prev_word_best_choice_);
@@ -1616,8 +1616,11 @@ char* TessBaseAPI::GetTSVText(int page_number) {
 
   STRING tsv_str("");
 
-  int page_num = page_id, block_num = 0, par_num = 0, line_num = 0,
-      word_num = 0;
+  int page_num = page_id;
+  int block_num = 0;
+  int par_num = 0;
+  int line_num = 0;
+  int word_num = 0;
 
   tsv_str.add_str_int("1\t", page_num);  // level 1 - page
   tsv_str.add_str_int("\t", block_num);
@@ -1639,7 +1642,10 @@ char* TessBaseAPI::GetTSVText(int page_number) {
 
     // Add rows for any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      block_num++, par_num = 0, line_num = 0, word_num = 0;
+      block_num++;
+      par_num = 0;
+      line_num = 0;
+      word_num = 0;
       tsv_str.add_str_int("2\t", page_num);  // level 2 - block
       tsv_str.add_str_int("\t", block_num);
       tsv_str.add_str_int("\t", par_num);
@@ -1649,7 +1655,9 @@ char* TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t-1\t\n";  // end of row for block
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      par_num++, line_num = 0, word_num = 0;
+      par_num++;
+      line_num = 0;
+      word_num = 0;
       tsv_str.add_str_int("3\t", page_num);  // level 3 - paragraph
       tsv_str.add_str_int("\t", block_num);
       tsv_str.add_str_int("\t", par_num);
@@ -1659,7 +1667,8 @@ char* TessBaseAPI::GetTSVText(int page_number) {
       tsv_str += "\t-1\t\n";  // end of row for para
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      line_num++, word_num = 0;
+      line_num++;
+      word_num = 0;
       tsv_str.add_str_int("4\t", page_num);  // level 4 - line
       tsv_str.add_str_int("\t", block_num);
       tsv_str.add_str_int("\t", par_num);
