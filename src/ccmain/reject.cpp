@@ -234,8 +234,6 @@ float compute_reject_threshold(WERD_CHOICE* word) {
   float threshold;               // rejection threshold
   float bestgap = 0.0f;          // biggest gap
   float gapstart;                // bottom of gap
-                                 // super iterator
-  BLOB_CHOICE_IT choice_it;      // real iterator
 
   int blob_count = word->length();
   GenericVector<float> ratings;
