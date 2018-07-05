@@ -35,8 +35,6 @@ const int kSquareLimit = 25;
 // Prime numbers for subsampling distances.
 const int kPrime1 = 17;
 const int kPrime2 = 13;
-// Min samples from which to start discarding outliers.
-const int kMinOutlierSamples = 5;
 
 TrainingSampleSet::FontClassInfo::FontClassInfo()
   : num_raw_samples(0), canonical_sample(-1), canonical_dist(0.0f) {

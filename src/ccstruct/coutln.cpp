@@ -141,14 +141,14 @@ int16_t length                     //length of loop
  */
 
 C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(nullptr) {
-  TBOX new_box;                   //easy bounding
-  int16_t stepindex;               //index to step
-  int16_t dirdiff;                 //direction change
+  TBOX new_box;                  //easy bounding
+  int16_t stepindex;             //index to step
+  int16_t dirdiff;               //direction change
   ICOORD pos;                    //current position
   ICOORD prevpos;                //previous dest point
 
   ICOORD destpos;                //destination point
-  int16_t destindex;               //index to step
+  int16_t destindex = INT16_MAX; //index to step
   DIR128 dir;                    //coded direction
   uint8_t new_step;
 

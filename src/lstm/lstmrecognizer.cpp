@@ -41,8 +41,6 @@
 
 namespace tesseract {
 
-// Max number of blob choices to return in any given position.
-const int kMaxChoices = 4;
 // Default ratio between dict and non-dict words.
 const double kDictRatio = 2.25;
 // Default certainty offset to give the dictionary a chance.

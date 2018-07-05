@@ -25,8 +25,6 @@
 #include "trie.h"
 #include "unicharset.h"
 
-const int kDictDebugLevel = 1;
-
 tesseract::Dawg *LoadSquishedDawg(const UNICHARSET &unicharset,
                                   const char *filename) {
   const int kDictDebugLevel = 1;
