@@ -945,9 +945,11 @@ bool GenericVector<T>::Serialize(tesseract::TFile* fp) const {
 // If swap is true, assumes a big/little-endian swap is needed.
 template <typename T>
 bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
-  int32_t reserved;
+  uint32_t reserved;
   if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
   if (swap) Reverse32(&reserved);
+  // Arbitrarily limit the number of elements to protect against bad data.
+  if (reserved > UINT16_MAX) return false;
   reserve(reserved);
   size_used_ = reserved;
   if (fread(data_, sizeof(T), size_used_, fp) != unsigned_size()) return false;
@@ -959,15 +961,17 @@ bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
 }
 template <typename T>
 bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
-  int32_t reserved;
+  uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  // Arbitrarily limit the number of elements to protect against bad data.
+  if (reserved > UINT16_MAX) return false;
   reserve(reserved);
   size_used_ = reserved;
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
 }
 template <typename T>
 bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
-  int32_t reserved;
+  uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   return fp->FRead(nullptr, sizeof(T), reserved) == reserved;
 }
