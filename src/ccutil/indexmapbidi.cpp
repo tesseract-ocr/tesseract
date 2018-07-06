@@ -50,10 +50,12 @@ bool IndexMap::Serialize(FILE* fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool IndexMap::DeSerialize(bool swap, FILE* fp) {
-  int32_t sparse_size;
+  uint32_t sparse_size;
   if (fread(&sparse_size, sizeof(sparse_size), 1, fp) != 1) return false;
   if (swap)
     ReverseN(&sparse_size, sizeof(sparse_size));
+  // Arbitrarily limit the number of elements to protect against bad data.
+  if (sparse_size > UINT16_MAX) return false;
   sparse_size_ = sparse_size;
   if (!compact_map_.DeSerialize(swap, fp)) return false;
   return true;
