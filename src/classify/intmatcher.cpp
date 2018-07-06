@@ -667,9 +667,9 @@ int IntegerMatcher::FindBadFeatures(
 }
 
 
-void IntegerMatcher::Init(tesseract::IntParam *classify_debug_level) {
-  classify_debug_level_ = classify_debug_level;
-
+IntegerMatcher::IntegerMatcher(tesseract::IntParam *classify_debug_level)
+  : classify_debug_level_(classify_debug_level)
+{
   /* Initialize table for evidence to similarity lookup */
   for (int i = 0; i < SE_TABLE_SIZE; i++) {
     uint32_t IntSimilarity = i << (27 - SE_TABLE_BITS);

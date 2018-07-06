@@ -555,7 +555,6 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
     static_classifier_ = new TessClassifier(false, this);
   }
 
-  im_.Init(&classify_debug_level);
   InitIntegerFX();
 
   AllProtosOn = NewBitVector(MAX_NUM_PROTOS);

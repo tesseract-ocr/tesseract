@@ -184,6 +184,7 @@ Classify::Classify()
                     this->params()),
       double_MEMBER(speckle_rating_penalty, 10.0,
                     "Penalty to add to worst rating for noise", this->params()),
+      im_(&classify_debug_level),
       shape_table_(nullptr),
       dict_(this),
       static_classifier_(nullptr) {
