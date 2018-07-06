@@ -1,6 +1,6 @@
 /* -*-C-*-
  ******************************************************************************
- * File:         matrix.h  (Formerly matrix.h)
+ * File:         matrix.h
  * Description:  Generic 2-d array/matrix and banded triangular matrix class.
  * Author:       Ray Smith
  * TODO(rays) Separate from ratings matrix, which it also contains:
@@ -10,9 +10,6 @@
  * Author:       Mark Seaman, OCR Technology
  * Created:      Wed May 16 13:22:06 1990
  * Modified:     Tue Mar 19 16:00:20 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -492,6 +489,9 @@ class GENERIC_2D_ARRAY {
       ReverseN(&size1, sizeof(size1));
       ReverseN(&size2, sizeof(size2));
     }
+    // Arbitrarily limit the number of elements to protect against bad data.
+    if (size1 > UINT16_MAX) return false;
+    if (size2 > UINT16_MAX) return false;
     Resize(size1, size2, empty_);
     return true;
   }
@@ -499,6 +499,9 @@ class GENERIC_2D_ARRAY {
     int32_t size1, size2;
     if (fp->FReadEndian(&size1, sizeof(size1), 1) != 1) return false;
     if (fp->FReadEndian(&size2, sizeof(size2), 1) != 1) return false;
+    // Arbitrarily limit the number of elements to protect against bad data.
+    if (size1 > UINT16_MAX) return false;
+    if (size2 > UINT16_MAX) return false;
     Resize(size1, size2, empty_);
     return true;
   }

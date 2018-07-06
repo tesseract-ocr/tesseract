@@ -224,10 +224,10 @@ FEATURE_SET Classify::ExtractIntCNFeatures(
       blob, false, &local_fx_info, &bl_features);
   if (sample == nullptr) return nullptr;
 
-  int num_features = sample->num_features();
+  uint32_t num_features = sample->num_features();
   const INT_FEATURE_STRUCT* features = sample->features();
   FEATURE_SET feature_set = NewFeatureSet(num_features);
-  for (int f = 0; f < num_features; ++f) {
+  for (uint32_t f = 0; f < num_features; ++f) {
     FEATURE feature = NewFeature(&IntFeatDesc);
 
     feature->Params[IntX] = features[f].X;

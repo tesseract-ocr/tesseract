@@ -137,13 +137,13 @@ class TrainingSample : public ELIST_LINK {
   void set_bounding_box(const TBOX& box) {
     bounding_box_ = box;
   }
-  int num_features() const {
+  uint32_t num_features() const {
     return num_features_;
   }
   const INT_FEATURE_STRUCT* features() const {
     return features_;
   }
-  int num_micro_features() const {
+  uint32_t num_micro_features() const {
     return num_micro_features_;
   }
   const MicroFeature* micro_features() const {
@@ -206,9 +206,9 @@ class TrainingSample : public ELIST_LINK {
   // Bounding box of sample in original image.
   TBOX bounding_box_;
   // Number of INT_FEATURE_STRUCT in features_ array.
-  int num_features_;
+  uint32_t num_features_;
   // Number of MicroFeature in micro_features_ array.
-  int num_micro_features_;
+  uint32_t num_micro_features_;
   // Total length of outline in the baseline normalized coordinate space.
   // See comment in WERD_RES class definition for a discussion of coordinate
   // spaces.

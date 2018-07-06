@@ -161,13 +161,14 @@ bool STRING::Serialize(TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool STRING::DeSerialize(bool swap, FILE* fp) {
-  int32_t len;
+  uint32_t len;
   if (fread(&len, sizeof(len), 1, fp) != 1) return false;
   if (swap)
     ReverseN(&len, sizeof(len));
+  // Arbitrarily limit the number of characters to protect against bad data.
+  if (len > UINT16_MAX) return false;
   truncate_at(len);
-  if (static_cast<int>(fread(GetCStr(), 1, len, fp)) != len) return false;
-  return true;
+  return fread(GetCStr(), 1, len, fp) == len;
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.

@@ -1339,7 +1339,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
   ADAPT_RESULTS* adapt_results = new ADAPT_RESULTS();
   adapt_results->Initialize();
   // Compute the bounding box of the features.
-  int num_features = sample.num_features();
+  uint32_t num_features = sample.num_features();
   // Only the top and bottom of the blob_box are used by MasterMatcher, so
   // fabricate right and left using top and bottom.
   TBOX blob_box(sample.geo_feature(GeoBottom), sample.geo_feature(GeoBottom),
