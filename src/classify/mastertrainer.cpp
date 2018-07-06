@@ -1,5 +1,3 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
-// Author: rays@google.com (Ray Smith)
 ///////////////////////////////////////////////////////////////////////
 // File:        mastertrainer.cpp
 // Description: Trainer to build the MasterClassifier.
@@ -552,8 +550,8 @@ CLUSTERER* MasterTrainer::SetupForClustering(
   int sample_id = 0;
   for (int i = sample_ptrs.size() - 1; i >= 0; --i) {
     const TrainingSample* sample = sample_ptrs[i];
-    int num_features = sample->num_micro_features();
-    for (int f = 0; f < num_features; ++f)
+    uint32_t num_features = sample->num_micro_features();
+    for (uint32_t f = 0; f < num_features; ++f)
       MakeSample(clusterer, sample->micro_features()[f], sample_id);
     ++sample_id;
   }
@@ -706,7 +704,7 @@ void MasterTrainer::DisplaySamples(const char* unichar_str1, int cloud_font,
   if (class_id2 != INVALID_UNICHAR_ID && canonical_font >= 0) {
     const TrainingSample* sample = samples_.GetCanonicalSample(canonical_font,
                                                                class_id2);
-    for (int f = 0; f < sample->num_features(); ++f) {
+    for (uint32_t f = 0; f < sample->num_features(); ++f) {
       RenderIntFeature(f_window, &sample->features()[f], ScrollView::RED);
     }
   }

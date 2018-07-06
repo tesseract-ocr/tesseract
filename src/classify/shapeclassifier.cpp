@@ -109,8 +109,8 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
   popup_menu->BuildMenu(debug_win, false);
   // Display the features in green.
   const INT_FEATURE_STRUCT* features = sample.features();
-  int num_features = sample.num_features();
-  for (int f = 0; f < num_features; ++f) {
+  uint32_t num_features = sample.num_features();
+  for (uint32_t f = 0; f < num_features; ++f) {
     RenderIntFeature(debug_win, &features[f], ScrollView::GREEN);
   }
   debug_win->Update();

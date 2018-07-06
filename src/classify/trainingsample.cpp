@@ -61,12 +61,10 @@ bool TrainingSample::Serialize(FILE* fp) const {
     return false;
   if (fwrite(&outline_length_, sizeof(outline_length_), 1, fp) != 1)
     return false;
-  if (static_cast<int>(fwrite(features_, sizeof(*features_), num_features_, fp))
-      != num_features_)
+  if (fwrite(features_, sizeof(*features_), num_features_, fp) != num_features_)
     return false;
-  if (static_cast<int>(fwrite(micro_features_, sizeof(*micro_features_),
-                              num_micro_features_,
-                              fp)) != num_micro_features_)
+  if (fwrite(micro_features_, sizeof(*micro_features_), num_micro_features_,
+             fp) != num_micro_features_)
     return false;
   if (fwrite(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
       kNumCNParams) return false;
@@ -102,16 +100,18 @@ bool TrainingSample::DeSerialize(bool swap, FILE* fp) {
     ReverseN(&num_micro_features_, sizeof(num_micro_features_));
     ReverseN(&outline_length_, sizeof(outline_length_));
   }
+  // Arbitrarily limit the number of elements to protect against bad data.
+  if (num_features_ > UINT16_MAX) return false;
+  if (num_micro_features_ > UINT16_MAX) return false;
   delete [] features_;
   features_ = new INT_FEATURE_STRUCT[num_features_];
-  if (static_cast<int>(fread(features_, sizeof(*features_), num_features_, fp))
+  if (fread(features_, sizeof(*features_), num_features_, fp)
       != num_features_)
     return false;
   delete [] micro_features_;
   micro_features_ = new MicroFeature[num_micro_features_];
-  if (static_cast<int>(fread(micro_features_, sizeof(*micro_features_),
-                             num_micro_features_,
-                             fp)) != num_micro_features_)
+  if (fread(micro_features_, sizeof(*micro_features_), num_micro_features_,
+            fp) != num_micro_features_)
     return false;
   if (fread(cn_feature_, sizeof(*cn_feature_), kNumCNParams, fp) !=
             kNumCNParams) return false;
@@ -165,7 +165,7 @@ TrainingSample* TrainingSample::RandomizedCopy(int index) const {
     ++index;  // Remove the first combination.
     const int yshift = kYShiftValues[index / kSampleScaleSize];
     double scaling = kScaleValues[index % kSampleScaleSize];
-    for (int i = 0; i < num_features_; ++i) {
+    for (uint32_t i = 0; i < num_features_; ++i) {
       double result = (features_[i].X - kRandomizingCenter) * scaling;
       result += kRandomizingCenter;
       sample->features_[i].X = ClipToRange<int>(result + 0.5, 0, UINT8_MAX);
@@ -217,7 +217,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   } else {
     num_features_ = char_features->NumFeatures;
     features_ = new INT_FEATURE_STRUCT[num_features_];
-    for (int f = 0; f < num_features_; ++f) {
+    for (uint32_t f = 0; f < num_features_; ++f) {
       features_[f].X =
           static_cast<uint8_t>(char_features->Features[f]->Params[IntX]);
       features_[f].Y =
@@ -238,7 +238,7 @@ void TrainingSample::ExtractCharDesc(int int_feature_type,
   } else {
     num_micro_features_ = char_features->NumFeatures;
     micro_features_ = new MicroFeature[num_micro_features_];
-    for (int f = 0; f < num_micro_features_; ++f) {
+    for (uint32_t f = 0; f < num_micro_features_; ++f) {
       for (int d = 0; d < MFCount; ++d) {
         micro_features_[f][d] = char_features->Features[f]->Params[d];
       }
@@ -294,7 +294,7 @@ void TrainingSample::MapFeatures(const IntFeatureMap& feature_map) {
 // Returns a pix representing the sample. (Int features only.)
 Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
   Pix* pix = pixCreate(kIntFeatureExtent, kIntFeatureExtent, 1);
-  for (int f = 0; f < num_features_; ++f) {
+  for (uint32_t f = 0; f < num_features_; ++f) {
     int start_x = features_[f].X;
     int start_y = kIntFeatureExtent - features_[f].Y;
     double dx = cos((features_[f].Theta / 256.0) * 2.0 * M_PI - M_PI);
@@ -315,7 +315,7 @@ Pix* TrainingSample::RenderToPix(const UNICHARSET* unicharset) const {
 void TrainingSample::DisplayFeatures(ScrollView::Color color,
                                      ScrollView* window) const {
   #ifndef GRAPHICS_DISABLED
-  for (int f = 0; f < num_features_; ++f) {
+  for (uint32_t f = 0; f < num_features_; ++f) {
     RenderIntFeature(window, &features_[f], color);
   }
   #endif  // GRAPHICS_DISABLED
