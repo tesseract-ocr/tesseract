@@ -72,10 +72,11 @@ struct Pix;
 ELISTIZEH (C_OUTLINE)
 class DLLSYM C_OUTLINE:public ELIST_LINK {
  public:
-  C_OUTLINE() {  //empty constructor
-      steps = nullptr;
-      offsets = nullptr;
-    }
+  C_OUTLINE() {
+    stepcount = 0;
+    steps = nullptr;
+    offsets = nullptr;
+  }
     C_OUTLINE(                     //constructor
               CRACKEDGE *startpt,  //from edge detector
               ICOORD bot_left,     //bounding box //length of loop

@@ -915,10 +915,8 @@ void FPRow::FinalizeLargeChars() {
 
 class FPAnalyzer {
  public:
-  FPAnalyzer(): page_tr_(), rows_() { }
+  FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks);
   ~FPAnalyzer() { }
-
-  void Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks);
 
   void Pass1Analyze() {
     for (size_t i = 0; i < rows_.size(); i++) rows_[i].Pass1Analyze();
@@ -984,11 +982,14 @@ class FPAnalyzer {
   unsigned max_chars_per_row_;
 };
 
-void FPAnalyzer::Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
-  page_tr_ = page_tr;
-
-  TO_BLOCK_IT block_it;
-  block_it.set_to_list (port_blocks);
+FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
+: page_tr_(page_tr),
+  num_tall_rows_(0),
+  num_bad_rows_(0),
+  num_empty_rows_(0),
+  max_chars_per_row_(0)
+{
+  TO_BLOCK_IT block_it(port_blocks);
 
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
@@ -999,8 +1000,6 @@ void FPAnalyzer::Init(ICOORD page_tr, TO_BLOCK_LIST *port_blocks) {
     }
   }
 
-  num_empty_rows_ = 0;
-  max_chars_per_row_ = 0;
   for (block_it.mark_cycle_pt(); !block_it.cycled_list();
        block_it.forward()) {
     TO_ROW_IT row_it = block_it.data()->get_rows();
@@ -1060,8 +1059,7 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
 
 void compute_fixed_pitch_cjk(ICOORD page_tr,
                              TO_BLOCK_LIST *port_blocks) {
-  FPAnalyzer analyzer;
-  analyzer.Init(page_tr, port_blocks);
+  FPAnalyzer analyzer(page_tr, port_blocks);
   if (analyzer.num_rows() == 0) return;
 
   analyzer.Pass1Analyze();

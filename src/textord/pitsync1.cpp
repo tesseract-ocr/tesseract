@@ -22,17 +22,12 @@
 #include "pitsync1.h"
 
 ELISTIZE (FPSEGPT) CLISTIZE (FPSEGPT_LIST)
-#define EXTERN
-EXTERN
-INT_VAR (pitsync_linear_version, 6, "Use new fast algorithm");
-EXTERN
-double_VAR (pitsync_joined_edge, 0.75,
-"Dist inside big blob for chopping");
-EXTERN
-double_VAR (pitsync_offset_freecut_fraction, 0.25,
-"Fraction of cut for free cuts");
-EXTERN
-INT_VAR (pitsync_fake_depth, 1, "Max advance fake generation");
+
+INT_VAR(pitsync_linear_version, 6, "Use new fast algorithm");
+double_VAR(pitsync_joined_edge, 0.75, "Dist inside big blob for chopping");
+double_VAR(pitsync_offset_freecut_fraction, 0.25,
+  "Fraction of cut for free cuts");
+INT_VAR(pitsync_fake_depth, 1, "Max advance fake generation");
 
 /**********************************************************************
  * FPSEGPT::FPSEGPT
@@ -63,7 +58,7 @@ FPSEGPT::FPSEGPT(                //constructor
  **********************************************************************/
 
 FPSEGPT::FPSEGPT (               //constructor
-int16_t x                          //position
+int16_t x                        //position
 ):xpos (x) {
   pred = nullptr;
   mean_sum = 0;
@@ -83,17 +78,22 @@ int16_t x                          //position
  **********************************************************************/
 
 FPSEGPT::FPSEGPT (               //constructor
-int16_t x,                         //position
+int16_t x,                       //position
 BOOL8 faking,                    //faking this one
-int16_t offset,                    //dist to gap
-int16_t region_index,              //segment number
-int16_t pitch,                     //proposed pitch
-int16_t pitch_error,               //allowed tolerance
+int16_t offset,                  //dist to gap
+int16_t region_index,            //segment number
+int16_t pitch,                   //proposed pitch
+int16_t pitch_error,             //allowed tolerance
 FPSEGPT_LIST * prev_list         //previous segment
-):xpos (x) {
-  int16_t best_fake;               //on previous
+)
+: fake_count(0),
+  xpos(x),
+  mean_sum(0.0),
+  sq_sum(0.0)
+{
+  int16_t best_fake;             //on previous
   FPSEGPT *segpt;                //segment point
-  int32_t dist;                    //from prev segment
+  int32_t dist;                  //from prev segment
   double sq_dist;                //squared distance
   double mean;                   //mean pitch
   double total;                  //total dists
@@ -133,7 +133,6 @@ FPSEGPT_LIST * prev_list         //previous segment
     pred = nullptr;                 //fail it
 }
 
-
 /**********************************************************************
  * check_pitch_sync
  *
@@ -144,28 +143,28 @@ FPSEGPT_LIST * prev_list         //previous segment
 
 double check_pitch_sync(                        //find segmentation
                         BLOBNBOX_IT *blob_it,   //blobs to do
-                        int16_t blob_count,       //no of blobs
-                        int16_t pitch,            //pitch estimate
-                        int16_t pitch_error,      //tolerance
+                        int16_t blob_count,     //no of blobs
+                        int16_t pitch,          //pitch estimate
+                        int16_t pitch_error,    //tolerance
                         STATS *projection,      //vertical
                         FPSEGPT_LIST *seg_list  //output list
                        ) {
-  int16_t x;                       //current coord
-  int16_t min_index;               //blob number
-  int16_t max_index;               //blob number
-  int16_t left_edge;               //of word
-  int16_t right_edge;              //of word
-  int16_t right_max;               //max allowed x
-  int16_t min_x;                   //in this region
+  int16_t x;                     //current coord
+  int16_t min_index;             //blob number
+  int16_t max_index;             //blob number
+  int16_t left_edge;             //of word
+  int16_t right_edge;            //of word
+  int16_t right_max;             //max allowed x
+  int16_t min_x;                 //in this region
   int16_t max_x;
   int16_t region_index;
-  int16_t best_region_index = 0;   //for best result
-  int16_t offset;                  //dist to legal area
-  int16_t left_best_x;             //edge of good region
-  int16_t right_best_x;            //right edge
-  TBOX min_box;                   //bounding box
-  TBOX max_box;                   //bounding box
-  TBOX next_box;                  //box of next blob
+  int16_t best_region_index = 0; //for best result
+  int16_t offset;                //dist to legal area
+  int16_t left_best_x;           //edge of good region
+  int16_t right_best_x;          //right edge
+  TBOX min_box;                  //bounding box
+  TBOX max_box;                  //bounding box
+  TBOX next_box;                 //box of next blob
   FPSEGPT *segpt;                //segment point
   FPSEGPT_LIST *segpts;          //points in a segment
   double best_cost;              //best path
@@ -362,17 +361,17 @@ double check_pitch_sync(                        //find segmentation
 
 void make_illegal_segment(                          //find segmentation
                           FPSEGPT_LIST *prev_list,  //previous segments
-                          TBOX blob_box,             //bounding box
+                          TBOX blob_box,            //bounding box
                           BLOBNBOX_IT blob_it,      //iterator
-                          int16_t region_index,       //number of segment
-                          int16_t pitch,              //pitch estimate
-                          int16_t pitch_error,        //tolerance
+                          int16_t region_index,     //number of segment
+                          int16_t pitch,            //pitch estimate
+                          int16_t pitch_error,      //tolerance
                           FPSEGPT_LIST *seg_list    //output list
                          ) {
-  int16_t x;                       //current coord
-  int16_t min_x = 0;               //in this region
+  int16_t x;                     //current coord
+  int16_t min_x = 0;             //in this region
   int16_t max_x = 0;
-  int16_t offset;                  //dist to edge
+  int16_t offset;                //dist to edge
   FPSEGPT *segpt;                //segment point
   FPSEGPT *prevpt;               //previous point
   float best_cost;               //best path

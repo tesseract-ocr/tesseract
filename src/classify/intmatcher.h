@@ -93,9 +93,7 @@ class IntegerMatcher {
   // Center of Similarity Curve.
   static const float kSimilarityCenter;
 
-  IntegerMatcher() : classify_debug_level_(nullptr) {}
-
-  void Init(tesseract::IntParam *classify_debug_level);
+  IntegerMatcher(tesseract::IntParam *classify_debug_level);
 
   void Match(INT_CLASS ClassTemplate,
              BIT_VECTOR ProtoMask,
@@ -173,13 +171,12 @@ class IntegerMatcher {
       bool SeparateDebugWindows);
 #endif
 
-
  private:
+  tesseract::IntParam *classify_debug_level_;
   uint8_t similarity_evidence_table_[SE_TABLE_SIZE];
   uint32_t evidence_table_mask_;
   uint32_t mult_trunc_shift_bits_;
   uint32_t table_trunc_shift_bits_;
-  tesseract::IntParam *classify_debug_level_;
   uint32_t evidence_mult_mask_;
 };
 
