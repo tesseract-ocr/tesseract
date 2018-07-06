@@ -159,7 +159,7 @@ class IntParam : public Param {
  private:
   int32_t value_;
   int32_t default_;
-  // Pointer to the vector that contains this param (not owened by this class).
+  // Pointer to the vector that contains this param (not owned by this class).
   GenericVector<IntParam *> *params_vec_;
 };
 
@@ -212,7 +212,7 @@ class StringParam : public Param {
  private:
   STRING value_;
   STRING default_;
-  // Pointer to the vector that contains this param (not owened by this class).
+  // Pointer to the vector that contains this param (not owned by this class).
   GenericVector<StringParam *> *params_vec_;
 };
 
