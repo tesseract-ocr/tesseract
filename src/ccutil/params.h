@@ -285,18 +285,6 @@ tesseract::ParamsVectors *GlobalParams();
 #define double_VAR(name,val,comment)\
   tesseract::DoubleParam     name(val,#name,comment,false,GlobalParams())
 
-#define INT_INIT_VAR(name,val,comment)\
-  tesseract::IntParam      name(val,#name,comment,true,GlobalParams())
-
-#define BOOL_INIT_VAR(name,val,comment)\
-  tesseract::BoolParam     name(val,#name,comment,true,GlobalParams())
-
-#define STRING_INIT_VAR(name,val,comment)\
-  tesseract::StringParam     name(val,#name,comment,true,GlobalParams())
-
-#define double_INIT_VAR(name,val,comment)\
-  tesseract::DoubleParam     name(val,#name,comment,true,GlobalParams())
-
 #define INT_MEMBER(name, val, comment, vec)\
   name(val, #name, comment, false, vec)
 
