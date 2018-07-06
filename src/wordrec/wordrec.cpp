@@ -134,7 +134,8 @@ Wordrec::Wordrec() :
   BOOL_MEMBER(save_alt_choices, true,
               "Save alternative paths found during chopping"
               " and segmentation search",
-              params()) {
+              params()),
+  pass2_ok_split(0.0f) {
   prev_word_best_choice_ = nullptr;
   language_model_.reset(new LanguageModel(&get_fontinfo_table(),
                                       &(getDict())));
