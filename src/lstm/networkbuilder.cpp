@@ -426,7 +426,7 @@ Network* NetworkBuilder::ParseFullyConnected(const StaticShape& input_shape,
     tprintf("Invalid nonlinearity on F-spec!: %s\n", *str);
     return nullptr;
   }
-  int depth = strtol(*str + 1, str, 10);
+  int depth = strtol(*str + 2, str, 10);
   if (depth <= 0) {
     tprintf("Invalid F spec!:%s\n", *str);
     return nullptr;
