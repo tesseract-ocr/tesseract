@@ -28,8 +28,6 @@
 
 #define PROJECTION_MARGIN 10     //arbitrary
 
-#define EXTERN
-
 /**********************************************************************
  * FPCUTPT::setup
  *
