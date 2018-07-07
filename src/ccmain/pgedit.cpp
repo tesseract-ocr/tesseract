@@ -114,7 +114,7 @@ CMD_EVENTS mode = CHANGE_DISP_CMD_EVENT;  // selected words op
 bool recog_done = false;                  // recog_all_words was called
 
 // These variables should remain global, since they are only used for the
-// debug mode (in which only a single Tesseract thread/instance will be exist).
+// debug mode (in which only a single Tesseract thread/instance will exist).
 BITS16 word_display_mode;
 static ColorationMode color_mode = CM_RAINBOW;
 BOOL8 display_image = FALSE;
