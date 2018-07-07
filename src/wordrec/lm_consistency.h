@@ -21,10 +21,11 @@
 #ifndef TESSERACT_WORDREC_LM_CONSISTENCY_H_
 #define TESSERACT_WORDREC_LM_CONSISTENCY_H_
 
-#include "dawg.h"
-#include "dict.h"
-#include "host.h"
-#include "ratngs.h"
+#include <cstdint>             // for INT16_MAX
+#include "dawg.h"              // for EDGE_REF, NO_EDGE
+#include "dict.h"              // for XH_GOOD, XH_INCONSISTENT, XHeightConsi...
+
+class BLOB_CHOICE;
 
 namespace tesseract {
 

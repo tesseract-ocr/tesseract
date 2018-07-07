@@ -17,12 +17,13 @@
  *
  **********************************************************************/
 
-#ifndef           POINTS_H
-#define           POINTS_H
+#ifndef POINTS_H
+#define POINTS_H
 
-#include          <stdio.h>
-#include          <math.h>
-#include          "elst.h"
+#include <cmath>                // for sqrt, atan2
+#include <cstdio>
+#include "elst.h"
+#include "platform.h"           // for DLLSYM
 
 class FCOORD;
 

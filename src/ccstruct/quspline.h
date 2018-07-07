@@ -20,11 +20,13 @@
 #ifndef QUSPLINE_H
 #define QUSPLINE_H
 
-#include "quadratc.h"
-#include "serialis.h"
-#include "rect.h"
+#include <cstdint>             // for int32_t
+#include "scrollview.h"        // for ScrollView, ScrollView::Color
 
+class ICOORD;
+class QUAD_COEFFS;
 class ROW;
+class TBOX;
 struct Pix;
 
 class QSPLINE

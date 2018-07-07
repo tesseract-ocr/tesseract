@@ -22,14 +22,16 @@
 #ifndef TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_
 #define TESSERACT_WORDREC_LANGUAGE_MODEL_DEFS_H_
 
-#include "associate.h"
-#include "elst.h"
-#include "dawg.h"
-#include "lm_consistency.h"
-#include "matrix.h"
-#include "ratngs.h"
-#include "stopper.h"
-#include "strngs.h"
+#include "associate.h"       // for AssociateStats
+#include "dawg.h"            // for DawgPositionVector
+#include "elst.h"            // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "genericvector.h"   // for PointerVector
+#include "lm_consistency.h"  // for LMConsistencyInfo
+#include "ratngs.h"          // for BLOB_CHOICE, PermuterType
+#include "stopper.h"         // for DANGERR
+#include "strngs.h"          // for STRING
+#include "unichar.h"         // for UNICHAR_ID
+#include "unicharset.h"      // for UNICHARSET
 
 namespace tesseract {
 

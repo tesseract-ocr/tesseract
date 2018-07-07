@@ -19,15 +19,30 @@
  *
  **********************************************************************/
 
-#include <ctype.h>
-#include "reject.h"
-#include "statistc.h"
-#include "control.h"
 #include "fixspace.h"
-#include "genblob.h"
-#include "tessvars.h"
-#include "globals.h"
-#include "tesseractclass.h"
+#include <cstdint>             // for INT16_MAX, int16_t, int32_t
+#include "blobs.h"             // for TWERD, TBLOB, TESSLINE
+#include "boxword.h"           // for BoxWord
+#include "errcode.h"           // for ASSERT_HOST
+#include "genblob.h"           // for c_blob_comparator
+#include "host.h"              // for FALSE, TRUE
+#include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
+#include "ocrclass.h"          // for ETEXT_DESC
+#include "pageres.h"           // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
+#include "params.h"            // for IntParam, StringParam, BoolParam, Doub...
+#include "ratngs.h"            // for WERD_CHOICE, FREQ_DAWG_PERM, NUMBER_PERM
+#include "rect.h"              // for TBOX
+#include "stepblob.h"          // for C_BLOB_IT, C_BLOB_LIST, C_BLOB
+#include "strngs.h"            // for STRING
+#include "tesseractclass.h"    // for Tesseract, TesseractStats, WordData
+#include "tessvars.h"          // for debug_fp
+#include "tprintf.h"           // for tprintf
+#include "unichar.h"           // for UNICHAR_ID
+#include "unicharset.h"        // for UNICHARSET
+#include "werd.h"              // for WERD, W_EOL, W_FUZZY_NON, W_FUZZY_SP
+
+class BLOCK;
+class ROW;
 
 #define PERFECT_WERDS   999
 #define MAXSPACING      128      /*max expected spacing in pix */

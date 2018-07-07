@@ -22,8 +22,9 @@
 #include "config_auto.h"
 #endif
 
+#include "baseapi.h"
 #ifdef __linux__
-#include <signal.h>
+#include <signal.h>            // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
 #endif
 
 #if defined(_WIN32)
@@ -34,49 +35,58 @@
 #include <fcntl.h>
 #include <io.h>
 #else
-#include <dirent.h>
+#include <dirent.h>            // for closedir, opendir, readdir, DIR, dirent
 #include <libgen.h>
-#include <cstring>
 #include <sys/types.h>
-#include <sys/stat.h>
+#include <sys/stat.h>          // for stat, S_IFDIR
 #include <unistd.h>
 #endif  // _WIN32
 
-#include <algorithm>
-#include <clocale>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <memory>  // std::unique_ptr
-#include <string>
-
-#include "allheaders.h"
-
-#include "baseapi.h"
-#include "blobclass.h"
-#include "resultiterator.h"
-#include "mutableiterator.h"
-#include "thresholder.h"
-#include "tesseractclass.h"
-#include "pageres.h"
-#include "paragraphs.h"
-#include "tessvars.h"
-#include "control.h"
-#include "dict.h"
-#include "pgedit.h"
-#include "paramsd.h"
-#include "output.h"
-#include "globaloc.h"
-#include "globals.h"
-#include "edgblob.h"
-#include "equationdetect.h"
-#include "makerow.h"
-#include "otsuthr.h"
-#include "osdetect.h"
-#include "params.h"
-#include "renderer.h"
-#include "strngs.h"
-#include "openclwrapper.h"
+#include <clocale>             // for LC_ALL, LC_CTYPE, LC_NUMERIC
+#include <cmath>               // for round, M_PI
+#include <cstdint>             // for int32_t
+#include <cstring>             // for strcmp, strcpy
+#include <fstream>             // for size_t
+#include <iostream>            // for std::cin
+#include <memory>              // for std::unique_ptr
+#include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
+#include "blobclass.h"         // for ExtractFontName
+#include "boxword.h"           // for BoxWord
+#include "config_auto.h"       // for PACKAGE_VERSION
+#include "coutln.h"            // for C_OUTLINE_IT, C_OUTLINE_LIST
+#include "dawg_cache.h"        // for DawgCache
+#include "dict.h"              // for Dict
+#include "edgblob.h"           // for extract_edges
+#include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
+#include "environ.h"           // for l_uint8, FALSE, TRUE
+#include "equationdetect.h"    // for EquationDetect
+#include "errcode.h"           // for ASSERT_HOST
+#include "globaloc.h"          // for SavePixForCrash, signal_exit
+#include "helpers.h"           // for IntCastRounded, chomp_string
+#include "host.h"              // for BOOL8
+#include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3
+#include "intfx.h"             // for INT_FX_RESULT_STRUCT
+#include "mutableiterator.h"   // for MutableIterator
+#include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
+#include "ocrclass.h"          // for ETEXT_DESC
+#include "openclwrapper.h"     // for PERF_COUNT_END, PERF_COUNT_START, PERF...
+#include "osdetect.h"          // for OSResults, OSBestResult, OrientationId...
+#include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
+#include "paragraphs.h"        // for DetectParagraphs
+#include "params.h"            // for BoolParam, IntParam, DoubleParam, Stri...
+#include "pdblock.h"           // for PDBLK
+#include "points.h"            // for FCOORD
+#include "polyblk.h"           // for POLY_BLOCK
+#include "rect.h"              // for TBOX
+#include "renderer.h"          // for TessResultRenderer
+#include "resultiterator.h"    // for ResultIterator
+#include "stepblob.h"          // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
+#include "strngs.h"            // for STRING
+#include "tessdatamanager.h"   // for TessdataManager, kTrainedDataSuffix
+#include "tesseractclass.h"    // for Tesseract
+#include "thresholder.h"       // for ImageThresholder
+#include "tprintf.h"           // for tprintf
+#include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 
 BOOL_VAR(stream_filelist, FALSE, "Stream a filelist from stdin");
 

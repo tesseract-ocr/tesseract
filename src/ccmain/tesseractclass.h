@@ -26,22 +26,28 @@
 #ifndef TESSERACT_CCMAIN_TESSERACTCLASS_H_
 #define TESSERACT_CCMAIN_TESSERACTCLASS_H_
 
-#include "allheaders.h"
-#include "control.h"
-#include "debugpixa.h"
-#include "devanagari_processing.h"
-#include "docqual.h"
-#include "genericvector.h"
-#include "ocrclass.h"
-#include "params.h"
-#include "textord.h"
-#include "wordrec.h"
-#ifdef DISABLED_LEGACY_ENGINE
-#include "pageres.h" 
-#endif
+#include <cstdint>                  // for int16_t, int32_t, uint16_t
+#include <cstdio>                   // for FILE
+#include "allheaders.h"             // for pixDestroy, pixGetWidth, pixGetHe...
+#include "control.h"                // for ACCEPTABLE_WERD_TYPE
+#include "debugpixa.h"              // for DebugPixa
+#include "devanagari_processing.h"  // for ShiroRekhaSplitter
+#include "docqual.h"                // for GARBAGE_LEVEL
+#include "genericvector.h"          // for GenericVector, PointerVector
+#include "host.h"                   // for BOOL8
+#include "pageres.h"                // for WERD_RES (ptr only), PAGE_RES (pt...
+#include "params.h"                 // for BOOL_VAR_H, BoolParam, DoubleParam
+#include "points.h"                 // for FCOORD
+#include "publictypes.h"            // for OcrEngineMode, PageSegMode, OEM_L...
+#include "ratngs.h"                 // for ScriptPos, WERD_CHOICE (ptr only)
+#include "strngs.h"                 // for STRING
+#include "tessdatamanager.h"        // for TessdataManager
+#include "textord.h"                // for Textord
+#include "unichar.h"                // for UNICHAR_ID
+#include "wordrec.h"                // for Wordrec
 
-class BLOB_CHOICE_LIST_CLIST;
 class BLOCK_LIST;
+class ETEXT_DESC;
 struct OSResults;
 class PAGE_RES;
 class PAGE_RES_IT;
@@ -169,7 +175,7 @@ class Tesseract : public Wordrec {
   Tesseract();
   ~Tesseract();
 
-  // Return appropriate dictionary 
+  // Return appropriate dictionary
   Dict& getDict() override;
 
   // Clear as much used memory as possible without resetting the adaptive

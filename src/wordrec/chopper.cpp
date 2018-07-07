@@ -27,22 +27,30 @@
           I n c l u d e s
 ----------------------------------------------------------------------*/
 
-#include <cmath>
-
 #include "chopper.h"
+#include "blamer.h"    // for BlamerBundle, IRR_CORRECT
+#include "blobs.h"     // for TPOINT, TBLOB, EDGEPT, TESSLINE, divisible_blob
+#include "callcpp.h"   // for Red
+#include "dict.h"      // for Dict
+#include "host.h"      // for FALSE, TRUE
+#include "lm_pain_points.h" // for LMPainPoints
+#include "lm_state.h"  // for BestChoiceBundle
+#include "matrix.h"    // for MATRIX
+#include "normalis.h"  // for DENORM
+#include "pageres.h"   // for WERD_RES
+#include "params.h"    // for IntParam, BoolParam
+#include "ratngs.h"    // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST (ptr ...
+#include "rect.h"      // for TBOX
+#include "render.h"    // for display_blob
+#include "seam.h"      // for SEAM
+#include "split.h"     // for remove_edgept
+#include "stopper.h"   // for DANGERR
+#include "tprintf.h"   // for tprintf
+#include "wordrec.h"   // for Wordrec, SegSearchPending (ptr only)
 
-#include "associate.h"
-#include "blobs.h"
-#include "callcpp.h"
-#include "findseam.h"
-#include "globals.h"
-#include "render.h"
-#include "pageres.h"
-#include "seam.h"
-#include "stopper.h"
-#include "structures.h"
-#include "unicharset.h"
-#include "wordrec.h"
+class CHAR_FRAGMENT;
+
+template <typename T> class GenericVector;
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

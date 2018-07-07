@@ -17,6 +17,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "stridemap.h"
+#include <cassert>      // for assert
 
 namespace tesseract {
 

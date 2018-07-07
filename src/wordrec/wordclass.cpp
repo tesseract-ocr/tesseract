@@ -4,11 +4,6 @@
  * File:         wordclass.cpp  (Formerly wordclass.c)
  * Description:  Word classifier
  * Author:       Mark Seaman, OCR Technology
- * Created:      Tue Jan 30 14:03:25 1990
- * Modified:     Fri Jul 12 16:03:06 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,13 +20,16 @@
 /*----------------------------------------------------------------------
           I N C L U D E S
 ----------------------------------------------------------------------*/
-#include <cassert>
-#include <cstdio>
 
-#include "associate.h"
-#include "render.h"
-#include "callcpp.h"
-#include "wordrec.h"
+#include "blamer.h"   // for blamer_bundle
+#include "callcpp.h"  // for window_wait, C_COL
+#include "params.h"   // for BoolParam
+#include "render.h"   // for display_blob, blob_window, wordrec_blob_pause
+#include "wordrec.h"  // for Wordrec
+
+class BLOB_CHOICE_LIST;
+
+struct TBLOB;
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

@@ -1,14 +1,10 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        split.h  (Formerly split.h)
+ * File:        split.h
  * Description:
- * Author:       Mark Seaman, SW Productivity
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Mon May 13 10:49:23 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
+ * Author:      Mark Seaman, SW Productivity
+ * Status:      Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +24,12 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
-#include "blobs.h"
-#include "scrollview.h"
+
+#include "blobs.h"   // for EDGEPT, TBLOB, TESSLINE
+#include "params.h"  // for BOOL_VAR_H, BoolParam
+#include "rect.h"    // for TBOX
+
+class ScrollView;
 
 /*----------------------------------------------------------------------
               T y p e s

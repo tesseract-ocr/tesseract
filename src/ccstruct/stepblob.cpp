@@ -17,13 +17,18 @@
  *
  **********************************************************************/
 
-#include "stepblob.h"
-#include "allheaders.h"
-
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+#include "stepblob.h"
+#include "allheaders.h"     // for pixCreate, pixGetDepth
+#include "genericvector.h"  // for GenericVector
+#include "host.h"           // for TRUE, FALSE
+#include "ipoints.h"        // for operator+=
+
+class DENORM;
 
 // Max perimeter to width ratio for a baseline position above box bottom.
 const double kMaxPerimeterWidthRatio = 8.0;

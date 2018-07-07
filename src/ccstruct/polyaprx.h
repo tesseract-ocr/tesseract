@@ -20,8 +20,9 @@
 #ifndef POLYAPRX_H
 #define POLYAPRX_H
 
-#include "blobs.h"
-#include "coutln.h"
+class C_OUTLINE;
+struct EDGEPT;
+struct TESSLINE;
 
 // convert a chain-coded input to the old OUTLINE approximation
 TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE *c_outline);
