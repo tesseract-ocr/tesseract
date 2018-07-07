@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        rect.cpp  (Formerly box.c)
  * Description: Bounding box class definition.
- * Author:          Phil Cheatle
- * Created:         Wed Oct 16 15:18:45 BST 1991
+ * Author:      Phil Cheatle
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,8 @@
  *
  **********************************************************************/
 
-#include          "rect.h"
+#include "rect.h"
+#include "strngs.h"     // for STRING
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
