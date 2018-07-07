@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        outlines.h  (Formerly outlines.h)
+ * File:         outlines.h
  * Description:  Combinatorial Splitter
  * Author:       Mark Seaman, OCR Technology
  * Created:      Thu Jul 27 11:27:55 1989
@@ -22,13 +22,14 @@
  ** limitations under the License.
  *
  *********************************************************************************/
+
 #ifndef OUTLINES_H
 #define OUTLINES_H
 
-#include "blobs.h"
-#include "chop.h"
-
-#include <cmath>
+#include <cmath>      // for abs
+#include "blobs.h"    // for TPOINT
+#include "params.h"   // for IntParam
+#include "wordrec.h"  // for Wordrec
 
 /*----------------------------------------------------------------------
               C o n s t a n t s

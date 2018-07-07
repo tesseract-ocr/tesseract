@@ -1,7 +1,7 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        plotedges.h  (Formerly plotedges.h)
+ * File:         plotedges.h
  * Description:  Convert the various data type into line lists
  * Author:       Mark Seaman, OCR Technology
  * Created:      Fri Jul 28 13:14:48 1989
@@ -22,12 +22,16 @@
  ** limitations under the License.
  *
  *********************************************************************************/
+
 #ifndef PLOTEDGES_H
 #define PLOTEDGES_H
 
-#include "callcpp.h"
-#include "oldlist.h"
-#include "blobs.h"
+#include "oldlist.h"  // for LIST
+
+class ScrollView;
+
+struct EDGEPT;
+struct TBLOB;
 
 /*----------------------------------------------------------------------
               V a r i a b l e s

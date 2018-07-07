@@ -25,7 +25,6 @@
 #include <cstring>                    // for memcpy
 #include "boxword.h"                  // for BoxWord
 #include "genericvector.h"            // for GenericVector
-#include "matrix.h"                   // for MATRIX_COORD, MATRIX (ptr only)
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
@@ -34,9 +33,11 @@
 #include "unichar.h"                  // for UNICHAR_ID
 
 class DENORM;
+class MATRIX;
 class UNICHARSET;
 class WERD_RES;
 
+struct MATRIX_COORD;
 struct TWERD;
 
 template <class R, class A1, class A2> class TessResultCallback2;

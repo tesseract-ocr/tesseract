@@ -15,10 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
 #ifndef TESSERACT_LSTM_STATIC_SHAPE_H_
 #define TESSERACT_LSTM_STATIC_SHAPE_H_
 
-#include "tprintf.h"
+#include "serialis.h"   // for TFile
+#include "tprintf.h"    // for tprintf
 
 namespace tesseract {
 

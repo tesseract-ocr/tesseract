@@ -19,23 +19,42 @@
 #ifndef TESSERACT_WORDREC_WORDREC_H_
 #define TESSERACT_WORDREC_WORDREC_H_
 
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
-
 #ifdef DISABLED_LEGACY_ENGINE
 
-#include "classify.h"
-#include "dict.h"
-#include "ratngs.h"
-#include "matrix.h"
-#include "callcpp.h"
+#include "config_auto.h"
 
-#include <memory>
+#include <cstdint>             // for int16_t, int32_t
+#include "callcpp.h"           // for C_COL
+#include "chop.h"              // for PointHeap, MAX_NUM_POINTS
+#include "classify.h"          // for Classify
+#include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "findseam.h"          // for SeamQueue, SeamPile
+#include "genericvector.h"     // for GenericVector
+#include "oldlist.h"           // for LIST
+#include "params.h"            // for INT_VAR_H, IntParam, BOOL_VAR_H, BoolP...
+#include "points.h"            // for ICOORD
+#include "ratngs.h"            // for BLOB_CHOICE_LIST (ptr only), BLOB_CHOI...
+#include "seam.h"              // for SEAM (ptr only), PRIORITY
+#include "stopper.h"           // for DANGERR
 
+class EDGEPT_CLIST;
+class MATRIX;
+class STRING;
+class TBOX;
+class UNICHARSET;
 class WERD_RES;
+
+namespace tesseract { class LMPainPoints; }
+namespace tesseract { class TessdataManager; }
+namespace tesseract { struct BestChoiceBundle; }
+
+struct BlamerBundle;
+struct EDGEPT;
+struct MATRIX_COORD;
+struct SPLIT;
+struct TBLOB;
+struct TESSLINE;
+struct TWERD;
 
 namespace tesseract {
 

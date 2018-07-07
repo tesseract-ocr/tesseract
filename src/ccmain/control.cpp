@@ -23,14 +23,14 @@
 #include "config_auto.h"
 #endif
 
-#include <algorithm>
-#include <cstring>
 #include <cmath>
+#include <cstdint>               // for int16_t, int32_t
+#include <cstdio>                // for fclose, fopen, FILE
+#include <ctime>                 // for clock
 #ifdef __UNIX__
 #include <unistd.h>
 #endif
-#include <ctype.h>
-#include <errno.h>
+#include <cctype>
 #include "callcpp.h"
 #include "control.h"
 #ifndef DISABLED_LEGACY_ENGINE
@@ -42,6 +42,7 @@
 #include "lstmrecognizer.h"
 #include "ocrclass.h"
 #include "output.h"
+#include "pageres.h"             // for WERD_RES, PAGE_RES_IT, PAGE_RES, BLO...
 #include "pgedit.h"
 #include "reject.h"
 #include "sorthelper.h"

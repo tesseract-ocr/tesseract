@@ -18,20 +18,30 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-
 #include "language_model.h"
+#include <cassert>                    // for assert
+#include <cmath>                      // for log2, pow
+#include "blamer.h"                   // for BlamerBundle
+#include "ccutil.h"                   // for CCUtil
+#include "dawg.h"                     // for NO_EDGE, Dawg, Dawg::kPatternUn...
+#include "errcode.h"                  // for ASSERT_HOST
+#include "lm_state.h"                 // for ViterbiStateEntry, ViterbiState...
+#include "matrix.h"                   // for MATRIX_COORD
+#include "pageres.h"                  // for WERD_RES
+#include "params.h"                   // for IntParam, BoolParam, DoubleParam
+#include "params_training_featdef.h"  // for ParamsTrainingHypothesis, PTRAI...
+#include "tprintf.h"                  // for tprintf
+#include "unichar.h"                  // for UNICHAR_ID, INVALID_UNICHAR_ID
+#include "unicharset.h"               // for UNICHARSET
+#include "unicity_table.h"            // for UnicityTable
 
-#include "dawg.h"
-#include "intproto.h"
-#include "helpers.h"
-#include "lm_state.h"
-#include "lm_pain_points.h"
-#include "matrix.h"
-#include "params.h"
-#include "params_training_featdef.h"
+template <typename T> class GenericVector;
+template <typename T> class UnicityTable;
 
 namespace tesseract {
+
+class LMPainPoints;
+struct FontInfo;
 
 #if (defined(_MSC_VER) && _MSC_VER < 1900) || defined(ANDROID)
 static inline double log2(double n) {

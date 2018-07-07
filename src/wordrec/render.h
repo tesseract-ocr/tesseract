@@ -25,9 +25,14 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "host.h"
-#include "callcpp.h"
-#include "blobs.h"
+#include "callcpp.h"  // for C_COL
+#include "params.h"   // for BOOL_VAR_H, BoolParam
+
+class ScrollView;
+
+struct EDGEPT;
+struct TBLOB;
+struct TESSLINE;
 
 /*----------------------------------------------------------------------
               V a r i a b l e s

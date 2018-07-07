@@ -23,12 +23,16 @@
 #ifndef TESSERACT_WORDREC_PAIN_POINTS_H_
 #define TESSERACT_WORDREC_PAIN_POINTS_H_
 
-#include "associate.h"
-#include "dict.h"
-#include "genericheap.h"
-#include "lm_state.h"
+#include "genericheap.h"  // for GenericHeap
+#include "matrix.h"       // for MATRIX_COORD (ptr only), MatrixCoordPair
+#include "stopper.h"      // for DANGERR
+
+class WERD_RES;
 
 namespace tesseract {
+
+class Dict;
+struct ViterbiStateEntry;
 
 // Heap of pain points used for determining where to chop/join.
 using PainPointHeap = GenericHeap<MatrixCoordPair>;

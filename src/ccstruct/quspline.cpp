@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        quspline.cpp  (Formerly qspline.c)
  * Description: Code for the QSPLINE class.
- * Author:  Ray Smith
- * Created: Tue Oct 08 17:16:12 BST 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +16,12 @@
  *
  **********************************************************************/
 
-#include "allheaders.h"
-#include "quadlsq.h"
 #include "quspline.h"
+#include "allheaders.h"  // for pixRenderPolyline, pixGetDepth, pixGetHeight
+#include "pix.h"         // for L_CLEAR_PIXELS, L_SET_PIXELS, Pix (ptr only)
+#include "points.h"      // for ICOORD
+#include "quadlsq.h"     // for QLSQ
+#include "quadratc.h"    // for QUAD_COEFFS
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

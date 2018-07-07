@@ -23,7 +23,6 @@
 // and hide includes of complex types in baseapi.cpp.
 #include "genericvector.h"
 #include "platform.h"
-#include "publictypes.h"
 
 namespace tesseract {
 

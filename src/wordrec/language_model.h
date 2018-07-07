@@ -22,20 +22,29 @@
 #ifndef TESSERACT_WORDREC_LANGUAGE_MODEL_H_
 #define TESSERACT_WORDREC_LANGUAGE_MODEL_H_
 
-#include "associate.h"
-#include "dawg.h"
-#include "dict.h"
-#include "fontinfo.h"
-#include "intproto.h"
-#include "lm_consistency.h"
-#include "lm_pain_points.h"
-#include "lm_state.h"
-#include "matrix.h"
-#include "params.h"
-#include "pageres.h"
-#include "params_model.h"
+#include <cmath>             // for exp
+#include "associate.h"       // for AssociateStats (ptr only), AssociateUtils
+#include "dawg.h"            // for DawgPositionVector
+#include "dict.h"            // for DawgArgs, Dict
+#include "lm_consistency.h"  // for LMConsistencyInfo
+#include "lm_state.h"        // for ViterbiStateEntry, LanguageModelFlagsType
+#include "params.h"          // for DoubleParam, double_VAR_H, IntParam, Boo...
+#include "params_model.h"    // for ParamsModel
+#include "ratngs.h"          // for BLOB_CHOICE (ptr only), BLOB_CHOICE_LIST...
+#include "stopper.h"         // for DANGERR
+#include "strngs.h"          // for STRING
+
+class UNICHARSET;
+class WERD_RES;
+
+struct BlamerBundle;
+
+template <typename T> class UnicityTable;
 
 namespace tesseract {
+
+class LMPainPoints;
+struct FontInfo;
 
 // This class that contains the data structures and functions necessary
 // to represent and use the knowledge about the language.

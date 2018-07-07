@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        rect.h  (Formerly box.h)
  * Description: Bounding box class definition.
- * Author:          Phil Cheatle
- * Created:         Wed Oct 16 15:18:45 BST 1991
+ * Author:      Phil Cheatle
+ * Created:     Wed Oct 16 15:18:45 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,20 @@
  *
  **********************************************************************/
 
-#ifndef           RECT_H
-#define           RECT_H
+#ifndef RECT_H
+#define RECT_H
 
-#include <cmath>
-#include "points.h"
-#include "scrollview.h"
-#include "strngs.h"
-#include "tprintf.h"
+#include <algorithm>           // for std::max, std::min
+#include <cmath>               // for ceil, floor
+#include <cstdint>             // for INT16_MAX
+#include <cstdio>              // for FILE
+#include "ipoints.h"           // for operator+=, operator-=, ICOORD::rotate
+#include "platform.h"          // for DLLSYM
+#include "points.h"            // for ICOORD, FCOORD
+#include "scrollview.h"        // for ScrollView, ScrollView::Color
+#include "tprintf.h"           // for tprintf
+
+class STRING;
 
 class DLLSYM TBOX  {  // bounding box
   public:

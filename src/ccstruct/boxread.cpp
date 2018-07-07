@@ -18,13 +18,15 @@
  **********************************************************************/
 
 #include "boxread.h"
-#include <cstring>
-
-#include "fileerr.h"
-#include "rect.h"
-#include "strngs.h"
-#include "tprintf.h"
-#include "unichar.h"
+#include <cstring>          // for strchr, strcmp, strrchr
+#include "errcode.h"        // for ERRCODE, TESSEXIT
+#include "fileerr.h"        // for CANTOPENFILE
+#include "genericvector.h"  // for GenericVector
+#include "helpers.h"        // for chomp_string
+#include "rect.h"           // for TBOX
+#include "strngs.h"         // for STRING
+#include "tprintf.h"        // for tprintf
+#include "unichar.h"        // for UNICHAR
 
 // Special char code used to identify multi-blob labels.
 static const char* kMultiBlobLabelCode = "WordStr";
