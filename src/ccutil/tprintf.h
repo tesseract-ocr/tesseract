@@ -17,20 +17,13 @@
  *
  **********************************************************************/
 
-#ifndef           TESSERACT_CCUTIL_TPRINTF_H
-#define           TESSERACT_CCUTIL_TPRINTF_H
+#ifndef TESSERACT_CCUTIL_TPRINTF_H
+#define TESSERACT_CCUTIL_TPRINTF_H
 
-#include "params.h"
-
-extern DLLSYM STRING_VAR_H(debug_file, "",
-                           "File to send tprintf output to");
-extern DLLSYM BOOL_VAR_H(debug_window_on, TRUE,
-                         "Send tprintf to window unless file set");
+#include "platform.h"   // for TESS_API
 
 // Main logging function.
-#define tprintf(...) tprintf_internal(__VA_ARGS__)
-
-extern TESS_API void tprintf_internal(  // Trace printf
-    const char *format, ...);           // Message
+extern TESS_API void tprintf(  // Trace printf
+    const char *format, ...);  // Message
 
 #endif  // define TESSERACT_CCUTIL_TPRINTF_H

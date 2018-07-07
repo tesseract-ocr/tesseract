@@ -32,7 +32,7 @@ DECLARE_INT_PARAM_FLAG(tlog_level);
 // config file like other params.
 #define tlog(level, ...) {                        \
   if (FLAGS_tlog_level >= level) {                \
-    tprintf_internal(__VA_ARGS__);                \
+    tprintf(__VA_ARGS__);                         \
   }                                               \
 }
 

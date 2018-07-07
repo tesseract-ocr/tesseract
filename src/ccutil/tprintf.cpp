@@ -22,23 +22,20 @@
 #include "config_auto.h"
 #endif
 
-#include          <stdio.h>
-#include          <stdarg.h>
-#include          "ccutil.h"
-#include          "params.h"
-#include          "strngs.h"
-#include          "tprintf.h"
+#include <cstdio>
+#include <cstdarg>
+#include "ccutil.h"
+#include "params.h"
+#include "strngs.h"
+#include "tprintf.h"
 
 #define MAX_MSG_LEN     65536
 
-#define EXTERN
-// Since tprintf is protected by a mutex, these parameters can remain global.
-DLLSYM STRING_VAR(debug_file, "", "File to send tprintf output to");
+static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
-DLLSYM void
-tprintf_internal(                       // Trace printf
-    const char *format, ...             // Message
-) {
+// Trace printf
+DLLSYM void tprintf(const char *format, ...)
+{
   tesseract::tprintfMutex.Lock();
   va_list args;                  // variable args
   static FILE *debugfp = nullptr;   // debug file
