@@ -18,7 +18,7 @@
  *
  **********************************************************************/
 
-#include          "drawedg.h"
+#include "drawedg.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -32,8 +32,6 @@
 #define IMAGE_XPOS      250
 /** default position */
 #define IMAGE_YPOS      0
-
-#define EXTERN
 
 /**
  * @name create_edges_window
