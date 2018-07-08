@@ -82,15 +82,15 @@ static KernelEnv rEnv;
 
 #define DS_DEVICE_NAME_LENGTH 256
 
-typedef enum { DS_EVALUATE_ALL, DS_EVALUATE_NEW_ONLY } ds_evaluation_type;
+enum ds_evaluation_type { DS_EVALUATE_ALL, DS_EVALUATE_NEW_ONLY };
 
-typedef struct {
+struct ds_profile {
+  std::vector<ds_device> devices;
   unsigned int numDevices;
-  ds_device* devices;
   const char* version;
-} ds_profile;
+};
 
-typedef enum {
+enum ds_status {
   DS_SUCCESS = 0,
   DS_INVALID_PROFILE = 1000,
   DS_MEMORY_ERROR,
@@ -102,7 +102,7 @@ typedef enum {
   DS_PROFILE_FILE_ERROR,
   DS_SCORE_SERIALIZER_ERROR,
   DS_SCORE_DESERIALIZER_ERROR
-} ds_status;
+};
 
 // Pointer to a function that calculates the score of a device (ex:
 // device->score) update the data size of score. The encoding and the format
@@ -111,11 +111,12 @@ typedef enum {
 typedef ds_status (*ds_perf_evaluator)(ds_device* device, void* data);
 
 // deallocate memory used by score
-typedef ds_status (*ds_score_release)(void* score);
+typedef ds_status (*ds_score_release)(TessDeviceScore* score);
+
 static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
   ds_status status = DS_SUCCESS;
   if (profile != nullptr) {
-    if (profile->devices != nullptr && sr != nullptr) {
+    if (sr != nullptr) {
       unsigned int i;
       for (i = 0; i < profile->numDevices; i++) {
         free(profile->devices[i].oclDeviceName);
@@ -123,9 +124,8 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
         status = sr(profile->devices[i].score);
         if (status != DS_SUCCESS) break;
       }
-      free(profile->devices);
     }
-    free(profile);
+    delete profile;
   }
   return status;
 }
@@ -133,61 +133,46 @@ static ds_status releaseDSProfile(ds_profile* profile, ds_score_release sr) {
 static ds_status initDSProfile(ds_profile** p, const char* version) {
   int numDevices;
   cl_uint numPlatforms;
-  cl_platform_id* platforms = nullptr;
-  cl_device_id* devices = nullptr;
+  std::vector<cl_platform_id> platforms;
+  std::vector <cl_device_id> devices;
   ds_status status = DS_SUCCESS;
   unsigned int next;
   unsigned int i;
 
   if (p == nullptr) return DS_INVALID_PROFILE;
 
-  ds_profile* profile = (ds_profile*)malloc(sizeof(ds_profile));
-  if (profile == nullptr) return DS_MEMORY_ERROR;
+  ds_profile* profile = new ds_profile;
 
   memset(profile, 0, sizeof(ds_profile));
 
   clGetPlatformIDs(0, nullptr, &numPlatforms);
 
   if (numPlatforms > 0) {
-    platforms = (cl_platform_id*)malloc(numPlatforms * sizeof(cl_platform_id));
-    if (platforms == nullptr) {
-      status = DS_MEMORY_ERROR;
-      goto cleanup;
-    }
-    clGetPlatformIDs(numPlatforms, platforms, nullptr);
+    platforms.reserve(numPlatforms);
+    clGetPlatformIDs(numPlatforms, &platforms[0], nullptr);
   }
 
   numDevices = 0;
-  for (i = 0; i < (unsigned int)numPlatforms; i++) {
+  for (i = 0; i < numPlatforms; i++) {
     cl_uint num;
     clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, nullptr, &num);
     numDevices += num;
   }
 
   if (numDevices > 0) {
-    devices = (cl_device_id*)malloc(numDevices * sizeof(cl_device_id));
-    if (devices == nullptr) {
-      status = DS_MEMORY_ERROR;
-      goto cleanup;
-    }
+    devices.reserve(numDevices);
   }
 
   profile->numDevices =
       numDevices + 1;  // +1 to numDevices to include the native CPU
-  profile->devices =
-      (ds_device*)malloc(profile->numDevices * sizeof(ds_device));
-  if (profile->devices == nullptr) {
-    profile->numDevices = 0;
-    status = DS_MEMORY_ERROR;
-    goto cleanup;
-  }
-  memset(profile->devices, 0, profile->numDevices * sizeof(ds_device));
+  profile->devices.reserve(profile->numDevices);
+  memset(&profile->devices[0], 0, profile->numDevices * sizeof(ds_device));
 
   next = 0;
-  for (i = 0; i < (unsigned int)numPlatforms; i++) {
+  for (i = 0; i < numPlatforms; i++) {
     cl_uint num;
     unsigned j;
-    clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, numDevices, devices, &num);
+    clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, numDevices, &devices[0], &num);
     for (j = 0; j < num; j++, next++) {
       char buffer[DS_DEVICE_NAME_LENGTH];
       size_t length;
@@ -212,15 +197,10 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   profile->version = version;
 
 cleanup:
-  free(platforms);
-  free(devices);
   if (status == DS_SUCCESS) {
     *p = profile;
   } else {
-    if (profile) {
-      free(profile->devices);
-      free(profile);
-    }
+    delete profile;
   }
   return status;
 }
@@ -248,7 +228,7 @@ static ds_status profileDevices(ds_profile* profile,
         if (profile->devices[i].score != nullptr) break;
       //  else fall through
       case DS_EVALUATE_ALL:
-        evaluatorStatus = evaluator(profile->devices + i, evaluatorData);
+        evaluatorStatus = evaluator(&profile->devices[i], evaluatorData);
         if (evaluatorStatus != DS_SUCCESS) {
           status = evaluatorStatus;
           return status;
@@ -450,7 +430,7 @@ static ds_status readProfileFromFile(ds_profile* profile,
               deviceScoreStart += strlen(DS_TAG_SCORE);
               deviceScoreEnd =
                   findString(deviceScoreStart, contentEnd, DS_TAG_SCORE_END);
-              status = deserializer(profile->devices + i,
+              status = deserializer(&profile->devices[i],
                                     (const unsigned char*)deviceScoreStart,
                                     deviceScoreEnd - deviceScoreStart);
               if (status != DS_SUCCESS) {
@@ -470,7 +450,7 @@ static ds_status readProfileFromFile(ds_profile* profile,
             deviceScoreStart += strlen(DS_TAG_SCORE);
             deviceScoreEnd =
                 findString(deviceScoreStart, contentEnd, DS_TAG_SCORE_END);
-            status = deserializer(profile->devices + i,
+            status = deserializer(&profile->devices[i],
                                   (const unsigned char*)deviceScoreStart,
                                   deviceScoreEnd - deviceScoreStart);
             if (status != DS_SUCCESS) {
@@ -558,7 +538,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
       };
 
       fwrite(DS_TAG_SCORE, sizeof(char), strlen(DS_TAG_SCORE), profileFile);
-      status = serializer(profile->devices + i, &serializedScore,
+      status = serializer(&profile->devices[i], &serializedScore,
                           &serializedScoreSize);
       if (status == DS_SUCCESS && serializedScore != nullptr &&
           serializedScoreSize > 0) {
@@ -923,10 +903,7 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
 
   for (i = 0; i < numDevices; i++) {
     if (binarySizes[i] != 0) {
-      binaries[i] = (char*)malloc(sizeof(char) * binarySizes[i]);
-      if (binaries[i] == nullptr) {
-        return 0;
-      }
+      binaries[i] = new char[binarySizes[i]];
     } else {
       binaries[i] = nullptr;
     }
@@ -962,7 +939,7 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
 
   // Release all resources and memory
   for (i = 0; i < numDevices; i++) {
-    free(binaries[i]);
+    delete[] binaries[i];
   }
 
   return 1;
@@ -1942,13 +1919,13 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char* imageData,
  * Data Types for Device Selection
  *****************************************************************************/
 
-typedef struct _TessScoreEvaluationInputData {
+struct TessScoreEvaluationInputData {
   int height;
   int width;
   int numChannels;
   unsigned char* imageData;
   Pix* pix;
-} TessScoreEvaluationInputData;
+};
 
 static void populateTessScoreEvaluationInputData(
     TessScoreEvaluationInputData* input) {
@@ -2037,11 +2014,11 @@ static void populateTessScoreEvaluationInputData(
   input->pix = pixCreate(input->width, input->height, 1);
 }
 
-typedef struct _TessDeviceScore {
+struct TessDeviceScore {
   float time;    // small time means faster device
   bool clError;  // were there any opencl errors
   bool valid;    // was the correct response generated
-} TessDeviceScore;
+};
 
 /******************************************************************************
  * Micro Benchmarks for Device Selection
@@ -2419,6 +2396,8 @@ static double getLineMasksMorphMicroBench(GPUEnv* env,
     pixDestroy(&pix_solid);
     Pix* pix_vline = pixOpenBrick(nullptr, pix_hollow, 1, min_line_length);
     Pix* pix_hline = pixOpenBrick(nullptr, pix_hollow, min_line_length, 1);
+    pixDestroy(&pix_hline);
+    pixDestroy(&pix_vline);
     pixDestroy(&pix_hollow);
 
 #if ON_WINDOWS
@@ -2463,8 +2442,8 @@ static ds_status deserializeScore(ds_device* device,
   return DS_SUCCESS;
 }
 
-static ds_status releaseScore(void* score) {
-  delete (TessDeviceScore*)score;
+static ds_status releaseScore(TessDeviceScore* score) {
+  delete score;
   return DS_SUCCESS;
 }
 
@@ -2516,7 +2495,7 @@ static ds_status evaluateScoreForDevice(ds_device* device, void* inputData) {
                        thresholdRectToPixWeight * thresholdRectToPixTime +
                        getLineMasksMorphWeight * getLineMasksMorphTime;
   device->score = new TessDeviceScore;
-  ((TessDeviceScore*)device->score)->time = weightedTime;
+  device->score->time = weightedTime;
 
   printf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName,
          device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
@@ -2528,8 +2507,7 @@ static ds_status evaluateScoreForDevice(ds_device* device, void* inputData) {
          thresholdRectToPixTime, thresholdRectToPixWeight);
   printf("[DS]%25s: %f (w=%.1f)\n", "getLineMasksMorph", getLineMasksMorphTime,
          getLineMasksMorphWeight);
-  printf("[DS]%25s: %f\n", "Score",
-         static_cast<TessDeviceScore*>(device->score)->time);
+  printf("[DS]%25s: %f\n", "Score", device->score->time);
   return DS_SUCCESS;
 }
 
@@ -2591,7 +2569,8 @@ ds_device OpenclDevice::getDeviceSelection() {
       int bestDeviceIdx = -1;
       for (unsigned d = 0; d < profile->numDevices; d++) {
         ds_device device = profile->devices[d];
-        TessDeviceScore score = *(TessDeviceScore*)device.score;
+	if (device.score == nullptr) continue;
+        TessDeviceScore score = *device.score;
 
         float time = score.time;
         printf("[DS] Device[%u] %i:%s score is %f\n", d + 1, device.type,
