@@ -1,8 +1,8 @@
 /**********************************************************************
  * File:        tesseractmain.cpp  (Formerly tessedit.c)
  * Description: Main program for merge of tess and editor.
- * Author:                  Ray Smith
- * Created:                 Tue Jan 07 15:21:46 GMT 1992
+ * Author:      Ray Smith
+ * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -124,7 +124,7 @@ static void PrintHelpForPSM() {
       "       bypassing hacks that are Tesseract-specific.\n";
 
 #ifdef DISABLED_LEGACY_ENGINE
-  const char* disabled_osd_msg = 
+  const char* disabled_osd_msg =
       "\nNOTE: The OSD modes are currently disabled.\n";
   printf("%s%s", msg, disabled_osd_msg);
 #else
@@ -305,11 +305,11 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
     } else if ((strcmp(argv[i], "--help-psm") == 0)) {
       PrintHelpForPSM();
       noocr = true;
-  #ifndef DISABLED_LEGACY_ENGINE
+#ifndef DISABLED_LEGACY_ENGINE
     } else if ((strcmp(argv[i], "--help-oem") == 0)) {
       PrintHelpForOEM();
       noocr = true;
-  #endif
+#endif
     } else if ((strcmp(argv[i], "-v") == 0) ||
                (strcmp(argv[i], "--version") == 0)) {
       PrintVersionInfo();
@@ -336,11 +336,11 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       *pagesegmode = static_cast<tesseract::PageSegMode>(atoi(argv[i + 1]));
       ++i;
     } else if (strcmp(argv[i], "--oem") == 0 && i + 1 < argc) {
-    #ifndef DISABLED_LEGACY_ENGINE
+#ifndef DISABLED_LEGACY_ENGINE
       int oem = atoi(argv[i + 1]);
       checkArgValues(oem, "OEM", tesseract::OEM_COUNT);
       *enginemode = static_cast<tesseract::OcrEngineMode>(oem);
-    #endif
+#endif
       ++i;
     } else if (strcmp(argv[i], "--print-parameters") == 0) {
       noocr = true;
@@ -464,14 +464,9 @@ int main(int argc, char** argv) {
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
             &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
             &enginemode);
-  if (image == nullptr && !list_langs)
-    return EXIT_SUCCESS;
 
-  bool banner = false;
-  if (outputbase != nullptr && strcmp(outputbase, "-") &&
-      strcmp(outputbase, "stdout")) {
-    banner = true;
-  }
+  if (image == nullptr && !list_langs && !print_parameters)
+    return EXIT_SUCCESS;
 
   PERF_COUNT_START("Tesseract:main")
 
@@ -501,11 +496,11 @@ int main(int argc, char** argv) {
   }
 
   if (print_parameters) {
-     FILE* fout = stdout;
-     fprintf(stdout, "Tesseract parameters:\n");
-     api.PrintVariables(fout);
-     api.End();
-     return EXIT_SUCCESS;
+    FILE* fout = stdout;
+    fprintf(stdout, "Tesseract parameters:\n");
+    api.PrintVariables(fout);
+    api.End();
+    return EXIT_SUCCESS;
   }
 
   FixPageSegMode(&api, pagesegmode);
@@ -553,20 +548,20 @@ int main(int argc, char** argv) {
 
 #ifdef DISABLED_LEGACY_ENGINE
   auto cur_psm = api.GetPageSegMode();
-  auto osd_warning = std::string(""); 
-  if (cur_psm == tesseract::PSM_OSD_ONLY) { 
-    const char* disabled_osd_msg = 
+  auto osd_warning = std::string("");
+  if (cur_psm == tesseract::PSM_OSD_ONLY) {
+    const char* disabled_osd_msg =
         "\nERROR: The page segmentation mode 0 (OSD Only) is currently disabled.\n\n";
     fprintf(stderr, "%s",  disabled_osd_msg);
     return EXIT_FAILURE;
   } else if (cur_psm == tesseract::PSM_AUTO_OSD) {
       api.SetPageSegMode(tesseract::PSM_AUTO);
-      osd_warning += 
+      osd_warning +=
           "\nWarning: The page segmentation mode 1 (Auto+OSD) is currently disabled. "
           "Using PSM 3 (Auto) instead.\n\n";
   } else if (tesseract::PSM_SPARSE_TEXT_OSD) {
       api.SetPageSegMode(tesseract::PSM_SPARSE_TEXT);
-      osd_warning += 
+      osd_warning +=
           "\nWarning: The page segmentation mode 12 (Sparse text + OSD) is currently disabled. "
           "Using PSM 11 (Sparse text) instead.\n\n";
   }
@@ -581,13 +576,19 @@ int main(int argc, char** argv) {
     PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
   }
 
+  bool banner = false;
+  if (outputbase != nullptr && strcmp(outputbase, "-") &&
+      strcmp(outputbase, "stdout")) {
+    banner = true;
+  }
+
   if (!renderers.empty()) {
     if (banner) PrintBanner();
-  #ifdef DISABLED_LEGACY_ENGINE
+#ifdef DISABLED_LEGACY_ENGINE
     if (!osd_warning.empty()) {
       fprintf(stderr, "%s",osd_warning.c_str());
     }
-  #endif
+#endif
     bool succeed = api.ProcessPages(image, nullptr, 0, renderers[0]);
     if (!succeed) {
       fprintf(stderr, "Error during processing.\n");
