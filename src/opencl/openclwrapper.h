@@ -169,20 +169,20 @@
 #define GROUPSIZE_HMORX 256
 #define GROUPSIZE_HMORY 1
 
-typedef struct _KernelEnv {
+struct KernelEnv {
   cl_context mpkContext;
   cl_command_queue mpkCmdQueue;
   cl_program mpkProgram;
   cl_kernel mpkKernel;
   char mckKernelName[150];
-} KernelEnv;
+};
 
-typedef struct _OpenCLEnv {
+struct OpenCLEnv {
   cl_platform_id mpOclPlatformID;
   cl_context mpOclContext;
   cl_device_id mpOclDevsID;
   cl_command_queue mpOclCmdQueue;
-} OpenCLEnv;
+};
 typedef int (*cl_kernel_function)(void** userdata, KernelEnv* kenv);
 
 #define CHECK_OPENCL(status, name)                                    \
@@ -190,7 +190,7 @@ typedef int (*cl_kernel_function)(void** userdata, KernelEnv* kenv);
     printf("OpenCL error code is %d at   when %s .\n", status, name); \
   }
 
-typedef struct _GPUEnv {
+struct GPUEnv {
   // share vb in all modules in hb library
   cl_platform_id mpPlatformID;
   cl_device_type mDevType;
@@ -210,8 +210,7 @@ typedef struct _GPUEnv {
                         // opencl wrapper
   int mnKhrFp64Flag;
   int mnAmdFp64Flag;
-
-} GPUEnv;
+};
 
 class OpenclDevice {
  public:
