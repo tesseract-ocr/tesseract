@@ -32,7 +32,7 @@ build_script:
   #- cmd: 'echo     generator: %generator% >> cppan.yml'
   #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
   #- cppan --build ..
-  - cmake .. -G "%vs_ver%%vs_platform%"
+  - cmake .. -G "Visual Studio %vs_ver%%vs_platform%"
   #- cmake --build . --config Release > bin\Release\log.txt 2>&1
   - cmake --build . --config Release
 
