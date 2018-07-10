@@ -4,6 +4,7 @@ environment:
       vs_ver: 14 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       vs_ver: 15 2017
+      vs_platform: " Win64"
   
 configuration:
   - Release
@@ -13,9 +14,6 @@ install:
   - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
 
 before_build:
-  - if %vs_ver%=="14 2015" set generator=Visual Studio %vs_ver%
-  - if %vs_ver%=="15 2017" set generator=Visual Studio %vs_ver% Win64
-
   - curl -fsS -L -o cppan.zip https://cppan.org/client/cppan-master-Windows-client.zip
   - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
@@ -34,7 +32,7 @@ build_script:
   #- cmd: 'echo     generator: %generator% >> cppan.yml'
   #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
   #- cppan --build ..
-  - cmake .. -G "%generator%"
+  - cmake .. -G "%vs_ver%%vs_platform%"
   #- cmake --build . --config Release > bin\Release\log.txt 2>&1
   - cmake --build . --config Release
 
