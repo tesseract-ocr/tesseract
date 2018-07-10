@@ -9,6 +9,9 @@ environment:
 configuration:
   - Release
   
+cache:
+  - c:/Users/appveyor/.cppan/storage
+  
 # for curl
 install:
   - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
