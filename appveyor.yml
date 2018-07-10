@@ -4,10 +4,6 @@ environment:
       vs_ver: 14 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       vs_ver: 15 2017
-
-platform:
-  - Win32
-  - Win64
   
 configuration:
   - Release
