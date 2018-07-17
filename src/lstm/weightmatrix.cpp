@@ -148,7 +148,7 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
   // format, without errs, so we can detect and read old format weight matrices.
   uint8_t mode =
       (int_mode_ ? kInt8Flag : 0) | (use_adam_ ? kAdamFlag : 0) | kDoubleFlag;
-  if (fp->FWrite(&mode, sizeof(mode), 1) != 1) return false;
+  if (!fp->Serialize(&mode)) return false;
   if (int_mode_) {
     if (!wi_.Serialize(fp)) return false;
     if (!scales_.Serialize(fp)) return false;
@@ -163,8 +163,8 @@ bool WeightMatrix::Serialize(bool training, TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 
 bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
-  uint8_t mode = 0;
-  if (fp->FRead(&mode, sizeof(mode), 1) != 1) return false;
+  uint8_t mode;
+  if (!fp->DeSerialize(&mode)) return false;
   int_mode_ = (mode & kInt8Flag) != 0;
   use_adam_ = (mode & kAdamFlag) != 0;
   if ((mode & kDoubleFlag) == 0) return DeSerializeOld(training, fp);

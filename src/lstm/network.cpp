@@ -150,17 +150,17 @@ bool Network::SetupNeedsBackprop(bool needs_backprop) {
 // Writes to the given file. Returns false in case of error.
 bool Network::Serialize(TFile* fp) const {
   int8_t data = NT_NONE;
-  if (fp->FWrite(&data, sizeof(data), 1) != 1) return false;
+  if (!fp->Serialize(&data)) return false;
   STRING type_name = kTypeNames[type_];
   if (!type_name.Serialize(fp)) return false;
   data = training_;
-  if (fp->FWrite(&data, sizeof(data), 1) != 1) return false;
+  if (!fp->Serialize(&data)) return false;
   data = needs_to_backprop_;
-  if (fp->FWrite(&data, sizeof(data), 1) != 1) return false;
-  if (fp->FWrite(&network_flags_, sizeof(network_flags_), 1) != 1) return false;
-  if (fp->FWrite(&ni_, sizeof(ni_), 1) != 1) return false;
-  if (fp->FWrite(&no_, sizeof(no_), 1) != 1) return false;
-  if (fp->FWrite(&num_weights_, sizeof(num_weights_), 1) != 1) return false;
+  if (!fp->Serialize(&data)) return false;
+  if (!fp->Serialize(&network_flags_)) return false;
+  if (!fp->Serialize(&ni_)) return false;
+  if (!fp->Serialize(&no_)) return false;
+  if (!fp->Serialize(&num_weights_)) return false;
   if (!name_.Serialize(fp)) return false;
   return true;
 }
@@ -168,8 +168,8 @@ bool Network::Serialize(TFile* fp) const {
 // Reads from the given file. Returns false in case of error.
 // Should be overridden by subclasses, but NOT called by their DeSerialize.
 bool Network::DeSerialize(TFile* fp) {
-  int8_t data = 0;
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  int8_t data;
+  if (!fp->DeSerialize(&data)) return false;
   if (data == NT_NONE) {
     STRING type_name;
     if (!type_name.DeSerialize(fp)) return false;
@@ -181,16 +181,14 @@ bool Network::DeSerialize(TFile* fp) {
     }
   }
   type_ = static_cast<NetworkType>(data);
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  if (!fp->DeSerialize(&data)) return false;
   training_ = data == TS_ENABLED ? TS_ENABLED : TS_DISABLED;
-  if (fp->FRead(&data, sizeof(data), 1) != 1) return false;
+  if (!fp->DeSerialize(&data)) return false;
   needs_to_backprop_ = data != 0;
-  if (fp->FReadEndian(&network_flags_, sizeof(network_flags_), 1) != 1)
-    return false;
-  if (fp->FReadEndian(&ni_, sizeof(ni_), 1) != 1) return false;
-  if (fp->FReadEndian(&no_, sizeof(no_), 1) != 1) return false;
-  if (fp->FReadEndian(&num_weights_, sizeof(num_weights_), 1) != 1)
-    return false;
+  if (!fp->DeSerialize(&network_flags_)) return false;
+  if (!fp->DeSerialize(&ni_)) return false;
+  if (!fp->DeSerialize(&no_)) return false;
+  if (!fp->DeSerialize(&num_weights_)) return false;
   if (!name_.DeSerialize(fp)) return false;
   return true;
 }
