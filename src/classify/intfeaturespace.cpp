@@ -44,19 +44,6 @@ bool IntFeatureSpace::Serialize(FILE* fp) const {
   return true;
 }
 
-// DeSerializes the feature space definition from the given file.
-// If swap is true, the data is big/little-endian swapped.
-// Returns false on error.
-bool IntFeatureSpace::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&x_buckets_, sizeof(x_buckets_), 1, fp) != 1)
-    return false;
-  if (fread(&y_buckets_, sizeof(y_buckets_), 1, fp) != 1)
-    return false;
-  if (fread(&theta_buckets_, sizeof(theta_buckets_), 1, fp) != 1)
-    return false;
-  return true;
-}
-
 // Returns an INT_FEATURE_STRUCT corresponding to the given index.
 // This is the inverse of the Index member.
 INT_FEATURE_STRUCT IntFeatureSpace::PositionFromIndex(int index) const {
