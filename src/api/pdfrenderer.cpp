@@ -669,7 +669,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   }
   fseek(fp, 0, SEEK_SET);
   const std::unique_ptr<char[]> buffer(new char[size]);
-  if (fread(buffer.get(), 1, size, fp) != static_cast<size_t>(size)) {
+  if (!tesseract::DeSerialize(fp, buffer.get(), size)) {
     fclose(fp);
     return false;
   }
