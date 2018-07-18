@@ -74,7 +74,7 @@ class IndexMap {
 
  protected:
   // The sparse space covers integers in the range [0, sparse_size_-1].
-  int sparse_size_;
+  int32_t sparse_size_;
   // The compact space covers integers in the range [0, compact_map_.size()-1].
   // Each element contains the corresponding sparse index.
   GenericVector<int32_t> compact_map_;

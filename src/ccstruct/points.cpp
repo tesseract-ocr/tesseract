@@ -61,15 +61,14 @@ static int sign(int x) {
 
 // Writes to the given file. Returns false in case of error.
 bool ICOORD::Serialize(FILE* fp) const {
-  if (fwrite(&xcoord, sizeof(xcoord), 1, fp) != 1) return false;
-  if (fwrite(&ycoord, sizeof(ycoord), 1, fp) != 1) return false;
-  return true;
+  return tesseract::Serialize(fp, &xcoord) &&
+         tesseract::Serialize(fp, &ycoord);
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool ICOORD::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&xcoord, sizeof(xcoord), 1, fp) != 1) return false;
-  if (fread(&ycoord, sizeof(ycoord), 1, fp) != 1) return false;
+  if (!tesseract::DeSerialize(fp, &xcoord)) return false;
+  if (!tesseract::DeSerialize(fp, &ycoord)) return false;
   if (swap) {
     ReverseN(&xcoord, sizeof(xcoord));
     ReverseN(&ycoord, sizeof(ycoord));

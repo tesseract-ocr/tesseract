@@ -69,17 +69,15 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
   data_file_name_ = name;
   TFile fp;
   fp.Open(data, size);
-  int32_t num_entries = TESSDATA_NUM_ENTRIES;
-  if (fp.FRead(&num_entries, sizeof(num_entries), 1) != 1) return false;
-  swap_ = num_entries > kMaxNumTessdataEntries || num_entries < 0;
+  uint32_t num_entries;
+  if (!fp.DeSerialize(&num_entries)) return false;
+  swap_ = num_entries > kMaxNumTessdataEntries;
   fp.set_swap(swap_);
   if (swap_) ReverseN(&num_entries, sizeof(num_entries));
-  if (num_entries > kMaxNumTessdataEntries || num_entries < 0) return false;
+  if (num_entries > kMaxNumTessdataEntries) return false;
   GenericVector<int64_t> offset_table;
   offset_table.resize_no_init(num_entries);
-  if (fp.FReadEndian(&offset_table[0], sizeof(offset_table[0]), num_entries) !=
-      num_entries)
-    return false;
+  if (!fp.DeSerialize(&offset_table[0], num_entries)) return false;
   for (int i = 0; i < num_entries && i < TESSDATA_NUM_ENTRIES; ++i) {
     if (offset_table[i] >= 0) {
       int64_t entry_size = size - offset_table[i];
@@ -87,7 +85,7 @@ bool TessdataManager::LoadMemBuffer(const char *name, const char *data,
       while (j < num_entries && offset_table[j] == -1) ++j;
       if (j < num_entries) entry_size = offset_table[j] - offset_table[i];
       entries_[i].resize_no_init(entry_size);
-      if (fp.FRead(&entries_[i][0], 1, entry_size) != entry_size) return false;
+      if (!fp.DeSerialize(&entries_[i][0], entry_size)) return false;
     }
   }
   if (entries_[TESSDATA_VERSION].empty()) {
@@ -135,11 +133,11 @@ void TessdataManager::Serialize(GenericVector<char> *data) const {
   int32_t num_entries = TESSDATA_NUM_ENTRIES;
   TFile fp;
   fp.OpenWrite(data);
-  fp.FWrite(&num_entries, sizeof(num_entries), 1);
-  fp.FWrite(offset_table, sizeof(offset_table), 1);
+  fp.Serialize(&num_entries);
+  fp.Serialize(&offset_table[0], countof(offset_table));
   for (int i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
     if (!entries_[i].empty()) {
-      fp.FWrite(&entries_[i][0], entries_[i].size(), 1);
+      fp.Serialize(&entries_[i][0], entries_[i].size());
     }
   }
 }

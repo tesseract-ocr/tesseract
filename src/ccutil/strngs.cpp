@@ -146,45 +146,42 @@ STRING::~STRING() {
 // TODO(rays) Change all callers to use TFile and remove the old functions.
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(FILE* fp) const {
-  int32_t len = length();
-  if (fwrite(&len, sizeof(len), 1, fp) != 1) return false;
-  if (static_cast<int>(fwrite(GetCStr(), 1, len, fp)) != len) return false;
-  return true;
+  uint32_t len = length();
+  return tesseract::Serialize(fp, &len) &&
+         tesseract::Serialize(fp, GetCStr(), len);
 }
 // Writes to the given file. Returns false in case of error.
 bool STRING::Serialize(TFile* fp) const {
-  int32_t len = length();
-  if (fp->FWrite(&len, sizeof(len), 1) != 1) return false;
-  if (fp->FWrite(GetCStr(), 1, len) != len) return false;
-  return true;
+  uint32_t len = length();
+  return fp->Serialize(&len) &&
+         fp->Serialize(GetCStr(), len);
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool STRING::DeSerialize(bool swap, FILE* fp) {
   uint32_t len;
-  if (fread(&len, sizeof(len), 1, fp) != 1) return false;
+  if (!tesseract::DeSerialize(fp, &len)) return false;
   if (swap)
     ReverseN(&len, sizeof(len));
   // Arbitrarily limit the number of characters to protect against bad data.
   if (len > UINT16_MAX) return false;
   truncate_at(len);
-  return fread(GetCStr(), 1, len, fp) == len;
+  return tesseract::DeSerialize(fp, GetCStr(), len);
 }
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool STRING::DeSerialize(TFile* fp) {
-  int32_t len;
-  if (fp->FReadEndian(&len, sizeof(len), 1) != 1) return false;
+  uint32_t len;
+  if (!fp->DeSerialize(&len)) return false;
   truncate_at(len);
-  if (fp->FRead(GetCStr(), 1, len) != len) return false;
-  return true;
+  return fp->DeSerialize(GetCStr(), len);
 }
 
 // As DeSerialize, but only seeks past the data - hence a static method.
-bool STRING::SkipDeSerialize(tesseract::TFile* fp) {
-  int32_t len;
-  if (fp->FReadEndian(&len, sizeof(len), 1) != 1) return false;
-  return fp->FRead(nullptr, 1, len) == len;
+bool STRING::SkipDeSerialize(TFile* fp) {
+  uint32_t len;
+  if (!fp->DeSerialize(&len)) return false;
+  return fp->Skip(len);
 }
 
 bool STRING::contains(const char c) const {

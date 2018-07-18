@@ -150,37 +150,33 @@ void FontSetDeleteCallback(FontSet fs) {
 /*---------------------------------------------------------------------------*/
 // Callbacks used by UnicityTable to read/write FontInfo/FontSet structures.
 bool read_info(TFile* f, FontInfo* fi) {
-  int32_t size;
-  if (f->FReadEndian(&size, sizeof(size), 1) != 1) return false;
+  uint32_t size;
+  if (!f->DeSerialize(&size)) return false;
   char* font_name = new char[size + 1];
   fi->name = font_name;
-  if (f->FRead(font_name, sizeof(*font_name), size) != size) return false;
+  if (!f->DeSerialize(font_name, size)) return false;
   font_name[size] = '\0';
-  if (f->FReadEndian(&fi->properties, sizeof(fi->properties), 1) != 1)
-    return false;
-  return true;
+  return f->DeSerialize(&fi->properties);
 }
 
 bool write_info(FILE* f, const FontInfo& fi) {
   int32_t size = strlen(fi.name);
-  if (fwrite(&size, sizeof(size), 1, f) != 1) return false;
-  if (static_cast<int>(fwrite(fi.name, sizeof(*fi.name), size, f)) != size)
-    return false;
-  if (fwrite(&fi.properties, sizeof(fi.properties), 1, f) != 1) return false;
-  return true;
+  return tesseract::Serialize(f, &size) &&
+         tesseract::Serialize(f, &fi.name[0], size) &&
+         tesseract::Serialize(f, &fi.properties);
 }
 
 bool read_spacing_info(TFile* f, FontInfo* fi) {
   int32_t vec_size, kern_size;
-  if (f->FReadEndian(&vec_size, sizeof(vec_size), 1) != 1) return false;
+  if (!f->DeSerialize(&vec_size)) return false;
   ASSERT_HOST(vec_size >= 0);
   if (vec_size == 0) return true;
   fi->init_spacing(vec_size);
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = new FontSpacingInfo();
-    if (f->FReadEndian(&fs->x_gap_before, sizeof(fs->x_gap_before), 1) != 1 ||
-        f->FReadEndian(&fs->x_gap_after, sizeof(fs->x_gap_after), 1) != 1 ||
-        f->FReadEndian(&kern_size, sizeof(kern_size), 1) != 1) {
+    if (!f->DeSerialize(&fs->x_gap_before) ||
+        !f->DeSerialize(&fs->x_gap_after) ||
+        !f->DeSerialize(&kern_size)) {
       delete fs;
       return false;
     }
@@ -200,22 +196,21 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
 
 bool write_spacing_info(FILE* f, const FontInfo& fi) {
   int32_t vec_size = (fi.spacing_vec == nullptr) ? 0 : fi.spacing_vec->size();
-  if (fwrite(&vec_size,  sizeof(vec_size), 1, f) != 1) return false;
+  if (!tesseract::Serialize(f, &vec_size)) return false;
   int16_t x_gap_invalid = -1;
   for (int i = 0; i < vec_size; ++i) {
     FontSpacingInfo *fs = fi.spacing_vec->get(i);
     int32_t kern_size = (fs == nullptr) ? -1 : fs->kerned_x_gaps.size();
     if (fs == nullptr) {
-      // Valid to have the identical fwrites. Writing invalid x-gaps.
-      if (fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
-          fwrite(&(x_gap_invalid), sizeof(x_gap_invalid), 1, f) != 1 ||
-          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
+      // Writing two invalid x-gaps.
+      if (!tesseract::Serialize(f, &x_gap_invalid, 2) ||
+          !tesseract::Serialize(f, &kern_size)) {
         return false;
       }
     } else {
-      if (fwrite(&(fs->x_gap_before), sizeof(fs->x_gap_before), 1, f) != 1 ||
-          fwrite(&(fs->x_gap_after), sizeof(fs->x_gap_after), 1, f) != 1 ||
-          fwrite(&kern_size, sizeof(kern_size), 1, f) != 1) {
+      if (!tesseract::Serialize(f, &fs->x_gap_before) ||
+          !tesseract::Serialize(f, &fs->x_gap_after) ||
+          !tesseract::Serialize(f, &kern_size)) {
         return false;
       }
     }
@@ -228,19 +223,14 @@ bool write_spacing_info(FILE* f, const FontInfo& fi) {
 }
 
 bool read_set(TFile* f, FontSet* fs) {
-  if (f->FReadEndian(&fs->size, sizeof(fs->size), 1) != 1) return false;
+  if (!f->DeSerialize(&fs->size)) return false;
   fs->configs = new int[fs->size];
-  if (f->FReadEndian(fs->configs, sizeof(fs->configs[0]), fs->size) != fs->size)
-    return false;
-  return true;
+  return f->DeSerialize(&fs->configs[0], fs->size);
 }
 
 bool write_set(FILE* f, const FontSet& fs) {
-  if (fwrite(&fs.size, sizeof(fs.size), 1, f) != 1) return false;
-  for (int i = 0; i < fs.size; ++i) {
-    if (fwrite(&fs.configs[i], sizeof(fs.configs[i]), 1, f) != 1) return false;
-  }
-  return true;
+  return tesseract::Serialize(f, &fs.size) &&
+         tesseract::Serialize(f, &fs.configs[0], fs.size);
 }
 
 }  // namespace tesseract.

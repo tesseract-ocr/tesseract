@@ -67,14 +67,12 @@ int UnicharRating::FirstResultWithUnichar(
 
 // Writes to the given file. Returns false in case of error.
 bool UnicharAndFonts::Serialize(FILE* fp) const {
-  if (fwrite(&unichar_id, sizeof(unichar_id), 1, fp) != 1) return false;
-  return font_ids.Serialize(fp);
+  return tesseract::Serialize(fp, &unichar_id) && font_ids.Serialize(fp);
 }
 // Reads from the given file. Returns false in case of error.
 
 bool UnicharAndFonts::DeSerialize(TFile* fp) {
-  if (fp->FReadEndian(&unichar_id, sizeof(unichar_id), 1) != 1) return false;
-  return font_ids.DeSerialize(fp);
+  return fp->DeSerialize(&unichar_id) && font_ids.DeSerialize(fp);
 }
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
@@ -87,15 +85,13 @@ int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
 // Writes to the given file. Returns false in case of error.
 bool Shape::Serialize(FILE* fp) const {
   uint8_t sorted = unichars_sorted_;
-  if (fwrite(&sorted, sizeof(sorted), 1, fp) != 1)
-    return false;
-  return unichars_.SerializeClasses(fp);
+  return tesseract::Serialize(fp, &sorted) && unichars_.SerializeClasses(fp);
 }
 // Reads from the given file. Returns false in case of error.
 
 bool Shape::DeSerialize(TFile* fp) {
   uint8_t sorted;
-  if (fp->FRead(&sorted, sizeof(sorted), 1) != 1) return false;
+  if (!fp->DeSerialize(&sorted)) return false;
   unichars_sorted_ = sorted != 0;
   return unichars_.DeSerializeClasses(fp);
 }

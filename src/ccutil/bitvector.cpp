@@ -20,10 +20,10 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "bitvector.h"
+#include <algorithm>
 #include <cstring>
 #include "helpers.h"
-
-#include <algorithm>
+#include "serialis.h"   // for tesseract::Serialize
 
 namespace tesseract {
 
@@ -137,25 +137,22 @@ void BitVector::Init(int length) {
 
 // Writes to the given file. Returns false in case of error.
 bool BitVector::Serialize(FILE* fp) const {
-  if (fwrite(&bit_size_, sizeof(bit_size_), 1, fp) != 1) return false;
+  if (!tesseract::Serialize(fp, &bit_size_)) return false;
   int wordlen = WordLength();
-  if (static_cast<int>(fwrite(array_, sizeof(*array_), wordlen, fp)) != wordlen)
-      return false;
-  return true;
+  return tesseract::Serialize(fp, &array_[0], wordlen);
 }
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool BitVector::DeSerialize(bool swap, FILE* fp) {
   uint32_t new_bit_size;
-  if (fread(&new_bit_size, sizeof(new_bit_size), 1, fp) != 1) return false;
+  if (!tesseract::DeSerialize(fp, &new_bit_size)) return false;
   if (swap) {
     ReverseN(&new_bit_size, sizeof(new_bit_size));
   }
   Alloc(new_bit_size);
   int wordlen = WordLength();
-  if (static_cast<int>(fread(array_, sizeof(*array_), wordlen, fp)) != wordlen)
-      return false;
+  if (!tesseract::DeSerialize(fp, &array_[0], wordlen)) return false;
   if (swap) {
     for (int i = 0; i < wordlen; ++i)
       ReverseN(&array_[i], sizeof(array_[i]));
