@@ -24,6 +24,70 @@
 
 namespace tesseract {
 
+bool DeSerialize(FILE* fp, char* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, float* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int8_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int16_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int32_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint8_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint16_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint32_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const char* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const float* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int8_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int16_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int32_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint8_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint16_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint32_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
 TFile::TFile()
     : offset_(0),
       data_(nullptr),
@@ -171,6 +235,5 @@ int TFile::FWrite(const void* buffer, size_t size, int count) {
     data_->push_back(buf[i]);
   return count;
 }
-
 
 }  // namespace tesseract.

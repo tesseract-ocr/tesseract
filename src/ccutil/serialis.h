@@ -38,6 +38,12 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 
 namespace tesseract {
 
+// Return number of elements of an array.
+template <typename T, size_t N>
+constexpr size_t countof(T const (&)[N]) noexcept {
+  return N;
+}
+
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.
 typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
@@ -45,6 +51,26 @@ typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
 // Returns false on failure.
 typedef bool (*FileWriter)(const GenericVector<char>& data,
                            const STRING& filename);
+
+// Deserialize data from file.
+bool DeSerialize(FILE* fp, char* data, size_t n = 1);
+bool DeSerialize(FILE* fp, float* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int8_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int16_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int32_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint8_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint16_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint32_t* data, size_t n = 1);
+
+// Serialize data to file.
+bool Serialize(FILE* fp, const char* data, size_t n = 1);
+bool Serialize(FILE* fp, const float* data, size_t n = 1);
+bool Serialize(FILE* fp, const int8_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const int16_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const int32_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint8_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint16_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint32_t* data, size_t n = 1);
 
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
