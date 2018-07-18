@@ -47,11 +47,6 @@ class IntFeatureSpace {
   // Returns false on error.
   bool Serialize(FILE* fp) const;
 
-  // DeSerializes the feature space definition from the given file.
-  // If swap is true, the data is big/little-endian swapped.
-  // Returns false on error.
-  bool DeSerialize(bool swap, FILE* fp);
-
   // Returns the total size of the feature space.
   int Size() const {
     return static_cast<int>(x_buckets_) * y_buckets_ * theta_buckets_;
