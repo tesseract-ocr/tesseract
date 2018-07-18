@@ -32,16 +32,15 @@ Convolve::Convolve(const STRING& name, int ni, int half_x, int half_y)
 
 // Writes to the given file. Returns false in case of error.
 bool Convolve::Serialize(TFile* fp) const {
-  if (!Network::Serialize(fp)) return false;
-  if (fp->FWrite(&half_x_, sizeof(half_x_), 1) != 1) return false;
-  if (fp->FWrite(&half_y_, sizeof(half_y_), 1) != 1) return false;
-  return true;
+  return Network::Serialize(fp) &&
+         fp->Serialize(&half_x_) &&
+         fp->Serialize(&half_y_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Convolve::DeSerialize(TFile* fp) {
-  if (fp->FReadEndian(&half_x_, sizeof(half_x_), 1) != 1) return false;
-  if (fp->FReadEndian(&half_y_, sizeof(half_y_), 1) != 1) return false;
+  if (!fp->DeSerialize(&half_x_)) return false;
+  if (!fp->DeSerialize(&half_y_)) return false;
   no_ = ni_ * (2*half_x_ + 1) * (2*half_y_ + 1);
   return true;
 }
