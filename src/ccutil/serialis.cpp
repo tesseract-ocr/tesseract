@@ -24,6 +24,70 @@
 
 namespace tesseract {
 
+bool DeSerialize(FILE* fp, char* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, float* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int8_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int16_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, int32_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint8_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint16_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool DeSerialize(FILE* fp, uint32_t* data, size_t n) {
+  return fread(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const char* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const float* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int8_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int16_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const int32_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint8_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint16_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
+bool Serialize(FILE* fp, const uint32_t* data, size_t n) {
+  return fwrite(data, sizeof(*data), n, fp) == n;
+}
+
 TFile::TFile()
     : offset_(0),
       data_(nullptr),
@@ -34,6 +98,99 @@ TFile::TFile()
 TFile::~TFile() {
   if (data_is_owned_)
     delete data_;
+}
+
+bool TFile::DeSerialize(char* buffer, size_t count) {
+  return FRead(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(double* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(float* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(int8_t* buffer, size_t count) {
+  return FRead(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(int16_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(int32_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(int64_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(uint8_t* buffer, size_t count) {
+  return FRead(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(uint16_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(uint32_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::DeSerialize(uint64_t* buffer, size_t count) {
+  return FReadEndian(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const char* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const double* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const float* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const int8_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const int16_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const int32_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const int64_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const uint8_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const uint16_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const uint32_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Serialize(const uint64_t* buffer, size_t count) {
+  return FWrite(buffer, sizeof(*buffer), count) == count;
+}
+
+bool TFile::Skip(size_t count) {
+  offset_ += count;
+  return true;
 }
 
 bool TFile::Open(const STRING& filename, FileReader reader) {
@@ -171,6 +328,5 @@ int TFile::FWrite(const void* buffer, size_t size, int count) {
     data_->push_back(buf[i]);
   return count;
 }
-
 
 }  // namespace tesseract.

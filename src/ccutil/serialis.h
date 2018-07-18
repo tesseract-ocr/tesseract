@@ -38,6 +38,12 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 
 namespace tesseract {
 
+// Return number of elements of an array.
+template <typename T, size_t N>
+constexpr size_t countof(T const (&)[N]) noexcept {
+  return N;
+}
+
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.
 typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
@@ -45,6 +51,26 @@ typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
 // Returns false on failure.
 typedef bool (*FileWriter)(const GenericVector<char>& data,
                            const STRING& filename);
+
+// Deserialize data from file.
+bool DeSerialize(FILE* fp, char* data, size_t n = 1);
+bool DeSerialize(FILE* fp, float* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int8_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int16_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, int32_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint8_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint16_t* data, size_t n = 1);
+bool DeSerialize(FILE* fp, uint32_t* data, size_t n = 1);
+
+// Serialize data to file.
+bool Serialize(FILE* fp, const char* data, size_t n = 1);
+bool Serialize(FILE* fp, const float* data, size_t n = 1);
+bool Serialize(FILE* fp, const int8_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const int16_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const int32_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint8_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint16_t* data, size_t n = 1);
+bool Serialize(FILE* fp, const uint32_t* data, size_t n = 1);
 
 // Simple file class.
 // Allows for portable file input from memory and from foreign file systems.
@@ -63,6 +89,35 @@ class TFile {
   bool Open(FILE* fp, int64_t end_offset);
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
   void set_swap(bool value) { swap_ = value; }
+
+  // Deserialize data.
+  bool DeSerialize(char* data, size_t count = 1);
+  bool DeSerialize(double* data, size_t count = 1);
+  bool DeSerialize(float* data, size_t count = 1);
+  bool DeSerialize(int8_t* data, size_t count = 1);
+  bool DeSerialize(int16_t* data, size_t count = 1);
+  bool DeSerialize(int32_t* data, size_t count = 1);
+  bool DeSerialize(int64_t* data, size_t count = 1);
+  bool DeSerialize(uint8_t* data, size_t count = 1);
+  bool DeSerialize(uint16_t* data, size_t count = 1);
+  bool DeSerialize(uint32_t* data, size_t count = 1);
+  bool DeSerialize(uint64_t* data, size_t count = 1);
+
+  // Serialize data.
+  bool Serialize(const char* data, size_t count = 1);
+  bool Serialize(const double* data, size_t count = 1);
+  bool Serialize(const float* data, size_t count = 1);
+  bool Serialize(const int8_t* data, size_t count = 1);
+  bool Serialize(const int16_t* data, size_t count = 1);
+  bool Serialize(const int32_t* data, size_t count = 1);
+  bool Serialize(const int64_t* data, size_t count = 1);
+  bool Serialize(const uint8_t* data, size_t count = 1);
+  bool Serialize(const uint16_t* data, size_t count = 1);
+  bool Serialize(const uint32_t* data, size_t count = 1);
+  bool Serialize(const uint64_t* data, size_t count = 1);
+
+  // Skip data.
+  bool Skip(size_t count);
 
   // Reads a line like fgets. Returns nullptr on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if

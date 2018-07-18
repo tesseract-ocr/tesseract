@@ -49,16 +49,15 @@ int Reconfig::XScaleFactor() const {
 
 // Writes to the given file. Returns false in case of error.
 bool Reconfig::Serialize(TFile* fp) const {
-  if (!Network::Serialize(fp)) return false;
-  if (fp->FWrite(&x_scale_, sizeof(x_scale_), 1) != 1) return false;
-  if (fp->FWrite(&y_scale_, sizeof(y_scale_), 1) != 1) return false;
-  return true;
+  return Network::Serialize(fp) &&
+         fp->Serialize(&x_scale_) &&
+         fp->Serialize(&y_scale_);
 }
 
 // Reads from the given file. Returns false in case of error.
 bool Reconfig::DeSerialize(TFile* fp) {
-  if (fp->FReadEndian(&x_scale_, sizeof(x_scale_), 1) != 1) return false;
-  if (fp->FReadEndian(&y_scale_, sizeof(y_scale_), 1) != 1) return false;
+  if (!fp->DeSerialize(&x_scale_)) return false;
+  if (!fp->DeSerialize(&y_scale_)) return false;
   no_ = ni_ * x_scale_ * y_scale_;
   return true;
 }

@@ -104,9 +104,8 @@ bool Classify::WriteTRFile(const STRING& filename) {
   STRING tr_filename = filename + ".tr";
   FILE* fp = fopen(tr_filename.string(), "wb");
   if (fp) {
-    const size_t len = tr_file_data_.length();
     result =
-        fwrite(&tr_file_data_[0], sizeof(tr_file_data_[0]), len, fp) == len;
+      tesseract::Serialize(fp, &tr_file_data_[0], tr_file_data_.length());
     fclose(fp);
   }
   tr_file_data_.truncate_at(0);
