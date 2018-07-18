@@ -70,7 +70,8 @@ MasterTrainer::~MasterTrainer() {
 // enough data to get the samples back and display them.
 // Writes to the given file. Returns false in case of error.
 bool MasterTrainer::Serialize(FILE* fp) const {
-  if (fwrite(&norm_mode_, sizeof(norm_mode_), 1, fp) != 1) return false;
+  uint32_t value = norm_mode_;
+  if (!tesseract::Serialize(fp, &value)) return false;
   if (!unicharset_.save_to_file(fp)) return false;
   if (!feature_space_.Serialize(fp)) return false;
   if (!samples_.Serialize(fp)) return false;
