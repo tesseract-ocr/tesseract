@@ -90,6 +90,35 @@ class TFile {
   // Sets the value of the swap flag, so that FReadEndian does the right thing.
   void set_swap(bool value) { swap_ = value; }
 
+  // Deserialize data.
+  bool DeSerialize(char* data, size_t count = 1);
+  bool DeSerialize(double* data, size_t count = 1);
+  bool DeSerialize(float* data, size_t count = 1);
+  bool DeSerialize(int8_t* data, size_t count = 1);
+  bool DeSerialize(int16_t* data, size_t count = 1);
+  bool DeSerialize(int32_t* data, size_t count = 1);
+  bool DeSerialize(int64_t* data, size_t count = 1);
+  bool DeSerialize(uint8_t* data, size_t count = 1);
+  bool DeSerialize(uint16_t* data, size_t count = 1);
+  bool DeSerialize(uint32_t* data, size_t count = 1);
+  bool DeSerialize(uint64_t* data, size_t count = 1);
+
+  // Serialize data.
+  bool Serialize(const char* data, size_t count = 1);
+  bool Serialize(const double* data, size_t count = 1);
+  bool Serialize(const float* data, size_t count = 1);
+  bool Serialize(const int8_t* data, size_t count = 1);
+  bool Serialize(const int16_t* data, size_t count = 1);
+  bool Serialize(const int32_t* data, size_t count = 1);
+  bool Serialize(const int64_t* data, size_t count = 1);
+  bool Serialize(const uint8_t* data, size_t count = 1);
+  bool Serialize(const uint16_t* data, size_t count = 1);
+  bool Serialize(const uint32_t* data, size_t count = 1);
+  bool Serialize(const uint64_t* data, size_t count = 1);
+
+  // Skip data.
+  bool Skip(size_t count);
+
   // Reads a line like fgets. Returns nullptr on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if
   // the line is longer. Does nothing if buffer_size <= 0.
