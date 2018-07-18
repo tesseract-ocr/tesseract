@@ -84,19 +84,17 @@ void WordFeature::Draw(const GenericVector<WordFeature>& features,
 
 // Writes to the given file. Returns false in case of error.
 bool WordFeature::Serialize(FILE* fp) const {
-  if (fwrite(&x_, sizeof(x_), 1, fp) != 1) return false;
-  if (fwrite(&y_, sizeof(y_), 1, fp) != 1) return false;
-  if (fwrite(&dir_, sizeof(dir_), 1, fp) != 1) return false;
-  return true;
+  return tesseract::Serialize(fp, &x_) &&
+         tesseract::Serialize(fp, &y_) &&
+         tesseract::Serialize(fp, &dir_);
 }
+
 // Reads from the given file. Returns false in case of error.
-// If swap is true, assumes a big/little-endian swap is needed.
 bool WordFeature::DeSerialize(bool swap, FILE* fp) {
-  if (fread(&x_, sizeof(x_), 1, fp) != 1) return false;
+  if (!tesseract::DeSerialize(fp, &x_)) return false;
   if (swap) ReverseN(&x_, sizeof(x_));
-  if (fread(&y_, sizeof(y_), 1, fp) != 1) return false;
-  if (fread(&dir_, sizeof(dir_), 1, fp) != 1) return false;
-  return true;
+  return tesseract::DeSerialize(fp, &y_) &&
+         tesseract::DeSerialize(fp, &dir_);
 }
 
 void FloatWordFeature::FromWordFeatures(
@@ -167,7 +165,7 @@ ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
 // Writes to the given file. Returns false in case of error.
 bool ImageData::Serialize(TFile* fp) const {
   if (!imagefilename_.Serialize(fp)) return false;
-  if (fp->FWrite(&page_number_, sizeof(page_number_), 1) != 1) return false;
+  if (!fp->Serialize(&page_number_)) return false;
   if (!image_data_.Serialize(fp)) return false;
   if (!language_.Serialize(fp)) return false;
   if (!transcription_.Serialize(fp)) return false;
@@ -175,16 +173,14 @@ bool ImageData::Serialize(TFile* fp) const {
   if (!boxes_.Serialize(fp)) return false;
   if (!box_texts_.SerializeClasses(fp)) return false;
   int8_t vertical = vertical_text_;
-  if (fp->FWrite(&vertical, sizeof(vertical), 1) != 1) return false;
-  return true;
+  return fp->Serialize(&vertical);
 }
 
 // Reads from the given file. Returns false in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 bool ImageData::DeSerialize(TFile* fp) {
   if (!imagefilename_.DeSerialize(fp)) return false;
-  if (fp->FReadEndian(&page_number_, sizeof(page_number_), 1) != 1)
-    return false;
+  if (!fp->DeSerialize(&page_number_)) return false;
   if (!image_data_.DeSerialize(fp)) return false;
   if (!language_.DeSerialize(fp)) return false;
   if (!transcription_.DeSerialize(fp)) return false;
@@ -192,7 +188,7 @@ bool ImageData::DeSerialize(TFile* fp) {
   if (!boxes_.DeSerialize(fp)) return false;
   if (!box_texts_.DeSerializeClasses(fp)) return false;
   int8_t vertical = 0;
-  if (fp->FRead(&vertical, sizeof(vertical), 1) != 1) return false;
+  if (!fp->DeSerialize(&vertical)) return false;
   vertical_text_ = vertical != 0;
   return true;
 }
@@ -201,14 +197,14 @@ bool ImageData::DeSerialize(TFile* fp) {
 bool ImageData::SkipDeSerialize(TFile* fp) {
   if (!STRING::SkipDeSerialize(fp)) return false;
   int32_t page_number;
-  if (fp->FRead(&page_number, sizeof(page_number), 1) != 1) return false;
+  if (!fp->DeSerialize(&page_number)) return false;
   if (!GenericVector<char>::SkipDeSerialize(fp)) return false;
   if (!STRING::SkipDeSerialize(fp)) return false;
   if (!STRING::SkipDeSerialize(fp)) return false;
   if (!GenericVector<TBOX>::SkipDeSerialize(fp)) return false;
   if (!GenericVector<STRING>::SkipDeSerializeClasses(fp)) return false;
   int8_t vertical = 0;
-  return fp->FRead(&vertical, sizeof(vertical), 1) == 1;
+  return fp->DeSerialize(&vertical);
 }
 
 // Saves the given Pix as a PNG-encoded string and destroys it.
