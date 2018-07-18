@@ -59,21 +59,15 @@ class RecodedCharID {
 
   // Writes to the given file. Returns false in case of error.
   bool Serialize(TFile* fp) const {
-    if (fp->FWrite(&self_normalized_, sizeof(self_normalized_), 1) != 1)
-      return false;
-    if (fp->FWrite(&length_, sizeof(length_), 1) != 1) return false;
-    if (fp->FWrite(code_, sizeof(code_[0]), length_) != length_) return false;
-    return true;
+    return fp->Serialize(&self_normalized_) &&
+           fp->Serialize(&length_) &&
+           fp->Serialize(&code_[0], length_);
   }
   // Reads from the given file. Returns false in case of error.
-  // If swap is true, assumes a big/little-endian swap is needed.
   bool DeSerialize(TFile* fp) {
-    if (fp->FRead(&self_normalized_, sizeof(self_normalized_), 1) != 1)
-      return false;
-    if (fp->FReadEndian(&length_, sizeof(length_), 1) != 1) return false;
-    if (fp->FReadEndian(code_, sizeof(code_[0]), length_) != length_)
-      return false;
-    return true;
+    return fp->DeSerialize(&self_normalized_) &&
+           fp->DeSerialize(&length_) &&
+           fp->DeSerialize(&code_[0], length_);
   }
   bool operator==(const RecodedCharID& other) const {
     if (length_ != other.length_) return false;
