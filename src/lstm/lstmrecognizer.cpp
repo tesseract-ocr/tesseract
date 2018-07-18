@@ -84,16 +84,13 @@ bool LSTMRecognizer::Serialize(const TessdataManager* mgr, TFile* fp) const {
   if (!network_->Serialize(fp)) return false;
   if (include_charsets && !GetUnicharset().save_to_file(fp)) return false;
   if (!network_str_.Serialize(fp)) return false;
-  if (fp->FWrite(&training_flags_, sizeof(training_flags_), 1) != 1)
-    return false;
-  if (fp->FWrite(&training_iteration_, sizeof(training_iteration_), 1) != 1)
-    return false;
-  if (fp->FWrite(&sample_iteration_, sizeof(sample_iteration_), 1) != 1)
-    return false;
-  if (fp->FWrite(&null_char_, sizeof(null_char_), 1) != 1) return false;
-  if (fp->FWrite(&adam_beta_, sizeof(adam_beta_), 1) != 1) return false;
-  if (fp->FWrite(&learning_rate_, sizeof(learning_rate_), 1) != 1) return false;
-  if (fp->FWrite(&momentum_, sizeof(momentum_), 1) != 1) return false;
+  if (!fp->Serialize(&training_flags_)) return false;
+  if (!fp->Serialize(&training_iteration_)) return false;
+  if (!fp->Serialize(&sample_iteration_)) return false;
+  if (!fp->Serialize(&null_char_)) return false;
+  if (!fp->Serialize(&adam_beta_)) return false;
+  if (!fp->Serialize(&learning_rate_)) return false;
+  if (!fp->Serialize(&momentum_)) return false;
   if (include_charsets && IsRecoding() && !recoder_.Serialize(fp)) return false;
   return true;
 }
@@ -109,18 +106,13 @@ bool LSTMRecognizer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (include_charsets && !ccutil_.unicharset.load_from_file(fp, false))
     return false;
   if (!network_str_.DeSerialize(fp)) return false;
-  if (fp->FReadEndian(&training_flags_, sizeof(training_flags_), 1) != 1)
-    return false;
-  if (fp->FReadEndian(&training_iteration_, sizeof(training_iteration_), 1) !=
-      1)
-    return false;
-  if (fp->FReadEndian(&sample_iteration_, sizeof(sample_iteration_), 1) != 1)
-    return false;
-  if (fp->FReadEndian(&null_char_, sizeof(null_char_), 1) != 1) return false;
-  if (fp->FReadEndian(&adam_beta_, sizeof(adam_beta_), 1) != 1) return false;
-  if (fp->FReadEndian(&learning_rate_, sizeof(learning_rate_), 1) != 1)
-    return false;
-  if (fp->FReadEndian(&momentum_, sizeof(momentum_), 1) != 1) return false;
+  if (!fp->DeSerialize(&training_flags_)) return false;
+  if (!fp->DeSerialize(&training_iteration_)) return false;
+  if (!fp->DeSerialize(&sample_iteration_)) return false;
+  if (!fp->DeSerialize(&null_char_)) return false;
+  if (!fp->DeSerialize(&adam_beta_)) return false;
+  if (!fp->DeSerialize(&learning_rate_)) return false;
+  if (!fp->DeSerialize(&momentum_)) return false;
   if (include_charsets && !LoadRecoder(fp)) return false;
   if (!include_charsets && !LoadCharsets(mgr)) return false;
   network_->SetRandomizer(&randomizer_);
