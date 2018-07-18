@@ -201,7 +201,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
 }
 
 /**
- * Creates a MasterTraininer and loads the training data into it:
+ * Creates a MasterTrainer and loads the training data into it:
  * Initializes feature_defs and IntegerFX.
  * Loads the shape_table if shape_table != nullptr.
  * Loads initial unicharset from -U command-line option.
@@ -211,6 +211,7 @@ void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
  *  - Loads samples from .tr files in remaining command-line args.
  *  - Deletes outliers and computes canonical samples.
  *  - If FLAGS_output_trainer is set, saves the trainer for future use.
+ *    TODO: Who uses that? There is currently no code which reads it.
  * Computes canonical and cloud features.
  * If shape_table is not nullptr, but failed to load, make a fake flat one,
  * as shape clustering was not run.
