@@ -405,7 +405,6 @@ AC_HEADER_STDBOOL
 
 # Misc
 AC_SYS_INTERPRETER
-AC_SYS_LARGEFILE
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
