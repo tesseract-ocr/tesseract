@@ -160,12 +160,7 @@ fi
 
 AC_MSG_CHECKING([--enable-legacy argument])
 AC_ARG_ENABLE([legacy],
-  [
-    AS_HELP_STRING([--enable-legacy],[enable the legacy OCR engine])
-    AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine])
-  ],
-  [enable_legacy=$enableval],
-  [enable_legacy="yes"])
+  AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine]))
 AC_MSG_RESULT([$enable_legacy])
 AM_CONDITIONAL([DISABLED_LEGACY_ENGINE], test "$enable_legacy" = "no")
 
