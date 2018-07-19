@@ -403,9 +403,6 @@ AC_CHECK_HEADERS([limits.h malloc.h])
 # Enable use of system-defined bool type if available:
 AC_HEADER_STDBOOL
 
-# Misc
-AC_SYS_INTERPRETER
-
 # ----------------------------------------
 # Check for programs needed to build documentation.
 # ----------------------------------------
