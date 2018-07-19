@@ -180,15 +180,15 @@ AC_OPENMP
 # check whether to build opencl version
 AC_MSG_CHECKING([--enable-opencl argument])
 AC_ARG_ENABLE([opencl],
-    [  --enable-opencl         enable opencl build (default=no)],
-    [enable_opencl=$enableval],
-    [enable_opencl="no"])
+    AS_HELP_STRING([--enable-opencl], [enable opencl build [default=no]]))
 AC_MSG_RESULT([$enable_opencl])
 # check for opencl header
 have_opencl=false
-AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
+if test "$enable_opencl" = "yes"; then
+  AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
     AC_CHECK_HEADERS(OpenCL/cl.h, have_opencl=true, have_opencl=false)
-])
+  ])
+fi
 
 have_tiff=false
 AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
@@ -232,9 +232,9 @@ case "${host_os}" in
     ;;
   *)
     # default
-    AC_CHECK_LIB([OpenCL], [clGetPlatformIDs],
-                 [have_opencl_lib=true], [have_opencl_lib=false])
     if test "$enable_opencl" = "yes"; then
+        AC_CHECK_LIB([OpenCL], [clGetPlatformIDs],
+                     [have_opencl_lib=true], [have_opencl_lib=false])
         if !($have_opencl); then
             AC_MSG_ERROR([Required OpenCL headers not found!])
         fi
