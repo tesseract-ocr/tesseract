@@ -256,9 +256,8 @@ AC_SUBST([OPENCL_LDFLAGS])
 # http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
-    [AS_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
-    [enable_visibility=$enableval],
-    [enable_visibility="no"])
+  AS_HELP_STRING([--enable-visibility],
+                 [enable experimental build with -fvisibility [default=no]]))
 AC_MSG_RESULT([$enable_visibility])
 AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 
