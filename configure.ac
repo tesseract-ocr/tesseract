@@ -284,12 +284,9 @@ AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 # Check whether to enable debugging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
-    [AS_HELP_STRING([--enable-debug],
-        [turn on debugging (default=no)])],
-    [debug=$enableval],
-    [debug="no"])
-AC_MSG_RESULT([$debug])
-if test x"$debug" = x"yes"; then
+  AS_HELP_STRING([--enable-debug], [turn on debugging [default=no]]))
+AC_MSG_RESULT([$enable_debug])
+if test x"$enable_debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
     AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG"
 else
