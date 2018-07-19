@@ -151,10 +151,7 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
- [AS_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
-AS_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
-    [enable_graphics=$enableval],
-    [enable_graphics="yes"])
+  AS_HELP_STRING([--disable-graphics], [disable graphics (ScrollView)]))
 AC_MSG_RESULT([$enable_graphics])
 if test "$enable_graphics" = "no"; then
   AC_DEFINE([GRAPHICS_DISABLED], [], [Disable graphics])
