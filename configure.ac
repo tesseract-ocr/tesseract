@@ -151,10 +151,7 @@ AC_ARG_WITH([extra-libraries],
 
 AC_MSG_CHECKING([--enable-graphics argument])
 AC_ARG_ENABLE([graphics],
- [AS_HELP_STRING([--enable-graphics],[enable graphics (ScrollView) (default)])
-AS_HELP_STRING([--disable-graphics],[disable graphics (ScrollView)])],
-    [enable_graphics=$enableval],
-    [enable_graphics="yes"])
+  AS_HELP_STRING([--disable-graphics], [disable graphics (ScrollView)]))
 AC_MSG_RESULT([$enable_graphics])
 if test "$enable_graphics" = "no"; then
   AC_DEFINE([GRAPHICS_DISABLED], [], [Disable graphics])
@@ -163,21 +160,14 @@ fi
 
 AC_MSG_CHECKING([--enable-legacy argument])
 AC_ARG_ENABLE([legacy],
-  [
-    AS_HELP_STRING([--enable-legacy],[enable the legacy OCR engine])
-    AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine])
-  ],
-  [enable_legacy=$enableval],
-  [enable_legacy="yes"])
+  AS_HELP_STRING([--disable-legacy], [disable the legacy OCR engine]))
 AC_MSG_RESULT([$enable_legacy])
 AM_CONDITIONAL([DISABLED_LEGACY_ENGINE], test "$enable_legacy" = "no")
 
 # check whether to build embedded version
 AC_MSG_CHECKING([--enable-embedded argument])
 AC_ARG_ENABLE([embedded],
-    [  --enable-embedded       enable embedded build (default=no)],
-    [enable_embedded=$enableval],
-    [enable_embedded="no"])
+    AS_HELP_STRING([--enable-embedded], [enable embedded build [default=no]]))
 AC_MSG_RESULT([$enable_embedded])
 AM_CONDITIONAL([EMBEDDED], [test "$enable_embedded" = "yes"])
 if test "$enable_embedded" = "yes"; then
@@ -190,15 +180,15 @@ AC_OPENMP
 # check whether to build opencl version
 AC_MSG_CHECKING([--enable-opencl argument])
 AC_ARG_ENABLE([opencl],
-    [  --enable-opencl         enable opencl build (default=no)],
-    [enable_opencl=$enableval],
-    [enable_opencl="no"])
+    AS_HELP_STRING([--enable-opencl], [enable opencl build [default=no]]))
 AC_MSG_RESULT([$enable_opencl])
 # check for opencl header
 have_opencl=false
-AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
+if test "$enable_opencl" = "yes"; then
+  AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
     AC_CHECK_HEADERS(OpenCL/cl.h, have_opencl=true, have_opencl=false)
-])
+  ])
+fi
 
 have_tiff=false
 AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
@@ -242,9 +232,9 @@ case "${host_os}" in
     ;;
   *)
     # default
-    AC_CHECK_LIB([OpenCL], [clGetPlatformIDs],
-                 [have_opencl_lib=true], [have_opencl_lib=false])
     if test "$enable_opencl" = "yes"; then
+        AC_CHECK_LIB([OpenCL], [clGetPlatformIDs],
+                     [have_opencl_lib=true], [have_opencl_lib=false])
         if !($have_opencl); then
             AC_MSG_ERROR([Required OpenCL headers not found!])
         fi
@@ -266,9 +256,8 @@ AC_SUBST([OPENCL_LDFLAGS])
 # http://groups.google.com/group/tesseract-dev/browse_thread/thread/976645ae98189127
 AC_MSG_CHECKING([--enable-visibility argument])
 AC_ARG_ENABLE([visibility],
-    [AS_HELP_STRING([--enable-visibility],[enable experimental build with fvisibility (default=no)])],
-    [enable_visibility=$enableval],
-    [enable_visibility="no"])
+  AS_HELP_STRING([--enable-visibility],
+                 [enable experimental build with -fvisibility [default=no]]))
 AC_MSG_RESULT([$enable_visibility])
 AM_CONDITIONAL([VISIBILITY], [test "$enable_visibility" = "yes"])
 
@@ -284,12 +273,9 @@ AM_CONDITIONAL([NO_TESSDATA_PREFIX], [test "$tessdata_prefix" = "no"])
 # Check whether to enable debugging
 AC_MSG_CHECKING([whether to enable debugging])
 AC_ARG_ENABLE([debug],
-    [AS_HELP_STRING([--enable-debug],
-        [turn on debugging (default=no)])],
-    [debug=$enableval],
-    [debug="no"])
-AC_MSG_RESULT([$debug])
-if test x"$debug" = x"yes"; then
+  AS_HELP_STRING([--enable-debug], [turn on debugging [default=no]]))
+AC_MSG_RESULT([$enable_debug])
+if test x"$enable_debug" = x"yes"; then
     AM_CXXFLAGS="$AM_CXXFLAGS -g -Wall -O0 -DDEBUG"
     AM_CPPFLAGS="$AM_CPPFLAGS -g -Wall -DDEBUG"
 else
@@ -402,12 +388,6 @@ AC_CHECK_HEADERS([sys/ipc.h sys/shm.h])
 AC_CHECK_HEADERS([limits.h malloc.h])
 # Enable use of system-defined bool type if available:
 AC_HEADER_STDBOOL
-
-# Misc
-AC_SYS_INTERPRETER
-AC_SYS_LARGEFILE
-
-AC_CHECK_FUNCS([getline])
 
 # ----------------------------------------
 # Check for programs needed to build documentation.
