@@ -407,8 +407,6 @@ AC_HEADER_STDBOOL
 AC_SYS_INTERPRETER
 AC_SYS_LARGEFILE
 
-AC_CHECK_FUNCS([getline])
-
 # ----------------------------------------
 # Check for programs needed to build documentation.
 # ----------------------------------------

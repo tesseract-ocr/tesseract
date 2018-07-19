@@ -90,9 +90,6 @@ projects:
             - src/ccstruct
             - src/ccutil
 
-        check_function_exists:
-          - getline
-
         check_symbol_exists:
           snprintf: stdio.h
 
