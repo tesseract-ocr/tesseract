@@ -568,7 +568,10 @@ class PointerVector : public GenericVector<T*> {
     if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
     if (swap) Reverse32(&reserved);
     // Arbitrarily limit the number of elements to protect against bad data.
-    if (reserved > UINT16_MAX) return false;
+    assert(reserved <= UINT16_MAX);
+    if (reserved > UINT16_MAX) {
+      return false;
+    }
     GenericVector<T*>::reserve(reserved);
     truncate(0);
     for (uint32_t i = 0; i < reserved; ++i) {
@@ -949,6 +952,7 @@ bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
   if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
   if (swap) Reverse32(&reserved);
   // Arbitrarily limit the number of elements to protect against bad data.
+  assert(reserved <= UINT16_MAX);
   if (reserved > UINT16_MAX) return false;
   reserve(reserved);
   size_used_ = reserved;
@@ -964,7 +968,8 @@ bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
   uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   // Arbitrarily limit the number of elements to protect against bad data.
-  if (reserved > UINT16_MAX) return false;
+  assert(reserved <= 30000000);
+  if (reserved > 30000000) return false;
   reserve(reserved);
   size_used_ = reserved;
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
