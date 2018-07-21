@@ -968,8 +968,9 @@ bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
   uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
   // Arbitrarily limit the number of elements to protect against bad data.
-  assert(reserved <= 30000000);
-  if (reserved > 30000000) return false;
+  const uint32_t limit = 50000000;
+  assert(reserved <= limit);
+  if (reserved > limit) return false;
   reserve(reserved);
   size_used_ = reserved;
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
