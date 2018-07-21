@@ -177,6 +177,10 @@ fi
 # check whether to build OpenMP support
 AC_OPENMP
 
+have_tiff=false
+# Note that the first usage of AC_CHECK_HEADERS must be unconditional.
+AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
+
 # check whether to build opencl version
 AC_MSG_CHECKING([--enable-opencl argument])
 AC_ARG_ENABLE([opencl],
@@ -186,12 +190,9 @@ AC_MSG_RESULT([$enable_opencl])
 have_opencl=false
 if test "$enable_opencl" = "yes"; then
   AC_CHECK_HEADERS([CL/cl.h], [have_opencl=true], [
-    AC_CHECK_HEADERS(OpenCL/cl.h, have_opencl=true, have_opencl=false)
+    AC_CHECK_HEADERS(OpenCL/cl.h, [have_opencl=true], [have_opencl=false])
   ])
 fi
-
-have_tiff=false
-AC_CHECK_HEADERS([tiffio.h], [have_tiff=true], [have_tiff=false])
 
 # https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
 m4_define([MY_CHECK_FRAMEWORK],
