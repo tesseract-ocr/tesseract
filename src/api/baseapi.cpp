@@ -49,6 +49,8 @@
 #include <fstream>             // for size_t
 #include <iostream>            // for std::cin
 #include <memory>              // for std::unique_ptr
+#include <set>                 // for std::pair
+#include <vector>              // for std::vector
 #include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
 #include "blobclass.h"         // for ExtractFontName
 #include "boxword.h"           // for BoxWord
@@ -398,6 +400,7 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
       return -1;
     }
   }
+
   PERF_COUNT_SUB("update tesseract_")
   // Update datapath and language requested for the last valid initialization.
   if (datapath_ == nullptr)
@@ -1389,6 +1392,17 @@ static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
   *hocr_str += "'";
 }
 
+static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
+  int num2, int num3) {
+  const size_t BUFSIZE = 64;
+  char id_buffer[BUFSIZE];
+  snprintf(id_buffer, BUFSIZE - 1, "%s_%d_%d_%d", base.c_str(), num1, num2,num3);
+  id_buffer[BUFSIZE - 1] = '\0';
+  *hocr_str += " id='";
+  *hocr_str += id_buffer;
+  *hocr_str += "'";
+}
+
 static void AddBoxTohOCR(const ResultIterator* it, PageIteratorLevel level,
                          STRING* hocr_str) {
   int left, top, right, bottom;
@@ -1449,7 +1463,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
     return nullptr;
 
-  int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
+  int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1, tcnt = 1, gcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
   bool para_is_ltr = true;        // Default direction is LTR
   const char* paragraph_lang = nullptr;
@@ -1529,7 +1543,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     }
 
     // Now, process the word...
-    hocr_str += "<span class='ocrx_word'";
+    std::vector<std::vector<std::pair<const char*, float>>>* confidencemap = nullptr;
+    if (tesseract_->glyph_confidences) {
+      confidencemap = res_it->GetGlyphConfidences();
+    }
+    hocr_str += "\n      <span class='ocrx_word'";
     AddIdTohOCR(&hocr_str, "word", page_id, wcnt);
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
@@ -1587,7 +1605,32 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (italic) hocr_str += "</em>";
     if (bold) hocr_str += "</strong>";
-    hocr_str += "</span> ";
+    // If glyph confidence is required it is added here
+    if (tesseract_->glyph_confidences && confidencemap != nullptr) {
+      for (size_t i = 0; i < confidencemap->size(); i++) {
+        hocr_str += "\n       <span class='ocrx_cinfo'";
+        AddIdTohOCR(&hocr_str, "timestep", page_id, wcnt, tcnt);
+        hocr_str += ">";
+        //*
+        std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
+        for (std::pair<const char*, float> conf : timestep) {
+          hocr_str += "<span class='ocr_glyph'";
+          AddIdTohOCR(&hocr_str, "glyph", page_id, wcnt, gcnt);
+          hocr_str.add_str_int(" title='x_confs ", int(conf.second * 100));
+          hocr_str += "'";
+          hocr_str += ">";
+          hocr_str += conf.first;
+          hocr_str += "</span>";
+          gcnt++;
+        }
+        //*/
+        hocr_str += "</span>";
+        tcnt++;
+      }
+    }
+    hocr_str += "</span>";
+    tcnt = 1;
+    gcnt = 1;
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {

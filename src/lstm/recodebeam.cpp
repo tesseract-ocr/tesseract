@@ -22,6 +22,8 @@
 #include "networkio.h"
 #include "pageres.h"
 #include "unicharcompress.h"
+#include <set>
+#include <vector>
 
 #include <algorithm>
 
@@ -77,13 +79,18 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress& recoder,
 // Decodes the set of network outputs, storing the lattice internally.
 void RecodeBeamSearch::Decode(const NetworkIO& output, double dict_ratio,
                               double cert_offset, double worst_dict_cert,
-                              const UNICHARSET* charset) {
+                              const UNICHARSET* charset, bool glyph_confidence) {
   beam_size_ = 0;
   int width = output.Width();
+  if (glyph_confidence) 
+    timesteps.clear();
   for (int t = 0; t < width; ++t) {
     ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0]);
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert,
                charset);
+    if (glyph_confidence) {
+      SaveMostCertainGlyphs(output.f(t), output.NumFeatures(), charset, t);
+    }
   }
 }
 void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float>& output,
@@ -96,6 +103,35 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float>& output,
     ComputeTopN(output[t], output.dim2(), kBeamWidths[0]);
     DecodeStep(output[t], t, dict_ratio, cert_offset, worst_dict_cert, charset);
   }
+}
+
+void RecodeBeamSearch::SaveMostCertainGlyphs(const float* outputs,
+                                             int num_outputs,
+                                             const UNICHARSET* charset,
+                                             int xCoord) {
+  std::vector<std::pair<const char*, float>> glyphs;
+  int pos = 0;
+  for (int i = 0; i < num_outputs; ++i) {
+    if (outputs[i] >= 0.01f) {
+      const char* charakter;
+      if (i + 2 >= num_outputs) {
+        charakter = "";
+      } else if (i > 0) {
+        charakter = charset->id_to_unichar_ext(i + 2);
+      } else {
+        charakter = charset->id_to_unichar_ext(i);
+      }
+      pos = 0;
+      //order the possible glyphs within one timestep
+      //beginning with the most likely
+      while (glyphs.size() > pos && glyphs[pos].second > outputs[i]) {
+        pos++;
+      }
+      glyphs.insert(glyphs.begin() + pos,
+                    std::pair<const char*, float>(charakter, outputs[i]));      
+    }
+  }
+  timesteps.push_back(glyphs);
 }
 
 // Returns the best path as labels/scores/xcoords similar to simple CTC.
@@ -140,7 +176,8 @@ void RecodeBeamSearch::ExtractBestPathAsUnicharIds(
 void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
                                               float scale_factor, bool debug,
                                               const UNICHARSET* unicharset,
-                                              PointerVector<WERD_RES>* words) {
+                                              PointerVector<WERD_RES>* words,
+                                              bool glyph_confidence) {
   words->truncate(0);
   GenericVector<int> unichar_ids;
   GenericVector<float> certs;
@@ -165,6 +202,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   }
   // Convert labels to unichar-ids.
   int word_end = 0;
+  int timestepEnd = 0;
   float prev_space_cert = 0.0f;
   for (int word_start = 0; word_start < num_ids; word_start = word_end) {
     for (word_end = word_start + 1; word_end < num_ids; ++word_end) {
@@ -188,6 +226,12 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     WERD_RES* word_res = InitializeWord(
         leading_space, line_box, word_start, word_end,
         std::min(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
+    if (glyph_confidence) {
+      for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
+        word_res->timesteps.push_back(timesteps[i]);
+      }
+      timestepEnd = xcoords[word_end];
+    }
     for (int i = word_start; i < word_end; ++i) {
       BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);
@@ -381,7 +425,7 @@ void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
 void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
                                   double dict_ratio, double cert_offset,
                                   double worst_dict_cert,
-                                  const UNICHARSET* charset) {
+                                  const UNICHARSET* charset, bool debug) {
   if (t == beam_.size()) beam_.push_back(new RecodeBeam);
   RecodeBeam* step = beam_[t];
   beam_size_ = t + 1;
@@ -396,7 +440,7 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
     }
   } else {
     RecodeBeam* prev = beam_[t - 1];
-    if (charset != nullptr) {
+    if (debug) {
       int beam_index = BeamIndex(true, NC_ANYTHING, 0);
       for (int i = prev->beams_[beam_index].size() - 1; i >= 0; --i) {
         GenericVector<const RecodeNode*> path;
