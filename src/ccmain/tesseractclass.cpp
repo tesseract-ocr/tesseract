@@ -508,6 +508,9 @@ Tesseract::Tesseract()
       STRING_MEMBER(page_separator, "\f",
                     "Page separator (default is form feed control character)",
                     this->params()),
+      BOOL_MEMBER(glyph_confidences, false,
+                  "Allows to include glyph confidences in the hOCR output",
+                   this->params()),
 
       backup_config_file_(nullptr),
       pix_binary_(nullptr),

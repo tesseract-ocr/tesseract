@@ -28,6 +28,8 @@
 #include "networkio.h"
 #include "ratngs.h"
 #include "unicharcompress.h"
+#include <set>
+#include <vector>
 
 namespace tesseract {
 
@@ -182,7 +184,8 @@ class RecodeBeamSearch {
   // Decodes the set of network outputs, storing the lattice internally.
   // If charset is not null, it enables detailed debugging of the beam search.
   void Decode(const NetworkIO& output, double dict_ratio, double cert_offset,
-              double worst_dict_cert, const UNICHARSET* charset);
+              double worst_dict_cert, const UNICHARSET* charset,
+              bool glyph_confidence = false);
   void Decode(const GENERIC_2D_ARRAY<float>& output, double dict_ratio,
               double cert_offset, double worst_dict_cert,
               const UNICHARSET* charset);
@@ -201,11 +204,12 @@ class RecodeBeamSearch {
   // Returns the best path as a set of WERD_RES.
   void ExtractBestPathAsWords(const TBOX& line_box, float scale_factor,
                               bool debug, const UNICHARSET* unicharset,
-                              PointerVector<WERD_RES>* words);
+                              PointerVector<WERD_RES>* words, bool glyph_confidence);
 
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET& unicharset) const;
-
+  
+  std::vector< std::vector<std::pair<const char*, float>>> timesteps;
   // Clipping value for certainty inside Tesseract. Reflects the minimum value
   // of certainty that will be returned by ExtractBestPathAsUnicharIds.
   // Supposedly on a uniform scale that can be compared across languages and
@@ -291,7 +295,10 @@ class RecodeBeamSearch {
   // for the current timestep.
   void DecodeStep(const float* outputs, int t, double dict_ratio,
                   double cert_offset, double worst_dict_cert,
-                  const UNICHARSET* charset);
+                  const UNICHARSET* charset, bool debug = false);
+
+  //Saves the most certain glyphs for the current time-step
+  void SaveMostCertainGlyphs(const float* outputs, int num_outputs, const UNICHARSET* charset, int xCoord);
 
   // Adds to the appropriate beams the legal (according to recoder)
   // continuations of context prev, which is from the given index to beams_,

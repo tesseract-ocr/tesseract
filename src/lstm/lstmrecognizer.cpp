@@ -172,7 +172,7 @@ bool LSTMRecognizer::LoadDictionary(const char* lang, TessdataManager* mgr) {
 void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
                                    const TBOX& line_box,
-                                   PointerVector<WERD_RES>* words) {
+                                   PointerVector<WERD_RES>* words, bool glyph_confidences) {
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
@@ -183,9 +183,11 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
-  search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert, nullptr);
+  search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert,
+                  &GetUnicharset(), glyph_confidences);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
-                                  &GetUnicharset(), words);
+                                  &GetUnicharset(), words, 
+                                  glyph_confidences);
 }
 
 // Helper computes min and mean best results in the output.
