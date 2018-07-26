@@ -18,8 +18,10 @@
 
 if [ "$(uname)" == "Darwin" ];then
     FONTS_DIR="/Library/Fonts/"
+    FONT_CONFIG_CACHE=$(mktemp -d -t font_tmp.XXXXXXXXXX)
 else
     FONTS_DIR="/usr/share/fonts/"
+    FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
 fi
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
@@ -148,6 +150,13 @@ parse_flags() {
             --wordlist)
                 parse_value "WORDLIST_FILE" ${ARGV[$j]}
                 i=$j ;;
+            --workspace_dir)
+                rmdir "$FONT_CONFIG_CACHE"
+                rmdir "$WORKSPACE_DIR"
+                parse_value "WORKSPACE_DIR" ${ARGV[$j]}
+                FONT_CONFIG_CACHE=$WORKSPACE_DIR/fc-cache
+                mkdir -p $FONT_CONFIG_CACHE
+                i=$j ;;
             *)
                 err_exit "Unrecognized argument ${ARGV[$i]}" ;;
         esac
@@ -192,11 +201,7 @@ parse_flags() {
 
 # Function initializes font config with a unique font cache dir.
 initialize_fontconfig() {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      export FONT_CONFIG_CACHE=$(mktemp -d -t font_tmp.XXXXXXXXXX)
-    else
-      export FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
-    fi
+    export FONT_CONFIG_CACHE
     local sample_path=${FONT_CONFIG_CACHE}/sample_text.txt
     echo "Text" >${sample_path}
     run_command text2image --fonts_dir=${FONTS_DIR} \
