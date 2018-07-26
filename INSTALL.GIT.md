@@ -27,7 +27,7 @@ So, the steps for making Tesseract are:
     $ sudo make training-install
 
 You need to install at least English language and OSD traineddata files to 
-TESSDATA_PREFIX directory. 
+`TESSDATA_PREFIX` directory. 
 
 You can retrieve single file with tools like [wget](https://www.gnu.org/software/wget/), [curl](https://curl.haxx.se/), [GithubDownloader](https://github.com/intezer/GithubDownloader) or browser.
 
@@ -38,8 +38,8 @@ all languages).
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
 
-You need an Internet connection to compile ScrollView.jar because the build will automatically download piccolo2d-core-3.0.jar
-and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to tesseract/java.
+You need an Internet connection to compile `ScrollView.jar` because the build will automatically download `piccolo2d-core-3.0.jar`
+and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to `tesseract/java`.
 
 Just run:
 
