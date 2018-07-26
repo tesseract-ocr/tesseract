@@ -52,11 +52,11 @@ Copy the error message from the console instead of sending a screenshot of it.
 
 Use the toolbar above the comment edit area to format your comment.
 
-Add three backticks before and after a code sample or output of a command to format it (The 'Insert code' button can help you doing it).
+Add three backticks before and after a code sample or output of a command to format it (The `Insert code` button can help you doing it).
 
-If your comment includes a code sample or output of a command that exceeds ~25 lines, post it as attached text file (filename.txt). 
+If your comment includes a code sample or output of a command that exceeds ~25 lines, post it as attached text file (`filename.txt`). 
 
-Use 'Preview' before you send your issue. Read it again before sending.
+Use `Preview` before you send your issue. Read it again before sending.
 
 Note that most of the people that respond to issues and answer questions are either other 'regular' users or **volunteers** developers. Please be nice to them :-)
 
