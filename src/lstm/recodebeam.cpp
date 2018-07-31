@@ -512,8 +512,10 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
            (previous->duplicate || previous->code == null_char_)) {
       previous = previous->prev;
     }
-    prefix.Set(p, previous->code);
-    full_code.Set(p, previous->code);
+    if (previous != nullptr) {
+      prefix.Set(p, previous->code);
+      full_code.Set(p, previous->code);
+    }   
   }
   if (prev != nullptr && !is_simple_text_) {
     if (top_n_flags_[prev->code] == top_n_flag) {
