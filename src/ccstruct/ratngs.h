@@ -552,7 +552,7 @@ class WERD_CHOICE : public ELIST_LINK {
   // to get the target positions. If small_caps is true, sub/super are not
   // considered, but dropcaps are.
   // NOTE: blobs_list should be the chopped_word blobs. (Fully segemented.)
-  void SetScriptPositions(bool small_caps, TWERD* word);
+  void SetScriptPositions(bool small_caps, TWERD* word, int debug = 0);
   // Sets the script_pos_ member from some source positions with a given length.
   void SetScriptPositions(const tesseract::ScriptPos* positions, int length);
   // Sets all the script_pos_ positions to the given position.
