@@ -182,9 +182,9 @@ static const int kMaxBytesPerCodepoint = 20;
 
 TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
                                  bool textonly)
-    : TessResultRenderer(outputbase, "pdf") {
+    : TessResultRenderer(outputbase, "pdf"),
+      datadir_(datadir) {
   obj_  = 0;
-  datadir_ = datadir;
   textonly_ = textonly;
   offsets_.push_back(0);
 }
@@ -654,7 +654,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
-  n = snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_);
+  n = snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_.c_str());
   if (n >= sizeof(buf)) return false;
   FILE *fp = fopen(buf, "rb");
   if (!fp) {

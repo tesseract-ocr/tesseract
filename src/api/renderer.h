@@ -21,6 +21,7 @@
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
+#include <string>               // for std::string
 #include "genericvector.h"
 #include "platform.h"
 
@@ -202,7 +203,7 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   long int obj_;                     // counter for PDF objects
   GenericVector<long int> offsets_;  // offset of every PDF object in bytes
   GenericVector<long int> pages_;    // object number for every /Page object
-  const char *datadir_;              // where to find the custom font
+  std::string datadir_;              // where to find the custom font
   bool textonly_;                    // skip images if set
   // Bookkeeping only. DIY = Do It Yourself.
   void AppendPDFObjectDIY(size_t objectsize);
