@@ -359,6 +359,14 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
 
   *arg_i = i;
 
+  if (*pagesegmode == tesseract::PSM_OSD_ONLY) {
+    // That mode requires osd.traineddata, no other language or script files.
+    if (*lang != nullptr && strcmp(*lang, "osd")) {
+      fprintf(stderr, "Warning, ignoring -l %s for --psm 0\n", *lang);
+    }
+    *lang = "osd";
+  }
+
   if (*outputbase == nullptr && noocr == false) {
     PrintHelpMessage(argv[0]);
     exit(EXIT_FAILURE);
@@ -432,7 +440,7 @@ static void PreloadRenderers(
  **********************************************************************/
 
 int main(int argc, char** argv) {
-  const char* lang = "eng";
+  const char* lang = nullptr;
   const char* image = nullptr;
   const char* outputbase = nullptr;
   const char* datapath = nullptr;
@@ -464,6 +472,11 @@ int main(int argc, char** argv) {
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
             &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
             &enginemode);
+
+  if (lang == nullptr) {
+    // Set default language if none was given.
+    lang = "eng";
+  }
 
   if (image == nullptr && !list_langs && !print_parameters)
     return EXIT_SUCCESS;
