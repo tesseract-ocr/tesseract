@@ -1284,7 +1284,7 @@ void LanguageModel::UpdateBestChoice(
     return;
   }
   if (word_res->chopped_word != nullptr && !word_res->chopped_word->blobs.empty())
-    word->SetScriptPositions(false, word_res->chopped_word);
+    word->SetScriptPositions(false, word_res->chopped_word, language_model_debug_level);
   // Update and log new raw_choice if needed.
   if (word_res->raw_choice == nullptr ||
       word->rating() < word_res->raw_choice->rating()) {
