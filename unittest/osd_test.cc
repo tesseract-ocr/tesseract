@@ -14,7 +14,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-//based on https://gist.github.com/amitdo/7c7a522004dd79b398340c9595b377e1 
+//based on https://gist.github.com/amitdo/7c7a522004dd79b398340c9595b377e1
 
 // expects clones of tessdata, tessdata_fast and tessdata_best repos
 
@@ -30,7 +30,7 @@ namespace {
 class TestClass : public testing::Test {
  protected:
   };
-  
+
   void OSDTester( int expected_deg, const char* imgname, const char* tessdatadir) {
     //log.info() << tessdatadir << " for image: " << imgname << std::endl;
     tesseract::TessBaseAPI *api = new tesseract::TessBaseAPI();
@@ -55,63 +55,63 @@ class TestClass : public testing::Test {
 
   class OSDTest : public TestClass ,
       public ::testing::WithParamInterface<std::tuple<int, const char*, const char*>> {};
-  
+
   TEST_P(OSDTest, MatchOrientationDegrees) {
   OSDTester(std::get<0>(GetParam()), std::get<1>(GetParam()), std::get<2>(GetParam()));
   }
-  
-  INSTANTIATE_TEST_CASE_P( TessdataEngEuroHebrew, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataEngEuroHebrew, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(0),
                         ::testing::Values(TESTING_DIR "/phototest.tif",
                                           TESTING_DIR "/eurotext.tif",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR)));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataBestEngEuroHebrew, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataBestEngEuroHebrew, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(0),
                         ::testing::Values(TESTING_DIR "/phototest.tif",
                                           TESTING_DIR "/eurotext.tif",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR "_best")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastEngEuroHebrew, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastEngEuroHebrew, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(0),
                         ::testing::Values(TESTING_DIR "/phototest.tif",
                                           TESTING_DIR "/eurotext.tif",
                                           TESTING_DIR "/hebrew.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastRotated90, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastRotated90, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(90),
                         ::testing::Values(TESTING_DIR "/phototest-rotated-R.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastRotated180, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastRotated180, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(180),
                         ::testing::Values(TESTING_DIR "/phototest-rotated-180.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastRotated270, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastRotated270, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(270),
                         ::testing::Values(TESTING_DIR "/phototest-rotated-L.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastDevaRotated270, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastDevaRotated270, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(270),
                         ::testing::Values(TESTING_DIR "/devatest-rotated-270.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
-  INSTANTIATE_TEST_CASE_P( TessdataFastDeva, OSDTest, 
+
+  INSTANTIATE_TEST_CASE_P( TessdataFastDeva, OSDTest,
                         ::testing::Combine(
                         ::testing::Values(0),
                         ::testing::Values(TESTING_DIR "/devatest.png"),
                         ::testing::Values(TESSDATA_DIR "_fast")));
-                        
+
 }  // namespace

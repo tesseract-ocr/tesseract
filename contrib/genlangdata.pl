@@ -8,7 +8,7 @@ use Getopt::Std;
 
 =pod
 
-=head1 NAME 
+=head1 NAME
 
 genwordlists.pl - generate word lists for Tesseract
 
@@ -33,7 +33,7 @@ use:
     pfx=$(echo $i|tr '/' '_'); cat $i | \
     perl genwordlists.pl -d OUTDIR -p $pfx; done
 
-This will create a set of output files to match each of the files 
+This will create a set of output files to match each of the files
 WikiExtractor created.
 
 To combine these files:

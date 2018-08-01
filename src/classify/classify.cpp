@@ -25,7 +25,7 @@
 namespace tesseract {
 
 Classify::Classify()
-    : 
+    :
       INT_MEMBER(classify_debug_level, 0, "Classify debug level",
                  this->params()),
 

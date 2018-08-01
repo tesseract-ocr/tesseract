@@ -54,7 +54,7 @@ STRING_VAR(classify_training_file, "MicroFeatures", "Training file");
  *
  * Add a new config to this class.  Malloc new space and copy the
  * old configs if necessary.  Return the config id for the new config.
- * 
+ *
  * @param Class The class to add to
  */
 int AddConfigToClass(CLASS_TYPE Class) {
@@ -90,7 +90,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
  *
  * Add a new proto to this class.  Malloc new space and copy the
  * old protos if necessary.  Return the proto id for the new proto.
- * 
+ *
  * @param Class The class to add to
  */
 int AddProtoToClass(CLASS_TYPE Class) {
@@ -132,7 +132,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
  * @name ClassConfigLength
  *
  * Return the length of all the protos in this class.
- * 
+ *
  * @param Class The class to add to
  * @param Config FIXME
  */
@@ -154,7 +154,7 @@ float ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
  * @name ClassProtoLength
  *
  * Return the length of all the protos in this class.
- * 
+ *
  * @param Class The class to use
  */
 float ClassProtoLength(CLASS_TYPE Class) {
@@ -172,7 +172,7 @@ float ClassProtoLength(CLASS_TYPE Class) {
  * @name CopyProto
  *
  * Copy the first proto into the second.
- * 
+ *
  * @param Src Source
  * @param Dest Destination
  */

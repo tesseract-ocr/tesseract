@@ -4,7 +4,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/ccstruct \
     -I$(top_srcdir)/src/dict \
     -I$(top_srcdir)/src/viewer
-    
+
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
 endif

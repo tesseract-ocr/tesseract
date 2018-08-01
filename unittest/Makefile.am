@@ -27,7 +27,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
 libgtest_la_SOURCES = ../googletest/googletest/src/gtest-all.cc
-libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread 
+libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
 libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
 ## libgtest_main_la_LIBADD = libgtest.la
 
@@ -57,7 +57,7 @@ check_PROGRAMS = \
   matrix_test \
   osd_test \
   loadlang_test \
-  tesseracttests 
+  tesseracttests
 
 
 TESTS = $(check_PROGRAMS)

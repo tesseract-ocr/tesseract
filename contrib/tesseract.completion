@@ -1,6 +1,6 @@
 #-*- mode: shell-script;-*-
 #
-# bash completion support for tesseract 
+# bash completion support for tesseract
 #
 # Copyright (C) 2009 Neskie A. Manuel <neskiem@gmail.com>
 # Distributed under the Apache License, Version 2.0.
@@ -20,19 +20,19 @@ _tesseract()
         COMPREPLY=()
         cur="$2"
         prev="$3"
-	
+
 	case "$prev" in
 		tesseract)
 			COMPREPLY=($(compgen -f -X "!*.+(tif)" -- "$cur") )
 		;;
 		*.tif)
-			COMPREPLY=($(compgen -W "$(basename  $prev .tif)" ) ) 
+			COMPREPLY=($(compgen -W "$(basename  $prev .tif)" ) )
 		;;
 		-l)
 			_tesseract_languages
 		;;
 		*)
-			COMPREPLY=($(compgen -W "-l" ) ) 
+			COMPREPLY=($(compgen -W "-l" ) )
 		;;
     esac
 }

@@ -4,7 +4,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/viewer \
     -I$(top_srcdir)/src/opencl
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)
-    
+
 if VISIBILITY
 AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden

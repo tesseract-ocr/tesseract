@@ -17,7 +17,7 @@ man_MANS = \
   text2image.1 \
   unicharambigs.5 \
   unicharset_extractor.1 \
-  wordlist2dawg.1 
+  wordlist2dawg.1
 
 if !DISABLED_LEGACY_ENGINE
 man_MANS += \

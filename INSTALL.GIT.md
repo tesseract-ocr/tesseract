@@ -26,14 +26,14 @@ So, the steps for making Tesseract are:
     $ make training
     $ sudo make training-install
 
-You need to install at least English language and OSD traineddata files to 
-`TESSDATA_PREFIX` directory. 
+You need to install at least English language and OSD traineddata files to
+`TESSDATA_PREFIX` directory.
 
 You can retrieve single file with tools like [wget](https://www.gnu.org/software/wget/), [curl](https://curl.haxx.se/), [GithubDownloader](https://github.com/intezer/GithubDownloader) or browser.
 
 All language data files can be retrieved from git repository (useful only for packagers!).
 (Repository is huge - more that 1.2 GB. You do NOT need to download traineddata files for
-all languages). 
+all languages).
 
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 

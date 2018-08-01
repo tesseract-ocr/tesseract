@@ -82,7 +82,7 @@ void RecodeBeamSearch::Decode(const NetworkIO& output, double dict_ratio,
                               const UNICHARSET* charset, bool glyph_confidence) {
   beam_size_ = 0;
   int width = output.Width();
-  if (glyph_confidence) 
+  if (glyph_confidence)
     timesteps.clear();
   for (int t = 0; t < width; ++t) {
     ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0]);
@@ -128,7 +128,7 @@ void RecodeBeamSearch::SaveMostCertainGlyphs(const float* outputs,
         pos++;
       }
       glyphs.insert(glyphs.begin() + pos,
-                    std::pair<const char*, float>(charakter, outputs[i]));      
+                    std::pair<const char*, float>(charakter, outputs[i]));
     }
   }
   timesteps.push_back(glyphs);
@@ -515,7 +515,7 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
     if (previous != nullptr) {
       prefix.Set(p, previous->code);
       full_code.Set(p, previous->code);
-    }   
+    }
   }
   if (prev != nullptr && !is_simple_text_) {
     if (top_n_flags_[prev->code] == top_n_flag) {

@@ -54,7 +54,7 @@ const double kMaxRowSize = 2.5;
 // Number of filled columns required to form a strong table row.
 // For small tables, this is an absolute number.
 const double kGoodRowNumberOfColumnsSmall[] = { 2, 2, 2, 2, 2, 3, 3 };
-const int kGoodRowNumberOfColumnsSmallSize = 
+const int kGoodRowNumberOfColumnsSmallSize =
     sizeof(kGoodRowNumberOfColumnsSmall) / sizeof(double) - 1;
 // For large tables, it is a relative number
 const double kGoodRowNumberOfColumnsLarge = 0.7;

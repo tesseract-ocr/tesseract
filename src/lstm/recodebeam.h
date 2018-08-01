@@ -208,7 +208,7 @@ class RecodeBeamSearch {
 
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET& unicharset) const;
-  
+
   std::vector< std::vector<std::pair<const char*, float>>> timesteps;
   // Clipping value for certainty inside Tesseract. Reflects the minimum value
   // of certainty that will be returned by ExtractBestPathAsUnicharIds.

@@ -1,5 +1,5 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); You may not
 // use this file except in compliance with the License. You may obtain a copy of
 // the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -14,7 +14,7 @@ package com.google.scrollview.events;
  * These are the defined events which can happen in ScrollView and be
  * transferred to the client. They are same events as on the client side part of
  * ScrollView (defined in ScrollView.h).
- * 
+ *
  * @author wanke@google.com
  */
 public enum SVEventType {

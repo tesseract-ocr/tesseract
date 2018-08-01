@@ -123,7 +123,7 @@ void InitFeatureDefs(FEATURE_DEFS_STRUCT *featuredefs) {
  *
  * @param CharDesc character description to be deallocated
  *
- * Globals: 
+ * Globals:
  * - none
  */
 void FreeCharDescription(CHAR_DESC CharDesc) {
@@ -140,7 +140,7 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  * Allocate a new character description, initialize its
  * feature sets to be empty, and return it.
  *
- * Globals: 
+ * Globals:
  * - none
  *
  * @return New character description structure.
@@ -226,9 +226,9 @@ bool ValidCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs,
              ...
    @endverbatim
  *
- * Globals: 
+ * Globals:
  * - none
- * 
+ *
  * @param FeatureDefs    definitions of feature types/extractors
  * @param File open text file to read character description from
  * @return Character description read from File.
