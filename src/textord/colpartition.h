@@ -374,6 +374,9 @@ class ColPartition : public ELIST2_LINK {
   // Returns the vertical overlap (by median) of this and other.
   // WARNING! Only makes sense on horizontal partitions!
   int VCoreOverlap(const ColPartition& other) const {
+    if (median_bottom_ == INT32_MAX || other.median_bottom_ == INT32_MAX) {
+      return 0;
+    }
     return std::min(median_top_, other.median_top_) -
             std::max(median_bottom_, other.median_bottom_);
   }
@@ -386,6 +389,9 @@ class ColPartition : public ELIST2_LINK {
   // Returns true if this and other overlap significantly vertically.
   // WARNING! Only makes sense on horizontal partitions!
   bool VSignificantCoreOverlap(const ColPartition& other) const {
+    if (median_bottom_ == INT32_MAX || other.median_bottom_ == INT32_MAX) {
+      return false;
+    }
     int overlap = VCoreOverlap(other);
     int height = std::min(median_top_ - median_bottom_,
                      other.median_top_ - other.median_bottom_);
