@@ -134,11 +134,11 @@ class ColPartition : public ELIST2_LINK {
   int median_right() const {
     return median_right_;
   }
-  int median_size() const {
-    return median_size_;
+  int median_height() const {
+    return median_height_;
   }
-  void set_median_size(int size) {
-    median_size_ = size;
+  void set_median_height(int height) {
+    median_height_ = height;
   }
   int median_width() const {
     return median_width_;
@@ -839,8 +839,7 @@ class ColPartition : public ELIST2_LINK {
   int median_bottom_;
   int median_top_;
   // Median height of blobs in this partition.
-  // TODO(rays) rename median_height_.
-  int median_size_;
+  int median_height_;
   // Median left and right of blobs in this partition.
   int median_left_;
   int median_right_;

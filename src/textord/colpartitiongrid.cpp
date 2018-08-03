@@ -694,7 +694,7 @@ void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST* blocks,
       // Get metrics from the row that will be used for the block.
       TBOX box = part->bounding_box();
       int median_width = part->median_width();
-      int median_height = part->median_size();
+      int median_height = part->median_height();
       // Turn the partition into a TO_ROW.
       TO_ROW* row = part->MakeToRow();
       if (row == nullptr) {
