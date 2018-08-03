@@ -80,7 +80,7 @@ const int kMaxColorDistance = 900;
 // Vertical is the direction of logical vertical on the possibly skewed image.
 ColPartition::ColPartition(BlobRegionType blob_type, const ICOORD& vertical)
   : left_margin_(-INT32_MAX), right_margin_(INT32_MAX),
-    median_bottom_(INT32_MAX), median_top_(-INT32_MAX), median_size_(0),
+    median_bottom_(INT32_MAX), median_top_(-INT32_MAX), median_height_(0),
     median_left_(INT32_MAX), median_right_(-INT32_MAX), median_width_(0),
     blob_type_(blob_type), flow_(BTFT_NONE), good_blob_score_(0),
     good_width_(false), good_column_(false),
@@ -163,7 +163,7 @@ ColPartition* ColPartition::MakeLinePartition(BlobRegionType blob_type,
   part->bounding_box_ = TBOX(left, bottom, right, top);
   part->median_bottom_ = bottom;
   part->median_top_ = top;
-  part->median_size_ = top - bottom;
+  part->median_height_ = top - bottom;
   part->median_left_ = left;
   part->median_right_ = right;
   part->median_width_ = right - left;
@@ -416,7 +416,7 @@ bool ColPartition::MatchingSizes(const ColPartition& other) const {
   if (blob_type_ == BRT_VERT_TEXT || other.blob_type_ == BRT_VERT_TEXT)
     return !TabFind::DifferentSizes(median_width_, other.median_width_);
   else
-    return !TabFind::DifferentSizes(median_size_, other.median_size_);
+    return !TabFind::DifferentSizes(median_height_, other.median_height_);
 }
 
 // Returns true if there is no tabstop violation in merging this and other.
@@ -904,14 +904,14 @@ void ColPartition::ComputeLimits() {
       blob_type() == BRT_POLYIMAGE) {
     median_top_ = bounding_box_.top();
     median_bottom_ = bounding_box_.bottom();
-    median_size_ = bounding_box_.height();
+    median_height_ = bounding_box_.height();
     median_left_ = bounding_box_.left();
     median_right_ = bounding_box_.right();
     median_width_ = bounding_box_.width();
   } else {
     STATS top_stats(bounding_box_.bottom(), bounding_box_.top() + 1);
     STATS bottom_stats(bounding_box_.bottom(), bounding_box_.top() + 1);
-    STATS size_stats(0, bounding_box_.height() + 1);
+    STATS height_stats(0, bounding_box_.height() + 1);
     STATS left_stats(bounding_box_.left(), bounding_box_.right() + 1);
     STATS right_stats(bounding_box_.left(), bounding_box_.right() + 1);
     STATS width_stats(0, bounding_box_.width() + 1);
@@ -922,7 +922,7 @@ void ColPartition::ComputeLimits() {
         int area = box.area();
         top_stats.add(box.top(), area);
         bottom_stats.add(box.bottom(), area);
-        size_stats.add(box.height(), area);
+        height_stats.add(box.height(), area);
         left_stats.add(box.left(), area);
         right_stats.add(box.right(), area);
         width_stats.add(box.width(), area);
@@ -930,7 +930,7 @@ void ColPartition::ComputeLimits() {
     }
     median_top_ = static_cast<int>(top_stats.median() + 0.5);
     median_bottom_ = static_cast<int>(bottom_stats.median() + 0.5);
-    median_size_ = static_cast<int>(size_stats.median() + 0.5);
+    median_height_ = static_cast<int>(height_stats.median() + 0.5);
     median_left_ = static_cast<int>(left_stats.median() + 0.5);
     median_right_ = static_cast<int>(right_stats.median() + 0.5);
     median_width_ = static_cast<int>(width_stats.median() + 0.5);
@@ -1492,23 +1492,23 @@ void ColPartition::LineSpacingBlocks(const ICOORD& bleft, const ICOORD& tright,
                   " sizes %d %d %d\n",
                   part->top_spacing(), part->bottom_spacing(),
                   next_part->top_spacing(), next_part->bottom_spacing(),
-                  part->median_size(), next_part->median_size(),
-                  third_part != nullptr ? third_part->median_size() : 0);
+                  part->median_height(), next_part->median_height(),
+                  third_part != nullptr ? third_part->median_height() : 0);
         }
         // We can only consider adding the next line to the block if the sizes
         // match and the lines are close enough for their size.
         if (part->SizesSimilar(*next_part) &&
-            next_part->median_size() * kMaxSameBlockLineSpacing >
+            next_part->median_height() * kMaxSameBlockLineSpacing >
                 part->bottom_spacing() &&
-            part->median_size() * kMaxSameBlockLineSpacing >
+            part->median_height() * kMaxSameBlockLineSpacing >
                 part->top_spacing()) {
           // Even now, we can only add it as long as the third line doesn't
           // match in the same way and have a smaller bottom spacing.
           if (third_part == nullptr ||
               !next_part->SizesSimilar(*third_part) ||
-              third_part->median_size() * kMaxSameBlockLineSpacing <=
+              third_part->median_height() * kMaxSameBlockLineSpacing <=
                   next_part->bottom_spacing() ||
-              next_part->median_size() * kMaxSameBlockLineSpacing <=
+              next_part->median_height() * kMaxSameBlockLineSpacing <=
                   next_part->top_spacing() ||
                   next_part->bottom_spacing() > part->bottom_spacing()) {
             // Add to the current block.
@@ -1532,7 +1532,7 @@ void ColPartition::LineSpacingBlocks(const ICOORD& bleft, const ICOORD& tright,
         tprintf("Spacings equal: upper:%d/%d, lower:%d/%d, median:%d/%d\n",
                 part->top_spacing(), part->bottom_spacing(),
                 next_part->top_spacing(), next_part->bottom_spacing(),
-                part->median_size(), next_part->median_size());
+                part->median_height(), next_part->median_height());
       }
     }
   }
@@ -1647,7 +1647,7 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
   // put the average spacing in each partition, so we can just take the
   // linespacing from the first partition.
   int line_spacing = part->bottom_spacing();
-  if (line_spacing < part->median_size())
+  if (line_spacing < part->median_height())
     line_spacing = part->bounding_box().height();
   ICOORDELT_LIST vertices;
   ICOORDELT_IT vert_it(&vertices);
@@ -1715,7 +1715,7 @@ TO_BLOCK* ColPartition::MakeVerticalTextBlock(const ICOORD& bleft,
 TO_ROW* ColPartition::MakeToRow() {
   BLOBNBOX_C_IT blob_it(&boxes_);
   TO_ROW* row = nullptr;
-  int line_size = IsVerticalType() ? median_width_ : median_size_;
+  int line_size = IsVerticalType() ? median_width_ : median_height_;
   // Add all the blobs to a single TO_ROW.
   for (; !blob_it.empty(); blob_it.forward()) {
     BLOBNBOX* blob = blob_it.extract();
@@ -1746,7 +1746,7 @@ ColPartition* ColPartition::ShallowCopy() const {
          sizeof(special_blobs_densities_));
   part->median_bottom_ = median_bottom_;
   part->median_top_ = median_top_;
-  part->median_size_ = median_size_;
+  part->median_height_ = median_height_;
   part->median_left_ = median_left_;
   part->median_right_ = median_right_;
   part->median_width_ = median_width_;
@@ -2398,15 +2398,15 @@ int ColPartition::BottomSpacingMargin(int resolution) const {
 // Returns a suitable spacing margin that can be applied to tops of
 // text lines, based on the resolution and the stored side_step_.
 int ColPartition::TopSpacingMargin(int resolution) const {
-  return static_cast<int>(kMaxTopSpacingFraction * median_size_ + 0.5) +
+  return static_cast<int>(kMaxTopSpacingFraction * median_height_ + 0.5) +
          BottomSpacingMargin(resolution);
 }
 
 // Returns true if the median text sizes of this and other agree to within
 // a reasonable multiplicative factor.
 bool ColPartition::SizesSimilar(const ColPartition& other) const {
-  return median_size_ <= other.median_size_ * kMaxSizeRatio &&
-         other.median_size_ <= median_size_ * kMaxSizeRatio;
+  return median_height_ <= other.median_height_ * kMaxSizeRatio &&
+         other.median_height_ <= median_height_ * kMaxSizeRatio;
 }
 
 // Helper updates margin_left and margin_right, being the bounds of the left

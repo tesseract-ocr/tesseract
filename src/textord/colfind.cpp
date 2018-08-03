@@ -1177,12 +1177,12 @@ void ColumnFinder::InsertRemainingNoise(TO_BLOCK* block) {
       }
     }
     if (best_part != nullptr &&
-        best_distance < kMaxDistToPartSizeRatio * best_part->median_size()) {
+        best_distance < kMaxDistToPartSizeRatio * best_part->median_height()) {
       // Close enough to merge.
       if (debug) {
         tprintf("Adding noise blob with distance %d, thr=%g:box:",
                 best_distance,
-                kMaxDistToPartSizeRatio * best_part->median_size());
+                kMaxDistToPartSizeRatio * best_part->median_height());
         blob->bounding_box().print();
         tprintf("To partition:");
         best_part->Print();

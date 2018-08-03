@@ -297,21 +297,21 @@ void StrokeWidth::RemoveLineResidue(ColPartition_LIST* big_part_list) {
                                                box.bottom());
     // Find the largest object in the search box not equal to bbox.
     BlobGridSearch rsearch(this);
-    int max_size = 0;
+    int max_height = 0;
     BLOBNBOX* n;
     rsearch.StartRectSearch(search_box);
     while ((n = rsearch.NextRectSearch()) != nullptr) {
       if (n == bbox) continue;
       TBOX nbox = n->bounding_box();
-      if (nbox.height() > max_size) {
-        max_size = nbox.height();
+      if (nbox.height() > max_height) {
+        max_height = nbox.height();
       }
     }
     if (debug) {
-      tprintf("Max neighbour size=%d for candidate line box at:", max_size);
+      tprintf("Max neighbour size=%d for candidate line box at:", max_height);
       box.print();
     }
-    if (max_size * kLineResidueSizeRatio < box.height()) {
+    if (max_height * kLineResidueSizeRatio < box.height()) {
       #ifndef GRAPHICS_DISABLED
       if (leaders_win_ != nullptr) {
         // We are debugging, so display deleted in pink blobs in the same
@@ -582,7 +582,7 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK* block) {
   BLOBNBOX_LIST* blobs = &block->blobs;
   int median_height = UpperQuartileCJKSize(gridsize(), blobs);
   int max_dist = static_cast<int>(median_height * kCJKBrokenDistanceFraction);
-  int max_size = static_cast<int>(median_height * kCJKAspectRatio);
+  int max_height = static_cast<int>(median_height * kCJKAspectRatio);
   int num_fixed = 0;
   BLOBNBOX_IT blob_it(blobs);
 
@@ -594,12 +594,12 @@ bool StrokeWidth::FixBrokenCJK(TO_BLOCK* block) {
     bool debug = AlignedBlob::WithinTestRegion(3, bbox.left(),
                                                bbox.bottom());
     if (debug) {
-      tprintf("Checking for Broken CJK (max size=%d):", max_size);
+      tprintf("Checking for Broken CJK (max size=%d):", max_height);
       bbox.print();
     }
     // Generate a list of blobs that overlap or are near enough to merge.
     BLOBNBOX_CLIST overlapped_blobs;
-    AccumulateOverlaps(blob, debug, max_size, max_dist,
+    AccumulateOverlaps(blob, debug, max_height, max_dist,
                        &bbox, &overlapped_blobs);
     if (!overlapped_blobs.empty()) {
       // There are overlapping blobs, so qualify them as being satisfactory
@@ -1596,10 +1596,10 @@ bool StrokeWidth::DiacriticBlob(BlobGrid* small_grid, BLOBNBOX* blob) {
     if (debug) tprintf("xgap=%d, y=%d, total dist=%d\n",
                        x_gap, y_gap, total_distance);
     if (total_distance >
-        neighbour->owner()->median_size() * kMaxDiacriticDistanceRatio) {
+        neighbour->owner()->median_height() * kMaxDiacriticDistanceRatio) {
       if (debug) {
         tprintf("Neighbour with median size %d too far away:",
-                neighbour->owner()->median_size());
+                neighbour->owner()->median_height());
         neighbour->bounding_box().print();
       }
       continue;  // Diacritics must not be too distant.
