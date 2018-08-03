@@ -77,7 +77,7 @@ libtesseract_training_la_SOURCES = \
     unicharset_training_utils.cpp \
     validate_grapheme.cpp \
     validate_indic.cpp \
-    validate_javanese.h \
+    validate_javanese.cpp \
     validate_khmer.cpp \
     validate_myanmar.cpp \
     validator.cpp
