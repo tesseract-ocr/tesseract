@@ -64,6 +64,7 @@ enum class ViramaScript : char32 {
   kSinhala = 0xd80,
   kMyanmar = 0x1000,
   kKhmer = 0x1780,
+  kJavanese = 0xa980,
 };
 
 // Base class offers a validation API and protected methods to allow subclasses
@@ -221,6 +222,9 @@ class Validator {
   static const char32 kSinhalaVirama = 0xdca;
   static const char32 kMyanmarVirama = 0x1039;
   static const char32 kKhmerVirama = 0x17d2;
+  // Javanese Script - aksarajawa
+  static const char32 kJavaneseVirama = 0xa9c0;
+  static const char32 kMaxJavaneseUnicode = 0xa9df;
 
   // Script we are operating on.
   ViramaScript script_;

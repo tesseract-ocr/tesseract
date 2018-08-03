@@ -45,6 +45,7 @@ noinst_HEADERS = \
     util.h \
     validate_grapheme.h \
     validate_indic.h \
+    validate_javanese.h \
     validate_khmer.h \
     validate_myanmar.h \
     validator.h
@@ -76,6 +77,7 @@ libtesseract_training_la_SOURCES = \
     unicharset_training_utils.cpp \
     validate_grapheme.cpp \
     validate_indic.cpp \
+    validate_javanese.h \
     validate_khmer.cpp \
     validate_myanmar.cpp \
     validator.cpp

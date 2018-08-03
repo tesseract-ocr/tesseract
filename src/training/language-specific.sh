@@ -21,7 +21,7 @@
 VALID_LANGUAGE_CODES="afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat
                       ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo
                       ell eng enm epo est eus fas fil fin fra frk frm gle glg
-                      grc guj hat heb hin hrv hun hye iku ind isl ita ita_old
+                      grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old
                       jav jpn kan kat kat_old kaz khm kir kor kur lao lat
                       lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori
                       pan pol por pus ron rus san sin slk slv snd spa spa_old
@@ -961,6 +961,7 @@ set_lang_specific_parameters() {
     glg ) ;;
     hat ) ;;
     hrv ) ;;
+    iast ) ;;
     ind ) ;;
     isl ) ;;
     ita ) ;;
@@ -1171,7 +1172,7 @@ set_lang_specific_parameters() {
       LANG_IS_RTL="1"
       NORM_MODE="2" ;;
     asm | ben | bih | hin | mar | nep | guj | kan | mal | tam | tel | pan | \
-    dzo | sin | san | bod | ori | khm | mya | tha | lao )
+    dzo | sin | san | bod | ori | khm | mya | tha | lao | jav )
       LANG_IS_RTL="0"
       NORM_MODE="2" ;;
     * )
