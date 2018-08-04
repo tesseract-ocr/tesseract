@@ -1,5 +1,5 @@
 /**********************************************************************
-    * File:        validate_javanese.h
+ * File:        validate_javanese.h
  * Description: Text validator for Javanese Script - aksara jawa.
  * Author:      Shree Devi Kumar
  * Created:     August 03, 2018
@@ -21,9 +21,11 @@
 
 #include "validator.h"
 
+
 namespace tesseract {
 
-// Subclass of Validator that validates and segments Javanese.
+// Subclass of Validator that validates and segments Javanese scripts 
+
 class ValidateJavanese : public Validator {
  public:
   ValidateJavanese(ViramaScript script, bool report_errors)
@@ -37,7 +39,23 @@ class ValidateJavanese : public Validator {
   // otherwise does not increment codes_used_.
   bool ConsumeGraphemeIfValid() override;
   // Returns the CharClass corresponding to the given Unicode ch.
-  CharClass UnicodeToCharClass(char32 ch) const override;
+  Validator::CharClass UnicodeToCharClass(char32 ch) const override;
+
+ private:
+  // Helper consumes/copies a virama and any associated post-virama joiners.
+  bool ConsumeViramaIfValid(IndicPair joiner, bool post_matra);
+  // Helper consumes/copies a series of consonants separated by viramas while
+  // valid, but not any vowel or other modifiers.
+  bool ConsumeConsonantHeadIfValid();
+  // Helper consumes/copies a tail part of a consonant, comprising optional
+  // matra/piece, vowel modifier, vedic mark, terminating virama.
+  bool ConsumeConsonantTailIfValid();
+  // Helper consumes/copies a vowel and optional modifiers.
+  bool ConsumeVowelIfValid();
+
+  // Some special unicodes used only for Javanese processing.
+  static const char32 kPengkal = 0xa9be;  // Javanese Ya
+  static const char32 kCakra = 0xa9bf;  // Javanese Ra
 };
 
 }  // namespace tesseract
