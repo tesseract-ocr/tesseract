@@ -287,7 +287,7 @@ class TabFind : public AlignedBlob {
 
   // Set the vertical_skew_ member from the given vector and refit
   // all vectors parallel to the skew vector.
-  void SetVerticalSkewAndParellelize(int vertical_x, int vertical_y);
+  void SetVerticalSkewAndParallelize(int vertical_x, int vertical_y);
 
   // Sort all the current vectors using the vertical_skew_ vector.
   void SortVectors();
