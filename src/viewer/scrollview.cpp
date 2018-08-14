@@ -22,7 +22,6 @@
 
 #include <stdarg.h>
 #include <limits.h>
-#include <cstring>
 #include <map>
 #include <utility>
 #include <algorithm>
