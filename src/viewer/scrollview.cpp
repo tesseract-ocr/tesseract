@@ -20,15 +20,14 @@
 
 #define NOMINMAX
 
-#include <stdarg.h>
-#include <limits.h>
-#include <map>
-#include <utility>
 #include <algorithm>
-#include <vector>
-#include <string>
-#include <cstring>
 #include <climits>
+#include <cstdarg>
+#include <cstring>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
