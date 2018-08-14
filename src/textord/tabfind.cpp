@@ -72,7 +72,7 @@ TabFind::TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
     v_it_(&vectors_) {
   width_cb_ = nullptr;
   v_it_.add_list_after(vlines);
-  SetVerticalSkewAndParellelize(vertical_x, vertical_y);
+  SetVerticalSkewAndParallelize(vertical_x, vertical_y);
   width_cb_ = NewPermanentTessCallback(this, &TabFind::CommonWidth);
 }
 
@@ -853,7 +853,7 @@ void TabFind::FindAllTabVectors(int min_gutter_width) {
   TabVector_IT v_it(&vectors_);
   v_it.add_list_after(&dummy_vectors);
   // Now use the summed (mean) vertical vector as the direction for everything.
-  SetVerticalSkewAndParellelize(vertical_x, vertical_y);
+  SetVerticalSkewAndParallelize(vertical_x, vertical_y);
 }
 
 // Helper for FindAllTabVectors finds the vectors of a particular type.
@@ -905,7 +905,7 @@ TabVector* TabFind::FindTabVector(int search_size_multiple,
 
 // Set the vertical_skew_ member from the given vector and refit
 // all vectors parallel to the skew vector.
-void TabFind::SetVerticalSkewAndParellelize(int vertical_x, int vertical_y) {
+void TabFind::SetVerticalSkewAndParallelize(int vertical_x, int vertical_y) {
   // Fit the vertical vector into an ICOORD, which is 16 bit.
   vertical_skew_.set_with_shrink(vertical_x, vertical_y);
   if (textord_debug_tabfind)
@@ -1285,7 +1285,7 @@ bool TabFind::Deskew(TabVector_LIST* hlines, BLOBNBOX_LIST* image_blobs,
     TabVector* d = d_it.data();
     d->Rotate(*deskew);
   }
-  SetVerticalSkewAndParellelize(0, 1);
+  SetVerticalSkewAndParallelize(0, 1);
   // Rebuild the grid to the new size.
   TBOX grid_box(bleft_, tright_);
   grid_box.rotate_large(*deskew);
