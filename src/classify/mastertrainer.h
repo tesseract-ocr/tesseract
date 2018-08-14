@@ -103,7 +103,7 @@ class MasterTrainer {
 
   // Cleans up the samples after initial load from the tr files, and prior to
   // saving the MasterTrainer:
-  // Remaps fragmented chars if running shape anaylsis.
+  // Remaps fragmented chars if running shape analysis.
   // Sets up the samples appropriately for class/fontwise access.
   // Deletes outlier samples.
   void PostLoadCleanup();
@@ -284,7 +284,7 @@ class MasterTrainer {
   int charsetsize_;
   // Flag to indicate that we are running shape analysis and need fragments
   // fixing.
-  bool enable_shape_anaylsis_;
+  bool enable_shape_analysis_;
   // Flag to indicate that sample replication is required.
   bool enable_replication_;
   // Array of classids of fragments that replace the correctly segmented chars.

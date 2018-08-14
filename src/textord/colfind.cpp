@@ -278,7 +278,7 @@ void ColumnFinder::CorrectOrientation(TO_BLOCK* block,
 // can be an integer factor reduction of the grey_pix. It represents the
 // thresholds that were used to create the binary_pix from the grey_pix.
 // If diacritic_blobs is non-null, then diacritics/noise blobs, that would
-// confuse layout anaylsis by causing textline overlap, are placed there,
+// confuse layout analysis by causing textline overlap, are placed there,
 // with the expectation that they will be reassigned to words later and
 // noise/diacriticness determined via classification.
 // Returns -1 if the user hits the 'd' key in the blocks window while running

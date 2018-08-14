@@ -188,7 +188,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
  * of non-uniform linespacing.
  *
  * If diacritic_blobs is non-null, then diacritics/noise blobs, that would
- * confuse layout anaylsis by causing textline overlap, are placed there,
+ * confuse layout analysis by causing textline overlap, are placed there,
  * with the expectation that they will be reassigned to words later and
  * noise/diacriticness determined via classification.
  *
