@@ -185,7 +185,7 @@ class LSTMRecognizer {
   void RecognizeLine(const ImageData& image_data, bool invert, bool debug,
                      double worst_dict_cert, const TBOX& line_box,
                      PointerVector<WERD_RES>* words,
-                     bool glyph_confidences = false);
+                     int glyph_confidences = 0);
 
   // Helper computes min and mean best results in the output.
   void OutputStats(const NetworkIO& outputs,

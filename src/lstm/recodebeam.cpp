@@ -22,6 +22,8 @@
 #include "networkio.h"
 #include "pageres.h"
 #include "unicharcompress.h"
+#include <deque>
+#include <map>
 #include <set>
 #include <vector>
 
@@ -79,7 +81,7 @@ RecodeBeamSearch::RecodeBeamSearch(const UnicharCompress& recoder,
 // Decodes the set of network outputs, storing the lattice internally.
 void RecodeBeamSearch::Decode(const NetworkIO& output, double dict_ratio,
                               double cert_offset, double worst_dict_cert,
-                              const UNICHARSET* charset, bool glyph_confidence) {
+                              const UNICHARSET* charset, int glyph_confidence) {
   beam_size_ = 0;
   int width = output.Width();
   if (glyph_confidence)
@@ -177,7 +179,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
                                               float scale_factor, bool debug,
                                               const UNICHARSET* unicharset,
                                               PointerVector<WERD_RES>* words,
-                                              bool glyph_confidence) {
+                                              int glyph_confidence) {
   words->truncate(0);
   GenericVector<int> unichar_ids;
   GenericVector<float> certs;
@@ -185,6 +187,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   GenericVector<int> xcoords;
   GenericVector<const RecodeNode*> best_nodes;
   GenericVector<const RecodeNode*> second_nodes;
+  std::deque<std::pair<int,int>> best_glyphs;
   ExtractBestPaths(&best_nodes, &second_nodes);
   if (debug) {
     DebugPath(unicharset, best_nodes);
@@ -194,7 +197,22 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     DebugUnicharPath(unicharset, second_nodes, unichar_ids, certs, ratings,
                      xcoords);
   }
-  ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings, &xcoords);
+  int current_char;
+  int timestepEnd = 0;
+  //if glyph confidence is required in granularity level 2 it stores the x 
+  //Coordinates of every chosen character to match the alternative glyphs to it
+  if (glyph_confidence == 2) {
+    ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
+                            &xcoords, &best_glyphs);   
+    if (best_glyphs.size() > 0) {
+      current_char = best_glyphs.front().first;
+      timestepEnd = best_glyphs.front().second;
+      best_glyphs.pop_front();
+    }      
+  } else {
+    ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
+                            &xcoords);
+  }
   int num_ids = unichar_ids.size();
   if (debug) {
     DebugUnicharPath(unicharset, best_nodes, unichar_ids, certs, ratings,
@@ -202,7 +220,6 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   }
   // Convert labels to unichar-ids.
   int word_end = 0;
-  int timestepEnd = 0;
   float prev_space_cert = 0.0f;
   for (int word_start = 0; word_start < num_ids; word_start = word_end) {
     for (word_end = word_start + 1; word_end < num_ids; ++word_end) {
@@ -226,11 +243,55 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     WERD_RES* word_res = InitializeWord(
         leading_space, line_box, word_start, word_end,
         std::min(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
-    if (glyph_confidence) {
+    if (glyph_confidence == 1) {
       for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
         word_res->timesteps.push_back(timesteps[i]);
       }
       timestepEnd = xcoords[word_end];
+    } else if (glyph_confidence == 2) {
+      float sum = 0;
+      std::vector<std::pair<const char*, float>> glyph_pairs;
+      for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
+        for (std::pair<const char*, float> glyph : timesteps[i]) {
+          if (std::strcmp(glyph.first, "") != 0) {
+             sum += glyph.second;
+             glyph_pairs.push_back(glyph);
+          }         
+        }
+        if (best_glyphs.size() > 0 &&  i == best_glyphs.front().second-1
+            || i == xcoords[word_end]-1) {
+          std::map<const char*, float> summed_propabilities;
+          for(auto it = glyph_pairs.begin(); it != glyph_pairs.end(); ++it) {
+            summed_propabilities[it->first] += it->second;
+          }
+          std::vector<std::pair<const char*, float>> accumulated_timestep;
+          accumulated_timestep.push_back(std::pair<const char*,float>
+                                        (unicharset->id_to_unichar_ext
+                                        (current_char), 2.0));
+          int pos;
+          for (auto it = summed_propabilities.begin();
+               it != summed_propabilities.end(); ++it) {
+            if(sum == 0) break;
+            it->second/=sum;
+            pos = 0;
+            while (accumulated_timestep.size() > pos 
+                   && accumulated_timestep[pos].second > it->second) {
+              pos++;
+            }
+            accumulated_timestep.insert(accumulated_timestep.begin() + pos,
+                                        std::pair<const char*,float>(it->first,
+                                        it->second));
+          }
+          if (best_glyphs.size() > 0) {
+            current_char = best_glyphs.front().first;
+            best_glyphs.pop_front();
+          }
+          glyph_pairs.clear();
+          word_res->timesteps.push_back(accumulated_timestep);
+          sum = 0;
+        }
+      }
+      timestepEnd = xcoords[word_end];  
     }
     for (int i = word_start; i < word_end; ++i) {
       BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
@@ -304,7 +365,8 @@ void RecodeBeamSearch::DebugBeamPos(const UNICHARSET& unicharset,
 void RecodeBeamSearch::ExtractPathAsUnicharIds(
     const GenericVector<const RecodeNode*>& best_nodes,
     GenericVector<int>* unichar_ids, GenericVector<float>* certs,
-    GenericVector<float>* ratings, GenericVector<int>* xcoords) {
+    GenericVector<float>* ratings, GenericVector<int>* xcoords,
+    std::deque<std::pair<int,int>>* best_glyphs) {
   unichar_ids->truncate(0);
   certs->truncate(0);
   ratings->truncate(0);
@@ -333,6 +395,9 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
       }
       unichar_ids->push_back(unichar_id);
       xcoords->push_back(t);
+      if(best_glyphs != nullptr) {
+        best_glyphs->push_back(std::pair<int,int>(unichar_id,t));
+      }
       do {
         double cert = best_nodes[t++]->certainty;
         // Special-case NO-PERM space to forget the certainty of the previous

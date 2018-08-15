@@ -1114,7 +1114,8 @@ class Tesseract : public Wordrec {
              "Preserve multiple interword spaces");
   STRING_VAR_H(page_separator, "\f",
                "Page separator (default is form feed control character)");
-  BOOL_VAR_H(glyph_confidences, false, "Allows to include glyph confidences in the hOCR output");
+  INT_VAR_H(glyph_confidences, 0,
+            "Allows to include glyph confidences in the hOCR output");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const STRING &fname);
