@@ -22,7 +22,7 @@ VALID_LANGUAGE_CODES="afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat
                       ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo
                       ell eng enm epo est eus fas fil fin fra frk frm gle glg
                       grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old
-                      jav jpn kan kat kat_old kaz khm kir kor kur lao lat
+                      jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat
                       lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori
                       pan pol por pus ron rus san sin slk slv snd spa spa_old
                       sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur
@@ -603,6 +603,10 @@ BURMESE_FONTS=( \
     "Padauk" \
     "TharLon" \
     )
+	
+JAVANESE_FONTS=( \
+    "Prada" \
+    )
 
 NORTH_AMERICAN_ABORIGINAL_FONTS=( \
     "Aboriginal Sans" \
@@ -1065,6 +1069,10 @@ set_lang_specific_parameters() {
           test -z "$FONTS" && FONTS=( "${TELUGU_FONTS[@]}" ) ;;
 
     # SouthEast Asian scripts.
+    jav_java ) MEAN_COUNT="15"
+          WORD_DAWG_FACTOR=0.15
+          TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
+          test -z "$FONTS" && FONTS=( "${JAVANESE_FONTS[@]}" ) ;;
     khm ) MEAN_COUNT="15"
           WORD_DAWG_FACTOR=0.15
           TRAINING_DATA_ARGUMENTS+=" --infrequent_ratio=10000"
@@ -1172,7 +1180,7 @@ set_lang_specific_parameters() {
       LANG_IS_RTL="1"
       NORM_MODE="2" ;;
     asm | ben | bih | hin | mar | nep | guj | kan | mal | tam | tel | pan | \
-    dzo | sin | san | bod | ori | khm | mya | tha | lao | jav )
+    dzo | sin | san | bod | ori | khm | mya | tha | lao | jav  | jav_java)
       LANG_IS_RTL="0"
       NORM_MODE="2" ;;
     * )

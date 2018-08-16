@@ -29,7 +29,7 @@ namespace tesseract {
 // The order of components in an orthographic syllable as expressed in BNF is:
 // {C F} C {{R}Y} {V{A}} {Z}
 // Translated to the codes used by the CharClass enum:
-// [(V|C[N])(H)] (V|C[N]) [[R]Y] [M[D]] [D]
+// [(V|C[N])(H)] (V|C[N]) [[N]N] [M[D]] [v]
 // Also the Consonant class here includes independent vowels, as they are
 // treated the same anyway.
 // Indic - for reference
@@ -63,7 +63,6 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
 }
 
 Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch)) return CharClass::kVedicMark;
   if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
   if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;
   // Offset from the start of the relevant unicode code block aka code page.
@@ -229,6 +228,10 @@ bool ValidateJavanese::ConsumeConsonantTailIfValid() {
       if (UseMultiCode(1)) return true;
     }
   }
+  // Tarung also used for long versions of u and o vowels and vocalic r
+  while (codes_[codes_used_].first == CharClass::kMatraPiece) {
+    if (UseMultiCode(1)) return true;
+  }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
     if (UseMultiCode(1)) return true;
   }
@@ -260,4 +263,3 @@ bool ValidateJavanese::ConsumeVowelIfValid() {
 }
 
 }  // namespace tesseract
-
