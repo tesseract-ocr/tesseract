@@ -27,7 +27,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <cstring>
 
 #include "svmnode.h"
 
