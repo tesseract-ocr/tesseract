@@ -26,12 +26,13 @@ namespace tesseract {
 // Taken from unicode standard:
 // http://www.unicode.org/charts/PDF/UA980.pdf
 // http://www.unicode.org/versions/Unicode11.0.0/ch17.pdf
+// The Consonant class here includes independent vowels.
 // The order of components in an orthographic syllable as expressed in BNF is:
 // {C F} C {{R}Y} {V{A}} {Z}
 // Translated to the codes used by the CharClass enum:
-// [(V|C[N])(H)] (V|C[N]) [[R]Y] [M[D]] [D]
-// Also the Consonant class here includes independent vowels, as they are
-// treated the same anyway.
+// [(V|C[N])(H)] (V|C[N]) [[N]N] [M[D]] [v]
+// Also see https://r12a.github.io/scripts/javanese/ for detailed notes.
+// Validation rules copied from validate_indic.cpp and modified for Javanese.
 // Indic - for reference
 //  + vowel Grapheme:  V[D](v)*
 //  + consonant Grapheme: (C[N](H|HZ|Hz|ZH)?)*C[N](H|Hz)?[M[P]][D](v)*
@@ -63,7 +64,6 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
 }
 
 Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
-  if (IsVedicAccent(ch)) return CharClass::kVedicMark;
   if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
   if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;
   // Offset from the start of the relevant unicode code block aka code page.
@@ -74,6 +74,8 @@ Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
   if (off <= 0x32) return CharClass::kConsonant; // includes independent vowels
   if (off == 0x33) return CharClass::kNukta; // A9B3 CECAK TELU
   if (off == 0x34) return CharClass::kMatraPiece; // A9B4 TARUNG two part vowels
+  if (off <= 0x39) return CharClass::kMatra;
+  if (off <= 0x3a) return CharClass::kMatraPiece; // A9BA TALING 
   if (off <= 0x3d) return CharClass::kMatra;
   if (off <= 0x3f) return CharClass::kNukta; // A9BE-A9BF PENGKAL-CAKRA medial consonants
   if (off == 0x40) return CharClass::kVirama; // A9C0 PANGKON
@@ -229,6 +231,11 @@ bool ValidateJavanese::ConsumeConsonantTailIfValid() {
       if (UseMultiCode(1)) return true;
     }
   }
+  // Tarung also used for long versions of u and o vowels and vocalic r
+  // Taling + Tarung is valid eg. ꦏ + ◌ꦺ + ◌ꦴ
+  while (codes_[codes_used_].first == CharClass::kMatraPiece) {
+    if (UseMultiCode(1)) return true;
+  }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
     if (UseMultiCode(1)) return true;
   }
@@ -260,4 +267,3 @@ bool ValidateJavanese::ConsumeVowelIfValid() {
 }
 
 }  // namespace tesseract
-

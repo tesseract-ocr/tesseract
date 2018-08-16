@@ -23,6 +23,7 @@ else
     FONTS_DIR="/usr/share/fonts/"
     FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
 fi
+MAX_PAGES=0
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
 LINEDATA=0
@@ -130,6 +131,9 @@ parse_flags() {
             --langdata_dir)
                 parse_value "LANGDATA_ROOT" ${ARGV[$j]}
                 i=$j ;;
+            --maxpages)
+                parse_value "MAX_PAGES" ${ARGV[$j]}
+                i=$j ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]}
                 i=$j ;;
@@ -221,7 +225,7 @@ generate_font_image() {
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
     common_args+=" --leading=${LEADING}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
-    common_args+=" --outputbase=${outbase} --max_pages=0"
+    common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
 
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
@@ -233,7 +237,7 @@ generate_font_image() {
     done
 
     run_command text2image ${common_args} --font="${font}" \
-        --text=${TRAINING_TEXT} ${TEXT2IMAGE_EXTRA_ARGS}
+        --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS}
     check_file_readable ${outbase}.box ${outbase}.tif
 
     if ((EXTRACT_FONT_PROPERTIES)) &&
@@ -245,7 +249,6 @@ generate_font_image() {
         check_file_readable ${outbase}.fontinfo
     fi
 }
-
 
 # Phase I : Generate (I)mages from training text for each font.
 phase_I_generate_image() {

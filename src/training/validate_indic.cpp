@@ -65,7 +65,7 @@ Validator::CharClass ValidateIndic::UnicodeToCharClass(char32 ch) const {
       return CharClass::kConsonant;
     // Sinhala doesn't have Nukta or Avagraha.
     if (off == 0x3c) return CharClass::kNukta;
-    if (off == 0x3d) return CharClass::kVowel;
+    if (off == 0x3d) return CharClass::kVowel; // avagraha
     if (off <= 0x4c || (0x51 <= off && off <= 0x54)) return CharClass::kMatra;
     if (0x55 <= off && off <= 0x57) return CharClass::kMatraPiece;
     if (off == 0x4d) return CharClass::kVirama;

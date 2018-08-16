@@ -61,7 +61,7 @@ initialize_fontconfig
 phase_I_generate_image 8
 phase_UP_generate_unicharset
 if ((LINEDATA)); then
-  phase_E_extract_features "lstm.train" 8 "lstmf"
+  phase_E_extract_features " --psm 6  lstm.train " 8 "lstmf"
   make__lstmdata
   tlog "\nCreated starter traineddata for language '${LANG_CODE}'\n"
   tlog "\nRun lstmtraining to do the LSTM training for language '${LANG_CODE}'\n"
