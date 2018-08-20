@@ -24,6 +24,7 @@ else
     FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
 fi
 MAX_PAGES=0
+SAVE_BOX_TIFF=0
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
 LINEDATA=0
@@ -139,6 +140,8 @@ parse_flags() {
                 i=$j ;;
             --overwrite)
                 OVERWRITE=1 ;;
+            --save_box_tiff)
+                SAVE_BOX_TIFF=1 ;;
             --linedata_only)
                 LINEDATA=1 ;;
             --extract_font_properties)
@@ -182,7 +185,9 @@ parse_flags() {
     fi
 
     # Location where intermediate files will be created.
-    TRAINING_DIR=${WORKSPACE_DIR}/${LANG_CODE}
+    TIMESTAMP=`date +%Y-%m-%d`
+    TMP_DIR=$(mktemp -d --tmpdir ${LANG_CODE}-${TIMESTAMP}.XXX )
+    TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
 
@@ -530,6 +535,9 @@ make__lstmdata() {
     --puncs "${lang_prefix}.punc" \
     --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
     "${pass_through}" "${lang_is_rtl}"
+    
+  if ((SAVE_BOX_TIFF)); then
+    tlog "\n=== Saving box/tiff pairs for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
     mv "${f}" "${OUTPUT_DIR}"
@@ -538,6 +546,8 @@ make__lstmdata() {
     tlog "Moving ${f} to ${OUTPUT_DIR}"
     mv "${f}" "${OUTPUT_DIR}"
   done
+  fi
+  tlog "\n=== Moving lstmf files for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
     mv "${f}" "${OUTPUT_DIR}"

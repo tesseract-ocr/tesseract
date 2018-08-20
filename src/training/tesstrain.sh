@@ -22,6 +22,7 @@
 #    --lang LANG_CODE           # ISO 639 code.
 #    --langdata_dir DATADIR     # Path to tesseract/training/langdata directory.
 #    --output_dir OUTPUTDIR     # Location of output traineddata file.
+#    --save_box_tiff                # Save box/tiff pairs along with lstmf files.
 #    --overwrite                # Safe to overwrite files in output_dir.
 #    --linedata_only            # Only generate training data for lstmtraining.
 #    --run_shape_clustering     # Run shape clustering (use for Indic langs).
