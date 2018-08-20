@@ -1606,12 +1606,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (italic) hocr_str += "</em>";
     if (bold) hocr_str += "</strong>";
     // If glyph confidence is required it is added here
-    if (tesseract_->glyph_confidences && confidencemap != nullptr) {
+    if (tesseract_->glyph_confidences == 1 && confidencemap != nullptr) {
       for (size_t i = 0; i < confidencemap->size(); i++) {
         hocr_str += "\n       <span class='ocrx_cinfo'";
         AddIdTohOCR(&hocr_str, "timestep", page_id, wcnt, tcnt);
         hocr_str += ">";
-        //*
         std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
         for (std::pair<const char*, float> conf : timestep) {
           hocr_str += "<span class='ocr_glyph'";
@@ -1623,9 +1622,31 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           hocr_str += "</span>";
           gcnt++;
         }
-        //*/
         hocr_str += "</span>";
         tcnt++;
+      }
+    } else if (tesseract_->glyph_confidences == 2 && confidencemap != nullptr) {
+      for (size_t i = 0; i < confidencemap->size(); i++) {
+        std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
+        if (timestep.size() > 0) {
+          hocr_str += "\n       <span class='ocrx_cinfo'";
+          AddIdTohOCR(&hocr_str, "alternative_glyphs", page_id, wcnt, tcnt);
+          hocr_str += " chosen='";
+          hocr_str += timestep[0].first;
+          hocr_str += "'>";
+          for (size_t j = 1; j < timestep.size(); j++) {
+            hocr_str += "<span class='ocr_glyph'";
+            AddIdTohOCR(&hocr_str, "glyph", page_id, wcnt, gcnt);
+            hocr_str.add_str_int(" title='x_confs ", int(timestep[j].second * 100));
+            hocr_str += "'";
+            hocr_str += ">";
+            hocr_str += timestep[j].first;
+            hocr_str += "</span>";
+            gcnt++;
+          }
+          hocr_str += "</span>";
+          tcnt++;
+        }
       }
     }
     hocr_str += "</span>";
