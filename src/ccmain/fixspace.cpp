@@ -808,7 +808,7 @@ float Tesseract::blob_noise_score(TBLOB *blob) {
 
 void fixspace_dbg(WERD_RES *word) {
   TBOX box = word->word->bounding_box();
-  bool show_map_detail = false;
+  const bool show_map_detail = false;
   int16_t i;
 
   box.print();
