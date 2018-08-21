@@ -345,7 +345,6 @@ int32_t row_words2(                  //compute space size
         FCOORD rotation,  //for drawing
         bool testing_on  //for debug
 ) {
-  bool testing_row;             //contains testpt
   bool prev_valid;              //if decent size
   bool this_valid;              //current blob big enough
   int32_t prev_x;                  //end of prev blob
@@ -375,7 +374,7 @@ int32_t row_words2(                  //compute space size
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = false;
   prev_x = -INT16_MAX;
-  testing_row = false;
+  const bool testing_row = false;
                                  //min blob size
   min_width = (int32_t) block->pr_space;
   total_count = 0;
