@@ -122,10 +122,6 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
 
   const int box_count = boxes.size();
   int box_failures = 0;
-  // Add an empty everything to the end.
-  boxes.push_back(TBOX());
-  texts.push_back(STRING());
-  full_texts.push_back(STRING());
 
   // In word mode, we use the boxes to make a word for each box, but
   // in blob mode we use the existing words and maximally chop them first.
@@ -133,18 +129,17 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
       nullptr : SetupApplyBoxes(boxes, block_list);
   clear_any_old_text(block_list);
 
-  for (int i = 0; i < boxes.size() - 1; i++) {
+  for (int i = 0; i < box_count; i++) {
     bool foundit = false;
     if (page_res != nullptr) {
-      if (i == 0) {
-        foundit = ResegmentCharBox(page_res, nullptr, boxes[i], boxes[i + 1],
-                                   full_texts[i].string());
-      } else {
-        foundit = ResegmentCharBox(page_res, &boxes[i-1], boxes[i],
-                                   boxes[i + 1], full_texts[i].string());
-      }
+      foundit = ResegmentCharBox(page_res,
+                                 (i == 0) ? nullptr : &boxes[i - 1],
+                                 boxes[i],
+                                 (i == box_count - 1) ? nullptr : &boxes[i + 1],
+                                 full_texts[i].string());
     } else {
-      foundit = ResegmentWordBox(block_list, boxes[i], boxes[i + 1],
+      foundit = ResegmentWordBox(block_list, boxes[i],
+                                 (i == box_count - 1) ? nullptr : &boxes[i + 1],
                                  texts[i].string());
     }
     if (!foundit) {
@@ -339,8 +334,8 @@ static double BoxMissMetric(const TBOX& box1, const TBOX& box2) {
 ///
 /// This means that occasionally, blobs may be incorrectly segmented if the
 /// chopper fails to find a suitable chop point.
-bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
-                                 const TBOX& box, const TBOX& next_box,
+bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX* prev_box,
+                                 const TBOX& box, const TBOX* next_box,
                                  const char* correct_text) {
   if (applybox_debug > 1) {
     tprintf("\nAPPLY_BOX: in ResegmentCharBox() for %s\n", correct_text);
@@ -365,16 +360,18 @@ bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
           break;
         if (word_res->correct_text[i + blob_count].length() > 0)
           break;  // Blob is claimed already.
-        const double current_box_miss_metric = BoxMissMetric(blob_box, box);
-        const double next_box_miss_metric = BoxMissMetric(blob_box, next_box);
-        if (applybox_debug > 2) {
-          tprintf("Checking blob:");
-          blob_box.print();
-          tprintf("Current miss metric = %g, next = %g\n",
-                  current_box_miss_metric, next_box_miss_metric);
+        if (next_box != nullptr) {
+          const double current_box_miss_metric = BoxMissMetric(blob_box, box);
+          const double next_box_miss_metric = BoxMissMetric(blob_box, *next_box);
+          if (applybox_debug > 2) {
+            tprintf("Checking blob:");
+            blob_box.print();
+            tprintf("Current miss metric = %g, next = %g\n",
+                    current_box_miss_metric, next_box_miss_metric);
+          }
+          if (current_box_miss_metric > next_box_miss_metric)
+            break;  // Blob is a better match for next box.
         }
-        if (current_box_miss_metric > next_box_miss_metric)
-          break;  // Blob is a better match for next box.
         char_box += blob_box;
       }
       if (blob_count > 0) {
@@ -382,7 +379,7 @@ bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
           tprintf("Index [%d, %d) seem good.\n", i, i + blob_count);
         }
         if (!char_box.almost_equal(box, 3) &&
-            (box.x_gap(next_box) < -3 ||
+            ((next_box != nullptr && box.x_gap(*next_box) < -3)||
              (prev_box != nullptr && prev_box->x_gap(box) < -3))) {
           return false;
         }
@@ -398,8 +395,10 @@ bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
           word_res->box_word->BlobBox(i).print();
           tprintf("Matches box:");
           box.print();
-          tprintf("With next box:");
-          next_box.print();
+          if (next_box != nullptr) {
+            tprintf("With next box:");
+            next_box->print();
+          }
         }
         // Eliminated best_state and correct_text entries for the consumed
         // blobs.
@@ -438,7 +437,7 @@ bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
 /// @return false if the box was in error, which can only be caused by
 /// failing to find an overlapping blob for a box.
 bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list,
-                                 const TBOX& box, const TBOX& next_box,
+                                 const TBOX& box, const TBOX* next_box,
                                  const char* correct_text) {
   if (applybox_debug > 1) {
     tprintf("\nAPPLY_BOX: in ResegmentWordBox() for %s\n", correct_text);
@@ -472,23 +471,27 @@ bool Tesseract::ResegmentWordBox(BLOCK_LIST *block_list,
           TBOX blob_box = blob->bounding_box();
           if (!blob_box.major_overlap(box))
             continue;
-          const double current_box_miss_metric = BoxMissMetric(blob_box, box);
-          const double next_box_miss_metric = BoxMissMetric(blob_box, next_box);
-          if (applybox_debug > 2) {
-            tprintf("Checking blob:");
-            blob_box.print();
-            tprintf("Current miss metric = %g, next = %g\n",
-                    current_box_miss_metric, next_box_miss_metric);
+          if (next_box != nullptr) {
+            const double current_box_miss_metric = BoxMissMetric(blob_box, box);
+            const double next_box_miss_metric = BoxMissMetric(blob_box, *next_box);
+            if (applybox_debug > 2) {
+              tprintf("Checking blob:");
+              blob_box.print();
+              tprintf("Current miss metric = %g, next = %g\n",
+                      current_box_miss_metric, next_box_miss_metric);
+            }
+            if (current_box_miss_metric > next_box_miss_metric)
+              continue;  // Blob is a better match for next box.
           }
-          if (current_box_miss_metric > next_box_miss_metric)
-            continue;  // Blob is a better match for next box.
           if (applybox_debug > 2) {
             tprintf("Blob match: blob:");
             blob_box.print();
             tprintf("Matches box:");
             box.print();
-            tprintf("With next box:");
-            next_box.print();
+            if (next_box != nullptr) {
+              tprintf("With next box:");
+              next_box->print();
+            }
           }
           if (new_word == nullptr) {
             // Make a new word with a single blob.
