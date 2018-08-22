@@ -237,7 +237,7 @@ float TrainingSampleSet::UnicharDistance(const UnicharAndFonts& uf1,
   int c2 = uf2.unichar_id;
   double dist_sum = 0.0;
   int dist_count = 0;
-  bool debug = false;
+  const bool debug = false;
   if (matched_fonts) {
     // Compute distances only where fonts match.
     for (int i = 0; i < num_fonts1; ++i) {

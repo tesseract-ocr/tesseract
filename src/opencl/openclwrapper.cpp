@@ -196,12 +196,7 @@ static ds_status initDSProfile(ds_profile** p, const char* version) {
   profile->devices[next].type = DS_DEVICE_NATIVE_CPU;
   profile->version = version;
 
-cleanup:
-  if (status == DS_SUCCESS) {
-    *p = profile;
-  } else {
-    delete profile;
-  }
+  *p = profile;
   return status;
 }
 
@@ -2107,8 +2102,6 @@ static double composeRGBPixelMicroBench(GPUEnv* env,
 #endif
     pixDestroy(&pix);
   }
-
-  // cleanup
 
   return time;
 }
