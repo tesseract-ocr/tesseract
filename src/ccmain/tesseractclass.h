@@ -744,8 +744,8 @@ class Tesseract : public Wordrec {
   // failing to find an appropriate blob for a box.
   // This means that occasionally, blobs may be incorrectly segmented if the
   // chopper fails to find a suitable chop point.
-  bool ResegmentCharBox(PAGE_RES* page_res, const TBOX *prev_box,
-                        const TBOX& box, const TBOX& next_box,
+  bool ResegmentCharBox(PAGE_RES* page_res, const TBOX* prev_box,
+                        const TBOX& box, const TBOX* next_box,
                         const char* correct_text);
   // Consume all source blobs that strongly overlap the given box,
   // putting them into a new word, with the correct_text label.
@@ -753,8 +753,8 @@ class Tesseract : public Wordrec {
   // applying the blobs to box or next_box with the least non-overlap.
   // Returns false if the box was in error, which can only be caused by
   // failing to find an overlapping blob for a box.
-  bool ResegmentWordBox(BLOCK_LIST *block_list,
-                        const TBOX& box, const TBOX& next_box,
+  bool ResegmentWordBox(BLOCK_LIST* block_list,
+                        const TBOX& box, const TBOX* next_box,
                         const char* correct_text);
   // Resegments the words by running the classifier in an attempt to find the
   // correct segmentation that produces the required string.
