@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  **********************************************************************/
- 
+
 #ifndef TESSERACT_TRAINING_VALIDATE_JAVANESE_H_
 #define TESSERACT_TRAINING_VALIDATE_JAVANESE_H_
 
@@ -24,7 +24,7 @@
 
 namespace tesseract {
 
-// Subclass of Validator that validates and segments Javanese scripts 
+// Subclass of Validator that validates and segments Javanese scripts
 
 class ValidateJavanese : public Validator {
  public:
