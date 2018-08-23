@@ -199,16 +199,16 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   }
   int current_char;
   int timestepEnd = 0;
-  //if glyph confidence is required in granularity level 2 it stores the x 
+  //if glyph confidence is required in granularity level 2 it stores the x
   //Coordinates of every chosen character to match the alternative glyphs to it
   if (glyph_confidence == 2) {
     ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
-                            &xcoords, &best_glyphs);   
+                            &xcoords, &best_glyphs);
     if (best_glyphs.size() > 0) {
       current_char = best_glyphs.front().first;
       timestepEnd = best_glyphs.front().second;
       best_glyphs.pop_front();
-    }      
+    }
   } else {
     ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
                             &xcoords);
@@ -256,7 +256,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
           if (std::strcmp(glyph.first, "") != 0) {
              sum += glyph.second;
              glyph_pairs.push_back(glyph);
-          }         
+          }
         }
         if (best_glyphs.size() > 0 &&  i == best_glyphs.front().second-1
             || i == xcoords[word_end]-1) {
@@ -274,7 +274,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
             if(sum == 0) break;
             it->second/=sum;
             pos = 0;
-            while (accumulated_timestep.size() > pos 
+            while (accumulated_timestep.size() > pos
                    && accumulated_timestep[pos].second > it->second) {
               pos++;
             }
@@ -291,7 +291,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
           sum = 0;
         }
       }
-      timestepEnd = xcoords[word_end];  
+      timestepEnd = xcoords[word_end];
     }
     for (int i = word_start; i < word_end; ++i) {
       BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;

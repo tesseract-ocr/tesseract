@@ -423,16 +423,16 @@ void ComputeDirection(MFEDGEPT *Start,
         }
       } else {
         Start->Direction = west;
-      }  
+      }
     } else if (Start->Slope > MinSlope) {
       if (Start->Slope < MaxSlope) {
         Start->Direction = southwest;
       } else {
         Start->Direction = south;
-      } 
+      }
     } else {
       Start->Direction = west;
-    }   
+    }
   }
   Finish->PreviousDirection = Start->Direction;
 }
