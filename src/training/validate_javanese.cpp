@@ -186,9 +186,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
     }
     IndicPair joiner(CharClass::kOther, 0);
     if (codes_used_ < num_codes &&
-        (codes_[codes_used_].second == kZeroWidthJoiner ||
-         (codes_[codes_used_].second == kZeroWidthNonJoiner &&
-          script_ == ViramaScript::kMalayalam))) {
+        (codes_[codes_used_].second == kZeroWidthJoiner )) {
       joiner = codes_[codes_used_];
       if (++codes_used_ == num_codes) {
         if (report_errors_) {
