@@ -75,7 +75,7 @@ Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
   if (off == 0x33) return CharClass::kNukta; // A9B3 CECAK TELU
   if (off == 0x34) return CharClass::kMatraPiece; // A9B4 TARUNG two part vowels
   if (off <= 0x39) return CharClass::kMatra;
-  if (off <= 0x3a) return CharClass::kMatraPiece; // A9BA TALING
+  if (off <= 0x3a) return CharClass::kConsonant; // A9BA TALING - pre base vowel
   if (off <= 0x3d) return CharClass::kMatra;
   if (off <= 0x3f) return CharClass::kNukta; // A9BE-A9BF PENGKAL-CAKRA medial consonants
   if (off == 0x40) return CharClass::kVirama; // A9C0 PANGKON
