@@ -173,8 +173,6 @@ endif()
 ########################################
 
 set(unicharset_training_src
-    fileio.cpp
-    fileio.h
     icuerrorcode.h
     lang_model_helpers.cpp
     lang_model_helpers.h

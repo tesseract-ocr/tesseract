@@ -31,7 +31,6 @@ noinst_HEADERS = \
     commandlineflags.h \
     commontraining.h \
     degradeimage.h \
-    fileio.h \
     icuerrorcode.h \
     lang_model_helpers.h \
     ligature_table.h \
@@ -66,7 +65,6 @@ libtesseract_training_la_SOURCES = \
     commandlineflags.cpp \
     commontraining.cpp \
     degradeimage.cpp \
-    fileio.cpp \
     lang_model_helpers.cpp \
     ligature_table.cpp \
     lstmtester.cpp \
