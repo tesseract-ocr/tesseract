@@ -53,6 +53,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 check_PROGRAMS = \
   apiexample_test \
   bitvector_test \
+  cleanapi_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -70,6 +71,9 @@ apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+cleanapi_test_SOURCES = cleanapi_test.cc
+cleanapi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
