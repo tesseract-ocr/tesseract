@@ -1,8 +1,21 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <string>
-#include "tesseract/ccutil/indexmapbidi.h"
+
+#include "indexmapbidi.h"
+
+#include "include_gunit.h"
 
 using tesseract::IndexMap;
 using tesseract::IndexMapBiDi;
@@ -13,7 +26,7 @@ namespace {
 
 class IndexMapBiDiTest : public testing::Test {
  public:
-  string OutputNameToPath(const string& name) {
+  std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
   // Computes primes upto kPrimeLimit, using the seive of Eratosthenes.
@@ -66,7 +79,7 @@ TEST_F(IndexMapBiDiTest, Primes) {
   base_map.CopyFrom(map);
   TestPrimes(base_map);
   // Test file i/o too.
-  string filename = OutputNameToPath("primesmap");
+  std::string filename = OutputNameToPath("primesmap");
   FILE* fp = fopen(filename.c_str(), "wb");
   CHECK(fp != nullptr);
   EXPECT_TRUE(map.Serialize(fp));
@@ -101,7 +114,3 @@ TEST_F(IndexMapBiDiTest, ManyToOne) {
 }
 
 }  // namespace.
-
-
-
-

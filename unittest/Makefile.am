@@ -57,6 +57,7 @@ check_PROGRAMS = \
   colpartition_test \
   denorm_test \
   heap_test \
+  indexmapbidi_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -86,6 +87,9 @@ denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 heap_test_SOURCES = heap_test.cc
 heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+indexmapbidi_test_SOURCES = indexmapbidi_test.cc
+indexmapbidi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
