@@ -54,6 +54,7 @@ check_PROGRAMS = \
   apiexample_test \
   bitvector_test \
   cleanapi_test \
+  colpartition_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -74,6 +75,9 @@ bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 cleanapi_test_SOURCES = cleanapi_test.cc
 cleanapi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+colpartition_test_SOURCES = colpartition_test.cc
+colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
