@@ -22,6 +22,7 @@ const char* FLAGS_test_tmpdir = ".";
 class file: public tesseract::File {
 };
 
+#define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
 
 #endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
