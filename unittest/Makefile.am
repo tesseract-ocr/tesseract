@@ -56,6 +56,7 @@ check_PROGRAMS = \
   cleanapi_test \
   colpartition_test \
   denorm_test \
+  heap_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -82,6 +83,9 @@ colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+heap_test_SOURCES = heap_test.cc
+heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
