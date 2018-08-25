@@ -9,9 +9,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // Portability include to match the Google test environment.
+
 #ifndef TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 #define TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 
 #include "gtest/gtest.h"
+#include "errcode.h"            // for ASSERT_HOST
+#include "fileio.h"             // for tesseract::File
+
+const char* FLAGS_test_tmpdir = ".";
+
+class file: public tesseract::File {
+};
+
+#define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define CHECK(test) ASSERT_HOST(test)
 
 #endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_

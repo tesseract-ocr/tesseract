@@ -52,6 +52,13 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 
 check_PROGRAMS = \
   apiexample_test \
+  bitvector_test \
+  cleanapi_test \
+  colpartition_test \
+  denorm_test \
+  heap_test \
+  indexmapbidi_test \
+  intfeaturemap_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -59,14 +66,34 @@ check_PROGRAMS = \
   loadlang_test \
   tesseracttests
 
-
 TESTS = $(check_PROGRAMS)
 
-#List of source files needed to build the executable:
+# List of source files needed to build the executable:
 
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+bitvector_test_SOURCES = bitvector_test.cc
+bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+cleanapi_test_SOURCES = cleanapi_test.cc
+cleanapi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+colpartition_test_SOURCES = colpartition_test.cc
+colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+denorm_test_SOURCES = denorm_test.cc
+denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+heap_test_SOURCES = heap_test.cc
+heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+indexmapbidi_test_SOURCES = indexmapbidi_test.cc
+indexmapbidi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+intfeaturemap_test_SOURCES = intfeaturemap_test.cc
+intfeaturemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
