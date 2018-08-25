@@ -52,6 +52,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 
 check_PROGRAMS = \
   apiexample_test \
+  bitvector_test \
   progress_test \
   intsimdmatrix_test \
   matrix_test \
@@ -59,14 +60,16 @@ check_PROGRAMS = \
   loadlang_test \
   tesseracttests
 
-
 TESTS = $(check_PROGRAMS)
 
-#List of source files needed to build the executable:
+# List of source files needed to build the executable:
 
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+bitvector_test_SOURCES = bitvector_test.cc
+bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
