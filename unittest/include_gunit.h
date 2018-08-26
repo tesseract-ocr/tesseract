@@ -22,6 +22,7 @@ const char* FLAGS_test_tmpdir = ".";
 class file: public tesseract::File {
 };
 
+#define ABSL_ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
 

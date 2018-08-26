@@ -67,6 +67,7 @@ check_PROGRAMS = \
   osd_test \
   progress_test \
   rect_test \
+  stats_test \
   tesseracttests
 
 TESTS = $(check_PROGRAMS)
@@ -122,6 +123,9 @@ progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 rect_test_SOURCES = rect_test.cc
 rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+stats_test_SOURCES = stats_test.cc
+stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
