@@ -59,11 +59,19 @@ check_PROGRAMS = \
   heap_test \
   indexmapbidi_test \
   intfeaturemap_test \
-  progress_test \
   intsimdmatrix_test \
-  matrix_test \
-  osd_test \
+  linlsq_test \
   loadlang_test \
+  matrix_test \
+  nthitem_test \
+  osd_test \
+  progress_test \
+  rect_test \
+  stats_test \
+  tablefind_test \
+  tablerecog_test \
+  tabvector_test \
+  tfile_test \
   tesseracttests
 
 TESTS = $(check_PROGRAMS)
@@ -95,21 +103,45 @@ indexmapbidi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 intfeaturemap_test_SOURCES = intfeaturemap_test.cc
 intfeaturemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-progress_test_SOURCES = progress_test.cc
-progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
-progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
-
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+linlsq_test_SOURCES = linlsq_test.cc
+linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+loadlang_test_SOURCES = loadlang_test.cc
+loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+nthitem_test_SOURCES = nthitem_test.cc
+nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
-loadlang_test_SOURCES = loadlang_test.cc
-loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+progress_test_SOURCES = progress_test.cc
+progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
+progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+rect_test_SOURCES = rect_test.cc
+rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+stats_test_SOURCES = stats_test.cc
+stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tablefind_test_SOURCES = tablefind_test.cc
+tablefind_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tablerecog_test_SOURCES = tablerecog_test.cc
+tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tabvector_test_SOURCES = tabvector_test.cc
+tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tfile_test_SOURCES = tfile_test.cc
+tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
