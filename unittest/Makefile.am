@@ -68,6 +68,7 @@ check_PROGRAMS = \
   progress_test \
   rect_test \
   stats_test \
+  tablefind_test \
   tesseracttests
 
 TESTS = $(check_PROGRAMS)
@@ -126,6 +127,9 @@ rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tablefind_test_SOURCES = tablefind_test.cc
+tablefind_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
