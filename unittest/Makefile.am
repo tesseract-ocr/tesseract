@@ -71,6 +71,7 @@ check_PROGRAMS = \
   tablefind_test \
   tablerecog_test \
   tabvector_test \
+  tfile_test \
   tesseracttests
 
 TESTS = $(check_PROGRAMS)
@@ -138,6 +139,9 @@ tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+tfile_test_SOURCES = tfile_test.cc
+tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tesseracttests_SOURCES = ../tests/tesseracttests.cpp
 tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
