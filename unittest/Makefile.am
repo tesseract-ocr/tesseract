@@ -63,6 +63,7 @@ check_PROGRAMS = \
   linlsq_test \
   loadlang_test \
   matrix_test \
+  nthitem_test \
   osd_test \
   progress_test \
   tesseracttests
@@ -107,6 +108,9 @@ loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+nthitem_test_SOURCES = nthitem_test.cc
+nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
