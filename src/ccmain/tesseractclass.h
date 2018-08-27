@@ -1115,7 +1115,10 @@ class Tesseract : public Wordrec {
   STRING_VAR_H(page_separator, "\f",
                "Page separator (default is form feed control character)");
   INT_VAR_H(glyph_confidences, 0,
-            "Allows to include glyph confidences in the hOCR output");
+            "Allows to include glyph confidences in the hOCR output. "
+            "Valid input values are 0, 1 and 2. 0 is the default value. "
+            "With 1 the glyph confidences of all timesteps are included. "
+            "With 2 the glyph confidences are accumulated per charakter.");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const STRING &fname);
