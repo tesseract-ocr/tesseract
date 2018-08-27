@@ -21,6 +21,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/dict
 AM_CPPFLAGS += -I$(top_srcdir)/src/display
 AM_CPPFLAGS += -I$(top_srcdir)/src/lstm
 AM_CPPFLAGS += -I$(top_srcdir)/src/textord
+if ENABLE_TRAINING
+AM_CPPFLAGS += -I$(top_srcdir)/src/training
+endif
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 
@@ -47,6 +50,9 @@ libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
 GTEST_LIBS =  libgtest.la libgtest_main.la
 GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(top_builddir)/src/api/libtesseract.la
+TRAINING_LIBS = $(top_builddir)/src/training/libtesseract_training.la
+TRAINING_LIBS += $(top_builddir)/src/training/libtesseract_tessopt.la
+TRAINING_LIBS += $(ICU_UC_LIBS)
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
@@ -74,6 +80,11 @@ check_PROGRAMS = \
   tfile_test \
   tesseracttests
 
+if ENABLE_TRAINING
+check_PROGRAMS += commandlineflags_test
+check_PROGRAMS += validator_test
+endif
+
 TESTS = $(check_PROGRAMS)
 
 # List of source files needed to build the executable:
@@ -90,6 +101,9 @@ cleanapi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 colpartition_test_SOURCES = colpartition_test.cc
 colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+commandlineflags_test_SOURCES = commandlineflags_test.cc
+commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -140,11 +154,14 @@ tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+tesseracttests_SOURCES = ../tests/tesseracttests.cpp
+tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-tesseracttests_SOURCES = ../tests/tesseracttests.cpp
-tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+validator_test_SOURCES = validator_test.cc
+validator_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
 # for windows
 if T_WIN
