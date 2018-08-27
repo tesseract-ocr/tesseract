@@ -81,6 +81,7 @@ check_PROGRAMS = \
   tesseracttests
 
 if ENABLE_TRAINING
+check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += validator_test
 endif
 
@@ -100,6 +101,9 @@ cleanapi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 colpartition_test_SOURCES = colpartition_test.cc
 colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+commandlineflags_test_SOURCES = commandlineflags_test.cc
+commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
