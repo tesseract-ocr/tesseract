@@ -509,7 +509,10 @@ Tesseract::Tesseract()
                     "Page separator (default is form feed control character)",
                     this->params()),
       INT_MEMBER(glyph_confidences, 0,
-                  "Allows to include glyph confidences in the hOCR output",
+                  "Allows to include glyph confidences in the hOCR output. "
+                  "Valid input values are 0, 1 and 2. 0 is the default value. "
+                  "With 1 the glyph confidences of all timesteps are included. "
+                  "With 2 the glyph confidences are accumulated per charakter.",
                    this->params()),
 
       backup_config_file_(nullptr),
