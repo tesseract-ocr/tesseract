@@ -58,6 +58,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 
 check_PROGRAMS = \
   apiexample_test \
+  applybox_test \
   bitvector_test \
   cleanapi_test \
   colpartition_test \
@@ -92,6 +93,9 @@ TESTS = $(check_PROGRAMS)
 apiexample_test_SOURCES = apiexample_test.cc
 apiexample_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+applybox_test_SOURCES = applybox_test.cc
+applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
