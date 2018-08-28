@@ -1,30 +1,40 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <string>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/ccmain/resultiterator.h"
-#include "tesseract/ccstruct/boxread.h"
-#include "tesseract/ccstruct/rect.h"
+#include "allheaders.h"
+#include "baseapi.h"
+#include "boxread.h"
+#include "rect.h"
+#include "resultiterator.h"
+
+#include "include_gunit.h"
 
 namespace {
 
 using tesseract::ResultIterator;
 
-const char* kTruthTextWords = "To simple burn running of goods lately.\n\n";
-const char* kTruthTextLine = "Tosimpleburnrunningofgoodslately.\n\n";
+const char* kTruthTextWords = "To simple burn running of goods lately.\n";
+const char* kTruthTextLine = "Tosimpleburnrunningofgoodslately.\n";
 
 // The fixture for testing Tesseract.
 class ApplyBoxTest : public testing::Test {
  protected:
-  string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+  std::string TestDataNameToPath(const std::string& name) {
+    return file::JoinPath(TESTING_DIR, name);
   }
-  string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+  std::string TessdataPath() {
+    return TESSDATA_DIR;
   }
-  string OutputNameToPath(const string& name) {
+  std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -63,7 +73,7 @@ class ApplyBoxTest : public testing::Test {
     delete [] ocr_text;
     // Test the boxes by reading the target box file in parallel with the
     // bounding boxes in the ocr output.
-    string box_filename = TestDataNameToPath(target_box_file);
+    std::string box_filename = TestDataNameToPath(target_box_file);
     FILE* box_file = OpenBoxFile(STRING(box_filename.c_str()));
     ASSERT_TRUE(box_file != NULL);
     int height = pixGetHeight(src_pix_);
@@ -91,7 +101,7 @@ class ApplyBoxTest : public testing::Test {
   }
 
   Pix* src_pix_;
-  string ocr_text_;
+  std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
 
