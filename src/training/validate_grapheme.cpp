@@ -51,6 +51,8 @@ Validator::CharClass ValidateGrapheme::UnicodeToCharClass(char32 ch) const {
   // always combine with the previous character.
   if (u_hasBinaryProperty(ch, UCHAR_GRAPHEME_LINK)) return CharClass::kVirama;
   if (u_isUWhiteSpace(ch)) return CharClass::kWhitespace;
+  // Workaround for Javanese Aksara's Taling, do not label it as a combiner
+  if (ch == 0xa9ba) return CharClass::kConsonant;
   int char_type = u_charType(ch);
   if (char_type == U_NON_SPACING_MARK || char_type == U_ENCLOSING_MARK ||
       char_type == U_COMBINING_SPACING_MARK || ch == kZeroWidthNonJoiner ||

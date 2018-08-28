@@ -38,7 +38,7 @@ namespace tesseract {
 //  + consonant Grapheme: (C[N](H|HZ|Hz|ZH)?)*C[N](H|Hz)?[M[P]][D](v)*
 
 bool ValidateJavanese::ConsumeGraphemeIfValid() {
-  switch (codes_[codes_used_].first) {
+   switch (codes_[codes_used_].first) {
     case CharClass::kConsonant:
       return ConsumeConsonantHeadIfValid() && ConsumeConsonantTailIfValid();
     case CharClass::kVowel:
@@ -61,25 +61,6 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
       }
       return false;
   }
-}
-
-Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
-  if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
-  if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;
-  // Offset from the start of the relevant unicode code block aka code page.
-  int off = ch - static_cast<char32>(script_);
-  // Anything in another code block is other.
-  if (off < 0 || off >= kIndicCodePageSize) return CharClass::kOther;
-  if (off < 0x4) return CharClass::kVowelModifier;
-  if (off <= 0x32) return CharClass::kConsonant; // includes independent vowels
-  if (off == 0x33) return CharClass::kNukta; // A9B3 CECAK TELU
-  if (off == 0x34) return CharClass::kMatraPiece; // A9B4 TARUNG two part vowels
-  if (off <= 0x39) return CharClass::kMatra;
-  if (off <= 0x3a) return CharClass::kMatraPiece; // A9BA TALING
-  if (off <= 0x3d) return CharClass::kMatra;
-  if (off <= 0x3f) return CharClass::kNukta; // A9BE-A9BF PENGKAL-CAKRA medial consonants
-  if (off == 0x40) return CharClass::kVirama; // A9C0 PANGKON
-  return CharClass::kOther;
 }
 
 // Helper consumes/copies a virama and any associated post-virama joiners.
@@ -117,11 +98,13 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         if (output_used_ == output_.size() ||
             output_[output_used_] != kCakra) {
           if (report_errors_) {
-            tprintf("Virama ZWJ ZWNJ : base=0x%x!\n",
+            tprintf("Virama ZWJ ZWNJ in non-Sinhala: base=0x%x!\n",
                     static_cast<int>(script_));
           }
           return false;
         }
+        // Special Sinhala case of Stand-alone Repaya. ['RA' H Z z]
+        if (UseMultiCode(4)) return true;
       }
     } else if (codes_used_ == num_codes ||
                codes_[codes_used_].first != CharClass::kConsonant ||
@@ -130,7 +113,7 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
           codes_[codes_used_].second != kZeroWidthNonJoiner) {
         // It is valid to have an unterminated virama at the end of a word, but
         // for consistency, we will always add ZWNJ if not present.
-        output_.push_back(kZeroWidthNonJoiner);
+        CodeOnlyToOutput();
       } else {
         CodeOnlyToOutput();
       }
@@ -164,7 +147,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
   // Consonant aksara
   do {
     CodeOnlyToOutput();
-    // Special case of medial consonants [H Z Pengkal/Cakra].
+    // Special Sinhala case of [H Z Yayana/Rayana].
     int index = output_.size() - 3;
     if (output_used_ <= index &&
         (output_.back() == kPengkal || output_.back() == kCakra) &&
@@ -238,6 +221,8 @@ bool ValidateJavanese::ConsumeConsonantTailIfValid() {
   }
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
     if (UseMultiCode(1)) return true;
+    // Only Malayalam allows only repeated 0xd02.
+    if (script_ != ViramaScript::kMalayalam || output_.back() != 0xd02) break;
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
     if (UseMultiCode(1)) return true;
@@ -258,12 +243,34 @@ bool ValidateJavanese::ConsumeVowelIfValid() {
   if (UseMultiCode(1)) return true;
   while (codes_[codes_used_].first == CharClass::kVowelModifier) {
     if (UseMultiCode(1)) return true;
+    // Only Malayalam allows repeated modifiers?
+    if (script_ != ViramaScript::kMalayalam) break;
   }
   while (codes_[codes_used_].first == CharClass::kVedicMark) {
     if (UseMultiCode(1)) return true;
   }
   // What we have consumed so far is a valid vowel cluster.
   return true;
+}
+ 
+ 
+Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
+  if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
+  if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;
+  // Offset from the start of the relevant unicode code block aka code page.
+  int off = ch - static_cast<char32>(script_);
+  // Anything in another code block is other.
+  if (off < 0 || off >= kIndicCodePageSize) return CharClass::kOther;
+  if (off < 0x4) return CharClass::kVowelModifier;
+  if (off <= 0x32) return CharClass::kConsonant; // includes independent vowels
+  if (off == 0x33) return CharClass::kNukta; // A9B3 CECAK TELU
+  if (off == 0x34) return CharClass::kMatraPiece; // A9B4 TARUNG two part vowels
+  if (off <= 0x39) return CharClass::kMatra;
+  if (off <= 0x3a) return CharClass::kConsonant; // A9BA TALING - pre base vowel
+  if (off <= 0x3d) return CharClass::kMatra;
+  if (off <= 0x3f) return CharClass::kNukta; // A9BE-A9BF PENGKAL-CAKRA medial consonants
+  if (off == 0x40) return CharClass::kVirama; // A9C0 PANGKON
+  return CharClass::kOther;
 }
 
 }  // namespace tesseract
