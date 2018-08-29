@@ -1,6 +1,10 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        apiexample_test.cc
 // Description: Api Test for Tesseract using text fixtures and parameters.
+// Tests for Devanagari, Latin and Arabic scripts are disabled by default.
+// Disabled tests can be run when required by using the --gtest_also_run_disabled_tests argument.
+//                 ./unittest/apiexample_test --gtest_also_run_disabled_tests
+//
 // Author:      ShreeDevi Kumar
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +40,7 @@ class QuickTest : public testing::Test {
   }
   virtual void TearDown() {
     const time_t end_time = time(nullptr);
-    EXPECT_TRUE(end_time - start_time_ <=25) << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);
+    EXPECT_TRUE(end_time - start_time_ <=55) << "The test took too long - " << ::testing::PrintToString(end_time - start_time_);
   }
   time_t start_time_;
   };
@@ -84,11 +88,11 @@ class QuickTest : public testing::Test {
 
   INSTANTIATE_TEST_CASE_P( Eng, MatchGroundTruth,
                         ::testing::Values("eng") );
-  INSTANTIATE_TEST_CASE_P( Latin, MatchGroundTruth,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Latin, MatchGroundTruth,
                         ::testing::Values("script/Latin") );
-  INSTANTIATE_TEST_CASE_P( Deva, MatchGroundTruth,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Deva, MatchGroundTruth,
                         ::testing::Values("script/Devanagari") );
-  INSTANTIATE_TEST_CASE_P( Arab, MatchGroundTruth,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Arabic, MatchGroundTruth,
                         ::testing::Values("script/Arabic") );
 
   class EuroText : public QuickTest {
@@ -101,7 +105,7 @@ class QuickTest : public testing::Test {
   }
 
   // script/Latin for eurotext.tif does not match groundtruth
-  // for tessdata & tessdata_best
+  // for tessdata & tessdata_best.
   // so do not test these here.
 
 }  // namespace
