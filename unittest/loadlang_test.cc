@@ -1,6 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        loadlang_test.cc
 // Description: Test loading of All languages and Scripts for Tesseract.
+// Tests for All languages and scripts are Disabled by default.
+// Force the disabled test to run if required by using the --gtest_also_run_disabled_tests argument.
 // Author:      Shree Devi Kumar
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -169,11 +171,11 @@ class QuickTest : public testing::Test {
   TEST_P(LoadLanguage, yid) {LangLoader("yid" , GetParam());}
   TEST_P(LoadLanguage, yor) {LangLoader("yor" , GetParam());}
 
-  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadLanguage,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata_fast, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_fast") );
-  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadLanguage,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata_best, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR "_best") );
-  INSTANTIATE_TEST_CASE_P( Tessdata, LoadLanguage,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata, LoadLanguage,
                         ::testing::Values(TESSDATA_DIR) );
 
 // For all scripts
@@ -220,18 +222,22 @@ class QuickTest : public testing::Test {
   TEST_P(LoadScript, Tibetan) {LangLoader("script/Tibetan" , GetParam());}
   TEST_P(LoadScript, Vietnamese) {LangLoader("script/Vietnamese" , GetParam());}
 
-  INSTANTIATE_TEST_CASE_P( Tessdata_fast, LoadScript,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata_fast, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_fast") );
-  INSTANTIATE_TEST_CASE_P( Tessdata_best, LoadScript,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata_best, LoadScript,
                         ::testing::Values(TESSDATA_DIR "_best") );
-  INSTANTIATE_TEST_CASE_P( Tessdata, LoadScript,
+  INSTANTIATE_TEST_CASE_P( DISABLED_Tessdata, LoadScript,
                         ::testing::Values(TESSDATA_DIR) );
-
-// Use class LoadLang for languages which are NOT there in all three repos
 
   class LoadLang : public QuickTest {
   };
 
+  // Test Load of English here, as the parameterized tests are disabled by default.
+  TEST_F(LoadLang, engFast) {LangLoader("eng" , TESSDATA_DIR "_fast");}
+  TEST_F(LoadLang, engBest) {LangLoader("eng" , TESSDATA_DIR "_best");}
+  TEST_F(LoadLang, engBestInt) {LangLoader("eng" , TESSDATA_DIR);}
+  
+// Use class LoadLang for languages which are NOT there in all three repos
   TEST_F(LoadLang, kmrFast) {LangLoader("kmr" , TESSDATA_DIR "_fast");}
   TEST_F(LoadLang, kmrBest) {LangLoader("kmr" , TESSDATA_DIR "_best");}
 //  TEST_F(LoadLang, kmrBestInt) {LangLoader("kmr" , TESSDATA_DIR);}
