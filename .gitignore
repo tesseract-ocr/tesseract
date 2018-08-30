@@ -99,6 +99,8 @@ kernel*.bin
 
 # test programs
 /unittest/*_test
+/unittest/primesbitvector
+/unittest/primesmap
 /unittest/tesseracttests
 
 # generated files from unlvtests
