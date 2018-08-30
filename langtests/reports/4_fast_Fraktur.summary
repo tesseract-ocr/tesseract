@@ -1,0 +1,2 @@
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_fast_Fraktur	frk-ligatures	265		92.16%		116		78.32%		82			72.48		91.29s
