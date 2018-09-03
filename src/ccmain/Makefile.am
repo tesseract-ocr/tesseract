@@ -55,6 +55,7 @@ libtesseract_main_la_SOURCES = \
   fixxht.cpp \
   linerec.cpp \
   ltrresultiterator.cpp \
+  mutableiterator.cpp \
   output.cpp \
   pageiterator.cpp \
   pagesegmain.cpp \
