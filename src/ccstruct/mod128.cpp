@@ -17,9 +17,9 @@
  *
  **********************************************************************/
 
-#include          "mod128.h"
+#include "mod128.h"
 
-const int16_t idirtab[] = {
+static const int16_t idirtab[] = {
   1000, 0, 998, 49, 995, 98, 989, 146,
   980, 195, 970, 242, 956, 290, 941, 336,
   923, 382, 903, 427, 881, 471, 857, 514,
@@ -54,7 +54,7 @@ const int16_t idirtab[] = {
   980, -195, 989, -146, 995, -98, 998, -49
 };
 
-const ICOORD *dirtab = (ICOORD *) idirtab;
+const ICOORD* dirtab = reinterpret_cast<const ICOORD*>(idirtab);
 
 /**********************************************************************
  * DIR128::DIR128
