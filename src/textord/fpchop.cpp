@@ -448,9 +448,7 @@ bool fixed_chop_coutline(                                  //chop the outline
       else
         break;
     }
-    //#ifdef __UNIX__
     ASSERT_HOST (head_index != tail_index);
-    //#endif
     if (!first_frag) {
       save_chop_cfragment(head_index,
                           head_pos,
@@ -480,9 +478,7 @@ bool fixed_chop_coutline(                                  //chop the outline
           tail_index = 0;
       }
       while (tail_pos.x () != chop_coord);
-      //#ifdef __UNIX__
       ASSERT_HOST (head_index != tail_index);
-      //#endif
       save_chop_cfragment(head_index,
                           head_pos,
                           tail_index,

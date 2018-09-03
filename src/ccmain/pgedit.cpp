@@ -104,9 +104,6 @@ ScrollView* image_win;
 ParamsEditor* pe;
 bool stillRunning = false;
 
-#ifdef __UNIX__
-FILE *debug_window = nullptr;                // opened on demand
-#endif
 ScrollView* bln_word_window = nullptr;       // baseline norm words
 
 CMD_EVENTS mode = CHANGE_DISP_CMD_EVENT;  // selected words op
