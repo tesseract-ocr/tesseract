@@ -107,3 +107,11 @@ kernel*.bin
 times.txt
 /unlvtests/results*
 
+# snap packaging specific rules
+/parts/
+/stage/
+/prime/
+/snap/.snapcraft/
+
+/*.snap
+/*_source.tar.bz2
