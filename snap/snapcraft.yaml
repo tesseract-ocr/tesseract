@@ -11,7 +11,10 @@ confinement: strict
 
 apps:
   tesseract:
-    command: env TESSDATA_PREFIX=$SNAP_USER_COMMON tesseract
+    command: >
+      env
+      TESSDATA_PREFIX=$SNAP_USER_COMMON
+      tesseract
     plugs: [home]
 
 parts:
