@@ -27,7 +27,6 @@
 #include "config_auto.h"
 #endif
 
-#define PBLOCK_LABEL_SIZE 150
 #define INTERSECTING INT16_MAX
 
 int lessthan(const void *first, const void *second);
@@ -191,8 +190,8 @@ void POLY_BLOCK::rotate(FCOORD rotation) {
     pos.set_x (pt->x ());
     pos.set_y (pt->y ());
     pos.rotate (rotation);
-    pt->set_x ((int16_t) (floor (pos.x () + 0.5)));
-    pt->set_y ((int16_t) (floor (pos.y () + 0.5)));
+    pt->set_x(static_cast<int16_t>(floor(pos.x() + 0.5)));
+    pt->set_y(static_cast<int16_t>(floor(pos.y() + 0.5)));
     pts.forward ();
   }
   while (!pts.at_first ());
@@ -289,7 +288,7 @@ void POLY_BLOCK::fill(ScrollView* window, ScrollView::Color colour) {
         // Last pixel is start pixel + length.
         width = s_it.data ()->y ();
         window->SetCursor(s_it.data ()->x (), y);
-        window->DrawTo(s_it.data ()->x () + (float) width, y);
+        window->DrawTo(s_it.data()->x() + static_cast<float>(width), y);
       }
     }
   }
@@ -343,9 +342,7 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
   ICOORDELT_IT v, r;
   ICOORDELT_LIST *result;
   ICOORDELT *x, *current, *previous;
-  float fy, fx;
-
-  fy = (float) (y + 0.5);
+  float fy = y + 0.5f;
   result = new ICOORDELT_LIST ();
   r.set_to_list (result);
   v.set_to_list (block->points ());
@@ -355,11 +352,10 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
     || ((v.data_relative (-1)->y () <= y) && (v.data ()->y () > y))) {
       previous = v.data_relative (-1);
       current = v.data ();
-      fx = (float) (0.5 + previous->x () +
-        (current->x () - previous->x ()) * (fy -
-        previous->y ()) /
-        (current->y () - previous->y ()));
-      x = new ICOORDELT ((int16_t) fx, 0);
+      float fx = 0.5f + previous->x() +
+        (current->x() - previous->x()) * (fy - previous->y()) /
+        (current->y() - previous->y());
+      x = new ICOORDELT(static_cast<int16_t>(fx), 0);
       r.add_to_end (x);
     }
   }
@@ -380,8 +376,8 @@ ICOORDELT_LIST *PB_LINE_IT::get_line(int16_t y) {
 
 
 int lessthan(const void *first, const void *second) {
-  ICOORDELT *p1 = (*(ICOORDELT **) first);
-  ICOORDELT *p2 = (*(ICOORDELT **) second);
+  const ICOORDELT *p1 = *reinterpret_cast<const ICOORDELT* const*>(first);
+  const ICOORDELT *p2 = *reinterpret_cast<const ICOORDELT* const*>(second);
 
   if (p1->x () < p2->x ())
     return (-1);
