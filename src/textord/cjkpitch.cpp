@@ -682,8 +682,8 @@ void FPRow::DebugOutputResult(int row_index) {
             real_row_->space_size, real_row_->space_threshold,
             real_row_->xheight);
 
-    for (size_t i = 0; i < num_chars(); i++) {
-      tprintf("Char %d: is_final=%d is_good=%d num_blobs=%d: ",
+    for (unsigned i = 0; i < num_chars(); i++) {
+      tprintf("Char %u: is_final=%d is_good=%d num_blobs=%d: ",
               i, is_final(i), is_good(i), character(i)->num_blobs());
       box(i).print();
     }
@@ -1078,7 +1078,7 @@ void compute_fixed_pitch_cjk(ICOORD page_tr,
     return;
   }
 
-  size_t iteration = 0;
+  unsigned iteration = 0;
   do {
     analyzer.MergeFragments();
     analyzer.FinalizeLargeChars();
@@ -1087,7 +1087,7 @@ void compute_fixed_pitch_cjk(ICOORD page_tr,
   } while (analyzer.Pass2Analyze() && iteration < analyzer.max_iteration());
 
   if (textord_debug_pitch_test) {
-    tprintf("compute_fixed_pitch_cjk finished after %d iteration (limit=%d)\n",
+    tprintf("compute_fixed_pitch_cjk finished after %u iteration (limit=%u)\n",
             iteration, analyzer.max_iteration());
   }
 
