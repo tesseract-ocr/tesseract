@@ -73,6 +73,9 @@ SVEvent* SVEvent::copy() {
   return any;
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
 SVEventHandler::~SVEventHandler() = default;
 
 #ifndef GRAPHICS_DISABLED
