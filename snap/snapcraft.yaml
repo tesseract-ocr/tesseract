@@ -1,5 +1,5 @@
 name: tesseract
-version: master
+version: git
 summary: open source optical character recognition engine
 description: |
   Tesseract has unicode (UTF-8) support, and can recognize more than 100
