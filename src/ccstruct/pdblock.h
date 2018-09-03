@@ -171,6 +171,4 @@ class DLLSYM BLOCK_LINE_IT
     BLOCK_RECT_IT rect_it;       //< rectangle iterator
 };
 
-int decreasing_top_order(const void *row1,
-                         const void *row2);
 #endif
