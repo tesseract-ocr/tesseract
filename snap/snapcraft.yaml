@@ -37,7 +37,14 @@ parts:
       - libicu-dev
       - libpango1.0-dev
       - libcairo2-dev
+    stage-packages:
+      - libgomp1
     after: [leptonica]
   leptonica:
     source: https://github.com/DanBloomberg/leptonica/archive/1.74.2.tar.gz
     plugin: autotools
+    stage-packages:
+      - libjbig0
+      - libjpeg-turbo8
+      - libopenjp2-7
+      - libtiff5
