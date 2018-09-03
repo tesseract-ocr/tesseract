@@ -101,18 +101,6 @@ template<typename T> inline void Swap(T* p1, T* p2) {
   *p1 = tmp;
 }
 
-// qsort function to sort 2 floats.
-inline int sort_floats(const void *arg1, const void *arg2) {
-  float diff = *((float *) arg1) - *((float *) arg2);
-  if (diff > 0) {
-    return 1;
-  } else if (diff < 0) {
-    return -1;
-  } else {
-    return 0;
-  }
-}
-
 // return the smallest multiple of block_size greater than or equal to n.
 inline int RoundUp(int n, int block_size) {
   return block_size * ((n + block_size - 1) / block_size);

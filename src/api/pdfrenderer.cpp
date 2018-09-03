@@ -696,7 +696,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 }
 
 bool TessPDFRenderer::imageToPDFObj(Pix *pix,
-                                    char *filename,
+                                    const char* filename,
                                     long int objnum,
                                     char **pdf_object,
                                     long int *pdf_object_size) {
@@ -845,7 +845,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   char buf[kBasicBufSize];
   char buf2[kBasicBufSize];
   Pix *pix = api->GetInputImage();
-  char *filename = (char *)api->GetInputName();
+  const char* filename = reinterpret_cast<const char*>(api->GetInputName());
   int ppi = api->GetSourceYResolution();
   if (!pix || ppi <= 0)
     return false;

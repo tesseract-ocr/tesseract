@@ -211,8 +211,6 @@ class BLOCK:public ELIST_LINK
   ICOORD median_size_;         //< Median size of blobs.
 };
 
-int decreasing_top_order(const void *row1, const void *row2);
-
 // A function to print segmentation stats for the given block list.
 void PrintSegmentationStats(BLOCK_LIST* block_list);
 

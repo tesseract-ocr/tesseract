@@ -144,7 +144,7 @@ static float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob,
     return 0.0f;
   for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
     // Deep copy the child outline and use that to make a blob.
-    C_BLOB* blob = new C_BLOB(C_OUTLINE::deep_copy(ol_it.data()));
+    blob = new C_BLOB(C_OUTLINE::deep_copy(ol_it.data()));
     // Correct direction as needed.
     blob->CheckInverseFlagAndDirection();
     BLOBNBOX* bbox = new BLOBNBOX(blob);
@@ -2576,9 +2576,9 @@ int blob_x_order(                    //sort function
                  const void *item1,  //items to compare
                  const void *item2) {
                                  //converted ptr
-  BLOBNBOX *blob1 = *(BLOBNBOX **) item1;
+  const BLOBNBOX *blob1 = *reinterpret_cast<const BLOBNBOX* const*>(item1);
                                  //converted ptr
-  BLOBNBOX *blob2 = *(BLOBNBOX **) item2;
+  const BLOBNBOX *blob2 = *reinterpret_cast<const BLOBNBOX* const*>(item2);
 
   if (blob1->bounding_box ().left () < blob2->bounding_box ().left ())
     return -1;
@@ -2598,9 +2598,9 @@ int row_y_order(                    //sort function
                 const void *item1,  //items to compare
                 const void *item2) {
                                  //converted ptr
-  TO_ROW *row1 = *(TO_ROW **) item1;
+  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW* const*>(item1);
                                  //converted ptr
-  TO_ROW *row2 = *(TO_ROW **) item2;
+  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW* const*>(item2);
 
   if (row1->parallel_c () > row2->parallel_c ())
     return -1;
@@ -2620,9 +2620,9 @@ int row_spacing_order(                    //sort function
                       const void *item1,  //items to compare
                       const void *item2) {
                                  //converted ptr
-  TO_ROW *row1 = *(TO_ROW **) item1;
+  const TO_ROW *row1 = *reinterpret_cast<const TO_ROW* const*>(item1);
                                  //converted ptr
-  TO_ROW *row2 = *(TO_ROW **) item2;
+  const TO_ROW *row2 = *reinterpret_cast<const TO_ROW* const*>(item2);
 
   if (row1->spacing < row2->spacing)
     return -1;

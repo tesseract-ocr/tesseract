@@ -60,6 +60,19 @@ EXTERN double_VAR (textord_balance_factor, 1.0,
 #define BLOCK_STATS_CLUSTERS  10
 #define MAX_ALLOWED_PITCH 100    //max pixel pitch.
 
+// qsort function to sort 2 floats.
+static int sort_floats(const void *arg1, const void *arg2) {
+  float diff = *reinterpret_cast<const float*>(arg1) -
+               *reinterpret_cast<const float*>(arg2);
+  if (diff > 0) {
+    return 1;
+  } else if (diff < 0) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
 /**********************************************************************
  * compute_fixed_pitch
  *

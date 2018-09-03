@@ -24,7 +24,6 @@
 #include "blobs.h"             // for TWERD, TBLOB, TESSLINE
 #include "boxword.h"           // for BoxWord
 #include "errcode.h"           // for ASSERT_HOST
-#include "genblob.h"           // for c_blob_comparator
 #include "host.h"              // for FALSE, TRUE
 #include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
 #include "ocrclass.h"          // for ETEXT_DESC
@@ -48,6 +47,23 @@ class ROW;
 #define MAXSPACING      128      /*max expected spacing in pix */
 
 namespace tesseract {
+
+/**********************************************************************
+ *  c_blob_comparator()
+ *
+ *  Blob comparator used to sort a blob list so that blobs are in increasing
+ *  order of left edge.
+ **********************************************************************/
+
+static int c_blob_comparator(              // sort blobs
+                      const void *blob1p,  // ptr to ptr to blob1
+                      const void *blob2p   // ptr to ptr to blob2
+                     ) {
+  const C_BLOB *blob1 = *reinterpret_cast<const C_BLOB* const*>(blob1p);
+  const C_BLOB *blob2 = *reinterpret_cast<const C_BLOB* const*>(blob2p);
+
+  return blob1->bounding_box ().left () - blob2->bounding_box ().left ();
+}
 
 /**
  * @name fix_fuzzy_spaces()

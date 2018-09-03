@@ -68,11 +68,9 @@ BLOCK::BLOCK(const char *name,                //< filename
  * Sort Comparator: Return <0 if row1 top < row2 top
  */
 
-int decreasing_top_order(  //
-                         const void *row1,
-                         const void *row2) {
-  return (*(ROW **) row2)->bounding_box ().top () -
-    (*(ROW **) row1)->bounding_box ().top ();
+static int decreasing_top_order(const void *row1, const void *row2) {
+  return (*reinterpret_cast<ROW* const*>(row2))->bounding_box().top() -
+    (*reinterpret_cast<ROW* const*>(row1))->bounding_box().top();
 }
 
 
