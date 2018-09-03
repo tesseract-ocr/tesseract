@@ -73,6 +73,8 @@ SVEvent* SVEvent::copy() {
   return any;
 }
 
+SVEventHandler::~SVEventHandler() = default;
+
 #ifndef GRAPHICS_DISABLED
 /// This is the main loop which handles the ScrollView-logic from the server
 /// to the client. It basically loops through messages, parses them to events
