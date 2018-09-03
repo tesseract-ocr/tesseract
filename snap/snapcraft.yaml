@@ -6,6 +6,11 @@ description: |
   languages "out of the box". It can be trained to recognize other languages.
   Tesseract supports various output formats: plain-text, hocr(html), pdf.
 
+  If you want to access the files under /media/* or /run/media/* you'll have
+  to connect the snap to the `core` snap's `removable-media` interface:
+
+      $ sudo snap connect tesseract:removable-media
+
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict
 
@@ -15,7 +20,9 @@ apps:
       env
       TESSDATA_PREFIX=$SNAP_USER_COMMON
       tesseract
-    plugs: [home]
+    plugs:
+      - home
+      - removable-media
 
 parts:
   tesseract:
