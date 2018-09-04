@@ -7,7 +7,7 @@
  *
  * Features:
  * - The constructor initializes the internal UErrorCode to U_ZERO_ERROR,
- *  removing one common source of errors.
+ *   removing one common source of errors.
  * - Same use in C APIs taking a UErrorCode* (pointer) and C++ taking
  *   UErrorCode& (reference), via conversion operators.
  * - Automatic checking for success when it goes out of scope. On failure,
@@ -36,6 +36,7 @@
 #ifndef TESSERACT_CCUTIL_ICUERRORCODE_H_
 #define TESSERACT_CCUTIL_ICUERRORCODE_H_
 
+#include <cstdlib>              // for exit
 #include "tprintf.h"
 #include "unicode/errorcode.h"  // From libicu
 
@@ -44,11 +45,7 @@ namespace tesseract {
 class IcuErrorCode : public icu::ErrorCode {
  public:
   IcuErrorCode() {}
-  virtual ~IcuErrorCode() {
-    if (isFailure()) {
-      handleFailure();
-    }
-  }
+  virtual ~IcuErrorCode();
 
  protected:
   virtual void handleFailure() const {

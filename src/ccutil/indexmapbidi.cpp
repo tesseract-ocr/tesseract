@@ -21,6 +21,11 @@
 
 namespace tesseract {
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+IndexMap::~IndexMap() = default;
+
 // SparseToCompact takes a sparse index to an index in the compact space.
 // Uses a binary search to find the result. For faster speed use
 // IndexMapBiDi, but that takes more memory.
@@ -57,6 +62,10 @@ bool IndexMap::DeSerialize(bool swap, FILE* fp) {
   return compact_map_.DeSerialize(swap, fp);
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+IndexMapBiDi::~IndexMapBiDi() = default;
 
 // Top-level init function in a single call to initialize a map to select
 // a single contiguous subrange [start, end) of the sparse space to be mapped

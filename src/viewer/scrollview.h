@@ -85,7 +85,7 @@ struct SVEvent {
 // called whenever an appropriate event occurs.
 class SVEventHandler {
   public:
-    virtual ~SVEventHandler() {}
+    virtual ~SVEventHandler();
 
 // Gets called by the SV Window. Does nothing on default, overwrite this
 // to implement the desired behaviour

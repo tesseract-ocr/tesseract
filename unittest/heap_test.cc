@@ -26,6 +26,7 @@ int test_data[] = { 8, 1, 2, -4, 7, 9, 65536, 4, 9, 0};
 // The fixture for testing GenericHeap and DoublePtr.
 class HeapTest : public testing::Test {
  public:
+   virtual ~HeapTest();
   // Pushes the test data onto both the heap and the KDVector.
   void PushTestData(GenericHeap<IntKDPair>* heap, KDVector* v) {
     for (int i = 0; i < ARRAYSIZE(test_data); ++i) {
@@ -65,6 +66,11 @@ class HeapTest : public testing::Test {
     EXPECT_TRUE(heap->empty());
   }
 };
+
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of a weak vtable (fixes compiler warning).
+HeapTest::~HeapTest() = default;
 
 // Tests that a sort using a GenericHeap matches the result of a sort using
 // a KDVector.

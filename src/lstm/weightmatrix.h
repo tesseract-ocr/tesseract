@@ -36,6 +36,7 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
   void Transpose(const GENERIC_2D_ARRAY<double>& input);
   // Writes a vector of data representing a timestep (gradients or sources).
   // The data is assumed to be of size1 in size (the strided dimension).
+  virtual ~TransposedArray();
   void WriteStrided(int t, const float* data) {
     int size1 = dim1();
     for (int i = 0; i < size1; ++i) put(i, t, data[i]);

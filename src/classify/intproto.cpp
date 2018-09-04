@@ -23,9 +23,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cassert>
-#ifdef __UNIX__
-#include <unistd.h>
-#endif
 
 #include "classify.h"
 #include "callcpp.h"       // for cprintf

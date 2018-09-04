@@ -24,9 +24,7 @@
 #include "globals.h"
 #include "classify.h"
 
-#ifdef __UNIX__
 #include <cassert>
-#endif
 #include <cstdio>
 
 using tesseract::TFile;

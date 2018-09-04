@@ -37,6 +37,11 @@ LTRResultIterator::LTRResultIterator(PAGE_RES* page_res, Tesseract* tesseract,
     paragraph_separator_("\n") {
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+LTRResultIterator::~LTRResultIterator() = default;
+
 // Returns the null terminated UTF-8 encoded text string for the current
 // object at the given level. Use delete [] to free after use.
 char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {

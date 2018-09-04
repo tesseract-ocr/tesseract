@@ -21,6 +21,7 @@ int test_data[] = { 8, 1, 2, -4, 7, 9, 65536, 4, 9, 0, -32767, 6, 7};
 // The fixture for testing GenericHeap and DoublePtr.
 class NthItemTest : public testing::Test {
  public:
+  virtual ~NthItemTest();
   // Pushes the test data onto the KDVector.
   void PushTestData(KDVector* v) {
     for (int i = 0; i < ARRAYSIZE(test_data); ++i) {
@@ -29,6 +30,11 @@ class NthItemTest : public testing::Test {
     }
   }
 };
+
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of a weak vtable (fixes compiler warning).
+NthItemTest::~NthItemTest() = default;
 
 // Tests basic results.
 TEST_F(NthItemTest, GeneralTest) {

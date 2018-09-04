@@ -1,9 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        ccstruct.cpp
-// Description: ccstruct class.
-// Author:      Samuel Charron
 //
-// (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,21 +12,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include "ccstruct.h"
+#include "icuerrorcode.h"
 
-namespace tesseract  {
-
-// APPROXIMATIONS of the fractions of the character cell taken by
-// the descenders, ascenders, and x-height.
-const double CCStruct::kDescenderFraction = 0.25;
-const double CCStruct::kXHeightFraction = 0.5;
-const double CCStruct::kAscenderFraction = 0.25;
-const double CCStruct::kXHeightCapRatio = CCStruct::kXHeightFraction /
-    (CCStruct::kXHeightFraction + CCStruct::kAscenderFraction);
+namespace tesseract {
 
 // Destructor.
 // It is defined here, so the compiler can create a single vtable
 // instead of weak vtables in every compilation unit.
-CCStruct::~CCStruct() = default;
-
+IcuErrorCode::~IcuErrorCode() {
+  if (isFailure()) {
+    handleFailure();
+  }
 }
+
+}  // namespace tesseract.

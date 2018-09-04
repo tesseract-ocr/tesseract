@@ -17,15 +17,13 @@
  *
  **********************************************************************/
 
-#include          "fileerr.h"
-#ifdef __UNIX__
-#include          <unistd.h>
-#include          <signal.h>
-#else
-#include          <io.h>
+#include <cstdlib>
+#if defined(_WIN32)
+#include <io.h>         // for _access
 #endif
-#include          <stdlib.h>
-#include          "ccutil.h"
+
+#include "fileerr.h"
+#include "ccutil.h"
 
 #define VARDIR        "configs/" /**< variables files */
 #define EXTERN

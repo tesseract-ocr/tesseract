@@ -28,10 +28,6 @@
 #include "params_model.h"
 
 #include <cmath>
-#ifdef __UNIX__
-#include <unistd.h>
-#endif
-
 
 namespace tesseract {
 

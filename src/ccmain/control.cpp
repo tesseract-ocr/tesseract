@@ -27,9 +27,6 @@
 #include <cstdint>               // for int16_t, int32_t
 #include <cstdio>                // for fclose, fopen, FILE
 #include <ctime>                 // for clock
-#ifdef __UNIX__
-#include <unistd.h>
-#endif
 #include <cctype>
 #include "callcpp.h"
 #include "control.h"

@@ -65,6 +65,7 @@ libtesseract_training_la_SOURCES = \
     commandlineflags.cpp \
     commontraining.cpp \
     degradeimage.cpp \
+    icuerrorcode.cpp \
     lang_model_helpers.cpp \
     ligature_table.cpp \
     lstmtester.cpp \

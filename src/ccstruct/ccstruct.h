@@ -25,7 +25,7 @@ namespace tesseract {
 class CCStruct : public CUtil {
  public:
   CCStruct() = default;
-  ~CCStruct() = default;
+  virtual ~CCStruct();
 
   // Globally accessible constants.
   // APPROXIMATIONS of the fractions of the character cell taken by

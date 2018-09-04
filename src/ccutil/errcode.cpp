@@ -21,9 +21,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <cstring>
-#ifdef __UNIX__
-#include <signal.h>
-#endif
 #include "tprintf.h"
 #include "errcode.h"
 
