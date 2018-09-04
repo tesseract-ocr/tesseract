@@ -32,6 +32,11 @@
 #include "tprintf.h"
 #include "unicharset.h"
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+MATRIX::~MATRIX() = default;
+
 // Returns true if there are any real classification results.
 bool MATRIX::Classified(int col, int row, int wildcard_id) const {
   if (get(col, row) == NOT_CLASSIFIED) return false;

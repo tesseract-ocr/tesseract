@@ -577,6 +577,8 @@ class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST *> {
   MATRIX(int dimension, int bandwidth)
     : BandTriMatrix<BLOB_CHOICE_LIST *>(dimension, bandwidth, NOT_CLASSIFIED) {}
 
+  virtual ~MATRIX();
+
   // Returns true if there are any real classification results.
   bool Classified(int col, int row, int wildcard_id) const;
 
