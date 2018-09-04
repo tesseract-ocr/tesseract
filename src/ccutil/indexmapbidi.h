@@ -101,7 +101,7 @@ class IndexMap {
 //    Allows a many-to-one mapping by merging compact space indices.
 class IndexMapBiDi : public IndexMap {
  public:
-  virtual ~IndexMapBiDi() {}
+  virtual ~IndexMapBiDi();
 
   // Top-level init function in a single call to initialize a map to select
   // a single contiguous subrange [start, end) of the sparse space to be mapped
