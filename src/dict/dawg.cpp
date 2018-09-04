@@ -42,6 +42,11 @@
 ----------------------------------------------------------------------*/
 namespace tesseract {
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+Dawg::~Dawg() = default;
+
 bool Dawg::prefix_in_dawg(const WERD_CHOICE &word,
                           bool requires_complete) const {
   if (word.length() == 0) return !requires_complete;
