@@ -46,6 +46,11 @@ void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double>& input) {
   for (int t = 0; t < width; ++t) WriteStrided(t, input[t]);
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+TransposedArray::~TransposedArray() = default;
+
 // Sets up the network for training. Initializes weights using weights of
 // scale `range` picked according to the random number generator `randomizer`.
 int WeightMatrix::InitWeightsFloat(int no, int ni, bool use_adam,
