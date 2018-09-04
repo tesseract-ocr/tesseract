@@ -23,6 +23,11 @@
 
 namespace tesseract {
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+EquationDetectBase::~EquationDetectBase() = default;
+
 void EquationDetectBase::RenderSpecialText(Pix* pix,
                                            BLOBNBOX* blob) {
   ASSERT_HOST(pix != nullptr && pixGetDepth(pix) == 32 && blob != nullptr);

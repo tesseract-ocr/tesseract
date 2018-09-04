@@ -32,7 +32,7 @@ class ColPartitionSet;
 class EquationDetectBase {
  public:
   EquationDetectBase() = default;
-  virtual ~EquationDetectBase() = default;
+  virtual ~EquationDetectBase();
 
   // Iterate over the blobs inside to_block, and set the blobs that we want to
   // process to BSTT_NONE. (By default, they should be BSTT_SKIP). The function
