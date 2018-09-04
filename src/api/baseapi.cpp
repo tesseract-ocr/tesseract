@@ -28,10 +28,10 @@
 #endif
 
 #if defined(_WIN32)
-#if defined(MINGW)
+#if defined(__MINGW32__)
 // workaround for stdlib.h with -std=c++11 for _splitpath and _MAX_FNAME
 #undef __STRICT_ANSI__
-#endif  // MINGW
+#endif  // __MINGW32__
 #include <fcntl.h>
 #include <io.h>
 #else

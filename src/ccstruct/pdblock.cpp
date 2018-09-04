@@ -198,7 +198,7 @@ void PDBLK::plot(                //draw outline
     //              tprintf("Block %d bottom left is (%d,%d)\n",
     //                      serial,startpt.x(),startpt.y());
     char temp_buff[34];
-#if !defined(_WIN32) || defined(MINGW)
+#if !defined(_WIN32) || defined(__MINGW32__)
     snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, serial);
 #else
     ultoa (serial, temp_buff, 10);
