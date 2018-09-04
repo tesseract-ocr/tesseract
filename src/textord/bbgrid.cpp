@@ -31,6 +31,11 @@ GridBase::GridBase(int gridsize, const ICOORD& bleft, const ICOORD& tright) {
   Init(gridsize, bleft, tright);
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+GridBase::~GridBase() = default;
+
 // (Re)Initialize the grid. The gridsize is the size in pixels of each cell,
 // and bleft, tright are the bounding box of everything to go in it.
 void GridBase::Init(int gridsize, const ICOORD& bleft, const ICOORD& tright) {
