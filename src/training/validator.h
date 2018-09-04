@@ -89,7 +89,7 @@ class Validator {
     return ch == kZeroWidthSpace || ch == kLeftToRightMark ||
            ch == kRightToLeftMark || ch == kInvalid;
   }
-  virtual ~Validator() {}
+  virtual ~Validator();
 
   // Some specific but universally useful unicodes.
   static const char32 kZeroWidthSpace;

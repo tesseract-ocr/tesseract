@@ -24,6 +24,11 @@ const char32 Validator::kLeftToRightMark = 0x200E;
 const char32 Validator::kRightToLeftMark = 0x200F;
 const char32 Validator::kInvalid = 0xfffd;
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+Validator::~Validator() = default;
+
 // Validates and cleans the src vector of unicodes to the *dest, according to
 // g_mode. In the case of kSingleString, a single vector containing the whole
 // result is added to *dest. With kCombined, multiple vectors are added to
@@ -175,7 +180,7 @@ ViramaScript Validator::MostFrequentViramaScript(
 bool Validator::IsVirama(char32 unicode) {
   return (kMinIndicUnicode <= unicode && unicode <= kMaxSinhalaUnicode &&
           (unicode & 0x7f) == 0x4d) ||
-         unicode == kSinhalaVirama || 
+         unicode == kSinhalaVirama ||
          unicode == kJavaneseVirama ||
          unicode == kMyanmarVirama ||
          unicode == kKhmerVirama;
@@ -193,8 +198,8 @@ bool Validator::IsVedicAccent(char32 unicode) {
 bool Validator::IsSubscriptScript() const {
   return script_ == ViramaScript::kTelugu ||
          script_ == ViramaScript::kKannada ||
-         script_ == ViramaScript::kJavanese || 
-         script_ == ViramaScript::kMyanmar || 
+         script_ == ViramaScript::kJavanese ||
+         script_ == ViramaScript::kMyanmar ||
          script_ == ViramaScript::kKhmer;
 }
 
