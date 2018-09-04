@@ -1,12 +1,11 @@
 #!/bin/bash
 ##############################################################################
-# File:        runalltests_spa.sh
-# Description: Script to run a set of UNLV test sets for Spanish.
+# File:        runlangtests.sh
+# Description: Script to run a set of accuracy test sets for any language.
 #                      based on runalltests.sh by Ray Smith
 # Author:      Shree Devi Kumar
 # Created:     June 09, 2018
 #
-# (C) Copyright 2007, Google Inc.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,14 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##############################################################################
-if [ $# -ne 4 ]
+if [ $# -ne 5 ]
 then
-   echo "Usage:$0 unlv-data-dir version-id tessdata-dir langcode"
+   echo "Usage:$0 unlv-data-dir version-id tessdata-dir langcode imgext"
    exit 1
 fi
 
 tessdata=$3
 lang=$4
+imgext=$5
 
 #timesum computes the total cpu time
 timesum() {
@@ -51,6 +51,11 @@ if [ "$lang" = "frk" ] ||  [ "$lang" = "Fraktur" ]
     then
        testsets="frk-ligatures"
 fi
+if [ "$lang" = "san" ] ||  [ "$lang" = "Devanagari" ]
+    then
+       testsets="san-fontsamples san-oldstyle san-shreelipi san-alphabetsamples"
+	   ### testsets="san-fontsamples" 
+fi
 
 totalerrs=0
 totalwerrs=0
@@ -63,7 +68,7 @@ do
     if [ -r "$imdir/$set/pages" ]
     then
 	# Run tesseract on all the pages.
-	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" $lang
+	$bindir/runtestset.sh "$imdir/$set/pages" "$tessdata" "$lang" "$imgext"
 	# Count the errors on all the pages.
 	$bindir/counttestset.sh "$imdir/$set/pages" $lang
 	# Get the new character word and nonstop word errors and accuracy.
