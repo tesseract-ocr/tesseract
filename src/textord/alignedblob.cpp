@@ -212,6 +212,11 @@ static bool AtLeast2LineCrossings(BLOBNBOX_CLIST* blobs) {
   return total_crossings >= 2;
 }
 
+// Destructor.
+// It is defined here, so the compiler can create a single vtable
+// instead of weak vtables in every compilation unit.
+AlignedBlob::~AlignedBlob() = default;
+
 // Finds a vector corresponding to a set of vertically aligned blob edges
 // running through the given box. The type of vector returned and the
 // search parameters are determined by the AlignedBlobParams.
