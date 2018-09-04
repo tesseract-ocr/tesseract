@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if  [ $# -ne 3 ] 
+if  [ $# -ne 4 ] 
 then
-  echo "Usage:$0 pagesfile tessdata-dir langcode "
+  echo "Usage:$0 pagesfile tessdata-dir langcode imgext"
   exit 1
 fi
 
@@ -25,6 +25,7 @@ tess="time -f %U -o times.txt ./src/api/tesseract"
 
 tessdata=$2
 langcode=$3
+imgext=$4
 pages=$1
 imdir=${pages%/pages}
 setname=${imdir##*/}
@@ -45,8 +46,8 @@ do
   else
      srcdir="$imdir"
   fi
-  echo "$srcdir/$page.tif"
-  $tess "$srcdir/$page.tif" "$resdir/$page" --tessdata-dir $tessdata --oem 1 -l $langcode --psm 6 $config 2>&1 |grep -v "OCR Engine" |grep -v "Page 1"
+  echo "$srcdir/$page"
+  $tess "$srcdir/$page.$imgext" "$resdir/$page" --tessdata-dir $tessdata --oem 1 -l $langcode --psm 6 $config 2>&1 |grep -v "OCR Engine" |grep -v "Page 1"
   if [ -r times.txt ]
   then
     read t <times.txt

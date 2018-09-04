@@ -1,85 +1,41 @@
-# How to run Language tests.
-
-The scripts in this directory make it possible to test Accuracy of Tesseract 
-for different languages. 
-
+# Language tests.
+The scripts in this directory make it possible to test Accuracy of Tesseract for different languages. 
+## Setup
 ### Step 1: If not already installed, download the modified ISRI toolkit, 
 make and install the tools in /usr/local/bin.
-
 ```
 git clone https://github.com/Shreeshrii/ocr-evaluation-tools.git
 cd ~/ocr-evaluation-tools
 sudo make install
 ```
-
-### Step 2: If not alrady installed, Build tesseract.
-
+### Step 2: If not alrady built, Build tesseract.
+Use binaries from the tesseract/src/api and tesseract/src/training directory.
+### Step 3
+Download images and corresponding ground truth  text for the language to be tested.
+Each testset should have only one kind of images (eg. tif, png, jpg etc).
+The ground truth text files should have the same base filename with txt extension.
+As needed, modify the filenames and create the `pages` file for each testset.
+Instructions for testing Fraktur and Sanskrit languages are given below as an example.
 ## Testing for Fraktur - frk and script/Fraktur
-
-### Step 3: download the images and groundtruth
-
+### Download the images and groundtruth, modify to required format.
 ```
-mkdir -p ~/lang-downloads
-cd ~/lang-downloads
-wget -O frk-jbarth-ubhd.zip http://digi.ub.uni-heidelberg.de/diglitData/v/abbyy11r8-vs-tesseract4.zip
-wget -O frk-stweil-gt.zip https://digi.bib.uni-mannheim.de/~stweil/fraktur-gt.zip
+bash -x frk_setup.sh
 ```
-
-### Step 4: extract the files. 
-It doesn't really matter where in your filesystem you put them, 
-but they must go under a common root, for example, ~/lang-files
-
+### Run tests for Fraktur - frk and script/Fraktur
 ```
-mkdir -p ~/lang-files
-cd ~/lang-files
-unzip ~/lang-downloads/frk-jbarth-ubhd.zip -d frk
-unzip ~/lang-downloads/frk-stweil-gt.zip -d frk
-mkdir -p ./frk-ligatures
-cp ./frk/abbyy-vs-tesseract/*.tif ./frk-ligatures/
-cp ./frk/gt/*.txt ./frk-ligatures/
-
-cd ./frk-ligatures/
-ls -1 *.tif >pages
-sed -i -e 's/.tif//g' pages
-cat pages
+bash -x frk_test.sh
+```
+## Testing for Sanskrit - san and script/Devanagari
+### Download the images and groundtruth, modify to required format.
+```
+bash -x deva_setup.sh
+```
+### Run tests 
+```
+bash -x deva_test.sh
 ```
 
-```
-mkdir -p ~/lang-stopwords
-cd ~/lang-stopwords
-wget -O frk.stopwords.txt https://raw.githubusercontent.com/stopwords-iso/stopwords-de/master/stopwords-de.txt
-```
-Edit ~/lang-files/stopwords/frk.stopwords.txt as 
-wordacc uses a space delimited stopwords file, not line delimited.
-
-```
-sed -i -e 's/\n/ /g' frk.stopwords.txt
-cat frk.stopwords.txt
-```
-
-### Step 5: run langtests/runlangtests.sh with the root ISRI data dir, testname, tessdata-dir, language code:
-
-```
-cd ~/tesseract
-langtests/runlangtests.sh ~/lang-files 4_fast_Fraktur ../tessdata_fast/script Fraktur
-langtests/runlangtests.sh ~/lang-files 4_fast_frk ../tessdata_fast frk
-langtests/runlangtests.sh ~/lang-files 4_best_int_frk ../tessdata frk
-langtests/runlangtests.sh ~/lang-files 4_best_frk ../tessdata_best frk
-
-
-
-
-langtests/runlangtests.sh ~/lang-files 4_shreetest_frk-Fraktur /home/ubuntu/tessdata_frk/frk-finetune-impact frk
-langtests/runlangtests.sh ~/lang-files 4_shreetest_frk-frk /home/ubuntu/tessdata_frk/frk-finetune-frk frk
-```
-and go to the gym, have lunch etc. It takes a while to run.
-
-### Step 6: There should be a RELEASE.summary file
-*langtests/reports/4-beta_fast.summary* that contains the final summarized accuracy
-
-```
-
-#### Notes from Nick White regarding wordacc
+### Notes from Nick White regarding wordacc
 
 If you just want to remove all lines which have 100% recognition,
 you can add a 'awk' command like this:

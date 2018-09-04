@@ -1,0 +1,8 @@
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_best_san	san-alphabetsamples	2335		49.16%		1348		10.61%		1348			10.61		300.24s
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_best_san	san-fontsamples	473		93.69%		126		80.28%		126			80.28		267.05s
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_best_san	san-oldstyle	3121		55.27%		598		30.95%		598			30.95		205.28s
+RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
+4_best_san	san-shreelipi	1168		91.56%		414		75.24%		414			75.24		610.52s

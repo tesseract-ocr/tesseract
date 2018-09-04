@@ -39,7 +39,7 @@ do
   else
      srcdir="$imdir"
   fi
-  echo "$srcdir/$page.tif"
+  echo "$srcdir/$page"
   # Count character errors.
   ocrevalutf8  accuracy "$srcdir/$page.txt" "$resdir/$page.txt" > "$resdir/$page.acc"
   accfiles="$accfiles $resdir/$page.acc"
