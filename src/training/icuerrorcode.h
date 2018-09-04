@@ -36,6 +36,7 @@
 #ifndef TESSERACT_CCUTIL_ICUERRORCODE_H_
 #define TESSERACT_CCUTIL_ICUERRORCODE_H_
 
+#include <cstdlib>              // for exit
 #include "tprintf.h"
 #include "unicode/errorcode.h"  // From libicu
 
