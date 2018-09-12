@@ -72,6 +72,7 @@ AC_CONFIG_HEADERS([config_auto.h:config/config.h.in])
 
 # default conditional
 AM_CONDITIONAL([T_WIN], false)
+AM_CONDITIONAL([MINGW], false)
 AM_CONDITIONAL([OSX], false)
 AM_CONDITIONAL([GRAPHICS_DISABLED], false)
 AC_SUBST([AM_CPPFLAGS])
@@ -86,7 +87,9 @@ OPENCL_LIBS="-lOpenCL"
 AC_CANONICAL_HOST
 case "${host_os}" in
     mingw*)
+        AC_DEFINE_UNQUOTED([MINGW], 1, [This is a MinGW system])
         AM_CONDITIONAL([T_WIN], true)
+        AM_CONDITIONAL([MINGW], true)
         AM_CONDITIONAL([ADD_RT], false)
         AC_SUBST([AM_LDFLAGS], ['-Wl,-no-undefined -Wl,--as-needed'])
         ;;
