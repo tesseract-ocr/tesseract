@@ -715,12 +715,15 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
   const int kJpegQuality = 85;
 
   int format, sad;
-  findFileFormat(filename, &format);
-  if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
-    Pix *p1 = pixAlphaBlendUniform(pix, 0xffffff00);
-    sad = pixGenerateCIData(p1, L_FLATE_ENCODE, 0, 0, &cid);
-    pixDestroy(&p1);
-  } else {
+  if (filename) {
+    findFileFormat(filename, &format);
+    if (pixGetSpp(pix) == 4 && format == IFF_PNG) {
+      Pix *p1 = pixAlphaBlendUniform(pix, 0xffffff00);
+      sad = pixGenerateCIData(p1, L_FLATE_ENCODE, 0, 0, &cid);
+      pixDestroy(&p1);
+    }
+  }
+  if (!cid) {
     sad = l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
   }
 
