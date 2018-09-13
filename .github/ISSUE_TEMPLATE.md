@@ -6,7 +6,7 @@ Note that it will be much easier for us to fix the issue if a test case that
 reproduces the problem is provided. Ideally this test case should not have any
 external dependencies. Provide a copy of the image or link to files for the test case.
 
-Please delete this text and fill in the template below. 
+Please delete this text and fill in the template below.
 
 ------------------------
 

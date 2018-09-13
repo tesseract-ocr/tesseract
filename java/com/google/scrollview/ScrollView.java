@@ -96,6 +96,10 @@ public class ScrollView {
              !socket.isOutputShutdown() &&
              socket.isConnected() && socket.isBound()) {
         inputLine = receiveMessage();
+        if (inputLine == null) {
+          // End of stream reached.
+          break;
+        }
         nrInputLines++;
         if (debugViewNetworkTraffic) {
           System.out.println("(c->S," + nrInputLines + ")" + inputLine);
@@ -371,9 +375,8 @@ public class ScrollView {
     intPattern = Pattern.compile("[0-9-][0-9]*");
     floatPattern = Pattern.compile("[0-9-][0-9]*\\.[0-9]*");
 
-    try {
-      // Open a socket to listen on.
-      ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+    // Open a socket to listen on.
+    try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
       System.out.println("Socket started on port " + SERVER_PORT);
 
       // Wait (blocking) for an incoming connection
@@ -381,7 +384,7 @@ public class ScrollView {
       System.out.println("Client connected");
 
       // Setup the streams
-      out = new PrintStream(socket.getOutputStream(), true);
+      out = new PrintStream(socket.getOutputStream(), true, "UTF-8");
       in =
           new BufferedReader(new InputStreamReader(socket.getInputStream(),
               "UTF8"));

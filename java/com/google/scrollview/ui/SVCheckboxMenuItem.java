@@ -29,8 +29,6 @@ import javax.swing.JCheckBoxMenuItem;
  * Constructs a new menulistitem which possesses a flag that can be toggled.
  */
 class SVCheckboxMenuItem extends SVAbstractMenuItem {
-  public String value = null;
-  public String desc = null;
   public boolean bvalue;
 
   SVCheckboxMenuItem(int id, String name, boolean val) {
@@ -57,4 +55,3 @@ class SVCheckboxMenuItem extends SVAbstractMenuItem {
     return Boolean.toString(bvalue);
   }
 }
-

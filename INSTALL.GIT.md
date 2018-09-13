@@ -10,7 +10,6 @@ You need Leptonica 1.74.2 (minimum) for Tesseract 4.0x.
 
 Known dependencies for training tools (excluding leptonica):
  * compiler with c++11 support
- * autoconf-archive
  * automake
  * pkg-config
  * pango-devel
@@ -27,20 +26,20 @@ So, the steps for making Tesseract are:
     $ make training
     $ sudo make training-install
 
-You need to install at least English language and OSD traineddata files to 
-TESSDATA_PREFIX directory. 
+You need to install at least English language and OSD traineddata files to
+`TESSDATA_PREFIX` directory.
 
 You can retrieve single file with tools like [wget](https://www.gnu.org/software/wget/), [curl](https://curl.haxx.se/), [GithubDownloader](https://github.com/intezer/GithubDownloader) or browser.
 
 All language data files can be retrieved from git repository (useful only for packagers!).
 (Repository is huge - more that 1.2 GB. You do NOT need to download traineddata files for
-all languages). 
+all languages).
 
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
 
-You need an Internet connection to compile ScrollView.jar because the build will automatically download piccolo2d-core-3.0.jar
-and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to tesseract/java.
+You need an Internet connection to compile `ScrollView.jar` because the build will automatically download `piccolo2d-core-3.0.jar`
+and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to `tesseract/java`.
 
 Just run:
 

@@ -46,10 +46,10 @@ if [ "$1" = "clean" ]; then
     find . -iname "Makefile.in" -type f -exec rm '{}' +
 fi
 
-# Prevent any errors that might result from failing to properly invoke 
-# `libtoolize` or `glibtoolize,` whichever is present on your system, 
-# from occurring by testing for its existence and capturing the absolute path to 
-# its location for caching purposes prior to using it later on in 'Step 2:'  
+# Prevent any errors that might result from failing to properly invoke
+# `libtoolize` or `glibtoolize,` whichever is present on your system,
+# from occurring by testing for its existence and capturing the absolute path to
+# its location for caching purposes prior to using it later on in 'Step 2:'
 if command -v libtoolize >/dev/null 2>&1; then
   LIBTOOLIZE="$(command -v libtoolize)"
 elif command -v glibtoolize >/dev/null 2>&1; then
@@ -67,13 +67,13 @@ fi
 bail_out()
 {
     echo
-    echo "  Something went wrong, bailing out!" 
+    echo "  Something went wrong, bailing out!"
     echo
     exit 1
 }
 
 # --- Step 1: Generate aclocal.m4 from:
-#             . acinclude.m4 
+#             . acinclude.m4
 #             . config/*.m4 (these files are referenced in acinclude.m4)
 
 mkdir -p config
@@ -112,6 +112,13 @@ automake --add-missing --copy --warnings=all || bail_out
 
 echo "Running autoconf"
 autoconf || bail_out
+
+if grep -q PKG_CHECK_MODULES configure; then
+  # The generated configure is invalid because pkg-config is unavailable.
+  rm configure
+  echo "Missing pkg-config. Check the build requirements."
+  bail_out
+fi
 
 echo ""
 echo "All done."
