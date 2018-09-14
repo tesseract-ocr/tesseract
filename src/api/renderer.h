@@ -187,7 +187,7 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
  public:
   // datadir is the location of the TESSDATA. We need it because
   // we load a custom PDF font from this location.
-  TessPDFRenderer(const char* outputbase, const char* datadir, bool textonly = false, int jpg_quality);
+  TessPDFRenderer(const char* outputbase, const char* datadir, bool textonly = false, int jpg_quality = 85);
 
  protected:
   virtual bool BeginDocumentHandler();
