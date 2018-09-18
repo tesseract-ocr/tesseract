@@ -24,7 +24,7 @@
 
 #include "baseapi.h"
 #ifdef __linux__
-#include <signal.h>            // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
+#include <csignal>            // for sigaction, SA_RESETHAND, SIGBUS, SIGFPE
 #endif
 
 #if defined(_WIN32)

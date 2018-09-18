@@ -38,7 +38,7 @@
 #endif
 #endif /* defined(_MSC_VER) */
 #else
-#include <limits.h>
+#include <climits>
 #ifndef PATH_MAX
 #define MAX_PATH 4096
 #else

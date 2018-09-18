@@ -23,9 +23,9 @@
 #include <memory>  // std::unique_ptr
 #include "allheaders.h"
 #include "baseapi.h"
-#include "math.h"
+#include <cmath>
 #include "renderer.h"
-#include "strngs.h"
+#include <cstring>
 #include "tprintf.h"
 
 /*

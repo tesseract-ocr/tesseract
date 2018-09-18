@@ -38,8 +38,8 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #else
 
 #include "tessvars.h"
-#include <ctype.h>
-#include <errno.h>
+#include <cctype>
+#include <cerrno>
 #include <cstring>
 #include "genericvector.h"
 #include "reject.h"

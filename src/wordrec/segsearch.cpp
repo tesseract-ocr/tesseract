@@ -17,7 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <stdint.h>          // for INT32_MAX
+#include <cstdint>           // for INT32_MAX
 #include "blamer.h"          // for BlamerBundle
 #include "errcode.h"         // for ASSERT_HOST
 #include "genericvector.h"   // for GenericVector

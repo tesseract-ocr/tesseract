@@ -17,9 +17,9 @@
  *
  **********************************************************************/
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "genericvector.h"
 #include "tprintf.h"

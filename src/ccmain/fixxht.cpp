@@ -19,7 +19,7 @@
 
 #include <algorithm>
 #include <cstring>
-#include <ctype.h>
+#include <cctype>
 #include "params.h"
 #include "float2int.h"
 #include "tesseractclass.h"

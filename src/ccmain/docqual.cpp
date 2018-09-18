@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include          <ctype.h>
+#include          <cctype>
 #include          "docqual.h"
 #include          "reject.h"
 #include          "tesscallback.h"

@@ -22,7 +22,7 @@
 #endif
 
 #include <algorithm>
-#include <float.h>
+#include <cfloat>
 #include <limits>
 #include <memory>
 

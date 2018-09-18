@@ -17,8 +17,8 @@
  *
  **********************************************************************/
 
-#include <ctype.h>
-#include <errno.h>
+#include <cctype>
+#include <cerrno>
 #include <cstring>
 #include "allheaders.h"
 #include "boxread.h"

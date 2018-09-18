@@ -18,7 +18,7 @@
  **********************************************************************/
 
 #include "globaloc.h"
-#include <signal.h>
+#include <csignal>
 #ifdef __linux__
 #include <sys/syscall.h>   // For SYS_gettid.
 #include <unistd.h>        // For syscall itself.

@@ -20,7 +20,7 @@
 #ifndef           PARAMS_H
 #define           PARAMS_H
 
-#include          <stdio.h>
+#include          <cstdio>
 
 #include          "genericvector.h"
 #include          "strngs.h"

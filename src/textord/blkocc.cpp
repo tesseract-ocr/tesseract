@@ -28,7 +28,7 @@
 ----------------------------------------------------------------------
 */
 
-#include <ctype.h>
+#include <cctype>
 #include <cmath>
 #include "errcode.h"
 #include "drawtord.h"

@@ -17,9 +17,9 @@
  *
  **********************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
 #include <cstring>
 #include "tprintf.h"
 #include "errcode.h"

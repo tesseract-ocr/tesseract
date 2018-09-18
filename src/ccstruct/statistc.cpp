@@ -24,8 +24,8 @@
 
 #include "statistc.h"
 #include <cstring>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 #include "errcode.h"
 #include "helpers.h"
 #include "scrollview.h"

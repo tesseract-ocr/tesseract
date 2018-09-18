@@ -24,8 +24,8 @@
 
 #include          "pgedit.h"
 
-#include          <ctype.h>
-#include          <math.h>
+#include          <cctype>
+#include          <cmath>
 
 #include "blread.h"
 #include "control.h"

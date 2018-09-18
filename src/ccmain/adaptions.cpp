@@ -18,7 +18,7 @@
  *
  **********************************************************************/
 
-#include <ctype.h>
+#include <cctype>
 #include <cstring>
 #include "tessvars.h"
 #include "reject.h"

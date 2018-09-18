@@ -18,11 +18,11 @@
  **********************************************************************/
 
 #include "paragraphs.h"
-#include <ctype.h>                // for isspace
-#include <math.h>                 // for abs
-#include <stdio.h>                // for snprintf
-#include <stdlib.h>               // for abs
-#include <string.h>               // for strchr, strlen
+#include <cctype>                 // for isspace
+#include <cmath>                  // for abs
+#include <cstdio>                 // for snprintf
+#include <cstdlib>                // for abs
+#include <cstring>                // for strchr, strlen
 #include <algorithm>              // for max
 #include <memory>                 // for unique_ptr
 #include "genericvector.h"        // for GenericVector, GenericVectorEqEq

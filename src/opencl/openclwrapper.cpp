@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#include <float.h>
+#include <cfloat>
 
 #include "oclkernels.h"
 #include "openclwrapper.h"
@@ -2414,7 +2414,7 @@ static double getLineMasksMorphMicroBench(GPUEnv* env,
  * Device Selection
  *****************************************************************************/
 
-#include "stdlib.h"
+#include <cstdlib>
 
 // encode score object as byte string
 static ds_status serializeScore(ds_device* device, void** serializedScore,

@@ -20,7 +20,7 @@
 #ifndef           TORDMAIN_H
 #define           TORDMAIN_H
 
-#include          <time.h>
+#include          <ctime>
 #include          "params.h"
 #include          "ocrblock.h"
 #include          "blobs.h"

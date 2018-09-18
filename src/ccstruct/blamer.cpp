@@ -19,8 +19,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "blamer.h"
-#include <math.h>          // for abs
-#include <stdlib.h>        // for abs
+#include <cmath>           // for abs
+#include <cstdlib>         // for abs
 #include "blobs.h"         // for TPOINT, TWERD, TBLOB
 #include "errcode.h"       // for ASSERT_HOST
 #include "matrix.h"        // for MATRIX

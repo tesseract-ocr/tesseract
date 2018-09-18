@@ -17,7 +17,7 @@
  *
  **********************************************************************/
 
-#include <math.h>
+#include <cmath>
 #include <cfloat>       // for FLT_MAX
 #include <vector>       // for std::vector
 #include "makerow.h"
