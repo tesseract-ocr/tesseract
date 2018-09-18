@@ -719,6 +719,7 @@ void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST* blocks,
         to_block->line_spacing = static_cast<float>(box.height());
         to_block->max_blob_size = static_cast<float>(box.height() + 1);
       }
+      if (to_block->line_size == 0) to_block->line_size = 1;
       block_it.add_to_end(block);
       to_block_it.add_to_end(to_block);
     } else {
@@ -1251,7 +1252,7 @@ void ColPartitionGrid::FindVPartitionPartners(bool to_the_left,
   const TBOX& box = part->bounding_box();
   int left = part->median_left();
   int right = part->median_right();
-  int width = right - left;
+  int width = right >= left ? right - left : -1;
   int mid_x = (left + right) / 2;
   ColPartitionGridSearch hsearch(this);
   // Search left for neighbour to_the_left
