@@ -25,7 +25,7 @@ common_settings:
 
     options:
         any:
-            compiler_options:
+            compile_options:
                 msvc:
                     private:
                         - /openmp
