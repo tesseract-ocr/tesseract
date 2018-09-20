@@ -79,8 +79,7 @@ bool ParamUtils::ReadParamsFromFp(SetParamConstraint constraint, TFile *fp,
 
       if (!foundit) {
         anyerr = true;         // had an error
-        tprintf("read_params_file: parameter not found: %s\n", line);
-        exit(1);
+        tprintf("Warning: Parameter not found: %s\n", line);
       }
     }
   }
