@@ -71,7 +71,6 @@ const char *format, ...          // special message
   // %s is needed here so msg is printed correctly!
   fprintf(stderr, "%s", msg);
 
-  int* p = nullptr;
   switch (action) {
     case DBG:
     case TESSLOG:
@@ -79,9 +78,13 @@ const char *format, ...          // special message
     case TESSEXIT:
       //err_exit();
     case ABORT:
+#if !defined(NDEBUG)
       // Create a deliberate segv as the stack trace is more useful that way.
-      if (!*p)
-        abort();
+      // This is done only in debug builds, because the error message
+      // "segmentation fault" confuses most normal users.
+      *reinterpret_cast<int*>(0) = 0;
+#endif
+      abort();
     default:
       BADERRACTION.error ("error", ABORT, nullptr);
   }
