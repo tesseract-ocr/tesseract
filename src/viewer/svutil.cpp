@@ -37,8 +37,6 @@ struct addrinfo {
 #include <pthread.h>
 #include <semaphore.h>
 #include <csignal>
-#include <cstdlib>
-#include <cstring>
 #include <sys/select.h>
 #include <sys/socket.h>
 #ifdef __linux__
