@@ -46,12 +46,12 @@ class OL_BUCKETS
     C_OUTLINE_LIST *start_scan() {
       for (index = 0; buckets[index].empty () && index < bxdim * bydim - 1;
         index++);
-      return &buckets[index];
+      return &buckets[index++];  //index value has not changed
     }
                                  //next non-empty bucket
     C_OUTLINE_LIST *scan_next() {
       for (; buckets[index].empty () && index < bxdim * bydim - 1; index++);
-      return &buckets[index];
+      return &buckets[index++];  //index value has not changed
     }
     int32_t count_children(                     //recursive sum
                          C_OUTLINE *outline,  //parent outline
