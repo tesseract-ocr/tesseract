@@ -709,7 +709,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
     return false;
   *pdf_object = nullptr;
   *pdf_object_size = 0;
-  if (!filename)
+  if (!filename && !pix)
     return false;
 
   L_Compressed_Data *cid = nullptr;
