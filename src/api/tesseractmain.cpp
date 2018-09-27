@@ -35,7 +35,10 @@
 #include "strngs.h"
 #include "tprintf.h"
 
-#if defined(HAVE_TIFFIO_H) && defined(_WIN32)
+#if defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#if defined(HAVE_TIFFIO_H)
 
 #include <tiffio.h>
 
@@ -49,7 +52,8 @@ static void Win32WarningHandler(const char* module, const char* fmt,
   fprintf(stderr, ".\n");
 }
 
-#endif /* HAVE_TIFFIO_H &&  _WIN32 */
+#endif /* HAVE_TIFFIO_H */
+#endif   // _WIN32
 
 static void PrintVersionInfo() {
   char* versionStrP;
@@ -401,6 +405,10 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_pdf", &b);
     if (b) {
+      #ifdef WIN32
+        if (_setmode(_fileno(stdout), _O_BINARY) == -1)
+          tprintf("ERROR: cin to binary: %s", strerror(errno));
+      #endif  // WIN32
       bool textonly;
       api->GetBoolVariable("textonly_pdf", &textonly);
       int jpg_quality;
