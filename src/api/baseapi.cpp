@@ -2320,12 +2320,22 @@ bool TessBaseAPI::Threshold(Pix** pix) {
   if (*pix != nullptr)
     pixDestroy(pix);
   // Zero resolution messes up the algorithms, so make sure it is credible.
+  int user_dpi = 0;
+  bool a = GetIntVariable("user_defined_dpi", &user_dpi);
   int y_res = thresholder_->GetScaledYResolution();
-  if (y_res < kMinCredibleResolution || y_res > kMaxCredibleResolution) {
-    // Use the minimum default resolution, as it is safer to under-estimate
-    // than over-estimate resolution.
-    tprintf("Warning. Invalid resolution %d dpi. Using %d instead.\n", y_res,
-            kMinCredibleResolution);
+  if (user_dpi && (user_dpi < kMinCredibleResolution ||
+      user_dpi > kMaxCredibleResolution)) {
+    tprintf("Warning: User defined image dpi is outside of expected range "
+            "(%d - %d)!\n",
+            kMinCredibleResolution, kMaxCredibleResolution);
+  }
+  // Always use user defined dpi
+  if (user_dpi) {
+    thresholder_->SetSourceYResolution(user_dpi);
+  } else if (y_res < kMinCredibleResolution ||
+             y_res > kMaxCredibleResolution) {
+    tprintf("Warning: Invalid resolution %d dpi. Using %d instead.\n",
+            y_res, kMinCredibleResolution);
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
   PageSegMode pageseg_mode =
@@ -2350,7 +2360,8 @@ bool TessBaseAPI::Threshold(Pix** pix) {
                                   kMinCredibleResolution,
                                   kMaxCredibleResolution);
   if (estimated_res != thresholder_->GetScaledEstimatedResolution()) {
-    tprintf("Estimated resolution %d out of range! Corrected to %d\n",
+    tprintf("Estimated internal resolution %d out of range! "
+            "Corrected to %d.\n",
             thresholder_->GetScaledEstimatedResolution(), estimated_res);
   }
   tesseract_->set_source_resolution(estimated_res);

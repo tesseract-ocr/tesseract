@@ -165,6 +165,7 @@ static void PrintHelpExtra(const char* program) {
       "  --tessdata-dir PATH   Specify the location of tessdata path.\n"
       "  --user-words PATH     Specify the location of user words file.\n"
       "  --user-patterns PATH  Specify the location of user patterns file.\n"
+      "  --dpi VALUE           Specify DPI for input image.\n"
       "  -l LANG[+LANG]        Specify language(s) used for OCR.\n"
       "  -c VAR=VALUE          Set value for config variables.\n"
       "                        Multiple -c arguments are allowed.\n"
@@ -288,10 +289,9 @@ static void checkArgValues(int arg, const char* mode, int count) {
 // NOTE: arg_i is used here to avoid ugly *i so many times in this function
 static void ParseArgs(const int argc, char** argv, const char** lang,
                       const char** image, const char** outputbase,
-                      const char** datapath,
-                      bool* list_langs, bool* print_parameters,
-                      GenericVector<STRING>* vars_vec,
-                      GenericVector<STRING>* vars_values, int* arg_i,
+                      const char** datapath, l_int32* dpi, bool* list_langs,
+                      bool* print_parameters, GenericVector<STRING>* vars_vec,
+                      GenericVector<STRING>* vars_values, l_int32* arg_i,
                       tesseract::PageSegMode* pagesegmode,
                       tesseract::OcrEngineMode* enginemode) {
   bool noocr = false;
@@ -323,6 +323,9 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
       ++i;
     } else if (strcmp(argv[i], "--tessdata-dir") == 0 && i + 1 < argc) {
       *datapath = argv[i + 1];
+      ++i;
+    } else if (strcmp(argv[i], "--dpi") == 0 && i + 1 < argc) {
+      *dpi = atoi(argv[i + 1]);
       ++i;
     } else if (strcmp(argv[i], "--user-words") == 0 && i + 1 < argc) {
       vars_vec->push_back("user_words_file");
@@ -456,6 +459,7 @@ int main(int argc, char** argv) {
   const char* datapath = nullptr;
   bool list_langs = false;
   bool print_parameters = false;
+  l_int32 dpi = 0;
   int arg_i = 1;
   tesseract::PageSegMode pagesegmode = tesseract::PSM_AUTO;
 #ifdef DISABLED_LEGACY_ENGINE
@@ -479,9 +483,9 @@ int main(int argc, char** argv) {
   TIFFSetWarningHandler(Win32WarningHandler);
 #endif /* HAVE_TIFFIO_H &&  _WIN32 */
 
-  ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &list_langs,
-            &print_parameters, &vars_vec, &vars_values, &arg_i, &pagesegmode,
-            &enginemode);
+  ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
+            &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
+            &pagesegmode, &enginemode);
 
   if (lang == nullptr) {
     // Set default language if none was given.
@@ -528,6 +532,11 @@ int main(int argc, char** argv) {
 
   FixPageSegMode(&api, pagesegmode);
 
+  if (dpi) {
+    char dpi_string[255];
+    snprintf(dpi_string, 254, "%d", dpi);
+    api.SetVariable("user_defined_dpi", dpi_string);
+  }
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     int ret_val = EXIT_SUCCESS;
 
