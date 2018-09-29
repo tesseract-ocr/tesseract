@@ -44,7 +44,7 @@ const char* kBadlyFormedHinWords[] = {
     "उपयोक्ताो", "नहीें", "कहीअे", "पत्रिाका", "छह्णाीस",
 #endif
     // Pango v1.36.2 will render the above words even though they are invalid.
-    "प्रंात", NULL};
+    "प्रंात", nullptr};
 
 class PangoFontInfoTest : public ::testing::Test {
  protected:
@@ -129,7 +129,7 @@ TEST_F(PangoFontInfoTest, CannotRenderUncoveredString) {
 
 TEST_F(PangoFontInfoTest, CannotRenderInvalidString) {
   font_info_.ParseFontDescriptionName("Lohit Hindi 12");
-  for (int i = 0; kBadlyFormedHinWords[i] != NULL; ++i) {
+  for (int i = 0; kBadlyFormedHinWords[i] != nullptr; ++i) {
     EXPECT_FALSE(font_info_.CanRenderString(kBadlyFormedHinWords[i],
                                             strlen(kBadlyFormedHinWords[i])))
         << "Can render " << kBadlyFormedHinWords[i];
@@ -230,9 +230,9 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
 }
 
 TEST_F(FontUtilsTest, DoesSelectFont) {
-  const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, NULL};
-  const char* kLangNames[] = {"Arabic", "English", "Hindi", "Korean", NULL};
-  for (int i = 0; kLangText[i] != NULL; ++i) {
+  const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};
+  const char* kLangNames[] = {"Arabic", "English", "Hindi", "Korean", nullptr};
+  for (int i = 0; kLangText[i] != nullptr; ++i) {
     SCOPED_TRACE(kLangNames[i]);
     std::vector<string> graphemes;
     string selected_font;

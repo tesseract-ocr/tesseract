@@ -30,14 +30,14 @@ class ImagedataTest : public ::testing::Test {
       // Make an imagedata and put it in the document.
       ImageData* imagedata =
           ImageData::Build("noname", p, "eng", fake_image.data(),
-                           fake_image.size(), (*page_texts)[p].c_str(), NULL);
+                           fake_image.size(), (*page_texts)[p].c_str(), nullptr);
       EXPECT_EQ(kImageSize, imagedata->MemoryUsed());
       write_doc.AddPageToDocument(imagedata);
     }
     // Write it to a file.
     string filename = file::JoinPath(
         FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
-    EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), NULL));
+    EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), nullptr));
     return filename;
   }
 };
@@ -59,13 +59,13 @@ TEST_F(ImagedataTest, CachesProperly) {
   for (int m = 0; kMemoryAllowances[m] > 0; ++m) {
     DocumentData read_doc("My document");
     EXPECT_TRUE(
-        read_doc.LoadDocument(filename.c_str(), 0, kMemoryAllowances[m], NULL));
+        read_doc.LoadDocument(filename.c_str(), 0, kMemoryAllowances[m], nullptr));
     LOG(ERROR) << "Allowance = " << kMemoryAllowances[m];
     // Read the pages in a specific order.
     for (int p = 0; kPageReadOrder[p] >= 0; ++p) {
       int page = kPageReadOrder[p];
       const ImageData* imagedata = read_doc.GetPage(page);
-      EXPECT_NE(reinterpret_cast<const ImageData*>(NULL), imagedata);
+      EXPECT_NE(reinterpret_cast<const ImageData*>(nullptr), imagedata);
       // Check that this is the right page.
       EXPECT_STREQ(page_texts[page].c_str(),
                    imagedata->transcription().string());

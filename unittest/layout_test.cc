@@ -17,7 +17,7 @@ using tesseract::PageIteratorLevel;
 using tesseract::ResultIterator;
 
 const char* kStrings8087_054[] = {
-    "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", NULL};
+    "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", nullptr};
 const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT,
                                          PT_PULLOUT_IMAGE, PT_CAPTION_TEXT,
                                          PT_FLOWING_TEXT};
@@ -32,7 +32,7 @@ class LayoutTest : public testing::Test {
     return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
 
-  LayoutTest() { src_pix_ = NULL; }
+  LayoutTest() { src_pix_ = nullptr; }
   ~LayoutTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename, const char* lang) {
@@ -46,7 +46,7 @@ class LayoutTest : public testing::Test {
   // Tests reading order and block finding (very roughly) by iterating
   // over the blocks, expecting that they contain the strings in order,
   // allowing for other blocks in between.
-  // An empty string should match an image block, and a NULL string
+  // An empty string should match an image block, and a nullptr string
   // indicates the end of the array.
   void VerifyBlockTextOrder(const char* strings[], const PolyBlockType* blocks,
                             ResultIterator* it) {
@@ -55,15 +55,15 @@ class LayoutTest : public testing::Test {
     int block_index = 0;
     do {
       char* block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
-      if (block_text != NULL && it->BlockType() == blocks[string_index] &&
-          strstr(block_text, strings[string_index]) != NULL) {
+      if (block_text != nullptr && it->BlockType() == blocks[string_index] &&
+          strstr(block_text, strings[string_index]) != nullptr) {
         VLOG(1) << StringPrintf("Found string %s in block %d of type %s",
                                 strings[string_index], block_index,
                                 kPolyBlockNames[blocks[string_index]]);
         // Found this one.
         ++string_index;
       } else if (it->BlockType() == blocks[string_index] &&
-                 block_text == NULL && strings[string_index][0] == '\0') {
+                 block_text == nullptr && strings[string_index][0] == '\0') {
         VLOG(1) << StringPrintf("Found block of type %s at block %d",
                                 kPolyBlockNames[blocks[string_index]],
                                 block_index);
@@ -75,9 +75,9 @@ class LayoutTest : public testing::Test {
       }
       delete[] block_text;
       ++block_index;
-      if (strings[string_index] == NULL) break;
+      if (strings[string_index] == nullptr) break;
     } while (it->Next(tesseract::RIL_BLOCK));
-    EXPECT_TRUE(strings[string_index] == NULL);
+    EXPECT_TRUE(strings[string_index] == nullptr);
   }
 
   // Tests that approximate order of the biggest text blocks is correct.
@@ -127,7 +127,7 @@ class LayoutTest : public testing::Test {
           bottom - top > 200) {
         const PAGE_RES_IT* pr_it = it->PageResIt();
         POLY_BLOCK* pb = pr_it->block()->block->poly_block();
-        CHECK(pb != NULL);
+        CHECK(pb != nullptr);
         FCOORD skew = pr_it->block()->block->skew();
         EXPECT_GT(skew.x(), 0.0f);
         EXPECT_GT(skew.y(), 0.0f);
@@ -165,7 +165,7 @@ class LayoutTest : public testing::Test {
 TEST_F(LayoutTest, UNLV8087_054) {
   SetImage("8087_054.3B.tif", "eng");
   // Just run recognition.
-  EXPECT_EQ(api_.Recognize(NULL), 0);
+  EXPECT_EQ(api_.Recognize(nullptr), 0);
   // Check iterator position.
   tesseract::ResultIterator* it = api_.GetIterator();
   VerifyBlockTextOrder(kStrings8087_054, kBlocks8087_054, it);
@@ -177,7 +177,7 @@ TEST_F(LayoutTest, UNLV8087_054) {
 TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   SetImage("GOOGLE:13510798882202548:74:84.sj-79.tif", "eng");
   // Just run recognition.
-  EXPECT_EQ(api_.Recognize(NULL), 0);
+  EXPECT_EQ(api_.Recognize(nullptr), 0);
   tesseract::MutableIterator* it = api_.GetMutableIterator();
   // In eng mode, block order should not be RTL.
   VerifyRoughBlockOrder(false, it);
@@ -186,7 +186,7 @@ TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   // Now try again using Hebrew.
   SetImage("GOOGLE:13510798882202548:74:84.sj-79.tif", "heb");
   // Just run recognition.
-  EXPECT_EQ(api_.Recognize(NULL), 0);
+  EXPECT_EQ(api_.Recognize(nullptr), 0);
   it = api_.GetMutableIterator();
   // In heb mode, block order should be RTL.
   VerifyRoughBlockOrder(true, it);

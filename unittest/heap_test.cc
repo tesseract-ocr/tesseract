@@ -51,7 +51,7 @@ class HeapTest : public testing::Test {
       // Indices don't necessarily match for equal keys, so don't test them.
       if (i + 1 < v->size() && (*v)[i + 1].key == (*v)[i].key) {
         while (i + 1 < v->size() && (*v)[i + 1].key == (*v)[i].key) {
-          heap->Pop(NULL);
+          heap->Pop(nullptr);
           ++i;
           EXPECT_FALSE(heap->empty());
           EXPECT_EQ((*v)[i].key, heap->PeekTop().key);
@@ -61,7 +61,7 @@ class HeapTest : public testing::Test {
         EXPECT_EQ((*v)[i].data, heap->PeekTop().data);
       }
       EXPECT_FALSE(heap->empty());
-      EXPECT_TRUE(heap->Pop(NULL));
+      EXPECT_TRUE(heap->Pop(nullptr));
     }
     EXPECT_TRUE(heap->empty());
   }
@@ -95,7 +95,7 @@ TEST_F(HeapTest, MixedTest) {
   // Sort the vector and remove the first 5 values from both heap and v.
   v.sort();
   for (int i = 0; i < 5; ++i) {
-    heap.Pop(NULL);
+    heap.Pop(nullptr);
     v.remove(0);
   }
   // Push the test data onto both the heap and the KDVector.
@@ -162,7 +162,7 @@ TEST_F(HeapTest, RevalueTest) {
   for (int i = 0; i < v.size(); ++i) {
     EXPECT_EQ(v[i].key, heap.PeekTop().key);
     EXPECT_FALSE(heap.empty());
-    heap.Pop(NULL);
+    heap.Pop(nullptr);
   }
   EXPECT_TRUE(heap.empty());
 }
@@ -174,7 +174,7 @@ TEST_F(HeapTest, RevalueTest) {
 static void ConstRefTest(const DoublePtr& ptr1) {
   DoublePtr ptr2(ptr1);  // Compiler error here.
   EXPECT_EQ(&ptr2, ptr2.OtherEnd()->OtherEnd());
-  EXPECT_TRUE(ptr1.OtherEnd() == NULL);
+  EXPECT_TRUE(ptr1.OtherEnd() == nullptr);
 }
 #endif
 
@@ -186,11 +186,11 @@ TEST_F(HeapTest, DoublePtrTest) {
   // Check that the correct copy constructor is used.
   DoublePtr ptr3(ptr1);
   EXPECT_EQ(&ptr3, ptr3.OtherEnd()->OtherEnd());
-  EXPECT_TRUE(ptr1.OtherEnd() == NULL);
+  EXPECT_TRUE(ptr1.OtherEnd() == nullptr);
   // Check that the correct operator= is used.
   ptr1 = ptr3;
   EXPECT_EQ(&ptr1, ptr1.OtherEnd()->OtherEnd());
-  EXPECT_TRUE(ptr3.OtherEnd() == NULL);
+  EXPECT_TRUE(ptr3.OtherEnd() == nullptr);
 }
 
 }  // namespace tesseract

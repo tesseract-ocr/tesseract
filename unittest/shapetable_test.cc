@@ -50,7 +50,7 @@ TEST_F(ShapeTest, BasicTest) {
   // It should still work after file I/O.
   string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
-  EXPECT_TRUE(fp != NULL);
+  EXPECT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
   fclose(fp);
   TFile tfp;
@@ -138,7 +138,7 @@ TEST_F(ShapeTableTest, FullTest) {
   EXPECT_EQ(0, st.MasterDestinationIndex(1));
   EXPECT_EQ(0, st.MasterDestinationIndex(2));
   ShapeTable st2;
-  st2.AppendMasterShapes(st, NULL);
+  st2.AppendMasterShapes(st, nullptr);
   EXPECT_EQ(1, st.NumMasterShapes());
   EXPECT_EQ(1, st2.NumShapes());
   EXPECT_TRUE(st2.MutableShape(0)->IsEqualUnichars(&shape1));

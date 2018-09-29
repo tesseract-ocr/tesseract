@@ -94,7 +94,7 @@ class RecodeBeamTest : public ::testing::Test {
     string traineddata_name = lang + ".traineddata";
     string traineddata_file =
         file::JoinPath(FLAGS_test_srcdir, "testdata", traineddata_name);
-    lstm_dict_.SetupForLoad(NULL);
+    lstm_dict_.SetupForLoad(nullptr);
     tesseract::TessdataManager mgr;
     mgr.Init(traineddata_file.c_str());
     lstm_dict_.LoadLSTM(lang.c_str(), &mgr);
@@ -110,7 +110,7 @@ class RecodeBeamTest : public ::testing::Test {
       truth_utf8 += ccutil_.unicharset.id_to_unichar(transcription[i]);
     }
     PointerVector<WERD_RES> words;
-    ExpectCorrect(output, truth_utf8, NULL, &words);
+    ExpectCorrect(output, truth_utf8, nullptr, &words);
   }
   void ExpectCorrect(const GENERIC_2D_ARRAY<float>& output,
                      const string& truth_utf8, Dict* dict,
@@ -245,7 +245,7 @@ class RecodeBeamTest : public ::testing::Test {
     int t = start_t;
     GenericVector<int> unichar_ids;
     EXPECT_TRUE(ccutil_.unicharset.encode_string(utf8_str, true, &unichar_ids,
-                                                 NULL, NULL));
+                                                 nullptr, nullptr));
     if (unichar_ids.empty() || utf8_str[0] == '\0') {
       unichar_ids.clear();
       unichar_ids.push_back(unichar_null_char_);
@@ -288,7 +288,7 @@ class RecodeBeamTest : public ::testing::Test {
                                                    const float scores2[],
                                                    TRand* random) {
     int width = 0;
-    while (chars1[width] != NULL) ++width;
+    while (chars1[width] != nullptr) ++width;
     int padding = width * RecodedCharID::kMaxCodeLen;
     int num_codes = recoder_.code_range();
     GENERIC_2D_ARRAY<float> outputs(width + padding, num_codes, 0.0f);
@@ -404,9 +404,9 @@ TEST_F(RecodeBeamTest, EngDictionary) {
   GENERIC_2D_ARRAY<float> outputs = GenerateSyntheticOutputs(
       kGWRTops, kGWRTopScores, kGWR2nds, kGWR2ndScores, nullptr);
   string default_str;
-  for (int i = 0; kGWRTops[i] != NULL; ++i) default_str += kGWRTops[i];
+  for (int i = 0; kGWRTops[i] != nullptr; ++i) default_str += kGWRTops[i];
   PointerVector<WERD_RES> words;
-  ExpectCorrect(outputs, default_str, NULL, &words);
+  ExpectCorrect(outputs, default_str, nullptr, &words);
   // Now try again with the dictionary.
   LoadDict("eng_beam");
   ExpectCorrect(outputs, "Gets words right.", &lstm_dict_, &words);
@@ -418,7 +418,7 @@ TEST_F(RecodeBeamTest, ChiDictionary) {
   GENERIC_2D_ARRAY<float> outputs = GenerateSyntheticOutputs(
       kZHTops, kZHTopScores, kZH2nds, kZH2ndScores, nullptr);
   PointerVector<WERD_RES> words;
-  ExpectCorrect(outputs, "实学储啬投学生", NULL, &words);
+  ExpectCorrect(outputs, "实学储啬投学生", nullptr, &words);
   // Each is an individual word, with permuter = top choice.
   EXPECT_EQ(7, words.size());
   for (int w = 0; w < words.size(); ++w) {

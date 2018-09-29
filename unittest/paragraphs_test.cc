@@ -39,7 +39,7 @@ void AsciiToRowInfo(const char* text, int row_number,
   const int kLineSpace = 30;
   info->text = text;
   info->has_leaders =
-      strstr(text, "...") != NULL || strstr(text, ". . .") != NULL;
+      strstr(text, "...") != nullptr || strstr(text, ". . .") != nullptr;
   info->has_drop_cap = false;
   info->pix_ldistance = info->pix_rdistance = 0;
   info->average_interword_space = kCharWidth;
@@ -75,10 +75,10 @@ void AsciiToRowInfo(const char* text, int row_number,
   info->rword_box = TBOX(row_right - info->pix_rdistance - rword_width, bottom,
                          row_right - info->pix_rdistance, top);
   tesseract::LeftWordAttributes(
-      NULL, NULL, info->lword_text, &info->lword_indicates_list_item,
+      nullptr, nullptr, info->lword_text, &info->lword_indicates_list_item,
       &info->lword_likely_starts_idea, &info->lword_likely_ends_idea);
   tesseract::RightWordAttributes(
-      NULL, NULL, info->rword_text, &info->rword_indicates_list_item,
+      nullptr, nullptr, info->rword_text, &info->rword_indicates_list_item,
       &info->rword_likely_starts_idea, &info->rword_likely_ends_idea);
 }
 
@@ -109,12 +109,12 @@ void EvaluateParagraphDetection(const TextAndModel* correct, int n,
     if (detected_break && !has_break) incorrect_breaks++;
     if (has_break) {
       if (correct[i].model_type == PNONE) {
-        if (detector_output[i]->model != NULL) {
+        if (detector_output[i]->model != nullptr) {
           poorly_matched_models++;
         }
       } else {
         if (correct[i].model.justification() != kUnknown &&
-            (detector_output[i]->model == NULL ||
+            (detector_output[i]->model == nullptr ||
              !correct[i].model.Comparable(*detector_output[i]->model))) {
           poorly_matched_models++;
         }

@@ -11,13 +11,13 @@ namespace {
 using ::testing::ContainsRegex;
 using ::testing::HasSubstr;
 
-const char* langs[] = {"eng", "vie", "hin", "ara", NULL};
+const char* langs[] = {"eng", "vie", "hin", "ara", nullptr};
 const char* image_files[] = {"HelloGoogle.tif", "viet.tif", "raaj.tif",
-                             "arabic.tif", NULL};
+                             "arabic.tif", nullptr};
 const char* gt_text[] = {"Hello Google", "\x74\x69\xe1\xba\xbf\x6e\x67",
                          "\xe0\xa4\xb0\xe0\xa4\xbe\xe0\xa4\x9c",
                          "\xd8\xa7\xd9\x84\xd8\xb9\xd8\xb1\xd8\xa8\xd9\x8a",
-                         NULL};
+                         nullptr};
 
 class FriendlyTessBaseAPI : public tesseract::TessBaseAPI {
   FRIEND_TEST(TesseractTest, LSTMGeometryTest);
@@ -78,11 +78,11 @@ TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
   CHECK(src_pix);
   api.SetImage(src_pix);
   Boxa* para_boxes =
-      api.GetComponentImages(tesseract::RIL_PARA, true, NULL, NULL);
-  EXPECT_TRUE(para_boxes != NULL);
+      api.GetComponentImages(tesseract::RIL_PARA, true, nullptr, nullptr);
+  EXPECT_TRUE(para_boxes != nullptr);
   Boxa* block_boxes =
-      api.GetComponentImages(tesseract::RIL_BLOCK, true, NULL, NULL);
-  EXPECT_TRUE(block_boxes != NULL);
+      api.GetComponentImages(tesseract::RIL_BLOCK, true, nullptr, nullptr);
+  EXPECT_TRUE(block_boxes != nullptr);
   // TODO(eger): Get paragraphs out of this page pre-text.
   EXPECT_GE(boxaGetCount(para_boxes), boxaGetCount(block_boxes));
   boxaDestroy(&block_boxes);
@@ -99,7 +99,7 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
   CHECK(src_pix);
   api.SetImage(src_pix);
   char* result = api.GetHOCRText(0);
-  EXPECT_TRUE(result != NULL);
+  EXPECT_TRUE(result != nullptr);
   EXPECT_THAT(result, HasSubstr("Hello"));
   EXPECT_THAT(result, HasSubstr("<div class='ocr_page'"));
   delete[] result;
@@ -115,7 +115,7 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
   api.SetInputName("HelloGoogle.tif");
   api.SetImage(src_pix);
   char* result = api.GetHOCRText(0);
-  EXPECT_TRUE(result != NULL);
+  EXPECT_TRUE(result != nullptr);
   EXPECT_THAT(result, HasSubstr("Hello"));
   EXPECT_THAT(result, ContainsRegex("<span class='ocr_line'[^>]* "
                                     "baseline [-.0-9]+ [-.0-9]+"));
@@ -134,7 +134,7 @@ TEST_F(TesseractTest, RickSnyderNotFuckSnyder) {
   CHECK(src_pix);
   api.SetImage(src_pix);
   char* result = api.GetHOCRText(0);
-  EXPECT_TRUE(result != NULL);
+  EXPECT_TRUE(result != nullptr);
   EXPECT_THAT(result, Not(HasSubstr("FUCK")));
   delete[] result;
   pixDestroy(&src_pix);
@@ -145,12 +145,12 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   static const char* kTrainingPages[] = {
       "136.tif", "256.tif", "410.tif", "432.tif", "540.tif",
       "692.tif", "779.tif", "793.tif", "808.tif", "815.tif",
-      "12.tif",  "12.tif",  NULL};
+      "12.tif",  "12.tif",  nullptr};
   static const char* kTrainingText[] = {
       "1 3 6", "2 5 6", "4 1 0", "4 3 2", "5 4 0", "6 9 2", "7 7 9",
-      "7 9 3", "8 0 8", "8 1 5", "1 2",   "1 2",   NULL};
-  static const char* kTestPages[] = {"324.tif", "433.tif", "12.tif", NULL};
-  static const char* kTestText[] = {"324", "433", "12", NULL};
+      "7 9 3", "8 0 8", "8 1 5", "1 2",   "1 2",   nullptr};
+  static const char* kTestPages[] = {"324.tif", "433.tif", "12.tif", nullptr};
+  static const char* kTestText[] = {"324", "433", "12", nullptr};
   tesseract::TessBaseAPI api;
   string truth_text;
   string ocr_text;
@@ -158,7 +158,7 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   api.SetVariable("matcher_sufficient_examples_for_prototyping", "1");
   api.SetVariable("classify_class_pruner_threshold", "220");
   // Train on the training text.
-  for (int i = 0; kTrainingPages[i] != NULL; ++i) {
+  for (int i = 0; kTrainingPages[i] != nullptr; ++i) {
     string image_file = TestDataNameToPath(kTrainingPages[i]);
     Pix* src_pix = pixRead(image_file.c_str());
     CHECK(src_pix);
@@ -172,7 +172,7 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   // Test the test text.
   api.SetVariable("tess_bn_matching", "1");
   api.SetPageSegMode(tesseract::PSM_SINGLE_WORD);
-  for (int i = 0; kTestPages[i] != NULL; ++i) {
+  for (int i = 0; kTestPages[i] != nullptr; ++i) {
     Pix* src_pix = pixRead(TestDataNameToPath(kTestPages[i]).c_str());
     CHECK(src_pix);
     ocr_text = GetCleanedTextResult(&api, src_pix);
@@ -209,7 +209,7 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
   FriendlyTessBaseAPI api;
   api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY);
   api.SetImage(src_pix);
-  ASSERT_EQ(api.Recognize(NULL), 0);
+  ASSERT_EQ(api.Recognize(nullptr), 0);
 
   const PAGE_RES* page_res = api.GetPageRes();
   PAGE_RES_IT page_res_it(const_cast<PAGE_RES*>(page_res));
@@ -218,7 +218,7 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
   CHECK(block);
 
   // extract word and character boxes for each word
-  for (page_res_it.restart_page(); page_res_it.word() != NULL;
+  for (page_res_it.restart_page(); page_res_it.word() != nullptr;
        page_res_it.forward()) {
     WERD_RES* word = page_res_it.word();
     CHECK(word);
@@ -268,7 +268,7 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
     api.reset(new tesseract::TessBaseAPI);
     timer.Restart();
     EXPECT_EQ(0, api->Init(TessdataPath().c_str(), langs[i],
-                           tesseract::OEM_TESSERACT_ONLY, NULL, 0, &vars_vec,
+                           tesseract::OEM_TESSERACT_ONLY, nullptr, 0, &vars_vec,
                            &vars_values, false));
     timer.Stop();
     LOG(INFO) << "Lang " << langs[i] << " took " << timer.GetInMs()
@@ -284,7 +284,7 @@ TEST_F(TesseractTest, InitConfigOnlyTest) {
 // OEM_DEFAULT mode.
 TEST(TesseractInstanceTest, TestMultipleTessInstances) {
   int num_langs = 0;
-  while (langs[num_langs] != NULL) ++num_langs;
+  while (langs[num_langs] != nullptr) ++num_langs;
 
   const string kTessdataPath = file::JoinPath(FLAGS_test_srcdir, "tessdata");
 
@@ -294,7 +294,7 @@ TEST(TesseractInstanceTest, TestMultipleTessInstances) {
     SCOPED_TRACE(absl::StrCat("Single instance test with lang = ", langs[i]));
     string path = FLAGS_test_srcdir + "/testdata/" + image_files[i];
     pix[i] = pixRead(path.c_str());
-    QCHECK(pix[i] != NULL) << "Could not read " << path;
+    QCHECK(pix[i] != nullptr) << "Could not read " << path;
 
     tesseract::TessBaseAPI tess;
     EXPECT_EQ(0, tess.Init(kTessdataPath.c_str(), langs[i]));

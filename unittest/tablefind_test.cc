@@ -38,9 +38,9 @@ class TestableTableFinder : public tesseract::TableFinder {
     tesseract::ColPartitionGridSearch gsearch(&fragmented_text_grid_);
     gsearch.SetUniqueMode(true);
     gsearch.StartFullSearch();
-    ColPartition* part = NULL;
+    ColPartition* part = nullptr;
     bool found = false;
-    while ((part = gsearch.NextFullSearch()) != NULL) {
+    while ((part = gsearch.NextFullSearch()) != nullptr) {
       if (part->bounding_box().left() == box.left() &&
           part->bounding_box().bottom() == box.bottom() &&
           part->bounding_box().right() == box.right() &&
@@ -54,9 +54,9 @@ class TestableTableFinder : public tesseract::TableFinder {
     tesseract::ColPartitionGridSearch gsearch(&fragmented_text_grid_);
     gsearch.SetUniqueMode(true);
     gsearch.StartFullSearch();
-    ColPartition* part = NULL;
+    ColPartition* part = nullptr;
     int count = 0;
-    while ((part = gsearch.NextFullSearch()) != NULL) {
+    while ((part = gsearch.NextFullSearch()) != nullptr) {
       ++count;
     }
     EXPECT_EQ(expected_count, count);
@@ -75,9 +75,9 @@ class TableFinderTest : public testing::Test {
   }
 
   void TearDown() {
-    if (partition_.get() != NULL) partition_->DeleteBoxes();
+    if (partition_.get() != nullptr) partition_->DeleteBoxes();
     DeletePartitionListBoxes();
-    finder_.reset(NULL);
+    finder_.reset(nullptr);
   }
 
   void MakePartition(int x_min, int y_min, int x_max, int y_max) {
@@ -86,7 +86,7 @@ class TableFinderTest : public testing::Test {
 
   void MakePartition(int x_min, int y_min, int x_max, int y_max,
                      int first_column, int last_column) {
-    if (partition_.get() != NULL) partition_->DeleteBoxes();
+    if (partition_.get() != nullptr) partition_->DeleteBoxes();
     TBOX box;
     box.set_to_given_coords(x_min, y_min, x_max, y_max);
     partition_.reset(

@@ -149,8 +149,8 @@ class MasterTrainerTest : public testing::Test {
   }
 
   MasterTrainerTest() {
-    shape_table_ = NULL;
-    master_trainer_ = NULL;
+    shape_table_ = nullptr;
+    master_trainer_ = nullptr;
   }
   ~MasterTrainerTest() {
     delete master_trainer_;
@@ -171,12 +171,12 @@ class MasterTrainerTest : public testing::Test {
     STRING file_prefix;
     delete master_trainer_;
     delete shape_table_;
-    shape_table_ = NULL;
+    shape_table_ = nullptr;
     tessoptind = 0;
     master_trainer_ =
         LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
-    EXPECT_TRUE(master_trainer_ != NULL);
-    EXPECT_TRUE(shape_table_ != NULL);
+    EXPECT_TRUE(master_trainer_ != nullptr);
+    EXPECT_TRUE(shape_table_ != nullptr);
   }
 
   // EXPECTs that the distance between I and l in Arial is 0 and that the

@@ -37,16 +37,16 @@ using tesseract::TessBaseAPI;
 
 namespace {
 
-const char* kTessLangs[] = {"eng", "vie", NULL};
-const char* kTessImages[] = {"HelloGoogle.tif", "viet.tif", NULL};
+const char* kTessLangs[] = {"eng", "vie", nullptr};
+const char* kTessImages[] = {"HelloGoogle.tif", "viet.tif", nullptr};
 const char* kTessTruthText[] = {"Hello Google", "\x74\x69\xe1\xba\xbf\x6e\x67",
-                                NULL};
+                                nullptr};
 
-const char* kCubeLangs[] = {"hin", "ara", NULL};
-const char* kCubeImages[] = {"raaj.tif", "arabic.tif", NULL};
+const char* kCubeLangs[] = {"hin", "ara", nullptr};
+const char* kCubeImages[] = {"raaj.tif", "arabic.tif", nullptr};
 const char* kCubeTruthText[] = {
     "\xe0\xa4\xb0\xe0\xa4\xbe\xe0\xa4\x9c",
-    "\xd8\xa7\xd9\x84\xd8\xb9\xd8\xb1\xd8\xa8\xd9\x8a", NULL};
+    "\xd8\xa7\xd9\x84\xd8\xb9\xd8\xb1\xd8\xa8\xd9\x8a", nullptr};
 
 class BaseapiThreadTest : public ::testing::Test {
  protected:
@@ -86,7 +86,7 @@ class BaseapiThreadTest : public ::testing::Test {
       string path =
           FLAGS_test_srcdir + "/testdata/" + image_files[i % num_langs_];
       Pix* new_pix = pixRead(path.c_str());
-      QCHECK(new_pix != NULL) << "Could not read " << path;
+      QCHECK(new_pix != nullptr) << "Could not read " << path;
       pix_.push_back(new_pix);
     }
 
@@ -106,7 +106,7 @@ class BaseapiThreadTest : public ::testing::Test {
     pool_->StartWorkers();
   }
 
-  void WaitForPoolWorkers() { pool_.reset(NULL); }
+  void WaitForPoolWorkers() { pool_.reset(nullptr); }
 
   std::unique_ptr<ThreadPool> pool_;
   static int pool_size_;
@@ -139,7 +139,7 @@ void GetCleanedText(TessBaseAPI* tess, Pix* pix, string* ocr_text) {
 
 void VerifyTextResult(TessBaseAPI* tess, Pix* pix, const string& lang,
                       const string& expected_text) {
-  TessBaseAPI* tess_local = NULL;
+  TessBaseAPI* tess_local = nullptr;
   if (tess) {
     tess_local = tess;
   } else {
@@ -197,7 +197,7 @@ TEST_F(BaseapiThreadTest, TestAll) {
   const int n = num_langs_ * FLAGS_reps;
   ResetPool();
   for (int i = 0; i < n; ++i) {
-    pool_->Add(NewCallback(VerifyTextResult, NULL, pix_[i],
+    pool_->Add(NewCallback(VerifyTextResult, nullptr, pix_[i],
                            langs_[i % num_langs_], gt_text_[i % num_langs_]));
   }
   WaitForPoolWorkers();

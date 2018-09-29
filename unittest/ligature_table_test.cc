@@ -39,7 +39,7 @@ TEST_F(LigatureTableTest, DoesFillLigatureTables) {
 
 TEST_F(LigatureTableTest, DoesAddLigatures) {
   EXPECT_STREQ(kEngLigatureText,
-               lig_table_->AddLigatures(kEngNonLigatureText, NULL).c_str());
+               lig_table_->AddLigatures(kEngNonLigatureText, nullptr).c_str());
 }
 
 TEST_F(LigatureTableTest, DoesAddLigaturesWithSupportedFont) {
@@ -68,7 +68,7 @@ TEST_F(LigatureTableTest, TestCustomLigatures) {
   };
   for (int i = 0; i < ARRAYSIZE(kTestCases); i += 2) {
     EXPECT_STREQ(kTestCases[i + 1],
-                 lig_table_->AddLigatures(kTestCases[i], NULL).c_str());
+                 lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i],
                  lig_table_->RemoveLigatures(kTestCases[i + 1]).c_str());
     EXPECT_STREQ(kTestCases[i],
@@ -84,7 +84,7 @@ TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
   };
   for (int i = 0; i < ARRAYSIZE(kTestCases); i += 3) {
     EXPECT_STREQ(kTestCases[i + 1],
-                 lig_table_->AddLigatures(kTestCases[i], NULL).c_str());
+                 lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i + 2],
                  lig_table_->RemoveCustomLigatures(kTestCases[i + 1]).c_str());
   }

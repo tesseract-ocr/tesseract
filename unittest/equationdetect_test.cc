@@ -117,8 +117,8 @@ class EquationFinderTest : public testing::Test {
   }
 
   void TearDown() {
-    tesseract_.reset(NULL);
-    equation_det_.reset(NULL);
+    tesseract_.reset(nullptr);
+    equation_det_.reset(nullptr);
   }
 
   // Add a BLOCK covering the whole page.
@@ -169,7 +169,7 @@ TEST_F(EquationFinderTest, IdentifySpecialText) {
   // Load Image.
   string imagefile = file::JoinPath(testdata_dir_, "equ_gt1.tif");
   Pix* pix_binary = pixRead(imagefile.c_str());
-  CHECK(pix_binary != NULL && pixGetDepth(pix_binary) == 1);
+  CHECK(pix_binary != nullptr && pixGetDepth(pix_binary) == 1);
 
   // Get components.
   BLOCK_LIST blocks;
@@ -364,7 +364,7 @@ TEST_F(EquationFinderTest, ComputeForegroundDensity) {
   // Create the pix with top half foreground, bottom half background.
   int width = 1024, height = 768;
   Pix* pix = pixCreate(width, height, 1);
-  pixRasterop(pix, 0, 0, width, height / 2, PIX_SET, NULL, 0, 0);
+  pixRasterop(pix, 0, 0, width, height / 2, PIX_SET, nullptr, 0, 0);
   TBOX box1(100, 0, 140, 140), box2(100, height / 2 - 20, 140, height / 2 + 20),
       box3(100, height - 40, 140, height);
   equation_det_->SetPixBinary(pix);

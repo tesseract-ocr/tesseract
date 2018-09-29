@@ -16,7 +16,7 @@ class PageSegModeTest : public testing::Test {
     return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
 
-  PageSegModeTest() { src_pix_ = NULL; }
+  PageSegModeTest() { src_pix_ = nullptr; }
   ~PageSegModeTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename) {

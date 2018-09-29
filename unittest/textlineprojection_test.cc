@@ -34,12 +34,12 @@ class TextlineProjectionTest : public testing::Test {
   }
 
   TextlineProjectionTest() {
-    src_pix_ = NULL;
-    bin_pix_ = NULL;
-    tesseract_ = NULL;
-    finder_ = NULL;
-    denorm_ = NULL;
-    projection_ = NULL;
+    src_pix_ = nullptr;
+    bin_pix_ = nullptr;
+    tesseract_ = nullptr;
+    finder_ = nullptr;
+    denorm_ = nullptr;
+    projection_ = nullptr;
   }
   virtual ~TextlineProjectionTest() {
     pixDestroy(&src_pix_);
@@ -67,14 +67,14 @@ class TextlineProjectionTest : public testing::Test {
     tesseract::TessdataManager mgr;
     Tesseract* osd_tess = new Tesseract;
     OSResults osr;
-    EXPECT_EQ(osd_tess->init_tesseract(TessdataPath().c_str(), NULL, "osd",
-                                       tesseract::OEM_TESSERACT_ONLY, NULL, 0,
-                                       NULL, NULL, false, &mgr),
+    EXPECT_EQ(osd_tess->init_tesseract(TessdataPath().c_str(), nullptr, "osd",
+                                       tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
+                                       nullptr, nullptr, false, &mgr),
               0);
     tesseract_ = new Tesseract;
-    EXPECT_EQ(tesseract_->init_tesseract(TessdataPath().c_str(), NULL, "eng",
-                                         tesseract::OEM_TESSERACT_ONLY, NULL, 0,
-                                         NULL, NULL, false, &mgr),
+    EXPECT_EQ(tesseract_->init_tesseract(TessdataPath().c_str(), nullptr, "eng",
+                                         tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
+                                         nullptr, nullptr, false, &mgr),
               0);
     bin_pix_ = api_.GetThresholdedImage();
     *tesseract_->mutable_pix_binary() = pixClone(bin_pix_);
@@ -88,13 +88,13 @@ class TextlineProjectionTest : public testing::Test {
     BLOCK_LIST src_blocks;
     BLOCK_IT block_it(&src_blocks);
     block_it.add_to_end(block);
-    Pix* photomask_pix = NULL;
+    Pix* photomask_pix = nullptr;
     // The blocks made by the ColumnFinder. Moved to blocks before return.
     BLOCK_LIST found_blocks;
     TO_BLOCK_LIST temp_blocks;
     finder_ = tesseract_->SetupPageSegAndDetectOrientation(
         tesseract::PSM_AUTO_OSD, &src_blocks, osd_tess, &osr, &temp_blocks,
-        &photomask_pix, NULL);
+        &photomask_pix, nullptr);
     TO_BLOCK_IT to_block_it(&temp_blocks);
     TO_BLOCK* to_block = to_block_it.data();
     denorm_ = finder_->denorm();
@@ -157,7 +157,7 @@ class TextlineProjectionTest : public testing::Test {
   // line_height is the cap + descender size of the text.
   void VerifyBoxes(const char* imagefile, int line_height) {
     SetImage(imagefile);
-    api_.Recognize(NULL);
+    api_.Recognize(nullptr);
     SetupProjection();
     MutableIterator* it = api_.GetMutableIterator();
     do {

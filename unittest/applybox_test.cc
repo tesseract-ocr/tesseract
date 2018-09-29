@@ -36,7 +36,7 @@ class ApplyBoxTest : public testing::Test {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  ApplyBoxTest() { src_pix_ = NULL; }
+  ApplyBoxTest() { src_pix_ = nullptr; }
   ~ApplyBoxTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename) {
@@ -61,7 +61,7 @@ class ApplyBoxTest : public testing::Test {
       api_.SetVariable("tessedit_resegment_from_line_boxes", "1");
     else
       api_.SetVariable("tessedit_resegment_from_boxes", "1");
-    api_.Recognize(NULL);
+    api_.Recognize(nullptr);
     char* ocr_text = api_.GetUTF8Text();
     EXPECT_STREQ(truth_str, ocr_text);
     delete[] ocr_text;
@@ -69,7 +69,7 @@ class ApplyBoxTest : public testing::Test {
     // bounding boxes in the ocr output.
     std::string box_filename = TestDataNameToPath(target_box_file);
     FILE* box_file = OpenBoxFile(STRING(box_filename.c_str()));
-    ASSERT_TRUE(box_file != NULL);
+    ASSERT_TRUE(box_file != nullptr);
     int height = pixGetHeight(src_pix_);
     ResultIterator* it = api_.GetIterator();
     do {

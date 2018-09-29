@@ -41,7 +41,7 @@ class ResultIteratorTest : public testing::Test {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  ResultIteratorTest() { src_pix_ = NULL; }
+  ResultIteratorTest() { src_pix_ = nullptr; }
   ~ResultIteratorTest() {}
 
   void SetImage(const char* filename) {
@@ -102,7 +102,7 @@ class ResultIteratorTest : public testing::Test {
     if (base::GetFlag(FLAGS_v) >= 1)
       pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
     l_int32 pixcount;
-    pixCountPixels(pix, &pixcount, NULL);
+    pixCountPixels(pix, &pixcount, nullptr);
     if (pixcount > max_diff) {
       string outfile = OutputNameToPath("failedxor.png");
       VLOG(1) << "outfile = " << outfile;
@@ -231,12 +231,12 @@ class ResultIteratorTest : public testing::Test {
 // 8087_054.3G.tif. (Dubrovnik), but only if --visual_test is true.
 TEST_F(ResultIteratorTest, VisualTest) {
   if (!FLAGS_visual_test) return;
-  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", NULL};
-  for (int i = 0; kIms[i] != NULL; ++i) {
+  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
+  for (int i = 0; kIms[i] != nullptr; ++i) {
     SetImage(kIms[i]);
     // Just run layout analysis.
     PageIterator* it = api_.AnalyseLayout();
-    EXPECT_FALSE(it == NULL);
+    EXPECT_FALSE(it == nullptr);
     // Make a scrollview window for the display.
     int width = pixGetWidth(src_pix_);
     int height = pixGetHeight(src_pix_);
@@ -248,7 +248,7 @@ TEST_F(ResultIteratorTest, VisualTest) {
     win->Brush(ScrollView::NONE);
     do {
       Pta* pts = it->BlockPolygon();
-      if (pts != NULL) {
+      if (pts != nullptr) {
         win->Pen(color);
         int num_pts = ptaGetCount(pts);
         l_float32 x, y;
@@ -273,7 +273,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   SetImage("phototest.tif");
   // Just run layout analysis.
   PageIterator* p_it = api_.AnalyseLayout();
-  EXPECT_FALSE(p_it == NULL);
+  EXPECT_FALSE(p_it == nullptr);
   // Check iterator position.
   EXPECT_TRUE(p_it->IsAtBeginningOf(tesseract::RIL_BLOCK));
   // This should be a single block.
@@ -349,7 +349,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   SetImage("8087_054.3B.tif");
   // Just run layout analysis.
   PageIterator* it = api_.AnalyseLayout();
-  EXPECT_FALSE(it == NULL);
+  EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
   VerifyRebuilds(400, 400, 400, 400, 650, it);
   delete it;
@@ -360,7 +360,7 @@ TEST_F(ResultIteratorTest, GreyTest) {
   SetImage("8087_054.3G.tif");
   // Just run layout analysis.
   PageIterator* it = api_.AnalyseLayout();
-  EXPECT_FALSE(it == NULL);
+  EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
   VerifyRebuilds(600, 600, 600, 600, 600, it);
   delete it;
@@ -382,7 +382,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
     r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
                              &smallcaps, &pointsize, &font_id);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
+    if (word_str != nullptr) {
       VLOG(1) << StringPrintf("Word %s is %s", word_str,
                               smallcaps ? "Smallcaps" : "Normal");
       if (r_it->SymbolIsDropcap()) {
@@ -442,12 +442,12 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
       ++found_subs;
     } else if (r_it->SymbolIsSuperscript()) {
       result = r_it->GetUTF8Text(tesseract::RIL_SYMBOL);
-      if (strchr(kAllowedSupers, result[0]) == NULL) {
+      if (strchr(kAllowedSupers, result[0]) == nullptr) {
         char* word = r_it->GetUTF8Text(tesseract::RIL_WORD);
         LOG(ERROR) << StringPrintf("Char %s in word %s is unexpected super!",
                                     result, word);
         delete [] word;
-        EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != NULL);
+        EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != nullptr);
       }
       delete [] result;
       ++found_supers;
@@ -547,14 +547,14 @@ TEST_F(ResultIteratorTest, NonNullChoicesTest) {
   // Iterate over the words.
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
+    if (word_str != nullptr) {
       VLOG(1) << StringPrintf("Word %s:", word_str);
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
         do {
           const char* char_str = c_it.GetUTF8Text();
-          if (char_str == NULL)
+          if (char_str == nullptr)
             VLOG(1) << "Null char choice";
           else
             VLOG(1) << "Char choice " << char_str;
@@ -580,7 +580,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
   // Iterate over the words.
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
+    if (word_str != nullptr) {
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_WORD));
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_SYMBOL));
       ResultIterator s_it = *r_it;
