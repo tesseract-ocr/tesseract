@@ -616,7 +616,7 @@ inline ELIST2_LINK *ELIST2_ITERATOR::extract() {
     }
   }
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
-  ex_current_was_cycle_pt = (current == cycle_pt) ? true : false;
+  ex_current_was_cycle_pt = (current == cycle_pt);
   extracted_link = current;
   extracted_link->next = nullptr;   //for safety
   extracted_link->prev = nullptr;   //for safety
