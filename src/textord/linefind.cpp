@@ -591,7 +591,7 @@ void LineFinder::GetLineMasks(int resolution, Pix* src_pix,
     int clStatus = OpenclDevice::initMorphCLAllocations(pixGetWpl(src_pix),
                                                         pixGetHeight(src_pix),
                                                         src_pix);
-    bool getpixclosed = pix_music_mask != nullptr ? true : false;
+    bool getpixclosed = pix_music_mask != nullptr;
     OpenclDevice::pixGetLinesCL(nullptr, src_pix, pix_vline, pix_hline,
                                 &pix_closed, getpixclosed, closing_brick,
                                 closing_brick, max_line_width, max_line_width,

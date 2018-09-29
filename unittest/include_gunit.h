@@ -13,14 +13,13 @@
 #ifndef TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 #define TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
 
+#include "errcode.h"  // for ASSERT_HOST
+#include "fileio.h"   // for tesseract::File
 #include "gtest/gtest.h"
-#include "errcode.h"            // for ASSERT_HOST
-#include "fileio.h"             // for tesseract::File
 
 const char* FLAGS_test_tmpdir = ".";
 
-class file: public tesseract::File {
-};
+class file : public tesseract::File {};
 
 #define ABSL_ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))

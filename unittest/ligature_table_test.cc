@@ -25,13 +25,10 @@ const char kRenderableEngLigatureText[] = "ﬁdelity efﬁgy ſteep";
 class LigatureTableTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
-    FLAGS_fonts_dir = File::JoinPath(
-        FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = File::JoinPath(FLAGS_test_srcdir, "testdata");
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
   }
-  void SetUp() {
-    lig_table_ = LigatureTable::Get();
-  }
+  void SetUp() { lig_table_ = LigatureTable::Get(); }
   LigatureTable* lig_table_;
 };
 
@@ -42,7 +39,7 @@ TEST_F(LigatureTableTest, DoesFillLigatureTables) {
 
 TEST_F(LigatureTableTest, DoesAddLigatures) {
   EXPECT_STREQ(kEngLigatureText,
-               lig_table_->AddLigatures(kEngNonLigatureText, NULL).c_str());
+               lig_table_->AddLigatures(kEngNonLigatureText, nullptr).c_str());
 }
 
 TEST_F(LigatureTableTest, DoesAddLigaturesWithSupportedFont) {
@@ -66,15 +63,12 @@ TEST_F(LigatureTableTest, DoesRemoveLigatures) {
 
 TEST_F(LigatureTableTest, TestCustomLigatures) {
   const char* kTestCases[] = {
-    "act", "a\uE003",
-    "publiſh", "publi\uE006",
-    "ſince", "\uE007nce",
-    "aſleep", "a\uE008eep",
-    "neceſſary", "nece\uE009ary",
+      "act",       "a\uE003", "publiſh",    "publi\uE006", "ſince",
+      "\uE007nce", "aſleep",  "a\uE008eep", "neceſſary",   "nece\uE009ary",
   };
   for (int i = 0; i < ARRAYSIZE(kTestCases); i += 2) {
     EXPECT_STREQ(kTestCases[i + 1],
-                 lig_table_->AddLigatures(kTestCases[i], NULL).c_str());
+                 lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i],
                  lig_table_->RemoveLigatures(kTestCases[i + 1]).c_str());
     EXPECT_STREQ(kTestCases[i],
@@ -84,13 +78,15 @@ TEST_F(LigatureTableTest, TestCustomLigatures) {
 
 TEST_F(LigatureTableTest, TestRemovesCustomLigatures) {
   const char* kTestCases[] = {
-    "fiction", "ﬁ\uE003ion", "ﬁction",
+      "fiction",
+      "ﬁ\uE003ion",
+      "ﬁction",
   };
   for (int i = 0; i < ARRAYSIZE(kTestCases); i += 3) {
     EXPECT_STREQ(kTestCases[i + 1],
-                 lig_table_->AddLigatures(kTestCases[i], NULL).c_str());
+                 lig_table_->AddLigatures(kTestCases[i], nullptr).c_str());
     EXPECT_STREQ(kTestCases[i + 2],
                  lig_table_->RemoveCustomLigatures(kTestCases[i + 1]).c_str());
   }
 }
-}
+}  // namespace

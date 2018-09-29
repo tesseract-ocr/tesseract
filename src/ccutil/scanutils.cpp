@@ -360,7 +360,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
 
             scan_int:
               q = SkipSpace(stream);
-              if ( q <= 0 ) {
+              if (q <= 0) {
                 bail = BAIL_EOF;
                 break;
               }
@@ -471,7 +471,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
             break;
 
             case '%':   // %% sequence
-              if (fgetc(stream) != '%' )
+              if (fgetc(stream) != '%')
                 bail = BAIL_ERR;
             break;
 

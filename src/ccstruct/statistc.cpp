@@ -593,7 +593,7 @@ void STATS::plot(ScrollView* window,  // to draw in
   window->Pen(colour);
 
   for (int index = 0; index < rangemax_ - rangemin_; index++) {
-    window->Rectangle( xorigin + xscale * index, yorigin,
+    window->Rectangle(xorigin + xscale * index, yorigin,
       xorigin + xscale * (index + 1),
       yorigin + yscale * buckets_[index]);
   }

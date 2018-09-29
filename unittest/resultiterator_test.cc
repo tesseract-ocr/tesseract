@@ -12,18 +12,18 @@ DEFINE_string(tess_config, "", "config file for tesseract");
 DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
 
 using tesseract::PageIterator;
-using tesseract::ResultIterator;
 using tesseract::PageIteratorLevel;
+using tesseract::ResultIterator;
 
 // Helper functions for converting to STL vectors
-template<typename T>
-void ToVector(const GenericVector<T> &from, std::vector<T> *to) {
+template <typename T>
+void ToVector(const GenericVector<T>& from, std::vector<T>* to) {
   to->clear();
   for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
 }
 
-template<typename T>
-void ToVector(const GenericVectorEqEq<T> &from, std::vector<T> *to) {
+template <typename T>
+void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
   to->clear();
   for (int i = 0; i < from.size(); i++) to->push_back(from[i]);
 }
@@ -32,22 +32,17 @@ void ToVector(const GenericVectorEqEq<T> &from, std::vector<T> *to) {
 class ResultIteratorTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
   string OutputNameToPath(const string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  ResultIteratorTest() {
-    src_pix_ = NULL;
-  }
-  ~ResultIteratorTest() {
-  }
+  ResultIteratorTest() { src_pix_ = nullptr; }
+  ~ResultIteratorTest() {}
 
   void SetImage(const char* filename) {
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
@@ -63,16 +58,14 @@ class ResultIteratorTest : public testing::Test {
   // Rebuilds the image using the binary images at the given level, and
   // EXPECTs that the number of pixels in the xor of the rebuilt image with
   // the original is at most max_diff.
-  void VerifyRebuild(int max_diff,
-                     PageIteratorLevel level, PageIterator* it) {
+  void VerifyRebuild(int max_diff, PageIteratorLevel level, PageIterator* it) {
     it->Begin();
     int width = pixGetWidth(src_pix_);
     int height = pixGetHeight(src_pix_);
     int depth = pixGetDepth(src_pix_);
     Pix* pix = pixCreate(width, height, depth);
     EXPECT_TRUE(depth == 1 || depth == 8);
-    if (depth == 8)
-      pixSetAll(pix);
+    if (depth == 8) pixSetAll(pix);
     do {
       int left, top, right, bottom;
       PageIteratorLevel im_level = level;
@@ -81,8 +74,8 @@ class ResultIteratorTest : public testing::Test {
         im_level = tesseract::RIL_BLOCK;
         EXPECT_TRUE(it->BoundingBox(im_level, &left, &top, &right, &bottom));
       }
-      VLOG(1) << "BBox: [L:" << left << ", T:" << top
-              << ", R:" << right << ", B:" << bottom << "]";
+      VLOG(1) << "BBox: [L:" << left << ", T:" << top << ", R:" << right
+              << ", B:" << bottom << "]";
       Pix* block_pix;
       if (depth == 1) {
         block_pix = it->GetBinaryImage(im_level);
@@ -90,9 +83,9 @@ class ResultIteratorTest : public testing::Test {
                     PIX_SRC ^ PIX_DST, block_pix, 0, 0);
       } else {
         block_pix = it->GetImage(im_level, 2, src_pix_, &left, &top);
-        pixRasterop(pix, left, top,
-                    pixGetWidth(block_pix), pixGetHeight(block_pix),
-                    PIX_SRC & PIX_DST, block_pix, 0, 0);
+        pixRasterop(pix, left, top, pixGetWidth(block_pix),
+                    pixGetHeight(block_pix), PIX_SRC & PIX_DST, block_pix, 0,
+                    0);
       }
       CHECK(block_pix != nullptr);
       pixDestroy(&block_pix);
@@ -109,7 +102,7 @@ class ResultIteratorTest : public testing::Test {
     if (base::GetFlag(FLAGS_v) >= 1)
       pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
     l_int32 pixcount;
-    pixCountPixels(pix, &pixcount, NULL);
+    pixCountPixels(pix, &pixcount, nullptr);
     if (pixcount > max_diff) {
       string outfile = OutputNameToPath("failedxor.png");
       VLOG(1) << "outfile = " << outfile;
@@ -123,8 +116,7 @@ class ResultIteratorTest : public testing::Test {
 
   // Rebuilds the text from the iterator strings at the given level, and
   // EXPECTs that the rebuild string exactly matches the truth string.
-  void VerifyIteratorText(const string& truth,
-                          PageIteratorLevel level,
+  void VerifyIteratorText(const string& truth, PageIteratorLevel level,
                           ResultIterator* it) {
     VLOG(1) << "Text Test Level " << level;
     it->Begin();
@@ -132,7 +124,7 @@ class ResultIteratorTest : public testing::Test {
     do {
       char* text = it->GetUTF8Text(level);
       result += text;
-      delete [] text;
+      delete[] text;
       if ((level == tesseract::RIL_WORD || level == tesseract::RIL_SYMBOL) &&
           it->IsAtFinalElement(tesseract::RIL_WORD, level)) {
         if (it->IsAtFinalElement(tesseract::RIL_TEXTLINE, level)) {
@@ -140,8 +132,7 @@ class ResultIteratorTest : public testing::Test {
         } else {
           result += ' ';
         }
-        if (it->IsAtFinalElement(tesseract::RIL_PARA, level))
-          result += '\n';
+        if (it->IsAtFinalElement(tesseract::RIL_PARA, level)) result += '\n';
       }
     } while (it->Next(level));
     EXPECT_STREQ(truth.c_str(), result.c_str())
@@ -170,9 +161,10 @@ class ResultIteratorTest : public testing::Test {
   // expected output reading order
   // (expected_reading_order[num_reading_order_entries]) and a given reading
   // context (ltr or rtl).
-  void ExpectTextlineReadingOrder(
-      bool in_ltr_context, StrongScriptDirection *word_dirs, int num_words,
-      int *expected_reading_order, int num_reading_order_entries) const {
+  void ExpectTextlineReadingOrder(bool in_ltr_context,
+                                  StrongScriptDirection* word_dirs,
+                                  int num_words, int* expected_reading_order,
+                                  int num_reading_order_entries) const {
     GenericVector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
       gv_word_dirs.push_back(word_dirs[i]);
@@ -195,7 +187,7 @@ class ResultIteratorTest : public testing::Test {
   // Sane means that the output contains some permutation of the indices
   // 0..[num_words - 1] interspersed optionally with negative (marker) values.
   void VerifySaneTextlineOrder(bool in_ltr_context,
-                               StrongScriptDirection *word_dirs,
+                               StrongScriptDirection* word_dirs,
                                int num_words) const {
     GenericVector<StrongScriptDirection> gv_word_dirs;
     for (int i = 0; i < num_words; i++) {
@@ -235,29 +227,28 @@ class ResultIteratorTest : public testing::Test {
   tesseract::TessBaseAPI api_;
 };
 
-
 // Tests layout analysis output (and scrollview) on the UNLV page numbered
 // 8087_054.3G.tif. (Dubrovnik), but only if --visual_test is true.
 TEST_F(ResultIteratorTest, VisualTest) {
   if (!FLAGS_visual_test) return;
-  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", NULL};
-  for (int i = 0; kIms[i] != NULL; ++i) {
+  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
+  for (int i = 0; kIms[i] != nullptr; ++i) {
     SetImage(kIms[i]);
     // Just run layout analysis.
     PageIterator* it = api_.AnalyseLayout();
-    EXPECT_FALSE(it == NULL);
+    EXPECT_FALSE(it == nullptr);
     // Make a scrollview window for the display.
     int width = pixGetWidth(src_pix_);
     int height = pixGetHeight(src_pix_);
-    ScrollView* win = new ScrollView(kIms[i], 100, 100,
-                                     width / 2, height / 2, width, height);
+    ScrollView* win =
+        new ScrollView(kIms[i], 100, 100, width / 2, height / 2, width, height);
     win->Image(src_pix_, 0, 0);
     it->Begin();
     ScrollView::Color color = ScrollView::RED;
     win->Brush(ScrollView::NONE);
     do {
       Pta* pts = it->BlockPolygon();
-      if (pts != NULL) {
+      if (pts != nullptr) {
         win->Pen(color);
         int num_pts = ptaGetCount(pts);
         l_float32 x, y;
@@ -282,7 +273,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   SetImage("phototest.tif");
   // Just run layout analysis.
   PageIterator* p_it = api_.AnalyseLayout();
-  EXPECT_FALSE(p_it == NULL);
+  EXPECT_FALSE(p_it == nullptr);
   // Check iterator position.
   EXPECT_TRUE(p_it->IsAtBeginningOf(tesseract::RIL_BLOCK));
   // This should be a single block.
@@ -296,7 +287,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
 
   char* result = api_.GetUTF8Text();
   ocr_text_ = result;
-  delete [] result;
+  delete[] result;
   ResultIterator* r_it = api_.GetIterator();
   // The images should rebuild almost perfectly.
   LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)";
@@ -330,15 +321,15 @@ TEST_F(ResultIteratorTest, EasyTest) {
   do {
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    const char* font = r_it->WordFontAttributes(&bold, &italic, &underlined,
-                                                &monospace, &serif, &smallcaps,
-                                                &pointsize, &font_id);
+    const char* font =
+        r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                 &serif, &smallcaps, &pointsize, &font_id);
     float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     VLOG(1) << StringPrintf("Word %s in font %s, id %d, size %d, conf %g",
                             word_str, font, font_id, pointsize, confidence);
-    delete [] word_str;
+    delete[] word_str;
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
     EXPECT_FALSE(underlined);
@@ -358,7 +349,7 @@ TEST_F(ResultIteratorTest, ComplexTest) {
   SetImage("8087_054.3B.tif");
   // Just run layout analysis.
   PageIterator* it = api_.AnalyseLayout();
-  EXPECT_FALSE(it == NULL);
+  EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
   VerifyRebuilds(400, 400, 400, 400, 650, it);
   delete it;
@@ -369,7 +360,7 @@ TEST_F(ResultIteratorTest, GreyTest) {
   SetImage("8087_054.3G.tif");
   // Just run layout analysis.
   PageIterator* it = api_.AnalyseLayout();
-  EXPECT_FALSE(it == NULL);
+  EXPECT_FALSE(it == nullptr);
   // The images should rebuild almost perfectly.
   VerifyRebuilds(600, 600, 600, 600, 600, it);
   delete it;
@@ -379,7 +370,7 @@ TEST_F(ResultIteratorTest, GreyTest) {
 TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   SetImage("8071_093.3B.tif");
   char* result = api_.GetUTF8Text();
-  delete [] result;
+  delete[] result;
   ResultIterator* r_it = api_.GetIterator();
   // Iterate over the words.
   int found_dropcaps = 0;
@@ -388,26 +379,23 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   do {
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    r_it->WordFontAttributes(&bold, &italic, &underlined,
-                             &monospace, &serif, &smallcaps,
-                             &pointsize, &font_id);
+    r_it->WordFontAttributes(&bold, &italic, &underlined, &monospace, &serif,
+                             &smallcaps, &pointsize, &font_id);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
-      VLOG(1) << StringPrintf("Word %s is %s",
-                              word_str, smallcaps ? "Smallcaps" : "Normal");
+    if (word_str != nullptr) {
+      VLOG(1) << StringPrintf("Word %s is %s", word_str,
+                              smallcaps ? "Smallcaps" : "Normal");
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
       }
-      if (strcmp(word_str, "SHE") == 0 ||
-          strcmp(word_str, "MOPED") == 0 ||
+      if (strcmp(word_str, "SHE") == 0 || strcmp(word_str, "MOPED") == 0 ||
           strcmp(word_str, "RALPH") == 0 ||
           strcmp(word_str, "KINNEY") == 0 ||  // Not working yet.
           strcmp(word_str, "BENNETT") == 0) {
         EXPECT_TRUE(smallcaps) << word_str;
         ++found_smallcaps;
       } else {
-        if (smallcaps)
-          ++false_positives;
+        if (smallcaps) ++false_positives;
       }
       // No symbol other than the first of any word should be dropcap.
       ResultIterator s_it(*r_it);
@@ -415,13 +403,13 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
              !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
         if (s_it.SymbolIsDropcap()) {
           char* sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
-          LOG(ERROR) << StringPrintf("Symbol %s of word %s is dropcap",
-                                     sym_str, word_str);
-          delete [] sym_str;
+          LOG(ERROR) << StringPrintf("Symbol %s of word %s is dropcap", sym_str,
+                                     word_str);
+          delete[] sym_str;
         }
         EXPECT_FALSE(s_it.SymbolIsDropcap());
       }
-      delete [] word_str;
+      delete[] word_str;
     }
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
@@ -454,12 +442,12 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
       ++found_subs;
     } else if (r_it->SymbolIsSuperscript()) {
       result = r_it->GetUTF8Text(tesseract::RIL_SYMBOL);
-      if (strchr(kAllowedSupers, result[0]) == NULL) {
+      if (strchr(kAllowedSupers, result[0]) == nullptr) {
         char* word = r_it->GetUTF8Text(tesseract::RIL_WORD);
         LOG(ERROR) << StringPrintf("Char %s in word %s is unexpected super!",
                                     result, word);
         delete [] word;
-        EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != NULL);
+        EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != nullptr);
       }
       delete [] result;
       ++found_supers;
@@ -486,12 +474,13 @@ static const StrongScriptDirection dZ = DIR_MIX;
 // interpreted appropriately in different contexts.
 TEST_F(ResultIteratorTest, DualStartTextlineOrderTest) {
   StrongScriptDirection word_dirs[] = {dL, dL, dN, dL, dN, dR, dR, dR};
-  int reading_order_rtl_context[] = {
-    7, 6, 5, 4, ResultIterator::kMinorRunStart, 0, 1, 2, 3,
-    ResultIterator::kMinorRunEnd};
-  int reading_order_ltr_context[] = {
-    0, 1, 2, 3, 4, ResultIterator::kMinorRunStart, 7, 6, 5,
-    ResultIterator::kMinorRunEnd};
+  int reading_order_rtl_context[] = {7, 6, 5, 4, ResultIterator::kMinorRunStart,
+                                     0, 1, 2, 3, ResultIterator::kMinorRunEnd};
+  int reading_order_ltr_context[] = {0, 1,
+                                     2, 3,
+                                     4, ResultIterator::kMinorRunStart,
+                                     7, 6,
+                                     5, ResultIterator::kMinorRunEnd};
 
   ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
                              reading_order_ltr_context,
@@ -510,8 +499,8 @@ TEST_F(ResultIteratorTest, LeftwardTextlineOrderTest) {
   // In the strange event that this shows up in an RTL paragraph, nonetheless
   // just presume the whole thing is an LTR line.
   int reading_order_rtl_context[] = {
-    ResultIterator::kMinorRunStart, 0, 1, 2, 3, 4, 5, 6, 7,
-    ResultIterator::kMinorRunEnd};
+      ResultIterator::kMinorRunStart, 0, 1, 2, 3, 4, 5, 6, 7,
+      ResultIterator::kMinorRunEnd};
 
   ExpectTextlineReadingOrder(true, word_dirs, ABSL_ARRAYSIZE(word_dirs),
                              reading_order_ltr_context,
@@ -553,28 +542,28 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
 TEST_F(ResultIteratorTest, NonNullChoicesTest) {
   SetImage("5318c4b679264.jpg");
   char* result = api_.GetUTF8Text();
-  delete [] result;
+  delete[] result;
   ResultIterator* r_it = api_.GetIterator();
   // Iterate over the words.
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
+    if (word_str != nullptr) {
       VLOG(1) << StringPrintf("Word %s:", word_str);
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
         do {
           const char* char_str = c_it.GetUTF8Text();
-          if (char_str == NULL)
+          if (char_str == nullptr)
             VLOG(1) << "Null char choice";
           else
             VLOG(1) << "Char choice " << char_str;
           CHECK(char_str != nullptr);
         } while (c_it.Next());
-      } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD,
-                                      tesseract::RIL_SYMBOL) &&
-               s_it.Next(tesseract::RIL_SYMBOL));
-      delete [] word_str;
+      } while (
+          !s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
+          s_it.Next(tesseract::RIL_SYMBOL));
+      delete[] word_str;
     }
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
@@ -586,12 +575,12 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
   // Force recognition so we can used the result iterator.
   // We don't care about the return from GetUTF8Text.
   char* result = api_.GetUTF8Text();
-  delete [] result;
+  delete[] result;
   ResultIterator* r_it = api_.GetIterator();
   // Iterate over the words.
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    if (word_str != NULL) {
+    if (word_str != nullptr) {
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_WORD));
       EXPECT_FALSE(r_it->Empty(tesseract::RIL_SYMBOL));
       ResultIterator s_it = *r_it;
@@ -599,13 +588,13 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
         const char* char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
         CHECK(char_str != nullptr);
         float confidence = s_it.Confidence(tesseract::RIL_SYMBOL);
-        VLOG(1) << StringPrintf("Char %s has confidence %g\n",
-                                char_str, confidence);
-        delete [] char_str;
-      } while (!s_it.IsAtFinalElement(tesseract::RIL_WORD,
-                                      tesseract::RIL_SYMBOL) &&
-               s_it.Next(tesseract::RIL_SYMBOL));
-      delete [] word_str;
+        VLOG(1) << StringPrintf("Char %s has confidence %g\n", char_str,
+                                confidence);
+        delete[] char_str;
+      } while (
+          !s_it.IsAtFinalElement(tesseract::RIL_WORD, tesseract::RIL_SYMBOL) &&
+          s_it.Next(tesseract::RIL_SYMBOL));
+      delete[] word_str;
     } else {
       VLOG(1) << "Empty word found";
     }

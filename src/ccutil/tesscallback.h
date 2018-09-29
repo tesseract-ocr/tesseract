@@ -185,7 +185,7 @@ class _TessMemberResultCallback_0_0<del, void, T>
 template <class T1, class T2, class R>
 inline typename _TessMemberResultCallback_0_0<true,R,T1>::base*
 NewTessCallback(
-     T1* obj, R (T2::*member)() ) {
+     T1* obj, R (T2::*member)()) {
   return new _TessMemberResultCallback_0_0<true,R,T1>(
       obj, member);
 }
@@ -195,7 +195,7 @@ NewTessCallback(
 template <class T1, class T2, class R>
 inline typename _TessMemberResultCallback_0_0<false,R,T1>::base*
 NewPermanentTessCallback(
-     T1* obj, R (T2::*member)() ) {
+     T1* obj, R (T2::*member)()) {
   return new _TessMemberResultCallback_0_0<false,R,T1>(
       obj, member);
 }
@@ -370,7 +370,7 @@ class _TessMemberResultCallback_1_0 : public TessResultCallback<R> {
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_0( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_0(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -400,7 +400,7 @@ class _TessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure {
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_0( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_0(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -419,7 +419,7 @@ class _TessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure {
 #ifndef SWIG
 template <class T1, class T2, class R, class P1>
 inline typename _TessMemberResultCallback_1_0<true,R,T1,P1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_0<true,R,T1,P1>(obj, member, p1);
 }
 #endif
@@ -427,7 +427,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1) , typename Identity<P1>::type p1) 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1>
 inline typename _TessMemberResultCallback_1_0<false,R,T1,P1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_0<false,R,T1,P1>(obj, member, p1);
 }
 #endif
@@ -588,7 +588,7 @@ class _TessMemberResultCallback_2_0 : public TessResultCallback<R> {
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_0( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_0(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -619,7 +619,7 @@ class _TessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClosure {
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_0( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_0(T* object, MemberSignature member, P1 p1, P2 p2)
     :
       object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
@@ -639,7 +639,7 @@ class _TessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClosure {
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2>
 inline typename _TessMemberResultCallback_2_0<true,R,T1,P1,P2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_0<true,R,T1,P1,P2>(obj, member, p1, p2);
 }
 #endif
@@ -647,7 +647,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2) , typename Identity<P1>::type p
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2>
 inline typename _TessMemberResultCallback_2_0<false,R,T1,P1,P2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_0<false,R,T1,P1,P2>(obj, member, p1, p2);
 }
 #endif
@@ -814,7 +814,7 @@ class _TessMemberResultCallback_3_0 : public TessResultCallback<R> {
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -846,7 +846,7 @@ class _TessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public TessClosu
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -865,7 +865,7 @@ class _TessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public TessClosu
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3>
 inline typename _TessMemberResultCallback_3_0<true,R,T1,P1,P2,P3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_0<true,R,T1,P1,P2,P3>(obj, member, p1, p2, p3);
 }
 #endif
@@ -873,7 +873,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3) , typename Identity<P1>::typ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3>
 inline typename _TessMemberResultCallback_3_0<false,R,T1,P1,P2,P3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_0<false,R,T1,P1,P2,P3>(obj, member, p1, p2, p3);
 }
 #endif
@@ -1043,7 +1043,7 @@ class _TessMemberResultCallback_4_0 : public TessResultCallback<R> {
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -1076,7 +1076,7 @@ class _TessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public TessC
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -1095,7 +1095,7 @@ class _TessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public TessC
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4>
 inline typename _TessMemberResultCallback_4_0<true,R,T1,P1,P2,P3,P4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_0<true,R,T1,P1,P2,P3,P4>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -1103,7 +1103,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4) , typename Identity<P1>::
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4>
 inline typename _TessMemberResultCallback_4_0<false,R,T1,P1,P2,P3,P4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_0<false,R,T1,P1,P2,P3,P4>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -1278,7 +1278,7 @@ class _TessMemberResultCallback_5_0 : public TessResultCallback<R> {
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -1312,7 +1312,7 @@ class _TessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : public T
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -1331,7 +1331,7 @@ class _TessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5>
 inline typename _TessMemberResultCallback_5_0<true,R,T1,P1,P2,P3,P4,P5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_0<true,R,T1,P1,P2,P3,P4,P5>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -1339,7 +1339,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) , typename Identity<P1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5>
 inline typename _TessMemberResultCallback_5_0<false,R,T1,P1,P2,P3,P4,P5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_0<false,R,T1,P1,P2,P3,P4,P5>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -1519,7 +1519,7 @@ class _TessMemberResultCallback_6_0 : public TessResultCallback<R> {
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -1554,7 +1554,7 @@ class _TessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> : publ
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_0( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_0(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -1573,7 +1573,7 @@ class _TessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6>
 inline typename _TessMemberResultCallback_6_0<true,R,T1,P1,P2,P3,P4,P5,P6>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_0<true,R,T1,P1,P2,P3,P4,P5,P6>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -1581,7 +1581,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6>
 inline typename _TessMemberResultCallback_6_0<false,R,T1,P1,P2,P3,P4,P5,P6>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_0<false,R,T1,P1,P2,P3,P4,P5,P6>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -1865,7 +1865,7 @@ class _TessMemberResultCallback_0_1<del, void, T, A1>
 template <class T1, class T2, class R, class A1>
 inline typename _TessMemberResultCallback_0_1<true,R,T1,A1>::base*
 NewTessCallback(
-     T1* obj, R (T2::*member)(A1) ) {
+     T1* obj, R (T2::*member)(A1)) {
   return new _TessMemberResultCallback_0_1<true,R,T1,A1>(
       obj, member);
 }
@@ -1875,7 +1875,7 @@ NewTessCallback(
 template <class T1, class T2, class R, class A1>
 inline typename _TessMemberResultCallback_0_1<false,R,T1,A1>::base*
 NewPermanentTessCallback(
-     T1* obj, R (T2::*member)(A1) ) {
+     T1* obj, R (T2::*member)(A1)) {
   return new _TessMemberResultCallback_0_1<false,R,T1,A1>(
       obj, member);
 }
@@ -2036,7 +2036,7 @@ class _TessMemberResultCallback_1_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_1( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_1(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -2066,7 +2066,7 @@ class _TessMemberResultCallback_1_1<del, void, T, P1, A1> : public TessCallback1
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_1( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_1(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -2085,7 +2085,7 @@ class _TessMemberResultCallback_1_1<del, void, T, P1, A1> : public TessCallback1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1>
 inline typename _TessMemberResultCallback_1_1<true,R,T1,P1,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_1<true,R,T1,P1,A1>(obj, member, p1);
 }
 #endif
@@ -2093,7 +2093,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1) , typename Identity<P1>::type p
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1>
 inline typename _TessMemberResultCallback_1_1<false,R,T1,P1,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_1<false,R,T1,P1,A1>(obj, member, p1);
 }
 #endif
@@ -2253,7 +2253,7 @@ class _TessMemberResultCallback_2_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_1( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_1(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -2284,7 +2284,7 @@ class _TessMemberResultCallback_2_1<del, void, T, P1, P2, A1> : public TessCallb
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_1( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_1(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -2303,7 +2303,7 @@ class _TessMemberResultCallback_2_1<del, void, T, P1, P2, A1> : public TessCallb
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1>
 inline typename _TessMemberResultCallback_2_1<true,R,T1,P1,P2,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_1<true,R,T1,P1,P2,A1>(obj, member, p1, p2);
 }
 #endif
@@ -2311,7 +2311,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1) , typename Identity<P1>::typ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1>
 inline typename _TessMemberResultCallback_2_1<false,R,T1,P1,P2,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_1<false,R,T1,P1,P2,A1>(obj, member, p1, p2);
 }
 #endif
@@ -2476,7 +2476,7 @@ class _TessMemberResultCallback_3_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -2508,7 +2508,7 @@ class _TessMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1> : public TessC
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -2527,7 +2527,7 @@ class _TessMemberResultCallback_3_1<del, void, T, P1, P2, P3, A1> : public TessC
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1>
 inline typename _TessMemberResultCallback_3_1<true,R,T1,P1,P2,P3,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_1<true,R,T1,P1,P2,P3,A1>(obj, member, p1, p2, p3);
 }
 #endif
@@ -2535,7 +2535,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1) , typename Identity<P1>::
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1>
 inline typename _TessMemberResultCallback_3_1<false,R,T1,P1,P2,P3,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_1<false,R,T1,P1,P2,P3,A1>(obj, member, p1, p2, p3);
 }
 #endif
@@ -2705,7 +2705,7 @@ class _TessMemberResultCallback_4_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -2738,7 +2738,7 @@ class _TessMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1> : public T
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -2757,7 +2757,7 @@ class _TessMemberResultCallback_4_1<del, void, T, P1, P2, P3, P4, A1> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1>
 inline typename _TessMemberResultCallback_4_1<true,R,T1,P1,P2,P3,P4,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_1<true,R,T1,P1,P2,P3,P4,A1>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -2765,7 +2765,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) , typename Identity<P1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1>
 inline typename _TessMemberResultCallback_4_1<false,R,T1,P1,P2,P3,P4,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_1<false,R,T1,P1,P2,P3,P4,A1>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -2940,7 +2940,7 @@ class _TessMemberResultCallback_5_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -2974,7 +2974,7 @@ class _TessMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1> : publ
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -2993,7 +2993,7 @@ class _TessMemberResultCallback_5_1<del, void, T, P1, P2, P3, P4, P5, A1> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1>
 inline typename _TessMemberResultCallback_5_1<true,R,T1,P1,P2,P3,P4,P5,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_1<true,R,T1,P1,P2,P3,P4,P5,A1>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -3001,7 +3001,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1>
 inline typename _TessMemberResultCallback_5_1<false,R,T1,P1,P2,P3,P4,P5,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_1<false,R,T1,P1,P2,P3,P4,P5,A1>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -3181,7 +3181,7 @@ class _TessMemberResultCallback_6_1 : public TessResultCallback1<R,A1> {
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -3216,7 +3216,7 @@ class _TessMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1> : 
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_1( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_1(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -3235,7 +3235,7 @@ class _TessMemberResultCallback_6_1<del, void, T, P1, P2, P3, P4, P5, P6, A1> : 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1>
 inline typename _TessMemberResultCallback_6_1<true,R,T1,P1,P2,P3,P4,P5,P6,A1>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_1<true,R,T1,P1,P2,P3,P4,P5,P6,A1>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -3243,7 +3243,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) , typename Ident
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1>
 inline typename _TessMemberResultCallback_6_1<false,R,T1,P1,P2,P3,P4,P5,P6,A1>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_1<false,R,T1,P1,P2,P3,P4,P5,P6,A1>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -3470,7 +3470,7 @@ class _TessMemberResultCallback_0_2<del, void, T, A1, A2>
 template <class T1, class T2, class R, class A1, class A2>
 inline typename _TessMemberResultCallback_0_2<true,R,T1,A1,A2>::base*
 NewTessCallback(
-     T1* obj, R (T2::*member)(A1,A2) ) {
+     T1* obj, R (T2::*member)(A1,A2)) {
   return new _TessMemberResultCallback_0_2<true,R,T1,A1,A2>(
       obj, member);
 }
@@ -3480,7 +3480,7 @@ NewTessCallback(
 template <class T1, class T2, class R, class A1, class A2>
 inline typename _TessMemberResultCallback_0_2<false,R,T1,A1,A2>::base*
 NewPermanentTessCallback(
-     T1* obj, R (T2::*member)(A1,A2) ) {
+     T1* obj, R (T2::*member)(A1,A2)) {
   return new _TessMemberResultCallback_0_2<false,R,T1,A1,A2>(
       obj, member);
 }
@@ -3641,7 +3641,7 @@ class _TessMemberResultCallback_1_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_2( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_2(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -3671,7 +3671,7 @@ class _TessMemberResultCallback_1_2<del, void, T, P1, A1, A2> : public TessCallb
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_2( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_2(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -3690,7 +3690,7 @@ class _TessMemberResultCallback_1_2<del, void, T, P1, A1, A2> : public TessCallb
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2>
 inline typename _TessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_2<true,R,T1,P1,A1,A2>(obj, member, p1);
 }
 #endif
@@ -3698,7 +3698,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::typ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2>
 inline typename _TessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1,A2) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_2<false,R,T1,P1,A1,A2>(obj, member, p1);
 }
 #endif
@@ -3858,7 +3858,7 @@ class _TessMemberResultCallback_2_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_2( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_2(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -3889,7 +3889,7 @@ class _TessMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2> : public TessC
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_2( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_2(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -3908,7 +3908,7 @@ class _TessMemberResultCallback_2_2<del, void, T, P1, P2, A1, A2> : public TessC
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2>
 inline typename _TessMemberResultCallback_2_2<true,R,T1,P1,P2,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_2<true,R,T1,P1,P2,A1,A2>(obj, member, p1, p2);
 }
 #endif
@@ -3916,7 +3916,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2) , typename Identity<P1>::
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2>
 inline typename _TessMemberResultCallback_2_2<false,R,T1,P1,P2,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_2<false,R,T1,P1,P2,A1,A2>(obj, member, p1, p2);
 }
 #endif
@@ -4081,7 +4081,7 @@ class _TessMemberResultCallback_3_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -4113,7 +4113,7 @@ class _TessMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2> : public T
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -4132,7 +4132,7 @@ class _TessMemberResultCallback_3_2<del, void, T, P1, P2, P3, A1, A2> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2>
 inline typename _TessMemberResultCallback_3_2<true,R,T1,P1,P2,P3,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_2<true,R,T1,P1,P2,P3,A1,A2>(obj, member, p1, p2, p3);
 }
 #endif
@@ -4140,7 +4140,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) , typename Identity<P1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2>
 inline typename _TessMemberResultCallback_3_2<false,R,T1,P1,P2,P3,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_2<false,R,T1,P1,P2,P3,A1,A2>(obj, member, p1, p2, p3);
 }
 #endif
@@ -4310,7 +4310,7 @@ class _TessMemberResultCallback_4_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -4343,7 +4343,7 @@ class _TessMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2> : publ
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -4362,7 +4362,7 @@ class _TessMemberResultCallback_4_2<del, void, T, P1, P2, P3, P4, A1, A2> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2>
 inline typename _TessMemberResultCallback_4_2<true,R,T1,P1,P2,P3,P4,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_2<true,R,T1,P1,P2,P3,P4,A1,A2>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -4370,7 +4370,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2>
 inline typename _TessMemberResultCallback_4_2<false,R,T1,P1,P2,P3,P4,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_2<false,R,T1,P1,P2,P3,P4,A1,A2>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -4545,7 +4545,7 @@ class _TessMemberResultCallback_5_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -4579,7 +4579,7 @@ class _TessMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2> : 
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -4598,7 +4598,7 @@ class _TessMemberResultCallback_5_2<del, void, T, P1, P2, P3, P4, P5, A1, A2> : 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2>
 inline typename _TessMemberResultCallback_5_2<true,R,T1,P1,P2,P3,P4,P5,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_2<true,R,T1,P1,P2,P3,P4,P5,A1,A2>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -4606,7 +4606,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) , typename Ident
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2>
 inline typename _TessMemberResultCallback_5_2<false,R,T1,P1,P2,P3,P4,P5,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_2<false,R,T1,P1,P2,P3,P4,P5,A1,A2>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -4786,7 +4786,7 @@ class _TessMemberResultCallback_6_2 : public TessResultCallback2<R,A1,A2> {
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -4821,7 +4821,7 @@ class _TessMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_2( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_2(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -4840,7 +4840,7 @@ class _TessMemberResultCallback_6_2<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2>
 inline typename _TessMemberResultCallback_6_2<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_2<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -4848,7 +4848,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) , typename Id
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2>
 inline typename _TessMemberResultCallback_6_2<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_2<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -5075,7 +5075,7 @@ class _TessMemberResultCallback_0_3<del, void, T, A1, A2, A3>
 template <class T1, class T2, class R, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_0_3<true,R,T1,A1,A2,A3>::base*
 NewTessCallback(
-     T1* obj, R (T2::*member)(A1,A2,A3) ) {
+     T1* obj, R (T2::*member)(A1,A2,A3)) {
   return new _TessMemberResultCallback_0_3<true,R,T1,A1,A2,A3>(
       obj, member);
 }
@@ -5085,7 +5085,7 @@ NewTessCallback(
 template <class T1, class T2, class R, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_0_3<false,R,T1,A1,A2,A3>::base*
 NewPermanentTessCallback(
-     T1* obj, R (T2::*member)(A1,A2,A3) ) {
+     T1* obj, R (T2::*member)(A1,A2,A3)) {
   return new _TessMemberResultCallback_0_3<false,R,T1,A1,A2,A3>(
       obj, member);
 }
@@ -5223,7 +5223,7 @@ class _ConstTessMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3>
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3>
 inline typename _ConstTessMemberResultCallback_1_3<true,R,T1,P1,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
   return new _ConstTessMemberResultCallback_1_3<true,R,T1,P1,A1,A2,A3>(obj, member, p1);
 }
 #endif
@@ -5231,7 +5231,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3>
 inline typename _ConstTessMemberResultCallback_1_3<false,R,T1,P1,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
   return new _ConstTessMemberResultCallback_1_3<false,R,T1,P1,A1,A2,A3>(obj, member, p1);
 }
 #endif
@@ -5298,7 +5298,7 @@ class _TessMemberResultCallback_1_3<del, void, T, P1, A1, A2, A3>
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_1_3<true,R,T1,P1,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_3<true,R,T1,P1,A1,A2,A3>(obj, member, p1);
 }
 #endif
@@ -5306,7 +5306,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_1_3<false,R,T1,P1,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_3<false,R,T1,P1,A1,A2,A3>(obj, member, p1);
 }
 #endif
@@ -5467,7 +5467,7 @@ class _TessMemberResultCallback_2_3 : public TessResultCallback3<R,A1,A2,A3> {
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_3( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_3(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -5499,7 +5499,7 @@ class _TessMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3> : public T
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_3( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_3(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -5518,7 +5518,7 @@ class _TessMemberResultCallback_2_3<del, void, T, P1, P2, A1, A2, A3> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_2_3<true,R,T1,P1,P2,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_3<true,R,T1,P1,P2,A1,A2,A3>(obj, member, p1, p2);
 }
 #endif
@@ -5526,7 +5526,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) , typename Identity<P1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_2_3<false,R,T1,P1,P2,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_3<false,R,T1,P1,P2,A1,A2,A3>(obj, member, p1, p2);
 }
 #endif
@@ -5691,7 +5691,7 @@ class _TessMemberResultCallback_3_3 : public TessResultCallback3<R,A1,A2,A3> {
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -5723,7 +5723,7 @@ class _TessMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3> : publ
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -5742,7 +5742,7 @@ class _TessMemberResultCallback_3_3<del, void, T, P1, P2, P3, A1, A2, A3> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_3_3<true,R,T1,P1,P2,P3,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_3<true,R,T1,P1,P2,P3,A1,A2,A3>(obj, member, p1, p2, p3);
 }
 #endif
@@ -5750,7 +5750,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_3_3<false,R,T1,P1,P2,P3,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_3<false,R,T1,P1,P2,P3,A1,A2,A3>(obj, member, p1, p2, p3);
 }
 #endif
@@ -5920,7 +5920,7 @@ class _TessMemberResultCallback_4_3 : public TessResultCallback3<R,A1,A2,A3> {
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -5953,7 +5953,7 @@ class _TessMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3> : 
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -5972,7 +5972,7 @@ class _TessMemberResultCallback_4_3<del, void, T, P1, P2, P3, P4, A1, A2, A3> : 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_4_3<true,R,T1,P1,P2,P3,P4,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_3<true,R,T1,P1,P2,P3,P4,A1,A2,A3>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -5980,7 +5980,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) , typename Ident
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_4_3<false,R,T1,P1,P2,P3,P4,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_3<false,R,T1,P1,P2,P3,P4,A1,A2,A3>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -6155,7 +6155,7 @@ class _TessMemberResultCallback_5_3 : public TessResultCallback3<R,A1,A2,A3> {
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -6189,7 +6189,7 @@ class _TessMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -6208,7 +6208,7 @@ class _TessMemberResultCallback_5_3<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_5_3<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_3<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -6216,7 +6216,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) , typename Id
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_5_3<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_3<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -6396,7 +6396,7 @@ class _TessMemberResultCallback_6_3 : public TessResultCallback3<R,A1,A2,A3> {
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -6431,7 +6431,7 @@ class _TessMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_3( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_3(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -6450,7 +6450,7 @@ class _TessMemberResultCallback_6_3<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_6_3<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_3<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -6458,7 +6458,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) , typename
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3>
 inline typename _TessMemberResultCallback_6_3<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_3<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -6622,7 +6622,7 @@ class _TessMemberResultCallback_0_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   MemberSignature member_;
 
  public:
-  inline _TessMemberResultCallback_0_4( T* object, MemberSignature member)
+  inline _TessMemberResultCallback_0_4(T* object, MemberSignature member)
     : object_(object),
       member_(member) { }
 
@@ -6651,7 +6651,7 @@ class _TessMemberResultCallback_0_4<del, void, T, A1, A2, A3, A4> : public TessC
   MemberSignature member_;
 
  public:
-  inline _TessMemberResultCallback_0_4( T* object, MemberSignature member)
+  inline _TessMemberResultCallback_0_4(T* object, MemberSignature member)
     : object_(object),
       member_(member) { }
 
@@ -6670,7 +6670,7 @@ class _TessMemberResultCallback_0_4<del, void, T, A1, A2, A3, A4> : public TessC
 #ifndef SWIG
 template <class T1, class T2, class R, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_0_4<true,R,T1,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4) ) {
+NewTessCallback(T1* obj, R (T2::*member)(A1,A2,A3,A4)) {
   return new _TessMemberResultCallback_0_4<true,R,T1,A1,A2,A3,A4>(obj, member);
 }
 #endif
@@ -6678,7 +6678,7 @@ NewTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4) ) {
 #ifndef SWIG
 template <class T1, class T2, class R, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_0_4<false,R,T1,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4) ) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(A1,A2,A3,A4)) {
   return new _TessMemberResultCallback_0_4<false,R,T1,A1,A2,A3,A4>(obj, member);
 }
 #endif
@@ -6833,7 +6833,7 @@ class _TessMemberResultCallback_1_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_4( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_4(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -6863,7 +6863,7 @@ class _TessMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4> : public T
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_4( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_4(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -6882,7 +6882,7 @@ class _TessMemberResultCallback_1_4<del, void, T, P1, A1, A2, A3, A4> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_1_4<true,R,T1,P1,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_4<true,R,T1,P1,A1,A2,A3,A4>(obj, member, p1);
 }
 #endif
@@ -6890,7 +6890,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) , typename Identity<P1
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_1_4<false,R,T1,P1,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3,A4) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_4<false,R,T1,P1,A1,A2,A3,A4>(obj, member, p1);
 }
 #endif
@@ -7050,7 +7050,7 @@ class _TessMemberResultCallback_2_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_4( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_4(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -7081,7 +7081,7 @@ class _TessMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4> : publ
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_4( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_4(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -7100,7 +7100,7 @@ class _TessMemberResultCallback_2_4<del, void, T, P1, P2, A1, A2, A3, A4> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_2_4<true,R,T1,P1,P2,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_4<true,R,T1,P1,P2,A1,A2,A3,A4>(obj, member, p1, p2);
 }
 #endif
@@ -7108,7 +7108,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_2_4<false,R,T1,P1,P2,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_4<false,R,T1,P1,P2,A1,A2,A3,A4>(obj, member, p1, p2);
 }
 #endif
@@ -7273,7 +7273,7 @@ class _TessMemberResultCallback_3_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -7305,7 +7305,7 @@ class _TessMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4> : 
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -7324,7 +7324,7 @@ class _TessMemberResultCallback_3_4<del, void, T, P1, P2, P3, A1, A2, A3, A4> : 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_3_4<true,R,T1,P1,P2,P3,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_4<true,R,T1,P1,P2,P3,A1,A2,A3,A4>(obj, member, p1, p2, p3);
 }
 #endif
@@ -7332,7 +7332,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) , typename Ident
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_3_4<false,R,T1,P1,P2,P3,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_4<false,R,T1,P1,P2,P3,A1,A2,A3,A4>(obj, member, p1, p2, p3);
 }
 #endif
@@ -7502,7 +7502,7 @@ class _TessMemberResultCallback_4_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -7535,7 +7535,7 @@ class _TessMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -7554,7 +7554,7 @@ class _TessMemberResultCallback_4_4<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_4_4<true,R,T1,P1,P2,P3,P4,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_4<true,R,T1,P1,P2,P3,P4,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -7562,7 +7562,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) , typename Id
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_4_4<false,R,T1,P1,P2,P3,P4,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_4<false,R,T1,P1,P2,P3,P4,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -7737,7 +7737,7 @@ class _TessMemberResultCallback_5_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -7771,7 +7771,7 @@ class _TessMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -7790,7 +7790,7 @@ class _TessMemberResultCallback_5_4<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_5_4<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_4<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -7798,7 +7798,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) , typename
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_5_4<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_4<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -7978,7 +7978,7 @@ class _TessMemberResultCallback_6_4 : public TessResultCallback4<R,A1,A2,A3,A4> 
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -8013,7 +8013,7 @@ class _TessMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_4( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_4(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -8032,7 +8032,7 @@ class _TessMemberResultCallback_6_4<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_6_4<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_4<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -8040,7 +8040,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4) , typen
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4>
 inline typename _TessMemberResultCallback_6_4<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_4<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -8218,7 +8218,7 @@ class _TessMemberResultCallback_0_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   MemberSignature member_;
 
  public:
-  inline _TessMemberResultCallback_0_5( T* object, MemberSignature member)
+  inline _TessMemberResultCallback_0_5(T* object, MemberSignature member)
     : object_(object),
       member_(member) { }
 
@@ -8247,7 +8247,7 @@ class _TessMemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5> : public T
   MemberSignature member_;
 
  public:
-  inline _TessMemberResultCallback_0_5( T* object, MemberSignature member)
+  inline _TessMemberResultCallback_0_5(T* object, MemberSignature member)
     : object_(object),
       member_(member) { }
 
@@ -8266,7 +8266,7 @@ class _TessMemberResultCallback_0_5<del, void, T, A1, A2, A3, A4, A5> : public T
 #ifndef SWIG
 template <class T1, class T2, class R, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_0_5<true,R,T1,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4,A5) ) {
+NewTessCallback(T1* obj, R (T2::*member)(A1,A2,A3,A4,A5)) {
   return new _TessMemberResultCallback_0_5<true,R,T1,A1,A2,A3,A4,A5>(obj, member);
 }
 #endif
@@ -8274,7 +8274,7 @@ NewTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4,A5) ) {
 #ifndef SWIG
 template <class T1, class T2, class R, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_0_5<false,R,T1,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(A1,A2,A3,A4,A5) ) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(A1,A2,A3,A4,A5)) {
   return new _TessMemberResultCallback_0_5<false,R,T1,A1,A2,A3,A4,A5>(obj, member);
 }
 #endif
@@ -8429,7 +8429,7 @@ class _TessMemberResultCallback_1_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_5( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_5(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -8459,7 +8459,7 @@ class _TessMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5> : publ
   typename remove_reference<P1>::type p1_;
 
  public:
-  inline _TessMemberResultCallback_1_5( T* object, MemberSignature member, P1 p1)
+  inline _TessMemberResultCallback_1_5(T* object, MemberSignature member, P1 p1)
     : object_(object),
       member_(member),      p1_(p1) { }
 
@@ -8478,7 +8478,7 @@ class _TessMemberResultCallback_1_5<del, void, T, P1, A1, A2, A3, A4, A5> : publ
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_1_5<true,R,T1,P1,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_5<true,R,T1,P1,A1,A2,A3,A4,A5>(obj, member, p1);
 }
 #endif
@@ -8486,7 +8486,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) , typename Identity
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_1_5<false,R,T1,P1,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1) {
   return new _TessMemberResultCallback_1_5<false,R,T1,P1,A1,A2,A3,A4,A5>(obj, member, p1);
 }
 #endif
@@ -8646,7 +8646,7 @@ class _TessMemberResultCallback_2_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_5( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_5(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -8677,7 +8677,7 @@ class _TessMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5> : 
   typename remove_reference<P2>::type p2_;
 
  public:
-  inline _TessMemberResultCallback_2_5( T* object, MemberSignature member, P1 p1, P2 p2)
+  inline _TessMemberResultCallback_2_5(T* object, MemberSignature member, P1 p1, P2 p2)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
@@ -8696,7 +8696,7 @@ class _TessMemberResultCallback_2_5<del, void, T, P1, P2, A1, A2, A3, A4, A5> : 
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_2_5<true,R,T1,P1,P2,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_5<true,R,T1,P1,P2,A1,A2,A3,A4,A5>(obj, member, p1, p2);
 }
 #endif
@@ -8704,7 +8704,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) , typename Ident
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_2_5<false,R,T1,P1,P2,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2) {
   return new _TessMemberResultCallback_2_5<false,R,T1,P1,P2,A1,A2,A3,A4,A5>(obj, member, p1, p2);
 }
 #endif
@@ -8869,7 +8869,7 @@ class _TessMemberResultCallback_3_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -8901,7 +8901,7 @@ class _TessMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5
   typename remove_reference<P3>::type p3_;
 
  public:
-  inline _TessMemberResultCallback_3_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
+  inline _TessMemberResultCallback_3_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
@@ -8920,7 +8920,7 @@ class _TessMemberResultCallback_3_5<del, void, T, P1, P2, P3, A1, A2, A3, A4, A5
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_3_5<true,R,T1,P1,P2,P3,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_5<true,R,T1,P1,P2,P3,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3);
 }
 #endif
@@ -8928,7 +8928,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) , typename Id
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_3_5<false,R,T1,P1,P2,P3,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3) {
   return new _TessMemberResultCallback_3_5<false,R,T1,P1,P2,P3,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3);
 }
 #endif
@@ -9098,7 +9098,7 @@ class _TessMemberResultCallback_4_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -9131,7 +9131,7 @@ class _TessMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
   typename remove_reference<P4>::type p4_;
 
  public:
-  inline _TessMemberResultCallback_4_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
+  inline _TessMemberResultCallback_4_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
@@ -9150,7 +9150,7 @@ class _TessMemberResultCallback_4_5<del, void, T, P1, P2, P3, P4, A1, A2, A3, A4
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_4_5<true,R,T1,P1,P2,P3,P4,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_5<true,R,T1,P1,P2,P3,P4,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -9158,7 +9158,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) , typename
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_4_5<false,R,T1,P1,P2,P3,P4,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4) {
   return new _TessMemberResultCallback_4_5<false,R,T1,P1,P2,P3,P4,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4);
 }
 #endif
@@ -9334,7 +9334,7 @@ class _TessMemberResultCallback_5_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -9368,7 +9368,7 @@ class _TessMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
   typename remove_reference<P5>::type p5_;
 
  public:
-  inline _TessMemberResultCallback_5_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+  inline _TessMemberResultCallback_5_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
@@ -9387,7 +9387,7 @@ class _TessMemberResultCallback_5_5<del, void, T, P1, P2, P3, P4, P5, A1, A2, A3
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_5_5<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_5<true,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -9395,7 +9395,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5) , typen
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_5_5<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5) {
   return new _TessMemberResultCallback_5_5<false,R,T1,P1,P2,P3,P4,P5,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4, p5);
 }
 #endif
@@ -9575,7 +9575,7 @@ class _TessMemberResultCallback_6_5 : public TessResultCallback5<R,A1,A2,A3,A4,A
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -9610,7 +9610,7 @@ class _TessMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
   typename remove_reference<P6>::type p6_;
 
  public:
-  inline _TessMemberResultCallback_6_5( T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+  inline _TessMemberResultCallback_6_5(T* object, MemberSignature member, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
@@ -9629,7 +9629,7 @@ class _TessMemberResultCallback_6_5<del, void, T, P1, P2, P3, P4, P5, P6, A1, A2
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_6_5<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5>::base*
-NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_5<true,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif
@@ -9637,7 +9637,7 @@ NewTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5) , ty
 #ifndef SWIG
 template <class T1, class T2, class R, class P1, class P2, class P3, class P4, class P5, class P6, class A1, class A2, class A3, class A4, class A5>
 inline typename _TessMemberResultCallback_6_5<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5>::base*
-NewPermanentTessCallback( T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+NewPermanentTessCallback(T1* obj, R (T2::*member)(P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5) , typename Identity<P1>::type p1, typename Identity<P2>::type p2, typename Identity<P3>::type p3, typename Identity<P4>::type p4, typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
   return new _TessMemberResultCallback_6_5<false,R,T1,P1,P2,P3,P4,P5,P6,A1,A2,A3,A4,A5>(obj, member, p1, p2, p3, p4, p5, p6);
 }
 #endif

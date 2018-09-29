@@ -27,11 +27,9 @@ class TestableColPartition : public ColPartition {
 
 class ColPartitionTest : public testing::Test {
  protected:
-  void SetUp() {
-  }
+  void SetUp() {}
 
-  void TearDown() {
-  }
+  void TearDown() {}
 };
 
 TEST_F(ColPartitionTest, IsInSameColumnAsReflexive) {
@@ -75,4 +73,4 @@ TEST_F(ColPartitionTest, IsInSameColumnAsPartialOverlap) {
   EXPECT_TRUE(b.IsInSameColumnAs(a));
 }
 
-} // namespace
+}  // namespace

@@ -23,7 +23,7 @@ TEST(NormstrngsTest, BasicText) {
 }
 
 TEST(NormstrngsTest, LigatureText) {
-  const char* kTwoByteLigText = "ĳ";       // U+0133 (ĳ) -> ij
+  const char* kTwoByteLigText = "ĳ";  // U+0133 (ĳ) -> ij
   string result;
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFKC, OCRNorm::kNormalize,
                                   GraphemeNorm::kNormalize, kTwoByteLigText,
@@ -51,7 +51,7 @@ TEST(NormstrngsTest, OcrSpecificNormalization) {
                                   &result));
   EXPECT_STREQ("\"Hi", result.c_str());
 
-  const char* kEmDash = "Hi—";           // U+2014 (—) -> U+02D (-)
+  const char* kEmDash = "Hi—";  // U+2014 (—) -> U+02D (-)
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFKC, OCRNorm::kNormalize,
                                   GraphemeNorm::kNormalize, kEmDash, &result));
   EXPECT_STREQ("Hi-", result.c_str());

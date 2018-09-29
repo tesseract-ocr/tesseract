@@ -851,11 +851,9 @@ void AddToNormProtosList(
 int NumberOfProtos(LIST ProtoList, bool CountSigProtos,
                    bool CountInsigProtos) {
   int N = 0;
-  PROTOTYPE* Proto;
-
   iterate(ProtoList)
   {
-    Proto = (PROTOTYPE *) first_node ( ProtoList );
+    PROTOTYPE* Proto = (PROTOTYPE*)first_node(ProtoList);
     if ((Proto->Significant && CountSigProtos) ||
         (!Proto->Significant && CountInsigProtos))
       N++;

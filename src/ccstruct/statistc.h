@@ -75,7 +75,7 @@ class STATS {
   // between 6 and 13 = 9.5
   double median() const;  // get median of samples
   // Returns the count of the given value.
-  int32_t pile_count(int32_t value ) const {
+  int32_t pile_count(int32_t value) const {
     if (value <= rangemin_)
       return buckets_[0];
     if (value >= rangemax_ - 1)

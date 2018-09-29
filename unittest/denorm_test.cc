@@ -18,11 +18,9 @@ namespace {
 
 class DENORMTest : public testing::Test {
  public:
-  void SetUp() {
-  }
+  void SetUp() {}
 
-  void TearDown() {
-  }
+  void TearDown() {}
 
   void ExpectCorrectTransform(const DENORM& denorm, const TPOINT& src,
                               const TPOINT& result, bool local) {
@@ -30,7 +28,7 @@ class DENORMTest : public testing::Test {
     if (local)
       denorm.LocalNormTransform(src, &normed);
     else
-      denorm.NormTransform(NULL, src, &normed);
+      denorm.NormTransform(nullptr, src, &normed);
     EXPECT_EQ(result.x, normed.x);
     EXPECT_EQ(result.y, normed.y);
     // Now undo
@@ -38,7 +36,7 @@ class DENORMTest : public testing::Test {
     if (local)
       denorm.LocalDenormTransform(normed, &denormed);
     else
-      denorm.DenormTransform(NULL, normed, &denormed);
+      denorm.DenormTransform(nullptr, normed, &denormed);
     EXPECT_EQ(src.x, denormed.x);
     EXPECT_EQ(src.y, denormed.y);
   }
@@ -47,8 +45,7 @@ class DENORMTest : public testing::Test {
 // Tests a simple baseline-style normalization.
 TEST_F(DENORMTest, NoRotations) {
   DENORM denorm;
-  denorm.SetupNormalization(NULL, NULL, NULL,
-                            1000.0f, 2000.0f, 2.0f, 3.0f,
+  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f,
                             0.0f, static_cast<float>(kBlnBaselineOffset));
   TPOINT pt1(1100, 2000);
   TPOINT result1(200, kBlnBaselineOffset);
@@ -64,9 +61,8 @@ TEST_F(DENORMTest, NoRotations) {
 TEST_F(DENORMTest, WithRotations) {
   DENORM denorm;
   FCOORD rotation90(0.0f, 1.0f);
-  denorm.SetupNormalization(NULL, &rotation90, NULL,
-                            1000.0f, 2000.0f, 2.0f, 3.0f,
-                            0.0f, static_cast<float>(kBlnBaselineOffset));
+  denorm.SetupNormalization(nullptr, &rotation90, nullptr, 1000.0f, 2000.0f, 2.0f,
+                            3.0f, 0.0f, static_cast<float>(kBlnBaselineOffset));
 
   TPOINT pt1(1100, 2000);
   TPOINT result1(0, 200 + kBlnBaselineOffset);
@@ -81,14 +77,13 @@ TEST_F(DENORMTest, WithRotations) {
 // Tests a simple baseline-style normalization with a second rotation & scale.
 TEST_F(DENORMTest, Multiple) {
   DENORM denorm;
-  denorm.SetupNormalization(NULL, NULL, NULL,
-                            1000.0f, 2000.0f, 2.0f, 3.0f,
+  denorm.SetupNormalization(nullptr, nullptr, nullptr, 1000.0f, 2000.0f, 2.0f, 3.0f,
                             0.0f, static_cast<float>(kBlnBaselineOffset));
 
   DENORM denorm2;
   FCOORD rotation90(0.0f, 1.0f);
-  denorm2.SetupNormalization(NULL, &rotation90, &denorm,
-                            128.0f, 128.0f, 0.5f, 0.25f, 0.0f, 0.0f);
+  denorm2.SetupNormalization(nullptr, &rotation90, &denorm, 128.0f, 128.0f, 0.5f,
+                             0.25f, 0.0f, 0.0f);
   TPOINT pt1(1050, 2000);
   TPOINT result1(100, kBlnBaselineOffset);
   ExpectCorrectTransform(denorm, pt1, result1, true);

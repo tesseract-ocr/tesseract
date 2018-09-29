@@ -65,8 +65,8 @@ class REGION_OCC:public ELIST_LINK
 };
 
 ELISTIZEH (REGION_OCC)
-#define RANGE_IN_BAND( band_max, band_min, range_max, range_min ) \
-( ((range_min) >= (band_min)) && ((range_max) < (band_max)) ) ? true : false
+#define RANGE_IN_BAND(band_max, band_min, range_max, range_min) \
+(((range_min) >= (band_min)) && ((range_max) < (band_max)))
 /************************************************************************
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
@@ -78,14 +78,14 @@ int16_t           band_min,
 int16_t           range_max,
 int16_t           range_min]
 {
-  if ( (range_min >= band_min) && (range_max < band_max) )
+  if ((range_min >= band_min) && (range_max < band_max))
     return TRUE;
   else
     return FALSE;
 }
 ***********************************************************************/
-#define RANGE_OVERLAPS_BAND( band_max, band_min, range_max, range_min ) \
-( ((range_max) >= (band_min)) && ((range_min) < (band_max)) ) ? true : false
+#define RANGE_OVERLAPS_BAND(band_max, band_min, range_max, range_min) \
+(((range_max) >= (band_min)) && ((range_min) < (band_max)))
 /************************************************************************
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
@@ -97,7 +97,7 @@ int16_t           band_min,
 int16_t           range_max,
 int16_t           range_min]
 {
-  if ( (range_max >= band_min) && (range_min < band_max) )
+  if ((range_max >= band_min) && (range_min < band_max))
     return TRUE;
   else
     return FALSE;

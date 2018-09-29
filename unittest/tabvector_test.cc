@@ -21,12 +21,9 @@ namespace {
 
 class TabVectorTest : public testing::Test {
  protected:
-  void SetUp() {
-    vector_.reset();
-  }
+  void SetUp() { vector_.reset(); }
 
-  void TearDown() {
-  }
+  void TearDown() {}
 
   void MakeSimpleTabVector(int x1, int y1, int x2, int y2) {
     vector_.reset(new TabVector());
@@ -60,7 +57,7 @@ TEST_F(TabVectorTest, XAtY45DegreeSlopeInRangeExact) {
 }
 
 TEST_F(TabVectorTest, XAtYVerticalInRangeExact) {
-  const int x = 120; // Arbitrary choice
+  const int x = 120;  // Arbitrary choice
   MakeSimpleTabVector(x, 0, x, 100);
   for (int y = 0; y <= 100; ++y) {
     int result_x = vector_->XAtY(y);
@@ -69,7 +66,7 @@ TEST_F(TabVectorTest, XAtYVerticalInRangeExact) {
 }
 
 TEST_F(TabVectorTest, XAtYHorizontal) {
-  const int y = 76; // arbitrary
+  const int y = 76;  // arbitrary
   MakeSimpleTabVector(0, y, 100, y);
   EXPECT_EQ(0, vector_->XAtY(y));
   // TODO(nbeato): What's the failure condition?
@@ -93,13 +90,13 @@ TEST_F(TabVectorTest, XAtYLargeNumbers) {
   // Assume a document is 800 DPI,
   // the width of a page is 10 inches across (8000 pixels), and
   // the height of the page is 15 inches (12000 pixels).
-  MakeSimpleTabVector(7804, 504, 7968, 11768); // Arbitrary for vertical line
-  int x = vector_->XAtY(6136); // test mid point
+  MakeSimpleTabVector(7804, 504, 7968, 11768);  // Arbitrary for vertical line
+  int x = vector_->XAtY(6136);                  // test mid point
   EXPECT_EQ(7886, x);
 }
 
 TEST_F(TabVectorTest, XAtYHorizontalInRangeExact) {
-  const int y = 120; // Arbitrary choice
+  const int y = 120;  // Arbitrary choice
   MakeSimpleTabVector(50, y, 150, y);
 
   int x = vector_->XAtY(y);
@@ -129,4 +126,4 @@ TEST_F(TabVectorTest, XYFlip) {
   EXPECT_EQ(3, vector_->endpt().y());
 }
 
-} // namespace
+}  // namespace

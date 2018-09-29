@@ -31,19 +31,13 @@ class ApplyBoxTest : public testing::Test {
   std::string TestDataNameToPath(const std::string& name) {
     return file::JoinPath(TESTING_DIR, name);
   }
-  std::string TessdataPath() {
-    return TESSDATA_DIR;
-  }
+  std::string TessdataPath() { return TESSDATA_DIR; }
   std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
-  ApplyBoxTest() {
-    src_pix_ = NULL;
-  }
-  ~ApplyBoxTest() {
-    pixDestroy(&src_pix_);
-  }
+  ApplyBoxTest() { src_pix_ = nullptr; }
+  ~ApplyBoxTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename) {
     pixDestroy(&src_pix_);
@@ -67,35 +61,34 @@ class ApplyBoxTest : public testing::Test {
       api_.SetVariable("tessedit_resegment_from_line_boxes", "1");
     else
       api_.SetVariable("tessedit_resegment_from_boxes", "1");
-    api_.Recognize(NULL);
+    api_.Recognize(nullptr);
     char* ocr_text = api_.GetUTF8Text();
     EXPECT_STREQ(truth_str, ocr_text);
-    delete [] ocr_text;
+    delete[] ocr_text;
     // Test the boxes by reading the target box file in parallel with the
     // bounding boxes in the ocr output.
     std::string box_filename = TestDataNameToPath(target_box_file);
     FILE* box_file = OpenBoxFile(STRING(box_filename.c_str()));
-    ASSERT_TRUE(box_file != NULL);
+    ASSERT_TRUE(box_file != nullptr);
     int height = pixGetHeight(src_pix_);
     ResultIterator* it = api_.GetIterator();
     do {
       int left, top, right, bottom;
-      EXPECT_TRUE(it->BoundingBox(tesseract::RIL_SYMBOL,
-                                  &left, &top, &right, &bottom));
-      TBOX ocr_box(ICOORD(left, height - bottom),
-                   ICOORD(right, height - top));
+      EXPECT_TRUE(
+          it->BoundingBox(tesseract::RIL_SYMBOL, &left, &top, &right, &bottom));
+      TBOX ocr_box(ICOORD(left, height - bottom), ICOORD(right, height - top));
       int line_number;
       TBOX truth_box;
       STRING box_text;
-      EXPECT_TRUE(ReadNextBox(0, &line_number, box_file, &box_text,
-                                &truth_box));
+      EXPECT_TRUE(
+          ReadNextBox(0, &line_number, box_file, &box_text, &truth_box));
       // Testing for major overlap is a bit weak, but if they all
       // major overlap successfully, then it has to be fairly close.
       EXPECT_TRUE(ocr_box.major_overlap(truth_box));
       // Also check that the symbol text matches the box text.
       char* symbol_text = it->GetUTF8Text(tesseract::RIL_SYMBOL);
       EXPECT_STREQ(box_text.string(), symbol_text);
-      delete [] symbol_text;
+      delete[] symbol_text;
     } while (it->Next(tesseract::RIL_SYMBOL));
     delete it;
   }
@@ -107,14 +100,14 @@ class ApplyBoxTest : public testing::Test {
 
 // Tests character-level applyboxes on normal Times New Roman.
 TEST_F(ApplyBoxTest, TimesCharLevel) {
-  VerifyBoxesAndText("trainingtimes.tif", kTruthTextWords,
-                     "trainingtimes.box", false);
+  VerifyBoxesAndText("trainingtimes.tif", kTruthTextWords, "trainingtimes.box",
+                     false);
 }
 
 // Tests character-level applyboxes on italic Times New Roman.
 TEST_F(ApplyBoxTest, ItalicCharLevel) {
-  VerifyBoxesAndText("trainingital.tif", kTruthTextWords,
-                     "trainingital.box", false);
+  VerifyBoxesAndText("trainingital.tif", kTruthTextWords, "trainingital.box",
+                     false);
 }
 
 // Tests line-level applyboxes on normal Times New Roman.
@@ -125,8 +118,8 @@ TEST_F(ApplyBoxTest, TimesLineLevel) {
 
 // Tests line-level applyboxes on italic Times New Roman.
 TEST_F(ApplyBoxTest, ItalLineLevel) {
-  VerifyBoxesAndText("trainingitalline.tif", kTruthTextLine,
-                     "trainingital.box", true);
+  VerifyBoxesAndText("trainingitalline.tif", kTruthTextLine, "trainingital.box",
+                     true);
 }
 
 }  // namespace

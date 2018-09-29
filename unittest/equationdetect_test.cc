@@ -13,9 +13,8 @@ namespace tesseract {
 
 class TestableEquationDetect : public EquationDetect {
  public:
-  TestableEquationDetect(const char* tessdata,
-                         Tesseract* lang_tesseract) :
-      EquationDetect(tessdata, "equ") {
+  TestableEquationDetect(const char* tessdata, Tesseract* lang_tesseract)
+      : EquationDetect(tessdata, "equ") {
     SetLangTesseract(lang_tesseract);
   }
 
@@ -26,46 +25,44 @@ class TestableEquationDetect : public EquationDetect {
     CHECK_LE(math_blobs + digit_blobs, total_blobs);
     int count = 0;
     for (int i = 0; i < math_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      BLOBNBOX* blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_MATH);
       part->AddBox(blob);
     }
     for (int i = 0; i < digit_blobs; i++, count++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      BLOBNBOX* blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_DIGIT);
       part->AddBox(blob);
     }
     for (int i = count; i < total_blobs; i++) {
-      BLOBNBOX *blob = new BLOBNBOX();
+      BLOBNBOX* blob = new BLOBNBOX();
       blob->set_special_text_type(BSTT_NONE);
       part->AddBox(blob);
     }
   }
 
   // Set up pix_binary for lang_tesseract_.
-  void SetPixBinary(Pix *pix) {
+  void SetPixBinary(Pix* pix) {
     CHECK_EQ(1, pixGetDepth(pix));
     *(lang_tesseract_->mutable_pix_binary()) = pix;
   }
 
-  void RunIdentifySpecialText(BLOBNBOX*blob, const int height_th) {
+  void RunIdentifySpecialText(BLOBNBOX* blob, const int height_th) {
     IdentifySpecialText(blob, height_th);
   }
 
-  BlobSpecialTextType RunEstimateTypeForUnichar(
-      const char*val) {
+  BlobSpecialTextType RunEstimateTypeForUnichar(const char* val) {
     const UNICHARSET& unicharset = lang_tesseract_->unicharset;
     return EstimateTypeForUnichar(unicharset, unicharset.unichar_to_id(val));
   }
 
-  EquationDetect::IndentType RunIsIndented(
-      ColPartitionGrid* part_grid, ColPartition* part) {
+  EquationDetect::IndentType RunIsIndented(ColPartitionGrid* part_grid,
+                                           ColPartition* part) {
     this->part_grid_ = part_grid;
     return IsIndented(part);
   }
 
-  bool RunIsNearSmallNeighbor(const TBOX& seed_box,
-                              const TBOX& part_box) {
+  bool RunIsNearSmallNeighbor(const TBOX& seed_box, const TBOX& part_box) {
     return IsNearSmallNeighbor(seed_box, part_box);
   }
 
@@ -108,38 +105,34 @@ class EquationFinderTest : public testing::Test {
   string testdata_dir_;
 
   void SetUp() {
-    string tessdata_dir = file::JoinPath(
-        FLAGS_test_srcdir, "tessdata");
+    string tessdata_dir = file::JoinPath(FLAGS_test_srcdir, "tessdata");
     tesseract_.reset(new Tesseract());
     tesseract_->init_tesseract(tessdata_dir.c_str(), "eng", OEM_TESSERACT_ONLY);
     tesseract_->set_source_resolution(300);
-    equation_det_.reset(new TestableEquationDetect(
-        tessdata_dir.c_str(), tesseract_.get()));
+    equation_det_.reset(
+        new TestableEquationDetect(tessdata_dir.c_str(), tesseract_.get()));
     equation_det_->SetResolution(300);
 
-    testdata_dir_ = file::JoinPath(
-        FLAGS_test_srcdir, "testdata");
+    testdata_dir_ = file::JoinPath(FLAGS_test_srcdir, "testdata");
   }
 
   void TearDown() {
-    tesseract_.reset(NULL);
-    equation_det_.reset(NULL);
+    tesseract_.reset(nullptr);
+    equation_det_.reset(nullptr);
   }
 
   // Add a BLOCK covering the whole page.
-  void AddPageBlock(Pix* pix,
-                    BLOCK_LIST* blocks) {
+  void AddPageBlock(Pix* pix, BLOCK_LIST* blocks) {
     CHECK(pix != nullptr);
     CHECK(blocks != nullptr);
     BLOCK_IT block_it(blocks);
-    BLOCK* block = new BLOCK("", TRUE, 0, 0, 0, 0,
-                             pixGetWidth(pix), pixGetHeight(pix));
+    BLOCK* block =
+        new BLOCK("", TRUE, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
     block_it.add_to_end(block);
   }
 
   // Create col partitions, add into part_grid, and put them into all_parts.
-  void CreateColParts(const int rows,
-                      const int cols,
+  void CreateColParts(const int rows, const int cols,
                       ColPartitionGrid* part_grid,
                       std::vector<ColPartition*>* all_parts) {
     const int kWidth = 10, kHeight = 10;
@@ -148,8 +141,8 @@ class EquationFinderTest : public testing::Test {
       for (int x = 0; x < cols; ++x) {
         int left = x * kWidth * 2, bottom = y * kHeight * 2;
         TBOX box(left, bottom, left + kWidth, bottom + kHeight);
-        ColPartition* part = ColPartition::FakePartition(
-            box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+        ColPartition* part = ColPartition::FakePartition(box, PT_FLOWING_TEXT,
+                                                         BRT_TEXT, BTFT_NONE);
         part_grid->InsertBBox(true, true, part);
         all_parts->push_back(part);
       }
@@ -159,15 +152,14 @@ class EquationFinderTest : public testing::Test {
   void ClearParts(std::vector<ColPartition*>* all_parts) {
     for (int i = 0; i < all_parts->size(); ++i) {
       (*all_parts)[i]->DeleteBoxes();
-      delete((*all_parts)[i]);
+      delete ((*all_parts)[i]);
     }
   }
 
   // Create a BLOBNBOX object with bounding box tbox, and add it into part.
-  void AddBlobIntoPart(const TBOX& tbox,
-                       ColPartition* part) {
+  void AddBlobIntoPart(const TBOX& tbox, ColPartition* part) {
     CHECK(part != nullptr);
-    BLOBNBOX *blob = new BLOBNBOX();
+    BLOBNBOX* blob = new BLOBNBOX();
     blob->set_bounding_box(tbox);
     part->AddBox(blob);
   }
@@ -176,8 +168,8 @@ class EquationFinderTest : public testing::Test {
 TEST_F(EquationFinderTest, IdentifySpecialText) {
   // Load Image.
   string imagefile = file::JoinPath(testdata_dir_, "equ_gt1.tif");
-  Pix *pix_binary = pixRead(imagefile.c_str());
-  CHECK(pix_binary != NULL && pixGetDepth(pix_binary) == 1);
+  Pix* pix_binary = pixRead(imagefile.c_str());
+  CHECK(pix_binary != nullptr && pixGetDepth(pix_binary) == 1);
 
   // Get components.
   BLOCK_LIST blocks;
@@ -251,24 +243,24 @@ TEST_F(EquationFinderTest, IsIndented) {
   //
   // part 5:   ********
   TBOX box1(0, 950, 999, 999);
-  ColPartition* part1 = ColPartition::FakePartition(
-      box1, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part1 =
+      ColPartition::FakePartition(box1, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part_grid.InsertBBox(true, true, part1);
   TBOX box2(300, 920, 900, 940);
-  ColPartition* part2 = ColPartition::FakePartition(
-      box2, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part2 =
+      ColPartition::FakePartition(box2, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part_grid.InsertBBox(true, true, part2);
   TBOX box3(0, 900, 600, 910);
-  ColPartition* part3 = ColPartition::FakePartition(
-      box3, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part3 =
+      ColPartition::FakePartition(box3, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part_grid.InsertBBox(true, true, part3);
   TBOX box4(300, 890, 600, 899);
-  ColPartition* part4 = ColPartition::FakePartition(
-      box4, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part4 =
+      ColPartition::FakePartition(box4, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part_grid.InsertBBox(true, true, part4);
   TBOX box5(300, 500, 900, 510);
-  ColPartition* part5 = ColPartition::FakePartition(
-      box5, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part5 =
+      ColPartition::FakePartition(box5, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part_grid.InsertBBox(true, true, part5);
 
   // Test
@@ -290,15 +282,15 @@ TEST_F(EquationFinderTest, IsIndented) {
 
   // Release memory.
   part1->DeleteBoxes();
-  delete(part1);
+  delete (part1);
   part2->DeleteBoxes();
-  delete(part2);
+  delete (part2);
   part3->DeleteBoxes();
-  delete(part3);
+  delete (part3);
   part4->DeleteBoxes();
-  delete(part4);
+  delete (part4);
   part5->DeleteBoxes();
-  delete(part5);
+  delete (part5);
 }
 
 TEST_F(EquationFinderTest, IsNearSmallNeighbor) {
@@ -332,14 +324,14 @@ TEST_F(EquationFinderTest, IsNearSmallNeighbor) {
 
 TEST_F(EquationFinderTest, CheckSeedBlobsCount) {
   TBOX box(0, 950, 999, 999);
-  ColPartition* part1 = ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
-  ColPartition* part2= ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
-  ColPartition* part3 = ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
-  ColPartition* part4 = ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part1 =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part2 =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part3 =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part4 =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
 
   // Part 1: 8 math, 0 digit, 20 total.
   equation_det_->AddMathDigitBlobs(8, 0, 20, part1);
@@ -359,20 +351,20 @@ TEST_F(EquationFinderTest, CheckSeedBlobsCount) {
 
   // Release memory.
   part1->DeleteBoxes();
-  delete(part1);
+  delete (part1);
   part2->DeleteBoxes();
-  delete(part2);
+  delete (part2);
   part3->DeleteBoxes();
-  delete(part3);
+  delete (part3);
   part4->DeleteBoxes();
-  delete(part4);
+  delete (part4);
 }
 
 TEST_F(EquationFinderTest, ComputeForegroundDensity) {
   // Create the pix with top half foreground, bottom half background.
   int width = 1024, height = 768;
-  Pix *pix = pixCreate(width, height, 1);
-  pixRasterop(pix, 0, 0, width, height / 2, PIX_SET, NULL, 0, 0);
+  Pix* pix = pixCreate(width, height, 1);
+  pixRasterop(pix, 0, 0, width, height / 2, PIX_SET, nullptr, 0, 0);
   TBOX box1(100, 0, 140, 140), box2(100, height / 2 - 20, 140, height / 2 + 20),
       box3(100, height - 40, 140, height);
   equation_det_->SetPixBinary(pix);
@@ -414,20 +406,20 @@ TEST_F(EquationFinderTest, ComputeCPsSuperBBox) {
   ColPartitionGrid part_grid(10, ICOORD(0, 0), ICOORD(1000, 1000));
 
   TBOX box1(0, 0, 999, 99);
-  ColPartition* part1 = ColPartition::FakePartition(
-      box1, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part1 =
+      ColPartition::FakePartition(box1, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   TBOX box2(0, 100, 499, 199);
-  ColPartition* part2 = ColPartition::FakePartition(
-      box2, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part2 =
+      ColPartition::FakePartition(box2, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   TBOX box3(500, 100, 999, 199);
-  ColPartition* part3 = ColPartition::FakePartition(
-      box3, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part3 =
+      ColPartition::FakePartition(box3, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   TBOX box4(0, 200, 999, 299);
-  ColPartition* part4 = ColPartition::FakePartition(
-      box4, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part4 =
+      ColPartition::FakePartition(box4, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   TBOX box5(0, 900, 999, 999);
-  ColPartition* part5 = ColPartition::FakePartition(
-      box5, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part5 =
+      ColPartition::FakePartition(box5, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
 
   // Add part1->part3 into part_grid and test.
   part_grid.InsertBBox(true, true, part1);
@@ -448,21 +440,21 @@ TEST_F(EquationFinderTest, ComputeCPsSuperBBox) {
 
   // Release memory.
   part1->DeleteBoxes();
-  delete(part1);
+  delete (part1);
   part2->DeleteBoxes();
-  delete(part2);
+  delete (part2);
   part3->DeleteBoxes();
-  delete(part3);
+  delete (part3);
   part4->DeleteBoxes();
-  delete(part4);
+  delete (part4);
   part5->DeleteBoxes();
-  delete(part5);
+  delete (part5);
 }
 
 TEST_F(EquationFinderTest, SplitCPHorLite) {
   TBOX box(0, 0, 999, 99);
-  ColPartition* part = ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part->DeleteBoxes();
   part->set_median_width(10);
   GenericVector<TBOX> splitted_boxes;
@@ -491,13 +483,13 @@ TEST_F(EquationFinderTest, SplitCPHorLite) {
   EXPECT_TRUE(TBOX(500, 0, 540, 35) == splitted_boxes[2]);
 
   part->DeleteBoxes();
-  delete(part);
+  delete (part);
 }
 
 TEST_F(EquationFinderTest, SplitCPHor) {
   TBOX box(0, 0, 999, 99);
-  ColPartition* part = ColPartition::FakePartition(
-      box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
+  ColPartition* part =
+      ColPartition::FakePartition(box, PT_FLOWING_TEXT, BRT_TEXT, BTFT_NONE);
   part->DeleteBoxes();
   part->set_median_width(10);
   GenericVector<ColPartition*> parts_splitted;
@@ -528,7 +520,7 @@ TEST_F(EquationFinderTest, SplitCPHor) {
 
   parts_splitted.delete_data_pointers();
   part->DeleteBoxes();
-  delete(part);
+  delete (part);
 }
 
 }  // namespace tesseract

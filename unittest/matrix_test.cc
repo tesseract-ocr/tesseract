@@ -15,8 +15,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "matrix.h"
-#include "include_gunit.h"
 #include "genericvector.h"
+#include "include_gunit.h"
 #include "tprintf.h"
 
 namespace {
