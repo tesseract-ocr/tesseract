@@ -7,8 +7,7 @@ namespace {
 class ScanutilsTest : public ::testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
 };
 
@@ -32,15 +31,13 @@ TEST_F(ScanutilsTest, DoesScanf) {
   int r1 = fscanf(fp1, "%f %f %f %f", &f1[0], &f1[1], &f1[2], &f1[3]);
   int r2 = tfscanf(fp2, "%f %f %f %f", &f2[0], &f2[1], &f2[2], &f2[3]);
   EXPECT_EQ(r1, r2);
-  for (int i = 0; i < kNumFloats; ++i)
-    EXPECT_FLOAT_EQ(f1[i], f2[i]);
+  for (int i = 0; i < kNumFloats; ++i) EXPECT_FLOAT_EQ(f1[i], f2[i]);
   const int kNumInts = 5;
   int i1[kNumInts], i2[kNumInts];
   r1 = fscanf(fp1, "%d %d %d %d %i", &i1[0], &i1[1], &i1[2], &i1[3], &i1[4]);
   r2 = tfscanf(fp2, "%d %d %d %d %i", &i2[0], &i2[1], &i2[2], &i2[3], &i2[4]);
   EXPECT_EQ(r1, r2);
-  for (int i = 0; i < kNumInts; ++i)
-    EXPECT_EQ(i1[i], i2[i]);
+  for (int i = 0; i < kNumInts; ++i) EXPECT_EQ(i1[i], i2[i]);
   const int kStrLen = 1024;
   char s1[kStrLen];
   char s2[kStrLen];
@@ -68,11 +65,10 @@ TEST_F(ScanutilsTest, DoesScanf) {
   r1 = fscanf(fp1, "%f %f %f %f", &f1[0], &f1[1], &f1[2], &f1[3]);
   r2 = tfscanf(fp2, "%f %f %f %f", &f2[0], &f2[1], &f2[2], &f2[3]);
   EXPECT_EQ(r1, r2);
-  for (int i = 0; i < kNumFloats; ++i)
-    EXPECT_FLOAT_EQ(f1[i], f2[i]);
+  for (int i = 0; i < kNumFloats; ++i) EXPECT_FLOAT_EQ(f1[i], f2[i]);
   // Test the * for field suppression.
   r1 = fscanf(fp1, "%d %*s %*d %*f %*f", &i1[0]);
-  r2 = tfscanf(fp2,"%d %*s %*d %*f %*f", &i2[0]);
+  r2 = tfscanf(fp2, "%d %*s %*d %*f %*f", &i2[0]);
   EXPECT_EQ(r1, r2);
   EXPECT_EQ(i1[0], i2[0]);
   // We should still see the next value and no phantoms.
@@ -84,4 +80,3 @@ TEST_F(ScanutilsTest, DoesScanf) {
 }
 
 }  // namespace
-

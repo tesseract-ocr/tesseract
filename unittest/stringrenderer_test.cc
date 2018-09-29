@@ -23,9 +23,9 @@ namespace {
 const char kEngText[] = "the quick brown fox jumps over the lazy dog";
 const char kHinText[] = "पिताने विवाह की | हो गई उद्विग्न वह सोचा";
 
-const char kKorText[] =
-    "이는 것으로 다시 넣을 1234 수는 있지만 선택의 의미는";
-const char kArabicText[] = "والفكر والصراع ، بالتأمل والفهم والتحليل ، "
+const char kKorText[] = "이는 것으로 다시 넣을 1234 수는 있지만 선택의 의미는";
+const char kArabicText[] =
+    "والفكر والصراع ، بالتأمل والفهم والتحليل ، "
     "بالعلم والفن ، وأخيرا بالضحك أوبالبكاء ، ";
 const char kMixedText[] = "والفكر 123 والصراع abc";
 
@@ -40,8 +40,7 @@ class StringRendererTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
-    FLAGS_fonts_dir = file::JoinPath(
-        FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = file::JoinPath(FLAGS_test_srcdir, "testdata");
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
     FLAGS_use_only_legacy_fonts = false;
     // Needed for reliable heapchecking of pango layout structures.
@@ -66,7 +65,7 @@ class StringRendererTest : public ::testing::Test {
 
 TEST_F(StringRendererTest, DoesRenderToImage) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngText),
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   EXPECT_TRUE(pix != NULL);
@@ -112,7 +111,7 @@ TEST_F(StringRendererTest, DoesRenderToImageWithUnderline) {
   // Underline all words but NOT intervening spaces.
   renderer_->set_underline_start_prob(1.0);
   renderer_->set_underline_continuation_prob(0);
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngText),
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   EXPECT_TRUE(pix != NULL);
@@ -147,7 +146,7 @@ TEST_F(StringRendererTest, DoesHandleNewlineCharacters) {
   const char kRawText[] = "\n\n\n A \nB \nC \n\n\n";
   const char kStrippedText[] = " A B C ";  // text with newline chars removed
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kRawText),
             renderer_->RenderToImage(kRawText, strlen(kRawText), &pix));
   EXPECT_TRUE(pix != NULL);
@@ -167,9 +166,9 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
   const char kArabicLigature[] = "لا";
 
   Pix* pix = NULL;
-  EXPECT_EQ(strlen(kArabicLigature),
-            renderer_->RenderToImage(kArabicLigature, strlen(kArabicLigature),
-                                     &pix));
+  EXPECT_EQ(
+      strlen(kArabicLigature),
+      renderer_->RenderToImage(kArabicLigature, strlen(kArabicLigature), &pix));
   EXPECT_TRUE(pix != NULL);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   const std::vector<BoxChar*>& boxes = renderer_->GetBoxes();
@@ -186,12 +185,10 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
   pixDestroy(&pix);
 }
 
-
 static int FindBoxCharXCoord(const std::vector<BoxChar*>& boxchars,
                              const string& ch) {
   for (int i = 0; i < boxchars.size(); ++i) {
-    if (boxchars[i]->ch() == ch)
-      return boxchars[i]->box()->x;
+    if (boxchars[i]->ch() == ch) return boxchars[i]->box()->x;
   }
   return kint32max;
 }
@@ -223,14 +220,14 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
 
 TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   renderer_.reset(new StringRenderer("Arab 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   // Arabic letters should be in decreasing x-coordinates
   const char kArabicWord[] = "والفكر";
   renderer_->RenderToImage(kArabicWord, strlen(kArabicWord), &pix);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
   for (int i = 0; i < boxchars.size() - 1; ++i) {
-    EXPECT_GT(boxchars[i]->box()->x, boxchars[i+1]->box()->x)
+    EXPECT_GT(boxchars[i]->box()->x, boxchars[i + 1]->box()->x)
         << boxchars[i]->ch();
   }
   pixDestroy(&pix);
@@ -241,7 +238,7 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   renderer_->RenderToImage(kEnglishWord, strlen(kEnglishWord), &pix);
   EXPECT_EQ(boxchars.size(), strlen(kEnglishWord));
   for (int i = 0; i < boxchars.size() - 1; ++i) {
-    EXPECT_LT(boxchars[i]->box()->x, boxchars[i+1]->box()->x)
+    EXPECT_LT(boxchars[i]->box()->x, boxchars[i + 1]->box()->x)
         << boxchars[i]->ch();
   }
   pixDestroy(&pix);
@@ -254,7 +251,6 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   CHECK_GT(FindBoxCharXCoord(boxchars, "و"), FindBoxCharXCoord(boxchars, "ر"));
   pixDestroy(&pix);
 }
-
 
 TEST_F(StringRendererTest, DoesRenderVerticalText) {
   Pix* pix = NULL;
@@ -271,7 +267,7 @@ TEST_F(StringRendererTest, DoesRenderVerticalText) {
 // appropriate page numbers.
 TEST_F(StringRendererTest, DoesKeepAllImageBoxes) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   int num_boxes_per_page = 0;
   const int kNumTrials = 2;
   for (int i = 0; i < kNumTrials; ++i) {
@@ -283,9 +279,10 @@ TEST_F(StringRendererTest, DoesKeepAllImageBoxes) {
     if (!num_boxes_per_page) {
       num_boxes_per_page = renderer_->GetBoxes().size();
     } else {
-      EXPECT_EQ((i+1) * num_boxes_per_page, renderer_->GetBoxes().size());
+      EXPECT_EQ((i + 1) * num_boxes_per_page, renderer_->GetBoxes().size());
     }
-    for (int j = i * num_boxes_per_page; j < (i+1) * num_boxes_per_page; ++j) {
+    for (int j = i * num_boxes_per_page; j < (i + 1) * num_boxes_per_page;
+         ++j) {
       EXPECT_EQ(i, renderer_->GetBoxes()[j]->page());
     }
   }
@@ -293,7 +290,7 @@ TEST_F(StringRendererTest, DoesKeepAllImageBoxes) {
 
 TEST_F(StringRendererTest, DoesClearBoxes) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngText),
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   pixDestroy(&pix);
@@ -310,7 +307,7 @@ TEST_F(StringRendererTest, DoesClearBoxes) {
 TEST_F(StringRendererTest, DoesLigatureTextForRendering) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
   renderer_->set_add_ligatures(true);
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngNonLigatureText),
             renderer_->RenderToImage(kEngNonLigatureText,
                                      strlen(kEngNonLigatureText), &pix));
@@ -323,7 +320,7 @@ TEST_F(StringRendererTest, DoesLigatureTextForRendering) {
 
 TEST_F(StringRendererTest, DoesRetainInputLigatureForRendering) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngLigatureText),
             renderer_->RenderToImage(kEngLigatureText, strlen(kEngLigatureText),
                                      &pix));
@@ -346,7 +343,7 @@ TEST_F(StringRendererTest, DoesStripUnrenderableWords) {
 TEST_F(StringRendererTest, DoesRenderWordBoxes) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
   renderer_->set_output_word_boxes(true);
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   EXPECT_EQ(strlen(kEngText),
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   pixDestroy(&pix);
@@ -369,7 +366,7 @@ TEST_F(StringRendererTest, DoesRenderWordBoxes) {
 TEST_F(StringRendererTest, DoesRenderWordBoxesFromMultiLineText) {
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
   renderer_->set_output_word_boxes(true);
-  Pix *pix = NULL;
+  Pix* pix = NULL;
   const char kMultlineText[] = "the quick brown fox\njumps over the lazy dog";
   EXPECT_EQ(strlen(kMultlineText),
             renderer_->RenderToImage(kMultlineText, strlen(kEngText), &pix));
@@ -398,9 +395,8 @@ TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
   do {
     Pix* pix = NULL;
     font_used.clear();
-    offset += renderer_->RenderAllFontsToImage(1.0, kEngText + offset,
-                                               strlen(kEngText + offset),
-                                               &font_used, &pix);
+    offset += renderer_->RenderAllFontsToImage(
+        1.0, kEngText + offset, strlen(kEngText + offset), &font_used, &pix);
     if (offset < strlen(kEngText)) {
       EXPECT_TRUE(pix != NULL);
       EXPECT_STRNE("", font_used.c_str());
@@ -432,7 +428,8 @@ TEST_F(StringRendererTest, DoesDropUncoveredChars) {
   const string kWord = "oﬀice";
   const string kCleanWord = "oice";
   Pix* pix = NULL;
-  EXPECT_FALSE(renderer_->font().CanRenderString(kWord.c_str(), kWord.length()));
+  EXPECT_FALSE(
+      renderer_->font().CanRenderString(kWord.c_str(), kWord.length()));
   EXPECT_FALSE(renderer_->font().CoversUTF8Text(kWord.c_str(), kWord.length()));
   int offset = renderer_->RenderToImage(kWord.c_str(), kWord.length(), &pix);
   pixDestroy(&pix);

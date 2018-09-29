@@ -12,8 +12,7 @@ namespace {
 
 class ImagedataTest : public ::testing::Test {
  protected:
-  ImagedataTest() {
-  }
+  ImagedataTest() {}
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.
   string MakeFakeDoc(int num_pages, int doc_id,
@@ -51,7 +50,7 @@ TEST_F(ImagedataTest, CachesProperly) {
   // Allowances to read the document. Big enough for 1, 3, 0, all pages.
   const int kMemoryAllowances[] = {2000000, 4000000, 1000000, 100000000, 0};
   // Order in which to read the pages, with some sequential and some seeks.
-  const int kPageReadOrder[] = { 0, 1, 2, 3, 8, 4, 5, 6, 7, 11, 10, 9, -1 };
+  const int kPageReadOrder[] = {0, 1, 2, 3, 8, 4, 5, 6, 7, 11, 10, 9, -1};
 
   std::vector<string> page_texts;
   string filename = MakeFakeDoc(kNumPages, 0, &page_texts);

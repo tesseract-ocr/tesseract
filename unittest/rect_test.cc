@@ -16,12 +16,10 @@
 namespace {
 
 class TBOXTest : public testing::Test {
-public:
-  void SetUp() {
-  }
+ public:
+  void SetUp() {}
 
-  void TearDown() {
-  }
+  void TearDown() {}
 };
 
 TEST_F(TBOXTest, OverlapInside) {
@@ -56,10 +54,8 @@ TEST_F(TBOXTest, OverlapFractionCorners) {
                    mid.overlap_fraction(bottom_left));
   EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0),
                    bottom_left.overlap_fraction(mid));
-  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (20.0 * 20.0),
-                   mid.overlap_fraction(top_left));
-  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0),
-                   top_left.overlap_fraction(mid));
+  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (20.0 * 20.0), mid.overlap_fraction(top_left));
+  EXPECT_DOUBLE_EQ((5.0 * 5.0) / (10.0 * 10.0), top_left.overlap_fraction(mid));
 }
 
 TEST_F(TBOXTest, OverlapBoolSides) {
@@ -175,4 +171,4 @@ TEST_F(TBOXTest, OverlapYFractionZeroSize) {
   EXPECT_DOUBLE_EQ(0.0, small.y_overlap_fraction(zero));
 }
 
-} // namespace
+}  // namespace

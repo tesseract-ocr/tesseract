@@ -74,8 +74,8 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   int dtheta = kIntFeatureExtent / kThetaBuckets + 1;
   int bad_offsets = 0;
   for (int index = 0; index < total_buckets; ++index) {
-    for (int dir = -tesseract::kNumOffsetMaps;
-         dir <= tesseract::kNumOffsetMaps; ++dir) {
+    for (int dir = -tesseract::kNumOffsetMaps; dir <= tesseract::kNumOffsetMaps;
+         ++dir) {
       int offset_index = map.OffsetFeature(index, dir);
       if (dir == 0) {
         EXPECT_EQ(index, offset_index);

@@ -34,13 +34,11 @@ class BitVectorTest : public testing::Test {
     TestAll(*map, false);
     map->SetBit(2);
     // Set all the odds to true.
-    for (int i = 3; i <= kPrimeLimit; i += 2)
-      map->SetValue(i, true);
+    for (int i = 3; i <= kPrimeLimit; i += 2) map->SetValue(i, true);
     int factor_limit = static_cast<int>(sqrt(1.0 + kPrimeLimit));
     for (int f = 3; f <= factor_limit; f += 2) {
       if (map->At(f)) {
-        for (int m = 2; m * f <= kPrimeLimit; ++m)
-          map->ResetBit(f * m);
+        for (int m = 2; m * f <= kPrimeLimit; ++m) map->ResetBit(f * m);
       }
     }
   }

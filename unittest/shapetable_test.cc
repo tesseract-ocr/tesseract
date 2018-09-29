@@ -39,8 +39,7 @@ static void Expect352(int font_id, const Shape& shape) {
 }
 
 // The fixture for testing Shape.
-class ShapeTest : public testing::Test {
-};
+class ShapeTest : public testing::Test {};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTest, BasicTest) {
@@ -97,8 +96,7 @@ TEST_F(ShapeTest, AddShapeTest) {
 }
 
 // The fixture for testing Shape.
-class ShapeTableTest : public testing::Test {
-};
+class ShapeTableTest : public testing::Test {};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTableTest, FullTest) {
@@ -148,5 +146,3 @@ TEST_F(ShapeTableTest, FullTest) {
 }
 
 }  // namespace
-
-

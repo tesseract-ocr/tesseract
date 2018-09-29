@@ -128,9 +128,8 @@ TEST(UnicharsetTest, MultibyteBigrams) {
 TEST(UnicharsetTest, OldStyle) {
   // This test verifies an old unicharset that contains fi/fl ligatures loads
   // and keeps all the entries.
-  string filename = file::JoinPath(FLAGS_test_srcdir,
-                                   "testdata",
-                                   "eng.unicharset");
+  string filename =
+      file::JoinPath(FLAGS_test_srcdir, "testdata", "eng.unicharset");
   UNICHARSET u;
   LOG(INFO) << "Filename=" << filename;
   EXPECT_TRUE(u.load_from_file(filename.c_str()));

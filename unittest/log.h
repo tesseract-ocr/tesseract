@@ -1,7 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        log.h
 // Description: Include for custom log message for unittest for tesseract.
-//               based on //https://stackoverflow.com/questions/16491675/how-to-send-custom-message-in-google-c-testing-framework
+//               based on
+//               //https://stackoverflow.com/questions/16491675/how-to-send-custom-message-in-google-c-testing-framework
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +19,13 @@
 
 #include <iostream>
 
-  static class LOG { public: LOG() {}
-    std::ostream&  info() {
-        std::cout << "[ LOG MSG  ] ";
-        return std::cout;
-    }
+static class LOG {
+ public:
+  LOG() {}
+  std::ostream& info() {
+    std::cout << "[ LOG MSG  ] ";
+    return std::cout;
+  }
 } log;
 
 #endif  // TESSERACT_UNITTEST_LOG_H_

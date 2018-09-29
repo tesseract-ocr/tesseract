@@ -10,20 +10,14 @@ namespace {
 class PageSegModeTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
 
-  PageSegModeTest() {
-    src_pix_ = NULL;
-  }
-  ~PageSegModeTest() {
-    pixDestroy(&src_pix_);
-  }
+  PageSegModeTest() { src_pix_ = NULL; }
+  ~PageSegModeTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename) {
     pixDestroy(&src_pix_);
@@ -34,26 +28,26 @@ class PageSegModeTest : public testing::Test {
 
   // Tests that the given rectangle produces exactly the given text in the
   // given segmentation mode (after chopping off the last 2 newlines.)
-  void VerifyRectText(tesseract::PageSegMode mode, const char* str,
-                      int left, int top, int width, int height) {
+  void VerifyRectText(tesseract::PageSegMode mode, const char* str, int left,
+                      int top, int width, int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
     char* result = api_.GetUTF8Text();
     chomp_string(result);
     chomp_string(result);
     EXPECT_STREQ(str, result);
-    delete [] result;
+    delete[] result;
   }
 
   // Tests that the given rectangle does NOT produce the given text in the
   // given segmentation mode.
-  void NotRectText(tesseract::PageSegMode mode, const char* str,
-                   int left, int top, int width, int height) {
+  void NotRectText(tesseract::PageSegMode mode, const char* str, int left,
+                   int top, int width, int height) {
     api_.SetPageSegMode(mode);
     api_.SetRectangle(left, top, width, height);
     char* result = api_.GetUTF8Text();
     EXPECT_STRNE(str, result);
-    delete [] result;
+    delete[] result;
   }
 
   Pix* src_pix_;
@@ -66,26 +60,21 @@ class PageSegModeTest : public testing::Test {
 TEST_F(PageSegModeTest, WordTest) {
   SetImage("segmodeimg.tif");
   // Test various rectangles around the inverse page number.
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183",
-                 1482, 146, 72, 44);
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183",
-                 1474, 134, 82, 72);
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183",
-                 1459, 116, 118, 112);
+  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1482, 146, 72, 44);
+  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1474, 134, 82, 72);
+  VerifyRectText(tesseract::PSM_SINGLE_WORD, "183", 1459, 116, 118, 112);
   // Test a random pair of words as a line
-  VerifyRectText(tesseract::PSM_SINGLE_LINE, "What should",
-                 1119, 621, 245, 54);
+  VerifyRectText(tesseract::PSM_SINGLE_LINE, "What should", 1119, 621, 245, 54);
   // Test a random pair of words as a word
-  VerifyRectText(tesseract::PSM_SINGLE_WORD, "Whatshould",
-                 1119, 621, 245, 54);
+  VerifyRectText(tesseract::PSM_SINGLE_WORD, "Whatshould", 1119, 621, 245, 54);
   // Test single block mode.
-  VerifyRectText(tesseract::PSM_SINGLE_BLOCK, "both the\nfrom the",
-                 181, 676, 179, 104);
+  VerifyRectText(tesseract::PSM_SINGLE_BLOCK, "both the\nfrom the", 181, 676,
+                 179, 104);
   // But doesn't work in line or word mode.
-  NotRectText(tesseract::PSM_SINGLE_LINE, "both the\nfrom the",
-                 181, 676, 179, 104);
-  NotRectText(tesseract::PSM_SINGLE_WORD, "both the\nfrom the",
-                 181, 676, 179, 104);
+  NotRectText(tesseract::PSM_SINGLE_LINE, "both the\nfrom the", 181, 676, 179,
+              104);
+  NotRectText(tesseract::PSM_SINGLE_WORD, "both the\nfrom the", 181, 676, 179,
+              104);
 }
 
 }  // namespace

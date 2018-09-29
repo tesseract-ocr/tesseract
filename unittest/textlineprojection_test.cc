@@ -20,17 +20,14 @@ using tesseract::TextlineProjection;
 // NOTE: Keep in sync with textlineprojection.cc.
 const int kMinStrongTextValue = 6;
 
-
 // The fixture for testing Tesseract.
 class TextlineProjectionTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
   string OutputNameToPath(const string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
@@ -118,16 +115,15 @@ class TextlineProjectionTest : public testing::Test {
                    const char* text, const char* message) {
     int value = projection_->EvaluateBox(box, denorm_, false);
     if (greater_or_equal != (value > target_value)) {
-      LOG(INFO)
-          << StringPrintf("EvaluateBox too %s:%d vs %d for %s word '%s' at:",
-                          greater_or_equal ? "low" : "high", value,
-                          target_value,
-                          message, text);
+      LOG(INFO) << StringPrintf(
+          "EvaluateBox too %s:%d vs %d for %s word '%s' at:",
+          greater_or_equal ? "low" : "high", value, target_value, message,
+          text);
       box.print();
       value = projection_->EvaluateBox(box, denorm_, true);
     } else {
-      VLOG(1) << StringPrintf("EvaluateBox OK(%d) for %s word '%s'",
-                              value, message, text);
+      VLOG(1) << StringPrintf("EvaluateBox OK(%d) for %s word '%s'", value,
+                              message, text);
     }
     if (greater_or_equal) {
       EXPECT_GE(value, target_value);
@@ -139,12 +135,12 @@ class TextlineProjectionTest : public testing::Test {
   // Helper evaluates the DistanceOfBoxFromBox function by expecting that
   // box should be nearer to true_box than false_box.
   void EvaluateDistance(const TBOX& box, const TBOX& true_box,
-                        const TBOX& false_box,
-                        const char* text, const char* message) {
-    int true_dist = projection_->DistanceOfBoxFromBox(box, true_box, true,
-                                                      denorm_, false);
-    int false_dist = projection_->DistanceOfBoxFromBox(box, false_box, true,
-                                                       denorm_, false);
+                        const TBOX& false_box, const char* text,
+                        const char* message) {
+    int true_dist =
+        projection_->DistanceOfBoxFromBox(box, true_box, true, denorm_, false);
+    int false_dist =
+        projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, false);
     if (false_dist <= true_dist) {
       LOG(INFO) << StringPrintf("Distance wrong:%d vs %d for %s word '%s' at:",
                                 false_dist, true_dist, message, text);
@@ -194,8 +190,7 @@ class TextlineProjectionTest : public testing::Test {
       TBOX lower_box = word_box;
       lower_box.set_top(word_box.bottom());
       lower_box.set_bottom(word_box.bottom() - padding);
-      if (tall_word)
-        lower_box.move(ICOORD(0, padding / 2));
+      if (tall_word) lower_box.move(ICOORD(0, padding / 2));
       EvaluateBox(lower_box, false, kMinStrongTextValue, text, "Lower Word");
       EvaluateBox(lower_box, true, -1, text, "Lower Word not vertical");
 
@@ -224,20 +219,19 @@ class TextlineProjectionTest : public testing::Test {
       TBOX upper_challenger(upper_box);
       upper_challenger.set_bottom(upper_box.top());
       upper_challenger.set_top(upper_box.top() + word_box.height());
-      EvaluateDistance(upper_box, target_box, upper_challenger,
-                       text, "Upper Word");
-      if (tall_word)
-        lower_box.move(ICOORD(0, padding / 2));
+      EvaluateDistance(upper_box, target_box, upper_challenger, text,
+                       "Upper Word");
+      if (tall_word) lower_box.move(ICOORD(0, padding / 2));
       lower_box.set_bottom(lower_box.top() - padding);
       target_box = word_box;
       target_box.set_bottom(lower_box.top());
       TBOX lower_challenger(lower_box);
       lower_challenger.set_top(lower_box.bottom());
       lower_challenger.set_bottom(lower_box.bottom() - word_box.height());
-      EvaluateDistance(lower_box, target_box, lower_challenger,
-                       text, "Lower Word");
+      EvaluateDistance(lower_box, target_box, lower_challenger, text,
+                       "Lower Word");
 
-      delete [] text;
+      delete[] text;
     } while (it->Next(tesseract::RIL_WORD));
     delete it;
   }
@@ -254,13 +248,9 @@ class TextlineProjectionTest : public testing::Test {
 };
 
 // Tests all word boxes on an unrotated image.
-TEST_F(TextlineProjectionTest, Unrotated) {
-  VerifyBoxes("phototest.tif", 31);
-}
+TEST_F(TextlineProjectionTest, Unrotated) { VerifyBoxes("phototest.tif", 31); }
 
 // Tests character-level applyboxes on italic Times New Roman.
-TEST_F(TextlineProjectionTest, Rotated) {
-  VerifyBoxes("phototestrot.tif", 31);
-}
+TEST_F(TextlineProjectionTest, Rotated) { VerifyBoxes("phototestrot.tif", 31); }
 
 }  // namespace

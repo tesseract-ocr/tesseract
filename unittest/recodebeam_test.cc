@@ -10,10 +10,10 @@
 
 using tesseract::CCUtil;
 using tesseract::Dict;
-using tesseract::RecodedCharID;
-using tesseract::RecodeBeamSearch;
-using tesseract::RecodeNode;
 using tesseract::PointerVector;
+using tesseract::RecodeBeamSearch;
+using tesseract::RecodedCharID;
+using tesseract::RecodeNode;
 using tesseract::TRand;
 using tesseract::UnicharCompress;
 
@@ -59,13 +59,11 @@ class RecodeBeamTest : public ::testing::Test {
 
   // Loads and compresses the given unicharset.
   void LoadUnicharset(const string& unicharset_name) {
-    string radical_stroke_file =
-        file::JoinPath(FLAGS_test_srcdir,
-                       "tesseract/training"
-                       "/langdata/radical-stroke.txt");
-    string unicharset_file = file::JoinPath(
-        FLAGS_test_srcdir, "testdata",
-        unicharset_name);
+    string radical_stroke_file = file::JoinPath(FLAGS_test_srcdir,
+                                                "tesseract/training"
+                                                "/langdata/radical-stroke.txt");
+    string unicharset_file =
+        file::JoinPath(FLAGS_test_srcdir, "testdata", unicharset_name);
     string uni_data;
     CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
     string radical_data;
@@ -94,9 +92,8 @@ class RecodeBeamTest : public ::testing::Test {
   // Loads the dictionary.
   void LoadDict(const string& lang) {
     string traineddata_name = lang + ".traineddata";
-    string traineddata_file = file::JoinPath(
-        FLAGS_test_srcdir, "testdata",
-        traineddata_name);
+    string traineddata_file =
+        file::JoinPath(FLAGS_test_srcdir, "testdata", traineddata_name);
     lstm_dict_.SetupForLoad(NULL);
     tesseract::TessdataManager mgr;
     mgr.Init(traineddata_file.c_str());
@@ -140,8 +137,8 @@ class RecodeBeamTest : public ::testing::Test {
                code.length() < RecodedCharID::kMaxCodeLen &&
                (uni_id == INVALID_UNICHAR_ID ||
                 !recoder_.IsValidFirstCode(labels[index])));
-      EXPECT_NE(INVALID_UNICHAR_ID, uni_id) << "index=" << index << "/"
-                                            << labels.size();
+      EXPECT_NE(INVALID_UNICHAR_ID, uni_id)
+          << "index=" << index << "/" << labels.size();
       // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.

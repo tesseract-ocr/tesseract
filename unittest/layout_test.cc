@@ -13,35 +13,27 @@
 namespace {
 
 using tesseract::MutableIterator;
-using tesseract::ResultIterator;
 using tesseract::PageIteratorLevel;
+using tesseract::ResultIterator;
 
 const char* kStrings8087_054[] = {
-    "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", NULL
-};
-const PolyBlockType kBlocks8087_054[] = {
-    PT_HEADING_TEXT, PT_FLOWING_TEXT, PT_PULLOUT_IMAGE,
-    PT_CAPTION_TEXT, PT_FLOWING_TEXT
-};
+    "dat", "Dalmatian", "", "DAMAGED DURING", "margarine,", NULL};
+const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT,
+                                         PT_PULLOUT_IMAGE, PT_CAPTION_TEXT,
+                                         PT_FLOWING_TEXT};
 
 // The fixture for testing Tesseract.
 class LayoutTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
 
-  LayoutTest() {
-    src_pix_ = NULL;
-  }
-  ~LayoutTest() {
-    pixDestroy(&src_pix_);
-  }
+  LayoutTest() { src_pix_ = NULL; }
+  ~LayoutTest() { pixDestroy(&src_pix_); }
 
   void SetImage(const char* filename, const char* lang) {
     pixDestroy(&src_pix_);
@@ -56,16 +48,14 @@ class LayoutTest : public testing::Test {
   // allowing for other blocks in between.
   // An empty string should match an image block, and a NULL string
   // indicates the end of the array.
-  void VerifyBlockTextOrder(const char* strings[],
-                            const PolyBlockType* blocks,
+  void VerifyBlockTextOrder(const char* strings[], const PolyBlockType* blocks,
                             ResultIterator* it) {
     it->Begin();
     int string_index = 0;
     int block_index = 0;
     do {
       char* block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
-      if (block_text != NULL &&
-          it->BlockType() == blocks[string_index] &&
+      if (block_text != NULL && it->BlockType() == blocks[string_index] &&
           strstr(block_text, strings[string_index]) != NULL) {
         VLOG(1) << StringPrintf("Found string %s in block %d of type %s",
                                 strings[string_index], block_index,
@@ -74,19 +64,18 @@ class LayoutTest : public testing::Test {
         ++string_index;
       } else if (it->BlockType() == blocks[string_index] &&
                  block_text == NULL && strings[string_index][0] == '\0') {
-          VLOG(1) << StringPrintf("Found block of type %s at block %d",
-                                  kPolyBlockNames[blocks[string_index]],
-                                  block_index);
-          // Found this one.
-          ++string_index;
+        VLOG(1) << StringPrintf("Found block of type %s at block %d",
+                                kPolyBlockNames[blocks[string_index]],
+                                block_index);
+        // Found this one.
+        ++string_index;
       } else {
         VLOG(1) << StringPrintf("No match found in block with text:\n%s",
                                 block_text);
       }
-      delete [] block_text;
+      delete[] block_text;
       ++block_index;
-      if (strings[string_index] == NULL)
-        break;
+      if (strings[string_index] == NULL) break;
     } while (it->Next(tesseract::RIL_BLOCK));
     EXPECT_TRUE(strings[string_index] == NULL);
   }
@@ -105,8 +94,8 @@ class LayoutTest : public testing::Test {
     do {
       int left, top, right, bottom;
       if (it->BoundingBox(tesseract::RIL_BLOCK, &left, &top, &right, &bottom) &&
-          PTIsTextType(it->BlockType()) &&
-          right - left > 800 && bottom - top > 200) {
+          PTIsTextType(it->BlockType()) && right - left > 800 &&
+          bottom - top > 200) {
         if (prev_right > prev_left) {
           if (min(right, prev_right) > max(left, prev_left)) {
             EXPECT_GE(top, prev_bottom) << "Overlapping block should be below";
@@ -134,8 +123,8 @@ class LayoutTest : public testing::Test {
     do {
       int left, top, right, bottom;
       if (it->BoundingBox(tesseract::RIL_BLOCK, &left, &top, &right, &bottom) &&
-          PTIsTextType(it->BlockType()) &&
-          right - left > 800 && bottom - top > 200 ) {
+          PTIsTextType(it->BlockType()) && right - left > 800 &&
+          bottom - top > 200) {
         const PAGE_RES_IT* pr_it = it->PageResIt();
         POLY_BLOCK* pb = pr_it->block()->block->poly_block();
         CHECK(pb != NULL);
@@ -148,11 +137,11 @@ class LayoutTest : public testing::Test {
           const PAGE_RES_IT* w_it = word_it.PageResIt();
           // Iterate the blobs in the word.
           C_BLOB_IT b_it(w_it->word()->word->cblob_list());
-          for (b_it.mark_cycle_pt();!b_it.cycled_list(); b_it.forward()) {
+          for (b_it.mark_cycle_pt(); !b_it.cycled_list(); b_it.forward()) {
             C_BLOB* blob = b_it.data();
             // Iterate the outlines in the blob.
             C_OUTLINE_IT ol_it(blob->out_list());
-            for (ol_it.mark_cycle_pt();!ol_it.cycled_list(); ol_it.forward()) {
+            for (ol_it.mark_cycle_pt(); !ol_it.cycled_list(); ol_it.forward()) {
               C_OUTLINE* ol = ol_it.data();
               TBOX box = ol->bounding_box();
               ICOORD middle((box.left() + box.right()) / 2,
