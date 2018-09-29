@@ -550,7 +550,7 @@ int main(int argc, char** argv) {
 
     Pix* pixs = pixRead(image);
     if (!pixs) {
-      fprintf(stderr, "Leptonica can process input file: %s\n", image);
+      fprintf(stderr, "Leptonica can't process input file: %s\n", image);
       return 2;
     }
 
