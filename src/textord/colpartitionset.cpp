@@ -131,7 +131,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
         int col_box_left = col_part->BoxLeftKey();
         bool tab_width_ok = cb->Run(part->KeyWidth(col_left, part_right));
         bool box_width_ok = cb->Run(part->KeyWidth(col_box_left, part_right));
-        if (tab_width_ok || (!part_width_ok )) {
+        if (tab_width_ok || (!part_width_ok)) {
           // The tab is leaving the good column metric at least as good as
           // it was before, so use the tab.
           part->CopyLeftTab(*col_part, false);
@@ -152,7 +152,7 @@ void ColPartitionSet::ImproveColumnCandidate(WidthCallback* cb,
         int col_box_right = col_part->BoxRightKey();
         bool tab_width_ok = cb->Run(part->KeyWidth(part_left, col_right));
         bool box_width_ok = cb->Run(part->KeyWidth(part_left, col_box_right));
-        if (tab_width_ok || (!part_width_ok )) {
+        if (tab_width_ok || (!part_width_ok)) {
           // The tab is leaving the good column metric at least as good as
           // it was before, so use the tab.
           part->CopyRightTab(*col_part, false);

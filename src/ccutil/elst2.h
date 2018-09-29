@@ -824,10 +824,10 @@ inline void ELIST2_ITERATOR::add_to_end(  // element to add
 Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 ***********************************************************************/
 
-#define QUOTE_IT( parm ) #parm
+#define QUOTE_IT(parm) #parm
 
 /***********************************************************************
-  ELIST2IZE( CLASSNAME ) MACRO DEFINITION
+  ELIST2IZE(CLASSNAME) MACRO DEFINITION
   ======================================
 
 CLASSNAME is assumed to be the name of a class which has a baseclass of
@@ -851,7 +851,7 @@ The ...IZE macros define the code use in .c files
 ***********************************************************************/
 
 /***********************************************************************
-  ELIST2IZEH( CLASSNAME ) MACRO
+  ELIST2IZEH(CLASSNAME) MACRO
 
 ELIST2IZEH is a concatenation of 3 fragments ELIST2IZEH_A, ELIST2IZEH_B and
 ELIST2IZEH_C.
@@ -955,7 +955,7 @@ ELIST2IZEH_C.
   ELIST2IZEH_C(CLASSNAME)
 
 /***********************************************************************
-  ELIST2IZE( CLASSNAME ) MACRO
+  ELIST2IZE(CLASSNAME) MACRO
 ***********************************************************************/
 
 #define ELIST2IZE(CLASSNAME)                                                  \

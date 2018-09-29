@@ -78,7 +78,7 @@ int16_t           band_min,
 int16_t           range_max,
 int16_t           range_min]
 {
-  if ( (range_min >= band_min) && (range_max < band_max) )
+  if ((range_min >= band_min) && (range_max < band_max))
     return TRUE;
   else
     return FALSE;
@@ -97,7 +97,7 @@ int16_t           band_min,
 int16_t           range_max,
 int16_t           range_min]
 {
-  if ( (range_max >= band_min) && (range_min < band_max) )
+  if ((range_max >= band_min) && (range_min < band_max))
     return TRUE;
   else
     return FALSE;

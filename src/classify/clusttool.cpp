@@ -354,7 +354,7 @@ void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
   /* write prototypes */
   iterate(ProtoList)
     {
-      Proto = (PROTOTYPE *) first_node ( ProtoList );
+      Proto = (PROTOTYPE *) first_node (ProtoList);
       if ((Proto->Significant && WriteSigProtos) ||
           (!Proto->Significant && WriteInsigProtos))
         WritePrototype(File, N, Proto);

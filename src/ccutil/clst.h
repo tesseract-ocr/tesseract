@@ -782,10 +782,10 @@ inline void CLIST_ITERATOR::add_to_end(  // element to add
 Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 ***********************************************************************/
 
-#define QUOTE_IT( parm ) #parm
+#define QUOTE_IT(parm) #parm
 
 /***********************************************************************
-  CLISTIZE( CLASSNAME ) MACRO DEFINITION
+  CLISTIZE(CLASSNAME) MACRO DEFINITION
   ======================================
 
 CLASSNAME is assumed to be the name of a class to be used in a CONS list
@@ -810,7 +810,7 @@ The ...IZE macros define the code use in .c files
 ***********************************************************************/
 
 /***********************************************************************
-  CLISTIZEH( CLASSNAME )  MACRO
+  CLISTIZEH(CLASSNAME)  MACRO
 
 CLISTIZEH is a concatenation of 3 fragments CLISTIZEH_A, CLISTIZEH_B and
 CLISTIZEH_C.
@@ -907,7 +907,7 @@ CLISTIZEH_C.
   CLISTIZEH_C(CLASSNAME)
 
 /***********************************************************************
-  CLISTIZE( CLASSNAME )  MACRO
+  CLISTIZE(CLASSNAME)  MACRO
 ***********************************************************************/
 
 #define CLISTIZE(CLASSNAME)                                                  \
