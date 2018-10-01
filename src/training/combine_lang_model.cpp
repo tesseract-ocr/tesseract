@@ -23,7 +23,7 @@
 #include "unicharset_training_utils.h"
 
 STRING_PARAM_FLAG(input_unicharset, "",
-                  "Unicharset to complete and use in encoding");
+                  "Filename with unicharset to complete and use in encoding");
 STRING_PARAM_FLAG(script_dir, "",
                   "Directory name for input script unicharsets");
 STRING_PARAM_FLAG(words, "",
@@ -40,26 +40,17 @@ BOOL_PARAM_FLAG(pass_through_recoder, false,
                 " unicharset. Otherwise, potentially a compression of it");
 
 int main(int argc, char** argv) {
+  // Sets properties on the input unicharset file, and writes:
+  //   rootdir/lang/lang.charset_size=ddd.txt
+  //   rootdir/lang/lang.traineddata
+  //   rootdir/lang/lang.unicharset
+  // If the 3 word lists are provided, the dawgs are also added
+  // to the traineddata file.
+  // The output unicharset and charset_size files are just for
+  // human readability.
   tesseract::CheckSharedLibraryVersion();
   tesseract::ParseCommandLineFlags(argv[0], &argc, &argv, true);
 
-  // Check validity of input flags.
-  if (FLAGS_input_unicharset.empty() || FLAGS_script_dir.empty() ||
-      FLAGS_output_dir.empty() || FLAGS_lang.empty()) {
-    tprintf("Usage: %s --input_unicharset filename --script_dir dirname\n",
-            argv[0]);
-    tprintf("  --output_dir rootdir --lang lang [--lang_is_rtl]\n");
-    tprintf("  [--words file --puncs file --numbers file]\n");
-    tprintf("Sets properties on the input unicharset file, and writes:\n");
-    tprintf("rootdir/lang/lang.charset_size=ddd.txt\n");
-    tprintf("rootdir/lang/lang.traineddata\n");
-    tprintf("rootdir/lang/lang.unicharset\n");
-    tprintf("If the 3 word lists are provided, the dawgs are also added to");
-    tprintf(" the traineddata file.\n");
-    tprintf("The output unicharset and charset_size files are just for human");
-    tprintf(" readability.\n");
-    exit(1);
-  }
   GenericVector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
   tesseract::ReadFile(FLAGS_words.c_str(), nullptr).split('\n', &words);
