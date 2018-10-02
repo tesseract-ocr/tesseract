@@ -26,7 +26,7 @@
 #include "allheaders.h"     // for pixCreate, pixGetDepth
 #include "genericvector.h"  // for GenericVector
 #include "host.h"           // for TRUE, FALSE
-#include "ipoints.h"        // for operator+=
+#include "points.h"         // for operator+=, FCOORD, ICOORD
 
 class DENORM;
 
