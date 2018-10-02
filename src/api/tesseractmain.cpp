@@ -308,7 +308,7 @@ static void PrintLangsList(tesseract::TessBaseAPI* api) {
 }
 
 static void PrintBanner() {
-  tprintf("Tesseract Open Source OCR Engine v%s with Leptonica\n",
+  tprintf("Tesseract Open Source OCR Engine %s with Leptonica\n",
           tesseract::TessBaseAPI::Version());
 }
 
