@@ -23,6 +23,7 @@
 #include <cmath>                // for sqrt, atan2
 #include <cstdio>
 #include "elst.h"
+#include "errcode.h"            // for ASSERT_HOST
 #include "platform.h"           // for DLLSYM
 
 class FCOORD;
@@ -730,11 +731,9 @@ operator/ (                      //scalar divide
 const FCOORD & op1,              //operands
 float scale) {
   FCOORD result;                 //output
-
-  if (scale != 0) {
-    result.xcoord = op1.xcoord / scale;
-    result.ycoord = op1.ycoord / scale;
-  }
+  ASSERT_HOST(scale != 0.0f);
+  result.xcoord = op1.xcoord / scale;
+  result.ycoord = op1.ycoord / scale;
   return result;
 }
 
@@ -749,10 +748,9 @@ inline FCOORD &
 operator/= (                     //scalar divide
 FCOORD & op1,                    //operands
 float scale) {
-  if (scale != 0) {
-    op1.xcoord /= scale;
-    op1.ycoord /= scale;
-  }
+  ASSERT_HOST(scale != 0.0f);
+  op1.xcoord /= scale;
+  op1.ycoord /= scale;
   return op1;
 }
 
