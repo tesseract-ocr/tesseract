@@ -412,7 +412,7 @@ const ICOORD & op2) {
  **********************************************************************/
 
 inline ICOORD &
-operator-= (                     //sum vectors
+operator-= (                     //subtract vectors
 ICOORD & op1,                    //operands
 const ICOORD & op2) {
   op1.xcoord -= op2.xcoord;
@@ -638,7 +638,7 @@ const FCOORD & op2) {
  **********************************************************************/
 
 inline FCOORD &
-operator-= (                     //sum vectors
+operator-= (                     //subtract vectors
 FCOORD & op1,                    //operands
 const FCOORD & op2) {
   op1.xcoord -= op2.xcoord;
