@@ -117,6 +117,14 @@ void PangoFontInfo::SoftInitFontConfig() {
   }
 }
 
+PangoFontMap* PangoFontInfo::get_font_map() {
+  PangoFontMap* font_map =
+      pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+  if (!font_map)  // cairo  withtout support of Freetype?
+    font_map = pango_cairo_font_map_get_default();
+  return font_map;
+}
+
 // Re-initializes font config, whether or not already initialized.
 // If already initialized, any existing cache is deleted, just to be sure.
 /* static */
@@ -144,8 +152,8 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
 #ifdef _WIN32
   std::string env("FONTCONFIG_PATH=");
   env.append(cache_dir_.c_str());
-  putenv(env.c_str());
-  putenv("LANG=en_US.utf8");
+  _putenv(env.c_str());
+  _putenv("LANG=en_US.utf8");
 #else
   setenv("FONTCONFIG_PATH", cache_dir_.c_str(), true);
   // Fix the locale so that the reported font names are consistent.
@@ -163,7 +171,7 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
 static void ListFontFamilies(PangoFontFamily*** families,
                              int* n_families) {
   PangoFontInfo::SoftInitFontConfig();
-  PangoFontMap* font_map = pango_cairo_font_map_get_default();
+  PangoFontMap* font_map = PangoFontInfo::get_font_map();
   DISABLE_HEAP_LEAK_CHECK;
   pango_font_map_list_families(font_map, families, n_families);
 }
@@ -202,7 +210,7 @@ bool PangoFontInfo::ParseFontDescriptionName(const std::string& name) {
 // correspond to a completely different font family and face.
 PangoFont* PangoFontInfo::ToPangoFont() const {
   SoftInitFontConfig();
-  PangoFontMap* font_map = pango_cairo_font_map_get_default();
+  PangoFontMap* font_map = PangoFontInfo::get_font_map();
   PangoContext* context = pango_context_new();
   pango_cairo_context_set_resolution(context, resolution_);
   pango_context_set_font_map(context, font_map);
@@ -359,7 +367,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   // when there is an illegal grapheme sequence.
   const char32 kDottedCircleGlyph = 9676;
   bool bad_glyph = false;
-  PangoFontMap* font_map = pango_cairo_font_map_get_default();
+  PangoFontMap* font_map = PangoFontInfo::get_font_map();
   PangoContext* context = pango_context_new();
   pango_context_set_font_map(context, font_map);
   PangoLayout* layout;
@@ -483,7 +491,7 @@ bool FontUtils::IsAvailableFont(const char* input_query_desc,
   PangoFont* selected_font = nullptr;
   {
     PangoFontInfo::SoftInitFontConfig();
-    PangoFontMap* font_map = pango_cairo_font_map_get_default();
+    PangoFontMap* font_map = PangoFontInfo::get_font_map();
     PangoContext* context = pango_context_new();
     pango_context_set_font_map(context, font_map);
     {

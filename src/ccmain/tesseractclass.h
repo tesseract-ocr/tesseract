@@ -1042,6 +1042,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(textonly_pdf, false,
              "Create PDF with only one invisible text layer");
   INT_VAR_H(jpg_quality, 85, "Set JPEG quality level");
+  INT_VAR_H(user_defined_dpi, 0, "Specify DPI for input image");
   STRING_VAR_H(unrecognised_char, "|",
                "Output char for unidentified blobs");
   INT_VAR_H(suspect_level, 99, "Suspect marker level");

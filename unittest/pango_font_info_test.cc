@@ -14,19 +14,24 @@ DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
 
 namespace {
 
-using tesseract::FontUtils;
 using tesseract::File;
+using tesseract::FontUtils;
 using tesseract::PangoFontInfo;
 
 // Fonts in testdata directory
-const char* kExpectedFontNames[] = {
-  "Arab", "Arial Bold Italic", "DejaVu Sans Ultra-Light", "Lohit Hindi",
+const char* kExpectedFontNames[] = {"Arab",
+                                    "Arial Bold Italic",
+                                    "DejaVu Sans Ultra-Light",
+                                    "Lohit Hindi",
 #if PANGO_VERSION <= 12005
-  "Times New Roman",
+                                    "Times New Roman",
 #else
-  "Times New Roman,",  // Pango v1.36.2 requires a trailing ','
+                                    "Times New Roman,",  // Pango v1.36.2
+                                                         // requires a trailing
+                                                         // ','
 #endif
-  "UnBatang", "Verdana"};
+                                    "UnBatang",
+                                    "Verdana"};
 
 // Sample text used in tests.
 const char kArabicText[] = "والفكر والصراع 1234,\nوالفكر والصراع";
@@ -36,18 +41,17 @@ const char kKorText[] = "이는 것으로";
 // Hindi words containing illegal vowel sequences.
 const char* kBadlyFormedHinWords[] = {
 #if PANGO_VERSION <= 12005
-  "उपयोक्ताो", "नहीें", "कहीअे", "पत्रिाका", "छह्णाीस",
+    "उपयोक्ताो", "नहीें", "कहीअे", "पत्रिाका", "छह्णाीस",
 #endif
-  // Pango v1.36.2 will render the above words even though they are invalid.
-  "प्रंात", NULL };
+    // Pango v1.36.2 will render the above words even though they are invalid.
+    "प्रंात", nullptr};
 
 class PangoFontInfoTest : public ::testing::Test {
  protected:
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
-    FLAGS_fonts_dir = File::JoinPath(
-        FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = File::JoinPath(FLAGS_test_srcdir, "testdata");
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
     FLAGS_use_only_legacy_fonts = false;
   }
@@ -111,12 +115,11 @@ TEST_F(PangoFontInfoTest, CanRenderString) {
 TEST_F(PangoFontInfoTest, CanRenderLigature) {
   font_info_.ParseFontDescriptionName("Arab 12");
   const char kArabicLigature[] = "لا";
-  EXPECT_TRUE(font_info_.CanRenderString(kArabicLigature,
-                                         strlen(kArabicLigature)));
+  EXPECT_TRUE(
+      font_info_.CanRenderString(kArabicLigature, strlen(kArabicLigature)));
 
   printf("Next word\n");
-  EXPECT_TRUE(font_info_.CanRenderString(kArabicText,
-                                         strlen(kArabicText)));
+  EXPECT_TRUE(font_info_.CanRenderString(kArabicText, strlen(kArabicText)));
 }
 
 TEST_F(PangoFontInfoTest, CannotRenderUncoveredString) {
@@ -126,7 +129,7 @@ TEST_F(PangoFontInfoTest, CannotRenderUncoveredString) {
 
 TEST_F(PangoFontInfoTest, CannotRenderInvalidString) {
   font_info_.ParseFontDescriptionName("Lohit Hindi 12");
-  for (int i = 0; kBadlyFormedHinWords[i] != NULL; ++i) {
+  for (int i = 0; kBadlyFormedHinWords[i] != nullptr; ++i) {
     EXPECT_FALSE(font_info_.CanRenderString(kBadlyFormedHinWords[i],
                                             strlen(kBadlyFormedHinWords[i])))
         << "Can render " << kBadlyFormedHinWords[i];
@@ -142,9 +145,9 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
 
   // Dont drop non-letter characters like word joiners.
   const char* kJoiners[] = {
-    "\u2060",  // U+2060 (WJ)
-    "\u200C",  // U+200C (ZWJ)
-    "\u200D"   // U+200D (ZWNJ)
+      "\u2060",  // U+2060 (WJ)
+      "\u200C",  // U+200C (ZWJ)
+      "\u200D"   // U+200D (ZWNJ)
   };
   for (int i = 0; i < ARRAYSIZE(kJoiners); ++i) {
     word = kJoiners[i];
@@ -153,7 +156,6 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
   }
 }
 
-
 // ------------------------ FontUtils ------------------------------------
 
 class FontUtilsTest : public ::testing::Test {
@@ -161,8 +163,7 @@ class FontUtilsTest : public ::testing::Test {
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
-    FLAGS_fonts_dir = File::JoinPath(
-        FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = File::JoinPath(FLAGS_test_srcdir, "testdata");
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
   }
 
@@ -229,9 +230,9 @@ TEST_F(FontUtilsTest, DoesFindBestFonts) {
 }
 
 TEST_F(FontUtilsTest, DoesSelectFont) {
-  const char* kLangText[] = { kArabicText, kEngText, kHinText, kKorText, NULL };
-  const char* kLangNames[] = { "Arabic", "English", "Hindi", "Korean", NULL };
-  for (int i = 0; kLangText[i] != NULL; ++i) {
+  const char* kLangText[] = {kArabicText, kEngText, kHinText, kKorText, nullptr};
+  const char* kLangNames[] = {"Arabic", "English", "Hindi", "Korean", nullptr};
+  for (int i = 0; kLangText[i] != nullptr; ++i) {
     SCOPED_TRACE(kLangNames[i]);
     std::vector<string> graphemes;
     string selected_font;
@@ -246,8 +247,7 @@ TEST_F(FontUtilsTest, DoesFailToSelectFont) {
   const char kMixedScriptText[] = "पिताने विवाह की | والفكر والصراع";
   std::vector<string> graphemes;
   string selected_font;
-  EXPECT_FALSE(FontUtils::SelectFont(kMixedScriptText,
-                                     strlen(kMixedScriptText),
+  EXPECT_FALSE(FontUtils::SelectFont(kMixedScriptText, strlen(kMixedScriptText),
                                      &selected_font, &graphemes));
 }
 
@@ -271,17 +271,16 @@ TEST_F(FontUtilsTest, GetAllRenderableCharacters) {
   FontUtils::GetAllRenderableCharacters(selected_fonts, &unicode_mask);
   EXPECT_TRUE(unicode_mask['1']);
   EXPECT_TRUE(unicode_mask[kHindiChar]);
-  EXPECT_FALSE(unicode_mask['A']);              // Lohit doesn't render English,
-  EXPECT_FALSE(unicode_mask[kArabicChar]);      // or Arabic,
-  EXPECT_FALSE(unicode_mask[kMongolianChar]);   // or Mongolian,
-  EXPECT_FALSE(unicode_mask[kOghamChar]);       // or Ogham.
+  EXPECT_FALSE(unicode_mask['A']);             // Lohit doesn't render English,
+  EXPECT_FALSE(unicode_mask[kArabicChar]);     // or Arabic,
+  EXPECT_FALSE(unicode_mask[kMongolianChar]);  // or Mongolian,
+  EXPECT_FALSE(unicode_mask[kOghamChar]);      // or Ogham.
 
   // Check that none of the included fonts cover the Mongolian or Ogham space
   // characters.
   for (int f = 0; f < ARRAYSIZE(kExpectedFontNames); ++f) {
     SCOPED_TRACE(absl::StrCat("Testing ", kExpectedFontNames[f]));
-    FontUtils::GetAllRenderableCharacters(kExpectedFontNames[f],
-                                          &unicode_mask);
+    FontUtils::GetAllRenderableCharacters(kExpectedFontNames[f], &unicode_mask);
     EXPECT_FALSE(unicode_mask[kOghamChar]);
     EXPECT_FALSE(unicode_mask[kMongolianChar]);
   }

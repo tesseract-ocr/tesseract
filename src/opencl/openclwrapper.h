@@ -95,7 +95,7 @@
   QueryPerformanceCounter(&time_funct_end);                                  \
   elapsed_time_sec = (time_funct_end.QuadPart - time_funct_start.QuadPart) / \
                      (double)(freq.QuadPart);                                \
-  printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+  tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
@@ -106,7 +106,7 @@
   QueryPerformanceCounter(&time_sub_end);                                \
   elapsed_time_sec = (time_sub_end.QuadPart - time_sub_start.QuadPart) / \
                      (double)(freq.QuadPart);                            \
-  printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);      \
+  tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);      \
   time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
@@ -129,7 +129,7 @@
   elapsed_time_sec =                                                      \
       (time_funct_end.tv_sec - time_funct_start.tv_sec) * 1.0 +           \
       (time_funct_end.tv_nsec - time_funct_start.tv_nsec) / 1000000000.0; \
-  printf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
+  tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
 #else
 #define PERF_COUNT_START(FUNCT_NAME)
 #define PERF_COUNT_END
@@ -141,7 +141,7 @@
   elapsed_time_sec =                                                  \
       (time_sub_end.tv_sec - time_sub_start.tv_sec) * 1.0 +           \
       (time_sub_end.tv_nsec - time_sub_start.tv_nsec) / 1000000000.0; \
-  printf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);   \
+  tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);   \
   time_sub_start = time_sub_end;
 #else
 #define PERF_COUNT_SUB(SUB)
@@ -187,7 +187,7 @@ typedef int (*cl_kernel_function)(void** userdata, KernelEnv* kenv);
 
 #define CHECK_OPENCL(status, name)                                    \
   if (status != CL_SUCCESS) {                                         \
-    printf("OpenCL error code is %d at   when %s .\n", status, name); \
+    tprintf("OpenCL error code is %d at   when %s .\n", status, name); \
   }
 
 struct GPUEnv {

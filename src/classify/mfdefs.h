@@ -45,7 +45,7 @@ typedef float *MICROFEATURE;
 ----------------------------------------------------------------------------**/
 
 /* macros for accessing micro-feature lists */
-#define NextFeatureOf(L)  ( (MICROFEATURE) first_node ( L ) )
+#define NextFeatureOf(L)  ((MICROFEATURE)first_node(L))
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

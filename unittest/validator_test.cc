@@ -11,8 +11,8 @@
 
 #include "validator.h"
 
+#include "gmock/gmock.h"  // for testing::ElementsAreArray
 #include "include_gunit.h"
-#include "gmock/gmock.h"        // for testing::ElementsAreArray
 
 namespace tesseract {
 namespace {

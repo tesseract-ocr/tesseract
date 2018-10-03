@@ -23,8 +23,7 @@ namespace {
 
 class TfileTest : public ::testing::Test {
  protected:
-  TfileTest() {
-  }
+  TfileTest() {}
 
   // Some data to serialize.
   class MathData {
@@ -32,11 +31,9 @@ class TfileTest : public ::testing::Test {
     MathData() : num_squares_(0), num_triangles_(0) {}
     void Setup() {
       // Setup some data.
-      for (int s = 0; s < 42; ++s)
-        squares_.push_back(s * s);
+      for (int s = 0; s < 42; ++s) squares_.push_back(s * s);
       num_squares_ = squares_.size();
-      for (int t = 0; t < 52; ++t)
-        triangles_.push_back(t * (t + 1) / 2);
+      for (int t = 0; t < 52; ++t) triangles_.push_back(t * (t + 1) / 2);
       num_triangles_ = triangles_.size();
     }
     void ExpectEq(const MathData& other) {
@@ -52,7 +49,7 @@ class TfileTest : public ::testing::Test {
       if (fp->FWrite(&num_squares_, sizeof(num_squares_), 1) != 1) return false;
       if (!squares_.Serialize(fp)) return false;
       if (fp->FWrite(&num_triangles_, sizeof(num_triangles_), 1) != 1)
-          return false;
+        return false;
       if (!triangles_.Serialize(fp)) return false;
       return true;
     }

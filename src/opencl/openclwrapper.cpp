@@ -553,7 +553,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
 
 // substitute invalid characters in device name with _
 static void legalizeFileName(char* fileName) {
-  // printf("fileName: %s\n", fileName);
+  // tprintf("fileName: %s\n", fileName);
   const char* invalidChars =
       "/\?:*\"><| ";  // space is valid but can cause headaches
   // for each invalid char
@@ -561,22 +561,22 @@ static void legalizeFileName(char* fileName) {
     char invalidStr[4];
     invalidStr[0] = invalidChars[i];
     invalidStr[1] = '\0';
-    // printf("eliminating %s\n", invalidStr);
+    // tprintf("eliminating %s\n", invalidStr);
     // char *pos = strstr(fileName, invalidStr);
     // initial ./ is valid for present directory
     // if (*pos == '.') pos++;
     // if (*pos == '/') pos++;
     for (char* pos = strstr(fileName, invalidStr); pos != nullptr;
          pos = strstr(pos + 1, invalidStr)) {
-      // printf("\tfound: %s, ", pos);
+      // tprintf("\tfound: %s, ", pos);
       pos[0] = '_';
-      // printf("fileName: %s\n", fileName);
+      // tprintf("fileName: %s\n", fileName);
     }
   }
 }
 
 static void populateGPUEnvFromDevice(GPUEnv* gpuInfo, cl_device_id device) {
-  // printf("[DS] populateGPUEnvFromDevice\n");
+  // tprintf("[DS] populateGPUEnvFromDevice\n");
   size_t size;
   gpuInfo->mnIsUserCreated = 1;
   // device
@@ -713,7 +713,7 @@ int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs) {
 
 int OpenclDevice::InitEnv() {
 // PERF_COUNT_START("OD::InitEnv")
-//    printf("[OD] OpenclDevice::InitEnv()\n");
+//    tprintf("[OD] OpenclDevice::InitEnv()\n");
 #ifdef SAL_WIN32
   while (1) {
     if (1 == LoadOpencl()) break;
@@ -763,7 +763,7 @@ int OpenclDevice::InitOpenclRunEnv_DeviceSelection(int argc) {
     cl_device_id bestDevice = bestDevice_DS.oclDeviceID;
     // overwrite global static GPUEnv with new device
     if (selectedDeviceIsOpenCL()) {
-      // printf("[DS] InitOpenclRunEnv_DS::Calling populateGPUEnvFromDevice()
+      // tprintf("[DS] InitOpenclRunEnv_DS::Calling populateGPUEnvFromDevice()
       // for selected device\n");
       populateGPUEnvFromDevice(&gpuEnv, bestDevice);
       gpuEnv.mnFileCount = 0;  // argc;
@@ -772,7 +772,7 @@ int OpenclDevice::InitOpenclRunEnv_DeviceSelection(int argc) {
       CompileKernelFile(&gpuEnv, "");
       // PERF_COUNT_SUB("CompileKernelFile")
     } else {
-      // printf("[DS] InitOpenclRunEnv_DS::Skipping populateGPUEnvFromDevice()
+      // tprintf("[DS] InitOpenclRunEnv_DS::Skipping populateGPUEnvFromDevice()
       // b/c native cpu selected\n");
     }
     isInited = 1;
@@ -925,10 +925,10 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
       sprintf(fileName, "%s-%s.bin", cl_name, deviceName);
       legalizeFileName(fileName);
       if (!WriteBinaryToFile(fileName, binaries[i], binarySizes[i])) {
-        printf("[OD] write binary[%s] failed\n", fileName);
+        tprintf("[OD] write binary[%s] failed\n", fileName);
         return 0;
       }  // else
-      printf("[OD] write binary[%s] successfully\n", fileName);
+      tprintf("[OD] write binary[%s] successfully\n", fileName);
     }
   }
 
@@ -1017,7 +1017,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
 
   // char options[512];
   // create a cl program executable for all the devices specified
-  // printf("[OD] BuildProgram.\n");
+  // tprintf("[OD] BuildProgram.\n");
   PERF_COUNT_START("OD::CompileKernel::clBuildProgram")
   if (!gpuInfo->mnIsUserCreated) {
     clStatus =
@@ -1032,7 +1032,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
   }
   PERF_COUNT_END
   if (clStatus != CL_SUCCESS) {
-    printf("BuildProgram error!\n");
+    tprintf("BuildProgram error!\n");
     size_t length;
     if (!gpuInfo->mnIsUserCreated) {
       clStatus = clGetProgramBuildInfo(
@@ -1044,7 +1044,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
                                 CL_PROGRAM_BUILD_LOG, 0, nullptr, &length);
     }
     if (clStatus != CL_SUCCESS) {
-      printf("opencl create build log fail\n");
+      tprintf("opencl create build log fail\n");
       return 0;
     }
     std::vector<char> buildLog(length);
@@ -1058,7 +1058,7 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
                                        length, &buildLog[0], &length);
     }
     if (clStatus != CL_SUCCESS) {
-      printf("opencl program build info fail\n");
+      tprintf("opencl program build info fail\n");
       return 0;
     }
 
@@ -1890,7 +1890,7 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char* imageData,
   clFinish(rEnv.mpkCmdQueue);
   PERF_COUNT_SUB("kernel")
   if (clStatus != 0) {
-    printf("Setting return value to -1\n");
+    tprintf("Setting return value to -1\n");
     retVal = -1;
   }
   /* map results back from gpu */
@@ -1954,7 +1954,7 @@ static void populateTessScoreEvaluationInputData(
   for (int i = 0; i < numLines; i++) {
     int lineWidth = rand() % maxLineWidth;
     int vertLinePos = lineWidth + rand() % (width - 2 * lineWidth);
-    // printf("[PI] VerticalLine @ %i (w=%i)\n", vertLinePos, lineWidth);
+    // tprintf("[PI] VerticalLine @ %i (w=%i)\n", vertLinePos, lineWidth);
     for (int row = vertLinePos - lineWidth / 2;
          row < vertLinePos + lineWidth / 2; row++) {
       for (int col = 0; col < height; col++) {
@@ -1970,13 +1970,13 @@ static void populateTessScoreEvaluationInputData(
   for (int i = 0; i < numLines; i++) {
     int lineWidth = rand() % maxLineWidth;
     int horLinePos = lineWidth + rand() % (height - 2 * lineWidth);
-    // printf("[PI] HorizontalLine @ %i (w=%i)\n", horLinePos, lineWidth);
+    // tprintf("[PI] HorizontalLine @ %i (w=%i)\n", horLinePos, lineWidth);
     for (int row = 0; row < width; row++) {
       for (int col = horLinePos - lineWidth / 2;
            col < horLinePos + lineWidth / 2;
            col++) {  // for (int row = vertLinePos-lineWidth/2; row <
                      // vertLinePos+lineWidth/2; row++) {
-        // printf("[PI] HoizLine pix @ (%3i, %3i)\n", row, col);
+        // tprintf("[PI] HoizLine pix @ (%3i, %3i)\n", row, col);
         // imageData4[row*width+col] = pixelBlack;
         imageData4[row * width + col][0] = pixelBlack[0];
         imageData4[row * width + col][1] = pixelBlack[1];
@@ -1993,10 +1993,10 @@ static void populateTessScoreEvaluationInputData(
     int lineWidth = rand() % maxLineWidth;
     int col = lineWidth + rand() % (width - 2 * lineWidth);
     int row = lineWidth + rand() % (height - 2 * lineWidth);
-    // printf("[PI] Spot[%i/%i] @ (%3i, %3i)\n", i, numSpots, row, col );
+    // tprintf("[PI] Spot[%i/%i] @ (%3i, %3i)\n", i, numSpots, row, col );
     for (int r = row - lineWidth / 2; r < row + lineWidth / 2; r++) {
       for (int c = col - lineWidth / 2; c < col + lineWidth / 2; c++) {
-        // printf("[PI] \tSpot[%i/%i] @ (%3i, %3i)\n", i, numSpots, r, c );
+        // tprintf("[PI] \tSpot[%i/%i] @ (%3i, %3i)\n", i, numSpots, r, c );
         // imageData4[row*width+col] = pixelBlack;
         imageData4[r * width + c][0] = pixelBlack[0];
         imageData4[r * width + c][1] = pixelBlack[1];
@@ -2444,17 +2444,17 @@ static ds_status releaseScore(TessDeviceScore* score) {
 static ds_status evaluateScoreForDevice(ds_device* device, void* inputData) {
   // overwrite statuc gpuEnv w/ current device
   // so native opencl calls can be used; they use static gpuEnv
-  printf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName,
+  tprintf("\n[DS] Device: \"%s\" (%s) evaluation...\n", device->oclDeviceName,
          device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
   GPUEnv* env = nullptr;
   if (device->type == DS_DEVICE_OPENCL_DEVICE) {
     env = &OpenclDevice::gpuEnv;
     memset(env, 0, sizeof(*env));
-    // printf("[DS] populating tmp GPUEnv from device\n");
+    // tprintf("[DS] populating tmp GPUEnv from device\n");
     populateGPUEnvFromDevice(env, device->oclDeviceID);
     env->mnFileCount = 0;  // argc;
     env->mnKernelCount = 0UL;
-    // printf("[DS] compiling kernels for tmp GPUEnv\n");
+    // tprintf("[DS] compiling kernels for tmp GPUEnv\n");
     OpenclDevice::CompileKernelFile(env, "");
   }
 
@@ -2490,17 +2490,17 @@ static ds_status evaluateScoreForDevice(ds_device* device, void* inputData) {
   device->score = new TessDeviceScore;
   device->score->time = weightedTime;
 
-  printf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName,
+  tprintf("[DS] Device: \"%s\" (%s) evaluated\n", device->oclDeviceName,
          device->type == DS_DEVICE_OPENCL_DEVICE ? "OpenCL" : "Native");
-  printf("[DS]%25s: %f (w=%.1f)\n", "composeRGBPixel", composeRGBPixelTime,
+  tprintf("[DS]%25s: %f (w=%.1f)\n", "composeRGBPixel", composeRGBPixelTime,
          composeRGBPixelWeight);
-  printf("[DS]%25s: %f (w=%.1f)\n", "HistogramRect", histogramRectTime,
+  tprintf("[DS]%25s: %f (w=%.1f)\n", "HistogramRect", histogramRectTime,
          histogramRectWeight);
-  printf("[DS]%25s: %f (w=%.1f)\n", "ThresholdRectToPix",
+  tprintf("[DS]%25s: %f (w=%.1f)\n", "ThresholdRectToPix",
          thresholdRectToPixTime, thresholdRectToPixWeight);
-  printf("[DS]%25s: %f (w=%.1f)\n", "getLineMasksMorph", getLineMasksMorphTime,
+  tprintf("[DS]%25s: %f (w=%.1f)\n", "getLineMasksMorph", getLineMasksMorphTime,
          getLineMasksMorphWeight);
-  printf("[DS]%25s: %f\n", "Score", device->score->time);
+  tprintf("[DS]%25s: %f\n", "Score", device->score->time);
   return DS_SUCCESS;
 }
 
@@ -2522,7 +2522,7 @@ ds_device OpenclDevice::getDeviceSelection() {
       status = readProfileFromFile(profile, deserializeScore, fileName);
       if (status != DS_SUCCESS) {
         // need to run evaluation
-        printf("[DS] Profile file not available (%s); performing profiling.\n",
+        tprintf("[DS] Profile file not available (%s); performing profiling.\n",
                fileName);
 
         // create input data
@@ -2539,21 +2539,21 @@ ds_device OpenclDevice::getDeviceSelection() {
           status = writeProfileToFile(profile, serializeScore, fileName);
           PERF_COUNT_SUB("writeProfileToFile")
           if (status == DS_SUCCESS) {
-            printf("[DS] Scores written to file (%s).\n", fileName);
+            tprintf("[DS] Scores written to file (%s).\n", fileName);
           } else {
-            printf(
+            tprintf(
                 "[DS] Error saving scores to file (%s); scores not written to "
                 "file.\n",
                 fileName);
           }
         } else {
-          printf(
+          tprintf(
               "[DS] Unable to evaluate performance; scores not written to "
               "file.\n");
         }
       } else {
         PERF_COUNT_SUB("readProfileFromFile")
-        printf("[DS] Profile read from file (%s).\n", fileName);
+        tprintf("[DS] Profile read from file (%s).\n", fileName);
       }
 
       // we now have device scores either from file or evaluation
@@ -2566,14 +2566,14 @@ ds_device OpenclDevice::getDeviceSelection() {
         TessDeviceScore score = *device.score;
 
         float time = score.time;
-        printf("[DS] Device[%u] %i:%s score is %f\n", d + 1, device.type,
+        tprintf("[DS] Device[%u] %i:%s score is %f\n", d + 1, device.type,
                device.oclDeviceName, time);
         if (time < bestTime) {
           bestTime = time;
           bestDeviceIdx = d;
         }
       }
-      printf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
+      tprintf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
              profile->devices[bestDeviceIdx].oclDeviceName,
              profile->devices[bestDeviceIdx].type == DS_DEVICE_OPENCL_DEVICE
                  ? "OpenCL"
@@ -2586,14 +2586,14 @@ ds_device OpenclDevice::getDeviceSelection() {
       if (overrideDeviceStr != nullptr) {
         int overrideDeviceIdx = atoi(overrideDeviceStr);
         if (overrideDeviceIdx > 0 && overrideDeviceIdx <= profile->numDevices) {
-          printf(
+          tprintf(
               "[DS] Overriding Device Selection (TESSERACT_OPENCL_DEVICE=%s, "
               "%i)\n",
               overrideDeviceStr, overrideDeviceIdx);
           bestDeviceIdx = overrideDeviceIdx - 1;
           overridden = true;
         } else {
-          printf(
+          tprintf(
               "[DS] Ignoring invalid TESSERACT_OPENCL_DEVICE=%s ([1,%i] are "
               "valid devices).\n",
               overrideDeviceStr, profile->numDevices);
@@ -2601,7 +2601,7 @@ ds_device OpenclDevice::getDeviceSelection() {
       }
 
       if (overridden) {
-        printf("[DS] Overridden Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
+        tprintf("[DS] Overridden Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
                profile->devices[bestDeviceIdx].oclDeviceName,
                profile->devices[bestDeviceIdx].type == DS_DEVICE_OPENCL_DEVICE
                    ? "OpenCL"
@@ -2612,7 +2612,7 @@ ds_device OpenclDevice::getDeviceSelection() {
       releaseDSProfile(profile, releaseScore);
     } else {
       // opencl isn't available at runtime, select native cpu device
-      printf("[DS] OpenCL runtime not available.\n");
+      tprintf("[DS] OpenCL runtime not available.\n");
       selectedDevice.type = DS_DEVICE_NATIVE_CPU;
       selectedDevice.oclDeviceName = "(null)";
       selectedDevice.score = nullptr;

@@ -808,7 +808,7 @@ int16_t Textord::stats_count_under(STATS *stats, int16_t threshold) {
  *              (I.e. reasonably large space and kn:sp ratio)
  *     &&    > 3/4 # gaps < kn + (sp - kn)/3
  *              (I.e. most gaps are well away from space estimate)
- *     &&    a gap of max( 3, (sp - kn)/3 ) empty histogram positions is found
+ *     &&    a gap of max(3, (sp - kn) / 3) empty histogram positions is found
  *           somewhere in the histogram between kn and sp
  *     THEN set the threshold and fuzzy limits to this gap - ie NO fuzzies
  *          NO!!!!! the bristol line has "11" with a gap of 12 between the 1's!!!
@@ -836,7 +836,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
     tprintf (" 1");
   /*
   Look for the first region of all 0's in the histogram which is wider than
-  max( 3, (sp - kn)/3 ) and starts between kn and sp. If found, and current
+  max(3, (sp - kn) / 3) and starts between kn and sp. If found, and current
   threshold is not within it, move the threshold so that is is just inside it.
   */
   reqd_zero_width = (int16_t) floor ((sp - kn) / 3 + 0.5);
@@ -1493,9 +1493,9 @@ bool Textord::make_a_word_break(
 
       /* Heuristics to turn dubious kerns to spaces */
       /* TRIED THIS BUT IT MADE THINGS WORSE
-          if ( prev_gap == INT16_MAX )
+          if (prev_gap == INT16_MAX)
             prev_gap = 0;  // start of row
-          if ( next_gap == INT16_MAX )
+          if (next_gap == INT16_MAX)
             next_gap = 0;  // end of row
       */
       if ((prev_blob_box.width () > 0) &&

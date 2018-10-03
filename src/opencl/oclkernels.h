@@ -249,7 +249,7 @@ KERNEL(
     else
         lastword = *(sword + row*wpl + eiter);
 
-    for ( i = 1; i < nwords; i++)
+    for (i = 1; i < nwords; i++)
     {
         //Gets LHS words
         if ((siter + i) < 0)
@@ -604,7 +604,7 @@ KERNEL(
         lastword = *(sword + row*wpl + eiter);
 
 
-    for ( i = 1; i < nwords; i++)
+    for (i = 1; i < nwords; i++)
     {
         //Gets LHS words
         if ((siter + i) < 0)
@@ -809,17 +809,17 @@ void kernel_HistogramRectAllChannels(
     int threadOffset = get_global_id(0)%HIST_REDUNDANCY;
 
     // for each pixel/channel, accumulate in global memory
-    for ( uint pc = get_global_id(0); pc < numPixels*NUM_CHANNELS/HR_UNROLL_SIZE; pc += get_global_size(0) ) {
+    for (uint pc = get_global_id(0); pc < numPixels*NUM_CHANNELS/HR_UNROLL_SIZE; pc += get_global_size(0)) {
         pixels = data[pc];
         //                       channel                        bin                         thread
-        atomic_inc( &histBuffer[ 0*HIST_SIZE*HIST_REDUNDANCY + pixels.s0*HIST_REDUNDANCY + threadOffset ]); // ch0
-        atomic_inc( &histBuffer[ 0*HIST_SIZE*HIST_REDUNDANCY + pixels.s4*HIST_REDUNDANCY + threadOffset ]); // ch0
-        atomic_inc( &histBuffer[ 1*HIST_SIZE*HIST_REDUNDANCY + pixels.s1*HIST_REDUNDANCY + threadOffset ]); // ch1
-        atomic_inc( &histBuffer[ 1*HIST_SIZE*HIST_REDUNDANCY + pixels.s5*HIST_REDUNDANCY + threadOffset ]); // ch1
-        atomic_inc( &histBuffer[ 2*HIST_SIZE*HIST_REDUNDANCY + pixels.s2*HIST_REDUNDANCY + threadOffset ]); // ch2
-        atomic_inc( &histBuffer[ 2*HIST_SIZE*HIST_REDUNDANCY + pixels.s6*HIST_REDUNDANCY + threadOffset ]); // ch2
-        atomic_inc( &histBuffer[ 3*HIST_SIZE*HIST_REDUNDANCY + pixels.s3*HIST_REDUNDANCY + threadOffset ]); // ch3
-        atomic_inc( &histBuffer[ 3*HIST_SIZE*HIST_REDUNDANCY + pixels.s7*HIST_REDUNDANCY + threadOffset ]); // ch3
+        atomic_inc(&histBuffer[0*HIST_SIZE*HIST_REDUNDANCY + pixels.s0*HIST_REDUNDANCY + threadOffset]); // ch0
+        atomic_inc(&histBuffer[0*HIST_SIZE*HIST_REDUNDANCY + pixels.s4*HIST_REDUNDANCY + threadOffset]); // ch0
+        atomic_inc(&histBuffer[1*HIST_SIZE*HIST_REDUNDANCY + pixels.s1*HIST_REDUNDANCY + threadOffset]); // ch1
+        atomic_inc(&histBuffer[1*HIST_SIZE*HIST_REDUNDANCY + pixels.s5*HIST_REDUNDANCY + threadOffset]); // ch1
+        atomic_inc(&histBuffer[2*HIST_SIZE*HIST_REDUNDANCY + pixels.s2*HIST_REDUNDANCY + threadOffset]); // ch2
+        atomic_inc(&histBuffer[2*HIST_SIZE*HIST_REDUNDANCY + pixels.s6*HIST_REDUNDANCY + threadOffset]); // ch2
+        atomic_inc(&histBuffer[3*HIST_SIZE*HIST_REDUNDANCY + pixels.s3*HIST_REDUNDANCY + threadOffset]); // ch3
+        atomic_inc(&histBuffer[3*HIST_SIZE*HIST_REDUNDANCY + pixels.s7*HIST_REDUNDANCY + threadOffset]); // ch3
     }
 }
 )
@@ -838,17 +838,17 @@ void kernel_HistogramRectOneChannel(
     int threadOffset = get_global_id(0)%HIST_REDUNDANCY;
 
     // for each pixel/channel, accumulate in global memory
-    for ( uint pc = get_global_id(0); pc < numPixels/HR_UNROLL_SIZE; pc += get_global_size(0) ) {
+    for (uint pc = get_global_id(0); pc < numPixels/HR_UNROLL_SIZE; pc += get_global_size(0)) {
         pixels = data[pc];
         //                        bin                         thread
-        atomic_inc( &histBuffer[ pixels.s0*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s1*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s2*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s3*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s4*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s5*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s6*HIST_REDUNDANCY + threadOffset ]);
-        atomic_inc( &histBuffer[ pixels.s7*HIST_REDUNDANCY + threadOffset ]);
+        atomic_inc(&histBuffer[pixels.s0*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s1*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s2*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s3*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s4*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s5*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s6*HIST_REDUNDANCY + threadOffset]);
+        atomic_inc(&histBuffer[pixels.s7*HIST_REDUNDANCY + threadOffset]);
     }
 }
 )
@@ -870,7 +870,7 @@ void kernel_HistogramRectAllChannelsReduction(
     int value = 0;
 
     // accumulate in register
-    for ( uint i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
+    for (uint i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
         value += histBuffer[ channel*HIST_SIZE*HIST_REDUNDANCY+bin*HIST_REDUNDANCY+i];
     }
 
@@ -912,7 +912,7 @@ void kernel_HistogramRectOneChannelReduction(
     int value = 0;
 
     // accumulate in register
-    for ( int i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
+    for (int i = get_local_id(0); i < HIST_REDUNDANCY; i+=GROUP_SIZE) {
         value += histBuffer[ bin*HIST_REDUNDANCY+i];
     }
 
@@ -966,16 +966,16 @@ void kernel_ThresholdRectToPix(
     // declare variables
     int pThresholds[NUM_CHANNELS];
     int pHi_Values[NUM_CHANNELS];
-    for ( int i = 0; i < NUM_CHANNELS; i++) {
+    for (int i = 0; i < NUM_CHANNELS; i++) {
         pThresholds[i] = thresholds[i];
         pHi_Values[i] = hi_values[i];
     }
 
     // for each word (32 pixels) in output image
-    for ( uint w = get_global_id(0); w < wpl*height; w += get_global_size(0) ) {
+    for (uint w = get_global_id(0); w < wpl*height; w += get_global_size(0)) {
         unsigned int word = 0; // all bits start at zero
         // for each burst in word
-        for ( int b = 0; b < BURSTS_PER_WORD; b++) {
+        for (int b = 0; b < BURSTS_PER_WORD; b++) {
             // load burst
             charVec pixels;
             int offset = (w / wpl) * width;
@@ -986,8 +986,8 @@ void kernel_ThresholdRectToPix(
                 pixels.v[i] = imageData[offset + i];
 
             // for each pixel in burst
-            for ( int p = 0; p < PIXELS_PER_BURST; p++) {
-                for ( int c = 0; c < NUM_CHANNELS; c++) {
+            for (int p = 0; p < PIXELS_PER_BURST; p++) {
+                for (int c = 0; c < NUM_CHANNELS; c++) {
                     unsigned char pixChan = pixels.s[p*NUM_CHANNELS + c];
                     if (pHi_Values[c] >= 0 && (pixChan > pThresholds[c]) == (pHi_Values[c] == 0)) {
                         const uint kTopBit = 0x80000000;
@@ -1023,17 +1023,17 @@ void kernel_ThresholdRectToPix_OneChan(
     // declare variables
     int pThresholds[1];
     int pHi_Values[1];
-    for ( int i = 0; i < 1; i++) {
+    for (int i = 0; i < 1; i++) {
         pThresholds[i] = thresholds[i];
         pHi_Values[i] = hi_values[i];
     }
 
     // for each word (32 pixels) in output image
-    for ( uint w = get_global_id(0); w < wpl*height; w += get_global_size(0) ) {
+    for (uint w = get_global_id(0); w < wpl*height; w += get_global_size(0)) {
         unsigned int word = 0; // all bits start at zero
 
         // for each burst in word
-        for ( int b = 0; b < BURSTS_PER_WORD; b++) {
+        for (int b = 0; b < BURSTS_PER_WORD; b++) {
 
             // load burst
             charVec1 pixels;
@@ -1044,7 +1044,7 @@ void kernel_ThresholdRectToPix_OneChan(
                   + 0 ];
 
             // for each pixel in burst
-            for ( int p = 0; p < PIXELS_PER_BURST; p++) {
+            for (int p = 0; p < PIXELS_PER_BURST; p++) {
 
                   //int littleEndianIdx = p ^ 3;
                   //int bigEndianIdx = p;

@@ -1,10 +1,10 @@
 #include "tesseract/lstm/networkio.h"
 #include "tesseract/lstm/stridemap.h"
 
-using tesseract::FlexDimensions;
 using tesseract::FD_BATCH;
 using tesseract::FD_HEIGHT;
 using tesseract::FD_WIDTH;
+using tesseract::FlexDimensions;
 using tesseract::NetworkIO;
 using tesseract::StrideMap;
 
@@ -93,9 +93,9 @@ TEST_F(NetworkioTest, CopyWithYReversal) {
   StrideMap::Index index(copy.stride_map());
   int next_t = 0;
   int pos = 0;
-  std::vector<int> expected_values = {8,  9,  10, 11, 4,  5,  6,  7,  0,  1,  2,
-                                 3,  27, 28, 29, 30, 31, 22, 23, 24, 25, 26,
-                                 17, 18, 19, 20, 21, 12, 13, 14, 15, 16};
+  std::vector<int> expected_values = {
+      8,  9,  10, 11, 4,  5,  6,  7,  0,  1,  2,  3,  27, 28, 29, 30,
+      31, 22, 23, 24, 25, 26, 17, 18, 19, 20, 21, 12, 13, 14, 15, 16};
   do {
     int t = index.t();
     // The indexed values match the expected values.
@@ -125,9 +125,9 @@ TEST_F(NetworkioTest, CopyWithXReversal) {
   StrideMap::Index index(copy.stride_map());
   int next_t = 0;
   int pos = 0;
-  std::vector<int> expected_values = {3,  2,  1,  0,  7,  6,  5,  4,  11, 10, 9,
-                                 8,  16, 15, 14, 13, 12, 21, 20, 19, 18, 17,
-                                 26, 25, 24, 23, 22, 31, 30, 29, 28, 27};
+  std::vector<int> expected_values = {
+      3,  2,  1,  0,  7,  6,  5,  4,  11, 10, 9,  8,  16, 15, 14, 13,
+      12, 21, 20, 19, 18, 17, 26, 25, 24, 23, 22, 31, 30, 29, 28, 27};
   do {
     int t = index.t();
     // The indexed values match the expected values.
@@ -157,9 +157,9 @@ TEST_F(NetworkioTest, CopyWithXYTranspose) {
   StrideMap::Index index(copy.stride_map());
   int next_t = 0;
   int pos = 0;
-  std::vector<int> expected_values = {0,  4,  8,  1,  5,  9,  2,  6,  10, 3,  7,
-                                 11, 12, 17, 22, 27, 13, 18, 23, 28, 14, 19,
-                                 24, 29, 15, 20, 25, 30, 16, 21, 26, 31};
+  std::vector<int> expected_values = {
+      0,  4,  8,  1,  5,  9,  2,  6,  10, 3,  7,  11, 12, 17, 22, 27,
+      13, 18, 23, 28, 14, 19, 24, 29, 15, 20, 25, 30, 16, 21, 26, 31};
   do {
     int t = index.t();
     // The indexed values match the expected values.

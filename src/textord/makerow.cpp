@@ -2519,7 +2519,7 @@ OVERLAP_STATE most_overlapping_row(                    //find best row
           test_row->min_y () <
           row->min_y ()? test_row->min_y () : row->min_y ();
         if (merge_top - merge_bottom <= rowsize) {
-          if (testing_blob) {
+          if (testing_blob && textord_debug_blob) {
             tprintf ("Merging rows at (%g,%g), (%g,%g)\n",
               row->min_y (), row->max_y (),
               test_row->min_y (), test_row->max_y ());

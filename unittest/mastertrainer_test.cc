@@ -41,8 +41,9 @@ const int kNumNonReject = 1000;
 const int kNumCorrect = kNumNonReject - kNumTop1Errs;
 // The total number of answers is given by the number of non-rejects plus
 // all the multiple answers.
-const int kNumAnswers = kNumNonReject + 2*(kNumTop2Errs - kNumTopNErrs) +
-    (kNumTop1Errs - kNumTop2Errs) + (kNumTopTopErrs - kNumTop1Errs);
+const int kNumAnswers = kNumNonReject + 2 * (kNumTop2Errs - kNumTopNErrs) +
+                        (kNumTop1Errs - kNumTop2Errs) +
+                        (kNumTopTopErrs - kNumTop1Errs);
 
 namespace tesseract {
 
@@ -51,7 +52,7 @@ namespace tesseract {
 class MockClassifier : public ShapeClassifier {
  public:
   explicit MockClassifier(ShapeTable* shape_table)
-    : shape_table_(shape_table), num_done_(0), done_bad_font_(false) {
+      : shape_table_(shape_table), num_done_(0), done_bad_font_(false) {
     // Add a false font answer to the shape table. We pick a random unichar_id,
     // add a new shape for it with a false font. Font must actually exist in
     // the font table, but not match anything in the first 1000 samples.
@@ -108,9 +109,7 @@ class MockClassifier : public ShapeClassifier {
     return results->size();
   }
   // Provides access to the ShapeTable that this classifier works with.
-  virtual const ShapeTable* GetShapeTable() const {
-    return shape_table_;
-  }
+  virtual const ShapeTable* GetShapeTable() const { return shape_table_; }
 
  private:
   // Borrowed pointer to the ShapeTable.
@@ -140,20 +139,18 @@ const double kMin1lDistance = 0.25;
 class MasterTrainerTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
   string TmpNameToPath(const string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
   MasterTrainerTest() {
-    shape_table_ = NULL;
-    master_trainer_ = NULL;
+    shape_table_ = nullptr;
+    master_trainer_ = nullptr;
   }
   ~MasterTrainerTest() {
     delete master_trainer_;
@@ -169,17 +166,17 @@ class MasterTrainerTest : public testing::Test {
     FLAGS_X = TestDataNameToPath("eng.xheights");
     FLAGS_U = TestDataNameToPath("eng.unicharset");
     string tr_file_name(TestDataNameToPath("eng.Arial.exp0.tr"));
-    const char* argv[] = {tr_file_name.c_str() };
+    const char* argv[] = {tr_file_name.c_str()};
     int argc = 1;
     STRING file_prefix;
     delete master_trainer_;
     delete shape_table_;
-    shape_table_ = NULL;
+    shape_table_ = nullptr;
     tessoptind = 0;
-    master_trainer_ = LoadTrainingData(argc, argv, false,
-                                       &shape_table_, &file_prefix);
-    EXPECT_TRUE(master_trainer_ != NULL);
-    EXPECT_TRUE(shape_table_ != NULL);
+    master_trainer_ =
+        LoadTrainingData(argc, argv, false, &shape_table_, &file_prefix);
+    EXPECT_TRUE(master_trainer_ != nullptr);
+    EXPECT_TRUE(shape_table_ != nullptr);
   }
 
   // EXPECTs that the distance between I and l in Arial is 0 and that the
@@ -203,29 +200,29 @@ class MasterTrainerTest : public testing::Test {
     int shape_1 = shape_table_->FindShape(unichar_1, font_id);
     EXPECT_GE(shape_1, 0);
 
-    float dist_I_l = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_I, shape_l);
+    float dist_I_l =
+        master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_l);
     // No tolerance here. We expect that I and l should match exactly.
     EXPECT_EQ(0.0f, dist_I_l);
-    float dist_l_I = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_l, shape_I);
+    float dist_l_I =
+        master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_I);
     // BOTH ways.
     EXPECT_EQ(0.0f, dist_l_I);
 
     // l/1 on the other hand should be distinct.
-    float dist_l_1 = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_l, shape_1);
+    float dist_l_1 =
+        master_trainer_->ShapeDistance(*shape_table_, shape_l, shape_1);
     EXPECT_GT(dist_l_1, kMin1lDistance);
-    float dist_1_l = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_1, shape_l);
+    float dist_1_l =
+        master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_l);
     EXPECT_GT(dist_1_l, kMin1lDistance);
 
     // So should I/1.
-    float dist_I_1 = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_I, shape_1);
+    float dist_I_1 =
+        master_trainer_->ShapeDistance(*shape_table_, shape_I, shape_1);
     EXPECT_GT(dist_I_1, kMin1lDistance);
-    float dist_1_I = master_trainer_->ShapeDistance(*shape_table_,
-                                                    shape_1, shape_I);
+    float dist_1_I =
+        master_trainer_->ShapeDistance(*shape_table_, shape_1, shape_I);
     EXPECT_GT(dist_1_I, kMin1lDistance);
   }
 
@@ -249,15 +246,14 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
   LoadMasterTrainer();
   // Add the space character to the shape_table_ if not already present to
   // count junk.
-  if (shape_table_->FindShape(0, -1) < 0)
-    shape_table_->AddShape(0, 0);
+  if (shape_table_->FindShape(0, -1) < 0) shape_table_->AddShape(0, 0);
   // Make a mock classifier.
   tesseract::ShapeClassifier* shape_classifier =
       new tesseract::MockClassifier(shape_table_);
   // Get the accuracy report.
   STRING accuracy_report;
-  master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR,
-                                           0, false, shape_classifier,
+  master_trainer_->TestClassifierOnSamples(tesseract::CT_UNICHAR_TOP1_ERR, 0,
+                                           false, shape_classifier,
                                            &accuracy_report);
   LOG(INFO) << accuracy_report.string();
   string result_string = accuracy_report.string();
@@ -287,6 +283,3 @@ TEST_F(MasterTrainerTest, ErrorCounterTest) {
 }
 
 }  // namespace.
-
-
-

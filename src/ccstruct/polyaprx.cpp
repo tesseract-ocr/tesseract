@@ -23,7 +23,6 @@
 #include "coutln.h"            // for C_OUTLINE
 #include "errcode.h"           // for ASSERT_HOST
 #include "host.h"              // for FALSE, TRUE
-#include "ipoints.h"           // for operator+=, operator*=
 #include "mod128.h"            // for DIR128
 #include "params.h"            // for BoolParam, BOOL_VAR
 #include "points.h"            // for ICOORD

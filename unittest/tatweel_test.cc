@@ -25,8 +25,7 @@ class TatweelTest : public ::testing::Test {
   }
 
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   UNICHARSET unicharset_;
 };

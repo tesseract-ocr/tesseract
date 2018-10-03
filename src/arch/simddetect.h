@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+#ifndef TESSERACT_ARCH_SIMDDETECT_H_
+#define TESSERACT_ARCH_SIMDDETECT_H_
 
 #include "platform.h"
 
@@ -52,3 +54,5 @@ class SIMDDetect {
   // If true, then SSe4.1 has been detected.
   static TESS_API bool sse_available_;
 };
+
+#endif  // TESSERACT_ARCH_SIMDDETECT_H_

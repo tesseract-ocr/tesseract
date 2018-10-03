@@ -1,9 +1,9 @@
 #include "tesseract/lstm/stridemap.h"
 
-using tesseract::FlexDimensions;
 using tesseract::FD_BATCH;
 using tesseract::FD_HEIGHT;
 using tesseract::FD_WIDTH;
+using tesseract::FlexDimensions;
 using tesseract::StrideMap;
 
 namespace {
@@ -104,8 +104,8 @@ TEST_F(StridemapTest, Scaling) {
 
   // Scale x by 2, keeping y the same.
   std::vector<int> values_x2 = {0,  1,  4,  5,  8,  9,  12, 13, 17, 18,
-                           22, 23, 27, 28, 32, 33, 36, 37, 40, 41,
-                           44, 45, 48, 49, 53, 54, 58, 59};
+                                22, 23, 27, 28, 32, 33, 36, 37, 40, 41,
+                                44, 45, 48, 49, 53, 54, 58, 59};
   StrideMap test_map(stride_map);
   test_map.ScaleXY(2, 1);
   StrideMap::Index index(test_map);
@@ -121,8 +121,8 @@ TEST_F(StridemapTest, Scaling) {
   test_map = stride_map;
   // Scale y by 2, keeping x the same.
   std::vector<int> values_y2 = {0,  1,  2,  3,  12, 13, 14, 15, 16,
-                           17, 18, 19, 20, 21, 32, 33, 34, 35,
-                           36, 37, 38, 39, 48, 49, 50, 51, 52};
+                                17, 18, 19, 20, 21, 32, 33, 34, 35,
+                                36, 37, 38, 39, 48, 49, 50, 51, 52};
   test_map.ScaleXY(1, 2);
   index.InitToFirst();
   pos = 0;
@@ -151,7 +151,7 @@ TEST_F(StridemapTest, Scaling) {
   test_map = stride_map;
   // Reduce Width to 1.
   std::vector<int> values_x_to_1 = {0,  4,  8,  12, 17, 22, 27,
-                               32, 36, 40, 44, 48, 53, 58};
+                                    32, 36, 40, 44, 48, 53, 58};
   test_map.ReduceWidthTo1();
   index.InitToFirst();
   pos = 0;
