@@ -5,20 +5,20 @@
 
 #include "util/process/subprocess.h"
 
-#include "tesseract/dict/trie.h"
-#include "tesseract/ccutil/unicharset.h"
 #include "tesseract/ccstruct/ratngs.h"
+#include "tesseract/ccutil/unicharset.h"
+#include "tesseract/dict/trie.h"
 
 namespace {
 
-void RemoveTrailingLineTerminators(char *line) {
-  char *end = line + strlen(line) - 1;
+void RemoveTrailingLineTerminators(char* line) {
+  char* end = line + strlen(line) - 1;
   while (end >= line && ('\n' == *end || '\r' == *end)) {
     *end-- = 0;
   }
 }
 
-void AddLineToSet(std::set<string> *words, char *line) {
+void AddLineToSet(std::set<string>* words, char* line) {
   RemoveTrailingLineTerminators(line);
   words->insert(line);
 }
@@ -27,7 +27,7 @@ void AddLineToSet(std::set<string> *words, char *line) {
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
  protected:
-  void LoadWordlist(const string &filename, std::set<string> *words) const {
+  void LoadWordlist(const string& filename, std::set<string>* words) const {
     FileLineReader::Options options;
     options.set_comment_char(0);
     FileLineReader flr(filename.c_str(), options);
@@ -35,8 +35,7 @@ class DawgTest : public testing::Test {
     flr.Reload();
   }
   string TestDataNameToPath(const string& name) const {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessBinaryPath(const string& binary_name) const {
     return file::JoinPath(FLAGS_test_srcdir,
@@ -44,10 +43,8 @@ class DawgTest : public testing::Test {
   string OutputNameToPath(const string& name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  int RunCommand(const string &program,
-                 const string &arg1,
-                 const string &arg2,
-                 const string &arg3) const {
+  int RunCommand(const string& program, const string& arg1, const string& arg2,
+                 const string& arg3) const {
     SubProcess p;
     std::vector<string> argv;
     argv.push_back(program);
@@ -62,8 +59,8 @@ class DawgTest : public testing::Test {
   // Test that we are able to convert a wordlist file (one "word" per line) to
   // a dawg (a compressed format) and then extract the original wordlist back
   // out using the tools "wordlist2dawg" and "dawg2wordlist."
-  void TestDawgRoundTrip(const string &unicharset_filename,
-                         const string &wordlist_filename) const {
+  void TestDawgRoundTrip(const string& unicharset_filename,
+                         const string& wordlist_filename) const {
     std::set<string> orig_words, roundtrip_words;
     string unicharset = TestDataNameToPath(unicharset_filename);
     string orig_wordlist = TestDataNameToPath(wordlist_filename);
@@ -71,8 +68,7 @@ class DawgTest : public testing::Test {
     string output_wordlist = OutputNameToPath(wordlist_filename);
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
-        RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset),
-        0);
+        RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset), 0);
     EXPECT_EQ(
         RunCommand("dawg2wordlist", unicharset, output_dawg, output_wordlist),
         0);

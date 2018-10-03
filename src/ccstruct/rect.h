@@ -24,7 +24,6 @@
 #include <cmath>               // for ceil, floor
 #include <cstdint>             // for INT16_MAX
 #include <cstdio>              // for FILE
-#include "ipoints.h"           // for operator+=, operator-=, ICOORD::rotate
 #include "platform.h"          // for DLLSYM
 #include "points.h"            // for ICOORD, FCOORD
 #include "scrollview.h"        // for ScrollView, ScrollView::Color

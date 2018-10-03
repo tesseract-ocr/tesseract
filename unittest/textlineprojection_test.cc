@@ -20,29 +20,26 @@ using tesseract::TextlineProjection;
 // NOTE: Keep in sync with textlineprojection.cc.
 const int kMinStrongTextValue = 6;
 
-
 // The fixture for testing Tesseract.
 class TextlineProjectionTest : public testing::Test {
  protected:
   string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "testdata/" + name);
+    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }
   string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir,
-                          "tessdata");
+    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
   }
   string OutputNameToPath(const string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
   TextlineProjectionTest() {
-    src_pix_ = NULL;
-    bin_pix_ = NULL;
-    tesseract_ = NULL;
-    finder_ = NULL;
-    denorm_ = NULL;
-    projection_ = NULL;
+    src_pix_ = nullptr;
+    bin_pix_ = nullptr;
+    tesseract_ = nullptr;
+    finder_ = nullptr;
+    denorm_ = nullptr;
+    projection_ = nullptr;
   }
   virtual ~TextlineProjectionTest() {
     pixDestroy(&src_pix_);
@@ -70,14 +67,14 @@ class TextlineProjectionTest : public testing::Test {
     tesseract::TessdataManager mgr;
     Tesseract* osd_tess = new Tesseract;
     OSResults osr;
-    EXPECT_EQ(osd_tess->init_tesseract(TessdataPath().c_str(), NULL, "osd",
-                                       tesseract::OEM_TESSERACT_ONLY, NULL, 0,
-                                       NULL, NULL, false, &mgr),
+    EXPECT_EQ(osd_tess->init_tesseract(TessdataPath().c_str(), nullptr, "osd",
+                                       tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
+                                       nullptr, nullptr, false, &mgr),
               0);
     tesseract_ = new Tesseract;
-    EXPECT_EQ(tesseract_->init_tesseract(TessdataPath().c_str(), NULL, "eng",
-                                         tesseract::OEM_TESSERACT_ONLY, NULL, 0,
-                                         NULL, NULL, false, &mgr),
+    EXPECT_EQ(tesseract_->init_tesseract(TessdataPath().c_str(), nullptr, "eng",
+                                         tesseract::OEM_TESSERACT_ONLY, nullptr, 0,
+                                         nullptr, nullptr, false, &mgr),
               0);
     bin_pix_ = api_.GetThresholdedImage();
     *tesseract_->mutable_pix_binary() = pixClone(bin_pix_);
@@ -91,13 +88,13 @@ class TextlineProjectionTest : public testing::Test {
     BLOCK_LIST src_blocks;
     BLOCK_IT block_it(&src_blocks);
     block_it.add_to_end(block);
-    Pix* photomask_pix = NULL;
+    Pix* photomask_pix = nullptr;
     // The blocks made by the ColumnFinder. Moved to blocks before return.
     BLOCK_LIST found_blocks;
     TO_BLOCK_LIST temp_blocks;
     finder_ = tesseract_->SetupPageSegAndDetectOrientation(
         tesseract::PSM_AUTO_OSD, &src_blocks, osd_tess, &osr, &temp_blocks,
-        &photomask_pix, NULL);
+        &photomask_pix, nullptr);
     TO_BLOCK_IT to_block_it(&temp_blocks);
     TO_BLOCK* to_block = to_block_it.data();
     denorm_ = finder_->denorm();
@@ -118,16 +115,15 @@ class TextlineProjectionTest : public testing::Test {
                    const char* text, const char* message) {
     int value = projection_->EvaluateBox(box, denorm_, false);
     if (greater_or_equal != (value > target_value)) {
-      LOG(INFO)
-          << StringPrintf("EvaluateBox too %s:%d vs %d for %s word '%s' at:",
-                          greater_or_equal ? "low" : "high", value,
-                          target_value,
-                          message, text);
+      LOG(INFO) << StringPrintf(
+          "EvaluateBox too %s:%d vs %d for %s word '%s' at:",
+          greater_or_equal ? "low" : "high", value, target_value, message,
+          text);
       box.print();
       value = projection_->EvaluateBox(box, denorm_, true);
     } else {
-      VLOG(1) << StringPrintf("EvaluateBox OK(%d) for %s word '%s'",
-                              value, message, text);
+      VLOG(1) << StringPrintf("EvaluateBox OK(%d) for %s word '%s'", value,
+                              message, text);
     }
     if (greater_or_equal) {
       EXPECT_GE(value, target_value);
@@ -139,12 +135,12 @@ class TextlineProjectionTest : public testing::Test {
   // Helper evaluates the DistanceOfBoxFromBox function by expecting that
   // box should be nearer to true_box than false_box.
   void EvaluateDistance(const TBOX& box, const TBOX& true_box,
-                        const TBOX& false_box,
-                        const char* text, const char* message) {
-    int true_dist = projection_->DistanceOfBoxFromBox(box, true_box, true,
-                                                      denorm_, false);
-    int false_dist = projection_->DistanceOfBoxFromBox(box, false_box, true,
-                                                       denorm_, false);
+                        const TBOX& false_box, const char* text,
+                        const char* message) {
+    int true_dist =
+        projection_->DistanceOfBoxFromBox(box, true_box, true, denorm_, false);
+    int false_dist =
+        projection_->DistanceOfBoxFromBox(box, false_box, true, denorm_, false);
     if (false_dist <= true_dist) {
       LOG(INFO) << StringPrintf("Distance wrong:%d vs %d for %s word '%s' at:",
                                 false_dist, true_dist, message, text);
@@ -161,7 +157,7 @@ class TextlineProjectionTest : public testing::Test {
   // line_height is the cap + descender size of the text.
   void VerifyBoxes(const char* imagefile, int line_height) {
     SetImage(imagefile);
-    api_.Recognize(NULL);
+    api_.Recognize(nullptr);
     SetupProjection();
     MutableIterator* it = api_.GetMutableIterator();
     do {
@@ -194,8 +190,7 @@ class TextlineProjectionTest : public testing::Test {
       TBOX lower_box = word_box;
       lower_box.set_top(word_box.bottom());
       lower_box.set_bottom(word_box.bottom() - padding);
-      if (tall_word)
-        lower_box.move(ICOORD(0, padding / 2));
+      if (tall_word) lower_box.move(ICOORD(0, padding / 2));
       EvaluateBox(lower_box, false, kMinStrongTextValue, text, "Lower Word");
       EvaluateBox(lower_box, true, -1, text, "Lower Word not vertical");
 
@@ -224,20 +219,19 @@ class TextlineProjectionTest : public testing::Test {
       TBOX upper_challenger(upper_box);
       upper_challenger.set_bottom(upper_box.top());
       upper_challenger.set_top(upper_box.top() + word_box.height());
-      EvaluateDistance(upper_box, target_box, upper_challenger,
-                       text, "Upper Word");
-      if (tall_word)
-        lower_box.move(ICOORD(0, padding / 2));
+      EvaluateDistance(upper_box, target_box, upper_challenger, text,
+                       "Upper Word");
+      if (tall_word) lower_box.move(ICOORD(0, padding / 2));
       lower_box.set_bottom(lower_box.top() - padding);
       target_box = word_box;
       target_box.set_bottom(lower_box.top());
       TBOX lower_challenger(lower_box);
       lower_challenger.set_top(lower_box.bottom());
       lower_challenger.set_bottom(lower_box.bottom() - word_box.height());
-      EvaluateDistance(lower_box, target_box, lower_challenger,
-                       text, "Lower Word");
+      EvaluateDistance(lower_box, target_box, lower_challenger, text,
+                       "Lower Word");
 
-      delete [] text;
+      delete[] text;
     } while (it->Next(tesseract::RIL_WORD));
     delete it;
   }
@@ -254,13 +248,9 @@ class TextlineProjectionTest : public testing::Test {
 };
 
 // Tests all word boxes on an unrotated image.
-TEST_F(TextlineProjectionTest, Unrotated) {
-  VerifyBoxes("phototest.tif", 31);
-}
+TEST_F(TextlineProjectionTest, Unrotated) { VerifyBoxes("phototest.tif", 31); }
 
 // Tests character-level applyboxes on italic Times New Roman.
-TEST_F(TextlineProjectionTest, Rotated) {
-  VerifyBoxes("phototestrot.tif", 31);
-}
+TEST_F(TextlineProjectionTest, Rotated) { VerifyBoxes("phototestrot.tif", 31); }
 
 }  // namespace

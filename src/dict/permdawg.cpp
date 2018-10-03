@@ -253,8 +253,7 @@ void Dict::append_choices(
     WERD_CHOICE *best_choice,
     int *attempts_left,
     void *more_args) {
-  int word_ending =
-    (char_choice_index == char_choices.length() - 1) ? true : false;
+  int word_ending = (char_choice_index == char_choices.length() - 1);
 
   // Deal with fragments.
   CHAR_FRAGMENT_INFO char_frag_info;

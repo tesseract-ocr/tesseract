@@ -142,7 +142,7 @@ class ETEXT_DESC {             // output header
         err_code(0),
         cancel(nullptr),
         progress_callback(nullptr),
-        progress_callback2( &default_progress_func ),
+        progress_callback2(&default_progress_func),
         cancel_this(nullptr) {
     end_time.tv_sec = 0;
     end_time.tv_usec = 0;
@@ -173,7 +173,7 @@ private:
   static bool default_progress_func(ETEXT_DESC* ths, int left, int right, int top,
                                     int bottom)
   {
-    if ( ths->progress_callback ) {
+    if (ths->progress_callback) {
       return (*(ths->progress_callback))(ths->progress, left, right, top, bottom);
     }
     return true;

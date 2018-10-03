@@ -661,11 +661,16 @@ class GenericVectorEqEq : public GenericVector<T> {
 template <typename T>
 void GenericVector<T>::init(int size) {
   size_used_ = 0;
-  size_reserved_ = 0;
-  data_ = nullptr;
+  if (size <= 0) {
+    data_ = nullptr;
+    size_reserved_ = 0;
+  } else {
+    if (size < kDefaultVectorSize) size = kDefaultVectorSize;
+    data_ = new T[size];
+    size_reserved_ = size;
+  }
   clear_cb_ = nullptr;
   compare_cb_ = nullptr;
-  reserve(size);
 }
 
 template <typename T>

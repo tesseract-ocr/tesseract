@@ -151,7 +151,7 @@ TESS_API void  TESS_CALL TessBaseAPIDelete(TessBaseAPI* handle);
 
 TESS_API size_t TESS_CALL TessBaseAPIGetOpenCLDevice(TessBaseAPI* handle, void **device);
 
-TESS_API void  TESS_CALL TessBaseAPISetInputName( TessBaseAPI* handle, const char* name);
+TESS_API void  TESS_CALL TessBaseAPISetInputName(TessBaseAPI* handle, const char* name);
 TESS_API const char* TESS_CALL TessBaseAPIGetInputName(TessBaseAPI* handle);
 
 TESS_API void  TESS_CALL TessBaseAPISetInputImage(TessBaseAPI* handle, struct Pix* pix);
@@ -165,13 +165,13 @@ TESS_API void  TESS_CALL TessBaseAPISetOutputName(TessBaseAPI* handle, const cha
 TESS_API BOOL  TESS_CALL TessBaseAPISetVariable(TessBaseAPI* handle, const char* name, const char* value);
 TESS_API BOOL  TESS_CALL TessBaseAPISetDebugVariable(TessBaseAPI* handle, const char* name, const char* value);
 
-TESS_API BOOL  TESS_CALL TessBaseAPIGetIntVariable(   const TessBaseAPI* handle, const char* name, int* value);
-TESS_API BOOL  TESS_CALL TessBaseAPIGetBoolVariable(  const TessBaseAPI* handle, const char* name, BOOL* value);
+TESS_API BOOL  TESS_CALL TessBaseAPIGetIntVariable(const TessBaseAPI* handle, const char* name, int* value);
+TESS_API BOOL  TESS_CALL TessBaseAPIGetBoolVariable(const TessBaseAPI* handle, const char* name, BOOL* value);
 TESS_API BOOL  TESS_CALL TessBaseAPIGetDoubleVariable(const TessBaseAPI* handle, const char* name, double* value);
 TESS_API const char*
                TESS_CALL TessBaseAPIGetStringVariable(const TessBaseAPI* handle, const char* name);
 
-TESS_API void  TESS_CALL TessBaseAPIPrintVariables(      const TessBaseAPI* handle, FILE* fp);
+TESS_API void  TESS_CALL TessBaseAPIPrintVariables(const TessBaseAPI* handle, FILE* fp);
 TESS_API BOOL  TESS_CALL TessBaseAPIPrintVariablesToFile(const TessBaseAPI* handle, const char* filename);
 
 #ifdef TESS_CAPI_INCLUDE_BASEAPI
@@ -231,27 +231,27 @@ TESS_API void  TESS_CALL TessBaseAPISetThresholder(TessBaseAPI* handle, TessImag
 #endif
 
 TESS_API struct Pix*
-               TESS_CALL TessBaseAPIGetThresholdedImage(   TessBaseAPI* handle);
+               TESS_CALL TessBaseAPIGetThresholdedImage(TessBaseAPI* handle);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetRegions(            TessBaseAPI* handle, struct Pixa** pixa);
+               TESS_CALL TessBaseAPIGetRegions(TessBaseAPI* handle, struct Pixa** pixa);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetTextlines(          TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
+               TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetTextlines1(         TessBaseAPI* handle, const BOOL raw_image, const int raw_padding,
-                                                                                struct Pixa** pixa, int** blockids, int** paraids);
+               TESS_CALL TessBaseAPIGetTextlines1(TessBaseAPI* handle, const BOOL raw_image, const int raw_padding,
+                                                  struct Pixa** pixa, int** blockids, int** paraids);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetStrips(             TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
+               TESS_CALL TessBaseAPIGetStrips(TessBaseAPI* handle, struct Pixa** pixa, int** blockids);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetWords(              TessBaseAPI* handle, struct Pixa** pixa);
+               TESS_CALL TessBaseAPIGetWords(TessBaseAPI* handle, struct Pixa** pixa);
 TESS_API struct Boxa*
                TESS_CALL TessBaseAPIGetConnectedComponents(TessBaseAPI* handle, struct Pixa** cc);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetComponentImages(    TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
-                                                           struct Pixa** pixa, int** blockids);
+               TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                                       struct Pixa** pixa, int** blockids);
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetComponentImages1(   TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
-                                                           const BOOL raw_image, const int raw_padding,
-                                                           struct Pixa** pixa, int** blockids, int** paraids);
+               TESS_CALL TessBaseAPIGetComponentImages1(TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                                        const BOOL raw_image, const int raw_padding,
+                                                        struct Pixa** pixa, int** blockids, int** paraids);
 
 TESS_API int   TESS_CALL TessBaseAPIGetThresholdedImageScaleFactor(const TessBaseAPI* handle);
 
@@ -405,13 +405,13 @@ TESS_API float TESS_CALL TessChoiceIteratorConfidence(const TessChoiceIterator* 
 /* Progress monitor */
 
 TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate();
-TESS_API void TESS_CALL TessMonitorDelete( ETEXT_DESC* monitor );
-TESS_API void TESS_CALL TessMonitorSetCancelFunc( ETEXT_DESC* monitor, TessCancelFunc cancelFunc );
-TESS_API void TESS_CALL TessMonitorSetCancelThis( ETEXT_DESC* monitor, void* cancelThis );
-TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor );
-TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc progressFunc );
-TESS_API int TESS_CALL TessMonitorGetProgress( ETEXT_DESC* monitor );
-TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs( ETEXT_DESC* monitor, int deadline );
+TESS_API void TESS_CALL TessMonitorDelete(ETEXT_DESC* monitor);
+TESS_API void TESS_CALL TessMonitorSetCancelFunc(ETEXT_DESC* monitor, TessCancelFunc cancelFunc);
+TESS_API void TESS_CALL TessMonitorSetCancelThis(ETEXT_DESC* monitor, void* cancelThis);
+TESS_API void* TESS_CALL TessMonitorGetCancelThis(ETEXT_DESC* monitor);
+TESS_API void TESS_CALL TessMonitorSetProgressFunc(ETEXT_DESC* monitor, TessProgressFunc progressFunc);
+TESS_API int TESS_CALL TessMonitorGetProgress(ETEXT_DESC* monitor);
+TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor, int deadline);
 
 
 #ifndef DISABLED_LEGACY_ENGINE

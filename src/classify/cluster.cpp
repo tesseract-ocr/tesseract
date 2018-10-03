@@ -204,7 +204,7 @@ typedef double (*SOLVEFUNC) (CHISTRUCT *, double);
 
 #define Odd(N) ((N)%2)
 #define Mirror(N,R) ((R) - (N) - 1)
-#define Abs(N) ( ( (N) < 0 ) ? ( -(N) ) : (N) )
+#define Abs(N) (((N) < 0) ? (-(N)) : (N))
 
 //--------------Global Data Definitions and Declarations----------------------
 /** the following variables describe a discrete normal distribution
@@ -477,7 +477,7 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
     Clusterer->NumChar = CharID + 1;
 
   // execute hook for monitoring clustering operation
-  // (*SampleCreationHook)( Sample );
+  // (*SampleCreationHook)(Sample);
 
   return (Sample);
 }                                // MakeSample
@@ -2233,7 +2233,7 @@ CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
 
 /**
  * This routine attempts to find an x value at which Function
- * goes to zero (i.e. a root of the function ).  It will only
+ * goes to zero (i.e. a root of the function).  It will only
  * work correctly if a solution actually exists and there
  * are no extrema between the solution and the InitialGuess.
  * The algorithms used are extremely primitive.
@@ -2242,7 +2242,7 @@ CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
  * @param FunctionParams  arbitrary data to pass to function
  * @param InitialGuess  point to start solution search at
  * @param Accuracy  maximum allowed error
- * @return Solution of function ( x for which f(x) = 0 ).
+ * @return Solution of function (x for which f(x) = 0).
  */
 double
 Solve (SOLVEFUNC Function,
@@ -2296,8 +2296,8 @@ void *FunctionParams, double InitialGuess, double Accuracy)
  * from 0 to x, minus the desired area under the curve.  The
  * number of degrees of freedom of the chi curve is specified
  * in the ChiParams structure.  The desired area is also
- * specified in the ChiParams structure as Alpha ( or 1 minus
- * the desired area ).  This routine is intended to be passed
+ * specified in the ChiParams structure as Alpha (or 1 minus
+ * the desired area).  This routine is intended to be passed
  * to the Solve() function to find the value of chi-squared
  * which will yield a desired area under the right tail of
  * the chi density curve.  The function will only work for

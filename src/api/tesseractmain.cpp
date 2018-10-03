@@ -530,6 +530,13 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
   }
 
+  if (FILE* file = fopen(image, "r")) {
+    fclose(file);
+  } else {
+    fprintf(stderr, "Cannot open input file: %s\n", image);
+    return EXIT_FAILURE;
+  }
+
   FixPageSegMode(&api, pagesegmode);
 
   if (dpi) {
@@ -537,12 +544,13 @@ int main(int argc, char** argv) {
     snprintf(dpi_string, 254, "%d", dpi);
     api.SetVariable("user_defined_dpi", dpi_string);
   }
+
   if (pagesegmode == tesseract::PSM_AUTO_ONLY) {
     int ret_val = EXIT_SUCCESS;
 
     Pix* pixs = pixRead(image);
     if (!pixs) {
-      fprintf(stderr, "Cannot open input file: %s\n", image);
+      fprintf(stderr, "Leptonica can't process input file: %s\n", image);
       return 2;
     }
 

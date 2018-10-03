@@ -9,15 +9,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "statistc.h"
 #include "genericvector.h"
 #include "kdpair.h"
+#include "statistc.h"
 
 #include "include_gunit.h"
 
 namespace {
 
-const int kTestData[] = { 2, 0, 12, 1, 1, 2, 10, 1, 0, 0, 0, 2, 0, 4, 1, 1 };
+const int kTestData[] = {2, 0, 12, 1, 1, 2, 10, 1, 0, 0, 0, 2, 0, 4, 1, 1};
 
 class STATSTest : public testing::Test {
  public:
@@ -27,8 +27,7 @@ class STATSTest : public testing::Test {
       stats_.add(i, kTestData[i]);
   }
 
-  void TearDown() {
-  }
+  void TearDown() {}
 
   STATS stats_;
 };

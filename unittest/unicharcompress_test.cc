@@ -10,8 +10,8 @@
 // limitations under the License.
 #include "unicharcompress.h"
 #include "gunit.h"
-#include "serialis.h"
 #include "printf.h"
+#include "serialis.h"
 
 namespace tesseract {
 namespace {
@@ -21,11 +21,9 @@ class UnicharcompressTest : public ::testing::Test {
   // Loads and compresses the given unicharset.
   void LoadUnicharset(const string& unicharset_name) {
     string radical_stroke_file =
-        file::JoinPath(FLAGS_test_srcdir,
-                       "langdata/radical-stroke.txt");
-    string unicharset_file = file::JoinPath(
-        FLAGS_test_srcdir, "testdata",
-        unicharset_name);
+        file::JoinPath(FLAGS_test_srcdir, "langdata/radical-stroke.txt");
+    string unicharset_file =
+        file::JoinPath(FLAGS_test_srcdir, "testdata", unicharset_name);
     string uni_data;
     CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
     string radical_data;

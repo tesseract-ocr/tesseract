@@ -152,8 +152,8 @@ void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
 #ifdef _WIN32
   std::string env("FONTCONFIG_PATH=");
   env.append(cache_dir_.c_str());
-  putenv(env.c_str());
-  putenv("LANG=en_US.utf8");
+  _putenv(env.c_str());
+  _putenv("LANG=en_US.utf8");
 #else
   setenv("FONTCONFIG_PATH", cache_dir_.c_str(), true);
   // Fix the locale so that the reported font names are consistent.

@@ -18,14 +18,13 @@ class TestableQRSequenceGenerator : public QRSequenceGenerator {
 TEST(QRSequenceGenerator, GetBinaryReversedInteger) {
   const int kRangeSize = 8;
   TestableQRSequenceGenerator generator(kRangeSize);
-  int reversed_vals[kRangeSize] = { 0, 4, 2, 6, 1, 5, 3, 7};
+  int reversed_vals[kRangeSize] = {0, 4, 2, 6, 1, 5, 3, 7};
   for (int i = 0; i < kRangeSize; ++i)
     EXPECT_EQ(reversed_vals[i], generator.GetBinaryReversedInteger(i));
 }
 
 // Trivial test fixture for a parameterized test.
-class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {
-};
+class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {};
 
 TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
   const int kRangeSize = GetParam();
@@ -33,8 +32,7 @@ TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
   std::vector<int> vals(kRangeSize);
   CycleTimer timer;
   timer.Restart();
-  for (int i = 0; i < kRangeSize; ++i)
-    vals[i] = generator.GetVal();
+  for (int i = 0; i < kRangeSize; ++i) vals[i] = generator.GetVal();
   LOG(INFO) << kRangeSize << "-length sequence took " << timer.Get() * 1e3
             << "ms";
   // Sort the numbers to verify that we've covered the range without repetition.

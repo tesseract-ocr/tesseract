@@ -209,7 +209,7 @@ int TabFind::GutterWidth(int bottom_y, int top_y, const TabVector& v,
 void TabFind::GutterWidthAndNeighbourGap(int tab_x, int mean_height,
                                          int max_gutter, bool left,
                                          BLOBNBOX* bbox, int* gutter_width,
-                                         int* neighbour_gap ) {
+                                         int* neighbour_gap) {
   const TBOX& box = bbox->bounding_box();
   // The gutter and internal sides of the box.
   int gutter_x = left ? box.left() : box.right();

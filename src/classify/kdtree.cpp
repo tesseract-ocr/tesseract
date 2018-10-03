@@ -28,7 +28,7 @@
 #include <cmath>
 
 #define Magnitude(X)    ((X) < 0 ? -(X) : (X))
-#define NodeFound(N,K,D)  (( (N)->Key == (K) ) && ( (N)->Data == (D) ))
+#define NodeFound(N,K,D)  (((N)->Key == (K)) && ((N)->Data == (D)))
 
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations

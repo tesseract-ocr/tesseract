@@ -39,8 +39,7 @@ static void Expect352(int font_id, const Shape& shape) {
 }
 
 // The fixture for testing Shape.
-class ShapeTest : public testing::Test {
-};
+class ShapeTest : public testing::Test {};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTest, BasicTest) {
@@ -51,7 +50,7 @@ TEST_F(ShapeTest, BasicTest) {
   // It should still work after file I/O.
   string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
-  EXPECT_TRUE(fp != NULL);
+  EXPECT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
   fclose(fp);
   TFile tfp;
@@ -97,8 +96,7 @@ TEST_F(ShapeTest, AddShapeTest) {
 }
 
 // The fixture for testing Shape.
-class ShapeTableTest : public testing::Test {
-};
+class ShapeTableTest : public testing::Test {};
 
 // Tests that a Shape works as expected for all the basic functions.
 TEST_F(ShapeTableTest, FullTest) {
@@ -140,7 +138,7 @@ TEST_F(ShapeTableTest, FullTest) {
   EXPECT_EQ(0, st.MasterDestinationIndex(1));
   EXPECT_EQ(0, st.MasterDestinationIndex(2));
   ShapeTable st2;
-  st2.AppendMasterShapes(st, NULL);
+  st2.AppendMasterShapes(st, nullptr);
   EXPECT_EQ(1, st.NumMasterShapes());
   EXPECT_EQ(1, st2.NumShapes());
   EXPECT_TRUE(st2.MutableShape(0)->IsEqualUnichars(&shape1));
@@ -148,5 +146,3 @@ TEST_F(ShapeTableTest, FullTest) {
 }
 
 }  // namespace
-
-

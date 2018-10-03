@@ -7,8 +7,7 @@ namespace tesseract {
 namespace {
 
 string TestDataNameToPath(const string& name) {
-  return file::JoinPath(FLAGS_test_srcdir,
-                        "testdata", name);
+  return file::JoinPath(FLAGS_test_srcdir, "testdata", name);
 }
 
 // This is an integration test that verifies that CombineLangModel works to

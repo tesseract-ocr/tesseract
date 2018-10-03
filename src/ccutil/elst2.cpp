@@ -102,7 +102,7 @@ int32_t ELIST2::length() const {  // count elements
  *
  *  Sort elements on list
  *  NB If you don't like the const declarations in the comparator, coerce yours:
- *   ( int (*)(const void *, const void *)
+ *   (int (*)(const void *, const void *)
  **********************************************************************/
 
 void

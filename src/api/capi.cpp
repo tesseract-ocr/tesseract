@@ -413,9 +413,9 @@ TESS_API struct Boxa* TESS_CALL TessBaseAPIGetComponentImages(TessBaseAPI* handl
 }
 
 TESS_API struct Boxa*
-               TESS_CALL TessBaseAPIGetComponentImages1(   TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
-                                                           const BOOL raw_image, const int raw_padding,
-                                                           struct Pixa** pixa, int** blockids, int** paraids)
+TESS_CALL TessBaseAPIGetComponentImages1(TessBaseAPI* handle, const TessPageIteratorLevel level, const BOOL text_only,
+                                         const BOOL raw_image, const int raw_padding,
+                                         struct Pixa** pixa, int** blockids, int** paraids)
 {
     return handle->GetComponentImages(level, text_only != FALSE, raw_image, raw_padding, pixa, blockids, paraids);
 }
@@ -825,37 +825,37 @@ TESS_API ETEXT_DESC* TESS_CALL TessMonitorCreate()
     return new ETEXT_DESC();
 }
 
-TESS_API void TESS_CALL TessMonitorDelete( ETEXT_DESC* monitor )
+TESS_API void TESS_CALL TessMonitorDelete(ETEXT_DESC* monitor)
 {
     delete monitor;
 }
 
-TESS_API void TESS_CALL TessMonitorSetCancelFunc( ETEXT_DESC* monitor, TessCancelFunc cancelFunc )
+TESS_API void TESS_CALL TessMonitorSetCancelFunc(ETEXT_DESC* monitor, TessCancelFunc cancelFunc)
 {
     monitor->cancel = cancelFunc;
 }
 
-TESS_API void TESS_CALL TessMonitorSetCancelThis( ETEXT_DESC* monitor, void* cancelThis )
+TESS_API void TESS_CALL TessMonitorSetCancelThis(ETEXT_DESC* monitor, void* cancelThis)
 {
     monitor->cancel_this = cancelThis;
 }
 
-TESS_API void* TESS_CALL TessMonitorGetCancelThis( ETEXT_DESC* monitor )
+TESS_API void* TESS_CALL TessMonitorGetCancelThis(ETEXT_DESC* monitor)
 {
     return monitor->cancel_this;
 }
 
-TESS_API void TESS_CALL TessMonitorSetProgressFunc( ETEXT_DESC* monitor, TessProgressFunc progressFunc )
+TESS_API void TESS_CALL TessMonitorSetProgressFunc(ETEXT_DESC* monitor, TessProgressFunc progressFunc)
 {
     monitor->progress_callback2 = progressFunc;
 }
 
-TESS_API int TESS_CALL TessMonitorGetProgress( ETEXT_DESC* monitor )
+TESS_API int TESS_CALL TessMonitorGetProgress(ETEXT_DESC* monitor)
 {
     return monitor->progress;
 }
 
-TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs( ETEXT_DESC* monitor, int deadline )
+TESS_API void TESS_CALL TessMonitorSetDeadlineMSecs(ETEXT_DESC* monitor, int deadline)
 {
-    monitor->set_deadline_msecs( deadline );
+    monitor->set_deadline_msecs(deadline);
 }

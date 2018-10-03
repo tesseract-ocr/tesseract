@@ -17,11 +17,9 @@ namespace {
 
 class LLSQTest : public testing::Test {
  public:
-  void SetUp() {
-  }
+  void SetUp() {}
 
-  void TearDown() {
-  }
+  void TearDown() {}
 
   void ExpectCorrectLine(const LLSQ& llsq, double m, double c, double rms,
                          double pearson, double tolerance) {
@@ -30,14 +28,14 @@ class LLSQTest : public testing::Test {
     EXPECT_NEAR(rms, llsq.rms(llsq.m(), llsq.c(llsq.m())), tolerance);
     EXPECT_NEAR(pearson, llsq.pearson(), tolerance);
   }
-  FCOORD PtsMean(const std::vector<FCOORD> &pts) {
+  FCOORD PtsMean(const std::vector<FCOORD>& pts) {
     FCOORD total(0, 0);
     for (int i = 0; i < pts.size(); i++) {
       total += pts[i];
     }
     return (pts.size() > 0) ? total / pts.size() : total;
   }
-  void VerifyRmsOrth(const std::vector<FCOORD> &pts, const FCOORD &orth) {
+  void VerifyRmsOrth(const std::vector<FCOORD>& pts, const FCOORD& orth) {
     LLSQ llsq;
     FCOORD xavg = PtsMean(pts);
     FCOORD nvec = !orth;
@@ -79,13 +77,11 @@ TEST_F(LLSQTest, BasicLines) {
   // The point at 1,2 pulls the result away from what would otherwise be a
   // perfect fit to a horizontal line by 0.25 unit, with rms error of 0.433.
   ExpectCorrectLine(llsq, 0.0, 1.25, 0.433, 0.0, 1e-2);
-  ExpectCorrectVector(llsq, FCOORD(1.0f, 1.25f),
-                      FCOORD(1.0f, 0.0f), 1e-3);
+  ExpectCorrectVector(llsq, FCOORD(1.0f, 1.25f), FCOORD(1.0f, 0.0f), 1e-3);
   llsq.add(1.0, 2.0, 10.0);
   // With a heavy weight, the point at 1,2 pulls the line nearer.
   ExpectCorrectLine(llsq, 0.0, 1.786, 0.41, 0.0, 1e-2);
-  ExpectCorrectVector(llsq, FCOORD(1.0f, 1.786f),
-                      FCOORD(1.0f, 0.0f), 1e-3);
+  ExpectCorrectVector(llsq, FCOORD(1.0f, 1.786f), FCOORD(1.0f, 0.0f), 1e-3);
 }
 
 // Tests a simple baseline-style normalization with a rotation.
@@ -93,14 +89,12 @@ TEST_F(LLSQTest, Vectors) {
   LLSQ llsq;
   llsq.add(1.0, 1.0);
   llsq.add(1.0, -1.0);
-  ExpectCorrectVector(llsq, FCOORD(1.0f, 0.0f),
-                      FCOORD(0.0f, 1.0f), 1e-6);
+  ExpectCorrectVector(llsq, FCOORD(1.0f, 0.0f), FCOORD(0.0f, 1.0f), 1e-6);
   llsq.add(0.9, -2.0);
   llsq.add(1.1, -3.0);
   llsq.add(0.9, 2.0);
   llsq.add(1.10001, 3.0);
-  ExpectCorrectVector(llsq, FCOORD(1.0f, 0.0f),
-                      FCOORD(0.0f, 1.0f), 1e-3);
+  ExpectCorrectVector(llsq, FCOORD(1.0f, 0.0f), FCOORD(0.0f, 1.0f), 1e-3);
 }
 
 // Verify that rms_orth() actually calculates:
@@ -112,10 +106,10 @@ TEST_F(LLSQTest, RmsOrthWorksAsIntended) {
   pts.push_back(FCOORD(0.13, 0.77));
   pts.push_back(FCOORD(0.16, 0.83));
   pts.push_back(FCOORD(0.45, 0.79));
-  VerifyRmsOrth(pts, FCOORD(1,0));
-  VerifyRmsOrth(pts, FCOORD(1,1));
-  VerifyRmsOrth(pts, FCOORD(1,2));
-  VerifyRmsOrth(pts, FCOORD(2,1));
+  VerifyRmsOrth(pts, FCOORD(1, 0));
+  VerifyRmsOrth(pts, FCOORD(1, 1));
+  VerifyRmsOrth(pts, FCOORD(1, 2));
+  VerifyRmsOrth(pts, FCOORD(2, 1));
 }
 
 }  // namespace.

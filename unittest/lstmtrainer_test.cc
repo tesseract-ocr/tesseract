@@ -61,9 +61,8 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
   deu_trainer.InitCharSet(TestDataNameToPath("deu.traineddata"));
   // Load the fra traineddata, strip out the model, and save to a tmp file.
   TessdataManager mgr;
-  string fra_data = file::JoinPath(
-      FLAGS_test_srcdir, "tessdata_best",
-      "fra.traineddata");
+  string fra_data =
+      file::JoinPath(FLAGS_test_srcdir, "tessdata_best", "fra.traineddata");
   CHECK(mgr.Init(fra_data.c_str())) << "Failed to load " << fra_data;
   string model_path = file::JoinPath(FLAGS_test_tmpdir, "fra.lstm");
   CHECK(mgr.ExtractToFile(model_path.c_str()));
@@ -76,7 +75,7 @@ TEST_F(LSTMTrainerTest, ConvertModel) {
   // baseapi_test.cc).
   TessBaseAPI api;
   api.Init(FLAGS_test_tmpdir.c_str(), "deu", tesseract::OEM_LSTM_ONLY);
-  Pix *src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+  Pix* src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
   CHECK(src_pix);
   api.SetImage(src_pix);
   std::unique_ptr<char[]> result(api.GetUTF8Text());

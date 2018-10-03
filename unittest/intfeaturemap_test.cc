@@ -74,8 +74,8 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   int dtheta = kIntFeatureExtent / kThetaBuckets + 1;
   int bad_offsets = 0;
   for (int index = 0; index < total_buckets; ++index) {
-    for (int dir = -tesseract::kNumOffsetMaps;
-         dir <= tesseract::kNumOffsetMaps; ++dir) {
+    for (int dir = -tesseract::kNumOffsetMaps; dir <= tesseract::kNumOffsetMaps;
+         ++dir) {
       int offset_index = map.OffsetFeature(index, dir);
       if (dir == 0) {
         EXPECT_EQ(index, offset_index);
@@ -101,7 +101,7 @@ TEST_F(IntFeatureMapTest, Exhaustive) {
   // test again.
   map.DeleteMapFeature(0);
   map.DeleteMapFeature(total_buckets - 1);
-  map.FinalizeMapping(NULL);
+  map.FinalizeMapping(nullptr);
   map.IndexAndSortFeatures(features.get(), total_size, &index_features);
   // Has no effect on index features.
   EXPECT_EQ(total_size, index_features.size());

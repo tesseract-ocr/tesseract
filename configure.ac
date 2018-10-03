@@ -500,6 +500,7 @@ echo "You can now build and install $PACKAGE_NAME by running:"
 echo ""
 echo "$ make"
 echo "$ sudo make install"
+echo "$ sudo ldconfig"
 echo ""
 
 AM_COND_IF([ASCIIDOC],

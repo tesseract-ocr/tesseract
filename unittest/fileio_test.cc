@@ -18,8 +18,7 @@ TEST(FileTest, JoinPath) {
 TEST(OutputBufferTest, WriteString) {
   const int kMaxBufSize = 128;
   char buffer[kMaxBufSize];
-  for (int i = 0; i < kMaxBufSize; ++i)
-    buffer[i] = '\0';
+  for (int i = 0; i < kMaxBufSize; ++i) buffer[i] = '\0';
   FILE* fp = fmemopen(buffer, kMaxBufSize, "w");
   CHECK(fp != nullptr);
 
