@@ -367,11 +367,15 @@ static void ParseArgs(const int argc, char** argv, const char** lang,
   *arg_i = i;
 
   if (*pagesegmode == tesseract::PSM_OSD_ONLY) {
-    // That mode requires osd.traineddata, no other language or script files.
+    // OSD = orientation and script detection.
     if (*lang != nullptr && strcmp(*lang, "osd")) {
-      fprintf(stderr, "Warning, ignoring -l %s for --psm 0\n", *lang);
+      // If the user explicitly specifies a language (other than osd)
+      // or a script, only orientation can be detected.
+      fprintf(stderr, "Warning, detects only orientation with -l %s\n", *lang);
+    } else {
+      // That mode requires osd.traineddata to detect orientation and script.
+      *lang = "osd";
     }
-    *lang = "osd";
   }
 
   if (*outputbase == nullptr && noocr == false) {
