@@ -6,7 +6,7 @@ asciidoc=asciidoc -d manpage
 
 
 man_MANS = \
-   combine_lang_model.1 \
+  combine_lang_model.1 \
   combine_tessdata.1  \
   dawg2wordlist.1 \
   lstmeval.1 \
@@ -31,8 +31,15 @@ endif
 
 EXTRA_DIST = $(man_MANS) Doxyfile
 
+.PHONY: html
+
+html: $(patsubst %,%.html,$(man_MANS))
+
 %: %.asc
 	$(asciidoc) -o $@ $<
+
+%.html: %.asc
+	asciidoc -b html5 -o $@ $<
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
 
