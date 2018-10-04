@@ -335,6 +335,43 @@ const char *GetNextFilename(int argc, const char* const * argv) {
     return nullptr;
 } /* GetNextFilename */
 
+/**
+ * Check if directory exists. If it does not exists, directory is created.
+ * If path is not directory, report it as error.
+ *
+ * @return: 0 - if directory exists or is created.
+ *          1 - if path exists, but it is not directory.
+ *          2 - if creating directory failed.
+ */
+bool CreateDirIfNotExists(const char* path, STRING path_desc) {
+  struct stat info;
+  if (path_desc.size())
+    path_desc += " ";
+  if (stat(path, &info) != 0) {
+    tprintf("Cannot access %sdirectory '%s'.\n", path_desc.string(), path);
+#if defined(_WIN32)
+     int ret = _mkdir(path);
+#else
+     mode_t mode = 0755;
+     int ret = mkdir(path, mode);
+#endif
+     if (ret == 0)
+       tprintf("%sdirectory '%s' sucessfully created.\n",
+               path_desc.string(), path);
+     else {
+       tprintf("Creating %sdirectory '%s' failed!\n"
+               "Please create it manually. Quitting...\n",
+               path_desc.string(), path);
+       return 2;
+	 }
+  } else if (!(info.st_mode & S_IFDIR)) {
+    tprintf("%s'%s' exists but is not directory!\n"
+	    "Please check! Quitting...\n", path_desc.string(), path);
+    return 1;
+  }
+  return 0;
+} /* CreateDirIfNotExists */
+
 /*---------------------------------------------------------------------------*/
 /**
  * This routine searches through a list of labeled lists to find
