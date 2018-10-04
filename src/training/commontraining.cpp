@@ -336,6 +336,29 @@ const char *GetNextFilename(int argc, const char* const * argv) {
 } /* GetNextFilename */
 
 /**
+ * Get directory name from file path.
+ *
+ * @return Directory name.
+ */
+const char* GetDirectory(const char* filepath) {
+  const char* dir_path = nullptr;
+#  if defined(_WIN32)
+  errno_t err;
+  char dir[_MAX_DIR] = "";
+  err = _splitpath_s(filepath, NULL, 0, dir, _MAX_DIR, NULL, 0, NULL, 0);
+  if (err != 0) {
+    printf("Error splitting the path. Error code %d.\n", err);
+  }
+  dir_path = &dir[0];
+#  else   // Posix
+  char out_path[PATH_MAX];
+  strcpy(out_path, filepath);
+  dir_path = dirname(out_path);
+#  endif  // _WIN32
+  return dir_path;
+} /* GetDirectory */
+
+/**
  * Check if directory exists. If it does not exists, directory is created.
  * If path is not directory, report it as error.
  *

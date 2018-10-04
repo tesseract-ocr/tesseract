@@ -107,7 +107,7 @@ install                     (TARGETS classifier_tester RUNTIME DESTINATION bin L
 ########################################
 
 add_executable              (combine_tessdata combine_tessdata.cpp)
-target_link_libraries       (combine_tessdata libtesseract)
+target_link_libraries       (combine_tessdata libtesseract unicharset_training)
 project_group               (combine_tessdata "Training Tools")
 install                     (TARGETS combine_tessdata RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 

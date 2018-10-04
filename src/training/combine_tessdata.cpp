@@ -94,6 +94,13 @@ int main(int argc, char **argv) {
       tprintf("Failed to read %s\n", argv[2]);
       exit(1);
     }
+#ifndef PATH_MAX
+#define PATH_MAX _MAX_PATH
+#endif  // PATH_MAX
+    char directory[PATH_MAX] = "";
+    strcpy(directory, GetDirectory(argv[3]));
+    if (CreateDirIfNotExists(directory))
+      return 1;
     printf("Extracting tessdata components from %s\n", argv[2]);
     if (strcmp(argv[1], "-e") == 0) {
       for (i = 3; i < argc; ++i) {

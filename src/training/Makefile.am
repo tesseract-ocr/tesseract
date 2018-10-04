@@ -159,6 +159,8 @@ combine_lang_model_LDADD += \
 combine_tessdata_SOURCES = combine_tessdata.cpp
 #combine_tessdata_LDFLAGS = -static
 combine_tessdata_LDADD = \
+    libtesseract_training.la \
+    libtesseract_tessopt.la \
     ../api/libtesseract.la
 
 dawg2wordlist_SOURCES = dawg2wordlist.cpp
