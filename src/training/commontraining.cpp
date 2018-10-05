@@ -335,6 +335,66 @@ const char *GetNextFilename(int argc, const char* const * argv) {
     return nullptr;
 } /* GetNextFilename */
 
+/**
+ * Get directory name from file path.
+ *
+ * @return Directory name.
+ */
+const char* GetDirectory(const char* filepath) {
+  const char* dir_path = nullptr;
+#  if defined(_WIN32)
+  errno_t err;
+  char dir[_MAX_DIR] = "";
+  err = _splitpath_s(filepath, NULL, 0, dir, _MAX_DIR, NULL, 0, NULL, 0);
+  if (err != 0) {
+    printf("Error splitting the path. Error code %d.\n", err);
+  }
+  dir_path = &dir[0];
+#  else   // Posix
+  char out_path[PATH_MAX];
+  strcpy(out_path, filepath);
+  dir_path = dirname(out_path);
+#  endif  // _WIN32
+  return dir_path;
+} /* GetDirectory */
+
+/**
+ * Check if directory exists. If it does not exists, directory is created.
+ * If path is not directory, report it as error.
+ *
+ * @return: 0 - if directory exists or is created.
+ *          1 - if path exists, but it is not directory.
+ *          2 - if creating directory failed.
+ */
+bool CreateDirIfNotExists(const char* path, STRING path_desc) {
+  struct stat info;
+  if (path_desc.size())
+    path_desc += " ";
+  if (stat(path, &info) != 0) {
+    tprintf("Cannot access %sdirectory '%s'.\n", path_desc.string(), path);
+#if defined(_WIN32)
+     int ret = _mkdir(path);
+#else
+     mode_t mode = 0755;
+     int ret = mkdir(path, mode);
+#endif
+     if (ret == 0)
+       tprintf("%sdirectory '%s' sucessfully created.\n",
+               path_desc.string(), path);
+     else {
+       tprintf("Creating %sdirectory '%s' failed!\n"
+               "Please create it manually. Quitting...\n",
+               path_desc.string(), path);
+       return 2;
+	 }
+  } else if (!(info.st_mode & S_IFDIR)) {
+    tprintf("%s'%s' exists but is not directory!\n"
+	    "Please check! Quitting...\n", path_desc.string(), path);
+    return 1;
+  }
+  return 0;
+} /* CreateDirIfNotExists */
+
 /*---------------------------------------------------------------------------*/
 /**
  * This routine searches through a list of labeled lists to find

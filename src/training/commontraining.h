@@ -55,6 +55,12 @@ static inline void CheckSharedLibraryVersion()
 #include "featdefs.h"
 #include "intproto.h"
 #include "oldlist.h"
+#if defined(_WIN32)
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#include <libgen.h>
+#endif  // _WIN32
 
 namespace tesseract {
 class Classify;
@@ -139,6 +145,8 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
 }  // namespace tesseract.
 
 const char *GetNextFilename(int argc, const char* const * argv);
+const char* GetDirectory(const char* filepath);
+bool CreateDirIfNotExists(const char* path, STRING path_desc = "");
 
 LABELEDLIST FindList(
     LIST        List,

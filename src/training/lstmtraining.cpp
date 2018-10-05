@@ -78,6 +78,8 @@ int main(int argc, char **argv) {
     tprintf("Must provide a --model_output!\n");
     return EXIT_FAILURE;
   }
+  if (CreateDirIfNotExists(FLAGS_model_output.c_str(), "model_path"))
+    return 1;
   if (FLAGS_traineddata.empty()) {
     tprintf("Must provide a --traineddata see training wiki\n");
     return EXIT_FAILURE;
