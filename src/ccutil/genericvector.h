@@ -866,15 +866,14 @@ void GenericVector<T>::set_compare_callback(
 // Clear the array, calling the callback function if any.
 template <typename T>
 void GenericVector<T>::clear() {
-  if (size_reserved_ > 0) {
-    if (clear_cb_ != nullptr)
-      for (int i = 0; i < size_used_; ++i)
-        clear_cb_->Run(data_[i]);
-    delete[] data_;
-    data_ = nullptr;
-    size_used_ = 0;
-    size_reserved_ = 0;
+  if (size_reserved_ > 0 && clear_cb_ != nullptr) {
+    for (int i = 0; i < size_used_; ++i)
+      clear_cb_->Run(data_[i]);
   }
+  delete[] data_;
+  data_ = nullptr;
+  size_used_ = 0;
+  size_reserved_ = 0;
   delete clear_cb_;
   clear_cb_ = nullptr;
   delete compare_cb_;
