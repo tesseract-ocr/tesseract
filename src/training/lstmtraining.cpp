@@ -73,7 +73,6 @@ const int kNumPagesPerBatch = 100;
 int main(int argc, char **argv) {
   tesseract::CheckSharedLibraryVersion();
   ParseArguments(&argc, &argv);
-  // Purify the model name in case it is based on the network string.
   if (FLAGS_model_output.empty()) {
     tprintf("Must provide a --model_output!\n");
     return EXIT_FAILURE;
@@ -81,13 +80,6 @@ int main(int argc, char **argv) {
   if (FLAGS_traineddata.empty()) {
     tprintf("Must provide a --traineddata see training wiki\n");
     return EXIT_FAILURE;
-  }
-  STRING model_output = FLAGS_model_output.c_str();
-  for (int i = 0; i < model_output.length(); ++i) {
-    if (model_output[i] == '[' || model_output[i] == ']')
-      model_output[i] = '-';
-    if (model_output[i] == '(' || model_output[i] == ')')
-      model_output[i] = '_';
   }
 
   // Check write permissions.
