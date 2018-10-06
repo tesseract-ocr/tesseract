@@ -39,7 +39,7 @@ class GenericVector {
   GenericVector() {
     init(kDefaultVectorSize);
   }
-  GenericVector(int size, T init_val) {
+  GenericVector(int size, const T& init_val) {
     init(size);
     init_to_size(size, init_val);
   }
@@ -60,7 +60,7 @@ class GenericVector {
   void double_the_size();
 
   // Resizes to size and sets all values to t.
-  void init_to_size(int size, T t);
+  void init_to_size(int size, const T& t);
   // Resizes to size without any initialization.
   void resize_no_init(int size) {
     reserve(size);
@@ -101,31 +101,31 @@ class GenericVector {
   // Return the index of the T object.
   // This method NEEDS a compare_callback to be passed to
   // set_compare_callback.
-  int get_index(T object) const;
+  int get_index(const T& object) const;
 
   // Return true if T is in the array
-  bool contains(T object) const;
+  bool contains(const T& object) const;
 
   // Return true if the index is valid
   T contains_index(int index) const;
 
   // Push an element in the end of the array
   int push_back(T object);
-  void operator+=(T t);
+  void operator+=(const T& t);
 
   // Push an element in the end of the array if the same
   // element is not already contained in the array.
-  int push_back_new(T object);
+  int push_back_new(const T& object);
 
   // Push an element in the front of the array
   // Note: This function is O(n)
-  int push_front(T object);
+  int push_front(const T& object);
 
   // Set the value at the given index
-  void set(T t, int index);
+  void set(const T& t, int index);
 
   // Insert t at the given index, push other elements to the right.
-  void insert(T t, int index);
+  void insert(const T& t, int index);
 
   // Removes an element at the given index and
   // shifts the remaining elements to the left.
@@ -705,7 +705,7 @@ void GenericVector<T>::double_the_size() {
 
 // Resizes to size and sets all values to t.
 template <typename T>
-void GenericVector<T>::init_to_size(int size, T t) {
+void GenericVector<T>::init_to_size(int size, const T& t) {
   reserve(size);
   size_used_ = size;
   for (int i = 0; i < size; ++i)
@@ -740,7 +740,7 @@ T GenericVector<T>::pop_back() {
 
 // Return the object from an index.
 template <typename T>
-void GenericVector<T>::set(T t, int index) {
+void GenericVector<T>::set(const T& t, int index) {
   assert(index >= 0 && index < size_used_);
   data_[index] = t;
 }
@@ -749,7 +749,7 @@ void GenericVector<T>::set(T t, int index) {
 // space for the new elements and inserts the given element
 // at the specified index.
 template <typename T>
-void GenericVector<T>::insert(T t, int index) {
+void GenericVector<T>::insert(const T& t, int index) {
   assert(index >= 0 && index <= size_used_);
   if (size_reserved_ == size_used_)
     double_the_size();
@@ -779,7 +779,7 @@ T GenericVector<T>::contains_index(int index) const {
 
 // Return the index of the T object.
 template <typename T>
-int GenericVector<T>::get_index(T object) const {
+int GenericVector<T>::get_index(const T& object) const {
   for (int i = 0; i < size_used_; ++i) {
     assert(compare_cb_ != nullptr);
     if (compare_cb_->Run(object, data_[i]))
@@ -790,7 +790,7 @@ int GenericVector<T>::get_index(T object) const {
 
 // Return true if T is in the array
 template <typename T>
-bool GenericVector<T>::contains(T object) const {
+bool GenericVector<T>::contains(const T& object) const {
   return get_index(object) != -1;
 }
 
@@ -806,7 +806,7 @@ int GenericVector<T>::push_back(T object) {
 }
 
 template <typename T>
-int GenericVector<T>::push_back_new(T object) {
+int GenericVector<T>::push_back_new(const T& object) {
   int index = get_index(object);
   if (index >= 0)
     return index;
@@ -815,7 +815,7 @@ int GenericVector<T>::push_back_new(T object) {
 
 // Add an element in the array (front)
 template <typename T>
-int GenericVector<T>::push_front(T object) {
+int GenericVector<T>::push_front(const T& object) {
   if (size_used_ == size_reserved_)
     double_the_size();
   for (int i = size_used_; i > 0; --i)
@@ -826,7 +826,7 @@ int GenericVector<T>::push_front(T object) {
 }
 
 template <typename T>
-void GenericVector<T>::operator+=(T t) {
+void GenericVector<T>::operator+=(const T& t) {
   push_back(t);
 }
 
