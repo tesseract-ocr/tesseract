@@ -89,7 +89,6 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   VECTOR vector2;
 
   int angle;
-  float length;
 
   /* Compute angle */
   vector1.x = point2->pos.x - point1->pos.x;
@@ -97,7 +96,7 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   vector2.x = point3->pos.x - point2->pos.x;
   vector2.y = point3->pos.y - point2->pos.y;
   /* Use cross product */
-  length = (float)sqrt((float)LENGTH(vector1) * LENGTH(vector2));
+  float length = std::sqrt(static_cast<float>(LENGTH(vector1)) * LENGTH(vector2));
   if ((int) length == 0)
     return (0);
   angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
