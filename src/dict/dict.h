@@ -351,15 +351,17 @@ class Dict {
    */
 
   //
-  int def_letter_is_okay(void* void_dawg_args,
+  int def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
                          UNICHAR_ID unichar_id, bool word_end) const;
 
   int (Dict::*letter_is_okay_)(void* void_dawg_args,
+                               const UNICHARSET& unicharset,
                                UNICHAR_ID unichar_id, bool word_end) const;
   /// Calls letter_is_okay_ member function.
-  int LetterIsOkay(void* void_dawg_args,
+  int LetterIsOkay(void* void_dawg_args, const UNICHARSET& unicharset,
                    UNICHAR_ID unichar_id, bool word_end) const {
-    return (this->*letter_is_okay_)(void_dawg_args, unichar_id, word_end);
+    return (this->*letter_is_okay_)(void_dawg_args,
+                                    unicharset, unichar_id, word_end);
   }
 
 
@@ -428,11 +430,12 @@ class Dict {
   // Given a unichar from a string and a given dawg, return the unichar
   // we should use to match in that dawg type.  (for example, in the number
   // dawg, all numbers are transformed to kPatternUnicharId).
-  inline UNICHAR_ID char_for_dawg(UNICHAR_ID ch, const Dawg *dawg) const {
+  UNICHAR_ID char_for_dawg(const UNICHARSET& unicharset, UNICHAR_ID ch,
+                           const Dawg *dawg) const {
     if (!dawg) return ch;
     switch (dawg->type()) {
       case DAWG_TYPE_NUMBER:
-        return getUnicharset().get_isdigit(ch) ? Dawg::kPatternUnicharID : ch;
+        return unicharset.get_isdigit(ch) ? Dawg::kPatternUnicharID : ch;
       default:
         return ch;
     }
