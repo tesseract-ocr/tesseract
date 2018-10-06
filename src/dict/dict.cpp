@@ -361,9 +361,12 @@ void Dict::End() {
 // according to at least one of the dawgs in the dawgs_ vector.
 // See more extensive comments in dict.h where this function is declared.
 int Dict::def_letter_is_okay(void* void_dawg_args,
+                             const UNICHARSET& unicharset,
                              UNICHAR_ID unichar_id,
                              bool word_end) const {
   DawgArgs *dawg_args = static_cast<DawgArgs *>(void_dawg_args);
+
+  ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
 
   if (dawg_debug_level >= 3) {
     tprintf("def_letter_is_okay: current unichar=%s word_end=%d"
@@ -410,7 +413,7 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
         for (int s = 0; s < slist.length(); ++s) {
           int sdawg_index = slist[s];
           const Dawg *sdawg = dawgs_[sdawg_index];
-          UNICHAR_ID ch = char_for_dawg(unichar_id, sdawg);
+          UNICHAR_ID ch = char_for_dawg(unicharset, unichar_id, sdawg);
           EDGE_REF dawg_edge = sdawg->edge_char_of(0, ch, word_end);
           if (dawg_edge != NO_EDGE) {
             if (dawg_debug_level >=3) {
@@ -477,7 +480,8 @@ int Dict::def_letter_is_okay(void* void_dawg_args,
     // Find the edge out of the node for the unichar_id.
     NODE_REF node = GetStartingNode(dawg, pos.dawg_ref);
     EDGE_REF edge = (node == NO_EDGE) ? NO_EDGE
-        : dawg->edge_char_of(node, char_for_dawg(unichar_id, dawg), word_end);
+        : dawg->edge_char_of(node, char_for_dawg(unicharset, unichar_id, dawg),
+                             word_end);
 
     if (dawg_debug_level >= 3) {
       tprintf("Active dawg: [%d, " REFFORMAT "] edge=" REFFORMAT "\n",
@@ -759,7 +763,8 @@ int Dict::valid_word(const WERD_CHOICE &word, bool numbers_ok) const {
   int last_index = word_ptr->length() - 1;
   // Call letter_is_okay for each letter in the word.
   for (int i = hyphen_base_size(); i <= last_index; ++i) {
-    if (!((this->*letter_is_okay_)(&dawg_args, word_ptr->unichar_id(i),
+    if (!((this->*letter_is_okay_)(&dawg_args, *word_ptr->unicharset(),
+                                   word_ptr->unichar_id(i),
                                    i == last_index))) break;
     // Swap active_dawgs, constraints with the corresponding updated vector.
     if (dawg_args.updated_dawgs == &(active_dawgs[1])) {

@@ -853,7 +853,7 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
     if (language_model_debug_level > 2)
       tprintf("Test Letter OK for unichar %d, normed %d\n",
               b.unichar_id(), normed_ids[i]);
-    dict_->LetterIsOkay(&dawg_args_, normed_ids[i],
+    dict_->LetterIsOkay(&dawg_args_, dict_->getUnicharset(), normed_ids[i],
                         word_end && i == normed_ids.size() - 1);
     if (dawg_args_.permuter == NO_PERM) {
       break;
