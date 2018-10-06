@@ -1130,6 +1130,15 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
     buf.assign((std::istreambuf_iterator<char>(std::cin)),
                (std::istreambuf_iterator<char>()));
     data = reinterpret_cast<const l_uint8 *>(buf.data());
+  } else {
+    // Check whether the input file can be read.
+    if (FILE* file = fopen(filename, "rb")) {
+      fclose(file);
+    } else {
+      fprintf(stderr, "Error, cannot read input file %s: %s\n",
+              filename, strerror(errno));
+      return false;
+    }
   }
 
   // Here is our autodetection
