@@ -32,6 +32,11 @@ Dict::Dict(CCUtil *ccutil)
       probability_in_context_(&tesseract::Dict::def_probability_in_context),
       params_model_classify_(nullptr),
       ccutil_(ccutil),
+      wildcard_unichar_id_(INVALID_UNICHAR_ID),
+      apostrophe_unichar_id_(INVALID_UNICHAR_ID),
+      question_unichar_id_(INVALID_UNICHAR_ID),
+      slash_unichar_id_(INVALID_UNICHAR_ID),
+      hyphen_unichar_id_(INVALID_UNICHAR_ID),
       STRING_MEMBER(user_words_file, "", "A filename of user-provided words.",
                     getCCUtil()->params()),
       STRING_INIT_MEMBER(user_words_suffix, "",
@@ -167,7 +172,6 @@ Dict::Dict(CCUtil *ccutil)
   go_deeper_fxn_ = nullptr;
   hyphen_word_ = nullptr;
   last_word_on_line_ = false;
-  hyphen_unichar_id_ = INVALID_UNICHAR_ID;
   document_words_ = nullptr;
   dawg_cache_ = nullptr;
   dawg_cache_is_ours_ = false;
