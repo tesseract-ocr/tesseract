@@ -1044,7 +1044,7 @@ class Tesseract : public Wordrec {
   INT_VAR_H(jpg_quality, 85, "Set JPEG quality level");
   INT_VAR_H(user_defined_dpi, 0, "Specify DPI for input image");
   INT_VAR_H(min_characters_to_try, 50,
-	        "Specify minimum characters to try to skip page entirely");
+            "Specify minimum characters to try during OSD");
   STRING_VAR_H(unrecognised_char, "|",
                "Output char for unidentified blobs");
   INT_VAR_H(suspect_level, 99, "Suspect marker level");
