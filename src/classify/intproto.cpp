@@ -20,7 +20,7 @@
 -----------------------------------------------------------------------------*/
 
 #include <algorithm>
-#include <cmath>
+#include <cmath>           // for std::floor
 #include <cstdio>
 #include <cassert>
 
@@ -117,7 +117,7 @@ FILL_SPEC;
 #define CircularIncrement(i,r)  (((i) < (r) - 1)?((i)++):((i) = 0))
 
 /** macro for mapping floats to ints without bounds checking */
-#define MapParam(P,O,N)   (floor (((P) + (O)) * (N)))
+#define MapParam(P,O,N)   (std::floor(((P) + (O)) * (N)))
 
 /*---------------------------------------------------------------------------
             Private Function Prototypes
@@ -1205,11 +1205,11 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
   if (Spread > 0.5)
     Spread = 0.5;
 
-  FirstBucket = (int) floor ((Center - Spread) * NUM_PP_BUCKETS);
+  FirstBucket = static_cast<int>(std::floor((Center - Spread) * NUM_PP_BUCKETS));
   if (FirstBucket < 0)
     FirstBucket += NUM_PP_BUCKETS;
 
-  LastBucket = (int) floor ((Center + Spread) * NUM_PP_BUCKETS);
+  LastBucket = static_cast<int>(std::floor((Center + Spread) * NUM_PP_BUCKETS));
   if (LastBucket >= NUM_PP_BUCKETS)
     LastBucket -= NUM_PP_BUCKETS;
   if (debug) tprintf("Circular fill from %d to %d", FirstBucket, LastBucket);
@@ -1243,11 +1243,11 @@ void FillPPLinearBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR],
                       int Bit, float Center, float Spread, bool debug) {
   int i, FirstBucket, LastBucket;
 
-  FirstBucket = (int) floor ((Center - Spread) * NUM_PP_BUCKETS);
+  FirstBucket = static_cast<int>(std::floor((Center - Spread) * NUM_PP_BUCKETS));
   if (FirstBucket < 0)
     FirstBucket = 0;
 
-  LastBucket = (int) floor ((Center + Spread) * NUM_PP_BUCKETS);
+  LastBucket = static_cast<int>(std::floor((Center + Spread) * NUM_PP_BUCKETS));
   if (LastBucket >= NUM_PP_BUCKETS)
     LastBucket = NUM_PP_BUCKETS - 1;
 
@@ -1736,7 +1736,7 @@ int TruncateParam(float Param, int Min, int Max, char *Id) {
               Id, Param, Max);
     Param = Max;
   }
-  return static_cast<int>(floor(Param));
+  return static_cast<int>(std::floor(Param));
 }                                /* TruncateParam */
 
 
