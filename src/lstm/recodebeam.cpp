@@ -771,7 +771,8 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
     return;  // Can't continue if not a dict word.
   }
   PermuterType permuter = static_cast<PermuterType>(
-      dict_->def_letter_is_okay(&dawg_args, unichar_id, false));
+      dict_->def_letter_is_okay(&dawg_args,
+                                dict_->getUnicharset(), unichar_id, false));
   if (permuter != NO_PERM) {
     PushHeapIfBetter(kBeamWidths[0], code, unichar_id, permuter, false,
                      word_start, dawg_args.valid_end, false, cert, prev,

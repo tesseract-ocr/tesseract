@@ -21,7 +21,7 @@
 #define RECT_H
 
 #include <algorithm>           // for std::max, std::min
-#include <cmath>               // for ceil, floor
+#include <cmath>               // for std::ceil, std::floor
 #include <cstdint>             // for INT16_MAX
 #include <cstdio>              // for FILE
 #include "platform.h"          // for DLLSYM
@@ -162,29 +162,33 @@ class DLLSYM TBOX  {  // bounding box
 
     void move(                     // move box
               const FCOORD vec) {  // by float vector
-      bot_left.set_x ((int16_t) floor (bot_left.x () + vec.x ()));
+      bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() + vec.x())));
       // round left
-      bot_left.set_y ((int16_t) floor (bot_left.y () + vec.y ()));
+      bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() + vec.y())));
       // round down
-      top_right.set_x ((int16_t) ceil (top_right.x () + vec.x ()));
+      top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() + vec.x())));
       // round right
-      top_right.set_y ((int16_t) ceil (top_right.y () + vec.y ()));
+      top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() + vec.y())));
       // round up
     }
 
     void scale(                  // scale box
                const float f) {  // by multiplier
-      bot_left.set_x ((int16_t) floor (bot_left.x () * f));  // round left
-      bot_left.set_y ((int16_t) floor (bot_left.y () * f));  // round down
-      top_right.set_x ((int16_t) ceil (top_right.x () * f));  // round right
-      top_right.set_y ((int16_t) ceil (top_right.y () * f));  // round up
+      // round left
+      bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() * f)));
+      // round down
+      bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() * f)));
+      // round right
+      top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() * f)));
+      // round up
+      top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() * f)));
     }
     void scale(                     // scale box
                const FCOORD vec) {  // by float vector
-      bot_left.set_x ((int16_t) floor (bot_left.x () * vec.x ()));
-      bot_left.set_y ((int16_t) floor (bot_left.y () * vec.y ()));
-      top_right.set_x ((int16_t) ceil (top_right.x () * vec.x ()));
-      top_right.set_y ((int16_t) ceil (top_right.y () * vec.y ()));
+      bot_left.set_x(static_cast<int16_t>(std::floor(bot_left.x() * vec.x())));
+      bot_left.set_y(static_cast<int16_t>(std::floor(bot_left.y() * vec.y())));
+      top_right.set_x(static_cast<int16_t>(std::ceil(top_right.x() * vec.x())));
+      top_right.set_y(static_cast<int16_t>(std::ceil(top_right.y() * vec.y())));
     }
 
     // rotate doesn't enlarge the box - it just rotates the bottom-left
@@ -314,8 +318,10 @@ class DLLSYM TBOX  {  // bounding box
 inline TBOX::TBOX(   // constructor
     const FCOORD pt  // floating centre
     ) {
-  bot_left = ICOORD ((int16_t) floor (pt.x ()), (int16_t) floor (pt.y ()));
-  top_right = ICOORD ((int16_t) ceil (pt.x ()), (int16_t) ceil (pt.y ()));
+  bot_left = ICOORD(static_cast<int16_t>(std::floor(pt.x())),
+                    static_cast<int16_t>(std::floor(pt.y())));
+  top_right = ICOORD(static_cast<int16_t>(std::ceil(pt.x())),
+                     static_cast<int16_t>(std::ceil(pt.y())));
 }
 
 

@@ -363,10 +363,10 @@ class WERD_RES : public ELIST_LINK {
         blob_index >= best_choice->length())
       return nullptr;
     UNICHAR_ID id = best_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
+    if (id < 0 || id >= uch_set->size())
       return nullptr;
     UNICHAR_ID mirrored = uch_set->get_mirror(id);
-    if (in_rtl_context && mirrored > 0 && mirrored != INVALID_UNICHAR_ID)
+    if (in_rtl_context && mirrored > 0)
       id = mirrored;
     return uch_set->id_to_unichar_ext(id);
   }
@@ -375,7 +375,7 @@ class WERD_RES : public ELIST_LINK {
     if (blob_index < 0 || blob_index >= raw_choice->length())
       return nullptr;
     UNICHAR_ID id = raw_choice->unichar_id(blob_index);
-    if (id < 0 || id >= uch_set->size() || id == INVALID_UNICHAR_ID)
+    if (id < 0 || id >= uch_set->size())
       return nullptr;
     return uch_set->id_to_unichar(id);
   }

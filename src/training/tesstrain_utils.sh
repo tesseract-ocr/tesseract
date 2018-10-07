@@ -186,7 +186,11 @@ parse_flags() {
 
     # Location where intermediate files will be created.
     TIMESTAMP=`date +%Y-%m-%d`
+if [ "$(uname)" == "Darwin" ];then
+    TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX )
+else
     TMP_DIR=$(mktemp -d --tmpdir ${LANG_CODE}-${TIMESTAMP}.XXX )
+fi
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
