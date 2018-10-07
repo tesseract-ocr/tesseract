@@ -534,13 +534,6 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
   }
 
-  if (FILE* file = fopen(image, "r")) {
-    fclose(file);
-  } else {
-    fprintf(stderr, "Cannot open input file: %s\n", image);
-    return EXIT_FAILURE;
-  }
-
   FixPageSegMode(&api, pagesegmode);
 
   if (dpi) {
