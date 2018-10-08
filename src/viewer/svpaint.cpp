@@ -32,7 +32,7 @@
 #include <iostream>
 
 // The current color values we use, initially white (== ScrollView::WHITE).
-int rgb[3] = { 255, 255, 255 };
+static int rgb[3] = { 255, 255, 255 };
 
 class SVPaint : public SVEventHandler {
  public:
@@ -171,7 +171,7 @@ void SVPaint::Notify(const SVEvent* sv_event) {
   else if (sv_event->type == SVET_SELECTION) { SelectionHandler(sv_event); }
   else if (sv_event->type == SVET_MENU) { MenuBarHandler(sv_event); }
   else if (sv_event->type == SVET_POPUP) { PopupHandler(sv_event); }
-  else {} //throw other events away
+  //throw other events away
 }
 
 // Builds a new window, initializes the variables and event handler and builds
