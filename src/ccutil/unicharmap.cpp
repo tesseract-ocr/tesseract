@@ -83,7 +83,7 @@ bool UNICHARMAP::contains(const char* const unichar_repr,
   if (unichar_repr == nullptr || *unichar_repr == '\0') return false;
   if (length <= 0 || length > UNICHAR_LEN) return false;
   int index = 0;
-  if (index >= length || unichar_repr[index] == '\0') return false;
+  if (unichar_repr[index] == '\0') return false;
   UNICHARMAP_NODE* current_nodes = nodes;
 
   while (current_nodes != nullptr && index + 1 < length &&
