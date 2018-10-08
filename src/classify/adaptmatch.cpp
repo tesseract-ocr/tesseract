@@ -1541,6 +1541,10 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
                            &bl_features);
   if (sample == nullptr) return;
 
+  // TODO: With LSTM, static_classifier_ is nullptr.
+  // Return to avoid crash in CharNormClassifier.
+  if (static_classifier_ == nullptr) return;
+
   if (AdaptedTemplates->NumPermClasses < matcher_permanent_classes_min ||
       tess_cn_matching) {
     CharNormClassifier(Blob, *sample, Results);
