@@ -32,7 +32,7 @@
 #include <iostream>
 
 // The current color values we use, initially white (== ScrollView::WHITE).
-int rgb[3] = { 255, 255, 255 };
+static int rgb[3] = { 255, 255, 255 };
 
 class SVPaint : public SVEventHandler {
  public:
