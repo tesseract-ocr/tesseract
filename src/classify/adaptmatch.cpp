@@ -1115,8 +1115,8 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
               num_features, features,
               &int_result, classify_adapt_feature_threshold, debug,
               matcher_debug_separate_windows);
-    bool debug = matcher_debug_level >= 2 || classify_debug_level > 1;
-    ExpandShapesAndApplyCorrections(classes, debug, class_id, bottom, top,
+    bool is_debug = matcher_debug_level >= 2 || classify_debug_level > 1;
+    ExpandShapesAndApplyCorrections(classes, is_debug, class_id, bottom, top,
                                     results[c].Rating,
                                     final_results->BlobLength,
                                     matcher_multiplier, norm_factors,
