@@ -58,7 +58,10 @@ bool ParamsModel::ParseLine(char *line, char** key, float *val) {
   if (line[0] == '#')
     return false;
   int end_of_key = 0;
-  while (line[end_of_key] && !isspace(line[end_of_key])) end_of_key++;
+  while (line[end_of_key] &&
+         !(isascii(line[end_of_key]) && isspace(line[end_of_key]))) {
+    end_of_key++;
+  }
   if (!line[end_of_key]) {
     tprintf("ParamsModel::Incomplete line %s\n", line);
     return false;

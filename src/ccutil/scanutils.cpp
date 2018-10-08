@@ -75,7 +75,7 @@ inline size_t LongBit() {
 static inline int
 SkipSpace(FILE *s) {
   int p;
-  while (isspace(p = fgetc(s)));
+  while (isascii(p = fgetc(s)) && isspace(p));
   ungetc(p, s);  // Make sure next char is available for reading
   return p;
 }
@@ -108,9 +108,7 @@ static uintmax_t streamtoumax(FILE* s, int base) {
   uintmax_t v = 0;
   int d, c = 0;
 
-  for (c = fgetc(s);
-    isspace(static_cast<unsigned char>(c)) && (c != EOF);
-    c = fgetc(s)) {}
+  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s));
 
   // Single optional + or -
   if (c == '-' || c == '+') {
@@ -151,9 +149,7 @@ static double streamtofloat(FILE* s) {
   int k = 1;
   int w = 0;
 
-  for (c = fgetc(s);
-    isspace(static_cast<unsigned char>(c)) && (c != EOF);
-    c = fgetc(s));
+  for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s));
 
   // Single optional + or -
   if (c == '-' || c == '+') {
@@ -265,7 +261,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
         if (ch == '%') {
           state = ST_FLAGS;
           flags = 0; rank = RANK_INT; width = UINT_MAX;
-        } else if (isspace(static_cast<unsigned char>(ch))) {
+        } else if (isascii(ch) && isspace(ch)) {
           SkipSpace(stream);
         } else {
           if (fgetc(stream) != ch)
@@ -445,7 +441,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
               unsigned length = 0;
               while (width--) {
                 q = fgetc(stream);
-                if (isspace(static_cast<unsigned char>(q)) || q <= 0) {
+                if (isascii(q) && isspace(q) || q <= 0) {
                   ungetc(q, stream);
                   break;
                 }

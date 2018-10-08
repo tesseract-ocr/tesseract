@@ -2455,7 +2455,7 @@ static void InitializeRowInfo(bool after_recognition,
   int trailing_ws_idx = strlen(text.get());  // strip trailing space
   while (trailing_ws_idx > 0 &&
          // isspace() only takes ASCII
-         ((text[trailing_ws_idx - 1] & 0x80) == 0) &&
+         isascii(text[trailing_ws_idx - 1]) &&
          isspace(text[trailing_ws_idx - 1]))
     trailing_ws_idx--;
   if (trailing_ws_idx > 0) {
