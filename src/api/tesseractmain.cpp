@@ -418,10 +418,8 @@ static void PreloadRenderers(
       #endif  // WIN32
       bool textonly;
       api->GetBoolVariable("textonly_pdf", &textonly);
-      int jpg_quality;
-      api->GetIntVariable("jpg_quality", &jpg_quality);
       renderers->push_back(new tesseract::TessPDFRenderer(
-          outputbase, api->GetDatapath(), textonly, jpg_quality));
+          outputbase, api->GetDatapath(), textonly));
     }
 
     api->GetBoolVariable("tessedit_write_unlv", &b);
