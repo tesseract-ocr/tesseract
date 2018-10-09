@@ -25,16 +25,8 @@
 #define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
-#ifndef __GNUC__
 #include <windows.h>
 #include "platform.h"
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#define snprintf _snprintf
-#endif
-#else
-#include "platform.h"
-#include <windows.h>
-#endif
 #else
 #include <pthread.h>
 #include <semaphore.h>

@@ -69,13 +69,6 @@ extern double_VAR_H (editor_smd_scale_factor, 1.0, "Scaling for smd image");
 
 ScrollView* bln_word_window_handle();  //return handle
 void build_image_window(int width, int height);
-void display_bln_lines(ScrollView window,
-                       ScrollView::Color colour,
-                       float scale_factor,
-                       float y_offset,
-                       float minx,
-                       float maxx);
-                                 //function to call
 void pgeditor_msg(  //message display
                   const char *msg);
 void pgeditor_show_point(  //display coords

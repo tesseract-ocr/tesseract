@@ -1115,8 +1115,8 @@ void Classify::MasterMatcher(INT_TEMPLATES templates,
               num_features, features,
               &int_result, classify_adapt_feature_threshold, debug,
               matcher_debug_separate_windows);
-    bool debug = matcher_debug_level >= 2 || classify_debug_level > 1;
-    ExpandShapesAndApplyCorrections(classes, debug, class_id, bottom, top,
+    bool is_debug = matcher_debug_level >= 2 || classify_debug_level > 1;
+    ExpandShapesAndApplyCorrections(classes, is_debug, class_id, bottom, top,
                                     results[c].Rating,
                                     final_results->BlobLength,
                                     matcher_multiplier, norm_factors,
@@ -1540,6 +1540,10 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
       BlobToTrainingSample(*Blob, classify_nonlinear_norm, &fx_info,
                            &bl_features);
   if (sample == nullptr) return;
+
+  // TODO: With LSTM, static_classifier_ is nullptr.
+  // Return to avoid crash in CharNormClassifier.
+  if (static_classifier_ == nullptr) return;
 
   if (AdaptedTemplates->NumPermClasses < matcher_permanent_classes_min ||
       tess_cn_matching) {

@@ -179,14 +179,12 @@ static const int kMaxBytesPerCodepoint = 20;
 /**********************************************************************
  * PDF Renderer interface implementation
  **********************************************************************/
-
 TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
-                                 bool textonly, int jpg_quality)
+                                 bool textonly)
     : TessResultRenderer(outputbase, "pdf"),
       datadir_(datadir) {
   obj_  = 0;
   textonly_ = textonly;
-  jpg_quality_ = jpg_quality;
   offsets_.push_back(0);
 }
 
@@ -700,7 +698,8 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
                                     const char* filename,
                                     long int objnum,
                                     char **pdf_object,
-                                    long int *pdf_object_size, int jpg_quality) {
+                                    long int* pdf_object_size,
+                                    const int jpg_quality) {
   size_t n;
   char b0[kBasicBufSize];
   char b1[kBasicBufSize];
@@ -713,12 +712,12 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
     return false;
 
   L_Compressed_Data *cid = nullptr;
-  const int kJpegQuality = jpg_quality;
 
   int format, sad;
-  sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
+  if (pixGetInputFormat(pix) == IFF_PNG)
+    sad = pixGenerateCIData(pix, L_FLATE_ENCODE, 0, 0, &cid);
   if (!cid) {
-    sad = l_generateCIDataForPdf(filename, pix, kJpegQuality, &cid);
+    sad = l_generateCIDataForPdf(filename, pix, jpg_quality, &cid);
   }
 
   if (sad || !cid) {
@@ -909,7 +908,10 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
 
   if (!textonly_) {
     char *pdf_object = nullptr;
-    if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize, jpg_quality_)) {
+    int jpg_quality;
+    api->GetIntVariable("jpg_quality", &jpg_quality);
+    if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize,
+                       jpg_quality)) {
       return false;
     }
     AppendData(pdf_object, objsize);

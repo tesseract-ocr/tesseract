@@ -32,11 +32,6 @@
 #define ultoa _ultoa
 #endif  /* __GNUC__ */
 #define SIGNED
-#if defined(_MSC_VER)
-#if (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-#endif /* defined(_MSC_VER) */
 #else
 #ifdef __cplusplus
 #include <climits>

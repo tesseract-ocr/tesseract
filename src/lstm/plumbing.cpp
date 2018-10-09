@@ -174,7 +174,7 @@ float* Plumbing::LayerLearningRatePtr(const char* id) const {
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
-  if (index < 0 || index >= learning_rates_.size()) return nullptr;
+  if (index >= learning_rates_.size()) return nullptr;
   return &learning_rates_[index];
 }
 
