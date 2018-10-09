@@ -29,17 +29,17 @@ before_build:
 build_script:
   - mkdir build
   - mkdir build\bin
-  - mkdir build\bin\Release
+  - mkdir build\bin\%CONFIGURATION%
   - cd build
   #- cmd: 'echo local_settings: > cppan.yml'
   #- cmd: 'echo     generator: %generator% >> cppan.yml'
   #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
   #- cppan --build ..
   - cmake .. -G "Visual Studio %vs_ver%%vs_platform%"
-  #- cmake --build . --config Release > bin\Release\log.txt 2>&1
-  - cmake --build . --config Release
+  #- cmake --build . --config %CONFIGURATION% > build\bin\%CONFIGURATION%\log.txt 2>&1
+  - cmake --build . --config %CONFIGURATION%
 
 artifacts:
-  - path: build\bin\Release
+  - path: build\bin\%CONFIGURATION%
   #- path: build
     name: tesseract-$(APPVEYOR_BUILD_VERSION)
