@@ -167,10 +167,10 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
               "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word");
+      " ocr_line ocrx_word ocrp_wconf");
   if (font_info_)
     AppendString(
-      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize ocrp_wconf");
+      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
   AppendString(
       "'/>\n"
       "</head>\n<body>\n");

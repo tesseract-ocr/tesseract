@@ -211,10 +211,10 @@ class LSTMTrainer : public LSTMRecognizer {
   int CurrentTrainingStage() const { return training_stage_; }
 
   // Writes to the given file. Returns false in case of error.
-  virtual bool Serialize(SerializeAmount serialize_amount,
-                         const TessdataManager* mgr, TFile* fp) const;
+  bool Serialize(SerializeAmount serialize_amount,
+                 const TessdataManager* mgr, TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
-  virtual bool DeSerialize(const TessdataManager* mgr, TFile* fp);
+  bool DeSerialize(const TessdataManager* mgr, TFile* fp);
 
   // De-serializes the saved best_trainer_ into sub_trainer_, and adjusts the
   // learning rates (by scaling reduction, or layer specific, according to
