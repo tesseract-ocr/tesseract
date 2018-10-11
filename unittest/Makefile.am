@@ -26,6 +26,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/training
 endif
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
+AM_CPPFLAGS += -I$(top_srcdir)/abseil
 
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
@@ -33,6 +34,22 @@ libgtest_la_SOURCES = ../googletest/googletest/src/gtest-all.cc
 libgtest_la_CPPFLAGS = -I$(top_srcdir)/googletest/googletest/include -I$(top_srcdir)/googletest/googletest -pthread
 libgtest_main_la_SOURCES = ../googletest/googletest/src/gtest_main.cc
 ## libgtest_main_la_LIBADD = libgtest.la
+
+# Build Abseil (needed for some unit tests).
+check_LTLIBRARIES += libabseil.la
+libabseil_la_SOURCES =
+libabseil_la_SOURCES += ../abseil/absl/base/internal/cycleclock.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/raw_logging.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/spinlock.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/spinlock_wait.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/sysinfo.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/throw_delegate.cc
+libabseil_la_SOURCES += ../abseil/absl/base/internal/unscaledcycleclock.cc
+libabseil_la_SOURCES += ../abseil/absl/numeric/int128.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/ascii.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/str_cat.cc
+libabseil_la_SOURCES += ../abseil/absl/time/clock.cc
+libabseil_la_SOURCES += ../abseil/absl/time/duration.cc
 
 GMOCK_INCLUDES = -I$(top_srcdir)/googletest/googlemock/include \
                  -I$(top_srcdir)/googletest/googlemock \
@@ -47,6 +64,7 @@ libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
                             -pthread
 
 # Build unittests
+ABSEIL_LIBS = libabseil.la
 GTEST_LIBS =  libgtest.la libgtest_main.la
 GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(top_builddir)/src/api/libtesseract.la
@@ -59,6 +77,7 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 check_PROGRAMS = \
   apiexample_test \
   applybox_test \
+  baseapi_test \
   bitvector_test \
   cleanapi_test \
   colpartition_test \
@@ -96,6 +115,9 @@ apiexample_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 applybox_test_SOURCES = applybox_test.cc
 applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+baseapi_test_SOURCES = baseapi_test.cc
+baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
