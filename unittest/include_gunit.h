@@ -19,10 +19,23 @@
 
 const char* FLAGS_test_tmpdir = ".";
 
-class file : public tesseract::File {};
+class file : public tesseract::File {
+public:
+  static bool GetContents(const std::string& filename, std::string* out, int) {
+    return File::ReadFileToString(filename, out);
+  }
 
+  static int Defaults() {
+    return 0;
+  }
+};
+
+#if !defined(ABSL_ARRAYSIZE)
 #define ABSL_ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#endif
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
+#define CHECK_GT(test, value) ASSERT_HOST((test) > (value))
+#define CHECK_OK(test) ASSERT_HOST(test)
 
 #endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
