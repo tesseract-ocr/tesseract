@@ -92,6 +92,7 @@ check_PROGRAMS = \
   nthitem_test \
   osd_test \
   progress_test \
+  qrsequence_test \
   rect_test \
   stats_test \
   tablefind_test \
@@ -118,6 +119,9 @@ applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+
+baseapi_thread_test_SOURCES = baseapi_thread_test.cc
+baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -164,6 +168,9 @@ osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 progress_test_SOURCES = progress_test.cc
 progress_test_LDFLAGS = $(OPENCL_LDFLAGS) $(LEPTONICA_LIBS)
 progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+qrsequence_test_SOURCES = qrsequence_test.cc
+qrsequence_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 rect_test_SOURCES = rect_test.cc
 rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
