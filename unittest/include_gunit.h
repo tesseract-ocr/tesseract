@@ -28,6 +28,15 @@ public:
   static int Defaults() {
     return 0;
   }
+
+  static std::string JoinPath(const std::string& s1, const std::string& s2) {
+    return tesseract::File::JoinPath(s1, s2);
+  }
+
+  static std::string JoinPath(const std::string& s1, const std::string& s2,
+                              const std::string& s3) {
+    return JoinPath(JoinPath(s1, s2), s3);
+  }
 };
 
 #if !defined(ABSL_ARRAYSIZE)

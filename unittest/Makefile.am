@@ -1,3 +1,6 @@
+# Absolute path of directory 'langdata'.
+LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata
+
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
@@ -6,6 +9,7 @@ TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
 # (using submodule test).
 TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
 
+AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
@@ -83,7 +87,6 @@ GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(top_builddir)/src/api/libtesseract.la
 TRAINING_LIBS = $(top_builddir)/src/training/libtesseract_training.la
 TRAINING_LIBS += $(top_builddir)/src/training/libtesseract_tessopt.la
-TRAINING_LIBS += $(ICU_UC_LIBS)
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
@@ -101,6 +104,7 @@ check_PROGRAMS = \
   indexmapbidi_test \
   intfeaturemap_test \
   intsimdmatrix_test \
+  lang_model_test \
   linlsq_test \
   loadlang_test \
   matrix_test \
@@ -149,7 +153,7 @@ colpartition_test_SOURCES = colpartition_test.cc
 colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 commandlineflags_test_SOURCES = commandlineflags_test.cc
-commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
+commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -171,6 +175,9 @@ intfeaturemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+lang_model_test_SOURCES = lang_model_test.cc
+lang_model_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
 linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -222,7 +229,7 @@ tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 validator_test_SOURCES = validator_test.cc
-validator_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
+validator_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
 # for windows
 if T_WIN
