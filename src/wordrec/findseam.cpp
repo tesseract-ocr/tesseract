@@ -26,7 +26,6 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 #include "findseam.h"
-#include "gradechop.h"
 #include "plotedges.h"
 #include "outlines.h"
 #include "seam.h"
@@ -36,6 +35,17 @@
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
+
+/**********************************************************************
+ * partial_split_priority
+ *
+ * Assign a priority to this split based on the features that it has.
+ * Grade it according to the different rating schemes and return the
+ * value of its goodness.
+ **********************************************************************/
+
+#define partial_split_priority(split) \
+  (grade_split_length(split) + grade_sharpness(split))
 
 /*----------------------------------------------------------------------
               T y p e s

@@ -93,7 +93,6 @@ class Wordrec : public Classify {
 #include "language_model.h"
 #include "ratngs.h"
 #include "matrix.h"
-#include "gradechop.h"
 #include "seam.h"
 #include "findseam.h"
 #include "callcpp.h"

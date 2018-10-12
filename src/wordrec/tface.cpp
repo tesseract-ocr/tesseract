@@ -21,7 +21,6 @@
 #include "chop.h"
 #include "chopper.h"
 #include "globals.h"
-#include "gradechop.h"
 #include "pageres.h"
 #include "wordrec.h"
 #include "featdefs.h"
