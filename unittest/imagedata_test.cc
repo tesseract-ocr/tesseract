@@ -1,6 +1,23 @@
-#include "tesseract/ccstruct/imagedata.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <string>
 #include <vector>
+
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
+
+#include "imagedata.h"
+#include "include_gunit.h"
+#include "log.h"
 
 using tesseract::DocumentCache;
 using tesseract::DocumentData;
@@ -15,8 +32,8 @@ class ImagedataTest : public ::testing::Test {
   ImagedataTest() {}
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.
-  string MakeFakeDoc(int num_pages, int doc_id,
-                     std::vector<string>* page_texts) {
+  std::string MakeFakeDoc(int num_pages, int doc_id,
+                     std::vector<std::string>* page_texts) {
     // The size of the fake images that we will use.
     const int kImageSize = 1048576;
     // Not using a real image here - just an array of zeros! We are just testing
@@ -26,7 +43,7 @@ class ImagedataTest : public ::testing::Test {
     for (int p = 0; p < num_pages; ++p) {
       // Make some fake text that is different for each page and save it.
       page_texts->push_back(
-          StringPrintf("Page %d of %d in doc %d", p, num_pages, doc_id));
+          absl::StrFormat("Page %d of %d in doc %d", p, num_pages, doc_id));
       // Make an imagedata and put it in the document.
       ImageData* imagedata =
           ImageData::Build("noname", p, "eng", fake_image.data(),
@@ -35,7 +52,7 @@ class ImagedataTest : public ::testing::Test {
       write_doc.AddPageToDocument(imagedata);
     }
     // Write it to a file.
-    string filename = file::JoinPath(
+    std::string filename = file::JoinPath(
         FLAGS_test_tmpdir, absl::StrCat("documentdata", doc_id, ".lstmf"));
     EXPECT_TRUE(write_doc.SaveDocument(filename.c_str(), nullptr));
     return filename;
@@ -52,8 +69,8 @@ TEST_F(ImagedataTest, CachesProperly) {
   // Order in which to read the pages, with some sequential and some seeks.
   const int kPageReadOrder[] = {0, 1, 2, 3, 8, 4, 5, 6, 7, 11, 10, 9, -1};
 
-  std::vector<string> page_texts;
-  string filename = MakeFakeDoc(kNumPages, 0, &page_texts);
+  std::vector<std::string> page_texts;
+  std::string filename = MakeFakeDoc(kNumPages, 0, &page_texts);
   // Now try getting it back with different memory allowances and check that
   // the pages can still be read.
   for (int m = 0; kMemoryAllowances[m] > 0; ++m) {
@@ -65,7 +82,8 @@ TEST_F(ImagedataTest, CachesProperly) {
     for (int p = 0; kPageReadOrder[p] >= 0; ++p) {
       int page = kPageReadOrder[p];
       const ImageData* imagedata = read_doc.GetPage(page);
-      EXPECT_NE(reinterpret_cast<const ImageData*>(nullptr), imagedata);
+      EXPECT_NE(nullptr, imagedata);
+      //EXPECT_NE(reinterpret_cast<ImageData*>(nullptr), imagedata);
       // Check that this is the right page.
       EXPECT_STREQ(page_texts[page].c_str(),
                    imagedata->transcription().string());
@@ -78,11 +96,11 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
   // and the two caching strategies read images in the right order.
   // Number of pages in each document.
   const std::vector<int> kNumPages = {6, 5, 7};
-  std::vector<std::vector<string>> page_texts;
+  std::vector<std::vector<std::string>> page_texts;
   GenericVector<STRING> filenames;
   for (int d = 0; d < kNumPages.size(); ++d) {
-    page_texts.emplace_back(std::vector<string>());
-    string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());
+    page_texts.emplace_back(std::vector<std::string>());
+    std::string filename = MakeFakeDoc(kNumPages[d], d, &page_texts.back());
     filenames.push_back(STRING(filename.c_str()));
   }
   // Now try getting them back with different cache strategies and check that

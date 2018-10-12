@@ -47,7 +47,17 @@ libabseil_la_SOURCES += ../abseil/absl/base/internal/throw_delegate.cc
 libabseil_la_SOURCES += ../abseil/absl/base/internal/unscaledcycleclock.cc
 libabseil_la_SOURCES += ../abseil/absl/numeric/int128.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/ascii.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/charconv.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/charconv_bigint.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/charconv_parse.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/internal/memutil.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/arg.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/bind.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/extension.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/float_conversion.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/output.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/parser.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/numbers.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/str_cat.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/str_split.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/string_view.cc
@@ -87,6 +97,7 @@ check_PROGRAMS = \
   denorm_test \
   fileio_test \
   heap_test \
+  imagedata_test \
   indexmapbidi_test \
   intfeaturemap_test \
   intsimdmatrix_test \
@@ -147,6 +158,9 @@ fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 heap_test_SOURCES = heap_test.cc
 heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+imagedata_test_SOURCES = imagedata_test.cc
+imagedata_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 indexmapbidi_test_SOURCES = indexmapbidi_test.cc
 indexmapbidi_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
