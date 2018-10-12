@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        drawfx.cpp  (Formerly drawfx.c)
  * Description: Draw things to do with feature extraction.
- * Author:		Ray Smith
- * Created:		Mon Jan 27 11:02:16 GMT 1992
+ * Author:      Ray Smith
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

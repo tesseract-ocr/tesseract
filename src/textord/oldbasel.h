@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        oldbasel.h  (Formerly oldbl.h)
  * Description: A re-implementation of the old baseline algorithm.
- * Author:		Ray Smith
- * Created:		Wed Oct  6 09:41:48 BST 1993
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

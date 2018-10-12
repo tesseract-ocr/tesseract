@@ -25,7 +25,6 @@ noinst_HEADERS += \
     chopper.h \
     drawfx.h \
     findseam.h \
-    gradechop.h \
     language_model.h \
     lm_consistency.h \
     lm_pain_points.h \

@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:    float2int.h
- **	Purpose:     Routines for converting float features to int features
- **	Author:      Dan Johnson
- **	History:     Wed Mar 13 08:06:41 1991, DSJ, Created.
+ ** Filename:    float2int.h
+ ** Purpose:     Routines for converting float features to int features
+ ** Author:      Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -15,6 +14,7 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
+
 #ifndef FLOAT2INT_H
 #define FLOAT2INT_H
 

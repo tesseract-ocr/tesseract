@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        tessopt.h
  * Description: Re-implementation of the unix code.
- * Author:					Ray Smith
- * Created:					Tue Nov 28 05:52:50 MST 1995
+ * Author:      Ray Smith
  *
  * (C) Copyright 1995, Hewlett-Packard Co.
  ** Licensed under the Apache License, Version 2.0 (the "License");

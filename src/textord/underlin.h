@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        underlin.h  (Formerly undrline.h)
  * Description: Code to chop blobs apart from underlines.
- * Author:		Ray Smith
- * Created:		Mon Aug  8 11:14:00 BST 1994
+ * Author:      Ray Smith
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

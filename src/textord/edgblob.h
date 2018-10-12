@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        edgblob.h  (Formerly edgeloop.h)
  * Description: Functions to clean up an outline before approximation.
- * Author:		Ray Smith
- * Created:		Tue Mar 26 16:56:25 GMT 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

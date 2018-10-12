@@ -2562,7 +2562,7 @@ ds_device OpenclDevice::getDeviceSelection() {
       int bestDeviceIdx = -1;
       for (unsigned d = 0; d < profile->numDevices; d++) {
         ds_device device = profile->devices[d];
-	if (device.score == nullptr) continue;
+        if (device.score == nullptr) continue;
         TessDeviceScore score = *device.score;
 
         float time = score.time;

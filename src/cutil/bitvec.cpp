@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:    bitvec.c
- **	Purpose:     Routines for manipulating bit vectors
- **	Author:      Dan Johnson
- **	History:     Thu Mar 15 10:37:27 1990, DSJ, Created.
+ ** Filename:    bitvec.c
+ ** Purpose:     Routines for manipulating bit vectors
+ ** Author:      Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -74,7 +73,7 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * hold the specified number of bits.
  *
  * Globals:
- * - BitVectorCount	number of bit vectors allocated
+ * - BitVectorCount number of bit vectors allocated
  *
  * @param NumBits number of bits in new bit vector
  *

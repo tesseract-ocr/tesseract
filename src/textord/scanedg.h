@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        scanedg.h  (Formerly scanedge.h)
  * Description: Raster scanning crack based edge extractor.
- * Author:					Ray Smith
- * Created:					Fri Mar 22 16:11:50 GMT 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

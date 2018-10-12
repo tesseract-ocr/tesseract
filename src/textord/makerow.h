@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        makerow.h  (Formerly makerows.h)
  * Description: Code to arrange blobs into rows of text.
- * Author:		Ray Smith
- * Created:		Mon Sep 21 14:34:48 BST 1992
+ * Author:      Ray Smith
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
