@@ -106,6 +106,7 @@ check_PROGRAMS = \
   matrix_test \
   nthitem_test \
   osd_test \
+  paragraphs_test \
   progress_test \
   qrsequence_test \
   rect_test \
@@ -182,6 +183,12 @@ matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 nthitem_test_SOURCES = nthitem_test.cc
 nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+pango_font_info_test_SOURCES = pango_font_info_test.cc
+pango_font_info_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+paragraphs_test_SOURCES = paragraphs_test.cc
+paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
