@@ -38,8 +38,11 @@ all languages).
     $ git clone https://github.com/tesseract-ocr/tessdata.git tesseract-ocr.tessdata
 
 
-You need an Internet connection to compile `ScrollView.jar` because the build will automatically download `piccolo2d-core-3.0.jar`
-and [piccolo2d-extras-3.0.jar](http://search.maven.org/#search|ga|1|g%3A%22org.piccolo2d%22) and place them to `tesseract/java`.
+You need an Internet connection and [curl](https://curl.haxx.se/) to compile `ScrollView.jar`
+because the build will automatically download
+[piccolo2d-core-3.0.jar](http://search.maven.org/remotecontent?filepath=org/piccolo2d/piccolo2d-core/3.0/piccolo2d-core-3.0.jar > piccolo2d-core-3.0.jar) and
+[piccolo2d-extras-3.0.jar](http://search.maven.org/remotecontent?filepath=org/piccolo2d/piccolo2d-extras/3.0/piccolo2d-extras-3.0.jar) and 
+[jaxb-api-2.3.1.jar](http://search.maven.org/remotecontent?filepath=javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar) and place them to `tesseract/java`.
 
 Just run:
 
