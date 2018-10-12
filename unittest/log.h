@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        log.h
 // Description: Include for custom log message for unittest for tesseract.
-//               based on
-//               //https://stackoverflow.com/questions/16491675/how-to-send-custom-message-in-google-c-testing-framework
+//              based on
+//              https://stackoverflow.com/questions/16491675/how-to-send-custom-message-in-google-c-testing-framework
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
 #ifndef TESSERACT_UNITTEST_LOG_H_
 #define TESSERACT_UNITTEST_LOG_H_
 
 #include <iostream>
 
-static class LOG {
- public:
-  LOG() {}
-  std::ostream& info() {
-    std::cout << "[ LOG MSG  ] ";
+enum LogLevel {
+  INFO, ERROR
+};
+
+static inline std::ostream& LOG(enum LogLevel level)
+{
+  switch (level) {
+#if 0
+    case DEBUG:
+      std::cout << "[DEBUG] ";
+      break;
+#endif
+    case INFO:
+      std::cout << "[INFO]  ";
+      break;
+    case ERROR:
+      std::cout << "[ERROR] ";
+      break;
+  }
+  return std::cout;
+}
+
+// https://github.com/google/ion/blob/master/ion/base/logging.h
+static inline std::ostream& QCHECK(bool condition)
+{
+  static std::ostream null_stream(nullptr);
+  if (condition) {
     return std::cout;
   }
-} log;
+  return null_stream;
+}
 
 #endif  // TESSERACT_UNITTEST_LOG_H_
