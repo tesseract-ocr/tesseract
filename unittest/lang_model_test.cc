@@ -1,13 +1,31 @@
-#include "tesseract/training/lang_model_helpers.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "tesseract/lstm/lstmtrainer.h"
-#include "tesseract/training/unicharset_training_utils.h"
+#include <string>                       // for std::string
+
+#include "absl/strings/str_cat.h"
+
+#include "gmock/gmock.h"                // for testing::ElementsAreArray
+
+#include "include_gunit.h"
+#include "lang_model_helpers.h"
+#include "log.h"                        // for LOG
+#include "lstmtrainer.h"
+#include "unicharset_training_utils.h"
 
 namespace tesseract {
 namespace {
 
-string TestDataNameToPath(const string& name) {
-  return file::JoinPath(FLAGS_test_srcdir, "testdata", name);
+std::string TestDataNameToPath(const std::string& name) {
+  return file::JoinPath(TESTING_DIR, name);
 }
 
 // This is an integration test that verifies that CombineLangModel works to
@@ -18,15 +36,15 @@ TEST(LangModelTest, AddACharacter) {
   constexpr char kTestString[] = "Simple ASCII string to encode !@#$%&";
   constexpr char kTestStringRupees[] = "ASCII string with Rupee symbol ₹";
   // Setup the arguments.
-  string script_dir = file::JoinPath(FLAGS_test_srcdir, "langdata");
-  string eng_dir = file::JoinPath(script_dir, "eng");
-  string unicharset_path = TestDataNameToPath("eng_beam.unicharset");
+  std::string script_dir = LANGDATA_DIR;
+  std::string eng_dir = file::JoinPath(script_dir, "eng");
+  std::string unicharset_path = TestDataNameToPath("eng_beam.unicharset");
   UNICHARSET unicharset;
   EXPECT_TRUE(unicharset.load_from_file(unicharset_path.c_str()));
-  string version_str = "TestVersion";
-  string output_dir = FLAGS_test_tmpdir;
+  std::string version_str = "TestVersion";
+  std::string output_dir = FLAGS_test_tmpdir;
   LOG(INFO) << "Output dir=" << output_dir;
-  string lang1 = "eng";
+  std::string lang1 = "eng";
   bool pass_through_recoder = false;
   GenericVector<STRING> words, puncs, numbers;
   // If these reads fail, we get a warning message and an empty list of words.
@@ -44,7 +62,7 @@ TEST(LangModelTest, AddACharacter) {
                                 lang1, pass_through_recoder, words, puncs,
                                 numbers, lang_is_rtl, nullptr, nullptr));
   // Init a trainer with it, and encode a string.
-  string traineddata1 =
+  std::string traineddata1 =
       file::JoinPath(output_dir, lang1, absl::StrCat(lang1, ".traineddata"));
   LSTMTrainer trainer1;
   trainer1.InitCharSet(traineddata1);
@@ -58,13 +76,13 @@ TEST(LangModelTest, AddACharacter) {
                        &unicharset);
   EXPECT_EQ(size_before + 1, unicharset.size());
   // Generate the traineddata file.
-  string lang2 = "extended";
+  std::string lang2 = "extended";
   EXPECT_EQ(EXIT_SUCCESS,
             CombineLangModel(unicharset, script_dir, version_str, output_dir,
                              lang2, pass_through_recoder, words, puncs, numbers,
                              lang_is_rtl, nullptr, nullptr));
   // Init a trainer with it, and encode a string.
-  string traineddata2 =
+  std::string traineddata2 =
       file::JoinPath(output_dir, lang2, absl::StrCat(lang2, ".traineddata"));
   LSTMTrainer trainer2;
   trainer2.InitCharSet(traineddata2);
@@ -86,7 +104,7 @@ TEST(LangModelTest, AddACharacter) {
   }
   EXPECT_THAT(labels1_v,
               testing::ElementsAreArray(&labels2[0], labels2.size()));
-  // To make sure we weren't cheating somehow, we can now encode the Rupee
+  // To make sure we we are not cheating somehow, we can now encode the Rupee
   // symbol, which we could not do before.
   EXPECT_FALSE(trainer1.EncodeString(kTestStringRupees, &labels1));
   EXPECT_TRUE(trainer2.EncodeString(kTestStringRupees, &labels2));
