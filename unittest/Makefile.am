@@ -47,7 +47,10 @@ libabseil_la_SOURCES += ../abseil/absl/base/internal/throw_delegate.cc
 libabseil_la_SOURCES += ../abseil/absl/base/internal/unscaledcycleclock.cc
 libabseil_la_SOURCES += ../abseil/absl/numeric/int128.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/ascii.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/internal/memutil.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/str_cat.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/str_split.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/string_view.cc
 libabseil_la_SOURCES += ../abseil/absl/time/clock.cc
 libabseil_la_SOURCES += ../abseil/absl/time/duration.cc
 
@@ -82,6 +85,7 @@ check_PROGRAMS = \
   cleanapi_test \
   colpartition_test \
   denorm_test \
+  fileio_test \
   heap_test \
   indexmapbidi_test \
   intfeaturemap_test \
@@ -137,6 +141,9 @@ commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+fileio_test_SOURCES = fileio_test.cc
+fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 heap_test_SOURCES = heap_test.cc
 heap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
