@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:    mf.h
- **	Purpose:     Micro-feature interface to flexible feature extractor.
- **	Author:      Dan Johnson
- **	History:     Thu May 24 09:39:56 1990, DSJ, Created.
+ ** Filename:    mf.h
+ ** Purpose:     Micro-feature interface to flexible feature extractor.
+ ** Author:      Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -15,8 +14,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MF_H
-#define   MF_H
+
+#ifndef MF_H
+#define MF_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines

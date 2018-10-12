@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        topitch.h  (Formerly to_pitch.h)
  * Description: Code to determine fixed pitchness and the pitch if fixed.
- * Author:		Ray Smith
- * Created:		Tue Aug 24 16:57:29 BST 1993
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

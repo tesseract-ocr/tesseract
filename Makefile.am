@@ -22,9 +22,9 @@ SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
 SUBDIRS += src/ccmain src/api . tessdata doc unittest
 
-EXTRA_DIST = README.md\
-	aclocal.m4 config configure.ac autogen.sh \
-	tesseract.pc.in $(TRAINING_SUBDIR) java doc langtests unlvtests
+EXTRA_DIST = README.md
+EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
+EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc langtests unlvtests
 
 DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
 

@@ -1,10 +1,9 @@
 /******************************************************************************
- **	Filename:    outfeat.h
- **	Purpose:     Definition of outline features.
- **	Author:      Dan Johnson
- **	History:     11/13/90, DSJ, Created.
+ ** Filename:    outfeat.h
+ ** Purpose:     Definition of outline features.
+ ** Author:      Dan Johnson
  **
- **	(c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -15,8 +14,9 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   OUTFEAT_H
-#define   OUTFEAT_H
+
+#ifndef OUTFEAT_H
+#define OUTFEAT_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines

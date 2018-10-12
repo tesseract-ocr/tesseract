@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        drawfx.h  (Formerly drawfx.h)
  * Description: Draw things to do with feature extraction.
- * Author:		Ray Smith
- * Created:		Mon Jan 27 11:02:16 GMT 1992
+ * Author:      Ray Smith
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +16,11 @@
  *
  **********************************************************************/
 
-#ifndef           DRAWFX_H
-#define           DRAWFX_H
+#ifndef DRAWFX_H
+#define DRAWFX_H
 
-#include          "params.h"
-#include	  "scrollview.h"
+#include "params.h"
+#include "scrollview.h"
 
 extern STRING_VAR_H (fx_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 extern ScrollView* fx_win;

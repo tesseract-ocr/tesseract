@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        fpchop.h  (Formerly fp_chop.h)
  * Description: Code to chop fixed pitch text into character cells.
- * Author:		Ray Smith
- * Created:		Thu Sep 16 11:14:15 BST 1993
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

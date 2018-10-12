@@ -180,7 +180,7 @@ SVPaint::SVPaint(const char *server_name) {
   window_ = new ScrollView("ScrollView Paint Example",  // window caption
                             0, 0,                       // x,y window position
                             500, 500,                   // window size
-  		                    500, 500,                   // canvas size
+                            500, 500,                   // canvas size
                             false,      // whether the Y axis is inversed.
                                         // this is included due to legacy
                                         // reasons for tesseract and enables
@@ -228,8 +228,8 @@ SVPaint::SVPaint(const char *server_name) {
 // If a parameter is given, we try to connect to the given server.
 // This enables us to test the remote capabilities of ScrollView.
 int main(int argc, char** argv) {
-	const char* server_name;
-	if (argc > 1) { server_name = argv[1]; } else { server_name = "localhost"; }
-	SVPaint svp(server_name);
+  const char* server_name;
+  if (argc > 1) { server_name = argv[1]; } else { server_name = "localhost"; }
+  SVPaint svp(server_name);
 }
 #endif  // GRAPHICS_DISABLED

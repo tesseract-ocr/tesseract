@@ -46,10 +46,10 @@ extern ScrollView *edge_window;        /* Window for edges */
  *
  * Refresh the display of the edge window.
  **********************************************************************/
-#define update_edge_window()             \
-if (wordrec_display_splits) {                  \
-	c_make_current (edge_window);      \
-}                                      \
+#define update_edge_window()    \
+if (wordrec_display_splits) {   \
+  c_make_current (edge_window); \
+}
 
 
 /**********************************************************************

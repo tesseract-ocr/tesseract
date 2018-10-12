@@ -617,7 +617,7 @@ void TessBaseAPI::SetImage(Pix* pix) {
       pixSetSpp(p1, 3);
       pix = pixCopy(nullptr, p1);
       pixDestroy(&p1);
-	  }
+    }
     thresholder_->SetImage(pix);
     SetInputImage(thresholder_->GetPixRect());
   }

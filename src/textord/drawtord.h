@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        drawtord.h  (Formerly drawto.h)
  * Description: Draw things to do with textord.
- * Author:		Ray Smith
- * Created:		Thu Jul 30 15:40:57 BST 1992
+ * Author:      Ray Smith
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");

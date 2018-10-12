@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        sortflts.h  (Formerly sfloats.h)
  * Description: Code to maintain a sorted list of floats.
- * Author:		Ray Smith
- * Created:		Mon Oct  4 16:15:40 BST 1993
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
