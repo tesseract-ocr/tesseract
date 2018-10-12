@@ -141,8 +141,8 @@ applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
-baseapi_thread_test_SOURCES = baseapi_thread_test.cc
-baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+#baseapi_thread_test_SOURCES = baseapi_thread_test.cc
+#baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
@@ -195,8 +195,8 @@ matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 nthitem_test_SOURCES = nthitem_test.cc
 nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-pango_font_info_test_SOURCES = pango_font_info_test.cc
-pango_font_info_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+#pango_font_info_test_SOURCES = pango_font_info_test.cc
+#pango_font_info_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
