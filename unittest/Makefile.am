@@ -107,6 +107,7 @@ check_PROGRAMS = \
   lang_model_test \
   linlsq_test \
   loadlang_test \
+  mastertrainer_test \
   matrix_test \
   nthitem_test \
   osd_test \
@@ -184,6 +185,9 @@ linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 loadlang_test_SOURCES = loadlang_test.cc
 loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+mastertrainer_test_SOURCES = mastertrainer_test.cc
+mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
