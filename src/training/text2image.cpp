@@ -416,7 +416,13 @@ static int Main() {
   if (FLAGS_list_available_fonts) {
     const std::vector<std::string>& all_fonts = FontUtils::ListAvailableFonts();
     for (unsigned int i = 0; i < all_fonts.size(); ++i) {
-      printf("%3u: %s\n", i, all_fonts[i].c_str());
+      // Remove trailing comma: pango-font-description-to-string adds a comma
+      // to some fonts.
+      // See https://github.com/tesseract-ocr/tesseract/issues/408
+      std::string font_name(all_fonts[i].c_str());
+      if (font_name.back() == ',')
+        font_name.pop_back();
+      printf("%3u: %s\n", i, font_name.c_str());
       ASSERT_HOST_MSG(FontUtils::IsAvailableFont(all_fonts[i].c_str()),
                       "Font %s is unrecognized.\n", all_fonts[i].c_str());
     }
@@ -437,12 +443,14 @@ static int Main() {
     exit(1);
   }
 
-  if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(FLAGS_font.c_str())) {
+  std::string font_name = FLAGS_font.c_str();
+  if (!FLAGS_find_fonts && !FontUtils::IsAvailableFont(font_name.c_str())) {
+    font_name += ',';
     std::string pango_name;
-    if (!FontUtils::IsAvailableFont(FLAGS_font.c_str(), &pango_name)) {
-      tprintf("Could not find font named %s.\n", FLAGS_font.c_str());
+    if (!FontUtils::IsAvailableFont(font_name.c_str(), &pango_name)) {
+      tprintf("Could not find font named '%s'.\n", FLAGS_font.c_str());
       if (!pango_name.empty()) {
-        tprintf("Pango suggested font %s.\n", pango_name.c_str());
+        tprintf("Pango suggested font '%s'.\n", pango_name.c_str());
       }
       tprintf("Please correct --font arg.\n");
       exit(1);
@@ -453,8 +461,9 @@ static int Main() {
     FLAGS_output_word_boxes = true;
 
   char font_desc_name[1024];
-  snprintf(font_desc_name, 1024, "%s %d", FLAGS_font.c_str(),
-           static_cast<int>(FLAGS_ptsize));
+  snprintf(font_desc_name, 1024, "%s %d", font_name.c_str(),
+            static_cast<int>(FLAGS_ptsize));
+
   StringRenderer render(font_desc_name, FLAGS_xsize, FLAGS_ysize);
   render.set_add_ligatures(FLAGS_ligatures);
   render.set_leading(FLAGS_leading);
