@@ -111,7 +111,7 @@ endif()
 find_package(OpenCL QUIET)
 
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
-option(BUILD_TESTS "Build tests" ON)
+option(BUILD_TESTS "Build tests" OFF)
 
 ###############################################################################
 #
