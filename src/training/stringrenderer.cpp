@@ -543,7 +543,11 @@ void StringRenderer::ComputeClusterBoxes() {
   // pango.
   std::vector<std::string> cluster_text;
   if (GetClusterStrings(&cluster_text)) {
-    ASSERT_HOST(cluster_text.size() == start_byte_to_box.size());
+    tprintf("* %d, cluster_text.size(): %d\t", page_, cluster_text.size());
+    tprintf("start_byte_to_box.size(): %d\n", start_byte_to_box.size());
+    if (cluster_text.size() != start_byte_to_box.size())
+      tprintf(">%s<\n", cluster_text[0].c_str());
+	ASSERT_HOST(cluster_text.size() == start_byte_to_box.size());
     int ind = 0;
     for (std::map<int, BoxChar*>::iterator it = start_byte_to_box.begin();
          it != start_byte_to_box.end(); ++it, ++ind) {
