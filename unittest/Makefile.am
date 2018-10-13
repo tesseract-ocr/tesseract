@@ -1,5 +1,5 @@
 # Absolute path of directory 'langdata'.
-LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata
+LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
@@ -139,7 +139,7 @@ applybox_test_SOURCES = applybox_test.cc
 applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 baseapi_test_SOURCES = baseapi_test.cc
-baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 #baseapi_thread_test_SOURCES = baseapi_thread_test.cc
 #baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
