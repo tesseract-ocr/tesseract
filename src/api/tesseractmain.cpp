@@ -42,6 +42,15 @@
 
 #include <tiffio.h>
 
+static void Win32ErrorHandler(const char* module, const char* fmt,
+                              va_list ap) {
+  if (module != nullptr) {
+    fprintf(stderr, "%s: ", module);
+  }
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, ".\n");
+}
+
 static void Win32WarningHandler(const char* module, const char* fmt,
                                 va_list ap) {
   if (module != nullptr) {
@@ -481,9 +490,10 @@ int main(int argc, char** argv) {
 #endif
 
 #if defined(HAVE_TIFFIO_H) && defined(_WIN32)
-  /* Show libtiff warnings on console (not in GUI). */
+  /* Show libtiff errors and warnings on console (not in GUI). */
+  TIFFSetErrorHandler(Win32ErrorHandler);
   TIFFSetWarningHandler(Win32WarningHandler);
-#endif /* HAVE_TIFFIO_H &&  _WIN32 */
+#endif // HAVE_TIFFIO_H && _WIN32
 
   ParseArgs(argc, argv, &lang, &image, &outputbase, &datapath, &dpi,
             &list_langs, &print_parameters, &vars_vec, &vars_values, &arg_i,
