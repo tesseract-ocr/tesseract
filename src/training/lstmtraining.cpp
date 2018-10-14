@@ -19,6 +19,7 @@
 #ifdef GOOGLE_TESSERACT
 #include "base/commandlineflags.h"
 #endif
+#include <cerrno>
 #include "commontraining.h"
 #include "lstmtester.h"
 #include "lstmtrainer.h"

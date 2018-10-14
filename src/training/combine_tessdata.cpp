@@ -18,6 +18,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include <cerrno>
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "lstmrecognizer.h"
 #include "tessdatamanager.h"
