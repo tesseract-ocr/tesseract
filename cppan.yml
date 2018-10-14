@@ -233,7 +233,7 @@ projects:
         static_only: true
         files:
             - src/training/fileio.*
-            - src/training/icuerrorcode.h
+            - src/training/icuerrorcode.*
             - src/training/lang_model_helpers.*
             - src/training/lstmtester.*
             - src/training/normstrngs.*
@@ -274,7 +274,6 @@ projects:
             - src/training/tlog.cpp
             - src/training/tlog.h
             - src/training/util.h
-            - src/training/icuerrorcode.h
 
         dependencies:
             - unicharset_training
