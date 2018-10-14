@@ -16,13 +16,26 @@
 #
 # USAGE: source tesstrain_utils.sh
 
-if [ "$(uname)" == "Darwin" ];then
+UNAME=$(uname -s | tr 'A-Z' 'a-z')
+LANG_CODE="ENG"
+TIMESTAMP=`date +%Y-%m-%d`
+
+case $UNAME in
+  darwin | *freebsd | dragonfly | cygwin*)
+    MKTEMP_DT=$(mktemp -d -t)
+    ;;
+  * )
+    MKTEMP_DT=$(mktemp -d --tmpdir)
+    ;;
+esac
+FONT_CONFIG_CACHE=(${MKTEMP_DT} font_tmp.XXXXXXXXXX)
+
+if [[ ($UNAME == *darwin*) ]]; then
     FONTS_DIR="/Library/Fonts/"
-    FONT_CONFIG_CACHE=$(mktemp -d -t font_tmp.XXXXXXXXXX)
 else
     FONTS_DIR="/usr/share/fonts/"
-    FONT_CONFIG_CACHE=$(mktemp -d --tmpdir font_tmp.XXXXXXXXXX)
 fi
+
 MAX_PAGES=0
 SAVE_BOX_TIFF=0
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
@@ -186,11 +199,7 @@ parse_flags() {
 
     # Location where intermediate files will be created.
     TIMESTAMP=`date +%Y-%m-%d`
-if [ "$(uname)" == "Darwin" ];then
-    TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX )
-else
-    TMP_DIR=$(mktemp -d --tmpdir ${LANG_CODE}-${TIMESTAMP}.XXX )
-fi
+    TMP_DIR=(${MKTEMP_DT} ${LANG_CODE}-${TIMESTAMP}.XXX )
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
