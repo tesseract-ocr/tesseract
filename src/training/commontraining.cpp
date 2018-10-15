@@ -37,8 +37,8 @@ STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 
 /**
  * This routine parses the command line arguments that were
- * passed to the program and ses them to set relevant
- * training-related global parameters
+ * passed to the program and uses them to set relevant
+ * training-related global parameters.
  *
  * Globals:
  * - Config  current clustering parameters
@@ -118,8 +118,8 @@ DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
 
 /**
  * This routine parses the command line arguments that were
- * passed to the program and ses them to set relevant
- * training-related global parameters
+ * passed to the program and uses them to set relevant
+ * training-related global parameters.
  *
  * Globals:
  * - Config  current clustering parameters
