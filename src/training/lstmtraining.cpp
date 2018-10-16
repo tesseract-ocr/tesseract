@@ -89,7 +89,11 @@ int main(int argc, char **argv) {
   FILE* f = fopen(test_file.c_str(), "wb");
   if (f != nullptr) {
     fclose(f);
-    remove(test_file.c_str());
+    if (remove(test_file.c_str()) != 0) {
+      tprintf("Error, failed to remove %s: %s\n",
+              test_file.c_str(), strerror(errno));
+      return EXIT_FAILURE;
+    }
   } else {
     tprintf("Error, model output cannot be written: %s\n", strerror(errno));
     return EXIT_FAILURE;
