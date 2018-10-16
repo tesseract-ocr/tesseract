@@ -15,16 +15,18 @@
  ** limitations under the License.
  *****************************************************************************/
 
+#include <cfloat>       // for FLT_MAX
+#include <cmath>
+#include <vector>       // for std::vector
+
 #include "cluster.h"
-#include "cutil.h"     // for void_proc
+#include "cutil.h"      // for void_proc
 #include "emalloc.h"
 #include "genericheap.h"
 #include "helpers.h"
 #include "kdpair.h"
 #include "matrix.h"
 #include "tprintf.h"
-#include <cfloat>      // for FLT_MAX
-#include <cmath>
 
 #define HOTELLING 1  // If true use Hotelling's test to decide where to split.
 #define FTABLE_X 10  // Size of FTable.
@@ -1084,10 +1086,9 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   int TotalDims = Left->SampleCount + Right->SampleCount;
   if (TotalDims < N + 1 || TotalDims < 2)
     return nullptr;
-  const int kMatrixSize = N * N * sizeof(float);
-  float *Covariance = static_cast<float *>(Emalloc(kMatrixSize));
-  float *Inverse = static_cast<float *>(Emalloc(kMatrixSize));
-  float *Delta = static_cast<float *>(Emalloc(N * sizeof(float)));
+  std::vector<float> Covariance(N * N);
+  std::vector<float> Inverse(N * N);
+  std::vector<float> Delta(N);
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
     int row_offset = i * N;
@@ -1107,7 +1108,7 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
       }
     }
   }
-  double err = InvertMatrix(Covariance, N, Inverse);
+  double err = InvertMatrix(&Covariance[0], N, &Inverse[0]);
   if (err > 1) {
     tprintf("Clustering error: Matrix inverse failed with error %g\n", err);
   }
@@ -1129,9 +1130,6 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
     }
     Tsq += Delta[x] * temp;
   }
-  free(Covariance);
-  free(Inverse);
-  free(Delta);
   // Changed this function to match the formula in
   // Statistical Methods in Medical Research p 473
   // By Peter Armitage, Geoffrey Berry, J. N. S. Matthews.
