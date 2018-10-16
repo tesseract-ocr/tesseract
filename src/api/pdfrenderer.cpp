@@ -185,6 +185,7 @@ TessPDFRenderer::TessPDFRenderer(const char *outputbase, const char *datadir,
       datadir_(datadir) {
   obj_  = 0;
   textonly_ = textonly;
+  jpg_quality_ = 85;
   offsets_.push_back(0);
 }
 
