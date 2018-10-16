@@ -401,8 +401,10 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
                    addr_info->ai_protocol);
 
-  // If server is not there, we will start a new server as local child process.
-  if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) < 0) {
+  if (stream_ < 0) {
+    std::cerr << "Failed to open socket" << std::endl;
+  } else if (connect(stream_, addr_info->ai_addr, addr_info->ai_addrlen) < 0) {
+    // If server is not there, we will start a new server as local child process.
     const char* scrollview_path = getenv("SCROLLVIEW_PATH");
     if (scrollview_path == nullptr) {
 #ifdef SCROLLVIEW_PATH
