@@ -25,6 +25,7 @@ public:
   void Reset() {
     running_ = false;
     sum_ = 0;
+    start_ = 0;
   }
 
   // When Start() is called multiple times, only the most recent is used.
