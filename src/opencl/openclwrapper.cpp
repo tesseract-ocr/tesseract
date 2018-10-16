@@ -2573,11 +2573,13 @@ ds_device OpenclDevice::getDeviceSelection() {
           bestDeviceIdx = d;
         }
       }
-      tprintf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
-             profile->devices[bestDeviceIdx].oclDeviceName,
-             profile->devices[bestDeviceIdx].type == DS_DEVICE_OPENCL_DEVICE
+      if (bestDeviceIdx >= 0) {
+        tprintf("[DS] Selected Device[%i]: \"%s\" (%s)\n", bestDeviceIdx + 1,
+               profile->devices[bestDeviceIdx].oclDeviceName,
+               profile->devices[bestDeviceIdx].type == DS_DEVICE_OPENCL_DEVICE
                  ? "OpenCL"
                  : "Native");
+      }
       // cleanup
       // TODO: call destructor for profile object?
 
