@@ -205,7 +205,6 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   GenericVector<long int> pages_;    // object number for every /Page object
   std::string datadir_;              // where to find the custom font
   bool textonly_;                    // skip images if set
-  int jpg_quality_;                  // set JPEG quality
   // Bookkeeping only. DIY = Do It Yourself.
   void AppendPDFObjectDIY(size_t objectsize);
   // Bookkeeping + emit data.
