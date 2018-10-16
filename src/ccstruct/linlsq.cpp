@@ -2,7 +2,6 @@
  * File:        linlsq.cpp  (Formerly llsq.c)
  * Description: Linear Least squares fitting code.
  * Author:      Ray Smith
- * Created:     Thu Sep 12 08:44:51 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,7 @@
  **********************************************************************/
 
 #include <cstdio>
-#include <cmath>
+#include <cmath>        // for std::sqrt
 #include "errcode.h"
 #include "linlsq.h"
 
@@ -135,7 +134,7 @@ double LLSQ::rms(double m,  double c) const {          // get error
     error = sigyy + m * (m * sigxx + 2 * (c * sigx - sigxy)) + c *
             (total_weight * c - 2 * sigy);
     if (error >= 0)
-      error = sqrt(error / total_weight);  // sqrt of mean
+      error = std::sqrt(error / total_weight);  // sqrt of mean
     else
       error = 0;
   } else {
@@ -158,7 +157,7 @@ double LLSQ::pearson() const {  // get correlation
   if (covar != 0.0) {
     double var_product = x_variance()  * y_variance();
     if (var_product > 0.0)
-      r = covar / sqrt(var_product);
+      r = covar / std::sqrt(var_product);
   }
   return r;
 }
@@ -196,9 +195,9 @@ FCOORD LLSQ::mean_point() const {
 double LLSQ::rms_orth(const FCOORD &dir) const {
   FCOORD v = !dir;
   v.normalise();
-  return sqrt(v.x() * v.x() * x_variance() +
-              2 * v.x() * v.y() * covariance() +
-              v.y() * v.y() * y_variance());
+  return std::sqrt(v.x() * v.x() * x_variance() +
+                   2 * v.x() * v.y() * covariance() +
+                   v.y() * v.y() * y_variance());
 }
 
 // Returns the direction of the fitted line as a unit vector, using the

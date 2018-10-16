@@ -475,7 +475,7 @@ int Dict::UniformCertainties(const WERD_CHOICE& word) {
   for (int i = 0; i < word_length; ++i) {
     Certainty = word.certainty(i);
     TotalCertainty += Certainty;
-    TotalCertaintySquared += Certainty * Certainty;
+    TotalCertaintySquared += static_cast<double>(Certainty) * Certainty;
     if (Certainty < WorstCertainty)
       WorstCertainty = Certainty;
   }
@@ -483,7 +483,7 @@ int Dict::UniformCertainties(const WERD_CHOICE& word) {
   // Subtract off worst certainty from statistics.
   word_length--;
   TotalCertainty -= WorstCertainty;
-  TotalCertaintySquared -= WorstCertainty * WorstCertainty;
+  TotalCertaintySquared -= static_cast<double>(WorstCertainty) * WorstCertainty;
 
   Mean = TotalCertainty / word_length;
   Variance = ((word_length * TotalCertaintySquared -

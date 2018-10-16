@@ -460,8 +460,8 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
   float *query = query_point_;
   // Compute the sum in higher precision.
   double total_distance = 0.0;
-  double radius_squared =
-      results_.max_insertable_key() * results_.max_insertable_key();
+  double radius_squared = static_cast<double>(results_.max_insertable_key()) *
+    results_.max_insertable_key();
   PARAM_DESC *dim = tree_->KeyDesc;
 
   for (int i = tree_->KeySize; i > 0; i--, dim++, query++, lower++, upper++) {
@@ -486,11 +486,12 @@ bool KDTreeSearch::BoxIntersectsSearch(float *lower, float *upper) {
       dimension_distance = std::min(dimension_distance, wrap_distance);
     }
 
-    total_distance += dimension_distance * dimension_distance;
+    total_distance +=
+      static_cast<double>(dimension_distance) * dimension_distance;
     if (total_distance >= radius_squared)
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 
 
