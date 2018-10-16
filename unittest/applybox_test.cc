@@ -77,7 +77,7 @@ class ApplyBoxTest : public testing::Test {
       EXPECT_TRUE(
           it->BoundingBox(tesseract::RIL_SYMBOL, &left, &top, &right, &bottom));
       TBOX ocr_box(ICOORD(left, height - bottom), ICOORD(right, height - top));
-      int line_number;
+      int line_number = 0;
       TBOX truth_box;
       STRING box_text;
       EXPECT_TRUE(
