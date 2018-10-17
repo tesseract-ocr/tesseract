@@ -186,7 +186,7 @@ class RecodeBeamSearch {
   // If charset is not null, it enables detailed debugging of the beam search.
   void Decode(const NetworkIO& output, double dict_ratio, double cert_offset,
               double worst_dict_cert, const UNICHARSET* charset,
-              int glyph_confidence = 0);
+              int lstm_choice_mode = 0);
   void Decode(const GENERIC_2D_ARRAY<float>& output, double dict_ratio,
               double cert_offset, double worst_dict_cert,
               const UNICHARSET* charset);
@@ -206,7 +206,7 @@ class RecodeBeamSearch {
   void ExtractBestPathAsWords(const TBOX& line_box, float scale_factor,
                               bool debug, const UNICHARSET* unicharset,
                               PointerVector<WERD_RES>* words,
-                              int glyph_confidence = 0);
+                              int lstm_choice_mode = 0);
 
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET& unicharset) const;
@@ -282,7 +282,7 @@ class RecodeBeamSearch {
       const GenericVector<const RecodeNode*>& best_nodes,
       GenericVector<int>* unichar_ids, GenericVector<float>* certs,
       GenericVector<float>* ratings, GenericVector<int>* xcoords,
-      std::deque<std::pair<int,int>>* best_glyphs = nullptr);
+      std::deque<std::pair<int,int>>* best_choices = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
   // right places.
@@ -303,8 +303,8 @@ class RecodeBeamSearch {
                   double cert_offset, double worst_dict_cert,
                   const UNICHARSET* charset, bool debug = false);
 
-  //Saves the most certain glyphs for the current time-step
-  void SaveMostCertainGlyphs(const float* outputs, int num_outputs, const UNICHARSET* charset, int xCoord);
+  //Saves the most certain choices for the current time-step
+  void SaveMostCertainChoices(const float* outputs, int num_outputs, const UNICHARSET* charset, int xCoord);
 
   // Adds to the appropriate beams the legal (according to recoder)
   // continuations of context prev, which is from the given index to beams_,

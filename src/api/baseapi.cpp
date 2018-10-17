@@ -1560,8 +1560,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 
     // Now, process the word...
     std::vector<std::vector<std::pair<const char*, float>>>* confidencemap = nullptr;
-    if (tesseract_->glyph_confidences) {
-      confidencemap = res_it->GetGlyphConfidences();
+    if (tesseract_->lstm_choice_mode) {
+      confidencemap = res_it->GetChoices();
     }
     hocr_str += "\n      <span class='ocrx_word'";
     AddIdTohOCR(&hocr_str, "word", page_id, wcnt);
@@ -1621,8 +1621,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
     if (italic) hocr_str += "</em>";
     if (bold) hocr_str += "</strong>";
-    // If glyph confidence is required it is added here
-    if (tesseract_->glyph_confidences == 1 && confidencemap != nullptr) {
+    // If the lstm choice mode is required it is added here
+    if (tesseract_->lstm_choice_mode == 1 && confidencemap != nullptr) {
       for (size_t i = 0; i < confidencemap->size(); i++) {
         hocr_str += "\n       <span class='ocrx_cinfo'";
         AddIdTohOCR(&hocr_str, "timestep", page_id, wcnt, tcnt);
@@ -1630,7 +1630,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
         for (std::pair<const char*, float> conf : timestep) {
           hocr_str += "<span class='ocr_glyph'";
-          AddIdTohOCR(&hocr_str, "glyph", page_id, wcnt, gcnt);
+          AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
           hocr_str.add_str_int(" title='x_confs ", int(conf.second * 100));
           hocr_str += "'";
           hocr_str += ">";
@@ -1641,18 +1641,18 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         hocr_str += "</span>";
         tcnt++;
       }
-    } else if (tesseract_->glyph_confidences == 2 && confidencemap != nullptr) {
+    } else if (tesseract_->lstm_choice_mode == 2 && confidencemap != nullptr) {
       for (size_t i = 0; i < confidencemap->size(); i++) {
         std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
         if (timestep.size() > 0) {
           hocr_str += "\n       <span class='ocrx_cinfo'";
-          AddIdTohOCR(&hocr_str, "alternative_glyphs", page_id, wcnt, tcnt);
+          AddIdTohOCR(&hocr_str, "lstm_choices", page_id, wcnt, tcnt);
           hocr_str += " chosen='";
           hocr_str += timestep[0].first;
           hocr_str += "'>";
           for (size_t j = 1; j < timestep.size(); j++) {
             hocr_str += "<span class='ocr_glyph'";
-            AddIdTohOCR(&hocr_str, "glyph", page_id, wcnt, gcnt);
+            AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
             hocr_str.add_str_int(" title='x_confs ", int(timestep[j].second * 100));
             hocr_str += "'";
             hocr_str += ">";
