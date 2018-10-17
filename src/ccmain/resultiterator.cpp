@@ -604,7 +604,7 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   return result;
 }
 
-std::vector<std::vector<std::pair<const char*, float>>>* ResultIterator::GetGlyphConfidences() const {
+std::vector<std::vector<std::pair<const char*, float>>>* ResultIterator::GetChoices() const {
   if (it_->word() != nullptr) {
     return &it_->word()->timesteps;
   } else {

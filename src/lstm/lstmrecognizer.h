@@ -184,8 +184,7 @@ class LSTMRecognizer {
   // will be used in a dictionary word.
   void RecognizeLine(const ImageData& image_data, bool invert, bool debug,
                      double worst_dict_cert, const TBOX& line_box,
-                     PointerVector<WERD_RES>* words,
-                     int glyph_confidences = 0);
+                     PointerVector<WERD_RES>* words, int lstm_choice_mode = 0);
 
   // Helper computes min and mean best results in the output.
   void OutputStats(const NetworkIO& outputs,

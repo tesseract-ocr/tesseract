@@ -220,7 +220,7 @@ class WERD_RES : public ELIST_LINK {
   // Gaps between blobs in chopped_word. blob_gaps[i] is the gap between
   // blob i and blob i+1.
   GenericVector<int> blob_gaps;
-  // Stores the glyph confidences of every timestep of the lstm
+  // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char*, float>>> timesteps;
   // Ratings matrix contains classifier choices for each classified combination
   // of blobs. The dimension is the same as the number of blobs in chopped_word

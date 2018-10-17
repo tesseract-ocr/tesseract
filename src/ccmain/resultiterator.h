@@ -98,9 +98,9 @@ class TESS_API ResultIterator : public LTRResultIterator {
   virtual char* GetUTF8Text(PageIteratorLevel level) const;
 
   /**
-   * Returns the glyph confidences for every LSTM timestep for the current Word
+   * Returns the lstm choices for every LSTM timestep for the current Word
   */
-  virtual std::vector<std::vector<std::pair<const char*, float>>>* GetGlyphConfidences() const;
+  virtual std::vector<std::vector<std::pair<const char*, float>>>* GetChoices() const;
 
   /**
    * Return whether the current paragraph's dominant reading direction
