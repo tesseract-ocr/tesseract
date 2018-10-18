@@ -1,0 +1,14 @@
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - libpango1.0-dev
+    configure:
+      command:
+        - ./autogen.sh
+        - mkdir _lgtm_build_dir
+        - cd _lgtm_build_dir
+        - ../configure
+    index:
+      build_command:
+        - make training
