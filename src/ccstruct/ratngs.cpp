@@ -129,6 +129,24 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST_LINK(other) {
   fonts_ = other.fonts_;
 }
 
+// Copy assignment operator.
+BLOB_CHOICE& BLOB_CHOICE::operator=(const BLOB_CHOICE& other) {
+  ELIST_LINK::operator=(other);
+  unichar_id_ = other.unichar_id();
+  rating_ = other.rating();
+  certainty_ = other.certainty();
+  fontinfo_id_ = other.fontinfo_id();
+  fontinfo_id2_ = other.fontinfo_id2();
+  script_id_ = other.script_id();
+  matrix_cell_ = other.matrix_cell_;
+  min_xheight_ = other.min_xheight_;
+  max_xheight_ = other.max_xheight_;
+  yshift_ = other.yshift();
+  classifier_ = other.classifier_;
+  fonts_ = other.fonts_;
+  return *this;
+}
+
 // Returns true if *this and other agree on the baseline and x-height
 // to within some tolerance based on a given estimate of the x-height.
 bool BLOB_CHOICE::PosAndSizeAgree(const BLOB_CHOICE& other, float x_height,
