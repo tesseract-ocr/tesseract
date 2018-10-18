@@ -80,6 +80,9 @@ class TESS_API TessResultRenderer {
     const char* file_extension() const { return file_extension_; }
     const char* title() const { return title_.c_str(); }
 
+    // Is everything fine? Otherwise something went wrong.
+    bool happy() { return happy_; }
+
     /**
      * Returns the index of the last image given to AddImage
      * (i.e. images are incremented whether the image succeeded or not)
