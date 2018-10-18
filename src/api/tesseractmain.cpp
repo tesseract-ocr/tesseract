@@ -22,6 +22,7 @@
 #include "config_auto.h"
 #endif
 
+#include <cerrno>               // for errno
 #include <iostream>
 
 #include "allheaders.h"
@@ -33,7 +34,7 @@
 #include "renderer.h"
 #include "simddetect.h"
 #include "strngs.h"
-#include "tprintf.h"
+#include "tprintf.h"            // for tprintf
 
 #if defined(_WIN32)
 #include <fcntl.h>
@@ -407,16 +408,28 @@ static void PreloadRenderers(
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
-      renderers->push_back(
-          new tesseract::TessHOcrRenderer(outputbase, font_info));
+      tesseract::TessHOcrRenderer* renderer =
+          new tesseract::TessHOcrRenderer(outputbase, font_info);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create hOCR output file: %s\n",
+                strerror(errno));
+      }
     }
 
     api->GetBoolVariable("tessedit_create_tsv", &b);
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
-      renderers->push_back(
-          new tesseract::TessTsvRenderer(outputbase, font_info));
+      tesseract::TessTsvRenderer* renderer =
+          new tesseract::TessTsvRenderer(outputbase, font_info);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create TSV output file: %s\n",
+                strerror(errno));
+      }
     }
 
     api->GetBoolVariable("tessedit_create_pdf", &b);
@@ -427,23 +440,51 @@ static void PreloadRenderers(
       #endif  // WIN32
       bool textonly;
       api->GetBoolVariable("textonly_pdf", &textonly);
-      renderers->push_back(new tesseract::TessPDFRenderer(
-          outputbase, api->GetDatapath(), textonly));
+      tesseract::TessPDFRenderer* renderer =
+        new tesseract::TessPDFRenderer(outputbase, api->GetDatapath(),
+                                       textonly);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create PDF output file: %s\n",
+                strerror(errno));
+      }
     }
 
     api->GetBoolVariable("tessedit_write_unlv", &b);
     if (b) {
-      renderers->push_back(new tesseract::TessUnlvRenderer(outputbase));
+      tesseract::TessUnlvRenderer* renderer =
+        new tesseract::TessUnlvRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create UNLV output file: %s\n",
+                strerror(errno));
+      }
     }
 
     api->GetBoolVariable("tessedit_create_boxfile", &b);
     if (b) {
-      renderers->push_back(new tesseract::TessBoxTextRenderer(outputbase));
+      tesseract::TessBoxTextRenderer* renderer =
+        new tesseract::TessBoxTextRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create BOX output file: %s\n",
+                strerror(errno));
+      }
     }
 
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || renderers->empty()) {
-      renderers->push_back(new tesseract::TessTextRenderer(outputbase));
+      tesseract::TessTextRenderer* renderer =
+        new tesseract::TessTextRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        tprintf("Error, could not create TXT output file: %s\n",
+                strerror(errno));
+      }
     }
   }
 
