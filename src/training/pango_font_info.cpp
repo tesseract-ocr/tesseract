@@ -120,9 +120,18 @@ void PangoFontInfo::SoftInitFontConfig() {
 PangoFontMap* PangoFontInfo::get_font_map() {
   PangoFontMap* font_map =
       pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
-  if (!font_map)  // cairo  withtout support of Freetype?
+  if (!font_map)  // cairo  without support of Freetype?
     font_map = pango_cairo_font_map_get_default();
   return font_map;
+}
+
+// PangoFontMap created with pango_cairo_font_map_new_for_font_type should() be freed
+// PangoFontMap created with pango_cairo_font_map_get_default() must not be freed
+void PangoFontInfo::free_font_map(PangoFontMap* font_map) {
+  if (pango_cairo_font_map_get_font_type((PangoCairoFontMap*)(font_map)) == CAIRO_FONT_TYPE_FT) {
+    g_object_unref(font_map);
+    font_map = nullptr;
+  }
 }
 
 // Re-initializes font config, whether or not already initialized.
@@ -174,6 +183,7 @@ static void ListFontFamilies(PangoFontFamily*** families,
   PangoFontMap* font_map = PangoFontInfo::get_font_map();
   DISABLE_HEAP_LEAK_CHECK;
   pango_font_map_list_families(font_map, families, n_families);
+  PangoFontInfo::free_font_map(font_map);
 }
 
 bool PangoFontInfo::ParseFontDescription(const PangoFontDescription *desc) {
@@ -220,6 +230,7 @@ PangoFont* PangoFontInfo::ToPangoFont() const {
     font = pango_font_map_load_font(font_map, context, desc_);
   }
   g_object_unref(context);
+  PangoFontInfo::free_font_map(font_map);
   return font;
 }
 
@@ -236,6 +247,8 @@ bool PangoFontInfo::CoversUTF8Text(const char* utf8_text, int byte_length) const
       int len = it.get_utf8(tmp);
       tmp[len] = '\0';
       tlog(2, "'%s' (U+%x) not covered by font\n", tmp, *it);
+      pango_coverage_unref(coverage);
+      g_object_unref(font);
       return false;
     }
   }
@@ -329,6 +342,7 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
     if (!glyph_index) {
       // Glyph for given unicode character doesn't exist in font.
       g_object_unref(font);
+      font = nullptr;
       return false;
     }
     // Find the ink glyph extents for the glyph
@@ -346,6 +360,7 @@ bool PangoFontInfo::GetSpacingProperties(const std::string& utf8_char,
   *x_bearing = min_bearing;
   *x_advance = total_advance;
   g_object_unref(font);
+  font = nullptr;
   return true;
 }
 
@@ -465,6 +480,7 @@ bool PangoFontInfo::CanRenderString(const char* utf8_word, int len,
   pango_layout_iter_free(run_iter);
   g_object_unref(context);
   g_object_unref(layout);
+  free_font_map(font_map);
   if (bad_glyph && graphemes) graphemes->clear();
   return !bad_glyph;
 }
@@ -499,6 +515,7 @@ bool FontUtils::IsAvailableFont(const char* input_query_desc,
       selected_font = pango_font_map_load_font(font_map, context, desc);
     }
     g_object_unref(context);
+    PangoFontInfo::free_font_map(font_map);
   }
   if (selected_font == nullptr) {
     pango_font_description_free(desc);
