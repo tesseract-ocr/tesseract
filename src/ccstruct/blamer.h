@@ -289,6 +289,8 @@ struct BlamerBundle {
   void SetMisAdaptionDebug(const WERD_CHOICE *best_choice, bool debug);
 
  private:
+  // Copy assignment operator (currently unused, therefore private).
+  BlamerBundle& operator=(const BlamerBundle& other);
   void SetBlame(IncorrectResultReason irr, const STRING &msg,
                 const WERD_CHOICE *choice, bool debug) {
     incorrect_result_reason_ = irr;

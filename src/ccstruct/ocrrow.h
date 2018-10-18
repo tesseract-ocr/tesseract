@@ -144,6 +144,9 @@ class ROW:public ELIST_LINK
     ROW& operator= (const ROW & source);
 
   private:
+    // Copy constructor (currently unused, therefore private).
+    ROW(const ROW& source);
+
     int32_t kerning;               //inter char gap
     int32_t spacing;               //inter word gap
     TBOX bound_box;              //bounding box

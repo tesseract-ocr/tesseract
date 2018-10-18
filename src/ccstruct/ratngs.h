@@ -197,6 +197,9 @@ class BLOB_CHOICE: public ELIST_LINK
     }
 
  private:
+  // Copy assignment operator.
+  BLOB_CHOICE& operator=(const BLOB_CHOICE& other);
+
   UNICHAR_ID unichar_id_;          // unichar id
   // Fonts and scores. Allowed to be empty.
   GenericVector<tesseract::ScoredFont> fonts_;

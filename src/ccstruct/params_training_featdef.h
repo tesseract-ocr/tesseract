@@ -105,13 +105,18 @@ int ParamsTrainingFeatureByName(const char *name);
 // Entry with features extracted from a single OCR hypothesis for a word.
 struct ParamsTrainingHypothesis {
   ParamsTrainingHypothesis() : cost(0.0) {
-    memset(features, 0, sizeof(float) * PTRAIN_NUM_FEATURE_TYPES);
+    memset(features, 0, sizeof(features));
   }
   ParamsTrainingHypothesis(const ParamsTrainingHypothesis &other) {
-    memcpy(features, other.features,
-           sizeof(float) * PTRAIN_NUM_FEATURE_TYPES);
+    memcpy(features, other.features, sizeof(features));
     str = other.str;
     cost = other.cost;
+  }
+  ParamsTrainingHypothesis& operator=(const ParamsTrainingHypothesis& other) {
+    memcpy(features, other.features, sizeof(features));
+    str = other.str;
+    cost = other.cost;
+    return *this;
   }
   float features[PTRAIN_NUM_FEATURE_TYPES];
   STRING str;  // string corresponding to word hypothesis (for debugging)

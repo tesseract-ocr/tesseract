@@ -79,6 +79,13 @@ struct LineHypothesis {
   LineHypothesis(const LineHypothesis &other)
       : ty(other.ty), model(other.model) {}
 
+  // Copy assignment operator.
+  LineHypothesis& operator=(const LineHypothesis& other) {
+    ty = other.ty;
+    model = other.model;
+    return *this;
+  }
+
   bool operator==(const LineHypothesis &other) const {
     return ty == other.ty && model == other.model;
   }
