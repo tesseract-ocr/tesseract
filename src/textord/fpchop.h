@@ -52,6 +52,8 @@ class C_OUTLINE_FRAG:public ELIST_LINK
     int16_t ycoord;                //coord of cut pt
 
   private:
+    // Copy constructor (currently unused, therefore private).
+    C_OUTLINE_FRAG(const C_OUTLINE_FRAG& other);
 };
 
 ELISTIZEH(C_OUTLINE_FRAG)
