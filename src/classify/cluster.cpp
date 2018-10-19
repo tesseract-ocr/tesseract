@@ -1086,8 +1086,8 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   int TotalDims = Left->SampleCount + Right->SampleCount;
   if (TotalDims < N + 1 || TotalDims < 2)
     return nullptr;
-  std::vector<float> Covariance(N * N);
-  std::vector<float> Inverse(N * N);
+  std::vector<float> Covariance(static_cast<size_t>(N) * N);
+  std::vector<float> Inverse(static_cast<size_t>(N) * N);
   std::vector<float> Delta(N);
   // Compute a new covariance matrix that only uses essential features.
   for (int i = 0; i < N; ++i) {
@@ -1126,7 +1126,7 @@ PROTOTYPE *TestEllipticalProto(CLUSTERER *Clusterer,
   for (int x = 0; x < N; ++x) {
     double temp = 0.0;
     for (int y = 0; y < N; ++y) {
-      temp += Inverse[y + N*x] * Delta[y];
+      temp += static_cast<double>(Inverse[y + N * x]) * Delta[y];
     }
     Tsq += Delta[x] * temp;
   }
@@ -1368,7 +1368,7 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
 
   // allocate memory to hold the statistics results
   Statistics = (STATISTICS *) Emalloc (sizeof (STATISTICS));
-  Statistics->CoVariance = (float *) Emalloc (N * N * sizeof (float));
+  Statistics->CoVariance = (float *)Emalloc(sizeof(float) * N * N);
   Statistics->Min = (float *) Emalloc (N * sizeof (float));
   Statistics->Max = (float *) Emalloc (N * sizeof (float));
 
@@ -2483,7 +2483,7 @@ double InvertMatrix(const float* input, int size, float* inv) {
     for (col = 0; col < size; col++) {
       double sum = 0.0;
       for (int k = 0; k < size; ++k) {
-        sum += input[row*size + k] * inv[k *size + col];
+        sum += static_cast<double>(input[row * size + k]) * inv[k * size + col];
       }
       if (row != col) {
         error_sum += Abs(sum);
