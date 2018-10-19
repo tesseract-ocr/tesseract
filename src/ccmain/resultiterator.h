@@ -100,7 +100,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
   /**
    * Returns the LSTM choices for every LSTM timestep for the current word.
   */
-  virtual std::vector<std::vector<std::pair<const char*, float>>>* GetBestLSTMChoices() const;
+  virtual std::vector<std::vector<std::pair<const char*, float>>>* GetBestLSTMSymbolChoices() const;
 
   /**
    * Return whether the current paragraph's dominant reading direction

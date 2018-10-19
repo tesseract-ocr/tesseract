@@ -1561,7 +1561,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     // Now, process the word...
     std::vector<std::vector<std::pair<const char*, float>>>* confidencemap = nullptr;
     if (tesseract_->lstm_choice_mode) {
-      confidencemap = res_it->GetBestLSTMChoices();
+      confidencemap = res_it->GetBestLSTMSymbolChoices();
     }
     hocr_str += "\n      <span class='ocrx_word'";
     AddIdTohOCR(&hocr_str, "word", page_id, wcnt);
