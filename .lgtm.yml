@@ -11,4 +11,5 @@ extraction:
         - ../configure
     index:
       build_command:
+        - cd _lgtm_build_dir
         - make training
