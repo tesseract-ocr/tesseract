@@ -519,7 +519,7 @@ class BLOBNBOX:public ELIST_LINK
   C_BLOB *cblob_ptr;            // edgestep blob
   TBOX box;                     // bounding box
   TBOX red_box;                 // bounding box
-  int area:30;                  // enclosed area
+  signed int area:30;           // enclosed area
   unsigned joined : 1;          // joined to prev
   unsigned reduced : 1;         // reduced box set
   int repeated_set_;            // id of the set of repeated blobs
