@@ -207,6 +207,7 @@ class FontUtils {
 
   // PangoFontInfo is reinitialized, so clear the static list of fonts.
   static void ReInit();
+  static void PangoFontTypeInfo();
 
  private:
   static std::vector<std::string> available_fonts_;  // cache list

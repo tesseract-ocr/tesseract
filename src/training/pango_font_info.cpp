@@ -768,4 +768,32 @@ bool FontUtils::SelectFont(const char* utf8_word, const int utf8_len,
 /* static */
 void FontUtils::ReInit() { available_fonts_.clear(); }
 
+// Print info about used font backend
+/* static */
+void FontUtils::PangoFontTypeInfo() {
+  PangoFontMap* font_map = pango_cairo_font_map_get_default();
+  if (pango_cairo_font_map_get_font_type(reinterpret_cast<PangoCairoFontMap*>(
+          font_map)) == CAIRO_FONT_TYPE_TOY) {
+    printf("Using CAIRO_FONT_TYPE_TOY.\n");
+  } else if (pango_cairo_font_map_get_font_type(
+                 reinterpret_cast<PangoCairoFontMap*>(font_map)) ==
+             CAIRO_FONT_TYPE_FT) {
+    printf("Using CAIRO_FONT_TYPE_FT.\n");
+  } else if (pango_cairo_font_map_get_font_type(
+                 reinterpret_cast<PangoCairoFontMap*>(font_map)) ==
+             CAIRO_FONT_TYPE_WIN32) {
+    printf("Using CAIRO_FONT_TYPE_WIN32.\n");
+  } else if (pango_cairo_font_map_get_font_type(
+                 reinterpret_cast<PangoCairoFontMap*>(font_map)) ==
+             CAIRO_FONT_TYPE_QUARTZ) {
+    printf("Using CAIRO_FONT_TYPE_QUARTZ.\n");
+  } else if (pango_cairo_font_map_get_font_type(
+                 reinterpret_cast<PangoCairoFontMap*>(font_map)) ==
+             CAIRO_FONT_TYPE_USER) {
+    printf("Using CAIRO_FONT_TYPE_USER.\n");
+  } else if (!font_map) {
+    printf("Can not create pango cairo font map!\n");
+  }
+}
+
 }  // namespace tesseract
