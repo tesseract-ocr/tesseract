@@ -305,7 +305,7 @@ static void ClipBaseline(int ppi, int x1, int y1, int x2, int y2,
     *line_y1 = *line_y2 = (y1 + y2) / 2;
 }
 
-bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
+static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
   if ((code > 0xD7FF && code < 0xE000) || code > 0x10FFFF) {
     tprintf("Dropping invalid codepoint %d\n", code);
     return false;
@@ -841,7 +841,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   char buf[kBasicBufSize];
   char buf2[kBasicBufSize];
   Pix *pix = api->GetInputImage();
-  const char* filename = reinterpret_cast<const char*>(api->GetInputName());
+  const char* filename = api->GetInputName();
   int ppi = api->GetSourceYResolution();
   if (!pix || ppi <= 0)
     return false;
