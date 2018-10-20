@@ -41,6 +41,10 @@
 struct Boxa;
 struct Pix;
 
+#ifdef _MSC_VER
+#  define strdup(s) _strdup(s)
+#endif
+
 namespace tesseract {
 
 class BoxChar;
