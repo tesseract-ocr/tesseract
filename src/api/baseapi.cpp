@@ -226,13 +226,13 @@ const char* TessBaseAPI::Version() {
  * otherwise *device=nullptr and returns 0.
  */
 #ifdef USE_OPENCL
-#if USE_DEVICE_SELECTION
+#ifdef USE_DEVICE_SELECTION
 #include "opencl_device_selection.h"
 #endif
 #endif
 size_t TessBaseAPI::getOpenCLDevice(void **data) {
 #ifdef USE_OPENCL
-#if USE_DEVICE_SELECTION
+#ifdef USE_DEVICE_SELECTION
   ds_device device = OpenclDevice::getDeviceSelection();
   if (device.type == DS_DEVICE_OPENCL_DEVICE) {
     *data = new cl_device_id;
