@@ -95,7 +95,6 @@ class PangoFontInfo {
   // FLAGS_fonts_dir and the cache to FLAGS_fontconfig_tmpdir.
   static void SoftInitFontConfig();
   static PangoFontMap* get_font_map();
-  static void free_font_map(PangoFontMap* font_map);
   // Re-initializes font config, whether or not already initialized.
   // If already initialized, any existing cache is deleted, just to be sure.
   static void HardInitFontConfig(const std::string& fonts_dir,
