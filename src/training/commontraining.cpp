@@ -388,7 +388,7 @@ LABELEDLIST NewLabeledList(const char* Label) {
  * samples by FontName and CharName.  It then returns this
  * data structure.
  * @param file open text file to read samples from
- * @param feature_defs
+ * @param feature_definitions
  * @param feature_name
  * @param max_samples
  * @param unicharset
@@ -396,7 +396,7 @@ LABELEDLIST NewLabeledList(const char* Label) {
  * @return none
  * @note Globals: none
  */
-void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
+void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_definitions,
                          const char *feature_name, int max_samples,
                          UNICHARSET* unicharset,
                          FILE* file, LIST* training_samples) {
@@ -405,7 +405,8 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
   LABELEDLIST char_sample;
   FEATURE_SET feature_samples;
   CHAR_DESC char_desc;
-  uint32_t feature_type = ShortNameToFeatureType(feature_defs, feature_name);
+  uint32_t feature_type =
+    ShortNameToFeatureType(feature_definitions, feature_name);
 
   // Zero out the font_sample_count for all the classes.
   LIST it = *training_samples;
@@ -432,7 +433,7 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_defs,
       char_sample = NewLabeledList(unichar);
       *training_samples = push(*training_samples, char_sample);
     }
-    char_desc = ReadCharDescription(feature_defs, file);
+    char_desc = ReadCharDescription(feature_definitions, file);
     feature_samples = char_desc->FeatureSets[feature_type];
     if (char_sample->font_sample_count < max_samples || max_samples <= 0) {
       char_sample->List = push(char_sample->List, feature_samples);
@@ -538,7 +539,8 @@ CLUSTERER *SetUpForClustering(const FEATURE_DEFS_STRUCT &FeatureDefs,
 
 /*------------------------------------------------------------------------*/
 void MergeInsignificantProtos(LIST ProtoList, const char* label,
-                              CLUSTERER* Clusterer, CLUSTERCONFIG* Config) {
+                              CLUSTERER* Clusterer,
+                              CLUSTERCONFIG* clusterconfig) {
   PROTOTYPE* Prototype;
   bool debug = strcmp(FLAGS_test_ch.c_str(), label) == 0;
 
@@ -586,7 +588,8 @@ void MergeInsignificantProtos(LIST ProtoList, const char* label,
     }
   }
   // Mark significant those that now have enough samples.
-  int min_samples = (int32_t) (Config->MinSamples * Clusterer->NumChar);
+  int min_samples =
+    static_cast<int32_t>(clusterconfig->MinSamples * Clusterer->NumChar);
   pProtoList = ProtoList;
   iterate(pProtoList) {
     Prototype = (PROTOTYPE *) first_node (pProtoList);
