@@ -184,7 +184,7 @@ void* ScrollView::MessageReceiver(void* a) {
 }
 
 // Table to implement the color index values in the old system.
-int table_colors[ScrollView::GREEN_YELLOW+1][4]= {
+static const uint8_t table_colors[ScrollView::GREEN_YELLOW+1][4]= {
   {0, 0, 0, 0},        // NONE (transparent)
   {0, 0, 0, 255},        // BLACK.
   {255, 255, 255, 255},  // WHITE.
