@@ -58,7 +58,7 @@ libtesseract_la_LIBADD = \
     ../ccutil/libtesseract_ccutil.la \
     ../opencl/libtesseract_opencl.la
 
-libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) -no-undefined
+libtesseract_la_LDFLAGS += -version-info $(GENERIC_LIBRARY_VERSION) $(NOUNDEFINED)
 
 bin_PROGRAMS = tesseract
 tesseract_SOURCES = tesseractmain.cpp
