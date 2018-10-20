@@ -16,6 +16,13 @@
 #
 # USAGE: source tesstrain_utils.sh
 
+if [ -n "$BASH_VERSION" ];then
+  set -u  # comment in case of "unbound variable" error or fix the code
+  set -eo pipefail;
+else
+   echo "Warning: you aren't running script in bash - expect problems..."
+ fi
+
 UNAME=$(uname -s | tr 'A-Z' 'a-z')
 LANG_CODE="ENG"
 TIMESTAMP=`date +%Y-%m-%d`

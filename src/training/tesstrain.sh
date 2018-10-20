@@ -47,7 +47,7 @@ echo -e "USAGE: tesstrain.sh
 }
 
 source "$(dirname $0)/tesstrain_utils.sh"
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+if [[ $# -eq 0 || "$1" == "--help" || "$1" == "-h" ]]; then
     display_usage
     exit 0
 fi
