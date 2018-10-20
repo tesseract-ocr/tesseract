@@ -14,7 +14,9 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/wordrec \
     -I$(top_srcdir)/src/cutil
 
-EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
+bin_SCRIPTS = language-specific.sh tesstrain.sh
+scripts_DATA = tesstrain_utils.sh
+scriptsdir = $(bindir)
 
 if DISABLED_LEGACY_ENGINE
 AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
