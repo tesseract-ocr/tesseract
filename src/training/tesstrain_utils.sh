@@ -259,7 +259,7 @@ generate_font_image() {
     done
 
     run_command text2image ${common_args} --font="${font}" \
-        --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS}
+        --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS:-}
     check_file_readable ${outbase}.box ${outbase}.tif
 
     if ((EXTRACT_FONT_PROPERTIES)) &&
