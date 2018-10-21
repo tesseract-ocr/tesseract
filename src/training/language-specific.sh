@@ -868,6 +868,8 @@ VERTICAL_FONTS=( \
     "Baekmuk Batang Patched" \ # for kor
     )
 
+FLAGS_webtext_prefix=${FLAGS_webtext_prefix:-}
+
 # Set language-specific values for several global variables, including
 #   ${TEXT_CORPUS}
 #      holds the text corpus file for the language, used in phase F
@@ -1164,16 +1166,16 @@ set_lang_specific_parameters() {
 
     *) err_exit "Error: ${lang} is not a valid language code"
   esac
-  if [[ ${FLAGS_mean_count} -gt 0 ]]; then
+  if [[ ${FLAGS_mean_count:-} -gt 0 ]]; then
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${FLAGS_mean_count}"
-  elif [[ ! -z ${MEAN_COUNT} ]]; then
+  elif [[ ! -z ${MEAN_COUNT:-} ]]; then
     TRAINING_DATA_ARGUMENTS+=" --mean_count=${MEAN_COUNT}"
   fi
   # Default to Latin fonts if none have been set
   test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
 
   # Default to 0 exposure if it hasn't been set
-  test -z "$EXPOSURES" && EXPOSURES=0
+  test -z "${EXPOSURES:-}" && EXPOSURES=0
   # Set right-to-left and normalization mode.
   case "${LANG_CODE}" in
     ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )
