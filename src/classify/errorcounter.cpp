@@ -46,7 +46,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
   GenericVector<UnicharRating> results;
 
   clock_t start = clock();
-  int total_samples = 0;
+  unsigned total_samples = 0;
   double unscaled_error = 0.0;
   // Set a number of samples on which to run the classify debug mode.
   int error_samples = report_level > 3 ? report_level * report_level : 0;
@@ -89,7 +89,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
                                         fontinfo_table,
                                         *it, unichar_error, fonts_report);
   if (scaled_error != nullptr) *scaled_error = counter.scaled_error_;
-  if (report_level > 1) {
+  if (report_level > 1 && total_samples > 0) {
     // It is useful to know the time in microseconds/char.
     tprintf("Errors computed in %.2fs at %.1f μs/char\n",
             total_time, 1000000.0 * total_time / total_samples);

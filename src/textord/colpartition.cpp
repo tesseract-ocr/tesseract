@@ -663,10 +663,12 @@ void ColPartition::Absorb(ColPartition* other, WidthCallback* cb) {
   // Update the special_blobs_densities_.
   memset(special_blobs_densities_, 0, sizeof(special_blobs_densities_));
   for (int type = 0; type < BSTT_COUNT; ++type) {
-    int w1 = boxes_.length(), w2 = other->boxes_.length();
+    unsigned w1 = boxes_.length();
+    unsigned w2 = other->boxes_.length();
     float new_val = special_blobs_densities_[type] * w1 +
         other->special_blobs_densities_[type] * w2;
     if (!w1 || !w2) {
+      ASSERT_HOST((w1 + w2) > 0);
       special_blobs_densities_[type] = new_val / (w1 + w2);
     }
   }
