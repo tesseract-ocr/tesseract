@@ -20,8 +20,6 @@
 #include "mfoutline.h"
 #include "tesseractclass.h"
 
-#define EXTERN
-
 /**
  * @name tess_segment_pass_n
  *

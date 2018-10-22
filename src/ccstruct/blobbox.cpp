@@ -36,7 +36,6 @@
 struct Pix;
 
 #define PROJECTION_MARGIN 10     //arbitrary
-#define EXTERN
 
 ELISTIZE(BLOBNBOX)
 ELIST2IZE(TO_ROW)
