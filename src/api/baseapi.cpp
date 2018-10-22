@@ -2,7 +2,6 @@
  * File:        baseapi.cpp
  * Description: Simple API for calling tesseract.
  * Author:      Ray Smith
- * Created:     Fri Oct 06 15:35:01 PDT 2006
  *
  * (C) Copyright 2006, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,6 +170,13 @@ static void addAvailableLanguages(const STRING &datadir, const STRING &base,
     closedir(dir);
   }
 #endif
+}
+
+// Compare two STRING values (used for sorting).
+static int CompareSTRING(const void* p1, const void* p2) {
+  const STRING* s1 = static_cast<const STRING*>(p1);
+  const STRING* s2 = static_cast<const STRING*>(p2);
+  return strcmp(s1->c_str(), s2->c_str());
 }
 
 TessBaseAPI::TessBaseAPI()
@@ -459,13 +465,14 @@ void TessBaseAPI::GetLoadedLanguagesAsVector(
 }
 
 /**
- * Returns the available languages in the vector of STRINGs.
+ * Returns the available languages in the sorted vector of STRINGs.
  */
 void TessBaseAPI::GetAvailableLanguagesAsVector(
     GenericVector<STRING>* langs) const {
   langs->clear();
   if (tesseract_ != nullptr) {
     addAvailableLanguages(tesseract_->datadir, "", langs);
+    langs->sort(CompareSTRING);
   }
 }
 
