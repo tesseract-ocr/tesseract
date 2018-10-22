@@ -17,6 +17,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include <algorithm>
+#include <cmath>        // for std::fabs
+#include <memory>
+
 #include "osdetect.h"
 
 #include "blobbox.h"
@@ -32,9 +36,6 @@
 #include "tabvector.h"
 #include "tesseractclass.h"
 #include "textord.h"
-
-#include <algorithm>
-#include <memory>
 
 const float kSizeRatioToReject = 2.0;
 const int kMinAcceptableBlobHeight = 10;
@@ -252,7 +253,10 @@ int os_detect(TO_BLOCK_LIST* port_blocks, OSResults* osr,
       TBOX      box = blob->bounding_box();
       ++blobs_total;
 
-      float y_x = fabs((box.height() * 1.0) / box.width());
+      // Catch illegal value of box width and avoid division by zero.
+      if (box.width() == 0) continue;
+      // TODO: Can height and width be negative? If not, remove fabs.
+      float y_x = std::fabs((box.height() * 1.0f) / box.width());
       float x_y = 1.0f / y_x;
       // Select a >= 1.0 ratio
       float ratio = x_y > y_x ? x_y : y_x;
