@@ -413,6 +413,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create hOCR output file: %s\n",
                 strerror(errno));
       }
@@ -427,6 +428,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create TSV output file: %s\n",
                 strerror(errno));
       }
@@ -446,6 +448,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create PDF output file: %s\n",
                 strerror(errno));
       }
@@ -458,6 +461,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create UNLV output file: %s\n",
                 strerror(errno));
       }
@@ -470,6 +474,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create BOX output file: %s\n",
                 strerror(errno));
       }
@@ -482,6 +487,7 @@ static void PreloadRenderers(
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
+        delete renderer;
         tprintf("Error, could not create TXT output file: %s\n",
                 strerror(errno));
       }
