@@ -441,7 +441,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
               unsigned length = 0;
               while (width--) {
                 q = fgetc(stream);
-                if (isascii(q) && isspace(q) || q <= 0) {
+                if ((isascii(q) && isspace(q)) || (q <= 0)) {
                   ungetc(q, stream);
                   break;
                 }
