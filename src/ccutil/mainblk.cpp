@@ -25,9 +25,6 @@
 #include "fileerr.h"
 #include "ccutil.h"
 
-#define VARDIR        "configs/" /**< variables files */
-#define EXTERN
-
 const ERRCODE NO_PATH =
 "Warning:explicit path for executable will not be used for configs";
 static const ERRCODE USAGE = "Usage";

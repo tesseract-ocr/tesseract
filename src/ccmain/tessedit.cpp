@@ -47,7 +47,6 @@
 #include "matchdefs.h"
 #endif
 
-#define VARDIR        "configs/" /*variables files */
                                  // config under api
 #define API_CONFIG      "configs/api_config"
 

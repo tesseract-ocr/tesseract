@@ -30,7 +30,7 @@
 // Size of thread-id array of pixes to keep in case of crash.
 const int kMaxNumThreadPixes = 32768;
 
-Pix* global_crash_pixes[kMaxNumThreadPixes];
+static Pix* global_crash_pixes[kMaxNumThreadPixes];
 
 void SavePixForCrash(int resolution, Pix* pix) {
 #ifdef __linux__
