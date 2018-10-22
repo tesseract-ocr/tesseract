@@ -52,6 +52,9 @@ RUN_SHAPE_CLUSTERING=0
 EXTRACT_FONT_PROPERTIES=1
 WORKSPACE_DIR=$(mktemp -d)
 
+# set TESSDATA_PREFIX as empty, if not defined in environment to avoid an unbound variable
+TESSDATA_PREFIX=${TESSDATA_PREFIX:-}
+
 # Logging helper functions.
 tlog() {
     echo -e $* 2>&1 1>&2 | tee -a ${LOG_FILE}
