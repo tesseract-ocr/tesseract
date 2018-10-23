@@ -50,6 +50,9 @@
 #include "tlog.h"
 #include "unicharset.h"
 #include "util.h"
+#ifdef _MSC_VER
+#  define putenv(s) _putenv(s)
+#endif
 
 // A number with which to initialize the random number generator.
 const int kRandomSeed = 0x18273645;
@@ -681,6 +684,18 @@ static int Main() {
 }
 
 int main(int argc, char** argv) {
+  // Respect enviroment variable. could be:
+  // fc (fontconfig), win32, and coretext
+  // If not set force fontconfig for Mac OS.
+  // See https://github.com/tesseract-ocr/tesseract/issues/736
+  char* backend;
+  backend = getenv("PANGOCAIRO_BACKEND");
+  if (backend == NULL) {
+    putenv("PANGOCAIRO_BACKEND=fc");
+  } else {
+    printf("Using '%s' as pango cairo backend based on enviroment "
+           "variable.\n", backend);
+  }
   tesseract::CheckSharedLibraryVersion();
   if (argc > 1) {
     if ((strcmp(argv[1], "-v") == 0) ||
