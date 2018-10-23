@@ -258,7 +258,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
             choice_pairs.push_back(choice);
           }
         }
-        if (best_choices.size() > 0 && i == best_choices.front().second - 1
+        if ((best_choices.size() > 0 && i == best_choices.front().second - 1)
             || i == xcoords[word_end]-1) {
           std::map<const char*, float> summed_propabilities;
           for (auto it = choice_pairs.begin(); it != choice_pairs.end(); ++it) {
