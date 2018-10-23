@@ -963,7 +963,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(bland_unrej, false, "unrej potential with no checks");
   double_VAR_H(quality_rowrej_pc, 1.1,
                "good_quality_doc gte good char limit");
-  BOOL_VAR_H(unlv_tilde_crunching, true,
+  BOOL_VAR_H(unlv_tilde_crunching, false,
              "Mark v.bad words for tilde crunch");
   BOOL_VAR_H(hocr_font_info, false,
              "Add font info to hocr output");

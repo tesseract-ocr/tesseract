@@ -456,6 +456,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_write_unlv", &b);
     if (b) {
+      api->SetVariable("unlv_tilde_crunching", "true");
       tesseract::TessUnlvRenderer* renderer =
         new tesseract::TessUnlvRenderer(outputbase);
       if (renderer->happy()) {
