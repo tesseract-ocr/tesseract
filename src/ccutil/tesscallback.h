@@ -28,7 +28,7 @@ struct TessCallbackUtils_ {
 
 class TessClosure {
  public:
-  virtual ~TessClosure() { }
+  virtual ~TessClosure();
   virtual void Run() = 0;
 };
 
