@@ -14,8 +14,9 @@
   * Removed support for VS2010.
   * Added Support for VS2015 and VS2017 with CPPAN.
   * Implemented invisible text only for PDF.
-  * Added AVX / SSE support for Windows
+  * Added AVX / SSE support for Windows.
   * Enabled OpenMP support.
+  * Parameter unlv_tilde_crunching change to false.
   * Miscellaneous Fixes.
 
 2017-02-16 - V3.05.00
