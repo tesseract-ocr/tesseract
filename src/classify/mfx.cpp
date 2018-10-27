@@ -46,7 +46,6 @@ double_VAR(classify_max_slope, 2.414213562,
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End);
 
 MICROFEATURES ConvertToMicroFeatures(MFOUTLINE Outline,
                                      MICROFEATURES MicroFeatures);
@@ -96,29 +95,6 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
 /*---------------------------------------------------------------------------
             Private Code
 ---------------------------------------------------------------------------*/
-
-/**
- * This routine computes the orientation parameter of the
- * specified micro-feature.  The orientation is the angle of
- * the vector from Start to End.  It is normalized to a number
- * between 0 and 1 where 0 corresponds to 0 degrees and 1
- * corresponds to 360 degrees.  The actual range is [0,1), i.e.
- * 1 is excluded from the range (since it is actual the
- * same orientation as 0).  This routine assumes that Start
- * and End are not the same point.
- * @param Start           starting edge point of micro-feature
- * @param End             ending edge point of micro-feature
- * @note Globals: none
- * @return Orientation parameter for the specified micro-feature.
- */
-float ComputeOrientation(MFEDGEPT *Start, MFEDGEPT *End) {
-  float Orientation = NormalizeAngle(AngleFrom(Start->Point, End->Point));
-
-  /* ensure that round-off errors do not put circular param out of range */
-  if ((Orientation < 0) || (Orientation >= 1))
-    Orientation = 0;
-  return (Orientation);
-}                                /* ComputeOrientation */
 
 /**
  * Convert Outline to MicroFeatures
