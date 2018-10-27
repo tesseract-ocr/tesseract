@@ -24,7 +24,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 #include "oldlist.h"
-#include "emalloc.h"
 #include "featdefs.h"
 #include "tessopt.h"
 #include "ocrfeatures.h"
