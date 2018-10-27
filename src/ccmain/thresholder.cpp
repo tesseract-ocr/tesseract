@@ -177,6 +177,32 @@ void ImageThresholder::SetImage(const Pix* pix) {
   Init();
 }
 
+// SetImageNoCopy takes a clone of its input, so the source pix may be
+// pixDestroyed immediately after, but may not go away until after the
+// Thresholder has finished with it.
+bool ImageThresholder::SetImageNoCopy(const Pix* pix) {
+  if (pix_ != nullptr)
+    pixDestroy(&pix_);
+  Pix* src = const_cast<Pix*>(pix);
+  int depth = pixGetDepth(src);
+  pixGetDimensions(src, &image_width_, &image_height_, &depth);
+  // Check if the input is unsuitable.
+  if (pixGetColormap(src)) {
+    tprintf("Pix with colormap passed to SetImageNoCopy. Use SetImage instead.\n");
+    return false;
+  } else if (depth > 1 && depth < 8) {
+    tprintf("%d-bit Pix passed to SetImageNoCopy. Use SetImage instead.\n", depth);
+  } else {
+    pix_ = pixClone(src);
+  }
+  pix_channels_ = depth / 8;
+  pix_wpl_ = pixGetWpl(pix_);
+  scale_ = 1;
+  estimated_res_ = yres_ = pixGetYRes(pix_);
+  Init();
+  return true;
+}
+
 // Threshold the source image as efficiently as possible to the output Pix.
 // Creates a Pix and sets pix to point to the resulting pointer.
 // Caller must use pixDestroy to free the created Pix.

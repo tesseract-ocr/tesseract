@@ -354,6 +354,13 @@ class TESS_API TessBaseAPI {
   void SetImage(Pix* pix);
 
   /**
+   * Provide an image for Tesseract to recognize. Tesseract takes a clone of
+   * it, so it will persist until after Recognize. Returns true if successful
+   * or false if the input is not suitable.
+   */
+  bool SetImageNoCopy(Pix* pix);
+
+  /**
    * Set the resolution of the source image in pixels per inch so font size
    * information can be calculated in results.  Call this after SetImage().
    */

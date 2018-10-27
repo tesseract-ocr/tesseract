@@ -631,6 +631,25 @@ void TessBaseAPI::SetImage(Pix* pix) {
 }
 
 /**
+ * Provide an image for Tesseract to recognize. Tesseract takes a clone of
+ * it, so it will persist until after Recognize. Returns true if successful
+ * or false if the input is not suitable.
+ */
+bool TessBaseAPI::SetImageNoCopy(Pix* pix) {
+  if (InternalSetImage()) {
+    if (pixGetSpp(pix) == 4 && pixGetInputFormat(pix) == IFF_PNG) {
+      tprintf("Pix with alpha channel passed to SetImageNoCopy. Use SetImage instead.\n");
+      return false;
+    }
+    if (!thresholder_->SetImageNoCopy(pix)) {
+      return false;
+    }
+    SetInputImage(thresholder_->GetPixRect());
+  }
+  return false;
+}
+
+/**
  * Restrict recognition to a sub-rectangle of the image. Call after SetImage.
  * Each SetRectangle clears the recogntion results so multiple rectangles
  * can be recognized with the same image.

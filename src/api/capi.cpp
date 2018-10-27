@@ -356,6 +356,14 @@ TESS_API void TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, struct Pix* pi
     return handle->SetImage(pix);
 }
 
+TESS_API BOOL TESS_CALL TessBaseAPISetImageNoCopy(TessBaseAPI* handle, struct Pix* pix)
+{
+    if (handle->SetImageNoCopy(pix))
+        return TRUE;
+    else
+        return FALSE;
+}
+
 TESS_API void TESS_CALL TessBaseAPISetSourceResolution(TessBaseAPI* handle, int ppi)
 {
     handle->SetSourceResolution(ppi);

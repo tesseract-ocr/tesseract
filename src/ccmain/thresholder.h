@@ -114,6 +114,11 @@ class TESS_API ImageThresholder {
   /// finished with it.
   void SetImage(const Pix* pix);
 
+  /// SetImageNoCopy takes a clone of its input, so the source pix may be
+  /// pixDestroyed immediately after, but may not go away until after the
+  /// Thresholder has finished with it.
+  bool SetImageNoCopy(const Pix* pix);
+
   /// Threshold the source image as efficiently as possible to the output Pix.
   /// Creates a Pix and sets pix to point to the resulting pointer.
   /// Caller must use pixDestroy to free the created Pix.

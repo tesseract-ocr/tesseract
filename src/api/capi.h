@@ -221,6 +221,7 @@ TESS_API void  TESS_CALL TessBaseAPIClearAdaptiveClassifier(TessBaseAPI* handle)
 TESS_API void  TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned char* imagedata, int width, int height,
                                              int bytes_per_pixel, int bytes_per_line);
 TESS_API void  TESS_CALL TessBaseAPISetImage2(TessBaseAPI* handle, struct Pix* pix);
+TESS_API BOOL  TESS_CALL TessBaseAPISetImageNoCopy(TessBaseAPI* handle, struct Pix* pix);
 
 TESS_API void TESS_CALL TessBaseAPISetSourceResolution(TessBaseAPI* handle, int ppi);
 
