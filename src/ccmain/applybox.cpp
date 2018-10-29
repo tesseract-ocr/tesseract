@@ -2,7 +2,6 @@
  * File:        applybox.cpp  (Formerly applybox.c)
  * Description: Re segment rows according to box file data
  * Author:      Phil Cheatle
- * Created:     Wed Nov 24 09:11:23 GMT 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +21,6 @@
 #include <cstring>
 #include "allheaders.h"
 #include "boxread.h"
-#ifndef DISABLED_LEGACY_ENGINE
-#include "chopper.h"
-#endif
 #include "pageres.h"
 #include "unichar.h"
 #include "unicharset.h"

@@ -22,7 +22,6 @@ if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += \
     associate.h \
     chop.h \
-    chopper.h \
     drawfx.h \
     findseam.h \
     language_model.h \

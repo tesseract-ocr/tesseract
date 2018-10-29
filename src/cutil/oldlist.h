@@ -4,11 +4,6 @@
  * File:         oldlist.h  (Formerly list.h)
  * Description:  List processing procedures declarations.
  * Author:       Mark Seaman, SW Productivity
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Wed Dec  5 15:43:17 1990 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -275,82 +270,4 @@ LIST search(LIST list, void *key, int_compare is_equal);
 
 LIST search(LIST list, void *key, TessResultCallback2<int, void*, void*>*);
 
-/*
-#if defined(__STDC__) || defined(__cplusplus)
-# define _ARGS(s) s
-#else
-# define _ARGS(s) ()
-#endif
-
-typedef void  (*destructor)   _ARGS((LIST l));
-
-typedef LIST  (*list_proc)    _ARGS((LIST a));
-
-int count
-_ARGS((LIST var_list));
-
-LIST delete_d
-_ARGS((LIST list,
-    LIST key,
-    int_compare is_equal));
-
-LIST destroy
-_ARGS((LIST list));
-
-LIST destroy_nodes
-_ARGS((LIST list,
-    void_dest destructor));
-
-void insert
-_ARGS((LIST list,
-    LIST node));
-
-int is_same_node
-_ARGS((LIST s1,
-    LIST s2));
-
-int is_same
-_ARGS((LIST s1,
-    LIST s2));
-
-LIST join
-_ARGS((LIST list1,
-    LIST list2));
-
-LIST last
-_ARGS((LIST var_list));
-
-LIST nth_cell
-_ARGS((LIST var_list,
-    int item_num));
-
-LIST pop
-_ARGS((LIST list));
-
-LIST push
-_ARGS((LIST list,
-    LIST element));
-
-LIST push_last
-_ARGS((LIST list,
-    LIST item));
-
-LIST reverse
-_ARGS((LIST list));
-
-LIST reverse_d
-_ARGS((LIST list));
-
-LIST s_adjoin
-_ARGS((LIST var_list,
-    LIST variable,
-    int_compare compare));
-
-LIST search
-_ARGS((LIST list,
-    LIST key,
-    int_compare is_equal));
-
-#undef _ARGS
-*/
 #endif

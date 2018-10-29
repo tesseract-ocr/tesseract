@@ -34,7 +34,6 @@
 #include "blobs.h"
 #include "ccstruct.h"
 #include "clst.h"
-#include "emalloc.h"
 #include "helpers.h"
 #include "linlsq.h"
 #include "normalis.h"

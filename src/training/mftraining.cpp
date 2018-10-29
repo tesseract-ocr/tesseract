@@ -33,7 +33,6 @@
 #include "cluster.h"
 #include "clusttool.h"
 #include "commontraining.h"
-#include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
 #include "genericvector.h"

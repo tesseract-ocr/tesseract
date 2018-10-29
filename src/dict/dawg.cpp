@@ -29,7 +29,6 @@
 #include "dawg.h"
 
 #include "dict.h"
-#include "emalloc.h"
 #include "helpers.h"
 #include "strngs.h"
 #include "tesscallback.h"
