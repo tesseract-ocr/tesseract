@@ -1,4 +1,4 @@
-2017-03-24 - V4.00.00-alpha
+2018-10-29 - V4.0.0
   * Added new neural network system based on LSTMs, with major accuracy gains.
   * Improvements to PDF rendering.
   * Fixes to trainingdata rendering.
@@ -18,6 +18,7 @@
   * Enabled OpenMP support.
   * Parameter unlv_tilde_crunching change to false.
   * Miscellaneous Fixes.
+  * Detailed Changelog can be foud at https://github.com/tesseract-ocr/tesseract/wiki/4.0x-Changelog and https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes#tesseract-release-notes-oct-29-2018---v400
 
 2017-02-16 - V3.05.00
   * Made some fine tuning to the hOCR output.

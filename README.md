@@ -39,7 +39,9 @@ at Hewlett-Packard Co, Greeley Colorado between 1985 and 1994, with some
 more changes made in 1996 to port to Windows, and some C++izing in 1998.
 In 2005 Tesseract was open sourced by HP. Since 2006 it is developed by Google.
 
-The latest stable version is **[3.05.01](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.01)**, released on June 1, 2017. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05).
+The latest stable version is **[4.0.0](https://github.com/tesseract-ocr/tesseract/releases/tag/4.0.0)**, released on October 29, 2018. Latest source code for 4.0 is available from [master branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/master). Open issues can be found in [issue tracker](https://github.com/tesseract-ocr/tesseract/issues), and [Planning wiki](https://github.com/tesseract-ocr/tesseract/wiki/Planning#400).
+
+The latest 3.5 version is **[3.05.02](https://github.com/tesseract-ocr/tesseract/releases/tag/3.05.02)**, released on June 19, 2018. Latest source code for 3.05 is available from [3.05 branch on GitHub](https://github.com/tesseract-ocr/tesseract/tree/3.05). There is no development for this version, but it can be used for special cases (e.g. see [Regression of features from 3.0x](https://github.com/tesseract-ocr/tesseract/wiki/Planning#regression-of-features-from-30x)).
 
 Source code for the new **[LSTM based 4.0 version](https://github.com/tesseract-ocr/tesseract)** is available from the master branch on GitHub. Please note this branch is under active development.
 

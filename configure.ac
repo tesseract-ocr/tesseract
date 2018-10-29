@@ -25,7 +25,7 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 # Define date of package, etc. Could be useful in auto-generated
 # documentation.
 PACKAGE_YEAR=2018
-PACKAGE_DATE="03/12"
+PACKAGE_DATE="10/29"
 
 abs_top_srcdir=`AS_DIRNAME([$0])`
 
