@@ -11,7 +11,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 # In-source builds are disabled.
-if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
     message(FATAL_ERROR
         "CMake generation is not possible within the source directory!"
         "\n Remove the CMakeCache.txt file and try again from another folder, e.g.:"
@@ -25,7 +25,7 @@ endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
 
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
 
 # Use solution folders.
@@ -119,30 +119,30 @@ option(BUILD_TESTS "Build tests" OFF)
 #
 ###############################################################################
 
-set(AUTOCONFIG_SRC ${CMAKE_BINARY_DIR}/config_auto.h.in)
-set(AUTOCONFIG ${CMAKE_BINARY_DIR}/config_auto.h)
+set(AUTOCONFIG_SRC ${PROJECT_BINARY_DIR}/config_auto.h.in)
+set(AUTOCONFIG ${PROJECT_BINARY_DIR}/config_auto.h)
 
-include(Configure)
+include(${PROJECT_SOURCE_DIR}/cmake/Configure.cmake)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/src/api/tess_version.h.in
-    ${CMAKE_BINARY_DIR}/api/tess_version.h @ONLY)
+    ${PROJECT_SOURCE_DIR}/src/api/tess_version.h.in
+    ${PROJECT_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
-    ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
+    ${PROJECT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
+    ${PROJECT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
-    ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
+    ${PROJECT_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
+    ${PROJECT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
-    ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
+    ${PROJECT_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
+    ${PROJECT_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake @ONLY)
+    ${PROJECT_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
+    ${PROJECT_BINARY_DIR}/TesseractConfig.cmake @ONLY)
 
 ###############################################################################
 #
@@ -150,8 +150,8 @@ configure_file(
 #
 ###############################################################################
 
-include(BuildFunctions)
-include(SourceGroups)
+include(${PROJECT_SOURCE_DIR}/cmake/BuildFunctions.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/SourceGroups.cmake)
 
 add_definitions(-DHAVE_CONFIG_H)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
@@ -159,10 +159,10 @@ add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
 
 include_directories(${Leptonica_INCLUDE_DIRS})
 
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${PROJECT_BINARY_DIR})
 
 include_directories(src/api)
-include_directories(${CMAKE_BINARY_DIR}/api)
+include_directories(${PROJECT_BINARY_DIR}/api)
 include_directories(src/arch)
 include_directories(src/ccmain)
 include_directories(src/ccstruct)
@@ -230,7 +230,7 @@ if (WIN32)
         set(tesseract_hdr
             ${tesseract_hdr}
             ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
-        set(tesseract_rsc ${CMAKE_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
+        set(tesseract_rsc ${PROJECT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
         set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
             PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
@@ -281,11 +281,11 @@ endif()
 
 if (NOT CPPAN_BUILD)
     target_link_libraries       (libtesseract ${Leptonica_LIBRARIES})
-    export(TARGETS libtesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    export(TARGETS libtesseract FILE ${PROJECT_BINARY_DIR}/TesseractTargets.cmake)
 else()
     target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
-    file(WRITE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_BINARY_DIR}/cppan.cmake)\n")
-    export(TARGETS libtesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    file(WRITE ${PROJECT_BINARY_DIR}/TesseractTargets.cmake "include(${PROJECT_BINARY_DIR}/cppan.cmake)\n")
+    export(TARGETS libtesseract APPEND FILE ${PROJECT_BINARY_DIR}/TesseractTargets.cmake)
 endif()
 
 ########################################
@@ -294,7 +294,7 @@ endif()
 
 set(tesseractmain_src src/api/tesseractmain.cpp)
 if (MSVC)
-    set(tesseractmain_rsc ${CMAKE_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
+    set(tesseractmain_rsc ${PROJECT_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
 endif()
 
 add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
@@ -321,8 +321,8 @@ install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIV
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(EXPORT TesseractTargets DESTINATION cmake)
 install(FILES
-    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake
-    ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake
+    ${PROJECT_BINARY_DIR}/TesseractConfig.cmake
+    ${PROJECT_BINARY_DIR}/TesseractConfig-version.cmake
     DESTINATION cmake)
 
 install(FILES
@@ -394,7 +394,7 @@ install(FILES
     src/lstm/tfnetwork.h
     src/lstm/weightmatrix.h
 
-    #${CMAKE_BINARY_DIR}/src/endianness.h
+    #${PROJECT_BINARY_DIR}/src/endianness.h
     DESTINATION include/tesseract)
 
 
