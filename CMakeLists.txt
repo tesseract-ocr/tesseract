@@ -23,7 +23,7 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
     )
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake;${PROJECT_SOURCE_DIR}/cmake")
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
@@ -122,7 +122,7 @@ option(BUILD_TESTS "Build tests" OFF)
 set(AUTOCONFIG_SRC ${PROJECT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${PROJECT_BINARY_DIR}/config_auto.h)
 
-include(${PROJECT_SOURCE_DIR}/cmake/Configure.cmake)
+include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 
@@ -150,8 +150,8 @@ configure_file(
 #
 ###############################################################################
 
-include(${PROJECT_SOURCE_DIR}/cmake/BuildFunctions.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/SourceGroups.cmake)
+include(BuildFunctions)
+include(SourceGroups)
 
 add_definitions(-DHAVE_CONFIG_H)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
