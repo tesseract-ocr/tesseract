@@ -1,7 +1,7 @@
 # Dockerfile for local Travis build test
 
 FROM ubuntu
-MAINTAINER Ian Blenke <ian@blenke.com>
+LABEL maintainer="Ian Blenke <ian@blenke.com>"
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y cmake curl git ruby bundler wget unzip
