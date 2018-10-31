@@ -983,7 +983,7 @@ template <typename T>
 bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
   uint32_t reserved;
   if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
-  return fp->FRead(nullptr, sizeof(T), reserved) == reserved;
+  return (uint32_t)fp->FRead(nullptr, sizeof(T), reserved) == reserved;
 }
 
 // Writes a vector of classes to the given file. Assumes the existence of
