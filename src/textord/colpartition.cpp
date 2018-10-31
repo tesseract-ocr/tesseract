@@ -1153,7 +1153,6 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
       bool modified_blob_list = false;
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         BLOBNBOX* blob = it.data();
-        TBOX box = blob->bounding_box();
         // If the first or last blob is spaced too much, don't mark it.
         if (it.at_first()) {
           int gap = it.data_relative(1)->bounding_box().left() -

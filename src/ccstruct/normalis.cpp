@@ -410,7 +410,6 @@ void DENORM::DenormTransform(const DENORM* last_denorm, const FCOORD& pt,
 // Normalize a blob using blob transformations. Less accurate, but
 // more accurately copies the old way.
 void DENORM::LocalNormBlob(TBLOB* blob) const {
-  TBOX blob_box = blob->bounding_box();
   ICOORD translation(-IntCastRounded(x_origin_), -IntCastRounded(y_origin_));
   blob->Move(translation);
   if (y_scale_ != 1.0f)
