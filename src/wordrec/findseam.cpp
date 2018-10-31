@@ -132,7 +132,7 @@ void Wordrec::choose_best_seam(SeamQueue *seam_queue, const SPLIT *split,
   TBOX bbox = blob->bounding_box();
   /* Queue loop */
   while (!seam_queue->empty()) {
-    SeamPair seam_pair();
+    SeamPair seam_pair;
     seam_queue->Pop(&seam_pair);
     seam = seam_pair.extract_data();
     /* Set full priority */
