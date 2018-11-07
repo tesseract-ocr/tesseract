@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        ocrclass.h
  * Description: Class definitions and constants for the OCR API.
- * Author:          Hewlett-Packard Co
+ * Author:      Hewlett-Packard Co
  *
  * (C) Copyright 1996, Hewlett-Packard Co.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,29 +19,18 @@
 /**********************************************************************
  * This file contains typedefs for all the structures used by
  * the HP OCR interface.
- * The code is designed to be used with either a C or C++ compiler.
  * The structures are designed to allow them to be used with any
  * structure alignment up to 8.
  **********************************************************************/
 
-#ifndef            CCUTIL_OCRCLASS_H_
-#define            CCUTIL_OCRCLASS_H_
+#ifndef CCUTIL_OCRCLASS_H_
+#define CCUTIL_OCRCLASS_H_
 
 #ifdef __GNUC__
 #include          <sys/time.h>
 #endif
 #include          <ctime>
 #include          "host.h"
-
-/*Maximum lengths of various strings*/
-#define MAX_FONT_NAME   34       /*name of font */
-#define MAX_OCR_NAME    32       /*name of engine */
-#define MAX_OCR_VERSION   17     /*version code of engine */
-
-/*pitch set definitions are identical to RTF*/
-#define PITCH_DEF     0          /*default */
-#define PITCH_FIXED     1        /*fixed pitch */
-#define PITCH_VAR     2          /*variable pitch */
 
 /**********************************************************************
  * EANYCODE_CHAR
