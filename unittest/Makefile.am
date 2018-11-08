@@ -119,8 +119,7 @@ check_PROGRAMS = \
   tablefind_test \
   tablerecog_test \
   tabvector_test \
-  tfile_test \
-  tesseracttests
+  tfile_test
 
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
@@ -226,9 +225,6 @@ tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-tesseracttests_SOURCES = ../tests/tesseracttests.cpp
-tesseracttests_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
-
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
@@ -242,7 +238,6 @@ intsimdmatrix_test_LDADD += -lws2_32
 matrix_test_LDADD += -lws2_32
 osd_test_LDADD += -lws2_32
 loadlang_test_LDADD += -lws2_32
-tesseracttests_LDADD  += -lws2_32
 endif
 
 EXTRA_apiexample_test_DEPENDENCIES = $(abs_top_builddir)/test/testing/phototest.tif

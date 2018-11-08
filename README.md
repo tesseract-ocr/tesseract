@@ -12,10 +12,10 @@
 
 This package contains an **OCR engine** - `libtesseract` and a **command line program** - `tesseract`.
 Tesseract 4 adds a new neural net (LSTM) based OCR engine which is focused
-on line recognition, but also still supports the legacy Tesseract OCR engine of 
-Tesseract 3 which works by recognizing character patterns. Compatibility with 
-Tesseract 3 is enabled by using the Legacy OCR Engine mode (--oem 0). 
-It also needs traineddata files which support the legacy engine, for example 
+on line recognition, but also still supports the legacy Tesseract OCR engine of
+Tesseract 3 which works by recognizing character patterns. Compatibility with
+Tesseract 3 is enabled by using the Legacy OCR Engine mode (--oem 0).
+It also needs traineddata files which support the legacy engine, for example
 those from the tessdata repository.
 
 The lead developer is Ray Smith. The maintainer is Zdenko Podobny.
@@ -98,6 +98,9 @@ Please report an issue only for a **bug**, not for asking questions.
     limitations under the License.
 
 **NOTE**: This software depends on other packages that may be licensed under different open source licenses.
+
+Tesseract uses [Leptonica library](http://leptonica.com/) which essentially
+uses a [BSD 2-clause license](http://leptonica.com/about-the-license.html).
 
 ## Latest Version of README
 
