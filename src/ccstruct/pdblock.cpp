@@ -201,7 +201,7 @@ void PDBLK::plot(                //draw outline
 #if !defined(_WIN32) || defined(__MINGW32__)
     snprintf(temp_buff, sizeof(temp_buff), "%" PRId32, serial);
 #else
-    ultoa (serial, temp_buff, 10);
+    _ultoa(serial, temp_buff, 10);
 #endif
     window->Text(startpt.x (), startpt.y (), temp_buff);
 

@@ -86,7 +86,11 @@ std::string File::JoinPath(const std::string& prefix, const std::string& suffix)
 }
 
 bool File::Delete(const char* pathname) {
-  const int status = unlink(pathname);
+#if !defined(_WIN32) || defined(__MINGW32__)
+  const int status = unlink(pathname)
+#else
+  const int status = _unlink(pathname);
+#endif
   if (status != 0) {
     tprintf("ERROR: Unable to delete file %s\n", pathname);
     return false;
