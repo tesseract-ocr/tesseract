@@ -23,6 +23,7 @@
 #include <cstdio>
 #ifdef _WIN32
 #include <windows.h>
+#pragma comment(lib, "Ws2_32.lib")
 struct addrinfo {
   struct sockaddr* ai_addr;
   int ai_addrlen;
