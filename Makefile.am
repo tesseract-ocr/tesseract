@@ -24,7 +24,7 @@ SUBDIRS += src/ccmain src/api . tessdata doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
-EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc langtests unlvtests
+EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION src/vs2010 cppan.yml
 
 DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)

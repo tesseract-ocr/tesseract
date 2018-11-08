@@ -1,2 +1,0 @@
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
-4_best_int_frk	frk-ligatures	244		92.78%		109		79.63%		80			73.15		367.73s

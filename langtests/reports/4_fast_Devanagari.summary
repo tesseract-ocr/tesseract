@@ -1,8 +1,0 @@
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
-4_fast_Devanagari	san-alphabetsamples	2017		56.09%		1317		12.67%		1317			12.67		400.38s
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
-4_fast_Devanagari	san-fontsamples	433		94.22%		108		83.10%		108			83.10		287.48s
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
-4_fast_Devanagari	san-oldstyle	2883		58.68%		543		37.30%		543			37.30		289.85s
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWErrors	Accuracy	TimeTaken
-4_fast_Devanagari	san-shreelipi	750		94.58%		279		83.31%		279			83.31		813.19s

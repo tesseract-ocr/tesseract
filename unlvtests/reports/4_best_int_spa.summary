@@ -1,2 +1,0 @@
-RELEASE		TestSet	CharErrors	Accuracy	WordErrors	Accuracy	NonStopWordErrors	Accuracy	TimeTaken
-4_best_int_spa	spn.3B	2846		99.18%		937		98.39%		739			97.54		6478.02s

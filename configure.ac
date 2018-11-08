@@ -463,7 +463,6 @@ fi
 
 # Output files
 AC_CONFIG_FILES([Makefile tesseract.pc])
-AC_CONFIG_FILES([langtests/Makefile])
 AC_CONFIG_FILES([src/api/Makefile])
 AC_CONFIG_FILES([src/api/tess_version.h])
 AC_CONFIG_FILES([src/arch/Makefile])
@@ -481,7 +480,6 @@ AC_CONFIG_FILES([src/wordrec/Makefile])
 AC_CONFIG_FILES([tessdata/Makefile])
 AC_CONFIG_FILES([tessdata/configs/Makefile])
 AC_CONFIG_FILES([tessdata/tessconfigs/Makefile])
-AC_CONFIG_FILES([unlvtests/Makefile])
 AC_CONFIG_FILES([unittest/Makefile])
 AC_CONFIG_FILES([java/Makefile])
 AC_CONFIG_FILES([java/com/Makefile])
