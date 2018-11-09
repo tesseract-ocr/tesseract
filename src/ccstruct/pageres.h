@@ -787,5 +787,9 @@ class PAGE_RES_IT {
   BLOCK_RES_IT block_res_it;   // iterators
   ROW_RES_IT row_res_it;
   WERD_RES_IT word_res_it;
+  // Iterators used to get the state of word_res_it for the current word.
+  // Since word_res_it is 2 words further on, this is otherwise hard to do.
+  WERD_RES_IT wr_it_of_current_word;
+  WERD_RES_IT wr_it_of_next_word;
 };
 #endif
