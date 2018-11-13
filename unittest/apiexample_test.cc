@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iostream>
 #include <locale>
+#include <memory>               // std::unique_ptr
 #include <string>
 #include "baseapi.h"
 #include "include_gunit.h"
@@ -55,7 +56,7 @@ void OCRTester(const char* imgname, const char* groundtruth,
   file.imbue(loc);  // Use it for file input
   std::string gtText((std::istreambuf_iterator<char>(file)),
                      std::istreambuf_iterator<char>());
-  tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
   ASSERT_FALSE(api->Init(tessdatadir, lang))
       << "Could not initialize tesseract.";
   Pix* image = pixRead(imgname);
