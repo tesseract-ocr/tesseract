@@ -20,6 +20,7 @@
 
 //#include "log.h"
 #include <iostream>
+#include <memory>               // std::unique_ptr
 #include <string>
 #include "baseapi.h"
 #include "include_gunit.h"
@@ -33,7 +34,7 @@ class TestClass : public testing::Test {
 
 void OSDTester(int expected_deg, const char* imgname, const char* tessdatadir) {
   // log.info() << tessdatadir << " for image: " << imgname << std::endl;
-  tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
   ASSERT_FALSE(api->Init(tessdatadir, "osd"))
       << "Could not initialize tesseract.";
   Pix* image = pixRead(imgname);

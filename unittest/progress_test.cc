@@ -21,6 +21,7 @@
 #include <fstream>
 #include <iostream>
 #include <locale>
+#include <memory>               // std::unique_ptr
 #include <string>
 #include "baseapi.h"
 #include "gmock/gmock.h"
@@ -88,7 +89,7 @@ void ClassicProgressTester(const char* imgname, const char* tessdatadir,
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
   ASSERT_FALSE(api->Init(tessdatadir, lang))
       << "Could not initialize tesseract.";
   Pix* image = pixRead(imgname);
@@ -124,7 +125,7 @@ void NewProgressTester(const char* imgname, const char* tessdatadir,
   using ::testing::Return;
   using ::testing::SaveArg;
 
-  tesseract::TessBaseAPI* api = new tesseract::TessBaseAPI();
+  std::unique_ptr<tesseract::TessBaseAPI> api(new tesseract::TessBaseAPI());
   ASSERT_FALSE(api->Init(tessdatadir, lang))
       << "Could not initialize tesseract.";
   Pix* image = pixRead(imgname);
@@ -149,12 +150,12 @@ void NewProgressTester(const char* imgname, const char* tessdatadir,
   pixDestroy(&image);
 }
 
-TEST(QuickTest, ClassicProgressReporitng) {
+TEST(QuickTest, ClassicProgressReporting) {
   ClassicProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast",
                         "eng");
 }
 
-TEST(QuickTest, NewProgressReporitng) {
+TEST(QuickTest, NewProgressReporting) {
   NewProgressTester(TESTING_DIR "/phototest.tif", TESSDATA_DIR "_fast", "eng");
 }
 
