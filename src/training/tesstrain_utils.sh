@@ -24,18 +24,16 @@ else
  fi
 
 UNAME=$(uname -s | tr 'A-Z' 'a-z')
-LANG_CODE="ENG"
-TIMESTAMP=`date +%Y-%m-%d`
 
 case $UNAME in
   darwin | *freebsd | dragonfly | cygwin*)
-    MKTEMP_DT=$(mktemp -d -t)
+    MKTEMP_DT="mktemp -d -t"
     ;;
   * )
-    MKTEMP_DT=$(mktemp -d --tmpdir)
+    MKTEMP_DT="mktemp -d --tmpdir"
     ;;
 esac
-FONT_CONFIG_CACHE=(${MKTEMP_DT} font_tmp.XXXXXXXXXX)
+FONT_CONFIG_CACHE=$(${MKTEMP_DT} font_tmp.XXXXXXXXXX)
 
 if [[ ($UNAME == *darwin*) ]]; then
     FONTS_DIR="/Library/Fonts/"
@@ -209,7 +207,7 @@ parse_flags() {
 
     # Location where intermediate files will be created.
     TIMESTAMP=`date +%Y-%m-%d`
-    TMP_DIR=(${MKTEMP_DT} ${LANG_CODE}-${TIMESTAMP}.XXX )
+    TMP_DIR=$(${MKTEMP_DT} ${LANG_CODE}-${TIMESTAMP}.XXX)
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
