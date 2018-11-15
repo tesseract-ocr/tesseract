@@ -47,11 +47,19 @@ TESSDATA_PREFIX=${TESSDATA_PREFIX:-}
 
 # Logging helper functions.
 tlog() {
-    echo -e $* 2>&1 1>&2 | tee -a ${LOG_FILE}
+    if test -v LOG_FILE; then
+        echo -e $* | tee -a ${LOG_FILE}
+    else
+        echo -e $*
+    fi
 }
 
 err_exit() {
-    echo -e "ERROR: "$* 2>&1 1>&2 | tee -a ${LOG_FILE}
+    if test -v LOG_FILE; then
+        echo -e "ERROR: "$* | tee -a ${LOG_FILE}
+    else
+        echo -e "ERROR: "$*
+    fi
     exit 1
 }
 
@@ -95,8 +103,8 @@ check_file_readable() {
 # if it looks like a flag.
 # Usage: parse_value VAR_NAME VALUE
 parse_value() {
-    local val="$2"
-    if [[ -z $val ]]; then
+    local val="${2:-}"
+    if [[ -z "$val" ]]; then
         err_exit "Missing value for variable $1"
         exit
     fi
@@ -137,19 +145,19 @@ parse_flags() {
                 parse_value "EXPOSURES" "$exp"
                 i=$((j-1)) ;;
             --fonts_dir)
-                parse_value "FONTS_DIR" ${ARGV[$j]}
+                parse_value "FONTS_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --lang)
-                parse_value "LANG_CODE" ${ARGV[$j]}
+                parse_value "LANG_CODE" ${ARGV[$j]:-}
                 i=$j ;;
             --langdata_dir)
-                parse_value "LANGDATA_ROOT" ${ARGV[$j]}
+                parse_value "LANGDATA_ROOT" ${ARGV[$j]:-}
                 i=$j ;;
             --maxpages)
-                parse_value "MAX_PAGES" ${ARGV[$j]}
+                parse_value "MAX_PAGES" ${ARGV[$j]:-}
                 i=$j ;;
             --output_dir)
-                parse_value "OUTPUT_DIR" ${ARGV[$j]}
+                parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --overwrite)
                 OVERWRITE=1 ;;
@@ -162,18 +170,18 @@ parse_flags() {
             --noextract_font_properties)
                 EXTRACT_FONT_PROPERTIES=0 ;;
             --tessdata_dir)
-                parse_value "TESSDATA_DIR" ${ARGV[$j]}
+                parse_value "TESSDATA_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --training_text)
-                parse_value "TRAINING_TEXT" "${ARGV[$j]}"
+                parse_value "TRAINING_TEXT" "${ARGV[$j]:-}"
                 i=$j ;;
             --wordlist)
-                parse_value "WORDLIST_FILE" ${ARGV[$j]}
+                parse_value "WORDLIST_FILE" ${ARGV[$j]:-}
                 i=$j ;;
             --workspace_dir)
                 rmdir "$FONT_CONFIG_CACHE"
                 rmdir "$WORKSPACE_DIR"
-                parse_value "WORKSPACE_DIR" ${ARGV[$j]}
+                parse_value "WORKSPACE_DIR" ${ARGV[$j]:-}
                 FONT_CONFIG_CACHE=$WORKSPACE_DIR/fc-cache
                 mkdir -p $FONT_CONFIG_CACHE
                 i=$j ;;
@@ -185,10 +193,10 @@ parse_flags() {
     if [[ -z ${LANG_CODE} ]]; then
         err_exit "Need to specify a language --lang"
     fi
-    if [[ -z ${LANGDATA_ROOT} ]]; then
+    if test ! -v LANGDATA_ROOT; then
         err_exit "Need to specify path to language files --langdata_dir"
     fi
-    if [[ -z ${TESSDATA_DIR} ]]; then
+    if test ! -v TESSDATA_DIR; then
         if [[ -z ${TESSDATA_PREFIX} ]]; then
             err_exit "Need to specify a --tessdata_dir or have a "\
         "TESSDATA_PREFIX variable defined in your environment"
@@ -267,13 +275,13 @@ generate_font_image() {
 
 # Phase I : Generate (I)mages from training text for each font.
 phase_I_generate_image() {
-    local par_factor=$1
+    local par_factor=${1:-}
     if [[ -z ${par_factor} || ${par_factor} -le 0 ]]; then
         par_factor=1
     fi
     tlog "\n=== Phase I: Generating training images ==="
-    if [[ -z ${TRAINING_TEXT} ]] || [[ ! -r ${TRAINING_TEXT} ]]; then
-        err_exit "Could not find training text file ${TRAINING_TEXT}"
+    if test ! -v TRAINING_TEXT || test ! -r "${TRAINING_TEXT}"; then
+        err_exit "Could not find training text file ${TRAINING_TEXT:-}"
     fi
     CHAR_SPACING="0.0"
 
@@ -545,7 +553,7 @@ make__lstmdata() {
     --puncs "${lang_prefix}.punc" \
     --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
     "${pass_through}" "${lang_is_rtl}"
-    
+
   if ((SAVE_BOX_TIFF)); then
     tlog "\n=== Saving box/tiff pairs for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
