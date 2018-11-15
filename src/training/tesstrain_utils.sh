@@ -198,7 +198,7 @@ parse_flags() {
     fi
 
     # Location where intermediate files will be created.
-    TIMESTAMP=`date +%Y-%m-%d`
+    TIMESTAMP=$(date +%Y-%m-%d)
     TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
