@@ -909,6 +909,7 @@ set_lang_specific_parameters() {
   # Language to mix with the language for maximum accuracy. Defaults to eng.
   # If no language is good, set to the base language.
   MIX_LANG="eng"
+  FONTS=
 
   case ${lang} in
     # Latin languages.
