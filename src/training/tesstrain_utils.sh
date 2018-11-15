@@ -25,14 +25,7 @@ else
 
 UNAME=$(uname -s | tr 'A-Z' 'a-z')
 
-case $UNAME in
-  darwin | *freebsd | dragonfly | cygwin*)
-    MKTEMP_DT="mktemp -d -t"
-    ;;
-  * )
-    MKTEMP_DT="mktemp -d --tmpdir"
-    ;;
-esac
+MKTEMP_DT="mktemp -d -t"
 FONT_CONFIG_CACHE=$(${MKTEMP_DT} font_tmp.XXXXXXXXXX)
 
 if [[ ($UNAME == *darwin*) ]]; then
