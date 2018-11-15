@@ -25,8 +25,7 @@ else
 
 UNAME=$(uname -s | tr 'A-Z' 'a-z')
 
-MKTEMP_DT="mktemp -d -t"
-FONT_CONFIG_CACHE=$(${MKTEMP_DT} font_tmp.XXXXXXXXXX)
+FONT_CONFIG_CACHE=$(mktemp -d -t font_tmp.XXXXXXXXXX)
 
 if [[ ($UNAME == *darwin*) ]]; then
     FONTS_DIR="/Library/Fonts/"
@@ -200,7 +199,7 @@ parse_flags() {
 
     # Location where intermediate files will be created.
     TIMESTAMP=`date +%Y-%m-%d`
-    TMP_DIR=$(${MKTEMP_DT} ${LANG_CODE}-${TIMESTAMP}.XXX)
+    TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
