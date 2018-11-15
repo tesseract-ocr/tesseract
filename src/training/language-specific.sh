@@ -603,7 +603,7 @@ BURMESE_FONTS=( \
     "Padauk" \
     "TharLon" \
     )
-	
+
 JAVANESE_FONTS=( \
     "Prada" \
     )
@@ -909,7 +909,8 @@ set_lang_specific_parameters() {
   # Language to mix with the language for maximum accuracy. Defaults to eng.
   # If no language is good, set to the base language.
   MIX_LANG="eng"
-  FONTS=
+  EXPOSURES=${EXPOSURES:-}
+  FONTS=${FONTS:-}
 
   case ${lang} in
     # Latin languages.
@@ -1176,7 +1177,7 @@ set_lang_specific_parameters() {
   test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" )
 
   # Default to 0 exposure if it hasn't been set
-  test -z "${EXPOSURES:-}" && EXPOSURES=0
+  test -z "$EXPOSURES" && EXPOSURES=0
   # Set right-to-left and normalization mode.
   case "${LANG_CODE}" in
     ara | div| fas | pus | snd | syr | uig | urd | kur_ara | heb | yid )
