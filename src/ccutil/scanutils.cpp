@@ -143,11 +143,11 @@ static uintmax_t streamtoumax(FILE* s, int base) {
 }
 
 static double streamtofloat(FILE* s) {
-  int minus = 0;
-  int v = 0;
-  int d, c = 0;
-  int k = 1;
-  int w = 0;
+  bool minus = false;
+  uint64_t v = 0;
+  int d, c;
+  uint64_t k = 1;
+  uint64_t w = 0;
 
   for (c = fgetc(s); isascii(c) && isspace(c); c = fgetc(s));
 
@@ -166,8 +166,7 @@ static double streamtofloat(FILE* s) {
       k *= 10;
     }
   }
-  double f  = static_cast<double>(v)
-            + static_cast<double>(w) / static_cast<double>(k);
+  double f = v + static_cast<double>(w) / k;
   if (c == 'e' || c == 'E') {
     c = fgetc(s);
     int expsign = 1;
