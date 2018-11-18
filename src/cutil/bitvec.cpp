@@ -23,7 +23,6 @@
 #include <cstdio>
 
 #include "emalloc.h"
-#include "tprintf.h"
 
 /*-----------------------------------------------------------------------------
               Public Code

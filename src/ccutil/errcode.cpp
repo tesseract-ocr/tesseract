@@ -2,7 +2,6 @@
  * File:        errcode.cpp  (Formerly error.c)
  * Description: Generic error handler function
  * Author:      Ray Smith
- * Created:     Tue May  1 16:28:39 BST 1990
  *
  * (C) Copyright 1989, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #include <cstdlib>
 #include <cstdarg>
 #include <cstring>
-#include "tprintf.h"
 #include "errcode.h"
 
 const ERRCODE BADERRACTION = "Illegal error action";

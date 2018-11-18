@@ -36,7 +36,6 @@
 #include <fcntl.h>
 
 #include "scanutils.h"
-#include "tprintf.h"
 
 enum Flags {
   FL_SPLAT  = 0x01,   // Drop the value, do not assign

@@ -2,7 +2,6 @@
 // File:        unicharset.cpp
 // Description: Unicode character/ligature set class.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +26,6 @@
 #include "params.h"
 #include "serialis.h"
 #include "tesscallback.h"
-#include "tprintf.h"
 #include "unichar.h"
 
 // TODO(rays) Move UNICHARSET to tesseract namespace.

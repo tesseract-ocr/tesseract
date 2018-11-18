@@ -2,7 +2,6 @@
 // File:        stridemap.h
 // Description: Indexing into a 4-d tensor held in a 2-d Array.
 // Author:      Ray Smith
-// Created:     Fri Sep 20 16:00:31 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +19,6 @@
 
 #include <cstring>
 #include <vector>
-#include "tprintf.h"
 
 namespace tesseract {
 

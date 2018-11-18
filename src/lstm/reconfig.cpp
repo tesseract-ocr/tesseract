@@ -3,7 +3,6 @@
 // Description: Network layer that reconfigures the scaling vs feature
 //              depth.
 // Author:      Ray Smith
-// Created:     Wed Feb 26 15:42:25 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +15,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
 #include "reconfig.h"
-#include "tprintf.h"
 
 namespace tesseract {
 

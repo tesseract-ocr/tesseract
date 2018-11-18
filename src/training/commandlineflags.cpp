@@ -11,6 +11,7 @@
 #include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
 #include "errcode.h"
+#include "tprintf.h"            // for tprintf
 
 #ifndef GOOGLE_TESSERACT
 

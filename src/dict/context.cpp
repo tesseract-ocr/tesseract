@@ -4,11 +4,6 @@
  * File:         context.cpp  (Formerly context.c)
  * Description:  Context checking functions
  * Author:       Mark Seaman, OCR Technology
- * Created:      Thu Feb 15 11:18:24 1990
- * Modified:     Tue Jul  9 17:38:16 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +19,6 @@
  *********************************************************************************/
 
 #include "dict.h"
-#include "tprintf.h"
 #include "unicharset.h"
 
 namespace tesseract {

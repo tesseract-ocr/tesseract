@@ -2,7 +2,6 @@
 // File:        functions.h
 // Description: Collection of function-objects used by the network layers.
 // Author:      Ray Smith
-// Created:     Fri Jun 20 10:45:37 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 
 #include <cmath>
 #include "helpers.h"
-#include "tprintf.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
 // updates, internal calculations etc, and reduces the number of test iterations
