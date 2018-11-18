@@ -2,7 +2,6 @@
 // File:        maxpool.cpp
 // Description: Standard Max-Pooling layer.
 // Author:      Ray Smith
-// Created:     Tue Mar 18 16:28:18 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,6 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include "maxpool.h"
-#include "tprintf.h"
 
 namespace tesseract {
 

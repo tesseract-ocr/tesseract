@@ -2,7 +2,6 @@
  * File:        callcpp.cpp
  * Description: extern C interface calling C++ from C.
  * Author:      Ray Smith
- * Created:     Sun Feb 04 20:39:23 MST 1996
  *
  * (C) Copyright 1996, Hewlett-Packard Co.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +39,7 @@ const char *format, ...          //special message
   vsprintf(msg, format, args);  //Format into msg
   va_end(args);
 
-  tprintf ("%s", msg);
+  tprintf("%s", msg);
 }
 
 
