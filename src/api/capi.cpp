@@ -71,11 +71,6 @@ TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate(const char* output
     return new TessHOcrRenderer(outputbase);
 }
 
-TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate2(const char* outputbase, BOOL font_info)
-{
-    return new TessHOcrRenderer(outputbase, font_info);
-}
-
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
                                                              BOOL textonly)
 {

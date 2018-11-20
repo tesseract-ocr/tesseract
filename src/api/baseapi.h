@@ -229,10 +229,10 @@ namespace tesseract {
                  const GenericVector<STRING> *vars_values,
                  bool set_only_non_debug_params);
         int Init(const char* datapath, const char* language, OcrEngineMode oem) {
-          return Init(datapath, language, oem, nullptr, 0, nullptr, nullptr, false);
+            return Init(datapath, language, oem, nullptr, 0, nullptr, nullptr, false);
         }
         int Init(const char* datapath, const char* language) {
-          return Init(datapath, language, OEM_DEFAULT, nullptr, 0, nullptr, nullptr, false);
+            return Init(datapath, language, OEM_DEFAULT, nullptr, 0, nullptr, nullptr, false);
         }
         // In-memory version reads the traineddata file directly from the given
         // data[data_size] array, and/or reads data via a FileReader.
@@ -374,9 +374,9 @@ namespace tesseract {
          * delete it when it it is replaced or the API is destructed.
          */
         void SetThresholder(ImageThresholder* thresholder) {
-          delete thresholder_;
-          thresholder_ = thresholder;
-          ClearResults();
+            delete thresholder_;
+            thresholder_ = thresholder;
+            ClearResults();
         }
 
         /**
@@ -410,7 +410,7 @@ namespace tesseract {
            Helper method to extract from the thresholded image. (most common usage)
         */
         Boxa* GetTextlines(Pixa** pixa, int** blockids) {
-          return GetTextlines(false, 0, pixa, blockids, nullptr);
+            return GetTextlines(false, 0, pixa, blockids, nullptr);
         }
 
         /**
@@ -461,7 +461,7 @@ namespace tesseract {
         Boxa* GetComponentImages(const PageIteratorLevel level,
                                  const bool text_only,
                                  Pixa** pixa, int** blockids) {
-          return GetComponentImages(level, text_only, false, 0, pixa, blockids, nullptr);
+            return GetComponentImages(level, text_only, false, 0, pixa, blockids, nullptr);
         }
 
         /**
@@ -587,18 +587,19 @@ namespace tesseract {
         char* GetHOCRText(ETEXT_DESC* monitor, int page_number);
 
         /**
-       * Make an XML-formatted string with Alto markup from the internal
-       * data structures.
-       */
-        char* GetAltoText(ETEXT_DESC* monitor, int page_number);
-
-        /**
          * Make a HTML-formatted string with hOCR markup from the internal
          * data structures.
          * page_number is 0-based but will appear in the output as 1-based.
          * Returned string must be freed with the delete [] operator.
          */
         char* GetHOCRText(int page_number);
+
+        /**
+        * Make an XML-formatted string with Alto markup from the internal
+        * data structures.
+        */
+        char* GetAltoText(ETEXT_DESC* monitor, int page_number);
+
 
         /**
        * Make an XML-formatted string with Alto markup from the internal

@@ -126,9 +126,8 @@ TESS_API void  TESS_CALL TessDeleteIntArray(int* arr);
 /* Renderer API */
 TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate(const char* outputbase);
-TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outputbase, BOOL font_info);
-TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate2(const char* outputbase, BOOL font_info);
+TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
                                                              BOOL textonly);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
@@ -279,6 +278,7 @@ TESS_CALL TessBaseAPIGetMutableIterator(TessBaseAPI* handle);
 
 TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle);
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number);
+
 TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number);
