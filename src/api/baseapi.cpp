@@ -1426,16 +1426,6 @@ namespace tesseract {
       *hocr_str += "'";
     }
 
-    static void AddIdToAlto(STRING* alto_str, const std::string base, int num1) {
-      const size_t BUFSIZE = 64;
-      char id_buffer[BUFSIZE];
-      snprintf(id_buffer, BUFSIZE - 1, "%s_%d", base.c_str(), num1);
-      id_buffer[BUFSIZE - 1] = '\0';
-      *alto_str += " ID=\"";
-      *alto_str += id_buffer;
-      *alto_str += "\"";
-    }
-
     static void AddBoxTohOCR(const ResultIterator* it, PageIteratorLevel level,
                              STRING* hocr_str) {
       int left, top, right, bottom;
@@ -1460,41 +1450,6 @@ namespace tesseract {
       *hocr_str += "\">";
     }
 
-    static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
-                             STRING* alto_str) {
-      int left, top, right, bottom;
-      it->BoundingBox(level, &left, &top, &right, &bottom);
-
-      int hpos = left;
-      int vpos = top;
-      int height = bottom - top;
-      int width = right - left;
-
-      *alto_str += " HPOS=\"";
-      alto_str->add_str_int("", hpos);
-      *alto_str += "\"";
-      *alto_str += " VPOS=\"";
-      alto_str->add_str_int("", vpos);
-      *alto_str += "\"";
-      *alto_str += " WIDTH=\"";
-      alto_str->add_str_int("", width);
-      *alto_str += "\"";
-      *alto_str += " HEIGHT=\"";
-      alto_str->add_str_int("", height);
-      *alto_str += "\"";
-
-      if (level == RIL_WORD) {
-        int wc = it->Confidence(RIL_WORD);
-        *alto_str += " WC=\"0.";
-        alto_str->add_str_int("", wc);
-        *alto_str += "\"";
-      }
-      if (level != RIL_WORD) {
-
-        *alto_str += ">";
-      }
-    }
-
     static void AddBoxToTSV(const PageIterator* it, PageIteratorLevel level,
                             STRING* hocr_str) {
       int left, top, right, bottom;
@@ -1516,14 +1471,6 @@ namespace tesseract {
  */
     char* TessBaseAPI::GetHOCRText(int page_number) {
       return GetHOCRText(nullptr, page_number);
-    }
-
-/**
- * Make an XML-formatted string with ALTO markup from the internal
- * data structures.
- */
-    char* TessBaseAPI::GetAltoText(int page_number) {
-      return GetAltoText(nullptr, page_number);
     }
 
 /**
@@ -1752,119 +1699,7 @@ namespace tesseract {
       return ret;
     }
 
-/**
- * Make an XML-formatted string with ALTO markup from the internal
- * data structures.
- */
-    char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
-      if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
-        return nullptr;
 
-      int lcnt = 0, bcnt = 0, wcnt = 0;
-      int page_id = page_number;
-
-      STRING alto_str("");
-
-      if (input_file_ == nullptr)
-        SetInputName(nullptr);
-
-#ifdef _WIN32
-      // convert input name from ANSI encoding to utf-8
-  int str16_len =
-      MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
-  wchar_t *uni16_str = new WCHAR[str16_len];
-  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
-                                  uni16_str, str16_len);
-  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0,
-                                     nullptr, nullptr);
-  char *utf8_str = new char[utf8_len];
-  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
-                      utf8_len, nullptr, nullptr);
-  *input_file_ = utf8_str;
-  delete[] uni16_str;
-  delete[] utf8_str;
-#endif
-
-      alto_str += "\t\t<Page WIDTH=\"";
-      alto_str.add_str_int("", rect_width_);
-      alto_str += "\" HEIGHT=\"";
-      alto_str.add_str_int("", rect_height_);
-      alto_str += "\" PHYSICAL_IMG_NR=\"";
-      alto_str.add_str_int("", rect_height_);
-      alto_str += "\"";
-      AddIdToAlto(&alto_str, "page", page_id);
-      alto_str += ">\n";
-      alto_str += ("\t\t\t<PrintSpace HPOS=\"0\" "
-                   "VPOS=\"0\""
-                   " WIDTH=\"");
-      alto_str.add_str_int("", rect_width_);
-      alto_str += "\" HEIGHT=\"";
-      alto_str.add_str_int("", rect_height_);
-      alto_str += "\">\n";
-
-      ResultIterator *res_it = GetIterator();
-      while (!res_it->Empty(RIL_BLOCK)) {
-        if (res_it->Empty(RIL_WORD)) {
-          res_it->Next(RIL_WORD);
-          continue;
-        }
-
-        if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-          alto_str += "\t\t\t\t<TextBlock ";
-          AddIdToAlto(&alto_str, "block", bcnt);
-          AddBoxToAlto(res_it, RIL_BLOCK, &alto_str);
-          alto_str += "\n";
-        }
-
-        if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-
-          alto_str += "\t\t\t\t\t<TextLine ";
-          AddIdToAlto(&alto_str, "line", lcnt);
-          AddBoxToAlto(res_it, RIL_TEXTLINE, &alto_str);
-          alto_str += "\n";
-        }
-
-        alto_str += "\t\t\t\t\t\t<String ";
-        AddIdToAlto(&alto_str, "string", wcnt);
-        AddBoxToAlto(res_it, RIL_WORD, &alto_str);
-        alto_str += " CONTENT=\"";
-
-
-        bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
-        bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-
-        do {
-          const std::unique_ptr<const char[]> grapheme(
-                  res_it->GetUTF8Text(RIL_SYMBOL));
-          if (grapheme && grapheme[0] != 0) {
-            alto_str += HOcrEscape(grapheme.get());
-          }
-          res_it->Next(RIL_SYMBOL);
-        } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-
-        alto_str += "\"/>\n";
-
-        wcnt++;
-
-        if (last_word_in_line) {
-          alto_str += "\t\t\t\t\t</TextLine>\n";
-          lcnt++;
-        }
-
-        if (last_word_in_block) {
-          alto_str += "\t\t\t\t</TextBlock>\n";
-          bcnt++;
-        }
-      }
-
-      alto_str += "\t\t\t</PrintSpace>\n";
-      alto_str += "\t\t</Page>\n";
-
-      char *ret = new char[alto_str.length() + 1];
-      strcpy(ret, alto_str.string());
-      delete res_it;
-      return ret;
-    }
 
 /**
  * Make a TSV-formatted string from the internal data structures.

@@ -1037,6 +1037,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_write_unlv, false, "Write .unlv output file");
   BOOL_VAR_H(tessedit_create_txt, false, "Write .txt output file");
   BOOL_VAR_H(tessedit_create_hocr, false, "Write .html hOCR output file");
+  BOOL_VAR_H(tessedit_create_alto, false, "Write .xml ALTO output file");
   BOOL_VAR_H(tessedit_create_tsv, false, "Write .tsv output file");
   BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
   BOOL_VAR_H(textonly_pdf, false,

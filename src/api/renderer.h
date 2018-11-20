@@ -180,6 +180,7 @@ namespace tesseract {
 
     };
 
+
 /**
  * Renders Tesseract output into a TSV string
  */

@@ -31,6 +31,7 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/../../api/*.cpp $(LOCAL_PATH)/../../
 
 EXPLICIT_SRC_EXCLUDES := \
   $(LOCAL_PATH)/../../api/pdfrenderer.cpp \
+  $(LOCAL_PATH)/../../api/altorenderer.cpp \
   $(LOCAL_PATH)/../../api/tesseractmain.cpp \
 
 LOCAL_SRC_FILES := $(filter-out $(EXPLICIT_SRC_EXCLUDES), $(LOCAL_SRC_FILES))

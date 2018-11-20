@@ -421,7 +421,6 @@ static void PreloadRenderers(
 
         api->GetBoolVariable("tessedit_create_alto", &b);
         if (b) {
-            bool font_info;
             tesseract::TessAltoRenderer* renderer =
                     new tesseract::TessAltoRenderer(outputbase);
             if (renderer->happy()) {
