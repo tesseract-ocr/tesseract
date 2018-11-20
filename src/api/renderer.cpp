@@ -30,250 +30,298 @@ namespace tesseract {
 /**********************************************************************
  * Base Renderer interface implementation
  **********************************************************************/
-TessResultRenderer::TessResultRenderer(const char *outputbase,
-                                       const char* extension)
-    : file_extension_(extension),
-      title_(""), imagenum_(-1),
-      fout_(stdout),
-      next_(nullptr),
-      happy_(true) {
-  if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
-    STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
-    fout_ = fopen(outfile.string(), "wb");
-    if (fout_ == nullptr) {
-      happy_ = false;
+    TessResultRenderer::TessResultRenderer(const char *outputbase,
+                                           const char* extension)
+            : file_extension_(extension),
+              title_(""), imagenum_(-1),
+              fout_(stdout),
+              next_(nullptr),
+              happy_(true) {
+      if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
+        STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
+        fout_ = fopen(outfile.string(), "wb");
+        if (fout_ == nullptr) {
+          happy_ = false;
+        }
+      }
     }
-  }
-}
 
-TessResultRenderer::~TessResultRenderer() {
-  if (fout_ != nullptr) {
-    if (fout_ != stdout)
-      fclose(fout_);
-    else
-      clearerr(fout_);
-  }
-  delete next_;
-}
-
-void TessResultRenderer::insert(TessResultRenderer* next) {
-  if (next == nullptr) return;
-
-  TessResultRenderer* remainder = next_;
-  next_ = next;
-  if (remainder) {
-    while (next->next_ != nullptr) {
-      next = next->next_;
+    TessResultRenderer::~TessResultRenderer() {
+      if (fout_ != nullptr) {
+        if (fout_ != stdout)
+          fclose(fout_);
+        else
+          clearerr(fout_);
+      }
+      delete next_;
     }
-    next->next_ = remainder;
-  }
-}
 
-bool TessResultRenderer::BeginDocument(const char* title) {
-  if (!happy_) return false;
-  title_ = title;
-  imagenum_ = -1;
-  bool ok = BeginDocumentHandler();
-  if (next_) {
-    ok = next_->BeginDocument(title) && ok;
-  }
-  return ok;
-}
+    void TessResultRenderer::insert(TessResultRenderer* next) {
+      if (next == nullptr) return;
 
-bool TessResultRenderer::AddImage(TessBaseAPI* api) {
-  if (!happy_) return false;
-  ++imagenum_;
-  bool ok = AddImageHandler(api);
-  if (next_) {
-    ok = next_->AddImage(api) && ok;
-  }
-  return ok;
-}
+      TessResultRenderer* remainder = next_;
+      next_ = next;
+      if (remainder) {
+        while (next->next_ != nullptr) {
+          next = next->next_;
+        }
+        next->next_ = remainder;
+      }
+    }
 
-bool TessResultRenderer::EndDocument() {
-  if (!happy_) return false;
-  bool ok = EndDocumentHandler();
-  if (next_) {
-    ok = next_->EndDocument() && ok;
-  }
-  return ok;
-}
+    bool TessResultRenderer::BeginDocument(const char* title) {
+      if (!happy_) return false;
+      title_ = title;
+      imagenum_ = -1;
+      bool ok = BeginDocumentHandler();
+      if (next_) {
+        ok = next_->BeginDocument(title) && ok;
+      }
+      return ok;
+    }
 
-void TessResultRenderer::AppendString(const char* s) {
-  AppendData(s, strlen(s));
-}
+    bool TessResultRenderer::AddImage(TessBaseAPI* api) {
+      if (!happy_) return false;
+      ++imagenum_;
+      bool ok = AddImageHandler(api);
+      if (next_) {
+        ok = next_->AddImage(api) && ok;
+      }
+      return ok;
+    }
 
-void TessResultRenderer::AppendData(const char* s, int len) {
-  if (!tesseract::Serialize(fout_, s, len)) happy_ = false;
-}
+    bool TessResultRenderer::EndDocument() {
+      if (!happy_) return false;
+      bool ok = EndDocumentHandler();
+      if (next_) {
+        ok = next_->EndDocument() && ok;
+      }
+      return ok;
+    }
 
-bool TessResultRenderer::BeginDocumentHandler() {
-  return happy_;
-}
+    void TessResultRenderer::AppendString(const char* s) {
+      AppendData(s, strlen(s));
+    }
 
-bool TessResultRenderer::EndDocumentHandler() {
-  return happy_;
-}
+    void TessResultRenderer::AppendData(const char* s, int len) {
+      if (!tesseract::Serialize(fout_, s, len)) happy_ = false;
+    }
+
+    bool TessResultRenderer::BeginDocumentHandler() {
+      return happy_;
+    }
+
+    bool TessResultRenderer::EndDocumentHandler() {
+      return happy_;
+    }
 
 
 /**********************************************************************
  * UTF8 Text Renderer interface implementation
  **********************************************************************/
-TessTextRenderer::TessTextRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "txt") {
-}
+    TessTextRenderer::TessTextRenderer(const char *outputbase)
+            : TessResultRenderer(outputbase, "txt") {
+    }
 
-bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> utf8(api->GetUTF8Text());
-  if (utf8 == nullptr) {
-    return false;
-  }
+    bool TessTextRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> utf8(api->GetUTF8Text());
+      if (utf8 == nullptr) {
+        return false;
+      }
 
-  AppendString(utf8.get());
+      AppendString(utf8.get());
 
-  const char* pageSeparator = api->GetStringVariable("page_separator");
-  if (pageSeparator != nullptr && *pageSeparator != '\0') {
-    AppendString(pageSeparator);
-  }
+      const char* pageSeparator = api->GetStringVariable("page_separator");
+      if (pageSeparator != nullptr && *pageSeparator != '\0') {
+        AppendString(pageSeparator);
+      }
 
-  return true;
-}
+      return true;
+    }
 
 /**********************************************************************
  * HOcr Text Renderer interface implementation
  **********************************************************************/
-TessHOcrRenderer::TessHOcrRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "hocr") {
-    font_info_ = false;
-}
+    TessHOcrRenderer::TessHOcrRenderer(const char *outputbase)
+            : TessResultRenderer(outputbase, "hocr") {
+      font_info_ = false;
+    }
 
-TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
-    : TessResultRenderer(outputbase, "hocr") {
-    font_info_ = font_info;
-}
+    TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
+            : TessResultRenderer(outputbase, "hocr") {
+      font_info_ = font_info;
+    }
 
-bool TessHOcrRenderer::BeginDocumentHandler() {
-  AppendString(
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-      "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-      "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
-      "lang=\"en\">\n <head>\n  <title>");
-  AppendString(title());
-  AppendString(
-      "</title>\n"
-      "<meta http-equiv=\"Content-Type\" content=\"text/html;"
-      "charset=utf-8\" />\n"
-      "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
+    bool TessHOcrRenderer::BeginDocumentHandler() {
+      AppendString(
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+              "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+              "    \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+              "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" "
+              "lang=\"en\">\n <head>\n  <title>");
+      AppendString(title());
+      AppendString(
+              "</title>\n"
+              "<meta http-equiv=\"Content-Type\" content=\"text/html;"
+              "charset=utf-8\" />\n"
+              "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
               "' />\n"
-      "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
-      " ocr_line ocrx_word ocrp_wconf");
-  if (font_info_)
-    AppendString(
-      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
-  AppendString(
-      "'/>\n"
-      "</head>\n<body>\n");
+              "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
+              " ocr_line ocrx_word ocrp_wconf");
+      if (font_info_)
+        AppendString(
+                " ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
+      AppendString(
+              "'/>\n"
+              "</head>\n<body>\n");
 
-  return true;
-}
+      return true;
+    }
 
-bool TessHOcrRenderer::EndDocumentHandler() {
-  AppendString(" </body>\n</html>\n");
+    bool TessHOcrRenderer::EndDocumentHandler() {
+      AppendString(" </body>\n</html>\n");
 
-  return true;
-}
+      return true;
+    }
 
-bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
-  if (hocr == nullptr) return false;
+    bool TessHOcrRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> hocr(api->GetHOCRText(imagenum()));
+      if (hocr == nullptr) return false;
 
-  AppendString(hocr.get());
+      AppendString(hocr.get());
 
-  return true;
-}
+      return true;
+    }
+
+/**********************************************************************
+ * Alto Text Renderer interface implementation
+ **********************************************************************/
+    TessAltoRenderer::TessAltoRenderer(const char *outputbase)
+            : TessResultRenderer(outputbase, "alto") {
+    }
+
+    bool TessAltoRenderer::BeginDocumentHandler() {
+      AppendString(
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+              "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
+              "\t<Description>\n"
+              "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
+              "\t\t<sourceImageInformation>\n"
+              "\t\t\t<fileName>");
+
+      AppendString(title());
+
+      AppendString("\t\t\t</fileName>\n"
+                   "\t\t</sourceImageInformation>\n"
+                   "\t\t<OCRProcessing ID=\"OCR_0\">\n"
+                   "\t\t\t<ocrProcessingStep>\n"
+                   "\t\t\t\t<processingSoftware>\n"
+                   "\t\t\t\t\t<softwareName>tesseract 4.0.0</softwareName>\n"
+                   "\t\t\t\t</processingSoftware>\n"
+                   "\t\t\t</ocrProcessingStep>\n"
+                   "\t\t</OCRProcessing>\n"
+                   "\t</Description>\n"
+                   "\t<Layout>\n");
+
+      return true;
+    }
+
+    bool TessAltoRenderer::EndDocumentHandler() {
+      AppendString("\t</Layout>\n</alto>\n");
+
+      return true;
+    }
+
+    bool TessAltoRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> hocr(api->GetAltoText(imagenum()));
+      if (hocr == nullptr) return false;
+
+      AppendString(hocr.get());
+
+      return true;
+    }
 
 /**********************************************************************
  * TSV Text Renderer interface implementation
  **********************************************************************/
-TessTsvRenderer::TessTsvRenderer(const char* outputbase)
-    : TessResultRenderer(outputbase, "tsv") {
-  font_info_ = false;
-}
+    TessTsvRenderer::TessTsvRenderer(const char* outputbase)
+            : TessResultRenderer(outputbase, "tsv") {
+      font_info_ = false;
+    }
 
-TessTsvRenderer::TessTsvRenderer(const char* outputbase, bool font_info)
-    : TessResultRenderer(outputbase, "tsv") {
-  font_info_ = font_info;
-}
+    TessTsvRenderer::TessTsvRenderer(const char* outputbase, bool font_info)
+            : TessResultRenderer(outputbase, "tsv") {
+      font_info_ = font_info;
+    }
 
-bool TessTsvRenderer::BeginDocumentHandler() {
-  // Output TSV column headings
-  AppendString(
-      "level\tpage_num\tblock_num\tpar_num\tline_num\tword_"
-      "num\tleft\ttop\twidth\theight\tconf\ttext\n");
-  return true;
-}
+    bool TessTsvRenderer::BeginDocumentHandler() {
+      // Output TSV column headings
+      AppendString(
+              "level\tpage_num\tblock_num\tpar_num\tline_num\tword_"
+              "num\tleft\ttop\twidth\theight\tconf\ttext\n");
+      return true;
+    }
 
-bool TessTsvRenderer::EndDocumentHandler() { return true; }
+    bool TessTsvRenderer::EndDocumentHandler() { return true; }
 
-bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum()));
-  if (tsv == nullptr) return false;
+    bool TessTsvRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> tsv(api->GetTSVText(imagenum()));
+      if (tsv == nullptr) return false;
 
-  AppendString(tsv.get());
+      AppendString(tsv.get());
 
-  return true;
-}
+      return true;
+    }
 
 /**********************************************************************
  * UNLV Text Renderer interface implementation
  **********************************************************************/
-TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "unlv") {
-}
+    TessUnlvRenderer::TessUnlvRenderer(const char *outputbase)
+            : TessResultRenderer(outputbase, "unlv") {
+    }
 
-bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> unlv(api->GetUNLVText());
-  if (unlv == nullptr) return false;
+    bool TessUnlvRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> unlv(api->GetUNLVText());
+      if (unlv == nullptr) return false;
 
-  AppendString(unlv.get());
+      AppendString(unlv.get());
 
-  return true;
-}
+      return true;
+    }
 
 /**********************************************************************
  * BoxText Renderer interface implementation
  **********************************************************************/
-TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "box") {
-}
+    TessBoxTextRenderer::TessBoxTextRenderer(const char *outputbase)
+            : TessResultRenderer(outputbase, "box") {
+    }
 
-bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> text(api->GetBoxText(imagenum()));
-  if (text == nullptr) return false;
+    bool TessBoxTextRenderer::AddImageHandler(TessBaseAPI* api) {
+      const std::unique_ptr<const char[]> text(api->GetBoxText(imagenum()));
+      if (text == nullptr) return false;
 
-  AppendString(text.get());
+      AppendString(text.get());
 
-  return true;
-}
+      return true;
+    }
 
 #ifndef DISABLED_LEGACY_ENGINE
 
 /**********************************************************************
  * Osd Text Renderer interface implementation
  **********************************************************************/
-TessOsdRenderer::TessOsdRenderer(const char* outputbase)
-    : TessResultRenderer(outputbase, "osd") {}
+    TessOsdRenderer::TessOsdRenderer(const char* outputbase)
+            : TessResultRenderer(outputbase, "osd") {}
 
-bool TessOsdRenderer::AddImageHandler(TessBaseAPI* api) {
-  char* osd = api->GetOsdText(imagenum());
-  if (osd == nullptr) return false;
+    bool TessOsdRenderer::AddImageHandler(TessBaseAPI* api) {
+      char* osd = api->GetOsdText(imagenum());
+      if (osd == nullptr) return false;
 
-  AppendString(osd);
-  delete[] osd;
+      AppendString(osd);
+      delete[] osd;
 
-  return true;
-}
+      return true;
+    }
 
 #endif // ndef DISABLED_LEGACY_ENGINE
 
