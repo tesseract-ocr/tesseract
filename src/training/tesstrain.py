@@ -14,23 +14,30 @@
 # Tesseract.  For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
-import sys,os,subprocess, logging
+import sys, os, subprocess, logging
 
 
 sys.path.insert(0, os.path.dirname(__file__))
-from tesstrain_utils import parse_flags, initialize_fontconfig, phase_I_generate_image, \
-  phase_UP_generate_unicharset, phase_E_extract_features, make_lstmdata, cleanup
+from tesstrain_utils import (
+    parse_flags,
+    initialize_fontconfig,
+    phase_I_generate_image,
+    phase_UP_generate_unicharset,
+    phase_E_extract_features,
+    make_lstmdata,
+    cleanup,
+)
 import language_specific
 
 log = logging.getLogger()
+
 
 def setup_logging(logfile):
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
     console_formatter = logging.Formatter(
-      '[%(asctime)s] %(levelname)s - %(message)s',
-      datefmt='%H:%M:%S'
+        "[%(asctime)s] %(levelname)s - %(message)s", datefmt="%H:%M:%S"
     )
     console.setFormatter(console_formatter)
     log.addHandler(console)
@@ -38,16 +45,17 @@ def setup_logging(logfile):
     logfile = logging.FileHandler(logfile)
     logfile.setLevel(logging.DEBUG)
     logfile_formatter = logging.Formatter(
-      '[%(asctime)s] - %(levelname)s - %(name)s - %(message)s'
+        "[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"
     )
     logfile.setFormatter(logfile_formatter)
     log.addHandler(logfile)
+
 
 def main():
     ctx = parse_flags()
     setup_logging(ctx.log_file)
     if not ctx.linedata:
-        log.error('--linedata_only is required since only LSTM is supported')
+        log.error("--linedata_only is required since only LSTM is supported")
         sys.exit(1)
 
     log.info(f"=== Starting training for language {ctx.lang_code}")
@@ -58,14 +66,15 @@ def main():
     phase_UP_generate_unicharset(ctx)
 
     if ctx.linedata:
-        phase_E_extract_features(ctx, ['--psm', '6', 'lstm.train'], 'lstmf')
+        phase_E_extract_features(ctx, ["--psm", "6", "lstm.train"], "lstmf")
         make_lstmdata(ctx)
 
     cleanup(ctx)
     log.info("All done!")
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
 
 
@@ -76,7 +85,7 @@ if __name__ == '__main__':
 # _rc0 = subprocess.call(["phase_I_generate_image","8"],shell=True)
 # _rc0 = subprocess.call(["phase_UP_generate_unicharset"],shell=True)
 # if (LINEDATA ):
-     #subprocess.call(["phase_E_extract_features"," --psm 6  lstm.train ","8","lstmf"],shell=True)
+# subprocess.call(["phase_E_extract_features"," --psm 6  lstm.train ","8","lstmf"],shell=True)
 #     subprocess.call(["make__lstmdata"],shell=True)
 #     subprocess.call(["tlog","\nCreated starter traineddata for language '"+str(LANG_CODE.val)+"'\n"],shell=True)
 #     subprocess.call(["tlog","\nRun lstmtraining to do the LSTM training for language '"+str(LANG_CODE.val)+"'\n"],shell=True)

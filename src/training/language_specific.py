@@ -15,29 +15,32 @@
 # tesstrain.sh
 #
 
-#=============================================================================
+# =============================================================================
 # Language specific info
-#=============================================================================
+# =============================================================================
 
 import os
 import logging
+
 log = logging.getLogger(__name__)
 
 # Array of all valid language codes.
-VALID_LANGUAGE_CODES=("afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat "
-                     "ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo "
-                     "ell eng enm epo est eus fas fil fin fra frk frm gle glg "
-                     "grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old "
-                     "jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat "
-                     "lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori "
-                     "pan pol por pus ron rus san sin slk slv snd spa spa_old "
-                     "sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur "
-                     "uig ukr urd uzb uzb_cyrl vie yid gle_uncial ")
+VALID_LANGUAGE_CODES = (
+    "afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat "
+    "ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo "
+    "ell eng enm epo est eus fas fil fin fra frk frm gle glg "
+    "grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old "
+    "jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat "
+    "lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori "
+    "pan pol por pus ron rus san sin slk slv snd spa spa_old "
+    "sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur "
+    "uig ukr urd uzb uzb_cyrl vie yid gle_uncial "
+)
 
 # Codes for which we have webtext but no fonts:
-UNUSABLE_LANGUAGE_CODES=""
+UNUSABLE_LANGUAGE_CODES = ""
 
-FRAKTUR_FONTS=[
+FRAKTUR_FONTS = [
     "CaslonishFraxx Medium",
     "Cloister Black, Light",
     "Proclamate Light",
@@ -46,7 +49,7 @@ FRAKTUR_FONTS=[
 ]
 
 # List of fonts to train on
-LATIN_FONTS=[
+LATIN_FONTS = [
     "Arial Bold",
     "Arial Bold Italic",
     "Arial Italic",
@@ -82,7 +85,7 @@ LATIN_FONTS=[
 ]
 
 # List of fonts for printed/neo-Latin ('lat' language code, different from Latin script)
-NEOLATIN_FONTS=[
+NEOLATIN_FONTS = [
     "GFS Bodoni",
     "GFS Bodoni Bold",
     "GFS Bodoni Italic",
@@ -114,33 +117,33 @@ NEOLATIN_FONTS=[
     "IM FELL Great Primer PRO Italic",
 ]
 
-IRISH_UNCIAL_FONTS=[
-  "Bunchlo Arsa Dubh GC",
-  "Bunchlo Arsa GC",
-  "Bunchlo Arsa GC Bold",
-  "Bunchlo Dubh GC",
-  "Bunchlo GC",
-  "Bunchlo GC Bold",
-  "Bunchlo Nua GC Bold",
-  "Bunchló na Nod GC",
-  "Gadelica",
-  "Glanchlo Dubh GC",
-  "Glanchlo GC",
-  "Glanchlo GC Bold",
-  "Seanchló Dubh GC",
-  "Seanchló GC",
-  "Seanchló GC Bold",
-  "Seanchló na Nod GC",
-  "Seanchló Ársa Dubh GC",
-  "Seanchló Ársa GC",
-  "Seanchló Ársa GC Bold",
-  "Tromchlo Beag GC",
-  "Tromchlo Mor GC",
-  "Urchlo GC",
-  "Urchlo GC Bold",
+IRISH_UNCIAL_FONTS = [
+    "Bunchlo Arsa Dubh GC",
+    "Bunchlo Arsa GC",
+    "Bunchlo Arsa GC Bold",
+    "Bunchlo Dubh GC",
+    "Bunchlo GC",
+    "Bunchlo GC Bold",
+    "Bunchlo Nua GC Bold",
+    "Bunchló na Nod GC",
+    "Gadelica",
+    "Glanchlo Dubh GC",
+    "Glanchlo GC",
+    "Glanchlo GC Bold",
+    "Seanchló Dubh GC",
+    "Seanchló GC",
+    "Seanchló GC Bold",
+    "Seanchló na Nod GC",
+    "Seanchló Ársa Dubh GC",
+    "Seanchló Ársa GC",
+    "Seanchló Ársa GC Bold",
+    "Tromchlo Beag GC",
+    "Tromchlo Mor GC",
+    "Urchlo GC",
+    "Urchlo GC Bold",
 ]
 
-EARLY_LATIN_FONTS=[
+EARLY_LATIN_FONTS = [
     *FRAKTUR_FONTS,
     *LATIN_FONTS,
     # The Wyld font family renders early modern ligatures encoded in the private
@@ -151,7 +154,7 @@ EARLY_LATIN_FONTS=[
     "GentiumAlt",
 ]
 
-VIETNAMESE_FONTS=[
+VIETNAMESE_FONTS = [
     "Arial Unicode MS Bold",
     "Arial Bold Italic",
     "Arial Italic",
@@ -186,7 +189,7 @@ VIETNAMESE_FONTS=[
     "VL PGothic",
 ]
 
-DEVANAGARI_FONTS=[
+DEVANAGARI_FONTS = [
     "FreeSans",
     "Chandas",
     "Kalimati",
@@ -208,7 +211,7 @@ DEVANAGARI_FONTS=[
     "Santipur OT Medium",
 ]
 
-KANNADA_FONTS=[
+KANNADA_FONTS = [
     "Kedage Bold",
     "Kedage Italic",
     "Kedage",
@@ -228,7 +231,7 @@ KANNADA_FONTS=[
     "Tunga Bold",
 ]
 
-TELUGU_FONTS=[
+TELUGU_FONTS = [
     "Pothana2000",
     "Vemana2000",
     "Lohit Telugu",
@@ -256,7 +259,7 @@ TELUGU_FONTS=[
     "Gautami",
 ]
 
-TAMIL_FONTS=[
+TAMIL_FONTS = [
     "TAMu_Kadambri",
     "TAMu_Kalyani",
     "TAMu_Maduram",
@@ -282,7 +285,7 @@ TAMIL_FONTS=[
     "Lohit Tamil Classical",
 ]
 
-THAI_FONTS=[
+THAI_FONTS = [
     "FreeSerif",
     "FreeSerif Italic",
     "Garuda",
@@ -315,7 +318,7 @@ THAI_FONTS=[
     "Tahoma",
 ]
 
-KOREAN_FONTS=[
+KOREAN_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "Baekmuk Batang Patched",
@@ -325,7 +328,7 @@ KOREAN_FONTS=[
     "Baekmuk Headline",
 ]
 
-CHI_SIM_FONTS=[
+CHI_SIM_FONTS = [
     "AR PL UKai CN",
     "AR PL UMing Patched Light",
     "Arial Unicode MS",
@@ -333,7 +336,7 @@ CHI_SIM_FONTS=[
     "WenQuanYi Zen Hei Medium",
 ]
 
-CHI_TRA_FONTS=[
+CHI_TRA_FONTS = [
     "AR PL UKai TW",
     "AR PL UMing TW MBE Light",
     "AR PL UKai Patched",
@@ -343,7 +346,7 @@ CHI_TRA_FONTS=[
     "WenQuanYi Zen Hei Medium",
 ]
 
-JPN_FONTS=[
+JPN_FONTS = [
     "TakaoExGothic",
     "TakaoExMincho",
     "TakaoGothic",
@@ -356,7 +359,7 @@ JPN_FONTS=[
     "Noto Sans Japanese Light",
 ]
 
-RUSSIAN_FONTS=[
+RUSSIAN_FONTS = [
     "Arial Bold",
     "Arial Bold Italic",
     "Arial Italic",
@@ -391,7 +394,7 @@ RUSSIAN_FONTS=[
     "DejaVu Sans Ultra-Light",
 ]
 
-GREEK_FONTS=[
+GREEK_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "DejaVu Sans Mono",
@@ -424,7 +427,7 @@ GREEK_FONTS=[
     "VL PGothic",
 ]
 
-ANCIENT_GREEK_FONTS=[
+ANCIENT_GREEK_FONTS = [
     "GFS Artemisia",
     "GFS Artemisia Bold",
     "GFS Artemisia Bold Italic",
@@ -448,7 +451,7 @@ ANCIENT_GREEK_FONTS=[
     "GFS Solomos",
 ]
 
-ARABIC_FONTS=[
+ARABIC_FONTS = [
     "Arabic Transparent Bold",
     "Arabic Transparent",
     "Arab",
@@ -483,7 +486,7 @@ ARABIC_FONTS=[
     "Traditional Arabic",
 ]
 
-HEBREW_FONTS=[
+HEBREW_FONTS = [
     "Arial Bold",
     "Arial Bold Italic",
     "Arial Italic",
@@ -512,7 +515,7 @@ HEBREW_FONTS=[
     "Tahoma",
 ]
 
-BENGALI_FONTS=[
+BENGALI_FONTS = [
     "Bangla Medium",
     "Lohit Bengali",
     "Mukti Narrow",
@@ -533,7 +536,7 @@ BENGALI_FONTS=[
     "Mitra Mono",
 ]
 
-KYRGYZ_FONTS=[
+KYRGYZ_FONTS = [
     "Arial",
     "Arial Bold",
     "Arial Italic",
@@ -555,7 +558,7 @@ KYRGYZ_FONTS=[
     "FreeSerif Bold Italic",
 ]
 
-PERSIAN_FONTS=[
+PERSIAN_FONTS = [
     "Amiri Bold Italic",
     "Amiri Bold",
     "Amiri Italic",
@@ -581,16 +584,15 @@ PERSIAN_FONTS=[
     "Yakout Linotype",
 ]
 
-AMHARIC_FONTS=[
-    "Abyssinica SIL"
-    "Droid Sans Ethiopic Bold",
+AMHARIC_FONTS = [
+    "Abyssinica SIL" "Droid Sans Ethiopic Bold",
     "Droid Sans Ethiopic",
     "FreeSerif",
     "Noto Sans Ethiopic Bold",
     "Noto Sans Ethiopic",
 ]
 
-ARMENIAN_FONTS=[
+ARMENIAN_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "Ascender Uni",
@@ -601,7 +603,7 @@ ARMENIAN_FONTS=[
     "FreeSans Oblique",
 ]
 
-BURMESE_FONTS=[
+BURMESE_FONTS = [
     "Myanmar Sans Pro",
     "Noto Sans Myanmar Bold",
     "Noto Sans Myanmar",
@@ -610,11 +612,9 @@ BURMESE_FONTS=[
     "TharLon",
 ]
 
-JAVANESE_FONTS=[
-    "Prada",
-]
+JAVANESE_FONTS = ["Prada"]
 
-NORTH_AMERICAN_ABORIGINAL_FONTS=[
+NORTH_AMERICAN_ABORIGINAL_FONTS = [
     "Aboriginal Sans",
     "Aboriginal Sans Bold Italic",
     "Aboriginal Sans Italic",
@@ -625,7 +625,7 @@ NORTH_AMERICAN_ABORIGINAL_FONTS=[
     "Aboriginal Serif",
 ]
 
-GEORGIAN_FONTS=[
+GEORGIAN_FONTS = [
     "Arial Unicode MS Bold",
     "Arial Unicode MS",
     "BPG Algeti GPL\&GNU",
@@ -660,7 +660,7 @@ GEORGIAN_FONTS=[
     "FreeSerif Italic",
 ]
 
-OLD_GEORGIAN_FONTS=[
+OLD_GEORGIAN_FONTS = [
     "Arial Unicode MS Bold",
     "Arial Unicode MS",
     "BPG Algeti GPL\&GNU",
@@ -690,7 +690,7 @@ OLD_GEORGIAN_FONTS=[
     "FreeSerif Italic",
 ]
 
-KHMER_FONTS=[
+KHMER_FONTS = [
     "Khmer OS",
     "Khmer OS System",
     "Khmer OS Battambang",
@@ -709,7 +709,7 @@ KHMER_FONTS=[
     "Noto Serif Khmer Light",
 ]
 
-KURDISH_FONTS=[
+KURDISH_FONTS = [
     "Amiri Bold Italic",
     "Amiri Bold",
     "Amiri Italic",
@@ -735,7 +735,7 @@ KURDISH_FONTS=[
     "Yakout Linotype",
 ]
 
-LAOTHIAN_FONTS=[
+LAOTHIAN_FONTS = [
     "Phetsarath OT",
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
@@ -756,7 +756,7 @@ LAOTHIAN_FONTS=[
     "Souliyo Unicode",
 ]
 
-GUJARATI_FONTS=[
+GUJARATI_FONTS = [
     "Lohit Gujarati",
     "Rekha Medium",
     "Samyak Gujarati Medium",
@@ -773,7 +773,7 @@ GUJARATI_FONTS=[
     "Shruti Bold",
 ]
 
-MALAYALAM_FONTS=[
+MALAYALAM_FONTS = [
     "AnjaliOldLipi",
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
@@ -793,7 +793,7 @@ MALAYALAM_FONTS=[
     "suruma",
 ]
 
-ORIYA_FONTS=[
+ORIYA_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "Ascender Uni",
@@ -802,7 +802,7 @@ ORIYA_FONTS=[
     "Lohit Oriya",
 ]
 
-PUNJABI_FONTS=[
+PUNJABI_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "Ascender Uni",
@@ -815,7 +815,7 @@ PUNJABI_FONTS=[
     "FreeSerif",
 ]
 
-SINHALA_FONTS=[
+SINHALA_FONTS = [
     "Noto Sans Sinhala Bold",
     "Noto Sans Sinhala",
     "OCRUnicode",
@@ -824,7 +824,7 @@ SINHALA_FONTS=[
     "FreeSerif",
 ]
 
-SYRIAC_FONTS=[
+SYRIAC_FONTS = [
     "East Syriac Adiabene",
     "East Syriac Ctesiphon",
     "Estrangelo Antioch",
@@ -848,11 +848,9 @@ SYRIAC_FONTS=[
     "FreeSans",
 ]
 
-THAANA_FONTS=[
-    "FreeSerif",
-]
+THAANA_FONTS = ["FreeSerif"]
 
-TIBETAN_FONTS=[
+TIBETAN_FONTS = [
     "Arial Unicode MS",
     "Arial Unicode MS Bold",
     "Ascender Uni",
@@ -866,7 +864,7 @@ TIBETAN_FONTS=[
 ]
 
 # The following fonts will be rendered vertically in phase I.
-VERTICAL_FONTS=[
+VERTICAL_FONTS = [
     "TakaoExGothic",
     "TakaoExMincho",
     "AR PL UKai Patched",
@@ -874,7 +872,7 @@ VERTICAL_FONTS=[
     "Baekmuk Batang Patched",
 ]
 
-FLAGS_webtext_prefix=os.environ.get('FLAGS_webtext_prefix', '')
+FLAGS_webtext_prefix = os.environ.get("FLAGS_webtext_prefix", "")
 
 # Set language-specific values for several global variables, including
 #   ${TEXT_CORPUS}
@@ -893,386 +891,478 @@ FLAGS_webtext_prefix=os.environ.get('FLAGS_webtext_prefix', '')
 # TEXT_CORPUS, etc. separately.
 def set_lang_specific_parameters(ctx, lang):
     # The default text location is now given directly from the language code.
-    TEXT_CORPUS=f"{FLAGS_webtext_prefix}/{lang}.corpus.txt"
-    FILTER_ARGUMENTS=[]
-    WORDLIST2DAWG_ARGUMENTS=""
+    TEXT_CORPUS = f"{FLAGS_webtext_prefix}/{lang}.corpus.txt"
+    FILTER_ARGUMENTS = []
+    WORDLIST2DAWG_ARGUMENTS = ""
     # These dawg factors represent the fraction of the corpus not covered by the
     # dawg, and seem like reasonable defaults, but the optimal value is likely
     # to be highly corpus-dependent, as well as somewhat language-dependent.
     # Number dawg factor is the fraction of all numeric strings that are not
     # covered, which is why it is higher relative to the others.
-    PUNC_DAWG_FACTOR=None
-    NUMBER_DAWG_FACTOR=0.125
-    WORD_DAWG_FACTOR=0.05
-    BIGRAM_DAWG_FACTOR=0.015
-    TRAINING_DATA_ARGUMENTS=[]
-    FRAGMENTS_DISABLED="y"
-    RUN_SHAPE_CLUSTERING=False
-    AMBIGS_FILTER_DENOMINATOR="100000"
-    LEADING=32
-    MEAN_COUNT=40  # Default for latin script.
+    PUNC_DAWG_FACTOR = None
+    NUMBER_DAWG_FACTOR = 0.125
+    WORD_DAWG_FACTOR = 0.05
+    BIGRAM_DAWG_FACTOR = 0.015
+    TRAINING_DATA_ARGUMENTS = []
+    FRAGMENTS_DISABLED = "y"
+    RUN_SHAPE_CLUSTERING = False
+    AMBIGS_FILTER_DENOMINATOR = "100000"
+    LEADING = 32
+    MEAN_COUNT = 40  # Default for latin script.
     # Language to mix with the language for maximum accuracy. Defaults to eng.
     # If no language is good, set to the base language.
-    MIX_LANG="eng"
-    FONTS=ctx.fonts
-    TEXT2IMAGE_EXTRA_ARGS=[]
-    EXPOSURES=[]
-
+    MIX_LANG = "eng"
+    FONTS = ctx.fonts
+    TEXT2IMAGE_EXTRA_ARGS = []
+    EXPOSURES = []
 
     # Latin languages.
-    if lang == 'enm':
-        TEXT2IMAGE_EXTRA_ARGS+=["--ligatures"]   # Add ligatures when supported
-        if not FONTS: FONTS = EARLY_LATIN_FONTS
-    elif lang == 'frm':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/fra.corpus.txt"
+    if lang == "enm":
+        TEXT2IMAGE_EXTRA_ARGS += ["--ligatures"]  # Add ligatures when supported
+        if not FONTS:
+            FONTS = EARLY_LATIN_FONTS
+    elif lang == "frm":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/fra.corpus.txt"
         # Make long-s substitutions for Middle French text
-        FILTER_ARGUMENTS+=["--make_early_language_variant=fra"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--ligatures"]   # Add ligatures when supported.
-        if not FONTS: FONTS = EARLY_LATIN_FONTS
-    elif lang == 'frk':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/deu.corpus.txt"
-        if not FONTS: FONTS = FRAKTUR_FONTS
-    elif lang == 'ita_old':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/ita.corpus.txt"
+        FILTER_ARGUMENTS += ["--make_early_language_variant=fra"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--ligatures"]  # Add ligatures when supported.
+        if not FONTS:
+            FONTS = EARLY_LATIN_FONTS
+    elif lang == "frk":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/deu.corpus.txt"
+        if not FONTS:
+            FONTS = FRAKTUR_FONTS
+    elif lang == "ita_old":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/ita.corpus.txt"
         # Make long-s substitutions for Early Italian text
-        FILTER_ARGUMENTS+=["--make_early_language_variant=ita"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--ligatures"]   # Add ligatures when supported.
-        if not FONTS: FONTS = EARLY_LATIN_FONTS
-    elif lang == 'lat':
-        if not EXPOSURES: EXPOSURES="-3 -2 -1 0 1 2 3".split()
-        if not FONTS: FONTS = NEOLATIN_FONTS
-    elif lang == 'spa_old':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/spa.corpus.txt"
+        FILTER_ARGUMENTS += ["--make_early_language_variant=ita"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--ligatures"]  # Add ligatures when supported.
+        if not FONTS:
+            FONTS = EARLY_LATIN_FONTS
+    elif lang == "lat":
+        if not EXPOSURES:
+            EXPOSURES = "-3 -2 -1 0 1 2 3".split()
+        if not FONTS:
+            FONTS = NEOLATIN_FONTS
+    elif lang == "spa_old":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/spa.corpus.txt"
         # Make long-s substitutions for Early Spanish text
-        FILTER_ARGUMENTS+=["--make_early_language_variant=spa"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--ligatures"]  # Add ligatures when supported.
-        if not FONTS: FONTS = EARLY_LATIN_FONTS
-    elif lang == 'srp_latn':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/srp.corpus.txt"
-    elif lang == 'vie':
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        if not FONTS: FONTS = VIETNAMESE_FONTS
+        FILTER_ARGUMENTS += ["--make_early_language_variant=spa"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--ligatures"]  # Add ligatures when supported.
+        if not FONTS:
+            FONTS = EARLY_LATIN_FONTS
+    elif lang == "srp_latn":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/srp.corpus.txt"
+    elif lang == "vie":
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        if not FONTS:
+            FONTS = VIETNAMESE_FONTS
         # Highly inflective languages get a bigger dawg size.
         # TODO(rays) Add more here!
-    elif lang == 'hun':
-        WORD_DAWG_SIZE=1000000
-    elif lang == 'pol':
-        WORD_DAWG_SIZE=1000000
+    elif lang == "hun":
+        WORD_DAWG_SIZE = 1_000_000
+    elif lang == "pol":
+        WORD_DAWG_SIZE = 1_000_000
 
         # Latin with default treatment.
-    elif lang == 'afr':
+    elif lang == "afr":
         pass
-    elif lang == 'aze':
+    elif lang == "aze":
         pass
-    elif lang == 'bos':
+    elif lang == "bos":
         pass
-    elif lang == 'cat':
+    elif lang == "cat":
         pass
-    elif lang == 'ceb':
+    elif lang == "ceb":
         pass
-    elif lang == 'ces':
-        PUNC_DAWG_FACTOR=0.004
-    elif lang == 'cym':
+    elif lang == "ces":
+        PUNC_DAWG_FACTOR = 0.004
+    elif lang == "cym":
         pass
-    elif lang == 'dan':
+    elif lang == "dan":
         pass
-    elif lang == 'deu':
-        WORD_DAWG_FACTOR=0.125
-    elif lang == 'eng':
-        WORD_DAWG_FACTOR=0.03
-    elif lang == 'epo':
+    elif lang == "deu":
+        WORD_DAWG_FACTOR = 0.125
+    elif lang == "eng":
+        WORD_DAWG_FACTOR = 0.03
+    elif lang == "epo":
         pass
-    elif lang == 'est':
+    elif lang == "est":
         pass
-    elif lang == 'eus':
+    elif lang == "eus":
         pass
-    elif lang == 'fil':
+    elif lang == "fil":
         pass
-    elif lang == 'fin':
+    elif lang == "fin":
         pass
-    elif lang == 'fra':
-        WORD_DAWG_FACTOR=0.08
-    elif lang == 'gle':
+    elif lang == "fra":
+        WORD_DAWG_FACTOR = 0.08
+    elif lang == "gle":
         pass
-    elif lang == 'gle_uncial':
-        if not FONTS: FONTS = IRISH_UNCIAL_FONTS
-    elif lang == 'glg':
+    elif lang == "gle_uncial":
+        if not FONTS:
+            FONTS = IRISH_UNCIAL_FONTS
+    elif lang == "glg":
         pass
-    elif lang == 'hat':
+    elif lang == "hat":
         pass
-    elif lang == 'hrv':
+    elif lang == "hrv":
         pass
-    elif lang == 'iast':
+    elif lang == "iast":
         pass
-    elif lang == 'ind':
+    elif lang == "ind":
         pass
-    elif lang == 'isl':
+    elif lang == "isl":
         pass
-    elif lang == 'ita':
+    elif lang == "ita":
         pass
-    elif lang == 'jav':
+    elif lang == "jav":
         pass
-    elif lang == 'lav':
+    elif lang == "lav":
         pass
-    elif lang == 'lit':
+    elif lang == "lit":
         pass
-    elif lang == 'mlt':
+    elif lang == "mlt":
         pass
-    elif lang == 'msa':
+    elif lang == "msa":
         pass
-    elif lang == 'nld':
-        WORD_DAWG_FACTOR=0.02
-    elif lang == 'nor':
+    elif lang == "nld":
+        WORD_DAWG_FACTOR = 0.02
+    elif lang == "nor":
         pass
-    elif lang == 'por':
+    elif lang == "por":
         pass
-    elif lang == 'ron':
+    elif lang == "ron":
         pass
-    elif lang == 'slk':
+    elif lang == "slk":
         pass
-    elif lang == 'slv':
+    elif lang == "slv":
         pass
-    elif lang == 'spa':
+    elif lang == "spa":
         pass
-    elif lang == 'sqi':
+    elif lang == "sqi":
         pass
-    elif lang == 'swa':
+    elif lang == "swa":
         pass
-    elif lang == 'swe':
+    elif lang == "swe":
         pass
-    elif lang == 'tgl':
+    elif lang == "tgl":
         pass
-    elif lang == 'tur':
+    elif lang == "tur":
         pass
-    elif lang == 'uzb':
+    elif lang == "uzb":
         pass
-    elif lang == 'zlm':
+    elif lang == "zlm":
         pass
 
         # Special code for performing language-id that is trained on
         # EFIGS+Latin+Vietnamese text with regular + fraktur fonts.
-    elif lang == 'lat_lid':
-        TEXT_CORPUS=f'{FLAGS_webtext_prefix}/lat_lid.corpus.txt'
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        GENERATE_WORD_BIGRAMS=0
+    elif lang == "lat_lid":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/lat_lid.corpus.txt"
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        GENERATE_WORD_BIGRAMS = 0
         # Strip unrenderable words as not all fonts will render the extended
         # latin symbols found in Vietnamese text.
-        WORD_DAWG_SIZE=1000000
-        if not FONTS: FONTS = EARLY_LATIN_FONTS
+        WORD_DAWG_SIZE = 1_000_000
+        if not FONTS:
+            FONTS = EARLY_LATIN_FONTS
 
         # Cyrillic script-based languages. It is bad to mix Latin with Cyrillic.
-    elif lang == 'rus':
-        if not FONTS: FONTS = RUSSIAN_FONTS
-        MIX_LANG="rus"
-        NUMBER_DAWG_FACTOR=0.05
-        WORD_DAWG_SIZE=1000000
-    elif lang in ('aze_cyrl','bel','bul','kaz','mkd','srp','tgk','ukr','uzb_cyrl' ):
-        MIX_LANG=f"{lang}"
-        if not FONTS: FONTS = RUSSIAN_FONTS
+    elif lang == "rus":
+        if not FONTS:
+            FONTS = RUSSIAN_FONTS
+        MIX_LANG = "rus"
+        NUMBER_DAWG_FACTOR = 0.05
+        WORD_DAWG_SIZE = 1_000_000
+    elif lang in (
+        "aze_cyrl",
+        "bel",
+        "bul",
+        "kaz",
+        "mkd",
+        "srp",
+        "tgk",
+        "ukr",
+        "uzb_cyrl",
+    ):
+        MIX_LANG = f"{lang}"
+        if not FONTS:
+            FONTS = RUSSIAN_FONTS
 
         # Special code for performing Cyrillic language-id that is trained on
         # Russian, Serbian, Ukrainian, Belarusian, Macedonian, Tajik and Mongolian
         # text with the list of Russian fonts.
-    elif lang == 'cyr_lid':
-        TEXT_CORPUS=f'{FLAGS_webtext_prefix}/cyr_lid.corpus.txt'
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        GENERATE_WORD_BIGRAMS=0
-        WORD_DAWG_SIZE=1000000
-        if not FONTS: FONTS = RUSSIAN_FONTS
+    elif lang == "cyr_lid":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/cyr_lid.corpus.txt"
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        GENERATE_WORD_BIGRAMS = 0
+        WORD_DAWG_SIZE = 1_000_000
+        if not FONTS:
+            FONTS = RUSSIAN_FONTS
 
         # South Asian scripts mostly have a lot of different graphemes, so trim
         # down the MEAN_COUNT so as not to get a huge amount of text.
-    elif lang in ('asm','ben' ):
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        if not FONTS: FONTS = BENGALI_FONTS
-    elif lang in (   'bih','hin','mar','nep','san' ):
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        if not FONTS: FONTS = DEVANAGARI_FONTS
-    elif lang == 'bod':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        if not FONTS: FONTS = TIBETAN_FONTS
-    elif lang == 'dzo':
-        WORD_DAWG_FACTOR=0.01
-        if not FONTS: FONTS = TIBETAN_FONTS
-    elif lang == 'guj':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        if not FONTS: FONTS = GUJARATI_FONTS
-    elif lang == 'kan':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--no_newline_in_output"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--char_spacing=0.5"]
-        if not FONTS: FONTS = KANNADA_FONTS
-    elif lang == 'mal':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--no_newline_in_output"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--char_spacing=0.5"]
-        if not FONTS: FONTS = MALAYALAM_FONTS
-    elif lang == 'ori':
-        WORD_DAWG_FACTOR=0.01
-        if not FONTS: FONTS = ORIYA_FONTS
-    elif lang == 'pan':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.01
-        if not FONTS: FONTS = PUNJABI_FONTS
-    elif lang == 'sin':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.01
-        if not FONTS: FONTS = SINHALA_FONTS
-    elif lang == 'tam':
-        MEAN_COUNT=30
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--no_newline_in_output"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--char_spacing=0.5"]
-        if not FONTS: FONTS = TAMIL_FONTS
-    elif lang == 'tel':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--no_newline_in_output"]
-        TEXT2IMAGE_EXTRA_ARGS+=["--char_spacing=0.5"]
-        if not FONTS: FONTS = TELUGU_FONTS
+    elif lang in ("asm", "ben"):
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        if not FONTS:
+            FONTS = BENGALI_FONTS
+    elif lang in ("bih", "hin", "mar", "nep", "san"):
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        if not FONTS:
+            FONTS = DEVANAGARI_FONTS
+    elif lang == "bod":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        if not FONTS:
+            FONTS = TIBETAN_FONTS
+    elif lang == "dzo":
+        WORD_DAWG_FACTOR = 0.01
+        if not FONTS:
+            FONTS = TIBETAN_FONTS
+    elif lang == "guj":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        if not FONTS:
+            FONTS = GUJARATI_FONTS
+    elif lang == "kan":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--no_newline_in_output"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--char_spacing=0.5"]
+        if not FONTS:
+            FONTS = KANNADA_FONTS
+    elif lang == "mal":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--no_newline_in_output"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--char_spacing=0.5"]
+        if not FONTS:
+            FONTS = MALAYALAM_FONTS
+    elif lang == "ori":
+        WORD_DAWG_FACTOR = 0.01
+        if not FONTS:
+            FONTS = ORIYA_FONTS
+    elif lang == "pan":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.01
+        if not FONTS:
+            FONTS = PUNJABI_FONTS
+    elif lang == "sin":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.01
+        if not FONTS:
+            FONTS = SINHALA_FONTS
+    elif lang == "tam":
+        MEAN_COUNT = 30
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--no_newline_in_output"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--char_spacing=0.5"]
+        if not FONTS:
+            FONTS = TAMIL_FONTS
+    elif lang == "tel":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--no_newline_in_output"]
+        TEXT2IMAGE_EXTRA_ARGS += ["--char_spacing=0.5"]
+        if not FONTS:
+            FONTS = TELUGU_FONTS
 
         # SouthEast Asian scripts.
-    elif lang == 'jav_java':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        if not FONTS: FONTS = JAVANESE_FONTS
-    elif lang == 'khm':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        if not FONTS: FONTS = KHMER_FONTS
-    elif lang == 'lao':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        if not FONTS: FONTS = LAOTHIAN_FONTS
-    elif lang == 'mya':
-        MEAN_COUNT=12
-        WORD_DAWG_FACTOR=0.15
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        if not FONTS: FONTS = BURMESE_FONTS
-    elif lang == 'tha':
-        MEAN_COUNT=30
-        WORD_DAWG_FACTOR=0.01
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        FILTER_ARGUMENTS+=["--segmenter_lang=tha"]
-        TRAINING_DATA_ARGUMENTS+=["--no_space_in_output", "--desired_bigrams="]
-        AMBIGS_FILTER_DENOMINATOR="1000"
-        LEADING=48
-        if not FONTS: FONTS = THAI_FONTS
+    elif lang == "jav_java":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        if not FONTS:
+            FONTS = JAVANESE_FONTS
+    elif lang == "khm":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        if not FONTS:
+            FONTS = KHMER_FONTS
+    elif lang == "lao":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        if not FONTS:
+            FONTS = LAOTHIAN_FONTS
+    elif lang == "mya":
+        MEAN_COUNT = 12
+        WORD_DAWG_FACTOR = 0.15
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        if not FONTS:
+            FONTS = BURMESE_FONTS
+    elif lang == "tha":
+        MEAN_COUNT = 30
+        WORD_DAWG_FACTOR = 0.01
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        FILTER_ARGUMENTS += ["--segmenter_lang=tha"]
+        TRAINING_DATA_ARGUMENTS += ["--no_space_in_output", "--desired_bigrams="]
+        AMBIGS_FILTER_DENOMINATOR = "1000"
+        LEADING = 48
+        if not FONTS:
+            FONTS = THAI_FONTS
 
         # CJK
-    elif lang == 'chi_sim':
-        MEAN_COUNT=15
-        PUNC_DAWG_FACTOR=0.015
-        WORD_DAWG_FACTOR=0.015
-        GENERATE_WORD_BIGRAMS=0
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        TRAINING_DATA_ARGUMENTS+=["--no_space_in_output", "--desired_bigrams="]
-        FILTER_ARGUMENTS+=["--charset_filter=chi_sim", "--segmenter_lang=chi_sim"]
-        if not FONTS: FONTS = CHI_SIM_FONTS
-    elif lang == 'chi_tra':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.015
-        GENERATE_WORD_BIGRAMS=0
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        TRAINING_DATA_ARGUMENTS+=["--no_space_in_output", "--desired_bigrams="]
-        FILTER_ARGUMENTS+=["--charset_filter=chi_tr", "--segmenter_lang=chi_tra"]
-        if not FONTS: FONTS = CHI_TRA_FONTS
-    elif lang == 'jpn':
-        MEAN_COUNT=15
-        WORD_DAWG_FACTOR=0.015
-        GENERATE_WORD_BIGRAMS=0
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        TRAINING_DATA_ARGUMENTS+=["--no_space_in_output", "--desired_bigrams="]
-        FILTER_ARGUMENTS+=["--charset_filter=jpn", "--segmenter_lang=jpn"]
-        if not FONTS: FONTS = JPN_FONTS
-    elif lang == 'kor':
-        MEAN_COUNT=20
-        WORD_DAWG_FACTOR=0.015
-        NUMBER_DAWG_FACTOR=0.05
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=10000"]
-        TRAINING_DATA_ARGUMENTS+=["--desired_bigrams="]
-        GENERATE_WORD_BIGRAMS=0
-        FILTER_ARGUMENTS+=["--charset_filter=kor","--segmenter_lang=kor"]
-        if not FONTS: FONTS = KOREAN_FONTS
+    elif lang == "chi_sim":
+        MEAN_COUNT = 15
+        PUNC_DAWG_FACTOR = 0.015
+        WORD_DAWG_FACTOR = 0.015
+        GENERATE_WORD_BIGRAMS = 0
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        TRAINING_DATA_ARGUMENTS += ["--no_space_in_output", "--desired_bigrams="]
+        FILTER_ARGUMENTS += ["--charset_filter=chi_sim", "--segmenter_lang=chi_sim"]
+        if not FONTS:
+            FONTS = CHI_SIM_FONTS
+    elif lang == "chi_tra":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.015
+        GENERATE_WORD_BIGRAMS = 0
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        TRAINING_DATA_ARGUMENTS += ["--no_space_in_output", "--desired_bigrams="]
+        FILTER_ARGUMENTS += ["--charset_filter=chi_tr", "--segmenter_lang=chi_tra"]
+        if not FONTS:
+            FONTS = CHI_TRA_FONTS
+    elif lang == "jpn":
+        MEAN_COUNT = 15
+        WORD_DAWG_FACTOR = 0.015
+        GENERATE_WORD_BIGRAMS = 0
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        TRAINING_DATA_ARGUMENTS += ["--no_space_in_output", "--desired_bigrams="]
+        FILTER_ARGUMENTS += ["--charset_filter=jpn", "--segmenter_lang=jpn"]
+        if not FONTS:
+            FONTS = JPN_FONTS
+    elif lang == "kor":
+        MEAN_COUNT = 20
+        WORD_DAWG_FACTOR = 0.015
+        NUMBER_DAWG_FACTOR = 0.05
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=10000"]
+        TRAINING_DATA_ARGUMENTS += ["--desired_bigrams="]
+        GENERATE_WORD_BIGRAMS = 0
+        FILTER_ARGUMENTS += ["--charset_filter=kor", "--segmenter_lang=kor"]
+        if not FONTS:
+            FONTS = KOREAN_FONTS
 
         # Middle-Eastern scripts.
-    elif lang == 'ara':
-        if not FONTS: FONTS = ARABIC_FONTS
-    elif lang == 'div':
-        if not FONTS: FONTS = THAANA_FONTS
-    elif lang in ('fas','pus','snd','uig','urd' ):
-        if not FONTS: FONTS = PERSIAN_FONTS
-    elif lang in ('heb','yid' ):
-        NUMBER_DAWG_FACTOR=0.05
-        WORD_DAWG_FACTOR=0.08
-        if not FONTS: FONTS = HEBREW_FONTS
-    elif lang == 'syr':
-        if not FONTS: FONTS = SYRIAC_FONTS
+    elif lang == "ara":
+        if not FONTS:
+            FONTS = ARABIC_FONTS
+    elif lang == "div":
+        if not FONTS:
+            FONTS = THAANA_FONTS
+    elif lang in ("fas", "pus", "snd", "uig", "urd"):
+        if not FONTS:
+            FONTS = PERSIAN_FONTS
+    elif lang in ("heb", "yid"):
+        NUMBER_DAWG_FACTOR = 0.05
+        WORD_DAWG_FACTOR = 0.08
+        if not FONTS:
+            FONTS = HEBREW_FONTS
+    elif lang == "syr":
+        if not FONTS:
+            FONTS = SYRIAC_FONTS
 
         # Other scripts.
-    elif lang in ('amh','tir'):
-        if not FONTS: FONTS = AMHARIC_FONTS
-    elif lang == 'chr':
+    elif lang in ("amh", "tir"):
+        if not FONTS:
+            FONTS = AMHARIC_FONTS
+    elif lang == "chr":
         if not FONTS:
             FONTS = [*NORTH_AMERICAN_ABORIGINAL_FONTS, "Noto Sans Cherokee"]
-    elif lang == 'ell':
-        NUMBER_DAWG_FACTOR=0.05
-        WORD_DAWG_FACTOR=0.08
-        if not FONTS: FONTS = GREEK_FONTS
-    elif lang == 'grc':
-        if not EXPOSURES: EXPOSURES="-3 -2 -1 0 1 2 3".split()
-        if not FONTS: FONTS = ANCIENT_GREEK_FONTS
-    elif lang == 'hye':
-        if not FONTS: FONTS = ARMENIAN_FONTS
-    elif lang == 'iku':
-        if not FONTS: FONTS = NORTH_AMERICAN_ABORIGINAL_FONTS
-    elif lang == 'kat':
-        if not FONTS: FONTS = GEORGIAN_FONTS
-    elif lang == 'kat_old':
-        TEXT_CORPUS=f"{FLAGS_webtext_prefix}/kat.corpus.txt"
-        if not FONTS: FONTS = OLD_GEORGIAN_FONTS
-    elif lang == 'kir':
-        if not FONTS: FONTS = KYRGYZ_FONTS
-        TRAINING_DATA_ARGUMENTS+=["--infrequent_ratio=100"]
-    elif lang == 'kur':
-        if not FONTS: FONTS = KURDISH_FONTS
+    elif lang == "ell":
+        NUMBER_DAWG_FACTOR = 0.05
+        WORD_DAWG_FACTOR = 0.08
+        if not FONTS:
+            FONTS = GREEK_FONTS
+    elif lang == "grc":
+        if not EXPOSURES:
+            EXPOSURES = "-3 -2 -1 0 1 2 3".split()
+        if not FONTS:
+            FONTS = ANCIENT_GREEK_FONTS
+    elif lang == "hye":
+        if not FONTS:
+            FONTS = ARMENIAN_FONTS
+    elif lang == "iku":
+        if not FONTS:
+            FONTS = NORTH_AMERICAN_ABORIGINAL_FONTS
+    elif lang == "kat":
+        if not FONTS:
+            FONTS = GEORGIAN_FONTS
+    elif lang == "kat_old":
+        TEXT_CORPUS = f"{FLAGS_webtext_prefix}/kat.corpus.txt"
+        if not FONTS:
+            FONTS = OLD_GEORGIAN_FONTS
+    elif lang == "kir":
+        if not FONTS:
+            FONTS = KYRGYZ_FONTS
+        TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=100"]
+    elif lang == "kur":
+        if not FONTS:
+            FONTS = KURDISH_FONTS
     else:
         raise ValueError(f"Error: {lang} is not a valid language code")
 
-
-    FLAGS_mean_count = int(os.environ.get('FLAGS_mean_count', -1))
+    FLAGS_mean_count = int(os.environ.get("FLAGS_mean_count", -1))
     if FLAGS_mean_count > 0:
-        TRAINING_DATA_ARGUMENTS+=[f"--mean_count={FLAGS_mean_count}"]
+        TRAINING_DATA_ARGUMENTS += [f"--mean_count={FLAGS_mean_count}"]
     elif not MEAN_COUNT:
-        TRAINING_DATA_ARGUMENTS+=[f"--mean_count={MEAN_COUNT}"]
+        TRAINING_DATA_ARGUMENTS += [f"--mean_count={MEAN_COUNT}"]
 
     # Default to Latin fonts if none have been set
-    if not FONTS: FONTS = LATIN_FONTS
+    if not FONTS:
+        FONTS = LATIN_FONTS
 
     # Default to 0 exposure if it hasn't been set
-    if not EXPOSURES: EXPOSURES=[0]
+    if not EXPOSURES:
+        EXPOSURES = [0]
     # Set right-to-left and normalization mode.
-    if lang in ('ara','div', 'fas','pus','snd','syr','uig','urd','kur_ara','heb','yid'):
-        LANG_IS_RTL=True
-        NORM_MODE=2
+    if lang in (
+        "ara",
+        "div",
+        "fas",
+        "pus",
+        "snd",
+        "syr",
+        "uig",
+        "urd",
+        "kur_ara",
+        "heb",
+        "yid",
+    ):
+        LANG_IS_RTL = True
+        NORM_MODE = 2
     elif lang in (
-        'asm','ben','bih','hin','mar','nep','guj','kan','mal','tam','tel','pan',
-        'dzo','sin','san','bod','ori','khm','mya','tha','lao','jav ','jav_java'
-        ):
-        LANG_IS_RTL=False
-        NORM_MODE=2
+        "asm",
+        "ben",
+        "bih",
+        "hin",
+        "mar",
+        "nep",
+        "guj",
+        "kan",
+        "mal",
+        "tam",
+        "tel",
+        "pan",
+        "dzo",
+        "sin",
+        "san",
+        "bod",
+        "ori",
+        "khm",
+        "mya",
+        "tha",
+        "lao",
+        "jav ",
+        "jav_java",
+    ):
+        LANG_IS_RTL = False
+        NORM_MODE = 2
     else:
-        LANG_IS_RTL=False
-        NORM_MODE=1
+        LANG_IS_RTL = False
+        NORM_MODE = 1
 
     for var in [v for v in locals()]:
         if var.isupper():
@@ -1289,6 +1379,7 @@ def set_lang_specific_parameters(ctx, lang):
 
     return ctx
 
-#=============================================================================
+
+# =============================================================================
 # END of Language specific info
-#=============================================================================
+# =============================================================================
