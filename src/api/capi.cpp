@@ -244,9 +244,9 @@ TESS_API BOOL TESS_CALL TessBaseAPIGetVariableAsString(TessBaseAPI* handle, cons
 }
 
 TESS_API int TESS_CALL TessBaseAPIInit4(TessBaseAPI* handle, const char* datapath, const char* language,
-                                        TessOcrEngineMode mode, char** configs, int configs_size,
-                                        char** vars_vec, char** vars_values, size_t vars_vec_size,
-                                        BOOL set_only_non_debug_params)
+    TessOcrEngineMode mode, char** configs, int configs_size,
+    char** vars_vec, char** vars_values, size_t vars_vec_size,
+    BOOL set_only_non_debug_params)
 {
     GenericVector<STRING> varNames;
     GenericVector<STRING> varValues;
@@ -337,8 +337,8 @@ TESS_API TessPageSegMode TESS_CALL TessBaseAPIGetPageSegMode(const TessBaseAPI* 
 }
 
 TESS_API char* TESS_CALL TessBaseAPIRect(TessBaseAPI* handle, const unsigned char* imagedata,
-                                         int bytes_per_pixel, int bytes_per_line,
-                                         int left, int top, int width, int height)
+                                               int bytes_per_pixel, int bytes_per_line,
+                                               int left, int top, int width, int height)
 {
     return handle->TesseractRect(imagedata, bytes_per_pixel, bytes_per_line, left, top, width, height);
 }
@@ -351,7 +351,7 @@ TESS_API void TESS_CALL TessBaseAPIClearAdaptiveClassifier(TessBaseAPI* handle)
 #endif
 
 TESS_API void TESS_CALL TessBaseAPISetImage(TessBaseAPI* handle, const unsigned char* imagedata, int width, int height,
-                                            int bytes_per_pixel, int bytes_per_line)
+                                                  int bytes_per_pixel, int bytes_per_line)
 {
     handle->SetImage(imagedata, width, height, bytes_per_pixel, bytes_per_line);
 }
@@ -392,7 +392,7 @@ TESS_API struct Boxa* TESS_CALL TessBaseAPIGetTextlines(TessBaseAPI* handle, str
 }
 
 TESS_API struct Boxa* TESS_CALL TessBaseAPIGetTextlines1(TessBaseAPI* handle, const BOOL raw_image, const int raw_padding,
-                                                         struct Pixa** pixa, int** blockids, int** paraids)
+                                                                  struct Pixa** pixa, int** blockids, int** paraids)
 {
     return handle->GetTextlines(raw_image, raw_padding, pixa, blockids, paraids);
 }
@@ -550,7 +550,7 @@ TESS_API void TESS_CALL TessBaseAPISetProbabilityInContextFunc(TessBaseAPI* hand
 #ifndef DISABLED_LEGACY_ENGINE
 
 TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
-                                                           int* orient_deg, float* orient_conf, const char** script_name, float* script_conf)
+                                                            int* orient_deg, float* orient_conf, const char** script_name, float* script_conf)
 {
     bool success;
     success = handle->DetectOrientationScript(orient_deg, orient_conf, script_name, script_conf);
@@ -558,7 +558,7 @@ TESS_API BOOL TESS_CALL TessBaseAPIDetectOrientationScript(TessBaseAPI* handle,
 }
 
 TESS_API void TESS_CALL TessBaseAPIGetFeaturesForBlob(TessBaseAPI* handle, TBLOB* blob, INT_FEATURE_STRUCT* int_features,
-                                                      int* num_features, int* FeatureOutlineIndex)
+                                                            int* num_features, int* FeatureOutlineIndex)
 {
     handle->GetFeaturesForBlob(blob, int_features, num_features, FeatureOutlineIndex);
 }
@@ -569,7 +569,7 @@ TESS_API ROW* TESS_CALL TessFindRowForBox(BLOCK_LIST* blocks, int left, int top,
 }
 
 TESS_API void TESS_CALL TessBaseAPIRunAdaptiveClassifier(TessBaseAPI* handle, TBLOB* blob, int num_max_matches,
-                                                         int* unichar_ids, float* ratings, int* num_matches_returned)
+                                                               int* unichar_ids, float* ratings, int* num_matches_returned)
 {
     handle->RunAdaptiveClassifier(blob, num_max_matches, unichar_ids, ratings, num_matches_returned);
 }
@@ -661,13 +661,13 @@ TESS_API BOOL TESS_CALL TessPageIteratorIsAtBeginningOf(const TessPageIterator* 
 }
 
 TESS_API BOOL TESS_CALL TessPageIteratorIsAtFinalElement(const TessPageIterator* handle, TessPageIteratorLevel level,
-                                                         TessPageIteratorLevel element)
+                                                               TessPageIteratorLevel element)
 {
     return handle->IsAtFinalElement(level, element) ? TRUE : FALSE;
 }
 
 TESS_API BOOL TESS_CALL TessPageIteratorBoundingBox(const TessPageIterator* handle, TessPageIteratorLevel level,
-                                                    int* left, int* top, int* right, int* bottom)
+                                                          int* left, int* top, int* right, int* bottom)
 {
     return handle->BoundingBox(level, left, top, right, bottom) ? TRUE : FALSE;
 }
@@ -689,14 +689,14 @@ TESS_API struct Pix* TESS_CALL TessPageIteratorGetImage(const TessPageIterator* 
 }
 
 TESS_API BOOL TESS_CALL TessPageIteratorBaseline(const TessPageIterator* handle, TessPageIteratorLevel level,
-                                                 int* x1, int* y1, int* x2, int* y2)
+                                                       int* x1, int* y1, int* x2, int* y2)
 {
     return handle->Baseline(level, x1, y1, x2, y2) ? TRUE : FALSE;
 }
 
 TESS_API void TESS_CALL TessPageIteratorOrientation(TessPageIterator* handle, TessOrientation* orientation,
-                                                    TessWritingDirection* writing_direction, TessTextlineOrder* textline_order,
-                                                    float* deskew_angle)
+                                                          TessWritingDirection* writing_direction, TessTextlineOrder* textline_order,
+                                                          float* deskew_angle)
 {
     handle->Orientation(orientation, writing_direction, textline_order, deskew_angle);
 }
@@ -759,8 +759,8 @@ TESS_API const char* TESS_CALL TessResultIteratorWordRecognitionLanguage(const T
 }
 
 TESS_API const char* TESS_CALL TessResultIteratorWordFontAttributes(const TessResultIterator* handle, BOOL* is_bold, BOOL* is_italic,
-                                                                    BOOL* is_underlined, BOOL* is_monospace, BOOL* is_serif,
-                                                                    BOOL* is_smallcaps, int* pointsize, int* font_id)
+                                                                          BOOL* is_underlined, BOOL* is_monospace, BOOL* is_serif,
+                                                                          BOOL* is_smallcaps, int* pointsize, int* font_id)
 {
     bool bool_is_bold, bool_is_italic, bool_is_underlined, bool_is_monospace, bool_is_serif, bool_is_smallcaps;
     const char* ret = handle->WordFontAttributes(&bool_is_bold, &bool_is_italic, &bool_is_underlined, &bool_is_monospace, &bool_is_serif,
