@@ -73,6 +73,7 @@ build/*
 *.a
 *.class
 *.jar
+__pycache__
 
 # tessdata
 *.traineddata
