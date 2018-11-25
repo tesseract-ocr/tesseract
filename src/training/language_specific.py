@@ -916,6 +916,9 @@ def set_lang_specific_parameters(ctx, lang):
     TEXT2IMAGE_EXTRA_ARGS = []
     EXPOSURES = []
 
+    GENERATE_WORD_BIGRAMS = None
+    WORD_DAWG_SIZE = None
+
     # Latin languages.
     if lang == "enm":
         TEXT2IMAGE_EXTRA_ARGS += ["--ligatures"]  # Add ligatures when supported
@@ -1364,18 +1367,40 @@ def set_lang_specific_parameters(ctx, lang):
         LANG_IS_RTL = False
         NORM_MODE = 1
 
-    for var in [v for v in locals()]:
-        if var.isupper():
-            value = locals()[var]
-            lowervar = var.lower()
-            if hasattr(ctx, lowervar) and getattr(ctx, lowervar) != value:
-                log.debug(f"{lowervar} = {value} (was {getattr(ctx, lowervar)})")
-                setattr(ctx, lowervar, value)
-            elif hasattr(ctx, lowervar):
-                log.debug(f"{lowervar} = {value} (set on cmdline)")
+    vars_to_transfer = {
+        'ambigs_filter_denominator': AMBIGS_FILTER_DENOMINATOR,
+        'bigram_dawg_factor': BIGRAM_DAWG_FACTOR,
+        'exposures': EXPOSURES,
+        'filter_arguments': FILTER_ARGUMENTS,
+        'fonts': FONTS,
+        'fragments_disabled': FRAGMENTS_DISABLED,
+        'generate_word_bigrams': GENERATE_WORD_BIGRAMS,
+        'lang_is_rtl': LANG_IS_RTL,
+        'leading': LEADING,
+        'mean_count': MEAN_COUNT,
+        'mix_lang': MIX_LANG,
+        'norm_mode': NORM_MODE,
+        'number_dawg_factor': NUMBER_DAWG_FACTOR,
+        'punc_dawg_factor': PUNC_DAWG_FACTOR,
+        'run_shape_clustering': RUN_SHAPE_CLUSTERING,
+        'text2image_extra_args': TEXT2IMAGE_EXTRA_ARGS,
+        'text_corpus': TEXT_CORPUS,
+        'training_data_arguments': TRAINING_DATA_ARGUMENTS,
+        'word_dawg_factor': WORD_DAWG_FACTOR,
+        'word_dawg_size': WORD_DAWG_SIZE,
+        'wordlist2dawg_arguments': WORDLIST2DAWG_ARGUMENTS,
+    }
+
+    for attr, value in vars_to_transfer.items():
+        if hasattr(ctx, attr):
+            if getattr(ctx, attr) != value:
+                log.debug(f"{attr} = {value} (was {getattr(ctx, attr)})")
+                setattr(ctx, attr, value)
             else:
-                log.debug(f"{lowervar} = {value}")
-                setattr(ctx, lowervar, value)
+                log.debug(f"{attr} = {value} (set on cmdline)")
+        else:
+            log.debug(f"{attr} = {value}")
+            setattr(ctx, attr, value)
 
     return ctx
 

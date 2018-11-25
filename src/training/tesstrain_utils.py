@@ -49,13 +49,10 @@ class TrainingArgs(argparse.Namespace):
 
         self.max_pages = 0
         self.save_box_tiff = False
-        self.output_dir = "/tmp/tesstrain/tessdata"
         self.overwrite = False
         self.linedata = False
         self.run_shape_clustering = False
         self.extract_font_properties = True
-        self._workspace_dir = TemporaryDirectory(prefix="tesstrain")
-        self.workspace_dir = self._workspace_dir.name
 
 
 def err_exit(msg):
@@ -88,8 +85,8 @@ def run_command(cmd, *args, env=None):
     else:
         try:
             proclog.error(proc.stdout.decode("utf-8", errors="replace"))
-        except Exception:
-            pass
+        except Exception as e:
+            proclog.error(e)
         err_exit(f"Program {cmd} failed with return code {proc.returncode}. Abort.")
 
 
@@ -101,10 +98,10 @@ def check_file_readable(*filenames):
         filenames = [filenames]
     for filename in filenames:
         try:
-            with Path(filename).open() as f:
+            with Path(filename).open():
                 pass
         except FileNotFoundError:
-            err_exit(f"Expected file {filename} does not exist")
+            err_exit(f"Required/expected file '{filename}' does not exist")
         except PermissionError:
             err_exit(f"{filename} is not readable")
         except IOError as e:
@@ -191,7 +188,6 @@ parser.add_argument(
     nargs="+",
     help="A list of exposure levels to use (e.g. -1,0,1).",
 )
-parser.add_argument("--workspace_dir")
 
 
 # Does simple command-line parsing and initialization.
@@ -200,7 +196,6 @@ def parse_flags(argv=None):
     log.debug(ctx)
     parser.parse_args(args=argv, namespace=ctx)
     log.debug(ctx)
-    log.info("Parsing")
 
     if not ctx.lang_code:
         err_exit("Need to specify a language --lang")
@@ -215,12 +210,15 @@ def parse_flags(argv=None):
             )
         else:
             ctx.tessdata_dir = tessdata_prefix
+    if not ctx.output_dir:
+        ctx.output_dir = mkdtemp(prefix=f"trained-{ctx.lang_code}-{ctx.timestamp}")
+        log.info(f"Output directory set to: {ctx.output_dir}")
 
     # Location where intermediate files will be created.
     ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}")
     # Location of log file for the whole run.
     ctx.log_file = Path(ctx.training_dir) / "tesstrain.log"
-    log.info(f"Log file {ctx.log_file}")
+    log.info(f"Log file location: {ctx.log_file}")
 
     def show_tmpdir_location(training_dir):
         # On successful exit we will delete this first; on failure we want to let the user
@@ -356,7 +354,7 @@ def phase_I_generate_image(ctx, par_factor):
             # for tesseract to recognize during training. Take only the ngrams whose
             # combined weight accounts for 95% of all the bigrams in the language.
             lines = Path(ctx.bigram_freqs_file).read_text(encoding="utf-8").split("\n")
-            records = (line.split(" ") for line in splittable_lines)
+            records = (line.split(" ") for line in lines)
             p = 0.99
             ngram_frac = p * sum(int(rec[1]) for rec in records if len(rec) >= 2)
 

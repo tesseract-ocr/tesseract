@@ -14,7 +14,7 @@
 # Tesseract.  For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
-import sys, os, subprocess, logging
+import sys, os, logging
 
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -32,7 +32,7 @@ import language_specific
 log = logging.getLogger()
 
 
-def setup_logging(logfile):
+def setup_logging_console():
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
@@ -42,6 +42,8 @@ def setup_logging(logfile):
     console.setFormatter(console_formatter)
     log.addHandler(console)
 
+
+def setup_logging_logfile(logfile):
     logfile = logging.FileHandler(logfile)
     logfile.setLevel(logging.DEBUG)
     logfile_formatter = logging.Formatter(
@@ -52,8 +54,9 @@ def setup_logging(logfile):
 
 
 def main():
+    setup_logging_console()
     ctx = parse_flags()
-    setup_logging(ctx.log_file)
+    setup_logging_logfile(ctx.log_file)
     if not ctx.linedata:
         log.error("--linedata_only is required since only LSTM is supported")
         sys.exit(1)
