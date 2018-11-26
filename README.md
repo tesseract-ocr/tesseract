@@ -65,6 +65,8 @@ Basic **[command line usage](https://github.com/tesseract-ocr/tesseract/wiki/Com
 
 For more information about the various command line options use `tesseract --help` or `man tesseract`.
 
+Examples can be found in the [wiki](https://github.com/tesseract-ocr/tesseract/wiki/Command-Line-Usage#simplest-invocation-to-ocr-an-image).
+
 ## For developers
 
 Developers can use `libtesseract` [C](https://github.com/tesseract-ocr/tesseract/blob/master/src/api/capi.h) or [C++](https://github.com/tesseract-ocr/tesseract/blob/master/src/api/baseapi.h) API to build their own application. If you need bindings to `libtesseract` for other programming languages, please see the [wrapper](https://github.com/tesseract-ocr/tesseract/wiki/AddOns#tesseract-wrappers) section on AddOns wiki page.
