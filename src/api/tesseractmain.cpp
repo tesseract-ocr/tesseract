@@ -652,7 +652,7 @@ int main(int argc, char** argv) {
       osd_warning +=
           "\nWarning: The page segmentation mode 1 (Auto+OSD) is currently disabled. "
           "Using PSM 3 (Auto) instead.\n\n";
-  } else if (tesseract::PSM_SPARSE_TEXT_OSD) {
+  } else if (cur_psm == tesseract::PSM_SPARSE_TEXT_OSD) {
       api.SetPageSegMode(tesseract::PSM_SPARSE_TEXT);
       osd_warning +=
           "\nWarning: The page segmentation mode 12 (Sparse text + OSD) is currently disabled. "
