@@ -38,6 +38,28 @@ const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const double kAdamEpsilon = 1e-8;
 
+// Computes matrix.vector v = Wu.
+// u is of size W.dim2() - add_bias_fwd and the output v is of size
+// W.dim1() - skip_bias_back.
+// If add_bias_fwd, u is imagined to have an extra element at the end with value
+// 1, to implement the bias, weight.
+// If skip_bias_back, we are actullay performing the backwards product on a
+// transposed matrix, so we need to drop the v output corresponding to the last
+// element in dim1.
+static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
+                                           bool add_bias_fwd,
+                                           bool skip_bias_back, const double* u,
+                                           double* v) {
+  int num_results = w.dim1() - skip_bias_back;
+  int extent = w.dim2() - add_bias_fwd;
+  for (int i = 0; i < num_results; ++i) {
+    const double* wi = w[i];
+    double total = WeightMatrix::DotProduct(wi, u, extent);
+    if (add_bias_fwd) total += wi[extent];  // The bias value.
+    v[i] = total;
+  }
+}
+
 // Copies the whole input transposed, converted to double, into *this.
 void TransposedArray::Transpose(const GENERIC_2D_ARRAY<double>& input) {
   int width = input.dim1();
@@ -398,28 +420,6 @@ void WeightMatrix::FloatToDouble(const GENERIC_2D_ARRAY<float>& wf,
     const float* wfi = wf[i];
     double* wdi = (*wd)[i];
     for (int j = 0; j < dim2; ++j) wdi[j] = static_cast<double>(wfi[j]);
-  }
-}
-
-// Computes matrix.vector v = Wu.
-// u is of size W.dim2() - add_bias_fwd and the output v is of size
-// W.dim1() - skip_bias_back.
-// If add_bias_fwd, u is imagined to have an extra element at the end with value
-// 1, to implement the bias, weight.
-// If skip_bias_back, we are actullay performing the backwards product on a
-// transposed matrix, so we need to drop the v output corresponding to the last
-// element in dim1.
-void WeightMatrix::MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
-                                           bool add_bias_fwd,
-                                           bool skip_bias_back, const double* u,
-                                           double* v) {
-  int num_results = w.dim1() - skip_bias_back;
-  int extent = w.dim2() - add_bias_fwd;
-  for (int i = 0; i < num_results; ++i) {
-    const double* wi = w[i];
-    double total = DotProduct(wi, u, extent);
-    if (add_bias_fwd) total += wi[extent];  // The bias value.
-    v[i] = total;
   }
 }
 

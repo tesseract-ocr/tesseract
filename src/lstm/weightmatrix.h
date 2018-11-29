@@ -160,17 +160,6 @@ class WeightMatrix {
                             GENERIC_2D_ARRAY<double>* wd);
 
  private:
-  // Computes matrix.vector v = Wu.
-  // u is of size starts.back()+extents.back() and the output v is of size
-  // starts.size().
-  // The weight matrix w, is of size starts.size()xMAX(extents)+add_bias_fwd.
-  // If add_bias_fwd, an extra element at the end of w[i] is the bias weight
-  // and is added to v[i].
-  static void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
-                                      bool add_bias_fwd, bool skip_bias_back,
-                                      const double* u, double* v);
-
- private:
   // Choice between float and 8 bit int implementations.
   GENERIC_2D_ARRAY<double> wf_;
   GENERIC_2D_ARRAY<int8_t> wi_;
