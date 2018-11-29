@@ -38,6 +38,29 @@ const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const double kAdamEpsilon = 1e-8;
 
+// Computes and returns the dot product of the two n-vectors u and v.
+static inline double DotProduct(const double* u, const double* v, int n) {
+  // Note: because the order of addition is different among the 3 DotProduct
+  // functions, the results can (and do) vary slightly (although they agree
+  // to within about 4e-15). This produces different results when running
+  // training, despite all random inputs being precisely equal.
+  // To get consistent results, use just one of these DotProduct functions.
+  // On a test multi-layer network, serial is 57% slower than sse, and avx
+  // is about 8% faster than sse. This suggests that the time is memory
+  // bandwidth constrained and could benefit from holding the reused vector
+  // in AVX registers.
+
+  if (SIMDDetect::IsAVXAvailable())
+    return DotProductAVX(u, v, n);
+
+  if (SIMDDetect::IsSSEAvailable())
+    return DotProductSSE(u, v, n);
+
+  double total = 0.0;
+  for (int k = 0; k < n; ++k) total += u[k] * v[k];
+  return total;
+}
+
 // Computes matrix.vector v = Wu.
 // u is of size W.dim2() - add_bias_fwd and the output v is of size
 // W.dim1() - skip_bias_back.
@@ -54,7 +77,7 @@ static inline void MatrixDotVectorInternal(const GENERIC_2D_ARRAY<double>& w,
   int extent = w.dim2() - add_bias_fwd;
   for (int i = 0; i < num_results; ++i) {
     const double* wi = w[i];
-    double total = WeightMatrix::DotProduct(wi, u, extent);
+    double total = DotProduct(wi, u, extent);
     if (add_bias_fwd) total += wi[extent];  // The bias value.
     v[i] = total;
   }
@@ -387,25 +410,6 @@ void WeightMatrix::Debug2D(const char* msg) {
   }
   tprintf("%s\n", msg);
   histogram.print();
-}
-
-// Computes and returns the dot product of the two n-vectors u and v.
-/* static */
-double WeightMatrix::DotProduct(const double* u, const double* v, int n) {
-  // Note: because the order of addition is different among the 3 DotProduct
-  // functions, the results can (and do) vary slightly (although they agree
-  // to within about 4e-15). This produces different results when running
-  // training, despite all random inputs being precisely equal.
-  // To get consistent results, use just one of these DotProduct functions.
-  // On a test multi-layer network, serial is 57% slower than sse, and avx
-  // is about 8% faster than sse. This suggests that the time is memory
-  // bandwidth constrained and could benefit from holding the reused vector
-  // in AVX registers.
-  if (SIMDDetect::IsAVXAvailable()) return DotProductAVX(u, v, n);
-  if (SIMDDetect::IsSSEAvailable()) return DotProductSSE(u, v, n);
-  double total = 0.0;
-  for (int k = 0; k < n; ++k) total += u[k] * v[k];
-  return total;
 }
 
 // Utility function converts an array of float to the corresponding array
