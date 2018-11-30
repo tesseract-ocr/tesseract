@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # (C) Copyright 2014, Google Inc.
 # (C) Copyright 2018, James R Barlow
 # Licensed under the Apache License, Version 2.0 (the "License");
