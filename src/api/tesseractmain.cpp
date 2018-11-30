@@ -108,13 +108,13 @@ static void PrintVersionInfo() {
         }
       }
     }
-    }
+  }
 #endif
-    if (SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
-    if (SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
-    if (SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
-    if (SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
-    if (SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
+  if (tesseract::SIMDDetect::IsAVX512BWAvailable()) printf(" Found AVX512BW\n");
+  if (tesseract::SIMDDetect::IsAVX512FAvailable()) printf(" Found AVX512F\n");
+  if (tesseract::SIMDDetect::IsAVX2Available()) printf(" Found AVX2\n");
+  if (tesseract::SIMDDetect::IsAVXAvailable()) printf(" Found AVX\n");
+  if (tesseract::SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
 }
 
 static void PrintHelpForPSM() {
@@ -706,4 +706,3 @@ int main(int argc, char** argv) {
 
   return EXIT_SUCCESS;
 }
-

@@ -19,18 +19,20 @@
 
 #undef X86_BUILD
 #if defined(__x86_64__) || defined(__i386__) || defined(_WIN32)
-#if !defined(ANDROID_BUILD)
-#define X86_BUILD 1
-#endif  // !ANDROID_BUILD
-#endif  // x86 target
+#  if !defined(ANDROID_BUILD)
+#    define X86_BUILD 1
+#  endif  // !ANDROID_BUILD
+#endif    // x86 target
 
 #if defined(X86_BUILD)
-#if defined(__GNUC__)
-#include <cpuid.h>
-#elif defined(_WIN32)
-#include <intrin.h>
+#  if defined(__GNUC__)
+#    include <cpuid.h>
+#  elif defined(_WIN32)
+#    include <intrin.h>
+#  endif
 #endif
-#endif
+
+namespace tesseract {
 
 SIMDDetect SIMDDetect::detector;
 
@@ -49,7 +51,7 @@ bool SIMDDetect::sse_available_;
 // clang.
 SIMDDetect::SIMDDetect() {
 #if defined(X86_BUILD)
-#if defined(__GNUC__)
+#  if defined(__GNUC__)
   unsigned int eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
     // Note that these tests all use hex because the older compilers don't have
@@ -66,7 +68,7 @@ SIMDDetect::SIMDDetect() {
       avx512BW_available_ = (ebx & 0x40000000) != 0;
     }
   }
-#elif defined(_WIN32)
+#  elif defined(_WIN32)
   int cpuInfo[4];
   __cpuid(cpuInfo, 0);
   if (cpuInfo[0] >= 1) {
@@ -74,8 +76,10 @@ SIMDDetect::SIMDDetect() {
     sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
   }
-#else
-#error "I don't know how to test for SIMD with this compiler"
-#endif
+#  else
+#    error "I don't know how to test for SIMD with this compiler"
+#  endif
 #endif  // X86_BUILD
 }
+
+}  // namespace tesseract
