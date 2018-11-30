@@ -17,6 +17,7 @@
  **********************************************************************/
 
 #include "baseapi.h"
+#include <memory.h>
 #include "renderer.h"
 
 namespace tesseract {
