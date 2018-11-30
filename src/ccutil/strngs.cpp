@@ -195,7 +195,7 @@ int32_t STRING::length() const {
 
 const char* STRING::string() const {
   const STRING_HEADER* header = GetHeader();
-  if (header->used_ == 0)
+  if (!header || header->used_ == 0)
     return nullptr;
 
   // mark header length unreliable because tesseract might

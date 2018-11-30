@@ -38,6 +38,7 @@ DLLSYM void tprintf(const char *format, ...)
 {
   tesseract::tprintfMutex.Lock();
   va_list args;                  // variable args
+  const char* debug_file_name = debug_file.string();
   static FILE *debugfp = nullptr;   // debug file
                                  // debug window
   int32_t offset = 0;              // into message
@@ -47,16 +48,16 @@ DLLSYM void tprintf(const char *format, ...)
   // Format into msg
   #ifdef _WIN32
   offset += _vsnprintf(msg + offset, MAX_MSG_LEN - offset, format, args);
-  if (strcmp(debug_file.string(), "/dev/null") == 0)
+  if (debug_file_name && strcmp(debug_file_name, "/dev/null") == 0)
     debug_file.set_value("nul");
   #else
   offset += vsnprintf(msg + offset, MAX_MSG_LEN - offset, format, args);
   #endif
   va_end(args);
 
-  if (debugfp == nullptr && strlen(debug_file.string()) > 0) {
+  if (debugfp == nullptr && debug_file_name && strlen(debug_file_name) > 0) {
     debugfp = fopen(debug_file.string(), "wb");
-  } else if (debugfp != nullptr && strlen(debug_file.string()) == 0) {
+  } else if (debugfp != nullptr && debug_file_name && strlen(debug_file_name) == 0) {
     fclose(debugfp);
     debugfp = nullptr;
   }

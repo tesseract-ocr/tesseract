@@ -987,11 +987,7 @@ void NetworkIO::ClipVector(int t, float range) {
 int NetworkIO::GetPadding(int num_features) {
   if (multiplier_ == nullptr)
     multiplier_ = IntSimdMatrix::GetFastestMultiplier();
-  int pad = 0;
-  if (multiplier_ != nullptr) {
-    pad = multiplier_->RoundInputs(num_features) - num_features;
-  }
-  return pad;
+  return multiplier_->RoundInputs(num_features) - num_features;
 }
 
 }  // namespace tesseract.
