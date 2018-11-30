@@ -21,6 +21,10 @@
 
 namespace tesseract {
 
+// Function pointer for best calculation of dot product.
+typedef double (*DotProductFunction)(const double* u, const double* v, int n);
+extern DotProductFunction DotProduct;
+
 // Architecture detector. Add code here to detect any other architectures for
 // SIMD-based faster dot product functions. Intended to be a single static
 // object, but it does no real harm to have more than one.
@@ -40,6 +44,9 @@ class SIMDDetect {
   }
   // Returns true if SSE4.1 is available on this system.
   static inline bool IsSSEAvailable() { return detector.sse_available_; }
+
+  // Update settings after config variable was set.
+  static void Update();
 
  private:
   // Constructor, must set all static member variables.

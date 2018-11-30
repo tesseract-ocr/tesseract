@@ -2,7 +2,6 @@
 // File:        weightmatrix.h
 // Description: Hides distinction between float/int implementations.
 // Author:      Ray Smith
-// Created:     Tue Jun 17 09:05:39 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");

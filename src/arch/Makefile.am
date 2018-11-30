@@ -10,11 +10,13 @@ endif
 
 pkginclude_HEADERS =
 
-noinst_HEADERS = dotproductavx.h dotproductsse.h
+noinst_HEADERS = dotproduct.h dotproductavx.h dotproductsse.h
 noinst_HEADERS += intsimdmatrix.h intsimdmatrixavx2.h intsimdmatrixsse.h
 noinst_HEADERS += simddetect.h
 
-noinst_LTLIBRARIES = libtesseract_avx.la libtesseract_avx2.la libtesseract_sse.la
+noinst_LTLIBRARIES = libtesseract_native.la
+noinst_LTLIBRARIES += libtesseract_avx.la libtesseract_avx2.la
+noinst_LTLIBRARIES += libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_arch.la
 
 if AVX_OPT
@@ -26,6 +28,9 @@ endif
 if SSE41_OPT
 libtesseract_sse_la_CXXFLAGS = -ffast-math -msse4.1
 endif
+
+libtesseract_native_la_CXXFLAGS = -O3 -ffast-math -march=native -mtune=native
+libtesseract_native_la_SOURCES = dotproduct.cpp
 
 libtesseract_arch_la_SOURCES = intsimdmatrix.cpp simddetect.cpp
 
