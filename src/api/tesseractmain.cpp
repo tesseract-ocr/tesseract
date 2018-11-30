@@ -419,6 +419,19 @@ static void PreloadRenderers(
       }
     }
 
+    api->GetBoolVariable("tessedit_create_alto", &b);
+    if (b) {
+        tesseract::TessAltoRenderer* renderer =
+                new tesseract::TessAltoRenderer(outputbase);
+        if (renderer->happy()) {
+            renderers->push_back(renderer);
+        } else {
+            delete renderer;
+            tprintf("Error, could not create ALTO output file: %s\n",
+                    strerror(errno));
+        }
+    }
+
     api->GetBoolVariable("tessedit_create_tsv", &b);
     if (b) {
       bool font_info;

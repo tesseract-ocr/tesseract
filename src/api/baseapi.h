@@ -595,6 +595,19 @@ class TESS_API TessBaseAPI {
   char* GetHOCRText(int page_number);
 
   /**
+   * Make an XML-formatted string with Alto markup from the internal
+   * data structures.
+   */
+  char* GetAltoText(ETEXT_DESC* monitor, int page_number);
+
+
+  /**
+   * Make an XML-formatted string with Alto markup from the internal
+   * data structures.
+   */
+  char* GetAltoText(int page_number);
+
+  /**
    * Make a TSV-formatted string from the internal data structures.
    * page_number is 0-based but will appear in the output as 1-based.
    * Returned string must be freed with the delete [] operator.

@@ -32,7 +32,7 @@ libtesseract_api_la_CPPFLAGS = $(AM_CPPFLAGS)
 if VISIBILITY
 libtesseract_api_la_CPPFLAGS += -DTESS_EXPORTS
 endif
-libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp
+libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp renderer.cpp pdfrenderer.cpp altorenderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
 libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS)

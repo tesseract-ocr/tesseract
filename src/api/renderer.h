@@ -167,6 +167,20 @@ class TESS_API TessHOcrRenderer : public TessResultRenderer {
 };
 
 /**
+ * Renders tesseract output into an alto text string
+ */
+    class TESS_API TessAltoRenderer : public TessResultRenderer {
+    public:
+        explicit TessAltoRenderer(const char *outputbase);
+
+    protected:
+        virtual bool BeginDocumentHandler();
+        virtual bool AddImageHandler(TessBaseAPI* api);
+        virtual bool EndDocumentHandler();
+
+    };
+
+/**
  * Renders Tesseract output into a TSV string
  */
 class TESS_API TessTsvRenderer : public TessResultRenderer {

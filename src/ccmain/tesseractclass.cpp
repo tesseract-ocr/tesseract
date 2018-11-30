@@ -387,6 +387,8 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_create_hocr, false, "Write .html hOCR output file",
                   this->params()),
+      BOOL_MEMBER(tessedit_create_alto, false, "Write .xml ALTO file",
+                  this->params()),
       BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file",
                   this->params()),
       BOOL_MEMBER(tessedit_create_pdf, false, "Write .pdf output file",
