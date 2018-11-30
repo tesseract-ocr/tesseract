@@ -2,7 +2,6 @@
 // File:        intsindmatrixsse.h
 // Description: SSE implementation of 8-bit int SIMD matrix multiply.
 // Author:      Ray Smith
-// Created:     Tue Aug 23 13:58:21 PST 2017
 //
 // (C) Copyright 2017, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,7 @@
 
 namespace tesseract {
 
-// AVX2 implementation of IntSimdMatrix.
+// SSE implementation of IntSimdMatrix.
 class IntSimdMatrixSSE : public IntSimdMatrix {
  public:
   IntSimdMatrixSSE();
