@@ -29,7 +29,7 @@ namespace tesseract {
 // available type for the current architecture.
 /* static */
 IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
-  IntSimdMatrix* multiplier = nullptr;
+  IntSimdMatrix* multiplier;
   if (SIMDDetect::IsAVX2Available()) {
     multiplier = new IntSimdMatrixAVX2();
   } else if (SIMDDetect::IsSSEAvailable()) {

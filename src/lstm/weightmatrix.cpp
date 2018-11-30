@@ -169,7 +169,7 @@ void WeightMatrix::ConvertToInt() {
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
   multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
-  if (multiplier_ != nullptr) multiplier_->Init(wi_);
+  multiplier_->Init(wi_);
 }
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
@@ -222,7 +222,7 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
     multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
-    if (multiplier_ != nullptr) multiplier_->Init(wi_);
+    multiplier_->Init(wi_);
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
