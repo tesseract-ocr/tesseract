@@ -576,7 +576,7 @@ PERSIAN_FONTS=( \
     )
 
 AMHARIC_FONTS=( \
-    "Abyssinica SIL"
+    "Abyssinica SIL" \
     "Droid Sans Ethiopic Bold" \
     "Droid Sans Ethiopic" \
     "FreeSerif" \

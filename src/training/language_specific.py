@@ -585,7 +585,8 @@ PERSIAN_FONTS = [
 ]
 
 AMHARIC_FONTS = [
-    "Abyssinica SIL" "Droid Sans Ethiopic Bold",
+    "Abyssinica SIL",
+    "Droid Sans Ethiopic Bold",
     "Droid Sans Ethiopic",
     "FreeSerif",
     "Noto Sans Ethiopic Bold",
