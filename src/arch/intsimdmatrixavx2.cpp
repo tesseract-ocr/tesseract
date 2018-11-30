@@ -47,9 +47,9 @@ constexpr int kNumInputGroups = kNumInputsPerRegister / kNumInputsPerGroup;
 // weights and reps are scratch registers.
 // This function must be inlined with references in order for the compiler to
 // correctly use the registers declared in the caller.
-inline void MultiplyGroup(const __m256i& rep_input, const __m256i& ones,
-                          const int8_t*& wi, __m256i& weights, __m256i& reps,
-                          __m256i& result) {
+static inline void MultiplyGroup(const __m256i& rep_input, const __m256i& ones,
+                                 const int8_t*& wi, __m256i& weights,
+                                 __m256i& reps, __m256i& result) {
   // Load a 4x8 block of weights.
   weights = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(wi));
   wi += kNumInputsPerRegister;
@@ -71,9 +71,9 @@ inline void MultiplyGroup(const __m256i& rep_input, const __m256i& ones,
 // Extracts and converts 8x32-bit results from result, adding the bias from wi
 // and scaling by scales, before storing in *v. Note that wi, scales and v are
 // expected to contain 8 consecutive elements or num_out if less.
-inline void ExtractResults(__m256i& result, __m256i& shift_id,
-                           const int8_t*& wi, const double*& scales,
-                           int num_out, double*& v) {
+static inline void ExtractResults(__m256i& result, __m256i& shift_id,
+                                  const int8_t*& wi, const double*& scales,
+                                  int num_out, double*& v) {
   for (int out = 0; out < num_out; ++out) {
     int32_t res =
 #ifndef _MSC_VER
