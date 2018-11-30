@@ -14,7 +14,7 @@
 // limitations under the License.
 
 #include "baseapi.h"
-#include <memory.h>
+#include <memory>
 #include "renderer.h"
 
 namespace tesseract {
