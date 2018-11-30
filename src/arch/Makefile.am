@@ -18,13 +18,13 @@ noinst_LTLIBRARIES = libtesseract_avx.la libtesseract_avx2.la libtesseract_sse.l
 noinst_LTLIBRARIES += libtesseract_arch.la
 
 if AVX_OPT
-libtesseract_avx_la_CXXFLAGS = -mavx
+libtesseract_avx_la_CXXFLAGS = -ffast-math -mavx
 endif
 if AVX2_OPT
-libtesseract_avx2_la_CXXFLAGS = -mavx2
+libtesseract_avx2_la_CXXFLAGS = -ffast-math -mavx2
 endif
 if SSE41_OPT
-libtesseract_sse_la_CXXFLAGS = -msse4.1
+libtesseract_sse_la_CXXFLAGS = -ffast-math -msse4.1
 endif
 
 libtesseract_arch_la_SOURCES = intsimdmatrix.cpp simddetect.cpp
