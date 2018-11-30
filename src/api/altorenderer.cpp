@@ -28,26 +28,28 @@ namespace tesseract {
     ///
     bool TessAltoRenderer::BeginDocumentHandler() {
         AppendString(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
-                "\t<Description>\n"
-                "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
-                "\t\t<sourceImageInformation>\n"
-                "\t\t\t<fileName>");
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
+        "\t<Description>\n"
+        "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
+        "\t\t<sourceImageInformation>\n"
+        "\t\t\t<fileName>");
 
         AppendString(title());
 
         AppendString("\t\t\t</fileName>\n"
-                     "\t\t</sourceImageInformation>\n"
-                     "\t\t<OCRProcessing ID=\"OCR_0\">\n"
-                     "\t\t\t<ocrProcessingStep>\n"
-                     "\t\t\t\t<processingSoftware>\n"
-                     "\t\t\t\t\t<softwareName>tesseract 4.0.0</softwareName>\n"
-                     "\t\t\t\t</processingSoftware>\n"
-                     "\t\t\t</ocrProcessingStep>\n"
-                     "\t\t</OCRProcessing>\n"
-                     "\t</Description>\n"
-                     "\t<Layout>\n");
+        "\t\t</sourceImageInformation>\n"
+        "\t\t<OCRProcessing ID=\"OCR_0\">\n"
+        "\t\t\t<ocrProcessingStep>\n"
+        "\t\t\t\t<processingSoftware>\n"
+        "\t\t\t\t\t<softwareName>tesseract ");
+        AppendString(TessBaseAPI::Version());
+        AppendString("</softwareName>\n"
+        "\t\t\t\t</processingSoftware>\n"
+        "\t\t\t</ocrProcessingStep>\n"
+        "\t\t</OCRProcessing>\n"
+        "\t</Description>\n"
+        "\t<Layout>\n");
 
         return true;
     }
