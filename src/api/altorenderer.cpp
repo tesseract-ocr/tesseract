@@ -19,75 +19,6 @@
 
 namespace tesseract {
 
-    TessAltoRenderer::TessAltoRenderer(const char *outputbase)
-            : TessResultRenderer(outputbase, "xml") {
-    }
-
-    ///
-    /// Append the ALTO XML for the beginning of the document
-    ///
-    bool TessAltoRenderer::BeginDocumentHandler() {
-        AppendString(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-        "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
-        "\t<Description>\n"
-        "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
-        "\t\t<sourceImageInformation>\n"
-        "\t\t\t<fileName>");
-
-        AppendString(title());
-
-        AppendString("\t\t\t</fileName>\n"
-        "\t\t</sourceImageInformation>\n"
-        "\t\t<OCRProcessing ID=\"OCR_0\">\n"
-        "\t\t\t<ocrProcessingStep>\n"
-        "\t\t\t\t<processingSoftware>\n"
-        "\t\t\t\t\t<softwareName>tesseract ");
-        AppendString(TessBaseAPI::Version());
-        AppendString("</softwareName>\n"
-        "\t\t\t\t</processingSoftware>\n"
-        "\t\t\t</ocrProcessingStep>\n"
-        "\t\t</OCRProcessing>\n"
-        "\t</Description>\n"
-        "\t<Layout>\n");
-
-        return true;
-    }
-
-    ///
-    /// Append the ALTO XML for the end of the document
-    ///
-    bool TessAltoRenderer::EndDocumentHandler() {
-        AppendString("\t</Layout>\n</alto>\n");
-
-        return true;
-    }
-
-    ///
-    /// Append the ALTO XML for the layout of the image
-    ///
-    bool TessAltoRenderer::AddImageHandler(TessBaseAPI* api) {
-        const std::unique_ptr<const char[]> hocr(api->GetAltoText(imagenum()));
-        if (hocr == nullptr) return false;
-
-        AppendString(hocr.get());
-
-        return true;
-    }
-
-    ///
-    /// Add a unique ID to an ALTO element
-    ///
-    static void AddIdToAlto(STRING *alto_str, const std::string base, int num1) {
-        const size_t BUFSIZE = 64;
-        char id_buffer[BUFSIZE];
-        snprintf(id_buffer, BUFSIZE - 1, "%s_%d", base.c_str(), num1);
-        id_buffer[BUFSIZE - 1] = '\0';
-        *alto_str += " ID=\"";
-        *alto_str += id_buffer;
-        *alto_str += "\"";
-    }
-
     ///
     /// Add coordinates to specified TextBlock, TextLine, or String bounding box
     /// Add word confidence if adding to a String bounding box
@@ -128,45 +59,114 @@ namespace tesseract {
     }
 
     ///
+    /// Add a unique ID to an ALTO element
+    ///
+    static void AddIdToAlto(STRING *alto_str, const std::string base, int num1) {
+        const size_t BUFSIZE = 64;
+        char id_buffer[BUFSIZE];
+        snprintf(id_buffer, BUFSIZE - 1, "%s_%d", base.c_str(), num1);
+        id_buffer[BUFSIZE - 1] = '\0';
+        *alto_str += " ID=\"";
+        *alto_str += id_buffer;
+        *alto_str += "\"";
+    }
+
+    ///
+    /// Append the ALTO XML for the beginning of the document
+    ///
+    bool TessAltoRenderer::BeginDocumentHandler() {
+        AppendString(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<alto xmlns=\"http://www.loc.gov/standards/alto/ns-v3#\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.loc.gov/standards/alto/ns-v3# http://www.loc.gov/alto/v3/alto-3-0.xsd\">\n"
+        "\t<Description>\n"
+        "\t\t<MeasurementUnit>pixel</MeasurementUnit>\n"
+        "\t\t<sourceImageInformation>\n"
+        "\t\t\t<fileName>");
+
+        AppendString(title());
+
+        AppendString("\t\t\t</fileName>\n"
+        "\t\t</sourceImageInformation>\n"
+        "\t\t<OCRProcessing ID=\"OCR_0\">\n"
+        "\t\t\t<ocrProcessingStep>\n"
+        "\t\t\t\t<processingSoftware>\n"
+        "\t\t\t\t\t<softwareName>tesseract ");
+        AppendString(TessBaseAPI::Version());
+        AppendString("</softwareName>\n"
+        "\t\t\t\t</processingSoftware>\n"
+        "\t\t\t</ocrProcessingStep>\n"
+        "\t\t</OCRProcessing>\n"
+        "\t</Description>\n"
+        "\t<Layout>\n");
+
+        return true;
+    }
+
+    ///
+    /// Append the ALTO XML for the layout of the image
+    ///
+    bool TessAltoRenderer::AddImageHandler(TessBaseAPI* api) {
+        const std::unique_ptr<const char[]> hocr(api->GetAltoText(imagenum()));
+        if (hocr == nullptr) return false;
+
+        AppendString(hocr.get());
+
+        return true;
+    }
+
+    ///
+    /// Append the ALTO XML for the end of the document
+    ///
+    bool TessAltoRenderer::EndDocumentHandler() {
+        AppendString("\t</Layout>\n</alto>\n");
+
+        return true;
+    }
+
+    TessAltoRenderer::TessAltoRenderer(const char *outputbase)
+        : TessResultRenderer(outputbase, "xml") {
+    }
+
+    ///
     /// Make an XML-formatted string with ALTO markup from the internal
     /// data structures.
     ///
-        char *TessBaseAPI::GetAltoText(int page_number) {
-            return GetAltoText(nullptr, page_number);
-        }
+    char *TessBaseAPI::GetAltoText(int page_number) {
+        return GetAltoText(nullptr, page_number);
+    }
 
     ///
     /// Make an XML-formatted string with ALTO markup from the internal
     /// data structures.
     ///
-        char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
-            if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
-                return nullptr;
+    char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
+        if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
+            return nullptr;
 
-            int lcnt = 0, bcnt = 0, wcnt = 0;
-            int page_id = page_number;
+        int lcnt = 0, bcnt = 0, wcnt = 0;
+        int page_id = page_number;
 
-            STRING alto_str("");
+        STRING alto_str("");
 
-            if (input_file_ == nullptr)
-                SetInputName(nullptr);
+        if (input_file_ == nullptr)
+            SetInputName(nullptr);
 
-    #ifdef _WIN32
-            // convert input name from ANSI encoding to utf-8
-          int str16_len =
-              MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
-          wchar_t *uni16_str = new WCHAR[str16_len];
-          str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
-                                          uni16_str, str16_len);
-          int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0,
-                                             nullptr, nullptr);
-          char *utf8_str = new char[utf8_len];
-          WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
-                              utf8_len, nullptr, nullptr);
-          *input_file_ = utf8_str;
-          delete[] uni16_str;
-          delete[] utf8_str;
-    #endif
+        #ifdef _WIN32
+                // convert input name from ANSI encoding to utf-8
+              int str16_len =
+                  MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
+              wchar_t *uni16_str = new WCHAR[str16_len];
+              str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
+                                              uni16_str, str16_len);
+              int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0,
+                                                 nullptr, nullptr);
+              char *utf8_str = new char[utf8_len];
+              WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
+                                  utf8_len, nullptr, nullptr);
+              *input_file_ = utf8_str;
+              delete[] uni16_str;
+              delete[] utf8_str;
+        #endif
 
             alto_str += "\t\t<Page WIDTH=\"";
             alto_str.add_str_int("", rect_width_);
@@ -247,6 +247,6 @@ namespace tesseract {
             strcpy(ret, alto_str.string());
             delete res_it;
             return ret;
-        }
-
     }
+
+}
