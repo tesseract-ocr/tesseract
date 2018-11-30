@@ -68,7 +68,7 @@ TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outpu
 
 TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate(const char* outputbase)
 {
-    return new TessHOcrRenderer(outputbase);
+    return new TessAltoRenderer(outputbase);
 }
 
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,

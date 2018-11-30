@@ -1,20 +1,17 @@
-/**********************************************************************
- * File:        altorenderer.cpp
- * Description: ALTO rendering interface
- * Author:      Jake Sebright
- *
- * (C) Copyright 2018
- ** Licensed under the Apache License, Version 2.0 (the "License");
- ** you may not use this file except in compliance with the License.
- ** You may obtain a copy of the License at
- ** http://www.apache.org/licenses/LICENSE-2.0
- ** Unless required by applicable law or agreed to in writing, software
- ** distributed under the License is distributed on an "AS IS" BASIS,
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ** See the License for the specific language governing permissions and
- ** limitations under the License.
- *
- **********************************************************************/
+// File:        altorenderer.cpp
+// Description: ALTO rendering interface
+// Author:      Jake Sebright
+
+// (C) Copyright 2018
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "baseapi.h"
 #include <memory.h>
@@ -22,16 +19,13 @@
 
 namespace tesseract {
 
-/**********************************************************************
- * Alto Text Renderer interface implementation
- **********************************************************************/
     TessAltoRenderer::TessAltoRenderer(const char *outputbase)
             : TessResultRenderer(outputbase, "xml") {
     }
 
-    /**
-    * Append the ALTO XML for the beginning of the document
-    */
+    ///
+    /// Append the ALTO XML for the beginning of the document
+    ///
     bool TessAltoRenderer::BeginDocumentHandler() {
         AppendString(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -58,19 +52,19 @@ namespace tesseract {
         return true;
     }
 
-    /**
-    * Append the ALTO XML for the end of the document
-    */
+    ///
+    /// Append the ALTO XML for the end of the document
+    ///
     bool TessAltoRenderer::EndDocumentHandler() {
         AppendString("\t</Layout>\n</alto>\n");
 
         return true;
     }
 
-    /**
-    * Append the ALTO XML for the layout of the image
-    */
-    bool TessAltoRenderer::AddImageHandler(TessBaseAPI *api) {
+    ///
+    /// Append the ALTO XML for the layout of the image
+    ///
+    bool TessAltoRenderer::AddImageHandler(TessBaseAPI* api) {
         const std::unique_ptr<const char[]> hocr(api->GetAltoText(imagenum()));
         if (hocr == nullptr) return false;
 
@@ -79,9 +73,9 @@ namespace tesseract {
         return true;
     }
 
-    /**
-    * Add a unique ID to an ALTO element
-    */
+    ///
+    /// Add a unique ID to an ALTO element
+    ///
     static void AddIdToAlto(STRING *alto_str, const std::string base, int num1) {
         const size_t BUFSIZE = 64;
         char id_buffer[BUFSIZE];
@@ -92,10 +86,10 @@ namespace tesseract {
         *alto_str += "\"";
     }
 
-    /**
-    * Add coordinates to specified TextBlock, TextLine, or String bounding box
-    * Add word confidence if adding to a String bounding box
-    */
+    ///
+    /// Add coordinates to specified TextBlock, TextLine, or String bounding box
+    /// Add word confidence if adding to a String bounding box
+    ///
     static void AddBoxToAlto(const ResultIterator *it, PageIteratorLevel level,
                              STRING *alto_str) {
         int left, top, right, bottom;
@@ -131,18 +125,18 @@ namespace tesseract {
         }
     }
 
-    /**
-     * Make an XML-formatted string with ALTO markup from the internal
-     * data structures.
-     */
+    ///
+    /// Make an XML-formatted string with ALTO markup from the internal
+    /// data structures.
+    ///
         char *TessBaseAPI::GetAltoText(int page_number) {
             return GetAltoText(nullptr, page_number);
         }
 
-    /**
-     * Make an XML-formatted string with ALTO markup from the internal
-     * data structures.
-     */
+    ///
+    /// Make an XML-formatted string with ALTO markup from the internal
+    /// data structures.
+    ///
         char *TessBaseAPI::GetAltoText(ETEXT_DESC *monitor, int page_number) {
             if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
                 return nullptr;
