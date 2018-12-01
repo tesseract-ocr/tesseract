@@ -48,6 +48,7 @@ libtesseract_la_LIBADD = \
     ../classify/libtesseract_classify.la \
     ../dict/libtesseract_dict.la \
     ../arch/libtesseract_arch.la \
+    ../arch/libtesseract_native.la \
     ../arch/libtesseract_avx.la \
     ../arch/libtesseract_avx2.la \
     ../arch/libtesseract_sse.la \

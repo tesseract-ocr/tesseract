@@ -2,7 +2,6 @@
 // File:        weightmatrix.cpp
 // Description: Hides distinction between float/int implementations.
 // Author:      Ray Smith
-// Created:     Tue Jun 17 11:46:20 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +17,8 @@
 
 #include "weightmatrix.h"
 
-#include "dotproductavx.h"
-#include "dotproductsse.h"
 #include "intsimdmatrix.h"
-#include "simddetect.h"
+#include "simddetect.h"         // for DotProduct
 #include "statistc.h"
 #include "tprintf.h"
 
@@ -37,29 +34,6 @@ static inline double log2(double n) {
 const int kAdamCorrectionIterations = 200000;
 // Epsilon in Adam to prevent division by zero.
 const double kAdamEpsilon = 1e-8;
-
-// Computes and returns the dot product of the two n-vectors u and v.
-static inline double DotProduct(const double* u, const double* v, int n) {
-  // Note: because the order of addition is different among the 3 DotProduct
-  // functions, the results can (and do) vary slightly (although they agree
-  // to within about 4e-15). This produces different results when running
-  // training, despite all random inputs being precisely equal.
-  // To get consistent results, use just one of these DotProduct functions.
-  // On a test multi-layer network, serial is 57% slower than sse, and avx
-  // is about 8% faster than sse. This suggests that the time is memory
-  // bandwidth constrained and could benefit from holding the reused vector
-  // in AVX registers.
-
-  if (SIMDDetect::IsAVXAvailable())
-    return DotProductAVX(u, v, n);
-
-  if (SIMDDetect::IsSSEAvailable())
-    return DotProductSSE(u, v, n);
-
-  double total = 0.0;
-  for (int k = 0; k < n; ++k) total += u[k] * v[k];
-  return total;
-}
 
 // Computes matrix.vector v = Wu.
 // u is of size W.dim2() - add_bias_fwd and the output v is of size

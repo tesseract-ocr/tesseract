@@ -1,8 +1,7 @@
 /**********************************************************************
- * File:        tesseractmain.cpp  (Formerly tessedit.c)
+ * File:        tesseractmain.cpp
  * Description: Main program for merge of tess and editor.
  * Author:      Ray Smith
- * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -584,6 +583,9 @@ int main(int argc, char** argv) {
                              argc - arg_i, &vars_vec, &vars_values, false);
 
   SetVariablesFromCLArgs(&api, argc, argv);
+
+  // SIMD settings might be overridden by config variable.
+  tesseract::SIMDDetect::Update();
 
   if (list_langs) {
     PrintLangsList(&api);
