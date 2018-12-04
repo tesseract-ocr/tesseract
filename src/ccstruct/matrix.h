@@ -81,7 +81,10 @@ class GENERIC_2D_ARRAY {
 
   void operator=(const GENERIC_2D_ARRAY<T>& src) {
     ResizeNoInit(src.dim1(), src.dim2());
-    memcpy(array_, src.array_, num_elements() * sizeof(array_[0]));
+    int size = num_elements();
+    if (size > 0) {
+      memcpy(array_, src.array_, size * sizeof(array_[0]));
+    }
   }
 
   // Reallocates the array to the given size. Does not keep old data, but does
