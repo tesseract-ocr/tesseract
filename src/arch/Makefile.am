@@ -29,7 +29,10 @@ if SSE41_OPT
 libtesseract_sse_la_CXXFLAGS = -ffast-math -msse4.1
 endif
 
-libtesseract_native_la_CXXFLAGS = -O3 -ffast-math -march=native -mtune=native
+libtesseract_native_la_CXXFLAGS = -O3 -ffast-math
+if MARCH_NATIVE_OPT
+libtesseract_native_la_CXXFLAGS += -march=native -mtune=native
+endif
 libtesseract_native_la_SOURCES = dotproduct.cpp
 
 libtesseract_arch_la_SOURCES = intsimdmatrix.cpp simddetect.cpp

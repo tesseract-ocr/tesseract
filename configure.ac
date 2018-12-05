@@ -115,6 +115,7 @@ esac
 AM_CONDITIONAL([AVX_OPT], false)
 AM_CONDITIONAL([AVX2_OPT], false)
 AM_CONDITIONAL([SSE41_OPT], false)
+AM_CONDITIONAL([MARCH_NATIVE_OPT], false)
 
 AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false])
 if $avx; then
@@ -129,6 +130,11 @@ fi
 AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false])
 if $sse41; then
     AM_CONDITIONAL([SSE41_OPT], true)
+fi
+
+AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false])
+if $arch_native; then
+    AM_CONDITIONAL([MARCH_NATIVE_OPT], true)
 fi
 
 AC_ARG_WITH([extra-includes],
