@@ -3,7 +3,6 @@
 // Description: Code to determine fixed pitchness and the pitch if fixed,
 //              for CJK text.
 // Author:      takenaka@google.com (Hiroshi Takenaka)
-// Created:     Mon Jun 27 12:48:35 JST 2011
 //
 // Copyright 2011 Google Inc. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,12 +73,6 @@ class SimpleStats {
 
   float median() {
     return ile(0.5);
-  }
-
-  float maximum() {
-    if (!finalized_) Finish();
-    if (values_.empty()) return 0.0;
-    return values_.back();
   }
 
   float minimum() {
