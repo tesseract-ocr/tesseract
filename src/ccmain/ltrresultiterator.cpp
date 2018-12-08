@@ -173,7 +173,7 @@ const char* LTRResultIterator::WordFontAttributes(bool* is_bold,
                                                   int* font_id) const {
   const char* result = nullptr;
 
-  if (it_->word()) {
+  if (it_->word() == nullptr) {
     // Already at the end!
     *pointsize = 0;
   } else {
