@@ -309,10 +309,6 @@ class FPRow {
     return good_pitches_.size();
   }
 
-  int good_gaps() {
-    return good_gaps_.size();
-  }
-
   float pitch() {
     return pitch_;
   }
@@ -371,14 +367,6 @@ class FPRow {
 
   bool is_good(int i) {
     return characters_[i].alignment() == FPChar::ALIGN_GOOD;
-  }
-
-  bool is_bad(int i) {
-    return characters_[i].alignment() == FPChar::ALIGN_BAD;
-  }
-
-  bool is_unknown(int i) {
-    return characters_[i].alignment() == FPChar::ALIGN_UNKNOWN;
   }
 
   void mark_good(int i) {
