@@ -50,7 +50,7 @@ TEST_F(TatweelTest, DictIgnoresTatweel) {
 
 TEST_F(TatweelTest, UnicharsetLoadKeepsTatweel) {
   // This test verifies that a load of an existing unicharset keeps any
-  // existing tatweel for backwards compatability.
+  // existing tatweel for backwards compatibility.
   string filename = TestDataNameToPath("ara.unicharset");
   EXPECT_TRUE(unicharset_.load_from_file(filename.c_str()));
   int num_tatweel = 0;

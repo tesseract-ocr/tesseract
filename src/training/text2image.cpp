@@ -684,7 +684,7 @@ static int Main() {
 }
 
 int main(int argc, char** argv) {
-  // Respect enviroment variable. could be:
+  // Respect environment variable. could be:
   // fc (fontconfig), win32, and coretext
   // If not set force fontconfig for Mac OS.
   // See https://github.com/tesseract-ocr/tesseract/issues/736
@@ -693,7 +693,7 @@ int main(int argc, char** argv) {
   if (backend == NULL) {
     putenv("PANGOCAIRO_BACKEND=fc");
   } else {
-    printf("Using '%s' as pango cairo backend based on enviroment "
+    printf("Using '%s' as pango cairo backend based on environment "
            "variable.\n", backend);
   }
   tesseract::CheckSharedLibraryVersion();

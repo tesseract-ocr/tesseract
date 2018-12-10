@@ -310,7 +310,7 @@ TEST(NormstrngsTest, IsWhitespace) {
   EXPECT_TRUE(IsWhitespace('\t'));
   EXPECT_TRUE(IsWhitespace('\r'));
   EXPECT_TRUE(IsWhitespace('\n'));
-  // U+2000 thru U+200A
+  // U+2000 through U+200A
   for (char32 ch = 0x2000; ch <= 0x200A; ++ch) {
     SCOPED_TRACE(StringPrintf("Failed at U+%x", ch));
     EXPECT_TRUE(IsWhitespace(ch));

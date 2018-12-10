@@ -28,7 +28,7 @@ class BitVectorTest : public testing::Test {
   std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  // Computes primes upto kPrimeLimit, using the seive of Eratosthenes.
+  // Computes primes up to kPrimeLimit, using the sieve of Eratosthenes.
   void ComputePrimes(BitVector* map) {
     map->Init(kPrimeLimit + 1);
     TestAll(*map, false);
@@ -101,7 +101,7 @@ class BitVectorTest : public testing::Test {
   }
 };
 
-// Tests the seive of Eratosthenes as a way of testing set/reset and I/O.
+// Tests the sieve of Eratosthenes as a way of testing set/reset and I/O.
 TEST_F(BitVectorTest, Primes) {
   BitVector map;
   ComputePrimes(&map);

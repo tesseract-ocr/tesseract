@@ -143,7 +143,7 @@ TEST_F(PangoFontInfoTest, CanDropUncoveredChars) {
   EXPECT_EQ(1, font_info_.DropUncoveredChars(&word));
   EXPECT_EQ("oice", word);
 
-  // Dont drop non-letter characters like word joiners.
+  // Don't drop non-letter characters like word joiners.
   const char* kJoiners[] = {
       "\u2060",  // U+2060 (WJ)
       "\u200C",  // U+200C (ZWJ)
@@ -192,7 +192,7 @@ TEST_F(FontUtilsTest, DoesFindAvailableFonts) {
 TEST_F(FontUtilsTest, DoesDetectMissingFonts) {
   // Only bold italic face is available.
   EXPECT_FALSE(FontUtils::IsAvailableFont("Arial"));
-  // Dont have a ttf for the Courier family.
+  // Don't have a ttf for the Courier family.
   EXPECT_FALSE(FontUtils::IsAvailableFont("Courier"));
   // Pango "synthesizes" the italic font from the available Verdana Regular and
   // includes it in its list, but it is not really loadable.
