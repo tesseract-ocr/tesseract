@@ -23,7 +23,7 @@ STRING_PARAM_FLAG(bar_string, "bar", "String flag for testing");
 BOOL_PARAM_FLAG(foo_bool, false, "Bool flag for testing");
 BOOL_PARAM_FLAG(bar_bool, false, "Bool flag for testing");
 // A flag whose name is a single character, tested for backward
-// compatability. This should be selected to not conflict with existing flags
+// compatibility. This should be selected to not conflict with existing flags
 // in commontraining.cpp.
 STRING_PARAM_FLAG(q, "", "Single character name");
 

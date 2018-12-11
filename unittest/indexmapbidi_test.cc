@@ -29,7 +29,7 @@ class IndexMapBiDiTest : public testing::Test {
   std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  // Computes primes upto kPrimeLimit, using the seive of Eratosthenes.
+  // Computes primes up to kPrimeLimit, using the sieve of Eratosthenes.
   void ComputePrimes(IndexMapBiDi* map) {
     map->Init(kPrimeLimit + 1, false);
     map->SetMap(2, true);
@@ -63,7 +63,7 @@ class IndexMapBiDiTest : public testing::Test {
   }
 };
 
-// Tests the seive of Eratosthenes as a way of testing setup.
+// Tests the sieve of Eratosthenes as a way of testing setup.
 TEST_F(IndexMapBiDiTest, Primes) {
   IndexMapBiDi map;
   ComputePrimes(&map);
