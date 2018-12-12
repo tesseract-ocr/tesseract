@@ -14,17 +14,17 @@
 // limitations under the License.
 
 #include <memory>
+#include <sstream>  // for std::stringstream
 #include "baseapi.h"
 #include "renderer.h"
 
 namespace tesseract {
 
-///
-/// Add coordinates to specified TextBlock, TextLine, or String bounding box
-/// Add word confidence if adding to a String bounding box
+/// Add coordinates to specified TextBlock, TextLine or String bounding box.
+/// Add word confidence if adding to a String bounding box.
 ///
 static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
-                         STRING* alto_str) {
+                         std::stringstream& alto_str) {
   int left, top, right, bottom;
   it->BoundingBox(level, &left, &top, &right, &bottom);
 
@@ -33,41 +33,17 @@ static void AddBoxToAlto(const ResultIterator* it, PageIteratorLevel level,
   int height = bottom - top;
   int width = right - left;
 
-  *alto_str += " HPOS=\"";
-  alto_str->add_str_int("", hpos);
-  *alto_str += "\"";
-  *alto_str += " VPOS=\"";
-  alto_str->add_str_int("", vpos);
-  *alto_str += "\"";
-  *alto_str += " WIDTH=\"";
-  alto_str->add_str_int("", width);
-  *alto_str += "\"";
-  *alto_str += " HEIGHT=\"";
-  alto_str->add_str_int("", height);
-  *alto_str += "\"";
+  alto_str << " HPOS=\"" << hpos << "\"";
+  alto_str << " VPOS=\"" << vpos << "\"";
+  alto_str << " WIDTH=\"" << width << "\"";
+  alto_str << " HEIGHT=\"" << height << "\"";
 
   if (level == RIL_WORD) {
     int wc = it->Confidence(RIL_WORD);
-    *alto_str += " WC=\"0.";
-    alto_str->add_str_int("", wc);
-    *alto_str += "\"";
+    alto_str << " WC=\"0." << wc << "\"";
+  } else {
+    alto_str << ">";
   }
-  if (level != RIL_WORD) {
-    *alto_str += ">";
-  }
-}
-
-///
-/// Add a unique ID to an ALTO element
-///
-static void AddIdToAlto(STRING* alto_str, const std::string base, int num1) {
-  const size_t BUFSIZE = 64;
-  char id_buffer[BUFSIZE];
-  snprintf(id_buffer, BUFSIZE - 1, "%s_%d", base.c_str(), num1);
-  id_buffer[BUFSIZE - 1] = '\0';
-  *alto_str += " ID=\"";
-  *alto_str += id_buffer;
-  *alto_str += "\"";
 }
 
 ///
@@ -111,10 +87,10 @@ bool TessAltoRenderer::BeginDocumentHandler() {
 /// Append the ALTO XML for the layout of the image
 ///
 bool TessAltoRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> hocr(api->GetAltoText(imagenum()));
-  if (hocr == nullptr) return false;
+  const std::unique_ptr<const char[]> text(api->GetAltoText(imagenum()));
+  if (text == nullptr) return false;
 
-  AppendString(hocr.get());
+  AppendString(text.get());
 
   return true;
 }
@@ -150,8 +126,6 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   int lcnt = 0, bcnt = 0, wcnt = 0;
   int page_id = page_number;
 
-  STRING alto_str("");
-
   if (input_file_ == nullptr) SetInputName(nullptr);
 
 #ifdef _WIN32
@@ -171,23 +145,16 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   delete[] utf8_str;
 #endif
 
-  alto_str += "\t\t<Page WIDTH=\"";
-  alto_str.add_str_int("", rect_width_);
-  alto_str += "\" HEIGHT=\"";
-  alto_str.add_str_int("", rect_height_);
-  alto_str += "\" PHYSICAL_IMG_NR=\"";
-  alto_str.add_str_int("", rect_height_);
-  alto_str += "\"";
-  AddIdToAlto(&alto_str, "page", page_id);
-  alto_str += ">\n";
-  alto_str +=
-      ("\t\t\t<PrintSpace HPOS=\"0\" "
-       "VPOS=\"0\""
-       " WIDTH=\"");
-  alto_str.add_str_int("", rect_width_);
-  alto_str += "\" HEIGHT=\"";
-  alto_str.add_str_int("", rect_height_);
-  alto_str += "\">\n";
+  std::stringstream alto_str;
+  alto_str
+      << "\t\t<Page WIDTH=\"" << rect_width_ << "\" HEIGHT=\""
+      << rect_height_
+      // TODO: next line is buggy because rect_height is not an image number.
+      << "\" PHYSICAL_IMG_NR=\"" << rect_height_ << "\""
+      << " ID=\"page_" << page_id << "\">\n"
+      << "\t\t\t<PrintSpace HPOS=\"0\" VPOS=\"0\""
+      << " WIDTH=\"" << rect_width_ << "\""
+      << " HEIGHT=\"" << rect_height_ << "\">\n";
 
   ResultIterator* res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
@@ -197,58 +164,66 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
     }
 
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      alto_str += "\t\t\t\t<TextBlock ";
-      AddIdToAlto(&alto_str, "block", bcnt);
-      AddBoxToAlto(res_it, RIL_BLOCK, &alto_str);
-      alto_str += "\n";
+      alto_str << "\t\t\t\t<TextBlock ID=\"block_" << bcnt << "\"";
+      AddBoxToAlto(res_it, RIL_BLOCK, alto_str);
+      alto_str << "\n";
     }
 
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      alto_str += "\t\t\t\t\t<TextLine ";
-      AddIdToAlto(&alto_str, "line", lcnt);
-      AddBoxToAlto(res_it, RIL_TEXTLINE, &alto_str);
-      alto_str += "\n";
+      alto_str << "\t\t\t\t\t<TextLine ID=\"line_" << lcnt << "\"";
+      AddBoxToAlto(res_it, RIL_TEXTLINE, alto_str);
+      alto_str << "\n";
     }
 
-    alto_str += "\t\t\t\t\t\t<String ";
-    AddIdToAlto(&alto_str, "string", wcnt);
-    AddBoxToAlto(res_it, RIL_WORD, &alto_str);
-    alto_str += " CONTENT=\"";
+    alto_str << "\t\t\t\t\t\t<String ID=\"string_" << wcnt << "\"";
+    AddBoxToAlto(res_it, RIL_WORD, alto_str);
+    alto_str << " CONTENT=\"";
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
+
+    int left, top, right, bottom;
+    res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
 
     do {
       const std::unique_ptr<const char[]> grapheme(
           res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
-        alto_str += HOcrEscape(grapheme.get());
+        alto_str << HOcrEscape(grapheme.get()).c_str();
       }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
 
-    alto_str += "\"/>\n";
+    alto_str << "\"/>";
 
     wcnt++;
 
     if (last_word_in_line) {
-      alto_str += "\t\t\t\t\t</TextLine>\n";
+      alto_str << "\n\t\t\t\t\t</TextLine>\n";
       lcnt++;
+    } else {
+      int hpos = right;
+      int vpos = top;
+      res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
+      int width = left - hpos;
+      alto_str << "<SP WIDTH=\"" << width << "\" VPOS=\"" << vpos
+               << "\" HPOS=\"" << hpos << "\"/>\n";
     }
 
     if (last_word_in_block) {
-      alto_str += "\t\t\t\t</TextBlock>\n";
+      alto_str << "\t\t\t\t</TextBlock>\n";
       bcnt++;
     }
   }
 
-  alto_str += "\t\t\t</PrintSpace>\n";
-  alto_str += "\t\t</Page>\n";
+  alto_str << "\t\t\t</PrintSpace>\n"
+           << "\t\t</Page>\n";
+  const std::string& text = alto_str.str();
 
-  char* ret = new char[alto_str.length() + 1];
-  strcpy(ret, alto_str.string());
+  char* result = new char[text.length() + 1];
+  strcpy(result, text.c_str());
   delete res_it;
-  return ret;
+  return result;
 }
 
 }  // namespace tesseract
