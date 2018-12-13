@@ -2,13 +2,7 @@
  ******************************************************************************
  *
  * File:         protos.h
- * Description:
  * Author:       Mark Seaman, SW Productivity
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Fri Jul 12 10:06:55 1991 (Dan Johnson) danj@hpgrlj
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,20 +64,6 @@ using CLASS_TYPE = CLASS_STRUCT*;
 using CLASSES = CLASS_STRUCT*;
 
 /*----------------------------------------------------------------------
-              C o n s t a n t s
-----------------------------------------------------------------------*/
-#define NUMBER_OF_CLASSES MAX_NUM_CLASSES
-#define Y_OFFSET -40.0
-#define FEATURE_SCALE 100.0
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-extern CLASS_STRUCT TrainingData[];
-
-extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
-
-/*----------------------------------------------------------------------
               M a c r o s
 ----------------------------------------------------------------------*/
 /**
@@ -95,23 +75,6 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
 #define AddProtoToConfig(Pid, Config) (SET_BIT(Config, Pid))
 
 /**
- * RemoveProtoFromConfig
- *
- * Clear a single proto bit in the specified configuration.
- */
-
-#define RemoveProtoFromConfig(Pid, Config) (reset_bit(Config, Pid))
-
-/**
- * ClassOfChar
- *
- * Return the class of a particular ASCII character value.
- */
-
-#define ClassOfChar(Char) \
-  ((TrainingData[Char].NumProtos) ? (&TrainingData[Char]) : NO_CLASS)
-
-/**
  * ProtoIn
  *
  * Choose the selected prototype in this class record.  Return the
@@ -120,39 +83,12 @@ extern STRING_VAR_H(classify_training_file, "MicroFeatures", "Training file");
 
 #define ProtoIn(Class, Pid) (&(Class)->Prototypes[Pid])
 
-/**
- * PrintProto
- *
- * Print out the contents of a prototype.   The 'Proto' argument is of
- * type 'PROTO'.
- */
-
-#define PrintProto(Proto)                                                     \
-  (tprintf("X=%4.2f, Y=%4.2f, Length=%4.2f, Angle=%4.2f", Proto->X, Proto->Y, \
-           Proto->Length, Proto->Angle))
-
-/**
- * PrintProtoLine
- *
- * Print out the contents of a prototype.   The 'Proto' argument is of
- * type 'PROTO'.
- */
-
-#define PrintProtoLine(Proto) \
-  (cprintf("A=%4.2f, B=%4.2f, C=%4.2f", Proto->A, Proto->B, Proto->C))
-
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
 int AddConfigToClass(CLASS_TYPE Class);
 
 int AddProtoToClass(CLASS_TYPE Class);
-
-float ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config);
-
-float ClassProtoLength(CLASS_TYPE Class);
-
-void CopyProto(PROTO Src, PROTO Dest);
 
 void FillABC(PROTO Proto);
 
@@ -163,7 +99,5 @@ void FreeClassFields(CLASS_TYPE Class);
 void InitPrototypes();
 
 CLASS_TYPE NewClass(int NumProtos, int NumConfigs);
-
-void PrintProtos(CLASS_TYPE Class);
 
 #endif
