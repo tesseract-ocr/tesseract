@@ -2,13 +2,7 @@
  ******************************************************************************
  *
  * File:        protos.cpp  (Formerly protos.c)
- * Description:
- * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Mon Mar  4 14:51:24 1991 (Dan Johnson) danj@hpgrlj
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
+ * Author:      Mark Seaman, OCR Technology
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,13 +32,6 @@
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16
-
-/*----------------------------------------------------------------------
-              V a r i a b l e s
-----------------------------------------------------------------------*/
-CLASS_STRUCT TrainingData[NUMBER_OF_CLASSES];
-
-STRING_VAR(classify_training_file, "MicroFeatures", "Training file");
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -128,65 +115,6 @@ int AddProtoToClass(CLASS_TYPE Class) {
 }
 
 
-/**
- * @name ClassConfigLength
- *
- * Return the length of all the protos in this class.
- *
- * @param Class The class to add to
- * @param Config FIXME
- */
-float ClassConfigLength(CLASS_TYPE Class, BIT_VECTOR Config) {
-  int16_t Pid;
-  float TotalLength = 0;
-
-  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
-    if (test_bit (Config, Pid)) {
-
-      TotalLength += (ProtoIn (Class, Pid))->Length;
-    }
-  }
-  return (TotalLength);
-}
-
-
-/**
- * @name ClassProtoLength
- *
- * Return the length of all the protos in this class.
- *
- * @param Class The class to use
- */
-float ClassProtoLength(CLASS_TYPE Class) {
-  int16_t Pid;
-  float TotalLength = 0;
-
-  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
-    TotalLength += (ProtoIn (Class, Pid))->Length;
-  }
-  return (TotalLength);
-}
-
-
-/**
- * @name CopyProto
- *
- * Copy the first proto into the second.
- *
- * @param Src Source
- * @param Dest Destination
- */
-void CopyProto(PROTO Src, PROTO Dest) {
-  Dest->X = Src->X;
-  Dest->Y = Src->Y;
-  Dest->Length = Src->Length;
-  Dest->Angle = Src->Angle;
-  Dest->A = Src->A;
-  Dest->B = Src->B;
-  Dest->C = Src->C;
-}
-
-
 /**********************************************************************
  * FillABC
  *
@@ -258,22 +186,4 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class->NumConfigs = 0;
   return (Class);
 
-}
-
-
-/**********************************************************************
- * PrintProtos
- *
- * Print the list of prototypes in this class type.
- **********************************************************************/
-void PrintProtos(CLASS_TYPE Class) {
-  int16_t Pid;
-
-  for (Pid = 0; Pid < Class->NumProtos; Pid++) {
-    cprintf ("Proto %d:\t", Pid);
-    PrintProto (ProtoIn (Class, Pid));
-    cprintf ("\t");
-    PrintProtoLine (ProtoIn (Class, Pid));
-    tprintf("\n");
-  }
 }
