@@ -112,7 +112,6 @@ void ImageThresholder::SetImage(const unsigned char* imagedata,
   default:
     tprintf("Cannot convert RAW image to Pix with bpp = %d\n", bpp);
   }
-  pixSetYRes(pix, 300);
   SetImage(pix);
   pixDestroy(&pix);
 }
