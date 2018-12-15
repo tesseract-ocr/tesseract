@@ -17,17 +17,17 @@
  *
  **********************************************************************/
 
-#include <memory>               // for std::unique_ptr
-#include "baseapi.h"            // for TessBaseAPI
+#include <memory>     // for std::unique_ptr
+#include "baseapi.h"  // for TessBaseAPI
 #include "renderer.h"
-#include "tesseractclass.h"     // for Tesseract
+#include "tesseractclass.h"  // for Tesseract
 
 namespace tesseract {
 
 /**
  * Gets the block orientation at the current iterator position.
  */
-static tesseract::Orientation GetBlockTextOrientation(const PageIterator *it) {
+static tesseract::Orientation GetBlockTextOrientation(const PageIterator* it) {
   tesseract::Orientation orientation;
   tesseract::WritingDirection writing_direction;
   tesseract::TextlineOrder textline_order;
@@ -45,9 +45,8 @@ static tesseract::Orientation GetBlockTextOrientation(const PageIterator *it) {
  * method currently only inserts a 'textangle' property to indicate the rotation
  * direction and does not add any baseline information to the hocr string.
  */
-static void AddBaselineCoordsTohOCR(const PageIterator *it,
-                                    PageIteratorLevel level,
-                                    STRING* hocr_str) {
+static void AddBaselineCoordsTohOCR(const PageIterator* it,
+                                    PageIteratorLevel level, STRING* hocr_str) {
   tesseract::Orientation orientation = GetBlockTextOrientation(it);
   if (orientation != ORIENTATION_PAGE_UP) {
     hocr_str->add_str_int("; textangle ", 360 - orientation * 90);
@@ -59,8 +58,7 @@ static void AddBaselineCoordsTohOCR(const PageIterator *it,
 
   // Try to get the baseline coordinates at this level.
   int x1, y1, x2, y2;
-  if (!it->Baseline(level, &x1, &y1, &x2, &y2))
-    return;
+  if (!it->Baseline(level, &x1, &y1, &x2, &y2)) return;
   // Following the description of this field of the hOCR spec, we convert the
   // baseline coordinates so that "the bottom left of the bounding box is the
   // origin".
@@ -100,10 +98,11 @@ static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
 }
 
 static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
-  int num2, int num3) {
+                        int num2, int num3) {
   const size_t BUFSIZE = 64;
   char id_buffer[BUFSIZE];
-  snprintf(id_buffer, BUFSIZE - 1, "%s_%d_%d_%d", base.c_str(), num1, num2,num3);
+  snprintf(id_buffer, BUFSIZE - 1, "%s_%d_%d_%d", base.c_str(), num1, num2,
+           num3);
   id_buffer[BUFSIZE - 1] = '\0';
   *hocr_str += " id='";
   *hocr_str += id_buffer;
@@ -169,21 +168,20 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 
   STRING hocr_str("");
 
-  if (input_file_ == nullptr)
-      SetInputName(nullptr);
+  if (input_file_ == nullptr) SetInputName(nullptr);
 
 #ifdef _WIN32
   // convert input name from ANSI encoding to utf-8
   int str16_len =
       MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
-  wchar_t *uni16_str = new WCHAR[str16_len];
+  wchar_t* uni16_str = new WCHAR[str16_len];
   str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
                                   uni16_str, str16_len);
-  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr, 0,
-                                     nullptr, nullptr);
-  char *utf8_str = new char[utf8_len];
-  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str,
-                      utf8_len, nullptr, nullptr);
+  int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr,
+                                     0, nullptr, nullptr);
+  char* utf8_str = new char[utf8_len];
+  WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, utf8_str, utf8_len,
+                      nullptr, nullptr);
   *input_file_ = utf8_str;
   delete[] uni16_str;
   delete[] utf8_str;
@@ -204,7 +202,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   hocr_str.add_str_int("; ppageno ", page_number);
   hocr_str += "'>\n";
 
-  ResultIterator *res_it = GetIterator();
+  ResultIterator* res_it = GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -240,7 +238,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     }
 
     // Now, process the word...
-    std::vector<std::vector<std::pair<const char*, float>>>* confidencemap = nullptr;
+    std::vector<std::vector<std::pair<const char*, float>>>* confidencemap =
+        nullptr;
     if (tesseract_->lstm_choice_mode) {
       confidencemap = res_it->GetBestLSTMSymbolChoices();
     }
@@ -249,11 +248,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
-    const char *font_name;
+    const char* font_name;
     res_it->BoundingBox(RIL_WORD, &left, &top, &right, &bottom);
-    font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
-                                           &monospace, &serif, &smallcaps,
-                                           &pointsize, &font_id);
+    font_name =
+        res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
+                                   &serif, &smallcaps, &pointsize, &font_id);
     hocr_str.add_str_int(" title='bbox ", left);
     hocr_str.add_str_int(" ", top);
     hocr_str.add_str_int(" ", right);
@@ -308,7 +307,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         hocr_str += "\n       <span class='ocrx_cinfo'";
         AddIdTohOCR(&hocr_str, "timestep", page_id, wcnt, tcnt);
         hocr_str += ">";
-        std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
+        std::vector<std::pair<const char*, float>> timestep =
+            (*confidencemap)[i];
         for (std::pair<const char*, float> conf : timestep) {
           hocr_str += "<span class='ocr_glyph'";
           AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
@@ -324,7 +324,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       }
     } else if (tesseract_->lstm_choice_mode == 2 && confidencemap != nullptr) {
       for (size_t i = 0; i < confidencemap->size(); i++) {
-        std::vector<std::pair<const char*, float>> timestep = (*confidencemap)[i];
+        std::vector<std::pair<const char*, float>> timestep =
+            (*confidencemap)[i];
         if (timestep.size() > 0) {
           hocr_str += "\n       <span class='ocrx_cinfo'";
           AddIdTohOCR(&hocr_str, "lstm_choices", page_id, wcnt, tcnt);
@@ -334,7 +335,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           for (size_t j = 1; j < timestep.size(); j++) {
             hocr_str += "<span class='ocr_glyph'";
             AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
-            hocr_str.add_str_int(" title='x_confs ", int(timestep[j].second * 100));
+            hocr_str.add_str_int(" title='x_confs ",
+                                 int(timestep[j].second * 100));
             hocr_str += "'";
             hocr_str += ">";
             hocr_str += timestep[j].first;
@@ -367,7 +369,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   }
   hocr_str += "  </div>\n";
 
-  char *ret = new char[hocr_str.length() + 1];
+  char* ret = new char[hocr_str.length() + 1];
   strcpy(ret, hocr_str.string());
   delete res_it;
   return ret;
@@ -376,14 +378,14 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
 /**********************************************************************
  * HOcr Text Renderer interface implementation
  **********************************************************************/
-TessHOcrRenderer::TessHOcrRenderer(const char *outputbase)
+TessHOcrRenderer::TessHOcrRenderer(const char* outputbase)
     : TessResultRenderer(outputbase, "hocr") {
-    font_info_ = false;
+  font_info_ = false;
 }
 
-TessHOcrRenderer::TessHOcrRenderer(const char *outputbase, bool font_info)
+TessHOcrRenderer::TessHOcrRenderer(const char* outputbase, bool font_info)
     : TessResultRenderer(outputbase, "hocr") {
-    font_info_ = font_info;
+  font_info_ = font_info;
 }
 
 bool TessHOcrRenderer::BeginDocumentHandler() {
@@ -399,12 +401,10 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
       "<meta http-equiv=\"Content-Type\" content=\"text/html;"
       "charset=utf-8\" />\n"
       "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
-              "' />\n"
+      "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
       " ocr_line ocrx_word ocrp_wconf");
-  if (font_info_)
-    AppendString(
-      " ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
+  if (font_info_) AppendString(" ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
   AppendString(
       "'/>\n"
       "</head>\n<body>\n");
