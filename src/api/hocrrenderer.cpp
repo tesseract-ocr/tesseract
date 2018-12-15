@@ -398,8 +398,8 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   AppendString(title());
   AppendString(
       "</title>\n"
-      "<meta http-equiv=\"Content-Type\" content=\"text/html;"
-      "charset=utf-8\" />\n"
+      "  <meta http-equiv=\"Content-Type\" content=\"text/html;"
+      "charset=utf-8\"/>\n"
       "  <meta name='ocr-system' content='tesseract " PACKAGE_VERSION
       "' />\n"
       "  <meta name='ocr-capabilities' content='ocr_page ocr_carea ocr_par"
@@ -407,7 +407,8 @@ bool TessHOcrRenderer::BeginDocumentHandler() {
   if (font_info_) AppendString(" ocrp_lang ocrp_dir ocrp_font ocrp_fsize");
   AppendString(
       "'/>\n"
-      "</head>\n<body>\n");
+      " </head>\n"
+      " <body>\n");
 
   return true;
 }
