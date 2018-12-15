@@ -214,8 +214,9 @@ set(tesseract_src ${tesseract_src}
     src/api/baseapi.cpp
     src/api/capi.cpp
     src/api/renderer.cpp
-    src/api/pdfrenderer.cpp
     src/api/altorenderer.cpp
+    src/api/hocrrenderer.cpp
+    src/api/pdfrenderer.cpp
 )
 
 if (WIN32)
