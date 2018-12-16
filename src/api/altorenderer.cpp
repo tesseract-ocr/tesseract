@@ -124,7 +124,6 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
     return nullptr;
 
   int lcnt = 0, bcnt = 0, wcnt = 0;
-  int page_id = page_number;
 
   if (input_file_ == nullptr) SetInputName(nullptr);
 
@@ -149,9 +148,8 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
   alto_str
       << "\t\t<Page WIDTH=\"" << rect_width_ << "\" HEIGHT=\""
       << rect_height_
-      // TODO: next line is buggy because rect_height is not an image number.
-      << "\" PHYSICAL_IMG_NR=\"" << rect_height_ << "\""
-      << " ID=\"page_" << page_id << "\">\n"
+      << "\" PHYSICAL_IMG_NR=\"" << page_number << "\""
+      << " ID=\"page_" << page_number << "\">\n"
       << "\t\t\t<PrintSpace HPOS=\"0\" VPOS=\"0\""
       << " WIDTH=\"" << rect_width_ << "\""
       << " HEIGHT=\"" << rect_height_ << "\">\n";
