@@ -25,6 +25,8 @@
 #include "genericvector.h"
 #include "platform.h"
 
+struct Pix;
+
 namespace tesseract {
 
 class TessBaseAPI;
