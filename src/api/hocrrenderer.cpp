@@ -17,7 +17,9 @@
  *
  **********************************************************************/
 
+#include <locale>     // for std::locale::classic
 #include <memory>     // for std::unique_ptr
+#include <sstream>    // for std::stringstream
 #include "baseapi.h"  // for TessBaseAPI
 #include "renderer.h"
 #include "tesseractclass.h"  // for Tesseract
@@ -46,10 +48,11 @@ static tesseract::Orientation GetBlockTextOrientation(const PageIterator* it) {
  * direction and does not add any baseline information to the hocr string.
  */
 static void AddBaselineCoordsTohOCR(const PageIterator* it,
-                                    PageIteratorLevel level, STRING* hocr_str) {
+                                    PageIteratorLevel level,
+                                    std::stringstream& hocr_str) {
   tesseract::Orientation orientation = GetBlockTextOrientation(it);
   if (orientation != ORIENTATION_PAGE_UP) {
-    hocr_str->add_str_int("; textangle ", 360 - orientation * 90);
+    hocr_str << "; textangle " << 360 - orientation * 90;
     return;
   }
 
@@ -69,56 +72,25 @@ static void AddBaselineCoordsTohOCR(const PageIterator* it,
 
   // Now fit a line through the points so we can extract coefficients for the
   // equation:  y = p1 x + p0
-  double p1 = 0;
-  double p0 = 0;
   if (x1 == x2) {
     // Problem computing the polynomial coefficients.
     return;
   }
-  p1 = (y2 - y1) / static_cast<double>(x2 - x1);
-  p0 = y1 - static_cast<double>(p1 * x1);
+  double p1 = (y2 - y1) / static_cast<double>(x2 - x1);
+  double p0 = y1 - p1 * x1;
 
-  hocr_str->add_str_double("; baseline ", round(p1 * 1000.0) / 1000.0);
-  hocr_str->add_str_double(" ", round(p0 * 1000.0) / 1000.0);
-}
-
-static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
-                        int num2) {
-  const size_t BUFSIZE = 64;
-  char id_buffer[BUFSIZE];
-  if (num2 >= 0) {
-    snprintf(id_buffer, BUFSIZE - 1, "%s_%d_%d", base.c_str(), num1, num2);
-  } else {
-    snprintf(id_buffer, BUFSIZE - 1, "%s_%d", base.c_str(), num1);
-  }
-  id_buffer[BUFSIZE - 1] = '\0';
-  *hocr_str += " id='";
-  *hocr_str += id_buffer;
-  *hocr_str += "'";
-}
-
-static void AddIdTohOCR(STRING* hocr_str, const std::string base, int num1,
-                        int num2, int num3) {
-  const size_t BUFSIZE = 64;
-  char id_buffer[BUFSIZE];
-  snprintf(id_buffer, BUFSIZE - 1, "%s_%d_%d_%d", base.c_str(), num1, num2,
-           num3);
-  id_buffer[BUFSIZE - 1] = '\0';
-  *hocr_str += " id='";
-  *hocr_str += id_buffer;
-  *hocr_str += "'";
+  hocr_str << "; baseline " << round(p1 * 1000.0) / 1000.0 << " "
+           << round(p0 * 1000.0) / 1000.0;
 }
 
 static void AddBoxTohOCR(const ResultIterator* it, PageIteratorLevel level,
-                         STRING* hocr_str) {
+                         std::stringstream& hocr_str) {
   int left, top, right, bottom;
   it->BoundingBox(level, &left, &top, &right, &bottom);
   // This is the only place we use double quotes instead of single quotes,
   // but it may too late to change for consistency
-  hocr_str->add_str_int(" title=\"bbox ", left);
-  hocr_str->add_str_int(" ", top);
-  hocr_str->add_str_int(" ", right);
-  hocr_str->add_str_int(" ", bottom);
+  hocr_str << " title=\"bbox " << left << " " << top << " " << right << " "
+           << bottom;
   // Add baseline coordinates & heights for textlines only.
   if (level == RIL_TEXTLINE) {
     AddBaselineCoordsTohOCR(it, level, hocr_str);
@@ -126,11 +98,10 @@ static void AddBoxTohOCR(const ResultIterator* it, PageIteratorLevel level,
     float row_height, descenders, ascenders;  // row attributes
     it->RowAttributes(&row_height, &descenders, &ascenders);
     // TODO(rays): Do we want to limit these to a single decimal place?
-    hocr_str->add_str_double("; x_size ", row_height);
-    hocr_str->add_str_double("; x_descenders ", descenders * -1);
-    hocr_str->add_str_double("; x_ascenders ", ascenders);
+    hocr_str << "; x_size " << row_height << "; x_descenders " << -descenders
+             << "; x_ascenders " << ascenders;
   }
-  *hocr_str += "\">";
+  hocr_str << "\">";
 }
 
 /**
@@ -166,8 +137,6 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   bool font_info = false;
   GetBoolVariable("hocr_font_info", &font_info);
 
-  STRING hocr_str("");
-
   if (input_file_ == nullptr) SetInputName(nullptr);
 
 #ifdef _WIN32
@@ -187,22 +156,25 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   delete[] utf8_str;
 #endif
 
-  hocr_str += "  <div class='ocr_page'";
-  AddIdTohOCR(&hocr_str, "page", page_id, -1);
-  hocr_str += " title='image \"";
+  std::stringstream hocr_str;
+  // Use "C" locale (needed for double values x_size and x_descenders).
+  hocr_str.imbue(std::locale::classic());
+  // Use 8 digits for double values.
+  hocr_str.precision(8);
+  hocr_str << "  <div class='ocr_page'";
+  hocr_str << " id='"
+           << "page_" << page_id << "'";
+  hocr_str << " title='image \"";
   if (input_file_) {
-    hocr_str += HOcrEscape(input_file_->string());
+    hocr_str << HOcrEscape(input_file_->string()).c_str();
   } else {
-    hocr_str += "unknown";
+    hocr_str << "unknown";
   }
-  hocr_str.add_str_int("\"; bbox ", rect_left_);
-  hocr_str.add_str_int(" ", rect_top_);
-  hocr_str.add_str_int(" ", rect_width_);
-  hocr_str.add_str_int(" ", rect_height_);
-  hocr_str.add_str_int("; ppageno ", page_number);
-  hocr_str += "'>\n";
+  hocr_str << "\"; bbox " << rect_left_ << " " << rect_top_ << " "
+           << rect_width_ << " " << rect_height_ << "; ppageno " << page_number
+           << "'>\n";
 
-  ResultIterator* res_it = GetIterator();
+  std::unique_ptr<ResultIterator> res_it(GetIterator());
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_WORD)) {
       res_it->Next(RIL_WORD);
@@ -212,29 +184,30 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     // Open any new block/paragraph/textline.
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
       para_is_ltr = true;  // reset to default direction
-      hocr_str += "   <div class='ocr_carea'";
-      AddIdTohOCR(&hocr_str, "block", page_id, bcnt);
-      AddBoxTohOCR(res_it, RIL_BLOCK, &hocr_str);
+      hocr_str << "   <div class='ocr_carea'"
+               << " id='"
+               << "block_" << page_id << "_" << bcnt << "'";
+      AddBoxTohOCR(res_it.get(), RIL_BLOCK, hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_PARA)) {
-      hocr_str += "\n    <p class='ocr_par'";
+      hocr_str << "\n    <p class='ocr_par'";
       para_is_ltr = res_it->ParagraphIsLtr();
       if (!para_is_ltr) {
-        hocr_str += " dir='rtl'";
+        hocr_str << " dir='rtl'";
       }
-      AddIdTohOCR(&hocr_str, "par", page_id, pcnt);
+      hocr_str << " id='"
+               << "par_" << page_id << "_" << pcnt << "'";
       paragraph_lang = res_it->WordRecognitionLanguage();
       if (paragraph_lang) {
-        hocr_str += " lang='";
-        hocr_str += paragraph_lang;
-        hocr_str += "'";
+        hocr_str << " lang='" << paragraph_lang << "'";
       }
-      AddBoxTohOCR(res_it, RIL_PARA, &hocr_str);
+      AddBoxTohOCR(res_it.get(), RIL_PARA, hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str += "\n     <span class='ocr_line'";
-      AddIdTohOCR(&hocr_str, "line", page_id, lcnt);
-      AddBoxTohOCR(res_it, RIL_TEXTLINE, &hocr_str);
+      hocr_str << "\n     <span class='ocr_line'"
+               << " id='"
+               << "line_" << page_id << "_" << lcnt << "'";
+      AddBoxTohOCR(res_it.get(), RIL_TEXTLINE, hocr_str);
     }
 
     // Now, process the word...
@@ -243,8 +216,9 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (tesseract_->lstm_choice_mode) {
       confidencemap = res_it->GetBestLSTMSymbolChoices();
     }
-    hocr_str += "\n      <span class='ocrx_word'";
-    AddIdTohOCR(&hocr_str, "word", page_id, wcnt);
+    hocr_str << "\n      <span class='ocrx_word'"
+             << " id='"
+             << "word_" << page_id << "_" << wcnt << "'";
     int left, top, right, bottom;
     bool bold, italic, underlined, monospace, serif, smallcaps;
     int pointsize, font_id;
@@ -253,73 +227,67 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     font_name =
         res_it->WordFontAttributes(&bold, &italic, &underlined, &monospace,
                                    &serif, &smallcaps, &pointsize, &font_id);
-    hocr_str.add_str_int(" title='bbox ", left);
-    hocr_str.add_str_int(" ", top);
-    hocr_str.add_str_int(" ", right);
-    hocr_str.add_str_int(" ", bottom);
-    hocr_str.add_str_int("; x_wconf ", res_it->Confidence(RIL_WORD));
+    hocr_str << " title='bbox " << left << " " << top << " " << right << " "
+             << bottom << "; x_wconf "
+             << static_cast<int>(res_it->Confidence(RIL_WORD));
     if (font_info) {
       if (font_name) {
-        hocr_str += "; x_font ";
-        hocr_str += HOcrEscape(font_name);
+        hocr_str << "; x_font " << HOcrEscape(font_name).c_str();
       }
-      hocr_str.add_str_int("; x_fsize ", pointsize);
+      hocr_str << "; x_fsize " << pointsize;
     }
-    hocr_str += "'";
+    hocr_str << "'";
     const char* lang = res_it->WordRecognitionLanguage();
     if (lang && (!paragraph_lang || strcmp(lang, paragraph_lang))) {
-      hocr_str += " lang='";
-      hocr_str += lang;
-      hocr_str += "'";
+      hocr_str << " lang='" << lang << "'";
     }
     switch (res_it->WordDirection()) {
       // Only emit direction if different from current paragraph direction
       case DIR_LEFT_TO_RIGHT:
-        if (!para_is_ltr) hocr_str += " dir='ltr'";
+        if (!para_is_ltr) hocr_str << " dir='ltr'";
         break;
       case DIR_RIGHT_TO_LEFT:
-        if (para_is_ltr) hocr_str += " dir='rtl'";
+        if (para_is_ltr) hocr_str << " dir='rtl'";
         break;
       case DIR_MIX:
       case DIR_NEUTRAL:
       default:  // Do nothing.
         break;
     }
-    hocr_str += ">";
+    hocr_str << ">";
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_para = res_it->IsAtFinalElement(RIL_PARA, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    if (bold) hocr_str += "<strong>";
-    if (italic) hocr_str += "<em>";
+    if (bold) hocr_str << "<strong>";
+    if (italic) hocr_str << "<em>";
     do {
       const std::unique_ptr<const char[]> grapheme(
           res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
-        hocr_str += HOcrEscape(grapheme.get());
+        hocr_str << HOcrEscape(grapheme.get()).c_str();
       }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
-    if (italic) hocr_str += "</em>";
-    if (bold) hocr_str += "</strong>";
+    if (italic) hocr_str << "</em>";
+    if (bold) hocr_str << "</strong>";
     // If the lstm choice mode is required it is added here
     if (tesseract_->lstm_choice_mode == 1 && confidencemap != nullptr) {
       for (size_t i = 0; i < confidencemap->size(); i++) {
-        hocr_str += "\n       <span class='ocrx_cinfo'";
-        AddIdTohOCR(&hocr_str, "timestep", page_id, wcnt, tcnt);
-        hocr_str += ">";
+        hocr_str << "\n       <span class='ocrx_cinfo'"
+                 << " id='"
+                 << "timestep_" << page_id << "_" << wcnt << "_" << tcnt << "'"
+                 << ">";
         std::vector<std::pair<const char*, float>> timestep =
             (*confidencemap)[i];
         for (std::pair<const char*, float> conf : timestep) {
-          hocr_str += "<span class='ocr_glyph'";
-          AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
-          hocr_str.add_str_int(" title='x_confs ", int(conf.second * 100));
-          hocr_str += "'";
-          hocr_str += ">";
-          hocr_str += conf.first;
-          hocr_str += "</span>";
+          hocr_str << "<span class='ocr_glyph'"
+                   << " id='"
+                   << "choice_" << page_id << "_" << wcnt << "_" << gcnt << "'"
+                   << " title='x_confs " << int(conf.second * 100) << "'>"
+                   << conf.first << "</span>";
           gcnt++;
         }
-        hocr_str += "</span>";
+        hocr_str << "</span>";
         tcnt++;
       }
     } else if (tesseract_->lstm_choice_mode == 2 && confidencemap != nullptr) {
@@ -327,52 +295,50 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         std::vector<std::pair<const char*, float>> timestep =
             (*confidencemap)[i];
         if (timestep.size() > 0) {
-          hocr_str += "\n       <span class='ocrx_cinfo'";
-          AddIdTohOCR(&hocr_str, "lstm_choices", page_id, wcnt, tcnt);
-          hocr_str += " chosen='";
-          hocr_str += timestep[0].first;
-          hocr_str += "'>";
+          hocr_str << "\n       <span class='ocrx_cinfo'"
+                   << " id='"
+                   << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt
+                   << "'"
+                   << " chosen='" << timestep[0].first << "'>";
           for (size_t j = 1; j < timestep.size(); j++) {
-            hocr_str += "<span class='ocr_glyph'";
-            AddIdTohOCR(&hocr_str, "choice", page_id, wcnt, gcnt);
-            hocr_str.add_str_int(" title='x_confs ",
-                                 int(timestep[j].second * 100));
-            hocr_str += "'";
-            hocr_str += ">";
-            hocr_str += timestep[j].first;
-            hocr_str += "</span>";
+            hocr_str << "<span class='ocr_glyph'"
+                     << " id='"
+                     << "choice_" << page_id << "_" << wcnt << "_" << gcnt
+                     << "'"
+                     << " title='x_confs " << int(timestep[j].second * 100)
+                     << "'>" << timestep[j].first << "</span>";
             gcnt++;
           }
-          hocr_str += "</span>";
+          hocr_str << "</span>";
           tcnt++;
         }
       }
     }
-    hocr_str += "</span>";
+    hocr_str << "</span>";
     tcnt = 1;
     gcnt = 1;
     wcnt++;
     // Close any ending block/paragraph/textline.
     if (last_word_in_line) {
-      hocr_str += "\n     </span>";
+      hocr_str << "\n     </span>";
       lcnt++;
     }
     if (last_word_in_para) {
-      hocr_str += "\n    </p>\n";
+      hocr_str << "\n    </p>\n";
       pcnt++;
       para_is_ltr = true;  // back to default direction
     }
     if (last_word_in_block) {
-      hocr_str += "   </div>\n";
+      hocr_str << "   </div>\n";
       bcnt++;
     }
   }
-  hocr_str += "  </div>\n";
+  hocr_str << "  </div>\n";
 
-  char* ret = new char[hocr_str.length() + 1];
-  strcpy(ret, hocr_str.string());
-  delete res_it;
-  return ret;
+  const std::string& text = hocr_str.str();
+  char* result = new char[text.length() + 1];
+  strcpy(result, text.c_str());
+  return result;
 }
 
 /**********************************************************************
