@@ -1,27 +1,45 @@
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      platform: Win32
+      vs_ver: 14 2015
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: Win64
+      vs_ver: 15 2017
+      vs_platform: " Win64"
 
 configuration:
   - Release
 
 cache:
-  - c:/Users/appveyor/.sw
-  
+  - c:/Users/appveyor/.cppan/storage
+
+# for curl
+install:
+  - set PATH=C:\Program Files\Git\mingw64\bin;%PATH%
+
 before_build:
-  - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/client_windows.zip
-  - 7z x dl.zip
+  - curl -fsS -L -o cppan.zip https://cppan.org/client/cppan-master-Windows-client.zip
+  - 7z x cppan.zip
   - set PATH=%PATH%;%cd%
 
-build_script:
-  - sw -platform %platform% build
+  - cppan # dummy run to create %USERPROFILE%\.cppan\cppan.yml
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_warning_level: 0`n"'
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nbuild_system_verbose: false`n"'
+  - ps: 'Add-Content $env:USERPROFILE\.cppan\cppan.yml "`n`nvar_check_jobs: 1`n"'
 
-after_build:
-  - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.dll
+build_script:
+  - mkdir build
+  - mkdir build\bin
+  - mkdir build\bin\%CONFIGURATION%
+  - cd build
+  #- cmd: 'echo local_settings: > cppan.yml'
+  #- cmd: 'echo     generator: %generator% >> cppan.yml'
+  #- cmd: 'echo     use_shared_libs: true >> cppan.yml'
+  #- cppan --build ..
+  - cmake .. -G "Visual Studio %vs_ver%%vs_platform%"
+  #- cmake --build . --config %CONFIGURATION% > build\bin\%CONFIGURATION%\log.txt 2>&1
+  - cmake --build . --config %CONFIGURATION%
 
 artifacts:
-  - path: tesseract.zip
+  - path: build\bin\%CONFIGURATION%
+  #- path: build
     name: tesseract-$(APPVEYOR_BUILD_VERSION)
