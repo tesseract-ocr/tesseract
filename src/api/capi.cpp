@@ -485,6 +485,11 @@ TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_nu
     return handle->GetHOCRText(nullptr, page_number);
 }
 
+TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_number)
+{
+    return handle->GetAltoText(page_number);
+}
+
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
 {
     return handle->GetBoxText(page_number);
