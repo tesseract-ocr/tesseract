@@ -49,6 +49,9 @@
 #include <set>                 // for std::pair
 #include <sstream>             // for std::stringstream
 #include <vector>              // for std::vector
+#ifdef HAVE_LIBCURL
+#include <curl/curl.h>
+#endif
 #include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
 #ifndef DISABLED_LEGACY_ENGINE
 #include "blobclass.h"         // for ExtractFontName
@@ -1084,6 +1087,15 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
   return result;
 }
 
+static size_t
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  size = size * nmemb;
+  std::string* buf = reinterpret_cast<std::string*>(userp);
+  buf->append(reinterpret_cast<const char*>(contents), size);
+  return size;
+}
+
 // In the ideal scenario, Tesseract will start working on data as soon
 // as it can. For example, if you stream a filelist through stdin, we
 // should start the OCR process as soon as the first filename is
@@ -1122,6 +1134,31 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
     buf.assign((std::istreambuf_iterator<char>(std::cin)),
                (std::istreambuf_iterator<char>()));
     data = reinterpret_cast<const l_uint8 *>(buf.data());
+  } else if (strncmp(filename, "http:", 5) == 0 ||
+             strncmp(filename, "https:", 6) == 0 ) {
+    // Get image or image list by URL.
+#ifdef HAVE_LIBCURL
+    CURL* curl = curl_easy_init();
+    if (curl ==  nullptr) {
+      fprintf(stderr, "Error, curl_easy_init failed\n");
+      return false;
+    } else {
+      CURLcode curlcode;
+      curlcode = curl_easy_setopt(curl, CURLOPT_URL, filename);
+      ASSERT_HOST(curlcode == CURLE_OK);
+      curlcode = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+      ASSERT_HOST(curlcode == CURLE_OK);
+      curlcode = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buf);
+      ASSERT_HOST(curlcode == CURLE_OK);
+      curlcode = curl_easy_perform(curl);
+      ASSERT_HOST(curlcode == CURLE_OK);
+      curl_easy_cleanup(curl);
+      data = reinterpret_cast<const l_uint8 *>(buf.data());
+    }
+#else
+    fprintf(stderr, "Error, this tesseract has no URL support\n");
+    return false;
+#endif
   } else {
     // Check whether the input file can be read.
     if (FILE* file = fopen(filename, "rb")) {
@@ -1135,14 +1172,14 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
 
   // Here is our autodetection
   int format;
-  int r = (stdInput) ?
+  int r = (data != nullptr) ?
       findFileFormatBuffer(data, &format) :
       findFileFormat(filename, &format);
 
   // Maybe we have a filelist
   if (r != 0 || format == IFF_UNKNOWN) {
     STRING s;
-    if (stdInput) {
+    if (data != nullptr) {
       s = buf.c_str();
     } else {
       std::ifstream t(filename);
@@ -1167,7 +1204,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   // Fail early if we can, before producing any output
   Pix *pix = nullptr;
   if (!tiff) {
-    pix = (stdInput) ? pixReadMem(data, buf.size()) : pixRead(filename);
+    pix = (data != nullptr) ? pixReadMem(data, buf.size()) : pixRead(filename);
     if (pix == nullptr) {
       return false;
     }
