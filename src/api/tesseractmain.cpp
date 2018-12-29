@@ -509,7 +509,7 @@ static void PreloadRenderers(
     }
 
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || !error && renderers->empty()) {
+    if (b || (!error && renderers->empty())) {
       tesseract::TessTextRenderer* renderer =
         new tesseract::TessTextRenderer(outputbase);
       if (renderer->happy()) {
