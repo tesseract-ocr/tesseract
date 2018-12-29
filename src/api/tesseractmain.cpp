@@ -410,6 +410,7 @@ static void PreloadRenderers(
     renderers->push_back(new tesseract::TessOsdRenderer(outputbase));
 #endif  // ndef DISABLED_LEGACY_ENGINE
   } else {
+    bool error = false;
     bool b;
     api->GetBoolVariable("tessedit_create_hocr", &b);
     if (b) {
@@ -423,20 +424,22 @@ static void PreloadRenderers(
         delete renderer;
         tprintf("Error, could not create hOCR output file: %s\n",
                 strerror(errno));
+        error = true;
       }
     }
 
     api->GetBoolVariable("tessedit_create_alto", &b);
     if (b) {
-        tesseract::TessAltoRenderer* renderer =
-                new tesseract::TessAltoRenderer(outputbase);
-        if (renderer->happy()) {
-            renderers->push_back(renderer);
-        } else {
-            delete renderer;
-            tprintf("Error, could not create ALTO output file: %s\n",
-                    strerror(errno));
-        }
+      tesseract::TessAltoRenderer* renderer =
+              new tesseract::TessAltoRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        delete renderer;
+        tprintf("Error, could not create ALTO output file: %s\n",
+                strerror(errno));
+        error = true;
+      }
     }
 
     api->GetBoolVariable("tessedit_create_tsv", &b);
@@ -451,6 +454,7 @@ static void PreloadRenderers(
         delete renderer;
         tprintf("Error, could not create TSV output file: %s\n",
                 strerror(errno));
+        error = true;
       }
     }
 
@@ -471,6 +475,7 @@ static void PreloadRenderers(
         delete renderer;
         tprintf("Error, could not create PDF output file: %s\n",
                 strerror(errno));
+        error = true;
       }
     }
 
@@ -485,6 +490,7 @@ static void PreloadRenderers(
         delete renderer;
         tprintf("Error, could not create UNLV output file: %s\n",
                 strerror(errno));
+        error = true;
       }
     }
 
@@ -498,11 +504,12 @@ static void PreloadRenderers(
         delete renderer;
         tprintf("Error, could not create BOX output file: %s\n",
                 strerror(errno));
+        error = true;
       }
     }
 
     api->GetBoolVariable("tessedit_create_txt", &b);
-    if (b || renderers->empty()) {
+    if (b || !error && renderers->empty()) {
       tesseract::TessTextRenderer* renderer =
         new tesseract::TessTextRenderer(outputbase);
       if (renderer->happy()) {
