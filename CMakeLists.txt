@@ -64,12 +64,19 @@ if (STATIC)
     set(LIBRARY_TYPE)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CLANG 1)
+endif()
+
 if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         add_definitions(-DNOMINMAX)
-
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp /utf-8")
+        if (CLANG)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp /utf-8")
+        else()
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp /utf-8")
+        endif()
     endif()
 
     set(LIB_Ws2_32 Ws2_32)
@@ -226,19 +233,21 @@ if (WIN32)
             ${tesseract_hdr}
             ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
         set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
-        set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
-            PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
-        set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
-            PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
-        set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
-            PROPERTIES COMPILE_FLAGS "/arch:AVX")
-        set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
-            PROPERTIES COMPILE_FLAGS "/arch:AVX2")
-    endif()
+        if (NOT CLANG)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
+                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
+                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
+                PROPERTIES COMPILE_FLAGS "/arch:AVX")
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
+                PROPERTIES COMPILE_FLAGS "/arch:AVX2")
+        endif()  # NOT CLANG
+    endif()  # MSVC
 else()
     set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
@@ -281,6 +290,13 @@ else()
     target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
+endif()
+
+if (WIN32 AND CLANG)
+    # Workaround for "libomp.lib is not automatically added on Windows"
+    # see: http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
+    # TODO: Find better way how to set Clang OpenMP library for linking on Windows
+    target_link_libraries       (libtesseract "c:\\Program Files\\LLVM\\lib\\libomp.lib")
 endif()
 
 ########################################
