@@ -1988,7 +1988,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
     pixDestroy(pix);
   // Zero resolution messes up the algorithms, so make sure it is credible.
   int user_dpi = 0;
-  bool a = GetIntVariable("user_defined_dpi", &user_dpi);
+  GetIntVariable("user_defined_dpi", &user_dpi);
   int y_res = thresholder_->GetScaledYResolution();
   if (user_dpi && (user_dpi < kMinCredibleResolution ||
       user_dpi > kMaxCredibleResolution)) {
