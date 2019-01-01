@@ -246,6 +246,9 @@ if (WIN32)
             set_source_files_properties(
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
                 PROPERTIES COMPILE_FLAGS "/arch:AVX2")
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+                PROPERTIES COMPILE_FLAGS "/DAVX /DAVX2 /DSSE4_1")
         endif()  # NOT CLANG
     endif()  # MSVC
 else()
@@ -261,6 +264,9 @@ else()
     set_source_files_properties(
             ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
             PROPERTIES COMPILE_FLAGS "-mavx2")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+            PROPERTIES COMPILE_FLAGS "-DAVX -DAVX2 -DSSE4_1")
 endif()
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr}

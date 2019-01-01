@@ -16,21 +16,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__AVX__)
-// Implementation for non-avx archs.
-
-#include "dotproductavx.h"
-#include <cstdio>
-#include <cstdlib>
-
-namespace tesseract {
-double DotProductAVX(const double* u, const double* v, int n) {
-  fprintf(stderr, "DotProductAVX can't be used on Android\n");
-  abort();
-}
-}  // namespace tesseract
-
-#else  // !defined(__AVX__)
+#if defined(__AVX__)
 // Implementation for avx capable archs.
 #include <immintrin.h>
 #include <cstdint>
@@ -111,4 +97,4 @@ double DotProductAVX(const double* u, const double* v, int n) {
 
 }  // namespace tesseract.
 
-#endif  // ANDROID_BUILD
+#endif  // __AVX__

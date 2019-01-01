@@ -19,13 +19,17 @@ noinst_LTLIBRARIES += libtesseract_avx.la libtesseract_avx2.la
 noinst_LTLIBRARIES += libtesseract_sse.la
 noinst_LTLIBRARIES += libtesseract_arch.la
 
+libtesseract_arch_la_CPPFLAGS = $(AM_CPPFLAGS)
 if AVX_OPT
+libtesseract_arch_la_CPPFLAGS += -DAVX
 libtesseract_avx_la_CXXFLAGS = -ffast-math -mavx
 endif
 if AVX2_OPT
+libtesseract_arch_la_CPPFLAGS += -DAVX2
 libtesseract_avx2_la_CXXFLAGS = -ffast-math -mavx2
 endif
 if SSE41_OPT
+libtesseract_arch_la_CPPFLAGS += -DSSE4_1
 libtesseract_sse_la_CXXFLAGS = -ffast-math -msse4.1
 endif
 
