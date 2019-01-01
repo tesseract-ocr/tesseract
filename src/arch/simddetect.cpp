@@ -22,19 +22,10 @@
 #include "params.h"   // for STRING_VAR
 #include "tprintf.h"  // for tprintf
 
-#undef X86_BUILD
-#if defined(__x86_64__) || defined(__i386__) || defined(_WIN32)
-#  if !defined(ANDROID_BUILD)
-#    define X86_BUILD 1
-#  endif  // !ANDROID_BUILD
-#endif    // x86 target
-
-#if defined(X86_BUILD)
-#  if defined(__GNUC__)
-#    include <cpuid.h>
-#  elif defined(_WIN32)
-#    include <intrin.h>
-#  endif
+#if defined(__GNUC__)
+# include <cpuid.h>
+#elif defined(_WIN32)
+# include <intrin.h>
 #endif
 
 namespace tesseract {
@@ -84,13 +75,15 @@ SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
 
-#if defined(X86_BUILD)
-#  if defined(__GNUC__)
+#if defined(__GNUC__)
   unsigned int eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
     // Note that these tests all use hex because the older compilers don't have
     // the newer flags.
+#if defined(SSE4_1)
     sse_available_ = (ecx & 0x00080000) != 0;
+#endif
+#if defined(AVX)
     avx_available_ = (ecx & 0x10000000) != 0;
     if (avx_available_) {
       // There is supposed to be a __get_cpuid_count function, but this is all
@@ -101,30 +94,38 @@ SIMDDetect::SIMDDetect() {
       avx512F_available_ = (ebx & 0x00010000) != 0;
       avx512BW_available_ = (ebx & 0x40000000) != 0;
     }
+#endif
   }
 #  elif defined(_WIN32)
   int cpuInfo[4];
   __cpuid(cpuInfo, 0);
   if (cpuInfo[0] >= 1) {
     __cpuid(cpuInfo, 1);
+#if defined(SSE4_1)
     sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
+#endif
+#if defined(AVX)
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
+#endif
   }
-#  else
-#    error "I don't know how to test for SIMD with this compiler"
-#  endif
-#endif  // X86_BUILD
+#else
+#error "I don't know how to test for SIMD with this compiler"
+#endif
 
-#if defined(X86_BUILD)
   // Select code for calculation of dot product based on autodetection.
-  if (avx_available_) {
+  if (false) {
+    // This is a dummy to support conditional compilation.
+#if defined(AVX)
+  } else if (avx_available_) {
     // AVX detected.
     SetDotProduct(DotProductAVX);
+#endif
+#if defined(SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
     SetDotProduct(DotProductSSE);
+#endif
   }
-#endif  // X86_BUILD
 }
 
 void SIMDDetect::Update() {
@@ -141,26 +142,29 @@ void SIMDDetect::Update() {
     // Native optimized code selected by config variable.
     SetDotProduct(DotProductNative);
     dotproduct_method = "native";
-  }
-#if defined(X86_BUILD)
-  else if (!strcmp(dotproduct.string(), "avx")) {
+#if defined(AVX)
+  } else if (!strcmp(dotproduct.string(), "avx")) {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX);
     dotproduct_method = "avx";
+#endif
+#if defined(SSE4_1)
   } else if (!strcmp(dotproduct.string(), "sse")) {
     // SSE selected by config variable.
     SetDotProduct(DotProductSSE);
     dotproduct_method = "sse";
-  }
-#endif  // X86_BUILD
-  else {
+#endif
+  } else {
     // Unsupported value of config variable.
     tprintf("Warning, ignoring unsupported config variable value: dotproduct=%s\n",
             dotproduct.string());
     tprintf("Support values for dotproduct: auto generic native"
-#if defined(X86_BUILD)
-            " avx sse"
-#endif  // X86_BUILD
+#if defined(AVX)
+            " avx"
+#endif
+#if defined(SSE4_1)
+            " sse"
+#endif
             ".\n");
   }
 

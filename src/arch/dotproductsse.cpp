@@ -16,26 +16,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__SSE4_1__)
-// This code can't compile with "-msse4.1", so use dummy stubs.
-
-#include "dotproductsse.h"
-#include <cstdio>
-#include <cstdlib>
-
-namespace tesseract {
-double DotProductSSE(const double* u, const double* v, int n) {
-  fprintf(stderr, "DotProductSSE can't be used on Android\n");
-  abort();
-}
-int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
-  fprintf(stderr, "IntDotProductSSE can't be used on Android\n");
-  abort();
-}
-}  // namespace tesseract
-
-#else  // !defined(__SSE4_1__)
-// Non-Android code here
+#if defined(__SSE4_1__)
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -137,4 +118,4 @@ int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
 
 }  // namespace tesseract.
 
-#endif  // ANDROID_BUILD
+#endif  // __SSE4_1__
