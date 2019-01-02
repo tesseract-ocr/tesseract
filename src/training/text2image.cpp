@@ -690,8 +690,9 @@ int main(int argc, char** argv) {
   // See https://github.com/tesseract-ocr/tesseract/issues/736
   char* backend;
   backend = getenv("PANGOCAIRO_BACKEND");
-  if (backend == NULL) {
-    putenv("PANGOCAIRO_BACKEND=fc");
+  if (backend == nullptr) {
+    static char envstring[] = "PANGOCAIRO_BACKEND=fc";
+    putenv(envstring);
   } else {
     printf("Using '%s' as pango cairo backend based on environment "
            "variable.\n", backend);

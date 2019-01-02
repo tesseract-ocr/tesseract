@@ -94,7 +94,7 @@ class LSTMTrainerTest : public testing::Test {
         iteration = trainer_->training_iteration();
         mean_error += trainer_->LastSingleError(ET_CHAR_ERROR);
       }
-      trainer_->MaintainCheckpoints(NULL, &log_str);
+      trainer_->MaintainCheckpoints(nullptr, &log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
       LOG(INFO) << log_str.string();

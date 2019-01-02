@@ -1300,7 +1300,7 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT* pr_it,
   SetupWordPassN(1, &wd);
   classify_word_and_language(pass_n, &it, &wd);
   if (debug_noise_removal) {
-    if (wd.word->raw_choice != NULL) {
+    if (wd.word->raw_choice != nullptr) {
       tprintf("word xheight=%g, row=%g, range=[%g,%g]\n", word_res->x_height,
               wd.row->x_height(), wd.word->raw_choice->min_x_height(),
               wd.word->raw_choice->max_x_height());
@@ -1310,7 +1310,7 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT* pr_it,
     }
   }
   float cert = 0.0f;
-  if (wd.word->raw_choice != NULL) {  // This probably shouldn't happen, but...
+  if (wd.word->raw_choice != nullptr) {  // This probably shouldn't happen, but...
     cert = wd.word->raw_choice->certainty();
     float rat = wd.word->raw_choice->rating();
     *c2 = rat > 0.0f ? cert * cert / rat : 0.0f;
