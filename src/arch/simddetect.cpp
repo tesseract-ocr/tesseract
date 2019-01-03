@@ -22,10 +22,16 @@
 #include "params.h"   // for STRING_VAR
 #include "tprintf.h"  // for tprintf
 
+#if defined(AVX) || defined(AVX2) || defined(SSE4_1)
+# define HAS_CPUID
+#endif
+
+#if defined(HAS_CPUID)
 #if defined(__GNUC__)
 # include <cpuid.h>
 #elif defined(_WIN32)
 # include <intrin.h>
+#endif
 #endif
 
 namespace tesseract {
@@ -75,6 +81,7 @@ SIMDDetect::SIMDDetect() {
   // The fallback is a generic dot product calculation.
   SetDotProduct(DotProductGeneric);
 
+#if defined(HAS_CPUID)
 #if defined(__GNUC__)
   unsigned int eax, ebx, ecx, edx;
   if (__get_cpuid(1, &eax, &ebx, &ecx, &edx) != 0) {
@@ -110,6 +117,7 @@ SIMDDetect::SIMDDetect() {
   }
 #else
 #error "I don't know how to test for SIMD with this compiler"
+#endif
 #endif
 
   // Select code for calculation of dot product based on autodetection.
