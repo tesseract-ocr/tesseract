@@ -32,7 +32,7 @@ namespace tesseract {
 
 TFNetwork::TFNetwork(const STRING& name) : Network(NT_TENSORFLOW, name, 0, 0) {}
 
-int TFNetwork::InitFromProtoStr(const string& proto_str) {
+int TFNetwork::InitFromProtoStr(const std::string& proto_str) {
   if (!model_proto_.ParseFromString(proto_str)) return 0;
   return InitFromProto();
 }
@@ -41,7 +41,7 @@ int TFNetwork::InitFromProtoStr(const string& proto_str) {
 // Should be overridden by subclasses, but called by their Serialize.
 bool TFNetwork::Serialize(TFile* fp) const {
   if (!Network::Serialize(fp)) return false;
-  string proto_str;
+  std::string proto_str;
   model_proto_.SerializeToString(&proto_str);
   GenericVector<char> data;
   data.resize_no_init(proto_str.size());
@@ -66,7 +66,7 @@ bool TFNetwork::DeSerialize(TFile* fp) {
 void TFNetwork::Forward(bool debug, const NetworkIO& input,
                         const TransposedArray* input_transpose,
                         NetworkScratch* scratch, NetworkIO* output) {
-  std::vector<std::pair<string, Tensor>> tf_inputs;
+  std::vector<std::pair<std::string, Tensor>> tf_inputs;
   int depth = input_shape_.depth();
   ASSERT_HOST(depth == input.NumFeatures());
   // TODO(rays) Allow batching. For now batch_size = 1.
@@ -101,7 +101,7 @@ void TFNetwork::Forward(bool debug, const NetworkIO& input,
     *eigen_htensor.data() = stride_map.Size(FD_HEIGHT);
     tf_inputs.emplace_back(model_proto_.image_heights(), height_tensor);
   }
-  std::vector<string> target_layers = {model_proto_.output_layer()};
+  std::vector<std::string> target_layers = {model_proto_.output_layer()};
   std::vector<Tensor> outputs;
   Status s = session_->Run(tf_inputs, target_layers, {}, &outputs);
   if (!s.ok()) tprintf("session->Run failed:%s\n", s.error_message().c_str());
