@@ -1,26 +1,20 @@
 CUTIL_HDR = \
-            ../cutil/bitvec.h \
-            ../cutil/callcpp.h \
-            ../cutil/const.h \
-            ../cutil/cutil.h \
-            ../cutil/cutil_class.h \
-            ../cutil/danerror.h \
-            ../cutil/efio.h \
-            ../cutil/emalloc.h \
-            ../cutil/globals.h \
-            ../cutil/oldlist.h \
-            ../cutil/structures.h
+            ../src/cutil/bitvec.h \
+            ../src/cutil/callcpp.h \
+            ../src/cutil/cutil.h \
+            ../src/cutil/cutil_class.h \
+            ../src/cutil/emalloc.h \
+            ../src/cutil/globals.h \
+            ../src/cutil/oldlist.h \
+            ../src/cutil/structures.h
 
 CUTIL_SRC = \
-            ../cutil/bitvec.cpp \
-            ../cutil/callcpp.cpp \
-            ../cutil/cutil.cpp \
-            ../cutil/cutil_class.cpp \
-            ../cutil/danerror.cpp \
-            ../cutil/efio.cpp \
-            ../cutil/emalloc.cpp \
-            ../cutil/oldlist.cpp \
-            ../cutil/structures.cpp
+            ../src/cutil/bitvec.cpp \
+            ../src/cutil/callcpp.cpp \
+            ../src/cutil/cutil_class.cpp \
+            ../src/cutil/emalloc.cpp \
+            ../src/cutil/oldlist.cpp \
+            ../src/cutil/structures.cpp
 
 CUTIL_OBJ = $(CUTIL_SRC:.cpp=.o)
 $(CUTIL_OBJ): $(CUTIL_HDR)

@@ -1,7 +1,7 @@
 include config.mk
 
-VERSION = 3.05
-LIBVERSION = 3
+VERSION = 4.0.0
+LIBVERSION = 4
 
 CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
@@ -9,7 +9,7 @@ CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
            -fPIC \
            -O2 \
            -std=c++11 \
-           -I../ccmain -I../api -I../ccutil -I../ccstruct -I../viewer -I../textord -I../dict -I../classify -I../display -I../wordrec -I../cutil -I../lstm -I../arch -I../opencl \
+           -I../src/ccmain -I../src/api -I../src/ccutil -I../src/ccstruct -I../src/viewer -I../src/textord -I../src/dict -I../src/classify -I../src/display -I../src/wordrec -I../src/cutil -I../src/lstm -I../src/arch -I../src/opencl \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
            $(OPENCL_CPPFLAGS) $(NOGRAPHICS_CPPFLAGS) $(EMBEDDED_CPPFLAGS) $(VISIBILITY_CPPFLAGS) $(ARCH_CPPFLAGS) \
@@ -90,13 +90,17 @@ $(TRAINING_LIB): $(TRAINING_STATIC_LIB)
 	chmod -x $@
 	ln -sf $(TRAINING_LIBNAME) $@.$(LIBVERSION)
 
-$(BIN): ../api/tesseractmain.cpp $(LIB)
+$(BIN): ../src/api/tesseractmain.cpp $(LIB)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) ../api/tesseractmain.cpp -o $@ -L.. -ltesseract $(LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) ../src/api/tesseractmain.cpp -o $@ -L.. -ltesseract $(LDFLAGS) $(LEPT_LDFLAGS)
 
 $(TRAINING_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_BINSRC)
 	echo CXX $@
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../training/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
+
+$(TRAINING_LEGACY_BIN): $(LIB) $(TRAINING_LIB) $(TRAINING_LEGACY_BINSRC)
+	echo CXX $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PANGOCPPFLAGS) $@.cpp ../src/training/commontraining.cpp -o $@ -L.. -ltesseract -ltesseract_training $(LDFLAGS) $(ICU_LDFLAGS) $(PANGO_LDFLAGS) $(LEPT_LDFLAGS)
 
 $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 	echo JAR $@
@@ -106,6 +110,8 @@ $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 # Virtual rules
 
 training: $(TRAINING_BIN)
+
+training-legacy: $(TRAINING_LEGACY_BIN)
 
 install: all
 	echo Installing executables to $(DESTDIR)$(PREFIX)/bin
@@ -152,6 +158,11 @@ install-training: training
 	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME).$(LIBVERSION)
 	cd $(DESTDIR)$(PREFIX)/lib && ln -sf $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME)
 
+install-training-legacy: training-legacy
+	echo Installing executables to $(DESTDIR)$(PREFIX)/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp -f $(TRAINING_LEGACY_BIN) $(DESTDIR)$(PREFIX)/bin
+
 uninstall:
 	echo Removing executables from $(DESTDIR)$(PREFIX)/bin
 	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(BIN)
@@ -167,7 +178,7 @@ uninstall:
 
 uninstall-training:
 	echo Removing executables from $(DESTDIR)$(PREFIX)/bin
-	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(TRAINING_BIN)
+	cd $(DESTDIR)$(PREFIX)/bin && rm -f $(TRAINING_BIN) $(TRAINING_LEGACY_BIN)
 	echo Removing libraries from $(DESTDIR)$(PREFIX)/lib
 	rm -f $(DESTDIR)$(PREFIX)/lib/$(TRAINING_STATIC_LIB)
 	cd $(DESTDIR)$(PREFIX)/lib && rm -f $(TRAINING_LIBNAME) $(TRAINING_LIBNAME).$(VERSION) $(TRAINING_LIBNAME).$(LIBVERSION)
@@ -188,8 +199,7 @@ clean:
 dist: clean
 	echo Creating tesseract source tarball
 	mkdir tesseract-ocr-$(VERSION)
-	cp -r ../api ../ccmain ../ccstruct ../ccutil ../classify ../cube ../cutil ../dict ../doc ../java \
-	      ../neural_networks ../opencl ../testing ../textord ../training ../viewer ../wordrec \
+	cp -r ../src \
 	      ../AUTHORS ../ChangeLog ../COPYING ../INSTALL ../NEWS ../README ../ReleaseNotes \
 	      ../Makefile ../config.mk ../config.uname ../tesseract.pc.in \
 	      ../tesseract-ocr-$(VERSION)

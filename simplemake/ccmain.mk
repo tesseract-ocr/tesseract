@@ -1,58 +1,63 @@
 CCMAIN_HDR = \
-             ../ccmain/control.h \
-             ../ccmain/docqual.h \
-             ../ccmain/equationdetect.h \
-             ../ccmain/fixspace.h \
-             ../ccmain/mutableiterator.h \
-             ../ccmain/output.h \
-             ../ccmain/paragraphs.h \
-             ../ccmain/paragraphs_internal.h \
-             ../ccmain/paramsd.h \
-             ../ccmain/pgedit.h \
-             ../ccmain/reject.h \
-             ../ccmain/tessbox.h \
-             ../ccmain/tessedit.h \
-             ../ccmain/tesseractclass.h \
-             ../ccmain/tessvars.h \
-             ../ccmain/werdit.h
+             ../src/ccmain/control.h \
+             ../src/ccmain/docqual.h \
+             ../src/ccmain/equationdetect.h \
+             ../src/ccmain/fixspace.h \
+             ../src/ccmain/mutableiterator.h \
+             ../src/ccmain/output.h \
+             ../src/ccmain/paragraphs.h \
+             ../src/ccmain/paragraphs_internal.h \
+             ../src/ccmain/paramsd.h \
+             ../src/ccmain/pgedit.h \
+             ../src/ccmain/reject.h \
+             ../src/ccmain/tessedit.h \
+             ../src/ccmain/tesseractclass.h \
+             ../src/ccmain/tessvars.h \
+             ../src/ccmain/werdit.h
 
 CCMAIN_INSTHDR = \
-                 ../ccmain/ltrresultiterator.h \
-                 ../ccmain/pageiterator.h \
-                 ../ccmain/resultiterator.h \
-                 ../ccmain/osdetect.h \
-                 ../ccmain/thresholder.h
+                 ../src/ccmain/ltrresultiterator.h \
+                 ../src/ccmain/pageiterator.h \
+                 ../src/ccmain/resultiterator.h \
+                 ../src/ccmain/osdetect.h \
+                 ../src/ccmain/thresholder.h
 
 CCMAIN_SRC = \
-             ../ccmain/adaptions.cpp \
-             ../ccmain/applybox.cpp \
-             ../ccmain/control.cpp \
-             ../ccmain/docqual.cpp \
-             ../ccmain/equationdetect.cpp \
-             ../ccmain/fixspace.cpp \
-             ../ccmain/fixxht.cpp \
-             ../ccmain/linerec.cpp \
-             ../ccmain/ltrresultiterator.cpp \
-             ../ccmain/osdetect.cpp \
-             ../ccmain/output.cpp \
-             ../ccmain/pageiterator.cpp \
-             ../ccmain/pagesegmain.cpp \
-             ../ccmain/pagewalk.cpp \
-             ../ccmain/par_control.cpp \
-             ../ccmain/paragraphs.cpp \
-             ../ccmain/paramsd.cpp \
-             ../ccmain/pgedit.cpp \
-             ../ccmain/recogtraining.cpp \
-             ../ccmain/reject.cpp \
-             ../ccmain/resultiterator.cpp \
-             ../ccmain/superscript.cpp \
-             ../ccmain/tessbox.cpp \
-             ../ccmain/tessedit.cpp \
-             ../ccmain/tesseractclass.cpp \
-             ../ccmain/tessvars.cpp \
-             ../ccmain/tfacepp.cpp \
-             ../ccmain/thresholder.cpp \
-             ../ccmain/werdit.cpp
+             ../src/ccmain/applybox.cpp \
+             ../src/ccmain/control.cpp \
+             ../src/ccmain/fixxht.cpp \
+             ../src/ccmain/linerec.cpp \
+             ../src/ccmain/ltrresultiterator.cpp \
+             ../src/ccmain/mutableiterator.cpp \
+             ../src/ccmain/output.cpp \
+             ../src/ccmain/pageiterator.cpp \
+             ../src/ccmain/pagesegmain.cpp \
+             ../src/ccmain/pagewalk.cpp \
+             ../src/ccmain/paragraphs.cpp \
+             ../src/ccmain/paramsd.cpp \
+             ../src/ccmain/pgedit.cpp \
+             ../src/ccmain/recogtraining.cpp \
+             ../src/ccmain/reject.cpp \
+             ../src/ccmain/resultiterator.cpp \
+             ../src/ccmain/tessedit.cpp \
+             ../src/ccmain/tesseractclass.cpp \
+             ../src/ccmain/tessvars.cpp \
+             ../src/ccmain/thresholder.cpp \
+             ../src/ccmain/werdit.cpp
+
+CCMAIN_LEGACY_SRC = \
+             ../src/ccmain/adaptions.cpp \
+             ../src/ccmain/docqual.cpp \
+             ../src/ccmain/equationdetect.cpp \
+             ../src/ccmain/fixspace.cpp \
+             ../src/ccmain/osdetect.cpp \
+             ../src/ccmain/par_control.cpp \
+             ../src/ccmain/superscript.cpp \
+             ../src/ccmain/tessbox.cpp \
+             ../src/ccmain/tfacepp.cpp
 
 CCMAIN_OBJ = $(CCMAIN_SRC:.cpp=.o)
 $(CCMAIN_OBJ): $(CCMAIN_HDR) $(CCMAIN_INSTHDR)
+
+CCMAIN_LEGACY_OBJ = $(CCMAIN_LEGACY_SRC:.cpp=.o)
+$(CCMAIN_LEGACY_OBJ): $(CCMAIN_HDR) $(CCMAIN_INSTHDR)

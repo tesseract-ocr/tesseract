@@ -1,41 +1,44 @@
 WORDREC_HDR = \
-              ../wordrec/associate.h \
-              ../wordrec/chop.h \
-              ../wordrec/chopper.h \
-              ../wordrec/drawfx.h \
-              ../wordrec/findseam.h \
-              ../wordrec/gradechop.h \
-              ../wordrec/language_model.h \
-              ../wordrec/lm_consistency.h \
-              ../wordrec/lm_pain_points.h \
-              ../wordrec/lm_state.h \
-              ../wordrec/measure.h \
-              ../wordrec/outlines.h \
-              ../wordrec/params_model.h \
-              ../wordrec/plotedges.h \
-              ../wordrec/render.h \
-              ../wordrec/wordrec.h
+              ../src/wordrec/associate.h \
+              ../src/wordrec/chop.h \
+              ../src/wordrec/drawfx.h \
+              ../src/wordrec/findseam.h \
+              ../src/wordrec/language_model.h \
+              ../src/wordrec/lm_consistency.h \
+              ../src/wordrec/lm_pain_points.h \
+              ../src/wordrec/lm_state.h \
+              ../src/wordrec/measure.h \
+              ../src/wordrec/outlines.h \
+              ../src/wordrec/params_model.h \
+              ../src/wordrec/plotedges.h \
+              ../src/wordrec/render.h \
+              ../src/wordrec/wordrec.h
 
 WORDREC_SRC = \
-              ../wordrec/associate.cpp \
-              ../wordrec/chop.cpp \
-              ../wordrec/chopper.cpp \
-              ../wordrec/drawfx.cpp \
-              ../wordrec/findseam.cpp \
-              ../wordrec/gradechop.cpp \
-              ../wordrec/language_model.cpp \
-              ../wordrec/lm_consistency.cpp \
-              ../wordrec/lm_pain_points.cpp \
-              ../wordrec/lm_state.cpp \
-              ../wordrec/outlines.cpp \
-              ../wordrec/params_model.cpp \
-              ../wordrec/pieces.cpp \
-              ../wordrec/plotedges.cpp \
-              ../wordrec/render.cpp \
-              ../wordrec/segsearch.cpp \
-              ../wordrec/tface.cpp \
-              ../wordrec/wordclass.cpp \
-              ../wordrec/wordrec.cpp
+              ../src/wordrec/tface.cpp \
+              ../src/wordrec/wordrec.cpp
+
+WORDREC_LEGACY_SRC = \
+              ../src/wordrec/associate.cpp \
+              ../src/wordrec/chop.cpp \
+              ../src/wordrec/chopper.cpp \
+              ../src/wordrec/drawfx.cpp \
+              ../src/wordrec/findseam.cpp \
+              ../src/wordrec/gradechop.cpp \
+              ../src/wordrec/language_model.cpp \
+              ../src/wordrec/lm_consistency.cpp \
+              ../src/wordrec/lm_pain_points.cpp \
+              ../src/wordrec/lm_state.cpp \
+              ../src/wordrec/outlines.cpp \
+              ../src/wordrec/params_model.cpp \
+              ../src/wordrec/pieces.cpp \
+              ../src/wordrec/plotedges.cpp \
+              ../src/wordrec/render.cpp \
+              ../src/wordrec/segsearch.cpp \
+              ../src/wordrec/wordclass.cpp
 
 WORDREC_OBJ = $(WORDREC_SRC:.cpp=.o)
 $(WORDREC_OBJ): $(WORDREC_HDR)
+
+WORDREC_LEGACY_OBJ = $(WORDREC_LEGACY_SRC:.cpp=.o)
+$(WORDREC_LEGACY_OBJ): $(WORDREC_HDR)

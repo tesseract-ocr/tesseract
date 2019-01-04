@@ -2,6 +2,7 @@ MISCDATA = \
            ../tessdata/pdf.ttf \
 
 CONFIGS = \
+          ../tessdata/configs/alto \
           ../tessdata/configs/ambigs.train \
           ../tessdata/configs/api_config \
           ../tessdata/configs/bazaar \
@@ -15,11 +16,14 @@ CONFIGS = \
           ../tessdata/configs/kannada \
           ../tessdata/configs/linebox \
           ../tessdata/configs/logfile \
+          ../tessdata/configs/lstmdebug \
+          ../tessdata/configs/lstm.train \
           ../tessdata/configs/makebox \
           ../tessdata/configs/pdf \
           ../tessdata/configs/quiet \
           ../tessdata/configs/rebox \
           ../tessdata/configs/strokewidth \
+          ../tessdata/configs/tsv \
           ../tessdata/configs/txt \
           ../tessdata/configs/unlv
 

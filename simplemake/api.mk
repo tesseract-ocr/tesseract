@@ -1,14 +1,19 @@
 API_INSTHDR = \
-              ../api/apitypes.h \
-              ../api/baseapi.h \
-              ../api/capi.h \
-              ../api/renderer.h
+              ../src/api/apitypes.h \
+              ../src/api/baseapi.h \
+              ../src/api/capi.h \
+              ../src/api/renderer.h \
+              ../src/api/tess_version.h
 
 API_SRC = \
-          ../api/baseapi.cpp \
-          ../api/capi.cpp \
-          ../api/pdfrenderer.cpp \
-          ../api/renderer.cpp
+          ../src/api/altorenderer.cpp \
+          ../src/api/baseapi.cpp \
+          ../src/api/capi.cpp \
+          ../src/api/pdfrenderer.cpp \
+          ../src/api/renderer.cpp
 
 API_OBJ = $(API_SRC:.cpp=.o)
 $(API_OBJ): $(API_INSTHDR)
+
+../src/api/tess_version.h: ../src/api/tess_version.h.in
+	sed -e 's/@PACKAGE_VERSION@/$(VERSION)/g' < ../src/api/tess_version.h.in > ../src/api/tess_version.h

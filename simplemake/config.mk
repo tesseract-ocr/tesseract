@@ -11,6 +11,9 @@ TESSDATAPREFIX = $(PREFIX)/share/tesseract-ocr
 #VISIBILITY_CPPFLAGS = -DTESS_EXPORTS -fvisibility=hidden -fvisibility-inlines-hidden
 ARCH_CPPFLAGS = -mavx -msse4.1
 
+# Enable legacy engine (uncomment line to enable)
+#EXTRA_OBJ = $(CCMAIN_LEGACY_OBJ) $(CLASSIFY_LEGACY_OBJ) $(WORDREC_LEGACY_OBJ)
+
 # Dependencies needed for training tools
 ICU_LDFLAGS = -licui18n -licuuc -licudata
 PANGO_CPPFLAGS = -DPANGO_ENABLE_ENGINE -pthread -I/usr/include/pango-1.0 -I/usr/include/cairo \
