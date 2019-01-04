@@ -30,6 +30,8 @@ $(info local path=$(LOCAL_PATH))
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/../../api/*.cpp $(LOCAL_PATH)/../../ccmain/*.cpp $(LOCAL_PATH)/../../ccstruct/*.cpp $(LOCAL_PATH)/../../ccutil/*.cpp $(LOCAL_PATH)/../../classify/*.cpp $(LOCAL_PATH)/../../cutil/*.cpp $(LOCAL_PATH)/../../dict/*.cpp $(LOCAL_PATH)/../../image/*.cpp $(LOCAL_PATH)/../../textord/*.cpp $(LOCAL_PATH)/../../viewer/*.cpp $(LOCAL_PATH)/../../wordrec/*.cpp)
 
 EXPLICIT_SRC_EXCLUDES := \
+  $(LOCAL_PATH)/../../api/altorenderer.cpp \
+  $(LOCAL_PATH)/../../api/hocrrenderer.cpp \
   $(LOCAL_PATH)/../../api/pdfrenderer.cpp \
   $(LOCAL_PATH)/../../api/tesseractmain.cpp \
 

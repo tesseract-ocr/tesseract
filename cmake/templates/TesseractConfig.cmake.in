@@ -21,6 +21,8 @@
 
 include(${CMAKE_CURRENT_LIST_DIR}/TesseractTargets.cmake)
 
+find_package(Leptonica REQUIRED)
+
 # ======================================================
 #  Version variables:
 # ======================================================
@@ -40,4 +42,4 @@ set(Tesseract_INCLUDE_DIRS @INCLUDE_DIR@)
 # Link libraries:
 # ====================================================================
 
-set(Tesseract_LIBRARIES tesseract)
+set(Tesseract_LIBRARIES libtesseract)

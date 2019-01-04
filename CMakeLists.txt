@@ -11,7 +11,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 # In-source builds are disabled.
-if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
     message(FATAL_ERROR
         "CMake generation is not possible within the source directory!"
         "\n Remove the CMakeCache.txt file and try again from another folder, e.g.:"
@@ -23,7 +23,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
     )
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
@@ -40,31 +40,18 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake Targets")
 
 project(tesseract C CXX)
 
-set(VERSION_MAJOR 4)
-set(VERSION_MINOR 00)
-set(VERSION_PLAIN ${VERSION_MAJOR}.${VERSION_MINOR})
+# Get version with components from VERSION file.
+file(STRINGS "VERSION" VERSION_PLAIN)
+string(REGEX REPLACE "^([^.]*)\\..*" "\\1" VERSION_MAJOR ${VERSION_PLAIN})
+string(REGEX REPLACE "^[^.]*\\.([^.]*)\\..*" "\\1" VERSION_MINOR ${VERSION_PLAIN})
+string(REGEX REPLACE "^[^.]*\\.[^.]*\\.([0-9]*).*" "\\1" VERSION_PATCH ${VERSION_PLAIN})
+
+# Provide also same macro names as autoconf (see configure.ac).
+set(GENERIC_MAJOR_VERSION ${VERSION_MAJOR})
+set(GENERIC_MINOR_VERSION ${VERSION_MINOR})
+set(GENERIC_MICRO_VERSION ${VERSION_PATCH})
 
 set(MINIMUM_LEPTONICA_VERSION 1.74)
-
-if(NOT EXISTS ${PROJECT_SOURCE_DIR}/.cppan)
-    if (NOT Leptonica_DIR AND NOT MSVC)
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
-    else()
-        find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
-    endif()
-else()
-    if (STATIC)
-        set(CPPAN_BUILD_SHARED_LIBS 0)
-    else()
-        set(CPPAN_BUILD_SHARED_LIBS 1)
-    endif()
-    add_subdirectory(.cppan)
-endif()
-
-find_package(OpenCL QUIET)
-
-option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 
 ###############################################################################
 #
@@ -77,11 +64,19 @@ if (STATIC)
     set(LIBRARY_TYPE)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CLANG 1)
+endif()
+
 if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+        if (CLANG)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp /utf-8")
+        else()
+            add_definitions(-DNOMINMAX)
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp /utf-8")
+        endif()
     endif()
 
     set(LIB_Ws2_32 Ws2_32)
@@ -99,12 +94,40 @@ endif()
 
 ###############################################################################
 #
+# packages
+#
+###############################################################################
+
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan)
+    if (NOT Leptonica_DIR AND NOT MSVC)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
+        link_directories(${Leptonica_LIBRARY_DIRS})
+    else()
+        find_package(Leptonica ${MINIMUM_LEPTONICA_VERSION} REQUIRED CONFIG)
+    endif()
+else()
+    if (STATIC)
+        set(CPPAN_BUILD_SHARED_LIBS 0)
+    else()
+        set(CPPAN_BUILD_SHARED_LIBS 1)
+    endif()
+    add_subdirectory(.cppan)
+endif()
+
+find_package(OpenCL QUIET)
+
+option(BUILD_TRAINING_TOOLS "Build training tools" ON)
+option(BUILD_TESTS "Build tests" OFF)
+
+###############################################################################
+#
 # configure
 #
 ###############################################################################
 
-set(AUTOCONFIG_SRC ${CMAKE_BINARY_DIR}/config_auto.h.in)
-set(AUTOCONFIG ${CMAKE_BINARY_DIR}/config_auto.h)
+set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
+set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
 
 include(Configure)
 
@@ -113,11 +136,20 @@ configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
 set(INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include" "${CMAKE_INSTALL_PREFIX}/include/tesseract")
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
-    ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/api/tess_version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h @ONLY)
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
-    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake @ONLY)
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/tesseract.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc @ONLY)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/libtesseract.rc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc @ONLY)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig-version.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig-version.cmake @ONLY)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/templates/TesseractConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig.cmake @ONLY)
 
 ###############################################################################
 #
@@ -130,90 +162,116 @@ include(SourceGroups)
 
 add_definitions(-DHAVE_CONFIG_H)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
-add_definitions(-DUSE_STD_NAMESPACE=1)
 add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
 
 include_directories(${Leptonica_INCLUDE_DIRS})
 
-include_directories(${CMAKE_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-include_directories(api)
-include_directories(arch)
-include_directories(ccmain)
-include_directories(ccstruct)
-include_directories(ccutil)
-include_directories(classify)
-include_directories(cutil)
-include_directories(dict)
-include_directories(lstm)
-include_directories(opencl)
-include_directories(textord)
-include_directories(vs2010/port)
-include_directories(viewer)
-include_directories(wordrec)
+include_directories(src/api)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/api)
+include_directories(src/arch)
+include_directories(src/ccmain)
+include_directories(src/ccstruct)
+include_directories(src/ccutil)
+include_directories(src/classify)
+include_directories(src/cutil)
+include_directories(src/dict)
+include_directories(src/lstm)
+include_directories(src/opencl)
+include_directories(src/textord)
+include_directories(src/viewer)
+include_directories(src/wordrec)
 
 ########################################
 # LIBRARY tesseract
 ########################################
 
-string(SUBSTRING ${VERSION_MINOR} 0 1 VERSION_MINOR_0)
-string(SUBSTRING ${VERSION_MINOR} 1 1 VERSION_MINOR_1)
-
 file(GLOB tesseract_src
-    arch/*.cpp
-    ccmain/*.cpp
-    ccstruct/*.cpp
-    ccutil/*.cpp
-    classify/*.cpp
-    cutil/*.cpp
-    dict/*.cpp
-    lstm/*.cpp
-    opencl/*.cpp
-    textord/*.cpp
-    viewer/*.cpp
-    wordrec/*.cpp
+    src/arch/*.cpp
+    src/ccmain/*.cpp
+    src/ccstruct/*.cpp
+    src/ccutil/*.cpp
+    src/classify/*.cpp
+    src/cutil/*.cpp
+    src/dict/*.cpp
+    src/lstm/*.cpp
+    src/opencl/*.cpp
+    src/textord/*.cpp
+    src/viewer/*.cpp
+    src/wordrec/*.cpp
 )
 file(GLOB tesseract_hdr
-    api/*.h
-    arch/*.h
-    ccmain/*.h
-    ccstruct/*.h
-    ccutil/*.h
-    classify/*.h
-    cutil/*.h
-    dict/*.h
-    lstm/*.h
-    opencl/*.h
-    textord/*.h
-    viewer/*.h
-    wordrec/*.h
+    src/api/*.h
+    src/arch/*.h
+    src/ccmain/*.h
+    src/ccstruct/*.h
+    src/ccutil/*.h
+    src/classify/*.h
+    src/cutil/*.h
+    src/dict/*.h
+    src/lstm/*.h
+    src/opencl/*.h
+    src/textord/*.h
+    src/viewer/*.h
+    src/wordrec/*.h
 )
-if (WIN32)
-    file(GLOB tesseract_win32_src "vs2010/port/*.cpp")
-    file(GLOB tesseract_win32_hdr "vs2010/port/*.h")
-    set(tesseract_src ${tesseract_src} ${tesseract_win32_src})
-    set(tesseract_hdr ${tesseract_hdr} ${tesseract_win32_hdr})
-endif()
 
 set(tesseract_src ${tesseract_src}
-    api/baseapi.cpp
-    api/capi.cpp
-    api/renderer.cpp
-    api/pdfrenderer.cpp
+    src/api/baseapi.cpp
+    src/api/capi.cpp
+    src/api/renderer.cpp
+    src/api/altorenderer.cpp
+    src/api/hocrrenderer.cpp
+    src/api/pdfrenderer.cpp
 )
 
 if (WIN32)
-    set_source_files_properties(
-        ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductsse.cpp
-        PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
     if (MSVC)
-        set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/arch/dotproductavx.cpp
-            PROPERTIES COMPILE_FLAGS "/arch:AVX")
-    endif()
+        include_directories(src/vs2010/tesseract)
+        set(tesseract_hdr
+            ${tesseract_hdr}
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
+        set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
+        if (NOT CLANG)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
+                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
+                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
+                PROPERTIES COMPILE_FLAGS "/arch:AVX")
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
+                PROPERTIES COMPILE_FLAGS "/arch:AVX2")
+            set_source_files_properties(
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+                PROPERTIES COMPILE_FLAGS "/DAVX /DAVX2 /DSSE4_1")
+        endif()  # NOT CLANG
+    endif()  # MSVC
+else()
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
+            PROPERTIES COMPILE_FLAGS "-msse4.1")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
+            PROPERTIES COMPILE_FLAGS "-msse4.1")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
+            PROPERTIES COMPILE_FLAGS "-mavx")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
+            PROPERTIES COMPILE_FLAGS "-mavx2")
+    set_source_files_properties(
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+            PROPERTIES COMPILE_FLAGS "-DAVX -DAVX2 -DSSE4_1")
 endif()
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr})
+add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr}
+    ${tesseract_rsc}
+    )
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
     PRIVATE -DTESS_EXPORTS
@@ -222,38 +280,51 @@ target_compile_definitions      (libtesseract
 set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 target_link_libraries           (libtesseract ${LIB_Ws2_32} ${LIB_pthread})
-set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
-set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR_0}.${VERSION_MINOR_1})
+set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 if (WIN32)
 set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR})
 set_target_properties           (libtesseract PROPERTIES DEBUG_OUTPUT_NAME tesseract${VERSION_MAJOR}${VERSION_MINOR}d)
+else()
+set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
 if (NOT CPPAN_BUILD)
     target_link_libraries       (libtesseract ${Leptonica_LIBRARIES})
-    export(TARGETS libtesseract FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 else()
     target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
-    file(WRITE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_BINARY_DIR}/cppan.cmake)\n")
-    export(TARGETS libtesseract APPEND FILE ${CMAKE_BINARY_DIR}/TesseractTargets.cmake)
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
+    export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
+endif()
+
+if (WIN32 AND CLANG)
+    # Workaround for "libomp.lib is not automatically added on Windows"
+    # see: http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
+    # TODO: Find better way how to set Clang OpenMP library for linking on Windows
+    target_link_libraries       (libtesseract "c:\\Program Files\\LLVM\\lib\\libomp.lib")
 endif()
 
 ########################################
 # EXECUTABLE tesseractmain
 ########################################
 
-set(tesseractmain_src
-    api/tesseractmain.cpp
-    vs2010/tesseract/resource.h
-    vs2010/tesseract/tesseract.rc
-)
-add_executable                  (tesseract ${tesseractmain_src})
+set(tesseractmain_src src/api/tesseractmain.cpp)
+if (MSVC)
+    set(tesseractmain_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/tesseract.rc)
+endif()
+
+add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
 target_link_libraries           (tesseract libtesseract)
 
 ########################################
 
+if (BUILD_TESTS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt)
+    add_subdirectory(googletest)
+endif()
+
 if (BUILD_TRAINING_TOOLS)
-add_subdirectory(training)
+add_subdirectory(src/training)
 endif()
 
 get_target_property(tesseract_NAME libtesseract NAME)
@@ -265,78 +336,80 @@ install(TARGETS tesseract RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIV
 install(TARGETS libtesseract EXPORT TesseractTargets RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 install(EXPORT TesseractTargets DESTINATION cmake)
 install(FILES
-    ${CMAKE_BINARY_DIR}/TesseractConfig.cmake
-    ${CMAKE_BINARY_DIR}/TesseractConfig-version.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/TesseractConfig-version.cmake
     DESTINATION cmake)
 
 install(FILES
     # from api/makefile.am
-    api/apitypes.h
-    api/baseapi.h 
-    api/capi.h 
-    api/renderer.h
+    src/api/apitypes.h
+    src/api/baseapi.h
+    src/api/capi.h
+    src/api/renderer.h
+    ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
 
     #from arch/makefile.am
-    arch/dotproductavx.h
-    arch/dotproductsse.h 
-    arch/simddetect.h
+    src/arch/dotproductavx.h
+    src/arch/dotproductsse.h
+    src/arch/intsimdmatrix.h
+    src/arch/intsimdmatrixavx2.h
+    src/arch/intsimdmatrixsse.h
+    src/arch/simddetect.h
 
     #from ccmain/makefile.am
-    ccmain/thresholder.h
-    ccmain/ltrresultiterator.h 
-    ccmain/pageiterator.h 
-    ccmain/resultiterator.h 
-    ccmain/osdetect.h
+    src/ccmain/thresholder.h
+    src/ccmain/ltrresultiterator.h
+    src/ccmain/pageiterator.h
+    src/ccmain/resultiterator.h
+    src/ccmain/osdetect.h
 
     #from ccstruct/makefile.am
-    ccstruct/publictypes.h 
+    src/ccstruct/publictypes.h
 
     #from ccutil/makefile.am
-    ccutil/basedir.h 
-    ccutil/errcode.h 
-    ccutil/fileerr.h 
-    ccutil/genericvector.h 
-    ccutil/helpers.h 
-    ccutil/host.h 
-    ccutil/memry.h 
-    ccutil/ndminx.h
-    ccutil/params.h
-    ccutil/ocrclass.h 
-    ccutil/platform.h 
-    ccutil/serialis.h 
-    ccutil/strngs.h 
-    ccutil/tesscallback.h
-    ccutil/unichar.h 
-    ccutil/unicharcompress.h 
-    ccutil/unicharmap.h 
-    ccutil/unicharset.h
+    src/ccutil/basedir.h
+    src/ccutil/errcode.h
+    src/ccutil/fileerr.h
+    src/ccutil/genericvector.h
+    src/ccutil/helpers.h
+    src/ccutil/host.h
+    src/ccutil/params.h
+    src/ccutil/ocrclass.h
+    src/ccutil/platform.h
+    src/ccutil/serialis.h
+    src/ccutil/strngs.h
+    src/ccutil/tesscallback.h
+    src/ccutil/unichar.h
+    src/ccutil/unicharcompress.h
+    src/ccutil/unicharmap.h
+    src/ccutil/unicharset.h
 
     #from lstm/makefile.am
-    lstm/convolve.h
-    lstm/ctc.h 
-    lstm/fullyconnected.h 
-    lstm/functions.h 
-    lstm/input.h
-    lstm/lstm.h 
-    lstm/lstmrecognizer.h 
-    lstm/lstmtrainer.h 
-    lstm/maxpool.h
-    lstm/networkbuilder.h 
-    lstm/network.h 
-    lstm/networkio.h 
-    lstm/networkscratch.h
-    lstm/parallel.h 
-    lstm/plumbing.h 
-    lstm/recodebeam.h 
-    lstm/reconfig.h 
-    lstm/reversed.h
-    lstm/series.h 
-    lstm/static_shape.h 
-    lstm/stridemap.h 
-    lstm/tfnetwork.h 
-    lstm/weightmatrix.h
+    src/lstm/convolve.h
+    src/lstm/ctc.h
+    src/lstm/fullyconnected.h
+    src/lstm/functions.h
+    src/lstm/input.h
+    src/lstm/lstm.h
+    src/lstm/lstmrecognizer.h
+    src/lstm/lstmtrainer.h
+    src/lstm/maxpool.h
+    src/lstm/networkbuilder.h
+    src/lstm/network.h
+    src/lstm/networkio.h
+    src/lstm/networkscratch.h
+    src/lstm/parallel.h
+    src/lstm/plumbing.h
+    src/lstm/recodebeam.h
+    src/lstm/reconfig.h
+    src/lstm/reversed.h
+    src/lstm/series.h
+    src/lstm/static_shape.h
+    src/lstm/stridemap.h
+    src/lstm/tfnetwork.h
+    src/lstm/weightmatrix.h
 
-    #${CMAKE_BINARY_DIR}/src/endianness.h
+    #${CMAKE_CURRENT_BINARY_DIR}/src/endianness.h
     DESTINATION include/tesseract)
 
 

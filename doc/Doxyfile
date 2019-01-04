@@ -763,7 +763,7 @@ WARN_LOGFILE           = $(builddir)/doc/DoxyWarn.log
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = $(srcdir)
+INPUT                  = $(srcdir)/src
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -828,7 +828,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = vs2010
+EXCLUDE                = ../src/vs2010
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -1656,7 +1656,7 @@ EXTRA_PACKAGES         =
 # Note: Only use a user-defined header if you know what you are doing! The
 # following commands have a special meaning inside the header: $title,
 # $datetime, $date, $doxygenversion, $projectname, $projectnumber,
-# $projectbrief, $projectlogo. Doxygen will replace $title with the empy string,
+# $projectbrief, $projectlogo. Doxygen will replace $title with the empty string,
 # for the replacement values of the other commands the user is referred to
 # HTML_HEADER.
 # This tag requires that the tag GENERATE_LATEX is set to YES.

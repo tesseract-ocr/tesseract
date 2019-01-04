@@ -1,7 +1,7 @@
-2017-03-24 - V4.00.00-alpha
+2018-10-29 - V4.0.0
   * Added new neural network system based on LSTMs, with major accuracy gains.
   * Improvements to PDF rendering.
-  * Fixes to trainingdata rendering.  
+  * Fixes to trainingdata rendering.
   * Added LSTM models+lang models to 101 languages. (tessdata repository)
   * Improved multi-page TIFF handling.
   * Fixed damage to binary images when processing PDFs.
@@ -14,9 +14,11 @@
   * Removed support for VS2010.
   * Added Support for VS2015 and VS2017 with CPPAN.
   * Implemented invisible text only for PDF.
-  * Added AVX / SSE support for Windows
+  * Added AVX / SSE support for Windows.
   * Enabled OpenMP support.
+  * Parameter unlv_tilde_crunching change to false.
   * Miscellaneous Fixes.
+  * Detailed Changelog can be foud at https://github.com/tesseract-ocr/tesseract/wiki/4.0x-Changelog and https://github.com/tesseract-ocr/tesseract/wiki/ReleaseNotes#tesseract-release-notes-oct-29-2018---v400
 
 2017-02-16 - V3.05.00
   * Made some fine tuning to the hOCR output.
@@ -40,7 +42,7 @@
   * Fixed some openCL issues.
   * Added option to build Tesseract with CMake build system.
   * Implemented CPPAN support for easy Windows building.
-  
+
 2016-02-17 - V3.04.01
   * Added OSD renderer for psm 0. Works for single page and multi-page images.
   * Improve tesstrain.sh script.
@@ -84,7 +86,7 @@
     text and truetype fonts.
   * Added support for PDF output with searchable text.
   * Removed entire IMAGE class and all code in image directory.
-  * Tesseract executable: support for output to stdout; limited support for one 
+  * Tesseract executable: support for output to stdout; limited support for one
     page images from stdin  (especially on Windows)
   * Added Renderer to API to allow document-level processing and output
     of document formats, like hOCR, PDF.
@@ -169,12 +171,12 @@
   * Added TessdataManager to combine data files into a single file.
   * Some dead code deleted.
   * VC++6 no longer supported. It can't cope with the use of templates.
-  * Many more languages added. 
+  * Many more languages added.
   * Doxygenation of most of the function header comments.
   * Added man pages.
   * Added bash completion script (issue 247: thanks to neskiem)
   * Fix integer overview in thresholding (issue 366: thanks to Cyanide.Drake)
-  * Add Danish Fraktur support (issues 300, 360: thanks to 
+  * Add Danish Fraktur support (issues 300, 360: thanks to
     dsl602230@vip.cybercity.dk)
   * Fix file pointer leak (issue 359, thanks to yukihiro.nakadaira)
   * Fix an error using user-words (Issue 345: thanks to max.markin)
@@ -183,7 +185,7 @@
   * Fix an automake error (Issue 318, thanks to ichanjz)
   * Fix a Win32 crash on fileFormatIsTiff() (Issues 304, 316, 317, 330, 347,
     349, 352: thanks to nguyenq87, max.markin, zdenop)
-  * Fixed a number of errors in newer (stricter) versions of VC++ (Issues 
+  * Fixed a number of errors in newer (stricter) versions of VC++ (Issues
     301, among others)
 
 2009-06-30 - V2.04

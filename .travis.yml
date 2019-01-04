@@ -14,7 +14,7 @@ sudo: false
 
 os:
   - linux
-  - osx
+  #- osx
 
 addons:
   apt:
@@ -23,16 +23,16 @@ addons:
     packages:
     #- g++-6
 
-matrix:
-  include:
-    - os: osx
-      install:
-      script: brew install tesseract --HEAD
-      cache:
-        directories:
-          - $HOME/Library/Caches/Homebrew
-  allow_failures:
-    - script: brew install tesseract --HEAD
+#matrix:
+  #include:
+    #- os: osx
+      #install:
+      #script: brew install tesseract --HEAD
+      #cache:
+        #directories:
+          #- $HOME/Library/Caches/Homebrew
+  #allow_failures:
+    #- script: brew install tesseract --HEAD
 
 cache:
   directories:
