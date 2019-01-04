@@ -31,7 +31,7 @@ TRAINING_SRC = \
                ../src/training/lang_model_helpers.cpp \
                ../src/training/ligature_table.cpp \
                ../src/training/lstmtester.cpp \
-               ../src/training/mergenf.cpp
+               ../src/training/mergenf.cpp \
                ../src/training/normstrngs.cpp \
                ../src/training/pango_font_info.cpp \
                ../src/training/stringrenderer.cpp \

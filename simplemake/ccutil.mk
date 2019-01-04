@@ -25,7 +25,7 @@ CCUTIL_HDR = \
              ../src/ccutil/tprintf.h \
              ../src/ccutil/unicharcompress.h \
              ../src/ccutil/unicharmap.h \
-             ../src/ccutil/unicharset.h
+             ../src/ccutil/unicharset.h \
              ../src/ccutil/unicity_table.h \
              ../src/ccutil/unicodes.h \
              ../src/ccutil/universalambigs.h
