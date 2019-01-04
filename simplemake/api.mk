@@ -9,6 +9,7 @@ API_SRC = \
           ../src/api/altorenderer.cpp \
           ../src/api/baseapi.cpp \
           ../src/api/capi.cpp \
+          ../src/api/hocrrenderer.cpp \
           ../src/api/pdfrenderer.cpp \
           ../src/api/renderer.cpp
 

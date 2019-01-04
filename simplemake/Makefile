@@ -3,12 +3,13 @@ include config.mk
 VERSION = 4.0.0
 LIBVERSION = 4
 
-CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" \
+CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" -DPACKAGE_VERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
            -Wall \
            -fPIC \
            -O2 \
            -std=c++11 \
+           -I../src/ \
            -I../src/ccmain -I../src/api -I../src/ccutil -I../src/ccstruct -I../src/viewer -I../src/textord -I../src/dict -I../src/classify -I../src/display -I../src/wordrec -I../src/cutil -I../src/lstm -I../src/arch -I../src/opencl \
            $(LEPT_CPPFLAGS) \
            $(PANGO_CPPFLAGS) \
@@ -27,7 +28,7 @@ TRAINING_STATIC_LIB = ../libtesseract_training.a
 SCROLLVIEW = ../java/ScrollView.jar
 
 # Have this rule first so it's the default target
-all: autoconfig $(BIN) $(LIB) $(STATIC_LIB)
+all: autoconfig ../src/config_auto.h $(BIN) $(LIB) $(STATIC_LIB)
 
 
 # Source and header files
@@ -106,6 +107,8 @@ $(SCROLLVIEW): $(SCROLLVIEW_CLASSES)
 	echo JAR $@
 	cd java && $(JAR) cf `basename $(SCROLLVIEW)` `echo $(SCROLLVIEW_CLASSES) $(SCROLLVIEW_EXTRAS) | sed 's/java\///g'`
 
+../src/config_auto.h:
+	touch $@
 
 # Virtual rules
 

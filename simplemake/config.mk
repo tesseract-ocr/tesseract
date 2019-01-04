@@ -10,9 +10,11 @@ TESSDATAPREFIX = $(PREFIX)/share/tesseract-ocr
 #EMBEDDED_CPPFLAGS = -DEMBEDDED
 #VISIBILITY_CPPFLAGS = -DTESS_EXPORTS -fvisibility=hidden -fvisibility-inlines-hidden
 ARCH_CPPFLAGS = -mavx -msse4.1
+EXTRA_CPPFLAGS = -DDISABLED_LEGACY_ENGINE
 
-# Enable legacy engine (uncomment line to enable)
+# Enable legacy engine (uncomment lines to enable)
 #EXTRA_OBJ = $(CCMAIN_LEGACY_OBJ) $(CLASSIFY_LEGACY_OBJ) $(WORDREC_LEGACY_OBJ)
+#EXTRA_CPPFLAGS =
 
 # Dependencies needed for training tools
 ICU_LDFLAGS = -licui18n -licuuc -licudata
