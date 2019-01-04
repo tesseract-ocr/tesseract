@@ -36,7 +36,10 @@ CLASSIFY_HDR = \
 
 CLASSIFY_SRC = \
                ../src/classify/blobclass.cpp \
-               ../src/classify/classify.cpp
+               ../src/classify/classify.cpp \
+               ../src/classify/featdefs.cpp \
+               ../src/classify/ocrfeatures.cpp \
+               ../src/classify/protos.cpp
 
 CLASSIFY_LEGACY_SRC = \
                ../src/classify/adaptive.cpp \
@@ -45,7 +48,6 @@ CLASSIFY_LEGACY_SRC = \
                ../src/classify/clusttool.cpp \
                ../src/classify/cutoffs.cpp \
                ../src/classify/errorcounter.cpp \
-               ../src/classify/featdefs.cpp \
                ../src/classify/float2int.cpp \
                ../src/classify/fpoint.cpp \
                ../src/classify/intfeaturedist.cpp \
@@ -62,10 +64,8 @@ CLASSIFY_LEGACY_SRC = \
                ../src/classify/mfx.cpp \
                ../src/classify/normfeat.cpp \
                ../src/classify/normmatch.cpp \
-               ../src/classify/ocrfeatures.cpp \
                ../src/classify/outfeat.cpp \
                ../src/classify/picofeat.cpp \
-               ../src/classify/protos.cpp \
                ../src/classify/sampleiterator.cpp \
                ../src/classify/shapeclassifier.cpp \
                ../src/classify/shapetable.cpp \
