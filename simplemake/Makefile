@@ -120,9 +120,10 @@ install: all
 	echo Installing headers to $(DESTDIR)$(PREFIX)/include/tesseract
 	mkdir -p $(DESTDIR)$(PREFIX)/include/tesseract
 	cp -f $(INSTHDR) $(DESTDIR)$(PREFIX)/include/tesseract
-	echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1
+	# TODO: optionally build and install manpages
+	#echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
+	#mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	#cp -f $(MAN) $(DESTDIR)$(MANPREFIX)/man1
 	echo Installing data to $(DESTDIR)$(TESSDATAPREFIX)/tessdata
 	mkdir -p $(DESTDIR)$(TESSDATAPREFIX)/tessdata
 	cp -f $(MISCDATA) $(DESTDIR)$(TESSDATAPREFIX)/tessdata
@@ -145,12 +146,13 @@ install-training: training
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp -f $(TRAINING_BIN) $(DESTDIR)$(PREFIX)/bin
 	cp -f $(TRAINING_EXTRA) $(DESTDIR)$(PREFIX)/bin
-	echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	cp -f $(TRAINING_MAN) $(DESTDIR)$(MANPREFIX)/man1
-	echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man5
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man5
-	cp -f $(TRAINING_MAN5) $(DESTDIR)$(MANPREFIX)/man5
+	# TODO: optionally build and install manpages
+	#echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man1
+	#mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	#cp -f $(TRAINING_MAN) $(DESTDIR)$(MANPREFIX)/man1
+	#echo Installing manual pages to $(DESTDIR)$(MANPREFIX)/man5
+	#mkdir -p $(DESTDIR)$(MANPREFIX)/man5
+	#cp -f $(TRAINING_MAN5) $(DESTDIR)$(MANPREFIX)/man5
 	echo Installing libraries to $(DESTDIR)$(PREFIX)/lib
 	mkdir -p $(DESTDIR)$(PREFIX)/lib
 	cp -f $(TRAINING_STATIC_LIB) $(DESTDIR)$(PREFIX)/lib
