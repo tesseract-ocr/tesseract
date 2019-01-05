@@ -19,7 +19,15 @@
 #include <io.h>
 #endif
 #else
+
+// glob.h isn't available in the Android NDK until platform version android-28
+#ifdef __ANDROID__
+#include <dirent.h>
+#include <regex.h>
+#else
 #include <glob.h>
+#endif
+
 #include <unistd.h>
 #endif
 
@@ -99,10 +107,11 @@ bool File::Delete(const char* pathname) {
 }
 
 #ifdef _WIN32
-bool File::DeleteMatchingFiles(const char* pattern) {
+bool File::DeleteMatchingFiles(const char* directory, const char* pattern) {
  WIN32_FIND_DATA data;
  BOOL result = TRUE;
- HANDLE handle = FindFirstFile(pattern, &data);
+ const char *full_pattern = File::JoinPath(directory, pattern).c_str();
+ HANDLE handle = FindFirstFile(full_pattern, &data);
  bool all_deleted = true;
  if (handle != INVALID_HANDLE_VALUE) {
    for (; result; result = FindNextFile(handle, &data)) {
@@ -113,16 +122,52 @@ bool File::DeleteMatchingFiles(const char* pattern) {
  return all_deleted;
 }
 #else
-bool File::DeleteMatchingFiles(const char* pattern) {
+bool File::DeleteMatchingFiles(const char* directory, const char* pattern) {
+  bool all_deleted = true;
+
+#ifdef __ANDROID__
+  DIR *dir;
+  struct dirent *dp;
+  regex_t match;
+  int res;
+  char msg[100];
+  const char *full_path;
+
+  regcomp(&match, pattern, REG_BASIC);
+  dir = opendir(directory);
+
+  if (dir != NULL) {
+    while ((dp = readdir(dir)) != NULL) {
+      if (!(res = regexec(&match, dp->d_name, 0, NULL, 0))) {
+        full_path = File::JoinPath(directory, dp->d_name).c_str();
+        all_deleted &= File::Delete(full_path);
+      }
+      else if (res == REG_NOMATCH) {
+        // No match, noop or warn?
+      }
+      else {
+        // Print error message?
+
+        //regerror(res, &match, msg, sizeof(msg));
+        //fprintf(stderr, "Regex match failed: %s\n", msg);
+        //exit(1);
+      }
+    }
+
+    closedir(dir);
+  }
+#else
   glob_t pglob;
   char **paths;
-  bool all_deleted = true;
-  if (glob(pattern, 0, nullptr, &pglob) == 0) {
+  const char *full_pattern = File::JoinPath(directory, pattern).c_str();
+  if (glob(full_pattern, 0, nullptr, &pglob) == 0) {
     for (paths = pglob.gl_pathv; *paths != nullptr; paths++) {
       all_deleted &= File::Delete(*paths);
     }
     globfree(&pglob);
   }
+#endif
+
   return all_deleted;
 }
 #endif

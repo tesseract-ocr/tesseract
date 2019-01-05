@@ -123,8 +123,7 @@ void PangoFontInfo::SoftInitFontConfig() {
 void PangoFontInfo::HardInitFontConfig(const std::string& fonts_dir,
                                        const std::string& cache_dir) {
   if (!cache_dir_.empty()) {
-    File::DeleteMatchingFiles(
-        File::JoinPath(cache_dir_.c_str(), "*cache-?").c_str());
+    File::DeleteMatchingFiles(cache_dir_.c_str(), "*cache-?");
   }
   const int MAX_FONTCONF_FILESIZE = 1024;
   char fonts_conf_template[MAX_FONTCONF_FILESIZE];

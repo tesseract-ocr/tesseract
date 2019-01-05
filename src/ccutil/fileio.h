@@ -48,7 +48,7 @@ class File {
   static std::string JoinPath(const std::string& prefix, const std::string& suffix);
   // Delete a filename or all filenames matching a glob pattern.
   static bool Delete(const char* pathname);
-  static bool DeleteMatchingFiles(const char* pattern);
+  static bool DeleteMatchingFiles(const char *directory, const char* pattern);
 };
 
 // A class to manipulate Files for reading.
