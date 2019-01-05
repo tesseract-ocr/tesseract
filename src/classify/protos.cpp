@@ -26,6 +26,7 @@
 #include "globals.h"
 #include "classify.h"
 #include "params.h"
+#include "intproto.h"
 
 #include <cstdio>
 #include <cmath>
