@@ -1510,7 +1510,7 @@ static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h) {
 
 // output = buffer1 & ~(buffer2)
 static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
-                                 cl_mem buffer2, cl_mem outBuffer = nullptr) {
+                                 cl_mem buffer2) {
   cl_int status;
   size_t globalThreads[2];
   int gsize;
@@ -1521,23 +1521,15 @@ static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
   gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
   globalThreads[1] = gsize;
 
-  if (outBuffer != nullptr) {
-    rEnv.mpkKernel = clCreateKernel(rEnv.mpkProgram, "pixSubtract", &status);
-    CHECK_OPENCL(status, "clCreateKernel pixSubtract");
-  } else {
-    rEnv.mpkKernel =
-        clCreateKernel(rEnv.mpkProgram, "pixSubtract_inplace", &status);
-    CHECK_OPENCL(status, "clCreateKernel pixSubtract_inplace");
-  }
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "pixSubtract_inplace", &status);
+  CHECK_OPENCL(status, "clCreateKernel pixSubtract_inplace");
 
   // Enqueue a kernel run call.
   status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &buffer1);
   status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &buffer2);
   status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
   status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
-  if (outBuffer != nullptr) {
-    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(cl_mem), &outBuffer);
-  }
   status =
       clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
                              globalThreads, localThreads, 0, nullptr, nullptr);
