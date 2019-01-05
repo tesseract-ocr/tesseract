@@ -27,7 +27,7 @@ PANGO_LDFLAGS = -lpangocairo-1.0 -lcairo -lpangoxft-1.0 -lpangoft2-1.0 -lpango-1
 
 # Mandatory dependencies
 LEPT_CPPFLAGS = -I/usr/include/leptonica -I/usr/local/include/leptonica
-LEPT_LDFLAGS = -llept
+LEPT_LDFLAGS = -llept -lz -lpng -ljpeg -ltiff
 
 # Needed for static linking (uncomment lines to enable static linking)
 #EXTRA_CPPFLAGS = -static
