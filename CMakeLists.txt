@@ -100,6 +100,8 @@ endif()
 #
 ###############################################################################
 
+option(CPPAN_BUILD "Build with cppan" ON)
+
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR NOT CPPAN_BUILD)
     if (NOT Leptonica_DIR AND NOT MSVC)
         find_package(PkgConfig REQUIRED)
