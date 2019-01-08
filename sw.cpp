@@ -65,7 +65,7 @@ void build(Solution &s)
         libtesseract.Interface += sw::Shared, "TESS_IMPORTS"_d;
         libtesseract.Private += sw::Shared, "TESS_EXPORTS"_d;
 
-        libtesseract.Public += "org.sw.demo.danbloomberg.leptonica-1"_dep;
+        libtesseract.Public += "org.sw.demo.danbloomberg.leptonica-master"_dep;
 
         if (s.Settings.TargetOS.Type == OSType::Windows)
             libtesseract.Public += "ws2_32.lib"_l;
