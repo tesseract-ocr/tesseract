@@ -28,7 +28,7 @@
 #include "baseapi.h"
 #include "basedir.h"
 #include "dict.h"
-#include "openclwrapper.h"
+#include "openclwrapper.h"      // for PERF_COUNT_START, ...
 #include "osdetect.h"
 #include "renderer.h"
 #include "simddetect.h"

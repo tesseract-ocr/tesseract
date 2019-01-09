@@ -27,7 +27,7 @@
 #include "tabvector.h"
 #include "blobbox.h"
 #include "edgblob.h"
-#include "openclwrapper.h"
+#include "openclwrapper.h" // for PERF_COUNT_START, ...
 
 #include "allheaders.h"
 
