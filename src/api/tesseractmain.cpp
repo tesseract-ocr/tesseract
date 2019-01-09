@@ -129,7 +129,7 @@ static void PrintHelpForPSM() {
       "Page segmentation modes:\n"
       "  0    Orientation and script detection (OSD) only.\n"
       "  1    Automatic page segmentation with OSD.\n"
-      "  2    Automatic page segmentation, but no OSD, or OCR.\n"
+      "  2    Automatic page segmentation, but no OSD, or OCR. (not implemented)\n"
       "  3    Fully automatic page segmentation, but no OSD. (Default)\n"
       "  4    Assume a single column of text of variable sizes.\n"
       "  5    Assume a single uniform block of vertically aligned text.\n"
@@ -646,6 +646,8 @@ int main(int argc, char** argv) {
 
     const tesseract::PageIterator* it = api.AnalyseLayout();
     if (it) {
+      // TODO: Implement output of page segmentation, see documentation
+      // ("Automatic page segmentation, but no OSD, or OCR").
       it->Orientation(&orientation, &direction, &order, &deskew_angle);
       tprintf(
           "Orientation: %d\nWritingDirection: %d\nTextlineOrder: %d\n"
