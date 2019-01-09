@@ -29,10 +29,10 @@
 #ifdef USE_OPENCL
 
 #include <cstdio>
+#include <cstring>    // for memset, strcpy, ...
 #include <vector>
 
 #include "errcode.h"  // for ASSERT_HOST
-#include "opencl_device_selection.h"
 
 GPUEnv OpenclDevice::gpuEnv;
 

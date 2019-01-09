@@ -231,21 +231,14 @@ const char* TessBaseAPI::Version() {
  * and returns sizeof(cl_device_id)
  * otherwise *device=nullptr and returns 0.
  */
-#ifdef USE_OPENCL
-#ifdef USE_DEVICE_SELECTION
-#include "opencl_device_selection.h"
-#endif
-#endif
 size_t TessBaseAPI::getOpenCLDevice(void **data) {
 #ifdef USE_OPENCL
-#ifdef USE_DEVICE_SELECTION
   ds_device device = OpenclDevice::getDeviceSelection();
   if (device.type == DS_DEVICE_OPENCL_DEVICE) {
     *data = new cl_device_id;
     memcpy(*data, &device.oclDeviceID, sizeof(cl_device_id));
     return sizeof(cl_device_id);
   }
-#endif
 #endif
 
   *data = nullptr;

@@ -26,7 +26,7 @@
 
 #include "otsuthr.h"
 
-#include "openclwrapper.h"
+#include "openclwrapper.h" // for PERF_COUNT_START, ...
 
 namespace tesseract {
 

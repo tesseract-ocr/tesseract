@@ -4,7 +4,7 @@ AM_CPPFLAGS += $(OPENCL_CFLAGS) \
     -I$(top_srcdir)/src/ccmain
 
 noinst_HEADERS = \
-    openclwrapper.h oclkernels.h opencl_device_selection.h
+    openclwrapper.h oclkernels.h
 
 noinst_LTLIBRARIES = libtesseract_opencl.la
 

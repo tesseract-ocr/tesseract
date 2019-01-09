@@ -153,7 +153,29 @@
  **************************************************************************/
 
 #ifdef USE_OPENCL
-#include "opencl_device_selection.h"
+
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
+
+struct TessDeviceScore;
+
+// device type
+enum ds_device_type {
+  DS_DEVICE_NATIVE_CPU = 0,
+  DS_DEVICE_OPENCL_DEVICE
+};
+
+struct ds_device {
+  ds_device_type type;
+  cl_device_id oclDeviceID;
+  char* oclDeviceName;
+  char* oclDriverVersion;
+  // a pointer to the score data, the content/format is application defined.
+  TessDeviceScore* score;
+};
 
 #ifndef strcasecmp
 #define strcasecmp strcmp
