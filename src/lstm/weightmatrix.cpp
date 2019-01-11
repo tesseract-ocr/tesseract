@@ -121,7 +121,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
 // Scale so the max absolute value becomes INT8_MAX.
 // Round to integer.
 // Store a multiplicative scale factor (as a double) that will reproduce
-//   the original value, subject to rounding errors.
+// the original value, subject to rounding errors.
 void WeightMatrix::ConvertToInt() {
   wi_.ResizeNoInit(wf_.dim1(), wf_.dim2());
   scales_.init_to_size(wi_.dim1(), 0.0);
