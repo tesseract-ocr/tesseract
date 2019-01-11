@@ -82,7 +82,7 @@ libgmock_main_la_CPPFLAGS = $(GMOCK_INCLUDES) \
 
 # Build unittests
 ABSEIL_LIBS = libabseil.la
-GTEST_LIBS =  libgtest.la libgtest_main.la
+GTEST_LIBS =  libgtest.la libgtest_main.la -lpthread
 GMOCK_LIBS =  libgmock.la libgmock_main.la
 TESS_LIBS = $(top_builddir)/src/api/libtesseract.la
 TRAINING_LIBS = $(top_builddir)/src/training/libtesseract_training.la
