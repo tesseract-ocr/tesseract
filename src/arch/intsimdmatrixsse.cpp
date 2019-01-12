@@ -33,10 +33,13 @@ static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
 }
 #endif  // __SSE4_1__
 
-IntSimdMatrixSSE::IntSimdMatrixSSE() {
+IntSimdMatrixSSE::IntSimdMatrixSSE()
 #ifdef __SSE4_1__
-  partial_funcs_ = {PartialMatrixDotVector1};
+: IntSimdMatrix(1, 1, 1, 1, 1, {PartialMatrixDotVector1})
+#else
+: IntSimdMatrix(1, 1, 1, 1, 1, {})
 #endif  // __SSE4_1__
+{
 }
 
 }  // namespace tesseract.

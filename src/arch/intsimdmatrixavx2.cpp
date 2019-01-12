@@ -269,16 +269,14 @@ static void PartialMatrixDotVector8(const int8_t* wi, const double* scales,
 namespace tesseract {
 #endif  // __AVX2__
 
-IntSimdMatrixAVX2::IntSimdMatrixAVX2() {
+IntSimdMatrixAVX2::IntSimdMatrixAVX2()
 #ifdef __AVX2__
-  num_outputs_per_register_ = kNumOutputsPerRegister;
-  max_output_registers_ = kMaxOutputRegisters;
-  num_inputs_per_register_ = kNumInputsPerRegister;
-  num_inputs_per_group_ = kNumInputsPerGroup;
-  num_input_groups_ = kNumInputGroups;
-  partial_funcs_ = {PartialMatrixDotVector64, PartialMatrixDotVector32,
-                    PartialMatrixDotVector16, PartialMatrixDotVector8};
+: IntSimdMatrix(kNumOutputsPerRegister, kMaxOutputRegisters, kNumInputsPerRegister, kNumInputsPerGroup, kNumInputGroups, {PartialMatrixDotVector64, PartialMatrixDotVector32,
+   PartialMatrixDotVector16, PartialMatrixDotVector8})
+#else
+: IntSimdMatrix(1, 1, 1, 1, 1, {})
 #endif  // __AVX2__
+{
 }
 
 }  // namespace tesseract.

@@ -82,7 +82,7 @@ class IntSimdMatrixTest : public ::testing::Test {
   }
 
   TRand random_;
-  IntSimdMatrix base_;
+  IntSimdMatrix base_ = IntSimdMatrix(1, 1, 1, 1, 1, {});
 };
 
 // Test the C++ implementation without SIMD.

@@ -60,14 +60,30 @@ namespace tesseract {
 // is required to allow the base class implementation to do all the work.
 class IntSimdMatrix {
  public:
-  // Constructor should set the data members to indicate the sizes.
-  // NOTE: Base constructor public only for test purposes.
-  IntSimdMatrix()
-      : num_outputs_per_register_(1),
-        max_output_registers_(1),
-        num_inputs_per_register_(1),
-        num_inputs_per_group_(1),
-        num_input_groups_(1) {}
+  // Function to compute part of a matrix.vector multiplication. The weights
+  // are in a very specific order (see above) in w, which is multiplied by
+  // u of length num_in, to produce output v after scaling the integer results
+  // by the corresponding member of scales.
+  // The amount of w and scales consumed is fixed and not available to the
+  // caller. The number of outputs written to v will be at most num_out.
+  typedef void (*PartialFunc)(const int8_t* w, const double* scales,
+                              const int8_t* u, int num_in, int num_out,
+                              double* v);
+
+  IntSimdMatrix(int num_outputs_per_register, int max_output_registers, int num_inputs_per_register, int num_inputs_per_group, int num_input_groups, std::vector<PartialFunc> partial_funcs) :
+  // Number of 32 bit outputs held in each register.
+  num_outputs_per_register_(num_outputs_per_register),
+  // Maximum number of registers that we will use to hold outputs.
+  max_output_registers_(max_output_registers),
+  // Number of 8 bit inputs in the inputs register.
+  num_inputs_per_register_(num_inputs_per_register),
+  // Number of inputs in each weight group.
+  num_inputs_per_group_(num_inputs_per_group),
+  // Number of groups of inputs to be broadcast.
+  num_input_groups_(num_input_groups),
+  // A series of functions to compute a partial result.
+  partial_funcs_(partial_funcs)
+  {}
 
   // Factory makes and returns an IntSimdMatrix (sub)class of the best
   // available type for the current architecture.
@@ -100,16 +116,6 @@ class IntSimdMatrix {
                        double* v) const;
 
  protected:
-  // Function to compute part of a matrix.vector multiplication. The weights
-  // are in a very specific order (see above) in w, which is multiplied by
-  // u of length num_in, to produce output v after scaling the integer results
-  // by the corresponding member of scales.
-  // The amount of w and scales consumed is fixed and not available to the
-  // caller. The number of outputs written to v will be at most num_out.
-  typedef void (*PartialFunc)(const int8_t* w, const double* scales,
-                              const int8_t* u, int num_in, int num_out,
-                              double* v);
-
   // Rounds the input up to a multiple of the given factor.
   static int Roundup(int input, int factor) {
     return (input + factor - 1) / factor * factor;

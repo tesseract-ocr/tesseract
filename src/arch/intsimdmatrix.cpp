@@ -36,7 +36,7 @@ const IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
     multiplier = new IntSimdMatrixSSE();
   } else {
     // Default c++ implementation.
-    multiplier = new IntSimdMatrix();
+    multiplier = new IntSimdMatrix(1, 1, 1, 1, 1, {});
   }
   return multiplier;
 }
