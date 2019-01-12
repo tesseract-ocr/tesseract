@@ -114,7 +114,6 @@ class IntSimdMatrix {
   static const IntSimdMatrix* intSimdMatrix;
   static const IntSimdMatrix IntSimdMatrixAVX2;
   static const IntSimdMatrix IntSimdMatrixSSE;
-  static const IntSimdMatrix IntSimdMatrixNative;
 
  protected:
   // Rounds the input up to a multiple of the given factor.

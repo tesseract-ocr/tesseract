@@ -24,8 +24,6 @@
 namespace tesseract {
 
 const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
-const IntSimdMatrix IntSimdMatrix::IntSimdMatrixNative =
-  IntSimdMatrix(1, 1, 1, 1, 1, {});
 
 // Computes a reshaped copy of the weight matrix w. If there are no
 // partial_funcs_, it does nothing.

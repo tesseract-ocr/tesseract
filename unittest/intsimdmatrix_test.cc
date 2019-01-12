@@ -25,6 +25,8 @@
 namespace tesseract {
 namespace {
 
+static const IntSimdMatrix IntSimdMatrixNative = IntSimdMatrix(1, 1, 1, 1, 1, {});
+
 class IntSimdMatrixTest : public ::testing::Test {
  protected:
   // Makes a random weights matrix of the given size.
@@ -64,7 +66,7 @@ class IntSimdMatrixTest : public ::testing::Test {
         GenericVector<double> scales = RandomScales(num_out);
         std::vector<double> base_result(num_out);
         std::vector<int8_t> dummy;
-        IntSimdMatrix::IntSimdMatrixNative.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
+        IntSimdMatrixNative.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
         std::vector<double> test_result(num_out);
         std::vector<int8_t> shaped_wi;
         matrix.Init(w, shaped_wi);
