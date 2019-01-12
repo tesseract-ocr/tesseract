@@ -15,7 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#include "intsimdmatrixsse.h"
+#include "intsimdmatrix.h"
 
 #include <cstdint>
 #include "dotproductsse.h"
@@ -33,13 +33,12 @@ static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
 }
 #endif  // __SSE4_1__
 
-IntSimdMatrixSSE::IntSimdMatrixSSE()
 #ifdef __SSE4_1__
-: IntSimdMatrix(1, 1, 1, 1, 1, {PartialMatrixDotVector1})
+const IntSimdMatrix IntSimdMatrix::IntSimdMatrixSSE =
+  IntSimdMatrix(1, 1, 1, 1, 1, {PartialMatrixDotVector1});
 #else
-: IntSimdMatrix(1, 1, 1, 1, 1, {})
+const IntSimdMatrix IntSimdMatrix::IntSimdMatrixSSE =
+  IntSimdMatrix(1, 1, 1, 1, 1, {});
 #endif  // __SSE4_1__
-{
-}
 
 }  // namespace tesseract.

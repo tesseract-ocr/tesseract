@@ -18,12 +18,13 @@
 
 #include "intsimdmatrix.h"
 #include "genericvector.h"      // for GenericVector
-#include "intsimdmatrixavx2.h"  // for IntSimdMatrixAVX2
-#include "intsimdmatrixsse.h"   // for IntSimdMatrixSSE
 #include "matrix.h"             // for GENERIC_2D_ARRAY
 #include "simddetect.h"         // for SIMDDetect
 
 namespace tesseract {
+
+const IntSimdMatrix IntSimdMatrix::IntSimdMatrixNative =
+  IntSimdMatrix(1, 1, 1, 1, 1, {});
 
 // Factory makes and returns an IntSimdMatrix (sub)class of the best
 // available type for the current architecture.
@@ -31,12 +32,12 @@ namespace tesseract {
 const IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
   const IntSimdMatrix* multiplier;
   if (SIMDDetect::IsAVX2Available()) {
-    multiplier = new IntSimdMatrixAVX2();
+    multiplier = &IntSimdMatrixAVX2;
   } else if (SIMDDetect::IsSSEAvailable()) {
-    multiplier = new IntSimdMatrixSSE();
+    multiplier = &IntSimdMatrixSSE;
   } else {
     // Default c++ implementation.
-    multiplier = new IntSimdMatrix(1, 1, 1, 1, 1, {});
+    multiplier = &IntSimdMatrixNative;
   }
   return multiplier;
 }

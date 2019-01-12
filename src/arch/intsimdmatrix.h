@@ -115,6 +115,10 @@ class IntSimdMatrix {
                        const GenericVector<double>& scales, const int8_t* u,
                        double* v) const;
 
+  static const IntSimdMatrix IntSimdMatrixAVX2;
+  static const IntSimdMatrix IntSimdMatrixSSE;
+  static const IntSimdMatrix IntSimdMatrixNative;
+
  protected:
   // Rounds the input up to a multiple of the given factor.
   static int Roundup(int input, int factor) {

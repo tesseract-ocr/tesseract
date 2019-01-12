@@ -64,7 +64,7 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
 // backward steps with the matrix and updates to the weights.
 class WeightMatrix {
  public:
-  WeightMatrix() : int_mode_(false), use_adam_(false) {}
+  WeightMatrix() : int_mode_(false), use_adam_(false), multiplier_(nullptr) {}
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
   // Note the order is outputs, inputs, as this is the order of indices to
@@ -179,7 +179,7 @@ class WeightMatrix {
   // The weights matrix reorganized in whatever way suits this instance.
   std::vector<int8_t> shaped_w_;
   // Holds the optimal integer multiplier for this machine.
-  std::unique_ptr<const IntSimdMatrix> multiplier_;
+  const IntSimdMatrix* multiplier_;
 };
 
 }  // namespace tesseract.

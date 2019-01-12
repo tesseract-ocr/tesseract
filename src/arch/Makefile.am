@@ -11,7 +11,7 @@ endif
 pkginclude_HEADERS =
 
 noinst_HEADERS = dotproduct.h dotproductavx.h dotproductsse.h
-noinst_HEADERS += intsimdmatrix.h intsimdmatrixavx2.h intsimdmatrixsse.h
+noinst_HEADERS += intsimdmatrix.h
 noinst_HEADERS += simddetect.h
 
 noinst_LTLIBRARIES = libtesseract_native.la

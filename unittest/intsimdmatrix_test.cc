@@ -18,8 +18,6 @@
 #include <memory>
 #include "genericvector.h"
 #include "include_gunit.h"
-#include "intsimdmatrixavx2.h"
-#include "intsimdmatrixsse.h"
 #include "matrix.h"
 #include "simddetect.h"
 #include "tprintf.h"
@@ -56,21 +54,21 @@ class IntSimdMatrixTest : public ::testing::Test {
     }
     return v;
   }
-  // Tests a range of sizes and compares the results against the base_ version.
-  void ExpectEqualResults(const IntSimdMatrix* matrix) {
+  // Tests a range of sizes and compares the results against the generic version.
+  void ExpectEqualResults(const IntSimdMatrix& matrix) {
     double total = 0.0;
     for (int num_out = 1; num_out < 130; ++num_out) {
       for (int num_in = 1; num_in < 130; ++num_in) {
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
-        std::vector<int8_t> u = RandomVector(num_in, *matrix);
+        std::vector<int8_t> u = RandomVector(num_in, matrix);
         GenericVector<double> scales = RandomScales(num_out);
         std::vector<double> base_result(num_out);
         std::vector<int8_t> dummy;
-        base_.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
+        IntSimdMatrix::IntSimdMatrixNative.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
         std::vector<double> test_result(num_out);
         std::vector<int8_t> shaped_wi;
-        matrix->Init(w, shaped_wi);
-        matrix->MatrixDotVector(w, shaped_wi, scales, u.data(), test_result.data());
+        matrix.Init(w, shaped_wi);
+        matrix.MatrixDotVector(w, shaped_wi, scales, u.data(), test_result.data());
         for (int i = 0; i < num_out; ++i) {
           EXPECT_FLOAT_EQ(base_result[i], test_result[i]) << "i=" << i;
           total += base_result[i];
@@ -82,13 +80,12 @@ class IntSimdMatrixTest : public ::testing::Test {
   }
 
   TRand random_;
-  IntSimdMatrix base_ = IntSimdMatrix(1, 1, 1, 1, 1, {});
 };
 
 // Test the C++ implementation without SIMD.
 TEST_F(IntSimdMatrixTest, C) {
-  std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrix());
-  ExpectEqualResults(matrix.get());
+  static const IntSimdMatrix matrix(1, 1, 1, 1, 1, {});
+  ExpectEqualResults(matrix);
 }
 
 // Tests that the SSE implementation gets the same result as the vanilla.
@@ -99,8 +96,7 @@ TEST_F(IntSimdMatrixTest, SSE) {
     tprintf("No SSE found! Not Tested!");
     return;
   }
-  std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrixSSE());
-  ExpectEqualResults(matrix.get());
+  ExpectEqualResults(IntSimdMatrix::IntSimdMatrixSSE);
 }
 
 // Tests that the AVX2 implementation gets the same result as the vanilla.
@@ -111,8 +107,7 @@ TEST_F(IntSimdMatrixTest, AVX2) {
     tprintf("No AVX2 found! Not Tested!");
     return;
   }
-  std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrixAVX2());
-  ExpectEqualResults(matrix.get());
+  ExpectEqualResults(IntSimdMatrix::IntSimdMatrixAVX2);
 }
 
 }  // namespace
