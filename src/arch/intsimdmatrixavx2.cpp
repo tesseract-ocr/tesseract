@@ -16,9 +16,12 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#if !defined(__AVX2__)
+#error Implementation only for AVX2 capable architectures
+#endif
+
 #include "intsimdmatrix.h"
 
-#ifdef __AVX2__
 #include <immintrin.h>
 #include <cstdint>
 #include <algorithm>
@@ -265,16 +268,9 @@ static void PartialMatrixDotVector8(const int8_t* wi, const double* scales,
   }
   ExtractResults(result0, shift_id, wi, scales, num_out, v);
 }
-#else
-namespace tesseract {
-#endif  // __AVX2__
 
-#ifdef __AVX2__
 const IntSimdMatrix IntSimdMatrix::IntSimdMatrixAVX2 =
   IntSimdMatrix(kNumOutputsPerRegister, kMaxOutputRegisters, kNumInputsPerRegister, kNumInputsPerGroup, kNumInputGroups, {PartialMatrixDotVector64, PartialMatrixDotVector32,
    PartialMatrixDotVector16, PartialMatrixDotVector8});
-#else
-const IntSimdMatrix IntSimdMatrix::IntSimdMatrixAVX2 = IntSimdMatrix(1, 1, 1, 1, 1, {});
-#endif  // __AVX2__
 
 }  // namespace tesseract.

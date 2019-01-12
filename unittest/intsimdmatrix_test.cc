@@ -92,24 +92,32 @@ TEST_F(IntSimdMatrixTest, C) {
 
 // Tests that the SSE implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, SSE) {
+#if defined(SSE4_1)
   if (SIMDDetect::IsSSEAvailable()) {
     tprintf("SSE found! Continuing...");
   } else {
-    tprintf("No SSE found! Not Tested!");
+    tprintf("No SSE found! Not tested!");
     return;
   }
   ExpectEqualResults(IntSimdMatrix::IntSimdMatrixSSE);
+#else
+  tprintf("SSE unsupported! Not tested!");
+#endif
 }
 
 // Tests that the AVX2 implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, AVX2) {
+#if defined(AVX2)
   if (SIMDDetect::IsAVX2Available()) {
     tprintf("AVX2 found! Continuing...");
   } else {
-    tprintf("No AVX2 found! Not Tested!");
+    tprintf("No AVX2 found! Not tested!");
     return;
   }
   ExpectEqualResults(IntSimdMatrix::IntSimdMatrixAVX2);
+#else
+  tprintf("AVX2 unsupported! Not tested!");
+#endif
 }
 
 }  // namespace

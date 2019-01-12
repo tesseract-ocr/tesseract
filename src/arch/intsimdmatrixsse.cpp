@@ -15,6 +15,10 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#if !defined(__SSE4_1__)
+#error Implementation only for SSE 4.1 capable architectures
+#endif
+
 #include "intsimdmatrix.h"
 
 #include <cstdint>
@@ -22,7 +26,6 @@
 
 namespace tesseract {
 
-#ifdef __SSE4_1__
 // Computes part of matrix.vector v = Wu. Computes 1 result.
 static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
                                     const int8_t* u, int num_in, int num_out,
@@ -31,14 +34,8 @@ static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
   // Add in the bias and correct for integer values.
   *v = (total / INT8_MAX + wi[num_in]) * *scales;
 }
-#endif  // __SSE4_1__
 
-#ifdef __SSE4_1__
 const IntSimdMatrix IntSimdMatrix::IntSimdMatrixSSE =
   IntSimdMatrix(1, 1, 1, 1, 1, {PartialMatrixDotVector1});
-#else
-const IntSimdMatrix IntSimdMatrix::IntSimdMatrixSSE =
-  IntSimdMatrix(1, 1, 1, 1, 1, {});
-#endif  // __SSE4_1__
 
 }  // namespace tesseract.

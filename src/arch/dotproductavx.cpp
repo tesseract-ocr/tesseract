@@ -16,8 +16,10 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__AVX__)
-// Implementation for avx capable archs.
+#if !defined(__AVX__)
+#error Implementation only for AVX capable architectures
+#endif
+
 #include <immintrin.h>
 #include <cstdint>
 #include "dotproductavx.h"
@@ -96,5 +98,3 @@ double DotProductAVX(const double* u, const double* v, int n) {
 }
 
 }  // namespace tesseract.
-
-#endif  // __AVX__

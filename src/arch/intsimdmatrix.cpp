@@ -25,12 +25,11 @@ namespace tesseract {
 
 const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
 
-// Computes a reshaped copy of the weight matrix w. If there are no
-// partial_funcs_, it does nothing.
-void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const {
-  if (partial_funcs_.empty()) return;
-  int num_out = w.dim1();
-  int num_in = w.dim2() - 1;
+// Computes a reshaped copy of the weight matrix w.
+void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
+                         std::vector<int8_t>& shaped_w) const {
+  const int num_out = w.dim1();
+  const int num_in = w.dim2() - 1;
   // The rounded-up sizes of the reshaped weight matrix, excluding biases.
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
   int rounded_num_out = RoundOutputs(num_out);

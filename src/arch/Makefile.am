@@ -15,8 +15,15 @@ noinst_HEADERS += intsimdmatrix.h
 noinst_HEADERS += simddetect.h
 
 noinst_LTLIBRARIES = libtesseract_native.la
-noinst_LTLIBRARIES += libtesseract_avx.la libtesseract_avx2.la
+if AVX_OPT
+noinst_LTLIBRARIES += libtesseract_avx.la
+endif
+if AVX2_OPT
+noinst_LTLIBRARIES += libtesseract_avx2.la
+endif
+if SSE41_OPT
 noinst_LTLIBRARIES += libtesseract_sse.la
+endif
 noinst_LTLIBRARIES += libtesseract_arch.la
 
 libtesseract_arch_la_CPPFLAGS = $(AM_CPPFLAGS)
@@ -41,8 +48,14 @@ libtesseract_native_la_SOURCES = dotproduct.cpp
 
 libtesseract_arch_la_SOURCES = intsimdmatrix.cpp simddetect.cpp
 
+if AVX_OPT
 libtesseract_avx_la_SOURCES = dotproductavx.cpp
+endif
 
+if AVX2_OPT
 libtesseract_avx2_la_SOURCES = intsimdmatrixavx2.cpp
+endif
 
+if SSE41_OPT
 libtesseract_sse_la_SOURCES = dotproductsse.cpp intsimdmatrixsse.cpp
+endif

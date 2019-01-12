@@ -175,6 +175,13 @@ intfeaturemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 intsimdmatrix_test_SOURCES = intsimdmatrix_test.cc
 intsimdmatrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+intsimdmatrix_test_CPPFLAGS = $(AM_CPPFLAGS)
+if AVX2_OPT
+intsimdmatrix_test_CPPFLAGS += -DAVX2
+endif
+if SSE41_OPT
+intsimdmatrix_test_CPPFLAGS += -DSSE4_1
+endif
 
 lang_model_test_SOURCES = lang_model_test.cc
 lang_model_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)

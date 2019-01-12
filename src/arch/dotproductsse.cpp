@@ -16,7 +16,9 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if defined(__SSE4_1__)
+#if !defined(__SSE4_1__)
+#error Implementation only for SSE 4.1 capable architectures
+#endif
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -117,5 +119,3 @@ int32_t IntDotProductSSE(const int8_t* u, const int8_t* v, int n) {
 }
 
 }  // namespace tesseract.
-
-#endif  // __SSE4_1__
