@@ -71,7 +71,7 @@ class IntSimdMatrix {
 
   // Factory makes and returns an IntSimdMatrix (sub)class of the best
   // available type for the current architecture.
-  static IntSimdMatrix* GetFastestMultiplier();
+  static const IntSimdMatrix* GetFastestMultiplier();
 
   // Computes a reshaped copy of the weight matrix w. If there are no
   // partial_funcs_, it does nothing.

@@ -341,7 +341,7 @@ class NetworkIO {
   // Holds the optimal integer multiplier for this machine.
   // This is a leaked, lazily initialized singleton, and is used for computing
   // padding to apply to i_ for SIMD use.
-  static IntSimdMatrix* multiplier_;
+  static const IntSimdMatrix* multiplier_;
 };
 
 }  // namespace tesseract.

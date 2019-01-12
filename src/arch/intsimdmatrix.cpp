@@ -28,8 +28,8 @@ namespace tesseract {
 // Factory makes and returns an IntSimdMatrix (sub)class of the best
 // available type for the current architecture.
 /* static */
-IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
-  IntSimdMatrix* multiplier;
+const IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
+  const IntSimdMatrix* multiplier;
   if (SIMDDetect::IsAVX2Available()) {
     multiplier = new IntSimdMatrixAVX2();
   } else if (SIMDDetect::IsSSEAvailable()) {

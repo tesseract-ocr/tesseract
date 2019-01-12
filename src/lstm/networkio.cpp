@@ -34,7 +34,7 @@ const float kMinProb = exp(kMinCertainty);
 // Holds the optimal integer multiplier for this machine.
 // This is a leaked, lazily initialized singleton, and is used for computing
 // padding to apply to i_ for SIMD use.
-IntSimdMatrix* NetworkIO::multiplier_ = nullptr;
+const IntSimdMatrix* NetworkIO::multiplier_ = nullptr;
 
 // Resizes to a specific size as a 2-d temp buffer. No batches, no y-dim.
 void NetworkIO::Resize2d(bool int_mode, int width, int num_features) {

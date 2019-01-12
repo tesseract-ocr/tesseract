@@ -179,7 +179,7 @@ class WeightMatrix {
   // The weights matrix reorganized in whatever way suits this instance.
   std::vector<int8_t> shaped_w_;
   // Holds the optimal integer multiplier for this machine.
-  std::unique_ptr<IntSimdMatrix> multiplier_;
+  std::unique_ptr<const IntSimdMatrix> multiplier_;
 };
 
 }  // namespace tesseract.
