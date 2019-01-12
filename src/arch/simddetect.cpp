@@ -128,12 +128,12 @@ SIMDDetect::SIMDDetect() {
 #if defined(AVX)
   } else if (avx_available_) {
     // AVX detected.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::IntSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
 #endif
 #if defined(SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::IntSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
 #endif
   }
 }
@@ -155,13 +155,13 @@ void SIMDDetect::Update() {
 #if defined(AVX)
   } else if (!strcmp(dotproduct.string(), "avx")) {
     // AVX selected by config variable.
-    SetDotProduct(DotProductAVX, &IntSimdMatrix::IntSimdMatrixAVX2);
+    SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx";
 #endif
 #if defined(SSE4_1)
   } else if (!strcmp(dotproduct.string(), "sse")) {
     // SSE selected by config variable.
-    SetDotProduct(DotProductSSE, &IntSimdMatrix::IntSimdMatrixSSE);
+    SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
   } else {

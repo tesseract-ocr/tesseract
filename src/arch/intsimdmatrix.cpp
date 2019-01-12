@@ -77,42 +77,17 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
 void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                                    const std::vector<int8_t>& shaped_w,
                                     const GenericVector<double>& scales,
-                                    const int8_t* u, double* v) const {
+                                    const int8_t* u, double* v) {
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;
-  if (partial_funcs_.empty()) {
-    // Base implementation.
-    for (int i = 0; i < num_out; ++i) {
-      const int8_t* wi = w[i];
-      int total = 0;
-      for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
-      // Add in the bias and correct for integer values.
-      v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
-    }
-  } else {
-    const int8_t* w_data = shaped_w.data();
-    const double* scales_data = &scales[0];
-    // Each call to a partial_func_ produces group_size outputs, except the
-    // last one, which can produce less.
-    int group_size = num_outputs_per_register_ * max_output_registers_;
-    int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
-    int rounded_num_out = RoundOutputs(num_out);
-    int output = 0;
-    for (auto fn : partial_funcs_) {
-      // The amount of w_data consumed by each call to fn.
-      int w_step = (rounded_num_in + 1) * group_size;
-      // Run with this group size, until it would produce too much output, then
-      // switch to a smaller size.
-      for (; output + group_size <= rounded_num_out; output += group_size) {
-        (*fn)(w_data, scales_data, u, rounded_num_in, num_out - output, v);
-        w_data += w_step;
-        scales_data += group_size;
-        v += group_size;
-      }
-      group_size /= 2;
-    }
+  // Base implementation.
+  for (int i = 0; i < num_out; ++i) {
+    const int8_t* wi = w[i];
+    int total = 0;
+    for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
+    // Add in the bias and correct for integer values.
+    v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
   }
 }
 

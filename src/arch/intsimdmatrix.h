@@ -58,35 +58,8 @@ namespace tesseract {
 // NOTE that, although the subclasses execute on different SIMD hardware, no
 // virtual methods are needed, as the constructor sets up everything that
 // is required to allow the base class implementation to do all the work.
-class IntSimdMatrix {
- public:
-  // Function to compute part of a matrix.vector multiplication. The weights
-  // are in a very specific order (see above) in w, which is multiplied by
-  // u of length num_in, to produce output v after scaling the integer results
-  // by the corresponding member of scales.
-  // The amount of w and scales consumed is fixed and not available to the
-  // caller. The number of outputs written to v will be at most num_out.
-  typedef void (*PartialFunc)(const int8_t* w, const double* scales,
-                              const int8_t* u, int num_in, int num_out,
-                              double* v);
-
-  IntSimdMatrix(int num_outputs_per_register, int max_output_registers, int num_inputs_per_register, int num_inputs_per_group, int num_input_groups, std::vector<PartialFunc> partial_funcs) :
-  // Number of 32 bit outputs held in each register.
-  num_outputs_per_register_(num_outputs_per_register),
-  // Maximum number of registers that we will use to hold outputs.
-  max_output_registers_(max_output_registers),
-  // Number of 8 bit inputs in the inputs register.
-  num_inputs_per_register_(num_inputs_per_register),
-  // Number of inputs in each weight group.
-  num_inputs_per_group_(num_inputs_per_group),
-  // Number of groups of inputs to be broadcast.
-  num_input_groups_(num_input_groups),
-  // A series of functions to compute a partial result.
-  partial_funcs_(partial_funcs)
-  {}
-
-  // Computes a reshaped copy of the weight matrix w. If there are no
-  // partial_funcs_, it does nothing.
+struct IntSimdMatrix {
+  // Computes a reshaped copy of the weight matrix w.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
@@ -102,20 +75,11 @@ class IntSimdMatrix {
   // u is of size W.dim2() - 1 and the output v is of size W.dim1().
   // u is imagined to have an extra element at the end with value 1, to
   // implement the bias, but it doesn't actually have it.
-  // Computes the base C++ implementation, if there are no partial_funcs_.
-  // NOTE: The size of the input vector (u) must be padded using
-  // RoundInputs above.
-  // The input will be over-read to the extent of the padding. There are no
-  // alignment requirements.
-  void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w, const std::vector<int8_t>& shaped_w,
-                       const GenericVector<double>& scales, const int8_t* u,
-                       double* v) const;
+  // Computes the base C++ implementation.
+  static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
+                              const GenericVector<double>& scales, const int8_t* u,
+                              double* v);
 
-  static const IntSimdMatrix* intSimdMatrix;
-  static const IntSimdMatrix IntSimdMatrixAVX2;
-  static const IntSimdMatrix IntSimdMatrixSSE;
-
- protected:
   // Rounds the input up to a multiple of the given factor.
   static int Roundup(int input, int factor) {
     return (input + factor - 1) / factor * factor;
@@ -131,8 +95,23 @@ class IntSimdMatrix {
   int num_inputs_per_group_;
   // Number of groups of inputs to be broadcast.
   int num_input_groups_;
-  // A series of functions to compute a partial result.
-  std::vector<PartialFunc> partial_funcs_;
+
+  // Computes matrix.vector v = Wu.
+  // u is of size W.dim2() - 1 and the output v is of size W.dim1().
+  // u is imagined to have an extra element at the end with value 1, to
+  // implement the bias, but it doesn't actually have it.
+  // Uses an optimized implementation with partial funcs.
+  // NOTE: The size of the input vector (u) must be padded using
+  // RoundInputs above.
+  // The input will be over-read to the extent of the padding. There are no
+  // alignment requirements.
+  typedef void (*MatrixDotVectorFunction)(int dim1, int dim2,
+    const int8_t* wi, const double* scales, const int8_t* u, double* v);
+  MatrixDotVectorFunction matrixDotVectorFunction;
+
+  static const IntSimdMatrix* intSimdMatrix;
+  static const IntSimdMatrix intSimdMatrixAVX2;
+  static const IntSimdMatrix intSimdMatrixSSE;
 };
 
 }  // namespace tesseract

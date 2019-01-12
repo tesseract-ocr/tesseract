@@ -25,8 +25,6 @@
 namespace tesseract {
 namespace {
 
-static const IntSimdMatrix IntSimdMatrixNative = IntSimdMatrix(1, 1, 1, 1, 1, {});
-
 class IntSimdMatrixTest : public ::testing::Test {
  protected:
   // Makes a random weights matrix of the given size.
@@ -65,12 +63,16 @@ class IntSimdMatrixTest : public ::testing::Test {
         std::vector<int8_t> u = RandomVector(num_in, matrix);
         GenericVector<double> scales = RandomScales(num_out);
         std::vector<double> base_result(num_out);
-        std::vector<int8_t> dummy;
-        IntSimdMatrixNative.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
+        IntSimdMatrix::MatrixDotVector(w, scales, u.data(), base_result.data());
         std::vector<double> test_result(num_out);
         std::vector<int8_t> shaped_wi;
         matrix.Init(w, shaped_wi);
-        matrix.MatrixDotVector(w, shaped_wi, scales, u.data(), test_result.data());
+        if (matrix.matrixDotVectorFunction) {
+          matrix.matrixDotVectorFunction(w.dim1(), w.dim2(), &shaped_wi[0],
+                                         &scales[0], &u[0], &test_result[0]);
+        } else {
+          IntSimdMatrix::MatrixDotVector(w, scales, u.data(), test_result.data());
+        }
         for (int i = 0; i < num_out; ++i) {
           EXPECT_FLOAT_EQ(base_result[i], test_result[i]) << "i=" << i;
           total += base_result[i];
@@ -86,7 +88,7 @@ class IntSimdMatrixTest : public ::testing::Test {
 
 // Test the C++ implementation without SIMD.
 TEST_F(IntSimdMatrixTest, C) {
-  static const IntSimdMatrix matrix(1, 1, 1, 1, 1, {});
+  static const IntSimdMatrix matrix = {1, 1, 1, 1, 1, nullptr};
   ExpectEqualResults(matrix);
 }
 
@@ -99,7 +101,7 @@ TEST_F(IntSimdMatrixTest, SSE) {
     tprintf("No SSE found! Not tested!");
     return;
   }
-  ExpectEqualResults(IntSimdMatrix::IntSimdMatrixSSE);
+  ExpectEqualResults(IntSimdMatrix::intSimdMatrixSSE);
 #else
   tprintf("SSE unsupported! Not tested!");
 #endif
@@ -114,7 +116,7 @@ TEST_F(IntSimdMatrixTest, AVX2) {
     tprintf("No AVX2 found! Not tested!");
     return;
   }
-  ExpectEqualResults(IntSimdMatrix::IntSimdMatrixAVX2);
+  ExpectEqualResults(IntSimdMatrix::intSimdMatrixAVX2);
 #else
   tprintf("AVX2 unsupported! Not tested!");
 #endif

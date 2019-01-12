@@ -143,8 +143,9 @@ void WeightMatrix::ConvertToInt() {
   }
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
-  if (IntSimdMatrix::intSimdMatrix)
+  if (IntSimdMatrix::intSimdMatrix) {
     IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+  }
 }
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
@@ -196,8 +197,9 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
-    if (IntSimdMatrix::intSimdMatrix)
+    if (IntSimdMatrix::intSimdMatrix) {
       IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+    }
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
@@ -245,7 +247,12 @@ void WeightMatrix::MatrixDotVector(const double* u, double* v) const {
 
 void WeightMatrix::MatrixDotVector(const int8_t* u, double* v) const {
   assert(int_mode_);
-  IntSimdMatrix::intSimdMatrix->MatrixDotVector(wi_, shaped_w_, scales_, u, v);
+  if (IntSimdMatrix::intSimdMatrix) {
+    IntSimdMatrix::intSimdMatrix->matrixDotVectorFunction(
+      wi_.dim1(), wi_.dim2(), &shaped_w_[0], &scales_[0], u, v);
+  } else {
+    IntSimdMatrix::MatrixDotVector(wi_, scales_, u, v);
+  }
 }
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the

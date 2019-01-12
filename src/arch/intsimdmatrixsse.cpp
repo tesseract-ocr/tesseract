@@ -35,7 +35,32 @@ static void PartialMatrixDotVector1(const int8_t* wi, const double* scales,
   *v = (total / INT8_MAX + wi[num_in]) * *scales;
 }
 
-const IntSimdMatrix IntSimdMatrix::IntSimdMatrixSSE =
-  IntSimdMatrix(1, 1, 1, 1, 1, {PartialMatrixDotVector1});
+static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
+                            const double* scales, const int8_t* u, double* v) {
+  const int num_out = dim1;
+  const int num_in = dim2 - 1;
+  int output = 0;
+
+  for (; output + 1 <= num_out; output += 1) {
+    PartialMatrixDotVector1(wi, scales, u, num_in, num_out - output, v);
+    wi += dim2;
+    scales += 1;
+    v += 1;
+  }
+}
+
+const IntSimdMatrix IntSimdMatrix::intSimdMatrixSSE = {
+  // Number of 32 bit outputs held in each register.
+  1,
+  // Maximum number of registers that we will use to hold outputs.
+  1,
+  // Number of 8 bit inputs in the inputs register.
+  1,
+  // Number of inputs in each weight group.
+  1,
+  // Number of groups of inputs to be broadcast.
+  1,
+  matrixDotVector
+};
 
 }  // namespace tesseract.
