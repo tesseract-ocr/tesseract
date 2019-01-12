@@ -64,7 +64,7 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
 // backward steps with the matrix and updates to the weights.
 class WeightMatrix {
  public:
-  WeightMatrix() : int_mode_(false), use_adam_(false), multiplier_(nullptr) {}
+  WeightMatrix() : int_mode_(false), use_adam_(false) {}
   // Sets up the network for training. Initializes weights using weights of
   // scale `range` picked according to the random number generator `randomizer`.
   // Note the order is outputs, inputs, as this is the order of indices to
@@ -85,13 +85,13 @@ class WeightMatrix {
   // Scale so the max absolute value becomes INT8_MAX.
   // Round to integer.
   // Store a multiplicative scale factor (as a float) that will reproduce
-  //   the original value, subject to rounding errors.
+  // the original value, subject to rounding errors.
   void ConvertToInt();
   // Returns the size rounded up to an internal factor used by the SIMD
   // implementation for its input.
   int RoundInputs(int size) const {
-    if (multiplier_ == nullptr) return size;
-    return multiplier_->RoundInputs(size);
+    if (!int_mode_ || !IntSimdMatrix::intSimdMatrix) return size;
+    return IntSimdMatrix::intSimdMatrix->RoundInputs(size);
   }
 
   // Accessors.
@@ -178,8 +178,6 @@ class WeightMatrix {
   GENERIC_2D_ARRAY<double> dw_sq_sum_;
   // The weights matrix reorganized in whatever way suits this instance.
   std::vector<int8_t> shaped_w_;
-  // Holds the optimal integer multiplier for this machine.
-  const IntSimdMatrix* multiplier_;
 };
 
 }  // namespace tesseract.

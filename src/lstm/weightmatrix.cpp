@@ -143,8 +143,8 @@ void WeightMatrix::ConvertToInt() {
   }
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
-  multiplier_ = IntSimdMatrix::GetFastestMultiplier();
-  multiplier_->Init(wi_, shaped_w_);
+  if (IntSimdMatrix::intSimdMatrix)
+    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
 }
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
@@ -196,8 +196,8 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
-    multiplier_ = IntSimdMatrix::GetFastestMultiplier();
-    multiplier_->Init(wi_, shaped_w_);
+    if (IntSimdMatrix::intSimdMatrix)
+      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
@@ -245,8 +245,7 @@ void WeightMatrix::MatrixDotVector(const double* u, double* v) const {
 
 void WeightMatrix::MatrixDotVector(const int8_t* u, double* v) const {
   assert(int_mode_);
-  assert(multiplier_ != nullptr);
-  multiplier_->MatrixDotVector(wi_, shaped_w_, scales_, u, v);
+  IntSimdMatrix::intSimdMatrix->MatrixDotVector(wi_, shaped_w_, scales_, u, v);
 }
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the

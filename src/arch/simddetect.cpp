@@ -19,6 +19,7 @@
 #include "dotproduct.h"
 #include "dotproductavx.h"
 #include "dotproductsse.h"
+#include "intsimdmatrix.h"   // for IntSimdMatrix
 #include "params.h"   // for STRING_VAR
 #include "tprintf.h"  // for tprintf
 
@@ -68,8 +69,9 @@ static double DotProductGeneric(const double* u, const double* v, int n) {
   return total;
 }
 
-static void SetDotProduct(DotProductFunction function) {
-  DotProduct = function;
+static void SetDotProduct(DotProductFunction f, const IntSimdMatrix* m = nullptr) {
+  DotProduct = f;
+  IntSimdMatrix::intSimdMatrix = m;
 }
 
 // Constructor.
@@ -126,12 +128,12 @@ SIMDDetect::SIMDDetect() {
 #if defined(AVX)
   } else if (avx_available_) {
     // AVX detected.
-    SetDotProduct(DotProductAVX);
+    SetDotProduct(DotProductAVX, &IntSimdMatrix::IntSimdMatrixAVX2);
 #endif
 #if defined(SSE4_1)
   } else if (sse_available_) {
     // SSE detected.
-    SetDotProduct(DotProductSSE);
+    SetDotProduct(DotProductSSE, &IntSimdMatrix::IntSimdMatrixSSE);
 #endif
   }
 }
@@ -153,13 +155,13 @@ void SIMDDetect::Update() {
 #if defined(AVX)
   } else if (!strcmp(dotproduct.string(), "avx")) {
     // AVX selected by config variable.
-    SetDotProduct(DotProductAVX);
+    SetDotProduct(DotProductAVX, &IntSimdMatrix::IntSimdMatrixAVX2);
     dotproduct_method = "avx";
 #endif
 #if defined(SSE4_1)
   } else if (!strcmp(dotproduct.string(), "sse")) {
     // SSE selected by config variable.
-    SetDotProduct(DotProductSSE);
+    SetDotProduct(DotProductSSE, &IntSimdMatrix::IntSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
   } else {

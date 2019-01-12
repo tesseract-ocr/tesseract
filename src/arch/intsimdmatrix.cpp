@@ -23,24 +23,9 @@
 
 namespace tesseract {
 
+const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
 const IntSimdMatrix IntSimdMatrix::IntSimdMatrixNative =
   IntSimdMatrix(1, 1, 1, 1, 1, {});
-
-// Factory makes and returns an IntSimdMatrix (sub)class of the best
-// available type for the current architecture.
-/* static */
-const IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
-  const IntSimdMatrix* multiplier;
-  if (SIMDDetect::IsAVX2Available()) {
-    multiplier = &IntSimdMatrixAVX2;
-  } else if (SIMDDetect::IsSSEAvailable()) {
-    multiplier = &IntSimdMatrixSSE;
-  } else {
-    // Default c++ implementation.
-    multiplier = &IntSimdMatrixNative;
-  }
-  return multiplier;
-}
 
 // Computes a reshaped copy of the weight matrix w. If there are no
 // partial_funcs_, it does nothing.

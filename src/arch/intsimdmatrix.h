@@ -85,10 +85,6 @@ class IntSimdMatrix {
   partial_funcs_(partial_funcs)
   {}
 
-  // Factory makes and returns an IntSimdMatrix (sub)class of the best
-  // available type for the current architecture.
-  static const IntSimdMatrix* GetFastestMultiplier();
-
   // Computes a reshaped copy of the weight matrix w. If there are no
   // partial_funcs_, it does nothing.
   void Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const;
@@ -115,6 +111,7 @@ class IntSimdMatrix {
                        const GenericVector<double>& scales, const int8_t* u,
                        double* v) const;
 
+  static const IntSimdMatrix* intSimdMatrix;
   static const IntSimdMatrix IntSimdMatrixAVX2;
   static const IntSimdMatrix IntSimdMatrixSSE;
   static const IntSimdMatrix IntSimdMatrixNative;
