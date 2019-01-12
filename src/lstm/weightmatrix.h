@@ -176,6 +176,8 @@ class WeightMatrix {
   // Iff use_adam_, the sum of squares of dw_. The number of samples is
   // given to Update(). Serialized iff use_adam_.
   GENERIC_2D_ARRAY<double> dw_sq_sum_;
+  // The weights matrix reorganized in whatever way suits this instance.
+  std::vector<int8_t> shaped_w_;
   // Holds the optimal integer multiplier for this machine.
   std::unique_ptr<IntSimdMatrix> multiplier_;
 };

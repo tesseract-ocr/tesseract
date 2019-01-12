@@ -43,7 +43,7 @@ IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
 
 // Computes a reshaped copy of the weight matrix w. If there are no
 // partial_funcs_, it does nothing.
-void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
+void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const {
   if (partial_funcs_.empty()) return;
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;
@@ -51,7 +51,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
   int rounded_num_out = RoundOutputs(num_out);
   // Add the bias and compute the required size.
-  shaped_w_.resize((rounded_num_in + 1) * rounded_num_out, 0);
+  shaped_w.resize((rounded_num_in + 1) * rounded_num_out, 0);
   int shaped_index = 0;
   int output = 0;
   // Each number of registers needs a different format! Iterates over the
@@ -74,7 +74,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
             int8_t weight = 0;
             if (output + j < num_out && input + i < num_in)
               weight = w(output + j, input + i);
-            shaped_w_[shaped_index++] = weight;
+            shaped_w[shaped_index++] = weight;
           }
         }
       }
@@ -82,7 +82,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
       for (int j = 0; j < num_outputs_per_register_set; ++j) {
         int8_t weight = 0;
         if (output + j < num_out) weight = w(output + j, num_in);
-        shaped_w_[shaped_index++] = weight;
+        shaped_w[shaped_index++] = weight;
       }
       output += num_outputs_per_register_set;
     }
@@ -94,6 +94,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
 // u is imagined to have an extra element at the end with value 1, to
 // implement the bias, but it doesn't actually have it.
 void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
+                                    const std::vector<int8_t>& shaped_w,
                                     const GenericVector<double>& scales,
                                     const int8_t* u, double* v) const {
   int num_out = w.dim1();
@@ -108,7 +109,7 @@ void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
       v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
     }
   } else {
-    const int8_t* w_data = shaped_w_.data();
+    const int8_t* w_data = shaped_w.data();
     const double* scales_data = &scales[0];
     // Each call to a partial_func_ produces group_size outputs, except the
     // last one, which can produce less.

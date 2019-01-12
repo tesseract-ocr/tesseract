@@ -57,18 +57,20 @@ class IntSimdMatrixTest : public ::testing::Test {
     return v;
   }
   // Tests a range of sizes and compares the results against the base_ version.
-  void ExpectEqualResults(IntSimdMatrix* matrix) {
+  void ExpectEqualResults(const IntSimdMatrix* matrix) {
     double total = 0.0;
     for (int num_out = 1; num_out < 130; ++num_out) {
       for (int num_in = 1; num_in < 130; ++num_in) {
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
-        matrix->Init(w);
         std::vector<int8_t> u = RandomVector(num_in, *matrix);
         GenericVector<double> scales = RandomScales(num_out);
         std::vector<double> base_result(num_out);
-        base_.MatrixDotVector(w, scales, u.data(), base_result.data());
+        std::vector<int8_t> dummy;
+        base_.MatrixDotVector(w, dummy, scales, u.data(), base_result.data());
         std::vector<double> test_result(num_out);
-        matrix->MatrixDotVector(w, scales, u.data(), test_result.data());
+        std::vector<int8_t> shaped_wi;
+        matrix->Init(w, shaped_wi);
+        matrix->MatrixDotVector(w, shaped_wi, scales, u.data(), test_result.data());
         for (int i = 0; i < num_out; ++i) {
           EXPECT_FLOAT_EQ(base_result[i], test_result[i]) << "i=" << i;
           total += base_result[i];

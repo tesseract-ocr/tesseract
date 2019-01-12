@@ -75,7 +75,7 @@ class IntSimdMatrix {
 
   // Computes a reshaped copy of the weight matrix w. If there are no
   // partial_funcs_, it does nothing.
-  void Init(const GENERIC_2D_ARRAY<int8_t>& w);
+  void Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
@@ -95,7 +95,7 @@ class IntSimdMatrix {
   // RoundInputs above.
   // The input will be over-read to the extent of the padding. There are no
   // alignment requirements.
-  void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
+  void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w, const std::vector<int8_t>& shaped_w,
                        const GenericVector<double>& scales, const int8_t* u,
                        double* v) const;
 
@@ -125,8 +125,6 @@ class IntSimdMatrix {
   int num_inputs_per_group_;
   // Number of groups of inputs to be broadcast.
   int num_input_groups_;
-  // The weights matrix reorganized in whatever way suits this instance.
-  std::vector<int8_t> shaped_w_;
   // A series of functions to compute a partial result.
   std::vector<PartialFunc> partial_funcs_;
 };
