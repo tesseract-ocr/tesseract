@@ -45,7 +45,7 @@ The simplest way to compile this package is:
      `sh ./configure' instead to prevent `csh' from trying to execute
      `configure' itself.
 
-     Running `configure' takes awhile.  While running, it prints some
+     Running `configure' takes a while.  While running, it prints some
      messages telling which features it is checking for.
 
   2. Type `make' to compile the package.
@@ -227,4 +227,3 @@ operates.
 
 `configure' also accepts some other, not widely useful, options.  Run
 `configure --help' for more details.
-

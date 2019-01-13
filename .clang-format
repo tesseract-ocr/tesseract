@@ -1,0 +1,5 @@
+---
+BasedOnStyle:  Google
+# Enforce always the same pointer alignment.
+DerivePointerAlignment: false
+IndentPPDirectives: AfterHash

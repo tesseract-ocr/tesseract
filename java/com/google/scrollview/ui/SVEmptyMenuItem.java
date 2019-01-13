@@ -44,5 +44,3 @@ class SVEmptyMenuItem extends SVAbstractMenuItem {
     ScrollView.addMessage(svme);
   }
 }
-
-

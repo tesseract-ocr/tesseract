@@ -1,3 +1,12 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ################################################################################
 #
 # configure
@@ -79,26 +88,24 @@ set(include_files_list
     stdbool.h
     stdint.h
     stdlib.h
-    strings.h
     string.h
     sys/ipc.h
     sys/shm.h
     sys/stat.h
     sys/types.h
     sys/wait.h
-    tiffio.h
     unistd.h
-    
+
     cairo/cairo-version.h
     CL/cl.h
     OpenCL/cl.h
     pango-1.0/pango/pango-features.h
+    tiffio.h
     unicode/uchar.h
 )
 check_includes(include_files_list)
 
 set(functions_list
-    getline
     snprintf
 )
 check_functions(functions_list)
@@ -112,22 +119,18 @@ set(types_list
 )
 check_types(types_list)
 
-check_c_source_compiles("#include <sys/time.h>\n#include <time.h>\nmain(){}" TIME_WITH_SYS_TIME)
+set(PACKAGE_VERSION "${VERSION_PLAIN}")
+file(APPEND ${AUTOCONFIG_SRC} "
+/* Version number */
+#cmakedefine PACKAGE_VERSION \"${VERSION_PLAIN}\"
+")
 
 test_big_endian(WORDS_BIGENDIAN)
 
-set(STDC_HEADERS 1)
-
 file(APPEND ${AUTOCONFIG_SRC} "
-/* Define to 1 if you have the ANSI C header files. */
-#cmakedefine STDC_HEADERS 1
-
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine WORDS_BIGENDIAN 1
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#cmakedefine TIME_WITH_SYS_TIME 1
 ")
 
 ########################################

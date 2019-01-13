@@ -37,5 +37,3 @@ class SVSubMenuItem extends SVAbstractMenuItem {
     mi.add(jli);
   }
 }
-
-

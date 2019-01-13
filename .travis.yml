@@ -1,44 +1,52 @@
+# Travis CI configuration for Tesseract
+
 language: cpp
+
+dist: trusty
+
+env:
+  - LEPT_VER=1.74.2
 
 notifications:
   email: false
-  
-sudo: required
+
+sudo: false
 
 os:
   - linux
-  - osx
-
-branches:
-  only:
-    - master
+  #- osx
 
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+    #- ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+    #- g++-6
+
+#matrix:
+  #include:
+    #- os: osx
+      #install:
+      #script: brew install tesseract --HEAD
+      #cache:
+        #directories:
+          #- $HOME/Library/Caches/Homebrew
+  #allow_failures:
+    #- script: brew install tesseract --HEAD
+
+cache:
+  directories:
+  - leptonica-$LEPT_VER
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == linux   ]]; then LINUX=true; fi
   - if [[ $TRAVIS_OS_NAME == osx     ]]; then OSX=true; fi
-  
-  - if [[ $OSX ]]; then brew update; fi
-
-  - export LEPT_VER=1.73
 
 install:
-  - if [[ $OSX ]]; then brew install icu4c pango; brew link --force gettext; fi
-  - if [[ $OSX ]]; then export ICU_ROOT=/usr/local/opt/icu4c ; fi
-  - wget --no-check-certificate https://www.cmake.org/files/v3.4/cmake-3.4.1-Linux-x86_64.sh
-  - sudo sh cmake-3.4.1-Linux-x86_64.sh --skip-license --prefix=/usr
-  - wget -O leptonica.zip https://github.com/DanBloomberg/leptonica/archive/v$LEPT_VER.zip
-  - unzip leptonica.zip -d .
-  - cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build
-  - make -C leptonica-$LEPT_VER/build
-  - if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  #- if [[ $LINUX && "$CXX" = "g++" ]]; then export CXX="g++-6" CC="gcc-6"; fi
+  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
+  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
+  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
 
 script:
   - mkdir build

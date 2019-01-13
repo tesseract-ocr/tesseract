@@ -1,0 +1,4 @@
+stopper_debug_level 1
+classify_debug_level 1
+segsearch_debug_level 1
+language_model_debug_level 3

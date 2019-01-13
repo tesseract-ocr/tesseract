@@ -1,0 +1,50 @@
+name: tesseract
+version: git
+summary: open source optical character recognition engine
+description: |
+  Tesseract has unicode (UTF-8) support, and can recognize more than 100
+  languages "out of the box". It can be trained to recognize other languages.
+  Tesseract supports various output formats: plain-text, hocr(html), pdf.
+
+  If you want to access the files under /media/* or /run/media/* you'll have
+  to connect the snap to the `core` snap's `removable-media` interface:
+
+      $ sudo snap connect tesseract:removable-media
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+apps:
+  tesseract:
+    command: >
+      env
+      TESSDATA_PREFIX=$SNAP_USER_COMMON
+      tesseract
+    plugs:
+      - home
+      - removable-media
+
+parts:
+  tesseract:
+    source: .
+    plugin: autotools
+    build-packages:
+      - pkg-config
+      - libpng12-dev
+      - libjpeg8-dev
+      - libtiff5-dev
+      - zlib1g-dev
+      - libicu-dev
+      - libpango1.0-dev
+      - libcairo2-dev
+    stage-packages:
+      - libgomp1
+    after: [leptonica]
+  leptonica:
+    source: https://github.com/DanBloomberg/leptonica/archive/1.74.2.tar.gz
+    plugin: autotools
+    stage-packages:
+      - libjbig0
+      - libjpeg-turbo8
+      - libopenjp2-7
+      - libtiff5

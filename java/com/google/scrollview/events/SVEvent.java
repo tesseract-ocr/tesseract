@@ -1,5 +1,5 @@
 // Copyright 2007 Google Inc. All Rights Reserved.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License"); You may not
 // use this file except in compliance with the License. You may obtain a copy of
 // the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
@@ -15,7 +15,7 @@ import com.google.scrollview.ui.SVWindow;
 /**
  * The SVEvent is a structure which holds the actual values of a message to be
  * transmitted. It corresponds to the client structure defined in scrollview.h
- * 
+ *
  * @author wanke@google.com
  */
 public class SVEvent {
@@ -30,7 +30,7 @@ public class SVEvent {
 
   /**
    * A "normal" SVEvent.
-   * 
+   *
    * @param t The type of the event as specified in SVEventType (e.g.
    *        SVET_CLICK)
    * @param w The window the event corresponds to
@@ -49,12 +49,12 @@ public class SVEvent {
     xSize = x2;
     ySize = y2;
     commandId = 0;
-    parameter = p;    
+    parameter = p;
   }
 
   /**
    * An event which issues a command (like clicking on a item in the menubar).
-   * 
+   *
    * @param eventtype The type of the event as specified in SVEventType
    *        (usually SVET_MENU or SVET_POPUP)
    * @param svWindow The window the event corresponds to

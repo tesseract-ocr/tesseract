@@ -204,10 +204,20 @@ public class SVWindow extends JFrame {
     super(name);
 
     // Provide defaults for sizes.
-    if (sizeX == 0) sizeX = canvasSizeX;
-    if (sizeY == 0) sizeY = canvasSizeY;
-    if (canvasSizeX == 0) canvasSizeX = sizeX;
-    if (canvasSizeY == 0) canvasSizeY = sizeY;
+    if (sizeX <= 0) sizeX = canvasSizeX;
+    if (sizeY <= 0) sizeY = canvasSizeY;
+    if (canvasSizeX <= 0) canvasSizeX = sizeX;
+    if (canvasSizeY <= 0) canvasSizeY = sizeY;
+
+    // Avoid later division by zero.
+    if (sizeX <= 0) {
+      sizeX = 1;
+      canvasSizeX = sizeX;
+    }
+    if (sizeY <= 0) {
+      sizeY = 1;
+      canvasSizeY = sizeY;
+    }
 
     // Initialize variables
     nrWindows++;
@@ -244,7 +254,7 @@ public class SVWindow extends JFrame {
     layer = canvas.getLayer();
     canvas.setBackground(Color.BLACK);
 
-    // Disable anitaliasing to make the lines more visible.
+    // Disable antialiasing to make the lines more visible.
     canvas.setDefaultRenderQuality(PPaintContext.LOW_QUALITY_RENDERING);
 
     setLayout(new BorderLayout());
@@ -596,6 +606,8 @@ public class SVWindow extends JFrame {
    * Shows a dialog presenting "Yes" and "No" as answers and returns either a
    * "y" or "n" to the client.
    *
+   * Closing the dialog without answering is handled like "No".
+   *
    * @param msg The text that is displayed in the dialog.
    */
   public void showYesNoDialog(String msg) {
@@ -603,13 +615,9 @@ public class SVWindow extends JFrame {
     int res =
         JOptionPane.showOptionDialog(this, msg, "", JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE, null, null, null);
-    SVEvent e = null;
 
-    if (res == 0) {
-      e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0, "y");
-    } else if (res == 1) {
-      e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0, "n");
-    }
+    SVEvent e = new SVEvent(SVEventType.SVET_INPUT, this, 0, 0, 0, 0,
+                            res == 0 ? "y" : "n");
     ScrollView.addMessage(e);
   }
 
