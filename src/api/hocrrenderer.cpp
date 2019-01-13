@@ -135,6 +135,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   bool para_is_ltr = true;        // Default direction is LTR
   const char* paragraph_lang = nullptr;
   bool font_info = false;
+  bool hocr_boxes = false;
   GetBoolVariable("hocr_font_info", &font_info);
   GetBoolVariable("hocr_char_boxes", &hocr_boxes);
 
@@ -267,18 +268,13 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       if (grapheme && grapheme[0] != 0) {
         if (hocr_boxes) {
           res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
-          hocr_str += "<span class='ocrx_cinfo' title='x_bboxes";
-          hocr_str.add_str_int(" ", left);
-          hocr_str.add_str_int(" ", top);
-          hocr_str.add_str_int(" ", right);
-          hocr_str.add_str_int(" ", bottom);
-          hocr_str += "; x_conf";
-          hocr_str.add_str_int(" ", res_it->Confidence(RIL_SYMBOL));
-          hocr_str += "'>";
+          hocr_str << "<span class='ocrx_cinfo' title='x_bboxes' "
+                   << left << " " << top << " " << right << " " << bottom
+                   << "; x_conf " << res_it->Confidence(RIL_SYMBOL) << "'>";
         }
         hocr_str << HOcrEscape(grapheme.get()).c_str();
         if (hocr_boxes) {
-          hocr_str += "</span>";
+          hocr_str << "</span>";
         }
       }
       res_it->Next(RIL_SYMBOL);
