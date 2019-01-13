@@ -58,6 +58,7 @@ class IntSimdMatrixTest : public ::testing::Test {
   }
   // Tests a range of sizes and compares the results against the base_ version.
   void ExpectEqualResults(IntSimdMatrix* matrix) {
+    double total = 0.0;
     for (int num_out = 1; num_out < 130; ++num_out) {
       for (int num_in = 1; num_in < 130; ++num_in) {
         GENERIC_2D_ARRAY<int8_t> w = InitRandom(num_out, num_in + 1);
@@ -68,15 +69,25 @@ class IntSimdMatrixTest : public ::testing::Test {
         base_.MatrixDotVector(w, scales, u.data(), base_result.data());
         std::vector<double> test_result(num_out);
         matrix->MatrixDotVector(w, scales, u.data(), test_result.data());
-        for (int i = 0; i < num_out; ++i)
+        for (int i = 0; i < num_out; ++i) {
           EXPECT_FLOAT_EQ(base_result[i], test_result[i]) << "i=" << i;
+          total += base_result[i];
+        }
       }
     }
+    // Compare sum of all results with expected value.
+    EXPECT_FLOAT_EQ(total, -423243.392011);
   }
 
   TRand random_;
   IntSimdMatrix base_;
 };
+
+// Test the C++ implementation without SIMD.
+TEST_F(IntSimdMatrixTest, C) {
+  std::unique_ptr<IntSimdMatrix> matrix(new IntSimdMatrix());
+  ExpectEqualResults(matrix.get());
+}
 
 // Tests that the SSE implementation gets the same result as the vanilla.
 TEST_F(IntSimdMatrixTest, SSE) {
