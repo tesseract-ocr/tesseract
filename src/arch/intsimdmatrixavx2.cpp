@@ -329,6 +329,8 @@ static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
 }
 
 const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
+  // Function.
+  matrixDotVector,
   // Number of 32 bit outputs held in each register.
   kNumOutputsPerRegister,
   // Maximum number of registers that we will use to hold outputs.
@@ -336,11 +338,7 @@ const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
   // Number of 8 bit inputs in the inputs register.
   kNumInputsPerRegister,
   // Number of inputs in each weight group.
-  kNumInputsPerGroup,
-  // Number of groups of inputs to be broadcast.
-  kNumInputGroups,
-  // Function.
-  matrixDotVector
+  kNumInputsPerGroup
 };
 
 }  // namespace tesseract.

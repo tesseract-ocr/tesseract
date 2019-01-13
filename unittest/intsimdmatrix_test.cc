@@ -88,7 +88,7 @@ class IntSimdMatrixTest : public ::testing::Test {
 
 // Test the C++ implementation without SIMD.
 TEST_F(IntSimdMatrixTest, C) {
-  static const IntSimdMatrix matrix = {1, 1, 1, 1, 1, nullptr};
+  static const IntSimdMatrix matrix = {nullptr, 1, 1, 1, 1};
   ExpectEqualResults(matrix);
 }
 

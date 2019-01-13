@@ -85,17 +85,6 @@ struct IntSimdMatrix {
     return (input + factor - 1) / factor * factor;
   }
 
-  // Number of 32 bit outputs held in each register.
-  int num_outputs_per_register_;
-  // Maximum number of registers that we will use to hold outputs.
-  int max_output_registers_;
-  // Number of 8 bit inputs in the inputs register.
-  int num_inputs_per_register_;
-  // Number of inputs in each weight group.
-  int num_inputs_per_group_;
-  // Number of groups of inputs to be broadcast.
-  int num_input_groups_;
-
   // Computes matrix.vector v = Wu.
   // u is of size W.dim2() - 1 and the output v is of size W.dim1().
   // u is imagined to have an extra element at the end with value 1, to
@@ -108,6 +97,17 @@ struct IntSimdMatrix {
   typedef void (*MatrixDotVectorFunction)(int dim1, int dim2,
     const int8_t* wi, const double* scales, const int8_t* u, double* v);
   MatrixDotVectorFunction matrixDotVectorFunction;
+
+  // Number of 32 bit outputs held in each register.
+  int num_outputs_per_register_;
+  // Maximum number of registers that we will use to hold outputs.
+  int max_output_registers_;
+  // Number of 8 bit inputs in the inputs register.
+  int num_inputs_per_register_;
+  // Number of inputs in each weight group.
+  int num_inputs_per_group_;
+  // Number of groups of inputs to be broadcast.
+  // num_input_groups_ = num_inputs_per_register_ / num_inputs_per_group_
 
   static const IntSimdMatrix* intSimdMatrix;
   static const IntSimdMatrix intSimdMatrixAVX2;
