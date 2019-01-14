@@ -967,6 +967,8 @@ class Tesseract : public Wordrec {
              "Mark v.bad words for tilde crunch");
   BOOL_VAR_H(hocr_font_info, false,
              "Add font info to hocr output");
+  BOOL_VAR_H(hocr_char_boxes, false,
+             "Add coordinates for each character to hocr output");
   BOOL_VAR_H(crunch_early_merge_tess_fails, true, "Before word crunch?");
   BOOL_VAR_H(crunch_early_convert_bad_unlv_chs, false, "Take out ~^ early?");
   double_VAR_H(crunch_terrible_rating, 80.0, "crunch rating lt this");

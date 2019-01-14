@@ -275,6 +275,8 @@ Tesseract::Tesseract()
                   "Mark v.bad words for tilde crunch", this->params()),
       BOOL_MEMBER(hocr_font_info, false, "Add font info to hocr output",
                   this->params()),
+      BOOL_MEMBER(hocr_char_boxes, false, "Add coordinates for each character to hocr output",
+                  this->params()),
       BOOL_MEMBER(crunch_early_merge_tess_fails, true, "Before word crunch?",
                   this->params()),
       BOOL_MEMBER(crunch_early_convert_bad_unlv_chs, false,

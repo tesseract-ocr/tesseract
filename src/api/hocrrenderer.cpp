@@ -135,7 +135,9 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   bool para_is_ltr = true;        // Default direction is LTR
   const char* paragraph_lang = nullptr;
   bool font_info = false;
+  bool hocr_boxes = false;
   GetBoolVariable("hocr_font_info", &font_info);
+  GetBoolVariable("hocr_char_boxes", &hocr_boxes);
 
   if (input_file_ == nullptr) SetInputName(nullptr);
 
@@ -264,7 +266,16 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       const std::unique_ptr<const char[]> grapheme(
           res_it->GetUTF8Text(RIL_SYMBOL));
       if (grapheme && grapheme[0] != 0) {
+        if (hocr_boxes) {
+          res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
+          hocr_str << "<span class='ocrx_cinfo' title='x_bboxes "
+                   << left << " " << top << " " << right << " " << bottom
+                   << "; x_conf " << res_it->Confidence(RIL_SYMBOL) << "'>";
+        }
         hocr_str << HOcrEscape(grapheme.get()).c_str();
+        if (hocr_boxes) {
+          hocr_str << "</span>";
+        }
       }
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_WORD));
