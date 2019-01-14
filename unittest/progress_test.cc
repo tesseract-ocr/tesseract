@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        apiexample_test.cc
+// File:        progress_test.cc
 // Description: Progress reporting API Test for Tesseract.
 // Author:      Jaroslaw Kubik
 //
