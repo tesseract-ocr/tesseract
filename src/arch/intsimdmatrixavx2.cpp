@@ -16,9 +16,12 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#include "intsimdmatrixavx2.h"
+#if !defined(__AVX2__)
+#error Implementation only for AVX2 capable architectures
+#endif
 
-#ifdef __AVX2__
+#include "intsimdmatrix.h"
+
 #include <immintrin.h>
 #include <cstdint>
 #include <algorithm>
@@ -36,6 +39,13 @@ constexpr int kNumInputsPerRegister = 32;
 constexpr int kNumInputsPerGroup = 4;
 // Number of groups of inputs to be broadcast.
 constexpr int kNumInputGroups = kNumInputsPerRegister / kNumInputsPerGroup;
+
+// Functions to compute part of a matrix.vector multiplication. The weights
+// are in a very specific order (see above) in w, which is multiplied by
+// u of length num_in, to produce output v after scaling the integer results
+// by the corresponding member of scales.
+// The amount of w and scales consumed is fixed and not available to the
+// caller. The number of outputs written to v will be at most num_out.
 
 // Computes one set of 4x8 products of inputs and weights, adding to result.
 // Horizontally adds 4 adjacent results, making 8x32-bit results.
@@ -265,20 +275,70 @@ static void PartialMatrixDotVector8(const int8_t* wi, const double* scales,
   }
   ExtractResults(result0, shift_id, wi, scales, num_out, v);
 }
-#else
-namespace tesseract {
-#endif  // __AVX2__
 
-IntSimdMatrixAVX2::IntSimdMatrixAVX2() {
-#ifdef __AVX2__
-  num_outputs_per_register_ = kNumOutputsPerRegister;
-  max_output_registers_ = kMaxOutputRegisters;
-  num_inputs_per_register_ = kNumInputsPerRegister;
-  num_inputs_per_group_ = kNumInputsPerGroup;
-  num_input_groups_ = kNumInputGroups;
-  partial_funcs_ = {PartialMatrixDotVector64, PartialMatrixDotVector32,
-                    PartialMatrixDotVector16, PartialMatrixDotVector8};
-#endif  // __AVX2__
+static void matrixDotVector(int dim1, int dim2, const int8_t* wi,
+                            const double* scales, const int8_t* u, double* v) {
+  const int num_out = dim1;
+  const int num_in = dim2 - 1;
+  // Each call to a partial_func_ produces group_size outputs, except the
+  // last one, which can produce less.
+  const int rounded_num_in =
+    IntSimdMatrix::Roundup(num_in, kNumInputsPerGroup);
+  const int rounded_num_out =
+    IntSimdMatrix::Roundup(num_out, kNumOutputsPerRegister);
+  int group_size = kNumOutputsPerRegister * kMaxOutputRegisters;
+  int output = 0;
+
+  int w_step = (rounded_num_in + 1) * group_size;
+
+  // Run with this group size, until it would produce too much output, then
+  // switch to a smaller size.
+  for (; output + group_size <= rounded_num_out; output += group_size) {
+    PartialMatrixDotVector64(wi, scales, u, rounded_num_in, num_out - output, v);
+    wi += w_step;
+    scales += group_size;
+    v += group_size;
+  }
+  group_size /= 2;
+  w_step /= 2;
+
+  for (; output + group_size <= rounded_num_out; output += group_size) {
+    PartialMatrixDotVector32(wi, scales, u, rounded_num_in, num_out - output, v);
+    wi += w_step;
+    scales += group_size;
+    v += group_size;
+  }
+  group_size /= 2;
+  w_step /= 2;
+
+  for (; output + group_size <= rounded_num_out; output += group_size) {
+    PartialMatrixDotVector16(wi, scales, u, rounded_num_in, num_out - output, v);
+    wi += w_step;
+    scales += group_size;
+    v += group_size;
+  }
+  group_size /= 2;
+  w_step /= 2;
+
+  for (; output + group_size <= rounded_num_out; output += group_size) {
+    PartialMatrixDotVector8(wi, scales, u, rounded_num_in, num_out - output, v);
+    wi += w_step;
+    scales += group_size;
+    v += group_size;
+  }
 }
+
+const IntSimdMatrix IntSimdMatrix::intSimdMatrixAVX2 = {
+  // Function.
+  matrixDotVector,
+  // Number of 32 bit outputs held in each register.
+  kNumOutputsPerRegister,
+  // Maximum number of registers that we will use to hold outputs.
+  kMaxOutputRegisters,
+  // Number of 8 bit inputs in the inputs register.
+  kNumInputsPerRegister,
+  // Number of inputs in each weight group.
+  kNumInputsPerGroup
+};
 
 }  // namespace tesseract.

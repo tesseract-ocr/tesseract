@@ -17,6 +17,7 @@
 
 #include "weightmatrix.h"
 
+#include <cassert>              // for assert
 #include "intsimdmatrix.h"
 #include "simddetect.h"         // for DotProduct
 #include "statistc.h"
@@ -120,7 +121,7 @@ int WeightMatrix::RemapOutputs(const std::vector<int>& code_map) {
 // Scale so the max absolute value becomes INT8_MAX.
 // Round to integer.
 // Store a multiplicative scale factor (as a double) that will reproduce
-//   the original value, subject to rounding errors.
+// the original value, subject to rounding errors.
 void WeightMatrix::ConvertToInt() {
   wi_.ResizeNoInit(wf_.dim1(), wf_.dim2());
   scales_.init_to_size(wi_.dim1(), 0.0);
@@ -142,8 +143,9 @@ void WeightMatrix::ConvertToInt() {
   }
   wf_.Resize(1, 1, 0.0);
   int_mode_ = true;
-  multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
-  multiplier_->Init(wi_);
+  if (IntSimdMatrix::intSimdMatrix) {
+    IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+  }
 }
 
 // Allocates any needed memory for running Backward, and zeroes the deltas,
@@ -195,8 +197,9 @@ bool WeightMatrix::DeSerialize(bool training, TFile* fp) {
   if (int_mode_) {
     if (!wi_.DeSerialize(fp)) return false;
     if (!scales_.DeSerialize(fp)) return false;
-    multiplier_.reset(IntSimdMatrix::GetFastestMultiplier());
-    multiplier_->Init(wi_);
+    if (IntSimdMatrix::intSimdMatrix) {
+      IntSimdMatrix::intSimdMatrix->Init(wi_, shaped_w_);
+    }
   } else {
     if (!wf_.DeSerialize(fp)) return false;
     if (training) {
@@ -238,21 +241,25 @@ bool WeightMatrix::DeSerializeOld(bool training, TFile* fp) {
 // implement the bias, but it doesn't actually have it.
 // Asserts that the call matches what we have.
 void WeightMatrix::MatrixDotVector(const double* u, double* v) const {
-  ASSERT_HOST(!int_mode_);
+  assert(!int_mode_);
   MatrixDotVectorInternal(wf_, true, false, u, v);
 }
 
 void WeightMatrix::MatrixDotVector(const int8_t* u, double* v) const {
-  ASSERT_HOST(int_mode_);
-  ASSERT_HOST(multiplier_ != nullptr);
-  multiplier_->MatrixDotVector(wi_, scales_, u, v);
+  assert(int_mode_);
+  if (IntSimdMatrix::intSimdMatrix) {
+    IntSimdMatrix::intSimdMatrix->matrixDotVectorFunction(
+      wi_.dim1(), wi_.dim2(), &shaped_w_[0], &scales_[0], u, v);
+  } else {
+    IntSimdMatrix::MatrixDotVector(wi_, scales_, u, v);
+  }
 }
 
 // MatrixDotVector for peep weights, MultiplyAccumulate adds the
 // component-wise products of *this[0] and v to inout.
 void WeightMatrix::MultiplyAccumulate(const double* v, double* inout) {
-  ASSERT_HOST(!int_mode_);
-  ASSERT_HOST(wf_.dim1() == 1);
+  assert(!int_mode_);
+  assert(wf_.dim1() == 1);
   int n = wf_.dim2();
   const double* u = wf_[0];
   for (int i = 0; i < n; ++i) {
@@ -265,7 +272,7 @@ void WeightMatrix::MultiplyAccumulate(const double* v, double* inout) {
 // The last result is discarded, as v is assumed to have an imaginary
 // last value of 1, as with MatrixDotVector.
 void WeightMatrix::VectorDotMatrix(const double* u, double* v) const {
-  ASSERT_HOST(!int_mode_);
+  assert(!int_mode_);
   MatrixDotVectorInternal(wf_t_, false, true, u, v);
 }
 
@@ -277,14 +284,14 @@ void WeightMatrix::VectorDotMatrix(const double* u, double* v) const {
 void WeightMatrix::SumOuterTransposed(const TransposedArray& u,
                                       const TransposedArray& v,
                                       bool in_parallel) {
-  ASSERT_HOST(!int_mode_);
+  assert(!int_mode_);
   int num_outputs = dw_.dim1();
-  ASSERT_HOST(u.dim1() == num_outputs);
-  ASSERT_HOST(u.dim2() == v.dim2());
+  assert(u.dim1() == num_outputs);
+  assert(u.dim2() == v.dim2());
   int num_inputs = dw_.dim2() - 1;
   int num_samples = u.dim2();
   // v is missing the last element in dim1.
-  ASSERT_HOST(v.dim1() == num_inputs);
+  assert(v.dim1() == num_inputs);
 #ifdef _OPENMP
 #pragma omp parallel for num_threads(4) if (in_parallel)
 #endif
@@ -306,7 +313,7 @@ void WeightMatrix::SumOuterTransposed(const TransposedArray& u,
 // use_adam_ is true.
 void WeightMatrix::Update(double learning_rate, double momentum,
                           double adam_beta, int num_samples) {
-  ASSERT_HOST(!int_mode_);
+  assert(!int_mode_);
   if (use_adam_ && num_samples > 0 && num_samples < kAdamCorrectionIterations) {
     learning_rate *= sqrt(1.0 - pow(adam_beta, num_samples));
     learning_rate /= 1.0 - pow(momentum, num_samples);
@@ -328,8 +335,8 @@ void WeightMatrix::Update(double learning_rate, double momentum,
 
 // Adds the dw_ in other to the dw_ is *this.
 void WeightMatrix::AddDeltas(const WeightMatrix& other) {
-  ASSERT_HOST(dw_.dim1() == other.dw_.dim1());
-  ASSERT_HOST(dw_.dim2() == other.dw_.dim2());
+  assert(dw_.dim1() == other.dw_.dim1());
+  assert(dw_.dim2() == other.dw_.dim2());
   dw_ += other.dw_;
 }
 
@@ -340,8 +347,8 @@ void WeightMatrix::CountAlternators(const WeightMatrix& other, double* same,
                                     double* changed) const {
   int num_outputs = updates_.dim1();
   int num_inputs = updates_.dim2();
-  ASSERT_HOST(num_outputs == other.updates_.dim1());
-  ASSERT_HOST(num_inputs == other.updates_.dim2());
+  assert(num_outputs == other.updates_.dim1());
+  assert(num_inputs == other.updates_.dim2());
   for (int i = 0; i < num_outputs; ++i) {
     const double* this_i = updates_[i];
     const double* other_i = other.updates_[i];

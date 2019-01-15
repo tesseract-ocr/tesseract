@@ -356,8 +356,6 @@ install(FILES
     src/arch/dotproductavx.h
     src/arch/dotproductsse.h
     src/arch/intsimdmatrix.h
-    src/arch/intsimdmatrixavx2.h
-    src/arch/intsimdmatrixsse.h
     src/arch/simddetect.h
 
     #from ccmain/makefile.am

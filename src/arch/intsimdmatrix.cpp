@@ -18,40 +18,23 @@
 
 #include "intsimdmatrix.h"
 #include "genericvector.h"      // for GenericVector
-#include "intsimdmatrixavx2.h"  // for IntSimdMatrixAVX2
-#include "intsimdmatrixsse.h"   // for IntSimdMatrixSSE
 #include "matrix.h"             // for GENERIC_2D_ARRAY
 #include "simddetect.h"         // for SIMDDetect
 
 namespace tesseract {
 
-// Factory makes and returns an IntSimdMatrix (sub)class of the best
-// available type for the current architecture.
-/* static */
-IntSimdMatrix* IntSimdMatrix::GetFastestMultiplier() {
-  IntSimdMatrix* multiplier;
-  if (SIMDDetect::IsAVX2Available()) {
-    multiplier = new IntSimdMatrixAVX2();
-  } else if (SIMDDetect::IsSSEAvailable()) {
-    multiplier = new IntSimdMatrixSSE();
-  } else {
-    // Default c++ implementation.
-    multiplier = new IntSimdMatrix();
-  }
-  return multiplier;
-}
+const IntSimdMatrix* IntSimdMatrix::intSimdMatrix = nullptr;
 
-// Computes a reshaped copy of the weight matrix w. If there are no
-// partial_funcs_, it does nothing.
-void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
-  if (partial_funcs_.empty()) return;
-  int num_out = w.dim1();
-  int num_in = w.dim2() - 1;
+// Computes a reshaped copy of the weight matrix w.
+void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w,
+                         std::vector<int8_t>& shaped_w) const {
+  const int num_out = w.dim1();
+  const int num_in = w.dim2() - 1;
   // The rounded-up sizes of the reshaped weight matrix, excluding biases.
   int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
   int rounded_num_out = RoundOutputs(num_out);
   // Add the bias and compute the required size.
-  shaped_w_.resize((rounded_num_in + 1) * rounded_num_out, 0);
+  shaped_w.resize((rounded_num_in + 1) * rounded_num_out, 0);
   int shaped_index = 0;
   int output = 0;
   // Each number of registers needs a different format! Iterates over the
@@ -74,7 +57,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
             int8_t weight = 0;
             if (output + j < num_out && input + i < num_in)
               weight = w(output + j, input + i);
-            shaped_w_[shaped_index++] = weight;
+            shaped_w[shaped_index++] = weight;
           }
         }
       }
@@ -82,7 +65,7 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
       for (int j = 0; j < num_outputs_per_register_set; ++j) {
         int8_t weight = 0;
         if (output + j < num_out) weight = w(output + j, num_in);
-        shaped_w_[shaped_index++] = weight;
+        shaped_w[shaped_index++] = weight;
       }
       output += num_outputs_per_register_set;
     }
@@ -95,40 +78,16 @@ void IntSimdMatrix::Init(const GENERIC_2D_ARRAY<int8_t>& w) {
 // implement the bias, but it doesn't actually have it.
 void IntSimdMatrix::MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
                                     const GenericVector<double>& scales,
-                                    const int8_t* u, double* v) const {
+                                    const int8_t* u, double* v) {
   int num_out = w.dim1();
   int num_in = w.dim2() - 1;
-  if (partial_funcs_.empty()) {
-    // Base implementation.
-    for (int i = 0; i < num_out; ++i) {
-      const int8_t* wi = w[i];
-      int total = 0;
-      for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
-      // Add in the bias and correct for integer values.
-      v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
-    }
-  } else {
-    const int8_t* w_data = shaped_w_.data();
-    const double* scales_data = &scales[0];
-    // Each call to a partial_func_ produces group_size outputs, except the
-    // last one, which can produce less.
-    int group_size = num_outputs_per_register_ * max_output_registers_;
-    int rounded_num_in = Roundup(num_in, num_inputs_per_group_);
-    int rounded_num_out = RoundOutputs(num_out);
-    int output = 0;
-    for (auto fn : partial_funcs_) {
-      // The amount of w_data consumed by each call to fn.
-      int w_step = (rounded_num_in + 1) * group_size;
-      // Run with this group size, until it would produce too much output, then
-      // switch to a smaller size.
-      for (; output + group_size <= rounded_num_out; output += group_size) {
-        (*fn)(w_data, scales_data, u, rounded_num_in, num_out - output, v);
-        w_data += w_step;
-        scales_data += group_size;
-        v += group_size;
-      }
-      group_size /= 2;
-    }
+  // Base implementation.
+  for (int i = 0; i < num_out; ++i) {
+    const int8_t* wi = w[i];
+    int total = 0;
+    for (int j = 0; j < num_in; ++j) total += wi[j] * u[j];
+    // Add in the bias and correct for integer values.
+    v[i] = (static_cast<double>(total) / INT8_MAX + wi[num_in]) * scales[i];
   }
 }
 

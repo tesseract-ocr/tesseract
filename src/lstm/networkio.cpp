@@ -31,11 +31,6 @@ const float kMinCertainty = -20.0f;
 // Probability corresponding to kMinCertainty.
 const float kMinProb = exp(kMinCertainty);
 
-// Holds the optimal integer multiplier for this machine.
-// This is a leaked, lazily initialized singleton, and is used for computing
-// padding to apply to i_ for SIMD use.
-IntSimdMatrix* NetworkIO::multiplier_ = nullptr;
-
 // Resizes to a specific size as a 2-d temp buffer. No batches, no y-dim.
 void NetworkIO::Resize2d(bool int_mode, int width, int num_features) {
   stride_map_ = StrideMap();
@@ -985,9 +980,12 @@ void NetworkIO::ClipVector(int t, float range) {
 // for the SIMD operations to be safe.
 /* static */
 int NetworkIO::GetPadding(int num_features) {
-  if (multiplier_ == nullptr)
-    multiplier_ = IntSimdMatrix::GetFastestMultiplier();
-  return multiplier_->RoundInputs(num_features) - num_features;
+  int padding = 0;
+  if (IntSimdMatrix::intSimdMatrix) {
+    padding =
+      IntSimdMatrix::intSimdMatrix->RoundInputs(num_features) - num_features;
+  }
+  return padding;
 }
 
 }  // namespace tesseract.
