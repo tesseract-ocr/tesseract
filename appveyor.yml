@@ -1,7 +1,7 @@
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      platform: Win32
+      platform: Win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       platform: Win64
 
