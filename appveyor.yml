@@ -1,5 +1,8 @@
 environment:
   matrix:
+    # not working for some reason now
+    #- APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      #platform: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       platform: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
