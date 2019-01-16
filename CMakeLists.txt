@@ -100,7 +100,7 @@ endif()
 #
 ###############################################################################
 
-option(CPPAN_BUILD "Build with cppan" ON)
+option(CPPAN_BUILD "Build with cppan" OFF)
 
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR NOT CPPAN_BUILD)
     if (NOT Leptonica_DIR AND NOT MSVC)
