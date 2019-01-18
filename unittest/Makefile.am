@@ -8,10 +8,12 @@ TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
 TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
+TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
+AM_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
 AM_CPPFLAGS += -I$(top_builddir)/src/api
 AM_CPPFLAGS += -I$(top_srcdir)/src/api
@@ -123,6 +125,8 @@ check_PROGRAMS = \
 
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
+check_PROGRAMS += unichar_test
+check_PROGRAMS += unicharset_test
 check_PROGRAMS += validator_test
 endif
 
@@ -234,6 +238,12 @@ tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+unichar_test_SOURCES = unichar_test.cc
+unichar_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
+
+unicharset_test_SOURCES = unicharset_test.cc
+unicharset_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
 validator_test_SOURCES = validator_test.cc
 validator_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
