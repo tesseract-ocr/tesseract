@@ -9,9 +9,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "unichar.h"
 #include "include_gunit.h"
+#include "gmock/gmock.h"                // for testing::ElementsAreArray
+#include "unichar.h"
 
+using tesseract::char32;
 using tesseract::UNICHAR;
 
 namespace {
