@@ -289,7 +289,7 @@ static ds_status readProFile(const char* fileName, char** content,
 }
 
 typedef ds_status (*ds_score_deserializer)(ds_device* device,
-                                           const unsigned char* serializedScore,
+                                           const uint8_t* serializedScore,
                                            unsigned int serializedScoreSize);
 
 static ds_status readProfileFromFile(ds_profile* profile,
@@ -465,7 +465,7 @@ cleanup:
 }
 
 typedef ds_status (*ds_score_serializer)(ds_device* device,
-                                         void** serializedScore,
+                                         uint8_t** serializedScore,
                                          unsigned int* serializedScoreSize);
 static ds_status writeProfileToFile(ds_profile* profile,
                                     ds_score_serializer serializer,
@@ -489,7 +489,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
     fwrite("\n", sizeof(char), 1, profileFile);
 
     for (i = 0; i < profile->numDevices && status == DS_SUCCESS; i++) {
-      void* serializedScore;
+      uint8_t* serializedScore;
       unsigned int serializedScoreSize;
 
       fwrite(DS_TAG_DEVICE, sizeof(char), strlen(DS_TAG_DEVICE), profileFile);
@@ -538,7 +538,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
       if (status == DS_SUCCESS && serializedScore != nullptr &&
           serializedScoreSize > 0) {
         fwrite(serializedScore, sizeof(char), serializedScoreSize, profileFile);
-        free(serializedScore);
+        delete[] serializedScore;
       }
       fwrite(DS_TAG_SCORE_END, sizeof(char), strlen(DS_TAG_SCORE_END),
              profileFile);
@@ -2409,17 +2409,17 @@ static double getLineMasksMorphMicroBench(GPUEnv* env,
 #include <cstdlib>
 
 // encode score object as byte string
-static ds_status serializeScore(ds_device* device, void** serializedScore,
+static ds_status serializeScore(ds_device* device, uint8_t** serializedScore,
                                 unsigned int* serializedScoreSize) {
   *serializedScoreSize = sizeof(TessDeviceScore);
-  *serializedScore = new unsigned char[*serializedScoreSize];
+  *serializedScore = new uint8_t[*serializedScoreSize];
   memcpy(*serializedScore, device->score, *serializedScoreSize);
   return DS_SUCCESS;
 }
 
 // parses byte string and stores in score object
 static ds_status deserializeScore(ds_device* device,
-                                  const unsigned char* serializedScore,
+                                  const uint8_t* serializedScore,
                                   unsigned int serializedScoreSize) {
   // check that serializedScoreSize == sizeof(TessDeviceScore);
   device->score = new TessDeviceScore;
