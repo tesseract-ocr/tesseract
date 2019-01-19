@@ -1998,7 +1998,7 @@ static void populateTessScoreEvaluationInputData(
     }
   }
 
-  input->pix = pixCreate(input->width, input->height, 1);
+  input->pix = pixCreate(input->width, input->height, 8 * input->numChannels);
 }
 
 struct TessDeviceScore {
