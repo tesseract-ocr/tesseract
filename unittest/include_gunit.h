@@ -21,8 +21,19 @@ const char* FLAGS_test_tmpdir = ".";
 
 class file : public tesseract::File {
 public:
+
+// Create a file and write a string to it.
+  static bool WriteStringToFile(const std::string& contents, const std::string& filename) {
+    File::WriteStringToFileOrDie(contents, filename);
+    return true;
+  }
+
   static bool GetContents(const std::string& filename, std::string* out, int) {
     return File::ReadFileToString(filename, out);
+  }
+
+  static bool SetContents(const std::string& name, const std::string& contents, bool /*is_default*/) {
+    return WriteStringToFile(contents, name);
   }
 
   static int Defaults() {

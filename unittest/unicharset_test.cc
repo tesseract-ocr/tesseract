@@ -77,7 +77,7 @@ TEST(UnicharsetTest, Multibyte) {
   EXPECT_EQ(u.size(), 9);
   EXPECT_EQ(u.unichar_to_id("\u0627"), 3);
   EXPECT_EQ(u.unichar_to_id("\u062c"), 4);
-  // The first two bytes of this std::string is \u0627, which matches id 3;
+  // The first two bytes of this string is \u0627, which matches id 3;
   EXPECT_EQ(u.unichar_to_id("\u0627\u062c", 2), 3);
   EXPECT_EQ(u.unichar_to_id("\u062f"), 5);
   // Individual f and i are not present, but they are there as a pair.
