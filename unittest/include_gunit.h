@@ -23,7 +23,10 @@ class file : public tesseract::File {
 public:
 
 // Create a file and write a string to it.
-  static bool WriteStringToFile(const std::string& contents, const std::string& name);
+  static bool WriteStringToFile(const std::string& contents, const std::string& filename) {
+    File::WriteStringToFileOrDie(contents, filename);
+    return true;
+  }
 
   static bool GetContents(const std::string& filename, std::string* out, int) {
     return File::ReadFileToString(filename, out);

@@ -237,7 +237,7 @@ TEST_F(UnicharcompressTest, GetEncodingAsString) {
   ExpectCorrect("trivial");
   STRING encoding = compressed_.GetEncodingAsString(unicharset_);
   std::string encoding_str(&encoding[0], encoding.length());
-  std::vector<string> lines =
+  std::vector<std::string> lines =
       absl::StrSplit(encoding_str, "\n", absl::SkipEmpty());
   EXPECT_EQ(5, lines.size());
   // The first line is always space.

@@ -244,7 +244,7 @@ unichar_test_SOURCES = unichar_test.cc
 unichar_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
 unicharcompress_test_SOURCES = unicharcompress_test.cc
-unicharcompress_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
+unicharcompress_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
 unicharset_test_SOURCES = unicharset_test.cc
 unicharset_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
