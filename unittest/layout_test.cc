@@ -1,14 +1,18 @@
 
 #include <string>
 #include <utility>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/ccmain/mutableiterator.h"
-#include "tesseract/ccmain/resultiterator.h"
-#include "tesseract/ccstruct/coutln.h"
-#include "tesseract/ccstruct/pageres.h"
-#include "tesseract/ccstruct/polyblk.h"
-#include "tesseract/ccstruct/stepblob.h"
+
+#include "include_gunit.h"
+
+#include "allheaders.h"
+#include "baseapi.h"
+#include "coutln.h"
+#include "log.h"                        // for LOG
+#include "mutableiterator.h"
+#include "pageres.h"
+#include "polyblk.h"
+#include "resultiterator.h"
+#include "stepblob.h"
 
 namespace {
 
@@ -25,11 +29,11 @@ const PolyBlockType kBlocks8087_054[] = {PT_HEADING_TEXT, PT_FLOWING_TEXT,
 // The fixture for testing Tesseract.
 class LayoutTest : public testing::Test {
  protected:
-  string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
+  std::string TestDataNameToPath(const std::string& name) {
+    return file::JoinPath(TESTING_DIR, "/" + name);
   }
-  string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
+  std::string TessdataPath() {
+    return file::JoinPath(TESSDATA_DIR, "");
   }
 
   LayoutTest() { src_pix_ = nullptr; }
@@ -57,21 +61,20 @@ class LayoutTest : public testing::Test {
       char* block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
       if (block_text != nullptr && it->BlockType() == blocks[string_index] &&
           strstr(block_text, strings[string_index]) != nullptr) {
-        VLOG(1) << StringPrintf("Found string %s in block %d of type %s",
+        LOG(INFO) << "Found string %s in block %d of type %s" <<
                                 strings[string_index], block_index,
-                                kPolyBlockNames[blocks[string_index]]);
+                                kPolyBlockNames[blocks[string_index]];
         // Found this one.
         ++string_index;
       } else if (it->BlockType() == blocks[string_index] &&
                  block_text == nullptr && strings[string_index][0] == '\0') {
-        VLOG(1) << StringPrintf("Found block of type %s at block %d",
+        LOG(INFO) << "Found block of type %s at block %d" <<
                                 kPolyBlockNames[blocks[string_index]],
-                                block_index);
+                                block_index;
         // Found this one.
         ++string_index;
       } else {
-        VLOG(1) << StringPrintf("No match found in block with text:\n%s",
-                                block_text);
+        LOG(INFO) << "No match found in block with text:\n%s" << block_text;
       }
       delete[] block_text;
       ++block_index;
@@ -97,7 +100,7 @@ class LayoutTest : public testing::Test {
           PTIsTextType(it->BlockType()) && right - left > 800 &&
           bottom - top > 200) {
         if (prev_right > prev_left) {
-          if (min(right, prev_right) > max(left, prev_left)) {
+          if (std::min(right, prev_right) > std::max(left, prev_left)) {
             EXPECT_GE(top, prev_bottom) << "Overlapping block should be below";
           } else if (top < prev_bottom) {
             if (right_to_left) {
@@ -156,7 +159,7 @@ class LayoutTest : public testing::Test {
   }
 
   Pix* src_pix_;
-  string ocr_text_;
+  std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
 
@@ -173,9 +176,10 @@ TEST_F(LayoutTest, UNLV8087_054) {
 }
 
 // Tests that Tesseract gets the important blocks and in the right order
-// on a UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
+// on GOOGLE:13510798882202548:74:84.sj-79.tif (Hebrew image)
+// TODO: replace hebrew.png by Google image referred above
 TEST_F(LayoutTest, HebrewOrderingAndSkew) {
-  SetImage("GOOGLE:13510798882202548:74:84.sj-79.tif", "eng");
+  SetImage("hebrew.png", "eng");
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);
   tesseract::MutableIterator* it = api_.GetMutableIterator();
@@ -184,7 +188,7 @@ TEST_F(LayoutTest, HebrewOrderingAndSkew) {
   VerifyTotalContainment(1, it);
   delete it;
   // Now try again using Hebrew.
-  SetImage("GOOGLE:13510798882202548:74:84.sj-79.tif", "heb");
+  SetImage("hebrew.png", "heb");
   // Just run recognition.
   EXPECT_EQ(api_.Recognize(nullptr), 0);
   it = api_.GetMutableIterator();
