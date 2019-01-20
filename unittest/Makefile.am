@@ -1,3 +1,6 @@
+# Absolute path of directory 'src'.
+TESS_SRC_DIR=$(shell cd $(top_srcdir) && pwd)/src
+
 # Absolute path of directory 'langdata'.
 LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 
@@ -8,8 +11,11 @@ TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
 TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
+# Absolute path of directory 'testdata' with test unicharset etc.
+# (using submodule test).
 TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
+AM_CPPFLAGS += -DTESS_SRC_DIR="\"$(TESS_SRC_DIR)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
@@ -27,6 +33,8 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/dict
 AM_CPPFLAGS += -I$(top_srcdir)/src/display
 AM_CPPFLAGS += -I$(top_srcdir)/src/lstm
 AM_CPPFLAGS += -I$(top_srcdir)/src/textord
+AM_CPPFLAGS += -I$(top_srcdir)/unittest/base
+AM_CPPFLAGS += -I$(top_srcdir)/unittest/util
 if ENABLE_TRAINING
 AM_CPPFLAGS += -I$(top_srcdir)/src/training
 endif
@@ -163,6 +171,9 @@ commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+dawg_test_SOURCES = dawg_test.cc
+dawg_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
 fileio_test_SOURCES = fileio_test.cc
 fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
@@ -190,6 +201,9 @@ endif
 
 lang_model_test_SOURCES = lang_model_test.cc
 lang_model_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+layout_test_SOURCES = layout_test.cc
+layout_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)  $(LEPTONICA_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
 linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
