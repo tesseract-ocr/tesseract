@@ -16,7 +16,7 @@ cache:
   - .sw
 
 before_build:
-  - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/client_windows.zip
+  - curl -fsS -L -o dl.zip https://github.com/SoftwareNetwork/binaries/raw/master/sw-master-windows-client.zip
   - 7z x dl.zip
   - set PATH=%PATH%;%cd%
 
