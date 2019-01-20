@@ -18,7 +18,8 @@
 
 if [ -n "$BASH_VERSION" ];then
   set -u  # comment in case of "unbound variable" error or fix the code
-  set -eo pipefail;
+# set -e ## fixes https://groups.google.com/forum/#!topic/tesseract-ocr/N0Wh72kMqKc 
+  set -o pipefail;
 else
    echo "Warning: you aren't running script in bash - expect problems..."
  fi
