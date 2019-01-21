@@ -1,4 +1,6 @@
 
+#include <cstdlib>      // for system
+#include <fstream>      // for ifstream
 #include <set>
 #include <string>
 #include <vector>
@@ -8,55 +10,42 @@
 #include "trie.h"
 
 #include "include_gunit.h"
-#include "base/filelinereader.h"
-#include "util/process/subprocess.h"
 
 namespace {
-
-void RemoveTrailingLineTerminators(char* line) {
-  char* end = line + strlen(line) - 1;
-  while (end >= line && ('\n' == *end || '\r' == *end)) {
-    *end-- = 0;
-  }
-}
-
-void AddLineToSet(std::set<std::string>* words, char* line) {
-  RemoveTrailingLineTerminators(line);
-  words->insert(line);
-}
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
  protected:
   void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
-    FileLineReader::Options options;
-    options.set_comment_char(0);
-    FileLineReader flr(filename.c_str(), options);
-    flr.set_line_callback(NewPermanentCallback(AddLineToSet, words));
-    flr.Reload();
+    std::ifstream file(filename);
+    if (file.is_open()) {
+      std::string line;
+      while (getline(file, line)) {
+        // Remove trailing line terminators from line.
+        while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+          line.resize(line.size() - 1);
+        }
+        // Add line to set.
+        words->insert(line.c_str());
+      }
+      file.close();
+    }
   }
   std::string TestDataNameToPath(const std::string& name) const {
-    return file::JoinPath(TESTDATA_DIR, "/" + name);
+    return file::JoinPath(TESTDATA_DIR, name);
   }
-  std::string TessBinaryPath(const std::string& binary_name) const {
-    return file::JoinPath(TESS_SRC_DIR,
+  std::string TessBinaryPath(const std::string& name) const {
+    return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
   }
   std::string OutputNameToPath(const std::string& name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  int RunCommand(const std::string& program, const std::string& arg1, const std::string& arg2,
-                 const std::string& arg3) const {
-    SubProcess p;
-    std::vector<std::string> argv;
-    argv.push_back(program);
-    argv.push_back(arg1);
-    argv.push_back(arg2);
-    argv.push_back(arg3);
-    p.SetProgram(TessBinaryPath(program), argv);
-    p.Start();
-    p.Wait();
-    return p.exit_code();
+  int RunCommand(const std::string& program, const std::string& arg1,
+                 const std::string& arg2, const std::string& arg3) const {
+    std::string cmdline =
+      TessBinaryPath(program) + " " + arg1 + " " + arg2 + " " + arg3;
+    return system(cmdline.c_str());
   }
   // Test that we are able to convert a wordlist file (one "word" per line) to
   // a dawg (a compressed format) and then extract the original wordlist back

@@ -1,6 +1,3 @@
-# Absolute path of directory 'src'.
-TESS_SRC_DIR=$(shell cd $(top_srcdir) && pwd)/src
-
 # Absolute path of directory 'langdata'.
 LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 
@@ -15,7 +12,7 @@ TESTING_DIR=$(shell cd $(top_srcdir) && pwd)/test/testing
 # (using submodule test).
 TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 
-AM_CPPFLAGS += -DTESS_SRC_DIR="\"$(TESS_SRC_DIR)\""
+AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
@@ -107,6 +104,7 @@ check_PROGRAMS = \
   bitvector_test \
   cleanapi_test \
   colpartition_test \
+  dawg_test \
   denorm_test \
   fileio_test \
   heap_test \
