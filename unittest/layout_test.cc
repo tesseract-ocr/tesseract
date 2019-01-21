@@ -163,7 +163,6 @@ class LayoutTest : public testing::Test {
 
 // Tests that Tesseract gets the important blocks and in the right order
 // on a UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
-#if 0 // TODO: Get missing image needed for this test.
 TEST_F(LayoutTest, UNLV8087_054) {
   SetImage("8087_054.3B.tif", "eng");
   // Just run recognition.
@@ -173,7 +172,6 @@ TEST_F(LayoutTest, UNLV8087_054) {
   VerifyBlockTextOrder(kStrings8087_054, kBlocks8087_054, it);
   delete it;
 }
-#endif
 
 // Tests that Tesseract gets the important blocks and in the right order
 // on GOOGLE:13510798882202548:74:84.sj-79.tif (Hebrew image)
