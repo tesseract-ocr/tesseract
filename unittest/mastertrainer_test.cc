@@ -187,7 +187,7 @@ class MasterTrainerTest : public testing::Test {
     FLAGS_output_trainer = TmpNameToPath("tmp_trainer").c_str();
     FLAGS_F = file::JoinPath(LANGDATA_DIR, "font_properties").c_str();
     FLAGS_X = TestDataNameToPath("eng.xheights").c_str();
-    FLAGS_U = file::JoinPath(LANGDATA_DIR, "eng/eng.unicharset").c_str();
+    FLAGS_U = TestDataNameToPath("eng.unicharset").c_str();
     std::string tr_file_name(TestDataNameToPath("eng.Arial.exp0.tr"));
     const char* argv[] = {tr_file_name.c_str()};
     int argc = 1;
