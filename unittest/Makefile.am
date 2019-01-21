@@ -135,6 +135,7 @@ check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += unichar_test
 check_PROGRAMS += unicharset_test
 check_PROGRAMS += unicharcompress_test
+check_PROGRAMS += validate_grapheme_test
 check_PROGRAMS += validator_test
 endif
 
@@ -261,6 +262,9 @@ unicharcompress_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TES
 
 unicharset_test_SOURCES = unicharset_test.cc
 unicharset_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
+
+validate_grapheme_test_SOURCES = validate_grapheme_test.cc
+validate_grapheme_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 validator_test_SOURCES = validator_test.cc
 validator_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
