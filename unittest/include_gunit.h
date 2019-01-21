@@ -50,9 +50,6 @@ public:
   }
 };
 
-#if !defined(ABSL_ARRAYSIZE)
-#define ABSL_ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-#endif
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
 #define CHECK_GT(test, value) ASSERT_HOST((test) > (value))
