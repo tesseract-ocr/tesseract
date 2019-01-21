@@ -74,17 +74,17 @@ class LayoutTest : public testing::Test {
           strstr(block_text, strings[string_index]) != nullptr) {
         LOG(INFO) << "Found string " << strings[string_index]
           << " in block " << block_index
-          << " of type " << kPolyBlockNames[blocks[string_index]];
+          << " of type " << kPolyBlockNames[blocks[string_index]] << "\n";
         // Found this one.
         ++string_index;
       } else if (it->BlockType() == blocks[string_index] &&
                  block_text == nullptr && strings[string_index][0] == '\0') {
         LOG(INFO) << "Found block of type " << kPolyBlockNames[blocks[string_index]]
-           << " at block " << block_index;
+           << " at block " << block_index << "\n";
         // Found this one.
         ++string_index;
       } else {
-        LOG(INFO) << "No match found in block with text:\n%s" << block_text;
+        LOG(INFO) << "No match found in block with text:\n" << block_text;
       }
       delete[] block_text;
       ++block_index;
