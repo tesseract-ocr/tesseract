@@ -115,6 +115,7 @@ check_PROGRAMS = \
   intfeaturemap_test \
   intsimdmatrix_test \
   lang_model_test \
+  layout_test \
   linlsq_test \
   loadlang_test \
   mastertrainer_test \
@@ -168,11 +169,11 @@ colpartition_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 commandlineflags_test_SOURCES = commandlineflags_test.cc
 commandlineflags_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_UC_LIBS)
 
-denorm_test_SOURCES = denorm_test.cc
-denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
-
 dawg_test_SOURCES = dawg_test.cc
 dawg_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+denorm_test_SOURCES = denorm_test.cc
+denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 fileio_test_SOURCES = fileio_test.cc
 fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
