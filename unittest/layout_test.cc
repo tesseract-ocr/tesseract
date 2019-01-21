@@ -9,6 +9,7 @@
 #include "coutln.h"
 #include "log.h"                        // for LOG
 #include "mutableiterator.h"
+#include "ocrblock.h"                   // for class BLOCK
 #include "pageres.h"
 #include "polyblk.h"
 #include "resultiterator.h"
@@ -61,16 +62,15 @@ class LayoutTest : public testing::Test {
       char* block_text = it->GetUTF8Text(tesseract::RIL_BLOCK);
       if (block_text != nullptr && it->BlockType() == blocks[string_index] &&
           strstr(block_text, strings[string_index]) != nullptr) {
-        LOG(INFO) << "Found string %s in block %d of type %s" <<
-                                strings[string_index], block_index,
-                                kPolyBlockNames[blocks[string_index]];
+        LOG(INFO) << "Found string " << strings[string_index]
+          << " in block " << block_index
+          << " of type " << kPolyBlockNames[blocks[string_index]];
         // Found this one.
         ++string_index;
       } else if (it->BlockType() == blocks[string_index] &&
                  block_text == nullptr && strings[string_index][0] == '\0') {
-        LOG(INFO) << "Found block of type %s at block %d" <<
-                                kPolyBlockNames[blocks[string_index]],
-                                block_index;
+        LOG(INFO) << "Found block of type " << kPolyBlockNames[blocks[string_index]]
+           << " at block " << block_index;
         // Found this one.
         ++string_index;
       } else {
@@ -90,7 +90,6 @@ class LayoutTest : public testing::Test {
   // be to the left of it if right_to_left is true, or to the right otherwise.
   void VerifyRoughBlockOrder(bool right_to_left, ResultIterator* it) {
     int prev_left = 0;
-    int prev_top = 0;
     int prev_right = 0;
     int prev_bottom = 0;
     it->Begin();
@@ -111,7 +110,6 @@ class LayoutTest : public testing::Test {
           }
         }
         prev_left = left;
-        prev_top = top;
         prev_right = right;
         prev_bottom = bottom;
       }
@@ -129,7 +127,7 @@ class LayoutTest : public testing::Test {
           PTIsTextType(it->BlockType()) && right - left > 800 &&
           bottom - top > 200) {
         const PAGE_RES_IT* pr_it = it->PageResIt();
-        POLY_BLOCK* pb = pr_it->block()->block->poly_block();
+        POLY_BLOCK* pb = pr_it->block()->block->pdblk.poly_block();
         CHECK(pb != nullptr);
         FCOORD skew = pr_it->block()->block->skew();
         EXPECT_GT(skew.x(), 0.0f);
@@ -165,6 +163,7 @@ class LayoutTest : public testing::Test {
 
 // Tests that Tesseract gets the important blocks and in the right order
 // on a UNLV page numbered 8087_054.3B.tif. (Dubrovnik)
+#if 0 // TODO: Get missing image needed for this test.
 TEST_F(LayoutTest, UNLV8087_054) {
   SetImage("8087_054.3B.tif", "eng");
   // Just run recognition.
@@ -174,6 +173,7 @@ TEST_F(LayoutTest, UNLV8087_054) {
   VerifyBlockTextOrder(kStrings8087_054, kBlocks8087_054, it);
   delete it;
 }
+#endif
 
 // Tests that Tesseract gets the important blocks and in the right order
 // on GOOGLE:13510798882202548:74:84.sj-79.tif (Hebrew image)
