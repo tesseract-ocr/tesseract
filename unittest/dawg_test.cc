@@ -42,9 +42,6 @@ class DawgTest : public testing::Test {
       file.close();
     }
   }
-  std::string TestDataNameToPath(const std::string& name) const {
-    return file::JoinPath(TESTDATA_DIR, name);
-  }
   std::string TessBinaryPath(const std::string& name) const {
     return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
   }
@@ -63,8 +60,8 @@ class DawgTest : public testing::Test {
   void TestDawgRoundTrip(const std::string& unicharset_filename,
                          const std::string& wordlist_filename) const {
     std::set<std::string> orig_words, roundtrip_words;
-    std::string unicharset = TestDataNameToPath(unicharset_filename);
-    std::string orig_wordlist = TestDataNameToPath(wordlist_filename);
+    std::string unicharset = file::JoinPath(TESTING_DIR, unicharset_filename);
+    std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
     std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
     std::string output_wordlist = OutputNameToPath(wordlist_filename);
     LoadWordlist(orig_wordlist, &orig_words);
@@ -84,7 +81,7 @@ TEST_F(DawgTest, TestDawgConversion) {
 
 TEST_F(DawgTest, TestMatching) {
   UNICHARSET unicharset;
-  unicharset.load_from_file(TestDataNameToPath("eng.unicharset").c_str());
+  unicharset.load_from_file(file::JoinPath(TESTING_DIR, "eng.unicharset").c_str());
   tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "basic_dawg", NGRAM_PERM,
                        unicharset.size(), 0);
   WERD_CHOICE space_apos(" '", unicharset);
