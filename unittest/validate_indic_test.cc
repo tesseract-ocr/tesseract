@@ -1,6 +1,17 @@
-#include "tesseract/training/normstrngs.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "tesseract/unittest/normstrngs_test.h"
+#include "include_gunit.h"
+#include "normstrngs.h"
+#include "normstrngs_test.h"
 
 namespace tesseract {
 namespace {
@@ -16,8 +27,8 @@ namespace {
 // normalizer always puts a termninating ZWNJ on the end if not present,
 // and accepts the string as valid.
 TEST(ValidateIndicTest, AddsJoinerToTerminalVirama) {
-  string str = "\u0c15\u0c4d";               // KA - virama
-  string target_str = "\u0c15\u0c4d\u200c";  // KA - virama - ZWNJ
+  std::string str = "\u0c15\u0c4d";               // KA - virama
+  std::string target_str = "\u0c15\u0c4d\u200c";  // KA - virama - ZWNJ
   ExpectGraphemeModeResults(str, UnicodeNormMode::kNFC, 3, 2, 1, target_str);
   // Same result if we started with the normalized string.
   ExpectGraphemeModeResults(target_str, UnicodeNormMode::kNFC, 3, 2, 1,
@@ -26,8 +37,8 @@ TEST(ValidateIndicTest, AddsJoinerToTerminalVirama) {
 
 // Only one dependent vowel is allowed.
 TEST(ValidateIndicTest, OnlyOneDependentVowel) {
-  string str = "\u0d15\u0d3e\u0d42";  // KA AA UU
-  string dest;
+  std::string str = "\u0d15\u0d3e\u0d42";  // KA AA UU
+  std::string dest;
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                    GraphemeNorm::kNormalize, str.c_str(),
                                    &dest))
@@ -43,13 +54,13 @@ TEST(ValidateIndicTest, OnlyOneDependentVowel) {
 //  References:
 //    http://www.omniglot.com/writing/telugu.htm
 TEST(ValidateIndicTest, OnlyOneVowelModifier) {
-  string str = "\u0c26\u0c4d\u0c01";  // DA virama candrabindu
-  string result;
+  std::string str = "\u0c26\u0c4d\u0c01";  // DA virama candrabindu
+  std::string result;
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                   GraphemeNorm::kNormalize, str.c_str(),
                                   &result));
   // It made 1 grapheme of 4 chars, by terminating the explicit virama.
-  EXPECT_EQ(string("\u0c26\u0c4d\u200c\u0c01"), result);
+  EXPECT_EQ(std::string("\u0c26\u0c4d\u200c\u0c01"), result);
 
   str = "\u0995\u0983\u0981";  // KA visarga candrabindu
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
@@ -73,8 +84,8 @@ TEST(ValidateIndicTest, OnlyOneVowelModifier) {
 //       and the Microsoft page
 //       http://www.microsoft.com/typography/otfntdev/teluguot/shaping.aspx
 TEST(ValidateIndicTest, VowelModifierMustBeLast) {
-  string str = "\u0c28\u0c02\u0c3f";  // NA Sunna I
-  string dest;
+  std::string str = "\u0c28\u0c02\u0c3f";  // NA Sunna I
+  std::string dest;
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                    GraphemeNorm::kNormalize, str.c_str(),
                                    &dest))
@@ -96,8 +107,8 @@ TEST(ValidateIndicTest, VowelModifierMustBeLast) {
 //     Principles of the Devanagari Script: Dependent Vowel Signs (Matras).
 //  + http://varamozhi.sourceforge.net/iscii91.pdf
 TEST(ValidateIndicTest, MatrasFollowConsonantsNotVowels) {
-  string str = "\u0c05\u0c47";  // A EE
-  string dest;
+  std::string str = "\u0c05\u0c47";  // A EE
+  std::string dest;
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                    GraphemeNorm::kNormalize, str.c_str(),
                                    &dest))
@@ -111,8 +122,8 @@ TEST(ValidateIndicTest, MatrasFollowConsonantsNotVowels) {
 
 // Sub-graphemes are allowed if GraphemeNorm is turned off.
 TEST(ValidateIndicTest, SubGraphemes) {
-  string str = "\u0d3e";  // AA
-  string dest;
+  std::string str = "\u0d3e";  // AA
+  std::string dest;
   EXPECT_FALSE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                    GraphemeNorm::kNormalize, str.c_str(),
                                    &dest))
@@ -124,32 +135,32 @@ TEST(ValidateIndicTest, SubGraphemes) {
 }
 
 TEST(ValidateIndicTest, Nukta) {
-  string str = "\u0c95\u0cbc\u0ccd\u0cb9";  // KA Nukta Virama HA
-  std::vector<string> glyphs;
+  std::string str = "\u0c95\u0cbc\u0ccd\u0cb9";  // KA Nukta Virama HA
+  std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[2], string("\u0ccd\u0cb9"));
+  EXPECT_EQ(glyphs[2], std::string("\u0ccd\u0cb9"));
   // Swapped Nukta and Virama are not allowed, but NFC normalization fixes it.
-  string str2 = "\u0c95\u0ccd\u0cbc\u0cb9";  // KA Virama Nukta HA
+  std::string str2 = "\u0c95\u0ccd\u0cbc\u0cb9";  // KA Virama Nukta HA
   ExpectGraphemeModeResults(str2, UnicodeNormMode::kNFC, 4, 3, 1, str);
 }
 
 // Sinhala has some of its own specific rules. See www.macciato.com/sinhala
 TEST(ValidateIndicTest, SinhalaRakaransaya) {
-  string str = "\u0d9a\u0dca\u200d\u0dbb";  // KA Virama ZWJ Rayanna
-  string dest;
+  std::string str = "\u0d9a\u0dca\u200d\u0dbb";  // KA Virama ZWJ Rayanna
+  std::string dest;
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                   GraphemeNorm::kNormalize, str.c_str(), &dest))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(dest, str);
-  std::vector<string> glyphs;
+  std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 2);
-  EXPECT_EQ(glyphs[1], string("\u0dca\u200d\u0dbb"));
+  EXPECT_EQ(glyphs[1], std::string("\u0dca\u200d\u0dbb"));
   // Can be followed by a dependent vowel.
   str += "\u0dd9";  // E
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
@@ -159,8 +170,8 @@ TEST(ValidateIndicTest, SinhalaRakaransaya) {
 }
 
 TEST(ValidateIndicTest, SinhalaYansaya) {
-  string str = "\u0d9a\u0dca\u200d\u0dba";  // KA Virama ZWJ Yayanna
-  string dest;
+  std::string str = "\u0d9a\u0dca\u200d\u0dba";  // KA Virama ZWJ Yayanna
+  std::string dest;
   EXPECT_TRUE(NormalizeUTF8String(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                   GraphemeNorm::kNormalize, str.c_str(), &dest))
       << PrintString32WithUnicodes(str);
@@ -171,51 +182,51 @@ TEST(ValidateIndicTest, SinhalaYansaya) {
                                   GraphemeNorm::kNormalize, str.c_str(), &dest))
       << PrintString32WithUnicodes(str);
   EXPECT_EQ(dest, str);
-  std::vector<string> glyphs;
+  std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], string("\u0dca\u200d\u0dba"));
+  EXPECT_EQ(glyphs[1], std::string("\u0dca\u200d\u0dba"));
 }
 
 TEST(ValidateIndicTest, SinhalaRepaya) {
-  string str = "\u0d9a\u0dbb\u0dca\u200d\u0db8";  // KA Rayanna Virama ZWJ MA
-  std::vector<string> glyphs;
+  std::string str = "\u0d9a\u0dbb\u0dca\u200d\u0db8";  // KA Rayanna Virama ZWJ MA
+  std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kCombined, true,
       str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 2);
-  EXPECT_EQ(glyphs[1], string("\u0dbb\u0dca\u200d\u0db8"));
+  EXPECT_EQ(glyphs[1], std::string("\u0dbb\u0dca\u200d\u0db8"));
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 3);
-  EXPECT_EQ(glyphs[1], string("\u0dbb\u0dca\u200d"));
+  EXPECT_EQ(glyphs[1], std::string("\u0dbb\u0dca\u200d"));
 }
 
 TEST(ValidateIndicTest, SinhalaSpecials) {
   // Sinhala has some exceptions from the usual rules.
-  string str = "\u0dc0\u0d9c\u0dca\u200d\u0dbb\u0dca\u200d\u0dbb\u0dca\u200d";
-  std::vector<string> glyphs;
+  std::string str = "\u0dc0\u0d9c\u0dca\u200d\u0dbb\u0dca\u200d\u0dbb\u0dca\u200d";
+  std::vector<std::string> glyphs;
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 5) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(glyphs[0], string("\u0dc0"));
-  EXPECT_EQ(glyphs[1], string("\u0d9c"));
-  EXPECT_EQ(glyphs[2], string("\u0dca\u200d\u0dbb"));
-  EXPECT_EQ(glyphs[3], string("\u0dca\u200d"));
-  EXPECT_EQ(glyphs[4], string("\u0dbb\u0dca\u200d"));
+  EXPECT_EQ(glyphs[0], std::string("\u0dc0"));
+  EXPECT_EQ(glyphs[1], std::string("\u0d9c"));
+  EXPECT_EQ(glyphs[2], std::string("\u0dca\u200d\u0dbb"));
+  EXPECT_EQ(glyphs[3], std::string("\u0dca\u200d"));
+  EXPECT_EQ(glyphs[4], std::string("\u0dbb\u0dca\u200d"));
   str = "\u0dc3\u0dbb\u0dca\u200d\u0dbb\u0dca\u200d\u0dcf";
   EXPECT_TRUE(NormalizeCleanAndSegmentUTF8(
       UnicodeNormMode::kNFC, OCRNorm::kNone, GraphemeNormMode::kGlyphSplit,
       true, str.c_str(), &glyphs));
   EXPECT_EQ(glyphs.size(), 4) << PrintStringVectorWithUnicodes(glyphs);
-  EXPECT_EQ(glyphs[0], string("\u0dc3"));
-  EXPECT_EQ(glyphs[1], string("\u0dbb\u0dca\u200d"));
-  EXPECT_EQ(glyphs[2], string("\u0dbb\u0dca\u200d"));
-  EXPECT_EQ(glyphs[3], string("\u0dcf"));
+  EXPECT_EQ(glyphs[0], std::string("\u0dc3"));
+  EXPECT_EQ(glyphs[1], std::string("\u0dbb\u0dca\u200d"));
+  EXPECT_EQ(glyphs[2], std::string("\u0dbb\u0dca\u200d"));
+  EXPECT_EQ(glyphs[3], std::string("\u0dcf"));
 }
 
 }  // namespace
