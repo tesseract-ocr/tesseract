@@ -17,7 +17,7 @@
 #include "fileio.h"   // for tesseract::File
 #include "gtest/gtest.h"
 
-const char* FLAGS_test_tmpdir = ".";
+const char* FLAGS_test_tmpdir = "./tmp";
 
 class file : public tesseract::File {
 public:
