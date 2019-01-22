@@ -132,9 +132,12 @@ check_PROGRAMS = \
 
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
+check_PROGRAMS += lstm_recode_test
+check_PROGRAMS += lstm_squashed_test
+check_PROGRAMS += lstm_test
 check_PROGRAMS += unichar_test
-check_PROGRAMS += unicharset_test
 check_PROGRAMS += unicharcompress_test
+check_PROGRAMS += unicharset_test
 check_PROGRAMS += validator_test
 endif
 
@@ -209,6 +212,15 @@ linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 loadlang_test_SOURCES = loadlang_test.cc
 loadlang_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+lstm_recode_test_SOURCES = lstm_recode_test.cc
+lstm_recode_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_LIBS)
+
+lstm_squashed_test_SOURCES = lstm_squashed_test.cc
+lstm_squashed_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_LIBS)
+
+lstm_test_SOURCES = lstm_test.cc
+lstm_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_LIBS)
 
 mastertrainer_test_SOURCES = mastertrainer_test.cc
 mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
