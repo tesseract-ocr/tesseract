@@ -235,9 +235,9 @@ class Validator {
   // Copied validated unicodes from codes_ that are OK to output.
   std::vector<char32> output_;
   // The number of elements of codes_ that have been processed so far.
-  int codes_used_;
+  unsigned codes_used_;
   // The number of elements of output_ that have already been added to parts_.
-  int output_used_;
+  unsigned output_used_;
   // Log error messages for reasons why text is invalid.
   bool report_errors_;
 };
