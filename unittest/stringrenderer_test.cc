@@ -1,17 +1,29 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <memory>
+#include <string>
 
-#include "tesseract/training/stringrenderer.h"
+#include "absl/strings/str_split.h"     // for absl::StrSplit
 
-#include <string.h>
+#include "include_gunit.h"
+#include "allheaders.h"
+#include "boxchar.h"
+#include "boxread.h"
+#include "commandlineflags.h"
+#include "genericvector.h"
+#include "stringrenderer.h"
+#include "strngs.h"
 
-#include "leptonica/include/allheaders.h"
-#include "tesseract/ccstruct/boxread.h"
-#include "tesseract/ccutil/genericvector.h"
-#include "tesseract/ccutil/strngs.h"
-#include "tesseract/training/boxchar.h"
-#include "tesseract/training/commandlineflags.h"
-
-DEFINE_bool(display, false, "Display image for inspection");
+BOOL_PARAM_FLAG(display, false, "Display image for inspection");
 
 // Flags defined in pango_font_info.cpp
 DECLARE_BOOL_PARAM_FLAG(use_only_legacy_fonts);
@@ -40,18 +52,20 @@ class StringRendererTest : public ::testing::Test {
  protected:
   static void SetUpTestCase() {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
-    FLAGS_fonts_dir = file::JoinPath(FLAGS_test_srcdir, "testdata");
+    FLAGS_fonts_dir = TESTING_DIR;
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;
+#ifdef GOOGLE_TESSERACT
     FLAGS_use_only_legacy_fonts = false;
     // Needed for reliable heapchecking of pango layout structures.
     FLAGS_heap_check_max_pointer_offset = -1;
+#endif
   }
 
   void DisplayClusterBoxes(Pix* pix) {
     if (!FLAGS_display) return;
     const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
     Boxa* boxes = boxaCreate(0);
-    for (int i = 0; i < boxchars.size(); ++i) {
+    for (size_t i = 0; i < boxchars.size(); ++i) {
       if (boxchars[i]->box())
         boxaAddBox(boxes, const_cast<Box*>(boxchars[i]->box()), L_CLONE);
     }
@@ -150,12 +164,14 @@ TEST_F(StringRendererTest, DoesHandleNewlineCharacters) {
   EXPECT_EQ(strlen(kRawText),
             renderer_->RenderToImage(kRawText, strlen(kRawText), &pix));
   EXPECT_TRUE(pix != nullptr);
-  // 3 characters + 4 spaces => 7 boxes
-  EXPECT_EQ(7, renderer_->GetBoxes().size());
-  // Verify the text content of the boxchars
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
-  for (int i = 0; i < strlen(kStrippedText); ++i) {
-    EXPECT_EQ(string(1, kStrippedText[i]), boxchars[i]->ch());
+  // 3 characters + 4 spaces => 7 boxes
+  EXPECT_EQ(7, boxchars.size());
+  if (boxchars.size() == 7) {
+    // Verify the text content of the boxchars
+    for (size_t i = 0; i < boxchars.size(); ++i) {
+      EXPECT_EQ(std::string(1, kStrippedText[i]), boxchars[i]->ch());
+    }
   }
   DisplayClusterBoxes(pix);
   pixDestroy(&pix);
@@ -186,11 +202,11 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
 }
 
 static int FindBoxCharXCoord(const std::vector<BoxChar*>& boxchars,
-                             const string& ch) {
-  for (int i = 0; i < boxchars.size(); ++i) {
+                             const std::string& ch) {
+  for (size_t i = 0; i < boxchars.size(); ++i) {
     if (boxchars[i]->ch() == ch) return boxchars[i]->box()->x;
   }
-  return kint32max;
+  return INT_MAX;
 }
 
 TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
@@ -198,17 +214,17 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   Pix* pix = nullptr;
   // Arabic letters should be in decreasing x-coordinates
   const char kArabicWord[] = "\u0644\u0627\u0641\u0643\u0631";
-  const string kRevWord = "\u0631\u0643\u0641\u0627\u0644";
+  const std::string kRevWord = "\u0631\u0643\u0641\u0627\u0644";
   renderer_->RenderToImage(kArabicWord, strlen(kArabicWord), &pix);
-  string boxes_str = renderer_->GetBoxesStr();
+  std::string boxes_str = renderer_->GetBoxesStr();
   // Decode to get the box text strings.
   EXPECT_FALSE(boxes_str.empty());
   GenericVector<STRING> texts;
-  EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), nullptr, &texts,
+  EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
-  string ltr_str;
+  std::string ltr_str;
   for (int i = 0; i < texts.size(); ++i)
-    absl::StrAppend(&ltr_str, texts[i].string());
+    ltr_str += texts[i].string();
   // The string should come out perfectly reversed, despite there being a
   // ligature.
   EXPECT_EQ(ltr_str, kRevWord);
@@ -226,9 +242,9 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   renderer_->RenderToImage(kArabicWord, strlen(kArabicWord), &pix);
   EXPECT_GT(renderer_->GetBoxes().size(), 0);
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
-  for (int i = 0; i < boxchars.size() - 1; ++i) {
-    EXPECT_GT(boxchars[i]->box()->x, boxchars[i + 1]->box()->x)
-        << boxchars[i]->ch();
+  for (size_t i = 1; i < boxchars.size(); ++i) {
+    EXPECT_GT(boxchars[i - 1]->box()->x, boxchars[i]->box()->x)
+        << boxchars[i - 1]->ch();
   }
   pixDestroy(&pix);
 
@@ -237,18 +253,18 @@ TEST_F(StringRendererTest, DoesOutputBoxcharsInReadingOrder) {
   renderer_->ClearBoxes();
   renderer_->RenderToImage(kEnglishWord, strlen(kEnglishWord), &pix);
   EXPECT_EQ(boxchars.size(), strlen(kEnglishWord));
-  for (int i = 0; i < boxchars.size() - 1; ++i) {
-    EXPECT_LT(boxchars[i]->box()->x, boxchars[i + 1]->box()->x)
-        << boxchars[i]->ch();
+  for (size_t i = 1; i < boxchars.size(); ++i) {
+    EXPECT_LT(boxchars[i - 1]->box()->x, boxchars[i]->box()->x)
+        << boxchars[i - 1]->ch();
   }
   pixDestroy(&pix);
 
   // Mixed text should satisfy both.
   renderer_->ClearBoxes();
   renderer_->RenderToImage(kMixedText, strlen(kMixedText), &pix);
-  CHECK_LT(FindBoxCharXCoord(boxchars, "a"), FindBoxCharXCoord(boxchars, "b"));
-  CHECK_LT(FindBoxCharXCoord(boxchars, "1"), FindBoxCharXCoord(boxchars, "2"));
-  CHECK_GT(FindBoxCharXCoord(boxchars, "و"), FindBoxCharXCoord(boxchars, "ر"));
+  EXPECT_LT(FindBoxCharXCoord(boxchars, "a"), FindBoxCharXCoord(boxchars, "b"));
+  EXPECT_LT(FindBoxCharXCoord(boxchars, "1"), FindBoxCharXCoord(boxchars, "2"));
+  EXPECT_GT(FindBoxCharXCoord(boxchars, "و"), FindBoxCharXCoord(boxchars, "ر"));
   pixDestroy(&pix);
 }
 
@@ -335,7 +351,7 @@ TEST_F(StringRendererTest, DoesStripUnrenderableWords) {
   // Verdana should only be able to render the english letters and numbers in
   // the mixed text.
   renderer_.reset(new StringRenderer("Verdana 10", 600, 600));
-  string text(kMixedText);
+  std::string text(kMixedText);
   EXPECT_GT(renderer_->StripUnrenderableWords(&text), 0);
   EXPECT_EQ(" 123  abc", text);
 }
@@ -348,13 +364,13 @@ TEST_F(StringRendererTest, DoesRenderWordBoxes) {
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   pixDestroy(&pix);
   // Verify #boxchars = #words + #spaces
-  std::vector<string> words = absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
+  std::vector<std::string> words = absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
   const int kNumSpaces = words.size() - 1;
   const int kExpectedNumBoxes = words.size() + kNumSpaces;
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
   EXPECT_EQ(kExpectedNumBoxes, boxchars.size());
   // Verify content of words and spaces
-  for (int i = 0; i < boxchars.size(); i += 2) {
+  for (size_t i = 0; i < boxchars.size(); i += 2) {
     EXPECT_EQ(words[i / 2], boxchars[i]->ch());
     if (i < boxchars.size() - 1) {
       EXPECT_EQ(" ", boxchars[i + 1]->ch());
@@ -372,16 +388,16 @@ TEST_F(StringRendererTest, DoesRenderWordBoxesFromMultiLineText) {
             renderer_->RenderToImage(kMultlineText, strlen(kEngText), &pix));
   pixDestroy(&pix);
   // Verify #boxchars = #words + #spaces + #newlines
-  std::vector<string> words =
+  std::vector<std::string> words =
       absl::StrSplit(kMultlineText, absl::ByAnyChar(" \n"), absl::SkipEmpty());
   const int kNumSeparators = words.size() - 1;
   const int kExpectedNumBoxes = words.size() + kNumSeparators;
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
   EXPECT_EQ(kExpectedNumBoxes, boxchars.size());
   // Verify content of words and spaces
-  for (int i = 0; i < boxchars.size(); i += 2) {
+  for (size_t i = 0; i < boxchars.size(); i += 2) {
     EXPECT_EQ(words[i / 2], boxchars[i]->ch());
-    if (i < boxchars.size() - 1) {
+    if (i + 1 < boxchars.size()) {
       EXPECT_EQ(" ", boxchars[i + 1]->ch());
       EXPECT_TRUE(boxchars[i + 1]->box() == nullptr);
     }
@@ -390,8 +406,8 @@ TEST_F(StringRendererTest, DoesRenderWordBoxesFromMultiLineText) {
 
 TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
   renderer_.reset(new StringRenderer("Verdana 10", 1200, 1200));
-  int offset = 0;
-  string font_used;
+  size_t offset = 0;
+  std::string font_used;
   do {
     Pix* pix = nullptr;
     font_used.clear();
@@ -408,15 +424,15 @@ TEST_F(StringRendererTest, DoesRenderAllFontsToImage) {
 
 TEST_F(StringRendererTest, DoesNotRenderWordJoiner) {
   renderer_.reset(new StringRenderer("Verdana 10", 500, 200));
-  const string word = "A- -B C-D A BC";
-  const string joined_word = StringRenderer::InsertWordJoiners(word);
+  const std::string word = "A- -B C-D A BC";
+  const std::string joined_word = StringRenderer::InsertWordJoiners(word);
   Pix* pix = nullptr;
   renderer_->RenderToImage(joined_word.c_str(), joined_word.length(), &pix);
   pixDestroy(&pix);
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
-  const string kWordJoinerUTF8 = "\u2060";
+  const std::string kWordJoinerUTF8 = "\u2060";
   ASSERT_EQ(word.length(), boxchars.size());
-  for (int i = 0; i < boxchars.size(); ++i) {
+  for (size_t i = 0; i < boxchars.size(); ++i) {
     EXPECT_NE(kWordJoinerUTF8, boxchars[i]->ch());
     EXPECT_EQ(word.substr(i, 1), boxchars[i]->ch());
   }
@@ -425,8 +441,8 @@ TEST_F(StringRendererTest, DoesNotRenderWordJoiner) {
 TEST_F(StringRendererTest, DoesDropUncoveredChars) {
   renderer_.reset(new StringRenderer("Verdana 10", 500, 200));
   renderer_->set_drop_uncovered_chars(true);
-  const string kWord = "oﬀice";
-  const string kCleanWord = "oice";
+  const std::string kWord = "oﬀice";
+  const std::string kCleanWord = "oice";
   Pix* pix = nullptr;
   EXPECT_FALSE(
       renderer_->font().CanRenderString(kWord.c_str(), kWord.length()));
@@ -436,7 +452,7 @@ TEST_F(StringRendererTest, DoesDropUncoveredChars) {
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
   EXPECT_EQ(kWord.length(), offset);
   ASSERT_EQ(kCleanWord.length(), boxchars.size());
-  for (int i = 0; i < boxchars.size(); ++i) {
+  for (size_t i = 0; i < boxchars.size(); ++i) {
     EXPECT_EQ(kCleanWord.substr(i, 1), boxchars[i]->ch());
   }
 }
@@ -444,39 +460,39 @@ TEST_F(StringRendererTest, DoesDropUncoveredChars) {
 // ------------ StringRenderer::ConvertBasicLatinToFullwidthLatin() ------------
 
 TEST(ConvertBasicLatinToFullwidthLatinTest, DoesConvertBasicLatin) {
-  const string kHalfAlpha = "ABCD";
-  const string kFullAlpha = "ＡＢＣＤ";
+  const std::string kHalfAlpha = "ABCD";
+  const std::string kFullAlpha = "ＡＢＣＤ";
   EXPECT_EQ(kFullAlpha,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kHalfAlpha));
 
-  const string kHalfDigit = "0123";
-  const string kFullDigit = "０１２３";
+  const std::string kHalfDigit = "0123";
+  const std::string kFullDigit = "０１２３";
   EXPECT_EQ(kFullDigit,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kHalfDigit));
 
-  const string kHalfSym = "()[]:;!?";
-  const string kFullSym = "（）［］：；！？";
+  const std::string kHalfSym = "()[]:;!?";
+  const std::string kFullSym = "（）［］：；！？";
   EXPECT_EQ(kFullSym,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kHalfSym));
 }
 
 TEST(ConvertBasicLatinToFullwidthLatinTest, DoesNotConvertFullwidthLatin) {
-  const string kFullAlpha = "ＡＢＣＤ";
+  const std::string kFullAlpha = "ＡＢＣＤ";
   EXPECT_EQ(kFullAlpha,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kFullAlpha));
 
-  const string kFullDigit = "０１２３";
+  const std::string kFullDigit = "０１２３";
   EXPECT_EQ(kFullDigit,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kFullDigit));
 
-  const string kFullSym = "（）［］：；！？";
+  const std::string kFullSym = "（）［］：；！？";
   EXPECT_EQ(kFullSym,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kFullSym));
 }
 
 TEST(ConvertBasicLatinToFullwidthLatinTest, DoesNotConvertNonLatin) {
-  const string kHalfKana = "ｱｲｳｴｵ";
-  const string kFullKana = "アイウエオ";
+  const std::string kHalfKana = "ｱｲｳｴｵ";
+  const std::string kFullKana = "アイウエオ";
   EXPECT_EQ(kHalfKana,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kHalfKana));
   EXPECT_EQ(kFullKana,
@@ -484,8 +500,8 @@ TEST(ConvertBasicLatinToFullwidthLatinTest, DoesNotConvertNonLatin) {
 }
 
 TEST(ConvertBasicLatinToFullwidthLatinTest, DoesNotConvertSpace) {
-  const string kHalfSpace = " ";
-  const string kFullSpace = "　";
+  const std::string kHalfSpace = " ";
+  const std::string kFullSpace = "　";
   EXPECT_EQ(kHalfSpace,
             StringRenderer::ConvertBasicLatinToFullwidthLatin(kHalfSpace));
   EXPECT_EQ(kFullSpace,
@@ -495,39 +511,39 @@ TEST(ConvertBasicLatinToFullwidthLatinTest, DoesNotConvertSpace) {
 // ------------ StringRenderer::ConvertFullwidthLatinToBasicLatin() ------------
 
 TEST(ConvertFullwidthLatinToBasicLatinTest, DoesConvertFullwidthLatin) {
-  const string kHalfAlpha = "ABCD";
-  const string kFullAlpha = "ＡＢＣＤ";
+  const std::string kHalfAlpha = "ABCD";
+  const std::string kFullAlpha = "ＡＢＣＤ";
   EXPECT_EQ(kHalfAlpha,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kFullAlpha));
 
-  const string kHalfDigit = "0123";
-  const string kFullDigit = "０１２３";
+  const std::string kHalfDigit = "0123";
+  const std::string kFullDigit = "０１２３";
   EXPECT_EQ(kHalfDigit,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kFullDigit));
 
-  const string kHalfSym = "()[]:;!?";
-  const string kFullSym = "（）［］：；！？";
+  const std::string kHalfSym = "()[]:;!?";
+  const std::string kFullSym = "（）［］：；！？";
   EXPECT_EQ(kHalfSym,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kFullSym));
 }
 
 TEST(ConvertFullwidthLatinToBasicLatinTest, DoesNotConvertBasicLatin) {
-  const string kHalfAlpha = "ABCD";
+  const std::string kHalfAlpha = "ABCD";
   EXPECT_EQ(kHalfAlpha,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kHalfAlpha));
 
-  const string kHalfDigit = "0123";
+  const std::string kHalfDigit = "0123";
   EXPECT_EQ(kHalfDigit,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kHalfDigit));
 
-  const string kHalfSym = "()[]:;!?";
+  const std::string kHalfSym = "()[]:;!?";
   EXPECT_EQ(kHalfSym,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kHalfSym));
 }
 
 TEST(ConvertFullwidthLatinToBasicLatinTest, DoesNotConvertNonLatin) {
-  const string kHalfKana = "ｱｲｳｴｵ";
-  const string kFullKana = "アイウエオ";
+  const std::string kHalfKana = "ｱｲｳｴｵ";
+  const std::string kFullKana = "アイウエオ";
   EXPECT_EQ(kHalfKana,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kHalfKana));
   EXPECT_EQ(kFullKana,
@@ -535,8 +551,8 @@ TEST(ConvertFullwidthLatinToBasicLatinTest, DoesNotConvertNonLatin) {
 }
 
 TEST(ConvertFullwidthLatinToBasicLatinTest, DoesNotConvertSpace) {
-  const string kHalfSpace = " ";
-  const string kFullSpace = "　";
+  const std::string kHalfSpace = " ";
+  const std::string kFullSpace = "　";
   EXPECT_EQ(kHalfSpace,
             StringRenderer::ConvertFullwidthLatinToBasicLatin(kHalfSpace));
   EXPECT_EQ(kFullSpace,
