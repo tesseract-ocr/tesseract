@@ -124,8 +124,9 @@ check_PROGRAMS = \
   progress_test \
   qrsequence_test \
   rect_test \
-  stringrenderer_test \
+  shapetable_test \
   stats_test \
+  stringrenderer_test \
   tablefind_test \
   tablerecog_test \
   tabvector_test \
@@ -255,11 +256,14 @@ qrsequence_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 rect_test_SOURCES = rect_test.cc
 rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
-stringrenderer_test_SOURCES = stringrenderer_test.cc
-stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0 $(cairo_LIBS) $(pango_LIBS)
+shapetable_test_SOURCES = shapetable_test.cc
+shapetable_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+stringrenderer_test_SOURCES = stringrenderer_test.cc
+stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0 $(cairo_LIBS) $(pango_LIBS)
 
 tablefind_test_SOURCES = tablefind_test.cc
 tablefind_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
