@@ -11,6 +11,8 @@ training-uninstall:
 	@$(MAKE) -C src/training uninstall
 clean-local:
 	@$(MAKE) -C src/training clean
+# Some unit tests use code from training.
+check: training
 else
 training:
 	@echo "Need to reconfigure project, so there are no errors"
