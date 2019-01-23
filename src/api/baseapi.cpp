@@ -613,9 +613,9 @@ void TessBaseAPI::SetImage(Pix* pix) {
   if (InternalSetImage()) {
     if (pixGetSpp(pix) == 4 && pixGetInputFormat(pix) == IFF_PNG) {
       // remove alpha channel from png
-      PIX* p1 = pixRemoveAlpha(pix);
+      Pix* p1 = pixRemoveAlpha(pix);
       pixSetSpp(p1, 3);
-      pix = pixCopy(nullptr, p1);
+      (void)pixCopy(pix, p1);
       pixDestroy(&p1);
     }
     thresholder_->SetImage(pix);
