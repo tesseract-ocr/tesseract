@@ -2,7 +2,6 @@
  * File:        pango_font_info.cpp
  * Description: Font-related objects and helper functions
  * Author:      Ranjith Unnikrishnan
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -217,6 +216,10 @@ PangoFont* PangoFontInfo::ToPangoFont() const {
 
 bool PangoFontInfo::CoversUTF8Text(const char* utf8_text, int byte_length) const {
   PangoFont* font = ToPangoFont();
+  if (font == nullptr) {
+    // Font not found.
+    return false;
+  }
   PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
   for (UNICHAR::const_iterator it = UNICHAR::begin(utf8_text, byte_length);
        it != UNICHAR::end(utf8_text, byte_length);
@@ -228,6 +231,8 @@ bool PangoFontInfo::CoversUTF8Text(const char* utf8_text, int byte_length) const
       int len = it.get_utf8(tmp);
       tmp[len] = '\0';
       tlog(2, "'%s' (U+%x) not covered by font\n", tmp, *it);
+      pango_coverage_unref(coverage);
+      g_object_unref(font);
       return false;
     }
   }
@@ -259,9 +264,15 @@ static char* my_strnmove(char* dest, const char* src, size_t n) {
 }
 
 int PangoFontInfo::DropUncoveredChars(std::string* utf8_text) const {
-  PangoFont* font = ToPangoFont();
-  PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
   int num_dropped_chars = 0;
+  PangoFont* font = ToPangoFont();
+  if (font == nullptr) {
+    // Font not found, drop all characters.
+    num_dropped_chars = utf8_text->length();
+    utf8_text->resize(0);
+    return num_dropped_chars;
+  }
+  PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
   // Maintain two iterators that point into the string. For space efficiency, we
   // will repeatedly copy one covered UTF8 character from one to the other, and
   // at the end resize the string to the right length.
@@ -609,10 +620,13 @@ void FontUtils::GetAllRenderableCharacters(const std::string& font_name,
                                            std::vector<bool>* unichar_bitmap) {
   PangoFontInfo font_info(font_name);
   PangoFont* font = font_info.ToPangoFont();
-  PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
-  CharCoverageMapToBitmap(coverage, unichar_bitmap);
-  pango_coverage_unref(coverage);
-  g_object_unref(font);
+  if (font != nullptr) {
+    // Font found.
+    PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
+    CharCoverageMapToBitmap(coverage, unichar_bitmap);
+    pango_coverage_unref(coverage);
+    g_object_unref(font);
+  }
 }
 
 /* static */
@@ -624,11 +638,14 @@ void FontUtils::GetAllRenderableCharacters(const std::vector<std::string>& fonts
   for (unsigned i = 0; i < fonts.size(); ++i) {
     PangoFontInfo font_info(fonts[i]);
     PangoFont* font = font_info.ToPangoFont();
-    PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
-    // Mark off characters that any font can render.
-    pango_coverage_max(all_coverage, coverage);
-    pango_coverage_unref(coverage);
-    g_object_unref(font);
+    if (font != nullptr) {
+      // Font found.
+      PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
+      // Mark off characters that any font can render.
+      pango_coverage_max(all_coverage, coverage);
+      pango_coverage_unref(coverage);
+      g_object_unref(font);
+    }
   }
   CharCoverageMapToBitmap(all_coverage, unichar_bitmap);
   pango_coverage_unref(all_coverage);
@@ -646,8 +663,8 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t>& ch_map,
     tprintf("ERROR: Could not parse %s\n", fontname.c_str());
   }
   PangoFont* font = font_info.ToPangoFont();
-  PangoCoverage* coverage = pango_font_get_coverage(font, nullptr);
-
+  PangoCoverage* coverage = nullptr;
+  if (font != nullptr) coverage = pango_font_get_coverage(font, nullptr);
   if (ch_flags) {
     ch_flags->clear();
     ch_flags->reserve(ch_map.size());
@@ -656,7 +673,7 @@ int FontUtils::FontScore(const std::unordered_map<char32, int64_t>& ch_map,
   int ok_chars = 0;
   for (std::unordered_map<char32, int64_t>::const_iterator it = ch_map.begin();
        it != ch_map.end(); ++it) {
-    bool covered = (IsWhitespace(it->first) ||
+    bool covered = (coverage != nullptr) && (IsWhitespace(it->first) ||
                     (pango_coverage_get(coverage, it->first)
                      == PANGO_COVERAGE_EXACT));
     if (covered) {
