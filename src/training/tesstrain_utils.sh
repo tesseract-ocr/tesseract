@@ -303,7 +303,7 @@ phase_I_generate_image() {
             sleep 1
             generate_font_image "${font}" &
             let counter=counter+1
-            let rem=counter%par_factor
+            let rem=counter%par_factor || true
             if [[ "${rem}" -eq 0 ]]; then
               wait
             fi
@@ -436,7 +436,7 @@ phase_E_extract_features() {
         run_command tesseract ${img_file} ${img_file%.*} \
             ${box_config} ${config} &
       let counter=counter+1
-      let rem=counter%par_factor
+      let rem=counter%par_factor || true
       if [[ "${rem}" -eq 0 ]]; then
         wait
       fi
