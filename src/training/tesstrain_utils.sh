@@ -215,7 +215,7 @@ parse_flags() {
     # Take training text and wordlist from the langdata directory if not
     # specified in the command-line.
     TRAINING_TEXT=${TRAINING_TEXT:-${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.training_text}
-    WORDLIST_FILE=${TRAINING_TEXT:-${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.wordlist}
+    WORDLIST_FILE=${WORDLIST_FILE:-${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.wordlist}
 
     WORD_BIGRAMS_FILE=${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.word.bigrams
     NUMBERS_FILE=${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}.numbers
