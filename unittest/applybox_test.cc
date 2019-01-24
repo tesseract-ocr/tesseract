@@ -39,14 +39,18 @@ class ApplyBoxTest : public testing::Test {
   ApplyBoxTest() { src_pix_ = nullptr; }
   ~ApplyBoxTest() { pixDestroy(&src_pix_); }
 
-  void SetImage(const char* filename) {
+  bool SetImage(const char* filename) {
+    bool found = false;
     pixDestroy(&src_pix_);
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
-    api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-    api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
-    api_.SetImage(src_pix_);
-    api_.SetVariable("tessedit_make_boxes_from_boxes", "1");
-    api_.SetInputName(TestDataNameToPath(filename).c_str());
+    if (api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
+      api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+      api_.SetImage(src_pix_);
+      api_.SetVariable("tessedit_make_boxes_from_boxes", "1");
+      api_.SetInputName(TestDataNameToPath(filename).c_str());
+      found = true;
+    }
+    return found;
   }
 
   // Runs ApplyBoxes (via setting the appropriate variables and Recognize)
@@ -56,7 +60,11 @@ class ApplyBoxTest : public testing::Test {
   // otherwise the input box file is assumed to have character-level boxes.
   void VerifyBoxesAndText(const char* imagefile, const char* truth_str,
                           const char* target_box_file, bool line_mode) {
-    SetImage(imagefile);
+    if (!SetImage(imagefile)) {
+      // eng.traineddata not found or other problem during Init.
+      GTEST_SKIP();
+      return;
+    }
     if (line_mode)
       api_.SetVariable("tessedit_resegment_from_line_boxes", "1");
     else
