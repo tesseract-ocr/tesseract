@@ -438,7 +438,7 @@ TEST_F(StringRendererTest, DoesNotRenderWordJoiner) {
   }
 }
 
-TEST_F(StringRendererTest, DoesDropUncoveredChars) {
+TEST_F(StringRendererTest, DISABLED_DoesDropUncoveredChars) {
   renderer_.reset(new StringRenderer("Verdana 10", 500, 200));
   renderer_->set_drop_uncovered_chars(true);
   const std::string kWord = "oﬀice";
