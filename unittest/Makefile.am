@@ -263,7 +263,7 @@ stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 stringrenderer_test_SOURCES = stringrenderer_test.cc
-stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0 $(cairo_LIBS) $(pango_LIBS)
+stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0 $(cairo_LIBS) $(pango_LIBS)
 
 tablefind_test_SOURCES = tablefind_test.cc
 tablefind_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
