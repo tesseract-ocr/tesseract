@@ -29,14 +29,14 @@ static inline std::ostream& LOG(enum LogLevel level)
   switch (level) {
 #if 0
     case DEBUG:
-      std::cout << "\n[DEBUG] ";
+      std::cout << "[DEBUG] ";
       break;
 #endif
     case INFO:
-      std::cout << "\n[INFO]  ";
+      std::cout << "[INFO]  ";
       break;
     case ERROR:
-      std::cout << "\n[ERROR] ";
+      std::cout << "[ERROR] ";
       break;
   }
   return std::cout;
