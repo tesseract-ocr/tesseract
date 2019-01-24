@@ -87,7 +87,7 @@ class LSTMTrainerTest : public testing::Test {
     GenericVector<STRING> filenames;
     filenames.push_back(STRING(TestDataNameToPath(lstmf_file).c_str()));
     EXPECT_TRUE(trainer_->LoadAllTrainingData(filenames, CS_SEQUENTIAL, false));
-    LOG(INFO) << "Setup network:" << model_name;
+    LOG(INFO) << "Setup network:" << model_name << "\n" ;
   }
   // Trains for a given number of iterations and returns the char error rate.
   double TrainIterations(int max_iterations) {
@@ -108,8 +108,8 @@ class LSTMTrainerTest : public testing::Test {
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
       LOG(INFO) << log_str.string();
-      LOG(INFO) << "Best error = " << best_error;
-      LOG(INFO) << "Mean error = " << mean_error;
+      LOG(INFO) << "Best error = " << best_error << "\n" ;
+      LOG(INFO) << "Mean error = " << mean_error << "\n" ;
       if (mean_error < best_error) best_error = mean_error;
     } while (iteration < iteration_limit);
     LOG(INFO) << "Trainer error rate = " << best_error << "\n";

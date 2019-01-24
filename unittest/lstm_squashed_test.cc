@@ -24,7 +24,7 @@ TEST_F(LSTMTrainerTest, TestSquashed) {
                   "SQU-2-layer-lstm", /*recode*/ true, /*adam*/ true);
   double lstm_2d_err = TrainIterations(kTrainerIterations * 2);
   EXPECT_LT(lstm_2d_err, 80);
-  LOG(INFO) << "********** < 80 ************" ;
+  LOG(INFO) << "********** < 80 ************\n" ;
   TestIntMode(kTrainerIterations);
 }
 
