@@ -71,7 +71,7 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
 // representation to make it consistent by adding a ZWNJ if missing from a
 // non-linking virama. Returns false with an invalid sequence.
 bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (joiner.first == CharClass::kOther) {
     CodeOnlyToOutput();
     if (codes_used_ < num_codes &&
@@ -143,7 +143,7 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
 // Helper consumes/copies a series of consonants separated by viramas while
 // valid, but not any vowel or other modifiers.
 bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
-  const int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   // Consonant aksara
   do {
     CodeOnlyToOutput();
@@ -252,8 +252,8 @@ bool ValidateJavanese::ConsumeVowelIfValid() {
   // What we have consumed so far is a valid vowel cluster.
   return true;
 }
- 
- 
+
+
 Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
   if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
   if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;
