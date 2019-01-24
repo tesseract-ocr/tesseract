@@ -78,9 +78,7 @@ else
   phase_D_generate_dawg
   phase_E_extract_features "box.train" 8 "tr"
   phase_C_cluster_prototypes "${TRAINING_DIR}/${LANG_CODE}.normproto"
-  if [[ "${ENABLE_SHAPE_CLUSTERING}" == "y" ]]; then
-      phase_S_cluster_shapes
-  fi
+  phase_S_cluster_shapes
   phase_M_cluster_microfeatures
   phase_B_generate_ambiguities
   make__traineddata
