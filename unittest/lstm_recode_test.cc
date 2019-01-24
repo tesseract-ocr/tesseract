@@ -23,6 +23,7 @@ TEST_F(LSTMTrainerTest, RecodeTestKorBase) {
   double kor_full_err = TrainIterations(kTrainerIterations * 2);
   EXPECT_LT(kor_full_err, 88);
 //  EXPECT_GT(kor_full_err, 85);
+  LOG(INFO) << "********** Expected  < 88 ************\n" ;
 }
 
 TEST_F(LSTMTrainerTest, RecodeTestKor) {
@@ -31,6 +32,7 @@ TEST_F(LSTMTrainerTest, RecodeTestKor) {
                "kor.Arial_Unicode_MS.exp0.lstmf", true, true, 5e-4, false);
   double kor_recode_err = TrainIterations(kTrainerIterations);
   EXPECT_LT(kor_recode_err, 60);
+  LOG(INFO) << "********** Expected  < 60 ************\n" ;
 }
 
 // Tests that the given string encodes and decodes back to the same
