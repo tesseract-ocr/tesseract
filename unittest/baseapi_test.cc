@@ -76,47 +76,59 @@ TEST_F(TesseractTest, BasicTesseractTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-  Pix* src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
-  CHECK(src_pix);
-  ocr_text = GetCleanedTextResult(&api, src_pix);
-  CHECK_OK(file::GetContents(TestDataNameToPath("phototest.gold.txt"),
-                             &truth_text, file::Defaults()));
-  absl::StripAsciiWhitespace(&truth_text);
-  EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
-  pixDestroy(&src_pix);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
+    Pix* src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+    CHECK(src_pix);
+    ocr_text = GetCleanedTextResult(&api, src_pix);
+    CHECK_OK(file::GetContents(TestDataNameToPath("phototest.gold.txt"),
+                               &truth_text, file::Defaults()));
+    absl::StripAsciiWhitespace(&truth_text);
+    EXPECT_STREQ(truth_text.c_str(), ocr_text.c_str());
+    pixDestroy(&src_pix);
+  } else {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+  }
 }
 
 // Test that api.GetComponentImages() will return a set of images for
 // paragraphs even if text recognition was not run.
 TEST_F(TesseractTest, IteratesParagraphsEvenIfNotDetected) {
   tesseract::TessBaseAPI api;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-  api.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
-  api.SetVariable("paragraph_debug_level", "3");
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) != -1) {
+    api.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+    api.SetVariable("paragraph_debug_level", "3");
 #if 0 // TODO: b622.png is missing
-  Pix* src_pix = pixRead(TestDataNameToPath("b622.png").c_str());
-  CHECK(src_pix);
-  api.SetImage(src_pix);
-  Boxa* para_boxes =
-      api.GetComponentImages(tesseract::RIL_PARA, true, nullptr, nullptr);
-  EXPECT_TRUE(para_boxes != nullptr);
-  Boxa* block_boxes =
-      api.GetComponentImages(tesseract::RIL_BLOCK, true, nullptr, nullptr);
-  EXPECT_TRUE(block_boxes != nullptr);
-  // TODO(eger): Get paragraphs out of this page pre-text.
-  EXPECT_GE(boxaGetCount(para_boxes), boxaGetCount(block_boxes));
-  boxaDestroy(&block_boxes);
-  boxaDestroy(&para_boxes);
-  pixDestroy(&src_pix);
+    Pix* src_pix = pixRead(TestDataNameToPath("b622.png").c_str());
+    CHECK(src_pix);
+    api.SetImage(src_pix);
+    Boxa* para_boxes =
+        api.GetComponentImages(tesseract::RIL_PARA, true, nullptr, nullptr);
+    EXPECT_TRUE(para_boxes != nullptr);
+    Boxa* block_boxes =
+        api.GetComponentImages(tesseract::RIL_BLOCK, true, nullptr, nullptr);
+    EXPECT_TRUE(block_boxes != nullptr);
+    // TODO(eger): Get paragraphs out of this page pre-text.
+    EXPECT_GE(boxaGetCount(para_boxes), boxaGetCount(block_boxes));
+    boxaDestroy(&block_boxes);
+    boxaDestroy(&para_boxes);
+    pixDestroy(&src_pix);
 #endif
+  } else {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+  }
 }
 
 // We should get hOCR output and not seg fault, even if the api caller doesn't
 // call SetInputName().
 TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
   tesseract::TessBaseAPI api;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   Pix* src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
   api.SetImage(src_pix);
@@ -131,7 +143,11 @@ TEST_F(TesseractTest, HOCRWorksWithoutSetInputName) {
 // hOCR output should contain baseline info for upright textlines.
 TEST_F(TesseractTest, HOCRContainsBaseline) {
   tesseract::TessBaseAPI api;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   Pix* src_pix = pixRead(TestDataNameToPath("HelloGoogle.tif").c_str());
   CHECK(src_pix);
   api.SetInputName("HelloGoogle.tif");
@@ -151,6 +167,11 @@ TEST_F(TesseractTest, HOCRContainsBaseline) {
 // better algorithms to deal with baseline and xheight consistency.
 TEST_F(TesseractTest, RickSnyderNotFuckSnyder) {
   tesseract::TessBaseAPI api;
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
 #if 0 // TODO: rick_snyder.jpeg is missing
   Pix* src_pix = pixRead(TestDataNameToPath("rick_snyder.jpeg").c_str());
@@ -161,6 +182,8 @@ TEST_F(TesseractTest, RickSnyderNotFuckSnyder) {
   EXPECT_THAT(result, Not(HasSubstr("FUCK")));
   delete[] result;
   pixDestroy(&src_pix);
+#else
+  GTEST_SKIP();
 #endif
 }
 
@@ -182,7 +205,11 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   api.SetVariable("matcher_sufficient_examples_for_prototyping", "1");
   api.SetVariable("classify_class_pruner_threshold", "220");
   // Train on the training text.
@@ -216,7 +243,11 @@ TEST_F(TesseractTest, BasicLSTMTest) {
   tesseract::TessBaseAPI api;
   std::string truth_text;
   std::string ocr_text;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   Pix* src_pix = pixRead(TestDataNameToPath("phototest_2.tif").c_str());
   CHECK(src_pix);
   ocr_text = GetCleanedTextResult(&api, src_pix);
@@ -240,7 +271,11 @@ TEST_F(TesseractTest, LSTMGeometryTest) {
 #else
   Pix* src_pix = pixRead(TestDataNameToPath("deslant.tif").c_str());
   FriendlyTessBaseAPI api;
-  api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY);
+  if (api.Init(TessdataPath().c_str(), "eng", tesseract::OEM_LSTM_ONLY) == -1) {
+    // eng.traineddata not found.
+    GTEST_SKIP();
+    return;
+  }
   api.SetImage(src_pix);
   ASSERT_EQ(api.Recognize(nullptr), 0);
 
