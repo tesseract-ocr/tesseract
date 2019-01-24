@@ -55,6 +55,18 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 
 ###############################################################################
 #
+# options
+#
+###############################################################################
+
+option(CPPAN_BUILD "Build with cppan" ON)
+option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
+option(BUILD_TRAINING_TOOLS "Build training tools" ON)
+option(BUILD_TESTS "Build tests" OFF)
+
+
+###############################################################################
+#
 # compiler and linker
 #
 ###############################################################################
@@ -71,15 +83,21 @@ endif()
 if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-        if (CLANG)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp /utf-8")
-        else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+        if (NOT CLANG)
             add_definitions(-DNOMINMAX)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /openmp /utf-8")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
         endif()
     endif()
-
     set(LIB_Ws2_32 Ws2_32)
+endif()
+
+if (OPENMP_BUILD)
+    if (CLANG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
+    else(MSVC)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+    endif()
 endif()
 
 if (CYGWIN)
@@ -100,8 +118,6 @@ endif()
 #
 ###############################################################################
 
-option(CPPAN_BUILD "Build with cppan" ON)
-
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR NOT CPPAN_BUILD)
     if (NOT Leptonica_DIR AND NOT MSVC)
         find_package(PkgConfig REQUIRED)
@@ -120,9 +136,6 @@ else()
 endif()
 
 find_package(OpenCL QUIET)
-
-option(BUILD_TRAINING_TOOLS "Build training tools" ON)
-option(BUILD_TESTS "Build tests" OFF)
 
 ###############################################################################
 #
@@ -302,7 +315,7 @@ else()
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 endif()
 
-if (WIN32 AND CLANG)
+if (WIN32 AND CLANG AND OPENMP_BUILD)
     # Workaround for "libomp.lib is not automatically added on Windows"
     # see: http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
     # TODO: Find better way how to set Clang OpenMP library for linking on Windows
