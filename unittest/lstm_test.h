@@ -50,17 +50,25 @@ class LSTMTrainerTest : public testing::Test {
     return file::JoinPath(TESTDATA_DIR,
                           "" + name);
   }
-
+  std::string TessDataNameToPath(const std::string& name) {
+    return file::JoinPath(TESSDATA_DIR,
+                          "" + name);
+  }
+  std::string TestingNameToPath(const std::string& name) {
+    return file::JoinPath(TESTING_DIR,
+                          "" + name);
+  }
+  
   void SetupTrainerEng(const std::string& network_spec, const std::string& model_name,
                        bool recode, bool adam) {
     SetupTrainer(network_spec, model_name, "eng/eng.unicharset",
-                 "eng.Arial.exp0.lstmf", recode, adam, 5e-4, false);
+                 "eng.Arial.exp0.lstmf", recode, adam, 5e-4, false, "eng");
   }
   void SetupTrainer(const std::string& network_spec, const std::string& model_name,
                     const std::string& unicharset_file, const std::string& lstmf_file,
                     bool recode, bool adam, double learning_rate,
-                    bool layer_specific) {
-    constexpr char kLang[] = "eng";  // Exact value doesn't matter.
+                    bool layer_specific, const std::string& kLang) {
+//    constexpr char kLang[] = "eng";  // Exact value doesn't matter.
     std::string unicharset_name = TestDataNameToPath(unicharset_file);
     UNICHARSET unicharset;
     ASSERT_TRUE(unicharset.load_from_file(unicharset_name.c_str(), false));
@@ -76,7 +84,7 @@ class LSTMTrainerTest : public testing::Test {
                                    model_path.c_str(), checkpoint_path.c_str(),
                                    0, 0));
     trainer_->InitCharSet(file::JoinPath(FLAGS_test_tmpdir, kLang,
-                                         absl::StrCat(kLang, ".traineddata")));
+    absl::StrCat(kLang, ".traineddata")));
     int net_mode = adam ? NF_ADAM : 0;
     // Adam needs a higher learning rate, due to not multiplying the effective
     // rate by 1/(1-momentum).
@@ -157,9 +165,9 @@ class LSTMTrainerTest : public testing::Test {
   // string.
   void TestEncodeDecode(const std::string& lang, const std::string& str, bool recode) {
     std::string unicharset_name = lang + "/" + lang + ".unicharset";
-	std::string lstmf_name = lang +  ".Arial_Unicode_MS.exp0.lstmf";
+    std::string lstmf_name = lang +  ".Arial_Unicode_MS.exp0.lstmf";
     SetupTrainer("[1,1,0,32 Lbx100 O1c1]", "bidi-lstm", unicharset_name,
-                 lstmf_name, recode, true, 5e-4, true);
+                 lstmf_name, recode, true, 5e-4, true, lang);
     GenericVector<int> labels;
     EXPECT_TRUE(trainer_->EncodeString(str.c_str(), &labels));
     STRING decoded = trainer_->DecodeLabels(labels);
