@@ -17,17 +17,21 @@
 
 display_usage() {
 echo -e "USAGE: tesstrain.sh
+     --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
      --fontlist FONTS           # A list of fontnames to train on.
      --fonts_dir FONTS_PATH     # Path to font files.
      --lang LANG_CODE           # ISO 639 code.
      --langdata_dir DATADIR     # Path to tesseract/training/langdata directory.
-     --output_dir OUTPUTDIR     # Location of output traineddata file.
-     --save_box_tiff                # Save box/tiff pairs along with lstmf files.
-     --overwrite                # Safe to overwrite files in output_dir.
      --linedata_only            # Only generate training data for lstmtraining.
+     --output_dir OUTPUTDIR     # Location of output traineddata file.
+     --overwrite                # Safe to overwrite files in output_dir.
      --run_shape_clustering     # Run shape clustering (use for Indic langs).
-     --exposures EXPOSURES      # A list of exposure levels to use (e.g. "-1 0 1").
 
+     --maxpages                 # Specify maximum pages to output (default:0=all)
+     --save_box_tiff            # Save box/tiff pairs along with lstmf files.
+     --x_size                   # Specify width of output image (default:3600)
+
+     
   OPTIONAL flags for input data. If unspecified we will look for them in
   the langdata_dir directory.
      --training_text TEXTFILE   # Text to render and use for training.

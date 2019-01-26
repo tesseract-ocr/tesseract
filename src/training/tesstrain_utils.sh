@@ -33,6 +33,7 @@ else
     FONTS_DIR="/usr/share/fonts/"
 fi
 
+X_SIZE=3600
 MAX_PAGES=0
 SAVE_BOX_TIFF=0
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
@@ -185,6 +186,9 @@ parse_flags() {
                 FONT_CONFIG_CACHE=$WORKSPACE_DIR/fc-cache
                 mkdir -p $FONT_CONFIG_CACHE
                 i=$j ;;
+            --x_size)
+                parse_value "X_SIZE" ${ARGV[$j]:-}
+                i=$j ;;
             *)
                 err_exit "Unrecognized argument ${ARGV[$i]}" ;;
         esac
@@ -246,7 +250,7 @@ generate_font_image() {
 
     local common_args="--fontconfig_tmpdir=${FONT_CONFIG_CACHE}"
     common_args+=" --fonts_dir=${FONTS_DIR} --strip_unrenderable_words"
-    common_args+=" --leading=${LEADING}"
+    common_args+=" --leading=${LEADING} --xsize=${X_SIZE}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
 
