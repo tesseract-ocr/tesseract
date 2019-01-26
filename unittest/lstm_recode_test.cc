@@ -19,7 +19,7 @@ namespace tesseract {
 TEST_F(LSTMTrainerTest, RecodeTestKorBase) {
   // A basic single-layer, bi-di 1d LSTM on Korean.
   SetupTrainer("[1,1,0,32 Lbx96 O1c1]", "kor-full", "kor/kor.unicharset",
-               "kor.Arial_Unicode_MS.exp0.lstmf", false, true, 5e-4, false);
+               "kor.Arial_Unicode_MS.exp0.lstmf", false, true, 5e-4, false, "kor");
   double kor_full_err = TrainIterations(kTrainerIterations * 2);
   EXPECT_LT(kor_full_err, 88);
 //  EXPECT_GT(kor_full_err, 85);
@@ -29,7 +29,7 @@ TEST_F(LSTMTrainerTest, RecodeTestKorBase) {
 TEST_F(LSTMTrainerTest, RecodeTestKor) {
   // A basic single-layer, bi-di 1d LSTM on Korean.
   SetupTrainer("[1,1,0,32 Lbx96 O1c1]", "kor-recode", "kor/kor.unicharset",
-               "kor.Arial_Unicode_MS.exp0.lstmf", true, true, 5e-4, false);
+               "kor.Arial_Unicode_MS.exp0.lstmf", true, true, 5e-4, false, "kor");
   double kor_recode_err = TrainIterations(kTrainerIterations);
   EXPECT_LT(kor_recode_err, 60);
   LOG(INFO) << "********** Expected  < 60 ************\n" ;
