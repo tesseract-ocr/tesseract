@@ -1,10 +1,14 @@
 
-#include "tesseract/ccmain/resultiterator.h"
+#include "resultiterator.h"
 #include <string>
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/ccutil/genericvector.h"
-#include "tesseract/viewer/scrollview.h"
+#include "allheaders.h"
+#include "baseapi.h"
+#include "genericvector.h"
+#include "scrollview.h"
+
+#include "include_gunit.h"
+#include "log.h"                        // for LOG
+#include "absl/strings/str_format.h"        // for absl::StrFormat
 
 namespace {
 
@@ -31,13 +35,13 @@ void ToVector(const GenericVectorEqEq<T>& from, std::vector<T>* to) {
 // The fixture for testing Tesseract.
 class ResultIteratorTest : public testing::Test {
  protected:
-  string TestDataNameToPath(const string& name) {
-    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
+  std::string TestDataNameToPath(const std::string& name) {
+    return file::JoinPath(TESTING_DIR , name);
   }
-  string TessdataPath() {
-    return file::JoinPath(FLAGS_test_srcdir, "tessdata");
+  std::string TessdataPath() {
+    return file::JoinPath(TESSDATA_DIR, "");
   }
-  string OutputNameToPath(const string& name) {
+  std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
 
@@ -74,7 +78,7 @@ class ResultIteratorTest : public testing::Test {
         im_level = tesseract::RIL_BLOCK;
         EXPECT_TRUE(it->BoundingBox(im_level, &left, &top, &right, &bottom));
       }
-      VLOG(1) << "BBox: [L:" << left << ", T:" << top << ", R:" << right
+      LOG(INFO) << "BBox: [L:" << left << ", T:" << top << ", R:" << right
               << ", B:" << bottom << "]";
       Pix* block_pix;
       if (depth == 1) {
@@ -104,23 +108,23 @@ class ResultIteratorTest : public testing::Test {
     l_int32 pixcount;
     pixCountPixels(pix, &pixcount, nullptr);
     if (pixcount > max_diff) {
-      string outfile = OutputNameToPath("failedxor.png");
-      VLOG(1) << "outfile = " << outfile;
+      std::string outfile = OutputNameToPath("failedxor.png");
+      LOG(INFO) << "outfile = " << outfile;
       pixWrite(outfile.c_str(), pix, IFF_PNG);
     }
     pixDestroy(&pix);
-    VLOG(1) << StringPrintf("At level %d: pix diff = %d\n", level, pixcount);
+    LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
     EXPECT_LE(pixcount, max_diff);
     if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
   }
 
   // Rebuilds the text from the iterator strings at the given level, and
   // EXPECTs that the rebuild string exactly matches the truth string.
-  void VerifyIteratorText(const string& truth, PageIteratorLevel level,
+  void VerifyIteratorText(const std::string& truth, PageIteratorLevel level,
                           ResultIterator* it) {
-    VLOG(1) << "Text Test Level " << level;
+    LOG(INFO) << "Text Test Level " << level;
     it->Begin();
-    string result;
+    std::string result;
     do {
       char* text = it->GetUTF8Text(level);
       result += text;
@@ -148,7 +152,7 @@ class ResultIteratorTest : public testing::Test {
     VerifyRebuild(symbol_limit, tesseract::RIL_SYMBOL, it);
   }
 
-  void VerifyAllText(const string& truth, ResultIterator* it) {
+  void VerifyAllText(const std::string& truth, ResultIterator* it) {
     VerifyIteratorText(truth, tesseract::RIL_BLOCK, it);
     VerifyIteratorText(truth, tesseract::RIL_PARA, it);
     VerifyIteratorText(truth, tesseract::RIL_TEXTLINE, it);
@@ -223,7 +227,7 @@ class ResultIteratorTest : public testing::Test {
 
   // Objects declared here can be used by all tests in the test case for Foo.
   Pix* src_pix_;  // Borrowed from api_. Do not destroy.
-  string ocr_text_;
+  std::string ocr_text_;
   tesseract::TessBaseAPI api_;
 };
 
@@ -304,7 +308,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   // Test baseline of the first line.
   int x1, y1, x2, y2;
   r_it->Baseline(tesseract::RIL_TEXTLINE, &x1, &y1, &x2, &y2);
-  VLOG(1) << StringPrintf("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2);
+  LOG(INFO) << absl::StrFormat("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2);
   // Make sure we have a decent vector.
   EXPECT_GE(x2, x1 + 400);
   // The point 200,116 should be very close to the baseline.
@@ -327,7 +331,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
     float confidence = r_it->Confidence(tesseract::RIL_WORD);
     EXPECT_GE(confidence, 80.0f);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
-    VLOG(1) << StringPrintf("Word %s in font %s, id %d, size %d, conf %g",
+    LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g",
                             word_str, font, font_id, pointsize, confidence);
     delete[] word_str;
     EXPECT_FALSE(bold);
@@ -383,7 +387,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
                              &smallcaps, &pointsize, &font_id);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      VLOG(1) << StringPrintf("Word %s is %s", word_str,
+      LOG(INFO) << absl::StrFormat("Word %s is %s", word_str,
                               smallcaps ? "Smallcaps" : "Normal");
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
@@ -403,7 +407,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
              !s_it.IsAtBeginningOf(tesseract::RIL_WORD)) {
         if (s_it.SymbolIsDropcap()) {
           char* sym_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
-          LOG(ERROR) << StringPrintf("Symbol %s of word %s is dropcap", sym_str,
+          LOG(ERROR) << absl::StrFormat("Symbol %s of word %s is dropcap", sym_str,
                                      word_str);
           delete[] sym_str;
         }
@@ -444,7 +448,7 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
       result = r_it->GetUTF8Text(tesseract::RIL_SYMBOL);
       if (strchr(kAllowedSupers, result[0]) == nullptr) {
         char* word = r_it->GetUTF8Text(tesseract::RIL_WORD);
-        LOG(ERROR) << StringPrintf("Char %s in word %s is unexpected super!",
+        LOG(ERROR) << absl::StrFormat("Char %s in word %s is unexpected super!",
                                     result, word);
         delete [] word;
         EXPECT_TRUE(strchr(kAllowedSupers, result[0]) != nullptr);
@@ -456,7 +460,7 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
     }
   } while (r_it->Next(tesseract::RIL_SYMBOL));
   delete r_it;
-  VLOG(1) << StringPrintf("Subs = %d, supers= %d, normal = %d",
+  LOG(INFO) << absl::StrFormat("Subs = %d, supers= %d, normal = %d",
                           found_subs, found_supers, found_normal);
   EXPECT_GE(found_subs, 25);
   EXPECT_GE(found_supers, 25);
@@ -548,16 +552,16 @@ TEST_F(ResultIteratorTest, NonNullChoicesTest) {
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      VLOG(1) << StringPrintf("Word %s:", word_str);
+      LOG(INFO) << absl::StrFormat("Word %s:", word_str);
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
         do {
           const char* char_str = c_it.GetUTF8Text();
           if (char_str == nullptr)
-            VLOG(1) << "Null char choice";
+            LOG(INFO) << "Null char choice";
           else
-            VLOG(1) << "Char choice " << char_str;
+            LOG(INFO) << "Char choice " << char_str;
           CHECK(char_str != nullptr);
         } while (c_it.Next());
       } while (
@@ -588,7 +592,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
         const char* char_str = s_it.GetUTF8Text(tesseract::RIL_SYMBOL);
         CHECK(char_str != nullptr);
         float confidence = s_it.Confidence(tesseract::RIL_SYMBOL);
-        VLOG(1) << StringPrintf("Char %s has confidence %g\n", char_str,
+        LOG(INFO) << absl::StrFormat("Char %s has confidence %g\n", char_str,
                                 confidence);
         delete[] char_str;
       } while (
@@ -596,7 +600,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
           s_it.Next(tesseract::RIL_SYMBOL));
       delete[] word_str;
     } else {
-      VLOG(1) << "Empty word found";
+      LOG(INFO) << "Empty word found";
     }
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;

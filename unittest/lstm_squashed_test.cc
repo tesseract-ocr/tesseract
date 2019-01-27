@@ -22,7 +22,7 @@ TEST_F(LSTMTrainerTest, TestSquashed) {
   // recoding on, adam on.
   SetupTrainerEng("[1,32,0,1 Ct3,3,16 Mp3,3 Lfys48 Lbx96 O1c1]",
                   "SQU-2-layer-lstm", /*recode*/ true, /*adam*/ true);
-  double lstm_2d_err = TrainIterations(kTrainerIterations * 2);
+  double lstm_2d_err = TrainIterations(kTrainerIterations * 3 / 2);
   EXPECT_LT(lstm_2d_err, 80);
   LOG(INFO) << "********** < 80 ************\n" ;
   TestIntMode(kTrainerIterations);

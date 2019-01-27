@@ -4,6 +4,7 @@ LANGDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/langdata_lstm
 # Absolute path of directory 'tessdata' with traineddata files
 # (must be on same level as top source directory).
 TESSDATA_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata
+TESSDATA_BEST_DIR=$(shell cd $(top_srcdir) && cd .. && pwd)/tessdata_best
 
 # Absolute path of directory 'testing' with test images and ground truth texts
 # (using submodule test).
@@ -15,6 +16,7 @@ TESTDATA_DIR=$(shell cd $(top_srcdir) && pwd)/test/testdata
 AM_CPPFLAGS += -DTESSBIN_DIR="\"$(abs_top_builddir)\""
 AM_CPPFLAGS += -DLANGDATA_DIR="\"$(LANGDATA_DIR)\""
 AM_CPPFLAGS += -DTESSDATA_DIR="\"$(TESSDATA_DIR)\""
+AM_CPPFLAGS += -DTESSDATA_BEST_DIR="\"$(TESSDATA_BEST_DIR)\""
 AM_CPPFLAGS += -DTESTING_DIR="\"$(TESTING_DIR)\""
 AM_CPPFLAGS += -DTESTDATA_DIR="\"$(TESTDATA_DIR)\""
 AM_CPPFLAGS += -DPANGO_ENABLE_ENGINE
@@ -98,6 +100,8 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
 check_PROGRAMS = \
+resultiterator_test \
+recodebeam_test \
   apiexample_test \
   applybox_test \
   baseapi_test \
@@ -137,6 +141,7 @@ check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
 check_PROGRAMS += lstm_test
+check_PROGRAMS += lstmtrainer_test
 check_PROGRAMS += unichar_test
 check_PROGRAMS += unicharcompress_test
 check_PROGRAMS += unicharset_test
@@ -228,6 +233,9 @@ lstm_squashed_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_
 lstm_test_SOURCES = lstm_test.cc
 lstm_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_LIBS)
 
+lstmtrainer_test_SOURCES = lstmtrainer_test.cc
+lstmtrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS)
+
 mastertrainer_test_SOURCES = mastertrainer_test.cc
 mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
 
@@ -253,8 +261,14 @@ progress_test_LDADD = $(GTEST_LIBS) $(GMOCK_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 qrsequence_test_SOURCES = qrsequence_test.cc
 qrsequence_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
+recodebeam_test_SOURCES = recodebeam_test.cc
+recodebeam_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
 rect_test_SOURCES = rect_test.cc
 rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+resultiterator_test_SOURCES = resultiterator_test.cc
+resultiterator_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 shapetable_test_SOURCES = shapetable_test.cc
 shapetable_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
