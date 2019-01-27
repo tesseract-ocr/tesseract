@@ -28,7 +28,7 @@ echo -e "USAGE: tesstrain.sh
      --run_shape_clustering     # Run shape clustering (use for Indic langs).
      --maxpages                 # Specify maximum pages to output (default:0=all)
      --save_box_tiff            # Save box/tiff pairs along with lstmf files.
-     --x_size                   # Specify width of output image (default:3600)
+     --xsize                    # Specify width of output image (default:3600)
      
   OPTIONAL flags for input data. If unspecified we will look for them in
   the langdata_dir directory.
