@@ -107,14 +107,24 @@ SIMDDetect::SIMDDetect() {
   }
 #  elif defined(_WIN32)
   int cpuInfo[4];
+  int max_function_id;
   __cpuid(cpuInfo, 0);
-  if (cpuInfo[0] >= 1) {
+  max_function_id = cpuInfo[0];
+  if (max_function_id >= 1) {
     __cpuid(cpuInfo, 1);
 #if defined(SSE4_1)
     sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
 #endif
 #if defined(AVX)
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
+#endif
+#if defined(AVX2)
+    if (max_function_id >= 7) {
+      __cpuid(cpuInfo, 7);
+      avx2_available_ = (cpuInfo[1] & 0x00000020) != 0;
+      avx512F_available_ = (cpuInfo[1] & 0x00010000) != 0;
+      avx512BW_available_ = (cpuInfo[1] & 0x40000000) != 0;
+    }
 #endif
   }
 #else
