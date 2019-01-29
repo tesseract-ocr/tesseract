@@ -264,7 +264,7 @@ if (WIN32)
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
                 PROPERTIES COMPILE_FLAGS "/arch:AVX2")
             set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simddetect.cpp
                 PROPERTIES COMPILE_FLAGS "/DAVX /DAVX2 /DSSE4_1")
         endif()  # NOT CLANG
     endif()  # MSVC
@@ -282,7 +282,7 @@ else()
             ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
             PROPERTIES COMPILE_FLAGS "-mavx2")
     set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simdetect.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simddetect.cpp
             PROPERTIES COMPILE_FLAGS "-DAVX -DAVX2 -DSSE4_1")
 endif()
 
