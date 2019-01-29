@@ -119,10 +119,9 @@ set(types_list
 )
 check_types(types_list)
 
-set(PACKAGE_VERSION "${VERSION_PLAIN}")
 file(APPEND ${AUTOCONFIG_SRC} "
 /* Version number */
-#cmakedefine PACKAGE_VERSION \"${VERSION_PLAIN}\"
+#cmakedefine PACKAGE_VERSION \"${PACKAGE_VERSION}\"
 ")
 
 test_big_endian(WORDS_BIGENDIAN)

@@ -45,6 +45,13 @@ file(STRINGS "VERSION" VERSION_PLAIN)
 string(REGEX REPLACE "^([^.]*)\\..*" "\\1" VERSION_MAJOR ${VERSION_PLAIN})
 string(REGEX REPLACE "^[^.]*\\.([^.]*)\\..*" "\\1" VERSION_MINOR ${VERSION_PLAIN})
 string(REGEX REPLACE "^[^.]*\\.[^.]*\\.([0-9]*).*" "\\1" VERSION_PATCH ${VERSION_PLAIN})
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
+    execute_process(COMMAND git describe --abbrev=4
+        OUTPUT_VARIABLE GIT_REV)
+    string(REGEX REPLACE "\n$" "" PACKAGE_VERSION "${GIT_REV}")
+elseif()
+    set(PACKAGE_VERSION ${VERSION_PLAIN})
+endif()
 
 # Provide also same macro names as autoconf (see configure.ac).
 set(GENERIC_MAJOR_VERSION ${VERSION_MAJOR})
