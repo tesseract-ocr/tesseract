@@ -248,6 +248,17 @@ class TESS_API TessUnlvRenderer : public TessResultRenderer {
 };
 
 /**
+ * Renders tesseract output into a plain UTF-8 text string for LSTMBOX
+ */
+class TESS_API TessLSTMBOXRenderer : public TessResultRenderer {
+ public:
+  explicit TessLSTMBOXRenderer(const char *outputbase);
+
+ protected:
+  virtual bool AddImageHandler(TessBaseAPI* api);
+};
+
+/**
  * Renders tesseract output into a plain UTF-8 text string
  */
 class TESS_API TessBoxTextRenderer : public TessResultRenderer {

@@ -494,6 +494,20 @@ static void PreloadRenderers(
       }
     }
 
+    api->GetBoolVariable("tessedit_create_lstmbox", &b);
+    if (b) {
+      tesseract::TessLSTMBOXRenderer* renderer =
+        new tesseract::TessLSTMBOXRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        delete renderer;
+        tprintf("Error, could not create LSTM BOX output file: %s\n",
+                strerror(errno));
+        error = true;
+      }
+    }
+
     api->GetBoolVariable("tessedit_create_boxfile", &b);
     if (b) {
       tesseract::TessBoxTextRenderer* renderer =
