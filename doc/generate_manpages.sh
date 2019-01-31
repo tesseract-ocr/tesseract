@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-man_xslt=/usr/share/xml/docbook/stylesheet/docbook-xsl/manpages/docbook.xsl
+man_xslt=http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
 asciidoc=$(which asciidoc)
 xsltproc=$(which xsltproc)
 if [[ -z "${asciidoc}" ]] || [[ -z "${xsltproc}" ]]; then
@@ -27,7 +27,7 @@ else
     pagename=${src/.asc/}
     (${asciidoc} -d manpage ${src} &&
      ${asciidoc} -d manpage -b docbook ${src} &&
-       ${xsltproc} ${man_xslt} ${pagename}.xml) ||
+       ${xsltproc} --nonet ${man_xslt} ${pagename}.xml) ||
        echo "Error generating ${pagename}"
   done
 fi
