@@ -71,6 +71,9 @@ option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan)
+    set(CPPAN_BUILD OFF)
+endif()
 
 ###############################################################################
 #
@@ -125,7 +128,7 @@ endif()
 #
 ###############################################################################
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR NOT CPPAN_BUILD)
+if(NOT CPPAN_BUILD)
     if (NOT Leptonica_DIR AND NOT MSVC)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
@@ -152,6 +155,7 @@ find_package(OpenCL QUIET)
 
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
+add_definitions(-DHAVE_CONFIG_H)
 
 include(Configure)
 
@@ -329,13 +333,13 @@ else()
 set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
-if (NOT CPPAN_BUILD)
-    target_link_libraries       (libtesseract ${Leptonica_LIBRARIES})
-    export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
-else()
+if (CPPAN_BUILD)
     target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
+else()
+    target_link_libraries       (libtesseract ${Leptonica_LIBRARIES})
+    export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 endif()
 
 if (WIN32 AND CLANG AND OPENMP_BUILD)
