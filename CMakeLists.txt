@@ -49,7 +49,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
     execute_process(COMMAND git describe --abbrev=4
         OUTPUT_VARIABLE GIT_REV)
     string(REGEX REPLACE "\n$" "" PACKAGE_VERSION "${GIT_REV}")
-elseif()
+else()
     set(PACKAGE_VERSION ${VERSION_PLAIN})
 endif()
 
@@ -65,6 +65,7 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 # options
 #
 ###############################################################################
+message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
 option(CPPAN_BUILD "Build with cppan" ON)
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
@@ -188,7 +189,6 @@ configure_file(
 include(BuildFunctions)
 include(SourceGroups)
 
-add_definitions(-DHAVE_CONFIG_H)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
 add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
 
