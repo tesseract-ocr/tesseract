@@ -189,7 +189,7 @@ TESS_API BOOL TESS_CALL TessBaseAPISetVariable(TessBaseAPI* handle, const char* 
 
 TESS_API BOOL TESS_CALL TessBaseAPISetDebugVariable(TessBaseAPI* handle, const char* name, const char* value)
 {
-    return handle->SetVariable(name, value) ? TRUE : FALSE;
+    return handle->SetDebugVariable(name, value) ? TRUE : FALSE;
 }
 
 TESS_API BOOL TESS_CALL TessBaseAPIGetIntVariable(const TessBaseAPI* handle, const char* name, int* value)
