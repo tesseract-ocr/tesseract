@@ -16,10 +16,6 @@
  *
  **********************************************************************/
 
-
-#include <locale>     // for std::locale::classic
-#include <memory>     // for std::unique_ptr
-#include <sstream>    // for std::stringstream
 #include "baseapi.h"  // for TessBaseAPI
 #include "renderer.h"
 #include "tesseractclass.h"  // for Tesseract
@@ -54,9 +50,9 @@ char* TessBaseAPI::GetLSTMBOXText(int page_number) {
     if (res_it->IsAtBeginningOf(RIL_WORD)) {
         lstm_box_str.add_str_int("  ", left);
         lstm_box_str.add_str_int(" ", image_height_ - bottom);
-        lstm_box_str.add_str_int(" ", right + 2);
+        lstm_box_str.add_str_int(" ", right + 5);
         lstm_box_str.add_str_int(" ", image_height_ - top);
-        lstm_box_str.add_str_int(" ", page_num);  // level 5 - word
+        lstm_box_str.add_str_int(" ", page_num);  // - word
         lstm_box_str += "\n";  // end of row for word
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
@@ -64,27 +60,28 @@ char* TessBaseAPI::GetLSTMBOXText(int page_number) {
         lstm_box_str.add_str_int(" ", image_height_ - bottom);
         lstm_box_str.add_str_int(" ", right  + 5);
         lstm_box_str.add_str_int(" ", image_height_ - top);
-        lstm_box_str.add_str_int(" ", page_num);  // level 4 - line
+        lstm_box_str.add_str_int(" ", page_num);  // - line
         lstm_box_str += "\n";  // end of row for line
     }
   }
   first_word=false;
-  res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
+  // Use bounding box for whole line for every character
+  res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
     
   do {
-        lstm_box_str +=std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
+        lstm_box_str +=
+                 std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
         res_it->Next(RIL_SYMBOL);
-    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
+     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
     
     lstm_box_str.add_str_int(" ", left);
     lstm_box_str.add_str_int(" ", image_height_ - bottom);
-    lstm_box_str.add_str_int(" ", right);
+    lstm_box_str.add_str_int(" ", right + 5);
     lstm_box_str.add_str_int(" ", image_height_ - top);
-    lstm_box_str.add_str_int(" ", page_num);  // level 6 - symbol
+    lstm_box_str.add_str_int(" ", page_num);  // symbol
     lstm_box_str += "\n";  // end of row
-    
+ 
   }
-
   char* ret = new char[lstm_box_str.length() + 1];
   strcpy(ret, lstm_box_str.string());
   delete res_it;
