@@ -190,7 +190,7 @@ parse_flags() {
                 FONT_CONFIG_CACHE=$WORKSPACE_DIR/fc-cache
                 mkdir -p $FONT_CONFIG_CACHE
                 i=$j ;;
-            --x_size)
+            --xsize)
                 parse_value "X_SIZE" ${ARGV[$j]:-}
                 i=$j ;;
             *)
