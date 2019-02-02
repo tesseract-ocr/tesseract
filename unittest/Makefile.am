@@ -100,8 +100,6 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
 check_PROGRAMS = \
-resultiterator_test \
-recodebeam_test \
   apiexample_test \
   applybox_test \
   baseapi_test \
@@ -127,7 +125,9 @@ recodebeam_test \
   paragraphs_test \
   progress_test \
   qrsequence_test \
+  recodebeam_test \
   rect_test \
+  resultiterator_test \
   shapetable_test \
   stats_test \
   stringrenderer_test \
@@ -268,7 +268,7 @@ rect_test_SOURCES = rect_test.cc
 rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 resultiterator_test_SOURCES = resultiterator_test.cc
-resultiterator_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+resultiterator_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 shapetable_test_SOURCES = shapetable_test.cc
 shapetable_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)

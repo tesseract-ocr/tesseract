@@ -12,8 +12,8 @@
 
 namespace {
 
-DEFINE_string(tess_config, "", "config file for tesseract");
-DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
+// DEFINE_string(tess_config, "", "config file for tesseract");
+// DEFINE_bool(visual_test, false, "Runs a visual test using scrollview");
 
 using tesseract::PageIterator;
 using tesseract::PageIteratorLevel;
@@ -51,8 +51,8 @@ class ResultIteratorTest : public testing::Test {
   void SetImage(const char* filename) {
     src_pix_ = pixRead(TestDataNameToPath(filename).c_str());
     api_.Init(TessdataPath().c_str(), "eng", tesseract::OEM_TESSERACT_ONLY);
-    if (!FLAGS_tess_config.empty())
-      api_.ReadConfigFile(FLAGS_tess_config.c_str());
+//    if (!FLAGS_tess_config.empty())
+//      api_.ReadConfigFile(FLAGS_tess_config.c_str());
     api_.SetPageSegMode(tesseract::PSM_AUTO);
     api_.SetImage(src_pix_);
     pixDestroy(&src_pix_);
@@ -79,7 +79,7 @@ class ResultIteratorTest : public testing::Test {
         EXPECT_TRUE(it->BoundingBox(im_level, &left, &top, &right, &bottom));
       }
       LOG(INFO) << "BBox: [L:" << left << ", T:" << top << ", R:" << right
-              << ", B:" << bottom << "]";
+              << ", B:" << bottom << "]" << "\n";
       Pix* block_pix;
       if (depth == 1) {
         block_pix = it->GetBinaryImage(im_level);
@@ -94,8 +94,8 @@ class ResultIteratorTest : public testing::Test {
       CHECK(block_pix != nullptr);
       pixDestroy(&block_pix);
     } while (it->Next(level));
-    if (base::GetFlag(FLAGS_v) >= 1)
-      pixWrite(OutputNameToPath("rebuilt.png").c_str(), pix, IFF_PNG);
+//    if (base::GetFlag(FLAGS_v) >= 1)
+//      pixWrite(OutputNameToPath("rebuilt.png").c_str(), pix, IFF_PNG);
     pixRasterop(pix, 0, 0, width, height, PIX_SRC ^ PIX_DST, src_pix_, 0, 0);
     if (depth == 8) {
       Pix* binary_pix = pixThresholdToBinary(pix, 128);
@@ -103,19 +103,19 @@ class ResultIteratorTest : public testing::Test {
       pixInvert(binary_pix, binary_pix);
       pix = binary_pix;
     }
-    if (base::GetFlag(FLAGS_v) >= 1)
-      pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
+//    if (base::GetFlag(FLAGS_v) >= 1)
+//      pixWrite(OutputNameToPath("rebuiltxor.png").c_str(), pix, IFF_PNG);
     l_int32 pixcount;
     pixCountPixels(pix, &pixcount, nullptr);
     if (pixcount > max_diff) {
       std::string outfile = OutputNameToPath("failedxor.png");
-      LOG(INFO) << "outfile = " << outfile;
+      LOG(INFO) << "outfile = " << outfile << "\n";
       pixWrite(outfile.c_str(), pix, IFF_PNG);
     }
     pixDestroy(&pix);
     LOG(INFO) << absl::StrFormat("At level %d: pix diff = %d\n", level, pixcount);
     EXPECT_LE(pixcount, max_diff);
-    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
+//    if (base::GetFlag(FLAGS_v) > 1) CHECK_LE(pixcount, max_diff);
   }
 
   // Rebuilds the text from the iterator strings at the given level, and
@@ -233,44 +233,45 @@ class ResultIteratorTest : public testing::Test {
 
 // Tests layout analysis output (and scrollview) on the UNLV page numbered
 // 8087_054.3G.tif. (Dubrovnik), but only if --visual_test is true.
-TEST_F(ResultIteratorTest, VisualTest) {
-  if (!FLAGS_visual_test) return;
-  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
-  for (int i = 0; kIms[i] != nullptr; ++i) {
-    SetImage(kIms[i]);
-    // Just run layout analysis.
-    PageIterator* it = api_.AnalyseLayout();
-    EXPECT_FALSE(it == nullptr);
-    // Make a scrollview window for the display.
-    int width = pixGetWidth(src_pix_);
-    int height = pixGetHeight(src_pix_);
-    ScrollView* win =
-        new ScrollView(kIms[i], 100, 100, width / 2, height / 2, width, height);
-    win->Image(src_pix_, 0, 0);
-    it->Begin();
-    ScrollView::Color color = ScrollView::RED;
-    win->Brush(ScrollView::NONE);
-    do {
-      Pta* pts = it->BlockPolygon();
-      if (pts != nullptr) {
-        win->Pen(color);
-        int num_pts = ptaGetCount(pts);
-        l_float32 x, y;
-        ptaGetPt(pts, num_pts - 1, &x, &y);
-        win->SetCursor(static_cast<int>(x), static_cast<int>(y));
-        for (int p = 0; p < num_pts; ++p) {
-          ptaGetPt(pts, p, &x, &y);
-          win->DrawTo(static_cast<int>(x), static_cast<int>(y));
-        }
-      }
-      ptaDestroy(&pts);
-    } while (it->Next(tesseract::RIL_BLOCK));
-    win->Update();
-    delete win->AwaitEvent(SVET_DESTROY);
-    delete win;
-    delete it;
-  }
-}
+// 
+//TEST_F(ResultIteratorTest, VisualTest) {
+//  if (!FLAGS_visual_test) return;
+//  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
+//  for (int i = 0; kIms[i] != nullptr; ++i) {
+//    SetImage(kIms[i]);
+//    // Just run layout analysis.
+//    PageIterator* it = api_.AnalyseLayout();
+//    EXPECT_FALSE(it == nullptr);
+//    // Make a scrollview window for the display.
+//    int width = pixGetWidth(src_pix_);
+//    int height = pixGetHeight(src_pix_);
+//    ScrollView* win =
+//        new ScrollView(kIms[i], 100, 100, width / 2, height / 2, width, height);
+//    win->Image(src_pix_, 0, 0);
+//    it->Begin();
+//    ScrollView::Color color = ScrollView::RED;
+//    win->Brush(ScrollView::NONE);
+//    do {
+//      Pta* pts = it->BlockPolygon();
+//      if (pts != nullptr) {
+//        win->Pen(color);
+//        int num_pts = ptaGetCount(pts);
+//        l_float32 x, y;
+//        ptaGetPt(pts, num_pts - 1, &x, &y);
+//        win->SetCursor(static_cast<int>(x), static_cast<int>(y));
+//        for (int p = 0; p < num_pts; ++p) {
+//          ptaGetPt(pts, p, &x, &y);
+//          win->DrawTo(static_cast<int>(x), static_cast<int>(y));
+//        }
+//      }
+//      ptaDestroy(&pts);
+//    } while (it->Next(tesseract::RIL_BLOCK));
+//    win->Update();
+//    delete win->AwaitEvent(SVET_DESTROY);
+//    delete win;
+//    delete it;
+//  }
+//}
 
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(ResultIteratorTest, EasyTest) {
@@ -285,7 +286,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
   EXPECT_FALSE(p_it->IsAtBeginningOf(tesseract::RIL_BLOCK));
 
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 1 (pageiterator)";
+  LOG(INFO) << "Verifying image rebuilds 1 (pageiterator)" << "\n";
   VerifyRebuilds(10, 10, 0, 0, 0, p_it);
   delete p_it;
 
@@ -294,21 +295,21 @@ TEST_F(ResultIteratorTest, EasyTest) {
   delete[] result;
   ResultIterator* r_it = api_.GetIterator();
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)";
+  LOG(INFO) << "Verifying image rebuilds 2a (resultiterator)" << "\n";
   VerifyRebuilds(8, 8, 0, 0, 40, r_it);
   // Test the text.
-  LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)";
+  LOG(INFO) << "Verifying text rebuilds 1 (resultiterator)" << "\n";
   VerifyAllText(ocr_text_, r_it);
 
   // The images should rebuild almost perfectly.
-  LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)";
+  LOG(INFO) << "Verifying image rebuilds 2b (resultiterator)" << "\n";
   VerifyRebuilds(8, 8, 0, 0, 40, r_it);
 
   r_it->Begin();
   // Test baseline of the first line.
   int x1, y1, x2, y2;
   r_it->Baseline(tesseract::RIL_TEXTLINE, &x1, &y1, &x2, &y2);
-  LOG(INFO) << absl::StrFormat("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2);
+  LOG(INFO) << absl::StrFormat("Baseline (%d,%d)->(%d,%d)", x1, y1, x2, y2) << "\n";
   // Make sure we have a decent vector.
   EXPECT_GE(x2, x1 + 400);
   // The point 200,116 should be very close to the baseline.
@@ -332,7 +333,7 @@ TEST_F(ResultIteratorTest, EasyTest) {
     EXPECT_GE(confidence, 80.0f);
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     LOG(INFO) << absl::StrFormat("Word %s in font %s, id %d, size %d, conf %g",
-                            word_str, font, font_id, pointsize, confidence);
+                            word_str, font, font_id, pointsize, confidence) << "\n";
     delete[] word_str;
     EXPECT_FALSE(bold);
     EXPECT_FALSE(italic);
@@ -388,7 +389,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
       LOG(INFO) << absl::StrFormat("Word %s is %s", word_str,
-                              smallcaps ? "Smallcaps" : "Normal");
+                              smallcaps ? "SMALLCAPS" : "Normal") << "\n";
       if (r_it->SymbolIsDropcap()) {
         ++found_dropcaps;
       }
@@ -421,6 +422,7 @@ TEST_F(ResultIteratorTest, SmallCapDropCapTest) {
   EXPECT_GE(4, found_smallcaps);
   EXPECT_LE(false_positives, 3);
 }
+
 #if 0
 // TODO(rays) uncomment on the next change to layout analysis.
 // CL 22736106 breaks it, but it is fixed in the change when
@@ -461,7 +463,7 @@ TEST_F(ResultIteratorTest, SubSuperTest) {
   } while (r_it->Next(tesseract::RIL_SYMBOL));
   delete r_it;
   LOG(INFO) << absl::StrFormat("Subs = %d, supers= %d, normal = %d",
-                          found_subs, found_supers, found_normal);
+                          found_subs, found_supers, found_normal) << "\n";
   EXPECT_GE(found_subs, 25);
   EXPECT_GE(found_supers, 25);
   EXPECT_GE(found_normal, 1350);
@@ -543,7 +545,8 @@ TEST_F(ResultIteratorTest, TextlineOrderSanityCheck) {
   }
 }
 
-TEST_F(ResultIteratorTest, NonNullChoicesTest) {
+// TODO: Missing image
+TEST_F(ResultIteratorTest, DISABLED_NonNullChoicesTest) {
   SetImage("5318c4b679264.jpg");
   char* result = api_.GetUTF8Text();
   delete[] result;
@@ -552,16 +555,16 @@ TEST_F(ResultIteratorTest, NonNullChoicesTest) {
   do {
     char* word_str = r_it->GetUTF8Text(tesseract::RIL_WORD);
     if (word_str != nullptr) {
-      LOG(INFO) << absl::StrFormat("Word %s:", word_str);
+      LOG(INFO) << absl::StrFormat("Word %s:", word_str) << "\n";
       ResultIterator s_it = *r_it;
       do {
         tesseract::ChoiceIterator c_it(s_it);
         do {
           const char* char_str = c_it.GetUTF8Text();
           if (char_str == nullptr)
-            LOG(INFO) << "Null char choice";
+            LOG(INFO) << "Null char choice" << "\n";
           else
-            LOG(INFO) << "Char choice " << char_str;
+            LOG(INFO) << "Char choice " << char_str << "\n";
           CHECK(char_str != nullptr);
         } while (c_it.Next());
       } while (
@@ -573,8 +576,10 @@ TEST_F(ResultIteratorTest, NonNullChoicesTest) {
   delete r_it;
 }
 
+// TODO: Missing image
 TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
-  SetImage("line6.tiff");
+//  SetImage("line6.tiff");
+  SetImage("trainingitalline.tif");
   api_.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
   // Force recognition so we can used the result iterator.
   // We don't care about the return from GetUTF8Text.
@@ -600,7 +605,7 @@ TEST_F(ResultIteratorTest, NonNullConfidencesTest) {
           s_it.Next(tesseract::RIL_SYMBOL));
       delete[] word_str;
     } else {
-      LOG(INFO) << "Empty word found";
+      LOG(INFO) << "Empty word found" << "\n";
     }
   } while (r_it->Next(tesseract::RIL_WORD));
   delete r_it;
