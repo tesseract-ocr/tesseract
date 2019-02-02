@@ -29,6 +29,10 @@ echo -e "USAGE: tesstrain.sh
      --maxpages                 # Specify maximum pages to output (default:0=all)
      --save_box_tiff            # Save box/tiff pairs along with lstmf files.
      --xsize                    # Specify width of output image (default:3600)
+    
+  OPTIONAL flag for specifying directory with user specified box/tiff pairs.
+  Files should be named similar to ${LANG_CODE}.${fontname}.exp${EXPOSURE}.box/tif
+     --my_boxtiff_dir MY_BOXTIFF_DIR # Location of user specified box/tiff files.
      
   OPTIONAL flags for input data. If unspecified we will look for them in
   the langdata_dir directory.
@@ -60,6 +64,14 @@ ARGV=("$@")
 parse_flags
 
 mkdir -p ${TRAINING_DIR}
+
+if [[ ${MY_BOXTIFF_DIR} != "" ]]; then
+    tlog "\n=== Copy existing box/tiff pairs from '${MY_BOXTIFF_DIR}'"
+    cp  ${MY_BOXTIFF_DIR}/*.box ${TRAINING_DIR} | true
+    cp  ${MY_BOXTIFF_DIR}/*.tif ${TRAINING_DIR} | true
+    ls -l  ${TRAINING_DIR}
+fi
+
 tlog "\n=== Starting training for language '${LANG_CODE}'"
 
 source "$(dirname $0)/language-specific.sh"
@@ -72,8 +84,8 @@ phase_UP_generate_unicharset
 if ((LINEDATA)); then
   phase_E_extract_features " --psm 6  lstm.train " 8 "lstmf"
   make__lstmdata
-  tlog "\nCreated starter traineddata for language '${LANG_CODE}'\n"
-  tlog "\nRun lstmtraining to do the LSTM training for language '${LANG_CODE}'\n"
+  tlog "\nCreated starter traineddata for LSTM training of language '${LANG_CODE}'\n"
+  tlog "\nRun 'lstmtraining' command to continue LSTM training for language '${LANG_CODE}'\n"
 else
   phase_D_generate_dawg
   phase_E_extract_features "box.train" 8 "tr"

@@ -36,6 +36,7 @@ fi
 X_SIZE=3600
 MAX_PAGES=0
 SAVE_BOX_TIFF=0
+MY_BOXTIFF_DIR=""
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
 LINEDATA=0
@@ -156,6 +157,9 @@ parse_flags() {
                 i=$j ;;
             --maxpages)
                 parse_value "MAX_PAGES" ${ARGV[$j]:-}
+                i=$j ;;
+            --my_boxtiff_dir)
+                parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
