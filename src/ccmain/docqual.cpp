@@ -732,6 +732,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           break;
         case FIRST_NUM:
           isolated_digits++;
+          // Fall through.
         default:
           state = FIRST_UPPER;
           last_char = word->uch_set->unichar_to_id(str, *lengths);
@@ -762,6 +763,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
           break;
         case FIRST_NUM:
           isolated_digits++;
+          // Fall through.
         default:
           state = FIRST_LOWER;
           last_char = word->uch_set->unichar_to_id(str, *lengths);
@@ -780,6 +782,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
         case FIRST_UPPER:
         case FIRST_LOWER:
           isolated_alphas++;
+          // Fall through.
         default:
           state = FIRST_NUM;
           break;

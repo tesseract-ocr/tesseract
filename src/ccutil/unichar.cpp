@@ -110,12 +110,15 @@ int UNICHAR::first_uni() const {
   case 4:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 3:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 2:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 1:
     uni += static_cast<unsigned char>(*src++);
   }
