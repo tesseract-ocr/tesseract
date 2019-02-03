@@ -249,7 +249,7 @@ static void SetVariablesFromCLArgs(tesseract::TessBaseAPI* api, int argc,
         exit(EXIT_FAILURE);
       }
       *p = 0;
-      strncpy(opt2, strchr(argv[i + 1], '=') + 1, 255);
+      strncpy(opt2, strchr(argv[i + 1], '=') + 1, sizeof(opt2) - 1);
       opt2[254] = 0;
       ++i;
 
