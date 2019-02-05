@@ -1,6 +1,6 @@
 datadir = @datadir@/tessdata/configs
 data_DATA = inter makebox box.train unlv ambigs.train lstm.train lstmdebug
-data_DATA += api_config kannada box.train.stderr quiet logfile digits
+data_DATA += api_config kannada box.train.stderr quiet logfile digits get.images
 # Configurations for OCR output.
 data_DATA += alto hocr pdf tsv txt
 data_DATA += linebox rebox strokewidth bigram
