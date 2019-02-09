@@ -25,8 +25,11 @@
 #include <cstring>
 
 #include "otsuthr.h"
+#include "tprintf.h"    // for tprintf
 
-#include "openclwrapper.h" // for PERF_COUNT_START, ...
+#if defined(USE_OPENCL)
+#include "openclwrapper.h" // for OpenclDevice
+#endif
 
 namespace tesseract {
 
@@ -263,7 +266,6 @@ Pix* ImageThresholder::GetPixRectGrey() {
 // Otsu thresholds the rectangle, taking the rectangle from *this.
 void ImageThresholder::OtsuThresholdRectToPix(Pix* src_pix,
                                               Pix** out_pix) const {
-  PERF_COUNT_START("OtsuThresholdRectToPix")
   int* thresholds;
   int* hi_values;
 
@@ -286,8 +288,6 @@ void ImageThresholder::OtsuThresholdRectToPix(Pix* src_pix,
 #endif
   delete [] thresholds;
   delete [] hi_values;
-
-  PERF_COUNT_END
 }
 
 /// Threshold the rectangle, taking everything except the src_pix
@@ -299,7 +299,6 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
                                           const int* thresholds,
                                           const int* hi_values,
                                           Pix** pix) const {
-  PERF_COUNT_START("ThresholdRectToPix")
   *pix = pixCreate(rect_width_, rect_height_, 1);
   uint32_t* pixdata = pixGetData(*pix);
   int wpl = pixGetWpl(*pix);
@@ -325,8 +324,6 @@ void ImageThresholder::ThresholdRectToPix(Pix* src_pix,
         SET_DATA_BIT(pixline, x);
     }
   }
-
-  PERF_COUNT_END
 }
 
 }  // namespace tesseract.
