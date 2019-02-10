@@ -252,7 +252,7 @@ class TESS_API TessUnlvRenderer : public TessResultRenderer {
  */
 class TESS_API TessLSTMBOXRenderer : public TessResultRenderer {
  public:
-  explicit TessLSTMBOXRenderer(const char *outputbase);
+  explicit TessLSTMBOXRenderer(const char* outputbase);
 
  protected:
   virtual bool AddImageHandler(TessBaseAPI* api);
