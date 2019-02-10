@@ -197,7 +197,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     DebugUnicharPath(unicharset, second_nodes, unichar_ids, certs, ratings,
                      xcoords);
   }
-  int current_char;
+  int current_char = 0;
   int timestepEnd = 0;
   //if lstm choice mode is required in granularity level 2 it stores the x
   //Coordinates of every chosen character to match the alternative choices to it

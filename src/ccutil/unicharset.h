@@ -63,7 +63,7 @@ class CHAR_FRAGMENT {
     set_natural(natural);
   }
   inline void set_unichar(const char *uch) {
-    strncpy(this->unichar, uch, UNICHAR_LEN);
+    strncpy(this->unichar, uch, sizeof(this->unichar));
     this->unichar[UNICHAR_LEN] = '\0';
   }
   inline void set_pos(int p) { this->pos = p; }

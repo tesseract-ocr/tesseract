@@ -803,7 +803,7 @@ bool UNICHARSET::load_via_fgets(
     unsigned int properties;
     char script[64];
 
-    strncpy(script, null_script, sizeof(script));
+    strncpy(script, null_script, sizeof(script) - 1);
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;

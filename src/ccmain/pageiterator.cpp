@@ -277,7 +277,7 @@ bool PageIterator::BoundingBoxInternal(PageIteratorLevel level,
       break;
     case RIL_PARA:
       para = it_->row()->row->para();
-      // explicit fall-through.
+      // Fall through.
     case RIL_TEXTLINE:
       box = it_->row()->row->restricted_bounding_box(include_upper_dots_,
                                                      include_lower_dots_);
