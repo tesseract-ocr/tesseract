@@ -268,7 +268,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       if (grapheme && grapheme[0] != 0) {
         if (hocr_boxes) {
           res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
-          hocr_str << "<span class='ocrx_cinfo' title='x_bboxes "
+          hocr_str << "\n             <span class='ocrx_cinfo' title='x_bboxes "
                    << left << " " << top << " " << right << " " << bottom
                    << "; x_conf " << res_it->Confidence(RIL_SYMBOL) << "'>";
         }

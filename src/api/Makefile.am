@@ -35,6 +35,7 @@ endif
 libtesseract_api_la_SOURCES = baseapi.cpp capi.cpp
 libtesseract_api_la_SOURCES += altorenderer.cpp
 libtesseract_api_la_SOURCES += hocrrenderer.cpp
+libtesseract_api_la_SOURCES += lstmboxrenderer.cpp
 libtesseract_api_la_SOURCES += pdfrenderer.cpp
 libtesseract_api_la_SOURCES += renderer.cpp
 

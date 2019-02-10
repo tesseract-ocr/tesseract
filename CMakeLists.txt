@@ -252,6 +252,7 @@ set(tesseract_src ${tesseract_src}
     src/api/renderer.cpp
     src/api/altorenderer.cpp
     src/api/hocrrenderer.cpp
+    src/api/lstmboxrenderer.cpp
     src/api/pdfrenderer.cpp
 )
 

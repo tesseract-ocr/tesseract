@@ -613,6 +613,14 @@ class TESS_API TessBaseAPI {
    * Returned string must be freed with the delete [] operator.
    */
   char* GetTSVText(int page_number);
+  
+  /**
+   * Make a box file for LSTM training from the internal data structures.
+   * Constructs coordinates in the original image - not just the rectangle.
+   * page_number is a 0-based page index that will appear in the box file.
+   * Returned string must be freed with the delete [] operator.
+   */
+  char* GetLSTMBOXText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same
