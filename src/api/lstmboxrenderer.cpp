@@ -27,61 +27,59 @@ namespace tesseract {
  * page_number is a 0-base page index that will appear in the box file.
  * Returned string must be freed with the delete [] operator.
  */
+static void AddBoxToLSTM(int right, int bottom, int top, 
+                        int image_height_, int page_num,
+                        STRING* text) {
+        text->add_str_int(" ", image_height_ - bottom);
+        text->add_str_int(" ", right + 5);
+        text->add_str_int(" ", image_height_ - top);
+        text->add_str_int(" ", page_num);  
+}
  
 char* TessBaseAPI::GetLSTMBOXText(int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
     return nullptr;
 
   STRING lstm_box_str("");
-
   int page_num = page_number;
   bool first_word = true;
-
+  int left, top, right, bottom;
+  
   LTRResultIterator* res_it = GetLTRIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_SYMBOL)) {
       res_it->Next(RIL_SYMBOL);
       continue;
     }
-  
-  int left, top, right, bottom;
-  
   if (!first_word) {
+   if (!(res_it->IsAtBeginningOf(RIL_TEXTLINE))) {
     if (res_it->IsAtBeginningOf(RIL_WORD)) {
         lstm_box_str.add_str_int("  ", left);
-        lstm_box_str.add_str_int(" ", image_height_ - bottom);
-        lstm_box_str.add_str_int(" ", right + 5);
-        lstm_box_str.add_str_int(" ", image_height_ - top);
-        lstm_box_str.add_str_int(" ", page_num);  // - word
+        AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
         lstm_box_str += "\n";  // end of row for word
-    }
+    } // word
+   } else {
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
         lstm_box_str.add_str_int("\t ", left);
-        lstm_box_str.add_str_int(" ", image_height_ - bottom);
-        lstm_box_str.add_str_int(" ", right  + 5);
-        lstm_box_str.add_str_int(" ", image_height_ - top);
-        lstm_box_str.add_str_int(" ", page_num);  // - line
+        AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
         lstm_box_str += "\n";  // end of row for line
-    }
-  }
+    } // line
+   }
+  } // not first word
   first_word=false;
-  // Use bounding box for whole line for every character
+  // Use bounding box for whole line for everything
   res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
-    
-  do {
-        lstm_box_str +=
+  do { lstm_box_str +=
                  std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
         res_it->Next(RIL_SYMBOL);
      } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
-    
     lstm_box_str.add_str_int(" ", left);
-    lstm_box_str.add_str_int(" ", image_height_ - bottom);
-    lstm_box_str.add_str_int(" ", right + 5);
-    lstm_box_str.add_str_int(" ", image_height_ - top);
-    lstm_box_str.add_str_int(" ", page_num);  // symbol
-    lstm_box_str += "\n";  // end of row
- 
+    AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
+    lstm_box_str += "\n";  // end of row for symbol
   }
+  lstm_box_str.add_str_int("\t ", left);
+  AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
+  lstm_box_str += "\n";  // end of PAGE
   char* ret = new char[lstm_box_str.length() + 1];
   strcpy(ret, lstm_box_str.string());
   delete res_it;
