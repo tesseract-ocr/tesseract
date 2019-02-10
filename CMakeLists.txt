@@ -254,6 +254,7 @@ set(tesseract_src ${tesseract_src}
     src/api/hocrrenderer.cpp
     src/api/lstmboxrenderer.cpp
     src/api/pdfrenderer.cpp
+    src/api/wordstrboxrenderer.cpp
 )
 
 if (WIN32)

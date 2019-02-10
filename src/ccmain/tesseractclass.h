@@ -1042,6 +1042,7 @@ class Tesseract : public Wordrec {
   BOOL_VAR_H(tessedit_create_alto, false, "Write .xml ALTO output file");
   BOOL_VAR_H(tessedit_create_lstmbox, false, "Write .box file for LSTM training");
   BOOL_VAR_H(tessedit_create_tsv, false, "Write .tsv output file");
+  BOOL_VAR_H(tessedit_create_wordstrbox, false, "Write WordStr format .box output file");
   BOOL_VAR_H(tessedit_create_pdf, false, "Write .pdf output file");
   BOOL_VAR_H(textonly_pdf, false,
              "Create PDF with only one invisible text layer");
