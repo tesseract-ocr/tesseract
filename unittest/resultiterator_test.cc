@@ -122,7 +122,7 @@ class ResultIteratorTest : public testing::Test {
   // EXPECTs that the rebuild string exactly matches the truth string.
   void VerifyIteratorText(const std::string& truth, PageIteratorLevel level,
                           ResultIterator* it) {
-    LOG(INFO) << "Text Test Level " << level;
+    LOG(INFO) << "Text Test Level " << level << "\n";
     it->Begin();
     std::string result;
     do {
@@ -136,7 +136,9 @@ class ResultIteratorTest : public testing::Test {
         } else {
           result += ' ';
         }
-        if (it->IsAtFinalElement(tesseract::RIL_PARA, level)) result += '\n';
+        if (it->IsAtFinalElement(tesseract::RIL_PARA, level) &&
+           !(it->IsAtFinalElement(tesseract::RIL_BLOCK, level)))
+           result += '\n';
       }
     } while (it->Next(level));
     EXPECT_STREQ(truth.c_str(), result.c_str())
