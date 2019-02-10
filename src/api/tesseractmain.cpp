@@ -28,7 +28,9 @@
 #include "baseapi.h"
 #include "basedir.h"
 #include "dict.h"
-#include "openclwrapper.h"      // for PERF_COUNT_START, ...
+#if defined(USE_OPENCL)
+#include "openclwrapper.h"      // for OpenclDevice
+#endif
 #include "osdetect.h"
 #include "renderer.h"
 #include "simddetect.h"
@@ -582,8 +584,6 @@ int main(int argc, char** argv) {
   if (image == nullptr && !list_langs && !print_parameters)
     return EXIT_SUCCESS;
 
-  PERF_COUNT_START("Tesseract:main")
-
   // Call GlobalDawgCache here to create the global DawgCache object before
   // the TessBaseAPI object. This fixes the order of destructor calls:
   // first TessBaseAPI must be destructed, DawgCache must be the last object.
@@ -720,8 +720,6 @@ int main(int argc, char** argv) {
       return EXIT_FAILURE;
     }
   }
-
-  PERF_COUNT_END
 
   return EXIT_SUCCESS;
 }

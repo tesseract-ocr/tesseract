@@ -70,7 +70,9 @@
 #include "mutableiterator.h"   // for MutableIterator
 #include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
 #include "ocrclass.h"          // for ETEXT_DESC
-#include "openclwrapper.h"     // for PERF_COUNT_END, PERF_COUNT_START, PERF...
+#if defined(USE_OPENCL)
+#include "openclwrapper.h"     // for OpenclDevice
+#endif
 #include "osdetect.h"          // for OSResults, OSBestResult, OrientationId...
 #include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"        // for DetectParagraphs
@@ -360,7 +362,6 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
                       const GenericVector<STRING>* vars_vec,
                       const GenericVector<STRING>* vars_values,
                       bool set_only_non_debug_params, FileReader reader) {
-  PERF_COUNT_START("TessBaseAPI::Init")
   // Default language is "eng".
   if (language == nullptr) language = "eng";
   STRING datapath = data_size == 0 ? data : language;
@@ -376,12 +377,10 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     delete tesseract_;
     tesseract_ = nullptr;
   }
-  // PERF_COUNT_SUB("delete tesseract_")
 #ifdef USE_OPENCL
   OpenclDevice od;
   od.InitEnv();
 #endif
-  PERF_COUNT_SUB("OD::InitEnv()")
   bool reset_classifier = true;
   if (tesseract_ == nullptr) {
     reset_classifier = false;
@@ -400,7 +399,6 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     }
   }
 
-  PERF_COUNT_SUB("update tesseract_")
   // Update datapath and language requested for the last valid initialization.
   if (datapath_ == nullptr)
     datapath_ = new STRING(datapath);
@@ -417,14 +415,11 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
   last_oem_requested_ = oem;
 
 #ifndef DISABLED_LEGACY_ENGINE
-  // PERF_COUNT_SUB("update last_oem_requested_")
   // For same language and datapath, just reset the adaptive classifier.
   if (reset_classifier) {
     tesseract_->ResetAdaptiveClassifier();
-    PERF_COUNT_SUB("tesseract_->ResetAdaptiveClassifier()")
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
-  PERF_COUNT_END
   return 0;
 }
 
@@ -1106,7 +1101,6 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer) {
-  PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
 #ifdef WIN32
@@ -1199,14 +1193,12 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   if (!r || (renderer && !renderer->EndDocument())) {
     return false;
   }
-  PERF_COUNT_END
   return true;
 }
 
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
                               const char* retry_config, int timeout_millisec,
                               TessResultRenderer* renderer) {
-  PERF_COUNT_START("ProcessPage")
   SetInputName(filename);
   SetImage(pix);
   bool failed = false;
@@ -1264,7 +1256,6 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     failed = !renderer->AddImage(this);
   }
 
-  PERF_COUNT_END
   return !failed;
 }
 
