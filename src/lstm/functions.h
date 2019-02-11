@@ -18,7 +18,6 @@
 #ifndef TESSERACT_LSTM_FUNCTIONS_H_
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
-#include <cmath>
 #include "helpers.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
@@ -42,39 +41,24 @@ extern double LogisticTable[];
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline double Tanh(double x) {
   if (x < 0.0) return -Tanh(-x);
-  if (x >= (kTableSize - 1) / kScaleFactor) return 1.0;
   x *= kScaleFactor;
-  int index = static_cast<int>(floor(x));
-  if (TanhTable[index] == 0.0 && index > 0) {
-    // Generate the entry.
-    TanhTable[index] = tanh(index / kScaleFactor);
-  }
-  if (index == kTableSize - 1) return TanhTable[kTableSize - 1];
-  if (TanhTable[index + 1] == 0.0) {
-    // Generate the entry.
-    TanhTable[index + 1] = tanh((index + 1) / kScaleFactor);
-  }
-  double offset = x - index;
-  return TanhTable[index] * (1.0 - offset) + TanhTable[index + 1] * offset;
+  int index = static_cast<int>(x);
+  if (index >= (kTableSize - 1)) return 1.0;
+  double tanh_i0 = TanhTable[index];
+  double tanh_i1 = TanhTable[index + 1];
+  // Linear interpolation.
+  return tanh_i0 + (tanh_i1 - tanh_i0) * (x - index);
 }
 
 inline double Logistic(double x) {
   if (x < 0.0) return 1.0 - Logistic(-x);
-  if (x >= (kTableSize - 1) / kScaleFactor) return 1.0;
   x *= kScaleFactor;
-  int index = static_cast<int>(floor(x));
-  if (LogisticTable[index] == 0.0) {
-    // Generate the entry.
-    LogisticTable[index] = 1.0 / (1.0 + exp(-index / kScaleFactor));
-  }
-  if (index == kTableSize - 1) return LogisticTable[kTableSize - 1];
-  if (LogisticTable[index + 1] == 0.0) {
-    // Generate the entry.
-    LogisticTable[index + 1] = 1.0 / (1.0 + exp(-(index + 1) / kScaleFactor));
-  }
-  double offset = x - index;
-  return LogisticTable[index] * (1.0 - offset) +
-         LogisticTable[index + 1] * offset;
+  int index = static_cast<int>(x);
+  if (index >= (kTableSize - 1)) return 1.0;
+  double l0 = LogisticTable[index];
+  double l1 = LogisticTable[index + 1];
+  // Linear interpolation.
+  return l0 + (l1 - l0) * (x - index);
 }
 
 // Non-linearity (sigmoid) functions and their derivatives.

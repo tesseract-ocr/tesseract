@@ -2,7 +2,6 @@
 // File:        functions.cpp
 // Description: Static initialize-on-first-use non-linearity functions.
 // Author:      Ray Smith
-// Created:     Tue Jul 17 14:02:59 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,11 +15,24 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#include <cmath>        // for exp, tanh
 #include "functions.h"
 
 namespace tesseract {
 
 double TanhTable[kTableSize];
 double LogisticTable[kTableSize];
+
+class TableInit {
+  TableInit() {
+    for (int i = 0; i < kTableSize; i++) {
+      TanhTable[i] = tanh(i / kScaleFactor);
+      LogisticTable[i] = 1 / (1 + exp(-i / kScaleFactor));
+    }
+  }
+  static TableInit tableInit;
+};
+
+TableInit TableInit::tableInit;
 
 }  // namespace tesseract.
