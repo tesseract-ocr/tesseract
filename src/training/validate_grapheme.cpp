@@ -16,10 +16,10 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
     const bool is_combiner =
         cc == CharClass::kCombiner || cc == CharClass::kVirama;
     // Reject easily detected badly formed sequences.
-    //if (prev_cc == CharClass::kWhitespace && is_combiner) {
-    //  if (report_errors_) tprintf("Word started with a combiner:0x%x\n", ch);
-    //  return false;
-    //}
+    if (prev_cc == CharClass::kWhitespace && is_combiner) {
+      if (report_errors_) tprintf("Word started with a combiner:0x%x\n", ch);
+      return false;
+    }
     if (prev_cc == CharClass::kVirama && cc == CharClass::kVirama) {
       if (report_errors_)
         tprintf("Two grapheme links in a row:0x%x 0x%x\n", prev_ch, ch);
