@@ -111,7 +111,7 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
     }
   }
   // The following characters are allowed, all optional, and in sequence.
-  const std::vector<char32> kSigns({0x1036, 0x1037});
+  const std::vector<char32> kSigns({0x1036, 0x1037, 0x1038});
   for (char32 ch : kSigns) {
     if (codes_[codes_used_].second == ch) {
       if (UseMultiCode(1)) return true;
@@ -152,7 +152,7 @@ bool ValidateMyanmar::IsMyanmarOther(char32 ch) {
   if (script_code != USCRIPT_MYANMAR && ch != Validator::kZeroWidthJoiner &&
       ch != Validator::kZeroWidthNonJoiner)
     return true;
-  return (0x1040 <= ch && ch <= 0x104b) || (0x1090 <= ch && ch <= 0x1099) ||
+  return (0x1040 <= ch && ch <= 0x104f) || (0x1090 <= ch && ch <= 0x1099) ||
          (0x109c <= ch && ch <= 0x109d) || (0xa9f0 <= ch && ch <= 0xa9f9) ||
          (0xaa74 <= ch && ch <= 0xaa79);
 }
