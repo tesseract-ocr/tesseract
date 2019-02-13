@@ -338,7 +338,6 @@ dnl ********************
 OLD_CXXFLAGS=$CXXFLAGS
 AC_MSG_CHECKING([whether compiler supports C++11])
 CXXFLAGS="$CXXFLAGS -std=c++11"
-snprintfworks=no
 AC_COMPILE_IFELSE(
 [
   AC_LANG_SOURCE([[
@@ -353,7 +352,6 @@ AC_COMPILE_IFELSE(
      AC_MSG_RESULT(no)
      AC_MSG_ERROR([Your compiler does not have the necessary c++11 support! Cannot proceed.])
    ])
-AC_CHECK_FUNCS([snprintf],, [snprintfworks=yes])
 CXXFLAGS="$OLD_CXXFLAGS"
 
 

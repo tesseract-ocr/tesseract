@@ -105,11 +105,6 @@ set(include_files_list
 )
 check_includes(include_files_list)
 
-set(functions_list
-    snprintf
-)
-check_functions(functions_list)
-
 set(types_list
     "long long int"
     off_t

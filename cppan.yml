@@ -87,9 +87,6 @@ projects:
             - src/ccstruct
             - src/ccutil
 
-        check_symbol_exists:
-          snprintf: stdio.h
-
         check_include_exists:
           - dlfcn.h
           - inttypes.h
