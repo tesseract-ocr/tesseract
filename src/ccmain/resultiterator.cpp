@@ -605,9 +605,19 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   return result;
 }
 
-std::vector<std::vector<std::pair<const char*, float>>>* ResultIterator::GetBestLSTMSymbolChoices() const {
+std::vector<std::vector<std::pair<const char*, float>>>*
+  ResultIterator::GetBestLSTMSymbolChoices() const {
   if (it_->word() != nullptr) {
     return &it_->word()->timesteps;
+  } else {
+    return nullptr;
+  }
+}
+
+std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+  ResultIterator::GetBestSegmentedLSTMSymbolChoices() const {
+  if (it_->word() != nullptr) {
+    return &it_->word()->symbol_steps;
   } else {
     return nullptr;
   }

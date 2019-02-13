@@ -130,7 +130,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(monitor) < 0))
     return nullptr;
 
-  int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1, tcnt = 1, gcnt = 1;
+  int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1, scnt = 1, tcnt = 1, gcnt = 1;
   int page_id = page_number + 1;  // hOCR uses 1-based page numbers.
   bool para_is_ltr = true;        // Default direction is LTR
   const char* paragraph_lang = nullptr;
@@ -215,8 +215,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     // Now, process the word...
     std::vector<std::vector<std::pair<const char*, float>>>* confidencemap =
         nullptr;
+    std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+        symbolMap = nullptr;
     if (tesseract_->lstm_choice_mode) {
       confidencemap = res_it->GetBestLSTMSymbolChoices();
+      symbolMap = res_it->GetBestSegmentedLSTMSymbolChoices();
     }
     hocr_str << "\n      <span class='ocrx_word'"
              << " id='"
@@ -323,6 +326,38 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           hocr_str << "</span>";
           tcnt++;
         }
+      }
+    } else if (tesseract_->lstm_choice_mode == 3 && symbolMap != nullptr) {
+      for (size_t j = 0; j < symbolMap->size(); j++) {
+        std::vector<std::vector<std::pair<const char*, float>>> timesteps =
+            (*symbolMap)[j];
+        hocr_str << "\n       <span class='ocr_symbol'"
+                 << " id='"
+                 << "symbolstep_" << page_id << "_" << wcnt << "_" << scnt
+                 << "'>"
+                 << timesteps[0][0].first;
+        for (size_t i = 1; i < timesteps.size(); i++) {
+          hocr_str << "\n        <span class='ocrx_cinfo'"
+                   << " id='"
+                   << "timestep_" << page_id << "_" << wcnt << "_" << tcnt
+                   << "'"
+                   << ">";
+          std::vector<std::pair<const char*, float>> timestep =
+              timesteps[i];
+          for (std::pair<const char*, float> conf : timestep) {
+            hocr_str << "<span class='ocr_glyph'"
+                     << " id='"
+                     << "choice_" << page_id << "_" << wcnt << "_" << gcnt
+                     << "'"
+                     << " title='x_confs " << int(conf.second * 100) << "'>"
+                     << conf.first << "</span>";
+            gcnt++;
+          }
+          hocr_str << "</span>";
+          tcnt++;
+        }
+        hocr_str << "</span>";
+        scnt++;
       }
     }
     hocr_str << "</span>";

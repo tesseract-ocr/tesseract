@@ -222,6 +222,8 @@ class WERD_RES : public ELIST_LINK {
   GenericVector<int> blob_gaps;
   // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char*, float>>> timesteps;
+  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
+      symbol_steps;
   // Ratings matrix contains classifier choices for each classified combination
   // of blobs. The dimension is the same as the number of blobs in chopped_word
   // and the leading diagonal corresponds to classifier results of the blobs

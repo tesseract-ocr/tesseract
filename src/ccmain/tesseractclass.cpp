@@ -526,7 +526,9 @@ Tesseract::Tesseract()
           "Allows to include alternative symbols choices in the hOCR output. "
           "Valid input values are 0, 1 and 2. 0 is the default value. "
           "With 1 the alternative symbol choices per timestep are included. "
-          "With 2 the alternative symbol choices are accumulated per character.",
+          "With 2 the alternative symbol choices are accumulated per character."
+          "With 3 the alternative symbol choices per timestep are included and "
+          "separated by the suggested segmentation of Tesseract",
           this->params()),
 
       backup_config_file_(nullptr),
