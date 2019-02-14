@@ -149,7 +149,7 @@ struct HPrime {
   }
 };
 struct UnityFunc {
-  inline double operator()(double x) const { return 1.0; }
+  inline double operator()(double /*x*/) const { return 1.0; }
 };
 struct IdentityFunc {
   inline double operator()(double x) const { return x; }
