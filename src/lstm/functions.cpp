@@ -20,6 +20,8 @@
 
 namespace tesseract {
 
+#if __cplusplus < 201402 // C++11
+
 double TanhTable[kTableSize];
 double LogisticTable[kTableSize];
 
@@ -34,5 +36,12 @@ class TableInit {
 };
 
 TableInit TableInit::tableInit;
+
+#else // C++14 or newer
+
+constexpr LUTTempl<kTableSize, LUTFuncTanh> TanhTable;
+constexpr LUTTempl<kTableSize, LUTFuncLog>  LogisticTable;
+
+#endif
 
 }  // namespace tesseract.
