@@ -8,7 +8,7 @@
 #
 ###############################################################################
 
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 # In-source builds are disabled.
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -82,6 +82,18 @@ endif()
 # compiler and linker
 #
 ###############################################################################
+
+# Check for C++ standard to use
+get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
+if(cxx_std_14 IN_LIST known_features)
+    set(CMAKE_CXX_STANDARD 14)
+    message("C++14 support enabled...")
+else()  # minimum requeired standard
+    set(CMAKE_CXX_STANDARD 11)
+    message("C++11 support enabled...")
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(LIBRARY_TYPE SHARED)
 if (STATIC)
