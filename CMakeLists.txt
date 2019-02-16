@@ -88,7 +88,7 @@ get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 if(cxx_std_14 IN_LIST known_features)
     set(CMAKE_CXX_STANDARD 14)
     message("C++14 support enabled...")
-else()  # minimum requeired standard
+else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
     message("C++11 support enabled...")
 endif()
@@ -269,6 +269,7 @@ set(tesseract_src ${tesseract_src}
     src/api/hocrrenderer.cpp
     src/api/lstmboxrenderer.cpp
     src/api/pdfrenderer.cpp
+    src/api/wordstrboxrenderer.cpp
 )
 
 if (WIN32)

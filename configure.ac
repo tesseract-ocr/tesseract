@@ -395,7 +395,8 @@ AC_HEADER_STDBOOL
 # ----------------------------------------
 
 AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
-if $have_asciidoc; then
+AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
+if $have_asciidoc && $have_xsltproc; then
   AM_CONDITIONAL([ASCIIDOC], true)
 else
   AM_CONDITIONAL([ASCIIDOC], false)
@@ -505,7 +506,7 @@ AM_COND_IF([ASCIIDOC],
   [
    echo "This will also build the documentation."
   ], [
-   echo "Documentation will not be built because asciidoc is missing."
+   echo "Documentation will not be built because asciidoc or xsltproc is missing."
   ]
 )
 

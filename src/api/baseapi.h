@@ -630,7 +630,15 @@ class TESS_API TessBaseAPI {
    * Returned string must be freed with the delete [] operator.
    */
   char* GetBoxText(int page_number);
-
+  
+  /**
+   * The recognized text is returned as a char* which is coded in the same
+   * format as a WordStr box file used in training.
+   * page_number is a 0-based page index that will appear in the box file.
+   * Returned string must be freed with the delete [] operator.
+   */
+  char* GetWordStrBoxText(int page_number);
+  
   /**
    * The recognized text is returned as a char* which is coded
    * as UNLV format Latin-1 with specific reject and suspect codes.

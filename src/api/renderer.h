@@ -269,6 +269,17 @@ class TESS_API TessBoxTextRenderer : public TessResultRenderer {
   virtual bool AddImageHandler(TessBaseAPI* api);
 };
 
+/**
+ * Renders tesseract output into a plain UTF-8 text string in WordStr format
+ */
+class TESS_API TessWordStrBoxRenderer : public TessResultRenderer {
+ public:
+  explicit TessWordStrBoxRenderer(const char* outputbase);
+
+ protected:
+  virtual bool AddImageHandler(TessBaseAPI* api);
+};
+
 #ifndef DISABLED_LEGACY_ENGINE
 
 /**
