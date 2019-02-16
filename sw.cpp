@@ -59,7 +59,8 @@ void build(Solution &s)
             "src/classify"_id,
             "src/arch"_id;
 
-        if (s.Settings.Native.CompilerType == CompilerType::MSVC)
+        if (s.Settings.Native.CompilerType == CompilerType::MSVC ||
+            s.Settings.Native.CompilerType == CompilerType::ClangCl)
         {
             libtesseract["src/arch/dotproductavx.cpp"].args.push_back("-arch:AVX");
             libtesseract["src/arch/dotproductsse.cpp"].args.push_back("-D__SSE4_1__");
