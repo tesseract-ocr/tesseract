@@ -102,6 +102,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CLANG 1)
+  # Force C++11 as workaround for #2246
+  add_definitions(-D__cplusplus=201103L)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-macro-redefined")
 endif()
 
 if (WIN32)
