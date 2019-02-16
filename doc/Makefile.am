@@ -37,7 +37,7 @@ html: ${man_MANS:%=%.html}
 SUFFIXES = .asc .html
 
 .asc:
-	asciidoc -b docbook -d manpage -o - $< | \
+	-asciidoc -b docbook -d manpage -o - $< | \
 	xsltproc --nonet $(man_xslt) -
 
 .asc.html:
