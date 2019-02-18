@@ -77,10 +77,14 @@ const char *format, ...          // special message
       //err_exit();
     case ABORT:
 #if !defined(NDEBUG)
-      // Create a deliberate segv as the stack trace is more useful that way.
-      // This is done only in debug builds, because the error message
-      // "segmentation fault" confuses most normal users.
+      // Create a deliberate abnormal exit as the stack trace is more useful
+      // that way. This is done only in debug builds, because the
+      // error message "segmentation fault" confuses most normal users.
+#if defined(__GNUC__)
+      __builtin_trap();
+#else
       *reinterpret_cast<int*>(0) = 0;
+#endif
 #endif
       abort();
     default:
