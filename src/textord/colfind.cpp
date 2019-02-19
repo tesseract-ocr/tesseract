@@ -3,7 +3,6 @@
 // Description: Class to hold BLOBNBOXs in a grid for fast access
 //              to neighbours.
 // Author:      Ray Smith
-// Created:     Wed Jun 06 17:22:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -926,7 +925,7 @@ void ColumnFinder::ComputeMeanColumnGap(bool any_multi_column) {
                                                     &gap_samples);
   }
   mean_column_gap_ = any_multi_column && gap_samples > 0
-      ? total_gap / gap_samples : width_samples > 0 
+      ? total_gap / gap_samples : width_samples > 0
       ? total_width / width_samples : 0;
 }
 

@@ -11,7 +11,7 @@
 
 // Generating the training data:
 // If the format of the lstmf (ImageData) file changes, the training data will
-// have to be regenerated as follows: 
+// have to be regenerated as follows:
 //
 // Use --xsize 800 for text2image to be similar to original training data.
 //

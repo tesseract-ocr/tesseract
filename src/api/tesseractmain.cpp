@@ -537,7 +537,7 @@ static void PreloadRenderers(
         error = true;
       }
     }
-	
+
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || (!error && renderers->empty())) {
       tesseract::TessTextRenderer* renderer =

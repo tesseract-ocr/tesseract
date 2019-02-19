@@ -613,7 +613,7 @@ class TESS_API TessBaseAPI {
    * Returned string must be freed with the delete [] operator.
    */
   char* GetTSVText(int page_number);
-  
+
   /**
    * Make a box file for LSTM training from the internal data structures.
    * Constructs coordinates in the original image - not just the rectangle.
@@ -630,7 +630,7 @@ class TESS_API TessBaseAPI {
    * Returned string must be freed with the delete [] operator.
    */
   char* GetBoxText(int page_number);
-  
+
   /**
    * The recognized text is returned as a char* which is coded in the same
    * format as a WordStr box file used in training.
@@ -638,7 +638,7 @@ class TESS_API TessBaseAPI {
    * Returned string must be freed with the delete [] operator.
    */
   char* GetWordStrBoxText(int page_number);
-  
+
   /**
    * The recognized text is returned as a char* which is coded
    * as UNLV format Latin-1 with specific reject and suspect codes.
