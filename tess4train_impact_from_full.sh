@@ -1,7 +1,9 @@
 #!/bin/bash
 ################################################################
 # Simple bash script to run 'Impact from Full' Finetuning
-# as described in tesstutorial wiki pages.
+# as described in tesstutorial wiki pages but using
+# user specified box/tiff pairs rather than synthetic training
+# data created by text2image using fonts and utf8 training text.
 ################################################################
 ## Language Parameters
 LANG=eng
