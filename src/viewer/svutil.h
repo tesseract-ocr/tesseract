@@ -108,7 +108,7 @@ class SVNetwork {
   void Send(const char* msg);
 
   /// Receive a message from the server.
-  /// This will always return one line of char* (denoted by \n).
+  /// This will always return one line of char* (denoted by \\n).
   char* Receive();
 
   /// Close the connection to the server.
