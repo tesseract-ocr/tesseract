@@ -5,7 +5,7 @@
 # user specified box/tiff pairs rather than synthetic training
 # data created by text2image using fonts and utf8 training text.
 ################################################################
-# Set to yes for first time run to setup directories an download required files.
+# Set to yes for first time run to setup directories and download required files.
 FirstTimeSetup=no
 # Set to yes if you already have matching box files suitable for LSTM training.
 CopyBox=no
@@ -15,15 +15,17 @@ GenerateBox=no
 ################################################################
 ## Language Parameters
 LANG=eng
-# Normalization Mode: Set to 1 for languages in Latin script, Set to 2 for others.
+# General Rule: Set to 1 for languages in Latin script, Set to 2 for others.
 NORM_MODE=1
 #
 ## Directory with custom box/tiff pairs to be used for training
 ## Please ensure that they are in format needed for LSTM Training.
+## CHANGE to your directory path.
 BOXTIFF_DIR=$HOME/TEST/engtrain
 #
 ## Output directory which will have the work files as well as
 ## the finetuned traineddata file.
+## CHANGE to your directory path.
 OUTPUT_DIR=$HOME/tesstutorial/$LANG-boxtiff
 #
 ## Only traineddata files from tessdata_best can be used for training.
@@ -63,6 +65,7 @@ else
         done
         echo -e "***** The Boxfiles need to be reviewed and corrected as needed."
         echo -e "***** Following steps should be run after that."
+        exit 0
     fi
 fi
 ###########################################################
