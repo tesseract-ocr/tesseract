@@ -32,7 +32,7 @@ BOXTIFF_DIR=$HOME/TEST/engtrain
 
 ## Output directory which will have the work files as well as
 ## the finetuned traineddata file.
-## CHANGE to path for yuor output directory.
+## CHANGE to path for your output directory.
 OUTPUT_DIR=$HOME/tesstutorial/$LANG-boxtiff
 
 #----------------------------------------------------------
