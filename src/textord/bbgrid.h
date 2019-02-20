@@ -227,7 +227,7 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class BBGrid
 // Hash functor for generic pointers.
 template<typename T> struct PtrHash {
   size_t operator()(const T* ptr) const {
-    return reinterpret_cast<size_t>(ptr) / sizeof(T);
+    return reinterpret_cast<uintptr_t>(ptr) / sizeof(T);
   }
 };
 
