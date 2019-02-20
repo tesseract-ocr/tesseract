@@ -212,11 +212,21 @@ class ChoiceIterator {
   // The number should be interpreted as a percent probability. (0.0f-100.0f)
   float Confidence() const;
 
+  // Returns a vector containing all timesteps, which belong to the currently
+  // selected symbol. A timestep is a vector containing pairs of symbols and
+  // floating point numbers. The number states the probability for the
+  // corresponding symbol.
+  std::vector<std::vector<std::pair<const char*, float>>>*
+  Timesteps() const;
+
  private:
   // Pointer to the WERD_RES object owned by the API.
   WERD_RES* word_res_;
   // Iterator over the blob choices.
   BLOB_CHOICE_IT* choice_it_;
+  //Iterator over the symbol steps.
+  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>::iterator
+      symbol_step_it_;
 };
 
 }  // namespace tesseract.
