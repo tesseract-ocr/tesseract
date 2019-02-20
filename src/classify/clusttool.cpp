@@ -24,11 +24,9 @@
 using tesseract::TFile;
 
 //---------------Global Data Definitions and Declarations--------------------
-#define TOKENSIZE 80         //< max size of tokens read from an input file
+#define TOKENSIZE 80         ///< max size of tokens read from an input file
 #define QUOTED_TOKENSIZE "79"
-#define MAXSAMPLESIZE 65535  //< max num of dimensions in feature space
-//#define MAXBLOCKSIZE  65535   //< max num of samples in a character (block
-// size)
+#define MAXSAMPLESIZE 65535  ///< max num of dimensions in feature space
 
 /**
  * This routine reads a single integer from the specified
