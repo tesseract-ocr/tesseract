@@ -7,36 +7,45 @@
 ################################################################
 # Set to yes for first time run to setup directories and download required files.
 FirstTimeSetup=no
+
 # Set to yes if you already have matching box files suitable for LSTM training.
 CopyBox=no
+
 # Set to yes if you need to create box files from tif images. These are in 
 # WordStr format per line and can be easily edited to match ground truth.
 GenerateBox=no
-################################################################
+#----------------------------------------------------------
+# The following 5 parameters need to be changed as needed.
+
 ## Language Parameters
 LANG=eng
+SCRIPT=Latin
+
+## Grapheme Normalization Mode
 # General Rule: Set to 1 for languages in Latin script, Set to 2 for others.
 NORM_MODE=1
-#
+
 ## Directory with custom box/tiff pairs to be used for training
 ## Please ensure that they are in format needed for LSTM Training.
-## CHANGE to your directory path.
+## CHANGE to path for your directory with box/tiff pairs.
 BOXTIFF_DIR=$HOME/TEST/engtrain
-#
+
 ## Output directory which will have the work files as well as
 ## the finetuned traineddata file.
-## CHANGE to your directory path.
+## CHANGE to path for yuor output directory.
 OUTPUT_DIR=$HOME/tesstutorial/$LANG-boxtiff
-#
+
+#----------------------------------------------------------
 ## Only traineddata files from tessdata_best can be used for training.
 BEST_TRAINEDDATA=$OUTPUT_DIR/tessdata_best/$LANG.traineddata
-#
-## Script unicharsets, wordlists etc are used from langdata repo.
+
+## Script unicharsets etc are downloaded from langdata repo.
 LANGDATA_DIR=$OUTPUT_DIR/langdata
-#
+
 my_tiff_files=$(ls $OUTPUT_DIR/*.tif)
 my_box_files=$(ls $OUTPUT_DIR/*.box)
-#################################################################
+
+#----------------------------------------------------------
 if [ $FirstTimeSetup = "yes" ]; 
 then
     rm -rf $OUTPUT_DIR
@@ -45,7 +54,7 @@ then
     mkdir $LANGDATA_DIR
 
     wget -O $BEST_TRAINEDDATA https://github.com/tesseract-ocr/tessdata_best/raw/master/$LANG.traineddata
-    wget -O $LANGDATA_DIR/Latin.unicharset https://raw.githubusercontent.com/tesseract-ocr/langdata_lstm/master/Latin.unicharset
+    wget -O $LANGDATA_DIR/$SCRIPT.unicharset https://raw.githubusercontent.com/tesseract-ocr/langdata_lstm/master/$SCRIPT.unicharset
     wget -O $LANGDATA_DIR/radical-stroke.txt https://raw.githubusercontent.com/tesseract-ocr/langdata_lstm/master/radical-stroke.txt
     wget -O $OUTPUT_DIR/lstm.train https://raw.githubusercontent.com/tesseract-ocr/tesseract/master/tessdata/configs/lstm.train
 
@@ -53,7 +62,7 @@ then
 
     cp $BOXTIFF_DIR/*.tif $OUTPUT_DIR/
 fi
-###
+#----------------------------------------------------------
 if [ $CopyBox = "yes" ]; 
 then
     cp $BOXTIFF_DIR/*.box $OUTPUT_DIR/
@@ -68,7 +77,7 @@ else
         exit 0
     fi
 fi
-###########################################################
+#----------------------------------------------------------
 rm $OUTPUT_DIR/*traineddata
 rm $OUTPUT_DIR/*checkpoint
 
@@ -103,7 +112,9 @@ lstmtraining \
   --model_output $OUTPUT_DIR/$LANG-impact.traineddata
 
 echo -e "Finetuned traineddata is ready - $OUTPUT_DIR/$LANG-impact.traineddata"
-  
+
+#----------------------------------------------------------
+
 lstmeval \
  --model $OUTPUT_DIR/$LANG-impact.traineddata \
   --verbosity 0 \
