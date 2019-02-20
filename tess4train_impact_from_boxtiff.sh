@@ -72,8 +72,8 @@ else
         for my_file in ${my_tiff_files}; do
             tesseract $my_file "${my_file%.*}" --oem 1 --psm 6 -l $LANG --tessdata-dir $OUTPUT_DIR/tessdata_best -c tessedit_create_wordstrbox=1
         done
-        echo -e "***** The Boxfiles need to be reviewed and corrected as needed."
-        echo -e "***** Following steps should be run after that."
+        echo -e "***** The .box files need to be reviewed and corrected as needed."
+        echo -e "***** Following steps for LSTM training should be run after that."
         exit 0
     fi
 fi
@@ -82,14 +82,14 @@ rm $OUTPUT_DIR/*traineddata
 rm $OUTPUT_DIR/*checkpoint
 
 unicharset_extractor \
---output_unicharset $OUTPUT_DIR/$LANG.unicharset \
---norm_mode $NORM_MODE \
-$my_box_files
+    --output_unicharset $OUTPUT_DIR/$LANG.unicharset \
+    --norm_mode $NORM_MODE \
+    $my_box_files
 
 set_unicharset_properties \
--U $OUTPUT_DIR/$LANG.unicharset -O $OUTPUT_DIR/$LANG.unicharset \
--X $OUTPUT_DIR/$LANG.xheights \
---script_dir=$LANGDATA_DIR
+    -U $OUTPUT_DIR/$LANG.unicharset -O $OUTPUT_DIR/$LANG.unicharset \
+    -X $OUTPUT_DIR/$LANG.xheights \
+    --script_dir=$LANGDATA_DIR
 
 for my_file in ${my_tiff_files}; do
     tesseract $my_file "${my_file%.*}" --psm 6 lstm.train 
@@ -110,8 +110,18 @@ lstmtraining \
   --continue_from  $OUTPUT_DIR/impact_checkpoint \
   --traineddata $BEST_TRAINEDDATA \
   --model_output $OUTPUT_DIR/$LANG-impact.traineddata
+  
+echo -e "\n Finetuned traineddata is ready - $OUTPUT_DIR/$LANG-impact.traineddata \n"
 
-echo -e "Finetuned traineddata is ready - $OUTPUT_DIR/$LANG-impact.traineddata"
+lstmtraining \
+  --stop_training \
+  --continue_from  $OUTPUT_DIR/impact_checkpoint \
+  --traineddata $BEST_TRAINEDDATA \
+  --convert_to_int \
+  --model_output $OUTPUT_DIR/$LANG-impact-fast.traineddata
+  
+echo -e "\n Converted to 8-bit integer for greater speed, with slightly less accuracy - \
+ $OUTPUT_DIR/$LANG-impact-fast.traineddata \n"
 
 #----------------------------------------------------------
 
@@ -119,8 +129,16 @@ lstmeval \
  --model $OUTPUT_DIR/$LANG-impact.traineddata \
   --verbosity 0 \
   --eval_listfile  $OUTPUT_DIR/$LANG.training_files.txt
+echo -e "\n Eval done with Finetuned Best/Float Traineddata \n"
+  
+lstmeval \
+ --model $OUTPUT_DIR/$LANG-impact-fast.traineddata \
+  --verbosity 0 \
+  --eval_listfile  $OUTPUT_DIR/$LANG.training_files.txt
+echo -e "\n Eval done with Finetuned Fast/Integer Traineddata \n"
 
 lstmeval \
  --model $BEST_TRAINEDDATA \
   --verbosity 0 \
   --eval_listfile  $OUTPUT_DIR/$LANG.training_files.txt
+echo -e "\n Eval done with Original tessdata_best Traineddata \n"
