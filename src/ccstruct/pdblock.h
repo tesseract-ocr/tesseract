@@ -30,8 +30,8 @@ struct Pix;
 CLISTIZEH (PDBLK)
 ///page block
 class PDBLK {
-  friend class BLOCK_RECT_IT;    //< block iterator
-  friend class BLOCK;            //< Page Block
+  friend class BLOCK_RECT_IT;    ///< block iterator
+  friend class BLOCK;            ///< Page Block
 
  public:
   /// empty constructor
@@ -40,9 +40,9 @@ class PDBLK {
     index_ = 0;
   }
   /// simple constructor
-  PDBLK(int16_t xmin,  //< bottom left
+  PDBLK(int16_t xmin,  ///< bottom left
         int16_t ymin,
-        int16_t xmax,  //< top right
+        int16_t xmax,  ///< top right
         int16_t ymax);
 
   /// set vertex lists
@@ -93,11 +93,11 @@ class PDBLK {
   PDBLK &operator=(const PDBLK &source);
 
  protected:
-  POLY_BLOCK *hand_poly;     //< weird as well
-  ICOORDELT_LIST leftside;   //< left side vertices
-  ICOORDELT_LIST rightside;  //< right side vertices
-  TBOX box;                  //< bounding box
-  int index_;                //< Serial number of this block.
+  POLY_BLOCK *hand_poly;     ///< weird as well
+  ICOORDELT_LIST leftside;   ///< left side vertices
+  ICOORDELT_LIST rightside;  ///< right side vertices
+  TBOX box;                  ///< bounding box
+  int index_;                ///< Serial number of this block.
 };
 
 class DLLSYM BLOCK_RECT_IT       //rectangle iterator
@@ -134,10 +134,10 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     }
 
   private:
-    int16_t ymin;                  //< bottom of rectangle
-    int16_t ymax;                  //< top of rectangle
-    PDBLK *block;                //< block to iterate
-    ICOORDELT_IT left_it;        //< boundary iterators
+    int16_t ymin;                ///< bottom of rectangle
+    int16_t ymax;                ///< top of rectangle
+    PDBLK *block;                ///< block to iterate
+    ICOORDELT_IT left_it;        ///< boundary iterators
     ICOORDELT_IT right_it;
 };
 
@@ -167,8 +167,8 @@ class DLLSYM BLOCK_LINE_IT
                    int16_t &xext);
 
   private:
-    PDBLK * block;               //< block to iterate
-    BLOCK_RECT_IT rect_it;       //< rectangle iterator
+    PDBLK * block;               ///< block to iterate
+    BLOCK_RECT_IT rect_it;       ///< rectangle iterator
 };
 
 #endif

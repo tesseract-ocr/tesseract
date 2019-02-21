@@ -69,11 +69,11 @@ class MinK {
   const Element* elements() { return elements_; }
 
  private:
-  const Key max_key_;   //< the maximum possible Key
-  Element *elements_;   //< unsorted array of elements
-  int elements_count_;  //< the number of results collected so far
-  int k_;               //< the number of results we want from the search
-  int max_index_;       //< the index of the result with the largest key
+  const Key max_key_;   ///< the maximum possible Key
+  Element *elements_;   ///< unsorted array of elements
+  int elements_count_;  ///< the number of results collected so far
+  int k_;               ///< the number of results we want from the search
+  int max_index_;       ///< the index of the result with the largest key
 };
 
 template<typename Key, typename Value>
@@ -132,8 +132,8 @@ class KDTreeSearch {
 
   KDTREE *tree_;
   float *query_point_;
-  float *sb_min_;  //< search box minimum
-  float *sb_max_;  //< search box maximum
+  float *sb_min_;  ///< search box minimum
+  float *sb_max_;  ///< search box maximum
   MinK<float, void *> results_;
 };
 
