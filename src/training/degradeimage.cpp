@@ -95,6 +95,7 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   input = pix;
   int width = pixGetWidth(input);
   int height = pixGetHeight(input);
+    
   if (exposure >= 2) {
     // An erosion simulates the spreading darkening of a dark copy.
     // This is backwards to binary morphology,
@@ -167,6 +168,12 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
     }
     data += input->wpl;
   }
+  
+//  pix = input;
+//  input = PrepareDistortedPix(pix, false, true, true, true, true,
+//                          1, randomizer, nullptr);
+//  pixDestroy(&pix);
+  
   return input;
 }
 
@@ -181,8 +188,6 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
                          GenericVector<TBOX>* boxes) {
   Pix* distorted = pixCopy(nullptr, const_cast<Pix*>(pix));
   // Things to do to synthetic training data.
-  if (invert && randomizer->SignedRand(1.0) < 0)
-    pixInvert(distorted, distorted);
   if ((white_noise || smooth_noise) && randomizer->SignedRand(1.0) > 0.0) {
     // TODO(rays) Cook noise in a more thread-safe manner than rand().
     // Attempt to make the sequences reproducible.
@@ -210,6 +215,8 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
         (*boxes)[b].set_right((*boxes)[b].left() + 1);
     }
   }
+  if (invert && randomizer->SignedRand(1.0) < -0.9)
+    pixInvert(distorted, distorted);
   return distorted;
 }
 
