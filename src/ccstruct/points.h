@@ -155,8 +155,8 @@ class ICOORD
     bool DeSerialize(bool swap, FILE* fp);
 
   protected:
-    int16_t xcoord;                //< x value
-    int16_t ycoord;                //< y value
+    int16_t xcoord;                ///< x value
+    int16_t ycoord;                ///< y value
 };
 
 class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD

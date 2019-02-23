@@ -73,7 +73,7 @@ struct LanguageModelNgramInfo {
   LanguageModelNgramInfo(const char *c, int l, bool p, float nc, float ncc)
     : context(c), context_unichar_step_len(l), pruned(p), ngram_cost(nc),
       ngram_and_classifier_cost(ncc) {}
-  STRING context;  //< context string
+  STRING context;  ///< context string
   /// Length of the context measured by advancing using UNICHAR::utf8_step()
   /// (should be at most the order of the character ngram model used).
   int context_unichar_step_len;
@@ -163,13 +163,13 @@ struct ViterbiStateEntry : public ELIST_LINK {
 
   /// Various information about the characters on the path represented
   /// by this ViterbiStateEntry.
-  float ratings_sum;     //< sum of ratings of character on the path
-  float min_certainty;   //< minimum certainty on the path
-  int adapted;           //< number of BLOB_CHOICES from adapted templates
-  int length;            //< number of characters on the path
-  float outline_length;  //< length of the outline so far
-  LMConsistencyInfo consistency_info;  //< path consistency info
-  AssociateStats associate_stats;      //< character widths/gaps/seams
+  float ratings_sum;     ///< sum of ratings of character on the path
+  float min_certainty;   ///< minimum certainty on the path
+  int adapted;           ///< number of BLOB_CHOICES from adapted templates
+  int length;            ///< number of characters on the path
+  float outline_length;  ///< length of the outline so far
+  LMConsistencyInfo consistency_info;  ///< path consistency info
+  AssociateStats associate_stats;      ///< character widths/gaps/seams
 
   /// Flags for marking the entry as a top choice path with
   /// the smallest rating or lower/upper case letters).
@@ -183,7 +183,7 @@ struct ViterbiStateEntry : public ELIST_LINK {
   /// (owned by ViterbiStateEntry).
   LanguageModelNgramInfo *ngram_info;
 
-  bool updated;  //< set to true if the entry has just been created/updated
+  bool updated;  ///< set to true if the entry has just been created/updated
   /// UTF8 string representing the path corresponding to this vse.
   /// Populated only in when language_model_debug_level > 0.
   STRING *debug_str;

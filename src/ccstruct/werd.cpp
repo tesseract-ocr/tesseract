@@ -26,9 +26,9 @@
 #include "config_auto.h"
 #endif
 
-#define FIRST_COLOUR    ScrollView::RED         //< first rainbow colour
-#define LAST_COLOUR     ScrollView::AQUAMARINE  //< last rainbow colour
-#define CHILD_COLOUR    ScrollView::BROWN       //< colour of children
+#define FIRST_COLOUR    ScrollView::RED         ///< first rainbow colour
+#define LAST_COLOUR     ScrollView::AQUAMARINE  ///< last rainbow colour
+#define CHILD_COLOUR    ScrollView::BROWN       ///< colour of children
 
 const ERRCODE CANT_SCALE_EDGESTEPS =
     "Attempted to scale an edgestep format word";
@@ -115,8 +115,8 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
  * The C_BLOBs are not copied so the source list is emptied.
  */
 
-WERD::WERD(C_BLOB_LIST * blob_list,         //< In word order
-           WERD * clone)                    //< Source of flags
+WERD::WERD(C_BLOB_LIST * blob_list,         ///< In word order
+           WERD * clone)                    ///< Source of flags
   : flags(clone->flags),
     script_id_(clone->script_id_),
     correct(clone->correct) {
