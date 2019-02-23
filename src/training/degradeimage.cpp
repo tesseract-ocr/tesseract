@@ -209,7 +209,7 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
         (*boxes)[b].set_right((*boxes)[b].left() + 1);
     }
   }
-  if (invert && randomizer->SignedRand(1.0) < -0.9)
+  if (invert && randomizer->SignedRand(1.0) < -0)
     pixInvert(distorted, distorted);
   return distorted;
 }
