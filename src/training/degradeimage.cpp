@@ -168,12 +168,6 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
     }
     data += input->wpl;
   }
-
-//  pix = input;
-//  input = PrepareDistortedPix(pix, false, true, true, true, true,
-//                          1, randomizer, nullptr);
-//  pixDestroy(&pix);
-
   return input;
 }
 
@@ -215,7 +209,7 @@ Pix* PrepareDistortedPix(const Pix* pix, bool perspective, bool invert,
         (*boxes)[b].set_right((*boxes)[b].left() + 1);
     }
   }
-  if (invert && randomizer->SignedRand(1.0) < -0.9)
+  if (invert && randomizer->SignedRand(1.0) < -0)
     pixInvert(distorted, distorted);
   return distorted;
 }
