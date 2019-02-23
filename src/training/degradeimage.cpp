@@ -168,12 +168,6 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
     }
     data += input->wpl;
   }
-  
-//  pix = input;
-//  input = PrepareDistortedPix(pix, false, true, true, true, true,
-//                          1, randomizer, nullptr);
-//  pixDestroy(&pix);
-  
   return input;
 }
 
