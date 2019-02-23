@@ -642,7 +642,7 @@ static int Main() {
                              FLAGS_rotate_image ? &rotation : nullptr);
         }
         if (FLAGS_distort_image) {
-         //Todo: perspective is set to false and box_reduction to 1.
+         //TODO: perspective is set to false and box_reduction to 1.
           pix = PrepareDistortedPix(pix, false, FLAGS_invert,
                              FLAGS_white_noise, FLAGS_smooth_noise, FLAGS_blur,
                              1, &randomizer, nullptr);
