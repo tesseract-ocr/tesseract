@@ -95,7 +95,7 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
   input = pix;
   int width = pixGetWidth(input);
   int height = pixGetHeight(input);
-    
+
   if (exposure >= 2) {
     // An erosion simulates the spreading darkening of a dark copy.
     // This is backwards to binary morphology,
@@ -168,12 +168,12 @@ Pix* DegradeImage(Pix* input, int exposure, TRand* randomizer,
     }
     data += input->wpl;
   }
-  
+
 //  pix = input;
 //  input = PrepareDistortedPix(pix, false, true, true, true, true,
 //                          1, randomizer, nullptr);
 //  pixDestroy(&pix);
-  
+
   return input;
 }
 
