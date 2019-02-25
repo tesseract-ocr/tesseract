@@ -962,10 +962,10 @@ bool UNICHARSET::major_right_to_left() const {
   int rtl_count = 0;
   for (int id = 0; id < size_used; ++id) {
     int dir = get_direction(id);
-    if (dir == UNICHARSET::U_LEFT_TO_RIGHT) ltr_count++;
+    if (dir == UNICHARSET::U_LEFT_TO_RIGHT ||
+        dir == UNICHARSET::U_ARABIC_NUMBER) ltr_count++;
     if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
-        dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
-        dir == UNICHARSET::U_ARABIC_NUMBER) rtl_count++;
+        dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC) rtl_count++;
   }
   return rtl_count > ltr_count;
 }
