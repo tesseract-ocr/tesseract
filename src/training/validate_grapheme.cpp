@@ -15,12 +15,15 @@ bool ValidateGrapheme::ConsumeGraphemeIfValid() {
     char32 ch = codes_[codes_used_].second;
     const bool is_combiner =
         cc == CharClass::kCombiner || cc == CharClass::kVirama;
-    // TODO: Reject easily detected badly formed sequences.
-    // https://github.com/tesseract-ocr/tesseract/pull/2266#issuecomment-467114751
-    // if (prev_cc == CharClass::kWhitespace && is_combiner) {
-    //  if (report_errors_) tprintf("Word started with a combiner:0x%x\n", ch);
-    // return false;
-    //}
+  // TODO: Make this code work well with RTL text.
+  // See https://github.com/tesseract-ocr/tesseract/pull/2266#issuecomment-467114751
+  #if 0
+    // Reject easily detected badly formed sequences.
+    if (prev_cc == CharClass::kWhitespace && is_combiner) {
+      if (report_errors_) tprintf("Word started with a combiner:0x%x\n", ch);
+     return false;
+    }
+  #endif
     if (prev_cc == CharClass::kVirama && cc == CharClass::kVirama) {
       if (report_errors_)
         tprintf("Two grapheme links in a row:0x%x 0x%x\n", prev_ch, ch);
