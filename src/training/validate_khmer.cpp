@@ -45,7 +45,7 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
       if (UseMultiCode(1)) return true;
     }
   }
-  int num_matra_parts = 0;
+  unsigned num_matra_parts = 0;
   if (codes_[codes_used_].second == kZeroWidthJoiner ||
       codes_[codes_used_].second == kZeroWidthNonJoiner) {
     if (CodeOnlyToOutput()) {

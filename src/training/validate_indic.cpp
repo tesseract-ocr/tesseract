@@ -120,7 +120,7 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         ASSERT_HOST(!CodeOnlyToOutput());
       } else {
         // Half-form with optional Nukta.
-        int len = output_.size() + 1 - output_used_;
+        unsigned len = output_.size() + 1 - output_used_;
         if (UseMultiCode(len)) return true;
       }
       if (codes_used_ < num_codes &&
@@ -179,7 +179,7 @@ bool ValidateIndic::ConsumeConsonantHeadIfValid() {
     CodeOnlyToOutput();
     // Special Sinhala case of [H Z Yayana/Rayana].
     int index = output_.size() - 3;
-    if (output_used_ <= index &&
+    if (output_used_ + 3 <= output_.size() &&
         (output_.back() == kYayana || output_.back() == kRayana) &&
         IsVirama(output_[index]) && output_[index + 1] == kZeroWidthJoiner) {
       MultiCodePart(3);
@@ -192,7 +192,7 @@ bool ValidateIndic::ConsumeConsonantHeadIfValid() {
     }
     // Test for subscript conjunct.
     index = output_.size() - 2 - have_nukta;
-    if (output_used_ <= index && IsSubscriptScript() &&
+    if (output_used_ + 2 + have_nukta <= output_.size() && IsSubscriptScript() &&
         IsVirama(output_[index])) {
       // Output previous virama, consonant + optional nukta.
       MultiCodePart(2 + have_nukta);
