@@ -63,9 +63,10 @@ void BoxChar::GetDirection(int* num_rtl, int* num_ltr) const {
   for (char32 ch : uni_vector) {
     UCharDirection dir = u_charDirection(ch);
     if (dir == U_RIGHT_TO_LEFT || dir == U_RIGHT_TO_LEFT_ARABIC ||
-        dir == U_ARABIC_NUMBER || dir == U_RIGHT_TO_LEFT_ISOLATE) {
+        dir == U_RIGHT_TO_LEFT_ISOLATE) {
       ++*num_rtl;
-    } else if (dir != U_DIR_NON_SPACING_MARK && dir != U_BOUNDARY_NEUTRAL) {
+    } else if ((dir == U_ARABIC_NUMBER) ||
+	          (dir != U_DIR_NON_SPACING_MARK && dir != U_BOUNDARY_NEUTRAL)) {
       ++*num_ltr;
     }
   }

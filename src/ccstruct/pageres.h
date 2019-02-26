@@ -398,8 +398,7 @@ class WERD_RES : public ELIST_LINK {
       UNICHARSET::Direction dir =
           uch_set->get_direction(unichar_id);
       if (dir == UNICHARSET::U_RIGHT_TO_LEFT ||
-          dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC ||
-          dir == UNICHARSET::U_ARABIC_NUMBER)
+          dir == UNICHARSET::U_RIGHT_TO_LEFT_ARABIC)
         return true;
     }
     return false;
@@ -413,7 +412,8 @@ class WERD_RES : public ELIST_LINK {
       if (unichar_id < 0 || unichar_id >= uch_set->size())
         continue;  // Ignore illegal chars.
       UNICHARSET::Direction dir = uch_set->get_direction(unichar_id);
-      if (dir == UNICHARSET::U_LEFT_TO_RIGHT)
+      if (dir == UNICHARSET::U_LEFT_TO_RIGHT ||
+          dir == UNICHARSET::U_ARABIC_NUMBER)
         return true;
     }
     return false;
