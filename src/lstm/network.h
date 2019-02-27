@@ -2,7 +2,6 @@
 // File:        network.h
 // Description: Base class for neural network implementations.
 // Author:      Ray Smith
-// Created:     Wed May 01 16:38:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -215,17 +214,16 @@ class Network {
   virtual void CacheXScaleFactor(int factor) {}
 
   // Provides debug output on the weights.
-  virtual void DebugWeights() {
-    tprintf("Must override Network::DebugWeights for type %d\n", type_);
-  }
+  virtual void DebugWeights() = 0;
 
   // Writes to the given file. Returns false in case of error.
   // Should be overridden by subclasses, but called by their Serialize.
   virtual bool Serialize(TFile* fp) const;
   // Reads from the given file. Returns false in case of error.
   // Should be overridden by subclasses, but NOT called by their DeSerialize.
-  virtual bool DeSerialize(TFile* fp);
+  virtual bool DeSerialize(TFile* fp) = 0;
 
+ public:
   // Updates the weights using the given learning rate, momentum and adam_beta.
   // num_samples is used in the adam computation iff use_adam_ is true.
   virtual void Update(float learning_rate, float momentum, float adam_beta,
@@ -261,9 +259,7 @@ class Network {
   // instead of all the replicated networks having to do it.
   virtual void Forward(bool debug, const NetworkIO& input,
                        const TransposedArray* input_transpose,
-                       NetworkScratch* scratch, NetworkIO* output) {
-    tprintf("Must override Network::Forward for type %d\n", type_);
-  }
+                       NetworkScratch* scratch, NetworkIO* output) = 0;
 
   // Runs backward propagation of errors on fwdX_deltas.
   // Note that fwd_deltas and back_deltas are both 2-d arrays as with Forward.
@@ -272,10 +268,7 @@ class Network {
   // return false from Backward!
   virtual bool Backward(bool debug, const NetworkIO& fwd_deltas,
                         NetworkScratch* scratch,
-                        NetworkIO* back_deltas) {
-    tprintf("Must override Network::Backward for type %d\n", type_);
-    return false;
-  }
+                        NetworkIO* back_deltas) = 0;
 
   // === Debug image display methods. ===
   // Displays the image of the matrix to the forward window.
@@ -309,11 +302,7 @@ class Network {
   ScrollView* forward_win_;   // Recognition debug display window.
   ScrollView* backward_win_;  // Training debug display window.
   TRand* randomizer_;         // Random number generator.
-
-  // Static serialized name/type_ mapping. Keep in sync with NetworkType.
-  static char const* const kTypeNames[NT_COUNT];
 };
-
 
 }  // namespace tesseract.
 
