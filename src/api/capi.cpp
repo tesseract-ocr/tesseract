@@ -87,6 +87,16 @@ TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* out
     return new TessBoxTextRenderer(outputbase);
 }
 
+TESS_API TessResultRenderer* TESS_CALL TessWordStrBoxRendererCreate(const char* outputbase)
+{
+    return new TessWordStrBoxRenderer(outputbase);
+}
+
+TESS_API TessResultRenderer* TESS_CALL TessLSTMBOXRendererCreate(const char* outputbase)
+{
+    return new TessLSTMBOXRenderer(outputbase);
+}
+
 TESS_API void TESS_CALL TessDeleteResultRenderer(TessResultRenderer* renderer)
 {
     delete renderer;
@@ -493,6 +503,16 @@ TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_nu
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number)
 {
     return handle->GetBoxText(page_number);
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetWordStrBoxText(TessBaseAPI* handle, int page_number)
+{
+    return handle->GetWordStrBoxText(page_number);
+}
+
+TESS_API char* TESS_CALL TessBaseAPIGetLSTMBOXText(TessBaseAPI* handle, int page_number)
+{
+    return handle->GetLSTMBOXText(page_number);
 }
 
 TESS_API char* TESS_CALL TessBaseAPIGetUNLVText(TessBaseAPI* handle)

@@ -20,7 +20,7 @@ before_build:
   - set PATH=%PATH%;%cd%
 
 build_script:
-  - sw -platform %platform% build
+  - sw -show-output -platform %platform% build
 
 after_build:
   - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.dll

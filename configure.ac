@@ -331,48 +331,42 @@ AC_COMPILE_IFELSE(
 
 AC_MSG_RESULT([$CLANG])
 
-dnl ********************
-dnl turn on c++11
-dnl ********************
+dnl **********************
+dnl Turn on C++11 or newer
+dnl **********************
 
-OLD_CXXFLAGS=$CXXFLAGS
-AC_MSG_CHECKING([whether compiler supports C++11])
-CXXFLAGS="$CXXFLAGS -std=c++11"
-snprintfworks=no
-AC_COMPILE_IFELSE(
-[
-  AC_LANG_SOURCE([[
-    #if (__cplusplus < 201103L)
-    #error C++ 11 is unsupported
-    #endif
-  ]])
-], [
-     AC_MSG_RESULT(yes)
-   ],
-   [
-     AC_MSG_RESULT(no)
-     AC_MSG_ERROR([Your compiler does not have the necessary c++11 support! Cannot proceed.])
-   ])
-AC_CHECK_FUNCS([snprintf],, [snprintfworks=yes])
-CXXFLAGS="$OLD_CXXFLAGS"
+CPLUSPLUS=
 
+AX_CHECK_COMPILE_FLAG([-std=c++11], [cplusplus11=true], [cplusplus11=false])
+if $cplusplus11; then
+  CPLUSPLUS=11
+fi
 
-# set c++11 support based on platform/compiler
+AX_CHECK_COMPILE_FLAG([-std=c++14], [cplusplus14=true], [cplusplus14=false])
+if $cplusplus14; then
+  CPLUSPLUS=14
+fi
+
+if test -z "$CPLUSPLUS"; then
+  AC_MSG_ERROR([Your compiler does not have the necessary C++11 support! Cannot proceed.])
+fi
+
+# Set C++11 or C++14 support based on platform/compiler
 case "${host_os}" in
   cygwin*)
-    CXXFLAGS="$CXXFLAGS -std=gnu++11"
+    CXXFLAGS="$CXXFLAGS -std=gnu++$CPLUSPLUS"
     ;;
   *-darwin* | *-macos10*)
      if test "x$CLANG" = "xyes"; then
-       CXXFLAGS="$CXXFLAGS -std=c++11 "
+       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
        LDFLAGS="$LDFLAGS -stdlib=libc++"
      else
-       CXXFLAGS="$CXXFLAGS -std=c++11"
+       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
      fi
     ;;
   *)
     # default
-    CXXFLAGS="$CXXFLAGS -std=c++11"
+    CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
     ;;
 esac
 
@@ -401,7 +395,8 @@ AC_HEADER_STDBOOL
 # ----------------------------------------
 
 AC_CHECK_PROG([have_asciidoc], asciidoc, true, false)
-if $have_asciidoc; then
+AC_CHECK_PROG([have_xsltproc], xsltproc, true, false)
+if $have_asciidoc && $have_xsltproc; then
   AM_CONDITIONAL([ASCIIDOC], true)
 else
   AM_CONDITIONAL([ASCIIDOC], false)
@@ -511,7 +506,7 @@ AM_COND_IF([ASCIIDOC],
   [
    echo "This will also build the documentation."
   ], [
-   echo "Documentation will not be built because asciidoc is missing."
+   echo "Documentation will not be built because asciidoc or xsltproc is missing."
   ]
 )
 

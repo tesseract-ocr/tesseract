@@ -37,6 +37,7 @@ libtesseract_api_la_SOURCES += altorenderer.cpp
 libtesseract_api_la_SOURCES += hocrrenderer.cpp
 libtesseract_api_la_SOURCES += lstmboxrenderer.cpp
 libtesseract_api_la_SOURCES += pdfrenderer.cpp
+libtesseract_api_la_SOURCES += wordstrboxrenderer.cpp
 libtesseract_api_la_SOURCES += renderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la

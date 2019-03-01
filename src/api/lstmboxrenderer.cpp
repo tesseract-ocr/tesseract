@@ -27,15 +27,15 @@ namespace tesseract {
  * page_number is a 0-base page index that will appear in the box file.
  * Returned string must be freed with the delete [] operator.
  */
-static void AddBoxToLSTM(int right, int bottom, int top, 
+static void AddBoxToLSTM(int right, int bottom, int top,
                         int image_height_, int page_num,
                         STRING* text) {
         text->add_str_int(" ", image_height_ - bottom);
         text->add_str_int(" ", right + 5);
         text->add_str_int(" ", image_height_ - top);
-        text->add_str_int(" ", page_num);  
+        text->add_str_int(" ", page_num);
 }
- 
+
 char* TessBaseAPI::GetLSTMBOXText(int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
     return nullptr;
@@ -44,7 +44,7 @@ char* TessBaseAPI::GetLSTMBOXText(int page_number) {
   int page_num = page_number;
   bool first_word = true;
   int left, top, right, bottom;
-  
+
   LTRResultIterator* res_it = GetLTRIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->Empty(RIL_SYMBOL)) {

@@ -18,7 +18,6 @@
 #ifndef TESSERACT_LSTM_FUNCTIONS_H_
 #define TESSERACT_LSTM_FUNCTIONS_H_
 
-#include <cmath>
 #include "helpers.h"
 
 // Setting this to 1 or more causes massive dumps of debug data: weights,
@@ -32,49 +31,66 @@
 namespace tesseract {
 
 // Size of static tables.
-const int kTableSize = 4096;
+constexpr int kTableSize = 4096;
 // Scale factor for float arg to int index.
-const double kScaleFactor = 256.0;
+constexpr double kScaleFactor = 256.0;
+
+#if __cplusplus < 201402 || defined(__clang__) // C++11
 
 extern double TanhTable[];
 extern double LogisticTable[];
 
+#else // C++14 or newer
+
+typedef double (*LUT_FUNCTION)(int i);
+
+constexpr double LUTFuncTanh(int i) {
+  return std::tanh(i / kScaleFactor);
+}
+
+constexpr double LUTFuncLog(int i) {
+  return 1 / (1 + std::exp(-i / kScaleFactor));
+}
+
+template<int n, LUT_FUNCTION f>
+struct LUTTempl {
+  constexpr LUTTempl() : table_() {
+    for (auto i = 0; i < n; ++i) {
+      table_[i] = f(i);
+    }
+  }
+  const double& operator[](size_t i) const {
+    return table_[i];
+  }
+  double table_[n];
+};
+
+extern const LUTTempl<kTableSize, LUTFuncTanh> TanhTable;
+extern const LUTTempl<kTableSize, LUTFuncLog>  LogisticTable;
+
+#endif
+
 // Non-linearity (sigmoid) functions with cache tables and clipping.
 inline double Tanh(double x) {
   if (x < 0.0) return -Tanh(-x);
-  if (x >= (kTableSize - 1) / kScaleFactor) return 1.0;
   x *= kScaleFactor;
-  int index = static_cast<int>(floor(x));
-  if (TanhTable[index] == 0.0 && index > 0) {
-    // Generate the entry.
-    TanhTable[index] = tanh(index / kScaleFactor);
-  }
-  if (index == kTableSize - 1) return TanhTable[kTableSize - 1];
-  if (TanhTable[index + 1] == 0.0) {
-    // Generate the entry.
-    TanhTable[index + 1] = tanh((index + 1) / kScaleFactor);
-  }
-  double offset = x - index;
-  return TanhTable[index] * (1.0 - offset) + TanhTable[index + 1] * offset;
+  int index = static_cast<int>(x);
+  if (index >= (kTableSize - 1)) return 1.0;
+  double tanh_i0 = TanhTable[index];
+  double tanh_i1 = TanhTable[index + 1];
+  // Linear interpolation.
+  return tanh_i0 + (tanh_i1 - tanh_i0) * (x - index);
 }
 
 inline double Logistic(double x) {
   if (x < 0.0) return 1.0 - Logistic(-x);
-  if (x >= (kTableSize - 1) / kScaleFactor) return 1.0;
   x *= kScaleFactor;
-  int index = static_cast<int>(floor(x));
-  if (LogisticTable[index] == 0.0) {
-    // Generate the entry.
-    LogisticTable[index] = 1.0 / (1.0 + exp(-index / kScaleFactor));
-  }
-  if (index == kTableSize - 1) return LogisticTable[kTableSize - 1];
-  if (LogisticTable[index + 1] == 0.0) {
-    // Generate the entry.
-    LogisticTable[index + 1] = 1.0 / (1.0 + exp(-(index + 1) / kScaleFactor));
-  }
-  double offset = x - index;
-  return LogisticTable[index] * (1.0 - offset) +
-         LogisticTable[index + 1] * offset;
+  int index = static_cast<int>(x);
+  if (index >= (kTableSize - 1)) return 1.0;
+  double l0 = LogisticTable[index];
+  double l1 = LogisticTable[index + 1];
+  // Linear interpolation.
+  return l0 + (l1 - l0) * (x - index);
 }
 
 // Non-linearity (sigmoid) functions and their derivatives.
@@ -133,7 +149,7 @@ struct HPrime {
   }
 };
 struct UnityFunc {
-  inline double operator()(double x) const { return 1.0; }
+  inline double operator()(double /*x*/) const { return 1.0; }
 };
 struct IdentityFunc {
   inline double operator()(double x) const { return x; }

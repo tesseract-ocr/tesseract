@@ -32,13 +32,15 @@ EXTRA_DIST = $(man_MANS) Doxyfile
 
 .PHONY: html
 
-html: $(patsubst %,%.html,$(man_MANS))
+html: ${man_MANS:%=%.html}
 
-%: %.asc
-	asciidoc -b docbook -d manpage -o - $< | \
+SUFFIXES = .asc .html
+
+.asc:
+	-asciidoc -b docbook -d manpage -o - $< | \
 	xsltproc --nonet $(man_xslt) -
 
-%.html: %.asc
+.asc.html:
 	asciidoc -b html5 -o $@ $<
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile

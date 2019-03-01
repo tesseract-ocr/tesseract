@@ -140,7 +140,7 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
 /* static */
 bool ValidateMyanmar::IsMyanmarLetter(char32 ch) {
   return (0x1000 <= ch && ch <= 0x102a) || ch == 0x103f ||
-         (0x1050 <= ch && ch <= 0x1055) || (0x105a <= ch && ch <= 0x105d) ||
+         (0x104c <= ch && ch <= 0x1055) || (0x105a <= ch && ch <= 0x105d) ||
          ch == 0x1061 || ch == 0x1065 || ch == 0x1066 ||
          (0x106e <= ch && ch <= 0x1070) || (0x1075 <= ch && ch <= 0x1081) ||
          ch == 0x108e || (0xa9e0 <= ch && ch <= 0xa9e4) ||
@@ -162,8 +162,7 @@ bool ValidateMyanmar::IsMyanmarOther(char32 ch) {
     return true;
   return (0x1040 <= ch && ch <= 0x104f) || (0x1090 <= ch && ch <= 0x1099) ||
          (0x109e <= ch && ch <= 0x109f) || (0xa9f0 <= ch && ch <= 0xa9f9) ||
-         ch == 0xa9e6 || ch == 0xaa70 ||
-         (0xaa74 <= ch && ch <= 0xaa79);
+         (ch == 0xa9e6 || ch == 0xaa70) || (0xaa74 <= ch && ch <= 0xaa79);
 }
 
 }  // namespace tesseract

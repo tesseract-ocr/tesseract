@@ -3,7 +3,6 @@
 // Description: Beam search to decode from the re-encoded CJK as a sequence of
 //              smaller numbers in place of a single large code.
 // Author:      Ray Smith
-// Created:     Fri Mar 13 09:12:01 PDT 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -210,8 +209,8 @@ class RecodeBeamSearch {
 
   // Generates debug output of the content of the beams after a Decode.
   void DebugBeams(const UNICHARSET& unicharset) const;
-  
-  // Stores the alternative characters of every timestep together with their 
+
+  // Stores the alternative characters of every timestep together with their
   // probability.
   std::vector< std::vector<std::pair<const char*, float>>> timesteps;
 

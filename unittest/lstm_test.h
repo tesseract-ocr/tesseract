@@ -58,7 +58,7 @@ class LSTMTrainerTest : public testing::Test {
     return file::JoinPath(TESTING_DIR,
                           "" + name);
   }
-  
+
   void SetupTrainerEng(const std::string& network_spec, const std::string& model_name,
                        bool recode, bool adam) {
     SetupTrainer(network_spec, model_name, "eng/eng.unicharset",

@@ -14,7 +14,7 @@ sudo: false
 
 os:
   - linux
-  #- osx
+  - osx
 
 addons:
   apt:

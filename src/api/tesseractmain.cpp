@@ -524,6 +524,20 @@ static void PreloadRenderers(
       }
     }
 
+    api->GetBoolVariable("tessedit_create_wordstrbox", &b);
+    if (b) {
+      tesseract::TessWordStrBoxRenderer* renderer =
+        new tesseract::TessWordStrBoxRenderer(outputbase);
+      if (renderer->happy()) {
+        renderers->push_back(renderer);
+      } else {
+        delete renderer;
+        tprintf("Error, could not create WordStr BOX output file: %s\n",
+                strerror(errno));
+        error = true;
+      }
+    }
+
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || (!error && renderers->empty())) {
       tesseract::TessTextRenderer* renderer =

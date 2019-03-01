@@ -29,11 +29,11 @@ echo -e "USAGE: tesstrain.sh
      --maxpages                 # Specify maximum pages to output (default:0=all)
      --save_box_tiff            # Save box/tiff pairs along with lstmf files.
      --xsize                    # Specify width of output image (default:3600)
-    
+
   OPTIONAL flag for specifying directory with user specified box/tiff pairs.
   Files should be named similar to ${LANG_CODE}.${fontname}.exp${EXPOSURE}.box/tif
      --my_boxtiff_dir MY_BOXTIFF_DIR # Location of user specified box/tiff files.
-     
+
   OPTIONAL flags for input data. If unspecified we will look for them in
   the langdata_dir directory.
      --training_text TEXTFILE   # Text to render and use for training.

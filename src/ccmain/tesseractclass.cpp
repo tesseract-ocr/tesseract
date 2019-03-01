@@ -395,6 +395,8 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file",
                   this->params()),
+      BOOL_MEMBER(tessedit_create_wordstrbox, false, "Write WordStr format .box output file",
+                  this->params()),
       BOOL_MEMBER(tessedit_create_pdf, false, "Write .pdf output file",
                   this->params()),
       BOOL_MEMBER(textonly_pdf, false,

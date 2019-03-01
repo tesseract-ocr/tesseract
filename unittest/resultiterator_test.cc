@@ -235,7 +235,7 @@ class ResultIteratorTest : public testing::Test {
 
 // Tests layout analysis output (and scrollview) on the UNLV page numbered
 // 8087_054.3G.tif. (Dubrovnik), but only if --visual_test is true.
-// 
+//
 //TEST_F(ResultIteratorTest, VisualTest) {
 //  if (!FLAGS_visual_test) return;
 //  const char* kIms[] = {"8087_054.3G.tif", "8071_093.3B.tif", nullptr};
