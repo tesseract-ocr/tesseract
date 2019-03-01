@@ -74,6 +74,12 @@ Validator::CharClass ValidateIndic::UnicodeToCharClass(char32 ch) const {
   if (off == 0x62 || off == 0x63) return CharClass::kMatra;
   // Danda and digits up to 6f are OK as other.
   // 70-7f are script-specific.
+  // 0BF0-0BF2 are Tamil numbers 10, 100 and 1000; treat as other.
+  if (script_ == ViramaScript::kTamil && (0x70 <= off && off <= 0x72))
+    return CharClass::kOther;
+  // 0BF3-0BFA are other Tamil symbols.
+  if (script_ == ViramaScript::kTamil && (0x73 <= off && off <= 0x7A))
+    return CharClass::kOther;
   if (script_ == ViramaScript::kBengali && (off == 0x70 || off == 0x71))
     return CharClass::kConsonant;
   if (script_ == ViramaScript::kGurmukhi && (off == 0x72 || off == 0x73))
@@ -139,7 +145,7 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         // for consistency, we will always add ZWNJ if not present.
         output_.push_back(kZeroWidthNonJoiner);
       } else {
-        CodeOnlyToOutput();
+	  CodeOnlyToOutput();
       }
       // Explicit virama [H z]
       MultiCodePart(2);
