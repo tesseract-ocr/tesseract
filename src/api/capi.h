@@ -60,6 +60,8 @@ typedef tesseract::TessAltoRenderer TessAltoRenderer;
 typedef tesseract::TessPDFRenderer TessPDFRenderer;
 typedef tesseract::TessUnlvRenderer TessUnlvRenderer;
 typedef tesseract::TessBoxTextRenderer TessBoxTextRenderer;
+typedef tesseract::TessWordStrBoxRenderer TessWordStrBoxRenderer;
+typedef tesseract::TessLSTMBOXRenderer TessLSTMBOXRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;
 typedef tesseract::ResultIterator TessResultIterator;
@@ -132,6 +134,8 @@ TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputb
                                                              BOOL textonly);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* outputbase);
+TESS_API TessResultRenderer* TESS_CALL TessLSTMBOXRendererCreate(const char* outputbase);
+TESS_API TessResultRenderer* TESS_CALL TessWordStrBoxRendererCreate(const char* outputbase);
 
 TESS_API void TESS_CALL TessDeleteResultRenderer(TessResultRenderer* renderer);
 TESS_API void TESS_CALL TessResultRendererInsert(TessResultRenderer* renderer, TessResultRenderer* next);
@@ -282,6 +286,8 @@ TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_nu
 TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number);
+TESS_API char* TESS_CALL TessBaseAPIGetLSTMBOXText(TessBaseAPI* handle, int page_number);
+TESS_API char* TESS_CALL TessBaseAPIGetWordStrBoxText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetUNLVText(TessBaseAPI* handle);
 TESS_API int   TESS_CALL TessBaseAPIMeanTextConf(TessBaseAPI* handle);
