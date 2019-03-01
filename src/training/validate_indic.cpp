@@ -145,7 +145,7 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         // for consistency, we will always add ZWNJ if not present.
         output_.push_back(kZeroWidthNonJoiner);
       } else {
-	  CodeOnlyToOutput();
+        CodeOnlyToOutput();
       }
       // Explicit virama [H z]
       MultiCodePart(2);
