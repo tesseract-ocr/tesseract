@@ -27,13 +27,12 @@ namespace tesseract {
  * page_number is a 0-base page index that will appear in the box file.
  * Returned string must be freed with the delete [] operator.
  */
-static void AddBoxToLSTM(int right, int bottom, int top,
-                        int image_height_, int page_num,
-                        STRING* text) {
-        text->add_str_int(" ", image_height_ - bottom);
-        text->add_str_int(" ", right + 5);
-        text->add_str_int(" ", image_height_ - top);
-        text->add_str_int(" ", page_num);
+static void AddBoxToLSTM(int right, int bottom, int top, int image_height,
+                         int page_num, STRING* text) {
+  text->add_str_int(" ", image_height - bottom);
+  text->add_str_int(" ", right + 5);
+  text->add_str_int(" ", image_height - top);
+  text->add_str_int(" ", page_num);
 }
 
 char* TessBaseAPI::GetLSTMBoxText(int page_number) {
@@ -51,28 +50,31 @@ char* TessBaseAPI::GetLSTMBoxText(int page_number) {
       res_it->Next(RIL_SYMBOL);
       continue;
     }
-  if (!first_word) {
-   if (!(res_it->IsAtBeginningOf(RIL_TEXTLINE))) {
-    if (res_it->IsAtBeginningOf(RIL_WORD)) {
-        lstm_box_str.add_str_int("  ", left);
-        AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
-        lstm_box_str += "\n";  // end of row for word
-    } // word
-   } else {
-    if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-        lstm_box_str.add_str_int("\t ", left);
-        AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
-        lstm_box_str += "\n";  // end of row for line
-    } // line
-   }
-  } // not first word
-  first_word=false;
-  // Use bounding box for whole line for everything
-  res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
-  do { lstm_box_str +=
-                 std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
-        res_it->Next(RIL_SYMBOL);
-     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
+    if (!first_word) {
+      if (!(res_it->IsAtBeginningOf(RIL_TEXTLINE))) {
+        if (res_it->IsAtBeginningOf(RIL_WORD)) {
+          lstm_box_str.add_str_int("  ", left);
+          AddBoxToLSTM(right, bottom, top, image_height_, page_num,
+                       &lstm_box_str);
+          lstm_box_str += "\n";  // end of row for word
+        }                        // word
+      } else {
+        if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
+          lstm_box_str.add_str_int("\t ", left);
+          AddBoxToLSTM(right, bottom, top, image_height_, page_num,
+                       &lstm_box_str);
+          lstm_box_str += "\n";  // end of row for line
+        }                        // line
+      }
+    }  // not first word
+    first_word = false;
+    // Use bounding box for whole line for everything
+    res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
+    do {
+      lstm_box_str +=
+          std::unique_ptr<const char[]>(res_it->GetUTF8Text(RIL_SYMBOL)).get();
+      res_it->Next(RIL_SYMBOL);
+    } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
     lstm_box_str.add_str_int(" ", left);
     AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
     lstm_box_str += "\n";  // end of row for symbol
@@ -89,9 +91,8 @@ char* TessBaseAPI::GetLSTMBoxText(int page_number) {
 /**********************************************************************
  * LSTMBox Renderer interface implementation
  **********************************************************************/
-TessLSTMBoxRenderer::TessLSTMBoxRenderer(const char *outputbase)
-    : TessResultRenderer(outputbase, "box") {
-}
+TessLSTMBoxRenderer::TessLSTMBoxRenderer(const char* outputbase)
+    : TessResultRenderer(outputbase, "box") {}
 
 bool TessLSTMBoxRenderer::AddImageHandler(TessBaseAPI* api) {
   const std::unique_ptr<const char[]> lstmbox(api->GetLSTMBoxText(imagenum()));
