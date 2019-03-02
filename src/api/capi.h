@@ -57,11 +57,12 @@ typedef tesseract::TessResultRenderer TessResultRenderer;
 typedef tesseract::TessTextRenderer TessTextRenderer;
 typedef tesseract::TessHOcrRenderer TessHOcrRenderer;
 typedef tesseract::TessAltoRenderer TessAltoRenderer;
+typedef tesseract::TessTsvRenderer TessTsvRenderer;
 typedef tesseract::TessPDFRenderer TessPDFRenderer;
 typedef tesseract::TessUnlvRenderer TessUnlvRenderer;
 typedef tesseract::TessBoxTextRenderer TessBoxTextRenderer;
 typedef tesseract::TessWordStrBoxRenderer TessWordStrBoxRenderer;
-typedef tesseract::TessLSTMBOXRenderer TessLSTMBOXRenderer;
+typedef tesseract::TessLSTMBoxRenderer TessLSTMBoxRenderer;
 typedef tesseract::TessBaseAPI TessBaseAPI;
 typedef tesseract::PageIterator TessPageIterator;
 typedef tesseract::ResultIterator TessResultIterator;
@@ -130,11 +131,12 @@ TESS_API TessResultRenderer* TESS_CALL TessTextRendererCreate(const char* output
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessHOcrRendererCreate2(const char* outputbase, BOOL font_info);
 TESS_API TessResultRenderer* TESS_CALL TessAltoRendererCreate(const char* outputbase);
+TESS_API TessResultRenderer* TESS_CALL TessTsvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessPDFRendererCreate(const char* outputbase, const char* datadir,
                                                              BOOL textonly);
 TESS_API TessResultRenderer* TESS_CALL TessUnlvRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessBoxTextRendererCreate(const char* outputbase);
-TESS_API TessResultRenderer* TESS_CALL TessLSTMBOXRendererCreate(const char* outputbase);
+TESS_API TessResultRenderer* TESS_CALL TessLSTMBoxRendererCreate(const char* outputbase);
 TESS_API TessResultRenderer* TESS_CALL TessWordStrBoxRendererCreate(const char* outputbase);
 
 TESS_API void TESS_CALL TessDeleteResultRenderer(TessResultRenderer* renderer);
@@ -284,9 +286,10 @@ TESS_API char* TESS_CALL TessBaseAPIGetUTF8Text(TessBaseAPI* handle);
 TESS_API char* TESS_CALL TessBaseAPIGetHOCRText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_number);
+TESS_API char* TESS_CALL TessBaseAPIGetTSVText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetBoxText(TessBaseAPI* handle, int page_number);
-TESS_API char* TESS_CALL TessBaseAPIGetLSTMBOXText(TessBaseAPI* handle, int page_number);
+TESS_API char* TESS_CALL TessBaseAPIGetLSTMBoxText(TessBaseAPI* handle, int page_number);
 TESS_API char* TESS_CALL TessBaseAPIGetWordStrBoxText(TessBaseAPI* handle, int page_number);
 
 TESS_API char* TESS_CALL TessBaseAPIGetUNLVText(TessBaseAPI* handle);

@@ -620,7 +620,7 @@ class TESS_API TessBaseAPI {
    * page_number is a 0-based page index that will appear in the box file.
    * Returned string must be freed with the delete [] operator.
    */
-  char* GetLSTMBOXText(int page_number);
+  char* GetLSTMBoxText(int page_number);
 
   /**
    * The recognized text is returned as a char* which is coded in the same

@@ -498,8 +498,8 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_lstmbox", &b);
     if (b) {
-      tesseract::TessLSTMBOXRenderer* renderer =
-        new tesseract::TessLSTMBOXRenderer(outputbase);
+      tesseract::TessLSTMBoxRenderer* renderer =
+        new tesseract::TessLSTMBoxRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
       } else {
