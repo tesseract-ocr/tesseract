@@ -166,7 +166,7 @@ void ParseCommandLineFlags(const char* usage,
     exit(0);
   }
 
-  unsigned int i = 1;
+  int i;
   for (i = 1; i < *argc; ++i) {
     const char* current_arg = (*argv)[i];
     // If argument does not start with a hyphen then break.
