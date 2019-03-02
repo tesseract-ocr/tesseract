@@ -36,7 +36,7 @@ static void AddBoxToLSTM(int right, int bottom, int top,
         text->add_str_int(" ", page_num);
 }
 
-char* TessBaseAPI::GetLSTMBOXText(int page_number) {
+char* TessBaseAPI::GetLSTMBoxText(int page_number) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
     return nullptr;
 
@@ -87,14 +87,14 @@ char* TessBaseAPI::GetLSTMBOXText(int page_number) {
 }
 
 /**********************************************************************
- * LSTMBOX Renderer interface implementation
+ * LSTMBox Renderer interface implementation
  **********************************************************************/
-TessLSTMBOXRenderer::TessLSTMBOXRenderer(const char *outputbase)
+TessLSTMBoxRenderer::TessLSTMBoxRenderer(const char *outputbase)
     : TessResultRenderer(outputbase, "box") {
 }
 
-bool TessLSTMBOXRenderer::AddImageHandler(TessBaseAPI* api) {
-  const std::unique_ptr<const char[]> lstmbox(api->GetLSTMBOXText(imagenum()));
+bool TessLSTMBoxRenderer::AddImageHandler(TessBaseAPI* api) {
+  const std::unique_ptr<const char[]> lstmbox(api->GetLSTMBoxText(imagenum()));
   if (lstmbox == nullptr) return false;
 
   AppendString(lstmbox.get());
