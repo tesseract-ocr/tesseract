@@ -2,7 +2,6 @@
  * File:        validate_javanese.cpp
  * Description: Text validator for Javanese Script - aksara jawa.
  * Author:      Shree Devi Kumar
- * Created:     August 03, 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +89,7 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         ASSERT_HOST(!CodeOnlyToOutput());
       } else {
         // Half-form with optional Nukta.
-        int len = output_.size() + 1 - output_used_;
+        unsigned len = output_.size() + 1 - output_used_;
         if (UseMultiCode(len)) return true;
       }
       if (codes_used_ < num_codes &&
@@ -149,7 +148,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
     CodeOnlyToOutput();
     // Special Sinhala case of [H Z Yayana/Rayana].
     int index = output_.size() - 3;
-    if (output_used_ <= index &&
+    if (output_used_ + 3 <= output_.size() &&
         (output_.back() == kPengkal || output_.back() == kCakra) &&
         IsVirama(output_[index]) && output_[index + 1] == kZeroWidthJoiner) {
       MultiCodePart(3);
@@ -162,7 +161,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
     }
     // Test for subscript conjunct.
     index = output_.size() - 2 - have_nukta;
-    if (output_used_ <= index && IsSubscriptScript() &&
+    if (output_used_ + 2 + have_nukta <= output_.size() && IsSubscriptScript() &&
         IsVirama(output_[index])) {
       // Output previous virama, consonant + optional nukta.
       MultiCodePart(2 + have_nukta);
