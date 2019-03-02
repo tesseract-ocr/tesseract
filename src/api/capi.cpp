@@ -505,7 +505,7 @@ TESS_API char* TESS_CALL TessBaseAPIGetAltoText(TessBaseAPI* handle, int page_nu
     return handle->GetAltoText(page_number);
 }
 
-TESS_API char* TESS_CALL TessBaseAPIGetTSVText(TessBaseAPI* handle, int page_number)
+TESS_API char* TESS_CALL TessBaseAPIGetTsvText(TessBaseAPI* handle, int page_number)
 {
     return handle->GetTSVText(page_number);
 }
