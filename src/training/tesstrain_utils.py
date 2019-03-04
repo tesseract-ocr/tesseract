@@ -125,6 +125,7 @@ parser.add_argument(
     help="A list of fontnames to train on.",
 )
 parser.add_argument("--fonts_dir", help="Path to font files.")
+parser.add_argument("--tmp_dir", help="Path to temporary training directory.")
 parser.add_argument(
     "--lang", metavar="LANG_CODE", dest="lang_code", help="ISO 639 code."
 )
@@ -214,8 +215,11 @@ def parse_flags(argv=None):
         ctx.output_dir = mkdtemp(prefix=f"trained-{ctx.lang_code}-{ctx.timestamp}")
         log.info(f"Output directory set to: {ctx.output_dir}")
 
-    # Location where intermediate files will be created.
-    ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}")
+    # Location where intermediate files will be created.       
+    if not ctx.tmp_dir:
+        ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}")
+    else:
+        ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}", dir=ctx.tmp_dir)
     # Location of log file for the whole run.
     ctx.log_file = Path(ctx.training_dir) / "tesstrain.log"
     log.info(f"Log file location: {ctx.log_file}")
