@@ -40,6 +40,8 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 
+AM_CPPFLAGS += $(libarchive_CFLAGS)
+
 if T_WIN
 AM_CPPFLAGS += -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
 endif
