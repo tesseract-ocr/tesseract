@@ -422,6 +422,12 @@ else
   AC_MSG_ERROR([Leptonica 1.74 or higher is required. Try to install libleptonica-dev package.])
 fi
 
+PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_libarchive=false])
+AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
+if $have_libarchive; then
+  AC_DEFINE([HAVE_LIBARCHIVE], [], [Enable libarchive])
+fi
+
 AM_CONDITIONAL([ENABLE_TRAINING], true)
 
 # Check availability of ICU packages.

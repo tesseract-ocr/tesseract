@@ -21,6 +21,7 @@ addons:
     sources:
     #- ubuntu-toolchain-r-test
     packages:
+      - libarchive-dev
     #- g++-6
 
 #matrix:
