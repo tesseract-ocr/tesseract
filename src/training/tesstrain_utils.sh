@@ -149,6 +149,9 @@ parse_flags() {
             --fonts_dir)
                 parse_value "FONTS_DIR" ${ARGV[$j]:-}
                 i=$j ;;
+	    --tmp_dir)
+		parse_value "TMP_DIR"   ${ARGV[$j]:-}
+		i=$j ;;
             --lang)
                 parse_value "LANG_CODE" ${ARGV[$j]:-}
                 i=$j ;;
@@ -215,7 +218,11 @@ parse_flags() {
 
     # Location where intermediate files will be created.
     TIMESTAMP=$(date +%Y-%m-%d)
-    TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
+    if [[ -z ${TMP_DIR:-} ]]; then
+        TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
+    else
+	TMP_DIR=$(mktemp -d -p ${TMP_DIR} -t ${LANG_CODE}-${TIMESTAMP}.XXX)
+    fi
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
     LOG_FILE=${TRAINING_DIR}/tesstrain.log
