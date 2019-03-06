@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string>
+#include <string.h>
+#include <libgen.h>
 
 class BitReader {
     private:
@@ -41,14 +44,17 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
     (void)argv;
 
 
-#ifndef TESSDATA_PREFIX
-#error TESSDATA_PREFIX must be defined
-#else
-    if ( setenv("TESSDATA_PREFIX", TESSDATA_PREFIX, 1) != 0 ) {
-        printf("Setenv failed\n");
-        abort();
+    {
+        char* binary_path = strdup(*argv[0]);
+        const std::string filepath = dirname(binary_path);
+        free(binary_path);
+
+        const std::string tessdata_path = filepath + "/" + "tessdata";
+        if ( setenv("TESSDATA_PREFIX", tessdata_path.c_str(), 1) != 0 ) {
+            printf("Setenv failed\n");
+            abort();
+        }
     }
-#endif
 
     api = new tesseract::TessBaseAPI();
     if ( api->Init(nullptr, "eng") != 0 ) {
