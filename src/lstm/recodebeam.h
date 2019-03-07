@@ -293,7 +293,7 @@ class RecodeBeamSearch {
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
   // is one of the top_n.
-  void ComputeTopN(const float* outputs, int num_outputs, int top_n);
+  void ComputeTopN(const float* outputs, int num_outputs, int top_n, const UNICHARSET* unicharset);
 
   // Adds the computation for the current time-step to the beam. Call at each
   // time-step in sequence from left to right. outputs is the activation vector

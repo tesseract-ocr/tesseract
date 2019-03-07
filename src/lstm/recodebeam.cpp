@@ -87,7 +87,7 @@ void RecodeBeamSearch::Decode(const NetworkIO& output, double dict_ratio,
   if (lstm_choice_mode)
     timesteps.clear();
   for (int t = 0; t < width; ++t) {
-    ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0]);
+    ComputeTopN(output.f(t), output.NumFeatures(), kBeamWidths[0], charset);
     DecodeStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert,
                charset);
     if (lstm_choice_mode) {
@@ -102,7 +102,7 @@ void RecodeBeamSearch::Decode(const GENERIC_2D_ARRAY<float>& output,
   beam_size_ = 0;
   int width = output.dim1();
   for (int t = 0; t < width; ++t) {
-    ComputeTopN(output[t], output.dim2(), kBeamWidths[0]);
+    ComputeTopN(output[t], output.dim2(), kBeamWidths[0], charset);
     DecodeStep(output[t], t, dict_ratio, cert_offset, worst_dict_cert, charset);
   }
 }
@@ -456,12 +456,19 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
 // Fills top_n_flags_ with bools that are true iff the corresponding output
 // is one of the top_n.
 void RecodeBeamSearch::ComputeTopN(const float* outputs, int num_outputs,
-                                   int top_n) {
+                                   int top_n, const UNICHARSET* charset) {
   top_n_flags_.init_to_size(num_outputs, TN_ALSO_RAN);
   top_code_ = -1;
   second_code_ = -1;
   top_heap_.clear();
   for (int i = 0; i < num_outputs; ++i) {
+    // Decode label via recoder_.
+    RecodedCharID code;
+    code.Set(0, i);
+    int label = recoder_.DecodeUnichar(code);
+    if (label != INVALID_UNICHAR_ID && // not part of a bigger code.
+        !charset->get_enabled(label)) // disabled
+      continue;
     if (top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);

@@ -619,6 +619,12 @@ void Tesseract::SetBlackAndWhitelist() {
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                      tessedit_char_whitelist.string(),
                                      tessedit_char_unblacklist.string());
+  if (lstm_recognizer_) {
+    UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (lstm_recognizer_->GetUnicharset());
+    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
+                                            tessedit_char_whitelist.string(),
+                                            tessedit_char_unblacklist.string());
+  }
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
