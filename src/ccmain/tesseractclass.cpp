@@ -630,6 +630,12 @@ void Tesseract::SetBlackAndWhitelist() {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
         tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
         tessedit_char_unblacklist.string());
+    if (sub_langs_[i]->lstm_recognizer_) {
+      UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (sub_langs_[i]->lstm_recognizer_->GetUnicharset());
+      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
+                                              tessedit_char_whitelist.string(),
+                                              tessedit_char_unblacklist.string());
+    }
   }
 }
 
