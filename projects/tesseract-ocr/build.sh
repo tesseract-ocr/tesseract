@@ -15,9 +15,8 @@
 #
 ################################################################################
 
-cd $SRC
-tar zxf leptonica-1.77.0.tar.gz
-cd leptonica-1.77.0
+cd $SRC/leptonica
+./autogen.sh
 ./configure
 make -j$(nproc)
 make install
