@@ -155,6 +155,13 @@ endif
 
 TESTS = $(check_PROGRAMS)
 
+.PHONY: all
+
+all: tmp
+
+tmp:
+	mkdir -p tmp
+
 # List of source files needed to build the executable:
 
 apiexample_test_SOURCES = apiexample_test.cc
