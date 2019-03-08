@@ -70,6 +70,7 @@ libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/extension.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/float_conversion.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/output.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/internal/str_format/parser.cc
+libabseil_la_SOURCES += ../abseil/absl/strings/match.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/numbers.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/str_cat.cc
 libabseil_la_SOURCES += ../abseil/absl/strings/str_split.cc
