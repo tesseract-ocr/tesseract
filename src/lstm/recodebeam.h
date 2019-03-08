@@ -293,7 +293,7 @@ class RecodeBeamSearch {
 
   // Fills top_n_flags_ with bools that are true iff the corresponding output
   // is one of the top_n.
-  void ComputeTopN(const float* outputs, int num_outputs, int top_n, const UNICHARSET* unicharset);
+  void ComputeTopN(const float* outputs, int num_outputs, int top_n);
 
   // Adds the computation for the current time-step to the beam. Call at each
   // time-step in sequence from left to right. outputs is the activation vector
@@ -310,9 +310,9 @@ class RecodeBeamSearch {
   // using the given network outputs to provide scores to the choices. Uses only
   // those choices for which top_n_flags[code] == top_n_flag.
   void ContinueContext(const RecodeNode* prev, int index, const float* outputs,
-                       TopNState top_n_flag, double dict_ratio,
-                       double cert_offset, double worst_dict_cert,
-                       RecodeBeam* step);
+                       TopNState top_n_flag, const UNICHARSET* unicharset,
+                       double dict_ratio, double cert_offset,
+                       double worst_dict_cert, RecodeBeam* step);
   // Continues for a new unichar, using dawg or non-dawg as per flag.
   void ContinueUnichar(int code, int unichar_id, float cert,
                        float worst_dict_cert, float dict_ratio, bool use_dawgs,
