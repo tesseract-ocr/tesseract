@@ -626,7 +626,9 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
       int unichar_id = recoder_.DecodeUnichar(full_code);
       // Map the null char to INVALID.
       if (length == 0 && code == null_char_) unichar_id = INVALID_UNICHAR_ID;
-      if (unichar_id != INVALID_UNICHAR_ID && !charset->get_enabled(unichar_id))
+      if (unichar_id != INVALID_UNICHAR_ID &&
+          charset != nullptr &&
+          !charset->get_enabled(unichar_id))
         continue; // disabled by whitelist/blacklist
       ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio,
                       use_dawgs, NC_ANYTHING, prev, step);
