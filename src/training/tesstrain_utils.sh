@@ -83,9 +83,7 @@ run_command() {
     fi
     shift
     tlog "[$(date)] ${cmd} $@"
-    "${cmd}" "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}
-    # check completion status
-    if [[ $? -gt 0 ]]; then
+    if ! "${cmd}" "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}; then
         err_exit "Program $(basename ${cmd}) failed. Abort."
     fi
 }
