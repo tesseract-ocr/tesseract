@@ -128,8 +128,12 @@ static void PrintVersionInfo() {
   printf(" Found OpenMP %d\n", _OPENMP);
 #endif
 #if defined(HAVE_LIBARCHIVE)
-  printf(" Found %s", archive_version_details() );
-#endif
+#  if ARCHIVE_VERSION_NUMBER >= 3002000
+  printf(" Found %s", archive_version_details());
+#  else
+  printf(" Found %s", archive_version_string());
+#  endif  // ARCHIVE_VERSION_NUMBER
+#endif    // HAVE_LIBARCHIVE
 
 }
 
