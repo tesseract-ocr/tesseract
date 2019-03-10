@@ -343,7 +343,7 @@ target_compile_definitions      (libtesseract
 )
 set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
-target_link_libraries           (libtesseract ${LIB_Ws2_32} ${LIB_pthread})
+target_link_libraries           (libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 if (WIN32)
@@ -372,7 +372,7 @@ if (WIN32 AND CLANG AND OPENMP_BUILD)
     # Workaround for "libomp.lib is not automatically added on Windows"
     # see: http://lists.llvm.org/pipermail/openmp-dev/2015-August/000857.html
     # TODO: Find better way how to set Clang OpenMP library for linking on Windows
-    target_link_libraries       (libtesseract "c:\\Program Files\\LLVM\\lib\\libomp.lib")
+    target_link_libraries       (libtesseract PRIVATE "c:\\Program Files\\LLVM\\lib\\libomp.lib")
 endif()
 
 ########################################
