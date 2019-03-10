@@ -678,7 +678,7 @@ void Dict::adjust_word(WERD_CHOICE *word,
                        bool debug) {
   bool is_han = (getUnicharset().han_sid() != getUnicharset().null_sid() &&
                  word->GetTopScriptID() == getUnicharset().han_sid());
-  bool case_is_ok = (is_han || case_ok(*word, getUnicharset()));
+  bool case_is_ok = (is_han || case_ok(*word));
   bool punc_is_ok = (is_han || !nonword || valid_punctuation(*word));
 
   float adjust_factor = additional_adjust;
