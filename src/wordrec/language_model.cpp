@@ -3,7 +3,6 @@
 // Description: Functions that utilize the knowledge about the properties,
 //              structure and statistics of the language to help recognition.
 // Author:      Daria Antonova
-// Created:     Mon Nov 11 11:26:43 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -803,7 +802,8 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   }
 
   // Deal with hyphenated words.
-  if (word_end && dict_->has_hyphen_end(b.unichar_id(), curr_col == 0)) {
+  if (word_end && dict_->has_hyphen_end(&dict_->getUnicharset(),
+                                        b.unichar_id(), curr_col == 0)) {
     if (language_model_debug_level > 0) tprintf("Hyphenated word found\n");
     return new LanguageModelDawgInfo(dawg_args_.active_dawgs, COMPOUND_PERM);
   }
