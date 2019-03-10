@@ -2,7 +2,6 @@
  * File:        util.h
  * Description: Misc STL string utility functions.
  * Author:      Samuel Charron
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,8 +31,8 @@
 struct StringHash {
   size_t operator()(const std::string& s) const {
     size_t hash_code = 0;
-    const char* str = s.c_str();
-    for (int ch = 0; str[ch] != 0; ++ch) {
+    const uint8_t* str = reinterpret_cast<const uint8_t*>(s.c_str());
+    for (unsigned ch = 0; str[ch] != 0; ++ch) {
       hash_code += str[ch] << (ch % 24);
     }
     return hash_code;
@@ -43,8 +42,8 @@ struct StringHash {
 struct StringHash : public stdext::hash_compare <std::string> {
   size_t operator()(const std::string& s) const {
     size_t hash_code = 0;
-    const char* str = s.c_str();
-    for (int ch = 0; str[ch] != 0; ++ch) {
+    const uint8_t* str = reinterpret_cast<const uint8_t*>(s.c_str());
+    for (unsigned ch = 0; str[ch] != 0; ++ch) {
       hash_code += str[ch] << (ch % 24);
     }
     return hash_code;
