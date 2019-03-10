@@ -361,7 +361,10 @@ if (CPPAN_BUILD)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 else()
-    target_link_libraries       (libtesseract ${Leptonica_LIBRARIES} ${LibArchive_LIBRARIES})
+    target_link_libraries       (libtesseract PUBLIC
+        ${Leptonica_LIBRARIES}
+        ${LibArchive_LIBRARIES}
+    )
     export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 endif()
 
