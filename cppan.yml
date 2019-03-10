@@ -16,6 +16,7 @@ local_settings:
 
     dependencies:
         pvt.cppan.demo.danbloomberg.leptonica: 1
+        pvt.cppan.demo.libarchive.libarchive: 3
         pvt.cppan.demo.unicode.icu.i18n: "*"
 
 root_project: pvt.cppan.demo.google.tesseract
@@ -141,6 +142,7 @@ projects:
                 definitions:
                     public:
                       - HAVE_CONFIG_H
+                      - HAVE_LIBARCHIVE
                       - _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1
                       - WINDLLNAME="tesseract"
             shared:
@@ -152,6 +154,7 @@ projects:
 
         dependencies:
             pvt.cppan.demo.danbloomberg.leptonica: 1
+            pvt.cppan.demo.libarchive.libarchive: 3
 
     tesseract:
         files: src/api/tesseractmain.cpp

@@ -354,7 +354,10 @@ set_target_properties           (libtesseract PROPERTIES OUTPUT_NAME tesseract)
 endif()
 
 if (CPPAN_BUILD)
-    target_link_libraries       (libtesseract pvt.cppan.demo.danbloomberg.leptonica)
+    target_link_libraries       (libtesseract PUBLIC
+        pvt.cppan.demo.danbloomberg.leptonica
+        pvt.cppan.demo.libarchive.libarchive
+    )
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 else()
