@@ -41,6 +41,10 @@
 #include <omp.h>
 #endif
 
+#if defined(HAVE_LIBARCHIVE)
+#include <archive.h>
+#endif
+
 #if defined(_WIN32)
 #include <fcntl.h>
 #include <io.h>
@@ -122,6 +126,9 @@ static void PrintVersionInfo() {
   if (tesseract::SIMDDetect::IsSSEAvailable()) printf(" Found SSE\n");
 #ifdef _OPENMP
   printf(" Found OpenMP %d\n", _OPENMP);
+#endif
+#if defined(HAVE_LIBARCHIVE)
+  printf(" Found %s", archive_version_details() );
 #endif
 
 }
