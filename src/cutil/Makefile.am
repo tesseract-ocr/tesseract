@@ -9,7 +9,7 @@ endif
 
 noinst_HEADERS = \
     bitvec.h callcpp.h cutil.h cutil_class.h \
-    emalloc.h globals.h \
+    emalloc.h \
     oldlist.h structures.h
 
 noinst_LTLIBRARIES = libtesseract_cutil.la

@@ -71,7 +71,6 @@ void ParseArguments(int* argc, char ***argv) {
 #include "emalloc.h"
 #include "featdefs.h"
 #include "fontinfo.h"
-#include "globals.h"
 #include "intfeaturespace.h"
 #include "mastertrainer.h"
 #include "mf.h"

@@ -26,7 +26,6 @@
 #include "classify.h"
 #include "clusttool.h"
 #include "emalloc.h"
-#include "globals.h"
 #include "helpers.h"
 #include "normfeat.h"
 #include "unicharset.h"

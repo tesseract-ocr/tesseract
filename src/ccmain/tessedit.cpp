@@ -37,7 +37,6 @@
 #include "intmatcher.h"
 #include "chop.h"
 #endif
-#include "globals.h"
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
 #endif

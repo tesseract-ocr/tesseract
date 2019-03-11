@@ -21,7 +21,6 @@
 ----------------------------------------------------------------------------*/
 #include "adaptive.h"
 #include "emalloc.h"
-#include "globals.h"
 #include "classify.h"
 
 #include <cassert>

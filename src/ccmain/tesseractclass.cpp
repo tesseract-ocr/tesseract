@@ -44,7 +44,6 @@
 #include "allheaders.h"
 #include "edgblob.h"
 #include "equationdetect.h"
-#include "globals.h"
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
 #endif

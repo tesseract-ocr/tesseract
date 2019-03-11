@@ -35,7 +35,6 @@
 #include "drawfx.h"
 #include "fixspace.h"
 #endif
-#include "globals.h"
 #include "lstmrecognizer.h"
 #include "ocrclass.h"
 #include "output.h"

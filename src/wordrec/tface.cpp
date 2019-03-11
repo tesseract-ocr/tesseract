@@ -18,7 +18,6 @@
 
 #include "callcpp.h"
 #include "chop.h"
-#include "globals.h"
 #include "pageres.h"
 #include "wordrec.h"
 #include "featdefs.h"

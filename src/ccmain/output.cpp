@@ -26,7 +26,6 @@
 #include "reject.h"
 #include "docqual.h"
 #include "output.h"
-#include "globals.h"
 #include "tesseractclass.h"
 
 #define EPAPER_EXT      ".ep"
