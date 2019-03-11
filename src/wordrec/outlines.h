@@ -4,11 +4,6 @@
  * File:         outlines.h
  * Description:  Combinatorial Splitter
  * Author:       Mark Seaman, OCR Technology
- * Created:      Thu Jul 27 11:27:55 1989
- * Modified:     Wed May 15 17:28:47 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1989, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

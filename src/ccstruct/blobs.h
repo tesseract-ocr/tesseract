@@ -1,14 +1,9 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        blobs.h  (Formerly blobs.h)
- * Description:  Blob definition
- * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 27 15:39:52 1989
- * Modified:     Thu Mar 28 15:33:38 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
+ * File:        blobs.h
+ * Description: Blob definition
+ * Author:      Mark Seaman, OCR Technology
  *
  * (c) Copyright 1989, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
