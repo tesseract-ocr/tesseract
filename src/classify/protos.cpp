@@ -23,7 +23,6 @@
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
-#include "globals.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"

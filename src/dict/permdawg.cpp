@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 
 #include "dawg.h"
-#include "globals.h"
 #include "stopper.h"
 #include "tprintf.h"
 #include "params.h"

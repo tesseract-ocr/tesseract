@@ -29,7 +29,6 @@
 #include "callcpp.h"
 #include "scrollview.h"
 #include "float2int.h"
-#include "globals.h"
 #include "helpers.h"
 #include "classify.h"
 #include "shapetable.h"

@@ -29,7 +29,6 @@
 #include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"
-#include "globals.h"
 #include "helpers.h"
 #include "intproto.h"
 #include "mfoutline.h"

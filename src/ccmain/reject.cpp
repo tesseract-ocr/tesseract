@@ -46,7 +46,6 @@ int16_t Tesseract::safe_dict_word(const WERD_RES *werd_res) {
 #include "control.h"
 #include "docqual.h"
 #include "globaloc.h"  // For err_exit.
-#include "globals.h"
 #include "helpers.h"
 
 #include "tesseractclass.h"
