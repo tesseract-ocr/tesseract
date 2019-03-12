@@ -441,7 +441,7 @@ int Dict::LengthOfShortestAlphaRun(const WERD_CHOICE &WordChoice) const {
   int shortest = INT32_MAX;
   int curr_len = 0;
   for (int w = 0; w < WordChoice.length(); ++w) {
-    if (getUnicharset().get_isalpha(WordChoice.unichar_id(w))) {
+    if (WordChoice.unicharset()->get_isalpha(WordChoice.unichar_id(w))) {
       curr_len++;
     } else if (curr_len > 0) {
       if (curr_len < shortest) shortest = curr_len;
