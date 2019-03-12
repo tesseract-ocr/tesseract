@@ -11,4 +11,6 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libtesseract_viewer.la
 
 libtesseract_viewer_la_SOURCES = \
-    scrollview.cpp svmnode.cpp svutil.cpp svpaint.cpp
+    scrollview.cpp svmnode.cpp svutil.cpp
+
+# TODO: Add rule to generate svpaint from svpaint.cpp.
