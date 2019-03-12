@@ -7,7 +7,6 @@
  *              Holds data used during word recognition.
  *              Holds information about alternative spacing paths.
  * Author:      Phil Cheatle
- * Created:     Tue Sep 22 08:42:49 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -177,7 +176,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
         *copy_word = *(word_it.data());  // deep copy
         combo = new WERD_RES(copy_word);
         combo->x_height = the_row->x_height();
-        combo->combination = TRUE;
+        combo->combination = true;
         word_res_it.add_to_end(combo);
       }
       word_res->part_of_combo = TRUE;

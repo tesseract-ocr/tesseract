@@ -4,7 +4,6 @@
  *              spacing possibilities, trying to use context to improve the
  *              word spacing
  * Author:      Phil Cheatle
- * Created:     Thu Oct 21 11:38:43 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -445,7 +444,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               *copy_word = *(prev_word->word);
               // deep copy
               combo = new WERD_RES(copy_word);
-              combo->combination = TRUE;
+              combo->combination = true;
               combo->x_height = prev_word->x_height;
               prev_word->part_of_combo = true;
               prev_word_it.add_before_then_move(combo);
