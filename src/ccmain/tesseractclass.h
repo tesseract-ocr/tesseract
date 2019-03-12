@@ -1124,10 +1124,14 @@ class Tesseract : public Wordrec {
   STRING_VAR_H(page_separator, "\f",
                "Page separator (default is form feed control character)");
   INT_VAR_H(lstm_choice_mode, 0,
-            "Allows to include alternative symbols choices in the hOCR output. "
-            "Valid input values are 0, 1 and 2. 0 is the default value. "
+            "Allows to include alternative symbols choices in the hOCR "
+            "output. "
+            "Valid input values are 0, 1, 2 and 3. 0 is the default value. "
             "With 1 the alternative symbol choices per timestep are included. "
-            "With 2 the alternative symbol choices are accumulated per character.");
+            "With 2 the alternative symbol choices are accumulated per "
+            "character. "
+            "With 3 the alternative symbol choices per timestep are included "
+            "and separated by the suggested segmentation of Tesseract");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE *init_recog_training(const STRING &fname);
