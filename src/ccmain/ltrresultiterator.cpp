@@ -446,11 +446,10 @@ ChoiceIterator::Timesteps() const {
 
 void ChoiceIterator::filterSpaces() {
   if (LSTM_choices_->empty()) return;
-  std::vector<std::pair<const char*, float>>::iterator it =
-      LSTM_choices_->begin();
+  std::vector<std::pair<const char*, float>>::iterator it;
   bool found_space = false;
   float sum = 0;
-  for (it; it != LSTM_choices_->end();) {
+  for (it = LSTM_choices_->begin(); it != LSTM_choices_->end();) {
     if (!strcmp(it->first, " ")) {
       it = LSTM_choices_->erase(it);
       found_space = true;
