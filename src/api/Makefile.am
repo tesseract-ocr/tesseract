@@ -41,7 +41,7 @@ libtesseract_api_la_SOURCES += wordstrboxrenderer.cpp
 libtesseract_api_la_SOURCES += renderer.cpp
 
 lib_LTLIBRARIES += libtesseract.la
-libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS)
+libtesseract_la_LDFLAGS = $(LEPTONICA_LIBS) $(OPENCL_LDFLAGS) $(libarchive_LIBS)
 libtesseract_la_SOURCES =
 # Dummy C++ source to cause C++ linking.
 # see http://www.gnu.org/s/hello/manual/automake/Libtool-Convenience-Libraries.html#Libtool-Convenience-Libraries
