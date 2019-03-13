@@ -3,7 +3,6 @@
 // Description: Iterator for tesseract results in strict left-to-right
 //              order that avoids using tesseract internal data structures.
 // Author:      Ray Smith
-// Created:     Fri Feb 26 14:32:09 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -437,7 +436,7 @@ float ChoiceIterator::Confidence() const {
 // Returns the set of timesteps which belong to the current symbol
 std::vector<std::vector<std::pair<const char*, float>>>*
 ChoiceIterator::Timesteps() const {
-  if (&word_res_->symbol_steps == nullptr || !LSTM_mode_) return nullptr;
+  if (word_res_->symbol_steps.empty() || !LSTM_mode_) return nullptr;
   if (word_res_->leadingSpace) {
     return &word_res_->symbol_steps[*(tstep_index_) + 1];
   } else {
