@@ -362,7 +362,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   oemLegacy_ = word_res_->tesseract->AnyTessLang();
   BLOB_CHOICE_LIST* choices = nullptr;
   tstep_index_ = &result_it.blob_index_;
-  if (oemLSTM_ && !oemLegacy_ && &word_res_->accumulated_timesteps != nullptr) {
+  if (oemLSTM_ && !oemLegacy_ && !word_res_->accumulated_timesteps.empty()) {
     if (word_res_->leadingSpace)
       LSTM_choices_ = &word_res_->accumulated_timesteps[(*tstep_index_) + 1];
     else
