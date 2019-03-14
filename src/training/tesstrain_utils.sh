@@ -314,6 +314,7 @@ phase_I_generate_image() {
         fi
 
         local jobs=
+        trap "kill $$" INT
         for font in "${FONTS[@]}"; do
             sleep 1
             test $(jobs -r | wc -l) -ge $par_factor && wait -n
@@ -444,6 +445,7 @@ phase_E_extract_features() {
     export TESSDATA_PREFIX=${TESSDATA_DIR}
     tlog "Using TESSDATA_PREFIX=${TESSDATA_PREFIX}"
     local jobs=
+    trap "kill $$" INT
     for img_file in ${img_files}; do
         test $(jobs -r | wc -l) -ge $par_factor && wait -n
         run_command tesseract ${img_file} ${img_file%.*} \
