@@ -291,7 +291,7 @@ generate_font_image() {
 # Phase I : Generate (I)mages from training text for each font.
 phase_I_generate_image() {
     local par_factor=${1:-}
-    if [[ -z ${par_factor} || ${par_factor} -le 0 ]]; then
+    if ! [[ "${par_factor}" -gt 0 ]]; then
         par_factor=1
     fi
     tlog "\n=== Phase I: Generating training images ==="
@@ -317,13 +317,10 @@ phase_I_generate_image() {
         for font in "${FONTS[@]}"; do
             sleep 1
             generate_font_image "${font}" &
-            let counter=counter+1
-            let rem=counter%par_factor || true
-            if [[ "${rem}" -eq 0 ]]; then
-              wait
-            fi
+            let counter++
+            ((counter%par_factor)) || wait -n
         done
-        wait
+        wait -n
         # Check that each process was successful.
         for font in "${FONTS[@]}"; do
             local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
@@ -427,7 +424,7 @@ phase_E_extract_features() {
     local box_config=$1
     local par_factor=$2
     local ext=$3
-    if [[ -z ${par_factor} || ${par_factor} -le 0 ]]; then
+    if ! [[ "${par_factor}" -gt 0 ]]; then
         par_factor=1
     fi
     tlog "\n=== Phase E: Generating ${ext} files ==="
@@ -450,13 +447,10 @@ phase_E_extract_features() {
     for img_file in ${img_files}; do
         run_command tesseract ${img_file} ${img_file%.*} \
             ${box_config} ${config} &
-      let counter=counter+1
-      let rem=counter%par_factor || true
-      if [[ "${rem}" -eq 0 ]]; then
-        wait
-      fi
+      let counter++
+      ((counter%par_factor)) || wait -n
     done
-    wait
+    wait -n
     export TESSDATA_PREFIX=${OLD_TESSDATA_PREFIX}
     # Check that all the output files were produced.
     for img_file in ${img_files}; do
