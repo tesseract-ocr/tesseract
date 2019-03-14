@@ -313,14 +313,14 @@ phase_I_generate_image() {
             check_file_readable ${TRAIN_NGRAMS_FILE}
         fi
 
-        local counter=0
+        local jobs=
         for font in "${FONTS[@]}"; do
             sleep 1
+            test $(jobs -r | wc -l) -ge $par_factor && wait -n
             generate_font_image "${font}" &
-            let counter++
-            ((counter%par_factor)) || wait -n
+            jobs="$jobs $!"
         done
-        wait -n
+        wait $jobs
         # Check that each process was successful.
         for font in "${FONTS[@]}"; do
             local fontname=$(echo ${font} | tr ' ' '_' | sed 's/,//g')
@@ -443,14 +443,14 @@ phase_E_extract_features() {
     OLD_TESSDATA_PREFIX=${TESSDATA_PREFIX}
     export TESSDATA_PREFIX=${TESSDATA_DIR}
     tlog "Using TESSDATA_PREFIX=${TESSDATA_PREFIX}"
-    local counter=0
+    local jobs=
     for img_file in ${img_files}; do
+        test $(jobs -r | wc -l) -ge $par_factor && wait -n
         run_command tesseract ${img_file} ${img_file%.*} \
             ${box_config} ${config} &
-      let counter++
-      ((counter%par_factor)) || wait -n
+        jobs="$jobs $!"
     done
-    wait -n
+    wait $jobs
     export TESSDATA_PREFIX=${OLD_TESSDATA_PREFIX}
     # Check that all the output files were produced.
     for img_file in ${img_files}; do
