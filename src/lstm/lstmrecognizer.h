@@ -25,6 +25,7 @@
 #include "matrix.h"
 #include "network.h"
 #include "networkscratch.h"
+#include "params.h"
 #include "recodebeam.h"
 #include "series.h"
 #include "strngs.h"
@@ -154,7 +155,7 @@ class LSTMRecognizer {
   int null_char() const { return null_char_; }
 
   // Loads a model from mgr, including the dictionary only if lang is not null.
-  bool Load(const char* lang, TessdataManager* mgr);
+  bool Load(const ParamsVectors* params, const char* lang, TessdataManager* mgr);
 
   // Writes to the given file. Returns false in case of error.
   // If mgr contains a unicharset and recoder, then they are not encoded to fp.
@@ -174,7 +175,7 @@ class LSTMRecognizer {
   // on the unicharset matching. This enables training to deserialize a model
   // from checkpoint or restore without having to go back and reload the
   // dictionary.
-  bool LoadDictionary(const char* lang, TessdataManager* mgr);
+  bool LoadDictionary(const ParamsVectors* params, const char* lang, TessdataManager* mgr);
 
   // Recognizes the line image, contained within image_data, returning the
   // recognized tesseract WERD_RES for the words.

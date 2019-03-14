@@ -106,6 +106,10 @@ class ParamUtils {
 
   // Resets all parameters back to default values;
   static void ResetToDefaults(ParamsVectors* member_params);
+
+  // Resets all shared parameters by their pattern values
+  static void ResetFromParams(ParamsVectors* member_params,
+                              const ParamsVectors* pattern_params);
 };
 
 // Definition of various parameter types.

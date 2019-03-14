@@ -298,6 +298,9 @@ void Dict::Load(const STRING &lang, TessdataManager *data_file) {
                             getUnicharset().size(), dawg_debug_level);
 }
 
+// TODO(bertsky): unused, remove unless reasons appear to keep separate loaders
+// for Tesseract and LSTMRecognizer (same as Dict::Load without user words/patterns,
+// and document/pending words)
 // Loads the dawgs needed by the LSTM model. Call FinishLoad() after.
 void Dict::LoadLSTM(const STRING &lang, TessdataManager *data_file) {
   // Load dawgs_.

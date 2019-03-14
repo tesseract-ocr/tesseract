@@ -213,4 +213,52 @@ void ParamUtils::ResetToDefaults(ParamsVectors* member_params) {
   }
 }
 
+// Resets all shared parameters by their pattern values
+void ParamUtils::ResetFromParams(ParamsVectors* member_params,
+                                 const ParamsVectors* pattern_params) {
+  if (member_params != nullptr && pattern_params != nullptr) {
+    int i;
+    for (i = 0; i < member_params->int_params.size(); ++i) {
+      IntParam& member = *member_params->int_params[i];
+      IntParam* param = ParamUtils::FindParam<IntParam>(member.name_str(),
+                                                        pattern_params->int_params,
+                                                        pattern_params->int_params);
+      if (param) {
+        //printf("overriding param %s=%d by =%d\n", member.name_str(), member, *param);
+        member.set_value(*param);
+      }
+    }
+    for (i = 0; i < member_params->bool_params.size(); ++i) {
+      BoolParam& member = *member_params->bool_params[i];
+      BoolParam* param = ParamUtils::FindParam<BoolParam>(member.name_str(),
+                                                          pattern_params->bool_params,
+                                                          pattern_params->bool_params);
+      if (param) {
+        //printf("overriding param %s=%s by =%s\n", member.name_str(), member ? "true" : "false", *param ? "true" : "false");
+        member.set_value(*param);
+      }
+    }
+    for (i = 0; i < member_params->string_params.size(); ++i) {
+      StringParam& member = *member_params->string_params[i];
+      StringParam* param = ParamUtils::FindParam<StringParam>(member.name_str(),
+                                                              pattern_params->string_params,
+                                                              pattern_params->string_params);
+      if (param) {
+        //printf("overriding param %s=%s by =%s\n", member.name_str(), member, *param);
+        member.set_value(*param);
+      }
+    }
+    for (i = 0; i < member_params->double_params.size(); ++i) {
+      DoubleParam& member = *member_params->double_params[i];
+      DoubleParam* param = ParamUtils::FindParam<DoubleParam>(member.name_str(),
+                                                              pattern_params->double_params,
+                                                              pattern_params->double_params);
+      if (param) {
+        //printf("overriding param %s=%f by =%f\n", member.name_str(), member, *param);
+        member.set_value(*param);
+      }
+    }
+  }
+}
+
 }  // namespace tesseract
