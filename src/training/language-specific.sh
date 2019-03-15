@@ -1164,7 +1164,7 @@ set_lang_specific_parameters() {
           test -z "$FONTS" && FONTS=( "${OLD_GEORGIAN_FONTS[@]}" ) ;;
     kir ) test -z "$FONTS" && FONTS=( "${KYRGYZ_FONTS[@]}" )
           TRAINING_DATA_ARGUMENTS=" --infrequent_ratio=100" ;;
-    kmr ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
+    kmr ) test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" ) ;;
     kur_ara ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
 
     *) err_exit "Error: ${lang} is not a valid language code"
