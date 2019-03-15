@@ -23,7 +23,7 @@ build_script:
   - sw -show-output -platform %platform% build
 
 after_build:
-  - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release_*\*.dll
+  - 7z a tesseract.zip %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release\*.exe %APPVEYOR_BUILD_FOLDER%\.sw\windows_*_msvc_*_shared_Release\*.dll
 
 artifacts:
   - path: tesseract.zip
