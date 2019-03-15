@@ -316,6 +316,47 @@ void Dict::LoadLSTM(const STRING &lang, TessdataManager *data_file) {
         lang, TESSDATA_LSTM_NUMBER_DAWG, dawg_debug_level, data_file);
     if (number_dawg) dawgs_ += number_dawg;
   }
+
+  // stolen from Dict::Load (but needs params_ from Tesseract langdata/config/api):
+  STRING name;
+  if (((STRING &)user_words_suffix).length() > 0 ||
+      ((STRING &)user_words_file).length() > 0) {
+    Trie *trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
+                              getUnicharset().size(), dawg_debug_level);
+    if (((STRING &)user_words_file).length() > 0) {
+        name = user_words_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_words_suffix;
+    }
+    if (!trie_ptr->read_and_add_word_list(name.string(), getUnicharset(),
+                                          Trie::RRP_REVERSE_IF_HAS_RTL)) {
+      tprintf("Error: failed to load %s\n", name.string());
+      delete trie_ptr;
+    } else {
+      dawgs_ += trie_ptr;
+    }
+  }
+
+  if (((STRING &)user_patterns_suffix).length() > 0 ||
+      ((STRING &)user_patterns_file).length() > 0) {
+    Trie *trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
+                              getUnicharset().size(), dawg_debug_level);
+    trie_ptr->initialize_patterns(&(getUnicharset()));
+    if (((STRING &)user_patterns_file).length() > 0) {
+        name = user_patterns_file;
+    } else {
+        name = getCCUtil()->language_data_path_prefix;
+        name += user_patterns_suffix;
+    }
+    if (!trie_ptr->read_pattern_list(name.string(), getUnicharset())) {
+      tprintf("Error: failed to load %s\n", name.string());
+      delete trie_ptr;
+    } else {
+      dawgs_ += trie_ptr;
+    }
+  }
+
 }
 
 // Completes the loading process after Load() and/or LoadLSTM().

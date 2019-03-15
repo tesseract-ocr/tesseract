@@ -66,13 +66,13 @@ LSTMRecognizer::~LSTMRecognizer() {
 }
 
 // Loads a model from mgr, including the dictionary only if lang is not null.
-bool LSTMRecognizer::Load(const char* lang, TessdataManager* mgr) {
+bool LSTMRecognizer::Load(const ParamsVectors* params, const char* lang, TessdataManager* mgr) {
   TFile fp;
   if (!mgr->GetComponent(TESSDATA_LSTM, &fp)) return false;
   if (!DeSerialize(mgr, &fp)) return false;
   if (lang == nullptr) return true;
   // Allow it to run without a dictionary.
-  LoadDictionary(lang, mgr);
+  LoadDictionary(params, lang, mgr);
   return true;
 }
 
@@ -154,9 +154,14 @@ bool LSTMRecognizer::LoadRecoder(TFile* fp) {
 // on the unicharset matching. This enables training to deserialize a model
 // from checkpoint or restore without having to go back and reload the
 // dictionary.
-bool LSTMRecognizer::LoadDictionary(const char* lang, TessdataManager* mgr) {
+// Some parameters have to be passed in (from langdata/config/api via Tesseract)
+bool LSTMRecognizer::LoadDictionary(const ParamsVectors* params, const char* lang, TessdataManager* mgr) {
   delete dict_;
   dict_ = new Dict(&ccutil_);
+  dict_->user_words_file.ResetFrom(params);
+  dict_->user_words_suffix.ResetFrom(params);
+  dict_->user_patterns_file.ResetFrom(params);
+  dict_->user_patterns_suffix.ResetFrom(params);
   dict_->SetupForLoad(Dict::GlobalDawgCache());
   dict_->LoadLSTM(lang, mgr);
   if (dict_->FinishLoad()) return true;  // Success.

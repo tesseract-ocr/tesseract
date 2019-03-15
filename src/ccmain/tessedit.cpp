@@ -186,7 +186,7 @@ bool Tesseract::init_tesseract_lang_data(
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
       lstm_recognizer_ = new LSTMRecognizer;
       ASSERT_HOST(
-          lstm_recognizer_->Load(lstm_use_matrix ? language : nullptr, mgr));
+                  lstm_recognizer_->Load(this->params(), lstm_use_matrix ? language : nullptr, mgr));
     } else {
       tprintf("Error: LSTM requested, but not present!! Loading tesseract.\n");
       tessedit_ocr_engine_mode.set_value(OEM_TESSERACT_ONLY);
