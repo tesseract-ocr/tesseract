@@ -1,0 +1,27 @@
+# GitHub actions - Create Tesseract installer for Windows
+
+name: Cross build for Windows
+
+on:
+  # Trigger workflow in GitHub web frontend or from API.
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: 'Target operating system'
+        required: true
+        default: 'Windows (64 bit)'
+        type: choice
+        options:
+          - 'Windows (64 bit)'
+
+jobs:
+  build64:
+    runs-on: [ubuntu-24.04]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Tesseract installer (64 bit)
+      run: nsis/build.sh x86_64
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Tesseract Installer for Windows (64 bit)
+        path: dist
