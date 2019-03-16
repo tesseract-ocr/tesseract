@@ -4,11 +4,6 @@
  * File:         permdawg.cpp  (Formerly permdawg.c)
  * Description:  Scale word choices by a dictionary
  * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Tue Jul  9 15:43:18 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

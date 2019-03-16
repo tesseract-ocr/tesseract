@@ -4,11 +4,6 @@
  * File:         structures.cpp  (Formerly structures.c)
  * Description:  Allocate all the different types of structures.
  * Author:       Mark Seaman, OCR Technology
- * Created:      Wed May 30 10:27:26 1990
- * Modified:     Mon Jul 15 10:39:18 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

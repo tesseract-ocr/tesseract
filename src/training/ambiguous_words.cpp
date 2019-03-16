@@ -5,7 +5,6 @@
 //              that were found in the dictionary followed by the words
 //              that are ambiguous to them.
 // Author:      Rika Antonova
-// Created:     Fri Oct 21 11:26:43 PDT 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
