@@ -117,6 +117,10 @@ check_types(types_list)
 file(APPEND ${AUTOCONFIG_SRC} "
 /* Version number */
 #cmakedefine PACKAGE_VERSION \"${PACKAGE_VERSION}\"
+#cmakedefine GRAPHICS_DISABLED ${GRAPHICS_DISABLED}
+#cmakedefine EMBEDDED ${EMBEDDED}
+#cmakedefine DISABLED_LEGACY_ENGINE ${DISABLED_LEGACY_ENGINE}
+#cmakedefine HAVE_LIBARCHIVE ${HAVE_LIBARCHIVE}
 ")
 
 test_big_endian(WORDS_BIGENDIAN)

@@ -70,6 +70,9 @@ message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
 option(CPPAN_BUILD "Build with cppan" ON)
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
+option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
+option(EMBEDDED "Enable embedded build " OFF)
+option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 
@@ -162,7 +165,7 @@ endif()
 find_package(OpenCL QUIET)
 find_package(LibArchive)
 if(LibArchive_FOUND)
-    add_definitions(-DHAVE_LIBARCHIVE)
+    set(HAVE_LIBARCHIVE ON)
 endif()
 
 
@@ -176,6 +179,9 @@ set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
 add_definitions(-DHAVE_CONFIG_H)
 
+if(GRAPHICS_DISABLED)
+    message("ScrollView debugging disabled.")
+endif()
 include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
