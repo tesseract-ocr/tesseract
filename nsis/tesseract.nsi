@@ -22,10 +22,18 @@
 SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 32
 
+Unicode true
+
 ; Settings which normally should be passed as command line arguments.
 ;define CROSSBUILD
 ;define SHARED
 ;define W64
+!ifndef COMMENTS
+!define COMMENTS "GitHub CI build"
+!endif
+!ifndef COMPANYNAME
+!define COMPANYNAME "Open Source Community"
+!endif
 !ifndef SRCDIR
 !define SRCDIR .
 !endif
@@ -40,7 +48,7 @@ SetCompressorDictSize 32
 !define PRODUCT_WEB_SITE "https://github.com/tesseract-ocr/tesseract"
 !endif
 !define GITHUB_RAW_FILE_URL \
-  "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/master"
+  "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main"
 
 !ifdef CROSSBUILD
 !addincludedir ${SRCDIR}\nsis\include
@@ -56,13 +64,17 @@ SetCompressorDictSize 32
 !endif
 
 # Name of program and file
-!ifdef VERSION
-OutFile ${SETUP}-${VERSION}.exe
-!else
-OutFile ${SETUP}.exe
+!define OUTFILE "${SETUP}-${VERSION}.exe"
+OutFile ${OUTFILE}
+
+!ifdef SIGNCODE
+!finalize "${SIGNCODE} %1"
+!uninstfinalize "${SIGNCODE} %1"
 !endif
 
-!define PREFIX "../usr/${ARCH}-w64-mingw32"
+!ifndef PREFIX
+!define PREFIX "../mingw64"
+!endif
 !define TRAININGDIR "${PREFIX}/bin"
 
 # General Definitions
@@ -71,6 +83,21 @@ Caption "${PRODUCT_NAME} ${VERSION}"
 !ifndef CROSSBUILD
 BrandingText /TRIMCENTER "(c) 2010-2019 ${PRODUCT_NAME}"
 !endif
+
+; File properties.
+!define /date DATEVERSION "%Y%m%d%H%M%S"
+VIProductVersion "${VERSION}"
+VIAddVersionKey "ProductName" "${PRODUCT_NAME}"
+VIAddVersionKey "Comments" "${COMMENTS}"
+VIAddVersionKey "CompanyName" "${COMPANYNAME}"
+VIAddVersionKey "FileDescription" "Tesseract OCR"
+!define /date DATETIME "%Y-%m-%d-%H-%M-%S"
+VIAddVersionKey "FileVersion" "${DATETIME}"
+VIAddVersionKey "InternalName" "Tesseract"
+VIAddVersionKey "LegalCopyright" "Apache-2.0"
+#VIAddVersionKey "LegalTrademarks" ""
+VIAddVersionKey "OriginalFilename" "${OUTFILE}"
+VIAddVersionKey "ProductVersion" "${VERSION}"
 
 !define REGKEY "SOFTWARE\${PRODUCT_NAME}"
 ; HKLM (all users) vs HKCU (current user) defines
@@ -100,10 +127,12 @@ BrandingText /TRIMCENTER "(c) 2010-2019 ${PRODUCT_NAME}"
 !define MUI_FINISHPAGE_LINK "View Tesseract on GitHub"
 !define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/tesseract-ocr/tesseract"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+!ifdef SHOW_README
 ; Showing the README does not work.
-;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\doc\README.md"
-;!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
-;!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\doc\README.md"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
+!endif
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME StartMenuGroup
@@ -128,9 +157,7 @@ Var OLD_KEY
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "${SRCDIR}\LICENSE"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
-!ifdef VERSION
   Page custom PageReinstall PageLeaveReinstall
-!endif
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuGroup
@@ -178,8 +205,10 @@ Section -Main SEC0000
   File ${PREFIX}/bin/tesseract.exe
   File ${PREFIX}/bin/libtesseract-*.dll
 !ifdef CROSSBUILD
-  File ${SRCDIR}\dll\${ARCH}-w64-mingw32\*.dll
+  File ../dll/*.dll
 !endif
+  File winpath.exe
+  File ../doc/*.html
   CreateDirectory "$INSTDIR\tessdata"
   SetOutPath "$INSTDIR\tessdata"
   File ${PREFIX}/share/tessdata/pdf.ttf
@@ -245,7 +274,8 @@ SectionEnd
 Section "Shortcuts creation" SecCS
   SetOutPath $INSTDIR
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Console.lnk" $WINDIR\system32\CMD.EXE
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Console.lnk" "$INSTDIR\winpath.exe" "cmd"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Dokumentation.lnk" "$INSTDIR\tesseract.1.html"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Homepage.lnk" "${PRODUCT_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "${PRODUCT_WEB_SITE}/wiki/ReadMe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\FAQ.lnk" "${PRODUCT_WEB_SITE}/wiki/FAQ"
@@ -258,14 +288,12 @@ SectionEnd
 SectionGroup "Language data" SecGrp_LD
     Section "English" SecLang_eng
     SectionIn RO
-      SetOutPath "$INSTDIR\tessdata"
-      File ${SRCDIR}\tessdata\eng.*
+      !insertmacro Download_Lang_Data eng
     SectionEnd
 
     Section "Orientation and script detection" SecLang_osd
     SectionIn 1
-      SetOutPath "$INSTDIR\tessdata"
-      File ${SRCDIR}\tessdata\osd.*
+      !insertmacro Download_Lang_Data osd
     SectionEnd
 SectionGroupEnd
 
@@ -466,7 +494,7 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
   SectionEnd
 
   ; The language names are documented here:
-  ; https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#languages
+  ; https://github.com/tesseract-ocr/tesseract/blob/main/doc/tesseract.1.asc#languages
 
   Section /o "Afrikaans" SecLang_afr
     AddSize 2530
@@ -588,6 +616,11 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
     !insertmacro Download_Lang_Data deu
   SectionEnd
 
+ Section /o "German Fraktur" SecLang_deu_latf
+    AddSize 6130
+    !insertmacro Download_Lang_Data deu_latf
+  SectionEnd
+
   Section /o "Divehi" SecLang_div
     AddSize 1690
     !insertmacro Download_Lang_Data div
@@ -646,11 +679,6 @@ SectionGroup "Additional language data (download)" SecGrp_ALD
   Section /o "French" SecLang_fra
     AddSize 1080
     !insertmacro Download_Lang_Data fra
-  SectionEnd
-
- Section /o "German Fraktur" SecLang_frk
-    AddSize 6130
-    !insertmacro Download_Lang_Data frk
   SectionEnd
 
  Section /o "French - Middle (ca. 1400-1600)" SecLang_frm
@@ -1130,7 +1158,7 @@ Section -un.Main UNSEC0000
   RMDir  "$SMPROGRAMS\${PRODUCT_NAME}"
   DetailPrint "Removing registry info"
   DeleteRegKey HKLM "Software\Tesseract-OCR"
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=1000
 
   # remove the Add/Remove information
   DeleteRegKey HKLM "${UNINST_KEY}"
@@ -1138,7 +1166,15 @@ Section -un.Main UNSEC0000
   DeleteRegValue HKLM "${REGKEY}" Path
   DeleteRegKey /IfEmpty HKLM "${REGKEY}\Components"
   DeleteRegKey /IfEmpty HKLM "${REGKEY}"
-  RMDir /r "$INSTDIR"
+  Delete "$INSTDIR\*.dll"
+  Delete "$INSTDIR\*.exe"
+  Delete "$INSTDIR\*.html"
+  Delete "$INSTDIR\doc\AUTHORS"
+  Delete "$INSTDIR\doc\LICENSE"
+  Delete "$INSTDIR\doc\README.md"
+  RMDir "$INSTDIR\doc"
+  RMDir /r "$INSTDIR\tessdata"
+  RMDir "$INSTDIR"
 SectionEnd
 
 Function PageReinstall
@@ -1389,10 +1425,12 @@ Function .onInstFailed
   MessageBox MB_OK "Installation failed."
 FunctionEnd
 
+!ifdef SHOW_README
 Function ShowReadme
   Exec '"wordpad" "doc\README.md"'
   ;BringToFront
 FunctionEnd
+!endif
 
 ; Prevent running multiple instances of the installer
 Function PreventMultipleInstances
