@@ -30,7 +30,7 @@ VALID_LANGUAGE_CODES = (
     "ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo "
     "ell eng enm epo est eus fas fil fin fra frk frm gle glg "
     "grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old "
-    "jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat "
+    "jav jav_java jpn kan kat kat_old kaz khm kir kmr kor kur_ara lao lat "
     "lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori "
     "pan pol por pus ron rus san sin slk slv snd spa spa_old "
     "sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur "
@@ -1302,7 +1302,10 @@ def set_lang_specific_parameters(ctx, lang):
         if not FONTS:
             FONTS = KYRGYZ_FONTS
         TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=100"]
-    elif lang == "kur":
+    elif lang == "kmr":
+        if not FONTS:
+            FONTS = LATIN_FONTS
+    elif lang == "kur_ara":
         if not FONTS:
             FONTS = KURDISH_FONTS
     else:

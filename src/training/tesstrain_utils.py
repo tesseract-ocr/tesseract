@@ -172,6 +172,10 @@ parser.add_argument(
     "--noextract_font_properties", dest="extract_font_properties", action="store_false"
 )
 
+parser.add_argument(
+    "--distort_image", dest="distort_image", help="--distort_image=true."
+)
+
 tessdata_group = parser.add_argument_group(
     "tessdata",
     "OPTIONAL flag to specify location of existing traineddata files, required during feature extraction. If unspecified will use TESSDATA_PREFIX defined in the current environment.",
@@ -310,6 +314,7 @@ def generate_font_image(ctx, font, exposure, char_spacing):
         f"--exposure={exposure}",
         f"--outputbase={outbase}",
         f"--max_pages={ctx.max_pages}",
+        f"--distort_image={ctx.distort_image}",
     ]
 
     # add --writing_mode=vertical-upright to common_args if the font is
