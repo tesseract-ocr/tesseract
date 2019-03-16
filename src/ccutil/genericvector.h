@@ -2,7 +2,6 @@
 // File:        genericvector.h
 // Description: Generic vector class
 // Author:      Daria Antonova
-// Created:     Mon Jun 23 11:26:43 PDT 2008
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");

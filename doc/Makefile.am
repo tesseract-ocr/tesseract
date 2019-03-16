@@ -33,8 +33,9 @@ EXTRA_DIST = $(man_MANS) Doxyfile
 .PHONY: html
 
 html: ${man_MANS:%=%.html}
+pdf: ${man_MANS:%=%.pdf}
 
-SUFFIXES = .asc .html
+SUFFIXES = .asc .html .pdf
 
 .asc:
 	-asciidoc -b docbook -d manpage -o - $< | \
@@ -42,6 +43,10 @@ SUFFIXES = .asc .html
 
 .asc.html:
 	asciidoc -b html5 -o $@ $<
+
+.asc.pdf:
+	asciidoc -b docbook -d manpage -o $*.dbk $<
+	docbook2pdf $*.dbk
 
 MAINTAINERCLEANFILES = $(man_MANS) Doxyfile
 

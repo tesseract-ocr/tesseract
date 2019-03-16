@@ -2,13 +2,7 @@
  ******************************************************************************
  *
  * File:        chop.cpp  (Formerly chop.c)
- * Description:
- * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Tue Jul 30 16:41:11 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
+ * Author:      Mark Seaman, OCR Technology
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

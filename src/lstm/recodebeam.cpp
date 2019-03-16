@@ -3,7 +3,6 @@
 // Description: Beam search to decode from the re-encoded CJK as a sequence of
 //              smaller numbers in place of a single large code.
 // Author:      Ray Smith
-// Created:     Fri Mar 13 09:39:01 PDT 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");

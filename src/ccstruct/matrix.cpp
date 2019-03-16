@@ -4,11 +4,6 @@
  * File:         matrix.cpp  (Formerly matrix.c)
  * Description:  Ratings matrix code. (Used by associator)
  * Author:       Mark Seaman, OCR Technology
- * Created:      Wed May 16 13:18:47 1990
- * Modified:     Wed Mar 20 09:44:47 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

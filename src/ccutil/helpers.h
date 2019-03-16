@@ -4,10 +4,6 @@
  * File:         helpers.h
  * Description:  General utility functions
  * Author:       Daria Antonova
- * Created:      Wed Apr 8 14:37:00 2009
- * Language:     C++
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 2009, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");

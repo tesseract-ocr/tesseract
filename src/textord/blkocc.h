@@ -1,13 +1,8 @@
 /******************************************************************************
  *
- * File:        blkocc.h  (Formerly blockocc.h)
+ * File:         blkocc.h  (Formerly blockocc.h)
  * Description:  Block Occupancy routines
  * Author:       Chris Newton
- * Created:      Fri Nov 8
- * Modified:
- * Language:     C++
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1991, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
