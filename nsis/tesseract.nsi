@@ -180,6 +180,8 @@ Section -Main SEC0000
 !ifdef CROSSBUILD
   File ${SRCDIR}\dll\${ARCH}-w64-mingw32\*.dll
 !endif
+  File ${SRCDIR}\nsis\winpath.exe
+  File ../doc/*.html
   CreateDirectory "$INSTDIR\tessdata"
   SetOutPath "$INSTDIR\tessdata"
   File ${PREFIX}/share/tessdata/pdf.ttf
@@ -245,7 +247,8 @@ SectionEnd
 Section "Shortcuts creation" SecCS
   SetOutPath $INSTDIR
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Console.lnk" $WINDIR\system32\CMD.EXE
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Console.lnk" "$INSTDIR\winpath.exe" "cmd"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Dokumentation.lnk" "$INSTDIR\tesseract.1.html"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Homepage.lnk" "${PRODUCT_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\ReadMe.lnk" "${PRODUCT_WEB_SITE}/wiki/ReadMe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\FAQ.lnk" "${PRODUCT_WEB_SITE}/wiki/FAQ"
@@ -1130,7 +1133,7 @@ Section -un.Main UNSEC0000
   RMDir  "$SMPROGRAMS\${PRODUCT_NAME}"
   DetailPrint "Removing registry info"
   DeleteRegKey HKLM "Software\Tesseract-OCR"
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=1000
 
   # remove the Add/Remove information
   DeleteRegKey HKLM "${UNINST_KEY}"
