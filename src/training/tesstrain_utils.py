@@ -54,7 +54,7 @@ class TrainingArgs(argparse.Namespace):
         self.linedata = False
         self.run_shape_clustering = False
         self.extract_font_properties = True
-
+        self.distort_image = False
 
 def err_exit(msg):
     log.critical(msg)
@@ -174,7 +174,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--distort_image", dest="distort_image", help="--distort_image=true."
+    "--distort_image", dest="distort_image", help="set --distort_image=true."
 )
 
 tessdata_group = parser.add_argument_group(
@@ -380,7 +380,7 @@ def phase_I_generate_image(ctx, par_factor):
 
         with tqdm(
             total=len(ctx.fonts)
-        ) as pbar, concurrent.futures.ThreadPoolExecutor() as executor:
+         ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             futures = [
                 executor.submit(generate_font_image, ctx, font, exposure, char_spacing)
                 for font in ctx.fonts
