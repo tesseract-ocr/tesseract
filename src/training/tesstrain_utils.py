@@ -53,7 +53,7 @@ class TrainingArgs(argparse.Namespace):
         self.linedata = False
         self.run_shape_clustering = False
         self.extract_font_properties = True
-        self.distort_image = True
+        self.distort_image = False
 
 def err_exit(msg):
     log.critical(msg)
