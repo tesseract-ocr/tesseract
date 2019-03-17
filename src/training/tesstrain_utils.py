@@ -53,7 +53,7 @@ class TrainingArgs(argparse.Namespace):
         self.linedata = False
         self.run_shape_clustering = False
         self.extract_font_properties = True
-
+        self.distort_image = True
 
 def err_exit(msg):
     log.critical(msg)
@@ -173,7 +173,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--distort_image", dest="distort_image", help="--distort_image=true."
+    "--distort_image", dest="distort_image", help="set --distort_image=true."
 )
 
 tessdata_group = parser.add_argument_group(
