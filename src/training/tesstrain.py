@@ -18,6 +18,8 @@
 #
 import sys, os, logging
 
+if (sys.version_info.major < 3) or (sys.version_info.major == 3 and sys.version_info.minor < 6):
+    raise Exception("Must be using Python minimum version 3.6!")
 
 sys.path.insert(0, os.path.dirname(__file__))
 from tesstrain_utils import (

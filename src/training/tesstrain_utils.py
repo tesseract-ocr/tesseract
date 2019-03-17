@@ -15,6 +15,7 @@
 #
 
 import os
+import platform
 import sys
 from datetime import date
 from tempfile import TemporaryDirectory, mkdtemp
@@ -37,7 +38,7 @@ log = logging.getLogger(__name__)
 
 class TrainingArgs(argparse.Namespace):
     def __init__(self):
-        self.uname = os.uname().sysname.lower()
+        self.uname = platform.uname().system.lower()
         self.lang_code = "eng"
         self.timestamp = str(date.today())
 
