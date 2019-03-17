@@ -379,7 +379,7 @@ def phase_I_generate_image(ctx, par_factor):
 
         with tqdm(
             total=len(ctx.fonts)
-        ) as pbar, concurrent.futures.ThreadPoolExecutor() as executor:
+         ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             futures = [
                 executor.submit(generate_font_image, ctx, font, exposure, char_spacing)
                 for font in ctx.fonts
