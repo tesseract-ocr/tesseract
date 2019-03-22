@@ -164,6 +164,9 @@ parse_flags() {
             --my_boxtiff_dir)
                 parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
+            --distort_image)
+                parse_value "DISTORT_IMAGE" "${ARGV[$j]:-}"
+                i=$j ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
                 i=$j ;;
@@ -264,7 +267,8 @@ generate_font_image() {
     common_args+=" --leading=${LEADING} --xsize=${X_SIZE}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
-
+    common_args+=" --distort_image=${DISTORT_IMAGE} "
+    
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
     for vfont in "${VERTICAL_FONTS[@]}"; do
