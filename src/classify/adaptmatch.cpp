@@ -1754,7 +1754,6 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
   int NumOldProtos;
   int NumBadFeatures;
   int MaxProtoId, OldMaxProtoId;
-  int BlobLength = 0;
   int MaskSize;
   int ConfigId;
   TEMP_CONFIG Config;
@@ -1778,7 +1777,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
   OldMaxProtoId = IClass->NumProtos - 1;
 
   NumOldProtos = im_.FindGoodProtos(IClass, AllProtosOn, AllConfigsOff,
-                                    BlobLength, NumFeatures, Features,
+                                    NumFeatures, Features,
                                     OldProtos, classify_adapt_proto_threshold,
                                     debug_level);
 
@@ -1788,7 +1787,7 @@ int Classify::MakeNewTemporaryConfig(ADAPT_TEMPLATES Templates,
     SET_BIT(TempProtoMask, OldProtos[i]);
 
   NumBadFeatures = im_.FindBadFeatures(IClass, TempProtoMask, AllConfigsOn,
-                                       BlobLength, NumFeatures, Features,
+                                       NumFeatures, Features,
                                        BadFeatures,
                                        classify_adapt_feature_threshold,
                                        debug_level);

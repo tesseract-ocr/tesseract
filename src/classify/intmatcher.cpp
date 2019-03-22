@@ -458,7 +458,6 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
  * Globals:
  * - local_matcher_multiplier_ Normalization factor multiplier
  * param ClassTemplate Prototypes & tables for a class
- * param BlobLength Length of unormalized blob
  * param NumFeatures Number of features in blob
  * param Features Array of features
  * param NormalizationFactor Fudge factor from blob normalization process
@@ -537,7 +536,6 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
  * param ClassTemplate Prototypes & tables for a class
  * param ProtoMask AND Mask for proto word
  * param ConfigMask AND Mask for config word
- * param BlobLength Length of unormalized blob
  * param NumFeatures Number of features in blob
  * param Features Array of features
  * param ProtoArray Array of good protos
@@ -549,7 +547,6 @@ int IntegerMatcher::FindGoodProtos(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
     BIT_VECTOR ConfigMask,
-    uint16_t BlobLength,
     int16_t NumFeatures,
     INT_FEATURE_ARRAY Features,
     PROTO_ID *ProtoArray,
@@ -606,7 +603,6 @@ int IntegerMatcher::FindGoodProtos(
  * @param ClassTemplate Prototypes & tables for a class
  * @param ProtoMask AND Mask for proto word
  * @param ConfigMask AND Mask for config word
- * @param BlobLength Length of unormalized blob
  * @param NumFeatures Number of features in blob
  * @param Features Array of features
  * @param FeatureArray Array of bad features
@@ -618,7 +614,6 @@ int IntegerMatcher::FindBadFeatures(
     INT_CLASS ClassTemplate,
     BIT_VECTOR ProtoMask,
     BIT_VECTOR ConfigMask,
-    uint16_t BlobLength,
     int16_t NumFeatures,
     INT_FEATURE_ARRAY Features,
     FEATURE_ID *FeatureArray,
