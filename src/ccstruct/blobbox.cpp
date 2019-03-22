@@ -2,7 +2,6 @@
  * File:        blobbox.cpp  (Formerly blobnbox.c)
  * Description: Code for the textord blob class.
  * Author:      Ray Smith
- * Created:     Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,7 +70,7 @@ void BLOBNBOX::reflect_box_in_y_axis() {
 // correction can be applied.
 void BLOBNBOX::rotate_box(FCOORD rotation) {
   if (IsDiacritic()) {
-    ASSERT_HOST(rotation.x() >= kCosSmallAngle)
+    ASSERT_HOST(rotation.x() >= kCosSmallAngle);
     ICOORD top_pt((box.left() + box.right()) / 2, base_char_top_);
     ICOORD bottom_pt(top_pt.x(), base_char_bottom_);
     top_pt.rotate(rotation);

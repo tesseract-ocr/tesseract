@@ -2,7 +2,6 @@
  * File:        pgedit.cpp (Formerly pgeditor.c)
  * Description: Page structure file editor
  * Author:      Phil Cheatle
- * Created:     Thu Oct 10 16:25:24 BST 1991
  *
  *(C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0(the "License");
@@ -22,10 +21,10 @@
 #include "config_auto.h"
 #endif
 
-#include          "pgedit.h"
+#include "pgedit.h"
 
-#include          <cctype>
-#include          <cmath>
+#include <cctype>
+#include <cmath>
 
 #include "blread.h"
 #include "control.h"
@@ -879,7 +878,7 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     text += best_choice_str;
     IncorrectResultReason reason = (blamer_bundle == nullptr) ?
         IRR_PAGE_LAYOUT : blamer_bundle->incorrect_result_reason();
-    ASSERT_HOST(reason < IRR_NUM_REASONS)
+    ASSERT_HOST(reason < IRR_NUM_REASONS);
     blame += " [";
     blame += BlamerBundle::IncorrectReasonName(reason);
     blame += "]";
