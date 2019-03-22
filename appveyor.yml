@@ -7,6 +7,8 @@ environment:
       platform: Win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       platform: Win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019 Preview
+      platform: Win64
 
 configuration:
   - Release
