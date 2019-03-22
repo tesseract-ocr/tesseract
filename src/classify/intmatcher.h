@@ -73,10 +73,9 @@ struct ScratchEvidence {
 
   void Clear(const INT_CLASS class_template);
   void ClearFeatureEvidence(const INT_CLASS class_template);
-  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures,
-                     int32_t used_features);
+  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures);
   void UpdateSumOfProtoEvidences(
-    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, int16_t NumFeatures);
+    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask);
 };
 
 
@@ -153,7 +152,6 @@ class IntegerMatcher {
 
   void DisplayProtoDebugInfo(
       INT_CLASS ClassTemplate,
-      BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
       const ScratchEvidence &tables,
       bool SeparateDebugWindows);

@@ -499,7 +499,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   }
 
   if (DisplayProtoMatchesOn(Debug)) {
-    DisplayProtoDebugInfo(ClassTemplate, ProtoMask, ConfigMask,
+    DisplayProtoDebugInfo(ClassTemplate, ConfigMask,
                           *tables, SeparateDebugWindows);
   }
 
@@ -510,8 +510,8 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
   }
 #endif
 
-  tables->UpdateSumOfProtoEvidences(ClassTemplate, ConfigMask, NumFeatures);
-  tables->NormalizeSums(ClassTemplate, NumFeatures, NumFeatures);
+  tables->UpdateSumOfProtoEvidences(ClassTemplate, ConfigMask);
+  tables->NormalizeSums(ClassTemplate, NumFeatures);
 
   FindBestMatch(ClassTemplate, *tables, Result);
 
@@ -708,8 +708,7 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
  * @return none
  */
 static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
-                                 uint8_t Evidence, BIT_VECTOR ConfigMask,
-                                 uint32_t ConfigWord) {
+                                 uint8_t Evidence, uint32_t ConfigWord) {
   cprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
     FeatureNum, (int) ActualProtoNum, (int) Evidence);
   while (ConfigWord) {
@@ -830,7 +829,7 @@ int IntegerMatcher::UpdateTablesForFeature(
           if (PrintFeatureMatchesOn (Debug))
             IMDebugConfiguration (FeatureNum,
               ActualProtoNum + proto_offset,
-              Evidence, ConfigMask, ConfigWord);
+              Evidence, ConfigWord);
 
           ConfigWord &= *ConfigMask;
 
@@ -1004,7 +1003,6 @@ void IntegerMatcher::DebugFeatureProtoError(
 
 void IntegerMatcher::DisplayProtoDebugInfo(
     INT_CLASS ClassTemplate,
-    BIT_VECTOR ProtoMask,
     BIT_VECTOR ConfigMask,
     const ScratchEvidence& tables,
     bool SeparateDebugWindows) {
@@ -1092,7 +1090,7 @@ void IntegerMatcher::DisplayFeatureDebugInfo(
  * Add sum of Proto Evidences into Sum Of Feature Evidence Array
  */
 void ScratchEvidence::UpdateSumOfProtoEvidences(
-    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, int16_t NumFeatures) {
+    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask) {
 
   int *IntPointer;
   uint32_t ConfigWord;
@@ -1133,7 +1131,7 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
  * the Feature Lengths and the Proto Lengths for each configuration.
  */
 void ScratchEvidence::NormalizeSums(
-    INT_CLASS ClassTemplate, int16_t NumFeatures, int32_t used_features) {
+    INT_CLASS ClassTemplate, int16_t NumFeatures) {
 
   for (int i = 0; i < ClassTemplate->NumConfigs; i++) {
     sum_feature_evidence_[i] = (sum_feature_evidence_[i] << 8) /
