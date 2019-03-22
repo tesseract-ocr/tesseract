@@ -37,7 +37,7 @@ X_SIZE=3600
 MAX_PAGES=0
 SAVE_BOX_TIFF=0
 MY_BOXTIFF_DIR=""
-DISTORT_IMAGE=false
+DISTORT_IMAGE=0
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
 OVERWRITE=0
 LINEDATA=0
@@ -166,8 +166,7 @@ parse_flags() {
                 parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --distort_image)
-                parse_value "DISTORT_IMAGE" "${ARGV[$j]:-}"
-                i=$j ;;
+                DISTORT_IMAGE=1 ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
                 i=$j ;;
@@ -268,7 +267,9 @@ generate_font_image() {
     common_args+=" --leading=${LEADING} --xsize=${X_SIZE}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
-    common_args+=" --distort_image=${DISTORT_IMAGE} "
+    if ((DISTORT_IMAGE)); then
+        common_args+=" --distort_image "
+    fi
     
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
