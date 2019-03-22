@@ -176,22 +176,4 @@ class IntegerMatcher {
   uint32_t evidence_mult_mask_;
 };
 
-/**----------------------------------------------------------------------------
-          Private Function Prototypes
-----------------------------------------------------------------------------**/
-void IMDebugConfiguration(INT_FEATURE FeatureNum,
-                          uint16_t ActualProtoNum,
-                          uint8_t Evidence,
-                          BIT_VECTOR ConfigMask,
-                          uint32_t ConfigWord);
-
-void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
-                             uint8_t *FeatureEvidence,
-                             int32_t ConfigCount);
-
-void HeapSort (int n, int ra[], int rb[]);
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
 #endif

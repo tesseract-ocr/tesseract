@@ -94,6 +94,56 @@ static const uint8_t* const next_table =
 
 namespace tesseract {
 
+/**
+ * Sort Key array in ascending order using heap sort
+ * algorithm.  Also sort Index array that is tied to
+ * the key array.
+ * @param n Number of elements to sort
+ * @param ra     Key array [1..n]
+ * @param rb     Index array [1..n]
+ * @return none
+ */
+static void
+HeapSort (int n, int ra[], int rb[]) {
+  int i, rra, rrb;
+  int l, j, ir;
+
+  l = (n >> 1) + 1;
+  ir = n;
+  for (;;) {
+    if (l > 1) {
+      rra = ra[--l];
+      rrb = rb[l];
+    }
+    else {
+      rra = ra[ir];
+      rrb = rb[ir];
+      ra[ir] = ra[1];
+      rb[ir] = rb[1];
+      if (--ir == 1) {
+        ra[1] = rra;
+        rb[1] = rrb;
+        return;
+      }
+    }
+    i = l;
+    j = l << 1;
+    while (j <= ir) {
+      if (j < ir && ra[j] < ra[j + 1])
+        ++j;
+      if (rra < ra[j]) {
+        ra[i] = ra[j];
+        rb[i] = rb[j];
+        j += (i = j);
+      }
+      else
+        j = ir + 1;
+    }
+    ra[i] = rra;
+    rb[i] = rrb;
+  }
+}
+
 // Encapsulation of the intermediate data and computations made by the class
 // pruner. The class pruner implements a simple linear classifier on binary
 // features by heavily quantizing the feature space, and applying
@@ -1017,7 +1067,6 @@ void IntegerMatcher::DisplayProtoDebugInfo(
     InitProtoDisplayWindowIfReqd();
   }
 
-
   for (ProtoSetIndex = 0; ProtoSetIndex < ClassTemplate->NumProtoSets;
        ProtoSetIndex++) {
     ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
@@ -1181,54 +1230,4 @@ float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
   return (rating * blob_length +
           matcher_multiplier * normalization_factor / 256.0) /
       (blob_length + matcher_multiplier);
-}
-
-/**
- * Sort Key array in ascending order using heap sort
- * algorithm.  Also sort Index array that is tied to
- * the key array.
- * @param n Number of elements to sort
- * @param ra     Key array [1..n]
- * @param rb     Index array [1..n]
- * @return none
- */
-void
-HeapSort (int n, int ra[], int rb[]) {
-  int i, rra, rrb;
-  int l, j, ir;
-
-  l = (n >> 1) + 1;
-  ir = n;
-  for (;;) {
-    if (l > 1) {
-      rra = ra[--l];
-      rrb = rb[l];
-    }
-    else {
-      rra = ra[ir];
-      rrb = rb[ir];
-      ra[ir] = ra[1];
-      rb[ir] = rb[1];
-      if (--ir == 1) {
-        ra[1] = rra;
-        rb[1] = rrb;
-        return;
-      }
-    }
-    i = l;
-    j = l << 1;
-    while (j <= ir) {
-      if (j < ir && ra[j] < ra[j + 1])
-        ++j;
-      if (rra < ra[j]) {
-        ra[i] = ra[j];
-        rb[i] = rb[j];
-        j += (i = j);
-      }
-      else
-        j = ir + 1;
-    }
-    ra[i] = rra;
-    rb[i] = rrb;
-  }
 }
