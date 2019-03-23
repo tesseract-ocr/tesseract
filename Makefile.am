@@ -56,11 +56,11 @@ doc:
 	doxygen $(top_srcdir)/doc/Doxyfile
 
 doc-pack: doc
-	-chmod a+r $(top_srcdir)/doc/html/*
-	 @tar --create --directory=$(top_srcdir)/doc/html --verbose --file=- . | gzip -c -9 > $(top_srcdir)/@PACKAGE_NAME@-@PACKAGE_VERSION@-doc-html.tar.gz;
+	-chmod a+r $(top_builddir)/doc/html/*
+	 @tar --create --directory=$(top_builddir)/doc/html --verbose --file=- . | gzip -c -9 > $(top_builddir)/@PACKAGE_NAME@-@PACKAGE_VERSION@-doc-html.tar.gz;
 
 doc-clean:
-	rm -rf $(top_srcdir)/doc/html/*
+	rm -rf $(top_builddir)/doc/html/*
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
