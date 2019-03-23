@@ -35,7 +35,7 @@ fi
 
 DISTORT_IMAGE=false
 EXTRACT_FONT_PROPERTIES=false
-LINEDATA=true
+LINEDATA=false
 MAX_PAGES=0
 MY_BOXTIFF_DIR=""
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
