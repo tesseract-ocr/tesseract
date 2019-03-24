@@ -352,6 +352,8 @@ class WERD_RES : public ELIST_LINK {
   // Deep copies everything except the ratings MATRIX.
   // To get that use deep_copy below.
   WERD_RES(const WERD_RES& source) : ELIST_LINK(source) {
+    // combination is used in function Clear which is called from operator=.
+    combination = false;
     InitPointers();
     *this = source;            // see operator=
   }
