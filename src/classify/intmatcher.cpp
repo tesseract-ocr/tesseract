@@ -621,7 +621,7 @@ int IntegerMatcher::FindGoodProtos(
   for (int proto = 0; proto < ClassTemplate->NumProtos; proto++) {
     /* Compute Average for Actual Proto */
     int Temp = 0;
-    for (int i = 0; i < ClassTemplate->ProtoLengths[proto]; i++)
+    for (uint8_t i = 0; i < ClassTemplate->ProtoLengths[proto]; i++)
       Temp += tables->proto_evidence_[proto][i];
 
     Temp /= ClassTemplate->ProtoLengths[proto];
@@ -894,7 +894,7 @@ int IntegerMatcher::UpdateTablesForFeature(
 
           uint8_t* UINT8Pointer =
             &(tables->proto_evidence_[ActualProtoNum + proto_offset][0]);
-          for (int ProtoIndex =
+          for (uint8_t ProtoIndex =
             ClassTemplate->ProtoLengths[ActualProtoNum + proto_offset];
           ProtoIndex > 0; ProtoIndex--, UINT8Pointer++) {
             if (Evidence > *UINT8Pointer) {
@@ -997,7 +997,7 @@ void IntegerMatcher::DebugFeatureProtoError(
            ProtoNum++, ActualProtoNum++) {
         cprintf ("P %3d =", ActualProtoNum);
         int temp = 0;
-        for (int j = 0; j < ClassTemplate->ProtoLengths[ActualProtoNum]; j++) {
+        for (uint8_t j = 0; j < ClassTemplate->ProtoLengths[ActualProtoNum]; j++) {
           uint8_t data = tables.proto_evidence_[ActualProtoNum][j];
           cprintf(" %d", data);
           temp += data;
@@ -1071,7 +1071,7 @@ void IntegerMatcher::DisplayProtoDebugInfo(
          ProtoNum++, ActualProtoNum++) {
       /* Compute Average for Actual Proto */
       int temp = 0;
-      for (int i = 0; i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
+      for (uint8_t i = 0; i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
         temp += tables.proto_evidence_[ActualProtoNum][i];
 
       temp /= ClassTemplate->ProtoLengths[ActualProtoNum];
@@ -1153,7 +1153,7 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
          ((ProtoNum < PROTOS_PER_PROTO_SET) && (ActualProtoNum < NumProtos));
          ProtoNum++, ActualProtoNum++) {
       int temp = 0;
-      for (int i = 0; i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
+      for (uint8_t i = 0; i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
         temp += proto_evidence_[ActualProtoNum] [i];
 
       ConfigWord = ProtoSet->Protos[ProtoNum].Configs[0];
