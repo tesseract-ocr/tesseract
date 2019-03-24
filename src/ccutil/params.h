@@ -2,7 +2,6 @@
  * File:        params.h
  * Description: Class definitions of the *_VAR classes for tunable constants.
  * Author:      Ray Smith
- * Created:     Fri Feb 22 11:26:25 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -157,6 +156,7 @@ class IntParam : public Param {
         // printf("overriding param %s=%d by =%d\n", name_, value_,
         // *vec->int_params[i]);
         value_ = *vec->int_params[i];
+        break;
       }
     }
   }
@@ -189,6 +189,7 @@ class BoolParam : public Param {
         // printf("overriding param %s=%s by =%s\n", name_, value_ ? "true" :
         // "false", *vec->bool_params[i] ? "true" : "false");
         value_ = *vec->bool_params[i];
+        break;
       }
     }
   }
@@ -225,6 +226,7 @@ class StringParam : public Param {
         // printf("overriding param %s=%s by =%s\n", name_, value_,
         // vec->string_params[i]->c_str());
         value_ = *vec->string_params[i];
+        break;
       }
     }
   }
@@ -257,6 +259,7 @@ class DoubleParam : public Param {
         // printf("overriding param %s=%f by =%f\n", name_, value_,
         // *vec->double_params[i]);
         value_ = *vec->double_params[i];
+        break;
       }
     }
   }
