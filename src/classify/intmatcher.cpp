@@ -621,7 +621,8 @@ int IntegerMatcher::FindGoodProtos(
   for (int proto = 0; proto < ClassTemplate->NumProtos; proto++) {
     /* Compute Average for Actual Proto */
     int Temp = 0;
-    for (uint8_t i = 0; i < ClassTemplate->ProtoLengths[proto]; i++)
+    for (uint8_t i = 0;
+         i < MAX_PROTO_INDEX && i < ClassTemplate->ProtoLengths[proto]; i++)
       Temp += tables->proto_evidence_[proto][i];
 
     Temp /= ClassTemplate->ProtoLengths[proto];
@@ -1153,7 +1154,8 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
          ((ProtoNum < PROTOS_PER_PROTO_SET) && (ActualProtoNum < NumProtos));
          ProtoNum++, ActualProtoNum++) {
       int temp = 0;
-      for (uint8_t i = 0; i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
+      for (uint8_t i = 0; i < MAX_PROTO_INDEX &&
+           i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
         temp += proto_evidence_[ActualProtoNum] [i];
 
       ConfigWord = ProtoSet->Protos[ProtoNum].Configs[0];
