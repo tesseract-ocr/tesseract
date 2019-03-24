@@ -1229,7 +1229,7 @@ int IntegerMatcher::FindBestMatch(
 float IntegerMatcher::ApplyCNCorrection(float rating, int blob_length,
                                         int normalization_factor,
                                         int matcher_multiplier) {
-  return (rating * blob_length +
-          matcher_multiplier * normalization_factor / 256.0) /
-      (blob_length + matcher_multiplier);
+  int divisor = blob_length + matcher_multiplier;
+  return divisor == 0 ? 1.0f : (rating * blob_length +
+      matcher_multiplier * normalization_factor / 256.0f) / divisor;
 }
