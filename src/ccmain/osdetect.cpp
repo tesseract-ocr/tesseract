@@ -198,7 +198,7 @@ int orientation_and_script_detection(STRING& filename,
   if (lastdot != nullptr)
     name[lastdot-name.string()] = '\0';
 
-  ASSERT_HOST(tess->pix_binary() != nullptr)
+  ASSERT_HOST(tess->pix_binary() != nullptr);
   int width = pixGetWidth(tess->pix_binary());
   int height = pixGetHeight(tess->pix_binary());
 
