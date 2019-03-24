@@ -4,7 +4,6 @@
  *              Now just code to load the language model and various
  *              engine-specific data files.
  * Author:      Ray Smith
- * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -155,7 +154,7 @@ bool Tesseract::init_tesseract_lang_data(
     }
   }
 
-  if (((STRING&)tessedit_write_params_to_file).length() > 0) {
+  if (!tessedit_write_params_to_file.empty()) {
     FILE* params_file = fopen(tessedit_write_params_to_file.string(), "wb");
     if (params_file != nullptr) {
       ParamUtils::PrintParams(params_file, this->params());

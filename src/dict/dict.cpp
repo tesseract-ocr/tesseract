@@ -251,11 +251,10 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
   }
 
   STRING name;
-  if (((STRING&)user_words_suffix).length() > 0 ||
-      ((STRING&)user_words_file).length() > 0) {
+  if (!user_words_suffix.empty() || !user_words_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
                               getUnicharset().size(), dawg_debug_level);
-    if (((STRING&)user_words_file).length() > 0) {
+    if (!user_words_file.empty()) {
       name = user_words_file;
     } else {
       name = getCCUtil()->language_data_path_prefix;
@@ -270,12 +269,11 @@ void Dict::Load(const STRING& lang, TessdataManager* data_file) {
     }
   }
 
-  if (((STRING&)user_patterns_suffix).length() > 0 ||
-      ((STRING&)user_patterns_file).length() > 0) {
+  if (!user_patterns_suffix.empty() || !user_patterns_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
                               getUnicharset().size(), dawg_debug_level);
     trie_ptr->initialize_patterns(&(getUnicharset()));
-    if (((STRING&)user_patterns_file).length() > 0) {
+    if (!user_patterns_file.empty()) {
       name = user_patterns_file;
     } else {
       name = getCCUtil()->language_data_path_prefix;
@@ -320,11 +318,10 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
   // stolen from Dict::Load (but needs params_ from Tesseract
   // langdata/config/api):
   STRING name;
-  if (((STRING&)user_words_suffix).length() > 0 ||
-      ((STRING&)user_words_file).length() > 0) {
+  if (!user_words_suffix.empty() || !user_words_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_WORD, lang, USER_DAWG_PERM,
                               getUnicharset().size(), dawg_debug_level);
-    if (((STRING&)user_words_file).length() > 0) {
+    if (!user_words_file.empty()) {
       name = user_words_file;
     } else {
       name = getCCUtil()->language_data_path_prefix;
@@ -339,12 +336,11 @@ void Dict::LoadLSTM(const STRING& lang, TessdataManager* data_file) {
     }
   }
 
-  if (((STRING&)user_patterns_suffix).length() > 0 ||
-      ((STRING&)user_patterns_file).length() > 0) {
+  if (!user_patterns_suffix.empty() || !user_patterns_file.empty()) {
     Trie* trie_ptr = new Trie(DAWG_TYPE_PATTERN, lang, USER_PATTERN_PERM,
                               getUnicharset().size(), dawg_debug_level);
     trie_ptr->initialize_patterns(&(getUnicharset()));
-    if (((STRING&)user_patterns_file).length() > 0) {
+    if (!user_patterns_file.empty()) {
       name = user_patterns_file;
     } else {
       name = getCCUtil()->language_data_path_prefix;
