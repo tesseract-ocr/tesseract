@@ -155,7 +155,15 @@ class IntParam : public Param {
   void ResetToDefault() {
     value_ = default_;
   }
-
+  void ResetFrom(const ParamsVectors* vec) {
+    for (int i = 0; i < vec->int_params.size(); ++i) {
+      if (strcmp(vec->int_params[i]->name_str(), name_) == 0) {
+        //printf("overriding param %s=%d by =%d\n", name_, value_, *vec->int_params[i]);
+        value_ = *vec->int_params[i];
+      }
+    }
+  }
+  
  private:
   int32_t value_;
   int32_t default_;
@@ -178,6 +186,14 @@ class BoolParam : public Param {
   void set_value(BOOL8 value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
+  }
+  void ResetFrom(const ParamsVectors* vec) {
+    for (int i = 0; i < vec->bool_params.size(); ++i) {
+      if (strcmp(vec->bool_params[i]->name_str(), name_) == 0) {
+        //printf("overriding param %s=%s by =%s\n", name_, value_ ? "true" : "false", *vec->bool_params[i] ? "true" : "false");
+        value_ = *vec->bool_params[i];
+      }
+    }
   }
 
  private:
@@ -208,6 +224,14 @@ class StringParam : public Param {
   void ResetToDefault() {
     value_ = default_;
   }
+  void ResetFrom(const ParamsVectors* vec) {
+    for (int i = 0; i < vec->string_params.size(); ++i) {
+      if (strcmp(vec->string_params[i]->name_str(), name_) == 0) {
+        //printf("overriding param %s=%s by =%s\n", name_, value_, vec->string_params[i]->c_str());
+        value_ = *vec->string_params[i];
+      }
+    }
+  }
 
  private:
   STRING value_;
@@ -231,6 +255,14 @@ class DoubleParam : public Param {
   void set_value(double value) { value_ = value; }
   void ResetToDefault() {
     value_ = default_;
+  }
+  void ResetFrom(const ParamsVectors* vec) {
+    for (int i = 0; i < vec->double_params.size(); ++i) {
+      if (strcmp(vec->double_params[i]->name_str(), name_) == 0) {
+        //printf("overriding param %s=%f by =%f\n", name_, value_, *vec->double_params[i]);
+        value_ = *vec->double_params[i];
+      }
+    }
   }
 
  private:
