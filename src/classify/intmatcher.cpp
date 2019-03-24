@@ -24,6 +24,8 @@
 ----------------------------------------------------------------------------*/
 #include "intmatcher.h"
 
+#include <cassert>
+#include <cmath>
 #include "fontinfo.h"
 #include "intproto.h"
 #include "callcpp.h"
@@ -32,7 +34,6 @@
 #include "helpers.h"
 #include "classify.h"
 #include "shapetable.h"
-#include <cmath>
 
 using tesseract::ScoredFont;
 using tesseract::UnicharRating;
@@ -680,7 +681,8 @@ int IntegerMatcher::FindBadFeatures(
 
     /* Find Best Evidence for Current Feature */
     int best = 0;
-    for (int i = 0; i < ClassTemplate->NumConfigs; i++)
+    assert(ClassTemplate->NumConfigs < MAX_NUM_CONFIGS);
+    for (int i = 0; i < MAX_NUM_CONFIGS && i < ClassTemplate->NumConfigs; i++)
       if (tables->feature_evidence_[i] > best)
         best = tables->feature_evidence_[i];
 
@@ -1111,7 +1113,8 @@ void IntegerMatcher::DisplayFeatureDebugInfo(
 
     /* Find Best Evidence for Current Feature */
     int best = 0;
-    for (int i = 0; i < ClassTemplate->NumConfigs; i++)
+    assert(ClassTemplate->NumConfigs < MAX_NUM_CONFIGS);
+    for (int i = 0; i < MAX_NUM_CONFIGS && i < ClassTemplate->NumConfigs; i++)
       if (tables->feature_evidence_[i] > best)
         best = tables->feature_evidence_[i];
 
@@ -1154,6 +1157,7 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
          ((ProtoNum < PROTOS_PER_PROTO_SET) && (ActualProtoNum < NumProtos));
          ProtoNum++, ActualProtoNum++) {
       int temp = 0;
+      assert(ClassTemplate->ProtoLengths[ActualProtoNum] < MAX_PROTO_INDEX);
       for (uint8_t i = 0; i < MAX_PROTO_INDEX &&
            i < ClassTemplate->ProtoLengths[ActualProtoNum]; i++)
         temp += proto_evidence_[ActualProtoNum] [i];
@@ -1178,7 +1182,8 @@ void ScratchEvidence::UpdateSumOfProtoEvidences(
 void ScratchEvidence::NormalizeSums(
     INT_CLASS ClassTemplate, int16_t NumFeatures) {
 
-  for (int i = 0; i < ClassTemplate->NumConfigs; i++) {
+  assert(ClassTemplate->NumConfigs < MAX_NUM_CONFIGS);
+  for (int i = 0; i < MAX_NUM_CONFIGS && i < ClassTemplate->NumConfigs; i++) {
     sum_feature_evidence_[i] = (sum_feature_evidence_[i] << 8) /
         (NumFeatures + ClassTemplate->ConfigLengths[i]);
   }
@@ -1199,7 +1204,8 @@ int IntegerMatcher::FindBestMatch(
   result->fonts.reserve(class_template->NumConfigs);
 
   /* Find best match */
-  for (int c = 0; c < class_template->NumConfigs; ++c) {
+  assert(class_template->NumConfigs < MAX_NUM_CONFIGS);
+  for (int c = 0; c < MAX_NUM_CONFIGS && c < class_template->NumConfigs; ++c) {
     int rating = tables.sum_feature_evidence_[c];
     if (*classify_debug_level_ > 2)
       tprintf("Config %d, rating=%d\n", c, rating);
