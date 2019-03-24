@@ -1018,7 +1018,7 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
   for (int id = start_id; id < size_used; ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
-    for (int u = 1; u < unicodes.size(); ++u) {
+    for (size_t u = 1; u < unicodes.size(); ++u) {
       if (unicodes[u - 1] == unicodes[u]) return true;
     }
   }
