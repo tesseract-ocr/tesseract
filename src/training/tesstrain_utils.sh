@@ -33,16 +33,17 @@ else
     FONTS_DIR="/usr/share/fonts/"
 fi
 
-X_SIZE=3600
+DISTORT_IMAGE=false
+EXTRACT_FONT_PROPERTIES=false
+LINEDATA=false
 MAX_PAGES=0
-SAVE_BOX_TIFF=0
 MY_BOXTIFF_DIR=""
 OUTPUT_DIR="/tmp/tesstrain/tessdata"
-OVERWRITE=0
-LINEDATA=0
-RUN_SHAPE_CLUSTERING=0
-EXTRACT_FONT_PROPERTIES=1
+OVERWRITE=false
+RUN_SHAPE_CLUSTERING=false
+SAVE_BOX_TIFF=false
 WORKSPACE_DIR=$(mktemp -d)
+X_SIZE=3600
 
 # set TESSDATA_PREFIX as empty, if not defined in environment to avoid an unbound variable
 TESSDATA_PREFIX=${TESSDATA_PREFIX:-}
@@ -164,19 +165,21 @@ parse_flags() {
             --my_boxtiff_dir)
                 parse_value "MY_BOXTIFF_DIR" ${ARGV[$j]:-}
                 i=$j ;;
+            --distort_image)
+                DISTORT_IMAGE=true ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
                 i=$j ;;
             --overwrite)
-                OVERWRITE=1 ;;
+                OVERWRITE=true ;;
             --save_box_tiff)
-                SAVE_BOX_TIFF=1 ;;
+                SAVE_BOX_TIFF=true ;;
             --linedata_only)
-                LINEDATA=1 ;;
+                LINEDATA=true ;;
             --extract_font_properties)
-                EXTRACT_FONT_PROPERTIES=1 ;;
+                EXTRACT_FONT_PROPERTIES=true ;;
             --noextract_font_properties)
-                EXTRACT_FONT_PROPERTIES=0 ;;
+                EXTRACT_FONT_PROPERTIES=false ;;
             --tessdata_dir)
                 parse_value "TESSDATA_DIR" ${ARGV[$j]:-}
                 i=$j ;;
@@ -264,7 +267,10 @@ generate_font_image() {
     common_args+=" --leading=${LEADING} --xsize=${X_SIZE}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
-
+    if ((DISTORT_IMAGE)); then
+        common_args+=" --distort_image "
+    fi
+    
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
     for vfont in "${VERTICAL_FONTS[@]}"; do

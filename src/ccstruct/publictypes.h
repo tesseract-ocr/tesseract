@@ -161,22 +161,22 @@ enum TextlineOrder {
  * so that the inequality test macros below work.
 */
 enum PageSegMode {
-  PSM_OSD_ONLY,       ///< Orientation and script detection only.
-  PSM_AUTO_OSD,       ///< Automatic page segmentation with orientation and
+  PSM_OSD_ONLY = 0,       ///< Orientation and script detection only.
+  PSM_AUTO_OSD = 1,       ///< Automatic page segmentation with orientation and
                       ///< script detection. (OSD)
-  PSM_AUTO_ONLY,      ///< Automatic page segmentation, but no OSD, or OCR.
-  PSM_AUTO,           ///< Fully automatic page segmentation, but no OSD.
-  PSM_SINGLE_COLUMN,  ///< Assume a single column of text of variable sizes.
-  PSM_SINGLE_BLOCK_VERT_TEXT,  ///< Assume a single uniform block of vertically
+  PSM_AUTO_ONLY = 2,      ///< Automatic page segmentation, but no OSD, or OCR.
+  PSM_AUTO = 3,           ///< Fully automatic page segmentation, but no OSD.
+  PSM_SINGLE_COLUMN = 4,  ///< Assume a single column of text of variable sizes.
+  PSM_SINGLE_BLOCK_VERT_TEXT = 5,  ///< Assume a single uniform block of vertically
                                ///< aligned text.
-  PSM_SINGLE_BLOCK,   ///< Assume a single uniform block of text. (Default.)
-  PSM_SINGLE_LINE,    ///< Treat the image as a single text line.
-  PSM_SINGLE_WORD,    ///< Treat the image as a single word.
-  PSM_CIRCLE_WORD,    ///< Treat the image as a single word in a circle.
-  PSM_SINGLE_CHAR,    ///< Treat the image as a single character.
-  PSM_SPARSE_TEXT,    ///< Find as much text as possible in no particular order.
-  PSM_SPARSE_TEXT_OSD,  ///< Sparse text with orientation and script det.
-  PSM_RAW_LINE,       ///< Treat the image as a single text line, bypassing
+  PSM_SINGLE_BLOCK = 6,   ///< Assume a single uniform block of text. (Default.)
+  PSM_SINGLE_LINE = 7,    ///< Treat the image as a single text line.
+  PSM_SINGLE_WORD = 8,    ///< Treat the image as a single word.
+  PSM_CIRCLE_WORD = 9,    ///< Treat the image as a single word in a circle.
+  PSM_SINGLE_CHAR = 10,    ///< Treat the image as a single character.
+  PSM_SPARSE_TEXT = 11,    ///< Find as much text as possible in no particular order.
+  PSM_SPARSE_TEXT_OSD = 12,  ///< Sparse text with orientation and script det.
+  PSM_RAW_LINE = 13,       ///< Treat the image as a single text line, bypassing
                       ///< hacks that are Tesseract-specific.
 
   PSM_COUNT           ///< Number of enum entries.

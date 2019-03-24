@@ -71,8 +71,9 @@ Tesseract::Tesseract()
       // upset anything that relies on that.
       INT_MEMBER(
           tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
-          "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
-          " 5=line, 6=word, 7=char"
+          "Page seg mode: 0=osd only, 1=auto+osd, 2=auto_only, 3=auto, 4=column,"
+          " 5=block_vert, 6=block, 7=line, 8=word, 9=word_circle, 10=char,"
+          "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
           " (Values from PageSegMode enum in publictypes.h)",
           this->params()),
       INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
