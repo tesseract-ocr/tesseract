@@ -30,7 +30,7 @@ class LLSQTest : public testing::Test {
   }
   FCOORD PtsMean(const std::vector<FCOORD>& pts) {
     FCOORD total(0, 0);
-    for (int i = 0; i < pts.size(); i++) {
+    for (size_t i = 0; i < pts.size(); i++) {
       total += pts[i];
     }
     return (pts.size() > 0) ? total / pts.size() : total;
@@ -41,7 +41,7 @@ class LLSQTest : public testing::Test {
     FCOORD nvec = !orth;
     nvec.normalise();
     double expected_answer = 0;
-    for (int i = 0; i < pts.size(); i++) {
+    for (size_t i = 0; i < pts.size(); i++) {
       llsq.add(pts[i].x(), pts[i].y());
       double dot = nvec % (pts[i] - xavg);
       expected_answer += dot * dot;

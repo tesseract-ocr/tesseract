@@ -4,7 +4,6 @@
 //              place of a single large code for CJK, similarly for Indic,
 //              and dissection of ligatures for other scripts.
 // Author:      Ray Smith
-// Created:     Wed Mar 04 14:45:01 PST 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -169,7 +168,7 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
       } else {
         // Add the direct_set unichar-ids of the unicodes in sequence to the
         // code.
-        for (int i = 0; i < unicodes.size(); ++i) {
+        for (size_t i = 0; i < unicodes.size(); ++i) {
           int position = code.length();
           if (position >= RecodedCharID::kMaxCodeLen) {
             tprintf("Unichar %d=%s is too long to encode!!\n", u,

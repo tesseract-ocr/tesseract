@@ -23,7 +23,7 @@ class STATSTest : public testing::Test {
  public:
   void SetUp() {
     stats_.set_range(0, 16);
-    for (int i = 0; i < ARRAYSIZE(kTestData); ++i)
+    for (size_t i = 0; i < ARRAYSIZE(kTestData); ++i)
       stats_.add(i, kTestData[i]);
   }
 

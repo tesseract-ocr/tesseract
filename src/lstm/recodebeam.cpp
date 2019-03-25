@@ -112,7 +112,6 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float* outputs,
                                              const UNICHARSET* charset,
                                              int xCoord) {
   std::vector<std::pair<const char*, float>> choices;
-  int pos = 0;
   for (int i = 0; i < num_outputs; ++i) {
     if (outputs[i] >= 0.01f) {
       const char* character;
@@ -123,7 +122,7 @@ void RecodeBeamSearch::SaveMostCertainChoices(const float* outputs,
       } else {
         character = charset->id_to_unichar_ext(i);
       }
-      pos = 0;
+      size_t pos = 0;
       //order the possible choices within one timestep
       //beginning with the most likely
       while (choices.size() > pos && choices[pos].second > outputs[i]) {
@@ -267,12 +266,11 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
             summed_propabilities[it->first] += it->second;
           }
           std::vector<std::pair<const char*, float>> accumulated_timestep;
-          int pos;
           for (auto it = summed_propabilities.begin();
                it != summed_propabilities.end(); ++it) {
             if(sum == 0) break;
             it->second/=sum;
-            pos = 0;
+            size_t pos = 0;
             while (accumulated_timestep.size() > pos
                    && accumulated_timestep[pos].second > it->second) {
               pos++;
