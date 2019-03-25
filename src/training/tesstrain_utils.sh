@@ -267,10 +267,10 @@ generate_font_image() {
     common_args+=" --leading=${LEADING} --xsize=${X_SIZE}"
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
-    if ((DISTORT_IMAGE)); then
+    if $DISTORT_IMAGE; then
         common_args+=" --distort_image "
     fi
-    
+
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
     for vfont in "${VERTICAL_FONTS[@]}"; do
@@ -284,7 +284,7 @@ generate_font_image() {
         --text=${TRAINING_TEXT}  ${TEXT2IMAGE_EXTRA_ARGS:-}
     check_file_readable ${outbase}.box ${outbase}.tif
 
-    if ((EXTRACT_FONT_PROPERTIES)) &&
+    if $EXTRACT_FONT_PROPERTIES &&
         [[ -r ${TRAIN_NGRAMS_FILE} ]]; then
         tlog "Extracting font properties of ${font}"
         run_command text2image ${common_args} --font="${font}" \
@@ -307,7 +307,7 @@ phase_I_generate_image() {
     CHAR_SPACING="0.0"
 
     for EXPOSURE in $EXPOSURES; do
-        if ((EXTRACT_FONT_PROPERTIES)) && [[ -r ${BIGRAM_FREQS_FILE} ]]; then
+        if $EXTRACT_FONT_PROPERTIES && [[ -r ${BIGRAM_FREQS_FILE} ]]; then
             # Parse .bigram_freqs file and compose a .train_ngrams file with text
             # for tesseract to recognize during training. Take only the ngrams whose
             # combined weight accounts for 95% of all the bigrams in the language.
@@ -485,7 +485,7 @@ phase_C_cluster_prototypes() {
 
 # Phase S : (S)hape clustering
 phase_S_cluster_shapes() {
-    if ((! RUN_SHAPE_CLUSTERING)); then
+    if ! $RUN_SHAPE_CLUSTERING; then
         tlog "\n=== Shape Clustering disabled ==="
         return
     fi
@@ -575,7 +575,7 @@ make__lstmdata() {
     --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
     "${pass_through}" "${lang_is_rtl}"
 
-  if ((SAVE_BOX_TIFF)); then
+  if $SAVE_BOX_TIFF; then
     tlog "\n=== Saving box/tiff pairs for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
@@ -620,7 +620,7 @@ make__traineddata() {
       mkdir -p ${OUTPUT_DIR}
   fi
   local destfile=${OUTPUT_DIR}/${LANG_CODE}.traineddata;
-  if [[ -f ${destfile} ]] && ((! OVERWRITE)); then
+  if [[ -f ${destfile} ]] && ! $OVERWRITE; then
       err_exit "File ${destfile} exists and no --overwrite specified";
   fi
   tlog "Moving ${TRAINING_DIR}/${LANG_CODE}.traineddata to ${OUTPUT_DIR}"
