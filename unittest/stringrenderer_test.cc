@@ -12,14 +12,14 @@
 #include <memory>
 #include <string>
 
-#include "absl/strings/str_split.h"     // for absl::StrSplit
+#include "absl/strings/str_split.h"  // for absl::StrSplit
 
-#include "include_gunit.h"
 #include "allheaders.h"
 #include "boxchar.h"
 #include "boxread.h"
 #include "commandlineflags.h"
 #include "genericvector.h"
+#include "include_gunit.h"
 #include "stringrenderer.h"
 #include "strngs.h"
 
@@ -65,9 +65,9 @@ class StringRendererTest : public ::testing::Test {
     if (!FLAGS_display) return;
     const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
     Boxa* boxes = boxaCreate(0);
-    for (size_t i = 0; i < boxchars.size(); ++i) {
-      if (boxchars[i]->box())
-        boxaAddBox(boxes, const_cast<Box*>(boxchars[i]->box()), L_CLONE);
+    for (const auto& boxchar : boxchars) {
+      if (boxchar->box())
+        boxaAddBox(boxes, const_cast<Box*>(boxchar->box()), L_CLONE);
     }
     Pix* box_pix = pixDrawBoxaRandom(pix, boxes, 1);
     boxaDestroy(&boxes);
@@ -203,8 +203,8 @@ TEST_F(StringRendererTest, DoesRenderLigatures) {
 
 static int FindBoxCharXCoord(const std::vector<BoxChar*>& boxchars,
                              const std::string& ch) {
-  for (size_t i = 0; i < boxchars.size(); ++i) {
-    if (boxchars[i]->ch() == ch) return boxchars[i]->box()->x;
+  for (const auto& boxchar : boxchars) {
+    if (boxchar->ch() == ch) return boxchar->box()->x;
   }
   return INT_MAX;
 }
@@ -223,8 +223,7 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;
-  for (int i = 0; i < texts.size(); ++i)
-    ltr_str += texts[i].string();
+  for (int i = 0; i < texts.size(); ++i) ltr_str += texts[i].string();
   // The string should come out perfectly reversed, despite there being a
   // ligature.
   EXPECT_EQ(ltr_str, kRevWord);
@@ -364,7 +363,8 @@ TEST_F(StringRendererTest, DoesRenderWordBoxes) {
             renderer_->RenderToImage(kEngText, strlen(kEngText), &pix));
   pixDestroy(&pix);
   // Verify #boxchars = #words + #spaces
-  std::vector<std::string> words = absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
+  std::vector<std::string> words =
+      absl::StrSplit(kEngText, ' ', absl::SkipEmpty());
   const int kNumSpaces = words.size() - 1;
   const int kExpectedNumBoxes = words.size() + kNumSpaces;
   const std::vector<BoxChar*>& boxchars = renderer_->GetBoxes();
