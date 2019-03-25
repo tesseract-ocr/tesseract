@@ -2,7 +2,6 @@
  * File:        werd.cpp  (Formerly word.c)
  * Description: Code for the WERD class.
  * Author:      Ray Smith
- * Created:     Tue Oct 08 14:32:12 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,18 +16,18 @@
  *
  **********************************************************************/
 
+#include "werd.h"
 #include "helpers.h"
 #include "linlsq.h"
-#include "werd.h"
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
-#include "config_auto.h"
+#  include "config_auto.h"
 #endif
 
-#define FIRST_COLOUR    ScrollView::RED         ///< first rainbow colour
-#define LAST_COLOUR     ScrollView::AQUAMARINE  ///< last rainbow colour
-#define CHILD_COLOUR    ScrollView::BROWN       ///< colour of children
+#define FIRST_COLOUR ScrollView::RED        ///< first rainbow colour
+#define LAST_COLOUR ScrollView::AQUAMARINE  ///< last rainbow colour
+#define CHILD_COLOUR ScrollView::BROWN      ///< colour of children
 
 const ERRCODE CANT_SCALE_EDGESTEPS =
     "Attempted to scale an edgestep format word";
@@ -44,11 +43,8 @@ ELIST2IZE(WERD)
  *   blank_count   blanks in front of the word
  *   text          correct text, outlives this WERD
  */
-WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
-  : blanks(blank_count),
-    flags(0),
-    script_id_(0),
-    correct(text) {
+WERD::WERD(C_BLOB_LIST* blob_list, uint8_t blank_count, const char* text)
+    : blanks(blank_count), flags(0), script_id_(0), correct(text) {
   C_BLOB_IT start_it = &cblobs;
   C_BLOB_IT rej_cblob_it = &rej_cblobs;
   C_OUTLINE_IT c_outline_it;
@@ -72,8 +68,7 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
     with the concencus onto the reject list.
   */
   start_it.set_to_list(&cblobs);
-  if (start_it.empty())
-    return;
+  if (start_it.empty()) return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     bool reject_blob = false;
     bool blob_inverted;
@@ -81,8 +76,7 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
     c_outline_it.set_to_list(start_it.data()->out_list());
     blob_inverted = c_outline_it.data()->flag(COUT_INVERSE);
     for (c_outline_it.mark_cycle_pt();
-         !c_outline_it.cycled_list() && !reject_blob;
-         c_outline_it.forward()) {
+         !c_outline_it.cycled_list() && !reject_blob; c_outline_it.forward()) {
       reject_blob = c_outline_it.data()->flag(COUT_INVERSE) != blob_inverted;
     }
     if (reject_blob) {
@@ -98,15 +92,13 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
   flags.set_bit(W_INVERSE, (inverted_vote > non_inverted_vote));
 
   start_it.set_to_list(&cblobs);
-  if (start_it.empty())
-    return;
+  if (start_it.empty()) return;
   for (start_it.mark_cycle_pt(); !start_it.cycled_list(); start_it.forward()) {
     c_outline_it.set_to_list(start_it.data()->out_list());
     if (c_outline_it.data()->flag(COUT_INVERSE) != flags.bit(W_INVERSE))
       rej_cblob_it.add_after_then_move(start_it.extract());
   }
 }
-
 
 /**
  * WERD::WERD
@@ -115,18 +107,18 @@ WERD::WERD(C_BLOB_LIST *blob_list, uint8_t blank_count, const char *text)
  * The C_BLOBs are not copied so the source list is emptied.
  */
 
-WERD::WERD(C_BLOB_LIST * blob_list,         ///< In word order
-           WERD * clone)                    ///< Source of flags
-  : flags(clone->flags),
-    script_id_(clone->script_id_),
-    correct(clone->correct) {
+WERD::WERD(C_BLOB_LIST* blob_list,  ///< In word order
+           WERD* clone)             ///< Source of flags
+    : flags(clone->flags),
+      script_id_(clone->script_id_),
+      correct(clone->correct) {
   C_BLOB_IT start_it = blob_list;  // iterator
   C_BLOB_IT end_it = blob_list;    // another
 
-  while (!end_it.at_last ())
-    end_it.forward ();           //move to last
-  (reinterpret_cast<C_BLOB_LIST*>(&cblobs))->assign_to_sublist(&start_it, &end_it);
-  //move to our list
+  while (!end_it.at_last()) end_it.forward();  // move to last
+  (reinterpret_cast<C_BLOB_LIST*>(&cblobs))
+      ->assign_to_sublist(&start_it, &end_it);
+  // move to our list
   blanks = clone->blanks;
   //      fprintf(stderr,"Wrong constructor!!!!\n");
 }
@@ -223,7 +215,6 @@ void WERD::join_on(WERD* other) {
   }
 }
 
-
 /**
  * WERD::copy_on
  *
@@ -285,7 +276,6 @@ void WERD::print() {
   tprintf("Script = %d\n", script_id_);
 }
 
-
 /**
  * WERD::plot
  *
@@ -293,7 +283,7 @@ void WERD::print() {
  */
 
 #ifndef GRAPHICS_DISABLED
-void WERD::plot(ScrollView *window, ScrollView::Color colour) {
+void WERD::plot(ScrollView* window, ScrollView::Color colour) {
   C_BLOB_IT it = &cblobs;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->plot(window, colour, colour);
@@ -304,8 +294,7 @@ void WERD::plot(ScrollView *window, ScrollView::Color colour) {
 // Get the next color in the (looping) rainbow.
 ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
   ScrollView::Color next = static_cast<ScrollView::Color>(colour + 1);
-  if (next >= LAST_COLOUR || next < FIRST_COLOUR)
-    next = FIRST_COLOUR;
+  if (next >= LAST_COLOUR || next < FIRST_COLOUR) next = FIRST_COLOUR;
   return next;
 }
 
@@ -325,15 +314,13 @@ void WERD::plot(ScrollView* window) {
   plot_rej_blobs(window);
 }
 
-
 /**
  * WERD::plot_rej_blobs
  *
  * Draw the WERD rejected blobs in window - ALWAYS GREY
  */
 
-
-void WERD::plot_rej_blobs(ScrollView *window) {
+void WERD::plot_rej_blobs(ScrollView* window) {
   C_BLOB_IT it = &rej_cblobs;
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     it.data()->plot(window, ScrollView::GREY, ScrollView::GREY);
@@ -341,15 +328,14 @@ void WERD::plot_rej_blobs(ScrollView *window) {
 }
 #endif  // GRAPHICS_DISABLED
 
-
 /**
  * WERD::shallow_copy()
  *
  * Make a shallow copy of a word
  */
 
-WERD *WERD::shallow_copy() {
-  WERD *new_word = new WERD;
+WERD* WERD::shallow_copy() {
+  WERD* new_word = new WERD;
 
   new_word->blanks = blanks;
   new_word->flags = flags;
@@ -358,30 +344,26 @@ WERD *WERD::shallow_copy() {
   return new_word;
 }
 
-
 /**
  * WERD::operator=
  *
  * Assign a word, DEEP copying the blob list
  */
 
-WERD & WERD::operator= (const WERD & source) {
-  this->ELIST2_LINK::operator= (source);
+WERD& WERD::operator=(const WERD& source) {
+  this->ELIST2_LINK::operator=(source);
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;
   dummy = source.dummy;
   correct = source.correct;
-  if (!cblobs.empty())
-    cblobs.clear();
+  if (!cblobs.empty()) cblobs.clear();
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
 
-  if (!rej_cblobs.empty())
-    rej_cblobs.clear();
+  if (!rej_cblobs.empty()) rej_cblobs.clear();
   rej_cblobs.deep_copy(&source.rej_cblobs, &C_BLOB::deep_copy);
   return *this;
 }
-
 
 /**
  *  word_comparator()
@@ -390,9 +372,9 @@ WERD & WERD::operator= (const WERD & source) {
  *  order of left edge.
  */
 
-int word_comparator(const void *word1p, const void *word2p) {
-  const WERD *word1 = *reinterpret_cast<const WERD* const*>(word1p);
-  const WERD *word2 = *reinterpret_cast<const WERD* const*>(word2p);
+int word_comparator(const void* word1p, const void* word2p) {
+  const WERD* word1 = *reinterpret_cast<const WERD* const*>(word1p);
+  const WERD* word2 = *reinterpret_cast<const WERD* const*>(word2p);
   return word1->bounding_box().left() - word2->bounding_box().left();
 }
 
@@ -475,7 +457,7 @@ WERD* WERD::ConstructWerdWithNewBlobs(C_BLOB_LIST* all_blobs,
       TBOX a_blob_box = a_blob->bounding_box();
       if ((not_found_box.major_overlap(a_blob_box) ||
            a_blob_box.major_overlap(not_found_box)) &&
-           not_found_box.y_overlap_fraction(a_blob_box) > 0.8) {
+          not_found_box.y_overlap_fraction(a_blob_box) > 0.8) {
         // Already taken care of.
         delete not_found_it.extract();
         break;
