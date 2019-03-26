@@ -304,7 +304,7 @@ int os_detect_blobs(const GenericVector<int>* allowed_scripts,
   int number_of_blobs = 0;
   for (filtered_it.mark_cycle_pt (); !filtered_it.cycled_list ();
        filtered_it.forward ()) {
-    blobs[number_of_blobs++] = (BLOBNBOX*)filtered_it.data();
+    blobs[number_of_blobs++] = filtered_it.data();
   }
   QRSequenceGenerator sequence(number_of_blobs);
   int num_blobs_evaluated = 0;
