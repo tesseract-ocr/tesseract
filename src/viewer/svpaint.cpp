@@ -39,7 +39,7 @@ class SVPaint : public SVEventHandler {
    explicit SVPaint(const char* server_name);
 // This is the main event handling function that we need to overwrite, defined
 // in SVEventHandler.
-   void Notify(const SVEvent* sv_event);
+   void Notify(const SVEvent* sv_event) override;
  private:
 // The Handler take care of the SVET_POPUP, SVET_MENU, SVET_CLICK and
 // SVET_SELECTION events.

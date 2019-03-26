@@ -51,7 +51,7 @@ class MutableIterator : public ResultIterator {
       : ResultIterator(
           LTRResultIterator(page_res, tesseract, scale, scaled_yres, rect_left,
                             rect_top, rect_width, rect_height)) {}
-  virtual ~MutableIterator();
+  ~MutableIterator() override;
 
   // See PageIterator and ResultIterator for most calls.
 

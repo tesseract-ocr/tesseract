@@ -540,7 +540,7 @@ class BandTriMatrix : public GENERIC_2D_ARRAY<T> {
   // Expression to select a specific location in the matrix. The matrix is
   // stored COLUMN-major, so the left-most index is the most significant.
   // This allows [][] access to use indices in the same order as (,).
-  virtual int index(int column, int row) const {
+  int index(int column, int row) const override {
     ASSERT_HOST(row >= column);
     ASSERT_HOST(row - column < this->dim2_);
     return column * this->dim2_ + row - column;
@@ -580,7 +580,7 @@ class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST *> {
   MATRIX(int dimension, int bandwidth)
     : BandTriMatrix<BLOB_CHOICE_LIST *>(dimension, bandwidth, NOT_CLASSIFIED) {}
 
-  virtual ~MATRIX();
+  ~MATRIX() override;
 
   // Returns true if there are any real classification results.
   bool Classified(int col, int row, int wildcard_id) const;

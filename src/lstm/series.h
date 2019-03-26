@@ -28,7 +28,7 @@ class Series : public Plumbing {
  public:
   // ni_ and no_ will be set by AddToStack.
   explicit Series(const STRING& name);
-  virtual ~Series() = default;
+  ~Series() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

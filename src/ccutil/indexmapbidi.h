@@ -101,7 +101,7 @@ class IndexMap {
 //    Allows a many-to-one mapping by merging compact space indices.
 class IndexMapBiDi : public IndexMap {
  public:
-  virtual ~IndexMapBiDi();
+  ~IndexMapBiDi() override;
 
   // Top-level init function in a single call to initialize a map to select
   // a single contiguous subrange [start, end) of the sparse space to be mapped
@@ -135,11 +135,11 @@ class IndexMapBiDi : public IndexMap {
   void CompleteMerges();
 
   // SparseToCompact takes a sparse index to an index in the compact space.
-  virtual int SparseToCompact(int sparse_index) const {
+  int SparseToCompact(int sparse_index) const override {
     return sparse_map_[sparse_index];
   }
   // The size of the sparse space.
-  virtual int SparseSize() const {
+  int SparseSize() const override {
     return sparse_map_.size();
   }
 

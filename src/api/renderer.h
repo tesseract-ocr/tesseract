@@ -148,7 +148,7 @@ class TESS_API TessTextRenderer : public TessResultRenderer {
   explicit TessTextRenderer(const char *outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 /**
@@ -160,9 +160,9 @@ class TESS_API TessHOcrRenderer : public TessResultRenderer {
   explicit TessHOcrRenderer(const char *outputbase);
 
  protected:
-  virtual bool BeginDocumentHandler();
-  virtual bool AddImageHandler(TessBaseAPI* api);
-  virtual bool EndDocumentHandler();
+  bool BeginDocumentHandler() override;
+  bool AddImageHandler(TessBaseAPI* api) override;
+  bool EndDocumentHandler() override;
 
  private:
   bool font_info_;  // whether to print font information
@@ -176,9 +176,9 @@ class TESS_API TessHOcrRenderer : public TessResultRenderer {
         explicit TessAltoRenderer(const char *outputbase);
 
     protected:
-        virtual bool BeginDocumentHandler();
-        virtual bool AddImageHandler(TessBaseAPI* api);
-        virtual bool EndDocumentHandler();
+        bool BeginDocumentHandler() override;
+        bool AddImageHandler(TessBaseAPI* api) override;
+        bool EndDocumentHandler() override;
 
     };
 
@@ -191,9 +191,9 @@ class TESS_API TessTsvRenderer : public TessResultRenderer {
   explicit TessTsvRenderer(const char* outputbase);
 
  protected:
-  virtual bool BeginDocumentHandler();
-  virtual bool AddImageHandler(TessBaseAPI* api);
-  virtual bool EndDocumentHandler();
+  bool BeginDocumentHandler() override;
+  bool AddImageHandler(TessBaseAPI* api) override;
+  bool EndDocumentHandler() override;
 
  private:
   bool font_info_;              // whether to print font information
@@ -209,9 +209,9 @@ class TESS_API TessPDFRenderer : public TessResultRenderer {
   TessPDFRenderer(const char* outputbase, const char* datadir, bool textonly = false);
 
  protected:
-  virtual bool BeginDocumentHandler();
-  virtual bool AddImageHandler(TessBaseAPI* api);
-  virtual bool EndDocumentHandler();
+  bool BeginDocumentHandler() override;
+  bool AddImageHandler(TessBaseAPI* api) override;
+  bool EndDocumentHandler() override;
 
  private:
   // We don't want to have every image in memory at once,
@@ -244,7 +244,7 @@ class TESS_API TessUnlvRenderer : public TessResultRenderer {
   explicit TessUnlvRenderer(const char *outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 /**
@@ -255,7 +255,7 @@ class TESS_API TessLSTMBoxRenderer : public TessResultRenderer {
   explicit TessLSTMBoxRenderer(const char* outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 /**
@@ -266,7 +266,7 @@ class TESS_API TessBoxTextRenderer : public TessResultRenderer {
   explicit TessBoxTextRenderer(const char *outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 /**
@@ -277,7 +277,7 @@ class TESS_API TessWordStrBoxRenderer : public TessResultRenderer {
   explicit TessWordStrBoxRenderer(const char* outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 #ifndef DISABLED_LEGACY_ENGINE
@@ -290,7 +290,7 @@ class TESS_API TessOsdRenderer : public TessResultRenderer {
   explicit TessOsdRenderer(const char* outputbase);
 
  protected:
-  virtual bool AddImageHandler(TessBaseAPI* api);
+  bool AddImageHandler(TessBaseAPI* api) override;
 };
 
 #endif // ndef DISABLED_LEGACY_ENGINE

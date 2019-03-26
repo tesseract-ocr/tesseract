@@ -248,7 +248,7 @@ class Wordrec : public Classify {
 
   // methods from wordrec/*.cpp ***********************************************
   Wordrec();
-  virtual ~Wordrec() = default;
+  ~Wordrec() override = default;
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.

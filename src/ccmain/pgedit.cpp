@@ -148,7 +148,7 @@ STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words")
 
 class BlnEventHandler : public SVEventHandler {
  public:
-  void Notify(const SVEvent* sv_event) {
+  void Notify(const SVEvent* sv_event) override {
     if (sv_event->type == SVET_DESTROY)
       bln_word_window = nullptr;
     else if (sv_event->type == SVET_CLICK)
