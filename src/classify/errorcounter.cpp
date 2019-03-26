@@ -465,8 +465,8 @@ bool ErrorCounter::ReportString(bool even_if_empty, const Counts& counts,
   delete [] formatted_str;
   // Now append each field of counts with a tab in front so the result can
   // be loaded into a spreadsheet.
-  for (int ct = 0; ct < CT_SIZE; ++ct)
-    report->add_str_int("\t", counts.n[ct]);
+  for (int ct : counts.n)
+    report->add_str_int("\t", ct);
   return true;
 }
 

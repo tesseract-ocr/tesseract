@@ -36,7 +36,7 @@ class PGEventHandler : public SVEventHandler {
   public:
    PGEventHandler(tesseract::Tesseract* tess) : tess_(tess) {
    }
-   void Notify(const SVEvent* sve);
+   void Notify(const SVEvent* sve) override;
   private:
     tesseract::Tesseract* tess_;
 };

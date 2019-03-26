@@ -1051,7 +1051,7 @@ void TabFind::MakeColumnWidths(int col_widths_size, STATS* col_widths) {
     }
     if (col_count > kMinLinesInColumn &&
         col_count > kMinFractionalLinesInColumn * total_col_count) {
-      ICOORDELT* w = new ICOORDELT(0, width);
+      auto* w = new ICOORDELT(0, width);
       w_it.add_after_then_move(w);
       if (textord_debug_tabfind)
         tprintf("Column of width %d has %d = %.2f%% lines\n",

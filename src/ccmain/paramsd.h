@@ -103,7 +103,7 @@ class ParamsEditor : public SVEventHandler {
   explicit ParamsEditor(tesseract::Tesseract*, ScrollView* sv = nullptr);
 
   // Event listener. Waits for SVET_POPUP events and processes them.
-  void Notify(const SVEvent* sve);
+  void Notify(const SVEvent* sve) override;
 
  private:
   // Gets the up to the first 3 prefixes from s (split by _).

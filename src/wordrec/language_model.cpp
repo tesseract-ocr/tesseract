@@ -661,7 +661,7 @@ bool LanguageModel::AddViterbiStateEntry(
   }
 
   // Create the new ViterbiStateEntry compute the adjusted cost of the path.
-  ViterbiStateEntry *new_vse = new ViterbiStateEntry(
+  auto *new_vse = new ViterbiStateEntry(
       parent_vse, b, 0.0, outline_length,
       consistency_info, associate_stats, top_choice_flags, dawg_info,
       ngram_info, (language_model_debug_level > 0) ?
@@ -925,7 +925,7 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(
   if (parent_vse != nullptr && parent_vse->ngram_info->pruned) pruned = true;
 
   // Construct and return the new LanguageModelNgramInfo.
-  LanguageModelNgramInfo *ngram_info = new LanguageModelNgramInfo(
+  auto *ngram_info = new LanguageModelNgramInfo(
       pcontext_ptr, pcontext_unichar_step_len, pruned, ngram_cost,
       ngram_and_classifier_cost);
   ngram_info->context += unichar;
@@ -1418,7 +1418,7 @@ WERD_CHOICE *LanguageModel::ConstructWord(
   }
 
   // Construct a WERD_CHOICE by tracing parent pointers.
-  WERD_CHOICE *word = new WERD_CHOICE(word_res->uch_set, vse->length);
+  auto *word = new WERD_CHOICE(word_res->uch_set, vse->length);
   word->set_length(vse->length);
   int total_blobs = 0;
   for (i = (vse->length-1); i >= 0; --i) {

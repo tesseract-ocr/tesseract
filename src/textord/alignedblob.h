@@ -81,7 +81,7 @@ struct AlignedBlobParams {
 class AlignedBlob : public BlobGrid {
  public:
   AlignedBlob(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~AlignedBlob();
+  ~AlignedBlob() override;
 
   // Return true if the given coordinates are within the test rectangle
   // and the debug level is at least the given detail level.

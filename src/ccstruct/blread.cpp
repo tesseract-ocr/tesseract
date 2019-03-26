@@ -64,6 +64,6 @@ bool read_unlv_file(                    //print list of sides
 
 void FullPageBlock(int width, int height, BLOCK_LIST *blocks) {
   BLOCK_IT block_it(blocks);
-  BLOCK* block = new BLOCK("", TRUE, 0, 0, 0, 0, width, height);
+  auto* block = new BLOCK("", TRUE, 0, 0, 0, 0, width, height);
   block_it.add_to_end(block);
 }

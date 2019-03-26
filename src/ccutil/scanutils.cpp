@@ -512,7 +512,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
         char* oarg = sarg;
         while (width) {
           q = fgetc(stream);
-          unsigned char qc = static_cast<unsigned char>(q);
+          auto qc = static_cast<unsigned char>(q);
           if (q <= 0 || !(TestBit(matchmap, qc)^matchinv)) {
             ungetc(q, stream);
             break;

@@ -635,11 +635,11 @@ void Tesseract::SetBlackAndWhitelist() {
 void Tesseract::PrepareForPageseg() {
   textord_.set_use_cjk_fp_model(textord_use_cjk_fp_model);
   // Find the max splitter strategy over all langs.
-  ShiroRekhaSplitter::SplitStrategy max_pageseg_strategy =
+  auto max_pageseg_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(pageseg_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
-    ShiroRekhaSplitter::SplitStrategy pageseg_strategy =
+    auto pageseg_strategy =
         static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_langs_[i]->pageseg_devanagari_split_strategy));
     if (pageseg_strategy > max_pageseg_strategy)
@@ -666,11 +666,11 @@ void Tesseract::PrepareForPageseg() {
 void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
                                   Tesseract* osd_tess, OSResults* osr) {
   // Find the max splitter strategy over all langs.
-  ShiroRekhaSplitter::SplitStrategy max_ocr_strategy =
+  auto max_ocr_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(ocr_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
-    ShiroRekhaSplitter::SplitStrategy ocr_strategy =
+    auto ocr_strategy =
         static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_langs_[i]->ocr_devanagari_split_strategy));
     if (ocr_strategy > max_ocr_strategy)

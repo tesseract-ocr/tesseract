@@ -28,7 +28,7 @@ namespace tesseract {
 class Reversed : public Plumbing {
  public:
   explicit Reversed(const STRING& name, NetworkType type);
-  virtual ~Reversed() = default;
+  ~Reversed() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

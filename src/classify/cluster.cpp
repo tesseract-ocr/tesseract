@@ -405,9 +405,9 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   Clusterer->KDTree = MakeKDTree (SampleSize, ParamDesc);
 
   // Initialize cache of histogram buckets to minimize recomputing them.
-  for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
+  for (auto & d : Clusterer->bucket_cache) {
     for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-      Clusterer->bucket_cache[d][c] = nullptr;
+      d[c] = nullptr;
   }
 
   return Clusterer;
@@ -495,7 +495,7 @@ LIST ClusterSamples(CLUSTERER *Clusterer, CLUSTERCONFIG *Config) {
   // out, which makes it safe to delete the clusterer.
   LIST proto_list = Clusterer->ProtoList;
   iterate(proto_list) {
-    PROTOTYPE *proto = reinterpret_cast<PROTOTYPE *>(first_node(proto_list));
+    auto *proto = reinterpret_cast<PROTOTYPE *>(first_node(proto_list));
     proto->Cluster = nullptr;
   }
   return Clusterer->ProtoList;
@@ -520,10 +520,10 @@ void FreeClusterer(CLUSTERER *Clusterer) {
     if (Clusterer->Root != nullptr)
       FreeCluster (Clusterer->Root);
     // Free up all used buckets structures.
-    for (int d = 0; d < DISTRIBUTION_COUNT; ++d) {
+    for (auto & d : Clusterer->bucket_cache) {
       for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-        if (Clusterer->bucket_cache[d][c] != nullptr)
-          FreeBuckets(Clusterer->bucket_cache[d][c]);
+        if (d[c] != nullptr)
+          FreeBuckets(d[c]);
     }
 
     free(Clusterer);
@@ -550,7 +550,7 @@ void FreeProtoList(LIST *ProtoList) {
  * @return None
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
-  PROTOTYPE *Prototype = (PROTOTYPE *) arg;
+  auto *Prototype = (PROTOTYPE *) arg;
 
   // unmark the corresponding cluster (if there is one
   if (Prototype->Cluster != nullptr)
@@ -2145,8 +2145,8 @@ static void InitBuckets(BUCKETS *Buckets) {
  */
 static int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct,
                void *arg2) {  //CHISTRUCT                             *SearchKey)
-  CHISTRUCT *ChiStruct = (CHISTRUCT *) arg1;
-  CHISTRUCT *SearchKey = (CHISTRUCT *) arg2;
+  auto *ChiStruct = (CHISTRUCT *) arg1;
+  auto *SearchKey = (CHISTRUCT *) arg2;
 
   return (ChiStruct->Alpha == SearchKey->Alpha);
 

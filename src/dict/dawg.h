@@ -88,10 +88,10 @@ enum DawgType {
 #define REFFORMAT "%" PRId64
 
 static const bool kDawgSuccessors[DAWG_TYPE_COUNT][DAWG_TYPE_COUNT] = {
-  { 0, 1, 1, 0 },  // for DAWG_TYPE_PUNCTUATION
-  { 1, 0, 0, 0 },  // for DAWG_TYPE_WORD
-  { 1, 0, 0, 0 },  // for DAWG_TYPE_NUMBER
-  { 0, 0, 0, 0 },  // for DAWG_TYPE_PATTERN
+  { false, true, true, false },  // for DAWG_TYPE_PUNCTUATION
+  { true, false, false, false },  // for DAWG_TYPE_WORD
+  { true, false, false, false },  // for DAWG_TYPE_NUMBER
+  { false, false, false, false },  // for DAWG_TYPE_PATTERN
 };
 
 static const char kWildcard[] = "*";
@@ -428,7 +428,7 @@ class SquishedDawg : public Dawg {
     num_forward_edges_in_node0 = num_forward_edges(0);
     if (debug_level > 3) print_all("SquishedDawg:");
   }
-  virtual ~SquishedDawg();
+  ~SquishedDawg() override;
 
   // Loads using the given TFile. Returns false on failure.
   bool Load(TFile *fp) {
@@ -441,12 +441,12 @@ class SquishedDawg : public Dawg {
 
   /// Returns the edge that corresponds to the letter out of this node.
   EDGE_REF edge_char_of(NODE_REF node, UNICHAR_ID unichar_id,
-                        bool word_end) const;
+                        bool word_end) const override;
 
   /// Fills the given NodeChildVector with all the unichar ids (and the
   /// corresponding EDGE_REFs) for which there is an edge out of this node.
   void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
-                      bool word_end) const {
+                      bool word_end) const override {
     EDGE_REF edge = node;
     if (!edge_occupied(edge) || edge == NO_EDGE) return;
     assert(forward_edge(edge));  // we don't expect any backward edges to
@@ -459,24 +459,24 @@ class SquishedDawg : public Dawg {
 
   /// Returns the next node visited by following the edge
   /// indicated by the given EDGE_REF.
-  NODE_REF next_node(EDGE_REF edge) const {
+  NODE_REF next_node(EDGE_REF edge) const override {
     return next_node_from_edge_rec((edges_[edge]));
   }
 
   /// Returns true if the edge indicated by the given EDGE_REF
   /// marks the end of a word.
-  bool end_of_word(EDGE_REF edge_ref) const {
+  bool end_of_word(EDGE_REF edge_ref) const override {
     return end_of_word_from_edge_rec((edges_[edge_ref]));
   }
 
   /// Returns UNICHAR_ID stored in the edge indicated by the given EDGE_REF.
-  UNICHAR_ID edge_letter(EDGE_REF edge_ref) const {
+  UNICHAR_ID edge_letter(EDGE_REF edge_ref) const override {
     return unichar_id_from_edge_rec((edges_[edge_ref]));
   }
 
   /// Prints the contents of the node indicated by the given NODE_REF.
   /// At most max_num_edges will be printed.
-  void print_node(NODE_REF node, int max_num_edges) const;
+  void print_node(NODE_REF node, int max_num_edges) const override;
 
   /// Writes the squished/reduced Dawg to a file.
   bool write_squished_dawg(TFile *file);

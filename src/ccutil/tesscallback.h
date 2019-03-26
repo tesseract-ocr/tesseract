@@ -88,7 +88,7 @@ class _ConstTessMemberResultCallback_0_0<del, void, T>
       member_(member) {
   }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)();
     } else {
@@ -137,7 +137,7 @@ class _TessMemberResultCallback_0_0 : public TessResultCallback<R> {
       member_(member) {
   }
 
-  virtual R Run() {
+  R Run() override {
     if (!del) {
       R result = (object_->*member_)();
       return result;
@@ -169,7 +169,7 @@ class _TessMemberResultCallback_0_0<del, void, T>
       member_(member) {
   }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)();
     } else {
@@ -246,7 +246,7 @@ class _TessFunctionResultCallback_0_0<del, void>
     : function_(function) {
   }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)();
     } else {
@@ -330,7 +330,7 @@ class _ConstTessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure 
     : object_(object),
       member_(member),      p1_(p1) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_);
     } else {
@@ -404,7 +404,7 @@ class _TessMemberResultCallback_1_0<del, void, T, P1> : public TessClosure {
     : object_(object),
       member_(member),      p1_(p1) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_);
     } else {
@@ -474,7 +474,7 @@ class _TessFunctionResultCallback_1_0<del, void, P1> : public TessClosure {
   inline _TessFunctionResultCallback_1_0(FunctionSignature function, P1 p1)
     : function_(function),      p1_(p1) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_);
     } else {
@@ -547,7 +547,7 @@ class _ConstTessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClos
       object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_);
     } else {
@@ -624,7 +624,7 @@ class _TessMemberResultCallback_2_0<del, void, T, P1, P2> : public TessClosure {
       object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_);
     } else {
@@ -697,7 +697,7 @@ class _TessFunctionResultCallback_2_0<del, void, P1, P2> : public TessClosure {
     :
       function_(function),      p1_(p1),      p2_(p2) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_,p2_);
     } else {
@@ -772,7 +772,7 @@ class _ConstTessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public Tess
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_);
     } else {
@@ -850,7 +850,7 @@ class _TessMemberResultCallback_3_0<del, void, T, P1, P2, P3> : public TessClosu
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_);
     } else {
@@ -924,7 +924,7 @@ class _TessFunctionResultCallback_3_0<del, void, P1, P2, P3> : public TessClosur
   inline _TessFunctionResultCallback_3_0(FunctionSignature function, P1 p1, P2 p2, P3 p3)
     : function_(function),      p1_(p1),      p2_(p2),      p3_(p3) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_,p2_,p3_);
     } else {
@@ -1000,7 +1000,7 @@ class _ConstTessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public 
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_);
     } else {
@@ -1080,7 +1080,7 @@ class _TessMemberResultCallback_4_0<del, void, T, P1, P2, P3, P4> : public TessC
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_);
     } else {
@@ -1156,7 +1156,7 @@ class _TessFunctionResultCallback_4_0<del, void, P1, P2, P3, P4> : public TessCl
   inline _TessFunctionResultCallback_4_0(FunctionSignature function, P1 p1, P2 p2, P3 p3, P4 p4)
     : function_(function),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_,p2_,p3_,p4_);
     } else {
@@ -1200,7 +1200,7 @@ class _ConstTessMemberResultCallback_5_0 : public TessResultCallback<R> {
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
-  virtual R Run() {
+  R Run() override {
     if (!del) {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
       return result;
@@ -1234,7 +1234,7 @@ class _ConstTessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : pub
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
     } else {
@@ -1316,7 +1316,7 @@ class _TessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5> : public T
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_);
     } else {
@@ -1394,7 +1394,7 @@ class _TessFunctionResultCallback_5_0<del, void, P1, P2, P3, P4, P5> : public Te
   inline _TessFunctionResultCallback_5_0(FunctionSignature function, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     : function_(function),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_,p2_,p3_,p4_,p5_);
     } else {
@@ -1439,7 +1439,7 @@ class _ConstTessMemberResultCallback_6_0 : public TessResultCallback<R> {
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
-  virtual R Run() {
+  R Run() override {
     if (!del) {
       R result = (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
       return result;
@@ -1474,7 +1474,7 @@ class _ConstTessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> :
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
     } else {
@@ -1558,7 +1558,7 @@ class _TessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6> : publ
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (object_->*member_)(p1_,p2_,p3_,p4_,p5_,p6_);
     } else {
@@ -1638,7 +1638,7 @@ class _TessFunctionResultCallback_6_0<del, void, P1, P2, P3, P4, P5, P6> : publi
   inline _TessFunctionResultCallback_6_0(FunctionSignature function, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     : function_(function),      p1_(p1),      p2_(p2),      p3_(p3),      p4_(p4),      p5_(p5),      p6_(p6) { }
 
-  virtual void Run() {
+  void Run() override {
     if (!del) {
       (*function_)(p1_,p2_,p3_,p4_,p5_,p6_);
     } else {
@@ -1817,7 +1817,7 @@ class _TessMemberResultCallback_0_1 : public TessResultCallback1<R,A1> {
       member_(member) {
   }
 
-  virtual R Run(A1 a1) {
+  R Run(A1 a1) override {
     if (!del) {
       R result = (object_->*member_)(a1);
       return result;
@@ -1849,7 +1849,7 @@ class _TessMemberResultCallback_0_1<del, void, T, A1>
       member_(member) {
   }
 
-  virtual void Run(A1 a1) {
+  void Run(A1 a1) override {
     if (!del) {
       (object_->*member_)(a1);
     } else {
@@ -1926,7 +1926,7 @@ class _TessFunctionResultCallback_0_1<del, void, A1>
     : function_(function) {
   }
 
-  virtual void Run(A1 a1) {
+  void Run(A1 a1) override {
     if (!del) {
       (*function_)(a1);
     } else {
@@ -2140,7 +2140,7 @@ class _TessFunctionResultCallback_1_1<del, void, P1, A1> : public TessCallback1<
   inline _TessFunctionResultCallback_1_1(FunctionSignature function, P1 p1)
     : function_(function),      p1_(p1) { }
 
-  virtual void Run(A1 a1) {
+  void Run(A1 a1) override {
     if (!del) {
       (*function_)(p1_,a1);
     } else {
@@ -3341,7 +3341,7 @@ class _ConstTessMemberResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
       member_(member) {
   }
 
-  virtual R Run(A1 a1,A2 a2) {
+  R Run(A1 a1,A2 a2) override {
     if (!del) {
       R result = (object_->*member_)(a1,a2);
       return result;
@@ -3422,7 +3422,7 @@ class _TessMemberResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
       member_(member) {
   }
 
-  virtual R Run(A1 a1,A2 a2) {
+  R Run(A1 a1,A2 a2) override {
     if (!del) {
       R result = (object_->*member_)(a1,a2);
       return result;
@@ -3501,7 +3501,7 @@ class _TessFunctionResultCallback_0_2 : public TessResultCallback2<R,A1,A2> {
     : function_(function) {
   }
 
-  virtual R Run(A1 a1,A2 a2) {
+  R Run(A1 a1,A2 a2) override {
     if (!del) {
       R result = (*function_)(a1,a2);
       return result;
@@ -3862,7 +3862,7 @@ class _TessMemberResultCallback_2_2 : public TessResultCallback2<R,A1,A2> {
     : object_(object),
       member_(member),      p1_(p1),      p2_(p2) { }
 
-  virtual R Run(A1 a1,A2 a2) {
+  R Run(A1 a1,A2 a2) override {
     if (!del) {
       R result = (object_->*member_)(p1_,p2_,a1,a2);
       return result;
@@ -4946,7 +4946,7 @@ class _ConstTessMemberResultCallback_0_3 : public TessResultCallback3<R,A1,A2,A3
       member_(member) {
   }
 
-  virtual R Run(A1 a1,A2 a2,A3 a3) {
+  R Run(A1 a1,A2 a2,A3 a3) override {
     if (!del) {
       R result = (object_->*member_)(a1,a2,a3);
       return result;

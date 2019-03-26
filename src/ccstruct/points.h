@@ -177,7 +177,7 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
     }
 
     static ICOORDELT* deep_copy(const ICOORDELT* src) {
-      ICOORDELT* elt = new ICOORDELT;
+      auto* elt = new ICOORDELT;
       *elt = *src;
       return elt;
     }
@@ -535,7 +535,7 @@ int16_t scale) {
 
 inline void ICOORD::rotate(  //rotate by vector
                            const FCOORD& vec) {
-  int16_t tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() -
+  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() -
                                                 ycoord * vec.y() + 0.5f));
   ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() +
                                            xcoord * vec.y() + 0.5f));

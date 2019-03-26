@@ -733,7 +733,7 @@ void TableRecognizer::set_max_text_height(int height) {
 }
 
 StructuredTable* TableRecognizer::RecognizeTable(const TBOX& guess) {
-  StructuredTable* table = new StructuredTable();
+  auto* table = new StructuredTable();
   table->Init();
   table->set_text_grid(text_grid_);
   table->set_line_grid(line_grid_);

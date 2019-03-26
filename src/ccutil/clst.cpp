@@ -171,7 +171,7 @@ bool CLIST::add_sorted(int comparator(const void*, const void*),
                        bool unique, void* new_data) {
   // Check for adding at the end.
   if (last == nullptr || comparator(&last->data, &new_data) < 0) {
-    CLIST_LINK* new_element = new CLIST_LINK;
+    auto* new_element = new CLIST_LINK;
     new_element->data = new_data;
     if (last == nullptr) {
       new_element->next = new_element;

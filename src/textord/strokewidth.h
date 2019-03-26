@@ -57,7 +57,7 @@ enum PartitionFindResult {
 class StrokeWidth : public BlobGrid {
  public:
   StrokeWidth(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~StrokeWidth();
+  ~StrokeWidth() override;
 
   // Sets the neighbours member of the medium-sized blobs in the block.
   // Searches on 4 sides of each blob for similar-sized, similar-strokewidth
@@ -128,7 +128,7 @@ class StrokeWidth : public BlobGrid {
                                 ColPartition_LIST* big_parts);
 
   // Handles a click event in a display window.
-  virtual void HandleClick(int x, int y);
+  void HandleClick(int x, int y) override;
 
  private:
   // Computes the noise_density_ by summing the number of elements in a

@@ -54,7 +54,7 @@ void BoxWord::CopyFrom(const BoxWord& src) {
 // Factory to build a BoxWord from a TWERD using the DENORMs on each blob to
 // switch back to original image coordinates.
 BoxWord* BoxWord::CopyFromNormalized(TWERD* tessword) {
-  BoxWord* boxword = new BoxWord();
+  auto* boxword = new BoxWord();
   // Count the blobs.
   boxword->length_ = tessword->NumBlobs();
   // Allocate memory.

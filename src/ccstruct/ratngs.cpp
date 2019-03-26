@@ -555,10 +555,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word, int debug) {
     return;
   }
 
-  int position_counts[4];
-  for (int i = 0; i < 4; i++) {
-    position_counts[i] = 0;
-  }
+  int position_counts[4] = { 0, 0, 0, 0 };
 
   int chunk_index = 0;
   for (int blob_index = 0; blob_index < length_; ++blob_index, ++chunk_index) {
@@ -789,7 +786,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   TBOX bbox;
   int blob_index = 0;
   for (int c = 0; c < length_; ++c) {
-    ScrollView::Color color =
+    auto color =
         static_cast<ScrollView::Color>(c % kNumColors + 3);
     for (int i = 0; i < state_[c]; ++i, ++blob_index) {
       TBLOB* blob = word->blobs[blob_index];

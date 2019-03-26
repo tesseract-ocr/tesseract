@@ -259,7 +259,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     C_OUTLINE& operator=(const C_OUTLINE& source);
 
     static C_OUTLINE* deep_copy(const C_OUTLINE* src) {
-      C_OUTLINE* outline = new C_OUTLINE;
+      auto* outline = new C_OUTLINE;
       *outline = *src;
       return outline;
     }

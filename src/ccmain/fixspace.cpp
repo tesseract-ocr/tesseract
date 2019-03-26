@@ -699,7 +699,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
     new_rej_cblob_it.add_after_then_move(rej_cblob_it.extract());
   }
 
-  WERD_RES* new_word_res = new WERD_RES(new_word);
+  auto* new_word_res = new WERD_RES(new_word);
   new_word_res->combination = true;
   worst_word_it.add_before_then_move(new_word_res);
 

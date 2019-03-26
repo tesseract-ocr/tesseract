@@ -27,7 +27,7 @@ ELISTIZE (SORTED_FLOAT)
 void SORTED_FLOATS::add(  //add new entry
                         float value,
                         int32_t key) {
-  SORTED_FLOAT *new_float = new SORTED_FLOAT (value, key);
+  auto *new_float = new SORTED_FLOAT (value, key);
 
   if (list.empty ())
     it.add_after_stay_put (new_float);

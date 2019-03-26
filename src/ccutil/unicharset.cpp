@@ -191,7 +191,7 @@ UNICHARSET::~UNICHARSET() {
 
 void UNICHARSET::reserve(int unichars_number) {
   if (unichars_number > size_reserved) {
-    UNICHAR_SLOT* unichars_new = new UNICHAR_SLOT[unichars_number];
+    auto* unichars_new = new UNICHAR_SLOT[unichars_number];
     for (int i = 0; i < size_used; ++i)
       unichars_new[i] = unichars[i];
     for (int j = size_used; j < unichars_number; ++j) {
@@ -1099,7 +1099,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   if (ptr != string + len) {
     return nullptr;  // malformed fragment representation
   }
-  CHAR_FRAGMENT *fragment = new CHAR_FRAGMENT();
+  auto *fragment = new CHAR_FRAGMENT();
   fragment->set_all(unichar, pos, total, natural);
   return fragment;
 }

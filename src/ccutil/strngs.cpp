@@ -79,7 +79,7 @@ char* STRING::ensure_cstr(int32_t min_capacity) {
     min_capacity = 2 * orig_header->capacity_;
 
   int alloc = sizeof(STRING_HEADER) + min_capacity;
-  STRING_HEADER* new_header = (STRING_HEADER*)(malloc(alloc));
+  auto* new_header = (STRING_HEADER*)(malloc(alloc));
 
   memcpy(&new_header[1], GetCStr(), orig_header->used_);
   new_header->capacity_ = min_capacity;

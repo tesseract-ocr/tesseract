@@ -654,7 +654,7 @@ class WERD_RES : public ELIST_LINK {
 
   // Returns a really deep copy of *src, including the ratings MATRIX.
   static WERD_RES* deep_copy(const WERD_RES* src) {
-    WERD_RES* result = new WERD_RES(*src);
+    auto* result = new WERD_RES(*src);
     // That didn't copy the ratings, but we want a copy if there is one to
     // begin with.
     if (src->ratings != nullptr)

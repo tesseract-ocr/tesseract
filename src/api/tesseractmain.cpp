@@ -429,7 +429,7 @@ static void PreloadRenderers(
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
-      tesseract::TessHOcrRenderer* renderer =
+      auto* renderer =
           new tesseract::TessHOcrRenderer(outputbase, font_info);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -443,7 +443,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_alto", &b);
     if (b) {
-      tesseract::TessAltoRenderer* renderer =
+      auto* renderer =
               new tesseract::TessAltoRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -459,7 +459,7 @@ static void PreloadRenderers(
     if (b) {
       bool font_info;
       api->GetBoolVariable("hocr_font_info", &font_info);
-      tesseract::TessTsvRenderer* renderer =
+      auto* renderer =
           new tesseract::TessTsvRenderer(outputbase, font_info);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -479,7 +479,7 @@ static void PreloadRenderers(
       #endif  // WIN32
       bool textonly;
       api->GetBoolVariable("textonly_pdf", &textonly);
-      tesseract::TessPDFRenderer* renderer =
+      auto* renderer =
         new tesseract::TessPDFRenderer(outputbase, api->GetDatapath(),
                                        textonly);
       if (renderer->happy()) {
@@ -495,7 +495,7 @@ static void PreloadRenderers(
     api->GetBoolVariable("tessedit_write_unlv", &b);
     if (b) {
       api->SetVariable("unlv_tilde_crunching", "true");
-      tesseract::TessUnlvRenderer* renderer =
+      auto* renderer =
         new tesseract::TessUnlvRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -509,7 +509,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_lstmbox", &b);
     if (b) {
-      tesseract::TessLSTMBoxRenderer* renderer =
+      auto* renderer =
         new tesseract::TessLSTMBoxRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -523,7 +523,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_boxfile", &b);
     if (b) {
-      tesseract::TessBoxTextRenderer* renderer =
+      auto* renderer =
         new tesseract::TessBoxTextRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -537,7 +537,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_wordstrbox", &b);
     if (b) {
-      tesseract::TessWordStrBoxRenderer* renderer =
+      auto* renderer =
         new tesseract::TessWordStrBoxRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);
@@ -551,7 +551,7 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || (!error && renderers->empty())) {
-      tesseract::TessTextRenderer* renderer =
+      auto* renderer =
         new tesseract::TessTextRenderer(outputbase);
       if (renderer->happy()) {
         renderers->push_back(renderer);

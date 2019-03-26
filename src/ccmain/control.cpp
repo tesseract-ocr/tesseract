@@ -197,7 +197,7 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
     for (int s = 0; s <= sub_langs_.size(); ++s) {
       // The sub_langs_.size() entry is for the master language.
       Tesseract* lang_t = s < sub_langs_.size() ? sub_langs_[s] : this;
-      WERD_RES* word_res = new WERD_RES;
+      auto* word_res = new WERD_RES;
       word_res->InitForRetryRecognition(*word->word);
       word->lang_words.push_back(word_res);
       // LSTM doesn't get setup for pass2.
@@ -444,7 +444,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   // end jetsoft
   #endif  //ndef DISABLED_LEGACY_ENGINE
 
-  const PageSegMode pageseg_mode = static_cast<PageSegMode>(
+  const auto pageseg_mode = static_cast<PageSegMode>(
       static_cast<int>(tessedit_pageseg_mode));
   textord_.CleanupSingleRowResult(pageseg_mode, page_res);
 

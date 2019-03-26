@@ -148,7 +148,7 @@ void FindDirectionChanges(MFOUTLINE Outline,
  */
 void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
   MFOUTLINE Start;
-  MFOUTLINE Outline = (MFOUTLINE) arg;
+  auto Outline = (MFOUTLINE) arg;
 
   /* break the circular outline so we can use std. techniques to deallocate */
   Start = list_rest (Outline);

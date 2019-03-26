@@ -702,10 +702,10 @@ void ColPartitionGrid::ExtractPartitionsAsBlocks(BLOCK_LIST* blocks,
         part->DeleteBoxes();
         continue;
       }
-      BLOCK* block = new BLOCK("", true, 0, 0, box.left(), box.bottom(),
+      auto* block = new BLOCK("", true, 0, 0, box.left(), box.bottom(),
                                box.right(), box.top());
       block->pdblk.set_poly_block(new POLY_BLOCK(box, type));
-      TO_BLOCK* to_block = new TO_BLOCK(block);
+      auto* to_block = new TO_BLOCK(block);
       TO_ROW_IT row_it(to_block->get_rows());
       row_it.add_after_then_move(row);
       // We haven't differentially rotated vertical and horizontal text at
@@ -782,7 +782,7 @@ void ColPartitionGrid::SetTabStops(TabFind* tabgrid) {
 // Makes the ColPartSets and puts them in the PartSetVector ready
 // for finding column bounds. Returns false if no partitions were found.
 bool ColPartitionGrid::MakeColPartSets(PartSetVector* part_sets) {
-  ColPartition_LIST* part_lists = new ColPartition_LIST[gridheight()];
+  auto* part_lists = new ColPartition_LIST[gridheight()];
   part_sets->reserve(gridheight());
   // Iterate the ColPartitions in the grid to get parts onto lists for the
   // y bottom of each.
@@ -1417,7 +1417,7 @@ bool ColPartitionGrid::SmoothRegionType(Pix* nontext_map,
   bool all_image = true;
   for (int d = 0; d < BND_COUNT; ++d) {
     int dist;
-    BlobNeighbourDir dir = static_cast<BlobNeighbourDir>(d);
+    auto dir = static_cast<BlobNeighbourDir>(d);
     BlobRegionType type = SmoothInOneDirection(dir, nontext_map, im_box,
                                                rerotation, debug, *part,
                                                &dist);

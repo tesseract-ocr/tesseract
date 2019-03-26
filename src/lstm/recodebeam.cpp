@@ -308,9 +308,9 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
       timestepEnd = xcoords[word_end];
     }
     for (int i = word_start; i < word_end; ++i) {
-      BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
+      auto* choices = new BLOB_CHOICE_LIST;
       BLOB_CHOICE_IT bc_it(choices);
-      BLOB_CHOICE* choice = new BLOB_CHOICE(
+      auto* choice = new BLOB_CHOICE(
           unichar_ids[i], ratings[i], certs[i], -1, 1.0f,
           static_cast<float>(INT16_MAX), 0.0f, BCC_STATIC_CLASSIFIER);
       int col = i - word_start;
@@ -332,7 +332,7 @@ void RecodeBeamSearch::DebugBeams(const UNICHARSET& unicharset) const {
   for (int p = 0; p < beam_size_; ++p) {
     for (int d = 0; d < 2; ++d) {
       for (int c = 0; c < NC_COUNT; ++c) {
-        NodeContinuation cont = static_cast<NodeContinuation>(c);
+        auto cont = static_cast<NodeContinuation>(c);
         int index = BeamIndex(d, cont, 0);
         if (beam_[p]->beams_[index].empty()) continue;
         // Print all the best scoring nodes for each unichar found.
@@ -469,7 +469,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
   // Make a fake word from the blobs.
   WERD* word = new WERD(&blobs, leading_space, nullptr);
   // Make a WERD_RES from the word.
-  WERD_RES* word_res = new WERD_RES(word);
+  auto* word_res = new WERD_RES(word);
   word_res->uch_set = unicharset;
   word_res->combination = true;  // Give it ownership of the word.
   word_res->space_certainty = space_certainty;
@@ -551,7 +551,7 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
     // first, which may have an empty intersection with the valid codes, so we
     // fall back to the rest if the beam is empty.
     for (int tn = 0; tn < TN_COUNT && total_beam == 0; ++tn) {
-      TopNState top_n = static_cast<TopNState>(tn);
+      auto top_n = static_cast<TopNState>(tn);
       for (int index = 0; index < kNumBeams; ++index) {
         // Working backwards through the heaps doesn't guarantee that we see the
         // best first, but it comes before a lot of the worst, so it is slightly
@@ -780,7 +780,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
     return;  // Can't break words between space delimited chars.
   }
   DawgPositionVector initial_dawgs;
-  DawgPositionVector* updated_dawgs = new DawgPositionVector;
+  auto* updated_dawgs = new DawgPositionVector;
   DawgArgs dawg_args(&initial_dawgs, updated_dawgs, NO_PERM);
   bool word_start = false;
   if (uni_prev == nullptr) {
@@ -794,7 +794,7 @@ void RecodeBeamSearch::ContinueDawg(int code, int unichar_id, float cert,
   } else {
     return;  // Can't continue if not a dict word.
   }
-  PermuterType permuter = static_cast<PermuterType>(
+  auto permuter = static_cast<PermuterType>(
       dict_->def_letter_is_okay(&dawg_args,
                                 dict_->getUnicharset(), unichar_id, false));
   if (permuter != NO_PERM) {
@@ -828,7 +828,7 @@ void RecodeBeamSearch::PushInitialDawgIfBetter(int code, int unichar_id,
   float score = cert;
   if (prev != nullptr) score += prev->score;
   if (best_initial_dawg->code < 0 || score > best_initial_dawg->score) {
-    DawgPositionVector* initial_dawgs = new DawgPositionVector;
+    auto* initial_dawgs = new DawgPositionVector;
     dict_->default_dawgs(initial_dawgs, false);
     RecodeNode node(code, unichar_id, permuter, true, start, end, false, cert,
                     score, prev, initial_dawgs,
@@ -955,7 +955,7 @@ void RecodeBeamSearch::ExtractBestPaths(
   const RecodeBeam* last_beam = beam_[beam_size_ - 1];
   for (int c = 0; c < NC_COUNT; ++c) {
     if (c == NC_ONLY_DUP) continue;
-    NodeContinuation cont = static_cast<NodeContinuation>(c);
+    auto cont = static_cast<NodeContinuation>(c);
     for (int is_dawg = 0; is_dawg < 2; ++is_dawg) {
       int beam_index = BeamIndex(is_dawg, cont, 0);
       int heap_size = last_beam->beams_[beam_index].size();

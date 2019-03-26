@@ -209,7 +209,7 @@ void C_BLOB::ConstructBlobsFromOutlines(bool good_blob,
       blob_is_good = false;
       ol_it.add_list_after(outline->child());
     }
-    C_BLOB* blob = new C_BLOB(outline);
+    auto* blob = new C_BLOB(outline);
     // Set inverse flag and reverse if needed.
     blob->CheckInverseFlagAndDirection();
     // Put on appropriate list.
@@ -372,7 +372,7 @@ static void RotateOutlineList(const FCOORD& rotation,
   while (!src_it.empty()) {
     C_OUTLINE* old_outline = src_it.extract();
     src_it.forward();
-    C_OUTLINE* new_outline = new C_OUTLINE(old_outline, rotation);
+    auto* new_outline = new C_OUTLINE(old_outline, rotation);
     if (!old_outline->child()->empty()) {
       RotateOutlineList(rotation, old_outline->child());
       C_OUTLINE_IT child_it(new_outline->child());

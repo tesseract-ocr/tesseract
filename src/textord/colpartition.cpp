@@ -159,7 +159,7 @@ ColPartition* ColPartition::MakeLinePartition(BlobRegionType blob_type,
                                               const ICOORD& vertical,
                                               int left, int bottom,
                                               int right, int top) {
-  ColPartition* part = new ColPartition(blob_type, vertical);
+  auto* part = new ColPartition(blob_type, vertical);
   part->bounding_box_ = TBOX(left, bottom, right, top);
   part->median_bottom_ = bottom;
   part->median_top_ = top;
@@ -1134,7 +1134,7 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
     // Pad the buffer with min_step/2 on each end.
     int part_left = bounding_box_.left() - min_step / 2;
     part_width += min_step;
-    DPPoint* projection = new DPPoint[part_width];
+    auto* projection = new DPPoint[part_width];
     for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
       BLOBNBOX* blob = it.data();
       int left = blob->bounding_box().left();
@@ -1567,7 +1567,7 @@ static TO_BLOCK* MoveBlobsToBlock(bool vertical_text, int line_spacing,
   STATS sizes(0, std::max(block_box.width(), block_box.height()));
   bool text_type = block->pdblk.poly_block()->IsText();
   ColPartition_IT it(block_parts);
-  TO_BLOCK* to_block = new TO_BLOCK(block);
+  auto* to_block = new TO_BLOCK(block);
   BLOBNBOX_IT blob_it(&to_block->blobs);
   ColPartition_IT used_it(used_parts);
   for (it.move_to_first(); !it.empty(); it.forward()) {
@@ -1680,7 +1680,7 @@ TO_BLOCK* ColPartition::MakeBlock(const ICOORD& bleft, const ICOORD& tright,
   if (textord_debug_tabfind)
     tprintf("Making block at (%d,%d)->(%d,%d)\n",
             min_x, min_y, max_x, max_y);
-  BLOCK* block = new BLOCK("", true, 0, 0, min_x, min_y, max_x, max_y);
+  auto* block = new BLOCK("", true, 0, 0, min_x, min_y, max_x, max_y);
   block->pdblk.set_poly_block(new POLY_BLOCK(&vertices, type));
   return MoveBlobsToBlock(false, line_spacing, block, block_parts, used_parts);
 }
@@ -1705,7 +1705,7 @@ TO_BLOCK* ColPartition::MakeVerticalTextBlock(const ICOORD& bleft,
     tprintf("Making block at:");
     block_box.print();
   }
-  BLOCK* block = new BLOCK("", true, 0, 0, block_box.left(), block_box.bottom(),
+  auto* block = new BLOCK("", true, 0, 0, block_box.left(), block_box.bottom(),
                            block_box.right(), block_box.top());
   block->pdblk.set_poly_block(new POLY_BLOCK(block_box, type));
   return MoveBlobsToBlock(true, line_spacing, block, block_parts, used_parts);
@@ -1739,7 +1739,7 @@ TO_ROW* ColPartition::MakeToRow() {
 // Returns a copy of everything except the list of boxes. The resulting
 // ColPartition is only suitable for keeping in a column candidate list.
 ColPartition* ColPartition::ShallowCopy() const {
-  ColPartition* part = new ColPartition(blob_type_, vertical_);
+  auto* part = new ColPartition(blob_type_, vertical_);
   part->left_margin_ = left_margin_;
   part->right_margin_ = right_margin_;
   part->bounding_box_ = bounding_box_;

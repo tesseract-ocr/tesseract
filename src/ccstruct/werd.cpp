@@ -293,7 +293,7 @@ void WERD::plot(ScrollView* window, ScrollView::Color colour) {
 
 // Get the next color in the (looping) rainbow.
 ScrollView::Color WERD::NextColor(ScrollView::Color colour) {
-  ScrollView::Color next = static_cast<ScrollView::Color>(colour + 1);
+  auto next = static_cast<ScrollView::Color>(colour + 1);
   if (next >= LAST_COLOUR || next < FIRST_COLOUR) next = FIRST_COLOUR;
   return next;
 }
@@ -498,7 +498,7 @@ void WERD::CleanNoise(float size_threshold) {
       if (ol_size < size_threshold) {
         // This outline is too small. Move it to a separate blob in the
         // reject blobs list.
-        C_BLOB* rej_blob = new C_BLOB(ol_it.extract());
+        auto* rej_blob = new C_BLOB(ol_it.extract());
         rej_it.add_after_then_move(rej_blob);
       }
     }

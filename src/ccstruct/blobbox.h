@@ -157,7 +157,7 @@ class BLOBNBOX:public ELIST_LINK
       if (owns_cblob_) delete cblob_ptr;
     }
     static BLOBNBOX* RealBlob(C_OUTLINE* outline) {
-      C_BLOB* blob = new C_BLOB(outline);
+      auto* blob = new C_BLOB(outline);
       return new BLOBNBOX(blob);
     }
 

@@ -1511,7 +1511,7 @@ void EquationDetect::PrintSpecialBlobsDensity(const ColPartition* part) const {
   box.print();
   tprintf("blobs count = %d, density = ", part->boxes_count());
   for (int i = 0; i < BSTT_COUNT; ++i) {
-    BlobSpecialTextType type = static_cast<BlobSpecialTextType>(i);
+    auto type = static_cast<BlobSpecialTextType>(i);
     tprintf("%d:%f ", i, part->SpecialBlobsDensity(type));
   }
   tprintf("\n");

@@ -131,7 +131,7 @@ void IntGrid::Rotate(const FCOORD& rotation) {
 // For ease of implementation, edge cells are double counted, to make them
 // have the same range as the non-edge cells.
 IntGrid* IntGrid::NeighbourhoodSum() const {
-  IntGrid* sumgrid = new IntGrid(gridsize(), bleft(), tright());
+  auto* sumgrid = new IntGrid(gridsize(), bleft(), tright());
   for (int y = 0; y < gridheight(); ++y) {
     for (int x = 0; x < gridwidth(); ++x) {
       int cell_count = 0;

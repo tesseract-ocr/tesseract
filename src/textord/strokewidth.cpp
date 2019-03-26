@@ -857,7 +857,7 @@ void StrokeWidth::SetNeighbours(bool leaders, bool activate_line_trap,
                                 BLOBNBOX* blob) {
   int line_trap_count = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     line_trap_count += FindGoodNeighbour(bnd, leaders, blob);
   }
   if (line_trap_count > 0 && activate_line_trap) {
@@ -1037,7 +1037,7 @@ int StrokeWidth::FindGoodNeighbour(BlobNeighbourDir dir, bool leaders,
 static void ListNeighbours(const BLOBNBOX* blob,
                            BLOBNBOX_CLIST* neighbours) {
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* neighbour = blob->neighbour(bnd);
     if (neighbour != nullptr) {
       neighbours->add_sorted(SortByBoxLeft<BLOBNBOX>, true, neighbour);
@@ -1050,7 +1050,7 @@ static void List2ndNeighbours(const BLOBNBOX* blob,
                               BLOBNBOX_CLIST* neighbours) {
   ListNeighbours(blob, neighbours);
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* neighbour = blob->neighbour(bnd);
     if (neighbour != nullptr) {
       ListNeighbours(neighbour, neighbours);
@@ -1063,7 +1063,7 @@ static void List3rdNeighbours(const BLOBNBOX* blob,
                               BLOBNBOX_CLIST* neighbours) {
   List2ndNeighbours(blob, neighbours);
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* neighbour = blob->neighbour(bnd);
     if (neighbour != nullptr) {
       List2ndNeighbours(neighbour, neighbours);

@@ -90,20 +90,20 @@ bool ParamUtils::SetParam(const char *name, const char* value,
                           SetParamConstraint constraint,
                           ParamsVectors *member_params) {
   // Look for the parameter among string parameters.
-  StringParam *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
+  auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
   if (sp != nullptr && sp->constraint_ok(constraint)) sp->set_value(value);
   if (*value == '\0') return (sp != nullptr);
 
   // Look for the parameter among int parameters.
   int intval;
-  IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
+  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
   if (ip && ip->constraint_ok(constraint) && sscanf(value, "%d", &intval) == 1)
     ip->set_value(intval);
 
   // Look for the parameter among bool parameters.
-  BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
+  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
   if (bp != nullptr && bp->constraint_ok(constraint)) {
     if (*value == 'T' || *value == 't' ||
@@ -117,7 +117,7 @@ bool ParamUtils::SetParam(const char *name, const char* value,
 
   // Look for the parameter among double parameters.
   double doubleval;
-  DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
+  auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
   if (dp != nullptr && dp->constraint_ok(constraint)) {
 #ifdef EMBEDDED
@@ -134,14 +134,14 @@ bool ParamUtils::GetParamAsString(const char *name,
                                   const ParamsVectors* member_params,
                                   STRING *value) {
   // Look for the parameter among string parameters.
-  StringParam *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
+  auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
   if (sp) {
     *value = sp->string();
     return true;
   }
   // Look for the parameter among int parameters.
-  IntParam *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
+  auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
   if (ip) {
     char buf[128];
@@ -150,14 +150,14 @@ bool ParamUtils::GetParamAsString(const char *name,
     return true;
   }
   // Look for the parameter among bool parameters.
-  BoolParam *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
+  auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
   if (bp != nullptr) {
     *value = BOOL8(*bp) ? "1": "0";
     return true;
   }
   // Look for the parameter among double parameters.
-  DoubleParam *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
+  auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
   if (dp != nullptr) {
     char buf[128];
