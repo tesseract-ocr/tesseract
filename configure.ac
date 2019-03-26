@@ -117,22 +117,22 @@ AM_CONDITIONAL([AVX2_OPT], false)
 AM_CONDITIONAL([SSE41_OPT], false)
 AM_CONDITIONAL([MARCH_NATIVE_OPT], false)
 
-AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false])
+AX_CHECK_COMPILE_FLAG([-mavx], [avx=true], [avx=false], [-Werror])
 if $avx; then
     AM_CONDITIONAL([AVX_OPT], true)
 fi
 
-AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false])
+AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false], [-Werror])
 if $avx2; then
     AM_CONDITIONAL([AVX2_OPT], true)
 fi
 
-AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false])
+AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false], [-Werror])
 if $sse41; then
     AM_CONDITIONAL([SSE41_OPT], true)
 fi
 
-AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false])
+AX_CHECK_COMPILE_FLAG([-march=native], [arch_native=true], [arch_native=false], [-Werror])
 if $arch_native; then
     AM_CONDITIONAL([MARCH_NATIVE_OPT], true)
 fi
@@ -337,12 +337,12 @@ dnl **********************
 
 CPLUSPLUS=
 
-AX_CHECK_COMPILE_FLAG([-std=c++11], [cplusplus11=true], [cplusplus11=false])
+AX_CHECK_COMPILE_FLAG([-std=c++11], [cplusplus11=true], [cplusplus11=false], [-Werror])
 if $cplusplus11; then
   CPLUSPLUS=11
 fi
 
-AX_CHECK_COMPILE_FLAG([-std=c++14], [cplusplus14=true], [cplusplus14=false])
+AX_CHECK_COMPILE_FLAG([-std=c++14], [cplusplus14=true], [cplusplus14=false], [-Werror])
 if $cplusplus14; then
   CPLUSPLUS=14
 fi
