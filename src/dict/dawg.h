@@ -88,10 +88,10 @@ enum DawgType {
 #define REFFORMAT "%" PRId64
 
 static const bool kDawgSuccessors[DAWG_TYPE_COUNT][DAWG_TYPE_COUNT] = {
-  { 0, 1, 1, 0 },  // for DAWG_TYPE_PUNCTUATION
-  { 1, 0, 0, 0 },  // for DAWG_TYPE_WORD
-  { 1, 0, 0, 0 },  // for DAWG_TYPE_NUMBER
-  { 0, 0, 0, 0 },  // for DAWG_TYPE_PATTERN
+  { false, true, true, false },  // for DAWG_TYPE_PUNCTUATION
+  { true, false, false, false },  // for DAWG_TYPE_WORD
+  { true, false, false, false },  // for DAWG_TYPE_NUMBER
+  { false, false, false, false },  // for DAWG_TYPE_PATTERN
 };
 
 static const char kWildcard[] = "*";

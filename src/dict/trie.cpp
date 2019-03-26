@@ -514,7 +514,7 @@ SquishedDawg *Trie::trie_to_dawg() {
     print_all("Before reduction:", MAX_NODE_EDGES_DISPLAY);
   }
   auto reduced_nodes = new bool[nodes_.size()];
-  for (int i = 0; i < nodes_.size(); i++) reduced_nodes[i] = 0;
+  for (int i = 0; i < nodes_.size(); i++) reduced_nodes[i] = false;
   this->reduce_node_input(0, reduced_nodes);
   delete[] reduced_nodes;
 
@@ -634,7 +634,7 @@ bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index,
           end_of_word_from_edge_rec(edge_rec) &&
           can_be_eliminated(next_edge_rec) &&
           eliminate_redundant_edges(node, edge_rec, next_edge_rec)) {
-        reduced_nodes[next_node_from_edge_rec(edge_rec)] = 0;
+        reduced_nodes[next_node_from_edge_rec(edge_rec)] = false;
         did_something = true;
         KillEdge(&(*backward_edges)[j]);
       }

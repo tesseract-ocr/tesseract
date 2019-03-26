@@ -94,7 +94,7 @@ void* ScrollView::MessageReceiver(void* a) {
 // This is the main loop which iterates until the server is dead (strlen = -1).
 // It basically parses for 3 different messagetypes and then distributes the
 // events accordingly.
-  while (1) {
+  while (true) {
     // The new event we create.
     auto* cur = new SVEvent;
     // The ID of the corresponding window.
