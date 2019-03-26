@@ -300,7 +300,7 @@ int os_detect_blobs(const GenericVector<int>* allowed_scripts,
     return 0;
   }
 
-  BLOBNBOX** blobs = new BLOBNBOX*[filtered_it.length()];
+  auto** blobs = new BLOBNBOX*[filtered_it.length()];
   int number_of_blobs = 0;
   for (filtered_it.mark_cycle_pt (); !filtered_it.cycled_list ();
        filtered_it.forward ()) {

@@ -176,7 +176,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
       // best_choice consisting from only the original letters will
       // have a rating of 0.0.
       for (i = 0; i < best_choice->length(); ++i) {
-        BLOB_CHOICE_LIST *lst = new BLOB_CHOICE_LIST();
+        auto *lst = new BLOB_CHOICE_LIST();
         BLOB_CHOICE_IT lst_it(lst);
         // TODO(rays/antonova) Put real xheights and y shifts here.
         lst_it.add_to_end(new BLOB_CHOICE(best_choice->unichar_id(i),

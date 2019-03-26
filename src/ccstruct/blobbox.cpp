@@ -226,7 +226,7 @@ void BLOBNBOX::CleanNeighbours() {
 int BLOBNBOX::GoodTextBlob() const {
   int score = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     if (good_stroke_neighbour(bnd))
       ++score;
   }
@@ -237,7 +237,7 @@ int BLOBNBOX::GoodTextBlob() const {
 int BLOBNBOX::NoisyNeighbours() const {
   int count = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* blob = neighbour(bnd);
     if (blob != nullptr && blob->region_type() == BRT_NOISE)
       ++count;

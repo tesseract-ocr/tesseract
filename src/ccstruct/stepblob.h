@@ -117,7 +117,7 @@ class C_BLOB:public ELIST_LINK
     }
 
     static C_BLOB* deep_copy(const C_BLOB* src) {
-      C_BLOB* blob = new C_BLOB;
+      auto* blob = new C_BLOB;
       *blob = *src;
       return blob;
     }

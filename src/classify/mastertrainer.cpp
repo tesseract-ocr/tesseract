@@ -145,7 +145,7 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
       continue;
     }
     CHAR_DESC char_desc = ReadCharDescription(feature_defs, fp);
-    TrainingSample* sample = new TrainingSample;
+    auto* sample = new TrainingSample;
     sample->set_font_id(font_id);
     sample->set_page_num(page_number + page_images_.size());
     sample->set_bounding_box(bounding_box);
@@ -570,7 +570,7 @@ void MasterTrainer::WriteInttempAndPFFMTable(const UNICHARSET& unicharset,
                                              CLASS_STRUCT* float_classes,
                                              const char* inttemp_file,
                                              const char* pffmtable_file) {
-  tesseract::Classify *classify = new tesseract::Classify();
+  auto *classify = new tesseract::Classify();
   // Move the fontinfo table to classify.
   fontinfo_table_.MoveTo(&classify->get_fontinfo_table());
   INT_TEMPLATES int_templates = classify->CreateIntTemplates(float_classes,
@@ -908,7 +908,7 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
                                   float max_dist, ShapeTable* shapes) {
   int num_shapes = shapes->NumShapes();
   int max_merges = num_shapes - min_shapes;
-  GenericVector<ShapeDist>* shape_dists =
+  auto* shape_dists =
       new GenericVector<ShapeDist>[num_shapes];
   float min_dist = kInfiniteDist;
   int min_s1 = 0;

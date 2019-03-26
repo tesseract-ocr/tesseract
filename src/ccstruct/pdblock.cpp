@@ -141,7 +141,7 @@ Pix* PDBLK::render_mask(const FCOORD& rerotation, TBOX* mask_box) {
     image_block.rotate(rerotation);
     // Block outline is a polygon, so use a PB_LINE_IT to get the
     // rasterized interior. (Runs of interior pixels on a line.)
-    PB_LINE_IT *lines = new PB_LINE_IT(&image_block);
+    auto *lines = new PB_LINE_IT(&image_block);
     for (int y = box.bottom(); y < box.top(); ++y) {
       const std::unique_ptr</*non-const*/ ICOORDELT_LIST> segments(
           lines->get_line(y));

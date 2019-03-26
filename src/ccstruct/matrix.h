@@ -607,7 +607,7 @@ class MATRIX : public BandTriMatrix<BLOB_CHOICE_LIST *> {
 
 struct MATRIX_COORD {
   static void Delete(void *arg) {
-    MATRIX_COORD *c = static_cast<MATRIX_COORD *>(arg);
+    auto *c = static_cast<MATRIX_COORD *>(arg);
     delete c;
   }
   // Default constructor required by GenericHeap.

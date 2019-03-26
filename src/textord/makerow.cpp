@@ -147,7 +147,7 @@ static float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob,
     blob = new C_BLOB(C_OUTLINE::deep_copy(ol_it.data()));
     // Correct direction as needed.
     blob->CheckInverseFlagAndDirection();
-    BLOBNBOX* bbox = new BLOBNBOX(blob);
+    auto* bbox = new BLOBNBOX(blob);
     bb_it.add_after_then_move(bbox);
   }
   // Now we can make a row from the blobs.
@@ -179,7 +179,7 @@ float make_single_row(ICOORD page_tr, bool allow_sub_blobs,
     // Make a fake blob.
     C_BLOB* blob = C_BLOB::FakeBlob(block->block->pdblk.bounding_box());
     // The blobnbox owns the blob.
-    BLOBNBOX* bblob = new BLOBNBOX(blob);
+    auto* bblob = new BLOBNBOX(blob);
     blob_it.add_after_then_move(bblob);
   }
   MakeRowFromBlobs(block->line_size, &blob_it, &row_it);
@@ -1578,9 +1578,9 @@ int32_t compute_row_descdrop(TO_ROW *row, float gradient,
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  int32_t min_height =
+  auto min_height =
     static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  int32_t max_height =
+  auto max_height =
     static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
   float xcentre;                 // centre of blob
   float height;                  // height of blob
@@ -2061,7 +2061,7 @@ void make_baseline_spline(TO_ROW *row,     //row to fit
   int32_t segments;              // no of segments
 
   // spline boundaries
-  int32_t *xstarts = new int32_t[row->blob_list()->length() + 1];
+  auto *xstarts = new int32_t[row->blob_list()->length() + 1];
   if (segment_baseline(row, block, segments, xstarts)
   && !textord_straight_baselines && !textord_parallel_baselines) {
     coeffs = linear_spline_baseline(row, block, segments, xstarts);
@@ -2217,7 +2217,7 @@ int32_t xstarts[]                //coords of segments
     segments = 1;
   blobs_per_segment = blobcount / segments;
   // quadratic coeffs
-  double *coeffs = new double[segments * 3];
+  auto *coeffs = new double[segments * 3];
   if (textord_oldbl_debug)
     tprintf
       ("Linear splining baseline of %d blobs at (%d,%d), into %d segments of %d blobs\n",

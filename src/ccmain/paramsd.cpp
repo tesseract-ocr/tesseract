@@ -190,7 +190,7 @@ int ParamContent::Compare(const void* v1, const void* v2) {
 // SVMenuNode tree from it.
 // TODO (wanke): This is actually sort of hackish.
 SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
-  SVMenuNode* mr = new SVMenuNode();
+  auto* mr = new SVMenuNode();
   ParamContent_LIST vclist;
   ParamContent_IT vc_it(&vclist);
   // Amount counts the number of entries for a specific char*.
@@ -341,7 +341,7 @@ void ParamsEditor::WriteParams(char *filename,
     return;
   }
 
-  for (std::map<int, ParamContent*>::iterator iter = vcMap.begin();
+  for (auto iter = vcMap.begin();
                                           iter != vcMap.end();
                                           ++iter) {
     ParamContent* cur = iter->second;

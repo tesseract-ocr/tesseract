@@ -789,7 +789,7 @@ void WERD_CHOICE::DisplaySegmentation(TWERD* word) {
   TBOX bbox;
   int blob_index = 0;
   for (int c = 0; c < length_; ++c) {
-    ScrollView::Color color =
+    auto color =
         static_cast<ScrollView::Color>(c % kNumColors + 3);
     for (int i = 0; i < state_[c]; ++i, ++blob_index) {
       TBLOB* blob = word->blobs[blob_index];

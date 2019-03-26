@@ -174,7 +174,7 @@ bool read_spacing_info(TFile* f, FontInfo* fi) {
   if (vec_size == 0) return true;
   fi->init_spacing(vec_size);
   for (int i = 0; i < vec_size; ++i) {
-    FontSpacingInfo *fs = new FontSpacingInfo();
+    auto *fs = new FontSpacingInfo();
     if (!f->DeSerialize(&fs->x_gap_before) ||
         !f->DeSerialize(&fs->x_gap_after) ||
         !f->DeSerialize(&kern_size)) {

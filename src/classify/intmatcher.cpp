@@ -519,7 +519,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            int AdaptFeatureThreshold,
                            int Debug,
                            bool SeparateDebugWindows) {
-  ScratchEvidence *tables = new ScratchEvidence();
+  auto *tables = new ScratchEvidence();
   int Feature;
 
   if (MatchDebuggingOn (Debug))
@@ -597,7 +597,7 @@ int IntegerMatcher::FindGoodProtos(
     PROTO_ID *ProtoArray,
     int AdaptProtoThreshold,
     int Debug) {
-  ScratchEvidence *tables = new ScratchEvidence();
+  auto *tables = new ScratchEvidence();
   int NumGoodProtos = 0;
 
   /* DEBUG opening heading */
@@ -665,7 +665,7 @@ int IntegerMatcher::FindBadFeatures(
     FEATURE_ID *FeatureArray,
     int AdaptFeatureThreshold,
     int Debug) {
-  ScratchEvidence *tables = new ScratchEvidence();
+  auto *tables = new ScratchEvidence();
   int NumBadFeatures = 0;
 
   /* DEBUG opening heading */
@@ -1096,7 +1096,7 @@ void IntegerMatcher::DisplayFeatureDebugInfo(
     int AdaptFeatureThreshold,
     int Debug,
     bool SeparateDebugWindows) {
-  ScratchEvidence *tables = new ScratchEvidence();
+  auto *tables = new ScratchEvidence();
 
   tables->Clear(ClassTemplate);
 

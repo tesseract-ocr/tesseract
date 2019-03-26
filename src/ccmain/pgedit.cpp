@@ -168,7 +168,7 @@ ScrollView* bln_word_window_handle() {  // return handle
     bln_word_window = new ScrollView(editor_word_name.string(),
       editor_word_xpos, editor_word_ypos, editor_word_width,
       editor_word_height, 4000, 4000, true);
-    BlnEventHandler* a = new BlnEventHandler();
+    auto* a = new BlnEventHandler();
     bln_word_window->AddEventHandler(a);
     pgeditor_msg("Creating BLN word window...Done");
   }
@@ -245,7 +245,7 @@ void PGEventHandler::Notify(const SVEvent* event) {
 namespace tesseract {
 SVMenuNode *Tesseract::build_menu_new() {
   SVMenuNode* parent_menu;
-  SVMenuNode* root_menu_item = new SVMenuNode();
+  auto* root_menu_item = new SVMenuNode();
 
   SVMenuNode* modes_menu_item = root_menu_item->AddChild("MODES");
 
@@ -827,7 +827,7 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
      (ScrollView::Color)((int32_t)
       editor_image_word_bb_color));
 
-    ScrollView::Color c = (ScrollView::Color)
+    auto c = (ScrollView::Color)
        ((int32_t) editor_image_blob_bb_color);
     image_win->Pen(c);
     // cblob iterator

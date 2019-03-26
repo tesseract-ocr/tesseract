@@ -59,7 +59,7 @@ static std::map<std::pair<ScrollView*, SVEventType>,
 static SVMutex* waiting_for_events_mu;
 
 SVEvent* SVEvent::copy() {
-  SVEvent* any = new SVEvent;
+  auto* any = new SVEvent;
   any->command_id = command_id;
   any->counter = counter;
   any->parameter = new char[strlen(parameter) + 1];
@@ -96,7 +96,7 @@ void* ScrollView::MessageReceiver(void* a) {
 // events accordingly.
   while (1) {
     // The new event we create.
-    SVEvent* cur = new SVEvent;
+    auto* cur = new SVEvent;
     // The ID of the corresponding window.
     int window_id;
 
@@ -320,7 +320,7 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
 
 /// Sits and waits for events on this window.
 void* ScrollView::StartEventHandler(void* a) {
-  ScrollView* sv = static_cast<ScrollView*>(a);
+  auto* sv = static_cast<ScrollView*>(a);
   SVEvent* new_event;
 
   do {
@@ -444,7 +444,7 @@ void ScrollView::SetEvent(SVEvent* svevent) {
 /// SVEvent afterwards!
 SVEvent* ScrollView::AwaitEvent(SVEventType type) {
   // Initialize the waiting semaphore.
-  SVSemaphore* sem = new SVSemaphore();
+  auto* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea(this, type);
   waiting_for_events_mu->Lock();
   waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
@@ -465,7 +465,7 @@ SVEvent* ScrollView::AwaitEvent(SVEventType type) {
 // No event is returned here!
 SVEvent* ScrollView::AwaitEventAnyWindow() {
   // Initialize the waiting semaphore.
-  SVSemaphore* sem = new SVSemaphore();
+  auto* sem = new SVSemaphore();
   std::pair<ScrollView*, SVEventType> ea((ScrollView*)nullptr, SVET_ANY);
   waiting_for_events_mu->Lock();
   waiting_for_events[ea] = std::pair<SVSemaphore*, SVEvent*> (sem, (SVEvent*)nullptr);
@@ -710,7 +710,7 @@ void ScrollView::UpdateWindow() {
 // Note: this is an update to all windows
 void ScrollView::Update() {
   svmap_mu->Lock();
-  for (std::map<int, ScrollView*>::iterator iter = svmap.begin();
+  for (auto iter = svmap.begin();
       iter != svmap.end(); ++iter) {
     if (iter->second != nullptr)
       iter->second->UpdateWindow();

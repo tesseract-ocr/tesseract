@@ -191,7 +191,7 @@ namespace tesseract {
  */
 void Classify::AdaptiveClassifier(TBLOB *Blob, BLOB_CHOICE_LIST *Choices) {
   assert(Choices != nullptr);
-  ADAPT_RESULTS *Results = new ADAPT_RESULTS;
+  auto *Results = new ADAPT_RESULTS;
   Results->Initialize();
 
   ASSERT_HOST(AdaptedTemplates != nullptr);
@@ -1055,7 +1055,7 @@ void Classify::AmbigClassifier(
     UNICHAR_ID *ambiguities,
     ADAPT_RESULTS *results) {
   if (int_features.empty()) return;
-  uint8_t* CharNormArray = new uint8_t[unicharset.size()];
+  auto* CharNormArray = new uint8_t[unicharset.size()];
   UnicharRating int_result;
 
   results->BlobLength = GetCharNormFeature(fx_info, templates, nullptr,
@@ -1271,7 +1271,7 @@ UNICHAR_ID *Classify::BaselineClassifier(
     const INT_FX_RESULT_STRUCT& fx_info,
     ADAPT_TEMPLATES Templates, ADAPT_RESULTS *Results) {
   if (int_features.empty()) return nullptr;
-  uint8_t* CharNormArray = new uint8_t[unicharset.size()];
+  auto* CharNormArray = new uint8_t[unicharset.size()];
   ClearCharNormArray(CharNormArray);
 
   Results->BlobLength = IntCastRounded(fx_info.Length / kStandardFeatureLength);
@@ -1335,7 +1335,7 @@ int Classify::CharNormTrainingSample(bool pruner_only,
                                      const TrainingSample& sample,
                                      GenericVector<UnicharRating>* results) {
   results->clear();
-  ADAPT_RESULTS* adapt_results = new ADAPT_RESULTS();
+  auto* adapt_results = new ADAPT_RESULTS();
   adapt_results->Initialize();
   // Compute the bounding box of the features.
   uint32_t num_features = sample.num_features();
@@ -1345,10 +1345,10 @@ int Classify::CharNormTrainingSample(bool pruner_only,
                 sample.geo_feature(GeoTop), sample.geo_feature(GeoTop));
   // Compute the char_norm_array from the saved cn_feature.
   FEATURE norm_feature = sample.GetCNFeature();
-  uint8_t* char_norm_array = new uint8_t[unicharset.size()];
+  auto* char_norm_array = new uint8_t[unicharset.size()];
   int num_pruner_classes = std::max(unicharset.size(),
                                PreTrainedTemplates->NumClasses);
-  uint8_t* pruner_norm_array = new uint8_t[num_pruner_classes];
+  auto* pruner_norm_array = new uint8_t[num_pruner_classes];
   adapt_results->BlobLength =
       static_cast<int>(ActualOutlineLength(norm_feature) * 20 + 0.5);
   ComputeCharNormArrays(norm_feature, PreTrainedTemplates, char_norm_array,
@@ -1473,7 +1473,7 @@ void Classify::ConvertMatchesToChoices(const DENORM& denorm, const TBOX& box,
     float min_xheight, max_xheight, yshift;
     denorm.XHeightRange(result.unichar_id, unicharset, box,
                         &min_xheight, &max_xheight, &yshift);
-    BLOB_CHOICE* choice =
+    auto* choice =
         new BLOB_CHOICE(result.unichar_id, Rating, Certainty,
                         unicharset.get_script(result.unichar_id),
                         min_xheight, max_xheight, yshift,
@@ -1595,7 +1595,7 @@ void Classify::DoAdaptiveMatch(TBLOB *Blob, ADAPT_RESULTS *Results) {
  */
 UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
                                      CLASS_ID CorrectClass) {
-  ADAPT_RESULTS *Results = new ADAPT_RESULTS();
+  auto *Results = new ADAPT_RESULTS();
   UNICHAR_ID *Ambiguities;
   int i;
 
@@ -1635,7 +1635,7 @@ UNICHAR_ID *Classify::GetAmbiguities(TBLOB *Blob,
 // Returns true if the given blob looks too dissimilar to any character
 // present in the classifier templates.
 bool Classify::LooksLikeGarbage(TBLOB *blob) {
-  BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();
+  auto *ratings = new BLOB_CHOICE_LIST();
   AdaptiveClassifier(blob, ratings);
   BLOB_CHOICE_IT ratings_it(ratings);
   const UNICHARSET &unicharset = getDict().getUnicharset();
@@ -1940,7 +1940,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  PERM_CONFIG Perm = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
+  auto Perm = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 

@@ -561,7 +561,7 @@ bool BBGrid<BBC, BBC_CLIST, BBC_C_IT>::RectangleEmpty(const TBOX& rect) {
 // Returned IntGrid must be deleted after use.
 template<class BBC, class BBC_CLIST, class BBC_C_IT>
 IntGrid* BBGrid<BBC, BBC_CLIST, BBC_C_IT>::CountCellElements() {
-  IntGrid* intgrid = new IntGrid(gridsize(), bleft(), tright());
+  auto* intgrid = new IntGrid(gridsize(), bleft(), tright());
   for (int y = 0; y < gridheight(); ++y) {
     for (int x = 0; x < gridwidth(); ++x) {
       int cell_count = grid_[y * gridwidth() + x].length();
@@ -598,7 +598,7 @@ ScrollView* BBGrid<BBC, BBC_CLIST, BBC_C_IT>::MakeWindow(
                            tright_.x() - bleft_.x(),
                            tright_.y() - bleft_.y(),
                            true);
-  TabEventHandler<BBGrid<BBC, BBC_CLIST, BBC_C_IT> >* handler =
+  auto* handler =
     new TabEventHandler<BBGrid<BBC, BBC_CLIST, BBC_C_IT> >(this);
   tab_win->AddEventHandler(handler);
   tab_win->Pen(ScrollView::GREY);

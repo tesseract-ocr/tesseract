@@ -332,7 +332,7 @@ void LineFinder::ConvertBoxaToBlobs(int image_width, int image_height,
     ICOORD bot_right(x + width, y + height);
     CRACKEDGE startpt;
     startpt.pos = top_left;
-    C_OUTLINE* outline = new C_OUTLINE(&startpt, top_left, bot_right, 0);
+    auto* outline = new C_OUTLINE(&startpt, top_left, bot_right, 0);
     ol_it.add_after_then_move(outline);
   }
   // Use outlines_to_blobs to convert the outlines to blobs and find
@@ -738,7 +738,7 @@ void LineFinder::GetLineBoxes(bool horizontal_lines,
   BLOBNBOX_IT bbox_it(line_bblobs);
   for (blob_it.mark_cycle_pt(); !blob_it.cycled_list(); blob_it.forward()) {
     C_BLOB* cblob = blob_it.data();
-    BLOBNBOX* bblob = new BLOBNBOX(cblob);
+    auto* bblob = new BLOBNBOX(cblob);
     bbox_it.add_to_end(bblob);
     // Determine whether the line segment touches two intersections.
     const TBOX& bbox = bblob->bounding_box();

@@ -113,8 +113,8 @@ void FloatWordFeature::FromWordFeatures(
 // Sort function to sort first by x-bucket, then by y.
 /* static */
 int FloatWordFeature::SortByXBucket(const void* v1, const void* v2) {
-  const FloatWordFeature* f1 = static_cast<const FloatWordFeature*>(v1);
-  const FloatWordFeature* f2 = static_cast<const FloatWordFeature*>(v2);
+  const auto* f1 = static_cast<const FloatWordFeature*>(v1);
+  const auto* f2 = static_cast<const FloatWordFeature*>(v2);
   int x_diff = f1->x_bucket - f2->x_bucket;
   if (x_diff == 0) return f1->y - f2->y;
   return x_diff;
@@ -135,7 +135,7 @@ ImageData::~ImageData() {
 ImageData* ImageData::Build(const char* name, int page_number, const char* lang,
                             const char* imagedata, int imagedatasize,
                             const char* truth_text, const char* box_text) {
-  ImageData* image_data = new ImageData();
+  auto* image_data = new ImageData();
   image_data->imagefilename_ = name;
   image_data->page_number_ = page_number;
   image_data->language_ = lang;
@@ -280,7 +280,7 @@ void ImageData::Display() const {
   if (pix == nullptr) return;
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  ScrollView* win = new ScrollView("Imagedata", 100, 100,
+  auto* win = new ScrollView("Imagedata", 100, 100,
                                    2 * (width + 2 * kTextSize),
                                    2 * (height + 4 * kTextSize),
                                    width + 10, height + 3 * kTextSize, true);
@@ -338,7 +338,7 @@ Pix* ImageData::GetPixInternal(const GenericVector<char>& image_data) {
   Pix* pix = nullptr;
   if (!image_data.empty()) {
     // Convert the array to an image.
-    const unsigned char* u_data =
+    const auto* u_data =
         reinterpret_cast<const unsigned char*>(&image_data[0]);
     pix = pixReadMem(u_data, image_data.size());
   }
@@ -367,7 +367,7 @@ bool ImageData::AddBoxes(const char* box_text) {
 
 // Thread function to call ReCachePages.
 void* ReCachePagesFunc(void* data) {
-  DocumentData* document_data = static_cast<DocumentData*>(data);
+  auto* document_data = static_cast<DocumentData*>(data);
   document_data->ReCachePages();
   return nullptr;
 }
@@ -581,7 +581,7 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
     fair_share_memory = max_memory_ / filenames.size();
   for (int arg = 0; arg < filenames.size(); ++arg) {
     STRING filename = filenames[arg];
-    DocumentData* document = new DocumentData(filename);
+    auto* document = new DocumentData(filename);
     document->SetDocument(filename.string(), fair_share_memory, reader);
     AddToCache(document);
   }

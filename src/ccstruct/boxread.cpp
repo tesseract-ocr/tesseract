@@ -141,7 +141,7 @@ bool ReadNextBox(int target_page, int *line_number, FILE* box_file,
     (*line_number)++;
 
     buffptr = buff;
-    const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+    const auto *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
     if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
       buffptr += 3;  // Skip unicode file designation.
     // Check for blank lines in box file
@@ -182,7 +182,7 @@ bool ParseBoxFileStr(const char* boxfile_str, int* page_number,
   // ascii space and tab.
   int uch_len = 0;
   // Skip unicode file designation, if present.
-  const unsigned char *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
+  const auto *ubuf = reinterpret_cast<const unsigned char*>(buffptr);
   if (ubuf[0] == 0xef && ubuf[1] == 0xbb && ubuf[2] == 0xbf)
       buffptr += 3;
   // Allow a single blank as the UTF-8 string. Check for empty string and

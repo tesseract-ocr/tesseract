@@ -1229,7 +1229,7 @@ const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
     if ((*models_)[i]->Comparable(model))
       return (*models_)[i];
   }
-  ParagraphModel *m = new ParagraphModel(model);
+  auto *m = new ParagraphModel(model);
   models_->push_back(m);
   models_we_added_.push_back_new(m);
   return m;

@@ -54,8 +54,8 @@ struct UnicharRating {
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
-    const UnicharRating* a = static_cast<const UnicharRating*>(t1);
-    const UnicharRating* b = static_cast<const UnicharRating*>(t2);
+    const auto* a = static_cast<const UnicharRating*>(t1);
+    const auto* b = static_cast<const UnicharRating*>(t2);
     if (a->rating > b->rating) {
       return -1;
     } else if (a->rating < b->rating) {
@@ -100,8 +100,8 @@ struct ShapeRating {
 
   // Sort function to sort ratings appropriately by descending rating.
   static int SortDescendingRating(const void* t1, const void* t2) {
-    const ShapeRating* a = static_cast<const ShapeRating*>(t1);
-    const ShapeRating* b = static_cast<const ShapeRating*>(t2);
+    const auto* a = static_cast<const ShapeRating*>(t1);
+    const auto* b = static_cast<const ShapeRating*>(t2);
     if (a->rating > b->rating) {
       return -1;
     } else if (a->rating < b->rating) {

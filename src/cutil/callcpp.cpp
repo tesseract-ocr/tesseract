@@ -63,7 +63,7 @@ void c_line_color_index(  /*set color */
                         void *win,
                         C_COL index) {
  // The colors are the same as the SV ones except that SV has COLOR:NONE --> offset of 1
- ScrollView* window = (ScrollView*) win;
+ auto* window = (ScrollView*) win;
  window->Pen((ScrollView::Color) (index + 1));
 }
 
@@ -72,7 +72,7 @@ void c_move(  /*move pen */
             void *win,
             double x,
             double y) {
-  ScrollView* window = (ScrollView*) win;
+  auto* window = (ScrollView*) win;
   window->SetCursor((int) x, (int) y);
 }
 
@@ -81,21 +81,21 @@ void c_draw(  /*move pen */
             void *win,
             double x,
             double y) {
-  ScrollView* window = (ScrollView*) win;
+  auto* window = (ScrollView*) win;
   window->DrawTo((int) x, (int) y);
 }
 
 
 void c_make_current(  /*move pen */
                     void *win) {
-  ScrollView* window = (ScrollView*) win;
+  auto* window = (ScrollView*) win;
   window->Update();
 }
 
 
 void c_clear_window(  /*move pen */
                     void *win) {
-  ScrollView* window = (ScrollView*) win;
+  auto* window = (ScrollView*) win;
   window->Clear();
 }
 

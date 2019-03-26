@@ -85,7 +85,7 @@ static inline void ExtractResults(__m256i& result, __m256i& shift_id,
                                   const int8_t*& wi, const double*& scales,
                                   int num_out, double*& v) {
   for (int out = 0; out < num_out; ++out) {
-    int32_t res =
+    auto res =
 #ifndef _MSC_VER
         _mm256_extract_epi32(result, 0)
 #else

@@ -791,7 +791,7 @@ void Textord::TransferDiacriticsToBlockGroups(BLOBNBOX_LIST* diacritic_blobs,
         WERD_IT w_it(row->word_list());
         for (w_it.mark_cycle_pt(); !w_it.cycled_list(); w_it.forward()) {
           WERD* word = w_it.data();
-          WordWithBox* box_word = new WordWithBox(word);
+          auto* box_word = new WordWithBox(word);
           word_grid.InsertBBox(true, true, box_word);
           // Save the pointer where it will be auto-deleted.
           word_ptrs.push_back(box_word);

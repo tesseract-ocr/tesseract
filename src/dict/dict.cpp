@@ -365,7 +365,7 @@ bool Dict::FinishLoad() {
   successors_.reserve(dawgs_.length());
   for (int i = 0; i < dawgs_.length(); ++i) {
     const Dawg* dawg = dawgs_[i];
-    SuccessorList* lst = new SuccessorList();
+    auto* lst = new SuccessorList();
     for (int j = 0; j < dawgs_.length(); ++j) {
       const Dawg* other = dawgs_[j];
       if (dawg != nullptr && other != nullptr &&
@@ -403,7 +403,7 @@ void Dict::End() {
 // See more extensive comments in dict.h where this function is declared.
 int Dict::def_letter_is_okay(void* void_dawg_args, const UNICHARSET& unicharset,
                              UNICHAR_ID unichar_id, bool word_end) const {
-  DawgArgs* dawg_args = static_cast<DawgArgs*>(void_dawg_args);
+  auto* dawg_args = static_cast<DawgArgs*>(void_dawg_args);
 
   ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
 
@@ -795,7 +795,7 @@ int Dict::valid_word(const WERD_CHOICE& word, bool numbers_ok) const {
   if (word_ptr->length() == 0) return NO_PERM;
   // Allocate vectors for holding current and updated
   // active_dawgs and initialize them.
-  DawgPositionVector* active_dawgs = new DawgPositionVector[2];
+  auto* active_dawgs = new DawgPositionVector[2];
   init_active_dawgs(&(active_dawgs[0]), false);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);
   int last_index = word_ptr->length() - 1;

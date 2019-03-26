@@ -227,7 +227,7 @@ void Tesseract::ambigs_classify_and_output(const char *label,
 
   // Dump all paths through the ratings matrix (which is normally small).
   int dim = werd_res->ratings->dimension();
-  const BLOB_CHOICE** blob_choices = new const BLOB_CHOICE*[dim];
+  const auto** blob_choices = new const BLOB_CHOICE*[dim];
   PrintMatrixPaths(0, dim, *werd_res->ratings, 0, blob_choices,
                    unicharset, label, output_file);
   delete [] blob_choices;

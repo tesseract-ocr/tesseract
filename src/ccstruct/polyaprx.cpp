@@ -84,7 +84,7 @@ TESSLINE* ApproximateOutline(bool allow_detailed_fx, C_OUTLINE* c_outline) {
   EDGEPT* result = nullptr;
   EDGEPT* prev_result = nullptr;
   do {
-    EDGEPT* new_pt = new EDGEPT;
+    auto* new_pt = new EDGEPT;
     new_pt->pos = edgept->pos;
     new_pt->prev = prev_result;
     if (prev_result == nullptr) {

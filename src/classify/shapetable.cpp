@@ -77,8 +77,8 @@ bool UnicharAndFonts::DeSerialize(TFile* fp) {
 
 // Sort function to sort a pair of UnicharAndFonts by unichar_id.
 int UnicharAndFonts::SortByUnicharId(const void* v1, const void* v2) {
-  const UnicharAndFonts* p1 = static_cast<const UnicharAndFonts*>(v1);
-  const UnicharAndFonts* p2 = static_cast<const UnicharAndFonts*>(v2);
+  const auto* p1 = static_cast<const UnicharAndFonts*>(v1);
+  const auto* p2 = static_cast<const UnicharAndFonts*>(v2);
   return p1->unichar_id - p2->unichar_id;
 }
 
@@ -335,7 +335,7 @@ STRING ShapeTable::SummaryStr() const {
 // Returns the assigned index.
 int ShapeTable::AddShape(int unichar_id, int font_id) {
   int index = shape_table_.size();
-  Shape* shape = new Shape;
+  auto* shape = new Shape;
   shape->AddToShape(unichar_id, font_id);
   shape_table_.push_back(shape);
   num_fonts_ = std::max(num_fonts_, font_id + 1);
@@ -350,7 +350,7 @@ int ShapeTable::AddShape(const Shape& other) {
        !(other == *shape_table_[index]); ++index)
     continue;
   if (index == shape_table_.size()) {
-    Shape* shape = new Shape(other);
+    auto* shape = new Shape(other);
     shape_table_.push_back(shape);
   }
   num_fonts_ = 0;

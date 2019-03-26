@@ -168,7 +168,7 @@ class BLOB_CHOICE: public ELIST_LINK
       classifier_ = classifier;
     }
     static BLOB_CHOICE* deep_copy(const BLOB_CHOICE* src) {
-      BLOB_CHOICE* choice = new BLOB_CHOICE;
+      auto* choice = new BLOB_CHOICE;
       *choice = *src;
       return choice;
     }

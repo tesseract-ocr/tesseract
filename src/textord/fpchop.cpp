@@ -788,7 +788,7 @@ C_OUTLINE *C_OUTLINE_FRAG::close() {  //join pieces
   new_steps = new DIR128[new_stepcount];
   memmove(new_steps, steps, stepcount);
   memset (new_steps + stepcount, fake_step.get_dir(), fake_count);
-  C_OUTLINE* result = new C_OUTLINE (start, new_steps, new_stepcount);
+  auto* result = new C_OUTLINE (start, new_steps, new_stepcount);
   delete [] new_steps;
   return result;
 }

@@ -514,7 +514,7 @@ int STATS::top_n_modes(int max_modes,
         while (target_index < modes->size() &&
                (*modes)[target_index].data >= total_count)
           ++target_index;
-        float peak_mean =
+        auto peak_mean =
             static_cast<float>(total_value / total_count + rangemin_);
         modes->insert(KDPairInc<float, int>(peak_mean, total_count),
                       target_index);

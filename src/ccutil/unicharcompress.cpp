@@ -383,14 +383,14 @@ void UnicharCompress::SetupDecoder() {
     prefix.Truncate(len);
     auto final_it = final_codes_.find(prefix);
     if (final_it == final_codes_.end()) {
-      GenericVectorEqEq<int>* code_list = new GenericVectorEqEq<int>;
+      auto* code_list = new GenericVectorEqEq<int>;
       code_list->push_back(code(len));
       final_codes_[prefix] = code_list;
       while (--len >= 0) {
         prefix.Truncate(len);
         auto next_it = next_codes_.find(prefix);
         if (next_it == next_codes_.end()) {
-          GenericVectorEqEq<int>* code_list = new GenericVectorEqEq<int>;
+          auto* code_list = new GenericVectorEqEq<int>;
           code_list->push_back(code(len));
           next_codes_[prefix] = code_list;
         } else {

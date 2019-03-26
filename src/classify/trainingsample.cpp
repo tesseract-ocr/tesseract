@@ -76,7 +76,7 @@ bool TrainingSample::Serialize(FILE* fp) const {
 // Creates from the given file. Returns nullptr in case of error.
 // If swap is true, assumes a big/little-endian swap is needed.
 TrainingSample* TrainingSample::DeSerializeCreate(bool swap, FILE* fp) {
-  TrainingSample* sample = new TrainingSample;
+  auto* sample = new TrainingSample;
   if (sample->DeSerialize(swap, fp)) return sample;
   delete sample;
   return nullptr;
@@ -126,7 +126,7 @@ TrainingSample* TrainingSample::CopyFromFeatures(
     const TBOX& bounding_box,
     const INT_FEATURE_STRUCT* features,
     int num_features) {
-  TrainingSample* sample = new TrainingSample;
+  auto* sample = new TrainingSample;
   sample->num_features_ = num_features;
   sample->features_ = new INT_FEATURE_STRUCT[num_features];
   sample->outline_length_ = fx_info.Length;
@@ -179,7 +179,7 @@ TrainingSample* TrainingSample::RandomizedCopy(int index) const {
 
 // Constructs and returns an exact copy.
 TrainingSample* TrainingSample::Copy() const {
-  TrainingSample* sample = new TrainingSample;
+  auto* sample = new TrainingSample;
   sample->class_id_ = class_id_;
   sample->font_id_ = font_id_;
   sample->weight_ = weight_;

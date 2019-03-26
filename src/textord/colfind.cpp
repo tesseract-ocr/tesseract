@@ -358,7 +358,7 @@ int ColumnFinder::FindBlocks(PageSegMode pageseg_mode, Pix* scaled_color,
                      min_gutter_width_, tabfind_aligned_gap_fraction_,
                      &part_grid_, &deskew_, &reskew_);
       // Add the deskew to the denorm_.
-      DENORM* new_denorm = new DENORM;
+      auto* new_denorm = new DENORM;
       new_denorm->SetupNormalization(nullptr, &deskew_, denorm_,
                                      0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f);
       denorm_ = new_denorm;
@@ -1475,7 +1475,7 @@ void ColumnFinder::ReflectForRtl(TO_BLOCK* input_block, BLOBNBOX_LIST* bblobs) {
   ReflectBlobList(&input_block->noise_blobs);
   ReflectBlobList(&input_block->large_blobs);
   // Update the denorm with the reflection.
-  DENORM* new_denorm = new DENORM;
+  auto* new_denorm = new DENORM;
   new_denorm->SetupNormalization(nullptr, nullptr, denorm_,
                                  0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f);
   denorm_ = new_denorm;

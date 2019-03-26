@@ -66,7 +66,7 @@ class SVPaint : public SVEventHandler {
 
 // Build a sample popup menu.
 SVMenuNode* SVPaint::BuildPopupMenu() {
-  SVMenuNode* root = new SVMenuNode();  // Empty root node
+  auto* root = new SVMenuNode();  // Empty root node
   // Initial color is white, so we  all values to 255.
   root->AddChild("R",                   // Shown caption.
                   1,                    // assoc. command_id.
@@ -79,7 +79,7 @@ SVMenuNode* SVPaint::BuildPopupMenu() {
 
 // Build a sample menu bar.
 SVMenuNode* SVPaint::BuildMenuBar() {
-  SVMenuNode* root = new SVMenuNode();  // Empty root node
+  auto* root = new SVMenuNode();  // Empty root node
 
   // Create some submenus and add them to the root.
   SVMenuNode* click = root->AddChild("Clicking");

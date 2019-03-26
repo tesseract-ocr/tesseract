@@ -90,7 +90,7 @@ void LMConsistencyInfo::ComputeXheightConsistency(
 
   // Now check that the subscript and superscript aren't too small relative to
   // the mainline.
-  double mainline_xht = static_cast<double>(xht_lo[kNORM]);
+  auto mainline_xht = static_cast<double>(xht_lo[kNORM]);
   double kMinSizeRatio = 0.4;
   if (mainline_xht > 0.0 &&
       (static_cast<double>(xht_hi[kSUB]) / mainline_xht < kMinSizeRatio ||

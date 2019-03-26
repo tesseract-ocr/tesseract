@@ -46,7 +46,7 @@ void Dict::go_deeper_dawg_fxn(
     int char_choice_index, const CHAR_FRAGMENT_INFO *prev_char_frag_info,
     bool word_ending, WERD_CHOICE *word, float certainties[], float *limit,
     WERD_CHOICE *best_choice, int *attempts_left, void *void_more_args) {
-  DawgArgs *more_args = static_cast<DawgArgs *>(void_more_args);
+  auto *more_args = static_cast<DawgArgs *>(void_more_args);
   word_ending = (char_choice_index == char_choices.size()-1);
   int word_index = word->length() - 1;
   if (best_choice->rating() < *limit) return;
@@ -167,12 +167,12 @@ void Dict::go_deeper_dawg_fxn(
  */
 WERD_CHOICE *Dict::dawg_permute_and_select(
     const BLOB_CHOICE_LIST_VECTOR &char_choices, float rating_limit) {
-  WERD_CHOICE *best_choice = new WERD_CHOICE(&getUnicharset());
+  auto *best_choice = new WERD_CHOICE(&getUnicharset());
   best_choice->make_bad();
   best_choice->set_rating(rating_limit);
   if (char_choices.length() == 0 || char_choices.length() > MAX_WERD_LENGTH)
     return best_choice;
-  DawgPositionVector *active_dawgs =
+  auto *active_dawgs =
       new DawgPositionVector[char_choices.length() + 1];
   init_active_dawgs(&(active_dawgs[0]), true);
   DawgArgs dawg_args(&(active_dawgs[0]), &(active_dawgs[1]), NO_PERM);

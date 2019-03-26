@@ -280,12 +280,12 @@ void SPLIT::UnsplitOutlineList(TBLOB* blob) const {
   /* Modify edge points */
   UnsplitOutlines();
 
-  TESSLINE* outline1 = new TESSLINE;
+  auto* outline1 = new TESSLINE;
   outline1->next = blob->outlines;
   blob->outlines = outline1;
   outline1->loop = point1;
 
-  TESSLINE* outline2 = new TESSLINE;
+  auto* outline2 = new TESSLINE;
   outline2->next = blob->outlines;
   blob->outlines = outline2;
   outline2->loop = point2;
