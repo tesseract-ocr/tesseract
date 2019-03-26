@@ -1,103 +1,99 @@
 #include "baseapi.h"
 #include "leptonica/allheaders.h"
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string>
-#include <string.h>
 #include <libgen.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string>
 
 class BitReader {
-    private:
-        uint8_t const* data;
-        size_t size;
-        size_t shift;
-    public:
-        BitReader(const uint8_t* data, size_t size) :
-            data(data), size(size), shift(0)
-        { }
+ private:
+  uint8_t const* data;
+  size_t size;
+  size_t shift;
 
-        int Read(void) {
-            if ( size == 0 ) {
-                return 0;
-            }
+ public:
+  BitReader(const uint8_t* data, size_t size)
+      : data(data), size(size), shift(0) {}
 
-            const int ret = ((*data) >> shift) & 1;
+  int Read(void) {
+    if (size == 0) {
+      return 0;
+    }
 
-            shift++;
-            if ( shift >= 8 ) {
-                shift = 0;
-                data++;
-                size--;
-            }
+    const int ret = ((*data) >> shift) & 1;
 
-            return ret;
-        }
+    shift++;
+    if (shift >= 8) {
+      shift = 0;
+      data++;
+      size--;
+    }
+
+    return ret;
+  }
 };
 
-tesseract::TessBaseAPI *api = nullptr;
+tesseract::TessBaseAPI* api = nullptr;
 
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv)
-{
-    (void)argc;
-    (void)argv;
+extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
+  (void)argc;
+  (void)argv;
 
+  {
+    char* binary_path = strdup(*argv[0]);
+    const std::string filepath = dirname(binary_path);
+    free(binary_path);
 
-    {
-        char* binary_path = strdup(*argv[0]);
-        const std::string filepath = dirname(binary_path);
-        free(binary_path);
-
-        const std::string tessdata_path = filepath + "/" + "tessdata";
-        if ( setenv("TESSDATA_PREFIX", tessdata_path.c_str(), 1) != 0 ) {
-            printf("Setenv failed\n");
-            abort();
-        }
+    const std::string tessdata_path = filepath + "/" + "tessdata";
+    if (setenv("TESSDATA_PREFIX", tessdata_path.c_str(), 1) != 0) {
+      printf("Setenv failed\n");
+      abort();
     }
+  }
 
-    api = new tesseract::TessBaseAPI();
-    if ( api->Init(nullptr, "eng") != 0 ) {
-        printf("Cannot initialize API\n");
-        abort();
-    }
+  api = new tesseract::TessBaseAPI();
+  if (api->Init(nullptr, "eng") != 0) {
+    printf("Cannot initialize API\n");
+    abort();
+  }
 
-    /* Silence output */
-    api->SetVariable("debug_file", "/dev/null");
+  /* Silence output */
+  api->SetVariable("debug_file", "/dev/null");
 
-    return 0;
+  return 0;
 }
-
 
 static PIX* createPix(BitReader& BR, const size_t width, const size_t height) {
-    Pix* pix = pixCreate(width, height, 1);
+  Pix* pix = pixCreate(width, height, 1);
 
-    if ( pix == nullptr ) {
-        printf("pix creation failed\n");
-        abort();
+  if (pix == nullptr) {
+    printf("pix creation failed\n");
+    abort();
+  }
+
+  for (size_t i = 0; i < width; i++) {
+    for (size_t j = 0; j < height; j++) {
+      pixSetPixel(pix, i, j, BR.Read());
     }
+  }
 
-    for (size_t i = 0; i < width; i++) {
-        for (size_t j = 0; j < height; j++) {
-            pixSetPixel(pix, i, j, BR.Read());
-        }
-    }
-
-    return pix;
+  return pix;
 }
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-{
-    BitReader BR(data, size);
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  BitReader BR(data, size);
 
-    auto pix = createPix(BR, 100, 100);
+  auto pix = createPix(BR, 100, 100);
 
-    api->SetImage(pix);
+  api->SetImage(pix);
 
-    char* outText = api->GetUTF8Text();
+  char* outText = api->GetUTF8Text();
 
-    pixDestroy(&pix);
-    delete[] outText;
+  pixDestroy(&pix);
+  delete[] outText;
 
-    return 0;
+  return 0;
 }
