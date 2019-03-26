@@ -1,12 +1,10 @@
 #include "baseapi.h"
 #include "leptonica/allheaders.h"
 
-#include <libgen.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <string>
+#include <libgen.h>     // for dirname
+#include <cstdio>       // for printf
+#include <cstdlib>      // for std::getenv, std::setenv
+#include <string>       // for std::string
 
 class BitReader {
  private:
@@ -36,21 +34,17 @@ class BitReader {
   }
 };
 
-tesseract::TessBaseAPI* api = nullptr;
+static tesseract::TessBaseAPI* api = nullptr;
 
-extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
-  (void)argc;
-  (void)argv;
-
-  {
-    char* binary_path = strdup(*argv[0]);
-    const std::string filepath = dirname(binary_path);
-    free(binary_path);
+extern "C" int LLVMFuzzerInitialize(int* /*pArgc*/, char*** pArgv) {
+  if (std::getenv("TESSDATA_PREFIX") == nullptr) {
+    std::string binary_path = *pArgv[0];
+    const std::string filepath = dirname(&binary_path[0]);
 
     const std::string tessdata_path = filepath + "/" + "tessdata";
     if (setenv("TESSDATA_PREFIX", tessdata_path.c_str(), 1) != 0) {
       printf("Setenv failed\n");
-      abort();
+      std::abort();
     }
   }
 
