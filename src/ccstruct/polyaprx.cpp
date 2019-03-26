@@ -167,7 +167,7 @@ EDGEPT edgepts[]                 //output is array
       edgepts[epindex].flags[FLAGS] = 0;
       edgepts[epindex].next = &edgepts[epindex + 1];
       prevdir += 64;
-      epdir = (DIR128) 0 - prevdir;
+      epdir = DIR128(0) - prevdir;
       epdir >>= 4;
       epdir &= 7;
       edgepts[epindex].flags[DIR] = epdir;
@@ -199,7 +199,7 @@ EDGEPT edgepts[]                 //output is array
   edgepts[epindex].prev = &edgepts[epindex - 1];
   edgepts[epindex].next = &edgepts[0];
   prevdir += 64;
-  epdir = (DIR128) 0 - prevdir;
+  epdir = DIR128(0) - prevdir;
   epdir >>= 4;
   epdir &= 7;
   edgepts[epindex].flags[DIR] = epdir;
