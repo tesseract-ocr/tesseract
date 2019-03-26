@@ -565,8 +565,8 @@ void Classify::InitAdaptiveClassifier(TessdataManager* mgr) {
   set_all_bits(AllConfigsOn, WordsInVectorOfSize(MAX_NUM_CONFIGS));
   zero_all_bits(AllConfigsOff, WordsInVectorOfSize(MAX_NUM_CONFIGS));
 
-  for (int i = 0; i < MAX_NUM_CLASSES; i++) {
-     BaselineCutoffs[i] = 0;
+  for (uint16_t& BaselineCutoff : BaselineCutoffs) {
+     BaselineCutoff = 0;
   }
 
   if (classify_use_pre_adapted_templates) {

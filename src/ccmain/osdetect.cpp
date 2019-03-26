@@ -416,20 +416,20 @@ bool OrientationDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
   // picking an arbitrary probability for it and way better than -inf.
   float worst_score = 0.0f;
   int num_good_scores = 0;
-  for (int i = 0; i < 4; ++i) {
-    if (blob_o_score[i] > 0.0f) {
+  for (float f : blob_o_score) {
+    if (f > 0.0f) {
       ++num_good_scores;
-      if (worst_score == 0.0f || blob_o_score[i] < worst_score)
-        worst_score = blob_o_score[i];
+      if (worst_score == 0.0f || f < worst_score)
+        worst_score = f;
     }
   }
   if (num_good_scores == 1) {
     // Lower worst if there is only one.
     worst_score /= 2.0f;
   }
-  for (int i = 0; i < 4; ++i) {
-    if (blob_o_score[i] == 0.0f) {
-      blob_o_score[i] = worst_score;
+  for (float& f : blob_o_score) {
+    if (f == 0.0f) {
+      f = worst_score;
       total_blob_o_score += worst_score;
     }
   }
@@ -469,10 +469,8 @@ ScriptDetector::ScriptDetector(const GenericVector<int>* allowed_scripts,
 // Score the given blob and return true if it is now sure of the script after
 // adding this blob.
 void ScriptDetector::detect_blob(BLOB_CHOICE_LIST* scores) {
-  bool done[kMaxNumberOfScripts];
   for (int i = 0; i < 4; ++i) {
-    for (int j = 0; j < kMaxNumberOfScripts; ++j)
-      done[j] = false;
+    bool done[kMaxNumberOfScripts] = { false };
 
     BLOB_CHOICE_IT choice_it;
     choice_it.set_to_list(scores + i);

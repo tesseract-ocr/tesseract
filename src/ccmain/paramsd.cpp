@@ -340,11 +340,8 @@ void ParamsEditor::WriteParams(char *filename,
         filename);
     return;
   }
-
-  for (auto iter = vcMap.begin();
-                                          iter != vcMap.end();
-                                          ++iter) {
-    ParamContent* cur = iter->second;
+  for (auto& iter : vcMap) {
+    ParamContent* cur = iter.second;
     if (!changes_only || cur->HasChanged()) {
       fprintf(fp, "%-25s   %-12s   # %s\n",
               cur->GetName(), cur->GetValue().string(), cur->GetDescription());

@@ -168,14 +168,13 @@ bool UnicharCompress::ComputeEncoding(const UNICHARSET& unicharset, int null_id,
       } else {
         // Add the direct_set unichar-ids of the unicodes in sequence to the
         // code.
-        for (size_t i = 0; i < unicodes.size(); ++i) {
+        for (int uni : unicodes) {
           int position = code.length();
           if (position >= RecodedCharID::kMaxCodeLen) {
             tprintf("Unichar %d=%s is too long to encode!!\n", u,
                     unicharset.id_to_unichar(u));
             return false;
           }
-          int uni = unicodes[i];
           UNICHAR unichar(uni);
           char* utf8 = unichar.utf8_str();
           if (!direct_set.contains_unichar(utf8))
@@ -412,11 +411,11 @@ void UnicharCompress::SetupDecoder() {
 void UnicharCompress::Cleanup() {
   decoder_.clear();
   is_valid_start_.clear();
-  for (auto it = next_codes_.begin(); it != next_codes_.end(); ++it) {
-    delete it->second;
+  for (auto& next_code : next_codes_) {
+    delete next_code.second;
   }
-  for (auto it = final_codes_.begin(); it != final_codes_.end(); ++it) {
-    delete it->second;
+  for (auto& final_code : final_codes_) {
+    delete final_code.second;
   }
   next_codes_.clear();
   final_codes_.clear();

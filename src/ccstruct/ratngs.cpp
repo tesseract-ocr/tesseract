@@ -555,10 +555,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word, int debug) {
     return;
   }
 
-  int position_counts[4];
-  for (int i = 0; i < 4; i++) {
-    position_counts[i] = 0;
-  }
+  int position_counts[4] = { 0, 0, 0, 0 };
 
   int chunk_index = 0;
   for (int blob_index = 0; blob_index < length_; ++blob_index, ++chunk_index) {
