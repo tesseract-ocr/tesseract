@@ -29,7 +29,6 @@
 #include "pgedit.h"
 #include "reject.h"
 #include "stopper.h"
-#include "tessedit.h"
 #include "tessvars.h"
 #include "tprintf.h"
 #ifndef DISABLED_LEGACY_ENGINE
@@ -47,8 +46,6 @@
 
 // config under api
 #define API_CONFIG "configs/api_config"
-
-ETEXT_DESC* global_monitor = nullptr;  // progress monitor
 
 namespace tesseract {
 

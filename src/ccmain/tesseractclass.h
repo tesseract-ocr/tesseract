@@ -510,7 +510,7 @@ class Tesseract : public Wordrec {
                                 const char* lengths);
   int16_t count_alphanums(const WERD_CHOICE &word);
   int16_t count_alphas(const WERD_CHOICE &word);
-  //// tessedit.h ////////////////////////////////////////////////////////
+
   void read_config_file(const char *filename, SetParamConstraint constraint);
   // Initialize for potentially a set of languages defined by the language
   // string and recursively any additional languages required by any language
