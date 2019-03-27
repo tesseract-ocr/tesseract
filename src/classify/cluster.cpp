@@ -20,7 +20,6 @@
 #include <vector>       // for std::vector
 
 #include "cluster.h"
-#include "cutil.h"      // for void_proc
 #include "emalloc.h"
 #include "genericheap.h"
 #include "helpers.h"

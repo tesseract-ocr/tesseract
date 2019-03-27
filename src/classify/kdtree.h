@@ -20,9 +20,10 @@
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#include "cutil.h"      // for void_proc
 #include "host.h"
 #include "ocrfeatures.h"
+
+typedef void (*void_proc)(...);
 
 /**
 NOTE:  All circular parameters of all keys must be in the range
