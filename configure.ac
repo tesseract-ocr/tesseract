@@ -91,7 +91,7 @@ case "${host_os}" in
         AC_SUBST([NOUNDEFINED], ['-no-undefined'])
         ;;
     solaris*)
-        LIBS="-lsocket -lnsl -lrt -lxnet"
+        LIBS="$LIBS -lsocket -lnsl -lrt -lxnet"
         AM_CONDITIONAL([ADD_RT], true)
         ;;
     *darwin*)
@@ -375,7 +375,7 @@ esac
 # Check for libraries
 # ----------------------------------------
 
-AC_SEARCH_LIBS([sem_init], [pthread rt])
+AC_SEARCH_LIBS([pthread_create], [pthread])
 
 
 # ----------------------------------------

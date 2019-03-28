@@ -42,7 +42,6 @@ noinst_HEADERS = \
     paramsd.h \
     pgedit.h \
     reject.h \
-    tessedit.h \
     tesseractclass.h \
     tessvars.h \
     werdit.h

@@ -63,13 +63,14 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "cutil.h"              // for int_compare, void_dest, ...
-
 /*----------------------------------------------------------------------
                   T y p e s
 ----------------------------------------------------------------------*/
 
 #define NIL_LIST  ((LIST)nullptr)
+
+typedef int (*int_compare)(void*, void*);
+typedef void (*void_dest)(void*);
 
 struct list_rec
 {
