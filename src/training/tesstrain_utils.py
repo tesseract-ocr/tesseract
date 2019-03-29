@@ -174,7 +174,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--distort_image", dest="distort_image", help="set --distort_image=true."
+    "--distort_image", dest="distort_image", action="store_true"
 )
 
 tessdata_group = parser.add_argument_group(
@@ -315,8 +315,10 @@ def generate_font_image(ctx, font, exposure, char_spacing):
         f"--exposure={exposure}",
         f"--outputbase={outbase}",
         f"--max_pages={ctx.max_pages}",
-        f"--distort_image={ctx.distort_image}",
     ]
+
+    if ctx.distort_image:
+        common_args.append("--distort_image")
 
     # add --writing_mode=vertical-upright to common_args if the font is
     # specified to be rendered vertically.
