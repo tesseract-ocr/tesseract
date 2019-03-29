@@ -64,3 +64,17 @@ doc-clean:
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
+
+# fuzzer-api is used for fuzzing tests.
+# They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
+# Note: -fsanitize=fuzzer currently requires the clang++ compiler.
+fuzzer-api: all
+fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
+	$(CXX) $(CXXFLAGS) -g -fsanitize=fuzzer \
+          -I $(top_srcdir)/src/api \
+          -I $(top_srcdir)/src/ccmain \
+          -I $(top_srcdir)/src/ccstruct \
+          -I $(top_srcdir)/src/ccutil \
+          -I src/api \
+          $< \
+          src/api/.libs/libtesseract.a $(LEPTONICA_LIBS) $(libarchive_LIBS) -o $@
