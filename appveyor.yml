@@ -30,3 +30,4 @@ after_build:
 artifacts:
   - path: tesseract.zip
     name: tesseract-$(APPVEYOR_BUILD_VERSION)
+
