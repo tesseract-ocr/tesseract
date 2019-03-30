@@ -59,12 +59,11 @@
 #include "dict.h"              // for Dict
 #include "edgblob.h"           // for extract_edges
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
-#include "environ.h"           // for l_uint8, FALSE, TRUE
+#include "environ.h"           // for l_uint8
 #include "equationdetect.h"    // for EquationDetect
 #include "errcode.h"           // for ASSERT_HOST
 #include "globaloc.h"          // for SavePixForCrash, signal_exit
 #include "helpers.h"           // for IntCastRounded, chomp_string
-#include "host.h"              // for BOOL8
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3
 #include "intfx.h"             // for INT_FX_RESULT_STRUCT
 #include "mutableiterator.h"   // for MutableIterator
@@ -91,7 +90,7 @@
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 
-BOOL_VAR(stream_filelist, FALSE, "Stream a filelist from stdin");
+BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 
 namespace tesseract {
 
@@ -309,7 +308,7 @@ bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
   auto *p = ParamUtils::FindParam<BoolParam>(
       name, GlobalParams()->bool_params, tesseract_->params()->bool_params);
   if (p == nullptr) return false;
-  *value = (BOOL8)(*p);
+  *value = bool(*p);
   return true;
 }
 
@@ -2325,7 +2324,7 @@ ROW *TessBaseAPI::MakeTessOCRRow(float baseline,
 TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  BLOCK block("a character", TRUE, 0, 0, 0, 0, width, height);
+  BLOCK block("a character", true, 0, 0, 0, 0, width, height);
 
   // Create C_BLOBs from the page
   extract_edges(pix, &block);
