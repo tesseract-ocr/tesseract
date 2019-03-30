@@ -1101,7 +1101,7 @@ class Tesseract : public Wordrec {
   double_VAR_H(min_orientation_margin, 7.0,
                "Min acceptable orientation margin");
   BOOL_VAR_H(textord_tabfind_show_vlines, false, "Debug line finding");
-  BOOL_VAR_H(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model");
+  BOOL_VAR_H(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model");
   BOOL_VAR_H(poly_allow_detailed_fx, false,
              "Allow feature extractors to see the original outline");
   BOOL_VAR_H(tessedit_init_config_only, false,

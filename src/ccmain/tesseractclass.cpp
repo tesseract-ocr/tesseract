@@ -19,7 +19,6 @@
 //              training-related code, but they don't interfere with normal
 //              recognition operation.
 // Author:      Ray Smith
-// Created:     Fri Mar 07 08:17:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -490,7 +489,7 @@ Tesseract::Tesseract()
                     "Min acceptable orientation margin", this->params()),
       BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding",
                   this->params()),
-      BOOL_MEMBER(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model",
+      BOOL_MEMBER(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model",
                   this->params()),
       BOOL_MEMBER(poly_allow_detailed_fx, false,
                   "Allow feature extractors to see the original outline",
@@ -689,7 +688,7 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.
   if (splitter_.HasDifferentSplitStrategies()) {
-    BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_),
+    BLOCK block("", true, 0, 0, 0, 0, pixGetWidth(pix_binary_),
                 pixGetHeight(pix_binary_));
     Pix* pix_for_ocr = split_for_ocr ? splitter_.splitted_image() :
         splitter_.orig_pix();
