@@ -31,7 +31,7 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_show_fixed_cuts, FALSE,
+EXTERN BOOL_VAR (textord_show_fixed_cuts, false,
 "Draw fixed pitch cell boundaries");
 
 EXTERN ScrollView* to_win = nullptr;

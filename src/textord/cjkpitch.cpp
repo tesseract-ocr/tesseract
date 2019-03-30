@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <vector>       // for std::vector
 
-BOOL_VAR(textord_space_size_is_variable, FALSE,
+BOOL_VAR(textord_space_size_is_variable, false,
          "If true, word delimiter spaces are assumed to have "
          "variable width, even though characters have fixed pitch.");
 
@@ -977,7 +977,7 @@ FPAnalyzer::FPAnalyzer(ICOORD page_tr, TO_BLOCK_LIST *port_blocks)
     TO_BLOCK *block = block_it.data();
     if (!block->get_rows()->empty()) {
       ASSERT_HOST(block->xheight > 0);
-      find_repeated_chars(block, FALSE);
+      find_repeated_chars(block, false);
     }
   }
 

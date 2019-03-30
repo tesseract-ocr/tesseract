@@ -22,18 +22,18 @@
 #include          "params.h"
 #include          "blobbox.h"
 
-extern BOOL_VAR_H (textord_really_old_xheight, FALSE,
+extern BOOL_VAR_H (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
-extern BOOL_VAR_H (textord_oldbl_debug, FALSE,
+extern BOOL_VAR_H (textord_oldbl_debug, false,
 "Debug old baseline generation");
-extern BOOL_VAR_H (textord_debug_baselines, FALSE,
+extern BOOL_VAR_H (textord_debug_baselines, false,
 "Debug baseline generation");
-extern BOOL_VAR_H (textord_oldbl_paradef, TRUE, "Use para default mechanism");
-extern BOOL_VAR_H (textord_oldbl_split_splines, TRUE,
+extern BOOL_VAR_H (textord_oldbl_paradef, true, "Use para default mechanism");
+extern BOOL_VAR_H (textord_oldbl_split_splines, true,
 "Split stepped splines");
-extern BOOL_VAR_H (textord_oldbl_merge_parts, TRUE,
+extern BOOL_VAR_H (textord_oldbl_merge_parts, true,
 "Merge suspect partitions");
-extern BOOL_VAR_H (oldbl_xhfix, FALSE,
+extern BOOL_VAR_H (oldbl_xhfix, false,
 "Fix bug in modes threshold for xheights");
 extern INT_VAR_H (oldbl_holed_losscount, 10,
 "Max lost before fallback line used");

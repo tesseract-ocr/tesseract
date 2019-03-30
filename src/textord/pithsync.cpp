@@ -2,7 +2,6 @@
  * File:        pithsync.cpp  (Formerly pitsync2.c)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
  * Author:      Ray Smith
- * Created:     Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,7 +57,7 @@ void FPCUTPT::setup(                     //constructor
   mean_sum = 0;
   sq_sum = offset * offset;
   cost = sq_sum;
-  faked = FALSE;
+  faked = false;
   terminal = false;
   fake_count = 0;
   xpos = x;
@@ -201,16 +200,16 @@ void FPCUTPT::assign(                         //constructor
 
 void FPCUTPT::assign_cheap(                         //constructor
                            FPCUTPT *cutpts,         //predecessors
-                           int16_t array_origin,      //start coord
-                           int16_t x,                 //position
-                           BOOL8 faking,            //faking this one
-                           BOOL8 mid_cut,           //cheap cut.
-                           int16_t offset,            //dist to gap
+                           int16_t array_origin,    //start coord
+                           int16_t x,               //position
+                           bool faking,             //faking this one
+                           bool mid_cut,            //cheap cut.
+                           int16_t offset,          //dist to gap
                            STATS *projection,       //vertical occupation
                            float projection_scale,  //scaling
-                           int16_t zero_count,        //official zero
-                           int16_t pitch,             //proposed pitch
-                           int16_t pitch_error        //allowed tolerance
+                           int16_t zero_count,      //official zero
+                           int16_t pitch,           //proposed pitch
+                           int16_t pitch_error      //allowed tolerance
                           ) {
   int index;                     //test index
   int16_t balance_count;           //ding factor
@@ -330,7 +329,7 @@ double check_pitch_sync2(                          //find segmentation
   //      tprintf("Computing sync on word of %d blobs with pitch %d\n",
   //              blob_count, pitch);
   //      if (blob_count==8 && pitch==27)
-  //              projection->print(stdout,TRUE);
+  //              projection->print(stdout,true);
   zero_count = 0;
   if (pitch < 3)
     pitch = 3;                   //nothing ludicrous
@@ -539,7 +538,7 @@ double check_pitch_sync3(                          //find segmentation
   // array of points
   std::vector<FPCUTPT> cutpts(right_edge - left_edge + pitch * 2 + 1);
   // local min results
-  std::vector<BOOL8> mins(pitch_error * 2 + 1);
+  std::vector<bool> mins(pitch_error * 2 + 1);
   for (x = array_origin; x < left_edge; x++)
                                  //free cuts
     cutpts[x - array_origin].setup(&cutpts[0], array_origin, projection,

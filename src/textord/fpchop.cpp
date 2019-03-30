@@ -2,7 +2,6 @@
  * File:        fpchop.cpp  (Formerly fp_chop.c)
  * Description: Code to chop fixed pitch text into character cells.
  * Author:      Ray Smith
- * Created:     Thu Sep 16 11:14:15 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -150,10 +149,10 @@ ROW *fixed_pitch_words(                 //find lines
           blanks = 1;
         word = new WERD (&cblobs, blanks, nullptr);
         cblob_it.set_to_list (&cblobs);
-        word->set_flag (W_DONT_CHOP, TRUE);
+        word->set_flag (W_DONT_CHOP, true);
         word_it.add_after_then_move (word);
         if (bol) {
-          word->set_flag (W_BOL, TRUE);
+          word->set_flag (W_BOL, true);
           bol = false;
         }
         blanks = new_blanks;
@@ -170,10 +169,10 @@ ROW *fixed_pitch_words(                 //find lines
   }
   if (!cblob_it.empty()) {
     word = new WERD(&cblobs, blanks, nullptr);
-    word->set_flag (W_DONT_CHOP, TRUE);
+    word->set_flag (W_DONT_CHOP, true);
     word_it.add_after_then_move (word);
     if (bol)
-      word->set_flag (W_BOL, TRUE);
+      word->set_flag (W_BOL, true);
   }
   ASSERT_HOST (word != nullptr);
   while (!rep_it.empty ()) {
@@ -181,7 +180,7 @@ ROW *fixed_pitch_words(                 //find lines
       blanks, row->fixed_pitch, &word_it);
   }
                                  //at end of line
-  word_it.data ()->set_flag (W_EOL, TRUE);
+  word_it.data ()->set_flag (W_EOL, true);
   if (prev_chop_coord > prev_x)
     prev_x = prev_chop_coord;
   xstarts[1] = prev_x + 1;
@@ -391,7 +390,7 @@ void fixed_split_coutline(                        //chop the outline
  *
  * Chop the given coutline (if necessary) placing the fragments which
  * fall either side of the chop line into the appropriate list.
- * If the coutline lies too heavily to one side to chop, FALSE is returned.
+ * If the coutline lies too heavily to one side to chop, false is returned.
  **********************************************************************/
 
 bool fixed_chop_coutline(                                  //chop the outline

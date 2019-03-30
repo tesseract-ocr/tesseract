@@ -39,32 +39,32 @@ enum ROW_CATEGORY {
   ROW_INVALID,
 };
 
-extern BOOL_VAR_H(textord_heavy_nr, FALSE, "Vigorously remove noise");
-extern BOOL_VAR_H (textord_show_initial_rows, FALSE,
+extern BOOL_VAR_H(textord_heavy_nr, false, "Vigorously remove noise");
+extern BOOL_VAR_H (textord_show_initial_rows, false,
 "Display row accumulation");
-extern BOOL_VAR_H (textord_show_parallel_rows, FALSE,
+extern BOOL_VAR_H (textord_show_parallel_rows, false,
 "Display page correlated rows");
-extern BOOL_VAR_H (textord_show_expanded_rows, FALSE,
+extern BOOL_VAR_H (textord_show_expanded_rows, false,
 "Display rows after expanding");
-extern BOOL_VAR_H (textord_show_final_rows, FALSE,
+extern BOOL_VAR_H (textord_show_final_rows, false,
 "Display rows after final fitting");
-extern BOOL_VAR_H (textord_show_final_blobs, FALSE,
+extern BOOL_VAR_H (textord_show_final_blobs, false,
 "Display blob bounds after pre-ass");
-extern BOOL_VAR_H (textord_test_landscape, FALSE, "Tests refer to land/port");
-extern BOOL_VAR_H (textord_parallel_baselines, TRUE,
+extern BOOL_VAR_H (textord_test_landscape, false, "Tests refer to land/port");
+extern BOOL_VAR_H (textord_parallel_baselines, true,
 "Force parallel baselines");
-extern BOOL_VAR_H (textord_straight_baselines, FALSE,
+extern BOOL_VAR_H (textord_straight_baselines, false,
 "Force straight baselines");
-extern BOOL_VAR_H (textord_quadratic_baselines, FALSE,
+extern BOOL_VAR_H (textord_quadratic_baselines, false,
 "Use quadratic splines");
-extern BOOL_VAR_H (textord_old_baselines, TRUE, "Use old baseline algorithm");
-extern BOOL_VAR_H (textord_old_xheight, TRUE, "Use old xheight algorithm");
-extern BOOL_VAR_H (textord_fix_xheight_bug, TRUE, "Use spline baseline");
-extern BOOL_VAR_H (textord_fix_makerow_bug, TRUE,
+extern BOOL_VAR_H (textord_old_baselines, true, "Use old baseline algorithm");
+extern BOOL_VAR_H (textord_old_xheight, true, "Use old xheight algorithm");
+extern BOOL_VAR_H (textord_fix_xheight_bug, true, "Use spline baseline");
+extern BOOL_VAR_H (textord_fix_makerow_bug, true,
 "Prevent multiple baselines");
-extern BOOL_VAR_H (textord_cblob_blockocc, TRUE,
+extern BOOL_VAR_H (textord_cblob_blockocc, true,
 "Use new projection for underlines");
-extern BOOL_VAR_H (textord_debug_xheights, FALSE, "Test xheight algorithms");
+extern BOOL_VAR_H (textord_debug_xheights, false, "Test xheight algorithms");
 extern INT_VAR_H (textord_test_x, -INT32_MAX, "coord of test pt");
 extern INT_VAR_H (textord_test_y, -INT32_MAX, "coord of test pt");
 extern INT_VAR_H (textord_min_blobs_in_row, 4,
@@ -108,9 +108,9 @@ extern double_VAR_H (textord_descx_ratio_min, 0.15, "Min desc/xheight");
 extern double_VAR_H (textord_descx_ratio_max, 0.6, "Max desc/xheight");
 extern double_VAR_H (textord_xheight_error_margin, 0.1, "Accepted variation");
 extern INT_VAR_H (textord_lms_line_trials, 12, "Number of linew fits to do");
-extern BOOL_VAR_H (textord_new_initial_xheight, TRUE,
+extern BOOL_VAR_H (textord_new_initial_xheight, true,
 "Use test xheight mechanism");
-extern BOOL_VAR_H(textord_debug_blob, FALSE, "Print test blob information");
+extern BOOL_VAR_H(textord_debug_blob, false, "Print test blob information");
 
 inline void get_min_max_xheight(int block_linesize,
                                 int *min_height, int *max_height) {

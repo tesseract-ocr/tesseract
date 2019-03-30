@@ -39,10 +39,10 @@ class GAPMAP
 
 /*-----------------------------*/
 
-extern BOOL_VAR_H (gapmap_debug, FALSE, "Say which blocks have tables");
-extern BOOL_VAR_H (gapmap_use_ends, FALSE,
+extern BOOL_VAR_H (gapmap_debug, false, "Say which blocks have tables");
+extern BOOL_VAR_H (gapmap_use_ends, false,
 "Use large space at start and end of rows");
-extern BOOL_VAR_H (gapmap_no_isolated_quanta, FALSE,
+extern BOOL_VAR_H (gapmap_no_isolated_quanta, false,
 "Ensure gaps not less than 2quanta wide");
 extern double_VAR_H (gapmap_big_gaps, 1.75, "xht multiplier");
 

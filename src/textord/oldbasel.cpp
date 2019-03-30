@@ -2,7 +2,6 @@
  * File:        oldbasel.cpp  (Formerly oldbl.c)
  * Description: A re-implementation of the old baseline algorithm.
  * Author:    Ray Smith
- * Created:   Wed Oct  6 09:41:48 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,17 +36,17 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_really_old_xheight, FALSE,
+EXTERN BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
-EXTERN BOOL_VAR (textord_oldbl_debug, FALSE, "Debug old baseline generation");
-EXTERN BOOL_VAR (textord_debug_baselines, FALSE, "Debug baseline generation");
-EXTERN BOOL_VAR (textord_oldbl_paradef, TRUE, "Use para default mechanism");
-EXTERN BOOL_VAR (textord_oldbl_split_splines, TRUE, "Split stepped splines");
-EXTERN BOOL_VAR (textord_oldbl_merge_parts, TRUE, "Merge suspect partitions");
-EXTERN BOOL_VAR (oldbl_corrfix, TRUE, "Improve correlation of heights");
-EXTERN BOOL_VAR (oldbl_xhfix, FALSE,
+EXTERN BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
+EXTERN BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
+EXTERN BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
+EXTERN BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
+EXTERN BOOL_VAR (textord_oldbl_merge_parts, true, "Merge suspect partitions");
+EXTERN BOOL_VAR (oldbl_corrfix, true, "Improve correlation of heights");
+EXTERN BOOL_VAR (oldbl_xhfix, false,
 "Fix bug in modes threshold for xheights");
-EXTERN BOOL_VAR(textord_ocropus_mode, FALSE, "Make baselines for ocropus");
+EXTERN BOOL_VAR(textord_ocropus_mode, false, "Make baselines for ocropus");
 EXTERN double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
 EXTERN INT_VAR (oldbl_holed_losscount, 10,
 "Max lost before fallback line used");
@@ -1168,7 +1167,7 @@ int xstarts[]                    //result
  * split_stepped_spline
  *
  * Re-segment the spline in cases where there is a big step function.
- * Return TRUE if any were done.
+ * Return true if any were done.
  **********************************************************************/
 
 bool
@@ -1603,7 +1602,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
   int y;
   int z;
   float ratio;
-  int found_one_bigger = FALSE;
+  int found_one_bigger = false;
   int best_x_height = 0;
   int best_asc = 0;
   int num_in_best;
@@ -1624,7 +1623,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
 
           /* Try to get one higher */
           do {
-            found_one_bigger = FALSE;
+            found_one_bigger = false;
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] == best_x_height + 1 &&
                   (!textord_ocropus_mode ||
@@ -1636,7 +1635,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
                     heightstat->pile_count (modelist[z]) >
                     num_in_best * 0.5) {
                   best_x_height++;
-                  found_one_bigger = TRUE;
+                  found_one_bigger = true;
                   break;
                 }
               }
@@ -1651,7 +1650,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
 
           /* Try to get one higher */
           do {
-            found_one_bigger = FALSE;
+            found_one_bigger = false;
             for (z = 0; z < MODENUM; z++) {
               if (modelist[z] > best_asc &&
                   (!textord_ocropus_mode ||
@@ -1663,7 +1662,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
                     heightstat->pile_count (modelist[z]) >
                     num_in_best * 0.5) {
                   best_asc = modelist[z];
-                  found_one_bigger = TRUE;
+                  found_one_bigger = true;
                   break;
                 }
               }
@@ -1683,13 +1682,13 @@ void pick_x_height(TO_ROW * row,                    //row to do
   num_in_best = heightstat->pile_count (best_x_height);
   do {
                                  /* Try to get one higher */
-    found_one_bigger = FALSE;
+    found_one_bigger = false;
     for (z = 1; z < MODENUM; z++) {
       /* Should be half of best */
       if ((modelist[z] == best_x_height + 1) &&
       (heightstat->pile_count (modelist[z]) > num_in_best * 0.5)) {
         best_x_height++;
-        found_one_bigger = TRUE;
+        found_one_bigger = true;
         break;
       }
     }

@@ -42,7 +42,7 @@ static void horizontal_coutline_projection(C_OUTLINE *outline,
  * test_underline
  *
  * Check to see if the blob is an underline.
- * Return TRUE if it is.
+ * Return true if it is.
  */
 
 bool test_underline(                   //look for underlines

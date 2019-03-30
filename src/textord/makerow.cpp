@@ -2,7 +2,6 @@
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
  * Author:      Ray Smith
- * Created:     Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,22 +39,22 @@
 
 #include <algorithm>
 
-BOOL_VAR(textord_heavy_nr, FALSE, "Vigorously remove noise");
-BOOL_VAR(textord_show_initial_rows, FALSE, "Display row accumulation");
-BOOL_VAR(textord_show_parallel_rows, FALSE, "Display page correlated rows");
-BOOL_VAR(textord_show_expanded_rows, FALSE, "Display rows after expanding");
-BOOL_VAR(textord_show_final_rows, FALSE, "Display rows after final fitting");
-BOOL_VAR(textord_show_final_blobs, FALSE, "Display blob bounds after pre-ass");
-BOOL_VAR(textord_test_landscape, FALSE, "Tests refer to land/port");
-BOOL_VAR(textord_parallel_baselines, TRUE, "Force parallel baselines");
-BOOL_VAR(textord_straight_baselines, FALSE, "Force straight baselines");
-BOOL_VAR(textord_old_baselines, TRUE, "Use old baseline algorithm");
-BOOL_VAR(textord_old_xheight, FALSE, "Use old xheight algorithm");
-BOOL_VAR(textord_fix_xheight_bug, TRUE, "Use spline baseline");
-BOOL_VAR(textord_fix_makerow_bug, TRUE, "Prevent multiple baselines");
-BOOL_VAR(textord_debug_xheights, FALSE, "Test xheight algorithms");
-BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
-BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
+BOOL_VAR(textord_heavy_nr, false, "Vigorously remove noise");
+BOOL_VAR(textord_show_initial_rows, false, "Display row accumulation");
+BOOL_VAR(textord_show_parallel_rows, false, "Display page correlated rows");
+BOOL_VAR(textord_show_expanded_rows, false, "Display rows after expanding");
+BOOL_VAR(textord_show_final_rows, false, "Display rows after final fitting");
+BOOL_VAR(textord_show_final_blobs, false, "Display blob bounds after pre-ass");
+BOOL_VAR(textord_test_landscape, false, "Tests refer to land/port");
+BOOL_VAR(textord_parallel_baselines, true, "Force parallel baselines");
+BOOL_VAR(textord_straight_baselines, false, "Force straight baselines");
+BOOL_VAR(textord_old_baselines, true, "Use old baseline algorithm");
+BOOL_VAR(textord_old_xheight, false, "Use old xheight algorithm");
+BOOL_VAR(textord_fix_xheight_bug, true, "Use spline baseline");
+BOOL_VAR(textord_fix_makerow_bug, true, "Prevent multiple baselines");
+BOOL_VAR(textord_debug_xheights, false, "Test xheight algorithms");
+BOOL_VAR(textord_biased_skewcalc, true, "Bias skew estimates with line length");
+BOOL_VAR(textord_interpolating_skew, true, "Interpolate across gaps");
 INT_VAR(textord_skewsmooth_offset, 4, "For smooth factor");
 INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
 INT_VAR(textord_test_x, -INT32_MAX, "coord of test pt");
@@ -98,8 +97,8 @@ double_VAR(textord_descx_ratio_min, 0.25, "Min desc/xheight");
 double_VAR(textord_descx_ratio_max, 0.6, "Max desc/xheight");
 double_VAR(textord_xheight_error_margin, 0.1, "Accepted variation");
 INT_VAR(textord_lms_line_trials, 12, "Number of linew fits to do");
-BOOL_VAR(textord_new_initial_xheight, TRUE, "Use test xheight mechanism");
-BOOL_VAR(textord_debug_blob, FALSE, "Print test blob information");
+BOOL_VAR(textord_new_initial_xheight, true, "Use test xheight mechanism");
+BOOL_VAR(textord_debug_blob, false, "Print test blob information");
 
 #define MAX_HEIGHT_MODES  12
 
@@ -241,7 +240,7 @@ void make_initial_textrows(                  //find lines
   }
 #endif
                                  //guess skew
-  assign_blobs_to_rows (block, nullptr, 0, TRUE, TRUE, textord_show_initial_rows && testing_on);
+  assign_blobs_to_rows (block, nullptr, 0, true, true, textord_show_initial_rows && testing_on);
   row_it.move_to_first ();
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     fit_lms_line (row_it.data ());
@@ -550,17 +549,17 @@ void cleanup_rows_making(                   //find lines
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     blob_it.add_list_after (row_it.data ()->blob_list ());
   //give blobs back
-  assign_blobs_to_rows (block, &gradient, 1, FALSE, FALSE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 1, false, false, false);
   //now new rows must be genuine
   blob_it.set_to_list (&block->blobs);
   blob_it.add_list_after (&block->large_blobs);
-  assign_blobs_to_rows (block, &gradient, 2, TRUE, TRUE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 2, true, true, false);
   //safe to use big ones now
   blob_it.set_to_list (&block->blobs);
                                  //throw all blobs in
   blob_it.add_list_after (&block->noise_blobs);
   blob_it.add_list_after (&block->small_blobs);
-  assign_blobs_to_rows (block, &gradient, 3, FALSE, FALSE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 3, false, false, false);
 }
 
 /**
@@ -649,7 +648,7 @@ void delete_non_dropout_rows(                   //find lines
  * @name find_best_dropout_row
  *
  * Delete this row if it has a neighbour with better dropout characteristics.
- * TRUE is returned if the row should be deleted.
+ * true is returned if the row should be deleted.
  */
 bool find_best_dropout_row(                    //find neighbours
         TO_ROW* row,        //row to test
@@ -1480,7 +1479,7 @@ int compute_xheight_from_modes(
   }
   if (blob_count == 0) return 0;
   int modes[MAX_HEIGHT_MODES];  // biggest piles
-  bool in_best_pile = FALSE;
+  bool in_best_pile = false;
   int prev_size = -INT32_MAX;
   int best_count = 0;
   int mode_count = compute_height_modes(heights, min_height, max_height,
@@ -1496,7 +1495,7 @@ int compute_xheight_from_modes(
 
   for (x = 0; x < mode_count - 1; x++) {
     if (modes[x] != prev_size + 1)
-      in_best_pile = FALSE;    // had empty height
+      in_best_pile = false;    // had empty height
     int modes_x_count = heights->pile_count(modes[x]) -
       floating_heights->pile_count(modes[x]);
     if ((modes_x_count >= blob_count * textord_xheight_mode_fraction) &&
@@ -2084,7 +2083,7 @@ void make_baseline_spline(TO_ROW *row,     //row to fit
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
- * Return TRUE if enough blobs were far enough away to need a quadratic.
+ * Return true if enough blobs were far enough away to need a quadratic.
  */
 bool
 segment_baseline(               //split baseline
@@ -2183,7 +2182,7 @@ segment_baseline(               //split baseline
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
- * @return TRUE if enough blobs were far enough away to need a quadratic.
+ * @return true if enough blobs were far enough away to need a quadratic.
  */
 double *
 linear_spline_baseline (         //split baseline
