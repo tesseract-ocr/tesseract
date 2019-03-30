@@ -85,8 +85,8 @@
 /**********************************************************************
  *  i s   s a m e
  *
- *  Compare the list node with the key value return TRUE (non-zero)
- *  if they are equivalent strings.  (Return FALSE if not)
+ *  Compare the list node with the key value return true (non-zero)
+ *  if they are equivalent strings.  (Return false if not)
  **********************************************************************/
 static int is_same(void *item1, void *item2) {
   return strcmp((char *)item1, (char *)item2) == 0;
