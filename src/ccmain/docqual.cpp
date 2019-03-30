@@ -420,7 +420,7 @@ void Tesseract::tilde_crunch(PAGE_RES_IT &page_res_it) {
   PAGE_RES_IT copy_it;
   bool prev_potential_marked = false;
   bool found_terrible_word = false;
-  BOOL8 ok_dict_word;
+  bool ok_dict_word;
 
   page_res_it.restart_page();
   while (page_res_it.word() != nullptr) {
@@ -676,7 +676,7 @@ void Tesseract::convert_bad_unlv_chs(WERD_RES *word_res) {
   }
 }
 
-GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, BOOL8 ok_dict_word) {
+GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, bool ok_dict_word) {
   enum STATES
   {
     JUNK,

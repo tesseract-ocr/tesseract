@@ -23,7 +23,6 @@
 #include "blobs.h"             // for TWERD, TBLOB, TESSLINE
 #include "boxword.h"           // for BoxWord
 #include "errcode.h"           // for ASSERT_HOST
-#include "host.h"              // for FALSE, TRUE
 #include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
 #include "ocrclass.h"          // for ETEXT_DESC
 #include "pageres.h"           // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
@@ -106,7 +105,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
           word_res = word_res_it_from.forward();
           word_index++;
           if (monitor != nullptr) {
-            monitor->ocr_alive = TRUE;
+            monitor->ocr_alive = true;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
@@ -124,7 +123,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
           word_res_it_to.forward();
           word_index++;
           if (monitor != nullptr) {
-            monitor->ocr_alive = TRUE;
+            monitor->ocr_alive = true;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
@@ -460,7 +459,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               combo->copy_on(word);
               word->part_of_combo = true;
             }
-            combo->done = FALSE;
+            combo->done = false;
             combo->ClearResults();
           } else {
             prev_word_it = word_it;  // catch up
@@ -686,8 +685,8 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   delete blob_it.extract();     // throw out noise blob
 
   new_word = new WERD(&new_blob_list, word_res->word);
-  new_word->set_flag(W_EOL, FALSE);
-  word_res->word->set_flag(W_BOL, FALSE);
+  new_word->set_flag(W_EOL, false);
+  word_res->word->set_flag(W_BOL, false);
   word_res->word->set_blanks(1);  // After break
 
   new_rej_cblob_it.set_to_list(new_word->rej_cblob_list());

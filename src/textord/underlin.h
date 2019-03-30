@@ -23,7 +23,7 @@
 
 extern double_VAR_H (textord_underline_offset, 0.1,
 "Fraction of x to ignore");
-extern BOOL_VAR_H (textord_restore_underlines, FALSE,
+extern BOOL_VAR_H (textord_restore_underlines, false,
 "Chop underlines & put back");
 void restore_underlined_blobs(                 //get chop points
                               TO_BLOCK *block  //block to do

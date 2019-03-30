@@ -1094,8 +1094,8 @@ ROW *Textord::make_prop_words(
             if (tosp_debug_level > 5)
               tprintf (" Rgap:%d (%d blanks)\n",
                 current_gap, blanks);
-            fuzzy_sp = FALSE;
-            fuzzy_non = FALSE;
+            fuzzy_sp = false;
+            fuzzy_non = false;
 
             if (rep_char_it.empty ()) {
               next_rep_char_word_right = INT32_MAX;
@@ -1202,7 +1202,7 @@ ROW *Textord::make_blob_words(
   box_it.set_to_list(row->blob_list());
   // new words
   WERD_IT word_it(&words);
-  bol = TRUE;
+  bol = true;
   if (!box_it.empty()) {
 
     do {
@@ -1228,11 +1228,11 @@ ROW *Textord::make_blob_words(
         word_count++;
         word_it.add_after_then_move(word);
         if (bol) {
-          word->set_flag(W_BOL, TRUE);
-          bol = FALSE;
+          word->set_flag(W_BOL, true);
+          bol = false;
         }
         if (box_it.at_first()) { // at end of line
-          word->set_flag(W_EOL, TRUE);
+          word->set_flag(W_EOL, true);
         }
       }
     }
@@ -1332,7 +1332,7 @@ bool Textord::make_a_word_break(
     /* Set defaults for the word break in case we find one.  Currently there are
     no fuzzy spaces. Depending on the reliability of the different heuristics
     we may need to set PARTICULAR spaces to fuzzy or not. The values will ONLY
-    be used if the function returns TRUE - ie the word is to be broken.
+    be used if the function returns true - ie the word is to be broken.
     */
     int num_blanks = current_gap;
     if (row->space_size > 1.0f)
@@ -1683,9 +1683,9 @@ void Textord::mark_gap(
   if (textord_show_initial_words) {
     to_win->Pen(col);
   /*  if (rule < 20)
-      //interior_style(to_win, INT_SOLID, FALSE);
+      //interior_style(to_win, INT_SOLID, false);
     else
-      //interior_style(to_win, INT_HOLLOW, TRUE);*/
+      //interior_style(to_win, INT_HOLLOW, true);*/
                                  //x radius
     to_win->Ellipse (current_gap / 2.0f,
       blob.height () / 2.0f,     //y radius
@@ -1735,7 +1735,7 @@ bool Textord::ignore_big_gap(TO_ROW* row,
                              int16_t right) {
   int16_t gap = right - left + 1;
 
-  if (tosp_ignore_big_gaps > 999) return FALSE;  // Don't ignore
+  if (tosp_ignore_big_gaps > 999) return false;  // Don't ignore
   if (tosp_ignore_big_gaps > 0)
     return (gap > tosp_ignore_big_gaps * row->xheight);
   if (gap > tosp_ignore_very_big_gaps * row->xheight)

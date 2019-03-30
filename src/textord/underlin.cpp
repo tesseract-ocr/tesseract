@@ -22,7 +22,7 @@
 #define EXTERN
 
 EXTERN double_VAR (textord_underline_offset, 0.1, "Fraction of x to ignore");
-EXTERN BOOL_VAR (textord_restore_underlines, TRUE,
+EXTERN BOOL_VAR (textord_restore_underlines, true,
 "Chop underlines & put back");
 
 /**********************************************************************

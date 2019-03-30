@@ -2,7 +2,6 @@
  * File:        topitch.cpp  (Formerly to_pitch.c)
  * Description: Code to determine fixed pitchness and the pitch if fixed.
  * Author:      Ray Smith
- * Created:     Tue Aug 24 16:57:29 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,20 +36,20 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_all_prop, FALSE, "All doc is proportial text");
-EXTERN BOOL_VAR (textord_debug_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
+EXTERN BOOL_VAR (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
-EXTERN BOOL_VAR (textord_disable_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_disable_pitch_test, false,
 "Turn off dp fixed pitch algorithm");
-EXTERN BOOL_VAR (textord_fast_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_fast_pitch_test, false,
 "Do even faster pitch algorithm");
-EXTERN BOOL_VAR (textord_debug_pitch_metric, FALSE,
+EXTERN BOOL_VAR (textord_debug_pitch_metric, false,
 "Write full metric stuff");
-EXTERN BOOL_VAR (textord_show_row_cuts, FALSE, "Draw row-level cuts");
-EXTERN BOOL_VAR (textord_show_page_cuts, FALSE, "Draw page-level cuts");
-EXTERN BOOL_VAR (textord_pitch_cheat, FALSE,
+EXTERN BOOL_VAR (textord_show_row_cuts, false, "Draw row-level cuts");
+EXTERN BOOL_VAR (textord_show_page_cuts, false, "Draw page-level cuts");
+EXTERN BOOL_VAR (textord_pitch_cheat, false,
 "Use correct answer for fixed/prop");
-EXTERN BOOL_VAR (textord_blockndoc_fixed, FALSE,
+EXTERN BOOL_VAR (textord_blockndoc_fixed, false,
 "Attempt whole doc/block fixed pitch");
 EXTERN double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
 EXTERN double_VAR (textord_balance_factor, 1.0,
@@ -298,7 +297,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
         bad_row->projection_left, bad_row->projection_right,
         (bad_row->fixed_pitch +
         bad_row->max_nonspace * 3) / 4, bad_row->fixed_pitch,
-        sp_sd, mid_cuts, &bad_row->char_cells, FALSE);
+        sp_sd, mid_cuts, &bad_row->char_cells, false);
     }
   }
   else if (bad_row->pitch_decision == PITCH_CORR_PROP
@@ -342,7 +341,7 @@ void compute_block_pitch(TO_BLOCK* block,     // input list
     find_repeated_chars(block, textord_show_initial_words && testing_on);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on)
-      //overlap_picture_ops(TRUE);
+      //overlap_picture_ops(true);
       ScrollView::Update();
 #endif
     compute_rows_pitch(block,
@@ -505,7 +504,7 @@ bool try_doc_fixed(                             //determine pitch
   pitch_sd =
     tune_row_pitch (row, &projection, projection_left, projection_right,
     pitch * 0.75, final_pitch, sp_sd, mid_cuts,
-    &row->char_cells, FALSE);
+    &row->char_cells, false);
 
   if (textord_debug_pitch_metric)
     tprintf
@@ -874,7 +873,7 @@ bool find_row_pitch(                    //find lines
   min_space = (initial_pitch + non_space) / 2;
 
   if (!count_pitch_stats (row, &gap_stats, &pitch_stats,
-  initial_pitch, min_space, TRUE, FALSE, dm_gap)) {
+  initial_pitch, min_space, true, false, dm_gap)) {
     dm_gap_iqr = 0.0001;
     dm_pitch_iqr = maxwidth * 2.0f;
     dm_pitch = initial_pitch;
@@ -887,7 +886,7 @@ bool find_row_pitch(                    //find lines
   gap_stats.clear ();
   pitch_stats.clear ();
   if (!count_pitch_stats (row, &gap_stats, &pitch_stats,
-  initial_pitch, min_space, TRUE, FALSE, 0)) {
+  initial_pitch, min_space, true, false, 0)) {
     gap_iqr = 0.0001;
     pitch_iqr = maxwidth * 3.0f;
   }
@@ -901,7 +900,7 @@ bool find_row_pitch(                    //find lines
     initial_pitch = pitch_stats.ile (0.5);
     if (min_space > initial_pitch
       && count_pitch_stats (row, &gap_stats, &pitch_stats,
-    initial_pitch, initial_pitch, TRUE, FALSE, 0)) {
+    initial_pitch, initial_pitch, true, false, 0)) {
       min_space = initial_pitch;
       gap_iqr = gap_stats.ile (0.75) - gap_stats.ile (0.25);
       pitch_iqr = pitch_stats.ile (0.75) - pitch_stats.ile (0.25);

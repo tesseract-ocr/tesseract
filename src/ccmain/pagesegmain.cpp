@@ -2,7 +2,6 @@
  * File:        pagesegmain.cpp
  * Description: Top-level page segmenter for Tesseract.
  * Author:      Ray Smith
- * Created:     Thu Sep 25 17:12:01 PDT 2008
  *
  * (C) Copyright 2008, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,7 +117,7 @@ int Tesseract::SegmentPage(const STRING* input_file, BLOCK_LIST* blocks,
     // No UNLV file present. Work according to the PageSegMode.
     // First make a single block covering the whole image.
     BLOCK_IT block_it(blocks);
-    auto* block = new BLOCK("", TRUE, 0, 0, 0, 0, width, height);
+    auto* block = new BLOCK("", true, 0, 0, 0, 0, width, height);
     block->set_right_to_left(right_to_left());
     block_it.add_to_end(block);
   } else {

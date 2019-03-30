@@ -2,7 +2,6 @@
  * File:        wordseg.cpp  (Formerly wspace.c)
  * Description: Code to segment the blobs into words.
  * Author:      Ray Smith
- * Created:     Fri Oct 16 11:32:28 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,10 +35,10 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR(textord_fp_chopping, TRUE, "Do fixed pitch chopping");
-EXTERN BOOL_VAR(textord_force_make_prop_words, FALSE,
+EXTERN BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
+EXTERN BOOL_VAR(textord_force_make_prop_words, false,
                 "Force proportional word segmentation on all rows");
-EXTERN BOOL_VAR(textord_chopper_test, FALSE,
+EXTERN BOOL_VAR(textord_chopper_test, false,
                 "Chopper is being tested.");
 
 #define FIXED_WIDTH_MULTIPLE  5
@@ -84,8 +83,8 @@ void make_single_word(bool one_blob, TO_ROW_LIST *rows, ROW_LIST* real_rows) {
                             static_cast<int16_t>(row->space_size));
     WERD_IT word_it(real_row->word_list());
     WERD* word = new WERD(&cblobs, 0, nullptr);
-    word->set_flag(W_BOL, TRUE);
-    word->set_flag(W_EOL, TRUE);
+    word->set_flag(W_BOL, true);
+    word->set_flag(W_EOL, true);
     word->set_flag(W_DONT_CHOP, one_blob);
     word_it.add_after_then_move(word);
     row_it.add_after_then_move(real_row);
@@ -109,7 +108,7 @@ void make_words(tesseract::Textord *textord,
     compute_fixed_pitch_cjk(page_tr, port_blocks);
   } else {
     compute_fixed_pitch(page_tr, port_blocks, gradient, FCOORD(0.0f, -1.0f),
-                        !(BOOL8) textord_test_landscape);
+                        !bool(textord_test_landscape));
   }
   textord->to_spacing(page_tr, port_blocks);
   block_it.set_to_list(port_blocks);
@@ -217,7 +216,7 @@ int32_t row_words(                  //compute space size
       if (prev_valid && blob_box.left () - prev_x < maxwidth) {
         gap_stats.add (blob_box.left () - prev_x, 1);
       }
-      prev_valid = TRUE;
+      prev_valid = true;
       prev_x = blob_box.right ();
     }
   }
@@ -526,7 +525,7 @@ void make_real_words(
                  row->pitch_decision == PITCH_CORR_FIXED) {
         real_row = fixed_pitch_words (row, rotation);
       } else {
-        ASSERT_HOST(FALSE);
+        ASSERT_HOST(false);
       }
     }
     if (real_row != nullptr) {

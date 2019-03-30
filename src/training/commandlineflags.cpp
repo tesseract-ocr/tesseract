@@ -45,7 +45,7 @@ static bool BoolFlagExists(const char* flag_name, bool* value) {
   BoolParam *p = ParamUtils::FindParam<BoolParam>(
       full_flag_name.string(), GlobalParams()->bool_params, empty);
   if (p == nullptr) return false;
-  *value = (BOOL8)(*p);
+  *value = bool(*p);
   return true;
 }
 
@@ -138,7 +138,7 @@ static void PrintCommandLineFlags() {
       printf("  --%s  %s  (type:bool default:%s)\n",
              GlobalParams()->bool_params[i]->name_str() + kFlagNamePrefixLen,
              GlobalParams()->bool_params[i]->info_str(),
-             (BOOL8(*(GlobalParams()->bool_params[i])) ? "true" : "false"));
+             bool(*(GlobalParams()->bool_params[i])) ? "true" : "false");
     }
   }
   for (int i = 0; i < GlobalParams()->string_params.size(); ++i) {

@@ -36,12 +36,12 @@ class FPSEGPT:public ELIST_LINK
     FPSEGPT(           //constructor
             int16_t x);  //position
     FPSEGPT(                           //constructor
-            int16_t x,                   //position
-            BOOL8 faking,              //faking this one
-            int16_t offset,              //extra cost dist
-            int16_t region_index,        //segment number
-            int16_t pitch,               //proposed pitch
-            int16_t pitch_error,         //allowed tolerance
+            int16_t x,                 //position
+            bool faking,               //faking this one
+            int16_t offset,            //extra cost dist
+            int16_t region_index,      //segment number
+            int16_t pitch,             //proposed pitch
+            int16_t pitch_error,       //allowed tolerance
             FPSEGPT_LIST *prev_list);  //previous segment
     FPSEGPT(FPCUTPT *cutpt);  //build from new type
 
@@ -64,14 +64,13 @@ class FPSEGPT:public ELIST_LINK
       return mid_cuts;
     }
 
-                                 //faked split point
-    BOOL8 faked;
-    BOOL8 terminal;              //successful end
-    int16_t fake_count;            //total fakes to here
+    bool faked;                  //faked split point
+    bool terminal;               //successful end
+    int16_t fake_count;          //total fakes to here
 
   private:
-    int16_t mid_cuts;              //no of cheap cuts
-    int32_t xpos;                  //location
+    int16_t mid_cuts;            //no of cheap cuts
+    int32_t xpos;                //location
     FPSEGPT *pred;               //optimal previous
     double mean_sum;             //mean so far
     double sq_sum;               //summed distsances

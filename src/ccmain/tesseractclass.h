@@ -8,7 +8,6 @@
 //              threads in parallel, and keeps the different language
 //              instances separate.
 // Author:      Ray Smith
-// Created:     Fri Mar 07 08:17:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +33,6 @@
 #include "devanagari_processing.h"  // for ShiroRekhaSplitter
 #include "docqual.h"                // for GARBAGE_LEVEL
 #include "genericvector.h"          // for GenericVector, PointerVector
-#include "host.h"                   // for BOOL8
 #include "pageres.h"                // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"                 // for BOOL_VAR_H, BoolParam, DoubleParam
 #include "points.h"                 // for FCOORD
@@ -661,7 +659,7 @@ class Tesseract : public Wordrec {
   float blob_noise_score(TBLOB *blob);
   void break_noisiest_blob_word(WERD_RES_LIST &words);
   //// docqual.cpp ////////////////////////////////////////////////////////
-  GARBAGE_LEVEL garbage_word(WERD_RES *word, BOOL8 ok_dict_word);
+  GARBAGE_LEVEL garbage_word(WERD_RES* word, bool ok_dict_word);
   bool potential_word_crunch(WERD_RES* word,
                              GARBAGE_LEVEL garbage_level,
                              bool ok_dict_word);

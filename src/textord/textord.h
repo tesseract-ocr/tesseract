@@ -394,7 +394,7 @@ class Textord {
                "Height fraction to discard outlines as speckle noise");
   INT_VAR_H(textord_noise_sncount, 1, "super norm blobs to save row");
   double_VAR_H(textord_noise_rowratio, 6.0, "Dot to norm ratio for deletion");
-  BOOL_VAR_H(textord_noise_debug, FALSE, "Debug row garbage detector");
+  BOOL_VAR_H(textord_noise_debug, false, "Debug row garbage detector");
   double_VAR_H(textord_blshift_maxshift, 0.00, "Max baseline shift");
   double_VAR_H(textord_blshift_xfraction, 9.99, "Min size of baseline shift");
 };

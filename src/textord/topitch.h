@@ -24,17 +24,17 @@
 namespace tesseract {
 class Tesseract;
 }
-extern BOOL_VAR_H (textord_debug_pitch_test, FALSE,
+extern BOOL_VAR_H (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
-extern BOOL_VAR_H (textord_debug_pitch_metric, FALSE,
+extern BOOL_VAR_H (textord_debug_pitch_metric, false,
 "Write full metric stuff");
-extern BOOL_VAR_H (textord_show_row_cuts, FALSE, "Draw row-level cuts");
-extern BOOL_VAR_H (textord_show_page_cuts, FALSE, "Draw page-level cuts");
-extern BOOL_VAR_H (textord_pitch_cheat, FALSE,
+extern BOOL_VAR_H (textord_show_row_cuts, false, "Draw row-level cuts");
+extern BOOL_VAR_H (textord_show_page_cuts, false, "Draw page-level cuts");
+extern BOOL_VAR_H (textord_pitch_cheat, false,
 "Use correct answer for fixed/prop");
-extern BOOL_VAR_H (textord_blockndoc_fixed, TRUE,
+extern BOOL_VAR_H (textord_blockndoc_fixed, true,
 "Attempt whole doc/block fixed pitch");
-extern BOOL_VAR_H (textord_fast_pitch_test, FALSE,
+extern BOOL_VAR_H (textord_fast_pitch_test, false,
 "Do even faster pitch algorithm");
 extern double_VAR_H (textord_projection_scale, 0.125,
 "Ding rate for mid-cuts");

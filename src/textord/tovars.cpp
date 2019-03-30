@@ -22,15 +22,15 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_show_initial_words, FALSE, "Display separate words");
-EXTERN BOOL_VAR (textord_show_new_words, FALSE, "Display separate words");
-EXTERN BOOL_VAR (textord_show_fixed_words, FALSE,
+EXTERN BOOL_VAR (textord_show_initial_words, false, "Display separate words");
+EXTERN BOOL_VAR (textord_show_new_words, false, "Display separate words");
+EXTERN BOOL_VAR (textord_show_fixed_words, false,
 "Display forced fixed pitch words");
-EXTERN BOOL_VAR (textord_blocksall_fixed, FALSE, "Moan about prop blocks");
-EXTERN BOOL_VAR (textord_blocksall_prop, FALSE,
+EXTERN BOOL_VAR (textord_blocksall_fixed, false, "Moan about prop blocks");
+EXTERN BOOL_VAR (textord_blocksall_prop, false,
 "Moan about fixed pitch blocks");
-EXTERN BOOL_VAR (textord_blocksall_testing, FALSE, "Dump stats when moaning");
-EXTERN BOOL_VAR (textord_test_mode, FALSE, "Do current test");
+EXTERN BOOL_VAR (textord_blocksall_testing, false, "Dump stats when moaning");
+EXTERN BOOL_VAR (textord_test_mode, false, "Do current test");
 EXTERN INT_VAR (textord_dotmatrix_gap, 3,
 "Max pixel gap for broken pixed pitch");
 EXTERN INT_VAR (textord_debug_block, 0, "Block to do debug on");
@@ -65,7 +65,7 @@ EXTERN INT_VAR (textord_words_veto_power, 5,
 "Rows required to outvote a veto");
 EXTERN double_VAR (textord_pitch_rowsimilarity, 0.08,
 "Fraction of xheight for sameness");
-EXTERN BOOL_VAR (textord_pitch_scalebigwords, FALSE,
+EXTERN BOOL_VAR (textord_pitch_scalebigwords, false,
 "Scale scores on big words");
 EXTERN double_VAR(words_initial_lower, 0.5, "Max initial cluster size");
 EXTERN double_VAR (words_initial_upper, 0.15, "Min initial cluster spacing");
