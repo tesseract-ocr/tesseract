@@ -257,20 +257,20 @@ void WERD::print() {
   tprintf("Blanks= %d\n", blanks);
   bounding_box().print();
   tprintf("Flags = %d = 0%o\n", flags.val, flags.val);
-  tprintf("   W_SEGMENTED = %s\n", flags.bit(W_SEGMENTED) ? "TRUE" : "FALSE ");
-  tprintf("   W_ITALIC = %s\n", flags.bit(W_ITALIC) ? "TRUE" : "FALSE ");
-  tprintf("   W_BOL = %s\n", flags.bit(W_BOL) ? "TRUE" : "FALSE ");
-  tprintf("   W_EOL = %s\n", flags.bit(W_EOL) ? "TRUE" : "FALSE ");
+  tprintf("   W_SEGMENTED = %s\n", flags.bit(W_SEGMENTED) ? "TRUE" : "FALSE");
+  tprintf("   W_ITALIC = %s\n", flags.bit(W_ITALIC) ? "TRUE" : "FALSE");
+  tprintf("   W_BOL = %s\n", flags.bit(W_BOL) ? "TRUE" : "FALSE");
+  tprintf("   W_EOL = %s\n", flags.bit(W_EOL) ? "TRUE" : "FALSE");
   tprintf("   W_NORMALIZED = %s\n",
-          flags.bit(W_NORMALIZED) ? "TRUE" : "FALSE ");
+          flags.bit(W_NORMALIZED) ? "TRUE" : "FALSE");
   tprintf("   W_SCRIPT_HAS_XHEIGHT = %s\n",
-          flags.bit(W_SCRIPT_HAS_XHEIGHT) ? "TRUE" : "FALSE ");
+          flags.bit(W_SCRIPT_HAS_XHEIGHT) ? "TRUE" : "FALSE");
   tprintf("   W_SCRIPT_IS_LATIN = %s\n",
-          flags.bit(W_SCRIPT_IS_LATIN) ? "TRUE" : "FALSE ");
-  tprintf("   W_DONT_CHOP = %s\n", flags.bit(W_DONT_CHOP) ? "TRUE" : "FALSE ");
-  tprintf("   W_REP_CHAR = %s\n", flags.bit(W_REP_CHAR) ? "TRUE" : "FALSE ");
-  tprintf("   W_FUZZY_SP = %s\n", flags.bit(W_FUZZY_SP) ? "TRUE" : "FALSE ");
-  tprintf("   W_FUZZY_NON = %s\n", flags.bit(W_FUZZY_NON) ? "TRUE" : "FALSE ");
+          flags.bit(W_SCRIPT_IS_LATIN) ? "TRUE" : "FALSE");
+  tprintf("   W_DONT_CHOP = %s\n", flags.bit(W_DONT_CHOP) ? "TRUE" : "FALSE");
+  tprintf("   W_REP_CHAR = %s\n", flags.bit(W_REP_CHAR) ? "TRUE" : "FALSE");
+  tprintf("   W_FUZZY_SP = %s\n", flags.bit(W_FUZZY_SP) ? "TRUE" : "FALSE");
+  tprintf("   W_FUZZY_NON = %s\n", flags.bit(W_FUZZY_NON) ? "TRUE" : "FALSE");
   tprintf("Correct= %s\n", correct.string());
   tprintf("Rejected cblob count = %d\n", rej_cblobs.length());
   tprintf("Script = %d\n", script_id_);
