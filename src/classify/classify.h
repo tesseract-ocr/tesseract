@@ -424,9 +424,8 @@ class Classify : public CCStruct {
   // Set during training (in lang.config) to indicate whether the divisible
   // blobs chopper should be used in preference to chopping. Set to true for
   // southern Indic scripts.
-  BOOL_VAR_H(prioritize_division, FALSE,
+  BOOL_VAR_H(prioritize_division, false,
              "Prioritize blob division over chopping");
-  INT_VAR_H(tessedit_single_match, FALSE, "Top choice only from CP");
   BOOL_VAR_H(classify_enable_learning, true, "Enable adaptive classifier");
   INT_VAR_H(classify_debug_level, 0, "Classify debug level");
 
@@ -486,15 +485,15 @@ class Classify : public CCStruct {
             "Threshold for good protos during adaptive 0-255");
   INT_VAR_H(classify_adapt_feature_threshold, 230,
             "Threshold for good features during adaptive 0-255");
-  BOOL_VAR_H(disable_character_fragments, TRUE,
+  BOOL_VAR_H(disable_character_fragments, true,
              "Do not include character fragments in the"
              " results of the classifier");
   double_VAR_H(classify_character_fragments_garbage_certainty_threshold, -3.0,
                "Exclude fragments that do not match any whole character"
                " with at least this certainty");
-  BOOL_VAR_H(classify_debug_character_fragments, FALSE,
+  BOOL_VAR_H(classify_debug_character_fragments, false,
              "Bring up graphical debugging windows for fragments training");
-  BOOL_VAR_H(matcher_debug_separate_windows, FALSE,
+  BOOL_VAR_H(matcher_debug_separate_windows, false,
              "Use two different windows for debugging the matching: "
              "One for the protos and one for the features.");
   STRING_VAR_H(classify_learn_debug_str, "", "Class str to debug learning");
