@@ -22,6 +22,7 @@
 #include <cstdio>
 
 #include "genericvector.h"
+#include "host.h" // for BOOL8
 #include "strngs.h"
 
 namespace tesseract {
