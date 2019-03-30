@@ -39,7 +39,7 @@
 /**********************************************************************
  * same_point
  *
- * Return TRUE if the point values are the same. The parameters must
+ * Return true if the point values are the same. The parameters must
  * be of type POINT.
  **********************************************************************/
 #define same_point(p1,p2) \
@@ -86,7 +86,7 @@
 /**********************************************************************
  * is_exterior_point
  *
- * Return TRUE if the point supplied is an exterior projection from the
+ * Return true if the point supplied is an exterior projection from the
  * outline.
  **********************************************************************/
 
@@ -99,7 +99,7 @@
 /**********************************************************************
  * is_equal
  *
- * Return TRUE if the POINTs are equal.
+ * Return true if the POINTs are equal.
  **********************************************************************/
 
 #define is_equal(p1,p2)  \
@@ -108,7 +108,7 @@
 /**********************************************************************
  * is_on_line
  *
- * Return TRUE if the point is on the line segment between the two end
+ * Return true if the point is on the line segment between the two end
  * points.  The two end points are included as part of the  line.  The
  * parameters must be of type POINT.
  **********************************************************************/
@@ -120,8 +120,8 @@
 /**********************************************************************
  * within_range
  *
- * Return TRUE if the first number is in between the second two numbers.
- * Return FALSE otherwise.
+ * Return true if the first number is in between the second two numbers.
+ * Return false otherwise.
  **********************************************************************/
 
 #define within_range(x,x0,x1) \

@@ -46,20 +46,20 @@ Wordrec::Wordrec() :
 namespace tesseract {
 Wordrec::Wordrec() :
   // control parameters
-  BOOL_MEMBER(merge_fragments_in_matrix, TRUE,
+  BOOL_MEMBER(merge_fragments_in_matrix, true,
               "Merge the fragments in the ratings matrix and delete them"
               " after merging", params()),
-  BOOL_MEMBER(wordrec_no_block, FALSE, "Don't output block information",
+  BOOL_MEMBER(wordrec_no_block, false, "Don't output block information",
               params()),
-  BOOL_MEMBER(wordrec_enable_assoc, TRUE, "Associator Enable",
+  BOOL_MEMBER(wordrec_enable_assoc, true, "Associator Enable",
               params()),
-  BOOL_MEMBER(force_word_assoc, FALSE,
+  BOOL_MEMBER(force_word_assoc, false,
               "force associator to run regardless of what enable_assoc is."
               " This is used for CJK where component grouping is necessary.",
               CCUtil::params()),
   double_MEMBER(wordrec_worst_state, 1.0, "Worst segmentation state",
                 params()),
-  BOOL_MEMBER(fragments_guide_chopper, FALSE,
+  BOOL_MEMBER(fragments_guide_chopper, false,
               "Use information from fragments to guide chopping process",
               params()),
   INT_MEMBER(repair_unchopped_blobs, 1, "Fix blobs that aren't chopped",
@@ -106,7 +106,7 @@ Wordrec::Wordrec() :
              params()),
   INT_MEMBER(segment_adjust_debug, 0, "Segmentation adjustment debug",
              params()),
-  BOOL_MEMBER(assume_fixed_pitch_char_segment, FALSE,
+  BOOL_MEMBER(assume_fixed_pitch_char_segment, false,
               "include fixed-pitch heuristics in char segmentation",
               params()),
   INT_MEMBER(wordrec_debug_level, 0,
