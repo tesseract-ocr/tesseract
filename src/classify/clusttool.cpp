@@ -69,15 +69,8 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
                 "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
                 linear_token, essential_token, &ParamDesc[i].Min,
                 &ParamDesc[i].Max) == 4);
-    if (linear_token[0] == 'c')
-      ParamDesc[i].Circular = TRUE;
-    else
-      ParamDesc[i].Circular = FALSE;
-
-    if (linear_token[0] == 'e')
-      ParamDesc[i].NonEssential = FALSE;
-    else
-      ParamDesc[i].NonEssential = TRUE;
+    ParamDesc[i].Circular = (linear_token[0] == 'c');
+    ParamDesc[i].NonEssential = (linear_token[0] != 'e');
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
     ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
@@ -110,10 +103,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
   }
   Proto = (PROTOTYPE *)Emalloc(sizeof(PROTOTYPE));
   Proto->Cluster = nullptr;
-  if (sig_token[0] == 's')
-    Proto->Significant = TRUE;
-  else
-    Proto->Significant = FALSE;
+  Proto->Significant = (sig_token[0] == 's');
 
   switch (shape_token[0]) {
     case 's':
@@ -334,8 +324,8 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @param N number of dimensions in feature space
  * @param ParamDesc descriptions for each dimension
  * @param ProtoList list of prototypes to be written
- * @param WriteSigProtos TRUE to write out significant prototypes
- * @param WriteInsigProtos TRUE to write out insignificants
+ * @param WriteSigProtos true to write out significant prototypes
+ * @param WriteInsigProtos true to write out insignificants
  * @note Globals: None
  * @return None
  */

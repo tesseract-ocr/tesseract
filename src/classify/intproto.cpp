@@ -2,7 +2,6 @@
  ** Filename:    intproto.c
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
- ** History:     Thu Feb  7 14:38:16 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -1153,8 +1152,8 @@ void DoFill(FILL_SPEC *FillSpec,
     FillSpec->YEnd = NUM_CP_BUCKETS - 1;
 
   for (Y = FillSpec->YStart; Y <= FillSpec->YEnd; Y++)
-    for (Angle = FillSpec->AngleStart;
-         TRUE; CircularIncrement (Angle, NUM_CP_BUCKETS)) {
+    for (Angle = FillSpec->AngleStart; ;
+         CircularIncrement(Angle, NUM_CP_BUCKETS)) {
       OldWord = Pruner->p[X][Y][Angle][WordIndex];
       if (ClassCount > (OldWord & ClassMask)) {
         OldWord &= ~ClassMask;
@@ -1167,10 +1166,10 @@ void DoFill(FILL_SPEC *FillSpec,
 }                                /* DoFill */
 
 /**
- * Return TRUE if the specified table filler is done, i.e.
+ * Return true if the specified table filler is done, i.e.
  * if it has no more lines to fill.
  * @param Filler    table filler to check if done
- * @return TRUE if no more lines to fill, FALSE otherwise.
+ * @return true if no more lines to fill, false otherwise.
  * @note Globals: none
  */
 bool FillerDone(TABLE_FILLER* Filler) {
@@ -1212,7 +1211,7 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
   if (LastBucket >= NUM_PP_BUCKETS)
     LastBucket -= NUM_PP_BUCKETS;
   if (debug) tprintf("Circular fill from %d to %d", FirstBucket, LastBucket);
-  for (i = FirstBucket; TRUE; CircularIncrement (i, NUM_PP_BUCKETS)) {
+  for (i = FirstBucket; true; CircularIncrement (i, NUM_PP_BUCKETS)) {
     SET_BIT (ParamTable[i], Bit);
 
     /* exit loop after we have set the bit for the last bucket */

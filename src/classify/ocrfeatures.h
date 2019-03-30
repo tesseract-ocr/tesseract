@@ -2,7 +2,6 @@
  ** Filename:    features.h
  ** Purpose:     Generic definition of a feature.
  ** Author:      Dan Johnson
- ** History:     Sun May 20 10:28:30 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +40,8 @@ struct INT_FX_RESULT_STRUCT;
 // parameters are required to be the first parameters in the feature.
 
 struct PARAM_DESC {
-  int8_t Circular;      // TRUE if dimension wraps around
-  int8_t NonEssential;  // TRUE if dimension not used in searches
+  bool Circular;        // true if dimension wraps around
+  bool NonEssential;    // true if dimension not used in searches
   float Min;            // low end of range for circular dimensions
   float Max;            // high end of range for circular dimensions
   float Range;          // Max - Min

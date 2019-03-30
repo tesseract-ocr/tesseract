@@ -2,7 +2,6 @@
  ** Filename:    mfoutline.h
  ** Purpose:     Interface spec for fx outline structures
  ** Author:      Dan Johnson
- ** History:     Thu May 17 08:55:32 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +22,6 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "blobs.h"
-#include "host.h"
 #include "oldlist.h"
 #include "fpoint.h"
 #include "params.h"
@@ -41,8 +39,8 @@ typedef struct {
   FPOINT Point;
   float Slope;
   unsigned Padding:20;
-  BOOL8 Hidden:TRUE;
-  BOOL8 ExtremityMark:TRUE;
+  bool Hidden:true;
+  bool ExtremityMark:true;
   DIRECTION Direction:4;
   DIRECTION PreviousDirection:4;
 } MFEDGEPT;
@@ -70,8 +68,8 @@ typedef enum {
 #define MakeOutlineCircular(O)  (set_rest (last (O), (O)))
 
 /* macros for manipulating micro-feature outline edge points */
-#define ClearMark(P)    ((P)->ExtremityMark = FALSE)
-#define MarkPoint(P)    ((P)->ExtremityMark = TRUE)
+#define ClearMark(P)    ((P)->ExtremityMark = false)
+#define MarkPoint(P)    ((P)->ExtremityMark = true)
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

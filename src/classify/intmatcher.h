@@ -2,7 +2,6 @@
  ** Filename:    intmatcher.h
  ** Purpose:     Interface to high level generic classifier routines.
  ** Author:      Robert Moss
- ** History:     Wed Feb 13 15:24:15 MST 1991, RWM, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,7 @@
 // but turned on/off on the language-by-language basis or depending
 // on particular properties of the corpus (e.g. when we expect the
 // images to have low exposure).
-extern BOOL_VAR_H(disable_character_fragments, FALSE,
+extern BOOL_VAR_H(disable_character_fragments, false,
                   "Do not include character fragments in the"
                   " results of the classifier");
 

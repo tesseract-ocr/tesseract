@@ -42,7 +42,6 @@
 #include "fontinfo.h"           // for ScoredFont, FontSet
 #include "genericvector.h"      // for GenericVector
 #include "helpers.h"            // for IntCastRounded, ClipToRange
-#include "host.h"               // for FALSE, TRUE
 #include "intfx.h"              // for BlobToTrainingSample, INT_FX_RESULT_S...
 #include "intmatcher.h"         // for CP_RESULT_STRUCT, IntegerMatcher
 #include "intproto.h"           // for INT_FEATURE_STRUCT, (anonymous), Clas...
@@ -454,8 +453,8 @@ void Classify::LearnPieces(const char* fontname, int start, int length,
  *
  * Globals:
  * - #AdaptedTemplates current set of adapted templates
- * - #classify_save_adapted_templates TRUE if templates should be saved
- * - #classify_enable_adaptive_matcher TRUE if adaptive matcher is enabled
+ * - #classify_save_adapted_templates true if templates should be saved
+ * - #classify_enable_adaptive_matcher true if adaptive matcher is enabled
  */
 void Classify::EndAdaptiveClassifier() {
   STRING Filename;
@@ -648,7 +647,7 @@ void Classify::StartBackupAdaptiveClassifier() {
  *
  * Globals:
  * - #EnableLearning
- * set to TRUE by this routine
+ * set to true by this routine
  */
 void Classify::SettupPass1() {
   EnableLearning = classify_enable_learning;
@@ -665,10 +664,10 @@ void Classify::SettupPass1() {
  * learning is disabled.
  *
  * Globals:
- * - #EnableLearning set to FALSE by this routine
+ * - #EnableLearning set to false by this routine
  */
 void Classify::SettupPass2() {
-  EnableLearning = FALSE;
+  EnableLearning = false;
   getDict().SettupStopperPass2();
 
 }                                /* SettupPass2 */
@@ -811,8 +810,7 @@ int Classify::GetAdaptiveFeatures(TBLOB *Blob,
 -----------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------*/
 /**
- * Return TRUE if the specified word is
- * acceptable for adaptation.
+ * Return true if the specified word is acceptable for adaptation.
  *
  * Globals: none
  *
@@ -1979,7 +1977,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
  *
  * Globals: none
  *
- * @return TRUE if TempProto is converted, FALSE otherwise
+ * @return true if TempProto is converted, false otherwise
  */
 int MakeTempProtoPerm(void *item1, void *item2) {
   ADAPT_CLASS Class;
@@ -1995,14 +1993,14 @@ int MakeTempProtoPerm(void *item1, void *item2) {
 
   if (TempProto->ProtoId > Config->MaxProtoId ||
       !test_bit (Config->Protos, TempProto->ProtoId))
-    return FALSE;
+    return false;
 
   MakeProtoPermanent(Class, TempProto->ProtoId);
   AddProtoToClassPruner(&(TempProto->Proto), ProtoKey->ClassId,
                          ProtoKey->Templates->Templates);
   FreeTempProto(TempProto);
 
-  return TRUE;
+  return true;
 }                              /* MakeTempProtoPerm */
 
 /*---------------------------------------------------------------------------*/
