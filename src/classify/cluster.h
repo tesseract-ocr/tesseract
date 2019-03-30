@@ -30,8 +30,8 @@ struct BUCKETS;
           Types
 ----------------------------------------------------------------------*/
 typedef struct sample {
-  unsigned Clustered:1;         // TRUE if included in a higher cluster
-  unsigned Prototype:1;         // TRUE if cluster represented by a proto
+  bool Clustered:1;             // true if included in a higher cluster
+  bool Prototype:1;             // true if cluster represented by a proto
   unsigned SampleCount:30;      // number of samples in this cluster
   struct sample *Left;          // ptr to left sub-cluster
   struct sample *Right;         // ptr to right sub-cluster
@@ -65,8 +65,8 @@ typedef union {
 } FLOATUNION;
 
 typedef struct {
-  unsigned Significant:1;        // TRUE if prototype is significant
-  unsigned Merged:1;             // Merged after clustering so do not output
+  bool Significant:1;            // true if prototype is significant
+  bool Merged:1;                 // Merged after clustering so do not output
                                  // but kept for display purposes. If it has no
                                  // samples then it was actually merged.
                                  // Otherwise it matched an already significant
