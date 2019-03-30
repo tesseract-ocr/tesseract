@@ -2,7 +2,6 @@
  * File:        clst.cpp  (Formerly clist.c)
  * Description: CONS cell list handling code which is not in the include file.
  * Author:      Phil Cheatle
- * Created:     Mon Jan 28 08:33:13 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -253,7 +252,7 @@ void *CLIST_ITERATOR::forward() {
   if (current) {                 //not removed so
                                  //set previous
     prev = current;
-    started_cycling = TRUE;
+    started_cycling = true;
     // In case next is deleted by another iterator, get next from current.
     current = current->next;
   } else {

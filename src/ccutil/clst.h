@@ -2,7 +2,6 @@
  * File:        clst.h  (Formerly clist.h)
  * Description: CONS cell list module include file.
  * Author:      Phil Cheatle
- * Created:     Mon Jan 28 08:33:13 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #define CLST_H
 
 #include <cstdio>
-#include "host.h"
 #include "serialis.h"
 #include "lsterr.h"
 
@@ -639,8 +637,8 @@ inline void CLIST_ITERATOR::mark_cycle_pt() {
   if (current)
     cycle_pt = current;
   else
-    ex_current_was_cycle_pt = TRUE;
-  started_cycling = FALSE;
+    ex_current_was_cycle_pt = true;
+  started_cycling = false;
 }
 
 /***********************************************************************

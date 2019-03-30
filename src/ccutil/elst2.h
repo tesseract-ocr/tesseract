@@ -2,7 +2,6 @@
  * File:        elst2.h  (Formerly elist2.h)
  * Description: Double linked embedded list module include file.
  * Author:      Phil Cheatle
- * Created:     Wed Jan 23 11:04:47 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #define ELST2_H
 
 #include <cstdio>
-#include "host.h"
 #include "serialis.h"
 #include "lsterr.h"
 
@@ -682,8 +680,8 @@ inline void ELIST2_ITERATOR::mark_cycle_pt() {
   if (current)
     cycle_pt = current;
   else
-    ex_current_was_cycle_pt = TRUE;
-  started_cycling = FALSE;
+    ex_current_was_cycle_pt = true;
+  started_cycling = false;
 }
 
 /***********************************************************************
