@@ -111,11 +111,11 @@ static bool recog_done = false; // recog_all_words was called
 
 // These variables should remain global, since they are only used for the
 // debug mode (in which only a single Tesseract thread/instance will exist).
-BITS16 word_display_mode;
+static BITS16 word_display_mode;
 static ColorationMode color_mode = CM_RAINBOW;
-BOOL8 display_image = FALSE;
-BOOL8 display_blocks = FALSE;
-BOOL8 display_baselines = FALSE;
+static bool display_image = false;
+static bool display_blocks = false;
+static bool display_baselines = false;
 
 PAGE_RES *current_page_res = nullptr;
 
@@ -260,12 +260,12 @@ SVMenuNode *Tesseract::build_menu_new() {
 
   parent_menu = root_menu_item->AddChild("DISPLAY");
 
-  parent_menu->AddChild("Blamer", BLAMER_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Bounding Boxes", BOUNDING_BOX_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Correct Text", CORRECT_TEXT_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Baseline Normalized", BL_NORM_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Edge Steps", BITMAP_CMD_EVENT, TRUE);
+  parent_menu->AddChild("Blamer", BLAMER_CMD_EVENT, false);
+  parent_menu->AddChild("Bounding Boxes", BOUNDING_BOX_CMD_EVENT, false);
+  parent_menu->AddChild("Correct Text", CORRECT_TEXT_CMD_EVENT, false);
+  parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, false);
+  parent_menu->AddChild("Baseline Normalized", BL_NORM_CMD_EVENT, false);
+  parent_menu->AddChild("Edge Steps", BITMAP_CMD_EVENT, true);
   parent_menu->AddChild("Subscripts", SHOW_SUBSCRIPT_CMD_EVENT);
   parent_menu->AddChild("Superscripts", SHOW_SUPERSCRIPT_CMD_EVENT);
   parent_menu->AddChild("Italics", SHOW_ITALIC_CMD_EVENT);
@@ -280,9 +280,9 @@ SVMenuNode *Tesseract::build_menu_new() {
   parent_menu = root_menu_item->AddChild("OTHER");
 
   parent_menu->AddChild("Quit", QUIT_CMD_EVENT);
-  parent_menu->AddChild("Show Image", IMAGE_CMD_EVENT, FALSE);
-  parent_menu->AddChild("ShowBlock Outlines", BLOCKS_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Show Baselines", BASELINES_CMD_EVENT, FALSE);
+  parent_menu->AddChild("Show Image", IMAGE_CMD_EVENT, false);
+  parent_menu->AddChild("ShowBlock Outlines", BLOCKS_CMD_EVENT, false);
+  parent_menu->AddChild("Show Baselines", BASELINES_CMD_EVENT, false);
   parent_menu->AddChild("Uniform Display", UNIFORM_DISP_CMD_EVENT);
   parent_menu->AddChild("Refresh Display", REFRESH_CMD_EVENT);
 
@@ -299,7 +299,7 @@ void Tesseract::do_re_display(
   int block_count = 1;
 
   image_win->Clear();
-  if (display_image != 0) {
+  if (display_image) {
     image_win->Image(pix_binary_, 0, 0);
   }
 
