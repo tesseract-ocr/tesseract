@@ -127,7 +127,7 @@ class EquationFinderTest : public testing::Test {
     CHECK(blocks != nullptr);
     BLOCK_IT block_it(blocks);
     BLOCK* block =
-        new BLOCK("", TRUE, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
+        new BLOCK("", true, 0, 0, 0, 0, pixGetWidth(pix), pixGetHeight(pix));
     block_it.add_to_end(block);
   }
 
