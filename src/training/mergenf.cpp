@@ -15,7 +15,6 @@
  ** limitations under the License.
 ******************************************************************************/
 #include "mergenf.h"
-#include "host.h"
 #include "clusttool.h"
 #include "cluster.h"
 #include "oldlist.h"

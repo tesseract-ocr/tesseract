@@ -19,7 +19,7 @@
 #ifndef ERRCODE_H
 #define ERRCODE_H
 
-#include "host.h"
+#include "platform.h"   // for TESS_API
 
 /*Control parameters for error()*/
 enum TessErrorLogCode {

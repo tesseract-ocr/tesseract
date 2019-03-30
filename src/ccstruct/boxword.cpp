@@ -2,7 +2,6 @@
 // File:        boxword.cpp
 // Description: Class to represent the bounding boxes of the output.
 // Author:      Ray Smith
-// Created:     Tue May 25 14:18:14 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@
 
 #include "blobs.h"
 #include "boxword.h"
+#include "host.h"       // for NearlyEqual
 #include "normalis.h"
 #include "ocrblock.h"
 #include "pageres.h"

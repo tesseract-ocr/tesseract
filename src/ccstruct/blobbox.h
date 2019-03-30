@@ -25,6 +25,7 @@
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "elst2.h"             // for ELIST2_ITERATOR, ELIST2IZEH, ELIST2_LINK
 #include "errcode.h"           // for ASSERT_HOST
+#include "host.h"              // for PRId32
 #include "ocrblock.h"          // for BLOCK
 #include "params.h"            // for DoubleParam, double_VAR_H
 #include "pdblock.h"           // for PDBLK

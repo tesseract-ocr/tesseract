@@ -3,7 +3,6 @@
 // Description: Class to hold information about a single multi-page tiff
 //              training file and its corresponding boxes or text file.
 // Author:      Ray Smith
-// Created:     Tue May 28 08:56:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,6 +33,7 @@
 #include "boxread.h"     // for ReadMemBoxes
 #include "callcpp.h"     // for window_wait
 #include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
+#include "host.h"        // for PRId64
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "serialis.h"    // for TFile

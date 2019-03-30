@@ -2,7 +2,6 @@
  * File:        params.cpp
  * Description: Initialization and setting of Tesseract parameters.
  * Author:      Ray Smith
- * Created:     Fri Feb 22 16:22:34 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,7 +152,7 @@ bool ParamUtils::GetParamAsString(const char *name,
   auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
                                        member_params->bool_params);
   if (bp != nullptr) {
-    *value = BOOL8(*bp) ? "1": "0";
+    *value = bool(*bp) ? "1": "0";
     return true;
   }
   // Look for the parameter among double parameters.
@@ -179,7 +178,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
     }
     for (i = 0; i < vec->bool_params.size(); ++i) {
       fprintf(fp, "%s\t%d\t%s\n", vec->bool_params[i]->name_str(),
-              (BOOL8)(*vec->bool_params[i]), vec->bool_params[i]->info_str());
+              bool(*vec->bool_params[i]), vec->bool_params[i]->info_str());
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
       fprintf(fp, "%s\t%s\t%s\n", vec->string_params[i]->name_str(),

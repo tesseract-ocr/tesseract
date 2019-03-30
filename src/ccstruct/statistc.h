@@ -2,7 +2,6 @@
  * File:        statistc.h  (Formerly stats.h)
  * Description: Class description for STATS class.
  * Author:      Ray Smith
- * Created:     Mon Feb 04 16:19:07 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #define TESSERACT_CCSTRUCT_STATISTC_H_
 
 #include <cstdio>
-#include "host.h"
 #include "kdpair.h"
 #include "scrollview.h"
 

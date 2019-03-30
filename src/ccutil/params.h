@@ -22,7 +22,6 @@
 #include <cstdio>
 
 #include "genericvector.h"
-#include "host.h" // for BOOL8
 #include "strngs.h"
 
 namespace tesseract {
@@ -180,9 +179,9 @@ class BoolParam : public Param {
     vec->bool_params.push_back(this);
   }
   ~BoolParam() { ParamUtils::RemoveParam<BoolParam>(this, params_vec_); }
-  operator BOOL8() const { return value_; }
-  void operator=(BOOL8 value) { value_ = value; }
-  void set_value(BOOL8 value) { value_ = value; }
+  operator bool() const { return value_; }
+  void operator=(bool value) { value_ = value; }
+  void set_value(bool value) { value_ = value; }
   void ResetToDefault() { value_ = default_; }
   void ResetFrom(const ParamsVectors* vec) {
     for (int i = 0; i < vec->bool_params.size(); ++i) {
@@ -196,8 +195,8 @@ class BoolParam : public Param {
   }
 
  private:
-  BOOL8 value_;
-  BOOL8 default_;
+  bool value_;
+  bool default_;
   // Pointer to the vector that contains this param (not owned by this class).
   GenericVector<BoolParam*>* params_vec_;
 };

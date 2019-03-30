@@ -26,8 +26,10 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
+#include <cinttypes>            // for PRId64
 #include <memory>
 #include "elst.h"
+#include "host.h"               // for PRId64
 #include "params.h"
 #include "ratngs.h"
 #include "tesscallback.h"

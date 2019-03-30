@@ -2,7 +2,6 @@
 // File:        unicharmap.cpp
 // Description: Unicode character/ligature to integer id class.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,6 @@
 
 #include <cassert>
 #include "unichar.h"
-#include "host.h"
 #include "unicharmap.h"
 
 UNICHARMAP::UNICHARMAP() :

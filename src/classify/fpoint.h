@@ -24,7 +24,6 @@
 ----------------------------------------------------------------------------**/
 #include <cmath>
 #include <cstdio>
-#include "host.h"
 
 /* define data structure to hold 2D points or vectors using floating point */
 typedef struct {

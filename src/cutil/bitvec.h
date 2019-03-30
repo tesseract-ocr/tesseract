@@ -2,7 +2,6 @@
  **    Filename:    bitvec.h
  **    Purpose:     Routines for manipulating bit vectors
  **    Author:      Dan Johnson
- **    History:     Wed Mar  7 17:52:45 1990, DSJ, Created.
  **
  **    (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,11 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
+
 #ifndef   BITVEC_H
 #define   BITVEC_H
 
-#include "host.h"
+#include <cstdint>      // for uint32_t
 
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines

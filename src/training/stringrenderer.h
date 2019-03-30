@@ -11,7 +11,6 @@
  *              be set using respective set_* methods.
  *
  * Author:      Ranjith Unnikrishnan
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +32,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "host.h"
 #include "pango_font_info.h"
 #include "pango/pango-layout.h"
 #include "pango/pangocairo.h"

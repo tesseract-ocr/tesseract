@@ -22,7 +22,6 @@
 #include "ambigs.h"
 #include "dawg.h"
 #include "dawg_cache.h"
-#include "host.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "trie.h"

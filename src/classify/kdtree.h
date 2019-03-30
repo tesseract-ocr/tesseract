@@ -14,13 +14,13 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *****************************************************************************/
+
 #ifndef   KDTREE_H
 #define   KDTREE_H
 
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#include "host.h"
 #include "ocrfeatures.h"
 
 typedef void (*void_proc)(...);
@@ -92,4 +92,5 @@ void Walk(KDTREE *tree, void_proc action, void *context,
 void InsertNodes(KDTREE *tree, KDNODE *nodes);
 
 void FreeSubTree(KDNODE *SubTree);
+
 #endif
