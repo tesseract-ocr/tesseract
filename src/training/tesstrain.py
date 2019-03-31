@@ -16,7 +16,9 @@
 # Tesseract.  For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
-import sys, os, logging
+import sys
+import os
+import logging
 
 if (sys.version_info.major < 3) or (sys.version_info.major == 3 and sys.version_info.minor < 6):
     raise Exception("Must be using Python minimum version 3.6!")

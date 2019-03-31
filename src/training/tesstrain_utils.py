@@ -20,7 +20,6 @@ import sys
 from datetime import date
 from tempfile import TemporaryDirectory, mkdtemp
 from pathlib import Path
-from shutil import which
 import logging
 import subprocess
 import argparse
@@ -38,6 +37,7 @@ log = logging.getLogger(__name__)
 
 class TrainingArgs(argparse.Namespace):
     def __init__(self):
+        super(TrainingArgs, self).__init__()
         self.uname = platform.uname().system.lower()
         self.lang_code = "eng"
         self.timestamp = str(date.today())
@@ -56,6 +56,7 @@ class TrainingArgs(argparse.Namespace):
         self.extract_font_properties = True
         self.distort_image = False
 
+
 def err_exit(msg):
     log.critical(msg)
     sys.exit(1)
@@ -66,11 +67,11 @@ def err_exit(msg):
 # Usage: run_command CMD ARG1 ARG2...
 def run_command(cmd, *args, env=None):
     for d in ("", "api/", "training/"):
-        testcmd = which(f"{d}{cmd}")
-        if which(testcmd):
+        testcmd = shutil.which(f"{d}{cmd}")
+        if shutil.which(testcmd):
             cmd = testcmd
             break
-    if not which(cmd):
+    if not shutil.which(cmd):
         err_exit(f"{cmd} not found")
 
     log.debug(f"Running {cmd}")
