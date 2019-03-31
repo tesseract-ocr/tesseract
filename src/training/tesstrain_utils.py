@@ -14,19 +14,19 @@
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
 #
 
+import argparse
+import atexit
+import concurrent.futures
+import logging
 import os
+import pathlib
 import platform
+import shutil
+import subprocess
 import sys
 from datetime import date
-from tempfile import TemporaryDirectory, mkdtemp
-import pathlib
-import logging
-import subprocess
-import argparse
 from operator import itemgetter
-import concurrent.futures
-import shutil
-import atexit
+from tempfile import TemporaryDirectory, mkdtemp
 
 from tqdm import tqdm
 
@@ -247,18 +247,18 @@ def parse_flags(argv=None):
     # specified in the command-line.
     if not ctx.training_text:
         ctx.training_text = (
-            pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.training_text"
+                pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.training_text"
         )
     if not ctx.wordlist_file:
         ctx.wordlist_file = (
-            pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.wordlist"
+                pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.wordlist"
         )
 
     ctx.word_bigrams_file = (
-        pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.word.bigrams"
+            pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.word.bigrams"
     )
     ctx.numbers_file = (
-        pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.numbers"
+            pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.numbers"
     )
     ctx.punc_file = pathlib.Path(ctx.langdata_dir) / ctx.lang_code / f"{ctx.lang_code}.punc"
     ctx.bigram_freqs_file = pathlib.Path(ctx.training_text).with_suffix(
@@ -307,7 +307,6 @@ def make_outbase(ctx, fontname, exposure):
 # Helper function for phaseI_generate_image. Generates the image for a single
 # language/font combination in a way that can be run in parallel.
 def generate_font_image(ctx, font, exposure, char_spacing):
-
     log.info(f"Rendering using {font}")
     fontname = make_fontname(font)
     outbase = make_outbase(ctx, fontname, exposure)
@@ -358,7 +357,6 @@ def generate_font_image(ctx, font, exposure, char_spacing):
 
 # Phase I : Generate (I)mages from training text for each font.
 def phase_I_generate_image(ctx, par_factor):
-
     if not par_factor or par_factor <= 0:
         par_factor = 1
 
@@ -387,8 +385,8 @@ def phase_I_generate_image(ctx, par_factor):
             check_file_readable(ctx.train_ngrams_file)
 
         with tqdm(
-            total=len(ctx.fonts)
-         ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+                total=len(ctx.fonts)
+        ) as pbar, concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             futures = [
                 executor.submit(generate_font_image, ctx, font, exposure, char_spacing)
                 for font in ctx.fonts
@@ -533,7 +531,7 @@ def phase_E_extract_features(ctx, box_config, ext):
     log.info(f"Using TESSDATA_PREFIX={tessdata_environ['TESSDATA_PREFIX']}")
 
     with tqdm(total=len(img_files)) as pbar, concurrent.futures.ThreadPoolExecutor(
-        max_workers=2
+            max_workers=2
     ) as executor:
         futures = []
         for img_file in img_files:
@@ -692,7 +690,6 @@ def make_lstmdata(ctx):
     lstm_list = f"{ctx.output_dir}/{ctx.lang_code}.training_files.txt"
     dir_listing = (str(p) for p in path_output.glob(f"{ctx.lang_code}.*.lstmf"))
     pathlib.Path(lstm_list).write_text("\n".join(dir_listing))
-
 
 # make__traineddata() {
 #   tlog "\n=== Making final traineddata file ==="
