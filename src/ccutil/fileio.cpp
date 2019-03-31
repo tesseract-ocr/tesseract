@@ -2,7 +2,6 @@
  * File:        fileio.cpp
  * Description: File I/O utilities.
  * Author:      Samuel Charron
- * Created:     Tuesday, July 9, 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,7 +13,9 @@
  * language governing permissions and limitations under the License.
  *
  **********************************************************************/
+
 #ifdef _WIN32
+#include <windows.h>  // BOOL, ...
 #ifndef unlink
 #include <io.h>
 #endif

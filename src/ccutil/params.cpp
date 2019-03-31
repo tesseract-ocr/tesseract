@@ -23,6 +23,7 @@
 #include "genericvector.h"
 #include "tprintf.h"
 #include "params.h"
+#include "platform.h"  // MAX_PATH
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'
