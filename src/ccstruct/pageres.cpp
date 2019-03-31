@@ -29,7 +29,6 @@
 #include "blobs.h"         // for TWERD, TBLOB
 #include "boxword.h"       // for BoxWord
 #include "errcode.h"       // for ASSERT_HOST
-#include "host.h"          // for TRUE, FALSE
 #include "ocrblock.h"      // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
 #include "ocrrow.h"        // for ROW, ROW_IT
 #include "pdblock.h"       // for PDBLK
@@ -141,7 +140,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
     if (add_next_word) {
       ASSERT_HOST(combo != nullptr);
       // We are adding this word to the combination.
-      word_res->part_of_combo = TRUE;
+      word_res->part_of_combo = true;
       combo->copy_on(word_res);
     } else if (merge_similar_words) {
       union_box = word_res->word->bounding_box();
@@ -179,7 +178,7 @@ ROW_RES::ROW_RES(bool merge_similar_words, ROW *the_row) {
         combo->combination = true;
         word_res_it.add_to_end(combo);
       }
-      word_res->part_of_combo = TRUE;
+      word_res->part_of_combo = true;
     } else {
       combo = nullptr;
     }
@@ -1104,8 +1103,8 @@ void WERD_RES::InitNonPointers() {
   unlv_crunch_mode = CR_NONE;
   small_caps = false;
   odd_size = false;
-  italic = FALSE;
-  bold = FALSE;
+  italic = false;
+  bold = false;
   // The fontinfos and tesseract count as non-pointers as they point to
   // data owned elsewhere.
   fontinfo = nullptr;

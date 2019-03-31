@@ -2,7 +2,6 @@
  * File:        pageres.h  (Formerly page_res.h)
  * Description: Results classes used by control.c
  * Author:      Phil Cheatle
- * Created:     Tue Sep 22 08:42:49 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -292,7 +291,7 @@ class WERD_RES : public ELIST_LINK {
   REJMAP reject_map;           // best_choice rejects
   bool tess_failed;
   /*
-    If tess_failed is TRUE, one of the following tests failed when Tess
+    If tess_failed is true, one of the following tests failed when Tess
     returned:
     - The outword blob list was not the same length as the best_choice string;
     - The best_choice string contained ALL blanks;

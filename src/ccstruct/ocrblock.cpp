@@ -2,7 +2,6 @@
  * File:        ocrblock.cpp  (Formerly block.c)
  * Description: BLOCK member functions and iterator functions.
  * Author:      Ray Smith
- * Created:     Fri Mar 15 09:41:28 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +31,7 @@ ELISTIZE (BLOCK)
  * Constructor for a simple rectangular block.
  */
 BLOCK::BLOCK(const char *name,                ///< filename
-             BOOL8 prop,                      ///< proportional
+             bool prop,                       ///< proportional
              int16_t kern,                    ///< kerning
              int16_t space,                   ///< spacing
              int16_t xmin,                    ///< bottom left

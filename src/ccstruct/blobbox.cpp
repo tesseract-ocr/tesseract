@@ -29,7 +29,7 @@
 #include "coutln.h"      // for C_OUTLINE_IT, C_OUTLINE, C_OUTLINE_LIST
 #include "environ.h"     // for l_uint32
 #include "helpers.h"     // for UpdateRange, IntCastRounded
-#include "host.h"        // for NearlyEqual, TRUE
+#include "host.h"        // for NearlyEqual
 #include "points.h"      // for operator+=, ICOORD::rotate
 
 struct Pix;
@@ -94,7 +94,7 @@ void BLOBNBOX::merge(                    //merge blobs
                     ) {
   box += nextblob->box;          //merge boxes
   set_diacritic_box(box);
-  nextblob->joined = TRUE;
+  nextblob->joined = true;
 }
 
 

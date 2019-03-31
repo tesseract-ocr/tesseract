@@ -1,8 +1,7 @@
 /**********************************************************************
  * File:        statistc.cpp  (Formerly stats.c)
  * Description: Simple statistical package for integer values.
- * Author:          Ray Smith
- * Created:         Mon Feb 04 16:56:05 GMT 1991
+ * Author:      Ray Smith
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -256,7 +255,7 @@ double STATS::median() const {  //get median
 /**********************************************************************
  * STATS::local_min
  *
- * Return TRUE if this point is a local min.
+ * Return true if this point is a local min.
  **********************************************************************/
 bool STATS::local_min(int32_t x) const {
   if (buckets_ == nullptr) {

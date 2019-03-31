@@ -2,7 +2,6 @@
  * File:        pdblock.cpp
  * Description: PDBLK member functions and iterator functions.
  * Author:      Ray Smith
- * Created:     Fri Mar 15 09:41:28 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +20,7 @@
 #include <cstdlib>
 #include <memory>  // std::unique_ptr
 #include "allheaders.h"
+#include "host.h"  // for PRId32
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
@@ -83,7 +83,7 @@ void PDBLK::set_sides(                       //set vertex lists
 /**********************************************************************
  * PDBLK::contains
  *
- * Return TRUE if the given point is within the block.
+ * Return true if the given point is within the block.
  **********************************************************************/
 
 bool PDBLK::contains(           //test containment
@@ -354,7 +354,7 @@ int16_t BLOCK_LINE_IT::get_line(             //get a line
                                  //get block box
   block->bounding_box (bleft, tright);
   if (y < bleft.y () || y >= tright.y ()) {
-    //              block->print(stderr,FALSE);
+    //              block->print(stderr,false);
     BADBLOCKLINE.error ("BLOCK_LINE_IT::get_line", ABORT, "Y=%d", y);
   }
 

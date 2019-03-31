@@ -2,7 +2,6 @@
  * File:        blread.cpp  (Formerly pdread.c)
  * Description: Friend function of BLOCK to read the uscan pd file.
  * Author:      Ray Smith
- * Created:     Mon Mar 18 14:39:00 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,6 @@
 
 #include "blread.h"
 #include <cstdio>       // for fclose, fopen, FILE
-#include "host.h"       // for TRUE
 #include "ocrblock.h"   // for BLOCK_IT, BLOCK, BLOCK_LIST (ptr only)
 #include "scanutils.h"  // for tfscanf
 
@@ -51,7 +49,7 @@ bool read_unlv_file(                    //print list of sides
   } else {
     while (tfscanf(pdfp, "%d %d %d %d %*s", &x, &y, &width, &height) >= 4) {
                                  //make rect block
-      block = new BLOCK (name.string (), TRUE, 0, 0,
+      block = new BLOCK (name.string (), true, 0, 0,
                          (int16_t) x, (int16_t) (ysize - y - height),
                          (int16_t) (x + width), (int16_t) (ysize - y));
                                  //on end of list
@@ -64,6 +62,6 @@ bool read_unlv_file(                    //print list of sides
 
 void FullPageBlock(int width, int height, BLOCK_LIST *blocks) {
   BLOCK_IT block_it(blocks);
-  auto* block = new BLOCK("", TRUE, 0, 0, 0, 0, width, height);
+  auto* block = new BLOCK("", true, 0, 0, 0, 0, width, height);
   block_it.add_to_end(block);
 }

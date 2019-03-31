@@ -2,7 +2,6 @@
  * File:        coutln.cpp  (Formerly coutline.c)
  * Description: Code for the C_OUTLINE class.
  * Author:      Ray Smith
- * Created:     Mon Oct 07 16:01:57 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -460,7 +459,7 @@ int32_t C_OUTLINE::count_transitions(int32_t threshold) {
 /**
  * @name C_OUTLINE::operator<
  *
- * @return TRUE if the left operand is inside the right one.
+ * @return true if the left operand is inside the right one.
  * @param other other outline
  */
 

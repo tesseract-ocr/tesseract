@@ -2,7 +2,6 @@
  * File:        ocrblock.h  (Formerly block.h)
  * Description: Page block class definition.
  * Author:      Ray Smith
- * Created:     Thu Mar 14 17:32:01 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,7 +39,7 @@ class BLOCK:public ELIST_LINK
     pdblk.hand_poly = nullptr;
   }
   BLOCK(const char *name,  ///< filename
-        BOOL8 prop,        ///< proportional
+        bool prop,         ///< proportional
         int16_t kern,      ///< kerning
         int16_t space,     ///< spacing
         int16_t xmin,      ///< bottom left
@@ -57,7 +56,7 @@ class BLOCK:public ELIST_LINK
    * @param space inter word size
    * @param ch_pitch pitch if fixed
    */
-  void set_stats(BOOL8 prop,
+  void set_stats(bool prop,
                  int16_t kern,
                  int16_t space,
                  int16_t ch_pitch) {
@@ -75,7 +74,7 @@ class BLOCK:public ELIST_LINK
     font_class = font;
   }
   /// return proportional
-  BOOL8 prop() const {
+  bool prop() const {
     return proportional;
   }
   bool right_to_left() const {
@@ -192,7 +191,7 @@ class BLOCK:public ELIST_LINK
   PDBLK pdblk;                 ///< Page Description Block
 
  private:
-  BOOL8 proportional;          ///< proportional
+  bool proportional;           ///< proportional
   bool right_to_left_;         ///< major script is right to left.
   int8_t kerning;              ///< inter blob gap
   int16_t spacing;             ///< inter word gap

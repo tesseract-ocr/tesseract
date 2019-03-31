@@ -2,7 +2,6 @@
  * File:        polyaprx.cpp  (Formerly polygon.c)
  * Description: Code for polygonal approximation from old edgeprog.
  * Author:      Ray Smith
- * Created:     Thu Nov 25 11:42:04 GMT 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@
 #include "blobs.h"             // for EDGEPT, TPOINT, VECTOR, TESSLINE
 #include "coutln.h"            // for C_OUTLINE
 #include "errcode.h"           // for ASSERT_HOST
-#include "host.h"              // for FALSE, TRUE
 #include "mod128.h"            // for DIR128
 #include "params.h"            // for BoolParam, BOOL_VAR
 #include "points.h"            // for ICOORD
@@ -33,8 +31,8 @@
 #define EXTERN
 #define FASTEDGELENGTH    256
 
-EXTERN BOOL_VAR(poly_debug, FALSE, "Debug old poly");
-EXTERN BOOL_VAR(poly_wide_objects_better, TRUE,
+EXTERN BOOL_VAR(poly_debug, false, "Debug old poly");
+EXTERN BOOL_VAR(poly_wide_objects_better, true,
                 "More accurate approx on wide things");
 
 #define FIXED       4            /*OUTLINE point is fixed */

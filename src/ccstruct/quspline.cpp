@@ -265,7 +265,7 @@ void QSPLINE::move(            // reposition spline
 /**********************************************************************
  * QSPLINE::overlap
  *
- * Return TRUE if spline2 overlaps this by no more than fraction less
+ * Return true if spline2 overlaps this by no more than fraction less
  * than the bounds of this.
  **********************************************************************/
 

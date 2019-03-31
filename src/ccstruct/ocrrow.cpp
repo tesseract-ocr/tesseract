@@ -2,7 +2,6 @@
  * File:        ocrrow.cpp  (Formerly row.c)
  * Description: Code for the ROW class.
  * Author:      Ray Smith
- * Created:     Tue Oct 08 15:58:04 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -124,15 +123,15 @@ void ROW::recalc_bounding_box() {  //recalculate BB
   for (it.mark_cycle_pt (); !it.cycled_list (); it.forward ()) {
     word = it.data ();
     if (it.at_first ())
-      word->set_flag (W_BOL, TRUE);
+      word->set_flag (W_BOL, true);
     else
                                  //not start of line
-      word->set_flag (W_BOL, FALSE);
+      word->set_flag (W_BOL, false);
     if (it.at_last ())
-      word->set_flag (W_EOL, TRUE);
+      word->set_flag(W_EOL, true);
     else
                                  //not end of line
-      word->set_flag (W_EOL, FALSE);
+      word->set_flag(W_EOL, false);
                                  //extend BB as reqd
     bound_box += word->bounding_box ();
   }
