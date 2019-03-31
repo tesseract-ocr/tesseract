@@ -3,7 +3,7 @@
  * Description: Renderer for creating box file for LSTM training.
  *              based on the tsv renderer.
  *
- * (C) Copyright 2006, Google Inc.
+ * (C) Copyright 2019, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -35,14 +35,13 @@ static void AddBoxToLSTM(int right, int bottom, int top, int image_height,
   text->add_str_int(" ", page_num);
 }
 
-char* TessBaseAPI::GetLSTMBoxText(int page_number) {
+char* TessBaseAPI::GetLSTMBoxText(int page_number=0) {
   if (tesseract_ == nullptr || (page_res_ == nullptr && Recognize(nullptr) < 0))
     return nullptr;
 
   STRING lstm_box_str("");
-  int page_num = page_number;
   bool first_word = true;
-  int left, top, right, bottom;
+  int left = 0, top = 0, right = 0, bottom = 0;
 
   LTRResultIterator* res_it = GetLTRIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
@@ -54,14 +53,14 @@ char* TessBaseAPI::GetLSTMBoxText(int page_number) {
       if (!(res_it->IsAtBeginningOf(RIL_TEXTLINE))) {
         if (res_it->IsAtBeginningOf(RIL_WORD)) {
           lstm_box_str.add_str_int("  ", left);
-          AddBoxToLSTM(right, bottom, top, image_height_, page_num,
+          AddBoxToLSTM(right, bottom, top, image_height_, page_number,
                        &lstm_box_str);
           lstm_box_str += "\n";  // end of row for word
         }                        // word
       } else {
         if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
           lstm_box_str.add_str_int("\t ", left);
-          AddBoxToLSTM(right, bottom, top, image_height_, page_num,
+          AddBoxToLSTM(right, bottom, top, image_height_, page_number,
                        &lstm_box_str);
           lstm_box_str += "\n";  // end of row for line
         }                        // line
@@ -76,12 +75,14 @@ char* TessBaseAPI::GetLSTMBoxText(int page_number) {
       res_it->Next(RIL_SYMBOL);
     } while (!res_it->Empty(RIL_BLOCK) && !res_it->IsAtBeginningOf(RIL_SYMBOL));
     lstm_box_str.add_str_int(" ", left);
-    AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
+    AddBoxToLSTM(right, bottom, top, image_height_, page_number, &lstm_box_str);
     lstm_box_str += "\n";  // end of row for symbol
   }
-  lstm_box_str.add_str_int("\t ", left);
-  AddBoxToLSTM(right, bottom, top, image_height_, page_num, &lstm_box_str);
-  lstm_box_str += "\n";  // end of PAGE
+  if (!first_word) {  // if first_word is true  => empty page
+    lstm_box_str.add_str_int("\t ", left);
+    AddBoxToLSTM(right, bottom, top, image_height_, page_number, &lstm_box_str);
+    lstm_box_str += "\n";  // end of PAGE
+  }
   char* ret = new char[lstm_box_str.length() + 1];
   strcpy(ret, lstm_box_str.string());
   delete res_it;
