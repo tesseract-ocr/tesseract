@@ -41,7 +41,3 @@ libtesseract_ccutil_la_SOURCES = \
     params.cpp universalambigs.cpp
 
 AM_CPPFLAGS += $(libarchive_CFLAGS)
-
-if T_WIN
-AM_CPPFLAGS += -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
-endif

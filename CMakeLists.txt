@@ -214,7 +214,6 @@ include(BuildFunctions)
 include(SourceGroups)
 
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
-add_definitions(-DWINDLLNAME="libtesseract${VERSION_MAJOR}${VERSION_MINOR}.dll")
 
 include_directories(${Leptonica_INCLUDE_DIRS})
 
