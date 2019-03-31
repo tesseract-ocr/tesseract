@@ -2,7 +2,6 @@
 // File:        unichar.h
 // Description: Unicode character/ligature class.
 // Author:      Ray Smith
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,7 +76,7 @@ class UNICHAR {
   // Get the length of the UTF8 string.
   int utf8_len() const {
     int len = chars[UNICHAR_LEN - 1];
-    return len >=0 && len < UNICHAR_LEN ? len : UNICHAR_LEN;
+    return len >= 0 && len < UNICHAR_LEN ? len : UNICHAR_LEN;
   }
 
   // Get a UTF8 string, but NOT nullptr terminated.
@@ -106,13 +105,13 @@ class UNICHAR {
   //     tprintf("Char = %s\n", buf);
   //   }
   class const_iterator {
-    using CI = const_iterator ;
+    using CI = const_iterator;
 
    public:
     // Step to the next UTF8 character.
     // If the current position is at an illegal UTF8 character, then print an
-    // error message and step by one byte. If the current position is at a nullptr
-    // value, don't step past it.
+    // error message and step by one byte. If the current position is at a
+    // nullptr value, don't step past it.
     const_iterator& operator++();
 
     // Return the UCS-4 value at the current position.
@@ -133,7 +132,9 @@ class UNICHAR {
     bool is_legal() const;
 
     // Return the pointer into the string at the current position.
-    const char* utf8_data() const { return it_; }
+    const char* utf8_data() const {
+      return it_;
+    }
 
     // Iterator equality operators.
     friend bool operator==(const CI& lhs, const CI& rhs) {
@@ -153,8 +154,8 @@ class UNICHAR {
   // Create a start/end iterator pointing to a string. Note that these methods
   // are static and do NOT create a copy or take ownership of the underlying
   // array.
-  static const_iterator begin(const char* utf8_str, const int byte_length);
-  static const_iterator end(const char* utf8_str, const int byte_length);
+  static const_iterator begin(const char* utf8_str, int byte_length);
+  static const_iterator end(const char* utf8_str, int byte_length);
 
   // Converts a utf-8 string to a vector of unicodes.
   // Returns an empty vector if the input contains invalid UTF-8.
@@ -167,7 +168,7 @@ class UNICHAR {
   // A UTF-8 representation of 1 or more Unicode characters.
   // The last element (chars[UNICHAR_LEN - 1]) is a length if
   // its value < UNICHAR_LEN, otherwise it is a genuine character.
-  char chars[UNICHAR_LEN];
+  char chars[UNICHAR_LEN]{};
 };
 
 }  // namespace tesseract
