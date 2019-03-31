@@ -878,8 +878,12 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   STRING truth_text = DecodeLabels(truth_labels);
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
-    tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(),
+      if (truth_text != ocr_text) {
+         tprintf("Iteration %d: GROUND  TRUTH : %s\n",
+            training_iteration(), truth_text.string());
+         tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(),
             ocr_text.string());
+      }
   }
   double char_error = ComputeCharError(truth_labels, ocr_labels);
   double word_error = ComputeWordError(&truth_text, &ocr_text);
