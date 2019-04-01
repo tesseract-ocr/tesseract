@@ -78,7 +78,10 @@ void build(Solution &s)
         libtesseract.Public += "org.sw.demo.libarchive.libarchive"_dep;
 
         if (s.Settings.TargetOS.Type == OSType::Windows)
+        {
             libtesseract.Public += "ws2_32.lib"_l;
+            libtesseract.Protected += "NOMINMAX"_def;
+        }
 
         libtesseract.Variables["TESSERACT_MAJOR_VERSION"] = libtesseract.Variables["PACKAGE_MAJOR_VERSION"];
         libtesseract.Variables["TESSERACT_MINOR_VERSION"] = libtesseract.Variables["PACKAGE_MINOR_VERSION"];

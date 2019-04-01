@@ -22,6 +22,8 @@
 
 #include "debugpixa.h"
 
+#include <stdint.h>
+
 struct Boxa;
 struct Pix;
 struct Pixa;
