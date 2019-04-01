@@ -15,6 +15,9 @@
 
 #include <memory>
 #include <sstream>  // for std::stringstream
+#ifdef _WIN32
+#  include <windows.h>   // MultiByteToWideChar, ...
+#endif
 #include "baseapi.h"
 #include "renderer.h"
 
