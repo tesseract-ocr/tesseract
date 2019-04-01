@@ -46,3 +46,21 @@ $CXX $CXXFLAGS \
      /usr/lib/x86_64-linux-gnu/liblzma.a \
      -lz \
      -lFuzzingEngine
+
+$CXX $CXXFLAGS \
+    -DTESSERACT_FUZZER_WIDTH=512 \
+    -DTESSERACT_FUZZER_HEIGHT=512 \
+    -I $SRC/tesseract/src/api \
+    -I $SRC/tesseract/src/ccstruct \
+    -I $SRC/tesseract/src/ccmain \
+    -I $SRC/tesseract/src/ccutil \
+     $SRC/tesseract-ocr-fuzzers/fuzzer-api.cpp -o $OUT/fuzzer-api-512x512 \
+     $SRC/tesseract/src/api/.libs/libtesseract.a \
+     /usr/local/lib/liblept.a \
+     /usr/lib/x86_64-linux-gnu/libtiff.a \
+     /usr/lib/x86_64-linux-gnu/libpng.a \
+     /usr/lib/x86_64-linux-gnu/libjpeg.a \
+     /usr/lib/x86_64-linux-gnu/libjbig.a \
+     /usr/lib/x86_64-linux-gnu/liblzma.a \
+     -lz \
+     -lFuzzingEngine
