@@ -550,11 +550,11 @@ bool DocumentData::ReCachePages() {
     }
   }
   if (page < loaded_pages) {
-    tprintf("Deserialize failed: %s read %d/%d pages\n",
+    tprintf("Deserialize failed: %s read %d/%d lines\n",
             document_name_.string(), page, loaded_pages);
     pages_.truncate(0);
   } else {
-    tprintf("Loaded %d/%d pages (%d-%d) of document %s\n", pages_.size(),
+    tprintf("Loaded %d/%d lines (%d-%d) of document %s\n", pages_.size(),
             loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
             document_name_.string());
   }
