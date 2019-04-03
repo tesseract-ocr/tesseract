@@ -245,12 +245,12 @@ class RecodeBeamSearch {
   struct RecodeBeam {
     // Resets to the initial state without deleting all the memory.
     void Clear() {
-      for (int i = 0; i < kNumBeams; ++i) {
-        beams_[i].clear();
+      for (auto & beam : beams_) {
+        beam.clear();
       }
       RecodeNode empty;
-      for (int i = 0; i < NC_COUNT; ++i) {
-        best_initial_dawgs_[i] = empty;
+      for (auto & best_initial_dawg : best_initial_dawgs_) {
+        best_initial_dawg = empty;
       }
     }
 

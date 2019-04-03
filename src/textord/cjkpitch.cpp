@@ -900,7 +900,7 @@ class FPAnalyzer {
   ~FPAnalyzer() { }
 
   void Pass1Analyze() {
-    for (size_t i = 0; i < rows_.size(); i++) rows_[i].Pass1Analyze();
+    for (auto & row : rows_) row.Pass1Analyze();
   }
 
   // Estimate character pitch for each row.  The argument pass1 can be
@@ -915,17 +915,17 @@ class FPAnalyzer {
   }
 
   void MergeFragments() {
-    for (size_t i = 0; i < rows_.size(); i++) rows_[i].MergeFragments();
+    for (auto & row : rows_) row.MergeFragments();
   }
 
   void FinalizeLargeChars() {
-    for (size_t i = 0; i < rows_.size(); i++) rows_[i].FinalizeLargeChars();
+    for (auto & row : rows_) row.FinalizeLargeChars();
   }
 
   bool Pass2Analyze() {
     bool changed = false;
-    for (size_t i = 0; i < rows_.size(); i++) {
-      if (rows_[i].Pass2Analyze()) {
+    for (auto & row : rows_) {
+      if (row.Pass2Analyze()) {
         changed = true;
       }
     }
@@ -933,7 +933,7 @@ class FPAnalyzer {
   }
 
   void OutputEstimations() {
-    for (size_t i = 0; i < rows_.size(); i++) rows_[i].OutputEstimations();
+    for (auto & row : rows_) row.OutputEstimations();
     // Don't we need page-level estimation of gaps/spaces?
   }
 
@@ -1001,36 +1001,36 @@ void FPAnalyzer::EstimatePitch(bool pass1) {
   num_tall_rows_ = 0;
   num_bad_rows_ = 0;
   pitch_height_stats.Clear();
-  for (size_t i = 0; i < rows_.size(); i++) {
-    rows_[i].EstimatePitch(pass1);
-    if (rows_[i].good_pitches()) {
-      pitch_height_stats.Add(rows_[i].height() + rows_[i].gap(),
-                             rows_[i].pitch(), rows_[i].good_pitches());
-      if (rows_[i].height_pitch_ratio() > 1.1) num_tall_rows_++;
+  for (auto & row : rows_) {
+    row.EstimatePitch(pass1);
+    if (row.good_pitches()) {
+      pitch_height_stats.Add(row.height() + row.gap(),
+                             row.pitch(), row.good_pitches());
+      if (row.height_pitch_ratio() > 1.1) num_tall_rows_++;
     } else {
       num_bad_rows_++;
     }
   }
 
   pitch_height_stats.Finish();
-  for (size_t i = 0; i < rows_.size(); i++) {
-    if (rows_[i].good_pitches() >= 5) {
+  for (auto & row : rows_) {
+    if (row.good_pitches() >= 5) {
       // We have enough evidences. Just use the pitch estimation
       // from this row.
-      rows_[i].set_estimated_pitch(rows_[i].pitch());
-    } else if (rows_[i].num_chars() > 1) {
+      row.set_estimated_pitch(row.pitch());
+    } else if (row.num_chars() > 1) {
       float estimated_pitch =
-          pitch_height_stats.EstimateYFor(rows_[i].height() + rows_[i].gap(),
+          pitch_height_stats.EstimateYFor(row.height() + row.gap(),
                                           0.1);
       // CJK characters are more likely to be fragmented than poorly
       // chopped. So trust the page-level estimation of character
       // pitch only if it's larger than row-level estimation or
       // row-level estimation is too large (2x bigger than row height).
-      if (estimated_pitch > rows_[i].pitch() ||
-          rows_[i].pitch() > rows_[i].height() * 2.0) {
-        rows_[i].set_estimated_pitch(estimated_pitch);
+      if (estimated_pitch > row.pitch() ||
+          row.pitch() > row.height() * 2.0) {
+        row.set_estimated_pitch(estimated_pitch);
       } else {
-        rows_[i].set_estimated_pitch(rows_[i].pitch());
+        row.set_estimated_pitch(row.pitch());
       }
     }
   }

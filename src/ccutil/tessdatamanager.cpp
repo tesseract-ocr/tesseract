@@ -183,17 +183,17 @@ void TessdataManager::Serialize(GenericVector<char> *data) const {
   fp.OpenWrite(data);
   fp.Serialize(&num_entries);
   fp.Serialize(&offset_table[0], countof(offset_table));
-  for (unsigned i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
-    if (!entries_[i].empty()) {
-      fp.Serialize(&entries_[i][0], entries_[i].size());
+  for (const auto& entry : entries_) {
+    if (!entry.empty()) {
+      fp.Serialize(&entry[0], entry.size());
     }
   }
 }
 
 // Resets to the initial state, keeping the reader.
 void TessdataManager::Clear() {
-  for (unsigned i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
-    entries_[i].clear();
+  for (auto& entry : entries_) {
+    entry.clear();
   }
   is_loaded_ = false;
 }
@@ -245,11 +245,11 @@ bool TessdataManager::CombineDataFiles(
     const char *language_data_path_prefix,
     const char *output_filename) {
   // Load individual tessdata components from files.
-  for (unsigned i = 0; i < TESSDATA_NUM_ENTRIES; ++i) {
+  for (auto filesuffix : kTessdataFileSuffixes) {
     TessdataType type;
-    ASSERT_HOST(TessdataTypeFromFileSuffix(kTessdataFileSuffixes[i], &type));
+    ASSERT_HOST(TessdataTypeFromFileSuffix(filesuffix, &type));
     STRING filename = language_data_path_prefix;
-    filename += kTessdataFileSuffixes[i];
+    filename += filesuffix;
     FILE *fp = fopen(filename.string(), "rb");
     if (fp != nullptr) {
       fclose(fp);

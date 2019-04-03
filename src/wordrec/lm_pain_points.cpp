@@ -209,8 +209,8 @@ bool LMPainPoints::GeneratePainPoint(
  * matrix due to a split of the blob with the given index.
  */
 void LMPainPoints::RemapForSplit(int index) {
-  for (int i = 0; i < LM_PPTYPE_NUM; ++i) {
-    GenericVector<MatrixCoordPair>* heap = pain_points_heaps_[i].heap();
+  for (auto & pain_points_heap : pain_points_heaps_) {
+    GenericVector<MatrixCoordPair>* heap = pain_points_heap.heap();
     for (int j = 0; j < heap->size(); ++j)
       (*heap)[j].data.MapForSplit(index);
   }

@@ -293,13 +293,11 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     if (bold) hocr_str << "</strong>";
     // If the lstm choice mode is required it is added here
     if (tesseract_->lstm_choice_mode == 1 && rawTimestepMap != nullptr) {
-      for (size_t i = 0; i < rawTimestepMap->size(); i++) {
+      for (auto timestep : *rawTimestepMap) {
         hocr_str << "\n       <span class='ocrx_cinfo'"
                  << " id='"
                  << "timestep_" << page_id << "_" << wcnt << "_" << tcnt << "'"
                  << ">";
-        std::vector<std::pair<const char*, float>> timestep =
-            (*rawTimestepMap)[i];
         for (std::pair<const char*, float> conf : timestep) {
           hocr_str << "<span class='ocr_glyph'"
                    << " id='"
@@ -312,21 +310,19 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         tcnt++;
       }
     } else if (tesseract_->lstm_choice_mode == 2 && choiceMap != nullptr) {
-      for (size_t i = 0; i < choiceMap->size(); i++) {
-        std::vector<std::pair<const char*, float>> timestep =
-            (*choiceMap)[i];
+      for (auto timestep : *choiceMap) {
         if (timestep.size() > 0) {
           hocr_str << "\n       <span class='ocrx_cinfo'"
                    << " id='"
                    << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt
                    << "'>";
-          for (size_t j = 0; j < timestep.size(); j++) {
+          for (auto & j : timestep) {
             hocr_str << "<span class='ocr_glyph'"
                      << " id='"
                      << "choice_" << page_id << "_" << wcnt << "_" << gcnt
                      << "'"
-                     << " title='x_confs " << int(timestep[j].second * 100)
-                     << "'>" << timestep[j].first << "</span>";
+                     << " title='x_confs " << int(j.second * 100)
+                     << "'>" << j.first << "</span>";
             gcnt++;
           }
           hocr_str << "</span>";
@@ -334,21 +330,17 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         }
       }
     } else if (tesseract_->lstm_choice_mode == 3 && symbolMap != nullptr) {
-      for (size_t j = 0; j < symbolMap->size(); j++) {
-        std::vector<std::vector<std::pair<const char*, float>>> timesteps =
-            (*symbolMap)[j];
+      for (auto timesteps : *symbolMap) {
         hocr_str << "\n       <span class='ocr_symbol'"
                  << " id='"
                  << "symbol_" << page_id << "_" << wcnt << "_" << scnt
                  << "'>";
-        for (size_t i = 0; i < timesteps.size(); i++) {
+        for (auto timestep : timesteps) {
           hocr_str << "\n        <span class='ocrx_cinfo'"
                    << " id='"
                    << "timestep_" << page_id << "_" << wcnt << "_" << tcnt
                    << "'"
                    << ">";
-          std::vector<std::pair<const char*, float>> timestep =
-              timesteps[i];
           for (std::pair<const char*, float> conf : timestep) {
             hocr_str << "<span class='ocr_glyph'"
                      << " id='"

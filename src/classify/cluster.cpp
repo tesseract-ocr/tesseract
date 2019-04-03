@@ -405,8 +405,8 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
 
   // Initialize cache of histogram buckets to minimize recomputing them.
   for (auto & d : Clusterer->bucket_cache) {
-    for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-      d[c] = nullptr;
+    for (auto & c : d)
+      c = nullptr;
   }
 
   return Clusterer;
@@ -520,9 +520,9 @@ void FreeClusterer(CLUSTERER *Clusterer) {
       FreeCluster (Clusterer->Root);
     // Free up all used buckets structures.
     for (auto & d : Clusterer->bucket_cache) {
-      for (int c = 0; c < MAXBUCKETS + 1 - MINBUCKETS; ++c)
-        if (d[c] != nullptr)
-          FreeBuckets(d[c]);
+      for (auto & c : d)
+        if (c != nullptr)
+          FreeBuckets(c);
     }
 
     free(Clusterer);
