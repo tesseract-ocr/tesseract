@@ -22,8 +22,10 @@
 #include <cstdint>
 #include <vector>
 
-template <class T> class GENERIC_2D_ARRAY;
-template <typename T> class GenericVector;
+template <class T>
+class GENERIC_2D_ARRAY;
+template <typename T>
+class GenericVector;
 
 namespace tesseract {
 
@@ -60,7 +62,8 @@ namespace tesseract {
 // is required to allow the base class implementation to do all the work.
 struct IntSimdMatrix {
   // Computes a reshaped copy of the weight matrix w.
-  void Init(const GENERIC_2D_ARRAY<int8_t>& w, std::vector<int8_t>& shaped_w) const;
+  void Init(const GENERIC_2D_ARRAY<int8_t>& w,
+            std::vector<int8_t>& shaped_w) const;
 
   // Rounds the size up to a multiple of the input register size (in int8_t).
   int RoundInputs(int size) const {
@@ -77,8 +80,8 @@ struct IntSimdMatrix {
   // implement the bias, but it doesn't actually have it.
   // Computes the base C++ implementation.
   static void MatrixDotVector(const GENERIC_2D_ARRAY<int8_t>& w,
-                              const GenericVector<double>& scales, const int8_t* u,
-                              double* v);
+                              const GenericVector<double>& scales,
+                              const int8_t* u, double* v);
 
   // Rounds the input up to a multiple of the given factor.
   static int Roundup(int input, int factor) {
@@ -94,8 +97,9 @@ struct IntSimdMatrix {
   // RoundInputs above.
   // The input will be over-read to the extent of the padding. There are no
   // alignment requirements.
-  typedef void (*MatrixDotVectorFunction)(int dim1, int dim2,
-    const int8_t* wi, const double* scales, const int8_t* u, double* v);
+  using MatrixDotVectorFunction = void (*)(int, int, const int8_t*,
+                                           const double*, const int8_t*,
+                                           double*);
   MatrixDotVectorFunction matrixDotVectorFunction;
 
   // Number of 32 bit outputs held in each register.

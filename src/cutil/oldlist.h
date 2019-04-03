@@ -67,23 +67,22 @@
                   T y p e s
 ----------------------------------------------------------------------*/
 
-#define NIL_LIST  ((LIST)nullptr)
+#define NIL_LIST ((LIST) nullptr)
 
-typedef int (*int_compare)(void*, void*);
-typedef void (*void_dest)(void*);
+using int_compare = int (*)(void*, void*);
+using void_dest = void (*)(void*);
 
-struct list_rec
-{
-  struct list_rec *node;
-  struct list_rec *next;
+struct list_rec {
+  struct list_rec* node;
+  struct list_rec* next;
 };
-using LIST = list_rec *;
+using LIST = list_rec*;
 
 /*----------------------------------------------------------------------
                   M a c r o s
 ----------------------------------------------------------------------*/
 /* Predefinitions */
-#define list_rest(l)  ((l) ? (l)->next : NIL_LIST)
+#define list_rest(l) ((l) ? (l)->next : NIL_LIST)
 #define first_node(l) ((l) ? (l)->node : NIL_LIST)
 
 /**********************************************************************
@@ -93,8 +92,7 @@ using LIST = list_rec *;
  *  minus the head.  Continue until the list is NIL_LIST.
  **********************************************************************/
 
-#define iterate(l)             \
-for (; (l) != NIL_LIST; (l) = list_rest (l))
+#define iterate(l) for (; (l) != NIL_LIST; (l) = list_rest(l))
 
 /**********************************************************************
  * p u s h   o n
@@ -103,8 +101,7 @@ for (; (l) != NIL_LIST; (l) = list_rest (l))
  * parameter is modified.
  **********************************************************************/
 
-#define push_on(list,thing)    \
-((list) = push (list, (LIST) (thing)))
+#define push_on(list, thing) ((list) = push(list, (LIST)(thing)))
 
 /**********************************************************************
  *  s e t   r e s t
@@ -114,15 +111,14 @@ for (; (l) != NIL_LIST; (l) = list_rest (l))
  *  #define set_rest(l,node)        l->next = node;
  **********************************************************************/
 
-#define set_rest(l,cell)\
-((l)->next = (cell))
+#define set_rest(l, cell) ((l)->next = (cell))
 
 /*----------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------*/
 int count(LIST var_list);
 
-LIST delete_d(LIST list, void *key, int_compare is_equal);
+LIST delete_d(LIST list, void* key, int_compare is_equal);
 
 LIST destroy(LIST list);
 
@@ -132,10 +128,10 @@ LIST last(LIST var_list);
 
 LIST pop(LIST list);
 
-LIST push(LIST list, void *element);
+LIST push(LIST list, void* element);
 
-LIST push_last(LIST list, void *item);
+LIST push_last(LIST list, void* item);
 
-LIST search(LIST list, void *key, int_compare is_equal);
+LIST search(LIST list, void* key, int_compare is_equal);
 
 #endif

@@ -142,10 +142,12 @@ struct INT_FEATURE_STRUCT {
   uint8_t Theta;
   int8_t CP_misses;
 
-  void print() const { tprintf("(%d,%d):%d\n", X, Y, Theta); }
+  void print() const {
+    tprintf("(%d,%d):%d\n", X, Y, Theta);
+  }
 };
 
-typedef INT_FEATURE_STRUCT* INT_FEATURE;
+using INT_FEATURE = INT_FEATURE_STRUCT*;
 
 typedef INT_FEATURE_STRUCT INT_FEATURE_ARRAY[MAX_NUM_INT_FEATURES];
 
