@@ -8,7 +8,6 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/dict \
     -I$(top_srcdir)/src/lstm
 
-SUBDIRS =
 AM_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 if !NO_TESSDATA_PREFIX
