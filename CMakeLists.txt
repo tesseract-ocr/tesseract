@@ -233,6 +233,9 @@ include_directories(src/opencl)
 include_directories(src/textord)
 include_directories(src/viewer)
 include_directories(src/wordrec)
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+include_directories(src/training)
+endif()
 
 ########################################
 # LIBRARY tesseract
