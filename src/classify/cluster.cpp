@@ -200,8 +200,8 @@ struct ClusteringContext {
   int32_t next;  // next candidate to be used
 };
 
-typedef double (*DENSITYFUNC) (int32_t);
-typedef double (*SOLVEFUNC) (CHISTRUCT *, double);
+using DENSITYFUNC = double (*)(int32_t);
+using SOLVEFUNC = double (*)(CHISTRUCT*, double);
 
 #define Odd(N) ((N)%2)
 #define Mirror(N,R) ((R) - (N) - 1)

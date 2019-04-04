@@ -46,12 +46,16 @@ class DPPoint {
   // The cost function evaluates the total cost at this (excluding this's
   // local_cost) and if it beats this's total_cost, then
   // replace the appropriate values in this.
-  typedef int64_t (DPPoint::*CostFunc)(const DPPoint* prev);
+  using CostFunc = int64_t (DPPoint::*)(const DPPoint*);
 
   DPPoint()
-    : local_cost_(0), total_cost_(INT32_MAX), total_steps_(1), best_prev_(nullptr),
-      n_(0), sig_x_(0), sig_xsq_(0) {
-  }
+      : local_cost_(0),
+        total_cost_(INT32_MAX),
+        total_steps_(1),
+        best_prev_(nullptr),
+        n_(0),
+        sig_x_(0),
+        sig_xsq_(0) {}
 
   // Solve the dynamic programming problem for the given array of points, with
   // the given size and cost function.
@@ -85,15 +89,15 @@ class DPPoint {
   void UpdateIfBetter(int64_t cost, int32_t steps, const DPPoint* prev,
                       int32_t n, int32_t sig_x, int64_t sig_xsq);
 
-  int32_t local_cost_;    // Cost of this point on its own.
-  int32_t total_cost_;    // Sum of all costs in best path to here.
-                        // During cost calculations local_cost is excluded.
-  int32_t total_steps_;   // Number of steps in best path to here.
+  int32_t local_cost_;   // Cost of this point on its own.
+  int32_t total_cost_;   // Sum of all costs in best path to here.
+                         // During cost calculations local_cost is excluded.
+  int32_t total_steps_;  // Number of steps in best path to here.
   const DPPoint* best_prev_;  // Pointer to prev point in best path from here.
   // Information for computing the variance part of the cost.
-  int32_t n_;             // Number of steps in best path to here for variance.
-  int32_t sig_x_;         // Sum of step sizes for computing variance.
-  int64_t sig_xsq_;       // Sum of squares of steps for computing variance.
+  int32_t n_;        // Number of steps in best path to here for variance.
+  int32_t sig_x_;    // Sum of step sizes for computing variance.
+  int64_t sig_xsq_;  // Sum of squares of steps for computing variance.
 };
 
 }  // namespace tesseract.

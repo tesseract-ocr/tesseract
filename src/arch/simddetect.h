@@ -22,7 +22,7 @@
 namespace tesseract {
 
 // Function pointer for best calculation of dot product.
-typedef double (*DotProductFunction)(const double* u, const double* v, int n);
+using DotProductFunction = double (*)(const double*, const double*, int);
 extern DotProductFunction DotProduct;
 
 // Architecture detector. Add code here to detect any other architectures for
@@ -31,9 +31,13 @@ extern DotProductFunction DotProduct;
 class SIMDDetect {
  public:
   // Returns true if AVX is available on this system.
-  static inline bool IsAVXAvailable() { return detector.avx_available_; }
+  static inline bool IsAVXAvailable() {
+    return detector.avx_available_;
+  }
   // Returns true if AVX2 (integer support) is available on this system.
-  static inline bool IsAVX2Available() { return detector.avx2_available_; }
+  static inline bool IsAVX2Available() {
+    return detector.avx2_available_;
+  }
   // Returns true if AVX512 Foundation (float) is available on this system.
   static inline bool IsAVX512FAvailable() {
     return detector.avx512F_available_;
@@ -43,7 +47,9 @@ class SIMDDetect {
     return detector.avx512BW_available_;
   }
   // Returns true if SSE4.1 is available on this system.
-  static inline bool IsSSEAvailable() { return detector.sse_available_; }
+  static inline bool IsSSEAvailable() {
+    return detector.sse_available_;
+  }
 
   // Update settings after config variable was set.
   static void Update();

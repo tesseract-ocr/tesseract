@@ -15,37 +15,37 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  ******************************************************************************/
-#ifndef   MFDEFS_H
-#define   MFDEFS_H
+#ifndef MFDEFS_H
+#define MFDEFS_H
 
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "oldlist.h"
 #include "matchdefs.h"
+#include "oldlist.h"
 
 /* definition of a list of micro-features */
-typedef LIST MICROFEATURES;
+using MICROFEATURES = LIST;
 
 /* definition of structure of micro-features */
-#define MFSIZE        6
+#define MFSIZE 6
 typedef float MFBLOCK[MFSIZE];
-typedef float *MICROFEATURE;
+using MICROFEATURE = float*;
 
 /* definitions of individual micro-feature parameters */
-#define XPOSITION     0
-#define YPOSITION     1
-#define MFLENGTH      2
-#define ORIENTATION     3
-#define FIRSTBULGE      4
-#define SECONDBULGE     5
+#define XPOSITION 0
+#define YPOSITION 1
+#define MFLENGTH 2
+#define ORIENTATION 3
+#define FIRSTBULGE 4
+#define SECONDBULGE 5
 
 /**----------------------------------------------------------------------------
             Macros
 ----------------------------------------------------------------------------**/
 
 /* macros for accessing micro-feature lists */
-#define NextFeatureOf(L)  ((MICROFEATURE)first_node(L))
+#define NextFeatureOf(L) ((MICROFEATURE)first_node(L))
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes
