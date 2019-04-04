@@ -887,7 +887,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   double word_error = ComputeWordError(&truth_text, &ocr_text);
   double delta_error = ComputeErrorRates(*targets, char_error, word_error);
   if (debug_interval_ != 0) {
-    tprintf("File %s page %d %s:\n", trainingdata->imagefilename().string(),
+    tprintf("File %s line %d %s:\n", trainingdata->imagefilename().string(),
             trainingdata->page_number(), delta_error == 0.0 ? "(Perfect)" : "");
   }
   if (delta_error == 0.0) return PERFECT;
