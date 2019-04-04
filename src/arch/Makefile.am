@@ -1,6 +1,5 @@
 AM_CPPFLAGS += -I$(top_srcdir)/src/ccstruct -I$(top_srcdir)/src/ccutil -I$(top_srcdir)/src/viewer
 
-SUBDIRS =
 AM_CXXFLAGS =
 
 if VISIBILITY
