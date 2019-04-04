@@ -25,23 +25,21 @@
 
 #include "basedir.h"
 #include "control.h"
+#  include "matchdefs.h"
 #include "pageres.h"
+#include "params.h"
 #include "pgedit.h"
-#include "reject.h"
 #include "stopper.h"
+#include "tesseractclass.h"
 #include "tessvars.h"
 #include "tprintf.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #  include "chop.h"
 #  include "intmatcher.h"
+#  include "reject.h"
 #endif
 #ifndef ANDROID_BUILD
 #  include "lstmrecognizer.h"
-#endif
-#include "params.h"
-#include "tesseractclass.h"
-#ifdef DISABLED_LEGACY_ENGINE
-#  include "matchdefs.h"
 #endif
 
 // config under api

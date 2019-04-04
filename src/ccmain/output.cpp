@@ -19,13 +19,15 @@
 #include <cctype>
 #include <cerrno>
 #include <cstring>
-#include "helpers.h"
-#include "tessvars.h"
 #include "control.h"
-#include "reject.h"
-#include "docqual.h"
+#include "helpers.h"
 #include "output.h"
 #include "tesseractclass.h"
+#include "tessvars.h"
+#ifndef DISABLED_LEGACY_ENGINE
+#include "docqual.h"
+#include "reject.h"
+#endif
 
 #define EPAPER_EXT      ".ep"
 #define PAGE_YSIZE      3508
