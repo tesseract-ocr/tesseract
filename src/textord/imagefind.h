@@ -22,7 +22,7 @@
 
 #include "debugpixa.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 struct Boxa;
 struct Pix;
