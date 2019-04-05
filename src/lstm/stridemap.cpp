@@ -2,7 +2,6 @@
 // File:        stridemap.cpp
 // Description: Indexing into a 4-d tensor held in a 2-d Array.
 // Author:      Ray Smith
-// Created:     Fri Sep 20 15:30:31 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +23,8 @@ namespace tesseract {
 // Returns true if *this is a valid index.
 bool StrideMap::Index::IsValid() const {
   // Cheap check first.
-  for (int d = 0; d < FD_DIMSIZE; ++d) {
-    if (indices_[d] < 0) return false;
+  for (int index : indices_) {
+    if (index < 0) return false;
   }
   for (int d = 0; d < FD_DIMSIZE; ++d) {
     if (indices_[d] > MaxIndexOfDim(static_cast<FlexDimensions>(d)))

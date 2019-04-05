@@ -435,8 +435,8 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (!fp->Serialize(&prev_sample_iteration_)) return false;
   if (!fp->Serialize(&perfect_delay_)) return false;
   if (!fp->Serialize(&last_perfect_training_iteration_)) return false;
-  for (int i = 0; i < ET_COUNT; ++i) {
-    if (!error_buffers_[i].Serialize(fp)) return false;
+  for (const auto & error_buffer : error_buffers_) {
+    if (!error_buffer.Serialize(fp)) return false;
   }
   if (!fp->Serialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->Serialize(&training_stage_)) return false;
@@ -479,8 +479,8 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (!fp->DeSerialize(&prev_sample_iteration_)) return false;
   if (!fp->DeSerialize(&perfect_delay_)) return false;
   if (!fp->DeSerialize(&last_perfect_training_iteration_)) return false;
-  for (int i = 0; i < ET_COUNT; ++i) {
-    if (!error_buffers_[i].DeSerialize(fp)) return false;
+  for (auto & error_buffer : error_buffers_) {
+    if (!error_buffer.DeSerialize(fp)) return false;
   }
   if (!fp->DeSerialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->DeSerialize(&training_stage_)) return false;

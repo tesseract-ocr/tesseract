@@ -714,8 +714,8 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX* not_this, bool debug,
   // the search is over, and at this point the final bbox must not overlap
   // any of the nearests.
   BLOBNBOX* nearests[BND_COUNT];
-  for (int i = 0; i < BND_COUNT; ++i) {
-    nearests[i] = nullptr;
+  for (auto & nearest : nearests) {
+    nearest = nullptr;
   }
   int x = (bbox->left() + bbox->right()) / 2;
   int y = (bbox->bottom() + bbox->top()) / 2;
@@ -774,9 +774,9 @@ void StrokeWidth::AccumulateOverlaps(const BLOBNBOX* not_this, bool debug,
       break;
   }
   // Final overlap with a nearest is not allowed.
-  for (int dir = 0; dir < BND_COUNT; ++dir) {
-    if (nearests[dir] == nullptr) continue;
-    const TBOX& nbox = nearests[dir]->bounding_box();
+  for (auto & nearest : nearests) {
+    if (nearest == nullptr) continue;
+    const TBOX& nbox = nearest->bounding_box();
     if (debug) {
       tprintf("Testing for overlap with:");
       nbox.print();

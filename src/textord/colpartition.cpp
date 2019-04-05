@@ -3,7 +3,6 @@
 // Description: Class to hold partitions of the page that correspond
 //              roughly to text lines.
 // Author:      Ray Smith
-// Created:     Thu Aug 14 10:54:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -602,8 +601,8 @@ void ColPartition::ComputeSpecialBlobsDensity() {
     special_blobs_densities_[type]++;
   }
 
-  for (int type = 0; type < BSTT_COUNT; ++type) {
-    special_blobs_densities_[type] /= boxes_.length();
+  for (float& special_blobs_density : special_blobs_densities_) {
+    special_blobs_density /= boxes_.length();
   }
 }
 

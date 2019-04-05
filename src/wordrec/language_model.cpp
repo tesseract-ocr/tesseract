@@ -1270,8 +1270,8 @@ void LanguageModel::UpdateBestChoice(
     if (language_model_debug_level > 0) {
       tprintf("Raw features extracted from %s (cost=%g) [ ",
               curr_hyp.str.string(), curr_hyp.cost);
-      for (int deb_i = 0; deb_i < PTRAIN_NUM_FEATURE_TYPES; ++deb_i) {
-        tprintf("%g ", curr_hyp.features[deb_i]);
+      for (float feature : curr_hyp.features) {
+        tprintf("%g ", feature);
       }
       tprintf("]\n");
     }

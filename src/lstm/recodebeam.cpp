@@ -262,22 +262,21 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
         if ((best_choices_acc.size() > 0 && i == std::get<1>(best_choices_acc.front()) - 1)
             || i == xcoords[word_end]-1) {
           std::map<const char*, float> summed_propabilities;
-          for (auto it = choice_pairs.begin(); it != choice_pairs.end(); ++it) {
-            summed_propabilities[it->first] += it->second;
+          for (auto & choice_pair : choice_pairs) {
+            summed_propabilities[choice_pair.first] += choice_pair.second;
           }
           std::vector<std::pair<const char*, float>> accumulated_timestep;
-          for (auto it = summed_propabilities.begin();
-               it != summed_propabilities.end(); ++it) {
+          for (auto& summed_propability : summed_propabilities) {
             if(sum == 0) break;
-            it->second/=sum;
+            summed_propability.second/=sum;
             size_t pos = 0;
             while (accumulated_timestep.size() > pos
-                   && accumulated_timestep[pos].second > it->second) {
+                   && accumulated_timestep[pos].second > summed_propability.second) {
               pos++;
             }
             accumulated_timestep.insert(accumulated_timestep.begin() + pos,
-                                        std::pair<const char*,float>(it->first,
-                                        it->second));
+                                        std::pair<const char*,float>(summed_propability.first,
+                                        summed_propability.second));
           }
           if (best_choices_acc.size() > 0) {
             best_choices_acc.pop_front();

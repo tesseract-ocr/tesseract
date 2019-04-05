@@ -299,8 +299,8 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
   svmap[window_id_] = this;
   svmap_mu->Unlock();
 
-  for (int i = 0; i < SVET_COUNT; i++) {
-    event_table_[i] = nullptr;
+  for (auto & i : event_table_) {
+    i = nullptr;
   }
 
   mutex_ = new SVMutex();
@@ -382,8 +382,8 @@ ScrollView::~ScrollView() {
   delete mutex_;
   delete semaphore_;
   delete points_;
-  for (int i = 0; i < SVET_COUNT; i++) {
-    delete event_table_[i];
+  for (auto & i : event_table_) {
+    delete i;
   }
   #endif  // GRAPHICS_DISABLED
 }
@@ -710,10 +710,9 @@ void ScrollView::UpdateWindow() {
 // Note: this is an update to all windows
 void ScrollView::Update() {
   svmap_mu->Lock();
-  for (auto iter = svmap.begin();
-      iter != svmap.end(); ++iter) {
-    if (iter->second != nullptr)
-      iter->second->UpdateWindow();
+  for (auto & iter : svmap) {
+    if (iter.second != nullptr)
+      iter.second->UpdateWindow();
   }
   svmap_mu->Unlock();
 }
