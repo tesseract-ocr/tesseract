@@ -878,14 +878,16 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   STRING truth_text = DecodeLabels(truth_labels);
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
-    tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(),
-            ocr_text.string());
+      if (truth_text != ocr_text) {
+         tprintf("Iteration %d: BEST OCR TEXT : %s\n", 
+            training_iteration(), ocr_text.string());
+      }
   }
   double char_error = ComputeCharError(truth_labels, ocr_labels);
   double word_error = ComputeWordError(&truth_text, &ocr_text);
   double delta_error = ComputeErrorRates(*targets, char_error, word_error);
   if (debug_interval_ != 0) {
-    tprintf("File %s page %d %s:\n", trainingdata->imagefilename().string(),
+    tprintf("File %s line %d %s:\n", trainingdata->imagefilename().string(),
             trainingdata->page_number(), delta_error == 0.0 ? "(Perfect)" : "");
   }
   if (delta_error == 0.0) return PERFECT;
@@ -1042,8 +1044,12 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
     GenericVector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
-    tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
+    tprintf("Iteration %d: GROUND  TRUTH : %s\n",
+        training_iteration(), truth_text.string());
+    if (truth_text != text) {
+        tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
             training_iteration(), text.string());
+    }
     if (debug_interval_ > 0 && training_iteration() % debug_interval_ == 0) {
       tprintf("TRAINING activation path for truth string %s\n",
               truth_text.string());
