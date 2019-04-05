@@ -31,7 +31,9 @@
 #include "control.h"                // for ACCEPTABLE_WERD_TYPE
 #include "debugpixa.h"              // for DebugPixa
 #include "devanagari_processing.h"  // for ShiroRekhaSplitter
+#ifndef DISABLED_LEGACY_ENGINE
 #include "docqual.h"                // for GARBAGE_LEVEL
+#endif
 #include "genericvector.h"          // for GenericVector, PointerVector
 #include "pageres.h"                // for WERD_RES (ptr only), PAGE_RES (pt...
 #include "params.h"                 // for BOOL_VAR_H, BoolParam, DoubleParam
@@ -633,9 +635,11 @@ class Tesseract : public Wordrec {
   float blob_noise_score(TBLOB* blob);
   void break_noisiest_blob_word(WERD_RES_LIST& words);
   //// docqual.cpp ////////////////////////////////////////////////////////
+#ifndef DISABLED_LEGACY_ENGINE
   GARBAGE_LEVEL garbage_word(WERD_RES* word, bool ok_dict_word);
   bool potential_word_crunch(WERD_RES* word, GARBAGE_LEVEL garbage_level,
                              bool ok_dict_word);
+#endif
   void tilde_crunch(PAGE_RES_IT& page_res_it);
   void unrej_good_quality_words(  // unreject potential
       PAGE_RES_IT& page_res_it);
@@ -650,7 +654,9 @@ class Tesseract : public Wordrec {
   void unrej_good_chs(WERD_RES* word, ROW* row);
   int16_t count_outline_errs(char c, int16_t outline_count);
   int16_t word_outline_errs(WERD_RES* word);
+#ifndef DISABLED_LEGACY_ENGINE
   bool terrible_word_crunch(WERD_RES* word, GARBAGE_LEVEL garbage_level);
+#endif
   CRUNCH_MODE word_deletable(WERD_RES* word, int16_t& delete_mode);
   int16_t failure_count(WERD_RES* word);
   bool noise_outlines(TWERD* word);

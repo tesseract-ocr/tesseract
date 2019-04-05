@@ -22,7 +22,9 @@
 #include "control.h"
 #include "host.h"  // for NearlyEqual
 #include "ratngs.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "reject.h"
+#endif
 #include "stopper.h"
 
 namespace tesseract {
