@@ -70,23 +70,14 @@ err_exit() {
 # if the program file is not found.
 # Usage: run_command CMD ARG1 ARG2...
 run_command() {
-    local cmd=$(which $1)
-    if [[ -z ${cmd} ]]; then
-      for d in api training; do
-        cmd=$(which $d/$1)
-        if [[ ! -z ${cmd} ]]; then
-          break
-        fi
-      done
-      if [[ -z ${cmd} ]]; then
-          err_exit "$1 not found"
-      fi
-    fi
+    local cmd
+    cmd=$(which $1 || \
+              for d in api training; do
+                  which $d/$1 && break
+              done) || err_exit "'$1' not found"
     shift
     tlog "[$(date)] ${cmd} $@"
-    "${cmd}" "$@" 2>&1 1>&2 | tee -a ${LOG_FILE}
-    # check completion status
-    if [[ $? -gt 0 ]]; then
+    if ! "${cmd}" "$@" |& tee -a ${LOG_FILE}; then
         err_exit "Program $(basename ${cmd}) failed. Abort."
     fi
 }

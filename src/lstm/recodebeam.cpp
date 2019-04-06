@@ -521,10 +521,10 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
   if (t == 0) {
     // The first step can only use singles and initials.
     ContinueContext(nullptr, BeamIndex(false, NC_ANYTHING, 0), outputs, TN_TOP2,
-                    dict_ratio, cert_offset, worst_dict_cert, step);
+                    charset, dict_ratio, cert_offset, worst_dict_cert, step);
     if (dict_ != nullptr) {
-      ContinueContext(nullptr, BeamIndex(true, NC_ANYTHING, 0), outputs,
-                      TN_TOP2, dict_ratio, cert_offset, worst_dict_cert, step);
+      ContinueContext(nullptr, BeamIndex(true, NC_ANYTHING, 0), outputs, TN_TOP2,
+                      charset, dict_ratio, cert_offset, worst_dict_cert, step);
     }
   } else {
     RecodeBeam* prev = beam_[t - 1];
@@ -556,9 +556,8 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
         // best first, but it comes before a lot of the worst, so it is slightly
         // more efficient than going forwards.
         for (int i = prev->beams_[index].size() - 1; i >= 0; --i) {
-          ContinueContext(&prev->beams_[index].get(i).data, index, outputs,
-                          top_n, dict_ratio, cert_offset, worst_dict_cert,
-                          step);
+          ContinueContext(&prev->beams_[index].get(i).data, index, outputs, top_n,
+                          charset, dict_ratio, cert_offset, worst_dict_cert, step);
         }
       }
       for (int index = 0; index < kNumBeams; ++index) {
@@ -585,7 +584,9 @@ void RecodeBeamSearch::DecodeStep(const float* outputs, int t,
 // choices for which top_n_flags[index] == top_n_flag.
 void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
                                        const float* outputs,
-                                       TopNState top_n_flag, double dict_ratio,
+                                       TopNState top_n_flag,
+                                       const UNICHARSET* charset,
+                                       double dict_ratio,
                                        double cert_offset,
                                        double worst_dict_cert,
                                        RecodeBeam* step) {
@@ -648,6 +649,10 @@ void RecodeBeamSearch::ContinueContext(const RecodeNode* prev, int index,
       int unichar_id = recoder_.DecodeUnichar(full_code);
       // Map the null char to INVALID.
       if (length == 0 && code == null_char_) unichar_id = INVALID_UNICHAR_ID;
+      if (unichar_id != INVALID_UNICHAR_ID &&
+          charset != nullptr &&
+          !charset->get_enabled(unichar_id))
+        continue; // disabled by whitelist/blacklist
       ContinueUnichar(code, unichar_id, cert, worst_dict_cert, dict_ratio,
                       use_dawgs, NC_ANYTHING, prev, step);
       if (top_n_flag == TN_TOP2 && code != null_char_) {
