@@ -36,7 +36,7 @@ class DLLSYM DIR128
       value %= MODULUS;          //modulo arithmetic
       if (value < 0)
         value += MODULUS;        //done properly
-      dir = (int8_t) value;
+      dir = static_cast<int8_t>(value);
     }
     DIR128(const FCOORD fc);  //quantize vector
 
@@ -45,7 +45,7 @@ class DLLSYM DIR128
       value %= MODULUS;          //modulo arithmetic
       if (value < 0)
         value += MODULUS;        //done properly
-      dir = (int8_t) value;
+      dir = static_cast<int8_t>(value);
       return *this;
     }
     int8_t operator- (             //subtraction
@@ -58,7 +58,7 @@ class DLLSYM DIR128
         result -= MODULUS;       //get in range
       else if (result < -MODULUS / 2)
         result += MODULUS;
-      return (int8_t) result;
+      return static_cast<int8_t>(result);
     }
     DIR128 operator+ (           //addition
       const DIR128 & add) const  //of itself

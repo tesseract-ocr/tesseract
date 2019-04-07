@@ -132,15 +132,15 @@ ROW *fixed_pitch_words(                 //find lines
     } else {
       if (rep_left < chop_coord) {
         if (rep_left > prev_chop_coord)
-          new_blanks = (uint8_t) floor ((rep_left - prev_chop_coord)
-            / row->fixed_pitch + 0.5);
+          new_blanks = static_cast<uint8_t>(floor ((rep_left - prev_chop_coord)
+            / row->fixed_pitch + 0.5));
         else
           new_blanks = 0;
       }
       else {
         if (chop_coord > prev_chop_coord)
-          new_blanks = (uint8_t) floor ((chop_coord - prev_chop_coord)
-            / row->fixed_pitch + 0.5);
+          new_blanks = static_cast<uint8_t>(floor ((chop_coord - prev_chop_coord)
+            / row->fixed_pitch + 0.5));
         else
           new_blanks = 0;
       }
@@ -184,7 +184,7 @@ ROW *fixed_pitch_words(                 //find lines
   if (prev_chop_coord > prev_x)
     prev_x = prev_chop_coord;
   xstarts[1] = prev_x + 1;
-  real_row = new ROW (row, (int16_t) row->kern_size, (int16_t) row->space_size);
+  real_row = new ROW (row, static_cast<int16_t>(row->kern_size), static_cast<int16_t>(row->space_size));
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
   word_it.add_list_after (&words);
@@ -211,7 +211,7 @@ WERD *add_repeated_word(                         //move repeated word
   int16_t new_blanks;              //extra blanks
 
   if (rep_left > prev_chop_coord) {
-    new_blanks = (uint8_t) floor ((rep_left - prev_chop_coord) / pitch + 0.5);
+    new_blanks = static_cast<uint8_t>(floor ((rep_left - prev_chop_coord) / pitch + 0.5));
     blanks += new_blanks;
   }
   word = rep_it->extract ();

@@ -240,7 +240,7 @@ char determine_newline_type(                   //test line ends
   block_box = block->pdblk.bounding_box ();
                                  //gap to eol
   end_gap = block_box.right () - word_box.right ();
-  end_gap -= (int32_t) block->space ();
+  end_gap -= static_cast<int32_t>(block->space ());
   width = next_box.right () - next_box.left ();
   //      tprintf("end_gap=%d-%d=%d, width=%d-%d=%d, nl=%d\n",
   //              block_box.right(),word_box.right(),end_gap,

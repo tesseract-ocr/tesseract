@@ -45,7 +45,7 @@ namespace tesseract {
  * split. The argument should be of type EDGEPT.
  */
 PRIORITY Wordrec::point_priority(EDGEPT *point) {
-  return (PRIORITY)angle_change(point->prev, point, point->next);
+  return static_cast<PRIORITY>(angle_change(point->prev, point, point->next));
 }
 
 
@@ -91,7 +91,7 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   vector2.y = point3->pos.y - point2->pos.y;
   /* Use cross product */
   float length = std::sqrt(static_cast<float>(LENGTH(vector1)) * LENGTH(vector2));
-  if ((int) length == 0)
+  if (static_cast<int>(length) == 0)
     return (0);
   angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
                                       length) / M_PI * 180.0 + 0.5));

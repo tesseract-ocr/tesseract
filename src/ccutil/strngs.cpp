@@ -51,7 +51,7 @@ const int kMaxDoubleSize = 16;
 const int kMinCapacity = 16;
 
 char* STRING::AllocData(int used, int capacity) {
-  data_ = (STRING_HEADER *)malloc(capacity + sizeof(STRING_HEADER));
+  data_ = static_cast<STRING_HEADER *>(malloc(capacity + sizeof(STRING_HEADER)));
 
   // header is the metadata for this memory block
   STRING_HEADER* header = GetHeader();
@@ -70,7 +70,7 @@ void STRING::DiscardData() {
 char* STRING::ensure_cstr(int32_t min_capacity) {
   STRING_HEADER* orig_header = GetHeader();
   if (min_capacity <= orig_header->capacity_)
-    return ((char *)this->data_) + sizeof(STRING_HEADER);
+    return (reinterpret_cast<char *>(this->data_)) + sizeof(STRING_HEADER);
 
   // if we are going to grow bigger, than double our existing
   // size, but if that still is not big enough then keep the
@@ -79,7 +79,7 @@ char* STRING::ensure_cstr(int32_t min_capacity) {
     min_capacity = 2 * orig_header->capacity_;
 
   int alloc = sizeof(STRING_HEADER) + min_capacity;
-  auto* new_header = (STRING_HEADER*)(malloc(alloc));
+  auto* new_header = static_cast<STRING_HEADER*>(malloc(alloc));
 
   memcpy(&new_header[1], GetCStr(), orig_header->used_);
   new_header->capacity_ = min_capacity;
@@ -90,7 +90,7 @@ char* STRING::ensure_cstr(int32_t min_capacity) {
   data_ = new_header;
 
   assert(InvariantOk());
-  return ((char *)data_) + sizeof(STRING_HEADER);
+  return (reinterpret_cast<char *>(data_)) + sizeof(STRING_HEADER);
 }
 
 // This is const, but is modifying a mutable field
@@ -277,7 +277,7 @@ char& STRING::operator[](int32_t index) const {
   // Code is casting away this const and mutating the string,
   // so mark used_ as -1 to flag it unreliable.
   GetHeader()->used_ = -1;
-  return ((char *)GetCStr())[index];
+  return (const_cast<char *>(GetCStr()))[index];
 }
 #endif
 

@@ -2,7 +2,6 @@
 // File:        paramsd.cpp
 // Description: Tesseract parameter Editor
 // Author:      Joern Wanke
-// Created:     Wed Jul 18 10:05:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,7 +139,7 @@ STRING ParamContent::GetValue() const {
   } else if (param_type_ == VT_DOUBLE) {
     result.add_str_double("", *dIt);
   } else if (param_type_ == VT_STRING) {
-    if (((STRING) * (sIt)).string() != nullptr) {
+    if (STRING(*(sIt)).string() != nullptr) {
       result = sIt->string();
     } else {
       result = "Null";

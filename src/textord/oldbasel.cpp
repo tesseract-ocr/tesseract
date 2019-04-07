@@ -143,7 +143,7 @@ void Textord::correlate_lines(TO_BLOCK *block, float gradient) {
   correlate_neighbours(block, &rows[0], rowcount);
 
   if (textord_really_old_xheight || textord_old_xheight) {
-    block->xheight = (float) correlate_with_stats(&rows[0], rowcount, block);
+    block->xheight = static_cast<float>(correlate_with_stats(&rows[0], rowcount, block));
     if (block->xheight <= 0)
       block->xheight = block->line_size * tesseract::CCStruct::kXHeightFraction;
     if (block->xheight < textord_min_xheight)
@@ -315,7 +315,7 @@ int Textord::correlate_with_stats(TO_ROW **rows,  // rows of block.
         row->descdrop = -row->xheight * DESCENDER_FRACTION;
     }
   }
-  return (int) lineheight;       //block xheight
+  return static_cast<int>(lineheight);       //block xheight
 }
 
 
@@ -353,7 +353,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
   // diffs from 1st approx
   std::vector<float> ydiffs(blobcount);
 
-  lineheight = get_blob_coords(row, (int)block->line_size, &blobcoords[0],
+  lineheight = get_blob_coords(row, static_cast<int>(block->line_size), &blobcoords[0],
     holed_line, blobcount);
                                  /*limit for line change */
   jumplimit = lineheight * textord_oldbl_jumplimit;
@@ -409,7 +409,7 @@ void Textord::find_textlines(TO_BLOCK *block,  // block row is in
     old_first_xheight (row, &blobcoords[0], lineheight,
       blobcount, &row->baseline, jumplimit);
   } else if (textord_old_xheight) {
-    make_first_xheight (row, &blobcoords[0], lineheight, (int)block->line_size,
+    make_first_xheight (row, &blobcoords[0], lineheight, static_cast<int>(block->line_size),
                         blobcount, &row->baseline, jumplimit);
   } else {
     compute_row_xheight(row, block->block->classify_rotation(),
@@ -482,7 +482,7 @@ int get_blob_coords(                    //get boxes
 
   if (heightstat.get_total () > 1)
                                  /*guess x-height */
-    return (int) heightstat.ile (0.25);
+    return static_cast<int>(heightstat.ile (0.25));
   else
     return blobcoords[0].height ();
 }
@@ -624,7 +624,7 @@ float jumplimit                  /*guess half descenders */
   }
   else {
     *baseline = *spline;         /*copy it */
-    shift = ICOORD (0, (int16_t) (blobcoords[0].bottom ()
+    shift = ICOORD (0, static_cast<int16_t>(blobcoords[0].bottom ()
       - spline->y (blobcoords[0].right ())));
     baseline->move (shift);
   }
@@ -682,7 +682,7 @@ float gradient                   //of line
   - MAXOVERLAP * (rightedge - leftedge)) {
     *baseline = *spline;         /*copy it */
     x = (leftedge + rightedge) / 2.0;
-    shift = ICOORD (0, (int16_t) (gradient * x + c - spline->y (x)));
+    shift = ICOORD (0, static_cast<int16_t>(gradient * x + c - spline->y (x)));
     baseline->move (shift);
   }
 }
@@ -909,7 +909,7 @@ float ydiffs[]                   /*output */
 
   diffsum = 0.0f;
   bestindex = 0;
-  bestsum = (float) INT32_MAX;
+  bestsum = static_cast<float>(INT32_MAX);
   drift = 0.0f;
   lastx = blobcoords[0].left ();
                                  /*do each blob in row */
@@ -1408,21 +1408,21 @@ float jumplimit                  /*min ascender height */
       xcentre = (blobcoords[blobindex].left ()
         + blobcoords[blobindex].right ()) / 2;
                                  /*height of blob */
-      height = (int) (blobcoords[blobindex].top () - baseline->y (xcentre) + 0.5);
+      height = static_cast<int>(blobcoords[blobindex].top () - baseline->y (xcentre) + 0.5);
       if (height > initialheight * oldbl_xhfract
         && height > textord_min_xheight)
         heightstat.add (height, 1);
     }
     if (heightstat.get_total () > 3) {
-      lineheight = (int) heightstat.ile (0.25);
+      lineheight = static_cast<int>(heightstat.ile (0.25));
       if (lineheight <= 0)
-        lineheight = (int) heightstat.ile (0.5);
+        lineheight = static_cast<int>(heightstat.ile (0.5));
     }
     else
       lineheight = initialheight;
   }
   else {
-    lineheight = (int) (blobcoords[0].top ()
+    lineheight = static_cast<int>(blobcoords[0].top ()
       - baseline->y ((blobcoords[0].left ()
       + blobcoords[0].right ()) / 2) +
       0.5);
@@ -1448,7 +1448,7 @@ float jumplimit                  /*min ascender height */
   if (xcount > 0)
     xsum /= xcount;              /*average xheight */
   else
-    xsum = (float) lineheight;   /*guess it */
+    xsum = static_cast<float>(lineheight);   /*guess it */
   row->xheight *= xsum;
   if (asccount > 0)
     row->ascrise = ascenders / asccount - xsum;
@@ -1517,9 +1517,9 @@ float jumplimit                  /*min ascender height */
     }
   }
 
-  mode_threshold = (int) (blobcount * 0.1);
+  mode_threshold = static_cast<int>(blobcount * 0.1);
   if (oldbl_dot_error_size > 1 || oldbl_xhfix)
-    mode_threshold = (int) (mode_count * 0.1);
+    mode_threshold = static_cast<int>(mode_count * 0.1);
 
   if (textord_oldbl_debug) {
     tprintf ("blobcount=%d, mode_count=%d, mode_t=%d\n",
@@ -1615,7 +1615,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
           (!textord_ocropus_mode ||
                   std::min(rights[modelist[x]], rights[modelist[y]]) >
                    std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
-        ratio = (float) modelist[y] / (float) modelist[x];
+        ratio = static_cast<float>(modelist[y]) / static_cast<float>(modelist[x]);
         if (1.2 < ratio && ratio < 1.8) {
           /* Two modes found */
           best_x_height = modelist[x];
@@ -1629,7 +1629,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
                   (!textord_ocropus_mode ||
                           std::min(rights[modelist[x]], rights[modelist[y]]) >
                             std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
-                ratio = (float) modelist[y] / (float) modelist[z];
+                ratio = static_cast<float>(modelist[y]) / static_cast<float>(modelist[z]);
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */
                     heightstat->pile_count (modelist[z]) >
@@ -1656,7 +1656,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
                   (!textord_ocropus_mode ||
                           std::min(rights[modelist[x]], rights[modelist[y]]) >
                             std::max(lefts[modelist[x]], lefts[modelist[y]]))) {
-                ratio = (float) modelist[z] / (float) best_x_height;
+                ratio = static_cast<float>(modelist[z]) / static_cast<float>(best_x_height);
                 if ((1.2 < ratio && ratio < 1.8) &&
                                /* Should be half of best */
                     heightstat->pile_count (modelist[z]) >
@@ -1670,8 +1670,8 @@ void pick_x_height(TO_ROW * row,                    //row to do
           }
           while (found_one_bigger);
 
-          row->xheight = (float) best_x_height;
-          row->ascrise = (float) best_asc - best_x_height;
+          row->xheight = static_cast<float>(best_x_height);
+          row->ascrise = static_cast<float>(best_asc) - best_x_height;
           return;
         }
       }
@@ -1696,7 +1696,7 @@ void pick_x_height(TO_ROW * row,                    //row to do
   while (found_one_bigger);
 
   row->ascrise = 0.0f;
-  row->xheight = (float) best_x_height;
+  row->xheight = static_cast<float>(best_x_height);
   if (row->xheight == 0)
     row->xheight = -1.0f;
 }

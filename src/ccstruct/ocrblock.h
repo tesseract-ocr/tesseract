@@ -61,7 +61,7 @@ class BLOCK:public ELIST_LINK
                  int16_t space,
                  int16_t ch_pitch) {
     proportional = prop;
-    kerning = (int8_t) kern;
+    kerning = static_cast<int8_t>(kern);
     spacing = space;
     pitch = ch_pitch;
   }

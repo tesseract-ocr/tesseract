@@ -115,7 +115,7 @@ const void *, const void *)) {
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
-  base = (ELIST2_LINK **) malloc (count * sizeof (ELIST2_LINK *));
+  base = static_cast<ELIST2_LINK **>(malloc (count * sizeof (ELIST2_LINK *)));
 
   /* Extract all elements, putting the pointers in the array */
   current = base;

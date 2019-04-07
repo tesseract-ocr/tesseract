@@ -89,7 +89,7 @@
  *  if they are equivalent strings.  (Return false if not)
  **********************************************************************/
 static int is_same(void *item1, void *item2) {
-  return strcmp((char *)item1, (char *)item2) == 0;
+  return strcmp(static_cast<char *>(item1), static_cast<char *>(item2)) == 0;
 }
 
 /**********************************************************************
@@ -205,7 +205,7 @@ LIST push(LIST list, void *element) {
   LIST t;
 
   t = new_cell();
-  t->node = (LIST)element;
+  t->node = static_cast<LIST>(element);
   set_rest(t, list);
   return (t);
 }

@@ -249,7 +249,7 @@ void make_initial_textrows(                  //find lines
     colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_to_row (row_it.data (), colour, rotation);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -328,7 +328,7 @@ void compute_page_skew(                        //get average gradient
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       blob_count = row->blob_list ()->length ();
-      row_err = (int32_t) ceil (row->line_error ());
+      row_err = static_cast<int32_t>(ceil (row->line_error ()));
       if (row_err <= 0)
         row_err = 1;
       if (textord_biased_skewcalc) {
@@ -365,10 +365,10 @@ void compute_page_skew(                        //get average gradient
     }
   }
   row_count = row_index;
-  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
+  row_index = choose_nth_item (static_cast<int32_t>(row_count * textord_skew_ile),
     &gradients[0], row_count);
   page_m = gradients[row_index];
-  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
+  row_index = choose_nth_item (static_cast<int32_t>(row_count * textord_skew_ile),
     &errors[0], row_count);
   page_err = errors[row_index];
 }
@@ -594,7 +594,7 @@ void delete_non_dropout_rows(                   //find lines
   min_y = block_box.bottom () - 1;
   max_y = block_box.top () + 1;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    line_index = (int32_t) floor (row_it.data ()->intercept ());
+    line_index = static_cast<int32_t>(floor (row_it.data ()->intercept ()));
     if (line_index <= min_y)
       min_y = line_index - 1;
     if (line_index >= max_y)
@@ -609,13 +609,12 @@ void delete_non_dropout_rows(                   //find lines
   std::vector<int32_t> occupation(line_count);
 
   compute_line_occupation(block, gradient, min_y, max_y, &occupation[0], &deltas[0]);
-  compute_occupation_threshold ((int32_t)
-    ceil (block->line_spacing *
+  compute_occupation_threshold (static_cast<int32_t>(ceil (block->line_spacing *
     (tesseract::CCStruct::kDescenderFraction +
-    tesseract::CCStruct::kAscenderFraction)),
-    (int32_t) ceil (block->line_spacing *
+    tesseract::CCStruct::kAscenderFraction))),
+    static_cast<int32_t>(ceil (block->line_spacing *
     (tesseract::CCStruct::kXHeightFraction +
-    tesseract::CCStruct::kAscenderFraction)),
+    tesseract::CCStruct::kAscenderFraction))),
     max_y - min_y + 1, &occupation[0], &deltas[0]);
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
@@ -625,7 +624,7 @@ void delete_non_dropout_rows(                   //find lines
   compute_dropout_distances(&occupation[0], &deltas[0], line_count);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    line_index = (int32_t) floor (row->intercept ());
+    line_index = static_cast<int32_t>(floor (row->intercept ()));
     distance = deltas[line_index - min_y];
     if (find_best_dropout_row (row, distance, block->line_spacing / 2,
     line_index, &row_it, testing_on)) {
@@ -686,7 +685,7 @@ bool find_best_dropout_row(                    //find neighbours
     row_offset = row_inc;
     do {
       next_row = row_it->data_relative (row_offset);
-      next_index = (int32_t) floor (next_row->intercept ());
+      next_index = static_cast<int32_t>(floor (next_row->intercept ()));
       if ((distance < 0
         && next_index < line_index
         && next_index > line_index + distance + distance)
@@ -836,7 +835,7 @@ void compute_occupation_threshold(                    //project blobs
   int32_t test_index;              //for finding min
 
   divisor =
-    (int32_t) ceil ((low_window + high_window) / textord_occupancy_threshold);
+    static_cast<int32_t>(ceil ((low_window + high_window) / textord_occupancy_threshold));
   if (low_window + high_window < line_count) {
     for (sum = 0, high_index = 0; high_index < low_window; high_index++)
       sum += occupation[high_index];
@@ -1915,7 +1914,7 @@ void pre_associate_blobs(                  //make rough chars
             blob_box.right (), blob_box.top ());
         }
       }
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -1954,7 +1953,7 @@ void fit_parallel_rows(                   //find lines
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_parallel_row (row_it.data (), gradient,
         block_edge, colour, rotation);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -2023,7 +2022,7 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
       row_it.forward ()) {
         row_it.data ()->baseline.plot (to_win, colour);
-        colour = (ScrollView::Color) (colour + 1);
+        colour = static_cast<ScrollView::Color>(colour + 1);
         if (colour > ScrollView::MAGENTA)
           colour = ScrollView::RED;
       }
@@ -2036,7 +2035,7 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
     colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row_it.data ()->baseline.plot (to_win, colour);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -2333,7 +2332,7 @@ void assign_blobs_to_rows(                      //find lines
       && last_x - left_x > block->line_size * 2
     && textord_interpolating_skew) {
       //                      tprintf("Interpolating skew from %g",block_skew);
-      block_skew *= (float) (blob->bounding_box ().left () - left_x)
+      block_skew *= static_cast<float>(blob->bounding_box ().left () - left_x)
         / (last_x - left_x);
       //                      tprintf("to %g\n",block_skew);
     }

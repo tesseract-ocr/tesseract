@@ -192,8 +192,8 @@ double QSPLINE::step(            //find step functions
   total = 0;
   while (index1 < index2) {
     total +=
-      (double) quadratics[index1 + 1].y ((float) xcoords[index1 + 1]);
-    total -= (double) quadratics[index1].y ((float) xcoords[index1 + 1]);
+      static_cast<double>(quadratics[index1 + 1].y (static_cast<float>(xcoords[index1 + 1])));
+    total -= static_cast<double>(quadratics[index1].y (static_cast<float>(xcoords[index1 + 1])));
     index1++;                    /*next segment */
   }
   return total;                  /*total steps */
@@ -356,7 +356,7 @@ void QSPLINE::plot(                //draw it
   window->Pen(colour);
   for (segment = 0; segment < segments; segment++) {
     increment =
-      (double) (xcoords[segment + 1] -
+      static_cast<double>(xcoords[segment + 1] -
       xcoords[segment]) / QSPLINE_PRECISION;
     x = xcoords[segment];
     for (step = 0; step <= QSPLINE_PRECISION; step++) {

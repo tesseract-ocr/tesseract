@@ -714,17 +714,17 @@ IntegerMatcher::IntegerMatcher(tesseract::IntParam *classify_debug_level)
   /* Initialize table for evidence to similarity lookup */
   for (int i = 0; i < SE_TABLE_SIZE; i++) {
     uint32_t IntSimilarity = i << (27 - SE_TABLE_BITS);
-    double Similarity = ((double) IntSimilarity) / 65536.0 / 65536.0;
+    double Similarity = (static_cast<double>(IntSimilarity)) / 65536.0 / 65536.0;
     double evidence = Similarity / kSimilarityCenter;
     evidence = 255.0 / (evidence * evidence + 1.0);
 
     if (kSEExponentialMultiplier > 0.0) {
       double scale = 1.0 - exp(-kSEExponentialMultiplier) *
-        exp(kSEExponentialMultiplier * ((double) i / SE_TABLE_SIZE));
+        exp(kSEExponentialMultiplier * (static_cast<double>(i) / SE_TABLE_SIZE));
       evidence *= ClipToRange(scale, 0.0, 1.0);
     }
 
-    similarity_evidence_table_[i] = (uint8_t) (evidence + 0.5);
+    similarity_evidence_table_[i] = static_cast<uint8_t>(evidence + 0.5);
   }
 
   /* Initialize evidence computation variables */
@@ -757,7 +757,7 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
 static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
                                  uint8_t Evidence, uint32_t ConfigWord) {
   cprintf ("F = %3d, P = %3d, E = %3d, Configs = ",
-    FeatureNum, (int) ActualProtoNum, (int) Evidence);
+    FeatureNum, static_cast<int>(ActualProtoNum), static_cast<int>(Evidence));
   while (ConfigWord) {
     if (ConfigWord & 1)
       cprintf ("1");
@@ -826,7 +826,7 @@ int IntegerMatcher::UpdateTablesForFeature(
   for (ProtoSetIndex = 0, ActualProtoNum = 0;
   ProtoSetIndex < ClassTemplate->NumProtoSets; ProtoSetIndex++) {
     ProtoSet = ClassTemplate->ProtoSets[ProtoSetIndex];
-    ProtoPrunerPtr = (uint32_t *) ((*ProtoSet).ProtoPruner);
+    ProtoPrunerPtr = reinterpret_cast<uint32_t *>((*ProtoSet).ProtoPruner);
     for (ProtoNum = 0; ProtoNum < PROTOS_PER_PROTO_SET;
       ProtoNum += (PROTOS_PER_PROTO_SET >> 1), ActualProtoNum +=
     (PROTOS_PER_PROTO_SET >> 1), ProtoMask++, ProtoPrunerPtr++) {
@@ -960,7 +960,7 @@ void IntegerMatcher::DebugFeatureProtoError(
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++) {
       cprintf(
           " %5.1f",
-          100.0 * (1.0 - (float)tables.sum_feature_evidence_[ConfigNum]
+          100.0 * (1.0 - static_cast<float>(tables.sum_feature_evidence_[ConfigNum])
           / NumFeatures / 256.0));
     }
     cprintf("\n\n\n");
@@ -1042,7 +1042,7 @@ void IntegerMatcher::DebugFeatureProtoError(
     cprintf ("Proto Length for Configurations:\n");
     for (ConfigNum = 0; ConfigNum < ClassTemplate->NumConfigs; ConfigNum++)
       cprintf (" %4.1f",
-        (float) ClassTemplate->ConfigLengths[ConfigNum]);
+        static_cast<float>(ClassTemplate->ConfigLengths[ConfigNum]));
     cprintf ("\n\n");
   }
 

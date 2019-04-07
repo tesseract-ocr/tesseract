@@ -80,8 +80,8 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
 
-  Feature = (FEATURE)malloc(sizeof(FEATURE_STRUCT) +
-                            (FeatureDesc->NumParams - 1) * sizeof(float));
+  Feature = static_cast<FEATURE>(malloc(sizeof(FEATURE_STRUCT) +
+                            (FeatureDesc->NumParams - 1) * sizeof(float)));
   Feature->Type = FeatureDesc;
   return (Feature);
 
@@ -96,8 +96,8 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
 FEATURE_SET NewFeatureSet(int NumFeatures) {
   FEATURE_SET FeatureSet;
 
-  FeatureSet = (FEATURE_SET) Emalloc (sizeof (FEATURE_SET_STRUCT) +
-    (NumFeatures - 1) * sizeof (FEATURE));
+  FeatureSet = static_cast<FEATURE_SET>(Emalloc (sizeof (FEATURE_SET_STRUCT) +
+    (NumFeatures - 1) * sizeof (FEATURE)));
   FeatureSet->MaxNumFeatures = NumFeatures;
   FeatureSet->NumFeatures = 0;
   return (FeatureSet);

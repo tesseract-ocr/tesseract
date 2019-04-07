@@ -138,7 +138,7 @@ const void *, const void *)) {
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
-  base = (void **) malloc (count * sizeof (void *));
+  base = static_cast<void **>(malloc (count * sizeof (void *)));
 
   /* Extract all elements, putting the pointers in the array */
   current = base;

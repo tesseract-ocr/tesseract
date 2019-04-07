@@ -73,7 +73,7 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
   NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
-    Outline = (MFOUTLINE) first_node (RemainingOutlines);
+    Outline = static_cast<MFOUTLINE>first_node (RemainingOutlines);
     ConvertToPicoFeatures2(Outline, FeatureSet);
   }
   if (classify_norm_method == baseline)
@@ -114,7 +114,7 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
 
   Angle = NormalizedAngleFrom (Start, End, 1.0);
   Length = DistanceBetween (*Start, *End);
-  NumFeatures = (int) floor (Length / classify_pico_feature_length + 0.5);
+  NumFeatures = static_cast<int>(floor (Length / classify_pico_feature_length + 0.5));
   if (NumFeatures < 1)
     NumFeatures = 1;
 

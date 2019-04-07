@@ -509,7 +509,7 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
                   word_res_it.data()->best_choice->unichar_string().string(),
-                  (int)word_res_it.data()->best_choice->permuter());
+                  static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
       tprintf("\"\n");
@@ -520,7 +520,7 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
                   word_res_it.data()->best_choice->unichar_string().string(),
-                  (int)word_res_it.data()->best_choice->permuter());
+                  static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
       tprintf("\"\n");

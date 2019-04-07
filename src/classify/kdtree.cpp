@@ -165,7 +165,7 @@ void KDTreeSearch::Search(int *result_count,
     for (int j = 0; j < count; j++) {
       // Pre-cast to float64 as key is a template type and we have no control
       // over its actual type.
-      distances[j] = (float)sqrt((double)results_.elements()[j].key);
+      distances[j] = static_cast<float>(sqrt(static_cast<double>(results_.elements()[j].key)));
       results[j] = results_.elements()[j].value;
     }
   }
@@ -178,8 +178,8 @@ void KDTreeSearch::Search(int *result_count,
 /// @param KeySize  # of dimensions in the K-D tree
 /// @param KeyDesc  array of params to describe key dimensions
 KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]) {
-  auto *KDTree = (KDTREE *) Emalloc(
-      sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC));
+  auto *KDTree = static_cast<KDTREE *>(Emalloc(
+      sizeof(KDTREE) + (KeySize - 1) * sizeof(PARAM_DESC)));
   for (int i = 0; i < KeySize; i++) {
     KDTree->KeyDesc[i].NonEssential = KeyDesc[i].NonEssential;
     KDTree->KeyDesc[i].Circular = KeyDesc[i].Circular;
@@ -232,7 +232,7 @@ void KDStore(KDTREE *Tree, float *Key, void *Data) {
     Node = *PtrToNode;
   }
 
-  *PtrToNode = MakeKDNode(Tree, Key, (void *) Data, Level);
+  *PtrToNode = MakeKDNode(Tree, Key, Data, Level);
 }                                /* KDStore */
 
 /**
@@ -353,7 +353,7 @@ void FreeKDTree(KDTREE *Tree) {
 KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index) {
   KDNODE *NewNode;
 
-  NewNode = (KDNODE *) Emalloc (sizeof (KDNODE));
+  NewNode = static_cast<KDNODE *>(Emalloc (sizeof (KDNODE)));
 
   NewNode->Key = Key;
   NewNode->Data = Data;

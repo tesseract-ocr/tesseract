@@ -377,7 +377,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
   int i;
 
   // allocate main clusterer data structure and init simple fields
-  Clusterer = (CLUSTERER *) Emalloc (sizeof (CLUSTERER));
+  Clusterer = static_cast<CLUSTERER *>(Emalloc (sizeof (CLUSTERER)));
   Clusterer->SampleSize = SampleSize;
   Clusterer->NumberOfSamples = 0;
   Clusterer->NumChar = 0;
@@ -388,7 +388,7 @@ MakeClusterer (int16_t SampleSize, const PARAM_DESC ParamDesc[]) {
 
   // maintain a copy of param descriptors in the clusterer data structure
   Clusterer->ParamDesc =
-    (PARAM_DESC *) Emalloc (SampleSize * sizeof (PARAM_DESC));
+    static_cast<PARAM_DESC *>(Emalloc (SampleSize * sizeof (PARAM_DESC)));
   for (i = 0; i < SampleSize; i++) {
     Clusterer->ParamDesc[i].Circular = ParamDesc[i].Circular;
     Clusterer->ParamDesc[i].NonEssential = ParamDesc[i].NonEssential;
@@ -435,9 +435,9 @@ SAMPLE* MakeSample(CLUSTERER * Clusterer, const float* Feature,
   ASSERT_HOST(Clusterer->Root == nullptr);
 
   // allocate the new sample and initialize it
-  Sample = (SAMPLE *) Emalloc (sizeof (SAMPLE) +
+  Sample = static_cast<SAMPLE *>(Emalloc (sizeof (SAMPLE) +
     (Clusterer->SampleSize -
-    1) * sizeof (float));
+    1) * sizeof (float)));
   Sample->Clustered = false;
   Sample->Prototype = false;
   Sample->SampleCount = 1;
@@ -549,7 +549,7 @@ void FreeProtoList(LIST *ProtoList) {
  * @return None
  */
 void FreePrototype(void *arg) {  //PROTOTYPE     *Prototype)
-  auto *Prototype = (PROTOTYPE *) arg;
+  auto *Prototype = static_cast<PROTOTYPE *>(arg);
 
   // unmark the corresponding cluster (if there is one
   if (Prototype->Cluster != nullptr)
@@ -584,7 +584,7 @@ CLUSTER *NextSample(LIST *SearchState) {
 
   if (*SearchState == NIL_LIST)
     return (nullptr);
-  Cluster = (CLUSTER *) first_node (*SearchState);
+  Cluster = reinterpret_cast<CLUSTER *>first_node (*SearchState);
   *SearchState = pop (*SearchState);
   for (;;) {
     if (Cluster->Left == nullptr)
@@ -615,15 +615,13 @@ float Mean(PROTOTYPE *Proto, uint16_t Dimension) {
 float StandardDeviation(PROTOTYPE *Proto, uint16_t Dimension) {
   switch (Proto->Style) {
     case spherical:
-      return ((float) sqrt ((double) Proto->Variance.Spherical));
+      return (static_cast<float>(sqrt (static_cast<double>(Proto->Variance.Spherical))));
     case elliptical:
-      return ((float)
-        sqrt ((double) Proto->Variance.Elliptical[Dimension]));
+      return (static_cast<float>(sqrt (static_cast<double>(Proto->Variance.Elliptical[Dimension]))));
     case mixed:
       switch (Proto->Distrib[Dimension]) {
         case normal:
-          return ((float)
-            sqrt ((double) Proto->Variance.Elliptical[Dimension]));
+          return (static_cast<float>(sqrt (static_cast<double>(Proto->Variance.Elliptical[Dimension]))));
         case uniform:
         case D_random:
           return (Proto->Variance.Elliptical[Dimension]);
@@ -659,11 +657,10 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   // each sample and its nearest neighbor form a "potential" cluster
   // save these in a heap with the "best" potential clusters on top
   context.tree = Clusterer->KDTree;
-  context.candidates = (TEMPCLUSTER *)
-    Emalloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER));
+  context.candidates = static_cast<TEMPCLUSTER *>(Emalloc(Clusterer->NumberOfSamples * sizeof(TEMPCLUSTER)));
   context.next = 0;
   context.heap = new ClusterHeap(Clusterer->NumberOfSamples);
-  KDWalk(context.tree, (void_proc)MakePotentialClusters, &context);
+  KDWalk(context.tree, reinterpret_cast<void_proc>(MakePotentialClusters), &context);
 
   // form potential clusters into actual clusters - always do "best" first
   while (context.heap->Pop(&HeapEntry)) {
@@ -700,7 +697,7 @@ static void CreateClusterTree(CLUSTERER *Clusterer) {
   }
 
   // the root node in the cluster tree is now the only node in the kd-tree
-  Clusterer->Root = (CLUSTER *) RootOf(Clusterer->KDTree);
+  Clusterer->Root = static_cast<CLUSTER *>RootOf(Clusterer->KDTree);
 
   // free up the memory used by the K-D tree, heap, and temp clusters
   FreeKDTree(context.tree);
@@ -760,7 +757,7 @@ FindNearestNeighbor(KDTREE* Tree, CLUSTER* Cluster, float* Distance)
 
   // find the 2 nearest neighbors of the cluster
   KDNearestNeighborSearch(Tree, Cluster->Mean, MAXNEIGHBORS, MAXDISTANCE,
-                          &NumberOfNeighbors, (void **)Neighbor, Dist);
+                          &NumberOfNeighbors, reinterpret_cast<void **>(Neighbor), Dist);
 
   // search for the nearest neighbor that is not the cluster itself
   *Distance = MAXDISTANCE;
@@ -788,8 +785,8 @@ static CLUSTER* MakeNewCluster(CLUSTERER* Clusterer,
   CLUSTER *Cluster;
 
   // allocate the new cluster and initialize it
-  Cluster = (CLUSTER *) Emalloc(
-      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float));
+  Cluster = static_cast<CLUSTER *>(Emalloc(
+      sizeof(CLUSTER) + (Clusterer->SampleSize - 1) * sizeof(float)));
   Cluster->Clustered = false;
   Cluster->Prototype = false;
   Cluster->Left = TempCluster->Cluster;
@@ -883,7 +880,7 @@ static void ComputePrototypes(CLUSTERER* Clusterer, CLUSTERCONFIG* Config) {
     // remove the next cluster to be analyzed from the stack
     // try to make a prototype from the cluster
     // if successful, put it on the proto list, else split the cluster
-    Cluster = (CLUSTER *) first_node (ClusterStack);
+    Cluster = reinterpret_cast<CLUSTER *>first_node (ClusterStack);
     ClusterStack = pop (ClusterStack);
     Prototype = MakePrototype(Clusterer, Config, Cluster);
     if (Prototype != nullptr) {
@@ -930,7 +927,7 @@ static PROTOTYPE* MakePrototype(CLUSTERER* Clusterer, CLUSTERCONFIG* Config,
   // character samples have been removed (as above)
   Proto = MakeDegenerateProto(
       Clusterer->SampleSize, Cluster, Statistics, Config->ProtoStyle,
-      (int32_t) (Config->MinSamples * Clusterer->NumChar));
+      static_cast<int32_t>(Config->MinSamples * Clusterer->NumChar));
   if (Proto != nullptr) {
     FreeStatistics(Statistics);
     return Proto;
@@ -1155,7 +1152,7 @@ static PROTOTYPE* MakeSphericalProto(CLUSTERER* Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((double) (Statistics->AvgVariance)));
+      sqrt (static_cast<double>(Statistics->AvgVariance)));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1189,8 +1186,8 @@ static PROTOTYPE* MakeEllipticalProto(CLUSTERER* Clusterer,
 
     FillBuckets (Buckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Cluster->Mean[i],
-      sqrt ((double) Statistics->
-      CoVariance[i * (Clusterer->SampleSize + 1)]));
+      sqrt (static_cast<double>(Statistics->
+      CoVariance[i * (Clusterer->SampleSize + 1)])));
     if (!DistributionOK (Buckets))
       break;
   }
@@ -1233,7 +1230,7 @@ static PROTOTYPE* MakeMixedProto(CLUSTERER* Clusterer,
 
     FillBuckets (NormalBuckets, Cluster, i, &(Clusterer->ParamDesc[i]),
       Proto->Mean[i],
-      sqrt ((double) Proto->Variance.Elliptical[i]));
+      sqrt (static_cast<double>(Proto->Variance.Elliptical[i])));
     if (DistributionOK (NormalBuckets))
       continue;
 
@@ -1281,7 +1278,7 @@ static void MakeDimRandom(uint16_t i, PROTOTYPE* Proto, PARAM_DESC* ParamDesc) {
   Proto->TotalMagnitude /= Proto->Magnitude.Elliptical[i];
   Proto->Magnitude.Elliptical[i] = 1.0 / ParamDesc->Range;
   Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-  Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
+  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
 
   // note that the proto Weight is irrelevant for D_random protos
 }                                // MakeDimRandom
@@ -1308,7 +1305,7 @@ static void MakeDimUniform(uint16_t i, PROTOTYPE* Proto, STATISTICS* Statistics)
   Proto->Magnitude.Elliptical[i] =
     1.0 / (2.0 * Proto->Variance.Elliptical[i]);
   Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
-  Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
+  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
 
   // note that the proto Weight is irrelevant for uniform protos
 }                                // MakeDimUniform
@@ -1338,13 +1335,13 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
   uint32_t SampleCountAdjustedForBias;
 
   // allocate memory to hold the statistics results
-  Statistics = (STATISTICS *) Emalloc (sizeof (STATISTICS));
-  Statistics->CoVariance = (float *)Emalloc(sizeof(float) * N * N);
-  Statistics->Min = (float *) Emalloc (N * sizeof (float));
-  Statistics->Max = (float *) Emalloc (N * sizeof (float));
+  Statistics = static_cast<STATISTICS *>(Emalloc (sizeof (STATISTICS)));
+  Statistics->CoVariance = static_cast<float *>(Emalloc(sizeof(float) * N * N));
+  Statistics->Min = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Statistics->Max = static_cast<float *>(Emalloc (N * sizeof (float)));
 
   // allocate temporary memory to hold the sample to mean distances
-  Distance = (float *) Emalloc (N * sizeof (float));
+  Distance = static_cast<float *>(Emalloc (N * sizeof (float)));
 
   // initialize the statistics
   Statistics->AvgVariance = 1.0;
@@ -1394,8 +1391,8 @@ ComputeStatistics (int16_t N, PARAM_DESC ParamDesc[], CLUSTER * Cluster) {
       Statistics->AvgVariance *= *CoVariance;
     }
   }
-  Statistics->AvgVariance = (float)pow((double)Statistics->AvgVariance,
-                                       1.0 / N);
+  Statistics->AvgVariance = static_cast<float>(pow(static_cast<double>(Statistics->AvgVariance),
+                                       1.0 / N));
 
   // release temporary memory and return
   free(Distance);
@@ -1425,10 +1422,10 @@ static PROTOTYPE* NewSphericalProto(uint16_t N, CLUSTER* Cluster,
 
   Proto->Magnitude.Spherical =
     1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
-  Proto->TotalMagnitude = (float)pow((double)Proto->Magnitude.Spherical,
-                                     (double) N);
+  Proto->TotalMagnitude = static_cast<float>(pow(static_cast<double>(Proto->Magnitude.Spherical),
+                                     static_cast<double>(N)));
   Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
-  Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
+  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
 
   return (Proto);
 }                                // NewSphericalProto
@@ -1450,9 +1447,9 @@ static PROTOTYPE* NewEllipticalProto(int16_t N, CLUSTER* Cluster,
   int i;
 
   Proto = NewSimpleProto (N, Cluster);
-  Proto->Variance.Elliptical = (float *) Emalloc (N * sizeof (float));
-  Proto->Magnitude.Elliptical = (float *) Emalloc (N * sizeof (float));
-  Proto->Weight.Elliptical = (float *) Emalloc (N * sizeof (float));
+  Proto->Variance.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Proto->Magnitude.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
+  Proto->Weight.Elliptical = static_cast<float *>(Emalloc (N * sizeof (float)));
 
   CoVariance = Statistics->CoVariance;
   Proto->TotalMagnitude = 1.0;
@@ -1466,7 +1463,7 @@ static PROTOTYPE* NewEllipticalProto(int16_t N, CLUSTER* Cluster,
     Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
     Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
   }
-  Proto->LogMagnitude = log ((double) Proto->TotalMagnitude);
+  Proto->LogMagnitude = log (static_cast<double>(Proto->TotalMagnitude));
   Proto->Style = elliptical;
   return (Proto);
 }                                // NewEllipticalProto
@@ -1490,7 +1487,7 @@ static PROTOTYPE* NewMixedProto(int16_t N, CLUSTER* Cluster,
   int i;
 
   Proto = NewEllipticalProto (N, Cluster, Statistics);
-  Proto->Distrib = (DISTRIBUTION *) Emalloc (N * sizeof (DISTRIBUTION));
+  Proto->Distrib = static_cast<DISTRIBUTION *>(Emalloc (N * sizeof (DISTRIBUTION)));
 
   for (i = 0; i < N; i++) {
     Proto->Distrib[i] = normal;
@@ -1511,8 +1508,8 @@ static PROTOTYPE *NewSimpleProto(int16_t N, CLUSTER *Cluster) {
   PROTOTYPE *Proto;
   int i;
 
-  Proto = (PROTOTYPE *) Emalloc (sizeof (PROTOTYPE));
-  Proto->Mean = (float *) Emalloc (N * sizeof (float));
+  Proto = static_cast<PROTOTYPE *>(Emalloc (sizeof (PROTOTYPE)));
+  Proto->Mean = static_cast<float *>(Emalloc (N * sizeof (float)));
 
   for (i = 0; i < N; i++)
     Proto->Mean[i] = Cluster->Mean[i];
@@ -1676,7 +1673,7 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
 
   if (Symmetrical) {
     // allocate buckets so that all have approx. equal probability
-    BucketProbability = 1.0 / (double) (Buckets->NumberOfBuckets);
+    BucketProbability = 1.0 / static_cast<double>(Buckets->NumberOfBuckets);
 
     // distribution is symmetric so fill in upper half then copy
     CurrentBucket = Buckets->NumberOfBuckets / 2;
@@ -1687,9 +1684,9 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
 
     Probability = 0.0;
     LastProbDensity =
-      (*DensityFunction[(int) Distribution]) (BUCKETTABLESIZE / 2);
+      (*DensityFunction[static_cast<int>(Distribution)]) (BUCKETTABLESIZE / 2);
     for (i = BUCKETTABLESIZE / 2; i < BUCKETTABLESIZE; i++) {
-      ProbDensity = (*DensityFunction[(int) Distribution]) (i + 1);
+      ProbDensity = (*DensityFunction[static_cast<int>(Distribution)]) (i + 1);
       ProbabilityDelta = Integral (LastProbDensity, ProbDensity, 1.0);
       Probability += ProbabilityDelta;
       if (Probability > NextBucketBoundary) {
@@ -1699,12 +1696,12 @@ static BUCKETS *MakeBuckets(DISTRIBUTION Distribution,
       }
       Buckets->Bucket[i] = CurrentBucket;
       Buckets->ExpectedCount[CurrentBucket] +=
-        (float) (ProbabilityDelta * SampleCount);
+        static_cast<float>(ProbabilityDelta * SampleCount);
       LastProbDensity = ProbDensity;
     }
     // place any leftover probability into the last bucket
     Buckets->ExpectedCount[CurrentBucket] +=
-      (float) ((0.5 - Probability) * SampleCount);
+      static_cast<float>((0.5 - Probability) * SampleCount);
 
     // copy upper half of distribution to lower half
     for (i = 0, j = BUCKETTABLESIZE - 1; i < j; i++, j--)
@@ -1740,9 +1737,9 @@ static uint16_t OptimumNumberOfBuckets(uint32_t SampleCount) {
 
   for (Last = 0, Next = 1; Next < LOOKUPTABLESIZE; Last++, Next++) {
     if (SampleCount <= kCountTable[Next]) {
-      Slope = (float) (kBucketsTable[Next] - kBucketsTable[Last]) /
-          (float) (kCountTable[Next] - kCountTable[Last]);
-      return ((uint16_t) (kBucketsTable[Last] +
+      Slope = static_cast<float>(kBucketsTable[Next] - kBucketsTable[Last]) /
+          static_cast<float>(kCountTable[Next] - kCountTable[Last]);
+      return (static_cast<uint16_t>(kBucketsTable[Last] +
           Slope * (SampleCount - kCountTable[Last])));
     }
   }
@@ -1785,14 +1782,14 @@ ComputeChiSquared (uint16_t DegreesOfFreedom, double Alpha)
      for the specified number of degrees of freedom.  Search the list for
      the desired chi-squared. */
   SearchKey.Alpha = Alpha;
-  OldChiSquared = (CHISTRUCT *) first_node (search (ChiWith[DegreesOfFreedom],
+  OldChiSquared = reinterpret_cast<CHISTRUCT *>first_node (search (ChiWith[DegreesOfFreedom],
     &SearchKey, AlphaMatch));
 
   if (OldChiSquared == nullptr) {
     OldChiSquared = NewChiStruct (DegreesOfFreedom, Alpha);
     OldChiSquared->ChiSquared = Solve (ChiArea, OldChiSquared,
-      (double) DegreesOfFreedom,
-      (double) CHIACCURACY);
+      static_cast<double>(DegreesOfFreedom),
+      CHIACCURACY);
     ChiWith[DegreesOfFreedom] = push (ChiWith[DegreesOfFreedom],
       OldChiSquared);
   }
@@ -1832,7 +1829,7 @@ static double NormalDensity(int32_t x) {
  * @return The value of the uniform distribution at x.
  */
 static double UniformDensity(int32_t x) {
-  static double UniformDistributionDensity = (double) 1.0 / BUCKETTABLESIZE;
+  static double UniformDistributionDensity = 1.0 / BUCKETTABLESIZE;
 
   if ((x >= 0.0) && (x <= BUCKETTABLESIZE))
     return UniformDistributionDensity;
@@ -1960,8 +1957,8 @@ static uint16_t NormalBucket(PARAM_DESC *ParamDesc,
   if (X < 0)
     return 0;
   if (X > BUCKETTABLESIZE - 1)
-    return ((uint16_t) (BUCKETTABLESIZE - 1));
-  return (uint16_t) floor((double) X);
+    return (static_cast<uint16_t>(BUCKETTABLESIZE - 1));
+  return static_cast<uint16_t>(floor(static_cast<double>(X)));
 }                                // NormalBucket
 
 /**
@@ -1993,8 +1990,8 @@ static uint16_t UniformBucket(PARAM_DESC *ParamDesc,
   if (X < 0)
     return 0;
   if (X > BUCKETTABLESIZE - 1)
-    return (uint16_t) (BUCKETTABLESIZE - 1);
-  return (uint16_t) floor((double) X);
+    return static_cast<uint16_t>(BUCKETTABLESIZE - 1);
+  return static_cast<uint16_t>(floor(static_cast<double>(X)));
 }                                // UniformBucket
 
 /**
@@ -2085,7 +2082,7 @@ static uint16_t DegreesOfFreedom(DISTRIBUTION Distribution, uint16_t HistogramBu
 
   uint16_t AdjustedNumBuckets;
 
-  AdjustedNumBuckets = HistogramBuckets - DegreeOffsets[(int) Distribution];
+  AdjustedNumBuckets = HistogramBuckets - DegreeOffsets[static_cast<int>(Distribution)];
   if (Odd (AdjustedNumBuckets))
     AdjustedNumBuckets++;
   return (AdjustedNumBuckets);
@@ -2104,8 +2101,8 @@ static void AdjustBuckets(BUCKETS *Buckets, uint32_t NewSampleCount) {
   int i;
   double AdjustFactor;
 
-  AdjustFactor = (((double) NewSampleCount) /
-    ((double) Buckets->SampleCount));
+  AdjustFactor = ((static_cast<double>(NewSampleCount)) /
+    (static_cast<double>(Buckets->SampleCount)));
 
   for (i = 0; i < Buckets->NumberOfBuckets; i++) {
     Buckets->ExpectedCount[i] *= AdjustFactor;
@@ -2144,8 +2141,8 @@ static void InitBuckets(BUCKETS *Buckets) {
  */
 static int AlphaMatch(void *arg1,    //CHISTRUCT                             *ChiStruct,
                void *arg2) {  //CHISTRUCT                             *SearchKey)
-  auto *ChiStruct = (CHISTRUCT *) arg1;
-  auto *SearchKey = (CHISTRUCT *) arg2;
+  auto *ChiStruct = static_cast<CHISTRUCT *>(arg1);
+  auto *SearchKey = static_cast<CHISTRUCT *>(arg2);
 
   return (ChiStruct->Alpha == SearchKey->Alpha);
 
@@ -2163,7 +2160,7 @@ static int AlphaMatch(void *arg1,    //CHISTRUCT                             *Ch
 static CHISTRUCT *NewChiStruct(uint16_t DegreesOfFreedom, double Alpha) {
   CHISTRUCT *NewChiStruct;
 
-  NewChiStruct = (CHISTRUCT *) Emalloc (sizeof (CHISTRUCT));
+  NewChiStruct = static_cast<CHISTRUCT *>(Emalloc (sizeof (CHISTRUCT)));
   NewChiStruct->DegreesOfFreedom = DegreesOfFreedom;
   NewChiStruct->Alpha = Alpha;
   return (NewChiStruct);
@@ -2201,7 +2198,7 @@ void *FunctionParams, double InitialGuess, double Accuracy)
   Delta = INITIALDELTA;
   LastPosX = FLT_MAX;
   LastNegX = -FLT_MAX;
-  f = (*Function) ((CHISTRUCT *) FunctionParams, x);
+  f = (*Function) (static_cast<CHISTRUCT *>(FunctionParams), x);
   while (Abs (LastPosX - LastNegX) > Accuracy) {
     // keep track of outer bounds of current estimate
     if (f < 0)
@@ -2211,7 +2208,7 @@ void *FunctionParams, double InitialGuess, double Accuracy)
 
     // compute the approx. slope of f(x) at the current point
     Slope =
-      ((*Function) ((CHISTRUCT *) FunctionParams, x + Delta) - f) / Delta;
+      ((*Function) (static_cast<CHISTRUCT *>(FunctionParams), x + Delta) - f) / Delta;
 
     // compute the next solution guess */
     xDelta = f / Slope;
@@ -2224,7 +2221,7 @@ void *FunctionParams, double InitialGuess, double Accuracy)
       Delta = NewDelta;
 
     // compute the value of the function at the new guess
-    f = (*Function) ((CHISTRUCT *) FunctionParams, x);
+    f = (*Function) (static_cast<CHISTRUCT *>(FunctionParams), x);
   }
   return (x);
 
@@ -2327,7 +2324,7 @@ MultipleCharSamples(CLUSTERER* Clusterer,
         CharFlags[CharID] = ILLEGAL_CHAR;
       }
       NumCharInCluster--;
-      PercentIllegal = (float) NumIllegalInCluster / NumCharInCluster;
+      PercentIllegal = static_cast<float>(NumIllegalInCluster) / NumCharInCluster;
       if (PercentIllegal > MaxIllegal) {
         destroy(SearchState);
         return true;
