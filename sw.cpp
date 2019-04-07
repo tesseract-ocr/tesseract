@@ -62,10 +62,8 @@ void build(Solution &s)
         if (s.Settings.Native.CompilerType == CompilerType::MSVC ||
             s.Settings.Native.CompilerType == CompilerType::ClangCl)
         {
-            libtesseract["src/arch/dotproductavx.cpp"].args.push_back("-arch:AVX");
-            libtesseract["src/arch/dotproductsse.cpp"].args.push_back("-D__SSE4_1__");
-            libtesseract["src/arch/intsimdmatrixavx2.cpp"].args.push_back("-arch:AVX2");
-            libtesseract["src/arch/intsimdmatrixsse.cpp"].args.push_back("-D__SSE4_1__");
+            libtesseract += "__SSE4_1__"_def;
+            libtesseract.CompileOptions.push_back("-arch:AVX2");
         }
 
         libtesseract.Public += "HAVE_CONFIG_H"_d;
