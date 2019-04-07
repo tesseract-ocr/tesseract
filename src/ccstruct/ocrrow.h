@@ -59,7 +59,7 @@ class ROW:public ELIST_LINK
     float base_line(                     //compute baseline
                     float xpos) const {  //at the position
                                  //get spline value
-      return (float) baseline.y (xpos);
+      return static_cast<float>(baseline.y (xpos));
     }
     float x_height() const {  //return x height
       return xheight;

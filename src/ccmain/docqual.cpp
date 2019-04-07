@@ -177,7 +177,7 @@ void Tesseract::unrej_good_quality_words(  //unreject potential
     }
     else if ((page_res_it.row ()->char_count > 0) &&
       ((page_res_it.row ()->rej_count /
-      (float) page_res_it.row ()->char_count) <=
+      static_cast<float>(page_res_it.row ()->char_count)) <=
     quality_rowrej_pc)) {
       word = page_res_it.word ();
       if (word->reject_map.quality_recoverable_rejects() &&
@@ -863,7 +863,7 @@ GARBAGE_LEVEL Tesseract::garbage_word(WERD_RES *word, bool ok_dict_word) {
   if (len > 4) {
     dodgy_chars = 2 * tess_rejs + bad_char_count + isolated_digits +
         isolated_alphas;
-    if (dodgy_chars > 5 || (dodgy_chars / (float) len) > 0.5)
+    if (dodgy_chars > 5 || (dodgy_chars / static_cast<float>(len)) > 0.5)
       return G_DODGY;
     else
       return G_OK;

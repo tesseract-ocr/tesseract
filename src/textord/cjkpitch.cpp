@@ -384,7 +384,7 @@ class FPRow {
  private:
   static float x_overlap_fraction(const TBOX& box1, const TBOX& box2) {
     if (std::min(box1.width(), box2.width()) == 0) return 0.0;
-    return -box1.x_gap(box2) / (float)std::min(box1.width(), box2.width());
+    return -box1.x_gap(box2) / static_cast<float>(std::min(box1.width(), box2.width()));
   }
 
   static bool mostly_overlap(const TBOX& box1, const TBOX& box2) {
@@ -531,7 +531,7 @@ void FPRow::OutputEstimations() {
   // Don't consider a quarter space as a real space, because it's used
   // for line justification in traditional Japanese books.
   real_row_->max_nonspace = std::max(pitch_ * 0.25 + good_gaps_.minimum(),
-                                (double)good_gaps_.ile(0.875));
+                                static_cast<double>(good_gaps_.ile(0.875)));
 
   int space_threshold =
           std::min((real_row_->max_nonspace + real_row_->min_space) / 2,
@@ -658,7 +658,7 @@ void FPRow::DebugOutputResult(int row_index) {
   if (num_chars() > 0) {
     tprintf("Row %d: pitch_decision=%d, fixed_pitch=%f, max_nonspace=%d, "
             "space_size=%f, space_threshold=%d, xheight=%f\n",
-            row_index, (int)(real_row_->pitch_decision),
+            row_index, static_cast<int>(real_row_->pitch_decision),
             real_row_->fixed_pitch, real_row_->max_nonspace,
             real_row_->space_size, real_row_->space_threshold,
             real_row_->xheight);

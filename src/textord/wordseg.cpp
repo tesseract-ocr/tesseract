@@ -140,13 +140,13 @@ void set_row_spaces(                  //find space sizes
     row = row_it.data ();
     if (row->fixed_pitch == 0) {
       row->min_space =
-        (int32_t) ceil (row->pr_space -
+        static_cast<int32_t>(ceil (row->pr_space -
         (row->pr_space -
-        row->pr_nonsp) * textord_words_definite_spread);
+        row->pr_nonsp) * textord_words_definite_spread));
       row->max_nonspace =
-        (int32_t) floor (row->pr_nonsp +
+        static_cast<int32_t>(floor (row->pr_nonsp +
         (row->pr_space -
-        row->pr_nonsp) * textord_words_definite_spread);
+        row->pr_nonsp) * textord_words_definite_spread));
       if (testing_on && textord_show_initial_words) {
         tprintf ("Assigning defaults %d non, %d space to row at %g\n",
           row->max_nonspace, row->min_space, row->intercept ());
@@ -157,7 +157,7 @@ void set_row_spaces(                  //find space sizes
     }
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on) {
-      plot_word_decisions (to_win, (int16_t) row->fixed_pitch, row);
+      plot_word_decisions (to_win, static_cast<int16_t>(row->fixed_pitch), row);
     }
 #endif
   }
@@ -195,7 +195,7 @@ int32_t row_words(                  //compute space size
 
   testpt = ICOORD (textord_test_x, textord_test_y);
   smooth_factor =
-    (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
+    static_cast<int32_t>(block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = false;
@@ -308,9 +308,9 @@ int32_t row_words(                  //compute space size
     }
   }
   row->min_space =
-    (int32_t) ceil (upper - (upper - lower) * textord_words_definite_spread);
+    static_cast<int32_t>(ceil (upper - (upper - lower) * textord_words_definite_spread));
   row->max_nonspace =
-    (int32_t) floor (lower + (upper - lower) * textord_words_definite_spread);
+    static_cast<int32_t>(floor (lower + (upper - lower) * textord_words_definite_spread));
   row->space_threshold = (row->max_nonspace + row->min_space) / 2;
   row->space_size = upper;
   row->kern_size = lower;
@@ -368,14 +368,14 @@ int32_t row_words2(                  //compute space size
 
   testpt = ICOORD (textord_test_x, textord_test_y);
   smooth_factor =
-    (int32_t) (block->xheight * textord_wordstats_smooth_factor + 1.5);
+    static_cast<int32_t>(block->xheight * textord_wordstats_smooth_factor + 1.5);
   //      if (testing_on)
   //              tprintf("Row smooth factor=%d\n",smooth_factor);
   prev_valid = false;
   prev_x = -INT16_MAX;
   const bool testing_row = false;
                                  //min blob size
-  min_width = (int32_t) block->pr_space;
+  min_width = static_cast<int32_t>(block->pr_space);
   total_count = 0;
   for (blob_it.mark_cycle_pt (); !blob_it.cycled_list (); blob_it.forward ()) {
     blob = blob_it.data ();
@@ -462,9 +462,9 @@ int32_t row_words2(                  //compute space size
     upper = block->pr_space;
   }
   row->min_space =
-    (int32_t) ceil (upper - (upper - lower) * textord_words_definite_spread);
+    static_cast<int32_t>(ceil (upper - (upper - lower) * textord_words_definite_spread));
   row->max_nonspace =
-    (int32_t) floor (lower + (upper - lower) * textord_words_definite_spread);
+    static_cast<int32_t>(floor (lower + (upper - lower) * textord_words_definite_spread));
   row->space_threshold = (row->max_nonspace + row->min_space) / 2;
   row->space_size = upper;
   row->kern_size = lower;
@@ -533,9 +533,9 @@ void make_real_words(
       real_row_it.add_after_then_move (real_row);
     }
   }
-  block->block->set_stats (block->fixed_pitch == 0, (int16_t) block->kern_size,
-    (int16_t) block->space_size,
-    (int16_t) block->fixed_pitch);
+  block->block->set_stats (block->fixed_pitch == 0, static_cast<int16_t>(block->kern_size),
+    static_cast<int16_t>(block->space_size),
+    static_cast<int16_t>(block->fixed_pitch));
   block->block->check_pitch ();
 }
 
@@ -563,7 +563,7 @@ ROW *make_rep_words(                 //make a row
     word_box += word_it.data ()->bounding_box ();
   row->xheight = block->xheight;
   real_row = new ROW(row,
-    (int16_t) block->kern_size, (int16_t) block->space_size);
+    static_cast<int16_t>(block->kern_size), static_cast<int16_t>(block->space_size));
   word_it.set_to_list (real_row->word_list ());
                                  //put words in row
   word_it.add_list_after (&row->rep_words);

@@ -93,7 +93,7 @@ void FontInfoTable::MoveSpacingInfoFrom(FontInfoTable* other) {
         push_back(other->get(i));
         other->get(i).name = nullptr;
       } else {
-        delete [] get(target_index).spacing_vec;
+        delete get(target_index).spacing_vec;
         get(target_index).spacing_vec = other->get(i).spacing_vec;
       }
       other->get(i).spacing_vec = nullptr;

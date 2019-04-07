@@ -577,7 +577,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "  /Length %lu /Filter /FlateDecode\n"
                ">>\n"
                "stream\n",
-               (unsigned long)len);
+               static_cast<unsigned long>(len));
   if (n >= sizeof(buf)) {
     lept_free(comp);
     return false;
@@ -624,7 +624,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
                "stream\n"
                "%s"
                "endstream\n"
-               "endobj\n", (unsigned long) strlen(stream), stream);
+               "endobj\n", static_cast<unsigned long>(strlen(stream)), stream);
   if (n >= sizeof(buf)) return false;
   AppendPDFObject(buf);
 
@@ -781,7 +781,7 @@ bool TessPDFRenderer::imageToPDFObj(Pix *pix,
                "<<\n"
                "  /Length %ld\n"
                "  /Subtype /Image\n",
-               objnum, (unsigned long) cid->nbytescomp);
+               objnum, static_cast<unsigned long>(cid->nbytescomp));
   if (n >= sizeof(b1)) {
     l_CIDataDestroy(&cid);
     return false;

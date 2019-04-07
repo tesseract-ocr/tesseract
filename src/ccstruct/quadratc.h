@@ -37,7 +37,7 @@ class QUAD_COEFFS
 
     float y(                  //evaluate
             float x) const {  //at x
-      return (float) ((a * x + b) * x + c);
+      return static_cast<float>((a * x + b) * x + c);
     }
 
     void move(               // reposition word
@@ -50,8 +50,8 @@ class QUAD_COEFFS
       int16_t p = vec.x ();
       int16_t q = vec.y ();
 
-      c = (float) (c - b * p + a * p * p + q);
-      b = (float) (b - 2 * a * p);
+      c = static_cast<float>(c - b * p + a * p * p + q);
+      b = static_cast<float>(b - 2 * a * p);
     }
 
     double a;                    //x squared

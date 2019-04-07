@@ -1960,7 +1960,7 @@ static void find_modal_font(  // good chars in word
   int32_t count; //pile count
 
   if (fonts->get_total () > 0) {
-    font = (int16_t) fonts->mode ();
+    font = static_cast<int16_t>(fonts->mode ());
     *font_out = font;
     count = fonts->pile_count (font);
     *font_count = count < INT8_MAX ? count : INT8_MAX;

@@ -63,7 +63,7 @@ C_OUTLINE::C_OUTLINE(CRACKEDGE* startpt, ICOORD bot_left, ICOORD top_right,
     return;
   }
                                  //get memory
-  steps = (uint8_t *)calloc(step_mem(), 1);
+  steps = static_cast<uint8_t *>(calloc(step_mem(), 1));
   edgept = startpt;
 
   for (stepindex = 0; stepindex < length; stepindex++) {
@@ -159,7 +159,7 @@ C_OUTLINE::C_OUTLINE(C_OUTLINE* srcline, FCOORD rotation) : offsets(nullptr) {
     return;
   }
                                  //get memory
-  steps = (uint8_t *)calloc(step_mem(), 1);
+  steps = static_cast<uint8_t *>(calloc(step_mem(), 1));
 
   for (int iteration = 0; iteration < 2; ++iteration) {
     DIR128 round1 = iteration == 0 ? 32 : 0;
@@ -1012,7 +1012,7 @@ C_OUTLINE& C_OUTLINE::operator=(const C_OUTLINE& source) {
   start = source.start;
   free(steps);
   stepcount = source.stepcount;
-  steps = (uint8_t *)malloc(step_mem());
+  steps = static_cast<uint8_t *>(malloc(step_mem()));
   memmove (steps, source.steps, step_mem());
   if (!children.empty ())
     children.clear ();

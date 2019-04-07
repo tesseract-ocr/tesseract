@@ -426,7 +426,7 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
     case RECOG_WERDS:
     case RECOG_PSEUDO:
     case SHOW_BLOB_FEATURES:
-      mode =(CMD_EVENTS) cmd_event;
+      mode =static_cast<CMD_EVENTS>(cmd_event);
       break;
     case DEBUG_WERD_CMD_EVENT:
       mode = DEBUG_WERD_CMD_EVENT;
@@ -822,13 +822,12 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
                                  // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color),
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color));
 
-    auto c = (ScrollView::Color)
-       ((int32_t) editor_image_blob_bb_color);
+    auto c = static_cast<ScrollView::Color>((int32_t) editor_image_blob_bb_color);
     image_win->Pen(c);
     // cblob iterator
     C_BLOB_IT c_it(word->cblob_list());
@@ -904,8 +903,8 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
 
   if (!displayed_something)      // display BBox anyway
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((int32_t) editor_image_word_bb_color),
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t) editor_image_word_bb_color),
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color));
   return true;
 }

@@ -63,8 +63,8 @@ void c_line_color_index(  /*set color */
                         void *win,
                         C_COL index) {
  // The colors are the same as the SV ones except that SV has COLOR:NONE --> offset of 1
- auto* window = (ScrollView*) win;
- window->Pen((ScrollView::Color) (index + 1));
+ auto* window = static_cast<ScrollView*>(win);
+ window->Pen(static_cast<ScrollView::Color>(index + 1));
 }
 
 
@@ -72,8 +72,8 @@ void c_move(  /*move pen */
             void *win,
             double x,
             double y) {
-  auto* window = (ScrollView*) win;
-  window->SetCursor((int) x, (int) y);
+  auto* window = static_cast<ScrollView*>(win);
+  window->SetCursor(static_cast<int>(x), static_cast<int>(y));
 }
 
 
@@ -81,21 +81,21 @@ void c_draw(  /*move pen */
             void *win,
             double x,
             double y) {
-  auto* window = (ScrollView*) win;
-  window->DrawTo((int) x, (int) y);
+  auto* window = static_cast<ScrollView*>(win);
+  window->DrawTo(static_cast<int>(x), static_cast<int>(y));
 }
 
 
 void c_make_current(  /*move pen */
                     void *win) {
-  auto* window = (ScrollView*) win;
+  auto* window = static_cast<ScrollView*>(win);
   window->Update();
 }
 
 
 void c_clear_window(  /*move pen */
                     void *win) {
-  auto* window = (ScrollView*) win;
+  auto* window = static_cast<ScrollView*>(win);
   window->Clear();
 }
 
@@ -116,7 +116,7 @@ char window_wait(ScrollView* win) {
 
 void reverse32(void *ptr) {
   char tmp;
-  char *cptr = (char *) ptr;
+  char *cptr = static_cast<char *>(ptr);
 
   tmp = *cptr;
   *cptr = *(cptr + 3);
@@ -129,7 +129,7 @@ void reverse32(void *ptr) {
 
 void reverse16(void *ptr) {
   char tmp;
-  char *cptr = (char *) ptr;
+  char *cptr = static_cast<char *>(ptr);
 
   tmp = *cptr;
   *cptr = *(cptr + 1);

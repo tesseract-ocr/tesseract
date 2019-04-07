@@ -56,7 +56,7 @@ void display_edgepts(LIST outlines) {
   window = edge_window;
   /* Reclaim old memory */
   iterate(outlines) {
-    render_edgepts (window, (EDGEPT *) first_node (outlines), White);
+    render_edgepts (window, reinterpret_cast<EDGEPT *>first_node (outlines), White);
   }
 }
 

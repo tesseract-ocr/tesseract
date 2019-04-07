@@ -32,7 +32,7 @@
  * @return New MICROFEATURE
  */
 MICROFEATURE NewMicroFeature() {
-  return ((MICROFEATURE) Emalloc (sizeof (MFBLOCK)));
+  return (static_cast<MICROFEATURE>(Emalloc (sizeof (MFBLOCK))));
 }                                /* NewMicroFeature */
 
 

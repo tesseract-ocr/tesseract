@@ -965,7 +965,7 @@ void Classify::DisplayAdaptedChar(TBLOB* blob, INT_CLASS_STRUCT* int_class) {
     uint32_t ConfigMask;
     ConfigMask = 1 << int_result.config;
     ShowMatchDisplay();
-    im_.Match(int_class, AllProtosOn, (BIT_VECTOR)&ConfigMask,
+    im_.Match(int_class, AllProtosOn, static_cast<BIT_VECTOR>(&ConfigMask),
               bl_features.size(), &bl_features[0],
               &int_result, classify_adapt_feature_threshold,
               6 | 0x19, matcher_debug_separate_windows);
@@ -1938,7 +1938,7 @@ void Classify::MakePermanent(ADAPT_TEMPLATES Templates,
 
   // Initialize permanent config.
   Ambigs = GetAmbiguities(Blob, ClassId);
-  auto Perm = (PERM_CONFIG)malloc(sizeof(PERM_CONFIG_STRUCT));
+  auto Perm = static_cast<PERM_CONFIG>(malloc(sizeof(PERM_CONFIG_STRUCT)));
   Perm->Ambigs = Ambigs;
   Perm->FontinfoId = Config->FontinfoId;
 
@@ -1985,8 +1985,8 @@ int MakeTempProtoPerm(void *item1, void *item2) {
   TEMP_PROTO TempProto;
   PROTO_KEY *ProtoKey;
 
-  TempProto = (TEMP_PROTO) item1;
-  ProtoKey = (PROTO_KEY *) item2;
+  TempProto = static_cast<TEMP_PROTO>(item1);
+  ProtoKey = static_cast<PROTO_KEY *>(item2);
 
   Class = ProtoKey->Templates->Class[ProtoKey->ClassId];
   Config = TempConfigFor(Class, ProtoKey->ConfigId);

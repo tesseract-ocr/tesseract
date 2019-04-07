@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
   GenericVector<LIST> freeable_protos;
   iterate(pCharList) {
     //Cluster
-    CharSample = (LABELEDLIST)first_node(pCharList);
+    CharSample = reinterpret_cast<LABELEDLIST>first_node(pCharList);
     Clusterer =
       SetUpForClustering(FeatureDefs, CharSample, PROGRAM_FEATURE_TYPE);
     if (Clusterer == nullptr) {  // To avoid a SIGSEGV
@@ -222,7 +222,7 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
   WriteParamDesc(File, feature_desc->NumParams, feature_desc->ParamDesc);
   iterate(LabeledProtoList)
   {
-    LabeledProto = (LABELEDLIST) first_node (LabeledProtoList);
+    LabeledProto = reinterpret_cast<LABELEDLIST>first_node (LabeledProtoList);
     N = NumberOfProtos(LabeledProto->List, true, false);
     if (N < 1) {
       printf ("\nError! Not enough protos for %s: %d protos"
@@ -250,7 +250,7 @@ static void WriteProtos(FILE* File, uint16_t N, LIST ProtoList,
   // write prototypes
   iterate(ProtoList)
   {
-    Proto = (PROTOTYPE*)first_node(ProtoList);
+    Proto = reinterpret_cast<PROTOTYPE*>first_node(ProtoList);
     if ((Proto->Significant && WriteSigProtos)  ||
       (! Proto->Significant && WriteInsigProtos))
       WritePrototype(File, N, Proto);

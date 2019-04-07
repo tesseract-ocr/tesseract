@@ -577,7 +577,7 @@ int16_t Tesseract::count_alphanums(WERD_RES *word_res) {
 void Tesseract::reject_mostly_rejects(WERD_RES *word) {
   /* Reject the whole of the word if the fraction of rejects exceeds a limit */
 
-  if ((float) word->reject_map.reject_count() / word->reject_map.length() >=
+  if (static_cast<float>(word->reject_map.reject_count()) / word->reject_map.length() >=
     rej_whole_of_mostly_reject_word_fract)
     word->reject_map.rej_word_mostly_rej();
 }
@@ -640,7 +640,7 @@ void Tesseract::flip_hyphens(WERD_RES *word_res) {
     // Don't touch small or touching blobs - it is too dangerous.
     if ((out_box.width() > 8 * word_res->denorm.x_scale()) &&
         (out_box.left() > prev_right) && (out_box.right() < next_left)) {
-      aspect_ratio = out_box.width() / (float) out_box.height();
+      aspect_ratio = out_box.width() / static_cast<float>(out_box.height());
       if (word_res->uch_set->eq(best_choice->unichar_id(i), ".")) {
         if (aspect_ratio >= tessedit_upper_flip_hyphen &&
             word_res->uch_set->contains_unichar_id(unichar_dash) &&
