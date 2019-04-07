@@ -1829,12 +1829,13 @@ static double NormalDensity(int32_t x) {
  * @return The value of the uniform distribution at x.
  */
 static double UniformDensity(int32_t x) {
-  static double UniformDistributionDensity = 1.0 / BUCKETTABLESIZE;
+  constexpr auto UniformDistributionDensity = 1.0 / BUCKETTABLESIZE;
 
-  if ((x >= 0.0) && (x <= BUCKETTABLESIZE))
+  if ((x >= 0) && (x <= BUCKETTABLESIZE)) {
     return UniformDistributionDensity;
-  else
+  } else {
     return 0.0;
+  }
 }                                // UniformDensity
 
 /**
