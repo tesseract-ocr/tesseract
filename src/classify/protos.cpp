@@ -23,7 +23,6 @@
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
-#include "globals.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"
@@ -59,8 +58,8 @@ int AddConfigToClass(CLASS_TYPE Class) {
       CONFIG_INCREMENT) * CONFIG_INCREMENT);
 
     Class->Configurations =
-      (CONFIGS) Erealloc (Class->Configurations,
-      sizeof (BIT_VECTOR) * NewNumConfigs);
+      static_cast<CONFIGS>(Erealloc (Class->Configurations,
+      sizeof (BIT_VECTOR) * NewNumConfigs));
 
     Class->MaxNumConfigs = NewNumConfigs;
   }
@@ -93,9 +92,9 @@ int AddProtoToClass(CLASS_TYPE Class) {
     NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
 
-    Class->Prototypes = (PROTO) Erealloc (Class->Prototypes,
+    Class->Prototypes = static_cast<PROTO>(Erealloc (Class->Prototypes,
       sizeof (PROTO_STRUCT) *
-      NewNumProtos);
+      NewNumProtos));
 
     Class->MaxNumProtos = NewNumProtos;
 
@@ -176,11 +175,11 @@ CLASS_TYPE NewClass(int NumProtos, int NumConfigs) {
   Class = new CLASS_STRUCT;
 
   if (NumProtos > 0)
-    Class->Prototypes = (PROTO) Emalloc (NumProtos * sizeof (PROTO_STRUCT));
+    Class->Prototypes = static_cast<PROTO>(Emalloc (NumProtos * sizeof (PROTO_STRUCT)));
 
   if (NumConfigs > 0)
-    Class->Configurations = (CONFIGS) Emalloc (NumConfigs *
-      sizeof (BIT_VECTOR));
+    Class->Configurations = static_cast<CONFIGS>(Emalloc (NumConfigs *
+      sizeof (BIT_VECTOR)));
   Class->MaxNumProtos = NumProtos;
   Class->MaxNumConfigs = NumConfigs;
   Class->NumProtos = 0;

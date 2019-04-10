@@ -2,7 +2,6 @@
  ** Filename:    matchdefs.h
  ** Purpose:     Generic interface definitions for feature matchers.
  ** Author:      Dan Johnson
- ** History:     Fri Jan 19 09:21:25 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@
 /**----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
-#include "host.h"
 #include <cstdio>
 #include "unichar.h"
 

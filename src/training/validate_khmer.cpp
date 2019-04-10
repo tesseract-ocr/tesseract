@@ -18,7 +18,7 @@ namespace tesseract {
 // HC and the {Z|z}M The unicode chapter on Khmer only mentions the joiners in
 // the BNF syntax, so who knows what they do.
 bool ValidateKhmer::ConsumeGraphemeIfValid() {
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (codes_used_ == num_codes) return false;
   if (codes_[codes_used_].first == CharClass::kOther) {
     UseMultiCode(1);
@@ -45,7 +45,7 @@ bool ValidateKhmer::ConsumeGraphemeIfValid() {
       if (UseMultiCode(1)) return true;
     }
   }
-  int num_matra_parts = 0;
+  unsigned num_matra_parts = 0;
   if (codes_[codes_used_].second == kZeroWidthJoiner ||
       codes_[codes_used_].second == kZeroWidthNonJoiner) {
     if (CodeOnlyToOutput()) {

@@ -59,18 +59,21 @@
 #include "dict.h"              // for Dict
 #include "edgblob.h"           // for extract_edges
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZE, ELISTIZEH
-#include "environ.h"           // for l_uint8, FALSE, TRUE
+#include "environ.h"           // for l_uint8
 #include "equationdetect.h"    // for EquationDetect
 #include "errcode.h"           // for ASSERT_HOST
 #include "globaloc.h"          // for SavePixForCrash, signal_exit
 #include "helpers.h"           // for IntCastRounded, chomp_string
-#include "host.h"              // for BOOL8
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3
+#ifndef DISABLED_LEGACY_ENGINE
 #include "intfx.h"             // for INT_FX_RESULT_STRUCT
+#endif
 #include "mutableiterator.h"   // for MutableIterator
 #include "normalis.h"          // for kBlnBaselineOffset, kBlnXHeight
 #include "ocrclass.h"          // for ETEXT_DESC
-#include "openclwrapper.h"     // for PERF_COUNT_END, PERF_COUNT_START, PERF...
+#if defined(USE_OPENCL)
+#include "openclwrapper.h"     // for OpenclDevice
+#endif
 #include "osdetect.h"          // for OSResults, OSBestResult, OrientationId...
 #include "pageres.h"           // for PAGE_RES_IT, WERD_RES, PAGE_RES, CR_DE...
 #include "paragraphs.h"        // for DetectParagraphs
@@ -89,7 +92,7 @@
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 
-BOOL_VAR(stream_filelist, FALSE, "Stream a filelist from stdin");
+BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 
 namespace tesseract {
 
@@ -174,8 +177,8 @@ static void addAvailableLanguages(const STRING &datadir, const STRING &base,
 
 // Compare two STRING values (used for sorting).
 static int CompareSTRING(const void* p1, const void* p2) {
-  const STRING* s1 = static_cast<const STRING*>(p1);
-  const STRING* s2 = static_cast<const STRING*>(p2);
+  const auto* s1 = static_cast<const STRING*>(p1);
+  const auto* s2 = static_cast<const STRING*>(p2);
   return strcmp(s1->c_str(), s2->c_str());
 }
 
@@ -206,11 +209,11 @@ TessBaseAPI::TessBaseAPI()
       image_height_(0) {
   const char *locale;
   locale = std::setlocale(LC_ALL, nullptr);
-  ASSERT_HOST(!strcmp(locale, "C"));
+  ASSERT_HOST(!strcmp(locale, "C") || !strcmp(locale, "C.UTF-8"));
   locale = std::setlocale(LC_CTYPE, nullptr);
-  ASSERT_HOST(!strcmp(locale, "C"));
+  ASSERT_HOST(!strcmp(locale, "C") || !strcmp(locale, "C.UTF-8"));
   locale = std::setlocale(LC_NUMERIC, nullptr);
-  ASSERT_HOST(!strcmp(locale, "C"));
+  ASSERT_HOST(!strcmp(locale, "C") || !strcmp(locale, "C.UTF-8"));
 }
 
 TessBaseAPI::~TessBaseAPI() {
@@ -231,21 +234,14 @@ const char* TessBaseAPI::Version() {
  * and returns sizeof(cl_device_id)
  * otherwise *device=nullptr and returns 0.
  */
-#ifdef USE_OPENCL
-#ifdef USE_DEVICE_SELECTION
-#include "opencl_device_selection.h"
-#endif
-#endif
 size_t TessBaseAPI::getOpenCLDevice(void **data) {
 #ifdef USE_OPENCL
-#ifdef USE_DEVICE_SELECTION
   ds_device device = OpenclDevice::getDeviceSelection();
   if (device.type == DS_DEVICE_OPENCL_DEVICE) {
     *data = new cl_device_id;
     memcpy(*data, &device.oclDeviceID, sizeof(cl_device_id));
     return sizeof(cl_device_id);
   }
-#endif
 #endif
 
   *data = nullptr;
@@ -303,7 +299,7 @@ bool TessBaseAPI::SetDebugVariable(const char* name, const char* value) {
 }
 
 bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
-  IntParam *p = ParamUtils::FindParam<IntParam>(
+  auto *p = ParamUtils::FindParam<IntParam>(
       name, GlobalParams()->int_params, tesseract_->params()->int_params);
   if (p == nullptr) return false;
   *value = (int32_t)(*p);
@@ -311,21 +307,21 @@ bool TessBaseAPI::GetIntVariable(const char *name, int *value) const {
 }
 
 bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
-  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+  auto *p = ParamUtils::FindParam<BoolParam>(
       name, GlobalParams()->bool_params, tesseract_->params()->bool_params);
   if (p == nullptr) return false;
-  *value = (BOOL8)(*p);
+  *value = bool(*p);
   return true;
 }
 
 const char *TessBaseAPI::GetStringVariable(const char *name) const {
-  StringParam *p = ParamUtils::FindParam<StringParam>(
+  auto *p = ParamUtils::FindParam<StringParam>(
       name, GlobalParams()->string_params, tesseract_->params()->string_params);
   return (p != nullptr) ? p->string() : nullptr;
 }
 
 bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
-  DoubleParam *p = ParamUtils::FindParam<DoubleParam>(
+  auto *p = ParamUtils::FindParam<DoubleParam>(
       name, GlobalParams()->double_params, tesseract_->params()->double_params);
   if (p == nullptr) return false;
   *value = (double)(*p);
@@ -367,7 +363,6 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
                       const GenericVector<STRING>* vars_vec,
                       const GenericVector<STRING>* vars_values,
                       bool set_only_non_debug_params, FileReader reader) {
-  PERF_COUNT_START("TessBaseAPI::Init")
   // Default language is "eng".
   if (language == nullptr) language = "eng";
   STRING datapath = data_size == 0 ? data : language;
@@ -383,12 +378,10 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     delete tesseract_;
     tesseract_ = nullptr;
   }
-  // PERF_COUNT_SUB("delete tesseract_")
 #ifdef USE_OPENCL
   OpenclDevice od;
   od.InitEnv();
 #endif
-  PERF_COUNT_SUB("OD::InitEnv()")
   bool reset_classifier = true;
   if (tesseract_ == nullptr) {
     reset_classifier = false;
@@ -407,7 +400,6 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     }
   }
 
-  PERF_COUNT_SUB("update tesseract_")
   // Update datapath and language requested for the last valid initialization.
   if (datapath_ == nullptr)
     datapath_ = new STRING(datapath);
@@ -424,14 +416,11 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
   last_oem_requested_ = oem;
 
 #ifndef DISABLED_LEGACY_ENGINE
-  // PERF_COUNT_SUB("update last_oem_requested_")
   // For same language and datapath, just reset the adaptive classifier.
   if (reset_classifier) {
     tesseract_->ResetAdaptiveClassifier();
-    PERF_COUNT_SUB("tesseract_->ResetAdaptiveClassifier()")
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
-  PERF_COUNT_END
   return 0;
 }
 
@@ -620,9 +609,9 @@ void TessBaseAPI::SetImage(Pix* pix) {
   if (InternalSetImage()) {
     if (pixGetSpp(pix) == 4 && pixGetInputFormat(pix) == IFF_PNG) {
       // remove alpha channel from png
-      PIX* p1 = pixRemoveAlpha(pix);
+      Pix* p1 = pixRemoveAlpha(pix);
       pixSetSpp(p1, 3);
-      pix = pixCopy(nullptr, p1);
+      (void)pixCopy(pix, p1);
       pixDestroy(&p1);
     }
     thresholder_->SetImage(pix);
@@ -885,7 +874,7 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
 
   if (truth_cb_ != nullptr) {
     tesseract_->wordrec_run_blamer.set_value(true);
-    PageIterator *page_it = new PageIterator(
+    auto *page_it = new PageIterator(
             page_res_, tesseract_, thresholder_->GetScaleFactor(),
             thresholder_->GetScaledYResolution(),
             rect_left_, rect_top_, rect_width_, rect_height_);
@@ -1113,7 +1102,6 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
                                        const char* retry_config,
                                        int timeout_millisec,
                                        TessResultRenderer* renderer) {
-  PERF_COUNT_START("ProcessPages")
   bool stdInput = !strcmp(filename, "stdin") || !strcmp(filename, "-");
   if (stdInput) {
 #ifdef WIN32
@@ -1206,14 +1194,12 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   if (!r || (renderer && !renderer->EndDocument())) {
     return false;
   }
-  PERF_COUNT_END
   return true;
 }
 
 bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
                               const char* retry_config, int timeout_millisec,
                               TessResultRenderer* renderer) {
-  PERF_COUNT_START("ProcessPage")
   SetInputName(filename);
   SetImage(pix);
   bool failed = false;
@@ -1271,7 +1257,6 @@ bool TessBaseAPI::ProcessPage(Pix* pix, int page_index, const char* filename,
     failed = !renderer->AddImage(this);
   }
 
-  PERF_COUNT_END
   return !failed;
 }
 
@@ -2005,7 +1990,7 @@ bool TessBaseAPI::Threshold(Pix** pix) {
             y_res, kMinCredibleResolution);
     thresholder_->SetSourceYResolution(kMinCredibleResolution);
   }
-  PageSegMode pageseg_mode =
+  auto pageseg_mode =
       static_cast<PageSegMode>(
           static_cast<int>(tesseract_->tessedit_pageseg_mode));
   if (!thresholder_->ThresholdToPix(pageseg_mode, pix)) return false;
@@ -2341,7 +2326,7 @@ ROW *TessBaseAPI::MakeTessOCRRow(float baseline,
 TBLOB *TessBaseAPI::MakeTBLOB(Pix *pix) {
   int width = pixGetWidth(pix);
   int height = pixGetHeight(pix);
-  BLOCK block("a character", TRUE, 0, 0, 0, 0, width, height);
+  BLOCK block("a character", true, 0, 0, 0, 0, width, height);
 
   // Create C_BLOBs from the page
   extract_edges(pix, &block);
@@ -2435,7 +2420,7 @@ void TessBaseAPI::AdaptToCharacter(const char *unichar_repr,
 
 
 PAGE_RES* TessBaseAPI::RecognitionPass1(BLOCK_LIST* block_list) {
-  PAGE_RES *page_res = new PAGE_RES(false, block_list,
+  auto *page_res = new PAGE_RES(false, block_list,
                                     &(tesseract_->prev_word_best_choice_));
   tesseract_->recog_all_words(page_res, nullptr, nullptr, nullptr, 1);
   return page_res;
@@ -2477,7 +2462,7 @@ ELISTIZEH(TESS_CHAR)
 ELISTIZE(TESS_CHAR)
 
 static void add_space(TESS_CHAR_IT* it) {
-  TESS_CHAR *t = new TESS_CHAR(0, " ");
+  auto *t = new TESS_CHAR(0, " ");
   it->add_after_then_move(t);
 }
 
@@ -2509,7 +2494,7 @@ static void extract_result(TESS_CHAR_IT* out,
       add_space(out);
     int n = strlen(len);
     for (int i = 0; i < n; i++) {
-      TESS_CHAR *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
+      auto *tc = new TESS_CHAR(rating_to_cost(word->best_choice->rating()),
                                     str, *len);
       tc->box = real_rect.intersection(word->box_word->BlobBox(i));
       out->add_after_then_move(tc);
@@ -2635,7 +2620,7 @@ void TessBaseAPI::RunAdaptiveClassifier(TBLOB* blob,
                                         int* unichar_ids,
                                         float* ratings,
                                         int* num_matches_returned) {
-  BLOB_CHOICE_LIST* choices = new BLOB_CHOICE_LIST;
+  auto* choices = new BLOB_CHOICE_LIST;
   tesseract_->AdaptiveClassifier(blob, choices);
   BLOB_CHOICE_IT choices_it(choices);
   int& index = *num_matches_returned;

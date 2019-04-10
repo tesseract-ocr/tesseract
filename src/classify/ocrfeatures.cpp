@@ -2,7 +2,6 @@
  ** Filename:    ocrfeatures.cpp
  ** Purpose:     Generic definition of a feature.
  ** Author:      Dan Johnson
- ** History:     Mon May 21 10:49:04 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,12 +30,12 @@
 ----------------------------------------------------------------------------*/
 /**
  * Add a feature to a feature set.  If the feature set is
- * already full, FALSE is returned to indicate that the
- * feature could not be added to the set; otherwise, TRUE is
+ * already full, false is returned to indicate that the
+ * feature could not be added to the set; otherwise, true is
  * returned.
  * @param FeatureSet set of features to add Feature to
  * @param Feature feature to be added to FeatureSet
- * @return  TRUE if feature added to set, FALSE if set is already full.
+ * @return  true if feature added to set, false if set is already full.
  */
 bool AddFeature(FEATURE_SET FeatureSet, FEATURE Feature) {
   if (FeatureSet->NumFeatures >= FeatureSet->MaxNumFeatures) {
@@ -81,8 +80,8 @@ void FreeFeatureSet(FEATURE_SET FeatureSet) {
 FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
 
-  Feature = (FEATURE)malloc(sizeof(FEATURE_STRUCT) +
-                            (FeatureDesc->NumParams - 1) * sizeof(float));
+  Feature = static_cast<FEATURE>(malloc(sizeof(FEATURE_STRUCT) +
+                            (FeatureDesc->NumParams - 1) * sizeof(float)));
   Feature->Type = FeatureDesc;
   return (Feature);
 
@@ -97,8 +96,8 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc) {
 FEATURE_SET NewFeatureSet(int NumFeatures) {
   FEATURE_SET FeatureSet;
 
-  FeatureSet = (FEATURE_SET) Emalloc (sizeof (FEATURE_SET_STRUCT) +
-    (NumFeatures - 1) * sizeof (FEATURE));
+  FeatureSet = static_cast<FEATURE_SET>(Emalloc (sizeof (FEATURE_SET_STRUCT) +
+    (NumFeatures - 1) * sizeof (FEATURE)));
   FeatureSet->MaxNumFeatures = NumFeatures;
   FeatureSet->NumFeatures = 0;
   return (FeatureSet);

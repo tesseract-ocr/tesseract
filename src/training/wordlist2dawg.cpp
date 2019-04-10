@@ -2,7 +2,6 @@
 // File:        wordlist2dawg.cpp
 // Description: Program to generate a DAWG from a word list file
 // Author:      Thomas Kielbus
-// Created:     Thu May 10 18:11:42 PDT 2007
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");

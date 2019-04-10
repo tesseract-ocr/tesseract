@@ -2,13 +2,7 @@
  ********************************************************************************
  *
  * File:         split.cpp  (Formerly split.c)
- * Description:
  * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Fri May 17 16:27:49 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -286,12 +280,12 @@ void SPLIT::UnsplitOutlineList(TBLOB* blob) const {
   /* Modify edge points */
   UnsplitOutlines();
 
-  TESSLINE* outline1 = new TESSLINE;
+  auto* outline1 = new TESSLINE;
   outline1->next = blob->outlines;
   blob->outlines = outline1;
   outline1->loop = point1;
 
-  TESSLINE* outline2 = new TESSLINE;
+  auto* outline2 = new TESSLINE;
   outline2->next = blob->outlines;
   blob->outlines = outline2;
   outline2->loop = point2;

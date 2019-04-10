@@ -28,7 +28,7 @@ class Parallel : public Plumbing {
  public:
   // ni_ and no_ will be set by AddToStack.
   Parallel(const STRING& name, NetworkType type);
-  virtual ~Parallel() = default;
+  ~Parallel() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).

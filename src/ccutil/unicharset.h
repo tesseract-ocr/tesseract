@@ -63,7 +63,7 @@ class CHAR_FRAGMENT {
     set_natural(natural);
   }
   inline void set_unichar(const char *uch) {
-    strncpy(this->unichar, uch, UNICHAR_LEN);
+    strncpy(this->unichar, uch, sizeof(this->unichar));
     this->unichar[UNICHAR_LEN] = '\0';
   }
   inline void set_pos(int p) { this->pos = p; }
@@ -871,6 +871,7 @@ class UNICHARSET {
 
   // Return the enabled property of the given unichar.
   bool get_enabled(UNICHAR_ID unichar_id) const {
+    ASSERT_HOST(contains_unichar_id(unichar_id));
     return unichars[unichar_id].properties.enabled;
   }
 

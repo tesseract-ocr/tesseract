@@ -74,6 +74,12 @@ Validator::CharClass ValidateIndic::UnicodeToCharClass(char32 ch) const {
   if (off == 0x62 || off == 0x63) return CharClass::kMatra;
   // Danda and digits up to 6f are OK as other.
   // 70-7f are script-specific.
+  // 0BF0-0BF2 are Tamil numbers 10, 100 and 1000; treat as other.
+  if (script_ == ViramaScript::kTamil && (0x70 <= off && off <= 0x72))
+    return CharClass::kOther;
+  // 0BF3-0BFA are other Tamil symbols.
+  if (script_ == ViramaScript::kTamil && (0x73 <= off && off <= 0x7A))
+    return CharClass::kOther;
   if (script_ == ViramaScript::kBengali && (off == 0x70 || off == 0x71))
     return CharClass::kConsonant;
   if (script_ == ViramaScript::kGurmukhi && (off == 0x72 || off == 0x73))
@@ -95,7 +101,7 @@ Validator::CharClass ValidateIndic::UnicodeToCharClass(char32 ch) const {
 // representation to make it consistent by adding a ZWNJ if missing from a
 // non-linking virama. Returns false with an invalid sequence.
 bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (joiner.first == CharClass::kOther) {
     CodeOnlyToOutput();
     if (codes_used_ < num_codes &&
@@ -114,7 +120,7 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         ASSERT_HOST(!CodeOnlyToOutput());
       } else {
         // Half-form with optional Nukta.
-        int len = output_.size() + 1 - output_used_;
+        unsigned len = output_.size() + 1 - output_used_;
         if (UseMultiCode(len)) return true;
       }
       if (codes_used_ < num_codes &&
@@ -167,13 +173,13 @@ bool ValidateIndic::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
 // Helper consumes/copies a series of consonants separated by viramas while
 // valid, but not any vowel or other modifiers.
 bool ValidateIndic::ConsumeConsonantHeadIfValid() {
-  const int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   // Consonant aksara
   do {
     CodeOnlyToOutput();
     // Special Sinhala case of [H Z Yayana/Rayana].
     int index = output_.size() - 3;
-    if (output_used_ <= index &&
+    if (output_used_ + 3 <= output_.size() &&
         (output_.back() == kYayana || output_.back() == kRayana) &&
         IsVirama(output_[index]) && output_[index + 1] == kZeroWidthJoiner) {
       MultiCodePart(3);
@@ -186,7 +192,7 @@ bool ValidateIndic::ConsumeConsonantHeadIfValid() {
     }
     // Test for subscript conjunct.
     index = output_.size() - 2 - have_nukta;
-    if (output_used_ <= index && IsSubscriptScript() &&
+    if (output_used_ + 2 + have_nukta <= output_.size() && IsSubscriptScript() &&
         IsVirama(output_[index])) {
       // Output previous virama, consonant + optional nukta.
       MultiCodePart(2 + have_nukta);

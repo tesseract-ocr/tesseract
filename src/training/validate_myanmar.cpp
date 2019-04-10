@@ -11,7 +11,7 @@ namespace tesseract {
 // Taken directly from the unicode table 16-3.
 // See http://www.unicode.org/versions/Unicode9.0.0/ch16.pdf
 bool ValidateMyanmar::ConsumeGraphemeIfValid() {
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (codes_used_ == num_codes) return true;
   // Other.
   if (IsMyanmarOther(codes_[codes_used_].second)) {
@@ -61,7 +61,7 @@ Validator::CharClass ValidateMyanmar::UnicodeToCharClass(char32 ch) const {
 // Returns true if the end of input is reached.
 bool ValidateMyanmar::ConsumeSubscriptIfPresent() {
   // Subscript consonant. It appears there can be only one.
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (codes_used_ + 1 < num_codes &&
       codes_[codes_used_].second == kMyanmarVirama) {
     if (IsMyanmarLetter(codes_[codes_used_ + 1].second)) {
@@ -111,7 +111,8 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
     }
   }
   // The following characters are allowed, all optional, and in sequence.
-  const std::vector<char32> kSigns({0x1036, 0x1037});
+  // Anusvar, Dot below, Visarga
+  const std::vector<char32> kSigns({0x1036, 0x1037, 0x1038});
   for (char32 ch : kSigns) {
     if (codes_[codes_used_].second == ch) {
       if (UseMultiCode(1)) return true;
@@ -131,20 +132,27 @@ bool ValidateMyanmar::ConsumeOptionalSignsIfPresent() {
 // Returns true if the unicode is a Myanmar "letter" including consonants
 // and independent vowels. Although table 16-3 distinguishes between some
 // base consonants and vowels, the extensions make no such distinction, so we
-// put them all into a single bucket.
+// put them all into a single bucket. 
+// Update MYANMAR LETTER based on following:
+// https://unicode.org/charts/PDF/U1000.pdf - Myanmar
+// http://unicode.org/charts/PDF/UAA60.pdf - Myanmar Extended-A
+// http://unicode.org/charts/PDF/UA9E0.pdf - Myanmar Extended-B
 /* static */
 bool ValidateMyanmar::IsMyanmarLetter(char32 ch) {
   return (0x1000 <= ch && ch <= 0x102a) || ch == 0x103f ||
-         (0x1050 <= ch && ch <= 0x1055) || (0x105a <= ch && ch <= 0x105d) ||
+         (0x104c <= ch && ch <= 0x1055) || (0x105a <= ch && ch <= 0x105d) ||
          ch == 0x1061 || ch == 0x1065 || ch == 0x1066 ||
-         (0x106e <= ch && ch <= 0x1070) || (0x1075 <= ch && ch <= 0x1080) ||
-         ch == 0x108e || (0xa9e0 <= ch && ch <= 0xa9ef) ||
-         (0xa9fa <= ch && ch <= 0xa9ff) || (0xaa60 <= ch && ch <= 0xaa73) ||
+         (0x106e <= ch && ch <= 0x1070) || (0x1075 <= ch && ch <= 0x1081) ||
+         ch == 0x108e || (0xa9e0 <= ch && ch <= 0xa9e4) ||
+         (0xa9e7 <= ch && ch <= 0xa9ef) || (0xa9fa <= ch && ch <= 0xa9fe) || 
+         (0xaa60 <= ch && ch <= 0xaa6f) || (0xaa71 <= ch && ch <= 0xaa73) ||
          ch == 0xaa7a || ch == 0xaa7e || ch == 0xaa7f;
 }
 
 // Returns true if ch is a Myanmar digit or other symbol that does not take
-// part in being a syllable.
+// part in being a syllable eg. punctuation marks.
+// MYANMAR DIGIT, MYANMAR SYMBOL, MYANMAR LOGOGRAM 
+// REDUPLICATION MARKS
 /* static */
 bool ValidateMyanmar::IsMyanmarOther(char32 ch) {
   IcuErrorCode err;
@@ -152,9 +160,9 @@ bool ValidateMyanmar::IsMyanmarOther(char32 ch) {
   if (script_code != USCRIPT_MYANMAR && ch != Validator::kZeroWidthJoiner &&
       ch != Validator::kZeroWidthNonJoiner)
     return true;
-  return (0x1040 <= ch && ch <= 0x1049) || (0x1090 <= ch && ch <= 0x1099) ||
-         (0x109c <= ch && ch <= 0x109d) || (0xa9f0 <= ch && ch <= 0xa9f9) ||
-         (0xaa74 <= ch && ch <= 0xaa79);
+  return (0x1040 <= ch && ch <= 0x104f) || (0x1090 <= ch && ch <= 0x1099) ||
+         (0x109e <= ch && ch <= 0x109f) || (0xa9f0 <= ch && ch <= 0xa9f9) ||
+         (ch == 0xa9e6 || ch == 0xaa70) || (0xaa74 <= ch && ch <= 0xaa79);
 }
 
 }  // namespace tesseract

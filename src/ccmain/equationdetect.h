@@ -40,7 +40,7 @@ class EquationDetect : public EquationDetectBase {
  public:
   EquationDetect(const char* equ_datapath,
                  const char* equ_language);
-  ~EquationDetect();
+  ~EquationDetect() override;
 
   enum IndentType {
     NO_INDENT,
@@ -57,13 +57,13 @@ class EquationDetect : public EquationDetectBase {
   // Iterate over the blobs inside to_block, and set the blobs that we want to
   // process to BSTT_NONE. (By default, they should be BSTT_SKIP). The function
   // returns 0 upon success.
-  int LabelSpecialText(TO_BLOCK* to_block);
+  int LabelSpecialText(TO_BLOCK* to_block) override;
 
   // Find possible equation partitions from part_grid. Should be called
   // after the special_text_type of blobs are set.
   // It returns 0 upon success.
   int FindEquationParts(ColPartitionGrid* part_grid,
-                        ColPartitionSet** best_columns);
+                        ColPartitionSet** best_columns) override;
 
   // Reset the resolution of the processing image. TEST only function.
   void SetResolution(const int resolution);

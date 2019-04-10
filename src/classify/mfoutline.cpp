@@ -148,7 +148,7 @@ void FindDirectionChanges(MFOUTLINE Outline,
  */
 void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
   MFOUTLINE Start;
-  MFOUTLINE Outline = (MFOUTLINE) arg;
+  auto Outline = static_cast<MFOUTLINE>(arg);
 
   /* break the circular outline so we can use std. techniques to deallocate */
   Start = list_rest (Outline);
@@ -293,7 +293,7 @@ void Classify::NormalizeOutlines(LIST Outlines,
 
     case baseline:
       iterate(Outlines) {
-        Outline = (MFOUTLINE) first_node(Outlines);
+        Outline = static_cast<MFOUTLINE>first_node(Outlines);
         NormalizeOutline(Outline, 0.0);
       }
       *XScale = *YScale = MF_SCALE_FACTOR;

@@ -41,8 +41,8 @@
  * @return New expanded bit vector.
  */
 BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
-  return ((BIT_VECTOR) Erealloc(Vector,
-    sizeof(Vector[0]) * WordsInVectorOfSize(NewNumBits)));
+  return (static_cast<BIT_VECTOR>(Erealloc(Vector,
+    sizeof(Vector[0]) * WordsInVectorOfSize(NewNumBits))));
 }                                /* ExpandBitVector */
 
 
@@ -79,6 +79,6 @@ void FreeBitVector(BIT_VECTOR BitVector) {
  * @return New bit vector.
  */
 BIT_VECTOR NewBitVector(int NumBits) {
-  return ((BIT_VECTOR) Emalloc(sizeof(uint32_t) *
-    WordsInVectorOfSize(NumBits)));
+  return (static_cast<BIT_VECTOR>(Emalloc(sizeof(uint32_t) *
+    WordsInVectorOfSize(NumBits))));
 }                                /* NewBitVector */

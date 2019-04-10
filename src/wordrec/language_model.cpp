@@ -3,7 +3,6 @@
 // Description: Functions that utilize the knowledge about the properties,
 //              structure and statistics of the language to help recognition.
 // Author:      Daria Antonova
-// Created:     Mon Nov 11 11:26:43 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -662,7 +661,7 @@ bool LanguageModel::AddViterbiStateEntry(
   }
 
   // Create the new ViterbiStateEntry compute the adjusted cost of the path.
-  ViterbiStateEntry *new_vse = new ViterbiStateEntry(
+  auto *new_vse = new ViterbiStateEntry(
       parent_vse, b, 0.0, outline_length,
       consistency_info, associate_stats, top_choice_flags, dawg_info,
       ngram_info, (language_model_debug_level > 0) ?
@@ -803,7 +802,8 @@ LanguageModelDawgInfo *LanguageModel::GenerateDawgInfo(
   }
 
   // Deal with hyphenated words.
-  if (word_end && dict_->has_hyphen_end(b.unichar_id(), curr_col == 0)) {
+  if (word_end && dict_->has_hyphen_end(&dict_->getUnicharset(),
+                                        b.unichar_id(), curr_col == 0)) {
     if (language_model_debug_level > 0) tprintf("Hyphenated word found\n");
     return new LanguageModelDawgInfo(dawg_args_.active_dawgs, COMPOUND_PERM);
   }
@@ -925,7 +925,7 @@ LanguageModelNgramInfo *LanguageModel::GenerateNgramInfo(
   if (parent_vse != nullptr && parent_vse->ngram_info->pruned) pruned = true;
 
   // Construct and return the new LanguageModelNgramInfo.
-  LanguageModelNgramInfo *ngram_info = new LanguageModelNgramInfo(
+  auto *ngram_info = new LanguageModelNgramInfo(
       pcontext_ptr, pcontext_unichar_step_len, pruned, ngram_cost,
       ngram_and_classifier_cost);
   ngram_info->context += unichar;
@@ -1174,19 +1174,22 @@ void LanguageModel::FillConsistencyInfo(
         }
       }
       if (expected_gap_found) {
-        float actual_gap =
-            static_cast<float>(word_res->GetBlobsGap(curr_col-1));
-        float gap_ratio = expected_gap / actual_gap;
-        // TODO(rays) The gaps seem to be way off most of the time, saved by
-        // the error here that the ratio was compared to 1/2, when it should
-        // have been 0.5f. Find the source of the gaps discrepancy and put
-        // the 0.5f here in place of 0.0f.
-        // Test on 2476595.sj, pages 0 to 6. (In French.)
-        if (gap_ratio < 0.0f || gap_ratio > 2.0f) {
+        int actual_gap = word_res->GetBlobsGap(curr_col-1);
+        if (actual_gap == 0) {
           consistency_info->num_inconsistent_spaces++;
+        } else {
+          float gap_ratio = expected_gap / actual_gap;
+          // TODO(rays) The gaps seem to be way off most of the time, saved by
+          // the error here that the ratio was compared to 1/2, when it should
+          // have been 0.5f. Find the source of the gaps discrepancy and put
+          // the 0.5f here in place of 0.0f.
+          // Test on 2476595.sj, pages 0 to 6. (In French.)
+          if (gap_ratio < 0.0f || gap_ratio > 2.0f) {
+            consistency_info->num_inconsistent_spaces++;
+          }
         }
         if (language_model_debug_level > 1) {
-          tprintf("spacing for %s(%d) %s(%d) col %d: expected %g actual %g\n",
+          tprintf("spacing for %s(%d) %s(%d) col %d: expected %g actual %d\n",
                   unicharset.id_to_unichar(parent_b->unichar_id()),
                   parent_b->unichar_id(), unicharset.id_to_unichar(unichar_id),
                   unichar_id, curr_col, expected_gap, actual_gap);
@@ -1267,8 +1270,8 @@ void LanguageModel::UpdateBestChoice(
     if (language_model_debug_level > 0) {
       tprintf("Raw features extracted from %s (cost=%g) [ ",
               curr_hyp.str.string(), curr_hyp.cost);
-      for (int deb_i = 0; deb_i < PTRAIN_NUM_FEATURE_TYPES; ++deb_i) {
-        tprintf("%g ", curr_hyp.features[deb_i]);
+      for (float feature : curr_hyp.features) {
+        tprintf("%g ", feature);
       }
       tprintf("]\n");
     }
@@ -1415,7 +1418,7 @@ WERD_CHOICE *LanguageModel::ConstructWord(
   }
 
   // Construct a WERD_CHOICE by tracing parent pointers.
-  WERD_CHOICE *word = new WERD_CHOICE(word_res->uch_set, vse->length);
+  auto *word = new WERD_CHOICE(word_res->uch_set, vse->length);
   word->set_length(vse->length);
   int total_blobs = 0;
   for (i = (vse->length-1); i >= 0; --i) {

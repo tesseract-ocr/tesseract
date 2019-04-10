@@ -435,8 +435,8 @@ bool LSTMTrainer::Serialize(SerializeAmount serialize_amount,
   if (!fp->Serialize(&prev_sample_iteration_)) return false;
   if (!fp->Serialize(&perfect_delay_)) return false;
   if (!fp->Serialize(&last_perfect_training_iteration_)) return false;
-  for (int i = 0; i < ET_COUNT; ++i) {
-    if (!error_buffers_[i].Serialize(fp)) return false;
+  for (const auto & error_buffer : error_buffers_) {
+    if (!error_buffer.Serialize(fp)) return false;
   }
   if (!fp->Serialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->Serialize(&training_stage_)) return false;
@@ -479,8 +479,8 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
   if (!fp->DeSerialize(&prev_sample_iteration_)) return false;
   if (!fp->DeSerialize(&perfect_delay_)) return false;
   if (!fp->DeSerialize(&last_perfect_training_iteration_)) return false;
-  for (int i = 0; i < ET_COUNT; ++i) {
-    if (!error_buffers_[i].DeSerialize(fp)) return false;
+  for (auto & error_buffer : error_buffers_) {
+    if (!error_buffer.DeSerialize(fp)) return false;
   }
   if (!fp->DeSerialize(&error_rates_[0], countof(error_rates_))) return false;
   if (!fp->DeSerialize(&training_stage_)) return false;
@@ -878,14 +878,16 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   STRING truth_text = DecodeLabels(truth_labels);
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
-    tprintf("Iteration %d: BEST OCR TEXT : %s\n", training_iteration(),
-            ocr_text.string());
+      if (truth_text != ocr_text) {
+         tprintf("Iteration %d: BEST OCR TEXT : %s\n", 
+            training_iteration(), ocr_text.string());
+      }
   }
   double char_error = ComputeCharError(truth_labels, ocr_labels);
   double word_error = ComputeWordError(&truth_text, &ocr_text);
   double delta_error = ComputeErrorRates(*targets, char_error, word_error);
   if (debug_interval_ != 0) {
-    tprintf("File %s page %d %s:\n", trainingdata->imagefilename().string(),
+    tprintf("File %s line %d %s:\n", trainingdata->imagefilename().string(),
             trainingdata->page_number(), delta_error == 0.0 ? "(Perfect)" : "");
   }
   if (delta_error == 0.0) return PERFECT;
@@ -1042,8 +1044,12 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
     GenericVector<int> xcoords;
     LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
-    tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
+    tprintf("Iteration %d: GROUND  TRUTH : %s\n",
+        training_iteration(), truth_text.string());
+    if (truth_text != text) {
+        tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
             training_iteration(), text.string());
+    }
     if (debug_interval_ > 0 && training_iteration() % debug_interval_ == 0) {
       tprintf("TRAINING activation path for truth string %s\n",
               truth_text.string());
@@ -1221,7 +1227,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
   StrMap word_counts;
   for (int i = 0; i < truth_words.size(); ++i) {
     std::string truth_word(truth_words[i].string());
-    StrMap::iterator it = word_counts.find(truth_word);
+    auto it = word_counts.find(truth_word);
     if (it == word_counts.end())
       word_counts.insert(std::make_pair(truth_word, 1));
     else
@@ -1229,7 +1235,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
   }
   for (int i = 0; i < ocr_words.size(); ++i) {
     std::string ocr_word(ocr_words[i].string());
-    StrMap::iterator it = word_counts.find(ocr_word);
+    auto it = word_counts.find(ocr_word);
     if (it == word_counts.end())
       word_counts.insert(std::make_pair(ocr_word, -1));
     else

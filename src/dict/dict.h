@@ -22,7 +22,6 @@
 #include "ambigs.h"
 #include "dawg.h"
 #include "dawg_cache.h"
-#include "host.h"
 #include "ratngs.h"
 #include "stopper.h"
 #include "trie.h"
@@ -107,8 +106,10 @@ class Dict {
 
   // Returns true if unichar_id is a word compounding character like - or /.
   inline bool compound_marker(UNICHAR_ID unichar_id) {
+    const UNICHARSET& unicharset = getUnicharset();
+    ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
     const GenericVector<UNICHAR_ID>& normed_ids =
-        getUnicharset().normed_ids(unichar_id);
+        unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 &&
         (normed_ids[0] == hyphen_unichar_id_ ||
          normed_ids[0] == slash_unichar_id_);
@@ -116,8 +117,10 @@ class Dict {
   // Returns true if unichar_id is an apostrophe-like character that may
   // separate prefix/suffix words from a main body word.
   inline bool is_apostrophe(UNICHAR_ID unichar_id) {
+    const UNICHARSET& unicharset = getUnicharset();
+    ASSERT_HOST(unicharset.contains_unichar_id(unichar_id));
     const GenericVector<UNICHAR_ID>& normed_ids =
-        getUnicharset().normed_ids(unichar_id);
+        unicharset.normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == apostrophe_unichar_id_;
   }
 
@@ -141,17 +144,20 @@ class Dict {
     }
   }
   /// Check whether the word has a hyphen at the end.
-  inline bool has_hyphen_end(UNICHAR_ID unichar_id, bool first_pos) const {
+  inline bool has_hyphen_end(const UNICHARSET* unicharset,
+                             UNICHAR_ID unichar_id, bool first_pos) const {
     if (!last_word_on_line_ || first_pos)
       return false;
+    ASSERT_HOST(unicharset->contains_unichar_id(unichar_id));
     const GenericVector<UNICHAR_ID>& normed_ids =
-        getUnicharset().normed_ids(unichar_id);
+        unicharset->normed_ids(unichar_id);
     return normed_ids.size() == 1 && normed_ids[0] == hyphen_unichar_id_;
   }
   /// Same as above, but check the unichar at the end of the word.
   inline bool has_hyphen_end(const WERD_CHOICE &word) const {
     int word_index = word.length() - 1;
-    return has_hyphen_end(word.unichar_id(word_index), word_index == 0);
+    return has_hyphen_end(word.unicharset(), word.unichar_id(word_index),
+                          word_index == 0);
   }
   /// Unless the previous word was the last one on the line, and the current
   /// one is not (thus it is the first one on the line), erase hyphen_word_,
@@ -286,7 +292,7 @@ class Dict {
   void SettupStopperPass2();
   /* context.cpp *************************************************************/
   /// Check a string to see if it matches a set of lexical rules.
-  int case_ok(const WERD_CHOICE &word, const UNICHARSET &unicharset) const;
+  int case_ok(const WERD_CHOICE& word) const;
   /// Returns true if the word looks like an absolute garbage
   /// (e.g. image mistakenly recognized as text).
   bool absolute_garbage(const WERD_CHOICE &word, const UNICHARSET &unicharset);

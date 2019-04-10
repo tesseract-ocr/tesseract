@@ -2,7 +2,6 @@
  ** Filename:    intproto.c
  ** Purpose:     Definition of data structures for integer protos.
  ** Author:      Dan Johnson
- ** History:     Thu Feb  7 14:38:16 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,6 @@
 #include "emalloc.h"
 #include "fontinfo.h"
 #include "genericvector.h"
-#include "globals.h"
 #include "helpers.h"
 #include "intproto.h"
 #include "mfoutline.h"
@@ -295,14 +293,14 @@ int AddIntProto(INT_CLASS Class) {
   if (Class->NumProtos > MaxNumIntProtosIn(Class)) {
     ProtoSetId = Class->NumProtoSets++;
 
-    ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
+    ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
     Class->ProtoSets[ProtoSetId] = ProtoSet;
     memset(ProtoSet, 0, sizeof(*ProtoSet));
 
     /* reallocate space for the proto lengths and install in class */
     Class->ProtoLengths =
-      (uint8_t *)Erealloc(Class->ProtoLengths,
-                        MaxNumIntProtosIn(Class) * sizeof(uint8_t));
+      static_cast<uint8_t *>(Erealloc(Class->ProtoLengths,
+                        MaxNumIntProtosIn(Class) * sizeof(uint8_t)));
     memset(&Class->ProtoLengths[Index], 0,
            sizeof(*Class->ProtoLengths) * (MaxNumIntProtosIn(Class) - Index));
   }
@@ -514,7 +512,7 @@ void Classify::ConvertProto(PROTO Proto, int ProtoId, INT_CLASS Class) {
   if (Param < 0 || Param >= 256)
     P->Angle = 0;
   else
-    P->Angle = (uint8_t) Param;
+    P->Angle = static_cast<uint8_t>(Param);
 
   /* round proto length to nearest integer number of pico-features */
   Param = (Proto->Length / GetPicoFeatureLength()) + 0.5;
@@ -640,7 +638,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   assert(MaxNumConfigs <= MAX_NUM_CONFIGS);
 
-  Class = (INT_CLASS) Emalloc(sizeof(INT_CLASS_STRUCT));
+  Class = static_cast<INT_CLASS>(Emalloc(sizeof(INT_CLASS_STRUCT)));
   Class->NumProtoSets = ((MaxNumProtos + PROTOS_PER_PROTO_SET - 1) /
                             PROTOS_PER_PROTO_SET);
 
@@ -651,7 +649,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
 
   for (i = 0; i < Class->NumProtoSets; i++) {
     /* allocate space for a proto set, install in class, and initialize */
-    ProtoSet = (PROTO_SET) Emalloc(sizeof(PROTO_SET_STRUCT));
+    ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
     memset(ProtoSet, 0, sizeof(*ProtoSet));
     Class->ProtoSets[i] = ProtoSet;
 
@@ -659,7 +657,7 @@ INT_CLASS NewIntClass(int MaxNumProtos, int MaxNumConfigs) {
   }
   if (MaxNumIntProtosIn (Class) > 0) {
     Class->ProtoLengths =
-      (uint8_t *)Emalloc(MaxNumIntProtosIn (Class) * sizeof (uint8_t));
+      static_cast<uint8_t *>(Emalloc(MaxNumIntProtosIn (Class) * sizeof (uint8_t)));
     memset(Class->ProtoLengths, 0,
            MaxNumIntProtosIn(Class) * sizeof(*Class->ProtoLengths));
   } else {
@@ -693,7 +691,7 @@ INT_TEMPLATES NewIntTemplates() {
   INT_TEMPLATES T;
   int i;
 
-  T = (INT_TEMPLATES) Emalloc (sizeof (INT_TEMPLATES_STRUCT));
+  T = static_cast<INT_TEMPLATES>(Emalloc (sizeof (INT_TEMPLATES_STRUCT)));
   T->NumClasses = 0;
   T->NumClassPruners = 0;
 
@@ -738,9 +736,9 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* variables for conversion from older inttemp formats */
   int b, bit_number, last_cp_bit_number, new_b, new_i, new_w;
   CLASS_ID class_id, max_class_id;
-  int16_t *IndexFor = new int16_t[MAX_NUM_CLASSES];
-  CLASS_ID *ClassIdFor = new CLASS_ID[MAX_NUM_CLASSES];
-  CLASS_PRUNER_STRUCT **TempClassPruner =
+  auto *IndexFor = new int16_t[MAX_NUM_CLASSES];
+  auto *ClassIdFor = new CLASS_ID[MAX_NUM_CLASSES];
+  auto **TempClassPruner =
       new CLASS_PRUNER_STRUCT*[MAX_NUM_CLASS_PRUNERS];
   uint32_t SetBitsForMask =           // word with NUM_BITS_PER_CLASS
     (1 << NUM_BITS_PER_CLASS) - 1;  // set starting at bit 0
@@ -853,7 +851,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
   /* then read in each class */
   for (i = 0; i < Templates->NumClasses; i++) {
     /* first read in the high level struct for the class */
-    Class = (INT_CLASS) Emalloc (sizeof (INT_CLASS_STRUCT));
+    Class = static_cast<INT_CLASS>(Emalloc (sizeof (INT_CLASS_STRUCT)));
     if (fp->FReadEndian(&Class->NumProtos, sizeof(Class->NumProtos), 1) != 1 ||
         fp->FRead(&Class->NumProtoSets, sizeof(Class->NumProtoSets), 1) != 1 ||
         fp->FRead(&Class->NumConfigs, sizeof(Class->NumConfigs), 1) != 1)
@@ -881,7 +879,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     /* then read in the proto lengths */
     Lengths = nullptr;
     if (MaxNumIntProtosIn (Class) > 0) {
-      Lengths = (uint8_t *)Emalloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class));
+      Lengths = static_cast<uint8_t *>(Emalloc(sizeof(uint8_t) * MaxNumIntProtosIn(Class)));
       if (fp->FRead(Lengths, sizeof(uint8_t), MaxNumIntProtosIn(Class)) !=
           MaxNumIntProtosIn(Class))
         tprintf("Bad read of inttemp!\n");
@@ -890,7 +888,7 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
 
     /* then read in the proto sets */
     for (j = 0; j < Class->NumProtoSets; j++) {
-      ProtoSet = (PROTO_SET)Emalloc(sizeof(PROTO_SET_STRUCT));
+      ProtoSet = static_cast<PROTO_SET>(Emalloc(sizeof(PROTO_SET_STRUCT)));
       int num_buckets = NUM_PP_PARAMS * NUM_PP_BUCKETS * WERDS_PER_PP_VECTOR;
       if (fp->FReadEndian(&ProtoSet->ProtoPruner,
                           sizeof(ProtoSet->ProtoPruner[0][0][0]),
@@ -1103,7 +1101,7 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
  * @note Globals: none
  */
 float BucketStart(int Bucket, float Offset, int NumBuckets) {
-  return (((float) Bucket / NumBuckets) - Offset);
+  return ((static_cast<float>(Bucket) / NumBuckets) - Offset);
 
 }                                /* BucketStart */
 
@@ -1119,7 +1117,7 @@ float BucketStart(int Bucket, float Offset, int NumBuckets) {
  * @note Globals: none
  */
 float BucketEnd(int Bucket, float Offset, int NumBuckets) {
-  return (((float) (Bucket + 1) / NumBuckets) - Offset);
+  return ((static_cast<float>(Bucket + 1) / NumBuckets) - Offset);
 }                                /* BucketEnd */
 
 /**
@@ -1154,8 +1152,8 @@ void DoFill(FILL_SPEC *FillSpec,
     FillSpec->YEnd = NUM_CP_BUCKETS - 1;
 
   for (Y = FillSpec->YStart; Y <= FillSpec->YEnd; Y++)
-    for (Angle = FillSpec->AngleStart;
-         TRUE; CircularIncrement (Angle, NUM_CP_BUCKETS)) {
+    for (Angle = FillSpec->AngleStart; ;
+         CircularIncrement(Angle, NUM_CP_BUCKETS)) {
       OldWord = Pruner->p[X][Y][Angle][WordIndex];
       if (ClassCount > (OldWord & ClassMask)) {
         OldWord &= ~ClassMask;
@@ -1168,10 +1166,10 @@ void DoFill(FILL_SPEC *FillSpec,
 }                                /* DoFill */
 
 /**
- * Return TRUE if the specified table filler is done, i.e.
+ * Return true if the specified table filler is done, i.e.
  * if it has no more lines to fill.
  * @param Filler    table filler to check if done
- * @return TRUE if no more lines to fill, FALSE otherwise.
+ * @return true if no more lines to fill, false otherwise.
  * @note Globals: none
  */
 bool FillerDone(TABLE_FILLER* Filler) {
@@ -1213,7 +1211,7 @@ void FillPPCircularBits(uint32_t ParamTable[NUM_PP_BUCKETS][WERDS_PER_PP_VECTOR]
   if (LastBucket >= NUM_PP_BUCKETS)
     LastBucket -= NUM_PP_BUCKETS;
   if (debug) tprintf("Circular fill from %d to %d", FirstBucket, LastBucket);
-  for (i = FirstBucket; TRUE; CircularIncrement (i, NUM_PP_BUCKETS)) {
+  for (i = FirstBucket; true; CircularIncrement (i, NUM_PP_BUCKETS)) {
     SET_BIT (ParamTable[i], Bit);
 
     /* exit loop after we have set the bit for the last bucket */
@@ -1531,8 +1529,8 @@ void InitTableFiller (float EndPad, float SidePad,
 
       /* translate into bucket positions and deltas */
       Filler->X = Bucket8For(Start.x, XS, NB);
-      Filler->StartDelta = -(int16_t) ((Cos / Sin) * 256);
-      Filler->EndDelta = (int16_t) ((Sin / Cos) * 256);
+      Filler->StartDelta = -static_cast<int16_t>((Cos / Sin) * 256);
+      Filler->EndDelta = static_cast<int16_t>((Sin / Cos) * 256);
 
       XAdjust = BucketEnd(Filler->X, XS, NB) - Start.x;
       YAdjust = XAdjust * Cos / Sin;
@@ -1748,7 +1746,7 @@ int TruncateParam(float Param, int Min, int Max, char *Id) {
 void InitIntMatchWindowIfReqd() {
   if (IntMatchWindow == nullptr) {
     IntMatchWindow = CreateFeatureSpaceWindow("IntMatchWindow", 50, 200);
-    SVMenuNode* popup_menu = new SVMenuNode();
+    auto* popup_menu = new SVMenuNode();
 
     popup_menu->AddChild("Debug Adapted classes", IDA_ADAPTIVE,
                          "x", "Class to debug");

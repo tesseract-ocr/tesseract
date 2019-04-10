@@ -67,4 +67,14 @@ your question has been asked (and has been answered) many times before...
 
 ## For Developers: Creating a Pull Request
 
-TBD
+You should always make sure your changes build and run successfully. 
+
+For that, your clone needs to have all submodules (`abseil`, `googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure. 
+
+Have a look at [the README](./README.md) and [testing README](./test/testing/README.md) and the [wiki page](https://github.com/tesseract-ocr/tesseract/wiki/Compiling-%E2%80%93-GitInstallation#unit-test-builds) on installation. 
+
+In short, after running `configure` from the build directory of your choice, to build the library and CLI, run `make`. To test it, run `make check`. To build the training tools, run `make training`.
+
+As soon as your changes are building and tests are succeeding, you can publish them. If you have not already, please [fork](https://guides.github.com/activities/forking/) tesseract (somewhere) on GitHub, and push your changes to that fork (in a new branch). Then [submit as PR](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork).
+
+Please also keep track of reports from CI (automated build status) and Coverity/LGTM (quality scan). When the indicators show deterioration after your changes, further action may be required to improve them.

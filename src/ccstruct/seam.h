@@ -1,14 +1,8 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        seam.h  (Formerly seam.h)
- * Description:
- * Author:       Mark Seaman, SW Productivity
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Thu May 16 17:05:52 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
+ * File:        seam.h
+ * Author:      Mark Seaman, SW Productivity
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

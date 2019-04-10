@@ -1,14 +1,9 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        render.h  (Formerly render.h)
+ * File:         render.h
  * Description:  Convert the various data type into line lists
  * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Jul 28 13:14:48 1989
- * Modified:     Fri Apr 26 09:59:45 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1989, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

@@ -4,11 +4,6 @@
  * File:         matrix.cpp  (Formerly matrix.c)
  * Description:  Ratings matrix code. (Used by associator)
  * Author:       Mark Seaman, OCR Technology
- * Created:      Wed May 16 13:18:47 1990
- * Modified:     Wed Mar 20 09:44:47 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1990, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,7 +65,7 @@ MATRIX* MATRIX::ConsumeAndMakeBigger(int ind) {
       break;
     }
   }
-  MATRIX* result = new MATRIX(dim + 1, band_width);
+  auto* result = new MATRIX(dim + 1, band_width);
 
   for (int col = 0; col < dim; ++col) {
     for (int row = col; row < dim && row < col + bandwidth(); ++row) {
@@ -99,12 +94,12 @@ MATRIX* MATRIX::ConsumeAndMakeBigger(int ind) {
 MATRIX* MATRIX::DeepCopy() const {
   int dim = dimension();
   int band_width = bandwidth();
-  MATRIX* result = new MATRIX(dim, band_width);
+  auto* result = new MATRIX(dim, band_width);
   for (int col = 0; col < dim; ++col) {
     for (int row = col; row < dim && row < col + band_width; ++row) {
       BLOB_CHOICE_LIST* choices = get(col, row);
       if (choices != nullptr) {
-        BLOB_CHOICE_LIST* copy_choices = new BLOB_CHOICE_LIST;
+        auto* copy_choices = new BLOB_CHOICE_LIST;
         copy_choices->deep_copy(choices, &BLOB_CHOICE::deep_copy);
         result->put(col, row, copy_choices);
       }

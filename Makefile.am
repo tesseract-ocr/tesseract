@@ -11,6 +11,8 @@ training-uninstall:
 	@$(MAKE) -C src/training uninstall
 clean-local:
 	@$(MAKE) -C src/training clean
+# Some unit tests use code from training.
+check: training
 else
 training:
 	@echo "Need to reconfigure project, so there are no errors"
@@ -54,11 +56,25 @@ doc:
 	doxygen $(top_srcdir)/doc/Doxyfile
 
 doc-pack: doc
-	-chmod a+r $(top_srcdir)/doc/html/*
-	 @tar --create --directory=$(top_srcdir)/doc/html --verbose --file=- . | gzip -c -9 > $(top_srcdir)/@PACKAGE_NAME@-@PACKAGE_VERSION@-doc-html.tar.gz;
+	-chmod a+r $(top_builddir)/doc/html/*
+	 @tar --create --directory=$(top_builddir)/doc/html --verbose --file=- . | gzip -c -9 > $(top_builddir)/@PACKAGE_NAME@-@PACKAGE_VERSION@-doc-html.tar.gz;
 
 doc-clean:
-	rm -rf $(top_srcdir)/doc/html/*
+	rm -rf $(top_builddir)/doc/html/*
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = tesseract.pc
+
+# fuzzer-api is used for fuzzing tests.
+# They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
+# Note: -fsanitize=fuzzer currently requires the clang++ compiler.
+fuzzer-api: all
+fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
+	$(CXX) $(CXXFLAGS) -g -fsanitize=fuzzer \
+          -I $(top_srcdir)/src/api \
+          -I $(top_srcdir)/src/ccmain \
+          -I $(top_srcdir)/src/ccstruct \
+          -I $(top_srcdir)/src/ccutil \
+          -I src/api \
+          $< \
+          src/api/.libs/libtesseract.a $(LEPTONICA_LIBS) $(libarchive_LIBS) -o $@

@@ -1,6 +1,17 @@
-#include "leptonica/include/allheaders.h"
-#include "tesseract/api/baseapi.h"
-#include "tesseract/unittest/lstm_test.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "allheaders.h"
+#include "baseapi.h"
+#include "lstm_test.h"
 
 namespace tesseract {
 namespace {
@@ -21,16 +32,17 @@ TEST_F(LSTMTrainerTest, EncodesKor) {
 
 TEST_F(LSTMTrainerTest, MapCoder) {
   LSTMTrainer fra_trainer;
-  fra_trainer.InitCharSet(TestDataNameToPath("fra.traineddata"));
+  fra_trainer.InitCharSet(TestDataNameToPath("fra/fra.traineddata"));
   LSTMTrainer deu_trainer;
-  deu_trainer.InitCharSet(TestDataNameToPath("deu.traineddata"));
+  deu_trainer.InitCharSet(TestDataNameToPath("deu/deu.traineddata"));
   // A string that uses characters common to French and German.
-  string kTestStr = "The quick brown 'fox' jumps over: the lazy dog!";
+  std::string kTestStr = "The quick brown 'fox' jumps over: the lazy dog!";
   GenericVector<int> deu_labels;
   EXPECT_TRUE(deu_trainer.EncodeString(kTestStr.c_str(), &deu_labels));
   // The french trainer cannot decode them correctly.
   STRING badly_decoded = fra_trainer.DecodeLabels(deu_labels);
-  string bad_str(&badly_decoded[0], badly_decoded.length());
+  std::string bad_str(&badly_decoded[0], badly_decoded.length());
+  LOG(INFO) << "bad_str fra=" << bad_str << "\n";
   EXPECT_NE(kTestStr, bad_str);
   // Encode the string as fra.
   GenericVector<int> fra_labels;
@@ -49,7 +61,8 @@ TEST_F(LSTMTrainerTest, MapCoder) {
   }
   // The german trainer can now decode them correctly.
   STRING decoded = deu_trainer.DecodeLabels(mapped_fra_labels);
-  string ok_str(&decoded[0], decoded.length());
+  std::string ok_str(&decoded[0], decoded.length());
+  LOG(INFO) << "ok_str deu=" << ok_str << "\n";
   EXPECT_EQ(kTestStr, ok_str);
 }
 
@@ -58,29 +71,32 @@ TEST_F(LSTMTrainerTest, MapCoder) {
 TEST_F(LSTMTrainerTest, ConvertModel) {
   // Setup a trainer with a deu charset.
   LSTMTrainer deu_trainer;
-  deu_trainer.InitCharSet(TestDataNameToPath("deu.traineddata"));
+  deu_trainer.InitCharSet(TestDataNameToPath("deu/deu.traineddata"));
   // Load the fra traineddata, strip out the model, and save to a tmp file.
   TessdataManager mgr;
-  string fra_data =
-      file::JoinPath(FLAGS_test_srcdir, "tessdata_best", "fra.traineddata");
-  CHECK(mgr.Init(fra_data.c_str())) << "Failed to load " << fra_data;
-  string model_path = file::JoinPath(FLAGS_test_tmpdir, "fra.lstm");
+  std::string fra_data =
+      file::JoinPath(TESSDATA_BEST_DIR, "fra.traineddata");
+  CHECK(mgr.Init(fra_data.c_str()));
+  LOG(INFO) << "Load " << fra_data  << "\n";
+  std::string model_path = file::JoinPath(FLAGS_test_tmpdir, "fra.lstm");
   CHECK(mgr.ExtractToFile(model_path.c_str()));
+  LOG(INFO) << "Extract " << model_path << "\n";
   // Load the fra model into the deu_trainer, and save the converted model.
-  CHECK(deu_trainer.TryLoadingCheckpoint(model_path.c_str(), fra_data.c_str()))
-      << "Failed checkpoint load for " << model_path << " and " << fra_data;
-  string deu_data = file::JoinPath(FLAGS_test_tmpdir, "deu.traineddata");
+  CHECK(deu_trainer.TryLoadingCheckpoint(model_path.c_str(), fra_data.c_str()));
+  LOG(INFO) << "Checkpoint load for " << model_path << " and " << fra_data << "\n";
+  std::string deu_data = file::JoinPath(FLAGS_test_tmpdir, "deu.traineddata");
   CHECK(deu_trainer.SaveTraineddata(deu_data.c_str()));
+  LOG(INFO) << "Save " << deu_data << "\n";
   // Now run the saved model on phototest. (See BasicTesseractTest in
   // baseapi_test.cc).
   TessBaseAPI api;
-  api.Init(FLAGS_test_tmpdir.c_str(), "deu", tesseract::OEM_LSTM_ONLY);
-  Pix* src_pix = pixRead(TestDataNameToPath("phototest.tif").c_str());
+  api.Init(FLAGS_test_tmpdir, "deu", tesseract::OEM_LSTM_ONLY);
+  Pix* src_pix = pixRead(TestingNameToPath("phototest.tif").c_str());
   CHECK(src_pix);
   api.SetImage(src_pix);
   std::unique_ptr<char[]> result(api.GetUTF8Text());
-  string truth_text;
-  CHECK_OK(file::GetContents(TestDataNameToPath("phototest.gold.txt"),
+  std::string truth_text;
+  CHECK_OK(file::GetContents(TestingNameToPath("phototest.gold.txt"),
                              &truth_text, file::Defaults()));
 
   EXPECT_STREQ(truth_text.c_str(), result.get());

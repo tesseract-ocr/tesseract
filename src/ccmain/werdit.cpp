@@ -52,7 +52,7 @@ PAGE_RES_IT* make_pseudo_word(PAGE_RES* page_res, const TBOX& selection_box) {
       if (!new_blobs.empty()) {
         WERD* pseudo_word = new WERD(&new_blobs, 1, nullptr);
         word_res = pr_it.InsertSimpleCloneWord(*word_res, pseudo_word);
-        PAGE_RES_IT* it = new PAGE_RES_IT(page_res);
+        auto* it = new PAGE_RES_IT(page_res);
         while (it->word() != word_res && it->word() != nullptr) it->forward();
         ASSERT_HOST(it->word() == word_res);
         return it;

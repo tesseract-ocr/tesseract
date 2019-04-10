@@ -105,11 +105,6 @@ set(include_files_list
 )
 check_includes(include_files_list)
 
-set(functions_list
-    snprintf
-)
-check_functions(functions_list)
-
 set(types_list
     "long long int"
     off_t
@@ -119,10 +114,13 @@ set(types_list
 )
 check_types(types_list)
 
-set(PACKAGE_VERSION "${VERSION_PLAIN}")
 file(APPEND ${AUTOCONFIG_SRC} "
 /* Version number */
-#cmakedefine PACKAGE_VERSION \"${VERSION_PLAIN}\"
+#cmakedefine PACKAGE_VERSION \"${PACKAGE_VERSION}\"
+#cmakedefine GRAPHICS_DISABLED ${GRAPHICS_DISABLED}
+#cmakedefine EMBEDDED ${EMBEDDED}
+#cmakedefine DISABLED_LEGACY_ENGINE ${DISABLED_LEGACY_ENGINE}
+#cmakedefine HAVE_LIBARCHIVE ${HAVE_LIBARCHIVE}
 ")
 
 test_big_endian(WORDS_BIGENDIAN)

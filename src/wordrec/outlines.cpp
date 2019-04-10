@@ -4,11 +4,6 @@
  * File:         outlines.cpp  (Formerly outlines.c)
  * Description:  Combinatorial Splitter
  * Author:       Mark Seaman, OCR Technology
- * Created:      Thu Jul 27 08:59:01 1989
- * Modified:     Wed Jul 10 14:56:49 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1989, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +52,7 @@ bool Wordrec::near_point(EDGEPT *point,
 
   if (x0 == x1) {
                                  /* Handle vertical line */
-    p.x = (int16_t) x0;
+    p.x = static_cast<int16_t>(x0);
     p.y = point->pos.y;
   }
   else {
@@ -66,9 +61,9 @@ bool Wordrec::near_point(EDGEPT *point,
     intercept = y1 - x1 * slope;
 
     /* Find perpendicular */
-    p.x = (int16_t) ((point->pos.x + (point->pos.y - intercept) * slope) /
+    p.x = static_cast<int16_t>((point->pos.x + (point->pos.y - intercept) * slope) /
       (slope * slope + 1));
-    p.y = (int16_t) (slope * p.x + intercept);
+    p.y = static_cast<int16_t>(slope * p.x + intercept);
   }
 
   if (is_on_line (p, line_pt_0->pos, line_pt_1->pos) &&

@@ -2,7 +2,6 @@
  * File:        elst2.cpp  (Formerly elist2.c)
  * Description: Doubly linked embedded list code not in the include file.
  * Author:      Phil Cheatle
- * Created:     Wed Jan 23 11:04:47 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,6 @@
  **********************************************************************/
 
 #include <cstdlib>
-#include "host.h"
 #include "elst2.h"
 
 /***********************************************************************
@@ -117,7 +115,7 @@ const void *, const void *)) {
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
-  base = (ELIST2_LINK **) malloc (count * sizeof (ELIST2_LINK *));
+  base = static_cast<ELIST2_LINK **>(malloc (count * sizeof (ELIST2_LINK *)));
 
   /* Extract all elements, putting the pointers in the array */
   current = base;
@@ -195,7 +193,7 @@ ELIST2_LINK *ELIST2_ITERATOR::forward() {
   if (current) {                 //not removed so
                                  //set previous
     prev = current;
-    started_cycling = TRUE;
+    started_cycling = true;
     // In case next is deleted by another iterator, get it from the current.
     current = current->next;
   }
@@ -239,7 +237,7 @@ ELIST2_LINK *ELIST2_ITERATOR::backward() {
   if (current) {                 //not removed so
                                  //set previous
     next = current;
-    started_cycling = TRUE;
+    started_cycling = true;
     // In case prev is deleted by another iterator, get it from current.
     current = current->prev;
   } else {

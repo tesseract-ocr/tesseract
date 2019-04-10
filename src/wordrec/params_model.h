@@ -49,7 +49,7 @@ class ParamsModel {
   void Print();
   // Clears weights for all passes.
   void Clear() {
-    for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) weights_vec_[p].clear();
+    for (auto & p : weights_vec_) p.clear();
   }
   // Copies the weights of the given params model.
   void Copy(const ParamsModel &other_model);

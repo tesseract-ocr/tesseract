@@ -1229,7 +1229,7 @@ const ParagraphModel *ParagraphTheory::AddModel(const ParagraphModel &model) {
     if ((*models_)[i]->Comparable(model))
       return (*models_)[i];
   }
-  ParagraphModel *m = new ParagraphModel(model);
+  auto *m = new ParagraphModel(model);
   models_->push_back(m);
   models_we_added_.push_back_new(m);
   return m;
@@ -2444,7 +2444,7 @@ static void InitializeRowInfo(bool after_recognition,
   info->rword_likely_starts_idea = false;
   info->rword_likely_ends_idea = false;
   info->has_leaders = false;
-  info->ltr = 1;
+  info->ltr = true;
 
   if (!after_recognition) {
     InitializeTextAndBoxesPreRecognition(it, info);

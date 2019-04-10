@@ -1,14 +1,9 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        trie.h  (Formerly trie.h)
- * Description:  Functions to build a trie data structure.
- * Author:       Mark Seaman, SW Productivity
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Fri Jul 26 11:26:34 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
+ * File:        trie.h
+ * Description: Functions to build a trie data structure.
+ * Author:      Mark Seaman, SW Productivity
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,14 +89,14 @@ class Trie : public Dawg {
     new_dawg_node();  // need to allocate node 0
     initialized_patterns_ = false;
   }
-  virtual ~Trie() { nodes_.delete_data_pointers(); }
+  ~Trie() override { nodes_.delete_data_pointers(); }
 
   // Reset the Trie to empty.
   void clear();
 
   /** Returns the edge that corresponds to the letter out of this node. */
   EDGE_REF edge_char_of(NODE_REF node_ref, UNICHAR_ID unichar_id,
-                        bool word_end) const {
+                        bool word_end) const override {
     EDGE_RECORD *edge_ptr;
     EDGE_INDEX edge_index;
     if (!edge_char_of(node_ref, NO_EDGE, FORWARD_EDGE, word_end, unichar_id,
@@ -114,7 +109,7 @@ class Trie : public Dawg {
    * corresponding EDGE_REFs) for which there is an edge out of this node.
    */
   void unichar_ids_of(NODE_REF node, NodeChildVector *vec,
-                      bool word_end) const {
+                      bool word_end) const override {
     const EDGE_VECTOR &forward_edges =
       nodes_[static_cast<int>(node)]->forward_edges;
     for (int i = 0; i < forward_edges.size(); ++i) {
@@ -129,7 +124,7 @@ class Trie : public Dawg {
    * Returns the next node visited by following the edge
    * indicated by the given EDGE_REF.
    */
-  NODE_REF next_node(EDGE_REF edge_ref) const {
+  NODE_REF next_node(EDGE_REF edge_ref) const override {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return NO_EDGE;
     return next_node_from_edge_rec(*deref_edge_ref(edge_ref));
   }
@@ -138,13 +133,13 @@ class Trie : public Dawg {
    * Returns true if the edge indicated by the given EDGE_REF
    * marks the end of a word.
    */
-  bool end_of_word(EDGE_REF edge_ref) const {
+  bool end_of_word(EDGE_REF edge_ref) const override {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return false;
     return end_of_word_from_edge_rec(*deref_edge_ref(edge_ref));
   }
 
   /** Returns UNICHAR_ID stored in the edge indicated by the given EDGE_REF. */
-  UNICHAR_ID edge_letter(EDGE_REF edge_ref) const {
+  UNICHAR_ID edge_letter(EDGE_REF edge_ref) const override {
     if (edge_ref == NO_EDGE || num_edges_ == 0) return INVALID_UNICHAR_ID;
     return unichar_id_from_edge_rec(*deref_edge_ref(edge_ref));
   }
@@ -160,7 +155,7 @@ class Trie : public Dawg {
 
   // Prints the contents of the node indicated by the given NODE_REF.
   // At most max_num_edges will be printed.
-  void print_node(NODE_REF node, int max_num_edges) const;
+  void print_node(NODE_REF node, int max_num_edges) const override;
 
   // Writes edges from nodes_ to an EDGE_ARRAY and creates a SquishedDawg.
   // Eliminates redundant edges and returns the pointer to the SquishedDawg.
@@ -238,14 +233,14 @@ class Trie : public Dawg {
   // the patterns of the character classes of the given unichar_id.
   void unichar_id_to_patterns(UNICHAR_ID unichar_id,
                               const UNICHARSET &unicharset,
-                              GenericVector<UNICHAR_ID> *vec) const;
+                              GenericVector<UNICHAR_ID> *vec) const override;
 
   // Returns the given EDGE_REF if the EDGE_RECORD that it points to has
   // a self loop and the given unichar_id matches the unichar_id stored in the
   // EDGE_RECORD, returns NO_EDGE otherwise.
-  virtual EDGE_REF pattern_loop_edge(EDGE_REF edge_ref,
+  EDGE_REF pattern_loop_edge(EDGE_REF edge_ref,
                                      UNICHAR_ID unichar_id,
-                                     bool word_end) const {
+                                     bool word_end) const override {
     if (edge_ref == NO_EDGE) return NO_EDGE;
     EDGE_RECORD *edge_rec = deref_edge_ref(edge_ref);
     return (marker_flag_from_edge_rec(*edge_rec) &&

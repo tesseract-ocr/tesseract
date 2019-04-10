@@ -191,7 +191,7 @@ UNICHARSET::~UNICHARSET() {
 
 void UNICHARSET::reserve(int unichars_number) {
   if (unichars_number > size_reserved) {
-    UNICHAR_SLOT* unichars_new = new UNICHAR_SLOT[unichars_number];
+    auto* unichars_new = new UNICHAR_SLOT[unichars_number];
     for (int i = 0; i < size_used; ++i)
       unichars_new[i] = unichars[i];
     for (int j = size_used; j < unichars_number; ++j) {
@@ -803,7 +803,7 @@ bool UNICHARSET::load_via_fgets(
     unsigned int properties;
     char script[64];
 
-    strncpy(script, null_script, sizeof(script));
+    strncpy(script, null_script, sizeof(script) - 1);
     int min_bottom = 0;
     int max_bottom = UINT8_MAX;
     int min_top = 0;
@@ -1018,7 +1018,7 @@ bool UNICHARSET::AnyRepeatedUnicodes() const {
   for (int id = start_id; id < size_used; ++id) {
     // Convert to unicodes.
     std::vector<char32> unicodes = UNICHAR::UTF8ToUTF32(get_normed_unichar(id));
-    for (int u = 1; u < unicodes.size(); ++u) {
+    for (size_t u = 1; u < unicodes.size(); ++u) {
       if (unicodes[u - 1] == unicodes[u]) return true;
     }
   }
@@ -1099,7 +1099,7 @@ CHAR_FRAGMENT *CHAR_FRAGMENT::parse_from_string(const char *string) {
   if (ptr != string + len) {
     return nullptr;  // malformed fragment representation
   }
-  CHAR_FRAGMENT *fragment = new CHAR_FRAGMENT();
+  auto *fragment = new CHAR_FRAGMENT();
   fragment->set_all(unichar, pos, total, natural);
   return fragment;
 }

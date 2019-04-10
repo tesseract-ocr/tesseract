@@ -21,40 +21,12 @@
 
 #ifdef DISABLED_LEGACY_ENGINE
 
-#include "config_auto.h"
-
 #include <cstdint>             // for int16_t, int32_t
-#include "callcpp.h"           // for C_COL
-#include "chop.h"              // for PointHeap, MAX_NUM_POINTS
 #include "classify.h"          // for Classify
-#include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
-#include "findseam.h"          // for SeamQueue, SeamPile
-#include "genericvector.h"     // for GenericVector
-#include "oldlist.h"           // for LIST
 #include "params.h"            // for INT_VAR_H, IntParam, BOOL_VAR_H, BoolP...
-#include "points.h"            // for ICOORD
-#include "ratngs.h"            // for BLOB_CHOICE_LIST (ptr only), BLOB_CHOI...
-#include "seam.h"              // for SEAM (ptr only), PRIORITY
-#include "stopper.h"           // for DANGERR
+#include "ratngs.h"            // for WERD_CHOICE
 
-class EDGEPT_CLIST;
-class MATRIX;
-class STRING;
-class TBOX;
-class UNICHARSET;
-class WERD_RES;
-
-namespace tesseract { class LMPainPoints; }
 namespace tesseract { class TessdataManager; }
-namespace tesseract { struct BestChoiceBundle; }
-
-struct BlamerBundle;
-struct EDGEPT;
-struct MATRIX_COORD;
-struct SPLIT;
-struct TBLOB;
-struct TESSLINE;
-struct TWERD;
 
 namespace tesseract {
 
@@ -87,19 +59,47 @@ class Wordrec : public Classify {
 
 #else  // DISABLED_LEGACY_ENGINE not defined
 
-#include "associate.h"
-#include "classify.h"
-#include "dict.h"
-#include "language_model.h"
-#include "ratngs.h"
-#include "matrix.h"
-#include "seam.h"
-#include "findseam.h"
-#include "callcpp.h"
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
+#include <cstdint>             // for int16_t, int32_t
 #include <memory>
+#include "associate.h"
+#include "callcpp.h"           // for C_COL
+#include "chop.h"              // for PointHeap, MAX_NUM_POINTS
+#include "classify.h"          // for Classify
+#include "dict.h"
+#include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
+#include "findseam.h"          // for SeamQueue, SeamPile
+#include "genericvector.h"     // for GenericVector
+#include "language_model.h"
+#include "matrix.h"
+#include "oldlist.h"           // for LIST
+#include "params.h"            // for INT_VAR_H, IntParam, BOOL_VAR_H, BoolP...
+#include "points.h"            // for ICOORD
+#include "ratngs.h"            // for BLOB_CHOICE_LIST (ptr only), BLOB_CHOI...
+#include "seam.h"              // for SEAM (ptr only), PRIORITY
+#include "stopper.h"           // for DANGERR
 
+class EDGEPT_CLIST;
+class MATRIX;
+class STRING;
+class TBOX;
+class UNICHARSET;
 class WERD_RES;
+
+namespace tesseract { class LMPainPoints; }
+namespace tesseract { class TessdataManager; }
+namespace tesseract { struct BestChoiceBundle; }
+
+struct BlamerBundle;
+struct EDGEPT;
+struct MATRIX_COORD;
+struct SPLIT;
+struct TBLOB;
+struct TESSLINE;
+struct TWERD;
 
 namespace tesseract {
 
@@ -192,16 +192,16 @@ ELISTIZEH(FRAGMENT)
 class Wordrec : public Classify {
  public:
   // config parameters *******************************************************
-  BOOL_VAR_H(merge_fragments_in_matrix, TRUE,
+  BOOL_VAR_H(merge_fragments_in_matrix, true,
              "Merge the fragments in the ratings matrix and delete them "
              "after merging");
-  BOOL_VAR_H(wordrec_no_block, FALSE, "Don't output block information");
-  BOOL_VAR_H(wordrec_enable_assoc, TRUE, "Associator Enable");
-  BOOL_VAR_H(force_word_assoc, FALSE,
+  BOOL_VAR_H(wordrec_no_block, false, "Don't output block information");
+  BOOL_VAR_H(wordrec_enable_assoc, true, "Associator Enable");
+  BOOL_VAR_H(force_word_assoc, false,
              "force associator to run regardless of what enable_assoc is."
              "This is used for CJK where component grouping is necessary.");
   double_VAR_H(wordrec_worst_state, 1, "Worst segmentation state");
-  BOOL_VAR_H(fragments_guide_chopper, FALSE,
+  BOOL_VAR_H(fragments_guide_chopper, false,
              "Use information from fragments to guide chopping process");
   INT_VAR_H(repair_unchopped_blobs, 1, "Fix blobs that aren't chopped");
   double_VAR_H(tessedit_certainty_threshold, -2.25, "Good blob limit");
@@ -226,7 +226,7 @@ class Wordrec : public Classify {
   double_VAR_H(chop_good_split, 50.0, "Good split limit");
   INT_VAR_H(chop_x_y_weight, 3, "X / Y  length weight");
   INT_VAR_H(segment_adjust_debug, 0, "Segmentation adjustment debug");
-  BOOL_VAR_H(assume_fixed_pitch_char_segment, FALSE,
+  BOOL_VAR_H(assume_fixed_pitch_char_segment, false,
              "include fixed-pitch heuristics in char segmentation");
   INT_VAR_H(wordrec_debug_level, 0, "Debug level for wordrec");
   INT_VAR_H(wordrec_max_join_chunks, 4,
@@ -248,7 +248,7 @@ class Wordrec : public Classify {
 
   // methods from wordrec/*.cpp ***********************************************
   Wordrec();
-  virtual ~Wordrec() = default;
+  ~Wordrec() override = default;
 
   // Fills word->alt_choices with alternative paths found during
   // chopping/segmentation search that are kept in best_choices.

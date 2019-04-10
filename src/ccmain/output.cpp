@@ -1,8 +1,7 @@
 /******************************************************************
  * File:        output.cpp  (Formerly output.c)
  * Description: Output pass
- * Author:          Phil Cheatle
- * Created:         Thu Aug  4 10:56:08 BST 1994
+ * Author:      Phil Cheatle
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +19,15 @@
 #include <cctype>
 #include <cerrno>
 #include <cstring>
-#include "helpers.h"
-#include "tessvars.h"
 #include "control.h"
-#include "reject.h"
-#include "docqual.h"
+#include "helpers.h"
 #include "output.h"
-#include "globals.h"
 #include "tesseractclass.h"
+#include "tessvars.h"
+#ifndef DISABLED_LEGACY_ENGINE
+#include "docqual.h"
+#include "reject.h"
+#endif
 
 #define EPAPER_EXT      ".ep"
 #define PAGE_YSIZE      3508
@@ -131,7 +131,7 @@ void Tesseract::write_results(PAGE_RES_IT& page_res_it,
     if ((need_reject && !stats_.last_char_was_tilde) ||
         (force_eol && stats_.write_results_empty_block)) {
       /* Write a reject char - mark as rejected unless zero_rejection mode */
-      stats_.last_char_was_tilde = TRUE;
+      stats_.last_char_was_tilde = true;
       stats_.tilde_crunch_written = true;
       stats_.last_char_was_newline = false;
       stats_.write_results_empty_block = false;
@@ -214,7 +214,7 @@ void Tesseract::write_results(PAGE_RES_IT& page_res_it,
  * determine_newline_type
  *
  * Find whether we have a wrapping or hard newline.
- * Return FALSE if not at end of line.
+ * Return false if not at end of line.
  **********************************************************************/
 
 char determine_newline_type(                   //test line ends
@@ -230,7 +230,7 @@ char determine_newline_type(                   //test line ends
   TBOX block_box;                 //block bounding
 
   if (!word->flag (W_EOL))
-    return FALSE;                //not end of line
+    return false;                //not end of line
   if (next_word == nullptr || next_block == nullptr || block != next_block)
     return CTRL_NEWLINE;
   if (next_word->space () > 0)
@@ -240,7 +240,7 @@ char determine_newline_type(                   //test line ends
   block_box = block->pdblk.bounding_box ();
                                  //gap to eol
   end_gap = block_box.right () - word_box.right ();
-  end_gap -= (int32_t) block->space ();
+  end_gap -= static_cast<int32_t>(block->space ());
   width = next_box.right () - next_box.left ();
   //      tprintf("end_gap=%d-%d=%d, width=%d-%d=%d, nl=%d\n",
   //              block_box.right(),word_box.right(),end_gap,

@@ -37,10 +37,10 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   ColPartitionGrid() = default;
   ColPartitionGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
 
-  virtual ~ColPartitionGrid() = default;
+  ~ColPartitionGrid() override = default;
 
   // Handles a click event in a display window.
-  void HandleClick(int x, int y);
+  void HandleClick(int x, int y) override;
 
   // Merges ColPartitions in the grid that look like they belong in the same
   // textline.

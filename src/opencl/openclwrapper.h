@@ -18,142 +18,34 @@
 
 // including CL/cl.h doesn't occur until USE_OPENCL defined below
 
-// platform preprocessor commands
-#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || \
-    defined(__CYGWIN__) || defined(__MINGW32__)
-#define ON_WINDOWS 1
-#define ON_LINUX 0
-#define ON_APPLE 0
-#define ON_OTHER 0
-#define IF_WINDOWS(X) X
-#define IF_LINUX(X)
-#define IF_APPLE(X)
-#define IF_OTHER(X)
-#define NOT_WINDOWS(X)
-#elif defined(__linux__)
-#define ON_WINDOWS 0
-#define ON_LINUX 1
-#define ON_APPLE 0
-#define ON_OTHER 0
-#define IF_WINDOWS(X)
-#define IF_LINUX(X) X
-#define IF_APPLE(X)
-#define IF_OTHER(X)
-#define NOT_WINDOWS(X) X
-#elif defined(__APPLE__)
-#define ON_WINDOWS 0
-#define ON_LINUX 0
-#define ON_APPLE 1
-#define ON_OTHER 0
-#define IF_WINDOWS(X)
-#define IF_LINUX(X)
-#define IF_APPLE(X) X
-#define IF_OTHER(X)
-#define NOT_WINDOWS(X) X
-#else
-#define ON_WINDOWS 0
-#define ON_LINUX 0
-#define ON_APPLE 0
-#define ON_OTHER 1
-#define IF_WINDOWS(X)
-#define IF_LINUX(X)
-#define IF_APPLE(X)
-#define IF_OTHER(X) X
-#define NOT_WINDOWS(X) X
-#endif
-
-#if ON_LINUX
-#include <ctime>
-#endif
-
-/************************************************************************************
- * enable/disable reporting of performance
- * PERF_REPORT_LEVEL
- * 0 - no reporting
- * 1 - no reporting
- * 2 - report total function call time for functions we're tracking
- * 3 - optionally report breakdown of function calls (kernel launch, kernel
- *time, data copies)
- ************************************************************************************/
-#define PERF_COUNT_VERBOSE 1
-#define PERF_COUNT_REPORT_STR "[%36s], %24s, %11.6f\n"
-
-#if ON_WINDOWS
-
-#if PERF_COUNT_VERBOSE >= 2
-#define PERF_COUNT_START(FUNCT_NAME)                                    \
-  char* funct_name = FUNCT_NAME;                                        \
-  double elapsed_time_sec;                                              \
-  LARGE_INTEGER freq, time_funct_start, time_funct_end, time_sub_start, \
-      time_sub_end;                                                     \
-  QueryPerformanceFrequency(&freq);                                     \
-  QueryPerformanceCounter(&time_funct_start);                           \
-  time_sub_start = time_funct_start;                                    \
-  time_sub_end = time_funct_start;
-
-#define PERF_COUNT_END                                                       \
-  QueryPerformanceCounter(&time_funct_end);                                  \
-  elapsed_time_sec = (time_funct_end.QuadPart - time_funct_start.QuadPart) / \
-                     (double)(freq.QuadPart);                                \
-  tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
-#else
-#define PERF_COUNT_START(FUNCT_NAME)
-#define PERF_COUNT_END
-#endif
-
-#if PERF_COUNT_VERBOSE >= 3
-#define PERF_COUNT_SUB(SUB)                                              \
-  QueryPerformanceCounter(&time_sub_end);                                \
-  elapsed_time_sec = (time_sub_end.QuadPart - time_sub_start.QuadPart) / \
-                     (double)(freq.QuadPart);                            \
-  tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);      \
-  time_sub_start = time_sub_end;
-#else
-#define PERF_COUNT_SUB(SUB)
-#endif
-
-// not on windows
-#else
-
-#if PERF_COUNT_VERBOSE >= 2
-#define PERF_COUNT_START(FUNCT_NAME)                                       \
-  char* funct_name = FUNCT_NAME;                                           \
-  double elapsed_time_sec;                                                 \
-  timespec time_funct_start, time_funct_end, time_sub_start, time_sub_end; \
-  clock_gettime(CLOCK_MONOTONIC, &time_funct_start);                       \
-  time_sub_start = time_funct_start;                                       \
-  time_sub_end = time_funct_start;
-
-#define PERF_COUNT_END                                                    \
-  clock_gettime(CLOCK_MONOTONIC, &time_funct_end);                        \
-  elapsed_time_sec =                                                      \
-      (time_funct_end.tv_sec - time_funct_start.tv_sec) * 1.0 +           \
-      (time_funct_end.tv_nsec - time_funct_start.tv_nsec) / 1000000000.0; \
-  tprintf(PERF_COUNT_REPORT_STR, funct_name, "total", elapsed_time_sec);
-#else
-#define PERF_COUNT_START(FUNCT_NAME)
-#define PERF_COUNT_END
-#endif
-
-#if PERF_COUNT_VERBOSE >= 3
-#define PERF_COUNT_SUB(SUB)                                           \
-  clock_gettime(CLOCK_MONOTONIC, &time_sub_end);                      \
-  elapsed_time_sec =                                                  \
-      (time_sub_end.tv_sec - time_sub_start.tv_sec) * 1.0 +           \
-      (time_sub_end.tv_nsec - time_sub_start.tv_nsec) / 1000000000.0; \
-  tprintf(PERF_COUNT_REPORT_STR, funct_name, SUB, elapsed_time_sec);   \
-  time_sub_start = time_sub_end;
-#else
-#define PERF_COUNT_SUB(SUB)
-#endif
-
-#endif
 /**************************************************************************
  * enable/disable use of OpenCL
  **************************************************************************/
 
 #ifdef USE_OPENCL
-#include "opencl_device_selection.h"
+
+#ifdef __APPLE__
+#include <OpenCL/cl.h>
+#else
+#include <CL/cl.h>
+#endif
+
+struct TessDeviceScore;
+
+// device type
+enum ds_device_type {
+  DS_DEVICE_NATIVE_CPU = 0,
+  DS_DEVICE_OPENCL_DEVICE
+};
+
+struct ds_device {
+  ds_device_type type;
+  cl_device_id oclDeviceID;
+  char* oclDeviceName;
+  char* oclDriverVersion;
+  // a pointer to the score data, the content/format is application defined.
+  TessDeviceScore* score;
+};
 
 #ifndef strcasecmp
 #define strcasecmp strcmp

@@ -2,7 +2,6 @@
  ** Filename:    intmatcher.h
  ** Purpose:     Interface to high level generic classifier routines.
  ** Author:      Robert Moss
- ** History:     Wed Feb 13 15:24:15 MST 1991, RWM, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,7 @@
 // but turned on/off on the language-by-language basis or depending
 // on particular properties of the corpus (e.g. when we expect the
 // images to have low exposure).
-extern BOOL_VAR_H(disable_character_fragments, FALSE,
+extern BOOL_VAR_H(disable_character_fragments, false,
                   "Do not include character fragments in the"
                   " results of the classifier");
 
@@ -73,10 +72,9 @@ struct ScratchEvidence {
 
   void Clear(const INT_CLASS class_template);
   void ClearFeatureEvidence(const INT_CLASS class_template);
-  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures,
-                     int32_t used_features);
+  void NormalizeSums(INT_CLASS ClassTemplate, int16_t NumFeatures);
   void UpdateSumOfProtoEvidences(
-    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask, int16_t NumFeatures);
+    INT_CLASS ClassTemplate, BIT_VECTOR ConfigMask);
 };
 
 
@@ -113,7 +111,6 @@ class IntegerMatcher {
   int FindGoodProtos(INT_CLASS ClassTemplate,
                      BIT_VECTOR ProtoMask,
                      BIT_VECTOR ConfigMask,
-                     uint16_t BlobLength,
                      int16_t NumFeatures,
                      INT_FEATURE_ARRAY Features,
                      PROTO_ID *ProtoArray,
@@ -123,7 +120,6 @@ class IntegerMatcher {
   int FindBadFeatures(INT_CLASS ClassTemplate,
                       BIT_VECTOR ProtoMask,
                       BIT_VECTOR ConfigMask,
-                      uint16_t BlobLength,
                       int16_t NumFeatures,
                       INT_FEATURE_ARRAY Features,
                       FEATURE_ID *FeatureArray,
@@ -155,7 +151,6 @@ class IntegerMatcher {
 
   void DisplayProtoDebugInfo(
       INT_CLASS ClassTemplate,
-      BIT_VECTOR ProtoMask,
       BIT_VECTOR ConfigMask,
       const ScratchEvidence &tables,
       bool SeparateDebugWindows);
@@ -180,22 +175,4 @@ class IntegerMatcher {
   uint32_t evidence_mult_mask_;
 };
 
-/**----------------------------------------------------------------------------
-          Private Function Prototypes
-----------------------------------------------------------------------------**/
-void IMDebugConfiguration(INT_FEATURE FeatureNum,
-                          uint16_t ActualProtoNum,
-                          uint8_t Evidence,
-                          BIT_VECTOR ConfigMask,
-                          uint32_t ConfigWord);
-
-void IMDebugConfigurationSum(INT_FEATURE FeatureNum,
-                             uint8_t *FeatureEvidence,
-                             int32_t ConfigCount);
-
-void HeapSort (int n, int ra[], int rb[]);
-
-/**----------------------------------------------------------------------------
-        Global Data Definitions and Declarations
-----------------------------------------------------------------------------**/
 #endif

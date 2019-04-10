@@ -55,7 +55,7 @@ FEATURE_SET ExtractMicros(TBLOB* Blob, const DENORM& cn_denorm) {
 
   Features = OldFeatures;
   iterate(Features) {
-    OldFeature = (MICROFEATURE) first_node (Features);
+    OldFeature = reinterpret_cast<MICROFEATURE>first_node (Features);
     Feature = NewFeature (&MicroFeatureDesc);
     Feature->Params[MFDirection] = OldFeature[ORIENTATION];
     Feature->Params[MFXPosition] = OldFeature[XPOSITION];

@@ -22,7 +22,7 @@ VALID_LANGUAGE_CODES="afr amh ara asm aze aze_cyrl bel ben bih bod bos bul cat
                       ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo
                       ell eng enm epo est eus fas fil fin fra frk frm gle glg
                       grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old
-                      jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat
+                      jav jav_java jpn kan kat kat_old kaz khm kir kmr kor kur_ara lao lat
                       lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori
                       pan pol por pus ron rus san sin slk slv snd spa spa_old
                       sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur
@@ -902,7 +902,7 @@ set_lang_specific_parameters() {
   BIGRAM_DAWG_FACTOR=0.015
   TRAINING_DATA_ARGUMENTS=""
   FRAGMENTS_DISABLED="y"
-  RUN_SHAPE_CLUSTERING=0
+  RUN_SHAPE_CLUSTERING=false
   AMBIGS_FILTER_DENOMINATOR="100000"
   LEADING="32"
   MEAN_COUNT="40"  # Default for latin script.
@@ -1164,7 +1164,8 @@ set_lang_specific_parameters() {
           test -z "$FONTS" && FONTS=( "${OLD_GEORGIAN_FONTS[@]}" ) ;;
     kir ) test -z "$FONTS" && FONTS=( "${KYRGYZ_FONTS[@]}" )
           TRAINING_DATA_ARGUMENTS=" --infrequent_ratio=100" ;;
-    kur ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
+    kmr ) test -z "$FONTS" && FONTS=( "${LATIN_FONTS[@]}" ) ;;
+    kur_ara ) test -z "$FONTS" && FONTS=( "${KURDISH_FONTS[@]}" ) ;;
 
     *) err_exit "Error: ${lang} is not a valid language code"
   esac

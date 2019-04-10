@@ -2,7 +2,6 @@
  * File:        pitsync1.cpp  (Formerly pitsync.c)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
  * Author:      Ray Smith
- * Created:     Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,8 +63,8 @@ int16_t x                        //position
   mean_sum = 0;
   sq_sum = 0;
   cost = 0;
-  faked = FALSE;
-  terminal = FALSE;
+  faked = false;
+  terminal = false;
   fake_count = 0;
   mid_cuts = 0;
 }
@@ -79,7 +78,7 @@ int16_t x                        //position
 
 FPSEGPT::FPSEGPT (               //constructor
 int16_t x,                       //position
-BOOL8 faking,                    //faking this one
+bool faking,                     //faking this one
 int16_t offset,                  //dist to gap
 int16_t region_index,            //segment number
 int16_t pitch,                   //proposed pitch
@@ -103,7 +102,7 @@ FPSEGPT_LIST * prev_list         //previous segment
   cost = FLT_MAX;
   pred = nullptr;
   faked = faking;
-  terminal = FALSE;
+  terminal = false;
   best_fake = INT16_MAX;
   mid_cuts = 0;
   for (pred_it.mark_cycle_pt (); !pred_it.cycled_list (); pred_it.forward ()) {
@@ -182,7 +181,7 @@ double check_pitch_sync(                        //find segmentation
   //      tprintf("Computing sync on word of %d blobs with pitch %d\n",
   //              blob_count, pitch);
   //      if (blob_count==8 && pitch==27)
-  //              projection->print(stdout,TRUE);
+  //              projection->print(stdout,true);
   if (pitch < 3)
     pitch = 3;                   //nothing ludicrous
   if ((pitch - 3) / 2 < pitch_error)
@@ -262,18 +261,18 @@ double check_pitch_sync(                        //find segmentation
         else
           offset = 0;
         //                              offset=pitsync_offset_freecut_fraction*projection->pile_count(x);
-        segpt = new FPSEGPT (x, FALSE, offset, region_index,
+        segpt = new FPSEGPT (x, false, offset, region_index,
           pitch, pitch_error, lattice_it.data ());
       }
       else {
         offset = projection->pile_count (x);
-        segpt = new FPSEGPT (x, TRUE, offset, region_index,
+        segpt = new FPSEGPT (x, true, offset, region_index,
           pitch, pitch_error, lattice_it.data ());
       }
       if (segpt->previous () != nullptr) {
         segpt_it.add_after_then_move (segpt);
         if (x >= right_edge - pitch_error) {
-          segpt->terminal = TRUE;//no more wanted
+          segpt->terminal = true;//no more wanted
           if (segpt->cost_function () < best_cost) {
             best_cost = segpt->cost_function ();
             //find least
@@ -402,14 +401,14 @@ void make_illegal_segment(                          //find segmentation
     offset = x - blob_box.left ();
     if (blob_box.right () - x < offset)
       offset = blob_box.right () - x;
-    segpt = new FPSEGPT (x, FALSE, offset,
+    segpt = new FPSEGPT (x, false, offset,
       region_index, pitch, pitch_error, prev_list);
     if (segpt->previous () != nullptr) {
       ASSERT_HOST (offset >= 0);
       fprintf (stderr, "made fake at %d\n", x);
                                  //make one up
       segpt_it.add_after_then_move (segpt);
-      segpt->faked = TRUE;
+      segpt->faked = true;
       segpt->fake_count++;
     }
     else

@@ -1,71 +1,69 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
+#include <cstdlib>      // for system
+#include <fstream>      // for ifstream
 #include <set>
 #include <string>
 #include <vector>
 
-#include "util/process/subprocess.h"
+#include "ratngs.h"
+#include "unicharset.h"
+#include "trie.h"
 
-#include "tesseract/ccstruct/ratngs.h"
-#include "tesseract/ccutil/unicharset.h"
-#include "tesseract/dict/trie.h"
+#include "include_gunit.h"
 
 namespace {
-
-void RemoveTrailingLineTerminators(char* line) {
-  char* end = line + strlen(line) - 1;
-  while (end >= line && ('\n' == *end || '\r' == *end)) {
-    *end-- = 0;
-  }
-}
-
-void AddLineToSet(std::set<string>* words, char* line) {
-  RemoveTrailingLineTerminators(line);
-  words->insert(line);
-}
 
 // Test some basic functionality dealing with Dawgs (compressed dictionaries,
 // aka Directed Acyclic Word Graphs).
 class DawgTest : public testing::Test {
  protected:
-  void LoadWordlist(const string& filename, std::set<string>* words) const {
-    FileLineReader::Options options;
-    options.set_comment_char(0);
-    FileLineReader flr(filename.c_str(), options);
-    flr.set_line_callback(NewPermanentCallback(AddLineToSet, words));
-    flr.Reload();
+  void LoadWordlist(const std::string& filename, std::set<std::string>* words) const {
+    std::ifstream file(filename);
+    if (file.is_open()) {
+      std::string line;
+      while (getline(file, line)) {
+        // Remove trailing line terminators from line.
+        while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+          line.resize(line.size() - 1);
+        }
+        // Add line to set.
+        words->insert(line.c_str());
+      }
+      file.close();
+    }
   }
-  string TestDataNameToPath(const string& name) const {
-    return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
+  std::string TessBinaryPath(const std::string& name) const {
+    return file::JoinPath(TESSBIN_DIR, "src/training/" + name);
   }
-  string TessBinaryPath(const string& binary_name) const {
-    return file::JoinPath(FLAGS_test_srcdir,
-  }
-  string OutputNameToPath(const string& name) const {
+  std::string OutputNameToPath(const std::string& name) const {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
-  int RunCommand(const string& program, const string& arg1, const string& arg2,
-                 const string& arg3) const {
-    SubProcess p;
-    std::vector<string> argv;
-    argv.push_back(program);
-    argv.push_back(arg1);
-    argv.push_back(arg2);
-    argv.push_back(arg3);
-    p.SetProgram(TessBinaryPath(program), argv);
-    p.Start();
-    p.Wait();
-    return p.exit_code();
+  int RunCommand(const std::string& program, const std::string& arg1,
+                 const std::string& arg2, const std::string& arg3) const {
+    std::string cmdline =
+      TessBinaryPath(program) + " " + arg1 + " " + arg2 + " " + arg3;
+    return system(cmdline.c_str());
   }
   // Test that we are able to convert a wordlist file (one "word" per line) to
   // a dawg (a compressed format) and then extract the original wordlist back
   // out using the tools "wordlist2dawg" and "dawg2wordlist."
-  void TestDawgRoundTrip(const string& unicharset_filename,
-                         const string& wordlist_filename) const {
-    std::set<string> orig_words, roundtrip_words;
-    string unicharset = TestDataNameToPath(unicharset_filename);
-    string orig_wordlist = TestDataNameToPath(wordlist_filename);
-    string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
-    string output_wordlist = OutputNameToPath(wordlist_filename);
+  void TestDawgRoundTrip(const std::string& unicharset_filename,
+                         const std::string& wordlist_filename) const {
+    std::set<std::string> orig_words, roundtrip_words;
+    std::string unicharset = file::JoinPath(TESTING_DIR, unicharset_filename);
+    std::string orig_wordlist = file::JoinPath(TESTING_DIR, wordlist_filename);
+    std::string output_dawg = OutputNameToPath(wordlist_filename + ".dawg");
+    std::string output_wordlist = OutputNameToPath(wordlist_filename);
     LoadWordlist(orig_wordlist, &orig_words);
     EXPECT_EQ(
         RunCommand("wordlist2dawg", orig_wordlist, output_dawg, unicharset), 0);
@@ -83,7 +81,7 @@ TEST_F(DawgTest, TestDawgConversion) {
 
 TEST_F(DawgTest, TestMatching) {
   UNICHARSET unicharset;
-  unicharset.load_from_file(TestDataNameToPath("eng.unicharset").c_str());
+  unicharset.load_from_file(file::JoinPath(TESTING_DIR, "eng.unicharset").c_str());
   tesseract::Trie trie(tesseract::DAWG_TYPE_WORD, "basic_dawg", NGRAM_PERM,
                        unicharset.size(), 0);
   WERD_CHOICE space_apos(" '", unicharset);

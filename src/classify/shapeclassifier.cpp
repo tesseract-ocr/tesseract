@@ -104,7 +104,7 @@ void ShapeClassifier::DebugDisplay(const TrainingSample& sample,
   }
   ScrollView* debug_win = CreateFeatureSpaceWindow("ClassifierDebug", 0, 0);
   // Provide a right-click menu to choose the class.
-  SVMenuNode* popup_menu = new SVMenuNode();
+  auto* popup_menu = new SVMenuNode();
   popup_menu->AddChild("Choose class to debug", 0, "x", "Class to debug");
   popup_menu->BuildMenu(debug_win, false);
   // Display the features in green.

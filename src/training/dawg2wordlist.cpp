@@ -2,7 +2,6 @@
 // File:        dawg2wordlist.cpp
 // Description: Program to create a word list from a DAWG and unicharset.
 // Author:      David Eger
-// Created:     Thu 22 Dec 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,6 @@
 
 #include "commontraining.h"     // CheckSharedLibraryVersion
 #include "dawg.h"
-#include "host.h"
 #include "serialis.h"
 #include "tesscallback.h"
 #include "trie.h"

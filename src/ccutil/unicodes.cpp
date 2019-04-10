@@ -2,7 +2,6 @@
  * File:        unicodes.cpp
  * Description: Unicode related machinery
  * Author:      David Eger
- * Created:     Wed Jun 15 16:37:50 PST 2011
  *
  * (C) Copyright 2011, Google, Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,6 @@
  **********************************************************************/
 
 #include "unicodes.h"
-#include "host.h"  // for nullptr
 
 namespace tesseract {
 

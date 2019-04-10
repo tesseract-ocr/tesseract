@@ -2,7 +2,6 @@
  * File:        stepblob.cpp  (Formerly cblob.c)
  * Description: Code for C_BLOB class.
  * Author:      Ray Smith
- * Created:     Tue Oct 08 10:41:13 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +24,6 @@
 #include "stepblob.h"
 #include "allheaders.h"     // for pixCreate, pixGetDepth
 #include "genericvector.h"  // for GenericVector
-#include "host.h"           // for TRUE, FALSE
 #include "points.h"         // for operator+=, FCOORD, ICOORD
 
 class DENORM;
@@ -147,7 +145,7 @@ static void reverse_outline_list(C_OUTLINE_LIST *list) {
   for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
     C_OUTLINE* outline = it.data();
     outline->reverse();         // reverse it
-    outline->set_flag(COUT_INVERSE, TRUE);
+    outline->set_flag(COUT_INVERSE, true);
     if (!outline->child()->empty())
       reverse_outline_list(outline->child());
   }
@@ -209,7 +207,7 @@ void C_BLOB::ConstructBlobsFromOutlines(bool good_blob,
       blob_is_good = false;
       ol_it.add_list_after(outline->child());
     }
-    C_BLOB* blob = new C_BLOB(outline);
+    auto* blob = new C_BLOB(outline);
     // Set inverse flag and reverse if needed.
     blob->CheckInverseFlagAndDirection();
     // Put on appropriate list.
@@ -230,9 +228,9 @@ void C_BLOB::CheckInverseFlagAndDirection() {
     if (outline->turn_direction() < 0) {
       outline->reverse();
       reverse_outline_list(outline->child());
-      outline->set_flag(COUT_INVERSE, TRUE);
+      outline->set_flag(COUT_INVERSE, true);
     } else {
-      outline->set_flag(COUT_INVERSE, FALSE);
+      outline->set_flag(COUT_INVERSE, false);
     }
   }
 }
@@ -372,7 +370,7 @@ static void RotateOutlineList(const FCOORD& rotation,
   while (!src_it.empty()) {
     C_OUTLINE* old_outline = src_it.extract();
     src_it.forward();
-    C_OUTLINE* new_outline = new C_OUTLINE(old_outline, rotation);
+    auto* new_outline = new C_OUTLINE(old_outline, rotation);
     if (!old_outline->child()->empty()) {
       RotateOutlineList(rotation, old_outline->child());
       C_OUTLINE_IT child_it(new_outline->child());

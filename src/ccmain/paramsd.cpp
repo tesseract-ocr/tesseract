@@ -2,7 +2,6 @@
 // File:        paramsd.cpp
 // Description: Tesseract parameter Editor
 // Author:      Joern Wanke
-// Created:     Wed Jul 18 10:05:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,7 +139,7 @@ STRING ParamContent::GetValue() const {
   } else if (param_type_ == VT_DOUBLE) {
     result.add_str_double("", *dIt);
   } else if (param_type_ == VT_STRING) {
-    if (((STRING) * (sIt)).string() != nullptr) {
+    if (STRING(*(sIt)).string() != nullptr) {
       result = sIt->string();
     } else {
       result = "Null";
@@ -190,7 +189,7 @@ int ParamContent::Compare(const void* v1, const void* v2) {
 // SVMenuNode tree from it.
 // TODO (wanke): This is actually sort of hackish.
 SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
-  SVMenuNode* mr = new SVMenuNode();
+  auto* mr = new SVMenuNode();
   ParamContent_LIST vclist;
   ParamContent_IT vc_it(&vclist);
   // Amount counts the number of entries for a specific char*.
@@ -340,11 +339,8 @@ void ParamsEditor::WriteParams(char *filename,
         filename);
     return;
   }
-
-  for (std::map<int, ParamContent*>::iterator iter = vcMap.begin();
-                                          iter != vcMap.end();
-                                          ++iter) {
-    ParamContent* cur = iter->second;
+  for (auto& iter : vcMap) {
+    ParamContent* cur = iter.second;
     if (!changes_only || cur->HasChanged()) {
       fprintf(fp, "%-25s   %-12s   # %s\n",
               cur->GetName(), cur->GetValue().string(), cur->GetDescription());

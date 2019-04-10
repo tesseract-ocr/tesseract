@@ -15,9 +15,13 @@
 # This script provides an easy way to execute various phases of training
 # Tesseract.  For a detailed description of the phases, see
 # https://github.com/tesseract-ocr/tesseract/wiki/TrainingTesseract
-#
-import sys, os, logging
 
+import logging
+import os
+import sys
+
+if (sys.version_info.major < 3) or (sys.version_info.major == 3 and sys.version_info.minor < 6):
+    raise Exception("Must be using Python minimum version 3.6!")
 
 sys.path.insert(0, os.path.dirname(__file__))
 from tesstrain_utils import (
@@ -81,7 +85,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 # _rc0 = subprocess.call(["tlog","\n=== Starting training for language '"+str(LANG_CODE.val)+"'"],shell=True)
 # _rc0 = subprocess.call(["source",os.popen("dirname "+__file__).read().rstrip("\n")+"/language-specific.sh"],shell=True)

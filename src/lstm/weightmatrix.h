@@ -35,7 +35,7 @@ class TransposedArray : public GENERIC_2D_ARRAY<double> {
   void Transpose(const GENERIC_2D_ARRAY<double>& input);
   // Writes a vector of data representing a timestep (gradients or sources).
   // The data is assumed to be of size1 in size (the strided dimension).
-  virtual ~TransposedArray();
+  ~TransposedArray() override;
   void WriteStrided(int t, const float* data) {
     int size1 = dim1();
     for (int i = 0; i < size1; ++i) put(i, t, data[i]);
@@ -85,13 +85,13 @@ class WeightMatrix {
   // Scale so the max absolute value becomes INT8_MAX.
   // Round to integer.
   // Store a multiplicative scale factor (as a float) that will reproduce
-  //   the original value, subject to rounding errors.
+  // the original value, subject to rounding errors.
   void ConvertToInt();
   // Returns the size rounded up to an internal factor used by the SIMD
   // implementation for its input.
   int RoundInputs(int size) const {
-    if (multiplier_ == nullptr) return size;
-    return multiplier_->RoundInputs(size);
+    if (!int_mode_ || !IntSimdMatrix::intSimdMatrix) return size;
+    return IntSimdMatrix::intSimdMatrix->RoundInputs(size);
   }
 
   // Accessors.
@@ -176,8 +176,8 @@ class WeightMatrix {
   // Iff use_adam_, the sum of squares of dw_. The number of samples is
   // given to Update(). Serialized iff use_adam_.
   GENERIC_2D_ARRAY<double> dw_sq_sum_;
-  // Holds the optimal integer multiplier for this machine.
-  std::unique_ptr<IntSimdMatrix> multiplier_;
+  // The weights matrix reorganized in whatever way suits this instance.
+  std::vector<int8_t> shaped_w_;
 };
 
 }  // namespace tesseract.

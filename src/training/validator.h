@@ -3,7 +3,6 @@
  * Description: Base class for various text validators. Intended mainly for
  *              scripts that use a virama character.
  * Author:      Ray Smith
- * Created:     Tue May 23 2017
  *
  * (C) Copyright 2017, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -179,7 +178,7 @@ class Validator {
   // output_, adds unicodes as single-element vectors to parts_ to catch
   // output_used_ up to output->size() - length before adding the length-element
   // vector.
-  void MultiCodePart(int length) {
+  void MultiCodePart(unsigned length) {
     while (output_used_ + length < output_.size()) {
       parts_.emplace_back(
           std::initializer_list<char32>{output_[output_used_++]});
@@ -193,7 +192,7 @@ class Validator {
   // Helper function appends the next element of codes_ to output_, and then
   // calls MultiCodePart to add the appropriate components to parts_.
   // Returns true at the end of codes_.
-  bool UseMultiCode(int length) {
+  bool UseMultiCode(unsigned length) {
     output_.push_back(codes_[codes_used_].second);
     MultiCodePart(length);
     return ++codes_used_ == codes_.size();
@@ -235,9 +234,9 @@ class Validator {
   // Copied validated unicodes from codes_ that are OK to output.
   std::vector<char32> output_;
   // The number of elements of codes_ that have been processed so far.
-  int codes_used_;
+  unsigned codes_used_;
   // The number of elements of output_ that have already been added to parts_.
-  int output_used_;
+  unsigned output_used_;
   // Log error messages for reasons why text is invalid.
   bool report_errors_;
 };

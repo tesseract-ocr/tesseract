@@ -14,15 +14,16 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
  *****************************************************************************/
-#ifndef   KDTREE_H
-#define   KDTREE_H
+
+#ifndef KDTREE_H
+#define KDTREE_H
 
 /*-----------------------------------------------------------------------------
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
-#include "cutil.h"      // for void_proc
-#include "host.h"
 #include "ocrfeatures.h"
+
+using void_proc = void (*)(...);
 
 /**
 NOTE:  All circular parameters of all keys must be in the range
@@ -35,60 +36,61 @@ correctly if circular parameters outside the specified range are used.
 */
 
 struct KDNODE {
-  float *Key;                  /**< search key */
-  void *Data;                  /**< data that corresponds to key */
-  float BranchPoint;           /**< needed to make deletes work efficiently */
-  float LeftBranch;            /**< used to optimize search pruning */
-  float RightBranch;           /**< used to optimize search pruning */
-  struct KDNODE *Left;         /**< ptrs for KD tree structure */
-  struct KDNODE *Right;
+  float* Key;          /**< search key */
+  void* Data;          /**< data that corresponds to key */
+  float BranchPoint;   /**< needed to make deletes work efficiently */
+  float LeftBranch;    /**< used to optimize search pruning */
+  float RightBranch;   /**< used to optimize search pruning */
+  struct KDNODE* Left; /**< ptrs for KD tree structure */
+  struct KDNODE* Right;
 };
 
 struct KDTREE {
-  int16_t KeySize;               /* number of dimensions in the tree */
-  KDNODE Root;                   /* Root.Left points to actual root node */
-  PARAM_DESC KeyDesc[1];         /* description of each dimension */
+  int16_t KeySize;       /* number of dimensions in the tree */
+  KDNODE Root;           /* Root.Left points to actual root node */
+  PARAM_DESC KeyDesc[1]; /* description of each dimension */
 };
 
 /*----------------------------------------------------------------------------
             Macros
 -----------------------------------------------------------------------------*/
-#define RootOf(T)   ((T)->Root.Left->Data)
+#define RootOf(T) ((T)->Root.Left->Data)
 
 /*-----------------------------------------------------------------------------
           Public Function Prototypes
 -----------------------------------------------------------------------------*/
-KDTREE *MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
+KDTREE* MakeKDTree(int16_t KeySize, const PARAM_DESC KeyDesc[]);
 
-void KDStore(KDTREE *Tree, float *Key, void *Data);
+void KDStore(KDTREE* Tree, float* Key, void* Data);
 
-void KDDelete(KDTREE * Tree, float Key[], void *Data);
+void KDDelete(KDTREE* Tree, float Key[], void* Data);
 
-void KDNearestNeighborSearch(
-    KDTREE *Tree, float Query[], int QuerySize, float MaxDistance,
-    int *NumberOfResults, void **NBuffer, float DBuffer[]);
+void KDNearestNeighborSearch(KDTREE* Tree, float Query[], int QuerySize,
+                             float MaxDistance, int* NumberOfResults,
+                             void** NBuffer, float DBuffer[]);
 
-void KDWalk(KDTREE *Tree, void_proc Action, void *context);
+void KDWalk(KDTREE* Tree, void_proc Action, void* context);
 
-void FreeKDTree(KDTREE *Tree);
+void FreeKDTree(KDTREE* Tree);
 
 /*-----------------------------------------------------------------------------
           Private Function Prototypes
 -----------------------------------------------------------------------------*/
-KDNODE *MakeKDNode(KDTREE *tree, float Key[], void *Data, int Index);
+KDNODE* MakeKDNode(KDTREE* tree, float Key[], void* Data, int Index);
 
-void FreeKDNode(KDNODE *Node);
+void FreeKDNode(KDNODE* Node);
 
-float DistanceSquared(int k, PARAM_DESC *dim, float p1[], float p2[]);
+float DistanceSquared(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
-float ComputeDistance(int k, PARAM_DESC *dim, float p1[], float p2[]);
+float ComputeDistance(int k, PARAM_DESC* dim, float p1[], float p2[]);
 
-int QueryInSearch(KDTREE *tree);
+int QueryInSearch(KDTREE* tree);
 
-void Walk(KDTREE *tree, void_proc action, void *context,
-          KDNODE *SubTree, int32_t Level);
+void Walk(KDTREE* tree, void_proc action, void* context, KDNODE* SubTree,
+          int32_t Level);
 
-void InsertNodes(KDTREE *tree, KDNODE *nodes);
+void InsertNodes(KDTREE* tree, KDNODE* nodes);
 
-void FreeSubTree(KDNODE *SubTree);
+void FreeSubTree(KDNODE* SubTree);
+
 #endif

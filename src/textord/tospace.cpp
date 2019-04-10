@@ -74,8 +74,8 @@ void Textord::to_spacing(
     // often over-estimated and should not be trusted. A similar ratio
     // is found in block_spacing_stats.
     if (tosp_old_to_method && tosp_old_to_constrain_sp_kn &&
-        (float) block_space_gap_width / block_non_space_gap_width < 3.0) {
-      block_non_space_gap_width = (int16_t) floor (block_space_gap_width / 3.0);
+        static_cast<float>(block_space_gap_width) / block_non_space_gap_width < 3.0) {
+      block_non_space_gap_width = static_cast<int16_t>(floor (block_space_gap_width / 3.0));
     }
     // row iterator
     TO_ROW_IT row_it(block->get_rows());
@@ -103,7 +103,7 @@ void Textord::to_spacing(
       }
 #ifndef GRAPHICS_DISABLED
       if (textord_show_initial_words)
-        plot_word_decisions (to_win, (int16_t) row->fixed_pitch, row);
+        plot_word_decisions (to_win, static_cast<int16_t>(row->fixed_pitch), row);
 #endif
       row_index++;
     }
@@ -213,7 +213,7 @@ void Textord::block_spacing_stats(
     block. Do this by using a crude threshold to ignore "narrow" gaps, then
     find the median of the "wide" gaps and use this.
     */
-    block_non_space_gap_width = (int16_t) floor (all_gap_stats.median ());
+    block_non_space_gap_width = static_cast<int16_t>(floor (all_gap_stats.median ()));
     // median gap
 
     row_it.set_to_list (block->get_rows ());
@@ -432,7 +432,7 @@ void Textord::row_spacing_stats(
         tprintf("B:%d R:%d -- DON'T BELIEVE SPACE %3.2f %d %3.2f.\n", block_idx,
                 row_idx, row->kern_size, row->space_threshold, row->space_size);
       row->space_threshold =
-        (int32_t) (tosp_table_kn_sp_ratio * row->kern_size);
+        static_cast<int32_t>(tosp_table_kn_sp_ratio * row->kern_size);
       row->space_size = std::max(row->space_threshold + 1.0f, row->xheight);
     }
   }
@@ -484,7 +484,7 @@ void Textord::row_spacing_stats(
             row->kern_size,
             row->space_threshold, row->space_size);
                                  //the minimum sane value
-        row->space_threshold = (int32_t) sane_space;
+        row->space_threshold = static_cast<int32_t>(sane_space);
         row->space_size = std::max(row->space_threshold + 1.0f, row->xheight);
       }
     }
@@ -541,10 +541,10 @@ void Textord::row_spacing_stats(
   if ((tosp_fuzzy_sp_fraction > 0) &&
     (row->space_size > row->space_threshold))
     row->min_space = std::max(row->min_space,
-      (int32_t) ceil (row->space_threshold +
+      static_cast<int32_t>(ceil (row->space_threshold +
       tosp_fuzzy_sp_fraction *
       (row->space_size -
-      row->space_threshold)));
+      row->space_threshold))));
 
   /* Ensure that ANY space less than some multiplier times the kern size is
   fuzzy.  In tables there is a risk of erroneously setting a small space size
@@ -556,14 +556,14 @@ void Textord::row_spacing_stats(
   if ((tosp_table_fuzzy_kn_sp_ratio > 0) &&
     (suspected_table || tosp_fuzzy_limit_all))
     row->min_space = std::max(row->min_space,
-      (int32_t) ceil (tosp_table_fuzzy_kn_sp_ratio *
-      row->kern_size));
+      static_cast<int32_t>(ceil (tosp_table_fuzzy_kn_sp_ratio *
+      row->kern_size)));
 
   if ((tosp_fuzzy_kn_fraction > 0) && (row->kern_size < row->space_threshold)) {
-    row->max_nonspace = (int32_t) floor (0.5 + row->kern_size +
+    row->max_nonspace = static_cast<int32_t>(floor (0.5 + row->kern_size +
       tosp_fuzzy_kn_fraction *
       (row->space_threshold -
-      row->kern_size));
+      row->kern_size)));
   }
   if (row->max_nonspace > row->space_threshold) {
     // Don't be silly
@@ -699,12 +699,11 @@ bool Textord::isolated_row_stats(TO_ROW* row,
   crude_threshold_estimate = std::max(tosp_init_guess_kn_mult * kern_estimate,
     tosp_init_guess_xht_mult * row->xheight);
   small_gaps_count = stats_count_under (all_gap_stats,
-    (int16_t)
-    ceil (crude_threshold_estimate));
+    static_cast<int16_t>(ceil (crude_threshold_estimate)));
   total = all_gap_stats->get_total ();
 
   if ((total <= tosp_redo_kern_limit) ||
-    ((small_gaps_count / (float) total) < tosp_enough_small_gaps) ||
+    ((small_gaps_count / static_cast<float>(total)) < tosp_enough_small_gaps) ||
   (total - small_gaps_count < 1)) {
     if (tosp_debug_level > 5)
       tprintf("B:%d R:%d -- Can't do isolated row stats.\n", block_idx,
@@ -829,7 +828,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
     (sp <= 10) ||
     (sp <= 3 * kn) ||
     (stats_count_under (all_gap_stats,
-    (int16_t) ceil (kn + (sp - kn) / 3 + 0.5)) <
+    static_cast<int16_t>(ceil (kn + (sp - kn) / 3 + 0.5))) <
     (0.75 * all_gap_stats->get_total ())))
     return;
   if (tosp_debug_level > 10)
@@ -839,7 +838,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
   max(3, (sp - kn) / 3) and starts between kn and sp. If found, and current
   threshold is not within it, move the threshold so that is is just inside it.
   */
-  reqd_zero_width = (int16_t) floor ((sp - kn) / 3 + 0.5);
+  reqd_zero_width = static_cast<int16_t>(floor ((sp - kn) / 3 + 0.5));
   if (reqd_zero_width < 3)
     reqd_zero_width = 3;
 
@@ -963,7 +962,7 @@ ROW *Textord::make_prop_words(
         next_rep_char_word_right;
       current_within_xht_gap = current_gap;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        prev_blanks = (uint8_t) floor (current_gap / row->space_size);
+        prev_blanks = static_cast<uint8_t>(floor (current_gap / row->space_size));
         if (prev_blanks < 1)
           prev_blanks = 1;
       }
@@ -1064,7 +1063,7 @@ ROW *Textord::make_prop_words(
             current_within_xht_gap = current_gap;
             if (current_gap > tosp_rep_space * repetition_spacing) {
               blanks =
-                (uint8_t) floor (current_gap / row->space_size);
+                static_cast<uint8_t>(floor (current_gap / row->space_size));
               if (blanks < 1)
                 blanks = 1;
             }
@@ -1085,7 +1084,7 @@ ROW *Textord::make_prop_words(
             current_gap =
               blob_box.left () - next_rep_char_word_right;
             if (current_gap > tosp_rep_space * repetition_spacing) {
-              blanks = (uint8_t) (current_gap / row->space_size);
+              blanks = static_cast<uint8_t>(current_gap / row->space_size);
               if (blanks < 1)
                 blanks = 1;
             }
@@ -1094,8 +1093,8 @@ ROW *Textord::make_prop_words(
             if (tosp_debug_level > 5)
               tprintf (" Rgap:%d (%d blanks)\n",
                 current_gap, blanks);
-            fuzzy_sp = FALSE;
-            fuzzy_non = FALSE;
+            fuzzy_sp = false;
+            fuzzy_non = false;
 
             if (rep_char_it.empty ()) {
               next_rep_char_word_right = INT32_MAX;
@@ -1131,7 +1130,7 @@ ROW *Textord::make_prop_words(
       repetition_spacing = find_mean_blob_spacing (word);
       current_gap = word->bounding_box ().left () - prev_x;
       if (current_gap > tosp_rep_space * repetition_spacing) {
-        blanks = (uint8_t) floor (current_gap / row->space_size);
+        blanks = static_cast<uint8_t>(floor (current_gap / row->space_size));
         if (blanks < 1)
           blanks = 1;
       }
@@ -1157,7 +1156,7 @@ ROW *Textord::make_prop_words(
       }
     }
     real_row = new ROW (row,
-      (int16_t) row->kern_size, (int16_t) row->space_size);
+      static_cast<int16_t>(row->kern_size), static_cast<int16_t>(row->space_size));
     word_it.set_to_list (real_row->word_list ());
                                  //put words in row
     word_it.add_list_after (&words);
@@ -1202,7 +1201,7 @@ ROW *Textord::make_blob_words(
   box_it.set_to_list(row->blob_list());
   // new words
   WERD_IT word_it(&words);
-  bol = TRUE;
+  bol = true;
   if (!box_it.empty()) {
 
     do {
@@ -1228,17 +1227,17 @@ ROW *Textord::make_blob_words(
         word_count++;
         word_it.add_after_then_move(word);
         if (bol) {
-          word->set_flag(W_BOL, TRUE);
-          bol = FALSE;
+          word->set_flag(W_BOL, true);
+          bol = false;
         }
         if (box_it.at_first()) { // at end of line
-          word->set_flag(W_EOL, TRUE);
+          word->set_flag(W_EOL, true);
         }
       }
     }
     while (!box_it.at_first()); // until back at start
     /* Setup the row with created words. */
-    real_row = new ROW(row, (int16_t) row->kern_size, (int16_t) row->space_size);
+    real_row = new ROW(row, static_cast<int16_t>(row->kern_size), static_cast<int16_t>(row->space_size));
     word_it.set_to_list(real_row->word_list());
                                  //put words in row
     word_it.add_list_after(&words);
@@ -1312,7 +1311,7 @@ bool Textord::make_a_word_break(
         }
       }
       else {
-        blanks = (uint8_t) (current_gap / row->space_size);
+        blanks = static_cast<uint8_t>(current_gap / row->space_size);
         if (blanks < 1)
           blanks = 1;
         fuzzy_sp = false;
@@ -1332,7 +1331,7 @@ bool Textord::make_a_word_break(
     /* Set defaults for the word break in case we find one.  Currently there are
     no fuzzy spaces. Depending on the reliability of the different heuristics
     we may need to set PARTICULAR spaces to fuzzy or not. The values will ONLY
-    be used if the function returns TRUE - ie the word is to be broken.
+    be used if the function returns true - ie the word is to be broken.
     */
     int num_blanks = current_gap;
     if (row->space_size > 1.0f)
@@ -1567,7 +1566,7 @@ bool Textord::make_a_word_break(
 bool Textord::narrow_blob(TO_ROW* row, TBOX blob_box) {
   bool result;
   result = ((blob_box.width () <= tosp_narrow_fraction * row->xheight) ||
-    (((float) blob_box.width () / blob_box.height ()) <=
+    ((static_cast<float>(blob_box.width ()) / blob_box.height ()) <=
     tosp_narrow_aspect_ratio));
   return result;
 }
@@ -1577,7 +1576,7 @@ bool Textord::wide_blob(TO_ROW* row, TBOX blob_box) {
   if (tosp_wide_fraction > 0) {
     if (tosp_wide_aspect_ratio > 0)
       result = ((blob_box.width () >= tosp_wide_fraction * row->xheight) &&
-        (((float) blob_box.width () / blob_box.height ()) >
+        ((static_cast<float>(blob_box.width ()) / blob_box.height ()) >
         tosp_wide_aspect_ratio));
     else
       result = (blob_box.width () >= tosp_wide_fraction * row->xheight);
@@ -1683,9 +1682,9 @@ void Textord::mark_gap(
   if (textord_show_initial_words) {
     to_win->Pen(col);
   /*  if (rule < 20)
-      //interior_style(to_win, INT_SOLID, FALSE);
+      //interior_style(to_win, INT_SOLID, false);
     else
-      //interior_style(to_win, INT_HOLLOW, TRUE);*/
+      //interior_style(to_win, INT_HOLLOW, true);*/
                                  //x radius
     to_win->Ellipse (current_gap / 2.0f,
       blob.height () / 2.0f,     //y radius
@@ -1722,7 +1721,7 @@ float Textord::find_mean_blob_spacing(WERD *word) {
     }
   }
   if (gap_count > 0)
-    return (gap_sum / (float) gap_count);
+    return (gap_sum / static_cast<float>(gap_count));
   else
     return 0.0f;
 }
@@ -1735,7 +1734,7 @@ bool Textord::ignore_big_gap(TO_ROW* row,
                              int16_t right) {
   int16_t gap = right - left + 1;
 
-  if (tosp_ignore_big_gaps > 999) return FALSE;  // Don't ignore
+  if (tosp_ignore_big_gaps > 999) return false;  // Don't ignore
   if (tosp_ignore_big_gaps > 0)
     return (gap > tosp_ignore_big_gaps * row->xheight);
   if (gap > tosp_ignore_very_big_gaps * row->xheight)
@@ -1860,20 +1859,20 @@ TBOX Textord::reduced_box_for_blob(
   Find LH limit of blob ABOVE the xht. This is so that we can detect certain
   caps ht chars which should NOT have their box reduced: T, Y, V, W etc
   */
-  left_limit = (float) INT32_MAX;
-  junk = (float) -INT32_MAX;
+  left_limit = static_cast<float>(INT32_MAX);
+  junk = static_cast<float>(-INT32_MAX);
   find_cblob_hlimits(blob->cblob(), (baseline + 1.1 * row->xheight),
                      static_cast<float>(INT16_MAX), left_limit, junk);
   if (left_limit > junk)
     *left_above_xht = INT16_MAX; //No area above xht
   else
-    *left_above_xht = (int16_t) floor (left_limit);
+    *left_above_xht = static_cast<int16_t>(floor (left_limit));
   /*
   Find reduced LH limit of blob - the left extent of the region ABOVE the
   baseline.
   */
-  left_limit = (float) INT32_MAX;
-  junk = (float) -INT32_MAX;
+  left_limit = static_cast<float>(INT32_MAX);
+  junk = static_cast<float>(-INT32_MAX);
   find_cblob_hlimits(blob->cblob(), baseline, static_cast<float>(INT16_MAX),
                      left_limit, junk);
 
@@ -1882,14 +1881,14 @@ TBOX Textord::reduced_box_for_blob(
   /*
   Find reduced RH limit of blob - the right extent of the region BELOW the xht.
   */
-  junk = (float) INT32_MAX;
-  right_limit = (float) -INT32_MAX;
+  junk = static_cast<float>(INT32_MAX);
+  right_limit = static_cast<float>(-INT32_MAX);
   find_cblob_hlimits(blob->cblob(), static_cast<float>(-INT16_MAX),
                      (baseline + row->xheight), junk, right_limit);
   if (junk > right_limit)
     return TBOX ();               //no area within xht so return empty box
 
-  return TBOX (ICOORD ((int16_t) floor (left_limit), blob_box.bottom ()),
-    ICOORD ((int16_t) ceil (right_limit), blob_box.top ()));
+  return TBOX (ICOORD (static_cast<int16_t>(floor (left_limit)), blob_box.bottom ()),
+    ICOORD (static_cast<int16_t>(ceil (right_limit)), blob_box.top ()));
 }
 }  // namespace tesseract

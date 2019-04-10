@@ -4,11 +4,6 @@
  * File:         trie.cpp  (Formerly trie.c)
  * Description:  Functions to build a trie data structure.
  * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Fri Jul 26 12:18:10 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -271,15 +266,15 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 }
 
 NODE_REF Trie::new_dawg_node() {
-  TRIE_NODE_RECORD *node = new TRIE_NODE_RECORD();
+  auto *node = new TRIE_NODE_RECORD();
   nodes_.push_back(node);
   return nodes_.length() - 1;
 }
 
 // Sort function to sort words by decreasing order of length.
 static int sort_strings_by_dec_length(const void* v1, const void* v2) {
-  const STRING *s1 = static_cast<const STRING *>(v1);
-  const STRING *s2 = static_cast<const STRING *>(v2);
+  const auto *s1 = static_cast<const STRING *>(v1);
+  const auto *s2 = static_cast<const STRING *>(v2);
   return s2->length() - s1->length();
 }
 
@@ -518,8 +513,8 @@ SquishedDawg *Trie::trie_to_dawg() {
   if (debug_level_ > 2) {
     print_all("Before reduction:", MAX_NODE_EDGES_DISPLAY);
   }
-  NODE_MARKER reduced_nodes = new bool[nodes_.size()];
-  for (int i = 0; i < nodes_.size(); i++) reduced_nodes[i] = 0;
+  auto reduced_nodes = new bool[nodes_.size()];
+  for (int i = 0; i < nodes_.size(); i++) reduced_nodes[i] = false;
   this->reduce_node_input(0, reduced_nodes);
   delete[] reduced_nodes;
 
@@ -528,7 +523,7 @@ SquishedDawg *Trie::trie_to_dawg() {
   }
   // Build a translation map from node indices in nodes_ vector to
   // their target indices in EDGE_ARRAY.
-  NODE_REF *node_ref_map = new NODE_REF[nodes_.size() + 1];
+  auto *node_ref_map = new NODE_REF[nodes_.size() + 1];
   int i, j;
   node_ref_map[0] = 0;
   for (i = 0; i < nodes_.size(); ++i) {
@@ -538,7 +533,7 @@ SquishedDawg *Trie::trie_to_dawg() {
 
   // Convert nodes_ vector into EDGE_ARRAY translating the next node references
   // in edges using node_ref_map. Empty nodes and backward edges are dropped.
-  EDGE_ARRAY edge_array = new EDGE_RECORD[num_forward_edges];
+  auto edge_array = new EDGE_RECORD[num_forward_edges];
   EDGE_ARRAY edge_array_ptr = edge_array;
   for (i = 0; i < nodes_.size(); ++i) {
     TRIE_NODE_RECORD *node_ptr = nodes_[i];
@@ -639,7 +634,7 @@ bool Trie::reduce_lettered_edges(EDGE_INDEX edge_index,
           end_of_word_from_edge_rec(edge_rec) &&
           can_be_eliminated(next_edge_rec) &&
           eliminate_redundant_edges(node, edge_rec, next_edge_rec)) {
-        reduced_nodes[next_node_from_edge_rec(edge_rec)] = 0;
+        reduced_nodes[next_node_from_edge_rec(edge_rec)] = false;
         did_something = true;
         KillEdge(&(*backward_edges)[j]);
       }

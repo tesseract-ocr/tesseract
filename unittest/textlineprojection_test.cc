@@ -83,7 +83,7 @@ class TextlineProjectionTest : public testing::Test {
     int width = pixGetWidth(bin_pix_);
     int height = pixGetHeight(bin_pix_);
     // First make a single block covering the whole image.
-    BLOCK* block = new BLOCK("", TRUE, 0, 0, 0, 0, width, height);
+    BLOCK* block = new BLOCK("", true, 0, 0, 0, 0, width, height);
     block->set_right_to_left(false);
     BLOCK_LIST src_blocks;
     BLOCK_IT block_it(&src_blocks);

@@ -1,10 +1,24 @@
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <string>
 #include <utility>
 
-#include "tesseract/ccutil/serialis.h"
-#include "tesseract/ccutil/unicharset.h"
-#include "tesseract/classify/shapetable.h"
+#include "absl/strings/str_format.h"	// for absl::StrFormat
+
+#include "include_gunit.h"
+
+#include "serialis.h"
+#include "shapetable.h"
+#include "unicharset.h"
 
 namespace {
 
@@ -13,7 +27,7 @@ using tesseract::ShapeTable;
 using tesseract::TFile;
 using tesseract::UnicharAndFonts;
 
-static string TmpNameToPath(const string& name) {
+static std::string TmpNameToPath(const std::string& name) {
   return file::JoinPath(FLAGS_test_tmpdir, name);
 }
 
@@ -48,7 +62,7 @@ TEST_F(ShapeTest, BasicTest) {
   Setup352(101, &shape1);
   Expect352(101, shape1);
   // It should still work after file I/O.
-  string filename = TmpNameToPath("shapefile");
+  std::string filename = TmpNameToPath("shapefile");
   FILE* fp = fopen(filename.c_str(), "wb");
   EXPECT_TRUE(fp != nullptr);
   EXPECT_TRUE(shape1.Serialize(fp));
@@ -106,7 +120,7 @@ TEST_F(ShapeTableTest, FullTest) {
   UNICHARSET unicharset;
   unicharset.unichar_insert(" ");
   for (int i = 1; i <= 10; ++i) {
-    string class_str = StringPrintf("class%d", i);
+    std::string class_str = absl::StrFormat("class%d", i);
     unicharset.unichar_insert(class_str.c_str());
   }
   ShapeTable st(unicharset);

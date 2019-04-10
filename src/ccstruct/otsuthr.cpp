@@ -22,8 +22,9 @@
 #include <cstring>
 #include "allheaders.h"
 #include "helpers.h"
-#include "openclwrapper.h"
-
+#if defined(USE_OPENCL)
+#include "openclwrapper.h" // for OpenclDevice
+#endif
 
 namespace tesseract {
 
@@ -41,7 +42,6 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
   int num_channels = pixGetDepth(src_pix) / 8;
   // Of all channels with no good hi_value, keep the best so we can always
   // produce at least one answer.
-  PERF_COUNT_START("OtsuThreshold")
   int best_hi_value = 1;
   int best_hi_index = 0;
   bool any_good_hivalue = false;
@@ -140,7 +140,6 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
     // Use the best of the ones that were not good enough.
     (*hi_values)[best_hi_index] = best_hi_value;
   }
-  PERF_COUNT_END
   return num_channels;
 }
 
@@ -151,7 +150,6 @@ int OtsuThreshold(Pix* src_pix, int left, int top, int width, int height,
 void HistogramRect(Pix* src_pix, int channel,
                    int left, int top, int width, int height,
                    int* histogram) {
-  PERF_COUNT_START("HistogramRect")
   int num_channels = pixGetDepth(src_pix) / 8;
   channel = ClipToRange(channel, 0, num_channels - 1);
   int bottom = top + height;
@@ -165,7 +163,6 @@ void HistogramRect(Pix* src_pix, int channel,
       ++histogram[pixel];
     }
   }
-  PERF_COUNT_END
 }
 
 // Computes the Otsu threshold(s) for the given histogram.

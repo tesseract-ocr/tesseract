@@ -87,7 +87,7 @@ Dawg *DawgLoader::Load() {
     default:
       return nullptr;
   }
-  SquishedDawg *retval =
+  auto *retval =
       new SquishedDawg(dawg_type, lang_, perm_type, dawg_debug_level_);
   if (retval->Load(&fp)) return retval;
   delete retval;

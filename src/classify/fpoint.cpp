@@ -20,6 +20,7 @@
 #include "fpoint.h"
 #include <cstdio>
 #include <cmath>
+#include "platform.h"   // M_PI
 
 /*----------------------------------------------------------------------------
               Public Code

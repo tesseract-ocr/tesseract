@@ -2,7 +2,6 @@
  * File:        topitch.cpp  (Formerly to_pitch.c)
  * Description: Code to determine fixed pitchness and the pitch if fixed.
  * Author:      Ray Smith
- * Created:     Tue Aug 24 16:57:29 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,20 +36,20 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_all_prop, FALSE, "All doc is proportial text");
-EXTERN BOOL_VAR (textord_debug_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
+EXTERN BOOL_VAR (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
-EXTERN BOOL_VAR (textord_disable_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_disable_pitch_test, false,
 "Turn off dp fixed pitch algorithm");
-EXTERN BOOL_VAR (textord_fast_pitch_test, FALSE,
+EXTERN BOOL_VAR (textord_fast_pitch_test, false,
 "Do even faster pitch algorithm");
-EXTERN BOOL_VAR (textord_debug_pitch_metric, FALSE,
+EXTERN BOOL_VAR (textord_debug_pitch_metric, false,
 "Write full metric stuff");
-EXTERN BOOL_VAR (textord_show_row_cuts, FALSE, "Draw row-level cuts");
-EXTERN BOOL_VAR (textord_show_page_cuts, FALSE, "Draw page-level cuts");
-EXTERN BOOL_VAR (textord_pitch_cheat, FALSE,
+EXTERN BOOL_VAR (textord_show_row_cuts, false, "Draw row-level cuts");
+EXTERN BOOL_VAR (textord_show_page_cuts, false, "Draw page-level cuts");
+EXTERN BOOL_VAR (textord_pitch_cheat, false,
 "Use correct answer for fixed/prop");
-EXTERN BOOL_VAR (textord_blockndoc_fixed, FALSE,
+EXTERN BOOL_VAR (textord_blockndoc_fixed, false,
 "Attempt whole doc/block fixed pitch");
 EXTERN double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
 EXTERN double_VAR (textord_balance_factor, 1.0,
@@ -170,7 +169,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
   STATS like_stats;              //pitches in page
 
   block_votes = like_votes = other_votes = 0;
-  maxwidth = (int32_t) ceil (bad_row->xheight * textord_words_maxspace);
+  maxwidth = static_cast<int32_t>(ceil (bad_row->xheight * textord_words_maxspace));
   if (bad_row->pitch_decision != PITCH_DEF_FIXED
   && bad_row->pitch_decision != PITCH_DEF_PROP) {
     block_stats.set_range (0, maxwidth);
@@ -202,13 +201,13 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
           if (block_index == block_target) {
             if (row->pitch_decision == PITCH_DEF_FIXED) {
               block_votes += textord_words_veto_power;
-              block_stats.add ((int32_t) row->fixed_pitch,
+              block_stats.add (static_cast<int32_t>(row->fixed_pitch),
                 textord_words_veto_power);
             }
             else if (row->pitch_decision == PITCH_MAYBE_FIXED
             || row->pitch_decision == PITCH_CORR_FIXED) {
               block_votes++;
-              block_stats.add ((int32_t) row->fixed_pitch, 1);
+              block_stats.add (static_cast<int32_t>(row->fixed_pitch), 1);
             }
             else if (row->pitch_decision == PITCH_DEF_PROP)
               block_votes -= textord_words_veto_power;
@@ -219,13 +218,13 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
           else {
             if (row->pitch_decision == PITCH_DEF_FIXED) {
               like_votes += textord_words_veto_power;
-              like_stats.add ((int32_t) row->fixed_pitch,
+              like_stats.add (static_cast<int32_t>(row->fixed_pitch),
                 textord_words_veto_power);
             }
             else if (row->pitch_decision == PITCH_MAYBE_FIXED
             || row->pitch_decision == PITCH_CORR_FIXED) {
               like_votes++;
-              like_stats.add ((int32_t) row->fixed_pitch, 1);
+              like_stats.add (static_cast<int32_t>(row->fixed_pitch), 1);
             }
             else if (row->pitch_decision == PITCH_DEF_PROP)
               like_votes -= textord_words_veto_power;
@@ -288,8 +287,8 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
     if (bad_row->fixed_pitch < textord_min_xheight)
       bad_row->fixed_pitch = (float) textord_min_xheight;
     bad_row->kern_size = bad_row->fixed_pitch / 4;
-    bad_row->min_space = (int32_t) (bad_row->fixed_pitch * 0.6);
-    bad_row->max_nonspace = (int32_t) (bad_row->fixed_pitch * 0.4);
+    bad_row->min_space = static_cast<int32_t>(bad_row->fixed_pitch * 0.6);
+    bad_row->max_nonspace = static_cast<int32_t>(bad_row->fixed_pitch * 0.4);
     bad_row->space_threshold =
       (bad_row->min_space + bad_row->max_nonspace) / 2;
     bad_row->space_size = bad_row->fixed_pitch;
@@ -298,7 +297,7 @@ void fix_row_pitch(TO_ROW *bad_row,        // row to fix
         bad_row->projection_left, bad_row->projection_right,
         (bad_row->fixed_pitch +
         bad_row->max_nonspace * 3) / 4, bad_row->fixed_pitch,
-        sp_sd, mid_cuts, &bad_row->char_cells, FALSE);
+        sp_sd, mid_cuts, &bad_row->char_cells, false);
     }
   }
   else if (bad_row->pitch_decision == PITCH_CORR_PROP
@@ -328,13 +327,13 @@ void compute_block_pitch(TO_BLOCK* block,     // input list
       block_box.left (), block_box.bottom (),
       block_box.right (), block_box.top ());
   }
-  block->min_space = (int32_t) floor (block->xheight
-    * textord_words_default_minspace);
-  block->max_nonspace = (int32_t) ceil (block->xheight
-    * textord_words_default_nonspace);
+  block->min_space = static_cast<int32_t>(floor (block->xheight
+    * textord_words_default_minspace));
+  block->max_nonspace = static_cast<int32_t>(ceil (block->xheight
+    * textord_words_default_nonspace));
   block->fixed_pitch = 0.0f;
-  block->space_size = (float) block->min_space;
-  block->kern_size = (float) block->max_nonspace;
+  block->space_size = static_cast<float>(block->min_space);
+  block->kern_size = static_cast<float>(block->max_nonspace);
   block->pr_nonsp = block->xheight * words_default_prop_nonspace;
   block->pr_space = block->pr_nonsp * textord_spacesize_ratioprop;
   if (!block->get_rows ()->empty ()) {
@@ -342,7 +341,7 @@ void compute_block_pitch(TO_BLOCK* block,     // input list
     find_repeated_chars(block, textord_show_initial_words && testing_on);
 #ifndef GRAPHICS_DISABLED
     if (textord_show_initial_words && testing_on)
-      //overlap_picture_ops(TRUE);
+      //overlap_picture_ops(true);
       ScrollView::Update();
 #endif
     compute_rows_pitch(block,
@@ -374,7 +373,7 @@ bool compute_rows_pitch(                    //find line stats
     row = row_it.data ();
     ASSERT_HOST (row->xheight > 0);
     row->compute_vertical_projection ();
-    maxwidth = (int32_t) ceil (row->xheight * textord_words_maxspace);
+    maxwidth = static_cast<int32_t>(ceil (row->xheight * textord_words_maxspace));
     if (row_pitch_stats (row, maxwidth, testing_on)
       && find_row_pitch (row, maxwidth,
       textord_dotmatrix_gap + 1, block, block_index,
@@ -457,14 +456,14 @@ bool try_doc_fixed(                             //determine pitch
       row = row_it.data ();
       total_row_count++;
       if (row->fixed_pitch > 0)
-        pitches.add ((int32_t) (row->fixed_pitch), 1);
+        pitches.add (static_cast<int32_t>(row->fixed_pitch), 1);
       //find median
       row_y = row->baseline.y (master_x);
       row_left =
-        (int16_t) (row->projection_left -
+        static_cast<int16_t>(row->projection_left -
         shift_factor * (master_y - row_y));
       row_right =
-        (int16_t) (row->projection_right -
+        static_cast<int16_t>(row->projection_right -
         shift_factor * (master_y - row_y));
       if (row_left < projection_left)
         projection_left = row_left;
@@ -484,7 +483,7 @@ bool try_doc_fixed(                             //determine pitch
       row = row_it.data ();
       row_y = row->baseline.y (master_x);
       row_left =
-        (int16_t) (row->projection_left -
+        static_cast<int16_t>(row->projection_left -
         shift_factor * (master_y - row_y));
       for (x = row->projection_left; x < row->projection_right;
       x++, row_left++) {
@@ -501,11 +500,11 @@ bool try_doc_fixed(                             //determine pitch
       row->intercept (), 1.0f, -1.0f, ScrollView::CORAL);
 #endif
   final_pitch = pitches.ile (0.5);
-  pitch = (int16_t) final_pitch;
+  pitch = static_cast<int16_t>(final_pitch);
   pitch_sd =
     tune_row_pitch (row, &projection, projection_left, projection_right,
     pitch * 0.75, final_pitch, sp_sd, mid_cuts,
-    &row->char_cells, FALSE);
+    &row->char_cells, false);
 
   if (textord_debug_pitch_metric)
     tprintf
@@ -730,7 +729,7 @@ bool row_pitch_stats(                  //find line stats
   //clusters
 
   smooth_factor =
-    (int32_t) (row->xheight * textord_wordstats_smooth_factor + 1.5);
+    static_cast<int32_t>(row->xheight * textord_wordstats_smooth_factor + 1.5);
   if (!blob_it.empty ()) {
     prev_x = blob_it.data ()->bounding_box ().right ();
     blob_it.forward ();
@@ -874,7 +873,7 @@ bool find_row_pitch(                    //find lines
   min_space = (initial_pitch + non_space) / 2;
 
   if (!count_pitch_stats (row, &gap_stats, &pitch_stats,
-  initial_pitch, min_space, TRUE, FALSE, dm_gap)) {
+  initial_pitch, min_space, true, false, dm_gap)) {
     dm_gap_iqr = 0.0001;
     dm_pitch_iqr = maxwidth * 2.0f;
     dm_pitch = initial_pitch;
@@ -887,7 +886,7 @@ bool find_row_pitch(                    //find lines
   gap_stats.clear ();
   pitch_stats.clear ();
   if (!count_pitch_stats (row, &gap_stats, &pitch_stats,
-  initial_pitch, min_space, TRUE, FALSE, 0)) {
+  initial_pitch, min_space, true, false, 0)) {
     gap_iqr = 0.0001;
     pitch_iqr = maxwidth * 3.0f;
   }
@@ -901,7 +900,7 @@ bool find_row_pitch(                    //find lines
     initial_pitch = pitch_stats.ile (0.5);
     if (min_space > initial_pitch
       && count_pitch_stats (row, &gap_stats, &pitch_stats,
-    initial_pitch, initial_pitch, TRUE, FALSE, 0)) {
+    initial_pitch, initial_pitch, true, false, 0)) {
       min_space = initial_pitch;
       gap_iqr = gap_stats.ile (0.75) - gap_stats.ile (0.25);
       pitch_iqr = pitch_stats.ile (0.75) - pitch_stats.ile (0.25);
@@ -962,9 +961,9 @@ bool find_row_pitch(                    //find lines
     row->pitch_decision = PITCH_MAYBE_PROP;
   row->fixed_pitch = pitch;
   row->kern_size = gap_stats.ile (0.5);
-  row->min_space = (int32_t) (row->fixed_pitch + non_space) / 2;
+  row->min_space = static_cast<int32_t>(row->fixed_pitch + non_space) / 2;
   if (row->min_space > row->fixed_pitch)
-    row->min_space = (int32_t) row->fixed_pitch;
+    row->min_space = static_cast<int32_t>(row->fixed_pitch);
   row->max_nonspace = row->min_space;
   row->space_size = row->fixed_pitch;
   row->space_threshold = (row->max_nonspace + row->min_space) / 2;
@@ -1109,19 +1108,19 @@ bool count_pitch_stats(                       //find lines
         blob_width = joined_box.width ();
         if (split_outsize) {
           width_units =
-            (int32_t) floor ((float) blob_width / initial_pitch + 0.5);
+            static_cast<int32_t>(floor (static_cast<float>(blob_width) / initial_pitch + 0.5));
           if (width_units < 1)
             width_units = 1;
           width_units--;
         }
         else if (ignore_outsize) {
-          width = (float) blob_width / initial_pitch;
+          width = static_cast<float>(blob_width) / initial_pitch;
           width_units = width < 1 + words_default_fixed_limit
             && width > 1 - words_default_fixed_limit ? 0 : -1;
         }
         else
           width_units = 0;       //everything in
-        x_centre = (int32_t) (joined_box.left ()
+        x_centre = static_cast<int32_t>(joined_box.left ()
           + (blob_width -
           width_units * initial_pitch) / 2);
         if (prev_valid && width_units >= 0) {
@@ -1133,7 +1132,7 @@ bool count_pitch_stats(                       //find lines
           gap_stats->add (joined_box.left () - prev_right, 1);
           pitch_stats->add (x_centre - prev_centre, 1);
         }
-        prev_centre = (int32_t) (x_centre + width_units * initial_pitch);
+        prev_centre = static_cast<int32_t>(x_centre + width_units * initial_pitch);
         prev_right = joined_box.right ();
         prev_valid = blob_box.left () - joined_box.right () < min_space;
         prev_valid = prev_valid && width_units >= 0;
@@ -1456,13 +1455,13 @@ float compute_pitch_sd(                            //find fp cells
     plot_it = start_it;
     if (pitsync_linear_version & 3)
       word_sync =
-        check_pitch_sync2 (&start_it, blob_count, (int16_t) initial_pitch, 2,
+        check_pitch_sync2 (&start_it, blob_count, static_cast<int16_t>(initial_pitch), 2,
         projection, projection_left, projection_right,
         row->xheight * textord_projection_scale,
         occupation, &seg_list, start, end);
     else
       word_sync =
-        check_pitch_sync (&start_it, blob_count, (int16_t) initial_pitch, 2,
+        check_pitch_sync (&start_it, blob_count, static_cast<int16_t>(initial_pitch), 2,
         projection, &seg_list);
     if (testing_on) {
       tprintf ("Word ending at (%d,%d), len=%d, sync rating=%g, ",
@@ -1498,9 +1497,9 @@ float compute_pitch_sd(                            //find fp cells
       if (cell_it.empty () || segpos > cellpos + initial_pitch / 2) {
                                  //big gap
         while (!cell_it.empty () && segpos > cellpos + initial_pitch * 3 / 2) {
-          cell = new ICOORDELT (cellpos + (int16_t) initial_pitch, 0);
+          cell = new ICOORDELT (cellpos + static_cast<int16_t>(initial_pitch), 0);
           cell_it.add_after_then_move (cell);
-          cellpos += (int16_t) initial_pitch;
+          cellpos += static_cast<int16_t>(initial_pitch);
         }
                                  //make new one
         cell = new ICOORDELT (segpos, 0);
@@ -1586,7 +1585,7 @@ float compute_pitch_sd2(                            //find fp cells
   }
   while (!blob_it.cycled_list ());
   plot_it = blob_it;
-  word_sync = check_pitch_sync2 (&blob_it, blob_count, (int16_t) initial_pitch,
+  word_sync = check_pitch_sync2 (&blob_it, blob_count, static_cast<int16_t>(initial_pitch),
     2, projection, projection_left,
     projection_right,
     row->xheight * textord_projection_scale,
@@ -1688,7 +1687,7 @@ void print_pitch_sd(                        //find fp cells
     while (!blob_it.cycled_list ()
       && blob_box.left () - prev_box.right () < space_size);
     word_sync =
-      check_pitch_sync2 (&start_it, blob_count, (int16_t) initial_pitch, 2,
+      check_pitch_sync2 (&start_it, blob_count, static_cast<int16_t>(initial_pitch), 2,
       projection, projection_left, projection_right,
       row->xheight * textord_projection_scale,
       occupation, &seg_list, 0, 0);
@@ -1725,7 +1724,7 @@ void print_pitch_sd(                        //find fp cells
   start_it = row_start;
   blob_it = row_start;
   word_sync =
-    check_pitch_sync2 (&blob_it, total_blob_count, (int16_t) initial_pitch, 2,
+    check_pitch_sync2 (&blob_it, total_blob_count, static_cast<int16_t>(initial_pitch), 2,
     projection, projection_left, projection_right,
     row->xheight * textord_projection_scale, occupation,
     &seg_list, 0, 0);
@@ -1836,10 +1835,10 @@ void plot_fp_word(                  //draw block of words
 
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    row->min_space = (int32_t) ((pitch + nonspace) / 2);
+    row->min_space = static_cast<int32_t>((pitch + nonspace) / 2);
     row->max_nonspace = row->min_space;
     row->space_threshold = row->min_space;
-    plot_word_decisions (to_win, (int16_t) pitch, row);
+    plot_word_decisions (to_win, static_cast<int16_t>(pitch), row);
   }
 }
 #endif

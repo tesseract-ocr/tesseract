@@ -2,7 +2,6 @@
 // File:        unichar.cpp
 // Description: Unicode character/ligature class.
 // Author:      Ray Smith
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,12 +109,15 @@ int UNICHAR::first_uni() const {
   case 4:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 3:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 2:
     uni += static_cast<unsigned char>(*src++);
     uni <<= 6;
+    // Fall through.
   case 1:
     uni += static_cast<unsigned char>(*src++);
   }
@@ -199,11 +201,11 @@ bool UNICHAR::const_iterator::is_legal() const {
   return utf8_step(it_) > 0;
 }
 
-UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, const int len) {
+UNICHAR::const_iterator UNICHAR::begin(const char* utf8_str, int len) {
   return UNICHAR::const_iterator(utf8_str);
 }
 
-UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, const int len) {
+UNICHAR::const_iterator UNICHAR::end(const char* utf8_str, int len) {
   return UNICHAR::const_iterator(utf8_str + len);
 }
 

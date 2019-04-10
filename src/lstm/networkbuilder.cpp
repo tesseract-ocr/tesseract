@@ -52,7 +52,7 @@ bool NetworkBuilder::InitNetwork(int num_outputs, STRING network_spec,
   if (append_index >= 0) {
     // Split the current network after the given append_index.
     ASSERT_HOST(*network != nullptr && (*network)->type() == NT_SERIES);
-    Series* series = static_cast<Series*>(*network);
+    auto* series = static_cast<Series*>(*network);
     Series* top_series = nullptr;
     series->SplitAt(append_index, &bottom_series, &top_series);
     if (bottom_series == nullptr || top_series == nullptr) {
@@ -195,7 +195,7 @@ Network* NetworkBuilder::ParseR(const StaticShape& input_shape, char** str) {
     *str += 2;
     Network* network = BuildFromString(input_shape, str);
     if (network == nullptr) return nullptr;
-    Reversed* rev =
+    auto* rev =
         new Reversed(name, dir == 'y' ? NT_YREVERSED : NT_XREVERSED);
     rev->SetNetwork(network);
     return rev;

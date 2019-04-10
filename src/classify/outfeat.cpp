@@ -55,7 +55,7 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
   NormalizeOutlines(Outlines, &XScale, &YScale);
   RemainingOutlines = Outlines;
   iterate(RemainingOutlines) {
-    Outline = (MFOUTLINE) first_node (RemainingOutlines);
+    Outline = static_cast<MFOUTLINE>first_node (RemainingOutlines);
     ConvertToOutlineFeatures(Outline, FeatureSet);
   }
   if (classify_norm_method == baseline)

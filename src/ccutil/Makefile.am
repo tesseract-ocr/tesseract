@@ -1,4 +1,3 @@
-SUBDIRS =
 AM_CXXFLAGS =
 AM_CPPFLAGS =
 
@@ -40,6 +39,4 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharcompress.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 
-if T_WIN
-AM_CPPFLAGS += -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
-endif
+AM_CPPFLAGS += $(libarchive_CFLAGS)

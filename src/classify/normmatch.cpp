@@ -26,7 +26,6 @@
 #include "classify.h"
 #include "clusttool.h"
 #include "emalloc.h"
-#include "globals.h"
 #include "helpers.h"
 #include "normfeat.h"
 #include "unicharset.h"
@@ -115,7 +114,7 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId,
 
   ProtoId = 0;
   iterate(Protos) {
-    Proto = (PROTOTYPE *) first_node (Protos);
+    Proto = reinterpret_cast<PROTOTYPE *>first_node (Protos);
     Delta = feature.Params[CharNormY] - Proto->Mean[CharNormY];
     Match = Delta * Delta * Proto->Weight.Elliptical[CharNormY];
     if (DebugMatch) {
@@ -241,9 +240,9 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   int NumProtos;
 
   /* allocate and initialization data structure */
-  NormProtos = (NORM_PROTOS *) Emalloc (sizeof (NORM_PROTOS));
+  NormProtos = static_cast<NORM_PROTOS *>(Emalloc (sizeof (NORM_PROTOS)));
   NormProtos->NumProtos = unicharset.size();
-  NormProtos->Protos = (LIST *) Emalloc (NormProtos->NumProtos * sizeof(LIST));
+  NormProtos->Protos = static_cast<LIST *>(Emalloc (NormProtos->NumProtos * sizeof(LIST)));
   for (i = 0; i < NormProtos->NumProtos; i++)
     NormProtos->Protos[i] = NIL_LIST;
 

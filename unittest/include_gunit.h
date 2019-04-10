@@ -17,12 +17,23 @@
 #include "fileio.h"   // for tesseract::File
 #include "gtest/gtest.h"
 
-const char* FLAGS_test_tmpdir = ".";
+const char* FLAGS_test_tmpdir = "./tmp";
 
 class file : public tesseract::File {
 public:
+
+// Create a file and write a string to it.
+  static bool WriteStringToFile(const std::string& contents, const std::string& filename) {
+    File::WriteStringToFileOrDie(contents, filename);
+    return true;
+  }
+
   static bool GetContents(const std::string& filename, std::string* out, int) {
     return File::ReadFileToString(filename, out);
+  }
+
+  static bool SetContents(const std::string& name, const std::string& contents, bool /*is_default*/) {
+    return WriteStringToFile(contents, name);
   }
 
   static int Defaults() {
@@ -39,12 +50,11 @@ public:
   }
 };
 
-#if !defined(ABSL_ARRAYSIZE)
-#define ABSL_ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-#endif
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
 #define CHECK_GT(test, value) ASSERT_HOST((test) > (value))
+#define CHECK_LT(test, value) ASSERT_HOST((test) < (value))
+#define CHECK_LE(test, value) ASSERT_HOST((test) <= (value))
 #define CHECK_OK(test) ASSERT_HOST(test)
 
 #endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_

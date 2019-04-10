@@ -14,6 +14,7 @@
 #include <unistd.h>
 #endif
 #include <cfloat>
+#include <ctime>        // for clock_gettime
 
 #include "oclkernels.h"
 #include "openclwrapper.h"
@@ -22,6 +23,22 @@
 #include "otsuthr.h"
 #include "thresholder.h"
 
+// platform preprocessor commands
+#if defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || \
+    defined(__CYGWIN__) || defined(__MINGW32__)
+#define ON_WINDOWS 1
+#define ON_APPLE 0
+#elif defined(__linux__)
+#define ON_WINDOWS 0
+#define ON_APPLE 0
+#elif defined(__APPLE__)
+#define ON_WINDOWS 0
+#define ON_APPLE 1
+#else
+#define ON_WINDOWS 0
+#define ON_APPLE 0
+#endif
+
 #if ON_APPLE
 #include <mach/mach_time.h>
 #endif
@@ -29,10 +46,10 @@
 #ifdef USE_OPENCL
 
 #include <cstdio>
+#include <cstring>    // for memset, strcpy, ...
 #include <vector>
 
 #include "errcode.h"  // for ASSERT_HOST
-#include "opencl_device_selection.h"
 
 GPUEnv OpenclDevice::gpuEnv;
 
@@ -289,7 +306,7 @@ static ds_status readProFile(const char* fileName, char** content,
 }
 
 typedef ds_status (*ds_score_deserializer)(ds_device* device,
-                                           const unsigned char* serializedScore,
+                                           const uint8_t* serializedScore,
                                            unsigned int serializedScoreSize);
 
 static ds_status readProfileFromFile(ds_profile* profile,
@@ -465,7 +482,7 @@ cleanup:
 }
 
 typedef ds_status (*ds_score_serializer)(ds_device* device,
-                                         void** serializedScore,
+                                         uint8_t** serializedScore,
                                          unsigned int* serializedScoreSize);
 static ds_status writeProfileToFile(ds_profile* profile,
                                     ds_score_serializer serializer,
@@ -489,7 +506,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
     fwrite("\n", sizeof(char), 1, profileFile);
 
     for (i = 0; i < profile->numDevices && status == DS_SUCCESS; i++) {
-      void* serializedScore;
+      uint8_t* serializedScore;
       unsigned int serializedScoreSize;
 
       fwrite(DS_TAG_DEVICE, sizeof(char), strlen(DS_TAG_DEVICE), profileFile);
@@ -538,7 +555,7 @@ static ds_status writeProfileToFile(ds_profile* profile,
       if (status == DS_SUCCESS && serializedScore != nullptr &&
           serializedScoreSize > 0) {
         fwrite(serializedScore, sizeof(char), serializedScoreSize, profileFile);
-        free(serializedScore);
+        delete[] serializedScore;
       }
       fwrite(DS_TAG_SCORE_END, sizeof(char), strlen(DS_TAG_SCORE_END),
              profileFile);
@@ -712,19 +729,15 @@ int OpenclDevice::initMorphCLAllocations(l_int32 wpl, l_int32 h, Pix* pixs) {
 }
 
 int OpenclDevice::InitEnv() {
-// PERF_COUNT_START("OD::InitEnv")
 //    tprintf("[OD] OpenclDevice::InitEnv()\n");
 #ifdef SAL_WIN32
   while (1) {
     if (1 == LoadOpencl()) break;
   }
-  PERF_COUNT_SUB("LoadOpencl")
 #endif
   // sets up environment, compiles programs
 
   InitOpenclRunEnv_DeviceSelection(0);
-  // PERF_COUNT_SUB("called InitOpenclRunEnv_DS")
-  // PERF_COUNT_END
   return 1;
 }
 
@@ -755,11 +768,9 @@ int OpenclDevice::RegistOpenclKernel() {
 }
 
 int OpenclDevice::InitOpenclRunEnv_DeviceSelection(int argc) {
-  // PERF_COUNT_START("InitOpenclRunEnv_DS")
   if (!isInited) {
     // after programs compiled, selects best device
     ds_device bestDevice_DS = getDeviceSelection();
-    // PERF_COUNT_SUB("called getDeviceSelection()")
     cl_device_id bestDevice = bestDevice_DS.oclDeviceID;
     // overwrite global static GPUEnv with new device
     if (selectedDeviceIsOpenCL()) {
@@ -768,16 +779,13 @@ int OpenclDevice::InitOpenclRunEnv_DeviceSelection(int argc) {
       populateGPUEnvFromDevice(&gpuEnv, bestDevice);
       gpuEnv.mnFileCount = 0;  // argc;
       gpuEnv.mnKernelCount = 0UL;
-      // PERF_COUNT_SUB("populate gpuEnv")
       CompileKernelFile(&gpuEnv, "");
-      // PERF_COUNT_SUB("CompileKernelFile")
     } else {
       // tprintf("[DS] InitOpenclRunEnv_DS::Skipping populateGPUEnvFromDevice()
       // b/c native cpu selected\n");
     }
     isInited = 1;
   }
-  // PERF_COUNT_END
   return 0;
 }
 
@@ -941,7 +949,6 @@ int OpenclDevice::GeneratBinFromKernelSource(cl_program program,
 }
 
 int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
-  // PERF_COUNT_START("CompileKernelFile")
   cl_int clStatus = 0;
   const char* source;
   size_t source_size[1];
@@ -962,14 +969,12 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
   binaryExisted = 0;
   binaryExisted = BinaryGenerated(
       filename, &fd);  // don't check for binary during microbenchmark
-                       // PERF_COUNT_SUB("BinaryGenerated")
   if (binaryExisted == 1) {
     clStatus = clGetContextInfo(gpuInfo->mpContext, CL_CONTEXT_NUM_DEVICES,
                                 sizeof(numDevices), &numDevices, nullptr);
     CHECK_OPENCL(clStatus, "clGetContextInfo");
 
     std::vector<cl_device_id> mpArryDevsID(numDevices);
-    // PERF_COUNT_SUB("get numDevices")
     bool b_error = fseek(fd, 0, SEEK_END) < 0;
     long pos = ftell(fd);
     b_error |= (pos <= 0);
@@ -986,29 +991,24 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
     b_error |= fread(&binary[0], 1, length, fd) != length;
 
     fclose(fd);
-    // PERF_COUNT_SUB("read file")
     fd = nullptr;
     // grab the handles to all of the devices in the context.
     clStatus = clGetContextInfo(gpuInfo->mpContext, CL_CONTEXT_DEVICES,
                                 sizeof(cl_device_id) * numDevices,
                                 &mpArryDevsID[0], nullptr);
     CHECK_OPENCL(clStatus, "clGetContextInfo");
-    // PERF_COUNT_SUB("get devices")
     // fprintf(stderr, "[OD] Create kernel from binary\n");
     const uint8_t* c_binary = &binary[0];
     gpuInfo->mpArryPrograms[idx] = clCreateProgramWithBinary(
         gpuInfo->mpContext, numDevices, &mpArryDevsID[0], &length, &c_binary,
         &binary_status, &clStatus);
     CHECK_OPENCL(clStatus, "clCreateProgramWithBinary");
-    // PERF_COUNT_SUB("clCreateProgramWithBinary")
-    // PERF_COUNT_SUB("binaryExisted")
   } else {
     // create a CL program using the kernel source
     // fprintf(stderr, "[OD] Create kernel from source\n");
     gpuInfo->mpArryPrograms[idx] = clCreateProgramWithSource(
         gpuInfo->mpContext, 1, &source, source_size, &clStatus);
     CHECK_OPENCL(clStatus, "clCreateProgramWithSource");
-    // PERF_COUNT_SUB("!binaryExisted")
   }
 
   if (gpuInfo->mpArryPrograms[idx] == (cl_program) nullptr) {
@@ -1018,19 +1018,15 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
   // char options[512];
   // create a cl program executable for all the devices specified
   // tprintf("[OD] BuildProgram.\n");
-  PERF_COUNT_START("OD::CompileKernel::clBuildProgram")
   if (!gpuInfo->mnIsUserCreated) {
     clStatus =
         clBuildProgram(gpuInfo->mpArryPrograms[idx], 1, gpuInfo->mpArryDevsID,
                        buildOption, nullptr, nullptr);
-    // PERF_COUNT_SUB("clBuildProgram notUserCreated")
   } else {
     clStatus =
         clBuildProgram(gpuInfo->mpArryPrograms[idx], 1, &(gpuInfo->mpDevID),
                        buildOption, nullptr, nullptr);
-    // PERF_COUNT_SUB("clBuildProgram isUserCreated")
   }
-  PERF_COUNT_END
   if (clStatus != CL_SUCCESS) {
     tprintf("BuildProgram error!\n");
     size_t length;
@@ -1068,26 +1064,21 @@ int OpenclDevice::CompileKernelFile(GPUEnv* gpuInfo, const char* buildOption) {
       fclose(fd1);
     }
 
-    // PERF_COUNT_SUB("build error log")
     return 0;
   }
 
   strcpy(gpuInfo->mArryKnelSrcFile[idx], filename);
-  // PERF_COUNT_SUB("strcpy")
   if (binaryExisted == 0) {
     GeneratBinFromKernelSource(gpuInfo->mpArryPrograms[idx], filename);
-    PERF_COUNT_SUB("GenerateBinFromKernelSource")
   }
 
   gpuInfo->mnFileCount += 1;
-  // PERF_COUNT_END
   return 1;
 }
 
 l_uint32* OpenclDevice::pixReadFromTiffKernel(l_uint32* tiffdata, l_int32 w,
                                               l_int32 h, l_int32 wpl,
                                               l_uint32* line) {
-  PERF_COUNT_START("pixReadFromTiffKernel")
   cl_int clStatus;
   KernelEnv rEnv;
   size_t globalThreads[2];
@@ -1130,7 +1121,6 @@ l_uint32* OpenclDevice::pixReadFromTiffKernel(l_uint32* tiffdata, l_int32 w,
   CHECK_OPENCL(clStatus, "clSetKernelArg");
 
   // Kernel enqueue
-  PERF_COUNT_SUB("before")
   clStatus =
       clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
                              globalThreads, localThreads, 0, nullptr, nullptr);
@@ -1145,8 +1135,6 @@ l_uint32* OpenclDevice::pixReadFromTiffKernel(l_uint32* tiffdata, l_int32 w,
 
   // Sync
   clFinish(rEnv.mpkCmdQueue);
-  PERF_COUNT_SUB("kernel & map")
-  PERF_COUNT_END
   return pResult;
 }
 
@@ -1510,7 +1498,7 @@ static cl_int pixCloseCL(l_int32 hsize, l_int32 vsize, l_int32 wpl, l_int32 h) {
 
 // output = buffer1 & ~(buffer2)
 static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
-                                 cl_mem buffer2, cl_mem outBuffer = nullptr) {
+                                 cl_mem buffer2) {
   cl_int status;
   size_t globalThreads[2];
   int gsize;
@@ -1521,23 +1509,15 @@ static cl_int pixSubtractCL_work(l_uint32 wpl, l_uint32 h, cl_mem buffer1,
   gsize = (h + GROUPSIZE_Y - 1) / GROUPSIZE_Y * GROUPSIZE_Y;
   globalThreads[1] = gsize;
 
-  if (outBuffer != nullptr) {
-    rEnv.mpkKernel = clCreateKernel(rEnv.mpkProgram, "pixSubtract", &status);
-    CHECK_OPENCL(status, "clCreateKernel pixSubtract");
-  } else {
-    rEnv.mpkKernel =
-        clCreateKernel(rEnv.mpkProgram, "pixSubtract_inplace", &status);
-    CHECK_OPENCL(status, "clCreateKernel pixSubtract_inplace");
-  }
+  rEnv.mpkKernel =
+      clCreateKernel(rEnv.mpkProgram, "pixSubtract_inplace", &status);
+  CHECK_OPENCL(status, "clCreateKernel pixSubtract_inplace");
 
   // Enqueue a kernel run call.
   status = clSetKernelArg(rEnv.mpkKernel, 0, sizeof(cl_mem), &buffer1);
   status = clSetKernelArg(rEnv.mpkKernel, 1, sizeof(cl_mem), &buffer2);
   status = clSetKernelArg(rEnv.mpkKernel, 2, sizeof(wpl), &wpl);
   status = clSetKernelArg(rEnv.mpkKernel, 3, sizeof(h), &h);
-  if (outBuffer != nullptr) {
-    status = clSetKernelArg(rEnv.mpkKernel, 4, sizeof(cl_mem), &outBuffer);
-  }
   status =
       clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 2, nullptr,
                              globalThreads, localThreads, 0, nullptr, nullptr);
@@ -1635,7 +1615,6 @@ int OpenclDevice::HistogramRectOCL(void* imageData,
                                    int top,   // always 0
                                    int width, int height, int kHistogramSize,
                                    int* histogramAllChannels) {
-  PERF_COUNT_START("HistogramRectOCL")
   cl_int clStatus;
   int retVal = 0;
   KernelEnv histKern;
@@ -1750,7 +1729,6 @@ int OpenclDevice::HistogramRectOCL(void* imageData,
   CHECK_OPENCL(clStatus, "clSetKernelArg histogramBuffer");
 
   /* launch histogram */
-  PERF_COUNT_SUB("before")
   clStatus = clEnqueueNDRangeKernel(histKern.mpkCmdQueue, histKern.mpkKernel, 1,
                                     nullptr, global_work_size, local_work_size,
                                     0, nullptr, nullptr);
@@ -1771,7 +1749,6 @@ int OpenclDevice::HistogramRectOCL(void* imageData,
   if (clStatus != 0) {
     retVal = -1;
   }
-  PERF_COUNT_SUB("redKernel")
 
   /* map results back from gpu */
   ptr = clEnqueueMapBuffer(histRedKern.mpkCmdQueue, histogramBuffer, CL_TRUE,
@@ -1787,8 +1764,6 @@ int OpenclDevice::HistogramRectOCL(void* imageData,
 
   clReleaseMemObject(histogramBuffer);
   clReleaseMemObject(imageBuffer);
-  PERF_COUNT_SUB("after")
-  PERF_COUNT_END
   return retVal;
 }
 
@@ -1802,7 +1777,6 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char* imageData,
                                         int* thresholds, int* hi_values,
                                         Pix** pix, int height, int width,
                                         int top, int left) {
-  PERF_COUNT_START("ThresholdRectToPixOCL")
   int retVal = 0;
   /* create pix result buffer */
   *pix = pixCreate(width, height, 1);
@@ -1882,13 +1856,11 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char* imageData,
   CHECK_OPENCL(clStatus, "clSetKernelArg pixThBuffer");
 
   /* launch kernel & wait */
-  PERF_COUNT_SUB("before")
   clStatus = clEnqueueNDRangeKernel(rEnv.mpkCmdQueue, rEnv.mpkKernel, 1,
                                     nullptr, global_work_size, local_work_size,
                                     0, nullptr, nullptr);
   CHECK_OPENCL(clStatus, "clEnqueueNDRangeKernel kernel_ThresholdRectToPix");
   clFinish(rEnv.mpkCmdQueue);
-  PERF_COUNT_SUB("kernel")
   if (clStatus != 0) {
     tprintf("Setting return value to -1\n");
     retVal = -1;
@@ -1905,8 +1877,6 @@ int OpenclDevice::ThresholdRectToPixOCL(unsigned char* imageData,
   clReleaseMemObject(thresholdsBuffer);
   clReleaseMemObject(hiValuesBuffer);
 
-  PERF_COUNT_SUB("after")
-  PERF_COUNT_END
   return retVal;
 }
 
@@ -2006,7 +1976,7 @@ static void populateTessScoreEvaluationInputData(
     }
   }
 
-  input->pix = pixCreate(input->width, input->height, 1);
+  input->pix = pixCreate(input->width, input->height, 8 * input->numChannels);
 }
 
 struct TessDeviceScore {
@@ -2417,17 +2387,17 @@ static double getLineMasksMorphMicroBench(GPUEnv* env,
 #include <cstdlib>
 
 // encode score object as byte string
-static ds_status serializeScore(ds_device* device, void** serializedScore,
+static ds_status serializeScore(ds_device* device, uint8_t** serializedScore,
                                 unsigned int* serializedScoreSize) {
   *serializedScoreSize = sizeof(TessDeviceScore);
-  *serializedScore = new unsigned char[*serializedScoreSize];
+  *serializedScore = new uint8_t[*serializedScoreSize];
   memcpy(*serializedScore, device->score, *serializedScoreSize);
   return DS_SUCCESS;
 }
 
 // parses byte string and stores in score object
 static ds_status deserializeScore(ds_device* device,
-                                  const unsigned char* serializedScore,
+                                  const uint8_t* serializedScore,
                                   unsigned int serializedScoreSize) {
   // check that serializedScoreSize == sizeof(TessDeviceScore);
   device->score = new TessDeviceScore;
@@ -2507,16 +2477,13 @@ static ds_status evaluateScoreForDevice(ds_device* device, void* inputData) {
 // initial call to select device
 ds_device OpenclDevice::getDeviceSelection() {
   if (!deviceIsSelected) {
-    PERF_COUNT_START("getDeviceSelection")
     // check if opencl is available at runtime
     if (1 == LoadOpencl()) {
       // opencl is available
-      // PERF_COUNT_SUB("LoadOpencl")
       // setup devices
       ds_status status;
       ds_profile* profile;
       status = initDSProfile(&profile, "v0.1");
-      PERF_COUNT_SUB("initDSProfile")
       // try reading scores from file
       const char* fileName = "tesseract_opencl_profile_devices.dat";
       status = readProfileFromFile(profile, deserializeScore, fileName);
@@ -2528,16 +2495,13 @@ ds_device OpenclDevice::getDeviceSelection() {
         // create input data
         TessScoreEvaluationInputData input;
         populateTessScoreEvaluationInputData(&input);
-        // PERF_COUNT_SUB("populateTessScoreEvaluationInputData")
         // perform evaluations
         unsigned int numUpdates;
         status = profileDevices(profile, DS_EVALUATE_ALL,
                                 evaluateScoreForDevice, &input, &numUpdates);
-        PERF_COUNT_SUB("profileDevices")
         // write scores to file
         if (status == DS_SUCCESS) {
           status = writeProfileToFile(profile, serializeScore, fileName);
-          PERF_COUNT_SUB("writeProfileToFile")
           if (status == DS_SUCCESS) {
             tprintf("[DS] Scores written to file (%s).\n", fileName);
           } else {
@@ -2552,7 +2516,6 @@ ds_device OpenclDevice::getDeviceSelection() {
               "file.\n");
         }
       } else {
-        PERF_COUNT_SUB("readProfileFromFile")
         tprintf("[DS] Profile read from file (%s).\n", fileName);
       }
 
@@ -2622,10 +2585,7 @@ ds_device OpenclDevice::getDeviceSelection() {
       selectedDevice.oclDriverVersion = nullptr;
     }
     deviceIsSelected = true;
-    PERF_COUNT_SUB("select from Profile")
-    PERF_COUNT_END
   }
-  // PERF_COUNT_END
   return selectedDevice;
 }
 

@@ -4,11 +4,6 @@
  * File:         pieces.cpp  (Formerly pieces.c)
  * Description:
  * Author:       Mark Seaman, OCR Technology
- * Created:      Fri Oct 16 14:37:00 1987
- * Modified:     Mon May 20 12:12:35 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Reusable Software Component
  *
  * (c) Copyright 1987, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,7 +112,7 @@ void Wordrec::fill_filtered_fragment_list(BLOB_CHOICE_LIST *choices,
         frag->get_total() == num_frag_parts) {
       // Recover the unichar_id of the unichar that this fragment is
       // a part of
-      BLOB_CHOICE *b = new BLOB_CHOICE(*choices_it.data());
+      auto *b = new BLOB_CHOICE(*choices_it.data());
       int original_unichar = unicharset.unichar_to_id(frag->get_unichar());
       b->set_unichar_id(original_unichar);
       filtered_choices_it.add_to_end(b);
@@ -138,7 +133,7 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
                                            int16_t num_frag_parts,
                                            BLOB_CHOICE_LIST *choice_lists,
                                            MATRIX *ratings) {
-  BLOB_CHOICE_IT *choice_lists_it = new BLOB_CHOICE_IT[num_frag_parts];
+  auto *choice_lists_it = new BLOB_CHOICE_IT[num_frag_parts];
 
   for (int i = 0; i < num_frag_parts; i++) {
     choice_lists_it[i].set_to_list(&choice_lists[i]);
@@ -240,7 +235,7 @@ void Wordrec::merge_and_put_fragment_lists(int16_t row, int16_t column,
       float merged_yshift = positive_yshift != 0
           ? (negative_yshift != 0 ? 0 : positive_yshift)
           : negative_yshift;
-      BLOB_CHOICE* choice = new BLOB_CHOICE(merged_unichar_id,
+      auto* choice = new BLOB_CHOICE(merged_unichar_id,
                                             merged_rating,
                                             merged_certainty,
                                             merged_script_id,

@@ -106,7 +106,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
                             &replacement_ambig_part_size,
                             replacement_string, &type)) continue;
     // Construct AmbigSpec and add it to the appropriate AmbigSpec_LIST.
-    AmbigSpec *ambig_spec = new AmbigSpec();
+    auto *ambig_spec = new AmbigSpec();
     if (!InsertIntoTable((type == REPLACE_AMBIG) ? replace_ambigs_
                                                  : dang_ambigs_,
                          test_ambig_part_size, test_unichar_ids,

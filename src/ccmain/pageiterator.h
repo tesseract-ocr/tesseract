@@ -21,8 +21,8 @@
 #ifndef TESSERACT_CCMAIN_PAGEITERATOR_H_
 #define TESSERACT_CCMAIN_PAGEITERATOR_H_
 
-#include "publictypes.h"
 #include "platform.h"
+#include "publictypes.h"
 
 struct BlamerBundle;
 class C_BLOB_IT;
@@ -205,7 +205,7 @@ class TESS_API PageIterator {
    */
   bool BoundingBox(PageIteratorLevel level,
                    int* left, int* top, int* right, int* bottom) const;
-  bool BoundingBox(PageIteratorLevel level, const int padding,
+  bool BoundingBox(PageIteratorLevel level, int padding,
                    int* left, int* top, int* right, int* bottom) const;
   /**
    * Returns the bounding rectangle of the object in a coordinate system of the

@@ -2,7 +2,6 @@
 // File:        recogtraining.cpp
 // Description: Functions for ambiguity and parameter training.
 // Author:      Daria Antonova
-// Created:     Mon Aug 13 11:26:43 PDT 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +20,11 @@
 
 #include "boxread.h"
 #include "control.h"
-#include "host.h"
+#include "host.h"  // for NearlyEqual
 #include "ratngs.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "reject.h"
+#endif
 #include "stopper.h"
 
 namespace tesseract {
@@ -32,19 +33,20 @@ const int16_t kMaxBoxEdgeDiff = 2;
 
 // Sets flags necessary for recognition in the training mode.
 // Opens and returns the pointer to the output file.
-FILE *Tesseract::init_recog_training(const STRING &fname) {
+FILE* Tesseract::init_recog_training(const STRING& fname) {
   if (tessedit_ambigs_training) {
-    tessedit_tess_adaption_mode.set_value(0);    // turn off adaption
-    tessedit_enable_doc_dict.set_value(0);       // turn off document dictionary
+    tessedit_tess_adaption_mode.set_value(0);  // turn off adaption
+    tessedit_enable_doc_dict.set_value(0);     // turn off document dictionary
     // Explore all segmentations.
     getDict().stopper_no_acceptable_choices.set_value(1);
   }
 
   STRING output_fname = fname;
-  const char *lastdot = strrchr(output_fname.string(), '.');
-  if (lastdot != nullptr) output_fname[lastdot - output_fname.string()] = '\0';
+  const char* lastdot = strrchr(output_fname.string(), '.');
+  if (lastdot != nullptr)
+    output_fname[lastdot - output_fname.string()] = '\0';
   output_fname += ".txt";
-  FILE *output_file = fopen(output_fname.string(), "a+");
+  FILE* output_file = fopen(output_fname.string(), "a+");
   if (output_file == nullptr) {
     tprintf("Error: Could not open file %s\n", output_fname.string());
     ASSERT_HOST(output_file);
@@ -53,7 +55,7 @@ FILE *Tesseract::init_recog_training(const STRING &fname) {
 }
 
 // Copies the bounding box from page_res_it->word() to the given TBOX.
-static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
+static bool read_t(PAGE_RES_IT* page_res_it, TBOX* tbox) {
   while (page_res_it->block() != nullptr && page_res_it->word() == nullptr)
     page_res_it->forward();
 
@@ -79,16 +81,17 @@ static bool read_t(PAGE_RES_IT *page_res_it, TBOX *tbox) {
 // match to those specified by the input box file. For each word (ngram in a
 // single bounding box from the input box file) it outputs the ocred result,
 // the correct label, rating and certainty.
-void Tesseract::recog_training_segmented(const STRING &fname,
-                                         PAGE_RES *page_res,
-                                         volatile ETEXT_DESC *monitor,
-                                         FILE *output_file) {
+void Tesseract::recog_training_segmented(const STRING& fname,
+                                         PAGE_RES* page_res,
+                                         volatile ETEXT_DESC* monitor,
+                                         FILE* output_file) {
   STRING box_fname = fname;
-  const char *lastdot = strrchr(box_fname.string(), '.');
-  if (lastdot != nullptr) box_fname[lastdot - box_fname.string()] = '\0';
+  const char* lastdot = strrchr(box_fname.string(), '.');
+  if (lastdot != nullptr)
+    box_fname[lastdot - box_fname.string()] = '\0';
   box_fname += ".box";
   // ReadNextBox() will close box_file
-  FILE *box_file = fopen(box_fname.string(), "r");
+  FILE* box_file = fopen(box_fname.string(), "r");
   if (box_file == nullptr) {
     tprintf("Error: Could not open file %s\n", box_fname.string());
     ASSERT_HOST(box_file);
@@ -107,8 +110,8 @@ void Tesseract::recog_training_segmented(const STRING &fname,
   int examined_words = 0;
   do {
     keep_going = read_t(&page_res_it, &tbox);
-    keep_going &= ReadNextBox(applybox_page, &line_number, box_file, &label,
-                              &bbox);
+    keep_going &=
+        ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
     // Align bottom left points of the TBOXes.
     while (keep_going &&
            !NearlyEqual<int>(tbox.bottom(), bbox.bottom(), kMaxBoxEdgeDiff)) {
@@ -116,8 +119,8 @@ void Tesseract::recog_training_segmented(const STRING &fname,
         page_res_it.forward();
         keep_going = read_t(&page_res_it, &tbox);
       } else {
-        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
-                                 &bbox);
+        keep_going =
+            ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
       }
     }
     while (keep_going &&
@@ -126,16 +129,16 @@ void Tesseract::recog_training_segmented(const STRING &fname,
         page_res_it.forward();
         keep_going = read_t(&page_res_it, &tbox);
       } else {
-        keep_going = ReadNextBox(applybox_page, &line_number, box_file, &label,
-                                 &bbox);
+        keep_going =
+            ReadNextBox(applybox_page, &line_number, box_file, &label, &bbox);
       }
     }
     // OCR the word if top right points of the TBOXes are similar.
     if (keep_going &&
         NearlyEqual<int>(tbox.right(), bbox.right(), kMaxBoxEdgeDiff) &&
         NearlyEqual<int>(tbox.top(), bbox.top(), kMaxBoxEdgeDiff)) {
-        ambigs_classify_and_output(label.string(), &page_res_it, output_file);
-        examined_words++;
+      ambigs_classify_and_output(label.string(), &page_res_it, output_file);
+      examined_words++;
     }
     page_res_it.forward();
   } while (keep_going);
@@ -154,38 +157,37 @@ void Tesseract::recog_training_segmented(const STRING &fname,
     }
   }
   if (examined_words < 0.85 * total_words) {
-    tprintf("TODO(antonova): clean up recog_training_segmented; "
-            " It examined only a small fraction of the ambigs image.\n");
+    tprintf(
+        "TODO(antonova): clean up recog_training_segmented; "
+        " It examined only a small fraction of the ambigs image.\n");
   }
-  tprintf("recog_training_segmented: examined %d / %d words.\n",
-          examined_words, total_words);
+  tprintf("recog_training_segmented: examined %d / %d words.\n", examined_words,
+          total_words);
 }
 
 // Helper prints the given set of blob choices.
 static void PrintPath(int length, const BLOB_CHOICE** blob_choices,
-                      const UNICHARSET& unicharset,
-                      const char *label, FILE *output_file) {
+                      const UNICHARSET& unicharset, const char* label,
+                      FILE* output_file) {
   float rating = 0.0f;
   float certainty = 0.0f;
   for (int i = 0; i < length; ++i) {
     const BLOB_CHOICE* blob_choice = blob_choices[i];
     fprintf(output_file, "%s",
-           unicharset.id_to_unichar(blob_choice->unichar_id()));
+            unicharset.id_to_unichar(blob_choice->unichar_id()));
     rating += blob_choice->rating();
     if (certainty > blob_choice->certainty())
       certainty = blob_choice->certainty();
   }
-  fprintf(output_file, "\t%s\t%.4f\t%.4f\n",
-         label, rating, certainty);
+  fprintf(output_file, "\t%s\t%.4f\t%.4f\n", label, rating, certainty);
 }
 
 // Helper recursively prints all paths through the ratings matrix, starting
 // at column col.
-static void PrintMatrixPaths(int col, int dim,
-                             const MATRIX& ratings,
+static void PrintMatrixPaths(int col, int dim, const MATRIX& ratings,
                              int length, const BLOB_CHOICE** blob_choices,
-                             const UNICHARSET& unicharset,
-                             const char *label, FILE *output_file) {
+                             const UNICHARSET& unicharset, const char* label,
+                             FILE* output_file) {
   for (int row = col; row < dim && row - col < ratings.bandwidth(); ++row) {
     if (ratings.get(col, row) != NOT_CLASSIFIED) {
       BLOB_CHOICE_IT bc_it(ratings.get(col, row));
@@ -206,16 +208,16 @@ static void PrintMatrixPaths(int col, int dim,
 // raw choice as a result of the classification. For words labeled with a
 // single unichar also outputs all alternatives from blob_choices of the
 // best choice.
-void Tesseract::ambigs_classify_and_output(const char *label,
+void Tesseract::ambigs_classify_and_output(const char* label,
                                            PAGE_RES_IT* pr_it,
-                                           FILE *output_file) {
+                                           FILE* output_file) {
   // Classify word.
   fflush(stdout);
   WordData word_data(*pr_it);
   SetupWordPassN(1, &word_data);
   classify_word_and_language(1, pr_it, &word_data);
   WERD_RES* werd_res = word_data.word;
-  WERD_CHOICE *best_choice = werd_res->best_choice;
+  WERD_CHOICE* best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != nullptr);
 
   // Compute the number of unichars in the label.
@@ -227,10 +229,10 @@ void Tesseract::ambigs_classify_and_output(const char *label,
 
   // Dump all paths through the ratings matrix (which is normally small).
   int dim = werd_res->ratings->dimension();
-  const BLOB_CHOICE** blob_choices = new const BLOB_CHOICE*[dim];
-  PrintMatrixPaths(0, dim, *werd_res->ratings, 0, blob_choices,
-                   unicharset, label, output_file);
-  delete [] blob_choices;
+  const auto** blob_choices = new const BLOB_CHOICE*[dim];
+  PrintMatrixPaths(0, dim, *werd_res->ratings, 0, blob_choices, unicharset,
+                   label, output_file);
+  delete[] blob_choices;
 }
 
 }  // namespace tesseract

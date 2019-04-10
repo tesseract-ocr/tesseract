@@ -65,7 +65,7 @@ class TESS_API LTRResultIterator : public PageIterator {
                     int rect_left, int rect_top,
                     int rect_width, int rect_height);
 
-  virtual ~LTRResultIterator();
+  ~LTRResultIterator() override;
 
   // LTRResultIterators may be copied! This makes it possible to iterate over
   // all the objects at a lower level, while maintaining an iterator to
@@ -208,15 +208,36 @@ class ChoiceIterator {
   // internal structure and should NOT be delete[]ed to free after use.
   const char* GetUTF8Text() const;
 
-  // Returns the confidence of the current choice.
-  // The number should be interpreted as a percent probability. (0.0f-100.0f)
+  // Returns the confidence of the current choice depending on the used language
+  // data. If only LSTM traineddata is used the value range is 0.0f - 1.0f. All
+  // choices for one symbol should roughly add up to 1.0f.
+  // If only traineddata of the legacy engine is used, the number should be
+  // interpreted as a percent probability. (0.0f-100.0f) In this case
+  // probabilities won't add up to 100. Each one stands on its own.
   float Confidence() const;
 
+  // Returns a vector containing all timesteps, which belong to the currently
+  // selected symbol. A timestep is a vector containing pairs of symbols and
+  // floating point numbers. The number states the probability for the
+  // corresponding symbol.
+  std::vector<std::vector<std::pair<const char*, float>>>* Timesteps() const;
+
  private:
+   //clears the remaining spaces out of the results and adapt the probabilities
+  void filterSpaces();
   // Pointer to the WERD_RES object owned by the API.
   WERD_RES* word_res_;
   // Iterator over the blob choices.
   BLOB_CHOICE_IT* choice_it_;
+  std::vector<std::pair<const char*, float>>* LSTM_choices_ = nullptr;
+  std::vector<std::pair<const char*, float>>::iterator LSTM_choice_it_;
+
+  const int* tstep_index_;
+  bool LSTM_mode_ = false;
+  //true when there is lstm engine related trained data
+  bool oemLSTM_;
+  // true when there is legacy engine related trained data
+  bool oemLegacy_;
 };
 
 }  // namespace tesseract.

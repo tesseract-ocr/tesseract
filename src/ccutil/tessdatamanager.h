@@ -214,6 +214,11 @@ class TessdataManager {
    */
   bool ExtractToFile(const char *filename);
 
+ private:
+
+  // Use libarchive.
+  bool LoadArchiveFile(const char *filename);
+
   /**
    * Fills type with TessdataType of the tessdata component represented by the
    * given file name. E.g. tessdata/eng.unicharset -> TESSDATA_UNICHARSET.
@@ -230,7 +235,6 @@ class TessdataManager {
   static bool TessdataTypeFromFileName(const char *filename,
                                        TessdataType *type);
 
- private:
   // Name of file it came from.
   STRING data_file_name_;
   // Function to load the file when we need it.

@@ -137,7 +137,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     }
     // Return step at a given index as a DIR128.
     DIR128 step_dir(int index) const {
-      return DIR128((int16_t)(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
+      return DIR128(static_cast<int16_t>(((steps[index/4] >> (index%4 * 2)) & STEP_MASK) <<
                       (DIRBITS - 2)));
     }
     // Return the step vector for the given outline position.
@@ -259,7 +259,7 @@ class DLLSYM C_OUTLINE:public ELIST_LINK {
     C_OUTLINE& operator=(const C_OUTLINE& source);
 
     static C_OUTLINE* deep_copy(const C_OUTLINE* src) {
-      C_OUTLINE* outline = new C_OUTLINE;
+      auto* outline = new C_OUTLINE;
       *outline = *src;
       return outline;
     }

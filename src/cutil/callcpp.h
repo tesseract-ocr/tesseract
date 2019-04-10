@@ -20,7 +20,6 @@
 #ifndef CALLCPP_H
 #define CALLCPP_H
 
-#include "host.h"
 #include "params.h"
 #include "unichar.h"
 

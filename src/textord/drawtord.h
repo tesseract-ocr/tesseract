@@ -26,7 +26,7 @@
 
 #define NO_SMD        "none"
 
-extern BOOL_VAR_H (textord_show_fixed_cuts, FALSE,
+extern BOOL_VAR_H (textord_show_fixed_cuts, false,
 "Draw fixed pitch cell boundaries");
 extern STRING_VAR_H (to_debugfile, DEBUG_WIN_NAME, "Name of debugfile");
 extern STRING_VAR_H (to_smdfile, NO_SMD, "Name of SMD file");

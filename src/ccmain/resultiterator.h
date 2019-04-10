@@ -46,14 +46,14 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * ResultIterator is copy constructible!
    * The default copy constructor works just fine for us.
    */
-  virtual ~ResultIterator() = default;
+  ~ResultIterator() override = default;
 
   // ============= Moving around within the page ============.
   /**
    * Moves the iterator to point to the start of the page to begin
    * an iteration.
    */
-  virtual void Begin();
+  void Begin() override;
 
   /**
    * Moves to the start of the next object at the given level in the
@@ -67,7 +67,7 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * This function iterates words in right-to-left scripts correctly, if
    * the appropriate language has been loaded into Tesseract.
    */
-  virtual bool Next(PageIteratorLevel level);
+  bool Next(PageIteratorLevel level) override;
 
   /**
    * IsAtBeginningOf() returns whether we're at the logical beginning of the
@@ -75,15 +75,15 @@ class TESS_API ResultIterator : public LTRResultIterator {
    * order).  Otherwise, this acts the same as PageIterator::IsAtBeginningOf().
    * For a full description, see pageiterator.h
    */
-  virtual bool IsAtBeginningOf(PageIteratorLevel level) const;
+  bool IsAtBeginningOf(PageIteratorLevel level) const override;
 
   /**
    * Implement PageIterator's IsAtFinalElement correctly in a BiDi context.
    * For instance, IsAtFinalElement(RIL_PARA, RIL_WORD) returns whether we
    * point at the last word in a paragraph.  See PageIterator for full comment.
   */
-  virtual bool IsAtFinalElement(PageIteratorLevel level,
-                                PageIteratorLevel element) const;
+  bool IsAtFinalElement(PageIteratorLevel level,
+                                PageIteratorLevel element) const override;
 
   // ============= Functions that refer to words only ============.
   // Returns the number of blanks before the current word.
@@ -100,7 +100,12 @@ class TESS_API ResultIterator : public LTRResultIterator {
   /**
    * Returns the LSTM choices for every LSTM timestep for the current word.
   */
-  virtual std::vector<std::vector<std::pair<const char*, float>>>* GetBestLSTMSymbolChoices() const;
+  virtual std::vector<std::vector<std::pair<const char*, float>>>*
+  GetRawLSTMTimesteps() const;
+  virtual std::vector<std::vector<std::pair<const char*, float>>>*
+    GetBestLSTMSymbolChoices() const;
+  virtual std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+    GetSegmentedLSTMTimesteps() const;
 
   /**
    * Return whether the current paragraph's dominant reading direction

@@ -4,7 +4,6 @@
  *              spacing possibilities, trying to use context to improve the
  *              word spacing
  * Author:      Phil Cheatle
- * Created:     Thu Oct 21 11:38:43 BST 1993
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +23,6 @@
 #include "blobs.h"             // for TWERD, TBLOB, TESSLINE
 #include "boxword.h"           // for BoxWord
 #include "errcode.h"           // for ASSERT_HOST
-#include "host.h"              // for FALSE, TRUE
 #include "normalis.h"          // for kBlnXHeight, kBlnBaselineOffset
 #include "ocrclass.h"          // for ETEXT_DESC
 #include "pageres.h"           // for WERD_RES_IT, WERD_RES, WERD_RES_LIST
@@ -107,7 +105,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
           word_res = word_res_it_from.forward();
           word_index++;
           if (monitor != nullptr) {
-            monitor->ocr_alive = TRUE;
+            monitor->ocr_alive = true;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
@@ -125,7 +123,7 @@ void Tesseract::fix_fuzzy_spaces(ETEXT_DESC *monitor,
           word_res_it_to.forward();
           word_index++;
           if (monitor != nullptr) {
-            monitor->ocr_alive = TRUE;
+            monitor->ocr_alive = true;
             monitor->progress = 90 + 5 * word_index / word_count;
             if (monitor->deadline_exceeded() ||
                 (monitor->cancel != nullptr &&
@@ -445,7 +443,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               *copy_word = *(prev_word->word);
               // deep copy
               combo = new WERD_RES(copy_word);
-              combo->combination = TRUE;
+              combo->combination = true;
               combo->x_height = prev_word->x_height;
               prev_word->part_of_combo = true;
               prev_word_it.add_before_then_move(combo);
@@ -461,7 +459,7 @@ void transform_to_next_perm(WERD_RES_LIST &words) {
               combo->copy_on(word);
               word->part_of_combo = true;
             }
-            combo->done = FALSE;
+            combo->done = false;
             combo->ClearResults();
           } else {
             prev_word_it = word_it;  // catch up
@@ -511,7 +509,7 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
                   word_res_it.data()->best_choice->unichar_string().string(),
-                  (int)word_res_it.data()->best_choice->permuter());
+                  static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
       tprintf("\"\n");
@@ -522,7 +520,7 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
                   word_res_it.data()->best_choice->unichar_string().string(),
-                  (int)word_res_it.data()->best_choice->permuter());
+                  static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
       tprintf("\"\n");
@@ -687,8 +685,8 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
   delete blob_it.extract();     // throw out noise blob
 
   new_word = new WERD(&new_blob_list, word_res->word);
-  new_word->set_flag(W_EOL, FALSE);
-  word_res->word->set_flag(W_BOL, FALSE);
+  new_word->set_flag(W_EOL, false);
+  word_res->word->set_flag(W_BOL, false);
   word_res->word->set_blanks(1);  // After break
 
   new_rej_cblob_it.set_to_list(new_word->rej_cblob_list());
@@ -700,7 +698,7 @@ void Tesseract::break_noisiest_blob_word(WERD_RES_LIST &words) {
     new_rej_cblob_it.add_after_then_move(rej_cblob_it.extract());
   }
 
-  WERD_RES* new_word_res = new WERD_RES(new_word);
+  auto* new_word_res = new WERD_RES(new_word);
   new_word_res->combination = true;
   worst_word_it.add_before_then_move(new_word_res);
 

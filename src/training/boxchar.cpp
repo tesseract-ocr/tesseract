@@ -5,7 +5,6 @@
  *              is rotated for degradation.  Also includes routines to output
  *              the character-tagged boxes to a boxfile.
  * Author:      Ray Smith
- * Created:     Mon Nov 18 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +53,7 @@ void BoxChar::GetDirection(int* num_rtl, int* num_ltr) const {
   std::vector<char32> uni_vector = UNICHAR::UTF8ToUTF32(ch_.c_str());
   if (uni_vector.empty()) {
     tprintf("Illegal utf8 in boxchar string:%s = ", ch_.c_str());
-    for (int c = 0; c < ch_.size(); ++c) {
+    for (size_t c = 0; c < ch_.size(); ++c) {
       tprintf(" 0x%x", ch_[c]);
     }
     tprintf("\n");
@@ -63,9 +62,10 @@ void BoxChar::GetDirection(int* num_rtl, int* num_ltr) const {
   for (char32 ch : uni_vector) {
     UCharDirection dir = u_charDirection(ch);
     if (dir == U_RIGHT_TO_LEFT || dir == U_RIGHT_TO_LEFT_ARABIC ||
-        dir == U_ARABIC_NUMBER || dir == U_RIGHT_TO_LEFT_ISOLATE) {
+        dir == U_RIGHT_TO_LEFT_ISOLATE) {
       ++*num_rtl;
-    } else if (dir != U_DIR_NON_SPACING_MARK && dir != U_BOUNDARY_NEUTRAL) {
+    } else if ((dir == U_ARABIC_NUMBER) ||
+	          (dir != U_DIR_NON_SPACING_MARK && dir != U_BOUNDARY_NEUTRAL)) {
       ++*num_ltr;
     }
   }
@@ -99,7 +99,7 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar*>* boxes) {
   bool vertical_rules = MostlyVertical(*boxes);
   InsertNewlines(rtl_rules, vertical_rules, boxes);
   InsertSpaces(rtl_rules, vertical_rules, boxes);
-  for (unsigned int i = 0; i < boxes->size(); ++i) {
+  for (size_t i = 0; i < boxes->size(); ++i) {
     if ((*boxes)[i]->box_ == nullptr) tprintf("Null box at index %u\n", i);
   }
   if (rtl_rules) {
@@ -111,12 +111,12 @@ void BoxChar::PrepareToWrite(std::vector<BoxChar*>* boxes) {
 /* static */
 void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
                              std::vector<BoxChar*>* boxes) {
-  int prev_i = -1;
+  size_t prev_i = SIZE_MAX;
   int max_shift = 0;
   for (size_t i = 0; i < boxes->size(); ++i) {
     Box* box = (*boxes)[i]->box_;
     if (box == nullptr) {
-      if (prev_i < 0 || prev_i + 1 < i || i + 1 == boxes->size()) {
+      if (prev_i == SIZE_MAX || prev_i + 1 < i || i + 1 == boxes->size()) {
         // Erase null boxes at the start of a line and after another null box.
         do {
           delete (*boxes)[i];
@@ -126,7 +126,7 @@ void BoxChar::InsertNewlines(bool rtl_rules, bool vertical_rules,
       }
       continue;
     }
-    if (prev_i >= 0) {
+    if (prev_i != SIZE_MAX) {
       Box* prev_box = (*boxes)[prev_i]->box_;
       int shift = box->x - prev_box->x;
       if (vertical_rules) {
@@ -237,8 +237,8 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
   // For now, let's try a sort that reverses original positions for RTL
   // characters, otherwise by x-position. This should be much closer to
   // correct than just sorting by x-position.
-  int num_boxes = boxes->size();
-  for (int i = 0; i < num_boxes; ++i) {
+  size_t num_boxes = boxes->size();
+  for (size_t i = 0; i < num_boxes; ++i) {
     int num_rtl = 0, num_ltr = 0;
     (*boxes)[i]->GetDirection(&num_rtl, &num_ltr);
     if (num_rtl > num_ltr) {
@@ -259,7 +259,7 @@ void BoxChar::ReorderRTLText(std::vector<BoxChar*>* boxes) {
 /* static */
 bool BoxChar::ContainsMostlyRTL(const std::vector<BoxChar*>& boxes) {
   int num_rtl = 0, num_ltr = 0;
-  for (int i = 0; i < boxes.size(); ++i) {
+  for (size_t i = 0; i < boxes.size(); ++i) {
     boxes[i]->GetDirection(&num_rtl, &num_ltr);
   }
   return num_rtl > num_ltr;

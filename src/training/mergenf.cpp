@@ -15,7 +15,6 @@
  ** limitations under the License.
 ******************************************************************************/
 #include "mergenf.h"
-#include "host.h"
 #include "clusttool.h"
 #include "cluster.h"
 #include "oldlist.h"
@@ -171,7 +170,7 @@ int FindClosestExistingProto(CLASS_TYPE Class, int NumMerged[],
   for (Pid = 0; Pid < Class->NumProtos; Pid++) {
     Proto  = ProtoIn(Class, Pid);
     ComputeMergedProto(Proto, &NewProto,
-      (float) NumMerged[Pid], 1.0, &MergedProto);
+      static_cast<float>(NumMerged[Pid]), 1.0, &MergedProto);
     OldMatch = CompareProtos(Proto, &MergedProto);
     NewMatch = CompareProtos(&NewProto, &MergedProto);
     Match = std::min(OldMatch, NewMatch);

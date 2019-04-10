@@ -2,7 +2,6 @@
  * File:        pithsync.h  (Formerly pitsync2.h)
  * Description: Code to find the optimum fixed pitch segmentation of some blobs.
  * Author:    Ray Smith
- * Created:   Thu Nov 19 11:48:05 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,16 +53,16 @@ class FPCUTPT
 
     void assign_cheap (          //evaluate cut
       FPCUTPT cutpts[],          //predecessors
-      int16_t array_origin,        //start coord
-      int16_t x,                   //position
-      BOOL8 faking,              //faking this one
-      BOOL8 mid_cut,             //doing free cut
-      int16_t offset,              //extra cost dist
+      int16_t array_origin,      //start coord
+      int16_t x,                 //position
+      bool faking,               //faking this one
+      bool mid_cut,              //doing free cut
+      int16_t offset,            //extra cost dist
       STATS * projection,        //occupation
       float projection_scale,    //scaling
-      int16_t zero_count,          //official zero
-      int16_t pitch,               //proposed pitch
-      int16_t pitch_error);        //allowed tolerance
+      int16_t zero_count,        //official zero
+      int16_t pitch,             //proposed pitch
+      int16_t pitch_error);      //allowed tolerance
 
     int32_t position() {  // access func
       return xpos;

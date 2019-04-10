@@ -2,7 +2,6 @@
  * File:        blobbox.cpp  (Formerly blobnbox.c)
  * Description: Code for the textord blob class.
  * Author:      Ray Smith
- * Created:     Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +29,7 @@
 #include "coutln.h"      // for C_OUTLINE_IT, C_OUTLINE, C_OUTLINE_LIST
 #include "environ.h"     // for l_uint32
 #include "helpers.h"     // for UpdateRange, IntCastRounded
-#include "host.h"        // for NearlyEqual, TRUE
+#include "host.h"        // for NearlyEqual
 #include "points.h"      // for operator+=, ICOORD::rotate
 
 struct Pix;
@@ -71,7 +70,7 @@ void BLOBNBOX::reflect_box_in_y_axis() {
 // correction can be applied.
 void BLOBNBOX::rotate_box(FCOORD rotation) {
   if (IsDiacritic()) {
-    ASSERT_HOST(rotation.x() >= kCosSmallAngle)
+    ASSERT_HOST(rotation.x() >= kCosSmallAngle);
     ICOORD top_pt((box.left() + box.right()) / 2, base_char_top_);
     ICOORD bottom_pt(top_pt.x(), base_char_bottom_);
     top_pt.rotate(rotation);
@@ -95,7 +94,7 @@ void BLOBNBOX::merge(                    //merge blobs
                     ) {
   box += nextblob->box;          //merge boxes
   set_diacritic_box(box);
-  nextblob->joined = TRUE;
+  nextblob->joined = true;
 }
 
 
@@ -137,14 +136,14 @@ void BLOBNBOX::chop(                        //chop blobs
   BLOBNBOX_IT blob_it;           //blob iterator
 
                                  //get no of chops
-  blobcount = (int16_t) floor (box.width () / xheight);
+  blobcount = static_cast<int16_t>(floor (box.width () / xheight));
   if (blobcount > 1 && cblob_ptr != nullptr) {
                                  //width of each
-    blobwidth = (float) (box.width () + 1) / blobcount;
+    blobwidth = static_cast<float>(box.width () + 1) / blobcount;
     for (blobindex = blobcount - 1, rightx = box.right ();
     blobindex >= 0; blobindex--, rightx -= blobwidth) {
-      ymin = (float) INT32_MAX;
-      ymax = (float) -INT32_MAX;
+      ymin = static_cast<float>(INT32_MAX);
+      ymax = static_cast<float>(-INT32_MAX);
       blob_it = *start_it;
       do {
         blob = blob_it.data ();
@@ -156,11 +155,11 @@ void BLOBNBOX::chop(                        //chop blobs
       }
       while (blob != end_it->data ());
       if (ymin < ymax) {
-        leftx = (int16_t) floor (rightx - blobwidth);
+        leftx = static_cast<int16_t>(floor (rightx - blobwidth));
         if (leftx < box.left ())
           leftx = box.left ();   //clip to real box
-        bl = ICOORD (leftx, (int16_t) floor (ymin));
-        tr = ICOORD ((int16_t) ceil (rightx), (int16_t) ceil (ymax));
+        bl = ICOORD (leftx, static_cast<int16_t>(floor (ymin)));
+        tr = ICOORD (static_cast<int16_t>(ceil (rightx)), static_cast<int16_t>(ceil (ymax)));
         if (blobindex == 0)
           box = TBOX (bl, tr);    //change box
         else {
@@ -227,7 +226,7 @@ void BLOBNBOX::CleanNeighbours() {
 int BLOBNBOX::GoodTextBlob() const {
   int score = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     if (good_stroke_neighbour(bnd))
       ++score;
   }
@@ -238,7 +237,7 @@ int BLOBNBOX::GoodTextBlob() const {
 int BLOBNBOX::NoisyNeighbours() const {
   int count = 0;
   for (int dir = 0; dir < BND_COUNT; ++dir) {
-    BlobNeighbourDir bnd = static_cast<BlobNeighbourDir>(dir);
+    auto bnd = static_cast<BlobNeighbourDir>(dir);
     BLOBNBOX* blob = neighbour(bnd);
     if (blob != nullptr && blob->region_type() == BRT_NOISE)
       ++count;
@@ -511,8 +510,8 @@ void find_cblob_limits(                  //get y limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) INT32_MAX;
-  ymax = (float) -INT32_MAX;
+  ymin = static_cast<float>(INT32_MAX);
+  ymax = static_cast<float>(-INT32_MAX);
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -550,8 +549,8 @@ void find_cblob_vlimits(               //get y limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  ymin = (float) INT32_MAX;
-  ymax = (float) -INT32_MAX;
+  ymin = static_cast<float>(INT32_MAX);
+  ymax = static_cast<float>(-INT32_MAX);
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords
@@ -587,8 +586,8 @@ void find_cblob_hlimits(                //get x limits
                                  //outlines
   C_OUTLINE_IT out_it = blob->out_list ();
 
-  xmin = (float) INT32_MAX;
-  xmax = (float) -INT32_MAX;
+  xmin = static_cast<float>(INT32_MAX);
+  xmax = static_cast<float>(-INT32_MAX);
   for (out_it.mark_cycle_pt (); !out_it.cycled_list (); out_it.forward ()) {
     outline = out_it.data ();
     pos = outline->start_pos (); //get coords

@@ -24,11 +24,9 @@
 using tesseract::TFile;
 
 //---------------Global Data Definitions and Declarations--------------------
-#define TOKENSIZE 80         //< max size of tokens read from an input file
+#define TOKENSIZE 80         ///< max size of tokens read from an input file
 #define QUOTED_TOKENSIZE "79"
-#define MAXSAMPLESIZE 65535  //< max num of dimensions in feature space
-//#define MAXBLOCKSIZE  65535   //< max num of samples in a character (block
-// size)
+#define MAXSAMPLESIZE 65535  ///< max num of dimensions in feature space
 
 /**
  * This routine reads a single integer from the specified
@@ -62,7 +60,7 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
   char linear_token[TOKENSIZE], essential_token[TOKENSIZE];
 
-  ParamDesc = (PARAM_DESC *) Emalloc (N * sizeof (PARAM_DESC));
+  ParamDesc = static_cast<PARAM_DESC *>(Emalloc (N * sizeof (PARAM_DESC)));
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
@@ -71,15 +69,8 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
                 "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
                 linear_token, essential_token, &ParamDesc[i].Min,
                 &ParamDesc[i].Max) == 4);
-    if (linear_token[0] == 'c')
-      ParamDesc[i].Circular = TRUE;
-    else
-      ParamDesc[i].Circular = FALSE;
-
-    if (linear_token[0] == 'e')
-      ParamDesc[i].NonEssential = FALSE;
-    else
-      ParamDesc[i].NonEssential = TRUE;
+    ParamDesc[i].Circular = (linear_token[0] == 'c');
+    ParamDesc[i].NonEssential = (linear_token[0] != 'e');
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
     ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
@@ -110,12 +101,9 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
     tprintf("Invalid prototype: %s\n", line);
     return nullptr;
   }
-  Proto = (PROTOTYPE *)Emalloc(sizeof(PROTOTYPE));
+  Proto = static_cast<PROTOTYPE *>(Emalloc(sizeof(PROTOTYPE)));
   Proto->Cluster = nullptr;
-  if (sig_token[0] == 's')
-    Proto->Significant = TRUE;
-  else
-    Proto->Significant = FALSE;
+  Proto->Significant = (sig_token[0] == 's');
 
   switch (shape_token[0]) {
     case 's':
@@ -143,16 +131,16 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
       ASSERT_HOST(ReadNFloats(fp, 1, &(Proto->Variance.Spherical)) != nullptr);
       Proto->Magnitude.Spherical =
           1.0 / sqrt(2.0 * M_PI * Proto->Variance.Spherical);
-      Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, (float)N);
-      Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
+      Proto->TotalMagnitude = pow(Proto->Magnitude.Spherical, static_cast<float>(N));
+      Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
       Proto->Weight.Spherical = 1.0 / Proto->Variance.Spherical;
       Proto->Distrib = nullptr;
       break;
     case elliptical:
       Proto->Variance.Elliptical = ReadNFloats(fp, N, nullptr);
       ASSERT_HOST(Proto->Variance.Elliptical != nullptr);
-      Proto->Magnitude.Elliptical = (float *)Emalloc(N * sizeof(float));
-      Proto->Weight.Elliptical = (float *)Emalloc(N * sizeof(float));
+      Proto->Magnitude.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
+      Proto->Weight.Elliptical = static_cast<float *>(Emalloc(N * sizeof(float)));
       Proto->TotalMagnitude = 1.0;
       for (i = 0; i < N; i++) {
         Proto->Magnitude.Elliptical[i] =
@@ -160,7 +148,7 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
         Proto->Weight.Elliptical[i] = 1.0 / Proto->Variance.Elliptical[i];
         Proto->TotalMagnitude *= Proto->Magnitude.Elliptical[i];
       }
-      Proto->LogMagnitude = log((double)Proto->TotalMagnitude);
+      Proto->LogMagnitude = log(static_cast<double>(Proto->TotalMagnitude));
       Proto->Distrib = nullptr;
       break;
     default:
@@ -254,7 +242,7 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
     fprintf (File, "significant   ");
   else
     fprintf (File, "insignificant ");
-  WriteProtoStyle (File, (PROTOSTYLE) Proto->Style);
+  WriteProtoStyle (File, static_cast<PROTOSTYLE>(Proto->Style));
   fprintf (File, "%6d\n\t", Proto->NumSamples);
   WriteNFloats (File, N, Proto->Mean);
   fprintf (File, "\t");
@@ -336,8 +324,8 @@ void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
  * @param N number of dimensions in feature space
  * @param ParamDesc descriptions for each dimension
  * @param ProtoList list of prototypes to be written
- * @param WriteSigProtos TRUE to write out significant prototypes
- * @param WriteInsigProtos TRUE to write out insignificants
+ * @param WriteSigProtos true to write out significant prototypes
+ * @param WriteInsigProtos true to write out insignificants
  * @note Globals: None
  * @return None
  */
@@ -354,7 +342,7 @@ void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
   /* write prototypes */
   iterate(ProtoList)
     {
-      Proto = (PROTOTYPE *) first_node (ProtoList);
+      Proto = reinterpret_cast<PROTOTYPE *>first_node (ProtoList);
       if ((Proto->Significant && WriteSigProtos) ||
           (!Proto->Significant && WriteInsigProtos))
         WritePrototype(File, N, Proto);

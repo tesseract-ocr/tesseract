@@ -34,13 +34,13 @@
 //  - number of children exceeds edges_max_children_per_outline
 //  - number of nested layers exceeds edges_max_children_layers
 //  - joint complexity exceeds edges_children_count_limit(as in child_count())
-EXTERN BOOL_VAR(edges_use_new_outline_complexity, FALSE,
+EXTERN BOOL_VAR(edges_use_new_outline_complexity, false,
                 "Use the new outline complexity module");
 EXTERN INT_VAR(edges_max_children_per_outline, 10,
                "Max number of children inside a character outline");
 EXTERN INT_VAR(edges_max_children_layers, 5,
                "Max layers of nested children inside a character outline");
-EXTERN BOOL_VAR(edges_debug, FALSE,
+EXTERN BOOL_VAR(edges_debug, false,
                 "turn on debugging for this module");
 
 
@@ -48,7 +48,7 @@ EXTERN INT_VAR(edges_children_per_grandchild, 10,
                "Importance ratio for chucking outlines");
 EXTERN INT_VAR(edges_children_count_limit, 45,
                "Max holes allowed in blob");
-EXTERN BOOL_VAR(edges_children_fix, FALSE,
+EXTERN BOOL_VAR(edges_children_fix, false,
                 "Remove boxy parents of char-like children");
 EXTERN INT_VAR(edges_min_nonhole, 12,
                "Min pixels for potential char in box");
@@ -434,7 +434,7 @@ void empty_buckets(                     // find blobs
  *
  * Find all neighbouring outlines that are children of this outline
  * and either move them to the output list or declare this outline
- * illegal and return FALSE.
+ * illegal and return false.
  */
 
 bool capture_children(                       // find children

@@ -2,7 +2,6 @@
  * File:        clst.cpp  (Formerly clist.c)
  * Description: CONS cell list handling code which is not in the include file.
  * Author:      Phil Cheatle
- * Created:     Mon Jan 28 08:33:13 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,7 +138,7 @@ const void *, const void *)) {
 
   /* Allocate an array of pointers, one per list element */
   count = length ();
-  base = (void **) malloc (count * sizeof (void *));
+  base = static_cast<void **>(malloc (count * sizeof (void *)));
 
   /* Extract all elements, putting the pointers in the array */
   current = base;
@@ -171,7 +170,7 @@ bool CLIST::add_sorted(int comparator(const void*, const void*),
                        bool unique, void* new_data) {
   // Check for adding at the end.
   if (last == nullptr || comparator(&last->data, &new_data) < 0) {
-    CLIST_LINK* new_element = new CLIST_LINK;
+    auto* new_element = new CLIST_LINK;
     new_element->data = new_data;
     if (last == nullptr) {
       new_element->next = new_element;
@@ -253,7 +252,7 @@ void *CLIST_ITERATOR::forward() {
   if (current) {                 //not removed so
                                  //set previous
     prev = current;
-    started_cycling = TRUE;
+    started_cycling = true;
     // In case next is deleted by another iterator, get next from current.
     current = current->next;
   } else {

@@ -1,4 +1,19 @@
-#include "tesseract/ccutil/unicharset.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <string>
+#include "log.h"                        // for LOG
+#include "unicharset.h"
+#include "gmock/gmock.h"  // for testing::ElementsAreArray
+#include "include_gunit.h"
 
 using testing::ElementsAreArray;
 
@@ -32,7 +47,7 @@ TEST(UnicharsetTest, Basics) {
   std::vector<int> v(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 4, 5, 7, 6}));
   // With the fi ligature encoding fails without a pre-cleanup.
-  string lig_str = "af\ufb01ne";
+  std::string lig_str = "af\ufb01ne";
   EXPECT_FALSE(
       u.encode_string(lig_str.c_str(), true, &labels, nullptr, nullptr));
   lig_str = u.CleanupString(lig_str.c_str());
@@ -79,13 +94,13 @@ TEST(UnicharsetTest, Multibyte) {
   // With the fi ligature the fi is picked out.
   GenericVector<char> lengths;
   int encoded_length;
-  string src_str = "\u0627\u062c\ufb01\u0635\u062b";
+  std::string src_str = "\u0627\u062c\ufb01\u0635\u062b";
   // src_str has to be pre-cleaned for lengths to be correct.
-  string cleaned = u.CleanupString(src_str.c_str());
+  std::string cleaned = u.CleanupString(src_str.c_str());
   EXPECT_TRUE(u.encode_string(cleaned.c_str(), true, &labels, &lengths,
                               &encoded_length));
   EXPECT_EQ(encoded_length, cleaned.size());
-  string len_str(&lengths[0], lengths.size());
+  std::string len_str(&lengths[0], lengths.size());
   EXPECT_STREQ(len_str.c_str(), "\002\002\002\002\002");
   v = std::vector<int>(&labels[0], &labels[0] + labels.size());
   EXPECT_THAT(v, ElementsAreArray({3, 4, 6, 8, 7}));
@@ -128,8 +143,8 @@ TEST(UnicharsetTest, MultibyteBigrams) {
 TEST(UnicharsetTest, OldStyle) {
   // This test verifies an old unicharset that contains fi/fl ligatures loads
   // and keeps all the entries.
-  string filename =
-      file::JoinPath(FLAGS_test_srcdir, "testdata", "eng.unicharset");
+  std::string filename =
+      file::JoinPath(TESTDATA_DIR, "eng.unicharset");
   UNICHARSET u;
   LOG(INFO) << "Filename=" << filename;
   EXPECT_TRUE(u.load_from_file(filename.c_str()));

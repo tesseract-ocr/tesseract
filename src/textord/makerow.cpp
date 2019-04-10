@@ -2,7 +2,6 @@
  * File:        makerow.cpp  (Formerly makerows.c)
  * Description: Code to arrange blobs into rows of text.
  * Author:      Ray Smith
- * Created:     Mon Sep 21 14:34:48 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,22 +39,22 @@
 
 #include <algorithm>
 
-BOOL_VAR(textord_heavy_nr, FALSE, "Vigorously remove noise");
-BOOL_VAR(textord_show_initial_rows, FALSE, "Display row accumulation");
-BOOL_VAR(textord_show_parallel_rows, FALSE, "Display page correlated rows");
-BOOL_VAR(textord_show_expanded_rows, FALSE, "Display rows after expanding");
-BOOL_VAR(textord_show_final_rows, FALSE, "Display rows after final fitting");
-BOOL_VAR(textord_show_final_blobs, FALSE, "Display blob bounds after pre-ass");
-BOOL_VAR(textord_test_landscape, FALSE, "Tests refer to land/port");
-BOOL_VAR(textord_parallel_baselines, TRUE, "Force parallel baselines");
-BOOL_VAR(textord_straight_baselines, FALSE, "Force straight baselines");
-BOOL_VAR(textord_old_baselines, TRUE, "Use old baseline algorithm");
-BOOL_VAR(textord_old_xheight, FALSE, "Use old xheight algorithm");
-BOOL_VAR(textord_fix_xheight_bug, TRUE, "Use spline baseline");
-BOOL_VAR(textord_fix_makerow_bug, TRUE, "Prevent multiple baselines");
-BOOL_VAR(textord_debug_xheights, FALSE, "Test xheight algorithms");
-BOOL_VAR(textord_biased_skewcalc, TRUE, "Bias skew estimates with line length");
-BOOL_VAR(textord_interpolating_skew, TRUE, "Interpolate across gaps");
+BOOL_VAR(textord_heavy_nr, false, "Vigorously remove noise");
+BOOL_VAR(textord_show_initial_rows, false, "Display row accumulation");
+BOOL_VAR(textord_show_parallel_rows, false, "Display page correlated rows");
+BOOL_VAR(textord_show_expanded_rows, false, "Display rows after expanding");
+BOOL_VAR(textord_show_final_rows, false, "Display rows after final fitting");
+BOOL_VAR(textord_show_final_blobs, false, "Display blob bounds after pre-ass");
+BOOL_VAR(textord_test_landscape, false, "Tests refer to land/port");
+BOOL_VAR(textord_parallel_baselines, true, "Force parallel baselines");
+BOOL_VAR(textord_straight_baselines, false, "Force straight baselines");
+BOOL_VAR(textord_old_baselines, true, "Use old baseline algorithm");
+BOOL_VAR(textord_old_xheight, false, "Use old xheight algorithm");
+BOOL_VAR(textord_fix_xheight_bug, true, "Use spline baseline");
+BOOL_VAR(textord_fix_makerow_bug, true, "Prevent multiple baselines");
+BOOL_VAR(textord_debug_xheights, false, "Test xheight algorithms");
+BOOL_VAR(textord_biased_skewcalc, true, "Bias skew estimates with line length");
+BOOL_VAR(textord_interpolating_skew, true, "Interpolate across gaps");
 INT_VAR(textord_skewsmooth_offset, 4, "For smooth factor");
 INT_VAR(textord_skewsmooth_offset2, 1, "For smooth factor");
 INT_VAR(textord_test_x, -INT32_MAX, "coord of test pt");
@@ -98,8 +97,8 @@ double_VAR(textord_descx_ratio_min, 0.25, "Min desc/xheight");
 double_VAR(textord_descx_ratio_max, 0.6, "Max desc/xheight");
 double_VAR(textord_xheight_error_margin, 0.1, "Accepted variation");
 INT_VAR(textord_lms_line_trials, 12, "Number of linew fits to do");
-BOOL_VAR(textord_new_initial_xheight, TRUE, "Use test xheight mechanism");
-BOOL_VAR(textord_debug_blob, FALSE, "Print test blob information");
+BOOL_VAR(textord_new_initial_xheight, true, "Use test xheight mechanism");
+BOOL_VAR(textord_debug_blob, false, "Print test blob information");
 
 #define MAX_HEIGHT_MODES  12
 
@@ -147,7 +146,7 @@ static float MakeRowFromSubBlobs(TO_BLOCK* block, C_BLOB* blob,
     blob = new C_BLOB(C_OUTLINE::deep_copy(ol_it.data()));
     // Correct direction as needed.
     blob->CheckInverseFlagAndDirection();
-    BLOBNBOX* bbox = new BLOBNBOX(blob);
+    auto* bbox = new BLOBNBOX(blob);
     bb_it.add_after_then_move(bbox);
   }
   // Now we can make a row from the blobs.
@@ -179,7 +178,7 @@ float make_single_row(ICOORD page_tr, bool allow_sub_blobs,
     // Make a fake blob.
     C_BLOB* blob = C_BLOB::FakeBlob(block->block->pdblk.bounding_box());
     // The blobnbox owns the blob.
-    BLOBNBOX* bblob = new BLOBNBOX(blob);
+    auto* bblob = new BLOBNBOX(blob);
     blob_it.add_after_then_move(bblob);
   }
   MakeRowFromBlobs(block->line_size, &blob_it, &row_it);
@@ -241,7 +240,7 @@ void make_initial_textrows(                  //find lines
   }
 #endif
                                  //guess skew
-  assign_blobs_to_rows (block, nullptr, 0, TRUE, TRUE, textord_show_initial_rows && testing_on);
+  assign_blobs_to_rows (block, nullptr, 0, true, true, textord_show_initial_rows && testing_on);
   row_it.move_to_first ();
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     fit_lms_line (row_it.data ());
@@ -250,7 +249,7 @@ void make_initial_textrows(                  //find lines
     colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_to_row (row_it.data (), colour, rotation);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -329,7 +328,7 @@ void compute_page_skew(                        //get average gradient
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row = row_it.data ();
       blob_count = row->blob_list ()->length ();
-      row_err = (int32_t) ceil (row->line_error ());
+      row_err = static_cast<int32_t>(ceil (row->line_error ()));
       if (row_err <= 0)
         row_err = 1;
       if (textord_biased_skewcalc) {
@@ -366,10 +365,10 @@ void compute_page_skew(                        //get average gradient
     }
   }
   row_count = row_index;
-  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
+  row_index = choose_nth_item (static_cast<int32_t>(row_count * textord_skew_ile),
     &gradients[0], row_count);
   page_m = gradients[row_index];
-  row_index = choose_nth_item ((int32_t) (row_count * textord_skew_ile),
+  row_index = choose_nth_item (static_cast<int32_t>(row_count * textord_skew_ile),
     &errors[0], row_count);
   page_err = errors[row_index];
 }
@@ -550,17 +549,17 @@ void cleanup_rows_making(                   //find lines
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ())
     blob_it.add_list_after (row_it.data ()->blob_list ());
   //give blobs back
-  assign_blobs_to_rows (block, &gradient, 1, FALSE, FALSE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 1, false, false, false);
   //now new rows must be genuine
   blob_it.set_to_list (&block->blobs);
   blob_it.add_list_after (&block->large_blobs);
-  assign_blobs_to_rows (block, &gradient, 2, TRUE, TRUE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 2, true, true, false);
   //safe to use big ones now
   blob_it.set_to_list (&block->blobs);
                                  //throw all blobs in
   blob_it.add_list_after (&block->noise_blobs);
   blob_it.add_list_after (&block->small_blobs);
-  assign_blobs_to_rows (block, &gradient, 3, FALSE, FALSE, FALSE);
+  assign_blobs_to_rows (block, &gradient, 3, false, false, false);
 }
 
 /**
@@ -595,7 +594,7 @@ void delete_non_dropout_rows(                   //find lines
   min_y = block_box.bottom () - 1;
   max_y = block_box.top () + 1;
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
-    line_index = (int32_t) floor (row_it.data ()->intercept ());
+    line_index = static_cast<int32_t>(floor (row_it.data ()->intercept ()));
     if (line_index <= min_y)
       min_y = line_index - 1;
     if (line_index >= max_y)
@@ -610,13 +609,12 @@ void delete_non_dropout_rows(                   //find lines
   std::vector<int32_t> occupation(line_count);
 
   compute_line_occupation(block, gradient, min_y, max_y, &occupation[0], &deltas[0]);
-  compute_occupation_threshold ((int32_t)
-    ceil (block->line_spacing *
+  compute_occupation_threshold (static_cast<int32_t>(ceil (block->line_spacing *
     (tesseract::CCStruct::kDescenderFraction +
-    tesseract::CCStruct::kAscenderFraction)),
-    (int32_t) ceil (block->line_spacing *
+    tesseract::CCStruct::kAscenderFraction))),
+    static_cast<int32_t>(ceil (block->line_spacing *
     (tesseract::CCStruct::kXHeightFraction +
-    tesseract::CCStruct::kAscenderFraction)),
+    tesseract::CCStruct::kAscenderFraction))),
     max_y - min_y + 1, &occupation[0], &deltas[0]);
 #ifndef GRAPHICS_DISABLED
   if (testing_on) {
@@ -626,7 +624,7 @@ void delete_non_dropout_rows(                   //find lines
   compute_dropout_distances(&occupation[0], &deltas[0], line_count);
   for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
     row = row_it.data ();
-    line_index = (int32_t) floor (row->intercept ());
+    line_index = static_cast<int32_t>(floor (row->intercept ()));
     distance = deltas[line_index - min_y];
     if (find_best_dropout_row (row, distance, block->line_spacing / 2,
     line_index, &row_it, testing_on)) {
@@ -649,7 +647,7 @@ void delete_non_dropout_rows(                   //find lines
  * @name find_best_dropout_row
  *
  * Delete this row if it has a neighbour with better dropout characteristics.
- * TRUE is returned if the row should be deleted.
+ * true is returned if the row should be deleted.
  */
 bool find_best_dropout_row(                    //find neighbours
         TO_ROW* row,        //row to test
@@ -687,7 +685,7 @@ bool find_best_dropout_row(                    //find neighbours
     row_offset = row_inc;
     do {
       next_row = row_it->data_relative (row_offset);
-      next_index = (int32_t) floor (next_row->intercept ());
+      next_index = static_cast<int32_t>(floor (next_row->intercept ()));
       if ((distance < 0
         && next_index < line_index
         && next_index > line_index + distance + distance)
@@ -837,7 +835,7 @@ void compute_occupation_threshold(                    //project blobs
   int32_t test_index;              //for finding min
 
   divisor =
-    (int32_t) ceil ((low_window + high_window) / textord_occupancy_threshold);
+    static_cast<int32_t>(ceil ((low_window + high_window) / textord_occupancy_threshold));
   if (low_window + high_window < line_count) {
     for (sum = 0, high_index = 0; high_index < low_window; high_index++)
       sum += occupation[high_index];
@@ -1480,7 +1478,7 @@ int compute_xheight_from_modes(
   }
   if (blob_count == 0) return 0;
   int modes[MAX_HEIGHT_MODES];  // biggest piles
-  bool in_best_pile = FALSE;
+  bool in_best_pile = false;
   int prev_size = -INT32_MAX;
   int best_count = 0;
   int mode_count = compute_height_modes(heights, min_height, max_height,
@@ -1496,7 +1494,7 @@ int compute_xheight_from_modes(
 
   for (x = 0; x < mode_count - 1; x++) {
     if (modes[x] != prev_size + 1)
-      in_best_pile = FALSE;    // had empty height
+      in_best_pile = false;    // had empty height
     int modes_x_count = heights->pile_count(modes[x]) -
       floating_heights->pile_count(modes[x]);
     if ((modes_x_count >= blob_count * textord_xheight_mode_fraction) &&
@@ -1578,9 +1576,9 @@ int32_t compute_row_descdrop(TO_ROW *row, float gradient,
   for (int i = i_min; i <= i_max; ++i) {
     num_potential_asc += asc_heights->pile_count(i);
   }
-  int32_t min_height =
+  auto min_height =
     static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_min + 0.5));
-  int32_t max_height =
+  auto max_height =
     static_cast<int32_t>(floor(row->xheight * textord_descx_ratio_max));
   float xcentre;                 // centre of blob
   float height;                  // height of blob
@@ -1916,7 +1914,7 @@ void pre_associate_blobs(                  //make rough chars
             blob_box.right (), blob_box.top ());
         }
       }
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -1955,7 +1953,7 @@ void fit_parallel_rows(                   //find lines
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       plot_parallel_row (row_it.data (), gradient,
         block_edge, colour, rotation);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -2024,7 +2022,7 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
       for (row_it.mark_cycle_pt (); !row_it.cycled_list ();
       row_it.forward ()) {
         row_it.data ()->baseline.plot (to_win, colour);
-        colour = (ScrollView::Color) (colour + 1);
+        colour = static_cast<ScrollView::Color>(colour + 1);
         if (colour > ScrollView::MAGENTA)
           colour = ScrollView::RED;
       }
@@ -2037,7 +2035,7 @@ void Textord::make_spline_rows(TO_BLOCK* block,   // block to do
     colour = ScrollView::RED;
     for (row_it.mark_cycle_pt (); !row_it.cycled_list (); row_it.forward ()) {
       row_it.data ()->baseline.plot (to_win, colour);
-      colour = (ScrollView::Color) (colour + 1);
+      colour = static_cast<ScrollView::Color>(colour + 1);
       if (colour > ScrollView::MAGENTA)
         colour = ScrollView::RED;
     }
@@ -2061,7 +2059,7 @@ void make_baseline_spline(TO_ROW *row,     //row to fit
   int32_t segments;              // no of segments
 
   // spline boundaries
-  int32_t *xstarts = new int32_t[row->blob_list()->length() + 1];
+  auto *xstarts = new int32_t[row->blob_list()->length() + 1];
   if (segment_baseline(row, block, segments, xstarts)
   && !textord_straight_baselines && !textord_parallel_baselines) {
     coeffs = linear_spline_baseline(row, block, segments, xstarts);
@@ -2084,7 +2082,7 @@ void make_baseline_spline(TO_ROW *row,     //row to fit
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
- * Return TRUE if enough blobs were far enough away to need a quadratic.
+ * Return true if enough blobs were far enough away to need a quadratic.
  */
 bool
 segment_baseline(               //split baseline
@@ -2183,7 +2181,7 @@ segment_baseline(               //split baseline
  *
  * Divide the baseline up into segments which require a different
  * quadratic fitted to them.
- * @return TRUE if enough blobs were far enough away to need a quadratic.
+ * @return true if enough blobs were far enough away to need a quadratic.
  */
 double *
 linear_spline_baseline (         //split baseline
@@ -2217,7 +2215,7 @@ int32_t xstarts[]                //coords of segments
     segments = 1;
   blobs_per_segment = blobcount / segments;
   // quadratic coeffs
-  double *coeffs = new double[segments * 3];
+  auto *coeffs = new double[segments * 3];
   if (textord_oldbl_debug)
     tprintf
       ("Linear splining baseline of %d blobs at (%d,%d), into %d segments of %d blobs\n",
@@ -2334,7 +2332,7 @@ void assign_blobs_to_rows(                      //find lines
       && last_x - left_x > block->line_size * 2
     && textord_interpolating_skew) {
       //                      tprintf("Interpolating skew from %g",block_skew);
-      block_skew *= (float) (blob->bounding_box ().left () - left_x)
+      block_skew *= static_cast<float>(blob->bounding_box ().left () - left_x)
         / (last_x - left_x);
       //                      tprintf("to %g\n",block_skew);
     }

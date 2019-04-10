@@ -142,7 +142,7 @@ void TextlineProjection::DisplayProjection() const {
       col_data[x] = result;
     }
   }
-  ScrollView* win = new ScrollView("Projection", 0, 0,
+  auto* win = new ScrollView("Projection", 0, 0,
                                    width, height, width, height);
   win->Image(pixc, 0, 0);
   win->Update();

@@ -25,7 +25,6 @@
 #include "blobs.h"     // for TPOINT, TBLOB, EDGEPT, TESSLINE, divisible_blob
 #include "callcpp.h"   // for Red
 #include "dict.h"      // for Dict
-#include "host.h"      // for FALSE, TRUE
 #include "lm_pain_points.h" // for LMPainPoints
 #include "lm_state.h"  // for BestChoiceBundle
 #include "matrix.h"    // for MATRIX
@@ -90,8 +89,8 @@ static int any_shared_split_points(const GenericVector<SEAM*>& seams, SEAM *seam
 
   length = seams.size();
   for (index = 0; index < length; index++)
-    if (seam->SharesPosition(*seams[index])) return TRUE;
-  return FALSE;
+    if (seam->SharesPosition(*seams[index])) return true;
+  return false;
 }
 
 /**

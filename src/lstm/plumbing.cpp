@@ -143,7 +143,7 @@ void Plumbing::EnumerateLayers(const STRING* prefix,
     if (prefix) layer_name = *prefix;
     layer_name.add_str_int(":", i);
     if (stack_[i]->IsPlumbingType()) {
-      Plumbing* plumbing = static_cast<Plumbing*>(stack_[i]);
+      auto* plumbing = static_cast<Plumbing*>(stack_[i]);
       plumbing->EnumerateLayers(&layer_name, layers);
     } else {
       layers->push_back(layer_name);
@@ -157,7 +157,7 @@ Network* Plumbing::GetLayer(const char* id) const {
   int index = strtol(id, &next_id, 10);
   if (index < 0 || index >= stack_.size()) return nullptr;
   if (stack_[index]->IsPlumbingType()) {
-    Plumbing* plumbing = static_cast<Plumbing*>(stack_[index]);
+    auto* plumbing = static_cast<Plumbing*>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
     return plumbing->GetLayer(next_id + 1);
   }
@@ -170,7 +170,7 @@ float* Plumbing::LayerLearningRatePtr(const char* id) const {
   int index = strtol(id, &next_id, 10);
   if (index < 0 || index >= stack_.size()) return nullptr;
   if (stack_[index]->IsPlumbingType()) {
-    Plumbing* plumbing = static_cast<Plumbing*>(stack_[index]);
+    auto* plumbing = static_cast<Plumbing*>(stack_[index]);
     ASSERT_HOST(*next_id == ':');
     return plumbing->LayerLearningRatePtr(next_id + 1);
   }
@@ -234,7 +234,7 @@ void Plumbing::Update(float learning_rate, float momentum, float adam_beta,
 void Plumbing::CountAlternators(const Network& other, double* same,
                                 double* changed) const {
   ASSERT_HOST(other.type() == type_);
-  const Plumbing* plumbing = static_cast<const Plumbing*>(&other);
+  const auto* plumbing = static_cast<const Plumbing*>(&other);
   ASSERT_HOST(plumbing->stack_.size() == stack_.size());
   for (int i = 0; i < stack_.size(); ++i)
     stack_[i]->CountAlternators(*plumbing->stack_[i], same, changed);

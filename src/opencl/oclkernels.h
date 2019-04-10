@@ -60,22 +60,6 @@ KERNEL(
 )
 
 KERNEL(
-\n__kernel void pixSubtract(__global int *dword, __global int *sword,
-                            const int wpl, const int h, __global int *outword)
-{
-    const unsigned int row = get_global_id(1);
-    const unsigned int col = get_global_id(0);
-    const unsigned int pos = row * wpl + col;
-
-    //Ignore the execss
-    if (row >= h || col >= wpl)
-        return;
-
-    *(outword + pos) = *(dword + pos) & ~(*(sword + pos));
-}\n
-)
-
-KERNEL(
 \n__kernel void morphoDilateHor_5x5(__global int *sword,__global int *dword,
                             const int wpl, const int h)
 {

@@ -2,7 +2,6 @@
  * File:        rejctmap.cpp  (Formerly rejmap.c)
  * Description: REJ and REJMAP class functions.
  * Author:      Phil Cheatle
- * Created:     Thu Jun  9 13:46:38 BST 1994
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +16,6 @@
  *
  **********************************************************************/
 
-#include "host.h"
 #include "rejctmap.h"
 #include "params.h"
 

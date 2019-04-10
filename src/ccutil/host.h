@@ -30,9 +30,6 @@
 #include <cinttypes>  // PRId32, ...
 #include <cstdint>    // int32_t, ...
 
-// definitions of portable data types (numbers and characters)
-using BOOL8 = unsigned char;
-
 #if defined(_WIN32)
 
 /* MinGW defines the standard PRI... macros, but MSVS doesn't. */
@@ -46,15 +43,6 @@ using BOOL8 = unsigned char;
 #endif
 
 #endif /* _WIN32 */
-
-// Defines
-#ifndef TRUE
-#define TRUE            1
-#endif
-
-#ifndef FALSE
-#define FALSE           0
-#endif
 
 // Return true if x is within tolerance of y
 template<class T> bool NearlyEqual(T x, T y, T tolerance) {

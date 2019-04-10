@@ -32,27 +32,29 @@ pkginclude_HEADERS = \
 
 noinst_HEADERS = \
     control.h \
-    docqual.h \
     equationdetect.h \
-    fixspace.h \
     mutableiterator.h \
     output.h \
     paragraphs.h \
     paragraphs_internal.h \
     paramsd.h \
     pgedit.h \
-    reject.h \
-    tessedit.h \
     tesseractclass.h \
     tessvars.h \
     werdit.h
+
+if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += \
+    docqual.h \
+    fixspace.h \
+    reject.h
+endif
 
 noinst_LTLIBRARIES = libtesseract_main.la
 
 libtesseract_main_la_SOURCES = \
   applybox.cpp \
   control.cpp \
-  fixxht.cpp \
   linerec.cpp \
   ltrresultiterator.cpp \
   mutableiterator.cpp \
@@ -78,6 +80,7 @@ libtesseract_main_la_SOURCES += \
   docqual.cpp \
   equationdetect.cpp \
   fixspace.cpp \
+  fixxht.cpp \
   osdetect.cpp \
   par_control.cpp \
   superscript.cpp \

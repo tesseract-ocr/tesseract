@@ -2,7 +2,6 @@
 // File:        boxword.cpp
 // Description: Class to represent the bounding boxes of the output.
 // Author:      Ray Smith
-// Created:     Tue May 25 14:18:14 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@
 
 #include "blobs.h"
 #include "boxword.h"
+#include "host.h"       // for NearlyEqual
 #include "normalis.h"
 #include "ocrblock.h"
 #include "pageres.h"
@@ -54,7 +54,7 @@ void BoxWord::CopyFrom(const BoxWord& src) {
 // Factory to build a BoxWord from a TWERD using the DENORMs on each blob to
 // switch back to original image coordinates.
 BoxWord* BoxWord::CopyFromNormalized(TWERD* tessword) {
-  BoxWord* boxword = new BoxWord();
+  auto* boxword = new BoxWord();
   // Count the blobs.
   boxword->length_ = tessword->NumBlobs();
   // Allocate memory.

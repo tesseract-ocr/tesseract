@@ -16,15 +16,17 @@
  *
  **********************************************************************/
 
+#include <cmath>
+
+#include "wordrec.h"
+
+#ifndef DISABLED_LEGACY_ENGINE
 #include "callcpp.h"
 #include "chop.h"
-#include "globals.h"
-#include "pageres.h"
-#include "wordrec.h"
 #include "featdefs.h"
+#include "pageres.h"
 #include "params_model.h"
-
-#include <cmath>
+#endif
 
 namespace tesseract {
 
@@ -78,7 +80,19 @@ void Wordrec::program_editdown(int32_t elasped_time) {
 }
 
 
+/**
+ * @name dict_word()
+ *
+ * Test the dictionaries, returning NO_PERM (0) if not found, or one
+ * of the PermuterType values if found, according to the dictionary.
+ */
+int Wordrec::dict_word(const WERD_CHOICE &word) {
+  return getDict().valid_word(word);
+}
+
+
 #ifndef DISABLED_LEGACY_ENGINE
+
 /**
  * @name set_pass1
  *
@@ -115,21 +129,8 @@ void Wordrec::cc_recog(WERD_RES *word) {
                          getDict().word_to_debug.string());
   ASSERT_HOST(word->StatesAllValid());
 }
-#endif  // ndef DISABLED_LEGACY_ENGINE
 
 
-/**
- * @name dict_word()
- *
- * Test the dictionaries, returning NO_PERM (0) if not found, or one
- * of the PermuterType values if found, according to the dictionary.
- */
-int Wordrec::dict_word(const WERD_CHOICE &word) {
-  return getDict().valid_word(word);
-}
-
-
-#ifndef DISABLED_LEGACY_ENGINE
 /**
  * @name call_matcher
  *
@@ -142,13 +143,14 @@ BLOB_CHOICE_LIST *Wordrec::call_matcher(TBLOB *tessblob) {
   if (rotated_blob == nullptr) {
     rotated_blob = tessblob;
   }
-  BLOB_CHOICE_LIST *ratings = new BLOB_CHOICE_LIST();  // matcher result
+  auto *ratings = new BLOB_CHOICE_LIST();  // matcher result
   AdaptiveClassifier(rotated_blob, ratings);
   if (rotated_blob != tessblob) {
     delete rotated_blob;
   }
   return ratings;
 }
+
 #endif  // ndef DISABLED_LEGACY_ENGINE
 
 }  // namespace tesseract

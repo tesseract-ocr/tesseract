@@ -19,7 +19,7 @@
 #ifndef TESSERACT_TRAINING_TESSOPT_H_
 #define TESSERACT_TRAINING_TESSOPT_H_
 
-#include          "host.h"
+#include <cstdint>      // for int32_t
 
 extern int tessoptind;
 extern char *tessoptarg;

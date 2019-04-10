@@ -2,7 +2,6 @@
  * File:        points.h  (Formerly coords.h)
  * Description: Coordinate class definitions.
  * Author:      Ray Smith
- * Created:     Fri Mar 15 08:32:45 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,12 +71,12 @@ class ICOORD
 
     ///find sq length
     float sqlength() const {
-      return (float) (xcoord * xcoord + ycoord * ycoord);
+      return xcoord * xcoord + ycoord * ycoord;
     }
 
     ///find length
     float length() const {
-      return (float) sqrt (sqlength ());
+      return std::sqrt(sqlength());
     }
 
     ///sq dist between pts
@@ -91,12 +90,12 @@ class ICOORD
 
     ///Distance between pts
     float pt_to_pt_dist(const ICOORD &pt) const {
-      return (float) sqrt (pt_to_pt_sqdist (pt));
+      return std::sqrt(pt_to_pt_sqdist(pt));
     }
 
     ///find angle
     float angle() const {
-      return (float) atan2 ((double) ycoord, (double) xcoord);
+      return std::atan2(ycoord, xcoord);
     }
 
     ///test equality
@@ -155,8 +154,8 @@ class ICOORD
     bool DeSerialize(bool swap, FILE* fp);
 
   protected:
-    int16_t xcoord;                //< x value
-    int16_t ycoord;                //< y value
+    int16_t xcoord;                ///< x value
+    int16_t ycoord;                ///< y value
 };
 
 class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
@@ -178,7 +177,7 @@ class DLLSYM ICOORDELT:public ELIST_LINK, public ICOORD
     }
 
     static ICOORDELT* deep_copy(const ICOORDELT* src) {
-      ICOORDELT* elt = new ICOORDELT;
+      auto* elt = new ICOORDELT;
       *elt = *src;
       return elt;
     }
@@ -227,7 +226,7 @@ class DLLSYM FCOORD
 
     ///find length
     float length() const {
-      return (float) sqrt (sqlength ());
+      return std::sqrt(sqlength());
     }
 
     ///sq dist between pts
@@ -241,12 +240,12 @@ class DLLSYM FCOORD
 
     ///Distance between pts
     float pt_to_pt_dist(const FCOORD &pt) const {
-      return (float) sqrt (pt_to_pt_sqdist (pt));
+      return std::sqrt(pt_to_pt_sqdist(pt));
     }
 
     ///find angle
     float angle() const {
-      return (float) atan2 (ycoord, xcoord);
+      return std::atan2(ycoord, xcoord);
     }
     // Returns the standard feature direction corresponding to this.
     // See binary_angle_plus_pi below for a description of the direction.
@@ -536,10 +535,10 @@ int16_t scale) {
 
 inline void ICOORD::rotate(  //rotate by vector
                            const FCOORD& vec) {
-  int16_t tmp;
-
-  tmp = (int16_t) floor (xcoord * vec.x () - ycoord * vec.y () + 0.5);
-  ycoord = (int16_t) floor (ycoord * vec.x () + xcoord * vec.y () + 0.5);
+  auto tmp = static_cast<int16_t>(std::floor(xcoord * vec.x() -
+                                                ycoord * vec.y() + 0.5f));
+  ycoord = static_cast<int16_t>(std::floor(ycoord * vec.x() +
+                                           xcoord * vec.y() + 0.5f));
   xcoord = tmp;
 }
 

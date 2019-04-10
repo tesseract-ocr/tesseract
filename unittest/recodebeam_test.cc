@@ -1,12 +1,27 @@
-#include "tesseract/lstm/recodebeam.h"
-#include "tesseract/ccstruct/matrix.h"
-#include "tesseract/ccstruct/pageres.h"
-#include "tesseract/ccstruct/ratngs.h"
-#include "tesseract/ccutil/genericvector.h"
-#include "tesseract/ccutil/helpers.h"
-#include "tesseract/ccutil/unicharcompress.h"
-#include "tesseract/training/normstrngs.h"
-#include "tesseract/training/unicharset_training_utils.h"
+// (C) Copyright 2017, Google Inc.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "recodebeam.h"
+#include "matrix.h"
+#include "pageres.h"
+#include "ratngs.h"
+#include "genericvector.h"
+#include "helpers.h"
+#include "unicharcompress.h"
+#include "normstrngs.h"
+#include "unicharset_training_utils.h"
+
+#include "include_gunit.h"
+#include "log.h"                        // for LOG
+#include "absl/strings/str_format.h"        // for absl::StrFormat
 
 using tesseract::CCUtil;
 using tesseract::Dict;
@@ -58,15 +73,14 @@ class RecodeBeamTest : public ::testing::Test {
   ~RecodeBeamTest() { lstm_dict_.End(); }
 
   // Loads and compresses the given unicharset.
-  void LoadUnicharset(const string& unicharset_name) {
-    string radical_stroke_file = file::JoinPath(FLAGS_test_srcdir,
-                                                "tesseract/training"
-                                                "/langdata/radical-stroke.txt");
-    string unicharset_file =
-        file::JoinPath(FLAGS_test_srcdir, "testdata", unicharset_name);
-    string uni_data;
+  void LoadUnicharset(const std::string& unicharset_name) {
+    std::string radical_stroke_file = file::JoinPath(LANGDATA_DIR,
+                                                "radical-stroke.txt");
+    std::string unicharset_file =
+        file::JoinPath(TESTDATA_DIR, unicharset_name);
+    std::string uni_data;
     CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
-    string radical_data;
+    std::string radical_data;
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data,
                                file::Defaults()));
     CHECK(ccutil_.unicharset.load_from_inmemory_file(uni_data.data(),
@@ -83,17 +97,17 @@ class RecodeBeamTest : public ::testing::Test {
     // Space should encode as itself.
     recoder_.EncodeUnichar(UNICHAR_SPACE, &code);
     EXPECT_EQ(UNICHAR_SPACE, code(0));
-    string output_name = file::JoinPath(FLAGS_test_tmpdir, "testenc.txt");
+    std::string output_name = file::JoinPath(FLAGS_test_tmpdir, "testenc.txt");
     STRING encoding = recoder_.GetEncodingAsString(ccutil_.unicharset);
-    string encoding_str(&encoding[0], encoding.size());
+    std::string encoding_str(&encoding[0], encoding.size());
     CHECK_OK(file::SetContents(output_name, encoding_str, file::Defaults()));
-    LOG(INFO) << "Wrote encoding to:" << output_name;
+    LOG(INFO) << "Wrote encoding to:" << output_name << "\n";
   }
   // Loads the dictionary.
-  void LoadDict(const string& lang) {
-    string traineddata_name = lang + ".traineddata";
-    string traineddata_file =
-        file::JoinPath(FLAGS_test_srcdir, "testdata", traineddata_name);
+  void LoadDict(const std::string& lang) {
+    std::string traineddata_name = lang + ".traineddata";
+    std::string traineddata_file =
+        file::JoinPath(TESTDATA_DIR, traineddata_name);
     lstm_dict_.SetupForLoad(nullptr);
     tesseract::TessdataManager mgr;
     mgr.Init(traineddata_file.c_str());
@@ -105,7 +119,7 @@ class RecodeBeamTest : public ::testing::Test {
   void ExpectCorrect(const GENERIC_2D_ARRAY<float>& output,
                      const GenericVector<int>& transcription) {
     // Get the utf8 string of the transcription.
-    string truth_utf8;
+    std::string truth_utf8;
     for (int i = 0; i < transcription.size(); ++i) {
       truth_utf8 += ccutil_.unicharset.id_to_unichar(transcription[i]);
     }
@@ -113,7 +127,7 @@ class RecodeBeamTest : public ::testing::Test {
     ExpectCorrect(output, truth_utf8, nullptr, &words);
   }
   void ExpectCorrect(const GENERIC_2D_ARRAY<float>& output,
-                     const string& truth_utf8, Dict* dict,
+                     const std::string& truth_utf8, Dict* dict,
                      PointerVector<WERD_RES>* words) {
     RecodeBeamSearch beam_search(recoder_, encoded_null_char_, false, dict);
     beam_search.Decode(output, 3.5, -0.125, -25.0, nullptr);
@@ -122,9 +136,9 @@ class RecodeBeamTest : public ::testing::Test {
     GenericVector<int> labels, xcoords;
     beam_search.ExtractBestPathAsLabels(&labels, &xcoords);
     LOG(INFO) << "Labels size = " << labels.size() << " coords "
-              << xcoords.size();
+              << xcoords.size() << "\n";
     // Now decode using recoder_.
-    string decoded;
+    std::string decoded;
     int end = 1;
     for (int start = 0; start < labels.size(); start = end) {
       RecodedCharID code;
@@ -139,7 +153,7 @@ class RecodeBeamTest : public ::testing::Test {
                 !recoder_.IsValidFirstCode(labels[index])));
       EXPECT_NE(INVALID_UNICHAR_ID, uni_id)
           << "index=" << index << "/" << labels.size();
-      // To the extent of truth_utf8, we expect decoded to match, but if
+		  // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.
       if (uni_id != unichar_null_char_ && decoded.size() < truth_utf8.size())
@@ -154,7 +168,7 @@ class RecodeBeamTest : public ::testing::Test {
     beam_search.ExtractBestPathAsUnicharIds(false, &ccutil_.unicharset,
                                             &unichar_ids, &certainties,
                                             &ratings, &xcoords);
-    string u_decoded;
+    std::string u_decoded;
     float total_rating = 0.0f;
     for (int u = 0; u < unichar_ids.size(); ++u) {
       // To the extent of truth_utf8, we expect decoded to match, but if
@@ -163,9 +177,9 @@ class RecodeBeamTest : public ::testing::Test {
       if (u_decoded.size() < truth_utf8.size()) {
         const char* str = ccutil_.unicharset.id_to_unichar(unichar_ids[u]);
         total_rating += ratings[u];
-        LOG(INFO) << StringPrintf("%d:u_id=%d=%s, c=%g, r=%g, r_sum=%g @%d", u,
+        LOG(INFO) << absl::StrFormat("%d:u_id=%d=%s, c=%g, r=%g, r_sum=%g @%d", u,
                                   unichar_ids[u], str, certainties[u],
-                                  ratings[u], total_rating, xcoords[u]);
+                                  ratings[u], total_rating, xcoords[u]) << "\n";
         if (str[0] == ' ') total_rating = 0.0f;
         u_decoded += str;
       }
@@ -177,20 +191,20 @@ class RecodeBeamTest : public ::testing::Test {
     for (int i = 0; i < 2; ++i) {
       beam_search.ExtractBestPathAsWords(line_box, 1.0f, false,
                                          &ccutil_.unicharset, words);
-      string w_decoded;
+      std::string w_decoded;
       for (int w = 0; w < words->size(); ++w) {
         const WERD_RES* word = (*words)[w];
         if (w_decoded.size() < truth_utf8.size()) {
           if (!w_decoded.empty() && word->word->space()) w_decoded += " ";
           w_decoded += word->best_choice->unichar_string().string();
         }
-        LOG(INFO) << StringPrintf("Word:%d = %s, c=%g, r=%g, perm=%d", w,
+        LOG(INFO) << absl::StrFormat("Word:%d = %s, c=%g, r=%g, perm=%d", w,
                                   word->best_choice->unichar_string().string(),
                                   word->best_choice->certainty(),
                                   word->best_choice->rating(),
-                                  word->best_choice->permuter());
+                                  word->best_choice->permuter()) << "\n";
       }
-      string w_trunc(w_decoded.data(), truth_utf8.size());
+      std::string w_trunc(w_decoded.data(), truth_utf8.size());
       if (truth_utf8 != w_trunc) {
         tesseract::NormalizeUTF8String(
             tesseract::UnicodeNormMode::kNFKD, tesseract::OCRNorm::kNormalize,
@@ -331,7 +345,7 @@ class RecodeBeamTest : public ::testing::Test {
 };
 
 TEST_F(RecodeBeamTest, DoesChinese) {
-  LOG(INFO) << "Testing chi_tra";
+  LOG(INFO) << "Testing chi_tra" << "\n";
   LoadUnicharset("chi_tra.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   GenericVector<int> transcription;
@@ -340,7 +354,7 @@ TEST_F(RecodeBeamTest, DoesChinese) {
   GENERIC_2D_ARRAY<float> outputs =
       GenerateRandomPaddedOutputs(transcription, kPadding);
   ExpectCorrect(outputs, transcription);
-  LOG(INFO) << "Testing chi_sim";
+  LOG(INFO) << "Testing chi_sim" << "\n";
   LoadUnicharset("chi_sim.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   transcription.clear();
@@ -351,7 +365,7 @@ TEST_F(RecodeBeamTest, DoesChinese) {
 }
 
 TEST_F(RecodeBeamTest, DoesJapanese) {
-  LOG(INFO) << "Testing jpn";
+  LOG(INFO) << "Testing jpn" << "\n";
   LoadUnicharset("jpn.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   GenericVector<int> transcription;
@@ -363,7 +377,7 @@ TEST_F(RecodeBeamTest, DoesJapanese) {
 }
 
 TEST_F(RecodeBeamTest, DoesKorean) {
-  LOG(INFO) << "Testing kor";
+  LOG(INFO) << "Testing kor" << "\n";
   LoadUnicharset("kor.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   GenericVector<int> transcription;
@@ -375,7 +389,7 @@ TEST_F(RecodeBeamTest, DoesKorean) {
 }
 
 TEST_F(RecodeBeamTest, DoesKannada) {
-  LOG(INFO) << "Testing kan";
+  LOG(INFO) << "Testing kan" << "\n";
   LoadUnicharset("kan.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   GenericVector<int> transcription;
@@ -387,7 +401,7 @@ TEST_F(RecodeBeamTest, DoesKannada) {
 }
 
 TEST_F(RecodeBeamTest, DoesMarathi) {
-  LOG(INFO) << "Testing mar";
+  LOG(INFO) << "Testing mar" << "\n";
   LoadUnicharset("mar.unicharset");
   // Correctly reproduce the first kNumchars characters from easy output.
   GenericVector<int> transcription;
@@ -398,12 +412,24 @@ TEST_F(RecodeBeamTest, DoesMarathi) {
   ExpectCorrect(outputs, transcription);
 }
 
-TEST_F(RecodeBeamTest, EngDictionary) {
-  LOG(INFO) << "Testing eng dictionary";
+TEST_F(RecodeBeamTest, DoesEnglish) {
+  LOG(INFO) << "Testing eng" << "\n";
+  LoadUnicharset("eng.unicharset");
+  // Correctly reproduce the first kNumchars characters from easy output.
+  GenericVector<int> transcription;
+  for (int i = SPECIAL_UNICHAR_CODES_COUNT; i < kNumChars; ++i)
+    transcription.push_back(i);
+  GENERIC_2D_ARRAY<float> outputs =
+      GenerateRandomPaddedOutputs(transcription, kPadding);
+  ExpectCorrect(outputs, transcription);
+}
+
+TEST_F(RecodeBeamTest, DISABLED_EngDictionary) {
+  LOG(INFO) << "Testing eng dictionary" << "\n";
   LoadUnicharset("eng_beam.unicharset");
   GENERIC_2D_ARRAY<float> outputs = GenerateSyntheticOutputs(
       kGWRTops, kGWRTopScores, kGWR2nds, kGWR2ndScores, nullptr);
-  string default_str;
+  std::string default_str;
   for (int i = 0; kGWRTops[i] != nullptr; ++i) default_str += kGWRTops[i];
   PointerVector<WERD_RES> words;
   ExpectCorrect(outputs, default_str, nullptr, &words);
@@ -412,8 +438,8 @@ TEST_F(RecodeBeamTest, EngDictionary) {
   ExpectCorrect(outputs, "Gets words right.", &lstm_dict_, &words);
 }
 
-TEST_F(RecodeBeamTest, ChiDictionary) {
-  LOG(INFO) << "Testing zh_hans dictionary";
+TEST_F(RecodeBeamTest, DISABLED_ChiDictionary) {
+  LOG(INFO) << "Testing zh_hans dictionary" << "\n";
   LoadUnicharset("zh_hans.unicharset");
   GENERIC_2D_ARRAY<float> outputs = GenerateSyntheticOutputs(
       kZHTops, kZHTopScores, kZH2nds, kZH2ndScores, nullptr);
@@ -444,15 +470,15 @@ TEST_F(RecodeBeamTest, ChiDictionary) {
 
 // Tests that a recoder built with decomposed unicode allows true ctc
 // arbitrary duplicates and inserted nulls inside the multicode sequence.
-TEST_F(RecodeBeamTest, MultiCodeSequences) {
-  LOG(INFO) << "Testing duplicates in multi-code sequences";
+TEST_F(RecodeBeamTest, DISABLED_MultiCodeSequences) {
+  LOG(INFO) << "Testing duplicates in multi-code sequences"  << "\n";
   LoadUnicharset("vie.d.unicharset");
   tesseract::SetupBasicProperties(false, true, &ccutil_.unicharset);
   TRand random;
   GENERIC_2D_ARRAY<float> outputs = GenerateSyntheticOutputs(
       kViTops, kViTopScores, kVi2nds, kVi2ndScores, &random);
   PointerVector<WERD_RES> words;
-  string truth_str;
+  std::string truth_str;
   tesseract::NormalizeUTF8String(
       tesseract::UnicodeNormMode::kNFKC, tesseract::OCRNorm::kNormalize,
       tesseract::GraphemeNorm::kNone, "vậy tội", &truth_str);

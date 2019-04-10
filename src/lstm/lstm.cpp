@@ -261,7 +261,7 @@ void LSTM::Forward(bool debug, const NetworkIO& input,
   ResizeForward(input);
   // Temporary storage of forward computation for each gate.
   NetworkScratch::FloatVec temp_lines[WT_COUNT];
-  for (int i = 0; i < WT_COUNT; ++i) temp_lines[i].Init(ns_, scratch);
+  for (auto & temp_line : temp_lines) temp_line.Init(ns_, scratch);
   // Single timestep buffers for the current/recurrent output and state.
   NetworkScratch::FloatVec curr_state, curr_output;
   curr_state.Init(ns_, scratch);
@@ -455,7 +455,7 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   ZeroVector<double>(na_, curr_sourceerr);
   // Errors in the gates.
   NetworkScratch::FloatVec gate_errors[WT_COUNT];
-  for (int g = 0; g < WT_COUNT; ++g) gate_errors[g].Init(ns_, scratch);
+  for (auto & gate_error : gate_errors) gate_error.Init(ns_, scratch);
   // Rotating buffers of width buf_width allow storage of the recurrent time-
   // steps used only for true 2-D. Stores one full strip of the major direction.
   int buf_width = Is2D() ? input_map_.Size(FD_WIDTH) : 1;
@@ -472,13 +472,13 @@ bool LSTM::Backward(bool debug, const NetworkIO& fwd_deltas,
   }
   // Parallel-generated sourceerr from each of the gates.
   NetworkScratch::FloatVec sourceerr_temps[WT_COUNT];
-  for (int w = 0; w < WT_COUNT; ++w)
-    sourceerr_temps[w].Init(na_, scratch);
+  for (auto & sourceerr_temp : sourceerr_temps)
+    sourceerr_temp.Init(na_, scratch);
   int width = input_width_;
   // Transposed gate errors stored over all timesteps for sum outer.
   NetworkScratch::GradientStore gate_errors_t[WT_COUNT];
-  for (int w = 0; w < WT_COUNT; ++w) {
-    gate_errors_t[w].Init(ns_, width, scratch);
+  for (auto & w : gate_errors_t) {
+    w.Init(ns_, width, scratch);
   }
   // Used only if softmax_ != nullptr.
   NetworkScratch::FloatVec softmax_errors;

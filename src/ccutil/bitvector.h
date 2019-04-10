@@ -1,10 +1,7 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
-// Author: rays@google.com (Ray Smith)
 ///////////////////////////////////////////////////////////////////////
 // File:        bitvector.h
 // Description: Class replacement for BITVECTOR.
 // Author:      Ray Smith
-// Created:     Mon Jan 10 17:44:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,8 +20,8 @@
 #define TESSERACT_CCUTIL_BITVECTOR_H_
 
 #include <cassert>
+#include <cstdint>      // for uint8_t
 #include <cstdio>
-#include "host.h"
 
 namespace tesseract {
 

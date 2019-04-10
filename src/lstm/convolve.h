@@ -4,7 +4,6 @@
 //              and pulls in random data to fill out-of-input inputs.
 //              Output is therefore same size as its input, but deeper.
 // Author:      Ray Smith
-// Created:     Tue Mar 18 16:45:34 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +34,7 @@ class Convolve : public Network {
   // The area of convolution is 2*half_x + 1 by 2*half_y + 1, forcing it to
   // always be odd, so the center is the current pixel.
   Convolve(const STRING& name, int ni, int half_x, int half_y);
-  virtual ~Convolve() = default;
+  ~Convolve() override = default;
 
   STRING spec() const override {
     STRING spec;
@@ -61,6 +60,11 @@ class Convolve : public Network {
                 NetworkScratch* scratch,
                 NetworkIO* back_deltas) override;
 
+ private:
+  void DebugWeights() override {
+    tprintf("Must override Network::DebugWeights for type %d\n", type_);
+  }
+
  protected:
   // Serialized data.
   int32_t half_x_;
@@ -68,6 +72,5 @@ class Convolve : public Network {
 };
 
 }  // namespace tesseract.
-
 
 #endif  // TESSERACT_LSTM_SUBSAMPLE_H_

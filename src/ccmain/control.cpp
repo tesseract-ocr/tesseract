@@ -2,8 +2,6 @@
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 11:09:58 BST 1992
- * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,13 +33,14 @@
 #include "drawfx.h"
 #include "fixspace.h"
 #endif
-#include "globals.h"
 #include "lstmrecognizer.h"
 #include "ocrclass.h"
 #include "output.h"
 #include "pageres.h"             // for WERD_RES, PAGE_RES_IT, PAGE_RES, BLO...
 #include "pgedit.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "reject.h"
+#endif
 #include "sorthelper.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
@@ -198,7 +197,7 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
     for (int s = 0; s <= sub_langs_.size(); ++s) {
       // The sub_langs_.size() entry is for the master language.
       Tesseract* lang_t = s < sub_langs_.size() ? sub_langs_[s] : this;
-      WERD_RES* word_res = new WERD_RES;
+      auto* word_res = new WERD_RES;
       word_res->InitForRetryRecognition(*word->word);
       word->lang_words.push_back(word_res);
       // LSTM doesn't get setup for pass2.
@@ -228,7 +227,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
     WordData* word = &(*words)[w];
     if (w > 0) word->prev_word = &(*words)[w - 1];
     if (monitor != nullptr) {
-      monitor->ocr_alive = TRUE;
+      monitor->ocr_alive = true;
       if (pass_n == 1) {
         monitor->progress = 70 * w / words->size();
         if (monitor->progress_callback2 != nullptr) {
@@ -313,8 +312,8 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   PAGE_RES_IT page_res_it(page_res);
 
   if (tessedit_minimal_rej_pass1) {
-    tessedit_test_adaption.set_value (TRUE);
-    tessedit_minimal_rejection.set_value (TRUE);
+    tessedit_test_adaption.set_value (true);
+    tessedit_minimal_rejection.set_value (true);
   }
 
   if (dopasses==0 || dopasses==1) {
@@ -445,7 +444,7 @@ bool Tesseract::recog_all_words(PAGE_RES* page_res,
   // end jetsoft
   #endif  //ndef DISABLED_LEGACY_ENGINE
 
-  const PageSegMode pageseg_mode = static_cast<PageSegMode>(
+  const auto pageseg_mode = static_cast<PageSegMode>(
       static_cast<int>(tessedit_pageseg_mode));
   textord_.CleanupSingleRowResult(pageseg_mode, page_res);
 
@@ -628,7 +627,7 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
     WERD_RES* word = page_res_it.word();
     word_index++;
     if (monitor != nullptr) {
-      monitor->ocr_alive = TRUE;
+      monitor->ocr_alive = true;
       monitor->progress = 95 + 5 * word_index / stats_.word_count;
     }
     if (word->rebuild_word == nullptr) {
@@ -1742,7 +1741,7 @@ void Tesseract::fix_rep_char(PAGE_RES_IT* page_res_it) {
             word_res->uch_set->debug_str(maxch_id).string(), max_count);
     return;
   }
-  word_res->done = TRUE;
+  word_res->done = true;
 
   // Measure the mean space.
   int gap_count = 0;
@@ -1872,13 +1871,13 @@ bool Tesseract::check_debug_pt(WERD_RES* word, int location) {
   if (!test_pt)
     return false;
 
-  tessedit_rejection_debug.set_value (FALSE);
+  tessedit_rejection_debug.set_value (false);
   debug_x_ht_level.set_value(0);
 
   if (word->word->bounding_box().contains(FCOORD (test_pt_x, test_pt_y))) {
     if (location < 0)
       return true;               // For breakpoint use
-    tessedit_rejection_debug.set_value(TRUE);
+    tessedit_rejection_debug.set_value(true);
     debug_x_ht_level.set_value(2);
     tprintf ("\n\nTESTWD::");
     switch (location) {
@@ -1961,7 +1960,7 @@ static void find_modal_font(  // good chars in word
   int32_t count; //pile count
 
   if (fonts->get_total () > 0) {
-    font = (int16_t) fonts->mode ();
+    font = static_cast<int16_t>(fonts->mode ());
     *font_out = font;
     count = fonts->pile_count (font);
     *font_count = count < INT8_MAX ? count : INT8_MAX;

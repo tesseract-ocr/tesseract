@@ -19,7 +19,6 @@
 //              training-related code, but they don't interfere with normal
 //              recognition operation.
 // Author:      Ray Smith
-// Created:     Fri Mar 07 08:17:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +43,6 @@
 #include "allheaders.h"
 #include "edgblob.h"
 #include "equationdetect.h"
-#include "globals.h"
 #ifndef ANDROID_BUILD
 #include "lstmrecognizer.h"
 #endif
@@ -72,8 +70,9 @@ Tesseract::Tesseract()
       // upset anything that relies on that.
       INT_MEMBER(
           tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
-          "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
-          " 5=line, 6=word, 7=char"
+          "Page seg mode: 0=osd only, 1=auto+osd, 2=auto_only, 3=auto, 4=column,"
+          " 5=block_vert, 6=block, 7=line, 8=word, 9=word_circle, 10=char,"
+          "11=sparse_text, 12=sparse_text+osd, 13=raw_line"
           " (Values from PageSegMode enum in publictypes.h)",
           this->params()),
       INT_INIT_MEMBER(tessedit_ocr_engine_mode, tesseract::OEM_DEFAULT,
@@ -275,6 +274,8 @@ Tesseract::Tesseract()
                   "Mark v.bad words for tilde crunch", this->params()),
       BOOL_MEMBER(hocr_font_info, false, "Add font info to hocr output",
                   this->params()),
+      BOOL_MEMBER(hocr_char_boxes, false, "Add coordinates for each character to hocr output",
+                  this->params()),
       BOOL_MEMBER(crunch_early_merge_tess_fails, true, "Before word crunch?",
                   this->params()),
       BOOL_MEMBER(crunch_early_convert_bad_unlv_chs, false,
@@ -389,7 +390,11 @@ Tesseract::Tesseract()
                   this->params()),
       BOOL_MEMBER(tessedit_create_alto, false, "Write .xml ALTO file",
                   this->params()),
+      BOOL_MEMBER(tessedit_create_lstmbox, false, "Write .box file for LSTM training",
+                  this->params()),
       BOOL_MEMBER(tessedit_create_tsv, false, "Write .tsv output file",
+                  this->params()),
+      BOOL_MEMBER(tessedit_create_wordstrbox, false, "Write WordStr format .box output file",
                   this->params()),
       BOOL_MEMBER(tessedit_create_pdf, false, "Write .pdf output file",
                   this->params()),
@@ -484,7 +489,7 @@ Tesseract::Tesseract()
                     "Min acceptable orientation margin", this->params()),
       BOOL_MEMBER(textord_tabfind_show_vlines, false, "Debug line finding",
                   this->params()),
-      BOOL_MEMBER(textord_use_cjk_fp_model, FALSE, "Use CJK fixed pitch model",
+      BOOL_MEMBER(textord_use_cjk_fp_model, false, "Use CJK fixed pitch model",
                   this->params()),
       BOOL_MEMBER(poly_allow_detailed_fx, false,
                   "Allow feature extractors to see the original outline",
@@ -518,9 +523,12 @@ Tesseract::Tesseract()
                     this->params()),
       INT_MEMBER(lstm_choice_mode, 0,
           "Allows to include alternative symbols choices in the hOCR output. "
-          "Valid input values are 0, 1 and 2. 0 is the default value. "
+          "Valid input values are 0, 1, 2 and 3. 0 is the default value. "
           "With 1 the alternative symbol choices per timestep are included. "
-          "With 2 the alternative symbol choices are accumulated per character.",
+          "With 2 the alternative symbol choices are accumulated per "
+          "character. "
+          "With 3 the alternative symbol choices per timestep are included "
+          "and separated by the suggested segmentation of Tesseract",
           this->params()),
 
       backup_config_file_(nullptr),
@@ -613,11 +621,23 @@ void Tesseract::SetBlackAndWhitelist() {
   unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                      tessedit_char_whitelist.string(),
                                      tessedit_char_unblacklist.string());
+  if (lstm_recognizer_) {
+    UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (lstm_recognizer_->GetUnicharset());
+    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
+                                            tessedit_char_whitelist.string(),
+                                            tessedit_char_unblacklist.string());
+  }
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
         tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
         tessedit_char_unblacklist.string());
+    if (sub_langs_[i]->lstm_recognizer_) {
+      UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (sub_langs_[i]->lstm_recognizer_->GetUnicharset());
+      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
+                                              tessedit_char_whitelist.string(),
+                                              tessedit_char_unblacklist.string());
+    }
   }
 }
 
@@ -626,11 +646,11 @@ void Tesseract::SetBlackAndWhitelist() {
 void Tesseract::PrepareForPageseg() {
   textord_.set_use_cjk_fp_model(textord_use_cjk_fp_model);
   // Find the max splitter strategy over all langs.
-  ShiroRekhaSplitter::SplitStrategy max_pageseg_strategy =
+  auto max_pageseg_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(pageseg_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
-    ShiroRekhaSplitter::SplitStrategy pageseg_strategy =
+    auto pageseg_strategy =
         static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_langs_[i]->pageseg_devanagari_split_strategy));
     if (pageseg_strategy > max_pageseg_strategy)
@@ -657,11 +677,11 @@ void Tesseract::PrepareForPageseg() {
 void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
                                   Tesseract* osd_tess, OSResults* osr) {
   // Find the max splitter strategy over all langs.
-  ShiroRekhaSplitter::SplitStrategy max_ocr_strategy =
+  auto max_ocr_strategy =
       static_cast<ShiroRekhaSplitter::SplitStrategy>(
       static_cast<int32_t>(ocr_devanagari_split_strategy));
   for (int i = 0; i < sub_langs_.size(); ++i) {
-    ShiroRekhaSplitter::SplitStrategy ocr_strategy =
+    auto ocr_strategy =
         static_cast<ShiroRekhaSplitter::SplitStrategy>(
         static_cast<int32_t>(sub_langs_[i]->ocr_devanagari_split_strategy));
     if (ocr_strategy > max_ocr_strategy)
@@ -680,7 +700,7 @@ void Tesseract::PrepareForTessOCR(BLOCK_LIST* block_list,
   // (from the last SegmentImage call) with blobs from the real image to be used
   // for OCR.
   if (splitter_.HasDifferentSplitStrategies()) {
-    BLOCK block("", TRUE, 0, 0, 0, 0, pixGetWidth(pix_binary_),
+    BLOCK block("", true, 0, 0, 0, 0, pixGetWidth(pix_binary_),
                 pixGetHeight(pix_binary_));
     Pix* pix_for_ocr = split_for_ocr ? splitter_.splitted_image() :
         splitter_.orig_pix();

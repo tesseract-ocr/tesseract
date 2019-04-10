@@ -2,7 +2,6 @@
 // File:        input.h
 // Description: Input layer class for neural network implementations.
 // Author:      Ray Smith
-// Created:     Thu Mar 13 08:56:26 PDT 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,7 @@ class Input : public Network {
  public:
   Input(const STRING& name, int ni, int no);
   Input(const STRING& name, const StaticShape& shape);
-  virtual ~Input() = default;
+  ~Input() override = default;
 
   STRING spec() const override {
     STRING spec;
@@ -93,6 +92,10 @@ class Input : public Network {
                               TRand* randomizer, NetworkIO* input);
 
  private:
+  void DebugWeights() override {
+    tprintf("Must override Network::DebugWeights for type %d\n", type_);
+  }
+
   // Input shape determines how images are dealt with.
   StaticShape shape_;
   // Cached total network x scale factor for scaling bounding boxes.

@@ -60,10 +60,8 @@ namespace tesseract {
 Classify::Classify()
     : BOOL_MEMBER(allow_blob_division, true, "Use divisible blobs chopping",
                   this->params()),
-      BOOL_MEMBER(prioritize_division, FALSE,
+      BOOL_MEMBER(prioritize_division, false,
                   "Prioritize blob division over chopping", this->params()),
-      INT_MEMBER(tessedit_single_match, FALSE, "Top choice only from CP",
-                 this->params()),
       BOOL_MEMBER(classify_enable_learning, true, "Enable adaptive classifier",
                   this->params()),
       INT_MEMBER(classify_debug_level, 0, "Classify debug level",
@@ -149,7 +147,7 @@ Classify::Classify()
       INT_MEMBER(classify_adapt_feature_threshold, 230,
                  "Threshold for good features during adaptive 0-255",
                  this->params()),
-      BOOL_MEMBER(disable_character_fragments, TRUE,
+      BOOL_MEMBER(disable_character_fragments, true,
                   "Do not include character fragments in the"
                   " results of the classifier",
                   this->params()),
@@ -158,10 +156,10 @@ Classify::Classify()
                     "Exclude fragments that do not look like whole"
                     " characters from training and adaption",
                     this->params()),
-      BOOL_MEMBER(classify_debug_character_fragments, FALSE,
+      BOOL_MEMBER(classify_debug_character_fragments, false,
                   "Bring up graphical debugging windows for fragments training",
                   this->params()),
-      BOOL_MEMBER(matcher_debug_separate_windows, FALSE,
+      BOOL_MEMBER(matcher_debug_separate_windows, false,
                   "Use two different windows for debugging the matching: "
                   "One for the protos and one for the features.",
                   this->params()),
@@ -246,7 +244,7 @@ void Classify::AddLargeSpeckleTo(int blob_length, BLOB_CHOICE_LIST *choices) {
     certainty = -rating * getDict().certainty_scale /
         (rating_scale * blob_length);
   }
-  BLOB_CHOICE* blob_choice = new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty,
+  auto* blob_choice = new BLOB_CHOICE(UNICHAR_SPACE, rating, certainty,
                                              -1, 0.0f, FLT_MAX, 0,
                                              BCC_SPECKLE_CLASSIFIER);
   bc_it.add_to_end(blob_choice);

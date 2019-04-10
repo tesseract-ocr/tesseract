@@ -22,17 +22,17 @@
 
 #include          "params.h"
 
-extern BOOL_VAR_H (textord_show_initial_words, FALSE,
+extern BOOL_VAR_H (textord_show_initial_words, false,
 "Display separate words");
-extern BOOL_VAR_H (textord_show_new_words, FALSE, "Display separate words");
-extern BOOL_VAR_H (textord_show_fixed_words, FALSE,
+extern BOOL_VAR_H (textord_show_new_words, false, "Display separate words");
+extern BOOL_VAR_H (textord_show_fixed_words, false,
 "Display forced fixed pitch words");
-extern BOOL_VAR_H (textord_blocksall_fixed, FALSE, "Moan about prop blocks");
-extern BOOL_VAR_H (textord_blocksall_prop, FALSE,
+extern BOOL_VAR_H (textord_blocksall_fixed, false, "Moan about prop blocks");
+extern BOOL_VAR_H (textord_blocksall_prop, false,
 "Moan about fixed pitch blocks");
-extern BOOL_VAR_H (textord_blocksall_testing, FALSE,
+extern BOOL_VAR_H (textord_blocksall_testing, false,
 "Dump stats when moaning");
-extern BOOL_VAR_H (textord_test_mode, FALSE, "Do current test");
+extern BOOL_VAR_H (textord_test_mode, false, "Do current test");
 extern INT_VAR_H (textord_dotmatrix_gap, 3,
 "Max pixel gap for broken pixed pitch");
 extern INT_VAR_H (textord_debug_block, 0, "Block to do debug on");
@@ -67,7 +67,7 @@ extern INT_VAR_H (textord_words_veto_power, 5,
 "Rows required to outvote a veto");
 extern double_VAR_H (textord_pitch_rowsimilarity, 0.08,
 "Fraction of xheight for sameness");
-extern BOOL_VAR_H (textord_pitch_scalebigwords, FALSE,
+extern BOOL_VAR_H (textord_pitch_scalebigwords, false,
 "Scale scores on big words");
 extern double_VAR_H(words_initial_lower, 0.5, "Max initial cluster size");
 extern double_VAR_H (words_initial_upper, 0.15,

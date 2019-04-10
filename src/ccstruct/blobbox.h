@@ -2,7 +2,6 @@
  * File:        blobbox.h  (Formerly blobnbox.h)
  * Description: Code for the textord blob class.
  * Author:      Ray Smith
- * Created:     Thu Jul 30 09:08:51 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,11 +20,12 @@
 #define BLOBBOX_H
 
 #include <cinttypes>           // for PRId32
-#include <cmath>               // for sqrt
+#include <cmath>               // for std::sqrt
 #include <cstdint>             // for int16_t, int32_t
 #include "elst.h"              // for ELIST_ITERATOR, ELISTIZEH, ELIST_LINK
 #include "elst2.h"             // for ELIST2_ITERATOR, ELIST2IZEH, ELIST2_LINK
 #include "errcode.h"           // for ASSERT_HOST
+#include "host.h"              // for PRId32
 #include "ocrblock.h"          // for BLOCK
 #include "params.h"            // for DoubleParam, double_VAR_H
 #include "pdblock.h"           // for PDBLK
@@ -157,7 +157,7 @@ class BLOBNBOX:public ELIST_LINK
       if (owns_cblob_) delete cblob_ptr;
     }
     static BLOBNBOX* RealBlob(C_OUTLINE* outline) {
-      C_BLOB* blob = new C_BLOB(outline);
+      auto* blob = new C_BLOB(outline);
       return new BLOBNBOX(blob);
     }
 
@@ -627,9 +627,8 @@ class TO_ROW: public ELIST2_LINK
                            float new_error) {
       para_c = new_c;
       para_error = new_error;
-      credibility =
-        (float) (blobs.length () - kErrorWeight * new_error);
-      y_origin = (float) (new_c / sqrt (1 + gradient * gradient));
+      credibility = blobs.length() -  kErrorWeight * new_error;
+      y_origin = new_c / std::sqrt(1 + gradient * gradient);
       //real intercept
     }
     void set_limits(                  //set min,max

@@ -38,7 +38,7 @@ ResultIterator::ResultIterator(const LTRResultIterator &resit)
   at_beginning_of_minor_run_ = false;
   preserve_interword_spaces_ = false;
 
-  BoolParam *p = ParamUtils::FindParam<BoolParam>(
+  auto *p = ParamUtils::FindParam<BoolParam>(
       "preserve_interword_spaces", GlobalParams()->bool_params,
       tesseract_->params()->bool_params);
   if (p != nullptr) preserve_interword_spaces_ = (bool)(*p);
@@ -452,6 +452,7 @@ bool ResultIterator::Next(PageIteratorLevel level) {
       }
       level = RIL_WORD;  // we've fallen through to the next word.
     }
+      // Fall through.
     case RIL_WORD:  // explicit fall-through.
     {
       if (it_->word() == nullptr) return Next(RIL_BLOCK);
@@ -603,10 +604,28 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   strncpy(result, text.string(), length);
   return result;
 }
-
-std::vector<std::vector<std::pair<const char*, float>>>* ResultIterator::GetBestLSTMSymbolChoices() const {
+std::vector<std::vector<std::pair<const char*, float>>>*
+ResultIterator::GetRawLSTMTimesteps() const {
   if (it_->word() != nullptr) {
-    return &it_->word()->timesteps;
+    return &it_->word()->raw_timesteps;
+  } else {
+    return nullptr;
+  }
+}
+
+std::vector<std::vector<std::pair<const char*, float>>>*
+  ResultIterator::GetBestLSTMSymbolChoices() const {
+  if (it_->word() != nullptr) {
+    return &it_->word()->accumulated_timesteps;
+  } else {
+    return nullptr;
+  }
+}
+
+std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+  ResultIterator::GetSegmentedLSTMTimesteps() const {
+  if (it_->word() != nullptr) {
+    return &it_->word()->symbol_steps;
   } else {
     return nullptr;
   }
@@ -685,7 +704,7 @@ void ResultIterator::AppendUTF8ParagraphText(STRING *text) const {
 
 bool ResultIterator::BidiDebug(int min_level) const {
   int debug_level = 1;
-  IntParam *p = ParamUtils::FindParam<IntParam>(
+  auto *p = ParamUtils::FindParam<IntParam>(
       "bidi_debug", GlobalParams()->int_params,
       tesseract_->params()->int_params);
   if (p != nullptr) debug_level = (int32_t)(*p);

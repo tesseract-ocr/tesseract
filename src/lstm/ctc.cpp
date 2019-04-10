@@ -22,7 +22,6 @@
 #include <memory>
 
 #include "genericvector.h"
-#include "host.h"
 #include "matrix.h"
 #include "networkio.h"
 

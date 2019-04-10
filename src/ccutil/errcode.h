@@ -2,7 +2,6 @@
  * File:        errcode.h  (Formerly error.h)
  * Description: Header file for generic error handler class
  * Author:      Ray Smith
- * Created:     Tue May  1 16:23:36 BST 1990
  *
  * (C) Copyright 1990, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +16,10 @@
  *
  **********************************************************************/
 
-#ifndef           ERRCODE_H
-#define           ERRCODE_H
+#ifndef ERRCODE_H
+#define ERRCODE_H
 
-#include          "host.h"
+#include "platform.h"   // for TESS_API
 
 /*Control parameters for error()*/
 enum TessErrorLogCode {
@@ -81,11 +80,15 @@ class TESS_API ERRCODE {           // error handler class
 
 const ERRCODE ASSERT_FAILED = "Assert failed";
 
-#define ASSERT_HOST(x) if (!(x))                                        \
-  {                                                                     \
-    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
-                        __FILE__, __LINE__);                            \
-  }
+#if defined __cplusplus
+# define DO_NOTHING static_cast<void>(0)
+#else
+# define DO_NOTHING (void)(0)
+#endif
+
+#define ASSERT_HOST(x) (x) \
+  ? DO_NOTHING \
+  : ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d", __FILE__, __LINE__)
 
 #define ASSERT_HOST_MSG(x, ...)                                                \
   if (!(x)) {                                                                  \
@@ -100,4 +103,5 @@ void set_global_loc_code(int loc_code);
 void set_global_subloc_code(int loc_code);
 
 void set_global_subsubloc_code(int loc_code);
+
 #endif

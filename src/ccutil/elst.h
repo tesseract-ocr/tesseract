@@ -2,7 +2,6 @@
  * File:        elst.h  (Formerly elist.h)
  * Description: Embedded list module include file.
  * Author:      Phil Cheatle
- * Created:     Mon Jan 07 08:35:34 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,6 @@
 #define ELST_H
 
 #include <cstdio>
-#include "host.h"
 #include "serialis.h"
 #include "lsterr.h"
 
@@ -307,9 +305,9 @@ inline void ELIST_ITERATOR::set_to_list(  //change list
   current = list->First ();
   next = current ? current->next : nullptr;
   cycle_pt = nullptr;               //await explicit set
-  started_cycling = FALSE;
-  ex_current_was_last = FALSE;
-  ex_current_was_cycle_pt = FALSE;
+  started_cycling = false;
+  ex_current_was_last = false;
+  ex_current_was_cycle_pt = false;
 }
 
 
@@ -392,7 +390,7 @@ inline void ELIST_ITERATOR::add_after_stay_put(  // element to add
     new_element->next = new_element;
     list->last = new_element;
     prev = next = new_element;
-    ex_current_was_last = FALSE;
+    ex_current_was_last = false;
     current = nullptr;
   }
   else {
@@ -409,7 +407,7 @@ inline void ELIST_ITERATOR::add_after_stay_put(  // element to add
       prev->next = new_element;
       if (ex_current_was_last) {
         list->last = new_element;
-        ex_current_was_last = FALSE;
+        ex_current_was_last = false;
       }
     }
     next = new_element;
@@ -481,7 +479,7 @@ inline void ELIST_ITERATOR::add_before_stay_put(  // element to add
     new_element->next = new_element;
     list->last = new_element;
     prev = next = new_element;
-    ex_current_was_last = TRUE;
+    ex_current_was_last = true;
     current = nullptr;
   }
   else {
@@ -522,7 +520,7 @@ inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
       list->last = list_to_add->last;
       prev = list->last;
       next = list->First ();
-      ex_current_was_last = TRUE;
+      ex_current_was_last = true;
       current = nullptr;
     }
     else {
@@ -537,7 +535,7 @@ inline void ELIST_ITERATOR::add_list_after(ELIST *list_to_add) {
         prev->next = list_to_add->First ();
         if (ex_current_was_last) {
           list->last = list_to_add->last;
-          ex_current_was_last = FALSE;
+          ex_current_was_last = false;
         }
         list_to_add->last->next = next;
         next = prev->next;
@@ -571,7 +569,7 @@ inline void ELIST_ITERATOR::add_list_before(ELIST *list_to_add) {
       prev = list->last;
       current = list->First ();
       next = current->next;
-      ex_current_was_last = FALSE;
+      ex_current_was_last = false;
     }
     else {
       prev->next = list_to_add->First ();
@@ -620,15 +618,11 @@ inline ELIST_LINK *ELIST_ITERATOR::extract() {
   } else {
     prev->next = next;           //remove from list
 
-    if (current == list->last) {
-      list->last = prev;
-      ex_current_was_last = TRUE;
-    } else {
-      ex_current_was_last = FALSE;
-    }
+    ex_current_was_last = (current == list->last);
+    if (ex_current_was_last) list->last = prev;
   }
   // Always set ex_current_was_cycle_pt so an add/forward will work in a loop.
-  ex_current_was_cycle_pt = (current == cycle_pt) ? TRUE : FALSE;
+  ex_current_was_cycle_pt = (current == cycle_pt);
   extracted_link = current;
   extracted_link->next = nullptr;   //for safety
   current = nullptr;
@@ -676,8 +670,8 @@ inline void ELIST_ITERATOR::mark_cycle_pt() {
   if (current)
     cycle_pt = current;
   else
-    ex_current_was_cycle_pt = TRUE;
-  started_cycling = FALSE;
+    ex_current_was_cycle_pt = true;
+  started_cycling = false;
 }
 
 

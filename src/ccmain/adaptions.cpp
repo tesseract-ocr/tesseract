@@ -3,7 +3,6 @@
  * Description: Functions used to adapt to blobs already confidently
  *              identified
  * Author:      Chris Newton
- * Created:     Thu Oct  7 10:17:28 BST 1993
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +40,7 @@ bool Tesseract::word_adaptable(  //should we adapt?
           word->best_choice->rating(), word->best_choice->certainty());
   }
 
-  BOOL8 status = FALSE;
+  bool status = false;
   BITS16 flags(mode);
 
   enum MODES

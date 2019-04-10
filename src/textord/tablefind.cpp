@@ -1282,7 +1282,7 @@ void TableFinder::GetTableColumns(ColSegment_LIST *table_columns) {
     if (part->inside_table_column() || part->type() != PT_TABLE)
       continue;  // prevent a partition to be assigned to multiple columns
     const TBOX& box = part->bounding_box();
-    ColSegment* col = new ColSegment();
+    auto* col = new ColSegment();
     col->InsertBox(box);
     part->set_inside_table_column(true);
     // Start a search below the current cell to find bottom neighbours
@@ -1368,7 +1368,7 @@ void TableFinder::GetTableRegions(ColSegment_LIST* table_columns,
       if (table_region[i - 1] && !table_region[i]) {
         current_table_box.set_top(i + bleft().y());
         if (!current_table_box.null_box()) {
-          ColSegment* seg = new ColSegment();
+          auto* seg = new ColSegment();
           seg->InsertBox(current_table_box);
           rit.add_after_then_move(seg);
         }
@@ -1499,7 +1499,7 @@ void TableFinder::AdjustTableBoundaries() {
     // modified box back to the grid. Instead move it to a list and
     // and remove it from the grid. The list is moved later back to the grid.
     if (!grown_box.null_box()) {
-      ColSegment* col = new ColSegment();
+      auto* col = new ColSegment();
       col->InsertBox(grown_box);
       it.add_after_then_move(col);
     }

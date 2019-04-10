@@ -1,14 +1,9 @@
 /* -*-C-*-
  ********************************************************************************
  *
- * File:        vecfuncs.h  (Formerly vecfuncs.h)
- * Description:  Vector calculations
- * Author:       Mark Seaman, OCR Technology
- * Created:      Wed Dec 20 09:37:18 1989
- * Modified:     Tue Jul  9 17:44:37 1991 (Mark Seaman) marks@hpgrlt
- * Language:     C
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
+ * File:        vecfuncs.h
+ * Description: Vector calculations
+ * Author:      Mark Seaman, OCR Technology
  *
  * (c) Copyright 1989, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");

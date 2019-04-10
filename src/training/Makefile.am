@@ -280,3 +280,23 @@ set_unicharset_properties_LDADD += $(LEPTONICA_LIBS)
 text2image_LDADD += $(LEPTONICA_LIBS)
 unicharset_extractor_LDADD += $(LEPTONICA_LIBS)
 wordlist2dawg_LDADD += $(LEPTONICA_LIBS)
+
+extralib = $(libarchive_LIBS)
+
+if !DISABLED_LEGACY_ENGINE
+ambiguous_words_LDADD += $(extralib)
+classifier_tester_LDADD += $(extralib)
+cntraining_LDADD += $(extralib)
+mftraining_LDADD += $(extralib)
+shapeclustering_LDADD += $(extralib)
+endif
+combine_lang_model_LDADD += $(extralib)
+combine_tessdata_LDADD += $(extralib)
+dawg2wordlist_LDADD += $(extralib)
+lstmeval_LDADD += $(extralib)
+lstmtraining_LDADD += $(extralib)
+merge_unicharsets_LDADD += $(extralib)
+set_unicharset_properties_LDADD += $(extralib)
+text2image_LDADD += $(extralib)
+unicharset_extractor_LDADD += $(extralib)
+wordlist2dawg_LDADD += $(extralib)

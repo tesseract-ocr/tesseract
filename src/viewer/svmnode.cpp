@@ -56,7 +56,7 @@ SVMenuNode::~SVMenuNode() {
 // Create a new sub menu node with just a caption.  This is used to create
 // nodes which act as parent nodes to other nodes (e.g. submenus).
 SVMenuNode* SVMenuNode::AddChild(const char* txt) {
-  SVMenuNode* s = new SVMenuNode(-1, txt, false, false, nullptr, nullptr);
+  auto* s = new SVMenuNode(-1, txt, false, false, nullptr, nullptr);
   this->AddChild(s);
   return s;
 }

@@ -62,8 +62,8 @@ ELISTIZE(TabConstraint)
 
 // Create a constraint for the top or bottom of this TabVector.
 void TabConstraint::CreateConstraint(TabVector* vector, bool is_top) {
-  TabConstraint* constraint = new TabConstraint(vector, is_top);
-  TabConstraint_LIST* constraints = new TabConstraint_LIST;
+  auto* constraint = new TabConstraint(vector, is_top);
+  auto* constraints = new TabConstraint_LIST;
   TabConstraint_IT it(constraints);
   it.add_to_end(constraint);
   if (is_top)
@@ -178,7 +178,7 @@ TabVector* TabVector::FitVector(TabAlignment alignment, ICOORD vertical,
                                 int  extended_start_y, int extended_end_y,
                                 BLOBNBOX_CLIST* good_points,
                                 int* vertical_x, int* vertical_y) {
-  TabVector* vector = new TabVector(extended_start_y, extended_end_y,
+  auto* vector = new TabVector(extended_start_y, extended_end_y,
                                     alignment, good_points);
   if (!vector->Fit(vertical, false)) {
     delete vector;
@@ -226,7 +226,7 @@ TabVector::TabVector(const TabVector& src, TabAlignment alignment,
 // This is useful if you only need vector information for processing, such
 // as in the table detection code.
 TabVector* TabVector::ShallowCopy() const {
-  TabVector* copy = new TabVector();
+  auto* copy = new TabVector();
   copy->startpt_ = startpt_;
   copy->endpt_ = endpt_;
   copy->alignment_ = alignment_;

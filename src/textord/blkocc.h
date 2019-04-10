@@ -1,13 +1,8 @@
 /******************************************************************************
  *
- * File:        blkocc.h  (Formerly blockocc.h)
+ * File:         blkocc.h  (Formerly blockocc.h)
  * Description:  Block Occupancy routines
  * Author:       Chris Newton
- * Created:      Fri Nov 8
- * Modified:
- * Language:     C++
- * Package:      N/A
- * Status:       Experimental (Do Not Distribute)
  *
  * (c) Copyright 1991, Hewlett-Packard Company.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -71,17 +66,17 @@ ELISTIZEH (REGION_OCC)
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
 
-BOOL8           range_in_band[
+bool    range_in_band[
               range within band?
-int16_t           band_max,
-int16_t           band_min,
-int16_t           range_max,
-int16_t           range_min]
+int16_t band_max,
+int16_t band_min,
+int16_t range_max,
+int16_t range_min]
 {
   if ((range_min >= band_min) && (range_max < band_max))
-    return TRUE;
+    return true;
   else
-    return FALSE;
+    return false;
 }
 ***********************************************************************/
 #define RANGE_OVERLAPS_BAND(band_max, band_min, range_max, range_min) \
@@ -90,17 +85,17 @@ int16_t           range_min]
 Adapted from the following procedure so that it can be used in the bands
 class in an include file...
 
-BOOL8           range_overlaps_band[
+bool    range_overlaps_band[
               range crosses band?
-int16_t           band_max,
-int16_t           band_min,
-int16_t           range_max,
-int16_t           range_min]
+int16_t band_max,
+int16_t band_min,
+int16_t range_max,
+int16_t range_min]
 {
   if ((range_max >= band_min) && (range_min < band_max))
-    return TRUE;
+    return true;
   else
-    return FALSE;
+    return false;
 }
 ***********************************************************************/
 /**********************************************************************
@@ -233,7 +228,7 @@ class BAND
 
 #define END_OF_WERD_CODE 255
 
-extern BOOL_VAR_H (blockocc_show_result, FALSE, "Show intermediate results");
+extern BOOL_VAR_H (blockocc_show_result, false, "Show intermediate results");
 extern INT_VAR_H (blockocc_desc_height, 0,
 "Descender height after normalisation");
 extern INT_VAR_H (blockocc_asc_height, 255,

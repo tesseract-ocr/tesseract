@@ -2,7 +2,6 @@
  * File:        validate_javanese.cpp
  * Description: Text validator for Javanese Script - aksara jawa.
  * Author:      Shree Devi Kumar
- * Created:     August 03, 2018
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +70,7 @@ bool ValidateJavanese::ConsumeGraphemeIfValid() {
 // representation to make it consistent by adding a ZWNJ if missing from a
 // non-linking virama. Returns false with an invalid sequence.
 bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
-  int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   if (joiner.first == CharClass::kOther) {
     CodeOnlyToOutput();
     if (codes_used_ < num_codes &&
@@ -90,7 +89,7 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
         ASSERT_HOST(!CodeOnlyToOutput());
       } else {
         // Half-form with optional Nukta.
-        int len = output_.size() + 1 - output_used_;
+        unsigned len = output_.size() + 1 - output_used_;
         if (UseMultiCode(len)) return true;
       }
       if (codes_used_ < num_codes &&
@@ -143,13 +142,13 @@ bool ValidateJavanese::ConsumeViramaIfValid(IndicPair joiner, bool post_matra) {
 // Helper consumes/copies a series of consonants separated by viramas while
 // valid, but not any vowel or other modifiers.
 bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
-  const int num_codes = codes_.size();
+  const unsigned num_codes = codes_.size();
   // Consonant aksara
   do {
     CodeOnlyToOutput();
     // Special Sinhala case of [H Z Yayana/Rayana].
     int index = output_.size() - 3;
-    if (output_used_ <= index &&
+    if (output_used_ + 3 <= output_.size() &&
         (output_.back() == kPengkal || output_.back() == kCakra) &&
         IsVirama(output_[index]) && output_[index + 1] == kZeroWidthJoiner) {
       MultiCodePart(3);
@@ -162,7 +161,7 @@ bool ValidateJavanese::ConsumeConsonantHeadIfValid() {
     }
     // Test for subscript conjunct.
     index = output_.size() - 2 - have_nukta;
-    if (output_used_ <= index && IsSubscriptScript() &&
+    if (output_used_ + 2 + have_nukta <= output_.size() && IsSubscriptScript() &&
         IsVirama(output_[index])) {
       // Output previous virama, consonant + optional nukta.
       MultiCodePart(2 + have_nukta);
@@ -252,8 +251,8 @@ bool ValidateJavanese::ConsumeVowelIfValid() {
   // What we have consumed so far is a valid vowel cluster.
   return true;
 }
- 
- 
+
+
 Validator::CharClass ValidateJavanese::UnicodeToCharClass(char32 ch) const {
   if (ch == kZeroWidthNonJoiner) return CharClass::kZeroWidthNonJoiner;
   if (ch == kZeroWidthJoiner) return CharClass::kZeroWidthJoiner;

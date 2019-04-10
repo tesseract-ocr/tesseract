@@ -147,7 +147,7 @@ void FreeCharDescription(CHAR_DESC CharDesc) {
  */
 CHAR_DESC NewCharDescription(const FEATURE_DEFS_STRUCT &FeatureDefs) {
   CHAR_DESC CharDesc;
-  CharDesc = (CHAR_DESC) Emalloc (sizeof (CHAR_DESC_STRUCT));
+  CharDesc = static_cast<CHAR_DESC>(Emalloc (sizeof (CHAR_DESC_STRUCT)));
   CharDesc->NumFeatureSets = FeatureDefs.NumFeatureTypes;
 
   for (size_t i = 0; i < CharDesc->NumFeatureSets; i++)

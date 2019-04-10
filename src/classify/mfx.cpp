@@ -76,13 +76,13 @@ MICROFEATURES BlobMicroFeatures(TBLOB* Blob, const DENORM& cn_denorm) {
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first_node (RemainingOutlines);
+      Outline = static_cast<MFOUTLINE>first_node (RemainingOutlines);
       CharNormalizeOutline(Outline, cn_denorm);
     }
 
     RemainingOutlines = Outlines;
     iterate(RemainingOutlines) {
-      Outline = (MFOUTLINE) first_node(RemainingOutlines);
+      Outline = static_cast<MFOUTLINE>first_node(RemainingOutlines);
       FindDirectionChanges(Outline, classify_min_slope, classify_max_slope);
       MarkDirectionChanges(Outline);
       MicroFeatures = ConvertToMicroFeatures(Outline, MicroFeatures);

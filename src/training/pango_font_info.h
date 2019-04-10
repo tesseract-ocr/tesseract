@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "commandlineflags.h"
-#include "host.h"
 #include "pango/pango-font.h"
 #include "pango/pango.h"
 #include "pango/pangocairo.h"

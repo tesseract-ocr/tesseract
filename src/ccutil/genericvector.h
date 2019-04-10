@@ -2,7 +2,6 @@
 // File:        genericvector.h
 // Description: Generic vector class
 // Author:      Daria Antonova
-// Created:     Mon Jun 23 11:26:43 PDT 2008
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,10 +24,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "tesscallback.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
+#include "tesscallback.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
@@ -49,8 +48,8 @@ class GenericVector {
     this->init(other.size());
     this->operator+=(other);
   }
-  GenericVector<T> &operator+=(const GenericVector& other);
-  GenericVector<T> &operator=(const GenericVector& other);
+  GenericVector<T>& operator+=(const GenericVector& other);
+  GenericVector<T>& operator=(const GenericVector& other);
 
   ~GenericVector();
 
@@ -92,9 +91,9 @@ class GenericVector {
   }
 
   // Return the object from an index.
-  T &get(int index) const;
-  T &back() const;
-  T &operator[](int index) const;
+  T& get(int index) const;
+  T& back() const;
+  T& operator[](int index) const;
   // Returns the last object and removes it.
   T pop_back();
 
@@ -134,8 +133,9 @@ class GenericVector {
   // Truncates the array to the given size by removing the end.
   // If the current size is less, the array is not expanded.
   void truncate(int size) {
-    if (size < size_used_)
+    if (size < size_used_) {
       size_used_ = size;
+    }
   }
 
   // Add a callback to be called to delete the elements when the array took
@@ -144,7 +144,7 @@ class GenericVector {
 
   // Add a callback to be called to compare the elements when needed (contains,
   // get_id, ...)
-  void set_compare_callback(TessResultCallback2<bool, T const &, T const &>* cb);
+  void set_compare_callback(TessResultCallback2<bool, T const&, T const&>* cb);
 
   // Clear the array, calling the clear callback function if any.
   // All the owned callbacks are also deleted.
@@ -167,7 +167,7 @@ class GenericVector {
   // fread (and swapping)/fwrite.
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
-  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
+  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const&>* cb) const;
   bool read(tesseract::TFile* f,
             TessResultCallback2<bool, tesseract::TFile*, T*>* cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
@@ -204,8 +204,8 @@ class GenericVector {
   // the pointed to the new larger array.
   // This function uses memcpy to copy the data, instead of invoking
   // operator=() for each element like double_the_size() does.
-  static T *double_the_size_memcpy(int current_size, T *data) {
-    T *data_new = new T[current_size * 2];
+  static T* double_the_size_memcpy(int current_size, T* data) {
+    T* data_new = new T[current_size * 2];
     memcpy(data_new, data, sizeof(T) * current_size);
     delete[] data;
     return data_new;
@@ -213,8 +213,9 @@ class GenericVector {
 
   // Reverses the elements of the vector.
   void reverse() {
-    for (int i = 0; i < size_used_ / 2; ++i)
+    for (int i = 0; i < size_used_ / 2; ++i) {
       Swap(&data_[i], &data_[size_used_ - 1 - i]);
+    }
   }
 
   // Sorts the members of this vector using the less than comparator (cmp_lt),
@@ -237,8 +238,9 @@ class GenericVector {
   // Use binary_search to get the index of target, or its nearest candidate.
   bool bool_binary_search(const T& target) const {
     int index = binary_search(target);
-    if (index >= size_used_)
+    if (index >= size_used_) {
       return false;
+    }
     return data_[index] == target;
   }
   // Searches the array (assuming sorted in ascending order, using sort()) for
@@ -252,10 +254,11 @@ class GenericVector {
     int top = size_used_;
     while (top - bottom > 1) {
       int middle = (bottom + top) / 2;
-      if (data_[middle] > target)
+      if (data_[middle] > target) {
         top = middle;
-      else
+      } else {
         bottom = middle;
+      }
     }
     return bottom;
   }
@@ -263,15 +266,17 @@ class GenericVector {
   // Compact the vector by deleting elements using operator!= on basic types.
   // The vector must be sorted.
   void compact_sorted() {
-    if (size_used_ == 0)
+    if (size_used_ == 0) {
       return;
+    }
 
     // First element is in no matter what, hence the i = 1.
     int last_write = 0;
     for (int i = 1; i < size_used_; ++i) {
       // Finds next unique item and writes it.
-      if (data_[last_write] != data_[i])
+      if (data_[last_write] != data_[i]) {
         data_[++last_write] = data_[i];
+      }
     }
     // last_write is the index of a valid data cell, so add 1.
     size_used_ = last_write + 1;
@@ -283,8 +288,9 @@ class GenericVector {
     int new_size = 0;
     int old_index = 0;
     // Until the callback returns true, the elements stay the same.
-    while (old_index < size_used_ && !delete_cb->Run(old_index++))
+    while (old_index < size_used_ && !delete_cb->Run(old_index++)) {
       ++new_size;
+    }
     // Now just copy anything else that gets false from delete_cb.
     for (; old_index < size_used_; ++old_index) {
       if (!delete_cb->Run(old_index)) {
@@ -297,8 +303,9 @@ class GenericVector {
 
   T dot_product(const GenericVector<T>& other) const {
     T result = static_cast<T>(0);
-    for (int i = std::min(size_used_, other.size_used_) - 1; i >= 0; --i)
+    for (int i = std::min(size_used_, other.size_used_) - 1; i >= 0; --i) {
       result += data_[i] * other.data_[i];
+    }
     return result;
   }
 
@@ -308,10 +315,11 @@ class GenericVector {
   // NOTE: uses operator< and operator== on the members.
   int choose_nth_item(int target_index) {
     // Make sure target_index is legal.
-    if (target_index < 0)
-      target_index = 0;                   // ensure legal
-    else if (target_index >= size_used_)
+    if (target_index < 0) {
+      target_index = 0;  // ensure legal
+    } else if (target_index >= size_used_) {
       target_index = size_used_ - 1;
+    }
     unsigned int seed = 1;
     return choose_nth_item(target_index, 0, size_used_, &seed);
   }
@@ -328,8 +336,9 @@ class GenericVector {
   // Only uses operator<
   bool WithinBounds(const T& rangemin, const T& rangemax) const {
     for (int i = 0; i < size_used_; ++i) {
-      if (data_[i] < rangemin || rangemax < data_[i])
+      if (data_[i] < rangemin || rangemax < data_[i]) {
         return false;
+      }
     }
     return true;
   }
@@ -345,28 +354,27 @@ class GenericVector {
   // vector are small enough that for efficiency it makes sense
   // to start with a larger initial size.
   static const int kDefaultVectorSize = 4;
-  int32_t   size_used_;
-  int32_t   size_reserved_;
-  T*    data_;
+  int32_t size_used_{};
+  int32_t size_reserved_{};
+  T* data_;
   TessCallback1<T>* clear_cb_;
   // Mutable because Run method is not const
-  mutable TessResultCallback2<bool, T const &, T const &>* compare_cb_;
+  mutable TessResultCallback2<bool, T const&, T const&>* compare_cb_;
 };
 
 namespace tesseract {
 
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.
-typedef bool (*FileReader)(const STRING& filename, GenericVector<char>* data);
+using FileReader = bool (*)(const STRING&, GenericVector<char>*);
 // Function to write a GenericVector<char> to a whole file.
 // Returns false on failure.
-typedef bool (*FileWriter)(const GenericVector<char>& data,
-                           const STRING& filename);
+using FileWriter = bool (*)(const GenericVector<char>&, const STRING&);
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
 inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   bool result = false;
-  FILE* fp = fopen(filename, "rb");
+  FILE* fp = fopen(filename, "rbe");
   if (fp != nullptr) {
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
@@ -392,8 +400,10 @@ inline bool LoadDataFromFile(const STRING& filename,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
                            const STRING& filename) {
-  FILE* fp = fopen(filename.string(), "wb");
-  if (fp == nullptr) return false;
+  FILE* fp = fopen(filename.string(), "wbe");
+  if (fp == nullptr) {
+    return false;
+  }
   bool result =
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
@@ -412,7 +422,7 @@ inline bool LoadFileLinesToStrings(const STRING& filename,
 }
 
 template <typename T>
-bool cmp_eq(T const & t1, T const & t2) {
+bool cmp_eq(T const& t1, T const& t2) {
   return t1 == t2;
 }
 
@@ -422,15 +432,15 @@ bool cmp_eq(T const & t1, T const & t2) {
 // return > 0 if t1 > t2
 template <typename T>
 int sort_cmp(const void* t1, const void* t2) {
-  const T* a = static_cast<const T *> (t1);
-  const T* b = static_cast<const T *> (t2);
+  const T* a = static_cast<const T*>(t1);
+  const T* b = static_cast<const T*>(t2);
   if (*a < *b) {
     return -1;
-  } else if (*b < *a) {
-    return 1;
-  } else {
-    return 0;
   }
+  if (*b < *a) {
+    return 1;
+  }
+  return 0;
 }
 
 // Used by PointerVector::sort()
@@ -443,21 +453,21 @@ int sort_ptr_cmp(const void* t1, const void* t2) {
   const T* b = *static_cast<T* const*>(t2);
   if (*a < *b) {
     return -1;
-  } else if (*b < *a) {
-    return 1;
-  } else {
-    return 0;
   }
+  if (*b < *a) {
+    return 1;
+  }
+  return 0;
 }
 
 // Subclass for a vector of pointers. Use in preference to GenericVector<T*>
 // as it provides automatic deletion and correct serialization, with the
 // corollary that all copy operations are deep copies of the pointed-to objects.
-template<typename T>
+template <typename T>
 class PointerVector : public GenericVector<T*> {
  public:
-  PointerVector() : GenericVector<T*>() { }
-  explicit PointerVector(int size) : GenericVector<T*>(size) { }
+  PointerVector() : GenericVector<T*>() {}
+  explicit PointerVector(int size) : GenericVector<T*>(size) {}
   ~PointerVector() {
     // Clear must be called here, even though it is called again by the base,
     // as the base will call the wrong clear.
@@ -495,8 +505,9 @@ class PointerVector : public GenericVector<T*> {
   // Truncates the array to the given size by removing the end.
   // If the current size is less, the array is not expanded.
   void truncate(int size) {
-    for (int i = size; i < GenericVector<T*>::size_used_; ++i)
+    for (int i = size; i < GenericVector<T*>::size_used_; ++i) {
       delete GenericVector<T*>::data_[i];
+    }
     GenericVector<T*>::truncate(size);
   }
 
@@ -507,8 +518,9 @@ class PointerVector : public GenericVector<T*> {
     int old_index = 0;
     // Until the callback returns true, the elements stay the same.
     while (old_index < GenericVector<T*>::size_used_ &&
-           !delete_cb->Run(GenericVector<T*>::data_[old_index++]))
+           !delete_cb->Run(GenericVector<T*>::data_[old_index++])) {
       ++new_size;
+    }
     // Now just copy anything else that gets false from delete_cb.
     for (; old_index < GenericVector<T*>::size_used_; ++old_index) {
       if (!delete_cb->Run(GenericVector<T*>::data_[old_index])) {
@@ -538,21 +550,33 @@ class PointerVector : public GenericVector<T*> {
   // Returns false in case of error.
   bool Serialize(FILE* fp) const {
     int32_t used = GenericVector<T*>::size_used_;
-    if (fwrite(&used, sizeof(used), 1, fp) != 1) return false;
+    if (fwrite(&used, sizeof(used), 1, fp) != 1) {
+      return false;
+    }
     for (int i = 0; i < used; ++i) {
       int8_t non_null = GenericVector<T*>::data_[i] != nullptr;
-      if (fwrite(&non_null, sizeof(non_null), 1, fp) != 1) return false;
-      if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) return false;
+      if (fwrite(&non_null, sizeof(non_null), 1, fp) != 1) {
+        return false;
+      }
+      if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) {
+        return false;
+      }
     }
     return true;
   }
   bool Serialize(TFile* fp) const {
     int32_t used = GenericVector<T*>::size_used_;
-    if (fp->FWrite(&used, sizeof(used), 1) != 1) return false;
+    if (fp->FWrite(&used, sizeof(used), 1) != 1) {
+      return false;
+    }
     for (int i = 0; i < used; ++i) {
       int8_t non_null = GenericVector<T*>::data_[i] != nullptr;
-      if (fp->FWrite(&non_null, sizeof(non_null), 1) != 1) return false;
-      if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) return false;
+      if (fp->FWrite(&non_null, sizeof(non_null), 1) != 1) {
+        return false;
+      }
+      if (non_null && !GenericVector<T*>::data_[i]->Serialize(fp)) {
+        return false;
+      }
     }
     return true;
   }
@@ -565,8 +589,12 @@ class PointerVector : public GenericVector<T*> {
   // Returns false in case of error.
   bool DeSerialize(bool swap, FILE* fp) {
     uint32_t reserved;
-    if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
-    if (swap) Reverse32(&reserved);
+    if (fread(&reserved, sizeof(reserved), 1, fp) != 1) {
+      return false;
+    }
+    if (swap) {
+      Reverse32(&reserved);
+    }
     // Arbitrarily limit the number of elements to protect against bad data.
     assert(reserved <= UINT16_MAX);
     if (reserved > UINT16_MAX) {
@@ -576,9 +604,11 @@ class PointerVector : public GenericVector<T*> {
     truncate(0);
     for (uint32_t i = 0; i < reserved; ++i) {
       int8_t non_null;
-      if (fread(&non_null, sizeof(non_null), 1, fp) != 1) return false;
+      if (fread(&non_null, sizeof(non_null), 1, fp) != 1) {
+        return false;
+      }
       T* item = nullptr;
-      if (non_null) {
+      if (non_null != 0) {
         item = new T;
         if (!item->DeSerialize(swap, fp)) {
           delete item;
@@ -594,11 +624,15 @@ class PointerVector : public GenericVector<T*> {
   }
   bool DeSerialize(TFile* fp) {
     int32_t reserved;
-    if (!DeSerializeSize(fp, &reserved)) return false;
+    if (!DeSerializeSize(fp, &reserved)) {
+      return false;
+    }
     GenericVector<T*>::reserve(reserved);
     truncate(0);
     for (int i = 0; i < reserved; ++i) {
-      if (!DeSerializeElement(fp)) return false;
+      if (!DeSerializeElement(fp)) {
+        return false;
+      }
     }
     return true;
   }
@@ -612,9 +646,11 @@ class PointerVector : public GenericVector<T*> {
   // Reads and appends to the vector the next element of the serialization.
   bool DeSerializeElement(TFile* fp) {
     int8_t non_null;
-    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) return false;
+    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) {
+      return false;
+    }
     T* item = nullptr;
-    if (non_null) {
+    if (non_null != 0) {
       item = new T;
       if (!item->DeSerialize(fp)) {
         delete item;
@@ -630,16 +666,22 @@ class PointerVector : public GenericVector<T*> {
   // Skips the next element of the serialization.
   static bool DeSerializeSkip(TFile* fp) {
     int8_t non_null;
-    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) return false;
-    if (non_null) {
-      if (!T::SkipDeSerialize(fp)) return false;
+    if (fp->FRead(&non_null, sizeof(non_null), 1) != 1) {
+      return false;
+    }
+    if (non_null != 0) {
+      if (!T::SkipDeSerialize(fp)) {
+        return false;
+      }
     }
     return true;
   }
 
   // Sorts the items pointed to by the members of this vector using
   // t::operator<().
-  void sort() { this->GenericVector<T*>::sort(&sort_ptr_cmp<T>); }
+  void sort() {
+    this->GenericVector<T*>::sort(&sort_ptr_cmp<T>);
+  }
 };
 
 }  // namespace tesseract
@@ -652,7 +694,7 @@ class GenericVectorEqEq : public GenericVector<T> {
     GenericVector<T>::set_compare_callback(
         NewPermanentTessCallback(tesseract::cmp_eq<T>));
   }
-  GenericVectorEqEq(int size) : GenericVector<T>(size) {
+  explicit GenericVectorEqEq(int size) : GenericVector<T>(size) {
     GenericVector<T>::set_compare_callback(
         NewPermanentTessCallback(tesseract::cmp_eq<T>));
   }
@@ -665,7 +707,9 @@ void GenericVector<T>::init(int size) {
     data_ = nullptr;
     size_reserved_ = 0;
   } else {
-    if (size < kDefaultVectorSize) size = kDefaultVectorSize;
+    if (size < kDefaultVectorSize) {
+      size = kDefaultVectorSize;
+    }
     data_ = new T[size];
     size_reserved_ = size;
   }
@@ -682,12 +726,16 @@ GenericVector<T>::~GenericVector() {
 // copied.
 template <typename T>
 void GenericVector<T>::reserve(int size) {
-  if (size_reserved_ >= size || size <= 0)
+  if (size_reserved_ >= size || size <= 0) {
     return;
-  if (size < kDefaultVectorSize) size = kDefaultVectorSize;
+  }
+  if (size < kDefaultVectorSize) {
+    size = kDefaultVectorSize;
+  }
   T* new_array = new T[size];
-  for (int i = 0; i < size_used_; ++i)
+  for (int i = 0; i < size_used_; ++i) {
     new_array[i] = data_[i];
+  }
   delete[] data_;
   data_ = new_array;
   size_reserved_ = size;
@@ -697,8 +745,7 @@ template <typename T>
 void GenericVector<T>::double_the_size() {
   if (size_reserved_ == 0) {
     reserve(kDefaultVectorSize);
-  }
-  else {
+  } else {
     reserve(2 * size_reserved_);
   }
 }
@@ -708,26 +755,26 @@ template <typename T>
 void GenericVector<T>::init_to_size(int size, const T& t) {
   reserve(size);
   size_used_ = size;
-  for (int i = 0; i < size; ++i)
+  for (int i = 0; i < size; ++i) {
     data_[i] = t;
+  }
 }
-
 
 // Return the object from an index.
 template <typename T>
-T &GenericVector<T>::get(int index) const {
+T& GenericVector<T>::get(int index) const {
   assert(index >= 0 && index < size_used_);
   return data_[index];
 }
 
 template <typename T>
-T &GenericVector<T>::operator[](int index) const {
+T& GenericVector<T>::operator[](int index) const {
   assert(index >= 0 && index < size_used_);
   return data_[index];
 }
 
 template <typename T>
-T &GenericVector<T>::back() const {
+T& GenericVector<T>::back() const {
   assert(size_used_ > 0);
   return data_[size_used_ - 1];
 }
@@ -751,10 +798,11 @@ void GenericVector<T>::set(const T& t, int index) {
 template <typename T>
 void GenericVector<T>::insert(const T& t, int index) {
   assert(index >= 0 && index <= size_used_);
-  if (size_reserved_ == size_used_)
+  if (size_reserved_ == size_used_) {
     double_the_size();
+  }
   for (int i = size_used_; i > index; --i) {
-    data_[i] = data_[i-1];
+    data_[i] = data_[i - 1];
   }
   data_[index] = t;
   size_used_++;
@@ -766,7 +814,7 @@ template <typename T>
 void GenericVector<T>::remove(int index) {
   assert(index >= 0 && index < size_used_);
   for (int i = index; i < size_used_ - 1; ++i) {
-    data_[i] = data_[i+1];
+    data_[i] = data_[i + 1];
   }
   size_used_--;
 }
@@ -782,8 +830,9 @@ template <typename T>
 int GenericVector<T>::get_index(const T& object) const {
   for (int i = 0; i < size_used_; ++i) {
     assert(compare_cb_ != nullptr);
-    if (compare_cb_->Run(object, data_[i]))
+    if (compare_cb_->Run(object, data_[i])) {
       return i;
+    }
   }
   return -1;
 }
@@ -798,8 +847,9 @@ bool GenericVector<T>::contains(const T& object) const {
 template <typename T>
 int GenericVector<T>::push_back(T object) {
   int index = 0;
-  if (size_used_ == size_reserved_)
+  if (size_used_ == size_reserved_) {
     double_the_size();
+  }
   index = size_used_++;
   data_[index] = object;
   return index;
@@ -808,18 +858,21 @@ int GenericVector<T>::push_back(T object) {
 template <typename T>
 int GenericVector<T>::push_back_new(const T& object) {
   int index = get_index(object);
-  if (index >= 0)
+  if (index >= 0) {
     return index;
+  }
   return push_back(object);
 }
 
 // Add an element in the array (front)
 template <typename T>
 int GenericVector<T>::push_front(const T& object) {
-  if (size_used_ == size_reserved_)
+  if (size_used_ == size_reserved_) {
     double_the_size();
-  for (int i = size_used_; i > 0; --i)
-    data_[i] = data_[i-1];
+  }
+  for (int i = size_used_; i > 0; --i) {
+    data_[i] = data_[i - 1];
+  }
   data_[0] = object;
   ++size_used_;
   return 0;
@@ -831,7 +884,7 @@ void GenericVector<T>::operator+=(const T& t) {
 }
 
 template <typename T>
-GenericVector<T> &GenericVector<T>::operator+=(const GenericVector& other) {
+GenericVector<T>& GenericVector<T>::operator+=(const GenericVector& other) {
   this->reserve(size_used_ + other.size_used_);
   for (int i = 0; i < other.size(); ++i) {
     this->operator+=(other.data_[i]);
@@ -840,7 +893,7 @@ GenericVector<T> &GenericVector<T>::operator+=(const GenericVector& other) {
 }
 
 template <typename T>
-GenericVector<T> &GenericVector<T>::operator=(const GenericVector& other) {
+GenericVector<T>& GenericVector<T>::operator=(const GenericVector& other) {
   if (&other != this) {
     this->truncate(0);
     this->operator+=(other);
@@ -859,7 +912,7 @@ void GenericVector<T>::set_clear_callback(TessCallback1<T>* cb) {
 // their ownership.
 template <typename T>
 void GenericVector<T>::set_compare_callback(
-    TessResultCallback2<bool, T const &, T const &>* cb) {
+    TessResultCallback2<bool, T const&, T const&>* cb) {
   compare_cb_ = cb;
 }
 
@@ -867,8 +920,9 @@ void GenericVector<T>::set_compare_callback(
 template <typename T>
 void GenericVector<T>::clear() {
   if (size_reserved_ > 0 && clear_cb_ != nullptr) {
-    for (int i = 0; i < size_used_; ++i)
+    for (int i = 0; i < size_used_; ++i) {
       clear_cb_->Run(data_[i]);
+    }
   }
   delete[] data_;
   data_ = nullptr;
@@ -887,12 +941,15 @@ void GenericVector<T>::delete_data_pointers() {
   }
 }
 
-
 template <typename T>
 bool GenericVector<T>::write(
-    FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const {
-  if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) return false;
-  if (fwrite(&size_used_, sizeof(size_used_), 1, f) != 1) return false;
+    FILE* f, TessResultCallback2<bool, FILE*, T const&>* cb) const {
+  if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) {
+    return false;
+  }
+  if (fwrite(&size_used_, sizeof(size_used_), 1, f) != 1) {
+    return false;
+  }
   if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
       if (!cb->Run(f, data_[i])) {
@@ -902,8 +959,9 @@ bool GenericVector<T>::write(
     }
     delete cb;
   } else {
-    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size())
+    if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size()) {
       return false;
+    }
   }
   return true;
 }
@@ -912,9 +970,13 @@ template <typename T>
 bool GenericVector<T>::read(
     tesseract::TFile* f, TessResultCallback2<bool, tesseract::TFile*, T*>* cb) {
   int32_t reserved;
-  if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+    return false;
+  }
   reserve(reserved);
-  if (f->FReadEndian(&size_used_, sizeof(size_used_), 1) != 1) return false;
+  if (f->FReadEndian(&size_used_, sizeof(size_used_), 1) != 1) {
+    return false;
+  }
   if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
       if (!cb->Run(f, data_ + i)) {
@@ -924,8 +986,9 @@ bool GenericVector<T>::read(
     }
     delete cb;
   } else {
-    if (f->FReadEndian(data_, sizeof(T), size_used_) != size_used_)
+    if (f->FReadEndian(data_, sizeof(T), size_used_) != size_used_) {
       return false;
+    }
   }
   return true;
 }
@@ -934,15 +997,22 @@ bool GenericVector<T>::read(
 // read/write of T will work. Returns false in case of error.
 template <typename T>
 bool GenericVector<T>::Serialize(FILE* fp) const {
-  if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) return false;
-  if (fwrite(data_, sizeof(*data_), size_used_, fp) != unsigned_size())
+  if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) {
     return false;
+  }
+  if (fwrite(data_, sizeof(*data_), size_used_, fp) != unsigned_size()) {
+    return false;
+  }
   return true;
 }
 template <typename T>
 bool GenericVector<T>::Serialize(tesseract::TFile* fp) const {
-  if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) return false;
-  if (fp->FWrite(data_, sizeof(*data_), size_used_) != size_used_) return false;
+  if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
+    return false;
+  }
+  if (fp->FWrite(data_, sizeof(*data_), size_used_) != size_used_) {
+    return false;
+  }
   return true;
 }
 
@@ -953,28 +1023,41 @@ bool GenericVector<T>::Serialize(tesseract::TFile* fp) const {
 template <typename T>
 bool GenericVector<T>::DeSerialize(bool swap, FILE* fp) {
   uint32_t reserved;
-  if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
-  if (swap) Reverse32(&reserved);
+  if (fread(&reserved, sizeof(reserved), 1, fp) != 1) {
+    return false;
+  }
+  if (swap) {
+    Reverse32(&reserved);
+  }
   // Arbitrarily limit the number of elements to protect against bad data.
   assert(reserved <= UINT16_MAX);
-  if (reserved > UINT16_MAX) return false;
+  if (reserved > UINT16_MAX) {
+    return false;
+  }
   reserve(reserved);
   size_used_ = reserved;
-  if (fread(data_, sizeof(T), size_used_, fp) != unsigned_size()) return false;
+  if (fread(data_, sizeof(T), size_used_, fp) != unsigned_size()) {
+    return false;
+  }
   if (swap) {
-    for (int i = 0; i < size_used_; ++i)
+    for (int i = 0; i < size_used_; ++i) {
       ReverseN(&data_[i], sizeof(data_[i]));
+    }
   }
   return true;
 }
 template <typename T>
 bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
   uint32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+    return false;
+  }
   // Arbitrarily limit the number of elements to protect against bad data.
   const uint32_t limit = 50000000;
   assert(reserved <= limit);
-  if (reserved > limit) return false;
+  if (reserved > limit) {
+    return false;
+  }
   reserve(reserved);
   size_used_ = reserved;
   return fp->FReadEndian(data_, sizeof(T), size_used_) == size_used_;
@@ -982,7 +1065,9 @@ bool GenericVector<T>::DeSerialize(tesseract::TFile* fp) {
 template <typename T>
 bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
   uint32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+    return false;
+  }
   return (uint32_t)fp->FRead(nullptr, sizeof(T), reserved) == reserved;
 }
 
@@ -991,17 +1076,25 @@ bool GenericVector<T>::SkipDeSerialize(tesseract::TFile* fp) {
 // Returns false in case of error.
 template <typename T>
 bool GenericVector<T>::SerializeClasses(FILE* fp) const {
-  if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) return false;
+  if (fwrite(&size_used_, sizeof(size_used_), 1, fp) != 1) {
+    return false;
+  }
   for (int i = 0; i < size_used_; ++i) {
-    if (!data_[i].Serialize(fp)) return false;
+    if (!data_[i].Serialize(fp)) {
+      return false;
+    }
   }
   return true;
 }
 template <typename T>
 bool GenericVector<T>::SerializeClasses(tesseract::TFile* fp) const {
-  if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) return false;
+  if (fp->FWrite(&size_used_, sizeof(size_used_), 1) != 1) {
+    return false;
+  }
   for (int i = 0; i < size_used_; ++i) {
-    if (!data_[i].Serialize(fp)) return false;
+    if (!data_[i].Serialize(fp)) {
+      return false;
+    }
   }
   return true;
 }
@@ -1014,32 +1107,46 @@ bool GenericVector<T>::SerializeClasses(tesseract::TFile* fp) const {
 template <typename T>
 bool GenericVector<T>::DeSerializeClasses(bool swap, FILE* fp) {
   int32_t reserved;
-  if (fread(&reserved, sizeof(reserved), 1, fp) != 1) return false;
-  if (swap) Reverse32(&reserved);
+  if (fread(&reserved, sizeof(reserved), 1, fp) != 1) {
+    return false;
+  }
+  if (swap) {
+    Reverse32(&reserved);
+  }
   T empty;
   init_to_size(reserved, empty);
   for (int i = 0; i < reserved; ++i) {
-    if (!data_[i].DeSerialize(swap, fp)) return false;
+    if (!data_[i].DeSerialize(swap, fp)) {
+      return false;
+    }
   }
   return true;
 }
 template <typename T>
 bool GenericVector<T>::DeSerializeClasses(tesseract::TFile* fp) {
   int32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+    return false;
+  }
   T empty;
   init_to_size(reserved, empty);
   for (int i = 0; i < reserved; ++i) {
-    if (!data_[i].DeSerialize(fp)) return false;
+    if (!data_[i].DeSerialize(fp)) {
+      return false;
+    }
   }
   return true;
 }
 template <typename T>
 bool GenericVector<T>::SkipDeSerializeClasses(tesseract::TFile* fp) {
   int32_t reserved;
-  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) return false;
+  if (fp->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
+    return false;
+  }
   for (int i = 0; i < reserved; ++i) {
-    if (!T::SkipDeSerialize(fp)) return false;
+    if (!T::SkipDeSerialize(fp)) {
+      return false;
+    }
   }
   return true;
 }
@@ -1085,20 +1192,20 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
   // Number of elements to process.
   int num_elements = end - start;
   // Trivial cases.
-  if (num_elements <= 1)
+  if (num_elements <= 1) {
     return start;
+  }
   if (num_elements == 2) {
     if (data_[start] < data_[start + 1]) {
       return target_index > start ? start + 1 : start;
-    } else {
-      return target_index > start ? start : start + 1;
     }
+    return target_index > start ? start : start + 1;
   }
-  // Place the pivot at start.
-  #ifndef rand_r  // _MSC_VER, ANDROID
+// Place the pivot at start.
+#ifndef rand_r  // _MSC_VER, ANDROID
   srand(*seed);
-  #define rand_r(seed) rand()
-  #endif  // _MSC_VER
+#  define rand_r(seed) rand()
+#endif  // _MSC_VER
   int pivot = rand_r(seed) % num_elements + start;
   swap(pivot, start);
   // The invariant condition here is that items [start, next_lesser) are less
@@ -1118,13 +1225,13 @@ int GenericVector<T>::choose_nth_item(int target_index, int start, int end,
   }
   // Now the invariant is set up, we recurse on just the section that contains
   // the desired index.
-  if (target_index < next_lesser)
+  if (target_index < next_lesser) {
     return choose_nth_item(target_index, start, next_lesser, seed);
-  else if (target_index < prev_greater)
-    return next_lesser;          // In equal bracket.
-  else
-    return choose_nth_item(target_index, prev_greater, end, seed);
+  }
+  if (target_index < prev_greater) {
+    return next_lesser;  // In equal bracket.
+  }
+  return choose_nth_item(target_index, prev_greater, end, seed);
 }
-
 
 #endif  // TESSERACT_CCUTIL_GENERICVECTOR_H_

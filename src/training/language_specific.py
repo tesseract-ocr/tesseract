@@ -19,8 +19,8 @@
 # Language specific info
 # =============================================================================
 
-import os
 import logging
+import os
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ VALID_LANGUAGE_CODES = (
     "ceb ces chi_sim chi_tra chr cym cyr_lid dan deu div dzo "
     "ell eng enm epo est eus fas fil fin fra frk frm gle glg "
     "grc guj hat heb hin hrv hun hye iast iku ind isl ita ita_old "
-    "jav jav_java jpn kan kat kat_old kaz khm kir kor kur lao lat "
+    "jav jav_java jpn kan kat kat_old kaz khm kir kmr kor kur_ara lao lat "
     "lat_lid lav lit mal mar mkd mlt msa mya nep nld nor ori "
     "pan pol por pus ron rus san sin slk slv snd spa spa_old "
     "sqi srp srp_latn swa swe syr tam tel tgk tgl tha tir tur "
@@ -875,6 +875,7 @@ VERTICAL_FONTS = [
 
 FLAGS_webtext_prefix = os.environ.get("FLAGS_webtext_prefix", "")
 
+
 # Set language-specific values for several global variables, including
 #   ${TEXT_CORPUS}
 #      holds the text corpus file for the language, used in phase F
@@ -1079,15 +1080,15 @@ def set_lang_specific_parameters(ctx, lang):
         NUMBER_DAWG_FACTOR = 0.05
         WORD_DAWG_SIZE = 1_000_000
     elif lang in (
-        "aze_cyrl",
-        "bel",
-        "bul",
-        "kaz",
-        "mkd",
-        "srp",
-        "tgk",
-        "ukr",
-        "uzb_cyrl",
+            "aze_cyrl",
+            "bel",
+            "bul",
+            "kaz",
+            "mkd",
+            "srp",
+            "tgk",
+            "ukr",
+            "uzb_cyrl",
     ):
         MIX_LANG = f"{lang}"
         if not FONTS:
@@ -1302,7 +1303,10 @@ def set_lang_specific_parameters(ctx, lang):
         if not FONTS:
             FONTS = KYRGYZ_FONTS
         TRAINING_DATA_ARGUMENTS += ["--infrequent_ratio=100"]
-    elif lang == "kur":
+    elif lang == "kmr":
+        if not FONTS:
+            FONTS = LATIN_FONTS
+    elif lang == "kur_ara":
         if not FONTS:
             FONTS = KURDISH_FONTS
     else:
@@ -1323,44 +1327,44 @@ def set_lang_specific_parameters(ctx, lang):
         EXPOSURES = [0]
     # Set right-to-left and normalization mode.
     if lang in (
-        "ara",
-        "div",
-        "fas",
-        "pus",
-        "snd",
-        "syr",
-        "uig",
-        "urd",
-        "kur_ara",
-        "heb",
-        "yid",
+            "ara",
+            "div",
+            "fas",
+            "pus",
+            "snd",
+            "syr",
+            "uig",
+            "urd",
+            "kur_ara",
+            "heb",
+            "yid",
     ):
         LANG_IS_RTL = True
         NORM_MODE = 2
     elif lang in (
-        "asm",
-        "ben",
-        "bih",
-        "hin",
-        "mar",
-        "nep",
-        "guj",
-        "kan",
-        "mal",
-        "tam",
-        "tel",
-        "pan",
-        "dzo",
-        "sin",
-        "san",
-        "bod",
-        "ori",
-        "khm",
-        "mya",
-        "tha",
-        "lao",
-        "jav ",
-        "jav_java",
+            "asm",
+            "ben",
+            "bih",
+            "hin",
+            "mar",
+            "nep",
+            "guj",
+            "kan",
+            "mal",
+            "tam",
+            "tel",
+            "pan",
+            "dzo",
+            "sin",
+            "san",
+            "bod",
+            "ori",
+            "khm",
+            "mya",
+            "tha",
+            "lao",
+            "jav ",
+            "jav_java",
     ):
         LANG_IS_RTL = False
         NORM_MODE = 2
@@ -1404,7 +1408,6 @@ def set_lang_specific_parameters(ctx, lang):
             setattr(ctx, attr, value)
 
     return ctx
-
 
 # =============================================================================
 # END of Language specific info

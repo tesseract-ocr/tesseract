@@ -2,7 +2,6 @@
  * File:        pgedit.cpp (Formerly pgeditor.c)
  * Description: Page structure file editor
  * Author:      Phil Cheatle
- * Created:     Thu Oct 10 16:25:24 BST 1991
  *
  *(C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0(the "License");
@@ -22,10 +21,10 @@
 #include "config_auto.h"
 #endif
 
-#include          "pgedit.h"
+#include "pgedit.h"
 
-#include          <cctype>
-#include          <cmath>
+#include <cctype>
+#include <cmath>
 
 #include "blread.h"
 #include "control.h"
@@ -112,11 +111,11 @@ static bool recog_done = false; // recog_all_words was called
 
 // These variables should remain global, since they are only used for the
 // debug mode (in which only a single Tesseract thread/instance will exist).
-BITS16 word_display_mode;
+static BITS16 word_display_mode;
 static ColorationMode color_mode = CM_RAINBOW;
-BOOL8 display_image = FALSE;
-BOOL8 display_blocks = FALSE;
-BOOL8 display_baselines = FALSE;
+static bool display_image = false;
+static bool display_blocks = false;
+static bool display_baselines = false;
 
 PAGE_RES *current_page_res = nullptr;
 
@@ -149,7 +148,7 @@ STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words")
 
 class BlnEventHandler : public SVEventHandler {
  public:
-  void Notify(const SVEvent* sv_event) {
+  void Notify(const SVEvent* sv_event) override {
     if (sv_event->type == SVET_DESTROY)
       bln_word_window = nullptr;
     else if (sv_event->type == SVET_CLICK)
@@ -169,7 +168,7 @@ ScrollView* bln_word_window_handle() {  // return handle
     bln_word_window = new ScrollView(editor_word_name.string(),
       editor_word_xpos, editor_word_ypos, editor_word_width,
       editor_word_height, 4000, 4000, true);
-    BlnEventHandler* a = new BlnEventHandler();
+    auto* a = new BlnEventHandler();
     bln_word_window->AddEventHandler(a);
     pgeditor_msg("Creating BLN word window...Done");
   }
@@ -246,7 +245,7 @@ void PGEventHandler::Notify(const SVEvent* event) {
 namespace tesseract {
 SVMenuNode *Tesseract::build_menu_new() {
   SVMenuNode* parent_menu;
-  SVMenuNode* root_menu_item = new SVMenuNode();
+  auto* root_menu_item = new SVMenuNode();
 
   SVMenuNode* modes_menu_item = root_menu_item->AddChild("MODES");
 
@@ -261,12 +260,12 @@ SVMenuNode *Tesseract::build_menu_new() {
 
   parent_menu = root_menu_item->AddChild("DISPLAY");
 
-  parent_menu->AddChild("Blamer", BLAMER_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Bounding Boxes", BOUNDING_BOX_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Correct Text", CORRECT_TEXT_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Baseline Normalized", BL_NORM_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Edge Steps", BITMAP_CMD_EVENT, TRUE);
+  parent_menu->AddChild("Blamer", BLAMER_CMD_EVENT, false);
+  parent_menu->AddChild("Bounding Boxes", BOUNDING_BOX_CMD_EVENT, false);
+  parent_menu->AddChild("Correct Text", CORRECT_TEXT_CMD_EVENT, false);
+  parent_menu->AddChild("Polygonal Approx", POLYGONAL_CMD_EVENT, false);
+  parent_menu->AddChild("Baseline Normalized", BL_NORM_CMD_EVENT, false);
+  parent_menu->AddChild("Edge Steps", BITMAP_CMD_EVENT, true);
   parent_menu->AddChild("Subscripts", SHOW_SUBSCRIPT_CMD_EVENT);
   parent_menu->AddChild("Superscripts", SHOW_SUPERSCRIPT_CMD_EVENT);
   parent_menu->AddChild("Italics", SHOW_ITALIC_CMD_EVENT);
@@ -281,9 +280,9 @@ SVMenuNode *Tesseract::build_menu_new() {
   parent_menu = root_menu_item->AddChild("OTHER");
 
   parent_menu->AddChild("Quit", QUIT_CMD_EVENT);
-  parent_menu->AddChild("Show Image", IMAGE_CMD_EVENT, FALSE);
-  parent_menu->AddChild("ShowBlock Outlines", BLOCKS_CMD_EVENT, FALSE);
-  parent_menu->AddChild("Show Baselines", BASELINES_CMD_EVENT, FALSE);
+  parent_menu->AddChild("Show Image", IMAGE_CMD_EVENT, false);
+  parent_menu->AddChild("ShowBlock Outlines", BLOCKS_CMD_EVENT, false);
+  parent_menu->AddChild("Show Baselines", BASELINES_CMD_EVENT, false);
   parent_menu->AddChild("Uniform Display", UNIFORM_DISP_CMD_EVENT);
   parent_menu->AddChild("Refresh Display", REFRESH_CMD_EVENT);
 
@@ -300,7 +299,7 @@ void Tesseract::do_re_display(
   int block_count = 1;
 
   image_win->Clear();
-  if (display_image != 0) {
+  if (display_image) {
     image_win->Image(pix_binary_, 0, 0);
   }
 
@@ -427,7 +426,7 @@ bool Tesseract::process_cmd_win_event(                 // UI command semantics
     case RECOG_WERDS:
     case RECOG_PSEUDO:
     case SHOW_BLOB_FEATURES:
-      mode =(CMD_EVENTS) cmd_event;
+      mode =static_cast<CMD_EVENTS>(cmd_event);
       break;
     case DEBUG_WERD_CMD_EVENT:
       mode = DEBUG_WERD_CMD_EVENT;
@@ -823,13 +822,12 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
                                  // display bounding box
   if (word->display_flag(DF_BOX)) {
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color),
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color));
 
-    ScrollView::Color c = (ScrollView::Color)
-       ((int32_t) editor_image_blob_bb_color);
+    auto c = static_cast<ScrollView::Color>((int32_t) editor_image_blob_bb_color);
     image_win->Pen(c);
     // cblob iterator
     C_BLOB_IT c_it(word->cblob_list());
@@ -879,7 +877,7 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     text += best_choice_str;
     IncorrectResultReason reason = (blamer_bundle == nullptr) ?
         IRR_PAGE_LAYOUT : blamer_bundle->incorrect_result_reason();
-    ASSERT_HOST(reason < IRR_NUM_REASONS)
+    ASSERT_HOST(reason < IRR_NUM_REASONS);
     blame += " [";
     blame += BlamerBundle::IncorrectReasonName(reason);
     blame += "]";
@@ -905,8 +903,8 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
 
   if (!displayed_something)      // display BBox anyway
     word->bounding_box().plot(image_win,
-     (ScrollView::Color)((int32_t) editor_image_word_bb_color),
-     (ScrollView::Color)((int32_t)
+     static_cast<ScrollView::Color>((int32_t) editor_image_word_bb_color),
+     static_cast<ScrollView::Color>((int32_t)
       editor_image_word_bb_color));
   return true;
 }

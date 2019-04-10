@@ -3,7 +3,6 @@
 // Description: Network layer that reconfigures the scaling vs feature
 //              depth.
 // Author:      Ray Smith
-// Created:     Wed Feb 26 15:37:42 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,9 +15,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
+
 #ifndef TESSERACT_LSTM_RECONFIG_H_
 #define TESSERACT_LSTM_RECONFIG_H_
-
 
 #include "genericvector.h"
 #include "matrix.h"
@@ -33,7 +32,7 @@ namespace tesseract {
 class Reconfig : public Network {
  public:
   Reconfig(const STRING& name, int ni, int x_scale, int y_scale);
-  virtual ~Reconfig() = default;
+  ~Reconfig() override = default;
 
   // Returns the shape output from the network given an input shape (which may
   // be partially unknown ie zero).
@@ -71,6 +70,11 @@ class Reconfig : public Network {
                 NetworkScratch* scratch,
                 NetworkIO* back_deltas) override;
 
+ private:
+  void DebugWeights() override {
+    tprintf("Must override Network::DebugWeights for type %d\n", type_);
+  }
+
  protected:
   // Non-serialized data used to store parameters between forward and back.
   StrideMap back_map_;
@@ -80,6 +84,5 @@ class Reconfig : public Network {
 };
 
 }  // namespace tesseract.
-
 
 #endif  // TESSERACT_LSTM_SUBSAMPLE_H_

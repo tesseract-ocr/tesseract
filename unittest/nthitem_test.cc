@@ -24,7 +24,7 @@ class NthItemTest : public testing::Test {
   virtual ~NthItemTest();
   // Pushes the test data onto the KDVector.
   void PushTestData(KDVector* v) {
-    for (int i = 0; i < ARRAYSIZE(test_data); ++i) {
+    for (size_t i = 0; i < ARRAYSIZE(test_data); ++i) {
       IntKDPair pair(test_data[i], i);
       v->push_back(pair);
     }
@@ -65,7 +65,7 @@ TEST_F(NthItemTest, BoringTest) {
   KDVector v;
   // Push the test data onto the KDVector.
   int test_data[] = {8, 8, 8, 8, 8, 7, 7, 7, 7};
-  for (int i = 0; i < ARRAYSIZE(test_data); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE(test_data); ++i) {
     IntKDPair pair(test_data[i], i);
     v.push_back(pair);
   }

@@ -23,17 +23,6 @@
 ----------------------------------------------------------------------------**/
 #include "strngs.h"
 
-/*---------------------------------------------------------------------------
-          Macros
-----------------------------------------------------------------------------*/
-/* macros for controlling the display of recognized characters */
-#define EnableCharDisplay()   (DisplayCharacters = TRUE)
-#define DisableCharDisplay()    (DisplayCharacters = FALSE)
-
-/* macros for controlling the display of the entire match list */
-#define EnableMatchDisplay()    (DisplayMatchList = TRUE)
-#define DisableMatchDisplay()   (DisplayMatchList = FALSE)
-
 /**----------------------------------------------------------------------------
           Public Function Prototypes
 ----------------------------------------------------------------------------**/

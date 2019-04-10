@@ -33,7 +33,7 @@ using BlobGridSearch = GridSearch<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT>;
 class BlobGrid : public BBGrid<BLOBNBOX, BLOBNBOX_CLIST, BLOBNBOX_C_IT> {
  public:
   BlobGrid(int gridsize, const ICOORD& bleft, const ICOORD& tright);
-  virtual ~BlobGrid();
+  ~BlobGrid() override;
 
   // Inserts all the blobs from the given list, with x and y spreading,
   // without removing from the source list, so ownership remains with the
