@@ -10,8 +10,10 @@ API_SRC = \
           ../src/api/baseapi.cpp \
           ../src/api/capi.cpp \
           ../src/api/hocrrenderer.cpp \
+          ../src/api/lstmboxrenderer.cpp \
           ../src/api/pdfrenderer.cpp \
-          ../src/api/renderer.cpp
+          ../src/api/renderer.cpp \
+          ../src/api/wordstrboxrenderer.cpp
 
 API_OBJ = $(API_SRC:.cpp=.o)
 $(API_OBJ): $(API_INSTHDR)

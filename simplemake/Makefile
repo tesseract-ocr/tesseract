@@ -5,6 +5,7 @@ LIBVERSION = 4
 
 CPPFLAGS = -DUSE_STD_NAMESPACE -DVERSION=\"$(VERSION)\" -DPACKAGE_VERSION=\"$(VERSION)\" \
            -DTESSDATA_PREFIX=$(TESSDATAPREFIX) \
+           $(OPTIMIZATION_CPPFLAGS) \
            -Wall \
            -fPIC \
            -O2 \

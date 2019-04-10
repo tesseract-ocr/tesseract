@@ -1,10 +1,8 @@
 CUTIL_HDR = \
             ../src/cutil/bitvec.h \
             ../src/cutil/callcpp.h \
-            ../src/cutil/cutil.h \
             ../src/cutil/cutil_class.h \
             ../src/cutil/emalloc.h \
-            ../src/cutil/globals.h \
             ../src/cutil/oldlist.h \
             ../src/cutil/structures.h
 

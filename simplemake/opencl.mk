@@ -1,7 +1,6 @@
 OPENCL_HDR = \
              ../src/opencl/oclkernels.h \
-             ../src/opencl/openclwrapper.h \
-             ../src/opencl/opencl_device_selection.h
+             ../src/opencl/openclwrapper.h
 
 OPENCL_SRC = ../src/opencl/openclwrapper.cpp
 

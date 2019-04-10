@@ -12,6 +12,9 @@ TESSDATAPREFIX = $(PREFIX)/share/tesseract-ocr
 ARCH_CPPFLAGS = -mavx -msse4.1
 EXTRA_CPPFLAGS = -DDISABLED_LEGACY_ENGINE
 
+# Optimization flags (if disabled, comment out the marked lines in arch.mk too)
+OPTIMIZATION_CPPFLAGS = -DAVX -mavx -DAVX2 -mavx2 -DSSE4_1 -msse4.1
+
 # Enable legacy engine (uncomment lines to enable)
 #EXTRA_OBJ = $(CCMAIN_LEGACY_OBJ) $(CLASSIFY_LEGACY_OBJ) $(WORDREC_LEGACY_OBJ)
 #EXTRA_CPPFLAGS =

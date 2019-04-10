@@ -10,7 +10,6 @@ CCMAIN_HDR = \
              ../src/ccmain/paramsd.h \
              ../src/ccmain/pgedit.h \
              ../src/ccmain/reject.h \
-             ../src/ccmain/tessedit.h \
              ../src/ccmain/tesseractclass.h \
              ../src/ccmain/tessvars.h \
              ../src/ccmain/werdit.h
