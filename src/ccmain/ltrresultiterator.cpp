@@ -415,9 +415,9 @@ const char* ChoiceIterator::GetUTF8Text() const {
 }
 
 // Returns the confidence of the current choice depending on the used language
-// data. If only LSTM traineddata is used the value range is 0.0f - 1.0f. All 
+// data. If only LSTM traineddata is used the value range is 0.0f - 1.0f. All
 // choices for one symbol should roughly add up to 1.0f.
-// If only traineddata of the legacy engine is used, the number should be 
+// If only traineddata of the legacy engine is used, the number should be
 // interpreted as a percent probability. (0.0f-100.0f) In this case probabilities
 // won't add up to 100. Each one stands on its own.
 float ChoiceIterator::Confidence() const {

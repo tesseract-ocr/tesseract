@@ -226,7 +226,7 @@ def parse_flags(argv=None):
         ctx.output_dir = mkdtemp(prefix=f"trained-{ctx.lang_code}-{ctx.timestamp}")
         log.info(f"Output directory set to: {ctx.output_dir}")
 
-    # Location where intermediate files will be created.       
+    # Location where intermediate files will be created.
     if not ctx.tmp_dir:
         ctx.training_dir = mkdtemp(prefix=f"{ctx.lang_code}-{ctx.timestamp}")
     else:

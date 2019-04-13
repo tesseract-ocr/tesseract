@@ -2,7 +2,6 @@
 // File:        lstmtrainer.cpp
 // Description: Top-level line trainer class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Fir May 03 09:14:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -879,7 +878,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   targets->SubtractAllFromFloat(*fwd_outputs);
   if (debug_interval_ != 0) {
       if (truth_text != ocr_text) {
-         tprintf("Iteration %d: BEST OCR TEXT : %s\n", 
+         tprintf("Iteration %d: BEST OCR TEXT : %s\n",
             training_iteration(), ocr_text.string());
       }
   }
