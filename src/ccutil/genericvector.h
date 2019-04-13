@@ -374,15 +374,7 @@ using FileWriter = bool (*)(const GenericVector<char>&, const STRING&);
 // returning false on error.
 inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   bool result = false;
-  FILE* fp = nullptr;
-  
-  // For MSVC
-  #if defined(_MSC_VER)
-  fp = fopen(filename, "rb");
-  #else
-  fp = fopen(filename, "rbe");
-  #endif
- 
+  FILE* fp = fopen(filename, "rb");
   if (fp != nullptr) {
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
@@ -408,15 +400,7 @@ inline bool LoadDataFromFile(const STRING& filename,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
                            const STRING& filename) {
-  FILE* fp = nullptr;
-  
-  // For MSVC
-  #if defined(_MSC_VER)
-  fp = fopen(filename.string(), "wb");
-  #else
-  fp = fopen(filename.string(), "wbe");
-  #endif
-   
+  FILE* fp = fopen(filename.string(), "wb");
   if (fp == nullptr) {
     return false;
   }
