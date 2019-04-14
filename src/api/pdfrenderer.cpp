@@ -20,7 +20,9 @@
 #include "config_auto.h"
 #endif
 
+#include <locale>  // for std::locale::classic
 #include <memory>  // std::unique_ptr
+#include <sstream> // for std::stringstream
 #include "allheaders.h"
 #include "baseapi.h"
 #include <cmath>
@@ -324,7 +326,6 @@ static bool CodepointToUtf16be(int code, char utf16[kMaxBytesPerCodepoint]) {
 
 char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
                                          double width, double height) {
-  STRING pdf_str("");
   double ppi = api->GetSourceYResolution();
 
   // These initial conditions are all arbitrary and will be overwritten
@@ -339,18 +340,20 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
   double c = 0;
   double d = 1;
 
+  std::stringstream pdf_str;
+  // Use "C" locale (needed for double values prec()).
+  pdf_str.imbue(std::locale::classic());
+  // Use 8 digits for double values.
+  pdf_str.precision(8);
+
   // TODO(jbreiden) This marries the text and image together.
   // Slightly cleaner from an abstraction standpoint if this were to
   // live inside a separate text object.
-  pdf_str += "q ";
-  pdf_str.add_str_double("", prec(width));
-  pdf_str += " 0 0 ";
-  pdf_str.add_str_double("", prec(height));
-  pdf_str += " 0 0 cm";
+  pdf_str << "q " << prec(width) << " 0 0 " << prec(height) << " 0 0 cm";
   if (!textonly_) {
-    pdf_str += " /Im1 Do";
+    pdf_str << " /Im1 Do";
   }
-  pdf_str += " Q\n";
+  pdf_str << " Q\n";
 
   int line_x1 = 0;
   int line_y1 = 0;
@@ -360,7 +363,7 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
   ResultIterator *res_it = api->GetIterator();
   while (!res_it->Empty(RIL_BLOCK)) {
     if (res_it->IsAtBeginningOf(RIL_BLOCK)) {
-      pdf_str += "BT\n3 Tr";     // Begin text object, use invisible ink
+      pdf_str << "BT\n3 Tr";     // Begin text object, use invisible ink
       old_fontsize = 0;          // Every block will declare its fontsize
       new_block = true;          // Every block will declare its affine matrix
     }
@@ -412,20 +415,20 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     if (writing_direction != old_writing_direction || new_block) {
       AffineMatrix(writing_direction,
                    line_x1, line_y1, line_x2, line_y2, &a, &b, &c, &d);
-      pdf_str.add_str_double(" ", prec(a));  // . This affine matrix
-      pdf_str.add_str_double(" ", prec(b));  // . sets the coordinate
-      pdf_str.add_str_double(" ", prec(c));  // . system for all
-      pdf_str.add_str_double(" ", prec(d));  // . text that follows.
-      pdf_str.add_str_double(" ", prec(x));  // .
-      pdf_str.add_str_double(" ", prec(y));  // .
-      pdf_str += (" Tm ");                   // Place cursor absolutely
+      pdf_str << " " << prec(a) // . This affine matrix
+              << " " << prec(b) // . sets the coordinate
+              << " " << prec(c) // . system for all
+              << " " << prec(d) // . text that follows.
+              << " " << prec(x) // .
+              << " " << prec(y) // .
+              << (" Tm ");      // Place cursor absolutely
       new_block = false;
     } else {
       double dx = x - old_x;
       double dy = y - old_y;
-      pdf_str.add_str_double(" ", prec(dx * a + dy * b));
-      pdf_str.add_str_double(" ", prec(dx * c + dy * d));
-      pdf_str += (" Td ");                   // Relative moveto
+      pdf_str << " " << prec(dx * a + dy * b)
+              << " " << prec(dx * c + dy * d)
+              << (" Td ");      // Relative moveto
     }
     old_x = x;
     old_y = y;
@@ -444,16 +447,14 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       if (fontsize <= 0)
         fontsize = kDefaultFontsize;
       if (fontsize != old_fontsize) {
-        char textfont[20];
-        snprintf(textfont, sizeof(textfont), "/f-0-0 %d Tf ", fontsize);
-        pdf_str += textfont;
+        pdf_str << "/f-0-0 " << fontsize << " Tf ";
         old_fontsize = fontsize;
       }
     }
 
     bool last_word_in_line = res_it->IsAtFinalElement(RIL_TEXTLINE, RIL_WORD);
     bool last_word_in_block = res_it->IsAtFinalElement(RIL_BLOCK, RIL_WORD);
-    STRING pdf_word("");
+    std::string pdf_word;
     int pdf_word_len = 0;
     do {
       const std::unique_ptr<const char[]> grapheme(
@@ -473,23 +474,22 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
     if (word_length > 0 && pdf_word_len > 0) {
       double h_stretch =
           kCharWidth * prec(100.0 * word_length / (fontsize * pdf_word_len));
-      pdf_str.add_str_double("", h_stretch);
-      pdf_str += " Tz";          // horizontal stretch
-      pdf_str += " [ <";
-      pdf_str += pdf_word;       // UTF-16BE representation
-      pdf_str += "> ] TJ";       // show the text
+      pdf_str << h_stretch << " Tz"     // horizontal stretch
+              << " [ <" << pdf_word     // UTF-16BE representation
+              << "> ] TJ";              // show the text
     }
     if (last_word_in_line) {
-      pdf_str += " \n";
+      pdf_str << " \n";
     }
     if (last_word_in_block) {
-      pdf_str += "ET\n";         // end the text object
+      pdf_str << "ET\n";         // end the text object
     }
   }
-  char *ret = new char[pdf_str.length() + 1];
-  strcpy(ret, pdf_str.string());
+  const std::string& text = pdf_str.str();
+  char* result = new char[text.length() + 1];
+  strcpy(result, text.c_str());
   delete res_it;
-  return ret;
+  return result;
 }
 
 bool TessPDFRenderer::BeginDocumentHandler() {

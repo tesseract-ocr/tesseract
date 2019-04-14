@@ -2,7 +2,6 @@
  * File:        strngs.cpp  (Formerly strings.c)
  * Description: STRING class functions.
  * Author:      Ray Smith
- * Created:     Fri Feb 15 09:13:30 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +19,8 @@
 #include "strngs.h"
 #include <cassert>          // for assert
 #include <cstdlib>          // for malloc, free
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
 #include "errcode.h"        // for ASSERT_HOST
 #include "genericvector.h"  // for GenericVector
 #include "helpers.h"        // for ReverseN
@@ -389,11 +390,13 @@ void STRING::add_str_int(const char* str, int number) {
 void STRING::add_str_double(const char* str, double number) {
   if (str != nullptr)
     *this += str;
-  // Allow space for the maximum possible length of %8g.
-  char num_buffer[kMaxDoubleSize];
-  snprintf(num_buffer, kMaxDoubleSize - 1, "%.8g", number);
-  num_buffer[kMaxDoubleSize - 1] = '\0';
-  *this += num_buffer;
+  std::stringstream stream;
+  // Use "C" locale (needed for double value).
+  stream.imbue(std::locale::classic());
+  // Use 8 digits for double value.
+  stream.precision(8);
+  stream << number;
+  *this += stream.str().c_str();
 }
 
 STRING & STRING::operator=(const char* cstr) {
