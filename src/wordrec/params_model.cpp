@@ -2,7 +2,6 @@
 // File:        params_model.cpp
 // Description: Trained language model parameters.
 // Author:      David Eger
-// Created:     Mon Jun 11 11:26:42 PDT 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,17 +97,6 @@ bool ParamsModel::Equivalent(const ParamsModel &that) const {
     }
   }
   return true;
-}
-
-bool ParamsModel::LoadFromFile(
-    const char *lang,
-    const char *full_path) {
-  TFile fp;
-  if (!fp.Open(full_path, nullptr)) {
-    tprintf("Error opening file %s\n", full_path);
-    return false;
-  }
-  return LoadFromFp(lang, &fp);
 }
 
 bool ParamsModel::LoadFromFp(const char *lang, TFile *fp) {
