@@ -123,7 +123,9 @@ check_PROGRAMS = \
   matrix_test \
   nthitem_test \
   osd_test \
-  paragraphs_test \
+  paragraphs_test
+check_PROGRAMS += params_model_test
+check_PROGRAMS += \
   progress_test \
   qrsequence_test \
   recodebeam_test \
@@ -258,6 +260,9 @@ nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+
+params_model_test_SOURCES = params_model_test.cc
+params_model_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
