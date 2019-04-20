@@ -146,6 +146,63 @@ INT_VAR(editor_word_width, 655, "Word window width");
 
 STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words");
 
+/**
+ * show_point()
+ *
+ * Show coords of point, blob bounding box, word bounding box and offset from
+ * row baseline
+ */
+
+static void show_point(PAGE_RES* page_res, float x, float y) {
+  FCOORD pt(x, y);
+  PAGE_RES_IT pr_it(page_res);
+
+  const int kBufsize = 512;
+  char msg[kBufsize];
+  char *msg_ptr = msg;
+
+  msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);
+
+  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
+    if (pr_it.row() != pr_it.prev_row() &&
+        pr_it.row()->row->bounding_box().contains(pt)) {
+      msg_ptr += sprintf(msg_ptr, "BL(x)=%0.3f ",
+                         pr_it.row()->row->base_line(x));
+    }
+    if (word->word->bounding_box().contains(pt)) {
+      TBOX box = word->word->bounding_box();
+      msg_ptr += sprintf(msg_ptr, "Wd(%d, %d)/(%d, %d) ",
+                         box.left(), box.bottom(),
+                         box.right(), box.top());
+      C_BLOB_IT cblob_it(word->word->cblob_list());
+      for (cblob_it.mark_cycle_pt();
+           !cblob_it.cycled_list();
+           cblob_it.forward()) {
+        C_BLOB* cblob = cblob_it.data();
+        box = cblob->bounding_box();
+        if (box.contains(pt)) {
+          msg_ptr += sprintf(msg_ptr,
+                             "CBlb(%d, %d)/(%d, %d) ",
+                             box.left(), box.bottom(),
+                             box.right(), box.top());
+        }
+      }
+    }
+  }
+  image_win->AddMessage(msg);
+}
+
+/**
+ * pgeditor_msg()
+ *
+ * Display a message - in the command window if there is one, or to stdout
+ */
+
+static void pgeditor_msg( // message display
+                  const char *msg) {
+    image_win->AddMessage(msg);
+}
+
 class BlnEventHandler : public SVEventHandler {
  public:
   void Notify(const SVEvent* sv_event) override {
@@ -161,7 +218,7 @@ class BlnEventHandler : public SVEventHandler {
  *
  *  @return a WINDOW for the word window, creating it if necessary
  */
-ScrollView* bln_word_window_handle() {  // return handle
+static ScrollView* bln_word_window_handle() {  // return handle
                                  // not opened yet
   if (bln_word_window == nullptr) {
     pgeditor_msg("Creating BLN word window...");
@@ -182,7 +239,7 @@ ScrollView* bln_word_window_handle() {  // return handle
  *  new window needs to be. Create it and re-display.
  */
 
-void build_image_window(int width, int height) {
+static void build_image_window(int width, int height) {
   delete image_win;
   image_win = new ScrollView(editor_image_win_name.string(),
                              editor_image_xpos, editor_image_ypos,
@@ -351,29 +408,6 @@ void Tesseract::pgeditor_main(int width, int height, PAGE_RES *page_res) {
   image_win->AddEventHandler(nullptr);
 }
 }  // namespace tesseract
-
-
-/**
- * pgeditor_msg()
- *
- * Display a message - in the command window if there is one, or to stdout
- */
-
-void pgeditor_msg( // message display
-                  const char *msg) {
-    image_win->AddMessage(msg);
-}
-
-/**
- * pgeditor_show_point()
- *
- * Display the coordinates of a point in the command window
- */
-
-void pgeditor_show_point( // display coords
-                         SVEvent *event) {
-  image_win->AddMessage("Pointing at(%d, %d)", event->x, event->y);
-}
 
 /**
  *  process_cmd_win_event()
@@ -640,53 +674,6 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
   recog_all_words(page_res, nullptr, &selection_box, word_config_.string(), 0);
 }
 }  // namespace tesseract
-
-
-/**
- * show_point()
- *
- * Show coords of point, blob bounding box, word bounding box and offset from
- * row baseline
- */
-
-void show_point(PAGE_RES* page_res, float x, float y) {
-  FCOORD pt(x, y);
-  PAGE_RES_IT pr_it(page_res);
-
-  const int kBufsize = 512;
-  char msg[kBufsize];
-  char *msg_ptr = msg;
-
-  msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);
-
-  for (WERD_RES* word = pr_it.word(); word != nullptr; word = pr_it.forward()) {
-    if (pr_it.row() != pr_it.prev_row() &&
-        pr_it.row()->row->bounding_box().contains(pt)) {
-      msg_ptr += sprintf(msg_ptr, "BL(x)=%0.3f ",
-                         pr_it.row()->row->base_line(x));
-    }
-    if (word->word->bounding_box().contains(pt)) {
-      TBOX box = word->word->bounding_box();
-      msg_ptr += sprintf(msg_ptr, "Wd(%d, %d)/(%d, %d) ",
-                         box.left(), box.bottom(),
-                         box.right(), box.top());
-      C_BLOB_IT cblob_it(word->word->cblob_list());
-      for (cblob_it.mark_cycle_pt();
-           !cblob_it.cycled_list();
-           cblob_it.forward()) {
-        C_BLOB* cblob = cblob_it.data();
-        box = cblob->bounding_box();
-        if (box.contains(pt)) {
-          msg_ptr += sprintf(msg_ptr,
-                             "CBlb(%d, %d)/(%d, %d) ",
-                             box.left(), box.bottom(),
-                             box.right(), box.top());
-        }
-      }
-    }
-  }
-  image_win->AddMessage(msg);
-}
 
 
 /**********************************************************************

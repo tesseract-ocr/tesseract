@@ -28,7 +28,6 @@
 #  include "matchdefs.h"
 #include "pageres.h"
 #include "params.h"
-#include "pgedit.h"
 #include "stopper.h"
 #include "tesseractclass.h"
 #include "tessvars.h"
