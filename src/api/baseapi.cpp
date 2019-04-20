@@ -47,8 +47,10 @@
 #include <cstring>             // for strcmp, strcpy
 #include <fstream>             // for size_t
 #include <iostream>            // for std::cin
+#include <locale>              // for std::locale::classic
 #include <memory>              // for std::unique_ptr
 #include <set>                 // for std::pair
+#include <sstream>             // for std::stringstream
 #include <vector>              // for std::vector
 #include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
 #include "blobclass.h"         // for ExtractFontName
@@ -1687,19 +1689,23 @@ char* TessBaseAPI::GetOsdText(int page_number) {
   // clockwise rotation needed to make the page upright
   int rotate = OrientationIdToValue(orient_deg / 90);
 
-  const int kOsdBufsize = 255;
-  char* osd_buf = new char[kOsdBufsize];
-  snprintf(osd_buf, kOsdBufsize,
-           "Page number: %d\n"
-           "Orientation in degrees: %d\n"
-           "Rotate: %d\n"
-           "Orientation confidence: %.2f\n"
-           "Script: %s\n"
-           "Script confidence: %.2f\n",
-           page_number, orient_deg, rotate, orient_conf, script_name,
-           script_conf);
-
-  return osd_buf;
+  std::stringstream stream;
+  // Use "C" locale (needed for float values orient_conf and script_conf).
+  stream.imbue(std::locale::classic());
+  // Use fixed notation with 2 digits after the decimal point for float values.
+  stream.precision(2);
+  stream
+    << std::fixed
+    << "Page number: " << page_number << "\n"
+    << "Orientation in degrees: " << orient_deg << "\n"
+    << "Rotate: " << rotate << "\n"
+    << "Orientation confidence: " << orient_conf << "\n"
+    << "Script: " << script_name << "\n"
+    << "Script confidence: " << script_conf << "\n";
+  const std::string& text = stream.str();
+  char* result = new char[text.length() + 1];
+  strcpy(result, text.c_str());
+  return result;
 }
 
 #endif // ndef DISABLED_LEGACY_ENGINE
