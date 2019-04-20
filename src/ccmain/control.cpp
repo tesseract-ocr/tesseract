@@ -37,7 +37,6 @@
 #include "ocrclass.h"
 #include "output.h"
 #include "pageres.h"             // for WERD_RES, PAGE_RES_IT, PAGE_RES, BLO...
-#include "pgedit.h"
 #ifndef DISABLED_LEGACY_ENGINE
 #include "reject.h"
 #endif
