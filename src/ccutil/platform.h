@@ -20,7 +20,6 @@
 
 #define DLLSYM
 #ifdef _WIN32
-#  include <windows.h>   // MAX_PATH
 #  ifndef NOMINMAX
 #    define NOMINMAX
 #  endif /* NOMINMAX */
