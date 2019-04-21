@@ -182,6 +182,7 @@ add_definitions(-DHAVE_CONFIG_H)
 if(GRAPHICS_DISABLED)
     message("ScrollView debugging disabled.")
 endif()
+set (CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} "${CMAKE_PREFIX_PATH}/include" "${CMAKE_INSTALL_PREFIX}/include")
 include(Configure)
 
 configure_file(${AUTOCONFIG_SRC} ${AUTOCONFIG} @ONLY)
