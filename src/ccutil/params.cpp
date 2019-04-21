@@ -25,9 +25,9 @@
 #include <sstream>          // for std::stringstream
 
 #include "genericvector.h"
+#include "host.h"           // platform.h, windows.h for MAX_PATH
 #include "tprintf.h"
 #include "params.h"
-#include "platform.h"  // MAX_PATH
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'
