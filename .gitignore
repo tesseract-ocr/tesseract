@@ -1,6 +1,7 @@
 *~
 # Windows
-*.user
+*.user.*
+*.idea*
 *.log
 *.tlog
 *.cache
