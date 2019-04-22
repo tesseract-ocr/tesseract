@@ -44,8 +44,6 @@ char* TessBaseAPI::GetWordStrBoxText(int page_number=0) {
       continue;
     }
 
-    // Use bounding box for whole line for WordStr
-    res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
       if (!first_line) {
         wordstr_box_str.add_str_int("\n\t ", right + 1);
@@ -57,6 +55,8 @@ char* TessBaseAPI::GetWordStrBoxText(int page_number=0) {
       } else {
         first_line = false;
       }
+     // Use bounding box for whole line for WordStr
+     res_it->BoundingBox(RIL_TEXTLINE, &left, &top, &right, &bottom);
       wordstr_box_str.add_str_int("WordStr ", left);
       wordstr_box_str.add_str_int(" ", image_height_ - bottom);
       wordstr_box_str.add_str_int(" ", right);
