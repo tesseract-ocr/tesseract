@@ -175,6 +175,38 @@ endif()
 #
 ###############################################################################
 
+# auto optimize
+include(OptimizeForArchitecture)
+AutodetectHostArchitecture()
+OptimizeForArchitecture()
+foreach(flag ${Vc_ARCHITECTURE_FLAGS})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+endforeach()
+
+# add definition as expected in src/arch/simddetect.cpp
+set(AVX_OPT 0)
+set(AVX2_OPT 0)
+set(SSE41_OPT 0)
+set(MARCH_NATIVE_OPT 0)
+foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
+    string(TOUPPER "${flag}" flag)
+    string(REPLACE "\." "_" flag "${flag}")
+    set(sim_flags "${sim_flags} -D${flag}")
+    string(REPLACE "_" "" flag "${flag}")
+    if("${flag}" MATCHES "AVX|AVX2|SSE41")
+        set("${flag}_OPT" 1)
+    endif()
+endforeach(flag)
+FILE(GLOB arch_files "src/arch/*.cpp")
+set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${sim_flags}")
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+if(COMPILER_SUPPORTS_MARCH_NATIVE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
+    set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math")
+    set(MARCH_NATIVE_OPT 1)
+endif()
+
 set(AUTOCONFIG_SRC ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h.in)
 set(AUTOCONFIG ${CMAKE_CURRENT_BINARY_DIR}/config_auto.h)
 add_definitions(-DHAVE_CONFIG_H)
@@ -243,7 +275,9 @@ endif()
 ########################################
 
 file(GLOB tesseract_src
-    src/arch/*.cpp
+    src/arch/simddetect.cpp
+    src/arch/intsimdmatrix.cpp
+    src/arch/dotproduct.cpp
     src/ccmain/*.cpp
     src/ccstruct/*.cpp
     src/ccutil/*.cpp
@@ -256,6 +290,17 @@ file(GLOB tesseract_src
     src/viewer/*.cpp
     src/wordrec/*.cpp
 )
+
+if(AVX_OPT)
+   list(APPEND tesseract_src src/arch/dotproductavx.cpp)
+endif(AVX_OPT)
+if(AVX2_OPT)
+   list(APPEND tesseract_src src/arch/intsimdmatrixavx2.cpp)
+endif(AVX2_OPT)
+if(SSE41_OPT)
+   list(APPEND tesseract_src src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
+endif(SSE41_OPT)
+
 file(GLOB tesseract_hdr
     src/api/*.h
     src/arch/*.h
@@ -290,56 +335,7 @@ if (WIN32)
             ${tesseract_hdr}
             ${CMAKE_CURRENT_SOURCE_DIR}/src/vs2010/tesseract/resource.h)
         set(tesseract_rsc ${CMAKE_CURRENT_BINARY_DIR}/vs2010/tesseract/libtesseract.rc)
-        if (NOT CLANG)
-            set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
-                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
-            set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
-                PROPERTIES COMPILE_DEFINITIONS __SSE4_1__)
-            set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
-                PROPERTIES COMPILE_FLAGS "/arch:AVX")
-            set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
-                PROPERTIES COMPILE_FLAGS "/arch:AVX2")
-            set_source_files_properties(
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simddetect.cpp
-                PROPERTIES COMPILE_FLAGS "/DAVX /DAVX2 /DSSE4_1")
-        else(CLANG)
-            set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
-                    PROPERTIES COMPILE_FLAGS "-msse4.1")
-            set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
-                    PROPERTIES COMPILE_FLAGS "-msse4.1")
-            set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
-                    PROPERTIES COMPILE_FLAGS "-mavx")
-            set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
-                    PROPERTIES COMPILE_FLAGS "-mavx2")
-            set_source_files_properties(
-                    ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simddetect.cpp
-                    PROPERTIES COMPILE_FLAGS "-DAVX -DAVX2 -DSSE4_1")
-        endif()  # NOT CLANG
     endif()  # MSVC
-else()
-    set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductsse.cpp
-            PROPERTIES COMPILE_FLAGS "-msse4.1")
-    set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixsse.cpp
-            PROPERTIES COMPILE_FLAGS "-msse4.1")
-    set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/dotproductavx.cpp
-            PROPERTIES COMPILE_FLAGS "-mavx")
-    set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/intsimdmatrixavx2.cpp
-            PROPERTIES COMPILE_FLAGS "-mavx2")
-    set_source_files_properties(
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/arch/simddetect.cpp
-            PROPERTIES COMPILE_FLAGS "-DAVX -DAVX2 -DSSE4_1")
 endif()
 
 add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr}
