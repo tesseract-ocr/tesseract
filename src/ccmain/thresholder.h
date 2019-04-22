@@ -1,8 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        thresholder.h
-// Description: Base API for thresolding images in tesseract.
+// Description: Base API for thresholding images in tesseract.
 // Author:      Ray Smith
-// Created:     Mon May 12 11:00:15 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
