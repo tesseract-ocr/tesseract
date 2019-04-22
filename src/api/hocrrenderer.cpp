@@ -20,10 +20,10 @@
 #include <locale>     // for std::locale::classic
 #include <memory>     // for std::unique_ptr
 #include <sstream>    // for std::stringstream
-#ifdef _WIN32
-# include <windows.h> // MultiByteToWideChar, ...
-#endif
 #include "baseapi.h"  // for TessBaseAPI
+#ifdef _WIN32
+# include "host.h"    // windows.h for MultiByteToWideChar, ...
+#endif
 #include "renderer.h"
 #include "tesseractclass.h"  // for Tesseract
 

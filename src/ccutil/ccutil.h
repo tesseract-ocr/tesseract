@@ -19,15 +19,16 @@
 #ifndef TESSERACT_CCUTIL_CCUTIL_H_
 #define TESSERACT_CCUTIL_CCUTIL_H_
 
-#ifdef _WIN32
-#include <windows.h>  // HANDLE, ...
-#else
+#ifndef _WIN32
 #include <pthread.h>
 #include <semaphore.h>
 #endif
 
 #include "ambigs.h"
 #include "errcode.h"
+#ifdef _WIN32
+#include "host.h" // windows.h for HANDLE, ...
+#endif
 #include "strngs.h"
 #include "params.h"
 #include "unicharset.h"
