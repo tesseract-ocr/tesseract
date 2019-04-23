@@ -15,7 +15,6 @@
  **********************************************************************/
 
 #ifdef _WIN32
-#include <windows.h>  // BOOL, ...
 #ifndef unlink
 #include <io.h>
 #endif
@@ -30,6 +29,7 @@
 
 #include "errcode.h"
 #include "fileio.h"
+#include "host.h"       // includes windows.h for BOOL, ...
 #include "tprintf.h"
 
 namespace tesseract {

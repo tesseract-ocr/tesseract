@@ -19,18 +19,7 @@
 #define TESSERACT_CCUTIL_PLATFORM_H_
 
 #define DLLSYM
-#ifdef _WIN32
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#  endif /* NOMINMAX */
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
-#  ifdef __GNUC__
-#    define ultoa _ultoa
-#  endif /* __GNUC__ */
-#  define SIGNED
-#else
+#ifndef _WIN32
 #  ifdef __cplusplus
 #    include <climits>
 #  else /* C compiler*/
@@ -41,7 +30,6 @@
 #  else
 #    define MAX_PATH PATH_MAX
 #  endif
-#  define SIGNED signed
 #endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
