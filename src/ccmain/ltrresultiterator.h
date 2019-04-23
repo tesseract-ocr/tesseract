@@ -233,7 +233,6 @@ class ChoiceIterator {
   std::vector<std::pair<const char*, float>>::iterator LSTM_choice_it_;
 
   const int* tstep_index_;
-  bool LSTM_mode_ = false;
   //true when there is lstm engine related trained data
   bool oemLSTM_;
   // true when there is legacy engine related trained data

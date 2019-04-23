@@ -233,6 +233,8 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         nullptr;
     std::vector<std::vector<std::pair<const char*, float>>>* choiceMap =
         nullptr;
+    std::vector<std::vector<std::pair<const char*, float>>>* CTCMap =
+        nullptr;
     std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
         symbolMap = nullptr;
     if (tesseract_->lstm_choice_mode) {
@@ -240,6 +242,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       choiceMap = res_it->GetBestLSTMSymbolChoices();
       symbolMap = res_it->GetSegmentedLSTMTimesteps();
       rawTimestepMap = res_it->GetRawLSTMTimesteps();
+      CTCMap = res_it->GetBestCTCSymbolChoices();
     }
     hocr_str << "\n      <span class='ocrx_word'"
              << " id='"
@@ -336,6 +339,31 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
                      << "'"
                      << " title='x_confs " << int(j.second * 100)
                      << "'>" << j.first << "</span>";
+            gcnt++;
+          }
+          hocr_str << "</span>";
+          tcnt++;
+        }
+      }
+    } else if (tesseract_->lstm_choice_mode == 4 ) {
+      for (auto timestep : *CTCMap) {
+        if (timestep.size() > 0) {
+          hocr_str << "\n       <span class='ocrx_cinfo'"
+                   << " id='"
+                   << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt
+                   << "'>";
+          for (auto& j : timestep) {
+            float confidence = 100 - 5 * j.second;
+            if (confidence < 0.0f)
+              confidence = 0.0f;
+            if (confidence > 100.0f)
+              confidence = 100.0f;
+            hocr_str << "<span class='ocr_glyph'"
+                     << " id='"
+                     << "choice_" << page_id << "_" << wcnt << "_" << gcnt
+                     << "'"
+                     << " title='x_confs " << confidence << "'>"
+                     << j.first << "</span>";
             gcnt++;
           }
           hocr_str << "</span>";

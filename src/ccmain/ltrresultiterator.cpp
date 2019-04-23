@@ -361,14 +361,15 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   oemLegacy_ = word_res_->tesseract->AnyTessLang();
   BLOB_CHOICE_LIST* choices = nullptr;
   tstep_index_ = &result_it.blob_index_;
-  if (oemLSTM_ && !oemLegacy_ && !word_res_->accumulated_timesteps.empty()) {
-    if (word_res_->leadingSpace)
-      LSTM_choices_ = &word_res_->accumulated_timesteps[(*tstep_index_) + 1];
-    else
-      LSTM_choices_ = &word_res_->accumulated_timesteps[*tstep_index_];
-    filterSpaces();
+  if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
+    int index = *tstep_index_;
+    if (word_res_->leading_space) ++index;
+    if (index < word_res_->CTC_symbol_choices.size()) {
+      LSTM_choices_ = &word_res_->CTC_symbol_choices[index];
+      filterSpaces();
+    }
   }
-  if (word_res_->ratings != nullptr)
+  if (oemLegacy_ && word_res_->ratings != nullptr)
     choices = word_res_->GetBlobChoices(result_it.blob_index_);
   if (choices != nullptr && !choices->empty()) {
     choice_it_ = new BLOB_CHOICE_IT(choices);
@@ -377,7 +378,6 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
     choice_it_ = nullptr;
   }
   if (LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
-    LSTM_mode_ = true;
     LSTM_choice_it_ = LSTM_choices_->begin();
   }
 }
@@ -386,7 +386,7 @@ ChoiceIterator::~ChoiceIterator() { delete choice_it_; }
 // Moves to the next choice for the symbol and returns false if there
 // are none left.
 bool ChoiceIterator::Next() {
-  if (LSTM_mode_) {
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     if (LSTM_choice_it_ != LSTM_choices_->end() &&
         next(LSTM_choice_it_) == LSTM_choices_->end()) {
       return false;
@@ -404,7 +404,7 @@ bool ChoiceIterator::Next() {
 // Returns the null terminated UTF-8 encoded text string for the current
 // choice. Do NOT use delete [] to free after use.
 const char* ChoiceIterator::GetUTF8Text() const {
-  if (LSTM_mode_) {
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
     return choice.first;
   } else {
@@ -421,23 +421,26 @@ const char* ChoiceIterator::GetUTF8Text() const {
 // interpreted as a percent probability. (0.0f-100.0f) In this case probabilities
 // won't add up to 100. Each one stands on its own.
 float ChoiceIterator::Confidence() const {
-  if (LSTM_mode_) {
+  float confidence = 0.0f;
+  if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
-    return choice.second;
+    confidence = 100 - 5 * choice.second;
   } else {
     if (choice_it_ == nullptr) return 0.0f;
     float confidence = 100 + 5 * choice_it_->data()->certainty();
-    if (confidence < 0.0f) confidence = 0.0f;
-    if (confidence > 100.0f) confidence = 100.0f;
-    return confidence;
   }
+  if (confidence < 0.0f)
+    confidence = 0.0f;
+  if (confidence > 100.0f)
+    confidence = 100.0f;
+  return confidence;
 }
 
 // Returns the set of timesteps which belong to the current symbol
 std::vector<std::vector<std::pair<const char*, float>>>*
 ChoiceIterator::Timesteps() const {
-  if (word_res_->symbol_steps.empty() || !LSTM_mode_) return nullptr;
-  if (word_res_->leadingSpace) {
+  if (word_res_->symbol_steps.empty() || !oemLSTM_) return nullptr;
+  if (word_res_->leading_space) {
     return &word_res_->symbol_steps[*(tstep_index_) + 1];
   } else {
     return &word_res_->symbol_steps[*tstep_index_];
@@ -447,20 +450,11 @@ ChoiceIterator::Timesteps() const {
 void ChoiceIterator::filterSpaces() {
   if (LSTM_choices_->empty()) return;
   std::vector<std::pair<const char*, float>>::iterator it;
-  bool found_space = false;
-  float sum = 0;
   for (it = LSTM_choices_->begin(); it != LSTM_choices_->end();) {
     if (!strcmp(it->first, " ")) {
       it = LSTM_choices_->erase(it);
-      found_space = true;
     } else {
-      sum += it->second;
       ++it;
-    }
-  }
-  if (found_space) {
-    for (it = LSTM_choices_->begin(); it != LSTM_choices_->end(); ++it) {
-      it->second /= sum;
     }
   }
 }

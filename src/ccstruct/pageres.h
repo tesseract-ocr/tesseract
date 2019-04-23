@@ -223,8 +223,10 @@ class WERD_RES : public ELIST_LINK {
   std::vector<std::vector<std::pair<const char*, float>>> accumulated_timesteps;
   std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
       symbol_steps;
-  //Stores if the timestep vector starts with a space
-  bool leadingSpace = false;
+  //Symbolchoices aquired during CTC
+  std::vector<std::vector<std::pair<const char*, float>>> CTC_symbol_choices;
+  // Stores if the timestep vector starts with a space
+  bool leading_space = false;
   // Ratings matrix contains classifier choices for each classified combination
   // of blobs. The dimension is the same as the number of blobs in chopped_word
   // and the leading diagonal corresponds to classifier results of the blobs
