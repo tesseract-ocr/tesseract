@@ -26,15 +26,12 @@
 
 #include "allheaders.h"
 #include "baseapi.h"
-#include "basedir.h"
 #include "dict.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h"      // for OpenclDevice
 #endif
-#include "osdetect.h"
 #include "renderer.h"
 #include "simddetect.h"
-#include "strngs.h"
 #include "tprintf.h"            // for tprintf
 
 #ifdef _OPENMP
