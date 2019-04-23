@@ -28,6 +28,7 @@
 #include "dppoint.h"
 #include "imagefind.h"
 #include "workingpartset.h"
+#include "host.h"              // for NearlyEqual
 
 #include <algorithm>
 
