@@ -16,11 +16,11 @@
  *
  **********************************************************************/
 
+#include "allheaders.h"
 #include "pdblock.h"
 #include <cstdlib>
 #include <memory>  // std::unique_ptr
-#include "allheaders.h"
-#include "host.h"  // for PRId32
+#include <cinttypes>  // for PRId32
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H

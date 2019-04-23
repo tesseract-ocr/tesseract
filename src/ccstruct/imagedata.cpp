@@ -33,11 +33,11 @@
 #include "boxread.h"     // for ReadMemBoxes
 #include "callcpp.h"     // for window_wait
 #include "helpers.h"     // for IntCastRounded, TRand, ClipToRange, Modulo
-#include "host.h"        // for PRId64
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "serialis.h"    // for TFile
 #include "tprintf.h"     // for tprintf
+#include <cinttypes>     // for PRId64
 
 // Number of documents to read ahead while training. Doesn't need to be very
 // large.
