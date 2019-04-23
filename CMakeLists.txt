@@ -90,10 +90,8 @@ endif()
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 if(cxx_std_14 IN_LIST known_features)
     set(CMAKE_CXX_STANDARD 14)
-    message("C++14 support enabled...")
 else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
-    message("C++11 support enabled...")
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -111,7 +109,6 @@ if (WIN32)
     if (MSVC)
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
-        add_definitions(-DNOMINMAX)
         if (NOT CLANG)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
         endif()
@@ -243,6 +240,7 @@ message( STATUS "General configuration for Tesseract ${PACKAGE_VERSION}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message( STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID}")
+message( STATUS "Used standard: C++${CMAKE_CXX_STANDARD}")
 message( STATUS "CXX compiler options: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UP}} ${CMAKE_CXX_FLAGS}")
 message( STATUS "Linker options: ${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS_${CMAKE_BUILD_TYPE_UP}}")
 message( STATUS "Install directory: ${CMAKE_INSTALL_PREFIX}")
@@ -472,7 +470,6 @@ install(FILES
     src/ccutil/fileerr.h
     src/ccutil/genericvector.h
     src/ccutil/helpers.h
-    src/ccutil/host.h
     src/ccutil/params.h
     src/ccutil/ocrclass.h
     src/ccutil/platform.h
