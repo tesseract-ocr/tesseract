@@ -24,7 +24,7 @@
 #define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
-#include "host.h"       // also includes windows.h
+#  include "host.h"  // also includes windows.h
 #else
 #include <pthread.h>
 #include <semaphore.h>
