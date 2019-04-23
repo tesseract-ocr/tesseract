@@ -19,17 +19,23 @@
 // SVUtil contains the SVSync and SVNetwork classes, which are used for
 // thread/process creation & synchronization and network connection.
 
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#  include "config_auto.h"
+#endif
+
+#include "svutil.h"
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 #ifdef _WIN32
 #pragma comment(lib, "Ws2_32.lib")
-struct addrinfo {
-  struct sockaddr* ai_addr;
-  int ai_addrlen;
-  int ai_family;
-  int ai_socktype;
-  int ai_protocol;
-};
-#include <winsock2.h>   // for fd_set, send, ...
+#  include <WinSock2.h>  // for fd_set, send, ..
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -44,20 +50,6 @@ struct addrinfo {
 #endif
 #include <unistd.h>
 #endif
-
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-
-// Include automatically generated configuration file if running autoconf.
-#ifdef HAVE_CONFIG_H
-#include "config_auto.h"
-#endif
-
-#include "svutil.h"
 
 SVMutex::SVMutex() {
 #ifdef _WIN32
