@@ -2,7 +2,6 @@
 // File:        svutil.h
 // Description: ScrollView Utilities
 // Author:      Joern Wanke
-// Created:     Thu Nov 29 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,22 +24,13 @@
 #define TESSERACT_VIEWER_SVUTIL_H_
 
 #ifdef _WIN32
-#include <windows.h>
-#include "platform.h"
+#include "host.h"       // also includes windows.h
 #else
 #include <pthread.h>
 #include <semaphore.h>
 #endif
 
 #include <string>
-
-#ifndef MAX
-#define MAX(a, b)  ((a > b) ? a : b)
-#endif
-
-#ifndef MIN
-#define MIN(a, b)  ((a < b) ? a : b)
-#endif
 
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {

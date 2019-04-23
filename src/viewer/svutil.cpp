@@ -2,7 +2,6 @@
 // File:        svutil.cpp
 // Description: ScrollView Utilities
 // Author:      Joern Wanke
-// Created:     Thu Nov 29 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,6 @@
 
 #include <cstdio>
 #ifdef _WIN32
-#include <windows.h>
 #pragma comment(lib, "Ws2_32.lib")
 struct addrinfo {
   struct sockaddr* ai_addr;
@@ -31,6 +29,7 @@ struct addrinfo {
   int ai_socktype;
   int ai_protocol;
 };
+#include <winsock2.h>   // for fd_set, send, ...
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
