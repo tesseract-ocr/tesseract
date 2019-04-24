@@ -43,7 +43,7 @@ class SVSync {
   static void StartProcess(const char* executable, const char* args);
 };
 
-/// A semaphore class which encapsulates the main signalling
+/// A semaphore class which encapsulates the main signaling
 /// and wait abilities of semaphores for windows and unix.
 class SVSemaphore {
  public:
@@ -64,7 +64,7 @@ class SVSemaphore {
 };
 
 /// A mutex which encapsulates the main locking and unlocking
-/// abilites of mutexes for windows and unix.
+/// abilities of mutexes for windows and unix.
 class SVMutex {
  public:
   /// Sets up a new mutex.
