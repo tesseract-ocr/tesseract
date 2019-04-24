@@ -81,12 +81,12 @@ void SVSync::StartThread(void* (*func)(void*), void* arg) {
 #ifdef _WIN32
   LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE)func;
   DWORD threadid;
-  HANDLE newthread = CreateThread(nullptr,        // default security attributes
-                                  0,           // use default stack size
-                                  f,           // thread function
-                                  arg,         // argument to thread function
-                                  0,           // use default creation flags
-                                  &threadid);  // returns the thread identifier
+  CreateThread(nullptr,     // default security attributes
+               0,           // use default stack size
+               f,           // thread function
+               arg,         // argument to thread function
+               0,           // use default creation flags
+               &threadid);  // returns the thread identifier
 #else
   pthread_t helper;
   pthread_attr_t attr;
