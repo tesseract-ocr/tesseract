@@ -35,7 +35,8 @@
 
 #ifdef _WIN32
 #pragma comment(lib, "Ws2_32.lib")
-#  include <WinSock2.h>  // for fd_set, send, ..
+#  include <winsock2.h>  // for fd_set, send, ..
+#  include <ws2tcpip.h>  // for addrinfo
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -316,7 +317,7 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
 
 
 // Platform-independent freeaddrinfo()
-static void FreeAddrInfo(struct addrinfo* addr_info) {
+static void TessFreeAddrInfo(struct addrinfo* addr_info) {
   #if defined(__linux__)
   freeaddrinfo(addr_info);
   #else
@@ -352,7 +353,7 @@ static int GetAddrInfoNonLinux(const char* hostname, int port,
 #endif
 
   if (name == nullptr) {
-    FreeAddrInfo(*addr_info);
+    TessFreeAddrInfo(*addr_info);
     *addr_info = nullptr;
     return -1;
   }
@@ -441,7 +442,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       }
     }
   }
-  FreeAddrInfo(addr_info);
+  TessFreeAddrInfo(addr_info);
 }
 
 SVNetwork::~SVNetwork() {
