@@ -143,7 +143,7 @@ endif()
 ###############################################################################
 
 if(NOT CPPAN_BUILD)
-    if (NOT Leptonica_DIR AND NOT MSVC)
+    if (NOT Leptonica_DIR AND NOT MSVC AND COMMAND pkg_check_modules)
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
         link_directories(${Leptonica_LIBRARY_DIRS})
@@ -292,7 +292,11 @@ include_directories(src/textord)
 include_directories(src/viewer)
 include_directories(src/wordrec)
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-include_directories(src/training)
+  include_directories(src/training)
+endif()
+if(ANDROID_TOOLCHAIN)
+  include_directories(${ANDROID_TOOLCHAIN}/sysroot/usr/include)
+  add_compile_definitions(__ANDROID_API_FUTURE__)
 endif()
 
 ########################################
