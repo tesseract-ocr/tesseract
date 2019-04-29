@@ -143,8 +143,11 @@ endif()
 ###############################################################################
 
 if(NOT CPPAN_BUILD)
+    find_package(PkgConfig)
     if (NOT Leptonica_DIR AND NOT MSVC AND COMMAND pkg_check_modules)
-        find_package(PkgConfig REQUIRED)
+        if(NOT PKG_CONFIG_EXECUTABLE)
+            message(FATAL_ERROR "Missing required pkg-config")
+        endif()
         pkg_check_modules(Leptonica REQUIRED lept>=${MINIMUM_LEPTONICA_VERSION})
         link_directories(${Leptonica_LIBRARY_DIRS})
     else()
