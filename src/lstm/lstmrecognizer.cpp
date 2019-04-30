@@ -179,7 +179,8 @@ bool LSTMRecognizer::LoadDictionary(const ParamsVectors* params,
 void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
                                    const TBOX& line_box,
-                                   PointerVector<WERD_RES>* words) {
+                                   PointerVector<WERD_RES>* words,
+                                   int lstm_choice_mode) {
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
@@ -191,9 +192,9 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
   search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert,
-                  &GetUnicharset());
+                  &GetUnicharset(), lstm_choice_mode);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
-                                  &GetUnicharset(), words);
+                                  &GetUnicharset(), words, lstm_choice_mode);
 }
 
 // Helper computes min and mean best results in the output.

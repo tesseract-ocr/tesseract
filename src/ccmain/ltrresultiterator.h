@@ -216,12 +216,6 @@ class ChoiceIterator {
   // probabilities won't add up to 100. Each one stands on its own.
   float Confidence() const;
 
-  // Returns a vector containing all timesteps, which belong to the currently
-  // selected symbol. A timestep is a vector containing pairs of symbols and
-  // floating point numbers. The number states the probability for the
-  // corresponding symbol.
-  std::vector<std::vector<std::pair<const char*, float>>>* Timesteps() const;
-
  private:
   // Pointer to the WERD_RES object owned by the API.
   WERD_RES* word_res_;

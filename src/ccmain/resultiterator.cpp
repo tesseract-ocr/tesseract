@@ -27,6 +27,8 @@
 #include "tesseractclass.h"
 #include "unicharset.h"
 #include "unicodes.h"
+#include <set>
+#include <vector>
 
 namespace tesseract {
 
@@ -601,6 +603,15 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   char* result = new char[length];
   strncpy(result, text.string(), length);
   return result;
+}
+
+std::vector<std::vector<std::pair<const char*, float>>>*
+  ResultIterator::GetBestLSTMSymbolChoices() const {
+  if (it_->word() != nullptr) {
+    return &it_->word()->timesteps;
+  } else {
+    return nullptr;
+  }
 }
 
 void ResultIterator::AppendUTF8WordText(STRING *text) const {

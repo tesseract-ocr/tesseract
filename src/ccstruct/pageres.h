@@ -20,6 +20,8 @@
 #define PAGERES_H
 
 #include <cstdint>             // for int32_t, int16_t
+#include <set>                 // for std::pair
+#include <vector>              // for std::vector
 #include <sys/types.h>         // for int8_t
 #include "blamer.h"            // for BlamerBundle (ptr only), IRR_NUM_REASONS
 #include "clst.h"              // for CLIST_ITERATOR, CLISTIZEH
@@ -217,6 +219,8 @@ class WERD_RES : public ELIST_LINK {
   // Gaps between blobs in chopped_word. blob_gaps[i] is the gap between
   // blob i and blob i+1.
   GenericVector<int> blob_gaps;
+  // Stores the lstm choices of every timestep
+  std::vector<std::vector<std::pair<const char*, float>>> timesteps;
   // Ratings matrix contains classifier choices for each classified combination
   // of blobs. The dimension is the same as the number of blobs in chopped_word
   // and the leading diagonal corresponds to classifier results of the blobs
