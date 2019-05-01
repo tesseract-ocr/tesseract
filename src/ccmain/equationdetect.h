@@ -181,7 +181,7 @@ class EquationDetect : public EquationDetectBase {
   bool ExpandSeed(ColPartition* seed);
 
   // Starting from the seed position, we search the part_grid_
-  // horizontally/vertically, find all parititions that can be
+  // horizontally/vertically, find all partitions that can be
   // merged with seed, remove them from part_grid_, and put them  into
   // parts_to_merge.
   void ExpandSeedHorizontal(const bool search_left,
