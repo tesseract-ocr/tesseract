@@ -100,42 +100,53 @@ TRAINING_LIBS += $(top_builddir)/src/training/libtesseract_tessopt.la
 AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
                  -isystem $(top_srcdir)/googletest/googlemock/include
 
-check_PROGRAMS = \
-  apiexample_test \
-  applybox_test \
-  baseapi_test \
-  bitvector_test \
-  cleanapi_test \
-  colpartition_test \
-  dawg_test \
-  denorm_test \
-  fileio_test \
-  heap_test \
-  imagedata_test \
-  indexmapbidi_test \
-  intfeaturemap_test \
-  intsimdmatrix_test \
-  lang_model_test \
-  layout_test \
-  linlsq_test \
-  loadlang_test \
-  mastertrainer_test \
-  matrix_test \
-  nthitem_test \
-  osd_test \
-  paragraphs_test \
-  progress_test \
-  qrsequence_test \
-  recodebeam_test \
-  rect_test \
-  resultiterator_test \
-  shapetable_test \
-  stats_test \
-  stringrenderer_test \
-  tablefind_test \
-  tablerecog_test \
-  tabvector_test \
-  tfile_test
+check_PROGRAMS = apiexample_test
+check_PROGRAMS += applybox_test
+check_PROGRAMS += baseapi_test
+# check_PROGRAMS += baseapi_thread_test
+check_PROGRAMS += bitvector_test
+check_PROGRAMS += cleanapi_test
+check_PROGRAMS += colpartition_test
+check_PROGRAMS += dawg_test
+check_PROGRAMS += denorm_test
+# check_PROGRAMS += equationdetect_test
+check_PROGRAMS += fileio_test
+check_PROGRAMS += heap_test
+check_PROGRAMS += imagedata_test
+check_PROGRAMS += indexmapbidi_test
+check_PROGRAMS += intfeaturemap_test
+check_PROGRAMS += intsimdmatrix_test
+check_PROGRAMS += lang_model_test
+check_PROGRAMS += layout_test
+# check_PROGRAMS += ligature_table_test
+check_PROGRAMS += linlsq_test
+check_PROGRAMS += loadlang_test
+check_PROGRAMS += mastertrainer_test
+check_PROGRAMS += matrix_test
+# check_PROGRAMS += networkio_test
+# check_PROGRAMS += normstrngs_test
+check_PROGRAMS += nthitem_test
+check_PROGRAMS += osd_test
+# check_PROGRAMS += pagesegmode_test
+# check_PROGRAMS += pango_font_info_test
+check_PROGRAMS += paragraphs_test
+check_PROGRAMS += params_model_test
+check_PROGRAMS += progress_test
+check_PROGRAMS += qrsequence_test
+check_PROGRAMS += recodebeam_test
+check_PROGRAMS += rect_test
+check_PROGRAMS += resultiterator_test
+# check_PROGRAMS += scanutils_test
+check_PROGRAMS += shapetable_test
+# check_PROGRAMS += stridemap_test
+check_PROGRAMS += stats_test
+check_PROGRAMS += stringrenderer_test
+check_PROGRAMS += tablefind_test
+check_PROGRAMS += tablerecog_test
+check_PROGRAMS += tabvector_test
+# check_PROGRAMS += tatweel_test
+# check_PROGRAMS += textlineprojection_test
+check_PROGRAMS += tfile_test
 
 if ENABLE_TRAINING
 check_PROGRAMS += commandlineflags_test
@@ -258,6 +269,9 @@ nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+
+params_model_test_SOURCES = params_model_test.cc
+params_model_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)

@@ -16,14 +16,18 @@
  *
  **********************************************************************/
 
+#include <climits>          // for INT_MIN, INT_MAX
+#include <cmath>            // for NAN, std::isnan
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
 
 #include "genericvector.h"
+#include "host.h"           // platform.h, windows.h for MAX_PATH
 #include "tprintf.h"
 #include "params.h"
-#include "platform.h"  // MAX_PATH
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'
@@ -96,11 +100,17 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   if (*value == '\0') return (sp != nullptr);
 
   // Look for the parameter among int parameters.
-  int intval;
   auto *ip = FindParam<IntParam>(name, GlobalParams()->int_params,
                                      member_params->int_params);
-  if (ip && ip->constraint_ok(constraint) && sscanf(value, "%d", &intval) == 1)
-    ip->set_value(intval);
+  if (ip && ip->constraint_ok(constraint)) {
+    int intval = INT_MIN;
+    std::stringstream stream(value);
+    stream.imbue(std::locale::classic());
+    stream >> intval;
+    if (intval != INT_MIN) {
+      ip->set_value(intval);
+    }
+  }
 
   // Look for the parameter among bool parameters.
   auto *bp = FindParam<BoolParam>(name, GlobalParams()->bool_params,
@@ -116,16 +126,16 @@ bool ParamUtils::SetParam(const char *name, const char* value,
   }
 
   // Look for the parameter among double parameters.
-  double doubleval;
   auto *dp = FindParam<DoubleParam>(name, GlobalParams()->double_params,
                                            member_params->double_params);
   if (dp != nullptr && dp->constraint_ok(constraint)) {
-#ifdef EMBEDDED
-      doubleval = strtofloat(value);
-#else
-      if (sscanf(value, "%lf", &doubleval) == 1)
-#endif
+    double doubleval = NAN;
+    std::stringstream stream(value);
+    stream.imbue(std::locale::classic());
+    stream >> doubleval;
+    if (!std::isnan(doubleval)) {
       dp->set_value(doubleval);
+    }
   }
   return (sp || ip || bp || dp);
 }

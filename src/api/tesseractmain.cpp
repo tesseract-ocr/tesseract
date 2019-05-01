@@ -26,15 +26,12 @@
 
 #include "allheaders.h"
 #include "baseapi.h"
-#include "basedir.h"
 #include "dict.h"
 #if defined(USE_OPENCL)
 #include "openclwrapper.h"      // for OpenclDevice
 #endif
-#include "osdetect.h"
 #include "renderer.h"
 #include "simddetect.h"
-#include "strngs.h"
 #include "tprintf.h"            // for tprintf
 
 #ifdef _OPENMP
@@ -129,9 +126,9 @@ static void PrintVersionInfo() {
 #endif
 #if defined(HAVE_LIBARCHIVE)
 #  if ARCHIVE_VERSION_NUMBER >= 3002000
-  printf(" Found %s", archive_version_details());
+  printf(" Found %s\n", archive_version_details());
 #  else
-  printf(" Found %s", archive_version_string());
+  printf(" Found %s\n", archive_version_string());
 #  endif  // ARCHIVE_VERSION_NUMBER
 #endif    // HAVE_LIBARCHIVE
 

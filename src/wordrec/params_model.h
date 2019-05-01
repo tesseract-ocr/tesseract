@@ -2,7 +2,6 @@
 // File:        params_model.h
 // Description: Trained feature serialization for language parameter training.
 // Author:      David Eger
-// Created:     Mon Jun 11 11:26:42 PDT 2012
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,7 +61,6 @@ class ParamsModel {
   bool SaveToFile(const char *full_path) const;
 
   // Returns true on success.
-  bool LoadFromFile(const char *lang, const char *full_path);
   bool LoadFromFp(const char *lang, TFile *fp);
 
   const GenericVector<float>& weights() const {

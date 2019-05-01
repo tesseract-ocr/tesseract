@@ -57,11 +57,6 @@ int vfscanf(FILE* stream, const char *format, va_list ap);
 // information, as this function attempts to mimic its behavior.
 int creat(const char *pathname, mode_t mode);
 
-// Convert the specified C-String to a float. Returns the first parsed float,
-// or 0.0 if no floating point value could be found. Note that scientific
-// floating-point notation is not supported.
-double strtofloat(const char* s);
-
 #endif  // EMBEDDED
 
 #endif  // TESSERACT_CCUTIL_SCANUTILS_H_

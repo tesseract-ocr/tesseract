@@ -23,9 +23,9 @@
 
 #include "tabfind.h"
 #include "alignedblob.h"
-#include "blobbox.h"
 #include "colpartitiongrid.h"
 #include "detlinefit.h"
+#include "host.h"              // for NearlyEqual
 #include "linefind.h"
 
 #include <algorithm>
