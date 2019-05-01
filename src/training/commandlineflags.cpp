@@ -8,6 +8,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cmath>                // for std::isnan, NAN
+#include <locale>               // for std::locale::classic
+#include <sstream>              // for std::stringstream
 #include "baseapi.h"            // TessBaseAPI::Version
 #include "commandlineflags.h"
 #include "errcode.h"
@@ -106,9 +109,17 @@ static bool SafeAtoi(const char* str, int* val) {
 }
 
 static bool SafeAtod(const char* str, double* val) {
-  char* endptr = nullptr;
-  *val = strtod(str, &endptr);
-  return endptr != nullptr && *endptr == '\0';
+  double d = NAN;
+  std::stringstream stream(str);
+  // Use "C" locale for reading double value.
+  stream.imbue(std::locale::classic());
+  stream >> d;
+  *val = 0;
+  bool success = !std::isnan(d);
+  if (success) {
+    *val = d;
+  }
+  return success;
 }
 
 static void PrintCommandLineFlags() {
