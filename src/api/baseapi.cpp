@@ -341,7 +341,7 @@ void TessBaseAPI::PrintVariables(FILE *fp) const {
 }
 
 /**
- * The datapath must be the name of the data directory (no ending /) or
+ * The datapath must be the name of the data directory or
  * some other file in which the data directory resides (for instance argv[0].)
  * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
  * If numeric_mode is true, then only digits and Roman numerals will
