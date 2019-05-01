@@ -45,7 +45,7 @@ $CXX $CXXFLAGS \
      /usr/lib/x86_64-linux-gnu/libjbig.a \
      /usr/lib/x86_64-linux-gnu/liblzma.a \
      -lz \
-     -lFuzzingEngine
+     $LIB_FUZZING_ENGINE
 
 $CXX $CXXFLAGS \
     -DTESSERACT_FUZZER_WIDTH=512 \
@@ -63,4 +63,4 @@ $CXX $CXXFLAGS \
      /usr/lib/x86_64-linux-gnu/libjbig.a \
      /usr/lib/x86_64-linux-gnu/liblzma.a \
      -lz \
-     -lFuzzingEngine
+     $LIB_FUZZING_ENGINE
