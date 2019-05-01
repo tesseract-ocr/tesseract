@@ -28,6 +28,9 @@
 
 #include <chrono>
 #include <ctime>
+#ifdef _WIN32
+#include <winsock2.h> // for timeval
+#endif
 
 /**********************************************************************
  * EANYCODE_CHAR
