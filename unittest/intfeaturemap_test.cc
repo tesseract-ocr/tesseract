@@ -27,7 +27,7 @@ namespace {
 
 class IntFeatureMapTest : public testing::Test {
  public:
-  // Expects that the given vector has continguous integer values in the
+  // Expects that the given vector has contiguous integer values in the
   // range [start, end).
   void ExpectContiguous(const GenericVector<int>& v, int start, int end) {
     for (int i = start; i < end; ++i) {

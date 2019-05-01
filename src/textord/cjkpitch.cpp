@@ -958,7 +958,7 @@ class FPAnalyzer {
   std::vector<FPRow> rows_;
   unsigned num_tall_rows_;
   unsigned num_bad_rows_;
-  // TODO: num_empty_rows_ is incremented, but never used overwise.
+  // TODO: num_empty_rows_ is incremented, but never used otherwise.
   unsigned num_empty_rows_;
   unsigned max_chars_per_row_;
 };

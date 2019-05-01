@@ -135,7 +135,7 @@ void SetBlobStrokeWidth(Pix* pix, BLOBNBOX* blob) {
   }
   pixDestroy(&dist_pix);
   // Store the horizontal and vertical width in the blob, keeping both
-  // widths if there is enough information, otherwse only the one with
+  // widths if there is enough information, otherwise only the one with
   // the most samples.
   // If there are insufficient samples, store zero, rather than using
   // 2*area/perimeter, as the numbers that gives do not match the numbers

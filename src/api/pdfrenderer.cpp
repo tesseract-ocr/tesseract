@@ -36,7 +36,7 @@ Design notes from Ken Sharp, with light editing.
 
 We think one solution is a font with a single glyph (.notdef) and a
 CIDToGIDMap which maps all the CIDs to 0. That map would then be
-stored as a stream in the PDF file, and when flate compressed should
+stored as a stream in the PDF file, and when flat compressed should
 be pretty small. The font, of course, will be approximately the same
 size as the one you currently use.
 

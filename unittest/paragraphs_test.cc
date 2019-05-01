@@ -699,6 +699,6 @@ TEST(ParagraphsTest, IndexPageTest) {
   TestParagraphDetection(kNewZealandIndex, ABSL_ARRAYSIZE(kNewZealandIndex));
 }
 
-// TOOO(eger): Add some right-to-left examples, and fix the algorithm as needed.
+// TODO(eger): Add some right-to-left examples, and fix the algorithm as needed.
 
 }  // namespace
