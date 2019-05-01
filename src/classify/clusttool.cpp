@@ -1,5 +1,5 @@
 /******************************************************************************
- ** Filename: clustertool.c
+ ** Filename: clusttool.cpp
  ** Purpose:  Misc. tools for use with the clustering routines
  ** Author:   Dan Johnson
  **
@@ -17,9 +17,8 @@
 
 //--------------------------Include Files----------------------------------
 #include "clusttool.h"
-#include "emalloc.h"
-#include <cstdio>
 #include <cmath>
+#include "emalloc.h"
 
 using tesseract::TFile;
 
@@ -27,6 +26,87 @@ using tesseract::TFile;
 #define TOKENSIZE 80         ///< max size of tokens read from an input file
 #define QUOTED_TOKENSIZE "79"
 #define MAXSAMPLESIZE 65535  ///< max num of dimensions in feature space
+
+/**
+ * This routine reads N floats from the specified text file
+ * and places them into Buffer.  If Buffer is nullptr, a buffer
+ * is created and passed back to the caller.  If EOF is
+ * encountered before any floats can be read, nullptr is
+ * returned.
+ * @param fp open text file to read floats from
+ * @param N number of floats to read
+ * @param Buffer pointer to buffer to place floats into
+ * @return Pointer to buffer holding floats or nullptr if EOF
+ * @note Globals: None
+ */
+static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
+  const int kMaxLineSize = 1024;
+  char line[kMaxLineSize];
+  if (fp->FGets(line, kMaxLineSize) == nullptr) {
+    tprintf("Hit EOF in ReadNFloats!\n");
+    return nullptr;
+  }
+  bool needs_free = false;
+
+  if (Buffer == nullptr) {
+    Buffer = static_cast<float *>(Emalloc(N * sizeof(float)));
+    needs_free = true;
+  }
+
+  char *startptr = line;
+  for (int i = 0; i < N; i++) {
+    char *endptr;
+    Buffer[i] = strtof(startptr, &endptr);
+    if (endptr == startptr) {
+      tprintf("Read of %d floats failed!\n", N);
+      if (needs_free) Efree(Buffer);
+      return nullptr;
+    }
+    startptr = endptr;
+  }
+  return Buffer;
+}
+
+/**
+ * This routine writes a text representation of N floats from
+ * an array to a file.  All of the floats are placed on one line.
+ * @param File open text file to write N floats to
+ * @param N number of floats to write
+ * @param Array array of floats to write
+ * @return None
+ * @note Globals: None
+ */
+static void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
+  for (int i = 0; i < N; i++)
+    fprintf(File, " %9.6f", Array[i]);
+  fprintf(File, "\n");
+}
+
+/**
+ * This routine writes to the specified text file a word
+ * which represents the ProtoStyle.  It does not append
+ * a carriage return to the end.
+ * @param File open text file to write prototype style to
+ * @param ProtoStyle prototype style to write
+ * @return None
+ * @note Globals: None
+ */
+static void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
+  switch (ProtoStyle) {
+    case spherical:
+      fprintf (File, "spherical");
+      break;
+    case elliptical:
+      fprintf (File, "elliptical");
+      break;
+    case mixed:
+      fprintf (File, "mixed");
+      break;
+    case automatic:
+      fprintf (File, "automatic");
+      break;
+  }
+}
 
 /**
  * This routine reads a single integer from the specified
@@ -160,46 +240,6 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
 }
 
 /**
- * This routine reads N floats from the specified text file
- * and places them into Buffer.  If Buffer is nullptr, a buffer
- * is created and passed back to the caller.  If EOF is
- * encountered before any floats can be read, nullptr is
- * returned.
- * @param fp open text file to read floats from
- * @param N number of floats to read
- * @param Buffer pointer to buffer to place floats into
- * @return Pointer to buffer holding floats or nullptr if EOF
- * @note Globals: None
- */
-float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
-  const int kMaxLineSize = 1024;
-  char line[kMaxLineSize];
-  if (fp->FGets(line, kMaxLineSize) == nullptr) {
-    tprintf("Hit EOF in ReadNFloats!\n");
-    return nullptr;
-  }
-  bool needs_free = false;
-
-  if (Buffer == nullptr) {
-    Buffer = static_cast<float *>(Emalloc(N * sizeof(float)));
-    needs_free = true;
-  }
-
-  char *startptr = line;
-  for (int i = 0; i < N; i++) {
-    char *endptr;
-    Buffer[i] = strtof(startptr, &endptr);
-    if (endptr == startptr) {
-      tprintf("Read of %d floats failed!\n", N);
-      if (needs_free) Efree(Buffer);
-      return nullptr;
-    }
-    startptr = endptr;
-  }
-  return Buffer;
-}
-
-/**
  * This routine writes an array of dimension descriptors to
  * the specified text file.
  * @param File open text file to write param descriptors to
@@ -272,79 +312,4 @@ void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
       fprintf (File, "\n\t");
       WriteNFloats (File, N, Proto->Variance.Elliptical);
   }
-}
-
-/**
- * This routine writes a text representation of N floats from
- * an array to a file.  All of the floats are placed on one line.
- * @param File open text file to write N floats to
- * @param N number of floats to write
- * @param Array array of floats to write
- * @return None
- * @note Globals: None
- */
-void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
-  for (int i = 0; i < N; i++)
-    fprintf(File, " %9.6f", Array[i]);
-  fprintf(File, "\n");
-}
-
-/**
- * This routine writes to the specified text file a word
- * which represents the ProtoStyle.  It does not append
- * a carriage return to the end.
- * @param File open text file to write prototype style to
- * @param ProtoStyle prototype style to write
- * @return None
- * @note Globals: None
- */
-void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
-  switch (ProtoStyle) {
-    case spherical:
-      fprintf (File, "spherical");
-      break;
-    case elliptical:
-      fprintf (File, "elliptical");
-      break;
-    case mixed:
-      fprintf (File, "mixed");
-      break;
-    case automatic:
-      fprintf (File, "automatic");
-      break;
-  }
-}
-
-/**
- * This routine writes a textual description of each prototype
- * in the prototype list to the specified file.  It also
- * writes a file header which includes the number of dimensions
- * in feature space and the descriptions for each dimension.
- * @param File open text file to write prototypes to
- * @param N number of dimensions in feature space
- * @param ParamDesc descriptions for each dimension
- * @param ProtoList list of prototypes to be written
- * @param WriteSigProtos true to write out significant prototypes
- * @param WriteInsigProtos true to write out insignificants
- * @note Globals: None
- * @return None
- */
-
-void WriteProtoList(FILE* File, uint16_t N, PARAM_DESC* ParamDesc,
-                    LIST ProtoList, bool WriteSigProtos,
-                    bool WriteInsigProtos) {
-  PROTOTYPE *Proto;
-
-  /* write file header */
-  fprintf(File,"%0d\n",N);
-  WriteParamDesc(File,N,ParamDesc);
-
-  /* write prototypes */
-  iterate(ProtoList)
-    {
-      Proto = reinterpret_cast<PROTOTYPE *>first_node (ProtoList);
-      if ((Proto->Significant && WriteSigProtos) ||
-          (!Proto->Significant && WriteInsigProtos))
-        WritePrototype(File, N, Proto);
-    }
 }
