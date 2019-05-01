@@ -3,7 +3,6 @@
 // Description: Data for a universal ambigs file that is useful for
 //              any language.
 // Author:      Ray Smith
-// Created:     Mon Mar 18 11:26:00 PDT 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#include "universalambigs.h"
+
 namespace tesseract {
 
-extern const char kUniversalAmbigsFile[] = {
+const char kUniversalAmbigsFile[] = {
     '\166', '\062', '\012', '\047', '\047', '\040', '\042', '\040', '\061',
     '\012', '\140', '\047', '\040', '\042', '\040', '\061', '\012', '\047',
     '\140', '\040', '\042', '\040', '\061', '\012', '\342', '\200', '\230',
@@ -19016,6 +19017,6 @@ extern const char kUniversalAmbigsFile[] = {
     '\012',
 };
 
-extern const int ksizeofUniversalAmbigsFile = sizeof(kUniversalAmbigsFile);
+const int ksizeofUniversalAmbigsFile = sizeof(kUniversalAmbigsFile);
 
 }  // namespace tesseract
