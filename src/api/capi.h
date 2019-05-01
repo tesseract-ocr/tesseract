@@ -178,9 +178,9 @@ struct Pixa;
 /* General free functions */
 
 TESS_API const char* TESS_CALL TessVersion();
-TESS_API void TESS_CALL TessDeleteText(char* text);
+TESS_API void TESS_CALL TessDeleteText(const char* text);
 TESS_API void TESS_CALL TessDeleteTextArray(char** arr);
-TESS_API void TESS_CALL TessDeleteIntArray(int* arr);
+TESS_API void TESS_CALL TessDeleteIntArray(const int* arr);
 
 /* Renderer API */
 TESS_API TessResultRenderer* TESS_CALL

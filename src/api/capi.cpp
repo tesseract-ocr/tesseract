@@ -26,7 +26,7 @@ TESS_API const char* TESS_CALL TessVersion() {
   return TessBaseAPI::Version();
 }
 
-TESS_API void TESS_CALL TessDeleteText(char* text) {
+TESS_API void TESS_CALL TessDeleteText(const char* text) {
   delete[] text;
 }
 
@@ -37,7 +37,7 @@ TESS_API void TESS_CALL TessDeleteTextArray(char** arr) {
   delete[] arr;
 }
 
-TESS_API void TESS_CALL TessDeleteIntArray(int* arr) {
+TESS_API void TESS_CALL TessDeleteIntArray(const int* arr) {
   delete[] arr;
 }
 
