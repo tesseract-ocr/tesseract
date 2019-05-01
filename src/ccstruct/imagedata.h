@@ -157,6 +157,8 @@ class ImageData {
     return box_texts_[index];
   }
   // Saves the given Pix as a PNG-encoded string and destroys it.
+  // In case of missing PNG support in Leptonica use PNM format,
+  // which requires more memory.
   void SetPix(Pix* pix);
   // Returns the Pix image for *this. Must be pixDestroyed after use.
   Pix* GetPix() const;
@@ -183,6 +185,8 @@ class ImageData {
 
  private:
   // Saves the given Pix as a PNG-encoded string and destroys it.
+  // In case of missing PNG support in Leptonica use PNM format,
+  // which requires more memory.
   static void SetPixInternal(Pix* pix, GenericVector<char>* image_data);
   // Returns the Pix image for the image_data. Must be pixDestroyed after use.
   static Pix* GetPixInternal(const GenericVector<char>& image_data);
@@ -192,8 +196,8 @@ class ImageData {
 
  private:
   STRING imagefilename_;             // File to read image from.
-  int32_t page_number_;                // Page number if multi-page tif or -1.
-  GenericVector<char> image_data_;   // PNG file data.
+  int32_t page_number_;              // Page number if multi-page tif or -1.
+  GenericVector<char> image_data_;   // PNG/PNM file data.
   STRING language_;                  // Language code for image.
   STRING transcription_;             // UTF-8 ground truth of image.
   GenericVector<TBOX> boxes_;        // If non-empty boxes of the image.
