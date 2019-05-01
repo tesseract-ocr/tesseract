@@ -17,7 +17,9 @@
 
 //--------------------------Include Files----------------------------------
 #include "clusttool.h"
-#include <cmath>
+#include <cmath>            // for std::isnan
+#include <locale>           // for std::locale::classic
+#include <sstream>          // for std::stringstream
 #include "emalloc.h"
 
 using tesseract::TFile;
@@ -53,16 +55,18 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
     needs_free = true;
   }
 
-  char *startptr = line;
-  for (int i = 0; i < N; i++) {
-    char *endptr;
-    Buffer[i] = strtof(startptr, &endptr);
-    if (endptr == startptr) {
-      tprintf("Read of %d floats failed!\n", N);
+  std::stringstream stream(line);
+  // Use "C" locale (needed for float values Buffer[i]).
+  stream.imbue(std::locale::classic());
+  for (uint16_t i = 0; i < N; i++) {
+    float f = NAN;
+    stream >> f;
+    if (std::isnan(f)) {
+      tprintf("Read of %u floats failed!\n", N);
       if (needs_free) Efree(Buffer);
       return nullptr;
     }
-    startptr = endptr;
+    Buffer[i] = f;
   }
   return Buffer;
 }
