@@ -28,10 +28,12 @@
 
 #include "paramsd.h"
 #include <cstdio>            // for fclose, fopen, fprintf, sprintf, FILE
-#include <cstdlib>           // for atoi, strtod
+#include <cstdlib>           // for atoi
 #include <cstring>           // for strcmp, strcspn, strlen, strncpy
+#include <locale>            // for std::locale::classic
 #include <map>               // for map, _Rb_tree_iterator, map<>::iterator
 #include <memory>            // for unique_ptr
+#include <sstream>           // for std::stringstream
 #include <utility>           // for pair
 #include "genericvector.h"   // for GenericVector
 #include "params.h"          // for ParamsVectors, StringParam, BoolParam
@@ -158,7 +160,12 @@ void ParamContent::SetValue(const char* val) {
   } else if (param_type_ == VT_BOOLEAN) {
     bIt->set_value(atoi(val));
   } else if (param_type_ == VT_DOUBLE) {
-    dIt->set_value(strtod(val, nullptr));
+    std::stringstream stream(val);
+    // Use "C" locale for reading double value.
+    stream.imbue(std::locale::classic());
+    double d = 0;
+    stream >> d;
+    dIt->set_value(d);
   } else if (param_type_ == VT_STRING) {
     sIt->set_value(val);
   }
