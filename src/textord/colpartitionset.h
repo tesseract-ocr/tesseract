@@ -136,7 +136,7 @@ class ColPartitionSet : public ELIST_LINK {
   // Coverage is split into good and bad. Good coverage is provided by
   // ColPartitions of a frequent width (according to the callback function
   // provided by TabFinder::WidthCB, which accesses stored statistics on the
-  // widths of ColParititions) and bad coverage is provided by all other
+  // widths of ColPartitions) and bad coverage is provided by all other
   // ColPartitions, even if they have tab vectors at both sides. Thus:
   // |-----------------------------------------------------------------|
   // |        Double     width    heading                              |
