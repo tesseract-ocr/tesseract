@@ -186,7 +186,7 @@ class TESS_API TessBaseAPI {
    * NOTE that the only members that may be called before Init are those
    * listed above here in the class definition.
    *
-   * The datapath must be the name of the parent directory of tessdata.
+   * The datapath must be the name of the tessdata directory.
    * The language is (usually) an ISO 639-3 string or nullptr will default to eng.
    * It is entirely safe (and eventually will be efficient too) to call
    * Init multiple times on the same instance to change language, or just
