@@ -14,7 +14,6 @@
 #define TESSERACT_TEXTORD_DEVNAGARI_PROCESSING_H_
 
 #include "allheaders.h"
-#include "debugpixa.h"
 #include "ocrblock.h"
 #include "params.h"
 
