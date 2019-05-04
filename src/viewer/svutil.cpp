@@ -327,60 +327,6 @@ static void TessFreeAddrInfo(struct addrinfo* addr_info) {
 }
 
 
-// Non-linux version of getaddrinfo()
-#if !defined(__linux__)
-static int GetAddrInfoNonLinux(const char* hostname, int port,
-                               struct addrinfo** addr_info) {
-// Get the host data depending on the OS.
-  struct sockaddr_in* address;
-  *addr_info = new struct addrinfo;
-  memset(*addr_info, 0, sizeof(struct addrinfo));
-  address = new struct sockaddr_in;
-  memset(address, 0, sizeof(struct sockaddr_in));
-
-  (*addr_info)->ai_addr = (struct sockaddr*) address;
-  (*addr_info)->ai_addrlen = sizeof(struct sockaddr);
-  (*addr_info)->ai_family = AF_INET;
-  (*addr_info)->ai_socktype = SOCK_STREAM;
-
-  struct hostent *name;
-#ifdef _WIN32
-  WSADATA wsaData;
-  WSAStartup(MAKEWORD(1, 1), &wsaData);
-  name = gethostbyname(hostname);
-#else
-  name = gethostbyname(hostname);
-#endif
-
-  if (name == nullptr) {
-    TessFreeAddrInfo(*addr_info);
-    *addr_info = nullptr;
-    return -1;
-  }
-
-  // Fill in the appropriate variables to be able to connect to the server.
-  address->sin_family = name->h_addrtype;
-  memcpy(&address->sin_addr.s_addr, name->h_addr_list[0], name->h_length);
-  address->sin_port = htons(port);
-  return 0;
-}
-#endif
-
-
-// Platform independent version of getaddrinfo()
-//   Given a hostname:port, produce an addrinfo struct
-static int GetAddrInfo(const char* hostname, int port,
-                       struct addrinfo** address) {
-#if defined(__linux__)
-  char port_str[40];
-  snprintf(port_str, 40, "%d", port);
-  return getaddrinfo(hostname, port_str, nullptr, address);
-#else
-  return GetAddrInfoNonLinux(hostname, port, address);
-#endif
-}
-
-
 // Set up a connection to a ScrollView on hostname:port.
 SVNetwork::SVNetwork(const char* hostname, int port) {
   msg_buffer_in_ = new char[kMaxMsgSize + 1];
@@ -390,10 +336,23 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
   buffer_ptr_ = nullptr;
 
   struct addrinfo *addr_info = nullptr;
+  char port_str[40];
+  snprintf(port_str, 40, "%d", port);
+#ifdef _WIN32
+  // Initialize Winsock
+  WSADATA wsaData;
+  int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (iResult != 0) {
+    std::cerr << "WSAStartup failed: " << iResult << std::endl;
+  }
+#endif  // _WIN32
 
-  if (GetAddrInfo(hostname, port, &addr_info) != 0) {
+  if (getaddrinfo(hostname, port_str, nullptr, &addr_info) != 0) {
     std::cerr << "Error resolving name for ScrollView host "
               << std::string(hostname) << ":" << port << std::endl;
+#ifdef _WIN32
+    WSACleanup();
+#endif  // _WIN32
   }
 
   stream_ = socket(addr_info->ai_family, addr_info->ai_socktype,
@@ -442,7 +401,10 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
       }
     }
   }
-  TessFreeAddrInfo(addr_info);
+#ifdef _WIN32
+  // WSACleanup();  // This cause ScrollView windows is not displayed
+#endif  // _WIN32
+  freeaddrinfo(addr_info);
 }
 
 SVNetwork::~SVNetwork() {
