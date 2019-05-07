@@ -426,6 +426,7 @@ PKG_CHECK_MODULES([libarchive], [libarchive], [have_libarchive=true], [have_liba
 AM_CONDITIONAL([HAVE_LIBARCHIVE], [$have_libarchive])
 if $have_libarchive; then
   AC_DEFINE([HAVE_LIBARCHIVE], [], [Enable libarchive])
+  CPPFLAGS="$CPPFLAGS $libarchive_CFLAGS"
 fi
 
 AM_CONDITIONAL([ENABLE_TRAINING], true)
@@ -440,6 +441,8 @@ if !($have_icu_uc && $have_icu_i18n); then
         AC_MSG_WARN([Try to install libicu-devel package.])
         AM_CONDITIONAL([ENABLE_TRAINING], false)
   fi
+else
+  CPPFLAGS="$CPPFLAGS $ICU_UC_CFLAGS $ICU_I18N_CFLAGS"
 fi
 
 # Check location of pango headers
