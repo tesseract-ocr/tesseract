@@ -59,8 +59,8 @@ void build(Solution &s)
             "src/classify"_id,
             "src/arch"_id;
 
-        if (s.Settings.Native.CompilerType == CompilerType::MSVC ||
-            s.Settings.Native.CompilerType == CompilerType::ClangCl)
+        if (libtesseract.getCompilerType() == CompilerType::MSVC ||
+            libtesseract.getCompilerType() == CompilerType::ClangCl)
         {
             libtesseract += "__SSE4_1__"_def;
             libtesseract.CompileOptions.push_back("-arch:AVX2");
@@ -75,7 +75,7 @@ void build(Solution &s)
         libtesseract.Public += "org.sw.demo.danbloomberg.leptonica-master"_dep;
         libtesseract.Public += "org.sw.demo.libarchive.libarchive"_dep;
 
-        if (s.Settings.TargetOS.Type == OSType::Windows)
+        if (libtesseract.getSettings().TargetOS.Type == OSType::Windows)
         {
             libtesseract.Public += "ws2_32.lib"_l;
             libtesseract.Protected += "NOMINMAX"_def;
