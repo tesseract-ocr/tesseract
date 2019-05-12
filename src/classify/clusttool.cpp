@@ -142,17 +142,22 @@ uint16_t ReadSampleSize(TFile *fp) {
  */
 PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
   PARAM_DESC *ParamDesc;
-  char linear_token[TOKENSIZE], essential_token[TOKENSIZE];
 
   ParamDesc = static_cast<PARAM_DESC *>(Emalloc (N * sizeof (PARAM_DESC)));
   for (int i = 0; i < N; i++) {
     const int kMaxLineSize = TOKENSIZE * 4;
     char line[kMaxLineSize];
     ASSERT_HOST(fp->FGets(line, kMaxLineSize) != nullptr);
-    ASSERT_HOST(sscanf(line,
-                "%" QUOTED_TOKENSIZE "s %" QUOTED_TOKENSIZE "s %f %f",
-                linear_token, essential_token, &ParamDesc[i].Min,
-                &ParamDesc[i].Max) == 4);
+    std::istringstream stream(line);
+    // Use "C" locale (needed for float values Min, Max).
+    stream.imbue(std::locale::classic());
+    std::string linear_token;
+    stream >> linear_token;
+    std::string essential_token;
+    stream >> essential_token;
+    stream >> ParamDesc[i].Min;
+    stream >> ParamDesc[i].Max;
+    ASSERT_HOST(!stream.fail());
     ParamDesc[i].Circular = (linear_token[0] == 'c');
     ParamDesc[i].NonEssential = (essential_token[0] != 'e');
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
