@@ -154,7 +154,7 @@ PARAM_DESC *ReadParamDesc(TFile *fp, uint16_t N) {
                 linear_token, essential_token, &ParamDesc[i].Min,
                 &ParamDesc[i].Max) == 4);
     ParamDesc[i].Circular = (linear_token[0] == 'c');
-    ParamDesc[i].NonEssential = (linear_token[0] != 'e');
+    ParamDesc[i].NonEssential = (essential_token[0] != 'e');
     ParamDesc[i].Range = ParamDesc[i].Max - ParamDesc[i].Min;
     ParamDesc[i].HalfRange = ParamDesc[i].Range / 2;
     ParamDesc[i].MidRange = (ParamDesc[i].Max + ParamDesc[i].Min) / 2;
