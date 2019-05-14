@@ -39,8 +39,7 @@ float DistanceBetween(FPOINT A, FPOINT B) {
  * @param Point1 points to compute angle between
  * @param Point2 points to compute angle between
  * @param FullScale value to associate with 2*pi
- * @return none
- * @note Globals: none
+ * @return angle
  */
 float NormalizedAngleFrom(FPOINT *Point1, FPOINT *Point2, float FullScale) {
   float NumRadsInCircle = 2.0 * M_PI;

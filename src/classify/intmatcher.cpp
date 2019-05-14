@@ -96,7 +96,6 @@ namespace tesseract {
  * @param n Number of elements to sort
  * @param ra     Key array [1..n]
  * @param rb     Index array [1..n]
- * @return none
  */
 static void
 HeapSort (int n, int ra[], int rb[]) {
@@ -508,7 +507,6 @@ int Classify::PruneClasses(const INT_TEMPLATES_STRUCT* int_templates,
  * param NormalizationFactor Fudge factor from blob normalization process
  * param Result Class rating & configuration: (0.0 -> 1.0), 0=bad, 1=good
  * param Debug Debugger flag: 1=debugger on
- * @return none
  */
 void IntegerMatcher::Match(INT_CLASS ClassTemplate,
                            BIT_VECTOR ProtoMask,
@@ -752,7 +750,6 @@ void ScratchEvidence::ClearFeatureEvidence(const INT_CLASS class_template) {
 
 /**
  * Print debugging information for Configurations
- * @return none
  */
 static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
                                  uint8_t Evidence, uint32_t ConfigWord) {
@@ -770,7 +767,6 @@ static void IMDebugConfiguration(int FeatureNum, uint16_t ActualProtoNum,
 
 /**
  * Print debugging information for Configurations
- * @return none
  */
 static void IMDebugConfigurationSum(int FeatureNum, uint8_t *FeatureEvidence,
                                     int32_t ConfigCount) {
@@ -790,7 +786,7 @@ static void IMDebugConfigurationSum(int FeatureNum, uint8_t *FeatureEvidence,
  * @param Feature Pointer to a feature struct
  * @param tables Evidence tables
  * @param Debug Debugger flag: 1=debugger on
- * @return none
+ * @return sum of feature evidence tables
  */
 int IntegerMatcher::UpdateTablesForFeature(
     INT_CLASS ClassTemplate,
@@ -931,7 +927,6 @@ int IntegerMatcher::UpdateTablesForFeature(
 
 /**
  * Print debugging information for Configurations
- * @return none
  */
 #ifndef GRAPHICS_DISABLED
 void IntegerMatcher::DebugFeatureProtoError(

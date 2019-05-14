@@ -2,7 +2,6 @@
  ** Filename:    mfdefs.cpp
  ** Purpose:     Basic routines for manipulating micro-features
  ** Author:      Dan Johnson
- ** History:     Mon Jan 22 08:48:58 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +24,7 @@
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------**/
-/*---------------------------------------------------------------------------*/
+
 /**
  * This routine allocates and returns a new micro-feature
  * data structure.
@@ -35,13 +34,10 @@ MICROFEATURE NewMicroFeature() {
   return (static_cast<MICROFEATURE>(Emalloc (sizeof (MFBLOCK))));
 }                                /* NewMicroFeature */
 
-
-/*---------------------------------------------------------------------------*/
 /**
  * This routine deallocates all of the memory consumed by
  * a list of micro-features.
  * @param MicroFeatures list of micro-features to be freed
- * @return  none
  */
 void FreeMicroFeatures(MICROFEATURES MicroFeatures) {
   destroy_nodes(MicroFeatures, Efree);

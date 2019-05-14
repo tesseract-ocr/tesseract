@@ -116,10 +116,6 @@ float CompareProtos(PROTO p1, PROTO p2) {
  * @param p1, p2    protos to be merged
  * @param w1, w2    weight of each proto
  * @param MergedProto place to put resulting merged proto
- *
- * Globals: none
- *
- * @return none (results are returned in MergedProto)
  */
 void ComputeMergedProto (PROTO  p1,
                          PROTO  p2,
@@ -290,10 +286,6 @@ bool DummyFastMatch(FEATURE Feature, PROTO Proto)
  * @param TangentPad  amount of pad to add in direction of segment
  * @param OrthogonalPad amount of pad to add orthogonal to segment
  * @param[out] BoundingBox place to put results
- *
- * Globals: none
- *
- * @return none (results are returned in BoundingBox)
  */
 void ComputePaddedBoundingBox (PROTO Proto, float TangentPad,
                                float OrthogonalPad, FRECT *BoundingBox) {

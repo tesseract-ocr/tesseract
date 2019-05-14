@@ -2,7 +2,6 @@
  ** Filename:    picofeat.c
  ** Purpose:     Definition of pico-features.
  ** Author:      Dan Johnson
- ** History:     9/4/90, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,12 +93,12 @@ FEATURE_SET Classify::ExtractPicoFeatures(TBLOB *Blob) {
  * FeatureSet.  The length of the segment is rounded to the
  * nearest whole number of pico-features.  The pico-features
  * are spaced evenly over the entire segment.
+ * Results are placed in FeatureSet.
  * Globals:
  * - classify_pico_feature_length length of a single pico-feature
  * @param Start starting point of pico-feature
  * @param End ending point of pico-feature
  * @param FeatureSet set to add pico-feature to
- * @return none (results are placed in FeatureSet)
  */
 void ConvertSegmentToPicoFeat(FPOINT *Start,
                               FPOINT *End,
@@ -146,12 +145,12 @@ void ConvertSegmentToPicoFeat(FPOINT *Start,
  * up into pieces of equal length.  These pieces become the
  * desired pico-features.  Each segment in the outline
  * is converted into an integral number of pico-features.
+ * Results are returned in FeatureSet.
  *
  * Globals:
  * - classify_pico_feature_length length of features to be extracted
  * @param Outline outline to extract micro-features from
  * @param FeatureSet set of features to add pico-features to
- * @return none (results are returned in FeatureSet)
  */
 void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE Next;
@@ -188,9 +187,8 @@ void ConvertToPicoFeatures2(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  * of the pico-features in FeatureSet and then renormalizes
  * the pico-features to force this average to be the x origin
  * (i.e. x=0).
+ * FeatureSet is changed.
  * @param FeatureSet pico-features to be normalized
- * @return none (FeatureSet is changed)
- * @note Globals: none
  */
 void NormalizePicoX(FEATURE_SET FeatureSet) {
   int i;

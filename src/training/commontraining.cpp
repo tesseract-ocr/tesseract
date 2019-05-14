@@ -44,7 +44,6 @@ STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
  * - Config  current clustering parameters
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
- * @return none
  * @note Exceptions: Illegal options terminate the program.
  */
 void ParseArguments(int* argc, char ***argv) {
@@ -124,7 +123,6 @@ DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
  * - Config  current clustering parameters
  * @param argc number of command line arguments to parse
  * @param argv command line arguments
- * @return none
  */
 void ParseArguments(int* argc, char ***argv) {
   STRING usage;
@@ -392,8 +390,6 @@ LABELEDLIST NewLabeledList(const char* Label) {
  * @param max_samples
  * @param unicharset
  * @param training_samples
- * @return none
- * @note Globals: none
  */
 void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_definitions,
                          const char *feature_name, int max_samples,
@@ -455,8 +451,6 @@ void ReadTrainingSamples(const FEATURE_DEFS_STRUCT& feature_definitions,
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
  * @param CharList list of all fonts in document
- * @return none
- * @note Globals: none
  */
 void FreeTrainingSamples(LIST CharList) {
   LABELEDLIST char_sample;
@@ -483,7 +477,6 @@ void FreeTrainingSamples(LIST CharList) {
  * consumed by the items in the list.
  * @param LabeledList labeled list to be freed
  * @note Globals: none
- * @return none
  */
 void FreeLabeledList(LABELEDLIST LabeledList) {
   destroy(LabeledList->List);
@@ -717,8 +710,6 @@ MERGE_CLASS NewLabeledClass(const char* Label) {
  * This routine deallocates all of the space allocated to
  * the specified list of training samples.
  * @param ClassList list of all fonts in document
- * @return none
- * @note Globals: none
  */
 void FreeLabeledClassList(LIST ClassList) {
   MERGE_CLASS MergeClass;
