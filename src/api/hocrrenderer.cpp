@@ -209,8 +209,21 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       AddBoxTohOCR(res_it.get(), RIL_PARA, hocr_str);
     }
     if (res_it->IsAtBeginningOf(RIL_TEXTLINE)) {
-      hocr_str << "\n     <span class='ocr_line'"
-               << " id='"
+      hocr_str << "\n     <span class='";
+      switch (res_it->BlockType()) {
+        case PT_HEADING_TEXT:
+          hocr_str << "ocr_header";
+          break;
+        case PT_PULLOUT_TEXT:
+          hocr_str << "ocr_textfloat";
+          break;
+        case PT_CAPTION_TEXT:
+          hocr_str << "ocr_caption";
+          break;
+        default:
+          hocr_str << "ocr_line";
+      }
+      hocr_str << "' id='"
                << "line_" << page_id << "_" << lcnt << "'";
       AddBoxTohOCR(res_it.get(), RIL_TEXTLINE, hocr_str);
     }
