@@ -106,8 +106,7 @@ CLUSTERCONFIG  CNConfig =
 * N samples of each class should be used.
 * @param argc  number of command line arguments
 * @param argv  array of command line arguments
-* @return none
-* @note Globals: none
+* @return 0 on success
 */
 int main(int argc, char *argv[]) {
   tesseract::CheckSharedLibraryVersion();
@@ -200,7 +199,6 @@ int main(int argc, char *argv[]) {
 * @param Directory  directory to place sample files into
 * @param LabeledProtoList List of labeled protos
 * @param feature_desc Description of the features
-* @return none
 */
 static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
                             const FEATURE_DESC_STRUCT *feature_desc) {

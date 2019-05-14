@@ -849,8 +849,6 @@ bool Classify::AdaptableWord(WERD_RES* word) {
  * Globals:
  * - AllProtosOn dummy mask to match against all protos
  * - AllConfigsOn dummy mask to match against all configs
- *
- * @return none
  */
 void Classify::AdaptToChar(TBLOB* Blob, CLASS_ID ClassId, int FontinfoId,
                            float Threshold,

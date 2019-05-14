@@ -2,7 +2,6 @@
  ** Filename:    outfeat.c
  ** Purpose:     Definition of outline-features.
  ** Author:      Dan Johnson
- ** History:     11/13/90, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -80,8 +79,6 @@ FEATURE_SET Classify::ExtractOutlineFeatures(TBLOB *Blob) {
  * @param Start starting point of outline-feature
  * @param End ending point of outline-feature
  * @param FeatureSet set to add outline-feature to
- * @return none (results are placed in FeatureSet)
- * @note Globals: none
  */
 void AddOutlineFeatureToSet(FPOINT *Start,
                             FPOINT *End,
@@ -103,10 +100,9 @@ void AddOutlineFeatureToSet(FPOINT *Start,
  * This routine steps converts each section in the specified
  * outline to a feature described by its x,y position, length
  * and angle.
+ * Results are returned in FeatureSet.
  * @param Outline outline to extract outline-features from
  * @param FeatureSet set of features to add outline-features to
- * @return none (results are returned in FeatureSet)
- * @note Globals: none
  */
 void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
   MFOUTLINE Next;
@@ -143,9 +139,8 @@ void ConvertToOutlineFeatures(MFOUTLINE Outline, FEATURE_SET FeatureSet) {
  * over all of the outline-features in FeatureSet and then
  * renormalizes the outline-features to force this average
  * to be the x origin (i.e. x=0).
+ * FeatureSet is changed.
  * @param FeatureSet outline-features to be normalized
- * @return none (FeatureSet is changed)
- * @note Globals: none
  */
 void NormalizeOutlineX(FEATURE_SET FeatureSet) {
   int i;

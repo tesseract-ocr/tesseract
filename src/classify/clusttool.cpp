@@ -77,8 +77,6 @@ static float *ReadNFloats(TFile *fp, uint16_t N, float Buffer[]) {
  * @param File open text file to write N floats to
  * @param N number of floats to write
  * @param Array array of floats to write
- * @return None
- * @note Globals: None
  */
 static void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
   for (int i = 0; i < N; i++)
@@ -92,8 +90,6 @@ static void WriteNFloats(FILE * File, uint16_t N, float Array[]) {
  * a carriage return to the end.
  * @param File open text file to write prototype style to
  * @param ProtoStyle prototype style to write
- * @return None
- * @note Globals: None
  */
 static void WriteProtoStyle(FILE *File, PROTOSTYLE ProtoStyle) {
   switch (ProtoStyle) {
@@ -254,8 +250,6 @@ PROTOTYPE *ReadPrototype(TFile *fp, uint16_t N) {
  * @param File open text file to write param descriptors to
  * @param N number of param descriptors to write
  * @param ParamDesc array of param descriptors to write
- * @return None
- * @note Globals: None
  */
 void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
   int i;
@@ -281,8 +275,6 @@ void WriteParamDesc(FILE *File, uint16_t N, const PARAM_DESC ParamDesc[]) {
  * @param File open text file to write prototype to
  * @param N number of dimensions in feature space
  * @param Proto prototype to write out
- * @return None
- * @note Globals: None
  */
 void WritePrototype(FILE *File, uint16_t N, PROTOTYPE *Proto) {
   int i;

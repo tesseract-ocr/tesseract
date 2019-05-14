@@ -2,7 +2,6 @@
  ** Filename:    cutoffs.c
  ** Purpose:     Routines to manipulate an array of class cutoffs.
  ** Author:      Dan Johnson
- ** History:     Wed Feb 20 09:28:51 1991, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,8 +38,6 @@ namespace tesseract {
  * array are set to an arbitrarily high cutoff value.
  * @param fp file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
- * @return none
- * @note Globals: none
  */
 void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
   char Class[UNICHAR_LEN + 1];

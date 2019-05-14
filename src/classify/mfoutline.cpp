@@ -2,7 +2,6 @@
  ** Filename:    mfoutline.c
  ** Purpose:     Interface to outline struct used for extracting features
  ** Author:      Dan Johnson
- ** History:     Thu May 17 08:14:18 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -112,7 +111,6 @@ LIST ConvertOutlines(TESSLINE *outline,
  * @param Outline   micro-feature outline to analyze
  * @param MinSlope  controls "snapping" of segments to horizontal
  * @param MaxSlope  controls "snapping" of segments to vertical
- * @return none
  */
 void FindDirectionChanges(MFOUTLINE Outline,
                           float MinSlope,
@@ -144,7 +142,6 @@ void FindDirectionChanges(MFOUTLINE Outline,
  * This routine deallocates all of the memory consumed by
  * a micro-feature outline.
  * @param arg   micro-feature outline to be freed
- * @return none
  */
 void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline)
   MFOUTLINE Start;
@@ -166,7 +163,6 @@ void FreeMFOutline(void *arg) {  //MFOUTLINE                             Outline
  * Release all memory consumed by the specified list
  * of outlines.
  * @param Outlines  list of mf-outlines to be freed
- * @return none
  */
 void FreeOutlines(LIST Outlines) {
   destroy_nodes(Outlines, FreeMFOutline);
@@ -183,8 +179,6 @@ void FreeOutlines(LIST Outlines) {
  * changes rather than at the midpoint between direction
  * changes.
  * @param Outline   micro-feature outline to analyze
- * @return none
- * @note Globals: none
  */
 void MarkDirectionChanges(MFOUTLINE Outline) {
   MFOUTLINE Current;
@@ -244,8 +238,6 @@ MFOUTLINE NextExtremity(MFOUTLINE EdgePoint) {
  * y coordinate of the baseline is 0.
  * @param Outline   outline to be normalized
  * @param XOrigin   x-origin of text
- * @return none
- * @note Globals: none
  */
 void NormalizeOutline(MFOUTLINE Outline,
                       float XOrigin) {
@@ -272,6 +264,7 @@ namespace tesseract {
  * scaling.  The scale factors returned represent the x and
  * y sizes in the normalized coordinate system that correspond
  * to 1 pixel in the original coordinate system.
+ * Outlines are changed and XScale and YScale are updated.
  *
  * Globals:
  * - classify_norm_method  method being used for normalization
@@ -279,7 +272,6 @@ namespace tesseract {
  * @param Outlines  list of outlines to be normalized
  * @param XScale    x-direction scale factor used by routine
  * @param YScale    y-direction scale factor used by routine
- * @return none (Outlines are changed and XScale and YScale are updated)
  */
 void Classify::NormalizeOutlines(LIST Outlines,
                                  float *XScale,
@@ -313,8 +305,6 @@ void Classify::NormalizeOutlines(LIST Outlines,
  * change in direction of the point before it.
  * @param Start, End  defines segment of outline to be modified
  * @param Direction new direction to assign to segment
- * @return none
- * @note Globals: none
  */
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
   MFOUTLINE Current;
@@ -332,8 +322,6 @@ void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
  * anisotropically according to the given scale factors.
  * @param Outline     outline to be character normalized
  * @param cn_denorm
- * @return none
- * @note Globals: none
  */
 void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
   MFOUTLINE First, Current;
@@ -371,8 +359,6 @@ void CharNormalizeOutline(MFOUTLINE Outline, const DENORM& cn_denorm) {
  * @param Finish    finishing point to compute direction to
  * @param MinSlope  slope below which lines are horizontal
  * @param MaxSlope  slope above which lines are vertical
- * @return none
- * @note Globals: none
  */
 void ComputeDirection(MFEDGEPT *Start,
                       MFEDGEPT *Finish,

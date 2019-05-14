@@ -327,7 +327,6 @@ void KDWalk(KDTREE *Tree, void_proc action, void *context) {
  * which are pointed to by the nodes.  This memory is left
  * untouched.
  * @param Tree  tree data structure to be released
- * @return none
  */
 void FreeKDTree(KDTREE *Tree) {
   FreeSubTree(Tree->Root.Left);
