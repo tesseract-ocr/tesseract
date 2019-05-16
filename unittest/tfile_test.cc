@@ -23,6 +23,10 @@ namespace {
 
 class TfileTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   TfileTest() {}
 
   // Some data to serialize.

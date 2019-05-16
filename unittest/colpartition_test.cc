@@ -27,7 +27,9 @@ class TestableColPartition : public ColPartition {
 
 class ColPartitionTest : public testing::Test {
  protected:
-  void SetUp() {}
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
 
   void TearDown() {}
 };

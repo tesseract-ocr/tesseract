@@ -22,6 +22,7 @@ const int kTestData[] = {2, 0, 12, 1, 1, 2, 10, 1, 0, 0, 0, 2, 0, 4, 1, 1};
 class STATSTest : public testing::Test {
  public:
   void SetUp() {
+    std::locale::global(std::locale(""));
     stats_.set_range(0, 16);
     for (size_t i = 0; i < ARRAYSIZE(kTestData); ++i)
       stats_.add(i, kTestData[i]);

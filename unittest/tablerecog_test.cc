@@ -71,6 +71,7 @@ class TestableStructuredTable : public tesseract::StructuredTable {
 class SharedTest : public testing::Test {
  protected:
   void SetUp() {
+    std::locale::global(std::locale(""));
     ICOORD bleft(0, 0);
     ICOORD tright(1000, 1000);
     text_grid_.reset(new ColPartitionGrid(5, bleft, tright));

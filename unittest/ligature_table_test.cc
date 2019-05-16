@@ -24,6 +24,10 @@ const char kRenderableEngLigatureText[] = "ﬁdelity efﬁgy ſteep";
 
 class LigatureTableTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   static void SetUpTestCase() {
     FLAGS_fonts_dir = File::JoinPath(FLAGS_test_srcdir, "testdata");
     FLAGS_fontconfig_tmpdir = FLAGS_test_tmpdir;

@@ -16,9 +16,12 @@
 namespace {
 
 class LLSQTest : public testing::Test {
- public:
-  void SetUp() {}
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
 
+ public:
   void TearDown() {}
 
   void ExpectCorrectLine(const LLSQ& llsq, double m, double c, double rms,

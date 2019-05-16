@@ -37,7 +37,12 @@ TEST(QRSequenceGenerator, GetBinaryReversedInteger) {
 }
 
 // Trivial test fixture for a parameterized test.
-class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {};
+class QRSequenceGeneratorTest : public ::testing::TestWithParam<int> {
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+};
 
 TEST_P(QRSequenceGeneratorTest, GeneratesValidSequence) {
   const int kRangeSize = GetParam();

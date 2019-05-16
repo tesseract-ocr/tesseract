@@ -17,7 +17,9 @@ namespace {
 
 class TBOXTest : public testing::Test {
  public:
-  void SetUp() {}
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
 
   void TearDown() {}
 };

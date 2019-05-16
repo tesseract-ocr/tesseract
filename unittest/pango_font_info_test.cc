@@ -48,6 +48,10 @@ const char* kBadlyFormedHinWords[] = {
 
 class PangoFontInfoTest : public ::testing::Test {
  protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
   // Creates a fake fonts.conf file that points to the testdata fonts for
   // fontconfig to initialize with.
   static void SetUpTestCase() {
