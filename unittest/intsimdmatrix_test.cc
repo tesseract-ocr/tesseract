@@ -27,6 +27,10 @@ namespace {
 
 class IntSimdMatrixTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   // Makes a random weights matrix of the given size.
   GENERIC_2D_ARRAY<int8_t> InitRandom(int no, int ni) {
     GENERIC_2D_ARRAY<int8_t> a(no, ni, 0);

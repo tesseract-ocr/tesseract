@@ -10,6 +10,10 @@ namespace {
 
 class StridemapTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   // Sets up an Array2d object of the given size, initialized to increasing
   // values starting with start.
   std::unique_ptr<Array2D<int>> SetupArray(int ysize, int xsize, int start) {

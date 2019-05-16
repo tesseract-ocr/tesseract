@@ -29,6 +29,10 @@ namespace {
 
 class ImagedataTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   ImagedataTest() {}
 
   // Creates a fake DocumentData, writes it to a file, and returns the filename.

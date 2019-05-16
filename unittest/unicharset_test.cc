@@ -19,6 +19,13 @@ using testing::ElementsAreArray;
 
 namespace {
 
+class UnicharsetTest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+};
+
 TEST(UnicharsetTest, Basics) {
   // This test verifies basic insertion, unichar_to_id, and encode.
   UNICHARSET u;

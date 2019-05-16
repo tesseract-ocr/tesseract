@@ -66,6 +66,7 @@ class TestableTableFinder : public tesseract::TableFinder {
 class TableFinderTest : public testing::Test {
  protected:
   void SetUp() {
+    std::locale::global(std::locale(""));
     free_boxes_it_.set_to_list(&free_boxes_);
     finder_.reset(new TestableTableFinder());
     finder_->Init(1, ICOORD(0, 0), ICOORD(500, 500));

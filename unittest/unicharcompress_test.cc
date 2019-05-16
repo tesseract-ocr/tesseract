@@ -27,6 +27,10 @@ namespace {
 
 class UnicharcompressTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   // Loads and compresses the given unicharset.
   void LoadUnicharset(const std::string& unicharset_name) {
     std::string radical_stroke_file =

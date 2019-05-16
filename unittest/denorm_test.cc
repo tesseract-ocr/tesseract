@@ -17,9 +17,12 @@
 namespace {
 
 class DENORMTest : public testing::Test {
- public:
-  void SetUp() {}
+ protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
 
+ public:
   void TearDown() {}
 
   void ExpectCorrectTransform(const DENORM& denorm, const TPOINT& src,

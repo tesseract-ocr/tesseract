@@ -50,6 +50,10 @@ using tesseract::StringRenderer;
 
 class StringRendererTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   static void SetUpTestCase() {
     l_chooseDisplayProg(L_DISPLAY_WITH_XZGV);
     FLAGS_fonts_dir = TESTING_DIR;

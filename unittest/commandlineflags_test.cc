@@ -31,6 +31,10 @@ namespace {
 
 class CommandlineflagsTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   void TestParser(int argc, const char** const_argv) {
     TestParser("", argc, const_argv);
   }

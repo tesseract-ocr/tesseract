@@ -21,7 +21,10 @@ namespace {
 
 class TabVectorTest : public testing::Test {
  protected:
-  void SetUp() { vector_.reset(); }
+  void SetUp() {
+    std::locale::global(std::locale(""));
+    vector_.reset();
+  }
 
   void TearDown() {}
 
