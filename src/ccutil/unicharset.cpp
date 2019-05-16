@@ -24,7 +24,7 @@
 #include <cstring>
 #include <iomanip>    // for std::setw
 #include <locale>     // for std::locale::classic
-#include <sstream>    // for std::istringstream
+#include <sstream>    // for std::istringstream, std::ostringstream
 
 #include "params.h"
 #include "serialis.h"
@@ -708,19 +708,24 @@ bool UNICHARSET::save_to_string(STRING *str) const {
       snprintf(buffer, kFileBufSize, "%s %x %s %d\n", "NULL", properties,
               this->get_script_from_script_id(this->get_script(id)),
               this->get_other_case(id));
+      *str += buffer;
     } else {
-      // FIXME
-      snprintf(buffer, kFileBufSize,
-              "%s %x %d,%d,%d,%d,%g,%g,%g,%g,%g,%g %s %d %d %d %s\t# %s\n",
-              this->id_to_unichar(id), properties,
-              min_bottom, max_bottom, min_top, max_top, width, width_sd,
-              bearing, bearing_sd, advance, advance_sd,
-              this->get_script_from_script_id(this->get_script(id)),
-              this->get_other_case(id), this->get_direction(id),
-              this->get_mirror(id), this->get_normed_unichar(id),
-              this->debug_str(id).string());
+      std::ostringstream stream;
+      stream.imbue(std::locale::classic());
+      stream << this->id_to_unichar(id) << ' ' << properties << ' ' <<
+              min_bottom << ',' << max_bottom << ',' <<
+              min_top << ',' << max_top << ',' <<
+              width << ',' << width_sd << ',' <<
+              bearing << ',' << bearing_sd << ',' <<
+              advance << ',' << advance_sd << ' ' <<
+              this->get_script_from_script_id(this->get_script(id)) << ' ' <<
+              this->get_other_case(id) << ' ' <<
+              this->get_direction(id) << ' ' <<
+              this->get_mirror(id) << ' ' <<
+              this->get_normed_unichar(id) << "\t# " <<
+              this->debug_str(id).string() << '\n';
+      *str += stream.str().c_str();
     }
-    *str += buffer;
   }
   return true;
 }
