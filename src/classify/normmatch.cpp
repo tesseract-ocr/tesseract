@@ -21,6 +21,7 @@
 
 #include <cstdio>
 #include <cmath>
+#include <sstream>          // for std::istringstream
 
 #include "classify.h"
 #include "clusttool.h"
@@ -113,7 +114,7 @@ float Classify::ComputeNormMatch(CLASS_ID ClassId,
       feature.Params[CharNormRx] * 8000.0 +
       feature.Params[CharNormRy] *
       feature.Params[CharNormRy] * 8000.0);
-    return (1.0 - NormEvidenceOf (Match));
+    return (1.0 - NormEvidenceOf(Match));
   }
 
   BestMatch = FLT_MAX;
@@ -209,7 +210,11 @@ NORM_PROTOS *Classify::ReadNormProtos(TFile *fp) {
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
   while (fp->FGets(line, kMaxLineSize) != nullptr) {
-    if (sscanf(line, "%s %d", unichar, &NumProtos) != 2) continue;
+    std::istringstream stream(line);
+    stream >> unichar >> NumProtos;
+    if (stream.fail()) {
+      continue;
+    }
     if (unicharset.contains_unichar(unichar)) {
       unichar_id = unicharset.unichar_to_id(unichar);
       Protos = NormProtos->Protos[unichar_id];
