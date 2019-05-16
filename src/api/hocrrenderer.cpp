@@ -336,7 +336,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           tcnt++;
         }
       }
-    } 
+    }
     hocr_str << "</span>";
     tcnt = 1;
     gcnt = 1;
