@@ -166,6 +166,10 @@ TEST_F(TesseractTest, RickSnyderNotFuckSnyder) {
 
 // Tests that Tesseract gets exactly the right answer on some page numbers.
 TEST_F(TesseractTest, AdaptToWordStrTest) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because TessBaseAPI::AdaptToWordStr is missing.
+  GTEST_SKIP();
+#else
   static const char* kTrainingPages[] = {
       "136.tif", "256.tif", "410.tif", "432.tif", "540.tif",
       "692.tif", "779.tif", "793.tif", "808.tif", "815.tif",
@@ -204,6 +208,7 @@ TEST_F(TesseractTest, AdaptToWordStrTest) {
     EXPECT_STREQ(kTestText[i], ocr_text.c_str());
     pixDestroy(&src_pix);
   }
+#endif
 }
 
 // Tests that LSTM gets exactly the right answer on phototest.
