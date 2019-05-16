@@ -7,6 +7,10 @@ namespace {
 
 class TatweelTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   TatweelTest() {
     string filename = TestDataNameToPath("ara.wordlist");
     string wordlist;

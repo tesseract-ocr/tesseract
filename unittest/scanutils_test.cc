@@ -6,6 +6,10 @@ namespace {
 
 class ScanutilsTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   string TestDataNameToPath(const string& name) {
     return file::JoinPath(FLAGS_test_srcdir, "testdata/" + name);
   }

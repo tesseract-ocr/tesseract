@@ -69,6 +69,10 @@ const float kVi2ndScores[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
 
 class RecodeBeamTest : public ::testing::Test {
  protected:
+  void SetUp() {
+    std::locale::global(std::locale(""));
+  }
+
   RecodeBeamTest() : lstm_dict_(&ccutil_) {}
   ~RecodeBeamTest() { lstm_dict_.End(); }
 
@@ -153,7 +157,7 @@ class RecodeBeamTest : public ::testing::Test {
                 !recoder_.IsValidFirstCode(labels[index])));
       EXPECT_NE(INVALID_UNICHAR_ID, uni_id)
           << "index=" << index << "/" << labels.size();
-		  // To the extent of truth_utf8, we expect decoded to match, but if
+      // To the extent of truth_utf8, we expect decoded to match, but if
       // transcription is shorter, that is OK too, as we may just be testing
       // that we get a valid sequence when padded with random data.
       if (uni_id != unichar_null_char_ && decoded.size() < truth_utf8.size())

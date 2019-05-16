@@ -24,6 +24,11 @@ const int kPrimeLimit = 1000;
 namespace {
 
 class BitVectorTest : public testing::Test {
+ protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
  public:
   std::string OutputNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
