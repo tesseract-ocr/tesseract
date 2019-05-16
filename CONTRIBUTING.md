@@ -67,11 +67,11 @@ your question has been asked (and has been answered) many times before...
 
 ## For Developers: Creating a Pull Request
 
-You should always make sure your changes build and run successfully. 
+You should always make sure your changes build and run successfully.
 
-For that, your clone needs to have all submodules (`abseil`, `googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure. 
+For that, your clone needs to have all submodules (`abseil`, `googletest`, `test`) included. To do so, either specify `--recurse-submodules` during the initial clone, or run `git submodule update --init --recursive NAME` for each `NAME` later. If `configure` already created those directories (blocking the clone), remove them first (or `make distclean`), then clone and reconfigure.
 
-Have a look at [the README](./README.md) and [testing README](./test/testing/README.md) and the [wiki page](https://github.com/tesseract-ocr/tesseract/wiki/Compiling-%E2%80%93-GitInstallation#unit-test-builds) on installation. 
+Have a look at [the README](./README.md) and [testing README](./test/testing/README.md) and the [wiki page](https://github.com/tesseract-ocr/tesseract/wiki/Compiling-%E2%80%93-GitInstallation#unit-test-builds) on installation.
 
 In short, after running `configure` from the build directory of your choice, to build the library and CLI, run `make`. To test it, run `make check`. To build the training tools, run `make training`.
 
