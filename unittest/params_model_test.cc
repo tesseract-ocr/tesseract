@@ -21,6 +21,7 @@ namespace {
 
 // Test some basic I/O of params model files (automated learning of language
 // model weights).
+#ifndef DISABLED_LEGACY_ENGINE
 static bool LoadFromFile(tesseract::ParamsModel& model, const char* lang, const char* full_path) {
   tesseract::TFile fp;
   if (!fp.Open(full_path, nullptr)) {
@@ -29,9 +30,15 @@ static bool LoadFromFile(tesseract::ParamsModel& model, const char* lang, const 
   }
   return model.LoadFromFp(lang, &fp);
 }
+#endif
 
 class ParamsModelTest : public testing::Test {
+#ifndef DISABLED_LEGACY_ENGINE
  protected:
+  void SetUp() override {
+    std::locale::global(std::locale(""));
+  }
+
   std::string TestDataNameToPath(const std::string& name) const {
     return file::JoinPath(TESTDATA_DIR, name);
   }
@@ -52,10 +59,16 @@ class ParamsModelTest : public testing::Test {
     EXPECT_TRUE(LoadFromFile(duplicate_model, "eng", out_file.c_str()));
     EXPECT_TRUE(orig_model.Equivalent(duplicate_model));
   }
+#endif
 };
 
 TEST_F(ParamsModelTest, TestEngParamsModelIO) {
+#ifdef DISABLED_LEGACY_ENGINE
+  // Skip test because ParamsModel::LoadFromFp is missing.
+  GTEST_SKIP();
+#else
   TestParamsModelRoundTrip("eng.params_model");
+#endif
 }
 
 }  // namespace
