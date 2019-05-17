@@ -40,7 +40,7 @@
  *
  * COPYING:
  * -----------------
- * reverse           - (Depreciated) Creates a backwards copy of the input list.
+ * reverse           - (Deprecated) Creates a backwards copy of the input list.
  *
  * LIST CELL COUNTS:
  * -----------------
@@ -50,7 +50,7 @@
  * TRANSFORMS:             (Note: These functions all modify the input list.)
  * ----------
  * delete_d          - Removes the requested elements from the list.
- * insert            - (Depreciated) Add a new element into this spot in a list.
+ * insert            - (Deprecated) Add a new element into this spot in a list.
                        (not NIL_LIST)
  * push_last         - Add a new element onto the end of a list.
  *
