@@ -50,8 +50,9 @@ using tesseract::StringRenderer;
 
 class StringRendererTest : public ::testing::Test {
  protected:
-  void SetUp() {
-    std::locale::global(std::locale(""));
+  void SetUp() override {
+    static std::locale system_locale("");
+    std::locale::global(system_locale);
   }
 
   static void SetUpTestCase() {
