@@ -20,6 +20,8 @@
 #include "cutoffs.h"
 
 #include <cstdio>
+#include <sstream>    // for std::istringstream
+#include <string>     // for std::string
 
 #include "classify.h"
 #include "helpers.h"
@@ -40,8 +42,6 @@ namespace tesseract {
  * @param Cutoffs array to put cutoffs into
  */
 void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
-  char Class[UNICHAR_LEN + 1];
-  CLASS_ID ClassId;
   int Cutoff;
 
   if (shape_table_ != nullptr) {
@@ -54,14 +54,20 @@ void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
 
   const int kMaxLineSize = 100;
   char line[kMaxLineSize];
-  while (fp->FGets(line, kMaxLineSize) != nullptr &&
-         sscanf(line, "%" REALLY_QUOTE_IT(UNICHAR_LEN) "s %d", Class,
-                &Cutoff) == 2) {
-    if (strcmp(Class, "NULL") == 0) {
+  while (fp->FGets(line, kMaxLineSize) != nullptr) {
+    std::string Class;
+    CLASS_ID ClassId;
+    std::istringstream stream(line);
+    stream >> Class >> Cutoff;
+    if (stream.fail()) {
+      break;
+    }
+    if (Class.compare("NULL") == 0) {
       ClassId = unicharset.unichar_to_id(" ");
     } else {
-      ClassId = unicharset.unichar_to_id(Class);
+      ClassId = unicharset.unichar_to_id(Class.c_str());
     }
+    ASSERT_HOST(ClassId >= 0 && ClassId < MAX_NUM_CLASSES);
     Cutoffs[ClassId] = Cutoff;
   }
 }
