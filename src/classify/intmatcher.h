@@ -35,7 +35,6 @@ extern INT_VAR_H(classify_integer_matcher_multiplier, 10,
           Include Files and Type Defines
 ----------------------------------------------------------------------------**/
 #include "intproto.h"
-#include "cutoffs.h"
 
 namespace tesseract {
 struct UnicharRating;

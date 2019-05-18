@@ -17,7 +17,6 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
-#include "cutoffs.h"
 
 #include <cstdio>
 #include <sstream>    // for std::istringstream
@@ -41,7 +40,7 @@ namespace tesseract {
  * @param fp file containing cutoff definitions
  * @param Cutoffs array to put cutoffs into
  */
-void Classify::ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs) {
+void Classify::ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs) {
   int Cutoff;
 
   if (shape_table_ != nullptr) {
