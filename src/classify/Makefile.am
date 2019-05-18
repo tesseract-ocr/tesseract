@@ -23,7 +23,6 @@ noinst_HEADERS += \
     adaptive.h \
     cluster.h \
     clusttool.h \
-    cutoffs.h \
     errorcounter.h \
     featdefs.h \
     float2int.h \

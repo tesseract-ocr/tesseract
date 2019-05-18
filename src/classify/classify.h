@@ -145,7 +145,7 @@ class Classify : public CCStruct {
                    const uint8_t* normalization_factors,
                    const uint16_t* expected_num_features,
                    GenericVector<CP_RESULT_STRUCT>* results);
-  void ReadNewCutoffs(TFile* fp, CLASS_CUTOFF_ARRAY Cutoffs);
+  void ReadNewCutoffs(TFile* fp, uint16_t* Cutoffs);
   void PrintAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   void WriteAdaptedTemplates(FILE *File, ADAPT_TEMPLATES Templates);
   ADAPT_TEMPLATES ReadAdaptedTemplates(TFile* File);
