@@ -73,12 +73,11 @@ class TESS_API ERRCODE {           // error handler class
     TessErrorLogCode action,   // action to take
     const char *format, ...    // fprintf format
   ) const;
-  ERRCODE(const char *string) {
-    message = string;
+  constexpr ERRCODE(const char *string) : message(string) {
   }                            // initialize with string
 };
 
-const ERRCODE ASSERT_FAILED = "Assert failed";
+constexpr ERRCODE ASSERT_FAILED("Assert failed");
 
 #if defined __cplusplus
 # define DO_NOTHING static_cast<void>(0)

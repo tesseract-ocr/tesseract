@@ -22,7 +22,7 @@
 #include <cstring>
 #include "errcode.h"
 
-const ERRCODE BADERRACTION = "Illegal error action";
+constexpr ERRCODE BADERRACTION("Illegal error action");
 #define MAX_MSG       1024
 
 /**********************************************************************
