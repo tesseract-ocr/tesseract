@@ -71,8 +71,8 @@ void (*zapper) (ELIST_LINK *)) {
 void ELIST::assign_to_sublist(                           //to this list
                               ELIST_ITERATOR *start_it,  //from list start
                               ELIST_ITERATOR *end_it) {  //from list end
-  const ERRCODE LIST_NOT_EMPTY =
-    "Destination list must be empty before extracting a sublist";
+  constexpr ERRCODE LIST_NOT_EMPTY(
+    "Destination list must be empty before extracting a sublist");
 
   if (!empty ())
     LIST_NOT_EMPTY.error ("ELIST.assign_to_sublist", ABORT, nullptr);
@@ -290,8 +290,8 @@ ELIST_LINK *ELIST_ITERATOR::move_to_last() {
 
 void ELIST_ITERATOR::exchange(                             //positions of 2 links
                               ELIST_ITERATOR *other_it) {  //other iterator
-  const ERRCODE DONT_EXCHANGE_DELETED =
-    "Can't exchange deleted elements of lists";
+  constexpr ERRCODE DONT_EXCHANGE_DELETED(
+    "Can't exchange deleted elements of lists");
 
   ELIST_LINK *old_current;
 
@@ -388,12 +388,12 @@ void ELIST_ITERATOR::exchange(                             //positions of 2 link
 ELIST_LINK *ELIST_ITERATOR::extract_sublist(                             //from this current
                                             ELIST_ITERATOR *other_it) {  //to other current
   #ifndef NDEBUG
-  const ERRCODE BAD_EXTRACTION_PTS =
-    "Can't extract sublist from points on different lists";
-  const ERRCODE DONT_EXTRACT_DELETED =
-    "Can't extract a sublist marked by deleted points";
+  constexpr ERRCODE BAD_EXTRACTION_PTS(
+    "Can't extract sublist from points on different lists");
+  constexpr ERRCODE DONT_EXTRACT_DELETED(
+    "Can't extract a sublist marked by deleted points");
   #endif
-  const ERRCODE BAD_SUBLIST = "Can't find sublist end point in original list";
+  constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
 
   ELIST_ITERATOR temp_it = *this;
   ELIST_LINK *end_of_new_list;

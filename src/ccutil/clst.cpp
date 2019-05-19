@@ -96,8 +96,8 @@ void CLIST::shallow_clear() {  //destroy all links
 void CLIST::assign_to_sublist(                           //to this list
                               CLIST_ITERATOR *start_it,  //from list start
                               CLIST_ITERATOR *end_it) {  //from list end
-  const ERRCODE LIST_NOT_EMPTY =
-    "Destination list must be empty before extracting a sublist";
+  constexpr ERRCODE LIST_NOT_EMPTY(
+    "Destination list must be empty before extracting a sublist");
 
   if (!empty ())
     LIST_NOT_EMPTY.error ("CLIST.assign_to_sublist", ABORT, nullptr);
@@ -343,8 +343,8 @@ void *CLIST_ITERATOR::move_to_last() {
 
 void CLIST_ITERATOR::exchange(                             //positions of 2 links
                               CLIST_ITERATOR *other_it) {  //other iterator
-  const ERRCODE DONT_EXCHANGE_DELETED =
-    "Can't exchange deleted elements of lists";
+  constexpr ERRCODE DONT_EXCHANGE_DELETED(
+    "Can't exchange deleted elements of lists");
 
   CLIST_LINK *old_current;
 
@@ -443,12 +443,12 @@ CLIST_LINK *CLIST_ITERATOR::extract_sublist(                             //from 
   CLIST_ITERATOR temp_it = *this;
   CLIST_LINK *end_of_new_list;
 
-  const ERRCODE BAD_SUBLIST = "Can't find sublist end point in original list";
+  constexpr ERRCODE BAD_SUBLIST("Can't find sublist end point in original list");
   #ifndef NDEBUG
-  const ERRCODE BAD_EXTRACTION_PTS =
-    "Can't extract sublist from points on different lists";
-  const ERRCODE DONT_EXTRACT_DELETED =
-    "Can't extract a sublist marked by deleted points";
+  constexpr ERRCODE BAD_EXTRACTION_PTS(
+    "Can't extract sublist from points on different lists");
+  constexpr ERRCODE DONT_EXTRACT_DELETED(
+    "Can't extract a sublist marked by deleted points");
 
   if (!other_it)
     BAD_PARAMETER.error ("CLIST_ITERATOR::extract_sublist", ABORT,

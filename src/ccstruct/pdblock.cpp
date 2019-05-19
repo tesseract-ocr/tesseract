@@ -29,8 +29,8 @@
 
 #define BLOCK_LABEL_HEIGHT  150  //char height of block id
 
-const ERRCODE BADBLOCKLINE = "Y coordinate in block out of bounds";
-const ERRCODE LOSTBLOCKLINE = "Can't find rectangle for line";
+constexpr ERRCODE BADBLOCKLINE("Y coordinate in block out of bounds");
+constexpr ERRCODE LOSTBLOCKLINE("Can't find rectangle for line");
 
 CLISTIZE (PDBLK)
 /**********************************************************************

@@ -72,7 +72,7 @@ ScrollView::Color check_path_legal(                  //certify outline
   int32_t length;                  //length of loop
   int32_t chainsum;                //sum of chain diffs
   CRACKEDGE *edgept;             //current point
-  const ERRCODE ED_ILLEGAL_SUM = "Illegal sum of chain codes";
+  constexpr ERRCODE ED_ILLEGAL_SUM("Illegal sum of chain codes");
 
   length = 0;
   chainsum = 0;                  //sum of chain codes
