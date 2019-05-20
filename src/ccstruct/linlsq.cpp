@@ -21,7 +21,7 @@
 #include "errcode.h"
 #include "linlsq.h"
 
-const ERRCODE EMPTY_LLSQ = "Can't delete from an empty LLSQ";
+constexpr ERRCODE EMPTY_LLSQ("Can't delete from an empty LLSQ");
 
 /**********************************************************************
  * LLSQ::clear

@@ -29,8 +29,8 @@
 #define LAST_COLOUR ScrollView::AQUAMARINE  ///< last rainbow colour
 #define CHILD_COLOUR ScrollView::BROWN      ///< colour of children
 
-const ERRCODE CANT_SCALE_EDGESTEPS =
-    "Attempted to scale an edgestep format word";
+constexpr ERRCODE CANT_SCALE_EDGESTEPS(
+  "Attempted to scale an edgestep format word");
 
 ELIST2IZE(WERD)
 
