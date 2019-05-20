@@ -111,9 +111,12 @@ case "${host_os}" in
         ;;
 esac
 
+WERROR=-Werror
+# The test code used by AX_CHECK_COMPILE_FLAG uses an empty statement.
+# clang++-8 can emit a warning for that which must be disabled.
+AX_CHECK_COMPILE_FLAG([-Wno-extra-semi-stmt], [WERROR="$WERROR -Wno-extra-semi-stmt"])
 # The test code used by AX_CHECK_COMPILE_FLAG uses macros which are unused.
 # That must not break the check, so disable a related warning if necessary.
-WERROR=-Werror
 AX_CHECK_COMPILE_FLAG([-Wno-unused-macros], [WERROR="$WERROR -Wno-unused-macros"])
 
 ## Checks for supported compiler options.
