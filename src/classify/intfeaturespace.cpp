@@ -3,7 +3,6 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        intfeaturespace.cpp
 // Description: Indexed feature space based on INT_FEATURE_STRUCT.
-// Created:     Wed Mar 24 11:21:27 PDT 2010
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +16,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES       // for M_PI
 #include "intfeaturespace.h"
+#include <cmath>                // for M_PI
 #include "intfx.h"
 
 namespace tesseract {

@@ -2,7 +2,6 @@
  * File:        tordmain.cpp  (Formerly textordp.c)
  * Description: C++ top level textord code.
  * Author:      Ray Smith
- * Created:     Tue Jul 28 17:12:33 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +16,7 @@
  *
  **********************************************************************/
 
+#define _USE_MATH_DEFINES       // for M_PI
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif

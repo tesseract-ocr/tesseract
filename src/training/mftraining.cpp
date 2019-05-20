@@ -20,14 +20,15 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+
+#define _USE_MATH_DEFINES       // for M_PI
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif
 
+#include <cmath>                // for M_PI
 #include <cstring>
 #include <cstdio>
-#define _USE_MATH_DEFINES
-#include <cmath>
 
 #include "classify.h"
 #include "cluster.h"

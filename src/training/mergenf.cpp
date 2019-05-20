@@ -14,6 +14,14 @@
  ** See the License for the specific language governing permissions and
  ** limitations under the License.
 ******************************************************************************/
+
+#define _USE_MATH_DEFINES // for M_PI
+#include <algorithm>
+#include <cfloat>       // for FLT_MAX
+#include <cmath>        // for M_PI
+#include <cstdio>
+#include <cstring>
+
 #include "mergenf.h"
 #include "clusttool.h"
 #include "cluster.h"
@@ -23,11 +31,6 @@
 #include "featdefs.h"
 #include "intproto.h"
 #include "params.h"
-
-#include <algorithm>
-#include <cstdio>
-#include <cstring>
-#include <cmath>
 
 /*-------------------once in subfeat---------------------------------*/
 double_VAR(training_angle_match_scale, 1.0, "Angle Match Scale ...");

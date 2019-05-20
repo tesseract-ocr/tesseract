@@ -13,6 +13,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES       // for M_PI
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
@@ -20,7 +21,7 @@
 
 #include "trainingsample.h"
 
-#include <cmath>
+#include <cmath>                // for M_PI
 #include "allheaders.h"
 #include "helpers.h"
 #include "intfeaturemap.h"

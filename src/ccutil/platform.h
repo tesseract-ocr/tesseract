@@ -33,12 +33,6 @@
 #endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
-#  ifndef M_PI
-#    define M_PI 3.14159265358979323846
-#  endif
-#endif
-
-#if defined(_WIN32) || defined(__CYGWIN__)
 #  if defined(TESS_EXPORTS)
 #    define TESS_API __declspec(dllexport)
 #  elif defined(TESS_IMPORTS)

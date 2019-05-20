@@ -1,9 +1,9 @@
 /******************************************************************************
- **      Filename:       mfx.c
- **      Purpose:        Micro feature extraction routines
- **      Author:         Dan Johnson
+ ** Filename:       mfx.c
+ ** Purpose:        Micro feature extraction routines
+ ** Author:         Dan Johnson
  **
- **      (c) Copyright Hewlett-Packard Company, 1988.
+ ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
  ** You may obtain a copy of the License at
@@ -17,15 +17,16 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+
+#define _USE_MATH_DEFINES       // for M_PI
 #include "mfx.h"
+#include <cmath>                // for M_PI
 #include "mfdefs.h"
 #include "mfoutline.h"
-#include "clusttool.h"           //NEEDED
+#include "clusttool.h"          //NEEDED
 #include "intfx.h"
 #include "normalis.h"
 #include "params.h"
-
-#include <cmath>
 
 /*----------------------------------------------------------------------------
           Variables
