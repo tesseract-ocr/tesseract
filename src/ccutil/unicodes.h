@@ -2,7 +2,6 @@
  * File:        unicodes.h
  * Description: Unicode related machinery
  * Author:      David Eger
- * Created:     Wed Jun 15 16:37:50 PST 2011
  *
  * (C) Copyright 2011, Google, Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,17 +21,10 @@
 
 namespace tesseract {
 
-extern const char *kUTF8LineSeparator;
-extern const char *kUTF8ParagraphSeparator;
-extern const char *kLRM;  ///< Left-to-Right Mark
-extern const char *kRLM;  ///< Right-to-Left Mark
-extern const char *kRLE;  ///< Right-to-Left Embedding
-extern const char *kPDF;  ///< Pop Directional Formatting
-
-/// The following are confusable internal word punctuation symbols
-/// which we normalize to the first variant when matching in dawgs.
-extern const char *kHyphenLikeUTF8[];
-extern const char *kApostropheLikeUTF8[];
+extern const char* const kLRM;  ///< Left-to-Right Mark
+extern const char* const kRLM;  ///< Right-to-Left Mark
+extern const char* const kRLE;  ///< Right-to-Left Embedding
+extern const char* const kPDF;  ///< Pop Directional Formatting
 
 }  // namespace
 
