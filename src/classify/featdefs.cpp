@@ -29,10 +29,10 @@
 /*-----------------------------------------------------------------------------
         Global Data Definitions and Declarations
 -----------------------------------------------------------------------------*/
-const char* kMicroFeatureType = "mf";
-const char* kCNFeatureType = "cn";
-const char* kIntFeatureType = "if";
-const char* kGeoFeatureType = "tb";
+constexpr const char* kMicroFeatureType = "mf";
+constexpr const char* kCNFeatureType = "cn";
+constexpr const char* kIntFeatureType = "if";
+constexpr const char* kGeoFeatureType = "tb";
 
 // Define all of the parameters for the MicroFeature type.
 StartParamDesc(MicroFeatureParams)
