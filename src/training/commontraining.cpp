@@ -11,17 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#define _USE_MATH_DEFINES       // for M_PI
 #include "commontraining.h"
+#include <algorithm>
+#include <cmath>                // for M_PI
 
 #ifdef DISABLED_LEGACY_ENGINE
-
-#include <algorithm>
-#include <cmath>
 
 #include "params.h"
 #include "tessopt.h"
 #include "tprintf.h"
-
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
@@ -33,7 +32,6 @@ STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
 STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
-
 
 /**
  * This routine parses the command line arguments that were
@@ -58,9 +56,6 @@ void ParseArguments(int* argc, char ***argv) {
 }
 
 #else
-
-#include <algorithm>
-#include <cmath>
 
 #include "allheaders.h"
 #include "ccutil.h"

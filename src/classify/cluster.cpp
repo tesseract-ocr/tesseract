@@ -15,8 +15,9 @@
  ** limitations under the License.
  *****************************************************************************/
 
+#define _USE_MATH_DEFINES // for M_PI
 #include <cfloat>       // for FLT_MAX
-#include <cmath>
+#include <cmath>        // for M_PI
 #include <vector>       // for std::vector
 
 #include "cluster.h"

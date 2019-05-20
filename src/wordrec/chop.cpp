@@ -21,13 +21,13 @@
               I n c l u d e s
 ----------------------------------------------------------------------*/
 
+#define _USE_MATH_DEFINES       // for M_PI
+#include <cmath>                // for M_PI
 #include "chop.h"
 #include "outlines.h"
 #include "callcpp.h"
 #include "plotedges.h"
 #include "wordrec.h"
-
-#include <cmath>
 
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
