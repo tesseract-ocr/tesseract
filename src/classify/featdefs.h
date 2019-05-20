@@ -26,10 +26,10 @@
 
 /* Enumerate the different types of features currently defined. */
 #define NUM_FEATURE_TYPES 4
-extern const char* kMicroFeatureType;
-extern const char* kCNFeatureType;
-extern const char* kIntFeatureType;
-extern const char* kGeoFeatureType;
+extern const char* const kMicroFeatureType;
+extern const char* const kCNFeatureType;
+extern const char* const kIntFeatureType;
+extern const char* const kGeoFeatureType;
 
 /* A character is described by multiple sets of extracted features.  Each
   set contains a number of features of a particular type, for example, a
