@@ -123,7 +123,6 @@ class TFile {
   // Reads a line like fgets. Returns nullptr on EOF, otherwise buffer.
   // Reads at most buffer_size bytes, including '\0' terminator, even if
   // the line is longer. Does nothing if buffer_size <= 0.
-  // To use fscanf use FGets and sscanf.
   char* FGets(char* buffer, int buffer_size);
   // Replicates fread, followed by a swap of the bytes if needed, returning the
   // number of items read. If swap_ is true then the count items will each have
