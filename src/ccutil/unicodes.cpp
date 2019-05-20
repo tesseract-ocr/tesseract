@@ -20,36 +20,9 @@
 
 namespace tesseract {
 
-const char *kUTF8LineSeparator = "\u2028";  // "\xe2\x80\xa8";
-const char *kUTF8ParagraphSeparator = "\u2029";  // "\xe2\x80\xa9";
-const char *kLRM = "\u200E";  // Left-to-Right Mark
-const char *kRLM = "\u200F";  // Right-to-Left Mark
-const char *kRLE = "\u202A";  // Right-to-Left Embedding
-const char *kPDF = "\u202C";  // Pop Directional Formatting
-
-const char *kHyphenLikeUTF8[] = {
-  "-",       // ASCII hyphen-minus
-  "\u05BE",  // word hyphen in hybrew
-  "\u2010",  // hyphen
-  "\u2011",  // non-breaking hyphen
-  "\u2012",  // a hyphen the same width as digits
-  "\u2013",  // en dash
-  "\u2014",  // em dash
-  "\u2015",  // horizontal bar
-  "\u2212",  // arithmetic minus sign
-  "\uFE58",  // small em dash
-  "\uFE63",  // small hyphen-minus
-  "\uFF0D",  // fullwidth hyphen-minus
-  nullptr,      // end of our list
-};
-
-const char *kApostropheLikeUTF8[] = {
-  "'",       // ASCII apostrophe
-  "`",       // ASCII backtick
-  "\u2018",  // opening single quote
-  "\u2019",  // closing single quote
-  "\u2032",  // mathematical prime mark
-  nullptr,      // end of our list.
-};
+constexpr const char *kLRM = "\u200E";  // Left-to-Right Mark
+constexpr const char *kRLM = "\u200F";  // Right-to-Left Mark
+constexpr const char *kRLE = "\u202A";  // Right-to-Left Embedding
+constexpr const char *kPDF = "\u202C";  // Pop Directional Formatting
 
 }  // namespace
