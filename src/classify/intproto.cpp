@@ -18,8 +18,9 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 
+#define _USE_MATH_DEFINES  // for M_PI
 #include <algorithm>
-#include <cmath>           // for std::floor
+#include <cmath>           // for M_PI, std::floor
 #include <cstdio>
 #include <cassert>
 

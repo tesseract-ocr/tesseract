@@ -16,8 +16,9 @@
  *****************************************************************************/
 
 //--------------------------Include Files----------------------------------
+#define _USE_MATH_DEFINES   // for M_PI
 #include "clusttool.h"
-#include <cmath>            // for std::isnan
+#include <cmath>            // for M_PI, std::isnan
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
 #include "emalloc.h"

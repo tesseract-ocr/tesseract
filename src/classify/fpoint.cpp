@@ -17,10 +17,10 @@
 /*----------------------------------------------------------------------------
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
+#define _USE_MATH_DEFINES       // for M_PI
 #include "fpoint.h"
 #include <cstdio>
-#include <cmath>
-#include "platform.h"   // M_PI
+#include <cmath>                // for M_PI
 
 /*----------------------------------------------------------------------------
               Public Code

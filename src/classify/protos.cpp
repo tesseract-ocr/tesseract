@@ -19,16 +19,16 @@
 /*----------------------------------------------------------------------
               I n c l u d e s
 ----------------------------------------------------------------------*/
+#define _USE_MATH_DEFINES       // for M_PI
 #include "protos.h"
+#include <cmath>                // for M_PI
+#include <cstdio>
 #include "emalloc.h"
 #include "callcpp.h"
 #include "tprintf.h"
 #include "classify.h"
 #include "params.h"
 #include "intproto.h"
-
-#include <cstdio>
-#include <cmath>
 
 #define PROTO_INCREMENT   32
 #define CONFIG_INCREMENT  16
