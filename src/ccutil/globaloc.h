@@ -19,14 +19,6 @@
 #ifndef GLOBALOC_H
 #define GLOBALOC_H
 
-// Saves a clone of the given pix, and notes its resolution in thread-specific
-// data, so that the image can be written prior to a crash.
-struct Pix;
-void SavePixForCrash(int resolution, Pix* pix);
-
-void signal_exit(int signal_code);
-
-void err_exit();
 
 void set_global_loc_code(int loc_code);
 
