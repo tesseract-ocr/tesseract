@@ -2,7 +2,6 @@
  * File:        tprintf.cpp
  * Description: Trace version of printf - portable between UX and NT
  * Author:      Phil Cheatle
- * Created:     Wed Jun 28 15:01:15 BST 1995
  *
  * (C) Copyright 1995, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,7 @@
 #include "strngs.h"
 #include "tprintf.h"
 
-#define MAX_MSG_LEN     65536
+#define MAX_MSG_LEN 2048
 
 static STRING_VAR(debug_file, "", "File to send tprintf output to");
 
@@ -42,7 +41,7 @@ DLLSYM void tprintf(const char *format, ...)
   static FILE *debugfp = nullptr;   // debug file
                                  // debug window
   int32_t offset = 0;              // into message
-  static char msg[MAX_MSG_LEN + 1];
+  char msg[MAX_MSG_LEN + 1];
 
   va_start(args, format);  // variable list
   // Format into msg
