@@ -108,12 +108,6 @@ class TESS_API TessBaseAPI {
   static size_t getOpenCLDevice(void **device);
 
   /**
-   * Writes the thresholded image to stderr as a PBM file on receipt of a
-   * SIGSEGV, SIGFPE, or SIGBUS signal. (Linux/Unix only).
-   */
-  static void CatchSignals();
-
-  /**
    * Set the name of the input file. Needed for training and
    * reading a UNLV zone file, and for searchable PDF output.
    */
