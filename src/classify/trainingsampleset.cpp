@@ -618,6 +618,7 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
           if (dist > max_dist) {
             max_dist = dist;
             if (dist > max_max_dist) {
+              max_max_dist = dist;
               max_s1 = s1;
               max_s2 = s2;
             }
