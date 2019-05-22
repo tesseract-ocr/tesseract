@@ -58,13 +58,13 @@ class TrainingArgs(argparse.Namespace):
 
     def __eq__(self, other):
         return (argparse.Namespace.__eq__(self, other) and
-        self.uname = other.uname and self.lang_code = other.lang_code and
-        self.timestamp = other.timestamp and self.font_config_cache = other.font_config_cache and
-        self.fonts_dir = other.fonts_dir and self.max_pages = other.max_pages and
-        self.save_box_tiff = other.save_box_tiff and self.overwrite = other.overwrite and
-        self.linedata = other.linedata and self.run_shape_clustering = other.run_shape_clustering and
-        self.extract_font_properties = other.extract_font_properties and
-        self.distort_image = other.distort_image)
+        self.uname == other.uname and self.lang_code == other.lang_code and
+        self.timestamp == other.timestamp and self.font_config_cache == other.font_config_cache and
+        self.fonts_dir == other.fonts_dir and self.max_pages == other.max_pages and
+        self.save_box_tiff == other.save_box_tiff and self.overwrite == other.overwrite and
+        self.linedata == other.linedata and self.run_shape_clustering == other.run_shape_clustering and
+        self.extract_font_properties == other.extract_font_properties and
+        self.distort_image == other.distort_image)
 
 
 def err_exit(msg):
