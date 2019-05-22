@@ -74,7 +74,6 @@ const char *format, ...          // special message
     case TESSLOG:
       return;                    //report only
     case TESSEXIT:
-      //err_exit();
     case ABORT:
 #if !defined(NDEBUG)
       // Create a deliberate abnormal exit as the stack trace is more useful

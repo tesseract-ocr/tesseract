@@ -2,7 +2,6 @@
  * File:        errcode.cpp  (Formerly error.c)
  * Description: Generic error handler function
  * Author:      Ray Smith
- * Created:     Tue May  1 16:28:39 BST 1990
  *
  * (C) Copyright 1989, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,63 +17,9 @@
  **********************************************************************/
 
 #include "globaloc.h"
-#include <csignal>
-#ifdef __linux__
-#include <sys/syscall.h>   // For SYS_gettid.
-#include <unistd.h>        // For syscall itself.
-#endif
 #include "allheaders.h"
 #include "errcode.h"
 #include "tprintf.h"
-
-// Size of thread-id array of pixes to keep in case of crash.
-const int kMaxNumThreadPixes = 32768;
-
-static Pix* global_crash_pixes[kMaxNumThreadPixes];
-
-void SavePixForCrash(int resolution, Pix* pix) {
-#ifdef __linux__
-#ifndef ANDROID
-  int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
-#else
-  int thread_id = gettid() % kMaxNumThreadPixes;
-#endif
-  pixDestroy(&global_crash_pixes[thread_id]);
-  if (pix != nullptr) {
-    Pix* clone = pixClone(pix);
-    pixSetXRes(clone, resolution);
-    pixSetYRes(clone, resolution);
-    global_crash_pixes[thread_id] = clone;
-  }
-#endif
-}
-
-// CALL ONLY from a signal handler! Writes a crash image to stderr.
-void signal_exit(int signal_code) {
-  tprintf("Received signal %d!\n", signal_code);
-#ifdef __linux__
-#ifndef ANDROID
-  int thread_id = syscall(SYS_gettid) % kMaxNumThreadPixes;
-#else
-  int thread_id = gettid() % kMaxNumThreadPixes;
-#endif
-  if (global_crash_pixes[thread_id] != nullptr) {
-    fprintf(stderr, "Crash caused by image with resolution %d\n",
-            pixGetYRes(global_crash_pixes[thread_id]));
-    fprintf(stderr, "<Cut here>\n");
-    pixWriteStreamPng(stderr, global_crash_pixes[thread_id], 0.0);
-    fprintf(stderr, "\n<End cut>\n");
-  }
-  // Raise an uncaught signal, so as to get a useful stack trace.
-  raise(SIGILL);
-#else
-  abort();
-#endif
-}
-
-void err_exit() {
-  ASSERT_HOST("Fatal error encountered!" == nullptr);
-}
 
 // TODO: remove empty function?
 void set_global_loc_code(int loc_code) {

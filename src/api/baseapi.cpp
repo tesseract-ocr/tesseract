@@ -65,7 +65,6 @@
 #include "environ.h"           // for l_uint8
 #include "equationdetect.h"    // for EquationDetect
 #include "errcode.h"           // for ASSERT_HOST
-#include "globaloc.h"          // for SavePixForCrash, signal_exit
 #include "helpers.h"           // for IntCastRounded, chomp_string
 #include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3
 #ifndef DISABLED_LEGACY_ENGINE
@@ -252,25 +251,6 @@ size_t TessBaseAPI::getOpenCLDevice(void **data) {
 
   *data = nullptr;
   return 0;
-}
-
-/**
- * Writes the thresholded image to stderr as a PBM file on receipt of a
- * SIGSEGV, SIGFPE, or SIGBUS signal. (Linux/Unix only).
- */
-void TessBaseAPI::CatchSignals() {
-#ifdef __linux__
-  struct sigaction action;
-  memset(&action, 0, sizeof(action));
-  action.sa_handler = &signal_exit;
-  action.sa_flags = SA_RESETHAND;
-  sigaction(SIGSEGV, &action, nullptr);
-  sigaction(SIGFPE, &action, nullptr);
-  sigaction(SIGBUS, &action, nullptr);
-#else
-  // Warn API users that an implementation is needed.
-  tprintf("CatchSignals has no non-linux implementation!\n");
-#endif
 }
 
 /**
@@ -2027,7 +2007,6 @@ bool TessBaseAPI::Threshold(Pix** pix) {
             thresholder_->GetScaledEstimatedResolution(), estimated_res);
   }
   tesseract_->set_source_resolution(estimated_res);
-  SavePixForCrash(estimated_res, *pix);
   return true;
 }
 
@@ -2124,7 +2103,6 @@ void TessBaseAPI::ClearResults() {
     delete paragraph_models_;
     paragraph_models_ = nullptr;
   }
-  SavePixForCrash(0, nullptr);
 }
 
 /**
