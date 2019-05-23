@@ -1,7 +1,0 @@
-tessedit_ambigs_training	1
-load_freq_dawg	0
-load_punc_dawg	0
-load_system_dawg	0
-load_number_dawg	0
-ambigs_debug_level	3
-load_fixed_length_dawgs	0

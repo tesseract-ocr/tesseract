@@ -1,4 +1,9 @@
 ## run autogen.sh to create Makefile.in from this file
+
+# Default location for tessdata directory.
+# It can be overriden with configure option --datarootdir=DIR.
+datadir = @datarootdir@/tessdata
+
 ACLOCAL_AMFLAGS = -I m4
 
 if ENABLE_TRAINING
@@ -18,16 +23,33 @@ training:
 	@echo "Need to reconfigure project, so there are no errors"
 endif
 
-.PHONY: doc install-langs ScrollView.jar install-jars training
+.PHONY: doc install-langs ScrollView.jar install-jars install-tessdata training
 
 SUBDIRS = src/arch src/ccutil src/viewer src/cutil src/opencl src/ccstruct
 SUBDIRS += src/dict src/classify src/wordrec src/textord src/lstm
-SUBDIRS += src/ccmain src/api . tessdata doc unittest
+SUBDIRS += src/ccmain src/api . doc unittest
 
 EXTRA_DIST = README.md LICENSE
 EXTRA_DIST += aclocal.m4 config configure.ac autogen.sh
 EXTRA_DIST += tesseract.pc.in $(TRAINING_SUBDIR) java doc
 EXTRA_DIST += CMakeLists.txt tesseract.pc.cmake cmake VERSION src/vs2010 cppan.yml
+
+# Files for tessdata.
+TESSDATA_FILES = $(top_srcdir)/tessdata/pdf.ttf
+
+# Files for tessdata/configs.
+CONFIG_FILES = tessdata/pdf.ttf
+CONFIG_FILES = inter makebox box.train unlv ambigs.train lstm.train lstmdebug
+CONFIG_FILES += api_config kannada box.train.stderr quiet logfile digits get.images
+CONFIG_FILES += lstmbox wordstrbox
+# Configurations for OCR output.
+CONFIG_FILES += alto hocr pdf tsv txt
+CONFIG_FILES += linebox rebox strokewidth bigram
+
+# Files for tessdata/tessconfigs.
+TESSDATA_CONFIG_FILES = ${CONFIG_FILES:%=$(top_srcdir)/tessdata/configs/%}
+TESSCONFIG_FILES = batch batch.nochop nobatch matdemo segdemo msdemo
+TESSDATA_TESSCONFIG_FILES = ${TESSCONFIG_FILES:%=$(top_srcdir)/tessdata/tessconfigs/%}
 
 DIST_SUBDIRS = $(SUBDIRS) $(TRAINING_SUBDIR)
 
@@ -49,6 +71,14 @@ ScrollView.jar:
 
 install-jars:
 	@cd "$(top_builddir)/java" && $(MAKE) $@
+
+install-tessdata:
+	mkdir -p $(DESTDIR)$(datadir)
+	$(INSTALL) -m 644 $(TESSDATA_FILES) $(DESTDIR)$(datadir)
+	mkdir -p $(DESTDIR)$(datadir)/configs
+	$(INSTALL) -m 644 $(TESSDATA_CONFIG_FILES) $(DESTDIR)$(datadir)/configs
+	mkdir -p $(DESTDIR)$(datadir)/tessconfigs
+	$(INSTALL) -m 644 $(TESSDATA_TESSCONFIG_FILES) $(DESTDIR)$(datadir)/tessconfigs
 
 doc:
 	-srcdir="$(top_srcdir)" builddir="$(top_builddir)" \
