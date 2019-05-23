@@ -15,6 +15,8 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#define _USE_MATH_DEFINES // needed to get definition of M_SQRT1_2
+
 // Include automatically generated configuration file if running autoconf.
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
@@ -48,7 +50,7 @@ const int kMinStallIterations = 10000;
 // before we declare the sub_trainer_ a success and switch to it.
 const double kSubTrainerMarginFraction = 3.0 / 128;
 // Factor to reduce learning rate on divergence.
-const double kLearningRateDecay = sqrt(0.5);
+const double kLearningRateDecay = M_SQRT1_2;
 // LR adjustment iterations.
 const int kNumAdjustmentIterations = 100;
 // How often to add data to the error_graph_.
