@@ -1148,7 +1148,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   bool tiff = (format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
                format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
                format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
-               format == IFF_TIFF_ZIP);
+               format == IFF_TIFF_ZIP || format == IFF_TIFF_JPEG);
 
   // Fail early if we can, before producing any output
   Pix *pix = nullptr;
