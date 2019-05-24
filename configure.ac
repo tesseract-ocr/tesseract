@@ -195,10 +195,10 @@ if test "$enable_opencl" = "yes"; then
   ])
 fi
 
-# Check whether to build with support for Tensorflow.
+# Check whether to build with support for TensorFlow.
 AC_ARG_WITH([tensorflow],
   AS_HELP_STRING([--with-tensorflow],
-                 [support Tensorflow @<:@default=check@:>@]),
+                 [support TensorFlow @<:@default=check@:>@]),
   [], [with_tensorflow=check])
 AM_CONDITIONAL([TENSORFLOW], false)
 TENSORFLOW_LIBS=

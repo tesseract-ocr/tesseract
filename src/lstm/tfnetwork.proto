@@ -3,10 +3,10 @@
 // Compile this file with the Protocol Compiler protoc to generate
 // the files tfnetwork.pb.cc and tfnetwork.pb.h.
 
-// This requires the protocol descriptions for Tensorflow
-// (included in the Tensorflow sources).
+// This requires the protocol descriptions for TensorFlow
+// (included in the TensorFlow sources).
 
-// With Tensorflow sources installed in /usr/src/tensorflow/tensorflow-1.10.1,
+// With TensorFlow sources installed in /usr/src/tensorflow/tensorflow-1.10.1,
 // this command was used on Debian to generate the files:
 
 // protoc --cpp_out=$PWD --proto_path=/usr/src/tensorflow/tensorflow-1.10.1 \
