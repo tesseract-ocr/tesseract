@@ -423,6 +423,9 @@ endif()
 
 add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_rsc})
 target_link_libraries           (tesseract libtesseract)
+if (HAVE_TIFFIO_H)
+    target_link_libraries(tesseract tiff)
+endif()
 
 ########################################
 
