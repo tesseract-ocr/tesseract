@@ -98,3 +98,8 @@ endif
 if ADD_RT
 tesseract_LDADD += -lrt
 endif
+
+if TENSORFLOW
+tesseract_LDADD += -lprotobuf
+tesseract_LDADD += -ltensorflow_cc
+endif

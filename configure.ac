@@ -195,6 +195,15 @@ if test "$enable_opencl" = "yes"; then
   ])
 fi
 
+# Check whether to build with support for Tensorflow.
+AC_MSG_CHECKING([--with-tensorflow])
+AC_ARG_WITH([tensorflow],
+  AS_HELP_STRING([--with-tensorflow],
+                 [support Tensorflow @<:@default=check@:>@]),
+  [], [with_tensorflow=check])
+AC_MSG_RESULT([$with_tensorflow])
+AM_CONDITIONAL([TENSORFLOW], [test "$with_tensorflow" != "no"])
+
 # https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
 m4_define([MY_CHECK_FRAMEWORK],
   [AC_CACHE_CHECK([if -framework $1 works],[my_cv_framework_$1],

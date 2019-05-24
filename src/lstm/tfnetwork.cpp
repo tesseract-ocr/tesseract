@@ -3,7 +3,6 @@
 // Description: Encapsulation of an entire tensorflow graph as a
 //              Tesseract Network.
 // Author:      Ray Smith
-// Created:     Fri Feb 26 09:35:29 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,14 +89,14 @@ void TFNetwork::Forward(bool debug, const NetworkIO& input,
   if (!model_proto_.image_widths().empty()) {
     TensorShape size_shape{1};
     Tensor width_tensor(tensorflow::DT_INT64, size_shape);
-    auto eigen_wtensor = width_tensor.flat<int64>();
+    auto eigen_wtensor = width_tensor.flat<tensorflow::int64>();
     *eigen_wtensor.data() = stride_map.Size(FD_WIDTH);
     tf_inputs.emplace_back(model_proto_.image_widths(), width_tensor);
   }
   if (!model_proto_.image_heights().empty()) {
     TensorShape size_shape{1};
     Tensor height_tensor(tensorflow::DT_INT64, size_shape);
-    auto eigen_htensor = height_tensor.flat<int64>();
+    auto eigen_htensor = height_tensor.flat<tensorflow::int64>();
     *eigen_htensor.data() = stride_map.Size(FD_HEIGHT);
     tf_inputs.emplace_back(model_proto_.image_heights(), height_tensor);
   }
