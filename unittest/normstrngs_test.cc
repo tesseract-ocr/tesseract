@@ -76,7 +76,8 @@ const char kKorText[] = "이는 것으로";
 // Hindi words containing illegal vowel sequences.
 const char* kBadlyFormedHinWords[] = {"उपयोक्ताो", "नहीें",     "प्रंात",
                                       "कहीअे",     "पत्रिाका", "छह्णाीस"};
-const char* kBadlyFormedThaiWords[] = {"ฤิ", "กา้ํ", "กิำ"};
+// Thai illegal sequences.
+const char* kBadlyFormedThaiWords[] = {"ฤิ", "กา้ํ", "กิำ", "นำ้", "เเก"};
 
 TEST(NormstrngsTest, DetectsCorrectText) {
   string chars;
@@ -287,7 +288,7 @@ TEST(NormstrngsTest, AllScriptsRegtest) {
        {"Thai",
         "อ้อ! กับนัง....แม่ยอดพระกลิ่น นั่นเอง ! หรับก็ย่อมจะรู้โดยชัดเจนว่า "
         "ถ้าตราบใดยังมีเรือปืนอยู่ใกล้ ๆ แล้ว  ตราบนั้น "
-        "พระดำรินี้ ที่มีคตีท่ำกรวยหมากและธปเทียน "
+        "พระดำรินี้ ที่มีคตีทำกรวยหมากและธูปเทียน "
         "อันยานมีเรือเปนต้นฃ้ามยาก ฯ เพราะว่าแม่น้ำนั่นมีน้ำใสยิ่ง แม้เพียง"},
        {"Vietnamese",
         "vợ đến tai mụ hung thần Xăng-tô- mê-a. Mụ vô cùng "
