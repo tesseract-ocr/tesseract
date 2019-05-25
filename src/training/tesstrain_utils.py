@@ -490,7 +490,7 @@ def phase_UP_generate_unicharset(ctx):
 
 #     # Punctuation DAWG
 #     # -r arguments to wordlist2dawg denote RTL reverse policy
-#     # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
+#     # (see Trie::RTLReversePolicy enum in tesseract/src/dict/trie.h).
 #     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
 #     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
 #     # 2/RRP_FORCE_REVERSE for the punctuation DAWG.

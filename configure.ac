@@ -195,6 +195,25 @@ if test "$enable_opencl" = "yes"; then
   ])
 fi
 
+# Check whether to build with support for TensorFlow.
+AC_ARG_WITH([tensorflow],
+  AS_HELP_STRING([--with-tensorflow],
+                 [support TensorFlow @<:@default=check@:>@]),
+  [], [with_tensorflow=check])
+AM_CONDITIONAL([TENSORFLOW], false)
+TENSORFLOW_LIBS=
+AS_IF([test "x$with_tensorflow" != xno],
+  [AC_CHECK_FILE([/usr/include/tensorflow/core/framework/graph.pb.h],
+    [AC_SUBST([TENSORFLOW_LIBS], ["-lprotobuf -ltensorflow_cc"])
+      AM_CONDITIONAL([TENSORFLOW], true)
+    ],
+    [if test "x$with_tensorflow" != xcheck; then
+      AC_MSG_FAILURE(
+        [--with-tensorflow was given, but test for libtensorflow-dev failed])
+     fi
+    ])
+  ])
+
 # https://lists.apple.com/archives/unix-porting/2009/Jan/msg00026.html
 m4_define([MY_CHECK_FRAMEWORK],
   [AC_CACHE_CHECK([if -framework $1 works],[my_cv_framework_$1],
