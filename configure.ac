@@ -99,7 +99,7 @@ case "${host_os}" in
         OPENCL_INC=""
         AM_CONDITIONAL([ADD_RT], false)
         ;;
-    *android*)
+    *android*|openbsd*)
         AM_CONDITIONAL([ADD_RT], false)
         ;;
     powerpc-*-darwin*)
