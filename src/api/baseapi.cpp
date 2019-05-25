@@ -94,7 +94,7 @@
 #include "tprintf.h"           // for tprintf
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 
-BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
+static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
 
 namespace tesseract {
 
@@ -110,11 +110,11 @@ const char kUNLVSuspect = '^';
  * Filename used for input image file, from which to derive a name to search
  * for a possible UNLV zone file, if none is specified by SetInputName.
  */
-const char* kInputFile = "noname.tif";
+static const char* kInputFile = "noname.tif";
 /**
  * Temp file used for storing current parameters before applying retry values.
  */
-const char* kOldVarsFile = "failed_vars.txt";
+static const char* kOldVarsFile = "failed_vars.txt";
 /** Max string length of an int.  */
 const int kMaxIntSize = 22;
 

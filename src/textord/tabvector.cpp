@@ -2,7 +2,6 @@
 // File:        tabvector.cpp
 // Description: Class to hold a near-vertical vector representing a tab-stop.
 // Author:      Ray Smith
-// Created:     Thu Apr 10 16:28:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -507,7 +506,7 @@ bool TabVector::IsAPartner(const TabVector* other) {
 }
 
 // These names must be synced with the TabAlignment enum in tabvector.h.
-const char* kAlignmentNames[] = {
+static const char* const kAlignmentNames[] = {
   "Left Aligned",
   "Left Ragged",
   "Center",

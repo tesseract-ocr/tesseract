@@ -36,22 +36,22 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_really_old_xheight, false,
+static BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
 EXTERN BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
-EXTERN BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
-EXTERN BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
-EXTERN BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
-EXTERN BOOL_VAR (textord_oldbl_merge_parts, true, "Merge suspect partitions");
-EXTERN BOOL_VAR (oldbl_corrfix, true, "Improve correlation of heights");
-EXTERN BOOL_VAR (oldbl_xhfix, false,
+static BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
+static BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
+static BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
+static BOOL_VAR (textord_oldbl_merge_parts, true, "Merge suspect partitions");
+static BOOL_VAR (oldbl_corrfix, true, "Improve correlation of heights");
+static BOOL_VAR (oldbl_xhfix, false,
 "Fix bug in modes threshold for xheights");
-EXTERN BOOL_VAR(textord_ocropus_mode, false, "Make baselines for ocropus");
-EXTERN double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
-EXTERN INT_VAR (oldbl_holed_losscount, 10,
+static BOOL_VAR(textord_ocropus_mode, false, "Make baselines for ocropus");
+static double_VAR (oldbl_xhfract, 0.4, "Fraction of est allowed in calc");
+static INT_VAR (oldbl_holed_losscount, 10,
 "Max lost before fallback line used");
-EXTERN double_VAR (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
-EXTERN double_VAR (textord_oldbl_jumplimit, 0.15,
+static double_VAR (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
+static double_VAR (textord_oldbl_jumplimit, 0.15,
 "X fraction for new partition");
 
 #define TURNLIMIT          1     /*min size for turning point */
