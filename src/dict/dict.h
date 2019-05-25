@@ -301,7 +301,7 @@ class Dict {
 
   /// Initialize Dict class - load dawgs from [lang].traineddata and
   /// user-specified wordlist and parttern list.
-  static DawgCache *GlobalDawgCache();
+  static TESS_API DawgCache *GlobalDawgCache();
   // Sets up ready for a Load or LoadLSTM.
   void SetupForLoad(DawgCache *dawg_cache);
   // Loads the dawgs needed by Tesseract. Call FinishLoad() after.

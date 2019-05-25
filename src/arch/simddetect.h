@@ -52,7 +52,7 @@ class SIMDDetect {
   }
 
   // Update settings after config variable was set.
-  static void Update();
+  static TESS_API void Update();
 
  private:
   // Constructor, must set all static member variables.
