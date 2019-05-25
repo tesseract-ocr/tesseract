@@ -282,6 +282,7 @@ unicharset_extractor_LDADD += $(LEPTONICA_LIBS)
 wordlist2dawg_LDADD += $(LEPTONICA_LIBS)
 
 extralib = $(libarchive_LIBS)
+extralib += $(TENSORFLOW_LIBS)
 
 if !DISABLED_LEGACY_ENGINE
 ambiguous_words_LDADD += $(extralib)

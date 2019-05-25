@@ -88,6 +88,7 @@ tesseract_LDFLAGS = $(OPENCL_LDFLAGS)
 
 tesseract_LDADD += $(LEPTONICA_LIBS)
 tesseract_LDADD += $(OPENMP_CXXFLAGS)
+tesseract_LDADD += $(TENSORFLOW_LIBS)
 tesseract_LDADD += $(libarchive_LIBS)
 
 if T_WIN

@@ -2,7 +2,6 @@
 // File:        unicharset.h
 // Description: Unicode character/ligature set class.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -153,7 +152,7 @@ class UNICHARSET {
   // List of strings for the SpecialUnicharCodes. Keep in sync with the enum.
   static TESS_API const char* kSpecialUnicharCodes[SPECIAL_UNICHAR_CODES_COUNT];
 
-  // ICU 2.0 UCharDirection enum (from third_party/icu/include/unicode/uchar.h)
+  // ICU 2.0 UCharDirection enum (from icu/include/unicode/uchar.h)
   enum Direction {
       U_LEFT_TO_RIGHT               = 0,
       U_RIGHT_TO_LEFT               = 1,
