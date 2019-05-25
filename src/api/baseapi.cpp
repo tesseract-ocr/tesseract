@@ -66,7 +66,7 @@
 #include "equationdetect.h"    // for EquationDetect
 #include "errcode.h"           // for ASSERT_HOST
 #include "helpers.h"           // for IntCastRounded, chomp_string
-#include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3
+#include "imageio.h"           // for IFF_TIFF_G4, IFF_TIFF, IFF_TIFF_G3, ...
 #ifndef DISABLED_LEGACY_ENGINE
 #include "intfx.h"             // for INT_FX_RESULT_STRUCT
 #endif
@@ -1148,7 +1148,10 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   bool tiff = (format == IFF_TIFF || format == IFF_TIFF_PACKBITS ||
                format == IFF_TIFF_RLE || format == IFF_TIFF_G3 ||
                format == IFF_TIFF_G4 || format == IFF_TIFF_LZW ||
-               format == IFF_TIFF_ZIP || format == IFF_TIFF_JPEG);
+#if LIBLEPT_MAJOR_VERSION > 1 || LIBLEPT_MINOR_VERSION > 76
+               format == IFF_TIFF_JPEG ||
+#endif
+               format == IFF_TIFF_ZIP);
 
   // Fail early if we can, before producing any output
   Pix *pix = nullptr;
