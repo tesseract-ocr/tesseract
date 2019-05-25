@@ -41,15 +41,14 @@ using tesseract::TrainingSample;
 // The entries are in binary degrees where a full circle is 256 binary degrees.
 static float cos_table[INT_CHAR_NORM_RANGE];
 static float sin_table[INT_CHAR_NORM_RANGE];
-// Guards write access to AtanTable so we don't create it more than once.
-tesseract::CCUtilMutex atan_table_mutex;
-
 
 /**----------------------------------------------------------------------------
             Public Code
 ----------------------------------------------------------------------------**/
 
 void InitIntegerFX() {
+  // Guards write access to AtanTable so we don't create it more than once.
+  static tesseract::CCUtilMutex atan_table_mutex;
   static bool atan_table_init = false;
   atan_table_mutex.Lock();
   if (!atan_table_init) {

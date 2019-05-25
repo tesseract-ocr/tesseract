@@ -25,9 +25,9 @@
 #include <algorithm>
 #include <vector>       // for std::vector
 
-BOOL_VAR(textord_space_size_is_variable, false,
-         "If true, word delimiter spaces are assumed to have "
-         "variable width, even though characters have fixed pitch.");
+static BOOL_VAR(textord_space_size_is_variable, false,
+                "If true, word delimiter spaces are assumed to have "
+                "variable width, even though characters have fixed pitch.");
 
 namespace {
 

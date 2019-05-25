@@ -36,10 +36,10 @@
 
 #define EXTERN
 
-EXTERN BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
+static BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
 EXTERN BOOL_VAR (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
-EXTERN BOOL_VAR (textord_disable_pitch_test, false,
+static BOOL_VAR (textord_disable_pitch_test, false,
 "Turn off dp fixed pitch algorithm");
 EXTERN BOOL_VAR (textord_fast_pitch_test, false,
 "Do even faster pitch algorithm");

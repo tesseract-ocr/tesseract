@@ -31,8 +31,8 @@
 #define EXTERN
 #define FASTEDGELENGTH    256
 
-EXTERN BOOL_VAR(poly_debug, false, "Debug old poly");
-EXTERN BOOL_VAR(poly_wide_objects_better, true,
+static BOOL_VAR(poly_debug, false, "Debug old poly");
+static BOOL_VAR(poly_wide_objects_better, true,
                 "More accurate approx on wide things");
 
 #define FIXED       4            /*OUTLINE point is fixed */

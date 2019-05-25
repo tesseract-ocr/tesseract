@@ -26,7 +26,7 @@
 namespace tesseract {
 
 // String used to represent the null_id in direct_set.
-const char* kNullChar = "<nul>";
+static const char* kNullChar = "<nul>";
 // Radix to make unique values from the stored radical codes.
 const int kRadicalRadix = 29;
 

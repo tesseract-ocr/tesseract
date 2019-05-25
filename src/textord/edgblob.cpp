@@ -2,7 +2,6 @@
  * File:        edgblob.cpp (Formerly edgeloop.c)
  * Description: Functions to clean up an outline before approximation.
  * Author:      Ray Smith
- * Created:     Tue Mar 26 16:56:25 GMT 1991
  *
  *(C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0(the "License");
@@ -34,29 +33,28 @@
 //  - number of children exceeds edges_max_children_per_outline
 //  - number of nested layers exceeds edges_max_children_layers
 //  - joint complexity exceeds edges_children_count_limit(as in child_count())
-EXTERN BOOL_VAR(edges_use_new_outline_complexity, false,
+static BOOL_VAR(edges_use_new_outline_complexity, false,
                 "Use the new outline complexity module");
-EXTERN INT_VAR(edges_max_children_per_outline, 10,
+static INT_VAR(edges_max_children_per_outline, 10,
                "Max number of children inside a character outline");
-EXTERN INT_VAR(edges_max_children_layers, 5,
+static INT_VAR(edges_max_children_layers, 5,
                "Max layers of nested children inside a character outline");
-EXTERN BOOL_VAR(edges_debug, false,
+static BOOL_VAR(edges_debug, false,
                 "turn on debugging for this module");
 
-
-EXTERN INT_VAR(edges_children_per_grandchild, 10,
+static INT_VAR(edges_children_per_grandchild, 10,
                "Importance ratio for chucking outlines");
-EXTERN INT_VAR(edges_children_count_limit, 45,
+static INT_VAR(edges_children_count_limit, 45,
                "Max holes allowed in blob");
-EXTERN BOOL_VAR(edges_children_fix, false,
+static BOOL_VAR(edges_children_fix, false,
                 "Remove boxy parents of char-like children");
-EXTERN INT_VAR(edges_min_nonhole, 12,
+static INT_VAR(edges_min_nonhole, 12,
                "Min pixels for potential char in box");
-EXTERN INT_VAR(edges_patharea_ratio, 40,
+static INT_VAR(edges_patharea_ratio, 40,
                "Max lensq/area for acceptable child outline");
-EXTERN double_VAR(edges_childarea, 0.5,
+static double_VAR(edges_childarea, 0.5,
                   "Min area fraction of child outline");
-EXTERN double_VAR(edges_boxarea, 0.875,
+static double_VAR(edges_boxarea, 0.875,
                   "Min area fraction of grandchild for box");
 
 /**

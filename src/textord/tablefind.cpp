@@ -2,7 +2,6 @@
 // File:        tablefind.cpp
 // Description: Helper classes to find tables from ColPartitions.
 // Author:      Faisal Shafait (faisal.shafait@dfki.de)
-// Created:     Tue Jan 06 11:13:01 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,13 +139,13 @@ const double kMaxXProjectionGapFactor = 2.0;
 const double kStrokeWidthFractionalTolerance = 0.25;
 const double kStrokeWidthConstantTolerance = 2.0;
 
-BOOL_VAR(textord_show_tables, false, "Show table regions");
-BOOL_VAR(textord_tablefind_show_mark, false,
-         "Debug table marking steps in detail");
-BOOL_VAR(textord_tablefind_show_stats, false,
-         "Show page stats used in table finding");
-BOOL_VAR(textord_tablefind_recognize_tables, false,
-         "Enables the table recognizer for table layout and filtering.");
+static BOOL_VAR(textord_show_tables, false, "Show table regions");
+static BOOL_VAR(textord_tablefind_show_mark, false,
+                "Debug table marking steps in detail");
+static BOOL_VAR(textord_tablefind_show_stats, false,
+                "Show page stats used in table finding");
+static BOOL_VAR(textord_tablefind_recognize_tables, false,
+                "Enables the table recognizer for table layout and filtering.");
 
 ELISTIZE(ColSegment)
 CLISTIZE(ColSegment)

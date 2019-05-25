@@ -2,7 +2,6 @@
  * File:        mod128.cpp  (Formerly dir128.c)
  * Description: Code to convert a DIR128 to an ICOORD.
  * Author:          Ray Smith
- * Created:         Tue Oct 22 11:56:09 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,7 +53,7 @@ static const int16_t idirtab[] = {
   980, -195, 989, -146, 995, -98, 998, -49
 };
 
-const ICOORD* dirtab = reinterpret_cast<const ICOORD*>(idirtab);
+static const ICOORD* dirtab = reinterpret_cast<const ICOORD*>(idirtab);
 
 /**********************************************************************
  * DIR128::DIR128

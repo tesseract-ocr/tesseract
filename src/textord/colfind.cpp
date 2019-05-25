@@ -53,15 +53,15 @@ const double kMinGutterWidthGrid = 0.5;
 // adding noise blobs.
 const double kMaxDistToPartSizeRatio = 1.5;
 
-BOOL_VAR(textord_tabfind_show_initial_partitions,
-         false, "Show partition bounds");
-BOOL_VAR(textord_tabfind_show_reject_blobs,
-         false, "Show blobs rejected as noise");
-INT_VAR(textord_tabfind_show_partitions, 0,
-        "Show partition bounds, waiting if >1");
-BOOL_VAR(textord_tabfind_show_columns, false, "Show column bounds");
-BOOL_VAR(textord_tabfind_show_blocks, false, "Show final block bounds");
-BOOL_VAR(textord_tabfind_find_tables, true, "run table detection");
+static BOOL_VAR(textord_tabfind_show_initial_partitions,
+                false, "Show partition bounds");
+static BOOL_VAR(textord_tabfind_show_reject_blobs,
+                false, "Show blobs rejected as noise");
+static INT_VAR(textord_tabfind_show_partitions, 0,
+              "Show partition bounds, waiting if >1");
+static BOOL_VAR(textord_tabfind_show_columns, false, "Show column bounds");
+static BOOL_VAR(textord_tabfind_show_blocks, false, "Show final block bounds");
+static BOOL_VAR(textord_tabfind_find_tables, true, "run table detection");
 
 ScrollView* ColumnFinder::blocks_win_ = nullptr;
 

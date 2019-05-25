@@ -2,7 +2,6 @@
 // File:        colpartitiongrid.cpp
 // Description: Class collecting code that acts on a BBGrid of ColPartitions.
 // Author:      Ray Smith
-// Created:     Mon Oct 05 08:42:01 PDT 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,7 @@
 
 namespace tesseract {
 
-BOOL_VAR(textord_tabfind_show_color_fit, false, "Show stroke widths");
+static BOOL_VAR(textord_tabfind_show_color_fit, false, "Show stroke widths");
 
 // Max pad factor used to search the neighbourhood of a partition to smooth
 // partition types.
