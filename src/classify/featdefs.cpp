@@ -18,11 +18,11 @@
           Include Files and Type Defines
 -----------------------------------------------------------------------------*/
 #include "featdefs.h"
-#include "emalloc.h"
-#include "scanutils.h"
-
 #include <cstring>
 #include <cstdio>
+#include "emalloc.h"
+#include "picofeat.h"  // for PicoFeatureLength
+#include "scanutils.h"
 
 #define PICO_FEATURE_LENGTH 0.05
 
