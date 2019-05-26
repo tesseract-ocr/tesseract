@@ -1,13 +1,9 @@
 /******************************************************************************
-**  Filename:  cntraining.cpp
-**  Purpose:  Generates a normproto and pffmtable.
-**  Author:    Dan Johnson
-**  Revisment:  Christy Russon
-**  History:     Fri Aug 18 08:53:50 1989, DSJ, Created.
-**         5/25/90, DSJ, Adapted to multiple feature types.
-**        Tuesday, May 17, 1998 Changes made to make feature specific and
-**        simplify structures. First step in simplifying training process.
-**
+ **  Filename:  cntraining.cpp
+ **  Purpose:  Generates a normproto and pffmtable.
+ **  Author:    Dan Johnson
+ **  Revisment:  Christy Russon
+ **
  **  (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
  ** you may not use this file except in compliance with the License.
@@ -37,8 +33,6 @@
 
 #define PROGRAM_FEATURE_TYPE "cn"
 
-DECLARE_STRING_PARAM_FLAG(D);
-
 /*----------------------------------------------------------------------------
           Private Function Prototypes
 ----------------------------------------------------------------------------*/
@@ -54,15 +48,14 @@ static void WriteProtos(FILE* File, uint16_t N, LIST ProtoList,
 ----------------------------------------------------------------------------*/
 /* global variable to hold configuration parameters to control clustering */
 //-M 0.025   -B 0.05   -I 0.8   -C 1e-3
-CLUSTERCONFIG  CNConfig =
-{
+static const CLUSTERCONFIG CNConfig = {
   elliptical, 0.025, 0.05, 0.8, 1e-3, 0
 };
 
 /*----------------------------------------------------------------------------
               Public Code
 ----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
+
 /**
 * This program reads in a text file consisting of feature
 * samples from a training page in the following format:
