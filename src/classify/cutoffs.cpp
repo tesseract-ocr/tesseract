@@ -27,8 +27,6 @@
 #include "serialis.h"
 #include "unichar.h"
 
-#define REALLY_QUOTE_IT(x) QUOTE_IT(x)
-
 #define MAX_CUTOFF      1000
 
 namespace tesseract {

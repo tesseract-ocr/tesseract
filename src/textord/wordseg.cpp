@@ -41,7 +41,6 @@ EXTERN BOOL_VAR(textord_force_make_prop_words, false,
 EXTERN BOOL_VAR(textord_chopper_test, false,
                 "Chopper is being tested.");
 
-#define FIXED_WIDTH_MULTIPLE  5
 #define BLOCK_STATS_CLUSTERS  10
 
 

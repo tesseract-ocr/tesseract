@@ -18,12 +18,8 @@
 
 #include "underlin.h"
 
-#define PROJECTION_MARGIN 10     //arbitrary
-#define EXTERN
-
-EXTERN double_VAR (textord_underline_offset, 0.1, "Fraction of x to ignore");
-EXTERN BOOL_VAR (textord_restore_underlines, true,
-"Chop underlines & put back");
+double_VAR (textord_underline_offset, 0.1, "Fraction of x to ignore");
+BOOL_VAR (textord_restore_underlines, true, "Chop underlines & put back");
 
 /**********************************************************************
  * restore_underlined_blobs

@@ -18,9 +18,7 @@
           Include Files and Type Defines
 ----------------------------------------------------------------------------*/
 
-#define _USE_MATH_DEFINES       // for M_PI
 #include "mfx.h"
-#include <cmath>                // for M_PI
 #include "mfdefs.h"
 #include "mfoutline.h"
 #include "clusttool.h"          //NEEDED
@@ -37,12 +35,6 @@ double_VAR(classify_min_slope, 0.414213562,
            "Slope below which lines are called horizontal");
 double_VAR(classify_max_slope, 2.414213562,
            "Slope above which lines are called vertical");
-
-/*----------------------------------------------------------------------------
-          Macros
-----------------------------------------------------------------------------*/
-/* miscellaneous macros */
-#define NormalizeAngle(A) ((((A) < 0) ? ((A) + 2 * M_PI) : (A)) / (2 * M_PI))
 
 /*----------------------------------------------------------------------------
           Private Function Prototypes

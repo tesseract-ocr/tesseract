@@ -48,7 +48,6 @@
                                  /* How many to keep */
 #define MAX_NUM_SEAMS          150
                                  /* How many to keep */
-#define MAX_OLD_SEAMS          150
 #define NO_FULL_PRIORITY       -1/* Special marker for pri. */
                                  /* Evaluate right away */
 #define BAD_PRIORITY           9999.0

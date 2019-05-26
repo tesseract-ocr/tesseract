@@ -41,9 +41,6 @@
 #  include "lstmrecognizer.h"
 #endif
 
-// config under api
-#define API_CONFIG "configs/api_config"
-
 namespace tesseract {
 
 // Read a "config" file containing a set of variable, value pairs.

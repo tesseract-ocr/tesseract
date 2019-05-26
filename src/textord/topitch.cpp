@@ -55,7 +55,6 @@ EXTERN double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
 EXTERN double_VAR (textord_balance_factor, 1.0,
 "Ding rate for unbalanced char cells");
 
-#define FIXED_WIDTH_MULTIPLE  5
 #define BLOCK_STATS_CLUSTERS  10
 #define MAX_ALLOWED_PITCH 100    //max pixel pitch.
 

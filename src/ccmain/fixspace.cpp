@@ -42,7 +42,6 @@ class BLOCK;
 class ROW;
 
 #define PERFECT_WERDS   999
-#define MAXSPACING      128      /*max expected spacing in pix */
 
 namespace tesseract {
 

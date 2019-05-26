@@ -26,8 +26,6 @@
 #include "config_auto.h"
 #endif
 
-#define EXTERN
-
 // Control parameters used in outline_complexity(), which rejects an outline
 // if any one of the 3 conditions is satisfied:
 //  - number of children exceeds edges_max_children_per_outline

@@ -55,8 +55,6 @@ using tesseract::MasterTrainer;
 using tesseract::Shape;
 using tesseract::ShapeTable;
 
-#define PROGRAM_FEATURE_TYPE "mf"
-
 // Max length of a fake shape label.
 const int kMaxShapeLabelLength = 10;
 
