@@ -32,9 +32,6 @@ class ApplyBoxTest : public testing::Test {
     return file::JoinPath(TESTING_DIR, name);
   }
   std::string TessdataPath() { return TESSDATA_DIR; }
-  std::string OutputNameToPath(const std::string& name) {
-    return file::JoinPath(FLAGS_test_tmpdir, name);
-  }
 
   ApplyBoxTest() { src_pix_ = nullptr; }
   ~ApplyBoxTest() { pixDestroy(&src_pix_); }
