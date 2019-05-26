@@ -57,7 +57,7 @@ void block_edges(Pix *t_pix,           // thresholded image
 
   std::unique_ptr<uint8_t[]> bwline(new uint8_t[width]);
 
-  uint8_t margin = WHITE_PIX;
+  const uint8_t margin = WHITE_PIX;
 
   for (int y = tright.y() - 1; y >= bleft.y() - 1; y--) {
     if (y >= bleft.y() && y < tright.y()) {
@@ -149,7 +149,6 @@ void line_edges(int16_t x,                         // coord of line start
                 C_OUTLINE_IT* outline_it) {
   CrackPos pos = {free_cracks, x, y };
   int xmax;                      // max x coord
-  int colour;                    // of current pixel
   int prevcolour;                // of previous pixel
   CRACKEDGE *current;            // current h edge
   CRACKEDGE *newcurrent;         // new h edge
@@ -160,7 +159,7 @@ void line_edges(int16_t x,                         // coord of line start
 
                                  // do each pixel
   for (; pos.x < xmax; pos.x++, prevline++) {
-    colour = *bwpos++;           // current pixel
+    const int colour = *bwpos++; // current pixel
     if (*prevline != nullptr) {
                                  // changed above
                                  // change colour
