@@ -20,9 +20,9 @@
 
 namespace tesseract {
 
-constexpr const char *kLRM = "\u200E";  // Left-to-Right Mark
-constexpr const char *kRLM = "\u200F";  // Right-to-Left Mark
-constexpr const char *kRLE = "\u202A";  // Right-to-Left Embedding
-constexpr const char *kPDF = "\u202C";  // Pop Directional Formatting
+const char * const kLRM = "\u200E";  // Left-to-Right Mark
+const char * const kRLM = "\u200F";  // Right-to-Left Mark
+const char * const kRLE = "\u202A";  // Right-to-Left Embedding
+const char * const kPDF = "\u202C";  // Pop Directional Formatting
 
 }  // namespace
