@@ -2,7 +2,6 @@
 // File:        equationdetect.cpp
 // Description: Helper classes to detect equations.
 // Author:      Zongyi (Joe) Liu (joeliu@google.com)
-// Created:     Fri Aug 31 11:13:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,10 +42,10 @@
 #include "tesseractclass.h"
 
 // Config variables.
-BOOL_VAR(equationdetect_save_bi_image, false, "Save input bi image");
-BOOL_VAR(equationdetect_save_spt_image, false, "Save special character image");
-BOOL_VAR(equationdetect_save_seed_image, false, "Save the seed image");
-BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image");
+static BOOL_VAR(equationdetect_save_bi_image, false, "Save input bi image");
+static BOOL_VAR(equationdetect_save_spt_image, false, "Save special character image");
+static BOOL_VAR(equationdetect_save_seed_image, false, "Save the seed image");
+static BOOL_VAR(equationdetect_save_merged_image, false, "Save the merged image");
 
 namespace tesseract {
 

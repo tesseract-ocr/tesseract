@@ -42,7 +42,7 @@ const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
     5, 10, 16, 16, 16, 16, 16, 16, 16, 16,
 };
 
-const char* kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
+static const char* kNodeContNames[] = {"Anything", "OnlyDup", "NoDup"};
 
 // Prints debug details of the node.
 void RecodeNode::Print(int null_char, const UNICHARSET& unicharset,

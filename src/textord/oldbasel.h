@@ -22,24 +22,9 @@
 #include          "params.h"
 #include          "blobbox.h"
 
-extern BOOL_VAR_H (textord_really_old_xheight, false,
-"Use original wiseowl xheight");
 extern BOOL_VAR_H (textord_oldbl_debug, false,
 "Debug old baseline generation");
-extern BOOL_VAR_H (textord_debug_baselines, false,
-"Debug baseline generation");
-extern BOOL_VAR_H (textord_oldbl_paradef, true, "Use para default mechanism");
-extern BOOL_VAR_H (textord_oldbl_split_splines, true,
-"Split stepped splines");
-extern BOOL_VAR_H (textord_oldbl_merge_parts, true,
-"Merge suspect partitions");
-extern BOOL_VAR_H (oldbl_xhfix, false,
-"Fix bug in modes threshold for xheights");
-extern INT_VAR_H (oldbl_holed_losscount, 10,
-"Max lost before fallback line used");
-extern double_VAR_H (oldbl_dot_error_size, 1.26, "Max aspect ratio of a dot");
-extern double_VAR_H (textord_oldbl_jumplimit, 0.15,
-"X fraction for new partition");
+
 int get_blob_coords(                    //get boxes
         TO_ROW* row,        //row to use
         int32_t lineheight,   //block level

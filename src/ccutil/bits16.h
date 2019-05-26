@@ -24,11 +24,10 @@
 
 class DLLSYM BITS16 {
  public:
-  uint16_t val;
+  uint16_t val = 0;
 
-  BITS16() { val = 0; }  // constructor
-
-  BITS16(uint16_t init) { val = init; }
+  BITS16() = default;
+  BITS16(uint16_t init) : val(init) {}
 
   void turn_on_bit(       // flip specified bit
       uint8_t bit_num) {  // bit to flip 0..7

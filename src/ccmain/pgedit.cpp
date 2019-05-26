@@ -44,8 +44,6 @@
 #define DESC_HEIGHT     0
 #define MAXSPACING      128      /*max expected spacing in pix */
 
-constexpr ERRCODE EMPTYBLOCKLIST("No blocks to edit");
-
 enum CMD_EVENTS
 {
   NULL_CMD_EVENT,
@@ -117,13 +115,13 @@ static bool display_image = false;
 static bool display_blocks = false;
 static bool display_baselines = false;
 
-PAGE_RES *current_page_res = nullptr;
+static PAGE_RES *current_page_res = nullptr;
 
 STRING_VAR(editor_image_win_name, "EditorImage",
            "Editor image window name");
 INT_VAR(editor_image_xpos, 590, "Editor image X Pos");
 INT_VAR(editor_image_ypos, 10, "Editor image Y Pos");
-INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
+static INT_VAR(editor_image_menuheight, 50, "Add to image height for menu bar");
 INT_VAR(editor_image_word_bb_color, ScrollView::BLUE,
         "Word bounding box colour");
 INT_VAR(editor_image_blob_bb_color, ScrollView::YELLOW,
@@ -144,7 +142,7 @@ INT_VAR(editor_word_ypos, 510, "Word window Y Pos");
 INT_VAR(editor_word_height, 240, "Word window height");
 INT_VAR(editor_word_width, 655, "Word window width");
 
-STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words");
+static STRING_VAR(editor_debug_config_file, "", "Config file to apply to single words");
 
 /**
  * show_point()

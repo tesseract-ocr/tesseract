@@ -2,7 +2,6 @@
 // File:        strokewidth.cpp
 // Description: Subclass of BBGrid to find uniformity of strokewidth.
 // Author:      Ray Smith
-// Created:     Mon Mar 31 16:17:01 PST 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,8 +37,8 @@
 
 namespace tesseract {
 
-INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths");
-BOOL_VAR(textord_tabfind_only_strokewidths, false, "Only run stroke widths");
+static INT_VAR(textord_tabfind_show_strokewidths, 0, "Show stroke widths");
+static BOOL_VAR(textord_tabfind_only_strokewidths, false, "Only run stroke widths");
 
 /** Allowed proportional change in stroke width to be the same font. */
 const double kStrokeWidthFractionTolerance = 0.125;

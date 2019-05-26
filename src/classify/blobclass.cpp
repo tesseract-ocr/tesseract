@@ -2,7 +2,6 @@
  **      Filename:       blobclass.c
  **      Purpose:        High level blob classification and training routines.
  **      Author:         Dan Johnson
- **      History:        7/21/89, DSJ, Created.
  **
  **      (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,8 +31,8 @@
 
 static const char kUnknownFontName[] = "UnknownFont";
 
-STRING_VAR(classify_font_name, kUnknownFontName,
-           "Default font name to be used in training");
+static STRING_VAR(classify_font_name, kUnknownFontName,
+                  "Default font name to be used in training");
 
 namespace tesseract {
 /**----------------------------------------------------------------------------

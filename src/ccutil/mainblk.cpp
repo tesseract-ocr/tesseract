@@ -2,7 +2,6 @@
  * File:        mainblk.cpp  (Formerly main.c)
  * Description: Function to call from main() to setup.
  * Author:      Ray Smith
- * Created:     Tue Oct 22 11:09:40 BST 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,10 +23,6 @@
 
 #include "fileerr.h"
 #include "ccutil.h"
-
-const ERRCODE NO_PATH =
-"Warning:explicit path for executable will not be used for configs";
-static const ERRCODE USAGE = "Usage";
 
 namespace tesseract {
 /**********************************************************************
