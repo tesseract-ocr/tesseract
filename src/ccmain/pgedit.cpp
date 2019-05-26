@@ -42,7 +42,6 @@
 #define X_HEIGHT       (kBlnBaselineOffset + kBlnXHeight)
 #define BL_HEIGHT     kBlnBaselineOffset
 #define DESC_HEIGHT     0
-#define MAXSPACING      128      /*max expected spacing in pix */
 
 enum CMD_EVENTS
 {

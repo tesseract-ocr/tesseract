@@ -28,7 +28,6 @@
 #include "tprintf.h"           // for tprintf
 #include "vecfuncs.h"          // for LENGTH, point_diff, CROSS
 
-#define EXTERN
 #define FASTEDGELENGTH    256
 
 static BOOL_VAR(poly_debug, false, "Debug old poly");
