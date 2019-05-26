@@ -93,11 +93,11 @@ INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
 static INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
 static STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
 STRING_PARAM_FLAG(D, "", "Directory to write output files to");
-static STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
+STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
 STRING_PARAM_FLAG(X, "", "File listing font xheights");
 STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
-static STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
+STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
 static DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
                          "Min number of samples per proto as % of total");
