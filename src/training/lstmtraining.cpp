@@ -2,7 +2,6 @@
 // File:        lstmtraining.cpp
 // Description: Training program for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Fri May 03 11:05:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,41 +27,41 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
-INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
-STRING_PARAM_FLAG(net_spec, "", "Network specification");
-INT_PARAM_FLAG(net_mode, 192, "Controls network behavior.");
-INT_PARAM_FLAG(perfect_sample_delay, 0,
-               "How many imperfect samples between perfect ones.");
-DOUBLE_PARAM_FLAG(target_error_rate, 0.01, "Final error rate in percent.");
-DOUBLE_PARAM_FLAG(weight_range, 0.1, "Range of initial random weights.");
-DOUBLE_PARAM_FLAG(learning_rate, 10.0e-4, "Weight factor for new deltas.");
-DOUBLE_PARAM_FLAG(momentum, 0.5, "Decay factor for repeating deltas.");
-DOUBLE_PARAM_FLAG(adam_beta, 0.999, "Decay factor for repeating deltas.");
-INT_PARAM_FLAG(max_image_MB, 6000, "Max memory to use for images.");
-STRING_PARAM_FLAG(continue_from, "", "Existing model to extend");
-STRING_PARAM_FLAG(model_output, "lstmtrain", "Basename for output models");
-STRING_PARAM_FLAG(train_listfile, "",
-                  "File listing training files in lstmf training format.");
-STRING_PARAM_FLAG(eval_listfile, "",
-                  "File listing eval files in lstmf training format.");
-BOOL_PARAM_FLAG(stop_training, false,
-               "Just convert the training model to a runtime model.");
-BOOL_PARAM_FLAG(convert_to_int, false,
-                "Convert the recognition model to an integer model.");
-BOOL_PARAM_FLAG(sequential_training, false,
-                "Use the training files sequentially instead of round-robin.");
-INT_PARAM_FLAG(append_index, -1, "Index in continue_from Network at which to"
-               " attach the new network defined by net_spec");
-BOOL_PARAM_FLAG(debug_network, false,
-                "Get info on distribution of weight values");
-INT_PARAM_FLAG(max_iterations, 0, "If set, exit after this many iterations");
-STRING_PARAM_FLAG(traineddata, "",
-                  "Combined Dawgs/Unicharset/Recoder for language model");
-STRING_PARAM_FLAG(old_traineddata, "",
-                  "When changing the character set, this specifies the old"
-                  " character set that is to be replaced");
-BOOL_PARAM_FLAG(randomly_rotate, false,
-                "Train OSD and randomly turn training samples upside-down");
+static INT_PARAM_FLAG(debug_interval, 0, "How often to display the alignment.");
+static STRING_PARAM_FLAG(net_spec, "", "Network specification");
+static INT_PARAM_FLAG(net_mode, 192, "Controls network behavior.");
+static INT_PARAM_FLAG(perfect_sample_delay, 0,
+                      "How many imperfect samples between perfect ones.");
+static DOUBLE_PARAM_FLAG(target_error_rate, 0.01, "Final error rate in percent.");
+static DOUBLE_PARAM_FLAG(weight_range, 0.1, "Range of initial random weights.");
+static DOUBLE_PARAM_FLAG(learning_rate, 10.0e-4, "Weight factor for new deltas.");
+static DOUBLE_PARAM_FLAG(momentum, 0.5, "Decay factor for repeating deltas.");
+static DOUBLE_PARAM_FLAG(adam_beta, 0.999, "Decay factor for repeating deltas.");
+static INT_PARAM_FLAG(max_image_MB, 6000, "Max memory to use for images.");
+static STRING_PARAM_FLAG(continue_from, "", "Existing model to extend");
+static STRING_PARAM_FLAG(model_output, "lstmtrain", "Basename for output models");
+static STRING_PARAM_FLAG(train_listfile, "",
+                         "File listing training files in lstmf training format.");
+static STRING_PARAM_FLAG(eval_listfile, "",
+                         "File listing eval files in lstmf training format.");
+static BOOL_PARAM_FLAG(stop_training, false,
+                       "Just convert the training model to a runtime model.");
+static BOOL_PARAM_FLAG(convert_to_int, false,
+                       "Convert the recognition model to an integer model.");
+static BOOL_PARAM_FLAG(sequential_training, false,
+                       "Use the training files sequentially instead of round-robin.");
+static INT_PARAM_FLAG(append_index, -1, "Index in continue_from Network at which to"
+                      " attach the new network defined by net_spec");
+static BOOL_PARAM_FLAG(debug_network, false,
+                       "Get info on distribution of weight values");
+static INT_PARAM_FLAG(max_iterations, 0, "If set, exit after this many iterations");
+static STRING_PARAM_FLAG(traineddata, "",
+                         "Combined Dawgs/Unicharset/Recoder for language model");
+static STRING_PARAM_FLAG(old_traineddata, "",
+                         "When changing the character set, this specifies the old"
+                         " character set that is to be replaced");
+static BOOL_PARAM_FLAG(randomly_rotate, false,
+                       "Train OSD and randomly turn training samples upside-down");
 
 // Number of training images to train between calls to MaintainCheckpoints.
 const int kNumPagesPerBatch = 100;

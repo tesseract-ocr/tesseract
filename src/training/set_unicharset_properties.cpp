@@ -18,8 +18,8 @@
 #include "unicharset_training_utils.h"
 
 // The directory that is searched for universal script unicharsets.
-STRING_PARAM_FLAG(script_dir, "",
-                  "Directory name for input script unicharsets/xheights");
+static STRING_PARAM_FLAG(script_dir, "",
+                         "Directory name for input script unicharsets/xheights");
 
 int main(int argc, char** argv) {
   tesseract::CheckSharedLibraryVersion();
