@@ -60,8 +60,6 @@ using tesseract::ShapeTable;
 // Max length of a fake shape label.
 const int kMaxShapeLabelLength = 10;
 
-DECLARE_STRING_PARAM_FLAG(test_ch);
-
 /*----------------------------------------------------------------------------
             Public Code
 -----------------------------------------------------------------------------*/

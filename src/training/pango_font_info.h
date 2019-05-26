@@ -31,9 +31,6 @@
 #include "pango/pangocairo.h"
 #include "util.h"
 
-DECLARE_STRING_PARAM_FLAG(fonts_dir);
-DECLARE_STRING_PARAM_FLAG(fontconfig_tmpdir);
-
 using char32 = signed int;
 
 namespace tesseract {
