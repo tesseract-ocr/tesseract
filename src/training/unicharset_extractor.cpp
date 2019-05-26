@@ -2,7 +2,6 @@
 // File:        unicharset_extractor.cpp
 // Description: Unicode character/ligature set extractor.
 // Author:      Thomas Kielbus
-// Created:     Wed Jun 28 17:05:01 PDT 2006
 //
 // (C) Copyright 2006, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,10 +31,10 @@
 #include "unicharset.h"
 #include "unicharset_training_utils.h"
 
-STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
-INT_PARAM_FLAG(norm_mode, 1,
-               "Normalization mode: 1=Combine graphemes, "
-               "2=Split graphemes, 3=Pure unicode");
+static STRING_PARAM_FLAG(output_unicharset, "unicharset", "Output file path");
+static INT_PARAM_FLAG(norm_mode, 1,
+                      "Normalization mode: 1=Combine graphemes, "
+                      "2=Split graphemes, 3=Pure unicode");
 
 namespace tesseract {
 

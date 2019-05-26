@@ -22,22 +22,22 @@
 #include "tprintf.h"
 #include "unicharset_training_utils.h"
 
-STRING_PARAM_FLAG(input_unicharset, "",
-                  "Filename with unicharset to complete and use in encoding");
-STRING_PARAM_FLAG(script_dir, "",
-                  "Directory name for input script unicharsets");
-STRING_PARAM_FLAG(words, "",
-                  "File listing words to use for the system dictionary");
-STRING_PARAM_FLAG(puncs, "", "File listing punctuation patterns");
-STRING_PARAM_FLAG(numbers, "", "File listing number patterns");
-STRING_PARAM_FLAG(output_dir, "", "Root directory for output files");
-STRING_PARAM_FLAG(version_str, "", "Version string to add to traineddata file");
-STRING_PARAM_FLAG(lang, "", "Name of language being processed");
-BOOL_PARAM_FLAG(lang_is_rtl, false,
-                "True if lang being processed is written right-to-left");
-BOOL_PARAM_FLAG(pass_through_recoder, false,
-                "If true, the recoder is a simple pass-through of the"
-                " unicharset. Otherwise, potentially a compression of it");
+static STRING_PARAM_FLAG(input_unicharset, "",
+                         "Filename with unicharset to complete and use in encoding");
+static STRING_PARAM_FLAG(script_dir, "",
+                         "Directory name for input script unicharsets");
+static STRING_PARAM_FLAG(words, "",
+                         "File listing words to use for the system dictionary");
+static STRING_PARAM_FLAG(puncs, "", "File listing punctuation patterns");
+static STRING_PARAM_FLAG(numbers, "", "File listing number patterns");
+static STRING_PARAM_FLAG(output_dir, "", "Root directory for output files");
+static STRING_PARAM_FLAG(version_str, "", "Version string to add to traineddata file");
+static STRING_PARAM_FLAG(lang, "", "Name of language being processed");
+static BOOL_PARAM_FLAG(lang_is_rtl, false,
+                       "True if lang being processed is written right-to-left");
+static BOOL_PARAM_FLAG(pass_through_recoder, false,
+                       "If true, the recoder is a simple pass-through of the "
+                       "unicharset. Otherwise, potentially a compression of it");
 
 int main(int argc, char** argv) {
   // Sets properties on the input unicharset file, and writes:

@@ -87,27 +87,27 @@ using tesseract::ShapeTable;
 // -M 0.625   -B 0.05   -I 1.0   -C 1e-6.
 CLUSTERCONFIG Config = { elliptical, 0.625, 0.05, 1.0, 1e-6, 0 };
 FEATURE_DEFS_STRUCT feature_defs;
-CCUtil ccutil;
+static CCUtil ccutil;
 
 INT_PARAM_FLAG(debug_level, 0, "Level of Trainer debugging");
-INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
-STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
+static INT_PARAM_FLAG(load_images, 0, "Load images with tr files");
+static STRING_PARAM_FLAG(configfile, "", "File to load more configs from");
 STRING_PARAM_FLAG(D, "", "Directory to write output files to");
-STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
+static STRING_PARAM_FLAG(F, "font_properties", "File listing font properties");
 STRING_PARAM_FLAG(X, "", "File listing font xheights");
 STRING_PARAM_FLAG(U, "unicharset", "File to load unicharset from");
 STRING_PARAM_FLAG(O, "", "File to write unicharset to");
-STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
+static STRING_PARAM_FLAG(output_trainer, "", "File to write trainer to");
 STRING_PARAM_FLAG(test_ch, "", "UTF8 test character string");
-DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
-                  "Min number of samples per proto as % of total");
-DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,
-                  "Max percentage of samples in a cluster which have more"
-                  " than 1 feature in that cluster");
-DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
-                  "Desired independence between dimensions");
-DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
-                  "Desired confidence in prototypes created");
+static DOUBLE_PARAM_FLAG(clusterconfig_min_samples_fraction, Config.MinSamples,
+                         "Min number of samples per proto as % of total");
+static DOUBLE_PARAM_FLAG(clusterconfig_max_illegal, Config.MaxIllegal,
+                         "Max percentage of samples in a cluster which have more"
+                         " than 1 feature in that cluster");
+static DOUBLE_PARAM_FLAG(clusterconfig_independence, Config.Independence,
+                         "Desired independence between dimensions");
+static DOUBLE_PARAM_FLAG(clusterconfig_confidence, Config.Confidence,
+                         "Desired confidence in prototypes created");
 
 /**
  * This routine parses the command line arguments that were
