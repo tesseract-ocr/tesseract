@@ -22,8 +22,6 @@
 #include "stepblob.h"
 #include "tprintf.h"
 
-#define BLOCK_LABEL_HEIGHT  150  //char height of block id
-
 ELISTIZE (BLOCK)
 /**
  * BLOCK::BLOCK

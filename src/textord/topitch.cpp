@@ -34,28 +34,25 @@
 
 #include <memory>
 
-#define EXTERN
-
 static BOOL_VAR (textord_all_prop, false, "All doc is proportial text");
-EXTERN BOOL_VAR (textord_debug_pitch_test, false,
+BOOL_VAR (textord_debug_pitch_test, false,
 "Debug on fixed pitch test");
 static BOOL_VAR (textord_disable_pitch_test, false,
 "Turn off dp fixed pitch algorithm");
-EXTERN BOOL_VAR (textord_fast_pitch_test, false,
+BOOL_VAR (textord_fast_pitch_test, false,
 "Do even faster pitch algorithm");
-EXTERN BOOL_VAR (textord_debug_pitch_metric, false,
+BOOL_VAR (textord_debug_pitch_metric, false,
 "Write full metric stuff");
-EXTERN BOOL_VAR (textord_show_row_cuts, false, "Draw row-level cuts");
-EXTERN BOOL_VAR (textord_show_page_cuts, false, "Draw page-level cuts");
-EXTERN BOOL_VAR (textord_pitch_cheat, false,
+BOOL_VAR (textord_show_row_cuts, false, "Draw row-level cuts");
+BOOL_VAR (textord_show_page_cuts, false, "Draw page-level cuts");
+BOOL_VAR (textord_pitch_cheat, false,
 "Use correct answer for fixed/prop");
-EXTERN BOOL_VAR (textord_blockndoc_fixed, false,
+BOOL_VAR (textord_blockndoc_fixed, false,
 "Attempt whole doc/block fixed pitch");
-EXTERN double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
-EXTERN double_VAR (textord_balance_factor, 1.0,
+double_VAR (textord_projection_scale, 0.200, "Ding rate for mid-cuts");
+double_VAR (textord_balance_factor, 1.0,
 "Ding rate for unbalanced char cells");
 
-#define FIXED_WIDTH_MULTIPLE  5
 #define BLOCK_STATS_CLUSTERS  10
 #define MAX_ALLOWED_PITCH 100    //max pixel pitch.
 

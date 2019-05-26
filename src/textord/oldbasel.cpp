@@ -1,7 +1,7 @@
 /**********************************************************************
  * File:        oldbasel.cpp  (Formerly oldbl.c)
  * Description: A re-implementation of the old baseline algorithm.
- * Author:    Ray Smith
+ * Author:      Ray Smith
  *
  * (C) Copyright 1993, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,11 +34,9 @@
 
 #include <algorithm>
 
-#define EXTERN
-
 static BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
-EXTERN BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
+BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
 static BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
 static BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
 static BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
@@ -65,9 +63,6 @@ static double_VAR (textord_oldbl_jumplimit, 0.15,
 #define MAXOVERLAP         0.1   /*max 10% missed overlap */
 #define MAXBADRUN          2     /*max non best for failed */
 #define HEIGHTBUCKETS      200   /* Num of buckets */
-#define DELTAHEIGHT        5.0   /* Small amount of diff */
-#define GOODHEIGHT         5
-#define MAXLOOPS           10
 #define MODENUM            10
 #define MAXPARTS      6
 #define SPLINESIZE      23

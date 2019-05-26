@@ -45,9 +45,6 @@
 #include "tessvars.h"
 #include "werdit.h"
 
-#define MIN_FONT_ROW_COUNT  8
-#define MAX_XHEIGHT_DIFF  3
-
 const char* const kBackUpConfigFile = "tempconfigdata.config";
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height

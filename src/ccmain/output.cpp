@@ -29,14 +29,7 @@
 #include "reject.h"
 #endif
 
-#define EPAPER_EXT      ".ep"
-#define PAGE_YSIZE      3508
-#define CTRL_INSET      '\024'   //dc4=text inset
-#define CTRL_FONT       '\016'   //so=font change
-#define CTRL_DEFAULT      '\017' //si=default font
-#define CTRL_SHIFT      '\022'   //dc2=x shift
-#define CTRL_TAB        '\011'   //tab
-#define CTRL_NEWLINE      '\012' //newline
+#define CTRL_NEWLINE    '\012'   //newline
 #define CTRL_HARDLINE   '\015'   //cr
 
 namespace tesseract {

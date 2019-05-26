@@ -31,7 +31,6 @@
 
 #define PLUS          '+'        //flag states
 #define MINUS         '-'
-#define EQUAL         '='
 
 tesseract::ParamsVectors *GlobalParams() {
   static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
