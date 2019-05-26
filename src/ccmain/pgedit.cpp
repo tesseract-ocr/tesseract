@@ -44,8 +44,6 @@
 #define DESC_HEIGHT     0
 #define MAXSPACING      128      /*max expected spacing in pix */
 
-constexpr ERRCODE EMPTYBLOCKLIST("No blocks to edit");
-
 enum CMD_EVENTS
 {
   NULL_CMD_EVENT,

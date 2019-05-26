@@ -315,18 +315,6 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   return command;
 }
 
-
-// Platform-independent freeaddrinfo()
-static void TessFreeAddrInfo(struct addrinfo* addr_info) {
-  #if defined(__linux__)
-  freeaddrinfo(addr_info);
-  #else
-  delete addr_info->ai_addr;
-  delete addr_info;
-  #endif
-}
-
-
 // Set up a connection to a ScrollView on hostname:port.
 SVNetwork::SVNetwork(const char* hostname, int port) {
   msg_buffer_in_ = new char[kMaxMsgSize + 1];

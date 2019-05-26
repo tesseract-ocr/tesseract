@@ -89,7 +89,7 @@ const double kTableColumnThreshold = 3.0;
 
 // Search for horizontal ruling lines within the vertical margin as a
 // multiple of grid size
-const int kRulingVerticalMargin = 3;
+// const int kRulingVerticalMargin = 3;
 
 // Minimum overlap that a colpartition must have with a table region
 // to become part of that table
