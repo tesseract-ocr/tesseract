@@ -33,12 +33,10 @@
 #include "config_auto.h"
 #endif
 
-#define EXTERN
-
-EXTERN BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
-EXTERN BOOL_VAR(textord_force_make_prop_words, false,
+BOOL_VAR(textord_fp_chopping, true, "Do fixed pitch chopping");
+BOOL_VAR(textord_force_make_prop_words, false,
                 "Force proportional word segmentation on all rows");
-EXTERN BOOL_VAR(textord_chopper_test, false,
+BOOL_VAR(textord_chopper_test, false,
                 "Chopper is being tested.");
 
 #define BLOCK_STATS_CLUSTERS  10

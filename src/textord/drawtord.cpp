@@ -29,12 +29,10 @@
 #define TO_WIN_NAME     "Textord"
                                  //title of window
 
-#define EXTERN
-
-EXTERN BOOL_VAR (textord_show_fixed_cuts, false,
+BOOL_VAR (textord_show_fixed_cuts, false,
 "Draw fixed pitch cell boundaries");
 
-EXTERN ScrollView* to_win = nullptr;
+ScrollView* to_win = nullptr;
 
 /**********************************************************************
  * create_to_win

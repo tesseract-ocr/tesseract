@@ -34,11 +34,9 @@
 
 #include <algorithm>
 
-#define EXTERN
-
 static BOOL_VAR (textord_really_old_xheight, false,
 "Use original wiseowl xheight");
-EXTERN BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
+BOOL_VAR (textord_oldbl_debug, false, "Debug old baseline generation");
 static BOOL_VAR (textord_debug_baselines, false, "Debug baseline generation");
 static BOOL_VAR (textord_oldbl_paradef, true, "Use para default mechanism");
 static BOOL_VAR (textord_oldbl_split_splines, true, "Split stepped splines");
