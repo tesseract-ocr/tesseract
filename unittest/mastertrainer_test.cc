@@ -171,9 +171,6 @@ class MasterTrainerTest : public testing::Test {
   std::string TestDataNameToPath(const std::string& name) {
     return file::JoinPath(TESTING_DIR, name);
   }
-  std::string TessdataPath() {
-    return TESSDATA_DIR;
-  }
   std::string TmpNameToPath(const std::string& name) {
     return file::JoinPath(FLAGS_test_tmpdir, name);
   }
