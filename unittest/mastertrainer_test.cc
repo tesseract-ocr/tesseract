@@ -41,13 +41,6 @@
 #include "commontraining.h"
 #include "tessopt.h"                    // tessoptind
 
-// Commontraining command-line arguments for font_properties, xheights and
-// unicharset.
-DECLARE_STRING_PARAM_FLAG(F);
-DECLARE_STRING_PARAM_FLAG(X);
-DECLARE_STRING_PARAM_FLAG(U);
-DECLARE_STRING_PARAM_FLAG(output_trainer);
-
 // Specs of the MockClassifier.
 static const int kNumTopNErrs = 10;
 static const int kNumTop2Errs = kNumTopNErrs + 20;
