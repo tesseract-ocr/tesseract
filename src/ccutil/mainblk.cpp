@@ -17,6 +17,7 @@
  **********************************************************************/
 
 #include <cstdlib>
+#include <cstring>      // for std::strrchr
 #if defined(_WIN32)
 #include <io.h>         // for _access
 #endif
@@ -54,20 +55,15 @@ void CCUtil::main_setup(const char *argv0, const char *basename) {
 #if defined(_WIN32)
   } else if (datadir == nullptr || _access(datadir.string(), 0) != 0) {
     /* Look for tessdata in directory of executable. */
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
     char path[_MAX_PATH];
     DWORD length = GetModuleFileName(nullptr, path, sizeof(path));
     if (length > 0 && length < sizeof(path)) {
-      errno_t result = _splitpath_s(path, drive, sizeof(drive),
-                                    dir, sizeof(dir), nullptr, 0, nullptr, 0);
-      if (result == ERANGE) {
-        tprintf("Error: Path too long: %s\n", path);
+      char* separator = std::strrchr(path, '\\');
+      if (separator != nullptr) {
+        *separator = '\0';
+        datadir = path;
+        datadir += "/tessdata";
       }
-
-      datadir = drive;
-      datadir += dir;
-      datadir += "/tessdata";
     }
 #endif /* _WIN32 */
 #if defined(TESSDATA_PREFIX)
