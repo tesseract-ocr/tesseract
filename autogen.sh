@@ -13,8 +13,9 @@
 # better deal with the GNU autotools, specifically:
 #
 #   aclocal
-#   autoheader
+#   libtoolize
 #   autoconf
+#   autoheader
 #   automake
 #
 # The whole thing is quite complex...
@@ -87,26 +88,7 @@ echo "Running $LIBTOOLIZE"
 $LIBTOOLIZE -f -c || bail_out
 $LIBTOOLIZE --automake || bail_out
 
-# --- Step 3: Generate config.h.in from:
-#             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
-
-echo "Running autoheader"
-autoheader -f || bail_out
-
-# --- Step 4: Generate Makefile.in, src/Makefile.in, and a whole bunch of
-#             files in config (config.guess, config.sub, depcomp,
-#             install-sh, missing, mkinstalldirs) plus COPYING and
-#             INSTALL from:
-#             . Makefile.am
-#             . src/Makefile.am
-#
-# Using --add-missing --copy makes sure that, if these files are missing,
-# they are copied from the system so they can be used in a distribution.
-
-echo "Running automake --add-missing --copy"
-automake --add-missing --copy --warnings=all || bail_out
-
-# --- Step 5: Generate configure and include/miaconfig.h from:
+# --- Step 3: Generate configure and include/miaconfig.h from:
 #             . configure.ac
 #
 
@@ -119,6 +101,25 @@ if grep -q PKG_CHECK_MODULES configure; then
   echo "Missing pkg-config. Check the build requirements."
   bail_out
 fi
+
+# --- Step 4: Generate config.h.in from:
+#             . configure.ac (look for AM_CONFIG_HEADER tag or AC_CONFIG_HEADER tag)
+
+echo "Running autoheader"
+autoheader -f || bail_out
+
+# --- Step 5: Generate Makefile.in, src/Makefile.in, and a whole bunch of
+#             files in config (config.guess, config.sub, depcomp,
+#             install-sh, missing, mkinstalldirs) plus COPYING and
+#             INSTALL from:
+#             . Makefile.am
+#             . src/Makefile.am
+#
+# Using --add-missing --copy makes sure that, if these files are missing,
+# they are copied from the system so they can be used in a distribution.
+
+echo "Running automake --add-missing --copy"
+automake --add-missing --copy --warnings=all || bail_out
 
 echo ""
 echo "All done."
