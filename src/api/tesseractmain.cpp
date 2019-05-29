@@ -733,7 +733,7 @@ int main(int argc, char** argv) {
 
   if (in_training_mode) {
     renderers.push_back(nullptr);
-  } else {
+  } else if (outputbase != nullptr) {
     PreloadRenderers(&api, &renderers, pagesegmode, outputbase);
   }
 
