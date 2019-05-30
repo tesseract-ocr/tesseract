@@ -15,6 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#include <numeric>           // for std::inner_product
 #include "simddetect.h"
 #include "dotproduct.h"
 #include "dotproductavx.h"
@@ -67,6 +68,11 @@ static double DotProductGeneric(const double* u, const double* v, int n) {
   double total = 0.0;
   for (int k = 0; k < n; ++k) total += u[k] * v[k];
   return total;
+}
+
+// Compute dot product using std::inner_product.
+static double DotProductStdInnerProduct(const double* u, const double* v, int n) {
+  return std::inner_product(u, u + n, v, 0.0);
 }
 
 static void SetDotProduct(DotProductFunction f, const IntSimdMatrix* m = nullptr) {
@@ -185,6 +191,10 @@ void SIMDDetect::Update() {
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
+  } else if (!strcmp(dotproduct.string(), "std::inner_product")) {
+    // std::inner_product selected by config variable.
+    SetDotProduct(DotProductStdInnerProduct);
+    dotproduct_method = "std::inner_product";
   } else {
     // Unsupported value of config variable.
     tprintf("Warning, ignoring unsupported config variable value: dotproduct=%s\n",
@@ -196,7 +206,7 @@ void SIMDDetect::Update() {
 #if defined(SSE4_1)
             " sse"
 #endif
-            ".\n");
+            " std::inner_product.\n");
   }
 
   dotproduct.set_value(dotproduct_method);
