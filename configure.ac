@@ -350,33 +350,25 @@ dnl Turn on C++11 or newer
 dnl **********************
 
 CPLUSPLUS=
-
-AX_CHECK_COMPILE_FLAG([-std=c++11], [cplusplus11=true], [cplusplus11=false], [$WERROR])
-if $cplusplus11; then
-  CPLUSPLUS=11
-fi
-
-AX_CHECK_COMPILE_FLAG([-std=c++14], [cplusplus14=true], [cplusplus14=false], [$WERROR])
-if $cplusplus14; then
-  CPLUSPLUS=14
-fi
+AX_CHECK_COMPILE_FLAG([-std=c++11], [CPLUSPLUS=11], [], [$WERROR])
+AX_CHECK_COMPILE_FLAG([-std=c++14], [CPLUSPLUS=14], [], [$WERROR])
+AX_CHECK_COMPILE_FLAG([-std=c++17], [CPLUSPLUS=17], [], [$WERROR])
+#AX_CHECK_COMPILE_FLAG([-std=c++20], [CPLUSPLUS=20], [], [$WERROR])
 
 if test -z "$CPLUSPLUS"; then
   AC_MSG_ERROR([Your compiler does not have the necessary C++11 support! Cannot proceed.])
 fi
 
-# Set C++11 or C++14 support based on platform/compiler
+# Set C++11, C++14 or C++17 support based on platform/compiler
 case "${host_os}" in
   cygwin*)
     CXXFLAGS="$CXXFLAGS -std=gnu++$CPLUSPLUS"
     ;;
   *-darwin* | *-macos10*)
-     if test "x$CLANG" = "xyes"; then
-       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
-       LDFLAGS="$LDFLAGS -stdlib=libc++"
-     else
-       CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
-     fi
+    CXXFLAGS="$CXXFLAGS -std=c++$CPLUSPLUS"
+    if test "x$CLANG" = "xyes"; then
+      LDFLAGS="$LDFLAGS -stdlib=libc++"
+    fi
     ;;
   *)
     # default
