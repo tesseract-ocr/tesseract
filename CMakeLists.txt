@@ -120,7 +120,7 @@ endif()
 
 if (OPENMP_BUILD)
     if (CLANG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xclang -fopenmp")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
     else(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
     endif()
@@ -425,6 +425,10 @@ add_executable                  (tesseract ${tesseractmain_src} ${tesseractmain_
 target_link_libraries           (tesseract libtesseract)
 if (HAVE_TIFFIO_H)
     target_link_libraries(tesseract tiff)
+endif()
+
+if (OPENMP_BUILD AND UNIX)
+target_link_libraries           (tesseract pthread)
 endif()
 
 ########################################
