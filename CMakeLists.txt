@@ -88,7 +88,9 @@ endif()
 
 # Check for C++ standard to use
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-if(cxx_std_14 IN_LIST known_features)
+if(cxx_std_17 IN_LIST known_features)
+    set(CMAKE_CXX_STANDARD 17)
+elseif(cxx_std_14 IN_LIST known_features)
     set(CMAKE_CXX_STANDARD 14)
 else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
