@@ -89,6 +89,8 @@ endif()
 # Check for C++ standard to use
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 message("CMAKE_VERSION: ${CMAKE_VERSION}")
+message("known_features: ${known_features}")
+message("compiler version: ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER_ID}")
 if(cxx_std_17 IN_LIST known_features)
     if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
         message("Please consider to switch to CMake 3.8.0")
