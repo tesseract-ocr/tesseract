@@ -8,7 +8,7 @@
 #
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # In-source builds are disabled.
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -88,13 +88,22 @@ endif()
 
 # Check for C++ standard to use
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-if(cxx_std_17 IN_LIST known_features)
+if (cxx_std_17 IN_LIST known_features)
     set(CMAKE_CXX_STANDARD 17)
-elseif(cxx_std_14 IN_LIST known_features)
+elseif (cxx_std_14 IN_LIST known_features)
     set(CMAKE_CXX_STANDARD 14)
 else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
 endif()
+
+# workaround for bad info in CMAKE_CXX_KNOWN_FEATURES for g++ 4.8.4
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(CMAKE_CXX_STANDARD 11)
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "6.1.0")
+        set(CMAKE_CXX_STANDARD 14)
+    endif()
+endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -131,9 +140,6 @@ if (CYGWIN)
 endif()
 
 if (UNIX)
-    # Hack for old cmake / compiler in Ubuntu Trusty.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
-
     if (NOT ANDROID)
         set(LIB_pthread pthread)
     endif()
