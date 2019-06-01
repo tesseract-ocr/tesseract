@@ -8,7 +8,7 @@
 #
 ###############################################################################
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # In-source builds are disabled.
 if ("${CMAKE_CURRENT_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_BINARY_DIR}")
@@ -88,17 +88,12 @@ endif()
 
 # Check for C++ standard to use
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-message("CMAKE_VERSION: ${CMAKE_VERSION}")
-message("known_features: ${known_features}")
-message("compiler version: ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER_ID}")
 if(cxx_std_17 IN_LIST known_features)
-    if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
-        message("Please consider to switch to CMake 3.8.0")
-        if(MSVC)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
-        else()
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-        endif()
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"
+       AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "5.0.0")
+        # workaround for bad info in CMAKE_CXX_KNOWN_FEATURES for g++ 4.8.4
+        message("compiler version: ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER_ID}, using c++14")
+        set(CMAKE_CXX_STANDARD 14)
     else()
         set(CMAKE_CXX_STANDARD 17)
     endif()
