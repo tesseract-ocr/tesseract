@@ -131,6 +131,9 @@ if (CYGWIN)
 endif()
 
 if (UNIX)
+    # Hack for old cmake / compiler in Ubuntu Trusty.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+
     if (NOT ANDROID)
         set(LIB_pthread pthread)
     endif()
