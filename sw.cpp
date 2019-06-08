@@ -43,7 +43,6 @@ void build(Solution &s)
             "src/viewer/svpaint.cpp";
 
         libtesseract.Public +=
-            "src/vs2010/port"_id,
             "src/opencl"_id,
             "src/ccmain"_id,
             "src/api"_id,
