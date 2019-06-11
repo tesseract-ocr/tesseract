@@ -122,7 +122,7 @@ check_PROGRAMS += intfeaturemap_test
 check_PROGRAMS += intsimdmatrix_test
 check_PROGRAMS += lang_model_test
 check_PROGRAMS += layout_test
-# check_PROGRAMS += ligature_table_test
+check_PROGRAMS += ligature_table_test
 check_PROGRAMS += linlsq_test
 check_PROGRAMS += loadlang_test
 check_PROGRAMS += mastertrainer_test
@@ -240,6 +240,12 @@ lang_model_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIB
 
 layout_test_SOURCES = layout_test.cc
 layout_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)  $(LEPTONICA_LIBS)
+
+ligature_table_test_SOURCES = ligature_table_test.cc
+ligature_table_test_LDADD = $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS)
+ligature_table_test_LDADD += $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig
+ligature_table_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
+ligature_table_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
 
 linlsq_test_SOURCES = linlsq_test.cc
 linlsq_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
