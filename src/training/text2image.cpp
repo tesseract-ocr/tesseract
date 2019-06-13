@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -571,8 +572,11 @@ static int Main() {
       offset += step;
       offset += SpanUTF8Whitespace(str8 + offset);
     }
-    if (FLAGS_render_ngrams)
-      std::random_shuffle(offsets.begin(), offsets.end());
+    if (FLAGS_render_ngrams) {
+      std::seed_seq seed{kRandomSeed};
+      std::mt19937 random_gen(seed);
+      std::shuffle(offsets.begin(), offsets.end(), random_gen);
+    }
 
     for (size_t i = 0, line = 1; i < offsets.size(); ++i) {
       const char *curr_pos = str8 + offsets[i].first;
