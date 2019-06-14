@@ -584,7 +584,6 @@ make__lstmdata() {
     mv "${f}" "${OUTPUT_DIR}"
   done
   fi
-  done
 
   tlog "\n=== Moving lstmf files for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
