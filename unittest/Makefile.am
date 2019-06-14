@@ -149,7 +149,7 @@ check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
 check_PROGRAMS += tabvector_test
 # check_PROGRAMS += tatweel_test
-# check_PROGRAMS += textlineprojection_test
+check_PROGRAMS += textlineprojection_test
 check_PROGRAMS += tfile_test
 
 if ENABLE_TRAINING
@@ -322,6 +322,9 @@ tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+textlineprojection_test_SOURCES = textlineprojection_test.cc
+textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
