@@ -140,7 +140,7 @@ check_PROGRAMS += qrsequence_test
 check_PROGRAMS += recodebeam_test
 check_PROGRAMS += rect_test
 check_PROGRAMS += resultiterator_test
-# check_PROGRAMS += scanutils_test
+check_PROGRAMS += scanutils_test
 check_PROGRAMS += shapetable_test
 # check_PROGRAMS += stridemap_test
 check_PROGRAMS += stats_test
@@ -301,6 +301,9 @@ rect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 resultiterator_test_SOURCES = resultiterator_test.cc
 resultiterator_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
+
+scanutils_test_SOURCES = scanutils_test.cc
+scanutils_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 shapetable_test_SOURCES = shapetable_test.cc
 shapetable_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
