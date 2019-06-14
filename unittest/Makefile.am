@@ -141,7 +141,7 @@ check_PROGRAMS += networkio_test
 endif
 check_PROGRAMS += nthitem_test
 check_PROGRAMS += osd_test
-# check_PROGRAMS += pagesegmode_test
+check_PROGRAMS += pagesegmode_test
 check_PROGRAMS += paragraphs_test
 check_PROGRAMS += params_model_test
 check_PROGRAMS += progress_test
@@ -309,6 +309,9 @@ nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
+
+pagesegmode_test_SOURCES = pagesegmode_test.cc
+pagesegmode_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 if TENSORFLOW
 pango_font_info_test_SOURCES = pango_font_info_test.cc
