@@ -397,7 +397,7 @@ phase_D_generate_dawg() {
 
     # Punctuation DAWG
     # -r arguments to wordlist2dawg denote RTL reverse policy
-    # (see Trie::RTLReversePolicy enum in third_party/tesseract/dict/trie.h).
+    # (see Trie::RTLReversePolicy enum in tesseract/src/dict/trie.h).
     # We specify 0/RRP_DO_NO_REVERSE when generating number DAWG,
     # 1/RRP_REVERSE_IF_HAS_RTL for freq and word DAWGS,
     # 2/RRP_FORCE_REVERSE for the punctuation DAWG.
@@ -573,17 +573,18 @@ make__lstmdata() {
     --output_dir "${OUTPUT_DIR}" --lang "${LANG_CODE}" \
     "${pass_through}" "${lang_is_rtl}"
 
-    if $SAVE_BOX_TIFF ; then
+  if $SAVE_BOX_TIFF; then
     tlog "\n=== Saving box/tiff pairs for training data ==="
-        for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
-            tlog "Moving ${f} to ${OUTPUT_DIR}"
-            mv "${f}" "${OUTPUT_DIR}"
-        done
-        for f in "${TRAINING_DIR}/${LANG_CODE}".*.tif; do
-            tlog "Moving ${f} to ${OUTPUT_DIR}"
-            mv "${f}" "${OUTPUT_DIR}"
-        done
-    fi
+  for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
+    tlog "Moving ${f} to ${OUTPUT_DIR}"
+    mv "${f}" "${OUTPUT_DIR}"
+  done
+  for f in "${TRAINING_DIR}/${LANG_CODE}".*.tif; do
+    tlog "Moving ${f} to ${OUTPUT_DIR}"
+    mv "${f}" "${OUTPUT_DIR}"
+  done
+  fi
+  done
 
   tlog "\n=== Moving lstmf files for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
