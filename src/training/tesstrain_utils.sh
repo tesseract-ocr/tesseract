@@ -259,7 +259,7 @@ generate_font_image() {
     common_args+=" --char_spacing=${CHAR_SPACING} --exposure=${EXPOSURE}"
     common_args+=" --outputbase=${outbase} --max_pages=${MAX_PAGES}"
     if $DISTORT_IMAGE; then
-        common_args+=" --distort_image "
+        common_args+=" --distort_image --invert=false"
     fi
 
     # add --writing_mode=vertical-upright to common_args if the font is
@@ -326,6 +326,17 @@ phase_I_generate_image() {
             check_file_readable ${outbase}.box ${outbase}.tif
         done
     done
+    if $SAVE_BOX_TIFF && ( ! $LINEDATA ) ; then
+    tlog "\n=== Saving box/tiff pairs for training data ==="
+        for f in "${TRAINING_DIR}/${LANG_CODE}".*.box; do
+            tlog "Moving ${f} to ${OUTPUT_DIR}"
+            cp "${f}" "${OUTPUT_DIR}"
+        done
+        for f in "${TRAINING_DIR}/${LANG_CODE}".*.tif; do
+            tlog "Moving ${f} to ${OUTPUT_DIR}"
+            cp "${f}" "${OUTPUT_DIR}"
+        done
+    fi
 }
 
 # Phase UP : Generate (U)nicharset and (P)roperties file.
@@ -573,6 +584,7 @@ make__lstmdata() {
     mv "${f}" "${OUTPUT_DIR}"
   done
   fi
+
   tlog "\n=== Moving lstmf files for training data ==="
   for f in "${TRAINING_DIR}/${LANG_CODE}".*.lstmf; do
     tlog "Moving ${f} to ${OUTPUT_DIR}"
