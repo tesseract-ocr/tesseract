@@ -128,7 +128,6 @@ check_PROGRAMS += loadlang_test
 check_PROGRAMS += mastertrainer_test
 check_PROGRAMS += matrix_test
 # check_PROGRAMS += networkio_test
-# check_PROGRAMS += normstrngs_test
 check_PROGRAMS += nthitem_test
 check_PROGRAMS += osd_test
 # check_PROGRAMS += pagesegmode_test
@@ -158,6 +157,7 @@ check_PROGRAMS += lstm_recode_test
 check_PROGRAMS += lstm_squashed_test
 check_PROGRAMS += lstm_test
 check_PROGRAMS += lstmtrainer_test
+check_PROGRAMS += normstrngs_test
 check_PROGRAMS += unichar_test
 check_PROGRAMS += unicharcompress_test
 check_PROGRAMS += unicharset_test
@@ -270,6 +270,9 @@ mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+normstrngs_test_SOURCES = normstrngs_test.cc
+normstrngs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(TESS_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 nthitem_test_SOURCES = nthitem_test.cc
 nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
