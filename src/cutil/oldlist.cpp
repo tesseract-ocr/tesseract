@@ -61,6 +61,19 @@
 #include "errcode.h"    // for ASSERT_HOST
 #include "structures.h"
 
+/**********************************************************************
+ *  c o p y   f i r s t
+ *
+ *  Do the appropriate kind a push operation to copy the first node from
+ *  one list to another.
+ *
+ **********************************************************************/
+
+#define copy_first(l1,l2)  \
+(l2=push(l2, first_node(l1)))
+
+
+
 /*----------------------------------------------------------------------
               F u n c t i o n s
 ----------------------------------------------------------------------*/
