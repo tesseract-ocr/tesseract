@@ -160,6 +160,7 @@ parse_flags() {
                 DISTORT_IMAGE=true ;;
             --output_dir)
                 parse_value "OUTPUT_DIR" ${ARGV[$j]:-}
+                mkdir -p $OUTPUT_DIR
                 i=$j ;;
             --overwrite)
                 OVERWRITE=true ;;
