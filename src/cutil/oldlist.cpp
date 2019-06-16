@@ -152,25 +152,6 @@ void destroy_nodes(LIST list, void_dest destructor) {
 }
 
 /**********************************************************************
- *  i n s e r t
- *
- *  Create a list element and rearrange the pointers so that the first
- *  element in the list is the second argument.
- **********************************************************************/
-void insert(LIST list, void *node) {
-  LIST element;
-
-  if (list != NIL_LIST) {
-    element = push(NIL_LIST, node);
-    set_rest(element, list_rest(list));
-    set_rest(list, element);
-    node = first_node(list);
-    list->node = first_node(list_rest(list));
-    list->next->node = (LIST)node;
-  }
-}
-
-/**********************************************************************
  *  l a s t
  *
  *  Return the last list item (this is list type).
@@ -226,19 +207,6 @@ LIST push_last(LIST list, void *item) {
     return (list);
   } else
     return (push(NIL_LIST, item));
-}
-
-/**********************************************************************
- *  r e v e r s e
- *
- *  Create a new list with the elements reversed. The old list is not
- *  destroyed.
- **********************************************************************/
-LIST reverse(LIST list) {
-  LIST newlist = NIL_LIST;
-
-  iterate(list) copy_first(list, newlist);
-  return (newlist);
 }
 
 /**********************************************************************

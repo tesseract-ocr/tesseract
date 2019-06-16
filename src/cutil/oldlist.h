@@ -38,10 +38,6 @@
  * -----------------
  * iterate           - Macro to create a for loop to visit each cell.
  *
- * COPYING:
- * -----------------
- * reverse           - (Deprecated) Creates a backwards copy of the input list.
- *
  * LIST CELL COUNTS:
  * -----------------
  * count             - Returns the number of list cells in the list.
@@ -50,8 +46,6 @@
  * TRANSFORMS:             (Note: These functions all modify the input list.)
  * ----------
  * delete_d          - Removes the requested elements from the list.
- * insert            - (Deprecated) Add a new element into this spot in a list.
-                       (not NIL_LIST)
  * push_last         - Add a new element onto the end of a list.
  *
  * SETS:
@@ -130,8 +124,6 @@ LIST destroy(LIST list);
 
 void destroy_nodes(LIST list, void_dest destructor);
 
-void insert(LIST list, void *node);
-
 LIST last(LIST var_list);
 
 LIST pop(LIST list);
@@ -139,8 +131,6 @@ LIST pop(LIST list);
 LIST push(LIST list, void* element);
 
 LIST push_last(LIST list, void* item);
-
-LIST reverse(LIST list);
 
 LIST search(LIST list, void* key, int_compare is_equal);
 
