@@ -216,28 +216,11 @@ class ChoiceIterator {
   // probabilities won't add up to 100. Each one stands on its own.
   float Confidence() const;
 
-  // Returns a vector containing all timesteps, which belong to the currently
-  // selected symbol. A timestep is a vector containing pairs of symbols and
-  // floating point numbers. The number states the probability for the
-  // corresponding symbol.
-  std::vector<std::vector<std::pair<const char*, float>>>* Timesteps() const;
-
  private:
-   //clears the remaining spaces out of the results and adapt the probabilities
-  void filterSpaces();
   // Pointer to the WERD_RES object owned by the API.
   WERD_RES* word_res_;
   // Iterator over the blob choices.
   BLOB_CHOICE_IT* choice_it_;
-  std::vector<std::pair<const char*, float>>* LSTM_choices_ = nullptr;
-  std::vector<std::pair<const char*, float>>::iterator LSTM_choice_it_;
-
-  const int* tstep_index_;
-  bool LSTM_mode_ = false;
-  //true when there is lstm engine related trained data
-  bool oemLSTM_;
-  // true when there is legacy engine related trained data
-  bool oemLegacy_;
 };
 
 }  // namespace tesseract.

@@ -187,7 +187,6 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   GenericVector<const RecodeNode*> best_nodes;
   GenericVector<const RecodeNode*> second_nodes;
   std::deque<std::tuple<int, int>> best_choices;
-  std::deque<std::tuple<int, int>> best_choices_acc;
   ExtractBestPaths(&best_nodes, &second_nodes);
   if (debug) {
     DebugPath(unicharset, best_nodes);
@@ -197,18 +196,15 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     DebugUnicharPath(unicharset, second_nodes, unichar_ids, certs, ratings,
                      xcoords);
   }
-  int timestepEndRaw = 0;
-  int timestepEnd = 0;
-  int timestepEnd_acc = 0;
+  int timestepEnd= 0;
   //if lstm choice mode is required in granularity level 2 it stores the x
   //Coordinates of every chosen character to match the alternative choices to it
-  if (lstm_choice_mode) {
+  if (lstm_choice_mode == 2) {
     ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
-                            &xcoords, &best_choices, &best_choices_acc);
+                            &xcoords, &best_choices);
     if (best_choices.size() > 0) {
       timestepEnd = std::get<1>(best_choices.front());
-      timestepEnd_acc = std::get<1>(best_choices_acc.front());
-      best_choices_acc.pop_front();
+      best_choices.pop_front();
     }
   } else {
     ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
@@ -244,22 +240,23 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
     WERD_RES* word_res = InitializeWord(
         leading_space, line_box, word_start, word_end,
         std::min(space_cert, prev_space_cert), unicharset, xcoords, scale_factor);
-    if (lstm_choice_mode) {
-      for (size_t i = timestepEndRaw; i < xcoords[word_end]; i++) {
-        word_res->raw_timesteps.push_back(timesteps[i]);
+    if (lstm_choice_mode == 1) {
+      for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
+        word_res->timesteps.push_back(timesteps[i]);
       }
-      timestepEndRaw = xcoords[word_end];
+      timestepEnd = xcoords[word_end];
+    } else if (lstm_choice_mode == 2){
       // Accumulated Timesteps (choice mode 2 processing)
       float sum = 0;
       std::vector<std::pair<const char*, float>> choice_pairs;
-      for (size_t i = timestepEnd_acc; i < xcoords[word_end]; i++) {
+      for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
         for (std::pair<const char*, float> choice : timesteps[i]) {
           if (std::strcmp(choice.first, "")) {
             sum += choice.second;
             choice_pairs.push_back(choice);
           }
         }
-        if ((best_choices_acc.size() > 0 && i == std::get<1>(best_choices_acc.front()) - 1)
+        if ((best_choices.size() > 0 && i == std::get<1>(best_choices.front()) - 1)
             || i == xcoords[word_end]-1) {
           std::map<const char*, float> summed_propabilities;
           for (auto & choice_pair : choice_pairs) {
@@ -278,32 +275,14 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
                                         std::pair<const char*,float>(summed_propability.first,
                                         summed_propability.second));
           }
-          if (best_choices_acc.size() > 0) {
-            best_choices_acc.pop_front();
+          if (best_choices.size() > 0) {
+            best_choices.pop_front();
           }
           choice_pairs.clear();
-          word_res->accumulated_timesteps.push_back(accumulated_timestep);
+          word_res->timesteps.push_back(accumulated_timestep);
           sum = 0;
         }
       }
-      timestepEnd_acc = xcoords[word_end];
-      //Symbol Step (choice mode 3 processing)
-      std::vector<std::vector<std::pair<const char*, float>>> currentSymbol;
-      for (size_t i = timestepEnd; i < xcoords[word_end]; i++) {
-        if (i == std::get<1>(best_choices.front())) {
-          if (currentSymbol.size() > 0) {
-            word_res->symbol_steps.push_back(currentSymbol);
-            currentSymbol.clear();
-          }
-          const char* leadCharacter =
-              unicharset->id_to_unichar_ext(std::get<0>(best_choices.front()));
-          if (!strcmp(leadCharacter, " "))
-            word_res->leadingSpace = true;
-          if(best_choices.size()>1) best_choices.pop_front();
-        }
-        currentSymbol.push_back(timesteps[i]);
-      }
-      word_res->symbol_steps.push_back(currentSymbol);
       timestepEnd = xcoords[word_end];
     }
     for (int i = word_start; i < word_end; ++i) {
@@ -379,8 +358,7 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
     const GenericVector<const RecodeNode*>& best_nodes,
     GenericVector<int>* unichar_ids, GenericVector<float>* certs,
     GenericVector<float>* ratings, GenericVector<int>* xcoords,
-    std::deque<std::tuple<int, int>>* best_choices,
-    std::deque<std::tuple<int, int>>* best_choices_acc) {
+    std::deque<std::tuple<int, int>>* best_choices) {
   unichar_ids->truncate(0);
   certs->truncate(0);
   ratings->truncate(0);
@@ -433,8 +411,6 @@ void RecodeBeamSearch::ExtractPathAsUnicharIds(
     }
     if (best_choices != nullptr) {
       best_choices->push_back(
-          std::tuple<int, int>(id, tposition));
-      best_choices_acc->push_back(
           std::tuple<int, int>(id, tposition));
     }
   }

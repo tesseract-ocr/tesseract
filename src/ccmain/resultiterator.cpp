@@ -604,28 +604,11 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   strncpy(result, text.string(), length);
   return result;
 }
-std::vector<std::vector<std::pair<const char*, float>>>*
-ResultIterator::GetRawLSTMTimesteps() const {
-  if (it_->word() != nullptr) {
-    return &it_->word()->raw_timesteps;
-  } else {
-    return nullptr;
-  }
-}
 
 std::vector<std::vector<std::pair<const char*, float>>>*
   ResultIterator::GetBestLSTMSymbolChoices() const {
   if (it_->word() != nullptr) {
-    return &it_->word()->accumulated_timesteps;
-  } else {
-    return nullptr;
-  }
-}
-
-std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
-  ResultIterator::GetSegmentedLSTMTimesteps() const {
-  if (it_->word() != nullptr) {
-    return &it_->word()->symbol_steps;
+    return &it_->word()->timesteps;
   } else {
     return nullptr;
   }
