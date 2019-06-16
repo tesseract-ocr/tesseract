@@ -209,13 +209,17 @@ parse_flags() {
             TESSDATA_DIR="${TESSDATA_PREFIX}"
         fi
     fi
+    if [[ ! -d "${OUTPUT_DIR}" ]]; then
+        tlog "Creating new directory ${OUTPUT_DIR}"
+        mkdir -p "${OUTPUT_DIR}"
+    fi
 
     # Location where intermediate files will be created.
     TIMESTAMP=$(date +%Y-%m-%d)
     if [[ -z ${TMP_DIR:-} ]]; then
         TMP_DIR=$(mktemp -d -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     else
-	TMP_DIR=$(mktemp -d -p ${TMP_DIR} -t ${LANG_CODE}-${TIMESTAMP}.XXX)
+        TMP_DIR=$(mktemp -d -p ${TMP_DIR} -t ${LANG_CODE}-${TIMESTAMP}.XXX)
     fi
     TRAINING_DIR=${TMP_DIR}
     # Location of log file for the whole run.
