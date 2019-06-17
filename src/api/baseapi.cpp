@@ -254,22 +254,12 @@ size_t TessBaseAPI::getOpenCLDevice(void **data) {
 }
 
 /**
- * Writes the thresholded image to stderr as a PBM file on receipt of a
- * SIGSEGV, SIGFPE, or SIGBUS signal. (Linux/Unix only).
+ * This method used to write the thresholded image to stderr as a PBM file
+ * on receipt of a SIGSEGV, SIGFPE, or SIGBUS signal. (Linux/Unix only).
  */
 void TessBaseAPI::CatchSignals() {
-#ifdef __linux__
-  struct sigaction action;
-  memset(&action, 0, sizeof(action));
-  action.sa_handler = &signal_exit;
-  action.sa_flags = SA_RESETHAND;
-  sigaction(SIGSEGV, &action, nullptr);
-  sigaction(SIGFPE, &action, nullptr);
-  sigaction(SIGBUS, &action, nullptr);
-#else
   // Warn API users that an implementation is needed.
-  tprintf("CatchSignals has no non-linux implementation!\n");
-#endif
+  tprintf("Deprecated method CatchSignals has only a dummy implementation!\n");
 }
 
 /**
