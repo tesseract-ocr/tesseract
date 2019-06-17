@@ -327,7 +327,7 @@ tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 textlineprojection_test_SOURCES = textlineprojection_test.cc
-textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
 tfile_test_SOURCES = tfile_test.cc
 tfile_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
