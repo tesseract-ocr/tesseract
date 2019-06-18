@@ -112,11 +112,7 @@ FEATURE NewFeature(const FEATURE_DESC_STRUCT* FeatureDesc);
 
 FEATURE_SET NewFeatureSet(int NumFeatures);
 
-FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc);
-
 FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc);
-
-void WriteFeature(FEATURE Feature, STRING* str);
 
 void WriteFeatureSet(FEATURE_SET FeatureSet, STRING* str);
 

@@ -113,7 +113,7 @@ FEATURE_SET NewFeatureSet(int NumFeatures) {
  * @param FeatureDesc specifies type of feature to read from File
  * @return New #FEATURE read from File.
  */
-FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
+static FEATURE ReadFeature(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
   FEATURE Feature;
   int i;
 
@@ -144,7 +144,7 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
 
   FEATURE_SET FeatureSet = NewFeatureSet(NumFeatures);
   for (int i = 0; i < NumFeatures; i++)
-    AddFeature(FeatureSet, ReadFeature (File, FeatureDesc));
+    AddFeature(FeatureSet, ReadFeature(File, FeatureDesc));
 
   return FeatureSet;
 }
@@ -159,7 +159,7 @@ FEATURE_SET ReadFeatureSet(FILE* File, const FEATURE_DESC_STRUCT* FeatureDesc) {
  * @param Feature feature to write out to str
  * @param str string to write Feature to
  */
-void WriteFeature(FEATURE Feature, STRING* str) {
+static void WriteFeature(FEATURE Feature, STRING* str) {
   for (int i = 0; i < Feature->Type->NumParams; i++) {
 #ifndef WIN32
     assert(!std::isnan(Feature->Params[i]));
