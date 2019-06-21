@@ -793,48 +793,6 @@ NewPermanentTessCallback(R (*function)(A1, A2)) {
   return new _TessFunctionResultCallback_0_2<false, R, A1, A2>(function);
 }
 
-template <bool del, class R, class T, class P1, class P2, class A1, class A2>
-class _TessMemberResultCallback_2_2 : public TessResultCallback2<R, A1, A2> {
- public:
-  typedef TessResultCallback2<R, A1, A2> base;
-  using MemberSignature = R (T::*)(P1, P2, A1, A2);
-
- private:
-  T* object_;
-  MemberSignature member_;
-  typename remove_reference<P1>::type p1_;
-  typename remove_reference<P2>::type p2_;
-
- public:
-  inline _TessMemberResultCallback_2_2(T* object, MemberSignature member, P1 p1,
-                                       P2 p2)
-      : object_(object), member_(member), p1_(p1), p2_(p2) {}
-
-  R Run(A1 a1, A2 a2) override {
-    if (!del) {
-      R result = (object_->*member_)(p1_, p2_, a1, a2);
-      return result;
-    }
-    R result = (object_->*member_)(p1_, p2_, a1, a2);
-    //  zero out the pointer to ensure segfault if used again
-    member_ = nullptr;
-    delete this;
-    return result;
-  }
-};
-
-#ifndef SWIG
-template <class T1, class T2, class R, class P1, class P2, class A1, class A2>
-inline
-    typename _TessMemberResultCallback_2_2<false, R, T1, P1, P2, A1, A2>::base*
-    NewPermanentTessCallback(T1* obj, R (T2::*member)(P1, P2, A1, A2),
-                             typename Identity<P1>::type p1,
-                             typename Identity<P2>::type p2) {
-  return new _TessMemberResultCallback_2_2<false, R, T1, P1, P2, A1, A2>(
-      obj, member, p1, p2);
-}
-#endif
-
 template <bool del, class R, class T, class A1, class A2, class A3>
 class _ConstTessMemberResultCallback_0_3
     : public TessResultCallback3<R, A1, A2, A3> {
