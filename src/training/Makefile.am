@@ -37,6 +37,7 @@ noinst_HEADERS = \
     lang_model_helpers.h \
     ligature_table.h \
     lstmtester.h \
+    lstmtrainer.h \
     normstrngs.h \
     pango_font_info.h \
     stringrenderer.h \
@@ -71,6 +72,7 @@ libtesseract_training_la_SOURCES = \
     lang_model_helpers.cpp \
     ligature_table.cpp \
     lstmtester.cpp \
+    lstmtrainer.cpp \
     normstrngs.cpp \
     pango_font_info.cpp \
     stringrenderer.cpp \
