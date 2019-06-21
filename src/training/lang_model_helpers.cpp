@@ -199,8 +199,6 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
   if (!WriteUnicharset(unicharset, output_dir, lang, writer, &traineddata)) {
     tprintf("Error writing unicharset!!\n");
     return EXIT_FAILURE;
-  } else {
-    tprintf("Config file is optional, continuing...\n");
   }
   // If there is a config file, read it and add to traineddata.
   std::string config_filename = script_dir + "/" + lang + "/" + lang + ".config";
@@ -208,6 +206,8 @@ int CombineLangModel(const UNICHARSET& unicharset, const std::string& script_dir
   if (config_file.length() > 0) {
     traineddata.OverwriteEntry(TESSDATA_LANG_CONFIG, &config_file[0],
                                config_file.length());
+  } else {
+    tprintf("Config file is optional, continuing...\n");
   }
   std::string radical_filename = script_dir + "/radical-stroke.txt";
   STRING radical_data = ReadFile(radical_filename, reader);
