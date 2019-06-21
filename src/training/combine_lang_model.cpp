@@ -25,7 +25,7 @@
 static STRING_PARAM_FLAG(input_unicharset, "",
                          "Filename with unicharset to complete and use in encoding");
 static STRING_PARAM_FLAG(script_dir, "",
-                         "Directory name for input script unicharsets");
+                         "Directory name for input langdata");
 static STRING_PARAM_FLAG(words, "",
                          "File listing words to use for the system dictionary");
 static STRING_PARAM_FLAG(puncs, "", "File listing punctuation patterns");
@@ -71,7 +71,9 @@ int main(int argc, char** argv) {
   tesseract::SetupBasicProperties(/*report_errors*/ true,
                                   /*decompose (NFD)*/ false, &unicharset);
   tprintf("Setting script properties\n");
-  tesseract::SetScriptProperties(FLAGS_script_dir.c_str(), &unicharset);
+  std::string script_dirname = FLAGS_script_dir.string() + std::string("/script"); 
+  tesseract::SetScriptProperties(script_dirname, &unicharset);
+
   // Combine everything into a traineddata file.
   return tesseract::CombineLangModel(
       unicharset, FLAGS_script_dir.c_str(), FLAGS_version_str.c_str(),

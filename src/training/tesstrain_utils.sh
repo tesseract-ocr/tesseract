@@ -357,7 +357,7 @@ phase_UP_generate_unicharset() {
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"
     run_command set_unicharset_properties \
         -U ${UNICHARSET_FILE} -O ${UNICHARSET_FILE} -X ${XHEIGHTS_FILE} \
-        --script_dir=${LANGDATA_ROOT}
+        --script_dir=${LANGDATA_ROOT}/script
     check_file_readable ${XHEIGHTS_FILE}
 }
 
@@ -555,10 +555,7 @@ phase_B_generate_ambiguities() {
 make__lstmdata() {
   tlog "\n=== Constructing LSTM training data ==="
   local lang_prefix="${LANGDATA_ROOT}/${LANG_CODE}/${LANG_CODE}"
-  if [[ ! -d "${OUTPUT_DIR}" ]]; then
-      tlog "Creating new directory ${OUTPUT_DIR}"
-      mkdir -p "${OUTPUT_DIR}"
-  fi
+
   local lang_is_rtl=""
   if [[ "${LANG_IS_RTL}" == "1" ]]; then
     lang_is_rtl="--lang_is_rtl"
@@ -619,10 +616,6 @@ make__traineddata() {
   run_command combine_tessdata ${TRAINING_DIR}/${LANG_CODE}.
 
   # Copy it to the output dir, overwriting only if allowed by the cmdline flag.
-  if [[ ! -d ${OUTPUT_DIR} ]]; then
-      tlog "Creating new directory ${OUTPUT_DIR}"
-      mkdir -p ${OUTPUT_DIR}
-  fi
   local destfile=${OUTPUT_DIR}/${LANG_CODE}.traineddata;
   if [[ -f ${destfile} ]] && ! $OVERWRITE; then
       err_exit "File ${destfile} exists and no --overwrite specified";
