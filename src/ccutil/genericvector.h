@@ -140,11 +140,15 @@ class GenericVector {
 
   // Add a callback to be called to delete the elements when the array took
   // their ownership.
-  void set_clear_callback(TessCallback1<T>* cb);
+  void set_clear_callback(TessCallback1<T>* cb) {
+    clear_cb_ = cb;
+  }
 
   // Add a callback to be called to compare the elements when needed (contains,
   // get_id, ...)
-  void set_compare_callback(TessResultCallback2<bool, T const&, T const&>* cb);
+  void set_compare_callback(TessResultCallback2<bool, T const&, T const&>* cb) {
+    compare_cb_ = cb;
+  }
 
   // Clear the array, calling the clear callback function if any.
   // All the owned callbacks are also deleted.
@@ -899,21 +903,6 @@ GenericVector<T>& GenericVector<T>::operator=(const GenericVector& other) {
     this->operator+=(other);
   }
   return *this;
-}
-
-// Add a callback to be called to delete the elements when the array took
-// their ownership.
-template <typename T>
-void GenericVector<T>::set_clear_callback(TessCallback1<T>* cb) {
-  clear_cb_ = cb;
-}
-
-// Add a callback to be called to delete the elements when the array took
-// their ownership.
-template <typename T>
-void GenericVector<T>::set_compare_callback(
-    TessResultCallback2<bool, T const&, T const&>* cb) {
-  compare_cb_ = cb;
 }
 
 // Clear the array, calling the callback function if any.
