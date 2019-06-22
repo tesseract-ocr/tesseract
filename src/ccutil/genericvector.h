@@ -286,14 +286,6 @@ class GenericVector {
     size_used_ = last_write + 1;
   }
 
-  T dot_product(const GenericVector<T>& other) const {
-    T result = static_cast<T>(0);
-    for (int i = std::min(size_used_, other.size_used_) - 1; i >= 0; --i) {
-      result += data_[i] * other.data_[i];
-    }
-    return result;
-  }
-
   // Returns the index of what would be the target_index_th item in the array
   // if the members were sorted, without actually sorting. Members are
   // shuffled around, but it takes O(n) time.
