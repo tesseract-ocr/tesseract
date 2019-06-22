@@ -179,6 +179,8 @@ set(unicharset_training_src
     lang_model_helpers.h
     lstmtester.cpp
     lstmtester.h
+    lstmtrainer.cpp
+    lstmtrainer.h
     normstrngs.cpp
     normstrngs.h
     unicharset_training_utils.cpp
