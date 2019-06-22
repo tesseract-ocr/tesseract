@@ -2,10 +2,6 @@
 # tesseract
 #
 
-if (NOT CPPAN_BUILD AND NOT (WIN32 OR CYGWIN))
-    return()
-endif()
-
 if (CPPAN_BUILD)
     set(ICU_FOUND 1)
 endif()
