@@ -286,25 +286,6 @@ class GenericVector {
     size_used_ = last_write + 1;
   }
 
-  // Compact the vector by deleting elements for which delete_cb returns
-  // true. delete_cb is a permanent callback and will be deleted.
-  void compact(TessResultCallback1<bool, int>* delete_cb) {
-    int new_size = 0;
-    int old_index = 0;
-    // Until the callback returns true, the elements stay the same.
-    while (old_index < size_used_ && !delete_cb->Run(old_index++)) {
-      ++new_size;
-    }
-    // Now just copy anything else that gets false from delete_cb.
-    for (; old_index < size_used_; ++old_index) {
-      if (!delete_cb->Run(old_index)) {
-        data_[new_size++] = data_[old_index];
-      }
-    }
-    size_used_ = new_size;
-    delete delete_cb;
-  }
-
   T dot_product(const GenericVector<T>& other) const {
     T result = static_cast<T>(0);
     for (int i = std::min(size_used_, other.size_used_) - 1; i >= 0; --i) {
