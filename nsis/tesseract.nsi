@@ -100,10 +100,12 @@ BrandingText /TRIMCENTER "(c) 2010-2019 ${PRODUCT_NAME}"
 !define MUI_FINISHPAGE_LINK "View Tesseract on GitHub"
 !define MUI_FINISHPAGE_LINK_LOCATION "https://github.com/tesseract-ocr/tesseract"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+!ifdef SHOW_README
 ; Showing the README does not work.
-;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\doc\README.md"
-;!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
-;!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\doc\README.md"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION ShowReadme
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show README"
+!endif
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME StartMenuGroup
@@ -1392,10 +1394,12 @@ Function .onInstFailed
   MessageBox MB_OK "Installation failed."
 FunctionEnd
 
+!ifdef SHOW_README
 Function ShowReadme
   Exec '"wordpad" "doc\README.md"'
   ;BringToFront
 FunctionEnd
+!endif
 
 ; Prevent running multiple instances of the installer
 Function PreventMultipleInstances
