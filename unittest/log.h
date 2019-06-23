@@ -45,11 +45,11 @@ static inline std::ostream& LOG(enum LogLevel level)
 // https://github.com/google/ion/blob/master/ion/base/logging.h
 static inline std::ostream& QCHECK(bool condition)
 {
-  static std::ostream null_stream(nullptr);
   if (condition) {
-    return std::cout;
+    static std::ostream null_stream(nullptr);
+    return null_stream;
   }
-  return null_stream;
+  return std::cout;
 }
 
 #endif  // TESSERACT_UNITTEST_LOG_H_
