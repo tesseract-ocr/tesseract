@@ -53,7 +53,7 @@ Supported Compilers are:
 
 * GCC 4.8 and above
 * Clang 3.4 and above
-* MSVC 2015, 2017
+* MSVC 2015, 2017, 2019
 
 Other compilers might work, but are not officially supported.
 
