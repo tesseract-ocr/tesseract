@@ -273,6 +273,7 @@ matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 normstrngs_test_SOURCES = normstrngs_test.cc
+normstrngs_test_SOURCES += third_party/utf/rune.c util/utf8/unilib.cc
 normstrngs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 nthitem_test_SOURCES = nthitem_test.cc
