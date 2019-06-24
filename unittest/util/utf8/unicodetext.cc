@@ -425,22 +425,22 @@ char32 UnicodeText::const_iterator::operator*() const {
   // for speed, we do the calculation ourselves.)
 
   // Convert from UTF-8
-  int byte1 = it_[0];
+  unsigned char byte1 = it_[0];
   if (byte1 < 0x80)
     return byte1;
 
-  int byte2 = it_[1];
+  unsigned char byte2 = it_[1];
   if (byte1 < 0xE0)
     return ((byte1 & 0x1F) << 6)
           | (byte2 & 0x3F);
 
-  int byte3 = it_[2];
+  unsigned char byte3 = it_[2];
   if (byte1 < 0xF0)
     return ((byte1 & 0x0F) << 12)
          | ((byte2 & 0x3F) << 6)
          |  (byte3 & 0x3F);
 
-  int byte4 = it_[3];
+  unsigned char byte4 = it_[3];
   return ((byte1 & 0x07) << 18)
        | ((byte2 & 0x3F) << 12)
        | ((byte3 & 0x3F) << 6)
@@ -458,9 +458,9 @@ UnicodeText::const_iterator& UnicodeText::const_iterator::operator--() {
 }
 
 int UnicodeText::const_iterator::get_utf8(char* utf8_output) const {
-  utf8_output[0] = it_[0]; if (it_[0] < 0x80) return 1;
-  utf8_output[1] = it_[1]; if (it_[0] < 0xE0) return 2;
-  utf8_output[2] = it_[2]; if (it_[0] < 0xF0) return 3;
+  utf8_output[0] = it_[0]; if ((it_[0] & 0xff) < 0x80) return 1;
+  utf8_output[1] = it_[1]; if ((it_[0] & 0xff) < 0xE0) return 2;
+  utf8_output[2] = it_[2]; if ((it_[0] & 0xff) < 0xF0) return 3;
   utf8_output[3] = it_[3];
   return 4;
 }
@@ -470,11 +470,11 @@ string UnicodeText::const_iterator::get_utf8_string() const {
 }
 
 int UnicodeText::const_iterator::utf8_length() const {
-  if (it_[0] < 0x80) {
+  if ((it_[0] & 0xff) < 0x80) {
     return 1;
-  } else if (it_[0] < 0xE0) {
+  } else if ((it_[0] & 0xff) < 0xE0) {
     return 2;
-  } else if (it_[0] < 0xF0) {
+  } else if ((it_[0] & 0xff) < 0xF0) {
     return 3;
   } else {
     return 4;
