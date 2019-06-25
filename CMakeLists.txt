@@ -127,10 +127,10 @@ if (WIN32)
 endif()
 
 if (OPENMP_BUILD)
-    if (CLANG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-    else(MSVC)
+    if (MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+    else()
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
     endif()
 endif()
 
