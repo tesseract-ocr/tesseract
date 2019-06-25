@@ -173,7 +173,13 @@ class UNICHARSET {
       U_POP_DIRECTIONAL_FORMAT      = 16,
       U_DIR_NON_SPACING_MARK        = 17,
       U_BOUNDARY_NEUTRAL            = 18,
+      U_FIRST_STRONG_ISOLATE        = 19,
+      U_LEFT_TO_RIGHT_ISOLATE       = 20,
+      U_RIGHT_TO_LEFT_ISOLATE       = 21,
+      U_POP_DIRECTIONAL_ISOLATE     = 22,
+#ifndef U_HIDE_DEPRECATED_API
       U_CHAR_DIRECTION_COUNT
+#endif  // U_HIDE_DEPRECATED_API
   };
 
   // Create an empty UNICHARSET
