@@ -431,12 +431,10 @@ AM_CONDITIONAL([ENABLE_TRAINING], true)
 PKG_CHECK_MODULES([ICU_UC], [icu-uc >= 52.1], [have_icu_uc=true], [have_icu_uc=false])
 PKG_CHECK_MODULES([ICU_I18N], [icu-i18n >= 52.1], [have_icu_i18n=true], [have_icu_i18n=false])
 if !($have_icu_uc && $have_icu_i18n); then
-  if !($have_icu); then
-        AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
-        AC_MSG_WARN([Training tools WILL NOT be built.])
-        AC_MSG_WARN([Try to install libicu-devel package.])
-        AM_CONDITIONAL([ENABLE_TRAINING], false)
-  fi
+  AC_MSG_WARN([icu 52.1 or higher is required, but was not found.])
+  AC_MSG_WARN([Training tools WILL NOT be built.])
+  AC_MSG_WARN([Try to install libicu-devel package.])
+  AM_CONDITIONAL([ENABLE_TRAINING], false)
 else
   CPPFLAGS="$CPPFLAGS $ICU_UC_CFLAGS $ICU_I18N_CFLAGS"
 fi
