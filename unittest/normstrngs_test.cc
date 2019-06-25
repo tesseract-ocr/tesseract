@@ -363,7 +363,7 @@ TEST(NormstrngsTest, SpanUTF8NotWhitespace) {
   EXPECT_EQ(12, SpanUTF8NotWhitespace(kMixedText));
 }
 
-// Test that the method clones the util/utf8/public/unilib definition of
+// Test that the method clones the util/utf8/unilib definition of
 // interchange validity.
 TEST(NormstrngsTest, IsInterchangeValid) {
 #ifdef INCLUDE_TENSORFLOW
@@ -378,7 +378,7 @@ TEST(NormstrngsTest, IsInterchangeValid) {
 #endif
 }
 
-// Test that the method clones the util/utf8/public/unilib definition of
+// Test that the method clones the util/utf8/unilib definition of
 // 7-bit ASCII interchange validity.
 TEST(NormstrngsTest, IsInterchangeValid7BitAscii) {
 #if defined(MISSING_CODE) && defined(INCLUDE_TENSORFLOW)
@@ -396,7 +396,7 @@ TEST(NormstrngsTest, IsInterchangeValid7BitAscii) {
 #endif
 }
 
-// Test that the method clones the util/utf8/public/unilib definition of
+// Test that the method clones the util/utf8/unilib definition of
 // fullwidth-halfwidth .
 TEST(NormstrngsTest, FullwidthToHalfwidth) {
   // U+FF21 -> U+0041 (Latin capital letter A)
