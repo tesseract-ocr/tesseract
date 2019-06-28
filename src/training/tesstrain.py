@@ -50,7 +50,7 @@ def setup_logging_console():
 
 
 def setup_logging_logfile(logfile):
-    logfile = logging.FileHandler(logfile)
+    logfile = logging.FileHandler(logfile, encoding='utf-8')
     logfile.setLevel(logging.DEBUG)
     logfile_formatter = logging.Formatter(
         "[%(asctime)s] - %(levelname)s - %(name)s - %(message)s"
