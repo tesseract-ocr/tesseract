@@ -43,6 +43,9 @@ endif
 AM_CPPFLAGS += -I$(top_srcdir)/src/viewer
 AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 AM_CPPFLAGS += -I$(top_srcdir)/abseil
+if TENSORFLOW
+AM_CPPFLAGS += -DINCLUDE_TENSORFLOW
+endif
 
 # Build googletest:
 check_LTLIBRARIES = libgtest.la libgtest_main.la libgmock.la libgmock_main.la
@@ -158,7 +161,9 @@ check_PROGRAMS += lstm_squashed_test
 check_PROGRAMS += lstm_test
 check_PROGRAMS += lstmtrainer_test
 check_PROGRAMS += normstrngs_test
+if TENSORFLOW
 check_PROGRAMS += pango_font_info_test
+endif
 check_PROGRAMS += unichar_test
 check_PROGRAMS += unicharcompress_test
 check_PROGRAMS += unicharset_test
@@ -273,7 +278,9 @@ matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 normstrngs_test_SOURCES = normstrngs_test.cc
+if TENSORFLOW
 normstrngs_test_SOURCES += third_party/utf/rune.c util/utf8/unilib.cc
+endif
 normstrngs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 
 nthitem_test_SOURCES = nthitem_test.cc
@@ -282,6 +289,7 @@ nthitem_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 osd_test_SOURCES = osd_test.cc
 osd_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
+if TENSORFLOW
 pango_font_info_test_SOURCES = pango_font_info_test.cc
 pango_font_info_test_SOURCES += third_party/utf/rune.c
 pango_font_info_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
@@ -289,6 +297,7 @@ pango_font_info_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(LEP
 pango_font_info_test_LDADD += $(ICU_I18N_LIBS) -lfontconfig
 pango_font_info_test_LDADD += -lpangocairo-1.0 -lpangoft2-1.0
 pango_font_info_test_LDADD += $(cairo_LIBS) $(pango_LIBS)
+endif
 
 paragraphs_test_SOURCES = paragraphs_test.cc
 paragraphs_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
