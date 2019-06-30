@@ -117,7 +117,9 @@ check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
 check_PROGRAMS += dawg_test
 check_PROGRAMS += denorm_test
-# check_PROGRAMS += equationdetect_test
+if TENSORFLOW
+check_PROGRAMS += equationdetect_test
+endif
 check_PROGRAMS += fileio_test
 check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
@@ -215,6 +217,11 @@ dawg_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
 denorm_test_SOURCES = denorm_test.cc
 denorm_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+if TENSORFLOW
+equationdetect_test_SOURCES = equationdetect_test.cc
+equationdetect_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+endif
 
 fileio_test_SOURCES = fileio_test.cc
 fileio_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)

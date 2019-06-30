@@ -52,9 +52,10 @@ public:
 
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define CHECK(test) ASSERT_HOST(test)
-#define CHECK_GT(test, value) ASSERT_HOST((test) > (value))
-#define CHECK_LT(test, value) ASSERT_HOST((test) < (value))
-#define CHECK_LE(test, value) ASSERT_HOST((test) <= (value))
-#define CHECK_OK(test) ASSERT_HOST(test)
+#define CHECK_EQ(test, value) CHECK((test) == (value))
+#define CHECK_GT(test, value) CHECK((test) > (value))
+#define CHECK_LT(test, value) CHECK((test) < (value))
+#define CHECK_LE(test, value) CHECK((test) <= (value))
+#define CHECK_OK(test) CHECK(test)
 
 #endif  // TESSERACT_UNITTEST_INCLUDE_GUNIT_H_
