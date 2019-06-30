@@ -45,6 +45,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/src/wordrec
 AM_CPPFLAGS += -I$(top_srcdir)/abseil
 if TENSORFLOW
 AM_CPPFLAGS += -DINCLUDE_TENSORFLOW
+AM_CPPFLAGS += -I/usr/include/tensorflow
 endif
 
 # Build googletest:
@@ -133,7 +134,9 @@ check_PROGRAMS += linlsq_test
 check_PROGRAMS += loadlang_test
 check_PROGRAMS += mastertrainer_test
 check_PROGRAMS += matrix_test
-# check_PROGRAMS += networkio_test
+if TENSORFLOW
+check_PROGRAMS += networkio_test
+endif
 check_PROGRAMS += nthitem_test
 check_PROGRAMS += osd_test
 # check_PROGRAMS += pagesegmode_test
@@ -283,6 +286,11 @@ mastertrainer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS)
 
 matrix_test_SOURCES = matrix_test.cc
 matrix_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+if TENSORFLOW
+networkio_test_SOURCES = networkio_test.cc
+networkio_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+endif
 
 normstrngs_test_SOURCES = normstrngs_test.cc
 if TENSORFLOW
