@@ -149,8 +149,10 @@ check_PROGRAMS += rect_test
 check_PROGRAMS += resultiterator_test
 check_PROGRAMS += scanutils_test
 check_PROGRAMS += shapetable_test
-# check_PROGRAMS += stridemap_test
 check_PROGRAMS += stats_test
+if TENSORFLOW
+check_PROGRAMS += stridemap_test
+endif
 check_PROGRAMS += stringrenderer_test
 check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
@@ -344,6 +346,11 @@ shapetable_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
 
 stats_test_SOURCES = stats_test.cc
 stats_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+
+if TENSORFLOW
+stridemap_test_SOURCES = stridemap_test.cc
+stridemap_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+endif
 
 stringrenderer_test_SOURCES = stringrenderer_test.cc
 stringrenderer_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TRAINING_LIBS) $(LEPTONICA_LIBS) $(ICU_I18N_LIBS) $(ICU_UC_LIBS) -lfontconfig -lpangocairo-1.0 -lpangoft2-1.0 $(cairo_LIBS) $(pango_LIBS)
