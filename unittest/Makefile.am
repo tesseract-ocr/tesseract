@@ -112,7 +112,9 @@ AM_CPPFLAGS +=   -isystem $(top_srcdir)/googletest/googletest/include \
 check_PROGRAMS = apiexample_test
 check_PROGRAMS += applybox_test
 check_PROGRAMS += baseapi_test
-# check_PROGRAMS += baseapi_thread_test
+if TENSORFLOW
+check_PROGRAMS += baseapi_thread_test
+endif
 check_PROGRAMS += bitvector_test
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
@@ -202,8 +204,10 @@ applybox_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 baseapi_test_SOURCES = baseapi_test.cc
 baseapi_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
 
-#baseapi_thread_test_SOURCES = baseapi_thread_test.cc
-#baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+if TENSORFLOW
+baseapi_thread_test_SOURCES = baseapi_thread_test.cc
+baseapi_thread_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS)
+endif
 
 bitvector_test_SOURCES = bitvector_test.cc
 bitvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
