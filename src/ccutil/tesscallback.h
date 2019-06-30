@@ -526,42 +526,4 @@ NewPermanentTessCallback(R (*function)(A1, A2)) {
   return new _TessFunctionResultCallback_0_2<false, R, A1, A2>(function);
 }
 
-template <bool del, class R, class T, class A1, class A2, class A3, class A4>
-class _TessMemberResultCallback_0_4
-    : public TessResultCallback4<R, A1, A2, A3, A4> {
- public:
-  typedef TessResultCallback4<R, A1, A2, A3, A4> base;
-  using MemberSignature = R (T::*)(A1, A2, A3, A4);
-
- private:
-  T* object_;
-  MemberSignature member_;
-
- public:
-  inline _TessMemberResultCallback_0_4(T* object, MemberSignature member)
-      : object_(object), member_(member) {}
-
-  virtual R Run(A1 a1, A2 a2, A3 a3, A4 a4) {
-    if (!del) {
-      R result = (object_->*member_)(a1, a2, a3, a4);
-      return result;
-    }
-    R result = (object_->*member_)(a1, a2, a3, a4);
-    //  zero out the pointer to ensure segfault if used again
-    member_ = nullptr;
-    delete this;
-    return result;
-  }
-};
-
-#ifndef SWIG
-template <class T1, class T2, class R, class A1, class A2, class A3, class A4>
-inline
-    typename _TessMemberResultCallback_0_4<false, R, T1, A1, A2, A3, A4>::base*
-    NewPermanentTessCallback(T1* obj, R (T2::*member)(A1, A2, A3, A4)) {
-  return new _TessMemberResultCallback_0_4<false, R, T1, A1, A2, A3, A4>(
-      obj, member);
-}
-#endif
-
 #endif  // TESS_CALLBACK_SPECIALIZATIONS_H_

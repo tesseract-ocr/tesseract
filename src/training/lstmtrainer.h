@@ -18,14 +18,15 @@
 #ifndef TESSERACT_LSTM_LSTMTRAINER_H_
 #define TESSERACT_LSTM_LSTMTRAINER_H_
 
+#include <functional>        // for std::function
 #include "imagedata.h"
 #include "lstmrecognizer.h"
 #include "rect.h"
-#include "tesscallback.h"
 
 namespace tesseract {
 
 class LSTM;
+class LSTMTester;
 class LSTMTrainer;
 class Parallel;
 class Reversed;
@@ -69,8 +70,7 @@ class LSTMTrainer;
 // Function to compute and record error rates on some external test set(s).
 // Args are: iteration, mean errors, model, training stage.
 // Returns a STRING containing logging information about the tests.
-typedef TessResultCallback4<STRING, int, const double*, const TessdataManager&,
-                            int>* TestCallback;
+using TestCallback = std::function<STRING(int, const double*, const TessdataManager&, int)>;
 
 // Trainer class for LSTM networks. Most of the effort is in creating the
 // ideal target outputs from the transcription. A box file is used if it is
