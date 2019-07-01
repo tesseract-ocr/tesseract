@@ -1,8 +1,7 @@
 /******************************************************************
  * File:        docqual.cpp  (Formerly docqual.c)
  * Description: Document Quality Metrics
- * Author:    Phil Cheatle
- * Created:   Mon May  9 11:27:28 BST 1994
+ * Author:      Phil Cheatle
  *
  * (C) Copyright 1994, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,39 +16,31 @@
  *
  **********************************************************************/
 
-#include          <cctype>
-#include          "docqual.h"
-#include          "reject.h"
-#include          "tesscallback.h"
-#include          "tessvars.h"
-#include          "tesseractclass.h"
+#include <cctype>
+#include "docqual.h"
+#include "reject.h"
+#include "tessvars.h"
+#include "tesseractclass.h"
 
 namespace tesseract{
 
-// A little class to provide the callbacks as we have no pre-bound args.
-struct DocQualCallbacks {
-  explicit DocQualCallbacks(WERD_RES* word0)
-    : word(word0), match_count(0), accepted_match_count(0) {}
+static void countMatchingBlobs(int16_t& match_count, int /*index*/) {
+  ++match_count;
+}
 
-  void CountMatchingBlobs(int index) {
-    ++match_count;
+static void countAcceptedBlobs(WERD_RES* word, int16_t& match_count,
+                               int16_t& accepted_match_count, int index) {
+  if (word->reject_map[index].accepted()) {
+    ++accepted_match_count;
   }
+  ++match_count;
+}
 
-  void CountAcceptedBlobs(int index) {
-    if (word->reject_map[index].accepted())
-      ++accepted_match_count;
-    ++match_count;
+static void acceptIfGoodQuality(WERD_RES* word, int index) {
+  if (word->reject_map[index].accept_if_good_quality()) {
+    word->reject_map[index].setrej_quality_accept();
   }
-
-  void AcceptIfGoodQuality(int index) {
-    if (word->reject_map[index].accept_if_good_quality())
-      word->reject_map[index].setrej_quality_accept();
-  }
-
-  WERD_RES* word;
-  int16_t match_count;
-  int16_t accepted_match_count;
-};
+}
 
 /*************************************************************************
  * word_blob_quality()
@@ -57,16 +48,16 @@ struct DocQualCallbacks {
  * ASSUME blobs in both initial word and box_word are in ascending order of
  * left hand blob edge.
  *************************************************************************/
-int16_t Tesseract::word_blob_quality(WERD_RES *word, ROW *row) {
-  if (word->bln_boxes == nullptr ||
-      word->rebuild_word == nullptr || word->rebuild_word->blobs.empty())
-    return 0;
-
-  DocQualCallbacks cb(word);
-  word->bln_boxes->ProcessMatchedBlobs(
-      *word->rebuild_word,
-      NewPermanentTessCallback(&cb, &DocQualCallbacks::CountMatchingBlobs));
-  return cb.match_count;
+int16_t Tesseract::word_blob_quality(WERD_RES* word) {
+  int16_t match_count = 0;
+  if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
+      !word->rebuild_word->blobs.empty()) {
+    using namespace std::placeholders;  // for _1
+    word->bln_boxes->ProcessMatchedBlobs(
+        *word->rebuild_word,
+        std::bind(countMatchingBlobs, match_count, _1));
+  }
+  return match_count;
 }
 
 int16_t Tesseract::word_outline_errs(WERD_RES *word) {
@@ -89,38 +80,31 @@ int16_t Tesseract::word_outline_errs(WERD_RES *word) {
  * Combination of blob quality and outline quality - how many good chars are
  * there? - I.e chars which pass the blob AND outline tests.
  *************************************************************************/
-void Tesseract::word_char_quality(WERD_RES *word,
-                                  ROW *row,
-                                  int16_t *match_count,
-                                  int16_t *accepted_match_count) {
-  if (word->bln_boxes == nullptr || word->rebuild_word == nullptr ||
-      word->rebuild_word->blobs.empty()) {
-    *match_count = 0;
-    *accepted_match_count = 0;
-    return;
+void Tesseract::word_char_quality(WERD_RES* word, int16_t* match_count,
+                                  int16_t* accepted_match_count) {
+  *match_count = 0;
+  *accepted_match_count = 0;
+  if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
+      !word->rebuild_word->blobs.empty()) {
+    using namespace std::placeholders;  // for _1
+    word->bln_boxes->ProcessMatchedBlobs(
+        *word->rebuild_word,
+        std::bind(countAcceptedBlobs,
+                  word, *match_count, *accepted_match_count, _1));
   }
-
-  DocQualCallbacks cb(word);
-  word->bln_boxes->ProcessMatchedBlobs(
-      *word->rebuild_word,
-      NewPermanentTessCallback(&cb, &DocQualCallbacks::CountAcceptedBlobs));
-  *match_count = cb.match_count;
-  *accepted_match_count = cb.accepted_match_count;
 }
 
 /*************************************************************************
  * unrej_good_chs()
  * Unreject POTENTIAL rejects if the blob passes the blob and outline checks
  *************************************************************************/
-void Tesseract::unrej_good_chs(WERD_RES *word, ROW *row) {
-  if (word->bln_boxes == nullptr ||
-      word->rebuild_word == nullptr || word->rebuild_word->blobs.empty())
-    return;
-
-  DocQualCallbacks cb(word);
-  word->bln_boxes->ProcessMatchedBlobs(
-      *word->rebuild_word,
-      NewPermanentTessCallback(&cb, &DocQualCallbacks::AcceptIfGoodQuality));
+void Tesseract::unrej_good_chs(WERD_RES* word) {
+  if (word->bln_boxes != nullptr && word->rebuild_word != nullptr &&
+      word->rebuild_word->blobs.empty()) {
+    using namespace std::placeholders;  // for _1
+    word->bln_boxes->ProcessMatchedBlobs(
+      *word->rebuild_word, std::bind(acceptIfGoodQuality, word, _1));
+  }
 }
 
 int16_t Tesseract::count_outline_errs(char c, int16_t outline_count) {
@@ -186,12 +170,12 @@ void Tesseract::unrej_good_quality_words(  //unreject potential
                                   word->best_choice->unichar_string().string(),
                                   word->best_choice->unichar_lengths().string())
                != AC_UNACCEPTABLE)) {
-        unrej_good_chs(word, page_res_it.row ()->row);
+        unrej_good_chs(word);
       }
       page_res_it.forward ();
     }
     else {
-      /* Skip to end of dodgy row */
+      // Skip to end of dodgy row.
       current_row = page_res_it.row ();
       while ((page_res_it.word () != nullptr) &&
         (page_res_it.row () == current_row))
@@ -285,10 +269,8 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
                     word->best_choice->unichar_string().string(),
                     word->best_choice->unichar_lengths().string()) !=
                 AC_UNACCEPTABLE) {
-              word_char_quality(word, page_res_it.row()->row,
-                                &char_quality,
-                                &accepted_char_quality);
-              rej_word = char_quality !=  word->reject_map.length();
+              word_char_quality(word, &char_quality, &accepted_char_quality);
+              rej_word = char_quality != word->reject_map.length();
             }
           } else {
             rej_word = true;
@@ -356,8 +338,7 @@ void Tesseract::doc_and_block_rejection(  //reject big chunks
                         word->best_choice->unichar_string().string(),
                         word->best_choice->unichar_lengths().string()) !=
                             AC_UNACCEPTABLE) {
-                  word_char_quality(word, page_res_it.row()->row,
-                                    &char_quality,
+                  word_char_quality(word, &char_quality,
                                     &accepted_char_quality);
                   rej_word = char_quality != word->reject_map.length();
                 }

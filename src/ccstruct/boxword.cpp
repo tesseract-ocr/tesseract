@@ -188,13 +188,12 @@ void BoxWord::ComputeBoundingBox() {
 // for each blob index where the bounding boxes match.
 // The callback is deleted on completion.
 void BoxWord::ProcessMatchedBlobs(const TWERD& other,
-                                  TessCallback1<int>* cb) const {
+                                  std::function<void(int)> cb) const {
   for (int i = 0; i < length_ && i < other.NumBlobs(); ++i) {
     TBOX blob_box = other.blobs[i]->bounding_box();
     if (blob_box == boxes_[i])
-      cb->Run(i);
+      cb(i);
   }
-  delete cb;
 }
 
 }  // namespace tesseract.

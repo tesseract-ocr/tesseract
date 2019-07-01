@@ -20,6 +20,7 @@
 #ifndef TESSERACT_CSTRUCT_BOXWORD_H_
 #define TESSERACT_CSTRUCT_BOXWORD_H_
 
+#include <functional>       // for std::function
 #include "genericvector.h"  // for GenericVector
 #include "rect.h"           // for TBOX
 
@@ -27,8 +28,6 @@ class BLOCK;
 class WERD;
 
 struct TWERD;
-
-template <class A1> class TessCallback1;
 
 namespace tesseract {
 
@@ -75,7 +74,7 @@ class BoxWord {
   // This and other putatively are the same, so call the (permanent) callback
   // for each blob index where the bounding boxes match.
   // The callback is deleted on completion.
-  void ProcessMatchedBlobs(const TWERD& other, TessCallback1<int>* cb) const;
+  void ProcessMatchedBlobs(const TWERD& other, std::function<void(int)> cb) const;
 
   const TBOX& bounding_box() const {
     return bbox_;

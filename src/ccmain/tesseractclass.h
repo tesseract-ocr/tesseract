@@ -648,10 +648,10 @@ class Tesseract : public Wordrec {
   void quality_based_rejection(PAGE_RES_IT& page_res_it, bool good_quality_doc);
   void convert_bad_unlv_chs(WERD_RES* word_res);
   void tilde_delete(PAGE_RES_IT& page_res_it);
-  int16_t word_blob_quality(WERD_RES* word, ROW* row);
-  void word_char_quality(WERD_RES* word, ROW* row, int16_t* match_count,
+  int16_t word_blob_quality(WERD_RES* word);
+  void word_char_quality(WERD_RES* word, int16_t* match_count,
                          int16_t* accepted_match_count);
-  void unrej_good_chs(WERD_RES* word, ROW* row);
+  void unrej_good_chs(WERD_RES* word);
   int16_t count_outline_errs(char c, int16_t outline_count);
   int16_t word_outline_errs(WERD_RES* word);
 #ifndef DISABLED_LEGACY_ENGINE
