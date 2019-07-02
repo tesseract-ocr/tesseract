@@ -84,7 +84,8 @@ class LSTMTrainerTest : public testing::Test {
                                   nullptr, nullptr));
     std::string model_path = file::JoinPath(FLAGS_test_tmpdir, model_name);
     std::string checkpoint_path = model_path + "_checkpoint";
-    trainer_.reset(new LSTMTrainer(model_path.c_str(), checkpoint_path.c_str(),
+    trainer_.reset(new LSTMTrainer(nullptr, nullptr, nullptr, nullptr,
+                                   model_path.c_str(), checkpoint_path.c_str(),
                                    0, 0));
     trainer_->InitCharSet(file::JoinPath(FLAGS_test_tmpdir, kLang,
     absl::StrCat(kLang, ".traineddata")));

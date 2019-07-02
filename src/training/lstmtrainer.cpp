@@ -74,17 +74,41 @@ const int kTargetYScale = 100;
 LSTMTrainer::LSTMTrainer()
     : randomly_rotate_(false),
       training_data_(0),
+      file_reader_(LoadDataFromFile),
+      file_writer_(SaveDataToFile),
+      checkpoint_reader_(
+          NewPermanentTessCallback(this, &LSTMTrainer::ReadTrainingDump)),
+      checkpoint_writer_(
+          NewPermanentTessCallback(this, &LSTMTrainer::SaveTrainingDump)),
       sub_trainer_(nullptr) {
   EmptyConstructor();
   debug_interval_ = 0;
 }
 
-LSTMTrainer::LSTMTrainer(const char* model_base, const char* checkpoint_name,
+LSTMTrainer::LSTMTrainer(FileReader file_reader, FileWriter file_writer,
+                         CheckPointReader checkpoint_reader,
+                         CheckPointWriter checkpoint_writer,
+                         const char* model_base, const char* checkpoint_name,
                          int debug_interval, int64_t max_memory)
     : randomly_rotate_(false),
       training_data_(max_memory),
-      sub_trainer_(nullptr) {
+      file_reader_(file_reader),
+      file_writer_(file_writer),
+      checkpoint_reader_(checkpoint_reader),
+      checkpoint_writer_(checkpoint_writer),
+      sub_trainer_(nullptr),
+      mgr_(file_reader) {
   EmptyConstructor();
+  if (file_reader_ == nullptr) file_reader_ = LoadDataFromFile;
+  if (file_writer_ == nullptr) file_writer_ = SaveDataToFile;
+  if (checkpoint_reader_ == nullptr) {
+    checkpoint_reader_ =
+        NewPermanentTessCallback(this, &LSTMTrainer::ReadTrainingDump);
+  }
+  if (checkpoint_writer_ == nullptr) {
+    checkpoint_writer_ =
+        NewPermanentTessCallback(this, &LSTMTrainer::SaveTrainingDump);
+  }
   debug_interval_ = debug_interval;
   model_base_ = model_base;
   checkpoint_name_ = checkpoint_name;
@@ -95,6 +119,8 @@ LSTMTrainer::~LSTMTrainer() {
   delete target_win_;
   delete ctc_win_;
   delete recon_win_;
+  delete checkpoint_reader_;
+  delete checkpoint_writer_;
   delete sub_trainer_;
 }
 
@@ -103,9 +129,9 @@ LSTMTrainer::~LSTMTrainer() {
 bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
                                        const char* old_traineddata) {
   GenericVector<char> data;
-  if (!LoadDataFromFile(filename, &data)) return false;
+  if (!(*file_reader_)(filename, &data)) return false;
   tprintf("Loaded file %s, unpacking...\n", filename);
-  if (!ReadTrainingDump(data, this)) return false;
+  if (!checkpoint_reader_->Run(data, this)) return false;
   StaticShape shape = network_->OutputShape(network_->InputShape());
   if (((old_traineddata == nullptr || *old_traineddata == '\0') &&
        network_->NumOutputs() == recoder_.code_range()) ||
@@ -274,8 +300,7 @@ bool LSTMTrainer::LoadAllTrainingData(const GenericVector<STRING>& filenames,
                                       bool randomly_rotate) {
   randomly_rotate_ = randomly_rotate;
   training_data_.Clear();
-  return training_data_.LoadDocuments(filenames, cache_strategy,
-                                      LoadDataFromFile);
+  return training_data_.LoadDocuments(filenames, cache_strategy, file_reader_);
 }
 
 // Keeps track of best and locally worst char error_rate and launches tests
@@ -317,10 +342,10 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
     if (TransitionTrainingStage(kStageTransitionThreshold)) {
       log_msg->add_str_int(" Transitioned to stage ", CurrentTrainingStage());
     }
-    SaveTrainingDump(NO_BEST_TRAINER, this, &best_trainer_);
+    checkpoint_writer_->Run(NO_BEST_TRAINER, this, &best_trainer_);
     if (error_rate < error_rate_of_last_saved_best_ * kBestCheckpointFraction) {
       STRING best_model_name = DumpFilename();
-      if (!SaveDataToFile(best_trainer_, best_model_name)) {
+      if (!(*file_writer_)(best_trainer_, best_model_name)) {
         *log_msg += " failed to write best model:";
       } else {
         *log_msg += " wrote best model:";
@@ -338,7 +363,7 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
       *log_msg += "\nDivergence! ";
       // Copy best_trainer_ before reading it, as it will get overwritten.
       GenericVector<char> revert_data(best_trainer_);
-      if (ReadTrainingDump(revert_data, this)) {
+      if (checkpoint_reader_->Run(revert_data, this)) {
         LogIterations("Reverted to", log_msg);
         ReduceLearningRates(this, log_msg);
       } else {
@@ -348,17 +373,18 @@ bool LSTMTrainer::MaintainCheckpoints(TestCallback tester, STRING* log_msg) {
       stall_iteration_ = iteration + 2 * (iteration - learning_iteration());
       // Re-save the best trainer with the new learning rates and stall
       // iteration.
-      SaveTrainingDump(NO_BEST_TRAINER, this, &best_trainer_);
+      checkpoint_writer_->Run(NO_BEST_TRAINER, this, &best_trainer_);
     }
   } else {
     // Something interesting happened only if the sub_trainer_ was trained.
     result = sub_trainer_result != STR_NONE;
   }
-  if (checkpoint_name_.length() > 0) {
+  if (checkpoint_writer_ != nullptr && file_writer_ != nullptr &&
+      checkpoint_name_.length() > 0) {
     // Write a current checkpoint.
     GenericVector<char> checkpoint;
-    if (!SaveTrainingDump(FULL, this, &checkpoint) ||
-        !SaveDataToFile(checkpoint, checkpoint_name_)) {
+    if (!checkpoint_writer_->Run(FULL, this, &checkpoint) ||
+        !(*file_writer_)(checkpoint, checkpoint_name_)) {
       *log_msg += " failed to write checkpoint.";
     } else {
       *log_msg += " wrote checkpoint.";
@@ -489,7 +515,7 @@ bool LSTMTrainer::DeSerialize(const TessdataManager* mgr, TFile* fp) {
 void LSTMTrainer::StartSubtrainer(STRING* log_msg) {
   delete sub_trainer_;
   sub_trainer_ = new LSTMTrainer();
-  if (!ReadTrainingDump(best_trainer_, sub_trainer_)) {
+  if (!checkpoint_reader_->Run(best_trainer_, sub_trainer_)) {
     *log_msg += " Failed to revert to previous best for trial!";
     delete sub_trainer_;
     sub_trainer_ = nullptr;
@@ -504,7 +530,7 @@ void LSTMTrainer::StartSubtrainer(STRING* log_msg) {
     stall_iteration_ = learning_iteration() + 2 * stall_offset;
     sub_trainer_->stall_iteration_ = stall_iteration_;
     // Re-save the best trainer with the new learning rates and stall iteration.
-    SaveTrainingDump(NO_BEST_TRAINER, sub_trainer_, &best_trainer_);
+    checkpoint_writer_->Run(NO_BEST_TRAINER, sub_trainer_, &best_trainer_);
   }
 }
 
@@ -897,7 +923,7 @@ bool LSTMTrainer::SaveTraineddata(const STRING& filename) {
   SaveRecognitionDump(&recognizer_data);
   mgr_.OverwriteEntry(TESSDATA_LSTM, &recognizer_data[0],
                       recognizer_data.size());
-  return mgr_.SaveFile(filename, SaveDataToFile);
+  return mgr_.SaveFile(filename, file_writer_);
 }
 
 // Writes the recognizer to memory, so that it can be used for testing later.

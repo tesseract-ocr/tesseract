@@ -2,6 +2,7 @@
 // File:        lstmtrainer.h
 // Description: Top-level line trainer class for LSTM-based networks.
 // Author:      Ray Smith
+// Created:     Fri May 03 09:07:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +67,15 @@ enum SubTrainerResult {
 };
 
 class LSTMTrainer;
+// Function to restore the trainer state from a given checkpoint.
+// Returns false on failure.
+typedef TessResultCallback2<bool, const GenericVector<char>&, LSTMTrainer*>*
+    CheckPointReader;
+// Function to save a checkpoint of the current trainer state.
+// Returns false on failure. SerializeAmount determines the amount of the
+// trainer to serialize, typically used for saving the best state.
+typedef TessResultCallback3<bool, SerializeAmount, const LSTMTrainer*,
+                            GenericVector<char>*>* CheckPointWriter;
 // Function to compute and record error rates on some external test set(s).
 // Args are: iteration, mean errors, model, training stage.
 // Returns a STRING containing logging information about the tests.
@@ -79,7 +89,11 @@ typedef TessResultCallback4<STRING, int, const double*, const TessdataManager&,
 class LSTMTrainer : public LSTMRecognizer {
  public:
   LSTMTrainer();
-  LSTMTrainer(const char* model_base, const char* checkpoint_name,
+  // Callbacks may be null, in which case defaults are used.
+  LSTMTrainer(FileReader file_reader, FileWriter file_writer,
+              CheckPointReader checkpoint_reader,
+              CheckPointWriter checkpoint_writer,
+              const char* model_base, const char* checkpoint_name,
               int debug_interval, int64_t max_memory);
   virtual ~LSTMTrainer();
 
@@ -402,6 +416,13 @@ class LSTMTrainer : public LSTMRecognizer {
   STRING best_model_name_;
   // Number of available training stages.
   int num_training_stages_;
+  // Checkpointing callbacks.
+  FileReader file_reader_;
+  FileWriter file_writer_;
+  // TODO(rays) These are pointers, and must be deleted. Switch to unique_ptr
+  // when we can commit to c++11.
+  CheckPointReader checkpoint_reader_;
+  CheckPointWriter checkpoint_writer_;
 
   // ===Serialized data to ensure that a restart produces the same results.===
   // These members are only serialized when serialize_amount != LIGHT.

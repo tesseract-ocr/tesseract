@@ -407,6 +407,72 @@ NewPermanentTessCallback(R (*function)(P1, A1),
 }
 
 template <bool del, class R, class T, class A1, class A2>
+class _ConstTessMemberResultCallback_0_2
+    : public TessResultCallback2<R, A1, A2> {
+ public:
+  typedef TessResultCallback2<R, A1, A2> base;
+  using MemberSignature = R (T::*)(A1, A2) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+
+ public:
+  inline _ConstTessMemberResultCallback_0_2(const T* object,
+                                            MemberSignature member)
+      : object_(object), member_(member) {}
+
+  R Run(A1 a1, A2 a2) override {
+    if (!del) {
+      R result = (object_->*member_)(a1, a2);
+      return result;
+    }
+    R result = (object_->*member_)(a1, a2);
+    //  zero out the pointer to ensure segfault if used again
+    member_ = nullptr;
+    delete this;
+    return result;
+  }
+};
+
+template <bool del, class T, class A1, class A2>
+class _ConstTessMemberResultCallback_0_2<del, void, T, A1, A2>
+    : public TessCallback2<A1, A2> {
+ public:
+  typedef TessCallback2<A1, A2> base;
+  using MemberSignature = void (T::*)(A1, A2) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+
+ public:
+  inline _ConstTessMemberResultCallback_0_2(const T* object,
+                                            MemberSignature member)
+      : object_(object), member_(member) {}
+
+  virtual void Run(A1 a1, A2 a2) {
+    if (!del) {
+      (object_->*member_)(a1, a2);
+    } else {
+      (object_->*member_)(a1, a2);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = nullptr;
+      delete this;
+    }
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class A1, class A2>
+inline typename _ConstTessMemberResultCallback_0_2<false, R, T1, A1, A2>::base*
+NewPermanentTessCallback(const T1* obj, R (T2::*member)(A1, A2) const) {
+  return new _ConstTessMemberResultCallback_0_2<false, R, T1, A1, A2>(obj,
+                                                                      member);
+}
+#endif
+
+template <bool del, class R, class T, class A1, class A2>
 class _TessMemberResultCallback_0_2 : public TessResultCallback2<R, A1, A2> {
  public:
   typedef TessResultCallback2<R, A1, A2> base;
@@ -525,6 +591,45 @@ inline typename _TessFunctionResultCallback_0_2<false, R, A1, A2>::base*
 NewPermanentTessCallback(R (*function)(A1, A2)) {
   return new _TessFunctionResultCallback_0_2<false, R, A1, A2>(function);
 }
+
+template <bool del, class R, class T, class A1, class A2, class A3>
+class _ConstTessMemberResultCallback_0_3
+    : public TessResultCallback3<R, A1, A2, A3> {
+ public:
+  typedef TessResultCallback3<R, A1, A2, A3> base;
+  using MemberSignature = R (T::*)(A1, A2, A3) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+
+ public:
+  inline _ConstTessMemberResultCallback_0_3(const T* object,
+                                            MemberSignature member)
+      : object_(object), member_(member) {}
+
+  R Run(A1 a1, A2 a2, A3 a3) override {
+    if (!del) {
+      R result = (object_->*member_)(a1, a2, a3);
+      return result;
+    }
+    R result = (object_->*member_)(a1, a2, a3);
+    //  zero out the pointer to ensure segfault if used again
+    member_ = nullptr;
+    delete this;
+    return result;
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class A1, class A2, class A3>
+inline
+    typename _ConstTessMemberResultCallback_0_3<false, R, T1, A1, A2, A3>::base*
+    NewPermanentTessCallback(const T1* obj, R (T2::*member)(A1, A2, A3) const) {
+  return new _ConstTessMemberResultCallback_0_3<false, R, T1, A1, A2, A3>(
+      obj, member);
+}
+#endif
 
 template <bool del, class R, class T, class A1, class A2, class A3, class A4>
 class _TessMemberResultCallback_0_4
