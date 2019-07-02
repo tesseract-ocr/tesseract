@@ -23,6 +23,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <functional>   // for std::function
 
 #include "helpers.h"
 #include "serialis.h"
@@ -140,7 +141,7 @@ class GenericVector {
 
   // Add a callback to be called to delete the elements when the array took
   // their ownership.
-  void set_clear_callback(TessCallback1<T>* cb) {
+  void set_clear_callback(std::function<void(T)> cb) {
     clear_cb_ = cb;
   }
 
@@ -334,7 +335,7 @@ class GenericVector {
   int32_t size_used_{};
   int32_t size_reserved_{};
   T* data_;
-  TessCallback1<T>* clear_cb_;
+  std::function<void(T)> clear_cb_;
   // Mutable because Run method is not const
   mutable TessResultCallback2<bool, T const&, T const&>* compare_cb_;
 };
@@ -883,14 +884,13 @@ template <typename T>
 void GenericVector<T>::clear() {
   if (size_reserved_ > 0 && clear_cb_ != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
-      clear_cb_->Run(data_[i]);
+      clear_cb_(data_[i]);
     }
   }
   delete[] data_;
   data_ = nullptr;
   size_used_ = 0;
   size_reserved_ = 0;
-  delete clear_cb_;
   clear_cb_ = nullptr;
   delete compare_cb_;
   compare_cb_ = nullptr;

@@ -65,7 +65,9 @@ class UnicityTable {
 
   /// Add a callback to be called to delete the elements when the table took
   /// their ownership.
-  void set_clear_callback(TessCallback1<T>* cb);
+  void set_clear_callback(std::function<void(T)> cb) {
+    table_.set_clear_callback(cb);
+  }
 
   /// Add a callback to be called to compare the elements when needed (contains,
   /// get_id, ...)
@@ -163,13 +165,6 @@ int UnicityTable<T>::push_back(T object) {
     idx = table_.push_back(object);
   }
   return idx;
-}
-
-// Add a callback to be called to delete the elements when the table took
-// their ownership.
-template <typename T>
-void UnicityTable<T>::set_clear_callback(TessCallback1<T>* cb) {
-  table_.set_clear_callback(cb);
 }
 
 // Add a callback to be called to delete the elements when the table took
