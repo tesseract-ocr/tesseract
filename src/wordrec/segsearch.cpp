@@ -27,6 +27,7 @@
 #include "params.h"          // for BoolParam, IntParam, DoubleParam
 #include "ratngs.h"          // for BLOB_CHOICE_LIST, BLOB_CHOICE_IT
 #include "strngs.h"          // for STRING
+#include "tesscallback.h"    // for TessResultCallback2
 #include "tprintf.h"         // for tprintf
 #include "wordrec.h"         // for Wordrec, SegSearchPending (ptr only)
 
@@ -329,10 +330,13 @@ void Wordrec::InitBlamerForSegSearch(WERD_RES *word_res,
                                      BlamerBundle *blamer_bundle,
                                      STRING *blamer_debug) {
   pain_points->Clear();  // Clear pain points heap.
+  TessResultCallback2<bool, int, int>* pp_cb = NewPermanentTessCallback(
+      pain_points, &LMPainPoints::GenerateForBlamer,
+      static_cast<double>(segsearch_max_char_wh_ratio), word_res);
   blamer_bundle->InitForSegSearch(word_res->best_choice, word_res->ratings,
                                   getDict().WildcardID(), wordrec_debug_blamer,
-                                  blamer_debug, pain_points,
-                                  segsearch_max_char_wh_ratio, word_res);
+                                  blamer_debug, pp_cb);
+  delete pp_cb;
 }
 
 }  // namespace tesseract

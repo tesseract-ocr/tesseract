@@ -1,8 +1,6 @@
 AM_CPPFLAGS += \
     -I$(top_srcdir)/src/ccutil \
     -I$(top_srcdir)/src/cutil \
-    -I$(top_srcdir)/src/dict \
-    -I$(top_srcdir)/src/wordrec \
     -I$(top_srcdir)/src/viewer \
     -I$(top_srcdir)/src/opencl
 AM_CPPFLAGS += $(OPENCL_CPPFLAGS)

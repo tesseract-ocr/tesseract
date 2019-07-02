@@ -3,6 +3,7 @@
 // Description: Module allowing precise error causes to be allocated.
 // Author:      Rike Antonova
 // Refactored:  Ray Smith
+// Created:     Mon Feb 04 14:37:01 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +23,10 @@
 #include <cstdlib>         // for abs
 #include "blobs.h"         // for TPOINT, TWERD, TBLOB
 #include "errcode.h"       // for ASSERT_HOST
-#include "lm_pain_points.h" // for LMPainPoints
 #include "matrix.h"        // for MATRIX
 #include "normalis.h"      // for DENORM
 #include "pageres.h"       // for WERD_RES
+#include "tesscallback.h"  // for TessResultCallback2
 #include "unicharset.h"    // for UNICHARSET
 
 // Names for each value of IncorrectResultReason enum. Keep in sync.
@@ -470,12 +471,14 @@ bool BlamerBundle::GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const {
 }
 
 // Setup ready to guide the segmentation search to the correct segmentation.
-void BlamerBundle::InitForSegSearch(const WERD_CHOICE* best_choice,
+// The callback pp_cb is used to avoid a cyclic dependency.
+// It calls into LMPainPoints::GenerateForBlamer by pre-binding the
+// WERD_RES, and the LMPainPoints itself.
+// pp_cb must be a permanent callback, and should be deleted by the caller.
+void BlamerBundle::InitForSegSearch(const WERD_CHOICE *best_choice,
                                     MATRIX* ratings, UNICHAR_ID wildcard_id,
-                                    bool debug, STRING* debug_str,
-                                    tesseract::LMPainPoints* pain_points,
-                                    double max_char_wh_ratio,
-                                    WERD_RES* word_res) {
+                                    bool debug, STRING *debug_str,
+                                    TessResultCallback2<bool, int, int>* cb) {
   segsearch_is_looking_for_blame_ = true;
   if (debug) {
     tprintf("segsearch starting to look for blame\n");
@@ -490,10 +493,8 @@ void BlamerBundle::InitForSegSearch(const WERD_CHOICE* best_choice,
     if (!ratings->Classified(correct_segmentation_cols_[idx],
                              correct_segmentation_rows_[idx],
                              wildcard_id) &&
-        !pain_points->GeneratePainPoint(correct_segmentation_cols_[idx],
-                                        correct_segmentation_rows_[idx],
-                                        tesseract::LM_PPTYPE_BLAMER, 0.0,
-                                        false, max_char_wh_ratio, word_res)) {
+        !cb->Run(correct_segmentation_cols_[idx],
+                 correct_segmentation_rows_[idx])) {
       segsearch_is_looking_for_blame_ = false;
       *debug_str += "\nFailed to insert pain point\n";
       SetBlame(IRR_SEGSEARCH_HEUR, *debug_str, best_choice, debug);

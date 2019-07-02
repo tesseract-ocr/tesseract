@@ -3,6 +3,7 @@
 // Description: Module allowing precise error causes to be allocated.
 // Author:      Rike Antonova
 // Refactored:  Ray Smith
+// Created:     Mon Feb 04 14:37:01 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,9 +40,7 @@ class WERD_RES;
 struct MATRIX_COORD;
 struct TWERD;
 
-namespace tesseract {
-  class LMPainPoints;
-}
+template <class R, class A1, class A2> class TessResultCallback2;
 
 static const int16_t kBlamerBoxTolerance = 5;
 
@@ -267,11 +266,14 @@ struct BlamerBundle {
   // Returns true if a guided segmentation search is needed.
   bool GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const;
   // Setup ready to guide the segmentation search to the correct segmentation.
-  void InitForSegSearch(const WERD_CHOICE* best_choice,
+  // The callback pp_cb is used to avoid a cyclic dependency.
+  // It calls into LMPainPoints::GenerateForBlamer by pre-binding the
+  // WERD_RES, and the LMPainPoints itself.
+  // pp_cb must be a permanent callback, and should be deleted by the caller.
+  void InitForSegSearch(const WERD_CHOICE *best_choice,
                         MATRIX* ratings, UNICHAR_ID wildcard_id,
-                        bool debug, STRING* debug_str,
-                        tesseract::LMPainPoints* pain_points,
-                        double max_char_wh_ratio, WERD_RES* word_res);
+                        bool debug, STRING *debug_str,
+                        TessResultCallback2<bool, int, int>* pp_cb);
   // Returns true if the guided segsearch is in progress.
   bool GuidedSegsearchStillGoing() const;
   // The segmentation search has ended. Sets the blame appropriately.
