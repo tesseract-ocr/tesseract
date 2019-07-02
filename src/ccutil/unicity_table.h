@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        unicity_table.h
 // Description: a class to uniquify objects, manipulating them using integers
-// ids.
+//              ids.
 // Author:      Samuel Charron
 //
 // (C) Copyright 2006, Google Inc.
@@ -20,7 +20,7 @@
 #ifndef TESSERACT_CCUTIL_UNICITY_TABLE_H_
 #define TESSERACT_CCUTIL_UNICITY_TABLE_H_
 
-#include "tesscallback.h"
+#include <functional>           // for std::function
 #include "errcode.h"
 #include "genericvector.h"
 
@@ -90,9 +90,12 @@ class UnicityTable {
   /// The Callback given must be permanent since they will be called more than
   /// once. The given callback will be deleted at the end.
   /// Returns false on read/write error.
-  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const;
-  bool read(tesseract::TFile* f,
-            TessResultCallback2<bool, tesseract::TFile*, T*>* cb);
+  bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const {
+    return table_.write(f, cb);
+  }
+  bool read(tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
+    return table_.read(f, cb);
+  }
 
  private:
   GenericVector<T> table_;
@@ -174,18 +177,6 @@ int UnicityTable<T>::push_back(T object) {
 template <typename T>
 void UnicityTable<T>::clear() {
   table_.clear();
-}
-
-template <typename T>
-bool UnicityTable<T>::write(
-    FILE* f, TessResultCallback2<bool, FILE*, T const &>* cb) const {
-  return table_.write(f, cb);
-}
-
-template <typename T>
-bool UnicityTable<T>::read(
-    tesseract::TFile* f, TessResultCallback2<bool, tesseract::TFile*, T*>* cb) {
-  return table_.read(f, cb);
 }
 
 // This method clear the current object, then, does a shallow copy of

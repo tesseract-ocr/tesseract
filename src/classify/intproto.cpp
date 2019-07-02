@@ -933,12 +933,13 @@ INT_TEMPLATES Classify::ReadIntTemplates(TFile *fp) {
     }
   }
   if (version_id >= 4) {
-    this->fontinfo_table_.read(fp, NewPermanentTessCallback(read_info));
+    using namespace std::placeholders; // for _1, _2
+    this->fontinfo_table_.read(fp, std::bind(read_info, _1, _2));
     if (version_id >= 5) {
       this->fontinfo_table_.read(fp,
-                                 NewPermanentTessCallback(read_spacing_info));
+                                 std::bind(read_spacing_info, _1, _2));
     }
-    this->fontset_table_.read(fp, NewPermanentTessCallback(read_set));
+    this->fontset_table_.read(fp, std::bind(read_set, _1, _2));
   }
 
   // Clean up.
@@ -1067,10 +1068,11 @@ void Classify::WriteIntTemplates(FILE *File, INT_TEMPLATES Templates,
   }
 
   /* Write the fonts info tables */
-  this->fontinfo_table_.write(File, NewPermanentTessCallback(write_info));
+  using namespace std::placeholders; // for _1, _2
+  this->fontinfo_table_.write(File, std::bind(write_info, _1, _2));
   this->fontinfo_table_.write(File,
-                              NewPermanentTessCallback(write_spacing_info));
-  this->fontset_table_.write(File, NewPermanentTessCallback(write_set));
+                              std::bind(write_spacing_info, _1, _2));
+  this->fontset_table_.write(File, std::bind(write_set, _1, _2));
 }                                /* WriteIntTemplates */
 } // namespace tesseract
 

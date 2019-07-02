@@ -172,9 +172,9 @@ class GenericVector {
   // fread (and swapping)/fwrite.
   // Returns false on error or if the callback returns false.
   // DEPRECATED. Use [De]Serialize[Classes] instead.
-  bool write(FILE* f, TessResultCallback2<bool, FILE*, T const&>* cb) const;
+  bool write(FILE* f, std::function<bool(FILE*, const T&)> cb) const;
   bool read(tesseract::TFile* f,
-            TessResultCallback2<bool, tesseract::TFile*, T*>* cb);
+            std::function<bool(tesseract::TFile*, T*)> cb);
   // Writes a vector of simple types to the given file. Assumes that bitwise
   // read/write of T will work. Returns false in case of error.
   // TODO(rays) Change all callers to use TFile and remove deprecated methods.
@@ -905,7 +905,7 @@ void GenericVector<T>::delete_data_pointers() {
 
 template <typename T>
 bool GenericVector<T>::write(
-    FILE* f, TessResultCallback2<bool, FILE*, T const&>* cb) const {
+    FILE* f, std::function<bool(FILE*, const T&)> cb) const {
   if (fwrite(&size_reserved_, sizeof(size_reserved_), 1, f) != 1) {
     return false;
   }
@@ -914,12 +914,10 @@ bool GenericVector<T>::write(
   }
   if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
-      if (!cb->Run(f, data_[i])) {
-        delete cb;
+      if (!cb(f, data_[i])) {
         return false;
       }
     }
-    delete cb;
   } else {
     if (fwrite(data_, sizeof(T), size_used_, f) != unsigned_size()) {
       return false;
@@ -930,7 +928,7 @@ bool GenericVector<T>::write(
 
 template <typename T>
 bool GenericVector<T>::read(
-    tesseract::TFile* f, TessResultCallback2<bool, tesseract::TFile*, T*>* cb) {
+    tesseract::TFile* f, std::function<bool(tesseract::TFile*, T*)> cb) {
   int32_t reserved;
   if (f->FReadEndian(&reserved, sizeof(reserved), 1) != 1) {
     return false;
@@ -941,12 +939,10 @@ bool GenericVector<T>::read(
   }
   if (cb != nullptr) {
     for (int i = 0; i < size_used_; ++i) {
-      if (!cb->Run(f, data_ + i)) {
-        delete cb;
+      if (!cb(f, data_ + i)) {
         return false;
       }
     }
-    delete cb;
   } else {
     if (f->FReadEndian(data_, sizeof(T), size_used_) != size_used_) {
       return false;
