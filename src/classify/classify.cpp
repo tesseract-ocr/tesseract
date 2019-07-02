@@ -186,12 +186,10 @@ Classify::Classify()
       shape_table_(nullptr),
       dict_(this),
       static_classifier_(nullptr) {
-  using namespace std::placeholders; // for _1
-  fontinfo_table_.set_compare_callback(
-      NewPermanentTessCallback(CompareFontInfo));
+  using namespace std::placeholders; // for _1, _2
+  fontinfo_table_.set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   fontinfo_table_.set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
-  fontset_table_.set_compare_callback(
-      NewPermanentTessCallback(CompareFontSet));
+  fontset_table_.set_compare_callback(std::bind(CompareFontSet, _1, _2));
   fontset_table_.set_clear_callback(std::bind(FontSetDeleteCallback, _1));
   AdaptedTemplates = nullptr;
   BackupAdaptedTemplates = nullptr;

@@ -147,7 +147,7 @@ class GenericVector {
 
   // Add a callback to be called to compare the elements when needed (contains,
   // get_id, ...)
-  void set_compare_callback(TessResultCallback2<bool, T const&, T const&>* cb) {
+  void set_compare_callback(std::function<bool(const T&, const T&)> cb) {
     compare_cb_ = cb;
   }
 
@@ -336,8 +336,7 @@ class GenericVector {
   int32_t size_reserved_{};
   T* data_;
   std::function<void(T)> clear_cb_;
-  // Mutable because Run method is not const
-  mutable TessResultCallback2<bool, T const&, T const&>* compare_cb_;
+  std::function<bool(const T&, const T&)> compare_cb_;
 };
 
 namespace tesseract {
@@ -669,12 +668,14 @@ template <typename T>
 class GenericVectorEqEq : public GenericVector<T> {
  public:
   GenericVectorEqEq() {
+    using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-        NewPermanentTessCallback(tesseract::cmp_eq<T>));
+      std::bind(tesseract::cmp_eq<T>, _1, _2));
   }
   explicit GenericVectorEqEq(int size) : GenericVector<T>(size) {
+    using namespace std::placeholders;  // for _1
     GenericVector<T>::set_compare_callback(
-        NewPermanentTessCallback(tesseract::cmp_eq<T>));
+      std::bind(tesseract::cmp_eq<T>, _1, _2));
   }
 };
 
@@ -808,7 +809,7 @@ template <typename T>
 int GenericVector<T>::get_index(const T& object) const {
   for (int i = 0; i < size_used_; ++i) {
     assert(compare_cb_ != nullptr);
-    if (compare_cb_->Run(object, data_[i])) {
+    if (compare_cb_(object, data_[i])) {
       return i;
     }
   }
@@ -892,7 +893,6 @@ void GenericVector<T>::clear() {
   size_used_ = 0;
   size_reserved_ = 0;
   clear_cb_ = nullptr;
-  delete compare_cb_;
   compare_cb_ = nullptr;
 }
 

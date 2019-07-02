@@ -71,7 +71,10 @@ class UnicityTable {
 
   /// Add a callback to be called to compare the elements when needed (contains,
   /// get_id, ...)
-  void set_compare_callback(TessResultCallback2<bool, T const &, T const &>* cb);
+  void set_compare_callback(std::function<bool(const T&, const T&)> cb) {
+    table_.set_compare_callback(cb);
+    compare_cb_ = cb;
+  }
 
   /// Clear the table, calling the callback function if any.
   /// All the owned Callbacks are also deleted.
@@ -93,16 +96,16 @@ class UnicityTable {
 
  private:
   GenericVector<T> table_;
-  // Mutable because Run method is not const
-  mutable TessResultCallback2<bool, T const &, T const &>* compare_cb_;
+  std::function<bool(const T&, const T&)> compare_cb_;
 };
 
 template <typename T>
 class UnicityTableEqEq : public UnicityTable<T> {
  public:
   UnicityTableEqEq() {
+    using namespace std::placeholders;  // for _1, _2
     UnicityTable<T>::set_compare_callback(
-        NewPermanentTessCallback(tesseract::cmp_eq<T>));
+      std::bind(tesseract::cmp_eq<T>, _1, _2));
   }
 };
 
@@ -165,14 +168,6 @@ int UnicityTable<T>::push_back(T object) {
     idx = table_.push_back(object);
   }
   return idx;
-}
-
-// Add a callback to be called to delete the elements when the table took
-// their ownership.
-template <typename T>
-void UnicityTable<T>::set_compare_callback(TessResultCallback2<bool, T const &, T const &>* cb) {
-  table_.set_compare_callback(cb);
-  compare_cb_ = cb;
 }
 
 // Clear the table, calling the callback function if any.
