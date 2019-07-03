@@ -20,6 +20,8 @@
 #define TESSERACT_API_BASEAPI_H_
 
 #include <cstdio>
+#include <functional>           // for std::function
+
 // To avoid collision with other typenames include the ABSOLUTE MINIMUM
 // complexity of includes here. Use forward declarations wherever possible
 // and hide includes of complex types in baseapi.cpp.
@@ -30,7 +32,6 @@
 #include "resultiterator.h"
 #include "serialis.h"
 #include "tess_version.h"
-#include "tesscallback.h"
 #include "thresholder.h"
 #include "unichar.h"
 
@@ -77,8 +78,7 @@ using DictFunc = int (Dict::*)(void *, const UNICHARSET &, UNICHAR_ID, bool) con
 using ProbabilityInContextFunc = double (Dict::*)(const char *, const char *, int, const char *, int);
 using ParamsModelClassifyFunc = float (Dict::*)(const char *, void *);
 using FillLatticeFunc = void (Wordrec::*)(const MATRIX &, const WERD_CHOICE_LIST &, const UNICHARSET &, BlamerBundle *);
-typedef TessCallback4<const UNICHARSET &, int, PageIterator *, Pix *>
-    TruthCallback;
+using TruthCallback = std::function<void(const UNICHARSET&, int, PageIterator*, Pix*)>;
 
 /**
  * Base class for all tesseract APIs.
@@ -796,7 +796,7 @@ class TESS_API TessBaseAPI {
 
   OcrEngineMode oem() const { return last_oem_requested_; }
 
-  void InitTruthCallback(TruthCallback *cb) { truth_cb_ = cb; }
+  void InitTruthCallback(TruthCallback cb) { truth_cb_ = cb; }
 
   void set_min_orientation_margin(double margin);
  /* @} */
@@ -881,7 +881,7 @@ class TESS_API TessBaseAPI {
  protected:
   Tesseract*        tesseract_;       ///< The underlying data object.
   Tesseract*        osd_tesseract_;   ///< For orientation & script detection.
-  EquationDetect*   equ_detect_;      ///<The equation detector.
+  EquationDetect*   equ_detect_;      ///< The equation detector.
   FileReader reader_;                 ///< Reads files from any filesystem.
   ImageThresholder* thresholder_;     ///< Image thresholding module.
   GenericVector<ParagraphModel *>* paragraph_models_;
@@ -892,8 +892,8 @@ class TESS_API TessBaseAPI {
   STRING*           datapath_;        ///< Current location of tessdata.
   STRING*           language_;        ///< Last initialized language.
   OcrEngineMode last_oem_requested_;  ///< Last ocr language mode requested.
-  bool          recognition_done_;   ///< page_res_ contains recognition data.
-  TruthCallback *truth_cb_;           /// fxn for setting truth_* in WERD_RES
+  bool           recognition_done_;   ///< page_res_ contains recognition data.
+  TruthCallback     truth_cb_;        ///< fxn for setting truth_* in WERD_RES
 
   /**
    * @defgroup ThresholderParams Thresholder Parameters

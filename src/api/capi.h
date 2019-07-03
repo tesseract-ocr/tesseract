@@ -474,7 +474,7 @@ TESS_API int TESS_CALL TessBaseAPINumDawgs(const TessBaseAPI* handle);
 TESS_API TessOcrEngineMode TESS_CALL TessBaseAPIOem(const TessBaseAPI* handle);
 
 TESS_API void TESS_CALL TessBaseAPIInitTruthCallback(TessBaseAPI* handle,
-                                                     TessTruthCallback* cb);
+                                                     TessTruthCallback cb);
 
 TESS_API void TESS_CALL TessBaseGetBlockTextOrientations(
     TessBaseAPI* handle, int** block_orientation, bool** vertical_writing);
