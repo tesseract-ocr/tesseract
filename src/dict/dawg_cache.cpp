@@ -2,7 +2,6 @@
 // File:        dawg_cache.cpp
 // Description: A class that knows about loading and caching dawgs.
 // Author:      David Eger
-// Created:     Fri Jan 27 12:08:00 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,7 +47,7 @@ Dawg *DawgCache::GetSquishedDawg(const STRING &lang,
   STRING data_id = data_file->GetDataFileName();
   data_id += kTessdataFileSuffixes[tessdata_dawg_type];
   DawgLoader loader(lang, tessdata_dawg_type, debug_level, data_file);
-  return dawgs_.Get(data_id, NewTessCallback(&loader, &DawgLoader::Load));
+  return dawgs_.Get(data_id, std::bind(&DawgLoader::Load, &loader));
 }
 
 Dawg *DawgLoader::Load() {
