@@ -295,7 +295,7 @@ static std::string ScrollViewCommand(std::string scrollview_path) {
   // this unnecessary.
   // Also the path has to be separated by ; on windows and : otherwise.
 #ifdef _WIN32
-  const char cmd_template[] = "-Djava.library.path=%s -jar %s/ScrollView.jar";
+  const char cmd_template[] = "-Djava.library.path=\"%s\" -jar \"%s/ScrollView.jar\"";
 
 #else
   const char cmd_template[] =
