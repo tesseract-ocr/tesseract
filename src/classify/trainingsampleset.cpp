@@ -495,8 +495,8 @@ void TrainingSampleSet::KillSample(TrainingSample* sample) {
 
 // Deletes all samples with zero features marked by KillSample.
 void TrainingSampleSet::DeleteDeadSamples() {
-  samples_.compact(
-      NewPermanentTessCallback(this, &TrainingSampleSet::DeleteableSample));
+  using namespace std::placeholders;  // for _1
+  samples_.compact(std::bind(&TrainingSampleSet::DeleteableSample, this, _1));
   num_raw_samples_ = samples_.size();
   // Samples must be re-organized now we have deleted a few.
 }

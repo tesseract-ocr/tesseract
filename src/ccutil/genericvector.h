@@ -28,7 +28,6 @@
 #include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
-#include "tesscallback.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
@@ -490,17 +489,17 @@ class PointerVector : public GenericVector<T*> {
 
   // Compact the vector by deleting elements for which delete_cb returns
   // true. delete_cb is a permanent callback and will be deleted.
-  void compact(TessResultCallback1<bool, const T*>* delete_cb) {
+  void compact(std::function<bool(const T*)> delete_cb) {
     int new_size = 0;
     int old_index = 0;
     // Until the callback returns true, the elements stay the same.
     while (old_index < GenericVector<T*>::size_used_ &&
-           !delete_cb->Run(GenericVector<T*>::data_[old_index++])) {
+           !delete_cb(GenericVector<T*>::data_[old_index++])) {
       ++new_size;
     }
     // Now just copy anything else that gets false from delete_cb.
     for (; old_index < GenericVector<T*>::size_used_; ++old_index) {
-      if (!delete_cb->Run(GenericVector<T*>::data_[old_index])) {
+      if (!delete_cb(GenericVector<T*>::data_[old_index])) {
         GenericVector<T*>::data_[new_size++] =
             GenericVector<T*>::data_[old_index];
       } else {
@@ -508,7 +507,6 @@ class PointerVector : public GenericVector<T*> {
       }
     }
     GenericVector<T*>::size_used_ = new_size;
-    delete delete_cb;
   }
 
   // Clear the array, calling the clear callback function if any.
