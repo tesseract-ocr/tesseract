@@ -28,7 +28,6 @@
 
 #include "params.h"
 #include "serialis.h"
-#include "tesscallback.h"
 #include "unichar.h"
 
 // TODO(rays) Move UNICHARSET to tesseract namespace.
@@ -761,10 +760,10 @@ class InMemoryFilePointer {
 bool UNICHARSET::load_from_inmemory_file(
     const char *memory, int mem_size, bool skip_fragments) {
   InMemoryFilePointer mem_fp(memory, mem_size);
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(&mem_fp, &InMemoryFilePointer::fgets);
+  using namespace std::placeholders;  // for _1, _2
+  std::function<char*(char*, int)> fgets_cb =
+      std::bind(&InMemoryFilePointer::fgets, &mem_fp, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
   return success;
 }
 
@@ -780,29 +779,28 @@ class LocalFilePointer {
 
 bool UNICHARSET::load_from_file(FILE *file, bool skip_fragments) {
   LocalFilePointer lfp(file);
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(&lfp, &LocalFilePointer::fgets);
+  using namespace std::placeholders;  // for _1, _2
+  std::function<char*(char*, int)> fgets_cb =
+      std::bind(&LocalFilePointer::fgets, &lfp, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
   return success;
 }
 
 bool UNICHARSET::load_from_file(tesseract::TFile *file, bool skip_fragments) {
-  TessResultCallback2<char *, char *, int> *fgets_cb =
-      NewPermanentTessCallback(file, &tesseract::TFile::FGets);
+  using namespace std::placeholders;  // for _1, _2
+  std::function<char*(char*, int)> fgets_cb =
+      std::bind(&tesseract::TFile::FGets, file, _1, _2);
   bool success = load_via_fgets(fgets_cb, skip_fragments);
-  delete fgets_cb;
   return success;
 }
 
-bool UNICHARSET::load_via_fgets(
-    TessResultCallback2<char *, char *, int> *fgets_cb,
-    bool skip_fragments) {
+bool UNICHARSET::load_via_fgets(std::function<char*(char*, int)> fgets_cb,
+                                bool skip_fragments) {
   int unicharset_size;
   char buffer[256];
 
   this->clear();
-  if (fgets_cb->Run(buffer, sizeof(buffer)) == nullptr ||
+  if (fgets_cb(buffer, sizeof(buffer)) == nullptr ||
       sscanf(buffer, "%d", &unicharset_size) != 1) {
     return false;
   }
@@ -828,7 +826,7 @@ bool UNICHARSET::load_via_fgets(
     int direction = UNICHARSET::U_LEFT_TO_RIGHT;
     UNICHAR_ID other_case = unicharset_size;
     UNICHAR_ID mirror = unicharset_size;
-    if (fgets_cb->Run(buffer, sizeof (buffer)) == nullptr) {
+    if (fgets_cb(buffer, sizeof (buffer)) == nullptr) {
       return false;
     }
     char normed[64];
