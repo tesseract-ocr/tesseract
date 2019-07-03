@@ -74,6 +74,7 @@ option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
 option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
+option(USE_SYSTEM_ICU "Use system ICU" OFF)
 
 if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan)
     set(CPPAN_BUILD OFF)
@@ -269,6 +270,7 @@ message( STATUS "Disable disable graphics (ScrollView) [GRAPHICS_DISABLED]: ${GR
 message( STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: ${DISABLED_LEGACY_ENGINE}")
 message( STATUS "Build training tools [BUILD_TRAINING_TOOLS]: ${BUILD_TRAINING_TOOLS}")
 message( STATUS "Build tests [BUILD_TESTS]: ${BUILD_TESTS}")
+message( STATUS "Use system ICU Library [USE_SYSTEM_ICU]: ${USE_SYSTEM_ICU}")
 message( STATUS "--------------------------------------------------------")
 message( STATUS )
 
