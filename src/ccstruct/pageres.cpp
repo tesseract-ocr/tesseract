@@ -36,7 +36,6 @@
 #include "publictypes.h"   // for OcrEngineMode, OEM_LSTM_ONLY
 #include "seam.h"          // for SEAM, start_seam_list
 #include "stepblob.h"      // for C_BLOB_IT, C_BLOB, C_BLOB_LIST
-#include "tesscallback.h"  // for NewPermanentTessCallback, TessResultCallback2
 #include "tprintf.h"       // for tprintf
 
 struct Pix;
@@ -940,16 +939,16 @@ void WERD_RES::BestChoiceToCorrectText() {
 // result to the class returned from class_cb.
 // Returns true if anything was merged.
 bool WERD_RES::ConditionalBlobMerge(
-    TessResultCallback2<UNICHAR_ID, UNICHAR_ID, UNICHAR_ID>* class_cb,
-    TessResultCallback2<bool, const TBOX&, const TBOX&>* box_cb) {
+    std::function<UNICHAR_ID(UNICHAR_ID, UNICHAR_ID)> class_cb,
+    std::function<bool(const TBOX&, const TBOX&)> box_cb) {
   ASSERT_HOST(best_choice->length() == 0 || ratings != nullptr);
   bool modified = false;
   for (int i = 0; i + 1 < best_choice->length(); ++i) {
-    UNICHAR_ID new_id = class_cb->Run(best_choice->unichar_id(i),
-                                      best_choice->unichar_id(i+1));
+    UNICHAR_ID new_id = class_cb(best_choice->unichar_id(i),
+                                 best_choice->unichar_id(i+1));
     if (new_id != INVALID_UNICHAR_ID &&
-        (box_cb == nullptr || box_cb->Run(box_word->BlobBox(i),
-                                       box_word->BlobBox(i + 1)))) {
+        (box_cb == nullptr || box_cb(box_word->BlobBox(i),
+                                     box_word->BlobBox(i + 1)))) {
       // Raw choice should not be fixed.
       best_choice->set_unichar_id(new_id, i);
       modified = true;
@@ -968,8 +967,6 @@ bool WERD_RES::ConditionalBlobMerge(
       }
     }
   }
-  delete class_cb;
-  delete box_cb;
   return modified;
 }
 
@@ -1024,9 +1021,9 @@ void WERD_RES::fix_quotes() {
       !uch_set->get_enabled(uch_set->unichar_to_id("\"")))
     return;  // Don't create it if it is disallowed.
 
-  ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothQuotes),
-      nullptr);
+  using namespace std::placeholders;  // for _1, _2
+  ConditionalBlobMerge(std::bind(&WERD_RES::BothQuotes, this, _1, _2),
+                       nullptr);
 }
 
 // Callback helper for fix_hyphens returns UNICHAR_ID of - if both
@@ -1053,9 +1050,9 @@ void WERD_RES::fix_hyphens() {
       !uch_set->get_enabled(uch_set->unichar_to_id("-")))
     return;  // Don't create it if it is disallowed.
 
-  ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothHyphens),
-      NewPermanentTessCallback(this, &WERD_RES::HyphenBoxesOverlap));
+  using namespace std::placeholders;  // for _1, _2
+  ConditionalBlobMerge(std::bind(&WERD_RES::BothHyphens, this, _1, _2),
+                       std::bind(&WERD_RES::HyphenBoxesOverlap, this, _1, _2));
 }
 
 // Callback helper for merge_tess_fails returns a space if both
@@ -1069,8 +1066,9 @@ UNICHAR_ID WERD_RES::BothSpaces(UNICHAR_ID id1, UNICHAR_ID id2) {
 
 // Change pairs of tess failures to a single one
 void WERD_RES::merge_tess_fails() {
-  if (ConditionalBlobMerge(
-      NewPermanentTessCallback(this, &WERD_RES::BothSpaces), nullptr)) {
+  using namespace std::placeholders;  // for _1, _2
+  if (ConditionalBlobMerge(std::bind(&WERD_RES::BothSpaces,
+                                     this, _1, _2), nullptr)) {
     int len = best_choice->length();
     ASSERT_HOST(reject_map.length() == len);
     ASSERT_HOST(box_word->length() == len);
