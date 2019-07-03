@@ -1,10 +1,9 @@
 ///////////////////////////////////////////////////////////////////////
 // File:        ccnontextdetect.cpp
 // Description: Connected-Component-based photo (non-text) detection.
-// Copyright 2011 Google Inc. All Rights Reserved.
-// Author: rays@google.com (Ray Smith)
-// Created:     Sat Jun 11 10:12:01 PST 2011
+// Author:      rays@google.com (Ray Smith)
 //
+// Copyright 2011 Google Inc. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at

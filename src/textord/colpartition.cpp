@@ -645,7 +645,7 @@ ColPartition* ColPartition::SingletonPartner(bool upper) {
 }
 
 // Merge with the other partition and delete it.
-void ColPartition::Absorb(ColPartition* other, WidthCallback* cb) {
+void ColPartition::Absorb(ColPartition* other, WidthCallback cb) {
   // The result has to either own all of the blobs or none of them.
   // Verify the flag is consistent.
   ASSERT_HOST(owns_blobs() == other->owns_blobs());
@@ -1077,10 +1077,10 @@ void ColPartition::ColumnRange(int resolution, ColPartitionSet* columns,
 }
 
 // Sets the internal flags good_width_ and good_column_.
-void ColPartition::SetColumnGoodness(WidthCallback* cb) {
+void ColPartition::SetColumnGoodness(WidthCallback cb) {
   int y = MidY();
   int width = RightAtY(y) - LeftAtY(y);
-  good_width_ = cb->Run(width);
+  good_width_ = cb(width);
   good_column_ = blob_type_ == BRT_TEXT && left_key_tab_ && right_key_tab_;
 }
 

@@ -1865,9 +1865,10 @@ void StrokeWidth::CompletePartition(PageSegMode pageseg_mode,
 // Merge partitions where the merge appears harmless.
 // As this
 void StrokeWidth::EasyMerges(ColPartitionGrid* part_grid) {
+  using namespace std::placeholders;  // for _1, _2
   part_grid->Merges(
-      NewPermanentTessCallback(this, &StrokeWidth::OrientationSearchBox),
-      NewPermanentTessCallback(this, &StrokeWidth::ConfirmEasyMerge));
+      std::bind(&StrokeWidth::OrientationSearchBox, this, _1, _2),
+      std::bind(&StrokeWidth::ConfirmEasyMerge, this, _1, _2));
 }
 
 // Compute a search box based on the orientation of the partition.
