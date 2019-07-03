@@ -1,5 +1,4 @@
-/* -*-C-*-
- ********************************************************************************
+/********************************************************************************
  *
  * File:         dawg.cpp  (Formerly dawg.c)
  * Description:  Use a Directed Acyclic Word Graph
@@ -26,7 +25,6 @@
 #include "dict.h"
 #include "helpers.h"
 #include "strngs.h"
-#include "tesscallback.h"
 #include "tprintf.h"
 
 #include <memory>
@@ -102,37 +100,38 @@ int Dawg::check_for_words(const char *filename,
   return misses;
 }
 
-void Dawg::iterate_words(const UNICHARSET &unicharset,
-                         TessCallback1<const WERD_CHOICE *> *cb) const {
+void Dawg::iterate_words(const UNICHARSET& unicharset,
+                         std::function<void(const WERD_CHOICE*)> cb) const {
   WERD_CHOICE word(&unicharset);
   iterate_words_rec(word, 0, cb);
 }
 
-static void CallWithUTF8(TessCallback1<const char *> *cb,
-                         const WERD_CHOICE *wc) {
+static void CallWithUTF8(std::function<void(const char*)> cb,
+                         const WERD_CHOICE* wc) {
   STRING s;
   wc->string_and_lengths(&s, nullptr);
-  cb->Run(s.string());
+  cb(s.string());
 }
 
-void Dawg::iterate_words(const UNICHARSET &unicharset,
-                         TessCallback1<const char *> *cb) const {
-  std::unique_ptr<TessCallback1<const WERD_CHOICE *>> shim(
-      NewPermanentTessCallback(CallWithUTF8, cb));
+void Dawg::iterate_words(const UNICHARSET& unicharset,
+                         std::function<void(const char*)> cb) const {
+  using namespace std::placeholders;  // for _1
+  std::function<void(const WERD_CHOICE*)> shim(
+      std::bind(CallWithUTF8, cb, _1));
   WERD_CHOICE word(&unicharset);
-  iterate_words_rec(word, 0, shim.get());
+  iterate_words_rec(word, 0, shim);
 }
 
 void Dawg::iterate_words_rec(const WERD_CHOICE &word_so_far,
                              NODE_REF to_explore,
-                             TessCallback1<const WERD_CHOICE *> *cb) const {
+                             std::function<void(const WERD_CHOICE*)> cb) const {
   NodeChildVector children;
   this->unichar_ids_of(to_explore, &children, false);
   for (int i = 0; i < children.size(); i++) {
     WERD_CHOICE next_word(word_so_far);
     next_word.append_unichar_id(children[i].unichar_id, 1, 0.0, 0.0);
     if (this->end_of_word(children[i].edge_ref)) {
-      cb->Run(&next_word);
+      cb(&next_word);
     }
     NODE_REF next = next_node(children[i].edge_ref);
     if (next != 0) {

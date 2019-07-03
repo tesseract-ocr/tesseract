@@ -27,11 +27,11 @@
 ----------------------------------------------------------------------*/
 
 #include <cinttypes>            // for PRId64
+#include <functional>           // for std::function
 #include <memory>
 #include "elst.h"
 #include "params.h"
 #include "ratngs.h"
-#include "tesscallback.h"
 
 #ifndef __GNUC__
 #ifdef _WIN32
@@ -142,13 +142,13 @@ class Dawg {
 
   // For each word in the Dawg, call the given (permanent) callback with the
   // text (UTF-8) version of the word.
-  void iterate_words(const UNICHARSET &unicharset,
-                     TessCallback1<const WERD_CHOICE *> *cb) const;
+  void iterate_words(const UNICHARSET& unicharset,
+                     std::function<void(const WERD_CHOICE*)> cb) const;
 
   // For each word in the Dawg, call the given (permanent) callback with the
   // text (UTF-8) version of the word.
-  void iterate_words(const UNICHARSET &unicharset,
-                     TessCallback1<const char *> *cb) const;
+  void iterate_words(const UNICHARSET& unicharset,
+                     std::function<void(const char*)> cb) const;
 
   // Pure virtual function that should be implemented by the derived classes.
 
@@ -289,9 +289,9 @@ class Dawg {
                    NODE_REF node, UNICHAR_ID wildcard) const;
 
   // Recursively iterate over all words in a dawg (see public iterate_words).
-  void iterate_words_rec(const WERD_CHOICE &word_so_far,
+  void iterate_words_rec(const WERD_CHOICE& word_so_far,
                          NODE_REF to_explore,
-                         TessCallback1<const WERD_CHOICE *> *cb) const;
+                         std::function<void(const WERD_CHOICE*)> cb) const;
 
   // Member Variables.
   DawgType type_;
