@@ -15,4 +15,20 @@
       </ArrayItems>
     </Expand>
   </Type>
+  
+  <Type Name="tesseract::IntParam">
+    <DisplayString>{value_}</DisplayString>
+  </Type>
+  <Type Name="tesseract::BoolParam">
+    <DisplayString>{value_}</DisplayString>
+  </Type>
+
+  <Type Name="tesseract::StringParam">
+    <DisplayString>{value_}</DisplayString>
+  </Type>
+
+  <Type Name="tesseract::DoubleParam">
+    <DisplayString>{value_}</DisplayString>
+  </Type>
+  
 </AutoVisualizer>
