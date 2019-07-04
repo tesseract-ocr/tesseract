@@ -470,6 +470,7 @@ bool BlamerBundle::GuidedSegsearchNeeded(const WERD_CHOICE *best_choice) const {
       !ChoiceIsCorrect(best_choice);
 }
 
+#if !defined(DISABLED_LEGACY_ENGINE)
 // Setup ready to guide the segmentation search to the correct segmentation.
 // The callback pp_cb is used to avoid a cyclic dependency.
 // It calls into LMPainPoints::GenerateForBlamer by pre-binding the
@@ -502,6 +503,8 @@ void BlamerBundle::InitForSegSearch(const WERD_CHOICE *best_choice,
     }
   }  // end for blamer_bundle->correct_segmentation_cols/rows
 }
+#endif // !defined(DISABLED_LEGACY_ENGINE)
+
 // Returns true if the guided segsearch is in progress.
 bool BlamerBundle::GuidedSegsearchStillGoing() const {
   return segsearch_is_looking_for_blame_;
