@@ -1034,11 +1034,22 @@ bool TessBaseAPI::ProcessPagesMultipageTiff(const l_uint8 *data,
   int page = (tessedit_page_number >= 0) ? tessedit_page_number : 0;
   size_t offset = 0;
   for (; ; ++page) {
-    if (tessedit_page_number >= 0)
+    if (tessedit_page_number >= 0) {
       page = tessedit_page_number;
-    pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
-                 : pixReadFromMultipageTiff(filename, &offset);
-    if (pix == nullptr) break;
+      int pages_read = 0;
+      do {
+        pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
+                     : pixReadFromMultipageTiff(filename, &offset);			  
+        pages_read++;
+      } while (pix != nullptr && pages_read < (page + 1));
+    }
+    else {
+      pix = (data) ? pixReadMemFromMultipageTiff(data, size, &offset)
+                   : pixReadFromMultipageTiff(filename, &offset);		  
+    }    
+    if (pix == nullptr) {
+      break;
+    }
     tprintf("Page %d\n", page + 1);
     char page_str[kMaxIntSize];
     snprintf(page_str, kMaxIntSize - 1, "%d", page);
