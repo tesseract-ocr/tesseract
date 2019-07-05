@@ -1401,7 +1401,7 @@ void Tesseract::classify_word_and_language(int pass_n, PAGE_RES_IT* pr_it,
   clock_t ocr_t = clock();
   if (tessedit_timing_debug) {
     tprintf("%s (ocr took %.2f sec)\n",
-            word->best_choice->unichar_string().string(),
+            word_data->word->best_choice->unichar_string().string(),
             static_cast<double>(ocr_t-start_t)/CLOCKS_PER_SEC);
   }
 }
