@@ -340,12 +340,6 @@ class GenericVector {
 
 namespace tesseract {
 
-// Function to read a GenericVector<char> from a whole file.
-// Returns false on failure.
-using FileReader = bool (*)(const STRING&, GenericVector<char>*);
-// Function to write a GenericVector<char> to a whole file.
-// Returns false on failure.
-using FileWriter = bool (*)(const GenericVector<char>&, const STRING&);
 // The default FileReader loads the whole file into the vector of char,
 // returning false on error.
 inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
