@@ -28,11 +28,11 @@ LSTMTester::LSTMTester(int64_t max_memory)
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for testing. Returns false if nothing was
 // loaded. The arg is a filename of a file that lists the filenames.
-bool LSTMTester::LoadAllEvalData(const STRING& filenames_file) {
+bool LSTMTester::LoadAllEvalData(const char* filenames_file) {
   GenericVector<STRING> filenames;
-  if (!LoadFileLinesToStrings(filenames_file.c_str(), &filenames)) {
+  if (!LoadFileLinesToStrings(filenames_file, &filenames)) {
     tprintf("Failed to load list of eval filenames from %s\n",
-            filenames_file.c_str());
+            filenames_file);
     return false;
   }
   return LoadAllEvalData(filenames);

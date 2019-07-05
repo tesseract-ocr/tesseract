@@ -19,6 +19,7 @@
 #ifndef TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 #define TESSERACT_CCUTIL_TESSDATAMANAGER_H_
 
+#include <string>
 #include <tesseract/genericvector.h>
 #include <tesseract/strngs.h>             // for STRING
 
@@ -148,7 +149,7 @@ class TessdataManager {
   void OverwriteEntry(TessdataType type, const char *data, int size);
 
   // Saves to the given filename.
-  bool SaveFile(const STRING &filename, FileWriter writer) const;
+  bool SaveFile(const char* filename, FileWriter writer) const;
   // Serializes to the given vector.
   void Serialize(GenericVector<char> *data) const;
   // Resets to the initial state, keeping the reader.
@@ -183,7 +184,7 @@ class TessdataManager {
   bool IsLSTMAvailable() const { return !entries_[TESSDATA_LSTM].empty(); }
 
   // Return the name of the underlying data file.
-  const STRING &GetDataFileName() const { return data_file_name_; }
+  const std::string& GetDataFileName() const { return data_file_name_; }
 
   /**
    * Reads all the standard tesseract config and data files for a language
@@ -236,7 +237,7 @@ class TessdataManager {
                                        TessdataType *type);
 
   // Name of file it came from.
-  STRING data_file_name_;
+  std::string data_file_name_;
   // Function to load the file when we need it.
   FileReader reader_;
   // True if the file has been loaded.

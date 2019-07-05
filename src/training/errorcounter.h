@@ -20,6 +20,7 @@
 #include "matrix.h"
 #include "statistc.h"
 
+class STRING;
 struct Pix;
 template <typename T> class UnicityTable;
 

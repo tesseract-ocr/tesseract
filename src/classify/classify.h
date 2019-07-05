@@ -412,7 +412,7 @@ class Classify : public CCStruct {
                  const INT_FX_RESULT_STRUCT& fx_info, const char* blob_text);
   // Writes stored training data to a .tr file based on the given filename.
   // Returns false on error.
-  bool WriteTRFile(const STRING& filename);
+  bool WriteTRFile(const char* filename);
 
   // Member variables.
 

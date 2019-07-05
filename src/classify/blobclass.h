@@ -32,7 +32,7 @@ namespace tesseract {
 // /path/to/dir/[lang].[fontname].exp[num]
 // The [lang], [fontname] and [num] fields should not have '.' characters.
 // If the global parameter classify_font_name is set, its value is used instead.
-void ExtractFontName(const STRING& filename, STRING* fontname);
+void ExtractFontName(const char* filename, STRING* fontname);
 
 }  // namespace tesseract.
 

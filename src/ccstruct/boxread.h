@@ -32,7 +32,7 @@ const int kBoxReadBufSize = 1024;
 
 // Open the boxfile based on the given image filename.
 // Returns nullptr if the box file cannot be opened.
-FILE* OpenBoxFile(const STRING& fname);
+FILE* OpenBoxFile(const char* filename);
 
 // Reads all boxes from the given filename.
 // Reads a specific target_page number if >= 0, or all pages otherwise.
@@ -41,7 +41,7 @@ FILE* OpenBoxFile(const STRING& fname);
 // a string is put in box_texts, with the corresponding page number in pages.
 // Each of the output vectors is optional (may be nullptr).
 // Returns false if no boxes are found.
-bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
+bool ReadAllBoxes(int target_page, bool skip_blanks, const char* filename,
                   GenericVector<TBOX>* boxes,
                   GenericVector<STRING>* texts,
                   GenericVector<STRING>* box_texts,

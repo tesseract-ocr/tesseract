@@ -21,6 +21,7 @@
 
 #include <mutex>                // for std::mutex
 #include <functional>           // for std::function
+#include <string>
 #include "ccutil.h"
 #include "errcode.h"
 #include <tesseract/genericvector.h>
@@ -56,7 +57,7 @@ class ObjectCache {
   // and return nullptr -- further attempts to load will fail (even
   // with a different loader) until DeleteUnusedObjects() is called.
   // We delete the given loader.
-  T* Get(STRING id, std::function<T*()> loader) {
+  T* Get(const std::string& id, std::function<T*()> loader) {
     T *retval = nullptr;
     std::lock_guard<std::mutex> guard(mu_);
     for (int i = 0; i < cache_.size(); i++) {
@@ -102,7 +103,7 @@ class ObjectCache {
 
  private:
   struct ReferenceCount {
-    STRING id;  // A unique ID to identify the object (think path on disk)
+    std::string id; // A unique ID to identify the object (think path on disk)
     T *object;  // A copy of the object in memory.  Can be delete'd.
     int count;  // A count of the number of active users of this object.
   };

@@ -151,16 +151,16 @@ void TessdataManager::OverwriteEntry(TessdataType type, const char *data,
 }
 
 // Saves to the given filename.
-bool TessdataManager::SaveFile(const STRING &filename,
+bool TessdataManager::SaveFile(const char* filename,
                                FileWriter writer) const {
   // TODO: This method supports only the proprietary file format.
   ASSERT_HOST(is_loaded_);
   GenericVector<char> data;
   Serialize(&data);
   if (writer == nullptr)
-    return SaveDataToFile(data, filename.c_str());
+    return SaveDataToFile(data, filename);
   else
-    return (*writer)(data, filename.c_str());
+    return (*writer)(data, filename);
 }
 
 // Serializes to the given vector.
@@ -249,7 +249,7 @@ bool TessdataManager::CombineDataFiles(
   for (auto filesuffix : kTessdataFileSuffixes) {
     TessdataType type;
     ASSERT_HOST(TessdataTypeFromFileSuffix(filesuffix, &type));
-    STRING filename = language_data_path_prefix;
+    std::string filename = language_data_path_prefix;
     filename += filesuffix;
     FILE *fp = fopen(filename.c_str(), "rb");
     if (fp != nullptr) {
