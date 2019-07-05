@@ -258,7 +258,7 @@ void TableFinder::InsertCleanPartitions(ColPartitionGrid* grid,
 // High level function to perform table detection
 void TableFinder::LocateTables(ColPartitionGrid* grid,
                                ColPartitionSet** all_columns,
-                               WidthCallback* width_cb,
+                               WidthCallback width_cb,
                                const FCOORD& reskew) {
   // initialize spacing, neighbors, and columns
   InitializePartitions(all_columns);
@@ -1996,7 +1996,7 @@ void TableFinder::DisplayColPartitionConnections(
 // assigned to any table to their original types.
 void TableFinder::MakeTableBlocks(ColPartitionGrid* grid,
                                   ColPartitionSet** all_columns,
-                                  WidthCallback* width_cb) {
+                                  WidthCallback width_cb) {
   // Since we have table blocks already, remove table tags from all
   // colpartitions
   GridSearch<ColPartition, ColPartition_CLIST, ColPartition_C_IT>

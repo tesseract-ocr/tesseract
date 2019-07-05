@@ -498,7 +498,6 @@ install(FILES
     src/ccutil/platform.h
     src/ccutil/serialis.h
     src/ccutil/strngs.h
-    src/ccutil/tesscallback.h
     src/ccutil/unichar.h
     src/ccutil/unicharcompress.h
     src/ccutil/unicharmap.h

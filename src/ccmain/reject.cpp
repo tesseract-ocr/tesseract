@@ -596,7 +596,7 @@ bool Tesseract::repeated_nonalphanum_wd(WERD_RES* word, ROW* row) {
     if (word->best_choice->unichar_id(i) != uch_id) return false;
   }
 
-  word_char_quality(word, row, &char_quality, &accepted_char_quality);
+  word_char_quality(word, &char_quality, &accepted_char_quality);
 
   if ((word->best_choice->unichar_lengths().length () == char_quality) &&
     (char_quality == accepted_char_quality))

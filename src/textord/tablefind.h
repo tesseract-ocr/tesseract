@@ -2,7 +2,6 @@
 // File:        tablefind.h
 // Description: Helper classes to find tables from ColPartitions.
 // Author:      Faisal Shafait (faisal.shafait@dfki.de)
-// Created:     Tue Jan 06 11:13:01 PST 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -156,7 +155,7 @@ class TableFinder {
   // if that feature is enabled.
   void LocateTables(ColPartitionGrid* grid,
                     ColPartitionSet** columns,
-                    WidthCallback* width_cb,
+                    WidthCallback width_cb,
                     const FCOORD& reskew);
 
  protected:
@@ -394,7 +393,7 @@ class TableFinder {
   // assigned to any table to their original types.
   void MakeTableBlocks(ColPartitionGrid* grid,
                        ColPartitionSet** columns,
-                       WidthCallback* width_cb);
+                       WidthCallback width_cb);
 
   /////////////////////////////////////////////////
   // Useful objects used during table find process.

@@ -192,13 +192,13 @@ int main(int argc, char **argv) {
                                1048576);
   tesseract::TestCallback tester_callback = nullptr;
   if (!FLAGS_eval_listfile.empty()) {
+    using namespace std::placeholders;  // for _1, _2, _3...
     if (!tester.LoadAllEvalData(FLAGS_eval_listfile.c_str())) {
       tprintf("Failed to load eval data from: %s\n",
               FLAGS_eval_listfile.c_str());
       return EXIT_FAILURE;
     }
-    tester_callback =
-        NewPermanentTessCallback(&tester, &tesseract::LSTMTester::RunEvalAsync);
+    tester_callback = std::bind(&tesseract::LSTMTester::RunEvalAsync, &tester, _1, _2, _3, _4);
   }
   do {
     // Train a few.
@@ -215,7 +215,6 @@ int main(int argc, char **argv) {
   } while (trainer.best_error_rate() > FLAGS_target_error_rate &&
            (trainer.training_iteration() < FLAGS_max_iterations ||
             FLAGS_max_iterations == 0));
-  delete tester_callback;
   tprintf("Finished! Error rate = %g\n", trainer.best_error_rate());
   return EXIT_SUCCESS;
 } /* main */

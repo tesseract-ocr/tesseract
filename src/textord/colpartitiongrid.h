@@ -2,7 +2,6 @@
 // File:        colpartitiongrid.h
 // Description: Class collecting code that acts on a BBGrid of ColPartitions.
 // Author:      Ray Smith
-// Created:     Mon Oct 05 08:42:01 PDT 2009
 //
 // (C) Copyright 2009, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,18 +48,18 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // calls the confirm_cb to check any more rules. If the confirm_cb returns
   // true, then the partitions are merged.
   // Both callbacks are deleted before returning.
-  void Merges(TessResultCallback2<bool, ColPartition*, TBOX*>* box_cb,
-              TessResultCallback2<bool, const ColPartition*,
-                                  const ColPartition*>* confirm_cb);
+  void Merges(std::function<bool(ColPartition*, TBOX*)> box_cb,
+              std::function<bool(const ColPartition*,
+                                 const ColPartition*)> confirm_cb);
 
   // For the given partition, calls the box_cb permanent callback
   // to compute the search box, searches the box, and if a candidate is found,
   // calls the confirm_cb to check any more rules. If the confirm_cb returns
   // true, then the partitions are merged.
   // Returns true if the partition is consumed by one or more merges.
-  bool MergePart(TessResultCallback2<bool, ColPartition*, TBOX*>* box_cb,
-                 TessResultCallback2<bool, const ColPartition*,
-                                     const ColPartition*>* confirm_cb,
+  bool MergePart(std::function<bool(ColPartition*, TBOX*)> box_cb,
+                 std::function<bool(const ColPartition*,
+                                    const ColPartition*)> confirm_cb,
                  ColPartition* part);
 
   // Computes and returns the total overlap of all partitions in the grid.
@@ -82,8 +81,8 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // See colpartitiongrid.cpp for a diagram.
   ColPartition* BestMergeCandidate(
       const ColPartition* part, ColPartition_CLIST* candidates, bool debug,
-      TessResultCallback2<bool, const ColPartition*,
-                          const ColPartition*>* confirm_cb,
+      std::function<bool(const ColPartition*,
+                         const ColPartition*)> confirm_cb,
       int* overlap_increase);
 
   // Split partitions where it reduces overlap between their bounding boxes.
@@ -133,7 +132,7 @@ class ColPartitionGrid : public BBGrid<ColPartition,
   // represents the total horizontal extent of the significant content on the
   // page. Used for the single column setting in place of automatic detection.
   // Returns nullptr if the page is empty of significant content.
-  ColPartitionSet* MakeSingleColumnSet(WidthCallback* cb);
+  ColPartitionSet* MakeSingleColumnSet(WidthCallback cb);
 
   // Mark the BLOBNBOXes in each partition as being owned by that partition.
   void ClaimBoxes();

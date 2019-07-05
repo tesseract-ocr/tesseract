@@ -91,11 +91,11 @@ bool Tesseract::recog_interactive(PAGE_RES_IT* pr_it) {
 #ifndef DISABLED_LEGACY_ENGINE
   if (tessedit_debug_quality_metrics) {
     WERD_RES* word_res = pr_it->word();
-    word_char_quality(word_res, pr_it->row()->row, &char_qual, &good_char_qual);
+    word_char_quality(word_res, &char_qual, &good_char_qual);
     tprintf("\n%d chars;  word_blob_quality: %d;  outline_errs: %d; "
             "char_quality: %d; good_char_quality: %d\n",
             word_res->reject_map.length(),
-            word_blob_quality(word_res, pr_it->row()->row),
+            word_blob_quality(word_res),
             word_outline_errs(word_res), char_qual, good_char_qual);
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
@@ -647,14 +647,13 @@ void Tesseract::rejection_passes(PAGE_RES* page_res,
     const int chars_in_word = word->reject_map.length();
     const int rejects_in_word = word->reject_map.reject_count();
 
-    const int blob_quality = word_blob_quality(word, page_res_it.row()->row);
+    const int blob_quality = word_blob_quality(word);
     stats_.doc_blob_quality += blob_quality;
     const int outline_errs = word_outline_errs(word);
     stats_.doc_outline_errs += outline_errs;
     int16_t all_char_quality;
     int16_t accepted_all_char_quality;
-    word_char_quality(word, page_res_it.row()->row,
-                      &all_char_quality, &accepted_all_char_quality);
+    word_char_quality(word, &all_char_quality, &accepted_all_char_quality);
     stats_.doc_char_quality += all_char_quality;
     const uint8_t permuter_type = word->best_choice->permuter();
     if ((permuter_type == SYSTEM_DAWG_PERM) ||

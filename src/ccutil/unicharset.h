@@ -19,12 +19,12 @@
 #ifndef TESSERACT_CCUTIL_UNICHARSET_H_
 #define TESSERACT_CCUTIL_UNICHARSET_H_
 
+#include <functional>           // for std::function
 #include "errcode.h"
 #include "genericvector.h"
 #include "helpers.h"
 #include "serialis.h"
 #include "strngs.h"
-#include "tesscallback.h"
 #include "unichar.h"
 #include "unicharmap.h"
 
@@ -1003,7 +1003,7 @@ class UNICHARSET {
   // Load ourselves from a "file" where our only interface to the file is
   // an implementation of fgets().  This is the parsing primitive accessed by
   // the public routines load_from_file() and load_from_inmemory_file().
-  bool load_via_fgets(TessResultCallback2<char *, char *, int> *fgets_cb,
+  bool load_via_fgets(std::function<char*(char*, int)> fgets_cb,
                       bool skip_fragments);
 
   // List of mappings to make when ingesting strings from the outside.

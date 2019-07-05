@@ -866,8 +866,8 @@ int TessBaseAPI::Recognize(ETEXT_DESC* monitor) {
             page_res_, tesseract_, thresholder_->GetScaleFactor(),
             thresholder_->GetScaledYResolution(),
             rect_left_, rect_top_, rect_width_, rect_height_);
-    truth_cb_->Run(tesseract_->getDict().getUnicharset(),
-                   image_height_, page_it, this->tesseract()->pix_grey());
+    truth_cb_(tesseract_->getDict().getUnicharset(),
+              image_height_, page_it, this->tesseract()->pix_grey());
     delete page_it;
   }
 

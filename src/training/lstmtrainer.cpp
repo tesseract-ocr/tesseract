@@ -1264,7 +1264,7 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
     if (tester != nullptr && !worst_model_data_.empty()) {
       mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                           worst_model_data_.size());
-      return tester->Run(worst_iteration_, nullptr, mgr_, CurrentTrainingStage());
+      return tester(worst_iteration_, nullptr, mgr_, CurrentTrainingStage());
     } else {
       return "";
     }
@@ -1281,8 +1281,8 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
     if (tester != nullptr && !worst_model_data_.empty()) {
       mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                           worst_model_data_.size());
-      result = tester->Run(worst_iteration_, worst_error_rates_, mgr_,
-                           CurrentTrainingStage());
+      result = tester(worst_iteration_, worst_error_rates_, mgr_,
+                      CurrentTrainingStage());
       worst_model_data_.truncate(0);
       best_model_data_ = model_data;
     }
@@ -1308,14 +1308,14 @@ STRING LSTMTrainer::UpdateErrorGraph(int iteration, double error_rate,
       if (!best_model_data_.empty()) {
         mgr_.OverwriteEntry(TESSDATA_LSTM, &best_model_data_[0],
                             best_model_data_.size());
-        result = tester->Run(best_iteration_, best_error_rates_, mgr_,
-                             CurrentTrainingStage());
+        result = tester(best_iteration_, best_error_rates_, mgr_,
+                        CurrentTrainingStage());
       } else if (!worst_model_data_.empty()) {
         // Allow for multiple data points with "worst" error rate.
         mgr_.OverwriteEntry(TESSDATA_LSTM, &worst_model_data_[0],
                             worst_model_data_.size());
-        result = tester->Run(worst_iteration_, worst_error_rates_, mgr_,
-                             CurrentTrainingStage());
+        result = tester(worst_iteration_, worst_error_rates_, mgr_,
+                        CurrentTrainingStage());
       }
       if (result.length() > 0)
         best_model_data_.truncate(0);

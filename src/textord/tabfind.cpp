@@ -72,11 +72,11 @@ TabFind::TabFind(int gridsize, const ICOORD& bleft, const ICOORD& tright,
   width_cb_ = nullptr;
   v_it_.add_list_after(vlines);
   SetVerticalSkewAndParallelize(vertical_x, vertical_y);
-  width_cb_ = NewPermanentTessCallback(this, &TabFind::CommonWidth);
+  using namespace std::placeholders;  // for _1
+  width_cb_ = std::bind(&TabFind::CommonWidth, this, _1);
 }
 
 TabFind::~TabFind() {
-  delete width_cb_;
 }
 
 ///////////////// PUBLIC functions (mostly used by TabVector). //////////////

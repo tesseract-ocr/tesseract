@@ -3,7 +3,6 @@
 // Description: Class to hold partitions of the page that correspond
 //              roughly to text lines.
 // Author:      Ray Smith
-// Created:     Thu Aug 14 10:50:01 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -573,7 +572,7 @@ class ColPartition : public ELIST2_LINK {
   ColPartition* SingletonPartner(bool upper);
 
   // Merge with the other partition and delete it.
-  void Absorb(ColPartition* other, WidthCallback* cb);
+  void Absorb(ColPartition* other, WidthCallback cb);
 
   // Returns true if the overlap between this and the merged pair of
   // merge candidates is sufficiently trivial to be allowed.
@@ -618,7 +617,7 @@ class ColPartition : public ELIST2_LINK {
                    int* first_col, int* last_col);
 
   // Sets the internal flags good_width_ and good_column_.
-  void SetColumnGoodness(WidthCallback* cb);
+  void SetColumnGoodness(WidthCallback cb);
 
   // Determines whether the blobs in this partition mostly represent
   // a leader (fixed pitch sequence) and sets the member blobs accordingly.

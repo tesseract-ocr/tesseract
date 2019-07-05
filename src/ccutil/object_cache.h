@@ -2,7 +2,6 @@
 // File:        object_cache.h
 // Description: A string indexed object cache.
 // Author:      David Eger
-// Created:     Fri Jan 27 12:08:00 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +19,10 @@
 #ifndef TESSERACT_CCUTIL_OBJECT_CACHE_H_
 #define TESSERACT_CCUTIL_OBJECT_CACHE_H_
 
+#include <functional>           // for std::function
 #include "ccutil.h"
 #include "errcode.h"
 #include "genericvector.h"
-#include "tesscallback.h"
 
 namespace tesseract {
 
@@ -57,8 +56,7 @@ class ObjectCache {
   // and return nullptr -- further attempts to load will fail (even
   // with a different loader) until DeleteUnusedObjects() is called.
   // We delete the given loader.
-  T *Get(STRING id,
-         TessResultCallback<T *> *loader) {
+  T* Get(STRING id, std::function<T*()> loader) {
     T *retval = nullptr;
     mu_.Lock();
     for (int i = 0; i < cache_.size(); i++) {
@@ -68,14 +66,13 @@ class ObjectCache {
           cache_[i].count++;
         }
         mu_.Unlock();
-        delete loader;
         return retval;
       }
     }
     cache_.push_back(ReferenceCount());
     ReferenceCount &rc = cache_.back();
     rc.id = id;
-    retval = rc.object = loader->Run();
+    retval = rc.object = loader();
     rc.count = (retval != nullptr) ? 1 : 0;
     mu_.Unlock();
     return retval;
