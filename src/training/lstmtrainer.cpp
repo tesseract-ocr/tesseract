@@ -141,11 +141,11 @@ bool LSTMTrainer::TryLoadingCheckpoint(const char* filename,
 // are implemented.
 // For other args see NetworkBuilder::InitNetwork.
 // Note: Be sure to call InitCharSet before InitNetwork!
-bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
+bool LSTMTrainer::InitNetwork(const char* network_spec, int append_index,
                               int net_flags, float weight_range,
                               float learning_rate, float momentum,
                               float adam_beta) {
-  mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec.c_str());
+  mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec);
   adam_beta_ = adam_beta;
   learning_rate_ = learning_rate;
   momentum_ = momentum;
@@ -157,7 +157,7 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
   }
   network_str_ += network_spec;
   tprintf("Built network:%s from request %s\n",
-          network_->spec().c_str(), network_spec.c_str());
+          network_->spec().c_str(), network_spec);
   tprintf(
       "Training parameters:\n  Debug interval = %d,"
       " weights = %g, learning rate = %g, momentum=%g\n",
