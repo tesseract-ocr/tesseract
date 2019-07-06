@@ -31,6 +31,12 @@
 
 namespace tesseract {
 
+// Clipping value for certainty inside Tesseract. Reflects the minimum value
+// of certainty that will be returned by ExtractBestPathAsUnicharIds.
+// Supposedly on a uniform scale that can be compared across languages and
+// engines.
+const float RecodeBeamSearch::kMinCertainty = -20.0f;
+
 // The beam width at each code position.
 const int RecodeBeamSearch::kBeamWidths[RecodedCharID::kMaxCodeLen + 1] = {
     5, 10, 16, 16, 16, 16, 16, 16, 16, 16,

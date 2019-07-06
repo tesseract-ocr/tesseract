@@ -510,6 +510,7 @@ install(FILES
     src/lstm/input.h
     src/lstm/lstm.h
     src/lstm/lstmrecognizer.h
+    src/lstm/lstmtrainer.h
     src/lstm/maxpool.h
     src/lstm/networkbuilder.h
     src/lstm/network.h
