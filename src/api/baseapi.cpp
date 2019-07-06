@@ -712,23 +712,24 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
   int component_count = 0;
   int left, top, right, bottom;
 
+  TessResultCallback<bool>* get_bbox = nullptr;
   if (raw_image) {
     // Get bounding box in original raw image with padding.
-    do {
-      if (page_it->BoundingBox(level, raw_padding,
-                               &left, &top, &right, &bottom) &&
-          (!text_only || PTIsTextType(page_it->BlockType())))
-        ++component_count;
-    } while (page_it->Next(level));
+    get_bbox = NewPermanentTessCallback(page_it, &PageIterator::BoundingBox,
+                                        level, raw_padding,
+                                        &left, &top, &right, &bottom);
   } else {
     // Get bounding box from binarized imaged. Note that this could be
     // differently scaled from the original image.
-    do {
-      if (page_it->BoundingBoxInternal(level, &left, &top, &right, &bottom) &&
-          (!text_only || PTIsTextType(page_it->BlockType())))
-        ++component_count;
-    } while (page_it->Next(level));
+    get_bbox = NewPermanentTessCallback(page_it,
+                                        &PageIterator::BoundingBoxInternal,
+                                        level, &left, &top, &right, &bottom);
   }
+  do {
+    if (get_bbox->Run() &&
+        (!text_only || PTIsTextType(page_it->BlockType())))
+      ++component_count;
+  } while (page_it->Next(level));
 
   Boxa* boxa = boxaCreate(component_count);
   if (pixa != nullptr)
@@ -743,15 +744,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
   int component_index = 0;
   page_it->Begin();
   do {
-    bool got_bounding_box;
-    if (raw_image) {
-      got_bounding_box =
-        page_it->BoundingBox(level, raw_padding, &left, &top, &right, &bottom);
-    } else {
-      got_bounding_box =
-        page_it->BoundingBoxInternal(level, &left, &top, &right, &bottom);
-    }
-    if (got_bounding_box &&
+    if (get_bbox->Run() &&
         (!text_only || PTIsTextType(page_it->BlockType()))) {
       Box* lbox = boxCreate(left, top, right - left, bottom - top);
       boxaAddBox(boxa, lbox, L_INSERT);
@@ -782,6 +775,7 @@ Boxa* TessBaseAPI::GetComponentImages(PageIteratorLevel level,
     }
   } while (page_it->Next(level));
   delete page_it;
+  delete get_bbox;
   return boxa;
 }
 

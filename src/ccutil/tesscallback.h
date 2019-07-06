@@ -169,6 +169,207 @@ struct Identity {
   using type = T;
 };
 
+template <bool del, class R, class T, class P1, class P2, class P3, class P4,
+          class P5>
+class _ConstTessMemberResultCallback_5_0 : public TessResultCallback<R> {
+ public:
+  using base = TessResultCallback<R>;
+  using MemberSignature = R (T::*)(P1, P2, P3, P4, P5) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+  typename remove_reference<P2>::type p2_;
+  typename remove_reference<P3>::type p3_;
+  typename remove_reference<P4>::type p4_;
+  typename remove_reference<P5>::type p5_;
+
+ public:
+  inline _ConstTessMemberResultCallback_5_0(const T* object,
+                                            MemberSignature member, P1 p1,
+                                            P2 p2, P3 p3, P4 p4, P5 p5)
+      : object_(object),
+        member_(member),
+        p1_(p1),
+        p2_(p2),
+        p3_(p3),
+        p4_(p4),
+        p5_(p5) {}
+
+  R Run() override {
+    if (!del) {
+      R result = (object_->*member_)(p1_, p2_, p3_, p4_, p5_);
+      return result;
+    }
+    R result = (object_->*member_)(p1_, p2_, p3_, p4_, p5_);
+    //  zero out the pointer to ensure segfault if used again
+    member_ = nullptr;
+    delete this;
+    return result;
+  }
+};
+
+template <bool del, class T, class P1, class P2, class P3, class P4, class P5>
+class _ConstTessMemberResultCallback_5_0<del, void, T, P1, P2, P3, P4, P5>
+    : public TessClosure {
+ public:
+  using base = TessClosure;
+  using MemberSignature = void (T::*)(P1, P2, P3, P4, P5) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+  typename remove_reference<P2>::type p2_;
+  typename remove_reference<P3>::type p3_;
+  typename remove_reference<P4>::type p4_;
+  typename remove_reference<P5>::type p5_;
+
+ public:
+  inline _ConstTessMemberResultCallback_5_0(const T* object,
+                                            MemberSignature member, P1 p1,
+                                            P2 p2, P3 p3, P4 p4, P5 p5)
+      : object_(object),
+        member_(member),
+        p1_(p1),
+        p2_(p2),
+        p3_(p3),
+        p4_(p4),
+        p5_(p5) {}
+
+  void Run() override {
+    if (!del) {
+      (object_->*member_)(p1_, p2_, p3_, p4_, p5_);
+    } else {
+      (object_->*member_)(p1_, p2_, p3_, p4_, p5_);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = nullptr;
+      delete this;
+    }
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class P2, class P3, class P4,
+          class P5>
+inline typename _ConstTessMemberResultCallback_5_0<false, R, T1, P1, P2, P3, P4,
+                                                   P5>::base*
+NewPermanentTessCallback(const T1* obj,
+                         R (T2::*member)(P1, P2, P3, P4, P5) const,
+                         typename Identity<P1>::type p1,
+                         typename Identity<P2>::type p2,
+                         typename Identity<P3>::type p3,
+                         typename Identity<P4>::type p4,
+                         typename Identity<P5>::type p5) {
+  return new _ConstTessMemberResultCallback_5_0<false, R, T1, P1, P2, P3, P4,
+                                                P5>(obj, member, p1, p2, p3, p4,
+                                                    p5);
+}
+#endif
+
+template <bool del, class R, class T, class P1, class P2, class P3, class P4,
+          class P5, class P6>
+class _ConstTessMemberResultCallback_6_0 : public TessResultCallback<R> {
+ public:
+  using base = TessResultCallback<R>;
+  using MemberSignature = R (T::*)(P1, P2, P3, P4, P5, P6) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+  typename remove_reference<P2>::type p2_;
+  typename remove_reference<P3>::type p3_;
+  typename remove_reference<P4>::type p4_;
+  typename remove_reference<P5>::type p5_;
+  typename remove_reference<P6>::type p6_;
+
+ public:
+  inline _ConstTessMemberResultCallback_6_0(const T* object,
+                                            MemberSignature member, P1 p1,
+                                            P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+      : object_(object),
+        member_(member),
+        p1_(p1),
+        p2_(p2),
+        p3_(p3),
+        p4_(p4),
+        p5_(p5),
+        p6_(p6) {}
+
+  R Run() override {
+    if (!del) {
+      R result = (object_->*member_)(p1_, p2_, p3_, p4_, p5_, p6_);
+      return result;
+    }
+    R result = (object_->*member_)(p1_, p2_, p3_, p4_, p5_, p6_);
+    //  zero out the pointer to ensure segfault if used again
+    member_ = nullptr;
+    delete this;
+    return result;
+  }
+};
+
+template <bool del, class T, class P1, class P2, class P3, class P4, class P5,
+          class P6>
+class _ConstTessMemberResultCallback_6_0<del, void, T, P1, P2, P3, P4, P5, P6>
+    : public TessClosure {
+ public:
+  using base = TessClosure;
+  using MemberSignature = void (T::*)(P1, P2, P3, P4, P5, P6) const;
+
+ private:
+  const T* object_;
+  MemberSignature member_;
+  typename remove_reference<P1>::type p1_;
+  typename remove_reference<P2>::type p2_;
+  typename remove_reference<P3>::type p3_;
+  typename remove_reference<P4>::type p4_;
+  typename remove_reference<P5>::type p5_;
+  typename remove_reference<P6>::type p6_;
+
+ public:
+  inline _ConstTessMemberResultCallback_6_0(const T* object,
+                                            MemberSignature member, P1 p1,
+                                            P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+      : object_(object),
+        member_(member),
+        p1_(p1),
+        p2_(p2),
+        p3_(p3),
+        p4_(p4),
+        p5_(p5),
+        p6_(p6) {}
+
+  void Run() override {
+    if (!del) {
+      (object_->*member_)(p1_, p2_, p3_, p4_, p5_, p6_);
+    } else {
+      (object_->*member_)(p1_, p2_, p3_, p4_, p5_, p6_);
+      //  zero out the pointer to ensure segfault if used again
+      member_ = nullptr;
+      delete this;
+    }
+  }
+};
+
+#ifndef SWIG
+template <class T1, class T2, class R, class P1, class P2, class P3, class P4,
+          class P5, class P6>
+inline typename _ConstTessMemberResultCallback_6_0<false, R, T1, P1, P2, P3, P4,
+                                                   P5, P6>::base*
+NewPermanentTessCallback(
+    const T1* obj, R (T2::*member)(P1, P2, P3, P4, P5, P6) const,
+    typename Identity<P1>::type p1, typename Identity<P2>::type p2,
+    typename Identity<P3>::type p3, typename Identity<P4>::type p4,
+    typename Identity<P5>::type p5, typename Identity<P6>::type p6) {
+  return new _ConstTessMemberResultCallback_6_0<false, R, T1, P1, P2, P3, P4,
+                                                P5, P6>(obj, member, p1, p2, p3,
+                                                        p4, p5, p6);
+}
+#endif
+
 template <class A1>
 class TessCallback1 {
  public:
