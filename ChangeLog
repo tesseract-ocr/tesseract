@@ -1,4 +1,4 @@
-2019-xx-xx - V4.1.0
+2019-07-07 - V4.1.0
   * Added new renders Alto, LSTMBox, WordStrBox.
   * Added character boxes in hOCR output.
   * Added python training scripts (experimental) as alternative shell scripts.
