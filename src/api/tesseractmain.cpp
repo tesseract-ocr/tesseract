@@ -92,7 +92,7 @@ class AutoWin32ConsoleOutputCP {
   UINT oldCP_;
 };
 
-static AutoWin32ConsoleOutputCP autoWin32CosnoleOutputCP(CP_UTF8);
+static AutoWin32ConsoleOutputCP autoWin32ConsoleOutputCP(CP_UTF8);
 
 #endif   // _WIN32
 
