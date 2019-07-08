@@ -69,6 +69,7 @@ set(MINIMUM_LEPTONICA_VERSION 1.74)
 message( "Configuring tesseract version ${PACKAGE_VERSION}...")
 
 option(CPPAN_BUILD "Build with cppan" ON)
+option(SW_BUILD "Build with sw" OFF)
 option(OPENMP_BUILD "Build with openmp support" OFF)  # see issue #1662
 option(GRAPHICS_DISABLED "Disable disable graphics (ScrollView)" OFF)
 option(DISABLED_LEGACY_ENGINE "Disable the legacy OCR engine" OFF)
@@ -76,7 +77,7 @@ option(BUILD_TRAINING_TOOLS "Build training tools" ON)
 option(BUILD_TESTS "Build tests" OFF)
 option(USE_SYSTEM_ICU "Use system ICU" OFF)
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan)
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.cppan OR SW_BUILD)
     set(CPPAN_BUILD OFF)
 endif()
 
@@ -163,6 +164,24 @@ if(CPPAN_BUILD)
         set(CPPAN_BUILD_SHARED_LIBS 1)
     endif()
     add_subdirectory(.cppan)
+elseif (SW_BUILD)
+    find_package(SW REQUIRED)
+    if (STATIC)
+        set(SW_BUILD_SHARED_LIBS 0)
+    else()
+        set(SW_BUILD_SHARED_LIBS 1)
+    endif()
+    sw_add_package(
+        org.sw.demo.danbloomberg.leptonica-master
+        org.sw.demo.libarchive.libarchive
+    )
+    if (BUILD_TRAINING_TOOLS)
+        sw_add_package(
+            org.sw.demo.gnome.pango.pangocairo
+            org.sw.demo.unicode.icu.i18n
+        )
+    endif()
+    sw_execute()
 else()
     find_package(PkgConfig)
     if(PKG_CONFIG_EXECUTABLE AND NOT Leptonica_DIR)
@@ -268,8 +287,9 @@ message( STATUS "AVX2_OPT: ${AVX2_OPT}")
 message( STATUS "SSE41_OPT: ${SSE41_OPT}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
 message( STATUS "sim_flags: ${sim_flags}")
-message( STATUS )
+message( STATUS "--------------------------------------------------------")
 message( STATUS "Build with cppan [CPPAN_BUILD]: ${CPPAN_BUILD}")
+message( STATUS "Build with sw [SW_BUILD]: ${SW_BUILD}")
 message( STATUS "Build with openmp support [OPENMP_BUILD]: ${OPENMP_BUILD}")
 message( STATUS "Disable disable graphics (ScrollView) [GRAPHICS_DISABLED]: ${GRAPHICS_DISABLED}")
 message( STATUS "Disable the legacy OCR engine [DISABLED_LEGACY_ENGINE]: ${DISABLED_LEGACY_ENGINE}")
@@ -408,6 +428,13 @@ if (CPPAN_BUILD)
     target_link_libraries       (libtesseract PUBLIC
         pvt.cppan.demo.danbloomberg.leptonica
         pvt.cppan.demo.libarchive.libarchive
+    )
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
+    export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
+elseif (SW_BUILD)
+    target_link_libraries       (libtesseract PUBLIC
+        org.sw.demo.danbloomberg.leptonica-master
+        org.sw.demo.libarchive.libarchive
     )
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake "include(${CMAKE_CURRENT_BINARY_DIR}/cppan.cmake)\n")
     export(TARGETS libtesseract APPEND FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
