@@ -1094,6 +1094,15 @@ class Tesseract : public Wordrec {
             "character. "
             "With 3 the alternative symbol choices per timestep are included "
             "and separated by the suggested segmentation of Tesseract");
+  INT_VAR_H(lstm_choice_amount, 5,
+            "Sets the number of choices one get per character in "
+            "lstm_choice_mode. Note that lstm_choice_mode must be set to "
+            "a value greater than 0 to produce results.");
+  double_VAR_H(lstm_rating_coefficient, 5, 
+               "Sets the rating coefficient for the lstm choices. The smaller "
+               "the coefficient, the better are the ratings for each choice "
+               "and less information is lost due to the cut off at 0. The "
+               "standard value is 5.");
 
   //// ambigsrecog.cpp /////////////////////////////////////////////////////////
   FILE* init_recog_training(const STRING& fname);

@@ -183,7 +183,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
                                    const TBOX& line_box,
                                    PointerVector<WERD_RES>* words,
-                                   int lstm_choice_mode) {
+                                   int lstm_choice_mode, int lstm_choice_amount) {
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
@@ -201,8 +201,7 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                   &GetUnicharset(), words, lstm_choice_mode);
   if (lstm_choice_mode){
     search_->extractSymbolChoices(&GetUnicharset());
-    int cascades = 5;
-    for (int i = 0; i < cascades; ++i) {
+    for (int i = 0; i < lstm_choice_amount; ++i) {
       search_->DecodeSecondaryBeams(outputs, kDictRatio, kCertOffset,
                                     worst_dict_cert, &GetUnicharset(),
                                     lstm_choice_mode);

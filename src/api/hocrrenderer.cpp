@@ -353,16 +353,16 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
                    << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt
                    << "'>";
           for (auto& j : timestep) {
-            float confidence = 100 - 5 * j.second;
-            if (confidence < 0.0f)
-              confidence = 0.0f;
-            if (confidence > 100.0f)
-              confidence = 100.0f;
+            float conf = 100 - tesseract_->lstm_rating_coefficient * j.second;
+            if (conf < 0.0f)
+              conf = 0.0f;
+            if (conf > 100.0f)
+              conf = 100.0f;
             hocr_str << "<span class='ocr_glyph'"
                      << " id='"
                      << "choice_" << page_id << "_" << wcnt << "_" << gcnt
                      << "'"
-                     << " title='x_confs " << confidence << "'>"
+                     << " title='x_confs " << conf << "'>"
                      << j.first << "</span>";
             gcnt++;
           }

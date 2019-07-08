@@ -359,6 +359,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   word_res_ = result_it.it_->word();
   oemLSTM_ = word_res_->tesseract->AnyLSTMLang();
   oemLegacy_ = word_res_->tesseract->AnyTessLang();
+  rating_coefficient_ = word_res_->tesseract->lstm_rating_coefficient;
   BLOB_CHOICE_LIST* choices = nullptr;
   tstep_index_ = &result_it.blob_index_;
   if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
@@ -424,10 +425,10 @@ float ChoiceIterator::Confidence() const {
   float confidence = 0.0f;
   if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
-    confidence = 100 - 5 * choice.second;
+    confidence = 100 - rating_coefficient_ * choice.second;
   } else {
     if (choice_it_ == nullptr) return 0.0f;
-    float confidence = 100 + 5 * choice_it_->data()->certainty();
+    confidence = 100 + 5 * choice_it_->data()->certainty();
   }
   if (confidence < 0.0f)
     confidence = 0.0f;
