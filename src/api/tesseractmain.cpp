@@ -72,23 +72,14 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 
 class AutoWin32ConsoleOutputCP {
  public:
-  explicit AutoWin32ConsoleOutputCP(UINT codeCP) : changed_(false) {
-    auto oldCP = GetConsoleOutputCP();
-    if (oldCP == codeCP) {
-      return;
-    }
-    oldCP_ = oldCP;
-    changed_ = true;
+  explicit AutoWin32ConsoleOutputCP(UINT codeCP) {
+    oldCP_ = GetConsoleOutputCP();    
     SetConsoleOutputCP(codeCP);
   }
-  ~AutoWin32ConsoleOutputCP() {
-    if (changed_) {
-      SetConsoleOutputCP(oldCP_);
-    }
+  ~AutoWin32ConsoleOutputCP() {    
+    SetConsoleOutputCP(oldCP_);    
   }
-
- private:
-  bool changed_;
+ private:  
   UINT oldCP_;
 };
 
