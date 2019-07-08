@@ -192,13 +192,14 @@ else()
     if (NOT Leptonica_FOUND)
         message(FATAL_ERROR "Cannot find required library Leptonica. Quitting!")
     endif(NOT Leptonica_FOUND)
+
+    find_package(LibArchive)
+    if(LibArchive_FOUND)
+        set(HAVE_LIBARCHIVE ON)
+    endif()
 endif()
 
 find_package(OpenCL QUIET)
-find_package(LibArchive)
-if(LibArchive_FOUND)
-    set(HAVE_LIBARCHIVE ON)
-endif()
 
 
 ###############################################################################
