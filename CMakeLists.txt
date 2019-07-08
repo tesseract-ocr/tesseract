@@ -95,12 +95,14 @@ else()  # minimum required standard
     set(CMAKE_CXX_STANDARD 11)
 endif()
 
-# workaround for bad info in CMAKE_CXX_KNOWN_FEATURES for g++ 4.8.4
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    set(CMAKE_CXX_STANDARD 11)
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL "6.1.0")
-        set(CMAKE_CXX_STANDARD 14)
-    endif()
+# Avoid using experimental c++1y (c++1z) standard even if the compiler announces cxx14 (cxx17)
+# in CMAKE_CXX_KNOWN_FEATURES and CMAKE_CXX_COMPILE_FEATURES
+# It is the case of clang 3.9, 4.0 (announces c++1z) and gcc 4.8 (announces c++1y)
+if ("${CMAKE_CXX17_STANDARD_COMPILE_OPTION}" STREQUAL "-std=c++1z")
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if ("${CMAKE_CXX14_STANDARD_COMPILE_OPTION}" STREQUAL "-std=c++1y")
+  set(CMAKE_CXX_STANDARD 11)
 endif()
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
