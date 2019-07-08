@@ -380,7 +380,7 @@ def phase_I_generate_image(ctx, par_factor=None):
             # for tesseract to recognize during training. Take only the ngrams whose
             # combined weight accounts for 95% of all the bigrams in the language.
             lines = pathlib.Path(ctx.bigram_freqs_file).read_text(encoding="utf-8").split("\n")
-            records = (line.split(" ") for line in lines)
+            records = (line.split() for line in lines)
             p = 0.99
             ngram_frac = p * sum(int(rec[1]) for rec in records if len(rec) >= 2)
 
