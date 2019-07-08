@@ -69,6 +69,31 @@ static void Win32WarningHandler(const char* module, const char* fmt,
 }
 
 #endif /* HAVE_TIFFIO_H */
+
+class AutoWin32ConsoleOutputCP {
+ public:
+  explicit AutoWin32ConsoleOutputCP(UINT codeCP) : changed_(false) {
+    auto oldCP = GetConsoleOutputCP();
+    if (oldCP == codeCP) {
+      return;
+    }
+    oldCP_ = oldCP;
+    changed_ = true;
+    SetConsoleOutputCP(codeCP);
+  }
+  ~AutoWin32ConsoleOutputCP() {
+    if (changed_) {
+      SetConsoleOutputCP(oldCP_);
+    }
+  }
+
+ private:
+  bool changed_;
+  UINT oldCP_;
+};
+
+static AutoWin32ConsoleOutputCP autoWin32CosnoleOutputCP(CP_UTF8);
+
 #endif   // _WIN32
 
 static void PrintVersionInfo() {
