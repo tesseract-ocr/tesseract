@@ -374,7 +374,7 @@ tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 tatweel_test_SOURCES = tatweel_test.cc
 tatweel_test_SOURCES += third_party/utf/rune.c
 tatweel_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
-tatweel_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+tatweel_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS) -ltensorflow_cc
 
 textlineprojection_test_SOURCES = textlineprojection_test.cc
 textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
