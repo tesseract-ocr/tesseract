@@ -342,8 +342,8 @@ class RecodeBeamTest : public ::testing::Test {
     return outputs;
   }
   UnicharCompress recoder_;
-  int unichar_null_char_;
-  int encoded_null_char_;
+  int unichar_null_char_ = 0;
+  int encoded_null_char_ = 0;
   CCUtil ccutil_;
   Dict lstm_dict_;
 };
