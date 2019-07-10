@@ -264,9 +264,8 @@ class FPChar {
 // FPChar's.
 class FPRow {
  public:
-  FPRow() : pitch_(0.0f), estimated_pitch_(0.0f),
-            all_pitches_(), all_gaps_(), good_pitches_(), good_gaps_(),
-            heights_(), characters_(), real_row_(nullptr) {
+  FPRow() : all_pitches_(), all_gaps_(), good_pitches_(), good_gaps_(),
+            heights_(), characters_() {
   }
 
   ~FPRow() { }
@@ -439,11 +438,11 @@ class FPRow {
     characters_.truncate(index);
   }
 
-  float pitch_;  // Character pitch.
-  float estimated_pitch_;  // equal to pitch_ if pitch_ is considered
+  float pitch_ = 0.0f; // Character pitch.
+  float estimated_pitch_ = 0.0f; // equal to pitch_ if pitch_ is considered
   // to be good enough.
-  float height_;  // Character height.
-  float gap_;  // Minimum gap between characters.
+  float height_ = 0.0f; // Character height.
+  float gap_ = 0.0f; // Minimum gap between characters.
 
   // Pitches between any two successive characters.
   SimpleStats all_pitches_;
@@ -459,7 +458,7 @@ class FPRow {
   SimpleStats heights_;
 
   GenericVector<FPChar> characters_;
-  TO_ROW *real_row_;  // Underlying TD_ROW for this row.
+  TO_ROW *real_row_ = nullptr; // Underlying TD_ROW for this row.
 };
 
 void FPRow::Init(TO_ROW *row) {
