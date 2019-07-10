@@ -159,7 +159,9 @@ check_PROGRAMS += stringrenderer_test
 check_PROGRAMS += tablefind_test
 check_PROGRAMS += tablerecog_test
 check_PROGRAMS += tabvector_test
+if TENSORFLOW
 check_PROGRAMS += tatweel_test
+endif
 check_PROGRAMS += textlineprojection_test
 check_PROGRAMS += tfile_test
 
@@ -372,10 +374,12 @@ tablerecog_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 tabvector_test_SOURCES = tabvector_test.cc
 tabvector_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
 
+if TENSORFLOW
 tatweel_test_SOURCES = tatweel_test.cc
 tatweel_test_SOURCES += third_party/utf/rune.c
 tatweel_test_SOURCES += util/utf8/unicodetext.cc util/utf8/unilib.cc
 tatweel_test_LDADD = $(GTEST_LIBS) $(TESS_LIBS)
+endif
 
 textlineprojection_test_SOURCES = textlineprojection_test.cc
 textlineprojection_test_LDADD = $(ABSEIL_LIBS) $(GTEST_LIBS) $(TESS_LIBS) $(LEPTONICA_LIBS)
