@@ -23,7 +23,6 @@
 
 #include <cstdio>
 #include <cstdarg>
-#include "ccutil.h"
 #include "params.h"
 #include "strngs.h"
 #include "tprintf.h"
@@ -35,34 +34,35 @@ static STRING_VAR(debug_file, "", "File to send tprintf output to");
 // Trace printf
 DLLSYM void tprintf(const char *format, ...)
 {
-  tesseract::tprintfMutex.Lock();
-  va_list args;                  // variable args
   const char* debug_file_name = debug_file.string();
   static FILE *debugfp = nullptr;   // debug file
-                                 // debug window
-  int32_t offset = 0;              // into message
-  char msg[MAX_MSG_LEN + 1];
 
-  va_start(args, format);  // variable list
-  // Format into msg
-  #ifdef _WIN32
-  offset += _vsnprintf(msg + offset, MAX_MSG_LEN - offset, format, args);
-  if (debug_file_name && strcmp(debug_file_name, "/dev/null") == 0)
-    debug_file.set_value("nul");
-  #else
-  offset += vsnprintf(msg + offset, MAX_MSG_LEN - offset, format, args);
-  #endif
-  va_end(args);
+  if (debug_file_name == nullptr) {
+    // This should not happen.
+    return;
+  }
 
-  if (debugfp == nullptr && debug_file_name && strlen(debug_file_name) > 0) {
-    debugfp = fopen(debug_file.string(), "wb");
-  } else if (debugfp != nullptr && debug_file_name && strlen(debug_file_name) == 0) {
+#ifdef _WIN32
+  // Replace /dev/null by nul for Windows.
+  if (strcmp(debug_file_name, "/dev/null") == 0) {
+    debug_file_name = "nul";
+    debug_file.set_value(debug_file_name);
+  }
+#endif
+
+  if (debugfp == nullptr && debug_file_name[0] != '\0') {
+    debugfp = fopen(debug_file_name, "wb");
+  } else if (debugfp != nullptr && debug_file_name[0] == '\0') {
     fclose(debugfp);
     debugfp = nullptr;
   }
-  if (debugfp != nullptr)
-    fprintf(debugfp, "%s", msg);
-  else
-    fprintf(stderr, "%s", msg);
-  tesseract::tprintfMutex.Unlock();
+
+  va_list args;            // variable args
+  va_start(args, format);  // variable list
+  if (debugfp != nullptr) {
+    vfprintf(debugfp, format, args);
+  } else {
+    vfprintf(stderr, format, args);
+  }
+  va_end(args);
 }
