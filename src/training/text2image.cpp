@@ -541,7 +541,7 @@ static int Main() {
   if (strncmp(src_utf8.c_str(), "\xef\xbb\xbf", 3) == 0) {
     src_utf8.erase(0, 3);
   }
-  tlog(1, "Render string of size %d\n", src_utf8.length());
+  tlog(1, "Render string of size %zu\n", src_utf8.length());
 
   if (FLAGS_render_ngrams || FLAGS_only_extract_font_properties) {
     // Try to preserve behavior of old text2image by expanding inter-word
