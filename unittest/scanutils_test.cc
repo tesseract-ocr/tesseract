@@ -31,14 +31,12 @@ TEST_F(ScanutilsTest, DoesScanf) {
   if (fp1 == nullptr) {
     std::cout << "Failed to open file " << filename << '\n';
     GTEST_SKIP();
-    return;
   }
   FILE* fp2 = fopen(filename.c_str(), "r");
   if (fp2 == nullptr) {
     std::cout << "Failed to open file " << filename << '\n';
-    GTEST_SKIP();
     fclose(fp1);
-    return;
+    GTEST_SKIP();
   }
   // The file contains this:
   // 42.5 17 0.001000 -0.001000
