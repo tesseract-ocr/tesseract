@@ -87,7 +87,6 @@ class CCUtil {
              "Use ambigs for deciding whether to adapt to a character");
 };
 
-extern CCUtilMutex tprintfMutex;  // should remain global
 }  // namespace tesseract
 
 #endif  // TESSERACT_CCUTIL_CCUTIL_H_

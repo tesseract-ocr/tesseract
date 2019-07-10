@@ -52,5 +52,4 @@ void CCUtilMutex::Unlock() {
 #endif
 }
 
-CCUtilMutex tprintfMutex;  // should remain global
 } // namespace tesseract
