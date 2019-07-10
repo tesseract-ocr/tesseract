@@ -422,7 +422,7 @@ const char* ChoiceIterator::GetUTF8Text() const {
 // interpreted as a percent probability. (0.0f-100.0f) In this case probabilities
 // won't add up to 100. Each one stands on its own.
 float ChoiceIterator::Confidence() const {
-  float confidence = 0.0f;
+  float confidence;
   if (oemLSTM_ && LSTM_choices_ != nullptr && !LSTM_choices_->empty()) {
     std::pair<const char*, float> choice = *LSTM_choice_it_;
     confidence = 100 - rating_coefficient_ * choice.second;
@@ -430,10 +430,12 @@ float ChoiceIterator::Confidence() const {
     if (choice_it_ == nullptr) return 0.0f;
     confidence = 100 + 5 * choice_it_->data()->certainty();
   }
-  if (confidence < 0.0f)
+  if (confidence < 0.0f) {
     confidence = 0.0f;
-  if (confidence > 100.0f)
+  }   
+  if (confidence > 100.0f) {
     confidence = 100.0f;
+  }  
   return confidence;
 }
 

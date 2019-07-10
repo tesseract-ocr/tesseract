@@ -232,13 +232,13 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   int timestepEndRaw = 0;
   int timestepEnd = 0;
   int timestepEnd_acc = 0;
-  // if lstm choice mode is required in granularity level 2 it stores the x
-  // Coordinates of every chosen character to match the alternative choices to
-  // it
+  // If lstm choice mode is required in granularity level 2, it stores the x
+  // Coordinates of every chosen character, to match the alternative choices to
+  // it.
   if (lstm_choice_mode) {
     character_boundaries_.clear();
     ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
-                            &xcoords, &character_boundaries_, 
+                            &xcoords, &character_boundaries_,
                             &best_choices, &best_choices_acc);
     if (best_choices.size() > 0) {
       timestepEnd = std::get<1>(best_choices.front());
@@ -297,7 +297,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
         }
         if ((best_choices_acc.size() > 0 &&
              i == std::get<1>(best_choices_acc.front()) - 1) ||
-            i == xcoords[word_end] - 1) {
+             i == xcoords[word_end] - 1) {
           std::map<const char*, float> summed_propabilities;
           for (auto & choice_pair : choice_pairs) {
             summed_propabilities[choice_pair.first] += choice_pair.second;
@@ -418,7 +418,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
         code = " ";
       } else {
         intCode = 666;
-        code = "inv";
+        code = "*";
       }
       int intPrevCode = 0;
       const char* prevCode;
@@ -432,7 +432,7 @@ void RecodeBeamSearch::PrintBeam2(bool uids, int num_outputs,
           intPrevCode = 0;
           prevCode = " ";
         } else {
-          prevCode = "inv";
+          prevCode = "*";
           intPrevCode = 666;
         }
       } else {
@@ -456,6 +456,8 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
   GenericVector<tesseract::RecodePair>* heaps = nullptr;
   PointerVector<RecodeBeam>* currentBeam = nullptr;
   if (character_boundaries_.size() < 2) return;
+  // For the first iteration the original beam is analyzed. After that a
+  // new beam is calculated based on the results from the original beam.
   if (secondary_beam_.empty()) {
     currentBeam = &beam_;
   } else {
@@ -471,6 +473,7 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
     heaps = currentBeam->get(character_boundaries_[j] - 1)->beams_->heap();
     GenericVector<const RecodeNode*> best_nodes;
     std::vector<const RecodeNode*> best;
+    // Scan the segmented node chain for valid unichar ids.
     for (int i = 0; i < heaps->size(); ++i) {
       bool validChar = false;
       int backcounter = 0;
@@ -485,44 +488,64 @@ void RecodeBeamSearch::extractSymbolChoices(const UNICHARSET* unicharset) {
       }
       if (validChar) best.push_back(&heaps->get(i).data);
     }
+    // find the best rated segmented node chain and extract the unichar id.
     if (!best.empty()) {
       std::sort(best.begin(), best.end(), greater_than());
       ExtractPath(best[0], &best_nodes, backpath);
       ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
                               &xcoords);
     }
-    // Exclude the best choice for the followup decoding.
-    std::unordered_set<int> excludeCodeList;
-    for (int node = 0; node < best_nodes.size(); ++node) {
-      if (best_nodes[node]->code != null_char_) {
-        excludeCodeList.insert(best_nodes[node]->code);
+    if (!unichar_ids.empty()) {
+      int bestPos = 0;
+      for (int i = 1; i < unichar_ids.size(); ++i) {
+        if (ratings[i] < ratings[bestPos])
+          bestPos = i;
       }
-    }
-    if (j - 1 < excludedUnichars.size()) {
-      for (auto elem : excludeCodeList) {
-        excludedUnichars[j - 1].insert(elem);
+      int bestCode = -10;
+      for (int i = 0; i < best_nodes.size(); ++i) {
+        if (best_nodes[i]->unichar_id == unichar_ids[bestPos]) {
+          bestCode = best_nodes[i]->code;
+        }
       }
-    } else {
-      excludedUnichars.push_back(excludeCodeList);
-    }
-    //Save the best choice for the choice iterator.
-    if (j - 1 < ctc_choices.size()) {
-      for (int i = 0; i < unichar_ids.size(); ++i) {
-        int id = unichar_ids[i];
+      // Exclude the best choice for the followup decoding.
+      std::unordered_set<int> excludeCodeList;
+      for (int node = 0; node < best_nodes.size(); ++node) {
+        if (best_nodes[node]->code != null_char_) {
+          excludeCodeList.insert(best_nodes[node]->code);
+        }
+      }
+      if (j - 1 < excludedUnichars.size()) {
+        for (auto elem : excludeCodeList) {
+          excludedUnichars[j - 1].insert(elem);
+        }
+      } else {
+        excludedUnichars.push_back(excludeCodeList);
+      }
+      // Save the best choice for the choice iterator.
+      if (j - 1 < ctc_choices.size()) {
+        int id = unichar_ids[bestPos];
         const char* result = unicharset->id_to_unichar_ext(id);
-        float rating = ratings[i];
+        float rating = ratings[bestPos];
         ctc_choices[j - 1].push_back(
             std::pair<const char*, float>(result, rating));
-      }
-    } else {
-      std::vector<std::pair<const char*, float>> choice;
-      for (int i = 0; i < unichar_ids.size(); ++i) {
-        int id = unichar_ids[i];
+      } else {
+        std::vector<std::pair<const char*, float>> choice;
+        int id = unichar_ids[bestPos];
         const char* result = unicharset->id_to_unichar_ext(id);
-        float rating = ratings[i];
+        float rating = ratings[bestPos];
         choice.push_back(std::pair<const char*, float>(result, rating));
+        ctc_choices.push_back(choice);
       }
-      ctc_choices.push_back(choice);
+    // fill the blank spot with an empty array
+    } else {
+      if (j - 1 >= excludedUnichars.size()) {
+        std::unordered_set<int> excludeCodeList;
+        excludedUnichars.push_back(excludeCodeList);
+      }
+      if (j - 1 >= ctc_choices.size()) {
+        std::vector<std::pair<const char*, float>> choice;
+        ctc_choices.push_back(choice);
+      }
     }
   }
   secondary_beam_.clear();

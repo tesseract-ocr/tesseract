@@ -218,7 +218,10 @@ class RecodeBeamSearch {
   void DebugBeams(const UNICHARSET& unicharset) const;
 
   // Extract the best charakters from the current decode iteration and block
-  // those symbols for the next iteration
+  // those symbols for the next iteration. In contrast to tesseracts standard
+  // method to chose the best overall node chain, this methods looks at a short
+  // node chain segmented by the character boundaries and chooses the best 
+  // option independent of the remaining node chain.
   void extractSymbolChoices(const UNICHARSET* unicharset);
   
   // Generates debug output of the content of the beams after a Decode.
@@ -328,9 +331,12 @@ class RecodeBeamSearch {
                   double cert_offset, double worst_dict_cert,
                   const UNICHARSET* charset, bool debug = false);
 
-  //Saves the most certain choices for the current time-step
-  void SaveMostCertainChoices(const float* outputs, int num_outputs, const UNICHARSET* charset, int xCoord);
+  // Saves the most certain choices for the current time-step.
+  void SaveMostCertainChoices(const float* outputs, int num_outputs, 
+                              const UNICHARSET* charset, int xCoord);
 
+  // Calculates more accurate character boundaries which can be used to
+  // provide more acurate alternative symbol choices.
   static void calculateCharBoundaries(std::vector<int>* starts,
                                       std::vector<int>* ends,
                                       std::vector<int>* character_boundaries_,

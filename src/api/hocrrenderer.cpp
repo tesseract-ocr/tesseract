@@ -345,7 +345,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
           tcnt++;
         }
       }
-    } else if (tesseract_->lstm_choice_mode == 4 ) {
+    } else if (tesseract_->lstm_choice_mode == 4) {
       for (auto timestep : *CTCMap) {
         if (timestep.size() > 0) {
           hocr_str << "\n       <span class='ocrx_cinfo'"

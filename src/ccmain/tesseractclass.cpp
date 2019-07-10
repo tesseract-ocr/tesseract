@@ -528,7 +528,10 @@ Tesseract::Tesseract()
           "With 2 the alternative symbol choices are accumulated per "
           "character. "
           "With 3 the alternative symbol choices per timestep are included "
-          "and separated by the suggested segmentation of Tesseract",
+          "and separated by the suggested segmentation of Tesseract. "
+          "With 4 alternative symbol choices are extracted from the CTC "
+          "process instead of the lattice. The choices are mapped per "
+          "character.",
           this->params()),
       INT_MEMBER(
           lstm_choice_amount, 5,

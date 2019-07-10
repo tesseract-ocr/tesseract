@@ -1093,7 +1093,10 @@ class Tesseract : public Wordrec {
             "With 2 the alternative symbol choices are accumulated per "
             "character. "
             "With 3 the alternative symbol choices per timestep are included "
-            "and separated by the suggested segmentation of Tesseract");
+            "and separated by the suggested segmentation of Tesseract. "
+            "With 4 alternative symbol choices are extracted from the CTC "
+            "process instead of the lattice. The choices are mapped per "
+            "character.");
   INT_VAR_H(lstm_choice_amount, 5,
             "Sets the number of choices one get per character in "
             "lstm_choice_mode. Note that lstm_choice_mode must be set to "
