@@ -22,6 +22,9 @@ namespace tesseract {
 // Computes and returns the dot product of the n-vectors u and v.
 double DotProductNative(const double* u, const double* v, int n);
 
+// Use Intel FMA.
+double DotProductFMA(const double* u, const double* v, int n);
+
 }  // namespace tesseract.
 
 #endif  // TESSERACT_ARCH_DOTPRODUCT_H_
