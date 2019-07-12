@@ -2,7 +2,7 @@
 
 language: cpp
 
-dist: trusty
+dist: xenial
 
 env:
   - LEPT_VER=1.77.0
