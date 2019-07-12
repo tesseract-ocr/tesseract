@@ -68,6 +68,9 @@ endif
 if AVX2_OPT
 libtesseract_la_LIBADD += ../arch/libtesseract_avx2.la
 endif
+if FMA_OPT
+libtesseract_la_LIBADD += ../arch/libtesseract_fma.la
+endif
 if SSE41_OPT
 libtesseract_la_LIBADD += ../arch/libtesseract_sse.la
 endif
