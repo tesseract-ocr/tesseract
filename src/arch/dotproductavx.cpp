@@ -2,7 +2,6 @@
 // File:        dotproductavx.cpp
 // Description: Architecture-specific dot-product function.
 // Author:      Ray Smith
-// Created:     Wed Jul 22 10:48:05 PDT 2015
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +21,7 @@
 
 #include <immintrin.h>
 #include <cstdint>
-#include "dotproductavx.h"
+#include "dotproduct.h"
 
 namespace tesseract {
 

@@ -18,8 +18,6 @@
 #include <numeric>           // for std::inner_product
 #include "simddetect.h"
 #include "dotproduct.h"
-#include "dotproductavx.h"
-#include "dotproductsse.h"
 #include "intsimdmatrix.h"   // for IntSimdMatrix
 #include "params.h"   // for STRING_VAR
 #include "tprintf.h"  // for tprintf

@@ -508,8 +508,7 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
 
     #from arch/makefile.am
-    src/arch/dotproductavx.h
-    src/arch/dotproductsse.h
+    src/arch/dotproduct.h
     src/arch/intsimdmatrix.h
     src/arch/simddetect.h
 

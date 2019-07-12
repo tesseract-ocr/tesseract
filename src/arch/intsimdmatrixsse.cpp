@@ -24,7 +24,6 @@
 #include <cstdint>
 #include <emmintrin.h>
 #include <smmintrin.h>
-#include "dotproductsse.h"
 
 namespace tesseract {
 
