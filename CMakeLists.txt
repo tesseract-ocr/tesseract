@@ -220,6 +220,7 @@ endforeach()
 # add definition as expected in src/arch/simddetect.cpp
 set(AVX_OPT OFF)
 set(AVX2_OPT OFF)
+set(FMA_OPT OFF)
 set(SSE41_OPT OFF)
 set(MARCH_NATIVE_OPT OFF)
 foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
@@ -227,7 +228,7 @@ foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
     string(REPLACE "\." "_" flag "${flag}")
     set(sim_flags "${sim_flags} -D${flag}")
     string(REPLACE "_" "" flag "${flag}")
-    if("${flag}" MATCHES "AVX|AVX2|SSE41")
+    if("${flag}" MATCHES "AVX|AVX2|FMA|SSE41")
         set("${flag}_OPT" ON)
     endif()
 endforeach(flag)
@@ -285,6 +286,7 @@ message( STATUS "Architecture flags: ${Vc_ARCHITECTURE_FLAGS}")
 message( STATUS "Vector unit list: ${_enable_vector_unit_list}")
 message( STATUS "AVX_OPT: ${AVX_OPT}")
 message( STATUS "AVX2_OPT: ${AVX2_OPT}")
+message( STATUS "FMA_OPT: ${FMA_OPT}")
 message( STATUS "SSE41_OPT: ${SSE41_OPT}")
 message( STATUS "MARCH_NATIVE_OPT: ${MARCH_NATIVE_OPT}")
 message( STATUS "sim_flags: ${sim_flags}")
@@ -364,6 +366,9 @@ endif(AVX_OPT)
 if(AVX2_OPT)
    list(APPEND tesseract_src src/arch/intsimdmatrixavx2.cpp)
 endif(AVX2_OPT)
+if(FMA_OPT)
+   list(APPEND tesseract_src src/arch/dotproductfma.cpp)
+endif(AVX_OPT)
 if(SSE41_OPT)
    list(APPEND tesseract_src src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
 endif(SSE41_OPT)
@@ -505,8 +510,7 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/api/tess_version.h
 
     #from arch/makefile.am
-    src/arch/dotproductavx.h
-    src/arch/dotproductsse.h
+    src/arch/dotproduct.h
     src/arch/intsimdmatrix.h
     src/arch/simddetect.h
 

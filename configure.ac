@@ -126,6 +126,9 @@ AM_CONDITIONAL([AVX_OPT], ${avx})
 AX_CHECK_COMPILE_FLAG([-mavx2], [avx2=true], [avx2=false], [$WERROR])
 AM_CONDITIONAL([AVX2_OPT], $avx2)
 
+AX_CHECK_COMPILE_FLAG([-mfma], [fma=true], [fma=false], [$WERROR])
+AM_CONDITIONAL([FMA_OPT], $fma)
+
 AX_CHECK_COMPILE_FLAG([-msse4.1], [sse41=true], [sse41=false], [$WERROR])
 AM_CONDITIONAL([SSE41_OPT], $sse41)
 

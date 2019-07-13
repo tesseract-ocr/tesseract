@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////
-// File:        dotproductavx.cpp
+// File:        dotproductfma.cpp
 // Description: Architecture-specific dot-product function.
-// Author:      Ray Smith
+// Author:      Stefan Weil
 //
 // (C) Copyright 2015, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,8 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
-#if !defined(__AVX__)
-#error Implementation only for AVX capable architectures
+#if !defined(__FMA__)
+#error Implementation only for FMA capable architectures
 #endif
 
 #include <immintrin.h>
@@ -26,8 +26,8 @@
 namespace tesseract {
 
 // Computes and returns the dot product of the n-vectors u and v.
-// Uses Intel AVX intrinsics to access the SIMD instruction set.
-double DotProductAVX(const double* u, const double* v, int n) {
+// Uses Intel FMA intrinsics to access the SIMD instruction set.
+double DotProductFMA(const double* u, const double* v, int n) {
   const unsigned quot = n / 8;
   const unsigned rem = n % 8;
   __m256d t0 = _mm256_setzero_pd();
@@ -35,14 +35,12 @@ double DotProductAVX(const double* u, const double* v, int n) {
   for (unsigned k = 0; k < quot; k++) {
     __m256d f0 = _mm256_loadu_pd(u);
     __m256d f1 = _mm256_loadu_pd(v);
-    f0 = _mm256_mul_pd(f0, f1);
-    t0 = _mm256_add_pd(t0, f0);
+    t0 = _mm256_fmadd_pd(f0, f1, t0);
     u += 4;
     v += 4;
     __m256d f2 = _mm256_loadu_pd(u);
     __m256d f3 = _mm256_loadu_pd(v);
-    f2 = _mm256_mul_pd(f2, f3);
-    t1 = _mm256_add_pd(t1, f2);
+    t1 = _mm256_fmadd_pd(f2, f3, t1);
     u += 4;
     v += 4;
   }

@@ -9,7 +9,7 @@ endif
 
 pkginclude_HEADERS =
 
-noinst_HEADERS = dotproduct.h dotproductavx.h dotproductsse.h
+noinst_HEADERS = dotproduct.h
 noinst_HEADERS += intsimdmatrix.h
 noinst_HEADERS += simddetect.h
 
@@ -19,6 +19,9 @@ noinst_LTLIBRARIES += libtesseract_avx.la
 endif
 if AVX2_OPT
 noinst_LTLIBRARIES += libtesseract_avx2.la
+endif
+if FMA_OPT
+noinst_LTLIBRARIES += libtesseract_fma.la
 endif
 if SSE41_OPT
 noinst_LTLIBRARIES += libtesseract_sse.la
@@ -33,6 +36,10 @@ endif
 if AVX2_OPT
 libtesseract_arch_la_CPPFLAGS += -DAVX2
 libtesseract_avx2_la_CXXFLAGS = -mavx2
+endif
+if FMA_OPT
+libtesseract_arch_la_CPPFLAGS += -DFMA
+libtesseract_fma_la_CXXFLAGS = -mfma
 endif
 if SSE41_OPT
 libtesseract_arch_la_CPPFLAGS += -DSSE4_1
@@ -53,6 +60,10 @@ endif
 
 if AVX2_OPT
 libtesseract_avx2_la_SOURCES = intsimdmatrixavx2.cpp
+endif
+
+if FMA_OPT
+libtesseract_fma_la_SOURCES = dotproductfma.cpp
 endif
 
 if SSE41_OPT
