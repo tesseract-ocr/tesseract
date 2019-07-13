@@ -62,6 +62,9 @@ void build(Solution &s)
         {
             libtesseract += "__SSE4_1__"_def;
             libtesseract.CompileOptions.push_back("-arch:AVX2");
+
+            libtesseract -=
+                "src/arch/dotproductfma.cpp";
         }
 
         libtesseract.Public += "HAVE_CONFIG_H"_d;
