@@ -22,6 +22,7 @@ before_build:
   - set PATH=%PATH%;%cd%
 
 build_script:
+  - sw -version
   - sw -show-output -platform %platform% build
 
 after_build:
