@@ -528,8 +528,23 @@ Tesseract::Tesseract()
           "With 2 the alternative symbol choices are accumulated per "
           "character. "
           "With 3 the alternative symbol choices per timestep are included "
-          "and separated by the suggested segmentation of Tesseract",
+          "and separated by the suggested segmentation of Tesseract. "
+          "With 4 alternative symbol choices are extracted from the CTC "
+          "process instead of the lattice. The choices are mapped per "
+          "character.",
           this->params()),
+      INT_MEMBER(
+          lstm_choice_amount, 5,
+          "Sets the number of choices one get per character in "
+          "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
+          "value greater than 0 to produce results.",
+                 this->params()),
+      double_MEMBER(
+          lstm_rating_coefficient, 5,
+          "Sets the rating coefficient for the lstm choices. The smaller the "
+          "coefficient, the better are the ratings for each choice and less "
+          "information is lost due to the cut off at 0. The standard value is "
+          "5", this->params()),
 
       backup_config_file_(nullptr),
       pix_binary_(nullptr),

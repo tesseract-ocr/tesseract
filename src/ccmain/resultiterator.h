@@ -104,6 +104,8 @@ class TESS_API ResultIterator : public LTRResultIterator {
   GetRawLSTMTimesteps() const;
   virtual std::vector<std::vector<std::pair<const char*, float>>>*
     GetBestLSTMSymbolChoices() const;
+  virtual std::vector<std::vector<std::pair<const char*, float>>>*
+  GetBestCTCSymbolChoices() const;
   virtual std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
     GetSegmentedLSTMTimesteps() const;
 

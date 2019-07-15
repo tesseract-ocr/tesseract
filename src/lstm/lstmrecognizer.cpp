@@ -39,6 +39,9 @@
 #include "statistc.h"
 #include "tprintf.h"
 
+#include <unordered_set>
+#include <vector>
+
 namespace tesseract {
 
 // Default ratio between dict and non-dict words.
@@ -180,7 +183,8 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
                                    bool debug, double worst_dict_cert,
                                    const TBOX& line_box,
                                    PointerVector<WERD_RES>* words,
-                                   int lstm_choice_mode) {
+                                   int lstm_choice_mode,
+                                   int lstm_choice_amount) {
   NetworkIO outputs;
   float scale_factor;
   NetworkIO inputs;
@@ -191,10 +195,31 @@ void LSTMRecognizer::RecognizeLine(const ImageData& image_data, bool invert,
     search_ =
         new RecodeBeamSearch(recoder_, null_char_, SimpleTextOutput(), dict_);
   }
+  search_->excludedUnichars.clear();
   search_->Decode(outputs, kDictRatio, kCertOffset, worst_dict_cert,
                   &GetUnicharset(), lstm_choice_mode);
   search_->ExtractBestPathAsWords(line_box, scale_factor, debug,
                                   &GetUnicharset(), words, lstm_choice_mode);
+  if (lstm_choice_mode){
+    search_->extractSymbolChoices(&GetUnicharset());
+    for (int i = 0; i < lstm_choice_amount; ++i) {
+      search_->DecodeSecondaryBeams(outputs, kDictRatio, kCertOffset,
+                                    worst_dict_cert, &GetUnicharset(),
+                                    lstm_choice_mode);
+      search_->extractSymbolChoices(&GetUnicharset());
+    }
+    int ctc_it = 0;
+    for (int i = 0; i < words->size(); ++i) {
+      for (int j = 0; j < words->get(i)->accumulated_timesteps.size(); ++j) {
+        if (ctc_it < search_->ctc_choices.size())
+          words->get(i)->CTC_symbol_choices.push_back(
+              search_->ctc_choices[ctc_it]);
+        ++ctc_it;
+      }
+    }
+    search_->ctc_choices.clear();
+    search_->excludedUnichars.clear();
+  }
 }
 
 // Helper computes min and mean best results in the output.
