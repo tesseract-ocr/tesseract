@@ -24,6 +24,7 @@
 #include <map>
 #include <mutex>       // for std::mutex
 #include <string>
+#include <thread>      // for std::thread
 #include <utility>
 #include <vector>
 
@@ -80,7 +81,7 @@ SVEventHandler::~SVEventHandler() = default;
 /// to the client. It basically loops through messages, parses them to events
 /// and distributes it to the waiting handlers.
 /// It is run from a different thread and synchronizes via SVSync.
-void* ScrollView::MessageReceiver(void* a) {
+void ScrollView::MessageReceiver() {
   int counter_event_id = 0;  // ongoing counter
   char* message = nullptr;
   // Wait until a new message appears in the input stream_.
@@ -177,7 +178,6 @@ void* ScrollView::MessageReceiver(void* a) {
       message = ScrollView::GetStream()->Receive();
     } while (message == nullptr);
   }
-  return nullptr;
 }
 
 // Table to implement the color index values in the old system.
@@ -277,7 +277,8 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
     svmap_mu = new std::mutex();
     SendRawMessage(
         "svmain = luajava.bindClass('com.google.scrollview.ScrollView')\n");
-    SVSync::StartThread(MessageReceiver, nullptr);
+    std::thread t(&ScrollView::MessageReceiver);
+    t.detach();
   }
 
   // Set up the variables on the clientside.
@@ -312,48 +313,48 @@ void ScrollView::Initialize(const char* name, int x_pos, int y_pos, int x_size,
            x_pos, y_pos, x_size, y_size, x_canvas_size, y_canvas_size);
   SendRawMessage(message);
 
-  SVSync::StartThread(StartEventHandler, this);
+  std::thread t(&ScrollView::StartEventHandler, this);
+  t.detach();
 }
 
 /// Sits and waits for events on this window.
-void* ScrollView::StartEventHandler(void* a) {
-  auto* sv = static_cast<ScrollView*>(a);
+void ScrollView::StartEventHandler() {
   SVEvent* new_event;
 
-  do {
+  for (;;) {
     stream_->Flush();
-    sv->semaphore_->Wait();
+    semaphore_->Wait();
     new_event = nullptr;
     int serial = -1;
     int k = -1;
-    sv->mutex_->lock();
+    mutex_->lock();
     // Check every table entry if he is is valid and not already processed.
 
     for (int i = 0; i < SVET_COUNT; i++) {
-      if (sv->event_table_[i] != nullptr &&
-          (serial < 0 || sv->event_table_[i]->counter < serial)) {
-        new_event = sv->event_table_[i];
-        serial = sv->event_table_[i]->counter;
+      if (event_table_[i] != nullptr &&
+          (serial < 0 || event_table_[i]->counter < serial)) {
+        new_event = event_table_[i];
+        serial = event_table_[i]->counter;
         k = i;
       }
     }
     // If we didn't find anything we had an old alarm and just sleep again.
     if (new_event != nullptr) {
-      sv->event_table_[k] = nullptr;
-      sv->mutex_->unlock();
-      if (sv->event_handler_ != nullptr) { sv->event_handler_->Notify(new_event); }
+      event_table_[k] = nullptr;
+      mutex_->unlock();
+      if (event_handler_ != nullptr) { event_handler_->Notify(new_event); }
       if (new_event->type == SVET_DESTROY) {
         // Signal the destructor that it is safe to terminate.
-        sv->event_handler_ended_ = true;
-        sv = nullptr;
+        event_handler_ended_ = true;
+        delete new_event;  // Delete the pointer after it has been processed.
+        return;
       }
       delete new_event;  // Delete the pointer after it has been processed.
     } else {
-      sv->mutex_->unlock();
+      mutex_->unlock();
     }
-  // The thread should run as long as its associated window is alive.
-  } while (sv != nullptr);
-  return nullptr;
+    // The thread should run as long as its associated window is alive.
+  }
 }
 #endif  // GRAPHICS_DISABLED
 

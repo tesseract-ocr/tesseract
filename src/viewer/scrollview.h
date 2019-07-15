@@ -361,8 +361,8 @@ class ScrollView {
 // Send the current buffered polygon (if any) and clear it.
   void SendPolygon();
 
-// Start the message receiving thread.
-  static void* MessageReceiver(void* a);
+  // Start the message receiving thread.
+  static void MessageReceiver();
 
 // Place an event into the event_table (synchronized).
   void SetEvent(SVEvent* svevent);
@@ -373,8 +373,9 @@ class ScrollView {
 // Returns the unique, shared network stream.
   static SVNetwork* GetStream() { return stream_; }
 
-// Starts a new event handler. Called whenever a new window is created.
-  static void* StartEventHandler(void* sv);
+  // Starts a new event handler.
+  // Called asynchronously whenever a new window is created.
+  void StartEventHandler();
 
 // Escapes the ' character with a \, so it can be processed by LUA.
   char* AddEscapeChars(const char* input);
