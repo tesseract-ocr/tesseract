@@ -23,7 +23,6 @@
 #include "genericvector.h"
 #include "matrix.h"
 #include "networkio.h"
-#include "svutil.h"
 
 namespace tesseract {
 

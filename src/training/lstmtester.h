@@ -22,7 +22,6 @@
 #include "genericvector.h"
 #include "lstmtrainer.h"
 #include "strngs.h"
-#include "svutil.h"
 
 namespace tesseract {
 

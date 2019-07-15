@@ -33,7 +33,6 @@
 #include "rect.h"        // for TBOX
 #include "scrollview.h"  // for ScrollView, ScrollView::CYAN, ScrollView::NONE
 #include "serialis.h"    // for TFile
-#include "svutil.h"      // for SVSync
 #include "tprintf.h"     // for tprintf
 
 // Number of documents to read ahead while training. Doesn't need to be very
