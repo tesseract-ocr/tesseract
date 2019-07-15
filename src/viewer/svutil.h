@@ -26,7 +26,6 @@
 #ifdef _WIN32
 #  include "host.h"  // also includes windows.h
 #else
-#include <pthread.h>
 #include <semaphore.h>
 #endif
 
@@ -36,10 +35,6 @@
 /// The SVSync class provides functionality for Thread & Process Creation
 class SVSync {
  public:
-  /// Create new thread.
-  static void StartThread(void *(*func)(void*), void* arg);
-  /// Signals a thread to exit.
-  static void ExitThread();
   /// Starts a new process.
   static void StartProcess(const char* executable, const char* args);
 };
