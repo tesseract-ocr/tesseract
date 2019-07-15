@@ -35,22 +35,6 @@
 
 namespace tesseract {
 
-class CCUtilMutex {
- public:
-  CCUtilMutex();
-
-  void Lock();
-
-  void Unlock();
- private:
-#ifdef _WIN32
-  HANDLE mutex_;
-#else
-  pthread_mutex_t mutex_;
-#endif
-};
-
-
 class CCUtil {
  public:
   CCUtil();

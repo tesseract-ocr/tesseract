@@ -3,7 +3,6 @@
 // Description: Class to hold information about a single image and its
 //              corresponding boxes or text file.
 // Author:      Ray Smith
-// Created:     Mon Jul 22 14:17:06 PDT 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +19,10 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
+#include <mutex>                // for std::mutex
 #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
 #include "points.h"             // for FCOORD
 #include "strngs.h"             // for STRING
-#include "svutil.h"             // for SVAutoLock, SVMutex
 
 class ScrollView;
 class TBOX;
@@ -227,15 +226,15 @@ class DocumentData {
   void AddPageToDocument(ImageData* page);
 
   const STRING& document_name() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return document_name_;
   }
   int NumPages() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return total_pages_;
   }
   int64_t memory_used() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return memory_used_;
   }
   // If the given index is not currently loaded, loads it using a separate
@@ -259,7 +258,7 @@ class DocumentData {
   bool IsPageAvailable(int index, ImageData** page);
   // Takes ownership of the given page index. The page is made nullptr in *this.
   ImageData* TakePage(int index) {
-    SVAutoLock lock(&pages_mutex_);
+    std::lock_guard<std::mutex> lock(pages_mutex_);
     ImageData* page = pages_[index];
     pages_[index] = nullptr;
     return page;
@@ -276,11 +275,11 @@ class DocumentData {
  private:
   // Sets the value of total_pages_ behind a mutex.
   void set_total_pages(int total) {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     total_pages_ = total;
   }
   void set_memory_used(int64_t memory_used) {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     memory_used_ = memory_used;
   }
   // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
@@ -304,10 +303,10 @@ class DocumentData {
   FileReader reader_;
   // Mutex that protects pages_ and pages_offset_ against multiple parallel
   // loads, and provides a wait for page.
-  SVMutex pages_mutex_;
+  std::mutex pages_mutex_;
   // Mutex that protects other data members that callers want to access without
   // waiting for a load operation.
-  mutable SVMutex general_mutex_;
+  mutable std::mutex general_mutex_;
 };
 
 // A collection of DocumentData that knows roughly how much memory it is using.
