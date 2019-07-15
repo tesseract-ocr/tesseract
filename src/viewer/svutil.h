@@ -64,17 +64,6 @@ class SVSemaphore {
 #endif
 };
 
-// Auto-unlocking object that locks a mutex on construction and unlocks it
-// on destruction.
-class SVAutoLock {
- public:
-  explicit SVAutoLock(std::mutex* mutex) : mutex_(mutex) { mutex->lock(); }
-  ~SVAutoLock() { mutex_->unlock(); }
-
- private:
-  std::mutex* mutex_;
-};
-
 /// The SVNetwork class takes care of the remote connection for ScrollView
 /// This means setting up and maintaining a remote connection, sending and
 /// receiving messages and closing the connection.

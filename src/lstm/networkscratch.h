@@ -211,7 +211,7 @@ class NetworkScratch {
     // Lends out the next free item, creating one if none available, sets
     // the used flags and increments the stack top.
     T* Borrow() {
-      SVAutoLock lock(&mutex_);
+      std::lock_guard<std::mutex> lock(mutex_);
       if (stack_top_ == stack_.size()) {
         stack_.push_back(new T);
         flags_.push_back(false);
@@ -225,7 +225,7 @@ class NetworkScratch {
     // small, temporary variations from true stack use. (Determined by the order
     // of destructors within a local scope.)
     void Return(T* item) {
-      SVAutoLock lock(&mutex_);
+      std::lock_guard<std::mutex> lock(mutex_);
       // Linear search will do.
       int index = stack_top_ - 1;
       while (index >= 0 && stack_[index] != item) --index;

@@ -143,7 +143,7 @@ void* LSTMTester::ThreadFunc(void* lstmtester_void) {
 // Returns true if there is currently nothing running, and takes the lock
 // if there is nothing running.
 bool LSTMTester::LockIfNotRunning() {
-  SVAutoLock lock(&running_mutex_);
+  std::lock_guard<std::mutex> lock(running_mutex_);
   if (async_running_) return false;
   async_running_ = true;
   return true;
@@ -151,7 +151,7 @@ bool LSTMTester::LockIfNotRunning() {
 
 // Releases the running lock.
 void LSTMTester::UnlockRunning() {
-  SVAutoLock lock(&running_mutex_);
+  std::lock_guard<std::mutex> lock(running_mutex_);
   async_running_ = false;
 }
 

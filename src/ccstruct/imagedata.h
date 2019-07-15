@@ -23,7 +23,6 @@
 #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
 #include "points.h"             // for FCOORD
 #include "strngs.h"             // for STRING
-#include "svutil.h"             // for SVAutoLock
 
 class ScrollView;
 class TBOX;
@@ -227,15 +226,15 @@ class DocumentData {
   void AddPageToDocument(ImageData* page);
 
   const STRING& document_name() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return document_name_;
   }
   int NumPages() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return total_pages_;
   }
   int64_t memory_used() const {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     return memory_used_;
   }
   // If the given index is not currently loaded, loads it using a separate
@@ -259,7 +258,7 @@ class DocumentData {
   bool IsPageAvailable(int index, ImageData** page);
   // Takes ownership of the given page index. The page is made nullptr in *this.
   ImageData* TakePage(int index) {
-    SVAutoLock lock(&pages_mutex_);
+    std::lock_guard<std::mutex> lock(pages_mutex_);
     ImageData* page = pages_[index];
     pages_[index] = nullptr;
     return page;
@@ -276,11 +275,11 @@ class DocumentData {
  private:
   // Sets the value of total_pages_ behind a mutex.
   void set_total_pages(int total) {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     total_pages_ = total;
   }
   void set_memory_used(int64_t memory_used) {
-    SVAutoLock lock(&general_mutex_);
+    std::lock_guard<std::mutex> lock(general_mutex_);
     memory_used_ = memory_used;
   }
   // Locks the pages_mutex_ and Loads as many pages can fit in max_memory_
