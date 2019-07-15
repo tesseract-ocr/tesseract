@@ -2,7 +2,6 @@
 // File:        lstmtester.h
 // Description: Top-level line evaluation class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Wed Nov 23 11:05:06 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@
 #ifndef TESSERACT_TRAINING_LSTMTESTER_H_
 #define TESSERACT_TRAINING_LSTMTESTER_H_
 
+#include <mutex>
 #include "genericvector.h"
 #include "lstmtrainer.h"
 #include "strngs.h"
@@ -81,7 +81,7 @@ class LSTMTester {
   // Flag that indicates an asynchronous test is currently running.
   // Protected by running_mutex_.
   bool async_running_;
-  SVMutex running_mutex_;
+  std::mutex running_mutex_;
   // Stored copies of the args for use while running asynchronously.
   int test_iteration_;
   const double* test_training_errors_;

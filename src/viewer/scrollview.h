@@ -2,7 +2,6 @@
 // File:        scrollview.h
 // Description: ScrollView
 // Author:      Joern Wanke
-// Created:     Thu Nov 29 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,10 +34,10 @@
 #ifndef OCR_SCROLLVIEW_H__
 
 #include <cstdio>
+#include <mutex>
 
 class ScrollView;
 class SVNetwork;
-class SVMutex;
 class SVSemaphore;
 struct SVPolyLineBuffer;
 
@@ -407,7 +406,7 @@ class ScrollView {
   SVEvent* event_table_[SVET_COUNT];
 
   // Mutex to access the event_table_ in a synchronized fashion.
-  SVMutex* mutex_;
+  std::mutex* mutex_;
 
   // Semaphore to the thread belonging to this window.
   SVSemaphore* semaphore_;

@@ -3,7 +3,6 @@
 // Description: Class to hold information about a single image and its
 //              corresponding boxes or text file.
 // Author:      Ray Smith
-// Created:     Mon Jul 22 14:17:06 PDT 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,10 +19,11 @@
 #ifndef TESSERACT_IMAGE_IMAGEDATA_H_
 #define TESSERACT_IMAGE_IMAGEDATA_H_
 
+#include <mutex>                // for std::mutex
 #include "genericvector.h"      // for GenericVector, PointerVector, FileReader
 #include "points.h"             // for FCOORD
 #include "strngs.h"             // for STRING
-#include "svutil.h"             // for SVAutoLock, SVMutex
+#include "svutil.h"             // for SVAutoLock
 
 class ScrollView;
 class TBOX;
@@ -304,10 +304,10 @@ class DocumentData {
   FileReader reader_;
   // Mutex that protects pages_ and pages_offset_ against multiple parallel
   // loads, and provides a wait for page.
-  SVMutex pages_mutex_;
+  std::mutex pages_mutex_;
   // Mutex that protects other data members that callers want to access without
   // waiting for a load operation.
-  mutable SVMutex general_mutex_;
+  mutable std::mutex general_mutex_;
 };
 
 // A collection of DocumentData that knows roughly how much memory it is using.

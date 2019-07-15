@@ -19,6 +19,7 @@
 #ifndef TESSERACT_LSTM_NETWORKSCRATCH_H_
 #define TESSERACT_LSTM_NETWORKSCRATCH_H_
 
+#include <mutex>
 #include "genericvector.h"
 #include "matrix.h"
 #include "networkio.h"
@@ -236,7 +237,7 @@ class NetworkScratch {
     PointerVector<T> stack_;
     GenericVector<bool> flags_;
     int stack_top_;
-    SVMutex mutex_;
+    std::mutex mutex_;
   };  // class Stack.
 
  private:

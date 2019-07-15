@@ -456,9 +456,9 @@ const ImageData* DocumentData::GetPage(int index) {
   ImageData* page = nullptr;
   while (!IsPageAvailable(index, &page)) {
     // If there is no background load scheduled, schedule one now.
-    pages_mutex_.Lock();
+    pages_mutex_.lock();
     bool needs_loading = pages_offset_ != index;
-    pages_mutex_.Unlock();
+    pages_mutex_.unlock();
     if (needs_loading) LoadPageInBackground(index);
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.

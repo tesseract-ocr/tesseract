@@ -52,30 +52,6 @@
 #include <unistd.h>
 #endif
 
-SVMutex::SVMutex() {
-#ifdef _WIN32
-  mutex_ = CreateMutex(0, FALSE, 0);
-#else
-  pthread_mutex_init(&mutex_, nullptr);
-#endif
-}
-
-void SVMutex::Lock() {
-#ifdef _WIN32
-  WaitForSingleObject(mutex_, INFINITE);
-#else
-  pthread_mutex_lock(&mutex_);
-#endif
-}
-
-void SVMutex::Unlock() {
-#ifdef _WIN32
-  ReleaseMutex(mutex_);
-#else
-  pthread_mutex_unlock(&mutex_);
-#endif
-}
-
 // Create new thread.
 void SVSync::StartThread(void* (*func)(void*), void* arg) {
 #ifdef _WIN32
@@ -200,19 +176,19 @@ void SVSemaphore::Wait() {
 
 // Place a message in the message buffer (and flush it).
 void SVNetwork::Send(const char* msg) {
-  mutex_send_.Lock();
+  mutex_send_.lock();
   msg_buffer_out_.append(msg);
-  mutex_send_.Unlock();
+  mutex_send_.unlock();
 }
 
 // Send the whole buffer.
 void SVNetwork::Flush() {
-  mutex_send_.Lock();
+  mutex_send_.lock();
   while (!msg_buffer_out_.empty()) {
     int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
     msg_buffer_out_.erase(0, i);
   }
-  mutex_send_.Unlock();
+  mutex_send_.unlock();
 }
 
 // Receive a message from the server.

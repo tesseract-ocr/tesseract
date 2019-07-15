@@ -16,7 +16,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 //
-// SVUtil contains the SVSync, SVSemaphore, SVMutex and SVNetwork
+// SVUtil contains the SVSync, SVSemaphore and SVNetwork
 // classes, which are used for thread/process creation & synchronization
 // and network connection.
 
@@ -30,6 +30,7 @@
 #include <semaphore.h>
 #endif
 
+#include <mutex>
 #include <string>
 
 /// The SVSync class provides functionality for Thread & Process Creation
@@ -63,33 +64,15 @@ class SVSemaphore {
 #endif
 };
 
-/// A mutex which encapsulates the main locking and unlocking
-/// abilities of mutexes for windows and unix.
-class SVMutex {
- public:
-  /// Sets up a new mutex.
-  SVMutex();
-  /// Locks on a mutex.
-  void Lock();
-  /// Unlocks on a mutex.
-  void Unlock();
- private:
-#ifdef _WIN32
-  HANDLE mutex_;
-#else
-  pthread_mutex_t mutex_;
-#endif
-};
-
 // Auto-unlocking object that locks a mutex on construction and unlocks it
 // on destruction.
 class SVAutoLock {
  public:
-  explicit SVAutoLock(SVMutex* mutex) : mutex_(mutex) { mutex->Lock(); }
-  ~SVAutoLock() { mutex_->Unlock(); }
+  explicit SVAutoLock(std::mutex* mutex) : mutex_(mutex) { mutex->lock(); }
+  ~SVAutoLock() { mutex_->unlock(); }
 
  private:
-  SVMutex* mutex_;
+  std::mutex* mutex_;
 };
 
 /// The SVNetwork class takes care of the remote connection for ScrollView
@@ -119,7 +102,7 @@ class SVNetwork {
 
  private:
   /// The mutex for access to Send() and Flush().
-  SVMutex mutex_send_;
+  std::mutex mutex_send_;
   /// The actual stream_ to the server.
   int stream_;
   /// Stores the last received message-chunk from the server.
