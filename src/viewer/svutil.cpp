@@ -41,7 +41,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <pthread.h>
 #include <semaphore.h>
 #include <csignal>
 #include <sys/select.h>
@@ -52,38 +51,9 @@
 #include <unistd.h>
 #endif
 
-// Create new thread.
-void SVSync::StartThread(void* (*func)(void*), void* arg) {
-#ifdef _WIN32
-  LPTHREAD_START_ROUTINE f = (LPTHREAD_START_ROUTINE)func;
-  DWORD threadid;
-  CreateThread(nullptr,     // default security attributes
-               0,           // use default stack size
-               f,           // thread function
-               arg,         // argument to thread function
-               0,           // use default creation flags
-               &threadid);  // returns the thread identifier
-#else
-  pthread_t helper;
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&helper, &attr, func, arg);
-#endif
-}
-
 #ifndef GRAPHICS_DISABLED
 
 const int kMaxMsgSize = 4096;
-
-// Signals a thread to exit.
-void SVSync::ExitThread() {
-#ifdef _WIN32
-  // ExitThread(0);
-#else
-  pthread_exit(nullptr);
-#endif
-}
 
 // Starts a new process.
 void SVSync::StartProcess(const char* executable, const char* args) {

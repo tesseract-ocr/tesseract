@@ -62,13 +62,10 @@ class LSTMTester {
                      int verbosity);
 
  private:
-  // Static helper thread function for RunEvalAsync, with a specific signature
-  // required by SVSync::StartThread. Actually a member function pretending to
-  // be static, its arg is a this pointer that it will cast back to LSTMTester*
-  // to call RunEvalSync using the stored args that RunEvalAsync saves in *this.
+  // Helper thread function for RunEvalAsync.
   // LockIfNotRunning must have returned true before calling ThreadFunc, and
   // it will call UnlockRunning to release the lock after RunEvalSync completes.
-  static void* ThreadFunc(void* lstmtester_void);
+  void ThreadFunc();
   // Returns true if there is currently nothing running, and takes the lock
   // if there is nothing running.
   bool LockIfNotRunning();

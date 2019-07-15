@@ -2,7 +2,6 @@
 // File:        lstmtester.cpp
 // Description: Top-level line evaluation class for LSTM-based networks.
 // Author:      Ray Smith
-// Created:     Wed Nov 23 11:18:06 PST 2016
 //
 // (C) Copyright 2016, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,7 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////
 
+#include <thread>               // for std::thread
 #include "lstmtester.h"
 #include "genericvector.h"
 
@@ -70,7 +70,8 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
     test_training_errors_ = training_errors;
     test_model_mgr_ = model_mgr;
     test_training_stage_ = training_stage;
-    SVSync::StartThread(&LSTMTester::ThreadFunc, this);
+    std::thread t(&LSTMTester::ThreadFunc, this);
+    t.detach();
   } else {
     UnlockRunning();
   }
@@ -123,21 +124,15 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
   return result;
 }
 
-// Static helper thread function for RunEvalAsync, with a specific signature
-// required by SVSync::StartThread. Actually a member function pretending to
-// be static, its arg is a this pointer that it will cast back to LSTMTester*
-// to call RunEvalSync using the stored args that RunEvalAsync saves in *this.
+// Helper thread function for RunEvalAsync.
 // LockIfNotRunning must have returned true before calling ThreadFunc, and
 // it will call UnlockRunning to release the lock after RunEvalSync completes.
-/* static */
-void* LSTMTester::ThreadFunc(void* lstmtester_void) {
-  LSTMTester* lstmtester = static_cast<LSTMTester*>(lstmtester_void);
-  lstmtester->test_result_ = lstmtester->RunEvalSync(
-      lstmtester->test_iteration_, lstmtester->test_training_errors_,
-      lstmtester->test_model_mgr_, lstmtester->test_training_stage_,
+void LSTMTester::ThreadFunc() {
+  test_result_ = RunEvalSync(
+      test_iteration_, test_training_errors_,
+      test_model_mgr_, test_training_stage_,
       /*verbosity*/ 0);
-  lstmtester->UnlockRunning();
-  return lstmtester_void;
+  UnlockRunning();
 }
 
 // Returns true if there is currently nothing running, and takes the lock
