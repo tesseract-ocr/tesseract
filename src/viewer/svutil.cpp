@@ -31,6 +31,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>        // for std::this_thread
 #include <vector>
 
 #ifdef _WIN32
@@ -381,11 +382,7 @@ SVNetwork::SVNetwork(const char* hostname, int port) {
         Close();
 
         std::cout << "ScrollView: Waiting for server...\n";
-#ifdef _WIN32
-        Sleep(1000);
-#else
-        sleep(1);
-#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
       }
     }
   }
