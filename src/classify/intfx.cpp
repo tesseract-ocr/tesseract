@@ -21,8 +21,8 @@
 #define _USE_MATH_DEFINES       // for M_PI
 #include "intfx.h"
 #include <cmath>                // for M_PI
+#include <mutex>                // for std::mutex
 #include "allheaders.h"
-#include "ccutil.h"
 #include "classify.h"
 #include "helpers.h"
 #include "intmatcher.h"
@@ -48,9 +48,9 @@ static float sin_table[INT_CHAR_NORM_RANGE];
 
 void InitIntegerFX() {
   // Guards write access to AtanTable so we don't create it more than once.
-  static tesseract::CCUtilMutex atan_table_mutex;
+  static std::mutex atan_table_mutex;
   static bool atan_table_init = false;
-  atan_table_mutex.Lock();
+  atan_table_mutex.lock();
   if (!atan_table_init) {
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
       cos_table[i] = cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
@@ -58,7 +58,7 @@ void InitIntegerFX() {
     }
     atan_table_init = true;
   }
-  atan_table_mutex.Unlock();
+  atan_table_mutex.unlock();
 }
 
 // Returns a vector representing the direction of a feature with the given

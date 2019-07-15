@@ -19,6 +19,7 @@
 #ifndef TESSERACT_CCUTIL_OBJECT_CACHE_H_
 #define TESSERACT_CCUTIL_OBJECT_CACHE_H_
 
+#include <mutex>                // for std::mutex
 #include <functional>           // for std::function
 #include "ccutil.h"
 #include "errcode.h"
@@ -35,7 +36,7 @@ class ObjectCache {
  public:
   ObjectCache() = default;
   ~ObjectCache() {
-    mu_.Lock();
+    mu_.lock();
     for (int i = 0; i < cache_.size(); i++) {
       if (cache_[i].count > 0) {
         tprintf("ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
@@ -47,7 +48,7 @@ class ObjectCache {
         cache_[i].object = nullptr;
       }
     }
-    mu_.Unlock();
+    mu_.unlock();
   }
 
   // Return a pointer to the object identified by id.
@@ -58,14 +59,14 @@ class ObjectCache {
   // We delete the given loader.
   T* Get(STRING id, std::function<T*()> loader) {
     T *retval = nullptr;
-    mu_.Lock();
+    mu_.lock();
     for (int i = 0; i < cache_.size(); i++) {
       if (id == cache_[i].id) {
         retval = cache_[i].object;
         if (cache_[i].object != nullptr) {
           cache_[i].count++;
         }
-        mu_.Unlock();
+        mu_.unlock();
         return retval;
       }
     }
@@ -74,7 +75,7 @@ class ObjectCache {
     rc.id = id;
     retval = rc.object = loader();
     rc.count = (retval != nullptr) ? 1 : 0;
-    mu_.Unlock();
+    mu_.unlock();
     return retval;
   }
 
@@ -82,27 +83,27 @@ class ObjectCache {
   // Return whether we knew about the given pointer.
   bool Free(T *t) {
     if (t == nullptr) return false;
-    mu_.Lock();
+    mu_.lock();
     for (int i = 0; i < cache_.size(); i++) {
       if (cache_[i].object == t) {
         --cache_[i].count;
-        mu_.Unlock();
+        mu_.unlock();
         return true;
       }
     }
-    mu_.Unlock();
+    mu_.unlock();
     return false;
   }
 
   void DeleteUnusedObjects() {
-    mu_.Lock();
+    mu_.lock();
     for (int i = cache_.size() - 1; i >= 0; i--) {
       if (cache_[i].count <= 0) {
         delete cache_[i].object;
         cache_.remove(i);
       }
     }
-    mu_.Unlock();
+    mu_.unlock();
   }
 
  private:
@@ -112,7 +113,7 @@ class ObjectCache {
     int count;  // A count of the number of active users of this object.
   };
 
-  CCUtilMutex mu_;
+  std::mutex mu_;
   GenericVector<ReferenceCount> cache_;
 };
 
