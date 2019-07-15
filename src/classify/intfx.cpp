@@ -50,7 +50,7 @@ void InitIntegerFX() {
   // Guards write access to AtanTable so we don't create it more than once.
   static std::mutex atan_table_mutex;
   static bool atan_table_init = false;
-  atan_table_mutex.lock();
+  std::lock_guard<std::mutex> guard(atan_table_mutex);
   if (!atan_table_init) {
     for (int i = 0; i < INT_CHAR_NORM_RANGE; ++i) {
       cos_table[i] = cos(i * 2 * M_PI / INT_CHAR_NORM_RANGE + M_PI);
@@ -58,7 +58,6 @@ void InitIntegerFX() {
     }
     atan_table_init = true;
   }
-  atan_table_mutex.unlock();
 }
 
 // Returns a vector representing the direction of a feature with the given

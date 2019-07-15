@@ -427,14 +427,13 @@ void ScrollView::SetEvent(SVEvent* svevent) {
   any->counter = specific->counter + 1;
 
 // Place both events into the queue.
-  mutex_->lock();
+  std::lock_guard<std::mutex> guard(*mutex_);
   // Delete the old objects..
   delete event_table_[specific->type];
   delete event_table_[SVET_ANY];
   // ...and put the new ones in the table.
   event_table_[specific->type] = specific;
   event_table_[SVET_ANY] = any;
-  mutex_->unlock();
 }
 
 
@@ -708,12 +707,11 @@ void ScrollView::UpdateWindow() {
 
 // Note: this is an update to all windows
 void ScrollView::Update() {
-  svmap_mu->lock();
+  std::lock_guard<std::mutex> guard(*svmap_mu);
   for (auto & iter : svmap) {
     if (iter.second != nullptr)
       iter.second->UpdateWindow();
   }
-  svmap_mu->unlock();
 }
 
 // Set the pen color, using an enum value (e.g. ScrollView::ORANGE)

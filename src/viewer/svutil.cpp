@@ -176,19 +176,17 @@ void SVSemaphore::Wait() {
 
 // Place a message in the message buffer (and flush it).
 void SVNetwork::Send(const char* msg) {
-  mutex_send_.lock();
+  std::lock_guard<std::mutex> guard(mutex_send_);
   msg_buffer_out_.append(msg);
-  mutex_send_.unlock();
 }
 
 // Send the whole buffer.
 void SVNetwork::Flush() {
-  mutex_send_.lock();
+  std::lock_guard<std::mutex> guard(mutex_send_);
   while (!msg_buffer_out_.empty()) {
     int i = send(stream_, msg_buffer_out_.c_str(), msg_buffer_out_.length(), 0);
     msg_buffer_out_.erase(0, i);
   }
-  mutex_send_.unlock();
 }
 
 // Receive a message from the server.
