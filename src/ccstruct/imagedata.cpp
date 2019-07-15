@@ -24,11 +24,7 @@
 #include "imagedata.h"
 
 #include <cinttypes>     // for PRId64
-#if defined(__MINGW32__)
-#include <unistd.h>
-#else
-#include <thread>
-#endif
+#include <thread>        // for std::thread
 
 #include "allheaders.h"  // for pixDestroy, pixGetHeight, pixGetWidth, lept_...
 #include "boxread.h"     // for ReadMemBoxes
@@ -374,13 +370,6 @@ bool ImageData::AddBoxes(const char* box_text) {
   return false;
 }
 
-// Thread function to call ReCachePages.
-void* ReCachePagesFunc(void* data) {
-  auto* document_data = static_cast<DocumentData*>(data);
-  document_data->ReCachePages();
-  return nullptr;
-}
-
 DocumentData::DocumentData(const STRING& name)
     : document_name_(name),
       pages_offset_(-1),
@@ -448,7 +437,8 @@ void DocumentData::LoadPageInBackground(int index) {
   if (pages_offset_ == index) return;
   pages_offset_ = index;
   pages_.clear();
-  SVSync::StartThread(ReCachePagesFunc, this);
+  std::thread t(&tesseract::DocumentData::ReCachePages, this);
+  t.detach();
 }
 
 // Returns a pointer to the page with the given index, modulo the total
@@ -463,11 +453,7 @@ const ImageData* DocumentData::GetPage(int index) {
     if (needs_loading) LoadPageInBackground(index);
     // We can't directly load the page, or the background load will delete it
     // while the caller is using it, so give it a chance to work.
-#if defined(__MINGW32__)
-    sleep(1);
-#else
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-#endif
+    std::this_thread::yield();
   }
   return page;
 }
