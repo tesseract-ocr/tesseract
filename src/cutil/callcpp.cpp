@@ -113,25 +113,3 @@ char window_wait(ScrollView* win) {
   return ret;
 }
 #endif
-
-void reverse32(void *ptr) {
-  char tmp;
-  char *cptr = static_cast<char *>(ptr);
-
-  tmp = *cptr;
-  *cptr = *(cptr + 3);
-  *(cptr + 3) = tmp;
-  tmp = *(cptr + 1);
-  *(cptr + 1) = *(cptr + 2);
-  *(cptr + 2) = tmp;
-}
-
-
-void reverse16(void *ptr) {
-  char tmp;
-  char *cptr = static_cast<char *>(ptr);
-
-  tmp = *cptr;
-  *cptr = *(cptr + 1);
-  *(cptr + 1) = tmp;
-}
