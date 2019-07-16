@@ -59,7 +59,6 @@
 #include <cstdio>
 #include <cstring>      // for strcmp
 #include "errcode.h"    // for ASSERT_HOST
-#include "structures.h"
 
 /*----------------------------------------------------------------------
               F u n c t i o n s
@@ -131,7 +130,7 @@ LIST destroy(LIST list) {
 
   while (list != NIL_LIST) {
     next = list_rest(list);
-    free_cell(list);
+    delete list;
     list = next;
   }
   return (NIL_LIST);
@@ -173,7 +172,7 @@ LIST pop(LIST list) {
   temp = list_rest(list);
 
   if (list != NIL_LIST) {
-    free_cell(list);
+    delete list;
   }
   return (temp);
 }
@@ -187,7 +186,7 @@ LIST pop(LIST list) {
 LIST push(LIST list, void *element) {
   LIST t;
 
-  t = new_cell();
+  t = new list_rec;
   t->node = static_cast<LIST>(element);
   set_rest(t, list);
   return (t);

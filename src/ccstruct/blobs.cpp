@@ -36,7 +36,6 @@
 #include "ocrrow.h"
 #include "points.h"
 #include "polyaprx.h"
-#include "structures.h"
 #include "werd.h"
 
 #include <algorithm>
