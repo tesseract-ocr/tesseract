@@ -82,15 +82,9 @@ int AddConfigToClass(CLASS_TYPE Class) {
  * @param Class The class to add to
  */
 int AddProtoToClass(CLASS_TYPE Class) {
-  int i;
-  int Bit;
-  int NewNumProtos;
-  int NewProto;
-  BIT_VECTOR Config;
-
   if (Class->NumProtos >= Class->MaxNumProtos) {
     /* add protos in PROTO_INCREMENT chunks at a time */
-    NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
+    int NewNumProtos = (((Class->MaxNumProtos + PROTO_INCREMENT) /
       PROTO_INCREMENT) * PROTO_INCREMENT);
 
     Class->Prototypes = static_cast<PROTO>(Erealloc (Class->Prototypes,
@@ -100,7 +94,7 @@ int AddProtoToClass(CLASS_TYPE Class) {
     Class->MaxNumProtos = NewNumProtos;
     ASSERT_HOST(NewNumProtos <= MAX_NUM_PROTOS);
   }
-  NewProto = Class->NumProtos++;
+  int NewProto = Class->NumProtos++;
   ASSERT_HOST(Class->NumProtos <= MAX_NUM_PROTOS);
   return (NewProto);
 }
