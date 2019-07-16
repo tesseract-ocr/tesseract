@@ -27,24 +27,6 @@
 /*-----------------------------------------------------------------------------
               Public Code
 -----------------------------------------------------------------------------*/
-/*---------------------------------------------------------------------------*/
-/**
- * This routine uses realloc to increase the size of
- * the specified bit vector.
- *
- * Globals:
- * - none
- *
- * @param Vector bit vector to be expanded
- * @param NewNumBits new size of bit vector
- *
- * @return New expanded bit vector.
- */
-BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits) {
-  return (static_cast<BIT_VECTOR>(Erealloc(Vector,
-    sizeof(Vector[0]) * WordsInVectorOfSize(NewNumBits))));
-}                                /* ExpandBitVector */
-
 
 /*---------------------------------------------------------------------------*/
 void FreeBitVector(BIT_VECTOR BitVector) {

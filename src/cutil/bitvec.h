@@ -63,11 +63,6 @@ using BIT_VECTOR = uint32_t *;
 #define WordsInVectorOfSize(NumBits) \
 (((NumBits) + BITSINLONG - 1) / BITSINLONG)
 
-/*--------------------------------------------------------------------------
-        Public Function Prototypes
---------------------------------------------------------------------------*/
-BIT_VECTOR ExpandBitVector(BIT_VECTOR Vector, int NewNumBits);
-
 void FreeBitVector(BIT_VECTOR BitVector);
 
 BIT_VECTOR NewBitVector(int NumBits);

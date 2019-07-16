@@ -51,6 +51,7 @@ int AddConfigToClass(CLASS_TYPE Class) {
   BIT_VECTOR Config;
 
   MaxNumProtos = Class->MaxNumProtos;
+  ASSERT_HOST(MaxNumProtos <= MAX_NUM_PROTOS);
 
   if (Class->NumConfigs >= Class->MaxNumConfigs) {
     /* add configs in CONFIG_INCREMENT chunks at a time */
@@ -64,9 +65,9 @@ int AddConfigToClass(CLASS_TYPE Class) {
     Class->MaxNumConfigs = NewNumConfigs;
   }
   NewConfig = Class->NumConfigs++;
-  Config = NewBitVector (MaxNumProtos);
+  Config = NewBitVector(MAX_NUM_PROTOS);
   Class->Configurations[NewConfig] = Config;
-  zero_all_bits (Config, WordsInVectorOfSize (MaxNumProtos));
+  zero_all_bits (Config, WordsInVectorOfSize(MAX_NUM_PROTOS));
 
   return (NewConfig);
 }
@@ -97,20 +98,10 @@ int AddProtoToClass(CLASS_TYPE Class) {
       NewNumProtos));
 
     Class->MaxNumProtos = NewNumProtos;
-
-    for (i = 0; i < Class->NumConfigs; i++) {
-      Config = Class->Configurations[i];
-      Class->Configurations[i] = ExpandBitVector (Config, NewNumProtos);
-
-      for (Bit = Class->NumProtos; Bit < NewNumProtos; Bit++)
-        reset_bit(Config, Bit);
-    }
+    ASSERT_HOST(NewNumProtos <= MAX_NUM_PROTOS);
   }
   NewProto = Class->NumProtos++;
-  if (Class->NumProtos > MAX_NUM_PROTOS) {
-    tprintf("Ouch! number of protos = %d, vs max of %d!",
-            Class->NumProtos, MAX_NUM_PROTOS);
-  }
+  ASSERT_HOST(Class->NumProtos <= MAX_NUM_PROTOS);
   return (NewProto);
 }
 
