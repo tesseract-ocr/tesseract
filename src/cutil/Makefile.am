@@ -10,11 +10,11 @@ endif
 noinst_HEADERS = \
     bitvec.h callcpp.h cutil_class.h \
     emalloc.h \
-    oldlist.h structures.h
+    oldlist.h
 
 noinst_LTLIBRARIES = libtesseract_cutil.la
 
 libtesseract_cutil_la_SOURCES = \
     bitvec.cpp callcpp.cpp cutil_class.cpp \
     emalloc.cpp \
-    oldlist.cpp structures.cpp
+    oldlist.cpp
