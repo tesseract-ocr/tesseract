@@ -15,6 +15,6 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libtesseract_cutil.la
 
 libtesseract_cutil_la_SOURCES = \
-    bitvec.cpp callcpp.cpp \
+    callcpp.cpp \
     emalloc.cpp \
     oldlist.cpp
