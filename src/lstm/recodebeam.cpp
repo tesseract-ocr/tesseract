@@ -220,6 +220,7 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   GenericVector<const RecodeNode*> second_nodes;
   std::deque<std::tuple<int, int>> best_choices;
   std::deque<std::tuple<int, int>> best_choices_acc;
+  character_boundaries_.clear();
   ExtractBestPaths(&best_nodes, &second_nodes);
   if (debug) {
     DebugPath(unicharset, best_nodes);
@@ -235,19 +236,15 @@ void RecodeBeamSearch::ExtractBestPathAsWords(const TBOX& line_box,
   // If lstm choice mode is required in granularity level 2, it stores the x
   // Coordinates of every chosen character, to match the alternative choices to
   // it.
+  ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings, &xcoords,
+                          &character_boundaries_, &best_choices,
+                          &best_choices_acc);
   if (lstm_choice_mode) {
-    character_boundaries_.clear();
-    ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
-                            &xcoords, &character_boundaries_,
-                            &best_choices, &best_choices_acc);
     if (best_choices.size() > 0) {
       timestepEnd = std::get<1>(best_choices.front());
       timestepEnd_acc = std::get<1>(best_choices_acc.front());
       best_choices_acc.pop_front();
     }
-  } else {
-    ExtractPathAsUnicharIds(best_nodes, &unichar_ids, &certs, &ratings,
-                            &xcoords);
   }
   int num_ids = unichar_ids.size();
   if (debug) {
@@ -686,17 +683,14 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
   C_BLOB_LIST blobs;
   C_BLOB_IT b_it(&blobs);
   for (int i = word_start; i < word_end; ++i) {
-    int min_half_width = xcoords[i + 1] - xcoords[i];
-    if (i > 0 && xcoords[i] - xcoords[i - 1] < min_half_width)
-      min_half_width = xcoords[i] - xcoords[i - 1];
-    if (min_half_width < 1) min_half_width = 1;
-    // Make a fake blob.
-    TBOX box(xcoords[i] - min_half_width, 0, xcoords[i] + min_half_width,
-             line_box.height());
-    box.scale(scale_factor);
-    box.move(ICOORD(line_box.left(), line_box.bottom()));
-    box.set_top(line_box.top());
-    b_it.add_after_then_move(C_BLOB::FakeBlob(box));
+    if (character_boundaries_.size() > (i + 1)) {
+      TBOX box(character_boundaries_[i], 0, character_boundaries_[i + 1],
+               line_box.height());
+      box.scale(scale_factor);
+      box.move(ICOORD(line_box.left(), line_box.bottom()));
+      box.set_top(line_box.top());
+      b_it.add_after_then_move(C_BLOB::FakeBlob(box));
+    }
   }
   // Make a fake word from the blobs.
   WERD* word = new WERD(&blobs, leading_space, nullptr);
