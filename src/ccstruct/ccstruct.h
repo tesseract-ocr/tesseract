@@ -19,10 +19,10 @@
 #ifndef TESSERACT_CCSTRUCT_CCSTRUCT_H_
 #define TESSERACT_CCSTRUCT_CCSTRUCT_H_
 
-#include "cutil_class.h"  // for CUtil
+#include "ccutil.h" // for CCUtil
 
 namespace tesseract {
-class CCStruct : public CUtil {
+class CCStruct : public CCUtil {
  public:
   CCStruct() = default;
   ~CCStruct() override;

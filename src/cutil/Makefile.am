@@ -8,13 +8,13 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
 endif
 
 noinst_HEADERS = \
-    bitvec.h callcpp.h cutil_class.h \
+    bitvec.h callcpp.h \
     emalloc.h \
     oldlist.h structures.h
 
 noinst_LTLIBRARIES = libtesseract_cutil.la
 
 libtesseract_cutil_la_SOURCES = \
-    bitvec.cpp callcpp.cpp cutil_class.cpp \
+    bitvec.cpp callcpp.cpp \
     emalloc.cpp \
     oldlist.cpp structures.cpp

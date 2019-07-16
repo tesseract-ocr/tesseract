@@ -76,8 +76,6 @@ class WERD_RES;
 //
 //             CCUtil (ccutil/ccutil.h)
 //                         ^      Members include: UNICHARSET
-//            CUtil (cutil/cutil_class.h)
-//                         ^       Members include: TBLOB*, TEXTBLOCK*
 //           CCStruct (ccstruct/ccstruct.h)
 //                         ^       Members include: Image
 //           Classify (classify/classify.h)
