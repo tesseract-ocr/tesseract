@@ -77,7 +77,7 @@ run_command() {
               done) || err_exit "'$1' not found"
     shift
     tlog "[$(date)] ${cmd} $@"
-    if ! "${cmd}" "$@" |& tee -a ${LOG_FILE}; then
+    if ! "${cmd}" "$@" 2>&1 | tee -a "${LOG_FILE}"; then
         err_exit "Program $(basename ${cmd}) failed. Abort."
     fi
 }
