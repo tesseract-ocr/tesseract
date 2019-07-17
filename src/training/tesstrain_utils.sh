@@ -308,7 +308,7 @@ phase_I_generate_image() {
             # combined weight accounts for 95% of all the bigrams in the language.
             NGRAM_FRAC=$(cat ${BIGRAM_FREQS_FILE} \
                 | awk '{s=s+$2}; END {print (s/100)*p}' p=99)
-            cat ${BIGRAM_FREQS_FILE} | sort -rnk2 \
+            sort -rnk2 ${BIGRAM_FREQS_FILE} \
                 | awk '{s=s+$2; if (s <= x) {printf "%s ", $1; } }' \
                 x=${NGRAM_FRAC} > ${TRAIN_NGRAMS_FILE}
             check_file_readable ${TRAIN_NGRAMS_FILE}
