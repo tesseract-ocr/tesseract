@@ -214,7 +214,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
       (CHAR_BIT * sizeof(long))];
   int matchinv = 0;   // Is match map inverted?
   unsigned char range_start = 0;
-  off_t start_off = ftell(stream);
+  long start_off = ftell(stream);
 
   // Skip leading spaces
   SkipSpace(stream);
