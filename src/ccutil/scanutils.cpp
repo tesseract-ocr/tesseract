@@ -26,6 +26,10 @@
 #include <cstring>
 #include <limits>       // for std::numeric_limits
 
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>  // for off_t
+#endif
+
 #include "scanutils.h"
 
 enum Flags {
