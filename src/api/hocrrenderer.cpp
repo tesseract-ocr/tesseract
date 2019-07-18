@@ -239,7 +239,6 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
         symbolMap = nullptr;
     if (lstm_choice_mode) {
-
       choiceMap = res_it->GetBestLSTMSymbolChoices();
       symbolMap = res_it->GetSegmentedLSTMTimesteps();
       rawTimestepMap = res_it->GetRawLSTMTimesteps();
@@ -349,25 +348,25 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
     } else if (lstm_choice_mode == 4) {
       for (auto timestep : *CTCMap) {
         if (timestep.size() > 0) {
-          hocr_str << "\n       <span class='ocrx_cinfo'"
-                   << " id='"
-                   << "lstm_choices_" << page_id << "_" << wcnt << "_" << tcnt
-                   << "'>";
+          hocr_str << "\n       <span class='alternatives'>";
+          const char* tag = "ins";
           for (auto& j : timestep) {
-            float conf = 100 - tesseract_->lstm_rating_coefficient * j.second;
-            if (conf < 0.0f)
-              conf = 0.0f;
-            if (conf > 100.0f)
-              conf = 100.0f;
-            hocr_str << "<span class='ocr_glyph'"
+            auto conf = ClipToRange(100 - j.second, 0.0f, 100.0f);
+            if (conf == 0.0f) {
+              // No negative log probability (nlp) for 0.
+              continue;
+            }
+            hocr_str << "\n        <" << tag << " class='alt'"
                      << " id='"
                      << "choice_" << page_id << "_" << wcnt << "_" << gcnt
                      << "'"
-                     << " title='x_confs " << conf << "'>"
-                     << HOcrEscape(j.first).c_str() << "</span>";
+                     << " title='nlp " << -std::log(conf / 100)
+                     << "; x_confs " << conf << "'>"
+                     << HOcrEscape(j.first).c_str() << "</" << tag << ">";
+            tag = "del";
             gcnt++;
           }
-          hocr_str << "</span>";
+          hocr_str << "\n       </span>";
           tcnt++;
         }
       }
