@@ -578,17 +578,14 @@ Tesseract::~Tesseract() {
 #endif
 }
 
-Dict& Tesseract::getDict()
-{
-    if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang())
-    {
-        if (lstm_recognizer_ && lstm_recognizer_->GetDict())
-        {
-            return *const_cast<Dict*>(lstm_recognizer_->GetDict());
-        }
+Dict& Tesseract::getDict() {
+  if (0 == Classify::getDict().NumDawgs() && AnyLSTMLang()) {
+    if (lstm_recognizer_ && lstm_recognizer_->GetDict()) {
+      return *lstm_recognizer_->GetDict();
     }
-    return Classify::getDict();
   }
+  return Classify::getDict();
+}
 
 
 void Tesseract::Clear() {
@@ -637,7 +634,7 @@ void Tesseract::SetBlackAndWhitelist() {
                                      tessedit_char_whitelist.string(),
                                      tessedit_char_unblacklist.string());
   if (lstm_recognizer_) {
-    UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (lstm_recognizer_->GetUnicharset());
+    UNICHARSET& lstm_unicharset = lstm_recognizer_->GetUnicharset();
     lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                             tessedit_char_whitelist.string(),
                                             tessedit_char_unblacklist.string());
@@ -648,7 +645,7 @@ void Tesseract::SetBlackAndWhitelist() {
         tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
         tessedit_char_unblacklist.string());
     if (sub_langs_[i]->lstm_recognizer_) {
-      UNICHARSET& lstm_unicharset = const_cast<UNICHARSET&> (sub_langs_[i]->lstm_recognizer_->GetUnicharset());
+      UNICHARSET& lstm_unicharset = sub_langs_[i]->lstm_recognizer_->GetUnicharset();
       lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
                                               tessedit_char_whitelist.string(),
                                               tessedit_char_unblacklist.string());
