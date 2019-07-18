@@ -71,7 +71,6 @@ class InputBuffer {
 
  private:
   FILE* stream_;
-  int   filesize_;
 };
 
 // A class to manipulate Files for writing.
