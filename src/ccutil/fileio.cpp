@@ -133,16 +133,10 @@ bool File::DeleteMatchingFiles(const char* pattern) {
 ///////////////////////////////////////////////////////////////////////////////
 InputBuffer::InputBuffer(FILE* stream)
   : stream_(stream) {
-    fseek(stream_, 0, SEEK_END);
-    filesize_ = ftell(stream_);
-    fseek(stream_, 0, SEEK_SET);
 }
 
 InputBuffer::InputBuffer(FILE* stream, size_t)
   : stream_(stream) {
-    fseek(stream_, 0, SEEK_END);
-    filesize_ = ftell(stream_);
-    fseek(stream_, 0, SEEK_SET);
 }
 
 InputBuffer::~InputBuffer() {
