@@ -294,7 +294,7 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
       if (grapheme && grapheme[0] != 0) {
         if (hocr_boxes) {
           res_it->BoundingBox(RIL_SYMBOL, &left, &top, &right, &bottom);
-          hocr_str << "\n             <span class='ocrx_cinfo' title='x_bboxes "
+          hocr_str << "\n       <span class='ocrx_cinfo' title='x_bboxes "
                    << left << " " << top << " " << right << " " << bottom
                    << "; x_conf " << res_it->Confidence(RIL_SYMBOL) << "'>";
         }
@@ -397,6 +397,10 @@ char* TessBaseAPI::GetHOCRText(ETEXT_DESC* monitor, int page_number) {
         hocr_str << "</span>";
         scnt++;
       }
+    }
+    // Close ocrx_word.
+    if (hocr_boxes || tesseract_->lstm_choice_mode > 0) {
+      hocr_str << "\n      ";
     }
     hocr_str << "</span>";
     tcnt = 1;
