@@ -222,7 +222,7 @@ bool TFile::Open(const char* data, int size) {
 
 bool TFile::Open(FILE* fp, int64_t end_offset) {
   offset_ = 0;
-  long current_pos = ftell(fp);
+  auto current_pos = std::ftell(fp);
   if (current_pos < 0) {
     // ftell failed.
     return false;
