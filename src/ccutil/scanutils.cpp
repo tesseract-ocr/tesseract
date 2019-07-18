@@ -214,7 +214,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
       (CHAR_BIT * sizeof(long))];
   int matchinv = 0;   // Is match map inverted?
   unsigned char range_start = 0;
-  long start_off = ftell(stream);
+  auto start_off = std::ftell(stream);
 
   // Skip leading spaces
   SkipSpace(stream);
@@ -315,7 +315,7 @@ static int tvfscanf(FILE* stream, const char *format, va_list ap) {
               goto scan_int;
 
             case 'n':   // Number of characters consumed
-              val = ftell(stream) - start_off;
+              val = std::ftell(stream) - start_off;
             goto set_integer;
 
             scan_int:

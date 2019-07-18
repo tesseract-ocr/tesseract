@@ -347,7 +347,7 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   FILE* fp = fopen(filename, "rb");
   if (fp != nullptr) {
     fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
+    auto size = std::ftell(fp);
     fseek(fp, 0, SEEK_SET);
     // Trying to open a directory on Linux sets size to LONG_MAX. Catch it here.
     if (size > 0 && size < LONG_MAX) {

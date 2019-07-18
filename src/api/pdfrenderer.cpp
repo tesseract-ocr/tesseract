@@ -627,7 +627,7 @@ bool TessPDFRenderer::BeginDocumentHandler() {
     return false;
   }
   fseek(fp, 0, SEEK_END);
-  long int size = ftell(fp);
+  auto size = std::ftell(fp);
   if (size < 0) {
     fclose(fp);
     return false;
