@@ -137,10 +137,7 @@ float LTRResultIterator::Confidence(PageIteratorLevel level) const {
   }
   if (certainty_count > 0) {
     mean_certainty /= certainty_count;
-    float confidence = 100 + 5 * mean_certainty;
-    if (confidence < 0.0f) confidence = 0.0f;
-    if (confidence > 100.0f) confidence = 100.0f;
-    return confidence;
+    return ClipToRange(100 + 5 * mean_certainty, 0.0f, 100.0f);
   }
   return 0.0f;
 }
@@ -363,7 +360,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   BLOB_CHOICE_LIST* choices = nullptr;
   tstep_index_ = &result_it.blob_index_;
   if (oemLSTM_ && !word_res_->CTC_symbol_choices.empty()) {
-    int index = *tstep_index_;
+    auto index = *tstep_index_;
     if (word_res_->leading_space) ++index;
     if (index < word_res_->CTC_symbol_choices.size()) {
       LSTM_choices_ = &word_res_->CTC_symbol_choices[index];
@@ -430,13 +427,7 @@ float ChoiceIterator::Confidence() const {
     if (choice_it_ == nullptr) return 0.0f;
     confidence = 100 + 5 * choice_it_->data()->certainty();
   }
-  if (confidence < 0.0f) {
-    confidence = 0.0f;
-  }   
-  if (confidence > 100.0f) {
-    confidence = 100.0f;
-  }  
-  return confidence;
+  return ClipToRange(confidence, 0.0f, 100.0f);
 }
 
 // Returns the set of timesteps which belong to the current symbol
