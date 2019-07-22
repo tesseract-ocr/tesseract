@@ -433,11 +433,12 @@ float ChoiceIterator::Confidence() const {
 // Returns the set of timesteps which belong to the current symbol
 std::vector<std::vector<std::pair<const char*, float>>>*
 ChoiceIterator::Timesteps() const {
-  if (word_res_->symbol_steps.empty() || !oemLSTM_) return nullptr;
+  if (word_res_->segmented_timesteps.empty() || !oemLSTM_)
+    return nullptr;
   if (word_res_->leading_space) {
-    return &word_res_->symbol_steps[*(tstep_index_) + 1];
+    return &word_res_->segmented_timesteps[*(tstep_index_) + 1];
   } else {
-    return &word_res_->symbol_steps[*tstep_index_];
+    return &word_res_->segmented_timesteps[*tstep_index_];
   }
 }
 

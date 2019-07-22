@@ -219,14 +219,15 @@ class WERD_RES : public ELIST_LINK {
   // blob i and blob i+1.
   GenericVector<int> blob_gaps;
   // Stores the lstm choices of every timestep
-  std::vector<std::vector<std::pair<const char*, float>>> raw_timesteps;
-  std::vector<std::vector<std::pair<const char*, float>>> accumulated_timesteps;
-  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
-      symbol_steps;
+  std::vector<std::vector<std::pair<const char*, float>>> timesteps;
+  // Stores the lstm choices of every timestep segmented by character
+  std::vector<std::vector<std::vector<std::pair<const char*, float>>>> segmented_timesteps;
   //Symbolchoices aquired during CTC
   std::vector<std::vector<std::pair<const char*, float>>> CTC_symbol_choices;
   // Stores if the timestep vector starts with a space
   bool leading_space = false;
+  // Stores value when the word ends
+  int end;
   // Ratings matrix contains classifier choices for each classified combination
   // of blobs. The dimension is the same as the number of blobs in chopped_word
   // and the leading diagonal corresponds to classifier results of the blobs

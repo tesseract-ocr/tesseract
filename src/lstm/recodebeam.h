@@ -227,9 +227,17 @@ class RecodeBeamSearch {
   // Generates debug output of the content of the beams after a Decode.
   void PrintBeam2(bool uids, int num_outputs, const UNICHARSET* charset,
                   bool secondary) const;
+
+  void segmentTimestepsByCharacters();
+  std::vector<std::vector<std::pair<const char*, float>>>
+  combineSegmentedTimesteps(
+      std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
+          segmentedTimesteps);
   // Stores the alternative characters of every timestep together with their
   // probability.
   std::vector< std::vector<std::pair<const char*, float>>> timesteps;
+  std::vector<std::vector<std::vector<std::pair<const char*, float>>>>
+      segmentedTimesteps;
   std::vector<std::vector<std::pair<const char*, float>>> ctc_choices;
   std::vector<std::unordered_set<int>> excludedUnichars;
   // Stores the character boundaries regarding timesteps.
@@ -301,9 +309,7 @@ class RecodeBeamSearch {
       const GenericVector<const RecodeNode*>& best_nodes,
       GenericVector<int>* unichar_ids, GenericVector<float>* certs,
       GenericVector<float>* ratings, GenericVector<int>* xcoords,
-      std::vector<int>* character_boundaries = nullptr,
-      std::deque<std::tuple<int, int>>* best_choices = nullptr,
-      std::deque<std::tuple<int, int>>* best_choices_acc = nullptr);
+      std::vector<int>* character_boundaries = nullptr);
 
   // Sets up a word with the ratings matrix and fake blobs with boxes in the
   // right places.
