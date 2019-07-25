@@ -313,6 +313,7 @@ include(SourceGroups)
 add_definitions(-D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS=1)
 
 include_directories(${Leptonica_INCLUDE_DIRS})
+include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
