@@ -2,6 +2,10 @@
 # tesseract
 #
 
+if (UNIX AND NOT ANDROID)
+    set(LIB_pthread pthread)
+endif()
+
 if (CPPAN_BUILD OR SW_BUILD)
     set(ICU_FOUND 1)
 endif()
@@ -214,7 +218,7 @@ install                     (TARGETS combine_lang_model RUNTIME DESTINATION bin 
 ########################################
 
 add_executable              (lstmeval lstmeval.cpp)
-target_link_libraries       (lstmeval unicharset_training)
+target_link_libraries       (lstmeval unicharset_training pthread)
 project_group               (lstmeval "Training Tools")
 install                     (TARGETS lstmeval RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
@@ -224,7 +228,7 @@ install                     (TARGETS lstmeval RUNTIME DESTINATION bin LIBRARY DE
 ########################################
 
 add_executable              (lstmtraining lstmtraining.cpp)
-target_link_libraries       (lstmtraining unicharset_training)
+target_link_libraries       (lstmtraining unicharset_training pthread)
 project_group               (lstmtraining "Training Tools")
 install                     (TARGETS lstmtraining RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
 
