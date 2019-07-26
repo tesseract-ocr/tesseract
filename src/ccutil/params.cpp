@@ -29,9 +29,6 @@
 #include "tprintf.h"
 #include "params.h"
 
-#define PLUS          '+'        //flag states
-#define MINUS         '-'
-
 tesseract::ParamsVectors *GlobalParams() {
   static tesseract::ParamsVectors global_params = tesseract::ParamsVectors();
   return &global_params;
@@ -42,19 +39,9 @@ namespace tesseract {
 bool ParamUtils::ReadParamsFile(const char *file,
                                 SetParamConstraint constraint,
                                 ParamsVectors *member_params) {
-  int16_t nameoffset;              // offset for real name
-
-  if (*file == PLUS) {
-    nameoffset = 1;
-  } else if (*file == MINUS) {
-    nameoffset = 1;
-  } else {
-    nameoffset = 0;
-  }
-
   TFile fp;
   if (!fp.Open(file + nameoffset, nullptr)) {
-    tprintf("read_params_file: Can't open %s\n", file + nameoffset);
+    tprintf("read_params_file: Can't open %s\n", file);
     return true;
   }
   return ReadParamsFromFp(constraint, &fp, member_params);
