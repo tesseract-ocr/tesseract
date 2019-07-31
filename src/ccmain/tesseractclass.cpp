@@ -529,8 +529,8 @@ Tesseract::Tesseract()
           "character.",
           this->params()),
       INT_MEMBER(
-          lstm_choice_amount, 5,
-          "Sets the number of choices one get per character in "
+          lstm_choice_iterations, 5,
+          "Sets the number of cascading iterations for the Beamsearch in "
           "lstm_choice_mode. Note that lstm_choice_mode must be set to a "
           "value greater than 0 to produce results.",
                  this->params()),

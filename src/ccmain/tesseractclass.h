@@ -1091,8 +1091,8 @@ class Tesseract : public Wordrec {
             "With 2 the alternative symbol choices are extracted from the CTC "
             "process instead of the lattice. The choices are mapped per "
             "character.");
-  INT_VAR_H(lstm_choice_amount, 5,
-            "Sets the number of choices one get per character in "
+  INT_VAR_H(lstm_choice_iterations, 5,
+            "Sets the number of cascading iterations for the Beamsearch in "
             "lstm_choice_mode. Note that lstm_choice_mode must be set to "
             "a value greater than 0 to produce results.");
   double_VAR_H(lstm_rating_coefficient, 5, 

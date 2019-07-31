@@ -221,7 +221,8 @@ class WERD_RES : public ELIST_LINK {
   // Stores the lstm choices of every timestep
   std::vector<std::vector<std::pair<const char*, float>>> timesteps;
   // Stores the lstm choices of every timestep segmented by character
-  std::vector<std::vector<std::vector<std::pair<const char*, float>>>> segmented_timesteps;
+  std::vector<std::vector<std::vector<
+    std::pair<const char*, float>>>> segmented_timesteps;
   //Symbolchoices aquired during CTC
   std::vector<std::vector<std::pair<const char*, float>>> CTC_symbol_choices;
   // Stores if the timestep vector starts with a space

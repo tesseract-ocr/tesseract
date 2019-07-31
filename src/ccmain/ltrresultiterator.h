@@ -239,6 +239,8 @@ class ChoiceIterator {
   bool oemLegacy_;
   // regulates the rating granularity
   double rating_coefficient_;
+  // leading blanks
+  int blanks_before_word_;
 };
 
 }  // namespace tesseract.

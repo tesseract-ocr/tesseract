@@ -119,8 +119,8 @@ void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO& output,
     {
       ++bucketNumber;
     }
-    ComputeSecTopN(&(excludedUnichars)[bucketNumber], output.f(t), output.NumFeatures(),
-                   kBeamWidths[0]);
+    ComputeSecTopN(&(excludedUnichars)[bucketNumber], output.f(t),
+                     output.NumFeatures(), kBeamWidths[0]);
     DecodeSecondaryStep(output.f(t), t, dict_ratio, cert_offset, worst_dict_cert,
                charset);
   }
@@ -161,7 +161,7 @@ void RecodeBeamSearch::segmentTimestepsByCharacters() {
       segment.push_back(timesteps[j]);
     }
     segmentedTimesteps.push_back(segment);
-  } 
+  }
 }
 std::vector<std::vector<std::pair<const char*, float>>>
   RecodeBeamSearch::combineSegmentedTimesteps(
@@ -628,7 +628,7 @@ WERD_RES* RecodeBeamSearch::InitializeWord(bool leading_space,
   WERD* word = new WERD(&blobs, leading_space, nullptr);
   // Make a WERD_RES from the word.
   auto* word_res = new WERD_RES(word);
-  word_res->end = word_end;
+  word_res->end = word_end - word_start + leading_space;
   word_res->uch_set = unicharset;
   word_res->combination = true;  // Give it ownership of the word.
   word_res->space_certainty = space_certainty;
@@ -675,7 +675,8 @@ void RecodeBeamSearch::ComputeSecTopN(std::unordered_set<int>* exList,
   second_code_ = -1;
   top_heap_.clear();
   for (int i = 0; i < num_outputs; ++i) {
-    if ((top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key) && !exList->count(i)) {
+    if ((top_heap_.size() < top_n || outputs[i] > top_heap_.PeekTop().key)
+        && !exList->count(i)) {
       TopPair entry(outputs[i], i);
       top_heap_.Push(&entry);
       if (top_heap_.size() > top_n) top_heap_.Pop(&entry);

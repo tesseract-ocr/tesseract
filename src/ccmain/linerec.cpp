@@ -240,7 +240,7 @@ void Tesseract::LSTMRecognizeWord(const BLOCK& block, ROW *row, WERD_RES *word,
   lstm_recognizer_->RecognizeLine(*im_data, true, classify_debug_level > 0,
                                   kWorstDictCertainty / kCertaintyScale,
                                   word_box, words, lstm_choice_mode,
-                                  lstm_choice_amount);
+                                  lstm_choice_iterations);
   delete im_data;
   SearchWords(words);
 }
