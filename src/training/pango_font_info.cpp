@@ -44,7 +44,6 @@
 #include "pango/pango.h"
 #include "pango/pangocairo.h"
 #include "pango/pangofc-font.h"
-#include "pango/pangofc-font-private.h"
 
 STRING_PARAM_FLAG(fontconfig_tmpdir, "/tmp",
                   "Overrides fontconfig default temporary dir");
