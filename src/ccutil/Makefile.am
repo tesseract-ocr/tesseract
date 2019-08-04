@@ -17,7 +17,7 @@ pkginclude_HEADERS = \
 
 noinst_HEADERS = \
     ambigs.h basedir.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
-    elst.h errcode.h fileerr.h fileio.h \
+    elst.h errcode.h fileerr.h \
     genericheap.h globaloc.h host.h \
     indexmapbidi.h kdpair.h lsterr.h \
     object_cache.h params.h qrsequence.h sorthelper.h \
@@ -31,7 +31,6 @@ libtesseract_ccutil_la_SOURCES = \
     ambigs.cpp basedir.cpp bitvector.cpp \
     ccutil.cpp clst.cpp \
     elst2.cpp elst.cpp errcode.cpp \
-    fileio.cpp \
     globaloc.cpp indexmapbidi.cpp \
     mainblk.cpp \
     serialis.cpp strngs.cpp scanutils.cpp \
