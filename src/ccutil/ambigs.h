@@ -3,7 +3,6 @@
 // Description: Constants, flags, functions for dealing with
 //              ambiguities (training and recognition).
 // Author:      Daria Antonova
-// Created:     Mon Aug 23 11:26:43 PDT 2008
 //
 // (C) Copyright 2008, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,14 +31,6 @@
 namespace tesseract {
 
 using UnicharIdVector = GenericVector<UNICHAR_ID>;
-
-static const int kUnigramAmbigsBufferSize = 1000;
-static const char kAmbigNgramSeparator[] = { ' ', '\0' };
-static const char kAmbigDelimiters[] = "\t ";
-static const char kIllegalMsg[] =
-  "Illegal ambiguity specification on line %d\n";
-static const char kIllegalUnicharMsg[] =
-  "Illegal unichar %s in ambiguity specification\n";
 
 enum AmbigType {
   NOT_AMBIG,        // the ngram pair is not ambiguous
