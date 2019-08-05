@@ -271,6 +271,7 @@ pkg_check_modules(Cairo REQUIRED cairo)
 pkg_check_modules(PangoFt2 REQUIRED pangoft2)
 pkg_check_modules(PangoCairo REQUIRED pangocairo)
 pkg_check_modules(FontConfig REQUIRED fontconfig)
+pkg_check_modules(Glib REQUIRED glib-2.0 gobject-2.0)
 endif()
 
 set(text2image_src
@@ -306,6 +307,7 @@ target_link_libraries       (text2image
     ${PangoCairo_LIBRARIES}
     ${PangoFt2_LIBRARIES}
     ${FontConfig_LIBRARIES}
+    ${Glib_LIBRARIES}
 )
 endif()
 if (CPPAN_BUILD)
