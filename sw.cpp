@@ -239,7 +239,7 @@ void build(Solution &s)
         "src/training/tlog.cpp",
         "src/training/tlog.h",
         "src/training/util.h";
-    text2image.Public += "org.sw.demo.gnome.pango.pangocairo-1.43"_dep;
+    text2image.Public += "org.sw.demo.gnome.pango.pangocairo"_dep;
 }
 
 void check(Checker &c)
