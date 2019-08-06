@@ -7202,6 +7202,7 @@ const char kUniversalAmbigsFile[] = {
   "oZc ch 1\n"
   "jRm ij 1\n"
   "wXl le 1\n"
+#ifndef _MSC_VER // TODO: Hack to avoid unsupported long string for MS VC.
   "iyD in 1\n"
   "fvL va 1\n"
   "rPw er 1\n"
@@ -19029,6 +19030,7 @@ const char kUniversalAmbigsFile[] = {
   "qZl qu 1\n"
   "zHq qu 1\n"
   "iXl in 1\n"
+#endif
 };
 
 const int ksizeofUniversalAmbigsFile = sizeof(kUniversalAmbigsFile);
