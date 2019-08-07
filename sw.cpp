@@ -188,6 +188,7 @@ void build(Solution &s)
     //
     auto &unicharset_training = tess.addStaticLibrary("unicharset_training");
     unicharset_training +=
+        "src/training/fileio.*"_rr,
         "src/training/icuerrorcode.*"_rr,
         "src/training/icuerrorcode.h",
         "src/training/lang_model_helpers.*"_rr,
