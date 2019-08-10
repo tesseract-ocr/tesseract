@@ -76,7 +76,7 @@ void build(Solution &s)
         libtesseract.Public += "org.sw.demo.danbloomberg.leptonica-master"_dep;
         libtesseract.Public += "org.sw.demo.libarchive.libarchive"_dep;
 
-        if (libtesseract.getSettings().TargetOS.Type == OSType::Windows)
+        if (libtesseract.getBuildSettings().TargetOS.Type == OSType::Windows)
         {
             libtesseract.Public += "ws2_32.lib"_l;
             libtesseract.Protected += "NOMINMAX"_def;
