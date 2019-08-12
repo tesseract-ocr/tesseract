@@ -23,7 +23,6 @@
 #  include "config_auto.h"
 #endif
 
-#include "basedir.h"
 #include "control.h"
 #  include "matchdefs.h"
 #include "pageres.h"

@@ -116,7 +116,6 @@ void build(Solution &s)
                 "src/ccstruct/publictypes.h",
 
                 //from ccutil/makefile.am
-                "src/ccutil/basedir.h",
                 "src/ccutil/errcode.h",
                 "src/ccutil/fileerr.h",
                 "src/ccutil/genericvector.h",
