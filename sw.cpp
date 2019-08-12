@@ -55,8 +55,8 @@ void build(Solution &s)
             "src/ccutil"_id,
             "src/lstm"_id,
             "src/classify"_id,
-            //"src/training"_id,
-            "src/arch"_id;
+            "src/arch"_id,
+            "src/training"_id;
 
         if (libtesseract.getCompilerType() == CompilerType::MSVC ||
             libtesseract.getCompilerType() == CompilerType::ClangCl)
@@ -180,7 +180,23 @@ void build(Solution &s)
         "src/training/commandlineflags.cpp",
         "src/training/commandlineflags.h",
         "src/training/commontraining.cpp",
-        "src/training/commontraining.h";
+        "src/training/commontraining.h",
+        "src/training/ctc.cpp",
+        "src/training/ctc.h",
+        "src/training/errorcounter.cpp",
+        "src/training/errorcounter.h",
+        "src/training/intfeaturedist.cpp",
+        "src/training/intfeaturedist.h",
+        "src/training/intfeaturemap.cpp",
+        "src/training/intfeaturemap.h",
+        "src/training/mastertrainer.cpp",
+        "src/training/mastertrainer.h",
+        "src/training/networkbuilder.cpp",
+        "src/training/networkbuilder.h",
+        "src/training/sampleiterator.cpp",
+        "src/training/sampleiterator.h",
+        "src/training/trainingsampleset.cpp",
+        "src/training/trainingsampleset.h";
     common_training.Public += tessopt;
 
     //
