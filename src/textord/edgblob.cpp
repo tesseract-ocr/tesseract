@@ -17,7 +17,6 @@
  **********************************************************************/
 
 #include "scanedg.h"
-#include "drawedg.h"
 #include "edgloop.h"
 #include "edgblob.h"
 
