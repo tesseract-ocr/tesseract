@@ -32,6 +32,7 @@ noinst_HEADERS = \
     boxchar.h \
     commandlineflags.h \
     commontraining.h \
+    ctc.h \
     degradeimage.h \
     icuerrorcode.h \
     fileio.h \
@@ -39,6 +40,7 @@ noinst_HEADERS = \
     ligature_table.h \
     lstmtester.h \
     lstmtrainer.h \
+    networkbuilder.h \
     normstrngs.h \
     pango_font_info.h \
     stringrenderer.h \
@@ -54,7 +56,13 @@ noinst_HEADERS = \
     validator.h
 
 if !DISABLED_LEGACY_ENGINE
+    noinst_HEADERS += errorcounter.h
+    noinst_HEADERS += intfeaturedist.h
+    noinst_HEADERS += intfeaturemap.h
+    noinst_HEADERS += mastertrainer.h
     noinst_HEADERS += mergenf.h
+    noinst_HEADERS += sampleiterator.h
+    noinst_HEADERS += trainingsampleset.h
 endif
 
 
@@ -68,6 +76,7 @@ libtesseract_training_la_SOURCES = \
     boxchar.cpp \
     commandlineflags.cpp \
     commontraining.cpp \
+    ctc.cpp \
     degradeimage.cpp \
     icuerrorcode.cpp \
     fileio.cpp \
@@ -75,6 +84,7 @@ libtesseract_training_la_SOURCES = \
     ligature_table.cpp \
     lstmtester.cpp \
     lstmtrainer.cpp \
+    networkbuilder.cpp \
     normstrngs.cpp \
     pango_font_info.cpp \
     stringrenderer.cpp \
@@ -86,6 +96,15 @@ libtesseract_training_la_SOURCES = \
     validate_khmer.cpp \
     validate_myanmar.cpp \
     validator.cpp
+
+if !DISABLED_LEGACY_ENGINE
+libtesseract_training_la_SOURCES += errorcounter.cpp
+libtesseract_training_la_SOURCES += intfeaturedist.cpp
+libtesseract_training_la_SOURCES += intfeaturemap.cpp
+libtesseract_training_la_SOURCES += mastertrainer.cpp
+libtesseract_training_la_SOURCES += sampleiterator.cpp
+libtesseract_training_la_SOURCES += trainingsampleset.cpp
+endif
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp

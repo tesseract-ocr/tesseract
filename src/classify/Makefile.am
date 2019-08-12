@@ -3,6 +3,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/src/ccutil \
     -I$(top_srcdir)/src/ccstruct \
     -I$(top_srcdir)/src/dict \
+    -I$(top_srcdir)/src/training \
     -I$(top_srcdir)/src/viewer
 
 if DISABLED_LEGACY_ENGINE
@@ -23,16 +24,13 @@ noinst_HEADERS += \
     adaptive.h \
     cluster.h \
     clusttool.h \
-    errorcounter.h \
     featdefs.h \
     float2int.h \
     fpoint.h \
-    intfeaturedist.h \
-    intfeaturemap.h \
     intfeaturespace.h \
     intfx.h intmatcher.h \
     intproto.h kdtree.h \
-    mastertrainer.h mf.h \
+    mf.h \
     mfdefs.h \
     mfoutline.h \
     mfx.h \
@@ -42,12 +40,10 @@ noinst_HEADERS += \
     outfeat.h \
     picofeat.h \
     protos.h \
-    sampleiterator.h \
     shapeclassifier.h \
     shapetable.h \
     tessclassifier.h \
-    trainingsample.h \
-    trainingsampleset.h
+    trainingsample.h
 endif
 
 noinst_LTLIBRARIES = libtesseract_classify.la
@@ -63,18 +59,14 @@ libtesseract_classify_la_SOURCES += \
     cluster.cpp \
     clusttool.cpp \
     cutoffs.cpp \
-    errorcounter.cpp \
     featdefs.cpp \
     float2int.cpp \
     fpoint.cpp \
-    intfeaturedist.cpp \
-    intfeaturemap.cpp \
     intfeaturespace.cpp \
     intfx.cpp \
     intmatcher.cpp \
     intproto.cpp \
     kdtree.cpp \
-    mastertrainer.cpp \
     mf.cpp mfdefs.cpp \
     mfoutline.cpp \
     mfx.cpp \
@@ -84,10 +76,8 @@ libtesseract_classify_la_SOURCES += \
     outfeat.cpp \
     picofeat.cpp \
     protos.cpp \
-    sampleiterator.cpp \
     shapeclassifier.cpp \
     shapetable.cpp \
     tessclassifier.cpp \
-    trainingsample.cpp \
-    trainingsampleset.cpp
+    trainingsample.cpp
 endif
