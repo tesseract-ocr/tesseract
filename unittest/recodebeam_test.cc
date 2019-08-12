@@ -82,13 +82,10 @@ class RecodeBeamTest : public ::testing::Test {
                                                 "radical-stroke.txt");
     std::string unicharset_file =
         file::JoinPath(TESTDATA_DIR, unicharset_name);
-    std::string uni_data;
-    CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
     std::string radical_data;
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data,
                                file::Defaults()));
-    CHECK(ccutil_.unicharset.load_from_inmemory_file(uni_data.data(),
-                                                     uni_data.size()));
+    CHECK(ccutil_.unicharset.load_from_file(unicharset_file.c_str()));
     unichar_null_char_ = ccutil_.unicharset.has_special_codes()
                              ? UNICHAR_BROKEN
                              : ccutil_.unicharset.size();

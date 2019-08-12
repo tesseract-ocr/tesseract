@@ -37,13 +37,10 @@ class UnicharcompressTest : public ::testing::Test {
         file::JoinPath(LANGDATA_DIR, "radical-stroke.txt");
     std::string unicharset_file =
         file::JoinPath(TESTDATA_DIR, unicharset_name);
-    std::string uni_data;
-    CHECK_OK(file::GetContents(unicharset_file, &uni_data, file::Defaults()));
     std::string radical_data;
     CHECK_OK(file::GetContents(radical_stroke_file, &radical_data,
                                file::Defaults()));
-    CHECK(
-        unicharset_.load_from_inmemory_file(uni_data.data(), uni_data.size()));
+    CHECK(unicharset_.load_from_file(unicharset_file.c_str()));
     STRING radical_str(radical_data.c_str());
     null_char_ =
         unicharset_.has_special_codes() ? UNICHAR_BROKEN : unicharset_.size();
