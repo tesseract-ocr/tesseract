@@ -55,6 +55,7 @@ void build(Solution &s)
             "src/ccutil"_id,
             "src/lstm"_id,
             "src/classify"_id,
+            //"src/training"_id,
             "src/arch"_id;
 
         if (libtesseract.getCompilerType() == CompilerType::MSVC ||
@@ -132,14 +133,12 @@ void build(Solution &s)
 
                 //from lstm/makefile.am
                 "src/lstm/convolve.h",
-                "src/lstm/ctc.h",
                 "src/lstm/fullyconnected.h",
                 "src/lstm/functions.h",
                 "src/lstm/input.h",
                 "src/lstm/lstm.h",
                 "src/lstm/lstmrecognizer.h",
                 "src/lstm/maxpool.h",
-                "src/lstm/networkbuilder.h",
                 "src/lstm/network.h",
                 "src/lstm/networkio.h",
                 "src/lstm/networkscratch.h",
