@@ -372,16 +372,6 @@ class UNICHARSET {
   // Returns true if the operation is successful.
   bool save_to_string(STRING *str) const;
 
-  // Load a unicharset from a unicharset file that has been loaded into
-  // the given memory buffer.
-  // Returns true if the operation is successful.
-  bool load_from_inmemory_file(const char* const memory, int mem_size,
-                               bool skip_fragments);
-  // Returns true if the operation is successful.
-  bool load_from_inmemory_file(const char* const memory, int mem_size) {
-    return load_from_inmemory_file(memory, mem_size, false);
-  }
-
   // Opens the file indicated by filename and loads the UNICHARSET
   // from the given file. The previous data is lost.
   // Returns true if the operation is successful.
@@ -1002,7 +992,7 @@ class UNICHARSET {
 
   // Load ourselves from a "file" where our only interface to the file is
   // an implementation of fgets().  This is the parsing primitive accessed by
-  // the public routines load_from_file() and load_from_inmemory_file().
+  // the public routines load_from_file().
   bool load_via_fgets(std::function<char*(char*, int)> fgets_cb,
                       bool skip_fragments);
 
