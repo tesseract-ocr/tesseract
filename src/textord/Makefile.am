@@ -22,7 +22,7 @@ noinst_HEADERS = \
     alignedblob.h baselinedetect.h bbgrid.h blkocc.h blobgrid.h \
     ccnontextdetect.h cjkpitch.h colfind.h colpartition.h colpartitionset.h \
     colpartitiongrid.h \
-    devanagari_processing.h drawedg.h drawtord.h edgblob.h edgloop.h \
+    devanagari_processing.h drawtord.h edgblob.h edgloop.h \
     equationdetectbase.h \
     fpchop.h gap_map.h imagefind.h linefind.h makerow.h oldbasel.h \
     pithsync.h pitsync1.h scanedg.h sortflts.h strokewidth.h \
@@ -37,7 +37,7 @@ libtesseract_textord_la_SOURCES = \
     alignedblob.cpp baselinedetect.cpp bbgrid.cpp blkocc.cpp blobgrid.cpp \
     ccnontextdetect.cpp cjkpitch.cpp colfind.cpp colpartition.cpp colpartitionset.cpp \
     colpartitiongrid.cpp devanagari_processing.cpp \
-    drawedg.cpp drawtord.cpp edgblob.cpp edgloop.cpp \
+    drawtord.cpp edgblob.cpp edgloop.cpp \
     equationdetectbase.cpp \
     fpchop.cpp gap_map.cpp imagefind.cpp linefind.cpp makerow.cpp oldbasel.cpp \
     pithsync.cpp pitsync1.cpp scanedg.cpp sortflts.cpp strokewidth.cpp \
