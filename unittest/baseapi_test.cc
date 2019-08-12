@@ -63,14 +63,6 @@ class TesseractTest : public testing::Test {
   }
 };
 
-// Tests that array sizes match their intended size.
-TEST_F(TesseractTest, ArraySizeTest) {
-  int size = 0;
-  for (size = 0; kPolyBlockNames[size][0] != '\0'; ++size)
-    ;
-  EXPECT_EQ(size, PT_COUNT);
-}
-
 // Tests that Tesseract gets exactly the right answer on phototest.
 TEST_F(TesseractTest, BasicTesseractTest) {
   tesseract::TessBaseAPI api;

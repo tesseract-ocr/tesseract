@@ -2,7 +2,6 @@
 // File:        publictypes.h
 // Description: Types used in both the API and internally
 // Author:      Ray Smith
-// Created:     Wed Mar 03 09:22:53 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,7 +46,7 @@ constexpr int kResolutionEstimationFactor = 10;
 /**
  * Possible types for a POLY_BLOCK or ColPartition.
  * Must be kept in sync with kPBColors in polyblk.cpp and PTIs*Type functions
- * below, as well as kPolyBlockNames in publictypes.cpp.
+ * below, as well as kPolyBlockNames in layout_test.cc.
  * Used extensively by ColPartition, and POLY_BLOCK.
 */
 enum PolyBlockType {
@@ -89,9 +88,6 @@ inline bool PTIsTextType(PolyBlockType type) {
 inline bool PTIsPulloutType(PolyBlockType type) {
   return type == PT_PULLOUT_IMAGE || type == PT_PULLOUT_TEXT;
 }
-
-/** String name for each block type. Keep in sync with PolyBlockType. */
-extern const char* kPolyBlockNames[];
 
 namespace tesseract {
 /**
