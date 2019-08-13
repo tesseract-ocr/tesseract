@@ -10,3 +10,4 @@ edges_childarea 0.65
 edges_boxarea 0.9
 tessedit_train_line_recognizer T
 textord_no_rejects T
+tessedit_init_config_only T
