@@ -17,5 +17,9 @@ noinst_LTLIBRARIES = libtesseract_dict.la
 
 libtesseract_dict_la_SOURCES = \
     context.cpp \
-    dawg.cpp dawg_cache.cpp dict.cpp hyphen.cpp \
+    dawg.cpp dawg_cache.cpp dict.cpp \
     permdawg.cpp stopper.cpp trie.cpp
+
+if !DISABLED_LEGACY_ENGINE
+libtesseract_dict_la_SOURCES += hyphen.cpp
+endif

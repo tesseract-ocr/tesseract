@@ -119,7 +119,9 @@ check_PROGRAMS += baseapi_test
 if TENSORFLOW
 check_PROGRAMS += baseapi_thread_test
 endif # TENSORFLOW
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += bitvector_test
+endif # !DISABLED_LEGACY_ENGINE
 endif # ENABLE_TRAINING
 check_PROGRAMS += cleanapi_test
 check_PROGRAMS += colpartition_test
@@ -128,13 +130,17 @@ check_PROGRAMS += commandlineflags_test
 check_PROGRAMS += dawg_test
 endif # ENABLE_TRAINING
 check_PROGRAMS += denorm_test
+if !DISABLED_LEGACY_ENGINE
 if TENSORFLOW
 check_PROGRAMS += equationdetect_test
 endif # TENSORFLOW
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += fileio_test
 check_PROGRAMS += heap_test
 check_PROGRAMS += imagedata_test
+if !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += indexmapbidi_test
+endif # !DISABLED_LEGACY_ENGINE
 check_PROGRAMS += intfeaturemap_test
 check_PROGRAMS += intsimdmatrix_test
 check_PROGRAMS += lang_model_test

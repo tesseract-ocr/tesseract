@@ -297,8 +297,6 @@ void Tesseract::MaximallyChopWord(const GenericVector<TBOX>& boxes,
   word_res->FakeClassifyWord(blob_choices.size(), &blob_choices[0]);
 }
 
-#endif  // ndef DISABLED_LEGACY_ENGINE
-
 /// Helper to compute the dispute resolution metric.
 /// Disputed blob resolution. The aim is to give the blob to the most
 /// appropriate boxfile box. Most of the time it is obvious, but if
@@ -317,8 +315,6 @@ static double BoxMissMetric(const TBOX& box1, const TBOX& box2) {
   ASSERT_HOST(a != 0 && b != 0);
   return 1.0 * (a - overlap_area) * (b - overlap_area) / a / b;
 }
-
-#ifndef DISABLED_LEGACY_ENGINE
 
 /// Gather consecutive blobs that match the given box into the best_state
 /// and corresponding correct_text.

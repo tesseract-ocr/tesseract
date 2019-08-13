@@ -65,7 +65,6 @@ libtesseract_main_la_SOURCES = \
   paragraphs.cpp \
   paramsd.cpp \
   pgedit.cpp \
-  recogtraining.cpp \
   reject.cpp \
   resultiterator.cpp \
   tessedit.cpp \
@@ -75,15 +74,15 @@ libtesseract_main_la_SOURCES = \
   werdit.cpp
 
 if !DISABLED_LEGACY_ENGINE
-libtesseract_main_la_SOURCES += \
-  adaptions.cpp \
-  docqual.cpp \
-  equationdetect.cpp \
-  fixspace.cpp \
-  fixxht.cpp \
-  osdetect.cpp \
-  par_control.cpp \
-  superscript.cpp \
-  tessbox.cpp \
-  tfacepp.cpp
+libtesseract_main_la_SOURCES += adaptions.cpp
+libtesseract_main_la_SOURCES += docqual.cpp
+libtesseract_main_la_SOURCES += equationdetect.cpp
+libtesseract_main_la_SOURCES += fixspace.cpp
+libtesseract_main_la_SOURCES += fixxht.cpp
+libtesseract_main_la_SOURCES += osdetect.cpp
+libtesseract_main_la_SOURCES += par_control.cpp
+libtesseract_main_la_SOURCES += recogtraining.cpp
+libtesseract_main_la_SOURCES += superscript.cpp
+libtesseract_main_la_SOURCES += tessbox.cpp
+libtesseract_main_la_SOURCES += tfacepp.cpp
 endif
