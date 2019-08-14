@@ -54,11 +54,11 @@ STRING LSTMTester::RunEvalAsync(int iteration, const double* training_errors,
                                 int training_stage) {
   STRING result;
   if (total_pages_ == 0) {
-    result.add_str_int("No test data at iteration", iteration);
+    result.add_str_int("No test data at iteration ", iteration);
     return result;
   }
   if (!LockIfNotRunning()) {
-    result.add_str_int("Previous test incomplete, skipping test at iteration",
+    result.add_str_int("Previous test incomplete, skipping test at iteration ",
                        iteration);
     return result;
   }
