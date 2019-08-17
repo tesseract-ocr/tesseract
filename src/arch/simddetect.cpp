@@ -120,18 +120,19 @@ SIMDDetect::SIMDDetect() {
   __cpuid(cpuInfo, 0);
   max_function_id = cpuInfo[0];
   if (max_function_id >= 1) {
+    bool xmm_ymm_state_enabled = (_xgetbv(0) & 6) == 6;
     __cpuid(cpuInfo, 1);
 #if defined(SSE4_1)
     sse_available_ = (cpuInfo[2] & 0x00080000) != 0;
 #endif
 #if defined(FMA)
-    fma_available_ = (cpuInfo[2] & 0x00001000) != 0;
+    fma_available_ = xmm_ymm_state_enabled && (cpuInfo[2] & 0x00001000) != 0;
 #endif
 #if defined(AVX)
     avx_available_ = (cpuInfo[2] & 0x10000000) != 0;
 #endif
 #if defined(AVX2)
-    if (max_function_id >= 7) {
+    if (max_function_id >= 7 && xmm_ymm_state_enabled) {
       __cpuid(cpuInfo, 7);
       avx2_available_ = (cpuInfo[1] & 0x00000020) != 0;
       avx512F_available_ = (cpuInfo[1] & 0x00010000) != 0;
