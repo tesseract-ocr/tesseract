@@ -469,8 +469,7 @@ Tesseract::Tesseract()
       BOOL_MEMBER(tessedit_create_boxfile, false, "Output text with boxes",
                   this->params()),
       INT_MEMBER(tessedit_page_number, -1,
-                 "-1 -> All pages"
-                 " , else specific page to process",
+                 "-1 -> All pages, else specific page to process",
                  this->params()),
       BOOL_MEMBER(tessedit_write_images, false,
                   "Capture the image from the IPE", this->params()),
