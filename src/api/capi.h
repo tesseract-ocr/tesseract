@@ -115,6 +115,7 @@ typedef enum TessPageSegMode {
   PSM_SINGLE_CHAR,
   PSM_SPARSE_TEXT,
   PSM_SPARSE_TEXT_OSD,
+  PSM_RAW_LINE,
   PSM_COUNT
 } TessPageSegMode;
 typedef enum TessPageIteratorLevel {
