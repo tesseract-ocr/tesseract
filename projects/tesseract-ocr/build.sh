@@ -17,9 +17,8 @@
 
 cd $SRC/leptonica
 ./autogen.sh
-./configure
-make -j$(nproc)
-make install
+./configure --disable-shared
+make SUBDIRS=src install -j$(nproc)
 ldconfig
 
 cd $SRC/tesseract
