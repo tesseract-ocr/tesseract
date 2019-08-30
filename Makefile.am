@@ -77,4 +77,8 @@ fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
           -I $(top_srcdir)/src/ccutil \
           -I src/api \
           $< \
-          src/api/.libs/libtesseract.a $(LEPTONICA_LIBS) $(libarchive_LIBS) -o $@
+          src/api/.libs/libtesseract.a \
+          $(LEPTONICA_LIBS) \
+          $(TENSORFLOW_LIBS) \
+          $(libarchive_LIBS) \
+          -o $@
