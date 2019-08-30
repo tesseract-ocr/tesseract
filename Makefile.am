@@ -68,9 +68,14 @@ pkgconfig_DATA = tesseract.pc
 # fuzzer-api is used for fuzzing tests.
 # They are run by OSS-Fuzz https://oss-fuzz.com/, but can also be run locally.
 # Note: -fsanitize=fuzzer currently requires the clang++ compiler.
+
+# LIB_FUZZING_ENGINE can be overridden by the caller.
+# This is used by OSS-Fuzz.
+LIB_FUZZING_ENGINE ?= -fsanitize=fuzzer
+
 fuzzer-api: all
 fuzzer-api: $(top_srcdir)/unittest/fuzzers/fuzzer-api.cpp
-	$(CXX) $(CXXFLAGS) -g -fsanitize=fuzzer \
+	$(CXX) $(CXXFLAGS) -g $(LIB_FUZZING_ENGINE) \
           -I $(top_srcdir)/src/api \
           -I $(top_srcdir)/src/ccmain \
           -I $(top_srcdir)/src/ccstruct \
