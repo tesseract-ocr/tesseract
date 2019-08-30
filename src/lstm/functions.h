@@ -74,7 +74,7 @@ extern const LUTTempl<kTableSize, LUTFuncLog>  LogisticTable;
 inline double Tanh(double x) {
   if (x < 0.0) return -Tanh(-x);
   x *= kScaleFactor;
-  int index = static_cast<int>(x);
+  unsigned index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1)) return 1.0;
   double tanh_i0 = TanhTable[index];
   double tanh_i1 = TanhTable[index + 1];
@@ -85,7 +85,7 @@ inline double Tanh(double x) {
 inline double Logistic(double x) {
   if (x < 0.0) return 1.0 - Logistic(-x);
   x *= kScaleFactor;
-  int index = static_cast<int>(x);
+  unsigned index = static_cast<unsigned>(x);
   if (index >= (kTableSize - 1)) return 1.0;
   double l0 = LogisticTable[index];
   double l1 = LogisticTable[index + 1];
