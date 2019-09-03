@@ -254,10 +254,10 @@ class BLOBNBOX:public ELIST_LINK
       return area;
     }
     bool joined_to_prev() const {
-      return joined != 0;
+      return joined;
     }
     bool red_box_set() const {
-      return reduced != 0;
+      return reduced;
     }
     int repeated_set() const {
       return repeated_set_;
@@ -519,8 +519,8 @@ class BLOBNBOX:public ELIST_LINK
   TBOX box;                     // bounding box
   TBOX red_box;                 // bounding box
   signed int area:30;           // enclosed area
-  unsigned joined : 1;          // joined to prev
-  unsigned reduced : 1;         // reduced box set
+  bool joined : 1;              // joined to prev
+  bool reduced : 1;             // reduced box set
   int repeated_set_;            // id of the set of repeated blobs
   TabType left_tab_type_;       // Indicates tab-stop assessment
   TabType right_tab_type_;      // Indicates tab-stop assessment
