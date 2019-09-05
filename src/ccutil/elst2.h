@@ -841,7 +841,7 @@ The macro generates:
               CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
-ELISTIZE but NOT with those for CLISTIZE and CLIST2IZE
+ELISTIZE but NOT with those for CLISTIZE.
 
 Two macros are provided: ELIST2IZE and ELIST2IZEH
 The ...IZEH macros just define the class names for use in .h files
