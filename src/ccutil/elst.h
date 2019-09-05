@@ -47,11 +47,6 @@ The following list types and iterators are provided:
               CLIST_LINK
     (Single linked)
 
-    Cons List           CLIST2
-              CLIST2_ITERATOR
-              CLIST2_LINK
-    (Double linked)
-
 An embedded list is where the list pointers are provided by a generic class.
 Data types to be listed inherit from the generic class.  Data is thus linked
 in only ONE list at any one time.
@@ -838,7 +833,7 @@ The macros generate:
   - An E_LIST_ITERATOR subclass:       CLASSNAME##_IT
 
 NOTE: Generated names are DELIBERATELY designed to clash with those for
-ELIST2IZE but NOT with those for CLISTIZE and CLIST2IZE
+ELIST2IZE but NOT with those for CLISTIZE.
 
 Two macros are provided: ELISTIZE and ELISTIZEH.
 The ...IZEH macros just define the class names for use in .h files
