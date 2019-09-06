@@ -1086,17 +1086,13 @@ class Tesseract : public Wordrec {
   INT_VAR_H(lstm_choice_mode, 0,
             "Allows to include alternative symbols choices in the hOCR "
             "output. "
-            "Valid input values are 0, 1, 2 and 3. 0 is the default value. "
+            "Valid input values are 0, 1 and 2. 0 is the default value. "
             "With 1 the alternative symbol choices per timestep are included. "
-            "With 2 the alternative symbol choices are accumulated per "
-            "character. "
-            "With 3 the alternative symbol choices per timestep are included "
-            "and separated by the suggested segmentation of Tesseract. "
-            "With 4 alternative symbol choices are extracted from the CTC "
+            "With 2 the alternative symbol choices are extracted from the CTC "
             "process instead of the lattice. The choices are mapped per "
             "character.");
-  INT_VAR_H(lstm_choice_amount, 5,
-            "Sets the number of choices one get per character in "
+  INT_VAR_H(lstm_choice_iterations, 5,
+            "Sets the number of cascading iterations for the Beamsearch in "
             "lstm_choice_mode. Note that lstm_choice_mode must be set to "
             "a value greater than 0 to produce results.");
   double_VAR_H(lstm_rating_coefficient, 5, 
