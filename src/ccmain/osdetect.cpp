@@ -105,7 +105,7 @@ void OSResults::update_best_script(int orientation) {
       second = scripts_na[orientation][i];
     }
   }
-  best_result.sconfidence =
+  best_result.sconfidence = (second == 0.0f) ? 2.0f :
       (first / second - 1.0) / (kScriptAcceptRatio - 1.0);
 }
 
