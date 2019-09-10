@@ -115,13 +115,19 @@ BitVector::BitVector(int length) : bit_size_(length) {
 }
 
 BitVector::BitVector(const BitVector& src) : bit_size_(src.bit_size_) {
-  array_ = new uint32_t[WordLength()];
-  memcpy(array_, src.array_, ByteLength());
+  if (src.bit_size_ > 0) {
+    array_ = new uint32_t[WordLength()];
+    memcpy(array_, src.array_, ByteLength());
+  } else {
+    array_ = nullptr;
+  }
 }
 
 BitVector& BitVector::operator=(const BitVector& src) {
   Alloc(src.bit_size_);
-  memcpy(array_, src.array_, ByteLength());
+  if (src.bit_size_ > 0) {
+    memcpy(array_, src.array_, ByteLength());
+  }
   return *this;
 }
 
