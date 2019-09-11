@@ -73,7 +73,7 @@ class TFNetwork : public Network {
   bool Backward(bool debug, const NetworkIO& fwd_deltas,
                 NetworkScratch* scratch,
                 NetworkIO* back_deltas) override {
-    tprintf("Must override Network::DebugWeights for type %d\n", type_);
+    tprintf("Must override Network::Backward for type %d\n", type_);
     return false;
   }
 
