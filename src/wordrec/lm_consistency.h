@@ -3,7 +3,6 @@
 // Description: Struct for recording consistency of the paths  representing
 //              OCR hypotheses.
 // Author:      Rika Antonova
-// Created:     Mon Jun 20 11:26:43 PST 2012
 //
 // (C) Copyright 2012, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -115,19 +114,17 @@ struct LMConsistencyInfo {
     return xht_hi[kNORM];
   }
 
+  EDGE_REF punc_ref;
   int num_alphas;
   int num_digits;
   int num_punc;
   int num_other;
   ChartypeEnum chartype;
-  EDGE_REF punc_ref;
-  bool invalid_punc;
+  XHeightConsistencyEnum xht_decision;
   int num_non_first_upper;
   int num_lower;
   int script_id;
-  bool inconsistent_script;
   int num_inconsistent_spaces;
-  bool inconsistent_font;
   // Metrics clumped by position.
   float xht_lo[kNumPos];
   float xht_hi[kNumPos];
@@ -135,7 +132,9 @@ struct LMConsistencyInfo {
   int16_t xht_count_punc[kNumPos];
   int16_t xht_sp;
   int16_t xpos_entropy;
-  XHeightConsistencyEnum xht_decision;
+  bool invalid_punc;
+  bool inconsistent_script;
+  bool inconsistent_font;
 };
 
 }  // namespace tesseract
