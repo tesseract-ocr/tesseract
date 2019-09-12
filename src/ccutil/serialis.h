@@ -145,10 +145,10 @@ class TFile {
   int FWrite(const void* buffer, size_t size, int count);
 
  private:
-  // The number of bytes used so far.
-  int offset_;
   // The buffered data from the file.
   GenericVector<char>* data_;
+  // The number of bytes used so far.
+  int offset_;
   // True if the data_ pointer is owned by *this.
   bool data_is_owned_;
   // True if the TFile is open for writing.
