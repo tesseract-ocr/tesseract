@@ -7,3 +7,6 @@
 [submodule "test"]
 	path = test
 	url = https://github.com/tesseract-ocr/test
+[submodule "tessdata"]
+	path = tessdata
+	url = https://github.com/tesseract-ocr/tessconfigs
