@@ -873,16 +873,18 @@ class ColPartition : public ELIST2_LINK {
   int right_key_;
   // Type of this partition after looking at its relation to the columns.
   PolyBlockType type_;
-  // All boxes in the partition stored in increasing left edge coordinate.
-  BLOBNBOX_CLIST boxes_;
   // The global vertical skew direction.
   ICOORD vertical_;
+  // All boxes in the partition stored in increasing left edge coordinate.
+  BLOBNBOX_CLIST boxes_;
   // The partitions above that matched this.
   ColPartition_CLIST upper_partners_;
   // The partitions below that matched this.
   ColPartition_CLIST lower_partners_;
   // The WorkingPartSet it lives in while blocks are being made.
   WorkingPartSet* working_set_;
+  // Column_set_ is the column layout applicable to this ColPartition.
+  ColPartitionSet* column_set_;
   // Flag is true when AddBox is sorting vertically, false otherwise.
   bool last_add_was_vertical_;
   // True when the partition's ownership has been taken from the grid and
@@ -891,6 +893,7 @@ class ColPartition : public ELIST2_LINK {
   // Flag to indicate that this partition was subjected to a desperate merge,
   // and therefore the textlines need rebuilding.
   bool desperately_merged_;
+  bool owns_blobs_;  // Does the partition own its blobs?
   // The first and last column that this partition applies to.
   // Flowing partitions (see type_) will have an equal first and last value
   // of the form 2n + 1, where n is the zero-based index into the partitions
@@ -900,19 +903,11 @@ class ColPartition : public ELIST2_LINK {
   // indicating placement between columns.
   int first_column_;
   int last_column_;
-  // Column_set_ is the column layout applicable to this ColPartition.
-  ColPartitionSet* column_set_;
   // Linespacing data.
   int side_step_;       // Median y-shift to next blob on same line.
   int top_spacing_;     // Line spacing from median_top_.
   int bottom_spacing_;  // Line spacing from median_bottom_.
 
-  // Type of this partition before considering it as a table cell. This is
-  // used to revert the type if a partition is first marked as a table cell but
-  // later filtering steps decide it does not belong to a table
-  PolyBlockType type_before_table_;
-  bool inside_table_column_;  // Check whether the current partition has been
-                              // assigned to a table column
   // Nearest neighbor above with major x-overlap
   ColPartition* nearest_neighbor_above_;
   // Nearest neighbor below with major x-overlap
@@ -924,9 +919,14 @@ class ColPartition : public ELIST2_LINK {
   // Color foreground/background data.
   uint8_t color1_[kRGBRMSColors];
   uint8_t color2_[kRGBRMSColors];
-  bool owns_blobs_;  // Does the partition own its blobs?
   // The density of special blobs.
   float special_blobs_densities_[BSTT_COUNT];
+  // Type of this partition before considering it as a table cell. This is
+  // used to revert the type if a partition is first marked as a table cell but
+  // later filtering steps decide it does not belong to a table
+  PolyBlockType type_before_table_;
+  bool inside_table_column_;  // Check whether the current partition has been
+                              // assigned to a table column
 };
 
 // Typedef it now in case it becomes a class later.
