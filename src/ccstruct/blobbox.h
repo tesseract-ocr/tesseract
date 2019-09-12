@@ -144,11 +144,11 @@ class BLOBNBOX:public ELIST_LINK
 {
   public:
     BLOBNBOX() {
-      ConstructionInit();
+      ReInit();
     }
     explicit BLOBNBOX(C_BLOB *srcblob) {
       box = srcblob->bounding_box();
-      ConstructionInit();
+      ReInit();
       cblob_ptr = srcblob;
       area = static_cast<int>(srcblob->area());
     }
@@ -465,17 +465,6 @@ class BLOBNBOX:public ELIST_LINK
               ScrollView::Color child_colour);   // for holes
 #endif
 
-  // Initializes the bulk of the members to default values for use at
-  // construction time.
-  void ConstructionInit() {
-    cblob_ptr = nullptr;
-    owns_cblob_ = false;
-    area = 0;
-    area_stroke_width_ = 0.0f;
-    horz_stroke_width_ = 0.0f;
-    vert_stroke_width_ = 0.0f;
-    ReInit();
-  }
   // Initializes members set by StrokeWidth and beyond, without discarding
   // stored area and strokewidth values, which are expensive to calculate.
   void ReInit() {
@@ -515,32 +504,32 @@ class BLOBNBOX:public ELIST_LINK
   }
 
  private:
-  C_BLOB *cblob_ptr;            // edgestep blob
+  C_BLOB* cblob_ptr = nullptr;  // edgestep blob
   TBOX box;                     // bounding box
   TBOX red_box;                 // bounding box
-  signed int area:30;           // enclosed area
-  bool joined : 1;              // joined to prev
-  bool reduced : 1;             // reduced box set
-  int repeated_set_;            // id of the set of repeated blobs
-  TabType left_tab_type_;       // Indicates tab-stop assessment
-  TabType right_tab_type_;      // Indicates tab-stop assessment
-  BlobRegionType region_type_;  // Type of region this blob belongs to
-  BlobTextFlowType flow_;       // Quality of text flow.
-  int16_t left_rule_;             // x-coord of nearest but not crossing rule line
-  int16_t right_rule_;            // x-coord of nearest but not crossing rule line
-  int16_t left_crossing_rule_;    // x-coord of nearest or crossing rule line
-  int16_t right_crossing_rule_;   // x-coord of nearest or crossing rule line
-  int16_t base_char_top_;         // y-coord of top/bottom of diacritic base,
-  int16_t base_char_bottom_;      // if it exists else top/bottom of this blob.
-  int16_t baseline_y_;            // Estimate of baseline position.
-  int line_crossings_;          // Number of line intersections touched.
-  BLOBNBOX* base_char_blob_;    // The blob that was the base char.
-  float horz_stroke_width_;     // Median horizontal stroke width
-  float vert_stroke_width_;     // Median vertical stroke width
-  float area_stroke_width_;     // Stroke width from area/perimeter ratio.
-  tesseract::ColPartition* owner_;  // Who will delete me when I am not needed
+  int32_t area = 0;             // enclosed area
+  int32_t repeated_set_ = 0;    // id of the set of repeated blobs
+  TabType left_tab_type_ = TT_NONE;  // Indicates tab-stop assessment
+  TabType right_tab_type_ = TT_NONE; // Indicates tab-stop assessment
+  BlobRegionType region_type_ = BRT_UNKNOWN; // Type of region this blob belongs to
+  BlobTextFlowType flow_ = BTFT_NONE;       // Quality of text flow.
   BlobSpecialTextType spt_type_;   // Special text type.
+  bool joined = false;          // joined to prev
+  bool reduced = false;         // reduced box set
+  int16_t left_rule_ = 0;           // x-coord of nearest but not crossing rule line
+  int16_t right_rule_ = 0;          // x-coord of nearest but not crossing rule line
+  int16_t left_crossing_rule_;  // x-coord of nearest or crossing rule line
+  int16_t right_crossing_rule_; // x-coord of nearest or crossing rule line
+  int16_t base_char_top_;       // y-coord of top/bottom of diacritic base,
+  int16_t base_char_bottom_;    // if it exists else top/bottom of this blob.
+  int16_t baseline_y_;          // Estimate of baseline position.
+  int32_t line_crossings_;      // Number of line intersections touched.
+  BLOBNBOX* base_char_blob_;    // The blob that was the base char.
+  tesseract::ColPartition* owner_;  // Who will delete me when I am not needed
   BLOBNBOX* neighbours_[BND_COUNT];
+  float horz_stroke_width_ = 0.0f; // Median horizontal stroke width
+  float vert_stroke_width_ = 0.0f; // Median vertical stroke width
+  float area_stroke_width_ = 0.0f; // Stroke width from area/perimeter ratio.
   bool good_stroke_neighbours_[BND_COUNT];
   bool horz_possible_;           // Could be part of horizontal flow.
   bool vert_possible_;           // Could be part of vertical flow.
@@ -549,7 +538,7 @@ class BLOBNBOX:public ELIST_LINK
   // Iff true, then the destructor should delete the cblob_ptr.
   // TODO(rays) migrate all uses to correctly setting this flag instead of
   // deleting the C_BLOB before deleting the BLOBNBOX.
-  bool owns_cblob_;
+  bool owns_cblob_ = false;
 };
 
 class TO_ROW: public ELIST2_LINK
