@@ -302,12 +302,12 @@ class Dawg {
   // #define NEXT_EDGE_MASK (int64_t) 0xfffffff800000000i64
   // #define FLAGS_MASK     (int64_t) 0x0000000700000000i64
   // #define LETTER_MASK    (int64_t) 0x00000000ffffffffi64
-  uint64_t next_node_mask_;
-  uint64_t flags_mask_;
-  uint64_t letter_mask_;
+  uint64_t next_node_mask_ = 0;
+  uint64_t flags_mask_ = 0;
+  uint64_t letter_mask_ = 0;
   int unicharset_size_;
-  int flag_start_bit_;
-  int next_node_start_bit_;
+  int flag_start_bit_ = 0;
+  int next_node_start_bit_ = 0;
   // Level of debug statements to print to stdout.
   int debug_level_;
 };
