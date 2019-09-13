@@ -197,7 +197,7 @@ class BLOCK:public ELIST_LINK
   int16_t spacing;             ///< inter word gap
   int16_t pitch;               ///< pitch of non-props
   int16_t font_class;          ///< correct font class
-  int32_t xheight;             ///< height of chars
+  int32_t xheight = 0;         ///< height of chars
   float cell_over_xheight_;    ///< Ratio of cell height to xheight.
   STRING filename;             ///< name of block
   ROW_LIST rows;               ///< rows in block
