@@ -56,8 +56,6 @@ class BLOB_CHOICE: public ELIST_LINK
       rating_ = 10.0;
       certainty_ = -1.0;
       script_id_ = -1;
-      xgap_before_ = 0;
-      xgap_after_ = 0;
       min_xheight_ = 0.0f;
       max_xheight_ = 0.0f;
       yshift_ = 0.0f;
@@ -115,12 +113,6 @@ class BLOB_CHOICE: public ELIST_LINK
     const MATRIX_COORD& matrix_cell() {
       return matrix_cell_;
     }
-    int16_t xgap_before() const {
-      return xgap_before_;
-    }
-    int16_t xgap_after() const {
-      return xgap_after_;
-    }
     float min_xheight() const {
       return min_xheight_;
     }
@@ -157,12 +149,6 @@ class BLOB_CHOICE: public ELIST_LINK
     void set_matrix_cell(int col, int row) {
       matrix_cell_.col = col;
       matrix_cell_.row = row;
-    }
-    void set_xgap_before(int16_t gap) {
-      xgap_before_ = gap;
-    }
-    void set_xgap_after(int16_t gap) {
-      xgap_after_ = gap;
     }
     void set_classifier(BlobChoiceClassifier classifier) {
       classifier_ = classifier;
@@ -220,8 +206,6 @@ class BLOB_CHOICE: public ELIST_LINK
   // Holds the position of this choice in the ratings matrix.
   // Used to location position in the matrix during path backtracking.
   MATRIX_COORD matrix_cell_;
-  int16_t xgap_before_;
-  int16_t xgap_after_;
   // X-height range (in image pixels) that this classification supports.
   float min_xheight_;
   float max_xheight_;
