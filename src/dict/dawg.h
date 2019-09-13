@@ -294,20 +294,20 @@ class Dawg {
                          std::function<void(const WERD_CHOICE*)> cb) const;
 
   // Member Variables.
-  DawgType type_;
   STRING lang_;
+  DawgType type_;
   /// Permuter code that should be used if the word is found in this Dawg.
   PermuterType perm_;
   // Variables to construct various edge masks. Formerly:
   // #define NEXT_EDGE_MASK (int64_t) 0xfffffff800000000i64
   // #define FLAGS_MASK     (int64_t) 0x0000000700000000i64
   // #define LETTER_MASK    (int64_t) 0x00000000ffffffffi64
-  int unicharset_size_;
-  int flag_start_bit_;
-  int next_node_start_bit_;
   uint64_t next_node_mask_;
   uint64_t flags_mask_;
   uint64_t letter_mask_;
+  int unicharset_size_;
+  int flag_start_bit_;
+  int next_node_start_bit_;
   // Level of debug statements to print to stdout.
   int debug_level_;
 };
@@ -366,10 +366,10 @@ struct DawgPosition {
         back_to_punc == other.back_to_punc;
   }
 
-  int8_t dawg_index;
   EDGE_REF dawg_ref;
-  int8_t punc_index;
   EDGE_REF punc_ref;
+  int8_t dawg_index;
+  int8_t punc_index;
   // Have we returned to the punc dawg at the end of the word?
   bool back_to_punc;
 };

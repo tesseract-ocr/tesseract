@@ -508,6 +508,13 @@ class Classify : public CCStruct {
   INT_VAR_H(classify_integer_matcher_multiplier, 10,
             "Integer Matcher Multiplier  0-255:   ");
 
+  INT_VAR_H(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word");
+  BOOL_VAR_H(classify_bln_numeric_mode, 0,
+             "Assume the input is numbers [0-9].");
+  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
+  double_VAR_H(speckle_rating_penalty, 10.0,
+               "Penalty to add to worst rating for noise");
+
   // Use class variables to hold onto built-in templates and adapted templates.
   INT_TEMPLATES PreTrainedTemplates;
   ADAPT_TEMPLATES AdaptedTemplates;
@@ -521,7 +528,6 @@ class Classify : public CCStruct {
   BIT_VECTOR AllConfigsOn;
   BIT_VECTOR AllConfigsOff;
   BIT_VECTOR TempProtoMask;
-  bool EnableLearning;
   /* normmatch.cpp */
   NORM_PROTOS *NormProtos;
   /* font detection ***********************************************************/
@@ -535,13 +541,6 @@ class Classify : public CCStruct {
   // font combinations that the shape represents.
   UnicityTable<FontSet> fontset_table_;
 
-  INT_VAR_H(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word");
-  BOOL_VAR_H(classify_bln_numeric_mode, 0,
-             "Assume the input is numbers [0-9].");
-  double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
-  double_VAR_H(speckle_rating_penalty, 10.0,
-               "Penalty to add to worst rating for noise");
-
  protected:
   IntegerMatcher im_;
   FEATURE_DEFS_STRUCT feature_defs_;
@@ -552,15 +551,21 @@ class Classify : public CCStruct {
   ShapeTable* shape_table_;
 
  private:
-  Dict dict_;
   // The currently active static classifier.
   ShapeClassifier* static_classifier_;
-
-  /* variables used to hold performance statistics */
-  int NumAdaptationsFailed;
+  ScrollView* learn_debug_win_;
+  ScrollView* learn_fragmented_word_debug_win_;
+  ScrollView* learn_fragments_debug_win_;
 
   // Training data gathered here for all the images in a document.
   STRING tr_file_data_;
+
+  Dict dict_;
+
+  GenericVector<uint16_t> shapetable_cutoffs_;
+
+  /* variables used to hold performance statistics */
+  int NumAdaptationsFailed;
 
   // Expected number of features in the class pruner, used to penalize
   // unknowns that have too few features (like a c being classified as e) so
@@ -572,10 +577,9 @@ class Classify : public CCStruct {
   // shape_table_
   uint16_t CharNormCutoffs[MAX_NUM_CLASSES];
   uint16_t BaselineCutoffs[MAX_NUM_CLASSES];
-  GenericVector<uint16_t> shapetable_cutoffs_;
-  ScrollView* learn_debug_win_;
-  ScrollView* learn_fragmented_word_debug_win_;
-  ScrollView* learn_fragments_debug_win_;
+
+ public:
+  bool EnableLearning;
 };
 }  // namespace tesseract
 

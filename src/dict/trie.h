@@ -411,20 +411,20 @@ class Trie : public Dawg {
 
   // Member variables
   TRIE_NODES nodes_;              // vector of nodes in the Trie
+  // Freelist of edges in the root backwards node that were previously zeroed.
+  GenericVector<EDGE_INDEX> root_back_freelist_;
   uint64_t num_edges_;              // sum of all edges (forward and backward)
   uint64_t deref_direction_mask_;   // mask for EDGE_REF to extract direction
   uint64_t deref_node_index_mask_;  // mask for EDGE_REF to extract node index
-  // Freelist of edges in the root backwards node that were previously zeroed.
-  GenericVector<EDGE_INDEX> root_back_freelist_;
   // Variables for translating character class codes denoted in user patterns
   // file to the unichar ids used to represent them in a Trie.
-  bool initialized_patterns_;
   UNICHAR_ID alpha_pattern_;
   UNICHAR_ID digit_pattern_;
   UNICHAR_ID alphanum_pattern_;
   UNICHAR_ID punc_pattern_;
   UNICHAR_ID lower_pattern_;
   UNICHAR_ID upper_pattern_;
+  bool initialized_patterns_;
 };
 }  // namespace tesseract
 

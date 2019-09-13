@@ -185,14 +185,10 @@ class DLLSYM ELIST_ITERATOR
   ELIST_LINK *prev;              //prev element
   ELIST_LINK *current;           //current element
   ELIST_LINK *next;              //next element
-  bool ex_current_was_last;     //current extracted
-  //was end of list
-  bool ex_current_was_cycle_pt; //current extracted
-  //was cycle point
-  ELIST_LINK *cycle_pt;          //point we are cycling
-  //the list to.
-  bool started_cycling;         //Have we moved off
-  //the start?
+  ELIST_LINK *cycle_pt;          //point we are cycling the list to.
+  bool ex_current_was_last;      //current extracted was end of list
+  bool ex_current_was_cycle_pt;  //current extracted was cycle point
+  bool started_cycling;          //Have we moved off the start?
 
   ELIST_LINK *extract_sublist(                            //from this current...
                               ELIST_ITERATOR *other_it);  //to other current
