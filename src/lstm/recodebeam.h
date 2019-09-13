@@ -430,7 +430,6 @@ class RecodeBeamSearch {
   PointerVector<RecodeBeam> secondary_beam_;
   // The number of timesteps valid in beam_;
   int beam_size_;
-  int secondary_beam_size_;
   // A flag to indicate which outputs are the top-n choices. Current timestep
   // only.
   GenericVector<TopNState> top_n_flags_;

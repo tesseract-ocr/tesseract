@@ -108,7 +108,6 @@ void RecodeBeamSearch::DecodeSecondaryBeams(const NetworkIO& output,
                                             double worst_dict_cert,
                                             const UNICHARSET* charset,
                                             int lstm_choice_mode) {
-  secondary_beam_size_ = 0;
   secondary_beam_.clear();
   if (character_boundaries_.size() < 2) return;
   int width = output.Width();
@@ -775,7 +774,6 @@ void RecodeBeamSearch::DecodeSecondaryStep(const float* outputs, int t,
                                   const UNICHARSET* charset, bool debug) {
   if (t == secondary_beam_.size()) secondary_beam_.push_back(new RecodeBeam);
   RecodeBeam* step = secondary_beam_[t];
-  secondary_beam_size_ = t + 1;
   step->Clear();
   if (t == 0) {
     // The first step can only use singles and initials.
