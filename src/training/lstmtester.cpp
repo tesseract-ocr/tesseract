@@ -22,7 +22,7 @@
 namespace tesseract {
 
 LSTMTester::LSTMTester(int64_t max_memory)
-    : test_data_(max_memory), total_pages_(0), async_running_(false) {}
+    : test_data_(max_memory) {}
 
 // Loads a set of lstmf files that were created using the lstm.train config to
 // tesseract into memory ready for testing. Returns false if nothing was
