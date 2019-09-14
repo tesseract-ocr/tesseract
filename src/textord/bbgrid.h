@@ -3,7 +3,6 @@
 // Description: Class to hold BLOBNBOXs in a grid for fast access
 //              to neighbours.
 // Author:      Ray Smith
-// Created:     Wed Jun 06 17:22:01 PDT 2007
 //
 // (C) Copyright 2007, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -236,8 +235,7 @@ template<typename T> struct PtrHash {
 template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
  public:
   GridSearch(BBGrid<BBC, BBC_CLIST, BBC_C_IT>* grid)
-      : grid_(grid), unique_mode_(false),
-        previous_return_(nullptr), next_return_(nullptr) {
+      : grid_(grid) {
   }
 
   // Get the grid x, y coords of the most recently returned BBC.
@@ -347,21 +345,21 @@ template<class BBC, class BBC_CLIST, class BBC_C_IT> class GridSearch {
 
  private:
   // The grid we are searching.
-  BBGrid<BBC, BBC_CLIST, BBC_C_IT>* grid_;
+  BBGrid<BBC, BBC_CLIST, BBC_C_IT>* grid_ = nullptr;
   // For executing a search. The different search algorithms use these in
   // different ways, but most use x_origin_ and y_origin_ as the start position.
-  int x_origin_;
-  int y_origin_;
-  int max_radius_;
-  int radius_;
-  int rad_index_;
-  int rad_dir_;
+  int x_origin_ = 0;
+  int y_origin_ = 0;
+  int max_radius_ = 0;
+  int radius_ = 0;
+  int rad_index_ = 0;
+  int rad_dir_ = 0;
   TBOX rect_;
-  int x_;  // The current location in grid coords, of the current search.
-  int y_;
-  bool unique_mode_;
-  BBC* previous_return_;  // Previous return from Next*.
-  BBC* next_return_;  // Current value of it_.data() used for repositioning.
+  int x_ = 0; // The current location in grid coords, of the current search.
+  int y_ = 0;
+  bool unique_mode_ = false;
+  BBC* previous_return_ = nullptr; // Previous return from Next*.
+  BBC* next_return_ = nullptr; // Current value of it_.data() used for repositioning.
   // An iterator over the list at (x_, y_) in the grid_.
   BBC_C_IT it_;
   // Set of unique returned elements used when unique_mode_ is true.
