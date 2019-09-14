@@ -2,7 +2,6 @@
  * File:        paragraphs.cpp
  * Description: Paragraph detection for tesseract.
  * Author:      David Eger
- * Created:     25 February 2011
  *
  * (C) Copyright 2011, Google Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -868,8 +867,7 @@ struct GeometricClassifierState {
   GeometricClassifierState(int dbg_level,
                            GenericVector<RowScratchRegisters> *r,
                            int r_start, int r_end)
-      : debug_level(dbg_level), rows(r), row_start(r_start), row_end(r_end),
-        margin(0) {
+      : debug_level(dbg_level), rows(r), row_start(r_start), row_end(r_end) {
     tolerance = InterwordSpace(*r, r_start, r_end);
     CalculateTabStops(r, r_start, r_end, tolerance,
                       &left_tabs, &right_tabs);
@@ -938,20 +936,20 @@ struct GeometricClassifierState {
   }
 
   // We print out messages with a debug level at least as great as debug_level.
-  int debug_level;
+  int debug_level = 0;
 
   // The Geometric Classifier was asked to find a single paragraph model
   // to fit the text rows (*rows)[row_start, row_end)
   GenericVector<RowScratchRegisters> *rows;
-  int row_start;
-  int row_end;
+  int row_start = 0;
+  int row_end = 0;
 
   // The amount by which we expect the text edge can vary and still be aligned.
-  int tolerance;
+  int tolerance = 0;
 
   // Is the script in this text block left-to-right?
   // HORRIBLE ROUGH APPROXIMATION.  TODO(eger): Improve
-  bool ltr;
+  bool ltr = false;
 
   // These left and right tab stops were determined to be the common tab
   // stops for the given text.
@@ -959,13 +957,13 @@ struct GeometricClassifierState {
   GenericVector<Cluster> right_tabs;
 
   // These are parameters we must determine to create a ParagraphModel.
-  tesseract::ParagraphJustification just;
-  int margin;
-  int first_indent;
-  int body_indent;
+  tesseract::ParagraphJustification just = JUSTIFICATION_UNKNOWN;
+  int margin = 0;
+  int first_indent = 0;
+  int body_indent = 0;
 
   // eop_threshold > 0 if the text is fully justified.  See MarkRowsWithModel()
-  int eop_threshold;
+  int eop_threshold = 0;
 };
 
 // Given a section of text where strong textual clues did not help identifying

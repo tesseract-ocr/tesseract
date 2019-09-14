@@ -73,16 +73,16 @@ class LSTMTester {
 
   // The data to test with.
   DocumentCache test_data_;
-  int total_pages_;
+  int total_pages_ = 0;
   // Flag that indicates an asynchronous test is currently running.
   // Protected by running_mutex_.
-  bool async_running_;
+  bool async_running_ = false;
   std::mutex running_mutex_;
   // Stored copies of the args for use while running asynchronously.
-  int test_iteration_;
-  const double* test_training_errors_;
+  int test_iteration_ = 0;
+  const double* test_training_errors_ = nullptr;
   TessdataManager test_model_mgr_;
-  int test_training_stage_;
+  int test_training_stage_ = 0;
   STRING test_result_;
 };
 

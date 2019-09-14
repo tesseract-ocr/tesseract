@@ -2,7 +2,6 @@
 // File:        equationdetect.h
 // Description: The equation detection class that inherits equationdetectbase.
 // Author:      Zongyi (Joe) Liu (joeliu@google.com)
-// Created:     Fri Aug 31 11:13:01 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -249,12 +248,12 @@ class EquationDetect : public EquationDetectBase {
 
   // The ColPartitionGrid that we are processing. This pointer is passed in from
   // the caller, so do NOT destroy it in the class.
-  ColPartitionGrid* part_grid_;
+  ColPartitionGrid* part_grid_ = nullptr;
 
   // A simple array of pointers to the best assigned column division at
   // each grid y coordinate. This pointer is passed in from the caller, so do
   // NOT destroy it in the class.
-  ColPartitionSet** best_columns_;
+  ColPartitionSet** best_columns_ = nullptr;
 
   // The super bounding box of all cps in the part_grid_.
   TBOX* cps_super_bbox_;

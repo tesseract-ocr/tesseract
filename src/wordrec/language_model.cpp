@@ -127,10 +127,7 @@ LanguageModel::LanguageModel(const UnicityTable<FontInfo> *fontinfo_table,
                        dict->getCCUtil()->params()),
       dawg_args_(nullptr, new DawgPositionVector(), NO_PERM),
       fontinfo_table_(fontinfo_table),
-      dict_(dict),
-      fixed_pitch_(false),
-      max_char_wh_ratio_(0.0),
-      acceptable_choice_found_(false) {
+      dict_(dict) {
   ASSERT_HOST(dict_ != nullptr);
 }
 
