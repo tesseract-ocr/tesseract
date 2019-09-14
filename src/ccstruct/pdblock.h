@@ -2,7 +2,6 @@
  * File:        pdblock.h  (Formerly pdblk.h)
  * Description: Page block class definition.
  * Author:      Ray Smith
- * Created:     Thu Mar 14 17:32:01 GMT 1991
  *
  * (C) Copyright 1991, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,9 +133,9 @@ class DLLSYM BLOCK_RECT_IT       //rectangle iterator
     }
 
   private:
-    int16_t ymin;                ///< bottom of rectangle
-    int16_t ymax;                ///< top of rectangle
-    PDBLK *block;                ///< block to iterate
+    int16_t ymin = 0;            ///< bottom of rectangle
+    int16_t ymax = 0;            ///< top of rectangle
+    PDBLK* block = nullptr;      ///< block to iterate
     ICOORDELT_IT left_it;        ///< boundary iterators
     ICOORDELT_IT right_it;
 };
