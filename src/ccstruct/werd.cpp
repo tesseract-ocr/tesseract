@@ -336,7 +336,6 @@ WERD* WERD::shallow_copy() {
 
   new_word->blanks = blanks;
   new_word->flags = flags;
-  new_word->dummy = dummy;
   new_word->correct = correct;
   return new_word;
 }
@@ -352,7 +351,6 @@ WERD& WERD::operator=(const WERD& source) {
   blanks = source.blanks;
   flags = source.flags;
   script_id_ = source.script_id_;
-  dummy = source.dummy;
   correct = source.correct;
   if (!cblobs.empty()) cblobs.clear();
   cblobs.deep_copy(&source.cblobs, &C_BLOB::deep_copy);
