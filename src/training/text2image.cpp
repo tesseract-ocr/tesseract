@@ -598,7 +598,7 @@ static int Main() {
         rand_utf8.append(kSeparator);
       }
     }
-    tlog(1, "Rendered ngram string of size %d\n", rand_utf8.length());
+    tlog(1, "Rendered ngram string of size %zu\n", rand_utf8.length());
     src_utf8.swap(rand_utf8);
   }
   if (FLAGS_only_extract_font_properties) {
