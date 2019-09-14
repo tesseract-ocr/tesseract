@@ -101,8 +101,6 @@ BLOCK_RES::BLOCK_RES(bool merge_similar_words, BLOCK *the_block) {
   font_class = -1;               //not assigned
   x_height = -1.0;
   font_assigned = false;
-  bold = false;
-  italic = false;
   row_count = 0;
 
   block = the_block;
@@ -257,8 +255,6 @@ void WERD_RES::CopySimpleFields(const WERD_RES& source) {
   unlv_crunch_mode = source.unlv_crunch_mode;
   small_caps = source.small_caps;
   odd_size = source.odd_size;
-  italic = source.italic;
-  bold = source.bold;
   fontinfo = source.fontinfo;
   fontinfo2 = source.fontinfo2;
   fontinfo_id_count = source.fontinfo_id_count;
