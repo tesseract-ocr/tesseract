@@ -5,7 +5,6 @@
 // Description: Class to map a classifier shape index to unicharset
 //              indices and font indices.
 // Author:      Ray Smith
-// Created:     Thu Oct 28 17:46:32 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -243,10 +242,10 @@ class Shape {
 
   // Flag indicates that the unichars are sorted, allowing faster set
   // operations with another shape.
-  bool unichars_sorted_;
+  bool unichars_sorted_ = false;
   // If this Shape is part of a ShapeTable the destiation_index_ is the index
   // of some other shape in the ShapeTable with which this shape is merged.
-  int destination_index_;
+  int destination_index_ = 0;
   // Array of unichars, each with a set of fonts. Each unichar has at most
   // one entry in the vector.
   GenericVector<UnicharAndFonts> unichars_;
