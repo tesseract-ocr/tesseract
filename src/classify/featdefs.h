@@ -2,7 +2,6 @@
  ** Filename:    featdefs.h
  ** Purpose:     Definitions of currently defined feature types.
  ** Author:      Dan Johnson
- ** History:     Mon May 21 08:28:01 1990, DSJ, Created.
  **
  ** (c) Copyright Hewlett-Packard Company, 1988.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +45,6 @@ using CHAR_DESC = CHAR_DESC_STRUCT *;
 struct FEATURE_DEFS_STRUCT {
   int32_t NumFeatureTypes;
   const FEATURE_DESC_STRUCT* FeatureDesc[NUM_FEATURE_TYPES];
-  int FeatureEnabled[NUM_FEATURE_TYPES];
 };
 using FEATURE_DEFS = FEATURE_DEFS_STRUCT *;
 
