@@ -172,7 +172,6 @@ class WERD : public ELIST2_LINK {
 
  private:
   uint8_t blanks;          // no of blanks
-  uint8_t dummy;           // padding
   BITS16 flags;            // flags about word
   BITS16 disp_flags;       // display flags
   int16_t script_id_;      // From unicharset.
