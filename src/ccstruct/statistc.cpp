@@ -48,12 +48,6 @@ STATS::STATS(int32_t min_bucket_value, int32_t max_bucket_value_plus_1) {
   clear();
 }
 
-STATS::STATS() {
-  rangemax_ = 0;
-  rangemin_ = 0;
-  buckets_ = nullptr;
-}
-
 /**********************************************************************
  * STATS::set_range
  *
