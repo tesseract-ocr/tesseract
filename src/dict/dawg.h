@@ -348,9 +348,7 @@ class Dawg {
 //  DawgPosition(k, w, p, pe true)
 //    We're back in the punctuation dawg.  Continuing there is the only option.
 struct DawgPosition {
-  DawgPosition()
-      : dawg_index(-1), dawg_ref(NO_EDGE), punc_ref(NO_EDGE),
-        back_to_punc(false) {}
+  DawgPosition() = default;
   DawgPosition(int dawg_idx, EDGE_REF dawgref,
                int punc_idx, EDGE_REF puncref,
                bool backtopunc)
@@ -366,12 +364,12 @@ struct DawgPosition {
         back_to_punc == other.back_to_punc;
   }
 
-  EDGE_REF dawg_ref;
-  EDGE_REF punc_ref;
-  int8_t dawg_index;
-  int8_t punc_index;
+  EDGE_REF dawg_ref = NO_EDGE;
+  EDGE_REF punc_ref = NO_EDGE;
+  int8_t dawg_index = -1;
+  int8_t punc_index = -1;
   // Have we returned to the punc dawg at the end of the word?
-  bool back_to_punc;
+  bool back_to_punc = false;
 };
 
 class DawgPositionVector : public GenericVector<DawgPosition> {
