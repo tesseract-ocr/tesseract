@@ -54,7 +54,6 @@ int main(int argc, char** argv) {
     tprintf("Set reverse_policy to %s\n",
             tesseract::Trie::get_reverse_policy_name(reverse_policy));
   }
-  if (argc == 7) argv_index += 3;
   const char* wordlist_filename = argv[++argv_index];
   const char* dawg_filename = argv[++argv_index];
   const char* unicharset_file = argv[++argv_index];
