@@ -61,21 +61,17 @@ enum SVEventType {
 struct SVEvent {
   ~SVEvent() { delete [] parameter; }
   SVEvent* copy();
-  SVEventType type;    // What kind of event.
-  ScrollView* window;  // Window event relates to.
-  int x;               // Coords of click or selection.
-  int y;
-  int x_size;          // Size of selection.
-  int y_size;
-  int command_id;      // The ID of the possibly associated event (e.g. MENU)
-  char* parameter;     // Any string that might have been passed as argument.
-  int counter;         // Used to detect which kind of event to process next.
+  SVEventType type = SVET_DESTROY; // What kind of event.
+  ScrollView* window = nullptr; // Window event relates to.
+  char* parameter = nullptr; // Any string that might have been passed as argument.
+  int x = 0;           // Coords of click or selection.
+  int y = 0;
+  int x_size = 0;      // Size of selection.
+  int y_size = 0;
+  int command_id = 0;  // The ID of the possibly associated event (e.g. MENU)
+  int counter = 0;     // Used to detect which kind of event to process next.
 
-  SVEvent() {
-    window = nullptr;
-    parameter = nullptr;
-  }
-
+  SVEvent() = default;
   SVEvent(const SVEvent&);
   SVEvent& operator=(const SVEvent&);
 };
