@@ -208,6 +208,7 @@ Classify::Classify()
   learn_debug_win_ = nullptr;
   learn_fragmented_word_debug_win_ = nullptr;
   learn_fragments_debug_win_ = nullptr;
+  InitFeatureDefs(&feature_defs_);
 }
 
 Classify::~Classify() {
