@@ -642,7 +642,7 @@ class TO_ROW: public ELIST2_LINK
     }
 
                                  // true when dead
-    bool merged;
+    bool merged = false;
     bool all_caps;              // had no ascenders
     bool used_dm_model;         // in guessing pitch
     int16_t projection_left;       // start of projection
