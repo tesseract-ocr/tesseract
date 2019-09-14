@@ -121,8 +121,6 @@ class BLOCK_RES:public ELIST_LINK {
   float x_height;
   bool font_assigned;         // block already
   //      processed
-  bool bold;                  // all bold
-  bool italic;                // all italic
 
   ROW_RES_LIST row_res_list;
 
@@ -307,8 +305,6 @@ class WERD_RES : public ELIST_LINK {
   bool done = false;            // ready for output?
   bool small_caps = false;      // word appears to be small caps
   bool odd_size = false;        // word is bigger than line or leader dots.
-  bool italic = false;
-  bool bold = false;
   // The fontinfos are pointers to data owned by the classifier.
   const FontInfo* fontinfo = nullptr;
   const FontInfo* fontinfo2 = nullptr;

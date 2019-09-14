@@ -1982,8 +1982,6 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
   GenericVector<int> font_total_score;
   font_total_score.init_to_size(fontinfo_size, 0);
 
-  word->italic = 0;
-  word->bold = 0;
   // Compute the font scores for the word
   if (tessedit_debug_fonts) {
     tprintf("Examining fonts in %s\n",
@@ -2037,8 +2035,6 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
                 fi.name, word->fontinfo_id_count);
       }
     }
-    word->italic = (fi.is_italic() ? 1 : -1) * word->fontinfo_id_count;
-    word->bold = (fi.is_bold() ? 1 : -1) * word->fontinfo_id_count;
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
@@ -2097,8 +2093,6 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
       word->fontinfo = modal_font;
       // Counts only get 1 as it came from the doc.
       word->fontinfo_id_count = 1;
-      word->italic = modal_font->is_italic() ? 1 : -1;
-      word->bold = modal_font->is_bold() ? 1 : -1;
     }
   }
 }
