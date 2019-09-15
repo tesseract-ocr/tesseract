@@ -198,10 +198,8 @@ TabVector* TabVector::FitVector(TabAlignment alignment, ICOORD vertical,
 TabVector::TabVector(const TabVector& src, TabAlignment alignment,
                      const ICOORD& vertical_skew, BLOBNBOX* blob)
   : extended_ymin_(src.extended_ymin_), extended_ymax_(src.extended_ymax_),
-    sort_key_(0), percent_score_(0), mean_width_(0),
-    needs_refit_(true), needs_evaluation_(true), intersects_other_lines_(false),
-    alignment_(alignment),
-    top_constraints_(nullptr), bottom_constraints_(nullptr) {
+    needs_refit_(true), needs_evaluation_(true),
+    alignment_(alignment) {
   BLOBNBOX_C_IT it(&boxes_);
   it.add_to_end(blob);
   TBOX box = blob->bounding_box();
