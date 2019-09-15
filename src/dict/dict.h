@@ -19,7 +19,9 @@
 #ifndef TESSERACT_DICT_DICT_H_
 #define TESSERACT_DICT_DICT_H_
 
+#ifndef DISABLED_LEGACY_ENGINE
 #include "ambigs.h"
+#endif
 #include "dawg.h"
 #include "dawg_cache.h"
 #include "ratngs.h"
@@ -100,10 +102,11 @@ class Dict {
   UNICHARSET& getUnicharset() {
     return getCCUtil()->unicharset;
   }
+#ifndef DISABLED_LEGACY_ENGINE
   const UnicharAmbigs &getUnicharAmbigs() const {
     return getCCUtil()->unichar_ambigs;
   }
-
+#endif
   // Returns true if unichar_id is a word compounding character like - or /.
   inline bool compound_marker(UNICHAR_ID unichar_id) {
     const UNICHARSET& unicharset = getUnicharset();
@@ -517,9 +520,11 @@ class Dict {
    * Each entry i in the table stores a set of amibiguities whose
    * wrong ngram starts with unichar id i.
    */
-  UnicharAmbigs *dang_ambigs_table_;
+#ifndef DISABLED_LEGACY_ENGINE
+  UnicharAmbigs* dang_ambigs_table_ = nullptr;
   /** Same as above, but for ambiguities with replace flag set. */
-  UnicharAmbigs *replace_ambigs_table_;
+  UnicharAmbigs* replace_ambigs_table_ = nullptr;
+#endif
   /** Additional certainty padding allowed before a word is rejected. */
   float reject_offset_;
   // Cached UNICHAR_IDs:
