@@ -551,9 +551,9 @@ class SquishedDawg : public Dawg {
   std::unique_ptr<EDGE_REF[]> build_node_map(int32_t *num_nodes) const;
 
   // Member variables.
-  EDGE_ARRAY edges_;
-  int32_t num_edges_;
-  int num_forward_edges_in_node0;
+  EDGE_ARRAY edges_ = nullptr;
+  int32_t num_edges_ = 0;
+  int num_forward_edges_in_node0 = 0;
 };
 
 }  // namespace tesseract
