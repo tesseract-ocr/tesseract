@@ -217,19 +217,6 @@ class UnicharAmbigs {
 
 }  // namespace tesseract
 
-
-#else
-
-namespace tesseract {
-
-class UnicharAmbigs {
- public:
-  UnicharAmbigs() = default;
-  ~UnicharAmbigs() = default;
-};
-
-}  // namespace tesseract
-
 #endif  // !defined(DISABLED_LEGACY_ENGINE)
 
 #endif  // TESSERACT_CCUTIL_AMBIGS_H_

@@ -17,6 +17,9 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
+if DISABLED_LEGACY_ENGINE
+AM_CPPFLAGS += -DDISABLED_LEGACY_ENGINE
+endif
 
 noinst_HEADERS = \
     alignedblob.h baselinedetect.h bbgrid.h blkocc.h blobgrid.h \

@@ -20,7 +20,7 @@ pkginclude_HEADERS = \
     tesscallback.h unichar.h
 
 noinst_HEADERS = \
-    ambigs.h bits16.h ccutil.h clst.h doubleptr.h elst2.h \
+    bits16.h ccutil.h clst.h doubleptr.h elst2.h \
     elst.h errcode.h fileerr.h \
     genericheap.h globaloc.h host.h \
     kdpair.h lsterr.h \
@@ -29,6 +29,7 @@ noinst_HEADERS = \
     unicharcompress.h unicharmap.h unicharset.h unicity_table.h unicodes.h    
 
 if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += ambigs.h
 noinst_HEADERS += bitvector.h
 noinst_HEADERS += indexmapbidi.h
 noinst_HEADERS += universalambigs.h
