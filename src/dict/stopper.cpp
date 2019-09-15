@@ -21,7 +21,9 @@
 #include <cmath>
 
 #include "stopper.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "ambigs.h"
+#endif
 #include "ccutil.h"
 #include "dict.h"
 #include "helpers.h"

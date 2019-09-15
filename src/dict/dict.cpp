@@ -166,8 +166,6 @@ Dict::Dict(CCUtil* ccutil)
                  " are specified, since overly generic patterns can result in"
                  " dawg search exploring an overly large number of options.",
                  getCCUtil()->params()) {
-  dang_ambigs_table_ = nullptr;
-  replace_ambigs_table_ = nullptr;
   reject_offset_ = 0.0;
   go_deeper_fxn_ = nullptr;
   hyphen_word_ = nullptr;

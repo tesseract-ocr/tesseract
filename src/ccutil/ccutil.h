@@ -24,7 +24,9 @@
 #include <semaphore.h>
 #endif
 
+#ifndef DISABLED_LEGACY_ENGINE
 #include "ambigs.h"
+#endif
 #include "errcode.h"
 #ifdef _WIN32
 #include "host.h" // windows.h for HANDLE, ...
@@ -53,7 +55,9 @@ class CCUtil {
   STRING lang;
   STRING language_data_path_prefix;
   UNICHARSET unicharset;
+#ifndef DISABLED_LEGACY_ENGINE
   UnicharAmbigs unichar_ambigs;
+#endif
   STRING imagefile;  // image file name
   STRING directory;  // main directory
 
