@@ -22,7 +22,9 @@
 #include <cstdlib>         // for abs
 #include "blobs.h"         // for TPOINT, TWERD, TBLOB
 #include "errcode.h"       // for ASSERT_HOST
+#if !defined(DISABLED_LEGACY_ENGINE)
 #include "lm_pain_points.h" // for LMPainPoints
+#endif
 #include "matrix.h"        // for MATRIX
 #include "normalis.h"      // for DENORM
 #include "pageres.h"       // for WERD_RES
