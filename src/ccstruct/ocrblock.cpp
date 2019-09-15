@@ -44,7 +44,6 @@ BLOCK::BLOCK(const char *name,                ///< filename
   ICOORDELT_IT right_it = &pdblk.rightside;
 
   proportional = prop;
-  right_to_left_ = false;
   kerning = kern;
   spacing = space;
   font_class = -1;               //not assigned

@@ -35,7 +35,6 @@ class BLOCK:public ELIST_LINK
     : re_rotation_(1.0f, 0.0f),
       classify_rotation_(1.0f, 0.0f),
       skew_(1.0f, 0.0f) {
-    right_to_left_ = false;
     pdblk.hand_poly = nullptr;
   }
   BLOCK(const char *name,  ///< filename
@@ -191,14 +190,14 @@ class BLOCK:public ELIST_LINK
   PDBLK pdblk;                 ///< Page Description Block
 
  private:
-  bool proportional;           ///< proportional
-  bool right_to_left_;         ///< major script is right to left.
-  int8_t kerning;              ///< inter blob gap
-  int16_t spacing;             ///< inter word gap
-  int16_t pitch;               ///< pitch of non-props
-  int16_t font_class;          ///< correct font class
+  bool proportional = false;   ///< proportional
+  bool right_to_left_ = false; ///< major script is right to left.
+  int8_t kerning = 0;          ///< inter blob gap
+  int16_t spacing = 0;         ///< inter word gap
+  int16_t pitch = 0;           ///< pitch of non-props
+  int16_t font_class = 0;      ///< correct font class
   int32_t xheight = 0;         ///< height of chars
-  float cell_over_xheight_;    ///< Ratio of cell height to xheight.
+  float cell_over_xheight_ = 0.0f; ///< Ratio of cell height to xheight.
   STRING filename;             ///< name of block
   ROW_LIST rows;               ///< rows in block
   PARA_LIST paras_;            ///< paragraphs of block
