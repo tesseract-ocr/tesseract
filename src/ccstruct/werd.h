@@ -171,10 +171,10 @@ class WERD : public ELIST2_LINK {
                            bool* make_next_word_fuzzy);
 
  private:
-  uint8_t blanks;          // no of blanks
+  uint8_t blanks = 0;      // no of blanks
   BITS16 flags;            // flags about word
   BITS16 disp_flags;       // display flags
-  int16_t script_id_;      // From unicharset.
+  int16_t script_id_ = 0;  // From unicharset.
   STRING correct;          // correct text
   C_BLOB_LIST cblobs;      // compacted blobs
   C_BLOB_LIST rej_cblobs;  // DUFF blobs
