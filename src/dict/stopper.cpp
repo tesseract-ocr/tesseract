@@ -137,6 +137,8 @@ bool Dict::AcceptableResult(WERD_RES *word) const {
   }
 }
 
+#if !defined(DISABLED_LEGACY_ENGINE)
+
 bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
                             DANGERR *fixpt,
                             bool fix_replaceable,
@@ -354,6 +356,8 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
 }
 
 void Dict::EndDangerousAmbigs() {}
+
+#endif   // !defined(DISABLED_LEGACY_ENGINE)
 
 void Dict::SettupStopperPass1() {
   reject_offset_ = 0.0;
