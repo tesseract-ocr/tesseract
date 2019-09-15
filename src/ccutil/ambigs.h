@@ -20,6 +20,8 @@
 #ifndef TESSERACT_CCUTIL_AMBIGS_H_
 #define TESSERACT_CCUTIL_AMBIGS_H_
 
+#if !defined(DISABLED_LEGACY_ENGINE)
+
 #include "elst.h"
 #include "tprintf.h"
 #include "unichar.h"
@@ -214,5 +216,20 @@ class UnicharAmbigs {
 };
 
 }  // namespace tesseract
+
+
+#else
+
+namespace tesseract {
+
+class UnicharAmbigs {
+ public:
+  UnicharAmbigs() = default;
+  ~UnicharAmbigs() = default;
+};
+
+}  // namespace tesseract
+
+#endif  // !defined(DISABLED_LEGACY_ENGINE)
 
 #endif  // TESSERACT_CCUTIL_AMBIGS_H_

@@ -204,6 +204,8 @@ bool Tesseract::init_tesseract_lang_data(
   }
   right_to_left_ = unicharset.major_right_to_left();
 
+#ifndef DISABLED_LEGACY_ENGINE
+
   // Setup initial unichar ambigs table and read universal ambigs.
   UNICHARSET encoder_unicharset;
   encoder_unicharset.CopyFrom(unicharset);
@@ -215,7 +217,7 @@ bool Tesseract::init_tesseract_lang_data(
                                      ambigs_debug_level,
                                      use_ambigs_for_adaption, &unicharset);
   }
-#ifndef DISABLED_LEGACY_ENGINE
+
   // Init ParamsModel.
   // Load pass1 and pass2 weights (for now these two sets are the same, but in
   // the future separate sets of weights can be generated).

@@ -251,10 +251,12 @@ class Dict {
                              CHAR_FRAGMENT_INFO *char_frag_info);
 
   /* stopper.cpp *************************************************************/
+#if !defined(DISABLED_LEGACY_ENGINE)
   bool NoDangerousAmbig(WERD_CHOICE *BestChoice,
                         DANGERR *fixpt,
                         bool fix_replaceable,
                         MATRIX* ratings);
+#endif  // !defined(DISABLED_LEGACY_ENGINE)
   // Replaces the corresponding wrong ngram in werd_choice with the correct
   // one. The whole correct n-gram is inserted into the ratings matrix and
   // the werd_choice: no more fragments!. Rating and certainty of new entries
@@ -283,7 +285,9 @@ class Dict {
   /// and should be tried again on the second pass or should be flagged to
   /// the user.
   bool AcceptableResult(WERD_RES *word) const;
+#if !defined(DISABLED_LEGACY_ENGINE)
   void EndDangerousAmbigs();
+#endif   // !defined(DISABLED_LEGACY_ENGINE)
   /// Prints the current choices for this word to stdout.
   void DebugWordChoices();
   /// Sets up stopper variables in preparation for the first pass.
