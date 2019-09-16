@@ -97,11 +97,17 @@ struct ViterbiStateEntry : public ELIST_LINK {
                     LanguageModelDawgInfo *d,
                     LanguageModelNgramInfo *n,
                     const char *debug_uch)
-    : cost(c), curr_b(b), parent_vse(pe), competing_vse(nullptr),
+    : curr_b(b), parent_vse(pe), competing_vse(nullptr),
+      dawg_info(d), ngram_info(n),
+      cost(c),
       ratings_sum(b->rating()),
-      min_certainty(b->certainty()), adapted(b->IsAdapted()), length(1),
-      outline_length(ol), consistency_info(ci), associate_stats(as),
-      top_choice_flags(tcf), dawg_info(d), ngram_info(n),
+      min_certainty(b->certainty()),
+      adapted(b->IsAdapted()),
+      length(1),
+      outline_length(ol),
+      consistency_info(ci),
+      associate_stats(as),
+      top_choice_flags(tcf),
       updated(true) {
     debug_str = (debug_uch == nullptr) ? nullptr : new STRING();
     if (pe != nullptr) {
