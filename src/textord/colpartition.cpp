@@ -80,20 +80,10 @@ const int kMaxColorDistance = 900;
 // Vertical is the direction of logical vertical on the possibly skewed image.
 ColPartition::ColPartition(BlobRegionType blob_type, const ICOORD& vertical)
   : left_margin_(-INT32_MAX), right_margin_(INT32_MAX),
-    median_bottom_(INT32_MAX), median_top_(-INT32_MAX), median_height_(0),
-    median_left_(INT32_MAX), median_right_(-INT32_MAX), median_width_(0),
-    blob_type_(blob_type), flow_(BTFT_NONE), good_blob_score_(0),
-    good_width_(false), good_column_(false),
-    left_key_tab_(false), right_key_tab_(false),
-    left_key_(0), right_key_(0), type_(PT_UNKNOWN), vertical_(vertical),
-    working_set_(nullptr), last_add_was_vertical_(false), block_owned_(false),
-    desperately_merged_(false),
-    first_column_(-1), last_column_(-1), column_set_(nullptr),
-    side_step_(0), top_spacing_(0), bottom_spacing_(0),
-    type_before_table_(PT_UNKNOWN), inside_table_column_(false),
-    nearest_neighbor_above_(nullptr), nearest_neighbor_below_(nullptr),
-    space_above_(0), space_below_(0), space_to_left_(0), space_to_right_(0),
-    owns_blobs_(true) {
+    median_bottom_(INT32_MAX), median_top_(-INT32_MAX),
+    median_left_(INT32_MAX), median_right_(-INT32_MAX),
+    blob_type_(blob_type),
+    vertical_(vertical) {
   memset(special_blobs_densities_, 0, sizeof(special_blobs_densities_));
 }
 

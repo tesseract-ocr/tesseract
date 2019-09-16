@@ -845,35 +845,35 @@ class ColPartition : public ELIST2_LINK {
   int median_bottom_;
   int median_top_;
   // Median height of blobs in this partition.
-  int median_height_;
+  int median_height_ = 0;
   // Median left and right of blobs in this partition.
   int median_left_;
   int median_right_;
   // Median width of blobs in this partition.
-  int median_width_;
+  int median_width_ = 0;
   // blob_region_type_ for the blobs in this partition.
   BlobRegionType blob_type_;
-  BlobTextFlowType flow_;  // Quality of text flow.
+  BlobTextFlowType flow_ = BTFT_NONE; // Quality of text flow.
   // Total of GoodTextBlob results for all blobs in the partition.
-  int good_blob_score_;
+  int good_blob_score_ = 0;
   // True if this partition has a common width.
-  bool good_width_;
+  bool good_width_ = false;
   // True if this is a good column candidate.
-  bool good_column_;
+  bool good_column_ = false;
   // True if the left_key_ is from a tab vector.
-  bool left_key_tab_;
+  bool left_key_tab_ = false;
   // True if the right_key_ is from a tab vector.
-  bool right_key_tab_;
+  bool right_key_tab_ = false;
   // Left and right sort keys for the edges of the partition.
   // If the respective *_key_tab_ is true then this key came from a tab vector.
   // If not, then the class promises to keep the key equal to the sort key
   // for the respective edge of the bounding box at the MidY, so that
   // LeftAtY and RightAtY always returns an x coordinate on the line parallel
   // to vertical_ through the bounding box edge at MidY.
-  int left_key_;
-  int right_key_;
+  int left_key_ = 0;
+  int right_key_ = 0;
   // Type of this partition after looking at its relation to the columns.
-  PolyBlockType type_;
+  PolyBlockType type_ = PT_UNKNOWN;
   // The global vertical skew direction.
   ICOORD vertical_;
   // All boxes in the partition stored in increasing left edge coordinate.
@@ -883,18 +883,18 @@ class ColPartition : public ELIST2_LINK {
   // The partitions below that matched this.
   ColPartition_CLIST lower_partners_;
   // The WorkingPartSet it lives in while blocks are being made.
-  WorkingPartSet* working_set_;
+  WorkingPartSet* working_set_ = nullptr;
   // Column_set_ is the column layout applicable to this ColPartition.
-  ColPartitionSet* column_set_;
+  ColPartitionSet* column_set_ = nullptr;
   // Flag is true when AddBox is sorting vertically, false otherwise.
-  bool last_add_was_vertical_;
+  bool last_add_was_vertical_ = false;
   // True when the partition's ownership has been taken from the grid and
   // placed in a working set, or, after that, in the good_parts_ list.
-  bool block_owned_;
+  bool block_owned_ = false;
   // Flag to indicate that this partition was subjected to a desperate merge,
   // and therefore the textlines need rebuilding.
-  bool desperately_merged_;
-  bool owns_blobs_;  // Does the partition own its blobs?
+  bool desperately_merged_ = false;
+  bool owns_blobs_ = true; // Does the partition own its blobs?
   // The first and last column that this partition applies to.
   // Flowing partitions (see type_) will have an equal first and last value
   // of the form 2n + 1, where n is the zero-based index into the partitions
@@ -902,21 +902,21 @@ class ColPartition : public ELIST2_LINK {
   // Heading partitions will have unequal values of the same form.
   // Pullout partitions will have equal values, but may have even values,
   // indicating placement between columns.
-  int first_column_;
-  int last_column_;
+  int first_column_ = -1;
+  int last_column_ = -1;
   // Linespacing data.
-  int side_step_;       // Median y-shift to next blob on same line.
-  int top_spacing_;     // Line spacing from median_top_.
-  int bottom_spacing_;  // Line spacing from median_bottom_.
+  int side_step_ = 0;      // Median y-shift to next blob on same line.
+  int top_spacing_ = 0;    // Line spacing from median_top_.
+  int bottom_spacing_ = 0; // Line spacing from median_bottom_.
 
   // Nearest neighbor above with major x-overlap
-  ColPartition* nearest_neighbor_above_;
+  ColPartition* nearest_neighbor_above_ = nullptr;
   // Nearest neighbor below with major x-overlap
-  ColPartition* nearest_neighbor_below_;
-  int space_above_;      // Distance from nearest_neighbor_above
-  int space_below_;      // Distance from nearest_neighbor_below
-  int space_to_left_;    // Distance from the left edge of the column
-  int space_to_right_;   // Distance from the right edge of the column
+  ColPartition* nearest_neighbor_below_ = nullptr;
+  int space_above_ = 0;    // Distance from nearest_neighbor_above
+  int space_below_ = 0;    // Distance from nearest_neighbor_below
+  int space_to_left_ = 0;  // Distance from the left edge of the column
+  int space_to_right_ = 0; // Distance from the right edge of the column
   // Color foreground/background data.
   uint8_t color1_[kRGBRMSColors];
   uint8_t color2_[kRGBRMSColors];
@@ -925,9 +925,9 @@ class ColPartition : public ELIST2_LINK {
   // Type of this partition before considering it as a table cell. This is
   // used to revert the type if a partition is first marked as a table cell but
   // later filtering steps decide it does not belong to a table
-  PolyBlockType type_before_table_;
-  bool inside_table_column_;  // Check whether the current partition has been
-                              // assigned to a table column
+  PolyBlockType type_before_table_ = PT_UNKNOWN;
+  // Check whether the current partition has been assigned to a table column.
+  bool inside_table_column_ = false;
 };
 
 // Typedef it now in case it becomes a class later.
