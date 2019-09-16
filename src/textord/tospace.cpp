@@ -886,7 +886,7 @@ void Textord::improve_row_threshold(TO_ROW *row, STATS *all_gap_stats) {
 /**********************************************************************
  * make_prop_words
  *
- * Convert a TO_BLOCK to a BLOCK.
+ * Convert a TO_ROW to a ROW.
  **********************************************************************/
 ROW *Textord::make_prop_words(
     TO_ROW *row,     // row to make
