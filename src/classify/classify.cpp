@@ -173,7 +173,6 @@ Classify::Classify()
                  "Class Pruner CutoffStrength:         ", this->params()),
       INT_MEMBER(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ", this->params()),
-      EnableLearning(true),
       INT_MEMBER(il1_adaption_test, 0,
                  "Don't adapt to i/I at beginning of word", this->params()),
       BOOL_MEMBER(classify_bln_numeric_mode, 0,
@@ -183,28 +182,13 @@ Classify::Classify()
       double_MEMBER(speckle_rating_penalty, 10.0,
                     "Penalty to add to worst rating for noise", this->params()),
       im_(&classify_debug_level),
-      shape_table_(nullptr),
-      dict_(this),
-      static_classifier_(nullptr) {
+      dict_(this) {
   using namespace std::placeholders; // for _1, _2
   fontinfo_table_.set_compare_callback(std::bind(CompareFontInfo, _1, _2));
   fontinfo_table_.set_clear_callback(std::bind(FontInfoDeleteCallback, _1));
   fontset_table_.set_compare_callback(std::bind(CompareFontSet, _1, _2));
   fontset_table_.set_clear_callback(std::bind(FontSetDeleteCallback, _1));
-  AdaptedTemplates = nullptr;
-  BackupAdaptedTemplates = nullptr;
-  PreTrainedTemplates = nullptr;
-  AllProtosOn = nullptr;
-  AllConfigsOn = nullptr;
-  AllConfigsOff = nullptr;
-  TempProtoMask = nullptr;
-  NormProtos = nullptr;
 
-  NumAdaptationsFailed = 0;
-
-  learn_debug_win_ = nullptr;
-  learn_fragmented_word_debug_win_ = nullptr;
-  learn_fragments_debug_win_ = nullptr;
   InitFeatureDefs(&feature_defs_);
 }
 

@@ -516,20 +516,20 @@ class Classify : public CCStruct {
                "Penalty to add to worst rating for noise");
 
   // Use class variables to hold onto built-in templates and adapted templates.
-  INT_TEMPLATES PreTrainedTemplates;
-  ADAPT_TEMPLATES AdaptedTemplates;
+  INT_TEMPLATES PreTrainedTemplates = nullptr;
+  ADAPT_TEMPLATES AdaptedTemplates = nullptr;
   // The backup adapted templates are created from the previous page (only)
   // so they are always ready and reasonably well trained if the primary
   // adapted templates become full.
-  ADAPT_TEMPLATES BackupAdaptedTemplates;
+  ADAPT_TEMPLATES BackupAdaptedTemplates = nullptr;
 
   // Create dummy proto and config masks for use with the built-in templates.
-  BIT_VECTOR AllProtosOn;
-  BIT_VECTOR AllConfigsOn;
-  BIT_VECTOR AllConfigsOff;
-  BIT_VECTOR TempProtoMask;
+  BIT_VECTOR AllProtosOn = nullptr;
+  BIT_VECTOR AllConfigsOn = nullptr;
+  BIT_VECTOR AllConfigsOff = nullptr;
+  BIT_VECTOR TempProtoMask = nullptr;
   /* normmatch.cpp */
-  NORM_PROTOS *NormProtos;
+  NORM_PROTOS* NormProtos = nullptr;
   /* font detection ***********************************************************/
   UnicityTable<FontInfo> fontinfo_table_;
   // Without shape training, each class_id, config pair represents a single
@@ -548,14 +548,14 @@ class Classify : public CCStruct {
   // ExpandShapesAndApplyCorrections. font_ids referenced by configs actually
   // mean an index to the shape_table_ and the choices returned are *all* the
   // shape_table_ entries at that index.
-  ShapeTable* shape_table_;
+  ShapeTable* shape_table_ = nullptr;
 
  private:
   // The currently active static classifier.
-  ShapeClassifier* static_classifier_;
-  ScrollView* learn_debug_win_;
-  ScrollView* learn_fragmented_word_debug_win_;
-  ScrollView* learn_fragments_debug_win_;
+  ShapeClassifier* static_classifier_ = nullptr;
+  ScrollView* learn_debug_win_ = nullptr;
+  ScrollView* learn_fragmented_word_debug_win_ = nullptr;
+  ScrollView* learn_fragments_debug_win_ = nullptr;
 
   // Training data gathered here for all the images in a document.
   STRING tr_file_data_;
@@ -565,7 +565,7 @@ class Classify : public CCStruct {
   GenericVector<uint16_t> shapetable_cutoffs_;
 
   /* variables used to hold performance statistics */
-  int NumAdaptationsFailed;
+  int NumAdaptationsFailed = 0;
 
   // Expected number of features in the class pruner, used to penalize
   // unknowns that have too few features (like a c being classified as e) so
@@ -579,7 +579,7 @@ class Classify : public CCStruct {
   uint16_t BaselineCutoffs[MAX_NUM_CLASSES];
 
  public:
-  bool EnableLearning;
+  bool EnableLearning = true;
 };
 }  // namespace tesseract
 
