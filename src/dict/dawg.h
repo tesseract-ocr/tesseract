@@ -199,8 +199,8 @@ class Dawg {
 
  protected:
   Dawg(DawgType type, const STRING &lang, PermuterType perm, int debug_level)
-      : type_(type),
-        lang_(lang),
+      : lang_(lang),
+        type_(type),
         perm_(perm),
         unicharset_size_(0),
         debug_level_(debug_level) {}
@@ -352,8 +352,8 @@ struct DawgPosition {
   DawgPosition(int dawg_idx, EDGE_REF dawgref,
                int punc_idx, EDGE_REF puncref,
                bool backtopunc)
-      : dawg_index(dawg_idx), dawg_ref(dawgref),
-        punc_index(punc_idx), punc_ref(puncref),
+      : dawg_ref(dawgref), punc_ref(puncref),
+        dawg_index(dawg_idx), punc_index(punc_idx),
         back_to_punc(backtopunc) {
   }
   bool operator==(const DawgPosition &other) {
