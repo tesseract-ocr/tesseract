@@ -835,19 +835,19 @@ class ColPartition : public ELIST2_LINK {
   // overlapping neighbour to the side. They indicate the maximum extent
   // that the block/column may be extended without touching something else.
   // Leftmost coordinate that the region may occupy over the y limits.
-  int left_margin_;
+  int left_margin_ = 0;
   // Rightmost coordinate that the region may occupy over the y limits.
-  int right_margin_;
+  int right_margin_ = 0;
   // Bounding box of all blobs in the partition.
   TBOX bounding_box_;
   // Median top and bottom of blobs in this partition.
-  int median_bottom_;
-  int median_top_;
+  int median_bottom_ = 0;
+  int median_top_ = 0;
   // Median height of blobs in this partition.
   int median_height_ = 0;
   // Median left and right of blobs in this partition.
-  int median_left_;
-  int median_right_;
+  int median_left_ = 0;
+  int median_right_ = 0;
   // Median width of blobs in this partition.
   int median_width_ = 0;
   // blob_region_type_ for the blobs in this partition.
