@@ -413,7 +413,7 @@ class TabVector : public ELIST2_LINK {
   // True if a separator line intersects at least 2 other lines.
   bool intersects_other_lines_ = false;
   // The type of this TabVector.
-  TabAlignment alignment_;
+  TabAlignment alignment_ = TA_LEFT_ALIGNED;
   // The list of boxes whose edges are aligned at this TabVector.
   BLOBNBOX_CLIST boxes_;
   // List of TabVectors that have a connection with this via a text line.
