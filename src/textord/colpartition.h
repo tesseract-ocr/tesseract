@@ -852,7 +852,7 @@ class ColPartition : public ELIST2_LINK {
   // Median width of blobs in this partition.
   int median_width_ = 0;
   // blob_region_type_ for the blobs in this partition.
-  BlobRegionType blob_type_;
+  BlobRegionType blob_type_ = BRT_NOISE;
   BlobTextFlowType flow_ = BTFT_NONE; // Quality of text flow.
   // Total of GoodTextBlob results for all blobs in the partition.
   int good_blob_score_ = 0;
