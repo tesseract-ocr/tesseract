@@ -28,7 +28,9 @@
 #include "stopper.h"
 #include "trie.h"
 #include "unicharset.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 class MATRIX;
 class WERD_RES;

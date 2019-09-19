@@ -25,7 +25,9 @@
 
 #include "clst.h"
 #include "elst.h"
+#ifndef DISABLED_LEGACY_ENGINE
 #include "fontinfo.h"
+#endif  // ndef DISABLED_LEGACY_ENGINE
 #include "genericvector.h"
 #include "matrix.h"
 #include "unichar.h"
@@ -87,6 +89,7 @@ class BLOB_CHOICE: public ELIST_LINK
     int16_t fontinfo_id2() const {
       return fontinfo_id2_;
     }
+  #ifndef DISABLED_LEGACY_ENGINE
     const GenericVector<tesseract::ScoredFont>& fonts() const {
       return fonts_;
     }
@@ -107,6 +110,7 @@ class BLOB_CHOICE: public ELIST_LINK
         }
       }
     }
+  #endif  // ndef DISABLED_LEGACY_ENGINE
     int script_id() const {
       return script_id_;
     }
@@ -187,8 +191,10 @@ class BLOB_CHOICE: public ELIST_LINK
   BLOB_CHOICE& operator=(const BLOB_CHOICE& other);
 
   UNICHAR_ID unichar_id_;          // unichar id
+#ifndef DISABLED_LEGACY_ENGINE
   // Fonts and scores. Allowed to be empty.
   GenericVector<tesseract::ScoredFont> fonts_;
+#endif  // ndef DISABLED_LEGACY_ENGINE
   int16_t fontinfo_id_;              // char font information
   int16_t fontinfo_id2_;             // 2nd choice font information
   // Rating is the classifier distance weighted by the length of the outline

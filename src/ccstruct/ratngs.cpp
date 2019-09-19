@@ -126,7 +126,9 @@ BLOB_CHOICE::BLOB_CHOICE(const BLOB_CHOICE &other) : ELIST_LINK(other) {
   max_xheight_ = other.max_xheight_;
   yshift_ = other.yshift();
   classifier_ = other.classifier_;
+#ifndef DISABLED_LEGACY_ENGINE
   fonts_ = other.fonts_;
+#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 // Copy assignment operator.
@@ -143,7 +145,9 @@ BLOB_CHOICE& BLOB_CHOICE::operator=(const BLOB_CHOICE& other) {
   max_xheight_ = other.max_xheight_;
   yshift_ = other.yshift();
   classifier_ = other.classifier_;
+#ifndef DISABLED_LEGACY_ENGINE
   fonts_ = other.fonts_;
+#endif  // ndef DISABLED_LEGACY_ENGINE
   return *this;
 }
 

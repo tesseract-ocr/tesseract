@@ -24,7 +24,9 @@
 #include <cstring>                    // for memcpy
 #include "boxword.h"                  // for BoxWord
 #include "genericvector.h"            // for GenericVector
+#ifndef DISABLED_LEGACY_ENGINE
 #include "params_training_featdef.h"  // for ParamsTrainingBundle, ParamsTra...
+#endif //  ndef DISABLED_LEGACY_ENGINE
 #include "ratngs.h"                   // for BLOB_CHOICE_LIST (ptr only)
 #include "rect.h"                     // for TBOX
 #include "strngs.h"                   // for STRING
@@ -160,6 +162,7 @@ struct BlamerBundle {
     lattice_data_ = new char[lattice_size_];
     memcpy(lattice_data_, data, lattice_size_);
   }
+#ifndef DISABLED_LEGACY_ENGINE
   const tesseract::ParamsTrainingBundle& params_training_bundle() const {
     return params_training_bundle_;
   }
@@ -167,6 +170,7 @@ struct BlamerBundle {
   void AddHypothesis(const tesseract::ParamsTrainingHypothesis& hypo) {
     params_training_bundle_.AddHypothesis(hypo);
   }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
   // Functions to setup the blamer.
   // Whole word string, whole word bounding box.
@@ -335,7 +339,9 @@ struct BlamerBundle {
   char *lattice_data_;
   int lattice_size_;  // size of lattice_data in bytes
   // Information about hypotheses (paths) explored by the segmentation search.
+#ifndef DISABLED_LEGACY_ENGINE
   tesseract::ParamsTrainingBundle params_training_bundle_;
+#endif  // ndef DISABLED_LEGACY_ENGINE
 };
 
 
