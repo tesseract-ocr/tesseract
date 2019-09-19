@@ -2038,7 +2038,7 @@ void Tesseract::set_word_fonts(WERD_RES *word) {
 #endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
-
+#ifndef DISABLED_LEGACY_ENGINE
 /**
  * font_recognition_pass
  *
@@ -2095,6 +2095,7 @@ void Tesseract::font_recognition_pass(PAGE_RES* page_res) {
     }
   }
 }
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // If a word has multiple alternates check if the best choice is in the
 // dictionary. If not, replace it with an alternate that exists in the
