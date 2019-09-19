@@ -413,7 +413,9 @@ void BlamerBundle::BlameClassifierOrLangModel(
 
 // Sets up the correct_segmentation_* to mark the correct bounding boxes.
 void BlamerBundle::SetupCorrectSegmentation(const TWERD* word, bool debug) {
-  params_training_bundle_.StartHypothesisList();
+#ifndef DISABLED_LEGACY_ENGINE
+ params_training_bundle_.StartHypothesisList();
+#endif //  ndef DISABLED_LEGACY_ENGINE
   if (incorrect_result_reason_ != IRR_CORRECT || !truth_has_char_boxes_)
     return;  // Nothing to do here.
 

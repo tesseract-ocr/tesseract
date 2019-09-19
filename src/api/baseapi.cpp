@@ -50,7 +50,9 @@
 #include <sstream>             // for std::stringstream
 #include <vector>              // for std::vector
 #include "allheaders.h"        // for pixDestroy, boxCreate, boxaAddBox, box...
+#ifndef DISABLED_LEGACY_ENGINE
 #include "blobclass.h"         // for ExtractFontName
+#endif
 #include "boxword.h"           // for BoxWord
 #include "config_auto.h"       // for PACKAGE_VERSION
 #include "coutln.h"            // for C_OUTLINE_IT, C_OUTLINE_LIST
