@@ -54,6 +54,7 @@ enum TrainingFlags {
 class LSTMRecognizer {
  public:
   LSTMRecognizer();
+  LSTMRecognizer(const STRING language_data_path_prefix);
   ~LSTMRecognizer();
 
   int NumOutputs() const { return network_->NumOutputs(); }
