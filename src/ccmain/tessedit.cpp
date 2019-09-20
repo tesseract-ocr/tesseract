@@ -175,7 +175,7 @@ bool Tesseract::init_tesseract_lang_data(
       tessedit_ocr_engine_mode == OEM_TESSERACT_LSTM_COMBINED) {
 #  endif  // ndef DISABLED_LEGACY_ENGINE
     if (mgr->IsComponentAvailable(TESSDATA_LSTM)) {
-      lstm_recognizer_ = new LSTMRecognizer;
+      lstm_recognizer_ = new LSTMRecognizer(language_data_path_prefix);
       ASSERT_HOST(lstm_recognizer_->Load(
           this->params(), lstm_use_matrix ? language : nullptr, mgr));
     } else {
