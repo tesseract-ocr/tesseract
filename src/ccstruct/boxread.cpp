@@ -56,7 +56,7 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
                   GenericVector<STRING>* box_texts,
                   GenericVector<int>* pages) {
   GenericVector<char> box_data;
-  if (!tesseract::LoadDataFromFile(BoxFileName(filename), &box_data))
+  if (!tesseract::LoadDataFromFile(BoxFileName(filename).c_str(), &box_data))
     return false;
   // Convert the array of bytes to a string, so it can be used by the parser.
   box_data.push_back('\0');

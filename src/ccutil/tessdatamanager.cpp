@@ -157,9 +157,9 @@ bool TessdataManager::SaveFile(const STRING &filename,
   GenericVector<char> data;
   Serialize(&data);
   if (writer == nullptr)
-    return SaveDataToFile(data, filename);
+    return SaveDataToFile(data, filename.c_str());
   else
-    return (*writer)(data, filename);
+    return (*writer)(data, filename.c_str());
 }
 
 // Serializes to the given vector.
@@ -253,7 +253,7 @@ bool TessdataManager::CombineDataFiles(
     FILE *fp = fopen(filename.string(), "rb");
     if (fp != nullptr) {
       fclose(fp);
-      if (!LoadDataFromFile(filename, &entries_[type])) {
+      if (!LoadDataFromFile(filename.c_str(), &entries_[type])) {
         tprintf("Load of file %s failed!\n", filename.string());
         return false;
       }
