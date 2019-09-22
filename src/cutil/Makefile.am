@@ -7,9 +7,10 @@ AM_CPPFLAGS += -DTESS_EXPORTS \
     -fvisibility=hidden -fvisibility-inlines-hidden
 endif
 
-noinst_HEADERS = bitvec.h callcpp.h
+noinst_HEADERS = callcpp.h
 
 if !DISABLED_LEGACY_ENGINE
+noinst_HEADERS += bitvec.h
 noinst_HEADERS += emalloc.h
 noinst_HEADERS += oldlist.h
 endif
