@@ -24,6 +24,7 @@
 #include <string>  // for std::string
 #include "genericvector.h"
 #include "platform.h"
+#include "strngs.h"             // for STRING
 
 struct Pix;
 

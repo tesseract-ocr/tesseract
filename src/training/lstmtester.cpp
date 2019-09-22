@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <thread>               // for std::thread
+#include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
 #include "genericvector.h"
 

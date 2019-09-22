@@ -20,6 +20,7 @@
 #endif
 #include <cerrno>
 #include "commontraining.h"
+#include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
 #include "lstmtrainer.h"
 #include "params.h"

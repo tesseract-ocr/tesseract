@@ -2,7 +2,6 @@
  * File:        fileio.h
  * Description: File I/O utilities.
  * Author:      Samuel Charron
- * Created:     Tuesday, July 9, 2013
  *
  * (C) Copyright 2013, Google Inc.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -21,9 +20,24 @@
 #include <cstdio>
 #include <string>
 
+#include "genericvector.h"      // for GenericVector
 #include "platform.h"
+#include "strngs.h"             // for STRING
 
 namespace tesseract {
+
+// Reads a file as a vector of STRING.
+// TODO: Use std::vector and std::string for LoadFileLinesToStrings.
+inline bool LoadFileLinesToStrings(const char* filename,
+                                   GenericVector<STRING>* lines) {
+  GenericVector<char> data;
+  if (!LoadDataFromFile(filename, &data)) {
+    return false;
+  }
+  STRING lines_str(&data[0], data.size());
+  lines_str.split('\n', lines);
+  return true;
+}
 
 // A class to manipulate FILE*s.
 class File {

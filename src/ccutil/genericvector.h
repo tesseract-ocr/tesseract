@@ -21,13 +21,14 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>      // for LONG_MAX
+#include <cstdint>      // for uint32_t
 #include <cstdio>
 #include <cstdlib>
 #include <functional>   // for std::function
 
 #include "helpers.h"
 #include "serialis.h"
-#include "strngs.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
@@ -373,17 +374,6 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
-}
-// Reads a file as a vector of STRING.
-inline bool LoadFileLinesToStrings(const char* filename,
-                                   GenericVector<STRING>* lines) {
-  GenericVector<char> data;
-  if (!LoadDataFromFile(filename, &data)) {
-    return false;
-  }
-  STRING lines_str(&data[0], data.size());
-  lines_str.split('\n', lines);
-  return true;
 }
 
 template <typename T>

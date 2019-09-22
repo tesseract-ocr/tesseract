@@ -20,6 +20,7 @@
 #include <cstdio>
 #include "errcode.h"
 #include "genericvector.h"
+#include "strngs.h"             // for STRING
 
 namespace tesseract {
 
