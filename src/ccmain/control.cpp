@@ -256,11 +256,13 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       pr_it->forward();
     ASSERT_HOST(pr_it->word() != nullptr);
     bool make_next_word_fuzzy = false;
+  #ifndef DISABLED_LEGACY_ENGINE
     if (!AnyLSTMLang() &&
         ReassignDiacritics(pass_n, pr_it, &make_next_word_fuzzy)) {
       // Needs to be setup again to see the new outlines in the chopped_word.
       SetupWordPassN(pass_n, word);
     }
+  #endif  // ndef DISABLED_LEGACY_ENGINE
 
     classify_word_and_language(pass_n, pr_it, word);
     if (tessedit_dump_choices || debug_noise_removal) {
@@ -935,14 +937,13 @@ static bool WordsAcceptable(const PointerVector<WERD_RES>& words) {
   return true;
 }
 
+#ifndef DISABLED_LEGACY_ENGINE
+
 // Moves good-looking "noise"/diacritics from the reject list to the main
 // blob list on the current word. Returns true if anything was done, and
 // sets make_next_word_fuzzy if blob(s) were added to the end of the word.
 bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT* pr_it,
                                    bool* make_next_word_fuzzy) {
-#ifdef DISABLED_LEGACY_ENGINE
-  return false;
-#else
   *make_next_word_fuzzy = false;
   WERD* real_word = pr_it->word()->word;
   if (real_word->rej_cblob_list()->empty() ||
@@ -1000,7 +1001,6 @@ bool Tesseract::ReassignDiacritics(int pass, PAGE_RES_IT* pr_it,
   // TODO(rays) Parts of combos have a deep copy of the real word, and need
   // to have their noise outlines moved/assigned in the same way!!
   return num_overlapped_used != 0 || non_overlapped_used != 0;
-#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 // Attempts to put noise/diacritic outlines into the blobs that they overlap.
@@ -1013,7 +1013,6 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<bool>* overlapped_any_blob,
     GenericVector<C_BLOB*>* target_blobs) {
-#ifndef DISABLED_LEGACY_ENGINE
   GenericVector<bool> blob_wanted;
   word_wanted->init_to_size(outlines.size(), false);
   overlapped_any_blob->init_to_size(outlines.size(), false);
@@ -1058,7 +1057,6 @@ void Tesseract::AssignDiacriticsToOverlappingBlobs(
       }
     }
   }
-#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 // Attempts to assign non-overlapping outlines to their nearest blobs or
@@ -1067,7 +1065,6 @@ void Tesseract::AssignDiacriticsToNewBlobs(
     const GenericVector<C_OUTLINE*>& outlines, int pass, WERD* real_word,
     PAGE_RES_IT* pr_it, GenericVector<bool>* word_wanted,
     GenericVector<C_BLOB*>* target_blobs) {
-#ifndef DISABLED_LEGACY_ENGINE
   GenericVector<bool> blob_wanted;
   word_wanted->init_to_size(outlines.size(), false);
   target_blobs->init_to_size(outlines.size(), nullptr);
@@ -1135,7 +1132,6 @@ void Tesseract::AssignDiacriticsToNewBlobs(
       }
     }
   }
-#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 // Starting with ok_outlines set to indicate which outlines overlap the blob,
@@ -1145,7 +1141,6 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     int pass, float certainty_threshold, PAGE_RES_IT* pr_it, C_BLOB* blob,
     const GenericVector<C_OUTLINE*>& outlines, int num_outlines,
     GenericVector<bool>* ok_outlines) {
-#ifndef DISABLED_LEGACY_ENGINE
   STRING best_str;
   float target_cert = certainty_threshold;
   if (blob != nullptr) {
@@ -1222,7 +1217,7 @@ bool Tesseract::SelectGoodDiacriticOutlines(
     }
     return true;
   }
-#endif  // ndef DISABLED_LEGACY_ENGINE
+
   return false;
 }
 
@@ -1232,7 +1227,6 @@ float Tesseract::ClassifyBlobPlusOutlines(
     const GenericVector<bool>& ok_outlines,
     const GenericVector<C_OUTLINE*>& outlines, int pass_n, PAGE_RES_IT* pr_it,
     C_BLOB* blob, STRING* best_str) {
-#ifndef DISABLED_LEGACY_ENGINE
   C_OUTLINE_IT ol_it;
   C_OUTLINE* first_to_keep = nullptr;
   C_BLOB* local_blob = nullptr;
@@ -1268,9 +1262,6 @@ float Tesseract::ClassifyBlobPlusOutlines(
     }
   }
   return cert;
-#else
-  return 0.1;
-#endif  // ndef DISABLED_LEGACY_ENGINE
 }
 
 // Classifies the given blob (part of word_data->word->word) as an individual
@@ -1278,7 +1269,6 @@ float Tesseract::ClassifyBlobPlusOutlines(
 // best raw choice, and undoing all the work done to fake out the word.
 float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT* pr_it,
                                     C_BLOB* blob, STRING* best_str, float* c2) {
-#ifndef DISABLED_LEGACY_ENGINE
   WERD* real_word = pr_it->word()->word;
   WERD* word = real_word->ConstructFromSingleBlob(
       real_word->flag(W_BOL), real_word->flag(W_EOL), C_BLOB::deep_copy(blob));
@@ -1314,10 +1304,9 @@ float Tesseract::ClassifyBlobAsWord(int pass_n, PAGE_RES_IT* pr_it,
   it.DeleteCurrentWord();
   pr_it->ResetWordIterator();
   return cert;
-#else
-  return 0.1;
-#endif  // ndef DISABLED_LEGACY_ENGINE
 }
+
+#endif  // ndef DISABLED_LEGACY_ENGINE
 
 // Generic function for classifying a word. Can be used either for pass1 or
 // pass2 according to the function passed to recognizer.
