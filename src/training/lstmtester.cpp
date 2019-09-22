@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <thread>               // for std::thread
+#include "fileio.h"             // for LoadFileLinesToStrings
 #include "lstmtester.h"
 #include "genericvector.h"
 
@@ -29,7 +30,7 @@ LSTMTester::LSTMTester(int64_t max_memory)
 // loaded. The arg is a filename of a file that lists the filenames.
 bool LSTMTester::LoadAllEvalData(const STRING& filenames_file) {
   GenericVector<STRING> filenames;
-  if (!LoadFileLinesToStrings(filenames_file, &filenames)) {
+  if (!LoadFileLinesToStrings(filenames_file.c_str(), &filenames)) {
     tprintf("Failed to load list of eval filenames from %s\n",
             filenames_file.string());
     return false;

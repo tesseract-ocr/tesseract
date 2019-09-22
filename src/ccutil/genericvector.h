@@ -21,13 +21,14 @@
 
 #include <algorithm>
 #include <cassert>
+#include <climits>      // for LONG_MAX
+#include <cstdint>      // for uint32_t
 #include <cstdio>
 #include <cstdlib>
 #include <functional>   // for std::function
 
 #include "helpers.h"
 #include "serialis.h"
-#include "strngs.h"
 
 // Use PointerVector<T> below in preference to GenericVector<T*>, as that
 // provides automatic deletion of pointers, [De]Serialize that works, and
@@ -361,16 +362,11 @@ inline bool LoadDataFromFile(const char* filename, GenericVector<char>* data) {
   return result;
 }
 
-inline bool LoadDataFromFile(const STRING& filename,
-                             GenericVector<char>* data) {
-  return LoadDataFromFile(filename.string(), data);
-}
-
 // The default FileWriter writes the vector of char to the filename file,
 // returning false on error.
 inline bool SaveDataToFile(const GenericVector<char>& data,
-                           const STRING& filename) {
-  FILE* fp = fopen(filename.string(), "wb");
+                           const char* filename) {
+  FILE* fp = fopen(filename, "wb");
   if (fp == nullptr) {
     return false;
   }
@@ -378,17 +374,6 @@ inline bool SaveDataToFile(const GenericVector<char>& data,
       static_cast<int>(fwrite(&data[0], 1, data.size(), fp)) == data.size();
   fclose(fp);
   return result;
-}
-// Reads a file as a vector of STRING.
-inline bool LoadFileLinesToStrings(const STRING& filename,
-                                   GenericVector<STRING>* lines) {
-  GenericVector<char> data;
-  if (!LoadDataFromFile(filename.string(), &data)) {
-    return false;
-  }
-  STRING lines_str(&data[0], data.size());
-  lines_str.split('\n', lines);
-  return true;
 }
 
 template <typename T>
