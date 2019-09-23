@@ -133,9 +133,9 @@ char* TessBaseAPI::GetAltoText(ETEXT_DESC* monitor, int page_number) {
 #ifdef _WIN32
   // convert input name from ANSI encoding to utf-8
   int str16_len =
-      MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1, nullptr, 0);
+      MultiByteToWideChar(CP_ACP, 0, input_file_->c_str(), -1, nullptr, 0);
   wchar_t* uni16_str = new WCHAR[str16_len];
-  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->string(), -1,
+  str16_len = MultiByteToWideChar(CP_ACP, 0, input_file_->c_str(), -1,
                                   uni16_str, str16_len);
   int utf8_len = WideCharToMultiByte(CP_UTF8, 0, uni16_str, str16_len, nullptr,
                                      0, nullptr, nullptr);

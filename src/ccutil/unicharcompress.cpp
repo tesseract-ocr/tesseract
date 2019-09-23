@@ -76,7 +76,7 @@ static bool DecodeRadicalTable(STRING* radical_data, RSMap* radical_map) {
   for (int i = 0; i < lines.size(); ++i) {
     if (!DecodeRadicalLine(&lines[i], radical_map)) {
       tprintf("Invalid format in radical table at line %d: %s\n", i,
-              lines[i].string());
+              lines[i].c_str());
       return false;
     }
   }

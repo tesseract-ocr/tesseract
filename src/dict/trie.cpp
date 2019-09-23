@@ -314,7 +314,7 @@ bool Trie::add_word_list(const GenericVector<STRING> &words,
                          const UNICHARSET &unicharset,
                          Trie::RTLReversePolicy reverse_policy) {
   for (int i = 0; i < words.size(); ++i) {
-    WERD_CHOICE word(words[i].string(), unicharset);
+    WERD_CHOICE word(words[i].c_str(), unicharset);
     if (word.length() == 0 || word.contains_unichar_id(INVALID_UNICHAR_ID))
       continue;
     if ((reverse_policy == RRP_REVERSE_IF_HAS_RTL &&
@@ -326,7 +326,7 @@ bool Trie::add_word_list(const GenericVector<STRING> &words,
       add_word_to_dawg(word);
       if (!word_in_dawg(word)) {
         tprintf("Error: word '%s' not in DAWG after adding it\n",
-                words[i].string());
+                words[i].c_str());
         return false;
       }
     }
@@ -456,7 +456,7 @@ bool Trie::read_pattern_list(const char *filename,
     // Insert the pattern into the trie.
     if (debug_level_ > 2) {
       tprintf("Inserting expanded user pattern %s\n",
-              word.debug_string().string());
+              word.debug_string().c_str());
     }
     if (!this->word_in_dawg(word)) {
       this->add_word_to_dawg(word, &repetitions_vec);

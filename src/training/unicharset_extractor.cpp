@@ -47,7 +47,7 @@ static void AddStringsToUnicharset(const GenericVector<STRING>& strings,
     if (NormalizeCleanAndSegmentUTF8(UnicodeNormMode::kNFC, OCRNorm::kNone,
                                      static_cast<GraphemeNormMode>(norm_mode),
                                      /*report_errors*/ true,
-                                     strings[i].string(), &normalized)) {
+                                     strings[i].c_str(), &normalized)) {
       for (const std::string& normed : normalized) {
 
        // normed is a UTF-8 encoded string

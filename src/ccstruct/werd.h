@@ -111,7 +111,7 @@ class WERD : public ELIST2_LINK {
   // Returns the bounding box of only the good blobs.
   TBOX true_bounding_box() const;
 
-  const char* text() const { return correct.string(); }
+  const char* text() const { return correct.c_str(); }
   void set_text(const char* new_text) { correct = new_text; }
 
   bool flag(WERD_FLAGS mask) const { return flags.bit(mask); }

@@ -121,11 +121,11 @@ const int kMaxIntSize = 22;
 static void addAvailableLanguages(const STRING &datadir, const STRING &base,
                                   GenericVector<STRING>* langs)
 {
-  const STRING base2 = (base.string()[0] == '\0') ? base : base + "/";
+  const STRING base2 = (base.c_str()[0] == '\0') ? base : base + "/";
   const size_t extlen = sizeof(kTrainedDataSuffix);
 #ifdef _WIN32
     WIN32_FIND_DATA data;
-    HANDLE handle = FindFirstFile((datadir + base2 + "*").string(), &data);
+    HANDLE handle = FindFirstFile((datadir + base2 + "*").c_str(), &data);
     if (handle != INVALID_HANDLE_VALUE) {
       BOOL result = TRUE;
       for (; result;) {
@@ -149,7 +149,7 @@ static void addAvailableLanguages(const STRING &datadir, const STRING &base,
       FindClose(handle);
     }
 #else  // _WIN32
-  DIR* dir = opendir((datadir + base).string());
+  DIR* dir = opendir((datadir + base).c_str());
   if (dir != nullptr) {
     dirent *de;
     while ((de = readdir(dir))) {
@@ -157,7 +157,7 @@ static void addAvailableLanguages(const STRING &datadir, const STRING &base,
       // Skip '.', '..', and hidden files
       if (name[0] != '.') {
         struct stat st;
-        if (stat((datadir + base2 + name).string(), &st) == 0 &&
+        if (stat((datadir + base2 + name).c_str(), &st) == 0 &&
             (st.st_mode & S_IFDIR) == S_IFDIR) {
           addAvailableLanguages(datadir, base2 + name, langs);
         } else {
@@ -301,7 +301,7 @@ bool TessBaseAPI::GetBoolVariable(const char *name, bool *value) const {
 const char *TessBaseAPI::GetStringVariable(const char *name) const {
   auto *p = ParamUtils::FindParam<StringParam>(
       name, GlobalParams()->string_params, tesseract_->params()->string_params);
-  return (p != nullptr) ? p->string() : nullptr;
+  return (p != nullptr) ? p->c_str() : nullptr;
 }
 
 bool TessBaseAPI::GetDoubleVariable(const char *name, double *value) const {
@@ -376,8 +376,8 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
       mgr.LoadMemBuffer(language, data, data_size);
     }
     if (tesseract_->init_tesseract(
-            datapath.string(),
-            output_file_ != nullptr ? output_file_->string() : nullptr,
+            datapath.c_str(),
+            output_file_ != nullptr ? output_file_->c_str() : nullptr,
             language, oem, configs, configs_size, vars_vec, vars_values,
             set_only_non_debug_params, &mgr) != 0) {
       return -1;
@@ -389,8 +389,8 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
     datapath_ = new STRING(datapath);
   else
     *datapath_ = datapath;
-  if ((strcmp(datapath_->string(), "") == 0) &&
-      (strcmp(tesseract_->datadir.string(), "") != 0))
+  if ((strcmp(datapath_->c_str(), "") == 0) &&
+      (strcmp(tesseract_->datadir.c_str(), "") != 0))
      *datapath_ = tesseract_->datadir;
 
   if (language_ == nullptr)
@@ -417,8 +417,8 @@ int TessBaseAPI::Init(const char* data, int data_size, const char* language,
  * The returned string should NOT be deleted.
  */
 const char* TessBaseAPI::GetInitLanguagesAsString() const {
-  return (language_ == nullptr || language_->string() == nullptr) ?
-      "" : language_->string();
+  return (language_ == nullptr || language_->c_str() == nullptr) ?
+      "" : language_->c_str();
 }
 
 /**
@@ -1073,7 +1073,7 @@ bool TessBaseAPI::ProcessPages(const char* filename, const char* retry_config,
   if (result) {
     if (tesseract_->tessedit_train_from_boxes &&
         !tesseract_->WriteTRFile(*output_file_)) {
-      tprintf("Write of TR file failed: %s\n", output_file_->string());
+      tprintf("Write of TR file failed: %s\n", output_file_->c_str());
       return false;
     }
   }
@@ -1317,7 +1317,7 @@ char* TessBaseAPI::GetUTF8Text() {
     text += para_text.get();
   } while (it->Next(RIL_PARA));
   char* result = new char[text.length() + 1];
-  strncpy(result, text.string(), text.length() + 1);
+  strncpy(result, text.c_str(), text.length() + 1);
   delete it;
   return result;
 }
@@ -1439,7 +1439,7 @@ char* TessBaseAPI::GetTSVText(int page_number) {
   }
 
   char* ret = new char[tsv_str.length() + 1];
-  strcpy(ret, tsv_str.string());
+  strcpy(ret, tsv_str.c_str());
   delete res_it;
   return ret;
 }
@@ -1571,7 +1571,7 @@ char* TessBaseAPI::GetUNLVText() {
       // NORMAL PROCESSING of non tilde crunched words.
       tilde_crunch_written = false;
       tesseract_->set_unlv_suspects(word);
-      const char* wordstr = word->best_choice->unichar_string().string();
+      const char* wordstr = word->best_choice->unichar_string().c_str();
       const STRING& lengths = word->best_choice->unichar_lengths();
       int length = lengths.length();
       int i = 0;
@@ -2048,7 +2048,7 @@ int TessBaseAPI::FindLines() {
 #ifndef DISABLED_LEGACY_ENGINE
   if (tesseract_->textord_equation_detect) {
     if (equ_detect_ == nullptr && datapath_ != nullptr) {
-      equ_detect_ = new EquationDetect(datapath_->string(), nullptr);
+      equ_detect_ = new EquationDetect(datapath_->c_str(), nullptr);
     }
     if (equ_detect_ == nullptr) {
       tprintf("Warning: Could not set equation detector\n");
@@ -2062,7 +2062,7 @@ int TessBaseAPI::FindLines() {
   OSResults osr;
   if (PSM_OSD_ENABLED(tesseract_->tessedit_pageseg_mode) &&
       osd_tess == nullptr) {
-    if (strcmp(language_->string(), "osd") == 0) {
+    if (strcmp(language_->c_str(), "osd") == 0) {
       osd_tess = tesseract_;
     } else {
       osd_tesseract_ = new Tesseract;
@@ -2072,7 +2072,7 @@ int TessBaseAPI::FindLines() {
                 " but data path is undefined\n");
         delete osd_tesseract_;
         osd_tesseract_ = nullptr;
-      } else if (osd_tesseract_->init_tesseract(datapath_->string(), nullptr,
+      } else if (osd_tesseract_->init_tesseract(datapath_->c_str(), nullptr,
                                                 "osd", OEM_TESSERACT_ONLY,
                                                 nullptr, 0, nullptr, nullptr,
                                                 false, &mgr) == 0) {
@@ -2485,8 +2485,8 @@ static void extract_result(TESS_CHAR_IT* out,
   int word_count = 0;
   while (page_res_it.word() != nullptr) {
     WERD_RES *word = page_res_it.word();
-    const char *str = word->best_choice->unichar_string().string();
-    const char *len = word->best_choice->unichar_lengths().string();
+    const char *str = word->best_choice->unichar_string().c_str();
+    const char *len = word->best_choice->unichar_lengths().c_str();
     TBOX real_rect = word->word->bounding_box();
 
     if (word_count)

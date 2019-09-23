@@ -34,7 +34,7 @@ class TFile;
 // This allows the string to ensure internal integrity and maintain
 // its own string length. Unfortunately this is not possible because
 // STRINGS are used as direct-manipulation data buffers for things
-// like length arrays and many places cast away the const on string()
+// like length arrays and many places cast away the const on c_str()
 // to mutate the string. Turning this off means that internally we
 // cannot assume we know the strlen.
 #define STRING_IS_PROTECTED 0
@@ -74,7 +74,6 @@ class TESS_API STRING {
     assert(0 <= len);
     return static_cast<uint32_t>(len);
   }
-  const char* string() const;
   const char* c_str() const;
 
   inline char* strdup() const {
@@ -167,8 +166,8 @@ class TESS_API STRING {
   inline bool InvariantOk() const {
 #if STRING_IS_PROTECTED
     return (GetHeader()->used_ == 0)
-               ? (string() == nullptr)
-               : (GetHeader()->used_ == (strlen(string()) + 1));
+               ? (c_str() == nullptr)
+               : (GetHeader()->used_ == (strlen(c_str()) + 1));
 #else
     return true;
 #endif

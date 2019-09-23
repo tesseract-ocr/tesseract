@@ -299,7 +299,7 @@ struct BlamerBundle {
     debug_ = IncorrectReason();
     debug_ += " to blame: ";
     FillDebugString(msg, choice, &debug_);
-    if (debug) tprintf("SetBlame(): %s", debug_.string());
+    if (debug) tprintf("SetBlame(): %s", debug_.c_str());
   }
 
  private:

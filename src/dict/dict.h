@@ -392,7 +392,7 @@ class Dict {
                               const char* character,
                               int character_bytes) {
     return (this->*probability_in_context_)(
-        getCCUtil()->lang.string(),
+        getCCUtil()->lang.c_str(),
         context, context_bytes,
         character, character_bytes);
   }
@@ -421,7 +421,7 @@ class Dict {
   float CallParamsModelClassify(void *path) {
     ASSERT_HOST(params_model_classify_ != nullptr);  // ASSERT_HOST -> assert
     return (this->*params_model_classify_)(
-        getCCUtil()->lang.string(), path);
+        getCCUtil()->lang.c_str(), path);
   }
 
   inline void SetWildcardID(UNICHAR_ID id) { wildcard_unichar_id_ = id; }

@@ -2,7 +2,6 @@
  * File:        superscript.cpp
  * Description: Correction pass to fix superscripts and subscripts.
  * Author:      David Eger
- * Created:     Mon Mar 12 14:05:00 PDT 2012
  *
  * (C) Copyright 2012, Google, Inc.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -168,7 +167,7 @@ bool Tesseract::SubAndSuperscriptFix(WERD_RES *word) {
 
   if (superscript_debug >= 1) {
     tprintf("Candidate for superscript detection: %s (",
-            word->best_choice->unichar_string().string());
+            word->best_choice->unichar_string().c_str());
     if (num_leading || num_remainder_leading) {
       tprintf("%d.%d %s-leading ", num_leading, num_remainder_leading,
               leading_pos);
@@ -426,7 +425,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     if (superscript_debug >= 2) {
       tprintf(" The leading bits look like %s %s\n",
               ScriptPosToString(leading_pos),
-              prefix->best_choice->unichar_string().string());
+              prefix->best_choice->unichar_string().c_str());
     }
 
     // Restore the normal y-position penalties.
@@ -451,7 +450,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
     if (superscript_debug >= 2) {
       tprintf(" The trailing bits look like %s %s\n",
               ScriptPosToString(trailing_pos),
-              suffix->best_choice->unichar_string().string());
+              suffix->best_choice->unichar_string().c_str());
     }
 
     // Restore the normal y-position penalties.
@@ -495,7 +494,7 @@ WERD_RES *Tesseract::TrySuperscriptSplits(
 
   if (superscript_debug >= 1) {
     tprintf("%s superscript fix: %s\n", *is_good ? "ACCEPT" : "REJECT",
-            core->best_choice->unichar_string().string());
+            core->best_choice->unichar_string().c_str());
   }
   return core;
 }

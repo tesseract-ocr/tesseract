@@ -198,7 +198,7 @@ void BLOCK::print(            //print list of sides
   tprintf ("Kerning= %d\n", kerning);
   tprintf ("Spacing= %d\n", spacing);
   tprintf ("Fixed_pitch=%d\n", pitch);
-  tprintf ("Filename= %s\n", filename.string ());
+  tprintf ("Filename= %s\n", filename.c_str ());
 
   if (dump) {
     tprintf ("Left side coords are:\n");

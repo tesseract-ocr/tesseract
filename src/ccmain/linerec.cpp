@@ -2,7 +2,6 @@
 // File:        linerec.cpp
 // Description: Top-level line-based recognition module for Tesseract.
 // Author:      Ray Smith
-// Created:     Thu May 02 09:47:06 PST 2013
 //
 // (C) Copyright 2013, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,8 +46,8 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   DocumentData images(lstmf_name);
   if (applybox_page > 0) {
     // Load existing document for the previous pages.
-    if (!images.LoadDocument(lstmf_name.string(), 0, 0, nullptr)) {
-      tprintf("Failed to read training data from %s!\n", lstmf_name.string());
+    if (!images.LoadDocument(lstmf_name.c_str(), 0, 0, nullptr)) {
+      tprintf("Failed to read training data from %s!\n", lstmf_name.c_str());
       return;
     }
   }
@@ -58,13 +57,13 @@ void Tesseract::TrainLineRecognizer(const STRING& input_imagename,
   if (!ReadAllBoxes(applybox_page, false, input_imagename, &boxes, &texts, nullptr,
                     nullptr) ||
       boxes.empty()) {
-    tprintf("Failed to read boxes from %s\n", input_imagename.string());
+    tprintf("Failed to read boxes from %s\n", input_imagename.c_str());
     return;
   }
   TrainFromBoxes(boxes, texts, block_list, &images);
   images.Shuffle();
-  if (!images.SaveDocument(lstmf_name.string(), nullptr)) {
-    tprintf("Failed to write training data to %s!\n", lstmf_name.string());
+  if (!images.SaveDocument(lstmf_name.c_str(), nullptr)) {
+    tprintf("Failed to write training data to %s!\n", lstmf_name.c_str());
   }
 }
 
@@ -110,7 +109,7 @@ void Tesseract::TrainFromBoxes(const GenericVector<TBOX>& boxes,
     }
     ImageData* imagedata = nullptr;
     if (best_block == nullptr) {
-      tprintf("No block overlapping textline: %s\n", line_str.string());
+      tprintf("No block overlapping textline: %s\n", line_str.c_str());
     } else {
       imagedata = GetLineData(line_box, boxes, texts, start_box, end_box,
                               *best_block);

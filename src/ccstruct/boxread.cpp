@@ -36,9 +36,9 @@ static const char* kMultiBlobLabelCode = "WordStr";
 FILE* OpenBoxFile(const STRING& fname) {
   STRING filename = BoxFileName(fname);
   FILE* box_file = nullptr;
-  if (!(box_file = fopen(filename.string(), "rb"))) {
+  if (!(box_file = fopen(filename.c_str(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT, "Can't open box file %s",
-                       filename.string());
+                       filename.c_str());
   }
   return box_file;
 }
@@ -81,7 +81,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     int page = 0;
     STRING utf8_str;
     TBOX box;
-    if (!ParseBoxFileStr(lines[i].string(), &page, &utf8_str, &box)) {
+    if (!ParseBoxFileStr(lines[i].c_str(), &page, &utf8_str, &box)) {
       if (continue_on_failure)
         continue;
       else
@@ -93,7 +93,7 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     if (texts != nullptr) texts->push_back(utf8_str);
     if (box_texts != nullptr) {
       STRING full_text;
-      MakeBoxFileStr(utf8_str.string(), box, target_page, &full_text);
+      MakeBoxFileStr(utf8_str.c_str(), box, target_page, &full_text);
       box_texts->push_back(full_text);
     }
     if (pages != nullptr) pages->push_back(page);
@@ -105,9 +105,9 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
 // Returns the box file name corresponding to the given image_filename.
 STRING BoxFileName(const STRING& image_filename) {
   STRING box_filename = image_filename;
-  const char *lastdot = strrchr(box_filename.string(), '.');
+  const char *lastdot = strrchr(box_filename.c_str(), '.');
   if (lastdot != nullptr)
-    box_filename.truncate_at(lastdot - box_filename.string());
+    box_filename.truncate_at(lastdot - box_filename.c_str());
 
   box_filename += ".box";
   return box_filename;

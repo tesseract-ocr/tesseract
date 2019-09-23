@@ -268,7 +268,7 @@ void WERD::print() {
   tprintf("   W_REP_CHAR = %s\n", flags.bit(W_REP_CHAR) ? "TRUE" : "FALSE");
   tprintf("   W_FUZZY_SP = %s\n", flags.bit(W_FUZZY_SP) ? "TRUE" : "FALSE");
   tprintf("   W_FUZZY_NON = %s\n", flags.bit(W_FUZZY_NON) ? "TRUE" : "FALSE");
-  tprintf("Correct= %s\n", correct.string());
+  tprintf("Correct= %s\n", correct.c_str());
   tprintf("Rejected cblob count = %d\n", rej_cblobs.length());
   tprintf("Script = %d\n", script_id_);
 }

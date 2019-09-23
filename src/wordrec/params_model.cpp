@@ -36,7 +36,7 @@ static const float kMaxFinalCost = 100.0f;
 
 void ParamsModel::Print() {
   for (int p = 0; p < PTRAIN_NUM_PASSES; ++p) {
-    tprintf("ParamsModel for pass %d lang %s\n", p, lang_.string());
+    tprintf("ParamsModel for pass %d lang %s\n", p, lang_.c_str());
     for (int i = 0; i < weights_vec_[p].size(); ++i) {
       tprintf("%s = %g\n", kParamsTrainingFeatureTypeName[i],
               weights_vec_[p][i]);

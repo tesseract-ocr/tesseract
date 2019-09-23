@@ -77,7 +77,7 @@ double ErrorCounter::ComputeErrorRate(ShapeClassifier* classifier,
       // Running debug, keep the correct answer, and debug the classifier.
       tprintf("Error on sample %d: %s Classifier debug output:\n",
               it->GlobalSampleIndex(),
-              it->sample_set()->SampleToString(*mutable_sample).string());
+              it->sample_set()->SampleToString(*mutable_sample).c_str());
       classifier->DebugDisplay(*mutable_sample, page_pix, correct_id);
       --error_samples;
     }
@@ -358,7 +358,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
       }
       if (report_level > 2) {
         // Report individual font error rates.
-        tprintf("%s: %s\n", fontinfo_table.get(f).name, font_report.string());
+        tprintf("%s: %s\n", fontinfo_table.get(f).name, font_report.c_str());
       }
     }
   }
@@ -376,7 +376,7 @@ double ErrorCounter::ReportErrors(int report_level, CountTypes boosting_mode,
     STRING total_report;
     if (any_results) {
       tprintf("TOTAL Scaled Err=%.4g%%, %s\n",
-              scaled_error_ * 100.0, total_report.string());
+              scaled_error_ * 100.0, total_report.c_str());
     }
     // Report the worst substitution error only for now.
     if (totals.n[CT_UNICHAR_TOP1_ERR] > 0) {

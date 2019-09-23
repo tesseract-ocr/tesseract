@@ -2,7 +2,6 @@
 // File:        mastertrainer.cpp
 // Description: Trainer to build the MasterClassifier.
 // Author:      Ray Smith
-// Created:     Wed Nov 03 18:10:01 PDT 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -151,7 +150,7 @@ void MasterTrainer::ReadTrainingSamples(const char* page_name,
     sample->set_bounding_box(bounding_box);
     sample->ExtractCharDesc(int_feature_type, micro_feature_type,
                             cn_feature_type, geo_feature_type, char_desc);
-    AddSample(verification, unichar.string(), sample);
+    AddSample(verification, unichar.c_str(), sample);
     FreeCharDescription(char_desc);
   }
   charsetsize_ = unicharset_.size();
@@ -278,7 +277,7 @@ void MasterTrainer::SetupMasterShapes() {
   ClusterShapes(kMinClusteredShapes, kMaxUnicharsPerCluster,
                 kFontMergeDistance, &char_shapes);
   master_shapes_.AppendMasterShapes(char_shapes, nullptr);
-  tprintf("Master shape_table:%s\n", master_shapes_.SummaryStr().string());
+  tprintf("Master shape_table:%s\n", master_shapes_.SummaryStr().c_str());
 }
 
 // Adds the junk_samples_ to the main samples_ set. Junk samples are initially
@@ -866,7 +865,7 @@ void MasterTrainer::ReplaceFragmentedSamples() {
     // Mark the chars for all parts of the fragment as good in good_junk.
     for (int part = 0; part < frag->get_total(); ++part) {
       frag->set_pos(part);
-      int good_ch = frag_set.unichar_to_id(frag->to_string().string());
+      int good_ch = frag_set.unichar_to_id(frag->to_string().c_str());
       if (good_ch != INVALID_UNICHAR_ID)
         good_junk[good_ch] = true;  // We want this one.
     }
@@ -974,7 +973,7 @@ void MasterTrainer::ClusterShapes(int min_shapes,  int max_shape_unichars,
   if (debug_level_ > 1) {
     for (int s1 = 0; s1 < num_shapes; ++s1) {
       if (shapes->MasterDestinationIndex(s1) == s1) {
-        tprintf("Master shape:%s\n", shapes->DebugStr(s1).string());
+        tprintf("Master shape:%s\n", shapes->DebugStr(s1).c_str());
       }
     }
   }

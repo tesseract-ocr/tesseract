@@ -100,7 +100,7 @@ class BLOCK:public ELIST_LINK
   }
   /// return filename
   const char *name() const {
-    return filename.string ();
+    return filename.c_str ();
   }
   /// return xheight
   int32_t x_height() const {

@@ -585,7 +585,7 @@ Dict& Tesseract::getDict() {
 
 void Tesseract::Clear() {
   STRING debug_name = imagebasename + "_debug.pdf";
-  pixa_debug_.WritePDF(debug_name.string());
+  pixa_debug_.WritePDF(debug_name.c_str());
   pixDestroy(&pix_binary_);
   pixDestroy(&pix_grey_);
   pixDestroy(&pix_thresholds_);
@@ -625,25 +625,25 @@ void Tesseract::ResetDocumentDictionary() {
 
 void Tesseract::SetBlackAndWhitelist() {
   // Set the white and blacklists (if any)
-  unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                     tessedit_char_whitelist.string(),
-                                     tessedit_char_unblacklist.string());
+  unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                     tessedit_char_whitelist.c_str(),
+                                     tessedit_char_unblacklist.c_str());
   if (lstm_recognizer_) {
     UNICHARSET& lstm_unicharset = lstm_recognizer_->GetUnicharset();
-    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                            tessedit_char_whitelist.string(),
-                                            tessedit_char_unblacklist.string());
+    lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                            tessedit_char_whitelist.c_str(),
+                                            tessedit_char_unblacklist.c_str());
   }
   // Black and white lists should apply to all loaded classifiers.
   for (int i = 0; i < sub_langs_.size(); ++i) {
     sub_langs_[i]->unicharset.set_black_and_whitelist(
-        tessedit_char_blacklist.string(), tessedit_char_whitelist.string(),
-        tessedit_char_unblacklist.string());
+        tessedit_char_blacklist.c_str(), tessedit_char_whitelist.c_str(),
+        tessedit_char_unblacklist.c_str());
     if (sub_langs_[i]->lstm_recognizer_) {
       UNICHARSET& lstm_unicharset = sub_langs_[i]->lstm_recognizer_->GetUnicharset();
-      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.string(),
-                                              tessedit_char_whitelist.string(),
-                                              tessedit_char_unblacklist.string());
+      lstm_unicharset.set_black_and_whitelist(tessedit_char_blacklist.c_str(),
+                                              tessedit_char_whitelist.c_str(),
+                                              tessedit_char_unblacklist.c_str());
     }
   }
 }

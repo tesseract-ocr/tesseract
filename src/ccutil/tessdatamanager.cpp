@@ -214,7 +214,7 @@ void TessdataManager::Directory() const {
 // Opens the given TFile pointer to the given component type.
 // Returns false in case of failure.
 bool TessdataManager::GetComponent(TessdataType type, TFile *fp) {
-  if (!is_loaded_ && !Init(data_file_name_.string())) return false;
+  if (!is_loaded_ && !Init(data_file_name_.c_str())) return false;
   const TessdataManager *const_this = this;
   return const_this->GetComponent(type, fp);
 }
@@ -250,11 +250,11 @@ bool TessdataManager::CombineDataFiles(
     ASSERT_HOST(TessdataTypeFromFileSuffix(filesuffix, &type));
     STRING filename = language_data_path_prefix;
     filename += filesuffix;
-    FILE *fp = fopen(filename.string(), "rb");
+    FILE *fp = fopen(filename.c_str(), "rb");
     if (fp != nullptr) {
       fclose(fp);
       if (!LoadDataFromFile(filename.c_str(), &entries_[type])) {
-        tprintf("Load of file %s failed!\n", filename.string());
+        tprintf("Load of file %s failed!\n", filename.c_str());
         return false;
       }
     }

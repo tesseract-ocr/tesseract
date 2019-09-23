@@ -141,8 +141,8 @@ STRING ParamContent::GetValue() const {
   } else if (param_type_ == VT_DOUBLE) {
     result.add_str_double("", *dIt);
   } else if (param_type_ == VT_STRING) {
-    if (STRING(*(sIt)).string() != nullptr) {
-      result = sIt->string();
+    if (STRING(*(sIt)).c_str() != nullptr) {
+      result = sIt->c_str();
     } else {
       result = "Null";
     }
@@ -230,9 +230,9 @@ SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
     STRING tag3;
 
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
-    amount[tag.string()]++;
-    amount[tag2.string()]++;
-    amount[tag3.string()]++;
+    amount[tag.c_str()]++;
+    amount[tag2.c_str()]++;
+    amount[tag3.c_str()]++;
   }
 
   vclist.sort(ParamContent::Compare);  // Sort the list alphabetically.
@@ -248,19 +248,19 @@ SVMenuNode* ParamsEditor::BuildListOfAllLeaves(tesseract::Tesseract *tess) {
     STRING tag3;
     GetPrefixes(vc->GetName(), &tag, &tag2, &tag3);
 
-    if (amount[tag.string()] == 1) {
-      other->AddChild(vc->GetName(), vc->GetId(), vc->GetValue().string(),
+    if (amount[tag.c_str()] == 1) {
+      other->AddChild(vc->GetName(), vc->GetId(), vc->GetValue().c_str(),
                       vc->GetDescription());
     } else {  // More than one would use this submenu -> create submenu.
-      SVMenuNode* sv = mr->AddChild(tag.string());
-      if ((amount[tag.string()] <= MAX_ITEMS_IN_SUBMENU) ||
-          (amount[tag2.string()] <= 1)) {
+      SVMenuNode* sv = mr->AddChild(tag.c_str());
+      if ((amount[tag.c_str()] <= MAX_ITEMS_IN_SUBMENU) ||
+          (amount[tag2.c_str()] <= 1)) {
         sv->AddChild(vc->GetName(), vc->GetId(),
-                     vc->GetValue().string(), vc->GetDescription());
+                     vc->GetValue().c_str(), vc->GetDescription());
       } else {  // Make subsubmenus.
-        SVMenuNode* sv2 = sv->AddChild(tag2.string());
+        SVMenuNode* sv2 = sv->AddChild(tag2.c_str());
         sv2->AddChild(vc->GetName(), vc->GetId(),
-                      vc->GetValue().string(), vc->GetDescription());
+                      vc->GetValue().c_str(), vc->GetDescription());
       }
     }
   }
@@ -280,7 +280,7 @@ void ParamsEditor::Notify(const SVEvent* sve) {
           sve->command_id);
       vc->SetValue(param);
       sv_window_->AddMessage("Setting %s to %s",
-                             vc->GetName(), vc->GetValue().string());
+                             vc->GetName(), vc->GetValue().c_str());
     }
   }
 }
@@ -311,11 +311,11 @@ ParamsEditor::ParamsEditor(tesseract::Tesseract* tess,
 
   writeCommands[0] = nrParams+1;
   std_menu->AddChild("All Parameters", writeCommands[0],
-                     paramfile.string(), "Config file name?");
+                     paramfile.c_str(), "Config file name?");
 
   writeCommands[1] = nrParams+2;
   std_menu->AddChild ("changed_ Parameters Only", writeCommands[1],
-                      paramfile.string(), "Config file name?");
+                      paramfile.c_str(), "Config file name?");
 
   svMenuRoot->BuildMenu(sv, false);
 }
@@ -350,7 +350,7 @@ void ParamsEditor::WriteParams(char *filename,
     ParamContent* cur = iter.second;
     if (!changes_only || cur->HasChanged()) {
       fprintf(fp, "%-25s   %-12s   # %s\n",
-              cur->GetName(), cur->GetValue().string(), cur->GetDescription());
+              cur->GetName(), cur->GetValue().c_str(), cur->GetDescription());
     }
   }
   fclose(fp);

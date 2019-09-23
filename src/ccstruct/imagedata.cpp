@@ -294,12 +294,12 @@ void ImageData::Display() const {
   if (!boxes_.empty()) {
     for (int b = 0; b < boxes_.size(); ++b) {
       boxes_[b].plot(win);
-      win->Text(boxes_[b].left(), height + kTextSize, box_texts_[b].string());
+      win->Text(boxes_[b].left(), height + kTextSize, box_texts_[b].c_str());
     }
   } else {
     // The full transcription.
     win->Pen(ScrollView::CYAN);
-    win->Text(0, height + kTextSize * 2, transcription_.string());
+    win->Text(0, height + kTextSize * 2, transcription_.c_str());
   }
   win->Update();
   window_wait(win);
@@ -363,7 +363,7 @@ bool ImageData::AddBoxes(const char* box_text) {
       return true;
     } else {
       tprintf("Error: No boxes for page %d from image %s!\n",
-              page_number_, imagefilename_.string());
+              page_number_, imagefilename_.c_str());
     }
   }
   return false;
@@ -487,7 +487,7 @@ int64_t DocumentData::UnCache() {
   set_total_pages(-1);
   set_memory_used(0);
   tprintf("Unloaded document %s, saving %" PRId64 " memory\n",
-          document_name_.string(), memory_saved);
+          document_name_.c_str(), memory_saved);
   return memory_saved;
 }
 
@@ -496,7 +496,7 @@ void DocumentData::Shuffle() {
   TRand random;
   // Different documents get shuffled differently, but the same for the same
   // name.
-  random.set_seed(document_name_.string());
+  random.set_seed(document_name_.c_str());
   int num_pages = pages_.size();
   // Execute one random swap for each page in the document.
   for (int i = 0; i < num_pages; ++i) {
@@ -519,7 +519,7 @@ bool DocumentData::ReCachePages() {
   if (!fp.Open(document_name_, reader_) ||
       !PointerVector<ImageData>::DeSerializeSize(&fp, &loaded_pages) ||
       loaded_pages <= 0) {
-    tprintf("Deserialize header failed: %s\n", document_name_.string());
+    tprintf("Deserialize header failed: %s\n", document_name_.c_str());
     return false;
   }
   pages_offset_ %= loaded_pages;
@@ -545,12 +545,12 @@ bool DocumentData::ReCachePages() {
   }
   if (page < loaded_pages) {
     tprintf("Deserialize failed: %s read %d/%d lines\n",
-            document_name_.string(), page, loaded_pages);
+            document_name_.c_str(), page, loaded_pages);
     pages_.truncate(0);
   } else {
     tprintf("Loaded %d/%d lines (%d-%d) of document %s\n", pages_.size(),
             loaded_pages, pages_offset_ + 1, pages_offset_ + pages_.size(),
-            document_name_.string());
+            document_name_.c_str());
   }
   set_total_pages(loaded_pages);
   return !pages_.empty();
@@ -576,7 +576,7 @@ bool DocumentCache::LoadDocuments(const GenericVector<STRING>& filenames,
   for (int arg = 0; arg < filenames.size(); ++arg) {
     STRING filename = filenames[arg];
     auto* document = new DocumentData(filename);
-    document->SetDocument(filename.string(), fair_share_memory, reader);
+    document->SetDocument(filename.c_str(), fair_share_memory, reader);
     AddToCache(document);
   }
   if (!documents_.empty()) {

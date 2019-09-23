@@ -191,7 +191,7 @@ int32_t STRING::length() const {
   return GetHeader()->used_ - 1;
 }
 
-const char* STRING::string() const {
+const char* STRING::c_str() const {
   const STRING_HEADER* header = GetHeader();
   if (!header || header->used_ == 0)
     return nullptr;
@@ -200,10 +200,6 @@ const char* STRING::string() const {
   // cast away the const and mutate the string directly.
   header->used_ = -1;
   return GetCStr();
-}
-
-const char* STRING::c_str() const {
-  return string();
 }
 
 /******

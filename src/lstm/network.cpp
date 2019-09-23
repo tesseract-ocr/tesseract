@@ -174,7 +174,7 @@ static NetworkType getNetworkType(TFile* fp) {
     for (data = 0; data < NT_COUNT && type_name != kTypeNames[data]; ++data) {
     }
     if (data == NT_COUNT) {
-      tprintf("Invalid network layer type:%s\n", type_name.string());
+      tprintf("Invalid network layer type:%s\n", type_name.c_str());
       return NT_NONE;
     }
   }
@@ -288,7 +288,7 @@ double Network::Random(double range) {
 void Network::DisplayForward(const NetworkIO& matrix) {
 #ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* image = matrix.ToPix();
-  ClearWindow(false, name_.string(), pixGetWidth(image),
+  ClearWindow(false, name_.c_str(), pixGetWidth(image),
               pixGetHeight(image), &forward_win_);
   DisplayImage(image, forward_win_);
   forward_win_->Update();
@@ -300,7 +300,7 @@ void Network::DisplayBackward(const NetworkIO& matrix) {
 #ifndef GRAPHICS_DISABLED  // do nothing if there's no graphics
   Pix* image = matrix.ToPix();
   STRING window_name = name_ + "-back";
-  ClearWindow(false, window_name.string(), pixGetWidth(image),
+  ClearWindow(false, window_name.c_str(), pixGetWidth(image),
               pixGetHeight(image), &backward_win_);
   DisplayImage(image, backward_win_);
   backward_win_->Update();

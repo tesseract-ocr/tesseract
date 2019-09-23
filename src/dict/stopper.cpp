@@ -61,7 +61,7 @@ bool Dict::AcceptableChoice(const WERD_CHOICE& best_choice,
       default: xht = "UNKNOWN";
     }
     tprintf("\nStopper:  %s (word=%c, case=%c, xht_ok=%s=[%g,%g])\n",
-            best_choice.unichar_string().string(),
+            best_choice.unichar_string().c_str(),
             (is_valid_word ? 'y' : 'n'),
             (is_case_ok ? 'y' : 'n'),
             xht,
@@ -106,7 +106,7 @@ bool Dict::AcceptableResult(WERD_RES *word) const {
 
   if (stopper_debug_level >= 1) {
     tprintf("\nRejecter: %s (word=%c, case=%c, unambig=%c, multiple=%c)\n",
-            word->best_choice->debug_string().string(),
+            word->best_choice->debug_string().c_str(),
             (valid_word(*word->best_choice) ? 'y' : 'n'),
             (case_ok(*word->best_choice) ? 'y' : 'n'),
             word->best_choice->dangerous_ambig_found() ? 'n' : 'y',
@@ -147,7 +147,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
                             MATRIX *ratings) {
   if (stopper_debug_level > 2) {
     tprintf("\nRunning NoDangerousAmbig() for %s\n",
-            best_choice->debug_string().string());
+            best_choice->debug_string().c_str());
   }
 
   // Construct BLOB_CHOICE_LIST_VECTOR with ambiguities
@@ -198,7 +198,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
       if (stopper_debug_level > 2) {
         tprintf("Looking for %s ngrams starting with %s:\n",
                 replace ? "replaceable" : "ambiguous",
-                getUnicharset().debug_str(curr_unichar_id).string());
+                getUnicharset().debug_str(curr_unichar_id).c_str());
       }
       int num_wrong_blobs = best_choice->state(i);
       wrong_ngram_index = 0;
@@ -306,7 +306,7 @@ bool Dict::NoDangerousAmbig(WERD_CHOICE *best_choice,
     if (ambigs_found) {
       if (stopper_debug_level >= 1) {
         tprintf ("Stopper: Possible ambiguous word = %s\n",
-                 alt_word->debug_string().string());
+                 alt_word->debug_string().c_str());
       }
       if (fixpt != nullptr) {
         // Note: Currently character choices combined from fragments can only

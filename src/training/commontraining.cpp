@@ -156,21 +156,21 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
   TFile shape_fp;
-  if (shape_fp.Open(shape_table_file.string(), nullptr)) {
+  if (shape_fp.Open(shape_table_file.c_str(), nullptr)) {
     shape_table = new ShapeTable;
     if (!shape_table->DeSerialize(&shape_fp)) {
       delete shape_table;
       shape_table = nullptr;
       tprintf("Error: Failed to read shape table %s\n",
-              shape_table_file.string());
+              shape_table_file.c_str());
     } else {
       int num_shapes = shape_table->NumShapes();
       tprintf("Read shape table %s of %d shapes\n",
-              shape_table_file.string(), num_shapes);
+              shape_table_file.c_str(), num_shapes);
     }
   } else {
     tprintf("Warning: No shape table file present: %s\n",
-            shape_table_file.string());
+            shape_table_file.c_str());
   }
   return shape_table;
 }
@@ -179,16 +179,16 @@ ShapeTable* LoadShapeTable(const STRING& file_prefix) {
 void WriteShapeTable(const STRING& file_prefix, const ShapeTable& shape_table) {
   STRING shape_table_file = file_prefix;
   shape_table_file += kShapeTableFileSuffix;
-  FILE* fp = fopen(shape_table_file.string(), "wb");
+  FILE* fp = fopen(shape_table_file.c_str(), "wb");
   if (fp != nullptr) {
     if (!shape_table.Serialize(fp)) {
       fprintf(stderr, "Error writing shape table: %s\n",
-              shape_table_file.string());
+              shape_table_file.c_str());
     }
     fclose(fp);
   } else {
     fprintf(stderr, "Error creating shape table: %s\n",
-            shape_table_file.string());
+            shape_table_file.c_str());
   }
 }
 
@@ -272,7 +272,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       // Chop off the tr and replace with tif. Extension must be tif!
       image_name.truncate_at(image_name.length() - 2);
       image_name += "tif";
-      trainer->LoadPageImages(image_name.string());
+      trainer->LoadPageImages(image_name.c_str());
     }
   }
   trainer->PostLoadCleanup();
@@ -300,7 +300,7 @@ MasterTrainer* LoadTrainingData(int argc, const char* const * argv,
       *shape_table = new ShapeTable;
       trainer->SetupFlatShapeTable(*shape_table);
       tprintf("Flat shape table summary: %s\n",
-              (*shape_table)->SummaryStr().string());
+              (*shape_table)->SummaryStr().c_str());
     }
     (*shape_table)->set_unicharset(trainer->unicharset());
   }

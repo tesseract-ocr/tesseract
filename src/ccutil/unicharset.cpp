@@ -373,7 +373,7 @@ void UNICHARSET::set_normed_ids(UNICHAR_ID unichar_id) {
   unichars[unichar_id].properties.normed_ids.truncate(0);
   if (unichar_id == UNICHAR_SPACE && id_to_unichar(unichar_id)[0] == ' ') {
     unichars[unichar_id].properties.normed_ids.push_back(UNICHAR_SPACE);
-  } else if (!encode_string(unichars[unichar_id].properties.normed.string(),
+  } else if (!encode_string(unichars[unichar_id].properties.normed.c_str(),
                             true, &unichars[unichar_id].properties.normed_ids,
                             nullptr, nullptr)) {
     unichars[unichar_id].properties.normed_ids.truncate(0);
@@ -722,7 +722,7 @@ bool UNICHARSET::save_to_string(STRING *str) const {
               this->get_direction(id) << ' ' <<
               this->get_mirror(id) << ' ' <<
               this->get_normed_unichar(id) << "\t# " <<
-              this->debug_str(id).string() << '\n';
+              this->debug_str(id).c_str() << '\n';
       *str += stream.str().c_str();
     }
   }

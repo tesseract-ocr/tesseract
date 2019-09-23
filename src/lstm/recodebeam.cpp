@@ -46,7 +46,7 @@ void RecodeNode::Print(int null_char, const UNICHARSET& unicharset,
     tprintf("null_char");
   } else {
     tprintf("label=%d, uid=%d=%s", code, unichar_id,
-            unicharset.debug_str(unichar_id).string());
+            unicharset.debug_str(unichar_id).c_str());
   }
   tprintf(" score=%g, c=%g,%s%s%s perm=%d, hash=%" PRIx64, score, certainty,
           start_of_dawg ? " DawgStart" : "", start_of_word ? " Start" : "",
@@ -1301,7 +1301,7 @@ void RecodeBeamSearch::DebugUnicharPath(
   for (int c = 0; c < num_ids; ++c) {
     int coord = xcoords[c];
     tprintf("%d %d=%s r=%g, c=%g, s=%d, e=%d, perm=%d\n", coord, unichar_ids[c],
-            unicharset->debug_str(unichar_ids[c]).string(), ratings[c],
+            unicharset->debug_str(unichar_ids[c]).c_str(), ratings[c],
             certs[c], path[coord]->start_of_word, path[coord]->end_of_word,
             path[coord]->permuter);
     total_rating += ratings[c];

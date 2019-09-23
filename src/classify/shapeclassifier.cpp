@@ -5,7 +5,6 @@
 // Description: Base interface class for classifiers that return a
 //              shape index.
 // Author:      Ray Smith
-// Created:     Thu Dec 15 15:24:27 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -194,7 +193,7 @@ void ShapeClassifier::PrintResults(
       tprintf("[J]");
     if (results[i].broken)
       tprintf("[B]");
-    tprintf(" %s\n", GetShapeTable()->DebugStr(results[i].shape_id).string());
+    tprintf(" %s\n", GetShapeTable()->DebugStr(results[i].shape_id).c_str());
   }
 }
 

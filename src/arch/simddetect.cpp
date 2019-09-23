@@ -174,48 +174,48 @@ void SIMDDetect::Update() {
   // Select code for calculation of dot product based on the
   // value of the config variable if that value is not empty.
   const char* dotproduct_method = "generic";
-  if (!strcmp(dotproduct.string(), "auto")) {
+  if (!strcmp(dotproduct.c_str(), "auto")) {
     // Automatic detection. Nothing to be done.
-  } else if (!strcmp(dotproduct.string(), "generic")) {
+  } else if (!strcmp(dotproduct.c_str(), "generic")) {
     // Generic code selected by config variable.
     SetDotProduct(DotProductGeneric);
     dotproduct_method = "generic";
-  } else if (!strcmp(dotproduct.string(), "native")) {
+  } else if (!strcmp(dotproduct.c_str(), "native")) {
     // Native optimized code selected by config variable.
     SetDotProduct(DotProductNative);
     dotproduct_method = "native";
 #if defined(AVX2)
-  } else if (!strcmp(dotproduct.string(), "avx2")) {
+  } else if (!strcmp(dotproduct.c_str(), "avx2")) {
     // AVX2 selected by config variable.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixAVX2);
     dotproduct_method = "avx2";
 #endif
 #if defined(AVX)
-  } else if (!strcmp(dotproduct.string(), "avx")) {
+  } else if (!strcmp(dotproduct.c_str(), "avx")) {
     // AVX selected by config variable.
     SetDotProduct(DotProductAVX, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "avx";
 #endif
 #if defined(FMA)
-  } else if (!strcmp(dotproduct.string(), "fma")) {
+  } else if (!strcmp(dotproduct.c_str(), "fma")) {
     // FMA selected by config variable.
     SetDotProduct(DotProductFMA, IntSimdMatrix::intSimdMatrix);
     dotproduct_method = "fma";
 #endif
 #if defined(SSE4_1)
-  } else if (!strcmp(dotproduct.string(), "sse")) {
+  } else if (!strcmp(dotproduct.c_str(), "sse")) {
     // SSE selected by config variable.
     SetDotProduct(DotProductSSE, &IntSimdMatrix::intSimdMatrixSSE);
     dotproduct_method = "sse";
 #endif
-  } else if (!strcmp(dotproduct.string(), "std::inner_product")) {
+  } else if (!strcmp(dotproduct.c_str(), "std::inner_product")) {
     // std::inner_product selected by config variable.
     SetDotProduct(DotProductStdInnerProduct);
     dotproduct_method = "std::inner_product";
   } else {
     // Unsupported value of config variable.
     tprintf("Warning, ignoring unsupported config variable value: dotproduct=%s\n",
-            dotproduct.string());
+            dotproduct.c_str());
     tprintf("Support values for dotproduct: auto generic native"
 #if defined(AVX)
             " avx"

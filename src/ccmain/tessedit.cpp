@@ -51,19 +51,19 @@ void Tesseract::read_config_file(const char* filename,
   path += "configs/";
   path += filename;
   FILE* fp;
-  if ((fp = fopen(path.string(), "rb")) != nullptr) {
+  if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
     fclose(fp);
   } else {
     path = datadir;
     path += "tessconfigs/";
     path += filename;
-    if ((fp = fopen(path.string(), "rb")) != nullptr) {
+    if ((fp = fopen(path.c_str(), "rb")) != nullptr) {
       fclose(fp);
     } else {
       path = filename;
     }
   }
-  ParamUtils::ReadParamsFile(path.string(), constraint, this->params());
+  ParamUtils::ReadParamsFile(path.c_str(), constraint, this->params());
 }
 
 // Returns false if a unicharset file for the specified language was not found
@@ -93,8 +93,8 @@ bool Tesseract::init_tesseract_lang_data(
 
   // Initialize TessdataManager.
   STRING tessdata_path = language_data_path_prefix + kTrainedDataSuffix;
-  if (!mgr->is_loaded() && !mgr->Init(tessdata_path.string())) {
-    tprintf("Error opening data file %s\n", tessdata_path.string());
+  if (!mgr->is_loaded() && !mgr->Init(tessdata_path.c_str())) {
+    tprintf("Error opening data file %s\n", tessdata_path.c_str());
     tprintf(
         "Please make sure the TESSDATA_PREFIX environment variable is set"
         " to your \"tessdata\" directory.\n");
@@ -135,23 +135,23 @@ bool Tesseract::init_tesseract_lang_data(
   // files, so that params in vars_vec can override those from files).
   if (vars_vec != nullptr && vars_values != nullptr) {
     for (int i = 0; i < vars_vec->size(); ++i) {
-      if (!ParamUtils::SetParam((*vars_vec)[i].string(),
-                                (*vars_values)[i].string(),
+      if (!ParamUtils::SetParam((*vars_vec)[i].c_str(),
+                                (*vars_values)[i].c_str(),
                                 set_params_constraint, this->params())) {
-        tprintf("Error setting param %s\n", (*vars_vec)[i].string());
+        tprintf("Error setting param %s\n", (*vars_vec)[i].c_str());
         exit(1);
       }
     }
   }
 
   if (!tessedit_write_params_to_file.empty()) {
-    FILE* params_file = fopen(tessedit_write_params_to_file.string(), "wb");
+    FILE* params_file = fopen(tessedit_write_params_to_file.c_str(), "wb");
     if (params_file != nullptr) {
       ParamUtils::PrintParams(params_file, this->params());
       fclose(params_file);
     } else {
       tprintf("Failed to open %s for writing params.\n",
-              tessedit_write_params_to_file.string());
+              tessedit_write_params_to_file.c_str());
     }
   }
 
@@ -226,7 +226,7 @@ bool Tesseract::init_tesseract_lang_data(
     language_model_->getParamsModel().SetPass(
         static_cast<ParamsModel::PassEnum>(p));
     if (mgr->GetComponent(TESSDATA_PARAMS_MODEL, &fp)) {
-      if (!language_model_->getParamsModel().LoadFromFp(lang.string(), &fp)) {
+      if (!language_model_->getParamsModel().LoadFromFp(lang.c_str(), &fp)) {
         return false;
       }
     }
@@ -256,7 +256,7 @@ void Tesseract::ParseLanguageString(const char* lang_str,
   STRING remains(lang_str);
   while (remains.length() > 0) {
     // Find the start of the lang code and which vector to add to.
-    const char* start = remains.string();
+    const char* start = remains.c_str();
     while (*start == '+') ++start;
     GenericVector<STRING>* target = to_load;
     if (*start == '~') {
@@ -301,7 +301,7 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
   // Load the rest into sub_langs_.
   for (int lang_index = 0; lang_index < langs_to_load.size(); ++lang_index) {
     if (!IsStrInList(langs_to_load[lang_index], langs_not_to_load)) {
-      const char* lang_str = langs_to_load[lang_index].string();
+      const char* lang_str = langs_to_load[lang_index].c_str();
       Tesseract* tess_to_init;
       if (!loaded_primary) {
         tess_to_init = this;
@@ -319,7 +319,7 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
         if (result < 0) {
           tprintf("Failed loading language '%s'\n", lang_str);
         } else {
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.string(),
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(),
                               &langs_to_load, &langs_not_to_load);
           loaded_primary = true;
         }
@@ -330,7 +330,7 @@ int Tesseract::init_tesseract(const char* arg0, const char* textbase,
         } else {
           sub_langs_.push_back(tess_to_init);
           // Add any languages that this language requires
-          ParseLanguageString(tess_to_init->tessedit_load_sublangs.string(),
+          ParseLanguageString(tess_to_init->tessedit_load_sublangs.c_str(),
                               &langs_to_load, &langs_not_to_load);
         }
       }

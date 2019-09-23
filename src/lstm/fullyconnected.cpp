@@ -2,7 +2,6 @@
 // File:        fullyconnected.cpp
 // Description: Simple feed-forward layer with various non-linearities.
 // Author:      Ray Smith
-// Created:     Wed Feb 26 14:49:15 PST 2014
 //
 // (C) Copyright 2014, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,7 +98,7 @@ void FullyConnected::ConvertToInt() {
 
 // Provides debug output on the weights.
 void FullyConnected::DebugWeights() {
-  weights_.Debug2D(name_.string());
+  weights_.Debug2D(name_.c_str());
 }
 
 // Writes to the given file. Returns false in case of error.
@@ -163,7 +162,7 @@ void FullyConnected::Forward(bool debug, const NetworkIO& input,
   }
   output->ZeroInvalidElements();
 #if DEBUG_DETAIL > 0
-  tprintf("F Output:%s\n", name_.string());
+  tprintf("F Output:%s\n", name_.c_str());
   output->Print(10);
 #endif
   if (debug) DisplayForward(*output);
@@ -254,7 +253,7 @@ bool FullyConnected::Backward(bool debug, const NetworkIO& fwd_deltas,
   if (needs_to_backprop_) {
     back_deltas->ZeroInvalidElements();
 #if DEBUG_DETAIL > 0
-    tprintf("F Backprop:%s\n", name_.string());
+    tprintf("F Backprop:%s\n", name_.c_str());
     back_deltas->Print(10);
 #endif
     return true;

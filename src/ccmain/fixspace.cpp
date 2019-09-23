@@ -306,7 +306,7 @@ int16_t Tesseract::eval_word_spacing(WERD_RES_LIST &word_res_list) {
       if (!((prev_char_1 && digit_or_numeric_punct(word, 0)) ||
             (prev_char_digit && (
                 (word_done &&
-                 word->best_choice->unichar_lengths().string()[0] == 1 &&
+                 word->best_choice->unichar_lengths().c_str()[0] == 1 &&
                  word->best_choice->unichar_string()[0] == '1') ||
                 (!word_done && STRING(conflict_set_I_l_1).contains(
                       word->best_choice->unichar_string()[0])))))) {
@@ -375,11 +375,11 @@ bool Tesseract::digit_or_numeric_punct(WERD_RES *word, int char_position) {
        offset += word->best_choice->unichar_lengths()[i++]);
   return (
       word->uch_set->get_isdigit(
-          word->best_choice->unichar_string().string() + offset,
+          word->best_choice->unichar_string().c_str() + offset,
           word->best_choice->unichar_lengths()[i]) ||
       (word->best_choice->permuter() == NUMBER_PERM &&
        STRING(numeric_punctuation).contains(
-           word->best_choice->unichar_string().string()[offset])));
+           word->best_choice->unichar_string().c_str()[offset])));
 }
 
 }  // namespace tesseract
@@ -507,18 +507,18 @@ void Tesseract::dump_words(WERD_RES_LIST &perm, int16_t score,
            word_res_it.forward()) {
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
-                  word_res_it.data()->best_choice->unichar_string().string(),
+                  word_res_it.data()->best_choice->unichar_string().c_str(),
                   static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
       tprintf("\"\n");
     } else if (improved) {
-      tprintf("FIX SPACING \"%s\" => \"", stats_.dump_words_str.string());
+      tprintf("FIX SPACING \"%s\" => \"", stats_.dump_words_str.c_str());
       for (word_res_it.mark_cycle_pt(); !word_res_it.cycled_list();
            word_res_it.forward()) {
         if (!word_res_it.data()->part_of_combo) {
           tprintf("%s/%1d ",
-                  word_res_it.data()->best_choice->unichar_string().string(),
+                  word_res_it.data()->best_choice->unichar_string().c_str(),
                   static_cast<int>(word_res_it.data()->best_choice->permuter()));
         }
       }
@@ -540,7 +540,7 @@ bool Tesseract::fixspace_thinks_word_done(WERD_RES *word) {
       (word->tess_accepted ||
        (fixsp_done_mode == 2 && word->reject_map.reject_count() == 0) ||
        fixsp_done_mode == 3) &&
-      (strchr(word->best_choice->unichar_string().string(), ' ') == nullptr) &&
+      (strchr(word->best_choice->unichar_string().c_str(), ' ') == nullptr) &&
       ((word->best_choice->permuter() == SYSTEM_DAWG_PERM) ||
        (word->best_choice->permuter() == FREQ_DAWG_PERM) ||
        (word->best_choice->permuter() == USER_DAWG_PERM) ||
@@ -581,7 +581,7 @@ void Tesseract::fix_sp_fp_word(WERD_RES_IT &word_res_it, ROW *row,
 
   if (debug_fix_space_level > 1) {
     tprintf("FP fixspace working on \"%s\"\n",
-            word_res->best_choice->unichar_string().string());
+            word_res->best_choice->unichar_string().c_str());
   }
   word_res->word->rej_cblob_list()->sort(c_blob_comparator);
   sub_word_list_it.add_after_stay_put(word_res_it.extract());
@@ -729,7 +729,7 @@ int16_t Tesseract::worst_noise_blob(WERD_RES *word_res,
   #ifndef SECURE_NAMES
   if (debug_fix_space_level > 5)
     tprintf("FP fixspace Noise metrics for \"%s\": ",
-            word_res->best_choice->unichar_string().string());
+            word_res->best_choice->unichar_string().c_str());
   #endif
 
   for (i = 0; i < blob_count && i < word_res->rebuild_word->NumBlobs(); i++) {
@@ -825,7 +825,7 @@ void fixspace_dbg(WERD_RES *word) {
   int16_t i;
 
   box.print();
-  tprintf(" \"%s\" ", word->best_choice->unichar_string().string());
+  tprintf(" \"%s\" ", word->best_choice->unichar_string().c_str());
   tprintf("Blob count: %d (word); %d/%d (rebuild word)\n",
           word->word->cblob_list()->length(),
           word->rebuild_word->NumBlobs(),
@@ -833,7 +833,7 @@ void fixspace_dbg(WERD_RES *word) {
   word->reject_map.print(debug_fp);
   tprintf("\n");
   if (show_map_detail) {
-    tprintf("\"%s\"\n", word->best_choice->unichar_string().string());
+    tprintf("\"%s\"\n", word->best_choice->unichar_string().c_str());
     for (i = 0; word->best_choice->unichar_string()[i] != '\0'; i++) {
       tprintf("**** \"%c\" ****\n", word->best_choice->unichar_string()[i]);
       word->reject_map[i].full_print(debug_fp);

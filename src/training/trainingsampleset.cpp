@@ -644,10 +644,10 @@ void TrainingSampleSet::ComputeCanonicalSamples(const IntFeatureMap& map,
       if (debug) {
         tprintf("Found %d samples of class %d=%s, font %d, "
                 "dist range [%g, %g], worst pair= %s, %s\n",
-                samples_found, c, unicharset_.debug_str(c).string(),
+                samples_found, c, unicharset_.debug_str(c).c_str(),
                 font_index, min_max_dist, max_max_dist,
-                SampleToString(*samples_[max_s1]).string(),
-                SampleToString(*samples_[max_s2]).string());
+                SampleToString(*samples_[max_s1]).c_str(),
+                SampleToString(*samples_[max_s2]).c_str());
       }
     }
   }

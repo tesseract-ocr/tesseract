@@ -1302,7 +1302,7 @@ CLASS_ID Classify::GetClassToDebug(const char *Prompt, bool* adaptive_on,
           }
           for (int s = 0; s < shape_table_->NumShapes(); ++s) {
             if (shape_table_->GetShape(s).ContainsUnichar(unichar_id)) {
-              tprintf("%s\n", shape_table_->DebugStr(s).string());
+              tprintf("%s\n", shape_table_->DebugStr(s).c_str());
             }
           }
         } else {

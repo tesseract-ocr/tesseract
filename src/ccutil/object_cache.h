@@ -42,7 +42,7 @@ class ObjectCache {
         tprintf("ObjectCache(%p)::~ObjectCache(): WARNING! LEAK! object %p "
                 "still has count %d (id %s)\n",
                 this, cache_[i].object, cache_[i].count,
-                cache_[i].id.string());
+                cache_[i].id.c_str());
       } else {
         delete cache_[i].object;
         cache_[i].object = nullptr;

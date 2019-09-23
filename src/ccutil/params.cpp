@@ -146,7 +146,7 @@ bool ParamUtils::GetParamAsString(const char *name,
   auto *sp = FindParam<StringParam>(name, GlobalParams()->string_params,
                                            member_params->string_params);
   if (sp) {
-    *value = sp->string();
+    *value = sp->c_str();
     return true;
   }
   // Look for the parameter among int parameters.
@@ -192,7 +192,7 @@ void ParamUtils::PrintParams(FILE *fp, const ParamsVectors *member_params) {
     }
     for (int i = 0; i < vec->string_params.size(); ++i) {
       fprintf(fp, "%s\t%s\t%s\n", vec->string_params[i]->name_str(),
-              vec->string_params[i]->string(), vec->string_params[i]->info_str());
+              vec->string_params[i]->c_str(), vec->string_params[i]->info_str());
     }
     for (int i = 0; i < vec->double_params.size(); ++i) {
       fprintf(fp, "%s\t%g\t%s\n", vec->double_params[i]->name_str(),

@@ -817,7 +817,7 @@ class UNICHARSET {
   // Returns normalized version of unichar with the given unichar_id.
   const char *get_normed_unichar(UNICHAR_ID unichar_id) const {
     if (unichar_id == UNICHAR_SPACE) return " ";
-    return unichars[unichar_id].properties.normed.string();
+    return unichars[unichar_id].properties.normed.c_str();
   }
   // Returns a vector of UNICHAR_IDs that represent the ids of the normalized
   // version of the given id. There may be more than one UNICHAR_ID in the

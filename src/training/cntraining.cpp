@@ -206,8 +206,8 @@ static void WriteNormProtos(const char *Directory, LIST LabeledProtoList,
     Filename += "/";
   }
   Filename += "normproto";
-  printf ("\nWriting %s ...", Filename.string());
-  File = fopen(Filename.string(), "wb");
+  printf ("\nWriting %s ...", Filename.c_str());
+  File = fopen(Filename.c_str(), "wb");
   ASSERT_HOST(File);
   fprintf(File, "%0d\n", feature_desc->NumParams);
   WriteParamDesc(File, feature_desc->NumParams, feature_desc->ParamDesc);
