@@ -187,7 +187,7 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
         if (!lst->empty()) {
           tprintf("%s Ambiguities for %s:\n",
                   (tbl == 0) ? "Replaceable" : "Dangerous",
-                  unicharset->debug_str(i).string());
+                  unicharset->debug_str(i).c_str());
         }
         AmbigSpec_IT lst_it(lst);
         for (lst_it.mark_cycle_pt(); !lst_it.cycled_list(); lst_it.forward()) {
@@ -208,10 +208,10 @@ void UnicharAmbigs::LoadUnicharAmbigs(const UNICHARSET& encoder_set,
           if (adaption_ambigs_entry != nullptr) {
             tprintf("%sAmbigs for adaption for %s:\n",
                     (vec_id == 0) ? "" : "Reverse ",
-                    unicharset->debug_str(i).string());
+                    unicharset->debug_str(i).c_str());
             for (j = 0; j < adaption_ambigs_entry->size(); ++j) {
               tprintf("%s ", unicharset->debug_str(
-                  (*adaption_ambigs_entry)[j]).string());
+                  (*adaption_ambigs_entry)[j]).c_str());
             }
             tprintf("\n");
           }
@@ -236,7 +236,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
     }
     // Encode wrong-string.
     GenericVector<UNICHAR_ID> unichars;
-    if (!unicharset.encode_string(fields[0].string(), true, &unichars, nullptr,
+    if (!unicharset.encode_string(fields[0].c_str(), true, &unichars, nullptr,
                                   nullptr)) {
       return false;
     }
@@ -251,7 +251,7 @@ bool UnicharAmbigs::ParseAmbiguityLine(
       test_unichar_ids[i] = unichars[i];
     test_unichar_ids[unichars.size()] = INVALID_UNICHAR_ID;
     // Encode replacement-string to check validity.
-    if (!unicharset.encode_string(fields[1].string(), true, &unichars, nullptr,
+    if (!unicharset.encode_string(fields[1].c_str(), true, &unichars, nullptr,
                                   nullptr)) {
       return false;
     }
@@ -261,11 +261,11 @@ bool UnicharAmbigs::ParseAmbiguityLine(
         tprintf("Too many unichars in ambiguity on line %d\n", line_num);
       return false;
     }
-    if (sscanf(fields[2].string(), "%d", type) != 1) {
+    if (sscanf(fields[2].c_str(), "%d", type) != 1) {
       if (debug_level) tprintf(kIllegalMsg, line_num);
       return false;
     }
-    snprintf(replacement_string, kMaxAmbigStringSize, "%s", fields[1].string());
+    snprintf(replacement_string, kMaxAmbigStringSize, "%s", fields[1].c_str());
     return true;
   }
   int i;
@@ -377,8 +377,8 @@ bool UnicharAmbigs::InsertIntoTable(
     } else {
       STRING frag_str = CHAR_FRAGMENT::to_string(
           replacement_string, i, test_ambig_part_size, false);
-      unicharset->unichar_insert(frag_str.string(), OldUncleanUnichars::kTrue);
-      unichar_id = unicharset->unichar_to_id(frag_str.string());
+      unicharset->unichar_insert(frag_str.c_str(), OldUncleanUnichars::kTrue);
+      unichar_id = unicharset->unichar_to_id(frag_str.c_str());
     }
     ambig_spec->correct_fragments[i] = unichar_id;
   }

@@ -32,7 +32,7 @@ bool LSTMTester::LoadAllEvalData(const STRING& filenames_file) {
   GenericVector<STRING> filenames;
   if (!LoadFileLinesToStrings(filenames_file.c_str(), &filenames)) {
     tprintf("Failed to load list of eval filenames from %s\n",
-            filenames_file.string());
+            filenames_file.c_str());
     return false;
   }
   return LoadAllEvalData(filenames);
@@ -106,12 +106,12 @@ STRING LSTMTester::RunEvalSync(int iteration, const double* training_errors,
       word_error += trainer.NewSingleError(tesseract::ET_WORD_RECERR);
       ++error_count;
       if (verbosity > 1 || (verbosity > 0 && result != PERFECT)) {
-        tprintf("Truth:%s\n", trainingdata->transcription().string());
+        tprintf("Truth:%s\n", trainingdata->transcription().c_str());
         GenericVector<int> ocr_labels;
         GenericVector<int> xcoords;
         trainer.LabelsFromOutputs(fwd_outputs, &ocr_labels, &xcoords);
         STRING ocr_text = trainer.DecodeLabels(ocr_labels);
-        tprintf("OCR  :%s\n", ocr_text.string());
+        tprintf("OCR  :%s\n", ocr_text.c_str());
       }
     }
   }

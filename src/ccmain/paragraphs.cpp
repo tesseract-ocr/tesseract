@@ -125,8 +125,8 @@ static void PrintTable(const GenericVector<GenericVector<STRING> > &rows,
   for (int r = 0; r < rows.size(); r++) {
     for (int c = 0; c < rows[r].size(); c++) {
       if (c > 0)
-        tprintf("%s", colsep.string());
-      tprintf(col_width_patterns[c].string(), rows[r][c].string());
+        tprintf("%s", colsep.c_str());
+      tprintf(col_width_patterns[c].c_str(), rows[r][c].c_str());
     }
     tprintf("\n");
   }
@@ -177,7 +177,7 @@ static void PrintDetectorState(const ParagraphTheory &theory,
 
   tprintf("Active Paragraph Models:\n");
   for (int m = 0; m < theory.models().size(); m++) {
-    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().string());
+    tprintf(" %d: %s\n", m + 1, theory.models()[m]->ToString().c_str());
   }
 }
 
@@ -188,7 +188,7 @@ static void DebugDump(
     const GenericVector<RowScratchRegisters> &rows) {
   if (!should_print)
     return;
-  tprintf("# %s\n", phase.string());
+  tprintf("# %s\n", phase.c_str());
   PrintDetectorState(theory, rows);
 }
 
@@ -197,7 +197,7 @@ static void PrintRowRange(const GenericVector<RowScratchRegisters> &rows,
                           int row_start, int row_end) {
   tprintf("======================================\n");
   for (int row = row_start; row < row_end; row++) {
-    tprintf("%s\n", rows[row].ri_->text.string());
+    tprintf("%s\n", rows[row].ri_->text.c_str());
   }
   tprintf("======================================\n");
 }
@@ -247,7 +247,7 @@ static bool LikelyListNumeral(const STRING &word) {
   const char *kClose = "]})";
 
   int num_segments = 0;
-  const char *pos = word.string();
+  const char *pos = word.c_str();
   while (*pos != '\0' && num_segments < 3) {
     // skip up to two open parens.
     const char *numeral_start = SkipOne(SkipOne(pos, kOpen), kOpen);
@@ -2489,8 +2489,8 @@ static void InitializeRowInfo(bool after_recognition,
   info->num_words = werds.size();
   if (!werds.empty()) {
     WERD_RES *lword = werds[0], *rword = werds[werds.size() - 1];
-    info->lword_text = lword->best_choice->unichar_string().string();
-    info->rword_text = rword->best_choice->unichar_string().string();
+    info->lword_text = lword->best_choice->unichar_string().c_str();
+    info->rword_text = rword->best_choice->unichar_string().c_str();
     info->lword_box = lword->word->bounding_box();
     info->rword_box = rword->word->bounding_box();
     LeftWordAttributes(lword->uch_set, lword->best_choice,

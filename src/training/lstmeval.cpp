@@ -76,6 +76,6 @@ int main(int argc, char **argv) {
   STRING result =
       tester.RunEvalSync(0, &errs, mgr,
                          /*training_stage (irrelevant)*/ 0, FLAGS_verbosity);
-  tprintf("%s\n", result.string());
+  tprintf("%s\n", result.c_str());
   return 0;
 } /* main */

@@ -110,7 +110,7 @@ static void CallWithUTF8(std::function<void(const char*)> cb,
                          const WERD_CHOICE* wc) {
   STRING s;
   wc->string_and_lengths(&s, nullptr);
-  cb(s.string());
+  cb(s.c_str());
 }
 
 void Dawg::iterate_words(const UNICHARSET& unicharset,
@@ -329,7 +329,7 @@ bool SquishedDawg::read_squished_dawg(TFile *file) {
   if (!file->DeSerialize(&edges_[0], num_edges_)) return false;
   if (debug_level_ > 2) {
     tprintf("type: %d lang: %s perm: %d unicharset_size: %d num_edges: %d\n",
-            type_, lang_.string(), perm_, unicharset_size_, num_edges_);
+            type_, lang_.c_str(), perm_, unicharset_size_, num_edges_);
     for (EDGE_REF edge = 0; edge < num_edges_; ++edge) print_edge(edge);
   }
   return true;

@@ -147,7 +147,7 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
                               int net_flags, float weight_range,
                               float learning_rate, float momentum,
                               float adam_beta) {
-  mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec.string());
+  mgr_.SetVersionString(mgr_.VersionString() + ":" + network_spec.c_str());
   adam_beta_ = adam_beta;
   learning_rate_ = learning_rate;
   momentum_ = momentum;
@@ -159,7 +159,7 @@ bool LSTMTrainer::InitNetwork(const STRING& network_spec, int append_index,
   }
   network_str_ += network_spec;
   tprintf("Built network:%s from request %s\n",
-          network_->spec().string(), network_spec.string());
+          network_->spec().c_str(), network_spec.c_str());
   tprintf(
       "Training parameters:\n  Debug interval = %d,"
       " weights = %g, learning rate = %g, momentum=%g\n",
@@ -251,7 +251,7 @@ Trainability LSTMTrainer::GridSearchDictParams(
         STRING t = DecodeLabels(truth_labels);
         STRING o = DecodeLabels(ocr_labels);
         tprintf("r=%g, c=%g, truth=%s, ocr=%s, wderr=%g, truth[0]=%d\n", r, c,
-                t.string(), o.string(), word_error, truth_labels[0]);
+                t.c_str(), o.c_str(), word_error, truth_labels[0]);
       }
       results->add_str_double(" ", r);
       results->add_str_double(",", c);
@@ -536,7 +536,7 @@ SubTrainerResult LSTMTrainer::UpdateSubtrainer(STRING* log_msg) {
       STRING batch_log = "Sub:";
       sub_trainer_->PrepareLogMsg(&batch_log);
       batch_log += "\n";
-      tprintf("UpdateSubtrainer:%s", batch_log.string());
+      tprintf("UpdateSubtrainer:%s", batch_log.c_str());
       *log_msg += batch_log;
       sub_error = sub_trainer_->CharError();
       sub_margin = (training_error - sub_error) / sub_error;
@@ -662,7 +662,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
     double total_same = bad_sums[LR_SAME][i] + ok_sums[LR_SAME][i];
     double frac_down = bad_sums[LR_DOWN][i] / total_down;
     double frac_same = bad_sums[LR_SAME][i] / total_same;
-    tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().string(),
+    tprintf("Layer %d=%s: lr %g->%g%%, lr %g->%g%%", i, layer->name().c_str(),
             lr * factor, 100.0 * frac_down, lr, 100.0 * frac_same);
     if (frac_down < frac_same * kImprovementFraction) {
       tprintf(" REDUCED\n");
@@ -690,7 +690,7 @@ int LSTMTrainer::ReduceLayerLearningRates(double factor, int num_samples,
 bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
                                const UnicharCompress* recoder, bool simple_text,
                                int null_char, GenericVector<int>* labels) {
-  if (str.string() == nullptr || str.length() <= 0) {
+  if (str.c_str() == nullptr || str.length() <= 0) {
     tprintf("Empty truth string!\n");
     return false;
   }
@@ -698,7 +698,7 @@ bool LSTMTrainer::EncodeString(const STRING& str, const UNICHARSET& unicharset,
   GenericVector<int> internal_labels;
   labels->truncate(0);
   if (!simple_text) labels->push_back(null_char);
-  std::string cleaned = unicharset.CleanupString(str.string());
+  std::string cleaned = unicharset.CleanupString(str.c_str());
   if (unicharset.encode_string(cleaned.c_str(), true, &internal_labels, nullptr,
                                &err_index)) {
     bool success = true;
@@ -780,8 +780,8 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   GenericVector<int> truth_labels;
   if (!EncodeString(trainingdata->transcription(), &truth_labels)) {
     tprintf("Can't encode transcription: '%s' in language '%s'\n",
-            trainingdata->transcription().string(),
-            trainingdata->language().string());
+            trainingdata->transcription().c_str(),
+            trainingdata->language().c_str());
     return UNENCODABLE;
   }
   bool upside_down = false;
@@ -807,7 +807,7 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
     ++w;
   if (w == truth_labels.size()) {
     tprintf("Blank transcription: %s\n",
-            trainingdata->transcription().string());
+            trainingdata->transcription().c_str());
     return UNENCODABLE;
   }
   float image_scale;
@@ -852,14 +852,14 @@ Trainability LSTMTrainer::PrepareForBackward(const ImageData* trainingdata,
   if (debug_interval_ != 0) {
       if (truth_text != ocr_text) {
          tprintf("Iteration %d: BEST OCR TEXT : %s\n",
-            training_iteration(), ocr_text.string());
+            training_iteration(), ocr_text.c_str());
       }
   }
   double char_error = ComputeCharError(truth_labels, ocr_labels);
   double word_error = ComputeWordError(&truth_text, &ocr_text);
   double delta_error = ComputeErrorRates(*targets, char_error, word_error);
   if (debug_interval_ != 0) {
-    tprintf("File %s line %d %s:\n", trainingdata->imagefilename().string(),
+    tprintf("File %s line %d %s:\n", trainingdata->imagefilename().c_str(),
             trainingdata->page_number(), delta_error == 0.0 ? "(Perfect)" : "");
   }
   if (delta_error == 0.0) return PERFECT;
@@ -913,7 +913,7 @@ void LSTMTrainer::SaveRecognitionDump(GenericVector<char>* data) const {
 // the iteration and the error rates.
 STRING LSTMTrainer::DumpFilename() const {
   STRING filename;
-  filename.add_str_double(model_base_.string(), best_error_rate_);
+  filename.add_str_double(model_base_.c_str(), best_error_rate_);
   filename.add_str_int("_", best_iteration_);
   filename += ".checkpoint";
   return filename;
@@ -1006,7 +1006,7 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
                                     const GenericVector<int>& truth_labels,
                                     const NetworkIO& outputs) {
   const STRING& truth_text = DecodeLabels(truth_labels);
-  if (truth_text.string() == nullptr || truth_text.length() <= 0) {
+  if (truth_text.c_str() == nullptr || truth_text.length() <= 0) {
     tprintf("Empty truth string at decode time!\n");
     return false;
   }
@@ -1017,14 +1017,14 @@ bool LSTMTrainer::DebugLSTMTraining(const NetworkIO& inputs,
     LabelsFromOutputs(outputs, &labels, &xcoords);
     STRING text = DecodeLabels(labels);
     tprintf("Iteration %d: GROUND  TRUTH : %s\n",
-        training_iteration(), truth_text.string());
+        training_iteration(), truth_text.c_str());
     if (truth_text != text) {
         tprintf("Iteration %d: ALIGNED TRUTH : %s\n",
-            training_iteration(), text.string());
+            training_iteration(), text.c_str());
     }
     if (debug_interval_ > 0 && training_iteration() % debug_interval_ == 0) {
       tprintf("TRAINING activation path for truth string %s\n",
-              truth_text.string());
+              truth_text.c_str());
       DebugActivationPath(outputs, labels, xcoords);
       DisplayForward(inputs, labels, xcoords, "LSTMTraining", &align_win_);
       if (OutputLossType() == LT_CTC) {
@@ -1079,7 +1079,7 @@ bool LSTMTrainer::ComputeTextTargets(const NetworkIO& outputs,
                                      NetworkIO* targets) {
   if (truth_labels.size() > targets->Width()) {
     tprintf("Error: transcription %s too long to fit into target of width %d\n",
-            DecodeLabels(truth_labels).string(), targets->Width());
+            DecodeLabels(truth_labels).c_str(), targets->Width());
     return false;
   }
   for (int i = 0; i < truth_labels.size() && i < targets->Width(); ++i) {
@@ -1198,7 +1198,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
   ocr_str->split(' ', &ocr_words);
   StrMap word_counts;
   for (int i = 0; i < truth_words.size(); ++i) {
-    std::string truth_word(truth_words[i].string());
+    std::string truth_word(truth_words[i].c_str());
     auto it = word_counts.find(truth_word);
     if (it == word_counts.end())
       word_counts.insert(std::make_pair(truth_word, 1));
@@ -1206,7 +1206,7 @@ double LSTMTrainer::ComputeWordError(STRING* truth_str, STRING* ocr_str) {
       ++it->second;
   }
   for (int i = 0; i < ocr_words.size(); ++i) {
-    std::string ocr_word(ocr_words[i].string());
+    std::string ocr_word(ocr_words[i].c_str());
     auto it = word_counts.find(ocr_word);
     if (it == word_counts.end())
       word_counts.insert(std::make_pair(ocr_word, -1));

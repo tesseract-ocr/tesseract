@@ -180,7 +180,7 @@ void Tesseract::write_results(PAGE_RES_IT& page_res_it,
   check_debug_pt (word, 120);
   if (tessedit_rejection_debug) {
     tprintf ("Dict word: \"%s\": %d\n",
-             word->best_choice->debug_string().string(),
+             word->best_choice->debug_string().c_str(),
              dict_word(*(word->best_choice)));
   }
   if (!word->word->flag(W_REP_CHAR) || !tessedit_write_rep_codes) {
@@ -256,7 +256,7 @@ UNICHAR_ID Tesseract::get_rep_char(WERD_RES *word) {  // what char is repeated?
   if (i < word->reject_map.length()) {
     return word->best_choice->unichar_id(i);
   } else {
-    return word->uch_set->unichar_to_id(unrecognised_char.string());
+    return word->uch_set->unichar_to_id(unrecognised_char.c_str());
   }
 }
 
@@ -344,11 +344,11 @@ void Tesseract::set_unlv_suspects(WERD_RES *word_res) {
   }
 
   if (acceptable_word_string(*word_res->uch_set,
-                             word.unichar_string().string(),
-                             word.unichar_lengths().string()) !=
+                             word.unichar_string().c_str(),
+                             word.unichar_lengths().c_str()) !=
                                  AC_UNACCEPTABLE ||
-      acceptable_number_string(word.unichar_string().string(),
-                               word.unichar_lengths().string())) {
+      acceptable_number_string(word.unichar_string().c_str(),
+                               word.unichar_lengths().c_str())) {
     if (word_res->reject_map.length() > suspect_short_words) {
       for (i = 0; i < len; i++) {
         if (word_res->reject_map[i].rejected() &&

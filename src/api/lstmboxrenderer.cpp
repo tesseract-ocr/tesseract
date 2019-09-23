@@ -84,7 +84,7 @@ char* TessBaseAPI::GetLSTMBoxText(int page_number=0) {
     lstm_box_str += "\n";  // end of PAGE
   }
   char* ret = new char[lstm_box_str.length() + 1];
-  strcpy(ret, lstm_box_str.string());
+  strcpy(ret, lstm_box_str.c_str());
   delete res_it;
   return ret;
 }

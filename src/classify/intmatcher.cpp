@@ -362,7 +362,7 @@ class ClassPruner {
             if (norm_count_[class_id] >= pruning_threshold_) {
               tprintf(" %s=%d,",
                       classify.ClassIDToDebugStr(int_templates,
-                                                 class_id, 0).string(),
+                                                 class_id, 0).c_str(),
                       pruner_word & CLASS_PRUNER_CLASS_MASK);
             }
             pruner_word >>= NUM_BITS_PER_CLASS;
@@ -385,7 +385,7 @@ class ClassPruner {
       STRING class_string = classify.ClassIDToDebugStr(int_templates,
                                                        class_id, 0);
       tprintf("%s:Initial=%d, E=%d, Xht-adj=%d, N=%d, Rat=%.2f\n",
-              class_string.string(),
+              class_string.c_str(),
               class_count_[class_id],
               expected_num_features[class_id],
               (norm_multiplier * normalization_factors[class_id]) >> 8,

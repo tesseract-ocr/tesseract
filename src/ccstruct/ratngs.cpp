@@ -2,7 +2,6 @@
  * File: ratngs.cpp  (Formerly ratings.c)
  * Description: Code to manipulate the BLOB_CHOICE and WERD_CHOICE classes.
  * Author: Ray Smith
- * Created: Thu Apr 23 13:23:29 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -229,7 +228,7 @@ WERD_CHOICE::WERD_CHOICE(const char *src_string,
                                nullptr)) {
     lengths.push_back('\0');
     STRING src_lengths = &lengths[0];
-    this->init(cleaned.c_str(), src_lengths.string(), 0.0, 0.0, NO_PERM);
+    this->init(cleaned.c_str(), src_lengths.c_str(), 0.0, 0.0, NO_PERM);
   } else {  // There must have been an invalid unichar in the string.
     this->init(8);
     this->make_bad();
@@ -587,7 +586,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word, int debug) {
     if (debug >= 2) {
       tprintf("Most characters of %s are subscript or superscript.\n"
               "That seems wrong, so I'll assume we got the baseline wrong\n",
-              unichar_string().string());
+              unichar_string().c_str());
     }
     for (int i = 0; i < length_; i++) {
       ScriptPos sp = script_pos_[i];
@@ -601,7 +600,7 @@ void WERD_CHOICE::SetScriptPositions(bool small_caps, TWERD* word, int debug) {
 
   if ((debug >= 1 && position_counts[tesseract::SP_NORMAL] < length_) ||
       debug >= 2) {
-    tprintf("SetScriptPosition on %s\n", unichar_string().string());
+    tprintf("SetScriptPosition on %s\n", unichar_string().c_str());
     int chunk_index = 0;
     for (int blob_index = 0; blob_index < length_; ++blob_index) {
       if (debug >= 2 || script_pos_[blob_index] != tesseract::SP_NORMAL) {

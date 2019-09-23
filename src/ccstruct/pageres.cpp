@@ -489,7 +489,7 @@ void WERD_RES::DebugWordChoices(bool debug, const char* word_to_debug) {
       WERD_CHOICE* choice = it.data();
       STRING label;
       label.add_str_int("\nCooked Choice #", index);
-      choice->print(label.string());
+      choice->print(label.c_str());
     }
   }
 }
@@ -636,7 +636,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
         word_choice->string_and_lengths(&bad_string, nullptr);
         tprintf("Discarding choice \"%s\" with an overly low certainty"
                 " %.3f vs best choice certainty %.3f (Threshold: %.3f)\n",
-                bad_string.string(), word_choice->certainty(),
+                bad_string.c_str(), word_choice->certainty(),
                 best_choice->certainty(),
                 max_certainty_delta + best_choice->certainty());
       }
@@ -670,7 +670,7 @@ bool WERD_RES::LogNewCookedChoice(int max_num_choices, bool debug,
           // Old is better.
           if (debug) {
             tprintf("Discarding duplicate choice \"%s\", rating %g vs %g\n",
-                    new_str.string(), word_choice->rating(), choice->rating());
+                    new_str.c_str(), word_choice->rating(), choice->rating());
           }
           delete word_choice;
           return false;
@@ -721,7 +721,7 @@ void WERD_RES::PrintBestChoices() const {
     alternates_str += it.data()->unichar_string();
   }
   tprintf("Alternates for \"%s\": {\"%s\"}\n",
-          best_choice->unichar_string().string(), alternates_str.string());
+          best_choice->unichar_string().c_str(), alternates_str.c_str());
 }
 
 // Returns the sum of the widths of the blob between start_blob and last_blob

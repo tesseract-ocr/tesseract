@@ -2,7 +2,6 @@
  * File:        ratngs.h  (Formerly ratings.h)
  * Description: Definition of the WERD_CHOICE and BLOB_CHOICE classes.
  * Author:      Ray Smith
- * Created:     Thu Apr 23 11:40:38 BST 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -172,7 +171,7 @@ class BLOB_CHOICE: public ELIST_LINK
               rating_, certainty_,
               min_xheight_, max_xheight_, unichar_id_,
               (unicharset == nullptr) ? "" :
-              unicharset->debug_str(unichar_id_).string());
+              unicharset->debug_str(unichar_id_).c_str());
     }
     void print_full() const {
       print(nullptr);

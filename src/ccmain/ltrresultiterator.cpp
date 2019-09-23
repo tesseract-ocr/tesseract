@@ -77,7 +77,7 @@ char* LTRResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   }
   int length = text.length() + 1;
   char* result = new char[length];
-  strncpy(result, text.string(), length);
+  strncpy(result, text.c_str(), length);
   return result;
 }
 
@@ -213,7 +213,7 @@ const char* LTRResultIterator::WordFontAttributes(
 const char* LTRResultIterator::WordRecognitionLanguage() const {
   if (it_->word() == nullptr || it_->word()->tesseract == nullptr)
     return nullptr;
-  return it_->word()->tesseract->lang.string();
+  return it_->word()->tesseract->lang.c_str();
 }
 
 // Return the overall directionality of this word.
@@ -274,13 +274,13 @@ const void* LTRResultIterator::GetParamsTrainingBundle() const {
 // Returns the pointer to the string with blamer information for this word.
 // Assumes that the word's blamer_bundle is not nullptr.
 const char* LTRResultIterator::GetBlamerDebug() const {
-  return it_->word()->blamer_bundle->debug().string();
+  return it_->word()->blamer_bundle->debug().c_str();
 }
 
 // Returns the pointer to the string with misadaption information for this word.
 // Assumes that the word's blamer_bundle is not nullptr.
 const char* LTRResultIterator::GetBlamerMisadaptionDebug() const {
-  return it_->word()->blamer_bundle->misadaption_debug().string();
+  return it_->word()->blamer_bundle->misadaption_debug().c_str();
 }
 
 // Returns true if a truth string was recorded for the current word.
@@ -312,7 +312,7 @@ char* LTRResultIterator::WordTruthUTF8Text() const {
   STRING truth_text = it_->word()->blamer_bundle->TruthString();
   int length = truth_text.length() + 1;
   char* result = new char[length];
-  strncpy(result, truth_text.string(), length);
+  strncpy(result, truth_text.c_str(), length);
   return result;
 }
 
@@ -330,7 +330,7 @@ char* LTRResultIterator::WordNormedUTF8Text() const {
   }
   int length = ocr_text.length() + 1;
   char* result = new char[length];
-  strncpy(result, ocr_text.string(), length);
+  strncpy(result, ocr_text.c_str(), length);
   return result;
 }
 

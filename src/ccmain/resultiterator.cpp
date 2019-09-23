@@ -4,7 +4,6 @@
 //              iterating in proper reading order over Bi Directional
 //              (e.g. mixed Hebrew and English) text.
 // Author:      David Eger
-// Created:     Fri May 27 13:58:06 PST 2011
 //
 // (C) Copyright 2011, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -636,7 +635,7 @@ char* ResultIterator::GetUTF8Text(PageIteratorLevel level) const {
   }
   int length = text.length() + 1;
   char* result = new char[length];
-  strncpy(result, text.string(), length);
+  strncpy(result, text.c_str(), length);
   return result;
 }
 std::vector<std::vector<std::vector<std::pair<const char*, float>>>>*
@@ -706,7 +705,7 @@ void ResultIterator::IterateAndAppendUTF8TextlineText(STRING* text) {
     AppendUTF8WordText(text);
     words_appended++;
     if (BidiDebug(2)) {
-      tprintf("Num spaces=%d, text=%s\n", numSpaces, text->string());
+      tprintf("Num spaces=%d, text=%s\n", numSpaces, text->c_str());
     }
   } while (Next(RIL_WORD) && !IsAtBeginningOf(RIL_TEXTLINE));
   if (BidiDebug(1)) {

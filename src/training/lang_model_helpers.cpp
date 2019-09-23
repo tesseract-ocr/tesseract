@@ -118,7 +118,7 @@ bool WriteRecoder(const UNICHARSET& unicharset, bool pass_through,
   STRING suffix;
   suffix.add_str_int(".charset_size=", recoder.code_range());
   suffix += ".txt";
-  return WriteFile(output_dir, lang, suffix.string(), recoder_data, writer);
+  return WriteFile(output_dir, lang, suffix.c_str(), recoder_data, writer);
 }
 
 // Helper builds a dawg from the given words, using the unicharset as coding,

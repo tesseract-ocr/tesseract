@@ -39,7 +39,7 @@ TessResultRenderer::TessResultRenderer(const char *outputbase,
       happy_(true) {
   if (strcmp(outputbase, "-") && strcmp(outputbase, "stdout")) {
     STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
-    fout_ = fopen(outfile.string(), "wb");
+    fout_ = fopen(outfile.c_str(), "wb");
     if (fout_ == nullptr) {
       happy_ = false;
     }

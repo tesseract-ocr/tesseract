@@ -277,7 +277,7 @@ void BlamerBundle::BlameClassifier(const UNICHARSET& unicharset,
       bool found = false;
       bool incorrect_adapted = false;
       UNICHAR_ID incorrect_adapted_id = INVALID_UNICHAR_ID;
-      const char *truth_str = truth_text_[b].string();
+      const char *truth_str = truth_text_[b].c_str();
       // We promise not to modify the list or its contents, using a
       // const BLOB_CHOICE* below.
       BLOB_CHOICE_IT choices_it(const_cast<BLOB_CHOICE_LIST*>(&choices));
@@ -572,7 +572,7 @@ void BlamerBundle::LastChanceBlame(bool debug, WERD_RES* word) {
                                     debug);
     } else if (irr != IRR_CORRECT && correct) {
       if (debug) {
-        tprintf("Corrected %s\n", word->blamer_bundle->debug_.string());
+        tprintf("Corrected %s\n", word->blamer_bundle->debug_.c_str());
       }
       word->blamer_bundle->incorrect_result_reason_ = IRR_CORRECT;
       word->blamer_bundle->debug_ = "";
@@ -591,7 +591,7 @@ void BlamerBundle::SetMisAdaptionDebug(const WERD_CHOICE *best_choice,
     misadaption_debug_ += "): ";
     FillDebugString("", best_choice, &misadaption_debug_);
     if (debug) {
-      tprintf("%s\n", misadaption_debug_.string());
+      tprintf("%s\n", misadaption_debug_.c_str());
     }
   }
 }

@@ -219,7 +219,7 @@ static ScrollView* bln_word_window_handle() {  // return handle
                                  // not opened yet
   if (bln_word_window == nullptr) {
     pgeditor_msg("Creating BLN word window...");
-    bln_word_window = new ScrollView(editor_word_name.string(),
+    bln_word_window = new ScrollView(editor_word_name.c_str(),
       editor_word_xpos, editor_word_ypos, editor_word_width,
       editor_word_height, 4000, 4000, true);
     auto* a = new BlnEventHandler();
@@ -238,7 +238,7 @@ static ScrollView* bln_word_window_handle() {  // return handle
 
 static void build_image_window(int width, int height) {
   delete image_win;
-  image_win = new ScrollView(editor_image_win_name.string(),
+  image_win = new ScrollView(editor_image_win_name.c_str(),
                              editor_image_xpos, editor_image_ypos,
                              width + 1,
                              height + editor_image_menuheight + 1,
@@ -668,7 +668,7 @@ void Tesseract::debug_word(PAGE_RES* page_res, const TBOX &selection_box) {
 #ifndef DISABLED_LEGACY_ENGINE
   ResetAdaptiveClassifier();
 #endif
-  recog_all_words(page_res, nullptr, &selection_box, word_config_.string(), 0);
+  recog_all_words(page_res, nullptr, &selection_box, word_config_.c_str(), 0);
 }
 }  // namespace tesseract
 
@@ -879,11 +879,11 @@ bool Tesseract::word_display(PAGE_RES_IT* pr_it) {
     image_win->TextAttributes("Arial", text_height, false, false, false);
     shift = (word_height < word_bb.width()) ? 0.25 * word_height : 0.0f;
     image_win->Text(word_bb.left() + shift,
-                    word_bb.bottom() + 0.25 * word_height, text.string());
+                    word_bb.bottom() + 0.25 * word_height, text.c_str());
     if (blame.length() > 0) {
       image_win->Text(word_bb.left() + shift,
                       word_bb.bottom() + 0.25 * word_height - text_height,
-                      blame.string());
+                      blame.c_str());
     }
 
     displayed_something = true;
@@ -916,7 +916,7 @@ bool Tesseract::word_dumper(PAGE_RES_IT* pr_it) {
   if (word_res->blamer_bundle != nullptr && wordrec_debug_blamer &&
       word_res->blamer_bundle->incorrect_result_reason() != IRR_CORRECT) {
     tprintf("Current blamer debug: %s\n",
-            word_res->blamer_bundle->debug().string());
+            word_res->blamer_bundle->debug().c_str());
   }
   return true;
 }

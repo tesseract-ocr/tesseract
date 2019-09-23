@@ -59,7 +59,7 @@ void Dict::go_deeper_dawg_fxn(
   if (getUnicharset().get_isngram(orig_uch_id)) {
     if (dawg_debug_level) {
       tprintf("checking unigrams in an ngram %s\n",
-              getUnicharset().debug_str(orig_uch_id).string());
+              getUnicharset().debug_str(orig_uch_id).c_str());
     }
     int num_unigrams = 0;
     word->remove_last_unichar_id();
@@ -88,7 +88,7 @@ void Dict::go_deeper_dawg_fxn(
       (*unigram_dawg_args.active_dawgs) = *(unigram_dawg_args.updated_dawgs);
       if (dawg_debug_level) {
         tprintf("unigram %s is %s\n",
-                getUnicharset().debug_str(uch_id).string(),
+                getUnicharset().debug_str(uch_id).c_str(),
                 unigrams_ok ? "OK" : "not OK");
       }
     }
@@ -110,26 +110,26 @@ void Dict::go_deeper_dawg_fxn(
     // Add a new word choice
     if (word_ending) {
       if (dawg_debug_level) {
-        tprintf("found word = %s\n", word->debug_string().string());
+        tprintf("found word = %s\n", word->debug_string().c_str());
       }
-      if (strcmp(output_ambig_words_file.string(), "") != 0) {
+      if (strcmp(output_ambig_words_file.c_str(), "") != 0) {
         if (output_ambig_words_file_ == nullptr) {
           output_ambig_words_file_ =
-              fopen(output_ambig_words_file.string(), "wb+");
+              fopen(output_ambig_words_file.c_str(), "wb+");
           if (output_ambig_words_file_ == nullptr) {
             tprintf("Failed to open output_ambig_words_file %s\n",
-                    output_ambig_words_file.string());
+                    output_ambig_words_file.c_str());
             exit(1);
           }
           STRING word_str;
           word->string_and_lengths(&word_str, nullptr);
           word_str += " ";
-          fprintf(output_ambig_words_file_, "%s", word_str.string());
+          fprintf(output_ambig_words_file_, "%s", word_str.c_str());
         }
         STRING word_str;
         word->string_and_lengths(&word_str, nullptr);
         word_str += " ";
-        fprintf(output_ambig_words_file_, "%s", word_str.string());
+        fprintf(output_ambig_words_file_, "%s", word_str.c_str());
       }
       WERD_CHOICE *adjusted_word = word;
       adjusted_word->set_permuter(more_args->permuter);
@@ -150,7 +150,7 @@ void Dict::go_deeper_dawg_fxn(
   } else {
       if (dawg_debug_level) {
         tprintf("last unichar not OK at index %d in %s\n",
-                word_index, word->debug_string().string());
+                word_index, word->debug_string().c_str());
     }
   }
 }
@@ -209,7 +209,7 @@ void Dict::permute_choices(
     tprintf("%s permute_choices: char_choice_index=%d"
             " limit=%g rating=%g, certainty=%g word=%s\n",
             debug, char_choice_index, *limit, word->rating(),
-            word->certainty(), word->debug_string().string());
+            word->certainty(), word->debug_string().c_str());
   }
   if (char_choice_index < char_choices.length()) {
     BLOB_CHOICE_IT blob_choice_it;
@@ -324,13 +324,13 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
   // Print debug info for fragments.
   if (debug && (prev_fragment || this_fragment)) {
     tprintf("%s check fragments: choice=%s word_ending=%d\n", debug,
-            getUnicharset().debug_str(curr_unichar_id).string(),
+            getUnicharset().debug_str(curr_unichar_id).c_str(),
             word_ending);
     if (prev_fragment) {
-      tprintf("prev_fragment %s\n", prev_fragment->to_string().string());
+      tprintf("prev_fragment %s\n", prev_fragment->to_string().c_str());
     }
     if (this_fragment) {
-      tprintf("this_fragment %s\n", this_fragment->to_string().string());
+      tprintf("this_fragment %s\n", this_fragment->to_string().c_str());
     }
   }
 
@@ -358,7 +358,7 @@ bool Dict::fragment_state_okay(UNICHAR_ID curr_unichar_id,
         if (debug) {
           tprintf("Built character %s from fragments\n",
                   getUnicharset().debug_str(
-                      char_frag_info->unichar_id).string());
+                      char_frag_info->unichar_id).c_str());
         }
       } else {
         if (debug) tprintf("Record fragment continuation\n");

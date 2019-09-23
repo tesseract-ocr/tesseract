@@ -132,15 +132,15 @@ PAGE_RES* Tesseract::ApplyBoxes(const STRING& fname,
                                  (i == 0) ? nullptr : &boxes[i - 1],
                                  boxes[i],
                                  (i == box_count - 1) ? nullptr : &boxes[i + 1],
-                                 full_texts[i].string());
+                                 full_texts[i].c_str());
     } else {
       foundit = ResegmentWordBox(block_list, boxes[i],
                                  (i == box_count - 1) ? nullptr : &boxes[i + 1],
-                                 texts[i].string());
+                                 texts[i].c_str());
     }
     if (!foundit) {
       box_failures++;
-      ReportFailedBox(i, boxes[i], texts[i].string(),
+      ReportFailedBox(i, boxes[i], texts[i].c_str(),
                       "FAILURE! Couldn't find a matching blob");
     }
   }
@@ -408,7 +408,7 @@ bool Tesseract::ResegmentCharBox(PAGE_RES* page_res, const TBOX* prev_box,
           tprintf("\n");
           tprintf("Correct text = [[ ");
           for (int j = 0; j < word_res->correct_text.size(); ++j) {
-            tprintf("%s ", word_res->correct_text[j].string());
+            tprintf("%s ", word_res->correct_text[j].c_str());
           }
           tprintf("]]\n");
         }
@@ -784,7 +784,7 @@ void Tesseract::CorrectClassifyWords(PAGE_RES* page_res) {
       // rest is the bounding box location and page number.
       GenericVector<STRING> tokens;
       word_res->correct_text[i].split(' ', &tokens);
-      UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].string());
+      UNICHAR_ID char_id = unicharset.unichar_to_id(tokens[0].c_str());
       choice->append_unichar_id_space_allocated(char_id,
                                                 word_res->best_state[i],
                                                 0.0f, 0.0f);
@@ -805,7 +805,7 @@ void Tesseract::ApplyBoxTraining(const STRING& fontname, PAGE_RES* page_res) {
   int word_count = 0;
   for (WERD_RES *word_res = pr_it.word(); word_res != nullptr;
        word_res = pr_it.forward()) {
-    LearnWord(fontname.string(), word_res);
+    LearnWord(fontname.c_str(), word_res);
     ++word_count;
   }
   tprintf("Generated training data for %d words\n", word_count);

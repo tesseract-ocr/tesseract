@@ -293,7 +293,7 @@ static void PrintLangsList(tesseract::TessBaseAPI* api) {
   printf("List of available languages (%d):\n", languages.size());
   for (int index = 0; index < languages.size(); ++index) {
     STRING& string = languages[index];
-    printf("%s\n", string.string());
+    printf("%s\n", string.c_str());
   }
   api->End();
 }
