@@ -237,6 +237,8 @@ class ChoiceIterator {
   bool oemLSTM_;
   // true when there is legacy engine related trained data
   bool oemLegacy_;
+  // true when lstm_choice_mode is activated
+  bool lstm_choice_mode_;
   // regulates the rating granularity
   double rating_coefficient_;
   // leading blanks
