@@ -228,7 +228,9 @@ TEST_F(StringRendererTest, ArabicBoxcharsInLTROrder) {
   EXPECT_TRUE(ReadMemBoxes(0, false, boxes_str.c_str(), false, nullptr, &texts,
                            nullptr, nullptr));
   std::string ltr_str;
-  for (int i = 0; i < texts.size(); ++i) ltr_str += texts[i].string();
+  for (int i = 0; i < texts.size(); ++i) {
+    ltr_str += texts[i].c_str();
+  }
   // The string should come out perfectly reversed, despite there being a
   // ligature.
   EXPECT_EQ(ltr_str, kRevWord);

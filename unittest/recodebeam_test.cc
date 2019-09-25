@@ -197,10 +197,10 @@ class RecodeBeamTest : public ::testing::Test {
         const WERD_RES* word = (*words)[w];
         if (w_decoded.size() < truth_utf8.size()) {
           if (!w_decoded.empty() && word->word->space()) w_decoded += " ";
-          w_decoded += word->best_choice->unichar_string().string();
+          w_decoded += word->best_choice->unichar_string().c_str();
         }
         LOG(INFO) << absl::StrFormat("Word:%d = %s, c=%g, r=%g, perm=%d", w,
-                                  word->best_choice->unichar_string().string(),
+                                  word->best_choice->unichar_string().c_str(),
                                   word->best_choice->certainty(),
                                   word->best_choice->rating(),
                                   word->best_choice->permuter()) << "\n";
@@ -464,7 +464,7 @@ TEST_F(RecodeBeamTest, DISABLED_ChiDictionary) {
                                      SYSTEM_DAWG_PERM};
   EXPECT_EQ(kNumWords, words.size());
   for (int w = 0; w < kNumWords && w < words.size(); ++w) {
-    EXPECT_STREQ(kWords[w], words[w]->best_choice->unichar_string().string());
+    EXPECT_STREQ(kWords[w], words[w]->best_choice->unichar_string().c_str());
     EXPECT_EQ(kWordPerms[w], words[w]->best_choice->permuter());
   }
 }

@@ -90,7 +90,7 @@ TEST_F(ImagedataTest, CachesProperly) {
       //EXPECT_NE(reinterpret_cast<ImageData*>(nullptr), imagedata);
       // Check that this is the right page.
       EXPECT_STREQ(page_texts[page].c_str(),
-                   imagedata->transcription().string());
+                   imagedata->transcription().c_str());
     }
   }
 }
@@ -123,11 +123,11 @@ TEST_F(ImagedataTest, CachesMultiDocs) {
     int robin_page = p / kNumPages.size() % kNumPages[robin_doc];
     // Check that this is the right page.
     EXPECT_STREQ(page_texts[robin_doc][robin_page].c_str(),
-                 robin_data->transcription().string());
+                 robin_data->transcription().c_str());
     int serial_doc = p / kNumPages[0] % kNumPages.size();
     int serial_page = p % kNumPages[0] % kNumPages[serial_doc];
     EXPECT_STREQ(page_texts[serial_doc][serial_page].c_str(),
-                 serial_data->transcription().string());
+                 serial_data->transcription().c_str());
   }
 }
 

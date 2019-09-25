@@ -118,7 +118,7 @@ class LSTMTrainerTest : public testing::Test {
       trainer_->MaintainCheckpoints(nullptr, &log_str);
       iteration = trainer_->training_iteration();
       mean_error *= 100.0 / kBatchIterations;
-      LOG(INFO) << log_str.string();
+      LOG(INFO) << log_str.c_str();
       LOG(INFO) << "Best error = " << best_error << "\n" ;
       LOG(INFO) << "Mean error = " << mean_error << "\n" ;
       if (mean_error < best_error) best_error = mean_error;
