@@ -30,7 +30,6 @@ noinst_HEADERS = \
 if !DISABLED_LEGACY_ENGINE
 noinst_HEADERS += fontinfo.h
 noinst_HEADERS += params_training_featdef.h
-noinst_HEADERS += vecfuncs.h
 endif
 
 noinst_LTLIBRARIES = libtesseract_ccstruct.la
@@ -49,5 +48,4 @@ libtesseract_ccstruct_la_SOURCES = \
 if !DISABLED_LEGACY_ENGINE
 libtesseract_ccstruct_la_SOURCES += fontinfo.cpp
 libtesseract_ccstruct_la_SOURCES += params_training_featdef.cpp
-libtesseract_ccstruct_la_SOURCES += vecfuncs.cpp
 endif

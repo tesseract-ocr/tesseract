@@ -35,9 +35,28 @@
 #endif
 
 namespace tesseract {
-/*----------------------------------------------------------------------
-              F u n c t i o n s
-----------------------------------------------------------------------*/
+
+// Show if the line is going in the positive or negative X direction.
+static int direction(const EDGEPT* point) {
+  //* direction to return
+  int dir = 0;
+  //* prev point
+  const EDGEPT* prev = point->prev;
+  //* next point
+  const EDGEPT* next = point->next;
+
+  if (((prev->pos.x <= point->pos.x) && (point->pos.x < next->pos.x)) ||
+      ((prev->pos.x < point->pos.x) && (point->pos.x <= next->pos.x))) {
+    dir = 1;
+  }
+  if (((prev->pos.x >= point->pos.x) && (point->pos.x > next->pos.x)) ||
+      ((prev->pos.x > point->pos.x) && (point->pos.x >= next->pos.x))) {
+    dir = -1;
+  }
+
+  return dir;
+}
+
 /**
  * @name point_priority
  *
@@ -90,14 +109,14 @@ int Wordrec::angle_change(EDGEPT *point1, EDGEPT *point2, EDGEPT *point3) {
   vector2.x = point3->pos.x - point2->pos.x;
   vector2.y = point3->pos.y - point2->pos.y;
   /* Use cross product */
-  float length = std::sqrt(static_cast<float>(LENGTH(vector1)) * LENGTH(vector2));
+  float length = std::sqrt(static_cast<float>(vector1.length()) * vector2.length());
   if (static_cast<int>(length) == 0)
     return (0);
-  angle = static_cast<int>(floor(asin(CROSS (vector1, vector2) /
+  angle = static_cast<int>(floor(asin(vector1.cross(vector2) /
                                       length) / M_PI * 180.0 + 0.5));
 
   /* Use dot product */
-  if (SCALAR (vector1, vector2) < 0)
+  if (vector1.dot(vector2) < 0)
     angle = 180 - angle;
   /* Adjust angle */
   if (angle > 180)

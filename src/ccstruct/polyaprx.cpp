@@ -26,7 +26,6 @@
 #include "points.h"            // for ICOORD
 #include "rect.h"              // for TBOX
 #include "tprintf.h"           // for tprintf
-#include "vecfuncs.h"          // for LENGTH, point_diff, CROSS
 
 #define FASTEDGELENGTH    256
 
@@ -351,18 +350,18 @@ void fix2(                //polygonal approx
   do {
     if (fixed_count <= 3)
       break;                     //already too few
-    point_diff (d12vec, edgefix1->pos, edgefix2->pos);
-    d12 = LENGTH (d12vec);
+    d12vec.diff(edgefix1->pos, edgefix2->pos);
+    d12 = d12vec.length();
     // TODO(rays) investigate this change:
     // Only unfix a point if it is part of a low-curvature section
     // of outline and the total angle change of the outlines is
     // less than 90 degrees, ie the scalar product is positive.
-    // if (d12 <= gapmin && SCALAR(edgefix0->vec, edgefix2->vec) > 0) {
+    // if (d12 <= gapmin && edgefix0->vec.dot(edgefix2->vec) > 0) {
     if (d12 <= gapmin) {
-      point_diff (d01vec, edgefix0->pos, edgefix1->pos);
-      d01 = LENGTH (d01vec);
-      point_diff (d23vec, edgefix2->pos, edgefix3->pos);
-      d23 = LENGTH (d23vec);
+      d01vec.diff(edgefix0->pos, edgefix1->pos);
+      d01 = d01vec.length();
+      d23vec.diff(edgefix2->pos, edgefix3->pos);
+      d23 = d23vec.length();
       if (d01 > d23) {
         edgefix2->flags[FLAGS] &= ~FIXED;
         fixed_count--;
@@ -537,7 +536,7 @@ void cutline(                //recursive refine
   edge = edge->next;             /*move to actual point */
   maxpoint = edge;               /*in case there isn't one */
   do {
-    perp = CROSS (vec, vecsum);  /*get perp distance */
+    perp = vec.cross(vecsum);    // get perp distance
     if (perp != 0) {
       perp *= perp;              /*squared deviation */
     }
@@ -555,7 +554,7 @@ void cutline(                //recursive refine
   }
   while (edge != last);          /*test all line */
 
-  perp = LENGTH (vecsum);
+  perp = vecsum.length();
   ASSERT_HOST (perp != 0);
 
   if (maxperp < 256 * INT16_MAX) {
