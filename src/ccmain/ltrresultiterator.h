@@ -3,7 +3,6 @@
 // Description: Iterator for tesseract results in strict left-to-right
 //              order that avoids using tesseract internal data structures.
 // Author:      Ray Smith
-// Created:     Fri Feb 26 11:01:06 PST 2010
 //
 // (C) Copyright 2010, Google Inc.
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -233,16 +232,12 @@ class ChoiceIterator {
   std::vector<std::pair<const char*, float>>::iterator LSTM_choice_it_;
 
   const int* tstep_index_;
-  // true when there is lstm engine related trained data
-  bool oemLSTM_;
-  // true when there is legacy engine related trained data
-  bool oemLegacy_;
-  // true when lstm_choice_mode is activated
-  bool lstm_choice_mode_;
   // regulates the rating granularity
   double rating_coefficient_;
   // leading blanks
   int blanks_before_word_;
+  // true when there is lstm engine related trained data
+  bool oemLSTM_;
 };
 
 }  // namespace tesseract.

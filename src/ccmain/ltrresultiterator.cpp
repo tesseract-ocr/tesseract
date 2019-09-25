@@ -377,8 +377,10 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
   ASSERT_HOST(result_it.it_->word() != nullptr);
   word_res_ = result_it.it_->word();
   oemLSTM_ = word_res_->tesseract->AnyLSTMLang();
-  oemLegacy_ = word_res_->tesseract->AnyTessLang();
-  lstm_choice_mode_ = word_res_->tesseract->lstm_choice_mode;
+  // Is there legacy engine related trained data?
+  bool oemLegacy = word_res_->tesseract->AnyTessLang();
+  // Is lstm_choice_mode activated?
+  bool lstm_choice_mode = word_res_->tesseract->lstm_choice_mode;
   rating_coefficient_ = word_res_->tesseract->lstm_rating_coefficient;
   blanks_before_word_ = result_it.BlanksBeforeWord();
   BLOB_CHOICE_LIST* choices = nullptr; 
@@ -394,7 +396,7 @@ ChoiceIterator::ChoiceIterator(const LTRResultIterator& result_it) {
       filterSpaces();
     }
   }
-  if ((oemLegacy_ || !lstm_choice_mode_) && word_res_->ratings != nullptr)
+  if ((oemLegacy || !lstm_choice_mode) && word_res_->ratings != nullptr)
     choices = word_res_->GetBlobChoices(result_it.blob_index_);
   if (choices != nullptr && !choices->empty()) {
     choice_it_ = new BLOB_CHOICE_IT(choices);
@@ -469,7 +471,7 @@ ChoiceIterator::Timesteps() const {
   if (offset >= word_res_->segmented_timesteps.size() || !oemLSTM_) {
     return nullptr;
   }
-  return &word_res_->segmented_timesteps[*tstep_index_ + blanks_before_word_];
+  return &word_res_->segmented_timesteps[offset];
 }
 
 void ChoiceIterator::filterSpaces() {
