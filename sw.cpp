@@ -79,7 +79,7 @@ void build(Solution &s)
 
         if (libtesseract.getBuildSettings().TargetOS.Type == OSType::Windows)
         {
-            libtesseract.Public += "ws2_32.lib"_l;
+            libtesseract.Public += "ws2_32.lib"_slib;
             libtesseract.Protected += "NOMINMAX"_def;
         }
 
@@ -159,7 +159,7 @@ void build(Solution &s)
             for (auto f : files)
             {
                 libtesseract.check_absolute(f);
-                fs::copy_file(f, d / f.filename(), fs::copy_options::overwrite_existing);
+                fs::copy_file(f, d / f.filename(), fs::copy_options::update_existing);
             }
         }
     }
