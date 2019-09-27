@@ -540,7 +540,6 @@ install(FILES
 
     #from lstm/makefile.am
     src/lstm/convolve.h
-    src/lstm/ctc.h
     src/lstm/fullyconnected.h
     src/lstm/functions.h
     src/lstm/input.h
@@ -548,7 +547,6 @@ install(FILES
     src/lstm/lstmrecognizer.h
     src/lstm/lstmtrainer.h
     src/lstm/maxpool.h
-    src/lstm/networkbuilder.h
     src/lstm/network.h
     src/lstm/networkio.h
     src/lstm/networkscratch.h
