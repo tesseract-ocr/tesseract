@@ -115,6 +115,11 @@ if (STATIC)
     set(LIBRARY_TYPE)
 endif()
 
+# auto optimize
+include(OptimizeForArchitecture)
+AutodetectHostArchitecture()
+OptimizeForArchitecture()
+
 # Compiler specific environments
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CLANG 1)
@@ -211,10 +216,6 @@ find_package(OpenCL QUIET)
 #
 ###############################################################################
 
-# auto optimize
-include(OptimizeForArchitecture)
-AutodetectHostArchitecture()
-OptimizeForArchitecture()
 foreach(flag ${Vc_ARCHITECTURE_FLAGS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
 endforeach()
