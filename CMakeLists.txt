@@ -86,6 +86,8 @@ endif()
 #
 ###############################################################################
 
+include(CheckCXXCompilerFlag)
+
 # Check for C++ standard to use
 get_property(known_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
 if (cxx_std_17 IN_LIST known_features)
@@ -216,7 +218,7 @@ find_package(OpenCL QUIET)
 ###############################################################################
 
 foreach(flag ${Vc_ARCHITECTURE_FLAGS})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+    set(Vc_CXX_FLAGS "${Vc_CXX_FLAGS} ${flag}")
 endforeach()
 
 # add definition as expected in src/arch/simddetect.cpp
@@ -234,13 +236,12 @@ foreach(flag ${_enable_vector_unit_list})  # from OptimizeForArchitecture()
         set("${flag}_OPT" ON)
     endif()
 endforeach(flag)
-FILE(GLOB arch_files "src/arch/*.cpp")
-set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${sim_flags}")
-include(CheckCXXCompilerFlag)
+if (NOT MSVC)
+   set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -O3 -ffast-math")
+endif()
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 if(COMPILER_SUPPORTS_MARCH_NATIVE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mtune=native")
-    set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math")
+    set(MARCH_NATIVE_FLAGS "${MARCH_NATIVE_FLAGS} -march=native -mtune=native")
     set(MARCH_NATIVE_OPT ON)
 endif()
 
@@ -323,7 +324,6 @@ include_directories(${Leptonica_INCLUDE_DIRS})
 include_directories(${LibArchive_INCLUDE_DIRS})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 include_directories(src/api)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/api)
 include_directories(src/arch)
@@ -349,9 +349,6 @@ endif()
 ########################################
 
 file(GLOB tesseract_src
-    src/arch/simddetect.cpp
-    src/arch/intsimdmatrix.cpp
-    src/arch/dotproduct.cpp
     src/ccmain/*.cpp
     src/ccstruct/*.cpp
     src/ccutil/*.cpp
@@ -365,18 +362,30 @@ file(GLOB tesseract_src
     src/wordrec/*.cpp
 )
 
+list(APPEND arch_files
+    src/arch/dotproduct.cpp
+    src/arch/simddetect.cpp
+    src/arch/intsimdmatrix.cpp
+)
+set_source_files_properties(${arch_files} PROPERTIES COMPILE_FLAGS "${sim_flags}")
+set_source_files_properties(src/arch/dotproduct.cpp PROPERTIES COMPILE_FLAGS "${MARCH_NATIVE_FLAGS} ${Vc_CXX_FLAGS}")
 if(AVX_OPT)
-   list(APPEND tesseract_src src/arch/dotproductavx.cpp)
+   list(APPEND arch_files_opt src/arch/dotproductavx.cpp)
+   set_source_files_properties(src/arch/dotproductavx.cpp PROPERTIES COMPILE_FLAGS "-DAVX")
 endif(AVX_OPT)
 if(AVX2_OPT)
-   list(APPEND tesseract_src src/arch/intsimdmatrixavx2.cpp)
+   list(APPEND arch_files_opt src/arch/intsimdmatrixavx2.cpp)
+   set_source_files_properties(src/arch/intsimdmatrixavx2.cpp PROPERTIES COMPILE_FLAGS "-DAVX2")
 endif(AVX2_OPT)
 if(FMA_OPT)
-   list(APPEND tesseract_src src/arch/dotproductfma.cpp)
+   list(APPEND arch_files_opt src/arch/dotproductfma.cpp)
+   set_source_files_properties(src/arch/dotproductfma.cpp PROPERTIES COMPILE_FLAGS "-mfma")
 endif(FMA_OPT)
 if(SSE41_OPT)
-   list(APPEND tesseract_src src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
+   list(APPEND arch_files_opt src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp)
+   set_source_files_properties(src/arch/dotproductsse.cpp src/arch/intsimdmatrixsse.cpp PROPERTIES COMPILE_FLAGS "-DSSE4_1 -msse4.1")
 endif(SSE41_OPT)
+set_source_files_properties(${arch_files_opt} PROPERTIES COMPILE_FLAGS "${Vc_CXX_FLAGS}")
 
 file(GLOB tesseract_hdr
     src/api/*.h
@@ -415,8 +424,8 @@ if (WIN32)
     endif()  # MSVC
 endif()
 
-add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${tesseract_hdr}
-    ${tesseract_rsc}
+add_library                     (libtesseract ${LIBRARY_TYPE} ${tesseract_src} ${arch_files}
+    ${arch_files_opt} ${tesseract_hdr} ${tesseract_rsc}
     )
 if (NOT STATIC)
 target_compile_definitions      (libtesseract
