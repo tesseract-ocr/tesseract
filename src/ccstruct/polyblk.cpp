@@ -409,7 +409,7 @@ ScrollView::Color POLY_BLOCK::ColorForPolyBlockType(PolyBlockType type) {
     ScrollView::DARK_GREEN,   // Vertical Line.
     ScrollView::GREY          // Lies outside of any column.
   };
-  if (type >= 0 && type < PT_COUNT) {
+  if (type < PT_COUNT) {
     return kPBColors[type];
   }
   return ScrollView::WHITE;
