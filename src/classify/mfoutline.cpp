@@ -63,7 +63,7 @@ MFOUTLINE ConvertOutline(TESSLINE *outline) {
     if (EdgePoint->pos.x != NextPoint->pos.x ||
         EdgePoint->pos.y != NextPoint->pos.y) {
       NewPoint = NewEdgePoint();
-      ClearMark(NewPoint);
+      NewPoint->ClearMark();
       NewPoint->Hidden = EdgePoint->IsHidden();
       NewPoint->Point.x = EdgePoint->pos.x;
       NewPoint->Point.y = EdgePoint->pos.y;
@@ -192,7 +192,7 @@ void MarkDirectionChanges(MFOUTLINE Outline) {
   Last = First;
   do {
     Current = NextDirectionChange (Last);
-    MarkPoint (PointAt (Current));
+    PointAt(Current)->MarkPoint();
     Last = Current;
   }
   while (Last != First);
@@ -303,7 +303,8 @@ void Classify::NormalizeOutlines(LIST Outlines,
  * starts at Start and ends at End.  Note that the previous
  * direction of End must also be changed to reflect the
  * change in direction of the point before it.
- * @param Start, End  defines segment of outline to be modified
+ * @param Start defines start of segment of outline to be modified
+ * @param End defines end of segment of outline to be modified
  * @param Direction new direction to assign to segment
  */
 void ChangeDirection(MFOUTLINE Start, MFOUTLINE End, DIRECTION Direction) {
