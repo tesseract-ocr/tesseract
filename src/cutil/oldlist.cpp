@@ -167,13 +167,8 @@ LIST last(LIST var_list) {
  *  that it occupied in the list.
  **********************************************************************/
 LIST pop(LIST list) {
-  LIST temp;
-
-  temp = list_rest(list);
-
-  if (list != NIL_LIST) {
-    delete list;
-  }
+  LIST temp = list_rest(list);
+  delete list;
   return (temp);
 }
 
