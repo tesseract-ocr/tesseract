@@ -26,12 +26,9 @@
 #include "oldlist.h"
 #include "params.h"
 
-#define NORMAL_X_HEIGHT (0.5)
-#define NORMAL_BASELINE (0.0)
-
 using MFOUTLINE = LIST;
 
-typedef enum {
+enum DIRECTION : uint8_t {
   north,
   south,
   east,
@@ -40,39 +37,56 @@ typedef enum {
   northwest,
   southeast,
   southwest
-} DIRECTION;
+};
 
-typedef struct {
+struct MFEDGEPT {
+  // Inline functions for manipulating micro-feature outline edge points.
+
+  void ClearMark() {
+    ExtremityMark = false;
+  }
+
+  void MarkPoint() {
+    ExtremityMark = true;
+  }
+
   FPOINT Point;
   float Slope;
-  unsigned Padding : 20;
-  bool Hidden : true;
-  bool ExtremityMark : true;
-  DIRECTION Direction : 4;
-  DIRECTION PreviousDirection : 4;
-} MFEDGEPT;
+  bool Hidden;
+  bool ExtremityMark;
+  DIRECTION Direction;
+  DIRECTION PreviousDirection;
+};
 
-typedef enum { outer, hole } OUTLINETYPE;
+enum OUTLINETYPE { outer, hole };
 
-typedef enum { baseline, character } NORM_METHOD;
+enum NORM_METHOD { baseline, character };
 
 /**----------------------------------------------------------------------------
           Macros
 ----------------------------------------------------------------------------**/
 #define AverageOf(A, B) (((A) + (B)) / 2)
 
-/* macro for computing the scale factor to use to normalize characters */
-#define MF_SCALE_FACTOR (NORMAL_X_HEIGHT / kBlnXHeight)
+// Constant for computing the scale factor to use to normalize characters.
+const float MF_SCALE_FACTOR = 0.5f / kBlnXHeight;
 
-/* macros for manipulating micro-feature outlines */
-#define DegenerateOutline(O) (((O) == NIL_LIST) || ((O) == list_rest(O)))
-#define PointAt(O) ((MFEDGEPT*)first_node(O))
-#define NextPointAfter(E) (list_rest(E))
-#define MakeOutlineCircular(O) (set_rest(last(O), (O)))
+// Inline functions for manipulating micro-feature outlines.
 
-/* macros for manipulating micro-feature outline edge points */
-#define ClearMark(P) ((P)->ExtremityMark = false)
-#define MarkPoint(P) ((P)->ExtremityMark = true)
+static inline bool DegenerateOutline(MFOUTLINE Outline) {
+  return (Outline == NIL_LIST) || (Outline == list_rest(Outline));
+}
+
+static inline MFEDGEPT* PointAt(MFOUTLINE Outline) {
+  return reinterpret_cast<MFEDGEPT*>first_node(Outline);
+}
+
+static inline MFOUTLINE NextPointAfter(MFOUTLINE Outline) {
+  return list_rest(Outline);
+}
+
+static inline void MakeOutlineCircular(MFOUTLINE Outline) {
+  set_rest(last(Outline), Outline);
+}
 
 /**----------------------------------------------------------------------------
           Public Function Prototypes

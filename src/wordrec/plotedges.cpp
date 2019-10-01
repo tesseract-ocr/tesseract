@@ -67,12 +67,11 @@ void display_edgepts(LIST outlines) {
  * Display the edges of this blob in the edges window.
  **********************************************************************/
 void draw_blob_edges(TBLOB *blob) {
-  TESSLINE *ol;
-  LIST edge_list = NIL_LIST;
-
   if (wordrec_display_splits) {
-    for (ol = blob->outlines; ol != nullptr; ol = ol->next)
-      push_on (edge_list, ol->loop);
+    LIST edge_list = NIL_LIST;
+    for (TESSLINE* ol = blob->outlines; ol != nullptr; ol = ol->next) {
+      edge_list = push(edge_list, ol->loop);
+    }
     display_edgepts(edge_list);
     destroy(edge_list);
   }
