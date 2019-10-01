@@ -428,6 +428,9 @@ AC_CHECK_TYPES([mbstate_t],,, [#include "wchar.h"])
 # Test auxiliary packages
 # ----------------------------------------
 
+PKG_CHECK_MODULES([libcurl], [libcurl], [have_libcurl=true], [have_libcurl=false])
+AM_CONDITIONAL([HAVE_LIBCURL], $have_libcurl)
+
 PKG_CHECK_MODULES([LEPTONICA], [lept >= 1.74], [have_lept=true], [have_lept=false])
 if $have_lept; then
   CPPFLAGS="$CPPFLAGS $LEPTONICA_CFLAGS"
