@@ -17,9 +17,10 @@
  **********************************************************************/
 
 #include "boxread.h"
-#include <cstring>          // for strchr, strcmp, strrchr
+#include <cstring>          // for strchr, strcmp
 #include <locale>           // for std::locale::classic
 #include <sstream>          // for std::stringstream
+#include <string>           // for std::string
 #include "errcode.h"        // for ERRCODE, TESSEXIT
 #include "fileerr.h"        // for CANTOPENFILE
 #include "genericvector.h"  // for GenericVector
@@ -32,9 +33,26 @@
 // Special char code used to identify multi-blob labels.
 static const char* kMultiBlobLabelCode = "WordStr";
 
+// Returns the box file name corresponding to the given image_filename.
+static std::string BoxFileName(const char* image_filename) {
+  std::string box_filename = image_filename;
+  size_t length = box_filename.length();
+  std::string last = (length > 8) ? box_filename.substr(length - 8) : "";
+  if (last == ".bin.png" || last == ".nrm.png") {
+    box_filename.resize(length - 8);
+  } else {
+    size_t lastdot = box_filename.find_last_of('.');
+    if (lastdot < length) {
+      box_filename.resize(lastdot);
+    }
+  }
+  box_filename += ".box";
+  return box_filename;
+}
+
 // Open the boxfile based on the given image filename.
 FILE* OpenBoxFile(const STRING& fname) {
-  STRING filename = BoxFileName(fname);
+  std::string filename = BoxFileName(fname.c_str());
   FILE* box_file = nullptr;
   if (!(box_file = fopen(filename.c_str(), "rb"))) {
     CANTOPENFILE.error("read_next_box", TESSEXIT, "Can't open box file %s",
@@ -56,7 +74,7 @@ bool ReadAllBoxes(int target_page, bool skip_blanks, const STRING& filename,
                   GenericVector<STRING>* box_texts,
                   GenericVector<int>* pages) {
   GenericVector<char> box_data;
-  if (!tesseract::LoadDataFromFile(BoxFileName(filename).c_str(), &box_data))
+  if (!tesseract::LoadDataFromFile(BoxFileName(filename.c_str()).c_str(), &box_data))
     return false;
   // Convert the array of bytes to a string, so it can be used by the parser.
   box_data.push_back('\0');
@@ -100,17 +118,6 @@ bool ReadMemBoxes(int target_page, bool skip_blanks, const char* box_data,
     ++num_boxes;
   }
   return num_boxes > 0;
-}
-
-// Returns the box file name corresponding to the given image_filename.
-STRING BoxFileName(const STRING& image_filename) {
-  STRING box_filename = image_filename;
-  const char *lastdot = strrchr(box_filename.c_str(), '.');
-  if (lastdot != nullptr)
-    box_filename.truncate_at(lastdot - box_filename.c_str());
-
-  box_filename += ".box";
-  return box_filename;
 }
 
 // TODO(rays) convert all uses of ReadNextBox to use the new ReadAllBoxes.
