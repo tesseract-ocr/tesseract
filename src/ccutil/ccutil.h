@@ -69,8 +69,6 @@ class CCUtil {
   // These have to be declared and initialized after params_ member, since
   // params_ should be initialized before parameters are added to it.
   INT_VAR_H(ambigs_debug_level, 0, "Debug level for unichar ambiguities");
-  BOOL_VAR_H(use_definite_ambigs_for_classifier, false,
-             "Use definite ambiguities when running character classifier");
   BOOL_VAR_H(use_ambigs_for_adaption, false,
              "Use ambigs for deciding whether to adapt to a character");
 };

@@ -105,8 +105,6 @@ Dict::Dict(CCUtil* ccutil)
                  getCCUtil()->params()),
       INT_MEMBER(hyphen_debug_level, 0, "Debug level for hyphenated words.",
                  getCCUtil()->params()),
-      INT_MEMBER(max_viterbi_list_size, 10, "Maximum size of viterbi list.",
-                 getCCUtil()->params()),
       BOOL_MEMBER(use_only_first_uft8_step, false,
                   "Use only the first UTF8 step of the given string"
                   " when computing log probabilities.",
@@ -140,11 +138,6 @@ Dict::Dict(CCUtil* ccutil)
                     "Word for which stopper debug"
                     " information should be printed to stdout",
                     getCCUtil()->params()),
-      STRING_MEMBER(word_to_debug_lengths, "",
-                    "Lengths of unichars in word_to_debug",
-                    getCCUtil()->params()),
-      INT_MEMBER(fragments_debug, 0, "Debug character fragments",
-                 getCCUtil()->params()),
       BOOL_MEMBER(segment_nonalphabetic_script, false,
                   "Don't use any alphabetic-specific tricks."
                   " Set to true in the traineddata config file for"

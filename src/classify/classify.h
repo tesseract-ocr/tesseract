@@ -434,10 +434,6 @@ class Classify : public CCStruct {
   INT_VAR_H(classify_norm_method, character, "Normalization Method   ...");
   double_VAR_H(classify_char_norm_range, 0.2,
              "Character Normalization Range ...");
-  double_VAR_H(classify_min_norm_scale_x, 0.0, "Min char x-norm scale ...");
-  double_VAR_H(classify_max_norm_scale_x, 0.325, "Max char x-norm scale ...");
-  double_VAR_H(classify_min_norm_scale_y, 0.0, "Min char y-norm scale ...");
-  double_VAR_H(classify_max_norm_scale_y, 0.325, "Max char y-norm scale ...");
   double_VAR_H(classify_max_rating_ratio, 1.5,
                "Veto ratio between classifier ratings");
   double_VAR_H(classify_max_certainty_margin, 5.5,
@@ -508,7 +504,6 @@ class Classify : public CCStruct {
   INT_VAR_H(classify_integer_matcher_multiplier, 10,
             "Integer Matcher Multiplier  0-255:   ");
 
-  INT_VAR_H(il1_adaption_test, 0, "Don't adapt to i/I at beginning of word");
   BOOL_VAR_H(classify_bln_numeric_mode, 0,
              "Assume the input is numbers [0-9].");
   double_VAR_H(speckle_large_max_size, 0.30, "Max large speckle size");
