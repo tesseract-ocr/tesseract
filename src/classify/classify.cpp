@@ -70,16 +70,6 @@ Classify::Classify()
                  this->params()),
       double_MEMBER(classify_char_norm_range, 0.2,
                     "Character Normalization Range ...", this->params()),
-      double_MEMBER(classify_min_norm_scale_x, 0.0, "Min char x-norm scale ...",
-                    this->params()), /* PREV DEFAULT 0.1 */
-      double_MEMBER(classify_max_norm_scale_x, 0.325,
-                    "Max char x-norm scale ...",
-                    this->params()), /* PREV DEFAULT 0.3 */
-      double_MEMBER(classify_min_norm_scale_y, 0.0, "Min char y-norm scale ...",
-                    this->params()), /* PREV DEFAULT 0.1 */
-      double_MEMBER(classify_max_norm_scale_y, 0.325,
-                    "Max char y-norm scale ...",
-                    this->params()), /* PREV DEFAULT 0.3 */
       double_MEMBER(classify_max_rating_ratio, 1.5,
                     "Veto ratio between classifier ratings", this->params()),
       double_MEMBER(classify_max_certainty_margin, 5.5,
@@ -173,8 +163,6 @@ Classify::Classify()
                  "Class Pruner CutoffStrength:         ", this->params()),
       INT_MEMBER(classify_integer_matcher_multiplier, 10,
                  "Integer Matcher Multiplier  0-255:   ", this->params()),
-      INT_MEMBER(il1_adaption_test, 0,
-                 "Don't adapt to i/I at beginning of word", this->params()),
       BOOL_MEMBER(classify_bln_numeric_mode, 0,
                   "Assume the input is numbers [0-9].", this->params()),
       double_MEMBER(speckle_large_max_size, 0.30, "Max large speckle size",

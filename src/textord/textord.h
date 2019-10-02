@@ -375,10 +375,8 @@ class Textord {
   BOOL_VAR_H(textord_show_boxes, false, "Display boxes");
   INT_VAR_H(textord_max_noise_size, 7, "Pixel size of noise");
   INT_VAR_H(textord_baseline_debug, 0, "Baseline debug level");
-  double_VAR_H(textord_blob_size_bigile, 95, "Percentile for large blobs");
   double_VAR_H(textord_noise_area_ratio, 0.7,
                "Fraction of bounding box for noise");
-  double_VAR_H(textord_blob_size_smallile, 20, "Percentile for small blobs");
   double_VAR_H(textord_initialx_ile, 0.75, "Ile of sizes for xheight guess");
   double_VAR_H(textord_initialasc_ile, 0.90, "Ile of sizes for xheight guess");
   INT_VAR_H(textord_noise_sizefraction, 10, "Fraction of size for maxima");
