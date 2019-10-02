@@ -565,6 +565,9 @@ static void PreloadRenderers(
 
     api->GetBoolVariable("tessedit_create_txt", &b);
     if (b || (!error && renderers->empty())) {
+      // Create text output if no other output was requested
+      // even if text output was not explicitly requested unless
+      // there was an error.
       auto* renderer =
         new tesseract::TessTextRenderer(outputbase);
       if (renderer->happy()) {
@@ -716,13 +719,15 @@ int main(int argc, char** argv) {
     return ret_val;
   }
 
-  // set in_training_mode to true when using one of these configs:
-  // ambigs.train, box.train, box.train.stderr, linebox, rebox
+  // Set in_training_mode to true when using one of these configs:
+  // ambigs.train, box.train, box.train.stderr, linebox, rebox, lstm.train.
+  // In this mode no other OCR result files are written.
   bool b = false;
   bool in_training_mode =
       (api.GetBoolVariable("tessedit_ambigs_training", &b) && b) ||
       (api.GetBoolVariable("tessedit_resegment_from_boxes", &b) && b) ||
-      (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b);
+      (api.GetBoolVariable("tessedit_make_boxes_from_boxes", &b) && b) ||
+      (api.GetBoolVariable("tessedit_train_line_recognizer", &b) && b);
 
 #ifdef DISABLED_LEGACY_ENGINE
   auto cur_psm = api.GetPageSegMode();
