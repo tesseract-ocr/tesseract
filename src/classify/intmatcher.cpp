@@ -571,7 +571,7 @@ void IntegerMatcher::Match(INT_CLASS ClassTemplate,
 
 /**
  * FindGoodProtos finds all protos whose normalized proto-evidence
- * exceed classify_adapt_proto_thresh.  The list is ordered by increasing
+ * exceed AdaptProtoThreshold.  The list is ordered by increasing
  * proto id number.
  *
  * Globals:
