@@ -790,6 +790,8 @@ class Tesseract : public Wordrec {
              "Break input into lines and remap boxes if present");
   BOOL_VAR_H(tessedit_dump_pageseg_images, false,
              "Dump intermediate images made during page segmentation");
+  BOOL_VAR_H(tessedit_do_invert, true,
+             "Try inverting the image in `LSTMRecognizeWord`");
   INT_VAR_H(tessedit_pageseg_mode, PSM_SINGLE_BLOCK,
             "Page seg mode: 0=osd only, 1=auto+osd, 2=auto, 3=col, 4=block,"
             " 5=line, 6=word, 7=char"
