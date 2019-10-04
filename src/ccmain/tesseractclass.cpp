@@ -66,6 +66,8 @@ Tesseract::Tesseract()
       BOOL_MEMBER(tessedit_dump_pageseg_images, false,
                   "Dump intermediate images made during page segmentation",
                   this->params()),
+      BOOL_MEMBER(tessedit_do_invert, true,
+                 "Try inverting the image in `LSTMRecognizeWord`", this->params()),
       // The default for pageseg_mode is the old behaviour, so as not to
       // upset anything that relies on that.
       INT_MEMBER(
