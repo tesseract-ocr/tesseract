@@ -101,11 +101,6 @@ void build(Solution &s)
                 "src/api/renderer.h",
                 "tess_version.h",
 
-                //from arch/makefile.am
-                "src/arch/dotproduct.h",
-                "src/arch/intsimdmatrix.h",
-                "src/arch/simddetect.h",
-
                 //from ccmain/makefile.am
                 "src/ccmain/thresholder.h",
                 "src/ccmain/ltrresultiterator.h",
@@ -117,41 +112,13 @@ void build(Solution &s)
                 "src/ccstruct/publictypes.h",
 
                 //from ccutil/makefile.am
-                "src/ccutil/errcode.h",
-                "src/ccutil/fileerr.h",
                 "src/ccutil/genericvector.h",
                 "src/ccutil/helpers.h",
-                "src/ccutil/params.h",
                 "src/ccutil/ocrclass.h",
                 "src/ccutil/platform.h",
                 "src/ccutil/serialis.h",
                 "src/ccutil/strngs.h",
                 "src/ccutil/unichar.h",
-                "src/ccutil/unicharcompress.h",
-                "src/ccutil/unicharmap.h",
-                "src/ccutil/unicharset.h",
-
-                //from lstm/makefile.am
-                "src/lstm/convolve.h",
-                "src/lstm/fullyconnected.h",
-                "src/lstm/functions.h",
-                "src/lstm/input.h",
-                "src/lstm/lstm.h",
-                "src/lstm/lstmrecognizer.h",
-                "src/lstm/maxpool.h",
-                "src/lstm/network.h",
-                "src/lstm/networkio.h",
-                "src/lstm/networkscratch.h",
-                "src/lstm/parallel.h",
-                "src/lstm/plumbing.h",
-                "src/lstm/recodebeam.h",
-                "src/lstm/reconfig.h",
-                "src/lstm/reversed.h",
-                "src/lstm/series.h",
-                "src/lstm/static_shape.h",
-                "src/lstm/stridemap.h",
-                "src/lstm/tfnetwork.h",
-                "src/lstm/weightmatrix.h",
             };
 
             auto d = libtesseract.BinaryDir / "tesseract";
