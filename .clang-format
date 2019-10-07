@@ -1,9 +1,0 @@
----
-BasedOnStyle:  Google
-# Only merge empty functions.
-AllowShortFunctionsOnASingleLine: Empty
-# Do not allow short if statements.
-AllowShortIfStatementsOnASingleLine: false
-# Enforce always the same pointer alignment.
-DerivePointerAlignment: false
-IndentPPDirectives: AfterHash
