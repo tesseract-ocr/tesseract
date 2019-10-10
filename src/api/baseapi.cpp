@@ -96,6 +96,7 @@
 #include "werd.h"              // for WERD, WERD_IT, W_FUZZY_NON, W_FUZZY_SP
 
 static BOOL_VAR(stream_filelist, false, "Stream a filelist from stdin");
+static STRING_VAR(document_title, "", "Title of output document (used for hOCR and PDF output)");
 
 namespace tesseract {
 
@@ -996,7 +997,7 @@ bool TessBaseAPI::ProcessPagesFileList(FILE *flist,
   }
 
   // Begin producing output
-  if (renderer && !renderer->BeginDocument(unknown_title_)) {
+  if (renderer && !renderer->BeginDocument(document_title.c_str())) {
     return false;
   }
 
@@ -1211,7 +1212,7 @@ bool TessBaseAPI::ProcessPagesInternal(const char* filename,
   }
 
   // Begin the output
-  if (renderer && !renderer->BeginDocument(unknown_title_)) {
+  if (renderer && !renderer->BeginDocument(document_title.c_str())) {
     pixDestroy(&pix);
     return false;
   }

@@ -929,12 +929,6 @@ class TESS_API TessBaseAPI {
                                  int timeout_millisec,
                                  TessResultRenderer* renderer,
                                  int tessedit_page_number);
-  // There's currently no way to pass a document title from the
-  // Tesseract command line, and we have multiple places that choose
-  // to set the title to an empty string. Using a single named
-  // variable will hopefully reduce confusion if the situation changes
-  // in the future.
-  const char *unknown_title_ = "";
 };  // class TessBaseAPI.
 
 /** Escape a char string - remove &<>"' with HTML codes. */

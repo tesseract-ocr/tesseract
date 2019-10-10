@@ -20,6 +20,7 @@
 # include "host.h"    // windows.h for MultiByteToWideChar, ...
 #endif
 #include "renderer.h"
+#include "strngs.h" // for STRING
 
 namespace tesseract {
 
@@ -68,7 +69,7 @@ bool TessAltoRenderer::BeginDocumentHandler() {
   AppendString(title());
 
   AppendString(
-      "\t\t\t</fileName>\n"
+      "</fileName>\n"
       "\t\t</sourceImageInformation>\n"
       "\t\t<OCRProcessing ID=\"OCR_0\">\n"
       "\t\t\t<ocrProcessingStep>\n"
