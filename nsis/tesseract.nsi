@@ -1143,7 +1143,15 @@ Section -un.Main UNSEC0000
   DeleteRegValue HKLM "${REGKEY}" Path
   DeleteRegKey /IfEmpty HKLM "${REGKEY}\Components"
   DeleteRegKey /IfEmpty HKLM "${REGKEY}"
-  RMDir /r "$INSTDIR"
+  Delete "$INSTDIR\*.dll"
+  Delete "$INSTDIR\*.exe"
+  Delete "$INSTDIR\*.html"
+  Delete "$INSTDIR\doc\AUTHORS"
+  Delete "$INSTDIR\doc\LICENSE"
+  Delete "$INSTDIR\doc\README.md"
+  RMDir "$INSTDIR\doc"
+  RMDir /r "$INSTDIR\tessdata"
+  RMDir "$INSTDIR"
 SectionEnd
 
 Function PageReinstall
