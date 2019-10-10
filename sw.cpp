@@ -38,6 +38,8 @@ void build(Solution &s)
             "src/wordrec/.*\\.cpp"_rr,
             "src/wordrec/.*\\.h"_rr;
 
+        libtesseract += "src/training/.*\\.h"_rr;
+
         libtesseract -=
             "src/api/tesseractmain.cpp",
             "src/viewer/svpaint.cpp";
