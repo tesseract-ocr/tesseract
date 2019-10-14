@@ -195,6 +195,8 @@ bool Tesseract::init_tesseract_lang_data(
 #ifndef DISABLED_LEGACY_ENGINE
   else if (!mgr->GetComponent(TESSDATA_UNICHARSET, &fp) ||
            !unicharset.load_from_file(&fp, false)) {
+    tprintf("Error: Tesseract (legacy) engine requested, but components are "
+            "not present in %s!!\n", tessdata_path.c_str());
     return false;
   }
 #endif  // ndef DISABLED_LEGACY_ENGINE
