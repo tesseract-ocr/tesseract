@@ -345,12 +345,24 @@ phase_I_generate_image() {
 
 # Phase UP : Generate (U)nicharset and (P)roperties file.
 phase_UP_generate_unicharset() {
-    tlog "\n=== Phase UP: Generating unicharset and unichar properties files from Training Text ==="
+    tlog "\n=== Phase UP: Generating unicharset and unichar properties files from Training Text and Box Files ==="
 
     local box_files=$(ls ${TRAINING_DIR}/*.box)
     UNICHARSET_FILE="${TRAINING_DIR}/${LANG_CODE}.unicharset"
-    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE}" \
+    UNICHARSET_FILE_FROM_BOXES="${TRAINING_DIR}/${LANG_CODE}.boxes.unicharset"
+    UNICHARSET_FILE_FROM_TEXT="${TRAINING_DIR}/${LANG_CODE}.text.unicharset"
+    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE_FROM_TEXT}" \
       --norm_mode "${NORM_MODE}" ${TRAINING_TEXT}
+    run_command unicharset_extractor --output_unicharset "${UNICHARSET_FILE_FROM_BOXES}" \
+      --norm_mode "${NORM_MODE}" ${box_files}
+    if [[ $(stat -c%s "${UNICHARSET_FILE_FROM_TEXT}" ) -ge $(stat -c%s "${UNICHARSET_FILE_FROM_BOXES}") ]]; 
+    then 
+        tlog "\n=== Using unicharset from Training Text ==="
+        cp "${UNICHARSET_FILE_FROM_TEXT}" "${UNICHARSET_FILE}"
+    else
+        tlog "\n=== Using unicharset from Box Files ==="
+        cp "${UNICHARSET_FILE_FROM_BOXES}" "${UNICHARSET_FILE}"
+    fi
     check_file_readable ${UNICHARSET_FILE}
 
     XHEIGHTS_FILE="${TRAINING_DIR}/${LANG_CODE}.xheights"
