@@ -444,7 +444,6 @@ target_compile_definitions      (libtesseract
 )
 set_target_properties           (libtesseract PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
-target_link_libraries           (libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 set_target_properties           (libtesseract PROPERTIES VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set_target_properties           (libtesseract PROPERTIES SOVERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 if (WIN32)
@@ -475,6 +474,8 @@ else()
     )
     export(TARGETS libtesseract FILE ${CMAKE_CURRENT_BINARY_DIR}/TesseractTargets.cmake)
 endif()
+
+target_link_libraries           (libtesseract PRIVATE ${LIB_Ws2_32} ${LIB_pthread})
 
 if (WIN32 AND CLANG AND OPENMP_BUILD)
     # Workaround for "libomp.lib is not automatically added on Windows"
