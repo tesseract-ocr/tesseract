@@ -419,7 +419,7 @@ def phase_I_generate_image(ctx, par_factor=None):
 
 # Phase UP : Generate (U)nicharset and (P)roperties file.
 def phase_UP_generate_unicharset(ctx):
-    log.info("=== Phase UP: Generating unicharset and unichar properties files ===")
+    log.info("=== Phase UP: Generating unicharset and unichar properties files from Training Text ===")
 
     box_files = pathlib.Path(ctx.training_dir).glob("*.box")
 
@@ -431,7 +431,7 @@ def phase_UP_generate_unicharset(ctx):
         f"{ctx.unicharset_file}",
         "--norm_mode",
         f"{ctx.norm_mode}",
-        *box_files,
+        f"{ctx.training_text}",
     )
     check_file_readable(ctx.unicharset_file)
 
